@@ -2,237 +2,203 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 70577EB64D7
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jun 2023 08:33:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8F8DEB64DD
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jun 2023 10:57:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234410AbjF1Ic5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jun 2023 04:32:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41386 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235307AbjF1Iat (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Jun 2023 04:30:49 -0400
-Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EB1D2D73;
-        Wed, 28 Jun 2023 01:22:58 -0700 (PDT)
-Received: by mail-qk1-x732.google.com with SMTP id af79cd13be357-7659dc74d91so364735385a.0;
-        Wed, 28 Jun 2023 01:22:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1687940577; x=1690532577;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OPlJ3d55zkkCE0158NpdPdIacPtyKpxD+77cxWNgQn4=;
-        b=B/FZcfHwfA80FMXQD1r+by4GfJ0G7ym+e7/y8s8Dee0ja1UvDXu8hKfBtvH2b7omy4
-         iT2OS4wkVrFBsCEOfq2lPYFeWGMp25v0lOosQ2FsDX90HXA1RCJikhqpyOYR57VSWCYU
-         HUZkoJEPXkhwug4GOxIrQue/HFohjUSoIXllRFpNNsKQL73oNgrsqCPqjIbezwC8i8cz
-         hwQQYWWOBblL/zFLWntF32HtInNOxKnpqM5HAlqh5Rip8WXlQLddiQTz7HqF03uRQsJz
-         LC0xfiBf+i0vX0VrRdbjeFnHtWDtSe0L1JFNnd9Icg+eOK0964Pc+8KNOR5dv3Pqy1Dc
-         vfew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687940577; x=1690532577;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=OPlJ3d55zkkCE0158NpdPdIacPtyKpxD+77cxWNgQn4=;
-        b=MjWxZTrHLVlxW/2+31BV5YYgeh7oVR6QRM/zd/g/bIQ+UfSOIYMTIV39niaVN6XXVe
-         NWGyBT+c62OL+iMLLGWpxdK1hMD8rkvIMtUWCleKBUzpWqHADqgOqsgy8zK6UHTcti8o
-         4d2otioCSEu0g6YPvpl57iOTaFibLciu5nbH55Tvcu9wNdrZkOvxHbdULWO88bt8j3QG
-         xY8ba3h8/Gj694q+7nJm2MC/9ZzB2wDOgn2BqjatdIyLp52qMX7XhGbrvP8sQdflynnR
-         gOHUKsqjkx3CGoLQmY3dvya1h2WAesCM4OR7r2UZzq7E9auLXtyPHNpF2hGXYmMsHmXw
-         7lbA==
-X-Gm-Message-State: AC+VfDxgAqpqcbeVeYXKl8wLVUIXm6ndDily+hDmJyUDfkbRcha7HASc
-        uXMfeUsYiqFEJrWGOzhWWWBv9kcHvUyOCuONdZOcV19vzStasQ==
-X-Google-Smtp-Source: ACHHUZ4SZINxUDCT1VOxGKSGnyrORp5xMAlVWVYZ4VVr9D12NJWQpx1JwNxevKpURs5vLH73EZrUYAMXE2UkZpD5Us8=
-X-Received: by 2002:a05:6214:2524:b0:5f4:5af6:1304 with SMTP id
- gg4-20020a056214252400b005f45af61304mr36084024qvb.16.1687936643694; Wed, 28
- Jun 2023 00:17:23 -0700 (PDT)
+        id S231213AbjF1K5B (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jun 2023 06:57:01 -0400
+Received: from foss.arm.com ([217.140.110.172]:53656 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230451AbjF1K4z (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 28 Jun 2023 06:56:55 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6555AC14;
+        Wed, 28 Jun 2023 03:57:38 -0700 (PDT)
+Received: from [10.57.76.180] (unknown [10.57.76.180])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id BC1553F663;
+        Wed, 28 Jun 2023 03:56:51 -0700 (PDT)
+Message-ID: <b2c81404-67df-f841-ef02-919e841f49f2@arm.com>
+Date:   Wed, 28 Jun 2023 11:56:50 +0100
 MIME-Version: 1.0
-References: <20230517034510.15639-1-zegao@tencent.com> <20230517034510.15639-3-zegao@tencent.com>
-In-Reply-To: <20230517034510.15639-3-zegao@tencent.com>
-From:   Yafang Shao <laoar.shao@gmail.com>
-Date:   Wed, 28 Jun 2023 15:16:47 +0800
-Message-ID: <CALOAHbC6UpfFOOibdDiC7xFc5YFUgZnk3MZ=3Ny6we=AcrNbew@mail.gmail.com>
-Subject: Re: [PATCH v3 2/4] fprobe: make fprobe_kprobe_handler recursion free
-To:     Ze Gao <zegao2021@gmail.com>
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.12.0
+Subject: Re: [PATCH v1 01/10] mm: Expose clear_huge_page() unconditionally
+To:     Yu Zhao <yuzhao@google.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Yin Fengwei <fengwei.yin@intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>, x86@kernel.org,
-        bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-trace-kernel@vger.kernel.org,
-        Conor Dooley <conor@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Ze Gao <zegao@tencent.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org
+References: <20230626171430.3167004-1-ryan.roberts@arm.com>
+ <20230626171430.3167004-2-ryan.roberts@arm.com>
+ <CAOUHufacvArJh7NjL_3LT-e3s1X+bazkvbgvEU+KPKGKEoW+dw@mail.gmail.com>
+ <2ff8ccf6-bf36-48b2-7dc2-e6c0d962f8b7@arm.com>
+ <CAOUHufZoT-maN3kY5eYQmrYV48shmKAAancEvabXzfTDncDa9A@mail.gmail.com>
+ <91e3364f-1d1b-f959-636b-4f60bf5a577b@arm.com>
+ <CAOUHufaEwY=cm8mBi4HSbxYBvAr_x4_vyZZM2NYHEt-U7KaFhA@mail.gmail.com>
+From:   Ryan Roberts <ryan.roberts@arm.com>
+In-Reply-To: <CAOUHufaEwY=cm8mBi4HSbxYBvAr_x4_vyZZM2NYHEt-U7KaFhA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 17, 2023 at 11:45=E2=80=AFAM Ze Gao <zegao2021@gmail.com> wrote=
-:
->
-> Current implementation calls kprobe related functions before doing
-> ftrace recursion check in fprobe_kprobe_handler, which opens door
-> to kernel crash due to stack recursion if preempt_count_{add, sub}
-> is traceable in kprobe_busy_{begin, end}.
->
-> Things goes like this without this patch quoted from Steven:
-> "
-> fprobe_kprobe_handler() {
->    kprobe_busy_begin() {
->       preempt_disable() {
->          preempt_count_add() {  <-- trace
->             fprobe_kprobe_handler() {
->                 [ wash, rinse, repeat, CRASH!!! ]
-> "
->
-> By refactoring the common part out of fprobe_kprobe_handler and
-> fprobe_handler and call ftrace recursion detection at the very beginning,
-> the whole fprobe_kprobe_handler is free from recursion.
->
-> Signed-off-by: Ze Gao <zegao@tencent.com>
-> Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-> Link: https://lore.kernel.org/linux-trace-kernel/20230516071830.8190-3-ze=
-gao@tencent.com
-> ---
->  kernel/trace/fprobe.c | 59 ++++++++++++++++++++++++++++++++-----------
->  1 file changed, 44 insertions(+), 15 deletions(-)
->
-> diff --git a/kernel/trace/fprobe.c b/kernel/trace/fprobe.c
-> index 9abb3905bc8e..097c740799ba 100644
-> --- a/kernel/trace/fprobe.c
-> +++ b/kernel/trace/fprobe.c
-> @@ -20,30 +20,22 @@ struct fprobe_rethook_node {
->         char data[];
->  };
->
-> -static void fprobe_handler(unsigned long ip, unsigned long parent_ip,
-> -                          struct ftrace_ops *ops, struct ftrace_regs *fr=
-egs)
-> +static inline void __fprobe_handler(unsigned long ip, unsigned long
-> +               parent_ip, struct ftrace_ops *ops, struct ftrace_regs *fr=
-egs)
->  {
->         struct fprobe_rethook_node *fpr;
->         struct rethook_node *rh =3D NULL;
->         struct fprobe *fp;
->         void *entry_data =3D NULL;
-> -       int bit, ret;
-> +       int ret;
->
->         fp =3D container_of(ops, struct fprobe, ops);
-> -       if (fprobe_disabled(fp))
-> -               return;
-> -
-> -       bit =3D ftrace_test_recursion_trylock(ip, parent_ip);
-> -       if (bit < 0) {
-> -               fp->nmissed++;
-> -               return;
-> -       }
->
->         if (fp->exit_handler) {
->                 rh =3D rethook_try_get(fp->rethook);
->                 if (!rh) {
->                         fp->nmissed++;
-> -                       goto out;
-> +                       return;
->                 }
->                 fpr =3D container_of(rh, struct fprobe_rethook_node, node=
-);
->                 fpr->entry_ip =3D ip;
-> @@ -61,23 +53,60 @@ static void fprobe_handler(unsigned long ip, unsigned=
- long parent_ip,
->                 else
->                         rethook_hook(rh, ftrace_get_regs(fregs), true);
->         }
-> -out:
-> +}
-> +
-> +static void fprobe_handler(unsigned long ip, unsigned long parent_ip,
-> +               struct ftrace_ops *ops, struct ftrace_regs *fregs)
-> +{
-> +       struct fprobe *fp;
-> +       int bit;
-> +
-> +       fp =3D container_of(ops, struct fprobe, ops);
-> +       if (fprobe_disabled(fp))
-> +               return;
-> +
-> +       /* recursion detection has to go before any traceable function an=
-d
-> +        * all functions before this point should be marked as notrace
-> +        */
-> +       bit =3D ftrace_test_recursion_trylock(ip, parent_ip);
-> +       if (bit < 0) {
-> +               fp->nmissed++;
-> +               return;
-> +       }
-> +       __fprobe_handler(ip, parent_ip, ops, fregs);
->         ftrace_test_recursion_unlock(bit);
-> +
->  }
->  NOKPROBE_SYMBOL(fprobe_handler);
->
->  static void fprobe_kprobe_handler(unsigned long ip, unsigned long parent=
-_ip,
->                                   struct ftrace_ops *ops, struct ftrace_r=
-egs *fregs)
->  {
-> -       struct fprobe *fp =3D container_of(ops, struct fprobe, ops);
-> +       struct fprobe *fp;
-> +       int bit;
-> +
-> +       fp =3D container_of(ops, struct fprobe, ops);
-> +       if (fprobe_disabled(fp))
-> +               return;
-> +
-> +       /* recursion detection has to go before any traceable function an=
-d
-> +        * all functions called before this point should be marked as not=
-race
-> +        */
-> +       bit =3D ftrace_test_recursion_trylock(ip, parent_ip);
-> +       if (bit < 0) {
-> +               fp->nmissed++;
-> +               return;
-> +       }
->
->         if (unlikely(kprobe_running())) {
->                 fp->nmissed++;
+On 27/06/2023 19:26, Yu Zhao wrote:
+> On Tue, Jun 27, 2023 at 3:41 AM Ryan Roberts <ryan.roberts@arm.com> wrote:
+>>
+>> On 27/06/2023 09:29, Yu Zhao wrote:
+>>> On Tue, Jun 27, 2023 at 1:21 AM Ryan Roberts <ryan.roberts@arm.com> wrote:
+>>>>
+>>>> On 27/06/2023 02:55, Yu Zhao wrote:
+>>>>> On Mon, Jun 26, 2023 at 11:14 AM Ryan Roberts <ryan.roberts@arm.com> wrote:
+>>>>>>
+>>>>>> In preparation for extending vma_alloc_zeroed_movable_folio() to
+>>>>>> allocate a arbitrary order folio, expose clear_huge_page()
+>>>>>> unconditionally, so that it can be used to zero the allocated folio in
+>>>>>> the generic implementation of vma_alloc_zeroed_movable_folio().
+>>>>>>
+>>>>>> Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
+>>>>>> ---
+>>>>>>  include/linux/mm.h | 3 ++-
+>>>>>>  mm/memory.c        | 2 +-
+>>>>>>  2 files changed, 3 insertions(+), 2 deletions(-)
+>>>>>>
+>>>>>> diff --git a/include/linux/mm.h b/include/linux/mm.h
+>>>>>> index 7f1741bd870a..7e3bf45e6491 100644
+>>>>>> --- a/include/linux/mm.h
+>>>>>> +++ b/include/linux/mm.h
+>>>>>> @@ -3684,10 +3684,11 @@ enum mf_action_page_type {
+>>>>>>   */
+>>>>>>  extern const struct attribute_group memory_failure_attr_group;
+>>>>>>
+>>>>>> -#if defined(CONFIG_TRANSPARENT_HUGEPAGE) || defined(CONFIG_HUGETLBFS)
+>>>>>>  extern void clear_huge_page(struct page *page,
+>>>>>>                             unsigned long addr_hint,
+>>>>>>                             unsigned int pages_per_huge_page);
+>>>>>> +
+>>>>>> +#if defined(CONFIG_TRANSPARENT_HUGEPAGE) || defined(CONFIG_HUGETLBFS)
+>>>>>
+>>>>> We might not want to depend on THP eventually. Right now, we still
+>>>>> have to, unless splitting is optional, which seems to contradict
+>>>>> 06/10. (deferred_split_folio()  is a nop without THP.)
+>>>>
+>>>> Yes, I agree - for large anon folios to work, we depend on THP. But I don't
+>>>> think that helps us here.
+>>>>
+>>>> In the next patch, I give vma_alloc_zeroed_movable_folio() an extra `order`
+>>>> parameter. So the generic/default version of the function now needs a way to
+>>>> clear a compound page.
+>>>>
+>>>> I guess I could do something like:
+>>>>
+>>>>  static inline
+>>>>  struct folio *vma_alloc_zeroed_movable_folio(struct vm_area_struct *vma,
+>>>>                                    unsigned long vaddr, gfp_t gfp, int order)
+>>>>  {
+>>>>         struct folio *folio;
+>>>>
+>>>>         folio = vma_alloc_folio(GFP_HIGHUSER_MOVABLE | gfp,
+>>>>                                         order, vma, vaddr, false);
+>>>>         if (folio) {
+>>>> #ifdef CONFIG_LARGE_FOLIO
+>>>>                 clear_huge_page(&folio->page, vaddr, 1U << order);
+>>>> #else
+>>>>                 BUG_ON(order != 0);
+>>>>                 clear_user_highpage(&folio->page, vaddr);
+>>>> #endif
+>>>>         }
+>>>>
+>>>>         return folio;
+>>>>  }
+>>>>
+>>>> But that's pretty messy and there's no reason why other users might come along
+>>>> that pass order != 0 and will be surprised by the BUG_ON.
+>>>
+>>> #ifdef CONFIG_LARGE_ANON_FOLIO // depends on CONFIG_TRANSPARENT_HUGE_PAGE
+>>> struct folio *alloc_anon_folio(struct vm_area_struct *vma, unsigned
+>>> long vaddr, int order)
+>>> {
+>>>   // how do_huge_pmd_anonymous_page() allocs and clears
+>>>   vma_alloc_folio(..., *true*);
+>>
+>> This controls the mem allocation policy (see mempolicy.c::vma_alloc_folio()) not
+>> clearing. Clearing is done in __do_huge_pmd_anonymous_page():
+>>
+>>   clear_huge_page(page, vmf->address, HPAGE_PMD_NR);
+> 
+> Sorry for rushing this previously. This is what I meant. The #ifdef
+> makes it safe to use clear_huge_page() without 01/10. I highlighted
+> the last parameter to vma_alloc_folio() only because it's different
+> from what you chose (not implying it clears the folio).>
+>>> }
+>>> #else
+>>> #define alloc_anon_folio(vma, addr, order)
+>>> vma_alloc_zeroed_movable_folio(vma, addr)
+>>> #endif
+>>
+>> Sorry I don't get this at all... If you are suggesting to bypass
+>> vma_alloc_zeroed_movable_folio() entirely for the LARGE_ANON_FOLIO case
+> 
+> Correct.
+> 
+>> I don't
+>> think that works because the arch code adds its own gfp flags there. For
+>> example, arm64 adds __GFP_ZEROTAGS for VM_MTE VMAs.
+> 
+> I think it's the opposite: it should be safer to reuse the THP code because
+> 1. It's an existing case that has been working for PMD_ORDER folios
+> mapped by PTEs, and it's an arch-independent API which would be easier
+> to review.
+> 2. Use vma_alloc_zeroed_movable_folio() for large folios is a *new*
+> case. It's an arch-*dependent* API which I have no idea what VM_MTE
+> does (should do) to large folios and don't plan to answer that for
+> now.
 
-I have just looked through this patchset, just out of curiosity,
-shouldn't we call ftrace_test_recursion_unlock(bit) here ?
-We have already locked it successfully, so why should we not unlock it?
+I've done some archaology on this now, and convinced myself that your suggestion
+is a good one - sorry for doubting it!
 
->                 return;
->         }
-> +
->         kprobe_busy_begin();
-> -       fprobe_handler(ip, parent_ip, ops, fregs);
-> +       __fprobe_handler(ip, parent_ip, ops, fregs);
->         kprobe_busy_end();
-> +       ftrace_test_recursion_unlock(bit);
->  }
->
->  static void fprobe_exit_handler(struct rethook_node *rh, void *data,
-> --
-> 2.40.1
->
->
+If you are interested here are the details: Only arm64 and ia64 do something
+non-standard in vma_alloc_zeroed_movable_folio(). ia64 flushes the dcache for
+the folio - but given it does not support THP this is not a problem for the THP
+path. arm64 adds the __GFP_ZEROTAGS flag which means that the MTE tags will be
+zeroed at the same time as the page is zeroed. This is a perf optimization - if
+its not performed then it will be done at set_pte_at(), which is how this works
+for the THP path.
+
+So on that basis, I agree we can use your proposed alloc_anon_folio() approach.
+arm64 will lose the MTE optimization but that can be added back later if needed.
+So no need to unconditionally expose clear_huge_page() and no need to modify all
+the arch vma_alloc_zeroed_movable_folio() implementations.
+
+Thanks,
+Ryan
 
 
---=20
-Regards
-Yafang
+> 
+>> Perhaps we can do away with an arch-owned vma_alloc_zeroed_movable_folio() and
+>> replace it with a new arch_get_zeroed_movable_gfp_flags() then
+>> alloc_anon_folio() add in those flags?
+>>
+>> But I still think the cleanest, simplest change is just to unconditionally
+>> expose clear_huge_page() as I've done it.
+> 
+> The fundamental choice there as I see it is to whether the first step
+> of large anon folios should lean toward the THP code base or the base
+> page code base (I'm a big fan of the answer "Neither -- we should
+> create something entirely new instead"). My POV is that the THP code
+> base would allow us to move faster, since it's proven to work for a
+> very similar case (PMD_ORDER folios mapped by PTEs).
+
