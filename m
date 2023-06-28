@@ -2,40 +2,41 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7346EB64D9
-	for <linux-s390@archiver.kernel.org>; Wed, 28 Jun 2023 02:53:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ADEB6EB64D7
+	for <linux-s390@archiver.kernel.org>; Wed, 28 Jun 2023 07:56:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230220AbjF1CxN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 27 Jun 2023 22:53:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49040 "EHLO
+        id S229893AbjF1H41 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 28 Jun 2023 03:56:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229680AbjF1CxM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 27 Jun 2023 22:53:12 -0400
+        with ESMTP id S230295AbjF1Hyk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Jun 2023 03:54:40 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 865B61BD9;
-        Tue, 27 Jun 2023 19:53:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB2D52D72;
+        Wed, 28 Jun 2023 00:54:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+        Content-Type:In-Reply-To:References:Cc:To:From:Subject:MIME-Version:Date:
         Message-ID:Sender:Reply-To:Content-ID:Content-Description;
-        bh=dlpR/21Irur/vl2Bba6LPVcNg/tvhnzdXj8x/ntUtHk=; b=h9543rTXTZgDs/8RTl0Bz0B9yE
-        M116oqVCVPUSJCywA3/wGRMWSC5PootiKkuuCIVj4ZLCgyIOapcZqDjfLOWkI/zgqJSN2o+fG3m+5
-        LNi4LObBb3C7+Tstoj9H5/0jL1jcqEwdfXrHwtiJUzjkCxWtGJQUlfpBhl61Jqtop/8glW6Ccw6yE
-        s5dG7olz8uyRhgbdhV7y4VtfVDkINgMoKAG0nYF8+mfcvCHdM63tNzCb0I5PpzLqzy9zDRsZZhIVM
-        hFO0dw/qPTsAF7ZlKIL9PIHWAqdHkD6kuAAWAv5XjnO0XghWj9KoDCmoz5lsjXByoki6omg+BeCHV
-        YW2hbj2A==;
+        bh=hVxHcQDl4192w9qi7Ylg1NcjDzorbdlRCndnD2dfwgQ=; b=vmfnbxTtOhtOhGHRjex1Rz+I7Z
+        I/2VKIGIH73E60M8aqp169FEN9Bd4ii/ZTTB0jVb7bj8xJO1eoOEG3w/i6GhsRSAMvLOuPAjK2DWf
+        jym6TL2Ysxzyh576Vz98Pyz0fxXGQ3bdeEDtvpThWMWLqdigWzGZ+tjLSTUfAcGFxSq8rXI1elKdV
+        tQo8qYyIP6qXzhagvJXsg95FOHA+CLdTXdR8UocGW/mCyQZIdyaubInOl3M8A3MhCVGJxIq950PkN
+        QJ3wW4bcQEamrZum50yKwXV8svYgk37SBUNl9SUkbmcvdlxlIdJZSiHzdtOj/qXQFJWqaqvfgR5Zh
+        MwBzIUwg==;
 Received: from [2601:1c2:980:9ec0::2764]
         by bombadil.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1qELIr-00EdQb-1N;
-        Wed, 28 Jun 2023 02:53:09 +0000
-Message-ID: <7f585168-7296-58aa-7fdb-c2aa08f346f4@infradead.org>
-Date:   Tue, 27 Jun 2023 19:53:08 -0700
+        id 1qENNr-00EqSq-0y;
+        Wed, 28 Jun 2023 05:06:27 +0000
+Message-ID: <510b6216-35e5-5ea1-525f-5fab35b901e0@infradead.org>
+Date:   Tue, 27 Jun 2023 22:06:26 -0700
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.11.2
 Subject: Re: [PATCH] s390/net: lcs: fix build errors when FDDI is a loadable
  module
 Content-Language: en-US
+From:   Randy Dunlap <rdunlap@infradead.org>
 To:     Alexandra Winter <wintera@linux.ibm.com>,
         Simon Horman <simon.horman@corigine.com>
 Cc:     linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>,
@@ -49,134 +50,132 @@ Cc:     linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>,
         "David S . Miller" <davem@davemloft.net>,
         Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>
+        Paolo Abeni <pabeni@redhat.com>,
+        Simon Horman <simon.horman@corigine.com>
 References: <20230621213742.8245-1-rdunlap@infradead.org>
  <98375832-3d29-1f03-145f-8d6e763dd2d2@linux.ibm.com>
  <ZJP99hSRt5MakBXC@corigine.com>
  <3da03251-21ac-b41f-593d-cbc9ac9f86f6@linux.ibm.com>
-From:   Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <3da03251-21ac-b41f-593d-cbc9ac9f86f6@linux.ibm.com>
+ <7f585168-7296-58aa-7fdb-c2aa08f346f4@infradead.org>
+In-Reply-To: <7f585168-7296-58aa-7fdb-c2aa08f346f4@infradead.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi,
-Sorry for the delay.
+Hi Alexandra, Simon, others,
 
-On 6/22/23 05:16, Alexandra Winter wrote:
-> 
-> 
-> On 22.06.23 09:53, Simon Horman wrote:
->> On Thu, Jun 22, 2023 at 09:15:24AM +0200, Alexandra Winter wrote:
->>>
->>>
->>> On 21.06.23 23:37, Randy Dunlap wrote:
->>>> Require FDDI to be built-in if it is used. LCS needs FDDI to be
->>>> built-in to build without errors.
->>>>
->>>> Prevents these build errors:
->>>> s390-linux-ld: drivers/s390/net/lcs.o: in function `lcs_new_device':
->>>> drivers/s390/net/lcs.c:2150: undefined reference to `fddi_type_trans'
->>>> s390-linux-ld: drivers/s390/net/lcs.c:2151: undefined reference to `alloc_fddidev'
->>>>
->>>> This FDDI requirement effectively restores the previous condition
->>>> before the blamed patch, when #ifdef CONFIG_FDDI was used, without
->>>> testing for CONFIG_FDDI_MODULE.
->>>>
->>>> Fixes: 128272336120 ("s390/net: lcs: use IS_ENABLED() for kconfig detection")
-> [...]
->>
->>> 2) I wonder whether
->>>
->>>   	depends on CCW && NETDEVICES && (ETHERNET || FDDI)
->>>  +	depends on FDDI || FDDI=n
->>>
->>> would do what we want here:
->>> When FDDI is a loadable module, LCS mustn't be built-in.
->>>
->>> I will do some experiments and let you know.
->>
->> It does seem to on my side.
->> But checking would be much appreciated.
->  
-> 
-> Here are my experiments:
-> 
-> Current net-next:
-> -----------------
-> if !IS_ENABLED(CONFIG_ETHERNET) && !IS_ENABLED(CONFIG_FDDI)
-> 
-> drivers/s390/net/KConfig:
-> config LCS
-> 	def_tristate m
-> 	depends on CCW && NETDEVICES && (ETHERNET || FDDI)
-> 
-> .config:
-> ETHERNET  |  FDDI | LCS choices | LCS | compile
-> --------------------------------------------------------
-> n		m	m,n	  m	success (failed before Randy's fix)
-> y		m	y,m,n	  m	success (failed before Randy's fix)
-> y		m		  y	fails: undefined reference to `fddi_type_trans'
-> 
-> 
-> Simon's proposal:
-> -----------------
->         depends on CCW && NETDEVICES && (ETHERNET || FDDI)
-> +       depends on FDDI=y || FDDI=n
-> 
-> ETHERNET  |  FDDI | LCS choices | LCS | compile
-> --------------------------------------------------------
-> n		m	-
-> y		m	-
-> y		m	-
-> y		n	y,m,n	  y	success
-> y		n	y,m,n	  m	success
-> y		y	y,m,n	  m	success
-> 
-> 
-> Alexandra's proposal:
-> ---------------------
->         depends on CCW && NETDEVICES && (ETHERNET || FDDI)
-> +       depends on FDDI || FDDI=n
-> 
-> ETHERNET  |  FDDI | LCS choices | LCS | compile
-> --------------------------------------------------------
-> n		m	m,n	  m	success
-> y		m	m,n	  m	success
-> y		n	y,m,n	  y	success
-> y		n	y,m,n	  m	success
-> y		y	y,m,n	  m	success
-> 
-> -----------------------------------------------------------
-> 
-> Seems that 
-> 	A[tristate] depends on B[tristate]
-> means that A cannot be 'higher' than B.
-> Meaning, if B=n -> A= must be n
-> 	if B=m -> A can be m or n
-> 	if B=y -> A can be y or m or n
+Here is v2 of this patch. I will send it formally after the merge window closes.
 
-Looks correct.
+Thanks for all of your help.
+---
 
-> Although I did not find documentation confirming that.
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH v2 net] s390/net: lcs: use IS_ENABLED() for kconfig detection
 
-I think that it's in Documentation/kbuild/kconfig-language.rst,
-under "Menu dependencies", but not quite in that format. :)
+When CONFIG_ETHERNET is disabled and CONFIG_FDDI=m, lcs.s has build
+errors or warnings:
 
-> 
-> @Randy, do you want give a v2 a try with that?
+../drivers/s390/net/lcs.c:40:2: error: #error Cannot compile lcs.c without some net devices switched on.
+   40 | #error Cannot compile lcs.c without some net devices switched on.
+../drivers/s390/net/lcs.c: In function 'lcs_startlan_auto':
+../drivers/s390/net/lcs.c:1601:13: warning: unused variable 'rc' [-Wunused-variable]
+ 1601 |         int rc;
 
-Sure, I'll try that.
+Solve this by using IS_ENABLED(CONFIG_symbol) instead of ifdef
+CONFIG_symbol. The latter only works for builtin (=y) values
+while IS_ENABLED() works for builtin or modular values.
 
-> I guess then it is safe to delete from drivers/s390/net/lcs.c
-> -#if !IS_ENABLED(CONFIG_ETHERNET) && !IS_ENABLED(CONFIG_FDDI)
-> -#error Cannot compile lcs.c without some net devices switched on.
-> -#endif
+Modify the LCS Kconfig entry to allow combinations of builtin and
+modular drivers to work as long as LCS <= FDDI (where n < m < y)
+if FDDI is enabled. If FDDI is not enabled, ETHERNET must be =y,
+so LCS can be builtin or modular since ETHERNET is a bool.
 
-Yes, I was planning to do that as well.
+Remove the #error directive in the source file since the Kconfig
+modification prevents that error combination.
 
-Thanks for the time that you have spent on this.
--- 
-~Randy
+Tested successfully with all possible combinations of ETHERNET, FDDI,
+and LCS.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Suggested-by: Alexandra Winter <wintera@linux.ibm.com>
+Cc: Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Simon Horman <simon.horman@corigine.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+---
+ drivers/s390/net/Kconfig |    1 +
+ drivers/s390/net/lcs.c   |   13 ++++---------
+ 2 files changed, 5 insertions(+), 9 deletions(-)
+
+diff -- a/drivers/s390/net/Kconfig b/drivers/s390/net/Kconfig
+--- a/drivers/s390/net/Kconfig
++++ b/drivers/s390/net/Kconfig
+@@ -6,6 +6,7 @@ config LCS
+ 	def_tristate m
+ 	prompt "Lan Channel Station Interface"
+ 	depends on CCW && NETDEVICES && (ETHERNET || FDDI)
++	depends on FDDI || FDDI=n
+ 	help
+ 	  Select this option if you want to use LCS networking on IBM System z.
+ 	  This device driver supports FDDI (IEEE 802.7) and Ethernet.
+diff -- a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
+--- a/drivers/s390/net/lcs.c
++++ b/drivers/s390/net/lcs.c
+@@ -35,11 +35,6 @@
+ 
+ #include "lcs.h"
+ 
+-
+-#if !defined(CONFIG_ETHERNET) && !defined(CONFIG_FDDI)
+-#error Cannot compile lcs.c without some net devices switched on.
+-#endif
+-
+ /*
+  * initialization string for output
+  */
+@@ -1601,14 +1596,14 @@ lcs_startlan_auto(struct lcs_card *card)
+ 	int rc;
+ 
+ 	LCS_DBF_TEXT(2, trace, "strtauto");
+-#ifdef CONFIG_ETHERNET
++#if IS_ENABLED(CONFIG_ETHERNET)
+ 	card->lan_type = LCS_FRAME_TYPE_ENET;
+ 	rc = lcs_send_startlan(card, LCS_INITIATOR_TCPIP);
+ 	if (rc == 0)
+ 		return 0;
+ 
+ #endif
+-#ifdef CONFIG_FDDI
++#if IS_ENABLED(CONFIG_FDDI)
+ 	card->lan_type = LCS_FRAME_TYPE_FDDI;
+ 	rc = lcs_send_startlan(card, LCS_INITIATOR_TCPIP);
+ 	if (rc == 0)
+@@ -2140,13 +2135,13 @@ lcs_new_device(struct ccwgroup_device *c
+ 		goto netdev_out;
+ 	}
+ 	switch (card->lan_type) {
+-#ifdef CONFIG_ETHERNET
++#if IS_ENABLED(CONFIG_ETHERNET)
+ 	case LCS_FRAME_TYPE_ENET:
+ 		card->lan_type_trans = eth_type_trans;
+ 		dev = alloc_etherdev(0);
+ 		break;
+ #endif
+-#ifdef CONFIG_FDDI
++#if IS_ENABLED(CONFIG_FDDI)
+ 	case LCS_FRAME_TYPE_FDDI:
+ 		card->lan_type_trans = fddi_type_trans;
+ 		dev = alloc_fddidev(0);
+
