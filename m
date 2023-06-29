@@ -2,216 +2,131 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ABC9C0015E
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jun 2023 02:21:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8B48C001B1
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jun 2023 05:08:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231253AbjF2CVW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 28 Jun 2023 22:21:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54070 "EHLO
+        id S231430AbjF2FIX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 29 Jun 2023 01:08:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231175AbjF2CVV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Jun 2023 22:21:21 -0400
-Received: from mail-oi1-x232.google.com (mail-oi1-x232.google.com [IPv6:2607:f8b0:4864:20::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DAFF10B;
-        Wed, 28 Jun 2023 19:21:19 -0700 (PDT)
-Received: by mail-oi1-x232.google.com with SMTP id 5614622812f47-3a1c162cdfeso149159b6e.2;
-        Wed, 28 Jun 2023 19:21:19 -0700 (PDT)
+        with ESMTP id S231303AbjF2FIW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jun 2023 01:08:22 -0400
+Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4FE2271B
+        for <linux-s390@vger.kernel.org>; Wed, 28 Jun 2023 22:08:20 -0700 (PDT)
+Received: by mail-yb1-xb33.google.com with SMTP id 3f1490d57ef6-bacf685150cso268409276.3
+        for <linux-s390@vger.kernel.org>; Wed, 28 Jun 2023 22:08:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1688005278; x=1690597278;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ySyAmfVhMfVx98sxPbiAVA/jFjbxdrr+oshC1ybeyhc=;
-        b=f/AVb8r9xYD3+whHU3qtmPhPa/Wh01Idfg/drHq8Gr6guNSXvXQ/pAjwYbqItSG+Nj
-         Z84SzpAh17q6wvr3q2N5ze1fpSRPxUpsP/kxaREQxH076ZEmRHVPam+YCm6P0CDXBKG6
-         bVNS+8UJBISeaOmr3dbOLt8PsGF/ZtgGU2Ana6FMCgIF2G6mo13X0pKJi/mfsena8JFL
-         udMFLL4DI8r5WrXp8NJ8kEl/TBJXr9bTse16S39f5NY08Xj8hIp0wcv53gbhlKQIc/Vw
-         lmaAbiDcW5DHveSlmwuZtRQ61CIXCSUOII2jpAN9w4tXZMimamKxTfOxRlE1VQ4wmzgV
-         H1Bg==
+        d=google.com; s=20221208; t=1688015300; x=1690607300;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=zFm7aP76Kl3qxn7n2tNVkuwpkcso4qVmefkLtKFqRbs=;
+        b=SH61IoWshgo0/pKjl3ljDej2EI0+DSaPIoPH0EnGJIbXtfIIjKOXzIBV7zaurn/u2O
+         NzEik2ic/sSNSVVbeZ/UgymQtK7K6oY5QRG/wzVH8poLJ32013nMh89etey0qcHiO54m
+         9VJ8ecSgnyFVz892TYk34hIsLIVdE3C863sWe4PpKLL17z0rdk//QH8zHLezplf5zecn
+         CMt8pQ6lO/N91/4KfIatcw4X88/dCSpVTpYW/IpvL+vwGOTzzDciFmwrt9muCsAvhi7d
+         WOqlfS0Kym0VC+rHJLQVRUIX2a29Zo7bJvGsOEaU1uowBUKaMzsYZ9yHhLs0KJAe7PQ3
+         Eu7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1688005278; x=1690597278;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ySyAmfVhMfVx98sxPbiAVA/jFjbxdrr+oshC1ybeyhc=;
-        b=kpOVKeERNaimrvWR58zM8+QZqnZhst07cyOflZTVlk2g6KAtTqvt6TbiY74kOaF/0c
-         a9KKpeNF5SHPfkFlMoQtaqpM7UhQqXdQm+uJ2xHaiPusa9Dt9OunLXdHPWIXe7oUUHqe
-         l48AZFNqzvag2iM2AmKNdVtNoDUXzptlQrSJdnrozfOmmo4uoMj48TVIbLific8ZRFa5
-         DSKDDnmh/6GcKw1B9wSrmXcMo3Hz4YHkZ4Ho61O7N2Epz/4wFgQ+mJSYZDbRpUiG0uKu
-         9XTFKOCISCVSPJrEFwXkeyl/LV5hQQj5Z0FzOuEjS+RPtLYXueAU7BXwyRIBgjx6idyX
-         A+zA==
-X-Gm-Message-State: AC+VfDwlBLxIY5VGJ0sDmtyjCGkHS7u56z1L2SIq8NeULic1FDIpoPpg
-        YRTNrzNQFzemVIrEqMi/9dSZmxMmldun3DmEyxk=
-X-Google-Smtp-Source: ACHHUZ7UAQTQw0vu93YPC3yL+Fh5PVTx9pSYuEGC+hZSnUlnYtuDlw64T8GUG8gOF+WXmdmX60xB15SofoDXqSO9ovU=
-X-Received: by 2002:aca:1703:0:b0:3a1:d075:348b with SMTP id
- j3-20020aca1703000000b003a1d075348bmr10384323oii.59.1688005278204; Wed, 28
- Jun 2023 19:21:18 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230626171430.3167004-1-ryan.roberts@arm.com>
- <CAOUHufaUTbUw9MTzw8D=sVrEB+RP6LSBQVGn93TWk=ozV8XobA@mail.gmail.com> <CAOUHufa0S_ayrys0XzDbH8KJi5HxvbGCh_bSAhDpAgcmSJjFUQ@mail.gmail.com>
-In-Reply-To: <CAOUHufa0S_ayrys0XzDbH8KJi5HxvbGCh_bSAhDpAgcmSJjFUQ@mail.gmail.com>
-From:   Yang Shi <shy828301@gmail.com>
-Date:   Wed, 28 Jun 2023 19:21:06 -0700
-Message-ID: <CAHbLzkqUD7ABOMVBgW_hZncL3OxZG-8bhfs0H3xK4M=ok_dyQQ@mail.gmail.com>
-Subject: Re: [PATCH v1 00/10] variable-order, large folios for anonymous memory
-To:     Yu Zhao <yuzhao@google.com>
-Cc:     Ryan Roberts <ryan.roberts@arm.com>,
+        d=1e100.net; s=20221208; t=1688015300; x=1690607300;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=zFm7aP76Kl3qxn7n2tNVkuwpkcso4qVmefkLtKFqRbs=;
+        b=mBcaaDZBvQguFuNJqWW/4aHykblfb36fEEcRkb20X+RS4TPsM7qTYLpv8J6LMK+73F
+         CvK7XD8X0ESqVg61jLoPmsY7DeRIxwO/LbzR6RoNx3+PMRznU7xvsZsooB5CD6+g/r9f
+         BagojFTOZPFk7sQPI3sb8vTFxMLqSQ1MgoYYuYjZdSCxkayfn2hDH1jEGqi7I25wGVwK
+         MgNndqDfEdtfs0X2qm5hE2M7W6ArpX13xiLmxIpgOFtevZ/fFV2V1fmK+nukIbUz+/Uv
+         WHQlyC9YxCE/DD4A92yKZ/De7hHRdArLAarg5yTT80P+f7eIhYZjb5UhaLpIG72FgGnl
+         QvLg==
+X-Gm-Message-State: AC+VfDx6LbI2tUCYK53HwK5X3Ywp/b4ru05MHgZvBboIUQ8VZcxeWgBz
+        pxL2uF8oa1HqXOKamZYjF/MhGw==
+X-Google-Smtp-Source: ACHHUZ7dmal1wUP2kBcbn8Y+5hPCsOTidCkpFmDgLcwfB+9Ewvv4+lKBVPvM/Ea71yfLSwxu543Ddg==
+X-Received: by 2002:a25:bc86:0:b0:c25:3076:ffdc with SMTP id e6-20020a25bc86000000b00c253076ffdcmr9008572ybk.1.1688015299744;
+        Wed, 28 Jun 2023 22:08:19 -0700 (PDT)
+Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id 66-20020a251545000000b00bcc0f2e4f05sm2365847ybv.59.2023.06.28.22.08.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Jun 2023 22:08:19 -0700 (PDT)
+Date:   Wed, 28 Jun 2023 22:08:08 -0700 (PDT)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@ripple.attlocal.net
+To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+cc:     Hugh Dickins <hughd@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
         "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Yin Fengwei <fengwei.yin@intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
         David Hildenbrand <david@redhat.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Lorenzo Stoakes <lstoakes@gmail.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-alpha@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        Vishal Moola <vishal.moola@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH v2 07/12] s390: add pte_free_defer() for pgtables sharing
+ page
+In-Reply-To: <20230628211624.531cdc58@thinkpad-T15>
+Message-ID: <cd7c2851-1440-7220-6c53-16b343b1474@google.com>
+References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com> <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com> <20230628211624.531cdc58@thinkpad-T15>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jun 27, 2023 at 12:49=E2=80=AFAM Yu Zhao <yuzhao@google.com> wrote:
->
-> On Mon, Jun 26, 2023 at 9:30=E2=80=AFPM Yu Zhao <yuzhao@google.com> wrote=
-:
-> >
-> > On Mon, Jun 26, 2023 at 11:14=E2=80=AFAM Ryan Roberts <ryan.roberts@arm=
-.com> wrote:
-> > >
-> > > Hi All,
-> > >
-> > > Following on from the previous RFCv2 [1], this series implements vari=
-able order,
-> > > large folios for anonymous memory. The objective of this is to improv=
-e
-> > > performance by allocating larger chunks of memory during anonymous pa=
-ge faults:
-> > >
-> > >  - Since SW (the kernel) is dealing with larger chunks of memory than=
- base
-> > >    pages, there are efficiency savings to be had; fewer page faults, =
-batched PTE
-> > >    and RMAP manipulation, fewer items on lists, etc. In short, we red=
-uce kernel
-> > >    overhead. This should benefit all architectures.
-> > >  - Since we are now mapping physically contiguous chunks of memory, w=
-e can take
-> > >    advantage of HW TLB compression techniques. A reduction in TLB pre=
-ssure
-> > >    speeds up kernel and user space. arm64 systems have 2 mechanisms t=
-o coalesce
-> > >    TLB entries; "the contiguous bit" (architectural) and HPA (uarch).
-> > >
-> > > This patch set deals with the SW side of things only and based on fee=
-dback from
-> > > the RFC, aims to be the most minimal initial change, upon which futur=
-e
-> > > incremental changes can be added. For this reason, the new behaviour =
-is hidden
-> > > behind a new Kconfig switch, CONFIG_LARGE_ANON_FOLIO, which is disabl=
-ed by
-> > > default. Although the code has been refactored to parameterize the de=
-sired order
-> > > of the allocation, when the feature is disabled (by forcing the order=
- to be
-> > > always 0) my performance tests measure no regression. So I'm hoping t=
-his will be
-> > > a suitable mechanism to allow incremental submissions to the kernel w=
-ithout
-> > > affecting the rest of the world.
-> > >
-> > > The patches are based on top of v6.4 plus Matthew Wilcox's set_ptes()=
- series
-> > > [2], which is a hard dependency. I'm not sure of Matthew's exact plan=
-s for
-> > > getting that series into the kernel, but I'm hoping we can start the =
-review
-> > > process on this patch set independently. I have a branch at [3].
-> > >
-> > > I've posted a separate series concerning the HW part (contpte mapping=
-) for arm64
-> > > at [4].
-> > >
-> > >
-> > > Performance
-> > > -----------
-> > >
-> > > Below results show 2 benchmarks; kernel compilation and speedometer 2=
-.0 (a
-> > > javascript benchmark running in Chromium). Both cases are running on =
-Ampere
-> > > Altra with 1 NUMA node enabled, Ubuntu 22.04 and XFS filesystem. Each=
- benchmark
-> > > is repeated 15 times over 5 reboots and averaged.
-> > >
-> > > All improvements are relative to baseline-4k. 'anonfolio-basic' is th=
-is series.
-> > > 'anonfolio' is the full patch set similar to the RFC with the additio=
-nal changes
-> > > to the extra 3 fault paths. The rest of the configs are described at =
-[4].
-> > >
-> > > Kernel Compilation (smaller is better):
-> > >
-> > > | kernel          |   real-time |   kern-time |   user-time |
-> > > |:----------------|------------:|------------:|------------:|
-> > > | baseline-4k     |        0.0% |        0.0% |        0.0% |
-> > > | anonfolio-basic |       -5.3% |      -42.9% |       -0.6% |
-> > > | anonfolio       |       -5.4% |      -46.0% |       -0.3% |
-> > > | contpte         |       -6.8% |      -45.7% |       -2.1% |
-> > > | exefolio        |       -8.4% |      -46.4% |       -3.7% |
-> > > | baseline-16k    |       -8.7% |      -49.2% |       -3.7% |
-> > > | baseline-64k    |      -10.5% |      -66.0% |       -3.5% |
-> > >
-> > > Speedometer 2.0 (bigger is better):
-> > >
-> > > | kernel          |   runs_per_min |
-> > > |:----------------|---------------:|
-> > > | baseline-4k     |           0.0% |
-> > > | anonfolio-basic |           0.7% |
-> > > | anonfolio       |           1.2% |
-> > > | contpte         |           3.1% |
-> > > | exefolio        |           4.2% |
-> > > | baseline-16k    |           5.3% |
-> >
-> > Thanks for pushing this forward!
-> >
-> > > Changes since RFCv2
-> > > -------------------
-> > >
-> > >   - Simplified series to bare minimum (on David Hildenbrand's advice)
-> >
-> > My impression is that this series still includes many pieces that can
-> > be split out and discussed separately with followup series.
-> >
-> > (I skipped 04/10 and will look at it tomorrow.)
->
-> I went through the series twice. Here what I think a bare minimum
-> series (easier to review/debug/land) would look like:
-> 1. a new arch specific function providing a prefered order within (0,
-> PMD_ORDER).
-> 2. an extended anon folio alloc API taking that order (02/10, partially).
-> 3. an updated folio_add_new_anon_rmap() covering the large() &&
-> !pmd_mappable() case (similar to 04/10).
-> 4. s/folio_test_pmd_mappable/folio_test_large/ in page_remove_rmap()
-> (06/10, reviewed-by provided).
-> 5. finally, use the extended anon folio alloc API with the arch
-> preferred order in do_anonymous_page() (10/10, partially).
->
-> The rest can be split out into separate series and move forward in
-> parallel with probably a long list of things we need/want to do.
+On Wed, 28 Jun 2023, Gerald Schaefer wrote:
+> 
+> As discussed in the other thread, we would rather go with less complexity,
+> possibly switching to an approach w/o the list and fragment re-use in the
+> future. For now, as a first step in that direction, we can try with not
+> adding fragments back only for pte_free_defer(). Here is an adjusted
+> version of your patch, copying most of your pte_free_defer() logic and
+> also description, tested with LTP and all three of your patch series applied:
 
-Yeah, the suggestion makes sense to me. And I'd like to go with the
-simplest way unless there is strong justification for extra
-optimization for the time being IMHO.
+Thanks, Gerald: I don't mind abandoning my 13/12 SLAB_TYPESAFE_BY_RCU
+patch (posted with fewer Cc's to the s390 list last week), and switching
+to your simpler who-cares-if-we-sometimes-don't-make-maximal-use-of-page
+patch.
 
->
+But I didn't get deep enough into it today to confirm it - and disappointed
+that you've found it necessary to play with pt_frag_refcount in addition to
+_refcount and HH bits.  No real problem with that, but my instinct says it
+should be simpler.
+
+Tomorrow...
+Hugh
