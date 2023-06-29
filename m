@@ -2,131 +2,197 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8B48C001B1
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jun 2023 05:08:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FA48EB64DC
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jun 2023 05:12:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231430AbjF2FIX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 29 Jun 2023 01:08:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53754 "EHLO
+        id S229647AbjF2FMr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 29 Jun 2023 01:12:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231303AbjF2FIW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jun 2023 01:08:22 -0400
-Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4FE2271B
-        for <linux-s390@vger.kernel.org>; Wed, 28 Jun 2023 22:08:20 -0700 (PDT)
-Received: by mail-yb1-xb33.google.com with SMTP id 3f1490d57ef6-bacf685150cso268409276.3
-        for <linux-s390@vger.kernel.org>; Wed, 28 Jun 2023 22:08:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1688015300; x=1690607300;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=zFm7aP76Kl3qxn7n2tNVkuwpkcso4qVmefkLtKFqRbs=;
-        b=SH61IoWshgo0/pKjl3ljDej2EI0+DSaPIoPH0EnGJIbXtfIIjKOXzIBV7zaurn/u2O
-         NzEik2ic/sSNSVVbeZ/UgymQtK7K6oY5QRG/wzVH8poLJ32013nMh89etey0qcHiO54m
-         9VJ8ecSgnyFVz892TYk34hIsLIVdE3C863sWe4PpKLL17z0rdk//QH8zHLezplf5zecn
-         CMt8pQ6lO/N91/4KfIatcw4X88/dCSpVTpYW/IpvL+vwGOTzzDciFmwrt9muCsAvhi7d
-         WOqlfS0Kym0VC+rHJLQVRUIX2a29Zo7bJvGsOEaU1uowBUKaMzsYZ9yHhLs0KJAe7PQ3
-         Eu7w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1688015300; x=1690607300;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=zFm7aP76Kl3qxn7n2tNVkuwpkcso4qVmefkLtKFqRbs=;
-        b=mBcaaDZBvQguFuNJqWW/4aHykblfb36fEEcRkb20X+RS4TPsM7qTYLpv8J6LMK+73F
-         CvK7XD8X0ESqVg61jLoPmsY7DeRIxwO/LbzR6RoNx3+PMRznU7xvsZsooB5CD6+g/r9f
-         BagojFTOZPFk7sQPI3sb8vTFxMLqSQ1MgoYYuYjZdSCxkayfn2hDH1jEGqi7I25wGVwK
-         MgNndqDfEdtfs0X2qm5hE2M7W6ArpX13xiLmxIpgOFtevZ/fFV2V1fmK+nukIbUz+/Uv
-         WHQlyC9YxCE/DD4A92yKZ/De7hHRdArLAarg5yTT80P+f7eIhYZjb5UhaLpIG72FgGnl
-         QvLg==
-X-Gm-Message-State: AC+VfDx6LbI2tUCYK53HwK5X3Ywp/b4ru05MHgZvBboIUQ8VZcxeWgBz
-        pxL2uF8oa1HqXOKamZYjF/MhGw==
-X-Google-Smtp-Source: ACHHUZ7dmal1wUP2kBcbn8Y+5hPCsOTidCkpFmDgLcwfB+9Ewvv4+lKBVPvM/Ea71yfLSwxu543Ddg==
-X-Received: by 2002:a25:bc86:0:b0:c25:3076:ffdc with SMTP id e6-20020a25bc86000000b00c253076ffdcmr9008572ybk.1.1688015299744;
-        Wed, 28 Jun 2023 22:08:19 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id 66-20020a251545000000b00bcc0f2e4f05sm2365847ybv.59.2023.06.28.22.08.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Jun 2023 22:08:19 -0700 (PDT)
-Date:   Wed, 28 Jun 2023 22:08:08 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-cc:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jann Horn <jannh@google.com>,
-        Vishal Moola <vishal.moola@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v2 07/12] s390: add pte_free_defer() for pgtables sharing
- page
-In-Reply-To: <20230628211624.531cdc58@thinkpad-T15>
-Message-ID: <cd7c2851-1440-7220-6c53-16b343b1474@google.com>
-References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com> <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com> <20230628211624.531cdc58@thinkpad-T15>
+        with ESMTP id S231392AbjF2FMp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jun 2023 01:12:45 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 702A7194;
+        Wed, 28 Jun 2023 22:12:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+        Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+        bh=31mXj0LrDJBbkDjYY0JkRdmBEMX8kHpGdSb2KzkvoJQ=; b=XLK3Lbg/zIF8PgmNRjDb4LeAqM
+        dhWKbW4uqaBS6nyCgIOc5Z4o/AdTb7Jr23+7eQkotQCYbg/o4bfsR29Qao6H95J9RbmbI4Rh1loxf
+        F5wsj7fJegKx1Ucvlkk53tt+OjxNpMsJACzmOR3eF2MdKVeGsEW+3M7qwiM0e4VQIdC5y+q1s3Kfy
+        6P54xmH+SGD79V+E/9HNUPSymGimv1XntcL6gGpJ7rJdTXQ8BFkS+I+1Yy4iZVZ0Ns1Y2XpGBKCmY
+        Ji274SUByvkipntcYcoqzg03tSSUnM9EvLJ2YpXWtQgp8xIi+GGgTW5B66AIKvHLRFZhHVVQtGLAH
+        vb+CthVg==;
+Received: from [2601:1c2:980:9ec0::2764]
+        by bombadil.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1qEjxJ-00HZxc-1y;
+        Thu, 29 Jun 2023 05:12:33 +0000
+Message-ID: <3135e933-09cb-e397-972b-d66c48bbf772@infradead.org>
+Date:   Wed, 28 Jun 2023 22:12:32 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.2
+Subject: Re: [PATCH] s390/lcs: Remove FDDI option
+Content-Language: en-US
+To:     Alexandra Winter <wintera@linux.ibm.com>,
+        David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>
+Cc:     Simon Horman <simon.horman@corigine.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>
+References: <20230628135736.13339-1-wintera@linux.ibm.com>
+From:   Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <20230628135736.13339-1-wintera@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 28 Jun 2023, Gerald Schaefer wrote:
+
+
+On 6/28/23 06:57, Alexandra Winter wrote:
+> The last s390 machine that supported FDDI was z900 ('7th generation',
+> released in 2000). The oldest machine generation currently supported by
+> the Linux kernel is MARCH_Z10 (released 2008). If there is still a usecase
+> for connecting a Linux on s390 instance to a LAN Channel Station (LCS), it
+> can only do so via Ethernet.
 > 
-> As discussed in the other thread, we would rather go with less complexity,
-> possibly switching to an approach w/o the list and fragment re-use in the
-> future. For now, as a first step in that direction, we can try with not
-> adding fragments back only for pte_free_defer(). Here is an adjusted
-> version of your patch, copying most of your pte_free_defer() logic and
-> also description, tested with LTP and all three of your patch series applied:
+> Randy Dunlap[1] found that LCS over FDDI has never worked, when FDDI
+> was compiled as module. Instead of fixing that, remove the FDDI option
+> from the lcs driver.
+> 
+> While at it, make the CONFIG_LCS description a bit more helpful.
+> 
+> References:
+> [1] https://lore.kernel.org/netdev/20230621213742.8245-1-rdunlap@infradead.org/
+> 
+> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
 
-Thanks, Gerald: I don't mind abandoning my 13/12 SLAB_TYPESAFE_BY_RCU
-patch (posted with fewer Cc's to the s390 list last week), and switching
-to your simpler who-cares-if-we-sometimes-don't-make-maximal-use-of-page
-patch.
 
-But I didn't get deep enough into it today to confirm it - and disappointed
-that you've found it necessary to play with pt_frag_refcount in addition to
-_refcount and HH bits.  No real problem with that, but my instinct says it
-should be simpler.
+Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
 
-Tomorrow...
-Hugh
+Thanks.
+
+> ---
+>  drivers/s390/net/Kconfig |  5 ++---
+>  drivers/s390/net/lcs.c   | 39 ++++++---------------------------------
+>  2 files changed, 8 insertions(+), 36 deletions(-)
+> 
+> diff --git a/drivers/s390/net/Kconfig b/drivers/s390/net/Kconfig
+> index 9c67b97faba2..74760c1a163b 100644
+> --- a/drivers/s390/net/Kconfig
+> +++ b/drivers/s390/net/Kconfig
+> @@ -5,12 +5,11 @@ menu "S/390 network device drivers"
+>  config LCS
+>  	def_tristate m
+>  	prompt "Lan Channel Station Interface"
+> -	depends on CCW && NETDEVICES && (ETHERNET || FDDI)
+> +	depends on CCW && NETDEVICES && ETHERNET
+>  	help
+>  	  Select this option if you want to use LCS networking on IBM System z.
+> -	  This device driver supports FDDI (IEEE 802.7) and Ethernet.
+>  	  To compile as a module, choose M. The module name is lcs.
+> -	  If you do not know what it is, it's safe to choose Y.
+> +	  If you do not use LCS, choose N.
+>  
+>  config CTCM
+>  	def_tristate m
+> diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
+> index 9fd8e6f07a03..a1f2acd6fb8f 100644
+> --- a/drivers/s390/net/lcs.c
+> +++ b/drivers/s390/net/lcs.c
+> @@ -17,7 +17,6 @@
+>  #include <linux/if.h>
+>  #include <linux/netdevice.h>
+>  #include <linux/etherdevice.h>
+> -#include <linux/fddidevice.h>
+>  #include <linux/inetdevice.h>
+>  #include <linux/in.h>
+>  #include <linux/igmp.h>
+> @@ -36,10 +35,6 @@
+>  #include "lcs.h"
+>  
+>  
+> -#if !defined(CONFIG_ETHERNET) && !defined(CONFIG_FDDI)
+> -#error Cannot compile lcs.c without some net devices switched on.
+> -#endif
+> -
+>  /*
+>   * initialization string for output
+>   */
+> @@ -1601,19 +1596,11 @@ lcs_startlan_auto(struct lcs_card *card)
+>  	int rc;
+>  
+>  	LCS_DBF_TEXT(2, trace, "strtauto");
+> -#ifdef CONFIG_ETHERNET
+>  	card->lan_type = LCS_FRAME_TYPE_ENET;
+>  	rc = lcs_send_startlan(card, LCS_INITIATOR_TCPIP);
+>  	if (rc == 0)
+>  		return 0;
+>  
+> -#endif
+> -#ifdef CONFIG_FDDI
+> -	card->lan_type = LCS_FRAME_TYPE_FDDI;
+> -	rc = lcs_send_startlan(card, LCS_INITIATOR_TCPIP);
+> -	if (rc == 0)
+> -		return 0;
+> -#endif
+>  	return -EIO;
+>  }
+>  
+> @@ -1806,22 +1793,16 @@ lcs_get_frames_cb(struct lcs_channel *channel, struct lcs_buffer *buffer)
+>  			card->stats.rx_errors++;
+>  			return;
+>  		}
+> -		/* What kind of frame is it? */
+> -		if (lcs_hdr->type == LCS_FRAME_TYPE_CONTROL) {
+> -			/* Control frame. */
+> +		if (lcs_hdr->type == LCS_FRAME_TYPE_CONTROL)
+>  			lcs_get_control(card, (struct lcs_cmd *) lcs_hdr);
+> -		} else if (lcs_hdr->type == LCS_FRAME_TYPE_ENET ||
+> -			   lcs_hdr->type == LCS_FRAME_TYPE_TR ||
+> -			   lcs_hdr->type == LCS_FRAME_TYPE_FDDI) {
+> -			/* Normal network packet. */
+> +		else if (lcs_hdr->type == LCS_FRAME_TYPE_ENET)
+>  			lcs_get_skb(card, (char *)(lcs_hdr + 1),
+>  				    lcs_hdr->offset - offset -
+>  				    sizeof(struct lcs_header));
+> -		} else {
+> -			/* Unknown frame type. */
+> -			; // FIXME: error message ?
+> -		}
+> -		/* Proceed to next frame. */
+> +		else
+> +			dev_info_once(&card->dev->dev,
+> +				      "Unknown frame type %d\n",
+> +				      lcs_hdr->type);
+>  		offset = lcs_hdr->offset;
+>  		lcs_hdr->offset = LCS_ILLEGAL_OFFSET;
+>  		lcs_hdr = (struct lcs_header *) (buffer->data + offset);
+> @@ -2140,18 +2121,10 @@ lcs_new_device(struct ccwgroup_device *ccwgdev)
+>  		goto netdev_out;
+>  	}
+>  	switch (card->lan_type) {
+> -#ifdef CONFIG_ETHERNET
+>  	case LCS_FRAME_TYPE_ENET:
+>  		card->lan_type_trans = eth_type_trans;
+>  		dev = alloc_etherdev(0);
+>  		break;
+> -#endif
+> -#ifdef CONFIG_FDDI
+> -	case LCS_FRAME_TYPE_FDDI:
+> -		card->lan_type_trans = fddi_type_trans;
+> -		dev = alloc_fddidev(0);
+> -		break;
+> -#endif
+>  	default:
+>  		LCS_DBF_TEXT(3, setup, "errinit");
+>  		pr_err(" Initialization failed\n");
+
+-- 
+~Randy
