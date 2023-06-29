@@ -2,106 +2,325 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86D1AEB64D9
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jun 2023 08:51:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8A32EB64DC
+	for <linux-s390@archiver.kernel.org>; Thu, 29 Jun 2023 11:30:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232281AbjF2IvV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 29 Jun 2023 04:51:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56502 "EHLO
+        id S231984AbjF2LaN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 29 Jun 2023 07:30:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233122AbjF2Iuy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jun 2023 04:50:54 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23246421A;
-        Thu, 29 Jun 2023 01:49:08 -0700 (PDT)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35T8lP9E026485;
-        Thu, 29 Jun 2023 08:49:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : to :
- subject : cc : from : message-id : date; s=pp1;
- bh=CPEZKTFGArkfH+Z2Raqhoh8WFWmAADuhRAWfREv/SOQ=;
- b=Vw+Y0zikiMZ11VjSC4bqYbOPJ4fdxH5ZnVkDV4a0BDI89yqsvc53LEorzJf7BjooWPkt
- wdqQGh8PR/JA1nR6KRJpi9rlvcy0fb1qPj41+MxmO2EqGvrxEoNtAywykAAr9CkSmdi5
- E/VrFrz5f4M5dDpAihbD5ZVkGGNsdav6c1RcSdEK7hPVVRTT2W+Fq+5WJDaxdDgo++Cr
- u1rvbFd/C0VY/XyyUG7OeoKx4d+pcmCia6+ArJ1OQAE1/ZbiZe9j/if4p8pprxqHYnJH
- PKK8Zdnzhu+XXGsD2lYTjeuF06BmPX0NjgiJmg4WJZSMZQrSXssxtGGL6zb0gwf2WxBM lg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rh6rc01c1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 29 Jun 2023 08:49:07 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35T8lakl026913;
-        Thu, 29 Jun 2023 08:49:07 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rh6rc01bj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 29 Jun 2023 08:49:07 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35T4hQA2012699;
-        Thu, 29 Jun 2023 08:49:05 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3rdr4538b1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 29 Jun 2023 08:49:04 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35T8n1ZC6226484
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 29 Jun 2023 08:49:01 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 57CA620040;
-        Thu, 29 Jun 2023 08:49:01 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3E60C20043;
-        Thu, 29 Jun 2023 08:49:01 +0000 (GMT)
-Received: from t14-nrb (unknown [9.155.203.34])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 29 Jun 2023 08:49:01 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S230460AbjF2LaM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jun 2023 07:30:12 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 67B4830EF;
+        Thu, 29 Jun 2023 04:30:10 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B155EC14;
+        Thu, 29 Jun 2023 04:30:53 -0700 (PDT)
+Received: from [10.1.27.40] (C02Z41KALVDN.cambridge.arm.com [10.1.27.40])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3EE113F64C;
+        Thu, 29 Jun 2023 04:30:07 -0700 (PDT)
+Message-ID: <bfd1de51-d445-5861-f69f-13d740651f8e@arm.com>
+Date:   Thu, 29 Jun 2023 12:30:05 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20230627082155.6375-2-pmorel@linux.ibm.com>
-References: <20230627082155.6375-1-pmorel@linux.ibm.com> <20230627082155.6375-2-pmorel@linux.ibm.com>
-To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v10 1/2] s390x: topology: Check the Perform Topology Function
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        imbrenda@linux.ibm.com, david@redhat.com, nsg@linux.ibm.com
-From:   Nico Boehr <nrb@linux.ibm.com>
-Message-ID: <168802854091.40048.12063023827984391132@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Thu, 29 Jun 2023 10:49:00 +0200
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: k2zliwP5EvpwG9rFgK9ldvB6U54R0pcK
-X-Proofpoint-GUID: 4yisU39ozzFURiZZfr9XrduThoX0MEDt
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-06-28_14,2023-06-27_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 mlxlogscore=999
- mlxscore=0 suspectscore=0 lowpriorityscore=0 bulkscore=0 spamscore=0
- impostorscore=0 adultscore=0 phishscore=0 malwarescore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2306290075
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.12.0
+Subject: Re: [PATCH v1 10/10] mm: Allocate large folios for anonymous memory
+To:     Yang Shi <shy828301@gmail.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Yin Fengwei <fengwei.yin@intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Yu Zhao <yuzhao@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org
+References: <20230626171430.3167004-1-ryan.roberts@arm.com>
+ <20230626171430.3167004-11-ryan.roberts@arm.com>
+ <CAHbLzkoZf=5PLrC0HNT4Owy=xM4HfA9HDjdCHC+h5RYXUwp0gw@mail.gmail.com>
+From:   Ryan Roberts <ryan.roberts@arm.com>
+In-Reply-To: <CAHbLzkoZf=5PLrC0HNT4Owy=xM4HfA9HDjdCHC+h5RYXUwp0gw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Pierre Morel (2023-06-27 10:21:54)
-[...]
-> diff --git a/s390x/topology.c b/s390x/topology.c
-> new file mode 100644
-> index 0000000..7e1bbf9
-> --- /dev/null
-> +++ b/s390x/topology.c
-> @@ -0,0 +1,190 @@
-[...]
-> +static void check_privilege(int fc)
-> +{
-> +       unsigned long rc;
-> +       char buf[20];
-> +
-> +       snprintf(buf, sizeof(buf), "Privileged fc %d", fc);
-> +       report_prefix_push(buf);
+On 29/06/2023 03:13, Yang Shi wrote:
+> On Mon, Jun 26, 2023 at 10:15 AM Ryan Roberts <ryan.roberts@arm.com> wrote:
+>>
+>> With all of the enabler patches in place, modify the anonymous memory
+>> write allocation path so that it opportunistically attempts to allocate
+>> a large folio up to `max_anon_folio_order()` size (This value is
+>> ultimately configured by the architecture). This reduces the number of
+>> page faults, reduces the size of (e.g. LRU) lists, and generally
+>> improves performance by batching what were per-page operations into
+>> per-(large)-folio operations.
+>>
+>> If CONFIG_LARGE_ANON_FOLIO is not enabled (the default) then
+>> `max_anon_folio_order()` always returns 0, meaning we get the existing
+>> allocation behaviour.
+>>
+>> Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
+>> ---
+>>  mm/memory.c | 159 +++++++++++++++++++++++++++++++++++++++++++++++-----
+>>  1 file changed, 144 insertions(+), 15 deletions(-)
+>>
+>> diff --git a/mm/memory.c b/mm/memory.c
+>> index a8f7e2b28d7a..d23c44cc5092 100644
+>> --- a/mm/memory.c
+>> +++ b/mm/memory.c
+>> @@ -3161,6 +3161,90 @@ static inline int max_anon_folio_order(struct vm_area_struct *vma)
+>>                 return CONFIG_LARGE_ANON_FOLIO_NOTHP_ORDER_MAX;
+>>  }
+>>
+>> +/*
+>> + * Returns index of first pte that is not none, or nr if all are none.
+>> + */
+>> +static inline int check_ptes_none(pte_t *pte, int nr)
+>> +{
+>> +       int i;
+>> +
+>> +       for (i = 0; i < nr; i++) {
+>> +               if (!pte_none(ptep_get(pte++)))
+>> +                       return i;
+>> +       }
+>> +
+>> +       return nr;
+>> +}
+>> +
+>> +static int calc_anon_folio_order_alloc(struct vm_fault *vmf, int order)
+>> +{
+>> +       /*
+>> +        * The aim here is to determine what size of folio we should allocate
+>> +        * for this fault. Factors include:
+>> +        * - Order must not be higher than `order` upon entry
+>> +        * - Folio must be naturally aligned within VA space
+>> +        * - Folio must not breach boundaries of vma
+>> +        * - Folio must be fully contained inside one pmd entry
+>> +        * - Folio must not overlap any non-none ptes
+>> +        *
+>> +        * Additionally, we do not allow order-1 since this breaks assumptions
+>> +        * elsewhere in the mm; THP pages must be at least order-2 (since they
+>> +        * store state up to the 3rd struct page subpage), and these pages must
+>> +        * be THP in order to correctly use pre-existing THP infrastructure such
+>> +        * as folio_split().
+>> +        *
+>> +        * As a consequence of relying on the THP infrastructure, if the system
+>> +        * does not support THP, we always fallback to order-0.
+>> +        *
+>> +        * Note that the caller may or may not choose to lock the pte. If
+>> +        * unlocked, the calculation should be considered an estimate that will
+>> +        * need to be validated under the lock.
+>> +        */
+>> +
+>> +       struct vm_area_struct *vma = vmf->vma;
+>> +       int nr;
+>> +       unsigned long addr;
+>> +       pte_t *pte;
+>> +       pte_t *first_set = NULL;
+>> +       int ret;
+>> +
+>> +       if (has_transparent_hugepage()) {
+>> +               order = min(order, PMD_SHIFT - PAGE_SHIFT);
+>> +
+>> +               for (; order > 1; order--) {
+>> +                       nr = 1 << order;
+>> +                       addr = ALIGN_DOWN(vmf->address, nr << PAGE_SHIFT);
+>> +                       pte = vmf->pte - ((vmf->address - addr) >> PAGE_SHIFT);
+>> +
+>> +                       /* Check vma bounds. */
+>> +                       if (addr < vma->vm_start ||
+>> +                           addr + (nr << PAGE_SHIFT) > vma->vm_end)
+>> +                               continue;
+>> +
+>> +                       /* Ptes covered by order already known to be none. */
+>> +                       if (pte + nr <= first_set)
+>> +                               break;
+>> +
+>> +                       /* Already found set pte in range covered by order. */
+>> +                       if (pte <= first_set)
+>> +                               continue;
+>> +
+>> +                       /* Need to check if all the ptes are none. */
+>> +                       ret = check_ptes_none(pte, nr);
+>> +                       if (ret == nr)
+>> +                               break;
+>> +
+>> +                       first_set = pte + ret;
+>> +               }
+>> +
+>> +               if (order == 1)
+>> +                       order = 0;
+>> +       } else
+>> +               order = 0;
+>> +
+>> +       return order;
+>> +}
+>> +
+>>  /*
+>>   * Handle write page faults for pages that can be reused in the current vma
+>>   *
+>> @@ -4201,6 +4285,9 @@ static vm_fault_t do_anonymous_page(struct vm_fault *vmf)
+>>         struct folio *folio;
+>>         vm_fault_t ret = 0;
+>>         pte_t entry;
+>> +       unsigned long addr;
+>> +       int order = uffd_wp ? 0 : max_anon_folio_order(vma);
+>> +       int pgcount = BIT(order);
+>>
+>>         /* File mapping without ->vm_ops ? */
+>>         if (vma->vm_flags & VM_SHARED)
+>> @@ -4242,24 +4329,44 @@ static vm_fault_t do_anonymous_page(struct vm_fault *vmf)
+>>                         pte_unmap_unlock(vmf->pte, vmf->ptl);
+>>                         return handle_userfault(vmf, VM_UFFD_MISSING);
+>>                 }
+>> -               goto setpte;
+>> +               if (uffd_wp)
+>> +                       entry = pte_mkuffd_wp(entry);
+>> +               set_pte_at(vma->vm_mm, vmf->address, vmf->pte, entry);
+>> +
+>> +               /* No need to invalidate - it was non-present before */
+>> +               update_mmu_cache(vma, vmf->address, vmf->pte);
+>> +               goto unlock;
+>>         }
+>>
+>> -       /* Allocate our own private page. */
+>> +retry:
+>> +       /*
+>> +        * Estimate the folio order to allocate. We are not under the ptl here
+>> +        * so this estiamte needs to be re-checked later once we have the lock.
+>> +        */
+>> +       vmf->pte = pte_offset_map(vmf->pmd, vmf->address);
+>> +       order = calc_anon_folio_order_alloc(vmf, order);
+>> +       pte_unmap(vmf->pte);
+>> +
+>> +       /* Allocate our own private folio. */
+>>         if (unlikely(anon_vma_prepare(vma)))
+>>                 goto oom;
+>> -       folio = vma_alloc_zeroed_movable_folio(vma, vmf->address, 0, 0);
+>> +       folio = try_vma_alloc_movable_folio(vma, vmf->address, order, true);
+>>         if (!folio)
+>>                 goto oom;
+>>
+>> +       /* We may have been granted less than we asked for. */
+>> +       order = folio_order(folio);
+>> +       pgcount = BIT(order);
+>> +       addr = ALIGN_DOWN(vmf->address, pgcount << PAGE_SHIFT);
+>> +
+>>         if (mem_cgroup_charge(folio, vma->vm_mm, GFP_KERNEL))
+>>                 goto oom_free_page;
+>>         folio_throttle_swaprate(folio, GFP_KERNEL);
+>>
+>>         /*
+>>          * The memory barrier inside __folio_mark_uptodate makes sure that
+>> -        * preceding stores to the page contents become visible before
+>> -        * the set_pte_at() write.
+>> +        * preceding stores to the folio contents become visible before
+>> +        * the set_ptes() write.
+>>          */
+>>         __folio_mark_uptodate(folio);
+>>
+>> @@ -4268,11 +4375,31 @@ static vm_fault_t do_anonymous_page(struct vm_fault *vmf)
+>>         if (vma->vm_flags & VM_WRITE)
+>>                 entry = pte_mkwrite(pte_mkdirty(entry));
+>>
+>> -       vmf->pte = pte_offset_map_lock(vma->vm_mm, vmf->pmd, vmf->address,
+>> -                       &vmf->ptl);
+>> -       if (vmf_pte_changed(vmf)) {
+>> -               update_mmu_tlb(vma, vmf->address, vmf->pte);
+>> -               goto release;
+>> +       vmf->pte = pte_offset_map_lock(vma->vm_mm, vmf->pmd, addr, &vmf->ptl);
+>> +
+>> +       /*
+>> +        * Ensure our estimate above is still correct; we could have raced with
+>> +        * another thread to service a fault in the region.
+>> +        */
+>> +       if (order == 0) {
+>> +               if (vmf_pte_changed(vmf)) {
+>> +                       update_mmu_tlb(vma, vmf->address, vmf->pte);
+>> +                       goto release;
+>> +               }
+>> +       } else if (check_ptes_none(vmf->pte, pgcount) != pgcount) {
+>> +               pte_t *pte = vmf->pte + ((vmf->address - addr) >> PAGE_SHIFT);
+>> +
+>> +               /* If faulting pte was allocated by another, exit early. */
+>> +               if (!pte_none(ptep_get(pte))) {
+>> +                       update_mmu_tlb(vma, vmf->address, pte);
+>> +                       goto release;
+>> +               }
+>> +
+>> +               /* Else try again, with a lower order. */
+>> +               pte_unmap_unlock(vmf->pte, vmf->ptl);
+>> +               folio_put(folio);
+>> +               order--;
+>> +               goto retry;
+> 
+> I'm not sure whether this extra fallback logic is worth it or not. Do
+> you have any benchmark data or is it just an arbitrary design choice?
+> If it is just an arbitrary design choice, I'd like to go with the
+> simplest way by just exiting page fault handler, just like the
+> order-0, IMHO.
 
-We have report_prefix_pushf (note the f at the end!) for this.
+Yes, its an arbitrary design choice. Based on Yu Zhao's feedback, I'm already
+reworking this so that we only try the preferred order and order-0, so no longer
+iterating through intermediate orders.
 
-I can fix that up when picking in case there's no new version, though.
+I think what you are suggesting is that if attempting to allocate the preferred
+order and we find there was a race meaning that the folio now is overlapping
+populated ptes (but the faulting pte is still empty), just exit and rely on the
+page fault being re-triggered, rather than immediately falling back to order-0?
+
+The reason I didn't do that was I wasn't sure if the return path might have
+assumptions that the faulting pte is now valid if no error was returned? I guess
+another option is to return VM_FAULT_RETRY but then it seemed cleaner to do the
+retry directly here. What do you suggest?
+
+Thanks,
+Ryan
+
+
+
+> 
+>>         }
+>>
+>>         ret = check_stable_address_space(vma->vm_mm);
+>> @@ -4286,16 +4413,18 @@ static vm_fault_t do_anonymous_page(struct vm_fault *vmf)
+>>                 return handle_userfault(vmf, VM_UFFD_MISSING);
+>>         }
+>>
+>> -       inc_mm_counter(vma->vm_mm, MM_ANONPAGES);
+>> -       folio_add_new_anon_rmap(folio, vma, vmf->address);
+>> +       folio_ref_add(folio, pgcount - 1);
+>> +
+>> +       add_mm_counter(vma->vm_mm, MM_ANONPAGES, pgcount);
+>> +       folio_add_new_anon_rmap_range(folio, &folio->page, pgcount, vma, addr);
+>>         folio_add_lru_vma(folio, vma);
+>> -setpte:
+>> +
+>>         if (uffd_wp)
+>>                 entry = pte_mkuffd_wp(entry);
+>> -       set_pte_at(vma->vm_mm, vmf->address, vmf->pte, entry);
+>> +       set_ptes(vma->vm_mm, addr, vmf->pte, entry, pgcount);
+>>
+>>         /* No need to invalidate - it was non-present before */
+>> -       update_mmu_cache(vma, vmf->address, vmf->pte);
+>> +       update_mmu_cache_range(vma, addr, vmf->pte, pgcount);
+>>  unlock:
+>>         pte_unmap_unlock(vmf->pte, vmf->ptl);
+>>         return ret;
+>> --
+>> 2.25.1
+>>
+>>
+
