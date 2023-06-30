@@ -2,243 +2,248 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29E43C001B0
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Jun 2023 19:23:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DCC3EB64DA
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Jun 2023 22:16:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232317AbjF3TW7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 30 Jun 2023 15:22:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58870 "EHLO
+        id S232667AbjF3WQU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 30 Jun 2023 18:16:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229484AbjF3TW6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 30 Jun 2023 15:22:58 -0400
-Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15E0C3C39
-        for <linux-s390@vger.kernel.org>; Fri, 30 Jun 2023 12:22:56 -0700 (PDT)
-Received: by mail-yb1-xb35.google.com with SMTP id 3f1490d57ef6-bfee679b7efso2189733276.0
-        for <linux-s390@vger.kernel.org>; Fri, 30 Jun 2023 12:22:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1688152975; x=1690744975;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=UpA/3MkDA4Bbb6eJ6xeemnz64HxyzKE7wrEAQ570pfY=;
-        b=qrvgu39+Pjzc0ty+cMKIrH7Eni71vn8ej746goZG1tt82sCTsmWg6sBEtMY5CYHkvc
-         xclnmytvO77Jk7WZZk/il6ovWRv1QJV2T5YBR38m1fpA60DTf2h7Xd6BRbHgj9AvET1p
-         tRCXjgGhJ6lxaDD/J1iU2O9lhqpC8W/NCc+eL3bbCVdX54HfuY4wUAcwYj6APMOTcz4G
-         f66Hj1VDT8JxouLBXxbgSCkSfpv2cMeVkvsNVflvvYlmarJ0nMeAwtFB3YcpKUnimWJd
-         M0kxVMaVqi4PmA2kSbzsqFbGlI4UBRtOwklt4JjwKtiq8VRHxGS9MYdDm87KrkMzPwwX
-         AxHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1688152975; x=1690744975;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=UpA/3MkDA4Bbb6eJ6xeemnz64HxyzKE7wrEAQ570pfY=;
-        b=GmZEU5Ma5Elmr0gzHBbAArXfMRxAdVuB48uxKtS5ygI2706KqfFyjfq6+TBJw8ZhTF
-         nHIVGIRpvy+feLyEPqFNUeioFRONw3gZVf/ge2Q9xYspRwA1g1aw/yG7sh2V2kV/MQzG
-         OI4xkf6N7WACZ8vpLR/p/T04uM2PmGzwEFmgafeVg4t6eGVvVaZskK8KKkEn0LaV3nUj
-         /OYfDpRsY2Nwmvi97H556XK7xuc+KAUq7uYLK7eGBGy87aB0rmM/Fc8jW8BC5m3j7x9j
-         iKiC4h3y4nPhjr15kNwZlxRRiOj+xoKZp65FXJ5rSMF8g0BxRmYVJOTzWjuTW53nKKcW
-         r2Hw==
-X-Gm-Message-State: ABy/qLYTqCkTZM9TYdXFwuL/gDO7fTOuJIRAXNDA210cPc0LCAuxJaHy
-        uLmbyBK4PR3UAAD5ndHMYjMa7Q==
-X-Google-Smtp-Source: APBJJlEeRudcWa5iit7A1oAKHz4BndX5rtVzOZ4hnmAKD3Z6cXWQLvZ24j/5LxRaPlyEpIMC7jurbQ==
-X-Received: by 2002:a25:ce04:0:b0:c22:82b1:17ee with SMTP id x4-20020a25ce04000000b00c2282b117eemr3233485ybe.63.1688152975093;
-        Fri, 30 Jun 2023 12:22:55 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id t4-20020a259ac4000000b00bb144da7d68sm2968477ybo.13.2023.06.30.12.22.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Jun 2023 12:22:54 -0700 (PDT)
-Date:   Fri, 30 Jun 2023 12:22:43 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-cc:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
+        with ESMTP id S232347AbjF3WQJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 30 Jun 2023 18:16:09 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B47B23C32;
+        Fri, 30 Jun 2023 15:16:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=mmrCw93FsSgGVqkQGx3tY+c3DxJ3ErMGqt6cuZmQDk4=; b=3Xi9NJjkd4QPELIEMLqHm1+oJy
+        QNIOVPA8HW3kXP6XuZluim3h/1Z/sfwrG9QOzNRHgYq+vOXcblPYVWq7qnircmbeiJPJDVgOjWyzo
+        LbnhyHqo5AegY+fER/tKQShp8dh+Z/+/bv4xI3KoQiSpmxUAYDgP6p5vAe2pi77qFUU0ycsQEmV7V
+        4gCVdOf3P+PueFWMrnvROKMoMz+u7SsILxSnayKbZrj37v0X+NhKaX7iej/SD3IFAsLN2XayGDdUC
+        G3y/vRbujnR04W/Op5jRENlRX4f86+/5+pwYqxdiQMmhYNN5AwTPrNqa/XDugttEtOweLL0X0YqO/
+        pQ84xrwQ==;
+Received: from mcgrof by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
+        id 1qFML8-004eW8-2f;
+        Fri, 30 Jun 2023 22:11:42 +0000
+Date:   Fri, 30 Jun 2023 15:11:42 -0700
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     Steven Rostedt <rostedt@goodmis.org>,
+        Julia Lawall <julia.lawall@inria.fr>,
+        Takashi Iwai <tiwai@suse.de>
+Cc:     Jeff Layton <jlayton@kernel.org>, Jeremy Kerr <jk@ozlabs.org>,
+        Arnd Bergmann <arnd@arndb.de>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jann Horn <jannh@google.com>,
-        Vishal Moola <vishal.moola@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v2 07/12] s390: add pte_free_defer() for pgtables sharing
- page
-In-Reply-To: <20230630182556.7727ef50@p-imbrenda>
-Message-ID: <7f6d399b-c47-1faa-f7f6-9932b9811f8c@google.com>
-References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com> <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com> <20230630153852.31163592@p-imbrenda> <062b19-4cf1-261-a9bf-9cefd32382fc@google.com> <20230630182556.7727ef50@p-imbrenda>
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arve =?iso-8859-1?B?SGr4bm5lduVn?= <arve@android.com>,
+        Todd Kjos <tkjos@android.com>,
+        Martijn Coenen <maco@android.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Carlos Llamas <cmllamas@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Leon Romanovsky <leon@kernel.org>,
+        Brad Warrum <bwarrum@linux.ibm.com>,
+        Ritu Agarwal <rituagar@linux.ibm.com>,
+        Eric Van Hensbergen <ericvh@kernel.org>,
+        Latchesar Ionkov <lucho@ionkov.net>,
+        Dominique Martinet <asmadeus@codewreck.org>,
+        Christian Schoenebeck <linux_oss@crudebyte.com>,
+        David Sterba <dsterba@suse.com>,
+        David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Ian Kent <raven@themaw.net>,
+        Luis de Bethencourt <luisbg@kernel.org>,
+        Salah Triki <salah.triki@gmail.com>,
+        "Tigran A. Aivazian" <aivazian.tigran@gmail.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Kees Cook <keescook@chromium.org>, Chris Mason <clm@fb.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Xiubo Li <xiubli@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Jan Harkes <jaharkes@cs.cmu.edu>, coda@cs.cmu.edu,
+        Joel Becker <jlbec@evilplan.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Tyler Hicks <code@tyhicks.com>,
+        Ard Biesheuvel <ardb@kernel.org>, Gao Xiang <xiang@kernel.org>,
+        Chao Yu <chao@kernel.org>, Yue Hu <huyue2@coolpad.com>,
+        Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        Jan Kara <jack@suse.com>, Theodore Ts'o <tytso@mit.edu>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Muchun Song <muchun.song@linux.dev>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Dave Kleikamp <shaggy@kernel.org>, Tejun Heo <tj@kernel.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Bob Copeland <me@bobcopeland.com>,
+        Mike Marshall <hubcap@omnibond.com>,
+        Martin Brandenburg <martin@omnibond.com>,
+        Iurii Zaikin <yzaikin@google.com>,
+        Tony Luck <tony.luck@intel.com>,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Anders Larsen <al@alarsen.net>,
+        Steve French <sfrench@samba.org>,
+        Paulo Alcantara <pc@manguebit.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Shyam Prasad N <sprasad@microsoft.com>,
+        Tom Talpey <tom@talpey.com>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Phillip Lougher <phillip@squashfs.org.uk>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Evgeniy Dushistov <dushistov@mail.ru>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Damien Le Moal <dlemoal@kernel.org>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        Johannes Thumshirn <jth@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        John Johansen <john.johansen@canonical.com>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Juergen Gross <jgross@suse.com>,
+        Ruihan Li <lrh2000@pku.edu.cn>,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Udipto Goswami <quic_ugoswami@quicinc.com>,
+        Linyu Yuan <quic_linyyuan@quicinc.com>,
+        John Keeping <john@keeping.me.uk>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        Dan Carpenter <error27@gmail.com>,
+        Yuta Hayama <hayama@lineo.co.jp>,
+        Jozef Martiniak <jomajm@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Sandeep Dhavale <dhavale@google.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        ZhangPeng <zhangpeng362@huawei.com>,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Aditya Garg <gargaditya08@live.com>,
+        Erez Zadok <ezk@cs.stonybrook.edu>,
+        Yifei Liu <yifeliu@cs.stonybrook.edu>,
+        Yu Zhe <yuzhe@nfschina.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Oleg Kanatov <okanatov@gmail.com>,
+        "Dr. David Alan Gilbert" <linux@treblig.org>,
+        Jiangshan Yi <yijiangshan@kylinos.cn>,
+        xu xin <cgel.zte@gmail.com>, Stefan Roesch <shr@devkernel.io>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Minghao Chi <chi.minghao@zte.com.cn>,
+        Seth Forshee <sforshee@digitalocean.com>,
+        Zeng Jingxiang <linuszeng@tencent.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Zhang Yi <yi.zhang@huawei.com>, Tom Rix <trix@redhat.com>,
+        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
+        Chen Zhongjin <chenzhongjin@huawei.com>,
+        Zhengchao Shao <shaozhengchao@huawei.com>,
+        Rik van Riel <riel@surriel.com>,
+        Jingyu Wang <jingyuwang_vip@163.com>,
+        Hangyu Hua <hbh25y@gmail.com>, linuxppc-dev@lists.ozlabs.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-usb@vger.kernel.org,
+        v9fs@lists.linux.dev, linux-fsdevel@vger.kernel.org,
+        linux-afs@lists.infradead.org, autofs@vger.kernel.org,
+        linux-mm@kvack.org, linux-btrfs@vger.kernel.org,
+        ceph-devel@vger.kernel.org, codalist@coda.cs.cmu.edu,
+        ecryptfs@vger.kernel.org, linux-efi@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
+        linux-um@lists.infradead.org, linux-mtd@lists.infradead.org,
+        jfs-discussion@lists.sourceforge.net, linux-nfs@vger.kernel.org,
+        linux-nilfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
+        ntfs3@lists.linux.dev, ocfs2-devel@oss.oracle.com,
+        linux-karma-devel@lists.sourceforge.net, devel@lists.orangefs.org,
+        linux-unionfs@vger.kernel.org, linux-hardening@vger.kernel.org,
+        reiserfs-devel@vger.kernel.org, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org,
+        linux-trace-kernel@vger.kernel.org, linux-xfs@vger.kernel.org,
+        bpf@vger.kernel.org, netdev@vger.kernel.org,
+        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org
+Subject: Re: [PATCH 00/79] fs: new accessors for inode->i_ctime
+Message-ID: <ZJ9THiUlOUmm0xpD@bombadil.infradead.org>
+References: <20230621144507.55591-1-jlayton@kernel.org>
+ <20230621152141.5961cf5f@gandalf.local.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230621152141.5961cf5f@gandalf.local.home>
+Sender: Luis Chamberlain <mcgrof@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 30 Jun 2023, Claudio Imbrenda wrote:
-> On Fri, 30 Jun 2023 08:28:54 -0700 (PDT)
-> Hugh Dickins <hughd@google.com> wrote:
-> > On Fri, 30 Jun 2023, Claudio Imbrenda wrote:
-> > > On Tue, 20 Jun 2023 00:51:19 -0700 (PDT)
-> > > Hugh Dickins <hughd@google.com> wrote:
-> > > 
-> > > [...]
-> > >   
-> > > > +void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
-> > > > +{
-> > > > +	unsigned int bit, mask;
-> > > > +	struct page *page;
-> > > > +
-> > > > +	page = virt_to_page(pgtable);
-> > > > +	if (mm_alloc_pgste(mm)) {
-> > > > +		call_rcu(&page->rcu_head, pte_free_pgste);  
-> > > 
-> > > so is this now going to be used to free page tables
-> > > instead of page_table_free_rcu?  
-> > 
-> > No.
-> > 
-> > All pte_free_defer() is being used for (in this series; and any future
-> > use beyond this series will have to undertake its own evaluations) is
-> > for the case of removing an empty page table, which used to map a group
-> > of PTE mappings of a file, in order to make way for one PMD mapping of
-> > the huge page which those scattered pages have now been gathered into.
-> > 
-> > You're worried by that mm_alloc_pgste() block: it's something I didn't
+On Wed, Jun 21, 2023 at 03:21:41PM -0400, Steven Rostedt wrote:
+> On Wed, 21 Jun 2023 10:45:05 -0400
+> Jeff Layton <jlayton@kernel.org> wrote:
 > 
-> actually no, but thanks for bringing it up :D
+> > Most of this conversion was done via coccinelle, with a few of the more
+> > non-standard accesses done by hand. There should be no behavioral
+> > changes with this set. That will come later, as we convert individual
+> > filesystems to use multigrain timestamps.
 > 
-> > have at all in my first draft, then I thought that perhaps the pgste
-> > case might be able to come this way, so it seemed stupid to leave out
-> > the handling for it.
-> > 
-> > I hope that you're implying that should be dead code here?  Perhaps,
-> > that the pgste case corresponds to the case in s390 where THPs are
-> > absolutely forbidden?  That would be good news for us.
-> > 
-> > Gerald, in his version of this block, added a comment asking:
-> > 	/*
-> > 	 * TODO: Do we need gmap_unlink(mm, pgtable, addr), like in
-> > 	 * page_table_free_rcu()?
-> > 	 * If yes -> need addr parameter here, like in pte_free_tlb().
-> > 	 */
-> > Do you have the answer to that?  Neither of us could work it out.
-> 
-> this is the thing I'm worried about; removing a page table that was
-> used to map a guest will leave dangling pointers in the gmap that will
-> cause memory corruption (I actually ran into that problem myself for
-> another patchseries).
-> 
-> gmap_unlink() is needed to clean up the pointers before they become
-> dangling (and also potentially do some TLB purging as needed)
+> BTW, Linus has suggested to me that whenever a conccinelle script is used,
+> it should be included in the change log.
 
-That's something I would have expected to be handled already via
-mmu_notifiers, rather than buried inside the page table freeing.
+Sometimes people like the coccinelle included in the commit, sometimes
+people don't [0], it really ends up being up to a subjective maintainer
+preference. A compromise could be to use git notes as these are
+optional, however if we want to go down that path we should try to make
+a general consensus on it so we can send a consistent message.
 
-If s390 is the only architecture to go that way, and could instead do
-it via mmu_notifiers, then I think that will be more easily supported
-in the long term.
+[0] https://lore.kernel.org/all/20230512073100.GC32559@twin.jikos.cz/
 
-But I'm writing from a position of very great ignorance: advising
-KVM on s390 is many dimensions away from what I'm capable of.
-
-> 
-> the point here is: we need that only for page_table_free_rcu(); all
-> other users of page_table_free() cannot act on guest page tables
-
-I might be wrong, but I think that most users of page_table_free()
-are merely freeing a page table which had to be allocated up front,
-but was then found unnecessary (maybe a racing task already inserted
-one): page tables which were never exposed to actual use.
-
-> (because we don't allow THP for KVM guests). and that is why
-> page_table_free() does not do gmap_unlink() currently.
-
-But THP collapse does (or did before this series) use it to free a
-page table which had been exposed to use.  The fact that s390 does
-not allow THP for KVM guests makes page_table_free(), and this new
-pte_free_defer(), safe for that; but it feels dangerously coincidental.
-
-It's easy to imagine a future change being made, which would stumble
-over this issue.  I have imagined that pte_free_defer() will be useful
-in future, in the freeing of empty page tables: but s390 may pose a
-problem there - though perhaps no more of a problem than additionally
-needing to pass a virtual address down the stack.
-
-> 
-> > 
-> > > 
-> > > or will it be used instead of page_table_free?  
-> > 
-> > Not always; but yes, this case of removing a page table used
-> > page_table_free() before; but now, with the lighter locking, needs
-> > to keep the page table valid until the RCU grace period expires.
-> 
-> so if I understand correctly your code will, sometimes, under some
-> circumstances, replace what page_table_free() does, but it will never
-> replace page_table_free_rcu()?
-> 
-> because in that case there would be no issues 
-
-Yes, thanks for confirming: we have no issue here at present, but may
-do if use of pte_free_defer() is extended to other contexts in future.
-
-Would it be appropriate to add a WARN_ON_ONCE around that
-> > > > +	if (mm_alloc_pgste(mm)) {
-in pte_free_defer()?
-
-I ask that somewhat rhetorically: that block disappears in the later
-version I was working on last night (and will return to shortly), in
-which pte_free_defer() just sets a bit and calls page_table_free().
-
-But I'd like to understand the possibilities better: does mm_alloc_pgste()
-correspond 1:1 to KVM guest on s390, or does it cover several different
-possibilities of which KVM guest is one, or am I just confused to be
-thinking there's any relationship?
-
-Thanks,
-Hugh
-
-> 
-> > 
-> > > 
-> > > this is actually quite important for KVM on s390  
-> > 
-> > None of us are wanting to break KVM on s390: your guidance appreciated!
-> > 
-> > Thanks,
-> > Hugh
+  Luis
