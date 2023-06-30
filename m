@@ -2,105 +2,125 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B645EEB64D9
-	for <linux-s390@archiver.kernel.org>; Thu, 29 Jun 2023 17:27:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F9F4C001DB
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Jun 2023 05:34:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232039AbjF2R1d (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 29 Jun 2023 13:27:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55372 "EHLO
+        id S232174AbjF3FeJ convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 30 Jun 2023 01:34:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230460AbjF2R1X (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 29 Jun 2023 13:27:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51A903AAE;
-        Thu, 29 Jun 2023 10:27:05 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D65D0615C4;
-        Thu, 29 Jun 2023 17:27:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABA6FC433C0;
-        Thu, 29 Jun 2023 17:26:58 +0000 (UTC)
-Date:   Thu, 29 Jun 2023 18:26:55 +0100
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Yicong Yang <yangyicong@huawei.com>
-Cc:     akpm@linux-foundation.org, linux-mm@kvack.org,
-        linux-arm-kernel@lists.infradead.org, x86@kernel.org,
-        mark.rutland@arm.com, ryan.roberts@arm.com, will@kernel.org,
-        anshuman.khandual@arm.com, linux-doc@vger.kernel.org,
-        corbet@lwn.net, peterz@infradead.org, arnd@arndb.de,
-        punit.agrawal@bytedance.com, linux-kernel@vger.kernel.org,
-        darren@os.amperecomputing.com, yangyicong@hisilicon.com,
-        huzhanyuan@oppo.com, lipeifeng@oppo.com, zhangshiming@oppo.com,
-        guojian@oppo.com, realmz6@gmail.com, linux-mips@vger.kernel.org,
-        openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        Barry Song <21cnbao@gmail.com>, wangkefeng.wang@huawei.com,
-        xhao@linux.alibaba.com, prime.zeng@hisilicon.com,
-        Jonathan.Cameron@huawei.com, Barry Song <v-songbaohua@oppo.com>,
-        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>
-Subject: Re: [RESEND PATCH v9 2/2] arm64: support batched/deferred tlb
- shootdown during page reclamation/migration
-Message-ID: <ZJ2+37Q7v4odMmEd@arm.com>
-References: <20230518065934.12877-1-yangyicong@huawei.com>
- <20230518065934.12877-3-yangyicong@huawei.com>
- <ZJ2x6DlmyA3kVh1n@arm.com>
+        with ESMTP id S231235AbjF3FeF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 30 Jun 2023 01:34:05 -0400
+Received: from mail-yb1-f177.google.com (mail-yb1-f177.google.com [209.85.219.177])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AE8010F8;
+        Thu, 29 Jun 2023 22:34:04 -0700 (PDT)
+Received: by mail-yb1-f177.google.com with SMTP id 3f1490d57ef6-bfe6ea01ff5so1371845276.3;
+        Thu, 29 Jun 2023 22:34:04 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1688103243; x=1690695243;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=rqe4oW6egP6ZYOUhmx0yHzT4spsp8DeajtOy9Dxl0N0=;
+        b=LIl0qLBMoW2LcJe2pPURQ0ju/TOcC/ZDWK6A3oVTnmFWJS7gYfIC1bIOf1gArGxrxM
+         I1boPzYZz19N5jurvtUEsZMRl9AlekP1u5fqDuB95nUo4uhTt3NgshUtNu3KfRvwzo5k
+         rCkn2GPz/k93Of9GfOClAJMS3N5vv2B6eqJ0c3fYbGN42PK38YFAkqAJP8/kkthAga+s
+         U1s3ENOmaKhtVza2UVdZzhHmtC883/wN8Z3t4TZ6kPVzGDnduFiMHU/jII8VFmZ8ixFn
+         P8WkVY85ZdA7eJb99tEhNAjPervEYs0QXGjiLfb3/OEV3+Dv5RZYEzR4W/h2Ythp+374
+         LUTg==
+X-Gm-Message-State: ABy/qLZ+1tELI0GRK3KtASWIqhDTVq1zv15xBVimE0wYU6IodiN/UVGf
+        XMpKUz2j7WLP6GjxWts5bkvmrtp3Sh5+2+FN1ApXPUOEo1c=
+X-Google-Smtp-Source: APBJJlGsOWkMaxD3Bj5EXOi0ZRM8KsFOEr8Lg1uNKczc+6HZPSKDsYy2QxFxSi6Et+JGvnEpCG0zVQlZ9J+DNPB54vc=
+X-Received: by 2002:a25:3107:0:b0:c12:29ac:1d36 with SMTP id
+ x7-20020a253107000000b00c1229ac1d36mr1697430ybx.7.1688103242894; Thu, 29 Jun
+ 2023 22:34:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZJ2x6DlmyA3kVh1n@arm.com>
+References: <20230628230935.1196180-1-sohil.mehta@intel.com> <08e273fc-49c5-dd09-1c9e-d85a080767f9@infradead.org>
+In-Reply-To: <08e273fc-49c5-dd09-1c9e-d85a080767f9@infradead.org>
+From:   Namhyung Kim <namhyung@kernel.org>
+Date:   Thu, 29 Jun 2023 22:33:51 -0700
+Message-ID: <CAM9d7ch0GtTUjhtbph5rmCDvRBAKjLCN+25mukn_QPv4bDsjGQ@mail.gmail.com>
+Subject: Re: [PATCH] syscalls: Cleanup references to sys_lookup_dcookie()
+To:     Randy Dunlap <rdunlap@infradead.org>
+Cc:     Sohil Mehta <sohil.mehta@intel.com>, Arnd Bergmann <arnd@arndb.de>,
+        linux-api@vger.kernel.org, linux-arch@vger.kernel.org,
+        Richard Henderson <richard.henderson@linaro.org>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Andy Lutomirski <luto@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H . Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Sergei Trofimovich <slyich@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Rohan McLure <rmclure@linux.ibm.com>,
+        Andreas Schwab <schwab@linux-m68k.org>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Brian Gerst <brgerst@gmail.com>, linux-alpha@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-perf-users@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jun 29, 2023 at 05:31:36PM +0100, Catalin Marinas wrote:
-> On Thu, May 18, 2023 at 02:59:34PM +0800, Yicong Yang wrote:
-> > From: Barry Song <v-songbaohua@oppo.com>
-> > 
-> > on x86, batched and deferred tlb shootdown has lead to 90%
-> > performance increase on tlb shootdown. on arm64, HW can do
-> > tlb shootdown without software IPI. But sync tlbi is still
-> > quite expensive.
-> [...]
-> >  .../features/vm/TLB/arch-support.txt          |  2 +-
-> >  arch/arm64/Kconfig                            |  1 +
-> >  arch/arm64/include/asm/tlbbatch.h             | 12 ++++
-> >  arch/arm64/include/asm/tlbflush.h             | 33 ++++++++-
-> >  arch/arm64/mm/flush.c                         | 69 +++++++++++++++++++
-> >  arch/x86/include/asm/tlbflush.h               |  5 +-
-> >  include/linux/mm_types_task.h                 |  4 +-
-> >  mm/rmap.c                                     | 12 ++--
-> 
-> First of all, this patch needs to be split in some preparatory patches
-> introducing/renaming functions with no functional change for x86. Once
-> done, you can add the arm64-only changes.
-> 
-> Now, on the implementation, I had some comments on v7 but we didn't get
-> to a conclusion and the thread eventually died:
-> 
-> https://lore.kernel.org/linux-mm/Y7cToj5mWd1ZbMyQ@arm.com/
-> 
-> I know I said a command line argument is better than Kconfig or some
-> random number of CPUs heuristics but it would be even better if we don't
-> bother with any, just make this always on. Barry had some comments
-> around mprotect() being racy and that's why we have
-> flush_tlb_batched_pending() but I don't think it's needed (or, for
-> arm64, it can be a DSB since this patch issues the TLBIs but without the
-> DVM Sync). So we need to clarify this (see Barry's last email on the
-> above thread) and before attempting new versions of this patchset. With
-> flush_tlb_batched_pending() removed (or DSB), I have a suspicion such
-> implementation would be faster on any SoC irrespective of the number of
-> CPUs.
+Hello,
 
-I think I got the need for flush_tlb_batched_pending(). If
-try_to_unmap() marks the pte !present and we have a pending TLBI,
-change_pte_range() will skip the TLB maintenance altogether since it did
-not change the pte. So we could be left with stale TLB entries after
-mprotect() before TTU does the batch flushing.
+On Wed, Jun 28, 2023 at 4:44 PM Randy Dunlap <rdunlap@infradead.org> wrote:
+>
+>
+>
+> On 6/28/23 16:09, Sohil Mehta wrote:
+> > commit 'be65de6b03aa ("fs: Remove dcookies support")' removed the
+> > syscall definition for lookup_dcookie.  However, syscall tables still
+> > point to the old sys_lookup_dcookie() definition. Update syscall tables
+> > of all architectures to directly point to sys_ni_syscall() instead.
+> >
+> > Signed-off-by: Sohil Mehta <sohil.mehta@intel.com>
+>
+> Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
 
-We can have an arch-specific flush_tlb_batched_pending() that can be a
-DSB only on arm64 and a full mm flush on x86.
+I was about to say that it'd be nice if you split the tools/perf part
+since it can support old kernels.  But if the syscall is only used for
+oprofile then probably perf doesn't need to care about it. :)
 
--- 
-Catalin
+For the perf part,
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+
+Thanks,
+Namhyung
