@@ -2,65 +2,57 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66422EB64D7
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Jun 2023 16:27:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29E43C001B0
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Jun 2023 19:23:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232301AbjF3Q1Z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 30 Jun 2023 12:27:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40574 "EHLO
+        id S232317AbjF3TW7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 30 Jun 2023 15:22:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230015AbjF3Q1Y (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 30 Jun 2023 12:27:24 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C10C3A9B;
-        Fri, 30 Jun 2023 09:27:22 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35UGGhGg032422;
-        Fri, 30 Jun 2023 16:26:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=5FleP/0R2I7M2ntcJjERxzq9JuYOAoAyKjmikS2wBhs=;
- b=rfJRDjaZJEmkfL3bAbOBfQgWWuV8fu4M4tJ60QgQix7BNqhCbdDa0fe4ogQDW2D0rhik
- WZFSh31VTe2dd7zFvMHKxG8NjyG3/mWCsRT1NXjIHQvQHnNlmreeNv4kJSHIJCm3/3cY
- 8Vo/gAsNL9CsVvHpA8vJRL3ec/c0OClfPpaT/H/wliIlFpB+pKNBdZpCsR1Qrs3tbal4
- 7d0rN+mrAqlZlfZyoi1wzQXr023CgKAdYBD22hdZ2NbPDWJ/V0kCq3Mtq78VI3Dqy9+g
- O2ZyQjIgWrj1sU0NRnKHUUlc8tPezuNGTeemTtA37ErNfK/9zqnLWTWZQoNSZFFDrx8/ 3w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rj2e387t8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 30 Jun 2023 16:26:07 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35UGH63B001290;
-        Fri, 30 Jun 2023 16:26:06 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rj2e387rm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 30 Jun 2023 16:26:05 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35UFkuwi000452;
-        Fri, 30 Jun 2023 16:26:02 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3rdr453513-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 30 Jun 2023 16:26:02 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35UGPxmU43516216
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 30 Jun 2023 16:25:59 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E9A4120043;
-        Fri, 30 Jun 2023 16:25:58 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CAC6F20040;
-        Fri, 30 Jun 2023 16:25:57 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 30 Jun 2023 16:25:57 +0000 (GMT)
-Date:   Fri, 30 Jun 2023 18:25:56 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        with ESMTP id S229484AbjF3TW6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 30 Jun 2023 15:22:58 -0400
+Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15E0C3C39
+        for <linux-s390@vger.kernel.org>; Fri, 30 Jun 2023 12:22:56 -0700 (PDT)
+Received: by mail-yb1-xb35.google.com with SMTP id 3f1490d57ef6-bfee679b7efso2189733276.0
+        for <linux-s390@vger.kernel.org>; Fri, 30 Jun 2023 12:22:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20221208; t=1688152975; x=1690744975;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=UpA/3MkDA4Bbb6eJ6xeemnz64HxyzKE7wrEAQ570pfY=;
+        b=qrvgu39+Pjzc0ty+cMKIrH7Eni71vn8ej746goZG1tt82sCTsmWg6sBEtMY5CYHkvc
+         xclnmytvO77Jk7WZZk/il6ovWRv1QJV2T5YBR38m1fpA60DTf2h7Xd6BRbHgj9AvET1p
+         tRCXjgGhJ6lxaDD/J1iU2O9lhqpC8W/NCc+eL3bbCVdX54HfuY4wUAcwYj6APMOTcz4G
+         f66Hj1VDT8JxouLBXxbgSCkSfpv2cMeVkvsNVflvvYlmarJ0nMeAwtFB3YcpKUnimWJd
+         M0kxVMaVqi4PmA2kSbzsqFbGlI4UBRtOwklt4JjwKtiq8VRHxGS9MYdDm87KrkMzPwwX
+         AxHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1688152975; x=1690744975;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=UpA/3MkDA4Bbb6eJ6xeemnz64HxyzKE7wrEAQ570pfY=;
+        b=GmZEU5Ma5Elmr0gzHBbAArXfMRxAdVuB48uxKtS5ygI2706KqfFyjfq6+TBJw8ZhTF
+         nHIVGIRpvy+feLyEPqFNUeioFRONw3gZVf/ge2Q9xYspRwA1g1aw/yG7sh2V2kV/MQzG
+         OI4xkf6N7WACZ8vpLR/p/T04uM2PmGzwEFmgafeVg4t6eGVvVaZskK8KKkEn0LaV3nUj
+         /OYfDpRsY2Nwmvi97H556XK7xuc+KAUq7uYLK7eGBGy87aB0rmM/Fc8jW8BC5m3j7x9j
+         iKiC4h3y4nPhjr15kNwZlxRRiOj+xoKZp65FXJ5rSMF8g0BxRmYVJOTzWjuTW53nKKcW
+         r2Hw==
+X-Gm-Message-State: ABy/qLYTqCkTZM9TYdXFwuL/gDO7fTOuJIRAXNDA210cPc0LCAuxJaHy
+        uLmbyBK4PR3UAAD5ndHMYjMa7Q==
+X-Google-Smtp-Source: APBJJlEeRudcWa5iit7A1oAKHz4BndX5rtVzOZ4hnmAKD3Z6cXWQLvZ24j/5LxRaPlyEpIMC7jurbQ==
+X-Received: by 2002:a25:ce04:0:b0:c22:82b1:17ee with SMTP id x4-20020a25ce04000000b00c2282b117eemr3233485ybe.63.1688152975093;
+        Fri, 30 Jun 2023 12:22:55 -0700 (PDT)
+Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id t4-20020a259ac4000000b00bb144da7d68sm2968477ybo.13.2023.06.30.12.22.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Jun 2023 12:22:54 -0700 (PDT)
+Date:   Fri, 30 Jun 2023 12:22:43 -0700 (PDT)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@ripple.attlocal.net
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+cc:     Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Mike Kravetz <mike.kravetz@oracle.com>,
@@ -106,116 +98,147 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v2 07/12] s390: add pte_free_defer() for pgtables
- sharing page
-Message-ID: <20230630182556.7727ef50@p-imbrenda>
-In-Reply-To: <062b19-4cf1-261-a9bf-9cefd32382fc@google.com>
-References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com>
-        <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com>
-        <20230630153852.31163592@p-imbrenda>
-        <062b19-4cf1-261-a9bf-9cefd32382fc@google.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+Subject: Re: [PATCH v2 07/12] s390: add pte_free_defer() for pgtables sharing
+ page
+In-Reply-To: <20230630182556.7727ef50@p-imbrenda>
+Message-ID: <7f6d399b-c47-1faa-f7f6-9932b9811f8c@google.com>
+References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com> <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com> <20230630153852.31163592@p-imbrenda> <062b19-4cf1-261-a9bf-9cefd32382fc@google.com> <20230630182556.7727ef50@p-imbrenda>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: NGGI7X7RNOwVeaZnozOHUb2n61vBAppx
-X-Proofpoint-ORIG-GUID: ZwpwS0v6kbksCuiFRJdCAInx0_OzLG0C
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-06-30_08,2023-06-30_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- adultscore=0 mlxscore=0 impostorscore=0 phishscore=0 suspectscore=0
- clxscore=1015 mlxlogscore=999 malwarescore=0 bulkscore=0 spamscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2306300137
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 30 Jun 2023 08:28:54 -0700 (PDT)
-Hugh Dickins <hughd@google.com> wrote:
-
-> On Fri, 30 Jun 2023, Claudio Imbrenda wrote:
-> > On Tue, 20 Jun 2023 00:51:19 -0700 (PDT)
-> > Hugh Dickins <hughd@google.com> wrote:
+On Fri, 30 Jun 2023, Claudio Imbrenda wrote:
+> On Fri, 30 Jun 2023 08:28:54 -0700 (PDT)
+> Hugh Dickins <hughd@google.com> wrote:
+> > On Fri, 30 Jun 2023, Claudio Imbrenda wrote:
+> > > On Tue, 20 Jun 2023 00:51:19 -0700 (PDT)
+> > > Hugh Dickins <hughd@google.com> wrote:
+> > > 
+> > > [...]
+> > >   
+> > > > +void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
+> > > > +{
+> > > > +	unsigned int bit, mask;
+> > > > +	struct page *page;
+> > > > +
+> > > > +	page = virt_to_page(pgtable);
+> > > > +	if (mm_alloc_pgste(mm)) {
+> > > > +		call_rcu(&page->rcu_head, pte_free_pgste);  
+> > > 
+> > > so is this now going to be used to free page tables
+> > > instead of page_table_free_rcu?  
 > > 
-> > [...]
-> >   
-> > > +void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
-> > > +{
-> > > +	unsigned int bit, mask;
-> > > +	struct page *page;
-> > > +
-> > > +	page = virt_to_page(pgtable);
-> > > +	if (mm_alloc_pgste(mm)) {
-> > > +		call_rcu(&page->rcu_head, pte_free_pgste);  
+> > No.
 > > 
-> > so is this now going to be used to free page tables
-> > instead of page_table_free_rcu?  
+> > All pte_free_defer() is being used for (in this series; and any future
+> > use beyond this series will have to undertake its own evaluations) is
+> > for the case of removing an empty page table, which used to map a group
+> > of PTE mappings of a file, in order to make way for one PMD mapping of
+> > the huge page which those scattered pages have now been gathered into.
+> > 
+> > You're worried by that mm_alloc_pgste() block: it's something I didn't
 > 
-> No.
+> actually no, but thanks for bringing it up :D
 > 
-> All pte_free_defer() is being used for (in this series; and any future
-> use beyond this series will have to undertake its own evaluations) is
-> for the case of removing an empty page table, which used to map a group
-> of PTE mappings of a file, in order to make way for one PMD mapping of
-> the huge page which those scattered pages have now been gathered into.
+> > have at all in my first draft, then I thought that perhaps the pgste
+> > case might be able to come this way, so it seemed stupid to leave out
+> > the handling for it.
+> > 
+> > I hope that you're implying that should be dead code here?  Perhaps,
+> > that the pgste case corresponds to the case in s390 where THPs are
+> > absolutely forbidden?  That would be good news for us.
+> > 
+> > Gerald, in his version of this block, added a comment asking:
+> > 	/*
+> > 	 * TODO: Do we need gmap_unlink(mm, pgtable, addr), like in
+> > 	 * page_table_free_rcu()?
+> > 	 * If yes -> need addr parameter here, like in pte_free_tlb().
+> > 	 */
+> > Do you have the answer to that?  Neither of us could work it out.
 > 
-> You're worried by that mm_alloc_pgste() block: it's something I didn't
-
-actually no, but thanks for bringing it up :D
-
-> have at all in my first draft, then I thought that perhaps the pgste
-> case might be able to come this way, so it seemed stupid to leave out
-> the handling for it.
+> this is the thing I'm worried about; removing a page table that was
+> used to map a guest will leave dangling pointers in the gmap that will
+> cause memory corruption (I actually ran into that problem myself for
+> another patchseries).
 > 
-> I hope that you're implying that should be dead code here?  Perhaps,
-> that the pgste case corresponds to the case in s390 where THPs are
-> absolutely forbidden?  That would be good news for us.
+> gmap_unlink() is needed to clean up the pointers before they become
+> dangling (and also potentially do some TLB purging as needed)
+
+That's something I would have expected to be handled already via
+mmu_notifiers, rather than buried inside the page table freeing.
+
+If s390 is the only architecture to go that way, and could instead do
+it via mmu_notifiers, then I think that will be more easily supported
+in the long term.
+
+But I'm writing from a position of very great ignorance: advising
+KVM on s390 is many dimensions away from what I'm capable of.
+
 > 
-> Gerald, in his version of this block, added a comment asking:
-> 	/*
-> 	 * TODO: Do we need gmap_unlink(mm, pgtable, addr), like in
-> 	 * page_table_free_rcu()?
-> 	 * If yes -> need addr parameter here, like in pte_free_tlb().
-> 	 */
-> Do you have the answer to that?  Neither of us could work it out.
+> the point here is: we need that only for page_table_free_rcu(); all
+> other users of page_table_free() cannot act on guest page tables
 
-this is the thing I'm worried about; removing a page table that was
-used to map a guest will leave dangling pointers in the gmap that will
-cause memory corruption (I actually ran into that problem myself for
-another patchseries).
+I might be wrong, but I think that most users of page_table_free()
+are merely freeing a page table which had to be allocated up front,
+but was then found unnecessary (maybe a racing task already inserted
+one): page tables which were never exposed to actual use.
 
-gmap_unlink() is needed to clean up the pointers before they become
-dangling (and also potentially do some TLB purging as needed)
+> (because we don't allow THP for KVM guests). and that is why
+> page_table_free() does not do gmap_unlink() currently.
 
-the point here is: we need that only for page_table_free_rcu(); all
-other users of page_table_free() cannot act on guest page tables
-(because we don't allow THP for KVM guests). and that is why
-page_table_free() does not do gmap_unlink() currently.
+But THP collapse does (or did before this series) use it to free a
+page table which had been exposed to use.  The fact that s390 does
+not allow THP for KVM guests makes page_table_free(), and this new
+pte_free_defer(), safe for that; but it feels dangerously coincidental.
+
+It's easy to imagine a future change being made, which would stumble
+over this issue.  I have imagined that pte_free_defer() will be useful
+in future, in the freeing of empty page tables: but s390 may pose a
+problem there - though perhaps no more of a problem than additionally
+needing to pass a virtual address down the stack.
 
 > 
 > > 
-> > or will it be used instead of page_table_free?  
+> > > 
+> > > or will it be used instead of page_table_free?  
+> > 
+> > Not always; but yes, this case of removing a page table used
+> > page_table_free() before; but now, with the lighter locking, needs
+> > to keep the page table valid until the RCU grace period expires.
 > 
-> Not always; but yes, this case of removing a page table used
-> page_table_free() before; but now, with the lighter locking, needs
-> to keep the page table valid until the RCU grace period expires.
+> so if I understand correctly your code will, sometimes, under some
+> circumstances, replace what page_table_free() does, but it will never
+> replace page_table_free_rcu()?
+> 
+> because in that case there would be no issues 
 
-so if I understand correctly your code will, sometimes, under some
-circumstances, replace what page_table_free() does, but it will never
-replace page_table_free_rcu()?
+Yes, thanks for confirming: we have no issue here at present, but may
+do if use of pte_free_defer() is extended to other contexts in future.
 
-because in that case there would be no issues 
+Would it be appropriate to add a WARN_ON_ONCE around that
+> > > > +	if (mm_alloc_pgste(mm)) {
+in pte_free_defer()?
+
+I ask that somewhat rhetorically: that block disappears in the later
+version I was working on last night (and will return to shortly), in
+which pte_free_defer() just sets a bit and calls page_table_free().
+
+But I'd like to understand the possibilities better: does mm_alloc_pgste()
+correspond 1:1 to KVM guest on s390, or does it cover several different
+possibilities of which KVM guest is one, or am I just confused to be
+thinking there's any relationship?
+
+Thanks,
+Hugh
 
 > 
 > > 
-> > this is actually quite important for KVM on s390  
-> 
-> None of us are wanting to break KVM on s390: your guidance appreciated!
-> 
-> Thanks,
-> Hugh
-
+> > > 
+> > > this is actually quite important for KVM on s390  
+> > 
+> > None of us are wanting to break KVM on s390: your guidance appreciated!
+> > 
+> > Thanks,
+> > Hugh
