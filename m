@@ -2,167 +2,137 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D9E5EB64DC
-	for <linux-s390@archiver.kernel.org>; Fri, 30 Jun 2023 15:31:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0240BC0015E
+	for <linux-s390@archiver.kernel.org>; Fri, 30 Jun 2023 15:54:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233025AbjF3PbL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 30 Jun 2023 11:31:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47276 "EHLO
+        id S230388AbjF3PyI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 30 Jun 2023 11:54:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233024AbjF3Pa4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 30 Jun 2023 11:30:56 -0400
-Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0226B49D0
-        for <linux-s390@vger.kernel.org>; Fri, 30 Jun 2023 08:29:11 -0700 (PDT)
-Received: by mail-yb1-xb29.google.com with SMTP id 3f1490d57ef6-bd744ffc263so1934465276.3
-        for <linux-s390@vger.kernel.org>; Fri, 30 Jun 2023 08:29:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1688138947; x=1690730947;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=AjAYnVeboGLbIm0tKT9e16Vsq7Oo9WWm/R7Yf2CYkqU=;
-        b=OrFdTzSQQkVcKVrUqqdFxWYPfui4NZ+US05WE6v2rnqFm6OACvYRXXvuvVVn9/WgtH
-         IO25JQBx/7LBuF94N8uGWuA7lOqK/g2aZp1o+jdYwvLq2sHeGN6e7HBrH9hoQ4jtcPqs
-         90eQkQW0JM+WPNUbFUyKu7cCa3Sn5U5Jf2hFgFgK4apj0UpwkpB4OeYiFgRXknc7EB6e
-         QGvEjMl6zgdHa4GtApbCh6wEU0EpLaffyB3TGQ3swbjHsGW/3I5351vpgsD4dqv93K97
-         b7yuMuqA/UWI4+PDCNp0ztgzGA9UcYiCsSREvoSv8SCHEvA6U71YyFDKLcORLE5cGOxV
-         8bcQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1688138947; x=1690730947;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=AjAYnVeboGLbIm0tKT9e16Vsq7Oo9WWm/R7Yf2CYkqU=;
-        b=ImPi/QPvF+NyIhIdk2hd06iEyqVTziAQvPN4tFvMri9FuhJW+NIToY7G6hd2slJQg7
-         bTntWy4NZMZpb++oFSrWJRoZZpzaMq8Q/VvxOGI5a/Yu96N2U76MJbGWYL2x/Nttp1CR
-         4len7hZ78XumexJY3FAvieBKJqjUe8Xt+C2rVULOkB87rcCh1Q+qFpEUZgARUVnQS57E
-         1x3/HKZPQGItDVlll0ZIQYBHpL5Kt0OzEVmaN+fqagIRuIvNhh9oh6Tuce4xGU4UFM0j
-         NSz6ksuE77tChRQuwtIjK07ZlsBcSmVXZdgPglBt2ZTrGdZm6bIL98qFLq+yw6tT39Ee
-         Wrjg==
-X-Gm-Message-State: ABy/qLZObI/flfyMtQ0WVAl5SDycR3NMDQW7KcRReembchvJKj2Hj7j2
-        Pl8bNcwpirXz28tdlh2NOMU7tw==
-X-Google-Smtp-Source: APBJJlF5EFV8fGkahr4C63tlYCJc9C/Ov9as/Fr8WIXMxA7p0Zq+iobFwmSBQKWq4vNdROS9uHFFYw==
-X-Received: by 2002:a25:d303:0:b0:ba8:9512:fbc9 with SMTP id e3-20020a25d303000000b00ba89512fbc9mr2919284ybf.11.1688138946703;
-        Fri, 30 Jun 2023 08:29:06 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id 144-20020a250496000000b00c3da591adbcsm635911ybe.31.2023.06.30.08.29.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Jun 2023 08:29:06 -0700 (PDT)
-Date:   Fri, 30 Jun 2023 08:28:54 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-cc:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jann Horn <jannh@google.com>,
-        Vishal Moola <vishal.moola@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v2 07/12] s390: add pte_free_defer() for pgtables sharing
- page
-In-Reply-To: <20230630153852.31163592@p-imbrenda>
-Message-ID: <062b19-4cf1-261-a9bf-9cefd32382fc@google.com>
-References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com> <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com> <20230630153852.31163592@p-imbrenda>
+        with ESMTP id S230125AbjF3PyI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 30 Jun 2023 11:54:08 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A6943C00;
+        Fri, 30 Jun 2023 08:54:07 -0700 (PDT)
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35UFlFkZ031586;
+        Fri, 30 Jun 2023 15:54:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=FlFG3G4de/Le0/i/PtCvmY9M+3Ow1K98Zmm4qHFn4o8=;
+ b=czetGp0xRUCQ4dJZD3647kYwxmllJ4lq1EJdxF8x0V7cx7KqNpm/4fySyx3DkE16QQuJ
+ 3Isa9DIE04xfYeeepXrrS7asiWFqc8FxbFAmXJZWpXvOtfOeVnOmj7uwccWa94+pC3e4
+ 4ubmmCxY7kAaXuQ7pfwrdSEjpJSy8Ivd11bn5jkU/rJuf/9yxwtsUHAkfvyNLJNbw5Zz
+ RkBJPDedaqD3s56qhX90vnPb2hwvs7vG4KCdtue43iC9e9dBzi34gckXSmp8sqkIDykH
+ p//Jyrwc9gaEcLmglCE08ZxHtOFGJdiIDn0p8FiadanVgwZL9FLPxtfuTb/G9mp5Jab8 Zw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rj20e843d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Jun 2023 15:54:06 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35UFljVJ032346;
+        Fri, 30 Jun 2023 15:54:06 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rj20e842d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Jun 2023 15:54:06 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35U1kGhT019237;
+        Fri, 30 Jun 2023 15:54:03 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3rdr4547td-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 30 Jun 2023 15:54:03 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35UFs0eV18088690
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 30 Jun 2023 15:54:00 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3B44620043;
+        Fri, 30 Jun 2023 15:54:00 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 098AC2004D;
+        Fri, 30 Jun 2023 15:54:00 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.66])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 30 Jun 2023 15:53:59 +0000 (GMT)
+Date:   Fri, 30 Jun 2023 17:53:58 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     Janosch Frank <frankja@linux.ibm.com>, thuth@redhat.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v3 5/6] s390x: lib: sie: don't reenter
+ SIE on pgm int
+Message-ID: <20230630175358.5e3b290e@p-imbrenda>
+In-Reply-To: <168813714644.32198.9739825161407676099@t14-nrb>
+References: <20230601070202.152094-1-nrb@linux.ibm.com>
+        <20230601070202.152094-6-nrb@linux.ibm.com>
+        <baf4bb04-b258-f8b4-e49d-5d400e498bbf@linux.ibm.com>
+        <168813714644.32198.9739825161407676099@t14-nrb>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 0BdMR49osBuKU6P7-0KuVEcEBNyUxCvd
+X-Proofpoint-ORIG-GUID: Lblogd3B1Ylx_oGj4Igrqr5Zh6OiGmUN
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-06-30_08,2023-06-30_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
+ priorityscore=1501 malwarescore=0 mlxlogscore=876 suspectscore=0
+ lowpriorityscore=0 adultscore=0 spamscore=0 bulkscore=0 impostorscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2306300132
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 30 Jun 2023, Claudio Imbrenda wrote:
-> On Tue, 20 Jun 2023 00:51:19 -0700 (PDT)
-> Hugh Dickins <hughd@google.com> wrote:
-> 
+On Fri, 30 Jun 2023 16:59:06 +0200
+Nico Boehr <nrb@linux.ibm.com> wrote:
+
 > [...]
+> > > diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
+> > > index 55759002dce2..fb4283a40a1b 100644
+> > > --- a/lib/s390x/asm/interrupt.h
+> > > +++ b/lib/s390x/asm/interrupt.h
+> > > @@ -99,4 +99,18 @@ static inline void low_prot_disable(void)
+> > >       ctl_clear_bit(0, CTL0_LOW_ADDR_PROT);
+> > >   }
+> > >   
+> > > +/**
+> > > + * read_pgm_int_code - Get the program interruption code of the last pgm int
+> > > + * on the current CPU.  
+> > 
+> > All of the other functions are in the c file.  
 > 
-> > +void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
-> > +{
-> > +	unsigned int bit, mask;
-> > +	struct page *page;
-> > +
-> > +	page = virt_to_page(pgtable);
-> > +	if (mm_alloc_pgste(mm)) {
-> > +		call_rcu(&page->rcu_head, pte_free_pgste);
-> 
-> so is this now going to be used to free page tables
-> instead of page_table_free_rcu?
+> Claudio requested this to be in the C file, I really don't mind much. Claudio,
 
-No.
+you meant header
 
-All pte_free_defer() is being used for (in this series; and any future
-use beyond this series will have to undertake its own evaluations) is
-for the case of removing an empty page table, which used to map a group
-of PTE mappings of a file, in order to make way for one PMD mapping of
-the huge page which those scattered pages have now been gathered into.
+> maybe you can elaborate why you wanted it in the header.
 
-You're worried by that mm_alloc_pgste() block: it's something I didn't
-have at all in my first draft, then I thought that perhaps the pgste
-case might be able to come this way, so it seemed stupid to leave out
-the handling for it.
-
-I hope that you're implying that should be dead code here?  Perhaps,
-that the pgste case corresponds to the case in s390 where THPs are
-absolutely forbidden?  That would be good news for us.
-
-Gerald, in his version of this block, added a comment asking:
-	/*
-	 * TODO: Do we need gmap_unlink(mm, pgtable, addr), like in
-	 * page_table_free_rcu()?
-	 * If yes -> need addr parameter here, like in pte_free_tlb().
-	 */
-Do you have the answer to that?  Neither of us could work it out.
+so it can be inlined it's literally just a read... you can put it in
+the C file if you want, but it seems a waste to me tbh 
 
 > 
-> or will it be used instead of page_table_free?
-
-Not always; but yes, this case of removing a page table used
-page_table_free() before; but now, with the lighter locking, needs
-to keep the page table valid until the RCU grace period expires.
-
+> > > + *
+> > > + * This is similar to clear_pgm_int(), except that it doesn't clear the
+> > > + * interruption information from lowcore.
+> > > + *
+> > > + * Returns 0 when none occured.  
+> > 
+> > s/r/rr/  
 > 
-> this is actually quite important for KVM on s390
+> Fixed.
+> 
+> > > + */
+> > > +static inline uint16_t read_pgm_int_code(void)
+> > > +{  
+> > 
+> > No mb()?  
+> 
+> This is a function call, so none should be needed, no?
 
-None of us are wanting to break KVM on s390: your guidance appreciated!
-
-Thanks,
-Hugh
