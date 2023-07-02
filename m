@@ -2,45 +2,45 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE206EB64DA
-	for <linux-s390@archiver.kernel.org>; Sun,  2 Jul 2023 19:39:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6EB0EB64D9
+	for <linux-s390@archiver.kernel.org>; Sun,  2 Jul 2023 19:39:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230476AbjGBTjB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 2 Jul 2023 15:39:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50726 "EHLO
+        id S229761AbjGBTjX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 2 Jul 2023 15:39:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231201AbjGBTiv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 2 Jul 2023 15:38:51 -0400
+        with ESMTP id S229513AbjGBTjW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 2 Jul 2023 15:39:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 702041997;
-        Sun,  2 Jul 2023 12:38:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FC9810F1;
+        Sun,  2 Jul 2023 12:38:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE43260C8C;
-        Sun,  2 Jul 2023 19:38:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BDE8C433C7;
-        Sun,  2 Jul 2023 19:38:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD4CE60C81;
+        Sun,  2 Jul 2023 19:38:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 642C4C433C9;
+        Sun,  2 Jul 2023 19:38:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1688326716;
-        bh=Khh4iWMEVT9SMqf0Lbl4TwZP+WrkxYnZ9N4x2CSXiek=;
+        s=k20201202; t=1688326724;
+        bh=8rsQ8zSP8q67Qtm7IKw9oJrTWCmQXiYg7MWumz55UdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TsODVfyCvfGyfzdvwXARhzgP+FmdRWOoUqPeNNNkuwDZZJ6aem7THmpS99EDnYKTa
-         +HDebuBNE13OlDWtPrgv1GsSzz2y5MP683+jHcD+0qRLiJ7hO/qukjih0tht7Fkcwk
-         Z5sZXeNIWJ/Y89ctVo4sig9PksYqfcrPpYL5wWFPeWW+FoGkIJeW8/b8x0eH7pHes+
-         axruYkppTAB9yw3XmgIKTrhuiYSzK62Yp0UZE231T6Zn0y/GVzyDuZW4yhzHwaECW/
-         0utdtc3KPx3eQ5OXipxFeRJsvvTZSpiE9dBAqXvvtJJdIAa+Dpqq+uPu+9SI8ijfE+
-         dEkYcWwMA0AXg==
+        b=o/gJD/cYA+XjxFoUYG8Ww7iJ8dPeRg+OZFGFZ9co098WFwsEZ8QM/n4KdEf2EbHbC
+         5B8FNU/p/DBb79XDjJ+ohq780UQ5lWR8/asv+0NqgjaTU3vrBqLHnzFQOsHx2M/njj
+         82p2XKzNZqvyOahSrAlT67UNFSrTDs8CAykeV20Vjres8UDwr4lCOkcFa2LzHQbkWe
+         E+pOP7aYdHSHMYBgCu8rmu4m5H28yFObQrnHrWbQW47DuUkjISQNESXlrGMtQ65ASr
+         qN47pEidewWsA1ilkuwlX21uBXufjuo/umwNl5uZE03oMYpQ3HpYO2S9oXQ9UNjvzE
+         sDghKwm1cm7LA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, hca@linux.ibm.com,
         linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.4 08/16] s390/kasan: avoid short by one page shadow memory
-Date:   Sun,  2 Jul 2023 15:38:07 -0400
-Message-Id: <20230702193815.1775684-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.4 10/16] s390/boot: fix physmem_info virtual vs physical address confusion
+Date:   Sun,  2 Jul 2023 15:38:09 -0400
+Message-Id: <20230702193815.1775684-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230702193815.1775684-1-sashal@kernel.org>
 References: <20230702193815.1775684-1-sashal@kernel.org>
@@ -55,77 +55,47 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-[ Upstream commit 3e8261003bd28208986d3c42004510083c086e24 ]
+[ Upstream commit c70505434c8defb111326a143e2dd2be09778593 ]
 
-Kernel Address Sanitizer uses 3 bits per byte to
-encode memory. That is the number of bits the start
-and end address of a memory range is shifted right
-when the corresponding shadow memory is created for
-that memory range.
-
-The used memory mapping routine expects page-aligned
-addresses, while the above described 3-bit shift might
-turn the shadow memory range start and end boundaries
-into non-page-aligned in case the size of the original
-memory range is less than (PAGE_SIZE << 3). As result,
-the resulting shadow memory range could be short on one
-page.
-
-Align on page boundary the start and end addresses when
-mapping a shadow memory range and avoid the described
-issue in the future.
-
-Note, that does not fix a real problem, since currently
-no virtual regions of size less than (PAGE_SIZE << 3)
-exist.
+Fix virtual vs physical address confusion (which currently are the same).
 
 Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/boot/vmem.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ arch/s390/include/asm/physmem_info.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/boot/vmem.c b/arch/s390/boot/vmem.c
-index acb1f8b53105b..c67f59db7a512 100644
---- a/arch/s390/boot/vmem.c
-+++ b/arch/s390/boot/vmem.c
-@@ -45,6 +45,13 @@ static void pgtable_populate(unsigned long addr, unsigned long end, enum populat
+diff --git a/arch/s390/include/asm/physmem_info.h b/arch/s390/include/asm/physmem_info.h
+index 8e9c582592b3f..9e41a74fce9ac 100644
+--- a/arch/s390/include/asm/physmem_info.h
++++ b/arch/s390/include/asm/physmem_info.h
+@@ -3,6 +3,7 @@
+ #define _ASM_S390_MEM_DETECT_H
  
- static pte_t pte_z;
+ #include <linux/types.h>
++#include <asm/page.h>
  
-+static inline void kasan_populate(unsigned long start, unsigned long end, enum populate_mode mode)
-+{
-+	start = PAGE_ALIGN_DOWN(__sha(start));
-+	end = PAGE_ALIGN(__sha(end));
-+	pgtable_populate(start, end, mode);
-+}
-+
- static void kasan_populate_shadow(void)
- {
- 	pmd_t pmd_z = __pmd(__pa(kasan_early_shadow_pte) | _SEGMENT_ENTRY);
-@@ -95,17 +102,17 @@ static void kasan_populate_shadow(void)
- 	 */
+ enum physmem_info_source {
+ 	MEM_DETECT_NONE = 0,
+@@ -133,7 +134,7 @@ static inline const char *get_rr_type_name(enum reserved_range_type t)
  
- 	for_each_physmem_usable_range(i, &start, &end)
--		pgtable_populate(__sha(start), __sha(end), POPULATE_KASAN_MAP_SHADOW);
-+		kasan_populate(start, end, POPULATE_KASAN_MAP_SHADOW);
- 	if (IS_ENABLED(CONFIG_KASAN_VMALLOC)) {
- 		untracked_end = VMALLOC_START;
- 		/* shallowly populate kasan shadow for vmalloc and modules */
--		pgtable_populate(__sha(VMALLOC_START), __sha(MODULES_END), POPULATE_KASAN_SHALLOW);
-+		kasan_populate(VMALLOC_START, MODULES_END, POPULATE_KASAN_SHALLOW);
- 	} else {
- 		untracked_end = MODULES_VADDR;
+ #define for_each_physmem_reserved_type_range(t, range, p_start, p_end)				\
+ 	for (range = &physmem_info.reserved[t], *p_start = range->start, *p_end = range->end;	\
+-	     range && range->end; range = range->chain,						\
++	     range && range->end; range = range->chain ? __va(range->chain) : NULL,		\
+ 	     *p_start = range ? range->start : 0, *p_end = range ? range->end : 0)
+ 
+ static inline struct reserved_range *__physmem_reserved_next(enum reserved_range_type *t,
+@@ -145,7 +146,7 @@ static inline struct reserved_range *__physmem_reserved_next(enum reserved_range
+ 			return range;
  	}
- 	/* populate kasan shadow for untracked memory */
--	pgtable_populate(__sha(ident_map_size), __sha(untracked_end), POPULATE_KASAN_ZERO_SHADOW);
--	pgtable_populate(__sha(MODULES_END), __sha(_REGION1_SIZE), POPULATE_KASAN_ZERO_SHADOW);
-+	kasan_populate(ident_map_size, untracked_end, POPULATE_KASAN_ZERO_SHADOW);
-+	kasan_populate(MODULES_END, _REGION1_SIZE, POPULATE_KASAN_ZERO_SHADOW);
- }
- 
- static bool kasan_pgd_populate_zero_shadow(pgd_t *pgd, unsigned long addr,
+ 	if (range->chain)
+-		return range->chain;
++		return __va(range->chain);
+ 	while (++*t < RR_MAX) {
+ 		range = &physmem_info.reserved[*t];
+ 		if (range->end)
 -- 
 2.39.2
 
