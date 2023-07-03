@@ -2,253 +2,105 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4DD8EB64DC
-	for <linux-s390@archiver.kernel.org>; Mon,  3 Jul 2023 06:53:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A027EC0015E
+	for <linux-s390@archiver.kernel.org>; Mon,  3 Jul 2023 08:43:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229671AbjGCGxE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 3 Jul 2023 02:53:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50308 "EHLO
+        id S229520AbjGCInd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 3 Jul 2023 04:43:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230393AbjGCGw7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 Jul 2023 02:52:59 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31C38CC;
-        Sun,  2 Jul 2023 23:52:58 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id 4fb4d7f45d1cf-51e00695e21so1243207a12.1;
-        Sun, 02 Jul 2023 23:52:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1688367176; x=1690959176;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QVnaXplbKPJXEZ2wiNEToKb7XEKkfgoYbR2y25X8PVI=;
-        b=VzflzDnTLPNOQmXJxd99X35fT7q/HR/QamcP6SrxBexExHNgsbOZsyhUeanxMgkLLn
-         L/VtZLktB53Ed8yppJ0fFYWScy0Aj/qCc2yCXUG2iBeuMm/QnoCNosqVx5hcRLaINXQ+
-         HqW7Fzg6DQrl4EiDtWTntrDjQZQcsuJr+h4kkvHeTeRE8woq+Fz3dwlky3Yeetn+edKK
-         ep+HzMFbyP5/k+xDm1DFAYmUNJ/FJswnOHPquMfKSha2av2jSgD6F/uo+GUw9Al2fiab
-         BqJ2wR2Gegkgq5Mxrth7KKykU7Rkw0byB8PgzGCA0u4H4skY9up14uq+QiJdKaZgqyq1
-         J+8Q==
+        with ESMTP id S229516AbjGCInc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 Jul 2023 04:43:32 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EC1EBF
+        for <linux-s390@vger.kernel.org>; Mon,  3 Jul 2023 01:42:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1688373769;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=w9j01qwPpErBDT2GubuAl+sX/3Bkrf1KFu3e6uDsu3A=;
+        b=SFvNR3N3qeKWUfI4wscBj3iATqNVpA00sRM8RXwQTA4n+OzlfNbDSUXdyAeM1onynSAtpm
+        TSY05ztswuYHOcx4xwQgyoHTDGFdfePHMO1jROK1XEom4gcQJzlCIVN8/K7+jx9xJoHG3V
+        GM8ue7oymkT9TDxjCWZa89HuC2+8ZJ8=
+Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
+ [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-17-r83WUGHEO-2I2sVQRoN-bA-1; Mon, 03 Jul 2023 04:42:48 -0400
+X-MC-Unique: r83WUGHEO-2I2sVQRoN-bA-1
+Received: by mail-qv1-f72.google.com with SMTP id 6a1803df08f44-6349a78b1aaso24571026d6.1
+        for <linux-s390@vger.kernel.org>; Mon, 03 Jul 2023 01:42:48 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1688367176; x=1690959176;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=QVnaXplbKPJXEZ2wiNEToKb7XEKkfgoYbR2y25X8PVI=;
-        b=Q5OkeiMsDHq1be5KsaulRzsOnGw67YEr0a2HeN8nkYC1cRD4VSKmfH+Juhnwt0m7Xz
-         Yry5YafvlRuF+Zh+TVpYFNeoJjJTg3fhpcrItTBvJ2r8JeK5p5y/59cjQyr4FyC5c3h0
-         E0JdZ31sHYxGcJn0Ru9LhwFiW8PECcsXZJ3g2PiouSRAZCU1yM4pLldmVNXFvXgUHFuX
-         cCkNvtfYHAvs6OrDRAC32QGy1HYebSBlutlnnBo8gvbSFUMY61Mko8ULwvpkPwp7UDAe
-         pXp1uNk2MyetdaCZ7mUqOeuOPowKP5XjC51TFzaRDjBqcSAA3eID+ojDPhLNlZLldRbT
-         NVBg==
-X-Gm-Message-State: ABy/qLag2XWRaFhmycJWsKWRiIBxWK02WJ1OkMSbEcQBCEdY8P5cZgdQ
-        dmRntyAeVby7obDMqbKH+/rsc7xt13gUF0vrPkw=
-X-Google-Smtp-Source: APBJJlH9Rx8BE+Ibb788/1pjQjhi6zODsNw7L2myu5MLbnUXY/Hw8WaffqWQhv9tRYXmFSR4j3+5TFUixrmCMQNLOII=
-X-Received: by 2002:a05:6402:1a41:b0:51b:df14:594e with SMTP id
- bf1-20020a0564021a4100b0051bdf14594emr5868433edb.39.1688367176421; Sun, 02
- Jul 2023 23:52:56 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1688373768; x=1690965768;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=w9j01qwPpErBDT2GubuAl+sX/3Bkrf1KFu3e6uDsu3A=;
+        b=Uen3tbwl5OZ62tMOT5g3vofnvnBqMSc75ZpYlK7PPBF4aBgckik5ielzD4aLck2MgE
+         Vj2TqMmw47N+qR34+e7RTPhq2nSGD+VXmMglwsLsnDoLH1M1R2RpRU2aVC+h8BCDCDwH
+         2Ut0C9gkqcmbnF+JL2ixw3lfpQ4jzwrnU6USpkIcbWREmgzEn/PMOir4GAfS7piZT9GD
+         /5z+yfHIL6rjsuyi8I4cwQMFsIOFjQVJwDO7HmkDiRuC4JG5mtJoB1TDW44KDL31Ue4n
+         dxAvs022moWXdn4jm11wL0OpPKpkXQ9G0+SwlIfnpEQPDWhn1I+ulZwSIOCF2JHYEN+M
+         EP0w==
+X-Gm-Message-State: ABy/qLaneGQhBgWzMgmFvsvEEsFFJNHgG5UNN7XQ1fuglFq97dvNlJgl
+        CM7lP63ctpr6sgc5l2YZ9Iar6lyu8ormlm8hY3j8j3kKULNOO6TMeU1Yyz/qUkE/FnX1mcM8VPg
+        7zBFOADj86B1OQKq3CVdTOa9kD+ZOkQ==
+X-Received: by 2002:a05:6214:2a4a:b0:635:f562:fa1e with SMTP id jf10-20020a0562142a4a00b00635f562fa1emr12570338qvb.30.1688373767940;
+        Mon, 03 Jul 2023 01:42:47 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlEg+PvXt3zRvvQF/8LbgMFfXOr/yVak/1Iy7Zlv9ZOHPU6mms7XYBSch3qq3Gqbn+BlsVFLWA==
+X-Received: by 2002:a05:6214:2a4a:b0:635:f562:fa1e with SMTP id jf10-20020a0562142a4a00b00635f562fa1emr12570332qvb.30.1688373767735;
+        Mon, 03 Jul 2023 01:42:47 -0700 (PDT)
+Received: from [192.168.0.5] (ip-109-43-178-242.web.vodafone.de. [109.43.178.242])
+        by smtp.gmail.com with ESMTPSA id q5-20020ad45ca5000000b00623950fbe48sm11249923qvh.41.2023.07.03.01.42.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 03 Jul 2023 01:42:47 -0700 (PDT)
+Message-ID: <a162644d-f548-7c34-e501-d8080d1d0bef@redhat.com>
+Date:   Mon, 3 Jul 2023 10:42:43 +0200
 MIME-Version: 1.0
-References: <20230517034510.15639-1-zegao@tencent.com> <20230517034510.15639-3-zegao@tencent.com>
- <CALOAHbC6UpfFOOibdDiC7xFc5YFUgZnk3MZ=3Ny6we=AcrNbew@mail.gmail.com>
-In-Reply-To: <CALOAHbC6UpfFOOibdDiC7xFc5YFUgZnk3MZ=3Ny6we=AcrNbew@mail.gmail.com>
-From:   Ze Gao <zegao2021@gmail.com>
-Date:   Mon, 3 Jul 2023 14:52:45 +0800
-Message-ID: <CAD8CoPCSAK_BM3WhJoeu7FCWqpnWpPpYwAEdSaewrZByRN2TOw@mail.gmail.com>
-Subject: Re: [PATCH v3 2/4] fprobe: make fprobe_kprobe_handler recursion free
-To:     Yafang Shao <laoar.shao@gmail.com>
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>, x86@kernel.org,
-        bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-trace-kernel@vger.kernel.org,
-        Conor Dooley <conor@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Ze Gao <zegao@tencent.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.0
+Subject: Re: [kvm-unit-tests PATCH v10 1/2] s390x: topology: Check the Perform
+ Topology Function
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, kvm@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, nsg@linux.ibm.com
+References: <20230627082155.6375-1-pmorel@linux.ibm.com>
+ <20230627082155.6375-2-pmorel@linux.ibm.com>
+ <168802854091.40048.12063023827984391132@t14-nrb>
+From:   Thomas Huth <thuth@redhat.com>
+In-Reply-To: <168802854091.40048.12063023827984391132@t14-nrb>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi, yafang.
+On 29/06/2023 10.49, Nico Boehr wrote:
+> Quoting Pierre Morel (2023-06-27 10:21:54)
+> [...]
+>> diff --git a/s390x/topology.c b/s390x/topology.c
+>> new file mode 100644
+>> index 0000000..7e1bbf9
+>> --- /dev/null
+>> +++ b/s390x/topology.c
+>> @@ -0,0 +1,190 @@
+> [...]
+>> +static void check_privilege(int fc)
+>> +{
+>> +       unsigned long rc;
+>> +       char buf[20];
+>> +
+>> +       snprintf(buf, sizeof(buf), "Privileged fc %d", fc);
+>> +       report_prefix_push(buf);
+> 
+> We have report_prefix_pushf (note the f at the end!) for this.
+> 
+> I can fix that up when picking in case there's no new version, though.
 
-You're right, it should do the unlock before return for the sake of
-sanity. (Please
-ignore the last misleading reply :)
+With that fixed:
 
-Will send a new patch to fix it.
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 
-Thanks
-Ze
-
-On Wed, Jun 28, 2023 at 3:17=E2=80=AFPM Yafang Shao <laoar.shao@gmail.com> =
-wrote:
->
-> On Wed, May 17, 2023 at 11:45=E2=80=AFAM Ze Gao <zegao2021@gmail.com> wro=
-te:
-> >
-> > Current implementation calls kprobe related functions before doing
-> > ftrace recursion check in fprobe_kprobe_handler, which opens door
-> > to kernel crash due to stack recursion if preempt_count_{add, sub}
-> > is traceable in kprobe_busy_{begin, end}.
-> >
-> > Things goes like this without this patch quoted from Steven:
-> > "
-> > fprobe_kprobe_handler() {
-> >    kprobe_busy_begin() {
-> >       preempt_disable() {
-> >          preempt_count_add() {  <-- trace
-> >             fprobe_kprobe_handler() {
-> >                 [ wash, rinse, repeat, CRASH!!! ]
-> > "
-> >
-> > By refactoring the common part out of fprobe_kprobe_handler and
-> > fprobe_handler and call ftrace recursion detection at the very beginnin=
-g,
-> > the whole fprobe_kprobe_handler is free from recursion.
-> >
-> > Signed-off-by: Ze Gao <zegao@tencent.com>
-> > Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-> > Link: https://lore.kernel.org/linux-trace-kernel/20230516071830.8190-3-=
-zegao@tencent.com
-> > ---
-> >  kernel/trace/fprobe.c | 59 ++++++++++++++++++++++++++++++++-----------
-> >  1 file changed, 44 insertions(+), 15 deletions(-)
-> >
-> > diff --git a/kernel/trace/fprobe.c b/kernel/trace/fprobe.c
-> > index 9abb3905bc8e..097c740799ba 100644
-> > --- a/kernel/trace/fprobe.c
-> > +++ b/kernel/trace/fprobe.c
-> > @@ -20,30 +20,22 @@ struct fprobe_rethook_node {
-> >         char data[];
-> >  };
-> >
-> > -static void fprobe_handler(unsigned long ip, unsigned long parent_ip,
-> > -                          struct ftrace_ops *ops, struct ftrace_regs *=
-fregs)
-> > +static inline void __fprobe_handler(unsigned long ip, unsigned long
-> > +               parent_ip, struct ftrace_ops *ops, struct ftrace_regs *=
-fregs)
-> >  {
-> >         struct fprobe_rethook_node *fpr;
-> >         struct rethook_node *rh =3D NULL;
-> >         struct fprobe *fp;
-> >         void *entry_data =3D NULL;
-> > -       int bit, ret;
-> > +       int ret;
-> >
-> >         fp =3D container_of(ops, struct fprobe, ops);
-> > -       if (fprobe_disabled(fp))
-> > -               return;
-> > -
-> > -       bit =3D ftrace_test_recursion_trylock(ip, parent_ip);
-> > -       if (bit < 0) {
-> > -               fp->nmissed++;
-> > -               return;
-> > -       }
-> >
-> >         if (fp->exit_handler) {
-> >                 rh =3D rethook_try_get(fp->rethook);
-> >                 if (!rh) {
-> >                         fp->nmissed++;
-> > -                       goto out;
-> > +                       return;
-> >                 }
-> >                 fpr =3D container_of(rh, struct fprobe_rethook_node, no=
-de);
-> >                 fpr->entry_ip =3D ip;
-> > @@ -61,23 +53,60 @@ static void fprobe_handler(unsigned long ip, unsign=
-ed long parent_ip,
-> >                 else
-> >                         rethook_hook(rh, ftrace_get_regs(fregs), true);
-> >         }
-> > -out:
-> > +}
-> > +
-> > +static void fprobe_handler(unsigned long ip, unsigned long parent_ip,
-> > +               struct ftrace_ops *ops, struct ftrace_regs *fregs)
-> > +{
-> > +       struct fprobe *fp;
-> > +       int bit;
-> > +
-> > +       fp =3D container_of(ops, struct fprobe, ops);
-> > +       if (fprobe_disabled(fp))
-> > +               return;
-> > +
-> > +       /* recursion detection has to go before any traceable function =
-and
-> > +        * all functions before this point should be marked as notrace
-> > +        */
-> > +       bit =3D ftrace_test_recursion_trylock(ip, parent_ip);
-> > +       if (bit < 0) {
-> > +               fp->nmissed++;
-> > +               return;
-> > +       }
-> > +       __fprobe_handler(ip, parent_ip, ops, fregs);
-> >         ftrace_test_recursion_unlock(bit);
-> > +
-> >  }
-> >  NOKPROBE_SYMBOL(fprobe_handler);
-> >
-> >  static void fprobe_kprobe_handler(unsigned long ip, unsigned long pare=
-nt_ip,
-> >                                   struct ftrace_ops *ops, struct ftrace=
-_regs *fregs)
-> >  {
-> > -       struct fprobe *fp =3D container_of(ops, struct fprobe, ops);
-> > +       struct fprobe *fp;
-> > +       int bit;
-> > +
-> > +       fp =3D container_of(ops, struct fprobe, ops);
-> > +       if (fprobe_disabled(fp))
-> > +               return;
-> > +
-> > +       /* recursion detection has to go before any traceable function =
-and
-> > +        * all functions called before this point should be marked as n=
-otrace
-> > +        */
-> > +       bit =3D ftrace_test_recursion_trylock(ip, parent_ip);
-> > +       if (bit < 0) {
-> > +               fp->nmissed++;
-> > +               return;
-> > +       }
-> >
-> >         if (unlikely(kprobe_running())) {
-> >                 fp->nmissed++;
->
-> I have just looked through this patchset, just out of curiosity,
-> shouldn't we call ftrace_test_recursion_unlock(bit) here ?
-> We have already locked it successfully, so why should we not unlock it?
->
-> >                 return;
-> >         }
-> > +
-> >         kprobe_busy_begin();
-> > -       fprobe_handler(ip, parent_ip, ops, fregs);
-> > +       __fprobe_handler(ip, parent_ip, ops, fregs);
-> >         kprobe_busy_end();
-> > +       ftrace_test_recursion_unlock(bit);
-> >  }
-> >
-> >  static void fprobe_exit_handler(struct rethook_node *rh, void *data,
-> > --
-> > 2.40.1
-> >
-> >
->
->
-> --
-> Regards
-> Yafang
