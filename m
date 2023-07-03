@@ -2,66 +2,62 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09088C001B0
-	for <linux-s390@archiver.kernel.org>; Mon,  3 Jul 2023 16:12:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90EE4C001B0
+	for <linux-s390@archiver.kernel.org>; Mon,  3 Jul 2023 21:29:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230330AbjGCQML (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 3 Jul 2023 12:12:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46370 "EHLO
+        id S230391AbjGCV3k (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 3 Jul 2023 17:29:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229651AbjGCQMK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 Jul 2023 12:12:10 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA290138;
-        Mon,  3 Jul 2023 09:12:08 -0700 (PDT)
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 363FqtYq009238;
-        Mon, 3 Jul 2023 16:10:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=Wdh2RYAyHITrVgkXKMbm/krs8OGbtf5yBTnboTwlsec=;
- b=NGNDVCUXDniP9ks7v9zkcKDPOrZ5hRklMqLrpxDF9B5S0VVIriSuzB1fhcisG606wBEk
- QPqFKPTRJeXoQQL2fdlyuz3UU9Wx66gt2FKlMlQcqls/QU7hvUPOZpSMVpQPQnIErFNk
- 26Mp+YxPRDdgeXO8CdGLro8fXUtPCvqpb36DbQnVvDyyfne2Q79PzqjSeLQ0pN9XM1Ts
- Y1s0lgcQ5y5SnVWCisewvr9NKqWHnlrlpsoBgOLliqKOdOSAc+3JJg+v0ivL/c+XLD6M
- gqQtoAHbNnioDyKOuDd0vKGRJvOV1LSmcYF9thH/HCIfNBE7qpLzmRnX782uQ2kZy7dX QA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rm1burfyc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 03 Jul 2023 16:10:47 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 363FsDxK011531;
-        Mon, 3 Jul 2023 16:10:46 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rm1burfxa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 03 Jul 2023 16:10:46 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3633njY3024429;
-        Mon, 3 Jul 2023 16:10:43 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3rjbde1dea-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 03 Jul 2023 16:10:43 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 363GAdU410420980
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 3 Jul 2023 16:10:39 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3760C2004B;
-        Mon,  3 Jul 2023 16:10:39 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 730D420043;
-        Mon,  3 Jul 2023 16:10:35 +0000 (GMT)
-Received: from thinkpad-T15 (unknown [9.179.14.225])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with SMTP;
-        Mon,  3 Jul 2023 16:10:35 +0000 (GMT)
-Date:   Mon, 3 Jul 2023 18:10:32 +0200
-From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Jason Gunthorpe <jgg@ziepe.ca>,
+        with ESMTP id S230374AbjGCV3k (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 Jul 2023 17:29:40 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5438E5B
+        for <linux-s390@vger.kernel.org>; Mon,  3 Jul 2023 14:29:38 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id 98e67ed59e1d1-263121cd04eso2341440a91.2
+        for <linux-s390@vger.kernel.org>; Mon, 03 Jul 2023 14:29:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1688419778; x=1691011778;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=5dg0Gj8viEWfIWcxIZc6iyfyM+TCYwvws/9N3ezb+Z4=;
+        b=ciMHCgEytyQpXiLlKqi3gz/v7Q2CHhYlXp9swK68CxESaRga14VO+v3ioFdBXsYDLs
+         rcJstbloCFNhdyL8erhHWR7+k/2G2ZmekQkHOlLD+CHVeKnxlVQEAYi4thVU88jUmlqP
+         j3AGFkPfvugYcv6dCmSAzMJAAyhg1ABHOGQ6MaLAdsnWWMIo4JB8NFzrMsH4cg3S6MEo
+         u2Zcz5D9ARgll/H+oBV/djEHlDDqEHh/6LiwiUjnMih7ZCbaZjvFAg4+P4L6MdepK6me
+         Bll7SIw/4ovRaQDEUVlzPsNcEFS/MXpYuVmlTSmCre5BrbjEKllFu+L2hZxsC8HgQV9B
+         IGig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1688419778; x=1691011778;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5dg0Gj8viEWfIWcxIZc6iyfyM+TCYwvws/9N3ezb+Z4=;
+        b=fOXSz8EPv+ryyrg0qXNKb2FXOwz+kAs4Eoawp6vGXoETdcND6+ABxqu9Y7sXckYZWD
+         +5KZRlBB6r1tCm1Et2huGgItGplawAIxwJZGO7D/OjJlpTSLeWRIhB2y6bkREIvzBB+m
+         F2KXrwF0j/8+0hyrsr+XOjp0qVGz73DSLrXd81eAqcInnyiFojCH15ASagWD1CY/omzh
+         oAKey5eHMckbuh3D19Q8mX4lNgNBICbnhcpjHocHuBjvQXuCymd4xSrMI4CPu8zGteYK
+         t8CqGNhGmhETl/BhIb9QbxTjAG5xSeRwgIxHpy0JVPx0tNmDxNbmdn0bm9ACWLEzuvEB
+         fLag==
+X-Gm-Message-State: ABy/qLbGS1d/gb72zC6T2rRpE1QfcE6NTWYoB3XrYdg69g/2H3TaxfL2
+        Ihz5hcygAVQzMc7DqAOHoYXITQ==
+X-Google-Smtp-Source: APBJJlE0dK/ixgJCjZM8BVxtoBqxR3hYidUzDYcxy89uMsoxRbB7avUM4k+kl/Tzd5k23OlP0AX/hg==
+X-Received: by 2002:a17:90a:1b02:b0:263:7d55:de2e with SMTP id q2-20020a17090a1b0200b002637d55de2emr9149088pjq.9.1688419778192;
+        Mon, 03 Jul 2023 14:29:38 -0700 (PDT)
+Received: from ziepe.ca (ip-216-194-73-131.syban.net. [216.194.73.131])
+        by smtp.gmail.com with ESMTPSA id gz24-20020a17090b0ed800b00263c8b33bcfsm2234333pjb.14.2023.07.03.14.29.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Jul 2023 14:29:37 -0700 (PDT)
+Received: from jgg by jggl with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1qGR72-000BQ9-Bm;
+        Mon, 03 Jul 2023 18:29:36 -0300
+Date:   Mon, 3 Jul 2023 18:29:36 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Hugh Dickins <hughd@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Mike Kravetz <mike.kravetz@oracle.com>,
         Mike Rapoport <rppt@kernel.org>,
@@ -99,7 +95,6 @@ Cc:     Jason Gunthorpe <jgg@ziepe.ca>,
         "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Jann Horn <jannh@google.com>,
         Vishal Moola <vishal.moola@gmail.com>,
@@ -107,118 +102,43 @@ Cc:     Jason Gunthorpe <jgg@ziepe.ca>,
         linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v2 07/12] s390: add pte_free_defer() for pgtables
- sharing page
-Message-ID: <20230703181032.5803c333@thinkpad-T15>
-In-Reply-To: <edaa96f-80c1-1252-acbb-71c4f045b035@google.com>
+Subject: Re: [PATCH v2 07/12] s390: add pte_free_defer() for pgtables sharing
+ page
+Message-ID: <ZKM9wEKZZes4n4u0@ziepe.ca>
 References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com>
-        <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com>
-        <20230628211624.531cdc58@thinkpad-T15>
-        <cd7c2851-1440-7220-6c53-16b343b1474@google.com>
-        <ZJ2hsM5Tn+yUZ5ZV@ziepe.ca>
-        <20230629175645.7654d0a8@thinkpad-T15>
-        <edaa96f-80c1-1252-acbb-71c4f045b035@google.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+ <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com>
+ <20230630153852.31163592@p-imbrenda>
+ <062b19-4cf1-261-a9bf-9cefd32382fc@google.com>
+ <20230630182556.7727ef50@p-imbrenda>
+ <7f6d399b-c47-1faa-f7f6-9932b9811f8c@google.com>
+ <20230703130013.559217c9@p-imbrenda>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: cphjZUFFbr8OVTwFiLQZELsZpHPzMQRL
-X-Proofpoint-ORIG-GUID: D2nN67tsd20HkmnZX5QgdLfJHxrI2c8V
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-03_11,2023-06-30_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=999
- malwarescore=0 adultscore=0 lowpriorityscore=0 mlxscore=0 clxscore=1015
- suspectscore=0 impostorscore=0 spamscore=0 priorityscore=1501 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2305260000
- definitions=main-2307030146
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230703130013.559217c9@p-imbrenda>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 29 Jun 2023 23:00:07 -0700 (PDT)
-Hugh Dickins <hughd@google.com> wrote:
-
-> On Thu, 29 Jun 2023, Gerald Schaefer wrote:
-> > On Thu, 29 Jun 2023 12:22:24 -0300
-> > Jason Gunthorpe <jgg@ziepe.ca> wrote:  
-> > > On Wed, Jun 28, 2023 at 10:08:08PM -0700, Hugh Dickins wrote:  
-> > > > On Wed, 28 Jun 2023, Gerald Schaefer wrote:    
-> > > > > 
-> > > > > As discussed in the other thread, we would rather go with less complexity,
-> > > > > possibly switching to an approach w/o the list and fragment re-use in the
-> > > > > future. For now, as a first step in that direction, we can try with not
-> > > > > adding fragments back only for pte_free_defer(). Here is an adjusted
-> > > > > version of your patch, copying most of your pte_free_defer() logic and
-> > > > > also description, tested with LTP and all three of your patch series applied:    
-> > > > 
-> > > > Thanks, Gerald: I don't mind abandoning my 13/12 SLAB_TYPESAFE_BY_RCU
-> > > > patch (posted with fewer Cc's to the s390 list last week), and switching
-> > > > to your simpler who-cares-if-we-sometimes-don't-make-maximal-use-of-page
-> > > > patch.
-> > > > 
-> > > > But I didn't get deep enough into it today to confirm it - and disappointed
-> > > > that you've found it necessary to play with pt_frag_refcount in addition to
-> > > > _refcount and HH bits.  No real problem with that, but my instinct says it
-> > > > should be simpler.    
+On Mon, Jul 03, 2023 at 01:00:13PM +0200, Claudio Imbrenda wrote:
+> On Fri, 30 Jun 2023 12:22:43 -0700 (PDT)
+> Hugh Dickins <hughd@google.com> wrote:
+> 
+> [...]
+> 
+> > That's something I would have expected to be handled already via
+> > mmu_notifiers, rather than buried inside the page table freeing.
 > > 
-> > Yes, I also found it a bit awkward, but it seemed "good and simple enough",
-> > to have something to go forward with, while my instinct was in line with yours.
-> >   
-> > > 
-> > > Is there any reason it should be any different at all from what PPC is
-> > > doing?
-> > > 
-> > > I still think the right thing to do here is make the PPC code common
-> > > (with Hugh's proposed RCU modification) and just use it in both
-> > > arches....  
-> > 
-> > With the current approach, we would not add back fragments _only_ for
-> > the new pte_free_defer() path, while keeping our cleverness for the other
-> > paths. Not having a good overview of the negative impact wrt potential
-> > memory waste, I would rather take small steps, if possible.
-> > 
-> > If we later switch to never adding back fragments, of course we should
-> > try to be in line with PPC implementation.  
+> > If s390 is the only architecture to go that way, and could instead do
+> > it via mmu_notifiers, then I think that will be more easily supported
+> > in the long term.
 > 
-> I find myself half-agreeing with everyone.
-> 
-> I agree with Gerald that s390 should keep close to what it is already
-> doing (except for adding pte_free_defer()): that changing its strategy
-> and implementation to be much more like powerpc, is a job for some other
-> occasion (and would depend on gathering data about how well each does).
-> 
-> But I agree with Jason that the powerpc solution we ended up with cut
-> out a lot of unnecessary complication: it shifts the RCU delay from
-> when pte_free_defer() is called, to when the shared page comes to be
-> freed; which may be a lot later, and might not be welcome in a common
-> path, but is quite okay for the uncommon pte_free_defer().
+> I am very well aware of that, and in fact I've been working on
+> exactly that for some time already. But it's a very complex minefield
+> and therefore I'm proceeding *very* carefully. It will take quite some
+> time before anything comes out.
 
-Ok, I guess I must admit that I completely ignored the latest progress in
-the powerpc thread, and therefore was not up-to-date. Still had the older
-approach in mind, where you also checked for pt_frag_refcount to avoid
-double call_rcu().
+Yes +1 on this please, creating your own arch cross connect with kvm
+in the page table freers is really horrible..
 
-The new approach sounds very reasonable, and I also like your latest
-s390 patch from a first glance. Need to get more up-to-date with PageActive
-and maybe also powerpc approach, and give this some proper review tomorrow.
-
-> 
-> And I agree with Alexander that pte_free_lower() and pte_free_upper()
-> are better names than pte_free_now0() and pte_free_now1(): I was going
-> to make that change, except all those functions disappear if we follow
-> Jason's advice and switch the call_rcu() to when freeing the page.
-> 
-> (Lower and upper seem unambiguous to me: Gerald, does your confusion
-> come just from the way they are shown the wrong way round in the PP AA
-> diagram?  I corrected that in my patch, but you reverted it in yours.)
-
-Ah yes, that could well be, and unfortunately I did not notice that you
-fixed that in the comment. I only saw that you "fixed" the bit numbering
-from 01234567 to 76543210, which I think is wrong on big-endian s390,
-and therefore I simply removed that complete hunk.
-
-But thanks a lot for pointing to that! We will certainly want to fix that
-comment in a later patch, to reduce some or maybe all of the (at least
-my) upper/lower confusion.
+Jason
