@@ -2,153 +2,105 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07C61EB64DD
-	for <linux-s390@archiver.kernel.org>; Tue,  4 Jul 2023 13:42:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0399FC0015E
+	for <linux-s390@archiver.kernel.org>; Tue,  4 Jul 2023 14:06:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231392AbjGDNmH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 4 Jul 2023 09:42:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52676 "EHLO
+        id S231304AbjGDOGc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 4 Jul 2023 10:06:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231281AbjGDNmG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jul 2023 09:42:06 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8DBDEE;
-        Tue,  4 Jul 2023 06:42:05 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 364DTXNs022520;
-        Tue, 4 Jul 2023 13:40:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=qnpGbBnDkYYC+z9pQbSW6astkpshRcKvtSylhfCCTXA=;
- b=fLORtZWQOQlqKyEtg1CH2xPIGv/FAMsdkQthxTu+jYJK/Hv7cWQMHgxL9eLo/UC1Xver
- 5NdgUWVQrNoH00LYDzPqX1HsxMJIS8A9i+097Z14WbOzXok9+Crl7pytTmGWkKOIsXGY
- v3+1/6GelphpW7Qw/Eqld6l/DzGdqbnOC09Qm/B4VeQ0CzYAPLviQl9hUBa5gIIK4dae
- WyBkgmi8woaflAekSjpQoJ28kIuC5h7Ka4CLVcGnVE0iT6Ev4PH0d+HqFK3Yyvxzi623
- WtK5/6MHI2AEo77w9uIabHeVw4DyJUY6scnPAln5NDe/cTfD/xH5W/ahfRcPNu380iU7 GQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rmmbpr8q5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 04 Jul 2023 13:40:53 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 364DUHlt024978;
-        Tue, 4 Jul 2023 13:40:52 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rmmbpr8p9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 04 Jul 2023 13:40:52 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3647Nkqg020313;
-        Tue, 4 Jul 2023 13:40:49 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3rjbddsg6c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 04 Jul 2023 13:40:49 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 364DejUl19268110
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 4 Jul 2023 13:40:46 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C987920040;
-        Tue,  4 Jul 2023 13:40:45 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 522B92004F;
-        Tue,  4 Jul 2023 13:40:44 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Tue,  4 Jul 2023 13:40:44 +0000 (GMT)
-Date:   Tue, 4 Jul 2023 15:40:43 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Jann Horn <jannh@google.com>,
-        Vishal Moola <vishal.moola@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v2 07/12] s390: add pte_free_defer() for pgtables sharing
- page
-Message-ID: <ZKQhW2aHJHsnkJhv@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com>
- <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com>
- <20230628211624.531cdc58@thinkpad-T15>
- <cd7c2851-1440-7220-6c53-16b343b1474@google.com>
- <ZJ2hsM5Tn+yUZ5ZV@ziepe.ca>
- <20230629175645.7654d0a8@thinkpad-T15>
- <edaa96f-80c1-1252-acbb-71c4f045b035@google.com>
- <7bef5695-fa4a-7215-7e9d-d4a83161c7ab@google.com>
+        with ESMTP id S230197AbjGDOGb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jul 2023 10:06:31 -0400
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CB9BF7;
+        Tue,  4 Jul 2023 07:06:30 -0700 (PDT)
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-1b8303cd32aso44543055ad.2;
+        Tue, 04 Jul 2023 07:06:30 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1688479590; x=1691071590;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=JV2SCOEdB9t0w6tigDexjJMYhGF54ZwsLlYmJ1gE7wU=;
+        b=bMICWCFC1W076H+YN1lR/nCQau0HbgCI0H4vl8vZYXgociPXrYyV5p2vJwJSn4IvXw
+         X0VdLEzWRujDjUle97qp5ejyEiOTvK9cEwtJF9fXchWUeZ3V4uQSdYUun19YJ76vkPzg
+         EZ1VW7i4f34rBtELVeYa/NvSt/WWf8EGkE3xgRc0FNndIJufTeQZZj1KiqF78g6Qv4BO
+         0X8PwY5ee/rPn2rjRArQ76JDuSpgQ/4XYckAc/yuSHkTasvw/OegnkRz43f6yLq3W0e3
+         rRA6atJmAtXopQDEq1HSeWbL6ASsixUt+la82hfgmJxFH2y2NJEwaZhVIkeu3mm+1ick
+         EadQ==
+X-Gm-Message-State: ABy/qLaMBNDn1rNBaXGQB2u/UKIklMPTeUzdebm00ZhMy9QxeJpBvQHH
+        tDxcOHS51TLWDp/ELdGfDOY=
+X-Google-Smtp-Source: APBJJlEESj5502hCCjnCrW5aNdhMviGxH5NXIz8SFwBF+614aVB6e0+1hJtWMTw8TJzZNuQy8olTNg==
+X-Received: by 2002:a17:903:447:b0:1b8:a31b:ac85 with SMTP id iw7-20020a170903044700b001b8a31bac85mr2719760plb.41.1688479589749;
+        Tue, 04 Jul 2023 07:06:29 -0700 (PDT)
+Received: from [192.168.50.14] ([98.51.102.78])
+        by smtp.gmail.com with ESMTPSA id jk4-20020a170903330400b001b672af624esm13083569plb.164.2023.07.04.07.06.26
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 04 Jul 2023 07:06:29 -0700 (PDT)
+Message-ID: <bb91e76b-0bd8-a949-f8b9-868f919ebcb9@acm.org>
+Date:   Tue, 4 Jul 2023 07:06:26 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7bef5695-fa4a-7215-7e9d-d4a83161c7ab@google.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: BtBza05dswPGCwLp6PNd7IQX4Cdszb6T
-X-Proofpoint-GUID: ksrVlFb-3Vd1Kbm-HDCPBScRUs9lmkUF
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-04_08,2023-07-04_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- spamscore=0 priorityscore=1501 bulkscore=0 impostorscore=0 clxscore=1015
- malwarescore=0 phishscore=0 mlxlogscore=999 adultscore=0 mlxscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2307040116
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.0
+Subject: Re: [PATCH 01/32] block: Provide blkdev_get_handle_* functions
+Content-Language: en-US
+To:     Jan Kara <jack@suse.cz>, linux-block@vger.kernel.org
+Cc:     linux-fsdevel@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Christoph Hellwig <hch@infradead.org>,
+        Alasdair Kergon <agk@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anna Schumaker <anna@kernel.org>, Chao Yu <chao@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Dave Kleikamp <shaggy@kernel.org>,
+        David Sterba <dsterba@suse.com>, dm-devel@redhat.com,
+        drbd-dev@lists.linbit.com, Gao Xiang <xiang@kernel.org>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        jfs-discussion@lists.sourceforge.net,
+        Joern Engel <joern@lazybastard.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        linux-bcache@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, linux-mm@kvack.org,
+        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
+        linux-nilfs@vger.kernel.org, linux-nvme@lists.infradead.org,
+        linux-pm@vger.kernel.org, linux-raid@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-xfs@vger.kernel.org,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com,
+        reiserfs-devel@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Song Liu <song@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        target-devel@vger.kernel.org, Ted Tso <tytso@mit.edu>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        xen-devel@lists.xenproject.org
+References: <20230629165206.383-1-jack@suse.cz>
+ <20230704122224.16257-1-jack@suse.cz>
+From:   Bart Van Assche <bvanassche@acm.org>
+In-Reply-To: <20230704122224.16257-1-jack@suse.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Jul 01, 2023 at 09:32:38PM -0700, Hugh Dickins wrote:
-> On Thu, 29 Jun 2023, Hugh Dickins wrote:
+On 7/4/23 05:21, Jan Kara wrote:
+> +struct bdev_handle {
+> +	struct block_device *bdev;
+> +	void *holder;
+> +};
 
-Hi Hugh,
+Please explain in the patch description why a holder pointer is 
+introduced in struct bdev_handle and how it relates to the bd_holder 
+pointer in struct block_device. Is one of the purposes of this patch 
+series perhaps to add support for multiple holders per block device?
 
-...
-> No, not quite the same rules as before: I came to realize that using
-> list_add_tail() for the HH pages would be liable to put a page on the
-> list which forever blocked reuse of PP list_add_tail() pages after it
-> (could be solved by a list_move() somewhere, but we have agreed to
-> prefer simplicity).
+Thanks,
 
-Just to make things more clear for me: do I understand correctly that this
-was an attempt to add HH fragments to pgtable_list from pte_free_defer()?
+Bart.
 
-Thanks!
