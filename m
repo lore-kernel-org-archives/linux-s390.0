@@ -2,131 +2,153 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34D9BC001DF
-	for <linux-s390@archiver.kernel.org>; Tue,  4 Jul 2023 13:04:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07C61EB64DD
+	for <linux-s390@archiver.kernel.org>; Tue,  4 Jul 2023 13:42:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231179AbjGDNEi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 4 Jul 2023 09:04:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60040 "EHLO
+        id S231392AbjGDNmH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 4 Jul 2023 09:42:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231497AbjGDNEf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jul 2023 09:04:35 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C1C810C1;
-        Tue,  4 Jul 2023 06:04:00 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id F0F5F20573;
-        Tue,  4 Jul 2023 13:03:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1688475837; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=rY6MxLY5e9SVa1+4BCCd7ntNwV9Px5uEGT5nvi2Xw9M=;
-        b=ejRwbAIwZQbMrOxksN9aG/ZDDESpKoHA5R/d85WHYyhF32Si43PFRfl6mcCR9WYB3Qv5Xb
-        bFzVFYQ3692eypLdUzJN5qIXY9S2kweTJplS9sF53SAyJ7HvtNyhlweUs2wFtrS+zKSTOj
-        TegqbmWrWk4Vs0DZGSAEKRmheCwdTpE=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1688475837;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=rY6MxLY5e9SVa1+4BCCd7ntNwV9Px5uEGT5nvi2Xw9M=;
-        b=T7VmytPRSDJUviPwV6lejrGCKn7KjlWBXNR5Weqcyul/51HqsbD9tiSRFlJo/bbQX+dGnV
-        08LOGAmrpvM1ddAQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id DC3001346D;
-        Tue,  4 Jul 2023 13:03:56 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id kueeNbwYpGTARwAAMHmgww
-        (envelope-from <jack@suse.cz>); Tue, 04 Jul 2023 13:03:56 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id 6B4A7A0722; Tue,  4 Jul 2023 15:03:56 +0200 (CEST)
-Date:   Tue, 4 Jul 2023 15:03:56 +0200
-From:   Jan Kara <jack@suse.cz>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Jan Kara <jack@suse.cz>, linux-block@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Christoph Hellwig <hch@infradead.org>,
-        Alasdair Kergon <agk@redhat.com>,
+        with ESMTP id S231281AbjGDNmG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jul 2023 09:42:06 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8DBDEE;
+        Tue,  4 Jul 2023 06:42:05 -0700 (PDT)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 364DTXNs022520;
+        Tue, 4 Jul 2023 13:40:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=qnpGbBnDkYYC+z9pQbSW6astkpshRcKvtSylhfCCTXA=;
+ b=fLORtZWQOQlqKyEtg1CH2xPIGv/FAMsdkQthxTu+jYJK/Hv7cWQMHgxL9eLo/UC1Xver
+ 5NdgUWVQrNoH00LYDzPqX1HsxMJIS8A9i+097Z14WbOzXok9+Crl7pytTmGWkKOIsXGY
+ v3+1/6GelphpW7Qw/Eqld6l/DzGdqbnOC09Qm/B4VeQ0CzYAPLviQl9hUBa5gIIK4dae
+ WyBkgmi8woaflAekSjpQoJ28kIuC5h7Ka4CLVcGnVE0iT6Ev4PH0d+HqFK3Yyvxzi623
+ WtK5/6MHI2AEo77w9uIabHeVw4DyJUY6scnPAln5NDe/cTfD/xH5W/ahfRcPNu380iU7 GQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rmmbpr8q5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 Jul 2023 13:40:53 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 364DUHlt024978;
+        Tue, 4 Jul 2023 13:40:52 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rmmbpr8p9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 Jul 2023 13:40:52 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3647Nkqg020313;
+        Tue, 4 Jul 2023 13:40:49 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3rjbddsg6c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 Jul 2023 13:40:49 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 364DejUl19268110
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 4 Jul 2023 13:40:46 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C987920040;
+        Tue,  4 Jul 2023 13:40:45 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 522B92004F;
+        Tue,  4 Jul 2023 13:40:44 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue,  4 Jul 2023 13:40:44 +0000 (GMT)
+Date:   Tue, 4 Jul 2023 15:40:43 +0200
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Anna Schumaker <anna@kernel.org>, Chao Yu <chao@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Dave Kleikamp <shaggy@kernel.org>,
-        David Sterba <dsterba@suse.com>, dm-devel@redhat.com,
-        drbd-dev@lists.linbit.com, Gao Xiang <xiang@kernel.org>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        jfs-discussion@lists.sourceforge.net,
-        Joern Engel <joern@lazybastard.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        linux-bcache@vger.kernel.org, linux-btrfs@vger.kernel.org,
-        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net, linux-mm@kvack.org,
-        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
-        linux-nilfs@vger.kernel.org, linux-nvme@lists.infradead.org,
-        linux-pm@vger.kernel.org, linux-raid@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-xfs@vger.kernel.org,
-        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
-        Mike Snitzer <snitzer@kernel.org>,
-        Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com,
-        reiserfs-devel@vger.kernel.org,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Lorenzo Stoakes <lstoakes@gmail.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
         Song Liu <song@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        target-devel@vger.kernel.org, Ted Tso <tytso@mit.edu>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        xen-devel@lists.xenproject.org
-Subject: Re: [PATCH 01/32] block: Provide blkdev_get_handle_* functions
-Message-ID: <20230704130356.xwdlxvgvi4l6sruc@quack3>
-References: <20230629165206.383-1-jack@suse.cz>
- <20230704122224.16257-1-jack@suse.cz>
- <ZKQUB4rU8Gebhq6R@casper.infradead.org>
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        Vishal Moola <vishal.moola@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH v2 07/12] s390: add pte_free_defer() for pgtables sharing
+ page
+Message-ID: <ZKQhW2aHJHsnkJhv@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com>
+ <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com>
+ <20230628211624.531cdc58@thinkpad-T15>
+ <cd7c2851-1440-7220-6c53-16b343b1474@google.com>
+ <ZJ2hsM5Tn+yUZ5ZV@ziepe.ca>
+ <20230629175645.7654d0a8@thinkpad-T15>
+ <edaa96f-80c1-1252-acbb-71c4f045b035@google.com>
+ <7bef5695-fa4a-7215-7e9d-d4a83161c7ab@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ZKQUB4rU8Gebhq6R@casper.infradead.org>
+In-Reply-To: <7bef5695-fa4a-7215-7e9d-d4a83161c7ab@google.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: BtBza05dswPGCwLp6PNd7IQX4Cdszb6T
+X-Proofpoint-GUID: ksrVlFb-3Vd1Kbm-HDCPBScRUs9lmkUF
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-04_08,2023-07-04_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 priorityscore=1501 bulkscore=0 impostorscore=0 clxscore=1015
+ malwarescore=0 phishscore=0 mlxlogscore=999 adultscore=0 mlxscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2307040116
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue 04-07-23 13:43:51, Matthew Wilcox wrote:
-> On Tue, Jul 04, 2023 at 02:21:28PM +0200, Jan Kara wrote:
-> > +struct bdev_handle *blkdev_get_handle_by_dev(dev_t dev, blk_mode_t mode,
-> > +		void *holder, const struct blk_holder_ops *hops)
-> > +{
-> > +	struct bdev_handle *handle = kmalloc(sizeof(struct bdev_handle),
-> > +					     GFP_KERNEL);
-> > +	struct block_device *bdev;
-> > +
-> > +	if (!handle)
-> > +		return ERR_PTR(-ENOMEM);
-> > +	bdev = blkdev_get_by_dev(dev, mode, holder, hops);
-> > +	if (IS_ERR(bdev))
-> > +		return ERR_CAST(bdev);
-> 
-> Would we be better off with a handle->error (and a NULL return from this
-> function means "we couldn't allocate a handle")?  I have no objection
-> to what you've done here, just wondering if it might end up nicer for
-> the users.
+On Sat, Jul 01, 2023 at 09:32:38PM -0700, Hugh Dickins wrote:
+> On Thu, 29 Jun 2023, Hugh Dickins wrote:
 
-Hum, I've checked a couple of users and it seems it would be more
-complicated for the users to handle this convention than the one I've
-chosen. And that one is also pretty standard so I think by the principle of
-least surprise it is also better.
+Hi Hugh,
 
-								Honza
+...
+> No, not quite the same rules as before: I came to realize that using
+> list_add_tail() for the HH pages would be liable to put a page on the
+> list which forever blocked reuse of PP list_add_tail() pages after it
+> (could be solved by a list_move() somewhere, but we have agreed to
+> prefer simplicity).
 
-> 
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+Just to make things more clear for me: do I understand correctly that this
+was an attempt to add HH fragments to pgtable_list from pte_free_defer()?
+
+Thanks!
