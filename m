@@ -2,138 +2,268 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B397C001E0
-	for <linux-s390@archiver.kernel.org>; Tue,  4 Jul 2023 16:28:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AFE85C0015E
+	for <linux-s390@archiver.kernel.org>; Tue,  4 Jul 2023 17:04:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231577AbjGDQ2r (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 4 Jul 2023 12:28:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39582 "EHLO
+        id S231658AbjGDREG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 4 Jul 2023 13:04:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230489AbjGDQ2o (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jul 2023 12:28:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1C05E7B;
-        Tue,  4 Jul 2023 09:28:43 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 20F4061302;
-        Tue,  4 Jul 2023 16:28:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A8C9C433C7;
-        Tue,  4 Jul 2023 16:28:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1688488122;
-        bh=ZbfFFniWhSahnp7jSJ3oIaV9POCcbiLvynkhKSgpXe4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rYhrvsNpwqCJwn41eekT5X8PaPVwBQ6ub8Netmz5zCPt/qzVPnkLxH2Kjiq9nv1Cm
-         yUeZjhUrBrMq2ThgKqf6VqdUdYp1P2/zpT5yvYD7siJiybpmyKwoPpaa5gXpr6CMMv
-         akxinQnPPwXHrxodKNqiTb/6JTMYG4lY9mmxI0dhS9y7wawVJYcWdRHa64BuE/8weJ
-         eX7co1v82fmGWp5kKAm9BaeWX8/tRjFqKX1EDWvGtKd5aZ5LCCXaAY86lmuE5eezEu
-         Ix6OVXIAm9Wp1Cia2H4ClFO9rKC6nhjukt+dwjQnGXu6F26u0+VUNsprhPIs/s+nRo
-         qHwq5/jxHTM8Q==
-Date:   Tue, 4 Jul 2023 10:28:36 -0600
-From:   Keith Busch <kbusch@kernel.org>
-To:     Jan Kara <jack@suse.cz>
-Cc:     linux-block@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Jens Axboe <axboe@kernel.dk>,
-        Christoph Hellwig <hch@infradead.org>,
-        Alasdair Kergon <agk@redhat.com>,
+        with ESMTP id S231493AbjGDREF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jul 2023 13:04:05 -0400
+Received: from mail-yw1-x112d.google.com (mail-yw1-x112d.google.com [IPv6:2607:f8b0:4864:20::112d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3756AE70
+        for <linux-s390@vger.kernel.org>; Tue,  4 Jul 2023 10:04:03 -0700 (PDT)
+Received: by mail-yw1-x112d.google.com with SMTP id 00721157ae682-5703d12ab9aso70830447b3.2
+        for <linux-s390@vger.kernel.org>; Tue, 04 Jul 2023 10:04:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20221208; t=1688490242; x=1691082242;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=o5CkhYNN16WNUQJu71BeSwdzRNxPgL/gs2UX0urk5eQ=;
+        b=In/HPs//bUn+2tgW3AmtAl5dxW/ADGV2YA56prULm3E/vdfno08a8tljcsPueGrFwv
+         jqarDMxpAnYo9aMI5Mb54mMD0rJ8CZohyLEima6tkL05J+cSnzXMAc1rCu3B7NnhNLQl
+         ZvVWe49F0YiOX95QlRJtsrnvcRJ4qDr/z3uf8RXLQDyMLLM3K+NeYbv+E3W8yR9z4V2c
+         WTkreLz7srWoSO6EVx02fhhtx9sRWBvRmIBi/UDAvsanUA+rvGltjBmFivqq6iRGLfxg
+         0Is7JP64PK57hxtBi5rB3DxXAUc/nlIHjgsphR/2KftHY0traJeP5nIjkP89b4sp+32J
+         RUxA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1688490242; x=1691082242;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=o5CkhYNN16WNUQJu71BeSwdzRNxPgL/gs2UX0urk5eQ=;
+        b=U8Krp3JgNpB1P8Jz582E+QcrsVkFYYDqPQb4Gr6bhtWkP58f0tXhJsaqi7cBQfOmfr
+         HVPjwDC8Jh+/RPBNdY2GjP5Ye5uHI8Haa9rXwlV7FsAoBXxwOBlVfPmzdsMMILGxM0Wc
+         RcJsW6j7fSExlZd7bbsxsHbWFMTSX4heXrGtG/pMsTSC5g46FsWrVVoeQ6Ufxx6kJ/lE
+         82CiiHyW3jU/o9PieLPDgkACGCCIUUvCW9PlskAjxmBwx+Ood2UkYsePHpWjWT/v/wCG
+         SUsZv+4e7LlQZrpuQK+PS1hk/HjAYdZbT6EZcxHmUn6lU1MZydMprXt/4UEXmb9Ei6JI
+         dHrg==
+X-Gm-Message-State: ABy/qLbxjnrTf34KW+gGhaq6cwVYkfnU9EOlsezjUHhAhYGLBHGLPFfg
+        vLujfodE9+gT4EQAfvKpkewRcg==
+X-Google-Smtp-Source: APBJJlEujSIy21mB6q57p7XiiokfNCFL+rCQls/CklTtga65bPCnY5wMW8YqJmU/LAIKTHdSHjCBvg==
+X-Received: by 2002:a0d:dd02:0:b0:55a:3ce9:dc3d with SMTP id g2-20020a0ddd02000000b0055a3ce9dc3dmr13990263ywe.13.1688490242129;
+        Tue, 04 Jul 2023 10:04:02 -0700 (PDT)
+Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id n20-20020a819c54000000b00577632aa85esm2323151ywa.3.2023.07.04.10.03.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Jul 2023 10:04:01 -0700 (PDT)
+Date:   Tue, 4 Jul 2023 10:03:57 -0700 (PDT)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@ripple.attlocal.net
+To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+cc:     Hugh Dickins <hughd@google.com>, Jason Gunthorpe <jgg@ziepe.ca>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Anna Schumaker <anna@kernel.org>, Chao Yu <chao@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Dave Kleikamp <shaggy@kernel.org>,
-        David Sterba <dsterba@suse.com>, dm-devel@redhat.com,
-        drbd-dev@lists.linbit.com, Gao Xiang <xiang@kernel.org>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        jfs-discussion@lists.sourceforge.net,
-        Joern Engel <joern@lazybastard.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        linux-bcache@vger.kernel.org, linux-btrfs@vger.kernel.org,
-        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net, linux-mm@kvack.org,
-        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
-        linux-nilfs@vger.kernel.org, linux-nvme@lists.infradead.org,
-        linux-pm@vger.kernel.org, linux-raid@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-xfs@vger.kernel.org,
-        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
-        Mike Snitzer <snitzer@kernel.org>,
-        Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com,
-        reiserfs-devel@vger.kernel.org,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Lorenzo Stoakes <lstoakes@gmail.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
         Song Liu <song@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        target-devel@vger.kernel.org, Ted Tso <tytso@mit.edu>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        xen-devel@lists.xenproject.org
-Subject: Re: [PATCH 01/32] block: Provide blkdev_get_handle_* functions
-Message-ID: <ZKRItBRhm8f5Vba/@kbusch-mbp>
-References: <20230629165206.383-1-jack@suse.cz>
- <20230704122224.16257-1-jack@suse.cz>
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        Vishal Moola <vishal.moola@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH v2 07/12] s390: add pte_free_defer() for pgtables sharing
+ page
+In-Reply-To: <20230704171905.1263478f@thinkpad-T15>
+Message-ID: <e678affb-5eee-a055-7af1-1d29a965663b@google.com>
+References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com> <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com> <20230628211624.531cdc58@thinkpad-T15> <cd7c2851-1440-7220-6c53-16b343b1474@google.com> <ZJ2hsM5Tn+yUZ5ZV@ziepe.ca> <20230629175645.7654d0a8@thinkpad-T15>
+ <edaa96f-80c1-1252-acbb-71c4f045b035@google.com> <7bef5695-fa4a-7215-7e9d-d4a83161c7ab@google.com> <20230704171905.1263478f@thinkpad-T15>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230704122224.16257-1-jack@suse.cz>
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jul 04, 2023 at 02:21:28PM +0200, Jan Kara wrote:
-> +struct bdev_handle *blkdev_get_handle_by_dev(dev_t dev, blk_mode_t mode,
-> +		void *holder, const struct blk_holder_ops *hops)
-> +{
-> +	struct bdev_handle *handle = kmalloc(sizeof(struct bdev_handle),
-> +					     GFP_KERNEL);
+On Tue, 4 Jul 2023, Gerald Schaefer wrote:
+> On Sat, 1 Jul 2023 21:32:38 -0700 (PDT)
+> Hugh Dickins <hughd@google.com> wrote:
+> > On Thu, 29 Jun 2023, Hugh Dickins wrote:
+> > > 
+> > > I've grown to dislike the (ab)use of pt_frag_refcount even more, to the
+> > > extent that I've not even tried to verify it; but I think I do get the
+> > > point now, that we need further info than just PPHHAA to know whether
+> > > the page is on the list or not.  But I think that if we move where the
+> > > call_rcu() is done, then the page can stay on or off the list by same
+> > > rules as before (but need to check HH bits along with PP when deciding
+> > > whether to allocate, and whether to list_add_tail() when freeing).  
+> > 
+> > No, not quite the same rules as before: I came to realize that using
+> > list_add_tail() for the HH pages would be liable to put a page on the
+> > list which forever blocked reuse of PP list_add_tail() pages after it
+> > (could be solved by a list_move() somewhere, but we have agreed to
+> > prefer simplicity).
+> > 
+> > I've dropped the HH bits, I'm using PageActive like we did on powerpc,
+> > I've dropped most of the pte_free_*() helpers, and list_del_init() is
+> > an easier way of dealing with those "is it on the list" questions.
+> > I expect that we shall be close to reaching agreement on...
+> 
+> This looks really nice, almost too good and easy to be true. I did not
+> find any obvious flaw, just some comments below. It also survived LTP
+> without any visible havoc, so I guess this approach is the best so far.
 
-I believe 'sizeof(*handle)' is the preferred style.
+Phew! I'm of course glad to hear this: thanks for your efforts on it.
 
-> +	struct block_device *bdev;
-> +
-> +	if (!handle)
-> +		return ERR_PTR(-ENOMEM);
-> +	bdev = blkdev_get_by_dev(dev, mode, holder, hops);
-> +	if (IS_ERR(bdev))
-> +		return ERR_CAST(bdev);
+...
+> > --- a/arch/s390/mm/pgalloc.c
+> > +++ b/arch/s390/mm/pgalloc.c
+> > @@ -229,6 +229,15 @@ void page_table_free_pgste(struct page *page)
+> >   * logic described above. Both AA bits are set to 1 to denote a 4KB-pgtable
+> >   * while the PP bits are never used, nor such a page is added to or removed
+> >   * from mm_context_t::pgtable_list.
+> > + *
+> > + * pte_free_defer() overrides those rules: it takes the page off pgtable_list,
+> > + * and prevents both 2K fragments from being reused. pte_free_defer() has to
+> > + * guarantee that its pgtable cannot be reused before the RCU grace period
+> > + * has elapsed (which page_table_free_rcu() does not actually guarantee).
+> 
+> Hmm, I think page_table_free_rcu() has to guarantee the same, i.e. not
+> allow reuse before grace period elapsed. And I hope that it does so, by
+> setting the PP bits, which would be noticed in page_table_alloc(), in
+> case the page would be seen there.
+> 
+> Unlike pte_free_defer(), page_table_free_rcu() would add pages back to the
+> end of the list, and so they could be seen in page_table_alloc(), but they
+> should not be reused before grace period elapsed and __tlb_remove_table()
+> cleared the PP bits, as far as I understand.
+> 
+> So what exactly do you mean with "which page_table_free_rcu() does not actually
+> guarantee"?
 
-Need a 'kfree(handle)' before the error return. Or would it be simpler
-to get the bdev first so you can check the mode settings against a
-read-only bdev prior to the kmalloc?
+I'll answer without locating and re-reading what Jason explained earlier,
+perhaps in a separate thread, about pseudo-RCU-ness in tlb_remove_table():
+he may have explained it better.  And without working out again all the
+MMU_GATHER #defines, and which of them do and do not apply to s390 here.
 
-> +	handle->bdev = bdev;
-> +	handle->holder = holder;
-> +	return handle;
-> +}
-> +EXPORT_SYMBOL(blkdev_get_handle_by_dev);
-> +
->  /**
->   * blkdev_get_by_path - open a block device by name
->   * @path: path to the block device to open
-> @@ -884,6 +902,28 @@ struct block_device *blkdev_get_by_path(const char *path, blk_mode_t mode,
->  }
->  EXPORT_SYMBOL(blkdev_get_by_path);
->  
-> +struct bdev_handle *blkdev_get_handle_by_path(const char *path, blk_mode_t mode,
-> +		void *holder, const struct blk_holder_ops *hops)
-> +{
-> +	struct bdev_handle *handle;
-> +	dev_t dev;
-> +	int error;
-> +
-> +	error = lookup_bdev(path, &dev);
-> +	if (error)
-> +		return ERR_PTR(error);
-> +
-> +	handle = blkdev_get_handle_by_dev(dev, mode, holder, hops);
-> +	if (!IS_ERR(handle) && (mode & BLK_OPEN_WRITE) &&
-> +	    bdev_read_only(handle->bdev)) {
-> +		blkdev_handle_put(handle);
-> +		return ERR_PTR(-EACCES);
-> +	}
-> +
-> +	return handle;
-> +}
-> +EXPORT_SYMBOL(blkdev_get_handle_by_path);
+The detail that sticks in my mind is the fallback in tlb_remove_table()
+in mm/mmu_gather.c: if its __get_free_page(GFP_NOWAIT) fails, it cannot
+batch the tables for freeing by RCU, and resorts instead to an immediate 
+TLB flush (I think: that again involves chasing definitions) followed by
+tlb_remove_table_sync_one() - which just delivers an interrupt to each CPU,
+and is commented: 
+/*
+ * This isn't an RCU grace period and hence the page-tables cannot be
+ * assumed to be actually RCU-freed.
+ *
+ * It is however sufficient for software page-table walkers that rely on
+ * IRQ disabling.
+ */
+
+Whether that's good for your PP pages or not, I've given no thought:
+I've just taken it on trust that what s390 has working today is good.
+
+If that __get_free_page(GFP_NOWAIT) fallback instead used call_rcu(),
+then I would not have written "(which page_table_free_rcu() does not
+actually guarantee)".  But it cannot use call_rcu() because it does
+not have an rcu_head to work with - it's in some generic code, and
+there is no MMU_GATHER_CAN_USE_PAGE_RCU_HEAD for architectures to set.
+
+And Jason would have much preferred us to address the issue from that
+angle; but not only would doing so destroy my sanity, I'd also destroy
+20 architectures TLB-flushing, unbuilt and untested, in the attempt.
+
+...
+> > @@ -325,10 +346,17 @@ void page_table_free(struct mm_struct *mm, unsigned long *table)
+> >  		 */
+> >  		mask = atomic_xor_bits(&page->_refcount, 0x11U << (bit + 24));
+> >  		mask >>= 24;
+> > -		if (mask & 0x03U)
+> > +		if ((mask & 0x03U) && !PageActive(page)) {
+> > +			/*
+> > +			 * Other half is allocated, and neither half has had
+> > +			 * its free deferred: add page to head of list, to make
+> > +			 * this freed half available for immediate reuse.
+> > +			 */
+> >  			list_add(&page->lru, &mm->context.pgtable_list);
+> > -		else
+> > -			list_del(&page->lru);
+> > +		} else {
+> > +			/* If page is on list, now remove it. */
+> > +			list_del_init(&page->lru);
+> > +		}
+> 
+> Ok, we might end up with some unnecessary list_del_init() here, e.g. if
+> other half is still allocated, when called from pte_free_defer() on a
+> fully allocated page, which was not on the list (and with PageActive, and
+> (mask & 0x03U) true).
+> Not sure if adding an additional mask check to the else path would be
+> needed, but it seems that list_del_init() should also be able to handle
+> this.
+
+list_del_init() is very cheap in the unnecessary case: the cachelines
+required are already there.  You don't want a flag to say whether to
+call it or not, it is already the efficient approach.
+
+(But you were right not to use it in your pt_frag_refcount version,
+because there we were still trying to do the call_rcu() per fragment
+rather than per page, so page->lru could have been on the RCU queue.)
+
+> 
+> Same thought applies to the similar logic in page_table_free_rcu()
+> below.
+> 
+> >  		spin_unlock_bh(&mm->context.lock);
+> >  		mask = atomic_xor_bits(&page->_refcount, 0x10U << (bit + 24));
+> >  		mask >>= 24;
+> > @@ -342,8 +370,10 @@ void page_table_free(struct mm_struct *mm, unsigned long *table)
+> >  	}
+> >  
+> >  	page_table_release_check(page, table, half, mask);
+> > -	pgtable_pte_page_dtor(page);
+> > -	__free_page(page);
+> > +	if (TestClearPageActive(page))
+> > +		call_rcu(&page->rcu_head, pte_free_now);
+> > +	else
+> > +		pte_free_now(&page->rcu_head);
+> 
+> This ClearPageActive, and the similar thing in __tlb_remove_table() below,
+> worries me a bit, because it is done outside the spin_lock. It "feels" like
+> there could be some race with the PageActive checks inside the spin_lock,
+> but when drawing some pictures, I could not find any such scenario yet.
+> Also, our existing spin_lock is probably not supposed to protect against
+> PageActive changes anyway, right?
+
+Here (and similarly in __tlb_remove_table()) is where we are about to free
+the page table page: both of the fragments have already been released,
+there is nobody left who could be racing against us to set PageActive.
+
+I chose PageActive for its name, not for any special behaviour of that
+flag: nothing else could be setting or clearing it while we own the page.
+
+Hugh
