@@ -2,339 +2,288 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4263DC0015E
-	for <linux-s390@archiver.kernel.org>; Wed,  5 Jul 2023 12:56:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E4E8C001DF
+	for <linux-s390@archiver.kernel.org>; Wed,  5 Jul 2023 14:21:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231202AbjGEM4u (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 5 Jul 2023 08:56:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55174 "EHLO
+        id S232504AbjGEOVB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 5 Jul 2023 10:21:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231154AbjGEM4u (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Jul 2023 08:56:50 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5746DDA;
-        Wed,  5 Jul 2023 05:56:48 -0700 (PDT)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 365ClQhe020840;
-        Wed, 5 Jul 2023 12:55:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=3pnswunhhF06iYeiSc/KKz/p4ThnIKIhoX1aPj5MKQM=;
- b=MEk6ZVkYVDhSAmL3VJC9I10FclaUqS9amg6qM/r1LONGHl+Ai6BWxuRBWSR8OotUjCNL
- 56Os3k7jfSoD939CyODP/r7DqmuPzo/qTTOyhS+63jMG9bM7/7if6fXwU6i7iGOavKdd
- smgQNA4cHtY3Ca44/8wfCP0fN3pLjOye3jCh1gSPJywCjblhWjhZZYs491Lxp1pgoyTg
- e0JnxZuob6J0BZtWd0vbxLYfQV4moXDYmvKDGRgY6AbR0o5hx/QsIgC+NEVMyrtqfYML
- QkUNWXDnHdTKrcslyRa2KVyo8ogkRbiYvNSMZjxfowucr/lV1yrnkz5bjZHJvtCdMfwL WQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rn8tyg7c4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 05 Jul 2023 12:55:29 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 365Cmjvq024855;
-        Wed, 5 Jul 2023 12:55:28 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rn8tyg7as-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 05 Jul 2023 12:55:28 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3653PMfU027320;
-        Wed, 5 Jul 2023 12:55:25 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3rjbs4tk3x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 05 Jul 2023 12:55:25 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 365CtLIH12911148
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 5 Jul 2023 12:55:21 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A0C9C20043;
-        Wed,  5 Jul 2023 12:55:21 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 98DAE2004D;
-        Wed,  5 Jul 2023 12:55:18 +0000 (GMT)
-Received: from thinkpad-T15 (unknown [9.171.49.168])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
-        Wed,  5 Jul 2023 12:55:18 +0000 (GMT)
-Date:   Wed, 5 Jul 2023 14:55:16 +0200
-From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Jason Gunthorpe <jgg@ziepe.ca>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jann Horn <jannh@google.com>,
-        Vishal Moola <vishal.moola@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v2 07/12] s390: add pte_free_defer() for pgtables
- sharing page
-Message-ID: <20230705145516.7d9d554d@thinkpad-T15>
-In-Reply-To: <e678affb-5eee-a055-7af1-1d29a965663b@google.com>
-References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com>
-        <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com>
-        <20230628211624.531cdc58@thinkpad-T15>
-        <cd7c2851-1440-7220-6c53-16b343b1474@google.com>
-        <ZJ2hsM5Tn+yUZ5ZV@ziepe.ca>
-        <20230629175645.7654d0a8@thinkpad-T15>
-        <edaa96f-80c1-1252-acbb-71c4f045b035@google.com>
-        <7bef5695-fa4a-7215-7e9d-d4a83161c7ab@google.com>
-        <20230704171905.1263478f@thinkpad-T15>
-        <e678affb-5eee-a055-7af1-1d29a965663b@google.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+        with ESMTP id S232271AbjGEOU5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Jul 2023 10:20:57 -0400
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F9F1CF;
+        Wed,  5 Jul 2023 07:20:56 -0700 (PDT)
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 365EDk41027824;
+        Wed, 5 Jul 2023 14:20:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references :
+ content-transfer-encoding : content-type : mime-version;
+ s=corp-2023-03-30; bh=EEsMn/OLS5R4o9RijfnPxOP5gXUAhLJTmbMdN3T72C4=;
+ b=0WOFAvdR1EG13TKH5sj88dGdknA2FAhWIOcmQt+EmZkqgdXHwagsgjADJ5u+qZm/FVXe
+ WhnwCvKmjRuwm1Kl6fJP77tfnaUcLik2x7XRk5W8KwzxzNSd5XdtZ5pKLiAqmKpjQiTy
+ VMzCSmy4xFJQsaU3hsMfYeg1ShexuezkZMZEhEhB1Jg8MsMWMyX2cffFlF19+yCHI9jB
+ FsuWQ/OSqikte7lkF0o72WX4QHsitsdm5bj03HTmblXycUI+RPyt5f6QOV5vCW5D4lww
+ 6FHiJz3kd8EtY2AzxgqkYO/9KXiVgFxnwQZhh06NLARqLYZRP3b1TitNE2eFt/OzvOC+ ew== 
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3rjbrtehsj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 05 Jul 2023 14:20:38 +0000
+Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 365DMsG9033370;
+        Wed, 5 Jul 2023 14:20:37 GMT
+Received: from nam04-bn8-obe.outbound.protection.outlook.com (mail-bn8nam04lp2041.outbound.protection.outlook.com [104.47.74.41])
+        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3rjak5wker-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 05 Jul 2023 14:20:37 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ipJMGsDMyYstTktEniOvLDW/kmpG1Zscj//a5i+LRTEXZhF3h4HyE0LHZgPilhfRpIeUqEsqaayElEiD9cL/BpS+tvfoQBk8DtGHB9K4i2lGg9v28Llkm1LIdSQL7BbzmoR95VK9zZd9bTpyN05Qrqbcu3FmmlKLx+P0/5mM+cuy1Ak3eoI+UUkQGkiUIojbM7vKVeqfW0SauWtGQP2wuvyaO+j8k5pLRP3bmlFE+dMvXj0b966N7KBwxJG/bJkPqjb8PRxk/LD0e51dbVHVP8sqhLpCtA66GST6hWC3h7tpyRzm/MHYMGaBaijjFk1caMNio/I5VVHLbL8fuyupKw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=EEsMn/OLS5R4o9RijfnPxOP5gXUAhLJTmbMdN3T72C4=;
+ b=f+gQNrDWcz7opzGjfTweEQsfe7buSqL19l6hwQYz7k6gQ/yeQBwAg/L6aYcjok/haOneN1KQQldZFosBEBRHeiPrpUWuvSiMz4T4D8t4L+1CRyXXROqrKSMtXHqFZ8pCiYSDvoQSY0zyDdd6wM+HdWIACmpFouhvkhbojuc/MAvTW4xTdB+mfzaB81eRvMnFAw1VoxxRknJYz1diMYPnR4FrTm13QrPdnthVKQJhvil+GicA66MfwHH1LJL1cIH5q5miMunINNQ49jcUqEhharfk71FNbtwcQrYvUL2XIv+cK5mzctY+Hvv0ZstYrZZM7PFUuMMmA7YR8PuvmK7pqA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=EEsMn/OLS5R4o9RijfnPxOP5gXUAhLJTmbMdN3T72C4=;
+ b=HLO1w41ean6SoS/x1PodU5M/D/WYxSSsLqNz9SUjBQ55iwo6dT9+FmwGyE4NUbQUrsl0nhmVt3Y9uwgC6lyN8jfa3AybR1s8sTCgzM1DNewBH3CMP0AATPO0KOLp/WQvxmqfFeIcRnG/pV+rkkU2Adhryp+DGFJ9pRk129ZluBs=
+Received: from CO1PR10MB4531.namprd10.prod.outlook.com (2603:10b6:303:6c::22)
+ by BL3PR10MB6258.namprd10.prod.outlook.com (2603:10b6:208:38d::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6565.17; Wed, 5 Jul
+ 2023 14:20:30 +0000
+Received: from CO1PR10MB4531.namprd10.prod.outlook.com
+ ([fe80::8b8f:b4b1:bb78:b048]) by CO1PR10MB4531.namprd10.prod.outlook.com
+ ([fe80::8b8f:b4b1:bb78:b048%5]) with mapi id 15.20.6565.016; Wed, 5 Jul 2023
+ 14:20:30 +0000
+From:   Eric DeVolder <eric.devolder@oracle.com>
+To:     linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org,
+        chenhuacai@kernel.org, geert@linux-m68k.org,
+        tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com,
+        deller@gmx.de, ysato@users.sourceforge.jp, dalias@libc.org,
+        glaubitz@physik.fu-berlin.de, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-ia64@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org
+Cc:     kernel@xen0n.name, mpe@ellerman.id.au, npiggin@gmail.com,
+        christophe.leroy@csgroup.eu, paul.walmsley@sifive.com,
+        palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com, hpa@zytor.com,
+        keescook@chromium.org, paulmck@kernel.org, peterz@infradead.org,
+        frederic@kernel.org, akpm@linux-foundation.org, ardb@kernel.org,
+        samitolvanen@google.com, juerg.haefliger@canonical.com,
+        arnd@arndb.de, rmk+kernel@armlinux.org.uk,
+        linus.walleij@linaro.org, sebastian.reichel@collabora.com,
+        rppt@kernel.org, kirill.shutemov@linux.intel.com,
+        anshuman.khandual@arm.com, ziy@nvidia.com, masahiroy@kernel.org,
+        ndesaulniers@google.com, mhiramat@kernel.org, ojeda@kernel.org,
+        thunder.leizhen@huawei.com, xin3.li@intel.com, tj@kernel.org,
+        gregkh@linuxfoundation.org, tsi@tuyoix.net, bhe@redhat.com,
+        hbathini@linux.ibm.com, sourabhjain@linux.ibm.com,
+        eric.devolder@oracle.com, boris.ostrovsky@oracle.com,
+        konrad.wilk@oracle.com
+Subject: [PATCH v4 05/13] arm64/kexec: refactor for kernel/Kconfig.kexec
+Date:   Wed,  5 Jul 2023 10:19:56 -0400
+Message-Id: <20230705142004.3605799-6-eric.devolder@oracle.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20230705142004.3605799-1-eric.devolder@oracle.com>
+References: <20230705142004.3605799-1-eric.devolder@oracle.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BY5PR03CA0007.namprd03.prod.outlook.com
+ (2603:10b6:a03:1e0::17) To CO1PR10MB4531.namprd10.prod.outlook.com
+ (2603:10b6:303:6c::22)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 0DQoxAF1olsdO5DFTI_7dqwv7FMriyOJ
-X-Proofpoint-ORIG-GUID: ya86xS09MgxWjeDFgH6Ca4aNmkyq7jy5
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO1PR10MB4531:EE_|BL3PR10MB6258:EE_
+X-MS-Office365-Filtering-Correlation-Id: c1474983-3770-446b-5e81-08db7d62fcc0
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: PBXvHXCfVtQu23pwDImCnOLnjXHnRuSFi19DFL/Mo+YuAOLG5X/t+0IDww6nCFwvfj+YaChRyjRlMcxwyGPYyO0VeoHG13HpQWob3v8ztkC3r8l2+u5LJpn8lhkIKPrLlZHO5MNbD3ErLHKUpwR/rwTs9/xhwab520uRy2+67bQQz4hmn7jXIC+wsYb+UCh8TWg7ZFwpSeVxxkCbl3XwLFUqpYHrUXb25/lELhWeJfGLtEksulOR8xRuURixXz82hbC8R/xpy/vB8PjNKJ5PeBQOj7bR2rZJueYGkZRmlOfr3zru6WSRzb1PMHrdhVFONwsOwf5/WgMFeIkiqQfv2sbZKGxiFipTlEo1Y0yT9vltKkA6deUbfBjS1XrEx4gytTAoWBVp46kfaA42RTp02+FWMFeKHf/Fz5MPATv4BvBEWbMZb6tdtFKLDuWGh6ooFyEBbg/LXJvvuw0tvGmmaSbJ4gO59efKqEq1FbW/+vhH9u1eWXE8nRDzOT2fzl66BVSG4KgjE+d46FAgSTl0i5AhrnZOkWpn5ByEnW952bOBiMzdXNdHdWvApNtONrkzcJRZsSdwRfmiq4WGbAsPzXcFhAXxw9LH/MqfXChkp/M=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CO1PR10MB4531.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(39860400002)(136003)(346002)(366004)(376002)(396003)(451199021)(2616005)(2906002)(83380400001)(38100700002)(36756003)(86362001)(921005)(107886003)(7366002)(7406005)(5660300002)(1076003)(6506007)(7416002)(41300700001)(6486002)(8676002)(4326008)(8936002)(316002)(6666004)(66556008)(66476007)(6512007)(66946007)(478600001)(26005)(186003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?NvcNRGhi12yKua4MSTq/3UlRhjpkq02btvXonY39LREbjK6hN7DSNciVpdrn?=
+ =?us-ascii?Q?7dyItFmFfMdu/qbIotEAgJe8ROykV3tfNIHmDz0wMEqR2WLEJAhBQg4HrqEc?=
+ =?us-ascii?Q?la5AuE+rAWda17XBJdXp0EhM897gJzMiiJfJ81V/cTcu/mHOEUS+7UqVFNP2?=
+ =?us-ascii?Q?qUGM9V0c5e5LvP278QbnJYtpAw/R3tDYoKNoYfsJFOVE24mQTAMQJUeMAB+N?=
+ =?us-ascii?Q?JMoMN16iErNtTjsrfPeIQWVlswBf8jvdK/pP/Oga73lLcs1PO3n2XNgusN4q?=
+ =?us-ascii?Q?3sAYXKJEzW926grPniusppjoM/1LJuRuNyNhmZu/MeQxlcByfItFMdrZ6z+M?=
+ =?us-ascii?Q?EFXj88eCuBWpYzJUUUIO445LRaYTrfVf2j324vsdrU0ZTjbY8nQnTIlv7x7J?=
+ =?us-ascii?Q?FodvvTYf+dGZry3KY9VS12vvmLtwVcno5ndxbDGbozSuq+v+Sy3suNV91OWR?=
+ =?us-ascii?Q?H5RJfJ92GyYt7JA7VTz0d9bGOw79VN28Im5UzOvDEKg4qGvTVyORk6TtFk6O?=
+ =?us-ascii?Q?gwTIFaythEprMKgdT7ciQIv8DBKCXXsmZIF6qczKC7e9HZyNpHsBoKQVqLx2?=
+ =?us-ascii?Q?h9n+8DGpkFbn/YFnVFd7w37NqK4Wh4TFqaD/vDoDxEeW3Kh8wrMXGTq3Hu3w?=
+ =?us-ascii?Q?ReGskOWPdwSpD1pG+MrT3FfH5jeXonrx6HmVoHPV4L0AK21rXUTUDA7tou3s?=
+ =?us-ascii?Q?5OCgdcOlO3+bq8m/646rV+OgDbzFIvR65tHnYVqsI4GtoK3Vxr1gkVUXeokR?=
+ =?us-ascii?Q?lLMzM5fTJBlNvp7RVJX1LvomvoJSgpz8pAUtUeawGedXthn5t9Q7akfgIIHv?=
+ =?us-ascii?Q?zoyB8ut9tWLlGJM41Cu0n7T4c0CLcLoRSTLf90IGEt9Z0EYFHIt+6EQ5bYyy?=
+ =?us-ascii?Q?nWaZxQcMCyKWnZEUno+yz3x78N8j7upuwiIjhIKBgOrwmwTmjWFdypW+hZRa?=
+ =?us-ascii?Q?kj3ascmQzMn9NWovwH7tlCgZQJ6j3SiHMBvQSy3gSWRKd59sZ8wLRjqpa/eW?=
+ =?us-ascii?Q?HpiTjRadVnfcZG0eufRq1v4ykQkSTCaEphEYQfkuAM6zsmhqHLpBTMAhNhmp?=
+ =?us-ascii?Q?pZFByxbxYEpFS5zZbjmtN3ilngAc89enUadncijgPxaQcvJBY1Hsih3CD71A?=
+ =?us-ascii?Q?fzFgRg3RzENKKBnZFdAzrm5IxJAqFblLC+2x25SBN7Ddiw3NnLxZzKcQHSO6?=
+ =?us-ascii?Q?Sv7Xwz7SPyKU7CJuDZTnEYQK+jT6JXwHBPbPoINbThH3dEdwxsU+FlkDrZrO?=
+ =?us-ascii?Q?0A9Xxky/j/sDUn5x9VUu0hyFz9byGHNZwaK8YAMnvH1uAtfbB94EQdcIFMYa?=
+ =?us-ascii?Q?22HNroKXxhdawZt49jsWyL0EY5gE7wgQ1HWIe7kG6idqN41ypLVFSxTiy9/h?=
+ =?us-ascii?Q?Km3UFA0ssRbPosdtxa2oHf4VB6bJC+525aiUomHQhL1rBxBQd4OLhky9zqDb?=
+ =?us-ascii?Q?1zKv8a/3qfqTxUf2UdO0S5LOE5gDx3i8jIU8nFa2DIGAPVEyStVKqe/MKaf2?=
+ =?us-ascii?Q?+f5HTThKb6Acfm8y9vBKJoaJALnzGy1Xh6cSSZ/cQoU2g9tORGTemCwNauKD?=
+ =?us-ascii?Q?bJG8W1mRWpJfVo9rxBjrovAOL/mPhL5hiDt0rM8eiM6TvJ2lJAXrn2RejOG1?=
+ =?us-ascii?Q?SA=3D=3D?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 2
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: =?us-ascii?Q?fBIO2YbWZH7dB25PD7+ppr/vtvBPsHiFnzvMUSpRbB+Wclc/Lldz0lIC9U4O?=
+ =?us-ascii?Q?0Y1mybDP6KIbIbyS3U7yGV/UhCr5r97qUM8+9V+D51W74abBZ9ms9RoY8VCJ?=
+ =?us-ascii?Q?lCXYJSftjeplG/4YuHJLl/5tY6bY4fIt3D9YOvLqYpEC4yBjaA8uQDdFCrmh?=
+ =?us-ascii?Q?LcnakoIeU5Oim6lIFE8vgahORAJrpAoa+D+ZPT9wRENgGvcDUVgmrxLGFETV?=
+ =?us-ascii?Q?jLZDPEZ46WRNcWLG8esoGkyzQmdu3rRzjB/jR//to+EfkF+G9Dnui74SjgEx?=
+ =?us-ascii?Q?vBbGsVyQssJqh6QAC5MzV846npNG4pXy6Ofcml1p8x9krQY5V53byCVbIIwt?=
+ =?us-ascii?Q?ciuk2ACVe92GI2Bu26AF4vGP3zySlIzSrh7HB8Y47Nr6Y8gZzp4le3WlSxOc?=
+ =?us-ascii?Q?jPRQ1u5LuIK7Uhyv65M+6cunk3wnc/FzyAYhsiXXkTnMkAlNzsOUE2+rskBy?=
+ =?us-ascii?Q?uQh+MFx0niE4JaFi1snyg6PktBcB0h/Joi7ai8BfL1Uk2dQWBROIEHdjPz2v?=
+ =?us-ascii?Q?BmyRbDmkBsHCDVTfOvDOdsR7FzjD3XcYWYqSd/jLvPGcdeBCe22Fm9ZlqH8G?=
+ =?us-ascii?Q?NxM2IH46GIHM5Jq2cEiPmKCPbbGCZOLJHBU33uNceLPh1AgP9+M9emXO7m36?=
+ =?us-ascii?Q?hrp5XsfPI+DrpXM60tefFoKnGL6KJEQQMtmjOSUhypSKnLJz0mBJVrdEIsn4?=
+ =?us-ascii?Q?GCEZ9bJAIxddyib3wzFqfKyoN7Ctl61pYU5G9XRAkEFMszy1z0PC9S8zscx9?=
+ =?us-ascii?Q?I/CgFmEg1BQy0MkEorhub1z91tiHD7hShknDDir5goNGEhYBS4v6KghukiPL?=
+ =?us-ascii?Q?eRubJSm7yfQyox1fdgsF2bTBHTTsjGCq7if+pYPhONhsqr7Aqg1Y0kvNdb6U?=
+ =?us-ascii?Q?AMb0dK3E4JT4heaKNjN/46Eqgf9tr7XATwL752GGV7DKvMi7EFChJkDTB7gW?=
+ =?us-ascii?Q?DJr908z9bXGli891heAnOgQux7BIDejViEaQlF5qzluID/ozjVV8Mzg3y6om?=
+ =?us-ascii?Q?XQdqj7nqkwr61g0sGlXD6sy3QEXDoeBYojnTHrd6uvP0qrvMEvEcIbULW8o+?=
+ =?us-ascii?Q?D0dfZMYGh6dVyHSv8yQjnw6sV9Vfp31tS9FjDT5IK0yXVg7AEWXY42FkcILz?=
+ =?us-ascii?Q?/dYBOEdG/xHS4M6QUf/c8cUpllefo8ri5VOZlu4q6oXj6dOOjdEpXIplNCuK?=
+ =?us-ascii?Q?UJc0qvWYE3XASq4uJsmyjHvCvtJxgWdwR4xyEdF8uU2tMN1xlqzkEezaqaoq?=
+ =?us-ascii?Q?e3N/U6XRHvrvcpIkrRCy8aN/zWRcFbXmC5vKWL735g4y9C/EvW4g0kIQslh1?=
+ =?us-ascii?Q?8pPisXtbkDWHWQUGd6KgKNPvqD6DciqohbRnfZ21dX0DCTZp4yJGBbBW9N5U?=
+ =?us-ascii?Q?IwuvEj0QFO4TKsaWLLhLc+voD4GU1Dgc/D2rcK3Xrd1lZpQq9byCx6DiPwbv?=
+ =?us-ascii?Q?RNUsE9mbNspfKqfh5xbJlUzSRN2W6Neo9n+C00yDVtp9HQ679n5lBeHUsC6v?=
+ =?us-ascii?Q?YnE0zx2gAd/KDI403/ZBgUd0nMZRJdc1DLH5eIgkWRDQtOFC+ztk7djHz7nS?=
+ =?us-ascii?Q?DQZUEVJpTLP732QccBr9U9JhSW+WcJfwJ56owcMA1Vw8SMHyjEMnIohvxBhT?=
+ =?us-ascii?Q?ZMkBS1rTlIO0++OvB5kvTHzsRItjSn5ZcuP5EmN1jYtFUOPpG7uYlJ7bT9oy?=
+ =?us-ascii?Q?d3Ovzq9BNWYLupxCu0kH8rkY7b2jNpuTdMK+nK1/j4Sl1s0KG+5LL10+FUBv?=
+ =?us-ascii?Q?gawmQ0ZIBQOTx/hIDcuB74264H006AwjpBJB0VJ0n927f0PmfE/x9RgmF3TW?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-1: wcaezO/0oW4mQNIacnKi8aZ5bF6K+WrqP6eeXlWZBjcDyBhPlDq+ewXHQxBuFbyO0QSESl9i4y9JngQJaYl0oT5icXwiCfDLhI7LwZ9xdmcY27LVD3xBO32nFP147esX5/yGamXkJ0I66vBSjhDxZM2N6sn6wQZrVZKcVbEGQgtzS/mbozJjC4JLaBkseuVop1AL5+rG+0e/qI4JxHMyiWYoFK79CaZW/YfiyC1VoK+oCvuk0HBcHbbRfyV/fgjyxSpk7WSLTLglcB37/FCq6FMJ/94qySbtbLePfgwsdWpkYQhHcdOgt41R0vHDnhVSpIlCn8i7/n5+/I8f3oYpCii3tuVSNvfdVjF7fPjwDU6rdfBnoC5hEVNF3GbSKgRGpYDOs8tJ/M8reWzOYrRlI6QlYGpdDDQ6212NW8GlyuGetwGDGqzsDISamQ5Yxga6udXtEwc6qEO+Cw==
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c1474983-3770-446b-5e81-08db7d62fcc0
+X-MS-Exchange-CrossTenant-AuthSource: CO1PR10MB4531.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Jul 2023 14:20:30.6212
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: D7h1mXCHiAUdEr+t7Plz04gmLTqZMc2X66y66EFnw/OsKZMnQm9GbsiP/BrLdqRq1un3fB2irT8bIwmUYV4n56w5Tf9doNhMSZ+DLRf/21E=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR10MB6258
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-05_05,2023-07-05_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
- priorityscore=1501 mlxlogscore=999 impostorscore=0 mlxscore=0 phishscore=0
- malwarescore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2307050111
+ definitions=2023-07-05_06,2023-07-05_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 bulkscore=0 suspectscore=0
+ malwarescore=0 phishscore=0 mlxscore=0 spamscore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2305260000
+ definitions=main-2307050129
+X-Proofpoint-GUID: bjp0Xn0-Hk30xs7HeAiuynybUsVwc1MZ
+X-Proofpoint-ORIG-GUID: bjp0Xn0-Hk30xs7HeAiuynybUsVwc1MZ
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 4 Jul 2023 10:03:57 -0700 (PDT)
-Hugh Dickins <hughd@google.com> wrote:
+The kexec and crash kernel options are provided in the common
+kernel/Kconfig.kexec. Utilize the common options and provide
+the ARCH_SUPPORTS_ and ARCH_SELECTS_ entries to recreate the
+equivalent set of KEXEC and CRASH options.
 
-> On Tue, 4 Jul 2023, Gerald Schaefer wrote:
-> > On Sat, 1 Jul 2023 21:32:38 -0700 (PDT)
-> > Hugh Dickins <hughd@google.com> wrote:  
-> > > On Thu, 29 Jun 2023, Hugh Dickins wrote:  
-> > > > 
-> > > > I've grown to dislike the (ab)use of pt_frag_refcount even more, to the
-> > > > extent that I've not even tried to verify it; but I think I do get the
-> > > > point now, that we need further info than just PPHHAA to know whether
-> > > > the page is on the list or not.  But I think that if we move where the
-> > > > call_rcu() is done, then the page can stay on or off the list by same
-> > > > rules as before (but need to check HH bits along with PP when deciding
-> > > > whether to allocate, and whether to list_add_tail() when freeing).    
-> > > 
-> > > No, not quite the same rules as before: I came to realize that using
-> > > list_add_tail() for the HH pages would be liable to put a page on the
-> > > list which forever blocked reuse of PP list_add_tail() pages after it
-> > > (could be solved by a list_move() somewhere, but we have agreed to
-> > > prefer simplicity).
-> > > 
-> > > I've dropped the HH bits, I'm using PageActive like we did on powerpc,
-> > > I've dropped most of the pte_free_*() helpers, and list_del_init() is
-> > > an easier way of dealing with those "is it on the list" questions.
-> > > I expect that we shall be close to reaching agreement on...  
-> > 
-> > This looks really nice, almost too good and easy to be true. I did not
-> > find any obvious flaw, just some comments below. It also survived LTP
-> > without any visible havoc, so I guess this approach is the best so far.  
-> 
-> Phew! I'm of course glad to hear this: thanks for your efforts on it.
-> 
-> ...
-> > > --- a/arch/s390/mm/pgalloc.c
-> > > +++ b/arch/s390/mm/pgalloc.c
-> > > @@ -229,6 +229,15 @@ void page_table_free_pgste(struct page *page)
-> > >   * logic described above. Both AA bits are set to 1 to denote a 4KB-pgtable
-> > >   * while the PP bits are never used, nor such a page is added to or removed
-> > >   * from mm_context_t::pgtable_list.
-> > > + *
-> > > + * pte_free_defer() overrides those rules: it takes the page off pgtable_list,
-> > > + * and prevents both 2K fragments from being reused. pte_free_defer() has to
-> > > + * guarantee that its pgtable cannot be reused before the RCU grace period
-> > > + * has elapsed (which page_table_free_rcu() does not actually guarantee).  
-> > 
-> > Hmm, I think page_table_free_rcu() has to guarantee the same, i.e. not
-> > allow reuse before grace period elapsed. And I hope that it does so, by
-> > setting the PP bits, which would be noticed in page_table_alloc(), in
-> > case the page would be seen there.
-> > 
-> > Unlike pte_free_defer(), page_table_free_rcu() would add pages back to the
-> > end of the list, and so they could be seen in page_table_alloc(), but they
-> > should not be reused before grace period elapsed and __tlb_remove_table()
-> > cleared the PP bits, as far as I understand.
-> > 
-> > So what exactly do you mean with "which page_table_free_rcu() does not actually
-> > guarantee"?  
-> 
-> I'll answer without locating and re-reading what Jason explained earlier,
-> perhaps in a separate thread, about pseudo-RCU-ness in tlb_remove_table():
-> he may have explained it better.  And without working out again all the
-> MMU_GATHER #defines, and which of them do and do not apply to s390 here.
-> 
-> The detail that sticks in my mind is the fallback in tlb_remove_table()
+Signed-off-by: Eric DeVolder <eric.devolder@oracle.com>
+---
+ arch/arm64/Kconfig | 62 +++++++++-------------------------------------
+ 1 file changed, 12 insertions(+), 50 deletions(-)
 
-Ah ok, I was aware of that "semi-RCU" fallback logic in tlb_remove_table(),
-but that is rather a generic issue, and not s390-specific. I thought you
-meant some s390-oddity here, of which we have a lot, unfortunately...
-Of course, we call tlb_remove_table() from our page_table_free_rcu(), so
-I guess you could say that page_table_free_rcu() cannot guarantee what
-tlb_remove_table() cannot guarantee.
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 7856c3a3e35a..bc6c9ff85a77 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -1459,60 +1459,22 @@ config PARAVIRT_TIME_ACCOUNTING
+ 
+ 	  If in doubt, say N here.
+ 
+-config KEXEC
+-	depends on PM_SLEEP_SMP
+-	select KEXEC_CORE
+-	bool "kexec system call"
+-	help
+-	  kexec is a system call that implements the ability to shutdown your
+-	  current kernel, and to start another kernel.  It is like a reboot
+-	  but it is independent of the system firmware.   And like a reboot
+-	  you can start any kernel with it, not just Linux.
+-
+-config KEXEC_FILE
+-	bool "kexec file based system call"
+-	select KEXEC_CORE
+-	select HAVE_IMA_KEXEC if IMA
+-	help
+-	  This is new version of kexec system call. This system call is
+-	  file based and takes file descriptors as system call argument
+-	  for kernel and initramfs as opposed to list of segments as
+-	  accepted by previous system call.
+-
+-config KEXEC_SIG
+-	bool "Verify kernel signature during kexec_file_load() syscall"
+-	depends on KEXEC_FILE
+-	help
+-	  Select this option to verify a signature with loaded kernel
+-	  image. If configured, any attempt of loading a image without
+-	  valid signature will fail.
+-
+-	  In addition to that option, you need to enable signature
+-	  verification for the corresponding kernel image type being
+-	  loaded in order for this to work.
++config ARCH_SUPPORTS_KEXEC
++	def_bool PM_SLEEP_SMP
+ 
+-config KEXEC_IMAGE_VERIFY_SIG
+-	bool "Enable Image signature verification support"
+-	default y
+-	depends on KEXEC_SIG
+-	depends on EFI && SIGNED_PE_FILE_VERIFICATION
+-	help
+-	  Enable Image signature verification support.
++config ARCH_SUPPORTS_KEXEC_FILE
++	def_bool y
+ 
+-comment "Support for PE file signature verification disabled"
+-	depends on KEXEC_SIG
+-	depends on !EFI || !SIGNED_PE_FILE_VERIFICATION
++config ARCH_SELECTS_KEXEC_FILE
++	def_bool y
++	depends on KEXEC_FILE
++	select HAVE_IMA_KEXEC if IMA
+ 
+-config CRASH_DUMP
+-	bool "Build kdump crash kernel"
+-	help
+-	  Generate crash dump after being started by kexec. This should
+-	  be normally only set in special crash dump kernels which are
+-	  loaded in the main kernel with kexec-tools into a specially
+-	  reserved region and then later executed after a crash by
+-	  kdump/kexec.
++config ARCH_DEFAULT_KEXEC_IMAGE_VERIFY_SIG
++	def_bool y
+ 
+-	  For more details see Documentation/admin-guide/kdump/kdump.rst
++config ARCH_SUPPORTS_CRASH_DUMP
++	def_bool y
+ 
+ config TRANS_TABLE
+ 	def_bool y
+-- 
+2.31.1
 
-Maybe change to "which page_table_free_rcu() does not actually guarantee,
-by calling tlb_remove_table()", to make it clear that this is not a problem
-of page_table_free_rcu() itself.
-
-> in mm/mmu_gather.c: if its __get_free_page(GFP_NOWAIT) fails, it cannot
-> batch the tables for freeing by RCU, and resorts instead to an immediate 
-> TLB flush (I think: that again involves chasing definitions) followed by
-> tlb_remove_table_sync_one() - which just delivers an interrupt to each CPU,
-> and is commented: 
-> /*
->  * This isn't an RCU grace period and hence the page-tables cannot be
->  * assumed to be actually RCU-freed.
->  *
->  * It is however sufficient for software page-table walkers that rely on
->  * IRQ disabling.
->  */
-> 
-> Whether that's good for your PP pages or not, I've given no thought:
-> I've just taken it on trust that what s390 has working today is good.
-
-Yes, we should be fine with that, current code can be trusted :-)
-
-> 
-> If that __get_free_page(GFP_NOWAIT) fallback instead used call_rcu(),
-> then I would not have written "(which page_table_free_rcu() does not
-> actually guarantee)".  But it cannot use call_rcu() because it does
-> not have an rcu_head to work with - it's in some generic code, and
-> there is no MMU_GATHER_CAN_USE_PAGE_RCU_HEAD for architectures to set.
-> 
-> And Jason would have much preferred us to address the issue from that
-> angle; but not only would doing so destroy my sanity, I'd also destroy
-> 20 architectures TLB-flushing, unbuilt and untested, in the attempt.
-
-Oh yes, if your changes would have allowed to get rid of that "semi RCU"
-logic, that would really be a major boost in popularity, I guess. But
-it probably is as it is, because it is not so easily fixed...
-
-> 
-> ...
-> > > @@ -325,10 +346,17 @@ void page_table_free(struct mm_struct *mm, unsigned long *table)
-> > >  		 */
-> > >  		mask = atomic_xor_bits(&page->_refcount, 0x11U << (bit + 24));
-> > >  		mask >>= 24;
-> > > -		if (mask & 0x03U)
-> > > +		if ((mask & 0x03U) && !PageActive(page)) {
-> > > +			/*
-> > > +			 * Other half is allocated, and neither half has had
-> > > +			 * its free deferred: add page to head of list, to make
-> > > +			 * this freed half available for immediate reuse.
-> > > +			 */
-> > >  			list_add(&page->lru, &mm->context.pgtable_list);
-> > > -		else
-> > > -			list_del(&page->lru);
-> > > +		} else {
-> > > +			/* If page is on list, now remove it. */
-> > > +			list_del_init(&page->lru);
-> > > +		}  
-> > 
-> > Ok, we might end up with some unnecessary list_del_init() here, e.g. if
-> > other half is still allocated, when called from pte_free_defer() on a
-> > fully allocated page, which was not on the list (and with PageActive, and
-> > (mask & 0x03U) true).
-> > Not sure if adding an additional mask check to the else path would be
-> > needed, but it seems that list_del_init() should also be able to handle
-> > this.  
-> 
-> list_del_init() is very cheap in the unnecessary case: the cachelines
-> required are already there.  You don't want a flag to say whether to
-> call it or not, it is already the efficient approach.
-
-Yes, I also see no functional issue here. Just thought that the extra
-write could be avoided, e.g. by checking for list_empty() or mask first.
-But I guess that is simply the benefit of list_del_init(), that you
-don't have to check, at least if it is guaranteed that rcu_head is
-never in use here.
-
-Then maybe adjust the comment, because now it makes you wonder, when
-you read (and understand) the code, you see that this list_del_init()
-might also be called for pages not on the list.
-
-> 
-> (But you were right not to use it in your pt_frag_refcount version,
-> because there we were still trying to do the call_rcu() per fragment
-> rather than per page, so page->lru could have been on the RCU queue.)
-
-That is actually the one thing I still try to figure out, by drawing
-pictures, i.e. if we really really never end up here on list_del_init(),
-while using rcu_head, e.g. by racing PageActive.
-
-> 
-> > 
-> > Same thought applies to the similar logic in page_table_free_rcu()
-> > below.
-> >   
-> > >  		spin_unlock_bh(&mm->context.lock);
-> > >  		mask = atomic_xor_bits(&page->_refcount, 0x10U << (bit + 24));
-> > >  		mask >>= 24;
-> > > @@ -342,8 +370,10 @@ void page_table_free(struct mm_struct *mm, unsigned long *table)
-> > >  	}
-> > >  
-> > >  	page_table_release_check(page, table, half, mask);
-> > > -	pgtable_pte_page_dtor(page);
-> > > -	__free_page(page);
-> > > +	if (TestClearPageActive(page))
-> > > +		call_rcu(&page->rcu_head, pte_free_now);
-> > > +	else
-> > > +		pte_free_now(&page->rcu_head);  
-> > 
-> > This ClearPageActive, and the similar thing in __tlb_remove_table() below,
-> > worries me a bit, because it is done outside the spin_lock. It "feels" like
-> > there could be some race with the PageActive checks inside the spin_lock,
-> > but when drawing some pictures, I could not find any such scenario yet.
-> > Also, our existing spin_lock is probably not supposed to protect against
-> > PageActive changes anyway, right?  
-> 
-> Here (and similarly in __tlb_remove_table()) is where we are about to free
-> the page table page: both of the fragments have already been released,
-> there is nobody left who could be racing against us to set PageActive.
-
-Yes, that is what makes this approach so nice, i.e. no more checking
-for HH bits or worry about double call_rcu(), simply do the the freeing
-whenever the page is ready. At least in theory, still drawing pictures :-)
-
-But this really looks very good to me, and also works with LTP not worse
-than the other approaches.
