@@ -2,80 +2,132 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58E9FC001B0
-	for <linux-s390@archiver.kernel.org>; Wed,  5 Jul 2023 09:50:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE8E6C001DF
+	for <linux-s390@archiver.kernel.org>; Wed,  5 Jul 2023 10:21:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230100AbjGEJud (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 5 Jul 2023 05:50:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33132 "EHLO
+        id S231909AbjGEKVd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 5 Jul 2023 06:21:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230196AbjGEJuc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Jul 2023 05:50:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4474D1710
-        for <linux-s390@vger.kernel.org>; Wed,  5 Jul 2023 02:50:24 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        with ESMTP id S231213AbjGEKVb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Jul 2023 06:21:31 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A246B122;
+        Wed,  5 Jul 2023 03:21:30 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6B97614D8
-        for <linux-s390@vger.kernel.org>; Wed,  5 Jul 2023 09:50:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 356D6C433C8;
-        Wed,  5 Jul 2023 09:50:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1688550621;
-        bh=aBZJ37AQ3B6gDkew2/GdvBukbROjBz5nfjoFvF/MOF0=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=rxoflrXlIT3aLpjSc37URPSqzNseuT8ivjTqIdxqNUw1WBK2WiyWYrNWsQNLPBTrb
-         ra0voMvkwJ5oZOPLwyJPE7LNGrxazGJfWVM3ZO4Ii4ozcVmpLCPfxqi/JVIUsxiAQq
-         4qgYRdCZVOHFFBDVPWUXgGC6gewl+y8HZ8QS4qYO+qZXVYBJ18uIHIlyvzII9A9GPX
-         5ENQBiygkPSEswqDYjbMj+cw+eYl4myewikjdRm5dZ/T/a53Ee62vzQGKOpfVdKLg0
-         fkPbIZq5oafSIG2HlUEqY/MBuv4hNchHhzvloP1Tde1Zbe1CtbMU9Fy61iOaeuQZiJ
-         u9v4c6ah5o8gg==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 109B8C561EE;
-        Wed,  5 Jul 2023 09:50:21 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 58F0C1F6E6;
+        Wed,  5 Jul 2023 10:21:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1688552489; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=qqER76PXnxWxMVZH46uY+IP0A7ISNxa4dFOpqm8Npig=;
+        b=rK+eFTza2+XXgbRvOv5tQtV93F/4zZpu7norREAepZy5yow7baD/dvvqWhpeeItBt0IPcu
+        Y5rwLWutv/on4mwv5EJraqTeqhb05mRkTW0yYXikGz/UA9AQcATVDIgxrBuvXRHMAszN6R
+        RSIAN/j2D8s9RJrt3/Umhb+lT3pvazU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1688552489;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=qqER76PXnxWxMVZH46uY+IP0A7ISNxa4dFOpqm8Npig=;
+        b=0Ik5A3faiNr6MKUo0ZlFf0SVDy0zGGeX4x6PTOEnPlUJVjHk96v3tsbq/TGqKcufwhGJGx
+        3sf2EXg0rHzUTICQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 44C0D13460;
+        Wed,  5 Jul 2023 10:21:29 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id Xem5EClEpWRSCwAAMHmgww
+        (envelope-from <jack@suse.cz>); Wed, 05 Jul 2023 10:21:29 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+        id C5467A0707; Wed,  5 Jul 2023 12:21:28 +0200 (CEST)
+Date:   Wed, 5 Jul 2023 12:21:28 +0200
+From:   Jan Kara <jack@suse.cz>
+To:     Keith Busch <kbusch@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>, linux-block@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Christoph Hellwig <hch@infradead.org>,
+        Alasdair Kergon <agk@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anna Schumaker <anna@kernel.org>, Chao Yu <chao@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Dave Kleikamp <shaggy@kernel.org>,
+        David Sterba <dsterba@suse.com>, dm-devel@redhat.com,
+        drbd-dev@lists.linbit.com, Gao Xiang <xiang@kernel.org>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        jfs-discussion@lists.sourceforge.net,
+        Joern Engel <joern@lazybastard.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        linux-bcache@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, linux-mm@kvack.org,
+        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
+        linux-nilfs@vger.kernel.org, linux-nvme@lists.infradead.org,
+        linux-pm@vger.kernel.org, linux-raid@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-xfs@vger.kernel.org,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com,
+        reiserfs-devel@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Song Liu <song@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        target-devel@vger.kernel.org, Ted Tso <tytso@mit.edu>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        xen-devel@lists.xenproject.org
+Subject: Re: [PATCH 01/32] block: Provide blkdev_get_handle_* functions
+Message-ID: <20230705102128.vquve4qencbbn2br@quack3>
+References: <20230629165206.383-1-jack@suse.cz>
+ <20230704122224.16257-1-jack@suse.cz>
+ <ZKRItBRhm8f5Vba/@kbusch-mbp>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] s390/qeth: Fix vipa deletion
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <168855062106.9766.9208321463101789168.git-patchwork-notify@kernel.org>
-Date:   Wed, 05 Jul 2023 09:50:21 +0000
-References: <20230704144121.3737032-1-wintera@linux.ibm.com>
-In-Reply-To: <20230704144121.3737032-1-wintera@linux.ibm.com>
-To:     Alexandra Winter <wintera@linux.ibm.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
-        edumazet@google.com, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, hca@linux.ibm.com,
-        twinkler@linux.ibm.com, wenjia@linux.ibm.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZKRItBRhm8f5Vba/@kbusch-mbp>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
-
-This patch was applied to netdev/net.git (main)
-by David S. Miller <davem@davemloft.net>:
-
-On Tue,  4 Jul 2023 16:41:21 +0200 you wrote:
-> From: Thorsten Winkler <twinkler@linux.ibm.com>
+On Tue 04-07-23 10:28:36, Keith Busch wrote:
+> On Tue, Jul 04, 2023 at 02:21:28PM +0200, Jan Kara wrote:
+> > +struct bdev_handle *blkdev_get_handle_by_dev(dev_t dev, blk_mode_t mode,
+> > +		void *holder, const struct blk_holder_ops *hops)
+> > +{
+> > +	struct bdev_handle *handle = kmalloc(sizeof(struct bdev_handle),
+> > +					     GFP_KERNEL);
 > 
-> Change boolean parameter of function "qeth_l3_vipa_store" inside the
-> "qeth_l3_dev_vipa_del4_store" function from "true" to "false" because
-> "true" is used for adding a virtual ip address and "false" for deleting.
-> 
-> Fixes: 2390166a6b45 ("s390/qeth: clean up L3 sysfs code")
-> 
-> [...]
+> I believe 'sizeof(*handle)' is the preferred style.
 
-Here is the summary with links:
-  - [net] s390/qeth: Fix vipa deletion
-    https://git.kernel.org/netdev/net/c/80de809bd35e
+OK.
 
-You are awesome, thank you!
+> > +	struct block_device *bdev;
+> > +
+> > +	if (!handle)
+> > +		return ERR_PTR(-ENOMEM);
+> > +	bdev = blkdev_get_by_dev(dev, mode, holder, hops);
+> > +	if (IS_ERR(bdev))
+> > +		return ERR_CAST(bdev);
+> 
+> Need a 'kfree(handle)' before the error return. Or would it be simpler
+> to get the bdev first so you can check the mode settings against a
+> read-only bdev prior to the kmalloc?
+
+Yeah. Good point with kfree(). I'm not sure calling blkdev_get_by_dev()
+first will be "simpler" - then we need blkdev_put() in case of kmalloc()
+failure. Thanks for review!
+ 
+								Honza
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
