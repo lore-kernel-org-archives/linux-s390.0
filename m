@@ -2,165 +2,102 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CBD9C0015E
-	for <linux-s390@archiver.kernel.org>; Wed,  5 Jul 2023 10:24:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8248EB64DA
+	for <linux-s390@archiver.kernel.org>; Wed,  5 Jul 2023 11:19:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231636AbjGEKYU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 5 Jul 2023 06:24:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46824 "EHLO
+        id S230020AbjGELTx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 5 Jul 2023 07:19:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229577AbjGEKYT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Jul 2023 06:24:19 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23A4AE47;
-        Wed,  5 Jul 2023 03:24:16 -0700 (PDT)
-Received: from canpemm500009.china.huawei.com (unknown [172.30.72.57])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4QwwjC0D2yzTkkg;
-        Wed,  5 Jul 2023 18:23:11 +0800 (CST)
-Received: from [10.67.102.169] (10.67.102.169) by
- canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27; Wed, 5 Jul 2023 18:24:13 +0800
-CC:     <yangyicong@hisilicon.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        <akpm@linux-foundation.org>, <linux-mm@kvack.org>,
-        <linux-arm-kernel@lists.infradead.org>, <x86@kernel.org>,
-        <mark.rutland@arm.com>, <ryan.roberts@arm.com>, <will@kernel.org>,
-        <anshuman.khandual@arm.com>, <linux-doc@vger.kernel.org>,
-        <corbet@lwn.net>, <peterz@infradead.org>, <arnd@arndb.de>,
-        <punit.agrawal@bytedance.com>, <linux-kernel@vger.kernel.org>,
-        <darren@os.amperecomputing.com>, <huzhanyuan@oppo.com>,
-        <lipeifeng@oppo.com>, <zhangshiming@oppo.com>, <guojian@oppo.com>,
-        <realmz6@gmail.com>, <linux-mips@vger.kernel.org>,
-        <openrisc@lists.librecores.org>, <linuxppc-dev@lists.ozlabs.org>,
-        <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
-        <wangkefeng.wang@huawei.com>, <xhao@linux.alibaba.com>,
-        <prime.zeng@hisilicon.com>, <Jonathan.Cameron@huawei.com>,
-        Barry Song <v-songbaohua@oppo.com>,
-        Nadav Amit <namit@vmware.com>, Mel Gorman <mgorman@suse.de>
-Subject: Re: [RESEND PATCH v9 2/2] arm64: support batched/deferred tlb
- shootdown during page reclamation/migration
-To:     Barry Song <21cnbao@gmail.com>
-References: <20230518065934.12877-1-yangyicong@huawei.com>
- <20230518065934.12877-3-yangyicong@huawei.com> <ZJ2x6DlmyA3kVh1n@arm.com>
- <ZJ2+37Q7v4odMmEd@arm.com> <2f593850-797c-5422-2c80-ce214fac02bb@huawei.com>
- <CAGsJ_4zG=DT0gwC+5uN51rQKT=UudNDZ4t1BgRNoFb_3NNLOtQ@mail.gmail.com>
-From:   Yicong Yang <yangyicong@huawei.com>
-Message-ID: <124b7798-94ae-ebfc-bbe5-21ebaaa02760@huawei.com>
-Date:   Wed, 5 Jul 2023 18:24:12 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.1
+        with ESMTP id S229697AbjGELTw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Jul 2023 07:19:52 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97775F2;
+        Wed,  5 Jul 2023 04:19:51 -0700 (PDT)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 365BGmXq000681;
+        Wed, 5 Jul 2023 11:19:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=5iB3XX+PHP4NFnfsxzUoEdBSwjJaaEbKXMTVMTtUMLI=;
+ b=KA3NMkrtUWuZOCgH/FUu6uTyQxPKGRd51ROh5mtVJtDXbTIGaBA5j+krq2QFx0l9133U
+ uhq8ZqcTlvRsfo88gVTTE0bFJcgpXSxvSwOlFF1bLCtr1CIDMSG2vKOVkCnxE+r60Arl
+ YO+l3Ky/x4jWjaQBTPaOhnlz8E/6YdGTsqCiC8Zr/XA45+m84fTBBxYf2ORLZDxaSPjz
+ 9QNlGdPKY3iHVXha1hCqN4K4UH0Upy8ogzIngjk5xt8lrI6vvp1gNqnFsBg2N7nSH7yz
+ zRYhfREfTBJsa63TeOFHvIenxOgAxbb2vKhP5TXe38+RuGn7ooWjXRuO2g+KwLgdq7I0 AA== 
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rn7gq01xj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 05 Jul 2023 11:19:51 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3652dpG5015007;
+        Wed, 5 Jul 2023 11:19:48 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3rjbs4svdr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 05 Jul 2023 11:19:48 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 365BJhUu42140344
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 5 Jul 2023 11:19:43 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EFC042004E;
+        Wed,  5 Jul 2023 11:19:42 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 519C520043;
+        Wed,  5 Jul 2023 11:19:42 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.171.77.114])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed,  5 Jul 2023 11:19:42 +0000 (GMT)
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        frankja@linux.ibm.com, mhartmay@linux.ibm.com, nsg@linux.ibm.com,
+        borntraeger@de.ibm.com, nrb@linux.ibm.com
+Subject: [PATCH v2 0/2] KVM: s390: pv: fix two small bugs
+Date:   Wed,  5 Jul 2023 13:19:35 +0200
+Message-ID: <20230705111937.33472-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
-In-Reply-To: <CAGsJ_4zG=DT0gwC+5uN51rQKT=UudNDZ4t1BgRNoFb_3NNLOtQ@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.67.102.169]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- canpemm500009.china.huawei.com (7.192.105.203)
-X-CFilter-Loop: Reflected
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: tgFn-rpdOXbJGb7pMLFc7rl0cfh2OLl6
+X-Proofpoint-GUID: tgFn-rpdOXbJGb7pMLFc7rl0cfh2OLl6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-05_02,2023-07-05_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 lowpriorityscore=0 adultscore=0 spamscore=0
+ mlxlogscore=624 mlxscore=0 suspectscore=0 bulkscore=0 clxscore=1015
+ phishscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2305260000 definitions=main-2307050097
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2023/7/5 16:43, Barry Song wrote:
-> On Tue, Jul 4, 2023 at 10:36 PM Yicong Yang <yangyicong@huawei.com> wrote:
->>
->> On 2023/6/30 1:26, Catalin Marinas wrote:
->>> On Thu, Jun 29, 2023 at 05:31:36PM +0100, Catalin Marinas wrote:
->>>> On Thu, May 18, 2023 at 02:59:34PM +0800, Yicong Yang wrote:
->>>>> From: Barry Song <v-songbaohua@oppo.com>
->>>>>
->>>>> on x86, batched and deferred tlb shootdown has lead to 90%
->>>>> performance increase on tlb shootdown. on arm64, HW can do
->>>>> tlb shootdown without software IPI. But sync tlbi is still
->>>>> quite expensive.
->>>> [...]
->>>>>  .../features/vm/TLB/arch-support.txt          |  2 +-
->>>>>  arch/arm64/Kconfig                            |  1 +
->>>>>  arch/arm64/include/asm/tlbbatch.h             | 12 ++++
->>>>>  arch/arm64/include/asm/tlbflush.h             | 33 ++++++++-
->>>>>  arch/arm64/mm/flush.c                         | 69 +++++++++++++++++++
->>>>>  arch/x86/include/asm/tlbflush.h               |  5 +-
->>>>>  include/linux/mm_types_task.h                 |  4 +-
->>>>>  mm/rmap.c                                     | 12 ++--
->>>>
->>>> First of all, this patch needs to be split in some preparatory patches
->>>> introducing/renaming functions with no functional change for x86. Once
->>>> done, you can add the arm64-only changes.
->>>>
->>
->> got it. will try to split this patch as suggested.
->>
->>>> Now, on the implementation, I had some comments on v7 but we didn't get
->>>> to a conclusion and the thread eventually died:
->>>>
->>>> https://lore.kernel.org/linux-mm/Y7cToj5mWd1ZbMyQ@arm.com/
->>>>
->>>> I know I said a command line argument is better than Kconfig or some
->>>> random number of CPUs heuristics but it would be even better if we don't
->>>> bother with any, just make this always on.
->>
->> ok, will make this always on.
->>
->>>> Barry had some comments
->>>> around mprotect() being racy and that's why we have
->>>> flush_tlb_batched_pending() but I don't think it's needed (or, for
->>>> arm64, it can be a DSB since this patch issues the TLBIs but without the
->>>> DVM Sync). So we need to clarify this (see Barry's last email on the
->>>> above thread) and before attempting new versions of this patchset. With
->>>> flush_tlb_batched_pending() removed (or DSB), I have a suspicion such
->>>> implementation would be faster on any SoC irrespective of the number of
->>>> CPUs.
->>>
->>> I think I got the need for flush_tlb_batched_pending(). If
->>> try_to_unmap() marks the pte !present and we have a pending TLBI,
->>> change_pte_range() will skip the TLB maintenance altogether since it did
->>> not change the pte. So we could be left with stale TLB entries after
->>> mprotect() before TTU does the batch flushing.
->>>
-> 
-> Good catch.
-> This could be also true for MADV_DONTNEED. after try_to_unmap, we run
-> MADV_DONTNEED on this area, as pte is not present, we don't do anything
-> on this PTE in zap_pte_range afterwards.
-> 
->>> We can have an arch-specific flush_tlb_batched_pending() that can be a
->>> DSB only on arm64 and a full mm flush on x86.
->>>
->>
->> We need to do a flush/dsb in flush_tlb_batched_pending() only in a race
->> condition so we first check whether there's a pended batched flush and
->> if so do the tlb flush. The pending checking is common and the differences
->> among the archs is how to flush the TLB here within the flush_tlb_batched_pending(),
->> on arm64 it should only be a dsb.
->>
->> As we only needs to maintain the TLBs already pended in batched flush,
->> does it make sense to only handle those TLBs in flush_tlb_batched_pending()?
->> Then we can use the arch_tlbbatch_flush() rather than flush_tlb_mm() in
->> flush_tlb_batched_pending() and no arch specific function needed.
-> 
-> as we have issued no-sync tlbi on those pending addresses , that means
-> our hardware
-> has already "recorded" what should be flushed in the specific mm. so
-> DSB only will flush
-> them correctly. right?
-> 
+This series fixes 2 small bugs introduced with asynchronous teardown.
 
-yes it's right. I was just thought something like below. arch_tlbbatch_flush()
-will only be a dsb on arm64 so this will match what Catalin wants. But as you
-told that this maybe incorrect on x86 so we'd better have arch specific
-implementation for flush_tlb_batched_pending() as suggested.
+The first patch (unmodified since v1, but did not get any reviews)
+fixes a potential race that can cause crashes during shutdown on
+machines that don't support protected virtualization.
 
-diff --git a/mm/rmap.c b/mm/rmap.c
-index 9699c6011b0e..afa3571503a0 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -717,7 +717,7 @@ void flush_tlb_batched_pending(struct mm_struct *mm)
-        int flushed = batch >> TLB_FLUSH_BATCH_FLUSHED_SHIFT;
+The second patch adds a missing initialization when replacing the ASCE
+for a protected guest. This could potentially cause issues and crashes
+if lowcore is affected.
 
-        if (pending != flushed) {
--               flush_tlb_mm(mm);
-+               arch_tlbbatch_flush(&current->tlb_ubc.arch);
-                /*
-                 * If the new TLB flushing is pending during flushing, leave
-                 * mm->tlb_flush_batched as is, to avoid losing flushing.
+
+v1->v2:
+
+* added the second patch
+
+Claudio Imbrenda (2):
+  KVM: s390: pv: simplify shutdown and fix race
+  KVM: s390: pv: fix index value of replaced ASCE
+
+ arch/s390/kvm/pv.c  | 8 ++++++--
+ arch/s390/mm/gmap.c | 1 +
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+-- 
+2.41.0
+
