@@ -2,463 +2,339 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D5E4EB64DA
-	for <linux-s390@archiver.kernel.org>; Wed,  5 Jul 2023 12:17:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4263DC0015E
+	for <linux-s390@archiver.kernel.org>; Wed,  5 Jul 2023 12:56:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230255AbjGEMRd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 5 Jul 2023 08:17:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38484 "EHLO
+        id S231202AbjGEM4u (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 5 Jul 2023 08:56:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229901AbjGEMRd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Jul 2023 08:17:33 -0400
+        with ESMTP id S231154AbjGEM4u (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Jul 2023 08:56:50 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12A541705;
-        Wed,  5 Jul 2023 05:17:31 -0700 (PDT)
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 365CGfVA028683;
-        Wed, 5 Jul 2023 12:17:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=4Nuo+H/4A9ekSoMImnWEFF/e0Ai1sjlLHhrL+oJzZtQ=;
- b=pxCHf8s3UufZDyK61SLMVuI7TLg7qvyQgHNd5qlXeKYDuUeOdW8OGV2s0KyIVeHAaDXq
- Cxi4gbRxrsZZllT5Q6iVEeeoGQAIE+2wrUnUppzWFVYDlOgvNfJaLPlQHjffBPE+LDcz
- sh2qNjUkLQODNtE6XybvDwGWN+QQtUTrGHxnVwqINM3GCjN3vrThc3mO/KQwNYzijpsd
- 1G/082QY8TD/Vt1FLJ6ymQGqbKO4LPX8XKpmlsHYs3XkNs4oOFANxOZFf7PMiUQ3sXv5
- L4Yo9sOQ55h0Noty5ERHCenhlVaTtPYo+b5DTiPmcnnslvHFOfpFkYwLgzawDetNrFE2 Rg== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rn8cn0157-1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5746DDA;
+        Wed,  5 Jul 2023 05:56:48 -0700 (PDT)
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 365ClQhe020840;
+        Wed, 5 Jul 2023 12:55:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=3pnswunhhF06iYeiSc/KKz/p4ThnIKIhoX1aPj5MKQM=;
+ b=MEk6ZVkYVDhSAmL3VJC9I10FclaUqS9amg6qM/r1LONGHl+Ai6BWxuRBWSR8OotUjCNL
+ 56Os3k7jfSoD939CyODP/r7DqmuPzo/qTTOyhS+63jMG9bM7/7if6fXwU6i7iGOavKdd
+ smgQNA4cHtY3Ca44/8wfCP0fN3pLjOye3jCh1gSPJywCjblhWjhZZYs491Lxp1pgoyTg
+ e0JnxZuob6J0BZtWd0vbxLYfQV4moXDYmvKDGRgY6AbR0o5hx/QsIgC+NEVMyrtqfYML
+ QkUNWXDnHdTKrcslyRa2KVyo8ogkRbiYvNSMZjxfowucr/lV1yrnkz5bjZHJvtCdMfwL WQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rn8tyg7c4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 05 Jul 2023 12:17:28 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3652OvpN026303;
-        Wed, 5 Jul 2023 12:17:26 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3rjbde2j6f-1
+        Wed, 05 Jul 2023 12:55:29 +0000
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 365Cmjvq024855;
+        Wed, 5 Jul 2023 12:55:28 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rn8tyg7as-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 05 Jul 2023 12:17:26 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 365CHN2L5505668
+        Wed, 05 Jul 2023 12:55:28 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3653PMfU027320;
+        Wed, 5 Jul 2023 12:55:25 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3rjbs4tk3x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 05 Jul 2023 12:55:25 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 365CtLIH12911148
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 5 Jul 2023 12:17:23 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4A85A2004F;
-        Wed,  5 Jul 2023 12:17:23 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BE62E20040;
-        Wed,  5 Jul 2023 12:17:22 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed,  5 Jul 2023 12:17:22 +0000 (GMT)
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        Wed, 5 Jul 2023 12:55:21 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A0C9C20043;
+        Wed,  5 Jul 2023 12:55:21 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 98DAE2004D;
+        Wed,  5 Jul 2023 12:55:18 +0000 (GMT)
+Received: from thinkpad-T15 (unknown [9.171.49.168])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
+        Wed,  5 Jul 2023 12:55:18 +0000 (GMT)
+Date:   Wed, 5 Jul 2023 14:55:16 +0200
+From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Jason Gunthorpe <jgg@ziepe.ca>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Lorenzo Stoakes <lstoakes@gmail.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        Stefan Raspl <raspl@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Cc:     Julian Ruess <julianr@linux.ibm.com>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH net] s390/ism: Fix locking for forwarding of IRQs and events to clients
-Date:   Wed,  5 Jul 2023 14:17:21 +0200
-Message-Id: <20230705121722.2700998-1-schnelle@linux.ibm.com>
-X-Mailer: git-send-email 2.39.2
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        Vishal Moola <vishal.moola@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH v2 07/12] s390: add pte_free_defer() for pgtables
+ sharing page
+Message-ID: <20230705145516.7d9d554d@thinkpad-T15>
+In-Reply-To: <e678affb-5eee-a055-7af1-1d29a965663b@google.com>
+References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com>
+        <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com>
+        <20230628211624.531cdc58@thinkpad-T15>
+        <cd7c2851-1440-7220-6c53-16b343b1474@google.com>
+        <ZJ2hsM5Tn+yUZ5ZV@ziepe.ca>
+        <20230629175645.7654d0a8@thinkpad-T15>
+        <edaa96f-80c1-1252-acbb-71c4f045b035@google.com>
+        <7bef5695-fa4a-7215-7e9d-d4a83161c7ab@google.com>
+        <20230704171905.1263478f@thinkpad-T15>
+        <e678affb-5eee-a055-7af1-1d29a965663b@google.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: V_EErmgM617ie-xrYwFs1X1gfsgM-Kzk
-X-Proofpoint-ORIG-GUID: V_EErmgM617ie-xrYwFs1X1gfsgM-Kzk
+X-Proofpoint-GUID: 0DQoxAF1olsdO5DFTI_7dqwv7FMriyOJ
+X-Proofpoint-ORIG-GUID: ya86xS09MgxWjeDFgH6Ca4aNmkyq7jy5
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-05_04,2023-07-05_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 mlxscore=0
- phishscore=0 adultscore=0 lowpriorityscore=0 mlxlogscore=778 spamscore=0
- priorityscore=1501 bulkscore=0 malwarescore=0 suspectscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2307050107
+ definitions=2023-07-05_05,2023-07-05_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
+ priorityscore=1501 mlxlogscore=999 impostorscore=0 mlxscore=0 phishscore=0
+ malwarescore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2307050111
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The clients array references all registered clients and is protected by
-the clients_lock. Besides its use as general list of clients the clients
-array is accessed in ism_handle_irq() to forward IRQs and events to
-clients. This use in an interrupt handler thus requires all code that
-takes the clients_lock to be IRQ save.
+On Tue, 4 Jul 2023 10:03:57 -0700 (PDT)
+Hugh Dickins <hughd@google.com> wrote:
 
-This is problematic since the add() and remove() callbacks which are
-called for all clients when an ISM device is added or removed cannot be
-called directly while iterating over the clients array and holding the
-clients_lock since clients need to allocate and/or take mutexes in these
-callbacks. To deal with this the calls get pushed to workqueues with
-additional housekeeping to be able to wait for the completion outside
-the clients_lock.
+> On Tue, 4 Jul 2023, Gerald Schaefer wrote:
+> > On Sat, 1 Jul 2023 21:32:38 -0700 (PDT)
+> > Hugh Dickins <hughd@google.com> wrote:  
+> > > On Thu, 29 Jun 2023, Hugh Dickins wrote:  
+> > > > 
+> > > > I've grown to dislike the (ab)use of pt_frag_refcount even more, to the
+> > > > extent that I've not even tried to verify it; but I think I do get the
+> > > > point now, that we need further info than just PPHHAA to know whether
+> > > > the page is on the list or not.  But I think that if we move where the
+> > > > call_rcu() is done, then the page can stay on or off the list by same
+> > > > rules as before (but need to check HH bits along with PP when deciding
+> > > > whether to allocate, and whether to list_add_tail() when freeing).    
+> > > 
+> > > No, not quite the same rules as before: I came to realize that using
+> > > list_add_tail() for the HH pages would be liable to put a page on the
+> > > list which forever blocked reuse of PP list_add_tail() pages after it
+> > > (could be solved by a list_move() somewhere, but we have agreed to
+> > > prefer simplicity).
+> > > 
+> > > I've dropped the HH bits, I'm using PageActive like we did on powerpc,
+> > > I've dropped most of the pte_free_*() helpers, and list_del_init() is
+> > > an easier way of dealing with those "is it on the list" questions.
+> > > I expect that we shall be close to reaching agreement on...  
+> > 
+> > This looks really nice, almost too good and easy to be true. I did not
+> > find any obvious flaw, just some comments below. It also survived LTP
+> > without any visible havoc, so I guess this approach is the best so far.  
+> 
+> Phew! I'm of course glad to hear this: thanks for your efforts on it.
+> 
+> ...
+> > > --- a/arch/s390/mm/pgalloc.c
+> > > +++ b/arch/s390/mm/pgalloc.c
+> > > @@ -229,6 +229,15 @@ void page_table_free_pgste(struct page *page)
+> > >   * logic described above. Both AA bits are set to 1 to denote a 4KB-pgtable
+> > >   * while the PP bits are never used, nor such a page is added to or removed
+> > >   * from mm_context_t::pgtable_list.
+> > > + *
+> > > + * pte_free_defer() overrides those rules: it takes the page off pgtable_list,
+> > > + * and prevents both 2K fragments from being reused. pte_free_defer() has to
+> > > + * guarantee that its pgtable cannot be reused before the RCU grace period
+> > > + * has elapsed (which page_table_free_rcu() does not actually guarantee).  
+> > 
+> > Hmm, I think page_table_free_rcu() has to guarantee the same, i.e. not
+> > allow reuse before grace period elapsed. And I hope that it does so, by
+> > setting the PP bits, which would be noticed in page_table_alloc(), in
+> > case the page would be seen there.
+> > 
+> > Unlike pte_free_defer(), page_table_free_rcu() would add pages back to the
+> > end of the list, and so they could be seen in page_table_alloc(), but they
+> > should not be reused before grace period elapsed and __tlb_remove_table()
+> > cleared the PP bits, as far as I understand.
+> > 
+> > So what exactly do you mean with "which page_table_free_rcu() does not actually
+> > guarantee"?  
+> 
+> I'll answer without locating and re-reading what Jason explained earlier,
+> perhaps in a separate thread, about pseudo-RCU-ness in tlb_remove_table():
+> he may have explained it better.  And without working out again all the
+> MMU_GATHER #defines, and which of them do and do not apply to s390 here.
+> 
+> The detail that sticks in my mind is the fallback in tlb_remove_table()
 
-Moreover while the clients_lock is taken in the IRQ handler when calling
-handle_event() it is incorrectly not held during the
-client->handle_irq() call and for the preceding clients[] access. This
-leaves the clients array unprotected. Similarly the accesses to
-ism->sba_client_arr[] in ism_register_dmb() and ism_unregister_dmb() are
-also not protected by any lock. This is especially problematic as the
-the client ID from the ism->sba_client_arr[] is not checked against
-NO_CLIENT.
+Ah ok, I was aware of that "semi-RCU" fallback logic in tlb_remove_table(),
+but that is rather a generic issue, and not s390-specific. I thought you
+meant some s390-oddity here, of which we have a lot, unfortunately...
+Of course, we call tlb_remove_table() from our page_table_free_rcu(), so
+I guess you could say that page_table_free_rcu() cannot guarantee what
+tlb_remove_table() cannot guarantee.
 
-Instead of expanding the use of the clients_lock further add a separate
-array in struct ism_dev which references clients subscribed to the
-device's events and IRQs. This array is protected by ism->lock which is
-already taken in ism_handle_irq() and can be taken outside the IRQ
-handler when adding/removing subscribers or the accessing
-ism->sba_client_arr[].
+Maybe change to "which page_table_free_rcu() does not actually guarantee,
+by calling tlb_remove_table()", to make it clear that this is not a problem
+of page_table_free_rcu() itself.
 
-With the clients_lock no longer accessed from IRQ context it is turned
-into a mutex and the add and remove workqueues plus their housekeeping
-can be removed in favor of simple direct calls.
+> in mm/mmu_gather.c: if its __get_free_page(GFP_NOWAIT) fails, it cannot
+> batch the tables for freeing by RCU, and resorts instead to an immediate 
+> TLB flush (I think: that again involves chasing definitions) followed by
+> tlb_remove_table_sync_one() - which just delivers an interrupt to each CPU,
+> and is commented: 
+> /*
+>  * This isn't an RCU grace period and hence the page-tables cannot be
+>  * assumed to be actually RCU-freed.
+>  *
+>  * It is however sufficient for software page-table walkers that rely on
+>  * IRQ disabling.
+>  */
+> 
+> Whether that's good for your PP pages or not, I've given no thought:
+> I've just taken it on trust that what s390 has working today is good.
 
-Fixes: 89e7d2ba61b7 ("net/ism: Add new API for client registration")
-Tested-by: Julian Ruess <julianr@linux.ibm.com>
-Reviewed-by: Julian Ruess <julianr@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
-Note: I realize this is a rather large patch. So I'd understand if it's not
-acceptable as is and needs to be broken up. That said it removes more lines
-than it adds and the complexity of the resulting code is in my opinion reduced.
+Yes, we should be fine with that, current code can be trusted :-)
 
- drivers/s390/net/ism_drv.c | 138 ++++++++++++++++++-------------------
- include/linux/ism.h        |   7 +-
- 2 files changed, 67 insertions(+), 78 deletions(-)
+> 
+> If that __get_free_page(GFP_NOWAIT) fallback instead used call_rcu(),
+> then I would not have written "(which page_table_free_rcu() does not
+> actually guarantee)".  But it cannot use call_rcu() because it does
+> not have an rcu_head to work with - it's in some generic code, and
+> there is no MMU_GATHER_CAN_USE_PAGE_RCU_HEAD for architectures to set.
+> 
+> And Jason would have much preferred us to address the issue from that
+> angle; but not only would doing so destroy my sanity, I'd also destroy
+> 20 architectures TLB-flushing, unbuilt and untested, in the attempt.
 
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index 9b5fccdbc7d6..4887f53d0eff 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -36,7 +36,7 @@ static const struct smcd_ops ism_ops;
- static struct ism_client *clients[MAX_CLIENTS];	/* use an array rather than */
- 						/* a list for fast mapping  */
- static u8 max_client;
--static DEFINE_SPINLOCK(clients_lock);
-+static DEFINE_MUTEX(clients_lock);
- struct ism_dev_list {
- 	struct list_head list;
- 	struct mutex mutex; /* protects ism device list */
-@@ -47,14 +47,22 @@ static struct ism_dev_list ism_dev_list = {
- 	.mutex = __MUTEX_INITIALIZER(ism_dev_list.mutex),
- };
- 
-+static void ism_setup_forwarding(struct ism_client *client, struct ism_dev *ism)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&ism->lock, flags);
-+	ism->subs[client->id] = client;
-+	spin_unlock_irqrestore(&ism->lock, flags);
-+}
-+
- int ism_register_client(struct ism_client *client)
- {
- 	struct ism_dev *ism;
--	unsigned long flags;
- 	int i, rc = -ENOSPC;
- 
- 	mutex_lock(&ism_dev_list.mutex);
--	spin_lock_irqsave(&clients_lock, flags);
-+	mutex_lock(&clients_lock);
- 	for (i = 0; i < MAX_CLIENTS; ++i) {
- 		if (!clients[i]) {
- 			clients[i] = client;
-@@ -65,12 +73,14 @@ int ism_register_client(struct ism_client *client)
- 			break;
- 		}
- 	}
--	spin_unlock_irqrestore(&clients_lock, flags);
-+	mutex_unlock(&clients_lock);
-+
- 	if (i < MAX_CLIENTS) {
- 		/* initialize with all devices that we got so far */
- 		list_for_each_entry(ism, &ism_dev_list.list, list) {
- 			ism->priv[i] = NULL;
- 			client->add(ism);
-+			ism_setup_forwarding(client, ism);
- 		}
- 	}
- 	mutex_unlock(&ism_dev_list.mutex);
-@@ -86,25 +96,33 @@ int ism_unregister_client(struct ism_client *client)
- 	int rc = 0;
- 
- 	mutex_lock(&ism_dev_list.mutex);
--	spin_lock_irqsave(&clients_lock, flags);
--	clients[client->id] = NULL;
--	if (client->id + 1 == max_client)
--		max_client--;
--	spin_unlock_irqrestore(&clients_lock, flags);
- 	list_for_each_entry(ism, &ism_dev_list.list, list) {
-+		spin_lock_irqsave(&ism->lock, flags);
-+		/* Stop forwarding IRQs and events */
-+		ism->subs[client->id] = NULL;
- 		for (int i = 0; i < ISM_NR_DMBS; ++i) {
- 			if (ism->sba_client_arr[i] == client->id) {
- 				pr_err("%s: attempt to unregister client '%s'"
- 				       "with registered dmb(s)\n", __func__,
- 				       client->name);
- 				rc = -EBUSY;
--				goto out;
-+				goto err_reg_dmb;
- 			}
- 		}
-+		spin_unlock_irqrestore(&ism->lock, flags);
- 	}
--out:
- 	mutex_unlock(&ism_dev_list.mutex);
- 
-+	mutex_lock(&clients_lock);
-+	clients[client->id] = NULL;
-+	if (client->id + 1 == max_client)
-+		max_client--;
-+	mutex_unlock(&clients_lock);
-+	return rc;
-+
-+err_reg_dmb:
-+	spin_unlock_irqrestore(&ism->lock, flags);
-+	mutex_unlock(&ism_dev_list.mutex);
- 	return rc;
- }
- EXPORT_SYMBOL_GPL(ism_unregister_client);
-@@ -328,6 +346,7 @@ int ism_register_dmb(struct ism_dev *ism, struct ism_dmb *dmb,
- 		     struct ism_client *client)
- {
- 	union ism_reg_dmb cmd;
-+	unsigned long flags;
- 	int ret;
- 
- 	ret = ism_alloc_dmb(ism, dmb);
-@@ -351,7 +370,9 @@ int ism_register_dmb(struct ism_dev *ism, struct ism_dmb *dmb,
- 		goto out;
- 	}
- 	dmb->dmb_tok = cmd.response.dmb_tok;
-+	spin_lock_irqsave(&ism->lock, flags);
- 	ism->sba_client_arr[dmb->sba_idx - ISM_DMB_BIT_OFFSET] = client->id;
-+	spin_unlock_irqrestore(&ism->lock, flags);
- out:
- 	return ret;
- }
-@@ -360,6 +381,7 @@ EXPORT_SYMBOL_GPL(ism_register_dmb);
- int ism_unregister_dmb(struct ism_dev *ism, struct ism_dmb *dmb)
- {
- 	union ism_unreg_dmb cmd;
-+	unsigned long flags;
- 	int ret;
- 
- 	memset(&cmd, 0, sizeof(cmd));
-@@ -368,7 +390,9 @@ int ism_unregister_dmb(struct ism_dev *ism, struct ism_dmb *dmb)
- 
- 	cmd.request.dmb_tok = dmb->dmb_tok;
- 
-+	spin_lock_irqsave(&ism->lock, flags);
- 	ism->sba_client_arr[dmb->sba_idx - ISM_DMB_BIT_OFFSET] = NO_CLIENT;
-+	spin_unlock_irqrestore(&ism->lock, flags);
- 
- 	ret = ism_cmd(ism, &cmd);
- 	if (ret && ret != ISM_ERROR)
-@@ -491,6 +515,7 @@ static u16 ism_get_chid(struct ism_dev *ism)
- static void ism_handle_event(struct ism_dev *ism)
- {
- 	struct ism_event *entry;
-+	struct ism_client *clt;
- 	int i;
- 
- 	while ((ism->ieq_idx + 1) != READ_ONCE(ism->ieq->header.idx)) {
-@@ -499,21 +524,21 @@ static void ism_handle_event(struct ism_dev *ism)
- 
- 		entry = &ism->ieq->entry[ism->ieq_idx];
- 		debug_event(ism_debug_info, 2, entry, sizeof(*entry));
--		spin_lock(&clients_lock);
--		for (i = 0; i < max_client; ++i)
--			if (clients[i])
--				clients[i]->handle_event(ism, entry);
--		spin_unlock(&clients_lock);
-+		for (i = 0; i < max_client; ++i) {
-+			clt = ism->subs[i];
-+			if (clt)
-+				clt->handle_event(ism, entry);
-+		}
- 	}
- }
- 
- static irqreturn_t ism_handle_irq(int irq, void *data)
- {
- 	struct ism_dev *ism = data;
--	struct ism_client *clt;
- 	unsigned long bit, end;
- 	unsigned long *bv;
- 	u16 dmbemask;
-+	u8 client_id;
- 
- 	bv = (void *) &ism->sba->dmb_bits[ISM_DMB_WORD_OFFSET];
- 	end = sizeof(ism->sba->dmb_bits) * BITS_PER_BYTE - ISM_DMB_BIT_OFFSET;
-@@ -530,8 +555,10 @@ static irqreturn_t ism_handle_irq(int irq, void *data)
- 		dmbemask = ism->sba->dmbe_mask[bit + ISM_DMB_BIT_OFFSET];
- 		ism->sba->dmbe_mask[bit + ISM_DMB_BIT_OFFSET] = 0;
- 		barrier();
--		clt = clients[ism->sba_client_arr[bit]];
--		clt->handle_irq(ism, bit + ISM_DMB_BIT_OFFSET, dmbemask);
-+		client_id = ism->sba_client_arr[bit];
-+		if (unlikely(client_id == NO_CLIENT || !ism->subs[client_id]))
-+			continue;
-+		ism->subs[client_id]->handle_irq(ism, bit + ISM_DMB_BIT_OFFSET, dmbemask);
- 	}
- 
- 	if (ism->sba->e) {
-@@ -548,20 +575,9 @@ static u64 ism_get_local_gid(struct ism_dev *ism)
- 	return ism->local_gid;
- }
- 
--static void ism_dev_add_work_func(struct work_struct *work)
--{
--	struct ism_client *client = container_of(work, struct ism_client,
--						 add_work);
--
--	client->add(client->tgt_ism);
--	atomic_dec(&client->tgt_ism->add_dev_cnt);
--	wake_up(&client->tgt_ism->waitq);
--}
--
- static int ism_dev_init(struct ism_dev *ism)
- {
- 	struct pci_dev *pdev = ism->pdev;
--	unsigned long flags;
- 	int i, ret;
- 
- 	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_MSI);
-@@ -594,25 +610,16 @@ static int ism_dev_init(struct ism_dev *ism)
- 		/* hardware is V2 capable */
- 		ism_create_system_eid();
- 
--	init_waitqueue_head(&ism->waitq);
--	atomic_set(&ism->free_clients_cnt, 0);
--	atomic_set(&ism->add_dev_cnt, 0);
--
--	wait_event(ism->waitq, !atomic_read(&ism->add_dev_cnt));
--	spin_lock_irqsave(&clients_lock, flags);
--	for (i = 0; i < max_client; ++i)
--		if (clients[i]) {
--			INIT_WORK(&clients[i]->add_work,
--				  ism_dev_add_work_func);
--			clients[i]->tgt_ism = ism;
--			atomic_inc(&ism->add_dev_cnt);
--			schedule_work(&clients[i]->add_work);
--		}
--	spin_unlock_irqrestore(&clients_lock, flags);
--
--	wait_event(ism->waitq, !atomic_read(&ism->add_dev_cnt));
--
- 	mutex_lock(&ism_dev_list.mutex);
-+	mutex_lock(&clients_lock);
-+	for (i = 0; i < max_client; ++i) {
-+		if (clients[i]) {
-+			clients[i]->add(ism);
-+			ism_setup_forwarding(clients[i], ism);
-+		}
-+	}
-+	mutex_unlock(&clients_lock);
-+
- 	list_add(&ism->list, &ism_dev_list.list);
- 	mutex_unlock(&ism_dev_list.mutex);
- 
-@@ -687,36 +694,24 @@ static int ism_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	return ret;
- }
- 
--static void ism_dev_remove_work_func(struct work_struct *work)
--{
--	struct ism_client *client = container_of(work, struct ism_client,
--						 remove_work);
--
--	client->remove(client->tgt_ism);
--	atomic_dec(&client->tgt_ism->free_clients_cnt);
--	wake_up(&client->tgt_ism->waitq);
--}
--
--/* Callers must hold ism_dev_list.mutex */
- static void ism_dev_exit(struct ism_dev *ism)
- {
- 	struct pci_dev *pdev = ism->pdev;
- 	unsigned long flags;
- 	int i;
- 
--	wait_event(ism->waitq, !atomic_read(&ism->free_clients_cnt));
--	spin_lock_irqsave(&clients_lock, flags);
-+	spin_lock_irqsave(&ism->lock, flags);
- 	for (i = 0; i < max_client; ++i)
--		if (clients[i]) {
--			INIT_WORK(&clients[i]->remove_work,
--				  ism_dev_remove_work_func);
--			clients[i]->tgt_ism = ism;
--			atomic_inc(&ism->free_clients_cnt);
--			schedule_work(&clients[i]->remove_work);
--		}
--	spin_unlock_irqrestore(&clients_lock, flags);
-+		ism->subs[i] = NULL;
-+	spin_unlock_irqrestore(&ism->lock, flags);
- 
--	wait_event(ism->waitq, !atomic_read(&ism->free_clients_cnt));
-+	mutex_lock(&ism_dev_list.mutex);
-+	mutex_lock(&clients_lock);
-+	for (i = 0; i < max_client; ++i) {
-+		if (clients[i])
-+			clients[i]->remove(ism);
-+	}
-+	mutex_unlock(&clients_lock);
- 
- 	if (SYSTEM_EID.serial_number[0] != '0' ||
- 	    SYSTEM_EID.type[0] != '0')
-@@ -727,15 +722,14 @@ static void ism_dev_exit(struct ism_dev *ism)
- 	kfree(ism->sba_client_arr);
- 	pci_free_irq_vectors(pdev);
- 	list_del_init(&ism->list);
-+	mutex_unlock(&ism_dev_list.mutex);
- }
- 
- static void ism_remove(struct pci_dev *pdev)
- {
- 	struct ism_dev *ism = dev_get_drvdata(&pdev->dev);
- 
--	mutex_lock(&ism_dev_list.mutex);
- 	ism_dev_exit(ism);
--	mutex_unlock(&ism_dev_list.mutex);
- 
- 	pci_release_mem_regions(pdev);
- 	pci_disable_device(pdev);
-diff --git a/include/linux/ism.h b/include/linux/ism.h
-index ea2bcdae7401..9a4c204df3da 100644
---- a/include/linux/ism.h
-+++ b/include/linux/ism.h
-@@ -44,9 +44,7 @@ struct ism_dev {
- 	u64 local_gid;
- 	int ieq_idx;
- 
--	atomic_t free_clients_cnt;
--	atomic_t add_dev_cnt;
--	wait_queue_head_t waitq;
-+	struct ism_client *subs[MAX_CLIENTS];
- };
- 
- struct ism_event {
-@@ -68,9 +66,6 @@ struct ism_client {
- 	 */
- 	void (*handle_irq)(struct ism_dev *dev, unsigned int bit, u16 dmbemask);
- 	/* Private area - don't touch! */
--	struct work_struct remove_work;
--	struct work_struct add_work;
--	struct ism_dev *tgt_ism;
- 	u8 id;
- };
- 
+Oh yes, if your changes would have allowed to get rid of that "semi RCU"
+logic, that would really be a major boost in popularity, I guess. But
+it probably is as it is, because it is not so easily fixed...
 
-base-commit: d528014517f2b0531862c02865b9d4c908019dc4
--- 
-2.39.2
+> 
+> ...
+> > > @@ -325,10 +346,17 @@ void page_table_free(struct mm_struct *mm, unsigned long *table)
+> > >  		 */
+> > >  		mask = atomic_xor_bits(&page->_refcount, 0x11U << (bit + 24));
+> > >  		mask >>= 24;
+> > > -		if (mask & 0x03U)
+> > > +		if ((mask & 0x03U) && !PageActive(page)) {
+> > > +			/*
+> > > +			 * Other half is allocated, and neither half has had
+> > > +			 * its free deferred: add page to head of list, to make
+> > > +			 * this freed half available for immediate reuse.
+> > > +			 */
+> > >  			list_add(&page->lru, &mm->context.pgtable_list);
+> > > -		else
+> > > -			list_del(&page->lru);
+> > > +		} else {
+> > > +			/* If page is on list, now remove it. */
+> > > +			list_del_init(&page->lru);
+> > > +		}  
+> > 
+> > Ok, we might end up with some unnecessary list_del_init() here, e.g. if
+> > other half is still allocated, when called from pte_free_defer() on a
+> > fully allocated page, which was not on the list (and with PageActive, and
+> > (mask & 0x03U) true).
+> > Not sure if adding an additional mask check to the else path would be
+> > needed, but it seems that list_del_init() should also be able to handle
+> > this.  
+> 
+> list_del_init() is very cheap in the unnecessary case: the cachelines
+> required are already there.  You don't want a flag to say whether to
+> call it or not, it is already the efficient approach.
 
+Yes, I also see no functional issue here. Just thought that the extra
+write could be avoided, e.g. by checking for list_empty() or mask first.
+But I guess that is simply the benefit of list_del_init(), that you
+don't have to check, at least if it is guaranteed that rcu_head is
+never in use here.
+
+Then maybe adjust the comment, because now it makes you wonder, when
+you read (and understand) the code, you see that this list_del_init()
+might also be called for pages not on the list.
+
+> 
+> (But you were right not to use it in your pt_frag_refcount version,
+> because there we were still trying to do the call_rcu() per fragment
+> rather than per page, so page->lru could have been on the RCU queue.)
+
+That is actually the one thing I still try to figure out, by drawing
+pictures, i.e. if we really really never end up here on list_del_init(),
+while using rcu_head, e.g. by racing PageActive.
+
+> 
+> > 
+> > Same thought applies to the similar logic in page_table_free_rcu()
+> > below.
+> >   
+> > >  		spin_unlock_bh(&mm->context.lock);
+> > >  		mask = atomic_xor_bits(&page->_refcount, 0x10U << (bit + 24));
+> > >  		mask >>= 24;
+> > > @@ -342,8 +370,10 @@ void page_table_free(struct mm_struct *mm, unsigned long *table)
+> > >  	}
+> > >  
+> > >  	page_table_release_check(page, table, half, mask);
+> > > -	pgtable_pte_page_dtor(page);
+> > > -	__free_page(page);
+> > > +	if (TestClearPageActive(page))
+> > > +		call_rcu(&page->rcu_head, pte_free_now);
+> > > +	else
+> > > +		pte_free_now(&page->rcu_head);  
+> > 
+> > This ClearPageActive, and the similar thing in __tlb_remove_table() below,
+> > worries me a bit, because it is done outside the spin_lock. It "feels" like
+> > there could be some race with the PageActive checks inside the spin_lock,
+> > but when drawing some pictures, I could not find any such scenario yet.
+> > Also, our existing spin_lock is probably not supposed to protect against
+> > PageActive changes anyway, right?  
+> 
+> Here (and similarly in __tlb_remove_table()) is where we are about to free
+> the page table page: both of the fragments have already been released,
+> there is nobody left who could be racing against us to set PageActive.
+
+Yes, that is what makes this approach so nice, i.e. no more checking
+for HH bits or worry about double call_rcu(), simply do the the freeing
+whenever the page is ready. At least in theory, still drawing pictures :-)
+
+But this really looks very good to me, and also works with LTP not worse
+than the other approaches.
