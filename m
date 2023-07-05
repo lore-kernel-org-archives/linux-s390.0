@@ -2,132 +2,163 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBCA9EB64D9
-	for <linux-s390@archiver.kernel.org>; Tue,  4 Jul 2023 20:43:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D39F8C001DE
+	for <linux-s390@archiver.kernel.org>; Wed,  5 Jul 2023 06:50:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230507AbjGDUnU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 4 Jul 2023 16:43:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50848 "EHLO
+        id S231911AbjGEGuP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 5 Jul 2023 02:50:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231349AbjGDUnT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jul 2023 16:43:19 -0400
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2092.outbound.protection.outlook.com [40.107.223.92])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 761AE10C8;
-        Tue,  4 Jul 2023 13:43:15 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=oZb/GESilUxFznK3815tX0RHw777kZrp8Xi3lyuqAPU+kVHtVJ5aYdLQmO/Nx1H0dInIvSZZTwcYDrEP+LdHOEOo5Hw5/uMAL8o8ke4ilBV1jhn/qK+X9s3OiWsEfPWmyTTeGqmXi7QX3HWhWhHNVIe2b7la8gu0ipyvcabh3tQXSz3vLoImG7b7I3xEIMVei28xPkD5S1bkddLavjozo8sTIWl+Iw/twwCm7aAtGggZMdeMYwZeVonb/YCS3ucQ37B6djMmNZpwUNTDLIJFrECGfwWGT42pfQ8IV8MvuijvIeHYWAnUgjXzCpREDoTXaAi3AGG7LndCzNuiErZafA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=3sVcUZCoogDlUOhI4yvnSU6DYn9WYBa4uiFyYHsgrdI=;
- b=Kdg8s8V+/Gs1UOmXj6hQkESrOtxTuHautRPGaggafRcPo9DDGdCroidL5oys9dMjwZfkxZtRHGjqZ6gdy9qu4FgomfYaFgXDs+IhgmrdmbP9fzsq+HUQFPp9SY8s51ZsCyUcDwmb08OoWLrneYu7pu5VxHufc1owez1t1/xYyz3PpPCS25ZlwxCgITzLahfilgEOhoXRYXjbIy75WFeFWlPfEdGnV5imY8W8/ELk7sRloNorWn10sQKJR6PUADYb5ALG0UwsDaTaXbHS6baBCVcfFRiTi+4RqxLSiiAibapFxuM0y+g4+cygcKPHEeLHqmxDv0TuKr5VLtDJ/79CcQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=corigine.com; dmarc=pass action=none header.from=corigine.com;
- dkim=pass header.d=corigine.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=3sVcUZCoogDlUOhI4yvnSU6DYn9WYBa4uiFyYHsgrdI=;
- b=agNGnCJsnZqLHzSLg/lXmvgC0L5lTbx0hJihqB0cwcY/95jyCISoO+ztKjrUPcbGggTin2OzkSkQweEaWFfMM5VgVHltfU/oQ3USn75LLYRaLez+p/9zm7g1zI0DLl3x626ketomAmhGZBfgiFKpuv+S1AFXypNUva+VIAQcNuI=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=corigine.com;
-Received: from PH0PR13MB4842.namprd13.prod.outlook.com (2603:10b6:510:78::6)
- by MN2PR13MB3630.namprd13.prod.outlook.com (2603:10b6:208:1e2::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6544.24; Tue, 4 Jul
- 2023 20:43:12 +0000
-Received: from PH0PR13MB4842.namprd13.prod.outlook.com
- ([fe80::eb8f:e482:76e0:fe6e]) by PH0PR13MB4842.namprd13.prod.outlook.com
- ([fe80::eb8f:e482:76e0:fe6e%5]) with mapi id 15.20.6544.024; Tue, 4 Jul 2023
- 20:43:11 +0000
-Date:   Tue, 4 Jul 2023 21:43:04 +0100
-From:   Simon Horman <simon.horman@corigine.com>
-To:     Alexandra Winter <wintera@linux.ibm.com>
-Cc:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Eric Dumazet <edumazet@google.com>, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>
-Subject: Re: [PATCH net] s390/qeth: Fix vipa deletion
-Message-ID: <ZKSEWCGDlJszBFW6@corigine.com>
-References: <20230704144121.3737032-1-wintera@linux.ibm.com>
+        with ESMTP id S231821AbjGEGtp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Jul 2023 02:49:45 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 281E51BDF;
+        Tue,  4 Jul 2023 23:49:14 -0700 (PDT)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3656f1xm028694;
+        Wed, 5 Jul 2023 06:47:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=yv/FrLpT08L3Apc6b/gXrDeCk9yGnPzfjdRohkIs4Xg=;
+ b=aRu+YCjguXlaQs3KW57NglPu5FkypAP2AchYFw5pBdBy9y7U8L1iFj9tqPw43Wp9KWUM
+ h1uJfl0AS3xvPJmY5nt2yNJf2XbEWf4a6URxjTtmnCbK+1a7lkOxV3KwP6MYk9+LfPHM
+ dEvE0YrFYGaoWymxsQikjBSOSnCwMulfTGGJ6VoZuzrRVHvvDlj443Pi86yjGsxVawpf
+ JZFRMi3/b+p+TPgOyIXphdvtaT1LwTCNDRyg593RYD/6iVgKmhyBW4Vw7nKLNpy5uiE+
+ AkC7aaoVdUP10eZw3L8f2jMd3L+W/0xKo/3SiiYgaAVYB7OfQuvx8Cqe+BKGj0K+T7k5 6w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rn34arebt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 05 Jul 2023 06:47:02 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3656gT3K032743;
+        Wed, 5 Jul 2023 06:46:56 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rn34are2f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 05 Jul 2023 06:46:56 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3652HG3Z002094;
+        Wed, 5 Jul 2023 06:46:48 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3rjbs4tef2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 05 Jul 2023 06:46:48 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3656kiFM38142352
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 5 Jul 2023 06:46:44 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B4E8E20040;
+        Wed,  5 Jul 2023 06:46:44 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DA85B20043;
+        Wed,  5 Jul 2023 06:46:41 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.53.49])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Wed,  5 Jul 2023 06:46:41 +0000 (GMT)
+Date:   Wed, 5 Jul 2023 08:46:40 +0200
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Lorenzo Stoakes <lstoakes@gmail.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        Vishal Moola <vishal.moola@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH v2 07/12] s390: add pte_free_defer() for pgtables sharing
+ page
+Message-ID: <ZKUR0HItN2Va8J1D@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com>
+ <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com>
+ <20230628211624.531cdc58@thinkpad-T15>
+ <cd7c2851-1440-7220-6c53-16b343b1474@google.com>
+ <ZJ2hsM5Tn+yUZ5ZV@ziepe.ca>
+ <20230629175645.7654d0a8@thinkpad-T15>
+ <edaa96f-80c1-1252-acbb-71c4f045b035@google.com>
+ <7bef5695-fa4a-7215-7e9d-d4a83161c7ab@google.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230704144121.3737032-1-wintera@linux.ibm.com>
-X-ClientProxiedBy: LO4P265CA0013.GBRP265.PROD.OUTLOOK.COM
- (2603:10a6:600:2ad::9) To PH0PR13MB4842.namprd13.prod.outlook.com
- (2603:10b6:510:78::6)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH0PR13MB4842:EE_|MN2PR13MB3630:EE_
-X-MS-Office365-Filtering-Correlation-Id: 80c7c94b-8d98-4291-784e-08db7ccf4828
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 2+TLZfWBpJ5UcVYlMvwo+6LbBq6wfGxeDqmtrcEB5dJWepCAm5dH1UAgVkBs9uMsYyQAdpCg8X8mw8pmWjv8fI9YHqwYU0b0UPMDBTbhJixpznKyNpX/29KX6sHEpHwBG3iSYe1reng4ATvXq9o33OHINZ/i82Axo+WyEbBs1yx5ZIM8LNSd/gWB8OpmNNOLKzfYgWNfONQ2E48lYgmf/XFZeHpdn3HnzjTuKUKAdzuH0ycxfT3cA6I/ATJFHlv9s12FyLjaCcApkEQ6K9ovCd1PywHaTRegcKiZYLKq1HwnUpHwS8KwT0gmFKcy/tzQLxHW93ZtELzGqceamlK2kDHn8G0xf8t29WFifk/+xcraACjnOgigc9YN5yhkLVdKpVFIzoKM1ijNxzH6enkikD7F+WpItm/AJ96W0BN7BfJvGkKodER6kY5A29NlOx6hnE3rHoQbhuq9IJz3XhV+m4SsdgJPAr0r1IG0wR4GKFizrwEPzJsao7AzMo5eKfJ326kp5qwpDEqNoGEFozyHmsz7f7CH2DLDMPw/Pfw48fLiGrnIpvMdvC5hoU+0cdTKMYhCfGh31x8ih76hik4txYKbMKnpnlP7SQ1jvvYCScs=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR13MB4842.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(366004)(346002)(39840400004)(376002)(396003)(136003)(451199021)(41300700001)(6486002)(4744005)(38100700002)(6666004)(2616005)(26005)(186003)(6506007)(6512007)(86362001)(54906003)(2906002)(478600001)(36756003)(316002)(66946007)(66476007)(6916009)(66556008)(4326008)(8936002)(8676002)(7416002)(44832011)(5660300002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?994j+lfgT3R4ps3N3f4kFpTB2iKlwqabkg0rEhYshA3qegmr3FPpym5JNscR?=
- =?us-ascii?Q?MDOBlCLd5Z+baZBBXlGMkY1W7lXwlXRn6q5wWhXJDY33actgJjIzGnotTAZw?=
- =?us-ascii?Q?HiwH8x/89Zva4RZoY+IXe3BzBMOJTIbUvFo5J5ZOLB460Poi722QllZqz0dz?=
- =?us-ascii?Q?esPaP/y5RXIkr4efOmbq24f2trE6DO1RZFLaNAouVL5NHGuH2EfWjTNI+gXJ?=
- =?us-ascii?Q?jcaCiYOGrZFOXb4nokh60g7M9abCc9UZ9qwUjCcBaNqnCDiXMNSEYvWK9uIB?=
- =?us-ascii?Q?PywODZHNwNsdtouru17McSzJXzm0BWwJPa9i2M1GmExc0YVbSpuf5SDd6F80?=
- =?us-ascii?Q?wCnbfzXsD6i5aDz94Z/UbhWoQInlvA+uLhrVBQl3AZd3pnuoWQ2HRRaryX7y?=
- =?us-ascii?Q?o5i3NLc7nzmuawRyfsstpO6/VjL8BQNjWVtQAPYr06JC43rpEBaF6rfT0Rfc?=
- =?us-ascii?Q?y0IBPKlGDbLfXFyWf10viOrDtgbyHomRqtwD9YnA0DpgmkU4LJI6NlHuJjvF?=
- =?us-ascii?Q?0i1V6wRcwTAH3sNQ1N5Ur/ifWF4oTzK13ARqjQhJbNeIH8Mmlua+TpQrO5fD?=
- =?us-ascii?Q?iqaSo/7WAgLme3aTlExpmqooV3SO0pm+bd0YlDL+RZIk+Q+14gHozthpy06S?=
- =?us-ascii?Q?GBDSJMFh9G3OKjai+4/TEkjSfGhnSvuHs8e2kGhzofVOdksGJBGlPo2Sbfrs?=
- =?us-ascii?Q?938T7IqoA141IFEgOBUPYmxUgGKAq0aVgyNYfjyXWq0ctWiwC8fV4B7NTc1f?=
- =?us-ascii?Q?tgn53HR1nEfGQb73obvtQNtoYiVi9J6rw4wbaHK7NjHoqF8s1DpdKBvTrtGb?=
- =?us-ascii?Q?ps62pxkTgXSK5CFrkfX8R2uknLz87E89e/L7JAtAOm5Fx/NuB6igN7516KKs?=
- =?us-ascii?Q?NVQxkGSRqvAvfwxwerlmi7GPHbIUjW4D7Hci9fEhLw7ZXw+2NteV1dTNQk/b?=
- =?us-ascii?Q?yjqU+2WlFuQ2STJ2fP6je16WsLPkEk8qXc06o7JxiiabOE4dNz6RoQQ5Ypub?=
- =?us-ascii?Q?HMeotlCjNlUKwzWHfOvPIKWwyVg7Z6uSIUuZC2whq5UV9n4KIZdd7oxngpuS?=
- =?us-ascii?Q?9zfpWtILtVo/iwjEAxjFATJDaxL9kbeyP0Y4cOIQ2xf7QjWjJkwkV2+C6PXU?=
- =?us-ascii?Q?Jk36ydWCl7Xd8GVoalUVoWMG7l/1cW5Vvc5Nyqk/C1ByI6dTPW8OlUxL+10R?=
- =?us-ascii?Q?jnY7jr+K6WyPiJcO9L87M2Txbv4D5Nndy49RsyXn88ZYvrnGV9kNC9FAZyA1?=
- =?us-ascii?Q?Auv3OaWDVSK3lh6kwlZZb2zOhIPjZ04vLc+WdGrHoA+PH12ktP/rDfGV2lds?=
- =?us-ascii?Q?Cl1biwWNxjIi65u4JO9D5/kzLHtvMJblOPDvlYBSdi4rrAvuP0MpJERoBkZG?=
- =?us-ascii?Q?lh9/BmNi7HemguCldRfCAjLq48TGVMgcGXDX+QGgInwYn3H7nt/1uwCY2Y2k?=
- =?us-ascii?Q?Fz2jFiqnuK7iw3AeTsVBD87ac1owQwdra8RX7crVNGrWRi2niWiGuqu/StLQ?=
- =?us-ascii?Q?8MlWjg80wLattE8ky4Lzsnzm6QflJ9qsKNVARMkX1zvxqWP4KxHBySsKJQLF?=
- =?us-ascii?Q?zzDaFKS+5EIwIeK/vSCZcWiO8Q88CwD2xO5BalWCj1jZCXmbd5aVjFVXiLop?=
- =?us-ascii?Q?sQ=3D=3D?=
-X-OriginatorOrg: corigine.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 80c7c94b-8d98-4291-784e-08db7ccf4828
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR13MB4842.namprd13.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Jul 2023 20:43:11.5022
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: fe128f2c-073b-4c20-818e-7246a585940c
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: uhgLEtPxdL9eLi6zMN7WiaIGtgtcgiQqhka/EzFdIQt3NaITZxveo9LDM10/GSsHxc9l5Z7cyB74KtlUXMcb3hiu1+OAeX7ZrhnEyMRk6ik=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR13MB3630
+In-Reply-To: <7bef5695-fa4a-7215-7e9d-d4a83161c7ab@google.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: hruV8AkSHZl3ANlxXk4XPZerf2HqhW4w
+X-Proofpoint-GUID: qjKoYY9T1h-a6Vm3seAHuVTkQEuDrdL1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-04_16,2023-07-04_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ suspectscore=0 adultscore=0 impostorscore=0 priorityscore=1501 bulkscore=0
+ malwarescore=0 clxscore=1015 lowpriorityscore=0 mlxscore=0 spamscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2307050058
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jul 04, 2023 at 04:41:21PM +0200, Alexandra Winter wrote:
-> From: Thorsten Winkler <twinkler@linux.ibm.com>
-> 
-> Change boolean parameter of function "qeth_l3_vipa_store" inside the
-> "qeth_l3_dev_vipa_del4_store" function from "true" to "false" because
-> "true" is used for adding a virtual ip address and "false" for deleting.
-> 
-> Fixes: 2390166a6b45 ("s390/qeth: clean up L3 sysfs code")
-> 
+On Sat, Jul 01, 2023 at 09:32:38PM -0700, Hugh Dickins wrote:
+> On Thu, 29 Jun 2023, Hugh Dickins wrote:
 
-nit: no blank line here.
+Hi Hugh,
 
-> Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-> Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-> Signed-off-by: Thorsten Winkler <twinkler@linux.ibm.com>
-> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+...
 
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
+> +#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+> +void pte_free_defer(struct mm_struct *mm, pgtable_t pgtable)
+> +{
+> +	struct page *page;
 
+If I got your and Claudio conversation right, you were going to add
+here WARN_ON_ONCE() in case of mm_alloc_pgste(mm)?
+
+> +	page = virt_to_page(pgtable);
+> +	SetPageActive(page);
+> +	page_table_free(mm, (unsigned long *)pgtable);
+> +}
+> +#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+> +
+>  /*
+>   * Base infrastructure required to generate basic asces, region, segment,
+>   * and page tables that do not make use of enhanced features like EDAT1.
+
+Thanks!
