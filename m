@@ -2,232 +2,323 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96DB2C04A6A
-	for <linux-s390@archiver.kernel.org>; Thu,  6 Jul 2023 21:03:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D512EC00528
+	for <linux-s390@archiver.kernel.org>; Thu,  6 Jul 2023 22:21:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232745AbjGFVDI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 6 Jul 2023 17:03:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45252 "EHLO
+        id S232076AbjGFWVZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 6 Jul 2023 18:21:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229510AbjGFVC5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Jul 2023 17:02:57 -0400
-Received: from smtp-relay-canonical-0.canonical.com (smtp-relay-canonical-0.canonical.com [185.125.188.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3A8619A7;
-        Thu,  6 Jul 2023 14:02:55 -0700 (PDT)
-Received: from localhost (2.general.sarnold.us.vpn [10.172.64.71])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id EC65D3F31B;
-        Thu,  6 Jul 2023 21:02:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1688677359;
-        bh=wL7I+1AkkXlsdAXc0IgIVs00VMlkDlPzLoO7HtCH8Yo=;
-        h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-         Content-Type:In-Reply-To;
-        b=UigHgg1tEN+F2JYmBK+lUOcRBpRtdrNgGbqup1NnaXOwyODWf/TTOdnjSM3EJKV2r
-         nSVjFudDceCGObMlTU+uma1muY2uaIkS7sazvVomlUh2z4Cx6T6ypWSOKoKTLr1e7n
-         Ld2z62ONf1z9dg8T10Z72Jl2h0B3vIxrVCycmYrM1jOwV4H0NyvFgu4GNfgDT4ln1d
-         cD6OBnHOJHdcMdNwqptcYXDLv4IErHsYENHamhLEH+hxLeB02yXRDCQTTC0JuBjK6l
-         ZNgX1V/W8Fy+2Orhx/aZTqqWjx/zv/bYCRboXEZa1I0V5mrDoaohFkaxDrb57pylVz
-         OTISOPjT4Hs9A==
-Date:   Thu, 6 Jul 2023 21:02:36 +0000
-From:   Seth Arnold <seth.arnold@canonical.com>
-To:     Jeff Layton <jlayton@kernel.org>
-Cc:     Damien Le Moal <dlemoal@kernel.org>, jk@ozlabs.org, arnd@arndb.de,
-        mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
-        maco@android.com, joel@joelfernandes.org, brauner@kernel.org,
-        cmllamas@google.com, surenb@google.com,
-        dennis.dalessandro@cornelisnetworks.com, jgg@ziepe.ca,
-        leon@kernel.org, bwarrum@linux.ibm.com, rituagar@linux.ibm.com,
-        ericvh@kernel.org, lucho@ionkov.net, asmadeus@codewreck.org,
-        linux_oss@crudebyte.com, dsterba@suse.com, dhowells@redhat.com,
-        marc.dionne@auristor.com, viro@zeniv.linux.org.uk,
-        raven@themaw.net, luisbg@kernel.org, salah.triki@gmail.com,
-        aivazian.tigran@gmail.com, ebiederm@xmission.com,
-        keescook@chromium.org, clm@fb.com, josef@toxicpanda.com,
-        xiubli@redhat.com, idryomov@gmail.com, jaharkes@cs.cmu.edu,
-        coda@cs.cmu.edu, jlbec@evilplan.org, hch@lst.de, nico@fluxnic.net,
-        rafael@kernel.org, code@tyhicks.com, ardb@kernel.org,
-        xiang@kernel.org, chao@kernel.org, huyue2@coolpad.com,
-        jefflexu@linux.alibaba.com, linkinjeon@kernel.org,
-        sj1557.seo@samsung.com, jack@suse.com, tytso@mit.edu,
-        adilger.kernel@dilger.ca, jaegeuk@kernel.org,
-        hirofumi@mail.parknet.co.jp, miklos@szeredi.hu,
-        rpeterso@redhat.com, agruenba@redhat.com, richard@nod.at,
-        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        mikulas@artax.karlin.mff.cuni.cz, mike.kravetz@oracle.com,
-        muchun.song@linux.dev, dwmw2@infradead.org, shaggy@kernel.org,
-        tj@kernel.org, trond.myklebust@hammerspace.com, anna@kernel.org,
-        chuck.lever@oracle.com, neilb@suse.de, kolga@netapp.com,
-        Dai.Ngo@oracle.com, tom@talpey.com, konishi.ryusuke@gmail.com,
-        anton@tuxera.com, almaz.alexandrovich@paragon-software.com,
-        mark@fasheh.com, joseph.qi@linux.alibaba.com, me@bobcopeland.com,
-        hubcap@omnibond.com, martin@omnibond.com, amir73il@gmail.com,
-        mcgrof@kernel.org, yzaikin@google.com, tony.luck@intel.com,
-        gpiccoli@igalia.com, al@alarsen.net, sfrench@samba.org,
-        pc@manguebit.com, lsahlber@redhat.com, sprasad@microsoft.com,
-        senozhatsky@chromium.org, phillip@squashfs.org.uk,
-        rostedt@goodmis.org, mhiramat@kernel.org, dushistov@mail.ru,
-        hdegoede@redhat.com, djwong@kernel.org, naohiro.aota@wdc.com,
-        jth@kernel.org, ast@kernel.org, daniel@iogearbox.net,
-        andrii@kernel.org, martin.lau@linux.dev, song@kernel.org,
-        yhs@fb.com, john.fastabend@gmail.com, kpsingh@kernel.org,
-        sdf@google.com, haoluo@google.com, jolsa@kernel.org,
-        hughd@google.com, akpm@linux-foundation.org, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        john.johansen@canonical.com, paul@paul-moore.com,
-        jmorris@namei.org, serge@hallyn.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        jgross@suse.com, stern@rowland.harvard.edu, lrh2000@pku.edu.cn,
-        sebastian.reichel@collabora.com, wsa+renesas@sang-engineering.com,
-        quic_ugoswami@quicinc.com, quic_linyyuan@quicinc.com,
-        john@keeping.me.uk, error27@gmail.com, quic_uaggarwa@quicinc.com,
-        hayama@lineo.co.jp, jomajm@gmail.com, axboe@kernel.dk,
-        dhavale@google.com, dchinner@redhat.com, hannes@cmpxchg.org,
-        zhangpeng362@huawei.com, slava@dubeyko.com, gargaditya08@live.com,
-        penguin-kernel@I-love.SAKURA.ne.jp, yifeliu@cs.stonybrook.edu,
-        madkar@cs.stonybrook.edu, ezk@cs.stonybrook.edu,
-        yuzhe@nfschina.com, willy@infradead.org, okanatov@gmail.com,
-        jeffxu@chromium.org, linux@treblig.org, mirimmad17@gmail.com,
-        yijiangshan@kylinos.cn, yang.yang29@zte.com.cn,
-        xu.xin16@zte.com.cn, chengzhihao1@huawei.com, shr@devkernel.io,
-        Liam.Howlett@Oracle.com, adobriyan@gmail.com,
-        chi.minghao@zte.com.cn, roberto.sassu@huawei.com,
-        linuszeng@tencent.com, bvanassche@acm.org, zohar@linux.ibm.com,
-        yi.zhang@huawei.com, trix@redhat.com, fmdefrancesco@gmail.com,
-        ebiggers@google.com, princekumarmaurya06@gmail.com,
-        chenzhongjin@huawei.com, riel@surriel.com,
-        shaozhengchao@huawei.com, jingyuwang_vip@163.com,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-usb@vger.kernel.org, v9fs@lists.linux.dev,
-        linux-fsdevel@vger.kernel.org, linux-afs@lists.infradead.org,
-        autofs@vger.kernel.org, linux-mm@kvack.org,
-        linux-btrfs@vger.kernel.org, ceph-devel@vger.kernel.org,
-        codalist@coda.cs.cmu.edu, ecryptfs@vger.kernel.org,
-        linux-efi@vger.kernel.org, linux-erofs@lists.ozlabs.org,
-        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        cluster-devel@redhat.com, linux-um@lists.infradead.org,
-        linux-mtd@lists.infradead.org,
-        jfs-discussion@lists.sourceforge.net, linux-nfs@vger.kernel.org,
-        linux-nilfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
-        ntfs3@lists.linux.dev, ocfs2-devel@lists.linux.dev,
-        linux-karma-devel@lists.sourceforge.net, devel@lists.orangefs.org,
-        linux-unionfs@vger.kernel.org, linux-hardening@vger.kernel.org,
-        reiserfs-devel@vger.kernel.org, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org,
-        linux-trace-kernel@vger.kernel.org, linux-xfs@vger.kernel.org,
-        bpf@vger.kernel.org, netdev@vger.kernel.org,
-        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Subject: Re: [apparmor] [PATCH v2 08/92] fs: new helper:
- simple_rename_timestamp
-Message-ID: <20230706210236.GB3244704@millbarge>
-References: <20230705185812.579118-1-jlayton@kernel.org>
- <20230705185812.579118-3-jlayton@kernel.org>
- <3b403ef1-22e6-0220-6c9c-435e3444b4d3@kernel.org>
- <7c783969641b67d6ffdfb10e509f382d083c5291.camel@kernel.org>
+        with ESMTP id S231616AbjGFWVO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Jul 2023 18:21:14 -0400
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB47F19B7;
+        Thu,  6 Jul 2023 15:21:13 -0700 (PDT)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 366Lrv2u001539;
+        Thu, 6 Jul 2023 22:20:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references :
+ content-transfer-encoding : content-type : mime-version;
+ s=corp-2023-03-30; bh=qysBbjkRFpiv0g2nt974fH1e1g2Uj3S9X6d8rMzs4p0=;
+ b=NfkG4ib+wAM7NHK5rXmKHgzPmEiCoAV2bIC9csSweG126DYMK9fk6tnxBNl7MhJl5Rqo
+ sUmyY3TN1l8diERf8IWxnCET6E48mjV9wAmxETYPZLsPJlJVf100Hh+xfdCTeNxcczNr
+ C8byayeJDS3AvzZL7ACr4CwCpks6Ulu/5A2hoDECmAwTHJPsChrWUVGNRcgPYePfxs0W
+ sT6CsQdVKYkY7I7AAnUvvze5buulG6O2rjvMI85wtTBEli1u8RyR/wAFkI0CjEq9QnxP
+ qR3lvRK8V1GgslwrMou/Tc4+NtHF1Suumt1oqtInE3ASjQiNPe1YC5e31jRYKRf/edwY sA== 
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3rp4md85rv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 06 Jul 2023 22:20:51 +0000
+Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 366KYvIA013438;
+        Thu, 6 Jul 2023 22:20:50 GMT
+Received: from nam02-sn1-obe.outbound.protection.outlook.com (mail-sn1nam02lp2046.outbound.protection.outlook.com [104.47.57.46])
+        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3rjak7ph6h-3
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 06 Jul 2023 22:20:50 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=QZPhj+bdEs+d/xB6ADmP8osTaHvwjbqNzz1ANSQXHW6//0aq/GeHc+2QFBjdS36UyFba143DJdNh4YiqaeCgOz3JffhAp8SmScsrxY7M4OLS1/UtBUQRWN2s4ZaINfAwoctUj+FtHaFgDj6F51OlgJpkbyuCxDl9+yB5MAeqgNvGq8+h9kpn7yP4uCnmqXHD3AM7L5MR0ez57z3uXvCQxhPIabapv+rjFice5cK7cxmTRPvOYvcLi7QiioFgtXehT2+gA7/wp3xZZ1ypbPf32BdfOBGudEHC9ImWcda7e19jxSXGP9L7JzHRG2sN0R1ZFVWvGK5JSUNnHGBkcxVH7w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=qysBbjkRFpiv0g2nt974fH1e1g2Uj3S9X6d8rMzs4p0=;
+ b=msbHPOKF8W0H8ZqNQMWptUlgnCwRE7G+RGJWbn7b9tLuNhONUD26WhDenSQyImtPWyU0AEKOE4ma7IwAFl0/ssAeiPspJQ4lA4R+0pLegRW6kQf/5IgqpotzOr6DsILsWz+HTfgquEItp4iItuMYtytPUnb8oupjQ7EsXoZXYwFHNzBmRldb1y0wPQT3dB6mpo/J2yGXqU/JqSMidFIKMS3BOtvD3ocLEROZrz4roKK6RWwoaxXLCfRbtfN7FFYU3m4vhOoHw7AxmfZhN42i/fBSfFQqnszDketx+hclcwf0aQYM2NlAFPx2H++PM+OZfDEG+mzu64w/qIRpJiV78w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=qysBbjkRFpiv0g2nt974fH1e1g2Uj3S9X6d8rMzs4p0=;
+ b=sOmVQTXZB052q7Fi75kUlh9otb/VmIWf6isF1+p9fMf4Mi6LTW+qE04Bj8GWhDU7UvxOtJrBOH4t4ljYRhGzpcaWr8l50i4zD7oRSpLiVMtoyb5ICdQ0n+DaCNAT2Mx0crGkTW6NnnwI/9T++uPKmgm76z+UTI4kua37TP6BSaw=
+Received: from CO1PR10MB4531.namprd10.prod.outlook.com (2603:10b6:303:6c::22)
+ by CO1PR10MB4755.namprd10.prod.outlook.com (2603:10b6:303:9f::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6565.17; Thu, 6 Jul
+ 2023 22:20:47 +0000
+Received: from CO1PR10MB4531.namprd10.prod.outlook.com
+ ([fe80::8b8f:b4b1:bb78:b048]) by CO1PR10MB4531.namprd10.prod.outlook.com
+ ([fe80::8b8f:b4b1:bb78:b048%5]) with mapi id 15.20.6565.019; Thu, 6 Jul 2023
+ 22:20:47 +0000
+From:   Eric DeVolder <eric.devolder@oracle.com>
+To:     linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org,
+        chenhuacai@kernel.org, geert@linux-m68k.org,
+        tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com,
+        deller@gmx.de, ysato@users.sourceforge.jp, dalias@libc.org,
+        glaubitz@physik.fu-berlin.de, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-ia64@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org
+Cc:     kernel@xen0n.name, mpe@ellerman.id.au, npiggin@gmail.com,
+        christophe.leroy@csgroup.eu, paul.walmsley@sifive.com,
+        palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com, hpa@zytor.com,
+        keescook@chromium.org, paulmck@kernel.org, peterz@infradead.org,
+        frederic@kernel.org, akpm@linux-foundation.org, ardb@kernel.org,
+        samitolvanen@google.com, juerg.haefliger@canonical.com,
+        arnd@arndb.de, rmk+kernel@armlinux.org.uk,
+        linus.walleij@linaro.org, sebastian.reichel@collabora.com,
+        rppt@kernel.org, kirill.shutemov@linux.intel.com,
+        anshuman.khandual@arm.com, ziy@nvidia.com, masahiroy@kernel.org,
+        ndesaulniers@google.com, mhiramat@kernel.org, ojeda@kernel.org,
+        thunder.leizhen@huawei.com, xin3.li@intel.com, tj@kernel.org,
+        gregkh@linuxfoundation.org, tsi@tuyoix.net, bhe@redhat.com,
+        hbathini@linux.ibm.com, sourabhjain@linux.ibm.com,
+        eric.devolder@oracle.com, boris.ostrovsky@oracle.com,
+        konrad.wilk@oracle.com
+Subject: [PATCH v5 02/13] x86/kexec: refactor for kernel/Kconfig.kexec
+Date:   Thu,  6 Jul 2023 18:20:16 -0400
+Message-Id: <20230706222027.189117-3-eric.devolder@oracle.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20230706222027.189117-1-eric.devolder@oracle.com>
+References: <20230706222027.189117-1-eric.devolder@oracle.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: CH2PR18CA0015.namprd18.prod.outlook.com
+ (2603:10b6:610:4f::25) To CO1PR10MB4531.namprd10.prod.outlook.com
+ (2603:10b6:303:6c::22)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="E39vaYmALEf/7YXx"
-Content-Disposition: inline
-In-Reply-To: <7c783969641b67d6ffdfb10e509f382d083c5291.camel@kernel.org>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO1PR10MB4531:EE_|CO1PR10MB4755:EE_
+X-MS-Office365-Filtering-Correlation-Id: e0a3a426-f530-438c-4afa-08db7e6f3f2d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: c5WHtUr72tA4M8Qc+1J+PJi29yZaZA84iHRCgM0v21SD2YGcibQH757E3dK0CmsFDk/QkaWpX44zggjB9XD9/yfFo5J9fB4ez7wpXUVmgEjxO+ZmSAGkKLLl7BFoVy2Oyd4BEuK4Hsd2j+PylV3rSJX5HAVkV20wGu4iw/It5MxKtXvp8XocYmsHUJc3SEwPPbwRJSqQCuW5eLF4wS0MwnsM8zJPIn5bZuaxJvHlLCKJTSc2tosVOWCGmiXodYJ/NRbpBOvQ87mVsMAD/Cny44orevCqVLBVgatMBrrKKK1cp9ov13pDShpTbhlYHncg9GYWgUxVX+uR7jHWK6Stmx8tlP6tC9/JAwaOU/BJRAfsjnj/xAxVf0klojRi9LPzcIeN/GPPvXU8Rtc2TMESNoNPtzYucGnaJXWIhXvMAfQqFp5rHJaaIghCD3n6QlNjitFd+doTTBZqlU0ikOT3yxoznxbZE0yfWp1mK5CtS/TZt1mItbbnRwQwJGgffKOBSrxHY9cV8i6fqFHUe/bxDDUxOMt3Iu4z5yPnDPg48+EuNOHsIcu6lOfFYdiwpW79yM9coF4M7jhDKSnC0PEbpr6wana5D7HiN9cp3AFAOpA=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CO1PR10MB4531.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(376002)(346002)(136003)(396003)(366004)(39860400002)(451199021)(8676002)(8936002)(2906002)(2616005)(5660300002)(26005)(7416002)(6506007)(1076003)(7406005)(7366002)(186003)(107886003)(66556008)(41300700001)(921005)(66476007)(6486002)(4326008)(6666004)(316002)(66946007)(83380400001)(6512007)(478600001)(36756003)(38100700002)(86362001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?qcDF4dRLTTsN9dGRmrU5KMLv5vwWdAlSwWjsxHZ2vn1S4CHepsY3OJiS4dCQ?=
+ =?us-ascii?Q?svjq4hD1J2BcSFyKicV1nSCASiLj0uYSjz7lTsBtmuzzibUo0EhU83/Kpm7q?=
+ =?us-ascii?Q?wCRsNiZBi8ALmn9XQPS3KZX4bpFiJSynKwB1c4BFQ5pGHNPZweEzhjp/xrLU?=
+ =?us-ascii?Q?+6RdqTuCgJXQtCAFoYmgq4uYFBhETS087b+GAnYYgIhypjkGSMkqQVgTDWX1?=
+ =?us-ascii?Q?CD/37XtslA6mXBlbjTWhs0HTirjcEHDh5HXFOw3LzWyVaOzXSVIXkoD14jhf?=
+ =?us-ascii?Q?A7LvMXmvL51S+7/phPrijnzbdpA6EiOCbpNdijN49hKaRnsUuAEAG+tDbLRG?=
+ =?us-ascii?Q?wUbg07JIsO4CzmxYWT8m10v2CpsxiTb1KNZJ3qeuslaOoDkQgeNo2oeCbpbi?=
+ =?us-ascii?Q?OpjTx7n9acS0DghXCkvbQmicD8szQoYhukm+e1VmpRom198jpuT4bOWxkdk0?=
+ =?us-ascii?Q?3Jq0L6p0q65sp6AmSWce2GvwODUzKo0gdGErXuA6a9chrbgV/787Wp2YfKbb?=
+ =?us-ascii?Q?WF5xByWXQ9jmi3wEsREgdRFoHxCoUeiMPR/v9T/DVkWMyyLHWfHEDfs68AC5?=
+ =?us-ascii?Q?FsowquZLJ3X2uhVVhDg6MSi1qODsKz8Nets1zfkSJvtM/wXBsaguOaQl0xd2?=
+ =?us-ascii?Q?u3tGqBHt1fIjK4IdFXVLusL3FenT1wsmewIUB/p11am59s9VM6zPMHXD8yKi?=
+ =?us-ascii?Q?8erGJflFROVHJ5u7wUzqv+HhOnJBoFq6VMkDeOGVaq48CSPK+mGTOEydOYDI?=
+ =?us-ascii?Q?wymHCAB5VtXodFn0oBSzbH7y7kt9PCy5JB2CpirXTfHCkNmeX5I1TZnVwFkc?=
+ =?us-ascii?Q?J/5Ktrtoytv9kCOtVmb0aWzQHhR1BWfTpefD5A4ZU3W5Dzp4R5QvrlIGS61/?=
+ =?us-ascii?Q?Wg/Mo8BA2CBArH+tvob5tSSOvHAhC2I/r5xHG2h0WNyxnfHniuJL1uaKas9H?=
+ =?us-ascii?Q?E3F1FWlB4uy8P5ndUI6tJDTs93a4RZphEUHexsdEFUyeyOnvp7Vv4EPfLVS7?=
+ =?us-ascii?Q?vrqVcG8wUZMrJcEF29uFukrY6NgHS/qfHpFJkYEUkv36Ps/KYgX15qxr16/B?=
+ =?us-ascii?Q?gnt1lhZvZNUvLsd7HQRBSmsP33J5TVERU075FYY4DnQPPCRWWSo1Knvu8E4U?=
+ =?us-ascii?Q?FZZ/XEjA+IdT/YvLF+h0oFuz+DSm+tEz/0rLM7lD/nWuo23psqvO0ShCQ2Bo?=
+ =?us-ascii?Q?6SRbAadfKtZA3VniB18zNDf9Isos0pLSaDVJsISxADkp3SyrfA6CbNBD1fuj?=
+ =?us-ascii?Q?C7ZtsPan6+hnVJhbptVGyGZNmM/nAf2qwP5i5Y0cQm8U8XFgLQbEe37HDw1j?=
+ =?us-ascii?Q?kBLTD3um2XAdxH9dQcPTg1Z3ec2LHou7C9AwOIT5Ul1q9yJJlTardfwU7KPb?=
+ =?us-ascii?Q?0pHFvzq/UamH5R1NOEyzWTF3IlhaE3K3wXLipJiba6rObSrCAgXwv8+I2lVU?=
+ =?us-ascii?Q?9Kx1LF4AH9aoaPfw2Uu4SE6jZRCt+BO6H/oV/E98MA8Pm9pMjaj0RY1vMyw2?=
+ =?us-ascii?Q?v//0sONXzBiCktlKus4gtEJ6OvsnyYbcF06HFyYIzVbFaua6IXOnYO5H03Jk?=
+ =?us-ascii?Q?qNFygv5l7qNck07KF+zd7vDvPSPtZsnttrr61QfzNcoGJ5TD7WLbFbsSIol9?=
+ =?us-ascii?Q?8A=3D=3D?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 2
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: =?us-ascii?Q?t+jSAX5KMnf0qx/w6LYbV8ZrVec9LlJPV8zyj011Glw95b6Ke7S4rgN9K2yQ?=
+ =?us-ascii?Q?FS2A2R/Qc9tCCx6/UainT7rtIJ/ZwF8iQDEYYG983pNdNkCNf3sztoxR70x/?=
+ =?us-ascii?Q?BEhWMxWzKXU2LxfGL7LiVe381BVFQDI6fVQlJExb6AMyfhoBmI/lcqkmawHS?=
+ =?us-ascii?Q?Slc/cOmdQ3QlVKQDBDlljDXSNNBXGG85XmbVcWd3v4FoKRMJkaqTImyuLiTQ?=
+ =?us-ascii?Q?mS0+fgOdflDJv62YPVkEbJy4tGWoYDXj8DHZnicYl+OEHdzTA7SGCJiwOrp7?=
+ =?us-ascii?Q?Ubd/XREkBwPEVXkovus2KIC/LJ1Wpgc0lYkC2HITus3lwVQoBKcYLjugi1yg?=
+ =?us-ascii?Q?6EyqTvOdeD5LMwiE3nkBQlrn1+nYN/tveSMXERLNlfH53KFCczNsZnfjx0nJ?=
+ =?us-ascii?Q?dC/hY65hCBXPJHCuqwtRixzNHnKunb6IavALk6zg+MreqDsJfeYUJl55ykVM?=
+ =?us-ascii?Q?rpOU7ChO06tpKxA9OXx2JfVhxN+65ckPoRKP35/VixWPHhS+wGIr/p6hpqVG?=
+ =?us-ascii?Q?RmB4pAv+Ljx4jTwNxCt45um/SH2uKI+suDV7MrWuDOQmTlK+FVbOUcjjxDPW?=
+ =?us-ascii?Q?ELKUNqt9hvhVuA2vvOmljIGedjTDwTAtHlyuobHqN0o3vIYXVOcn3y7ZteNQ?=
+ =?us-ascii?Q?tHFJcAr1Fi5OnclzUGDiKdbWA2ocRYoQHt9ST3O6AgHMzBhhVes5HpyHX9bv?=
+ =?us-ascii?Q?nZFrZVKRdp65/I7RLYVcZ6tBEHX5DHPkXsBfPifUyBNaU1NIhDyJYoDcvClU?=
+ =?us-ascii?Q?cu3VmKxyz3AcnRuA7cYJ11hLXnvD2oeK8qrfb9o3zrPtBbK8BJNA1de2tGlt?=
+ =?us-ascii?Q?goDdyyOLyIaUU1S6pkDOqavGJGHfKv6dIXhDJE8ubboJ3hrfhLeQBSRP7gI9?=
+ =?us-ascii?Q?Nmg0vTsf628c6BIjYHagmxYo8JhzkdiU4D5081KPuUMTvGrig6aUIN7rQ02Z?=
+ =?us-ascii?Q?XOvHP/Nmzf/XARH/ILSwf+DQu7+n7oyng7+Pm47ekopa+kRGok62+/4YkEu1?=
+ =?us-ascii?Q?7pYEJAm4sm2+AzLi30NE17tIvkX8cwimzu/jlpPK/iFl5haV0blKP3IsESJF?=
+ =?us-ascii?Q?X/cFJ4ARMRodSGJo7sCdtgFu1Tx1Dj8U4PbNn1muzkQgfdaEN9PMuugD1tQ9?=
+ =?us-ascii?Q?EXq7PYIE1qruQUS40uq87Cnf9+o81rruXRoOyTuY+8qIh3O8QjoUVzj3T/wR?=
+ =?us-ascii?Q?9c4U2RA6C6IgtEfKldb82NxToGM1B9hb2P7FxEfGXcPou/RKAsms0FK2ddkO?=
+ =?us-ascii?Q?49tKGD1gqB8rMoUoWea+8U94S6jLJcxt270g+HaYVSXcdAfRqlemGHA8WG7i?=
+ =?us-ascii?Q?o2HJqfXH9F3iik5+22a8pcuv7TX0PNQSkZ/GNZrn2PHFc8C7oomOoguM0xPu?=
+ =?us-ascii?Q?q6vRg/DMV1tMw/A6YVEgEvbkynIZGJiUAaTk139zJ5e28YPGLeosWVsHRf5F?=
+ =?us-ascii?Q?0/n+lLyqMMggUa3iUXq2/hle/DYgY5rvbJP4sPOh81zXwPfHzSY193LPZI54?=
+ =?us-ascii?Q?SVsfFFeXn7M/raptnTUZkct/8guXKYtZ2KpZm59GmK9DA5WlV2cuEfTh8rRd?=
+ =?us-ascii?Q?V17mMrmxtosYzpri6UBjeMkQF5N2TVVXQQ5BPaQLktf/Lm7BZri+5xJ/B9zK?=
+ =?us-ascii?Q?yylR6TVrgotGqdOX48NRnOfQYSDzUUJ4acXMmx2Xqs6kLTHPqrj3gAqcj/7U?=
+ =?us-ascii?Q?rYrvTe29trGt8M04W7aVjCBgPbdB2jS/pSMu+KJ31LhF/Lc8ajc2ubVSbuZF?=
+ =?us-ascii?Q?s+YX9i9nMESX2UINz4ipwqJO9inw50wouTWsBSK6dTvc/70G9JxBgCgAhYz4?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-1: aAqYiznHySf3/XLliHidHFhLqCfzr4+uX0T+FPxfj7Rj2n485UY2BGW3wfQHDVM90tR+rcCMLGTy2UGroUBO9HL+2idstxywYhIMXdYBWFnq0N7ghjLOUmRf2f9mkiEn8O7JmUROyPYNRMsK//gtRCvoUrwQZLvhjGFclSQBEkvHkFIJx6VdtUmTYjJRUad5hCv89IxWuESJeihQeV8Vv98y/1NtbxnPcLb3NXOUta8MjGn7xcGKU0U7kLsBCm7iBeebwQAjyHVABtdEbaM72B5X/udHQWXBbx5dmiLjEtWM5QIziDXFBIJmr/wddny0AfFG4mtRPMmrMLD/oJWLIZo8j/gcv7O1BX5oJmaJogja8lQ0gUi0VlD+bxWaOYKtUpsyz3hUqwbF2NisSbWffInZIqqRW6Kql0tmTIHYdxUIuigWOLGQqE9zRqxjVr8S2+dsigfNCyXP9Q==
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e0a3a426-f530-438c-4afa-08db7e6f3f2d
+X-MS-Exchange-CrossTenant-AuthSource: CO1PR10MB4531.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Jul 2023 22:20:47.0799
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: KD7dhlvhm6EdDXhRTCf9/IJ5gbZV7Mam4UHUuIP7lLanWR2Qr94EY77EWRRPOwjmECmgUOi7R7v+uOpGaB4qAPU82OjlPMxgev9cNP3WqtU=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO1PR10MB4755
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-06_15,2023-07-06_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 phishscore=0 bulkscore=0
+ malwarescore=0 mlxlogscore=999 adultscore=0 spamscore=0 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2305260000
+ definitions=main-2307060195
+X-Proofpoint-GUID: 2x5vox6m0L-ETbBsaKMN8gRz3wovscCK
+X-Proofpoint-ORIG-GUID: 2x5vox6m0L-ETbBsaKMN8gRz3wovscCK
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+The kexec and crash kernel options are provided in the common
+kernel/Kconfig.kexec. Utilize the common options and provide
+the ARCH_SUPPORTS_ and ARCH_SELECTS_ entries to recreate the
+equivalent set of KEXEC and CRASH options.
 
---E39vaYmALEf/7YXx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Eric DeVolder <eric.devolder@oracle.com>
+---
+ arch/x86/Kconfig | 92 ++++++++++--------------------------------------
+ 1 file changed, 19 insertions(+), 73 deletions(-)
 
-On Wed, Jul 05, 2023 at 08:04:41PM -0400, Jeff Layton wrote:
->=20
-> I don't believe it's an issue. I've seen nothing in the POSIX spec that
-> mandates that timestamp updates to different inodes involved in an
-> operation be set to the _same_ value. It just says they must be updated.
->=20
-> It's also hard to believe that any software would depend on this either,
-> given that it's very inconsistent across filesystems today. AFAICT, this
-> was mostly done in the past just as a matter of convenience.
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 7422db409770..9767a343f7c2 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -2040,88 +2040,34 @@ config EFI_RUNTIME_MAP
+ 
+ source "kernel/Kconfig.hz"
+ 
+-config KEXEC
+-	bool "kexec system call"
+-	select KEXEC_CORE
+-	help
+-	  kexec is a system call that implements the ability to shutdown your
+-	  current kernel, and to start another kernel.  It is like a reboot
+-	  but it is independent of the system firmware.   And like a reboot
+-	  you can start any kernel with it, not just Linux.
+-
+-	  The name comes from the similarity to the exec system call.
+-
+-	  It is an ongoing process to be certain the hardware in a machine
+-	  is properly shutdown, so do not be surprised if this code does not
+-	  initially work for you.  As of this writing the exact hardware
+-	  interface is strongly in flux, so no good recommendation can be
+-	  made.
+-
+-config KEXEC_FILE
+-	bool "kexec file based system call"
+-	select KEXEC_CORE
+-	select HAVE_IMA_KEXEC if IMA
+-	depends on X86_64
+-	depends on CRYPTO=y
+-	depends on CRYPTO_SHA256=y
+-	help
+-	  This is new version of kexec system call. This system call is
+-	  file based and takes file descriptors as system call argument
+-	  for kernel and initramfs as opposed to list of segments as
+-	  accepted by previous system call.
++config ARCH_SUPPORTS_KEXEC
++	def_bool y
+ 
+-config ARCH_HAS_KEXEC_PURGATORY
+-	def_bool KEXEC_FILE
++config ARCH_SUPPORTS_KEXEC_FILE
++	def_bool X86_64 && CRYPTO && CRYPTO_SHA256
+ 
+-config KEXEC_SIG
+-	bool "Verify kernel signature during kexec_file_load() syscall"
++config ARCH_SELECTS_KEXEC_FILE
++	def_bool y
+ 	depends on KEXEC_FILE
+-	help
++	select HAVE_IMA_KEXEC if IMA
+ 
+-	  This option makes the kexec_file_load() syscall check for a valid
+-	  signature of the kernel image.  The image can still be loaded without
+-	  a valid signature unless you also enable KEXEC_SIG_FORCE, though if
+-	  there's a signature that we can check, then it must be valid.
++config ARCH_HAS_KEXEC_PURGATORY
++	def_bool KEXEC_FILE
+ 
+-	  In addition to this option, you need to enable signature
+-	  verification for the corresponding kernel image type being
+-	  loaded in order for this to work.
++config ARCH_SUPPORTS_KEXEC_SIG
++	def_bool y
+ 
+-config KEXEC_SIG_FORCE
+-	bool "Require a valid signature in kexec_file_load() syscall"
+-	depends on KEXEC_SIG
+-	help
+-	  This option makes kernel signature verification mandatory for
+-	  the kexec_file_load() syscall.
++config ARCH_SUPPORTS_KEXEC_SIG_FORCE
++	def_bool y
+ 
+-config KEXEC_BZIMAGE_VERIFY_SIG
+-	bool "Enable bzImage signature verification support"
+-	depends on KEXEC_SIG
+-	depends on SIGNED_PE_FILE_VERIFICATION
+-	select SYSTEM_TRUSTED_KEYRING
+-	help
+-	  Enable bzImage signature verification support.
++config ARCH_SUPPORTS_KEXEC_BZIMAGE_VERIFY_SIG
++	def_bool y
+ 
+-config CRASH_DUMP
+-	bool "kernel crash dumps"
+-	depends on X86_64 || (X86_32 && HIGHMEM)
+-	help
+-	  Generate crash dump after being started by kexec.
+-	  This should be normally only set in special crash dump kernels
+-	  which are loaded in the main kernel with kexec-tools into
+-	  a specially reserved region and then later executed after
+-	  a crash by kdump/kexec. The crash dump kernel must be compiled
+-	  to a memory address not used by the main kernel or BIOS using
+-	  PHYSICAL_START, or it must be built as a relocatable image
+-	  (CONFIG_RELOCATABLE=y).
+-	  For more details see Documentation/admin-guide/kdump/kdump.rst
++config ARCH_SUPPORTS_KEXEC_JUMP
++	def_bool y
+ 
+-config KEXEC_JUMP
+-	bool "kexec jump"
+-	depends on KEXEC && HIBERNATION
+-	help
+-	  Jump between original kernel and kexeced kernel and invoke
+-	  code in physical address mode via KEXEC
++config ARCH_SUPPORTS_CRASH_DUMP
++	def_bool X86_64 || (X86_32 && HIGHMEM)
+ 
+ config PHYSICAL_START
+ 	hex "Physical address where the kernel is loaded" if (EXPERT || CRASH_DUMP)
+-- 
+2.31.1
 
-I've seen this assumption in several programs:
-
-mutt buffy.c
-https://sources.debian.org/src/mutt/2.2.9-1/buffy.c/?hl=3D625#L625
-
-  if (mailbox->newly_created &&
-      (sb->st_ctime !=3D sb->st_mtime || sb->st_ctime !=3D sb->st_atime))
-    mailbox->newly_created =3D 0;
-
-
-neomutt mbox/mbox.c
-https://sources.debian.org/src/neomutt/20220429+dfsg1-4.1/mbox/mbox.c/?hl=
-=3D1820#L1820
-
-  if (m->newly_created && ((st.st_ctime !=3D st.st_mtime) || (st.st_ctime !=
-=3D st.st_atime)))
-    m->newly_created =3D false;
-
-
-screen logfile.c
-https://sources.debian.org/src/screen/4.9.0-4/logfile.c/?hl=3D130#L130
-
-  if ((!s->st_dev && !s->st_ino) ||             /* stat failed, that's new!=
- */
-      !s->st_nlink ||                           /* red alert: file unlinked=
- */
-      (s->st_size < o.st_size) ||               /*           file truncated=
- */
-      (s->st_mtime !=3D o.st_mtime) ||            /*            file modifi=
-ed */
-      ((s->st_ctime !=3D o.st_ctime) &&           /*     file changed (move=
-d) */
-       !(s->st_mtime =3D=3D s->st_ctime &&          /*  and it was not a ch=
-ange */
-         o.st_ctime < s->st_ctime)))            /* due to delayed nfs write=
- */
-  {
-
-nemo libnemo-private/nemo-vfs-file.c
-https://sources.debian.org/src/nemo/5.6.5-1/libnemo-private/nemo-vfs-file.c=
-/?hl=3D344#L344
-
-		/* mtime is when the contents changed; ctime is when the
-		 * contents or the permissions (inc. owner/group) changed.
-		 * So we can only know when the permissions changed if mtime
-		 * and ctime are different.
-		 */
-		if (file->details->mtime =3D=3D file->details->ctime) {
-			return FALSE;
-		}
-
-
-While looking for more examples, I found a perl test that seems to suggest
-that at least Solaris, AFS, AmigaOS, DragonFly BSD do as you suggest:
-https://sources.debian.org/src/perl/5.36.0-7/t/op/stat.t/?hl=3D158#L140
-
-
-Thanks
-
---E39vaYmALEf/7YXx
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEQVAQ8bojyMcg37H18yFyWZ2NLpcFAmSnK+gACgkQ8yFyWZ2N
-Lpd3gQf6AtE8sBL09BSTvT1P5I8tCXnJ4U7VbzQxWTcKAQHRpyZn8IRSdWuxiPEU
-soaBmSx6jov+kkZYX5uP1LSM1INMYpJTJELGas9A7wenNppBGS07LjwAL40wouPm
-UfcVWQqOgM8eoseMKBKePv5TkTJFn/M3cPK9Wy31E+qF1IPMNtxz9JKz109YlDOO
-FxVTwBGGxxKvx3SsUl6hdaqBCK3omZlbWCzqSyqBzzvjgZ01VC5ktw5FuuTABbu8
-TScNnT5GtO5AE8RV0T3TKISm19xD69JHQt/etFeU2yKwiBsn89pY4Xut3CrxbSQm
-prQ7ssP3/fi41WxFFDQzO/oQok/b+A==
-=/KNl
------END PGP SIGNATURE-----
-
---E39vaYmALEf/7YXx--
