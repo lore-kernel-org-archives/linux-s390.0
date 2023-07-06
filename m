@@ -2,207 +2,342 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73810C001DD
-	for <linux-s390@archiver.kernel.org>; Thu,  6 Jul 2023 14:58:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C852CEB64D9
+	for <linux-s390@archiver.kernel.org>; Thu,  6 Jul 2023 15:04:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233706AbjGFO6i (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 6 Jul 2023 10:58:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47564 "EHLO
+        id S232227AbjGFPEG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 6 Jul 2023 11:04:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232479AbjGFO6g (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Jul 2023 10:58:36 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E86F11BD3;
-        Thu,  6 Jul 2023 07:58:33 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 3C5C121F0F;
-        Thu,  6 Jul 2023 14:58:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1688655512; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=a3WCjuVtP408kA5MLjuqcXtfVFT/xUBAoafKmCX5mTQ=;
-        b=24baoWftvYiGQFO3002Q0+aX8kw5mHmt4Cu1N910tREAGtuxcOaRXmP0pM+lOVAJim6+VD
-        dQX99wfdHC9+7VMIIenAeKOTV3XT6+7YZiyj/RCSzIS+4DKmzNEvO8ziEQ7uku2gaTxrzh
-        E0opuusKVm/bz4GqT0HBn9z2vEqLBRg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1688655512;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=a3WCjuVtP408kA5MLjuqcXtfVFT/xUBAoafKmCX5mTQ=;
-        b=N/aHHWlEsq3Q8ok8VkNIK3F/VOqPWCTaj4AqfwvPqV9l0evDoZQtQa232xNNYABuuek3bk
-        kdzAUhIiYKjnxQAA==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 1707313A26;
-        Thu,  6 Jul 2023 14:58:32 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id CHDYBJjWpmRrBgAAMHmgww
-        (envelope-from <jack@suse.cz>); Thu, 06 Jul 2023 14:58:32 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id 818C8A0707; Thu,  6 Jul 2023 16:58:31 +0200 (CEST)
-Date:   Thu, 6 Jul 2023 16:58:31 +0200
-From:   Jan Kara <jack@suse.cz>
-To:     Jeff Layton <jlayton@kernel.org>
-Cc:     jk@ozlabs.org, arnd@arndb.de, mpe@ellerman.id.au,
-        npiggin@gmail.com, christophe.leroy@csgroup.eu, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
-        maco@android.com, joel@joelfernandes.org, brauner@kernel.org,
-        cmllamas@google.com, surenb@google.com,
-        dennis.dalessandro@cornelisnetworks.com, jgg@ziepe.ca,
-        leon@kernel.org, bwarrum@linux.ibm.com, rituagar@linux.ibm.com,
-        ericvh@kernel.org, lucho@ionkov.net, asmadeus@codewreck.org,
-        linux_oss@crudebyte.com, dsterba@suse.com, dhowells@redhat.com,
-        marc.dionne@auristor.com, viro@zeniv.linux.org.uk,
-        raven@themaw.net, luisbg@kernel.org, salah.triki@gmail.com,
-        aivazian.tigran@gmail.com, ebiederm@xmission.com,
-        keescook@chromium.org, clm@fb.com, josef@toxicpanda.com,
-        xiubli@redhat.com, idryomov@gmail.com, jaharkes@cs.cmu.edu,
-        coda@cs.cmu.edu, jlbec@evilplan.org, hch@lst.de, nico@fluxnic.net,
-        rafael@kernel.org, code@tyhicks.com, ardb@kernel.org,
-        xiang@kernel.org, chao@kernel.org, huyue2@coolpad.com,
-        jefflexu@linux.alibaba.com, linkinjeon@kernel.org,
-        sj1557.seo@samsung.com, jack@suse.com, tytso@mit.edu,
-        adilger.kernel@dilger.ca, jaegeuk@kernel.org,
-        hirofumi@mail.parknet.co.jp, miklos@szeredi.hu,
-        rpeterso@redhat.com, agruenba@redhat.com, richard@nod.at,
-        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        mikulas@artax.karlin.mff.cuni.cz, mike.kravetz@oracle.com,
-        muchun.song@linux.dev, dwmw2@infradead.org, shaggy@kernel.org,
-        tj@kernel.org, trond.myklebust@hammerspace.com, anna@kernel.org,
-        chuck.lever@oracle.com, neilb@suse.de, kolga@netapp.com,
-        Dai.Ngo@oracle.com, tom@talpey.com, konishi.ryusuke@gmail.com,
-        anton@tuxera.com, almaz.alexandrovich@paragon-software.com,
-        mark@fasheh.com, joseph.qi@linux.alibaba.com, me@bobcopeland.com,
-        hubcap@omnibond.com, martin@omnibond.com, amir73il@gmail.com,
-        mcgrof@kernel.org, yzaikin@google.com, tony.luck@intel.com,
-        gpiccoli@igalia.com, al@alarsen.net, sfrench@samba.org,
-        pc@manguebit.com, lsahlber@redhat.com, sprasad@microsoft.com,
-        senozhatsky@chromium.org, phillip@squashfs.org.uk,
-        rostedt@goodmis.org, mhiramat@kernel.org, dushistov@mail.ru,
-        hdegoede@redhat.com, djwong@kernel.org, dlemoal@kernel.org,
-        naohiro.aota@wdc.com, jth@kernel.org, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
-        song@kernel.org, yhs@fb.com, john.fastabend@gmail.com,
-        kpsingh@kernel.org, sdf@google.com, haoluo@google.com,
-        jolsa@kernel.org, hughd@google.com, akpm@linux-foundation.org,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, john.johansen@canonical.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        jgross@suse.com, stern@rowland.harvard.edu, lrh2000@pku.edu.cn,
-        sebastian.reichel@collabora.com, wsa+renesas@sang-engineering.com,
-        quic_ugoswami@quicinc.com, quic_linyyuan@quicinc.com,
-        john@keeping.me.uk, error27@gmail.com, quic_uaggarwa@quicinc.com,
-        hayama@lineo.co.jp, jomajm@gmail.com, axboe@kernel.dk,
-        dhavale@google.com, dchinner@redhat.com, hannes@cmpxchg.org,
-        zhangpeng362@huawei.com, slava@dubeyko.com, gargaditya08@live.com,
-        penguin-kernel@I-love.SAKURA.ne.jp, yifeliu@cs.stonybrook.edu,
-        madkar@cs.stonybrook.edu, ezk@cs.stonybrook.edu,
-        yuzhe@nfschina.com, willy@infradead.org, okanatov@gmail.com,
-        jeffxu@chromium.org, linux@treblig.org, mirimmad17@gmail.com,
-        yijiangshan@kylinos.cn, yang.yang29@zte.com.cn,
-        xu.xin16@zte.com.cn, chengzhihao1@huawei.com, shr@devkernel.io,
-        Liam.Howlett@Oracle.com, adobriyan@gmail.com,
-        chi.minghao@zte.com.cn, roberto.sassu@huawei.com,
-        linuszeng@tencent.com, bvanassche@acm.org, zohar@linux.ibm.com,
-        yi.zhang@huawei.com, trix@redhat.com, fmdefrancesco@gmail.com,
-        ebiggers@google.com, princekumarmaurya06@gmail.com,
-        chenzhongjin@huawei.com, riel@surriel.com,
-        shaozhengchao@huawei.com, jingyuwang_vip@163.com,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-usb@vger.kernel.org, v9fs@lists.linux.dev,
-        linux-fsdevel@vger.kernel.org, linux-afs@lists.infradead.org,
-        autofs@vger.kernel.org, linux-mm@kvack.org,
-        linux-btrfs@vger.kernel.org, ceph-devel@vger.kernel.org,
-        codalist@coda.cs.cmu.edu, ecryptfs@vger.kernel.org,
-        linux-efi@vger.kernel.org, linux-erofs@lists.ozlabs.org,
-        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        cluster-devel@redhat.com, linux-um@lists.infradead.org,
-        linux-mtd@lists.infradead.org,
-        jfs-discussion@lists.sourceforge.net, linux-nfs@vger.kernel.org,
-        linux-nilfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
-        ntfs3@lists.linux.dev, ocfs2-devel@lists.linux.dev,
-        linux-karma-devel@lists.sourceforge.net, devel@lists.orangefs.org,
-        linux-unionfs@vger.kernel.org, linux-hardening@vger.kernel.org,
-        reiserfs-devel@vger.kernel.org, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org,
-        linux-trace-kernel@vger.kernel.org, linux-xfs@vger.kernel.org,
-        bpf@vger.kernel.org, netdev@vger.kernel.org,
-        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Subject: Re: [PATCH v2 92/92] fs: rename i_ctime field to __i_ctime
-Message-ID: <20230706145831.iwmb7c3jerbkctda@quack3>
-References: <20230705185812.579118-1-jlayton@kernel.org>
- <20230705185812.579118-4-jlayton@kernel.org>
+        with ESMTP id S229782AbjGFPEB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Jul 2023 11:04:01 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48FE91BFD;
+        Thu,  6 Jul 2023 08:03:55 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 366F1NL4002682;
+        Thu, 6 Jul 2023 15:02:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=qSwFzruPcaNdP45SxVUbDhB22B0cgY81dMFR8R2Q4e4=;
+ b=hotimYj8WUqulE0HBmKXfLbgKYf2Lr78pmtKqqFoRsMj+u7koEPz4PW/MJQavdO7FXY4
+ 4deakJj22T41XELxCotJ/nsKRaEybKwwFHpa/WuYovYUX3Vxzk+h9VYh39HagbwiLdaz
+ wvHA7EuH/UHAfSZMLrdaU3p1mf5IX9MEh1SHRNua1zhTEuBwxJP1Q/2NSejDsFLYcw0/
+ qEecqFTSnPgtCPmp5yfhYC7FM09aD6hGzYQvQVOCiUeKeceXt83sl78liBwNo9TpIAOe
+ 9ADgn9vhlWzjRPiOt40+CwluQTKf5JV4SC00qSKRzyy1qBkZXnhe8W44fnStQo9Y1hMm nA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rnyvs81m3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 06 Jul 2023 15:02:27 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 366F1SXO003194;
+        Thu, 6 Jul 2023 15:02:25 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rnyvs81gs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 06 Jul 2023 15:02:25 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 365Ni7ZQ002690;
+        Thu, 6 Jul 2023 15:02:22 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3rjbde3cmy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 06 Jul 2023 15:02:22 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 366F2IIN12911276
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 6 Jul 2023 15:02:18 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 42AF920040;
+        Thu,  6 Jul 2023 15:02:18 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 565902004B;
+        Thu,  6 Jul 2023 15:02:15 +0000 (GMT)
+Received: from thinkpad-T15 (unknown [9.179.10.27])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with SMTP;
+        Thu,  6 Jul 2023 15:02:15 +0000 (GMT)
+Date:   Thu, 6 Jul 2023 17:02:13 +0200
+From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Jason Gunthorpe <jgg@ziepe.ca>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Lorenzo Stoakes <lstoakes@gmail.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        Vishal Moola <vishal.moola@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH v2 07/12] s390: add pte_free_defer() for pgtables
+ sharing page
+Message-ID: <20230706170213.2ea63606@thinkpad-T15>
+In-Reply-To: <1014735-ecc4-b4bc-3ae7-48a4328ed149@google.com>
+References: <54cb04f-3762-987f-8294-91dafd8ebfb0@google.com>
+        <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com>
+        <20230628211624.531cdc58@thinkpad-T15>
+        <cd7c2851-1440-7220-6c53-16b343b1474@google.com>
+        <ZJ2hsM5Tn+yUZ5ZV@ziepe.ca>
+        <20230629175645.7654d0a8@thinkpad-T15>
+        <edaa96f-80c1-1252-acbb-71c4f045b035@google.com>
+        <7bef5695-fa4a-7215-7e9d-d4a83161c7ab@google.com>
+        <20230704171905.1263478f@thinkpad-T15>
+        <e678affb-5eee-a055-7af1-1d29a965663b@google.com>
+        <20230705145516.7d9d554d@thinkpad-T15>
+        <1014735-ecc4-b4bc-3ae7-48a4328ed149@google.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230705185812.579118-4-jlayton@kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: QGkni06Tvema7LXh8NlVshLGX4mkBNVW
+X-Proofpoint-GUID: 5jal2qspqbLQazmPwsOCxzoLdtbfP85A
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-06_11,2023-07-06_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
+ lowpriorityscore=0 adultscore=0 phishscore=0 bulkscore=0 malwarescore=0
+ mlxlogscore=999 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2307060130
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed 05-07-23 14:58:12, Jeff Layton wrote:
-> Now that everything in-tree is converted to use the accessor functions,
-> rename the i_ctime field in the inode to discourage direct access.
+On Wed, 5 Jul 2023 18:20:21 -0700 (PDT)
+Hugh Dickins <hughd@google.com> wrote:
+
+> On Wed, 5 Jul 2023, Gerald Schaefer wrote:
+> > On Tue, 4 Jul 2023 10:03:57 -0700 (PDT)
+> > Hugh Dickins <hughd@google.com> wrote:  
+> > > On Tue, 4 Jul 2023, Gerald Schaefer wrote:  
+> > > > On Sat, 1 Jul 2023 21:32:38 -0700 (PDT)
+> > > > Hugh Dickins <hughd@google.com> wrote:    
+> > > > > On Thu, 29 Jun 2023, Hugh Dickins wrote:    
+> > > ...  
+> > > > > --- a/arch/s390/mm/pgalloc.c
+> > > > > +++ b/arch/s390/mm/pgalloc.c
+> > > > > @@ -229,6 +229,15 @@ void page_table_free_pgste(struct page *page)
+> > > > >   * logic described above. Both AA bits are set to 1 to denote a 4KB-pgtable
+> > > > >   * while the PP bits are never used, nor such a page is added to or removed
+> > > > >   * from mm_context_t::pgtable_list.
+> > > > > + *
+> > > > > + * pte_free_defer() overrides those rules: it takes the page off pgtable_list,
+> > > > > + * and prevents both 2K fragments from being reused. pte_free_defer() has to
+> > > > > + * guarantee that its pgtable cannot be reused before the RCU grace period
+> > > > > + * has elapsed (which page_table_free_rcu() does not actually guarantee).    
+> > > > 
+> > > > Hmm, I think page_table_free_rcu() has to guarantee the same, i.e. not
+> > > > allow reuse before grace period elapsed. And I hope that it does so, by
+> > > > setting the PP bits, which would be noticed in page_table_alloc(), in
+> > > > case the page would be seen there.
+> > > > 
+> > > > Unlike pte_free_defer(), page_table_free_rcu() would add pages back to the
+> > > > end of the list, and so they could be seen in page_table_alloc(), but they
+> > > > should not be reused before grace period elapsed and __tlb_remove_table()
+> > > > cleared the PP bits, as far as I understand.
+> > > > 
+> > > > So what exactly do you mean with "which page_table_free_rcu() does not actually
+> > > > guarantee"?    
+> > > 
+> > > I'll answer without locating and re-reading what Jason explained earlier,
+> > > perhaps in a separate thread, about pseudo-RCU-ness in tlb_remove_table():
+> > > he may have explained it better.  And without working out again all the
+> > > MMU_GATHER #defines, and which of them do and do not apply to s390 here.
+> > > 
+> > > The detail that sticks in my mind is the fallback in tlb_remove_table()  
+> > 
+> > Ah ok, I was aware of that "semi-RCU" fallback logic in tlb_remove_table(),
+> > but that is rather a generic issue, and not s390-specific.  
 > 
-> Signed-off-by: Jeff Layton <jlayton@kernel.org>
-
-Looks good. Feel free to add:
-
-Reviewed-by: Jan Kara <jack@suse.cz>
-
-								Honza
-
-> ---
->  include/linux/fs.h | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+> Yes.
 > 
-> diff --git a/include/linux/fs.h b/include/linux/fs.h
-> index 14e38bd900f1..b66442f91835 100644
-> --- a/include/linux/fs.h
-> +++ b/include/linux/fs.h
-> @@ -642,7 +642,7 @@ struct inode {
->  	loff_t			i_size;
->  	struct timespec64	i_atime;
->  	struct timespec64	i_mtime;
-> -	struct timespec64	i_ctime;
-> +	struct timespec64	__i_ctime; /* use inode_*_ctime accessors! */
->  	spinlock_t		i_lock;	/* i_blocks, i_bytes, maybe i_size */
->  	unsigned short          i_bytes;
->  	u8			i_blkbits;
-> @@ -1485,7 +1485,7 @@ struct timespec64 inode_set_ctime_current(struct inode *inode);
->   */
->  static inline struct timespec64 inode_get_ctime(const struct inode *inode)
->  {
-> -	return inode->i_ctime;
-> +	return inode->__i_ctime;
->  }
->  
->  /**
-> @@ -1498,7 +1498,7 @@ static inline struct timespec64 inode_get_ctime(const struct inode *inode)
->  static inline struct timespec64 inode_set_ctime_to_ts(struct inode *inode,
->  						      struct timespec64 ts)
->  {
-> -	inode->i_ctime = ts;
-> +	inode->__i_ctime = ts;
->  	return ts;
->  }
->  
-> -- 
-> 2.41.0
+> > I thought you
+> > meant some s390-oddity here, of which we have a lot, unfortunately...
+> > Of course, we call tlb_remove_table() from our page_table_free_rcu(), so
+> > I guess you could say that page_table_free_rcu() cannot guarantee what
+> > tlb_remove_table() cannot guarantee.
+> > 
+> > Maybe change to "which page_table_free_rcu() does not actually guarantee,
+> > by calling tlb_remove_table()", to make it clear that this is not a problem
+> > of page_table_free_rcu() itself.  
 > 
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+> Okay - I'll rephrase slightly to avoid being sued by s390's lawyers :-)
+> 
+> >   
+> > > in mm/mmu_gather.c: if its __get_free_page(GFP_NOWAIT) fails, it cannot
+> > > batch the tables for freeing by RCU, and resorts instead to an immediate 
+> > > TLB flush (I think: that again involves chasing definitions) followed by
+> > > tlb_remove_table_sync_one() - which just delivers an interrupt to each CPU,
+> > > and is commented: 
+> > > /*
+> > >  * This isn't an RCU grace period and hence the page-tables cannot be
+> > >  * assumed to be actually RCU-freed.
+> > >  *
+> > >  * It is however sufficient for software page-table walkers that rely on
+> > >  * IRQ disabling.
+> > >  */
+> > > 
+> > > Whether that's good for your PP pages or not, I've given no thought:
+> > > I've just taken it on trust that what s390 has working today is good.  
+> > 
+> > Yes, we should be fine with that, current code can be trusted :-)  
+> 
+> Glad to hear it :-)  Yes, I think it's not actually relying on the "rcu"
+> implied by the function name.
+
+Ah ok, now I get it. Never noticed that naming it "free_rcu" could be
+misleading. It is only ever called from pte_free_tlb(), so always in that
+"semi-RCU" context. If you just look at the name, you could expect this
+to always free pagetables by RCU, which would be exactly what you need
+for pte_free_defer(), and which of course cannot be guaranteed by our
+page_table_free_rcu().
+
+IOW, exactly what your comment says, and now I think it is actually fine
+as it is :-)
+
+I guess I am a bit lamebrained this week, due to early shift and not
+enough sleep...
+
+> 
+> >   
+> > > 
+> > > If that __get_free_page(GFP_NOWAIT) fallback instead used call_rcu(),
+> > > then I would not have written "(which page_table_free_rcu() does not
+> > > actually guarantee)".  But it cannot use call_rcu() because it does
+> > > not have an rcu_head to work with - it's in some generic code, and
+> > > there is no MMU_GATHER_CAN_USE_PAGE_RCU_HEAD for architectures to set.
+> > > 
+> > > And Jason would have much preferred us to address the issue from that
+> > > angle; but not only would doing so destroy my sanity, I'd also destroy
+> > > 20 architectures TLB-flushing, unbuilt and untested, in the attempt.  
+> > 
+> > Oh yes, if your changes would have allowed to get rid of that "semi RCU"
+> > logic, that would really be a major boost in popularity, I guess. But
+> > it probably is as it is, because it is not so easily fixed...  
+> 
+> I'm hoping that this series might help stir someone else to get into that.
+> 
+> >   
+> > > 
+> > > ...  
+> > > > > @@ -325,10 +346,17 @@ void page_table_free(struct mm_struct *mm, unsigned long *table)
+> > > > >  		 */
+> > > > >  		mask = atomic_xor_bits(&page->_refcount, 0x11U << (bit + 24));
+> > > > >  		mask >>= 24;
+> > > > > -		if (mask & 0x03U)
+> > > > > +		if ((mask & 0x03U) && !PageActive(page)) {
+> > > > > +			/*
+> > > > > +			 * Other half is allocated, and neither half has had
+> > > > > +			 * its free deferred: add page to head of list, to make
+> > > > > +			 * this freed half available for immediate reuse.
+> > > > > +			 */
+> > > > >  			list_add(&page->lru, &mm->context.pgtable_list);
+> > > > > -		else
+> > > > > -			list_del(&page->lru);
+> > > > > +		} else {
+> > > > > +			/* If page is on list, now remove it. */
+> > > > > +			list_del_init(&page->lru);
+> > > > > +		}    
+> > > > 
+> > > > Ok, we might end up with some unnecessary list_del_init() here, e.g. if
+> > > > other half is still allocated, when called from pte_free_defer() on a
+> > > > fully allocated page, which was not on the list (and with PageActive, and
+> > > > (mask & 0x03U) true).
+> > > > Not sure if adding an additional mask check to the else path would be
+> > > > needed, but it seems that list_del_init() should also be able to handle
+> > > > this.    
+> > > 
+> > > list_del_init() is very cheap in the unnecessary case: the cachelines
+> > > required are already there.  You don't want a flag to say whether to
+> > > call it or not, it is already the efficient approach.  
+> > 
+> > Yes, I also see no functional issue here. Just thought that the extra
+> > write could be avoided, e.g. by checking for list_empty() or mask first.
+> > But I guess that is simply the benefit of list_del_init(), that you
+> > don't have to check, at least if it is guaranteed that rcu_head is
+> > never in use here.
+> > 
+> > Then maybe adjust the comment, because now it makes you wonder, when
+> > you read (and understand) the code, you see that this list_del_init()
+> > might also be called for pages not on the list.  
+> 
+> Sorry, I don't understand what clarification you're asking for there.
+> I thought
+> 			/* If page is on list, now remove it. */
+> 			list_del_init(&page->lru);
+> was good enough comment.
+> 
+> (I certainly don't want to enumerate the cases when it is or is not
+> already on the list there, that would be misery; but I don't think
+> that's the adjustment you were asking for either.)
+
+I was mislead by the comment saying "If page is on the list", in an
+else path where we also end up for pages not on the list any more.
+I guess I would have added something like "it is also ok to do
+list_del_init() here for pages not on the list". But thinking again,
+that would probably just be a reminder of how list_del_init() works, 
+which should be obvious anyway, at least for people with enough sleep.
+
+> 
+> >   
+> > > 
+> > > (But you were right not to use it in your pt_frag_refcount version,
+> > > because there we were still trying to do the call_rcu() per fragment
+> > > rather than per page, so page->lru could have been on the RCU queue.)  
+> > 
+> > That is actually the one thing I still try to figure out, by drawing
+> > pictures, i.e. if we really really never end up here on list_del_init(),
+> > while using rcu_head, e.g. by racing PageActive.  
+> 
+> There is no race with PageActive being seen when the table page is
+> finally to be freed (by RCU or not).  But there is definitely a harmless
+> race with pte_free_defer()er of other half setting PageActive an instant
+> after page_table_free() checked PageActive here.  So maybe this
+> page_table_free() does a list_add(), which the racer then list_del_init()s
+> when it gets the mm->context.lock; or maybe they both list_del_init().
+
+Agree.
+
+Since none of my remarks on the comments seem valid or strictly necessary
+any more, and I also could not find functional issues, I think you can add
+this patch as new version for 07/12. And I can now give you this:
+
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
