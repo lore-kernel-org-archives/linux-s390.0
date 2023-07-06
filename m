@@ -2,172 +2,142 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7CA1EB64D9
-	for <linux-s390@archiver.kernel.org>; Thu,  6 Jul 2023 12:01:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C5DAEB64DC
+	for <linux-s390@archiver.kernel.org>; Thu,  6 Jul 2023 12:06:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232680AbjGFMBI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 6 Jul 2023 08:01:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53896 "EHLO
+        id S232482AbjGFMGc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 6 Jul 2023 08:06:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232469AbjGFMBH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Jul 2023 08:01:07 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 128381BC9;
-        Thu,  6 Jul 2023 05:01:03 -0700 (PDT)
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 366Bkvwv025204;
-        Thu, 6 Jul 2023 12:01:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=MgFgLExdzOXDVINyezCyX4yUENhWZqwwJnX9EcPhS+k=;
- b=d3CSNkTMZVngjGCaLvJJPXSAen9vba8RcNfFRRVUAD/pT7TV5QKQ4dVSy6QmtbvEsiqo
- D3F1WdlkIcMI2eeKX7Ql78v5rCvyQFW2hcmj2vi9B7oliTUscB31+d4wGTQz+49hE4mI
- Cec+KlyjO/7iPFh++dBdygNMX1DLG2Dslkn9M0vBiTUTsw7cATLgFpLFP3AH8yPeG+Q4
- HdD/svUhr3V1nKW6KTykfH3UkOwZ0lJ0QIcAGYc4WNFAcHHFYSyTpAmmmKIFqLtlUbjG
- vTdUefIDHQkRdNjCB6Q5ZKi7QbnRa0lfs6hDnK1wBS2LuryQnmKqszhZynICJ3P39jQN 2Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rnw1uga63-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 06 Jul 2023 12:01:01 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 366BrYrf013547;
-        Thu, 6 Jul 2023 12:01:00 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rnw1uga1y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 06 Jul 2023 12:00:58 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3660IFFs012401;
-        Thu, 6 Jul 2023 12:00:55 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma04ams.nl.ibm.com (PPS) with ESMTPS id 3rjbs4ua9p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 06 Jul 2023 12:00:55 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 366C0qA860686700
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 6 Jul 2023 12:00:52 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3089D20043;
-        Thu,  6 Jul 2023 12:00:52 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 60A1A2004D;
-        Thu,  6 Jul 2023 12:00:51 +0000 (GMT)
-Received: from [9.171.3.14] (unknown [9.171.3.14])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu,  6 Jul 2023 12:00:51 +0000 (GMT)
-Message-ID: <bf41a4c062f2b7f7fb63bdee2c4ef1333c624393.camel@linux.ibm.com>
-Subject: Re: [PATCH net] s390/ism: Fix locking for forwarding of IRQs and
- events to clients
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Paolo Abeni <pabeni@redhat.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        Stefan Raspl <raspl@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Cc:     Julian Ruess <julianr@linux.ibm.com>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Date:   Thu, 06 Jul 2023 14:00:51 +0200
-In-Reply-To: <c6835aae95dd18da35795d2231e9326e0d21b60b.camel@redhat.com>
-References: <20230705121722.2700998-1-schnelle@linux.ibm.com>
-         <c6835aae95dd18da35795d2231e9326e0d21b60b.camel@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+        with ESMTP id S232344AbjGFMGb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Jul 2023 08:06:31 -0400
+Received: from mail-vk1-xa33.google.com (mail-vk1-xa33.google.com [IPv6:2607:f8b0:4864:20::a33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBA651726
+        for <linux-s390@vger.kernel.org>; Thu,  6 Jul 2023 05:06:29 -0700 (PDT)
+Received: by mail-vk1-xa33.google.com with SMTP id 71dfb90a1353d-471b3ad20e1so162140e0c.1
+        for <linux-s390@vger.kernel.org>; Thu, 06 Jul 2023 05:06:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1688645188; x=1691237188;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=+en178Cl6iQ5BRYxnHo5Dcr68jDKvEi3JCQZvb0sU/k=;
+        b=ZuLvHFBG8JzTYHBEjdR6N8DQDxp63For0i8HE5cbrkX6TWJ6pNKXdID4DM8LbcCjU8
+         k00BmpssqYrUgUcg5cbWq3js84amDzeVZ6mCkmIN+UOPmQPY8h8clGKQ6HXp7gScdKoJ
+         Y0YBp8FhRMFkI/j2tSjF2Zwhvc9/1r3VGHea6D/J8qH2IedmfXJ4ejuh3ljEC3qahvnt
+         9CUGGtfgs30+dJ1qy/p9cq3+D5OptrO2uAg6D613HFug1OGuRRNK2uwEAfSpOYfWcIW1
+         unWvPPGR8Jdf6thB7lg3IvtWLDrwSpyC0jNcGTu87CouUsW2miLMyDVCrHI8lTixC72s
+         mIxQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1688645188; x=1691237188;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=+en178Cl6iQ5BRYxnHo5Dcr68jDKvEi3JCQZvb0sU/k=;
+        b=HwaesqAPaAJUc9F6o7Ihb67KL2f1wOVbGcSc9js+oBuaXm/G/KMTEJoBFzyyp9ewNO
+         +id1/84U8lONjY4jxLVX441JiA1qFeMlpWHVAFHfGSc8q6m2pWqHgGircWp3owgGVT9z
+         S8flrOE+z9zG6ijl1nl4teri6D/ySGzucdnJSkL7YbIMgCB0RkitZLUHOltO9vO7UmIT
+         bSxpcbTZZgYawMpMWVKBIU5MZNJUu53eTHLhhNwPbT89Ejf3hf0604P9eaFQOEiunyod
+         Bub/+d9EqmuDY0R1ibNGFB5mjBUL0ZDYDf7qRbjcar+4MpF+h7nC+sV2bmnKGE0hmg5a
+         hS/Q==
+X-Gm-Message-State: ABy/qLbDBpUx+b6WRn9Tz0/Yc1e3TlJmFUjiPqZIazBxDqbGxJZyfRr5
+        6r3qiAm8+InyHHRys7lq1BLy6DXut8JnEQgzo7wkk/tfHaV6qBjCPAo=
+X-Google-Smtp-Source: APBJJlEr+S/SxlC8on+YPoPgJVDUU6m84TPNtgPAoK/XkqVyGLTlYrf57fAHuu62UGciScrsqJMlt3NeMdEwc8xWYag=
+X-Received: by 2002:a1f:6244:0:b0:471:4ceb:675f with SMTP id
+ w65-20020a1f6244000000b004714ceb675fmr596732vkb.9.1688645188433; Thu, 06 Jul
+ 2023 05:06:28 -0700 (PDT)
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: tWzEmQdFitVBYpCA-AFhCw9nIldilkBJ
-X-Proofpoint-ORIG-GUID: s_wrybLu8I4tGK9XkCtwr6o9M0-244VQ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-06_07,2023-07-06_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 malwarescore=0 lowpriorityscore=0 suspectscore=0
- bulkscore=0 phishscore=0 mlxlogscore=575 clxscore=1015 adultscore=0
- impostorscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2307060103
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 6 Jul 2023 17:36:17 +0530
+Message-ID: <CA+G9fYvHxcU-gdgFY6r6UrYpzA8bh262ChABZREkBQrmA-L91A@mail.gmail.com>
+Subject: next: s390: arch/s390/kernel/machine_kexec.c:192:18: error: invalid
+ use of undefined type 'struct kimage'
+To:     linux-s390@vger.kernel.org,
+        open list <linux-kernel@vger.kernel.org>,
+        Linux-Next Mailing List <linux-next@vger.kernel.org>,
+        lkft-triage@lists.linaro.org
+Cc:     Thomas Richter <tmricht@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 2023-07-06 at 12:47 +0200, Paolo Abeni wrote:
-> On Wed, 2023-07-05 at 14:17 +0200, Niklas Schnelle wrote:
-> > The clients array references all registered clients and is protected by
-> > the clients_lock. Besides its use as general list of clients the client=
-s
-> > array is accessed in ism_handle_irq() to forward IRQs and events to
-> > clients. This use in an interrupt handler thus requires all code that
-> > takes the clients_lock to be IRQ save.
-> >=20
-> > This is problematic since the add() and remove() callbacks which are
-> > called for all clients when an ISM device is added or removed cannot be
-> > called directly while iterating over the clients array and holding the
-> > clients_lock since clients need to allocate and/or take mutexes in thes=
-e
-> > callbacks. To deal with this the calls get pushed to workqueues with
-> > additional housekeeping to be able to wait for the completion outside
-> > the clients_lock.
-> >=20
-> > Moreover while the clients_lock is taken in the IRQ handler when callin=
-g
-> > handle_event() it is incorrectly not held during the
-> > client->handle_irq() call and for the preceding clients[] access. This
-> > leaves the clients array unprotected. Similarly the accesses to
-> > ism->sba_client_arr[] in ism_register_dmb() and ism_unregister_dmb() ar=
-e
-> > also not protected by any lock. This is especially problematic as the
-> > the client ID from the ism->sba_client_arr[] is not checked against
-> > NO_CLIENT.
-> >=20
-> > Instead of expanding the use of the clients_lock further add a separate
-> > array in struct ism_dev which references clients subscribed to the
-> > device's events and IRQs. This array is protected by ism->lock which is
-> > already taken in ism_handle_irq() and can be taken outside the IRQ
-> > handler when adding/removing subscribers or the accessing
-> > ism->sba_client_arr[].
-> >=20
-> > With the clients_lock no longer accessed from IRQ context it is turned
-> > into a mutex and the add and remove workqueues plus their housekeeping
-> > can be removed in favor of simple direct calls.
-> >=20
-> > Fixes: 89e7d2ba61b7 ("net/ism: Add new API for client registration")
-> > Tested-by: Julian Ruess <julianr@linux.ibm.com>
-> > Reviewed-by: Julian Ruess <julianr@linux.ibm.com>
-> > Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-> > Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> > ---
-> > Note: I realize this is a rather large patch. So I'd understand if it's=
- not
-> > acceptable as is and needs to be broken up. That said it removes more l=
-ines
-> > than it adds and the complexity of the resulting code is in my opinion =
-reduced.
->=20
-> This is indeed unusually large for a -net patch. IMHO it would be
-> better split it in 2 separated patches: 1 introducing the ism->lock and
-> one turning the clients_lock in a mutex. The series should still target
-> -net, but should be more easily reviewable.
->=20
-> Thanks,
->=20
-> Paolo
->=20
+Following build regressions found on Linux next-20230706.
 
-Sounds reasonable. Patch 1 would introduce and use the ism->subs[]
-array under the ism->lock and also protect the ism->sba_client_arr[]
-under that lock. Patch 2 would then turn clients_lock into a mutex and
-remove the workqueues. I think strictly speaking the second one then
-isn't a fix but let's see. @Alexandra, Wenjia, Julian I'll drop your R-
-bs as its a larger rework but I hope to end up at the same code after
-both patches so should be easy to re-revievie for you.
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Thanks,
-Niklas
+Regressions found on s390:
+
+ - build/gcc-8-tinyconfig
+ - build/clang-nightly-allnoconfig
+ - build/gcc-12-allnoconfig
+ - build/gcc-12-tinyconfig
+ - build/clang-nightly-tinyconfig
+ - build/clang-16-allnoconfig
+ - build/clang-16-tinyconfig
+ - build/gcc-8-allnoconfig
+
+Build error:
+====
+arch/s390/kernel/machine_kexec.c:120:37: warning: 'struct kimage'
+declared inside parameter list will not be visible outside of this
+definition or declaration
+  120 | static bool kdump_csum_valid(struct kimage *image)
+      |                                     ^~~~~~
+arch/s390/kernel/machine_kexec.c:188:34: warning: 'struct kimage'
+declared inside parameter list will not be visible outside of this
+definition or declaration
+  188 | int machine_kexec_prepare(struct kimage *image)
+      |                                  ^~~~~~
+arch/s390/kernel/machine_kexec.c: In function 'machine_kexec_prepare':
+arch/s390/kernel/machine_kexec.c:192:18: error: invalid use of
+undefined type 'struct kimage'
+  192 |         if (image->type == KEXEC_TYPE_CRASH)
+      |                  ^~
+arch/s390/kernel/machine_kexec.c:192:28: error: 'KEXEC_TYPE_CRASH'
+undeclared (first use in this function); did you mean
+'KEXEC_ON_CRASH'?
+  192 |         if (image->type == KEXEC_TYPE_CRASH)
+      |                            ^~~~~~~~~~~~~~~~
+      |                            KEXEC_ON_CRASH
+arch/s390/kernel/machine_kexec.c:192:28: note: each undeclared
+identifier is reported only once for each function it appears in
+arch/s390/kernel/machine_kexec.c:196:18: error: invalid use of
+undefined type 'struct kimage'
+  196 |         if (image->type != KEXEC_TYPE_DEFAULT)
+      |                  ^~
+arch/s390/kernel/machine_kexec.c:196:28: error: 'KEXEC_TYPE_DEFAULT'
+undeclared (first use in this function); did you mean
+'KEXEC_ARCH_DEFAULT'?
+  196 |         if (image->type != KEXEC_TYPE_DEFAULT)
+      |                            ^~~~~~~~~~~~~~~~~~
+      |                            KEXEC_ARCH_DEFAULT
+In file included from arch/s390/include/asm/thread_info.h:31,
+                 from include/linux/thread_info.h:60,
+                 from arch/s390/include/asm/preempt.h:6,
+                 from include/linux/preempt.h:79,
+                 from arch/s390/include/asm/percpu.h:5,
+                 from include/linux/irqflags.h:18,
+                 from include/linux/rcupdate.h:26,
+                 from include/linux/rculist.h:11,
+                 from include/linux/pid.h:5,
+                 from include/linux/sched.h:14,
+                 from include/linux/ratelimit.h:6,
+                 from include/linux/dev_printk.h:16,
+                 from include/linux/device.h:15,
+                 from arch/s390/kernel/machine_kexec.c:9:
+arch/s390/kernel/machine_kexec.c:200:48: error: invalid use of
+undefined type 'struct kimage'
+  200 |         reboot_code_buffer = page_to_virt(image->control_code_page);
+      |                                                ^~
+
+
+Links:
+ - https://qa-reports.linaro.org/lkft/linux-next-master/build/next-20230706/testrun/18173978/suite/build/test/gcc-12-tinyconfig/log
+ - https://qa-reports.linaro.org/lkft/linux-next-master/build/next-20230706/testrun/18173978/suite/build/test/gcc-12-tinyconfig/history/
+ - https://storage.tuxsuite.com/public/linaro/lkft/builds/2SBB5EGvx1egXcvg0fwoJIyLbSK/
+
+
+--
+Linaro LKFT
+https://lkft.linaro.org
