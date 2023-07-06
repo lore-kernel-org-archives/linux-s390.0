@@ -2,126 +2,96 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A57B6EB64DC
-	for <linux-s390@archiver.kernel.org>; Thu,  6 Jul 2023 14:54:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62C61C00528
+	for <linux-s390@archiver.kernel.org>; Thu,  6 Jul 2023 14:55:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233594AbjGFOy6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 6 Jul 2023 10:54:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43848 "EHLO
+        id S233646AbjGFOzS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 6 Jul 2023 10:55:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233584AbjGFOy4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Jul 2023 10:54:56 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB3331730;
-        Thu,  6 Jul 2023 07:54:29 -0700 (PDT)
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 366ElTTe016755;
-        Thu, 6 Jul 2023 14:54:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=G9WTq9pgi478SHWTcbW7p9G+EaQLNwDgdLwUsfwFH80=;
- b=a52Kumxvk0Qp/MHulkgPcXdIUSCpxvaE0JxOuHi5wtSuhRjACammiMDHXkwnxhH/Fslf
- YIrGqI9gqEOT5Xa6rrZqg2nmwqJwmiNRNJGLt10tEd2l4Pv+EJiIXBuk7cH2UafTShT3
- vD3NK6kEQBPYPOeIfn2/SsFcxVQcijak5a8m9x+giGb/cpl4OWqcsebOh3jipH8A2xjR
- e88NmrN/iG/4GEyxYQSnHbquYb+g8yIaEZxnB9pgK9SVTjODWiKDbOpPr8NH6ap5IuzI
- XVK75K6S3OC0FVqhhxGFVSfRDRymde1pYqu4makPKcgkiz8bTikV9HXugp1L5Co37H83 1w== 
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rnypfg4uq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 06 Jul 2023 14:54:14 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 366APqIF031685;
-        Thu, 6 Jul 2023 14:54:12 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma01fra.de.ibm.com (PPS) with ESMTPS id 3rjbs4tg9v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 06 Jul 2023 14:54:12 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 366Es7BT57803030
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 6 Jul 2023 14:54:07 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8AA4620043;
-        Thu,  6 Jul 2023 14:54:07 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 548AB20040;
-        Thu,  6 Jul 2023 14:54:07 +0000 (GMT)
-Received: from a46lp67.. (unknown [9.152.108.100])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu,  6 Jul 2023 14:54:07 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        borntraeger@linux.ibm.com
-Subject: [PATCH] KVM: s390: Don't WARN on PV validities
-Date:   Thu,  6 Jul 2023 14:53:35 +0000
-Message-Id: <20230706145335.136910-1-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S233622AbjGFOzO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Jul 2023 10:55:14 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88DBCB9;
+        Thu,  6 Jul 2023 07:54:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=fhykVYOZkzlXT4yh75rGeCVJ3cPkDr5sjhaxZXHjD+c=; b=zbagyQChudyQPE2bMPZfTnWPir
+        xEx+mIn+jmhXiSkClrK6vyYVxVucLdM5bush+XAhi1L8+RYYMWbrfI/PXNLKjNrWkvX1JuFMBGnvz
+        hobfOtgzfc30tNgXDTW5f735BiGierSS2sw4A5BsLsjO+NIDmCJaoqnJvjB6GpO63lTBhPw1Ktdzv
+        09/JTSE1nHQ4VXLt2IEwE6yDDWWPLCfOggEtJrOTiDfYzQXVq9m9NhYrAKw8aQvc7GPBw2+8hQS8A
+        80c0RawRFeosEEQrvmZs9gRIzWZlEHNQkGLdtR04aftBqsNeChaMLjpw0CwixmzDs5mdRTNLsZohR
+        2STEGtcw==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
+        id 1qHQNf-001vuf-2T;
+        Thu, 06 Jul 2023 14:54:51 +0000
+Date:   Thu, 6 Jul 2023 07:54:51 -0700
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Jan Kara <jack@suse.cz>
+Cc:     linux-block@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Jens Axboe <axboe@kernel.dk>,
+        Christoph Hellwig <hch@infradead.org>,
+        Alasdair Kergon <agk@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anna Schumaker <anna@kernel.org>, Chao Yu <chao@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Dave Kleikamp <shaggy@kernel.org>,
+        David Sterba <dsterba@suse.com>, dm-devel@redhat.com,
+        drbd-dev@lists.linbit.com, Gao Xiang <xiang@kernel.org>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        jfs-discussion@lists.sourceforge.net,
+        Joern Engel <joern@lazybastard.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        linux-bcache@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, linux-mm@kvack.org,
+        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
+        linux-nilfs@vger.kernel.org, linux-nvme@lists.infradead.org,
+        linux-pm@vger.kernel.org, linux-raid@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-xfs@vger.kernel.org,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com,
+        reiserfs-devel@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Song Liu <song@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        target-devel@vger.kernel.org, Ted Tso <tytso@mit.edu>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        xen-devel@lists.xenproject.org
+Subject: Re: [PATCH RFC 0/32] block: Make blkdev_get_by_*() return handle
+Message-ID: <ZKbVuyn0jELh8UDM@infradead.org>
+References: <20230629165206.383-1-jack@suse.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: QA0HXiJslPzt7_CRZpmbmsVwR1Meo0id
-X-Proofpoint-GUID: QA0HXiJslPzt7_CRZpmbmsVwR1Meo0id
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-06_11,2023-07-06_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- lowpriorityscore=0 malwarescore=0 suspectscore=0 bulkscore=0 adultscore=0
- phishscore=0 spamscore=0 impostorscore=0 priorityscore=1501 mlxscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2307060130
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230629165206.383-1-jack@suse.cz>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Validities usually indicate KVM errors and as such we want to print a
-message with a high priority to alert users that a validity
-occurred. With the introduction of Protected VMs it's become very easy
-to trigger validities via IOCTLs if the VM is in PV mode.
+On Tue, Jul 04, 2023 at 02:21:27PM +0200, Jan Kara wrote:
+> Hello,
+> 
+> this patch series implements the idea of blkdev_get_by_*() calls returning
+> bdev_handle which is then passed to blkdev_put() [1]. This makes the get
+> and put calls for bdevs more obviously matching and allows us to propagate
+> context from get to put without having to modify all the users (again!).
+> In particular I need to propagate used open flags to blkdev_put() to be able
+> count writeable opens and add support for blocking writes to mounted block
+> devices. I'll send that series separately.
+> 
+> The series is based on Linus' tree as of yesterday + two bcache fixes which are
+> in the block tree. Patches have passed some basic testing, I plan to test more
+> users once we agree this is the right way to go.
 
-An optimal solution would be to return EINVALs to all IOCTLs that
-could result in such a situation. Unfortunately there are quite a lot
-of ways to trigger PV validities since the number of allowed SCB data
-combinations are very limited by FW in order to provide the guest's
-security.
-
-Let's only log those validities to the KVM sysfs log and skip the
-WARN_ONCE(). This way we get a longish lasting log entry.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
-
-int -> ext:
- * Fixed range
- * Extended commit message 
-
----
- arch/s390/kvm/intercept.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
-
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index 954d39adf85c..f3c1220fd1e2 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -97,9 +97,15 @@ static int handle_validity(struct kvm_vcpu *vcpu)
- 	KVM_EVENT(3, "validity intercept 0x%x for pid %u (kvm 0x%pK)", viwhy,
- 		  current->pid, vcpu->kvm);
- 
--	/* do not warn on invalid runtime instrumentation mode */
--	WARN_ONCE(viwhy != 0x44, "kvm: unhandled validity intercept 0x%x\n",
--		  viwhy);
-+	/*
-+	 * Do not warn on:
-+	 *  - invalid runtime instrumentation mode
-+	 *  - PV related validities since they can be triggered by userspace
-+	 *    PV validities are in the 0x2XXX range
-+	 */
-+	WARN_ONCE(viwhy != 0x44 &&
-+		  ((viwhy < 0x2000) || (viwhy >= 0x3000)),
-+		  "kvm: unhandled validity intercept 0x%x\n", viwhy);
- 	return -EINVAL;
- }
- 
--- 
-2.34.1
-
+Can you post a link to a git branch for this and the follow up series?
+Especially with a fairly unstable base it's kinda hard to look at the
+result otherwise.
