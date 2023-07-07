@@ -2,328 +2,284 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AF3CC0015E
-	for <linux-s390@archiver.kernel.org>; Fri,  7 Jul 2023 10:44:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0109EEB64D9
+	for <linux-s390@archiver.kernel.org>; Fri,  7 Jul 2023 10:51:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232730AbjGGKoR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 7 Jul 2023 06:44:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48784 "EHLO
+        id S232319AbjGGKvH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 7 Jul 2023 06:51:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232707AbjGGKoQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Jul 2023 06:44:16 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBB4010E2;
-        Fri,  7 Jul 2023 03:44:14 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 367Adhqi000645;
-        Fri, 7 Jul 2023 10:44:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=3kmISSrzganXOnjVP+9ZKmumyMf+Nbe/QCVQo+hbBhw=;
- b=VHrIfABnrtsYQ0CiZj0foiqLPyv5ei7h0JQKH1SzlHSTwCFRBK1W8XnsjVdqP0zalalL
- mSKA7xyi26h2jeOSnEDhTgw8A6QOpddoXS3gfwJQMSNwE52khep1kbI9Qbo0wEZTfLMg
- O3J9O/d70w4IN63ts9PGPstaDZPofC4aKZV2hvecA+dZGzKAobk0Fozisqmk1w5VIDsl
- y7GBzBAg8N43FCMlwsTSGAg4J0UZzbeZjX7ZRwRJ5e7GNMr0ocjQivkwlKFOIZ1cXRYu
- A9F5AdC9mHUpEcUHG01266fU3shUFKbUVQEWqNsPpcPHhNaD92gi4DSR9dDr6LhAFvaZ Sg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rpgw50apg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 07 Jul 2023 10:44:12 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 367AhE86012287;
-        Fri, 7 Jul 2023 10:44:12 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rpgw50ant-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 07 Jul 2023 10:44:12 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3676w1qk014731;
-        Fri, 7 Jul 2023 10:44:10 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3rjbde3xqu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 07 Jul 2023 10:44:10 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 367Ai2jH19726954
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 7 Jul 2023 10:44:02 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E82BB20063;
-        Fri,  7 Jul 2023 10:44:01 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6375420040;
-        Fri,  7 Jul 2023 10:44:01 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri,  7 Jul 2023 10:44:01 +0000 (GMT)
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Paolo Abeni <pabeni@redhat.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        Stefan Raspl <raspl@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH net v2 2/3] s390/ism: Fix and simplify add()/remove() callback handling
-Date:   Fri,  7 Jul 2023 12:43:58 +0200
-Message-Id: <20230707104359.3324039-3-schnelle@linux.ibm.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230707104359.3324039-1-schnelle@linux.ibm.com>
-References: <20230707104359.3324039-1-schnelle@linux.ibm.com>
+        with ESMTP id S229775AbjGGKvC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Jul 2023 06:51:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F221172B;
+        Fri,  7 Jul 2023 03:51:01 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF33561728;
+        Fri,  7 Jul 2023 10:51:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1904CC433C7;
+        Fri,  7 Jul 2023 10:50:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1688727060;
+        bh=YY2+JZ9K159BEA5iSbeX62sRGYZcpbUaLjQvLugmLbE=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=jXdQbiZ5Du/aIdze7VeTdm89AeKeYW1m4/7P1K420P54fp2uTq7aOaGBMwqlLnw11
+         5T+jXE1w9xr2TFIydSymIs59E5/D60tiQwOrG5t4hwTmZ4+DNTLa0LgW/JlS7C6Rg0
+         Mzl7zZGaHcBNbE8fs+RYzBh/pLfQTiwpAzbqUwnaVBq4Wks4CGEmJGniuijWbkznN9
+         yKSAP4Wd0VGwzQyH6kGj1b/zaEVMosXLl47jzHBi50p2AWNvdkuhe4kCPVw/2GfwLp
+         PcUD4QVeNETkqKyUuCjgzrA8gjstIliNy9GhxSwhdsoWExJoMegiOtBnIsuS31XbZX
+         flM91ZzrsjFeA==
+Message-ID: <ff1f471a9d33ae01ad570644273e4e579204a3b6.camel@kernel.org>
+Subject: Re: [apparmor] [PATCH v2 08/92] fs: new helper:
+ simple_rename_timestamp
+From:   Jeff Layton <jlayton@kernel.org>
+To:     Seth Arnold <seth.arnold@canonical.com>
+Cc:     Damien Le Moal <dlemoal@kernel.org>, jk@ozlabs.org, arnd@arndb.de,
+        mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
+        maco@android.com, joel@joelfernandes.org, brauner@kernel.org,
+        cmllamas@google.com, surenb@google.com,
+        dennis.dalessandro@cornelisnetworks.com, jgg@ziepe.ca,
+        leon@kernel.org, bwarrum@linux.ibm.com, rituagar@linux.ibm.com,
+        ericvh@kernel.org, lucho@ionkov.net, asmadeus@codewreck.org,
+        linux_oss@crudebyte.com, dsterba@suse.com, dhowells@redhat.com,
+        marc.dionne@auristor.com, viro@zeniv.linux.org.uk,
+        raven@themaw.net, luisbg@kernel.org, salah.triki@gmail.com,
+        aivazian.tigran@gmail.com, ebiederm@xmission.com,
+        keescook@chromium.org, clm@fb.com, josef@toxicpanda.com,
+        xiubli@redhat.com, idryomov@gmail.com, jaharkes@cs.cmu.edu,
+        coda@cs.cmu.edu, jlbec@evilplan.org, hch@lst.de, nico@fluxnic.net,
+        rafael@kernel.org, code@tyhicks.com, ardb@kernel.org,
+        xiang@kernel.org, chao@kernel.org, huyue2@coolpad.com,
+        jefflexu@linux.alibaba.com, linkinjeon@kernel.org,
+        sj1557.seo@samsung.com, jack@suse.com, tytso@mit.edu,
+        adilger.kernel@dilger.ca, jaegeuk@kernel.org,
+        hirofumi@mail.parknet.co.jp, miklos@szeredi.hu,
+        rpeterso@redhat.com, agruenba@redhat.com, richard@nod.at,
+        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+        mikulas@artax.karlin.mff.cuni.cz, mike.kravetz@oracle.com,
+        muchun.song@linux.dev, dwmw2@infradead.org, shaggy@kernel.org,
+        tj@kernel.org, trond.myklebust@hammerspace.com, anna@kernel.org,
+        chuck.lever@oracle.com, neilb@suse.de, kolga@netapp.com,
+        Dai.Ngo@oracle.com, tom@talpey.com, konishi.ryusuke@gmail.com,
+        anton@tuxera.com, almaz.alexandrovich@paragon-software.com,
+        mark@fasheh.com, joseph.qi@linux.alibaba.com, me@bobcopeland.com,
+        hubcap@omnibond.com, martin@omnibond.com, amir73il@gmail.com,
+        mcgrof@kernel.org, yzaikin@google.com, tony.luck@intel.com,
+        gpiccoli@igalia.com, al@alarsen.net, sfrench@samba.org,
+        pc@manguebit.com, lsahlber@redhat.com, sprasad@microsoft.com,
+        senozhatsky@chromium.org, phillip@squashfs.org.uk,
+        rostedt@goodmis.org, mhiramat@kernel.org, dushistov@mail.ru,
+        hdegoede@redhat.com, djwong@kernel.org, naohiro.aota@wdc.com,
+        jth@kernel.org, ast@kernel.org, daniel@iogearbox.net,
+        andrii@kernel.org, martin.lau@linux.dev, song@kernel.org,
+        yhs@fb.com, john.fastabend@gmail.com, kpsingh@kernel.org,
+        sdf@google.com, haoluo@google.com, jolsa@kernel.org,
+        hughd@google.com, akpm@linux-foundation.org, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        john.johansen@canonical.com, paul@paul-moore.com,
+        jmorris@namei.org, serge@hallyn.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        jgross@suse.com, stern@rowland.harvard.edu, lrh2000@pku.edu.cn,
+        sebastian.reichel@collabora.com, wsa+renesas@sang-engineering.com,
+        quic_ugoswami@quicinc.com, quic_linyyuan@quicinc.com,
+        john@keeping.me.uk, error27@gmail.com, quic_uaggarwa@quicinc.com,
+        hayama@lineo.co.jp, jomajm@gmail.com, axboe@kernel.dk,
+        dhavale@google.com, dchinner@redhat.com, hannes@cmpxchg.org,
+        zhangpeng362@huawei.com, slava@dubeyko.com, gargaditya08@live.com,
+        penguin-kernel@I-love.SAKURA.ne.jp, yifeliu@cs.stonybrook.edu,
+        madkar@cs.stonybrook.edu, ezk@cs.stonybrook.edu,
+        yuzhe@nfschina.com, willy@infradead.org, okanatov@gmail.com,
+        jeffxu@chromium.org, linux@treblig.org, mirimmad17@gmail.com,
+        yijiangshan@kylinos.cn, yang.yang29@zte.com.cn,
+        xu.xin16@zte.com.cn, chengzhihao1@huawei.com, shr@devkernel.io,
+        Liam.Howlett@Oracle.com, adobriyan@gmail.com,
+        chi.minghao@zte.com.cn, roberto.sassu@huawei.com,
+        linuszeng@tencent.com, bvanassche@acm.org, zohar@linux.ibm.com,
+        yi.zhang@huawei.com, trix@redhat.com, fmdefrancesco@gmail.com,
+        ebiggers@google.com, princekumarmaurya06@gmail.com,
+        chenzhongjin@huawei.com, riel@surriel.com,
+        shaozhengchao@huawei.com, jingyuwang_vip@163.com,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-usb@vger.kernel.org, v9fs@lists.linux.dev,
+        linux-fsdevel@vger.kernel.org, linux-afs@lists.infradead.org,
+        autofs@vger.kernel.org, linux-mm@kvack.org,
+        linux-btrfs@vger.kernel.org, ceph-devel@vger.kernel.org,
+        codalist@coda.cs.cmu.edu, ecryptfs@vger.kernel.org,
+        linux-efi@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
+        cluster-devel@redhat.com, linux-um@lists.infradead.org,
+        linux-mtd@lists.infradead.org,
+        jfs-discussion@lists.sourceforge.net, linux-nfs@vger.kernel.org,
+        linux-nilfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
+        ntfs3@lists.linux.dev, ocfs2-devel@lists.linux.dev,
+        linux-karma-devel@lists.sourceforge.net, devel@lists.orangefs.org,
+        linux-unionfs@vger.kernel.org, linux-hardening@vger.kernel.org,
+        reiserfs-devel@vger.kernel.org, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org,
+        linux-trace-kernel@vger.kernel.org, linux-xfs@vger.kernel.org,
+        bpf@vger.kernel.org, netdev@vger.kernel.org,
+        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org
+Date:   Fri, 07 Jul 2023 06:50:40 -0400
+In-Reply-To: <20230706210236.GB3244704@millbarge>
+References: <20230705185812.579118-1-jlayton@kernel.org>
+         <20230705185812.579118-3-jlayton@kernel.org>
+         <3b403ef1-22e6-0220-6c9c-435e3444b4d3@kernel.org>
+         <7c783969641b67d6ffdfb10e509f382d083c5291.camel@kernel.org>
+         <20230706210236.GB3244704@millbarge>
+Content-Type: text/plain; charset="ISO-8859-15"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: wsfRGkosQvCZvc7aRIZ466DEzzNXLSvK
-X-Proofpoint-ORIG-GUID: EyByd6bf-1JMg4NDGqyQNEs39WFTH0cP
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-07_06,2023-07-06_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- priorityscore=1501 lowpriorityscore=0 suspectscore=0 mlxlogscore=999
- phishscore=0 malwarescore=0 mlxscore=0 spamscore=0 bulkscore=0
- impostorscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2305260000 definitions=main-2307070097
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Previously the clients_lock was protecting the clients array against
-concurrent addition/removal of clients but was also accessed from IRQ
-context. This meant that it had to be a spinlock and that the add() and
-remove() callbacks in which clients need to do allocation and take
-mutexes can't be called under the clients_lock. To work around this these
-callbacks were moved to workqueues. This not only introduced significant
-complexity but is also subtly broken in at least one way.
+On Thu, 2023-07-06 at 21:02 +0000, Seth Arnold wrote:
+> On Wed, Jul 05, 2023 at 08:04:41PM -0400, Jeff Layton wrote:
+> >=20
+> > I don't believe it's an issue. I've seen nothing in the POSIX spec that
+> > mandates that timestamp updates to different inodes involved in an
+> > operation be set to the _same_ value. It just says they must be updated=
+.
+> >=20
+> > It's also hard to believe that any software would depend on this either=
+,
+> > given that it's very inconsistent across filesystems today. AFAICT, thi=
+s
+> > was mostly done in the past just as a matter of convenience.
+>=20
+> I've seen this assumption in several programs:
+>=20
 
-In ism_dev_init() and ism_dev_exit() clients[i]->tgt_ism is used to
-communicate the added/removed ISM device to the work function. While
-write access to client[i]->tgt_ism is protected by the clients_lock and
-the code waits that there is no pending add/remove work before and after
-setting clients[i]->tgt_ism this is not enough. The problem is that the
-wait happens based on per ISM device counters. Thus a concurrent
-ism_dev_init()/ism_dev_exit() for a different ISM device may overwrite
-a clients[i]->tgt_ism between unlocking the clients_lock and the
-subsequent wait for the work to finnish.
+Thanks for looking into this!
 
-Thankfully with the clients_lock no longer held in IRQ context it can be
-turned into a mutex which can be held during the calls to add()/remove()
-completely removing the need for the workqueues and the associated
-broken housekeeping including the per ISM device counters and the
-clients[i]->tgt_ism.
+To be clear, POSIX doesn't require that _different_ inodes ever be set
+to the same timestamp value. IOW, it certainly doesn't require that the
+source and target directories on a rename() end up with the exact same
+timestamp value.
 
-Fixes: 89e7d2ba61b7 ("net/ism: Add new API for client registration")
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
- drivers/s390/net/ism_drv.c | 90 +++++++++++---------------------------
- include/linux/ism.h        |  6 ---
- 2 files changed, 26 insertions(+), 70 deletions(-)
+Granted, POSIX is rather vague on timestamps in general, but most of the
+examples below involve comparing different timestamps on the _same_
+inode.
 
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index b664e4a08645..54091b7aea16 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -36,7 +36,7 @@ static const struct smcd_ops ism_ops;
- static struct ism_client *clients[MAX_CLIENTS];	/* use an array rather than */
- 						/* a list for fast mapping  */
- static u8 max_client;
--static DEFINE_SPINLOCK(clients_lock);
-+static DEFINE_MUTEX(clients_lock);
- struct ism_dev_list {
- 	struct list_head list;
- 	struct mutex mutex; /* protects ism device list */
-@@ -59,11 +59,10 @@ static void ism_setup_forwarding(struct ism_client *client, struct ism_dev *ism)
- int ism_register_client(struct ism_client *client)
- {
- 	struct ism_dev *ism;
--	unsigned long flags;
- 	int i, rc = -ENOSPC;
- 
- 	mutex_lock(&ism_dev_list.mutex);
--	spin_lock_irqsave(&clients_lock, flags);
-+	mutex_lock(&clients_lock);
- 	for (i = 0; i < MAX_CLIENTS; ++i) {
- 		if (!clients[i]) {
- 			clients[i] = client;
-@@ -74,7 +73,8 @@ int ism_register_client(struct ism_client *client)
- 			break;
- 		}
- 	}
--	spin_unlock_irqrestore(&clients_lock, flags);
-+	mutex_unlock(&clients_lock);
-+
- 	if (i < MAX_CLIENTS) {
- 		/* initialize with all devices that we got so far */
- 		list_for_each_entry(ism, &ism_dev_list.list, list) {
-@@ -96,11 +96,11 @@ int ism_unregister_client(struct ism_client *client)
- 	int rc = 0;
- 
- 	mutex_lock(&ism_dev_list.mutex);
--	spin_lock_irqsave(&clients_lock, flags);
-+	mutex_lock(&clients_lock);
- 	clients[client->id] = NULL;
- 	if (client->id + 1 == max_client)
- 		max_client--;
--	spin_unlock_irqrestore(&clients_lock, flags);
-+	mutex_unlock(&clients_lock);
- 	list_for_each_entry(ism, &ism_dev_list.list, list) {
- 		spin_lock_irqsave(&ism->lock, flags);
- 		/* Stop forwarding IRQs and events */
-@@ -571,21 +571,9 @@ static u64 ism_get_local_gid(struct ism_dev *ism)
- 	return ism->local_gid;
- }
- 
--static void ism_dev_add_work_func(struct work_struct *work)
--{
--	struct ism_client *client = container_of(work, struct ism_client,
--						 add_work);
--
--	client->add(client->tgt_ism);
--	ism_setup_forwarding(client, client->tgt_ism);
--	atomic_dec(&client->tgt_ism->add_dev_cnt);
--	wake_up(&client->tgt_ism->waitq);
--}
--
- static int ism_dev_init(struct ism_dev *ism)
- {
- 	struct pci_dev *pdev = ism->pdev;
--	unsigned long flags;
- 	int i, ret;
- 
- 	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_MSI);
-@@ -618,25 +606,16 @@ static int ism_dev_init(struct ism_dev *ism)
- 		/* hardware is V2 capable */
- 		ism_create_system_eid();
- 
--	init_waitqueue_head(&ism->waitq);
--	atomic_set(&ism->free_clients_cnt, 0);
--	atomic_set(&ism->add_dev_cnt, 0);
--
--	wait_event(ism->waitq, !atomic_read(&ism->add_dev_cnt));
--	spin_lock_irqsave(&clients_lock, flags);
--	for (i = 0; i < max_client; ++i)
--		if (clients[i]) {
--			INIT_WORK(&clients[i]->add_work,
--				  ism_dev_add_work_func);
--			clients[i]->tgt_ism = ism;
--			atomic_inc(&ism->add_dev_cnt);
--			schedule_work(&clients[i]->add_work);
--		}
--	spin_unlock_irqrestore(&clients_lock, flags);
--
--	wait_event(ism->waitq, !atomic_read(&ism->add_dev_cnt));
--
- 	mutex_lock(&ism_dev_list.mutex);
-+	mutex_lock(&clients_lock);
-+	for (i = 0; i < max_client; ++i) {
-+		if (clients[i]) {
-+			clients[i]->add(ism);
-+			ism_setup_forwarding(clients[i], ism);
-+		}
-+	}
-+	mutex_unlock(&clients_lock);
-+
- 	list_add(&ism->list, &ism_dev_list.list);
- 	mutex_unlock(&ism_dev_list.mutex);
- 
-@@ -711,40 +690,24 @@ static int ism_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	return ret;
- }
- 
--static void ism_dev_remove_work_func(struct work_struct *work)
--{
--	struct ism_client *client = container_of(work, struct ism_client,
--						 remove_work);
--	unsigned long flags;
--
--	spin_lock_irqsave(&client->tgt_ism->lock, flags);
--	client->tgt_ism->subs[client->id] = NULL;
--	spin_unlock_irqrestore(&client->tgt_ism->lock, flags);
--	client->remove(client->tgt_ism);
--	atomic_dec(&client->tgt_ism->free_clients_cnt);
--	wake_up(&client->tgt_ism->waitq);
--}
--
--/* Callers must hold ism_dev_list.mutex */
- static void ism_dev_exit(struct ism_dev *ism)
- {
- 	struct pci_dev *pdev = ism->pdev;
- 	unsigned long flags;
- 	int i;
- 
--	wait_event(ism->waitq, !atomic_read(&ism->free_clients_cnt));
--	spin_lock_irqsave(&clients_lock, flags);
-+	spin_lock_irqsave(&ism->lock, flags);
- 	for (i = 0; i < max_client; ++i)
--		if (clients[i]) {
--			INIT_WORK(&clients[i]->remove_work,
--				  ism_dev_remove_work_func);
--			clients[i]->tgt_ism = ism;
--			atomic_inc(&ism->free_clients_cnt);
--			schedule_work(&clients[i]->remove_work);
--		}
--	spin_unlock_irqrestore(&clients_lock, flags);
-+		ism->subs[i] = NULL;
-+	spin_unlock_irqrestore(&ism->lock, flags);
- 
--	wait_event(ism->waitq, !atomic_read(&ism->free_clients_cnt));
-+	mutex_lock(&ism_dev_list.mutex);
-+	mutex_lock(&clients_lock);
-+	for (i = 0; i < max_client; ++i) {
-+		if (clients[i])
-+			clients[i]->remove(ism);
-+	}
-+	mutex_unlock(&clients_lock);
- 
- 	if (SYSTEM_EID.serial_number[0] != '0' ||
- 	    SYSTEM_EID.type[0] != '0')
-@@ -755,15 +718,14 @@ static void ism_dev_exit(struct ism_dev *ism)
- 	kfree(ism->sba_client_arr);
- 	pci_free_irq_vectors(pdev);
- 	list_del_init(&ism->list);
-+	mutex_unlock(&ism_dev_list.mutex);
- }
- 
- static void ism_remove(struct pci_dev *pdev)
- {
- 	struct ism_dev *ism = dev_get_drvdata(&pdev->dev);
- 
--	mutex_lock(&ism_dev_list.mutex);
- 	ism_dev_exit(ism);
--	mutex_unlock(&ism_dev_list.mutex);
- 
- 	pci_release_mem_regions(pdev);
- 	pci_disable_device(pdev);
-diff --git a/include/linux/ism.h b/include/linux/ism.h
-index 5160d47e5ea9..9a4c204df3da 100644
---- a/include/linux/ism.h
-+++ b/include/linux/ism.h
-@@ -45,9 +45,6 @@ struct ism_dev {
- 	int ieq_idx;
- 
- 	struct ism_client *subs[MAX_CLIENTS];
--	atomic_t free_clients_cnt;
--	atomic_t add_dev_cnt;
--	wait_queue_head_t waitq;
- };
- 
- struct ism_event {
-@@ -69,9 +66,6 @@ struct ism_client {
- 	 */
- 	void (*handle_irq)(struct ism_dev *dev, unsigned int bit, u16 dmbemask);
- 	/* Private area - don't touch! */
--	struct work_struct remove_work;
--	struct work_struct add_work;
--	struct ism_dev *tgt_ism;
- 	u8 id;
- };
- 
--- 
-2.39.2
 
+> mutt buffy.c
+> https://sources.debian.org/src/mutt/2.2.9-1/buffy.c/?hl=3D625#L625
+>=20
+>   if (mailbox->newly_created &&
+>       (sb->st_ctime !=3D sb->st_mtime || sb->st_ctime !=3D sb->st_atime))
+>     mailbox->newly_created =3D 0;
+>=20
+
+This should be fine with this patchset. Note that this is comparing
+a/c/mtime on the same inode, and our usual pattern on inode
+instantiation is:
+
+    inode->i_atime =3D inode->i_mtime =3D inode_set_ctime_current(inode);
+
+...which should result in all of inode's timestamps being synchronized.
+
+>=20
+> neomutt mbox/mbox.c
+> https://sources.debian.org/src/neomutt/20220429+dfsg1-4.1/mbox/mbox.c/?hl=
+=3D1820#L1820
+>=20
+>   if (m->newly_created && ((st.st_ctime !=3D st.st_mtime) || (st.st_ctime=
+ !=3D st.st_atime)))
+>     m->newly_created =3D false;
+>=20
+
+Ditto here.
+
+>=20
+> screen logfile.c
+> https://sources.debian.org/src/screen/4.9.0-4/logfile.c/?hl=3D130#L130
+>=20
+>   if ((!s->st_dev && !s->st_ino) ||             /* stat failed, that's ne=
+w! */
+>       !s->st_nlink ||                           /* red alert: file unlink=
+ed */
+>       (s->st_size < o.st_size) ||               /*           file truncat=
+ed */
+>       (s->st_mtime !=3D o.st_mtime) ||            /*            file modi=
+fied */
+>       ((s->st_ctime !=3D o.st_ctime) &&           /*     file changed (mo=
+ved) */
+>        !(s->st_mtime =3D=3D s->st_ctime &&          /*  and it was not a =
+change */
+>          o.st_ctime < s->st_ctime)))            /* due to delayed nfs wri=
+te */
+>   {
+>=20
+
+This one is really weird. You have two different struct stat's, "o" and
+"s". I assume though that these should be stat values from the same
+inode, because otherwise this comparison would make no sense:
+
+      ((s->st_ctime !=3D o.st_ctime) &&           /*     file changed (move=
+d) */
+
+In general, we can never contrive to ensure that the ctime of two
+different inodes are the same, since that is always set by the kernel to
+the current time, and you'd have to ensure that they were created within
+the same jiffy (at least with today's code).
+
+> nemo libnemo-private/nemo-vfs-file.c
+> https://sources.debian.org/src/nemo/5.6.5-1/libnemo-private/nemo-vfs-file=
+.c/?hl=3D344#L344
+>=20
+> 		/* mtime is when the contents changed; ctime is when the
+> 		 * contents or the permissions (inc. owner/group) changed.
+> 		 * So we can only know when the permissions changed if mtime
+> 		 * and ctime are different.
+> 		 */
+> 		if (file->details->mtime =3D=3D file->details->ctime) {
+> 			return FALSE;
+> 		}
+>=20
+
+Ditto here with the first examples. This involves comparing timestamps
+on the same inode, which should be fine.
+
+>=20
+> While looking for more examples, I found a perl test that seems to sugges=
+t
+> that at least Solaris, AFS, AmigaOS, DragonFly BSD do as you suggest:
+> https://sources.debian.org/src/perl/5.36.0-7/t/op/stat.t/?hl=3D158#L140
+>=20
+
+(I kinda miss Perl. I wrote a bunch of stuff in it in the 90's and early
+naughties)
+
+I think this test is supposed to be testing whether the mtime changes on
+link() ?
+
+-----------------8<----------------
+    my($nlink, $mtime, $ctime) =3D (stat($tmpfile))[$NLINK, $MTIME, $CTIME]=
+;
+
+[...]
+
+
+        skip "Solaris tmpfs has different mtime/ctime link semantics", 2
+                                     if $Is_Solaris and $cwd =3D~ m#^/tmp# =
+and
+                                        $mtime && $mtime =3D=3D $ctime;
+-----------------8<----------------
+
+...again, I think this would be ok too since it's just comparing the
+mtime and ctime of the same inode. Granted this is a Solaris-specific
+test, but Linux would be fine here too.
+
+So in conclusion, I don't think this patchset will cause problems with
+any of the above code.
+--=20
+Jeff Layton <jlayton@kernel.org>
