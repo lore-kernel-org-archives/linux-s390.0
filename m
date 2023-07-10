@@ -2,135 +2,219 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB8BBEB64DA
-	for <linux-s390@archiver.kernel.org>; Mon, 10 Jul 2023 14:03:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DB2AEB64D9
+	for <linux-s390@archiver.kernel.org>; Mon, 10 Jul 2023 14:29:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230392AbjGJODR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 10 Jul 2023 10:03:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58200 "EHLO
+        id S232113AbjGJO3o (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 10 Jul 2023 10:29:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230284AbjGJODQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Jul 2023 10:03:16 -0400
+        with ESMTP id S231578AbjGJO3n (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Jul 2023 10:29:43 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64E94EC;
-        Mon, 10 Jul 2023 07:03:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E5448E;
+        Mon, 10 Jul 2023 07:29:42 -0700 (PDT)
 Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36ADlBjm032659;
-        Mon, 10 Jul 2023 14:03:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=hU1OX7zTiM/1ciYBu2XGASr6qx9CnAuGpAIo5Y18TQ4=;
- b=THMdTvnyamCS7RKZkO2fFqozFc4vplNjJkJmAfmkjgA1spsD9UdTyNadbWeQtu9tClfl
- 9aRcYWGZYBHFZtC1uE8YDk2g6tvAuJXfwtq3PseQ3vU6jbbrVq5vpJtUzSoOO7qXaj2z
- pRh2AdTu41qCsIXnD49/wkjCZUmH+xpnHR9p+LoCh4Ubbg33tvsNZSc4y828EJgfSKRn
- 3GqCyeo5VKoTE8h9Q8pd+b5c6tX3t4hv6im9DZ2Kv2wqBxi2aoHfYHC/pOT5WCM200i4
- O+GfSl3DwyUUpbbPB1X00Q9+El3HYjcGcXOqzeZ0EPoPdvZaU6zu3PqBtdJzekNpT5xU Kg== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rrk62gf4q-1
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36AEHtwY032765;
+        Mon, 10 Jul 2023 14:29:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : cc :
+ from : subject : to : message-id : date; s=pp1;
+ bh=HFCguy5WtHdTlfdRrcTwFYuLdcQdJ+e2/Z9CJWGXU90=;
+ b=qCVoSZtkGyWC65dpCbi6uTJFEWrP+6YOSo8c2saCjvpGn6VoBk8LxoIZ0TyA0DNbVTZE
+ tiCNUdm/npqchSukNQ6Xb/qKmAj6ZvZuhg08mOqO62ZbTfQzi5VRPCneKNxJudyM/Cvn
+ F1b+JIMX1Rtq70lmtQ41vGWQ4YYP2JPc6MVInpn9b7gc0/E77um3J/C2m+R7RqUm/tJN
+ MQoUg0aYkXmTmavQtrl3gb+bUtiZ4IAXY5ipcBqy9xsE5dWlam55BhugJFjUhgNXUlrF
+ KHK+k3GY8/ZFtrHjtT7jqW48bigmGqFs0jxR+jCkmXTO3O6RTcIc5vwLlsCYZcVJAAhd 4g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rrkma8ar1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 10 Jul 2023 14:03:13 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36AAsBip025953;
-        Mon, 10 Jul 2023 14:03:10 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3rpy2e8xj9-1
+        Mon, 10 Jul 2023 14:29:41 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36AEIgki003607;
+        Mon, 10 Jul 2023 14:29:41 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rrkma8aph-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 10 Jul 2023 14:03:10 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36AE36M825363146
+        Mon, 10 Jul 2023 14:29:41 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36AAamm6009382;
+        Mon, 10 Jul 2023 14:29:39 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3rpye5990x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 10 Jul 2023 14:29:39 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36AETZFd21234254
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 10 Jul 2023 14:03:07 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CB2FC20043;
-        Mon, 10 Jul 2023 14:03:06 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A2BAE20040;
-        Mon, 10 Jul 2023 14:03:06 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 10 Jul 2023 14:03:06 +0000 (GMT)
-Date:   Mon, 10 Jul 2023 16:03:04 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        borntraeger@linux.ibm.com
-Subject: Re: [PATCH] KVM: s390: Don't WARN on PV validities
-Message-ID: <20230710160304.729a8c51@p-imbrenda>
-In-Reply-To: <20230706145335.136910-1-frankja@linux.ibm.com>
-References: <20230706145335.136910-1-frankja@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+        Mon, 10 Jul 2023 14:29:35 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 903392004B;
+        Mon, 10 Jul 2023 14:29:35 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6267120043;
+        Mon, 10 Jul 2023 14:29:35 +0000 (GMT)
+Received: from t14-nrb (unknown [9.179.1.107])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 10 Jul 2023 14:29:35 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <ab1047c5-77f1-d68b-cf05-4bcda44909ed@linux.ibm.com>
+References: <20230601070202.152094-1-nrb@linux.ibm.com> <20230601070202.152094-7-nrb@linux.ibm.com> <ab1047c5-77f1-d68b-cf05-4bcda44909ed@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+From:   Nico Boehr <nrb@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 6/6] s390x: add a test for SIE without MSO/MSL
+To:     Janosch Frank <frankja@linux.ibm.com>, imbrenda@linux.ibm.com,
+        thuth@redhat.com
+Message-ID: <168899937501.42553.5805213823249646110@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Mon, 10 Jul 2023 16:29:35 +0200
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: wOOOQ-xnU2AgOCnYwKI7Z_fNjd5APGGy
-X-Proofpoint-ORIG-GUID: wOOOQ-xnU2AgOCnYwKI7Z_fNjd5APGGy
+X-Proofpoint-ORIG-GUID: 8NEI2yd9WYneZ5BsZ0U9dPw8DB4OYT9d
+X-Proofpoint-GUID: Pdzb0jnBZQ6PUHaw1nvoHC5He-qnEsvT
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
  definitions=2023-07-10_10,2023-07-06_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxscore=0
- malwarescore=0 suspectscore=0 phishscore=0 adultscore=0 mlxlogscore=999
- lowpriorityscore=0 clxscore=1015 bulkscore=0 priorityscore=1501
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2307100127
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ lowpriorityscore=0 bulkscore=0 suspectscore=0 mlxlogscore=999 phishscore=0
+ spamscore=0 malwarescore=0 impostorscore=0 adultscore=0 clxscore=1015
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2305260000
+ definitions=main-2307100127
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu,  6 Jul 2023 14:53:35 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
+Quoting Janosch Frank (2023-06-05 11:57:58)
+[...]
+> > diff --git a/s390x/sie-dat.c b/s390x/sie-dat.c
+> > new file mode 100644
+> > index 000000000000..c490a2aa825c
+[...]
+> > +#include <libcflat.h>
+> > +#include <vmalloc.h>
+> > +#include <asm/asm-offsets.h>
+>=20
+> I only did a cursory glance and wasn't able to see a use for this include.
 
-> Validities usually indicate KVM errors and as such we want to print a
-> message with a high priority to alert users that a validity
-> occurred. With the introduction of Protected VMs it's become very easy
-> to trigger validities via IOCTLs if the VM is in PV mode.
-> 
-> An optimal solution would be to return EINVALs to all IOCTLs that
-> could result in such a situation. Unfortunately there are quite a lot
-> of ways to trigger PV validities since the number of allowed SCB data
-> combinations are very limited by FW in order to provide the guest's
-> security.
-> 
-> Let's only log those validities to the KVM sysfs log and skip the
-> WARN_ONCE(). This way we get a longish lasting log entry.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Yep, thanks, I cleaned up the includes a bit.
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+[...]
+> > +static void test_sie_dat(void)
+> > +{
+> > +     uint8_t r1;
+> > +     bool contents_match;
+> > +     uint64_t test_page_gpa, test_page_hpa;
+> > +     uint8_t *test_page_hva;
+> > +
+> > +     /* guest will tell us the guest physical address of the test buff=
+er */
+> > +     sie(&vm);
+> > +
+> > +     r1 =3D (vm.sblk->ipa & 0xf0) >> 4;
+> > +     test_page_gpa =3D vm.save_area.guest.grs[r1];
+> > +     test_page_hpa =3D virt_to_pte_phys(guest_root, (void*)test_page_g=
+pa);
+> > +     test_page_hva =3D __va(test_page_hpa);
+> > +     report(vm.sblk->icptcode =3D=3D ICPT_INST &&
+> > +            (vm.sblk->ipa & 0xFF00) =3D=3D 0x8300 && vm.sblk->ipb =3D=
+=3D 0x9c0000,
+> > +            "test buffer gpa=3D0x%lx hva=3D%p", test_page_gpa, test_pa=
+ge_hva);
+>=20
+> You could rebase on my pv_icptdata.h patch.
+> Also the report string and boolean don't really relate to each other.
 
-> ---
-> 
-> int -> ext:
->  * Fixed range
->  * Extended commit message 
-> 
-> ---
->  arch/s390/kvm/intercept.c | 12 +++++++++---
->  1 file changed, 9 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-> index 954d39adf85c..f3c1220fd1e2 100644
-> --- a/arch/s390/kvm/intercept.c
-> +++ b/arch/s390/kvm/intercept.c
-> @@ -97,9 +97,15 @@ static int handle_validity(struct kvm_vcpu *vcpu)
->  	KVM_EVENT(3, "validity intercept 0x%x for pid %u (kvm 0x%pK)", viwhy,
->  		  current->pid, vcpu->kvm);
->  
-> -	/* do not warn on invalid runtime instrumentation mode */
-> -	WARN_ONCE(viwhy != 0x44, "kvm: unhandled validity intercept 0x%x\n",
-> -		  viwhy);
-> +	/*
-> +	 * Do not warn on:
-> +	 *  - invalid runtime instrumentation mode
-> +	 *  - PV related validities since they can be triggered by userspace
-> +	 *    PV validities are in the 0x2XXX range
-> +	 */
-> +	WARN_ONCE(viwhy != 0x44 &&
-> +		  ((viwhy < 0x2000) || (viwhy >= 0x3000)),
-> +		  "kvm: unhandled validity intercept 0x%x\n", viwhy);
->  	return -EINVAL;
->  }
->  
+Which patch are we talking about? pv_icptdata_check_diag()?
 
+Note that this is not a PV test, so I guess it's not applicable here?
+
+> Not every exit needs to be a report.
+> Some should rather be asserts() or report_info()s.
+
+Yeah, I have made report()s where it doesn't make sense to continue assert(=
+)s
+
+> > +     contents_match =3D true;
+> > +     for (unsigned int i =3D 0; i < GUEST_TEST_PAGE_COUNT; i++) {
+> > +             uint8_t expected_val =3D 42 + i;
+>=20
+> Just because you can doesn't mean that you have to.
+> At least leave a \n when declaring new variables...
+
+I am a bit confused but I *guess* you wanted me to move the declaration of
+expected_val to the beginning of the function?
+
+[...]
+> > diff --git a/s390x/snippets/c/sie-dat.c b/s390x/snippets/c/sie-dat.c
+> > new file mode 100644
+> > index 000000000000..e156d0c36c4c
+> > --- /dev/null
+> > +++ b/s390x/snippets/c/sie-dat.c
+> > @@ -0,0 +1,58 @@
+> > +/* SPDX-License-Identifier: GPL-2.0-only */
+> > +/*
+> > + * Snippet used by the sie-dat.c test to verify paging without MSO/MSL
+> > + *
+> > + * Copyright (c) 2023 IBM Corp
+> > + *
+> > + * Authors:
+> > + *  Nico Boehr <nrb@linux.ibm.com>
+> > + */
+> > +#include <stddef.h>
+> > +#include <inttypes.h>
+> > +#include <string.h>
+> > +#include <asm-generic/page.h>
+> > +
+> > +/* keep in sync with GUEST_TEST_PAGE_COUNT in s390x/sie-dat.c */
+> > +#define TEST_PAGE_COUNT 10
+> > +static uint8_t test_page[TEST_PAGE_COUNT * PAGE_SIZE] __attribute__((_=
+_aligned__(PAGE_SIZE)));
+> > +
+> > +/* keep in sync with GUEST_TOTAL_PAGE_COUNT in s390x/sie-dat.c */
+> > +#define TOTAL_PAGE_COUNT 256
+> > +
+> > +static inline void force_exit(void)
+> > +{
+> > +     asm volatile("diag      0,0,0x44\n");
+> > +}
+> > +
+> > +static inline void force_exit_value(uint64_t val)
+> > +{
+> > +     asm volatile(
+> > +             "diag   %[val],0,0x9c\n"
+> > +             : : [val] "d"(val)
+> > +     );
+> > +}
+>=20
+> It feels like these need to go into a snippet lib.
+
+A bunch of other tests do similar things, so I'll write a TODO and tackle i=
+t in
+a seperate series.
+
+[...]
+> > +
+> > +__attribute__((section(".text"))) int main(void)
+>=20
+> The attribute shouldn't be needed anymore.
+
+OK, removed.
+
+[...]
+> > +{
+> > +     uint8_t *invalid_ptr;
+> > +
+> > +     memset(test_page, 0, sizeof(test_page));
+> > +     /* tell the host the page's physical address (we're running DAT o=
+ff) */
+> > +     force_exit_value((uint64_t)test_page);
+> > +
+> > +     /* write some value to the page so the host can verify it */
+> > +     for (size_t i =3D 0; i < TEST_PAGE_COUNT; i++)
+>=20
+> Why is i a size_t type?
+
+Because it's a suitable unsigned type for use as an array index.
+
+What should it be instead?
