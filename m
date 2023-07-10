@@ -2,239 +2,163 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6150CEB64D9
-	for <linux-s390@archiver.kernel.org>; Mon, 10 Jul 2023 15:06:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CFABFEB64D9
+	for <linux-s390@archiver.kernel.org>; Mon, 10 Jul 2023 17:21:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233481AbjGJPGk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 10 Jul 2023 11:06:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35236 "EHLO
+        id S232714AbjGJRVp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 10 Jul 2023 13:21:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233475AbjGJPGj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Jul 2023 11:06:39 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC41B120;
-        Mon, 10 Jul 2023 08:06:35 -0700 (PDT)
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36AExNtb027240;
-        Mon, 10 Jul 2023 15:06:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : to : cc : references : from : subject : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=aK/3ICWzLRCLnLIiAZjU/F6f+FdlbS9GuzoT0VUFLm8=;
- b=ObcaGd4MSx+FFl/a1G5XiBf6+GHeGccN4TiPar3hBP6j1f2kHmL9+zwMAk+8+kHZGF8L
- 2wfYpALy15CIF+Vt/WeEy13tNE3MxSPbEwFQ+mHIj8QhIgVLuiBFjzvfBHU+h24HyfHZ
- ZkCK/JLlbcdDP+geIZ/Loe97HfjvRITmAcMMRTMFLzk4Gw5I7nfCd4mrd1rq0q2l2eOz
- cbMtsVOuFwmF+yMcWQeu1GQAbcfi+27dob7pcWgKinbnfHO4Xvcf/HmfBPojFKiFGdzM
- Rc0JPDuGoyCLxW19Z1HBt+HEt+wK+tfnuK44JdYOZ48JMWARWk+tAQ9p4zoO5T4VF9Gt FQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rrm7qge8n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 10 Jul 2023 15:06:32 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36AF0H8g029420;
-        Mon, 10 Jul 2023 15:06:07 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rrm7qgd00-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 10 Jul 2023 15:06:07 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36AErbWt016727;
-        Mon, 10 Jul 2023 15:05:40 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3rpye599fh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 10 Jul 2023 15:05:39 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36AF5a3B31785712
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 10 Jul 2023 15:05:36 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9721C2004B;
-        Mon, 10 Jul 2023 15:05:36 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 405D620040;
-        Mon, 10 Jul 2023 15:05:36 +0000 (GMT)
-Received: from [9.171.90.148] (unknown [9.171.90.148])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 10 Jul 2023 15:05:36 +0000 (GMT)
-Message-ID: <76daa0d8-829d-2d48-4d70-92097518d565@linux.ibm.com>
-Date:   Mon, 10 Jul 2023 17:05:35 +0200
+        with ESMTP id S232549AbjGJRVd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Jul 2023 13:21:33 -0400
+Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com [IPv6:2607:f8b0:4864:20::72b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D195CE58
+        for <linux-s390@vger.kernel.org>; Mon, 10 Jul 2023 10:21:14 -0700 (PDT)
+Received: by mail-qk1-x72b.google.com with SMTP id af79cd13be357-766fd5f9536so332767085a.3
+        for <linux-s390@vger.kernel.org>; Mon, 10 Jul 2023 10:21:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1689009674; x=1691601674;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=vDKqe6h9VsjQuDpKI9KRg1N7kbgZMbKA4ecQ1xozFqs=;
+        b=IMsBYjy3Toq+G3vBDgnvPIjgdoK/8dHggIY3Hs7qoUt25YkpzOmPBi/nHn//DrOYJB
+         /Ua+/QBa5Use8IJESRSiFunKdkGqNHd+YUqoRuJfQ4kcz9FzGR8GIZXsQpoAByEtiRoW
+         aHShM1l7QbL76OMNkc1lG2qoSZ//vH0KwhSWZJu3JAj2Jxo8XWZBsa1X0VxWF2oEWd2s
+         Qu1lVdsr/969sUuC9+ClJLKaydssewFZiIszGWbW/S6Cjo7VrKDsSxZ7RPNvyFeMxk1W
+         6TYZEng5dbEcOdn1U6fXy08kcBT33/DATCe+/VchSTeFDgqF+J/WUVPSVonRZqpbV4JY
+         T2ZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1689009674; x=1691601674;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=vDKqe6h9VsjQuDpKI9KRg1N7kbgZMbKA4ecQ1xozFqs=;
+        b=fjA8PULZvcWptZ/BvMVnD1gwXuYHRZR9+zSrWhptTVpkIK+OtR7fjQhLuzqdnosSQ6
+         IuytYj0Z8ERiF4OxfE+6E9Nxk5o5IX7iawZCnNcNsLQ71bNqR3pacYMWP7tjyg0ZpTw6
+         RdjB8z/aYei9LQPnYvca5Jf0wD9Swf8/xa3aPiW29kULUMdSZt/zhIFVPAG2kZOCTPec
+         1fNyHA8FGNZDExG1foKNvyMb1cmdlCvn2KMMXnNhXomEqA+5muEto/TobjeIq2GTuY4W
+         tL3pCoLM3aq/yvfH0g3mgFB+z06YWNzIar3RFaeVjnat/9XiQytoyGkyW5JFUhVv0myY
+         DC0Q==
+X-Gm-Message-State: ABy/qLZrfWGI0awr3o6c0y/M4ep8gtq+JmVasbuPNx2Yxnwliw1uvhmU
+        ScQvyzmRU/bg1slUUaYOgK++ZQ==
+X-Google-Smtp-Source: APBJJlEZjgv87sGoqCoA2OyNTenIrI3xxoXPoRV2o/wxukY2mPE0POHCvXNINrLxikThI/IjdSHCSQ==
+X-Received: by 2002:a05:620a:198f:b0:767:205b:7f4b with SMTP id bm15-20020a05620a198f00b00767205b7f4bmr13197531qkb.41.1689009673882;
+        Mon, 10 Jul 2023 10:21:13 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-68-25-194.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.25.194])
+        by smtp.gmail.com with ESMTPSA id g6-20020ae9e106000000b00767dc4c539bsm61695qkm.44.2023.07.10.10.21.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Jul 2023 10:21:13 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1qIuZT-0004Dq-J0;
+        Mon, 10 Jul 2023 14:21:11 -0300
+Date:   Mon, 10 Jul 2023 14:21:11 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc:     Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Lorenzo Stoakes <lstoakes@gmail.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        Vishal Moola <vishal.moola@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH v2 07/12] s390: add pte_free_defer() for pgtables sharing
+ page
+Message-ID: <ZKw+BxRUrGC8LW5P@ziepe.ca>
+References: <a722dbec-bd9e-1213-1edd-53cd547aa4f@google.com>
+ <20230628211624.531cdc58@thinkpad-T15>
+ <cd7c2851-1440-7220-6c53-16b343b1474@google.com>
+ <ZJ2hsM5Tn+yUZ5ZV@ziepe.ca>
+ <20230629175645.7654d0a8@thinkpad-T15>
+ <edaa96f-80c1-1252-acbb-71c4f045b035@google.com>
+ <7bef5695-fa4a-7215-7e9d-d4a83161c7ab@google.com>
+ <20230704171905.1263478f@thinkpad-T15>
+ <e678affb-5eee-a055-7af1-1d29a965663b@google.com>
+ <20230705145516.7d9d554d@thinkpad-T15>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.12.0
-Content-Language: en-US
-To:     Nico Boehr <nrb@linux.ibm.com>, imbrenda@linux.ibm.com,
-        thuth@redhat.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20230601070202.152094-1-nrb@linux.ibm.com>
- <20230601070202.152094-7-nrb@linux.ibm.com>
- <ab1047c5-77f1-d68b-cf05-4bcda44909ed@linux.ibm.com>
- <168899937501.42553.5805213823249646110@t14-nrb>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v3 6/6] s390x: add a test for SIE without
- MSO/MSL
-In-Reply-To: <168899937501.42553.5805213823249646110@t14-nrb>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: GNYn9_GD3rqK_eRjupLBXAvUOo1cywZ1
-X-Proofpoint-ORIG-GUID: nBPkQ7HFpro9icSxvpAjeW6nyKTFva1r
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-10_11,2023-07-06_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 clxscore=1015
- impostorscore=0 spamscore=0 phishscore=0 mlxlogscore=999 malwarescore=0
- bulkscore=0 adultscore=0 suspectscore=0 priorityscore=1501
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2307100135
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230705145516.7d9d554d@thinkpad-T15>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 7/10/23 16:29, Nico Boehr wrote:
-> Quoting Janosch Frank (2023-06-05 11:57:58)
-> [...]
->>> diff --git a/s390x/sie-dat.c b/s390x/sie-dat.c
->>> new file mode 100644
->>> index 000000000000..c490a2aa825c
-> [...]
->>> +#include <libcflat.h>
->>> +#include <vmalloc.h>
->>> +#include <asm/asm-offsets.h>
->>
->> I only did a cursory glance and wasn't able to see a use for this include.
-> 
-> Yep, thanks, I cleaned up the includes a bit.
-> 
-> [...]
->>> +static void test_sie_dat(void)
->>> +{
->>> +     uint8_t r1;
->>> +     bool contents_match;
->>> +     uint64_t test_page_gpa, test_page_hpa;
->>> +     uint8_t *test_page_hva;
->>> +
->>> +     /* guest will tell us the guest physical address of the test buffer */
->>> +     sie(&vm);
->>> +
->>> +     r1 = (vm.sblk->ipa & 0xf0) >> 4;
->>> +     test_page_gpa = vm.save_area.guest.grs[r1];
->>> +     test_page_hpa = virt_to_pte_phys(guest_root, (void*)test_page_gpa);
->>> +     test_page_hva = __va(test_page_hpa);
->>> +     report(vm.sblk->icptcode == ICPT_INST &&
->>> +            (vm.sblk->ipa & 0xFF00) == 0x8300 && vm.sblk->ipb == 0x9c0000,
->>> +            "test buffer gpa=0x%lx hva=%p", test_page_gpa, test_page_hva);
->>
->> You could rebase on my pv_icptdata.h patch.
->> Also the report string and boolean don't really relate to each other.
-> 
-> Which patch are we talking about? pv_icptdata_check_diag()?
-> 
-> Note that this is not a PV test, so I guess it's not applicable here?
+On Wed, Jul 05, 2023 at 02:55:16PM +0200, Gerald Schaefer wrote:
 
-Ah right, we could extend that but for one use this should be fine.
-Let's see if there'll be more SIE tests that need this before building a 
-a full intercept check lib.
+> Ah ok, I was aware of that "semi-RCU" fallback logic in tlb_remove_table(),
+> but that is rather a generic issue, and not s390-specific. I thought you
+> meant some s390-oddity here, of which we have a lot, unfortunately...
+> Of course, we call tlb_remove_table() from our page_table_free_rcu(), so
+> I guess you could say that page_table_free_rcu() cannot guarantee what
+> tlb_remove_table() cannot guarantee.
 
-Could you lower-case the 0xFF00 when you re-spin?
+The issue is the arches don't provide a reliable way to RCU free
+things, so the core code creates an RCU situation using the MMU
+batch. With the non-RCU compatible IPI fallback. So it isn't actually
+RCU, it is IPI but optimized with RCU in some cases.
 
-> 
->> Not every exit needs to be a report.
->> Some should rather be asserts() or report_info()s.
-> 
-> Yeah, I have made report()s where it doesn't make sense to continue assert()s
-> 
->>> +     contents_match = true;
->>> +     for (unsigned int i = 0; i < GUEST_TEST_PAGE_COUNT; i++) {
->>> +             uint8_t expected_val = 42 + i;
->>
->> Just because you can doesn't mean that you have to.
->> At least leave a \n when declaring new variables...
-> 
-> I am a bit confused but I *guess* you wanted me to move the declaration of
-> expected_val to the beginning of the function?
-> 
+When Hugh introduces a reliable way to RCU free stuff we could fall
+back to that in the TLB code instead of invoking the synchronize_rcu()
 
-Personally I'm not a big fan of declaring variables in the lower 
-function body, they are way too easy to overlook.
+For lots of arches, S390 included after this series, this would be
+pretty easy.
 
-I dimly remember there being a rule but when I used a few minutes to 
-look for it I couldn't find it anymore. Hmmmm, maybe I'm getting old.
+What I see now as the big trouble is that this series only addresses
+PTE RCU'ness and making all the other levels RCUable would be much
+harder on some arches like power.
 
-> [...]
->>> diff --git a/s390x/snippets/c/sie-dat.c b/s390x/snippets/c/sie-dat.c
->>> new file mode 100644
->>> index 000000000000..e156d0c36c4c
->>> --- /dev/null
->>> +++ b/s390x/snippets/c/sie-dat.c
->>> @@ -0,0 +1,58 @@
->>> +/* SPDX-License-Identifier: GPL-2.0-only */
->>> +/*
->>> + * Snippet used by the sie-dat.c test to verify paging without MSO/MSL
->>> + *
->>> + * Copyright (c) 2023 IBM Corp
->>> + *
->>> + * Authors:
->>> + *  Nico Boehr <nrb@linux.ibm.com>
->>> + */
->>> +#include <stddef.h>
->>> +#include <inttypes.h>
->>> +#include <string.h>
->>> +#include <asm-generic/page.h>
->>> +
->>> +/* keep in sync with GUEST_TEST_PAGE_COUNT in s390x/sie-dat.c */
->>> +#define TEST_PAGE_COUNT 10
->>> +static uint8_t test_page[TEST_PAGE_COUNT * PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
->>> +
->>> +/* keep in sync with GUEST_TOTAL_PAGE_COUNT in s390x/sie-dat.c */
->>> +#define TOTAL_PAGE_COUNT 256
->>> +
->>> +static inline void force_exit(void)
->>> +{
->>> +     asm volatile("diag      0,0,0x44\n");
->>> +}
->>> +
->>> +static inline void force_exit_value(uint64_t val)
->>> +{
->>> +     asm volatile(
->>> +             "diag   %[val],0,0x9c\n"
->>> +             : : [val] "d"(val)
->>> +     );
->>> +}
->>
->> It feels like these need to go into a snippet lib.
-> 
-> A bunch of other tests do similar things, so I'll write a TODO and tackle it in
-> a seperate series.
+In short we could create a CONFIG_ARCH_RCU_SAFE_PAGEWALK and it could
+be done on alot of arches quite simply, but at least not power. Which
+makes me wonder about the value, but maybe it could shame power into
+doing something..
 
-Thanks :)
+However, calling things 'page_table_free_rcu()' when it doesn't
+actually always do RCU but IPI optimzed RCU is an unfortunate name :(
+As long as you never assume it does RCU anywhere else, and don't use
+rcu_read_lock(), it is fine :)
 
-> 
-> [...]
->>> +
->>> +__attribute__((section(".text"))) int main(void)
->>
->> The attribute shouldn't be needed anymore.
-> 
-> OK, removed.
-> 
-> [...]
->>> +{
->>> +     uint8_t *invalid_ptr;
->>> +
->>> +     memset(test_page, 0, sizeof(test_page));
->>> +     /* tell the host the page's physical address (we're running DAT off) */
->>> +     force_exit_value((uint64_t)test_page);
->>> +
->>> +     /* write some value to the page so the host can verify it */
->>> +     for (size_t i = 0; i < TEST_PAGE_COUNT; i++)
->>
->> Why is i a size_t type?
-> 
-> Because it's a suitable unsigned type for use as an array index.
-> 
-> What should it be instead?
+The corner case is narrow, you have to OOM the TLB batching before you
+loose the RCU optimization of the IPI.  Then you can notice that
+rcu_read_lock() doesn't actually protect against concurrent free.
 
-I would have used a standard uint type but to be fair this doesn't kill 
-me either.
-
+Jason
