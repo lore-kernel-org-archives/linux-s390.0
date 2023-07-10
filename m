@@ -2,203 +2,135 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03694EB64DA
-	for <linux-s390@archiver.kernel.org>; Mon, 10 Jul 2023 13:33:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB8BBEB64DA
+	for <linux-s390@archiver.kernel.org>; Mon, 10 Jul 2023 14:03:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232619AbjGJNdN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 10 Jul 2023 09:33:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43150 "EHLO
+        id S230392AbjGJODR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 10 Jul 2023 10:03:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232944AbjGJNdF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Jul 2023 09:33:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B68019F;
-        Mon, 10 Jul 2023 06:32:44 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5933560FE9;
-        Mon, 10 Jul 2023 13:32:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7E3BC433C9;
-        Mon, 10 Jul 2023 13:32:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1688995962;
-        bh=ypo6EEC/a10vTp0LME1omXwBE1UiKK/mReyAl6l5UHQ=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=J7Z7W1QfjLNRfgVQcSdKnYFRxtD+3fk+fVeHY9xuci1TKV61DCMVSYVvDG9kwuCBX
-         g+QpzC0XDkSjeL9nV9+lGdPbp68Q96EXBiPlDNXBynN9HrAz4Y+E89ZYAnFm4gMFob
-         SGwQAd+JWX6wsLqjr9V4UXCKsBkrO6/s1MT1FJcjDjR0RhV1HnH8M/padgIYfYI3iT
-         50AKfuQ1Ba3eH+A3TeCdkft2SWR53hIVATzxttJnSld1dtaOLY6XNcMPkiIrdtp3w+
-         UMgZy7XJf81pa8iQgs3v7vGfymFo80jGgmK2T6kIjmEHcqRaAvCUmLi8QnIHmVmDpT
-         pZFJemBst7t+w==
-Message-ID: <c4eaff9389fe63ec4e29404ec0d1181b74935426.camel@kernel.org>
-Subject: Re: [PATCH v2 00/89] fs: new accessors for inode->i_ctime
-From:   Jeff Layton <jlayton@kernel.org>
-To:     Christian Brauner <brauner@kernel.org>
-Cc:     jk@ozlabs.org, arnd@arndb.de, mpe@ellerman.id.au,
-        npiggin@gmail.com, christophe.leroy@csgroup.eu, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
-        maco@android.com, joel@joelfernandes.org, cmllamas@google.com,
-        surenb@google.com, dennis.dalessandro@cornelisnetworks.com,
-        jgg@ziepe.ca, leon@kernel.org, bwarrum@linux.ibm.com,
-        rituagar@linux.ibm.com, ericvh@kernel.org, lucho@ionkov.net,
-        asmadeus@codewreck.org, linux_oss@crudebyte.com, dsterba@suse.com,
-        dhowells@redhat.com, marc.dionne@auristor.com,
-        viro@zeniv.linux.org.uk, raven@themaw.net, luisbg@kernel.org,
-        salah.triki@gmail.com, aivazian.tigran@gmail.com,
-        ebiederm@xmission.com, keescook@chromium.org, clm@fb.com,
-        josef@toxicpanda.com, xiubli@redhat.com, idryomov@gmail.com,
-        jaharkes@cs.cmu.edu, coda@cs.cmu.edu, jlbec@evilplan.org,
-        hch@lst.de, nico@fluxnic.net, rafael@kernel.org, code@tyhicks.com,
-        ardb@kernel.org, xiang@kernel.org, chao@kernel.org,
-        huyue2@coolpad.com, jefflexu@linux.alibaba.com,
-        linkinjeon@kernel.org, sj1557.seo@samsung.com, jack@suse.com,
-        tytso@mit.edu, adilger.kernel@dilger.ca, jaegeuk@kernel.org,
-        hirofumi@mail.parknet.co.jp, miklos@szeredi.hu,
-        rpeterso@redhat.com, agruenba@redhat.com, richard@nod.at,
-        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        mikulas@artax.karlin.mff.cuni.cz, mike.kravetz@oracle.com,
-        muchun.song@linux.dev, dwmw2@infradead.org, shaggy@kernel.org,
-        tj@kernel.org, trond.myklebust@hammerspace.com, anna@kernel.org,
-        chuck.lever@oracle.com, neilb@suse.de, kolga@netapp.com,
-        Dai.Ngo@oracle.com, tom@talpey.com, konishi.ryusuke@gmail.com,
-        anton@tuxera.com, almaz.alexandrovich@paragon-software.com,
-        mark@fasheh.com, joseph.qi@linux.alibaba.com, me@bobcopeland.com,
-        hubcap@omnibond.com, martin@omnibond.com, amir73il@gmail.com,
-        mcgrof@kernel.org, yzaikin@google.com, tony.luck@intel.com,
-        gpiccoli@igalia.com, al@alarsen.net, sfrench@samba.org,
-        pc@manguebit.com, lsahlber@redhat.com, sprasad@microsoft.com,
-        senozhatsky@chromium.org, phillip@squashfs.org.uk,
-        rostedt@goodmis.org, mhiramat@kernel.org, dushistov@mail.ru,
-        hdegoede@redhat.com, djwong@kernel.org, dlemoal@kernel.org,
-        naohiro.aota@wdc.com, jth@kernel.org, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
-        song@kernel.org, yhs@fb.com, john.fastabend@gmail.com,
-        kpsingh@kernel.org, sdf@google.com, haoluo@google.com,
-        jolsa@kernel.org, hughd@google.com, akpm@linux-foundation.org,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, john.johansen@canonical.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        jgross@suse.com, stern@rowland.harvard.edu, lrh2000@pku.edu.cn,
-        sebastian.reichel@collabora.com, wsa+renesas@sang-engineering.com,
-        quic_ugoswami@quicinc.com, quic_linyyuan@quicinc.com,
-        john@keeping.me.uk, error27@gmail.com, quic_uaggarwa@quicinc.com,
-        hayama@lineo.co.jp, jomajm@gmail.com, axboe@kernel.dk,
-        dhavale@google.com, dchinner@redhat.com, hannes@cmpxchg.org,
-        zhangpeng362@huawei.com, slava@dubeyko.com, gargaditya08@live.com,
-        penguin-kernel@I-love.SAKURA.ne.jp, yifeliu@cs.stonybrook.edu,
-        madkar@cs.stonybrook.edu, ezk@cs.stonybrook.edu,
-        yuzhe@nfschina.com, willy@infradead.org, okanatov@gmail.com,
-        jeffxu@chromium.org, linux@treblig.org, mirimmad17@gmail.com,
-        yijiangshan@kylinos.cn, yang.yang29@zte.com.cn,
-        xu.xin16@zte.com.cn, chengzhihao1@huawei.com, shr@devkernel.io,
-        Liam.Howlett@Oracle.com, adobriyan@gmail.com,
-        chi.minghao@zte.com.cn, roberto.sassu@huawei.com,
-        linuszeng@tencent.com, bvanassche@acm.org, zohar@linux.ibm.com,
-        yi.zhang@huawei.com, trix@redhat.com, fmdefrancesco@gmail.com,
-        ebiggers@google.com, princekumarmaurya06@gmail.com,
-        chenzhongjin@huawei.com, riel@surriel.com,
-        shaozhengchao@huawei.com, jingyuwang_vip@163.com,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-usb@vger.kernel.org, v9fs@lists.linux.dev,
-        linux-fsdevel@vger.kernel.org, linux-afs@lists.infradead.org,
-        autofs@vger.kernel.org, linux-mm@kvack.org,
-        linux-btrfs@vger.kernel.org, ceph-devel@vger.kernel.org,
-        codalist@coda.cs.cmu.edu, ecryptfs@vger.kernel.org,
-        linux-efi@vger.kernel.org, linux-erofs@lists.ozlabs.org,
-        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        cluster-devel@redhat.com, linux-um@lists.infradead.org,
-        linux-mtd@lists.infradead.org,
-        jfs-discussion@lists.sourceforge.net, linux-nfs@vger.kernel.org,
-        linux-nilfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
-        ntfs3@lists.linux.dev, ocfs2-devel@lists.linux.dev,
-        linux-karma-devel@lists.sourceforge.net, devel@lists.orangefs.org,
-        linux-unionfs@vger.kernel.org, linux-hardening@vger.kernel.org,
-        reiserfs-devel@vger.kernel.org, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org,
-        linux-trace-kernel@vger.kernel.org, linux-xfs@vger.kernel.org,
-        bpf@vger.kernel.org, netdev@vger.kernel.org,
-        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Date:   Mon, 10 Jul 2023 09:32:23 -0400
-In-Reply-To: <20230710-zudem-entkam-bb508cbd8c78@brauner>
-References: <20230705185812.579118-1-jlayton@kernel.org>
-         <5e40891f6423feb5b68f025e31f26e9a50ae9390.camel@kernel.org>
-         <20230710-zudem-entkam-bb508cbd8c78@brauner>
-Content-Type: text/plain; charset="ISO-8859-15"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+        with ESMTP id S230284AbjGJODQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Jul 2023 10:03:16 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64E94EC;
+        Mon, 10 Jul 2023 07:03:15 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36ADlBjm032659;
+        Mon, 10 Jul 2023 14:03:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=hU1OX7zTiM/1ciYBu2XGASr6qx9CnAuGpAIo5Y18TQ4=;
+ b=THMdTvnyamCS7RKZkO2fFqozFc4vplNjJkJmAfmkjgA1spsD9UdTyNadbWeQtu9tClfl
+ 9aRcYWGZYBHFZtC1uE8YDk2g6tvAuJXfwtq3PseQ3vU6jbbrVq5vpJtUzSoOO7qXaj2z
+ pRh2AdTu41qCsIXnD49/wkjCZUmH+xpnHR9p+LoCh4Ubbg33tvsNZSc4y828EJgfSKRn
+ 3GqCyeo5VKoTE8h9Q8pd+b5c6tX3t4hv6im9DZ2Kv2wqBxi2aoHfYHC/pOT5WCM200i4
+ O+GfSl3DwyUUpbbPB1X00Q9+El3HYjcGcXOqzeZ0EPoPdvZaU6zu3PqBtdJzekNpT5xU Kg== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rrk62gf4q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 10 Jul 2023 14:03:13 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36AAsBip025953;
+        Mon, 10 Jul 2023 14:03:10 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3rpy2e8xj9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 10 Jul 2023 14:03:10 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36AE36M825363146
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 10 Jul 2023 14:03:07 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CB2FC20043;
+        Mon, 10 Jul 2023 14:03:06 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A2BAE20040;
+        Mon, 10 Jul 2023 14:03:06 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.66])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 10 Jul 2023 14:03:06 +0000 (GMT)
+Date:   Mon, 10 Jul 2023 16:03:04 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        borntraeger@linux.ibm.com
+Subject: Re: [PATCH] KVM: s390: Don't WARN on PV validities
+Message-ID: <20230710160304.729a8c51@p-imbrenda>
+In-Reply-To: <20230706145335.136910-1-frankja@linux.ibm.com>
+References: <20230706145335.136910-1-frankja@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: wOOOQ-xnU2AgOCnYwKI7Z_fNjd5APGGy
+X-Proofpoint-ORIG-GUID: wOOOQ-xnU2AgOCnYwKI7Z_fNjd5APGGy
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-10_10,2023-07-06_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxscore=0
+ malwarescore=0 suspectscore=0 phishscore=0 adultscore=0 mlxlogscore=999
+ lowpriorityscore=0 clxscore=1015 bulkscore=0 priorityscore=1501
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2307100127
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 2023-07-10 at 14:35 +0200, Christian Brauner wrote:
-> On Fri, Jul 07, 2023 at 08:42:31AM -0400, Jeff Layton wrote:
-> > On Wed, 2023-07-05 at 14:58 -0400, Jeff Layton wrote:
-> > > v2:
-> > > - prepend patches to add missing ctime updates
-> > > - add simple_rename_timestamp helper function
-> > > - rename ctime accessor functions as inode_get_ctime/inode_set_ctime_=
-*
-> > > - drop individual inode_ctime_set_{sec,nsec} helpers
-> > >=20
-> >=20
-> > After review by Jan and others, and Jan's ext4 rework, the diff on top
-> > of the series I posted a couple of days ago is below. I don't really
-> > want to spam everyone with another ~100 patch v3 series, but I can if
-> > you think that's best.
-> >=20
-> > Christian, what would you like me to do here?
->=20
-> I picked up the series from the list and folded the fixups you posted
-> here into the respective fs conversion patches. I hope that helps you
-> avoid a resend. You should have received a separate "thank you" mail for
-> all of this.
->=20
-> To each patch that I folded one of the fixlets from below into I added a
-> git note that records a link to your mail here and the respective patch
-> hunk from this mail that I folded into the patch. git.kernel.org will
-> show notes by default. For example,
-> https://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs.git/commit/?h=3Dv=
-fs.ctime&id=3D8b0e3c2e99004609a16ba145bcbdfdddb78e220e
-> should show you the note I added. You can also fetch them via
-> git fetch $remote refs/notes/*:refs/notes/*
-> (You probably know that ofc but jic.) if you're interested.
->=20
-> Based on v6.5-rc1 as of today.
->=20
+On Thu,  6 Jul 2023 14:53:35 +0000
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-Many thanks!!! I'll get to work rebasing the multigrain timestamp series
-on top of that.
+> Validities usually indicate KVM errors and as such we want to print a
+> message with a high priority to alert users that a validity
+> occurred. With the introduction of Protected VMs it's become very easy
+> to trigger validities via IOCTLs if the VM is in PV mode.
+> 
+> An optimal solution would be to return EINVALs to all IOCTLs that
+> could result in such a situation. Unfortunately there are quite a lot
+> of ways to trigger PV validities since the number of allowed SCB data
+> combinations are very limited by FW in order to provide the guest's
+> security.
+> 
+> Let's only log those validities to the KVM sysfs log and skip the
+> WARN_ONCE(). This way we get a longish lasting log entry.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 
-> Btw, both b4 and patchwork somehow treat the series in weird was.
-> IOW, based on the message id of the cover letter I was able to pull most
-> messages except for:
->=20
-> [07/92] fs: add ctime accessors infrastructure
-> [08/92] fs: new helper: simple_rename_timestamp
-> [92/92] fs: rename i_ctime field to __i_ctime
->=20
-> which I pulled in separately. Not sure what the cause of=A0
->=20
-> this is.
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-Good to know.
+> ---
+> 
+> int -> ext:
+>  * Fixed range
+>  * Extended commit message 
+> 
+> ---
+>  arch/s390/kvm/intercept.c | 12 +++++++++---
+>  1 file changed, 9 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+> index 954d39adf85c..f3c1220fd1e2 100644
+> --- a/arch/s390/kvm/intercept.c
+> +++ b/arch/s390/kvm/intercept.c
+> @@ -97,9 +97,15 @@ static int handle_validity(struct kvm_vcpu *vcpu)
+>  	KVM_EVENT(3, "validity intercept 0x%x for pid %u (kvm 0x%pK)", viwhy,
+>  		  current->pid, vcpu->kvm);
+>  
+> -	/* do not warn on invalid runtime instrumentation mode */
+> -	WARN_ONCE(viwhy != 0x44, "kvm: unhandled validity intercept 0x%x\n",
+> -		  viwhy);
+> +	/*
+> +	 * Do not warn on:
+> +	 *  - invalid runtime instrumentation mode
+> +	 *  - PV related validities since they can be triggered by userspace
+> +	 *    PV validities are in the 0x2XXX range
+> +	 */
+> +	WARN_ONCE(viwhy != 0x44 &&
+> +		  ((viwhy < 0x2000) || (viwhy >= 0x3000)),
+> +		  "kvm: unhandled validity intercept 0x%x\n", viwhy);
+>  	return -EINVAL;
+>  }
+>  
 
-I ended up doing the send in two phases: one for the cover letter and
-infrastructure patches that went to everyone, and one for the per-
-subsystem patches that went do individual maintainers and lists.
-
-I suspect that screwed up the message IDs somehow. Hopefully I won't
-need to do a posting like that again soon, but I'll pay closer attention
-to the message id handling next time.
-
-Thanks again!
---=20
-Jeff Layton <jlayton@kernel.org>
