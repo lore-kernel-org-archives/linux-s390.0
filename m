@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04D97C001B0
-	for <linux-s390@archiver.kernel.org>; Tue, 11 Jul 2023 02:31:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2B62EB64DC
+	for <linux-s390@archiver.kernel.org>; Tue, 11 Jul 2023 02:31:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231298AbjGKCbx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 10 Jul 2023 22:31:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35778 "EHLO
+        id S230047AbjGKCby (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 10 Jul 2023 22:31:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231383AbjGKCbu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Jul 2023 22:31:50 -0400
+        with ESMTP id S231414AbjGKCbw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Jul 2023 22:31:52 -0400
 Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B6DD1AC;
-        Mon, 10 Jul 2023 19:31:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 198C3CA;
+        Mon, 10 Jul 2023 19:31:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1689042710; x=1720578710;
+  t=1689042711; x=1720578711;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=Cw5q/x8iFiAWleDzpwNMsBaOgKBGI0jR+jvZ2itY57k=;
-  b=Gh6vSxcLGluxijeuhghks4nyOUMInQaPiwUaFHkfU0u9Dn+7irnVVTkJ
-   bZmExmPRr6P7QbrU14WRF19HDV1ZTXcfxw4I8lDaeqTMjYIAMe7pGRURM
-   wYx5ZqTO7KzkoSpQH2WEgWnSNjmW352UElhTru4WgOwwerUeAW2s/W+C3
-   cO+PEzVYQ4k3bwmjuTP8Y1w6XyLlUcRQDBC0JYoARutDuulznTuDmpBHN
-   MB32nvEkB5FkUMly1ZVqajywlOJ72UCvGWYHb2BD1xiwGx9VfJ/tJ6qg7
-   Vz1jd8G0WALaQJz/GSJAt2TXmcum26B/VuRtM9UpzMReqm/w5Q2e6pOnd
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10767"; a="368004663"
+  bh=IzrAn20ByJL63NIYU7HEQmy4xx7HzzCXurkAzXmi5jA=;
+  b=e85IOZschsItG7xFeWn1hGDSkSDxFoxpnG9YBWwB9XLX/BbszQeLVzmp
+   yXJOVKrgcSDAosQs+oTb3IPJ9TLl2M8Dao8ig9D+tEzVG7Z/UJQoPoKQo
+   VDvG8hB0zxnJOfIUN9+36Pqrue7SFXH/P4IYLRb8NwPGKwybRFMZMKH2m
+   +f5SQAl32LjKYA2WOrJmgdmbj6vh3nB4lm0pR0IutjUSSq7nRUSLtQ67g
+   /QXeMIuqn8ROsm/rUDmxHlfGix0Xx8IZIsdenP7HLXvuKgTtButKosqJ6
+   0c1ujBJGywje7Uhn/RKYrZ5x+6KNsr5IglyQO/kYhiUIYFtGuxj5uY337
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10767"; a="368004700"
 X-IronPort-AV: E=Sophos;i="6.01,195,1684825200"; 
-   d="scan'208";a="368004663"
+   d="scan'208";a="368004700"
 Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jul 2023 19:31:29 -0700
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jul 2023 19:31:31 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10767"; a="720907561"
+X-IronPort-AV: E=McAfee;i="6600,9927,10767"; a="720907585"
 X-IronPort-AV: E=Sophos;i="6.01,195,1684825200"; 
-   d="scan'208";a="720907561"
+   d="scan'208";a="720907585"
 Received: from 984fee00a4c6.jf.intel.com ([10.165.58.231])
-  by orsmga002.jf.intel.com with ESMTP; 10 Jul 2023 19:31:29 -0700
+  by orsmga002.jf.intel.com with ESMTP; 10 Jul 2023 19:31:31 -0700
 From:   Yi Liu <yi.l.liu@intel.com>
 To:     alex.williamson@redhat.com, jgg@nvidia.com, kevin.tian@intel.com
 Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
@@ -51,9 +51,9 @@ Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
         xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
         yanting.jiang@intel.com, zhenzhong.duan@intel.com,
         clegoate@redhat.com
-Subject: [PATCH v9 03/10] iommufd: Reserve all negative IDs in the iommufd xarray
-Date:   Mon, 10 Jul 2023 19:31:19 -0700
-Message-Id: <20230711023126.5531-4-yi.l.liu@intel.com>
+Subject: [PATCH v9 06/10] vfio: Mark cdev usage in vfio_device
+Date:   Mon, 10 Jul 2023 19:31:22 -0700
+Message-Id: <20230711023126.5531-7-yi.l.liu@intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230711023126.5531-1-yi.l.liu@intel.com>
 References: <20230711023126.5531-1-yi.l.liu@intel.com>
@@ -63,30 +63,33 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-With this reservation, IOMMUFD users can encode the negative IDs for
-specific purposes. e.g. VFIO needs two reserved values to tell userspace
-the ID returned is not valid but has other meaning.
+This can be used to differentiate whether to report group_id or devid in
+the revised VFIO_DEVICE_GET_PCI_HOT_RESET_INFO ioctl. At this moment, no
+cdev path yet, so the vfio_device_cdev_opened() helper always returns false.
 
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
 Tested-by: Terrence Xu <terrence.xu@intel.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Yi Liu <yi.l.liu@intel.com>
 ---
- drivers/iommu/iommufd/main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/vfio.h | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/iommu/iommufd/main.c b/drivers/iommu/iommufd/main.c
-index 3fbe636c3d8a..32ce7befc8dd 100644
---- a/drivers/iommu/iommufd/main.c
-+++ b/drivers/iommu/iommufd/main.c
-@@ -50,7 +50,7 @@ struct iommufd_object *_iommufd_object_alloc(struct iommufd_ctx *ictx,
- 	 * before calling iommufd_object_finalize().
- 	 */
- 	rc = xa_alloc(&ictx->objects, &obj->id, XA_ZERO_ENTRY,
--		      xa_limit_32b, GFP_KERNEL_ACCOUNT);
-+		      xa_limit_31b, GFP_KERNEL_ACCOUNT);
- 	if (rc)
- 		goto out_free;
- 	return obj;
+diff --git a/include/linux/vfio.h b/include/linux/vfio.h
+index 2c137ea94a3e..2a45853773a6 100644
+--- a/include/linux/vfio.h
++++ b/include/linux/vfio.h
+@@ -139,6 +139,11 @@ int vfio_iommufd_emulated_attach_ioas(struct vfio_device *vdev, u32 *pt_id);
+ 	((int (*)(struct vfio_device *vdev, u32 *pt_id)) NULL)
+ #endif
+ 
++static inline bool vfio_device_cdev_opened(struct vfio_device *device)
++{
++	return false;
++}
++
+ /**
+  * struct vfio_migration_ops - VFIO bus device driver migration callbacks
+  *
 -- 
 2.34.1
 
