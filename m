@@ -2,116 +2,107 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5E35C04A94
-	for <linux-s390@archiver.kernel.org>; Tue, 11 Jul 2023 17:37:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79CFFEB64DC
+	for <linux-s390@archiver.kernel.org>; Tue, 11 Jul 2023 22:03:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231853AbjGKRhQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 Jul 2023 13:37:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43618 "EHLO
+        id S230464AbjGKWDm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 11 Jul 2023 18:03:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229491AbjGKRhP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Jul 2023 13:37:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7F62E4F;
-        Tue, 11 Jul 2023 10:37:13 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CE7861579;
-        Tue, 11 Jul 2023 17:37:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E41BC433C8;
-        Tue, 11 Jul 2023 17:37:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1689097032;
-        bh=g+dg42YNtsQJhOjtGMIfYdxeMk+Q5chUUpj1UHPyuI0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OU0fx9r/gW1jdTCG/iJZoodUiAYpTTMgryh+eUwK0SvFFeCzBDxABJWQ/HAhpM8ye
-         yBnM//6OA543xk4QBgEbWFDkvCh7ONFKnet6T2nY6GiJNGe++LpNHsBO53yIxRC1dw
-         CLUi1qmmodaux6upnMNyF/KqqubSxVHA67DwxYH/aO5VwDsXvdD1T4BZZhZWFZrom9
-         +nthUGNjjcFzaX2bY1z9qhdSCg7rB6hz0xgLF1oCv+tCDu8UN7UNhRG5OCUuJUdOw+
-         UBXBTnHv6L2WRueaCic7RFYV1/lmEsdEsvaplXp/1qHno7ehBsSMmEORgYmfsLOmFl
-         vPA4Eb9AXLl0w==
-From:   Christian Brauner <brauner@kernel.org>
-To:     Alexey Gladkov <legion@kernel.org>
-Cc:     Christian Brauner <brauner@kernel.org>,
-        James.Bottomley@HansenPartnership.com, acme@kernel.org,
-        alexander.shishkin@linux.intel.com, axboe@kernel.dk,
-        benh@kernel.crashing.org, bp@alien8.de, catalin.marinas@arm.com,
-        dalias@libc.org, davem@davemloft.net, deepa.kernel@gmail.com,
-        deller@gmx.de, dhowells@redhat.com, fenghua.yu@intel.com,
-        fweimer@redhat.com, geert@linux-m68k.org, glebfm@altlinux.org,
-        gor@linux.ibm.com, hare@suse.com, hpa@zytor.com,
-        ink@jurassic.park.msu.ru, jhogan@kernel.org, kim.phillips@arm.com,
-        ldv@altlinux.org, linux-alpha@vger.kernel.org,
-        linux-arch@vger.kernel.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, linux@armlinux.org.uk,
-        linuxppc-dev@lists.ozlabs.org, luto@kernel.org, mattst88@gmail.com,
-        mingo@redhat.com, monstr@monstr.eu, mpe@ellerman.id.au,
-        namhyung@kernel.org, peterz@infradead.org, ralf@linux-mips.org,
-        sparclinux@vger.kernel.org, stefan@agner.ch, tglx@linutronix.de,
-        tony.luck@intel.com, will@kernel.org, x86@kernel.org,
-        ysato@users.sourceforge.jp,
+        with ESMTP id S229551AbjGKWDm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Jul 2023 18:03:42 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A50D170C;
+        Tue, 11 Jul 2023 15:03:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=ruHFUTBYjMeb32nlu48tPWaF8pJMw/xDaOvIEKoJxjs=; b=dM0kbTdzbqKGUs8PimqMlhNiuL
+        9K4ZZr2jq02N7HlVgZJqCrsXNsqTj6GnaTbU8l/IjScJNP6nakX2h0eCO+bC333AGt7nU/hvME/Lj
+        ZHVdPns8UL3cG9OrzULU08YpFnZGnmAjWcNiDKuWfUwxQv1RqOmOCHD3fX4RJTaARboBTqyXv6dHZ
+        8udt53NgleBXCmfQNQEp22OAtqArpSuFhdiJTOSQIrSPtxCceljxvAiJLDr6q9/hhcD6V5kDiDN+r
+        3avXUTIcn9afQ0u+MWJAaiMKgXRUqGsbdTmuRtkfYVLg+w2KIXqkL0lYcqc1RUQhDqk3Fi0X2Vn0v
+        hEDneSog==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1qJLSM-00G5VK-9M; Tue, 11 Jul 2023 22:03:38 +0000
+Date:   Tue, 11 Jul 2023 23:03:38 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Tycho Andersen <tycho@tycho.pizza>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, linux-api@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk
-Subject: Re: (subset) [PATCH v4 0/5] Add a new fchmodat2() syscall
-Date:   Tue, 11 Jul 2023 19:36:45 +0200
-Message-Id: <20230711-befreien-unwiderruflich-c2265c61e514@brauner>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <cover.1689092120.git.legion@kernel.org>
-References: <cover.1689074739.git.legion@kernel.org> <cover.1689092120.git.legion@kernel.org>
+        linux-arch@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH v5 00/38] New page table range API
+Message-ID: <ZK3Ruo6g4fujTrOY@casper.infradead.org>
+References: <20230710204339.3554919-1-willy@infradead.org>
+ <8cfc3eef-e387-88e1-1006-2d7d97a09213@linux.ibm.com>
+ <ZK1My5hQYC2Kb6G1@casper.infradead.org>
+ <20230711172440.77504856@p-imbrenda>
+ <20230711095233.aa74320d729c1da818a6a4ed@linux-foundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1700; i=brauner@kernel.org; h=from:subject:message-id; bh=g+dg42YNtsQJhOjtGMIfYdxeMk+Q5chUUpj1UHPyuI0=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMaSsnSxT9aGqYFXo8u/Pv0u8/8n7p3Ja0Z4JQu5vS1/e2JvM Xda7tKOUhUGMi0FWTJHFod0kXG45T8Vmo0wNmDmsTCBDGLg4BWAiwv8ZGa5HavbtmudR8P/916OJ0j 91rvW3zk3vj11VUnvmNlvDpK2MDJ8umZ/uZt1qWrp9+6sJ/1y98jZJfQleeOMaf2RRS0fvbmYA
-X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230711095233.aa74320d729c1da818a6a4ed@linux-foundation.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 11 Jul 2023 18:16:02 +0200, Alexey Gladkov wrote:
-> In glibc, the fchmodat(3) function has a flags argument according to the
-> POSIX specification [1], but kernel syscalls has no such argument.
-> Therefore, libc implementations do workarounds using /proc. However,
-> this requires procfs to be mounted and accessible.
+On Tue, Jul 11, 2023 at 09:52:33AM -0700, Andrew Morton wrote:
+> On Tue, 11 Jul 2023 17:24:40 +0200 Claudio Imbrenda <imbrenda@linux.ibm.com> wrote:
 > 
-> This patch set adds fchmodat2(), a new syscall. The syscall allows to
-> pass the AT_SYMLINK_NOFOLLOW flag to disable LOOKUP_FOLLOW. In all other
-> respects, this syscall is no different from fchmodat().
+> > On Tue, 11 Jul 2023 13:36:27 +0100
+> > Matthew Wilcox <willy@infradead.org> wrote:
+> > 
+> > > On Tue, Jul 11, 2023 at 11:07:06AM +0200, Christian Borntraeger wrote:
+> > > > Am 10.07.23 um 22:43 schrieb Matthew Wilcox (Oracle):  
+> > > > > This patchset changes the API used by the MM to set up page table entries.
+> > > > > The four APIs are:
+> > > > >      set_ptes(mm, addr, ptep, pte, nr)
+> > > > >      update_mmu_cache_range(vma, addr, ptep, nr)
+> > > > >      flush_dcache_folio(folio)
+> > > > >      flush_icache_pages(vma, page, nr)
+> > > > > 
+> > > > > flush_dcache_folio() isn't technically new, but no architecture
+> > > > > implemented it, so I've done that for them.  The old APIs remain around
+> > > > > but are mostly implemented by calling the new interfaces.
+> > > > > 
+> > > > > The new APIs are based around setting up N page table entries at once.
+> > > > > The N entries belong to the same PMD, the same folio and the same VMA,
+> > > > > so ptep++ is a legitimate operation, and locking is taken care of for
+> > > > > you.  Some architectures can do a better job of it than just a loop,
+> > > > > but I have hesitated to make too deep a change to architectures I don't
+> > > > > understand well.
+> > > > > 
+> > > > > One thing I have changed in every architecture is that PG_arch_1 is now a
+> > > > > per-folio bit instead of a per-page bit.  This was something that would
+> > > > > have to happen eventually, and it makes sense to do it now rather than
+> > > > > iterate over every page involved in a cache flush and figure out if it
+> > > > > needs to happen.  
+> > > > 
+> > > > I think we do use PG_arch_1 on s390 for our secure page handling and
+> > > > making this perf folio instead of physical page really seems wrong
+> > > > and it probably breaks this code.  
+> > > 
+> > > Per-page flags are going away in the next few years, so you're going to
+> > 
+> > For each 4k physical page frame, we need to keep track whether it is
+> > secure or not.
+> > 
+> > A bit in struct page seems the most logical choice. If that's not
+> > possible anymore, how would you propose we should do?
+> > 
+> > > need a new design.  s390 seems to do a lot of unusual things.  I wish
+> > 
+> > s390 is an unusual architecture. we are working on un-weirding our
+> > code, but it takes time
+> > 
 > 
-> [...]
+> This issue sounds fatal for this version of this patchset?
 
-Tools updates usually go separately.
-Flags argument ported to unsigned int; otherwise unchanged.
-
----
-
-Applied to the master branch of the vfs/vfs.git tree.
-Patches in the master branch should appear in linux-next soon.
-
-Please report any outstanding bugs that were missed during review in a
-new review to the original patch series allowing us to drop it.
-
-It's encouraged to provide Acked-bys and Reviewed-bys even though the
-patch has now been applied. If possible patch trailers will be updated.
-
-Note that commit hashes shown below are subject to change due to rebase,
-trailer updates or similar. If in doubt, please check the listed branch.
-
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs.git
-branch: master
-
-[1/5] Non-functional cleanup of a "__user * filename"
-      https://git.kernel.org/vfs/vfs/c/0f05a6af6b7e
-[2/5] fs: Add fchmodat2()
-      https://git.kernel.org/vfs/vfs/c/8d593559ec09
-[3/5] arch: Register fchmodat2, usually as syscall 452
-      https://git.kernel.org/vfs/vfs/c/2ee63b04f206
-[5/5] selftests: Add fchmodat2 selftest
-      https://git.kernel.org/vfs/vfs/c/f175b92081ec
+It's only declared as being per-folio in the cover letter to this
+patchset.  I haven't done anything that will prohibit s390 from using it
+the way they do now.  So it's not fatal, but it sounds like the
+in_range() macro might be ...
