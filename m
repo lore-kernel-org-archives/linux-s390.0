@@ -2,134 +2,147 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19CD8EB64DC
-	for <linux-s390@archiver.kernel.org>; Tue, 11 Jul 2023 15:25:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D9E4C00528
+	for <linux-s390@archiver.kernel.org>; Tue, 11 Jul 2023 16:17:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232139AbjGKPZK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 Jul 2023 11:25:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42030 "EHLO
+        id S232201AbjGKQRD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 11 Jul 2023 12:17:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232138AbjGKPZG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Jul 2023 11:25:06 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EA001709;
-        Tue, 11 Jul 2023 08:25:01 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36BFElpw015862;
-        Tue, 11 Jul 2023 15:24:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=8vRKIB/oQSe4Fw8xR2W+LRHW6mvyUpJiz4TUanc6P/U=;
- b=H417dPSMKp6L5jR6Xh6YEFUIDTLT7ar5WfwgdzN00bnd7a95kJVeRgk1K2eWeDyiK1sm
- WtNaeTrrnGHcw7ZdEjX4h9ZUMXD+SNjOUDlYnT8oJfj6S0LUeIz27PgXPKJXdDHdCyNq
- FLAkiSzM2lGIFd9Xir08B66tkl4MgigU35goPOepOTdYK9Xk9mOhI37g77N53nLKeHbj
- dv1ZzVjuY3f/uj3q9v0xCB8/5VKN4+UtJnIWt32oal0wzFuAkJDqFYgrQCY01WKU1glu
- hTPWxDb/h8I8bwoGhzQD6fuJjiWoxXMAdNjHdfc9aBY8ZLabEbXyKIG+upDPKjlK+1iP FA== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rs9j80ah4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 11 Jul 2023 15:24:48 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36B9vbmo015539;
-        Tue, 11 Jul 2023 15:24:46 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3rpy2e1v28-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 11 Jul 2023 15:24:45 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36BFOgV550201022
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 11 Jul 2023 15:24:42 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 691A020040;
-        Tue, 11 Jul 2023 15:24:42 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1E1BC20043;
-        Tue, 11 Jul 2023 15:24:42 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 11 Jul 2023 15:24:42 +0000 (GMT)
-Date:   Tue, 11 Jul 2023 17:24:40 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-arch@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>
-Subject: Re: [PATCH v5 00/38] New page table range API
-Message-ID: <20230711172440.77504856@p-imbrenda>
-In-Reply-To: <ZK1My5hQYC2Kb6G1@casper.infradead.org>
-References: <20230710204339.3554919-1-willy@infradead.org>
-        <8cfc3eef-e387-88e1-1006-2d7d97a09213@linux.ibm.com>
-        <ZK1My5hQYC2Kb6G1@casper.infradead.org>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+        with ESMTP id S231825AbjGKQRA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Jul 2023 12:17:00 -0400
+Received: from us-smtp-delivery-44.mimecast.com (us-smtp-delivery-44.mimecast.com [205.139.111.44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B7A710FC
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jul 2023 09:16:57 -0700 (PDT)
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-124-imzzeDBEMu-0xqerZ7W6tg-1; Tue, 11 Jul 2023 12:16:53 -0400
+X-MC-Unique: imzzeDBEMu-0xqerZ7W6tg-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1B32529AB45B;
+        Tue, 11 Jul 2023 16:16:49 +0000 (UTC)
+Received: from localhost.localdomain.com (unknown [10.45.225.44])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 67B04200B406;
+        Tue, 11 Jul 2023 16:16:36 +0000 (UTC)
+From:   Alexey Gladkov <legion@kernel.org>
+To:     LKML <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        linux-api@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        viro@zeniv.linux.org.uk
+Cc:     James.Bottomley@HansenPartnership.com, acme@kernel.org,
+        alexander.shishkin@linux.intel.com, axboe@kernel.dk,
+        benh@kernel.crashing.org, borntraeger@de.ibm.com, bp@alien8.de,
+        catalin.marinas@arm.com, christian@brauner.io, dalias@libc.org,
+        davem@davemloft.net, deepa.kernel@gmail.com, deller@gmx.de,
+        dhowells@redhat.com, fenghua.yu@intel.com, fweimer@redhat.com,
+        geert@linux-m68k.org, glebfm@altlinux.org, gor@linux.ibm.com,
+        hare@suse.com, hpa@zytor.com, ink@jurassic.park.msu.ru,
+        jhogan@kernel.org, kim.phillips@arm.com, ldv@altlinux.org,
+        linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        linux@armlinux.org.uk, linuxppc-dev@lists.ozlabs.org,
+        luto@kernel.org, mattst88@gmail.com, mingo@redhat.com,
+        monstr@monstr.eu, mpe@ellerman.id.au, namhyung@kernel.org,
+        paulus@samba.org, peterz@infradead.org, ralf@linux-mips.org,
+        sparclinux@vger.kernel.org, stefan@agner.ch, tglx@linutronix.de,
+        tony.luck@intel.com, tycho@tycho.ws, will@kernel.org,
+        x86@kernel.org, ysato@users.sourceforge.jp
+Subject: [PATCH v4 0/5] Add a new fchmodat2() syscall
+Date:   Tue, 11 Jul 2023 18:16:02 +0200
+Message-Id: <cover.1689092120.git.legion@kernel.org>
+In-Reply-To: <cover.1689074739.git.legion@kernel.org>
+References: <cover.1689074739.git.legion@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: HXlugPUk1Rr1lSlFvJf0rDVCUbZBdS0K
-X-Proofpoint-GUID: HXlugPUk1Rr1lSlFvJf0rDVCUbZBdS0K
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-11_08,2023-07-11_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=1 phishscore=0 spamscore=1
- impostorscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1011
- adultscore=0 mlxscore=1 mlxlogscore=224 suspectscore=0 priorityscore=1501
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2307110135
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 11 Jul 2023 13:36:27 +0100
-Matthew Wilcox <willy@infradead.org> wrote:
+In glibc, the fchmodat(3) function has a flags argument according to the
+POSIX specification [1], but kernel syscalls has no such argument.
+Therefore, libc implementations do workarounds using /proc. However,
+this requires procfs to be mounted and accessible.
 
-> On Tue, Jul 11, 2023 at 11:07:06AM +0200, Christian Borntraeger wrote:
-> > Am 10.07.23 um 22:43 schrieb Matthew Wilcox (Oracle):  
-> > > This patchset changes the API used by the MM to set up page table entries.
-> > > The four APIs are:
-> > >      set_ptes(mm, addr, ptep, pte, nr)
-> > >      update_mmu_cache_range(vma, addr, ptep, nr)
-> > >      flush_dcache_folio(folio)
-> > >      flush_icache_pages(vma, page, nr)
-> > > 
-> > > flush_dcache_folio() isn't technically new, but no architecture
-> > > implemented it, so I've done that for them.  The old APIs remain around
-> > > but are mostly implemented by calling the new interfaces.
-> > > 
-> > > The new APIs are based around setting up N page table entries at once.
-> > > The N entries belong to the same PMD, the same folio and the same VMA,
-> > > so ptep++ is a legitimate operation, and locking is taken care of for
-> > > you.  Some architectures can do a better job of it than just a loop,
-> > > but I have hesitated to make too deep a change to architectures I don't
-> > > understand well.
-> > > 
-> > > One thing I have changed in every architecture is that PG_arch_1 is now a
-> > > per-folio bit instead of a per-page bit.  This was something that would
-> > > have to happen eventually, and it makes sense to do it now rather than
-> > > iterate over every page involved in a cache flush and figure out if it
-> > > needs to happen.  
-> > 
-> > I think we do use PG_arch_1 on s390 for our secure page handling and
-> > making this perf folio instead of physical page really seems wrong
-> > and it probably breaks this code.  
-> 
-> Per-page flags are going away in the next few years, so you're going to
+This patch set adds fchmodat2(), a new syscall. The syscall allows to
+pass the AT_SYMLINK_NOFOLLOW flag to disable LOOKUP_FOLLOW. In all other
+respects, this syscall is no different from fchmodat().
 
-For each 4k physical page frame, we need to keep track whether it is
-secure or not.
+[1] https://pubs.opengroup.org/onlinepubs/9699919799/functions/chmod.html
 
-A bit in struct page seems the most logical choice. If that's not
-possible anymore, how would you propose we should do?
+Changes since v3 [cover.1689074739.git.legion@kernel.org]:
 
-> need a new design.  s390 seems to do a lot of unusual things.  I wish
+* Rebased to master because a new syscall has appeared in master.
+* Increased __NR_compat_syscalls as pointed out by Arnd Bergmann.
+* Syscall renamed fchmodat4 -> fchmodat2 as suggested by Christian Brauner.
+* Returned do_fchmodat4() the original name. We don't need to version
+  internal functions.
+* Fixed warnings found by checkpatch.pl.
 
-s390 is an unusual architecture. we are working on un-weirding our
-code, but it takes time
+Changes since v2 [20190717012719.5524-1-palmer@sifive.com]:
 
-> you'd talk to the rest of us more.
+* Rebased to master.
+* The lookup_flags passed to sys_fchmodat4 as suggested by Al Viro.
+* Selftest added.
+
+Changes since v1 [20190531191204.4044-1-palmer@sifive.com]:
+
+* All architectures are now supported, which support squashed into a
+  single patch.
+* The do_fchmodat() helper function has been removed, in favor of directly
+  calling do_fchmodat4().
+* The patches are based on 5.2 instead of 5.1.
+
+---
+
+Alexey Gladkov (2):
+  fs: Add fchmodat2()
+  selftests: Add fchmodat2 selftest
+
+Palmer Dabbelt (3):
+  Non-functional cleanup of a "__user * filename"
+  arch: Register fchmodat2, usually as syscall 452
+  tools headers UAPI: Sync files changed by new fchmodat2 syscall
+
+ arch/alpha/kernel/syscalls/syscall.tbl        |   1 +
+ arch/arm/tools/syscall.tbl                    |   1 +
+ arch/arm64/include/asm/unistd.h               |   2 +-
+ arch/arm64/include/asm/unistd32.h             |   2 +
+ arch/ia64/kernel/syscalls/syscall.tbl         |   1 +
+ arch/m68k/kernel/syscalls/syscall.tbl         |   1 +
+ arch/microblaze/kernel/syscalls/syscall.tbl   |   1 +
+ arch/mips/kernel/syscalls/syscall_n32.tbl     |   1 +
+ arch/mips/kernel/syscalls/syscall_n64.tbl     |   1 +
+ arch/mips/kernel/syscalls/syscall_o32.tbl     |   1 +
+ arch/parisc/kernel/syscalls/syscall.tbl       |   1 +
+ arch/powerpc/kernel/syscalls/syscall.tbl      |   1 +
+ arch/s390/kernel/syscalls/syscall.tbl         |   1 +
+ arch/sh/kernel/syscalls/syscall.tbl           |   1 +
+ arch/sparc/kernel/syscalls/syscall.tbl        |   1 +
+ arch/x86/entry/syscalls/syscall_32.tbl        |   1 +
+ arch/x86/entry/syscalls/syscall_64.tbl        |   1 +
+ arch/xtensa/kernel/syscalls/syscall.tbl       |   1 +
+ fs/open.c                                     |  18 +-
+ include/linux/syscalls.h                      |   4 +-
+ include/uapi/asm-generic/unistd.h             |   5 +-
+ tools/include/uapi/asm-generic/unistd.h       |   5 +-
+ .../arch/mips/entry/syscalls/syscall_n64.tbl  |   2 +
+ .../arch/powerpc/entry/syscalls/syscall.tbl   |   2 +
+ .../perf/arch/s390/entry/syscalls/syscall.tbl |   2 +
+ .../arch/x86/entry/syscalls/syscall_64.tbl    |   2 +
+ tools/testing/selftests/Makefile              |   1 +
+ tools/testing/selftests/fchmodat2/.gitignore  |   2 +
+ tools/testing/selftests/fchmodat2/Makefile    |   6 +
+ .../selftests/fchmodat2/fchmodat2_test.c      | 162 ++++++++++++++++++
+ 30 files changed, 223 insertions(+), 8 deletions(-)
+ create mode 100644 tools/testing/selftests/fchmodat2/.gitignore
+ create mode 100644 tools/testing/selftests/fchmodat2/Makefile
+ create mode 100644 tools/testing/selftests/fchmodat2/fchmodat2_test.c
+
+-- 
+2.33.8
 
