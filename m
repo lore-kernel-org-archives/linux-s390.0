@@ -2,115 +2,115 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01CD2EB64DC
-	for <linux-s390@archiver.kernel.org>; Tue, 11 Jul 2023 08:07:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 630BDEB64DC
+	for <linux-s390@archiver.kernel.org>; Tue, 11 Jul 2023 08:44:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230352AbjGKIHx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 Jul 2023 04:07:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36958 "EHLO
+        id S231148AbjGKIoV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 11 Jul 2023 04:44:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229635AbjGKIHw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Jul 2023 04:07:52 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1FB61A8;
-        Tue, 11 Jul 2023 01:07:51 -0700 (PDT)
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36B7lUov026716;
-        Tue, 11 Jul 2023 08:07:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- in-reply-to : references : from : to : cc : subject : message-id : date :
- content-transfer-encoding : mime-version; s=pp1;
- bh=Q/Z9iZkbSdrl2W+2/+DEOo+14gUnRcdgy1YqWt1pPLI=;
- b=JO3GoAyLZ88Yw7MFJvqNtq/emP7W6+DVo9pcfP1ST2ZmniMOWsIt0dvLpB8DROGjvCyW
- KHSjsz3jXkJp7G4oEf2J/t7wa/YCPulvJjhGQ7Ld79O3MxZ0cn0dg+Ed/WsHtX4hIwQH
- aGpHFbhuwou7/3JiOKOcgrc0ZiOLHzOImDDYwGSjbWboUj9XqDTZxgHcXalpOU3VTjyO
- TtsFxMx5xy/he9S5pYGMEaYWhNS4oefO0mE7+k21rGYY7/wbTbrlJ+tAvwNgX0b+SQtA
- wCmvmLyJmBURtzOyx3wq+E/MHmM2z0sCqEJdzgZvQMSjkhd0djj8ceagywilw/SNFrDa Kw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rs309rkac-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 11 Jul 2023 08:07:51 +0000
-Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36B7pE4v004310;
-        Tue, 11 Jul 2023 08:07:50 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rs309rk8a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 11 Jul 2023 08:07:50 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36B7vkqb004141;
-        Tue, 11 Jul 2023 08:07:48 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3rpye598cu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 11 Jul 2023 08:07:48 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36B87i4834669150
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 11 Jul 2023 08:07:44 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AFEFE2004B;
-        Tue, 11 Jul 2023 08:07:44 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8ECAC20040;
-        Tue, 11 Jul 2023 08:07:44 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.68.148])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 11 Jul 2023 08:07:44 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
-In-Reply-To: <d52e4c34-55f0-56a5-1543-52fefb39e2a6@redhat.com>
-References: <20230627082155.6375-1-pmorel@linux.ibm.com> <20230627082155.6375-3-pmorel@linux.ibm.com> <ffc48a06-52b2-fc65-e12d-58603d13b3e6@redhat.com> <168897816265.42553.541677592228445286@t14-nrb> <d52e4c34-55f0-56a5-1543-52fefb39e2a6@redhat.com>
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Pierre Morel <pmorel@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>, linux-s390@vger.kernel.org
+        with ESMTP id S230017AbjGKIoU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Jul 2023 04:44:20 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11AE3E6F
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jul 2023 01:43:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1689065009;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=uUu4PL9YIqWcJDoz1iYa6iEBpdujMvrErvf1ceFhKC8=;
+        b=Xfq+ZxpUQ42CrNliZay0PfsmYR2IoN9SdhmAdRit4xJrCRBh6FPppydXnIbf72SrzdqSow
+        nH9zt4yAvvaHxn6Sq9F57dJ9AAAI+KkeA/wJscS715OwJYgYa6KjW4T+NajTgAZza5ivNR
+        1/vxOWSL2pk8oQHPw8sduUWsIvM7NUg=
+Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
+ [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-630-MBJTav9UMWyZgJO85Zp41A-1; Tue, 11 Jul 2023 04:43:28 -0400
+X-MC-Unique: MBJTav9UMWyZgJO85Zp41A-1
+Received: by mail-qv1-f71.google.com with SMTP id 6a1803df08f44-635325b87c9so59566166d6.1
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jul 2023 01:43:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1689065007; x=1691657007;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=uUu4PL9YIqWcJDoz1iYa6iEBpdujMvrErvf1ceFhKC8=;
+        b=X46u2wsz6QVVe/XzDD61KDPW0rrxYmsIjKnprYrkREXelu9OKBTgKlOYX+P7CNVTrH
+         I+FDU86hHYgyayibXBy67b9PFDxTTvGxZZuLqauJQ6FtyyZMokleE5LF4KkHtDkCsigJ
+         otXhCrEvpjx8GP6alZu/xmFKa6nMgwwCKCfPTk4gfufL1X3dcBsyAWT6Ex2DU722bGot
+         kBdQyaNDCKynwccGqvMfxx1LmH6IC2gMmfEXFBz3dQSpwEgQaA7lyiRcN83flsBG0MJ4
+         Ocxf949yazmO5i0DnPpfImQ+pKGICbRFPfxhd7vcHC89F8T5s/jRh4rQ76m31cHFGY61
+         it/w==
+X-Gm-Message-State: ABy/qLZwEW8Ejdx1ov1HQh+jHvz9kmTjPawgqf5B7zi0vKhUSH66tHz4
+        YOnMhvf/gMOme8kW0K2nN8W+o8GRtNH3Q4FAabttkBt12HCOCQgcWUzGI/Jddd8i7S+Ahwmu4JP
+        mq/5TIc7wim/yN+5YSu2dqQ==
+X-Received: by 2002:a0c:e404:0:b0:631:f9ad:1d46 with SMTP id o4-20020a0ce404000000b00631f9ad1d46mr14182374qvl.47.1689065007683;
+        Tue, 11 Jul 2023 01:43:27 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlGj7Vd/vQTScrAG5ij63JKspRZF0xJa4kLp0VBmiMtFSOODfIYmuhY6YAYY2/wK7Wqh2pD3+g==
+X-Received: by 2002:a0c:e404:0:b0:631:f9ad:1d46 with SMTP id o4-20020a0ce404000000b00631f9ad1d46mr14182363qvl.47.1689065007480;
+        Tue, 11 Jul 2023 01:43:27 -0700 (PDT)
+Received: from [10.33.192.205] (nat-pool-str-t.redhat.com. [149.14.88.106])
+        by smtp.gmail.com with ESMTPSA id h7-20020a37c447000000b0076745f352adsm757917qkm.59.2023.07.11.01.43.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 11 Jul 2023 01:43:27 -0700 (PDT)
+Message-ID: <6c690eb9-06b1-a5e8-4875-e0d83f8d1ce7@redhat.com>
+Date:   Tue, 11 Jul 2023 10:43:25 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.12.0
+Subject: Re: [kvm-unit-tests PATCH v10 2/2] s390x: topology: Checking
+ Configuration Topology Information
+To:     Nico Boehr <nrb@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
 Cc:     frankja@linux.ibm.com, kvm@vger.kernel.org, imbrenda@linux.ibm.com,
         david@redhat.com, nsg@linux.ibm.com
-Subject: Re: [kvm-unit-tests PATCH v10 2/2] s390x: topology: Checking Configuration Topology Information
-Message-ID: <168906286416.9488.17612605115280167157@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Tue, 11 Jul 2023 10:07:44 +0200
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 0cc-zX8DdW6CAdI8UPatmffqzCdP6K5s
-X-Proofpoint-GUID: UtdVO0aO5NAqSnalyIhGXg6HndFQrfmV
-Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-11_04,2023-07-06_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
- priorityscore=1501 malwarescore=0 clxscore=1015 impostorscore=0
- bulkscore=0 spamscore=0 mlxlogscore=903 suspectscore=0 mlxscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2307110071
+References: <20230627082155.6375-1-pmorel@linux.ibm.com>
+ <20230627082155.6375-3-pmorel@linux.ibm.com>
+ <ffc48a06-52b2-fc65-e12d-58603d13b3e6@redhat.com>
+ <168897816265.42553.541677592228445286@t14-nrb>
+ <d52e4c34-55f0-56a5-1543-52fefb39e2a6@redhat.com>
+ <168906286416.9488.17612605115280167157@t14-nrb>
+Content-Language: en-US
+From:   Thomas Huth <thuth@redhat.com>
+In-Reply-To: <168906286416.9488.17612605115280167157@t14-nrb>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Thomas Huth (2023-07-10 16:38:22)
-> On 10/07/2023 10.36, Nico Boehr wrote:
-> > Quoting Thomas Huth (2023-07-06 12:48:50)
-> > [...]
-> >> Does this patch series depend on some other patches that are not upstr=
-eam
-> >> yet? I just tried to run the test, but I'm only getting:
-> >>
-> >>    lib/s390x/sclp.c:122: assert failed: read_info
-> >>
-> >> Any ideas what could be wrong?
-> >=20
-> > Yep, as you guessed this depends on:
-> > Fixing infinite loop on SCLP READ SCP INFO error
-> > https://lore.kernel.org/all/20230601164537.31769-1-pmorel@linux.ibm.com/
->=20
-> Ok, that fixes the assertion, but now I get a test failure:
->=20
-> ABORT: READ_SCP_INFO failed
->=20
-> What else could I be missing?
+On 11/07/2023 10.07, Nico Boehr wrote:
+> Quoting Thomas Huth (2023-07-10 16:38:22)
+>> On 10/07/2023 10.36, Nico Boehr wrote:
+>>> Quoting Thomas Huth (2023-07-06 12:48:50)
+>>> [...]
+>>>> Does this patch series depend on some other patches that are not upstream
+>>>> yet? I just tried to run the test, but I'm only getting:
+>>>>
+>>>>     lib/s390x/sclp.c:122: assert failed: read_info
+>>>>
+>>>> Any ideas what could be wrong?
+>>>
+>>> Yep, as you guessed this depends on:
+>>> Fixing infinite loop on SCLP READ SCP INFO error
+>>> https://lore.kernel.org/all/20230601164537.31769-1-pmorel@linux.ibm.com/
+>>
+>> Ok, that fixes the assertion, but now I get a test failure:
+>>
+>> ABORT: READ_SCP_INFO failed
+>>
+>> What else could I be missing?
+> 
+> Argh, I forgot that you need this fixup to the patch:
+> https://lore.kernel.org/all/269afffb-2d56-3b2f-9d83-485d0d29fab5@linux.ibm.com/
+> 
+> If that doesn't work, let me know, so I can try and reproduce it here.
 
-Argh, I forgot that you need this fixup to the patch:
-https://lore.kernel.org/all/269afffb-2d56-3b2f-9d83-485d0d29fab5@linux.ibm.=
-com/
+Thank you very much, removing that line fixed the problem, indeed. Both 
+topology tests are passing now on my z15 LPAR.
 
-If that doesn't work, let me know, so I can try and reproduce it here.
+Tested-by: Thomas Huth <thuth@redhat.com>
+
+
