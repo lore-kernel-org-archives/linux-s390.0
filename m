@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9480FC001DD
-	for <linux-s390@archiver.kernel.org>; Tue, 11 Jul 2023 02:31:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB924C001B0
+	for <linux-s390@archiver.kernel.org>; Tue, 11 Jul 2023 02:31:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231593AbjGKCb4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 10 Jul 2023 22:31:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35810 "EHLO
+        id S230375AbjGKCby (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 10 Jul 2023 22:31:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231646AbjGKCbx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Jul 2023 22:31:53 -0400
+        with ESMTP id S231424AbjGKCbv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Jul 2023 22:31:51 -0400
 Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B46A11AC;
-        Mon, 10 Jul 2023 19:31:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5068F91;
+        Mon, 10 Jul 2023 19:31:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1689042712; x=1720578712;
+  t=1689042710; x=1720578710;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=unyaXR5kZ823+ELcC0xyzG7tD4kEy8mBmvo8Jl0Rb70=;
-  b=NYt2i+7rMtKDCbCtZseeJGmPL0eAydJHf18gL9yTLn3GruIdBj/hJGp8
-   Kr0Hv+3p/SePJZjc6i1L6DfMOWN5zCzSxsh331AU4mhRMIkm+pMo2MRZc
-   5tQi+JKqO4vCJcXSqvST+P588OdBHzLjRzmy4dLimvTIwMgXyNCQ/Je8/
-   oaCnjsbu+1hH/lIctI4G/dYn5K3SM+ga9vWViVGDZ6CfwH3amjwOq15MF
-   y7JUJ+B7aH4uXYG/IiZy9cTRkiuRmPumsaQxePknPork2V0tIFYAC0qQb
-   a3LC70du1+Iupif/oH+3Bwx0BWIBGX0VGESpE27Vko1lEDLauY+7qYVh1
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10767"; a="368004713"
+  bh=+OumhvwrYbIKe/8xTuyP24ud3DRRb6zaVFkWwr8+NWg=;
+  b=aSQZHYOiwrOLn64BTYeYnI+BWHwgZLuY6974F6OrvDhdRlzKuVu5C5pf
+   h67DFMe6eT5PWYJOF18miIqxVUh5ixwfeNrjnGBRiZgnThneMqVdl2q2j
+   r5EppDZc+6bqBGL43c6pkvp/bbf2aANRxX7E8oLU0WNkqcTpKAGUSzOtR
+   fUFR2Xe11bXeE2dUijo+FDvljadnJO9KB9283b36MwYfzkz/R0jzrsslt
+   iKeQFzo79BgsJxckjLzN2VxblfWoyZB6Lpt6GiOyxwPV92aErmPgVfCx9
+   nb/Wek3buLHQ4sXt8yRqO8VJfMAyPXkvud7b495pL9Be/CnnVsF/+NfXd
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10767"; a="368004675"
 X-IronPort-AV: E=Sophos;i="6.01,195,1684825200"; 
-   d="scan'208";a="368004713"
+   d="scan'208";a="368004675"
 Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jul 2023 19:31:32 -0700
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jul 2023 19:31:30 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10767"; a="720907595"
+X-IronPort-AV: E=McAfee;i="6600,9927,10767"; a="720907571"
 X-IronPort-AV: E=Sophos;i="6.01,195,1684825200"; 
-   d="scan'208";a="720907595"
+   d="scan'208";a="720907571"
 Received: from 984fee00a4c6.jf.intel.com ([10.165.58.231])
-  by orsmga002.jf.intel.com with ESMTP; 10 Jul 2023 19:31:32 -0700
+  by orsmga002.jf.intel.com with ESMTP; 10 Jul 2023 19:31:29 -0700
 From:   Yi Liu <yi.l.liu@intel.com>
 To:     alex.williamson@redhat.com, jgg@nvidia.com, kevin.tian@intel.com
 Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
@@ -51,9 +51,9 @@ Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
         xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
         yanting.jiang@intel.com, zhenzhong.duan@intel.com,
         clegoate@redhat.com
-Subject: [PATCH v9 07/10] vfio: Add helper to search vfio_device in a dev_set
-Date:   Mon, 10 Jul 2023 19:31:23 -0700
-Message-Id: <20230711023126.5531-8-yi.l.liu@intel.com>
+Subject: [PATCH v9 04/10] iommufd: Add iommufd_ctx_has_group()
+Date:   Mon, 10 Jul 2023 19:31:20 -0700
+Message-Id: <20230711023126.5531-5-yi.l.liu@intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230711023126.5531-1-yi.l.liu@intel.com>
 References: <20230711023126.5531-1-yi.l.liu@intel.com>
@@ -63,82 +63,80 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-There are drivers that need to search vfio_device within a given dev_set.
-e.g. vfio-pci. So add a helper.
+This adds the helper to check if any device within the given iommu_group
+has been bound with the iommufd_ctx. This is helpful for the checking on
+device ownership for the devices which have not been bound but cannot be
+bound to any other iommufd_ctx as the iommu_group has been bound.
 
-vfio_pci_is_device_in_set() now returns -EBUSY in commit a882c16a2b7e
-("vfio/pci: Change vfio_pci_try_bus_reset() to use the dev_set") where
-it was trying to preserve the return of vfio_pci_try_zap_and_vma_lock_cb().
-However, it makes more sense to return -ENODEV.
-
-Suggested-by: Alex Williamson <alex.williamson@redhat.com>
 Tested-by: Terrence Xu <terrence.xu@intel.com>
 Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Yi Liu <yi.l.liu@intel.com>
 ---
- drivers/vfio/pci/vfio_pci_core.c |  6 +-----
- drivers/vfio/vfio_main.c         | 15 +++++++++++++++
- include/linux/vfio.h             |  3 +++
- 3 files changed, 19 insertions(+), 5 deletions(-)
+ drivers/iommu/iommufd/device.c | 30 ++++++++++++++++++++++++++++++
+ include/linux/iommufd.h        |  2 ++
+ 2 files changed, 32 insertions(+)
 
-diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-index 3d595ad2ed0a..5b5316a5484a 100644
---- a/drivers/vfio/pci/vfio_pci_core.c
-+++ b/drivers/vfio/pci/vfio_pci_core.c
-@@ -2377,12 +2377,8 @@ static bool vfio_dev_in_groups(struct vfio_pci_core_device *vdev,
- static int vfio_pci_is_device_in_set(struct pci_dev *pdev, void *data)
- {
- 	struct vfio_device_set *dev_set = data;
--	struct vfio_device *cur;
- 
--	list_for_each_entry(cur, &dev_set->device_list, dev_set_list)
--		if (cur->dev == &pdev->dev)
--			return 0;
--	return -EBUSY;
-+	return vfio_find_device_in_devset(dev_set, &pdev->dev) ? 0 : -ENODEV;
+diff --git a/drivers/iommu/iommufd/device.c b/drivers/iommu/iommufd/device.c
+index 29d05663d4d1..693c2155a5da 100644
+--- a/drivers/iommu/iommufd/device.c
++++ b/drivers/iommu/iommufd/device.c
+@@ -98,6 +98,36 @@ struct iommufd_device *iommufd_device_bind(struct iommufd_ctx *ictx,
  }
+ EXPORT_SYMBOL_NS_GPL(iommufd_device_bind, IOMMUFD);
  
- /*
-diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-index f0ca33b2e1df..ab4f3a794f78 100644
---- a/drivers/vfio/vfio_main.c
-+++ b/drivers/vfio/vfio_main.c
-@@ -141,6 +141,21 @@ unsigned int vfio_device_set_open_count(struct vfio_device_set *dev_set)
- }
- EXPORT_SYMBOL_GPL(vfio_device_set_open_count);
- 
-+struct vfio_device *
-+vfio_find_device_in_devset(struct vfio_device_set *dev_set,
-+			   struct device *dev)
++/**
++ * iommufd_ctx_has_group - True if any device within the group is bound
++ *                         to the ictx
++ * @ictx: iommufd file descriptor
++ * @group: Pointer to a physical iommu_group struct
++ *
++ * True if any device within the group has been bound to this ictx, ex. via
++ * iommufd_device_bind(), therefore implying ictx ownership of the group.
++ */
++bool iommufd_ctx_has_group(struct iommufd_ctx *ictx, struct iommu_group *group)
 +{
-+	struct vfio_device *cur;
++	struct iommufd_object *obj;
++	unsigned long index;
 +
-+	lockdep_assert_held(&dev_set->lock);
++	if (!ictx || !group)
++		return false;
 +
-+	list_for_each_entry(cur, &dev_set->device_list, dev_set_list)
-+		if (cur->dev == dev)
-+			return cur;
-+	return NULL;
++	xa_lock(&ictx->objects);
++	xa_for_each(&ictx->objects, index, obj) {
++		if (obj->type == IOMMUFD_OBJ_DEVICE &&
++		    container_of(obj, struct iommufd_device, obj)->group == group) {
++			xa_unlock(&ictx->objects);
++			return true;
++		}
++	}
++	xa_unlock(&ictx->objects);
++	return false;
 +}
-+EXPORT_SYMBOL_GPL(vfio_find_device_in_devset);
++EXPORT_SYMBOL_NS_GPL(iommufd_ctx_has_group, IOMMUFD);
 +
- /*
-  * Device objects - create, release, get, put, search
-  */
-diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-index 2a45853773a6..ee120d2d530b 100644
---- a/include/linux/vfio.h
-+++ b/include/linux/vfio.h
-@@ -244,6 +244,9 @@ void vfio_unregister_group_dev(struct vfio_device *device);
+ /**
+  * iommufd_device_unbind - Undo iommufd_device_bind()
+  * @idev: Device returned by iommufd_device_bind()
+diff --git a/include/linux/iommufd.h b/include/linux/iommufd.h
+index 1129a36a74c4..f241bafa03da 100644
+--- a/include/linux/iommufd.h
++++ b/include/linux/iommufd.h
+@@ -16,6 +16,7 @@ struct page;
+ struct iommufd_ctx;
+ struct iommufd_access;
+ struct file;
++struct iommu_group;
  
- int vfio_assign_device_set(struct vfio_device *device, void *set_id);
- unsigned int vfio_device_set_open_count(struct vfio_device_set *dev_set);
-+struct vfio_device *
-+vfio_find_device_in_devset(struct vfio_device_set *dev_set,
-+			   struct device *dev);
+ struct iommufd_device *iommufd_device_bind(struct iommufd_ctx *ictx,
+ 					   struct device *dev, u32 *id);
+@@ -50,6 +51,7 @@ void iommufd_ctx_get(struct iommufd_ctx *ictx);
+ #if IS_ENABLED(CONFIG_IOMMUFD)
+ struct iommufd_ctx *iommufd_ctx_from_file(struct file *file);
+ void iommufd_ctx_put(struct iommufd_ctx *ictx);
++bool iommufd_ctx_has_group(struct iommufd_ctx *ictx, struct iommu_group *group);
  
- int vfio_mig_get_next_state(struct vfio_device *device,
- 			    enum vfio_device_mig_state cur_fsm,
+ int iommufd_access_pin_pages(struct iommufd_access *access, unsigned long iova,
+ 			     unsigned long length, struct page **out_pages,
 -- 
 2.34.1
 
