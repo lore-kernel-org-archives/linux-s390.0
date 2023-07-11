@@ -2,93 +2,149 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B73CEB64DC
-	for <linux-s390@archiver.kernel.org>; Tue, 11 Jul 2023 15:18:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 481C1C00528
+	for <linux-s390@archiver.kernel.org>; Tue, 11 Jul 2023 15:24:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231720AbjGKPSr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 Jul 2023 11:18:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38044 "EHLO
+        id S231839AbjGKPYR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 11 Jul 2023 11:24:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231678AbjGKPSi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Jul 2023 11:18:38 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75CFB9E;
-        Tue, 11 Jul 2023 08:18:37 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36BFF2No016941;
-        Tue, 11 Jul 2023 15:18:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : from
- : to : cc : subject : message-id : date; s=pp1;
- bh=ASYvEAEg58jzfr0uCG8q5lwqerxnbVzb/1DLtoelZms=;
- b=R7CsUwmucePLq2g0B2VCiRUtILvLSwruLlDFlyOf3RE38UuTq73Q9wpgJe6Hu03hZc7p
- jlhzWieSLRp3sowz3jZXuLWMV6M2YA+CF1NFZL00tvbxZQrUIpveBlfTO841IUZhFLnw
- AUImM/vvLoT0GNhXTFns19CDP/VrCjnJPJ5LdTCVSYlgpuEB4wGbuih9e0hAh9rfEydQ
- I8cArSjHk4mO4fBAPD+Xno+VxgA6T4OeWF2ElERyLPhfUCDq72PbMwkKcHJkfWWbVH80
- Kr5wOQBPEx1lH2BNB3dGoMqpESr1AyY8RtuDmp2juq1bqtCh/bnkG6sqEr0ERTBc/WyP IQ== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rs9j803yg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 11 Jul 2023 15:18:36 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36B7fD5Y018540;
-        Tue, 11 Jul 2023 15:18:34 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3rpy2e9d3t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 11 Jul 2023 15:18:34 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36BFITYv5309020
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 11 Jul 2023 15:18:29 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EBA8620040;
-        Tue, 11 Jul 2023 15:18:28 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C6D962004B;
-        Tue, 11 Jul 2023 15:18:28 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.51.229])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 11 Jul 2023 15:18:28 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S231846AbjGKPYO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Jul 2023 11:24:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FA5B10D4;
+        Tue, 11 Jul 2023 08:24:13 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D3C96155C;
+        Tue, 11 Jul 2023 15:24:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46E26C433C8;
+        Tue, 11 Jul 2023 15:23:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1689089052;
+        bh=nyE4suotIowU8lKnKt+Umw+WI2Pk9iMcLZepBf+apY8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=oEo8yqXLBQcJ016nZmVI6o/nx3t9By5un0RV4fbIKnHDk0VPSpp+yaNMirBtqzWpT
+         bol75aJRCGOWCT+N9yMrkrQVwEwDB8XWpgODtk3yI+ILPLq5smsYwABPzHWMi/M7KG
+         kUQJPylWrx/7Ql611uTnEHF8Ca7MkikIUy5rcrlWGkGARPI3nHILM6AFuZYEin+imM
+         n1HaEaVU7q0NQmuz7v6I6ZbkSVwp4NjRBykveJpCllqGcxPS/L657fKrCDqE1FNaLz
+         6d5tD55ouC0ebYXHDNhkXWIbv52u/QY77xgQ0vpiUD4ePJr/j3HQZKSAuDU9No0IwC
+         1j5Imns1pImTQ==
+Date:   Tue, 11 Jul 2023 17:23:50 +0200
+From:   Alexey Gladkov <legion@kernel.org>
+To:     Christian Brauner <brauner@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, LKML <linux-kernel@vger.kernel.org>,
+        linux-api@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Palmer Dabbelt <palmer@sifive.com>,
+        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        christian@brauner.io, Rich Felker <dalias@libc.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        Helge Deller <deller@gmx.de>,
+        David Howells <dhowells@redhat.com>, fenghua.yu@intel.com,
+        firoz.khan@linaro.org, Florian Weimer <fweimer@redhat.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>, glebfm@altlinux.org,
+        gor@linux.ibm.com, hare@suse.com, heiko.carstens@de.ibm.com,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>, jhogan@kernel.org,
+        Kim Phillips <kim.phillips@arm.com>, ldv@altlinux.org,
+        linux-alpha@vger.kernel.org,
+        Linux-Arch <linux-arch@vger.kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        linuxppc-dev@lists.ozlabs.org, Andy Lutomirski <luto@kernel.org>,
+        Matt Turner <mattst88@gmail.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Michal Simek <monstr@monstr.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Namhyung Kim <namhyung@kernel.org>, paul.burton@mips.com,
+        Paul Mackerras <paulus@samba.org>,
+        Peter Zijlstra <peterz@infradead.org>, ralf@linux-mips.org,
+        rth@twiddle.net, schwidefsky@de.ibm.com,
+        sparclinux@vger.kernel.org, stefan@agner.ch,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tony Luck <tony.luck@intel.com>, tycho@tycho.ws,
+        Will Deacon <will@kernel.org>, x86@kernel.org,
+        Yoshinori Sato <ysato@users.sourceforge.jp>
+Subject: Re: [PATCH v3 2/5] fs: Add fchmodat4()
+Message-ID: <ZK10BmqxjL/Njbmj@example.org>
+References: <87o8pscpny.fsf@oldenburg2.str.redhat.com>
+ <cover.1689074739.git.legion@kernel.org>
+ <d11b93ad8e3b669afaff942e25c3fca65c6a983c.1689074739.git.legion@kernel.org>
+ <83363cbb-2431-4520-81a9-0d71f420cb36@app.fastmail.com>
+ <20230711-demolieren-nilpferd-80ffe47563ad@brauner>
+ <ZK1QNRidZuGcfOSd@example.org>
+ <20230711-verpennen-turnier-717bb9682e19@brauner>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20230705111937.33472-2-imbrenda@linux.ibm.com>
-References: <20230705111937.33472-1-imbrenda@linux.ibm.com> <20230705111937.33472-2-imbrenda@linux.ibm.com>
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        frankja@linux.ibm.com, mhartmay@linux.ibm.com, nsg@linux.ibm.com,
-        borntraeger@de.ibm.com
-Subject: Re: [PATCH v2 1/2] KVM: s390: pv: simplify shutdown and fix race
-Message-ID: <168908870840.9488.10883720390869049418@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Tue, 11 Jul 2023 17:18:28 +0200
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 1GAatIAo8lgqXvCgI3AThbYOnw_A0UlB
-X-Proofpoint-GUID: 1GAatIAo8lgqXvCgI3AThbYOnw_A0UlB
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-11_08,2023-07-11_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
- impostorscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1011
- adultscore=0 mlxscore=0 mlxlogscore=841 suspectscore=0 priorityscore=1501
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2307110135
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230711-verpennen-turnier-717bb9682e19@brauner>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Claudio Imbrenda (2023-07-05 13:19:36)
-> Simplify the shutdown of non-protected VMs. There is no need to do
-> complex manipulations of the counter if it was zero.
->=20
-> This also fixes a very rare race which caused pages to be torn down
-> from the address space with a non-zero counter even on older machines
-> that don't support the UVC instruction, causing a crash.
->=20
-> Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-> Fixes: fb491d5500a7 ("KVM: s390: pv: asynchronous destroy for reboot")
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+On Tue, Jul 11, 2023 at 04:01:03PM +0200, Christian Brauner wrote:
+> On Tue, Jul 11, 2023 at 02:51:01PM +0200, Alexey Gladkov wrote:
+> > On Tue, Jul 11, 2023 at 01:52:01PM +0200, Christian Brauner wrote:
+> > > On Tue, Jul 11, 2023 at 01:42:19PM +0200, Arnd Bergmann wrote:
+> > > > On Tue, Jul 11, 2023, at 13:25, Alexey Gladkov wrote:
+> > > > > From: Palmer Dabbelt <palmer@sifive.com>
+> > > > >
+> > > > > On the userspace side fchmodat(3) is implemented as a wrapper
+> > > > > function which implements the POSIX-specified interface. This
+> > > > > interface differs from the underlying kernel system call, which does not
+> > > > > have a flags argument. Most implementations require procfs [1][2].
+> > > > >
+> > > > > There doesn't appear to be a good userspace workaround for this issue
+> > > > > but the implementation in the kernel is pretty straight-forward.
+> > > > >
+> > > > > The new fchmodat4() syscall allows to pass the AT_SYMLINK_NOFOLLOW flag,
+> > > > > unlike existing fchmodat.
+> > > > >
+> > > > > [1] 
+> > > > > https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/unix/sysv/linux/fchmodat.c;h=17eca54051ee28ba1ec3f9aed170a62630959143;hb=a492b1e5ef7ab50c6fdd4e4e9879ea5569ab0a6c#l35
+> > > > > [2] 
+> > > > > https://git.musl-libc.org/cgit/musl/tree/src/stat/fchmodat.c?id=718f363bc2067b6487900eddc9180c84e7739f80#n28
+> > > > >
+> > > > > Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
+> > > > > Signed-off-by: Alexey Gladkov <legion@kernel.org>
+> > > > 
+> > > > I don't know the history of why we ended up with the different
+> > > > interface, or whether this was done intentionally in the kernel
+> > > > or if we want this syscall.
+> > > > 
+> > > > Assuming this is in fact needed, I double-checked that the
+> > > > implementation looks correct to me and is portable to all the
+> > > > architectures, without the need for a compat wrapper.
+> > > > 
+> > > > Acked-by: Arnd Bergmann <arnd@arndb.de>
+> > > 
+> > > The system call itself is useful afaict. But please,
+> > > 
+> > > s/fchmodat4/fchmodat2/
+> > 
+> > Sure. I will.
+> 
+> Thanks. Can you also wire this up for every architecture, please?
+> I don't see that this has been done in this series.
 
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+Sure. I have already added in all architectures as far as I can tell:
+
+$ diff -s <(find arch/ -name '*.tbl' |sort -u) <(git grep -lw fchmodat2 arch/ |sort -u)
+Files /dev/fd/63 and /dev/fd/62 are identical
+
+-- 
+Rgrds, legion
+
