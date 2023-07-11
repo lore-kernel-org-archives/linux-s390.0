@@ -2,130 +2,104 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16422C0015E
-	for <linux-s390@archiver.kernel.org>; Tue, 11 Jul 2023 16:26:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AFD0FEB64DC
+	for <linux-s390@archiver.kernel.org>; Tue, 11 Jul 2023 16:52:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230474AbjGKQ0l (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 Jul 2023 12:26:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57672 "EHLO
+        id S230227AbjGKQwh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 11 Jul 2023 12:52:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229917AbjGKQ0k (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Jul 2023 12:26:40 -0400
-Received: from out4-smtp.messagingengine.com (out4-smtp.messagingengine.com [66.111.4.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10EC6DD;
-        Tue, 11 Jul 2023 09:26:39 -0700 (PDT)
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
-        by mailout.nyi.internal (Postfix) with ESMTP id 4D4BB5C00DE;
-        Tue, 11 Jul 2023 12:26:38 -0400 (EDT)
-Received: from imap50 ([10.202.2.100])
-  by compute6.internal (MEProxy); Tue, 11 Jul 2023 12:26:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-        :cc:content-type:content-type:date:date:from:from:in-reply-to
-        :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm2; t=1689092798; x=1689179198; bh=W5
-        R3dRJEuDedU4mfmE2aIPLz0te1yZv4ob1QkUmzMKM=; b=ODbLFxMV5mwHkhiuHu
-        8y59t2aO2M11yWSHec1S1N+Tp6IFvOKHClzlg+U848vHZFecknqfAciJTZ3jLeIB
-        fD6V6Q5ow1Smr20ur+LFpqZwBINrmTUvnNZsiVh/Y0YWNtYxenQp8zE/pLbpg80z
-        ninH5I1YWvHickc/XUbLcXNFu65A/CUBO0j39o5KLFZw5L5woc4vjGNllJsF8iLy
-        JKToX960nkwne8mujYhw5PG3fV1/Zkpr/FHN77eaet7FXA9x2JORMQ0E+pIggAz9
-        aB8jzB5q9bBBevc3z+DbT3ltAcgPkgF/3YBFaaAJiNO5ypzY2ZGl9sfiJI7VnyBU
-        0Gcw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:content-type:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; t=1689092798; x=1689179198; bh=W5R3dRJEuDedU
-        4mfmE2aIPLz0te1yZv4ob1QkUmzMKM=; b=L4keh8DpXJJ7c686XwDTafCd5Xoej
-        ZIIO+4gouATQ6mRad2021iqSClCxCaLwgVsKzMgMnwZ6bKhUwQLXz8xy7EFGYXlw
-        pbN/VDJmrKTcBxxxuloD6UNM6DK7Vi+lshUrtUQZ9PuoUK1GjrEOtjFBZUuqIR8d
-        YH8atg0ARD20qKAZNb5UwhVcvZo9GGR0DWtoHtKhEKARANny0ACXpeSgeey57Sbg
-        X5bUZT5GkxA9sJsGMCfQQs3mu6xawiXRdZbqowNEuL2GMnYz/qSRYZeDH766Y7ZJ
-        GZEmvFc9+gCVu/tPaDrIVDSOLexdEpAWfpHXNSLh/zFz8p+9xvzSx5Z6Q==
-X-ME-Sender: <xms:vYKtZCZrOO206uZQnBLnw6Pzd8s2LG5LJYdLLwT0ZLRpxQeZRT_iLQ>
-    <xme:vYKtZFbfR7QXzcyM-Jbvm_VOr-y41p-qepX7Qi3sCOX6qThZwQapG0LxacIu45E6y
-    xOqXyS2HTH7tGJZGVk>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedviedrfedtgddutddvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
-    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
-    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
-    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:voKtZM-z6cPt4LX676_QKmMEL3FC9Nbc_wfhpx-TUWLi5fsRPzeOyg>
-    <xmx:voKtZEr1xOtzYXuXwgB_dRsyLrMMOiFVPUC2ogGjOljw8dgQazlo4Q>
-    <xmx:voKtZNqwuN9Pb7uMw3mBTIkWmWSNpZhGZYMjmAo9oZk56CJSGcc6nw>
-    <xmx:voKtZGCExvlOjQjyuIxzA6wUIHYxacY7u7DMuS8LSM2bmqs1FjT-UA>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id CE2AA1700090; Tue, 11 Jul 2023 12:26:37 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.9.0-alpha0-531-gfdfa13a06d-fm-20230703.001-gfdfa13a0
+        with ESMTP id S230155AbjGKQwg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Jul 2023 12:52:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8390E75;
+        Tue, 11 Jul 2023 09:52:35 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D3B661578;
+        Tue, 11 Jul 2023 16:52:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66564C433C7;
+        Tue, 11 Jul 2023 16:52:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1689094354;
+        bh=tPUlfpdEgVeWU0fEHmbznxG/fGtFy4lDdLUuzVWVgqU=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=Ifj3AekL98UeHTVQ1xETMb3/VKh08B5fL854XmdDUd9ksG2I7VYkY1ZcVn/9Sb/o4
+         rHd70rHd4B6iP9MbnqQa+A8/Jn/zkdH/rHsGz7ViYLrSxCXhSl4G4alFIgvCeF4YbB
+         0SCL1lbtyu6s3X2g84bDvTB/gZumLGBIdOMqY1jE=
+Date:   Tue, 11 Jul 2023 09:52:33 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Matthew Wilcox <willy@infradead.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-arch@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH v5 00/38] New page table range API
+Message-Id: <20230711095233.aa74320d729c1da818a6a4ed@linux-foundation.org>
+In-Reply-To: <20230711172440.77504856@p-imbrenda>
+References: <20230710204339.3554919-1-willy@infradead.org>
+        <8cfc3eef-e387-88e1-1006-2d7d97a09213@linux.ibm.com>
+        <ZK1My5hQYC2Kb6G1@casper.infradead.org>
+        <20230711172440.77504856@p-imbrenda>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-Message-Id: <8d8cef73-1733-4e0b-bede-034895a820bd@app.fastmail.com>
-In-Reply-To: <a677d521f048e4ca439e7080a5328f21eb8e960e.1689092120.git.legion@kernel.org>
-References: <cover.1689074739.git.legion@kernel.org>
- <cover.1689092120.git.legion@kernel.org>
- <a677d521f048e4ca439e7080a5328f21eb8e960e.1689092120.git.legion@kernel.org>
-Date:   Tue, 11 Jul 2023 18:26:17 +0200
-From:   "Arnd Bergmann" <arnd@arndb.de>
-To:     "Alexey Gladkov" <legion@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, linux-api@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        "Alexander Viro" <viro@zeniv.linux.org.uk>
-Cc:     "Palmer Dabbelt" <palmer@sifive.com>,
-        "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
-        "Arnaldo Carvalho de Melo" <acme@kernel.org>,
-        "Alexander Shishkin" <alexander.shishkin@linux.intel.com>,
-        "Jens Axboe" <axboe@kernel.dk>,
-        "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-        "Christian Borntraeger" <borntraeger@de.ibm.com>,
-        "Borislav Petkov" <bp@alien8.de>,
-        "Catalin Marinas" <catalin.marinas@arm.com>, christian@brauner.io,
-        "Rich Felker" <dalias@libc.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        "Deepa Dinamani" <deepa.kernel@gmail.com>,
-        "Helge Deller" <deller@gmx.de>,
-        "David Howells" <dhowells@redhat.com>, fenghua.yu@intel.com,
-        "Florian Weimer" <fweimer@redhat.com>,
-        "Geert Uytterhoeven" <geert@linux-m68k.org>, glebfm@altlinux.org,
-        gor@linux.ibm.com, hare@suse.com, "H. Peter Anvin" <hpa@zytor.com>,
-        "Ivan Kokshaysky" <ink@jurassic.park.msu.ru>, jhogan@kernel.org,
-        "Kim Phillips" <kim.phillips@arm.com>, ldv@altlinux.org,
-        linux-alpha@vger.kernel.org,
-        Linux-Arch <linux-arch@vger.kernel.org>,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        "Russell King" <linux@armlinux.org.uk>,
-        linuxppc-dev@lists.ozlabs.org, "Andy Lutomirski" <luto@kernel.org>,
-        "Matt Turner" <mattst88@gmail.com>,
-        "Ingo Molnar" <mingo@redhat.com>,
-        "Michal Simek" <monstr@monstr.eu>,
-        "Michael Ellerman" <mpe@ellerman.id.au>,
-        "Namhyung Kim" <namhyung@kernel.org>,
-        "Paul Mackerras" <paulus@samba.org>,
-        "Peter Zijlstra" <peterz@infradead.org>, ralf@linux-mips.org,
-        sparclinux@vger.kernel.org, stefan@agner.ch,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Tony Luck" <tony.luck@intel.com>, tycho@tycho.ws,
-        "Will Deacon" <will@kernel.org>, x86@kernel.org,
-        "Yoshinori Sato" <ysato@users.sourceforge.jp>
-Subject: Re: [PATCH v4 3/5] arch: Register fchmodat2, usually as syscall 452
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jul 11, 2023, at 18:16, Alexey Gladkov wrote:
-> From: Palmer Dabbelt <palmer@sifive.com>
->
-> This registers the new fchmodat2 syscall in most places as nuber 452,
-> with alpha being the exception where it's 562.  I found all these sites
-> by grepping for fspick, which I assume has found me everything.
->
-> Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
-> Signed-off-by: Alexey Gladkov <legion@kernel.org>
+On Tue, 11 Jul 2023 17:24:40 +0200 Claudio Imbrenda <imbrenda@linux.ibm.com> wrote:
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+> On Tue, 11 Jul 2023 13:36:27 +0100
+> Matthew Wilcox <willy@infradead.org> wrote:
+> 
+> > On Tue, Jul 11, 2023 at 11:07:06AM +0200, Christian Borntraeger wrote:
+> > > Am 10.07.23 um 22:43 schrieb Matthew Wilcox (Oracle):  
+> > > > This patchset changes the API used by the MM to set up page table entries.
+> > > > The four APIs are:
+> > > >      set_ptes(mm, addr, ptep, pte, nr)
+> > > >      update_mmu_cache_range(vma, addr, ptep, nr)
+> > > >      flush_dcache_folio(folio)
+> > > >      flush_icache_pages(vma, page, nr)
+> > > > 
+> > > > flush_dcache_folio() isn't technically new, but no architecture
+> > > > implemented it, so I've done that for them.  The old APIs remain around
+> > > > but are mostly implemented by calling the new interfaces.
+> > > > 
+> > > > The new APIs are based around setting up N page table entries at once.
+> > > > The N entries belong to the same PMD, the same folio and the same VMA,
+> > > > so ptep++ is a legitimate operation, and locking is taken care of for
+> > > > you.  Some architectures can do a better job of it than just a loop,
+> > > > but I have hesitated to make too deep a change to architectures I don't
+> > > > understand well.
+> > > > 
+> > > > One thing I have changed in every architecture is that PG_arch_1 is now a
+> > > > per-folio bit instead of a per-page bit.  This was something that would
+> > > > have to happen eventually, and it makes sense to do it now rather than
+> > > > iterate over every page involved in a cache flush and figure out if it
+> > > > needs to happen.  
+> > > 
+> > > I think we do use PG_arch_1 on s390 for our secure page handling and
+> > > making this perf folio instead of physical page really seems wrong
+> > > and it probably breaks this code.  
+> > 
+> > Per-page flags are going away in the next few years, so you're going to
+> 
+> For each 4k physical page frame, we need to keep track whether it is
+> secure or not.
+> 
+> A bit in struct page seems the most logical choice. If that's not
+> possible anymore, how would you propose we should do?
+> 
+> > need a new design.  s390 seems to do a lot of unusual things.  I wish
+> 
+> s390 is an unusual architecture. we are working on un-weirding our
+> code, but it takes time
+> 
+
+This issue sounds fatal for this version of this patchset?
