@@ -2,120 +2,132 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D16EFEB64D9
-	for <linux-s390@archiver.kernel.org>; Wed, 12 Jul 2023 12:56:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3582BEB64DD
+	for <linux-s390@archiver.kernel.org>; Wed, 12 Jul 2023 13:42:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232276AbjGLM4w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 Jul 2023 08:56:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35554 "EHLO
+        id S232609AbjGLNmT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 Jul 2023 09:42:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231908AbjGLM4v (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Jul 2023 08:56:51 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75151173B;
-        Wed, 12 Jul 2023 05:56:50 -0700 (PDT)
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36CCqls1015912;
-        Wed, 12 Jul 2023 12:56:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=DM/+bB1GI+w8sbgcaGTj8NxYs1rqWPKdOCH7h7tAdIo=;
- b=g1g0qgYYWFBC65sFjn+7gX8CLn9MVITi7fhPiRh/PSebXXipBlXrE/TL4m6TbqJKdKvH
- 0KLmMi8vyP7I3319wMJBva1a9Fjat+r3MQH91TpFebbC+8CN9Y5ZjOTeMOBrgM1FHy+i
- nqqGANA6KjOPSgA1w4xfsZUU+U/aqoboGUb4wYu6QuETUhuC3b6LamdO1UTCyo9RkYv6
- iXYMEboB/ylgfcQbfIe2IEcEMAsoXNC8Bocv13DSDpXuZGa8cVphPdGQOPa/7SfrK7H+
- xu5DJ50g2YwegcaqSa0COUpLVVaLn8xJFsSDmm6XURXZT/jRbZ0VOoNV/mzL6BRhOnRH pA== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rsvjbr2yt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 Jul 2023 12:56:42 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36C8V7gi022696;
-        Wed, 12 Jul 2023 12:56:40 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3rpy2e9wts-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 Jul 2023 12:56:40 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36CCuaIV17171110
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 12 Jul 2023 12:56:36 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 73DA22004B;
-        Wed, 12 Jul 2023 12:56:36 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2C31620043;
-        Wed, 12 Jul 2023 12:56:36 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Wed, 12 Jul 2023 12:56:36 +0000 (GMT)
-Date:   Wed, 12 Jul 2023 14:56:34 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Jeff Layton <jlayton@kernel.org>
-Cc:     Christian Brauner <brauner@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v2 16/92] s390: convert to ctime accessor functions
-Message-ID: <ZK6jApBgBnDk14cj@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20230705185755.579053-1-jlayton@kernel.org>
- <20230705190309.579783-1-jlayton@kernel.org>
- <20230705190309.579783-14-jlayton@kernel.org>
-MIME-Version: 1.0
+        with ESMTP id S229572AbjGLNmS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Jul 2023 09:42:18 -0400
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2089.outbound.protection.outlook.com [40.107.237.89])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 728C7E69;
+        Wed, 12 Jul 2023 06:42:17 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WVfU0XSJF489jqH5pglg9KbsW28V97py1HGq/KJOhAj9Cuabs+/6TDW+QUsiLqLkXUPwUtcDCaaklaAUPqUbQrWnTK/o8LOVYM3l0n6lBb/dpYeZjwijdkxAn3CEIliIqLnpizbfdvuSa12ZY2ASmwIQyZ33xG511A6sV2dC7+VkgKlKPNwBtO/d5k4qj4DK8GTzcc5+mgDEd8qxGad1B2fOOiP5rDNxRP8sgGMlAReEiW+Nxdrfr5hFFI6LtidY6rFlE3r4kM4FonkQdLZcSWyZutwYEhXlxt7MCfAOTQz3Oa5lUB5HmakxB0OZzgWcWpxl3a+MqErWS2443BbVEw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=5MTyB1N0HaMPFmTIvvwiuDax9X4v4QIIepvkpqyrBL8=;
+ b=JSfZlQ8p106jkjzOik+9Nag4lKrhyTkarPCfc/+12Fl+hlcpVNQ3AMASnldyOF6RDTXuTAGpSCUvMjJ58EBI6kiPqHKjixIVrKgIYy9O0L7HBLntw7qPevApOGNJ/z9ssxpSbXe8XXhowYWtfX1rib2mcnveESxYuOHSHWraXHEI+s2ttj3TSvs1hfVc6AHSjVzbej7l+n8n8IemZQb4PWul7DBVNtQLMYm83BvS/loBf2ZpvItCIcVmD5bxCwZw7v4TYK/9A8EPrMZqJmjQ2gK+UoWFtAa6hd0TsCch+K5NUdpz+ZwRzF37fTBxKQLQvoe0AFSWwXxgYLRS+CGLQg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5MTyB1N0HaMPFmTIvvwiuDax9X4v4QIIepvkpqyrBL8=;
+ b=OQ8nTcWxY2gxFH5TCOd/OGQgVonMgz9AdJc8Pt7t4P9ioVtFov6ITj+69iHHyZ2UEHWVMwqUSl/MNr9mrdkVasEEkptkrifmaHO1hZL3bctvv8j1TauIkplrmh4EAr6iX6gA0IazNkkbGhxD6eIA2LYnGW0/f2aitqfLMJkYLqL5K5Njhc80kg+Ku9zJTFw9yI+eeLbuA0ycb/JccvskJtOR9LmuOUjaUuITBXJSTCRGG7L5esCWUJ12m4lZ/m80IEOyKCpzR81kYjX4WKS6aHDGHlxFybhEDVy/BN2TdzM+PVQ1kP0nyX7Gx8CmrtwGtpMmEJyo3gtK+1wY55JR1w==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by MW4PR12MB8612.namprd12.prod.outlook.com (2603:10b6:303:1ec::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6588.20; Wed, 12 Jul
+ 2023 13:42:15 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::69c1:5d87:c73c:cc55]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::69c1:5d87:c73c:cc55%4]) with mapi id 15.20.6565.028; Wed, 12 Jul 2023
+ 13:42:15 +0000
+Date:   Wed, 12 Jul 2023 10:42:12 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Yi Liu <yi.l.liu@intel.com>
+Cc:     alex.williamson@redhat.com, kevin.tian@intel.com, joro@8bytes.org,
+        robin.murphy@arm.com, cohuck@redhat.com, eric.auger@redhat.com,
+        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
+        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
+        peterx@redhat.com, jasowang@redhat.com,
+        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
+        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
+        yanting.jiang@intel.com, zhenzhong.duan@intel.com,
+        clegoate@redhat.com
+Subject: Re: [PATCH v9 06/10] vfio: Mark cdev usage in vfio_device
+Message-ID: <ZK6ttDQ7J+OxjLOL@nvidia.com>
+References: <20230711023126.5531-1-yi.l.liu@intel.com>
+ <20230711023126.5531-7-yi.l.liu@intel.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230705190309.579783-14-jlayton@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 7G4j4JOmKqSKxejA7tF4iKaz0fhE4HzW
-X-Proofpoint-ORIG-GUID: 7G4j4JOmKqSKxejA7tF4iKaz0fhE4HzW
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-12_08,2023-07-11_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- bulkscore=0 phishscore=0 clxscore=1011 spamscore=0 suspectscore=0
- mlxlogscore=542 adultscore=0 impostorscore=0 mlxscore=0 lowpriorityscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2307120112
+In-Reply-To: <20230711023126.5531-7-yi.l.liu@intel.com>
+X-ClientProxiedBy: YT4PR01CA0209.CANPRD01.PROD.OUTLOOK.COM
+ (2603:10b6:b01:ad::6) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|MW4PR12MB8612:EE_
+X-MS-Office365-Filtering-Correlation-Id: e6879fe1-5406-4b7f-c47a-08db82ddcd45
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: H+BMoi02uclVwKCWWDaJphvnTXdlRtMqVrwIerJzG7fIaaljyN9DgIMGbAGmWZvGvjYYFVAFLPz3cHzZLOkWZHfo94zJRen6lopXvrU+cyp6WmEfg5KRpMSS2LUCjkXy81n6PwnMy4KdGa7CMNbEAw5ved0+FXa9xSjBkEfM5kuj6CuBlZnnopntGjiv42w+Jg8oS8arHpT1SAQY6NPcgMr6gdL0FwYqtgkbuPNKqpx2UMNHI7BVfWpdkJlPlpXIZ3Az2OZ+A6b8s1aQvDy7GpM0tIf9sW9CYyVdqP91tAkwF1+cE5YiboAX/lDFVD5cgVdV5uCMLagiwhgV90I7Y29LCCzoyFA3clEhFMZjPXwqouaw6HnsH1lJlnIrGGiyteu7704F0PzIeqFdQZSXFv8coS0iBnTlxuxHTEg8IDNpUANBPwktEHOBg/vlC3S2Uq71IfnYgLIEp9WQ5cJBJBy+8TOiwC2NiDnO9YKULxOwZNGpA8k4zGxinEd4/SRWNE81wDSStTMWXkeUW1RsjQsQQlnitxVhP9/aoOB62Fw4H9fODGmDQBzILAwNmsi+nK1KZy9Yff8IVSRb7GQ5qZBZ+VuBw/lWhmjrlsihk8g=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(376002)(136003)(346002)(366004)(396003)(39860400002)(451199021)(5660300002)(66476007)(4744005)(41300700001)(8936002)(66946007)(66556008)(8676002)(7416002)(2906002)(478600001)(6486002)(6666004)(6512007)(26005)(186003)(6506007)(4326008)(316002)(6916009)(38100700002)(2616005)(36756003)(86362001)(67856001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?B62gvgM9814ma6OX7kpoexoKvwDj5PrKOfJlTXpehfeRpfXiOiZL92Ru1GoK?=
+ =?us-ascii?Q?It2A9pT3q9mqpFfF/2co/o65E1Yo6A8SD9/3MTwKZp1ITmCPCktiYOXB7fU5?=
+ =?us-ascii?Q?pI93g8IahUMfBrfUHiUmoOlfSAFEe0IJ/Ejq38sI/+3xNXtM7Ugrw/bZMroq?=
+ =?us-ascii?Q?8mZDjY/kItXQIVaJRcwzWvFtT7hfJHETEXRp1I7SCm/ooO3rT8rxApquwBbR?=
+ =?us-ascii?Q?wyvX+7FtzEAuA1bYcV6ZoDfORAkqcTcd1IAZL4qladi9PJr9Kg0KuAw6W0HK?=
+ =?us-ascii?Q?w4n5L8nXYmim1/YzMw5Q6hq8gL8/1fmwIsPiedXwjKsLK4+iS8O2qA158s6i?=
+ =?us-ascii?Q?HtgJxdwgj+D7LZZ2JFL0AUjf0sisTHCRNkRvIXNlupZeO5Bizg6oFQCz+Op8?=
+ =?us-ascii?Q?bxZIHzzfk5OV6QY0L1vNCuNprOwTtSelcwj/9rLceFFC4oyKh90Tke90C1P+?=
+ =?us-ascii?Q?Vojo7SZIWzpB7D2guEzTPgKiw5b5+lM8pjyc/vSpWwGrj+/yBk3ffMT1dl5R?=
+ =?us-ascii?Q?av77vf6JRNbNgY+mdaRubTPy6K7sq/6UJWq4Oo9ynkuanOMrfZk0aU2kb9Ba?=
+ =?us-ascii?Q?MRxboAoAXYK/7xzKp8fGMsJX8ue4HIvLP7VeTd9JMVrYcU5IIPwm1wvgAWtx?=
+ =?us-ascii?Q?LPuHCk2BQuz26mmRuEXSpWzHlkRiQG6IsM7Q314Bgp12TTK3NLYaae6tXHA1?=
+ =?us-ascii?Q?Ute7i8oSAyDyCvm/u8VBYN8gBIT09sBYk5omlAi+JWpriNJkkxLteij4NHVk?=
+ =?us-ascii?Q?BJGlDYGSWt7ZIWRrFaYYWPgcqPOwkQqG7H0S9KXX7vNK8i7wj93fUSVEdovg?=
+ =?us-ascii?Q?EnsIGpStdI/QPA4ZjfTxpnKFABWFLYNYZcw6Ano9kHssVkkDBPJyJXsc83Od?=
+ =?us-ascii?Q?UMYiWN7uRSPfGufHEH+qVwDCJUJA8UaF53MYTnHUSM2lM2GvQLS7rupR5jO1?=
+ =?us-ascii?Q?rHOd3WBEpLbTaZERWuPqe4jWFAsl0KARP0Ry1Z/+kMmAuVb/x/7dnP3GQfT3?=
+ =?us-ascii?Q?VbCGlABlKJ8Drp3oHj5evOKbjC6lSLjkbzWbHqic4WsTKTcCjC5svN0/AB7n?=
+ =?us-ascii?Q?79Qdk8cVpHNap6Veo6oz610ovxfojsC6T+/6O9GsaQE8YhhASqK1OxLL2Oul?=
+ =?us-ascii?Q?se0HyejDGAHZKkEGuE3KSjxoEk4qr1jfmlRrvHGHOP+j0UqnO8eI48gvZrzg?=
+ =?us-ascii?Q?eplAHFEW0PnYmuqpxf8/P+IHL449X6demljSVVXmDrDEy2eN4k1mnIg6Broe?=
+ =?us-ascii?Q?4qAeGVjyl5dCKfpqL/rvFNUZhSucY4bRU0RQKaNf6xB4bwXGixi1v/VtxgdP?=
+ =?us-ascii?Q?vLMzWDEspUP7QXTdNxzMD6LkSULNDu5RM7EHRuOJs6G2D5f7AceD0MiGhLwu?=
+ =?us-ascii?Q?wAjW+HM9cyjDou1dRbNDYSJ3aoIrY4Egjx6scfD/se2VMwkdknO5bU4OFdFp?=
+ =?us-ascii?Q?25eA+O0r5RLWTnlCrpUCCc0yxgAzkHo/JO2J+3DjoYfkjIohvIGyXmm2qKS+?=
+ =?us-ascii?Q?TuG1H5hTDL+GxzgO33OJrMMocAnrFmOq4N9Wjx4Kpf7yfiofXh0GYjFTI66D?=
+ =?us-ascii?Q?7pX+bCC6x8KUkDYNMueWB3zNQgS40PAJCgLEFf+4?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e6879fe1-5406-4b7f-c47a-08db82ddcd45
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jul 2023 13:42:14.9452
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: qDlkw/bDrtYvfDZyzVnwjlYQdWY9ex5WAmzYLoCs+BHeQEjCiJ5Ah6aTqg5cM5LH
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB8612
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jul 05, 2023 at 03:00:41PM -0400, Jeff Layton wrote:
-> In later patches, we're going to change how the inode's ctime field is
-> used. Switch to using accessor functions instead of raw accesses of
-> inode->i_ctime.
+On Mon, Jul 10, 2023 at 07:31:22PM -0700, Yi Liu wrote:
+> This can be used to differentiate whether to report group_id or devid in
+> the revised VFIO_DEVICE_GET_PCI_HOT_RESET_INFO ioctl. At this moment, no
+> cdev path yet, so the vfio_device_cdev_opened() helper always returns false.
 > 
-> Reviewed-by: Jan Kara <jack@suse.cz>
-> Signed-off-by: Jeff Layton <jlayton@kernel.org>
+> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+> Tested-by: Terrence Xu <terrence.xu@intel.com>
+> Signed-off-by: Yi Liu <yi.l.liu@intel.com>
 > ---
->  arch/s390/hypfs/inode.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-> index ee919bfc8186..5feef8da406b 100644
-> --- a/arch/s390/hypfs/inode.c
-> +++ b/arch/s390/hypfs/inode.c
-> @@ -53,7 +53,7 @@ static void hypfs_update_update(struct super_block *sb)
->  	struct inode *inode = d_inode(sb_info->update_file);
->  
->  	sb_info->last_update = ktime_get_seconds();
-> -	inode->i_atime = inode->i_mtime = inode->i_ctime = current_time(inode);
-> +	inode->i_atime = inode->i_mtime = inode_set_ctime_current(inode);
->  }
->  
->  /* directory tree removal functions */
-> @@ -101,7 +101,7 @@ static struct inode *hypfs_make_inode(struct super_block *sb, umode_t mode)
->  		ret->i_mode = mode;
->  		ret->i_uid = hypfs_info->uid;
->  		ret->i_gid = hypfs_info->gid;
-> -		ret->i_atime = ret->i_mtime = ret->i_ctime = current_time(ret);
-> +		ret->i_atime = ret->i_mtime = inode_set_ctime_current(ret);
->  		if (S_ISDIR(mode))
->  			set_nlink(ret, 2);
->  	}
+>  include/linux/vfio.h | 5 +++++
+>  1 file changed, 5 insertions(+)
 
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+
+Jason
