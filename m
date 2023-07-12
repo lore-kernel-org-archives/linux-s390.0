@@ -2,52 +2,52 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B48A6EB64DD
-	for <linux-s390@archiver.kernel.org>; Wed, 12 Jul 2023 04:27:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D759EB64DD
+	for <linux-s390@archiver.kernel.org>; Wed, 12 Jul 2023 04:31:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230202AbjGLE10 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 Jul 2023 00:27:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50068 "EHLO
+        id S229640AbjGLEa7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 Jul 2023 00:30:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229668AbjGLE1Z (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Jul 2023 00:27:25 -0400
-Received: from mail-yw1-x1129.google.com (mail-yw1-x1129.google.com [IPv6:2607:f8b0:4864:20::1129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D151F1722
-        for <linux-s390@vger.kernel.org>; Tue, 11 Jul 2023 21:27:23 -0700 (PDT)
-Received: by mail-yw1-x1129.google.com with SMTP id 00721157ae682-57eb0df5265so1528467b3.3
-        for <linux-s390@vger.kernel.org>; Tue, 11 Jul 2023 21:27:23 -0700 (PDT)
+        with ESMTP id S231475AbjGLEa6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Jul 2023 00:30:58 -0400
+Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 024381732
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jul 2023 21:30:54 -0700 (PDT)
+Received: by mail-yb1-xb36.google.com with SMTP id 3f1490d57ef6-c4dd264359cso6099653276.3
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jul 2023 21:30:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1689136043; x=1691728043;
-        h=mime-version:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=wiHFwa+qInqC9Ufc7qLGqz2T4+XJI6K3K6pkdSvL2BE=;
-        b=YjT2iggkRTiXtZMR1jMLANF/DCx6aBNBHMVDVVl8Gr0GinPbSloyq6adfQMkbwXuDy
-         4LOhxp9lsDQkNYPLAl5k89Ck7UzmU2gS51lf58HBHMNkZxeBrwzXKOfpjPMpHU7Xhn8z
-         K9b44iVOIzPUbQ6ymuTwqdYb3uxH5ZNNlppLByjfI27io4ZaUeNDCqifG61+Enltfq1W
-         Q4VeG3xJt0Bk+AP9vkRr0OjwSSW1svxOnjAGiUGPKap1kin/J6ow8NcPSugD6S/XzNDL
-         Pw7KzGLDDMHF/NqW9CZBI1VUfB0aeFWeRbgCBvTEtczkxjQmMIk8cik2x0kBWOU3eCTM
-         DkUQ==
+        d=google.com; s=20221208; t=1689136254; x=1691728254;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Lih86tpYDD3J7zG12H/yvKEagSCLBGtcWN3xnGIcrQ8=;
+        b=RBETceKTxUIdE5Wthq5VyXl1iuewXFCZtvj7DAV2aR3XnxKua3oR4hmOqLeBfiK+Bo
+         QX5kHPh+nmkLT9qkicOsu2l1qxImFf+42zqUi71fI6EVfsz6Wd8j8qUrewGd84C27fQF
+         z08YkGvSrNifDm+H1bjPb9jqoZlNdzHFdJ/PGyx79rM0dM13MzFCo6oGzmwGF3H2DHxK
+         jhmvYEXUAQ46tN3PfeVxdIIezDCwRgqWW3fiTQ5gpTM5B8KutupuJmp6cYEM5cSz9f5W
+         fLAc5DNp+0Wj3x5T2KO5EPXVkVyBxsI6lOPcm2rzPIqTF2kKG/dKpgqnKRkoKETZyp95
+         sIwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689136043; x=1691728043;
-        h=mime-version:message-id:subject:cc:to:from:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=wiHFwa+qInqC9Ufc7qLGqz2T4+XJI6K3K6pkdSvL2BE=;
-        b=lrAQNWaBoBsuaHfudHeevGz2iL5lirU6ouR1R4pMGDfkWmlvuDvonuYH/TJwP5H3P7
-         iZVXXTmDYXynis2ycCnBxO8/qGYIpf4MhNT8IREfVnWMB2af7+3+VolvjOWCry4KLaQz
-         cyImvVBDHzt9S9S8x/AOkXs5byERXdzkUS3LttjAy53TRj9sQh9n/gG4MF00rWL9orcU
-         J9NkS8Vw1odgK7XeNXIMYzJxbJcLHYYMpnXRFtRlx8wfKCNRvoAl/0tWOEFidNgBb5ZV
-         +N7sXESSFiiBJmTAkMl+5cBeIVEUnt9tqawwBmwQf84T9lY1AdFXTAC3l7s5RQfCqRGQ
-         O/6g==
-X-Gm-Message-State: ABy/qLaOgCr1lBredNrsk5rrreZHT1wurpLNk7obqegOKwaGJyP0BR5M
-        hraTvWz+AkgIyhTRQywI+wA8qg==
-X-Google-Smtp-Source: APBJJlF5lEOtFts7UwfGvvEUizjbQpUSNw8Id5rb3Vpn8mt/ge/Q6rrPqXyVhuX/GSF3C2Mj1ANz1w==
-X-Received: by 2002:a81:91d2:0:b0:559:deed:f363 with SMTP id i201-20020a8191d2000000b00559deedf363mr16696703ywg.2.1689136042885;
-        Tue, 11 Jul 2023 21:27:22 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1689136254; x=1691728254;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Lih86tpYDD3J7zG12H/yvKEagSCLBGtcWN3xnGIcrQ8=;
+        b=LFZxPGgaD1js5ZmN9TB28mW5bhBUoSXKYhk/uD8LLdFc4Mm64HtRGTh/tUFosfQ8os
+         8mi78Wg3b8MyGTgdmRlyMjaBeudDLVtMLui2x9S1GNBnK6a7najgCz0A3Fpxu0dmditb
+         IMm6GQ0xCF98aVHWco0pWz+Bsmcl7g4X+dF6/CRCFxZ7aW6UwDszNUogfmBRM9/YJzTd
+         kwCpCKmC0FcvvHwCEaxhk6mcjkigkXuYrpqi+5DrXvJqh7Wsk1szNdSyvwEd/ZkrtxHV
+         4xSxgDcesYzO0YyGXzojyS5rbsJlW5dns0zF+8wmFHK8NatdgeAPdS9bmAdyMW+8ZsMJ
+         FbIA==
+X-Gm-Message-State: ABy/qLbArYzrlVJWXqU1C1+XggYatxRcvlp8/EKH3L8Wl8z/JOQxqYHI
+        fe2ibvbU2FN4zYC0LDjudqd7sA==
+X-Google-Smtp-Source: APBJJlG+aqkZgSinL0H+vGhJ8SPTaMZTSfjnzUjRq5ezvCFkxr+RV56UV3ToUF/QNi8B1m8dggx9Pw==
+X-Received: by 2002:a25:8a06:0:b0:c3d:25af:45ec with SMTP id g6-20020a258a06000000b00c3d25af45ecmr14975706ybl.41.1689136254058;
+        Tue, 11 Jul 2023 21:30:54 -0700 (PDT)
 Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id i67-20020a0df846000000b005772f3fc0acsm972965ywf.44.2023.07.11.21.27.18
+        by smtp.gmail.com with ESMTPSA id b8-20020a252e48000000b00c61af359b15sm750774ybn.43.2023.07.11.21.30.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Jul 2023 21:27:22 -0700 (PDT)
-Date:   Tue, 11 Jul 2023 21:27:09 -0700 (PDT)
+        Tue, 11 Jul 2023 21:30:53 -0700 (PDT)
+Date:   Tue, 11 Jul 2023 21:30:40 -0700 (PDT)
 From:   Hugh Dickins <hughd@google.com>
 X-X-Sender: hugh@ripple.attlocal.net
 To:     Andrew Morton <akpm@linux-foundation.org>
@@ -97,103 +97,72 @@ cc:     Mike Kravetz <mike.kravetz@oracle.com>,
         linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH v3 00/13] mm: free retracted page table by RCU
-Message-ID: <7cd843a9-aa80-14f-5eb2-33427363c20@google.com>
+Subject: [PATCH v3 01/13] mm/pgtable: add rcu_read_lock() and
+ rcu_read_unlock()s
+In-Reply-To: <7cd843a9-aa80-14f-5eb2-33427363c20@google.com>
+Message-ID: <d3b01da5-2a6-833c-6681-67a3e024a16f@google.com>
+References: <7cd843a9-aa80-14f-5eb2-33427363c20@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Here is v3 of the series of patches to mm (and a few architectures), based
-on v6.5-rc1 which includes the preceding two series (thank you!): in which
-khugepaged takes advantage of pte_offset_map[_lock]() allowing for pmd
-transitions.  Differences from v1 and v2 are noted patch by patch below.
+Before putting them to use (several commits later), add rcu_read_lock()
+to pte_offset_map(), and rcu_read_unlock() to pte_unmap().  Make this a
+separate commit, since it risks exposing imbalances: prior commits have
+fixed all the known imbalances, but we may find some have been missed.
 
-This replaces the v2 "mm: free retracted page table by RCU"
-https://lore.kernel.org/linux-mm/54cb04f-3762-987f-8294-91dafd8ebfb0@google.com/
-series of 12 posted on 2023-06-20.
+Signed-off-by: Hugh Dickins <hughd@google.com>
+---
+ include/linux/pgtable.h | 4 ++--
+ mm/pgtable-generic.c    | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-What is it all about?  Some mmap_lock avoidance i.e. latency reduction.
-Initially just for the case of collapsing shmem or file pages to THPs:
-the usefulness of MADV_COLLAPSE on shmem is being limited by that
-mmap_write_lock it currently requires.
+diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+index 5063b482e34f..5134edcec668 100644
+--- a/include/linux/pgtable.h
++++ b/include/linux/pgtable.h
+@@ -99,7 +99,7 @@ static inline pte_t *pte_offset_kernel(pmd_t *pmd, unsigned long address)
+ 	((pte_t *)kmap_local_page(pmd_page(*(pmd))) + pte_index((address)))
+ #define pte_unmap(pte)	do {	\
+ 	kunmap_local((pte));	\
+-	/* rcu_read_unlock() to be added later */	\
++	rcu_read_unlock();	\
+ } while (0)
+ #else
+ static inline pte_t *__pte_map(pmd_t *pmd, unsigned long address)
+@@ -108,7 +108,7 @@ static inline pte_t *__pte_map(pmd_t *pmd, unsigned long address)
+ }
+ static inline void pte_unmap(pte_t *pte)
+ {
+-	/* rcu_read_unlock() to be added later */
++	rcu_read_unlock();
+ }
+ #endif
+ 
+diff --git a/mm/pgtable-generic.c b/mm/pgtable-generic.c
+index 4d454953046f..400e5a045848 100644
+--- a/mm/pgtable-generic.c
++++ b/mm/pgtable-generic.c
+@@ -236,7 +236,7 @@ pte_t *__pte_offset_map(pmd_t *pmd, unsigned long addr, pmd_t *pmdvalp)
+ {
+ 	pmd_t pmdval;
+ 
+-	/* rcu_read_lock() to be added later */
++	rcu_read_lock();
+ 	pmdval = pmdp_get_lockless(pmd);
+ 	if (pmdvalp)
+ 		*pmdvalp = pmdval;
+@@ -250,7 +250,7 @@ pte_t *__pte_offset_map(pmd_t *pmd, unsigned long addr, pmd_t *pmdvalp)
+ 	}
+ 	return __pte_map(&pmdval, addr);
+ nomap:
+-	/* rcu_read_unlock() to be added later */
++	rcu_read_unlock();
+ 	return NULL;
+ }
+ 
+-- 
+2.35.3
 
-Likely to be relied upon later in other contexts e.g. freeing of
-empty page tables (but that's not work I'm doing).  mmap_write_lock
-avoidance when collapsing to anon THPs?  Perhaps, but again that's not
-work I've done: a quick attempt was not as easy as the shmem/file case.
-
-These changes (though of course not these exact patches) have been in
-Google's data centre kernel for three years now: we do rely upon them.
-
-Based on v6.5-rc1; and almost good on current mm-unstable or current
-linux-next - just one patch conflicts, the 12/13: I'll reply to that
-one with its mm-unstable or linux-next equivalent (vma_assert_locked()
-has been added next to where vma_try_start_write() is being removed).
-
-01/13 mm/pgtable: add rcu_read_lock() and rcu_read_unlock()s
-      v3: same as v1
-02/13 mm/pgtable: add PAE safety to __pte_offset_map()
-      v3: same as v2
-      v2: rename to pmdp_get_lockless_start/end() per Matthew;
-          so use inlines without _irq_save(flags) macro oddity;
-          add pmdp_get_lockless_sync() for use later in 09/13.
-03/13 arm: adjust_pte() use pte_offset_map_nolock()
-      v3: same as v1
-04/13 powerpc: assert_pte_locked() use pte_offset_map_nolock()
-      v3: same as v1
-05/13 powerpc: add pte_free_defer() for pgtables sharing page
-      v3: much simpler version, following suggestion by Jason
-      v2: fix rcu_head usage to cope with concurrent deferrals;
-          add para to commit message explaining rcu_head issue.
-06/13 sparc: add pte_free_defer() for pte_t *pgtable_t
-      v3: same as v2
-      v2: use page_address() instead of less common page_to_virt();
-          add para to commit message explaining simple conversion;
-          changed title since sparc64 pgtables do not share page.
-07/13 s390: add pte_free_defer() for pgtables sharing page
-      v3: much simpler version, following suggestion by Gerald
-      v2: complete rewrite, integrated with s390's existing pgtable
-          management; temporarily using a global mm_pgtable_list_lock,
-          to be restored to per-mm spinlock in a later followup patch.
-08/13 mm/pgtable: add pte_free_defer() for pgtable as page
-      v3: same as v2
-      v2: add comment on rcu_head to "Page table pages", per JannH
-09/13 mm/khugepaged: retract_page_tables() without mmap or vma lock
-      v3: same as v2
-      v2: repeat checks under ptl because UFFD, per PeterX and JannH;
-          bring back mmu_notifier calls for PMD, per JannH and Jason;
-          pmdp_get_lockless_sync() to issue missing interrupt if PAE.
-10/13 mm/khugepaged: collapse_pte_mapped_thp() with mmap_read_lock()
-      v3: updated to using ptent instead of *pte
-      v2: first check VMA, in case page tables torn down, per JannH;
-          pmdp_get_lockless_sync() to issue missing interrupt if PAE;
-          moved mmu_notifier after step 1, reworked final goto labels.
-11/13 mm/khugepaged: delete khugepaged_collapse_pte_mapped_thps()
-      v3: rediffed
-      v2: same as v1
-12/13 mm: delete mmap_write_trylock() and vma_try_start_write()
-      v3: rediffed (different diff needed for mm-unstable or linux-next)
-      v2: same as v1
-13/13 mm/pgtable: notes on pte_offset_map[_lock]()
-      v3: new: JannH asked for more helpful comment, this is my attempt;
-          could be moved to be the first in the series.
-
- arch/arm/mm/fault-armv.c            |   3 +-
- arch/powerpc/include/asm/pgalloc.h  |   4 +
- arch/powerpc/mm/pgtable-frag.c      |  29 +-
- arch/powerpc/mm/pgtable.c           |  16 +-
- arch/s390/include/asm/pgalloc.h     |   4 +
- arch/s390/mm/pgalloc.c              |  80 ++++-
- arch/sparc/include/asm/pgalloc_64.h |   4 +
- arch/sparc/mm/init_64.c             |  16 +
- include/linux/mm.h                  |  17 --
- include/linux/mm_types.h            |   4 +
- include/linux/mmap_lock.h           |  10 -
- include/linux/pgtable.h             |  10 +-
- mm/khugepaged.c                     | 481 +++++++++++-------------------
- mm/pgtable-generic.c                |  97 +++++-
- 14 files changed, 404 insertions(+), 371 deletions(-)
-
-Hugh
