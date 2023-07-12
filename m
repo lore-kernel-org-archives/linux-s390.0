@@ -2,110 +2,120 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10578EB64DA
-	for <linux-s390@archiver.kernel.org>; Wed, 12 Jul 2023 12:12:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D16EFEB64D9
+	for <linux-s390@archiver.kernel.org>; Wed, 12 Jul 2023 12:56:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232341AbjGLMMG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 Jul 2023 08:12:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33258 "EHLO
+        id S232276AbjGLM4w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 Jul 2023 08:56:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232255AbjGLMMF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Jul 2023 08:12:05 -0400
+        with ESMTP id S231908AbjGLM4v (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Jul 2023 08:56:51 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6063E5F;
-        Wed, 12 Jul 2023 05:12:02 -0700 (PDT)
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36CBgLvI016373;
-        Wed, 12 Jul 2023 12:12:02 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75151173B;
+        Wed, 12 Jul 2023 05:56:50 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36CCqls1015912;
+        Wed, 12 Jul 2023 12:56:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=tltQXugxcZeoO8dwlag/RdnQKSKFt0PN5wxaRNpTQLE=;
- b=IFSoiMmyi9a0TZ4NBySuasNEDApH7Xe3fYRELBYvTq9fZIEQkOQVxE5Q93UsZ2qob+J/
- CBtRy9DBg8HY8A/cV+7fM6EbtJdrJMrgrkUeQU+I/UjvGPvB0vAsBUhuZJXheQuWwFW0
- /lednIMbaGXLVgno+J/yFU9oLrjZOGQt5QHheIWz8rQdVCd0nCsk/dNHGIJRoQCVInYb
- sblQz12vpaOpGeEjvGzqXk8ocNyHfKWBT58vutijw63b36Sn7xWZmyov0xGceFa++aCI
- UmhGyEUyXYeum3jyMOMV2XJPWVx035A+ZtU1iXF2Yh2ZGrPAK4HCSwF+bJnMviQ2Wq9l Og== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rsuhhrtt5-1
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=DM/+bB1GI+w8sbgcaGTj8NxYs1rqWPKdOCH7h7tAdIo=;
+ b=g1g0qgYYWFBC65sFjn+7gX8CLn9MVITi7fhPiRh/PSebXXipBlXrE/TL4m6TbqJKdKvH
+ 0KLmMi8vyP7I3319wMJBva1a9Fjat+r3MQH91TpFebbC+8CN9Y5ZjOTeMOBrgM1FHy+i
+ nqqGANA6KjOPSgA1w4xfsZUU+U/aqoboGUb4wYu6QuETUhuC3b6LamdO1UTCyo9RkYv6
+ iXYMEboB/ylgfcQbfIe2IEcEMAsoXNC8Bocv13DSDpXuZGa8cVphPdGQOPa/7SfrK7H+
+ xu5DJ50g2YwegcaqSa0COUpLVVaLn8xJFsSDmm6XURXZT/jRbZ0VOoNV/mzL6BRhOnRH pA== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rsvjbr2yt-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 Jul 2023 12:12:01 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36CBY54Z020388;
-        Wed, 12 Jul 2023 12:06:58 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3rpye59waq-1
+        Wed, 12 Jul 2023 12:56:42 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36C8V7gi022696;
+        Wed, 12 Jul 2023 12:56:40 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma06fra.de.ibm.com (PPS) with ESMTPS id 3rpy2e9wts-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 Jul 2023 12:06:58 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36CC6rqw31785322
+        Wed, 12 Jul 2023 12:56:40 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36CCuaIV17171110
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 12 Jul 2023 12:06:53 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2A8632004B;
-        Wed, 12 Jul 2023 12:06:53 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CC8A220043;
-        Wed, 12 Jul 2023 12:06:52 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 12 Jul 2023 12:06:52 +0000 (GMT)
-Date:   Wed, 12 Jul 2023 14:06:51 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, mhartmay@linux.ibm.com,
-        nsg@linux.ibm.com, borntraeger@de.ibm.com, nrb@linux.ibm.com
-Subject: Re: [PATCH v2 2/2] KVM: s390: pv: fix index value of replaced ASCE
-Message-ID: <20230712140651.37d84e5d@p-imbrenda>
-In-Reply-To: <e3daf6b9-c7e9-89f3-b6ab-d8cf89de0b86@linux.ibm.com>
-References: <20230705111937.33472-1-imbrenda@linux.ibm.com>
-        <20230705111937.33472-3-imbrenda@linux.ibm.com>
-        <e3daf6b9-c7e9-89f3-b6ab-d8cf89de0b86@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+        Wed, 12 Jul 2023 12:56:36 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 73DA22004B;
+        Wed, 12 Jul 2023 12:56:36 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2C31620043;
+        Wed, 12 Jul 2023 12:56:36 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Wed, 12 Jul 2023 12:56:36 +0000 (GMT)
+Date:   Wed, 12 Jul 2023 14:56:34 +0200
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Jeff Layton <jlayton@kernel.org>
+Cc:     Christian Brauner <brauner@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 16/92] s390: convert to ctime accessor functions
+Message-ID: <ZK6jApBgBnDk14cj@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20230705185755.579053-1-jlayton@kernel.org>
+ <20230705190309.579783-1-jlayton@kernel.org>
+ <20230705190309.579783-14-jlayton@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230705190309.579783-14-jlayton@kernel.org>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Shp0wLu6T1-ef94pjMgPiBBL6MSo6_oc
-X-Proofpoint-ORIG-GUID: Shp0wLu6T1-ef94pjMgPiBBL6MSo6_oc
+X-Proofpoint-GUID: 7G4j4JOmKqSKxejA7tF4iKaz0fhE4HzW
+X-Proofpoint-ORIG-GUID: 7G4j4JOmKqSKxejA7tF4iKaz0fhE4HzW
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-12_07,2023-07-11_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- priorityscore=1501 mlxlogscore=918 clxscore=1015 mlxscore=0 phishscore=0
- adultscore=0 bulkscore=0 malwarescore=0 lowpriorityscore=0 suspectscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2307120108
+ definitions=2023-07-12_08,2023-07-11_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 phishscore=0 clxscore=1011 spamscore=0 suspectscore=0
+ mlxlogscore=542 adultscore=0 impostorscore=0 mlxscore=0 lowpriorityscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2307120112
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 12 Jul 2023 13:58:49 +0200
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
-> On 7/5/23 13:19, Claudio Imbrenda wrote:
-> > The index field of the struct page corresponding to a guest ASCE should
-> > be 0. When replacing the ASCE in s390_replace_asce(), the index of the
-> > new ASCE should also be set to 0.
-> > 
-> > Having the wrong index might lead to the wrong addresses being passed
-> > around when notifying pte invalidations, and eventually to validity
-> > intercepts (VM crash) if the prefix gets unmapped and the notifier gets
-> > called with the wrong address.
-> > 
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>  
+On Wed, Jul 05, 2023 at 03:00:41PM -0400, Jeff Layton wrote:
+> In later patches, we're going to change how the inode's ctime field is
+> used. Switch to using accessor functions instead of raw accesses of
+> inode->i_ctime.
 > 
-> No fixes tag?
-
-oops, you're right
-
-Fixes: faa2f72cb356 ("KVM: s390: pv: leak the topmost page table when
-destroy fails")
-
-
+> Reviewed-by: Jan Kara <jack@suse.cz>
+> Signed-off-by: Jeff Layton <jlayton@kernel.org>
+> ---
+>  arch/s390/hypfs/inode.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-> 
+> diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
+> index ee919bfc8186..5feef8da406b 100644
+> --- a/arch/s390/hypfs/inode.c
+> +++ b/arch/s390/hypfs/inode.c
+> @@ -53,7 +53,7 @@ static void hypfs_update_update(struct super_block *sb)
+>  	struct inode *inode = d_inode(sb_info->update_file);
+>  
+>  	sb_info->last_update = ktime_get_seconds();
+> -	inode->i_atime = inode->i_mtime = inode->i_ctime = current_time(inode);
+> +	inode->i_atime = inode->i_mtime = inode_set_ctime_current(inode);
+>  }
+>  
+>  /* directory tree removal functions */
+> @@ -101,7 +101,7 @@ static struct inode *hypfs_make_inode(struct super_block *sb, umode_t mode)
+>  		ret->i_mode = mode;
+>  		ret->i_uid = hypfs_info->uid;
+>  		ret->i_gid = hypfs_info->gid;
+> -		ret->i_atime = ret->i_mtime = ret->i_ctime = current_time(ret);
+> +		ret->i_atime = ret->i_mtime = inode_set_ctime_current(ret);
+>  		if (S_ISDIR(mode))
+>  			set_nlink(ret, 2);
+>  	}
 
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
