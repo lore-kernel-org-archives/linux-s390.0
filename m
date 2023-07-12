@@ -2,86 +2,100 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78637C0015E
-	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 15:20:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFD12C41513
+	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 17:30:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231717AbjGZPUv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 26 Jul 2023 11:20:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35126 "EHLO
+        id S231857AbjGZRa4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 26 Jul 2023 13:30:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231370AbjGZPUu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Jul 2023 11:20:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9069FC
-        for <linux-s390@vger.kernel.org>; Wed, 26 Jul 2023 08:20:49 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74C8E61B5F
-        for <linux-s390@vger.kernel.org>; Wed, 26 Jul 2023 15:20:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FACAC433C7;
-        Wed, 26 Jul 2023 15:20:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1690384848;
-        bh=UdgWQHT8/s2AG2mcOfNXgTwTRgWauYx2U4y1nq4YyAQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HUI+B47D/Odi7XdBtjy2w6689y9FvJog5OzG7fLSM/FLrsldiuvepF+uZY+HNafDR
-         3q04VyHxXwwpPhqZWAHzomPExZMz0/bo49T1yJIe12cec4Z8lIL/aHRaJGGBeK1DS5
-         ucEhBLrJbLC4RSiK+VmlK1x13T8kI16CxrY9hbJN8pd7faRDPrYFIZatlTeD5zGpyx
-         Lh49Bstq/xTAVnJOc1r7B21FKBEOxg98hbcTvZ26bbeeBhK5h7t265jYBBzF16HETF
-         i777p7L3vyNkGi65EIiEiQXb7gAEOCBI7zot68E6ZDfMG3jfCE1g0W1K/2PmUyPDtb
-         20QmPp5uuHIEQ==
-Date:   Wed, 26 Jul 2023 08:20:46 -0700
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH] s390/ftrace: use la instead of aghik in
- return_to_handler()
-Message-ID: <20230726152046.GA3828563@dev-arch.thelio-3990X>
-References: <20230726061834.1300984-1-hca@linux.ibm.com>
+        with ESMTP id S232435AbjGZRaz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Jul 2023 13:30:55 -0400
+Received: from brightrain.aerifal.cx (brightrain.aerifal.cx [216.12.86.13])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24B991FCF
+        for <linux-s390@vger.kernel.org>; Wed, 26 Jul 2023 10:30:52 -0700 (PDT)
+Date:   Tue, 11 Jul 2023 22:42:44 -0400
+From:   Rich Felker <dalias@libc.org>
+To:     Alexey Gladkov <legion@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        linux-api@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        viro@zeniv.linux.org.uk, James.Bottomley@HansenPartnership.com,
+        acme@kernel.org, alexander.shishkin@linux.intel.com,
+        axboe@kernel.dk, benh@kernel.crashing.org, borntraeger@de.ibm.com,
+        bp@alien8.de, catalin.marinas@arm.com, christian@brauner.io,
+        davem@davemloft.net, deepa.kernel@gmail.com, deller@gmx.de,
+        dhowells@redhat.com, fenghua.yu@intel.com, fweimer@redhat.com,
+        geert@linux-m68k.org, glebfm@altlinux.org, gor@linux.ibm.com,
+        hare@suse.com, hpa@zytor.com, ink@jurassic.park.msu.ru,
+        jhogan@kernel.org, kim.phillips@arm.com, ldv@altlinux.org,
+        linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        linux@armlinux.org.uk, linuxppc-dev@lists.ozlabs.org,
+        luto@kernel.org, mattst88@gmail.com, mingo@redhat.com,
+        monstr@monstr.eu, mpe@ellerman.id.au, namhyung@kernel.org,
+        paulus@samba.org, peterz@infradead.org, ralf@linux-mips.org,
+        sparclinux@vger.kernel.org, stefan@agner.ch, tglx@linutronix.de,
+        tony.luck@intel.com, tycho@tycho.ws, will@kernel.org,
+        x86@kernel.org, ysato@users.sourceforge.jp
+Subject: Re: [PATCH v4 0/5] Add a new fchmodat2() syscall
+Message-ID: <20230712024243.GX20050@brightrain.aerifal.cx>
+References: <cover.1689074739.git.legion@kernel.org>
+ <cover.1689092120.git.legion@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230726061834.1300984-1-hca@linux.ibm.com>
+In-Reply-To: <cover.1689092120.git.legion@kernel.org>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jul 26, 2023 at 08:18:34AM +0200, Heiko Carstens wrote:
-> Nathan Chancellor reported the following build error when compiling the
-> kernel with CONFIG_MARCH_Z10=y:
+On Tue, Jul 11, 2023 at 06:16:02PM +0200, Alexey Gladkov wrote:
+> In glibc, the fchmodat(3) function has a flags argument according to the
+> POSIX specification [1], but kernel syscalls has no such argument.
+> Therefore, libc implementations do workarounds using /proc. However,
+> this requires procfs to be mounted and accessible.
 > 
->   arch/s390/kernel/mcount.S: Assembler messages:
->   arch/s390/kernel/mcount.S:140: Error: Unrecognized opcode: `aghik'
+> This patch set adds fchmodat2(), a new syscall. The syscall allows to
+> pass the AT_SYMLINK_NOFOLLOW flag to disable LOOKUP_FOLLOW. In all other
+> respects, this syscall is no different from fchmodat().
 > 
-> The aghik instruction is only available since z196. Use the la instruction
-> instead which is available for all machines.
+> [1] https://pubs.opengroup.org/onlinepubs/9699919799/functions/chmod.html
 > 
-> Reported-by: Nathan Chancellor <nathan@kernel.org>
-> Closes: https://lore.kernel.org/all/20230725211105.GA224840@dev-arch.thelio-3990X
-> Fixes: 1256e70a082a ("s390/ftrace: enable HAVE_FUNCTION_GRAPH_RETVAL")
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> Changes since v3 [cover.1689074739.git.legion@kernel.org]:
+> 
+> * Rebased to master because a new syscall has appeared in master.
+> * Increased __NR_compat_syscalls as pointed out by Arnd Bergmann.
+> * Syscall renamed fchmodat4 -> fchmodat2 as suggested by Christian Brauner.
+> * Returned do_fchmodat4() the original name. We don't need to version
+>   internal functions.
+> * Fixed warnings found by checkpatch.pl.
+> 
+> Changes since v2 [20190717012719.5524-1-palmer@sifive.com]:
+> 
+> * Rebased to master.
+> * The lookup_flags passed to sys_fchmodat4 as suggested by Al Viro.
+> * Selftest added.
+> 
+> Changes since v1 [20190531191204.4044-1-palmer@sifive.com]:
+> 
+> * All architectures are now supported, which support squashed into a
+>   single patch.
+> * The do_fchmodat() helper function has been removed, in favor of directly
+>   calling do_fchmodat4().
+> * The patches are based on 5.2 instead of 5.1.
 
-Tested-by: Nathan Chancellor <nathan@kernel.org> # build
+It's good to see this moving forward. I originally proposed this in a
+patch submitted in 2020. I suspect implementation details have changed
+since then, but it might make sense to look back at that discussion if
+nobody has done so yet (apologies if this was already done and I
+missed it) to make sure nothing is overlooked -- I remember there were
+some subtleties with what fs backends might try to do with chmod on
+symlinks. My proposed commit message also documented a lot of the
+history of the issue that might be useful to have as context.
 
-> ---
->  arch/s390/kernel/mcount.S | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/kernel/mcount.S b/arch/s390/kernel/mcount.S
-> index d2596e0df6fa..71c5fa05e7f1 100644
-> --- a/arch/s390/kernel/mcount.S
-> +++ b/arch/s390/kernel/mcount.S
-> @@ -137,7 +137,7 @@ SYM_FUNC_START(return_to_handler)
->  	lgr	%r1,%r15
->  	aghi	%r15,-(STACK_FRAME_OVERHEAD+__FGRAPH_RET_SIZE)
->  	stg	%r1,__SF_BACKCHAIN(%r15)
-> -	aghik	%r3,%r15,STACK_FRAME_OVERHEAD
-> +	la	%r3,STACK_FRAME_OVERHEAD(%r15)
->  	stg	%r1,__FGRAPH_RET_FP(%r3)
->  	stg	%r2,__FGRAPH_RET_GPR2(%r3)
->  	lgr	%r2,%r3
-> -- 
-> 2.39.2
-> 
+https://lore.kernel.org/all/20200910170256.GK3265@brightrain.aerifal.cx/T/
+
+Rich
