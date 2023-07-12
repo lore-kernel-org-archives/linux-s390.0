@@ -2,52 +2,52 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D70A9EB64DD
-	for <linux-s390@archiver.kernel.org>; Wed, 12 Jul 2023 04:46:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52A6DEB64DD
+	for <linux-s390@archiver.kernel.org>; Wed, 12 Jul 2023 04:48:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230241AbjGLEqd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 Jul 2023 00:46:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57306 "EHLO
+        id S231600AbjGLEs5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 Jul 2023 00:48:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230236AbjGLEqc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Jul 2023 00:46:32 -0400
-Received: from mail-yb1-xb2b.google.com (mail-yb1-xb2b.google.com [IPv6:2607:f8b0:4864:20::b2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28F7F1734
-        for <linux-s390@vger.kernel.org>; Tue, 11 Jul 2023 21:46:30 -0700 (PDT)
-Received: by mail-yb1-xb2b.google.com with SMTP id 3f1490d57ef6-c5cf26e9669so6121106276.0
-        for <linux-s390@vger.kernel.org>; Tue, 11 Jul 2023 21:46:30 -0700 (PDT)
+        with ESMTP id S230321AbjGLEs4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Jul 2023 00:48:56 -0400
+Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94E3C1731
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jul 2023 21:48:54 -0700 (PDT)
+Received: by mail-qk1-x72e.google.com with SMTP id af79cd13be357-765942d497fso612633485a.1
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jul 2023 21:48:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1689137189; x=1691729189;
+        d=google.com; s=20221208; t=1689137333; x=1691729333;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=4LOZtvGEF5g0eQvRdR0fiwT6tMgm62bdW0dz/Hhyqlk=;
-        b=J1OyC/PzRxAcAnxReOGyZoimdKHV4sne6EV+ZF5GnSzIGkj49DIxf8CJZXSiYaLo8O
-         rQDVnXnu0y21FRcOCZP0OeEhb8w1Ae51u8RxjVwTlnPwlHyRZu5pHWxjcdG3sLbNOkgm
-         l9DRu2V+r91JT6sg8uxZ0xdueMEWKHVeYHw/ucTn/rvDkwQeKDUMIXdd66/4pn+ZPDqc
-         bbexzf/2xXArSFmFzEjH5dtsWbOgASWzeyhuG3Z+bgzkYYJreHWjygSN0MaZVhpwfXUc
-         /vz1Ww9YOcG9dsJAekHocNmUdgaeY/Jq/K6dI5tFUgzSXd3eubGhE9SWhC2zJPkylOJH
-         UPbw==
+        bh=V0zmjk3m732t/eWPq5qXNEJLvruggBsecgrKanNe5l4=;
+        b=tAltrJ8qMr5yXVnQZuMMmsi4IPuKxAEYvXvmeooSI3v5NqdP6qPUWbcm4zb7tBU4h0
+         936uy7Nm9V74iqdYDFyZwMLGwgOGnmghXNT5lAvkazM3oPgRlzOU3kBQMNJKMKWtzkws
+         ZatO7SnXXoLC90BYBdzQ4WBYmqP0ctRk/0Hc+tF1GdsKEFAQeyvKQs86n+DiFjeYhpmk
+         XRCMyCpcHGCSuZBRElORlA2grjvaFnRdFuAQT1Yla1Xs8yZi7vEIkUka7t7lT4f5IA/C
+         Nz/zbna6jWOHljpIWs1q8ROPrfRJMrX036XcNg8uGpFIBpPpSv0XdZ4EIxr1ptLpLNuX
+         DVDQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689137189; x=1691729189;
+        d=1e100.net; s=20221208; t=1689137333; x=1691729333;
         h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=4LOZtvGEF5g0eQvRdR0fiwT6tMgm62bdW0dz/Hhyqlk=;
-        b=fU0gzBfzmFNeEeuZPDClqzF3eaGm0Ct0IZ1hPm7lvXQsEf2N9K35HaF4tNG0lERj3w
-         8uylujmzpdwpaNb2lUT5zvjmC1r/yNfBygWby87Pe/yqiJykGcDWoFhK3aRWZ9atgsix
-         ayf/edGm3gx81a1mwjNBM76kXD5ngmdgyRa1EF9UnzdPlrUWBwWw7SJ7g4eNjXuA3ESV
-         moANV0NNEZe3VDdd3ZXcH2TQYNkg1XzNtnIALzHmikzSB/Rh74jXwX0vT+5weRR9m/4s
-         armkL8V8Ck1atmLOhCTx6+f8ixM1uxf1uL0FeZuW45P2SYBFIZdAipxjWR9N6DotZ/6U
-         qDNA==
-X-Gm-Message-State: ABy/qLbDqlIPhHCQOu+fmmALrFuKNavpzuTyrR3Ch/ptpepSGaHntGaa
-        31OhCfhQ4k19BXBRHV33d8nIiw==
-X-Google-Smtp-Source: APBJJlGajCIPfwdsjGp7sM9eUSR1neGCrgzZWT479LGOvJujy6hRuJqugeEnCaM3mBFakTQjRwJQ+w==
-X-Received: by 2002:a81:5dd6:0:b0:562:16d7:e6eb with SMTP id r205-20020a815dd6000000b0056216d7e6ebmr17894738ywb.40.1689137189022;
-        Tue, 11 Jul 2023 21:46:29 -0700 (PDT)
+        bh=V0zmjk3m732t/eWPq5qXNEJLvruggBsecgrKanNe5l4=;
+        b=fdYewMy487qWxiQb/u9WCpH0aEyUUdjY+iAje4C+IzQzc3xKKexwShkbKBJVtE1AdX
+         /00fj14slW/DH4pWyT2rdgi2mr0WB7ozIc8uk0hv9eEMl16QMm0BkP6/fv/eRXjXghlI
+         TY2PjdiLxFKoICcs7T/7I/GxcCTTLVn0Tonad1pTK+N4iOoJjaymhL4zWpKyEsLgfkVm
+         ceVnjL9lkmLqKS9Z4YYOzELbd49PurzB+uWuGWamdHcT8B6aGBsTu2XWL+CbSC1jF8HP
+         wM/GmcymrumSd6x+T915X5SdQGw0iyRWQtoa/MmHGu1uirIksyDbWn15yTsmTtVehCcv
+         +XmA==
+X-Gm-Message-State: ABy/qLaaoyVUhJjIf6Uo+Cb+nOJqodJ3fHj9l3CXuEfqisZV9ed2wWI0
+        bT24/SsjQchVpNNy0JdQXxawVA==
+X-Google-Smtp-Source: APBJJlEFW7pAKJkrMMZ7so7H+6qQo4Zhl/O905ULRzoeoCUXWypLVpWBJRwEwG5/0JeTCh7gTt6reA==
+X-Received: by 2002:a05:620a:404e:b0:767:3fa7:2ae9 with SMTP id i14-20020a05620a404e00b007673fa72ae9mr19722823qko.12.1689137333537;
+        Tue, 11 Jul 2023 21:48:53 -0700 (PDT)
 Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id j126-20020a0df984000000b005772e9388cdsm969335ywf.62.2023.07.11.21.46.24
+        by smtp.gmail.com with ESMTPSA id m124-20020a817182000000b0056d0709e0besm972906ywc.129.2023.07.11.21.48.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Jul 2023 21:46:28 -0700 (PDT)
-Date:   Tue, 11 Jul 2023 21:46:23 -0700 (PDT)
+        Tue, 11 Jul 2023 21:48:53 -0700 (PDT)
+Date:   Tue, 11 Jul 2023 21:48:48 -0700 (PDT)
 From:   Hugh Dickins <hughd@google.com>
 X-X-Sender: hugh@ripple.attlocal.net
 To:     Andrew Morton <akpm@linux-foundation.org>
@@ -97,79 +97,77 @@ cc:     Mike Kravetz <mike.kravetz@oracle.com>,
         linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH v3 13/13] mm/pgtable: notes on pte_offset_map[_lock]()
-In-Reply-To: <7cd843a9-aa80-14f-5eb2-33427363c20@google.com>
-Message-ID: <b791c3b0-25c6-a263-d785-d564344eb644@google.com>
-References: <7cd843a9-aa80-14f-5eb2-33427363c20@google.com>
+Subject: [PATCH mm 12/13] mm: delete mmap_write_trylock() and
+ vma_try_start_write()
+In-Reply-To: <728dae79-5110-e3c4-df27-ce3df525aaef@google.com>
+Message-ID: <4e6db3d-e8e-73fb-1f2a-8de2dab2a87c@google.com>
+References: <7cd843a9-aa80-14f-5eb2-33427363c20@google.com> <728dae79-5110-e3c4-df27-ce3df525aaef@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add a block of comments on pte_offset_map_lock(), pte_offset_map() and
-pte_offset_map_nolock() to mm/pgtable-generic.c, to help explain them.
+mmap_write_trylock() and vma_try_start_write() were added just for
+khugepaged, but now it has no use for them: delete.
 
 Signed-off-by: Hugh Dickins <hughd@google.com>
 ---
- mm/pgtable-generic.c | 44 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 44 insertions(+)
+This is the version which applies to mm-unstable or linux-next.
 
-diff --git a/mm/pgtable-generic.c b/mm/pgtable-generic.c
-index fa9d4d084291..4fcd959dcc4d 100644
---- a/mm/pgtable-generic.c
-+++ b/mm/pgtable-generic.c
-@@ -315,6 +315,50 @@ pte_t *pte_offset_map_nolock(struct mm_struct *mm, pmd_t *pmd,
- 	return pte;
+ include/linux/mm.h        | 17 -----------------
+ include/linux/mmap_lock.h | 10 ----------
+ 2 files changed, 27 deletions(-)
+
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -692,21 +692,6 @@ static inline void vma_start_write(struc
+ 	up_write(&vma->vm_lock->lock);
  }
  
-+/*
-+ * pte_offset_map_lock(mm, pmd, addr, ptlp), and its internal implementation
-+ * __pte_offset_map_lock() below, is usually called with the pmd pointer for
-+ * addr, reached by walking down the mm's pgd, p4d, pud for addr: either while
-+ * holding mmap_lock or vma lock for read or for write; or in truncate or rmap
-+ * context, while holding file's i_mmap_lock or anon_vma lock for read (or for
-+ * write). In a few cases, it may be used with pmd pointing to a pmd_t already
-+ * copied to or constructed on the stack.
-+ *
-+ * When successful, it returns the pte pointer for addr, with its page table
-+ * kmapped if necessary (when CONFIG_HIGHPTE), and locked against concurrent
-+ * modification by software, with a pointer to that spinlock in ptlp (in some
-+ * configs mm->page_table_lock, in SPLIT_PTLOCK configs a spinlock in table's
-+ * struct page).  pte_unmap_unlock(pte, ptl) to unlock and unmap afterwards.
-+ *
-+ * But it is unsuccessful, returning NULL with *ptlp unchanged, if there is no
-+ * page table at *pmd: if, for example, the page table has just been removed,
-+ * or replaced by the huge pmd of a THP.  (When successful, *pmd is rechecked
-+ * after acquiring the ptlock, and retried internally if it changed: so that a
-+ * page table can be safely removed or replaced by THP while holding its lock.)
-+ *
-+ * pte_offset_map(pmd, addr), and its internal helper __pte_offset_map() above,
-+ * just returns the pte pointer for addr, its page table kmapped if necessary;
-+ * or NULL if there is no page table at *pmd.  It does not attempt to lock the
-+ * page table, so cannot normally be used when the page table is to be updated,
-+ * or when entries read must be stable.  But it does take rcu_read_lock(): so
-+ * that even when page table is racily removed, it remains a valid though empty
-+ * and disconnected table.  Until pte_unmap(pte) unmaps and rcu_read_unlock()s
-+ * afterwards.
-+ *
-+ * pte_offset_map_nolock(mm, pmd, addr, ptlp), above, is like pte_offset_map();
-+ * but when successful, it also outputs a pointer to the spinlock in ptlp - as
-+ * pte_offset_map_lock() does, but in this case without locking it.  This helps
-+ * the caller to avoid a later pte_lockptr(mm, *pmd), which might by that time
-+ * act on a changed *pmd: pte_offset_map_nolock() provides the correct spinlock
-+ * pointer for the page table that it returns.  In principle, the caller should
-+ * recheck *pmd once the lock is taken; in practice, no callsite needs that -
-+ * either the mmap_lock for write, or pte_same() check on contents, is enough.
-+ *
-+ * Note that free_pgtables(), used after unmapping detached vmas, or when
-+ * exiting the whole mm, does not take page table lock before freeing a page
-+ * table, and may not use RCU at all: "outsiders" like khugepaged should avoid
-+ * pte_offset_map() and co once the vma is detached from mm or mm_users is zero.
-+ */
- pte_t *__pte_offset_map_lock(struct mm_struct *mm, pmd_t *pmd,
- 			     unsigned long addr, spinlock_t **ptlp)
+-static inline bool vma_try_start_write(struct vm_area_struct *vma)
+-{
+-	int mm_lock_seq;
+-
+-	if (__is_vma_write_locked(vma, &mm_lock_seq))
+-		return true;
+-
+-	if (!down_write_trylock(&vma->vm_lock->lock))
+-		return false;
+-
+-	vma->vm_lock_seq = mm_lock_seq;
+-	up_write(&vma->vm_lock->lock);
+-	return true;
+-}
+-
+ static inline void vma_assert_locked(struct vm_area_struct *vma)
  {
--- 
-2.35.3
-
+ 	int mm_lock_seq;
+@@ -758,8 +743,6 @@ static inline bool vma_start_read(struct
+ 		{ return false; }
+ static inline void vma_end_read(struct vm_area_struct *vma) {}
+ static inline void vma_start_write(struct vm_area_struct *vma) {}
+-static inline bool vma_try_start_write(struct vm_area_struct *vma)
+-		{ return true; }
+ static inline void vma_assert_write_locked(struct vm_area_struct *vma) {}
+ static inline void vma_mark_detached(struct vm_area_struct *vma,
+ 				     bool detached) {}
+--- a/include/linux/mmap_lock.h
++++ b/include/linux/mmap_lock.h
+@@ -112,16 +112,6 @@ static inline int mmap_write_lock_killab
+ 	return ret;
+ }
+ 
+-static inline bool mmap_write_trylock(struct mm_struct *mm)
+-{
+-	bool ret;
+-
+-	__mmap_lock_trace_start_locking(mm, true);
+-	ret = down_write_trylock(&mm->mmap_lock) != 0;
+-	__mmap_lock_trace_acquire_returned(mm, true, ret);
+-	return ret;
+-}
+-
+ static inline void mmap_write_unlock(struct mm_struct *mm)
+ {
+ 	__mmap_lock_trace_released(mm, true);
