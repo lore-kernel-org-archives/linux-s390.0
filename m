@@ -2,142 +2,88 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90031EB64DD
-	for <linux-s390@archiver.kernel.org>; Wed, 12 Jul 2023 15:03:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66A0DEB64D9
+	for <linux-s390@archiver.kernel.org>; Wed, 12 Jul 2023 15:09:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233162AbjGLPDo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 Jul 2023 11:03:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51840 "EHLO
+        id S233442AbjGLPJu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 Jul 2023 11:09:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233128AbjGLPDg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Jul 2023 11:03:36 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7208F1BDF
-        for <linux-s390@vger.kernel.org>; Wed, 12 Jul 2023 08:02:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1689174168;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Kvr3qVn5V77zWJcaKe9AHXcXT+HniwXcgFa7KzwlkrU=;
-        b=IGAxpxuH/LxgylPFj87iLqWfo/NJqhGJxN2QqJgSqmq6jm9WOch4nRnc1oB1tJOKYw/zlW
-        9fRqOCZCpr5b3sgQ67ivJjLsKsRHhnvvvTjhlLRQCb0uxm+5U25l5xS5va0KaFNp1mZ2RV
-        3R/VlWsP7xIIOvWbBtd7DV/vwAgSqpw=
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
- [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-368-x4yK7EmrNJ-1oPciU6YDVA-1; Wed, 12 Jul 2023 11:02:45 -0400
-X-MC-Unique: x4yK7EmrNJ-1oPciU6YDVA-1
-Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-76783ba6d62so821945785a.3
-        for <linux-s390@vger.kernel.org>; Wed, 12 Jul 2023 08:02:44 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689174164; x=1691766164;
-        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Kvr3qVn5V77zWJcaKe9AHXcXT+HniwXcgFa7KzwlkrU=;
-        b=Jr9E5sfTSxxkQqPx6nj6HNbZe9BDMYIM9ReGo1QDeNzIw4Q24siMBZ7SSp8QGIrcPB
-         7Mxdv75PL+DIKxBX6wH3fl08GTMLKJVxyvahC79MG623CAjshn6jk/dXcEwemh7dvKA4
-         6RZpD6y2nDa7JHqutK550Tiwn2WoM6nwrOvhpBosTsOQui1kEpyZhgz/wHXs89PPL8aT
-         SDfixgnMoAJ+XcYdWss3qeQg3fxtCAd0e1CbqTPGgAV8U4wWqajha68YD1s1vK3mBv42
-         fwljetbzB51KMs73/5I0PlMdu6MufpJqw1PmsguIb8oaf6g3pJ6F9FfD6ly9bzshYz+U
-         yfKQ==
-X-Gm-Message-State: ABy/qLY9jpx3+ClmIrfOYc1rxitF/mpK9aV2DMB6OXfgnvbZONYKH8PM
-        km3mbzKLltbj/Nksv9iCfQqQBOZeIso6BNYfpjUwEl9UDxdYLg1xfJANkBjjT7MaQB1mwWmKxbZ
-        wMXw8VPzjXeLwELxqlMyALszUotK1whYfA09GPM83ib899+Ym5iHFEBgC3D1s56nzFcUhG1xjr0
-        vrSrBWOw==
-X-Received: by 2002:a0c:e545:0:b0:636:2169:4298 with SMTP id n5-20020a0ce545000000b0063621694298mr15517864qvm.1.1689174163936;
-        Wed, 12 Jul 2023 08:02:43 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlH++qRRrnEHCZes7rTAj13UdiM5e25ZcfTV6Uk9SSKDV/YGCPR9BTbMWih8KQjwtk707jkosQ==
-X-Received: by 2002:a0c:e545:0:b0:636:2169:4298 with SMTP id n5-20020a0ce545000000b0063621694298mr15517822qvm.1.1689174163605;
-        Wed, 12 Jul 2023 08:02:43 -0700 (PDT)
-Received: from vschneid.remote.csb ([154.57.232.159])
-        by smtp.gmail.com with ESMTPSA id o6-20020a0ccb06000000b0062ff0dd0332sm2251154qvk.38.2023.07.12.08.02.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 Jul 2023 08:02:43 -0700 (PDT)
-From:   Valentin Schneider <vschneid@redhat.com>
-To:     Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>
-Cc:     mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, hpa@zytor.com, peterz@infradead.org,
-        juri.lelli@redhat.com, vincent.guittot@linaro.org,
+        with ESMTP id S233507AbjGLPJh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Jul 2023 11:09:37 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA9E41FF6;
+        Wed, 12 Jul 2023 08:09:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=DNc/ePBoNgd+bEoPBcid3Rf/V7MDlOQu7ZJsXNCj0Mw=; b=jiqWTed+ZeLN2KTPCdu1HY3ZBo
+        wH5c3x89xYsxPuc/QHg8uV5veO+oAqZ8AmXA9rY0Q98FKHPJw+OiAe6dHd+NFpKwLxhvWknI6uMXq
+        Wcg903Vv3L9yDHlbBHFkDjr+1DAA5jBhb/YE8PD7rHARUVRRUk0lkM5C7TOWCaVhccxl8adTzE5Eb
+        rO4px1w5Nj3DcFx0QKzw0kVjHuMi3zhu9LU/2T5c1R3YOdlzMfzBwe4iYmlQ9h/D+LG9RJ0VprlSG
+        4BxIWdiLfUH9WK3mMzqlzC004PI9QICt61A+eXbUdghJDnkZ+i2o5ZgjpnknSikyCmebQfhFb/MR6
+        qlI+KlLg==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1qJbS0-00Gnv5-1z; Wed, 12 Jul 2023 15:08:20 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 9F90030036B;
+        Wed, 12 Jul 2023 17:08:18 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 8781D240EBDA6; Wed, 12 Jul 2023 17:08:18 +0200 (CEST)
+Date:   Wed, 12 Jul 2023 17:08:18 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Valentin Schneider <vschneid@redhat.com>
+Cc:     Thomas Gleixner <tglx@linutronix.de>, mpe@ellerman.id.au,
+        npiggin@gmail.com, christophe.leroy@csgroup.eu, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, juri.lelli@redhat.com, vincent.guittot@linaro.org,
         dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
         mgorman@suse.de, bristot@redhat.com, linuxppc-dev@lists.ozlabs.org,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 Subject: Re: [RFC][PATCH] sched: Rename DIE domain
-In-Reply-To: <20230712141056.GI3100107@hirez.programming.kicks-ass.net>
+Message-ID: <20230712150818.GL3100107@hirez.programming.kicks-ass.net>
 References: <20230712141056.GI3100107@hirez.programming.kicks-ass.net>
-Date:   Wed, 12 Jul 2023 16:02:38 +0100
-Message-ID: <xhsmh1qhduq9d.mognet@vschneid.remote.csb>
+ <xhsmh1qhduq9d.mognet@vschneid.remote.csb>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <xhsmh1qhduq9d.mognet@vschneid.remote.csb>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 12/07/23 16:10, Peter Zijlstra wrote:
-> Hi
->
-> Thomas just tripped over the x86 topology setup creating a 'DIE' domain
-> for the package mask :-)
->
-> Since these names are SCHED_DEBUG only, rename them.
-> I don't think anybody *should* be relying on this, but who knows.
->
+On Wed, Jul 12, 2023 at 04:02:38PM +0100, Valentin Schneider wrote:
+> On 12/07/23 16:10, Peter Zijlstra wrote:
+> > Hi
+> >
+> > Thomas just tripped over the x86 topology setup creating a 'DIE' domain
+> > for the package mask :-)
+> >
+> > Since these names are SCHED_DEBUG only, rename them.
+> > I don't think anybody *should* be relying on this, but who knows.
+> >
+> 
+> FWIW I don't care much about the actual name.
 
-FWIW I don't care much about the actual name.
+Confusion is due to x86 growing an actual die topology and this not
+being it.
 
-There are some stray references to DIE in comments - see below. Bit funny
-to see:
-- *  - Package (DIE)
-+ *  - Package (PKG)
+Other than that, I can't be bothered too much about the silly name
+either.
 
-With that:
-Acked-by: Valentin Schneider <vschneid@redhat.com>
+> There are some stray references to DIE in comments - see below. Bit funny
+> to see:
+> - *  - Package (DIE)
+> + *  - Package (PKG)
+> 
+> With that:
+> Acked-by: Valentin Schneider <vschneid@redhat.com>
 
----
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index a80a73909dc2a..190a647534984 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -9439,7 +9439,7 @@ static bool sched_use_asym_prio(struct sched_domain *sd, int cpu)
-  * can only do it if @group is an SMT group and has exactly on busy CPU. Larger
-  * imbalances in the number of CPUS are dealt with in find_busiest_group().
-  *
-- * If we are balancing load within an SMT core, or at DIE domain level, always
-+ * If we are balancing load within an SMT core, or at PKG domain level, always
-  * proceed.
-  *
-  * Return: true if @env::dst_cpu can do with asym_packing load balance. False
-diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
-index e9d9cf776b7ab..2cdcfec1d1c89 100644
---- a/kernel/sched/topology.c
-+++ b/kernel/sched/topology.c
-@@ -1118,7 +1118,7 @@ build_overlap_sched_groups(struct sched_domain *sd, int cpu)
-  *
-  *  - Simultaneous multithreading (SMT)
-  *  - Multi-Core Cache (MC)
-- *  - Package (DIE)
-+ *  - Package (PKG)
-  *
-  * Where the last one more or less denotes everything up to a NUMA node.
-  *
-@@ -1140,13 +1140,13 @@ build_overlap_sched_groups(struct sched_domain *sd, int cpu)
-  *
-  * CPU   0   1   2   3   4   5   6   7
-  *
-- * DIE  [                             ]
-+ * PKG  [                             ]
-  * MC   [             ] [             ]
-  * SMT  [     ] [     ] [     ] [     ]
-  *
-  *  - or -
-  *
-- * DIE  0-7 0-7 0-7 0-7 0-7 0-7 0-7 0-7
-+ * PKG  0-7 0-7 0-7 0-7 0-7 0-7 0-7 0-7
-  * MC	0-3 0-3 0-3 0-3 4-7 4-7 4-7 4-7
-  * SMT  0-1 0-1 2-3 2-3 4-5 4-5 6-7 6-7
-  *
-
+Durr, I did a git-grep SD_INIT_NAME().. Thanks!
