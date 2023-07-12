@@ -2,121 +2,153 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14018C001E0
-	for <linux-s390@archiver.kernel.org>; Wed, 12 Jul 2023 11:42:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55DA6C04A6A
+	for <linux-s390@archiver.kernel.org>; Wed, 12 Jul 2023 11:42:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229843AbjGLLmb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 Jul 2023 07:42:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33462 "EHLO
+        id S230472AbjGLLmc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 Jul 2023 07:42:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231213AbjGLLm1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Jul 2023 07:42:27 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEC261BC9;
-        Wed, 12 Jul 2023 04:42:04 -0700 (PDT)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36CBXZAF032716;
-        Wed, 12 Jul 2023 11:41:56 GMT
+        with ESMTP id S231776AbjGLLm2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Jul 2023 07:42:28 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B33B31FF6;
+        Wed, 12 Jul 2023 04:42:05 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36CBaw54024503;
+        Wed, 12 Jul 2023 11:41:58 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=L1HoKALCfIaS8OvuytazsP+g6J8qP2T8SsNxmHMU7Nk=;
- b=WNfj1nRmkn+gPDUh6wXo8bN/AFgk+NcV2acQeDJ7P55I6uUjIIdu7smDdKVvpn6RSd0i
- FaPArYRovIH+iJtx+DxK/bwWMNE0a2ePLCQNDaLVjDA7A1vRwBV2205v5IOwilw+Es0Z
- adK6iCM/l1mQtQ5qmF7cPvvEy174BJA8U7nB8lmnQhvBQToXrCX45zap8NcBI3c5W2Yg
- lKJ1iyhfkUzJki/eh/iWqkzj6xYy63KoSj+Ok+97zxj+Sz++O1cTDC/w4SRyYMO/mOY0
- TXbRj7I6yH8FjnZKQHadwxcnlLrG9IcXgIkSYO/fyKplV7nDks5glebobCc4iqeUMAdB fA== 
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=/4GtRaBwUSOUQD48Bug6GO3gNGxWDPrKqShbK1zQQDE=;
+ b=eMNoTigLQla5FyloanZD8l2OrLv0ZChZ+A2RKB+ZsyoIpyg+GyQUVMOTtRAFwgwyfpoV
+ 2k9oAzM8JxpZDIpTUTJCHzOwirA336Jn+WFmN6R4eVjtPFmDYSnvFVe7/AE1cx1fUPB/
+ BTq4Z8bOM0XUF2YYHqQjI8dfaOa+xqhqwBi/XW4sHaXAUbknxwjEpBiXTq8p65U94Tq8
+ Sfok+ssJQ0RMeO02cDjkh70J38pbddySvdwSu8CTF5GS1PqIRPD94Z90vZ5hJTC6uqZE
+ P1FmoDExTPOfQoViIzHGIxTmOAszzwbsfYFq/z6lk5mKTIi3+SeH8XHCD0HCc1fDJOXQ gA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rsudercpt-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rsuaugau1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Jul 2023 11:41:57 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36CBbZ4h029890;
+        Wed, 12 Jul 2023 11:41:57 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rsuaugarf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 12 Jul 2023 11:41:56 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36CBXoLm001160;
-        Wed, 12 Jul 2023 11:41:55 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rsudercpf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 Jul 2023 11:41:55 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36CAuxY0018973;
-        Wed, 12 Jul 2023 11:41:54 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3rpye59w2w-1
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36CA5Rsa002837;
+        Wed, 12 Jul 2023 11:41:53 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma02fra.de.ibm.com (PPS) with ESMTPS id 3rpye5hwg4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 12 Jul 2023 11:41:53 +0000
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36CBfoUA31523474
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36CBfnEp57606446
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 12 Jul 2023 11:41:50 GMT
+        Wed, 12 Jul 2023 11:41:49 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6694F20040;
-        Wed, 12 Jul 2023 11:41:50 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id B0C3420043;
+        Wed, 12 Jul 2023 11:41:49 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3B3C52004B;
-        Wed, 12 Jul 2023 11:41:50 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 8DF6220040;
+        Wed, 12 Jul 2023 11:41:49 +0000 (GMT)
 Received: from a83lp41.lnxne.boe (unknown [9.152.108.100])
         by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 12 Jul 2023 11:41:50 +0000 (GMT)
+        Wed, 12 Jul 2023 11:41:49 +0000 (GMT)
 From:   Nico Boehr <nrb@linux.ibm.com>
 To:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v5 4/6] s390x: lib: don't forward PSW when handling exception in SIE
-Date:   Wed, 12 Jul 2023 13:41:47 +0200
-Message-Id: <20230712114149.1291580-5-nrb@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v5 0/6] s390x: Add support for running guests without MSO/MSL
+Date:   Wed, 12 Jul 2023 13:41:43 +0200
+Message-Id: <20230712114149.1291580-1-nrb@linux.ibm.com>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230712114149.1291580-1-nrb@linux.ibm.com>
-References: <20230712114149.1291580-1-nrb@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: D6_K8l9ULeoPPnoZckfNhhrzcKydHuop
-X-Proofpoint-ORIG-GUID: ezPfTNNf8bMpeXax-acy-Tq0JRrHqMRM
+X-Proofpoint-ORIG-GUID: XaoCWlvKE0vWx4YrYrr3Wp-Pk1YdiFnC
+X-Proofpoint-GUID: epOZp8XKgp5dUyOEASef1WrQKlzIFYMK
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
  definitions=2023-07-12_06,2023-07-11_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
- mlxscore=0 mlxlogscore=999 impostorscore=0 malwarescore=0 suspectscore=0
- priorityscore=1501 spamscore=0 adultscore=0 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ mlxlogscore=911 clxscore=1015 mlxscore=0 malwarescore=0 adultscore=0
+ impostorscore=0 suspectscore=0 bulkscore=0 phishscore=0 priorityscore=1501
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2305260000 definitions=main-2307120103
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When we're handling a pgm int in SIE, we want to return to the SIE
-cleanup after handling the exception. That's why we set pgm_old_psw to
-the sie_exit label in fixup_pgm_int.
-
-On nullifing pgm ints, fixup_pgm_int will also forward the old PSW such
-that we don't cause an pgm int again.
-
-However, when we want to return to the sie_exit label, this is not
-needed (since we've manually set pgm_old_psw). Instead, forwarding the
-PSW might cause us to skip an instruction or end up in the middle of an
-instruction.
-
-So, let's just skip the rest of the fixup in case we're inside SIE.
-
-Note that we're intentionally not fixing up the PSW in the guest; that's
-best left to the test at hand by registering their own psw fixup.
-
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+v5:
 ---
- lib/s390x/interrupt.c | 1 +
- 1 file changed, 1 insertion(+)
+* fix a big oopsie in irq_set_dat_mode() which caused parts of lowcore being
+  overwritten (thanks Claudio)
 
-diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-index 9b1bc6ce819d..5653220d166e 100644
---- a/lib/s390x/interrupt.c
-+++ b/lib/s390x/interrupt.c
-@@ -146,6 +146,7 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
- 	if (lowcore.pgm_old_psw.addr >= (uint64_t)&sie_entry &&
- 	    lowcore.pgm_old_psw.addr <= (uint64_t)&sie_exit) {
- 		lowcore.pgm_old_psw.addr = (uint64_t)&sie_exit;
-+		return;
- 	}
- 
- 	switch (lowcore.pgm_int_code) {
+v4:
+---
+- add static assert for PSW bitfield (Janosch, Claudio)
+- remove unneeded includes (Janosch)
+- move variable decls to function start (Janosch)
+- remove unneeded imports (Janosch)
+- lowerocase hex (Janosch)
+- remove unneeded attr (Janosch)
+- tyop :-) fixes (Janosch)
+
+v3:
+---
+* introduce bitfield for the PSW to make handling less clumsy
+* some variable renames (Claudio)
+* remove unneeded barriers (Claudio)
+* remove rebase leftover sie_had_pgm_int (Claudio)
+* move read_pgm_int_code to header (Claudio)
+* squash include fix commit into the one causing the issue (Claudio)
+
+v2:
+---
+* add function to change DAT/AS mode for all irq handlers (Janosch, Claudio)
+* instead of a new flag in PROG0C, check the pgm int code in lowcore (Janosch)
+* fix indents, comments (Nina)
+
+Right now, all SIE tests in kvm-unit-tests (i.e. where kvm-unit-test is the
+hypervisor) run using MSO/MSL.
+
+This is convenient, because it's simple. But it also comes with
+disadvantages, for example some features are unavailabe with MSO/MSL.
+
+This series adds support for running guests without MSO/MSL with dedicated
+guest page tables for the GPA->HPA translation.
+
+Since SIE implicitly uses the primary space mode for the guest, the host
+can't run in the primary space mode, too. To avoid moving all tests to the
+home space mode, only switch to home space mode when it is actually needed.
+
+This series also comes with various bugfixes that were caught while
+develoing this.
+
+Nico Boehr (6):
+  lib: s390x: introduce bitfield for PSW mask
+  s390x: add function to set DAT mode for all interrupts
+  s390x: sie: switch to home space mode before entering SIE
+  s390x: lib: don't forward PSW when handling exception in SIE
+  s390x: lib: sie: don't reenter SIE on pgm int
+  s390x: add a test for SIE without MSO/MSL
+
+ lib/s390x/asm/arch_def.h   |  27 ++++++++-
+ lib/s390x/asm/interrupt.h  |  18 ++++++
+ lib/s390x/asm/mem.h        |   1 +
+ lib/s390x/interrupt.c      |  37 ++++++++++++
+ lib/s390x/mmu.c            |   5 +-
+ lib/s390x/sie.c            |  22 ++++++-
+ s390x/Makefile             |   2 +
+ s390x/selftest.c           |  40 +++++++++++++
+ s390x/sie-dat.c            | 115 +++++++++++++++++++++++++++++++++++++
+ s390x/snippets/c/sie-dat.c |  58 +++++++++++++++++++
+ s390x/unittests.cfg        |   3 +
+ 11 files changed, 324 insertions(+), 4 deletions(-)
+ create mode 100644 s390x/sie-dat.c
+ create mode 100644 s390x/snippets/c/sie-dat.c
+
 -- 
 2.40.1
 
