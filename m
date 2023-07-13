@@ -2,25 +2,25 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22B81C001B0
-	for <linux-s390@archiver.kernel.org>; Thu, 13 Jul 2023 09:40:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A4E2C001E0
+	for <linux-s390@archiver.kernel.org>; Thu, 13 Jul 2023 09:40:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233090AbjGMJk1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 13 Jul 2023 05:40:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58826 "EHLO
+        id S234120AbjGMJkc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 13 Jul 2023 05:40:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233674AbjGMJk0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Jul 2023 05:40:26 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C940210A;
-        Thu, 13 Jul 2023 02:40:25 -0700 (PDT)
-Received: from dggpemm500001.china.huawei.com (unknown [172.30.72.56])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4R1qMQ0F4fzrRnX;
-        Thu, 13 Jul 2023 17:39:46 +0800 (CST)
+        with ESMTP id S234063AbjGMJk1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Jul 2023 05:40:27 -0400
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7AB12102;
+        Thu, 13 Jul 2023 02:40:26 -0700 (PDT)
+Received: from dggpemm500001.china.huawei.com (unknown [172.30.72.53])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4R1qMT1xcPz18MB1;
+        Thu, 13 Jul 2023 17:39:49 +0800 (CST)
 Received: from localhost.localdomain.localdomain (10.175.113.25) by
  dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27; Thu, 13 Jul 2023 17:40:21 +0800
+ 15.1.2507.27; Thu, 13 Jul 2023 17:40:23 +0800
 From:   Kefeng Wang <wangkefeng.wang@huawei.com>
 To:     <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>,
         <surenb@google.com>
@@ -51,10 +51,12 @@ CC:     Russell King <linux@armlinux.org.uk>,
         <linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
         <linux-s390@vger.kernel.org>,
         Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: [PATCH rfc -next 00/10] mm: convert to generic VMA lock-based page fault
-Date:   Thu, 13 Jul 2023 17:53:28 +0800
-Message-ID: <20230713095339.189715-1-wangkefeng.wang@huawei.com>
+Subject: [PATCH rfc -next 02/10] x86: mm: use try_vma_locked_page_fault()
+Date:   Thu, 13 Jul 2023 17:53:30 +0800
+Message-ID: <20230713095339.189715-3-wangkefeng.wang@huawei.com>
 X-Mailer: git-send-email 2.41.0
+In-Reply-To: <20230713095339.189715-1-wangkefeng.wang@huawei.com>
+References: <20230713095339.189715-1-wangkefeng.wang@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
@@ -66,44 +68,94 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add a generic VMA lock-based page fault handler in mm core, and convert
-architectures to use it, which eliminate architectures's duplicated codes.
+Use new try_vma_locked_page_fault() helper to simplify code.
+No functional change intended.
 
-With it, we can avoid multiple changes in architectures's code if we 
-add new feature or bugfix.
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+---
+ arch/x86/mm/fault.c | 39 +++++++++++++++------------------------
+ 1 file changed, 15 insertions(+), 24 deletions(-)
 
-This fixes riscv missing change about commit 38b3aec8e8d2 "mm: drop per-VMA
-lock when returning VM_FAULT_RETRY or VM_FAULT_COMPLETED", and in the end,
-we enable this feature on ARM32/Loongarch too.
-
-This is based on next-20230713, only built test(no loongarch compiler,
-so except loongarch).
-
-Kefeng Wang (10):
-  mm: add a generic VMA lock-based page fault handler
-  x86: mm: use try_vma_locked_page_fault()
-  arm64: mm: use try_vma_locked_page_fault()
-  s390: mm: use try_vma_locked_page_fault()
-  powerpc: mm: use try_vma_locked_page_fault()
-  riscv: mm: use try_vma_locked_page_fault()
-  ARM: mm: try VMA lock-based page fault handling first
-  loongarch: mm: cleanup __do_page_fault()
-  loongarch: mm: add access_error() helper
-  loongarch: mm: try VMA lock-based page fault handling first
-
- arch/arm/Kconfig          |  1 +
- arch/arm/mm/fault.c       | 15 ++++++-
- arch/arm64/mm/fault.c     | 28 +++---------
- arch/loongarch/Kconfig    |  1 +
- arch/loongarch/mm/fault.c | 92 ++++++++++++++++++++++++---------------
- arch/powerpc/mm/fault.c   | 54 ++++++++++-------------
- arch/riscv/mm/fault.c     | 38 +++++++---------
- arch/s390/mm/fault.c      | 23 +++-------
- arch/x86/mm/fault.c       | 39 +++++++----------
- include/linux/mm.h        | 28 ++++++++++++
- mm/memory.c               | 42 ++++++++++++++++++
- 11 files changed, 206 insertions(+), 155 deletions(-)
-
+diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
+index 56b4f9faf8c4..3f3b8b0a87de 100644
+--- a/arch/x86/mm/fault.c
++++ b/arch/x86/mm/fault.c
+@@ -1213,6 +1213,16 @@ do_kern_addr_fault(struct pt_regs *regs, unsigned long hw_error_code,
+ }
+ NOKPROBE_SYMBOL(do_kern_addr_fault);
+ 
++#ifdef CONFIG_PER_VMA_LOCK
++int arch_vma_check_access(struct vm_area_struct *vma,
++			  struct vm_locked_fault *vmlf)
++{
++	if (unlikely(access_error(vmlf->fault_code, vma)))
++		return -EINVAL;
++	return 0;
++}
++#endif
++
+ /*
+  * Handle faults in the user portion of the address space.  Nothing in here
+  * should check X86_PF_USER without a specific justification: for almost
+@@ -1231,6 +1241,7 @@ void do_user_addr_fault(struct pt_regs *regs,
+ 	struct mm_struct *mm;
+ 	vm_fault_t fault;
+ 	unsigned int flags = FAULT_FLAG_DEFAULT;
++	struct vm_locked_fault vmlf;
+ 
+ 	tsk = current;
+ 	mm = tsk->mm;
+@@ -1328,27 +1339,11 @@ void do_user_addr_fault(struct pt_regs *regs,
+ 	}
+ #endif
+ 
+-#ifdef CONFIG_PER_VMA_LOCK
+-	if (!(flags & FAULT_FLAG_USER))
+-		goto lock_mmap;
+-
+-	vma = lock_vma_under_rcu(mm, address);
+-	if (!vma)
+-		goto lock_mmap;
+-
+-	if (unlikely(access_error(error_code, vma))) {
+-		vma_end_read(vma);
+-		goto lock_mmap;
+-	}
+-	fault = handle_mm_fault(vma, address, flags | FAULT_FLAG_VMA_LOCK, regs);
+-	if (!(fault & (VM_FAULT_RETRY | VM_FAULT_COMPLETED)))
+-		vma_end_read(vma);
+-
+-	if (!(fault & VM_FAULT_RETRY)) {
+-		count_vm_vma_lock_event(VMA_LOCK_SUCCESS);
++	VM_LOCKED_FAULT_INIT(vmlf, mm, address, flags, 0, regs, error_code);
++	if (try_vma_locked_page_fault(&vmlf, &fault))
++		goto retry;
++	else if (!(fault | VM_FAULT_RETRY))
+ 		goto done;
+-	}
+-	count_vm_vma_lock_event(VMA_LOCK_RETRY);
+ 
+ 	/* Quick path to respond to signals */
+ 	if (fault_signal_pending(fault, regs)) {
+@@ -1358,8 +1353,6 @@ void do_user_addr_fault(struct pt_regs *regs,
+ 						 ARCH_DEFAULT_PKEY);
+ 		return;
+ 	}
+-lock_mmap:
+-#endif /* CONFIG_PER_VMA_LOCK */
+ 
+ retry:
+ 	vma = lock_mm_and_find_vma(mm, address, regs);
+@@ -1419,9 +1412,7 @@ void do_user_addr_fault(struct pt_regs *regs,
+ 	}
+ 
+ 	mmap_read_unlock(mm);
+-#ifdef CONFIG_PER_VMA_LOCK
+ done:
+-#endif
+ 	if (likely(!(fault & VM_FAULT_ERROR)))
+ 		return;
+ 
 -- 
 2.27.0
 
