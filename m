@@ -2,190 +2,205 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DC61EB64DD
-	for <linux-s390@archiver.kernel.org>; Thu, 13 Jul 2023 06:58:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B5CFEB64DD
+	for <linux-s390@archiver.kernel.org>; Thu, 13 Jul 2023 07:18:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234117AbjGMG6w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 13 Jul 2023 02:58:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58492 "EHLO
+        id S234170AbjGMHSU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 13 Jul 2023 03:18:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234122AbjGMG6t (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Jul 2023 02:58:49 -0400
+        with ESMTP id S234069AbjGMHST (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Jul 2023 03:18:19 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 624572684
-        for <linux-s390@vger.kernel.org>; Wed, 12 Jul 2023 23:57:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44C92E75
+        for <linux-s390@vger.kernel.org>; Thu, 13 Jul 2023 00:17:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1689231473;
+        s=mimecast20190719; t=1689232653;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=FkUDksLkfPco+7wyI296HUS7y9CDt8j4euYQ6B06Lss=;
-        b=PleqlY9BwqTEmUUNhJrkMcJ9fpOSsJqHK1XGZhPDmEjwswuuWoIMm/SfyuXcEtrcO+ckad
-        nIMDC9E74E5fyAu3/6YLK5U4+9jlQN1nregsRlyMB7ynuvQluJneOuVqCFbZnlgRubJGWB
-        Qk+8+jqScr05fX09HVpAOM0NlOGzZIM=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=2LejsROT8ViVogg5eUBhr0atMu0AKpWZYVlQl+igMgI=;
+        b=fpCr9JYgy7w9gES/VJmw9yUH+zft55hT7Ov4wlfl25aJnmD+Zpd2+fRwLwWuI025oTMqX/
+        j7oChCVGu7yBbyCp4YGfFhf0fngP5SssiP2GzCdLP4qO/gxdVypzJiTFsG+d1uBvoFZDZq
+        sJ7fFns6rKYT4gAG9f+LliftaMeNEGE=
+Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
+ [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-371-L5gKJsHhNQKW2yggoI3QKg-1; Thu, 13 Jul 2023 02:57:52 -0400
-X-MC-Unique: L5gKJsHhNQKW2yggoI3QKg-1
-Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-7675fc3333eso27048385a.0
-        for <linux-s390@vger.kernel.org>; Wed, 12 Jul 2023 23:57:52 -0700 (PDT)
+ us-mta-641-dJ6xChwiNY61wac7ien0jg-1; Thu, 13 Jul 2023 03:17:32 -0400
+X-MC-Unique: dJ6xChwiNY61wac7ien0jg-1
+Received: by mail-qv1-f69.google.com with SMTP id 6a1803df08f44-635ed44d2afso2653556d6.2
+        for <linux-s390@vger.kernel.org>; Thu, 13 Jul 2023 00:17:32 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689231472; x=1691823472;
-        h=content-transfer-encoding:in-reply-to:references:cc:to:from
-         :content-language:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20221208; t=1689232652; x=1691824652;
+        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
+         :content-language:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=FkUDksLkfPco+7wyI296HUS7y9CDt8j4euYQ6B06Lss=;
-        b=WZAMqbaF25x3igutHMPt1STpm2JsSqPWBvBurIfRQOQdamflEgMd9BRW9TP9PCzZic
-         BKRDo9XT3RFnWjraV8Y1/02ypHj4u3ogVF3E2bV+7Er3LfHz6s/7M1xW97heHDG1Ca1A
-         FIqY3np3g05VzTX57Uwrh55L8Xd5+dfZmsGTLA3muvx8ALmhIW+w8Iexrzq021HWLzAq
-         NTilQRj+Gwbv9EzOUP845z4+Hlf40G/XZ0XOQv5E/fZS+vRcWSz0W2iuGRmBEQDh+P4t
-         3WFd3LHSU8B4S9dlIOUnCV3aPrL2ismSHWykkJ/SFODUHvP30hKZYvALZFf0t0U5BxkL
-         yE2w==
-X-Gm-Message-State: ABy/qLaT8Tt6yYYe4C2coPOQ1EMWwIYE59teIkL7mNeqqVrIbAnYR4LV
-        d2RKb2KYtJoSQDHDAQKcpXeNlvBdCatZq3gwfyJv7QdxMKA5FYvFjugz3+x6yB6QzGgU8eoXJce
-        DTef1yAMDmGRYiAX+g/pQQvrh3Sbgjw==
-X-Received: by 2002:a05:620a:394a:b0:767:e55c:d3ba with SMTP id qs10-20020a05620a394a00b00767e55cd3bamr1006452qkn.3.1689231471925;
-        Wed, 12 Jul 2023 23:57:51 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlEltUOn6hK/qYK9V7xYjCXYyprYEc23ogRF1mZF4E/ap9JA7M7qdA/lRoz3YOmRByG6OE2hJw==
-X-Received: by 2002:a05:620a:394a:b0:767:e55c:d3ba with SMTP id qs10-20020a05620a394a00b00767e55cd3bamr1006443qkn.3.1689231471470;
-        Wed, 12 Jul 2023 23:57:51 -0700 (PDT)
+        bh=2LejsROT8ViVogg5eUBhr0atMu0AKpWZYVlQl+igMgI=;
+        b=HW7dxnBlEUaLrcxVm4g00kiDOgx1nG6upK89wJdX7g/WcJl1w7QTO4PI3pc0S00TMe
+         ojewdZDk4MgRbwKiPcylE4cPCeE2UPi7elZSkTQCIgR29MYba+A17pVG162zq8LIJHb7
+         XDdZihvdccELjo1YoQAh04tjtOmMtuEXyfOOo0NFeNzCsvu33xP+Ri8dVHvCnZk6a955
+         ocMXNYTPLukpGjw+wQ5BI4KXl4AbDzefYn6gTmgrZZmU6adL4biAw4mVJsz7QjFJO2qk
+         eWXAbUDuKGIyBxk1igw8eG1eVQnBq1aAO0a+DQgyd0JmMj58SJWcHz0lMgIz7JwC7TMi
+         mt8w==
+X-Gm-Message-State: ABy/qLYZysna6Hnq+I0BJYc4EmQ3RHur6qIr+mth3a8U4yDoEM1swf9y
+        ZYIjReGVbI88aNjKjt5kU1xchlJ0IQziLUxlHnpP0JO+pQiG9JAjNhw9PkAqC5dw/KMrn23dU+E
+        0cGLYcqW0Ibdvn79avUxjoA==
+X-Received: by 2002:a0c:f30d:0:b0:624:3af6:21d2 with SMTP id j13-20020a0cf30d000000b006243af621d2mr567936qvl.13.1689232651802;
+        Thu, 13 Jul 2023 00:17:31 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlH0ylf23Un3JPDLz8dfGb4y1DOBv9H5wy1gDTlXzqFZNaiT4razpM88Y+ZPQl79Gmw4hqpkXw==
+X-Received: by 2002:a0c:f30d:0:b0:624:3af6:21d2 with SMTP id j13-20020a0cf30d000000b006243af621d2mr567926qvl.13.1689232651489;
+        Thu, 13 Jul 2023 00:17:31 -0700 (PDT)
 Received: from [10.33.192.205] (nat-pool-str-t.redhat.com. [149.14.88.106])
-        by smtp.gmail.com with ESMTPSA id i6-20020a37c206000000b00767e669d5d6sm1967452qkm.50.2023.07.12.23.57.50
+        by smtp.gmail.com with ESMTPSA id r3-20020a0ccc03000000b0063211e61875sm2849980qvk.14.2023.07.13.00.17.30
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 12 Jul 2023 23:57:51 -0700 (PDT)
-Message-ID: <4919d35f-7a3c-89c7-4287-c1a30508524d@redhat.com>
-Date:   Thu, 13 Jul 2023 08:57:48 +0200
+        Thu, 13 Jul 2023 00:17:30 -0700 (PDT)
+Message-ID: <9b2cdc37-0b93-ff00-d077-397b8c0c2950@redhat.com>
+Date:   Thu, 13 Jul 2023 09:17:28 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.12.0
-Subject: Re: [kvm-unit-tests PATCH v5 1/6] lib: s390x: introduce bitfield for
- PSW mask
 Content-Language: en-US
-From:   Thomas Huth <thuth@redhat.com>
 To:     Nico Boehr <nrb@linux.ibm.com>, frankja@linux.ibm.com,
         imbrenda@linux.ibm.com
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
 References: <20230712114149.1291580-1-nrb@linux.ibm.com>
- <20230712114149.1291580-2-nrb@linux.ibm.com>
- <53d9d63f-e207-23a6-faea-8bad8b22a375@redhat.com>
-In-Reply-To: <53d9d63f-e207-23a6-faea-8bad8b22a375@redhat.com>
+ <20230712114149.1291580-3-nrb@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH v5 2/6] s390x: add function to set DAT mode
+ for all interrupts
+In-Reply-To: <20230712114149.1291580-3-nrb@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 13/07/2023 08.56, Thomas Huth wrote:
-> On 12/07/2023 13.41, Nico Boehr wrote:
->> Changing the PSW mask is currently little clumsy, since there is only the
->> PSW_MASK_* defines. This makes it hard to change e.g. only the address
->> space in the current PSW without a lot of bit fiddling.
->>
->> Introduce a bitfield for the PSW mask. This makes this kind of
->> modifications much simpler and easier to read.
->>
->> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
->> ---
->>   lib/s390x/asm/arch_def.h | 26 +++++++++++++++++++++++++-
->>   s390x/selftest.c         | 40 ++++++++++++++++++++++++++++++++++++++++
->>   2 files changed, 65 insertions(+), 1 deletion(-)
->>
->> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
->> index bb26e008cc68..53279572a9ee 100644
->> --- a/lib/s390x/asm/arch_def.h
->> +++ b/lib/s390x/asm/arch_def.h
->> @@ -37,12 +37,36 @@ struct stack_frame_int {
->>   };
->>   struct psw {
->> -    uint64_t    mask;
->> +    union {
->> +        uint64_t    mask;
->> +        struct {
->> +            uint8_t reserved00:1;
->> +            uint8_t per:1;
->> +            uint8_t reserved02:3;
->> +            uint8_t dat:1;
->> +            uint8_t io:1;
->> +            uint8_t ext:1;
->> +            uint8_t key:4;
->> +            uint8_t reserved12:1;
->> +            uint8_t mchk:1;
->> +            uint8_t wait:1;
->> +            uint8_t pstate:1;
->> +            uint8_t as:2;
->> +            uint8_t cc:2;
->> +            uint8_t prg_mask:4;
->> +            uint8_t reserved24:7;
->> +            uint8_t ea:1;
->> +            uint8_t ba:1;
->> +            uint32_t reserved33:31;
->> +        };
->> +    };
->>       uint64_t    addr;
->>   };
->> +_Static_assert(sizeof(struct psw) == 16, "PSW size");
->>   #define PSW(m, a) ((struct psw){ .mask = (m), .addr = (uint64_t)(a) })
->> +
->>   struct short_psw {
->>       uint32_t    mask;
->>       uint32_t    addr;
->> diff --git a/s390x/selftest.c b/s390x/selftest.c
->> index 13fd36bc06f8..8d81ba312279 100644
->> --- a/s390x/selftest.c
->> +++ b/s390x/selftest.c
->> @@ -74,6 +74,45 @@ static void test_malloc(void)
->>       report_prefix_pop();
->>   }
->> +static void test_psw_mask(void)
->> +{
->> +    uint64_t expected_key = 0xF;
->> +    struct psw test_psw = PSW(0, 0);
->> +
->> +    report_prefix_push("PSW mask");
->> +    test_psw.dat = 1;
->> +    report(test_psw.mask == PSW_MASK_DAT, "DAT matches expected=0x%016lx 
->> actual=0x%016lx", PSW_MASK_DAT, test_psw.mask);
->> +
->> +    test_psw.mask = 0;
->> +    test_psw.io = 1;
->> +    report(test_psw.mask == PSW_MASK_IO, "IO matches expected=0x%016lx 
->> actual=0x%016lx", PSW_MASK_IO, test_psw.mask);
->> +
->> +    test_psw.mask = 0;
->> +    test_psw.ext = 1;
->> +    report(test_psw.mask == PSW_MASK_EXT, "EXT matches expected=0x%016lx 
->> actual=0x%016lx", PSW_MASK_EXT, test_psw.mask);
->> +
->> +    test_psw.mask = expected_key << (63 - 11);
->> +    report(test_psw.key == expected_key, "PSW Key matches expected=0x%lx 
->> actual=0x%x", expected_key, test_psw.key);
+On 12/07/2023 13.41, Nico Boehr wrote:
+> When toggling DAT or switch address space modes, it is likely that
+> interrupts should be handled in the same DAT or address space mode.
 > 
-> Patch looks basically fine to me, but here my mind stumbled a little bit. 
-> This test is written the other way round than the others. Nothing wrong with 
-> that, it just feels a little bit inconsistent. I'd suggest to either do:
+> Add a function which toggles DAT and address space mode for all
+> interruptions, except restart interrupts.
 > 
->      test_psw.mask = 0;
->      test_psw.key = expected_key;
->      report(test_psw.mask == expected_key << (63 - 11), ...);
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> ---
+>   lib/s390x/asm/interrupt.h |  4 ++++
+>   lib/s390x/interrupt.c     | 36 ++++++++++++++++++++++++++++++++++++
+>   lib/s390x/mmu.c           |  5 +++--
+>   3 files changed, 43 insertions(+), 2 deletions(-)
 > 
-> or maybe even switch all the other tests around instead, so you could get 
-> rid of the "test_psw.mask = 0" lines, e.g. :
-> 
->      test_psw.mask == PSW_MASK_IO;
+> diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
+> index 35c1145f0349..55759002dce2 100644
+> --- a/lib/s390x/asm/interrupt.h
+> +++ b/lib/s390x/asm/interrupt.h
+> @@ -83,6 +83,10 @@ void expect_ext_int(void);
+>   uint16_t clear_pgm_int(void);
+>   void check_pgm_int_code(uint16_t code);
+>   
+> +#define IRQ_DAT_ON	true
+> +#define IRQ_DAT_OFF	false
 
-s/==/=/ of course!
+Just a matter of taste, but IMHO having defines like this for just using 
+them as boolean parameter to one function is a little bit overkill already. 
+I'd rather rename the "bool dat" below into "bool use_dat" and then use 
+"true" and "false" directly as a parameter for that function instead. 
+Anyway, just my 0.02 €.
 
-Sorry for that typo.
+> +void irq_set_dat_mode(bool dat, uint64_t as);
+> +
+>   /* Activate low-address protection */
+>   static inline void low_prot_enable(void)
+>   {
+> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+> index 3f993a363ae2..9b1bc6ce819d 100644
+> --- a/lib/s390x/interrupt.c
+> +++ b/lib/s390x/interrupt.c
+> @@ -9,6 +9,7 @@
+>    */
+>   #include <libcflat.h>
+>   #include <asm/barrier.h>
+> +#include <asm/mem.h>
+>   #include <asm/asm-offsets.h>
+>   #include <sclp.h>
+>   #include <interrupt.h>
+> @@ -104,6 +105,41 @@ void register_ext_cleanup_func(void (*f)(struct stack_frame_int *))
+>   	THIS_CPU->ext_cleanup_func = f;
+>   }
+>   
+> +/**
+> + * irq_set_dat_mode - Set the DAT mode of all interrupt handlers, except for
+> + * restart.
+> + * This will update the DAT mode and address space mode of all interrupt new
+> + * PSWs.
+> + *
+> + * Since enabling DAT needs initalized CRs and the restart new PSW is often used
+
+s/initalized/initialized/
+
+> + * to initalize CRs, the restart new PSW is never touched to avoid the chicken
+
+dito
+
+> + * and egg situation.
+> + *
+> + * @dat specifies whether to use DAT or not
+> + * @as specifies the address space mode to use - one of AS_PRIM, AS_ACCR,
+> + * AS_SECN or AS_HOME.
+> + */
+> +void irq_set_dat_mode(bool dat, uint64_t as)
+
+why uint64_t for "as" ? "int" should be enough?
+
+(alternatively, you could turn the AS_* defines into a properly named enum 
+and use that type here instead)
 
   Thomas
 
-
->      report(test_psw.io, "IO matches ...");
-> 
-> etc.
-> 
->   Thomas
-> 
+> +{
+> +	struct psw* irq_psws[] = {
+> +		OPAQUE_PTR(GEN_LC_EXT_NEW_PSW),
+> +		OPAQUE_PTR(GEN_LC_SVC_NEW_PSW),
+> +		OPAQUE_PTR(GEN_LC_PGM_NEW_PSW),
+> +		OPAQUE_PTR(GEN_LC_MCCK_NEW_PSW),
+> +		OPAQUE_PTR(GEN_LC_IO_NEW_PSW),
+> +	};
+> +	struct psw *psw;
+> +
+> +	assert(as == AS_PRIM || as == AS_ACCR || as == AS_SECN || as == AS_HOME);
+> +
+> +	for (size_t i = 0; i < ARRAY_SIZE(irq_psws); i++) {
+> +		psw = irq_psws[i];
+> +		psw->dat = dat;
+> +		if (dat)
+> +			psw->as = as;
+> +	}
+> +}
+> +
+>   static void fixup_pgm_int(struct stack_frame_int *stack)
+>   {
+>   	/* If we have an error on SIE we directly move to sie_exit */
+> diff --git a/lib/s390x/mmu.c b/lib/s390x/mmu.c
+> index b474d7021d3f..199bd3fbc9c8 100644
+> --- a/lib/s390x/mmu.c
+> +++ b/lib/s390x/mmu.c
+> @@ -12,6 +12,7 @@
+>   #include <asm/pgtable.h>
+>   #include <asm/arch_def.h>
+>   #include <asm/barrier.h>
+> +#include <asm/interrupt.h>
+>   #include <vmalloc.h>
+>   #include "mmu.h"
+>   
+> @@ -41,8 +42,8 @@ static void mmu_enable(pgd_t *pgtable)
+>   	/* enable dat (primary == 0 set as default) */
+>   	enable_dat();
+>   
+> -	/* we can now also use DAT unconditionally in our PGM handler */
+> -	lowcore.pgm_new_psw.mask |= PSW_MASK_DAT;
+> +	/* we can now also use DAT in all interrupt handlers */
+> +	irq_set_dat_mode(IRQ_DAT_ON, AS_PRIM);
+>   }
+>   
+>   /*
 
