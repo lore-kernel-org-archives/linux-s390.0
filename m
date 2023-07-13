@@ -2,25 +2,25 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 756E0C04A6A
-	for <linux-s390@archiver.kernel.org>; Thu, 13 Jul 2023 09:40:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75AF5C001B0
+	for <linux-s390@archiver.kernel.org>; Thu, 13 Jul 2023 09:40:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234319AbjGMJkq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 13 Jul 2023 05:40:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58918 "EHLO
+        id S234371AbjGMJkx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 13 Jul 2023 05:40:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234197AbjGMJke (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Jul 2023 05:40:34 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53EFD2115;
-        Thu, 13 Jul 2023 02:40:33 -0700 (PDT)
-Received: from dggpemm500001.china.huawei.com (unknown [172.30.72.54])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4R1qMZ56yBzrRn7;
-        Thu, 13 Jul 2023 17:39:54 +0800 (CST)
+        with ESMTP id S234250AbjGMJkk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Jul 2023 05:40:40 -0400
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 789A52127;
+        Thu, 13 Jul 2023 02:40:34 -0700 (PDT)
+Received: from dggpemm500001.china.huawei.com (unknown [172.30.72.56])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4R1qMc4wfvz18Lt7;
+        Thu, 13 Jul 2023 17:39:56 +0800 (CST)
 Received: from localhost.localdomain.localdomain (10.175.113.25) by
  dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27; Thu, 13 Jul 2023 17:40:30 +0800
+ 15.1.2507.27; Thu, 13 Jul 2023 17:40:31 +0800
 From:   Kefeng Wang <wangkefeng.wang@huawei.com>
 To:     <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>,
         <surenb@google.com>
@@ -51,9 +51,9 @@ CC:     Russell King <linux@armlinux.org.uk>,
         <linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
         <linux-s390@vger.kernel.org>,
         Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: [PATCH rfc -next 07/10] ARM: mm: try VMA lock-based page fault handling first
-Date:   Thu, 13 Jul 2023 17:53:35 +0800
-Message-ID: <20230713095339.189715-8-wangkefeng.wang@huawei.com>
+Subject: [PATCH rfc -next 08/10] loongarch: mm: cleanup __do_page_fault()
+Date:   Thu, 13 Jul 2023 17:53:36 +0800
+Message-ID: <20230713095339.189715-9-wangkefeng.wang@huawei.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20230713095339.189715-1-wangkefeng.wang@huawei.com>
 References: <20230713095339.189715-1-wangkefeng.wang@huawei.com>
@@ -68,67 +68,95 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Attempt VMA lock-based page fault handling first, and fall back
-to the existing mmap_lock-based handling if that fails.
+Cleanup __do_page_fault() by reuse bad_area_nosemaphore and
+bad_area label.
 
 Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 ---
- arch/arm/Kconfig    |  1 +
- arch/arm/mm/fault.c | 15 ++++++++++++++-
- 2 files changed, 15 insertions(+), 1 deletion(-)
+ arch/loongarch/mm/fault.c | 36 +++++++++++-------------------------
+ 1 file changed, 11 insertions(+), 25 deletions(-)
 
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 1a6a6eb48a15..8b6d4507ccee 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -34,6 +34,7 @@ config ARM
- 	select ARCH_OPTIONAL_KERNEL_RWX_DEFAULT if CPU_V7
- 	select ARCH_SUPPORTS_ATOMIC_RMW
- 	select ARCH_SUPPORTS_HUGETLBFS if ARM_LPAE
-+	select ARCH_SUPPORTS_PER_VMA_LOCK
- 	select ARCH_USE_BUILTIN_BSWAP
- 	select ARCH_USE_CMPXCHG_LOCKREF
- 	select ARCH_USE_MEMTEST
-diff --git a/arch/arm/mm/fault.c b/arch/arm/mm/fault.c
-index fef62e4a9edd..c44b83841e36 100644
---- a/arch/arm/mm/fault.c
-+++ b/arch/arm/mm/fault.c
-@@ -244,6 +244,7 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
- 	vm_fault_t fault;
- 	unsigned int flags = FAULT_FLAG_DEFAULT;
- 	unsigned long vm_flags = VM_ACCESS_FLAGS;
-+	struct vm_locked_fault vmlf;
- 
- 	if (kprobe_page_fault(regs, fsr))
- 		return 0;
-@@ -278,6 +279,18 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
- 
- 	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, addr);
- 
-+	VM_LOCKED_FAULT_INIT(vmlf, mm, addr, flags, vm_flags, regs, fsr);
-+	if (try_vma_locked_page_fault(&vmlf, &fault))
-+		goto retry;
-+	else if (!(fault | VM_FAULT_RETRY))
-+		goto done;
-+
-+	if (fault_signal_pending(fault, regs)) {
-+		if (!user_mode(regs))
-+			goto no_context;
-+		return 0;
-+	}
-+
- retry:
- 	vma = lock_mm_and_find_vma(mm, addr, regs);
- 	if (unlikely(!vma)) {
-@@ -316,7 +329,7 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
+diff --git a/arch/loongarch/mm/fault.c b/arch/loongarch/mm/fault.c
+index da5b6d518cdb..03d06ee184da 100644
+--- a/arch/loongarch/mm/fault.c
++++ b/arch/loongarch/mm/fault.c
+@@ -151,18 +151,15 @@ static void __kprobes __do_page_fault(struct pt_regs *regs,
+ 		if (!user_mode(regs))
+ 			no_context(regs, address);
+ 		else
+-			do_sigsegv(regs, write, address, si_code);
+-		return;
++			goto bad_area_nosemaphore;
  	}
  
- 	mmap_read_unlock(mm);
--
-+done:
  	/*
- 	 * Handle the "normal" case first - VM_FAULT_MAJOR
+ 	 * If we're in an interrupt or have no user
+ 	 * context, we must not take the fault..
  	 */
+-	if (faulthandler_disabled() || !mm) {
+-		do_sigsegv(regs, write, address, si_code);
+-		return;
+-	}
++	if (faulthandler_disabled() || !mm)
++		goto bad_area_nosemaphore;
+ 
+ 	if (user_mode(regs))
+ 		flags |= FAULT_FLAG_USER;
+@@ -172,23 +169,7 @@ static void __kprobes __do_page_fault(struct pt_regs *regs,
+ 	vma = lock_mm_and_find_vma(mm, address, regs);
+ 	if (unlikely(!vma))
+ 		goto bad_area_nosemaphore;
+-	goto good_area;
+-
+-/*
+- * Something tried to access memory that isn't in our memory map..
+- * Fix it, but check if it's kernel or user first..
+- */
+-bad_area:
+-	mmap_read_unlock(mm);
+-bad_area_nosemaphore:
+-	do_sigsegv(regs, write, address, si_code);
+-	return;
+ 
+-/*
+- * Ok, we have a good vm_area for this memory access, so
+- * we can handle it..
+- */
+-good_area:
+ 	si_code = SEGV_ACCERR;
+ 
+ 	if (write) {
+@@ -229,14 +210,15 @@ static void __kprobes __do_page_fault(struct pt_regs *regs,
+ 		 */
+ 		goto retry;
+ 	}
++
++	mmap_read_unlock(mm);
++
+ 	if (unlikely(fault & VM_FAULT_ERROR)) {
+-		mmap_read_unlock(mm);
+ 		if (fault & VM_FAULT_OOM) {
+ 			do_out_of_memory(regs, address);
+ 			return;
+ 		} else if (fault & VM_FAULT_SIGSEGV) {
+-			do_sigsegv(regs, write, address, si_code);
+-			return;
++			goto bad_area_nosemaphore;
+ 		} else if (fault & (VM_FAULT_SIGBUS|VM_FAULT_HWPOISON|VM_FAULT_HWPOISON_LARGE)) {
+ 			do_sigbus(regs, write, address, si_code);
+ 			return;
+@@ -244,7 +226,11 @@ static void __kprobes __do_page_fault(struct pt_regs *regs,
+ 		BUG();
+ 	}
+ 
++	return;
++bad_area:
+ 	mmap_read_unlock(mm);
++bad_area_nosemaphore:
++	do_sigsegv(regs, write, address, si_code);
+ }
+ 
+ asmlinkage void __kprobes do_page_fault(struct pt_regs *regs,
 -- 
 2.27.0
 
