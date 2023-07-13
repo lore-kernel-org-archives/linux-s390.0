@@ -2,128 +2,227 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90661EB64DD
-	for <linux-s390@archiver.kernel.org>; Thu, 13 Jul 2023 10:43:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FF96C001DF
+	for <linux-s390@archiver.kernel.org>; Thu, 13 Jul 2023 11:14:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233745AbjGMKnE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 13 Jul 2023 06:43:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43012 "EHLO
+        id S234383AbjGMLOG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 13 Jul 2023 07:14:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234236AbjGMKnE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Jul 2023 06:43:04 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A22B81FDE;
-        Thu, 13 Jul 2023 03:43:01 -0700 (PDT)
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36DALboQ023181;
-        Thu, 13 Jul 2023 10:42:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=8BufaUFC4lq+i0mb7tum+tW3iSrvIdyYFfiCKGJV2Qk=;
- b=UWoYASnDlKVaItp/McDdVJ7xToFqq7bV2TMwidsakp9z61MBv99gGJNVx52W/4MRHqkj
- DbOGTFGGOve11J04Ncw6vAzYmJQnuBgQ4C05isIoQFvnqD0bJvSpmZvXIssFAakdiN51
- T/1qH7T7MwuIZWhXh/RdRUA7lEAoCJyQXVw34FY9kqbeMrFv4PvRajPk071PadjA1NDW
- nc7KCFIiMOrpOnYvu0g0bAmDvTOnl0xVnjsdTjiI8bSi7mRfiHcXNiRnVAJd8Dj8IFnx
- VbX2wlkBCUdOMKZOgquzh1xWJ5GO8o701DeAkU5+yR3t66R4feT8p3uhAzcW+fmT2HK9 FQ== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rtfeugh64-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 13 Jul 2023 10:42:51 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36D1vZKw012770;
-        Thu, 13 Jul 2023 10:42:49 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3rpye5aauq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 13 Jul 2023 10:42:49 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36DAgjN027263496
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 13 Jul 2023 10:42:45 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 631402004B;
-        Thu, 13 Jul 2023 10:42:45 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EEB552004F;
-        Thu, 13 Jul 2023 10:42:44 +0000 (GMT)
-Received: from [9.171.85.252] (unknown [9.171.85.252])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 13 Jul 2023 10:42:44 +0000 (GMT)
-Message-ID: <56ca93af-67dc-9d10-d27e-00c8d7c20f1b@linux.ibm.com>
-Date:   Thu, 13 Jul 2023 12:42:44 +0200
+        with ESMTP id S229913AbjGMLOF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Jul 2023 07:14:05 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52134211C;
+        Thu, 13 Jul 2023 04:14:03 -0700 (PDT)
+Received: from dggpemm500006.china.huawei.com (unknown [172.30.72.56])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4R1sNg70PRztR5C;
+        Thu, 13 Jul 2023 19:10:59 +0800 (CST)
+Received: from [10.174.178.55] (10.174.178.55) by
+ dggpemm500006.china.huawei.com (7.185.36.236) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.27; Thu, 13 Jul 2023 19:13:58 +0800
+Subject: Re: [PATCH v6 02/14] x86/kexec: refactor for kernel/Kconfig.kexec
+To:     Eric DeVolder <eric.devolder@oracle.com>, <linux@armlinux.org.uk>,
+        <catalin.marinas@arm.com>, <will@kernel.org>,
+        <chenhuacai@kernel.org>, <geert@linux-m68k.org>,
+        <tsbogend@alpha.franken.de>,
+        <James.Bottomley@HansenPartnership.com>, <deller@gmx.de>,
+        <ysato@users.sourceforge.jp>, <dalias@libc.org>,
+        <glaubitz@physik.fu-berlin.de>, <tglx@linutronix.de>,
+        <mingo@redhat.com>, <bp@alien8.de>, <dave.hansen@linux.intel.com>,
+        <x86@kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-ia64@vger.kernel.org>, <loongarch@lists.linux.dev>,
+        <linux-m68k@lists.linux-m68k.org>, <linux-mips@vger.kernel.org>,
+        <linux-parisc@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
+        <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
+        <linux-sh@vger.kernel.org>
+CC:     <kernel@xen0n.name>, <mpe@ellerman.id.au>, <npiggin@gmail.com>,
+        <christophe.leroy@csgroup.eu>, <paul.walmsley@sifive.com>,
+        <palmer@dabbelt.com>, <aou@eecs.berkeley.edu>, <hca@linux.ibm.com>,
+        <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
+        <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>,
+        <hpa@zytor.com>, <keescook@chromium.org>, <paulmck@kernel.org>,
+        <peterz@infradead.org>, <frederic@kernel.org>,
+        <akpm@linux-foundation.org>, <ardb@kernel.org>,
+        <samitolvanen@google.com>, <juerg.haefliger@canonical.com>,
+        <arnd@arndb.de>, <rmk+kernel@armlinux.org.uk>,
+        <linus.walleij@linaro.org>, <sebastian.reichel@collabora.com>,
+        <rppt@kernel.org>, <kirill.shutemov@linux.intel.com>,
+        <anshuman.khandual@arm.com>, <ziy@nvidia.com>,
+        <masahiroy@kernel.org>, <ndesaulniers@google.com>,
+        <mhiramat@kernel.org>, <ojeda@kernel.org>, <xin3.li@intel.com>,
+        <tj@kernel.org>, <gregkh@linuxfoundation.org>, <tsi@tuyoix.net>,
+        <bhe@redhat.com>, <hbathini@linux.ibm.com>,
+        <sourabhjain@linux.ibm.com>, <boris.ostrovsky@oracle.com>,
+        <konrad.wilk@oracle.com>
+References: <20230712161545.87870-1-eric.devolder@oracle.com>
+ <20230712161545.87870-3-eric.devolder@oracle.com>
+From:   "Leizhen (ThunderTown)" <thunder.leizhen@huawei.com>
+Message-ID: <d8ddd4bd-fbc9-dbe9-f5c3-daf8d89aa46d@huawei.com>
+Date:   Thu, 13 Jul 2023 19:13:57 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.12.0
-Subject: Re: [PATCH v5 00/38] New page table range API
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        linux-arch@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>
-References: <20230710204339.3554919-1-willy@infradead.org>
- <8cfc3eef-e387-88e1-1006-2d7d97a09213@linux.ibm.com>
- <ZK1My5hQYC2Kb6G1@casper.infradead.org>
+In-Reply-To: <20230712161545.87870-3-eric.devolder@oracle.com>
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <ZK1My5hQYC2Kb6G1@casper.infradead.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: iA3442D4Wv-j8LnOlc5uYmBlAGOt8UUj
-X-Proofpoint-ORIG-GUID: iA3442D4Wv-j8LnOlc5uYmBlAGOt8UUj
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-13_04,2023-07-11_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
- lowpriorityscore=0 bulkscore=0 mlxlogscore=425 impostorscore=0
- suspectscore=0 adultscore=0 clxscore=1015 phishscore=0 priorityscore=1501
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2305260000 definitions=main-2307130092
+X-Originating-IP: [10.174.178.55]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggpemm500006.china.huawei.com (7.185.36.236)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-Am 11.07.23 um 14:36 schrieb Matthew Wilcox:
-> On Tue, Jul 11, 2023 at 11:07:06AM +0200, Christian Borntraeger wrote:
->> Am 10.07.23 um 22:43 schrieb Matthew Wilcox (Oracle):
->>> This patchset changes the API used by the MM to set up page table entries.
->>> The four APIs are:
->>>       set_ptes(mm, addr, ptep, pte, nr)
->>>       update_mmu_cache_range(vma, addr, ptep, nr)
->>>       flush_dcache_folio(folio)
->>>       flush_icache_pages(vma, page, nr)
->>>
->>> flush_dcache_folio() isn't technically new, but no architecture
->>> implemented it, so I've done that for them.  The old APIs remain around
->>> but are mostly implemented by calling the new interfaces.
->>>
->>> The new APIs are based around setting up N page table entries at once.
->>> The N entries belong to the same PMD, the same folio and the same VMA,
->>> so ptep++ is a legitimate operation, and locking is taken care of for
->>> you.  Some architectures can do a better job of it than just a loop,
->>> but I have hesitated to make too deep a change to architectures I don't
->>> understand well.
->>>
->>> One thing I have changed in every architecture is that PG_arch_1 is now a
->>> per-folio bit instead of a per-page bit.  This was something that would
->>> have to happen eventually, and it makes sense to do it now rather than
->>> iterate over every page involved in a cache flush and figure out if it
->>> needs to happen.
->>
->> I think we do use PG_arch_1 on s390 for our secure page handling and
->> making this perf folio instead of physical page really seems wrong
->> and it probably breaks this code.
+On 2023/7/13 0:15, Eric DeVolder wrote:
+> The kexec and crash kernel options are provided in the common
+> kernel/Kconfig.kexec. Utilize the common options and provide
+> the ARCH_SUPPORTS_ and ARCH_SELECTS_ entries to recreate the
+> equivalent set of KEXEC and CRASH options.
 > 
-> Per-page flags are going away in the next few years, so you're going to
-> need a new design.  s390 seems to do a lot of unusual things.  I wish
-> you'd talk to the rest of us more.
+> Signed-off-by: Eric DeVolder <eric.devolder@oracle.com>
+> ---
+>  arch/x86/Kconfig | 92 ++++++++++--------------------------------------
+>  1 file changed, 19 insertions(+), 73 deletions(-)
+> 
+> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+> index 7422db409770..9767a343f7c2 100644
+> --- a/arch/x86/Kconfig
+> +++ b/arch/x86/Kconfig
+> @@ -2040,88 +2040,34 @@ config EFI_RUNTIME_MAP
+>  
+>  source "kernel/Kconfig.hz"
+>  
+> -config KEXEC
+> -	bool "kexec system call"
+> -	select KEXEC_CORE
+> -	help
+> -	  kexec is a system call that implements the ability to shutdown your
+> -	  current kernel, and to start another kernel.  It is like a reboot
+> -	  but it is independent of the system firmware.   And like a reboot
+> -	  you can start any kernel with it, not just Linux.
+> -
+> -	  The name comes from the similarity to the exec system call.
+> -
+> -	  It is an ongoing process to be certain the hardware in a machine
+> -	  is properly shutdown, so do not be surprised if this code does not
+> -	  initially work for you.  As of this writing the exact hardware
+> -	  interface is strongly in flux, so no good recommendation can be
+> -	  made.
+> -
+> -config KEXEC_FILE
+> -	bool "kexec file based system call"
+> -	select KEXEC_CORE
+> -	select HAVE_IMA_KEXEC if IMA
+> -	depends on X86_64
+> -	depends on CRYPTO=y
+> -	depends on CRYPTO_SHA256=y
+> -	help
+> -	  This is new version of kexec system call. This system call is
+> -	  file based and takes file descriptors as system call argument
+> -	  for kernel and initramfs as opposed to list of segments as
+> -	  accepted by previous system call.
+> +config ARCH_SUPPORTS_KEXEC
+> +	def_bool y
 
-I understand you point from a logical point of view, but a 4k page frame
-is also a hardware defined memory region. And I think not only for us.
-How do you want to implement hardware poisoning for example?
-Marking the whole folio with PG_hwpoison seems wrong.
+In v5, Joel Fernandes seems to suggest you change it to the following form:
+In arch/Kconfig:
++config ARCH_SUPPORTS_KEXEC
++	bool
+
+In arch/x86/Kconfig:
+config X86
+	... ...
++	select ARCH_SUPPORTS_KEXEC
+
+In arch/arm64/Kconfig:
+config ARM64
+	... ...
++	select ARCH_SUPPORTS_KEXEC if PM_SLEEP_SMP
+
+etc..
+
+You can refer to ARCH_HAS_DEBUG_VIRTUAL.
+
+>  
+> -config ARCH_HAS_KEXEC_PURGATORY
+> -	def_bool KEXEC_FILE
+> +config ARCH_SUPPORTS_KEXEC_FILE
+> +	def_bool X86_64 && CRYPTO && CRYPTO_SHA256
+>  
+> -config KEXEC_SIG
+> -	bool "Verify kernel signature during kexec_file_load() syscall"
+> +config ARCH_SELECTS_KEXEC_FILE
+> +	def_bool y
+>  	depends on KEXEC_FILE
+> -	help
+> +	select HAVE_IMA_KEXEC if IMA
+>  
+> -	  This option makes the kexec_file_load() syscall check for a valid
+> -	  signature of the kernel image.  The image can still be loaded without
+> -	  a valid signature unless you also enable KEXEC_SIG_FORCE, though if
+> -	  there's a signature that we can check, then it must be valid.
+> +config ARCH_HAS_KEXEC_PURGATORY
+> +	def_bool KEXEC_FILE
+>  
+> -	  In addition to this option, you need to enable signature
+> -	  verification for the corresponding kernel image type being
+> -	  loaded in order for this to work.
+> +config ARCH_SUPPORTS_KEXEC_SIG
+> +	def_bool y
+>  
+> -config KEXEC_SIG_FORCE
+> -	bool "Require a valid signature in kexec_file_load() syscall"
+> -	depends on KEXEC_SIG
+> -	help
+> -	  This option makes kernel signature verification mandatory for
+> -	  the kexec_file_load() syscall.
+> +config ARCH_SUPPORTS_KEXEC_SIG_FORCE
+> +	def_bool y
+>  
+> -config KEXEC_BZIMAGE_VERIFY_SIG
+> -	bool "Enable bzImage signature verification support"
+> -	depends on KEXEC_SIG
+> -	depends on SIGNED_PE_FILE_VERIFICATION
+> -	select SYSTEM_TRUSTED_KEYRING
+> -	help
+> -	  Enable bzImage signature verification support.
+> +config ARCH_SUPPORTS_KEXEC_BZIMAGE_VERIFY_SIG
+> +	def_bool y
+>  
+> -config CRASH_DUMP
+> -	bool "kernel crash dumps"
+> -	depends on X86_64 || (X86_32 && HIGHMEM)
+> -	help
+> -	  Generate crash dump after being started by kexec.
+> -	  This should be normally only set in special crash dump kernels
+> -	  which are loaded in the main kernel with kexec-tools into
+> -	  a specially reserved region and then later executed after
+> -	  a crash by kdump/kexec. The crash dump kernel must be compiled
+> -	  to a memory address not used by the main kernel or BIOS using
+> -	  PHYSICAL_START, or it must be built as a relocatable image
+> -	  (CONFIG_RELOCATABLE=y).
+> -	  For more details see Documentation/admin-guide/kdump/kdump.rst
+> +config ARCH_SUPPORTS_KEXEC_JUMP
+> +	def_bool y
+>  
+> -config KEXEC_JUMP
+> -	bool "kexec jump"
+> -	depends on KEXEC && HIBERNATION
+> -	help
+> -	  Jump between original kernel and kexeced kernel and invoke
+> -	  code in physical address mode via KEXEC
+> +config ARCH_SUPPORTS_CRASH_DUMP
+> +	def_bool X86_64 || (X86_32 && HIGHMEM)
+>  
+>  config PHYSICAL_START
+>  	hex "Physical address where the kernel is loaded" if (EXPERT || CRASH_DUMP)
+> 
+
+-- 
+Regards,
+  Zhen Lei
