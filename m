@@ -2,101 +2,209 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2370C001E0
-	for <linux-s390@archiver.kernel.org>; Thu, 13 Jul 2023 13:42:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA2E0C001DD
+	for <linux-s390@archiver.kernel.org>; Thu, 13 Jul 2023 14:33:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234837AbjGMNme (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 13 Jul 2023 09:42:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44048 "EHLO
+        id S230389AbjGMOdK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 13 Jul 2023 10:33:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235139AbjGMNmb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Jul 2023 09:42:31 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF150E4F;
-        Thu, 13 Jul 2023 06:42:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=eqRFjEfnQpKX3SCwpqVqk5MwPZ2HabqrXxJtbeOAy2Y=; b=Xpm1APX1flTFZG414QOtZyFKnZ
-        XZBeRsaIEzyZfvFraA3stqUA2/UbL54AdKEFB+YFck5dODAOwA4k41eWWwLWsgZwoL1ESKsTR+JEB
-        qPXiqSPVl4SVXOItL3fULoS6vqFOJRZkbdE2j9PPZ9qSq5PDb1pocBH6M6GYG3ZDPueKcKm/8/uPg
-        lOGhsoeZM+ARDzp4/K+xXoJlYN9P3BMDpvKX5OnSNFOFq8PDZNz4Zc2ZO1YrEtObG2IUwAVSYIYXJ
-        g43md3NOFX+J50BWHA43iAphI20mVnWgzi+bR/i913Yh0j0WnfUcmaRqX2QPr7bvlBolFXHd79J4X
-        rjzKr0XA==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1qJwaQ-000Bur-DA; Thu, 13 Jul 2023 13:42:26 +0000
-Date:   Thu, 13 Jul 2023 14:42:26 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        linux-arch@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>
-Subject: Re: [PATCH v5 00/38] New page table range API
-Message-ID: <ZK//Qnfhx+ihtvlO@casper.infradead.org>
-References: <20230710204339.3554919-1-willy@infradead.org>
- <8cfc3eef-e387-88e1-1006-2d7d97a09213@linux.ibm.com>
- <ZK1My5hQYC2Kb6G1@casper.infradead.org>
- <56ca93af-67dc-9d10-d27e-00c8d7c20f1b@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <56ca93af-67dc-9d10-d27e-00c8d7c20f1b@linux.ibm.com>
+        with ESMTP id S230027AbjGMOdJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Jul 2023 10:33:09 -0400
+Received: from mail-pg1-x54a.google.com (mail-pg1-x54a.google.com [IPv6:2607:f8b0:4864:20::54a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6827B268D
+        for <linux-s390@vger.kernel.org>; Thu, 13 Jul 2023 07:33:07 -0700 (PDT)
+Received: by mail-pg1-x54a.google.com with SMTP id 41be03b00d2f7-53b9eb7bda0so410479a12.0
+        for <linux-s390@vger.kernel.org>; Thu, 13 Jul 2023 07:33:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20221208; t=1689258787; x=1691850787;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=fr2vYa/Ch6xYV487nmzxcm8iM/FlpnkWVHQ5jynQTbg=;
+        b=jacaK9M2p8ae07DYtf3WTwW4sJ88AeR0PMoTM/K8Zom80G9CNsRED8/7OkNACpL4FI
+         vSrK+poAQrpW9b9XXAEX3N+/eJqGG0fl2uSilp/V2zhMmynFGmkNp19rQMAPCUIgro+L
+         8wZFnIyWuBTpd6inSk0jhwWPq/qOKDhiCmrdy2nICENUOLQPMx4zm5vkc1J+N+jf8F/9
+         NWijWeXBKP6nhRWfAZooF9dECtwpwP1B06LROVi+ZRGQWEPDlF+8FcWtS7IpVg38LWBC
+         sabPszkfHQCdZSa4qO28HKir4zE3m+cUi5LtAFjCZb9xEKl25slyjVF3CoaXZrvttifT
+         RnQA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1689258787; x=1691850787;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=fr2vYa/Ch6xYV487nmzxcm8iM/FlpnkWVHQ5jynQTbg=;
+        b=WPxUZrt8Zgx0tL98B1z+hRCVbUKggXyu1M92X/yc9AtIx4ycgDmKbxGz8JX2KQl0vV
+         xjf2/WWlZ6t76gab9vBVd3W0DNJzlNoxJfzuGkpCJd8aL2iXM/8Khn9ue5O4YcVOB6q5
+         uuBdwAlALLdjP5NIBVguCaJv2e2zb5PROHFew+VrdAh5G6vAChVR107xw1J1acZiHiLN
+         0I0Zlay+zRahg4neBGRuLr7F4w4JOwNabdpSMOVAn8+i91EeTK5xKeeWmynGQUf0zWSX
+         Q6lUsv+FPXLSe767XrALt+BQJncDzDPrYDGar8htl9dq+mvx6ZaX3TwdMaWMnQhcM8Pe
+         svIA==
+X-Gm-Message-State: ABy/qLbq9jaquQ0K9WqdgYqom3PNz1IIRI99BWNA1/ZsPGYRHGrIXg0s
+        Mt/Kldpd3uoWywG7NEUed1x8NjQKeO4=
+X-Google-Smtp-Source: APBJJlFAAhWItEMB5PDxlVd4/XD0kDAeGPn5ZZPTnMU3ojU8FDM9Oji9AhkfLIh7rpZuc1o0H3AhYJQLwhY=
+X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
+ (user=seanjc job=sendgmr) by 2002:a17:902:b282:b0:1ba:1704:89d1 with SMTP id
+ u2-20020a170902b28200b001ba170489d1mr5846plr.10.1689258786828; Thu, 13 Jul
+ 2023 07:33:06 -0700 (PDT)
+Date:   Thu, 13 Jul 2023 07:33:05 -0700
+In-Reply-To: <20230713-vfs-eventfd-signal-v1-2-7fda6c5d212b@kernel.org>
+Mime-Version: 1.0
+References: <20230713-vfs-eventfd-signal-v1-0-7fda6c5d212b@kernel.org> <20230713-vfs-eventfd-signal-v1-2-7fda6c5d212b@kernel.org>
+Message-ID: <ZLAK+FA3qgbHW0YK@google.com>
+Subject: Re: [PATCH 2/2] eventfd: simplify eventfd_signal_mask()
+From:   Sean Christopherson <seanjc@google.com>
+To:     Christian Brauner <brauner@kernel.org>
+Cc:     linux-fsdevel@vger.kernel.org,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        David Woodhouse <dwmw2@infradead.org>,
+        Paul Durrant <paul@xen.org>, Oded Gabbay <ogabbay@kernel.org>,
+        Wu Hao <hao.wu@intel.com>, Tom Rix <trix@redhat.com>,
+        Moritz Fischer <mdf@kernel.org>, Xu Yilun <yilun.xu@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Leon Romanovsky <leon@kernel.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Frederic Barrat <fbarrat@linux.ibm.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Eric Auger <eric.auger@redhat.com>, Fei Li <fei1.li@intel.com>,
+        Benjamin LaHaise <bcrl@kvack.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Shakeel Butt <shakeelb@google.com>,
+        Muchun Song <muchun.song@linux.dev>,
+        Kirti Wankhede <kwankhede@nvidia.com>, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-fpga@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-usb@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        linux-aio@kvack.org, cgroups@vger.kernel.org, linux-mm@kvack.org,
+        Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        io-uring@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jul 13, 2023 at 12:42:44PM +0200, Christian Borntraeger wrote:
-> 
-> 
-> Am 11.07.23 um 14:36 schrieb Matthew Wilcox:
-> > On Tue, Jul 11, 2023 at 11:07:06AM +0200, Christian Borntraeger wrote:
-> > > Am 10.07.23 um 22:43 schrieb Matthew Wilcox (Oracle):
-> > > > This patchset changes the API used by the MM to set up page table entries.
-> > > > The four APIs are:
-> > > >       set_ptes(mm, addr, ptep, pte, nr)
-> > > >       update_mmu_cache_range(vma, addr, ptep, nr)
-> > > >       flush_dcache_folio(folio)
-> > > >       flush_icache_pages(vma, page, nr)
-> > > > 
-> > > > flush_dcache_folio() isn't technically new, but no architecture
-> > > > implemented it, so I've done that for them.  The old APIs remain around
-> > > > but are mostly implemented by calling the new interfaces.
-> > > > 
-> > > > The new APIs are based around setting up N page table entries at once.
-> > > > The N entries belong to the same PMD, the same folio and the same VMA,
-> > > > so ptep++ is a legitimate operation, and locking is taken care of for
-> > > > you.  Some architectures can do a better job of it than just a loop,
-> > > > but I have hesitated to make too deep a change to architectures I don't
-> > > > understand well.
-> > > > 
-> > > > One thing I have changed in every architecture is that PG_arch_1 is now a
-> > > > per-folio bit instead of a per-page bit.  This was something that would
-> > > > have to happen eventually, and it makes sense to do it now rather than
-> > > > iterate over every page involved in a cache flush and figure out if it
-> > > > needs to happen.
-> > > 
-> > > I think we do use PG_arch_1 on s390 for our secure page handling and
-> > > making this perf folio instead of physical page really seems wrong
-> > > and it probably breaks this code.
-> > 
-> > Per-page flags are going away in the next few years, so you're going to
-> > need a new design.  s390 seems to do a lot of unusual things.  I wish
-> > you'd talk to the rest of us more.
-> 
-> I understand you point from a logical point of view, but a 4k page frame
-> is also a hardware defined memory region. And I think not only for us.
-> How do you want to implement hardware poisoning for example?
-> Marking the whole folio with PG_hwpoison seems wrong.
+On Thu, Jul 13, 2023, Christian Brauner wrote:
+> diff --git a/fs/eventfd.c b/fs/eventfd.c
+> index dc9e01053235..077be5da72bd 100644
+> --- a/fs/eventfd.c
+> +++ b/fs/eventfd.c
+> @@ -43,9 +43,10 @@ struct eventfd_ctx {
+>  	int id;
+>  };
+>  
+> -__u64 eventfd_signal_mask(struct eventfd_ctx *ctx, __u64 n, __poll_t mask)
+> +bool eventfd_signal_mask(struct eventfd_ctx *ctx, __poll_t mask)
+>  {
+>  	unsigned long flags;
+> +	__u64 n = 1;
+>  
+>  	/*
+>  	 * Deadlock or stack overflow issues can happen if we recurse here
+> @@ -68,7 +69,7 @@ __u64 eventfd_signal_mask(struct eventfd_ctx *ctx, __u64 n, __poll_t mask)
+>  	current->in_eventfd = 0;
+>  	spin_unlock_irqrestore(&ctx->wqh.lock, flags);
+>  
+> -	return n;
+> +	return n == 1;
+>  }
 
-For hardware poison, we can't use the page for any other purpose any more.
-So one of the 16 types of pointer is for hardware poison.  That doesn't
-seem like it's a solution that could work for secure/insecure pages?
+...
 
-But what I'm really wondering is why you need to transition pages
-between secure/insecure on a 4kB boundary.  What's the downside to doing
-it on a 16kB or 64kB boundary, or whatever size has been allocated?
+> @@ -58,13 +58,12 @@ static inline struct eventfd_ctx *eventfd_ctx_fdget(int fd)
+>  	return ERR_PTR(-ENOSYS);
+>  }
+>  
+> -static inline int eventfd_signal(struct eventfd_ctx *ctx)
+> +static inline bool eventfd_signal(struct eventfd_ctx *ctx)
+>  {
+>  	return -ENOSYS;
+>  }
+>  
+> -static inline int eventfd_signal_mask(struct eventfd_ctx *ctx, __u64 n,
+> -				      unsigned mask)
+> +static inline bool eventfd_signal_mask(struct eventfd_ctx *ctx, unsigned mask)
+>  {
+>  	return -ENOSYS;
 
+This will morph to "true" for what should be an error case.  One option would be
+to have eventfd_signal_mask() return 0/-errno instead of the count, but looking
+at all the callers, nothing ever actually consumes the result.
+
+KVMGT morphs failure into -EFAULT
+
+	if (vgpu->msi_trigger && eventfd_signal(vgpu->msi_trigger, 1) != 1)
+		return -EFAULT;
+
+but the only caller of that user ignores the return value.
+
+	if (vgpu_vreg(vgpu, i915_mmio_reg_offset(GEN8_MASTER_IRQ))
+			& ~GEN8_MASTER_IRQ_CONTROL)
+		inject_virtual_interrupt(vgpu);
+
+The sample driver in samples/vfio-mdev/mtty.c uses a similar pattern: prints an
+error but otherwise ignores the result.
+
+So why not return nothing?  That will simplify eventfd_signal_mask() a wee bit
+more, and eliminate that bizarre return value confusion for the ugly stubs, e.g.
+
+void eventfd_signal_mask(struct eventfd_ctx *ctx, unsigned mask)
+{
+	unsigned long flags;
+
+	/*
+	 * Deadlock or stack overflow issues can happen if we recurse here
+	 * through waitqueue wakeup handlers. If the caller users potentially
+	 * nested waitqueues with custom wakeup handlers, then it should
+	 * check eventfd_signal_allowed() before calling this function. If
+	 * it returns false, the eventfd_signal() call should be deferred to a
+	 * safe context.
+	 */
+	if (WARN_ON_ONCE(current->in_eventfd))
+		return;
+
+	spin_lock_irqsave(&ctx->wqh.lock, flags);
+	current->in_eventfd = 1;
+	if (ctx->count < ULLONG_MAX)
+		ctx->count++;
+	if (waitqueue_active(&ctx->wqh))
+		wake_up_locked_poll(&ctx->wqh, EPOLLIN | mask);
+	current->in_eventfd = 0;
+	spin_unlock_irqrestore(&ctx->wqh.lock, flags);
+}
+
+You could even go further and unify the real and stub versions of eventfd_signal().
