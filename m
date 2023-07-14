@@ -2,144 +2,135 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA47CC001B0
-	for <linux-s390@archiver.kernel.org>; Fri, 14 Jul 2023 07:05:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2661AEB64DA
+	for <linux-s390@archiver.kernel.org>; Fri, 14 Jul 2023 08:21:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235061AbjGNHFm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 14 Jul 2023 03:05:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46728 "EHLO
+        id S235028AbjGNIVv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 14 Jul 2023 04:21:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232382AbjGNHFl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Jul 2023 03:05:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4912B171D;
-        Fri, 14 Jul 2023 00:05:40 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C59AE61C37;
-        Fri, 14 Jul 2023 07:05:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72352C433C8;
-        Fri, 14 Jul 2023 07:05:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1689318339;
-        bh=jyWvUrZcUvjNBBSZOzXCNGPPxcxV/q9OYHwe4H3B3Lw=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=ukDx1eRh8ZivXqHNYBn5Q0ezu7jPxA8DBkgLn6Yr4ieEasOnILafdrjyXNGEm446B
-         vdoY8r4oSZIdNajc3UECepRL8sXl8WF1aY3nsBTYeT1jETstZ0f8AhW7bTRQc/52Qq
-         P+stCjuut9rZUb/FtZq2RC8GkYNcmH18gWUjcC/YVZwiCNSkJoOeVjb4/L8KcmM6xP
-         IeKh3hfbNuWYqjO1NcV70XYwdDRmrE9otI0QO8uXvZ2x+z2rjsCQR5r+pIi8kHOFqH
-         yUig3DyDnWCSEK1kxr9YLeu9ZSrBGXd6ZPFhVoSKNhVLjgUv6X+4bGRfk/gzLXxZ3w
-         K4WbhoY8kPy2A==
-Date:   Fri, 14 Jul 2023 09:05:21 +0200
-From:   Christian Brauner <brauner@kernel.org>
-To:     Alex Williamson <alex.williamson@redhat.com>
-Cc:     linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
-        linux-usb@vger.kernel.org, Matthew Rosato <mjrosato@linux.ibm.com>,
-        Paul Durrant <paul@xen.org>, Tom Rix <trix@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        dri-devel@lists.freedesktop.org, Michal Hocko <mhocko@kernel.org>,
-        linux-mm@kvack.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Diana Craciun <diana.craciun@oss.nxp.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Fei Li <fei1.li@intel.com>, x86@kernel.org,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Ingo Molnar <mingo@redhat.com>,
-        intel-gfx@lists.freedesktop.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-fpga@vger.kernel.org, Zhi Wang <zhi.a.wang@intel.com>,
-        Wu Hao <hao.wu@intel.com>, Jason Herne <jjherne@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
-        Arnd Bergmann <arnd@arndb.de>, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        linuxppc-dev@lists.ozlabs.org, Eric Auger <eric.auger@redhat.com>,
-        Borislav Petkov <bp@alien8.de>, kvm@vger.kernel.org,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>, cgroups@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        virtualization@lists.linux-foundation.org,
-        intel-gvt-dev@lists.freedesktop.org, io-uring@vger.kernel.org,
-        netdev@vger.kernel.org, Tony Krowiak <akrowiak@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Oded Gabbay <ogabbay@kernel.org>,
-        Muchun Song <muchun.song@linux.dev>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
-        Benjamin LaHaise <bcrl@kvack.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Frederic Barrat <fbarrat@linux.ibm.com>,
-        Moritz Fischer <mdf@kernel.org>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Xu Yilun <yilun.xu@intel.com>, jaz@semihalf.com
-Subject: Re: [PATCH 0/2] eventfd: simplify signal helpers
-Message-ID: <20230714-gauner-unsolidarisch-fc51f96c61e8@brauner>
+        with ESMTP id S235056AbjGNIVt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Jul 2023 04:21:49 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1C9E10D4;
+        Fri, 14 Jul 2023 01:21:47 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36E7qOVe016502;
+        Fri, 14 Jul 2023 08:21:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : to :
+ from : subject : cc : message-id : date; s=pp1;
+ bh=68sOOzTQz4q63VF8oVBEKPZIAftGIqsB6o5hSX8bnL0=;
+ b=DSzaFyPuAADGj0DdcOEv/MhF7kwZPx4lMaXWihaBn8I4GXFVfzoNztOD3rMt+N3R6d3e
+ zPWuO3IAihaXwXTn2KlL685CguiPYYmbsi1LpcAN8nkEjfUbZiq0ebY1xNmUWBn8HnG8
+ 6LwEhpOdpA9a9UX8vMnwJvzor72mBT8Gyo98mLSCtw7uz6H7GdUneqnqPn8CaFJWglAP
+ MgbLFrZNA0HbIU/36dujQyIYSmF+IaDu2sWgEKLCDwQCOt28m5cxB38+cT0HYrWggb48
+ wJTqa5cBZA9vjo8w/hulZ7lns9eCvlFA6OQheHrSNKVqNByBCjKWUHspvTogfVZnfYG8 CA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ru2bwgkgh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 14 Jul 2023 08:21:46 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36E8D4xO014343;
+        Fri, 14 Jul 2023 08:21:46 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ru2bwgkft-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 14 Jul 2023 08:21:46 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36E4h1eA031651;
+        Fri, 14 Jul 2023 08:21:43 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3rtq50r6kx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 14 Jul 2023 08:21:43 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36E8Lcxh590350
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 14 Jul 2023 08:21:38 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B79162004D;
+        Fri, 14 Jul 2023 08:21:38 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8E5A62004B;
+        Fri, 14 Jul 2023 08:21:38 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.42.10])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 14 Jul 2023 08:21:38 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20230630155936.3015595-1-jaz@semihalf.com>
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <cedb8a69-c801-daee-52ed-b38b84deabd1@redhat.com>
+References: <20230712114149.1291580-1-nrb@linux.ibm.com> <20230712114149.1291580-4-nrb@linux.ibm.com> <3dbe3094-b796-6b78-a97f-130a82780421@redhat.com> <20230713101707.1d1da214@p-imbrenda> <cedb8a69-c801-daee-52ed-b38b84deabd1@redhat.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>
+From:   Nico Boehr <nrb@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v5 3/6] s390x: sie: switch to home space mode before entering SIE
+Cc:     frankja@linux.ibm.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Message-ID: <168932289824.12187.4321177108836954492@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Fri, 14 Jul 2023 10:21:38 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: E-3uF9tqvJZrTUzL03pMNpIjg7RNYZEw
+X-Proofpoint-GUID: yFmm8Lw3bKa1J4-FwDTW-equk3Zvqck2
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-14_04,2023-07-13_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ lowpriorityscore=0 impostorscore=0 malwarescore=0 suspectscore=0
+ spamscore=0 phishscore=0 mlxscore=0 clxscore=1015 priorityscore=1501
+ bulkscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2307140073
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jul 13, 2023 at 11:10:54AM -0600, Alex Williamson wrote:
-> On Thu, 13 Jul 2023 12:05:36 +0200
-> Christian Brauner <brauner@kernel.org> wrote:
-> 
-> > Hey everyone,
-> > 
-> > This simplifies the eventfd_signal() and eventfd_signal_mask() helpers
-> > by removing the count argument which is effectively unused.
-> 
-> We have a patch under review which does in fact make use of the
-> signaling value:
-> 
-> https://lore.kernel.org/all/20230630155936.3015595-1-jaz@semihalf.com/
+Quoting Thomas Huth (2023-07-13 10:21:12)
+> On 13/07/2023 10.17, Claudio Imbrenda wrote:
+> > On Thu, 13 Jul 2023 09:28:19 +0200
+> > Thomas Huth <thuth@redhat.com> wrote:
+> >=20
+> > [...]
+> >=20
+> >>> +   irq_set_dat_mode(IRQ_DAT_ON, AS_PRIM);
+> >>> +   psw_mask_clear_bits(PSW_MASK_HOME);
+> >>> +
+> >>> +   /* restore the old CR 13 */
+> >>> +   lctlg(13, old_cr13);
+> >>
+> >> Wouldn't it be better to always switch to HOME address mode directly i=
+n our
+> >> startup code already (where we enable DAT)? Switching back and forth e=
+very
+> >> time we enter SIE looks confusing to me ... or is there a reason why we
+> >> should continue to run in primary address mode by default and only swi=
+tch to
+> >> home mode here?
+> >=20
+> > the existing tests are written with the assumption that they are
+> > running in primary mode.
+> >=20
+> > switching back and forth might be confusing, but avoids having to
+> > fix all the tests
+>=20
+> Which tests are breaking? And why? And how much effort would it be to fix=
+ them?
 
-Huh, thanks for the link.
+Since you're not the first asking this, I took the time and
+moved^Whacked everything to home space mode:
 
-Quoting from
-https://patchwork.kernel.org/project/kvm/patch/20230307220553.631069-1-jaz@semihalf.com/#25266856
+- all SIE-related tests time out, even when we load CR1 properly before SIE
+  entry. Most likely just an oversight and fixable.
+- the skey test encounters an unexpected PGM int with a weird backtrace
+  where I couldn't easily figure out what goes wrong
+- edat test fails with a similar looking backtrace
 
-> Reading an eventfd returns an 8-byte value, we generally only use it
-> as a counter, but it's been discussed previously and IIRC, it's possible
-> to use that value as a notification value.
+All in all, it is probably fixable, but additional effort.
 
-So the goal is to pipe a specific value through eventfd? But it is
-explicitly a counter. The whole thing is written around a counter and
-each write and signal adds to the counter.
-
-The consequences are pretty well described in the cover letter of
-v6 https://lore.kernel.org/all/20230630155936.3015595-1-jaz@semihalf.com/
-
-> Since the eventfd counter is used as ACPI notification value
-> placeholder, the eventfd signaling needs to be serialized in order to
-> not end up with notification values being coalesced. Therefore ACPI
-> notification values are buffered and signalized one by one, when the
-> previous notification value has been consumed.
-
-But isn't this a good indication that you really don't want an eventfd
-but something that's explicitly designed to associate specific data with
-a notification? Using eventfd in that manner requires serialization,
-buffering, and enforces ordering.
-
-I have no skin in the game aside from having to drop this conversion
-which I'm fine to do if there are actually users for this btu really,
-that looks a lot like abusing an api that really wasn't designed for
-this.
+I think explicitly switching the address space mode gives us additional
+flexibility, since sie() doesn't need to make assumptions about which addre=
+ss
+space we're running in. It currently does, but that's fixable - in contrast=
+ to
+when we don't switch.
