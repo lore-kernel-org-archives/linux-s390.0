@@ -2,145 +2,159 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5840EB64DA
-	for <linux-s390@archiver.kernel.org>; Fri, 14 Jul 2023 10:53:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 144B6C0015E
+	for <linux-s390@archiver.kernel.org>; Fri, 14 Jul 2023 13:37:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235764AbjGNKxz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 14 Jul 2023 06:53:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50488 "EHLO
+        id S235536AbjGNNhC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 14 Jul 2023 09:37:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235906AbjGNKxy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Jul 2023 06:53:54 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7ECA30F8
-        for <linux-s390@vger.kernel.org>; Fri, 14 Jul 2023 03:53:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1689331984;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=RHdpOT/q/j3g2ZXTEVHCgPBZy+YbuKzCMJ/tr+CG9fE=;
-        b=cFa1q9n5Btn0gqZkMWHSXbUt7/sIyGdrpmNPDexTh39+x41ZVjUC9qE8Q9bzWOeg2XrQQ+
-        FD1kBoF8RiVPmnPGDrlcXqXr+eMSeIF9Y9iSveWD7g1ZD5/M1p61BfBzV6VfRRT64F8KzM
-        k0Hr31Kh+9BdlMIc0idZIir78eBkj7w=
-Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
- [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-606-0iEm7z-xMlC9NOPzx8TSaw-1; Fri, 14 Jul 2023 06:53:03 -0400
-X-MC-Unique: 0iEm7z-xMlC9NOPzx8TSaw-1
-Received: by mail-qv1-f71.google.com with SMTP id 6a1803df08f44-635e10763f3so13870796d6.1
-        for <linux-s390@vger.kernel.org>; Fri, 14 Jul 2023 03:53:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689331983; x=1691923983;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=RHdpOT/q/j3g2ZXTEVHCgPBZy+YbuKzCMJ/tr+CG9fE=;
-        b=JYQX7No7jLtJl9G0yiAoYt6ZLCqXDnCRjQSnjN5e1gu6yCkVgzzvJbkU5gA/BerC8+
-         QREzpfU3JuAcNHHtJhVHINX1cFChS8sR7goUd516mpTU1veniOvgHmQAARiWJQCauUKE
-         O2EvOZwBUyJiPHP5NvKQPkyBZFyse+fliWIUf9I7akfO+XPcjbfCt/GvRbleekPDfoAi
-         lRc2uRtYNIR4NSqw2aGXc3jd7shKrr09laNQNDFBouKsLMyLB6vfpX2aZAYBVycYwQ2O
-         fxH/E9H1XHwxRudy1FnVfaJpug7oRYIQukM9Rt2HD3NJIuwhvSFZsFihPpQC54vUA3K8
-         IHkQ==
-X-Gm-Message-State: ABy/qLaL6XotCB61qVcJ5hDFCGmVpy064byR0nqzzZlgE3vQPrL7JlxA
-        W+Le7Xc6YvUXCi45YRrLal3hwL+U48Rg+NweFIhbIWgHvpu3ZNv9Aut+pEySV3a+60lFr7FoG7/
-        hEQh0hATHqJvkqWiQcPymTA==
-X-Received: by 2002:ad4:4507:0:b0:635:f335:2aa7 with SMTP id k7-20020ad44507000000b00635f3352aa7mr3329463qvu.26.1689331983101;
-        Fri, 14 Jul 2023 03:53:03 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlH39nBnAYhB/PTimqNPnNptaGgyNdJBGRtIYlkskNKQZTW5HQiX8Vg9aDP1XAmz+JJ59L+9ew==
-X-Received: by 2002:ad4:4507:0:b0:635:f335:2aa7 with SMTP id k7-20020ad44507000000b00635f3352aa7mr3329457qvu.26.1689331982831;
-        Fri, 14 Jul 2023 03:53:02 -0700 (PDT)
-Received: from [192.168.0.3] (ip-109-43-177-249.web.vodafone.de. [109.43.177.249])
-        by smtp.gmail.com with ESMTPSA id w7-20020a0cdf87000000b0063c7037f85fsm372693qvl.73.2023.07.14.03.53.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 14 Jul 2023 03:53:02 -0700 (PDT)
-Message-ID: <000b74d7-0b4f-d2b5-81b4-747c99a2df42@redhat.com>
-Date:   Fri, 14 Jul 2023 12:52:59 +0200
+        with ESMTP id S235219AbjGNNhB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Jul 2023 09:37:01 -0400
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2086.outbound.protection.outlook.com [40.107.237.86])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FEB4AA;
+        Fri, 14 Jul 2023 06:37:00 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=THf2kyFg4x4YSSrWUSPUkEhpDZ3l+8wo4nhSStJ34CTqGYG0ywqKVdyMXHQP/GdArm/p2h0oYiv1lSdlWvSL5DGCKhP4FpXZbist/k5ZId+tGbhQzO+ZeP64yHnh7Zo0mwGJeCZBamQLQk/6FYc5aaFs5/qdysj1XmNtnrd66QuxLfQbx1hHdFDqd/2V2npMoTCvzAmRkJkIUjk2EFeSWMAcu/2UhvqqrDfbkpzRHtfynkcfDFOti+dPKnFDX8pa67a7t/siecYesOtWMMBEpawgoM5K7+EeYuLPw40IntSmNi/4P5XHle+s+t8GI+sxUPmsF4XCAg/cY5179zgWfQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=NTHIkmghNJUKzgjF6AnV911ZQ4AzK2cm4/OvyQXK6d4=;
+ b=QHMMElYfWnN8xU4NGvZcbmIKLqRfGU2/I5U8gp1+5SbfCp8AUmwi8UGEQ76i6p+OTcfLy9SNEejK6JDZebSbMOxRoRpeABoy+Y2qKgOs0U/7OvkKGqCt262kl49dodbOMlNJ3uUmrVSNUH0DO+2Q5WwMnkAF8nsyGcT2DG9PV8qc2jFy6TUn/2oVRAoWTcko0HQY+gkKNYetkgcgmKi0j0UxpHQMDHfetV3GKczf2xDrbWfLtuC7ILMEc6pdaS+/LRKEZSw9d2oZIKFiYHpXMf99wb2AQhMVEdGRQn9+lG5wtjMelXj8K31AXHmoDiMGsIAcY+T8P1Fo+PscW6WPKg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=NTHIkmghNJUKzgjF6AnV911ZQ4AzK2cm4/OvyQXK6d4=;
+ b=Qqjset5OrM8IwEi03ZK8eofZvPeLre7v0qr0+GVUgRDi2w9Uuq8qDDvoH9HCw4ZnxIVhreyBc6Y5LSJiCKrcZ5r8ZDz0k9HFdH0qBVySNC6z6VoOn0TiXoq8EExjo8GojW9jxGDXYEcewBzjsty3ZJ5nTHM43QCC0ZDY7iq711LwBkFSITSGQJOl61+eGu2bSDA79q2lIMqOi+sCSoV4ecXJ3+OFFJqp8t6CUFIVjNWtgFIKF/vH8jxQdRnWfHbN1XaKXMSLCVBe66UQSB/a1Ll+QsSDkiCO/xK8H11CC1vvoNmXvLJkyu/vPF1ymnww+hDHY1qk2cwaTm4tYk5z2g==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by BL3PR12MB6450.namprd12.prod.outlook.com (2603:10b6:208:3b9::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6588.27; Fri, 14 Jul
+ 2023 13:36:58 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::69c1:5d87:c73c:cc55]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::69c1:5d87:c73c:cc55%4]) with mapi id 15.20.6565.028; Fri, 14 Jul 2023
+ 13:36:58 +0000
+Date:   Fri, 14 Jul 2023 10:36:55 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Yi Liu <yi.l.liu@intel.com>
+Cc:     alex.williamson@redhat.com, kevin.tian@intel.com, joro@8bytes.org,
+        robin.murphy@arm.com, cohuck@redhat.com, eric.auger@redhat.com,
+        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
+        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
+        peterx@redhat.com, jasowang@redhat.com,
+        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
+        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
+        yanting.jiang@intel.com, zhenzhong.duan@intel.com,
+        clegoate@redhat.com
+Subject: Re: [PATCH v9 09/10] vfio/pci: Copy hot-reset device info to
+ userspace in the devices loop
+Message-ID: <ZLFPd2coVKPcI05G@nvidia.com>
+References: <20230711023126.5531-1-yi.l.liu@intel.com>
+ <20230711023126.5531-10-yi.l.liu@intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230711023126.5531-10-yi.l.liu@intel.com>
+X-ClientProxiedBy: SJ0PR03CA0050.namprd03.prod.outlook.com
+ (2603:10b6:a03:33e::25) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.12.0
-Subject: Re: [kvm-unit-tests PATCH v5 6/6] s390x: add a test for SIE without
- MSO/MSL
-Content-Language: en-US
-To:     Nico Boehr <nrb@linux.ibm.com>, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20230712114149.1291580-1-nrb@linux.ibm.com>
- <20230712114149.1291580-7-nrb@linux.ibm.com>
- <1aac769e-7523-a858-8286-35625bfb0145@redhat.com>
- <168932372015.12187.10530769865303760697@t14-nrb>
- <fd822214-ce34-41dd-d0b6-d43709803958@redhat.com>
- <168933116940.12187.12275217086609823396@t14-nrb>
-From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <168933116940.12187.12275217086609823396@t14-nrb>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|BL3PR12MB6450:EE_
+X-MS-Office365-Filtering-Correlation-Id: 00c9ee18-a60a-4a33-f74e-08db846f657b
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: ViqBFCxueFEf/YOj3S3U8w+wRRxHcsZ/2N78ATNjvS8n8WSS6wmI5zIpMkIVAGFJeAPZcMBe0UI7JmoN8ekuAsL2EHrLUnh5pxoBlOO9DYTYdfsJ6ph2e6HejokOWIJdspc6WNEKut2xBm2NJ0Q58Dh7Cgbw3O/yytFO/ad66GV5DYx9o3tQLDR+vl/d5YJBdA/twcWIh2rK3tJiTjNaNWP82tnvRuAlyfj8lulrYTEhTf65j6PKgM5IDjvyYxqxXZqWBqy3VOz/dlxqZIaE/vS1lVHtmU9rMBYi6fwLqgYDQLroAZrXf0RrDkzOHMOEsDPE0AVL9gaCfLzctDlp1nBB3JHErbJzbdqu521QdhOq10U0x4NFac29245UWG8cR2OnH8pOsOHoHIfWeKpvmzynsPVguG8+BKV5jo9MlyOcvs6FDW5Se1VeI4S8Q6VrEU6SwaeUDGOng7NmB8At1vHYLTL1sXwUgbq3WNitt17xcZnLDdjB10BhSJ1MZcvZpUrY+lbAjdNAJGv3t4rGHsa6rxwPFbNDOhXQgFy3oHtBAVrkmD4X6smkbAS0ASDP
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(396003)(136003)(376002)(366004)(39860400002)(346002)(451199021)(478600001)(6486002)(6666004)(186003)(6506007)(26005)(6512007)(2906002)(316002)(41300700001)(66946007)(66556008)(66476007)(4326008)(6916009)(5660300002)(7416002)(8936002)(8676002)(38100700002)(86362001)(36756003)(2616005)(83380400001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?PSQJIavSu/SaUTctSNjFv2xAflYpkyOhw2T7qxm5wLzMAGsiK0oss58Yw+b9?=
+ =?us-ascii?Q?OTY9nyy8xHGsYlp7iBbyADd4jL3Al2jfjSARqHbyaawr+e5siMfFv5X03G+c?=
+ =?us-ascii?Q?bzgB8RoVLFv4OrsaMY1eOVIIWX6yD9louMD75DFsB4TMPWGvY//nsk/UTlII?=
+ =?us-ascii?Q?yyzA4nfqiU9x9thBfNbthQH9jjiVEtwU4cnHrCn76Gc+jBDO2AW0R04Glv7N?=
+ =?us-ascii?Q?1YUWKtQ/Hifh3sVkkr9SAuUtlOsG4pY5MfNZZjzvn6BojUtVXKFBMZgwTxvb?=
+ =?us-ascii?Q?FsWv85sJ0//r2qYQONcDTElaGM1Jy3a3xPjKJJe3HtW0P0Nc8UphkErRtqif?=
+ =?us-ascii?Q?MaPZ/HcJy9hkCDl6OPy+DAZlXP68d/9gTvkg2IRsJamFEGuqtJW/vNo5iB0h?=
+ =?us-ascii?Q?lOC9Ehj8DsfOyr5UZUx6zSmpio9jiFrFjrEm3a6vIuysBELlJ0pcKNN3WK1b?=
+ =?us-ascii?Q?kDZZyiuOW/Gl1Olsp7onQGqpB7lLfNUxSkOmARHNz13F4Xho/uTJzwH0zsrg?=
+ =?us-ascii?Q?luuoLnVBuThGn74uXWwQ2QSLDENMHTw9E9NIN1830Ka6UDkRXvTf8Zq7duBN?=
+ =?us-ascii?Q?0a4fQRS6hn9xEtMIhDH2IbC6wA8WM3JKTqi6qY97ACYAnADpMbH+qIVCyql6?=
+ =?us-ascii?Q?YfLLOfM08QwRJF6XYblOl48PEO5QGYNd0Q0T8BWa8/3+hBrsBmNdd1iuRIrW?=
+ =?us-ascii?Q?wbOdUlNvkbOep+Hk4MZH4T5/ySt22g93faqzonf0to62G/rI68sDgPJkGL0K?=
+ =?us-ascii?Q?L61ivSmOZ7W4ubM6XH6TbOGKvgoghEgqLCJAt+GvPsYy3WbeHWqHaeW0bgVI?=
+ =?us-ascii?Q?QlzpU8PEhGv4g1SwNjzdItFYVi+Xv6LaVtPuahNDaR+7WDxem3HV5HBjyt0r?=
+ =?us-ascii?Q?NnMw3uCxfo3Pr9K257J/ht0Z6p4p5A3lh9D43MRWe1qfPRfbMuuZ0ZCk+2ZJ?=
+ =?us-ascii?Q?x1w90umTH7zVysSH7RkZexrVBi4gV4x8saqe/2YVTGywAkhnVAHE5Ga3d5xc?=
+ =?us-ascii?Q?x/8PUylXYi/i8vrN8AhD+tK6lSGG5ai6Q7KrMko6u3UOn7tLKKOqK6ITN2D/?=
+ =?us-ascii?Q?TCi1nA/BqXR/2DbCekN014WlfSh9isRLejkE2B7A8rnfbGo7NhvKmFK/tB9Y?=
+ =?us-ascii?Q?GIE5so6TsU1fxxISy188CCfALnZnx6CbzCteB0e4VS7txGrjavLSPkxEmf0l?=
+ =?us-ascii?Q?+GDLDAQk49lombnKmKDx9r/pasKSrP48Y1NDpDUeM2zk0soB4gD8J/02I+cp?=
+ =?us-ascii?Q?9kI8cXkmiB0WaG9Ga6aeTT4jxKZMfm8ABOa9DWHNt+PpUyTPCOq9VpaOvwBi?=
+ =?us-ascii?Q?Nci8lmZ6t4AveqtUvUXNvIzAkZOy/rCrzT40Ny2MpkhNUxStwG1U3u4N4wuO?=
+ =?us-ascii?Q?FnoWJ0z4ihmwabljJ8SRPahDjwhQMRE8zXRIrHjjHJM6+1PST7xfvFZWw9rF?=
+ =?us-ascii?Q?ujxDlUM/T0Wdsm96YnP5iXPfB/h0Y6wtAW3BKn2ppbAQjtca1AK3Vw7CdC98?=
+ =?us-ascii?Q?qHJn6AS1LWdii/fMNTxJBZKRuxBrZe8IGMpri2tGZUyeAM/23byTxKHWrfrJ?=
+ =?us-ascii?Q?jCG646GDnqVUqwLblwi0FsezAXLF5BP78ln6cM3E?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 00c9ee18-a60a-4a33-f74e-08db846f657b
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Jul 2023 13:36:58.4678
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 76MTx2tGB5CxP9OrueEu85iRUzsxwZGEHxa3yB46hGFjyYh3vKq3YGoQhX9GvEFa
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR12MB6450
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 14/07/2023 12.39, Nico Boehr wrote:
-> Quoting Thomas Huth (2023-07-14 10:40:28)
->> On 14/07/2023 10.35, Nico Boehr wrote:
->>> Quoting Thomas Huth (2023-07-13 10:29:48)
->>> [...]
->>>>> diff --git a/s390x/sie-dat.c b/s390x/sie-dat.c
->>>>> new file mode 100644
->>>>> index 000000000000..b326995dfa85
->>>>> --- /dev/null
->>>>> +++ b/s390x/sie-dat.c
->>>>> @@ -0,0 +1,115 @@
->>>>> +/* SPDX-License-Identifier: GPL-2.0-only */
->>>>> +/*
->>>>> + * Tests SIE with paging.
->>>>> + *
->>>>> + * Copyright 2023 IBM Corp.
->>>>> + *
->>>>> + * Authors:
->>>>> + *    Nico Boehr <nrb@linux.ibm.com>
->>>>> + */
->>>>> +#include <libcflat.h>
->>>>> +#include <vmalloc.h>
->>>>> +#include <asm/pgtable.h>
->>>>> +#include <mmu.h>
->>>>> +#include <asm/page.h>
->>>>> +#include <asm/interrupt.h>
->>>>> +#include <alloc_page.h>
->>>>> +#include <sclp.h>
->>>>> +#include <sie.h>
->>>>> +#include <snippet.h>
->>>>> +
->>>>> +static struct vm vm;
->>>>> +static pgd_t *guest_root;
->>>>> +
->>>>> +/* keep in sync with TEST_PAGE_COUNT in s390x/snippets/c/sie-dat.c */
->>>>> +#define GUEST_TEST_PAGE_COUNT 10
->>>>> +
->>>>> +/* keep in sync with TOTAL_PAGE_COUNT in s390x/snippets/c/sie-dat.c */
->>>>> +#define GUEST_TOTAL_PAGE_COUNT 256
->>>>
->>>> I'd maybe put the defines rather in a header a la s390x/snippets/c/sie-dat.h
->>>> and include that header here and in the snippet C code.
->>>
->>> I'd have to
->>>
->>> #include "../s390x/snippets/c/sie-dat.h"
->>>
->>> and it feels like I shouldn't be doing this, should I?
->>
->> Why "../s390x/" ? Isn't #include "snippets/c/sie-dat.h" enough? ... that
->> would look reasonable to me.
-> 
-> No, it isn't at least on my box:
-> 
-> s390x/snippets/c/sie-dat.c:15:10: fatal error: snippets/c/sie-dat.h: No such file or directory
->     15 | #include "snippets/c/sie-dat.h"
->        |          ^~~~~~~~~~~~~~~~~~~~~~
-> compilation terminated.
+On Mon, Jul 10, 2023 at 07:31:25PM -0700, Yi Liu wrote:
 
-Maybe add $(SRCDIR)/s390x to INCLUDE_PATHS in the s390x/Makefile ?
+> @@ -1311,29 +1296,17 @@ static int vfio_pci_ioctl_get_pci_hot_reset_info(
+>  	ret = vfio_pci_for_each_slot_or_bus(vdev->pdev, vfio_pci_fill_devs,
+>  					    &fill, slot);
+>  	mutex_unlock(&vdev->vdev.dev_set->lock);
+> +	if (ret)
+> +		return ret;
+>  
+> -	/*
+> -	 * If a device was removed between counting and filling, we may come up
+> -	 * short of fill.max.  If a device was added, we'll have a return of
+> -	 * -EAGAIN above.
+> -	 */
+> -	if (!ret) {
+> -		hdr.count = fill.cur;
+> -		hdr.flags = fill.flags;
+> -	}
+> -
+> -reset_info_exit:
+> +	hdr.count = fill.count;
+> +	hdr.flags = fill.flags;
+>  	if (copy_to_user(arg, &hdr, minsz))
+> -		ret = -EFAULT;
+> -
+> -	if (!ret) {
+> -		if (copy_to_user(&arg->devices, devices,
+> -				 hdr.count * sizeof(*devices)))
+> -			ret = -EFAULT;
+> -	}
+> +		return -EFAULT;
+>  
+> -	kfree(devices);
+> -	return ret;
+> +	if (fill.count != fill.devices - arg->devices)
+> +		return -ENOSPC;
 
-  Thomas
+This should be > right? The previous code returned ENOSPC only if
+their were more devices than requested, not less.
 
-
+Jason
