@@ -2,93 +2,154 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC867EB64DA
-	for <linux-s390@archiver.kernel.org>; Fri, 14 Jul 2023 09:29:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E09BCC001DD
+	for <linux-s390@archiver.kernel.org>; Fri, 14 Jul 2023 10:33:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235462AbjGNJ3H (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 14 Jul 2023 05:29:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53274 "EHLO
+        id S236175AbjGNKc4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 14 Jul 2023 06:32:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230372AbjGNJ3G (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Jul 2023 05:29:06 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABC522D55;
-        Fri, 14 Jul 2023 02:29:05 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 52FBE1FD60;
-        Fri, 14 Jul 2023 09:29:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1689326944; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=kJwS6jgM/F6rS04d9Wc7YkG+2OJLOoEr4udYg+BGyWw=;
-        b=M7ByKjPFDt0Rl68Wb1mvPnAjDU5b3pAE5iH9/ciB8X3D6xixrnXoSQrV8Rh3yToMKgUEJR
-        oPISriOh5bLfikITiwKuaJwUN6FaPBVWmMvx8nXWBTYMNZIeg+VjCkwG3EuRYshxXz7lPf
-        A/phey/kQFkpQVENnHfz6gZD0tWjx6Y=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1689326944;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=kJwS6jgM/F6rS04d9Wc7YkG+2OJLOoEr4udYg+BGyWw=;
-        b=k+C8NSid4g/P8wTLz5Q9iHDOuQnYjvks/1FLJZmrLFGYlbJlJnkWj2ktRkgPOAZd1rNaqg
-        1m+w+8kfkkYyhwDg==
-Received: from suse.de (unknown [10.163.43.106])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id E6FD42C142;
-        Fri, 14 Jul 2023 09:29:00 +0000 (UTC)
-Date:   Fri, 14 Jul 2023 10:28:53 +0100
-From:   Mel Gorman <mgorman@suse.de>
-To:     Valentin Schneider <vschneid@redhat.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>, mpe@ellerman.id.au,
-        npiggin@gmail.com, christophe.leroy@csgroup.eu, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, juri.lelli@redhat.com, vincent.guittot@linaro.org,
-        dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
-        bristot@redhat.com, linuxppc-dev@lists.ozlabs.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [RFC][PATCH] sched: Rename DIE domain
-Message-ID: <20230714092853.tueulnlqloc3m4gw@suse.de>
-References: <20230712141056.GI3100107@hirez.programming.kicks-ass.net>
- <xhsmh1qhduq9d.mognet@vschneid.remote.csb>
+        with ESMTP id S235475AbjGNKcz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Jul 2023 06:32:55 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E4EF113;
+        Fri, 14 Jul 2023 03:32:53 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36EAWdgt024470;
+        Fri, 14 Jul 2023 10:32:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : to :
+ from : subject : cc : message-id : date; s=pp1;
+ bh=KfmCAIwEZrnvZLgrQFNGQ29O8MtEuiAR33Mt4Ca/9wM=;
+ b=eGdc8SlzT/i+uvAEm0Wovv2K1CsQttjFsHt9PhqcechfUWJbfFU5+bBQrlhUPba+TAeF
+ 2xTdZXYWZXuxZsBm25Wi92vssc7EN9kOvJy0TCdZOc63DlnWZ6EB2v3gVWi1gxOobDZ0
+ Zo2264nXatUynLUEfVFTUTChPgi0f6u1gaE6u11J2pzFA6j8HfV06qxWZ5n8er/bg8t0
+ oguhBdghc2ISIA9DIj/W/OkBEA4vmEGRu4qlv1PqZhf+As+NBu+S/oOOvcLEdbp3qRBy
+ 7Z7grPj7XahmmWq9QfwfxqerV45QGuPAYvN+9wJqiBjBqXUBRBdeELUMIbGrGjp7XVPi Vg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ru4fr0bbc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 14 Jul 2023 10:32:52 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36EAHabW010805;
+        Fri, 14 Jul 2023 10:32:50 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ru4fr0amt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 14 Jul 2023 10:32:48 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36E4bSB9027002;
+        Fri, 14 Jul 2023 10:32:02 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3rtq50r83p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 14 Jul 2023 10:32:02 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36EAVvg023265934
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 14 Jul 2023 10:31:57 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0D3F920067;
+        Fri, 14 Jul 2023 10:31:57 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5214420043;
+        Fri, 14 Jul 2023 10:31:56 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.42.10])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 14 Jul 2023 10:31:56 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <xhsmh1qhduq9d.mognet@vschneid.remote.csb>
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <773a739d-c1a3-af32-424b-7d29878fccf5@redhat.com>
+References: <20230712114149.1291580-1-nrb@linux.ibm.com> <20230712114149.1291580-4-nrb@linux.ibm.com> <3dbe3094-b796-6b78-a97f-130a82780421@redhat.com> <20230713101707.1d1da214@p-imbrenda> <cedb8a69-c801-daee-52ed-b38b84deabd1@redhat.com> <168932289824.12187.4321177108836954492@t14-nrb> <773a739d-c1a3-af32-424b-7d29878fccf5@redhat.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>
+From:   Nico Boehr <nrb@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v5 3/6] s390x: sie: switch to home space mode before entering SIE
+Cc:     frankja@linux.ibm.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Message-ID: <168933071496.12187.10655662946419362243@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Fri, 14 Jul 2023 12:31:54 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: MEaOehj8ijAJwN7A4X_aSarWjyms0l5J
+X-Proofpoint-ORIG-GUID: mqNmxRDqxw8KoV7_OfROYo9gHehsPtSv
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-14_05,2023-07-13_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ mlxlogscore=999 bulkscore=0 priorityscore=1501 phishscore=0 spamscore=0
+ clxscore=1015 suspectscore=0 mlxscore=0 impostorscore=0 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2307140096
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jul 12, 2023 at 04:02:38PM +0100, Valentin Schneider wrote:
-> On 12/07/23 16:10, Peter Zijlstra wrote:
-> > Hi
-> >
-> > Thomas just tripped over the x86 topology setup creating a 'DIE' domain
-> > for the package mask :-)
-> >
-> > Since these names are SCHED_DEBUG only, rename them.
-> > I don't think anybody *should* be relying on this, but who knows.
-> >
-> 
-> FWIW I don't care much about the actual name.
-> 
-> There are some stray references to DIE in comments - see below. Bit funny
-> to see:
-> - *  - Package (DIE)
-> + *  - Package (PKG)
-> 
-> With that:
-> Acked-by: Valentin Schneider <vschneid@redhat.com>
-> 
+Quoting Thomas Huth (2023-07-14 10:30:33)
+> On 14/07/2023 10.21, Nico Boehr wrote:
+> > Quoting Thomas Huth (2023-07-13 10:21:12)
+> >> On 13/07/2023 10.17, Claudio Imbrenda wrote:
+> >>> On Thu, 13 Jul 2023 09:28:19 +0200
+> >>> Thomas Huth <thuth@redhat.com> wrote:
+> >>>
+> >>> [...]
+> >>>
+> >>>>> +   irq_set_dat_mode(IRQ_DAT_ON, AS_PRIM);
+> >>>>> +   psw_mask_clear_bits(PSW_MASK_HOME);
+> >>>>> +
+> >>>>> +   /* restore the old CR 13 */
+> >>>>> +   lctlg(13, old_cr13);
+> >>>>
+> >>>> Wouldn't it be better to always switch to HOME address mode directly=
+ in our
+> >>>> startup code already (where we enable DAT)? Switching back and forth=
+ every
+> >>>> time we enter SIE looks confusing to me ... or is there a reason why=
+ we
+> >>>> should continue to run in primary address mode by default and only s=
+witch to
+> >>>> home mode here?
+> >>>
+> >>> the existing tests are written with the assumption that they are
+> >>> running in primary mode.
+> >>>
+> >>> switching back and forth might be confusing, but avoids having to
+> >>> fix all the tests
+> >>
+> >> Which tests are breaking? And why? And how much effort would it be to =
+fix them?
+> >=20
+> > Since you're not the first asking this, I took the time and
+> > moved^Whacked everything to home space mode:
+> >=20
+> > - all SIE-related tests time out, even when we load CR1 properly before=
+ SIE
+> >    entry. Most likely just an oversight and fixable.
+> > - the skey test encounters an unexpected PGM int with a weird backtrace
+> >    where I couldn't easily figure out what goes wrong
+> > - edat test fails with a similar looking backtrace
+> >=20
+> > All in all, it is probably fixable, but additional effort.
+> >=20
+> > I think explicitly switching the address space mode gives us additional
+> > flexibility, since sie() doesn't need to make assumptions about which a=
+ddress
+> > space we're running in.
+>=20
+> Ok, thanks for checking. Then let's go with this patch here for now, but =
 
-No objection either, PKG is less ambiguous than DIE
+> maybe you could add a more detailed comment in the source code that talks=
+=20
+> about the reasons for switching each time instead of only once during sta=
+rtup?
 
-Acked-by: Mel Gorman <mgorman@suse.de>
+OK, how about this?
 
--- 
-Mel Gorman
-SUSE Labs
+* Set up home address space to match primary space. Instead of running
+* in home space all the time, we switch every time in sie() because:
+* - tests that depend on running in primary space mode don't need to be
+*   touched
+* - it avoids regressions in tests
+* - switching every time makes it easier to extend this in the future,
+*   for example to allow tests to run in whatever space they want
