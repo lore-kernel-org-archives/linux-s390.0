@@ -2,174 +2,93 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF982EB64DA
-	for <linux-s390@archiver.kernel.org>; Tue, 18 Jul 2023 06:38:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A48CFEB64DA
+	for <linux-s390@archiver.kernel.org>; Tue, 18 Jul 2023 07:38:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230198AbjGRGif (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 Jul 2023 02:38:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43808 "EHLO
+        id S229972AbjGRHiw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 Jul 2023 03:38:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230506AbjGRGid (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Jul 2023 02:38:33 -0400
+        with ESMTP id S229476AbjGRHiv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Jul 2023 03:38:51 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87E221B3;
-        Mon, 17 Jul 2023 23:38:25 -0700 (PDT)
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36I6CUTL001034;
-        Tue, 18 Jul 2023 06:35:51 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54A54198;
+        Tue, 18 Jul 2023 00:38:50 -0700 (PDT)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36I7Osnl014391;
+        Tue, 18 Jul 2023 07:38:47 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=AedBGb2qIK3YLghXijtfrnHoSQw3eMUba3Xjy16odAk=;
- b=RYZw8tex8lqOa3q2RjOQ1phvwXtnceXCidPo9p+p26ydS/+0C5I2mI+h4ZPaFyXIN4fV
- FiuCHPj2oq12dQIvE802e0scF7r/84cqsQpO8vLr0yh25JUYOrQBz8ILFS5cm6+T0RK6
- Jx9XP0BVOht5sxKqXy6xQtufT1XV7X+EdZIBTGuhkjunmClxz1VBkdBNma7N2HYigttG
- X016qfA528pn2AWiZNVQN04Is5yJhm+FjLX5kygD3A1Lm5VGSFkWZM2Dw/ppLnEGAC1T
- NqiDjJ3bJ/Gj36blRYXuZTOuuTQuY5QhKNRY/vICDnhxt8VGCkunhpyuGFwYNnFddxCZ 4Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rwn8tgmch-1
+ in-reply-to; s=pp1; bh=32InxsPJC+q1pq44FtbN1Nmf3gbhoM2dKizSnMtxqJE=;
+ b=olSFM+N8pfNmav1wL3r93rWw61Z2WnqyngIeawkyn06y1P1RfofBI8bJRr/NR0Nsp5kP
+ iZhZG39FvOHX/4j5nvr5VgmW93qeA8dbC1mk++cy5tRZWP/L+hOf+8NdICt54eKk6fQj
+ 8lo2r9zUAtBmlkbTnS1VXZzmqNkexMa5GFTGzBq5HWqIrbJ/JPbnvBpC4RqD5k/p4Owc
+ pVL5zlIl7+QQ1e5I1r23R8i7/QFLsh2C9h3Dn67dUxT+Mbx2Kz0buJqFMi+AwZJ2zXOC
+ jJCuZpe4gfJFRzyUES7gObydipA+tRUWdCRRE52jO4qeFIG/drrPC5R9mnm3f+OdvLuY XA== 
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rwpaugd72-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jul 2023 06:35:51 +0000
-Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36I6D7A5001900;
-        Tue, 18 Jul 2023 06:35:11 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rwn8tgk89-1
+        Tue, 18 Jul 2023 07:38:47 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36I51uN4007106;
+        Tue, 18 Jul 2023 07:38:46 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3rv80j24qa-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jul 2023 06:35:10 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36HN49xJ029352;
-        Tue, 18 Jul 2023 06:29:47 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3rv6smc9y5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jul 2023 06:29:47 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36I6TinZ27066944
+        Tue, 18 Jul 2023 07:38:46 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36I7chov11141874
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 Jul 2023 06:29:44 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2A3902004E;
-        Tue, 18 Jul 2023 06:29:44 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5C3BC20040;
-        Tue, 18 Jul 2023 06:29:43 +0000 (GMT)
+        Tue, 18 Jul 2023 07:38:43 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3C711201A4;
+        Tue, 18 Jul 2023 07:38:43 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E3883201A3;
+        Tue, 18 Jul 2023 07:38:42 +0000 (GMT)
 Received: from osiris (unknown [9.152.212.233])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Tue, 18 Jul 2023 06:29:43 +0000 (GMT)
-Date:   Tue, 18 Jul 2023 08:29:42 +0200
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue, 18 Jul 2023 07:38:42 +0000 (GMT)
+Date:   Tue, 18 Jul 2023 09:38:42 +0200
 From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Costa Shulyupin <costa.shul@redhat.com>
-Cc:     Jonathan Corbet <corbet@lwn.net>,
+To:     Wang Ming <machel@vivo.com>
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Kim Phillips <kim.phillips@amd.com>,
-        Yantengsi <siyanteng@loongson.cn>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Mikhail Zaslonko <zaslonko@linux.ibm.com>,
-        Eric DeVolder <eric.devolder@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "open list:S390 ARCHITECTURE" <linux-s390@vger.kernel.org>,
-        "open list:S390 VFIO-CCW DRIVER" <kvm@vger.kernel.org>
-Subject: Re: [PATCH] docs: move s390 under arch
-Message-ID: <ZLYxVo5/YjjOd3i7@osiris>
-References: <20230718045550.495428-1-costa.shul@redhat.com>
+        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, opensource.kernel@vivo.com
+Subject: Re: [PATCH v1] arch: s390: Use kfree_sensitive instead of kfree
+Message-ID: <ZLZBgocu7f2u+2j8@osiris>
+References: <20230717094533.18418-1-machel@vivo.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230718045550.495428-1-costa.shul@redhat.com>
+In-Reply-To: <20230717094533.18418-1-machel@vivo.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _lJeD4B8jFxpwF911kuaTMgtFgb0JZNS
-X-Proofpoint-ORIG-GUID: ku_fyve0_NfEsPY08W6XvU-Do-MC2l_w
+X-Proofpoint-GUID: foG5Ej1fuh2k90gbTaMpq8-6guRWHawx
+X-Proofpoint-ORIG-GUID: foG5Ej1fuh2k90gbTaMpq8-6guRWHawx
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
  definitions=2023-07-17_15,2023-07-13_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
- mlxscore=0 priorityscore=1501 lowpriorityscore=0 malwarescore=0
- suspectscore=0 mlxlogscore=999 impostorscore=0 adultscore=0 phishscore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2306200000 definitions=main-2307180059
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ adultscore=0 priorityscore=1501 impostorscore=0 suspectscore=0 spamscore=0
+ lowpriorityscore=0 mlxlogscore=287 malwarescore=0 clxscore=1011
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2307180067
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jul 18, 2023 at 07:55:02AM +0300, Costa Shulyupin wrote:
-1;115;0c> and fix all in-tree references.
+On Mon, Jul 17, 2023 at 05:45:19PM +0800, Wang Ming wrote:
+> key might contain private part of the key, so better use
+> kfree_sensitive to free it.
 > 
-> Architecture-specific documentation is being moved into Documentation/arch/
-> as a way of cleaning up the top-level documentation directory and making
-> the docs hierarchy more closely match the source hierarchy.
-> 
-> Signed-off-by: Costa Shulyupin <costa.shul@redhat.com>
+> Signed-off-by: Wang Ming <machel@vivo.com>
 > ---
->  Documentation/admin-guide/kernel-parameters.txt   | 4 ++--
->  Documentation/arch/index.rst                      | 2 +-
->  Documentation/{ => arch}/s390/3270.ChangeLog      | 0
->  Documentation/{ => arch}/s390/3270.rst            | 4 ++--
->  Documentation/{ => arch}/s390/cds.rst             | 2 +-
->  Documentation/{ => arch}/s390/common_io.rst       | 2 +-
->  Documentation/{ => arch}/s390/config3270.sh       | 0
->  Documentation/{ => arch}/s390/driver-model.rst    | 0
->  Documentation/{ => arch}/s390/features.rst        | 0
->  Documentation/{ => arch}/s390/index.rst           | 0
->  Documentation/{ => arch}/s390/monreader.rst       | 0
->  Documentation/{ => arch}/s390/pci.rst             | 2 +-
->  Documentation/{ => arch}/s390/qeth.rst            | 0
->  Documentation/{ => arch}/s390/s390dbf.rst         | 0
->  Documentation/{ => arch}/s390/text_files.rst      | 0
->  Documentation/{ => arch}/s390/vfio-ap-locking.rst | 0
->  Documentation/{ => arch}/s390/vfio-ap.rst         | 0
->  Documentation/{ => arch}/s390/vfio-ccw.rst        | 2 +-
->  Documentation/{ => arch}/s390/zfcpdump.rst        | 0
->  Documentation/driver-api/s390-drivers.rst         | 4 ++--
->  MAINTAINERS                                       | 8 ++++----
->  arch/s390/Kconfig                                 | 4 ++--
->  arch/s390/include/asm/debug.h                     | 4 ++--
->  drivers/s390/char/zcore.c                         | 2 +-
->  kernel/Kconfig.kexec                              | 2 +-
->  25 files changed, 21 insertions(+), 21 deletions(-)
->  rename Documentation/{ => arch}/s390/3270.ChangeLog (100%)
->  rename Documentation/{ => arch}/s390/3270.rst (99%)
->  rename Documentation/{ => arch}/s390/cds.rst (99%)
->  rename Documentation/{ => arch}/s390/common_io.rst (98%)
->  rename Documentation/{ => arch}/s390/config3270.sh (100%)
->  rename Documentation/{ => arch}/s390/driver-model.rst (100%)
->  rename Documentation/{ => arch}/s390/features.rst (100%)
->  rename Documentation/{ => arch}/s390/index.rst (100%)
->  rename Documentation/{ => arch}/s390/monreader.rst (100%)
->  rename Documentation/{ => arch}/s390/pci.rst (99%)
->  rename Documentation/{ => arch}/s390/qeth.rst (100%)
->  rename Documentation/{ => arch}/s390/s390dbf.rst (100%)
->  rename Documentation/{ => arch}/s390/text_files.rst (100%)
->  rename Documentation/{ => arch}/s390/vfio-ap-locking.rst (100%)
->  rename Documentation/{ => arch}/s390/vfio-ap.rst (100%)
->  rename Documentation/{ => arch}/s390/vfio-ccw.rst (99%)
->  rename Documentation/{ => arch}/s390/zfcpdump.rst (100%)
+>  arch/s390/crypto/paes_s390.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-I guess this should go via Jonathan, like most (or all) other similar
-patches? Jonathan, let me know if you pick this up, or if this should
-go via the s390 tree.
-
-In any case:
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Applied, thanks.
