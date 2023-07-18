@@ -2,199 +2,193 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 672B5EB64DC
-	for <linux-s390@archiver.kernel.org>; Tue, 18 Jul 2023 10:43:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF92CEB64DA
+	for <linux-s390@archiver.kernel.org>; Tue, 18 Jul 2023 10:55:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230159AbjGRKnj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 Jul 2023 06:43:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46058 "EHLO
+        id S230201AbjGRKzw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 Jul 2023 06:55:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229774AbjGRKni (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Jul 2023 06:43:38 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69CD019A;
-        Tue, 18 Jul 2023 03:43:37 -0700 (PDT)
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36IAVD5g015975;
-        Tue, 18 Jul 2023 10:41:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : in-reply-to : references : date : message-id : mime-version :
- content-type; s=pp1; bh=5pqryEuXi7w3clM0cicqo05Ow93ZiUNgOjfFt59QOcA=;
- b=MLZgMgaFynVGFhEZgy+HljSo8qlwdpEYmMyfEK4MDgMn+6vT/mCrDKND2C/bQBJYID+A
- IElpGNDZjJGZoeUao5GfVP8UFDh35vY8TnFF0xXVCxeXHYROhkY/sA7QgjGJvOb3SDF7
- YuvURhU5e/sD363f3LLHzLWmLZ/Q0HElF4zfBkeKSFKsnXOrMtpQvyAmyoupuCJMbcQu
- XaQZsZccdGAV5EXj3AFPpgsGWkWw32WYxVnMc4xqPiwnGnQ74uCUBafblBoWQpDl1n9f
- 1oK7yLn/wZcT4B9USMqGYxi+gw/WbHD2PafF0ZKW/Aqi025Lix+1BhTHxniLNce/KY2i XA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rws2breec-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jul 2023 10:41:43 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36IAVmXg019296;
-        Tue, 18 Jul 2023 10:41:42 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rws2bred1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jul 2023 10:41:42 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36I6lTQw016870;
-        Tue, 18 Jul 2023 10:41:40 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3rv5srnpnf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jul 2023 10:41:40 +0000
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-        by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36IAfeE920972012
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 Jul 2023 10:41:40 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DAFEF5805E;
-        Tue, 18 Jul 2023 10:41:39 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2C6C65805F;
-        Tue, 18 Jul 2023 10:41:22 +0000 (GMT)
-Received: from skywalker.linux.ibm.com (unknown [9.109.212.144])
-        by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 18 Jul 2023 10:41:21 +0000 (GMT)
-X-Mailer: emacs 29.0.91 (via feedmail 11-beta-1 I)
-From:   "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-To:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Jann Horn <jannh@google.com>,
-        Vishal Moola <vishal.moola@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>, Zi Yan <ziy@nvidia.com>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v3 04/13] powerpc: assert_pte_locked() use
- pte_offset_map_nolock()
-In-Reply-To: <e8d56c95-c132-a82e-5f5f-7bb1b738b057@google.com>
-References: <7cd843a9-aa80-14f-5eb2-33427363c20@google.com>
- <e8d56c95-c132-a82e-5f5f-7bb1b738b057@google.com>
-Date:   Tue, 18 Jul 2023 16:11:19 +0530
-Message-ID: <87msztbiy8.fsf@linux.ibm.com>
+        with ESMTP id S231733AbjGRKzr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Jul 2023 06:55:47 -0400
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89B0A10C7;
+        Tue, 18 Jul 2023 03:55:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1689677744; x=1721213744;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=cE5c2fkHYzHc+0wK6/9xesZLsRA0C85BABfAYO+q2Kc=;
+  b=YSh4Dk9PHfx7GuguFnrIbfa7aFzaGdE03iVJ6ZLMHcBHZBSBhuQawfA5
+   VunFPQrhANy8rkbYY22ry0/G3cN4t3ZCV3BZXM4X5Kw5VuSUlteije8uc
+   ycKqFu/KQTvAh3nD55l1p/Eo8Fz18SaFsrUDECJf24YcT5LV7xc7VBZa7
+   Qq4X6X/2TACRdWJzXvH9GNEQemQaXeMd2R7wtxVHLx4caxsFNXcJ64ep9
+   xfccN1pmU4V7lQGpsh4k10NsJ7pYJfDjhckP/ia2VkmEWvLSt4Y71EjAk
+   DYYIGKcdqlcWCkeeNLLYqR4FQjO2JC3h0xb9JjPqr1NCQH4z/Edeh8t6y
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10774"; a="452553506"
+X-IronPort-AV: E=Sophos;i="6.01,214,1684825200"; 
+   d="scan'208";a="452553506"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jul 2023 03:55:44 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10774"; a="673863788"
+X-IronPort-AV: E=Sophos;i="6.01,214,1684825200"; 
+   d="scan'208";a="673863788"
+Received: from 984fee00a4c6.jf.intel.com ([10.165.58.231])
+  by orsmga003.jf.intel.com with ESMTP; 18 Jul 2023 03:55:43 -0700
+From:   Yi Liu <yi.l.liu@intel.com>
+To:     alex.williamson@redhat.com, jgg@nvidia.com, kevin.tian@intel.com
+Cc:     joro@8bytes.org, robin.murphy@arm.com, cohuck@redhat.com,
+        eric.auger@redhat.com, nicolinc@nvidia.com, kvm@vger.kernel.org,
+        mjrosato@linux.ibm.com, chao.p.peng@linux.intel.com,
+        yi.l.liu@intel.com, yi.y.sun@linux.intel.com, peterx@redhat.com,
+        jasowang@redhat.com, shameerali.kolothum.thodi@huawei.com,
+        lulu@redhat.com, suravee.suthikulpanit@amd.com,
+        intel-gvt-dev@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
+        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
+        yanting.jiang@intel.com, zhenzhong.duan@intel.com,
+        clegoate@redhat.com
+Subject: [PATCH v10 00/10] Enhance vfio PCI hot reset for vfio cdev device
+Date:   Tue, 18 Jul 2023 03:55:32 -0700
+Message-Id: <20230718105542.4138-1-yi.l.liu@intel.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: zKZQJ9IasJwI7nGrSugta0t-NqCMHUUs
-X-Proofpoint-ORIG-GUID: ASlLD63EgmlMnfoUOkFOiogpO5Mj_Hpm
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-17_15,2023-07-13_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- impostorscore=0 mlxscore=0 lowpriorityscore=0 phishscore=0 bulkscore=0
- malwarescore=0 clxscore=1011 spamscore=0 suspectscore=0 priorityscore=1501
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2306200000 definitions=main-2307180096
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hugh Dickins <hughd@google.com> writes:
+VFIO_DEVICE_PCI_HOT_RESET requires user to pass an array of group fds
+to prove that it owns all devices affected by resetting the calling
+device. While for cdev devices, user can use an iommufd-based ownership
+checking model and invoke VFIO_DEVICE_PCI_HOT_RESET with a zero-length
+fd array.
 
-> Instead of pte_lockptr(), use the recently added pte_offset_map_nolock()
-> in assert_pte_locked().  BUG if pte_offset_map_nolock() fails: this is
-> stricter than the previous implementation, which skipped when pmd_none()
-> (with a comment on khugepaged collapse transitions): but wouldn't we want
-> to know, if an assert_pte_locked() caller can be racing such transitions?
->
+This series first extends VFIO_DEVICE_GET_PCI_HOT_RESET_INFO to report the
+devid of affected devices and the ownership check result of the affected
+devices to userspace. Then, extends the VFIO_DEVICE_PCI_HOT_RESET to accept
+zero-length fd array for the hot-reset of cdev devices.
 
-The reason we had that pmd_none check there was to handle khugpaged. In
-case of khugepaged we do pmdp_collapse_flush and then do a ptep_clear.
-ppc64 had the assert_pte_locked check inside that ptep_clear.
+The updated _INFO ioctl and new hot-reset approach were tested with the
+below qemu:
 
-_pmd = pmdp_collapse_flush(vma, address, pmd);
-..
-ptep_clear()
--> asset_ptep_locked()
----> pmd_none
------> BUG
+https://github.com/yiliu1765/qemu/tree/zhenzhong/iommufd_rfcv4
+(requires to test with the cdev kernel)
 
+Change log:
 
-The problem is how assert_pte_locked() verify whether we are holding
-ptl. It does that by walking the page table again and in this specific
-case by the time we call the function we already had cleared pmd .
->
-> This mod might cause new crashes: which either expose my ignorance, or
-> indicate issues to be fixed, or limit the usage of assert_pte_locked().
->
-> Signed-off-by: Hugh Dickins <hughd@google.com>
-> ---
->  arch/powerpc/mm/pgtable.c | 16 ++++++----------
->  1 file changed, 6 insertions(+), 10 deletions(-)
->
-> diff --git a/arch/powerpc/mm/pgtable.c b/arch/powerpc/mm/pgtable.c
-> index cb2dcdb18f8e..16b061af86d7 100644
-> --- a/arch/powerpc/mm/pgtable.c
-> +++ b/arch/powerpc/mm/pgtable.c
-> @@ -311,6 +311,8 @@ void assert_pte_locked(struct mm_struct *mm, unsigned long addr)
->  	p4d_t *p4d;
->  	pud_t *pud;
->  	pmd_t *pmd;
-> +	pte_t *pte;
-> +	spinlock_t *ptl;
->  
->  	if (mm == &init_mm)
->  		return;
-> @@ -321,16 +323,10 @@ void assert_pte_locked(struct mm_struct *mm, unsigned long addr)
->  	pud = pud_offset(p4d, addr);
->  	BUG_ON(pud_none(*pud));
->  	pmd = pmd_offset(pud, addr);
-> -	/*
-> -	 * khugepaged to collapse normal pages to hugepage, first set
-> -	 * pmd to none to force page fault/gup to take mmap_lock. After
-> -	 * pmd is set to none, we do a pte_clear which does this assertion
-> -	 * so if we find pmd none, return.
-> -	 */
-> -	if (pmd_none(*pmd))
-> -		return;
-> -	BUG_ON(!pmd_present(*pmd));
-> -	assert_spin_locked(pte_lockptr(mm, pmd));
-> +	pte = pte_offset_map_nolock(mm, pmd, addr, &ptl);
-> +	BUG_ON(!pte);
-> +	assert_spin_locked(ptl);
-> +	pte_unmap(pte);
->  }
->  #endif /* CONFIG_DEBUG_VM */
->  
-> -- 
-> 2.35.3
+v10:
+ - Add Jason's r-b to patch 06
+ - More accurate check to return -ENOSPC in patch 09 when kernel has more
+   devices to report than the user buffer (Jason)
+ - Add t-b from Zhenzhong (wrote a selftest app to verify functions of this
+		           patchset by referencing https://github.com/awilliam/tests/)
+
+v9: https://lore.kernel.org/kvm/20230711023126.5531-1-yi.l.liu@intel.com/
+ - Add Jason's r-b to patch 08
+
+v8: https://lore.kernel.org/kvm/ZJRnHO0p+pPgBZdr@nvidia.com/
+ - Add r-b from Jason to patch 03, 04, 05, 07, 09 of v7
+ - Add a patch to copy the per-device hot-reset structure to user during the
+   device loop instead of storing them in a buffer and copy all the contents
+   in one copy, this avoids an extra loop to count device and also avoids
+   allocating a temporay buffer for it. (Jason)
+ - Rename vfio_iommufd_device_hot_reset_devid() to be vfio_iommufd_get_dev_id()
+   and refine its return value for the case no valid ID can be returned. Hence
+   make it a general helper to get ID for a device. (Alex, Jason)
+ - Remove iommufd_ctx_has_group() CONIFG_IOMMUFD disabled stub as this API is
+   called in iommufd specific code which is compiled when CONFIG_IOMMU is
+   enabled. (Alex)
+ - Reaffirming Yanting's t-b (Tested NIC passthrough on Intel platform. mainly
+   regression tests)
+
+v7: https://lore.kernel.org/kvm/20230602121515.79374-1-yi.l.liu@intel.com/
+ - Drop noiommu support (patch 01 of v6 is dropped)
+ - Remove helpers to get devid and ictx for iommufd_access
+ - Document the dev_set representative requirement in the
+   VFIO_DEVICE_GET_PCI_HOT_RESET_INFO for the cdev opened device (Alex)
+ - zero-length fd array approach is only for cdev opened device (Alex)
+
+v6: https://lore.kernel.org/kvm/20230522115751.326947-1-yi.l.liu@intel.com/
+ - Remove noiommu_access, reuse iommufd_access instead (Alex)
+ - vfio_iommufd_physical_ictx -> vfio_iommufd_device_ictx
+ - vfio_iommufd_physical_devid -> vfio_iommufd_device_hot_reset_devid
+ - Refine logic in patch 9 and 10 of v5, no uapi change. (Alex)
+ - Remove lockdep asset in vfio_pci_is_device_in_set (Cédric)
+ - Add t-b from Terrence (Tested GVT-g / GVT-d VFIO legacy mode / compat mode
+   / cdev mode, including negative tests. No regression be introduced.)
+
+v5: https://lore.kernel.org/kvm/20230513132136.15021-1-yi.l.liu@intel.com/
+ - Drop patch 01 of v4 (Alex)
+ - Create noiommu_access for noiommu devices (Jason)
+ - Reserve all negative iommufd IDs, hence VFIO can encode negative
+   values (Jason)
+ - Make vfio_iommufd_physical_devid() return -EINVAL if it's not called
+   with a physical device or a noiommu device.
+ - Add vfio_find_device_in_devset() in vfio_main.c (Alex)
+ - Add iommufd_ctx_has_group() to replace vfio_devset_iommufd_has_group().
+   Reason: vfio_devset_iommufd_has_group() only loops the devices within
+   the given devset to check the iommufd an iommu_group, but an iommu_group
+   can span into multiple devsets. So if failed to find the group in a
+   devset doesn't mean the group is not owned by the iommufd. So here either
+   needs to search all the devsets or add an iommufd API to check it. It
+   appears an iommufd API makes more sense.
+ - Adopt suggestions from Alex on patch 08 and 09 of v4, refine the hot-reset
+   uapi description and minor tweaks
+ - Use bitfields for bool members (Alex)
+
+v4: https://lore.kernel.org/kvm/20230426145419.450922-1-yi.l.liu@intel.com/
+ - Rename the patch series subject
+ - Patch 01 is moved from the cdev series
+ - Patch 02, 06 are new per review comments in v3
+ - Patch 03/04/05/07/08/09 are from v3 with updates
+
+v3: https://lore.kernel.org/kvm/20230401144429.88673-1-yi.l.liu@intel.com/
+ - Remove the new _INFO ioctl of v2, extend the existing _INFO ioctl to
+   report devid (Alex)
+ - Add r-b from Jason
+ - Add t-b from Terrence Xu and Yanting Jiang (mainly regression test)
+
+v2: https://lore.kernel.org/kvm/20230327093458.44939-1-yi.l.liu@intel.com/
+ - Split the patch 03 of v1 to be 03, 04 and 05 of v2 (Jaon)
+ - Add r-b from Kevin and Jason
+ - Add patch 10 to introduce a new _INFO ioctl for the usage of device
+   fd passing usage in cdev path (Jason, Alex)
+
+v1: https://lore.kernel.org/kvm/20230316124156.12064-1-yi.l.liu@intel.com/
+
+Regards,
+	Yi Liu
+
+Yi Liu (10):
+  vfio/pci: Update comment around group_fd get in
+    vfio_pci_ioctl_pci_hot_reset()
+  vfio/pci: Move the existing hot reset logic to be a helper
+  iommufd: Reserve all negative IDs in the iommufd xarray
+  iommufd: Add iommufd_ctx_has_group()
+  iommufd: Add helper to retrieve iommufd_ctx and devid
+  vfio: Mark cdev usage in vfio_device
+  vfio: Add helper to search vfio_device in a dev_set
+  vfio/pci: Extend VFIO_DEVICE_GET_PCI_HOT_RESET_INFO for vfio device
+    cdev
+  vfio/pci: Copy hot-reset device info to userspace in the devices loop
+  vfio/pci: Allow passing zero-length fd array in
+    VFIO_DEVICE_PCI_HOT_RESET
+
+ drivers/iommu/iommufd/device.c   |  42 ++++++
+ drivers/iommu/iommufd/main.c     |   2 +-
+ drivers/vfio/iommufd.c           |  44 ++++++
+ drivers/vfio/pci/vfio_pci_core.c | 250 +++++++++++++++++++------------
+ drivers/vfio/vfio_main.c         |  15 ++
+ include/linux/iommufd.h          |   5 +
+ include/linux/vfio.h             |  22 +++
+ include/uapi/linux/vfio.h        |  71 ++++++++-
+ 8 files changed, 352 insertions(+), 99 deletions(-)
+
+-- 
+2.34.1
+
