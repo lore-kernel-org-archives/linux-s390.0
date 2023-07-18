@@ -2,58 +2,58 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7226EB64DC
-	for <linux-s390@archiver.kernel.org>; Tue, 18 Jul 2023 05:50:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C979EB64DA
+	for <linux-s390@archiver.kernel.org>; Tue, 18 Jul 2023 06:37:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230076AbjGRFu1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 Jul 2023 01:50:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45022 "EHLO
+        id S229904AbjGRGhf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 Jul 2023 02:37:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229458AbjGRFu0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Jul 2023 01:50:26 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1BF5E55;
-        Mon, 17 Jul 2023 22:50:24 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id d9443c01a7336-1b89114266dso42617675ad.0;
-        Mon, 17 Jul 2023 22:50:24 -0700 (PDT)
+        with ESMTP id S229449AbjGRGhe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Jul 2023 02:37:34 -0400
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 217E5186
+        for <linux-s390@vger.kernel.org>; Mon, 17 Jul 2023 23:37:32 -0700 (PDT)
+Received: by mail-wm1-x32c.google.com with SMTP id 5b1f17b1804b1-3fbc59de0e2so48946395e9.3
+        for <linux-s390@vger.kernel.org>; Mon, 17 Jul 2023 23:37:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1689659424; x=1692251424;
+        d=linaro.org; s=google; t=1689662250; x=1692254250;
         h=content-transfer-encoding:in-reply-to:from:references:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=gga9IzaJCX3VSwGofmNS+NNP6GAiPOUQ3G8Z12KqV+w=;
-        b=S8Smn9fJOljvaaVmEISGQfSKJ4dZL5LIWPTTiZg1DuhVf+1V912GvyFw/XuUVJOc9R
-         M1fSlhP/wxDBLahScFNn/b+tSq2JRuUPDRdf7Rx2mrfl+d/paNUTVKLrSav7ggXBL1Uy
-         /kt0r4Q3y8BC5m82raWtOaHMootriX4N749vjwj2uQ7RKs34I/u0hq39Iiwbhrzma5NJ
-         v1W3fX0svObu3oryimKWpecNu9dbwnv39aJ1aklFn6gfBo3hE9azTwx28emGPUp4hO1V
-         91bc3Bo2n1xLVm9t4WhgraDxfygCKpGFYCdogoxG0EYoMfr751lgmyJk+Kaz13zk6Cbe
-         1yVw==
+        bh=hIEy3rLqSCnnyzfWlfxqBHFoBDkclU5Mx6T9CUvcNwc=;
+        b=s/o60ezihcuQS79qv7ICzuxOeNZHsBk1ocPusTvEmQhDfwlQYAlH6lPh29nT35oMc9
+         kWXWdWzdLiBagWVLDkOEOAr70zBEOAjUXv21u0EyGSESqdi3AiRh++3nIfineVQLCNEY
+         E/bkEgGZGvOk46nVkgRmbSaX0PyFWlG/CZ9VGRY5mwiuEauNXaWTEi06Lc78qV9zvDzZ
+         BYl53vXNPjD8kI92rfQ3lPkVPqDZgRor8F4AQ4uCwNIQW0JaNk54qdUzR5tLtpChFZ+P
+         HfkkOePjfuCFcKMACymgW2LAHCj8BLDOOXNNsV6CJQEaye0So+InIFaZMqABzrsjM3Kw
+         /jUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689659424; x=1692251424;
+        d=1e100.net; s=20221208; t=1689662250; x=1692254250;
         h=content-transfer-encoding:in-reply-to:from:references:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=gga9IzaJCX3VSwGofmNS+NNP6GAiPOUQ3G8Z12KqV+w=;
-        b=Smuparp8B3pxDNW88od8xHRcvtfqgsHvXe031uEcsz8mErOCMhzRgQJGkPjx569zwJ
-         Pj88Tw1xipmqqqPVBmrqJUcRVnUGHkZChNzSvkgQYhd2lKJIbWTczXUYmY+p4GnJIqGK
-         733P2UlMUQWT5uiJ6dUK8t6eJSRS25gF8JheCF+ktNHPoTp0jVaiFXUchx0e+unE7opn
-         sGOtac274bW/RAaUb1zHzhTH8ujnRFkC8KaoXEDgNJyKj6ogIu0H8uNY//5B/kKNLKFi
-         hg+riZJL4kftQwFdaOz39D0KXRE3oA3HdksydupAcj0dI0I5oskewfJ4LVrTlzBdxB+6
-         ntug==
-X-Gm-Message-State: ABy/qLb6vR0N5fgZX/doL/LDW5hckhV99LmF5+/8RFO5OYuwQRQmPtyw
-        qH/7Hk8nFPSauPmoKQ69kcE=
-X-Google-Smtp-Source: APBJJlGDklalLU/jpOzk9HrL7DjNmsurU4Ks+fW9fRuI1cFSPNs3NyB+6/aasRpcLZCBqtae3jheHA==
-X-Received: by 2002:a17:903:2581:b0:1b9:d961:69b7 with SMTP id jb1-20020a170903258100b001b9d96169b7mr13452653plb.10.1689659424421;
-        Mon, 17 Jul 2023 22:50:24 -0700 (PDT)
-Received: from ?IPV6:2601:1c2:980:9ec0::2764? ([2601:1c2:980:9ec0::2764])
-        by smtp.gmail.com with ESMTPSA id l8-20020a170902f68800b001b80de83b10sm823737plg.301.2023.07.17.22.50.23
+        bh=hIEy3rLqSCnnyzfWlfxqBHFoBDkclU5Mx6T9CUvcNwc=;
+        b=MHsGrvnVg1kLnQfg7uYnEMCWZGDR6ch84bADcJfV7MiMDzs3GIjYfrK1LUX0gFo5wW
+         riCV+IuuZSBW1roaubKLC1AeLPISEtD6Wg/PBz0x9jY8RHZSvMHQQMEOO15/PwWAI86Q
+         SDXX1TLvIyqnBRiW9k8E/+CUnekQTDqjyiqAZR1tJlRItNTs20US9VyCyaHoJEY9TV/3
+         LwscqltfAgd2wf8sesafQCN+R+VZVPPCGj4ceFkuPGHRSdiS57I4vaiwd83w7BE6be/2
+         vIcCmZLB1eZdWVRvpzYPqx3xQwFRsxPhKtzaqZvwKj+okveT7aEd6AU0ZokzJgJcASVd
+         3HFQ==
+X-Gm-Message-State: ABy/qLbjz9BspX7vfbvha37QUoswkfJWOSBDgHQxNPdA49upSiThJGvn
+        ioLda6JGy4DdATXPQ90A/mCwFc8ofZ6v/qmVTh4=
+X-Google-Smtp-Source: APBJJlGdBiXVAKrEH3ChYvLgoNBQHQNzqNno1TY0mbR3+XKzm7LHTa/6LiEmaWdNIuj/vHzsGZ6jSQ==
+X-Received: by 2002:adf:cd11:0:b0:316:e422:38e8 with SMTP id w17-20020adfcd11000000b00316e42238e8mr967530wrm.66.1689662250546;
+        Mon, 17 Jul 2023 23:37:30 -0700 (PDT)
+Received: from [192.168.69.115] ([176.187.222.251])
+        by smtp.gmail.com with ESMTPSA id q7-20020adfea07000000b003140fff4f75sm1408059wrm.17.2023.07.17.23.37.27
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 17 Jul 2023 22:50:24 -0700 (PDT)
-Message-ID: <aa7d96d5-bbd9-0a37-f43b-5c8c62d9a9dc@gmail.com>
-Date:   Mon, 17 Jul 2023 22:50:22 -0700
+        Mon, 17 Jul 2023 23:37:30 -0700 (PDT)
+Message-ID: <ed53e088-f538-3c5e-e870-e07998a09bb0@linaro.org>
+Date:   Tue, 18 Jul 2023 08:37:26 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.13.0
 Subject: Re: [PATCH] docs: move s390 under arch
 Content-Language: en-US
 To:     Costa Shulyupin <costa.shul@redhat.com>,
@@ -92,15 +92,15 @@ To:     Costa Shulyupin <costa.shul@redhat.com>,
         "open list:S390 ARCHITECTURE" <linux-s390@vger.kernel.org>,
         "open list:S390 VFIO-CCW DRIVER" <kvm@vger.kernel.org>
 References: <20230718045550.495428-1-costa.shul@redhat.com>
-From:   Randy Dunlap <rd.dunlab@gmail.com>
+From:   =?UTF-8?Q?Philippe_Mathieu-Daud=c3=a9?= <philmd@linaro.org>
 In-Reply-To: <20230718045550.495428-1-costa.shul@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 7/17/23 21:55, Costa Shulyupin wrote:
+On 18/7/23 06:55, Costa Shulyupin wrote:
 > and fix all in-tree references.
 > 
 > Architecture-specific documentation is being moved into Documentation/arch/
@@ -108,125 +108,50 @@ On 7/17/23 21:55, Costa Shulyupin wrote:
 > the docs hierarchy more closely match the source hierarchy.
 > 
 > Signed-off-by: Costa Shulyupin <costa.shul@redhat.com>
-
-Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
-Thanks.
-
 > ---
->  Documentation/admin-guide/kernel-parameters.txt   | 4 ++--
->  Documentation/arch/index.rst                      | 2 +-
->  Documentation/{ => arch}/s390/3270.ChangeLog      | 0
->  Documentation/{ => arch}/s390/3270.rst            | 4 ++--
->  Documentation/{ => arch}/s390/cds.rst             | 2 +-
->  Documentation/{ => arch}/s390/common_io.rst       | 2 +-
->  Documentation/{ => arch}/s390/config3270.sh       | 0
->  Documentation/{ => arch}/s390/driver-model.rst    | 0
->  Documentation/{ => arch}/s390/features.rst        | 0
->  Documentation/{ => arch}/s390/index.rst           | 0
->  Documentation/{ => arch}/s390/monreader.rst       | 0
->  Documentation/{ => arch}/s390/pci.rst             | 2 +-
->  Documentation/{ => arch}/s390/qeth.rst            | 0
->  Documentation/{ => arch}/s390/s390dbf.rst         | 0
->  Documentation/{ => arch}/s390/text_files.rst      | 0
->  Documentation/{ => arch}/s390/vfio-ap-locking.rst | 0
->  Documentation/{ => arch}/s390/vfio-ap.rst         | 0
->  Documentation/{ => arch}/s390/vfio-ccw.rst        | 2 +-
->  Documentation/{ => arch}/s390/zfcpdump.rst        | 0
->  Documentation/driver-api/s390-drivers.rst         | 4 ++--
->  MAINTAINERS                                       | 8 ++++----
->  arch/s390/Kconfig                                 | 4 ++--
->  arch/s390/include/asm/debug.h                     | 4 ++--
->  drivers/s390/char/zcore.c                         | 2 +-
->  kernel/Kconfig.kexec                              | 2 +-
->  25 files changed, 21 insertions(+), 21 deletions(-)
->  rename Documentation/{ => arch}/s390/3270.ChangeLog (100%)
->  rename Documentation/{ => arch}/s390/3270.rst (99%)
->  rename Documentation/{ => arch}/s390/cds.rst (99%)
->  rename Documentation/{ => arch}/s390/common_io.rst (98%)
->  rename Documentation/{ => arch}/s390/config3270.sh (100%)
->  rename Documentation/{ => arch}/s390/driver-model.rst (100%)
->  rename Documentation/{ => arch}/s390/features.rst (100%)
->  rename Documentation/{ => arch}/s390/index.rst (100%)
->  rename Documentation/{ => arch}/s390/monreader.rst (100%)
->  rename Documentation/{ => arch}/s390/pci.rst (99%)
->  rename Documentation/{ => arch}/s390/qeth.rst (100%)
->  rename Documentation/{ => arch}/s390/s390dbf.rst (100%)
->  rename Documentation/{ => arch}/s390/text_files.rst (100%)
->  rename Documentation/{ => arch}/s390/vfio-ap-locking.rst (100%)
->  rename Documentation/{ => arch}/s390/vfio-ap.rst (100%)
->  rename Documentation/{ => arch}/s390/vfio-ccw.rst (99%)
->  rename Documentation/{ => arch}/s390/zfcpdump.rst (100%)
-> 
+>   Documentation/admin-guide/kernel-parameters.txt   | 4 ++--
+>   Documentation/arch/index.rst                      | 2 +-
+>   Documentation/{ => arch}/s390/3270.ChangeLog      | 0
+>   Documentation/{ => arch}/s390/3270.rst            | 4 ++--
+>   Documentation/{ => arch}/s390/cds.rst             | 2 +-
+>   Documentation/{ => arch}/s390/common_io.rst       | 2 +-
+>   Documentation/{ => arch}/s390/config3270.sh       | 0
+>   Documentation/{ => arch}/s390/driver-model.rst    | 0
+>   Documentation/{ => arch}/s390/features.rst        | 0
+>   Documentation/{ => arch}/s390/index.rst           | 0
+>   Documentation/{ => arch}/s390/monreader.rst       | 0
+>   Documentation/{ => arch}/s390/pci.rst             | 2 +-
+>   Documentation/{ => arch}/s390/qeth.rst            | 0
+>   Documentation/{ => arch}/s390/s390dbf.rst         | 0
+>   Documentation/{ => arch}/s390/text_files.rst      | 0
+>   Documentation/{ => arch}/s390/vfio-ap-locking.rst | 0
+>   Documentation/{ => arch}/s390/vfio-ap.rst         | 0
+>   Documentation/{ => arch}/s390/vfio-ccw.rst        | 2 +-
+>   Documentation/{ => arch}/s390/zfcpdump.rst        | 0
+>   Documentation/driver-api/s390-drivers.rst         | 4 ++--
+>   MAINTAINERS                                       | 8 ++++----
+>   arch/s390/Kconfig                                 | 4 ++--
+>   arch/s390/include/asm/debug.h                     | 4 ++--
+>   drivers/s390/char/zcore.c                         | 2 +-
+>   kernel/Kconfig.kexec                              | 2 +-
+>   25 files changed, 21 insertions(+), 21 deletions(-)
+>   rename Documentation/{ => arch}/s390/3270.ChangeLog (100%)
+>   rename Documentation/{ => arch}/s390/3270.rst (99%)
+>   rename Documentation/{ => arch}/s390/cds.rst (99%)
+>   rename Documentation/{ => arch}/s390/common_io.rst (98%)
+>   rename Documentation/{ => arch}/s390/config3270.sh (100%)
+>   rename Documentation/{ => arch}/s390/driver-model.rst (100%)
+>   rename Documentation/{ => arch}/s390/features.rst (100%)
+>   rename Documentation/{ => arch}/s390/index.rst (100%)
+>   rename Documentation/{ => arch}/s390/monreader.rst (100%)
+>   rename Documentation/{ => arch}/s390/pci.rst (99%)
+>   rename Documentation/{ => arch}/s390/qeth.rst (100%)
+>   rename Documentation/{ => arch}/s390/s390dbf.rst (100%)
+>   rename Documentation/{ => arch}/s390/text_files.rst (100%)
+>   rename Documentation/{ => arch}/s390/vfio-ap-locking.rst (100%)
+>   rename Documentation/{ => arch}/s390/vfio-ap.rst (100%)
+>   rename Documentation/{ => arch}/s390/vfio-ccw.rst (99%)
+>   rename Documentation/{ => arch}/s390/zfcpdump.rst (100%)
 
-> diff --git a/Documentation/s390/3270.ChangeLog b/Documentation/arch/s390/3270.ChangeLog
-> similarity index 100%
-> rename from Documentation/s390/3270.ChangeLog
-> rename to Documentation/arch/s390/3270.ChangeLog
-> diff --git a/Documentation/s390/3270.rst b/Documentation/arch/s390/3270.rst
-> similarity index 99%
-> rename from Documentation/s390/3270.rst
-> rename to Documentation/arch/s390/3270.rst
+Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
 
-> diff --git a/Documentation/s390/cds.rst b/Documentation/arch/s390/cds.rst
-> similarity index 99%
-> rename from Documentation/s390/cds.rst
-> rename to Documentation/arch/s390/cds.rst
-
-> diff --git a/Documentation/s390/common_io.rst b/Documentation/arch/s390/common_io.rst
-> similarity index 98%
-> rename from Documentation/s390/common_io.rst
-> rename to Documentation/arch/s390/common_io.rst
-
-> diff --git a/Documentation/s390/config3270.sh b/Documentation/arch/s390/config3270.sh
-> similarity index 100%
-> rename from Documentation/s390/config3270.sh
-> rename to Documentation/arch/s390/config3270.sh
-> diff --git a/Documentation/s390/driver-model.rst b/Documentation/arch/s390/driver-model.rst
-> similarity index 100%
-> rename from Documentation/s390/driver-model.rst
-> rename to Documentation/arch/s390/driver-model.rst
-> diff --git a/Documentation/s390/features.rst b/Documentation/arch/s390/features.rst
-> similarity index 100%
-> rename from Documentation/s390/features.rst
-> rename to Documentation/arch/s390/features.rst
-> diff --git a/Documentation/s390/index.rst b/Documentation/arch/s390/index.rst
-> similarity index 100%
-> rename from Documentation/s390/index.rst
-> rename to Documentation/arch/s390/index.rst
-> diff --git a/Documentation/s390/monreader.rst b/Documentation/arch/s390/monreader.rst
-> similarity index 100%
-> rename from Documentation/s390/monreader.rst
-> rename to Documentation/arch/s390/monreader.rst
-> diff --git a/Documentation/s390/pci.rst b/Documentation/arch/s390/pci.rst
-> similarity index 99%
-> rename from Documentation/s390/pci.rst
-> rename to Documentation/arch/s390/pci.rst
-
-> diff --git a/Documentation/s390/qeth.rst b/Documentation/arch/s390/qeth.rst
-> similarity index 100%
-> rename from Documentation/s390/qeth.rst
-> rename to Documentation/arch/s390/qeth.rst
-> diff --git a/Documentation/s390/s390dbf.rst b/Documentation/arch/s390/s390dbf.rst
-> similarity index 100%
-> rename from Documentation/s390/s390dbf.rst
-> rename to Documentation/arch/s390/s390dbf.rst
-> diff --git a/Documentation/s390/text_files.rst b/Documentation/arch/s390/text_files.rst
-> similarity index 100%
-> rename from Documentation/s390/text_files.rst
-> rename to Documentation/arch/s390/text_files.rst
-> diff --git a/Documentation/s390/vfio-ap-locking.rst b/Documentation/arch/s390/vfio-ap-locking.rst
-> similarity index 100%
-> rename from Documentation/s390/vfio-ap-locking.rst
-> rename to Documentation/arch/s390/vfio-ap-locking.rst
-> diff --git a/Documentation/s390/vfio-ap.rst b/Documentation/arch/s390/vfio-ap.rst
-> similarity index 100%
-> rename from Documentation/s390/vfio-ap.rst
-> rename to Documentation/arch/s390/vfio-ap.rst
-> diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/arch/s390/vfio-ccw.rst
-> similarity index 99%
-> rename from Documentation/s390/vfio-ccw.rst
-> rename to Documentation/arch/s390/vfio-ccw.rst
-
-
--- 
-~Randy
