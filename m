@@ -2,470 +2,164 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23EFAEB64DD
-	for <linux-s390@archiver.kernel.org>; Tue, 18 Jul 2023 14:03:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3A08EB64DC
+	for <linux-s390@archiver.kernel.org>; Tue, 18 Jul 2023 15:56:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232769AbjGROD4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 Jul 2023 10:03:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59216 "EHLO
+        id S233810AbjGRP4t (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 Jul 2023 11:56:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233234AbjGROCw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Jul 2023 10:02:52 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B614C1712;
-        Tue, 18 Jul 2023 07:02:06 -0700 (PDT)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36IDdlaQ031613;
-        Tue, 18 Jul 2023 13:58:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=S+/+EWduJibm4taM1UCZJc7AYGUWSxbltsJpEmiFteA=;
- b=RMw/fVWkLvDia/+ld2AJPOfTvPEeHK26D9PvC+JuZhAV5zpXefqBfuzQ+mcZe1odeMZp
- uc2ud3nmiWA8NEHMFHR7ZV22U+gQW9U0GCxkH44a+4ke6j8YJBmX9vZ1xU0F2cZ3MnK/
- oNr6nq8NAFEBsS725Q9tGFn2fYlKfdOrM1yFBNUWJYXTfWyAERTSrVB/t6B+15qxVmbH
- Mja2SV/RWISjNIZbuJ6cLM0ze6BkZHqnuMaqrv09DZvEMC9NGNXT8k2aa0cWsX6+mCL/
- NbWY7S7STGpZFqj4GqWf8Z8bCqqB92aAiKu3vQnTuDcyw2I8PnDRSJufdnNCP/coFTj4 kQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rwutn0jnc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jul 2023 13:58:54 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36IDeL1T032713;
-        Tue, 18 Jul 2023 13:58:53 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rwutn0jn0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jul 2023 13:58:53 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36I6Pq8R017218;
-        Tue, 18 Jul 2023 13:58:52 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3rv5srp3kj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jul 2023 13:58:52 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-        by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36IDwpL064815384
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 Jul 2023 13:58:51 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 434E558061;
-        Tue, 18 Jul 2023 13:58:51 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D77675805F;
-        Tue, 18 Jul 2023 13:58:47 +0000 (GMT)
-Received: from [9.61.0.228] (unknown [9.61.0.228])
-        by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 18 Jul 2023 13:58:47 +0000 (GMT)
-Message-ID: <e59eafd4-90cb-958f-ce31-d4658e8cdde4@linux.ibm.com>
-Date:   Tue, 18 Jul 2023 09:58:47 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: [PATCH] docs: move s390 under arch
-To:     Costa Shulyupin <costa.shul@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        with ESMTP id S233791AbjGRP4p (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Jul 2023 11:56:45 -0400
+Received: from mail-qt1-x835.google.com (mail-qt1-x835.google.com [IPv6:2607:f8b0:4864:20::835])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF50E19A8
+        for <linux-s390@vger.kernel.org>; Tue, 18 Jul 2023 08:56:40 -0700 (PDT)
+Received: by mail-qt1-x835.google.com with SMTP id d75a77b69052e-403f65a3f8cso7661641cf.2
+        for <linux-s390@vger.kernel.org>; Tue, 18 Jul 2023 08:56:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1689695800; x=1692287800;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Tjh+qVHNBsaCt+fpZytXbv4JtN2Kf+QfiKBiC+OQp3c=;
+        b=bYsTsBY1ioUL9k8drjTPCTw/fEJ0EAlGX5g4owJLPMPxN2CHLKUwbHRdsGU8yNpkgq
+         tSJhCUQojCe7iZMsDT/aY34J1oz2QHRzCjLM+KqEBEo9M8BD2KOp45IRPvgTMkckJ6dq
+         H9fFQEgiHBZaevHiGZSqEfXqcoEtLjezHUCteBqtpUndGthYRfcrzEkhL4CGHaIFAcmx
+         6wdKboUdDaPeOVdQT0aOEr8C1+gySsRWrc1UqrjcLLXuhZDet2FHUgbuPzKGfDMScL/V
+         K78x7SFpD7MaWzPqAIp0HWYQyARw7uG7tneLlNjtBlR/Fv5UIeG6Vm/K9G6rR6HJEl7q
+         8oNQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1689695800; x=1692287800;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Tjh+qVHNBsaCt+fpZytXbv4JtN2Kf+QfiKBiC+OQp3c=;
+        b=T+QTGV5wdVb6pkCe+Hoty5LSRc5tUMU2eS1974rBNipeoDKBCVBHQX7Jz280OeNgjY
+         savBMqLFEmWZs3tCUwv3sO6Wtx110NmstE2iGYIB584fOXkEooS8/YulvOztLKHcMcjb
+         Yo7akCpfc9/N/NU7P2RYb4o8Vcn85U9FN8vXK+VbkgIpueSHo6u6GT9RoEDca0+8lIaa
+         A1v4/GSO5KChENNSTu4xpSXyV6IAiQRN4cisWahqw6bKPTji08/fSdjBXnCwYrwTHUDj
+         ygt2ZmcPMEjD18vK2CRcSkB9LeaXYxUdkEZ1JxutmaVtFJwLfhmQhB8keXIf5FGEO2uM
+         1wfQ==
+X-Gm-Message-State: ABy/qLboRwwc1vTzzgEn+hYu75LFcMF8NuDAGDEGeVBAvIbfme2Ag0zW
+        a3wIivDI3luwIMEBFrbEmyKWLg==
+X-Google-Smtp-Source: APBJJlFA9677r6PhZxjwKlQ1fKWxhiNMVqP6N1YqyjTADbRS7wwnXs7xld1btAoYMOwt7mM3Vw+c9w==
+X-Received: by 2002:ac8:7dd0:0:b0:403:a814:ef4d with SMTP id c16-20020ac87dd0000000b00403a814ef4dmr21293071qte.49.1689695800050;
+        Tue, 18 Jul 2023 08:56:40 -0700 (PDT)
+Received: from ziepe.ca ([206.223.160.26])
+        by smtp.gmail.com with ESMTPSA id s21-20020ac87595000000b003e635f80e72sm727847qtq.48.2023.07.18.08.56.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Jul 2023 08:56:39 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1qLn42-002YJT-5I;
+        Tue, 18 Jul 2023 12:56:38 -0300
+Date:   Tue, 18 Jul 2023 12:56:38 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Alex Williamson <alex.williamson@redhat.com>
+Cc:     Grzegorz Jaszczyk <jaz@semihalf.com>,
+        Christian Brauner <brauner@kernel.org>,
+        linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
+        linux-usb@vger.kernel.org, Matthew Rosato <mjrosato@linux.ibm.com>,
+        Paul Durrant <paul@xen.org>, Tom Rix <trix@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        dri-devel@lists.freedesktop.org, Michal Hocko <mhocko@kernel.org>,
+        linux-mm@kvack.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Diana Craciun <diana.craciun@oss.nxp.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Fei Li <fei1.li@intel.com>, x86@kernel.org,
+        Roman Gushchin <roman.gushchin@linux.dev>,
         Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        intel-gfx@lists.freedesktop.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-fpga@vger.kernel.org, Zhi Wang <zhi.a.wang@intel.com>,
+        Wu Hao <hao.wu@intel.com>, Jason Herne <jjherne@linux.ibm.com>,
         Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Kim Phillips <kim.phillips@amd.com>,
-        Yantengsi <siyanteng@loongson.cn>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Mikhail Zaslonko <zaslonko@linux.ibm.com>,
-        Eric DeVolder <eric.devolder@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "open list:S390 ARCHITECTURE" <linux-s390@vger.kernel.org>,
-        "open list:S390 VFIO-CCW DRIVER" <kvm@vger.kernel.org>
-References: <20230718045550.495428-1-costa.shul@redhat.com>
-Content-Language: en-US
-From:   Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20230718045550.495428-1-costa.shul@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: mVgaRJV7AkeBIZUPgZbB8pBMe_C37WOe
-X-Proofpoint-ORIG-GUID: bE6VXwX5UOcJVymHfb12oOILadcLMRYG
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Arnd Bergmann <arnd@arndb.de>, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        linuxppc-dev@lists.ozlabs.org, Eric Auger <eric.auger@redhat.com>,
+        Borislav Petkov <bp@alien8.de>, kvm@vger.kernel.org,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>, cgroups@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        virtualization@lists.linux-foundation.org,
+        intel-gvt-dev@lists.freedesktop.org, io-uring@vger.kernel.org,
+        netdev@vger.kernel.org, Tony Krowiak <akrowiak@linux.ibm.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Oded Gabbay <ogabbay@kernel.org>,
+        Muchun Song <muchun.song@linux.dev>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
+        Benjamin LaHaise <bcrl@kvack.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Frederic Barrat <fbarrat@linux.ibm.com>,
+        Moritz Fischer <mdf@kernel.org>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Xu Yilun <yilun.xu@intel.com>,
+        Dominik Behr <dbehr@chromium.org>,
+        Marcin Wojtas <mw@semihalf.com>
+Subject: Re: [PATCH 0/2] eventfd: simplify signal helpers
+Message-ID: <ZLa2NmwexoxPkS9a@ziepe.ca>
+References: <20230630155936.3015595-1-jaz@semihalf.com>
+ <20230714-gauner-unsolidarisch-fc51f96c61e8@brauner>
+ <CAH76GKPF4BjJLrzLBW8k12ATaAGADeMYc2NQ9+j0KgRa0pomUw@mail.gmail.com>
+ <20230717130831.0f18381a.alex.williamson@redhat.com>
+ <ZLW8wEzkhBxd0O0L@ziepe.ca>
+ <20230717165203.4ee6b1e6.alex.williamson@redhat.com>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-18_10,2023-07-18_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
- mlxlogscore=999 suspectscore=0 spamscore=0 lowpriorityscore=0 adultscore=0
- priorityscore=1501 clxscore=1011 mlxscore=0 impostorscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2306200000
- definitions=main-2307180124
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230717165203.4ee6b1e6.alex.williamson@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-for arch/s390/vfio-ap*
-Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
+On Mon, Jul 17, 2023 at 04:52:03PM -0600, Alex Williamson wrote:
+> On Mon, 17 Jul 2023 19:12:16 -0300
+> Jason Gunthorpe <jgg@ziepe.ca> wrote:
+> 
+> > On Mon, Jul 17, 2023 at 01:08:31PM -0600, Alex Williamson wrote:
+> > 
+> > > What would that mechanism be?  We've been iterating on getting the
+> > > serialization and buffering correct, but I don't know of another means
+> > > that combines the notification with a value, so we'd likely end up with
+> > > an eventfd only for notification and a separate ring buffer for
+> > > notification values.  
+> > 
+> > All FDs do this. You just have to make a FD with custom
+> > file_operations that does what this wants. The uAPI shouldn't be able
+> > to tell if the FD is backing it with an eventfd or otherwise. Have the
+> > kernel return the FD instead of accepting it. Follow the basic design
+> > of eg mlx5vf_save_fops
+> 
+> Sure, userspace could poll on any fd and read a value from it, but at
+> that point we're essentially duplicating a lot of what eventfd provides
+> for a minor(?) semantic difference over how the counter value is
+> interpreted.  Using an actual eventfd allows the ACPI notification to
+> work as just another interrupt index within the existing vfio IRQ
+> uAPI.
 
-On 7/18/23 12:55 AM, Costa Shulyupin wrote:
-> and fix all in-tree references.
-> 
-> Architecture-specific documentation is being moved into Documentation/arch/
-> as a way of cleaning up the top-level documentation directory and making
-> the docs hierarchy more closely match the source hierarchy.
-> 
-> Signed-off-by: Costa Shulyupin <costa.shul@redhat.com>
-> ---
->   Documentation/admin-guide/kernel-parameters.txt   | 4 ++--
->   Documentation/arch/index.rst                      | 2 +-
->   Documentation/{ => arch}/s390/3270.ChangeLog      | 0
->   Documentation/{ => arch}/s390/3270.rst            | 4 ++--
->   Documentation/{ => arch}/s390/cds.rst             | 2 +-
->   Documentation/{ => arch}/s390/common_io.rst       | 2 +-
->   Documentation/{ => arch}/s390/config3270.sh       | 0
->   Documentation/{ => arch}/s390/driver-model.rst    | 0
->   Documentation/{ => arch}/s390/features.rst        | 0
->   Documentation/{ => arch}/s390/index.rst           | 0
->   Documentation/{ => arch}/s390/monreader.rst       | 0
->   Documentation/{ => arch}/s390/pci.rst             | 2 +-
->   Documentation/{ => arch}/s390/qeth.rst            | 0
->   Documentation/{ => arch}/s390/s390dbf.rst         | 0
->   Documentation/{ => arch}/s390/text_files.rst      | 0
->   Documentation/{ => arch}/s390/vfio-ap-locking.rst | 0
->   Documentation/{ => arch}/s390/vfio-ap.rst         | 0
->   Documentation/{ => arch}/s390/vfio-ccw.rst        | 2 +-
->   Documentation/{ => arch}/s390/zfcpdump.rst        | 0
->   Documentation/driver-api/s390-drivers.rst         | 4 ++--
->   MAINTAINERS                                       | 8 ++++----
->   arch/s390/Kconfig                                 | 4 ++--
->   arch/s390/include/asm/debug.h                     | 4 ++--
->   drivers/s390/char/zcore.c                         | 2 +-
->   kernel/Kconfig.kexec                              | 2 +-
->   25 files changed, 21 insertions(+), 21 deletions(-)
->   rename Documentation/{ => arch}/s390/3270.ChangeLog (100%)
->   rename Documentation/{ => arch}/s390/3270.rst (99%)
->   rename Documentation/{ => arch}/s390/cds.rst (99%)
->   rename Documentation/{ => arch}/s390/common_io.rst (98%)
->   rename Documentation/{ => arch}/s390/config3270.sh (100%)
->   rename Documentation/{ => arch}/s390/driver-model.rst (100%)
->   rename Documentation/{ => arch}/s390/features.rst (100%)
->   rename Documentation/{ => arch}/s390/index.rst (100%)
->   rename Documentation/{ => arch}/s390/monreader.rst (100%)
->   rename Documentation/{ => arch}/s390/pci.rst (99%)
->   rename Documentation/{ => arch}/s390/qeth.rst (100%)
->   rename Documentation/{ => arch}/s390/s390dbf.rst (100%)
->   rename Documentation/{ => arch}/s390/text_files.rst (100%)
->   rename Documentation/{ => arch}/s390/vfio-ap-locking.rst (100%)
->   rename Documentation/{ => arch}/s390/vfio-ap.rst (100%)
->   rename Documentation/{ => arch}/s390/vfio-ccw.rst (99%)
->   rename Documentation/{ => arch}/s390/zfcpdump.rst (100%)
-> 
-> diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-> index a921507e7c32..aa8389262e31 100644
-> --- a/Documentation/admin-guide/kernel-parameters.txt
-> +++ b/Documentation/admin-guide/kernel-parameters.txt
-> @@ -553,7 +553,7 @@
->   			others).
->   
->   	ccw_timeout_log	[S390]
-> -			See Documentation/s390/common_io.rst for details.
-> +			See Documentation/arch/s390/common_io.rst for details.
->   
->   	cgroup_disable=	[KNL] Disable a particular controller or optional feature
->   			Format: {name of the controller(s) or feature(s) to disable}
-> @@ -598,7 +598,7 @@
->   			Setting checkreqprot to 1 is deprecated.
->   
->   	cio_ignore=	[S390]
-> -			See Documentation/s390/common_io.rst for details.
-> +			See Documentation/arch/s390/common_io.rst for details.
->   
->   	clearcpuid=X[,X...] [X86]
->   			Disable CPUID feature X for the kernel. See
-> diff --git a/Documentation/arch/index.rst b/Documentation/arch/index.rst
-> index 4b6b1beebad6..d39504fae12c 100644
-> --- a/Documentation/arch/index.rst
-> +++ b/Documentation/arch/index.rst
-> @@ -21,7 +21,7 @@ implementation.
->      parisc/index
->      ../powerpc/index
->      ../riscv/index
-> -   ../s390/index
-> +   s390/index
->      sh/index
->      sparc/index
->      x86/index
-> diff --git a/Documentation/s390/3270.ChangeLog b/Documentation/arch/s390/3270.ChangeLog
-> similarity index 100%
-> rename from Documentation/s390/3270.ChangeLog
-> rename to Documentation/arch/s390/3270.ChangeLog
-> diff --git a/Documentation/s390/3270.rst b/Documentation/arch/s390/3270.rst
-> similarity index 99%
-> rename from Documentation/s390/3270.rst
-> rename to Documentation/arch/s390/3270.rst
-> index e09e77954238..467eace91473 100644
-> --- a/Documentation/s390/3270.rst
-> +++ b/Documentation/arch/s390/3270.rst
-> @@ -116,7 +116,7 @@ Here are the installation steps in detail:
->   	as a 3270, not a 3215.
->   
->   	5. Run the 3270 configuration script config3270.  It is
-> -	distributed in this same directory, Documentation/s390, as
-> +	distributed in this same directory, Documentation/arch/s390, as
->   	config3270.sh.  Inspect the output script it produces,
->   	/tmp/mkdev3270, and then run that script.  This will create the
->   	necessary character special device files and make the necessary
-> @@ -125,7 +125,7 @@ Here are the installation steps in detail:
->   	Then notify /sbin/init that /etc/inittab has changed, by issuing
->   	the telinit command with the q operand::
->   
-> -		cd Documentation/s390
-> +		cd Documentation/arch/s390
->   		sh config3270.sh
->   		sh /tmp/mkdev3270
->   		telinit q
-> diff --git a/Documentation/s390/cds.rst b/Documentation/arch/s390/cds.rst
-> similarity index 99%
-> rename from Documentation/s390/cds.rst
-> rename to Documentation/arch/s390/cds.rst
-> index 7006d8209d2e..bcad2a14244a 100644
-> --- a/Documentation/s390/cds.rst
-> +++ b/Documentation/arch/s390/cds.rst
-> @@ -39,7 +39,7 @@ some of them are ESA/390 platform specific.
->   
->   Note:
->     In order to write a driver for S/390, you also need to look into the interface
-> -  described in Documentation/s390/driver-model.rst.
-> +  described in Documentation/arch/s390/driver-model.rst.
->   
->   Note for porting drivers from 2.4:
->   
-> diff --git a/Documentation/s390/common_io.rst b/Documentation/arch/s390/common_io.rst
-> similarity index 98%
-> rename from Documentation/s390/common_io.rst
-> rename to Documentation/arch/s390/common_io.rst
-> index 846485681ce7..6dcb40cb7145 100644
-> --- a/Documentation/s390/common_io.rst
-> +++ b/Documentation/arch/s390/common_io.rst
-> @@ -136,5 +136,5 @@ debugfs entries
->   
->     The level of logging can be changed to be more or less verbose by piping to
->     /sys/kernel/debug/s390dbf/cio_*/level a number between 0 and 6; see the
-> -  documentation on the S/390 debug feature (Documentation/s390/s390dbf.rst)
-> +  documentation on the S/390 debug feature (Documentation/arch/s390/s390dbf.rst)
->     for details.
-> diff --git a/Documentation/s390/config3270.sh b/Documentation/arch/s390/config3270.sh
-> similarity index 100%
-> rename from Documentation/s390/config3270.sh
-> rename to Documentation/arch/s390/config3270.sh
-> diff --git a/Documentation/s390/driver-model.rst b/Documentation/arch/s390/driver-model.rst
-> similarity index 100%
-> rename from Documentation/s390/driver-model.rst
-> rename to Documentation/arch/s390/driver-model.rst
-> diff --git a/Documentation/s390/features.rst b/Documentation/arch/s390/features.rst
-> similarity index 100%
-> rename from Documentation/s390/features.rst
-> rename to Documentation/arch/s390/features.rst
-> diff --git a/Documentation/s390/index.rst b/Documentation/arch/s390/index.rst
-> similarity index 100%
-> rename from Documentation/s390/index.rst
-> rename to Documentation/arch/s390/index.rst
-> diff --git a/Documentation/s390/monreader.rst b/Documentation/arch/s390/monreader.rst
-> similarity index 100%
-> rename from Documentation/s390/monreader.rst
-> rename to Documentation/arch/s390/monreader.rst
-> diff --git a/Documentation/s390/pci.rst b/Documentation/arch/s390/pci.rst
-> similarity index 99%
-> rename from Documentation/s390/pci.rst
-> rename to Documentation/arch/s390/pci.rst
-> index a1a72a47dc96..d5755484d8e7 100644
-> --- a/Documentation/s390/pci.rst
-> +++ b/Documentation/arch/s390/pci.rst
-> @@ -40,7 +40,7 @@ For example:
->     Change the level of logging to be more or less verbose by piping
->     a number between 0 and 6 to  /sys/kernel/debug/s390dbf/pci_*/level. For
->     details, see the documentation on the S/390 debug feature at
-> -  Documentation/s390/s390dbf.rst.
-> +  Documentation/arch/s390/s390dbf.rst.
->   
->   Sysfs entries
->   =============
-> diff --git a/Documentation/s390/qeth.rst b/Documentation/arch/s390/qeth.rst
-> similarity index 100%
-> rename from Documentation/s390/qeth.rst
-> rename to Documentation/arch/s390/qeth.rst
-> diff --git a/Documentation/s390/s390dbf.rst b/Documentation/arch/s390/s390dbf.rst
-> similarity index 100%
-> rename from Documentation/s390/s390dbf.rst
-> rename to Documentation/arch/s390/s390dbf.rst
-> diff --git a/Documentation/s390/text_files.rst b/Documentation/arch/s390/text_files.rst
-> similarity index 100%
-> rename from Documentation/s390/text_files.rst
-> rename to Documentation/arch/s390/text_files.rst
-> diff --git a/Documentation/s390/vfio-ap-locking.rst b/Documentation/arch/s390/vfio-ap-locking.rst
-> similarity index 100%
-> rename from Documentation/s390/vfio-ap-locking.rst
-> rename to Documentation/arch/s390/vfio-ap-locking.rst
-> diff --git a/Documentation/s390/vfio-ap.rst b/Documentation/arch/s390/vfio-ap.rst
-> similarity index 100%
-> rename from Documentation/s390/vfio-ap.rst
-> rename to Documentation/arch/s390/vfio-ap.rst
-> diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/arch/s390/vfio-ccw.rst
-> similarity index 99%
-> rename from Documentation/s390/vfio-ccw.rst
-> rename to Documentation/arch/s390/vfio-ccw.rst
-> index 37026fa18179..42960b7b0d70 100644
-> --- a/Documentation/s390/vfio-ccw.rst
-> +++ b/Documentation/arch/s390/vfio-ccw.rst
-> @@ -440,6 +440,6 @@ Reference
->   1. ESA/s390 Principles of Operation manual (IBM Form. No. SA22-7832)
->   2. ESA/390 Common I/O Device Commands manual (IBM Form. No. SA22-7204)
->   3. https://en.wikipedia.org/wiki/Channel_I/O
-> -4. Documentation/s390/cds.rst
-> +4. Documentation/arch/s390/cds.rst
->   5. Documentation/driver-api/vfio.rst
->   6. Documentation/driver-api/vfio-mediated-device.rst
-> diff --git a/Documentation/s390/zfcpdump.rst b/Documentation/arch/s390/zfcpdump.rst
-> similarity index 100%
-> rename from Documentation/s390/zfcpdump.rst
-> rename to Documentation/arch/s390/zfcpdump.rst
-> diff --git a/Documentation/driver-api/s390-drivers.rst b/Documentation/driver-api/s390-drivers.rst
-> index 5158577bc29b..8c0845c4eee7 100644
-> --- a/Documentation/driver-api/s390-drivers.rst
-> +++ b/Documentation/driver-api/s390-drivers.rst
-> @@ -27,7 +27,7 @@ not strictly considered I/O devices. They are considered here as well,
->   although they are not the focus of this document.
->   
->   Some additional information can also be found in the kernel source under
-> -Documentation/s390/driver-model.rst.
-> +Documentation/arch/s390/driver-model.rst.
->   
->   The css bus
->   ===========
-> @@ -38,7 +38,7 @@ into several categories:
->   * Standard I/O subchannels, for use by the system. They have a child
->     device on the ccw bus and are described below.
->   * I/O subchannels bound to the vfio-ccw driver. See
-> -  Documentation/s390/vfio-ccw.rst.
-> +  Documentation/arch/s390/vfio-ccw.rst.
->   * Message subchannels. No Linux driver currently exists.
->   * CHSC subchannels (at most one). The chsc subchannel driver can be used
->     to send asynchronous chsc commands.
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index b68512f1b65f..2649dffe9f46 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -18642,7 +18642,7 @@ L:	linux-s390@vger.kernel.org
->   S:	Supported
->   T:	git git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git
->   F:	Documentation/driver-api/s390-drivers.rst
-> -F:	Documentation/s390/
-> +F:	Documentation/arch/s390/
->   F:	arch/s390/
->   F:	drivers/s390/
->   F:	drivers/watchdog/diag288_wdt.c
-> @@ -18703,7 +18703,7 @@ M:	Niklas Schnelle <schnelle@linux.ibm.com>
->   M:	Gerald Schaefer <gerald.schaefer@linux.ibm.com>
->   L:	linux-s390@vger.kernel.org
->   S:	Supported
-> -F:	Documentation/s390/pci.rst
-> +F:	Documentation/arch/s390/pci.rst
->   F:	arch/s390/pci/
->   F:	drivers/pci/hotplug/s390_pci_hpc.c
->   
-> @@ -18720,7 +18720,7 @@ M:	Halil Pasic <pasic@linux.ibm.com>
->   M:	Jason Herne <jjherne@linux.ibm.com>
->   L:	linux-s390@vger.kernel.org
->   S:	Supported
-> -F:	Documentation/s390/vfio-ap*
-> +F:	Documentation/arch/s390/vfio-ap*
->   F:	drivers/s390/crypto/vfio_ap*
->   
->   S390 VFIO-CCW DRIVER
-> @@ -18730,7 +18730,7 @@ R:	Halil Pasic <pasic@linux.ibm.com>
->   L:	linux-s390@vger.kernel.org
->   L:	kvm@vger.kernel.org
->   S:	Supported
-> -F:	Documentation/s390/vfio-ccw.rst
-> +F:	Documentation/arch/s390/vfio-ccw.rst
->   F:	drivers/s390/cio/vfio_ccw*
->   F:	include/uapi/linux/vfio_ccw.h
->   
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index 736548e4163e..286c1f9fb37c 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -264,9 +264,9 @@ config ARCH_SUPPORTS_KEXEC_PURGATORY
->   config ARCH_SUPPORTS_CRASH_DUMP
->   	def_bool y
->   	help
-> -	  Refer to <file:Documentation/s390/zfcpdump.rst> for more details on this.
-> +	  Refer to <file:Documentation/arch/s390/zfcpdump.rst> for more details on this.
->   	  This option also enables s390 zfcpdump.
-> -	  See also <file:Documentation/s390/zfcpdump.rst>
-> +	  See also <file:Documentation/arch/s390/zfcpdump.rst>
->   
->   menu "Processor type and features"
->   
-> diff --git a/arch/s390/include/asm/debug.h b/arch/s390/include/asm/debug.h
-> index ac665b9670c5..ccd4e148b5ed 100644
-> --- a/arch/s390/include/asm/debug.h
-> +++ b/arch/s390/include/asm/debug.h
-> @@ -222,7 +222,7 @@ static inline debug_entry_t *debug_text_event(debug_info_t *id, int level,
->   
->   /*
->    * IMPORTANT: Use "%s" in sprintf format strings with care! Only pointers are
-> - * stored in the s390dbf. See Documentation/s390/s390dbf.rst for more details!
-> + * stored in the s390dbf. See Documentation/arch/s390/s390dbf.rst for more details!
->    */
->   extern debug_entry_t *
->   __debug_sprintf_event(debug_info_t *id, int level, char *string, ...)
-> @@ -350,7 +350,7 @@ static inline debug_entry_t *debug_text_exception(debug_info_t *id, int level,
->   
->   /*
->    * IMPORTANT: Use "%s" in sprintf format strings with care! Only pointers are
-> - * stored in the s390dbf. See Documentation/s390/s390dbf.rst for more details!
-> + * stored in the s390dbf. See Documentation/arch/s390/s390dbf.rst for more details!
->    */
->   extern debug_entry_t *
->   __debug_sprintf_exception(debug_info_t *id, int level, char *string, ...)
-> diff --git a/drivers/s390/char/zcore.c b/drivers/s390/char/zcore.c
-> index 942c73a11ca3..bc3be0330f1d 100644
-> --- a/drivers/s390/char/zcore.c
-> +++ b/drivers/s390/char/zcore.c
-> @@ -3,7 +3,7 @@
->    * zcore module to export memory content and register sets for creating system
->    * dumps on SCSI/NVMe disks (zfcp/nvme dump).
->    *
-> - * For more information please refer to Documentation/s390/zfcpdump.rst
-> + * For more information please refer to Documentation/arch/s390/zfcpdump.rst
->    *
->    * Copyright IBM Corp. 2003, 2008
->    * Author(s): Michael Holzheu
-> diff --git a/kernel/Kconfig.kexec b/kernel/Kconfig.kexec
-> index ff72e45cfaef..fa45726d5619 100644
-> --- a/kernel/Kconfig.kexec
-> +++ b/kernel/Kconfig.kexec
-> @@ -111,6 +111,6 @@ config CRASH_DUMP
->   	  For more details see Documentation/admin-guide/kdump/kdump.rst
->   
->   	  For s390, this option also enables zfcpdump.
-> -	  See also <file:Documentation/s390/zfcpdump.rst>
-> +	  See also <file:Documentation/arch/s390/zfcpdump.rst>
->   
->   endmenu
+Yes, duplicated, sort of, whatever the "ack" is to allow pushing a new
+value can be revised to run as part of the read.
+
+But I don't really view it as a minor difference. eventfd is a
+counter. It should not be abused otherwise, even if it can be made to
+work.
+
+It really isn't an IRQ if it is pushing an async message w/data.
+
+Jason
