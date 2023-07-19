@@ -2,57 +2,71 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FC6CC0015E
-	for <linux-s390@archiver.kernel.org>; Wed, 19 Jul 2023 05:04:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12F6FEB64DA
+	for <linux-s390@archiver.kernel.org>; Wed, 19 Jul 2023 05:26:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229765AbjGSFEY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 19 Jul 2023 01:04:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47832 "EHLO
+        id S229539AbjGSF02 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 19 Jul 2023 01:26:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229688AbjGSFEX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 Jul 2023 01:04:23 -0400
-Received: from mail-yw1-x112f.google.com (mail-yw1-x112f.google.com [IPv6:2607:f8b0:4864:20::112f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80F6F1BF2
-        for <linux-s390@vger.kernel.org>; Tue, 18 Jul 2023 22:04:21 -0700 (PDT)
-Received: by mail-yw1-x112f.google.com with SMTP id 00721157ae682-5835388d632so16106867b3.3
-        for <linux-s390@vger.kernel.org>; Tue, 18 Jul 2023 22:04:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1689743060; x=1692335060;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=f4gbnMS0W6E9Awn5g41KlL6GZi3HN5/R/yFQL1nQXJg=;
-        b=bsfPCapysjnAZODvh7VQx88fm7IvMM72XC0oEOupCXke50rzUpxBzJjYQpi6er51fb
-         D4bBL8Bh1D+h6gJQCrL3ilyuQNC5vtgJJbqXXVdUX3wGIHEmUxC4mo1pR0Z+lwJSnYwK
-         meVLK3418dgqsYosj9vCSuNEJNkdRzYHJy0dpVlfsGSOV8HIHO4e1UNyCrc3kkrhsuYl
-         F7Nsl4WNKMNEHKdGgWak0LJ4fwxrpogQk/dx/JNial3Rw8ApbYcti+VqcZ3cqR3TmrjR
-         HLyZAxKWibz4mBf1B911Dg5ToxkxCT+TuKgSTuRLqJQNqiyCWpJGUeH03fYVv65KsNEv
-         GKdQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689743060; x=1692335060;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=f4gbnMS0W6E9Awn5g41KlL6GZi3HN5/R/yFQL1nQXJg=;
-        b=EqVToGNUQjqRMceSL9kxniQVBv1KHW9+VFAlp0lHudtsvZIzmbMPDGghU18j2RNG63
-         Ii0XFIXszZFvOtKVy5uCYOEep9KdyWUNaY3yrHBEUUFWszzMgOXQdXq6ASSf9s4zIKr3
-         Mc1ipwOL7vzqAr3v8ENBUSkrqwVGsDfbgER6EZCds7+xGobX2o3HWL5/SI/91tJqv4PL
-         bxPT1t9BI306ruvGd0WBEWfVzYusCJxW4CMMGbyCi+SgohrRFKySHvt/30bCgDTQ83zz
-         Jh2yHbq+jOzaE/q1FS48Goy99ZsDc8teKVf8F6o1Gvd0AL5+7CyPlFbvvqo/7W6Iy2Yn
-         /+gQ==
-X-Gm-Message-State: ABy/qLabIPFEUiO595zQr737TLTlERfdykxMJ1odRPvmSet9xuD+sSxd
-        ACtlnYP4o9JWQaJPOwYlO4O2rQ==
-X-Google-Smtp-Source: APBJJlFfOyYeGiVCuczZwoUNyN9JCPq13oUH5g6h02u0hokVq61z1GN7QWMboOKVDLBaFX+57WnbTA==
-X-Received: by 2002:a81:a00d:0:b0:573:d3cd:3d2a with SMTP id x13-20020a81a00d000000b00573d3cd3d2amr19838242ywg.28.1689743060542;
-        Tue, 18 Jul 2023 22:04:20 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id b125-20020a0df283000000b0056d304e224dsm847329ywf.90.2023.07.18.22.04.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Jul 2023 22:04:19 -0700 (PDT)
-Date:   Tue, 18 Jul 2023 22:04:08 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-cc:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        with ESMTP id S229447AbjGSF01 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 Jul 2023 01:26:27 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E60CD2;
+        Tue, 18 Jul 2023 22:26:26 -0700 (PDT)
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36J57ew4016375;
+        Wed, 19 Jul 2023 05:25:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=UY9eRzpsP8GQl+06o8COfYvWwoeEZ3IyVjc0AqBVSDA=;
+ b=HqPHMq5DY50UrHwMA+kh0U4vjCK8bPPmNq+5t29OSU0J+O/kuRCku7pVRpZZJdExSlps
+ ffpmfu9jbte9HqbRCzUIfGQfLBT+CHTQUGiBHZxoFDyaz/aXd96R+mC0khgtW3cTN5xk
+ C21F3/Ls2AUSHxI3vGFC5VsNhoTBLyz80MfNrMNruPWr+f9KJ0H3fX8SYPdPzo/ytBxo
+ 8OPm0hFW/LqQWnWLcHcwb8v2HSDcaV+uRsprfW7HuuAYbc2n9sAppMNYNkDxlb4bwnnC
+ OVaYz4fs93hvfzV/LCZIO4aSKW+R227xl5k1CXmFnQVyIIcjmNeKpxPhFmucoIUB4HDB jA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rx8uarxv2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 Jul 2023 05:25:00 +0000
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36J5HWak021174;
+        Wed, 19 Jul 2023 05:24:59 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rx8uarxum-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 Jul 2023 05:24:59 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36J4HvET016875;
+        Wed, 19 Jul 2023 05:24:58 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3rv5srs1ns-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 Jul 2023 05:24:57 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36J5Oso923134850
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 19 Jul 2023 05:24:54 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C11012004B;
+        Wed, 19 Jul 2023 05:24:54 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CD90F20040;
+        Wed, 19 Jul 2023 05:24:43 +0000 (GMT)
+Received: from [9.43.21.186] (unknown [9.43.21.186])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 19 Jul 2023 05:24:43 +0000 (GMT)
+Message-ID: <6762c880-6d2b-233f-6786-7ad5b0472dc7@linux.ibm.com>
+Date:   Wed, 19 Jul 2023 10:54:42 +0530
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.12.0
+Subject: Re: [PATCH v3 04/13] powerpc: assert_pte_locked() use
+ pte_offset_map_nolock()
+Content-Language: en-US
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Mike Kravetz <mike.kravetz@oracle.com>,
         Mike Rapoport <rppt@kernel.org>,
         "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
@@ -98,103 +112,81 @@ cc:     Hugh Dickins <hughd@google.com>,
         linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v3 04/13] powerpc: assert_pte_locked() use
- pte_offset_map_nolock()
-In-Reply-To: <87msztbiy8.fsf@linux.ibm.com>
-Message-ID: <392f311f-83ac-a5a2-d16e-2c7736d1b577@google.com>
-References: <7cd843a9-aa80-14f-5eb2-33427363c20@google.com> <e8d56c95-c132-a82e-5f5f-7bb1b738b057@google.com> <87msztbiy8.fsf@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <7cd843a9-aa80-14f-5eb2-33427363c20@google.com>
+ <e8d56c95-c132-a82e-5f5f-7bb1b738b057@google.com>
+ <87msztbiy8.fsf@linux.ibm.com>
+ <392f311f-83ac-a5a2-d16e-2c7736d1b577@google.com>
+From:   Aneesh Kumar K V <aneesh.kumar@linux.ibm.com>
+In-Reply-To: <392f311f-83ac-a5a2-d16e-2c7736d1b577@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 7q90oElJg2CmupBk6GumnocMBX9ahL2e
+X-Proofpoint-GUID: YantjdaBDNNQUApFPJ6DdS47ZMvQSDAB
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-19_02,2023-07-18_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ priorityscore=1501 clxscore=1015 suspectscore=0 mlxlogscore=999 mlxscore=0
+ lowpriorityscore=0 phishscore=0 malwarescore=0 spamscore=0 adultscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2307190047
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 18 Jul 2023, Aneesh Kumar K.V wrote:
-> Hugh Dickins <hughd@google.com> writes:
+On 7/19/23 10:34 AM, Hugh Dickins wrote:
+> On Tue, 18 Jul 2023, Aneesh Kumar K.V wrote:
+>> Hugh Dickins <hughd@google.com> writes:
+>>
+>>> Instead of pte_lockptr(), use the recently added pte_offset_map_nolock()
+>>> in assert_pte_locked().  BUG if pte_offset_map_nolock() fails: this is
+>>> stricter than the previous implementation, which skipped when pmd_none()
+>>> (with a comment on khugepaged collapse transitions): but wouldn't we want
+>>> to know, if an assert_pte_locked() caller can be racing such transitions?
+>>>
+>>
+>> The reason we had that pmd_none check there was to handle khugpaged. In
+>> case of khugepaged we do pmdp_collapse_flush and then do a ptep_clear.
+>> ppc64 had the assert_pte_locked check inside that ptep_clear.
+>>
+>> _pmd = pmdp_collapse_flush(vma, address, pmd);
+>> ..
+>> ptep_clear()
+>> -> asset_ptep_locked()
+>> ---> pmd_none
+>> -----> BUG
+>>
+>>
+>> The problem is how assert_pte_locked() verify whether we are holding
+>> ptl. It does that by walking the page table again and in this specific
+>> case by the time we call the function we already had cleared pmd .
 > 
-> > Instead of pte_lockptr(), use the recently added pte_offset_map_nolock()
-> > in assert_pte_locked().  BUG if pte_offset_map_nolock() fails: this is
-> > stricter than the previous implementation, which skipped when pmd_none()
-> > (with a comment on khugepaged collapse transitions): but wouldn't we want
-> > to know, if an assert_pte_locked() caller can be racing such transitions?
-> >
+> Aneesh, please clarify, I've spent hours on this.
 > 
-> The reason we had that pmd_none check there was to handle khugpaged. In
-> case of khugepaged we do pmdp_collapse_flush and then do a ptep_clear.
-> ppc64 had the assert_pte_locked check inside that ptep_clear.
+> From all your use of past tense ("had"), I thought you were Acking my
+> patch; but now, after looking again at v3.11 source and today's,
+> I think you are NAKing my patch in its present form.
 > 
-> _pmd = pmdp_collapse_flush(vma, address, pmd);
-> ..
-> ptep_clear()
-> -> asset_ptep_locked()
-> ---> pmd_none
-> -----> BUG
+
+Sorry for the confusion my reply created. 
+
+> You are pointing out that anon THP's __collapse_huge_page_copy_succeeded()
+> uses ptep_clear() at a point after pmdp_collapse_flush() already cleared
+> *pmd, so my patch now leads that one use of assert_pte_locked() to BUG.
+> Is that your point?
 > 
+
+Yes. I haven't tested this yet to verify that it is indeed hitting that BUG.
+But a code inspection tells me we will hit that BUG on powerpc because of
+the above details.
+
+> I can easily restore that khugepaged comment (which had appeared to me
+> out of date at the time, but now looks still relevant) and pmd_none(*pmd)
+> check: but please clarify.
 > 
-> The problem is how assert_pte_locked() verify whether we are holding
-> ptl. It does that by walking the page table again and in this specific
-> case by the time we call the function we already had cleared pmd .
 
-Aneesh, please clarify, I've spent hours on this.
+That is correct. if we add that pmd_none check back we should be good here.
 
-From all your use of past tense ("had"), I thought you were Acking my
-patch; but now, after looking again at v3.11 source and today's,
-I think you are NAKing my patch in its present form.
 
-You are pointing out that anon THP's __collapse_huge_page_copy_succeeded()
-uses ptep_clear() at a point after pmdp_collapse_flush() already cleared
-*pmd, so my patch now leads that one use of assert_pte_locked() to BUG.
-Is that your point?
-
-I can easily restore that khugepaged comment (which had appeared to me
-out of date at the time, but now looks still relevant) and pmd_none(*pmd)
-check: but please clarify.
-
-Thanks,
-Hugh
-
-> >
-> > This mod might cause new crashes: which either expose my ignorance, or
-> > indicate issues to be fixed, or limit the usage of assert_pte_locked().
-> >
-> > Signed-off-by: Hugh Dickins <hughd@google.com>
-> > ---
-> >  arch/powerpc/mm/pgtable.c | 16 ++++++----------
-> >  1 file changed, 6 insertions(+), 10 deletions(-)
-> >
-> > diff --git a/arch/powerpc/mm/pgtable.c b/arch/powerpc/mm/pgtable.c
-> > index cb2dcdb18f8e..16b061af86d7 100644
-> > --- a/arch/powerpc/mm/pgtable.c
-> > +++ b/arch/powerpc/mm/pgtable.c
-> > @@ -311,6 +311,8 @@ void assert_pte_locked(struct mm_struct *mm, unsigned long addr)
-> >  	p4d_t *p4d;
-> >  	pud_t *pud;
-> >  	pmd_t *pmd;
-> > +	pte_t *pte;
-> > +	spinlock_t *ptl;
-> >  
-> >  	if (mm == &init_mm)
-> >  		return;
-> > @@ -321,16 +323,10 @@ void assert_pte_locked(struct mm_struct *mm, unsigned long addr)
-> >  	pud = pud_offset(p4d, addr);
-> >  	BUG_ON(pud_none(*pud));
-> >  	pmd = pmd_offset(pud, addr);
-> > -	/*
-> > -	 * khugepaged to collapse normal pages to hugepage, first set
-> > -	 * pmd to none to force page fault/gup to take mmap_lock. After
-> > -	 * pmd is set to none, we do a pte_clear which does this assertion
-> > -	 * so if we find pmd none, return.
-> > -	 */
-> > -	if (pmd_none(*pmd))
-> > -		return;
-> > -	BUG_ON(!pmd_present(*pmd));
-> > -	assert_spin_locked(pte_lockptr(mm, pmd));
-> > +	pte = pte_offset_map_nolock(mm, pmd, addr, &ptl);
-> > +	BUG_ON(!pte);
-> > +	assert_spin_locked(ptl);
-> > +	pte_unmap(pte);
-> >  }
-> >  #endif /* CONFIG_DEBUG_VM */
-> >  
-> > -- 
-> > 2.35.3
+-aneesh
