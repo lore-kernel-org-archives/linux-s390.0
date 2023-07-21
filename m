@@ -2,131 +2,129 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3330CC04E69
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Jul 2023 14:23:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E62CEB64DD
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Jul 2023 14:36:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229534AbjGUOXf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 Jul 2023 10:23:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43706 "EHLO
+        id S229682AbjGUOgO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 Jul 2023 10:36:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230321AbjGUOXW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Jul 2023 10:23:22 -0400
+        with ESMTP id S229836AbjGUOgM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Jul 2023 10:36:12 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 255CF1BD;
-        Fri, 21 Jul 2023 07:23:22 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36LE6VuN001098;
-        Fri, 21 Jul 2023 14:23:22 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 685BB10C3;
+        Fri, 21 Jul 2023 07:36:11 -0700 (PDT)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36LEBkBC000790;
+        Fri, 21 Jul 2023 14:36:09 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=LHzbAf4p3hknDSQFHMo0HLS4YDqB1wYdsh71y9Uf2x8=;
- b=EFBEIMdi4jLgY0lExoehWOhmEq7k2WeXXsZHPEH4YveOMdo6MzWBJ3BdprXKYNOJmOce
- vylwYypHP6qdhVUa41Xp9ki5VtNBX/OjmGReRlPSni65mCrMnRYjwfzLdkQyjBOw+C/O
- mYE93+bseWQcEEUannxldTRZn01MSeOr2p4+ZMcxzr6nv5T/ZU2M0JfAMRvJ+8aHW7vu
- xhPU9oET9ZKwHuJIY5HcpTUiT2FAUJzBRaLR+oEM0j2hFbI7xE0JyzRbh1MGQuSYtEas
- meSAgryILFbnAcKLJxN9Uldv8/zeFHkIdL3ChVCjfzvVtt0gAssMrQdPMJY+4Whp0W1X iQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ryc7gdd7h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Jul 2023 14:23:21 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36LE824c010329;
-        Fri, 21 Jul 2023 14:23:21 GMT
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=R9SDwpgxPts0/H86y/f+yVGHJboXJpEl9wullCar0P8=;
+ b=sfHKnbSRnaZazX5082lSBMmbcfVuz483MxOWaf18SrJVky2pU+I5McipGo6Z/7AW/wRl
+ ucNCiEv3m3m0Q2kabQZ24OFFxGX+wivF6eCx3f033lFu1StE0WY1ej+Eq7edizkPeyym
+ zlHuzTtNeIM60eHD5ksx/fAT2nA6GK94nj5Ut07tKFa8s1pQAxz27tCWazFhGzcCZ/2H
+ 7Slgotl+VdNvl8ZY30JKEr5fvZ9KhW8CAIXofqHJKwuDgr7zAvMaRoWPQXu4vWDCAbfY
+ Ifl15BDadYn7HE8Nicj+4SJWw2CmfKZyPJDumNDxtqugRscQlEPzg37J2U+/fGjtwOZR ew== 
 Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ryc7gdd76-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3rye3fubjb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Jul 2023 14:23:21 +0000
+        Fri, 21 Jul 2023 14:36:08 +0000
 Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36LCg61i008046;
-        Fri, 21 Jul 2023 14:23:20 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3rv80jmt5u-1
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36LCnjpF004510;
+        Fri, 21 Jul 2023 14:36:07 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3rv80jmvej-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Jul 2023 14:23:20 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36LENHiF44302868
+        Fri, 21 Jul 2023 14:36:07 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36LEa4Yc25952778
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 21 Jul 2023 14:23:17 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 42DB220040;
-        Fri, 21 Jul 2023 14:23:17 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8751120043;
-        Fri, 21 Jul 2023 14:23:16 +0000 (GMT)
+        Fri, 21 Jul 2023 14:36:04 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A280020043;
+        Fri, 21 Jul 2023 14:36:04 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1B8E820040;
+        Fri, 21 Jul 2023 14:36:04 +0000 (GMT)
 Received: from [9.171.55.243] (unknown [9.171.55.243])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 21 Jul 2023 14:23:16 +0000 (GMT)
-Message-ID: <6dc411a6-95fc-0eb2-e8de-5c141292ea62@linux.ibm.com>
-Date:   Fri, 21 Jul 2023 16:23:16 +0200
-MIME-Version: 1.0
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 21 Jul 2023 14:36:04 +0000 (GMT)
+Message-ID: <01972a94-fc21-709e-29ac-847b8e60ee23@linux.ibm.com>
+Date:   Fri, 21 Jul 2023 16:36:03 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.12.0
-Subject: Re: [PATCH v2 5/6] KVM: s390: interrupt: Fix single-stepping ISKE
-To:     Ilya Leoshkevich <iii@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+Subject: Re: [PATCH] s390: use obj-y to descend into drivers/s390/
+To:     Masahiro Yamada <masahiroy@kernel.org>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jens Freimann <jfreimann@redhat.com>
-References: <20230721120046.2262291-1-iii@linux.ibm.com>
- <20230721120046.2262291-6-iii@linux.ibm.com>
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org,
+        Jiri Slaby <jirislaby@kernel.org>
+References: <20230721134107.3437947-1-masahiroy@kernel.org>
 Content-Language: en-US
 From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20230721120046.2262291-6-iii@linux.ibm.com>
+In-Reply-To: <20230721134107.3437947-1-masahiroy@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _TmKtxLSgvwOrUNQcX9My4iKmrl4PVxn
-X-Proofpoint-ORIG-GUID: 860VH0J45EDEm7hypxFlcxaKa5MzhO6e
+X-Proofpoint-GUID: Q-IGwVdz1fxPtzVtYZogGfmjA2GXR9VN
+X-Proofpoint-ORIG-GUID: Q-IGwVdz1fxPtzVtYZogGfmjA2GXR9VN
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-21_08,2023-07-20_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- bulkscore=0 mlxlogscore=782 malwarescore=0 priorityscore=1501
- suspectscore=0 adultscore=0 mlxscore=0 spamscore=0 clxscore=1015
- impostorscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2306200000 definitions=main-2307210127
+ definitions=2023-07-21_09,2023-07-20_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 spamscore=0
+ mlxscore=0 priorityscore=1501 adultscore=0 suspectscore=0 phishscore=0
+ mlxlogscore=859 malwarescore=0 impostorscore=0 bulkscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2307210131
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Am 21.07.23 um 15:41 schrieb Masahiro Yamada:
+> I like to use obj-y in as many places as possible.
 
+Please do not use "I like". That is just too polite.
 
-Am 21.07.23 um 13:57 schrieb Ilya Leoshkevich:
-> kvm_s390_skey_check_enable() does not emulate any instructions, rather,
-> it clears CPUSTAT_KSS and arranges for ISKE to run again. Therefore,
-> skip the PER check and let ISKE run happen. Otherwise a debugger will
-> see two single-step events on the same ISKE.
-
-The same would be true for all instruction triggering a keyless mode exit,
-like SSKE, RRBE but also LPSWE with a keyed PSW, no?
+This fixes a bug as outlined below and maybe make it a clear statement that the current use is
+non-standard and needs to be fixed - I think.
 > 
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Change the drivers-y to obj-y. It moves the objects from drivers/s390/
+> to slightly lower address, but fixes the single build issue. [1]
+> 
+> [1]: https://lore.kernel.org/linux-kbuild/d57ba55f-20a3-b836-783d-b49c8a161b6e@kernel.org/T/#m27f781ab60acadfed8a9e9642f30d5414a5e2df3
+> 
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> Tested-by: Jiri Slaby <jirislaby@kernel.org>
 > ---
->   arch/s390/kvm/intercept.c | 3 +--
->   1 file changed, 1 insertion(+), 2 deletions(-)
 > 
-> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-> index d2f7940c5d03..8793cec066a6 100644
-> --- a/arch/s390/kvm/intercept.c
-> +++ b/arch/s390/kvm/intercept.c
-> @@ -630,8 +630,7 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
->   		rc = handle_partial_execution(vcpu);
->   		break;
->   	case ICPT_KSS:
-> -		rc = kvm_s390_skey_check_enable(vcpu);
-> -		break;
-
-maybe add a comment here: /* Instruction will be redriven, skip the PER check */
-> +		return kvm_s390_skey_check_enable(vcpu);
-
->   	case ICPT_MCHKREQ:
->   	case ICPT_INT_ENABLE:
->   		/*
+>   arch/s390/Makefile | 1 -
+>   drivers/Makefile   | 2 ++
+>   2 files changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+> index 5ed242897b0d..a53a36ee0731 100644
+> --- a/arch/s390/Makefile
+> +++ b/arch/s390/Makefile
+> @@ -119,7 +119,6 @@ export KBUILD_CFLAGS_DECOMPRESSOR
+>   OBJCOPYFLAGS	:= -O binary
+>   
+>   libs-y		+= arch/s390/lib/
+> -drivers-y	+= drivers/s390/
+>   
+>   boot		:= arch/s390/boot
+>   syscalls	:= arch/s390/kernel/syscalls
+> diff --git a/drivers/Makefile b/drivers/Makefile
+> index 7241d80a7b29..a7459e77df37 100644
+> --- a/drivers/Makefile
+> +++ b/drivers/Makefile
+> @@ -195,3 +195,5 @@ obj-$(CONFIG_PECI)		+= peci/
+>   obj-$(CONFIG_HTE)		+= hte/
+>   obj-$(CONFIG_DRM_ACCEL)		+= accel/
+>   obj-$(CONFIG_CDX_BUS)		+= cdx/
+> +
+> +obj-$(CONFIG_S390)		+= s390/
