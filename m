@@ -2,95 +2,76 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05520EB64DC
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Jul 2023 17:14:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0075C001DC
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Jul 2023 18:24:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229894AbjGUROK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 Jul 2023 13:14:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60570 "EHLO
+        id S230339AbjGUSYM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 Jul 2023 14:24:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229864AbjGUROJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Jul 2023 13:14:09 -0400
+        with ESMTP id S230326AbjGUSYL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Jul 2023 14:24:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE9B42D56;
-        Fri, 21 Jul 2023 10:14:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 112D73A8C;
+        Fri, 21 Jul 2023 11:23:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B64761D54;
-        Fri, 21 Jul 2023 17:14:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12DC1C433C7;
-        Fri, 21 Jul 2023 17:14:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1689959646;
-        bh=TWLsMOZBMuHm+TWiIT8Y8l38aCgqHDrC5aBJ2bThEJE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=aGdEfb2ftH8E/i0vC/ZB1JqEeUziZ7c42TRxjtFD5diiLKG0ju1uMBvh0lzrmhXDr
-         gHxr5rr5Quk35JiXsbBao2/5FiclQao7RNibu6eA1qA+VdstG+sL3/4Hpav5gJaEvz
-         8Lv0uQ7IqUumTxpDW7UxjH9xbA/l4eAbEVUlkGu+XhrGPpXIMGzDlTSdyIL4dBbChc
-         pmhav658j19fW0DX6bNMNBvrLVFOk2EHYXJOmX70K0z9BJe+8KQy3uNZemtsJaOv6T
-         U5fnajLJgrnvxyZY+EaEfkZnY6LCiTlCvjUX2qeTTifseIsLFzyASbhDOZKspLYax4
-         RpG1delajcQnA==
-From:   Masahiro Yamada <masahiroy@kernel.org>
-To:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH v2] s390: use obj-y to descend into drivers/s390/
-Date:   Sat, 22 Jul 2023 02:13:58 +0900
-Message-Id: <20230721171358.3612099-1-masahiroy@kernel.org>
-X-Mailer: git-send-email 2.39.2
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 65EDA61D7E;
+        Fri, 21 Jul 2023 18:23:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41432C433C9;
+        Fri, 21 Jul 2023 18:23:50 +0000 (UTC)
+Date:   Fri, 21 Jul 2023 11:23:49 -0700
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     Yicong Yang <yangyicong@huawei.com>
+Cc:     akpm@linux-foundation.org, linux-mm@kvack.org,
+        linux-arm-kernel@lists.infradead.org, x86@kernel.org,
+        mark.rutland@arm.com, ryan.roberts@arm.com, will@kernel.org,
+        anshuman.khandual@arm.com, linux-doc@vger.kernel.org,
+        corbet@lwn.net, peterz@infradead.org, arnd@arndb.de,
+        punit.agrawal@bytedance.com, linux-kernel@vger.kernel.org,
+        darren@os.amperecomputing.com, yangyicong@hisilicon.com,
+        huzhanyuan@oppo.com, lipeifeng@oppo.com, zhangshiming@oppo.com,
+        guojian@oppo.com, realmz6@gmail.com, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        Barry Song <21cnbao@gmail.com>, wangkefeng.wang@huawei.com,
+        xhao@linux.alibaba.com, prime.zeng@hisilicon.com,
+        Jonathan.Cameron@huawei.com,
+        Anshuman Khandual <khandual@linux.vnet.ibm.com>,
+        Barry Song <baohua@kernel.org>
+Subject: Re: [PATCH v11 1/4] mm/tlbbatch: Introduce
+ arch_tlbbatch_should_defer()
+Message-ID: <ZLrNNcApzNLp9pdj@arm.com>
+References: <20230717131004.12662-1-yangyicong@huawei.com>
+ <20230717131004.12662-2-yangyicong@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230717131004.12662-2-yangyicong@huawei.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The single build rule does not work with the drivers-y syntax. [1]
+On Mon, Jul 17, 2023 at 09:10:01PM +0800, Yicong Yang wrote:
+> From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+> 
+> The entire scheme of deferred TLB flush in reclaim path rests on the
+> fact that the cost to refill TLB entries is less than flushing out
+> individual entries by sending IPI to remote CPUs. But architecture
+> can have different ways to evaluate that. Hence apart from checking
+> TTU_BATCH_FLUSH in the TTU flags, rest of the decision should be
+> architecture specific.
+> 
+> Signed-off-by: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+> [https://lore.kernel.org/linuxppc-dev/20171101101735.2318-2-khandual@linux.vnet.ibm.com/]
+> Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+> [Rebase and fix incorrect return value type]
+> Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+> Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+> Reviewed-by: Barry Song <baohua@kernel.org>
+> Reviewed-by: Xin Hao <xhao@linux.alibaba.com>
+> Tested-by: Punit Agrawal <punit.agrawal@bytedance.com>
 
-Use the standard obj-y syntax. It moves the objects from drivers/s390/
-to slightly lower address, but fixes the reported issue.
-
-[1]: https://lore.kernel.org/linux-kbuild/d57ba55f-20a3-b836-783d-b49c8a161b6e@kernel.org/T/#m27f781ab60acadfed8a9e9642f30d5414a5e2df3
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Tested-by: Jiri Slaby <jirislaby@kernel.org>
----
-
-Changes in v2:
-  - rephase the commit log
-
- arch/s390/Makefile | 1 -
- drivers/Makefile   | 2 ++
- 2 files changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-index 5ed242897b0d..a53a36ee0731 100644
---- a/arch/s390/Makefile
-+++ b/arch/s390/Makefile
-@@ -119,7 +119,6 @@ export KBUILD_CFLAGS_DECOMPRESSOR
- OBJCOPYFLAGS	:= -O binary
- 
- libs-y		+= arch/s390/lib/
--drivers-y	+= drivers/s390/
- 
- boot		:= arch/s390/boot
- syscalls	:= arch/s390/kernel/syscalls
-diff --git a/drivers/Makefile b/drivers/Makefile
-index 7241d80a7b29..a7459e77df37 100644
---- a/drivers/Makefile
-+++ b/drivers/Makefile
-@@ -195,3 +195,5 @@ obj-$(CONFIG_PECI)		+= peci/
- obj-$(CONFIG_HTE)		+= hte/
- obj-$(CONFIG_DRM_ACCEL)		+= accel/
- obj-$(CONFIG_CDX_BUS)		+= cdx/
-+
-+obj-$(CONFIG_S390)		+= s390/
--- 
-2.39.2
-
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
