@@ -2,83 +2,126 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6578C001DC
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Jul 2023 19:44:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB3E7EB64DD
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Jul 2023 19:56:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231148AbjGUTo5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 Jul 2023 15:44:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56712 "EHLO
+        id S230136AbjGUT4e (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 Jul 2023 15:56:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230375AbjGUTo5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Jul 2023 15:44:57 -0400
-Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1C6E2D7E
-        for <linux-s390@vger.kernel.org>; Fri, 21 Jul 2023 12:44:55 -0700 (PDT)
-Received: by mail-il1-x130.google.com with SMTP id e9e14a558f8ab-346434c7793so2931395ab.0
-        for <linux-s390@vger.kernel.org>; Fri, 21 Jul 2023 12:44:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20221208.gappssmtp.com; s=20221208; t=1689968695; x=1690573495;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=C4JV3T5b8TbQqqDK/BVYCQtdyggJjpPOgPu1aX+qbIw=;
-        b=l8oREEe30c/6jl4ASOx8eoiEi8J0YXceXHp6NBmZLfqGg8WdCRNDKc2Dx+O3CJPOF0
-         Prr1TBL/uBSQ9CkIXVZYWdwUnkqeR1ON7SwhqdlLXB9aw0w++T7AD12u/EU201HsvM+D
-         5qPx2xhmmq401qwubR7w+F+d/HiWL0cu8ye8MI4f9nYrBKvREakx7irR918bhW8vqKss
-         m/OKoj35KJ5c56Cv9WteGxrb/y/FHSN7ovwCYDItsKIvK+0hbJ8j4fkDosWyjnV+aBHH
-         EtbZ3icsiFYvH8NGr4CYi3T3llEK8H8KcJcSBAao/YV0ZigbIUWqoNKIlVkrzbZA+z5P
-         QmJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689968695; x=1690573495;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=C4JV3T5b8TbQqqDK/BVYCQtdyggJjpPOgPu1aX+qbIw=;
-        b=kjMUetrL+nKgtldsF65yjAfCbTjazcJcOAXrdZNK7vgH4z02ehTvxYiZjTY/XbvQqY
-         knH7GBSfE0AOobCe8XuepT3osW4pbNlFOj2coCD7iXFDku2a83cKHrMIf88aCpgOMQD/
-         zcz0GPzTVlp8v0awDD/Rzzhd/k3QBjeYsXqvkc37l+7NVo1QGnZw6iuMgRKnvckFrmx1
-         vVQcM30fdGkCIPDafGy2rR8Ks3ErB3t1i0ySBjgn8BFYXb4IiCKwV4yDIBKSKMZrUiZr
-         AuS7uuC13b2+AXOjhTXBrTl5DbBpsr0ilr6SgMYihR8lJkQTfcbBP08uSyVF685zVwIV
-         WWuQ==
-X-Gm-Message-State: ABy/qLYre+XEu76rd3iG1LqZUUO+D9Npb+pEn5EGCQrvIsFuKT/BbXgH
-        qgl2DvwXALQwEnm6NteWrKdlAg==
-X-Google-Smtp-Source: APBJJlHh57kNFvHniHLhEStgOH9NnIcwIeYoCvzcO/4sTXVbqJP7vucQP0hit+9dxghi2VgAK4Zhug==
-X-Received: by 2002:a92:d44c:0:b0:345:ad39:ff3 with SMTP id r12-20020a92d44c000000b00345ad390ff3mr2677303ilm.3.1689968695018;
-        Fri, 21 Jul 2023 12:44:55 -0700 (PDT)
-Received: from [192.168.1.94] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id b5-20020a92ce05000000b003460b8505easm1181877ilo.19.2023.07.21.12.44.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 21 Jul 2023 12:44:54 -0700 (PDT)
-Message-ID: <42f33274-6877-1e39-1caf-d8ff0a9bc357@kernel.dk>
-Date:   Fri, 21 Jul 2023 13:44:53 -0600
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [PATCH 0/4] dasd fixes
-Content-Language: en-US
-To:     Stefan Haberland <sth@linux.ibm.com>
+        with ESMTP id S229493AbjGUT4d (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Jul 2023 15:56:33 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5494E171A;
+        Fri, 21 Jul 2023 12:56:32 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36LJrNQu028287;
+        Fri, 21 Jul 2023 19:56:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=+JwHQunyzK2hQJhuOtWsEn4WW3M8KPcxrbRUu0RMVNg=;
+ b=jjf2lAaLKl/0wcoUS+z7dqay7cfwXaPr8l8briUh5HF1Kb7QqX6QzXZmU42B0OurPaBY
+ 1pU16n6mCEqTXf6inH5KRGSpFJqAa6offM/cZS9mHvCS8FqM6shmwrXts7QJ3vbZKHOK
+ kyHvis3G8bbj/Jm8mGREBCWs4hr8nN59SxbdfBRIcOLNRtdSc5VQ/8FOYv3Xgnz8j7RA
+ RgvFNhYFk9mrlUdW+OHur/Dr2Hbyum1ow4Lmyq8yHEnorYh0XDUgr7yZDrobBh6pzIHm
+ v1q4qO7MjYXv799vHBRZicr5G6CXUG38hqe+2tYEwkYrZvfAsC+v11bqPjApASfP86uS 5A== 
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s00jt8275-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 21 Jul 2023 19:56:30 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36LIC7xB029129;
+        Fri, 21 Jul 2023 19:36:53 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3rv6sn14wv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 21 Jul 2023 19:36:53 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36LJan7w57475462
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 21 Jul 2023 19:36:49 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 83D1720043;
+        Fri, 21 Jul 2023 19:36:49 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6FABC20040;
+        Fri, 21 Jul 2023 19:36:49 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Fri, 21 Jul 2023 19:36:49 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 20191)
+        id CDB83E26F8; Fri, 21 Jul 2023 21:36:48 +0200 (CEST)
+From:   Stefan Haberland <sth@linux.ibm.com>
+To:     Jens Axboe <axboe@kernel.dk>
 Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
         linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>
-References: <20230721193647.3889634-1-sth@linux.ibm.com>
-From:   Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4/4] s390/dasd: print copy pair message only for the correct error
+Date:   Fri, 21 Jul 2023 21:36:47 +0200
+Message-Id: <20230721193647.3889634-5-sth@linux.ibm.com>
+X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230721193647.3889634-1-sth@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+References: <20230721193647.3889634-1-sth@linux.ibm.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: O742j87j6jgn9Tyuvq1-E9X7SZOYD7ES
+X-Proofpoint-GUID: O742j87j6jgn9Tyuvq1-E9X7SZOYD7ES
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-21_11,2023-07-20_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1015
+ mlxscore=0 bulkscore=0 mlxlogscore=999 suspectscore=0 malwarescore=0
+ priorityscore=1501 lowpriorityscore=0 adultscore=0 spamscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2307210172
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 7/21/23 1:36 PM, Stefan Haberland wrote:
-> Hello Jens,
-> 
-> please apply the following patches that fix some errors in the DASD device
-> driver. Thanks.
+The DASD driver has certain types of requests that might be rejected by
+the storage server or z/VM because they are not supported. Since the
+missing support of the command is not a real issue there is no user
+visible kernel error message for this.
 
-6.6 fine, or were you targeting 6.5?
+For copy pair setups  there is a specific error that IO is not allowed on
+secondary devices. This error case is explicitly handled and an error
+message is printed.
 
+The code checking for the error did use a bitwise 'and' that is used to
+check for specific bits. But in this case the whole sense byte has to
+match.
+
+This leads to the problem that the copy pair related error message is
+erroneously printed for other error cases that are usually not reported.
+This might heavily confuse users and lead to follow on actions that might
+disrupt application processing.
+
+Fix by checking the sense byte for the exact value and not single bits.
+
+Cc: <stable@vger.kernel.org> # 6.1+
+Fixes: 1fca631a1185 ("s390/dasd: suppress generic error messages for PPRC secondary devices")
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+---
+ drivers/s390/block/dasd_3990_erp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/s390/block/dasd_3990_erp.c b/drivers/s390/block/dasd_3990_erp.c
+index 91e9a17b848e..89957bb7244d 100644
+--- a/drivers/s390/block/dasd_3990_erp.c
++++ b/drivers/s390/block/dasd_3990_erp.c
+@@ -1050,7 +1050,7 @@ dasd_3990_erp_com_rej(struct dasd_ccw_req * erp, char *sense)
+ 		dev_err(&device->cdev->dev, "An I/O request was rejected"
+ 			" because writing is inhibited\n");
+ 		erp = dasd_3990_erp_cleanup(erp, DASD_CQR_FAILED);
+-	} else if (sense[7] & SNS7_INVALID_ON_SEC) {
++	} else if (sense[7] == SNS7_INVALID_ON_SEC) {
+ 		dev_err(&device->cdev->dev, "An I/O request was rejected on a copy pair secondary device\n");
+ 		/* suppress dump of sense data for this error */
+ 		set_bit(DASD_CQR_SUPPRESS_CR, &erp->refers->flags);
 -- 
-Jens Axboe
-
+2.39.2
 
