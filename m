@@ -2,70 +2,125 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84EB5C001B0
-	for <linux-s390@archiver.kernel.org>; Sat, 22 Jul 2023 18:53:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0DD4C001B0
+	for <linux-s390@archiver.kernel.org>; Sun, 23 Jul 2023 06:40:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229566AbjGVSxd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 22 Jul 2023 14:53:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48580 "EHLO
+        id S229623AbjGWGkk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 23 Jul 2023 02:40:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229551AbjGVSxd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 22 Jul 2023 14:53:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D896211E;
-        Sat, 22 Jul 2023 11:53:32 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1201660677;
-        Sat, 22 Jul 2023 18:53:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 73E4DC433C8;
-        Sat, 22 Jul 2023 18:53:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1690052011;
-        bh=ElkfNjyeK/aOBy5OYtmfAy/g3JU3qxJ3osaL4RmhO2A=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=ZSStsp+Am6ljb3OuwA6cHkQyBKDaWP1lAPl3n/XALZAF+hNuMIpkcZUNX2XrvYMic
-         cl70RJC9yoTQuzO0SBq5al+R4MtAP6a8rOjwzIC27sg+a+5/irlsDy4AVRapkY6rJX
-         gdtEnbRQMMnRm2W3l0FQaBn+eMr0SvfAD/H85tY9+dTk3SUE5H9iJaS/qDnUI7N8sC
-         nwZ4eoxladAJ1wm3IDJ8Vy9CN3MDtA/8xJdxv7O/PQbbF1JnbSV2O0u49pgc7aybWy
-         cZwiwb79anoKD5LeIVktulVGKNS9mYLvsIkPeDMbve6YUwF72vW3q6A7JUggmxWWOq
-         AKYeCU3THjnGg==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 60278C595C3;
-        Sat, 22 Jul 2023 18:53:31 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 fixes for 6.5-rc3
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20230722160215.7417-A-hca@linux.ibm.com>
-References: <20230722160215.7417-A-hca@linux.ibm.com>
-X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20230722160215.7417-A-hca@linux.ibm.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.5-3
-X-PR-Tracked-Commit-Id: 4cfca532ddc3474b3fc42592d0e4237544344b1a
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 295e1388de2d5c0c354adbd65d0319c5d636c222
-Message-Id: <169005201138.23354.7673878633795209202.pr-tracker-bot@kernel.org>
-Date:   Sat, 22 Jul 2023 18:53:31 +0000
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        with ESMTP id S229599AbjGWGkj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 23 Jul 2023 02:40:39 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8499B10D3;
+        Sat, 22 Jul 2023 23:40:38 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36N6bU1R016333;
+        Sun, 23 Jul 2023 06:40:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=vZPw6+ClErtd32k3gz+P/jOP3JLU9OHuDrJYxqghC40=;
+ b=HOyQySZnoAkCLyBgD5Aeu+K13EWcV2sR/q97XPKEut6wNjLH8a3JBheAkTBlQJbdwUOO
+ U1ub3R7rnKwSLlm5+ybszdLAavvOoS+tY2LYesUDnmGZ8KXWoPm/6nbtIehr9Vv+yLmw
+ xZvZAlJW7vdWpL+Z7jA4FS3eHOLT1mRovvxk7VTyDtZE4PQXB9IG9Wj8uNuDmdJIZz7s
+ kxMntbt/wULCvvf1vQh60aa30HzWbGsZXkPE60crxYgmekACutvNRtr0er8ZVWzHUJjR
+ rHc8o8peapn0ttt6Vrkw+mZ0SXhAKqYGcUShXXwxv/P9MHRC78d5vHZWx6mEi2Z8pFP1 0A== 
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s0n7dexh4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 23 Jul 2023 06:40:28 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36N6PMfb014403;
+        Sun, 23 Jul 2023 06:40:28 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s0stx9u5s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 23 Jul 2023 06:40:28 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36N6eOAP23593564
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 23 Jul 2023 06:40:25 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CA34820043;
+        Sun, 23 Jul 2023 06:40:24 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6D51A20040;
+        Sun, 23 Jul 2023 06:40:24 +0000 (GMT)
+Received: from osiris (unknown [9.171.79.53])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Sun, 23 Jul 2023 06:40:24 +0000 (GMT)
+Date:   Sun, 23 Jul 2023 08:40:22 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
+        linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>
+Subject: Re: [GIT PULL] s390 fixes for 6.5-rc3
+Message-ID: <20230723064022.11906-A-hca@linux.ibm.com>
+References: <20230722160215.7417-A-hca@linux.ibm.com>
+ <CAHk-=wj2g7kDTKPawbhOKXFsAF+Zayygmp1f64oerQktc_LCYw@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wj2g7kDTKPawbhOKXFsAF+Zayygmp1f64oerQktc_LCYw@mail.gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: vQyHWTTe3205rmBPEfxFypQcAKVDWvhm
+X-Proofpoint-ORIG-GUID: vQyHWTTe3205rmBPEfxFypQcAKVDWvhm
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-23_02,2023-07-20_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ suspectscore=0 clxscore=1015 mlxscore=0 adultscore=0 phishscore=0
+ mlxlogscore=653 impostorscore=0 bulkscore=0 priorityscore=1501
+ malwarescore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2307230060
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Sat, 22 Jul 2023 18:02:15 +0200:
+On Sat, Jul 22, 2023 at 11:52:22AM -0700, Linus Torvalds wrote:
+> On Sat, 22 Jul 2023 at 09:02, Heiko Carstens <hca@linux.ibm.com> wrote:
+> >
+> > - Fix per vma lock fault handling: add missing !(fault & VM_FAULT_ERROR)
+> >   check to fault handler to prevent error handling for return values that
+> >   don't indicate an error
+> 
+> Hmm. The s390 code / people seems to still be a bit confused about the
+> VM_FAULT flags.
+> 
+> The commit comment says "With per-vma locks, handle_mm_fault() may
+> return non-fatal error flags".
+> 
+> That's actively misleading.
+...
+> Anyway, I have pulled this, since it clearly fixes a problem. But I do
+> think that the *deeper* problem is that s390 treats those bits as
+> errors in the first place, when they really aren't. Yes, the error
+> bits are *common*, but that field really shouldn't be seen as just
+> errors, and I really think that the deeper problem is that
+> 
+>         if (unlikely(fault))
+>                 do_fault_error(regs, fault);
+> 
+> logic. It's simply wrong.
+> 
+> Of course, it looks like the reason you found this is that the s390
+> do_fault_error() then does a BUG() on any bits it doesn't understand.
+> You have that nonsensical "clear flags" in other places too. So it's
+> not like this work-around is new. But it's a workaround, and a sign of
+> confusion, I feel.
+> 
+> Maybe the extra s390 fault conditions should be added to the generic
+> list and added to the VM_FAULT_ERROR mask. I dunno.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.5-3
+Thanks for looking a bit deeper into the code. Our "special" private
+VM_FAULT flags came already to attention a couple of months ago [1]. Most
+of the flags are historic - I'll try to get rid of all of them, since for
+other architectures it is also possible without having private flags.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/295e1388de2d5c0c354adbd65d0319c5d636c222
+Our fault handling code needs some refactoring anyway. Hopefully the result
+will be easier to maintain, and makes it a bit more difficult to add bugs
+like I recently introduced with this per-vma lock architecture backend.
 
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+[1] https://lore.kernel.org/all/Y+CLpdnOGFg28uMJ@casper.infradead.org/
