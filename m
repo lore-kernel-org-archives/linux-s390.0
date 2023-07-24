@@ -2,67 +2,67 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95588C001DE
-	for <linux-s390@archiver.kernel.org>; Mon, 24 Jul 2023 08:28:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 670FAC0015E
+	for <linux-s390@archiver.kernel.org>; Mon, 24 Jul 2023 08:30:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231598AbjGXI2a (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 24 Jul 2023 04:28:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54418 "EHLO
+        id S231514AbjGXIaB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 24 Jul 2023 04:30:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231547AbjGXI2X (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 24 Jul 2023 04:28:23 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 357C9133
-        for <linux-s390@vger.kernel.org>; Mon, 24 Jul 2023 01:27:33 -0700 (PDT)
+        with ESMTP id S229853AbjGXIaA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 24 Jul 2023 04:30:00 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 584F099
+        for <linux-s390@vger.kernel.org>; Mon, 24 Jul 2023 01:29:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1690187252;
+        s=mimecast20190719; t=1690187343;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=95yU/Tppmz3W6Wgx0aprDygFp+YkQiriuNqIdtc06vU=;
-        b=Zak7PIYysqo4CaAQ7yW4R2bzNbHNS8dySIakA54msKMcwjk+yxN4CuSaTIbTWJkSE1h5YP
-        RV5R5WwR3N2NnQAzYj7j0DTm9ryADz6pvNrFMP+JT5uMmEyn2wSZ8KJRcySXHMnFd9nerC
-        N5Uf6bwQb68LJHTZcC66dezJz3Xt1wU=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=juUjWpa2JI7RTYhcunGhZz1VwOp9DGNQea7nBpEHlNU=;
+        b=KCot501I8LTjV88CKz0jI6uodIp47rRTL8ByWS8+ykBpAEl76nvBtwWWTigbr2p5cDij8A
+        YeC9YiZui2JyszmMJ8YECPovmVnklwMuJ4GjBwvZ8e4qadjOc6T04LLKMCRNU7Dbb6BfHS
+        RbnnYyf1vG8OiNjvBdLQZQ2dFiz6wZA=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-590-J_5CRBTBM1SKgu0-mLZ2tQ-1; Mon, 24 Jul 2023 04:27:30 -0400
-X-MC-Unique: J_5CRBTBM1SKgu0-mLZ2tQ-1
-Received: by mail-lf1-f69.google.com with SMTP id 2adb3069b0e04-4fdde27470aso3250839e87.2
-        for <linux-s390@vger.kernel.org>; Mon, 24 Jul 2023 01:27:30 -0700 (PDT)
+ us-mta-619-sm6Vk5pZODWa0OYPg76ixQ-1; Mon, 24 Jul 2023 04:29:00 -0400
+X-MC-Unique: sm6Vk5pZODWa0OYPg76ixQ-1
+Received: by mail-lj1-f199.google.com with SMTP id 38308e7fff4ca-2b710c5677eso35103601fa.0
+        for <linux-s390@vger.kernel.org>; Mon, 24 Jul 2023 01:29:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690187249; x=1690792049;
+        d=1e100.net; s=20221208; t=1690187339; x=1690792139;
         h=content-transfer-encoding:in-reply-to:organization:from:references
          :cc:to:content-language:subject:user-agent:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=95yU/Tppmz3W6Wgx0aprDygFp+YkQiriuNqIdtc06vU=;
-        b=Xh0GiHzaHQPvtvoNwmfu6YF7eZLWfRBlC9uNUhZX/LUOGW1gUReZFx0+npShV2eHPw
-         MMH6aqFgCV9z0i7QAZaN20YhpPmhCUQqenN5Lwz1GbIOboX9gGzqXl3HPEBTSq7+x8Ir
-         GNsQnoEf/xB1lbuzALTeqqX09JcORJLXZGUIki7hBxOMQ302BLK6ONJFhaSrxhVi+G+N
-         A4gMLnRAROe83Le83EPmwcOcjYu5rvxES3mQxMzZNpfsF1cCgfIWboT6UsxPQrhJaCzV
-         Z/ulvEN3OLlSqwpd7294GmB4cHn9kacVa5KTym7CslgVAreD705igM3mbULTglMsDPoO
-         mALg==
-X-Gm-Message-State: ABy/qLY4owSYf6r/qGmihhLzg/JkOqpLtWmMrR3Km9nM7TlRPQKQqQ2t
-        rWszjdJiVe593e5phXWnuFRsGJbVZ5gub1q3JoOoa2Ymb9IStpApIzFyK8pgIs1vSFz7Vfq7iq+
-        6c1PhPAiAe9Vg/HSRfcjXHw==
-X-Received: by 2002:ac2:505c:0:b0:4f8:5604:4b50 with SMTP id a28-20020ac2505c000000b004f856044b50mr4339174lfm.64.1690187249271;
-        Mon, 24 Jul 2023 01:27:29 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlHCEMOq1o4lei/ac0I0Ri//BOpQqln7ql1w8BcwesPNHuyuLe8cISemFtN93mHRCisihMVloA==
-X-Received: by 2002:ac2:505c:0:b0:4f8:5604:4b50 with SMTP id a28-20020ac2505c000000b004f856044b50mr4339142lfm.64.1690187248874;
-        Mon, 24 Jul 2023 01:27:28 -0700 (PDT)
+        bh=juUjWpa2JI7RTYhcunGhZz1VwOp9DGNQea7nBpEHlNU=;
+        b=PZFGJZ9iJEoumg9Hz5K5DTmUOd2sk7/oXHt++FGUDknMIyeQTPjS8UA9q7p2NbNWq/
+         y7/xX5LMwkCAXSvrpVBedyLBwKkGXYzLY/iMb5qoqUsxDaLz/UNyY6GXJaXJBx2gxLb4
+         Pwn35N72PBYrbahFyDpXLilyv08v1HCgJGGPfr3Xhez6p1SOw/YvvF19idQkztDnzFaL
+         WTqRxXhW+BxGjEsIXy2WZlhzFzDWI6W5QjGbZwI/LOaE/6s4tTYa8mQpFZQsmVR6vrGH
+         NnPhSfEy8tX9/XF5/W4oOhKHC0TJioayC3Q/kDiakucSxpexdDSVVCPepDl52HlmaBNN
+         fSJw==
+X-Gm-Message-State: ABy/qLZQSjOMXO0ZCGfwVZCjYhQWN/6xdmjboBpSdV0URbrrUPh3i1Sk
+        IaFazwEWM1LeB1kyC14dOmD8VV/ixrOPx/Z/BafJw6A7dco6h4HVw1ur7qqnGozSARCXJJV6jxF
+        5eyw936Kq+FKLmgeIRAnnew==
+X-Received: by 2002:a2e:9556:0:b0:2b8:3797:84e4 with SMTP id t22-20020a2e9556000000b002b8379784e4mr5537003ljh.18.1690187339032;
+        Mon, 24 Jul 2023 01:28:59 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlEPImP9LxpC4V4IiV0Qbz2b0sQNi/ieeqXGoS0C6c6DyTzijmwojb+7Q3nGHs3QwkHU5zCWZg==
+X-Received: by 2002:a2e:9556:0:b0:2b8:3797:84e4 with SMTP id t22-20020a2e9556000000b002b8379784e4mr5536993ljh.18.1690187338677;
+        Mon, 24 Jul 2023 01:28:58 -0700 (PDT)
 Received: from ?IPV6:2003:d8:2f45:d000:62f2:4df0:704a:e859? (p200300d82f45d00062f24df0704ae859.dip0.t-ipconnect.de. [2003:d8:2f45:d000:62f2:4df0:704a:e859])
-        by smtp.gmail.com with ESMTPSA id s14-20020adfea8e000000b003143be36d99sm12106076wrm.58.2023.07.24.01.27.27
+        by smtp.gmail.com with ESMTPSA id y19-20020a05600c20d300b003fd2d33f972sm5371895wmm.38.2023.07.24.01.28.57
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 24 Jul 2023 01:27:28 -0700 (PDT)
-Message-ID: <c5944b74-db61-8383-cf15-13a9915ff7e5@redhat.com>
-Date:   Mon, 24 Jul 2023 10:27:27 +0200
+        Mon, 24 Jul 2023 01:28:58 -0700 (PDT)
+Message-ID: <80ab8ed9-ec6e-2bfa-62d6-da63d98c03e7@redhat.com>
+Date:   Mon, 24 Jul 2023 10:28:56 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.13.0
-Subject: Re: [PATCH v2 3/6] KVM: s390: interrupt: Fix single-stepping
- kernel-emulated instructions
+Subject: Re: [PATCH v2 4/6] KVM: s390: interrupt: Fix single-stepping
+ userspace-emulated instructions
 Content-Language: en-US
 To:     Ilya Leoshkevich <iii@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
@@ -75,72 +75,31 @@ Cc:     Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         Jens Freimann <jfreimann@redhat.com>
 References: <20230721120046.2262291-1-iii@linux.ibm.com>
- <20230721120046.2262291-4-iii@linux.ibm.com>
+ <20230721120046.2262291-5-iii@linux.ibm.com>
 From:   David Hildenbrand <david@redhat.com>
 Organization: Red Hat
-In-Reply-To: <20230721120046.2262291-4-iii@linux.ibm.com>
+In-Reply-To: <20230721120046.2262291-5-iii@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 21.07.23 13:57, Ilya Leoshkevich wrote:
-> Single-stepping a kernel-emulated instruction that generates an
-> interrupt causes GDB to land on the instruction following it instead of
-> the respective interrupt handler.
-> 
-> The reason is that kvm_handle_sie_intercept(), after injecting the
-> interrupt, also processes the PER event and arranges a KVM_SINGLESTEP
-> exit. The interrupt is not yet delivered, however, so the userspace
-> sees the next instruction.
-> 
-> Fix by avoiding the KVM_SINGLESTEP exit when there is a pending
-> interrupt. The next __vcpu_run() loop iteration will arrange a
-> KVM_SINGLESTEP exit after delivering the interrupt.
-> 
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-> ---
->   arch/s390/kvm/intercept.c | 17 ++++++++++++++---
->   1 file changed, 14 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-> index 7cdd927541b0..d2f7940c5d03 100644
-> --- a/arch/s390/kvm/intercept.c
-> +++ b/arch/s390/kvm/intercept.c
-> @@ -583,6 +583,19 @@ static int handle_pv_notification(struct kvm_vcpu *vcpu)
->   	return handle_instruction(vcpu);
->   }
->   
-> +static bool should_handle_per_ifetch(const struct kvm_vcpu *vcpu, int rc)
-> +{
-> +	/* Process PER, also if the instruction is processed in user space. */
-> +	if (!(vcpu->arch.sie_block->icptstatus & 0x02))
-> +		return false;
-> +	if (rc != 0 && rc != -EOPNOTSUPP)
-> +		return false;
-> +	if (guestdbg_sstep_enabled(vcpu) && vcpu->arch.local_int.pending_irqs)
-> +		/* __vcpu_run() will exit after delivering the interrupt. */
-> +		return false;
-> +	return true;
-> +}
-> +
->   int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
->   {
->   	int rc, per_rc = 0;
-> @@ -645,9 +658,7 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
->   		return -EOPNOTSUPP;
+> +		rc = -ENOIOCTLCMD;
+> +		break;
 >   	}
->   
-> -	/* process PER, also if the instruction is processed in user space */
-> -	if (vcpu->arch.sie_block->icptstatus & 0x02 &&
-> -	    (!rc || rc == -EOPNOTSUPP))
-> +	if (should_handle_per_ifetch(vcpu, rc))
->   		per_rc = kvm_s390_handle_per_ifetch_icpt(vcpu);
->   	return per_rc ? per_rc : rc;
->   }
+> -	return -ENOIOCTLCMD;
+> +
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+This really needs a comment. :)
+
+> +	if (!rc)
+> +		vcpu->guest_debug &= ~KVM_GUESTDBG_EXIT_PENDING;
+> +
+> +	return rc;
+>   }
+>   
+>   static int kvm_s390_handle_pv_vcpu_dump(struct kvm_vcpu *vcpu,
 
 -- 
 Cheers,
