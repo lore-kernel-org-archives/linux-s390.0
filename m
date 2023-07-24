@@ -2,135 +2,216 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0F1BC0015E
-	for <linux-s390@archiver.kernel.org>; Mon, 24 Jul 2023 14:52:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D723C04A6A
+	for <linux-s390@archiver.kernel.org>; Mon, 24 Jul 2023 17:22:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230078AbjGXOwI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 24 Jul 2023 10:52:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33774 "EHLO
+        id S229798AbjGXRWg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 24 Jul 2023 13:22:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229650AbjGXOwH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 24 Jul 2023 10:52:07 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D2BA10C3;
-        Mon, 24 Jul 2023 07:52:06 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36OEenmM028654;
-        Mon, 24 Jul 2023 14:52:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=d937RMY7ZZlW43sn+9FAkbTBiABzA3bEQgbYLyhmSlI=;
- b=Th5LJRXFsqdwMK1iupR6x+nwxHVNFDU0gqEoFi5olNoSr6ra+KNohvt+p974Vf90snMl
- Q1Kgecdon3LXHuc+nMVescB8/vCNZRy78CypXMeECvD//AU8OX8FZvGtL1jqfod8/QwE
- OKjvGRHQjGjQHdu3xXJ1dLLyXC9XNMRaiwRTpHlXTwAEZvLyTfpTngVdbj98koWlqVyJ
- VdVdTpQEd4qjFM2a+oOKEitcwnJsNubL6vKobaM95osO6LRontmL3Wjl97/Ip/IVqeMW
- +DkteY1WFaWABklTtIeL1wtlsXzDUki2LjIw7x4v1ZbAyOTjVV9LN4QsghbYon+RXGtt GA== 
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s1thfhhbk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 Jul 2023 14:52:03 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36OEcVWe002379;
-        Mon, 24 Jul 2023 14:52:03 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3s0unj3g9g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 Jul 2023 14:52:02 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36OEq0et44695942
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 24 Jul 2023 14:52:00 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E24D820043;
-        Mon, 24 Jul 2023 14:51:59 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8319B20040;
-        Mon, 24 Jul 2023 14:51:59 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 24 Jul 2023 14:51:59 +0000 (GMT)
-From:   Steffen Maier <maier@linux.ibm.com>
-To:     "James E . J . Bottomley" <jejb@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc:     linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>
-Subject: [PATCH] zfcp: defer fc_rport blocking until after ADISC response
-Date:   Mon, 24 Jul 2023 16:51:56 +0200
-Message-Id: <20230724145156.3920244-1-maier@linux.ibm.com>
-X-Mailer: git-send-email 2.39.2
-MIME-Version: 1.0
+        with ESMTP id S230436AbjGXRWc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 24 Jul 2023 13:22:32 -0400
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2057.outbound.protection.outlook.com [40.107.94.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A4FC10FD;
+        Mon, 24 Jul 2023 10:22:22 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Vai1kMnFdYv6xMQz9nXv7R2rk/xqirQUT05/P2ykE3Sdbdf4hVEUQXyVhFUcLyUm3ORpI5Czu4Ivobk8Ef6XlOgbYvRUYYRfbB7fgMYIfAI+0XQrQKfWLlQXxDWWLn6aeQi0iJMzjUa9ezePL/PWMPefXIcnzNmaijU+0chNpsq6r04eNkSDnSnjZbeXllPG5XV1VR6nytwUguQ09Wyo7uofoPyoqxdsM+3JVnkbvXTsB+U/zEFDyBk5MCDts3i4p51jlE5iSOAe/IB6m9Wk26Hp27D4zC+uSFNFPA/6sux/j5L476WiVlvuUpGAIT16RjpvGyBAhYTu/2GNHtjFMg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=2iHXF79ZsLNr+U25wG96PT5wqn685MqH0c6RI6HOHFE=;
+ b=D5RTRFLhU89kCKNlqQHjU7LJ1PsC53zT5W/GNb66cE9NRmhfUwAAe+VG6nhBIxWoLVEE4THFfVw3Tx4bc+FMgghp7sc0x9wlj71olq5zGem7R1pCc09Tis8NLFa7b1G8JQZrftW7fZN228HLq/YhDSei9hdxetF2QD5MpC24iES/Ej3bFbYA7pqmjEbP+Q9fm95Vffw9xg6gDOgcuv9E/glW/Vtt8LDv+zp0c7n+QyXucBKdIpMsBzsWr9L6JrMMz231hODEopDuS8PIwV9VykqrVq8aKg5unxEV/1K3DSHcoQs0WJu1mDWwyvU07x0J2J/seSd9xzx6uAEk6dfRtw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2iHXF79ZsLNr+U25wG96PT5wqn685MqH0c6RI6HOHFE=;
+ b=KTFJG2W+zf56/kGEnotugblu7UBDNUfl3tlDYImw1x44Zs747A+Gz1nOGax1Qr0iJNACGKoDh9tkRvTbvlz6IRRMFAHsOIxyLWZ2laukOn3KSCN/sRL/ghV0H0spdtMRUNs874sVyndpjKZ6fG37fI7k4I19MHmpws7Cm7CqSdAnJ2CYEDJb8BXRgB1SQgTr1tw6BvVTRMyVpk+0/wRPtcRDqKUt4DoWHzaEuigGQ0chy08LnBR3wYMzir+id3tzXsGxB+afsvADh1Q9ro3DV8Ro9ek1953lepl/K5t2+1uyqhun2fel1K2Gz8/e1EMEW2xGf7FsnDSLEkkrHDqm3A==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by PH7PR12MB7353.namprd12.prod.outlook.com (2603:10b6:510:20c::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6609.32; Mon, 24 Jul
+ 2023 17:22:17 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::5111:16e8:5afe:1da1]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::5111:16e8:5afe:1da1%6]) with mapi id 15.20.6609.032; Mon, 24 Jul 2023
+ 17:22:17 +0000
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Andy Gross <agross@kernel.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        linuxppc-dev@lists.ozlabs.org,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>
+Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Steven Price <steven.price@arm.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH v5 04/25] iommu: Add IOMMU_DOMAIN_PLATFORM for S390
+Date:   Mon, 24 Jul 2023 14:21:54 -0300
+Message-ID: <4-v5-d0a204c678c7+3d16a-iommu_all_defdom_jgg@nvidia.com>
+In-Reply-To: <0-v5-d0a204c678c7+3d16a-iommu_all_defdom_jgg@nvidia.com>
+References: 
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: LuuUUcX18NkGH1jq2s6ALlc8oDAm3Vs3
-X-Proofpoint-GUID: LuuUUcX18NkGH1jq2s6ALlc8oDAm3Vs3
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-24_11,2023-07-24_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- priorityscore=1501 suspectscore=0 mlxscore=0 malwarescore=0 adultscore=0
- clxscore=1011 phishscore=0 spamscore=0 mlxlogscore=999 impostorscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2306200000 definitions=main-2307240129
+Content-Type: text/plain
+X-ClientProxiedBy: BL0PR03CA0020.namprd03.prod.outlook.com
+ (2603:10b6:208:2d::33) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|PH7PR12MB7353:EE_
+X-MS-Office365-Filtering-Correlation-Id: cab6f812-c85a-4773-0a0f-08db8c6a8754
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: uB3bJPskIZ+5Mdwkj4kWSwhC04m9GGeDmZUPqVVS9EWDyDMzFpVAn23XUUClfxbJz/gd7nwVYRzvYcEar33DdI8pJrGR00udEJ5S+mox3KJhN5U75rmgU8YKY5VwbZlSSki5fjjfCy0BuRRRXQWQ2gqB8KT2Lzu6jHyw1r1oF+6sd97FMve/f99GqDe8MmapuGJxB2DaM7DBs7c/Xuh/tD4bNnnAWbOyI4QLKnXeX3qDt3JC1hkadLvqrDGLEEnj8Qgbw/KbpWu9rwlT8s3aq9GPX8rOQiCn7PhWTIEgWfJMbI73atmEOYp43d9aFqqqsTFHPl5ANiVlckze/XNVbfCrYifY2Mp9GWF40nry4pa0tU9QYlV0L8YKont7nzjqMhrrL4MmBOcC9Z4kcVSWXL7gYy4tQJhdB/PqoHe5EWj44MOxqhP5rNX2WNsApaIN4cak/JKJ8R/XYZV6D5sdQuTbqGefVw45DLOq78pgmGrmftCNyLWRqGzmM6q4PfMAp/jbcWvVJnTYA3c0NF+hZ2FL1phWv14w+pwDsUw+EqEGSamZz3QHxMp3A27YWPIY4YZvrp+SmPyfUnwpRpCNXRDl15vzFjCW1iLMYnAgsW6xRCq9CxhZQXbQfL4fA2e7
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(396003)(366004)(376002)(136003)(39860400002)(346002)(451199021)(36756003)(478600001)(6512007)(6486002)(110136005)(6666004)(54906003)(6506007)(186003)(26005)(107886003)(2906002)(316002)(4326008)(66946007)(66556008)(66476007)(7416002)(7406005)(8676002)(5660300002)(8936002)(921005)(38100700002)(41300700001)(86362001)(83380400001)(2616005)(4216001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?NuHWr8/e21IxXtEdt93RtGavNW6AofNutPCjsvXfyiXbzLgoe7HcdJzZ12Dh?=
+ =?us-ascii?Q?DHRSeC4TqhcZg1hHXMXWurhkhqLkYiTIuKMz1tTttQjEu/rHR+U82Yw+Q+/D?=
+ =?us-ascii?Q?8crAUSrsVjl6I6v9tvwOOCpvs3lJzKLTRONR9KKT66yibpJioJD2CR6ucqR0?=
+ =?us-ascii?Q?EffGuZStPlNVPu/ynK7VQhrrlUxxiD0MrxPXY94dbi12NNMSEkLhQE6Rg3fl?=
+ =?us-ascii?Q?tecmjCGDqi3aWX3sZZTCaDDlrTs2ZpcLa50hYMTTkvKZ8HzL/b4dVjFdiEse?=
+ =?us-ascii?Q?ATwLlV4sBojOOUruYsUo8DLAWtMO8qjs8CIASVi6I4CP2GPGxnY6LAB77Iv0?=
+ =?us-ascii?Q?UlB+Gi3x/KMf73hrjA4tAWvn0+Iyyq4N4PcN/UIhc1P8GfNoiBmASsYKUW9l?=
+ =?us-ascii?Q?XxquiAY7jN/lXgWox5HWBddIoTi54Uz9hi01LiMR9+vWH26mIK9S1Eud4fxx?=
+ =?us-ascii?Q?WFnBTEuforDDqRwDcqMCnyWuQA1TCulV5/c8UJGSGHuq6ESOt7FEGogZzARj?=
+ =?us-ascii?Q?XurWa5LEvf6Lmvr3LSkP3fi9noO1eaGNCc5OVNMV/d+A4YNCX6xtAVE0eygP?=
+ =?us-ascii?Q?T8+pTXLo2WnRxVoMCPw8eqgQbAjoKfy91R8LH479DJ4Ro9bX1r7Tj0gOvCWq?=
+ =?us-ascii?Q?2F7zssObqjHCFmRDgmOYI+/+Q6jUKSDyXNm8aJbGoZx4f0Rwn7g1UbJHyd5f?=
+ =?us-ascii?Q?ft2ICkbKQSsXCQaWVh/P5lZpMuc3xlFbggqhpYaJrQIEpVgVbkNs0vFlAY4e?=
+ =?us-ascii?Q?xl8Y8FcmVM9D7IfZ6w/Ti2JsBDD6ZXUtDjGoL66b67uFXXDyUKYH134OwJEZ?=
+ =?us-ascii?Q?YmvCW4vRUVW5lh5GHg4AJ+RWouVmq8w7ZqIZVjeqFnm+MKIZ365CP3qO25Hz?=
+ =?us-ascii?Q?HHbZaye+V1Dv3RsmSrDJNM4mjGEd4J/PC8yjwGESYT3wBLF9yE8i3LuBAym2?=
+ =?us-ascii?Q?/vTheWAKvC/XjlXVBGvDdjKXRiq5miPJ1nx7MQmPQ21i8nr19T9lT3BnTKwG?=
+ =?us-ascii?Q?NbVF6fERqjcjans1V4d/3IXghfJcKUZpddd0DYgAzwxl5O4u+g6X2tXZ4OIn?=
+ =?us-ascii?Q?kzMNuiiMjMxi01oOaIby1fuUo0pQS3LK1aJURh9UgfjmFdC64spTlQ/oBAwb?=
+ =?us-ascii?Q?8IgHMClRlyxsEXRQrGsTwRKfb2M35pf0oGkOUJBq36BjYkVarY8orOoNxf2u?=
+ =?us-ascii?Q?LrqkLj/0vaRTJVoQ0jZGLwWCUR8MX89cpOv6z4sRuSo6EMl9fbkLngQHaXBl?=
+ =?us-ascii?Q?DMecIrF3f0vVtVouef2OrO6iS9xTpS02EQWiFW6a58uUb3OyH7EffCS16RWw?=
+ =?us-ascii?Q?IU2qCb7i1oxSavucfRbL6k8JMQOgQZgpvVXuHIYNHC73BH8WJOVlSinFkpUi?=
+ =?us-ascii?Q?a7OqQpXsAmVNaLt+PqLWWTb7t2aNGvFtZqC6JmGXGLDl1PS/zXY2brpXSuwI?=
+ =?us-ascii?Q?lGPSbDBlAxdvwd+2otjVazshlF419cTrVr5V1zFRYBkw4kh7Zpw1i7XUzguT?=
+ =?us-ascii?Q?4XLokPP304ua4zj+nz1ev+kD+aTEvNSSxSA/agPPJVpzEqrnu618ZGsSuLc/?=
+ =?us-ascii?Q?1qQ0yR85YDvCn+kPrWu0mhHYUMBxrYdpQY6HcKxF?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: cab6f812-c85a-4773-0a0f-08db8c6a8754
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Jul 2023 17:22:17.0056
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: HlaSZ9q2yFnsXl/M07JVJuTywqICGBNLO40bbKXCGHkhPx0CKslkpBQ6MjvORs7n
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB7353
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Storages are free to send RSCNs, e.g. for internal state changes. If this
-happens on all connected paths, zfcp risks temporarily losing all paths at
-the same time. This has strong requirements on multipath configuration such
-as "no_path_retry queue".
+The PLATFORM domain will be set as the default domain and attached as
+normal during probe. The driver will ignore the initial attach from a NULL
+domain to the PLATFORM domain.
 
-Avoid such situations by deferring fc_rport blocking until after the ADISC
-response, when any actual state change of the remote port became clear.
-The already existing port recovery triggers explicitly block the fc_rport.
-The triggers are: on ADISC reject or timeout (typical cable pull case), and
-on ADISC indicating that the remote port has changed its WWPN or
-the port is meanwhile no longer open.
+After this, the PLATFORM domain's attach_dev will be called whenever we
+detach from an UNMANAGED domain (eg for VFIO). This is the same time the
+original design would have called op->detach_dev().
 
-As a side effect, this also removes a confusing direct function call to
-another work item function zfcp_scsi_rport_work() instead of scheduling
-that other work item. It was probably done that way to have the rport block
-side effect immediate and synchronous to the caller.
+This is temporary until the S390 dma-iommu.c conversion is merged.
 
-Fixes: a2fa0aede07c ("[SCSI] zfcp: Block FC transport rports early on errors")
-Cc: <stable@vger.kernel.org> #v2.6.30+
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Reviewed-by: Fedor Loshakov <loshakov@linux.ibm.com>
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Tested-by: Heiko Stuebner <heiko@sntech.de>
+Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 ---
- drivers/s390/scsi/zfcp_fc.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/iommu/s390-iommu.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
-index f21307537829..4f0d0e55f0d4 100644
---- a/drivers/s390/scsi/zfcp_fc.c
-+++ b/drivers/s390/scsi/zfcp_fc.c
-@@ -534,8 +534,7 @@ static void zfcp_fc_adisc_handler(void *data)
+diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+index fbf59a8db29b11..f0c867c57a5b9b 100644
+--- a/drivers/iommu/s390-iommu.c
++++ b/drivers/iommu/s390-iommu.c
+@@ -142,14 +142,31 @@ static int s390_iommu_attach_device(struct iommu_domain *domain,
+ 	return 0;
+ }
  
- 	/* re-init to undo drop from zfcp_fc_adisc() */
- 	port->d_id = ntoh24(adisc_resp->adisc_port_id);
--	/* port is good, unblock rport without going through erp */
--	zfcp_scsi_schedule_rport_register(port);
-+	/* port is still good, nothing to do */
-  out:
- 	atomic_andnot(ZFCP_STATUS_PORT_LINK_TEST, &port->status);
- 	put_device(&port->dev);
-@@ -595,9 +594,6 @@ void zfcp_fc_link_test_work(struct work_struct *work)
- 	int retval;
+-static void s390_iommu_set_platform_dma(struct device *dev)
++/*
++ * Switch control over the IOMMU to S390's internal dma_api ops
++ */
++static int s390_iommu_platform_attach(struct iommu_domain *platform_domain,
++				      struct device *dev)
+ {
+ 	struct zpci_dev *zdev = to_zpci_dev(dev);
  
- 	set_worker_desc("zadisc%16llx", port->wwpn); /* < WORKER_DESC_LEN=24 */
--	get_device(&port->dev);
--	port->rport_task = RPORT_DEL;
--	zfcp_scsi_rport_work(&port->rport_work);
++	if (!zdev->s390_domain)
++		return 0;
++
+ 	__s390_iommu_detach_device(zdev);
+ 	zpci_dma_init_device(zdev);
++	return 0;
+ }
  
- 	/* only issue one test command at one time per port */
- 	if (atomic_read(&port->status) & ZFCP_STATUS_PORT_LINK_TEST)
-
-base-commit: 010c1e1c5741365dbbf44a5a5bb9f30192875c4c
++static struct iommu_domain_ops s390_iommu_platform_ops = {
++	.attach_dev = s390_iommu_platform_attach,
++};
++
++static struct iommu_domain s390_iommu_platform_domain = {
++	.type = IOMMU_DOMAIN_PLATFORM,
++	.ops = &s390_iommu_platform_ops,
++};
++
+ static void s390_iommu_get_resv_regions(struct device *dev,
+ 					struct list_head *list)
+ {
+@@ -428,12 +445,12 @@ void zpci_destroy_iommu(struct zpci_dev *zdev)
+ }
+ 
+ static const struct iommu_ops s390_iommu_ops = {
++	.default_domain = &s390_iommu_platform_domain,
+ 	.capable = s390_iommu_capable,
+ 	.domain_alloc = s390_domain_alloc,
+ 	.probe_device = s390_iommu_probe_device,
+ 	.release_device = s390_iommu_release_device,
+ 	.device_group = generic_device_group,
+-	.set_platform_dma_ops = s390_iommu_set_platform_dma,
+ 	.pgsize_bitmap = SZ_4K,
+ 	.get_resv_regions = s390_iommu_get_resv_regions,
+ 	.default_domain_ops = &(const struct iommu_domain_ops) {
 -- 
-2.39.2
+2.41.0
 
