@@ -2,162 +2,228 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CDEAC001B0
-	for <linux-s390@archiver.kernel.org>; Mon, 24 Jul 2023 11:34:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B9D3C001DE
+	for <linux-s390@archiver.kernel.org>; Mon, 24 Jul 2023 13:16:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229667AbjGXLdi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 24 Jul 2023 07:33:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52218 "EHLO
+        id S229725AbjGXNQR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 24 Jul 2023 09:16:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229977AbjGXLcx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 24 Jul 2023 07:32:53 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22DDD1700
-        for <linux-s390@vger.kernel.org>; Mon, 24 Jul 2023 04:31:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1690198278;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=JfpT+mnZfrCac16v3aInlmHimudhY8zZWOx9+CfU5jI=;
-        b=GQvO7aICKvu/RXr6lTBdWrb/116vxCs6mrf/5bYBz5vwKwvY/AxfKNDthtfRG1zQG0d6DK
-        ni3e86mR04dyfhYH8CsKXIQTO2w/2brQtrvYHuMGhRTf8VWOzRebrWZ8W8EELvaGbShkaK
-        QbcnXJIpuB3MOaCRHoqHytw8mDpjjBE=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-684-L_npn5FGNSyl719Iwi3RNg-1; Mon, 24 Jul 2023 07:31:17 -0400
-X-MC-Unique: L_npn5FGNSyl719Iwi3RNg-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-3fbb0fdd060so26568475e9.0
-        for <linux-s390@vger.kernel.org>; Mon, 24 Jul 2023 04:31:16 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690198276; x=1690803076;
-        h=content-transfer-encoding:in-reply-to:organization:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JfpT+mnZfrCac16v3aInlmHimudhY8zZWOx9+CfU5jI=;
-        b=KtsbthUEQFag0CkxO918m+2fpiZ3PTVDs+07RDtx8l0QH7+Fot6ClYINeN/ploL1Cr
-         nHz66TlyVhCC0RPPGEwDqLEvGUSx2czU+RIdtssAKXcK6E1hjfDnd3PRvAahXrdEx1GQ
-         D9PkvG2XBivKWPt5WotwPEDHRirLnSyj9ro/PJf4nD63cUVxN+DmATvOXqrtbyrarMTQ
-         94pxQ5Q48pYQ5AU4C9qss1TNEsLpA78fqFBXqFLWozcSEgu19dHyhnVh1OW3ZPs48e+J
-         wJ3Cysxg566DgisT6dHAms2lxEAAjZavUQbRm2g8XBJH0zEWlnUwJI+LRYgbuQDHOJEv
-         eRcA==
-X-Gm-Message-State: ABy/qLbvZpXNDhJ15OMWmPYdzqJLdOoqHcNYGQ0Q3jdrFIKb4j5mb5tq
-        6DMvXPVUV2P3yvnjHfVyLf7fgwYZUSWkNSGxU3wdazusZ0sg+9yc+l/bdv5Ml7aSZlH8dv3Vx/g
-        zVz0g9G81ZsJMIDxnZGQCQQ==
-X-Received: by 2002:a05:600c:2242:b0:3fb:c990:3b2 with SMTP id a2-20020a05600c224200b003fbc99003b2mr7772964wmm.34.1690198276013;
-        Mon, 24 Jul 2023 04:31:16 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlGUPL3n/cnC/PIyIMNs1cuvjFmNfmTxRquxzSGXY0jphihcdCijrhdx91U2TwsjxeP5mV4SyQ==
-X-Received: by 2002:a05:600c:2242:b0:3fb:c990:3b2 with SMTP id a2-20020a05600c224200b003fbc99003b2mr7772946wmm.34.1690198275671;
-        Mon, 24 Jul 2023 04:31:15 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c73d:bb00:91a5:d1c:3a7e:4c77? (p200300cbc73dbb0091a50d1c3a7e4c77.dip0.t-ipconnect.de. [2003:cb:c73d:bb00:91a5:d1c:3a7e:4c77])
-        by smtp.gmail.com with ESMTPSA id y19-20020a05600c20d300b003fd2d33f972sm5802964wmm.38.2023.07.24.04.31.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 24 Jul 2023 04:31:15 -0700 (PDT)
-Message-ID: <170e3285-2e01-840e-21bc-39dbad256542@redhat.com>
-Date:   Mon, 24 Jul 2023 13:31:14 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [PATCH v3 4/6] KVM: s390: interrupt: Fix single-stepping
- userspace-emulated instructions
-To:     Ilya Leoshkevich <iii@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        with ESMTP id S230082AbjGXNQQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 24 Jul 2023 09:16:16 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BFF4DD;
+        Mon, 24 Jul 2023 06:16:15 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36OD9GFN025220;
+        Mon, 24 Jul 2023 13:16:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=GZ38s4l7BD35jhBNpdOBoSVAuAi8nL+7mdh2cicayvs=;
+ b=QGUGj5DKpp20KMHDdc2jpDlHU/HojBA/aSo5l1azZeyMQMzJTTQG8ge54p12SN/35MWM
+ XjncauQosdCnEMxPRLAUfJ70pyUi9jFaa3oNA3fgepq4D8M9G2xB5ztSRBPa+OlH1dkW
+ PiVeOHUeRPBaqruosxWKEP+txFQ65iIbORdJte2XSYwYubz7zEwAkWKfXLynzUS0CzBB
+ a7KfBL+aeCyaAdngcFi10XQq8ScRFVIlwrbVh6Y7Sc/5RgLO+kT4MWzOGYc6ABKKOhMG
+ 0j363oKuGNJ0cdbaa5C+R+T1TSNv/tVrn7IkvJSj15nIkvJQTETZfqGoTzHq56MrjfHF rg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s1s62sbn3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 24 Jul 2023 13:16:01 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36ODA13D030136;
+        Mon, 24 Jul 2023 13:16:01 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s1s62sbmu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 24 Jul 2023 13:16:00 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36OCXkLk026200;
+        Mon, 24 Jul 2023 13:16:00 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3s0serkq85-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 24 Jul 2023 13:16:00 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36ODFvgg28050046
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 24 Jul 2023 13:15:57 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 37A5D2005A;
+        Mon, 24 Jul 2023 13:15:57 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 225B420043;
+        Mon, 24 Jul 2023 13:15:57 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Mon, 24 Jul 2023 13:15:57 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
+        id C6020E0875; Mon, 24 Jul 2023 15:15:56 +0200 (CEST)
+From:   Alexandra Winter <wintera@linux.ibm.com>
+To:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
         Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jens Freimann <jfreimann@redhat.com>
-References: <20230724094716.91510-1-iii@linux.ibm.com>
- <20230724094716.91510-5-iii@linux.ibm.com>
-Content-Language: en-US
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <20230724094716.91510-5-iii@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        Simon Horman <simon.horman@corigine.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH net] s390/lcs: Remove FDDI option
+Date:   Mon, 24 Jul 2023 15:15:46 +0200
+Message-Id: <20230724131546.3597001-1-wintera@linux.ibm.com>
+X-Mailer: git-send-email 2.39.2
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 7czs-R7QrH8z6oXtf_Sk2VAnJfFcwk7y
+X-Proofpoint-ORIG-GUID: Ie3cqatDmXXW5iIra6qY_swGOOj4gM-N
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-24_10,2023-07-24_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
+ phishscore=0 spamscore=0 clxscore=1015 bulkscore=0 impostorscore=0
+ adultscore=0 suspectscore=0 priorityscore=1501 mlxlogscore=999
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2307240116
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 24.07.23 11:44, Ilya Leoshkevich wrote:
-> Single-stepping a userspace-emulated instruction that generates an
-> interrupt causes GDB to land on the instruction following it instead of
-> the respective interrupt handler.
-> 
-> The reason is that after arranging a KVM_EXIT_S390_SIEIC exit,
-> kvm_handle_sie_intercept() calls kvm_s390_handle_per_ifetch_icpt(),
-> which sets KVM_GUESTDBG_EXIT_PENDING. This bit, however, is not
-> processed immediately, but rather persists until the next ioctl(),
-> causing a spurious single-step exit.
-> 
-> Fix by clearing this bit in ioctl().
-> 
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-> ---
->   arch/s390/kvm/kvm-s390.c | 23 ++++++++++++++++++++---
->   1 file changed, 20 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 0c6333b108ba..e6511608280c 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -5383,6 +5383,7 @@ long kvm_arch_vcpu_async_ioctl(struct file *filp,
->   {
->   	struct kvm_vcpu *vcpu = filp->private_data;
->   	void __user *argp = (void __user *)arg;
-> +	int rc;
->   
->   	switch (ioctl) {
->   	case KVM_S390_IRQ: {
-> @@ -5390,7 +5391,8 @@ long kvm_arch_vcpu_async_ioctl(struct file *filp,
->   
->   		if (copy_from_user(&s390irq, argp, sizeof(s390irq)))
->   			return -EFAULT;
-> -		return kvm_s390_inject_vcpu(vcpu, &s390irq);
-> +		rc = kvm_s390_inject_vcpu(vcpu, &s390irq);
-> +		break;
->   	}
->   	case KVM_S390_INTERRUPT: {
->   		struct kvm_s390_interrupt s390int;
-> @@ -5400,10 +5402,25 @@ long kvm_arch_vcpu_async_ioctl(struct file *filp,
->   			return -EFAULT;
->   		if (s390int_to_s390irq(&s390int, &s390irq))
->   			return -EINVAL;
-> -		return kvm_s390_inject_vcpu(vcpu, &s390irq);
-> +		rc = kvm_s390_inject_vcpu(vcpu, &s390irq);
-> +		break;
->   	}
-> +	default:
-> +		rc = -ENOIOCTLCMD;
-> +		break;
->   	}
-> -	return -ENOIOCTLCMD;
-> +
-> +	/*
-> +	 * To simplify single stepping of userspace-emulated instructions,
-> +	 * KVM_EXIT_S390_SIEIC exit sets KVM_GUESTDBG_EXIT_PENDING (see
-> +	 * should_handle_per_ifetch()). However, if userspace emulation injects
-> +	 * an interrupt, it needs to be cleared, so that KVM_EXIT_DEBUG happens
-> +	 * after (and not before) the interrupt delivery.
-> +	 */
-> +	if (!rc)
-> +		vcpu->guest_debug &= ~KVM_GUESTDBG_EXIT_PENDING;
-> +
-> +	return rc;
->   }
->   
->   static int kvm_s390_handle_pv_vcpu_dump(struct kvm_vcpu *vcpu,
+The last s390 machine that supported FDDI was z900 ('7th generation',
+released in 2000). The oldest machine generation currently supported by
+the Linux kernel is MARCH_Z10 (released 2008). If there is still a usecase
+for connecting a Linux on s390 instance to a LAN Channel Station (LCS), it
+can only do so via Ethernet.
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+Randy Dunlap[1] found that LCS over FDDI has never worked, when FDDI
+was compiled as module. Instead of fixing that, remove the FDDI option
+from the lcs driver.
 
+While at it, make the CONFIG_LCS description a bit more helpful.
+
+References:
+[1] https://lore.kernel.org/netdev/20230621213742.8245-1-rdunlap@infradead.org/
+
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
+---
+ drivers/s390/net/Kconfig |  5 ++---
+ drivers/s390/net/lcs.c   | 39 ++++++---------------------------------
+ 2 files changed, 8 insertions(+), 36 deletions(-)
+
+diff --git a/drivers/s390/net/Kconfig b/drivers/s390/net/Kconfig
+index 9c67b97faba2..74760c1a163b 100644
+--- a/drivers/s390/net/Kconfig
++++ b/drivers/s390/net/Kconfig
+@@ -5,12 +5,11 @@ menu "S/390 network device drivers"
+ config LCS
+ 	def_tristate m
+ 	prompt "Lan Channel Station Interface"
+-	depends on CCW && NETDEVICES && (ETHERNET || FDDI)
++	depends on CCW && NETDEVICES && ETHERNET
+ 	help
+ 	  Select this option if you want to use LCS networking on IBM System z.
+-	  This device driver supports FDDI (IEEE 802.7) and Ethernet.
+ 	  To compile as a module, choose M. The module name is lcs.
+-	  If you do not know what it is, it's safe to choose Y.
++	  If you do not use LCS, choose N.
+ 
+ config CTCM
+ 	def_tristate m
+diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
+index 9fd8e6f07a03..a1f2acd6fb8f 100644
+--- a/drivers/s390/net/lcs.c
++++ b/drivers/s390/net/lcs.c
+@@ -17,7 +17,6 @@
+ #include <linux/if.h>
+ #include <linux/netdevice.h>
+ #include <linux/etherdevice.h>
+-#include <linux/fddidevice.h>
+ #include <linux/inetdevice.h>
+ #include <linux/in.h>
+ #include <linux/igmp.h>
+@@ -36,10 +35,6 @@
+ #include "lcs.h"
+ 
+ 
+-#if !defined(CONFIG_ETHERNET) && !defined(CONFIG_FDDI)
+-#error Cannot compile lcs.c without some net devices switched on.
+-#endif
+-
+ /*
+  * initialization string for output
+  */
+@@ -1601,19 +1596,11 @@ lcs_startlan_auto(struct lcs_card *card)
+ 	int rc;
+ 
+ 	LCS_DBF_TEXT(2, trace, "strtauto");
+-#ifdef CONFIG_ETHERNET
+ 	card->lan_type = LCS_FRAME_TYPE_ENET;
+ 	rc = lcs_send_startlan(card, LCS_INITIATOR_TCPIP);
+ 	if (rc == 0)
+ 		return 0;
+ 
+-#endif
+-#ifdef CONFIG_FDDI
+-	card->lan_type = LCS_FRAME_TYPE_FDDI;
+-	rc = lcs_send_startlan(card, LCS_INITIATOR_TCPIP);
+-	if (rc == 0)
+-		return 0;
+-#endif
+ 	return -EIO;
+ }
+ 
+@@ -1806,22 +1793,16 @@ lcs_get_frames_cb(struct lcs_channel *channel, struct lcs_buffer *buffer)
+ 			card->stats.rx_errors++;
+ 			return;
+ 		}
+-		/* What kind of frame is it? */
+-		if (lcs_hdr->type == LCS_FRAME_TYPE_CONTROL) {
+-			/* Control frame. */
++		if (lcs_hdr->type == LCS_FRAME_TYPE_CONTROL)
+ 			lcs_get_control(card, (struct lcs_cmd *) lcs_hdr);
+-		} else if (lcs_hdr->type == LCS_FRAME_TYPE_ENET ||
+-			   lcs_hdr->type == LCS_FRAME_TYPE_TR ||
+-			   lcs_hdr->type == LCS_FRAME_TYPE_FDDI) {
+-			/* Normal network packet. */
++		else if (lcs_hdr->type == LCS_FRAME_TYPE_ENET)
+ 			lcs_get_skb(card, (char *)(lcs_hdr + 1),
+ 				    lcs_hdr->offset - offset -
+ 				    sizeof(struct lcs_header));
+-		} else {
+-			/* Unknown frame type. */
+-			; // FIXME: error message ?
+-		}
+-		/* Proceed to next frame. */
++		else
++			dev_info_once(&card->dev->dev,
++				      "Unknown frame type %d\n",
++				      lcs_hdr->type);
+ 		offset = lcs_hdr->offset;
+ 		lcs_hdr->offset = LCS_ILLEGAL_OFFSET;
+ 		lcs_hdr = (struct lcs_header *) (buffer->data + offset);
+@@ -2140,18 +2121,10 @@ lcs_new_device(struct ccwgroup_device *ccwgdev)
+ 		goto netdev_out;
+ 	}
+ 	switch (card->lan_type) {
+-#ifdef CONFIG_ETHERNET
+ 	case LCS_FRAME_TYPE_ENET:
+ 		card->lan_type_trans = eth_type_trans;
+ 		dev = alloc_etherdev(0);
+ 		break;
+-#endif
+-#ifdef CONFIG_FDDI
+-	case LCS_FRAME_TYPE_FDDI:
+-		card->lan_type_trans = fddi_type_trans;
+-		dev = alloc_fddidev(0);
+-		break;
+-#endif
+ 	default:
+ 		LCS_DBF_TEXT(3, setup, "errinit");
+ 		pr_err(" Initialization failed\n");
 -- 
-Cheers,
-
-David / dhildenb
+2.39.2
 
