@@ -2,131 +2,189 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F9C2C001DF
-	for <linux-s390@archiver.kernel.org>; Mon, 24 Jul 2023 19:10:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00BA3EB64DD
+	for <linux-s390@archiver.kernel.org>; Mon, 24 Jul 2023 22:23:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230340AbjGXTKO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 24 Jul 2023 15:10:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33132 "EHLO
+        id S229790AbjGXWXD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 24 Jul 2023 18:23:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230391AbjGXTKL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 24 Jul 2023 15:10:11 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBB1210E5
-        for <linux-s390@vger.kernel.org>; Mon, 24 Jul 2023 12:09:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1690225767;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=WawsHdGpz2PcjK+rzMy9rXk7uFt8JlrwIupXE53S044=;
-        b=OBzDtieTiyJ84w0bsmwKSf3r10BAHqd1IbS+gh2SVZXsKQ8f15MmSsObomYhGEKMJwBu0f
-        JEP2T4ZHgZ/FSpN0ay2RRCdRT1raT8F4jNHwmMsLOLoDEUIUOqTjYtQQj6l5fKg14O38qY
-        ru52Kmj35xO+rna1g014vVHXKfXHAHA=
-Received: from mail-io1-f71.google.com (mail-io1-f71.google.com
- [209.85.166.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-160-7JsU2uMqNyCWUOAk6j8f5A-1; Mon, 24 Jul 2023 15:09:26 -0400
-X-MC-Unique: 7JsU2uMqNyCWUOAk6j8f5A-1
-Received: by mail-io1-f71.google.com with SMTP id ca18e2360f4ac-786f4056ac0so240266939f.1
-        for <linux-s390@vger.kernel.org>; Mon, 24 Jul 2023 12:09:26 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690225765; x=1690830565;
-        h=content-transfer-encoding:mime-version:organization:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
+        with ESMTP id S229752AbjGXWXB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 24 Jul 2023 18:23:01 -0400
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13D6E1728
+        for <linux-s390@vger.kernel.org>; Mon, 24 Jul 2023 15:22:28 -0700 (PDT)
+Received: by mail-lf1-x132.google.com with SMTP id 2adb3069b0e04-4fba8f2197bso7520959e87.3
+        for <linux-s390@vger.kernel.org>; Mon, 24 Jul 2023 15:22:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1690237333; x=1690842133;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=WawsHdGpz2PcjK+rzMy9rXk7uFt8JlrwIupXE53S044=;
-        b=UZU2x37dnnI1tmkoFLX3QBvvclH8izvq6t4xXd8UMMsP+qIFyGdhHhmOc85AehtmdC
-         NoV3RljpjYaRqZhANC7So6glvsgy+N3KT0NWSgOrZt4cn9iUxTM5IfKAV/kXfzcC+05H
-         f/lmxwaRcgvGSL62+y7C1a82UoivQnAhfL5a2GpNX/gQPoPIsJH1RJIEjmstUGpjvFYI
-         +yNyFZ1KgeAOqLJ7iHvLhzF7FA8tkd6yItNSkFvp8t8GbuhFTEo8Ba7f2W948ZZPGOpO
-         1ODcKa2KA0DFzUSQuT3lF4NgfMI2FMNycAOrAdjgu7y+0rZhdTKRFnM7W0N76DmMU0dn
-         xWHQ==
-X-Gm-Message-State: ABy/qLZl1AQQ4SikxlHkxxEfDboYuFJXVSjfMVnK04WXXqi0eKMwVWNJ
-        mIAHgR2ICwVe0w7ZBq1Yxega8rkXss4yMXwZLFPPwObFOcV8WFAp+eaUMtZB7MGp8gn5fQF0mFZ
-        nVrY6qh5ip9jiMcIuACNaAQ==
-X-Received: by 2002:a5d:8856:0:b0:787:9f4:a286 with SMTP id t22-20020a5d8856000000b0078709f4a286mr830181ios.3.1690225765544;
-        Mon, 24 Jul 2023 12:09:25 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlGQj4iG8mT+sSEqSQYkZfuQ4Hg9spnEgepBk2H1o6jlqFqHr7tDoImTU/XT+4VwrQSYWZsnbg==
-X-Received: by 2002:a5d:8856:0:b0:787:9f4:a286 with SMTP id t22-20020a5d8856000000b0078709f4a286mr830154ios.3.1690225765283;
-        Mon, 24 Jul 2023 12:09:25 -0700 (PDT)
-Received: from redhat.com ([38.15.60.12])
-        by smtp.gmail.com with ESMTPSA id e23-20020a056638021700b0042b4f9ddecasm3133372jaq.85.2023.07.24.12.09.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Jul 2023 12:09:24 -0700 (PDT)
-Date:   Mon, 24 Jul 2023 13:09:22 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Yi Liu <yi.l.liu@intel.com>, kevin.tian@intel.com, joro@8bytes.org,
-        robin.murphy@arm.com, cohuck@redhat.com, eric.auger@redhat.com,
-        nicolinc@nvidia.com, kvm@vger.kernel.org, mjrosato@linux.ibm.com,
-        chao.p.peng@linux.intel.com, yi.y.sun@linux.intel.com,
-        peterx@redhat.com, jasowang@redhat.com,
-        shameerali.kolothum.thodi@huawei.com, lulu@redhat.com,
-        suravee.suthikulpanit@amd.com, intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-s390@vger.kernel.org,
-        xudong.hao@intel.com, yan.y.zhao@intel.com, terrence.xu@intel.com,
-        yanting.jiang@intel.com, zhenzhong.duan@intel.com,
-        clegoate@redhat.com
-Subject: Re: [PATCH v15 00/26] Add vfio_device cdev for iommufd support
-Message-ID: <20230724130922.5bf567ef.alex.williamson@redhat.com>
-In-Reply-To: <ZLbEigQvwSZFiCqv@nvidia.com>
-References: <20230718135551.6592-1-yi.l.liu@intel.com>
-        <ZLbEigQvwSZFiCqv@nvidia.com>
-Organization: Red Hat
+        bh=358vZqiTvej61X45civfUiKJd7hpr9GfM3mB5tO/1oY=;
+        b=CWyKsn+fyo8A461uDHxlWqqNhJomz0p6jdiOowLbkzTOopNmfoNhBambSUtyEO5LNP
+         8ZQxB7OKJaeWWTdMhye3/FhUuSUb6YLLGS6tLS8eTeyjps6Os2KMTEOOdQUN1ADiCs3y
+         tA0O7NC2tWbxVi7BepJAcNSNZkhixC7NKrkyP0vhsnEwjCiYipyYGlcql329pVK4BS47
+         IfmJj/dcHadTRR7pUVMVGXVFDeOJiREG11Vvrqk5HFB7zqjuhkzKS+VYHT76+UwT2Gws
+         qaFPHFJZm9lmjfRt0gfHRI/55a+4obs2xjmHv1pvycZ69nHjRtSM9uYLS680TirWHpGK
+         c0cQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1690237333; x=1690842133;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=358vZqiTvej61X45civfUiKJd7hpr9GfM3mB5tO/1oY=;
+        b=cbpdf2hSuave66yFGXLqAz5mfGE2RQdOwMLojh2jEe8BTzYcRzWBBHqBex/BxDesyE
+         fuuPWikMA1u3fN3kUgX+iPb+QFAU0vZsz2EBxssG7p1FToenu+QD0aMUQrvy4TEqXQKs
+         jT3e3Rd+cWRClRAlYkE4YWJ78FVu9wH9R/8vrQXw/XuO5s7Z/xYNSaCLwPHjPwDmEwlf
+         SYpzwsyRQWnqJLdYWnIZiXCjUDbocUicn/blgAOPT2WC+jgFAPLEYsEQrbRy3wZ3EsK3
+         IA7QLxvtfQeqkRNzo8U9Ri+p9bbbDVNp3QIUwIr1KSzMe9JrtAMvCga/T0pJPOyWXDt/
+         SMzw==
+X-Gm-Message-State: ABy/qLYMB7YHfREMM0v79/k4gwIRERsuHS5OriJ0mT61IEazYiQ2odfM
+        RUnyCKuUJbhsENN23vcfLfEGyg==
+X-Google-Smtp-Source: APBJJlGRGPfacjmUq1tdWpenzld24E4eJsyR1C29jO0mKIDTugwb8qJZ+ixEzpUc6MmlTv/TGWeMgQ==
+X-Received: by 2002:a05:6512:2036:b0:4f6:d7b:2f19 with SMTP id s22-20020a056512203600b004f60d7b2f19mr5787071lfs.24.1690237332390;
+        Mon, 24 Jul 2023 15:22:12 -0700 (PDT)
+Received: from ?IPV6:2001:14ba:a0db:1f00::8a5? (dzdqv0yyyyyyyyyyybcwt-3.rev.dnainternet.fi. [2001:14ba:a0db:1f00::8a5])
+        by smtp.gmail.com with ESMTPSA id x27-20020ac25ddb000000b004fbb69d8791sm2391586lfq.79.2023.07.24.15.22.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 24 Jul 2023 15:22:11 -0700 (PDT)
+Message-ID: <7b250095-8245-53be-e593-cecbc3cc6763@linaro.org>
+Date:   Tue, 25 Jul 2023 01:22:11 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [PATCH v5 14/25] iommu/msm: Implement an IDENTITY domain
+Content-Language: en-GB
+To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        linuxppc-dev@lists.ozlabs.org,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>
+Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Steven Price <steven.price@arm.com>,
+        Thierry Reding <treding@nvidia.com>
+References: <14-v5-d0a204c678c7+3d16a-iommu_all_defdom_jgg@nvidia.com>
+From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+In-Reply-To: <14-v5-d0a204c678c7+3d16a-iommu_all_defdom_jgg@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 18 Jul 2023 13:57:46 -0300
-Jason Gunthorpe <jgg@nvidia.com> wrote:
+On 24/07/2023 20:22, Jason Gunthorpe wrote:
+> What msm does during omap_iommu_set_platform_dma() is actually putting the
 
-> On Tue, Jul 18, 2023 at 06:55:25AM -0700, Yi Liu wrote:
-> > Existing VFIO provides group-centric user APIs for userspace. Userspace
-> > opens the /dev/vfio/$group_id first before getting device fd and hence
-> > getting access to device. This is not the desired model for iommufd. Per
-> > the conclusion of community discussion[1], iommufd provides device-centric
-> > kAPIs and requires its consumer (like VFIO) to be device-centric user
-> > APIs. Such user APIs are used to associate device with iommufd and also
-> > the I/O address spaces managed by the iommufd.
-> > 
-> > This series first introduces a per device file structure to be prepared
-> > for further enhancement and refactors the kvm-vfio code to be prepared
-> > for accepting device file from userspace. After this, adds a mechanism for
-> > blocking device access before iommufd bind. Then refactors the vfio to be
-> > able to handle cdev paths (e.g. iommufd binding, no-iommufd, [de]attach ioas).
-> > This refactor includes making the device_open exclusive between the group
-> > and the cdev path, only allow single device open in cdev path; vfio-iommufd
-> > code is also refactored to support cdev. e.g. split the vfio_iommufd_bind()
-> > into two steps. Eventually, adds the cdev support for vfio device and the
-> > new ioctls, then makes group infrastructure optional as it is not needed
-> > when vfio device cdev is compiled.
-> > 
-> > This series is based on some preparation works done to vfio emulated devices[2]
-> > and vfio pci hot reset enhancements[3]. Per discussion[4], this series does not
-> > support cdev for physical devices that do not have IOMMU. Such devices only
-> > have group-centric user APIs.
-> > 
-> > This series is a prerequisite for iommu nesting for vfio device[5] [6].
-> > 
-> > The complete code can be found in below branch, simple tests done to the
-> > legacy group path and the cdev path. QEMU changes are in upstreaming[7]
-> > and the complete code can be found at[8]
-> > 
-> > https://github.com/yiliu1765/iommufd/tree/vfio_device_cdev_v15
-> > (config CONFIG_IOMMUFD=y CONFIG_VFIO_DEVICE_CDEV=y)  
+typo: msm driver doesn't use/provide omap_iommu_set_platform_dma().
+
+> iommu into identity mode.
 > 
-> Alex, if you are still good with this lets make this into a shared
-> branch, do you want to do it or would you like a PR from me?
+> Move to the new core support for ARM_DMA_USE_IOMMU by defining
+> ops->identity_domain.
+> 
+> This driver does not support IOMMU_DOMAIN_DMA, however it cannot be
+> compiled on ARM64 either. Most likely it is fine to support dma-iommu.c
+> 
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>   drivers/iommu/msm_iommu.c | 23 +++++++++++++++++++----
+>   1 file changed, 19 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/iommu/msm_iommu.c b/drivers/iommu/msm_iommu.c
+> index 79d89bad5132b7..26ed81cfeee897 100644
+> --- a/drivers/iommu/msm_iommu.c
+> +++ b/drivers/iommu/msm_iommu.c
+> @@ -443,15 +443,20 @@ static int msm_iommu_attach_dev(struct iommu_domain *domain, struct device *dev)
+>   	return ret;
+>   }
+>   
+> -static void msm_iommu_set_platform_dma(struct device *dev)
+> +static int msm_iommu_identity_attach(struct iommu_domain *identity_domain,
+> +				     struct device *dev)
+>   {
+>   	struct iommu_domain *domain = iommu_get_domain_for_dev(dev);
+> -	struct msm_priv *priv = to_msm_priv(domain);
+> +	struct msm_priv *priv;
+>   	unsigned long flags;
+>   	struct msm_iommu_dev *iommu;
+>   	struct msm_iommu_ctx_dev *master;
+> -	int ret;
+> +	int ret = 0;
+>   
+> +	if (domain == identity_domain || !domain)
+> +		return 0;
+> +
+> +	priv = to_msm_priv(domain);
+>   	free_io_pgtable_ops(priv->iop);
+>   
+>   	spin_lock_irqsave(&msm_iommu_lock, flags);
+> @@ -468,8 +473,18 @@ static void msm_iommu_set_platform_dma(struct device *dev)
+>   	}
+>   fail:
+>   	spin_unlock_irqrestore(&msm_iommu_lock, flags);
+> +	return ret;
+>   }
+>   
+> +static struct iommu_domain_ops msm_iommu_identity_ops = {
+> +	.attach_dev = msm_iommu_identity_attach,
+> +};
+> +
+> +static struct iommu_domain msm_iommu_identity_domain = {
+> +	.type = IOMMU_DOMAIN_IDENTITY,
+> +	.ops = &msm_iommu_identity_ops,
+> +};
+> +
+>   static int msm_iommu_map(struct iommu_domain *domain, unsigned long iova,
+>   			 phys_addr_t pa, size_t pgsize, size_t pgcount,
+>   			 int prot, gfp_t gfp, size_t *mapped)
+> @@ -675,10 +690,10 @@ irqreturn_t msm_iommu_fault_handler(int irq, void *dev_id)
+>   }
+>   
+>   static struct iommu_ops msm_iommu_ops = {
+> +	.identity_domain = &msm_iommu_identity_domain,
+>   	.domain_alloc = msm_iommu_domain_alloc,
+>   	.probe_device = msm_iommu_probe_device,
+>   	.device_group = generic_device_group,
+> -	.set_platform_dma_ops = msm_iommu_set_platform_dma,
+>   	.pgsize_bitmap = MSM_IOMMU_PGSIZES,
+>   	.of_xlate = qcom_iommu_of_xlate,
+>   	.default_domain_ops = &(const struct iommu_domain_ops) {
 
-Sorry, was out much of last week.  Yes, my intent would be to put this
-both in a shared branch and my next branch for v6.6.  Given this is
-mostly vfio, it seems like it'd make sense for me to provide that
-branch but I may not get to it until tomorrow.  Thanks,
-
-Alex
+-- 
+With best wishes
+Dmitry
 
