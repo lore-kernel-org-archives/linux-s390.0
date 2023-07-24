@@ -2,147 +2,155 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2499BC001B0
-	for <linux-s390@archiver.kernel.org>; Sun, 23 Jul 2023 22:35:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9240DC41513
+	for <linux-s390@archiver.kernel.org>; Mon, 24 Jul 2023 08:23:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229692AbjGWWfP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 23 Jul 2023 18:35:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55478 "EHLO
+        id S229775AbjGXIXu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 24 Jul 2023 04:23:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229468AbjGWWfO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 23 Jul 2023 18:35:14 -0400
-Received: from mail-yw1-x1135.google.com (mail-yw1-x1135.google.com [IPv6:2607:f8b0:4864:20::1135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CABFA1B0
-        for <linux-s390@vger.kernel.org>; Sun, 23 Jul 2023 15:35:13 -0700 (PDT)
-Received: by mail-yw1-x1135.google.com with SMTP id 00721157ae682-583d63ca1e9so10920317b3.1
-        for <linux-s390@vger.kernel.org>; Sun, 23 Jul 2023 15:35:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1690151713; x=1690756513;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=IUSbSB2mCMfMFHAYxwRiQA3gIugwk2fGEbZY8GkEjTo=;
-        b=3D27d8ya3vH0G/T1jCu15x5AB5T1ggT7k5ACBc7anAc8xRgePijSQXSDiSm43Rtdh1
-         kx0UzJnzgxBuY1qbYtXNkgP13NjfozHbR3s5RL7gEp/LqfrpbQMKGmbsjPIaxORFr1cn
-         g3q7oTpKvwP6F6pOMrUCrCmobjOeS4eLDXeFPDDj+Tq3VFAXi+uglQvkX5ElcZp2o06/
-         D9us/8JBSWfFkbtl/MPsnAA2aeXKMk3gFJ1Tdu2RXf584E+VT51mNdtOUO1BMd3X4iwk
-         Hec7/X8hj5u47rEw4cY/omhxJZJMKe3jU3Jpzpr11vI7NFWmcQMEo/DbeQo01HQvoy1p
-         B6GA==
+        with ESMTP id S230102AbjGXIXs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 24 Jul 2023 04:23:48 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71DF1130
+        for <linux-s390@vger.kernel.org>; Mon, 24 Jul 2023 01:22:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1690186978;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=uZSMkLJ8MfGB3NZlVuXc/0ylP0lrumtVWsn82boBlRE=;
+        b=bF0Pc30BiG9Ll6FiGzjGuxW7pA7tdKJ8YY7E2UGtadjJjOl2m6VcK8DcIbRpcXxLU9sS3P
+        CZIJ8U8BblTcbZVd/4jsgeDc2mE6IuYy4m6B85pwl5NJ54x4/tYQhDCx1p1m+c9yFstZH5
+        JhH7gCqXG1/b8MfuevwsH+5x/t2ta+Q=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-686-NxpqWD7zOMqcd3frxrVDCw-1; Mon, 24 Jul 2023 04:22:56 -0400
+X-MC-Unique: NxpqWD7zOMqcd3frxrVDCw-1
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-3f41a04a297so19398325e9.3
+        for <linux-s390@vger.kernel.org>; Mon, 24 Jul 2023 01:22:55 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690151713; x=1690756513;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=IUSbSB2mCMfMFHAYxwRiQA3gIugwk2fGEbZY8GkEjTo=;
-        b=KRAByLR0qOyhuPtoI5hYT6pQDEHzVBYo2x4VRiskW9+5ej9YQl1A0BctR5C1yOU1vL
-         29frSbSYrk+0pZ/BxaFif2ngjcmnru8xFXQT4TgX6ayxiXNMLOuXQ1dAqN7Qw/QIKxPc
-         emWC38GbcC6yCGpTSxMnDvJMYpFnryUuFAlOTGI1vyGDqhXVLP55Rk7FjNa4Hy2vLUq+
-         8+pIp6oZVVqGt+1VtdlKSMgzwNYDYWbVrFoG6xXxIatl9H4o66ZxK7MgRFUUysClvVNp
-         LK+uV51AjdUzxDS1tR3kBI9FzzDUmZChBfN6BBzAzhkW8hFpbm3S1uqFBBsBfnRRSXlw
-         oDqA==
-X-Gm-Message-State: ABy/qLZT25R33Sj5aWpX6D5O7IejLwrg3rVDtFWjEPuFWntIjag1eWNe
-        2wxGBDPvxAewBmd0o5xH3FfUoQ==
-X-Google-Smtp-Source: APBJJlHu4gcYD0JKCreqQkRpf7N8PwoJpBQrx7bHnSSrbqs6cYtIiCQ7XOr0psELtSbwDmhcixB5CQ==
-X-Received: by 2002:a81:88c6:0:b0:579:ed5f:5cd3 with SMTP id y189-20020a8188c6000000b00579ed5f5cd3mr5903716ywf.23.1690151712917;
-        Sun, 23 Jul 2023 15:35:12 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id q2-20020a0de702000000b00565271801b6sm2442804ywe.59.2023.07.23.15.35.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 23 Jul 2023 15:35:12 -0700 (PDT)
-Date:   Sun, 23 Jul 2023 15:35:07 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     Andrew Morton <akpm@linux-foundation.org>
-cc:     Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Jann Horn <jannh@google.com>,
-        Vishal Moola <vishal.moola@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>, Zi Yan <ziy@nvidia.com>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH v3 11/13 fix] mm/khugepaged: delete khugepaged_collapse_pte_mapped_thps():
- fix
-In-Reply-To: <a5dce57-6dfa-5559-4698-e817eb2f993@google.com>
-Message-ID: <bfc6cab2-497f-32bf-dd5-98dc1987e4a9@google.com>
-References: <7cd843a9-aa80-14f-5eb2-33427363c20@google.com> <a5dce57-6dfa-5559-4698-e817eb2f993@google.com>
+        d=1e100.net; s=20221208; t=1690186975; x=1690791775;
+        h=content-transfer-encoding:in-reply-to:subject:organization:from
+         :references:cc:to:content-language:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=uZSMkLJ8MfGB3NZlVuXc/0ylP0lrumtVWsn82boBlRE=;
+        b=Lwjpvm4GHyVIV/nHtzkypFUwv+8fej1yY8FayK1S4MPR4S2G1kltuhiqmUjreRRiqV
+         po0rFqkOHT5fy6ZD2aPxmR8xXx5KrTUTK9MojaiQihpLMJWc2mxv1g9ilx3yeGMlBpTs
+         xWlPI/W6jYeUBtNUlji6hjhoo9PJRhJa2l0fBmT3PJc6pndgW8ns/M195/dC/h0FrLrO
+         OMRUva9qGN5zXo0E2ZhUspXC2OkvkGfvBm34mATryYG+ZmyKpS64UmequPH2vRgODIDE
+         AqLURnaVVvcVuxBu75zeHwhUF+giH4TvB0Hndq07UdiTUA4PpLgXFbkiibxTmW2Yxmgg
+         lbQw==
+X-Gm-Message-State: ABy/qLZTS+tFiLT5AB21Lvf3XkqbCq3zycYeJgpnQuikJCI76J7+QrpW
+        YsHU5IRtqDZONPQlwanV7sC4fq/n/YBz3xWRdUcjw2hF5r83dpqvTuYMJ3UlJwa3Kq/CxJmKa1A
+        xoH1gu+VcixlIbhvHJ5C5kA==
+X-Received: by 2002:a7b:c7d8:0:b0:3fb:a102:6d7a with SMTP id z24-20020a7bc7d8000000b003fba1026d7amr5294665wmk.28.1690186975115;
+        Mon, 24 Jul 2023 01:22:55 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlGZj29rHiyHV23TBcjt4KImow2A6hGZHPtgZhwdsT1l1etBcqDHZaeqr258tj3B2CQsPP72SA==
+X-Received: by 2002:a7b:c7d8:0:b0:3fb:a102:6d7a with SMTP id z24-20020a7bc7d8000000b003fba1026d7amr5294645wmk.28.1690186974735;
+        Mon, 24 Jul 2023 01:22:54 -0700 (PDT)
+Received: from ?IPV6:2003:d8:2f45:d000:62f2:4df0:704a:e859? (p200300d82f45d00062f24df0704ae859.dip0.t-ipconnect.de. [2003:d8:2f45:d000:62f2:4df0:704a:e859])
+        by smtp.gmail.com with ESMTPSA id v22-20020a7bcb56000000b003fbb9339b29sm12169484wmj.42.2023.07.24.01.22.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 24 Jul 2023 01:22:54 -0700 (PDT)
+Message-ID: <af7be3a9-816c-95dc-22a7-cf62fe245e24@redhat.com>
+Date:   Mon, 24 Jul 2023 10:22:52 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Content-Language: en-US
+To:     Ilya Leoshkevich <iii@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jens Freimann <jfreimann@redhat.com>
+References: <20230721120046.2262291-1-iii@linux.ibm.com>
+ <20230721120046.2262291-2-iii@linux.ibm.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH v2 1/6] KVM: s390: interrupt: Fix single-stepping into
+ interrupt handlers
+In-Reply-To: <20230721120046.2262291-2-iii@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Though not yet detected by syzbot, this commit was making the same
-mistake with mmap_locked as the previous commit: fix that.
+On 21.07.23 13:57, Ilya Leoshkevich wrote:
+> After single-stepping an instruction that generates an interrupt, GDB
+> ends up on the second instruction of the respective interrupt handler.
+> 
+> The reason is that vcpu_pre_run() manually delivers the interrupt, and
+> then __vcpu_run() runs the first handler instruction using the
+> CPUSTAT_P flag. This causes a KVM_SINGLESTEP exit on the second handler
+> instruction.
+> 
+> Fix by delaying the KVM_SINGLESTEP exit until after the manual
+> interrupt delivery.
+> 
+> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+> ---
+>   arch/s390/kvm/interrupt.c | 10 ++++++++++
+>   arch/s390/kvm/kvm-s390.c  |  4 ++--
+>   2 files changed, 12 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 9bd0a873f3b1..2cebe4227b8e 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -1392,6 +1392,7 @@ int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
+>   {
+>   	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+>   	int rc = 0;
+> +	bool delivered = false;
+>   	unsigned long irq_type;
+>   	unsigned long irqs;
+>   
+> @@ -1465,6 +1466,15 @@ int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
+>   			WARN_ONCE(1, "Unknown pending irq type %ld", irq_type);
+>   			clear_bit(irq_type, &li->pending_irqs);
+>   		}
+> +		delivered |= !rc;
+> +	}
+> +
 
-Signed-off-by: Hugh Dickins <hughd@google.com>
----
- mm/khugepaged.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index 1c773db26e88..41913730db4c 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -2380,19 +2380,17 @@ static unsigned int khugepaged_scan_mm_slot(unsigned int pages, int *result,
- 				mmap_locked = false;
- 				*result = hpage_collapse_scan_file(mm,
- 					khugepaged_scan.address, file, pgoff, cc);
-+				fput(file);
- 				if (*result == SCAN_PTE_MAPPED_HUGEPAGE) {
- 					mmap_read_lock(mm);
--					mmap_locked = true;
--					if (hpage_collapse_test_exit(mm)) {
--						fput(file);
-+					if (hpage_collapse_test_exit(mm))
- 						goto breakouterloop;
--					}
- 					*result = collapse_pte_mapped_thp(mm,
- 						khugepaged_scan.address, false);
- 					if (*result == SCAN_PMD_MAPPED)
- 						*result = SCAN_SUCCEED;
-+					mmap_read_unlock(mm);
- 				}
--				fput(file);
- 			} else {
- 				*result = hpage_collapse_scan_pmd(mm, vma,
- 					khugepaged_scan.address, &mmap_locked, cc);
+Can we add a comment like
+
+/*
+  * We delivered at least one interrupt and modified the PC. Force a
+  * singlestep event now.
+  */
+
+> +	if (delivered && guestdbg_sstep_enabled(vcpu)) {
+> +		struct kvm_debug_exit_arch *debug_exit = &vcpu->run->debug.arch;
+> +
+> +		debug_exit->addr = vcpu->arch.sie_block->gpsw.addr;
+> +		debug_exit->type = KVM_SINGLESTEP;
+> +		vcpu->guest_debug |= KVM_GUESTDBG_EXIT_PENDING;
+>   	}
+
+I do wonder if we, instead, want to do this whenever we modify the PSW.
+
+That way we could catch any PC changes and only have to add checks for 
+guestdbg_exit_pending().
+
+
+But this is simpler and should work as well.
+
+Acked-by: David Hildenbrand <david@redhat.com>
+
 -- 
-2.35.3
+Cheers,
+
+David / dhildenb
 
