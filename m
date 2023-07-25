@@ -2,123 +2,169 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38C9FC04FE0
-	for <linux-s390@archiver.kernel.org>; Tue, 25 Jul 2023 13:54:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 687AFC001DE
+	for <linux-s390@archiver.kernel.org>; Tue, 25 Jul 2023 14:39:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232051AbjGYNyV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 Jul 2023 09:54:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47476 "EHLO
+        id S229747AbjGYOjI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 Jul 2023 10:39:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231861AbjGYNyK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Jul 2023 09:54:10 -0400
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C36E2697;
-        Tue, 25 Jul 2023 06:53:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=kUarT7SqOQZrBPiZOzWe23N1GMcQyN5+VXjtUtV2R/o=; b=j7Op8Vnl+TeUjCVjxxLMl9FHBt
-        WKJxykg7g16NKswDExs4jzNi8JWW6mpiTguyj1SPnEcQjfWgdy2MUZ2bQ+j4bGZtswkN3xtxSKae/
-        6lMSlisjrFOxcc3OsbI+6afW+irogze5rV2uX9xHH+7y6n+SGl1OFu9FrKMecFfuJff8q3F59fLTL
-        CjQ6PI2It3ik66VJaFO6n5D9+ajE1/a9OiGpIHPg3yCNrepTv6STJpnBSD2MINup6sFgTP3Uh4wux
-        sbDi8Okf9PZRr42KbxLiRbikZNMDd+6DMq2bYuGaqKOSDN1vr6G6bnreE5cg+299OLCxWxIvo2Eqi
-        QPzWMpCQ==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:56216)
-        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.96)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1qOITt-00026h-28;
-        Tue, 25 Jul 2023 14:53:41 +0100
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1qOITi-0001tE-1q; Tue, 25 Jul 2023 14:53:30 +0100
-Date:   Tue, 25 Jul 2023 14:53:30 +0100
-From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
-To:     Sohil Mehta <sohil.mehta@intel.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>, linux-api@vger.kernel.org,
-        linux-arch@vger.kernel.org,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        with ESMTP id S229728AbjGYOjH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Jul 2023 10:39:07 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CFD791;
+        Tue, 25 Jul 2023 07:39:06 -0700 (PDT)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36PEcTIw013718;
+        Tue, 25 Jul 2023 14:39:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=VodDcnSOOysiMyOIQzqXtdqePv7Hk8EfmnYNad2Oyrc=;
+ b=fHTkBTsnzao4c6E3X2jLUEpCRHIjg8DoRJFcAW2frODiu/33G1C0VDr/aCm5QvMlttO6
+ fFm6AMIOm8rp6p2yE2Fd1jLJJ6YkZJp9ju/zoijsHxy8H+RtbKnFLutmNRnm9ZuiaYVe
+ J9HwE1KPUIuQex22zz5eh3o6kJdMpeFrQ3IC7SD2xmYNEpJjeY5HoAAU9jjxC4W94yQa
+ +4Ghdqy5Oj1p3iDnh/DaT/uaFhiXWiRI0SvedP0LEL2iw2L5KQ5wteh/mi1fAWzDYjjL
+ nLoZ8ZK5UkFrFApU7Ysn+lpoURr9GQ/FKixEzrtpfa9o2E9L+9mnJBOP3G/yvbSIGg3j /A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s2063cq7v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Jul 2023 14:39:05 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36PEcXV5014046;
+        Tue, 25 Jul 2023 14:39:04 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s2063cq6k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Jul 2023 14:39:04 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36PETnOL026206;
+        Tue, 25 Jul 2023 14:39:03 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3s0serw56a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Jul 2023 14:39:03 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36PEd0MT60096960
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 25 Jul 2023 14:39:00 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C513F2004B;
+        Tue, 25 Jul 2023 14:39:00 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8F9BC20063;
+        Tue, 25 Jul 2023 14:39:00 +0000 (GMT)
+Received: from heavy.boeblingen.de.ibm.com (unknown [9.155.200.166])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 25 Jul 2023 14:39:00 +0000 (GMT)
+From:   Ilya Leoshkevich <iii@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H . Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Sergei Trofimovich <slyich@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Rohan McLure <rmclure@linux.ibm.com>,
-        Andreas Schwab <schwab@linux-m68k.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Brian Gerst <brgerst@gmail.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-perf-users@vger.kernel.org
-Subject: Re: [PATCH v2] syscalls: Cleanup references to sys_lookup_dcookie()
-Message-ID: <ZL/T2nKuQMpmYmdT@shell.armlinux.org.uk>
-References: <20230628230935.1196180-1-sohil.mehta@intel.com>
- <20230710185124.3848462-1-sohil.mehta@intel.com>
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jens Freimann <jfreimann@redhat.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>
+Subject: [PATCH v4 1/6] KVM: s390: interrupt: Fix single-stepping into interrupt handlers
+Date:   Tue, 25 Jul 2023 16:37:16 +0200
+Message-ID: <20230725143857.228626-2-iii@linux.ibm.com>
+X-Mailer: git-send-email 2.41.0
+In-Reply-To: <20230725143857.228626-1-iii@linux.ibm.com>
+References: <20230725143857.228626-1-iii@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230710185124.3848462-1-sohil.mehta@intel.com>
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: BJh1FJ0qtXFG_c3yWbFgAluzm_zrWmsV
+X-Proofpoint-ORIG-GUID: 8pD9uM82gKsmcI29Cas5HY76aumOErIq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-25_08,2023-07-25_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ priorityscore=1501 bulkscore=0 phishscore=0 clxscore=1015
+ lowpriorityscore=0 impostorscore=0 suspectscore=0 spamscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2306200000 definitions=main-2307250128
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jul 10, 2023 at 06:51:24PM +0000, Sohil Mehta wrote:
-> diff --git a/arch/arm/tools/syscall.tbl b/arch/arm/tools/syscall.tbl
-> index 8ebed8a13874..cb7ea3bf18cf 100644
-> --- a/arch/arm/tools/syscall.tbl
-> +++ b/arch/arm/tools/syscall.tbl
-> @@ -263,7 +263,7 @@
->  246	common	io_submit		sys_io_submit
->  247	common	io_cancel		sys_io_cancel
->  248	common	exit_group		sys_exit_group
-> -249	common	lookup_dcookie		sys_lookup_dcookie
-> +249	common	lookup_dcookie		sys_ni_syscall
+After single-stepping an instruction that generates an interrupt, GDB
+ends up on the second instruction of the respective interrupt handler.
 
-Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+The reason is that vcpu_pre_run() manually delivers the interrupt, and
+then __vcpu_run() runs the first handler instruction using the
+CPUSTAT_P flag. This causes a KVM_SINGLESTEP exit on the second handler
+instruction.
 
-Thanks!
+Fix by delaying the KVM_SINGLESTEP exit until after the manual
+interrupt delivery.
 
+Acked-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+---
+ arch/s390/kvm/interrupt.c | 14 ++++++++++++++
+ arch/s390/kvm/kvm-s390.c  |  4 ++--
+ 2 files changed, 16 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 9bd0a873f3b1..85e39f472bb4 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -1392,6 +1392,7 @@ int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+ 	int rc = 0;
++	bool delivered = false;
+ 	unsigned long irq_type;
+ 	unsigned long irqs;
+ 
+@@ -1465,6 +1466,19 @@ int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
+ 			WARN_ONCE(1, "Unknown pending irq type %ld", irq_type);
+ 			clear_bit(irq_type, &li->pending_irqs);
+ 		}
++		delivered |= !rc;
++	}
++
++	/*
++	 * We delivered at least one interrupt and modified the PC. Force a
++	 * singlestep event now.
++	 */
++	if (delivered && guestdbg_sstep_enabled(vcpu)) {
++		struct kvm_debug_exit_arch *debug_exit = &vcpu->run->debug.arch;
++
++		debug_exit->addr = vcpu->arch.sie_block->gpsw.addr;
++		debug_exit->type = KVM_SINGLESTEP;
++		vcpu->guest_debug |= KVM_GUESTDBG_EXIT_PENDING;
+ 	}
+ 
+ 	set_intercept_indicators(vcpu);
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index d1e768bcfe1d..0c6333b108ba 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4611,7 +4611,7 @@ static int vcpu_pre_run(struct kvm_vcpu *vcpu)
+ 
+ 	if (!kvm_is_ucontrol(vcpu->kvm)) {
+ 		rc = kvm_s390_deliver_pending_interrupts(vcpu);
+-		if (rc)
++		if (rc || guestdbg_exit_pending(vcpu))
+ 			return rc;
+ 	}
+ 
+@@ -4738,7 +4738,7 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ 
+ 	do {
+ 		rc = vcpu_pre_run(vcpu);
+-		if (rc)
++		if (rc || guestdbg_exit_pending(vcpu))
+ 			break;
+ 
+ 		kvm_vcpu_srcu_read_unlock(vcpu);
 -- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 80Mbps down 10Mbps up. Decent connectivity at last!
+2.41.0
+
