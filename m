@@ -2,62 +2,62 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53E8FC0015E
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E41B1C001DF
 	for <linux-s390@archiver.kernel.org>; Tue, 25 Jul 2023 13:53:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231744AbjGYNxn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 Jul 2023 09:53:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46714 "EHLO
+        id S231185AbjGYNxo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 Jul 2023 09:53:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230315AbjGYNxl (ORCPT
+        with ESMTP id S231159AbjGYNxl (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Jul 2023 09:53:41 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF2DF1FC4;
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE8AB1FC0;
         Tue, 25 Jul 2023 06:53:39 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36PDcGth015433;
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36PDeFrA021874;
         Tue, 25 Jul 2023 13:53:39 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=kXZ9dUThnLfDHQ7dnAvekKphlAndGEx98WbuUTxGCH4=;
- b=izeabIeanVmrJQdSmfvdysr/NFb185w5BsmvFtNVGxW9kfaRh7Lddey2NSntagLN7U3I
- K2skFaQegJmAySOuMufwD1+L8GOQ4Iv8Jcn0D1Q8q778x1gUE15axRjmWDla9HEf9IYU
- Ys/odZ/QpRmadGkr3t5vWLnIxwFGx6RCc5l7cjZFuMpnc5u7Fjnva5SccVLZyhGJITAB
- 6DoR44H3hcaqFGbC7hrGaI0CNO78d7ptXspgTXsnFiz8DyhjHr5LinpsW0BsZO2e6JuU
- O/hNv9QsCSDNyzIFIki7YKIecMDFpRcu4jC9nimX66uFJWlgm87bgFPsMhaG5n/7HY4S tQ== 
+ bh=ToUYj46kmQdSwxw1juQudcMV/fW1m/kYbKVi9qquqqs=;
+ b=KIBD6Lj/RIF6ObIzRL1zIbuT3IWWVEeoYdk//yhk1HXbcPpO7nUKLgRgqpq7Nja+IwEu
+ HlZy59QKeYyJcLbW1uClZhbhHbtRFnanon3Wuvki6CpZOOscKA7w46REsve5m7Wdb16L
+ eVheEwC682L3DOOi+5fBvkj6E5NLnnS21zoBhJb/V7eNFBJS7g3/qvsGhAhg3Rpw8zLM
+ e7rk3EKbAG1vLZ7vC8EstwccVhDu0rCxB7orw58xGCORt5A+71quF2m86aVHRGGDWpr5
+ ZGHDgDRxxoiU4YHFXoAEsSmGpuQx3Q+2JvUKLtIKEFoGSJcNq/ryQuk4bMuHFaLjA177 wQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s2f5e11tw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Jul 2023 13:53:39 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36PDcTBi016768;
-        Tue, 25 Jul 2023 13:53:39 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s2f5e11tk-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s2063bebk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 25 Jul 2023 13:53:38 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36PC3Jov001872;
-        Tue, 25 Jul 2023 13:53:38 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3s0unjc12h-1
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36PDrYfl013183;
+        Tue, 25 Jul 2023 13:53:37 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s2063beb9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Jul 2023 13:53:37 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36PCqHAD014406;
+        Tue, 25 Jul 2023 13:53:37 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s0stxvp1q-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 25 Jul 2023 13:53:37 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36PDrZhi51773900
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36PDrX8t20579038
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 25 Jul 2023 13:53:35 GMT
+        Tue, 25 Jul 2023 13:53:33 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0859320040;
-        Tue, 25 Jul 2023 13:53:35 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 4332B20043;
+        Tue, 25 Jul 2023 13:53:33 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A45952004D;
-        Tue, 25 Jul 2023 13:53:34 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id E0C2D2004B;
+        Tue, 25 Jul 2023 13:53:32 +0000 (GMT)
 Received: from p-imbrenda (unknown [9.152.224.66])
         by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 25 Jul 2023 13:53:34 +0000 (GMT)
-Date:   Tue, 25 Jul 2023 14:04:36 +0200
+        Tue, 25 Jul 2023 13:53:32 +0000 (GMT)
+Date:   Tue, 25 Jul 2023 10:58:56 +0200
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     Ilya Leoshkevich <iii@linux.ibm.com>
 Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
@@ -69,90 +69,99 @@ Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         Jens Freimann <jfreimann@redhat.com>
-Subject: Re: [PATCH v3 3/6] KVM: s390: interrupt: Fix single-stepping
- kernel-emulated instructions
-Message-ID: <20230725140436.723a00ea@p-imbrenda>
-In-Reply-To: <20230724094716.91510-4-iii@linux.ibm.com>
+Subject: Re: [PATCH v3 2/6] KVM: s390: interrupt: Fix single-stepping into
+ program interrupt handlers
+Message-ID: <20230725105856.0ea59d3d@p-imbrenda>
+In-Reply-To: <20230724094716.91510-3-iii@linux.ibm.com>
 References: <20230724094716.91510-1-iii@linux.ibm.com>
-        <20230724094716.91510-4-iii@linux.ibm.com>
+        <20230724094716.91510-3-iii@linux.ibm.com>
 Organization: IBM
 X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: T8clp0a3oTGz12mUwqSMIG8cYZZyVJZc
-X-Proofpoint-ORIG-GUID: rDKEaOeIaq1N02a_yC8TpQTmN34-Yn-Z
+X-Proofpoint-GUID: tl9_KK56J5DU5tJenNFZI1xYkUo3a1xD
+X-Proofpoint-ORIG-GUID: Kaz41tGpfMuZGg6lA1tVihq6fDilPEsr
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
  definitions=2023-07-25_08,2023-07-25_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 bulkscore=0
- phishscore=0 adultscore=0 mlxscore=0 clxscore=1015 lowpriorityscore=0
- impostorscore=0 priorityscore=1501 suspectscore=0 malwarescore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2306200000 definitions=main-2307250119
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ priorityscore=1501 bulkscore=0 phishscore=0 clxscore=1015
+ lowpriorityscore=0 impostorscore=0 suspectscore=0 spamscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2306200000 definitions=main-2307250119
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 24 Jul 2023 11:44:09 +0200
+On Mon, 24 Jul 2023 11:44:08 +0200
 Ilya Leoshkevich <iii@linux.ibm.com> wrote:
 
-> Single-stepping a kernel-emulated instruction that generates an
-> interrupt causes GDB to land on the instruction following it instead of
-> the respective interrupt handler.
+> Currently, after single-stepping an instruction that generates a
+> specification exception, GDB ends up on the instruction immediately
+> following it.
 > 
-> The reason is that kvm_handle_sie_intercept(), after injecting the
-> interrupt, also processes the PER event and arranges a KVM_SINGLESTEP
-> exit. The interrupt is not yet delivered, however, so the userspace
-> sees the next instruction.
+> The reason is that vcpu_post_run() injects the interrupt and sets
+> KVM_GUESTDBG_EXIT_PENDING, causing a KVM_SINGLESTEP exit. The
+> interrupt is not delivered, however, therefore userspace sees the
+> address of the next instruction.
 > 
-> Fix by avoiding the KVM_SINGLESTEP exit when there is a pending
-> interrupt. The next __vcpu_run() loop iteration will arrange a
-> KVM_SINGLESTEP exit after delivering the interrupt.
+> Fix by letting the __vcpu_run() loop go into the next iteration,
+> where vcpu_pre_run() delivers the interrupt and sets
+> KVM_GUESTDBG_EXIT_PENDING.
 > 
 > Reviewed-by: David Hildenbrand <david@redhat.com>
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
 > Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 > ---
->  arch/s390/kvm/intercept.c | 17 ++++++++++++++---
->  1 file changed, 14 insertions(+), 3 deletions(-)
+>  arch/s390/kvm/intercept.c | 19 +++++++++++++++++--
+>  1 file changed, 17 insertions(+), 2 deletions(-)
 > 
 > diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-> index 7cdd927541b0..d2f7940c5d03 100644
+> index 954d39adf85c..7cdd927541b0 100644
 > --- a/arch/s390/kvm/intercept.c
 > +++ b/arch/s390/kvm/intercept.c
-> @@ -583,6 +583,19 @@ static int handle_pv_notification(struct kvm_vcpu *vcpu)
->  	return handle_instruction(vcpu);
+> @@ -226,7 +226,22 @@ static int handle_itdb(struct kvm_vcpu *vcpu)
+>  	return 0;
 >  }
 >  
-> +static bool should_handle_per_ifetch(const struct kvm_vcpu *vcpu, int rc)
+> -#define per_event(vcpu) (vcpu->arch.sie_block->iprcc & PGM_PER)
+> +static bool should_handle_per_event(const struct kvm_vcpu *vcpu)
 > +{
-> +	/* Process PER, also if the instruction is processed in user space. */
-> +	if (!(vcpu->arch.sie_block->icptstatus & 0x02))
+> +	if (!guestdbg_enabled(vcpu))
 > +		return false;
-> +	if (rc != 0 && rc != -EOPNOTSUPP)
+> +	if (!(vcpu->arch.sie_block->iprcc & PGM_PER))
+
+why not  if (!per_event(vcpu))  ?
+
+maybe you can even merge it with the previous if:
+
+if (!guestdbg_enabled(vcpu) || !per_event(vcpu))
+	return false;
+
+this is closer to the old code too
+
 > +		return false;
-> +	if (guestdbg_sstep_enabled(vcpu) && vcpu->arch.local_int.pending_irqs)
-> +		/* __vcpu_run() will exit after delivering the interrupt. */
+> +	if (guestdbg_sstep_enabled(vcpu) &&
+> +	    vcpu->arch.sie_block->iprcc != PGM_PER) {
+> +		/*
+> +		 * __vcpu_run() will exit after delivering the concurrently
+> +		 * indicated condition.
+> +		 */
 > +		return false;
+> +	}
 > +	return true;
 > +}
-> +
->  int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
->  {
->  	int rc, per_rc = 0;
-> @@ -645,9 +658,7 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
->  		return -EOPNOTSUPP;
->  	}
 >  
-> -	/* process PER, also if the instruction is processed in user space */
-> -	if (vcpu->arch.sie_block->icptstatus & 0x02 &&
-> -	    (!rc || rc == -EOPNOTSUPP))
-> +	if (should_handle_per_ifetch(vcpu, rc))
->  		per_rc = kvm_s390_handle_per_ifetch_icpt(vcpu);
->  	return per_rc ? per_rc : rc;
->  }
+>  static int handle_prog(struct kvm_vcpu *vcpu)
+>  {
+> @@ -242,7 +257,7 @@ static int handle_prog(struct kvm_vcpu *vcpu)
+>  	if (kvm_s390_pv_cpu_is_protected(vcpu))
+>  		return -EOPNOTSUPP;
+>  
+> -	if (guestdbg_enabled(vcpu) && per_event(vcpu)) {
+> +	if (should_handle_per_event(vcpu)) {
+>  		rc = kvm_s390_handle_per_event(vcpu);
+>  		if (rc)
+>  			return rc;
 
