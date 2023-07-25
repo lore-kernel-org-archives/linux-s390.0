@@ -2,189 +2,183 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00BA3EB64DD
-	for <linux-s390@archiver.kernel.org>; Mon, 24 Jul 2023 22:23:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33581C04FDF
+	for <linux-s390@archiver.kernel.org>; Tue, 25 Jul 2023 04:21:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229790AbjGXWXD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 24 Jul 2023 18:23:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51274 "EHLO
+        id S231580AbjGYEVO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 Jul 2023 00:21:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229752AbjGXWXB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 24 Jul 2023 18:23:01 -0400
-Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13D6E1728
-        for <linux-s390@vger.kernel.org>; Mon, 24 Jul 2023 15:22:28 -0700 (PDT)
-Received: by mail-lf1-x132.google.com with SMTP id 2adb3069b0e04-4fba8f2197bso7520959e87.3
-        for <linux-s390@vger.kernel.org>; Mon, 24 Jul 2023 15:22:27 -0700 (PDT)
+        with ESMTP id S229577AbjGYEVM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Jul 2023 00:21:12 -0400
+Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C0B7E71;
+        Mon, 24 Jul 2023 21:21:07 -0700 (PDT)
+Received: by mail-yb1-xb2f.google.com with SMTP id 3f1490d57ef6-ca3cc52ee62so5588835276.0;
+        Mon, 24 Jul 2023 21:21:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1690237333; x=1690842133;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=358vZqiTvej61X45civfUiKJd7hpr9GfM3mB5tO/1oY=;
-        b=CWyKsn+fyo8A461uDHxlWqqNhJomz0p6jdiOowLbkzTOopNmfoNhBambSUtyEO5LNP
-         8ZQxB7OKJaeWWTdMhye3/FhUuSUb6YLLGS6tLS8eTeyjps6Os2KMTEOOdQUN1ADiCs3y
-         tA0O7NC2tWbxVi7BepJAcNSNZkhixC7NKrkyP0vhsnEwjCiYipyYGlcql329pVK4BS47
-         IfmJj/dcHadTRR7pUVMVGXVFDeOJiREG11Vvrqk5HFB7zqjuhkzKS+VYHT76+UwT2Gws
-         qaFPHFJZm9lmjfRt0gfHRI/55a+4obs2xjmHv1pvycZ69nHjRtSM9uYLS680TirWHpGK
-         c0cQ==
+        d=gmail.com; s=20221208; t=1690258866; x=1690863666;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=TyJK1FcnJgXFfZtNrnEiwbnRrWFFZ4hxtDemQIw/+70=;
+        b=IWbM/8TKnsrsFnwfAtrtbT7DO2Dq3vbt1JDGjncQR1/QHrfo4QUSkIiEQN1x/WCeen
+         Wq+1xfZOSXiXa3ftlSpFueFEFpvRBK3/RSrU5gjulTAyP6CHn+1+IFvHFglXW6v8keEi
+         8OQyuFtLfuzytADBe5cFOUdQJ/Hdq1bfJlON7Nb+Mx5/ezSX5vpuq992erh0MteP8eY0
+         ca2RegvmV6aTmEkiWQSzVkeiWkjDFWU6BxECXoDX15tgD4oeetn4XjwJQHkKr/UZi4jn
+         M2rzWVhqQ0uUKv1+kbt9dezvn9EL8NwkaBEBxeHbR53ElScFeaGw8CT+ZDStPX5ya8Y8
+         SH2Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690237333; x=1690842133;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=358vZqiTvej61X45civfUiKJd7hpr9GfM3mB5tO/1oY=;
-        b=cbpdf2hSuave66yFGXLqAz5mfGE2RQdOwMLojh2jEe8BTzYcRzWBBHqBex/BxDesyE
-         fuuPWikMA1u3fN3kUgX+iPb+QFAU0vZsz2EBxssG7p1FToenu+QD0aMUQrvy4TEqXQKs
-         jT3e3Rd+cWRClRAlYkE4YWJ78FVu9wH9R/8vrQXw/XuO5s7Z/xYNSaCLwPHjPwDmEwlf
-         SYpzwsyRQWnqJLdYWnIZiXCjUDbocUicn/blgAOPT2WC+jgFAPLEYsEQrbRy3wZ3EsK3
-         IA7QLxvtfQeqkRNzo8U9Ri+p9bbbDVNp3QIUwIr1KSzMe9JrtAMvCga/T0pJPOyWXDt/
-         SMzw==
-X-Gm-Message-State: ABy/qLYMB7YHfREMM0v79/k4gwIRERsuHS5OriJ0mT61IEazYiQ2odfM
-        RUnyCKuUJbhsENN23vcfLfEGyg==
-X-Google-Smtp-Source: APBJJlGRGPfacjmUq1tdWpenzld24E4eJsyR1C29jO0mKIDTugwb8qJZ+ixEzpUc6MmlTv/TGWeMgQ==
-X-Received: by 2002:a05:6512:2036:b0:4f6:d7b:2f19 with SMTP id s22-20020a056512203600b004f60d7b2f19mr5787071lfs.24.1690237332390;
-        Mon, 24 Jul 2023 15:22:12 -0700 (PDT)
-Received: from ?IPV6:2001:14ba:a0db:1f00::8a5? (dzdqv0yyyyyyyyyyybcwt-3.rev.dnainternet.fi. [2001:14ba:a0db:1f00::8a5])
-        by smtp.gmail.com with ESMTPSA id x27-20020ac25ddb000000b004fbb69d8791sm2391586lfq.79.2023.07.24.15.22.11
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 24 Jul 2023 15:22:11 -0700 (PDT)
-Message-ID: <7b250095-8245-53be-e593-cecbc3cc6763@linaro.org>
-Date:   Tue, 25 Jul 2023 01:22:11 +0300
+        d=1e100.net; s=20221208; t=1690258866; x=1690863666;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=TyJK1FcnJgXFfZtNrnEiwbnRrWFFZ4hxtDemQIw/+70=;
+        b=JxXHwisl9uOYCmE7iHDoGgy86XeBdrMU/xZ5xC1ih7+UXLHztjzzWMjYUQIiDU9F1p
+         N6dNMMiG1k7F9FajnXyoHqvqa7AsTvHRLrgeT9lH7Fn4STyvUR8UDjRCRnIOnp4E5xyL
+         G9867Fi4229ExI8S0lyS1jctX3/azHiTvelzdXJsTr5NfosKM1HIEdK8F2HbeQM7KQSm
+         JJBcSeU/UyflVOl+2bpu/eMFMjWt3UQKWLOoOb799mKajIRwkCPDBupOTctRB0qISKvw
+         A9+kYbVDDf1xT6k3ussrW1KSgXxvl5p/V2BWK1y8OgiZSSfq1Ss5C1AG03nrS/8lplB+
+         pDBA==
+X-Gm-Message-State: ABy/qLaOxOQzF210Yvb8HOBALa2cKmvCsWQN7AgLQiV3VlxKh3rJAQmi
+        ssHMEn3d3VrapCc3WVY38pQ=
+X-Google-Smtp-Source: APBJJlGpggWKl9mhx1f6cNzYJrVg2oqym/Xg0n0t+vhY+yg/UIrQUebANCL8UUu/vWaCrzFFriLNMw==
+X-Received: by 2002:a25:844f:0:b0:cf0:b977:2794 with SMTP id r15-20020a25844f000000b00cf0b9772794mr10487441ybm.30.1690258866444;
+        Mon, 24 Jul 2023 21:21:06 -0700 (PDT)
+Received: from unknowna0e70b2ca394.attlocal.net ([2600:1700:2f7d:1800::16])
+        by smtp.googlemail.com with ESMTPSA id h9-20020a25b189000000b00d0db687ef48sm1175540ybj.61.2023.07.24.21.21.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Jul 2023 21:21:05 -0700 (PDT)
+From:   "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+To:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>
+Cc:     linux-mm@kvack.org, linux-arch@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-openrisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, xen-devel@lists.xenproject.org,
+        kvm@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Jonas Bonn <jonas@southpole.se>,
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Richard Weinberger <richard@nod.at>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>
+Subject: [PATCH mm-unstable v7 00/31] Split ptdesc from struct page
+Date:   Mon, 24 Jul 2023 21:20:20 -0700
+Message-Id: <20230725042051.36691-1-vishal.moola@gmail.com>
+X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [PATCH v5 14/25] iommu/msm: Implement an IDENTITY domain
-Content-Language: en-GB
-To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        linuxppc-dev@lists.ozlabs.org,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>
-Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Steven Price <steven.price@arm.com>,
-        Thierry Reding <treding@nvidia.com>
-References: <14-v5-d0a204c678c7+3d16a-iommu_all_defdom_jgg@nvidia.com>
-From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-In-Reply-To: <14-v5-d0a204c678c7+3d16a-iommu_all_defdom_jgg@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 24/07/2023 20:22, Jason Gunthorpe wrote:
-> What msm does during omap_iommu_set_platform_dma() is actually putting the
+The MM subsystem is trying to shrink struct page. This patchset
+introduces a memory descriptor for page table tracking - struct ptdesc.
 
-typo: msm driver doesn't use/provide omap_iommu_set_platform_dma().
+This patchset introduces ptdesc, splits ptdesc from struct page, and
+converts many callers of page table constructor/destructors to use ptdescs.
 
-> iommu into identity mode.
-> 
-> Move to the new core support for ARM_DMA_USE_IOMMU by defining
-> ops->identity_domain.
-> 
-> This driver does not support IOMMU_DOMAIN_DMA, however it cannot be
-> compiled on ARM64 either. Most likely it is fine to support dma-iommu.c
-> 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->   drivers/iommu/msm_iommu.c | 23 +++++++++++++++++++----
->   1 file changed, 19 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/iommu/msm_iommu.c b/drivers/iommu/msm_iommu.c
-> index 79d89bad5132b7..26ed81cfeee897 100644
-> --- a/drivers/iommu/msm_iommu.c
-> +++ b/drivers/iommu/msm_iommu.c
-> @@ -443,15 +443,20 @@ static int msm_iommu_attach_dev(struct iommu_domain *domain, struct device *dev)
->   	return ret;
->   }
->   
-> -static void msm_iommu_set_platform_dma(struct device *dev)
-> +static int msm_iommu_identity_attach(struct iommu_domain *identity_domain,
-> +				     struct device *dev)
->   {
->   	struct iommu_domain *domain = iommu_get_domain_for_dev(dev);
-> -	struct msm_priv *priv = to_msm_priv(domain);
-> +	struct msm_priv *priv;
->   	unsigned long flags;
->   	struct msm_iommu_dev *iommu;
->   	struct msm_iommu_ctx_dev *master;
-> -	int ret;
-> +	int ret = 0;
->   
-> +	if (domain == identity_domain || !domain)
-> +		return 0;
-> +
-> +	priv = to_msm_priv(domain);
->   	free_io_pgtable_ops(priv->iop);
->   
->   	spin_lock_irqsave(&msm_iommu_lock, flags);
-> @@ -468,8 +473,18 @@ static void msm_iommu_set_platform_dma(struct device *dev)
->   	}
->   fail:
->   	spin_unlock_irqrestore(&msm_iommu_lock, flags);
-> +	return ret;
->   }
->   
-> +static struct iommu_domain_ops msm_iommu_identity_ops = {
-> +	.attach_dev = msm_iommu_identity_attach,
-> +};
-> +
-> +static struct iommu_domain msm_iommu_identity_domain = {
-> +	.type = IOMMU_DOMAIN_IDENTITY,
-> +	.ops = &msm_iommu_identity_ops,
-> +};
-> +
->   static int msm_iommu_map(struct iommu_domain *domain, unsigned long iova,
->   			 phys_addr_t pa, size_t pgsize, size_t pgcount,
->   			 int prot, gfp_t gfp, size_t *mapped)
-> @@ -675,10 +690,10 @@ irqreturn_t msm_iommu_fault_handler(int irq, void *dev_id)
->   }
->   
->   static struct iommu_ops msm_iommu_ops = {
-> +	.identity_domain = &msm_iommu_identity_domain,
->   	.domain_alloc = msm_iommu_domain_alloc,
->   	.probe_device = msm_iommu_probe_device,
->   	.device_group = generic_device_group,
-> -	.set_platform_dma_ops = msm_iommu_set_platform_dma,
->   	.pgsize_bitmap = MSM_IOMMU_PGSIZES,
->   	.of_xlate = qcom_iommu_of_xlate,
->   	.default_domain_ops = &(const struct iommu_domain_ops) {
+Ptdesc is a foundation to further standardize page tables, and eventually
+allow for dynamic allocation of page tables independent of struct page.
+However, the use of pages for page table tracking is quite deeply
+ingrained and varied across archictectures, so there is still a lot of
+work to be done before that can happen.
+
+This is rebased on mm-unstable.
+
+v7:
+  Drop s390 gmap ptdesc conversions - gmap is unecessary complication
+    that can be dealt with later
+  Be more thorough with ptdesc struct sanity checks and comments
+  Rebase onto mm-unstable
+
+Vishal Moola (Oracle) (31):
+  mm: Add PAGE_TYPE_OP folio functions
+  pgtable: Create struct ptdesc
+  mm: add utility functions for ptdesc
+  mm: Convert pmd_pgtable_page() callers to use pmd_ptdesc()
+  mm: Convert ptlock_alloc() to use ptdescs
+  mm: Convert ptlock_ptr() to use ptdescs
+  mm: Convert pmd_ptlock_init() to use ptdescs
+  mm: Convert ptlock_init() to use ptdescs
+  mm: Convert pmd_ptlock_free() to use ptdescs
+  mm: Convert ptlock_free() to use ptdescs
+  mm: Create ptdesc equivalents for pgtable_{pte,pmd}_page_{ctor,dtor}
+  powerpc: Convert various functions to use ptdescs
+  x86: Convert various functions to use ptdescs
+  s390: Convert various pgalloc functions to use ptdescs
+  mm: Remove page table members from struct page
+  pgalloc: Convert various functions to use ptdescs
+  arm: Convert various functions to use ptdescs
+  arm64: Convert various functions to use ptdescs
+  csky: Convert __pte_free_tlb() to use ptdescs
+  hexagon: Convert __pte_free_tlb() to use ptdescs
+  loongarch: Convert various functions to use ptdescs
+  m68k: Convert various functions to use ptdescs
+  mips: Convert various functions to use ptdescs
+  nios2: Convert __pte_free_tlb() to use ptdescs
+  openrisc: Convert __pte_free_tlb() to use ptdescs
+  riscv: Convert alloc_{pmd, pte}_late() to use ptdescs
+  sh: Convert pte_free_tlb() to use ptdescs
+  sparc64: Convert various functions to use ptdescs
+  sparc: Convert pgtable_pte_page_{ctor, dtor}() to ptdesc equivalents
+  um: Convert {pmd, pte}_free_tlb() to use ptdescs
+  mm: Remove pgtable_{pmd, pte}_page_{ctor, dtor}() wrappers
+
+ Documentation/mm/split_page_table_lock.rst    |  12 +-
+ .../zh_CN/mm/split_page_table_lock.rst        |  14 +-
+ arch/arm/include/asm/tlb.h                    |  12 +-
+ arch/arm/mm/mmu.c                             |   7 +-
+ arch/arm64/include/asm/tlb.h                  |  14 +-
+ arch/arm64/mm/mmu.c                           |   7 +-
+ arch/csky/include/asm/pgalloc.h               |   4 +-
+ arch/hexagon/include/asm/pgalloc.h            |   8 +-
+ arch/loongarch/include/asm/pgalloc.h          |  27 ++--
+ arch/loongarch/mm/pgtable.c                   |   7 +-
+ arch/m68k/include/asm/mcf_pgalloc.h           |  47 +++---
+ arch/m68k/include/asm/sun3_pgalloc.h          |   8 +-
+ arch/m68k/mm/motorola.c                       |   4 +-
+ arch/mips/include/asm/pgalloc.h               |  32 ++--
+ arch/mips/mm/pgtable.c                        |   8 +-
+ arch/nios2/include/asm/pgalloc.h              |   8 +-
+ arch/openrisc/include/asm/pgalloc.h           |   8 +-
+ arch/powerpc/mm/book3s64/mmu_context.c        |  10 +-
+ arch/powerpc/mm/book3s64/pgtable.c            |  32 ++--
+ arch/powerpc/mm/pgtable-frag.c                |  56 +++----
+ arch/riscv/include/asm/pgalloc.h              |   8 +-
+ arch/riscv/mm/init.c                          |  16 +-
+ arch/s390/include/asm/pgalloc.h               |   4 +-
+ arch/s390/include/asm/tlb.h                   |   4 +-
+ arch/s390/mm/pgalloc.c                        | 128 +++++++--------
+ arch/sh/include/asm/pgalloc.h                 |   9 +-
+ arch/sparc/mm/init_64.c                       |  17 +-
+ arch/sparc/mm/srmmu.c                         |   5 +-
+ arch/um/include/asm/pgalloc.h                 |  18 +--
+ arch/x86/mm/pgtable.c                         |  47 +++---
+ arch/x86/xen/mmu_pv.c                         |   2 +-
+ include/asm-generic/pgalloc.h                 |  88 +++++-----
+ include/asm-generic/tlb.h                     |  11 ++
+ include/linux/mm.h                            | 151 +++++++++++++-----
+ include/linux/mm_types.h                      |  18 ---
+ include/linux/page-flags.h                    |  30 +++-
+ include/linux/pgtable.h                       |  80 ++++++++++
+ mm/memory.c                                   |   8 +-
+ 38 files changed, 585 insertions(+), 384 deletions(-)
 
 -- 
-With best wishes
-Dmitry
+2.40.1
 
