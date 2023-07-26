@@ -2,101 +2,134 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB63EC001B0
-	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 17:58:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7304FC001E0
+	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 18:05:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230112AbjGZR6o (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 26 Jul 2023 13:58:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46344 "EHLO
+        id S230064AbjGZSFu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 26 Jul 2023 14:05:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230032AbjGZR6m (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Jul 2023 13:58:42 -0400
+        with ESMTP id S229949AbjGZSFu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Jul 2023 14:05:50 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDD302688;
-        Wed, 26 Jul 2023 10:58:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 520801FF5;
+        Wed, 26 Jul 2023 11:05:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
         MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
         Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=YPmagiFQ/MeFHRjwmSRL0hWWXD4WhK730BMoQ57Tcfs=; b=kixqBCkSocxZEhHc2Sl4YQ3j/W
-        6MHhYsaeGcAEFz3Ikfkl0tpJZeVVuCe/BiTxlYG3dJ8HcvJ/T2vdQAQ5gIBhR2n6UhgaBfMrG4PI3
-        Z5Id/jv1a75gsjOtDXpt/LD7O15Touqa7NqiEPt/l8zBxXGlzsYO+bCoXjnUd4LyKsNR8uZGhhZRg
-        +OyiKfgZbY7fbFXMfGEJdwxH3fx8IGSflQLhVMJDAioTezH4kPOYHszoYxlRVTrC6/MqPhn7X667m
-        QRhIOcxcm6QRQ5XuiNwXgc2BldKLdF/obVnyC8UpbIg6DWBIlRNSJNh4WSktu5vL21AXLcVy8pPM7
-        x0bCwxMw==;
+        bh=fUdSbyMasri59LIxUKfjb5lu5YYJqsniF6+eeDt322Q=; b=DFkN7+kcpB7N73mFnnGHkptntF
+        MyxL56OIeohRI14G30XsmKj0s3vmZhE/AD7bJh8knddWtfQsfV3VeSz0D9bcumOq1hsMyngu9HgYQ
+        GL/niposaUkJBmS7Pkw5Kn0Tx6qPabY8YIQTrb0ue7SCCbqteV8F2Uy7/HHgVXPIUQuy4nFAONt9a
+        RhZRWNladuq/dGYVRt/HbTKLGLUVnfyYOcp8FtDkB6mlEwOApP1ObsVm+CPTD2MrzCtVc7WVlQ24w
+        D/eCeHDxQ3fB3lMWtwityCNHoHCkGCgolBBRmBQ4kjPm4WwOB92HuOuwvip8ulOpRb0+WJRPIgmvD
+        NKK9pRhA==;
 Received: from mcgrof by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
-        id 1qOimM-00BE8R-2H;
-        Wed, 26 Jul 2023 17:58:30 +0000
-Date:   Wed, 26 Jul 2023 10:58:30 -0700
+        id 1qOit2-00BF7a-29;
+        Wed, 26 Jul 2023 18:05:24 +0000
+Date:   Wed, 26 Jul 2023 11:05:24 -0700
 From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     Joel Granados <j.granados@samsung.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Kees Cook <keescook@chromium.org>,
-        Iurii Zaikin <yzaikin@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+To:     Joel Granados <j.granados@samsung.com>
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        David Ahern <dsahern@kernel.org>,
         Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, willy@infradead.org,
-        josh@joshtriplett.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: Re: [PATCH 06/14] sysctl: Add size to register_sysctl
-Message-ID: <ZMFexmOcfyORkRRs@bombadil.infradead.org>
+        Paolo Abeni <pabeni@redhat.com>,
+        Alexander Aring <alex.aring@gmail.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Mat Martineau <martineau@kernel.org>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>, willy@infradead.org,
+        keescook@chromium.org, josh@joshtriplett.org,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-wpan@vger.kernel.org,
+        mptcp@lists.linux.dev, linux-rdma@vger.kernel.org,
+        rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH 11/14] networking: Update to register_net_sysctl_sz
+Message-ID: <ZMFgZHsnhrXNIQ53@bombadil.infradead.org>
 References: <20230726140635.2059334-1-j.granados@samsung.com>
- <CGME20230726140659eucas1p2c3cd9f57dd13c71ddeb78d2480587e72@eucas1p2.samsung.com>
- <20230726140635.2059334-7-j.granados@samsung.com>
+ <CGME20230726140709eucas1p2033d64aec69a1962fd7e64c57ad60adc@eucas1p2.samsung.com>
+ <20230726140635.2059334-12-j.granados@samsung.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230726140635.2059334-7-j.granados@samsung.com>
+In-Reply-To: <20230726140635.2059334-12-j.granados@samsung.com>
 Sender: Luis Chamberlain <mcgrof@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jul 26, 2023 at 04:06:26PM +0200, Joel Granados wrote:
-> In order to remove the end element from the ctl_table struct arrays, we
-> replace the register_syctl function with a macro that will add the
-> ARRAY_SIZE to the new register_sysctl_sz function. In this way the
-> callers that are already using an array of ctl_table structs do not have
-> to change. We *do* change the callers that pass the ctl_table array as a
-> pointer.
+On Wed, Jul 26, 2023 at 04:06:31PM +0200, Joel Granados wrote:
+> This is part of the effort to remove the sentinel (last empty) element
+> from the ctl_table arrays. We update to the new function and pass it the
+> array size. Care is taken to mirror the NULL assignments with a size of
+> zero (for the unprivileged users). An additional size function was added
+> to the following files in order to calculate the size of an array that
+> is defined in another file:
+>     include/net/ipv6.h
+>     net/ipv6/icmp.c
+>     net/ipv6/route.c
+>     net/ipv6/sysctl_net_ipv6.c
+> 
 
-Thanks for doing this and this series!
+Same here as with the other patches, the "why" and size impact should go here.
+I'll skip mentioning that in the other patches.
 
-> Signed-off-by: Joel Granados <j.granados@samsung.com>
-> ---
-> diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-> index 0495c858989f..b1168ae281c9 100644
-> --- a/include/linux/sysctl.h
-> +++ b/include/linux/sysctl.h
-> @@ -215,6 +215,9 @@ struct ctl_path {
->  	const char *procname;
+> diff --git a/net/mpls/af_mpls.c b/net/mpls/af_mpls.c
+> index bf6e81d56263..5bad14b3c71e 100644
+> --- a/net/mpls/af_mpls.c
+> +++ b/net/mpls/af_mpls.c
+> @@ -1396,6 +1396,40 @@ static const struct ctl_table mpls_dev_table[] = {
+>  	{ }
 >  };
 >  
-> +#define register_sysctl(path, table)	\
-> +	register_sysctl_sz(path, table, ARRAY_SIZE(table))
+> +static int mpls_platform_labels(struct ctl_table *table, int write,
+> +				void *buffer, size_t *lenp, loff_t *ppos);
+> +#define MPLS_NS_SYSCTL_OFFSET(field)		\
+> +	(&((struct net *)0)->field)
 > +
->  #ifdef CONFIG_SYSCTL
+> +static const struct ctl_table mpls_table[] = {
+> +	{
+> +		.procname	= "platform_labels",
+> +		.data		= NULL,
+> +		.maxlen		= sizeof(int),
+> +		.mode		= 0644,
+> +		.proc_handler	= mpls_platform_labels,
+> +	},
+> +	{
+> +		.procname	= "ip_ttl_propagate",
+> +		.data		= MPLS_NS_SYSCTL_OFFSET(mpls.ip_ttl_propagate),
+> +		.maxlen		= sizeof(int),
+> +		.mode		= 0644,
+> +		.proc_handler	= proc_dointvec_minmax,
+> +		.extra1		= SYSCTL_ZERO,
+> +		.extra2		= SYSCTL_ONE,
+> +	},
+> +	{
+> +		.procname	= "default_ttl",
+> +		.data		= MPLS_NS_SYSCTL_OFFSET(mpls.default_ttl),
+> +		.maxlen		= sizeof(int),
+> +		.mode		= 0644,
+> +		.proc_handler	= proc_dointvec_minmax,
+> +		.extra1		= SYSCTL_ONE,
+> +		.extra2		= &ttl_max,
+> +	},
+> +	{ }
+> +};
 
-Wasn't it Greg who had suggested this? Maybe add Suggested-by with him
-on it.
-
-Also, your cover letter and first few patches are not CC'd to the netdev
-list or others. What you want to do is collect all the email addresses
-for this small patch series and add them to who you email for your
-entire series, otherwise at times they won't be able to properly review
-or understand the exact context of the changes. You want folks to do less
-work to review, not more.
-
-So please resend and add others to the other patches.
+Unless we hear otherwise from networking folks, I think this move alone
+should probably go as a separate patch with no functional changes to
+make the changes easier to review / bisect.
 
   Luis
