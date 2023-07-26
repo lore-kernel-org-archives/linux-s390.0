@@ -2,144 +2,303 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9605C04FDF
-	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 13:46:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4797C001DC
+	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 14:08:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234190AbjGZNqP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 26 Jul 2023 09:46:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52982 "EHLO
+        id S234585AbjGZOIM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 26 Jul 2023 10:08:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232971AbjGZNqN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Jul 2023 09:46:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A72712C;
-        Wed, 26 Jul 2023 06:46:12 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ECB1D61A4F;
-        Wed, 26 Jul 2023 13:46:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31A6EC433C7;
-        Wed, 26 Jul 2023 13:46:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1690379171;
-        bh=YMmxomfMr9G4i/xBDFo8a+tJ6BzX3X5lQtLwpyL37dM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=iLrm54/OyVAkeX7XRTdQI6vJKk7fvA9E8WFuxeM1GUgON2oCeY1wjM8yTYrtIi4IQ
-         Oo3FMgcMnRzknsY84kWAeTJ0inxm7fg97Q/tOUTzG6ZMmI5ATwnzUC945HbXcM2RRW
-         HKanW7qmiSF3lCZhc3wQfBbpJJOtev2Fm0SsXZJptqvFFvEwrKyC1aKGldedLK/9Vz
-         62DImdurXvwbmhgOteOs/aXLApFhcpwiLDIG+sQUeQFLsagl1k2OVSVn88v78BFAcl
-         Vj6NEoPbw1eyE9ZIq7xYhoiahGzuo+q0Lii/UprIQXPLwFPgjeIIKj3g1kimIqX0ng
-         b/060n7yg03AQ==
-Date:   Wed, 26 Jul 2023 15:45:56 +0200
-From:   Alexey Gladkov <legion@kernel.org>
-To:     Aleksa Sarai <cyphar@cyphar.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        linux-api@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        viro@zeniv.linux.org.uk, James.Bottomley@hansenpartnership.com,
-        acme@kernel.org, alexander.shishkin@linux.intel.com,
-        axboe@kernel.dk, benh@kernel.crashing.org, borntraeger@de.ibm.com,
-        bp@alien8.de, catalin.marinas@arm.com, christian@brauner.io,
-        dalias@libc.org, davem@davemloft.net, deepa.kernel@gmail.com,
-        deller@gmx.de, dhowells@redhat.com, fenghua.yu@intel.com,
-        fweimer@redhat.com, geert@linux-m68k.org, glebfm@altlinux.org,
-        gor@linux.ibm.com, hare@suse.com, hpa@zytor.com,
-        ink@jurassic.park.msu.ru, jhogan@kernel.org, kim.phillips@arm.com,
-        ldv@altlinux.org, linux-alpha@vger.kernel.org,
-        linux-arch@vger.kernel.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, linux@armlinux.org.uk,
-        linuxppc-dev@lists.ozlabs.org, luto@kernel.org, mattst88@gmail.com,
-        mingo@redhat.com, monstr@monstr.eu, mpe@ellerman.id.au,
-        namhyung@kernel.org, paulus@samba.org, peterz@infradead.org,
-        ralf@linux-mips.org, sparclinux@vger.kernel.org, stefan@agner.ch,
-        tglx@linutronix.de, tony.luck@intel.com, tycho@tycho.ws,
-        will@kernel.org, x86@kernel.org, ysato@users.sourceforge.jp,
-        Palmer Dabbelt <palmer@sifive.com>
-Subject: Re: [PATCH v4 2/5] fs: Add fchmodat2()
-Message-ID: <ZMEjlDNJkFpYERr1@example.org>
-References: <cover.1689074739.git.legion@kernel.org>
- <cover.1689092120.git.legion@kernel.org>
- <f2a846ef495943c5d101011eebcf01179d0c7b61.1689092120.git.legion@kernel.org>
- <njnhwhgmsk64e6vf3ur7fifmxlipmzez3r5g7ejozsrkbwvq7w@tu7w3ieystcq>
+        with ESMTP id S234401AbjGZOHP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Jul 2023 10:07:15 -0400
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE79D211F
+        for <linux-s390@vger.kernel.org>; Wed, 26 Jul 2023 07:07:01 -0700 (PDT)
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20230726140700euoutp01fcc050ddd7a85674eea1e3f80ae139f2~1cAlc7smp2885328853euoutp01c
+        for <linux-s390@vger.kernel.org>; Wed, 26 Jul 2023 14:07:00 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20230726140700euoutp01fcc050ddd7a85674eea1e3f80ae139f2~1cAlc7smp2885328853euoutp01c
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1690380420;
+        bh=l0L9NM3baww7PVLEXdKvMFx2kXphPK9z7x02k5Zm7P0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=GaZxoBUp0wCR4r6ry2u8S1nlpqI/0qhL2+zbvIjyGJR+l3toEsBx2lbuszRlVdZuN
+         a7u5sBbS7gNqEgWKaE7fYAt2x2czxScQ+8Qw80/uY3XSteIXks2Mt84KNlWh0SSdmw
+         dolELmm/P+GgX1xIbOffGwpWjeDTt3xHs9OVnbUA=
+Received: from eusmges2new.samsung.com (unknown [203.254.199.244]) by
+        eucas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20230726140659eucas1p1999364497c41da742f5a590178eed9e0~1cAkx_DyJ2259322593eucas1p1k;
+        Wed, 26 Jul 2023 14:06:59 +0000 (GMT)
+Received: from eucas1p1.samsung.com ( [182.198.249.206]) by
+        eusmges2new.samsung.com (EUCPMTA) with SMTP id 27.F6.11320.38821C46; Wed, 26
+        Jul 2023 15:06:59 +0100 (BST)
+Received: from eusmtrp2.samsung.com (unknown [182.198.249.139]) by
+        eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
+        20230726140659eucas1p2c3cd9f57dd13c71ddeb78d2480587e72~1cAkRDtvl0079900799eucas1p2w;
+        Wed, 26 Jul 2023 14:06:59 +0000 (GMT)
+Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
+        eusmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20230726140659eusmtrp23f74b881de77cedcdbb407cdb337d489~1cAkQSJFE2014720147eusmtrp2e;
+        Wed, 26 Jul 2023 14:06:59 +0000 (GMT)
+X-AuditID: cbfec7f4-97dff70000022c38-36-64c12883b123
+Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
+        eusmgms2.samsung.com (EUCPMTA) with SMTP id 73.57.14344.38821C46; Wed, 26
+        Jul 2023 15:06:59 +0100 (BST)
+Received: from localhost (unknown [106.210.248.223]) by eusmtip2.samsung.com
+        (KnoxPortal) with ESMTPA id
+        20230726140659eusmtip26b7013f9921e15f7a7bc21417164a14d~1cAj_0AFI2113521135eusmtip2C;
+        Wed, 26 Jul 2023 14:06:59 +0000 (GMT)
+From:   Joel Granados <j.granados@samsung.com>
+To:     mcgrof@kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Kees Cook <keescook@chromium.org>,
+        Iurii Zaikin <yzaikin@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc:     willy@infradead.org, josh@joshtriplett.org,
+        Joel Granados <j.granados@samsung.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH 06/14] sysctl: Add size to register_sysctl
+Date:   Wed, 26 Jul 2023 16:06:26 +0200
+Message-Id: <20230726140635.2059334-7-j.granados@samsung.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20230726140635.2059334-1-j.granados@samsung.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <njnhwhgmsk64e6vf3ur7fifmxlipmzez3r5g7ejozsrkbwvq7w@tu7w3ieystcq>
+Content-Transfer-Encoding: 8bit
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrOKsWRmVeSWpSXmKPExsWy7djPc7rNGgdTDA6v1bfYePolm8Xjv4fY
+        LN4v62G0mHO+hcXi6bFH7BYXZn1jtXg9bxWjxdL9Dxkt/i/ItzjTnWtxYVsfq8Wmx9dYLfbs
+        PclicXnXHDaLCQubmS1uTHjKaHFsgZjFt9NvGC2WrV/LbtFyx9Ti9w+ggmU7/RzEPNbMW8Po
+        MbvhIovHlpU3mTwWbCr12LxCy+PWa1uPTas62TwmLDrA6LF5Sb3H+31X2Tz6tqxi9Pi8SS6A
+        J4rLJiU1J7MstUjfLoErY/qtDWwFHWYVz9efZmlgfK7TxcjJISFgIrH10EHWLkYuDiGBFYwS
+        c/YtY4NwvjBKHNy+kQnC+cwosfvdPXaYlhenW6ESyxklnqzpYQZJCAm8ZJS4c9sGxGYT0JE4
+        /+YOM0iRiMAmZom73xaCOcwCZ5kkjq+fDDZKWMBKYtvfCUwgNouAqsTrvpdgk3gFbCWOrH3G
+        ArFOXqLt+nRGEJtTwE5i5drvrBA1ghInZz4Bq2EGqmneOpsZov4ap8SE6WpdjBxAtovEtPPF
+        EGFhiVfHt0B9ICPxf+d8sA8kBCYzSuz/94EdwlnNKLGs8SsTRJW1RMuVJ+wgg5gFNCXW79KH
+        CDtKrPk5kw1iPp/EjbeCECfwSUzaNp0ZIswr0dEmBFGtItG3dArUJ1IS1y/vZIOwPSTWrj/H
+        PoFRcRaSZ2YheWYWwt4FjMyrGMVTS4tz01OLjfJSy/WKE3OLS/PS9ZLzczcxAtPm6X/Hv+xg
+        XP7qo94hRiYOxkOMEhzMSiK8hjH7UoR4UxIrq1KL8uOLSnNSiw8xSnOwKInzatueTBYSSE8s
+        Sc1OTS1ILYLJMnFwSjUwybLfYGLboKaxyqR+t/alhPmsW/ftWhnZasfU9c98W7zOVNPOTlZp
+        MZ7jF367FxR/OP6rulQxZ7+s4mo7tojvie42/1UXLbPs/mrjNfnOwjfnXWQuyuQGss/rZY87
+        euOJuNrsjUkFR83evL884/8GtxTp7qiItWn1pqc4vpa9ig1sz9xRt5rBLnPSAQVjGzXW4rkJ
+        q2qWcE/S9f8zQVfo47mlG37MYT9/KPTr6fcfA+8sP21gt697tbuT8c+AfVKfK6vdOJVe8Eyy
+        891RsWifY8+BGpuq83d9GmUTzPXXn7uaslx8TtCy1aaPjnjtv3N30hN9r9quFq3PN4/b7ls0
+        +V8mY5DWId75vnklfMbrlViKMxINtZiLihMBhi2VBgoEAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrKIsWRmVeSWpSXmKPExsVy+t/xe7rNGgdTDK5e4rPYePolm8Xjv4fY
+        LN4v62G0mHO+hcXi6bFH7BYXZn1jtXg9bxWjxdL9Dxkt/i/ItzjTnWtxYVsfq8Wmx9dYLfbs
+        PclicXnXHDaLCQubmS1uTHjKaHFsgZjFt9NvGC2WrV/LbtFyx9Ti9w+ggmU7/RzEPNbMW8Po
+        MbvhIovHlpU3mTwWbCr12LxCy+PWa1uPTas62TwmLDrA6LF5Sb3H+31X2Tz6tqxi9Pi8SS6A
+        J0rPpii/tCRVISO/uMRWKdrQwkjP0NJCz8jEUs/Q2DzWyshUSd/OJiU1J7MstUjfLkEvY/qt
+        DWwFHWYVz9efZmlgfK7TxcjJISFgIvHidCtTFyMXh5DAUkaJ3ntH2boYOYASUhLfl3FC1AhL
+        /LnWxQZR85xRYmrvdBaQBJuAjsT5N3eYQRIiAvuYJaZ+OsUKkmAWuM4kMfltEIgtLGAlse3v
+        BCYQm0VAVeJ130tmEJtXwFbiyNpnLBAb5CXark9nBLE5BewkVq79DjZHCKimZ+pTdoh6QYmT
+        M5+wQMyXl2jeOpt5AqPALCSpWUhSCxiZVjGKpJYW56bnFhvpFSfmFpfmpesl5+duYgTG97Zj
+        P7fsYFz56qPeIUYmDsZDjBIczEoivIYx+1KEeFMSK6tSi/Lji0pzUosPMZoC3T2RWUo0OR+Y
+        YPJK4g3NDEwNTcwsDUwtzYyVxHk9CzoShQTSE0tSs1NTC1KLYPqYODilGpiinPWzzRwXTTw/
+        73dG9sPzC6ct69rAHnGEZdtlV56fL45f6pKYN5lx5+ot1/zTbYu2vLc2a714qPL//5/T/63k
+        328/LenmJ58lepr/3oquurK1S2rzuVvhznpzrF40eXZ6NWzTs5NUznmd91vN+/QOhaIN94XX
+        HLl47v6qp5nnYh6kBx5X+C80b6qlwXLps0lJyaFzD/p8atlwTjAq+T1HT0P6ph3t3qlflD+d
+        v/mAIcolOP1B8JTJ784/uZR/4sBlG0a/tZMZVmjp6jPXzm2s+l2UtfHxtQoLz/UuK1hmNswN
+        aF1/YcYEplgW24aVQnc1N6suX//1qqZmneq015HHbZbIzmN77PCGm/X2/cTgqUosxRmJhlrM
+        RcWJAB+R3qZ4AwAA
+X-CMS-MailID: 20230726140659eucas1p2c3cd9f57dd13c71ddeb78d2480587e72
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20230726140659eucas1p2c3cd9f57dd13c71ddeb78d2480587e72
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20230726140659eucas1p2c3cd9f57dd13c71ddeb78d2480587e72
+References: <20230726140635.2059334-1-j.granados@samsung.com>
+        <CGME20230726140659eucas1p2c3cd9f57dd13c71ddeb78d2480587e72@eucas1p2.samsung.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jul 26, 2023 at 02:36:25AM +1000, Aleksa Sarai wrote:
-> On 2023-07-11, Alexey Gladkov <legion@kernel.org> wrote:
-> > On the userspace side fchmodat(3) is implemented as a wrapper
-> > function which implements the POSIX-specified interface. This
-> > interface differs from the underlying kernel system call, which does not
-> > have a flags argument. Most implementations require procfs [1][2].
-> > 
-> > There doesn't appear to be a good userspace workaround for this issue
-> > but the implementation in the kernel is pretty straight-forward.
-> > 
-> > The new fchmodat2() syscall allows to pass the AT_SYMLINK_NOFOLLOW flag,
-> > unlike existing fchmodat.
-> > 
-> > [1] https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/unix/sysv/linux/fchmodat.c;h=17eca54051ee28ba1ec3f9aed170a62630959143;hb=a492b1e5ef7ab50c6fdd4e4e9879ea5569ab0a6c#l35
-> > [2] https://git.musl-libc.org/cgit/musl/tree/src/stat/fchmodat.c?id=718f363bc2067b6487900eddc9180c84e7739f80#n28
-> > 
-> > Co-developed-by: Palmer Dabbelt <palmer@sifive.com>
-> > Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
-> > Signed-off-by: Alexey Gladkov <legion@kernel.org>
-> > Acked-by: Arnd Bergmann <arnd@arndb.de>
-> > ---
-> >  fs/open.c                | 18 ++++++++++++++----
-> >  include/linux/syscalls.h |  2 ++
-> >  2 files changed, 16 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/fs/open.c b/fs/open.c
-> > index 0c55c8e7f837..39a7939f0d00 100644
-> > --- a/fs/open.c
-> > +++ b/fs/open.c
-> > @@ -671,11 +671,11 @@ SYSCALL_DEFINE2(fchmod, unsigned int, fd, umode_t, mode)
-> >  	return err;
-> >  }
-> >  
-> > -static int do_fchmodat(int dfd, const char __user *filename, umode_t mode)
-> > +static int do_fchmodat(int dfd, const char __user *filename, umode_t mode, int lookup_flags)
-> 
-> I think it'd be much neater to do the conversion of AT_ flags here and
-> pass 0 as a flags argument for all of the wrappers (this is how most of
-> the other xyz(), fxyz(), fxyzat() syscall wrappers are done IIRC).
+In order to remove the end element from the ctl_table struct arrays, we
+replace the register_syctl function with a macro that will add the
+ARRAY_SIZE to the new register_sysctl_sz function. In this way the
+callers that are already using an array of ctl_table structs do not have
+to change. We *do* change the callers that pass the ctl_table array as a
+pointer.
 
-I just addressed the Al Viro's suggestion.
+Signed-off-by: Joel Granados <j.granados@samsung.com>
+---
+ arch/arm64/kernel/armv8_deprecated.c |  2 +-
+ arch/s390/appldata/appldata_base.c   |  2 +-
+ fs/proc/proc_sysctl.c                | 30 +++++++++++++++-------------
+ include/linux/sysctl.h               | 10 ++++++++--
+ kernel/ucount.c                      |  2 +-
+ net/sysctl_net.c                     |  2 +-
+ 6 files changed, 28 insertions(+), 20 deletions(-)
 
-https://lore.kernel.org/lkml/20190717014802.GS17978@ZenIV.linux.org.uk/
-
-> >  {
-> >  	struct path path;
-> >  	int error;
-> > -	unsigned int lookup_flags = LOOKUP_FOLLOW;
-> > +
-> >  retry:
-> >  	error = user_path_at(dfd, filename, lookup_flags, &path);
-> >  	if (!error) {
-> > @@ -689,15 +689,25 @@ static int do_fchmodat(int dfd, const char __user *filename, umode_t mode)
-> >  	return error;
-> >  }
-> >  
-> > +SYSCALL_DEFINE4(fchmodat2, int, dfd, const char __user *, filename,
-> > +		umode_t, mode, int, flags)
-> > +{
-> > +	if (unlikely(flags & ~AT_SYMLINK_NOFOLLOW))
-> > +		return -EINVAL;
-> 
-> We almost certainly want to support AT_EMPTY_PATH at the same time.
-> Otherwise userspace will still need to go through /proc when trying to
-> chmod a file handle they have.
-
-I'm not sure I understand. Can you explain what you mean?
-
+diff --git a/arch/arm64/kernel/armv8_deprecated.c b/arch/arm64/kernel/armv8_deprecated.c
+index 1febd412b4d2..e459cfd33711 100644
+--- a/arch/arm64/kernel/armv8_deprecated.c
++++ b/arch/arm64/kernel/armv8_deprecated.c
+@@ -569,7 +569,7 @@ static void __init register_insn_emulation(struct insn_emulation *insn)
+ 		sysctl->extra2 = &insn->max;
+ 		sysctl->proc_handler = emulation_proc_handler;
+ 
+-		register_sysctl("abi", sysctl);
++		register_sysctl_sz("abi", sysctl, 1);
+ 	}
+ }
+ 
+diff --git a/arch/s390/appldata/appldata_base.c b/arch/s390/appldata/appldata_base.c
+index bbefe5e86bdf..3b0994625652 100644
+--- a/arch/s390/appldata/appldata_base.c
++++ b/arch/s390/appldata/appldata_base.c
+@@ -365,7 +365,7 @@ int appldata_register_ops(struct appldata_ops *ops)
+ 	ops->ctl_table[0].proc_handler = appldata_generic_handler;
+ 	ops->ctl_table[0].data = ops;
+ 
+-	ops->sysctl_header = register_sysctl(appldata_proc_name, ops->ctl_table);
++	ops->sysctl_header = register_sysctl_sz(appldata_proc_name, ops->ctl_table, 1);
+ 	if (!ops->sysctl_header)
+ 		goto out;
+ 	return 0;
+diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
+index 8d04f01a89c1..c04293911e7e 100644
+--- a/fs/proc/proc_sysctl.c
++++ b/fs/proc/proc_sysctl.c
+@@ -43,7 +43,7 @@ static struct ctl_table sysctl_mount_point[] = {
+  */
+ struct ctl_table_header *register_sysctl_mount_point(const char *path)
+ {
+-	return register_sysctl(path, sysctl_mount_point);
++	return register_sysctl_sz(path, sysctl_mount_point, 0);
+ }
+ EXPORT_SYMBOL(register_sysctl_mount_point);
+ 
+@@ -1398,7 +1398,7 @@ struct ctl_table_header *__register_sysctl_table(
+ }
+ 
+ /**
+- * register_sysctl - register a sysctl table
++ * register_sysctl_sz - register a sysctl table
+  * @path: The path to the directory the sysctl table is in. If the path
+  * 	doesn't exist we will create it for you.
+  * @table: the table structure. The calller must ensure the life of the @table
+@@ -1408,25 +1408,20 @@ struct ctl_table_header *__register_sysctl_table(
+  * 	to call unregister_sysctl_table() and can instead use something like
+  * 	register_sysctl_init() which does not care for the result of the syctl
+  * 	registration.
++ * @table_size: The number of elements in table.
+  *
+  * Register a sysctl table. @table should be a filled in ctl_table
+  * array. A completely 0 filled entry terminates the table.
+  *
+  * See __register_sysctl_table for more details.
+  */
+-struct ctl_table_header *register_sysctl(const char *path, struct ctl_table *table)
++struct ctl_table_header *register_sysctl_sz(const char *path, struct ctl_table *table,
++					    size_t table_size)
+ {
+-	int count = 0;
+-	struct ctl_table *entry;
+-	struct ctl_table_header t_hdr;
+-
+-	t_hdr.ctl_table = table;
+-	list_for_each_table_entry(entry, (&t_hdr))
+-		count++;
+ 	return __register_sysctl_table(&sysctl_table_root.default_set,
+-					path, table, count);
++					path, table, table_size);
+ }
+-EXPORT_SYMBOL(register_sysctl);
++EXPORT_SYMBOL(register_sysctl_sz);
+ 
+ /**
+  * __register_sysctl_init() - register sysctl table to path
+@@ -1451,10 +1446,17 @@ EXPORT_SYMBOL(register_sysctl);
+ void __init __register_sysctl_init(const char *path, struct ctl_table *table,
+ 				 const char *table_name)
+ {
+-	struct ctl_table_header *hdr = register_sysctl(path, table);
++	int count = 0;
++	struct ctl_table *entry;
++	struct ctl_table_header t_hdr, *hdr;
++
++	t_hdr.ctl_table = table;
++	list_for_each_table_entry(entry, (&t_hdr))
++		count++;
++	hdr = register_sysctl_sz(path, table, count);
+ 
+ 	if (unlikely(!hdr)) {
+-		pr_err("failed when register_sysctl %s to %s\n", table_name, path);
++		pr_err("failed when register_sysctl_sz %s to %s\n", table_name, path);
+ 		return;
+ 	}
+ 	kmemleak_not_leak(hdr);
+diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+index 0495c858989f..b1168ae281c9 100644
+--- a/include/linux/sysctl.h
++++ b/include/linux/sysctl.h
+@@ -215,6 +215,9 @@ struct ctl_path {
+ 	const char *procname;
+ };
+ 
++#define register_sysctl(path, table)	\
++	register_sysctl_sz(path, table, ARRAY_SIZE(table))
++
+ #ifdef CONFIG_SYSCTL
+ 
+ void proc_sys_poll_notify(struct ctl_table_poll *poll);
+@@ -227,7 +230,8 @@ extern void retire_sysctl_set(struct ctl_table_set *set);
+ struct ctl_table_header *__register_sysctl_table(
+ 	struct ctl_table_set *set,
+ 	const char *path, struct ctl_table *table, size_t table_size);
+-struct ctl_table_header *register_sysctl(const char *path, struct ctl_table *table);
++struct ctl_table_header *register_sysctl_sz(const char *path, struct ctl_table *table,
++					    size_t table_size);
+ void unregister_sysctl_table(struct ctl_table_header * table);
+ 
+ extern int sysctl_init_bases(void);
+@@ -262,7 +266,9 @@ static inline struct ctl_table_header *register_sysctl_mount_point(const char *p
+ 	return NULL;
+ }
+ 
+-static inline struct ctl_table_header *register_sysctl(const char *path, struct ctl_table *table)
++static inline struct ctl_table_header *register_sysctl_sz(const char *path,
++							  struct ctl_table *table,
++							  size_t table_size)
+ {
+ 	return NULL;
+ }
+diff --git a/kernel/ucount.c b/kernel/ucount.c
+index 2b80264bb79f..4aa6166cb856 100644
+--- a/kernel/ucount.c
++++ b/kernel/ucount.c
+@@ -365,7 +365,7 @@ static __init int user_namespace_sysctl_init(void)
+ 	 * default set so that registrations in the child sets work
+ 	 * properly.
+ 	 */
+-	user_header = register_sysctl("user", empty);
++	user_header = register_sysctl_sz("user", empty, 0);
+ 	kmemleak_ignore(user_header);
+ 	BUG_ON(!user_header);
+ 	BUG_ON(!setup_userns_sysctls(&init_user_ns));
+diff --git a/net/sysctl_net.c b/net/sysctl_net.c
+index 8ee4b74bc009..d9cbbb51b143 100644
+--- a/net/sysctl_net.c
++++ b/net/sysctl_net.c
+@@ -101,7 +101,7 @@ __init int net_sysctl_init(void)
+ 	 * registering "/proc/sys/net" as an empty directory not in a
+ 	 * network namespace.
+ 	 */
+-	net_header = register_sysctl("net", empty);
++	net_header = register_sysctl_sz("net", empty, 0);
+ 	if (!net_header)
+ 		goto out;
+ 	ret = register_pernet_subsys(&sysctl_pernet_ops);
 -- 
-Rgrds, legion
+2.30.2
 
