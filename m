@@ -2,98 +2,83 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E28CBEB64DD
-	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 02:08:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7579C001DE
+	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 03:10:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229478AbjGZCIZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 Jul 2023 22:08:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51328 "EHLO
+        id S231295AbjGZDKg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 Jul 2023 23:10:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229437AbjGZCIY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Jul 2023 22:08:24 -0400
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAB152125;
-        Tue, 25 Jul 2023 19:08:23 -0700 (PDT)
-Received: from pps.filterd (m0333520.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36PJIswi025954;
-        Wed, 26 Jul 2023 02:03:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=corp-2023-03-30;
- bh=2CJ8AK5c/kLmtgDFpkjRPa1wxeTnQU5YdOMnAoaW5Iw=;
- b=lUMdW8/DgzBXCUuuf53dBGGzeolKYPhUDgLPb+9ppdYepjwU/ZJVDBxw5Ze64gA2nwfT
- E0tMkgOLkp2oK9iihy495vNnVNhEzahTzm2AFS+marHRcEne4l6NTts+rACHqoKJUK7t
- 2bmTRv9PsxIsBMc63zktLMgwsvy47Po2VmfZVa50JGyajQej2WqBzcRf6SITNMOtl7fi
- 88cakHVIOIVTYTq804Ya+BthXpNPQ8bZWVSEd0UfkzQY7tXR7Nq5GUl7Df/9dkeuErfH
- ti/mtX2tuoRl46eLkeMlsSVtZUdx3cfV1id1cVA1ewRS144pP72rvOuGhR1HVME212OB Ng== 
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3s075d6ftq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 26 Jul 2023 02:03:30 +0000
-Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 36PNt8Oc029422;
-        Wed, 26 Jul 2023 02:03:29 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3s05j5jrn3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 26 Jul 2023 02:03:29 +0000
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36Q23SLq003192;
-        Wed, 26 Jul 2023 02:03:28 GMT
-Received: from ca-mkp2.ca.oracle.com.com (mpeterse-ol9.allregionaliads.osdevelopmeniad.oraclevcn.com [100.100.251.135])
-        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 3s05j5jrfj-1;
-        Wed, 26 Jul 2023 02:03:28 +0000
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-To:     "James E . J . Bottomley" <jejb@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>
-Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Subject: Re: [PATCH] zfcp: defer fc_rport blocking until after ADISC response
-Date:   Tue, 25 Jul 2023 22:03:06 -0400
-Message-Id: <169033697463.2256225.1716697055296797756.b4-ty@oracle.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230724145156.3920244-1-maier@linux.ibm.com>
-References: <20230724145156.3920244-1-maier@linux.ibm.com>
-MIME-Version: 1.0
+        with ESMTP id S230182AbjGZDKZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Jul 2023 23:10:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C319F2709
+        for <linux-s390@vger.kernel.org>; Tue, 25 Jul 2023 20:10:21 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EFD2601D6
+        for <linux-s390@vger.kernel.org>; Wed, 26 Jul 2023 03:10:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 8E898C433CD;
+        Wed, 26 Jul 2023 03:10:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1690341020;
+        bh=+ajtJPlWkqiBolHDZStP+hnhkPbQ/RwAWCQlZcDPVAM=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=lwPAGDtEOoed9lcKOTgl7DqSZHEHUT4DdEsTqhf1X2Y481nQChozovLhFyAUgOiUR
+         /xDcThWJsGahlMuIF+/tlxzXa5lNpvSHHTVeh6snuQBgqhftHbR9hhpml6dcR2xZHh
+         LwEHu3qpXE/Ff1mZjU4JEehLEmZAP+UhwpmF9pynAkSoNzfLKe/4SHJsdYva4kpx0H
+         UgkcTf1Ans9R7JRkqMx8Qgb8CHDnOwMUs4jU1EsRy04xVQsUFSQSuHeuD0Z/z8QuF3
+         4Zd6w/iO2e3MXUT1vprlxx77774khUNPEUn5YmexQQooh3o3RU8pO4+MwnyT/qqlr9
+         QOL2t81FgfAGw==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 7A670C73FE2;
+        Wed, 26 Jul 2023 03:10:20 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-25_14,2023-07-25_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 spamscore=0 adultscore=0
- phishscore=0 mlxlogscore=780 malwarescore=0 mlxscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2306200000
- definitions=main-2307260016
-X-Proofpoint-ORIG-GUID: BBSAzn2WrzbYGXlKZJoMgsNtSOT4IiX_
-X-Proofpoint-GUID: BBSAzn2WrzbYGXlKZJoMgsNtSOT4IiX_
+Subject: Re: [PATCH net] s390/lcs: Remove FDDI option
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <169034102049.18310.14252409973492346016.git-patchwork-notify@kernel.org>
+Date:   Wed, 26 Jul 2023 03:10:20 +0000
+References: <20230724131546.3597001-1-wintera@linux.ibm.com>
+In-Reply-To: <20230724131546.3597001-1-wintera@linux.ibm.com>
+To:     Alexandra Winter <wintera@linux.ibm.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+        edumazet@google.com, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, hca@linux.ibm.com,
+        simon.horman@corigine.com, borntraeger@linux.ibm.com,
+        rdunlap@infradead.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 24 Jul 2023 16:51:56 +0200, Steffen Maier wrote:
+Hello:
 
-> Storages are free to send RSCNs, e.g. for internal state changes. If this
-> happens on all connected paths, zfcp risks temporarily losing all paths at
-> the same time. This has strong requirements on multipath configuration such
-> as "no_path_retry queue".
+This patch was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Mon, 24 Jul 2023 15:15:46 +0200 you wrote:
+> The last s390 machine that supported FDDI was z900 ('7th generation',
+> released in 2000). The oldest machine generation currently supported by
+> the Linux kernel is MARCH_Z10 (released 2008). If there is still a usecase
+> for connecting a Linux on s390 instance to a LAN Channel Station (LCS), it
+> can only do so via Ethernet.
 > 
-> Avoid such situations by deferring fc_rport blocking until after the ADISC
-> response, when any actual state change of the remote port became clear.
-> The already existing port recovery triggers explicitly block the fc_rport.
-> The triggers are: on ADISC reject or timeout (typical cable pull case), and
-> on ADISC indicating that the remote port has changed its WWPN or
-> the port is meanwhile no longer open.
+> Randy Dunlap[1] found that LCS over FDDI has never worked, when FDDI
+> was compiled as module. Instead of fixing that, remove the FDDI option
+> from the lcs driver.
 > 
 > [...]
 
-Applied to 6.5/scsi-fixes, thanks!
+Here is the summary with links:
+  - [net] s390/lcs: Remove FDDI option
+    https://git.kernel.org/netdev/net-next/c/8540336adadb
 
-[1/1] zfcp: defer fc_rport blocking until after ADISC response
-      https://git.kernel.org/mkp/scsi/c/e65851989001
-
+You are awesome, thank you!
 -- 
-Martin K. Petersen	Oracle Linux Engineering
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
