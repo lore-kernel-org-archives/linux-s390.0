@@ -2,100 +2,101 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFD12C41513
-	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 17:30:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB63EC001B0
+	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 17:58:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231857AbjGZRa4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 26 Jul 2023 13:30:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33330 "EHLO
+        id S230112AbjGZR6o (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 26 Jul 2023 13:58:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232435AbjGZRaz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Jul 2023 13:30:55 -0400
-Received: from brightrain.aerifal.cx (brightrain.aerifal.cx [216.12.86.13])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24B991FCF
-        for <linux-s390@vger.kernel.org>; Wed, 26 Jul 2023 10:30:52 -0700 (PDT)
-Date:   Tue, 11 Jul 2023 22:42:44 -0400
-From:   Rich Felker <dalias@libc.org>
-To:     Alexey Gladkov <legion@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        linux-api@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        viro@zeniv.linux.org.uk, James.Bottomley@HansenPartnership.com,
-        acme@kernel.org, alexander.shishkin@linux.intel.com,
-        axboe@kernel.dk, benh@kernel.crashing.org, borntraeger@de.ibm.com,
-        bp@alien8.de, catalin.marinas@arm.com, christian@brauner.io,
-        davem@davemloft.net, deepa.kernel@gmail.com, deller@gmx.de,
-        dhowells@redhat.com, fenghua.yu@intel.com, fweimer@redhat.com,
-        geert@linux-m68k.org, glebfm@altlinux.org, gor@linux.ibm.com,
-        hare@suse.com, hpa@zytor.com, ink@jurassic.park.msu.ru,
-        jhogan@kernel.org, kim.phillips@arm.com, ldv@altlinux.org,
-        linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux@armlinux.org.uk, linuxppc-dev@lists.ozlabs.org,
-        luto@kernel.org, mattst88@gmail.com, mingo@redhat.com,
-        monstr@monstr.eu, mpe@ellerman.id.au, namhyung@kernel.org,
-        paulus@samba.org, peterz@infradead.org, ralf@linux-mips.org,
-        sparclinux@vger.kernel.org, stefan@agner.ch, tglx@linutronix.de,
-        tony.luck@intel.com, tycho@tycho.ws, will@kernel.org,
-        x86@kernel.org, ysato@users.sourceforge.jp
-Subject: Re: [PATCH v4 0/5] Add a new fchmodat2() syscall
-Message-ID: <20230712024243.GX20050@brightrain.aerifal.cx>
-References: <cover.1689074739.git.legion@kernel.org>
- <cover.1689092120.git.legion@kernel.org>
+        with ESMTP id S230032AbjGZR6m (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Jul 2023 13:58:42 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDD302688;
+        Wed, 26 Jul 2023 10:58:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=YPmagiFQ/MeFHRjwmSRL0hWWXD4WhK730BMoQ57Tcfs=; b=kixqBCkSocxZEhHc2Sl4YQ3j/W
+        6MHhYsaeGcAEFz3Ikfkl0tpJZeVVuCe/BiTxlYG3dJ8HcvJ/T2vdQAQ5gIBhR2n6UhgaBfMrG4PI3
+        Z5Id/jv1a75gsjOtDXpt/LD7O15Touqa7NqiEPt/l8zBxXGlzsYO+bCoXjnUd4LyKsNR8uZGhhZRg
+        +OyiKfgZbY7fbFXMfGEJdwxH3fx8IGSflQLhVMJDAioTezH4kPOYHszoYxlRVTrC6/MqPhn7X667m
+        QRhIOcxcm6QRQ5XuiNwXgc2BldKLdF/obVnyC8UpbIg6DWBIlRNSJNh4WSktu5vL21AXLcVy8pPM7
+        x0bCwxMw==;
+Received: from mcgrof by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
+        id 1qOimM-00BE8R-2H;
+        Wed, 26 Jul 2023 17:58:30 +0000
+Date:   Wed, 26 Jul 2023 10:58:30 -0700
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     Joel Granados <j.granados@samsung.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Kees Cook <keescook@chromium.org>,
+        Iurii Zaikin <yzaikin@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, willy@infradead.org,
+        josh@joshtriplett.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: Re: [PATCH 06/14] sysctl: Add size to register_sysctl
+Message-ID: <ZMFexmOcfyORkRRs@bombadil.infradead.org>
+References: <20230726140635.2059334-1-j.granados@samsung.com>
+ <CGME20230726140659eucas1p2c3cd9f57dd13c71ddeb78d2480587e72@eucas1p2.samsung.com>
+ <20230726140635.2059334-7-j.granados@samsung.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <cover.1689092120.git.legion@kernel.org>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+In-Reply-To: <20230726140635.2059334-7-j.granados@samsung.com>
+Sender: Luis Chamberlain <mcgrof@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jul 11, 2023 at 06:16:02PM +0200, Alexey Gladkov wrote:
-> In glibc, the fchmodat(3) function has a flags argument according to the
-> POSIX specification [1], but kernel syscalls has no such argument.
-> Therefore, libc implementations do workarounds using /proc. However,
-> this requires procfs to be mounted and accessible.
-> 
-> This patch set adds fchmodat2(), a new syscall. The syscall allows to
-> pass the AT_SYMLINK_NOFOLLOW flag to disable LOOKUP_FOLLOW. In all other
-> respects, this syscall is no different from fchmodat().
-> 
-> [1] https://pubs.opengroup.org/onlinepubs/9699919799/functions/chmod.html
-> 
-> Changes since v3 [cover.1689074739.git.legion@kernel.org]:
-> 
-> * Rebased to master because a new syscall has appeared in master.
-> * Increased __NR_compat_syscalls as pointed out by Arnd Bergmann.
-> * Syscall renamed fchmodat4 -> fchmodat2 as suggested by Christian Brauner.
-> * Returned do_fchmodat4() the original name. We don't need to version
->   internal functions.
-> * Fixed warnings found by checkpatch.pl.
-> 
-> Changes since v2 [20190717012719.5524-1-palmer@sifive.com]:
-> 
-> * Rebased to master.
-> * The lookup_flags passed to sys_fchmodat4 as suggested by Al Viro.
-> * Selftest added.
-> 
-> Changes since v1 [20190531191204.4044-1-palmer@sifive.com]:
-> 
-> * All architectures are now supported, which support squashed into a
->   single patch.
-> * The do_fchmodat() helper function has been removed, in favor of directly
->   calling do_fchmodat4().
-> * The patches are based on 5.2 instead of 5.1.
+On Wed, Jul 26, 2023 at 04:06:26PM +0200, Joel Granados wrote:
+> In order to remove the end element from the ctl_table struct arrays, we
+> replace the register_syctl function with a macro that will add the
+> ARRAY_SIZE to the new register_sysctl_sz function. In this way the
+> callers that are already using an array of ctl_table structs do not have
+> to change. We *do* change the callers that pass the ctl_table array as a
+> pointer.
 
-It's good to see this moving forward. I originally proposed this in a
-patch submitted in 2020. I suspect implementation details have changed
-since then, but it might make sense to look back at that discussion if
-nobody has done so yet (apologies if this was already done and I
-missed it) to make sure nothing is overlooked -- I remember there were
-some subtleties with what fs backends might try to do with chmod on
-symlinks. My proposed commit message also documented a lot of the
-history of the issue that might be useful to have as context.
+Thanks for doing this and this series!
 
-https://lore.kernel.org/all/20200910170256.GK3265@brightrain.aerifal.cx/T/
+> Signed-off-by: Joel Granados <j.granados@samsung.com>
+> ---
+> diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+> index 0495c858989f..b1168ae281c9 100644
+> --- a/include/linux/sysctl.h
+> +++ b/include/linux/sysctl.h
+> @@ -215,6 +215,9 @@ struct ctl_path {
+>  	const char *procname;
+>  };
+>  
+> +#define register_sysctl(path, table)	\
+> +	register_sysctl_sz(path, table, ARRAY_SIZE(table))
+> +
+>  #ifdef CONFIG_SYSCTL
 
-Rich
+Wasn't it Greg who had suggested this? Maybe add Suggested-by with him
+on it.
+
+Also, your cover letter and first few patches are not CC'd to the netdev
+list or others. What you want to do is collect all the email addresses
+for this small patch series and add them to who you email for your
+entire series, otherwise at times they won't be able to properly review
+or understand the exact context of the changes. You want folks to do less
+work to review, not more.
+
+So please resend and add others to the other patches.
+
+  Luis
