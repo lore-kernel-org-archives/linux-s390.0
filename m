@@ -2,134 +2,136 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7304FC001E0
-	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 18:05:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14EB0C001E0
+	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 21:54:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230064AbjGZSFu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 26 Jul 2023 14:05:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50300 "EHLO
+        id S230129AbjGZVyY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 26 Jul 2023 17:54:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229949AbjGZSFu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Jul 2023 14:05:50 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 520801FF5;
-        Wed, 26 Jul 2023 11:05:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=fUdSbyMasri59LIxUKfjb5lu5YYJqsniF6+eeDt322Q=; b=DFkN7+kcpB7N73mFnnGHkptntF
-        MyxL56OIeohRI14G30XsmKj0s3vmZhE/AD7bJh8knddWtfQsfV3VeSz0D9bcumOq1hsMyngu9HgYQ
-        GL/niposaUkJBmS7Pkw5Kn0Tx6qPabY8YIQTrb0ue7SCCbqteV8F2Uy7/HHgVXPIUQuy4nFAONt9a
-        RhZRWNladuq/dGYVRt/HbTKLGLUVnfyYOcp8FtDkB6mlEwOApP1ObsVm+CPTD2MrzCtVc7WVlQ24w
-        D/eCeHDxQ3fB3lMWtwityCNHoHCkGCgolBBRmBQ4kjPm4WwOB92HuOuwvip8ulOpRb0+WJRPIgmvD
-        NKK9pRhA==;
-Received: from mcgrof by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
-        id 1qOit2-00BF7a-29;
-        Wed, 26 Jul 2023 18:05:24 +0000
-Date:   Wed, 26 Jul 2023 11:05:24 -0700
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     Joel Granados <j.granados@samsung.com>
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        David Ahern <dsahern@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Alexander Aring <alex.aring@gmail.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Mat Martineau <martineau@kernel.org>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>, willy@infradead.org,
-        keescook@chromium.org, josh@joshtriplett.org,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-wpan@vger.kernel.org,
-        mptcp@lists.linux.dev, linux-rdma@vger.kernel.org,
-        rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH 11/14] networking: Update to register_net_sysctl_sz
-Message-ID: <ZMFgZHsnhrXNIQ53@bombadil.infradead.org>
-References: <20230726140635.2059334-1-j.granados@samsung.com>
- <CGME20230726140709eucas1p2033d64aec69a1962fd7e64c57ad60adc@eucas1p2.samsung.com>
- <20230726140635.2059334-12-j.granados@samsung.com>
+        with ESMTP id S230057AbjGZVyT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Jul 2023 17:54:19 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F288B1BCB
+        for <linux-s390@vger.kernel.org>; Wed, 26 Jul 2023 14:53:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1690408406;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=IYYNLALC24HXACra46BapqSwKx6bYQvG9NeNwuOaFoA=;
+        b=C9+uZo9JnZo00eC+K2XureZa/PCrUW9cvNvI4dXZLcGs3pHcg0S4Ss90T8iZv1oBwFeFIT
+        6dLgTU2ll8XLdrvDQvpbXXNz61Qnxs14WyzP8eYFVLV14thVRJFT4kUCGW7cUGk1vXwIq2
+        rAs9lfmJEGSecO2mXphKH3FYn8ex9Ng=
+Received: from mimecast-mx02.redhat.com (66.187.233.73 [66.187.233.73]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-593-BPv7HgEGMKuBxzs7DOfL6Q-1; Wed, 26 Jul 2023 17:53:22 -0400
+X-MC-Unique: BPv7HgEGMKuBxzs7DOfL6Q-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id E9FF71C0754A;
+        Wed, 26 Jul 2023 21:53:21 +0000 (UTC)
+Received: from warthog.procyon.org.uk (unknown [10.42.28.131])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 0FC262166B25;
+        Wed, 26 Jul 2023 21:53:19 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+        Kingdom.
+        Registered in England and Wales under Company Registration No. 3798903
+From:   David Howells <dhowells@redhat.com>
+In-Reply-To: <CAAUqJDuRkHE8fPgZJGaKjUjd3QfGwzfumuJBmStPqBhubxyk_A@mail.gmail.com>
+References: <CAAUqJDuRkHE8fPgZJGaKjUjd3QfGwzfumuJBmStPqBhubxyk_A@mail.gmail.com>
+To:     =?us-ascii?Q?=3D=3FUTF-8=3FB=3FT25kcmVqIE1vc27DocSNZWs=3D=3F=3D?= 
+        <omosnacek@gmail.com>, Herbert Xu <herbert@gondor.apana.org.au>
+Cc:     dhowells@redhat.com, Paolo Abeni <pabeni@redhat.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.vnet.ibm.com>,
+        Bagas Sanjaya <bagasdotme@gmail.com>,
+        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, regressions@lists.linux.dev,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] crypto: Fix missing initialisation affecting gcm-aes-s390
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230726140635.2059334-12-j.granados@samsung.com>
-Sender: Luis Chamberlain <mcgrof@infradead.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date:   Wed, 26 Jul 2023 22:53:19 +0100
+Message-ID: <97730.1690408399@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jul 26, 2023 at 04:06:31PM +0200, Joel Granados wrote:
-> This is part of the effort to remove the sentinel (last empty) element
-> from the ctl_table arrays. We update to the new function and pass it the
-> array size. Care is taken to mirror the NULL assignments with a size of
-> zero (for the unprivileged users). An additional size function was added
-> to the following files in order to calculate the size of an array that
-> is defined in another file:
->     include/net/ipv6.h
->     net/ipv6/icmp.c
->     net/ipv6/route.c
->     net/ipv6/sysctl_net_ipv6.c
-> 
+=20=20=20=20
+Fix af_alg_alloc_areq() to initialise areq->first_rsgl.sgl.sgt.sgl to point
+to the scatterlist array in areq->first_rsgl.sgl.sgl.
 
-Same here as with the other patches, the "why" and size impact should go here.
-I'll skip mentioning that in the other patches.
+Without this, the gcm-aes-s390 driver will oops when it tries to do
+gcm_walk_start() on req->dst because req->dst is set to the value of
+areq->first_rsgl.sgl.sgl by _aead_recvmsg() calling
+aead_request_set_crypt().
 
-> diff --git a/net/mpls/af_mpls.c b/net/mpls/af_mpls.c
-> index bf6e81d56263..5bad14b3c71e 100644
-> --- a/net/mpls/af_mpls.c
-> +++ b/net/mpls/af_mpls.c
-> @@ -1396,6 +1396,40 @@ static const struct ctl_table mpls_dev_table[] = {
->  	{ }
->  };
->  
-> +static int mpls_platform_labels(struct ctl_table *table, int write,
-> +				void *buffer, size_t *lenp, loff_t *ppos);
-> +#define MPLS_NS_SYSCTL_OFFSET(field)		\
-> +	(&((struct net *)0)->field)
-> +
-> +static const struct ctl_table mpls_table[] = {
-> +	{
-> +		.procname	= "platform_labels",
-> +		.data		= NULL,
-> +		.maxlen		= sizeof(int),
-> +		.mode		= 0644,
-> +		.proc_handler	= mpls_platform_labels,
-> +	},
-> +	{
-> +		.procname	= "ip_ttl_propagate",
-> +		.data		= MPLS_NS_SYSCTL_OFFSET(mpls.ip_ttl_propagate),
-> +		.maxlen		= sizeof(int),
-> +		.mode		= 0644,
-> +		.proc_handler	= proc_dointvec_minmax,
-> +		.extra1		= SYSCTL_ZERO,
-> +		.extra2		= SYSCTL_ONE,
-> +	},
-> +	{
-> +		.procname	= "default_ttl",
-> +		.data		= MPLS_NS_SYSCTL_OFFSET(mpls.default_ttl),
-> +		.maxlen		= sizeof(int),
-> +		.mode		= 0644,
-> +		.proc_handler	= proc_dointvec_minmax,
-> +		.extra1		= SYSCTL_ONE,
-> +		.extra2		= &ttl_max,
-> +	},
-> +	{ }
-> +};
+The problem comes if an empty ciphertext is passed: the loop in
+af_alg_get_rsgl() just passes straight out and doesn't set areq->first_rsgl
+up.
 
-Unless we hear otherwise from networking folks, I think this move alone
-should probably go as a separate patch with no functional changes to
-make the changes easier to review / bisect.
+This isn't a problem on x86_64 using gcmaes_crypt_by_sg() because, as far
+as I can tell, that ignores req->dst and only uses req->src[*].
 
-  Luis
+[*] Is this a bug in aesni-intel_glue.c?
+
+The s390x oops looks something like:
+
+ Unable to handle kernel pointer dereference in virtual kernel address space
+ Failing address: 0000000a00000000 TEID: 0000000a00000803
+ Fault in home space mode while using kernel ASCE.
+ AS:00000000a43a0007 R3:0000000000000024
+ Oops: 003b ilc:2 [#1] SMP
+ ...
+ Call Trace:
+  [<000003ff7fc3d47e>] gcm_walk_start+0x16/0x28 [aes_s390]
+  [<00000000a2a342f2>] crypto_aead_decrypt+0x9a/0xb8
+  [<00000000a2a60888>] aead_recvmsg+0x478/0x698
+  [<00000000a2e519a0>] sock_recvmsg+0x70/0xb0
+  [<00000000a2e51a56>] sock_read_iter+0x76/0xa0
+  [<00000000a273e066>] vfs_read+0x26e/0x2a8
+  [<00000000a273e8c4>] ksys_read+0xbc/0x100
+  [<00000000a311d808>] __do_syscall+0x1d0/0x1f8
+  [<00000000a312ff30>] system_call+0x70/0x98
+ Last Breaking-Event-Address:
+  [<000003ff7fc3e6b4>] gcm_aes_crypt+0x104/0xa68 [aes_s390]
+
+Fixes: c1abe6f570af ("crypto: af_alg: Use extract_iter_to_sg() to create sc=
+atterlists")
+Reported-by: Ondrej Mosn=C3=A1=C4=8Dek <omosnacek@gmail.com>
+Link: https://lore.kernel.org/r/CAAUqJDuRkHE8fPgZJGaKjUjd3QfGwzfumuJBmStPqB=
+hubxyk_A@mail.gmail.com/
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Herbert Xu <herbert@gondor.apana.org.au>
+cc: Sven Schnelle <svens@linux.ibm.com>
+cc: Harald Freudenberger <freude@linux.vnet.ibm.com>
+cc: "David S. Miller" <davem@davemloft.net>
+cc: Paolo Abeni <pabeni@redhat.com>
+cc: linux-crypto@vger.kernel.org
+cc: linux-s390@vger.kernel.org
+cc: regressions@lists.linux.dev
+---
+ crypto/af_alg.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/crypto/af_alg.c b/crypto/af_alg.c
+index 06b15b9f661c..9ee8575d3b1a 100644
+--- a/crypto/af_alg.c
++++ b/crypto/af_alg.c
+@@ -1192,6 +1192,7 @@ struct af_alg_async_req *af_alg_alloc_areq(struct soc=
+k *sk,
+=20
+ 	areq->areqlen =3D areqlen;
+ 	areq->sk =3D sk;
++	areq->first_rsgl.sgl.sgt.sgl =3D areq->first_rsgl.sgl.sgl;
+ 	areq->last_rsgl =3D NULL;
+ 	INIT_LIST_HEAD(&areq->rsgl_list);
+ 	areq->tsgl =3D NULL;
+
