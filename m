@@ -2,123 +2,107 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A425C41513
-	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 10:02:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93C04C04E69
+	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 13:31:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232389AbjGZKCd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 26 Jul 2023 06:02:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43232 "EHLO
+        id S233996AbjGZNbJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 26 Jul 2023 09:31:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231778AbjGZKC3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Jul 2023 06:02:29 -0400
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 888FBA2;
-        Wed, 26 Jul 2023 03:02:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1690365748; x=1721901748;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=fC7EcZ1a0N87YcWZSAEEbxYdBu8EmtydYwOfonr6+KI=;
-  b=jvbqR1ZLjrKHBv0vMBEIXaw4PsCDJub6btXfjSiOW9sHS2rPm/x7pU7Y
-   fMAFo6HDQHQF1u66KRpvdbbGuBFR+1QvQw3yw8qXtKpyWvSd+SWDK2Vdb
-   2r7xBR/E6LcsStp4ea0KOB6ufUXjm961j6Ye3XxIppU7q5nK2vA6BDrOU
-   acOyADy9PdTFHkH7sNPkfX3MxGbWKZvV72/FlobVWA8jm8KXABUN2Ts6v
-   B/HAAa9mpS7gYaDCW8C5mBX2ZRiIy6yUM1AcLFeSi2wtUai0QtFmwezv8
-   DXXFlRflHxYr28HSMb1Veu+jBhy8TTpNKfW9f6p39KNBkopkRvB4XYDbd
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10782"; a="357971205"
-X-IronPort-AV: E=Sophos;i="6.01,231,1684825200"; 
-   d="scan'208";a="357971205"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jul 2023 03:02:25 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10782"; a="761594570"
-X-IronPort-AV: E=Sophos;i="6.01,231,1684825200"; 
-   d="scan'208";a="761594570"
-Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.254.208.129]) ([10.254.208.129])
-  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jul 2023 03:02:14 -0700
-Message-ID: <1d6e3aba-bdbc-7b56-2f9c-eda6017dbbb5@linux.intel.com>
-Date:   Wed, 26 Jul 2023 18:02:12 +0800
+        with ESMTP id S232145AbjGZNbG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Jul 2023 09:31:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BB23BC;
+        Wed, 26 Jul 2023 06:31:05 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 230B661A91;
+        Wed, 26 Jul 2023 13:31:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7971C433C7;
+        Wed, 26 Jul 2023 13:30:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1690378264;
+        bh=HS5sUeLSMwNW9P5zkSBnlwFMDf5b4OM9IVMq33WbW+U=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=iun9Va1e08ezdxo92/bg5MGdihHdrBrDXCPN2ZuWEZMFn0+OcEXanuIHv+EfWsuNU
+         L+Hxeq52/Ccp23FMh5y1r628rwDUn1FsDYgXV4giQWpOryyyH6Wz7U1/JH10rPMXbb
+         Jiny/AP6Rjp/r+N2q9Fk7zju31hIIvg2lQlqj+b+9vq+HbD2Z1tLgaskjEpsllb4Ql
+         VgHQzVKaqbMr879rRkud1caFzU2c3Fv3yxztgXx3GhJMZ90I0OKFAjGqdqfapsMwg9
+         ijZCYka6GelxzX2yem0uLWMKJaHqScGsLr30PfErtdYqG0FS1DFvWLCP1t/H0ZSwer
+         Mo5PnIaBy2w0w==
+Date:   Wed, 26 Jul 2023 15:30:51 +0200
+From:   Christian Brauner <brauner@kernel.org>
+To:     David Howells <dhowells@redhat.com>
+Cc:     Florian Weimer <fweimer@redhat.com>,
+        Alexey Gladkov <legion@kernel.org>,
+        James.Bottomley@HansenPartnership.com, acme@kernel.org,
+        alexander.shishkin@linux.intel.com, axboe@kernel.dk,
+        benh@kernel.crashing.org, borntraeger@de.ibm.com, bp@alien8.de,
+        catalin.marinas@arm.com, christian@brauner.io, dalias@libc.org,
+        davem@davemloft.net, deepa.kernel@gmail.com, deller@gmx.de,
+        fenghua.yu@intel.com, geert@linux-m68k.org, glebfm@altlinux.org,
+        gor@linux.ibm.com, hare@suse.com, hpa@zytor.com,
+        ink@jurassic.park.msu.ru, jhogan@kernel.org, kim.phillips@arm.com,
+        ldv@altlinux.org, linux-alpha@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, linux@armlinux.org.uk,
+        linuxppc-dev@lists.ozlabs.org, luto@kernel.org, mattst88@gmail.com,
+        mingo@redhat.com, monstr@monstr.eu, mpe@ellerman.id.au,
+        namhyung@kernel.org, paulus@samba.org, peterz@infradead.org,
+        ralf@linux-mips.org, sparclinux@vger.kernel.org, stefan@agner.ch,
+        tglx@linutronix.de, tony.luck@intel.com, tycho@tycho.ws,
+        will@kernel.org, x86@kernel.org, ysato@users.sourceforge.jp,
+        LKML <linux-kernel@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, linux-api@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk
+Subject: Re: Add fchmodat2() - or add a more general syscall?
+Message-ID: <20230726-arztbesuch-division-ee0343632e3c@brauner>
+References: <87fs5c3rbl.fsf@oldenburg3.str.redhat.com>
+ <cover.1689092120.git.legion@kernel.org>
+ <cover.1689074739.git.legion@kernel.org>
+ <104971.1690300714@warthog.procyon.org.uk>
+ <107290.1690310391@warthog.procyon.org.uk>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Cc:     baolu.lu@linux.intel.com, Dmitry Osipenko <digetx@gmail.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Steven Price <steven.price@arm.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH v5 23/25] iommu: Add ops->domain_alloc_paging()
-Content-Language: en-US
-To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        linuxppc-dev@lists.ozlabs.org,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>
-References: <23-v5-d0a204c678c7+3d16a-iommu_all_defdom_jgg@nvidia.com>
-From:   Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <23-v5-d0a204c678c7+3d16a-iommu_all_defdom_jgg@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <107290.1690310391@warthog.procyon.org.uk>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2023/7/25 1:22, Jason Gunthorpe wrote:
-> This callback requests the driver to create only a __IOMMU_DOMAIN_PAGING
-> domain, so it saves a few lines in a lot of drivers needlessly checking
-> the type.
+On Tue, Jul 25, 2023 at 07:39:51PM +0100, David Howells wrote:
+> Florian Weimer <fweimer@redhat.com> wrote:
 > 
-> More critically, this allows us to sweep out all the
-> IOMMU_DOMAIN_UNMANAGED and IOMMU_DOMAIN_DMA checks from a lot of the
-> drivers, simplifying what is going on in the code and ultimately removing
-> the now-unused special cases in drivers where they did not support
-> IOMMU_DOMAIN_DMA.
-> 
-> domain_alloc_paging() should return a struct iommu_domain that is
-> functionally compatible with ARM_DMA_USE_IOMMU, dma-iommu.c and iommufd.
-> 
-> Be forwards looking and pass in a 'struct device *' argument. We can
-> provide this when allocating the default_domain. No drivers will look at
-> this.
-> 
-> Tested-by: Steven Price<steven.price@arm.com>
-> Tested-by: Marek Szyprowski<m.szyprowski@samsung.com>
-> Tested-by: Nicolin Chen<nicolinc@nvidia.com>
-> Signed-off-by: Jason Gunthorpe<jgg@nvidia.com>
-> ---
->   drivers/iommu/iommu.c | 13 ++++++++++---
->   include/linux/iommu.h |  3 +++
->   2 files changed, 13 insertions(+), 3 deletions(-)
+> > > Rather than adding a fchmodat2() syscall, should we add a
+> > > "set_file_attrs()" syscall that takes a mask and allows you to set a bunch
+> > > of stuff all in one go?  Basically, an interface to notify_change() in the
 
-Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+That system call would likely be blocked in seccomp sandboxes completely
+as seccomp cannot filter structs. I don't consider this an argument to
+block new good functionality in general as that would mean arbitrarily
+limiting us but it is something to keep in mind. If there's additional
+benefit other than just being able to set mutliple values at once then
+yeah might be something to discuss.
+
+> > > kernel that would allow several stats to be set atomically.  This might be
+> > > of particular interest to network filesystems.
+> > 
+> > Do you mean atomically as in compare-and-swap (update only if old values
+> > match), or just a way to update multiple file attributes with a single
+> > system call?
+> 
+> I was thinking more in terms of the latter.  AFAIK, there aren't any network
+> filesystems support a CAS interface on file attributes like that.  To be able
+> to do a CAS operation, we'd need to pass in the old values as well as the new.
+> 
+> Another thing we could look at is doing "create_and_set_attrs()", possibly
+> allowing it to take a list of xattrs also.
+
+That would likely require variable sized pointers in a struct which is
+something we really try to stay away from. I also think it's not a good
+idea to lump xattrs toegether with generic file attributes. They should
+remain a separate api imho.
