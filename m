@@ -2,120 +2,109 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F156C41513
-	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 06:11:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85943C001DC
+	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 06:19:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231867AbjGZGL1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 26 Jul 2023 02:11:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45130 "EHLO
+        id S230013AbjGZGTK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 26 Jul 2023 02:19:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231866AbjGZGLV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Jul 2023 02:11:21 -0400
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58A441995;
-        Tue, 25 Jul 2023 23:11:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1690351877; x=1721887877;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=WDQtGHcWzopAoO6Fwuln0OAiUSdM4jJjH8FxFV/d+w0=;
-  b=L0oM9r/23+H3sVWogYiqutCoV0Qtk12jbeCxMQ1utzZz7FNYek0diqlr
-   o+QtLunvFzxxYppdLDNDpQDcQ2ejAMsw4HrVU1rnvZC6smnEnxrKgqOH5
-   JA+ZjSMMXLK6Xu2GhyrORfn71R/u18MAq+zcGIXVQM2HpeaHKsFGJPu++
-   2gJJUdudnoXoTDb0t7adxhrFu7k41RI5UOqRsYRLV8iP+BU/LjfKnVCz8
-   ksX7cRZnPjiMWICEupRg2T4jX3YrTeNtG27QLhis6RYuIwkM3p1hFLPTo
-   pqglFT+hp0cZWheg4iyDMXtlKvN+J2ROPbZKc9T8JFyPtCwJlT6SQkFUx
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10782"; a="434186756"
-X-IronPort-AV: E=Sophos;i="6.01,231,1684825200"; 
-   d="scan'208";a="434186756"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jul 2023 23:11:16 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10782"; a="816538258"
-X-IronPort-AV: E=Sophos;i="6.01,231,1684825200"; 
-   d="scan'208";a="816538258"
-Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.254.208.129]) ([10.254.208.129])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jul 2023 23:11:06 -0700
-Message-ID: <aa41d168-09b7-22c0-191d-28ecec023152@linux.intel.com>
-Date:   Wed, 26 Jul 2023 14:11:04 +0800
+        with ESMTP id S231990AbjGZGSp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Jul 2023 02:18:45 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79DF51BFA
+        for <linux-s390@vger.kernel.org>; Tue, 25 Jul 2023 23:18:43 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36Q6GPJN028279;
+        Wed, 26 Jul 2023 06:18:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=uWkUwfcERhB3oTTEAxNoldZAxz4r3AKVMjXN52IqwyE=;
+ b=CyTOSscafr830zq3jfblolMuv4wLzpENKUycDvrY1uXYORU36QsN0hOb6RQ4Iv3xj8B2
+ iMi285pPrrPG9Gsr0BO4NmlnzNB0FKKxG1FBvUlMvWobI4nPQGecw8qPy3IqTMZObX/D
+ 3RJeBCWHj2n6ic4ChoSar12WGxD3HcVUvR7y0pfOEPtE4oxqpRTg0JoNPhMW64UQtiv6
+ 6ai4pFnUPHrNfOIxg4bmkRopm0a9vV0ruhqzApqwcjap486X6156lOkmfZMEDaI6/L3Z
+ fkGimPTaBB6Z7A/40kIa6HqEF503oMM1ZjSiOKGoQerZ/rU58/8TjEBnpS8/A/t3n/+4 aw== 
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s2wqmgfmt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 26 Jul 2023 06:18:39 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36Q5G0pL014374;
+        Wed, 26 Jul 2023 06:18:38 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s0sty2s1w-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 26 Jul 2023 06:18:38 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36Q6IZKS44565054
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 26 Jul 2023 06:18:35 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 432822004B;
+        Wed, 26 Jul 2023 06:18:35 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1042420043;
+        Wed, 26 Jul 2023 06:18:35 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 26 Jul 2023 06:18:34 +0000 (GMT)
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Nathan Chancellor <nathan@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org
+Subject: [PATCH] s390/ftrace: use la instead of aghik in return_to_handler()
+Date:   Wed, 26 Jul 2023 08:18:34 +0200
+Message-Id: <20230726061834.1300984-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.39.2
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: oDu-tDqXmsqmdbxhSqXhr4NBhemqw9_t
+X-Proofpoint-GUID: oDu-tDqXmsqmdbxhSqXhr4NBhemqw9_t
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Cc:     baolu.lu@linux.intel.com, Dmitry Osipenko <digetx@gmail.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Steven Price <steven.price@arm.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH v5 01/25] iommu: Add iommu_ops->identity_domain
-Content-Language: en-US
-To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        linuxppc-dev@lists.ozlabs.org,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>
-References: <1-v5-d0a204c678c7+3d16a-iommu_all_defdom_jgg@nvidia.com>
-From:   Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <1-v5-d0a204c678c7+3d16a-iommu_all_defdom_jgg@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-25_14,2023-07-25_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
+ bulkscore=0 spamscore=0 mlxscore=0 adultscore=0 suspectscore=0
+ lowpriorityscore=0 malwarescore=0 priorityscore=1501 clxscore=1015
+ mlxlogscore=894 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2307260053
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2023/7/25 1:21, Jason Gunthorpe wrote:
-> This allows a driver to set a global static to an IDENTITY domain and
-> the core code will automatically use it whenever an IDENTITY domain
-> is requested.
-> 
-> By making it always available it means the IDENTITY can be used in error
-> handling paths to force the iommu driver into a known state. Devices
-> implementing global static identity domains should avoid failing their
-> attach_dev ops.
-> 
-> Convert rockchip to use the new mechanism.
-> 
-> Tested-by: Steven Price<steven.price@arm.com>
-> Tested-by: Marek Szyprowski<m.szyprowski@samsung.com>
-> Tested-by: Nicolin Chen<nicolinc@nvidia.com>
-> Signed-off-by: Jason Gunthorpe<jgg@nvidia.com>
-> ---
->   drivers/iommu/iommu.c          | 3 +++
->   drivers/iommu/rockchip-iommu.c | 9 +--------
->   include/linux/iommu.h          | 3 +++
->   3 files changed, 7 insertions(+), 8 deletions(-)
+Nathan Chancellor reported the following build error when compiling the
+kernel with CONFIG_MARCH_Z10=y:
 
-I will later convert the VT-d driver to use iommu_ops->identity_domain.
+  arch/s390/kernel/mcount.S: Assembler messages:
+  arch/s390/kernel/mcount.S:140: Error: Unrecognized opcode: `aghik'
 
-Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+The aghik instruction is only available since z196. Use the la instruction
+instead which is available for all machines.
+
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Closes: https://lore.kernel.org/all/20230725211105.GA224840@dev-arch.thelio-3990X
+Fixes: 1256e70a082a ("s390/ftrace: enable HAVE_FUNCTION_GRAPH_RETVAL")
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ arch/s390/kernel/mcount.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/s390/kernel/mcount.S b/arch/s390/kernel/mcount.S
+index d2596e0df6fa..71c5fa05e7f1 100644
+--- a/arch/s390/kernel/mcount.S
++++ b/arch/s390/kernel/mcount.S
+@@ -137,7 +137,7 @@ SYM_FUNC_START(return_to_handler)
+ 	lgr	%r1,%r15
+ 	aghi	%r15,-(STACK_FRAME_OVERHEAD+__FGRAPH_RET_SIZE)
+ 	stg	%r1,__SF_BACKCHAIN(%r15)
+-	aghik	%r3,%r15,STACK_FRAME_OVERHEAD
++	la	%r3,STACK_FRAME_OVERHEAD(%r15)
+ 	stg	%r1,__FGRAPH_RET_FP(%r3)
+ 	stg	%r2,__FGRAPH_RET_GPR2(%r3)
+ 	lgr	%r2,%r3
+-- 
+2.39.2
+
