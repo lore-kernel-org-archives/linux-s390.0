@@ -2,83 +2,107 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7579C001DE
-	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 03:10:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 349DEC001DE
+	for <linux-s390@archiver.kernel.org>; Wed, 26 Jul 2023 05:43:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231295AbjGZDKg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 Jul 2023 23:10:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39790 "EHLO
+        id S231776AbjGZFm7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 26 Jul 2023 01:42:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230182AbjGZDKZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Jul 2023 23:10:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C319F2709
-        for <linux-s390@vger.kernel.org>; Tue, 25 Jul 2023 20:10:21 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EFD2601D6
-        for <linux-s390@vger.kernel.org>; Wed, 26 Jul 2023 03:10:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 8E898C433CD;
-        Wed, 26 Jul 2023 03:10:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1690341020;
-        bh=+ajtJPlWkqiBolHDZStP+hnhkPbQ/RwAWCQlZcDPVAM=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=lwPAGDtEOoed9lcKOTgl7DqSZHEHUT4DdEsTqhf1X2Y481nQChozovLhFyAUgOiUR
-         /xDcThWJsGahlMuIF+/tlxzXa5lNpvSHHTVeh6snuQBgqhftHbR9hhpml6dcR2xZHh
-         LwEHu3qpXE/Ff1mZjU4JEehLEmZAP+UhwpmF9pynAkSoNzfLKe/4SHJsdYva4kpx0H
-         UgkcTf1Ans9R7JRkqMx8Qgb8CHDnOwMUs4jU1EsRy04xVQsUFSQSuHeuD0Z/z8QuF3
-         4Zd6w/iO2e3MXUT1vprlxx77774khUNPEUn5YmexQQooh3o3RU8pO4+MwnyT/qqlr9
-         QOL2t81FgfAGw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 7A670C73FE2;
-        Wed, 26 Jul 2023 03:10:20 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S231764AbjGZFm4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Jul 2023 01:42:56 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D30DA2705
+        for <linux-s390@vger.kernel.org>; Tue, 25 Jul 2023 22:42:40 -0700 (PDT)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36Q5fJnQ029146;
+        Wed, 26 Jul 2023 05:42:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=rtBMx1qHHm/VMWvHLeKO/IYcj5KdR3lMJMypjaMjUHQ=;
+ b=PoGX7SaNVilXWNcEhf5atQZgwWBDfTgSZcPA4FQpMKwbg03YrShWj0lF+1KuUm0JZSL4
+ 4v99tsB3y/cPApyHcTlNq8YkWVghB/oexyx4diRCUiACKs8Vaa6cePSEzgTv06F2uoAT
+ gd5DLu2jyBZfN5bBj/vrn1w5f4nLBecSwiV8bzxGJY3JXlnRd5zlssCc0I0kY3Pu4WNp
+ 6bDFGArqdX1a86jRlyAzc/7441Hex6iQchIE7ePa2SmTbJV+KuuNq2GVq9LjWqbvAQBP
+ 7Nnx047e0Ck4lBnE/6bC0hpaXv+BvvsmwRvcrOrYk1fxFj91ErR4MDWdCPDp5eX0D/Ft iA== 
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s2w5d8end-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 26 Jul 2023 05:42:30 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36Q4pc4s026217;
+        Wed, 26 Jul 2023 05:42:30 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3s0ses2qk3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 26 Jul 2023 05:42:30 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36Q5gR0d57672166
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 26 Jul 2023 05:42:27 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3EF0C2004B;
+        Wed, 26 Jul 2023 05:42:27 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 217C220040;
+        Wed, 26 Jul 2023 05:42:27 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.233])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Wed, 26 Jul 2023 05:42:27 +0000 (GMT)
+Date:   Wed, 26 Jul 2023 07:42:25 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: Build error around 'aghik' after commit 1256e70a082a
+ ("s390/ftrace: enable HAVE_FUNCTION_GRAPH_RETVAL")
+Message-ID: <20230726054225.6242-A-hca@linux.ibm.com>
+References: <20230725211105.GA224840@dev-arch.thelio-3990X>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] s390/lcs: Remove FDDI option
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <169034102049.18310.14252409973492346016.git-patchwork-notify@kernel.org>
-Date:   Wed, 26 Jul 2023 03:10:20 +0000
-References: <20230724131546.3597001-1-wintera@linux.ibm.com>
-In-Reply-To: <20230724131546.3597001-1-wintera@linux.ibm.com>
-To:     Alexandra Winter <wintera@linux.ibm.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
-        edumazet@google.com, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, hca@linux.ibm.com,
-        simon.horman@corigine.com, borntraeger@linux.ibm.com,
-        rdunlap@infradead.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230725211105.GA224840@dev-arch.thelio-3990X>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: zwJcLJLgGlQklJuRlKYTg-ZeL8dX5LAR
+X-Proofpoint-GUID: zwJcLJLgGlQklJuRlKYTg-ZeL8dX5LAR
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-25_14,2023-07-25_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ adultscore=0 suspectscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0
+ phishscore=0 malwarescore=0 mlxlogscore=529 impostorscore=0 mlxscore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2307260048
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+Hi Nathan,
 
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Mon, 24 Jul 2023 15:15:46 +0200 you wrote:
-> The last s390 machine that supported FDDI was z900 ('7th generation',
-> released in 2000). The oldest machine generation currently supported by
-> the Linux kernel is MARCH_Z10 (released 2008). If there is still a usecase
-> for connecting a Linux on s390 instance to a LAN Channel Station (LCS), it
-> can only do so via Ethernet.
+> Apologies if this has been reported/fixed already, I checked the s390
+> tree but I did not see any changes there nor did I find anything when
+> searching lore. After commit 1256e70a082a ("s390/ftrace: enable
+> HAVE_FUNCTION_GRAPH_RETVAL") in -next, I see the following errors when
+> building Debian's configuration [1], which selects CONFIG_MARCH_Z10=y.
 > 
-> Randy Dunlap[1] found that LCS over FDDI has never worked, when FDDI
-> was compiled as module. Instead of fixing that, remove the FDDI option
-> from the lcs driver.
+> GCC/binutils:
 > 
-> [...]
+>   arch/s390/kernel/mcount.S: Assembler messages:
+>   arch/s390/kernel/mcount.S:140: Error: Unrecognized opcode: `aghik'
+> 
+> clang:
+> 
+>   arch/s390/kernel/mcount.S:140:2: error: instruction requires: distinct-ops
+>    aghik %r3,%r15,160
+>    ^
+> 
+> It seems like there is already some handling for this situation in
+> mcount.S but my knowledge of s390 assembly is basically non-existent,
+> hence this report in lieu of a patch. I am more than happy to provide
+> any additional information or test any patches if necessary.
 
-Here is the summary with links:
-  - [net] s390/lcs: Remove FDDI option
-    https://git.kernel.org/netdev/net-next/c/8540336adadb
+Thanks, for reporting. Yet another bug where an instruction which is only
+available on later machines (in this case z196) is used unconditionally. I
+really need to add some automated test so this kind of trivial bugs don't
+escape.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Will fix.
