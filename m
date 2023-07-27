@@ -2,217 +2,199 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AACDBC0015E
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Jul 2023 17:03:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD825C04A6A
+	for <linux-s390@archiver.kernel.org>; Thu, 27 Jul 2023 17:13:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230433AbjG0RDZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Jul 2023 13:03:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37420 "EHLO
+        id S232493AbjG0RNU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Jul 2023 13:13:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231287AbjG0RDT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jul 2023 13:03:19 -0400
-Received: from mgamail.intel.com (unknown [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 924972701;
-        Thu, 27 Jul 2023 10:03:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1690477396; x=1722013396;
-  h=date:from:to:cc:subject:message-id;
-  bh=+Ww5693C/UDK3tNyftzRZzJEBm3+QYIP8agAOrPSnmo=;
-  b=UQC21rs0sA3nUsSLXSnFr3h+Gue4L8qLB/eO/dl8ZCRGfNurFSNWMO/K
-   m80atDWVgi31+k/s4VxHmDHAOys0p0ZETcjnnv5X9Vjp3aKdC9H8bFn8o
-   IF2W/3+5+0noE96ahQk7NcJDIKUYDo/ysN7lwasfvtBItt4w6Mf4Y3q9h
-   yKknzXzULOnzgGU5vTQhzqNO7b8hAc0bUAG7SnjLYwOkybRC/kU/BkjP3
-   5dr0DcB0LmcAJx9sqOSVAGqbmoUQy4+hhpbItmTZUXxpDlkDvlSVQ961E
-   9LmoqGuO/PgFa72qyaU87FfB/leKd606h1J55v9v5DGdZ+6ehcuvhmm30
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10784"; a="353285657"
-X-IronPort-AV: E=Sophos;i="6.01,235,1684825200"; 
-   d="scan'208";a="353285657"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2023 10:01:27 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10784"; a="900928144"
-X-IronPort-AV: E=Sophos;i="6.01,235,1684825200"; 
-   d="scan'208";a="900928144"
-Received: from lkp-server02.sh.intel.com (HELO 953e8cd98f7d) ([10.239.97.151])
-  by orsmga005.jf.intel.com with ESMTP; 27 Jul 2023 10:01:25 -0700
-Received: from kbuild by 953e8cd98f7d with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1qP4Mf-0002RL-0A;
-        Thu, 27 Jul 2023 17:01:25 +0000
-Date:   Fri, 28 Jul 2023 01:01:19 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     Linux Memory Management List <linux-mm@kvack.org>,
-        linux-s390@vger.kernel.org, linux-serial@vger.kernel.org
-Subject: [linux-next:master] BUILD REGRESSION
- 451cc82bd11eb6a374f4dbcfc1cf007eafea91ab
-Message-ID: <202307280106.CXKJsML9-lkp@intel.com>
-User-Agent: s-nail v14.9.24
+        with ESMTP id S231234AbjG0RNL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jul 2023 13:13:11 -0400
+Received: from mout-p-201.mailbox.org (mout-p-201.mailbox.org [IPv6:2001:67c:2050:0:465::201])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23730273C;
+        Thu, 27 Jul 2023 10:13:09 -0700 (PDT)
+Received: from smtp2.mailbox.org (smtp2.mailbox.org [10.196.197.2])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mout-p-201.mailbox.org (Postfix) with ESMTPS id 4RBclx63TLz9sjP;
+        Thu, 27 Jul 2023 19:13:01 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cyphar.com; s=MBO0001;
+        t=1690477981;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=r4xS4z3m09mcDhbG2vSNuCuAOWPT6oLsRQePsTlsExg=;
+        b=wphgglIyp+usBR0fNyl85KtqD+TvcRheXCarcC9+q/rC2O/c19YVrPmD3yxd6P5zNkRAgn
+        ap1J1ewuz2/88KROo01hnaKnZ4/JhylWNhiBSxQ81mAbQ2FpPaPd18Eeg5JBsnXEACuOVL
+        kxHc79dCNTAe95YgGNhXV08fsF9k1vsOGv6GUB2QE5SFFlSOWEvhyRbKLtNFmt5GQKNj3u
+        IN6dDugiyIaBjBJ+ymRyuAdQFshGsVMUm52bzNxGOPYfWT6GeKADooVM0YYFrrgU4Aio3h
+        BRZYiw4NU+t71y0ghqPQ5R5qkpDibTPetLXyyMi4+J3mphGiAC1Gb+WOSRyIbQ==
+Date:   Fri, 28 Jul 2023 03:12:24 +1000
+From:   Aleksa Sarai <cyphar@cyphar.com>
+To:     Alexey Gladkov <legion@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        linux-api@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        viro@zeniv.linux.org.uk, James.Bottomley@hansenpartnership.com,
+        acme@kernel.org, alexander.shishkin@linux.intel.com,
+        axboe@kernel.dk, benh@kernel.crashing.org, borntraeger@de.ibm.com,
+        bp@alien8.de, catalin.marinas@arm.com, christian@brauner.io,
+        dalias@libc.org, davem@davemloft.net, deepa.kernel@gmail.com,
+        deller@gmx.de, dhowells@redhat.com, fenghua.yu@intel.com,
+        fweimer@redhat.com, geert@linux-m68k.org, glebfm@altlinux.org,
+        gor@linux.ibm.com, hare@suse.com, hpa@zytor.com,
+        ink@jurassic.park.msu.ru, jhogan@kernel.org, kim.phillips@arm.com,
+        ldv@altlinux.org, linux-alpha@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, linux@armlinux.org.uk,
+        linuxppc-dev@lists.ozlabs.org, luto@kernel.org, mattst88@gmail.com,
+        mingo@redhat.com, monstr@monstr.eu, mpe@ellerman.id.au,
+        namhyung@kernel.org, paulus@samba.org, peterz@infradead.org,
+        ralf@linux-mips.org, sparclinux@vger.kernel.org, stefan@agner.ch,
+        tglx@linutronix.de, tony.luck@intel.com, tycho@tycho.ws,
+        will@kernel.org, x86@kernel.org, ysato@users.sourceforge.jp,
+        Palmer Dabbelt <palmer@sifive.com>
+Subject: Re: [PATCH v4 2/5] fs: Add fchmodat2()
+Message-ID: <20230727.041348-imposing.uptake.velvet.nylon-712tDwzCAbCCoSGx@cyphar.com>
+References: <cover.1689074739.git.legion@kernel.org>
+ <cover.1689092120.git.legion@kernel.org>
+ <f2a846ef495943c5d101011eebcf01179d0c7b61.1689092120.git.legion@kernel.org>
+ <njnhwhgmsk64e6vf3ur7fifmxlipmzez3r5g7ejozsrkbwvq7w@tu7w3ieystcq>
+ <ZMEjlDNJkFpYERr1@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="mzzk664uqt7bucoa"
+Content-Disposition: inline
+In-Reply-To: <ZMEjlDNJkFpYERr1@example.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
-branch HEAD: 451cc82bd11eb6a374f4dbcfc1cf007eafea91ab  Add linux-next specific files for 20230727
 
-Error/Warning reports:
+--mzzk664uqt7bucoa
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-https://lore.kernel.org/oe-kbuild-all/202307181450.sfbuvMf5-lkp@intel.com
-https://lore.kernel.org/oe-kbuild-all/202307251531.p8ZLFTMZ-lkp@intel.com
+On 2023-07-26, Alexey Gladkov <legion@kernel.org> wrote:
+> On Wed, Jul 26, 2023 at 02:36:25AM +1000, Aleksa Sarai wrote:
+> > On 2023-07-11, Alexey Gladkov <legion@kernel.org> wrote:
+> > > On the userspace side fchmodat(3) is implemented as a wrapper
+> > > function which implements the POSIX-specified interface. This
+> > > interface differs from the underlying kernel system call, which does =
+not
+> > > have a flags argument. Most implementations require procfs [1][2].
+> > >=20
+> > > There doesn't appear to be a good userspace workaround for this issue
+> > > but the implementation in the kernel is pretty straight-forward.
+> > >=20
+> > > The new fchmodat2() syscall allows to pass the AT_SYMLINK_NOFOLLOW fl=
+ag,
+> > > unlike existing fchmodat.
+> > >=20
+> > > [1] https://sourceware.org/git/?p=3Dglibc.git;a=3Dblob;f=3Dsysdeps/un=
+ix/sysv/linux/fchmodat.c;h=3D17eca54051ee28ba1ec3f9aed170a62630959143;hb=3D=
+a492b1e5ef7ab50c6fdd4e4e9879ea5569ab0a6c#l35
+> > > [2] https://git.musl-libc.org/cgit/musl/tree/src/stat/fchmodat.c?id=
+=3D718f363bc2067b6487900eddc9180c84e7739f80#n28
+> > >=20
+> > > Co-developed-by: Palmer Dabbelt <palmer@sifive.com>
+> > > Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
+> > > Signed-off-by: Alexey Gladkov <legion@kernel.org>
+> > > Acked-by: Arnd Bergmann <arnd@arndb.de>
+> > > ---
+> > >  fs/open.c                | 18 ++++++++++++++----
+> > >  include/linux/syscalls.h |  2 ++
+> > >  2 files changed, 16 insertions(+), 4 deletions(-)
+> > >=20
+> > > diff --git a/fs/open.c b/fs/open.c
+> > > index 0c55c8e7f837..39a7939f0d00 100644
+> > > --- a/fs/open.c
+> > > +++ b/fs/open.c
+> > > @@ -671,11 +671,11 @@ SYSCALL_DEFINE2(fchmod, unsigned int, fd, umode=
+_t, mode)
+> > >  	return err;
+> > >  }
+> > > =20
+> > > -static int do_fchmodat(int dfd, const char __user *filename, umode_t=
+ mode)
+> > > +static int do_fchmodat(int dfd, const char __user *filename, umode_t=
+ mode, int lookup_flags)
+> >=20
+> > I think it'd be much neater to do the conversion of AT_ flags here and
+> > pass 0 as a flags argument for all of the wrappers (this is how most of
+> > the other xyz(), fxyz(), fxyzat() syscall wrappers are done IIRC).
+>=20
+> I just addressed the Al Viro's suggestion.
+>=20
+> https://lore.kernel.org/lkml/20190717014802.GS17978@ZenIV.linux.org.uk/
 
-Error/Warning: (recently discovered and may have been fixed)
+I think Al misspoke, because he also said "pass it 0 as an extra
+argument", but you actually have to pass LOOKUP_FOLLOW from the
+wrappers. If you look at how faccessat2 and faccessat are implemented,
+it follows the behaviour I described.
 
-../lib/gcc/loongarch64-linux/12.3.0/plugin/include/config/loongarch/loongarch-opts.h:31:10: fatal error: loongarch-def.h: No such file or directory
-arch/s390/kernel/mcount.S:133:2: error: instruction requires: distinct-ops
-drivers/regulator/max77857-regulator.c:312:16: error: initializer element is not a compile-time constant
-drivers/regulator/max77857-regulator.c:56:24: warning: cast to smaller integer type 'enum max77857_id' from 'void *' [-Wvoid-pointer-to-enum-cast]
+> > >  {
+> > >  	struct path path;
+> > >  	int error;
+> > > -	unsigned int lookup_flags =3D LOOKUP_FOLLOW;
+> > > +
+> > >  retry:
+> > >  	error =3D user_path_at(dfd, filename, lookup_flags, &path);
+> > >  	if (!error) {
+> > > @@ -689,15 +689,25 @@ static int do_fchmodat(int dfd, const char __us=
+er *filename, umode_t mode)
+> > >  	return error;
+> > >  }
+> > > =20
+> > > +SYSCALL_DEFINE4(fchmodat2, int, dfd, const char __user *, filename,
+> > > +		umode_t, mode, int, flags)
+> > > +{
+> > > +	if (unlikely(flags & ~AT_SYMLINK_NOFOLLOW))
+> > > +		return -EINVAL;
+> >=20
+> > We almost certainly want to support AT_EMPTY_PATH at the same time.
+> > Otherwise userspace will still need to go through /proc when trying to
+> > chmod a file handle they have.
+>=20
+> I'm not sure I understand. Can you explain what you mean?
 
-Unverified Error/Warning (likely false positive, please contact us if interested):
+You should add support for AT_EMPTY_PATH (LOOKUP_EMPTY) as well as
+AT_SYMLINK_NOFOLLOW. It would only require something like:
 
-drivers/tty/serial/8250/8250_men_mcb.c:218 serial_8250_men_mcb_probe() warn: unsigned 'data->line[i]' is never less than zero.
+	unsigned int lookup_flags =3D LOOKUP_FOLLOW;
 
-Error/Warning ids grouped by kconfigs:
+	if (flags & ~(AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW))
+		return -EINVAL;
 
-gcc_recent_errors
-|-- i386-randconfig-m021-20230727
-|   `-- drivers-tty-serial-8250_men_mcb.c-serial_8250_men_mcb_probe()-warn:unsigned-data-line-i-is-never-less-than-zero.
-|-- loongarch-allmodconfig
-|   `-- lib-gcc-loongarch64-linux-..-plugin-include-config-loongarch-loongarch-opts.h:fatal-error:loongarch-def.h:No-such-file-or-directory
-`-- loongarch-randconfig-r005-20230727
-    `-- lib-gcc-loongarch64-linux-..-plugin-include-config-loongarch-loongarch-opts.h:fatal-error:loongarch-def.h:No-such-file-or-directory
-clang_recent_errors
-|-- arm64-randconfig-r032-20230727
-|   |-- drivers-regulator-max77857-regulator.c:error:initializer-element-is-not-a-compile-time-constant
-|   `-- drivers-regulator-max77857-regulator.c:warning:cast-to-smaller-integer-type-enum-max77857_id-from-void
-|-- i386-randconfig-i006-20230727
-|   `-- drivers-regulator-max77857-regulator.c:error:initializer-element-is-not-a-compile-time-constant
-|-- i386-randconfig-r006-20230727
-|   `-- drivers-regulator-max77857-regulator.c:error:initializer-element-is-not-a-compile-time-constant
-`-- s390-randconfig-r016-20230726
-    `-- arch-s390-kernel-mcount.S:error:instruction-requires:distinct-ops
+	if (flags & AT_EMPTY_PATH)
+		lookup_flags |=3D LOOKUP_EMPTY;
+	if (flags & AT_SYMLINK_NOFOLLOW)
+		lookup_flags &=3D ~LOOKUP_FOLLOW;
 
-elapsed time: 722m
+	/* ... */
 
-configs tested: 113
-configs skipped: 7
+This would be effectively equivalent to fchmod(fd, mode). (I was wrong
+when I said this wasn't already possible -- I forgot about fchmod(2).)
 
-tested configs:
-alpha                            allyesconfig   gcc  
-alpha                               defconfig   gcc  
-alpha                randconfig-r012-20230727   gcc  
-arc                              allyesconfig   gcc  
-arc                                 defconfig   gcc  
-arc                  randconfig-r036-20230727   gcc  
-arc                  randconfig-r043-20230727   gcc  
-arm                              allmodconfig   gcc  
-arm                              allyesconfig   gcc  
-arm                         axm55xx_defconfig   gcc  
-arm                                 defconfig   gcc  
-arm                      footbridge_defconfig   gcc  
-arm                       omap2plus_defconfig   gcc  
-arm                          pxa168_defconfig   clang
-arm                  randconfig-r033-20230727   gcc  
-arm                  randconfig-r046-20230727   clang
-arm                        shmobile_defconfig   gcc  
-arm                       versatile_defconfig   clang
-arm64                            allyesconfig   gcc  
-arm64                               defconfig   gcc  
-arm64                randconfig-r032-20230727   clang
-csky                                defconfig   gcc  
-hexagon              randconfig-r011-20230727   clang
-hexagon              randconfig-r041-20230727   clang
-hexagon              randconfig-r045-20230727   clang
-i386                             allyesconfig   gcc  
-i386                              debian-10.3   gcc  
-i386                                defconfig   gcc  
-i386                 randconfig-i001-20230727   clang
-i386                 randconfig-i002-20230727   clang
-i386                 randconfig-i003-20230727   clang
-i386                 randconfig-i004-20230727   clang
-i386                 randconfig-i005-20230727   clang
-i386                 randconfig-i006-20230727   clang
-i386                 randconfig-i011-20230727   gcc  
-i386                 randconfig-i012-20230727   gcc  
-i386                 randconfig-i013-20230727   gcc  
-i386                 randconfig-i014-20230727   gcc  
-i386                 randconfig-i015-20230727   gcc  
-i386                 randconfig-i016-20230727   gcc  
-i386                 randconfig-r006-20230727   clang
-i386                 randconfig-r013-20230727   gcc  
-i386                 randconfig-r021-20230727   gcc  
-i386                 randconfig-r023-20230727   gcc  
-loongarch                        allmodconfig   gcc  
-loongarch                         allnoconfig   gcc  
-loongarch                           defconfig   gcc  
-loongarch            randconfig-r005-20230727   gcc  
-m68k                             allmodconfig   gcc  
-m68k                             allyesconfig   gcc  
-m68k                                defconfig   gcc  
-microblaze           randconfig-r031-20230727   gcc  
-mips                             allmodconfig   gcc  
-mips                             allyesconfig   gcc  
-mips                     cu1000-neo_defconfig   clang
-nios2                               defconfig   gcc  
-nios2                randconfig-r024-20230727   gcc  
-nios2                randconfig-r033-20230726   gcc  
-parisc                           allyesconfig   gcc  
-parisc                              defconfig   gcc  
-parisc               randconfig-r004-20230727   gcc  
-parisc64                            defconfig   gcc  
-powerpc                          allmodconfig   gcc  
-powerpc                           allnoconfig   gcc  
-powerpc                    klondike_defconfig   gcc  
-powerpc                      ppc40x_defconfig   gcc  
-powerpc                      ppc44x_defconfig   clang
-powerpc                         wii_defconfig   gcc  
-riscv                            allmodconfig   gcc  
-riscv                             allnoconfig   gcc  
-riscv                            allyesconfig   gcc  
-riscv                               defconfig   gcc  
-riscv                randconfig-r016-20230727   gcc  
-riscv                randconfig-r034-20230727   clang
-riscv                randconfig-r042-20230727   gcc  
-riscv                          rv32_defconfig   gcc  
-s390                             allmodconfig   gcc  
-s390                             allyesconfig   gcc  
-s390                          debug_defconfig   gcc  
-s390                                defconfig   gcc  
-s390                 randconfig-r044-20230727   gcc  
-sh                               allmodconfig   gcc  
-sh                   randconfig-r003-20230727   gcc  
-sh                           se7750_defconfig   gcc  
-sparc                            allyesconfig   gcc  
-sparc                               defconfig   gcc  
-sparc                randconfig-r026-20230727   gcc  
-um                               alldefconfig   gcc  
-um                               allmodconfig   clang
-um                                allnoconfig   clang
-um                               allyesconfig   clang
-um                                  defconfig   gcc  
-um                             i386_defconfig   gcc  
-um                   randconfig-r035-20230727   gcc  
-um                           x86_64_defconfig   gcc  
-x86_64                           allyesconfig   gcc  
-x86_64                              defconfig   gcc  
-x86_64                                  kexec   gcc  
-x86_64               randconfig-r014-20230727   gcc  
-x86_64               randconfig-x001-20230727   gcc  
-x86_64               randconfig-x002-20230727   gcc  
-x86_64               randconfig-x003-20230727   gcc  
-x86_64               randconfig-x004-20230727   gcc  
-x86_64               randconfig-x005-20230727   gcc  
-x86_64               randconfig-x006-20230727   gcc  
-x86_64               randconfig-x011-20230727   clang
-x86_64               randconfig-x012-20230727   clang
-x86_64               randconfig-x013-20230727   clang
-x86_64               randconfig-x014-20230727   clang
-x86_64               randconfig-x015-20230727   clang
-x86_64               randconfig-x016-20230727   clang
-x86_64                          rhel-8.3-rust   clang
-xtensa               randconfig-r002-20230727   gcc  
+--=20
+Aleksa Sarai
+Senior Software Engineer (Containers)
+SUSE Linux GmbH
+<https://www.cyphar.com/>
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+--mzzk664uqt7bucoa
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQS2TklVsp+j1GPyqQYol/rSt+lEbwUCZMKleAAKCRAol/rSt+lE
+bym9AQDqgQyuOeexUTCKq/tyT2Gt8n1mt1PGm55hdeFxmQCD1AD+NkISNEOp7Oej
+qTsMPEIGWvfGX/MWtUS2thZbT2WvjA4=
+=+qOC
+-----END PGP SIGNATURE-----
+
+--mzzk664uqt7bucoa--
