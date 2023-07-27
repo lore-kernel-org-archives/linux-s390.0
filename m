@@ -2,215 +2,243 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A41EC0015E
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Jul 2023 12:22:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEBFEC001DC
+	for <linux-s390@archiver.kernel.org>; Thu, 27 Jul 2023 12:34:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233025AbjG0MWd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Jul 2023 08:22:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58752 "EHLO
+        id S233873AbjG0MeA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Jul 2023 08:34:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233921AbjG0MWb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jul 2023 08:22:31 -0400
+        with ESMTP id S231157AbjG0Md7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jul 2023 08:33:59 -0400
 Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC1A73A9C;
-        Thu, 27 Jul 2023 05:22:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A52A128;
+        Thu, 27 Jul 2023 05:33:57 -0700 (PDT)
 Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
-        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20230727122204euoutp01c1300deceb0647d29e9f84fa39a09ce3~1uOP6PDUE0931709317euoutp01R;
-        Thu, 27 Jul 2023 12:22:04 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20230727122204euoutp01c1300deceb0647d29e9f84fa39a09ce3~1uOP6PDUE0931709317euoutp01R
+        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20230727123355euoutp011fa6bb3dcb52f181f616466d2d83a260~1uYmBa5aY2650726507euoutp01E;
+        Thu, 27 Jul 2023 12:33:55 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20230727123355euoutp011fa6bb3dcb52f181f616466d2d83a260~1uYmBa5aY2650726507euoutp01E
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1690460524;
-        bh=UNpV9Xfy6rp5fo9PV60OHzWHjUdlfdxrbzjpXgfrMzE=;
+        s=mail20170921; t=1690461235;
+        bh=ESao0eb/63+IOmT+CrRxQc0TcsKVTFJG1DZ6DhG4oFk=;
         h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-        b=J6gXorgabGEge6zNvEh5HCvYIAXt+h44UjgRfdyRmGIcen/8tve5J8MNYg0AJ7mmv
-         sXN+b6zRCzTdalmNd0Aa2J+1Jf04UiYIXGXv6mrewSZQayMhOJkiLqcdwtn3vYh/nL
-         uTuVZeVf7kEL1+9EhCJ61bAh1Mz5znOWmnARoQtw=
+        b=QrhkT+yHOVk6ZIQla3AsA+uw6V4Vt4grecFFjbwNuJUE8j5OpswY67jc3l+cDZCqw
+         x6iXvYkVOpHUahtsSIc2vfjHMusn/pKQPzDaZDmefklc/76rcACjcV/KVj9TV3tz81
+         t8we/+oAUc8vdeX9RlalMwoRWC809Fq6daSbc9Hw=
 Received: from eusmges1new.samsung.com (unknown [203.254.199.242]) by
         eucas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20230727122204eucas1p1cab21b16ee35e3c5ec2c7b5e885da187~1uOPs5hFJ0682006820eucas1p1s;
-        Thu, 27 Jul 2023 12:22:04 +0000 (GMT)
-Received: from eucas1p1.samsung.com ( [182.198.249.206]) by
-        eusmges1new.samsung.com (EUCPMTA) with SMTP id ED.EC.42423.B6162C46; Thu, 27
-        Jul 2023 13:22:04 +0100 (BST)
+        20230727123355eucas1p121bfab9abf76d47b1fd2f6401b827ca0~1uYluVjjE2818128181eucas1p1k;
+        Thu, 27 Jul 2023 12:33:55 +0000 (GMT)
+Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
+        eusmges1new.samsung.com (EUCPMTA) with SMTP id B8.EF.42423.23462C46; Thu, 27
+        Jul 2023 13:33:54 +0100 (BST)
 Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
-        eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-        20230727122203eucas1p2853f35c6361a8ff038a9c18f029426c3~1uOPIozYY0928709287eucas1p2k;
-        Thu, 27 Jul 2023 12:22:03 +0000 (GMT)
-Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
+        eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+        20230727123354eucas1p17dfd7ad69206f1e22095fa2fa74cc46c~1uYlObG3o2951129511eucas1p1n;
+        Thu, 27 Jul 2023 12:33:54 +0000 (GMT)
+Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
         eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20230727122203eusmtrp1bc81063491283ffdfd5d2cc34cb2a542~1uOPHcLuJ2541825418eusmtrp1u;
-        Thu, 27 Jul 2023 12:22:03 +0000 (GMT)
-X-AuditID: cbfec7f2-a3bff7000002a5b7-a7-64c2616b8f92
+        20230727123354eusmtrp1774137adf3f8a42b8db0385aedd59942~1uYlMOYAG0066900669eusmtrp1a;
+        Thu, 27 Jul 2023 12:33:54 +0000 (GMT)
+X-AuditID: cbfec7f2-25927a800002a5b7-d1-64c26432a8d3
 Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
-        eusmgms2.samsung.com (EUCPMTA) with SMTP id 93.C9.14344.B6162C46; Thu, 27
-        Jul 2023 13:22:03 +0100 (BST)
+        eusmgms1.samsung.com (EUCPMTA) with SMTP id 20.4D.10549.23462C46; Thu, 27
+        Jul 2023 13:33:54 +0100 (BST)
 Received: from CAMSVWEXC02.scsc.local (unknown [106.1.227.72]) by
         eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20230727122203eusmtip1272296c5a534d5b122bea29b4cbc9ca3~1uOOxtg841066510665eusmtip1g;
-        Thu, 27 Jul 2023 12:22:03 +0000 (GMT)
+        20230727123354eusmtip1feb09772860766eae1779718ee7beb64~1uYk--V7o1930419304eusmtip1F;
+        Thu, 27 Jul 2023 12:33:54 +0000 (GMT)
 Received: from localhost (106.210.248.223) by CAMSVWEXC02.scsc.local
         (2002:6a01:e348::6a01:e348) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
-        Thu, 27 Jul 2023 13:22:02 +0100
-Date:   Thu, 27 Jul 2023 14:22:00 +0200
+        Thu, 27 Jul 2023 13:33:53 +0100
+Date:   Thu, 27 Jul 2023 14:33:52 +0200
 From:   Joel Granados <j.granados@samsung.com>
 To:     Luis Chamberlain <mcgrof@kernel.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Kees Cook <keescook@chromium.org>,
-        Iurii Zaikin <yzaikin@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+CC:     "David S. Miller" <davem@davemloft.net>,
+        David Ahern <dsahern@kernel.org>,
         Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, <willy@infradead.org>,
-        <josh@joshtriplett.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        <linux-fsdevel@vger.kernel.org>, <netdev@vger.kernel.org>
-Subject: Re: [PATCH 06/14] sysctl: Add size to register_sysctl
-Message-ID: <20230727122200.r5o2mj5qgah5yfwm@localhost>
+        "Paolo Abeni" <pabeni@redhat.com>,
+        Alexander Aring <alex.aring@gmail.com>,
+        "Stefan Schmidt" <stefan@datenfreihafen.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Mat Martineau <martineau@kernel.org>,
+        "Santosh Shilimkar" <santosh.shilimkar@oracle.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>, <willy@infradead.org>,
+        <keescook@chromium.org>, <josh@joshtriplett.org>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>, <netdev@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-wpan@vger.kernel.org>,
+        <mptcp@lists.linux.dev>, <linux-rdma@vger.kernel.org>,
+        <rds-devel@oss.oracle.com>, <linux-sctp@vger.kernel.org>,
+        <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH 11/14] networking: Update to register_net_sysctl_sz
+Message-ID: <20230727123352.tz4orwpczgkzgout@localhost>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="eyp7i2qlh4lxb2ih"
+        protocol="application/pgp-signature"; boundary="hkodhcvqkudu4q33"
 Content-Disposition: inline
-In-Reply-To: <ZMFexmOcfyORkRRs@bombadil.infradead.org>
+In-Reply-To: <ZMFgZHsnhrXNIQ53@bombadil.infradead.org>
 X-Originating-IP: [106.210.248.223]
 X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
         CAMSVWEXC02.scsc.local (2002:6a01:e348::6a01:e348)
-X-Brightmail-Tracker: H4sIAAAAAAAAA2WSfUxTVxjGd3pvbwuz5FoaOQPmlgL7UISZMHYWhI25hOuyGWLiEliG6+gN
-        MmjL+qGAWcCVbq4CqUOZVMBWtCjUMkphUzeQRltpF4oOFzTUiMgyKF8WZHwMHOWyzWT//d7n
-        fZ6857m5XIzfRoRzc6VKWi4V5QuJYLzDsdC7LV9kF792ZhJDre5RAg0v2wk0ZSoHqNZThqMR
-        xwMO6tPPsZG6oYVAvvomgJ4YZOiXoxLU11HJRtbh39jop597cPTr5VoC6YxqDA3oRgByGDah
-        Ofc4QKaWixxUNvg6WppfNZgu7X57E2WuNwPqVOlNnLJduMOiDFYV1XZ+C3XXl0xZm74hKN2Z
-        q4DqqjNzqLazJdRU522CmrFuTt+QGbxDTOfnHqDl8SmfBO/3ac6xC34IK7RdKcVLgSNUC4K4
-        kEyAF0pdmBYEc/nkeQD1R7Q4M8wCODLpXN/MAGh1tLK0gLsW0U4/y+iNAC5qfKx/Td5RD4cZ
-        2gGcufQ1K3AEJ2Pg8Nh1IsAEGQs944NYgAXkK7BTV7GWxkg1AfX3eonAiVAyBfo9WQEPj3wD
-        dk60AYY3wp6ah3iAMbIQ2jQDnIAdIyNg4wo3IAeRidB8/C/AdIuC3WeXOAx/AV22u2unIHkx
-        GNa4y9cX78IOr3udQ+GY07bOkdBdVY4zgSoAu1amOczQDKDp8GMW40qCZf0P1xOp0LxQQzDf
-        KAQOTGxkHhoCv+34DmNkHjzyFZ9xvwSb743jOhClf6qa/qlq+v+qMXIsNFzxE/+Tt0KT0Ycx
-        nAwtlincADhNIIxWKSQ5tGK7lD4YpxBJFCppTly2TGIFq/+ye8Xp/xHUjT2KswMWF9hB9Gr4
-        wffNfSAcl8qktFDAc6XbxXyeWFRUTMtl++SqfFphBxFcXBjG25rck80nc0RKOo+mC2j5P1sW
-        Nyi8lCVZUl2PnC//uGGDKkteffWxoN3x2cG3LD33Lb6bKbPvHf8wYZeW542c7z5UO5hxgowQ
-        VLa3fvT7fG+1P+m+87JMU2W8o7mxL4l964Awa0/I+yXHEq5FSkKNkx3m1GMtmbM5yzdO5tXF
-        vLl3llR+IHYdffTMyZUK3uJpr77Bn4lXDBYdKhk+lTi9cC2+hMqWD6UtZcdK+tMs8frUrNt5
-        glue7pFPX+7uby6OTSuae1Gd4XjOXa2uLMgAQ67l9E7vq0P1o30ROxYnDEoyupVvYxXadu5+
-        slO8+fPo/sPOmBeUrr1N4UF2Gd174p36P7vinlc0fpm4Laruj5qhc8ZdZZG5xfFCXLFftH0L
-        JleI/gZGqk93RgQAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrPKsWRmVeSWpSXmKPExsVy+t/xu7rZiYdSDKbeFbfYePolm8Xjv4fY
-        LN4v62G0mHO+hcXi6bFH7BYXZn1jtWhevJ7N4vW8VYwW/xfkW5zpzrW4sK2P1WLT42usFnv2
-        nmSxuLxrDpvFhIXNzBY3JjxltDi2QMzi2+k3jBbL1q9lt2i5Y2rx+wdQwbKdfg5iHmvmrWH0
-        mN1wkcVjy8qbTB4LNpV6bF6h5XHrta3HplWdbB4TFh1g9Ng/dw27x+Yl9R7v911l8/i8SS6A
-        J0rPpii/tCRVISO/uMRWKdrQwkjP0NJCz8jEUs/Q2DzWyshUSd/OJiU1J7MstUjfLkEvo//F
-        SbaCreIVe94uZm1gPCLcxcjBISFgItH1gbuLkYtDSGApo8SqeTcZuxg5geIyEhu/XGWFsIUl
-        /lzrYoMo+sgoMfv4ZmYIZyujxLkNK8E6WARUJR6/OsoGYrMJ6Eicf3OHGcQWEdCQ2Dehlwmk
-        gVmgmU1i1r1zbCCrhQXsJD6djwOp4RUwl9j3djMj3Iap2z+yQCQEJU7OfAJmMwuUSXy6eYkV
-        pJdZQFpi+T8OkDCngJnEmil/oK5Wlji45Dc7hF0r8fnvM8YJjMKzkEyahWTSLIRJEGEtiRv/
-        XjJhCGtLLFv4mhnCtpVYt+49ywJG9lWMIqmlxbnpucVGesWJucWleel6yfm5mxiBqWnbsZ9b
-        djCufPVR7xAjEwfjIUYVoM5HG1ZfYJRiycvPS1US4T0VcChFiDclsbIqtSg/vqg0J7X4EKMp
-        MBQnMkuJJucDk2ZeSbyhmYGpoYmZpYGppZmxkjivZ0FHopBAemJJanZqakFqEUwfEwenVAOT
-        nMbRahHFNTc0OO+l352SzvB/VjCn0DaJ0vr/Gb8K3tyrDxO3l3vjv8XU31Li57a+Vof4mwtf
-        sv6ab5sY+/CFw7XQLQ9jd5qn13Bk/Dx2r6xc9l1Y2qHbEwV4FnobL84J3H3ne57az+n/mSbt
-        KpZcH+yzVHm1YMbuaekLbjmzri5eMsvlrU5OwN/1Ub4qa9fKrkrY+GjPOvkp64+6+u1IUP5x
-        T+jrqf/CIcJxFvuThL27alYLfHvyfubbBR9/BrPJxipu+ViySIPv5AuptnWfW8zUXjUczX/X
-        /LKBTfvQktSX/8y+sy7UcUxfcI/psu7pE099TXIepdiqH+I4zJRrsmLDzJffpDbl9ZTl+W/+
-        psRSnJFoqMVcVJwIAIjZKqXiAwAA
-X-CMS-MailID: 20230727122203eucas1p2853f35c6361a8ff038a9c18f029426c3
+X-Brightmail-Tracker: H4sIAAAAAAAAA2WTe0xTZxjG951zes4pruxQDHxcIgrqEJDbCHwILC5Z2MlcAtn+cCHz0tAT
+        wEFLWlCmmQGmqDhcpQYBEQsy5LIBA6wDFsa6AeNiKZNtgG5CB0igUoGOcok46sHNZP/93vd5
+        ni/v88dH4+JV0pVOkqVxCpkk2ZO0I7RdKwN7g6U6aaB+cB/SZYah8e9yBahk4AyB6lrPYmiy
+        y0ihO4+sJLo4446GKp+Q6JlGjvovpiBzwTUMGbSXBOheawmJpnR5BFKVfYajSc2sAD1QVxLI
+        WG/G0GpVtwDp857hqKp/CkPDqkmAfjzXLkD99dkU6tI4oaU+E0D6pkUBGlcNEEhd1YyhtgvL
+        FPrL+ohEWf1aCq0tl5D7d7ClX51ir2UOEuzqig/bXD2CsS3Ff1CstmMXq2lMZ5uqfNjR2Si2
+        seYCybaMh7Oq8g7ATjcVAXZ+cpRgDZUmkjW3/0rGOsbZRUq55KTjnCLgzaN2iaqJLCz1iltG
+        Qf4SyAQFTrlASEMmBOpqVkEusKPFTBWAmpJh0iaIGQuAxutuvLAIYHbrEHiRWLNYCV64BeCC
+        cQz/1zV8R0vxw20A+1tLN2w0TTC74MOf3relScYPDpge4DbeynjDdlUeZvPjzA0hbPvaRNkE
+        R+YdOL9eTthYxITBrqudgGcH2FM08XyPMxlw6m4ZaXsfZ9zgrXXahkImFPZWePCHesEfKtYo
+        nj+Fvc2jGM+FW+Ci5j2e34YN5nObxRzhTHfzpt8d9qk/f14SMmoAv19/QvFDLYCVWX9vvhQB
+        zwxNbCbeguXrBsx2BGTs4fBjB/5Me5ivvYrzaxE8nyPm3bth7Z8mQgW8il8qVvxSseL/ivFr
+        P6hpW/j/2hdWls3iPEfBujozoQFUDXDm0pUpCZwySMad8FdKUpTpsgT/eHlKI9j4En3r3Qvf
+        gusz8/46gNFAB3ZuhI0NtQbgSsjkMs5zq6g3VicVi6SST05yCvkRRXoyp9QBN5rwdBb5RvXE
+        i5kESRr3McelcooXKkYLXTOxwLHTFmHhqyuN8tiwQx6n0koMX5qT9IVjhe1LO8KNIa/djg6Y
+        z349MuUNZUWZomWE8BUdHv8tLLTonjDYl7GmHlBbpNIPm34/ts1SMRhXLdi+bPpmMdLpl+Up
+        +wzrQXRpVth41hLjtWff3ajl4tWOnw99JJJVJwnEsvPvRvc0aEOZ1IzLnhEGnAu0iktdlO7Z
+        4P7joC05Lt2B03V+vtNuTZ3h+VA/F2N09Tqau8fsfWQ24APtzQO7Y3K8w4KrXQSnn25v0GGK
+        Tv8GD6dXxAePRXRtUx93rp6by1uLi7kcfz8kbu8NQQE1SLdG78dF9Q+/qD1ZmFgzcvhE4JpM
+        7jCc8NSTUCZKgnxwhVLyD3dk40WNBAAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA2WSe0xTVxzHd+69vS0O5rU8PAMStcPBcFzayuOAoMu2zItxiZnLNll8VHsH
+        OtpiHwwkzrphXHGwYs14jlRAVsQUbRWETcY6HhkQqHMoIITHVlBg6VC3ykMYtVlmsv8+5/d9
+        nJOTHw/nF5GBvMNyNauUS9IE5Cqia6ljOEIstUmF9268iGzaWDT2fS4HlfXmEMjcdApDjvZx
+        LmqYdJHozFQw+rX6TxItGxWo+4wMOb8uxZC9Pp+DbjWVkWjClkcg/fnPceQwTnPQkKGaQON1
+        TgzNmzo4qCdvGUem7gkM9esdAP10upmDuus+46J2YwD6u2sGoB7rQw4a0/cSyGC6iqHvdI+5
+        6DfXJIlOdtdz0cLjMvK1DUz5pWymVHuTYObnwpmrNQMY01gyzGXqWzYyRouGsZrCmcHpRMZy
+        UUcyjWNxjL6iBTD3rMWAmXUMEoy9eoZknM195C7fZDpBqdCo2fWpCpU6UfChCIlpURyixVFx
+        tGhz7N54cbQgcmuClE07nMEqI7ceoFP7+wuw9LNBmYOlWkwLzgXkAi8epKLgwiMXkQtW8fjU
+        BQBdI9eBRwiGVx71cTzsCxdv55Ie0yyANRWLuOdwDcD8vMoVF49HUBvhSOs77gBJvQp7Z4Zw
+        N/tRYbBZn4e5/Tj1jRecu2Qg3IIvtR3OLlU8ZR8qFrYXtgFP6QMA680W3COsgT8X//7UhFMZ
+        cPTOZcx9GU4FwW+XeG70omJgZ9U6z0Nfgj9WLXA9fBw+fDIB9MC35JmikmeKSv4r8ozDYf/S
+        /f+PN8Hq89O4hxOh2ewkjIB7EfixGpUsRaYS0SqJTKWRp9CHFDILWFnL+vY563VQPjVL2wDG
+        AzYQspIcv1xrB4GEXCFnBX4+nbtsUr6PVJJ1jFUq9is1aazKBqJXPrEAD/Q/pFjZcbl6vyhG
+        GC2KiokTRsfFbBas9UlK/0LCp1IkavZjlk1nlf/mMJ5XoBarFST17BT6T+7IjPSeCqWHKoOm
+        W9ue57acoOePvmev09wRrlve9yAYM1x7/3TOEfPEkcq7YYlLHxy9ad2QVHw/U2/Yk7OYNzBV
+        sqm8eBsI2f1Lti8Tei7NMapzJuu+yuR0phcMh2ypMiSHqe1N8R0ZJ18WzDMWjbOoLUM3QI32
+        5Xc08LKNf+AHvQsHJ6188U5OBHzBsi1LaHrryq3AnN3eN2qPW/pDHca+avunF3SNyuKANyvX
+        CFpeD+byUw6euj0zNBUyOjC2fl/0jiDzgYIfntBfip/z/0hbiCWYiu7ueXcmK8S/wTWX9EnX
+        2WM+dWvfbt+yOuJEa3C88K9X/N7o3DtSIyBUqRJROK5USf4Bb+3wOysEAAA=
+X-CMS-MailID: 20230727123354eucas1p17dfd7ad69206f1e22095fa2fa74cc46c
 X-Msg-Generator: CA
-X-RootMTR: 20230726140659eucas1p2c3cd9f57dd13c71ddeb78d2480587e72
+X-RootMTR: 20230726140709eucas1p2033d64aec69a1962fd7e64c57ad60adc
 X-EPHeader: CA
 CMS-TYPE: 201P
-X-CMS-RootMailID: 20230726140659eucas1p2c3cd9f57dd13c71ddeb78d2480587e72
+X-CMS-RootMailID: 20230726140709eucas1p2033d64aec69a1962fd7e64c57ad60adc
 References: <20230726140635.2059334-1-j.granados@samsung.com>
-        <CGME20230726140659eucas1p2c3cd9f57dd13c71ddeb78d2480587e72@eucas1p2.samsung.com>
-        <20230726140635.2059334-7-j.granados@samsung.com>
-        <ZMFexmOcfyORkRRs@bombadil.infradead.org>
+        <CGME20230726140709eucas1p2033d64aec69a1962fd7e64c57ad60adc@eucas1p2.samsung.com>
+        <20230726140635.2059334-12-j.granados@samsung.com>
+        <ZMFgZHsnhrXNIQ53@bombadil.infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
---eyp7i2qlh4lxb2ih
+--hkodhcvqkudu4q33
 Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 26, 2023 at 10:58:30AM -0700, Luis Chamberlain wrote:
-> On Wed, Jul 26, 2023 at 04:06:26PM +0200, Joel Granados wrote:
-> > In order to remove the end element from the ctl_table struct arrays, we
-> > replace the register_syctl function with a macro that will add the
-> > ARRAY_SIZE to the new register_sysctl_sz function. In this way the
-> > callers that are already using an array of ctl_table structs do not have
-> > to change. We *do* change the callers that pass the ctl_table array as a
-> > pointer.
+On Wed, Jul 26, 2023 at 11:05:24AM -0700, Luis Chamberlain wrote:
+> On Wed, Jul 26, 2023 at 04:06:31PM +0200, Joel Granados wrote:
+> > This is part of the effort to remove the sentinel (last empty) element
+> > from the ctl_table arrays. We update to the new function and pass it the
+> > array size. Care is taken to mirror the NULL assignments with a size of
+> > zero (for the unprivileged users). An additional size function was added
+> > to the following files in order to calculate the size of an array that
+> > is defined in another file:
+> >     include/net/ipv6.h
+> >     net/ipv6/icmp.c
+> >     net/ipv6/route.c
+> >     net/ipv6/sysctl_net_ipv6.c
+> >=20
 >=20
-> Thanks for doing this and this series!
+> Same here as with the other patches, the "why" and size impact should go =
+here.
+> I'll skip mentioning that in the other patches.
+Indeed. FYI: I answered in your original feedback.
+
 >=20
-> > Signed-off-by: Joel Granados <j.granados@samsung.com>
-> > ---
-> > diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-> > index 0495c858989f..b1168ae281c9 100644
-> > --- a/include/linux/sysctl.h
-> > +++ b/include/linux/sysctl.h
-> > @@ -215,6 +215,9 @@ struct ctl_path {
-> >  	const char *procname;
+> > diff --git a/net/mpls/af_mpls.c b/net/mpls/af_mpls.c
+> > index bf6e81d56263..5bad14b3c71e 100644
+> > --- a/net/mpls/af_mpls.c
+> > +++ b/net/mpls/af_mpls.c
+> > @@ -1396,6 +1396,40 @@ static const struct ctl_table mpls_dev_table[] =
+=3D {
+> >  	{ }
 > >  };
 > > =20
-> > +#define register_sysctl(path, table)	\
-> > +	register_sysctl_sz(path, table, ARRAY_SIZE(table))
+> > +static int mpls_platform_labels(struct ctl_table *table, int write,
+> > +				void *buffer, size_t *lenp, loff_t *ppos);
+> > +#define MPLS_NS_SYSCTL_OFFSET(field)		\
+> > +	(&((struct net *)0)->field)
 > > +
-> >  #ifdef CONFIG_SYSCTL
+> > +static const struct ctl_table mpls_table[] =3D {
+> > +	{
+> > +		.procname	=3D "platform_labels",
+> > +		.data		=3D NULL,
+> > +		.maxlen		=3D sizeof(int),
+> > +		.mode		=3D 0644,
+> > +		.proc_handler	=3D mpls_platform_labels,
+> > +	},
+> > +	{
+> > +		.procname	=3D "ip_ttl_propagate",
+> > +		.data		=3D MPLS_NS_SYSCTL_OFFSET(mpls.ip_ttl_propagate),
+> > +		.maxlen		=3D sizeof(int),
+> > +		.mode		=3D 0644,
+> > +		.proc_handler	=3D proc_dointvec_minmax,
+> > +		.extra1		=3D SYSCTL_ZERO,
+> > +		.extra2		=3D SYSCTL_ONE,
+> > +	},
+> > +	{
+> > +		.procname	=3D "default_ttl",
+> > +		.data		=3D MPLS_NS_SYSCTL_OFFSET(mpls.default_ttl),
+> > +		.maxlen		=3D sizeof(int),
+> > +		.mode		=3D 0644,
+> > +		.proc_handler	=3D proc_dointvec_minmax,
+> > +		.extra1		=3D SYSCTL_ONE,
+> > +		.extra2		=3D &ttl_max,
+> > +	},
+> > +	{ }
+> > +};
 >=20
-> Wasn't it Greg who had suggested this? Maybe add Suggested-by with him
-> on it.
-Yes. I mentioned him in the cover letter and did not add the tag because
-I had not asked for permission to use it. I'll drop him a mail and
-include the suggested-by if he agrees.
+> Unless we hear otherwise from networking folks, I think this move alone
+> should probably go as a separate patch with no functional changes to
+> make the changes easier to review / bisect.
 
->=20
-> Also, your cover letter and first few patches are not CC'd to the netdev
-> list or others. What you want to do is collect all the email addresses
-> for this small patch series and add them to who you email for your
-> entire series, otherwise at times they won't be able to properly review
-> or understand the exact context of the changes. You want folks to do less
-> work to review, not more.
-Here I wanted to avoid very big e-mail headers as I have received
-rejections from lists in the past. But I for this set, the number of
-e-mails is ok to just include everyone.
+Ok. I'll take it out in its own commit and prepend it as a preparation
+patch.
 
-I'll do that for V2.
-thx for your feedback
-
-best
-
->=20
-> So please resend and add others to the other patches.
->=20
->   Luis
-
---=20
+thx for the feedback
+Best
 
 Joel Granados
 
---eyp7i2qlh4lxb2ih
+--hkodhcvqkudu4q33
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmTCYWMACgkQupfNUreW
-QU8CPgwAkr6P3axpBPzX0iTBJ2K6Cnt/H3xegrsFZtH2oCi5BcL3GjmmatTKqded
-N1XCtc6Cch2GBr3e9GXx2jz4884QGHZWiVta+8sxBtE4Jme+mRk0j14Z9jl9v1Zf
-9aYK2G2xPzhvaQcnRXh8n1dJOoJcLZLT8hb8JypNJ4R63yyiHSFZkqv8vNpriRDm
-4dL1P8z24wQKNiD5RlKJ1zq7BfCLg7JbwMmacKCxjQ8INWMP+1NAtmazejQbh7Ui
-VPXWkXWT2xyVrd18l4LhEYCCqckk7mJjuyzHUE5F3IXb1bdjuyNWZSJDuREBaA6Y
-FCpirpaUH7agFN6SzrZkDJ9ZTA4ZVTKvXUrHBza3mUBAojd34rFvZxLXFDdAhLM0
-8qdyB7DVLJs7q7NY8LVOyDnL/mhWQPU9pBdSPPDKb4qf9uRedOEhJtcD/7ez1jSg
-1xdxVoMk7YSI+NMQa/fMHGtNixyCydeZgp6A7Bjh5iRHH79cB6nQqVhBIABASO2l
-Exrcwht1
-=hAeI
+iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmTCZC8ACgkQupfNUreW
+QU++Cgv+L+FesAof5vpcRR2uXQ6W1aCB2JYlyD4lhEiA2jdr7vqQcYM5arelBnZ3
+zLPO574TF5h9CcWe/fec4Cxt5UqisMDcprEwz867PZjsAnbEYD1at9ECzkPSWi+6
+FFh9/UJA1Trh3xlYmuGMt7QCfGauxBj/8uX2uvCZYCfdLkms1Fl7tznqCdYowhNy
+HfWTnAAg7obXUhb9TcrmYmrcKdAvU7julEHblDunvyamW78pfLwBZf0QMiJD0rJA
+y4u3GMOeNvK4cWOZXZcTkGDmL3J19POwGEER3WCqBzNZKgMkZwlMOxcF1ExXZMze
+OUWv0MnkaqJCBqpX+ZoAmtpV14hCV6Hd8jyh9ACVIrwm1IBqz3Kznpis7HvX8S+c
+LLuBb7Cn5CDNHQ+Y293dIhjVYhY4nYQ8l9K3N4GKj53ge6/zCfFgYGKnDdv310gO
+tqje0Ur0CQwUR47VCq23yqJ/FrNvokpoDLcsDZ+T0vVsx6Ekj8SoQlH3V3FaBEiN
+1/E+oc6T
+=hoeA
 -----END PGP SIGNATURE-----
 
---eyp7i2qlh4lxb2ih--
+--hkodhcvqkudu4q33--
