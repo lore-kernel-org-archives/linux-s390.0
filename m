@@ -2,41 +2,41 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C264C04A6A
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Jul 2023 16:38:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61EE5C04FDF
+	for <linux-s390@archiver.kernel.org>; Thu, 27 Jul 2023 17:03:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233391AbjG0QiN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Jul 2023 12:38:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50308 "EHLO
+        id S231312AbjG0RDL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Jul 2023 13:03:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233085AbjG0QiL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jul 2023 12:38:11 -0400
-X-Greylist: delayed 552 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 27 Jul 2023 09:38:10 PDT
-Received: from mail-out.m-online.net (mail-out.m-online.net [212.18.0.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 055BA198A;
-        Thu, 27 Jul 2023 09:38:09 -0700 (PDT)
-Received: from frontend01.mail.m-online.net (unknown [192.168.8.182])
-        by mail-out.m-online.net (Postfix) with ESMTP id 4RBbn36YnGz1sClr;
-        Thu, 27 Jul 2023 18:28:55 +0200 (CEST)
-Received: from localhost (dynscan1.mnet-online.de [192.168.6.68])
-        by mail.m-online.net (Postfix) with ESMTP id 4RBbn3498Bz1qqlc;
-        Thu, 27 Jul 2023 18:28:55 +0200 (CEST)
-X-Virus-Scanned: amavis at mnet-online.de
-Received: from mail.mnet-online.de ([192.168.8.182])
- by localhost (dynscan1.mail.m-online.net [192.168.6.68]) (amavis, port 10024)
- with ESMTP id L2BxAh51PvpU; Thu, 27 Jul 2023 18:28:54 +0200 (CEST)
-X-Auth-Info: /OdUztXMee0ZSkATtsTdHv9aXOABzOIhAtGtPnP68TjAEOXj7HyRSJPLBm2Ue4rD
-Received: from igel.home (aftr-62-216-205-232.dynamic.mnet-online.de [62.216.205.232])
+        with ESMTP id S229526AbjG0RDK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jul 2023 13:03:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEBD59E;
+        Thu, 27 Jul 2023 10:03:08 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by mail.mnet-online.de (Postfix) with ESMTPSA;
-        Thu, 27 Jul 2023 18:28:54 +0200 (CEST)
-Received: by igel.home (Postfix, from userid 1000)
-        id 19B4B2C1309; Thu, 27 Jul 2023 18:28:54 +0200 (CEST)
-From:   Andreas Schwab <schwab@linux-m68k.org>
-To:     David Laight <David.Laight@ACULAB.COM>
-Cc:     'Aleksa Sarai' <cyphar@cyphar.com>,
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A51761EE5;
+        Thu, 27 Jul 2023 17:03:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F36DC433C7;
+        Thu, 27 Jul 2023 17:02:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1690477387;
+        bh=dRinFx40BRIrMwg/8epwp+lbWEUZUugvI2zcPLmbs6o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=sAR5rAZfLiN5wJdY9U15gQ+2zoDM6Q7hVZtIHJDTHH3SMwSc6rlEIKvPsqk5cg3Xg
+         AnK5C2Dn3qHE9/zOovZJD+aFBMhlS1NqJawkK5/s4w9i3bPzaSYhofqqqKdEv6EEDb
+         RtYXOrAZMbdXRoYQuKrdmE7RTPcMhBa0fkyPAx5iDnXWgAEVUJ3Aj6CGpfOlUJUxxW
+         8nidLRiIuhUXXQC5j/4yspRCD2nyMbAbSjNyAqO2bH4dx6cYM4R62nwXAEseaQd5cM
+         YRFCocsOOhANZ2EdBrrnT78bTY++zOkqtL+nF+3DXHIOv3NNTYaDz5jmZh2VKAyKCQ
+         noXRpmWJsxuAA==
+Date:   Thu, 27 Jul 2023 19:02:53 +0200
+From:   Christian Brauner <brauner@kernel.org>
+To:     Andreas Schwab <schwab@linux-m68k.org>
+Cc:     David Laight <David.Laight@ACULAB.COM>,
+        'Aleksa Sarai' <cyphar@cyphar.com>,
         Alexey Gladkov <legion@kernel.org>,
         LKML <linux-kernel@vger.kernel.org>,
         Arnd Bergmann <arnd@arndb.de>,
@@ -98,39 +98,47 @@ Cc:     'Aleksa Sarai' <cyphar@cyphar.com>,
         "ysato@users.sourceforge.jp" <ysato@users.sourceforge.jp>,
         Palmer Dabbelt <palmer@sifive.com>
 Subject: Re: [PATCH v4 2/5] fs: Add fchmodat2()
-In-Reply-To: <d052e1266bf042f9b4961bbf42261a55@AcuMS.aculab.com> (David
-        Laight's message of "Thu, 27 Jul 2023 09:01:06 +0000")
+Message-ID: <20230727-zerrt-leitmotiv-9e8b60abf690@brauner>
 References: <cover.1689074739.git.legion@kernel.org>
-        <cover.1689092120.git.legion@kernel.org>
-        <f2a846ef495943c5d101011eebcf01179d0c7b61.1689092120.git.legion@kernel.org>
-        <njnhwhgmsk64e6vf3ur7fifmxlipmzez3r5g7ejozsrkbwvq7w@tu7w3ieystcq>
-        <d052e1266bf042f9b4961bbf42261a55@AcuMS.aculab.com>
-X-Yow:  Darling, my ELBOW is FLYING over FRANKFURT, Germany..
-Date:   Thu, 27 Jul 2023 18:28:53 +0200
-Message-ID: <87ila5jp2y.fsf@igel.home>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+ <cover.1689092120.git.legion@kernel.org>
+ <f2a846ef495943c5d101011eebcf01179d0c7b61.1689092120.git.legion@kernel.org>
+ <njnhwhgmsk64e6vf3ur7fifmxlipmzez3r5g7ejozsrkbwvq7w@tu7w3ieystcq>
+ <d052e1266bf042f9b4961bbf42261a55@AcuMS.aculab.com>
+ <87ila5jp2y.fsf@igel.home>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <87ila5jp2y.fsf@igel.home>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Jul 27 2023, David Laight wrote:
+On Thu, Jul 27, 2023 at 06:28:53PM +0200, Andreas Schwab wrote:
+> On Jul 27 2023, David Laight wrote:
+> 
+> > From: Aleksa Sarai
+> >> Sent: 25 July 2023 17:36
+> > ...
+> >> We almost certainly want to support AT_EMPTY_PATH at the same time.
+> >> Otherwise userspace will still need to go through /proc when trying to
+> >> chmod a file handle they have.
+> >
+> > That can't be allowed.
+> 
+> IIUC, fchmodat2(fd, "", m, AT_EMPTY_PATH) is equivalent to fchmod(fd,
+> m).  With that, new architectures only need to implement the fchmodat2
+> syscall to cover all chmod variants.
 
-> From: Aleksa Sarai
->> Sent: 25 July 2023 17:36
-> ...
->> We almost certainly want to support AT_EMPTY_PATH at the same time.
->> Otherwise userspace will still need to go through /proc when trying to
->> chmod a file handle they have.
->
-> That can't be allowed.
+There's a difference though as fchmod() doesn't work with O_PATH file
+descriptors while AT_EMPTY_PATH does. Similar to how fchown() doesn't
+work with O_PATH file descriptors.
 
-IIUC, fchmodat2(fd, "", m, AT_EMPTY_PATH) is equivalent to fchmod(fd,
-m).  With that, new architectures only need to implement the fchmodat2
-syscall to cover all chmod variants.
+However, we do allow AT_EMPTY_PATH with fchownat() so there's no reason
+to not allow it for fchmodat2().
 
--- 
-Andreas Schwab, schwab@linux-m68k.org
-GPG Key fingerprint = 7578 EB47 D4E5 4D69 2510  2552 DF73 E780 A9DA AEC1
-"And now for something completely different."
+But it's a bit of a shame that O_PATH looks less and less like O_PATH.
+It came from can-do-barely-anything to can-do-quite-a-lot-of-things over
+the years.
+
+In any case, AT_EMPTY_PATH for fchmodat2() can be an additional patch on
+top.
