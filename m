@@ -2,122 +2,152 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F26AC04FDF
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Jul 2023 17:43:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93E70C00528
+	for <linux-s390@archiver.kernel.org>; Thu, 27 Jul 2023 18:30:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231667AbjG0RnJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Jul 2023 13:43:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39234 "EHLO
+        id S229767AbjG0SaQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Jul 2023 14:30:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229902AbjG0Rmx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jul 2023 13:42:53 -0400
-Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 799A730E3;
-        Thu, 27 Jul 2023 10:42:52 -0700 (PDT)
-Received: from smtp202.mailbox.org (smtp202.mailbox.org [10.196.197.202])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4RBdQK2JCDz9tB8;
-        Thu, 27 Jul 2023 19:42:49 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cyphar.com; s=MBO0001;
-        t=1690479769;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=irvaKwjIRBfIMs3OM027g5G4TY2gjSeGrvplRFueXaU=;
-        b=UZDWQCSlVrWdtqreCk6pJhl6N2mvEBs8l+J0GZXLAJ/i0AyNILAKr29Y2HzpDc9MHho6C5
-        xVlOhswIJJkR5SSR4ws+giR/x20PVxaPyIM6O/iNQxvH7uAImdu2F/Zw48FGbEcZ6risS0
-        REEAuKwEzxnqm3M6cQCiZqnNt+7AoEXIgN0iyVEXl/IgRzie92zZ+gVSh1Z8MCS6kWkRql
-        HlKWkqhpMYcbmdMzT3dNoNMTNXKs91TI0m/a0jVKcoSIVgCZEWz4fVmF9rn+0qt15Qn/26
-        OISfzUoTd6FBgoUSvJSBOFNpfsyBzgTQSL6tDQROyhhl2eKXxJMNtKy6plit+w==
-Date:   Fri, 28 Jul 2023 03:42:22 +1000
-From:   Aleksa Sarai <cyphar@cyphar.com>
-To:     Christian Brauner <brauner@kernel.org>
-Cc:     Alexey Gladkov <legion@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, linux-api@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk,
-        Palmer Dabbelt <palmer@sifive.com>,
-        James.Bottomley@hansenpartnership.com, acme@kernel.org,
-        alexander.shishkin@linux.intel.com, axboe@kernel.dk,
-        benh@kernel.crashing.org, borntraeger@de.ibm.com, bp@alien8.de,
-        catalin.marinas@arm.com, christian@brauner.io, dalias@libc.org,
-        davem@davemloft.net, deepa.kernel@gmail.com, deller@gmx.de,
-        dhowells@redhat.com, fenghua.yu@intel.com, fweimer@redhat.com,
-        geert@linux-m68k.org, glebfm@altlinux.org, gor@linux.ibm.com,
-        hare@suse.com, hpa@zytor.com, ink@jurassic.park.msu.ru,
-        jhogan@kernel.org, kim.phillips@arm.com, ldv@altlinux.org,
-        linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux@armlinux.org.uk, linuxppc-dev@lists.ozlabs.org,
-        luto@kernel.org, mattst88@gmail.com, mingo@redhat.com,
-        monstr@monstr.eu, mpe@ellerman.id.au, namhyung@kernel.org,
-        paulus@samba.org, peterz@infradead.org, ralf@linux-mips.org,
-        sparclinux@vger.kernel.org, stefan@agner.ch, tglx@linutronix.de,
-        tony.luck@intel.com, tycho@tycho.ws, will@kernel.org,
-        x86@kernel.org, ysato@users.sourceforge.jp
-Subject: Re: [PATCH v4 3/5] arch: Register fchmodat2, usually as syscall 452
-Message-ID: <20230727.174206-real.town.kosher.menu-lN1F8uSeAtB@cyphar.com>
-References: <cover.1689074739.git.legion@kernel.org>
- <cover.1689092120.git.legion@kernel.org>
- <a677d521f048e4ca439e7080a5328f21eb8e960e.1689092120.git.legion@kernel.org>
- <nbtxxotfsotuiepm7r4tegc4hy5qxe4dfjuqq7rm6qkkevooxh@4hacgjwit4or>
- <20230727-fangen-olympiade-85fcbdaf03d7@brauner>
+        with ESMTP id S229694AbjG0SaN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jul 2023 14:30:13 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A2C126B2;
+        Thu, 27 Jul 2023 11:29:45 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36RI9osL020059;
+        Thu, 27 Jul 2023 18:29:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=WlS2iZWmzd8oSKM2O+2+O6cxGQXL/tmFy/CKby501EE=;
+ b=PrrVxF/5FT921lGh4Sbx0ilDbDu91I5Qan3e4iA7FuQ0Sd9VYoLcn+ActDclvjHsgXF4
+ 4srQWk7C1wnvBzTRvdSY2mCVHPGYvDvAYX9bJNMm/TMKd249Z1+q7WTo87yyfa6gPkPi
+ aFuul3PQMxNR8MvFp2szZzKarH6ISppjo8O/J3fpmxpSmIGb+2vbBN4z2nvnXQubrCx8
+ ABDJGFvbYMx8Zm3jSPvPwe1qtmcFqowq6BIx/Kn9msLP+CbHrlV5ZRMZJngfug3hRg0W
+ J+ZxvokiO5241dK5wdp3zs7ZYVQa2aXcc6QbhPHvve92UP09z7BZIJUnZQaItYEf1HKb IA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s3wc7rtc2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 27 Jul 2023 18:29:44 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36RIA7kt021535;
+        Thu, 27 Jul 2023 18:29:44 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s3wc7rtbw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 27 Jul 2023 18:29:44 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36RIFZrG002639;
+        Thu, 27 Jul 2023 18:29:43 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s0txkfnuk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 27 Jul 2023 18:29:43 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36RITeXE60228078
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 27 Jul 2023 18:29:40 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0ADB420067;
+        Thu, 27 Jul 2023 18:29:40 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AC8BC2004F;
+        Thu, 27 Jul 2023 18:29:39 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 27 Jul 2023 18:29:39 +0000 (GMT)
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Mete Durlu <meted@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] KVM: s390: fix sthyi error handling
+Date:   Thu, 27 Jul 2023 20:29:39 +0200
+Message-Id: <20230727182939.2050744-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="y33k3lm4leglkjmq"
-Content-Disposition: inline
-In-Reply-To: <20230727-fangen-olympiade-85fcbdaf03d7@brauner>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 6VnCgyBAHgxSMY77m58Fb8YBJd-VmbDY
+X-Proofpoint-ORIG-GUID: uuv0Rm_KP1ertc9XKbpJiXrB1r1fuJ71
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-27_08,2023-07-26_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
+ bulkscore=0 impostorscore=0 priorityscore=1501 adultscore=0 spamscore=0
+ clxscore=1015 mlxlogscore=793 suspectscore=0 phishscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2306200000
+ definitions=main-2307270163
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Commit 9fb6c9b3fea1 ("s390/sthyi: add cache to store hypervisor info")
+added cache handling for store hypervisor info. This also changed the
+possible return code for sthyi_fill().
 
---y33k3lm4leglkjmq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Instead of only returning a condition code like the sthyi instruction would
+do, it can now also return a negative error value (-ENOMEM). handle_styhi()
+was not changed accordingly. In case of an error, the negative error value
+would incorrectly injected into the guest PSW.
 
-On 2023-07-27, Christian Brauner <brauner@kernel.org> wrote:
-> On Wed, Jul 26, 2023 at 02:43:41AM +1000, Aleksa Sarai wrote:
-> > On 2023-07-11, Alexey Gladkov <legion@kernel.org> wrote:
-> > > From: Palmer Dabbelt <palmer@sifive.com>
-> > >=20
-> > > This registers the new fchmodat2 syscall in most places as nuber 452,
-> > > with alpha being the exception where it's 562.  I found all these sit=
-es
-> > > by grepping for fspick, which I assume has found me everything.
-> >=20
-> > Shouldn't this patch be squashed with the patch that adds the syscall?
-> > At least, that's how I've usually seen it done...
->=20
-> Depends. Iirc, someone said they'd prefer for doing it in one patch
-> in some circumstances on some system call we added years ago. But otoh,
-> having the syscall wiring done separately makes it easy for arch
-> maintainers to ack only the wiring up part. Both ways are valid imho.
-> (cachestat() did it for x86 and then all the others separately. So
-> really it seems a bit all over the place depending on the scenario.)
+Add proper error handling to prevent this, and update the comment which
+describes the possible return values of sthyi_fill().
 
-Fair enough!
+Fixes: 9fb6c9b3fea1 ("s390/sthyi: add cache to store hypervisor info")
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ arch/s390/kernel/sthyi.c  | 6 +++---
+ arch/s390/kvm/intercept.c | 9 ++++++---
+ 2 files changed, 9 insertions(+), 6 deletions(-)
 
---=20
-Aleksa Sarai
-Senior Software Engineer (Containers)
-SUSE Linux GmbH
-<https://www.cyphar.com/>
+diff --git a/arch/s390/kernel/sthyi.c b/arch/s390/kernel/sthyi.c
+index 4d141e2c132e..2ea7f208f0e7 100644
+--- a/arch/s390/kernel/sthyi.c
++++ b/arch/s390/kernel/sthyi.c
+@@ -459,9 +459,9 @@ static int sthyi_update_cache(u64 *rc)
+  *
+  * Fills the destination with system information returned by the STHYI
+  * instruction. The data is generated by emulation or execution of STHYI,
+- * if available. The return value is the condition code that would be
+- * returned, the rc parameter is the return code which is passed in
+- * register R2 + 1.
++ * if available. The return value is either a negative error value or
++ * the condition code that would be returned, the rc parameter is the
++ * return code which is passed in register R2 + 1.
+  */
+ int sthyi_fill(void *dst, u64 *rc)
+ {
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 954d39adf85c..341abafb96e4 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -389,8 +389,8 @@ static int handle_partial_execution(struct kvm_vcpu *vcpu)
+  */
+ int handle_sthyi(struct kvm_vcpu *vcpu)
+ {
+-	int reg1, reg2, r = 0;
+-	u64 code, addr, cc = 0, rc = 0;
++	int reg1, reg2, cc = 0, r = 0;
++	u64 code, addr, rc = 0;
+ 	struct sthyi_sctns *sctns = NULL;
+ 
+ 	if (!test_kvm_facility(vcpu->kvm, 74))
+@@ -421,7 +421,10 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
+ 		return -ENOMEM;
+ 
+ 	cc = sthyi_fill(sctns, &rc);
+-
++	if (cc < 0) {
++		free_page((unsigned long)sctns);
++		return cc;
++	}
+ out:
+ 	if (!cc) {
+ 		if (kvm_s390_pv_cpu_is_protected(vcpu)) {
+-- 
+2.39.2
 
---y33k3lm4leglkjmq
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQS2TklVsp+j1GPyqQYol/rSt+lEbwUCZMKsfgAKCRAol/rSt+lE
-b/FwAQChKTWhN1YMxOU/bLQz1S3i+RhA8DQHZpoCbh1FlOSYwAEAmOKfPG+e4zNA
-VW75+QkpKlGw0rY3TfjxW8YkGfonXgo=
-=/4Tp
------END PGP SIGNATURE-----
-
---y33k3lm4leglkjmq--
