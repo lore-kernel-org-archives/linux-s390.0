@@ -2,133 +2,158 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DE2EC001DC
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Jul 2023 11:36:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39919C0015E
+	for <linux-s390@archiver.kernel.org>; Thu, 27 Jul 2023 12:21:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232193AbjG0LgT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Jul 2023 07:36:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33302 "EHLO
+        id S233846AbjG0MVD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Jul 2023 08:21:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231163AbjG0LgT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jul 2023 07:36:19 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ADC510DB;
-        Thu, 27 Jul 2023 04:36:17 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36RBXTlA013624;
-        Thu, 27 Jul 2023 11:35:56 GMT
+        with ESMTP id S233848AbjG0MVC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jul 2023 08:21:02 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C327B2D49;
+        Thu, 27 Jul 2023 05:20:59 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36RCF3ro004216;
+        Thu, 27 Jul 2023 12:20:59 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : references : date : in-reply-to : message-id : content-type :
- mime-version; s=pp1; bh=n77xLrBjesMnqc8Ua0RijNJREe5KgIP06dXhf+Po4jI=;
- b=Jzp7tHA2fE4y3z4d8hBRWxWU4QkgvSPT7PvaRbfANllP6nf0im0JqzIbO0wIFigN5dsD
- MG6LJsmqFEJBufS2T2tIXLUQKeP14g1BT/vrHyZNCkly0H2L7PcHZOrpbpfVc9Vgfxp3
- r9nC3/CK8CdRANGyiEv1NLBcz+tqz7LxYtskFFE8LTbd7a0x8/KRPF0445abYFZoLhp5
- y5Qh7ZRhyL3qmk2jm+tiFmds3COfdea5rtVwRVNSSAkAMW4VyWDZ0gXnWmYHiE8gcNYc
- ezWaKRR1IrXMTmm80YyU4dsznbjeVvl1UdOBxJWKykmRM/2HlIinvPgXk7EiwqYtLqqf Sg== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=ma0mH2UWlwQKD7Zhgtplg7ZH4W5F9TapcisIc1Y6dWg=;
+ b=J58LsqaKbmp6N7KiYlfPAUbxLzQHZLNg7hVXydVukWFALxRN7spe8MvEbkcndwXfIXFB
+ h4fGqZ3GF/RnNXCYmD4/Vf8VvSitowD2VCpsxcqo6qE4yM3DCbng3EGSHSfxfPhMDFiX
+ lecGMcc9geXEE2vEnYu0Wxr5it79vamAUQxvLRdGEe0y8+IffU3FRxblVaIG2JTXLqa+
+ URPFGXvGvVYrytG8bXC8EcbjHRJUnnN4qCzLXimltmeFmSeYdusU9XM5DN40YaABqdmx
+ z2Q32G4th1j2+VlsPAmp+D2hP+9DFfLLXXcX5rc0mF7qGzI2xpMgoOjeKSTu+Cg5ZQ+o WQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s3qn609mk-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s3rdpg5ub-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jul 2023 11:35:55 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36RBOhwA021459;
-        Thu, 27 Jul 2023 11:35:55 GMT
+        Thu, 27 Jul 2023 12:20:58 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36RCGsIb010425;
+        Thu, 27 Jul 2023 12:20:58 GMT
 Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s3qn609k4-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s3rdpg5u4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jul 2023 11:35:55 +0000
+        Thu, 27 Jul 2023 12:20:58 +0000
 Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36RBWAGp003634;
-        Thu, 27 Jul 2023 11:35:53 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s0txkcyg1-1
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36RBVSTZ002381;
+        Thu, 27 Jul 2023 12:20:57 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s0txkd8ny-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jul 2023 11:35:53 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36RBZpYP50659618
+        Thu, 27 Jul 2023 12:20:57 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36RCKsYb25297524
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 27 Jul 2023 11:35:51 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9496020043;
-        Thu, 27 Jul 2023 11:35:51 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1C49620040;
-        Thu, 27 Jul 2023 11:35:51 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu, 27 Jul 2023 11:35:51 +0000 (GMT)
-From:   Sven Schnelle <svens@linux.ibm.com>
-To:     Ryan Roberts <ryan.roberts@arm.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Yin Fengwei <fengwei.yin@intel.com>,
-        Yu Zhao <yuzhao@google.com>, Yang Shi <shy828301@gmail.com>,
-        "Huang, Ying" <ying.huang@intel.com>, Zi Yan <ziy@nvidia.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v1] mm: Fix use-after-free for MMU_GATHER_NO_GATHER
-References: <20230727110224.3333682-1-ryan.roberts@arm.com>
-        <b3e305e9-26c3-d4f4-d0ce-79d79d98afe2@redhat.com>
-Date:   Thu, 27 Jul 2023 13:35:50 +0200
-In-Reply-To: <b3e305e9-26c3-d4f4-d0ce-79d79d98afe2@redhat.com> (David
-        Hildenbrand's message of "Thu, 27 Jul 2023 13:15:27 +0200")
-Message-ID: <yt9dcz0dbn8p.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 1fMRO_cBvEkR_-lCWMaUkQPrL7-Znlwz
-X-Proofpoint-GUID: MMyYcl_1-ZH4XEtHsy1_2Tnl6VRhg6oA
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Thu, 27 Jul 2023 12:20:54 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6BDE020040;
+        Thu, 27 Jul 2023 12:20:54 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 334882004B;
+        Thu, 27 Jul 2023 12:20:54 +0000 (GMT)
+Received: from a46lp73.lnxne.boe (unknown [9.152.108.100])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 27 Jul 2023 12:20:54 +0000 (GMT)
+From:   Steffen Eiden <seiden@linux.ibm.com>
+To:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Michael Mueller <mimu@linux.vnet.ibm.com>,
+        Marc Hartmayer <mhartmay@linux.ibm.com>
+Subject: [PATCH 1/3] s390: uv: UV feature check utility
+Date:   Thu, 27 Jul 2023 14:20:51 +0200
+Message-Id: <20230727122053.774473-2-seiden@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20230727122053.774473-1-seiden@linux.ibm.com>
+References: <20230727122053.774473-1-seiden@linux.ibm.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 6BrG-v4BX6EHdlWXVAZDNETIE5dXmHOU
+X-Proofpoint-ORIG-GUID: 6yx1wVt8kv_0cfcJ8SqD7CDyXcrmJRNk
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
  definitions=2023-07-27_06,2023-07-26_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 malwarescore=0
- suspectscore=0 bulkscore=0 mlxlogscore=418 impostorscore=0
- priorityscore=1501 spamscore=0 mlxscore=0 adultscore=0 phishscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ adultscore=0 phishscore=0 clxscore=1011 priorityscore=1501 spamscore=0
+ impostorscore=0 bulkscore=0 mlxlogscore=999 suspectscore=0
  lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2306200000 definitions=main-2307270103
+ engine=8.12.0-2306200000 definitions=main-2307270108
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Ryan,
+Introduces a function to check the existence of an UV feature.
+Refactor feature bit checks to use the new function.
 
-David Hildenbrand <david@redhat.com> writes:
+Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+---
+ arch/s390/include/asm/uv.h | 5 +++++
+ arch/s390/kernel/uv.c      | 2 +-
+ arch/s390/kvm/kvm-s390.c   | 2 +-
+ arch/s390/mm/fault.c       | 2 +-
+ 4 files changed, 8 insertions(+), 3 deletions(-)
 
-> On 27.07.23 13:02, Ryan Roberts wrote:
->> The recent change to batch-zap anonymous ptes did not take into account
->> that for platforms where MMU_GATHER_NO_GATHER is enabled (e.g. s390),
->> __tlb_remove_page() drops a reference to the page. This means that the
->> folio reference count can drop to zero while still in use (i.e. before
->> folio_remove_rmap_range() is called). This does not happen on other
->> platforms because the actual page freeing is deferred.
->> Solve this by appropriately getting/putting the folio to guarrantee
->> it
->> does not get freed early.
->> Given the new need to get/put the folio in the batch path, let's
->> stick
->> to the non-batched path if the folio is not large. In this case batching
->> is not helpful since the batch size is 1.
->> Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
->> Fixes: 904d9713b3b0 ("mm: batch-zap large anonymous folio PTE mappings")
->> Reported-by: Nathan Chancellor <nathan@kernel.org>
->> Link: https://lore.kernel.org/linux-mm/20230726161942.GA1123863@dev-arch.thelio-3990X/
->> ---
->> Hi Andrew,
->> This fixes patch 3 in the series at [1], which is currently in
->> mm-unstable. I'm
->> not sure whether you want to take the fix or whether I should re-post the entire
->> series?
->> 
->
-> Please repost the complete thing, you're touching some sensible places
-> that really need decent review.
+diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+index d6bb2f4f78d1..338845402324 100644
+--- a/arch/s390/include/asm/uv.h
++++ b/arch/s390/include/asm/uv.h
+@@ -397,6 +397,11 @@ struct uv_info {
+ 
+ extern struct uv_info uv_info;
+ 
++static inline bool uv_has_feature(u8 feature_bit)
++{
++	return test_bit_inv(feature_bit, &uv_info.uv_feature_indications);
++}
++
+ #ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
+ extern int prot_virt_guest;
+ 
+diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+index d8b25cda5471..c82a667d2113 100644
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -249,7 +249,7 @@ static bool should_export_before_import(struct uv_cb_header *uvcb, struct mm_str
+ 	 * shared page from a different protected VM will automatically also
+ 	 * transfer its ownership.
+ 	 */
+-	if (test_bit_inv(BIT_UV_FEAT_MISC, &uv_info.uv_feature_indications))
++	if (uv_has_feature(BIT_UV_FEAT_MISC))
+ 		return false;
+ 	if (uvcb->cmd == UVC_CMD_UNPIN_PAGE_SHARED)
+ 		return false;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 17b81659cdb2..339e3190f6dc 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2402,7 +2402,7 @@ static int kvm_s390_cpus_to_pv(struct kvm *kvm, u16 *rc, u16 *rrc)
+ 	struct kvm_vcpu *vcpu;
+ 
+ 	/* Disable the GISA if the ultravisor does not support AIV. */
+-	if (!test_bit_inv(BIT_UV_FEAT_AIV, &uv_info.uv_feature_indications))
++	if (!uv_has_feature(BIT_UV_FEAT_AIV))
+ 		kvm_s390_gisa_disable(kvm);
+ 
+ 	kvm_for_each_vcpu(i, vcpu, kvm) {
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index b65144c392b0..b8ef42fac2c4 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -824,7 +824,7 @@ void do_secure_storage_access(struct pt_regs *regs)
+ 	 * reliable without the misc UV feature so we need to check
+ 	 * for that as well.
+ 	 */
+-	if (test_bit_inv(BIT_UV_FEAT_MISC, &uv_info.uv_feature_indications) &&
++	if (uv_has_feature(BIT_UV_FEAT_MISC) &&
+ 	    !test_bit_inv(61, &regs->int_parm_long)) {
+ 		/*
+ 		 * When this happens, userspace did something that it
+-- 
+2.40.1
 
-Please also add:
-
-Alexander Gordeev <agordeev@linux.ibm.com>
-Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-
-when reposting. Thanks!
