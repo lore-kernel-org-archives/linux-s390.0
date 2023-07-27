@@ -2,243 +2,167 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BEBFEC001DC
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Jul 2023 12:34:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BEECC001E0
+	for <linux-s390@archiver.kernel.org>; Thu, 27 Jul 2023 15:08:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233873AbjG0MeA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Jul 2023 08:34:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40312 "EHLO
+        id S234294AbjG0PIP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Jul 2023 11:08:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231157AbjG0Md7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jul 2023 08:33:59 -0400
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A52A128;
-        Thu, 27 Jul 2023 05:33:57 -0700 (PDT)
-Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
-        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20230727123355euoutp011fa6bb3dcb52f181f616466d2d83a260~1uYmBa5aY2650726507euoutp01E;
-        Thu, 27 Jul 2023 12:33:55 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20230727123355euoutp011fa6bb3dcb52f181f616466d2d83a260~1uYmBa5aY2650726507euoutp01E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1690461235;
-        bh=ESao0eb/63+IOmT+CrRxQc0TcsKVTFJG1DZ6DhG4oFk=;
-        h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-        b=QrhkT+yHOVk6ZIQla3AsA+uw6V4Vt4grecFFjbwNuJUE8j5OpswY67jc3l+cDZCqw
-         x6iXvYkVOpHUahtsSIc2vfjHMusn/pKQPzDaZDmefklc/76rcACjcV/KVj9TV3tz81
-         t8we/+oAUc8vdeX9RlalMwoRWC809Fq6daSbc9Hw=
-Received: from eusmges1new.samsung.com (unknown [203.254.199.242]) by
-        eucas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20230727123355eucas1p121bfab9abf76d47b1fd2f6401b827ca0~1uYluVjjE2818128181eucas1p1k;
-        Thu, 27 Jul 2023 12:33:55 +0000 (GMT)
-Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
-        eusmges1new.samsung.com (EUCPMTA) with SMTP id B8.EF.42423.23462C46; Thu, 27
-        Jul 2023 13:33:54 +0100 (BST)
-Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
-        eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
-        20230727123354eucas1p17dfd7ad69206f1e22095fa2fa74cc46c~1uYlObG3o2951129511eucas1p1n;
-        Thu, 27 Jul 2023 12:33:54 +0000 (GMT)
-Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
-        eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20230727123354eusmtrp1774137adf3f8a42b8db0385aedd59942~1uYlMOYAG0066900669eusmtrp1a;
-        Thu, 27 Jul 2023 12:33:54 +0000 (GMT)
-X-AuditID: cbfec7f2-25927a800002a5b7-d1-64c26432a8d3
-Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
-        eusmgms1.samsung.com (EUCPMTA) with SMTP id 20.4D.10549.23462C46; Thu, 27
-        Jul 2023 13:33:54 +0100 (BST)
-Received: from CAMSVWEXC02.scsc.local (unknown [106.1.227.72]) by
-        eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20230727123354eusmtip1feb09772860766eae1779718ee7beb64~1uYk--V7o1930419304eusmtip1F;
-        Thu, 27 Jul 2023 12:33:54 +0000 (GMT)
-Received: from localhost (106.210.248.223) by CAMSVWEXC02.scsc.local
-        (2002:6a01:e348::6a01:e348) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
-        Thu, 27 Jul 2023 13:33:53 +0100
-Date:   Thu, 27 Jul 2023 14:33:52 +0200
-From:   Joel Granados <j.granados@samsung.com>
-To:     Luis Chamberlain <mcgrof@kernel.org>
-CC:     "David S. Miller" <davem@davemloft.net>,
-        David Ahern <dsahern@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "Paolo Abeni" <pabeni@redhat.com>,
-        Alexander Aring <alex.aring@gmail.com>,
-        "Stefan Schmidt" <stefan@datenfreihafen.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Mat Martineau <martineau@kernel.org>,
-        "Santosh Shilimkar" <santosh.shilimkar@oracle.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>, <willy@infradead.org>,
-        <keescook@chromium.org>, <josh@joshtriplett.org>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>, <netdev@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-wpan@vger.kernel.org>,
-        <mptcp@lists.linux.dev>, <linux-rdma@vger.kernel.org>,
-        <rds-devel@oss.oracle.com>, <linux-sctp@vger.kernel.org>,
-        <linux-s390@vger.kernel.org>
-Subject: Re: [PATCH 11/14] networking: Update to register_net_sysctl_sz
-Message-ID: <20230727123352.tz4orwpczgkzgout@localhost>
+        with ESMTP id S234544AbjG0PIE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jul 2023 11:08:04 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76E6AE75;
+        Thu, 27 Jul 2023 08:07:43 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36REp1fS009227;
+        Thu, 27 Jul 2023 15:07:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=aSYQ12Oo80P5tDdm12/W0Mlezhefvka4So73eJcX1+4=;
+ b=qeEx0pr1OtE+dOH2yPLAmfWLQ8Pq09rVQ9thU41fQGqzooFfM3vFd9L5gB9K8u9fhUJW
+ vbPBmybDvz6z/mL/Fp9fbupaKISPC5bw1z+fT4MhDrFYbJHyel3ZssV6EHApkiaBL+/m
+ MDIo927FPHiYjk6smCdqtOcYUtEQdsDs2WCRhXj7ESA9O92xfYA3GdSFsFZj4FPL3Y4t
+ 0WH5JqK20ZeT3vn/KTfGQWRDX1BHgAHOLe9dLdkJiNX8Jf7ZQ0GMG7oa6jWxZpJw5vr5
+ OuvIkB0dVzLeXEx+I7DXGRhEt4Cq2MAybfqAS6O2w3gQvtSC0kV3u3MBFaIu2UMsevzn xQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s3tk1rsy3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 27 Jul 2023 15:07:40 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36REhSLM014373;
+        Thu, 27 Jul 2023 15:07:40 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s3tk1rsx5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 27 Jul 2023 15:07:40 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36REnBj9014403;
+        Thu, 27 Jul 2023 15:07:38 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s0styenxm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 27 Jul 2023 15:07:38 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36RF7ZVk41288398
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 27 Jul 2023 15:07:35 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 300CA2004D;
+        Thu, 27 Jul 2023 15:07:35 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E36062004B;
+        Thu, 27 Jul 2023 15:07:34 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.66])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 27 Jul 2023 15:07:34 +0000 (GMT)
+Date:   Thu, 27 Jul 2023 17:07:24 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Steffen Eiden <seiden@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Michael Mueller <mimu@linux.vnet.ibm.com>,
+        Marc Hartmayer <mhartmay@linux.ibm.com>
+Subject: Re: [PATCH 3/3] KVM: s390: pv:  Allow AP-instructions for pv guests
+Message-ID: <20230727170724.7adb71fa@p-imbrenda>
+In-Reply-To: <20230727122053.774473-4-seiden@linux.ibm.com>
+References: <20230727122053.774473-1-seiden@linux.ibm.com>
+        <20230727122053.774473-4-seiden@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="hkodhcvqkudu4q33"
-Content-Disposition: inline
-In-Reply-To: <ZMFgZHsnhrXNIQ53@bombadil.infradead.org>
-X-Originating-IP: [106.210.248.223]
-X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
-        CAMSVWEXC02.scsc.local (2002:6a01:e348::6a01:e348)
-X-Brightmail-Tracker: H4sIAAAAAAAAA2WTe0xTZxjG951zes4pruxQDHxcIgrqEJDbCHwILC5Z2MlcAtn+cCHz0tAT
-        wEFLWlCmmQGmqDhcpQYBEQsy5LIBA6wDFsa6AeNiKZNtgG5CB0igUoGOcok46sHNZP/93vd5
-        ni/v88dH4+JV0pVOkqVxCpkk2ZO0I7RdKwN7g6U6aaB+cB/SZYah8e9yBahk4AyB6lrPYmiy
-        y0ihO4+sJLo4446GKp+Q6JlGjvovpiBzwTUMGbSXBOheawmJpnR5BFKVfYajSc2sAD1QVxLI
-        WG/G0GpVtwDp857hqKp/CkPDqkmAfjzXLkD99dkU6tI4oaU+E0D6pkUBGlcNEEhd1YyhtgvL
-        FPrL+ohEWf1aCq0tl5D7d7ClX51ir2UOEuzqig/bXD2CsS3Ff1CstmMXq2lMZ5uqfNjR2Si2
-        seYCybaMh7Oq8g7ATjcVAXZ+cpRgDZUmkjW3/0rGOsbZRUq55KTjnCLgzaN2iaqJLCz1iltG
-        Qf4SyAQFTrlASEMmBOpqVkEusKPFTBWAmpJh0iaIGQuAxutuvLAIYHbrEHiRWLNYCV64BeCC
-        cQz/1zV8R0vxw20A+1tLN2w0TTC74MOf3relScYPDpge4DbeynjDdlUeZvPjzA0hbPvaRNkE
-        R+YdOL9eTthYxITBrqudgGcH2FM08XyPMxlw6m4ZaXsfZ9zgrXXahkImFPZWePCHesEfKtYo
-        nj+Fvc2jGM+FW+Ci5j2e34YN5nObxRzhTHfzpt8d9qk/f14SMmoAv19/QvFDLYCVWX9vvhQB
-        zwxNbCbeguXrBsx2BGTs4fBjB/5Me5ivvYrzaxE8nyPm3bth7Z8mQgW8il8qVvxSseL/ivFr
-        P6hpW/j/2hdWls3iPEfBujozoQFUDXDm0pUpCZwySMad8FdKUpTpsgT/eHlKI9j4En3r3Qvf
-        gusz8/46gNFAB3ZuhI0NtQbgSsjkMs5zq6g3VicVi6SST05yCvkRRXoyp9QBN5rwdBb5RvXE
-        i5kESRr3McelcooXKkYLXTOxwLHTFmHhqyuN8tiwQx6n0koMX5qT9IVjhe1LO8KNIa/djg6Y
-        z349MuUNZUWZomWE8BUdHv8tLLTonjDYl7GmHlBbpNIPm34/ts1SMRhXLdi+bPpmMdLpl+Up
-        +wzrQXRpVth41hLjtWff3ajl4tWOnw99JJJVJwnEsvPvRvc0aEOZ1IzLnhEGnAu0iktdlO7Z
-        4P7joC05Lt2B03V+vtNuTZ3h+VA/F2N09Tqau8fsfWQ24APtzQO7Y3K8w4KrXQSnn25v0GGK
-        Tv8GD6dXxAePRXRtUx93rp6by1uLi7kcfz8kbu8NQQE1SLdG78dF9Q+/qD1ZmFgzcvhE4JpM
-        7jCc8NSTUCZKgnxwhVLyD3dk40WNBAAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA2WSe0xTVxzHd+69vS0O5rU8PAMStcPBcFzayuOAoMu2zItxiZnLNll8VHsH
-        OtpiHwwkzrphXHGwYs14jlRAVsQUbRWETcY6HhkQqHMoIITHVlBg6VC3ykMYtVlmsv8+5/d9
-        nJOTHw/nF5GBvMNyNauUS9IE5Cqia6ljOEIstUmF9268iGzaWDT2fS4HlfXmEMjcdApDjvZx
-        LmqYdJHozFQw+rX6TxItGxWo+4wMOb8uxZC9Pp+DbjWVkWjClkcg/fnPceQwTnPQkKGaQON1
-        TgzNmzo4qCdvGUem7gkM9esdAP10upmDuus+46J2YwD6u2sGoB7rQw4a0/cSyGC6iqHvdI+5
-        6DfXJIlOdtdz0cLjMvK1DUz5pWymVHuTYObnwpmrNQMY01gyzGXqWzYyRouGsZrCmcHpRMZy
-        UUcyjWNxjL6iBTD3rMWAmXUMEoy9eoZknM195C7fZDpBqdCo2fWpCpU6UfChCIlpURyixVFx
-        tGhz7N54cbQgcmuClE07nMEqI7ceoFP7+wuw9LNBmYOlWkwLzgXkAi8epKLgwiMXkQtW8fjU
-        BQBdI9eBRwiGVx71cTzsCxdv55Ie0yyANRWLuOdwDcD8vMoVF49HUBvhSOs77gBJvQp7Z4Zw
-        N/tRYbBZn4e5/Tj1jRecu2Qg3IIvtR3OLlU8ZR8qFrYXtgFP6QMA680W3COsgT8X//7UhFMZ
-        cPTOZcx9GU4FwW+XeG70omJgZ9U6z0Nfgj9WLXA9fBw+fDIB9MC35JmikmeKSv4r8ozDYf/S
-        /f+PN8Hq89O4hxOh2ewkjIB7EfixGpUsRaYS0SqJTKWRp9CHFDILWFnL+vY563VQPjVL2wDG
-        AzYQspIcv1xrB4GEXCFnBX4+nbtsUr6PVJJ1jFUq9is1aazKBqJXPrEAD/Q/pFjZcbl6vyhG
-        GC2KiokTRsfFbBas9UlK/0LCp1IkavZjlk1nlf/mMJ5XoBarFST17BT6T+7IjPSeCqWHKoOm
-        W9ue57acoOePvmev09wRrlve9yAYM1x7/3TOEfPEkcq7YYlLHxy9ad2QVHw/U2/Yk7OYNzBV
-        sqm8eBsI2f1Lti8Tei7NMapzJuu+yuR0phcMh2ypMiSHqe1N8R0ZJ18WzDMWjbOoLUM3QI32
-        5Xc08LKNf+AHvQsHJ6188U5OBHzBsi1LaHrryq3AnN3eN2qPW/pDHca+avunF3SNyuKANyvX
-        CFpeD+byUw6euj0zNBUyOjC2fl/0jiDzgYIfntBfip/z/0hbiCWYiu7ueXcmK8S/wTWX9EnX
-        2WM+dWvfbt+yOuJEa3C88K9X/N7o3DtSIyBUqRJROK5USf4Bb+3wOysEAAA=
-X-CMS-MailID: 20230727123354eucas1p17dfd7ad69206f1e22095fa2fa74cc46c
-X-Msg-Generator: CA
-X-RootMTR: 20230726140709eucas1p2033d64aec69a1962fd7e64c57ad60adc
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20230726140709eucas1p2033d64aec69a1962fd7e64c57ad60adc
-References: <20230726140635.2059334-1-j.granados@samsung.com>
-        <CGME20230726140709eucas1p2033d64aec69a1962fd7e64c57ad60adc@eucas1p2.samsung.com>
-        <20230726140635.2059334-12-j.granados@samsung.com>
-        <ZMFgZHsnhrXNIQ53@bombadil.infradead.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ahMfcDCuictviPyL4jnUzi4OK03ojXcN
+X-Proofpoint-GUID: vDFG3mWrVj0JMJ-l9rCfGaNlKAqO43yL
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-27_07,2023-07-26_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ suspectscore=0 phishscore=0 adultscore=0 priorityscore=1501 clxscore=1015
+ mlxscore=0 spamscore=0 bulkscore=0 mlxlogscore=999 malwarescore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2307270135
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
---hkodhcvqkudu4q33
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, 27 Jul 2023 14:20:53 +0200
+Steffen Eiden <seiden@linux.ibm.com> wrote:
 
-On Wed, Jul 26, 2023 at 11:05:24AM -0700, Luis Chamberlain wrote:
-> On Wed, Jul 26, 2023 at 04:06:31PM +0200, Joel Granados wrote:
-> > This is part of the effort to remove the sentinel (last empty) element
-> > from the ctl_table arrays. We update to the new function and pass it the
-> > array size. Care is taken to mirror the NULL assignments with a size of
-> > zero (for the unprivileged users). An additional size function was added
-> > to the following files in order to calculate the size of an array that
-> > is defined in another file:
-> >     include/net/ipv6.h
-> >     net/ipv6/icmp.c
-> >     net/ipv6/route.c
-> >     net/ipv6/sysctl_net_ipv6.c
-> >=20
->=20
-> Same here as with the other patches, the "why" and size impact should go =
-here.
-> I'll skip mentioning that in the other patches.
-Indeed. FYI: I answered in your original feedback.
+> Introduces new feature bits and enablement flags for AP and AP IRQ
+> support.
+> 
+> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/uv.h | 12 +++++++++++-
+>  arch/s390/kvm/pv.c         |  8 ++++++--
+>  2 files changed, 17 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+> index 338845402324..913ccfaa9d76 100644
+> --- a/arch/s390/include/asm/uv.h
+> +++ b/arch/s390/include/asm/uv.h
+> @@ -99,6 +99,8 @@ enum uv_cmds_inst {
+>  enum uv_feat_ind {
+>  	BIT_UV_FEAT_MISC = 0,
+>  	BIT_UV_FEAT_AIV = 1,
+> +	BIT_UV_FEAT_AP = 4,
+> +	BIT_UV_FEAT_AP_INTR = 5,
+>  };
+>  
+>  struct uv_cb_header {
+> @@ -159,7 +161,15 @@ struct uv_cb_cgc {
+>  	u64 guest_handle;
+>  	u64 conf_base_stor_origin;
+>  	u64 conf_virt_stor_origin;
+> -	u64 reserved30;
+> +	u8  reserved30[6];
+> +	union {
+> +		struct {
+> +			u16 reserved : 14;
+> +			u16 ap_instr_intr : 1;
+> +			u16 ap_allow_instr : 1;
+> +		};
+> +		u16 raw;
+> +	} flags;
+>  	u64 guest_stor_origin;
+>  	u64 guest_stor_len;
+>  	u64 guest_sca;
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> index 899f3b8ac011..103add1894c9 100644
+> --- a/arch/s390/kvm/pv.c
+> +++ b/arch/s390/kvm/pv.c
+> @@ -561,12 +561,16 @@ int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+>  	uvcb.conf_base_stor_origin =
+>  		virt_to_phys((void *)kvm->arch.pv.stor_base);
+>  	uvcb.conf_virt_stor_origin = (u64)kvm->arch.pv.stor_var;
+> +	uvcb.flags.ap_allow_instr = uv_has_feature(BIT_UV_FEAT_AP) &&
+> +				    kvm->arch.model.uv_feat_guest.ap;
 
->=20
-> > diff --git a/net/mpls/af_mpls.c b/net/mpls/af_mpls.c
-> > index bf6e81d56263..5bad14b3c71e 100644
-> > --- a/net/mpls/af_mpls.c
-> > +++ b/net/mpls/af_mpls.c
-> > @@ -1396,6 +1396,40 @@ static const struct ctl_table mpls_dev_table[] =
-=3D {
-> >  	{ }
-> >  };
-> > =20
-> > +static int mpls_platform_labels(struct ctl_table *table, int write,
-> > +				void *buffer, size_t *lenp, loff_t *ppos);
-> > +#define MPLS_NS_SYSCTL_OFFSET(field)		\
-> > +	(&((struct net *)0)->field)
-> > +
-> > +static const struct ctl_table mpls_table[] =3D {
-> > +	{
-> > +		.procname	=3D "platform_labels",
-> > +		.data		=3D NULL,
-> > +		.maxlen		=3D sizeof(int),
-> > +		.mode		=3D 0644,
-> > +		.proc_handler	=3D mpls_platform_labels,
-> > +	},
-> > +	{
-> > +		.procname	=3D "ip_ttl_propagate",
-> > +		.data		=3D MPLS_NS_SYSCTL_OFFSET(mpls.ip_ttl_propagate),
-> > +		.maxlen		=3D sizeof(int),
-> > +		.mode		=3D 0644,
-> > +		.proc_handler	=3D proc_dointvec_minmax,
-> > +		.extra1		=3D SYSCTL_ZERO,
-> > +		.extra2		=3D SYSCTL_ONE,
-> > +	},
-> > +	{
-> > +		.procname	=3D "default_ttl",
-> > +		.data		=3D MPLS_NS_SYSCTL_OFFSET(mpls.default_ttl),
-> > +		.maxlen		=3D sizeof(int),
-> > +		.mode		=3D 0644,
-> > +		.proc_handler	=3D proc_dointvec_minmax,
-> > +		.extra1		=3D SYSCTL_ONE,
-> > +		.extra2		=3D &ttl_max,
-> > +	},
-> > +	{ }
-> > +};
->=20
-> Unless we hear otherwise from networking folks, I think this move alone
-> should probably go as a separate patch with no functional changes to
-> make the changes easier to review / bisect.
+how can it happen that uv_feat_guest.ap is set but
+uv_has_feature(BIT_UV_FEAT_AP) is 0 ?
 
-Ok. I'll take it out in its own commit and prepend it as a preparation
-patch.
+in the previous patch you check for the feature before allowing the bit
+to be set.
 
-thx for the feedback
-Best
+> +	uvcb.flags.ap_instr_intr = uv_has_feature(BIT_UV_FEAT_AP_INTR) &&
+> +				   kvm->arch.model.uv_feat_guest.ap_intr;
 
-Joel Granados
+same here
 
---hkodhcvqkudu4q33
-Content-Type: application/pgp-signature; name="signature.asc"
+>  
+>  	cc = uv_call_sched(0, (u64)&uvcb);
+>  	*rc = uvcb.header.rc;
+>  	*rrc = uvcb.header.rrc;
+> -	KVM_UV_EVENT(kvm, 3, "PROTVIRT CREATE VM: handle %llx len %llx rc %x rrc %x",
+> -		     uvcb.guest_handle, uvcb.guest_stor_len, *rc, *rrc);
+> +	KVM_UV_EVENT(kvm, 3, "PROTVIRT CREATE VM: handle %llx len %llx rc %x rrc %x flags %04x",
+> +		     uvcb.guest_handle, uvcb.guest_stor_len, *rc, *rrc, uvcb.flags.raw);
+>  
+>  	/* Outputs */
+>  	kvm->arch.pv.handle = uvcb.guest_handle;
 
------BEGIN PGP SIGNATURE-----
-
-iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmTCZC8ACgkQupfNUreW
-QU++Cgv+L+FesAof5vpcRR2uXQ6W1aCB2JYlyD4lhEiA2jdr7vqQcYM5arelBnZ3
-zLPO574TF5h9CcWe/fec4Cxt5UqisMDcprEwz867PZjsAnbEYD1at9ECzkPSWi+6
-FFh9/UJA1Trh3xlYmuGMt7QCfGauxBj/8uX2uvCZYCfdLkms1Fl7tznqCdYowhNy
-HfWTnAAg7obXUhb9TcrmYmrcKdAvU7julEHblDunvyamW78pfLwBZf0QMiJD0rJA
-y4u3GMOeNvK4cWOZXZcTkGDmL3J19POwGEER3WCqBzNZKgMkZwlMOxcF1ExXZMze
-OUWv0MnkaqJCBqpX+ZoAmtpV14hCV6Hd8jyh9ACVIrwm1IBqz3Kznpis7HvX8S+c
-LLuBb7Cn5CDNHQ+Y293dIhjVYhY4nYQ8l9K3N4GKj53ge6/zCfFgYGKnDdv310gO
-tqje0Ur0CQwUR47VCq23yqJ/FrNvokpoDLcsDZ+T0vVsx6Ekj8SoQlH3V3FaBEiN
-1/E+oc6T
-=hoeA
------END PGP SIGNATURE-----
-
---hkodhcvqkudu4q33--
