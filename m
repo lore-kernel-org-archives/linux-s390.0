@@ -2,92 +2,133 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F95AC04FDF
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Jul 2023 10:38:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DE2EC001DC
+	for <linux-s390@archiver.kernel.org>; Thu, 27 Jul 2023 11:36:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234352AbjG0KiW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Jul 2023 06:38:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34388 "EHLO
+        id S232193AbjG0LgT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Jul 2023 07:36:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233332AbjG0KiO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jul 2023 06:38:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E2AB26A6;
-        Thu, 27 Jul 2023 03:38:13 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5B8761DD3;
-        Thu, 27 Jul 2023 10:38:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2484BC433C7;
-        Thu, 27 Jul 2023 10:38:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1690454292;
-        bh=wh4ycVHyDy/meMpcFy2ujkA7FnfZIbKiF964oBpVy5w=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=la4Lmi/DhdfArnUIJ/DbZ78SFqaneHcZNAsl7vyC6Bp1sh+e4HQI8e4jBnieO39j6
-         Rmq90io/GLqGoqqH4KkgjJEuKDDwP558rmmvSt0FVF7KhEbTHcezlFb9UppkdHYSda
-         jhi/dMRwdDkMKonZJKiGKFXJNLOHTIEijgJrGqqlhNsPV0MkiTVFgniC59vxFaHMe+
-         /PgQ2nYibh/PpeGMNXJPhBkYhxE3bGCCuiviuqMrlry/Jp24MyFm3S6udZz5sJhaZ+
-         s1t/etXhC/mU8K1VZK7pw57PG4j5iKPd/L4jWewp3rgGuvPk9cYY28p/tSjAv5ikoK
-         B2c9Xn3Ycs/Lg==
-Date:   Thu, 27 Jul 2023 12:37:58 +0200
-From:   Christian Brauner <brauner@kernel.org>
-To:     Aleksa Sarai <cyphar@cyphar.com>
-Cc:     Alexey Gladkov <legion@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, linux-api@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk,
-        Palmer Dabbelt <palmer@sifive.com>,
-        James.Bottomley@hansenpartnership.com, acme@kernel.org,
-        alexander.shishkin@linux.intel.com, axboe@kernel.dk,
-        benh@kernel.crashing.org, borntraeger@de.ibm.com, bp@alien8.de,
-        catalin.marinas@arm.com, christian@brauner.io, dalias@libc.org,
-        davem@davemloft.net, deepa.kernel@gmail.com, deller@gmx.de,
-        dhowells@redhat.com, fenghua.yu@intel.com, fweimer@redhat.com,
-        geert@linux-m68k.org, glebfm@altlinux.org, gor@linux.ibm.com,
-        hare@suse.com, hpa@zytor.com, ink@jurassic.park.msu.ru,
-        jhogan@kernel.org, kim.phillips@arm.com, ldv@altlinux.org,
-        linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux@armlinux.org.uk, linuxppc-dev@lists.ozlabs.org,
-        luto@kernel.org, mattst88@gmail.com, mingo@redhat.com,
-        monstr@monstr.eu, mpe@ellerman.id.au, namhyung@kernel.org,
-        paulus@samba.org, peterz@infradead.org, ralf@linux-mips.org,
-        sparclinux@vger.kernel.org, stefan@agner.ch, tglx@linutronix.de,
-        tony.luck@intel.com, tycho@tycho.ws, will@kernel.org,
-        x86@kernel.org, ysato@users.sourceforge.jp
-Subject: Re: [PATCH v4 3/5] arch: Register fchmodat2, usually as syscall 452
-Message-ID: <20230727-fangen-olympiade-85fcbdaf03d7@brauner>
-References: <cover.1689074739.git.legion@kernel.org>
- <cover.1689092120.git.legion@kernel.org>
- <a677d521f048e4ca439e7080a5328f21eb8e960e.1689092120.git.legion@kernel.org>
- <nbtxxotfsotuiepm7r4tegc4hy5qxe4dfjuqq7rm6qkkevooxh@4hacgjwit4or>
+        with ESMTP id S231163AbjG0LgT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jul 2023 07:36:19 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ADC510DB;
+        Thu, 27 Jul 2023 04:36:17 -0700 (PDT)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36RBXTlA013624;
+        Thu, 27 Jul 2023 11:35:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : references : date : in-reply-to : message-id : content-type :
+ mime-version; s=pp1; bh=n77xLrBjesMnqc8Ua0RijNJREe5KgIP06dXhf+Po4jI=;
+ b=Jzp7tHA2fE4y3z4d8hBRWxWU4QkgvSPT7PvaRbfANllP6nf0im0JqzIbO0wIFigN5dsD
+ MG6LJsmqFEJBufS2T2tIXLUQKeP14g1BT/vrHyZNCkly0H2L7PcHZOrpbpfVc9Vgfxp3
+ r9nC3/CK8CdRANGyiEv1NLBcz+tqz7LxYtskFFE8LTbd7a0x8/KRPF0445abYFZoLhp5
+ y5Qh7ZRhyL3qmk2jm+tiFmds3COfdea5rtVwRVNSSAkAMW4VyWDZ0gXnWmYHiE8gcNYc
+ ezWaKRR1IrXMTmm80YyU4dsznbjeVvl1UdOBxJWKykmRM/2HlIinvPgXk7EiwqYtLqqf Sg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s3qn609mk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 27 Jul 2023 11:35:55 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36RBOhwA021459;
+        Thu, 27 Jul 2023 11:35:55 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s3qn609k4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 27 Jul 2023 11:35:55 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36RBWAGp003634;
+        Thu, 27 Jul 2023 11:35:53 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s0txkcyg1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 27 Jul 2023 11:35:53 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36RBZpYP50659618
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 27 Jul 2023 11:35:51 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9496020043;
+        Thu, 27 Jul 2023 11:35:51 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1C49620040;
+        Thu, 27 Jul 2023 11:35:51 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Thu, 27 Jul 2023 11:35:51 +0000 (GMT)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Ryan Roberts <ryan.roberts@arm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Yin Fengwei <fengwei.yin@intel.com>,
+        Yu Zhao <yuzhao@google.com>, Yang Shi <shy828301@gmail.com>,
+        "Huang, Ying" <ying.huang@intel.com>, Zi Yan <ziy@nvidia.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v1] mm: Fix use-after-free for MMU_GATHER_NO_GATHER
+References: <20230727110224.3333682-1-ryan.roberts@arm.com>
+        <b3e305e9-26c3-d4f4-d0ce-79d79d98afe2@redhat.com>
+Date:   Thu, 27 Jul 2023 13:35:50 +0200
+In-Reply-To: <b3e305e9-26c3-d4f4-d0ce-79d79d98afe2@redhat.com> (David
+        Hildenbrand's message of "Thu, 27 Jul 2023 13:15:27 +0200")
+Message-ID: <yt9dcz0dbn8p.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 1fMRO_cBvEkR_-lCWMaUkQPrL7-Znlwz
+X-Proofpoint-GUID: MMyYcl_1-ZH4XEtHsy1_2Tnl6VRhg6oA
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <nbtxxotfsotuiepm7r4tegc4hy5qxe4dfjuqq7rm6qkkevooxh@4hacgjwit4or>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-27_06,2023-07-26_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 malwarescore=0
+ suspectscore=0 bulkscore=0 mlxlogscore=418 impostorscore=0
+ priorityscore=1501 spamscore=0 mlxscore=0 adultscore=0 phishscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2307270103
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jul 26, 2023 at 02:43:41AM +1000, Aleksa Sarai wrote:
-> On 2023-07-11, Alexey Gladkov <legion@kernel.org> wrote:
-> > From: Palmer Dabbelt <palmer@sifive.com>
-> > 
-> > This registers the new fchmodat2 syscall in most places as nuber 452,
-> > with alpha being the exception where it's 562.  I found all these sites
-> > by grepping for fspick, which I assume has found me everything.
-> 
-> Shouldn't this patch be squashed with the patch that adds the syscall?
-> At least, that's how I've usually seen it done...
+Ryan,
 
-Depends. Iirc, someone said they'd prefer for doing it in one patch
-in some circumstances on some system call we added years ago. But otoh,
-having the syscall wiring done separately makes it easy for arch
-maintainers to ack only the wiring up part. Both ways are valid imho.
-(cachestat() did it for x86 and then all the others separately. So
-really it seems a bit all over the place depending on the scenario.)
+David Hildenbrand <david@redhat.com> writes:
+
+> On 27.07.23 13:02, Ryan Roberts wrote:
+>> The recent change to batch-zap anonymous ptes did not take into account
+>> that for platforms where MMU_GATHER_NO_GATHER is enabled (e.g. s390),
+>> __tlb_remove_page() drops a reference to the page. This means that the
+>> folio reference count can drop to zero while still in use (i.e. before
+>> folio_remove_rmap_range() is called). This does not happen on other
+>> platforms because the actual page freeing is deferred.
+>> Solve this by appropriately getting/putting the folio to guarrantee
+>> it
+>> does not get freed early.
+>> Given the new need to get/put the folio in the batch path, let's
+>> stick
+>> to the non-batched path if the folio is not large. In this case batching
+>> is not helpful since the batch size is 1.
+>> Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
+>> Fixes: 904d9713b3b0 ("mm: batch-zap large anonymous folio PTE mappings")
+>> Reported-by: Nathan Chancellor <nathan@kernel.org>
+>> Link: https://lore.kernel.org/linux-mm/20230726161942.GA1123863@dev-arch.thelio-3990X/
+>> ---
+>> Hi Andrew,
+>> This fixes patch 3 in the series at [1], which is currently in
+>> mm-unstable. I'm
+>> not sure whether you want to take the fix or whether I should re-post the entire
+>> series?
+>> 
+>
+> Please repost the complete thing, you're touching some sensible places
+> that really need decent review.
+
+Please also add:
+
+Alexander Gordeev <agordeev@linux.ibm.com>
+Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+
+when reposting. Thanks!
