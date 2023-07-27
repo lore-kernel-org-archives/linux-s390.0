@@ -2,154 +2,215 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A57B6C41513
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Jul 2023 12:21:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A41EC0015E
+	for <linux-s390@archiver.kernel.org>; Thu, 27 Jul 2023 12:22:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233864AbjG0MVE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Jul 2023 08:21:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57374 "EHLO
+        id S233025AbjG0MWd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Jul 2023 08:22:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233852AbjG0MVD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jul 2023 08:21:03 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD56D2D57;
-        Thu, 27 Jul 2023 05:21:00 -0700 (PDT)
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36RBC5W5015215;
-        Thu, 27 Jul 2023 12:21:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=cHznHBeE+R8xjomVQ6O9ndPfcAnMTKcymdFjhf9yEfI=;
- b=S1fwyoajDTA+pvMJ30JAOWqEuPNBLCOonRBOumABJvayv8p7+L97NH0oQOAnBU08YJu0
- EGNLlQcPMgE59da0RfQlkk6+LXapEknLx0kFnhYfSd9K1DPBsuIMB9DlMJ7zpvzFe1kx
- +WL93WeJn51rWcc6fpqM66SIaiF96tyNM7paSl8PrqRe3L19GTLnf1icdEL+knPd8wbz
- bbKDCdRuo0jjTY/bqENtUcAFStq22bjeWyk3xz6EMEggikMcQlrzPsWOuDUOICmr9jGy
- Ts4myIuiP8Z49jSCdHMJKdzDHnr4e9NL8scWt4zvJSi9pMUxnH54CUnD/MB8q1ZnPg2r Bg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s3qg81u8d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jul 2023 12:20:59 +0000
-Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36RC5uMq008730;
-        Thu, 27 Jul 2023 12:20:59 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s3qg81u7s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jul 2023 12:20:59 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36RBFdRr003624;
-        Thu, 27 Jul 2023 12:20:58 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s0txkd8p1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jul 2023 12:20:58 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36RCKtMQ61866242
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 27 Jul 2023 12:20:55 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EBD2A20040;
-        Thu, 27 Jul 2023 12:20:54 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B3B612004B;
-        Thu, 27 Jul 2023 12:20:54 +0000 (GMT)
-Received: from a46lp73.lnxne.boe (unknown [9.152.108.100])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 27 Jul 2023 12:20:54 +0000 (GMT)
-From:   Steffen Eiden <seiden@linux.ibm.com>
-To:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Michael Mueller <mimu@linux.vnet.ibm.com>,
-        Marc Hartmayer <mhartmay@linux.ibm.com>
-Subject: [PATCH 3/3] KVM: s390: pv:  Allow AP-instructions for pv guests
-Date:   Thu, 27 Jul 2023 14:20:53 +0200
-Message-Id: <20230727122053.774473-4-seiden@linux.ibm.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230727122053.774473-1-seiden@linux.ibm.com>
-References: <20230727122053.774473-1-seiden@linux.ibm.com>
+        with ESMTP id S233921AbjG0MWb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jul 2023 08:22:31 -0400
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC1A73A9C;
+        Thu, 27 Jul 2023 05:22:07 -0700 (PDT)
+Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
+        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20230727122204euoutp01c1300deceb0647d29e9f84fa39a09ce3~1uOP6PDUE0931709317euoutp01R;
+        Thu, 27 Jul 2023 12:22:04 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20230727122204euoutp01c1300deceb0647d29e9f84fa39a09ce3~1uOP6PDUE0931709317euoutp01R
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1690460524;
+        bh=UNpV9Xfy6rp5fo9PV60OHzWHjUdlfdxrbzjpXgfrMzE=;
+        h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+        b=J6gXorgabGEge6zNvEh5HCvYIAXt+h44UjgRfdyRmGIcen/8tve5J8MNYg0AJ7mmv
+         sXN+b6zRCzTdalmNd0Aa2J+1Jf04UiYIXGXv6mrewSZQayMhOJkiLqcdwtn3vYh/nL
+         uTuVZeVf7kEL1+9EhCJ61bAh1Mz5znOWmnARoQtw=
+Received: from eusmges1new.samsung.com (unknown [203.254.199.242]) by
+        eucas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20230727122204eucas1p1cab21b16ee35e3c5ec2c7b5e885da187~1uOPs5hFJ0682006820eucas1p1s;
+        Thu, 27 Jul 2023 12:22:04 +0000 (GMT)
+Received: from eucas1p1.samsung.com ( [182.198.249.206]) by
+        eusmges1new.samsung.com (EUCPMTA) with SMTP id ED.EC.42423.B6162C46; Thu, 27
+        Jul 2023 13:22:04 +0100 (BST)
+Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
+        eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
+        20230727122203eucas1p2853f35c6361a8ff038a9c18f029426c3~1uOPIozYY0928709287eucas1p2k;
+        Thu, 27 Jul 2023 12:22:03 +0000 (GMT)
+Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
+        eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20230727122203eusmtrp1bc81063491283ffdfd5d2cc34cb2a542~1uOPHcLuJ2541825418eusmtrp1u;
+        Thu, 27 Jul 2023 12:22:03 +0000 (GMT)
+X-AuditID: cbfec7f2-a3bff7000002a5b7-a7-64c2616b8f92
+Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
+        eusmgms2.samsung.com (EUCPMTA) with SMTP id 93.C9.14344.B6162C46; Thu, 27
+        Jul 2023 13:22:03 +0100 (BST)
+Received: from CAMSVWEXC02.scsc.local (unknown [106.1.227.72]) by
+        eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+        20230727122203eusmtip1272296c5a534d5b122bea29b4cbc9ca3~1uOOxtg841066510665eusmtip1g;
+        Thu, 27 Jul 2023 12:22:03 +0000 (GMT)
+Received: from localhost (106.210.248.223) by CAMSVWEXC02.scsc.local
+        (2002:6a01:e348::6a01:e348) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
+        Thu, 27 Jul 2023 13:22:02 +0100
+Date:   Thu, 27 Jul 2023 14:22:00 +0200
+From:   Joel Granados <j.granados@samsung.com>
+To:     Luis Chamberlain <mcgrof@kernel.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Kees Cook <keescook@chromium.org>,
+        Iurii Zaikin <yzaikin@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, <willy@infradead.org>,
+        <josh@joshtriplett.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <linux-fsdevel@vger.kernel.org>, <netdev@vger.kernel.org>
+Subject: Re: [PATCH 06/14] sysctl: Add size to register_sysctl
+Message-ID: <20230727122200.r5o2mj5qgah5yfwm@localhost>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: f2Yxwkr6ANsnTVZd19B702BuRpnj4Vfk
-X-Proofpoint-GUID: --diftdoVCpbiT8hMDgrhoRpTvGSeNsY
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-27_06,2023-07-26_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- lowpriorityscore=0 phishscore=0 mlxlogscore=999 adultscore=0
- suspectscore=0 clxscore=1015 impostorscore=0 priorityscore=1501 mlxscore=0
- spamscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2306200000 definitions=main-2307270108
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="eyp7i2qlh4lxb2ih"
+Content-Disposition: inline
+In-Reply-To: <ZMFexmOcfyORkRRs@bombadil.infradead.org>
+X-Originating-IP: [106.210.248.223]
+X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
+        CAMSVWEXC02.scsc.local (2002:6a01:e348::6a01:e348)
+X-Brightmail-Tracker: H4sIAAAAAAAAA2WSfUxTVxjGd3pvbwuz5FoaOQPmlgL7UISZMHYWhI25hOuyGWLiEliG6+gN
+        MmjL+qGAWcCVbq4CqUOZVMBWtCjUMkphUzeQRltpF4oOFzTUiMgyKF8WZHwMHOWyzWT//d7n
+        fZ6857m5XIzfRoRzc6VKWi4V5QuJYLzDsdC7LV9kF792ZhJDre5RAg0v2wk0ZSoHqNZThqMR
+        xwMO6tPPsZG6oYVAvvomgJ4YZOiXoxLU11HJRtbh39jop597cPTr5VoC6YxqDA3oRgByGDah
+        Ofc4QKaWixxUNvg6WppfNZgu7X57E2WuNwPqVOlNnLJduMOiDFYV1XZ+C3XXl0xZm74hKN2Z
+        q4DqqjNzqLazJdRU522CmrFuTt+QGbxDTOfnHqDl8SmfBO/3ac6xC34IK7RdKcVLgSNUC4K4
+        kEyAF0pdmBYEc/nkeQD1R7Q4M8wCODLpXN/MAGh1tLK0gLsW0U4/y+iNAC5qfKx/Td5RD4cZ
+        2gGcufQ1K3AEJ2Pg8Nh1IsAEGQs944NYgAXkK7BTV7GWxkg1AfX3eonAiVAyBfo9WQEPj3wD
+        dk60AYY3wp6ah3iAMbIQ2jQDnIAdIyNg4wo3IAeRidB8/C/AdIuC3WeXOAx/AV22u2unIHkx
+        GNa4y9cX78IOr3udQ+GY07bOkdBdVY4zgSoAu1amOczQDKDp8GMW40qCZf0P1xOp0LxQQzDf
+        KAQOTGxkHhoCv+34DmNkHjzyFZ9xvwSb743jOhClf6qa/qlq+v+qMXIsNFzxE/+Tt0KT0Ycx
+        nAwtlincADhNIIxWKSQ5tGK7lD4YpxBJFCppTly2TGIFq/+ye8Xp/xHUjT2KswMWF9hB9Gr4
+        wffNfSAcl8qktFDAc6XbxXyeWFRUTMtl++SqfFphBxFcXBjG25rck80nc0RKOo+mC2j5P1sW
+        Nyi8lCVZUl2PnC//uGGDKkteffWxoN3x2cG3LD33Lb6bKbPvHf8wYZeW542c7z5UO5hxgowQ
+        VLa3fvT7fG+1P+m+87JMU2W8o7mxL4l964Awa0/I+yXHEq5FSkKNkx3m1GMtmbM5yzdO5tXF
+        vLl3llR+IHYdffTMyZUK3uJpr77Bn4lXDBYdKhk+lTi9cC2+hMqWD6UtZcdK+tMs8frUrNt5
+        glue7pFPX+7uby6OTSuae1Gd4XjOXa2uLMgAQ67l9E7vq0P1o30ROxYnDEoyupVvYxXadu5+
+        slO8+fPo/sPOmBeUrr1N4UF2Gd174p36P7vinlc0fpm4Laruj5qhc8ZdZZG5xfFCXLFftH0L
+        JleI/gZGqk93RgQAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrPKsWRmVeSWpSXmKPExsVy+t/xu7rZiYdSDKbeFbfYePolm8Xjv4fY
+        LN4v62G0mHO+hcXi6bFH7BYXZn1jtWhevJ7N4vW8VYwW/xfkW5zpzrW4sK2P1WLT42usFnv2
+        nmSxuLxrDpvFhIXNzBY3JjxltDi2QMzi2+k3jBbL1q9lt2i5Y2rx+wdQwbKdfg5iHmvmrWH0
+        mN1wkcVjy8qbTB4LNpV6bF6h5XHrta3HplWdbB4TFh1g9Ng/dw27x+Yl9R7v911l8/i8SS6A
+        J0rPpii/tCRVISO/uMRWKdrQwkjP0NJCz8jEUs/Q2DzWyshUSd/OJiU1J7MstUjfLkEvo//F
+        SbaCreIVe94uZm1gPCLcxcjBISFgItH1gbuLkYtDSGApo8SqeTcZuxg5geIyEhu/XGWFsIUl
+        /lzrYoMo+sgoMfv4ZmYIZyujxLkNK8E6WARUJR6/OsoGYrMJ6Eicf3OHGcQWEdCQ2Dehlwmk
+        gVmgmU1i1r1zbCCrhQXsJD6djwOp4RUwl9j3djMj3Iap2z+yQCQEJU7OfAJmMwuUSXy6eYkV
+        pJdZQFpi+T8OkDCngJnEmil/oK5Wlji45Dc7hF0r8fnvM8YJjMKzkEyahWTSLIRJEGEtiRv/
+        XjJhCGtLLFv4mhnCtpVYt+49ywJG9lWMIqmlxbnpucVGesWJucWleel6yfm5mxiBqWnbsZ9b
+        djCufPVR7xAjEwfjIUYVoM5HG1ZfYJRiycvPS1US4T0VcChFiDclsbIqtSg/vqg0J7X4EKMp
+        MBQnMkuJJucDk2ZeSbyhmYGpoYmZpYGppZmxkjivZ0FHopBAemJJanZqakFqEUwfEwenVAOT
+        nMbRahHFNTc0OO+l352SzvB/VjCn0DaJ0vr/Gb8K3tyrDxO3l3vjv8XU31Li57a+Vof4mwtf
+        sv6ab5sY+/CFw7XQLQ9jd5qn13Bk/Dx2r6xc9l1Y2qHbEwV4FnobL84J3H3ne57az+n/mSbt
+        KpZcH+yzVHm1YMbuaekLbjmzri5eMsvlrU5OwN/1Ub4qa9fKrkrY+GjPOvkp64+6+u1IUP5x
+        T+jrqf/CIcJxFvuThL27alYLfHvyfubbBR9/BrPJxipu+ViySIPv5AuptnWfW8zUXjUczX/X
+        /LKBTfvQktSX/8y+sy7UcUxfcI/psu7pE099TXIepdiqH+I4zJRrsmLDzJffpDbl9ZTl+W/+
+        psRSnJFoqMVcVJwIAIjZKqXiAwAA
+X-CMS-MailID: 20230727122203eucas1p2853f35c6361a8ff038a9c18f029426c3
+X-Msg-Generator: CA
+X-RootMTR: 20230726140659eucas1p2c3cd9f57dd13c71ddeb78d2480587e72
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20230726140659eucas1p2c3cd9f57dd13c71ddeb78d2480587e72
+References: <20230726140635.2059334-1-j.granados@samsung.com>
+        <CGME20230726140659eucas1p2c3cd9f57dd13c71ddeb78d2480587e72@eucas1p2.samsung.com>
+        <20230726140635.2059334-7-j.granados@samsung.com>
+        <ZMFexmOcfyORkRRs@bombadil.infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Introduces new feature bits and enablement flags for AP and AP IRQ
-support.
+--eyp7i2qlh4lxb2ih
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
----
- arch/s390/include/asm/uv.h | 12 +++++++++++-
- arch/s390/kvm/pv.c         |  8 ++++++--
- 2 files changed, 17 insertions(+), 3 deletions(-)
+On Wed, Jul 26, 2023 at 10:58:30AM -0700, Luis Chamberlain wrote:
+> On Wed, Jul 26, 2023 at 04:06:26PM +0200, Joel Granados wrote:
+> > In order to remove the end element from the ctl_table struct arrays, we
+> > replace the register_syctl function with a macro that will add the
+> > ARRAY_SIZE to the new register_sysctl_sz function. In this way the
+> > callers that are already using an array of ctl_table structs do not have
+> > to change. We *do* change the callers that pass the ctl_table array as a
+> > pointer.
+>=20
+> Thanks for doing this and this series!
+>=20
+> > Signed-off-by: Joel Granados <j.granados@samsung.com>
+> > ---
+> > diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+> > index 0495c858989f..b1168ae281c9 100644
+> > --- a/include/linux/sysctl.h
+> > +++ b/include/linux/sysctl.h
+> > @@ -215,6 +215,9 @@ struct ctl_path {
+> >  	const char *procname;
+> >  };
+> > =20
+> > +#define register_sysctl(path, table)	\
+> > +	register_sysctl_sz(path, table, ARRAY_SIZE(table))
+> > +
+> >  #ifdef CONFIG_SYSCTL
+>=20
+> Wasn't it Greg who had suggested this? Maybe add Suggested-by with him
+> on it.
+Yes. I mentioned him in the cover letter and did not add the tag because
+I had not asked for permission to use it. I'll drop him a mail and
+include the suggested-by if he agrees.
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 338845402324..913ccfaa9d76 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -99,6 +99,8 @@ enum uv_cmds_inst {
- enum uv_feat_ind {
- 	BIT_UV_FEAT_MISC = 0,
- 	BIT_UV_FEAT_AIV = 1,
-+	BIT_UV_FEAT_AP = 4,
-+	BIT_UV_FEAT_AP_INTR = 5,
- };
- 
- struct uv_cb_header {
-@@ -159,7 +161,15 @@ struct uv_cb_cgc {
- 	u64 guest_handle;
- 	u64 conf_base_stor_origin;
- 	u64 conf_virt_stor_origin;
--	u64 reserved30;
-+	u8  reserved30[6];
-+	union {
-+		struct {
-+			u16 reserved : 14;
-+			u16 ap_instr_intr : 1;
-+			u16 ap_allow_instr : 1;
-+		};
-+		u16 raw;
-+	} flags;
- 	u64 guest_stor_origin;
- 	u64 guest_stor_len;
- 	u64 guest_sca;
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index 899f3b8ac011..103add1894c9 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -561,12 +561,16 @@ int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
- 	uvcb.conf_base_stor_origin =
- 		virt_to_phys((void *)kvm->arch.pv.stor_base);
- 	uvcb.conf_virt_stor_origin = (u64)kvm->arch.pv.stor_var;
-+	uvcb.flags.ap_allow_instr = uv_has_feature(BIT_UV_FEAT_AP) &&
-+				    kvm->arch.model.uv_feat_guest.ap;
-+	uvcb.flags.ap_instr_intr = uv_has_feature(BIT_UV_FEAT_AP_INTR) &&
-+				   kvm->arch.model.uv_feat_guest.ap_intr;
- 
- 	cc = uv_call_sched(0, (u64)&uvcb);
- 	*rc = uvcb.header.rc;
- 	*rrc = uvcb.header.rrc;
--	KVM_UV_EVENT(kvm, 3, "PROTVIRT CREATE VM: handle %llx len %llx rc %x rrc %x",
--		     uvcb.guest_handle, uvcb.guest_stor_len, *rc, *rrc);
-+	KVM_UV_EVENT(kvm, 3, "PROTVIRT CREATE VM: handle %llx len %llx rc %x rrc %x flags %04x",
-+		     uvcb.guest_handle, uvcb.guest_stor_len, *rc, *rrc, uvcb.flags.raw);
- 
- 	/* Outputs */
- 	kvm->arch.pv.handle = uvcb.guest_handle;
--- 
-2.40.1
+>=20
+> Also, your cover letter and first few patches are not CC'd to the netdev
+> list or others. What you want to do is collect all the email addresses
+> for this small patch series and add them to who you email for your
+> entire series, otherwise at times they won't be able to properly review
+> or understand the exact context of the changes. You want folks to do less
+> work to review, not more.
+Here I wanted to avoid very big e-mail headers as I have received
+rejections from lists in the past. But I for this set, the number of
+e-mails is ok to just include everyone.
 
+I'll do that for V2.
+thx for your feedback
+
+best
+
+>=20
+> So please resend and add others to the other patches.
+>=20
+>   Luis
+
+--=20
+
+Joel Granados
+
+--eyp7i2qlh4lxb2ih
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmTCYWMACgkQupfNUreW
+QU8CPgwAkr6P3axpBPzX0iTBJ2K6Cnt/H3xegrsFZtH2oCi5BcL3GjmmatTKqded
+N1XCtc6Cch2GBr3e9GXx2jz4884QGHZWiVta+8sxBtE4Jme+mRk0j14Z9jl9v1Zf
+9aYK2G2xPzhvaQcnRXh8n1dJOoJcLZLT8hb8JypNJ4R63yyiHSFZkqv8vNpriRDm
+4dL1P8z24wQKNiD5RlKJ1zq7BfCLg7JbwMmacKCxjQ8INWMP+1NAtmazejQbh7Ui
+VPXWkXWT2xyVrd18l4LhEYCCqckk7mJjuyzHUE5F3IXb1bdjuyNWZSJDuREBaA6Y
+FCpirpaUH7agFN6SzrZkDJ9ZTA4ZVTKvXUrHBza3mUBAojd34rFvZxLXFDdAhLM0
+8qdyB7DVLJs7q7NY8LVOyDnL/mhWQPU9pBdSPPDKb4qf9uRedOEhJtcD/7ez1jSg
+1xdxVoMk7YSI+NMQa/fMHGtNixyCydeZgp6A7Bjh5iRHH79cB6nQqVhBIABASO2l
+Exrcwht1
+=hAeI
+-----END PGP SIGNATURE-----
+
+--eyp7i2qlh4lxb2ih--
