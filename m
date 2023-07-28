@@ -2,75 +2,118 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99E41C001DE
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Jul 2023 08:46:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E413C001DE
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Jul 2023 09:27:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234997AbjG1Iqc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Jul 2023 04:46:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43436 "EHLO
+        id S235536AbjG1J1L (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Jul 2023 05:27:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233771AbjG1IqG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jul 2023 04:46:06 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF843585
-        for <linux-s390@vger.kernel.org>; Fri, 28 Jul 2023 01:45:09 -0700 (PDT)
-Received: from dggpemm500018.china.huawei.com (unknown [172.30.72.53])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4RC1MT49zSzNmdG;
-        Fri, 28 Jul 2023 16:41:41 +0800 (CST)
-Received: from dggpemm500007.china.huawei.com (7.185.36.183) by
- dggpemm500018.china.huawei.com (7.185.36.111) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27; Fri, 28 Jul 2023 16:45:05 +0800
-Received: from huawei.com (10.175.103.91) by dggpemm500007.china.huawei.com
- (7.185.36.183) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Fri, 28 Jul
- 2023 16:45:04 +0800
-From:   Yang Yingliang <yangyingliang@huawei.com>
-To:     <linux-s390@vger.kernel.org>
-CC:     <hca@linux.ibm.com>, <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
-        <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>,
-        <anastasia.eskova@ibm.com>, <oberpar@linux.ibm.com>,
-        <yangyingliang@huawei.com>
-Subject: [PATCH -next] s390/cert_store: fix error return code in fill_cs_keyring()
-Date:   Fri, 28 Jul 2023 16:42:28 +0800
-Message-ID: <20230728084228.3186083-1-yangyingliang@huawei.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S234779AbjG1J0q (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jul 2023 05:26:46 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DFB63AA9;
+        Fri, 28 Jul 2023 02:23:47 -0700 (PDT)
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36S9EC02012984;
+        Fri, 28 Jul 2023 09:23:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=LWxQ1EEos2cV97Yv0h3NvRp8id3vWdJ7k6pejvwldaw=;
+ b=T3vRAJQRjBEqjxJux0b+10LOFR6Xk2Oox1qPuMVKzNohUA4XlcNnq5HaoQkbOjPrpDrA
+ ESq1iKXpCg/pg4R0S4oHsH2OGZniR+hZ3zx1q7RbPKaibk9SPi8t19ObrcOQxndjNB84
+ nqhuqKPLyxo3tOdJzsO/IWGBaxa8NWk5JfFZoG2ZtzO0pWpnULndKXDvkAhHTDeLLzeI
+ /Sbg1sIb2IgcZ9sAfWJz1z5bomVUdhi7ww/x/1yXOWY4EGfY336Zg3kgWmsIKqo5oUSX
+ uKb5mZ9m/7seivkNEIkJwrkGo5esELIt2E9FqIP0jRWifG8j3Fn/+6ybTNiPGnbDcJlh rA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s4av287s8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 28 Jul 2023 09:23:46 +0000
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36S9EFXC013116;
+        Fri, 28 Jul 2023 09:23:46 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s4av287rx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 28 Jul 2023 09:23:46 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36S6vmov002013;
+        Fri, 28 Jul 2023 09:23:45 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s0tenmt96-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 28 Jul 2023 09:23:45 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36S9NgHJ17957578
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 28 Jul 2023 09:23:42 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 11BC42004E;
+        Fri, 28 Jul 2023 09:23:42 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A2E1E20040;
+        Fri, 28 Jul 2023 09:23:41 +0000 (GMT)
+Received: from a46lp73.lnxne.boe (unknown [9.152.108.100])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 28 Jul 2023 09:23:41 +0000 (GMT)
+From:   Steffen Eiden <seiden@linux.ibm.com>
+To:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Michael Mueller <mimu@linux.vnet.ibm.com>,
+        Marc Hartmayer <mhartmay@linux.ibm.com>
+Subject: [PATCH v2 0/3]  KVM: s390: Enable AP instructions for pv-guests
+Date:   Fri, 28 Jul 2023 11:23:38 +0200
+Message-Id: <20230728092341.1131787-1-seiden@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.103.91]
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- dggpemm500007.china.huawei.com (7.185.36.183)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: lB25_JTRQGoTL_y296AgFA60HxuWfoRE
+X-Proofpoint-GUID: LbtxkgT84I9fGprDZYHAaVsMSjdCtcgj
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-27_10,2023-07-26_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 bulkscore=0
+ priorityscore=1501 lowpriorityscore=0 suspectscore=0 phishscore=0
+ mlxlogscore=533 impostorscore=0 clxscore=1015 adultscore=0 mlxscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2307280082
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The 'rc' will be re-assigned to 0 after calling get_vcssb(), it
-needs be set to error code if create_cs_keyring() fails.
+This series enables general KVM support for AP-passthrough for Secure
+Execution guests (pv-guests).
 
-Fixes: 8cf57d7217c3 ("s390: add support for user-defined certificates")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
----
- arch/s390/kernel/cert_store.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+To enable AP inside pv-guests two things have to be done/considered:
+	1) set corresponding flags in the Create Secure Configuration UVC ifi
+     firmware supports AP for pv-guests (patch 3).
+	2) enable/disable AP in pv-guests if the VMM wants this (patch 2).
 
-diff --git a/arch/s390/kernel/cert_store.c b/arch/s390/kernel/cert_store.c
-index 1cbeb9ce0eb1..38ad11c2be12 100644
---- a/arch/s390/kernel/cert_store.c
-+++ b/arch/s390/kernel/cert_store.c
-@@ -703,8 +703,10 @@ static int fill_cs_keyring(void)
- 		goto cleanup_keys;
- 
- 	cs_keyring = create_cs_keyring();
--	if (!cs_keyring)
-+	if (!cs_keyring) {
-+		rc = -ENOMEM;
- 		goto cleanup_keys;
-+	}
- 
- 	rc = add_certificates_to_keyring(vcssb, cs_keyring);
- 	if (rc)
+since v1:
+  - PATCH 1: r-b from Claudio
+  - PATCH 2: fixed formatting issues (Claudio)
+  - PATCH 3: removed unnecessary checks (Claudio)
+
+Steffen
+
+Steffen Eiden (3):
+  s390: uv: UV feature check utility
+  KVM: s390: Add UV feature negotiation
+  KVM: s390: pv:  Allow AP-instructions for pv guests
+
+ arch/s390/include/asm/kvm_host.h |  2 ++
+ arch/s390/include/asm/uv.h       | 17 ++++++++-
+ arch/s390/include/uapi/asm/kvm.h | 25 +++++++++++++
+ arch/s390/kernel/uv.c            |  2 +-
+ arch/s390/kvm/kvm-s390.c         | 62 +++++++++++++++++++++++++++++++-
+ arch/s390/kvm/pv.c               |  6 ++--
+ arch/s390/mm/fault.c             |  2 +-
+ 7 files changed, 110 insertions(+), 6 deletions(-)
+
 -- 
-2.25.1
+2.40.1
 
