@@ -2,141 +2,75 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 011A9C04A94
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Jul 2023 08:44:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99E41C001DE
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Jul 2023 08:46:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234919AbjG1IoU convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Jul 2023 04:44:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42288 "EHLO
+        id S234997AbjG1Iqc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Jul 2023 04:46:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233958AbjG1IoG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jul 2023 04:44:06 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF2DD3A8D
-        for <linux-s390@vger.kernel.org>; Fri, 28 Jul 2023 01:44:03 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-66-QuWuNYGHMBmrzfdm4fjM8A-1; Fri, 28 Jul 2023 09:44:01 +0100
-X-MC-Unique: QuWuNYGHMBmrzfdm4fjM8A-1
-Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
- (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Fri, 28 Jul
- 2023 09:43:58 +0100
-Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
- id 15.00.1497.048; Fri, 28 Jul 2023 09:43:58 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Aleksa Sarai' <cyphar@cyphar.com>,
-        Alexey Gladkov <legion@kernel.org>
-CC:     LKML <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        "James.Bottomley@hansenpartnership.com" 
-        <James.Bottomley@hansenpartnership.com>,
-        "acme@kernel.org" <acme@kernel.org>,
-        "alexander.shishkin@linux.intel.com" 
-        <alexander.shishkin@linux.intel.com>,
-        "axboe@kernel.dk" <axboe@kernel.dk>,
-        "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
-        "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>,
-        "bp@alien8.de" <bp@alien8.de>,
-        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-        "christian@brauner.io" <christian@brauner.io>,
-        "dalias@libc.org" <dalias@libc.org>,
-        "davem@davemloft.net" <davem@davemloft.net>,
-        "deepa.kernel@gmail.com" <deepa.kernel@gmail.com>,
-        "deller@gmx.de" <deller@gmx.de>,
-        "dhowells@redhat.com" <dhowells@redhat.com>,
-        "fenghua.yu@intel.com" <fenghua.yu@intel.com>,
-        "fweimer@redhat.com" <fweimer@redhat.com>,
-        "geert@linux-m68k.org" <geert@linux-m68k.org>,
-        "glebfm@altlinux.org" <glebfm@altlinux.org>,
-        "gor@linux.ibm.com" <gor@linux.ibm.com>,
-        "hare@suse.com" <hare@suse.com>, "hpa@zytor.com" <hpa@zytor.com>,
-        "ink@jurassic.park.msu.ru" <ink@jurassic.park.msu.ru>,
-        "jhogan@kernel.org" <jhogan@kernel.org>,
-        "kim.phillips@arm.com" <kim.phillips@arm.com>,
-        "ldv@altlinux.org" <ldv@altlinux.org>,
-        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
-        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
-        "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "luto@kernel.org" <luto@kernel.org>,
-        "mattst88@gmail.com" <mattst88@gmail.com>,
-        "mingo@redhat.com" <mingo@redhat.com>,
-        "monstr@monstr.eu" <monstr@monstr.eu>,
-        "mpe@ellerman.id.au" <mpe@ellerman.id.au>,
-        "namhyung@kernel.org" <namhyung@kernel.org>,
-        "paulus@samba.org" <paulus@samba.org>,
-        "peterz@infradead.org" <peterz@infradead.org>,
-        "ralf@linux-mips.org" <ralf@linux-mips.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        "stefan@agner.ch" <stefan@agner.ch>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "tony.luck@intel.com" <tony.luck@intel.com>,
-        "tycho@tycho.ws" <tycho@tycho.ws>,
-        "will@kernel.org" <will@kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "ysato@users.sourceforge.jp" <ysato@users.sourceforge.jp>,
-        Palmer Dabbelt <palmer@sifive.com>
-Subject: RE: [PATCH v4 2/5] fs: Add fchmodat2()
-Thread-Topic: [PATCH v4 2/5] fs: Add fchmodat2()
-Thread-Index: AQHZwLFLeKGBJJpK+0qJRy2agWp2qK/O266A
-Date:   Fri, 28 Jul 2023 08:43:58 +0000
-Message-ID: <dc48b40748e24d3799e7ee66fa7e8cb4@AcuMS.aculab.com>
-References: <cover.1689074739.git.legion@kernel.org>
- <cover.1689092120.git.legion@kernel.org>
- <f2a846ef495943c5d101011eebcf01179d0c7b61.1689092120.git.legion@kernel.org>
- <njnhwhgmsk64e6vf3ur7fifmxlipmzez3r5g7ejozsrkbwvq7w@tu7w3ieystcq>
- <ZMEjlDNJkFpYERr1@example.org>
- <20230727.041348-imposing.uptake.velvet.nylon-712tDwzCAbCCoSGx@cyphar.com>
- <20230727.173441-loving.habit.lame.acrobat-V6VTPe8G4FRI@cyphar.com>
-In-Reply-To: <20230727.173441-loving.habit.lame.acrobat-V6VTPe8G4FRI@cyphar.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S233771AbjG1IqG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jul 2023 04:46:06 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF843585
+        for <linux-s390@vger.kernel.org>; Fri, 28 Jul 2023 01:45:09 -0700 (PDT)
+Received: from dggpemm500018.china.huawei.com (unknown [172.30.72.53])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4RC1MT49zSzNmdG;
+        Fri, 28 Jul 2023 16:41:41 +0800 (CST)
+Received: from dggpemm500007.china.huawei.com (7.185.36.183) by
+ dggpemm500018.china.huawei.com (7.185.36.111) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.27; Fri, 28 Jul 2023 16:45:05 +0800
+Received: from huawei.com (10.175.103.91) by dggpemm500007.china.huawei.com
+ (7.185.36.183) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Fri, 28 Jul
+ 2023 16:45:04 +0800
+From:   Yang Yingliang <yangyingliang@huawei.com>
+To:     <linux-s390@vger.kernel.org>
+CC:     <hca@linux.ibm.com>, <gor@linux.ibm.com>, <agordeev@linux.ibm.com>,
+        <borntraeger@linux.ibm.com>, <svens@linux.ibm.com>,
+        <anastasia.eskova@ibm.com>, <oberpar@linux.ibm.com>,
+        <yangyingliang@huawei.com>
+Subject: [PATCH -next] s390/cert_store: fix error return code in fill_cs_keyring()
+Date:   Fri, 28 Jul 2023 16:42:28 +0800
+Message-ID: <20230728084228.3186083-1-yangyingliang@huawei.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.103.91]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ dggpemm500007.china.huawei.com (7.185.36.183)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-...
-> FWIW, I agree with Christian that these behaviours are not ideal (and
-> I'm working on a series that might allow for these things to be properly
-> blocked in the future) but there's also the consistency argument -- I
-> don't think fchownat() is much safer to allow in this way than
-> fchmodat() and (again) this behaviour is already possible through
-> procfs.
+The 'rc' will be re-assigned to 0 after calling get_vcssb(), it
+needs be set to error code if create_cs_keyring() fails.
 
-If the 'through procfs' involves readlink("/proc/self/fd/n") and
-accessing through the returned path then the permission checks
-are different.
-Using the returned path requires search permissions on all the
-directories.
+Fixes: 8cf57d7217c3 ("s390: add support for user-defined certificates")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+---
+ arch/s390/kernel/cert_store.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-This is all fine for xxxat() functions where a real open
-directory fd is supplied.
-But other cases definitely need a lot of thought to ensure
-they don't let programs acquire permissions they aren't
-supposed to have.
-
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+diff --git a/arch/s390/kernel/cert_store.c b/arch/s390/kernel/cert_store.c
+index 1cbeb9ce0eb1..38ad11c2be12 100644
+--- a/arch/s390/kernel/cert_store.c
++++ b/arch/s390/kernel/cert_store.c
+@@ -703,8 +703,10 @@ static int fill_cs_keyring(void)
+ 		goto cleanup_keys;
+ 
+ 	cs_keyring = create_cs_keyring();
+-	if (!cs_keyring)
++	if (!cs_keyring) {
++		rc = -ENOMEM;
+ 		goto cleanup_keys;
++	}
+ 
+ 	rc = add_certificates_to_keyring(vcssb, cs_keyring);
+ 	if (rc)
+-- 
+2.25.1
 
