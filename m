@@ -2,109 +2,105 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50C75C04A94
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Jul 2023 10:18:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55016C0015E
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Jul 2023 11:29:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235735AbjG1KS4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Jul 2023 06:18:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47592 "EHLO
+        id S232959AbjG1L3p (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Jul 2023 07:29:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235730AbjG1KSq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jul 2023 06:18:46 -0400
+        with ESMTP id S234994AbjG1L3j (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jul 2023 07:29:39 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 161C13A8B;
-        Fri, 28 Jul 2023 03:18:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C2B04216
+        for <linux-s390@vger.kernel.org>; Fri, 28 Jul 2023 04:29:22 -0700 (PDT)
 Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36S9E8W6023143;
-        Fri, 28 Jul 2023 09:14:18 GMT
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36SBK5Ow016453;
+        Fri, 28 Jul 2023 11:29:16 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=OPhaYHzj5yj1W013w+Tp+FkvxzlBGRyIkyGVGs57y4o=;
- b=ZetTmRIqrma/7XA4ZH+kNYIPcmEPCy+PQT9vdkK2KomOxafhTDiV8RgeQz6mAjKReBbY
- 8w7VazQBndaKyvzdfX7XgS7MnutNxnHUBu402eEeOE+RmQPAD59H8LyoRzocl0oWmRo5
- AVRq3ANvFIqh/TtgY49AeQqBX1AjaaUYpTwCf67680yO6aC8/jSIc7NYvrvvqFB2+Nkk
- 38nNs7/dsqk/2s+04Pyyf8hWnkqtCdhiP8dNMftjuSjO4IjwJBLRsjMifKBPRoGsUmdA
- 0kSQBdZNE/d2R4+M23jrVQOlLc7f2C7J/+lFRY8eD0NEJQO8TjVFg1EvTlGRunnUNQF1 zA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s4av1r043-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 Jul 2023 09:14:17 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36S9EGTW023444;
-        Fri, 28 Jul 2023 09:14:17 GMT
+ in-reply-to; s=pp1; bh=8Ncc0yMuXXFsnLW+gu+I/KHlbwW2iW0K16TLfKBqvHc=;
+ b=SIlpSODyfYsg15PNxJ1Fwzn41AjanL7j4VOFGp3DPV2oIy3K+9wgd+JFQszWQxK1pkPH
+ +S4ru/DSoxSYKeBgNGX+o5ZxU+ZlVhg0rkN65+FPJZP2LEzSpmJUBpTC7W1kZ/sszxp7
+ GJWyvuhOCwBBhZoM3cGl7AAmbTLZ8FLrVc6aykwpklQ9lpPyWU61doKzuKj/E0MamiD8
+ 3WLj8Xo6d8ezwNjaiGUwN+tVKeziGgpMPUKT1QFLLyVzOp3l3NloCfsDT6OD3lzYJ4mN
+ e1dnps/uAU7SZgsVN0aSxiQzYv86ueNizWE7kkd/oGSdn55C+e9lXlnn/2C+nsPan8sM 1g== 
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s4av1r03t-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s4cq686ss-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 Jul 2023 09:14:17 +0000
+        Fri, 28 Jul 2023 11:29:15 +0000
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36S8SEr2016574;
-        Fri, 28 Jul 2023 09:14:16 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3s0v51v74d-1
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36SAv6Lu016644;
+        Fri, 28 Jul 2023 11:29:12 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3s0v51w01p-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 Jul 2023 09:14:16 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36S9EDnU852494
+        Fri, 28 Jul 2023 11:29:12 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36SBT82u28050094
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 28 Jul 2023 09:14:13 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 346392004B;
-        Fri, 28 Jul 2023 09:14:13 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A651820040;
-        Fri, 28 Jul 2023 09:14:12 +0000 (GMT)
+        Fri, 28 Jul 2023 11:29:08 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 624C620049;
+        Fri, 28 Jul 2023 11:29:08 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F30512006C;
+        Fri, 28 Jul 2023 11:29:07 +0000 (GMT)
 Received: from osiris (unknown [9.171.95.61])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Fri, 28 Jul 2023 09:14:12 +0000 (GMT)
-Date:   Fri, 28 Jul 2023 11:14:11 +0200
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Fri, 28 Jul 2023 11:29:07 +0000 (GMT)
+Date:   Fri, 28 Jul 2023 13:29:06 +0200
 From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc:     Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Mete Durlu <meted@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] KVM: s390: fix sthyi error handling
-Message-ID: <20230728091411.6761-A-hca@linux.ibm.com>
-References: <20230727182939.2050744-1-hca@linux.ibm.com>
- <7fadab86-2b7c-b934-fcfa-61046c0778b6@linux.ibm.com>
+To:     Yang Yingliang <yangyingliang@huawei.com>
+Cc:     linux-s390@vger.kernel.org, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, anastasia.eskova@ibm.com,
+        oberpar@linux.ibm.com
+Subject: Re: [PATCH -next] s390/cert_store: fix error return code in
+ fill_cs_keyring()
+Message-ID: <20230728112906.6761-C-hca@linux.ibm.com>
+References: <20230728084228.3186083-1-yangyingliang@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <7fadab86-2b7c-b934-fcfa-61046c0778b6@linux.ibm.com>
+In-Reply-To: <20230728084228.3186083-1-yangyingliang@huawei.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Yhlxo3Fzz_wVPc7vqX0jBI8BPtWapXeO
-X-Proofpoint-GUID: qtzApPhxRoQY-Q3FoFeXXsn1FOdaF3hg
+X-Proofpoint-GUID: YX2a2BjlaizschVEhChl6xgchpe9E0q_
+X-Proofpoint-ORIG-GUID: YX2a2BjlaizschVEhChl6xgchpe9E0q_
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
  definitions=2023-07-27_10,2023-07-26_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
- bulkscore=0 spamscore=0 mlxlogscore=670 mlxscore=0 clxscore=1015
- impostorscore=0 malwarescore=0 lowpriorityscore=0 priorityscore=1501
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2306200000 definitions=main-2307280082
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=674 bulkscore=0
+ suspectscore=0 adultscore=0 phishscore=0 mlxscore=0 clxscore=1011
+ priorityscore=1501 malwarescore=0 spamscore=0 impostorscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2307280102
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jul 28, 2023 at 09:28:58AM +0200, Christian Borntraeger wrote:
-> Am 27.07.23 um 20:29 schrieb Heiko Carstens:
-> > Commit 9fb6c9b3fea1 ("s390/sthyi: add cache to store hypervisor info")
-> > added cache handling for store hypervisor info. This also changed the
-> > possible return code for sthyi_fill().
-> > 
-> > Instead of only returning a condition code like the sthyi instruction would
-> > do, it can now also return a negative error value (-ENOMEM). handle_styhi()
-> > was not changed accordingly. In case of an error, the negative error value
-> > would incorrectly injected into the guest PSW.
-> > 
-> > Add proper error handling to prevent this, and update the comment which
-> > describes the possible return values of sthyi_fill().
+On Fri, Jul 28, 2023 at 04:42:28PM +0800, Yang Yingliang wrote:
+> The 'rc' will be re-assigned to 0 after calling get_vcssb(), it
+> needs be set to error code if create_cs_keyring() fails.
 > 
-> To me it looks like this can only happen if page allocation fails? This should
-> not happen in normal cases (and return -ENOMEM would likely kill the guest as
-> QEMU would stop).
-> But if it happens we better stop.
+> Fixes: 8cf57d7217c3 ("s390: add support for user-defined certificates")
+> Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+> ---
+>  arch/s390/kernel/cert_store.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/kernel/cert_store.c b/arch/s390/kernel/cert_store.c
+> index 1cbeb9ce0eb1..38ad11c2be12 100644
+> --- a/arch/s390/kernel/cert_store.c
+> +++ b/arch/s390/kernel/cert_store.c
+> @@ -703,8 +703,10 @@ static int fill_cs_keyring(void)
+>  		goto cleanup_keys;
+>  
+>  	cs_keyring = create_cs_keyring();
+> -	if (!cs_keyring)
+> +	if (!cs_keyring) {
+> +		rc = -ENOMEM;
+>  		goto cleanup_keys;
+> +	}
 
-Yes, no reason for any stable backports. But things might change in the
-future, so we better have correct error handling in place.
+Slightly changed your patch and applied. Thanks!
