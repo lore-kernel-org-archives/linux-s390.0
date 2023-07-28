@@ -2,152 +2,112 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D4EDC04E69
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Jul 2023 09:27:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AA7FC0015E
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Jul 2023 10:08:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235575AbjG1J1N (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Jul 2023 05:27:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43298 "EHLO
+        id S235646AbjG1KIj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Jul 2023 06:08:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235537AbjG1J0s (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jul 2023 05:26:48 -0400
+        with ESMTP id S235667AbjG1KId (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jul 2023 06:08:33 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04FF43ABB;
-        Fri, 28 Jul 2023 02:23:50 -0700 (PDT)
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36S9ED57013004;
-        Fri, 28 Jul 2023 09:23:50 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A71A35BE;
+        Fri, 28 Jul 2023 03:08:29 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36SA0Lvr012992;
+        Fri, 28 Jul 2023 10:08:24 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=63rTwmkr2qVe7KwT+feKFWstRl3xj4aK8vxWIKymnG4=;
- b=dY+fjPtwCIOK66MKYAh3WK4z7yb9royeyKifUXEIWzjgELJvFaPIqMUUDTSx0oEtJ1GX
- sL1F/Vb5jtaxPPTvgvneZP5JLJHW54UOQy7kucvIuwyczmcCG/GcGkmbsH3cZ3FEE6G6
- L3JIW3DyXnykQTd3fLjjoAumXRkhAGnY1fveYcnbDG9xIuM/GCi8a4bizmSTU07FrVl6
- wOUrLNTpMAdQZ3gNEetik3ReKMWotKE/rkjxlH5yKNumlxBHnDLt0heOCrlfmw7bR0td
- Uiser6rqDGDNr1SHT1EwhimFTKsMHH6tEgQHL8Qo+0aEmXeeCmX+ZNlL+tBQepNn+leY oA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s4av287te-1
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=dbBAn0k53uJ/BYXDD1DSxFo2/rut5EHR4rRggL0FDjA=;
+ b=q4Ougy3EiG2RiJ4L85kAt7R7qM1BOFBMzLOhrofnzA0fZtKDM7gc37HZ56bAktMzIUHv
+ J99759gYbBiLsnEdYZq1bq7hpnOApevF0d8wUpBVnNsnPWaOqfGAnKXcXxgeF9DbInSd
+ /OOo2LRGE+XVDvv+86kyhua9+kdJm/yJIDEVxpTEwMpIGN4Y2sxeljNfMR1sOvypSK8S
+ 2atS8B0WGYEN1XhK6gZY6vZhdLxmwOEKwgs3qCoeNVUFhG6HmJQpoPiSq/7BEYq93jax
+ UfjCsh/nvS94E9Z1RVwhhXzk8Eo3dUxHb2Py5tG5EPz2gqSRyHF9+XEKNEDxDUjZERx1 Cw== 
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s4bhn02rx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 Jul 2023 09:23:49 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36S9Eb65013823;
-        Fri, 28 Jul 2023 09:23:49 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s4av287tb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 Jul 2023 09:23:49 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36S96S1h001973;
-        Fri, 28 Jul 2023 09:23:48 GMT
+        Fri, 28 Jul 2023 10:08:23 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36S8mH3i014370;
+        Fri, 28 Jul 2023 10:04:45 GMT
 Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s0tenmt9f-1
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s0styn8xs-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 Jul 2023 09:23:48 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36S9NhIs22217188
+        Fri, 28 Jul 2023 10:04:45 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36SA4ebU44958338
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 28 Jul 2023 09:23:43 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5171120040;
-        Fri, 28 Jul 2023 09:23:43 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ED48D2004B;
-        Fri, 28 Jul 2023 09:23:42 +0000 (GMT)
-Received: from a46lp73.lnxne.boe (unknown [9.152.108.100])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 28 Jul 2023 09:23:42 +0000 (GMT)
-From:   Steffen Eiden <seiden@linux.ibm.com>
-To:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Michael Mueller <mimu@linux.vnet.ibm.com>,
-        Marc Hartmayer <mhartmay@linux.ibm.com>
-Subject: [PATCH v2 3/3] KVM: s390: pv:  Allow AP-instructions for pv guests
-Date:   Fri, 28 Jul 2023 11:23:41 +0200
-Message-Id: <20230728092341.1131787-4-seiden@linux.ibm.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230728092341.1131787-1-seiden@linux.ibm.com>
-References: <20230728092341.1131787-1-seiden@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Fri, 28 Jul 2023 10:04:41 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DE91920073;
+        Fri, 28 Jul 2023 10:04:40 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C9F4620065;
+        Fri, 28 Jul 2023 10:04:40 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Fri, 28 Jul 2023 10:04:40 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55390)
+        id 74D19E08A8; Fri, 28 Jul 2023 12:04:40 +0200 (CEST)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-next@vger.kernel.org,
+        Anastasia Eskova <anastasia.eskova@ibm.com>,
+        Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH] s390/certstore: select CRYPTO_LIB_SHA256
+Date:   Fri, 28 Jul 2023 12:04:30 +0200
+Message-Id: <20230728100430.1567328-1-svens@linux.ibm.com>
+X-Mailer: git-send-email 2.39.2
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: -6JNCO13xaNZtrM78yplKHeDftIjaaij
-X-Proofpoint-GUID: dQ61UrzSNg9TfuWsMkg0KnpQ-8Zb-wwE
+X-Proofpoint-ORIG-GUID: ITAXG5ig_Gbi4DDwOZgR5G1e8C13PZiy
+X-Proofpoint-GUID: ITAXG5ig_Gbi4DDwOZgR5G1e8C13PZiy
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
  definitions=2023-07-27_10,2023-07-26_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 bulkscore=0
- priorityscore=1501 lowpriorityscore=0 suspectscore=0 phishscore=0
- mlxlogscore=999 impostorscore=0 clxscore=1015 adultscore=0 mlxscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ mlxlogscore=999 spamscore=0 clxscore=1015 bulkscore=0 priorityscore=1501
+ mlxscore=0 adultscore=0 lowpriorityscore=0 impostorscore=0 phishscore=0
  malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2306200000 definitions=main-2307280082
+ engine=8.12.0-2306200000 definitions=main-2307280092
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Introduces new feature bits and enablement flags for AP and AP IRQ
-support.
+A build failure was reported when sha256() is not present:
 
-Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+gcc-13.1.0-nolibc/s390-linux/bin/s390-linux-ld: arch/s390/kernel/cert_store.o: in function `check_certificate_hash':
+arch/s390/kernel/cert_store.c:267: undefined reference to `sha256'
+
+Therefore make CONFIG_CERT_STORE select CRYPTO_LIB_SHA256.
+
+Fixes: 8cf57d7217c3 ("s390: add support for user-defined certificates")
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Closes: https://lore.kernel.org/all/8ecb57fb-4560-bdfc-9e55-63e3b0937132@infradead.org/
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
 ---
- arch/s390/include/asm/uv.h | 12 +++++++++++-
- arch/s390/kvm/pv.c         |  6 ++++--
- 2 files changed, 15 insertions(+), 3 deletions(-)
+ arch/s390/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 338845402324..913ccfaa9d76 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -99,6 +99,8 @@ enum uv_cmds_inst {
- enum uv_feat_ind {
- 	BIT_UV_FEAT_MISC = 0,
- 	BIT_UV_FEAT_AIV = 1,
-+	BIT_UV_FEAT_AP = 4,
-+	BIT_UV_FEAT_AP_INTR = 5,
- };
- 
- struct uv_cb_header {
-@@ -159,7 +161,15 @@ struct uv_cb_cgc {
- 	u64 guest_handle;
- 	u64 conf_base_stor_origin;
- 	u64 conf_virt_stor_origin;
--	u64 reserved30;
-+	u8  reserved30[6];
-+	union {
-+		struct {
-+			u16 reserved : 14;
-+			u16 ap_instr_intr : 1;
-+			u16 ap_allow_instr : 1;
-+		};
-+		u16 raw;
-+	} flags;
- 	u64 guest_stor_origin;
- 	u64 guest_stor_len;
- 	u64 guest_sca;
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index bf1fdc7bf89e..61d7712466c3 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -561,12 +561,14 @@ int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
- 	uvcb.conf_base_stor_origin =
- 		virt_to_phys((void *)kvm->arch.pv.stor_base);
- 	uvcb.conf_virt_stor_origin = (u64)kvm->arch.pv.stor_var;
-+	uvcb.flags.ap_allow_instr = kvm->arch.model.uv_feat_guest.ap;
-+	uvcb.flags.ap_instr_intr = kvm->arch.model.uv_feat_guest.ap_intr;
- 
- 	cc = uv_call_sched(0, (u64)&uvcb);
- 	*rc = uvcb.header.rc;
- 	*rrc = uvcb.header.rrc;
--	KVM_UV_EVENT(kvm, 3, "PROTVIRT CREATE VM: handle %llx len %llx rc %x rrc %x",
--		     uvcb.guest_handle, uvcb.guest_stor_len, *rc, *rrc);
-+	KVM_UV_EVENT(kvm, 3, "PROTVIRT CREATE VM: handle %llx len %llx rc %x rrc %x flags %04x",
-+		     uvcb.guest_handle, uvcb.guest_stor_len, *rc, *rrc, uvcb.flags.raw);
- 
- 	/* Outputs */
- 	kvm->arch.pv.handle = uvcb.guest_handle;
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index d9d50a7a2016..18bf754e1fad 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -516,6 +516,7 @@ config KEXEC_SIG
+ config CERT_STORE
+ 	bool "Get user certificates via DIAG320"
+ 	depends on KEYS
++	select CRYPTO_LIB_SHA256
+ 	help
+ 	  Enable this option if you want to access user-provided secure boot
+ 	  certificates via DIAG 0x320.
 -- 
-2.40.1
+2.39.2
 
