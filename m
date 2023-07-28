@@ -2,231 +2,141 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 156A1EB64DD
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Jul 2023 07:41:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 011A9C04A94
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Jul 2023 08:44:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233269AbjG1Hlz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Jul 2023 03:41:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34804 "EHLO
+        id S234919AbjG1IoU convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Jul 2023 04:44:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234352AbjG1Hlx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jul 2023 03:41:53 -0400
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1B7BB6;
-        Fri, 28 Jul 2023 00:41:50 -0700 (PDT)
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-        by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20230728074149euoutp02aa03f38d08b21dca519f3165493919e2~1_C1yISzF0427104271euoutp02S;
-        Fri, 28 Jul 2023 07:41:49 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20230728074149euoutp02aa03f38d08b21dca519f3165493919e2~1_C1yISzF0427104271euoutp02S
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1690530109;
-        bh=gb0miwVpBtIdFutOnqdv+X2fb1Y0tMg1ouc2sR7L3Os=;
-        h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-        b=jP0fYcKVCJeYDv1Gx0jUCRduXfY4vnQsfFN/589lOAwqqHmnGo95sviSApP85HqL/
-         b3N2mBa5tzSY5cdpqkjFos0iAVUm5SnHZIO0zPNk6R4D/CcfBpndnhSc1WHJDTctye
-         vKJqYYTTS5KjUdaB6JnaFL/A8rqxgZ8sffzJ83hk=
-Received: from eusmges3new.samsung.com (unknown [203.254.199.245]) by
-        eucas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20230728074148eucas1p2ae388ed7dc413903e0c928858d865465~1_C1hrfZu1594615946eucas1p28;
-        Fri, 28 Jul 2023 07:41:48 +0000 (GMT)
-Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
-        eusmges3new.samsung.com (EUCPMTA) with SMTP id 96.02.37758.C3173C46; Fri, 28
-        Jul 2023 08:41:48 +0100 (BST)
-Received: from eusmtrp2.samsung.com (unknown [182.198.249.139]) by
-        eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
-        20230728074148eucas1p119baa7ba630f26611d21a9a78aa4f48c~1_C1C-3SU2160921609eucas1p14;
-        Fri, 28 Jul 2023 07:41:48 +0000 (GMT)
-Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
-        eusmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20230728074148eusmtrp2dbb0a376f74c12352732d7535784f5c4~1_C1CM1wD1226012260eusmtrp2G;
-        Fri, 28 Jul 2023 07:41:48 +0000 (GMT)
-X-AuditID: cbfec7f5-815ff7000002937e-2e-64c3713cfa1f
-Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
-        eusmgms1.samsung.com (EUCPMTA) with SMTP id 1D.4C.10549.C3173C46; Fri, 28
-        Jul 2023 08:41:48 +0100 (BST)
-Received: from CAMSVWEXC02.scsc.local (unknown [106.1.227.72]) by
-        eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20230728074148eusmtip28b25f50dcc0ee88f4a41f3cc59f47298~1_C01TN9D2079920799eusmtip2G;
-        Fri, 28 Jul 2023 07:41:48 +0000 (GMT)
-Received: from localhost (106.210.248.223) by CAMSVWEXC02.scsc.local
-        (2002:6a01:e348::6a01:e348) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
-        Fri, 28 Jul 2023 08:41:47 +0100
-Date:   Fri, 28 Jul 2023 09:41:46 +0200
-From:   Joel Granados <j.granados@samsung.com>
-To:     Luis Chamberlain <mcgrof@kernel.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Kees Cook <keescook@chromium.org>,
-        Iurii Zaikin <yzaikin@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, <willy@infradead.org>,
-        <josh@joshtriplett.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        <linux-fsdevel@vger.kernel.org>, <netdev@vger.kernel.org>
-Subject: Re: [PATCH 06/14] sysctl: Add size to register_sysctl
-Message-ID: <20230728074146.lwapkrfyn2kqvyec@localhost>
+        with ESMTP id S233958AbjG1IoG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jul 2023 04:44:06 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF2DD3A8D
+        for <linux-s390@vger.kernel.org>; Fri, 28 Jul 2023 01:44:03 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-66-QuWuNYGHMBmrzfdm4fjM8A-1; Fri, 28 Jul 2023 09:44:01 +0100
+X-MC-Unique: QuWuNYGHMBmrzfdm4fjM8A-1
+Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
+ (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Fri, 28 Jul
+ 2023 09:43:58 +0100
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.048; Fri, 28 Jul 2023 09:43:58 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Aleksa Sarai' <cyphar@cyphar.com>,
+        Alexey Gladkov <legion@kernel.org>
+CC:     LKML <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
+        "James.Bottomley@hansenpartnership.com" 
+        <James.Bottomley@hansenpartnership.com>,
+        "acme@kernel.org" <acme@kernel.org>,
+        "alexander.shishkin@linux.intel.com" 
+        <alexander.shishkin@linux.intel.com>,
+        "axboe@kernel.dk" <axboe@kernel.dk>,
+        "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
+        "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>,
+        "bp@alien8.de" <bp@alien8.de>,
+        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+        "christian@brauner.io" <christian@brauner.io>,
+        "dalias@libc.org" <dalias@libc.org>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "deepa.kernel@gmail.com" <deepa.kernel@gmail.com>,
+        "deller@gmx.de" <deller@gmx.de>,
+        "dhowells@redhat.com" <dhowells@redhat.com>,
+        "fenghua.yu@intel.com" <fenghua.yu@intel.com>,
+        "fweimer@redhat.com" <fweimer@redhat.com>,
+        "geert@linux-m68k.org" <geert@linux-m68k.org>,
+        "glebfm@altlinux.org" <glebfm@altlinux.org>,
+        "gor@linux.ibm.com" <gor@linux.ibm.com>,
+        "hare@suse.com" <hare@suse.com>, "hpa@zytor.com" <hpa@zytor.com>,
+        "ink@jurassic.park.msu.ru" <ink@jurassic.park.msu.ru>,
+        "jhogan@kernel.org" <jhogan@kernel.org>,
+        "kim.phillips@arm.com" <kim.phillips@arm.com>,
+        "ldv@altlinux.org" <ldv@altlinux.org>,
+        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
+        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
+        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+        "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
+        "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "luto@kernel.org" <luto@kernel.org>,
+        "mattst88@gmail.com" <mattst88@gmail.com>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "monstr@monstr.eu" <monstr@monstr.eu>,
+        "mpe@ellerman.id.au" <mpe@ellerman.id.au>,
+        "namhyung@kernel.org" <namhyung@kernel.org>,
+        "paulus@samba.org" <paulus@samba.org>,
+        "peterz@infradead.org" <peterz@infradead.org>,
+        "ralf@linux-mips.org" <ralf@linux-mips.org>,
+        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
+        "stefan@agner.ch" <stefan@agner.ch>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "tony.luck@intel.com" <tony.luck@intel.com>,
+        "tycho@tycho.ws" <tycho@tycho.ws>,
+        "will@kernel.org" <will@kernel.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "ysato@users.sourceforge.jp" <ysato@users.sourceforge.jp>,
+        Palmer Dabbelt <palmer@sifive.com>
+Subject: RE: [PATCH v4 2/5] fs: Add fchmodat2()
+Thread-Topic: [PATCH v4 2/5] fs: Add fchmodat2()
+Thread-Index: AQHZwLFLeKGBJJpK+0qJRy2agWp2qK/O266A
+Date:   Fri, 28 Jul 2023 08:43:58 +0000
+Message-ID: <dc48b40748e24d3799e7ee66fa7e8cb4@AcuMS.aculab.com>
+References: <cover.1689074739.git.legion@kernel.org>
+ <cover.1689092120.git.legion@kernel.org>
+ <f2a846ef495943c5d101011eebcf01179d0c7b61.1689092120.git.legion@kernel.org>
+ <njnhwhgmsk64e6vf3ur7fifmxlipmzez3r5g7ejozsrkbwvq7w@tu7w3ieystcq>
+ <ZMEjlDNJkFpYERr1@example.org>
+ <20230727.041348-imposing.uptake.velvet.nylon-712tDwzCAbCCoSGx@cyphar.com>
+ <20230727.173441-loving.habit.lame.acrobat-V6VTPe8G4FRI@cyphar.com>
+In-Reply-To: <20230727.173441-loving.habit.lame.acrobat-V6VTPe8G4FRI@cyphar.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="23prfwofjqduce7c"
-Content-Disposition: inline
-In-Reply-To: <ZMKQSqeKNcJCqkDB@bombadil.infradead.org>
-X-Originating-IP: [106.210.248.223]
-X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
-        CAMSVWEXC02.scsc.local (2002:6a01:e348::6a01:e348)
-X-Brightmail-Tracker: H4sIAAAAAAAAA2WSfUxTVxjGc3pvb2+ZxUtp4AwIfxRnnCBsIO4kitkMyW7mR1iMc+jm1tm7
-        QoC2aykwN2M7Kp9OG5eM0DmstVRWPrq2SGQgriXho3WUDdjUoQsCcRMaFK2COBz11s1k/z3P
-        e37P+5EcEhO6iDgyX17MqOSSQjERgXf0Lfo3bPmkV/qK3bAROXx/EWjybw+B5qzHADrl1+No
-        uu8mDw0bH3BR+Vk7gWYabAA9MSnQ5doiNNxxnIuck79yUffFQRyN/HCKQIYz5Ri6YpgGqM8U
-        gx74ZgGy2lt5SD+eiZYWVgBr567XY+iWhhZAf6P9Gafbv7vKoU1ODe1qWk9fm8minbZqgjaY
-        fwT0pW9beLTLcoSe6xkj6HvOxJxV+yK2SJnC/BJGlbb1w4i8iflKrrIqscx2uhdogRvWAD4J
-        qY0wsNiP14AIUkg1AahzjBCsuQ9goPGLsLkHYJ1hAXsW8d6aDkfOATjR04v/S43X9mCsOQ+g
-        L3iXG4rg1EvQN9XFC2mCSoH+2fGnrUTUOthj+JITCmBUOQGNN4ZWBpJkNLUVzvsPhBgB9Ro0
-        G8e4rI6Cg/VTeEhjVBnsPtuKh3CMiofnlslQmU9tgr/VtRHspknQbVnisfow9LZfezoKUo4I
-        6KquBaEspLJhx+T7LBMNb/e3h/kE+KTzdJj/CsBLy3d4rGkG0KoLclhqM9SPToUTb8CWxXqC
-        bRoJrwSi2D0j4cmOOowtC2BVhZCl18LmG7O4ASQZn7vM+Nxlxv8uY8sp0NQ1T/yvnAytZ2Yw
-        VmfBtrY53AR4NhDLaNRFMkadIWdKU9WSIrVGLks9qChygpW/7FvuD14ATbfvpnoAhwQesGYl
-        fPP75mEQh8sVckYsEnhzPFKhQCr59BCjUnyg0hQyag+IJ3FxrCA5a/CgkJJJipkChlEyqmev
-        HJIfp+UoL+78iXO9MIgyib0Vek6pu7Px7Xo8b4fhzuDcZ4PZh4JdZdZ8R8HwUKPrxN7jOSaF
-        YZK/50VXF7O9WPsI/WlpyCw44UnapkkTjWSMPtrmDax++DHarYxyZ2dVngSlfxwb2E/kPp7/
-        6L2Cq5PuusOxfLPC+c7m9AO6CxpLvH3U9kvty6sqdoi0PavpDenbY49KFrviz6MMozm6XTRh
-        q9wpW3AnBszCPQ+PLg0N7CtNF3i/7naUqBIGZNn6+TFruVhHtOKPc0t2JboSEtNz/TFr3vKs
-        Tf89IaZGurwpufNWWoNyf871JKfZMiP+vNAxcj8/8oV3Vbpqu+3NI1WXTSliXJ0neXU9plJL
-        /gF0vnQuRgQAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrPKsWRmVeSWpSXmKPExsVy+t/xe7o2hYdTDH5sEbHYePolm8Xjv4fY
-        LN4v62G0mHO+hcXi6bFH7BYXZn1jtWhevJ7N4vW8VYwW/xfkW5zpzrW4sK2P1WLT42usFnv2
-        nmSxuLxrDpvFhIXNzBY3JjxltDi2QMzi2+k3jBbL1q9lt2i5Y2rx+wdQwbKdfg5iHmvmrWH0
-        mN1wkcVjy8qbTB4LNpV6bF6h5XHrta3HplWdbB4TFh1g9Ng/dw27x+Yl9R7v911l8/i8SS6A
-        J0rPpii/tCRVISO/uMRWKdrQwkjP0NJCz8jEUs/Q2DzWyshUSd/OJiU1J7MstUjfLkEv49ov
-        jYI2uYqFl78xNzDul+hi5OSQEDCROPX8KUsXIxeHkMBSRom7h/6yQiRkJDZ+uQplC0v8udbF
-        BlH0kVFi/70njBDOVkaJ+5M+sIBUsQioSpx+spsdxGYT0JE4/+YOM4gtIqAhsW9CLxNIA7NA
-        M5vErHvngEZxcAgL2El8Oh8HUsMrYC6xaBbINpChp5kk1v5ZxgSREJQ4OfMJ2AJmgTKJZRPe
-        s4P0MgtISyz/xwES5hQwk7g+fR0bxKXKEgeX/GaHsGslPv99xjiBUXgWkkmzkEyahTAJIqwl
-        cePfSyYMYW2JZQtfM0PYthLr1r1nWcDIvopRJLW0ODc9t9hQrzgxt7g0L10vOT93EyMwNW07
-        9nPzDsZ5rz7qHWJk4mA8xKgC1Plow+oLjFIsefl5qUoivKcCDqUI8aYkVlalFuXHF5XmpBYf
-        YjQFhuJEZinR5Hxg0swriTc0MzA1NDGzNDC1NDNWEuf1LOhIFBJITyxJzU5NLUgtgulj4uCU
-        amCaxzk98CTjwqqCHptk3efN3yM279V58FdZinsKz4m7q3l6GOq2bX93sfuN6LSjt6/1dvAw
-        CF6ViPji+SpGTq796J4Svv6VEl8DNqy5LuPDuXK9dc4xS9YjBRslZVzjDu9vnsYRdU12sqr+
-        maL6Y+vqW5OWlHK2sLfmMnadPn125fxXObWHPE6eLNW6wv/2i7V0tM+582c41Pte3Ui5X7mc
-        2dbWv154ycsnBp9nZK222qee9alCdmfD2g/PL3SwJZZYLVrzIWy/0N6zH4PbmdhOXnKdIKU1
-        YZ7hyt/7Jsrtvs1q3jAp+ZtqxZcJVSo+a+sddb91HAl4ltUw+2NWLvt9ncayGcf1HxZai2ea
-        XH2uxFKckWioxVxUnAgAgo+3peIDAAA=
-X-CMS-MailID: 20230728074148eucas1p119baa7ba630f26611d21a9a78aa4f48c
-X-Msg-Generator: CA
-X-RootMTR: 20230726140659eucas1p2c3cd9f57dd13c71ddeb78d2480587e72
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20230726140659eucas1p2c3cd9f57dd13c71ddeb78d2480587e72
-References: <20230726140635.2059334-1-j.granados@samsung.com>
-        <CGME20230726140659eucas1p2c3cd9f57dd13c71ddeb78d2480587e72@eucas1p2.samsung.com>
-        <20230726140635.2059334-7-j.granados@samsung.com>
-        <ZMFexmOcfyORkRRs@bombadil.infradead.org>
-        <20230727122200.r5o2mj5qgah5yfwm@localhost>
-        <ZMKQSqeKNcJCqkDB@bombadil.infradead.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
---23prfwofjqduce7c
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+...
+> FWIW, I agree with Christian that these behaviours are not ideal (and
+> I'm working on a series that might allow for these things to be properly
+> blocked in the future) but there's also the consistency argument -- I
+> don't think fchownat() is much safer to allow in this way than
+> fchmodat() and (again) this behaviour is already possible through
+> procfs.
 
-On Thu, Jul 27, 2023 at 08:42:02AM -0700, Luis Chamberlain wrote:
-> On Thu, Jul 27, 2023 at 02:22:00PM +0200, Joel Granados wrote:
-> > On Wed, Jul 26, 2023 at 10:58:30AM -0700, Luis Chamberlain wrote:
-> > > On Wed, Jul 26, 2023 at 04:06:26PM +0200, Joel Granados wrote:
-> > > > In order to remove the end element from the ctl_table struct arrays=
-, we
-> > > > replace the register_syctl function with a macro that will add the
-> > > > ARRAY_SIZE to the new register_sysctl_sz function. In this way the
-> > > > callers that are already using an array of ctl_table structs do not=
- have
-> > > > to change. We *do* change the callers that pass the ctl_table array=
- as a
-> > > > pointer.
-> > >=20
-> > > Thanks for doing this and this series!
-> > >=20
-> > > > Signed-off-by: Joel Granados <j.granados@samsung.com>
-> > > > ---
-> > > > diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-> > > > index 0495c858989f..b1168ae281c9 100644
-> > > > --- a/include/linux/sysctl.h
-> > > > +++ b/include/linux/sysctl.h
-> > > > @@ -215,6 +215,9 @@ struct ctl_path {
-> > > >  	const char *procname;
-> > > >  };
-> > > > =20
-> > > > +#define register_sysctl(path, table)	\
-> > > > +	register_sysctl_sz(path, table, ARRAY_SIZE(table))
-> > > > +
-> > > >  #ifdef CONFIG_SYSCTL
-> > >=20
-> > > Wasn't it Greg who had suggested this? Maybe add Suggested-by with him
-> > > on it.
-> > Yes. I mentioned him in the cover letter and did not add the tag because
-> > I had not asked for permission to use it. I'll drop him a mail and
-> > include the suggested-by if he agrees.
->=20
-> FWIW, I never ask, if they ask for it, clearly they suggested it.
-I was following Documentation/process/submitting-patches.rst:
-"... Please note that this tag should not be added without the
-reporter's permission... ".
-In any case, Greg has already said yes :)
+If the 'through procfs' involves readlink("/proc/self/fd/n") and
+accessing through the returned path then the permission checks
+are different.
+Using the returned path requires search permissions on all the
+directories.
 
->=20
-> > > Also, your cover letter and first few patches are not CC'd to the net=
-dev
-> > > list or others. What you want to do is collect all the email addresses
-> > > for this small patch series and add them to who you email for your
-> > > entire series, otherwise at times they won't be able to properly revi=
-ew
-> > > or understand the exact context of the changes. You want folks to do =
-less
-> > > work to review, not more.
-> > Here I wanted to avoid very big e-mail headers as I have received
-> > rejections from lists in the past. But I for this set, the number of
-> > e-mails is ok to just include everyone.
->=20
-> I hear that from time to time, if you have issues with adding folks on
-> the To address it may be an SMTP server issue, ie, corp email SMTP
-> server issues. To fix that I avoid corp email SMTP servers.
-My experience was more from the lists rejecting the e-mail because the
-header was too big. With that said, I'll look into SMTP alternatives to
-reduce possible errors
+This is all fine for xxxat() functions where a real open
+directory fd is supplied.
+But other cases definitely need a lot of thought to ensure
+they don't let programs acquire permissions they aren't
+supposed to have.
 
->=20
->   Luis
+	David
 
---=20
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
-Joel Granados
-
---23prfwofjqduce7c
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmTDcToACgkQupfNUreW
-QU8ebwv/XlR1FEHFz9SLvGQjHETNnsFs3RVx30G5KCg+zWiSQoVJOlNktqeQbH35
-CmMfVi3M7mt/wJZ8MiyXFowzmGqVF7lNCpOYIH4s8ppDEylmxhowVw8QKFYLd74Q
-SksNllHUi2tmbhnpH+YuIDL1HTPt+p6ejYhq3kCFTB2DbibH+1uCiNMTYTov3Hq0
-/sLMgb7zpqQviJPX0rR0ctXcwY2w04MQmyAjN4ot8qskmckzvLmoP3ILVFdvbkb/
-/+zuPvocJZxuizrgxUNbpcz7m+4v0yzbTMl+xRl2RnGfHIKNU/jGmT2mDPVAoaOj
-bb9PqgILxfxkhh6arsoTPt0HjTihLhGiJnxSGzyCBJzGjpF98y5g6PU52t0JGid9
-0kX4/EPh31hklspwHaqbhRqWafJy6iU5xW2FkjFHOAPfdEtpRK9Ubwh8Roxa9KR9
-EUjgl6+Bgg0TvcSOjxgEK7HmeudqheOIU939bFeQFh6vs2KCnc3IdxOuhTtC3IHR
-B9dgJcCy
-=qAfE
------END PGP SIGNATURE-----
-
---23prfwofjqduce7c--
