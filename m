@@ -2,287 +2,119 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F028C001DE
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Jul 2023 15:38:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82FDCC001E0
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Jul 2023 18:42:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237400AbjG1Pip (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Jul 2023 11:38:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60072 "EHLO
+        id S233243AbjG1Smh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Jul 2023 14:42:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234709AbjG1Pin (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jul 2023 11:38:43 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 157D1423B;
-        Fri, 28 Jul 2023 08:38:33 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36SFX0Ho019213;
-        Fri, 28 Jul 2023 15:38:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=aYIe8cXnwBcu9hL41BIRVXoh+9k8acahzJe1iW/9NTw=;
- b=MFNsBDrGWPxD/twdCZTjo/NRqwmewqpWNm1kid1jwnlDF52V2Dfa3CBxrmEHVAQjQFPV
- fh2b6VD2gcKa/akHx5BMNApMCr+1m+5BOYfKnvGem/dMvjNfSffNv9djkolYwwcARseD
- qdnHohD7RvF170JLzsFzWv9YMRe68p5lJ3emkpb40qP3yZTAJeI/CyrIG8uwgv/NuOLG
- 7BEOxzexlXm/bniG3Sc420dZB/bbNO8tmK80CsOeX6kCRSGBSu8IIwpQAaLuvx2Klc9P
- gkqk1Y2iohG/eX0PXAwgSH/sIEPlASCkXcuxXa0va+XMdY7hSxkBITb6VKOUbU8y+Nyx kg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s4g4tgrfh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 Jul 2023 15:38:30 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36SFXqAW022918;
-        Fri, 28 Jul 2023 15:37:37 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s4g4tgpv5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 Jul 2023 15:37:36 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36SE1pIm002024;
-        Fri, 28 Jul 2023 15:36:25 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s0tenq64v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 Jul 2023 15:36:24 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36SFaLdV4653606
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 28 Jul 2023 15:36:21 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 18FB02004D;
-        Fri, 28 Jul 2023 15:36:21 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8AD6620040;
-        Fri, 28 Jul 2023 15:36:20 +0000 (GMT)
-Received: from osiris (unknown [9.171.95.61])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Fri, 28 Jul 2023 15:36:20 +0000 (GMT)
-Date:   Fri, 28 Jul 2023 17:36:19 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Steffen Eiden <seiden@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Michael Mueller <mimu@linux.vnet.ibm.com>,
-        Marc Hartmayer <mhartmay@linux.ibm.com>
-Subject: Re: [PATCH v2 2/3] KVM: s390: Add UV feature negotiation
-Message-ID: <20230728153619.13110-B-hca@linux.ibm.com>
-References: <20230728092341.1131787-1-seiden@linux.ibm.com>
- <20230728092341.1131787-3-seiden@linux.ibm.com>
+        with ESMTP id S231221AbjG1Smg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jul 2023 14:42:36 -0400
+Received: from brightrain.aerifal.cx (brightrain.aerifal.cx [216.12.86.13])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05E364696
+        for <linux-s390@vger.kernel.org>; Fri, 28 Jul 2023 11:42:21 -0700 (PDT)
+Date:   Fri, 28 Jul 2023 14:42:12 -0400
+From:   "dalias@libc.org" <dalias@libc.org>
+To:     David Laight <David.Laight@ACULAB.COM>
+Cc:     'Aleksa Sarai' <cyphar@cyphar.com>,
+        Alexey Gladkov <legion@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
+        "James.Bottomley@hansenpartnership.com" 
+        <James.Bottomley@hansenpartnership.com>,
+        "acme@kernel.org" <acme@kernel.org>,
+        "alexander.shishkin@linux.intel.com" 
+        <alexander.shishkin@linux.intel.com>,
+        "axboe@kernel.dk" <axboe@kernel.dk>,
+        "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
+        "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>,
+        "bp@alien8.de" <bp@alien8.de>,
+        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+        "christian@brauner.io" <christian@brauner.io>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "deepa.kernel@gmail.com" <deepa.kernel@gmail.com>,
+        "deller@gmx.de" <deller@gmx.de>,
+        "dhowells@redhat.com" <dhowells@redhat.com>,
+        "fenghua.yu@intel.com" <fenghua.yu@intel.com>,
+        "fweimer@redhat.com" <fweimer@redhat.com>,
+        "geert@linux-m68k.org" <geert@linux-m68k.org>,
+        "glebfm@altlinux.org" <glebfm@altlinux.org>,
+        "gor@linux.ibm.com" <gor@linux.ibm.com>,
+        "hare@suse.com" <hare@suse.com>, "hpa@zytor.com" <hpa@zytor.com>,
+        "ink@jurassic.park.msu.ru" <ink@jurassic.park.msu.ru>,
+        "jhogan@kernel.org" <jhogan@kernel.org>,
+        "kim.phillips@arm.com" <kim.phillips@arm.com>,
+        "ldv@altlinux.org" <ldv@altlinux.org>,
+        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
+        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
+        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+        "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
+        "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "luto@kernel.org" <luto@kernel.org>,
+        "mattst88@gmail.com" <mattst88@gmail.com>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "monstr@monstr.eu" <monstr@monstr.eu>,
+        "mpe@ellerman.id.au" <mpe@ellerman.id.au>,
+        "namhyung@kernel.org" <namhyung@kernel.org>,
+        "paulus@samba.org" <paulus@samba.org>,
+        "peterz@infradead.org" <peterz@infradead.org>,
+        "ralf@linux-mips.org" <ralf@linux-mips.org>,
+        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
+        "stefan@agner.ch" <stefan@agner.ch>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "tony.luck@intel.com" <tony.luck@intel.com>,
+        "tycho@tycho.ws" <tycho@tycho.ws>,
+        "will@kernel.org" <will@kernel.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "ysato@users.sourceforge.jp" <ysato@users.sourceforge.jp>,
+        Palmer Dabbelt <palmer@sifive.com>
+Subject: Re: [PATCH v4 2/5] fs: Add fchmodat2()
+Message-ID: <20230728184212.GD20050@brightrain.aerifal.cx>
+References: <cover.1689074739.git.legion@kernel.org>
+ <cover.1689092120.git.legion@kernel.org>
+ <f2a846ef495943c5d101011eebcf01179d0c7b61.1689092120.git.legion@kernel.org>
+ <njnhwhgmsk64e6vf3ur7fifmxlipmzez3r5g7ejozsrkbwvq7w@tu7w3ieystcq>
+ <ZMEjlDNJkFpYERr1@example.org>
+ <20230727.041348-imposing.uptake.velvet.nylon-712tDwzCAbCCoSGx@cyphar.com>
+ <20230727.173441-loving.habit.lame.acrobat-V6VTPe8G4FRI@cyphar.com>
+ <dc48b40748e24d3799e7ee66fa7e8cb4@AcuMS.aculab.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230728092341.1131787-3-seiden@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 0xoLcFLCbhx2lDcDaVofVF8-SPQVw3Ig
-X-Proofpoint-ORIG-GUID: l_RzcLpRHK8B2XvyGIrorDXMjQ_kQz8z
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-27_10,2023-07-26_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
- mlxscore=0 suspectscore=0 lowpriorityscore=0 malwarescore=0
- priorityscore=1501 mlxlogscore=999 spamscore=0 phishscore=0 clxscore=1015
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2306200000 definitions=main-2307280142
+In-Reply-To: <dc48b40748e24d3799e7ee66fa7e8cb4@AcuMS.aculab.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jul 28, 2023 at 11:23:40AM +0200, Steffen Eiden wrote:
-> Add a uv_feature list for pv-guests to the kvm cpu-model.
-> The feature bits 'AP-interpretation for secure guests' and
-> 'AP-interrupt for secure guests' are available.
+On Fri, Jul 28, 2023 at 08:43:58AM +0000, David Laight wrote:
+> ....
+> > FWIW, I agree with Christian that these behaviours are not ideal (and
+> > I'm working on a series that might allow for these things to be properly
+> > blocked in the future) but there's also the consistency argument -- I
+> > don't think fchownat() is much safer to allow in this way than
+> > fchmodat() and (again) this behaviour is already possible through
+> > procfs.
 > 
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
->  arch/s390/include/asm/kvm_host.h |  2 ++
->  arch/s390/include/uapi/asm/kvm.h | 25 +++++++++++++
->  arch/s390/kvm/kvm-s390.c         | 60 ++++++++++++++++++++++++++++++++
->  3 files changed, 87 insertions(+)
-> 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index 2bbc3d54959d..7ae57ac352b2 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -817,6 +817,8 @@ struct kvm_s390_cpu_model {
->  	__u64 *fac_list;
->  	u64 cpuid;
->  	unsigned short ibc;
-> +	/* subset of available uv features for pv-guests enabled by user space */
-> +	struct kvm_s390_vm_cpu_uv_feat uv_feat_guest;
->  };
->  
->  typedef int (*crypto_hook)(struct kvm_vcpu *vcpu);
-> diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-> index a73cf01a1606..b7f4bf5687c7 100644
-> --- a/arch/s390/include/uapi/asm/kvm.h
-> +++ b/arch/s390/include/uapi/asm/kvm.h
-> @@ -159,6 +159,31 @@ struct kvm_s390_vm_cpu_subfunc {
->  	__u8 reserved[1728];
->  };
->  
-> +#define KVM_S390_VM_CPU_PROCESSOR_UV_FEAT_GUEST	6
-> +#define KVM_S390_VM_CPU_MACHINE_UV_FEAT_GUEST	7
-> +
-> +#define KVM_S390_VM_CPU_UV_FEAT_NR_BITS	64
-> +struct kvm_s390_vm_cpu_uv_feat {
-> +	union {
-> +		struct {
-> +			__u64 res0 : 4;
-> +			__u64 ap : 1;		/* bit 4 */
-> +			__u64 ap_intr : 1;	/* bit 5 */
-> +			__u64 res6 : 58;
+> If the 'through procfs' involves readlink("/proc/self/fd/n") and
+> accessing through the returned path then the permission checks
+> are different.
+> Using the returned path requires search permissions on all the
+> directories.
 
-Using unnamed bitfields makes life easier.
+That's *not* how "through procfs" works. The "magic symlinks" in
+/proc/*/fd are not actual symlinks that get dereferenced to the
+contents they readlink() to, but special-type objects that dereference
+directly to the underlying file associated with the open file
+description.
 
-> +#define KVM_S390_VM_CPU_UV_FEAT_GUEST_MASK  \
-> +	(((struct kvm_s390_vm_cpu_uv_feat){ \
-> +		  .ap = 1,                  \
-> +		  .ap_intr = 1,             \
-> +	  })                                \
-> +		 .feat)
-> +
-> +#define KVM_S390_VM_CPU_UV_FEAT_GUEST_DEFAULT ((struct kvm_s390_vm_cpu_uv_feat){})
-
-Why are these two define uapi? Looks to me like both should be kernel
-internal. Or why should user space know about them?
-
-Also I think KVM_S390_VM_CPU_UV_FEAT_GUEST_DEFAULT is really odd
-compared to all other code we have. Defining it to just 0 and assiging
-to .feat instead of assigning a structure is the "usual way".
-
-> +static int kvm_s390_set_uv_feat(struct kvm *kvm, struct kvm_device_attr *attr)
-> +{
-> +	struct kvm_s390_vm_cpu_uv_feat data = {};
-> +	unsigned long filter = uv_info.uv_feature_indications & KVM_S390_VM_CPU_UV_FEAT_GUEST_MASK;
-> +
-> +	if (copy_from_user(&data, (void __user *)attr->addr, sizeof(data)))
-> +		return -EFAULT;
-> +	if (!bitmap_subset((unsigned long *)&data, &filter, KVM_S390_VM_CPU_UV_FEAT_NR_BITS))
-> +		return -EINVAL;
-
-Casting a structure to an unsinged long pointer is also quite odd. I'd
-would use get_user() & friends, and avoid all the casts. Patch below is
-something I would do, also in order to reduce line lengths and breaks at
-some places.. Feel free to ignore the whole patch, or take parts or all of
-it (patch is on top of your complete series, and of course untested).
-
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index b7f4bf5687c7..c1b84c1a297d 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -166,23 +166,25 @@ struct kvm_s390_vm_cpu_subfunc {
- struct kvm_s390_vm_cpu_uv_feat {
- 	union {
- 		struct {
--			__u64 res0 : 4;
-+			__u64 : 4;
- 			__u64 ap : 1;		/* bit 4 */
- 			__u64 ap_intr : 1;	/* bit 5 */
--			__u64 res6 : 58;
-+			__u64 : 58;
- 		};
- 		__u64 feat;
- 	};
- };
- 
--#define KVM_S390_VM_CPU_UV_FEAT_GUEST_MASK  \
--	(((struct kvm_s390_vm_cpu_uv_feat){ \
--		  .ap = 1,                  \
--		  .ap_intr = 1,             \
--	  })                                \
--		 .feat)
-+#define KVM_S390_VM_CPU_UV_FEAT_GUEST_MASK	\
-+(						\
-+	((struct kvm_s390_vm_cpu_uv_feat){	\
-+		.ap = 1,			\
-+		.ap_intr = 1,			\
-+	})					\
-+	.feat					\
-+)
- 
--#define KVM_S390_VM_CPU_UV_FEAT_GUEST_DEFAULT ((struct kvm_s390_vm_cpu_uv_feat){})
-+#define KVM_S390_VM_CPU_UV_FEAT_GUEST_DEFAULT	0
- 
- /* kvm attributes for crypto */
- #define KVM_S390_VM_CRYPTO_ENABLE_AES_KW	0
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index f383c48f965a..bbf4de3e27b3 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1533,12 +1533,13 @@ static int kvm_s390_set_processor_subfunc(struct kvm *kvm,
- 
- static int kvm_s390_set_uv_feat(struct kvm *kvm, struct kvm_device_attr *attr)
- {
--	struct kvm_s390_vm_cpu_uv_feat data = {};
--	unsigned long filter = uv_info.uv_feature_indications & KVM_S390_VM_CPU_UV_FEAT_GUEST_MASK;
-+	struct kvm_s390_vm_cpu_uv_feat __user *ptr = (void __user *)attr->addr;
-+	unsigned long data, filter;
- 
--	if (copy_from_user(&data, (void __user *)attr->addr, sizeof(data)))
-+	filter = uv_info.uv_feature_indications & KVM_S390_VM_CPU_UV_FEAT_GUEST_MASK;
-+	if (get_user(data, &ptr->feat))
- 		return -EFAULT;
--	if (!bitmap_subset((unsigned long *)&data, &filter, KVM_S390_VM_CPU_UV_FEAT_NR_BITS))
-+	if (!bitmap_subset(&data, &filter, KVM_S390_VM_CPU_UV_FEAT_NR_BITS))
- 		return -EINVAL;
- 
- 	mutex_lock(&kvm->lock);
-@@ -1546,10 +1547,10 @@ static int kvm_s390_set_uv_feat(struct kvm *kvm, struct kvm_device_attr *attr)
- 		mutex_unlock(&kvm->lock);
- 		return -EBUSY;
- 	}
--	kvm->arch.model.uv_feat_guest = data;
-+	kvm->arch.model.uv_feat_guest.feat = data;
- 	mutex_unlock(&kvm->lock);
- 
--	VM_EVENT(kvm, 3, "SET: guest uv feat: 0x%16.16llx", data.feat);
-+	VM_EVENT(kvm, 3, "SET: guest uv feat: 0x%16.16lx", data);
- 
- 	return 0;
- }
-@@ -1805,24 +1806,27 @@ static int kvm_s390_get_machine_subfunc(struct kvm *kvm,
- 
- static int kvm_s390_get_processor_uv_feat(struct kvm *kvm, struct kvm_device_attr *attr)
- {
--	struct kvm_s390_vm_cpu_uv_feat *src = &kvm->arch.model.uv_feat_guest;
-+	struct kvm_s390_vm_cpu_uv_feat __user *dst = (void __user *)attr->addr;
-+	unsigned long feat = kvm->arch.model.uv_feat_guest.feat;
- 
--	if (copy_to_user((void __user *)attr->addr, src, sizeof(*src)))
-+	if (put_user(feat, &dst->feat))
- 		return -EFAULT;
--	VM_EVENT(kvm, 3, "GET: guest  uv feat: 0x%16.16llx", kvm->arch.model.uv_feat_guest.feat);
-+	VM_EVENT(kvm, 3, "GET: guest  uv feat: 0x%16.16lx", feat);
- 
- 	return 0;
- }
- 
- static int kvm_s390_get_machine_uv_feat(struct kvm *kvm, struct kvm_device_attr *attr)
- {
--	struct kvm_s390_vm_cpu_uv_feat data = { .feat = uv_info.uv_feature_indications &
--							KVM_S390_VM_CPU_UV_FEAT_GUEST_MASK };
-+	struct kvm_s390_vm_cpu_uv_feat __user *dst = (void __user *)attr->addr;
-+	unsigned long feat;
- 
--	BUILD_BUG_ON(sizeof(data) != sizeof(uv_info.uv_feature_indications));
--	if (copy_to_user((void __user *)attr->addr, &data, sizeof(struct kvm_s390_vm_cpu_uv_feat)))
-+	BUILD_BUG_ON(sizeof(*dst) != sizeof(uv_info.uv_feature_indications));
-+
-+	feat = uv_info.uv_feature_indications & KVM_S390_VM_CPU_UV_FEAT_GUEST_MASK;
-+	if (put_user(feat, &dst->feat))
- 		return -EFAULT;
--	VM_EVENT(kvm, 3, "GET: guest  uv feat: 0x%16.16llx", data.feat);
-+	VM_EVENT(kvm, 3, "GET: guest  uv feat: 0x%16.16lx", feat);
- 
- 	return 0;
- }
-@@ -3354,7 +3358,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 	kvm->arch.model.cpuid = kvm_s390_get_initial_cpuid();
- 	kvm->arch.model.ibc = sclp.ibc & 0x0fff;
- 
--	kvm->arch.model.uv_feat_guest = KVM_S390_VM_CPU_UV_FEAT_GUEST_DEFAULT;
-+	kvm->arch.model.uv_feat_guest.feat = KVM_S390_VM_CPU_UV_FEAT_GUEST_DEFAULT;
- 
- 	kvm_s390_crypto_init(kvm);
- 
+Rich
