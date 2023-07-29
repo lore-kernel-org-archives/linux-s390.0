@@ -2,119 +2,82 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82FDCC001E0
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Jul 2023 18:42:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13E90C0015E
+	for <linux-s390@archiver.kernel.org>; Sat, 29 Jul 2023 12:19:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233243AbjG1Smh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Jul 2023 14:42:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51964 "EHLO
+        id S229500AbjG2MTn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 29 Jul 2023 08:19:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231221AbjG1Smg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jul 2023 14:42:36 -0400
-Received: from brightrain.aerifal.cx (brightrain.aerifal.cx [216.12.86.13])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05E364696
-        for <linux-s390@vger.kernel.org>; Fri, 28 Jul 2023 11:42:21 -0700 (PDT)
-Date:   Fri, 28 Jul 2023 14:42:12 -0400
-From:   "dalias@libc.org" <dalias@libc.org>
-To:     David Laight <David.Laight@ACULAB.COM>
-Cc:     'Aleksa Sarai' <cyphar@cyphar.com>,
-        Alexey Gladkov <legion@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        "James.Bottomley@hansenpartnership.com" 
-        <James.Bottomley@hansenpartnership.com>,
-        "acme@kernel.org" <acme@kernel.org>,
-        "alexander.shishkin@linux.intel.com" 
-        <alexander.shishkin@linux.intel.com>,
-        "axboe@kernel.dk" <axboe@kernel.dk>,
-        "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
-        "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>,
-        "bp@alien8.de" <bp@alien8.de>,
-        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-        "christian@brauner.io" <christian@brauner.io>,
-        "davem@davemloft.net" <davem@davemloft.net>,
-        "deepa.kernel@gmail.com" <deepa.kernel@gmail.com>,
-        "deller@gmx.de" <deller@gmx.de>,
-        "dhowells@redhat.com" <dhowells@redhat.com>,
-        "fenghua.yu@intel.com" <fenghua.yu@intel.com>,
-        "fweimer@redhat.com" <fweimer@redhat.com>,
-        "geert@linux-m68k.org" <geert@linux-m68k.org>,
-        "glebfm@altlinux.org" <glebfm@altlinux.org>,
-        "gor@linux.ibm.com" <gor@linux.ibm.com>,
-        "hare@suse.com" <hare@suse.com>, "hpa@zytor.com" <hpa@zytor.com>,
-        "ink@jurassic.park.msu.ru" <ink@jurassic.park.msu.ru>,
-        "jhogan@kernel.org" <jhogan@kernel.org>,
-        "kim.phillips@arm.com" <kim.phillips@arm.com>,
-        "ldv@altlinux.org" <ldv@altlinux.org>,
-        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
-        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
-        "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "luto@kernel.org" <luto@kernel.org>,
-        "mattst88@gmail.com" <mattst88@gmail.com>,
-        "mingo@redhat.com" <mingo@redhat.com>,
-        "monstr@monstr.eu" <monstr@monstr.eu>,
-        "mpe@ellerman.id.au" <mpe@ellerman.id.au>,
-        "namhyung@kernel.org" <namhyung@kernel.org>,
-        "paulus@samba.org" <paulus@samba.org>,
-        "peterz@infradead.org" <peterz@infradead.org>,
-        "ralf@linux-mips.org" <ralf@linux-mips.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        "stefan@agner.ch" <stefan@agner.ch>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "tony.luck@intel.com" <tony.luck@intel.com>,
-        "tycho@tycho.ws" <tycho@tycho.ws>,
-        "will@kernel.org" <will@kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "ysato@users.sourceforge.jp" <ysato@users.sourceforge.jp>,
-        Palmer Dabbelt <palmer@sifive.com>
-Subject: Re: [PATCH v4 2/5] fs: Add fchmodat2()
-Message-ID: <20230728184212.GD20050@brightrain.aerifal.cx>
-References: <cover.1689074739.git.legion@kernel.org>
- <cover.1689092120.git.legion@kernel.org>
- <f2a846ef495943c5d101011eebcf01179d0c7b61.1689092120.git.legion@kernel.org>
- <njnhwhgmsk64e6vf3ur7fifmxlipmzez3r5g7ejozsrkbwvq7w@tu7w3ieystcq>
- <ZMEjlDNJkFpYERr1@example.org>
- <20230727.041348-imposing.uptake.velvet.nylon-712tDwzCAbCCoSGx@cyphar.com>
- <20230727.173441-loving.habit.lame.acrobat-V6VTPe8G4FRI@cyphar.com>
- <dc48b40748e24d3799e7ee66fa7e8cb4@AcuMS.aculab.com>
+        with ESMTP id S229472AbjG2MTm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 29 Jul 2023 08:19:42 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 011513AB4;
+        Sat, 29 Jul 2023 05:19:41 -0700 (PDT)
+Received: from canpemm500007.china.huawei.com (unknown [172.30.72.56])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4RCk4b6X4jzNm8n;
+        Sat, 29 Jul 2023 20:16:15 +0800 (CST)
+Received: from localhost (10.174.179.215) by canpemm500007.china.huawei.com
+ (7.192.104.62) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Sat, 29 Jul
+ 2023 20:19:39 +0800
+From:   Yue Haibing <yuehaibing@huawei.com>
+To:     <kgraul@linux.ibm.com>, <wenjia@linux.ibm.com>,
+        <jaka@linux.ibm.com>, <alibuda@linux.alibaba.com>,
+        <tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>,
+        <davem@davemloft.net>, <edumazet@google.com>, <kuba@kernel.org>,
+        <pabeni@redhat.com>, <yuehaibing@huawei.com>
+CC:     <linux-s390@vger.kernel.org>, <netdev@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH net-next] net/smc: Remove unused function declarations
+Date:   Sat, 29 Jul 2023 20:19:29 +0800
+Message-ID: <20230729121929.17180-1-yuehaibing@huawei.com>
+X-Mailer: git-send-email 2.10.2.windows.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <dc48b40748e24d3799e7ee66fa7e8cb4@AcuMS.aculab.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Type: text/plain
+X-Originating-IP: [10.174.179.215]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ canpemm500007.china.huawei.com (7.192.104.62)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jul 28, 2023 at 08:43:58AM +0000, David Laight wrote:
-> ....
-> > FWIW, I agree with Christian that these behaviours are not ideal (and
-> > I'm working on a series that might allow for these things to be properly
-> > blocked in the future) but there's also the consistency argument -- I
-> > don't think fchownat() is much safer to allow in this way than
-> > fchmodat() and (again) this behaviour is already possible through
-> > procfs.
-> 
-> If the 'through procfs' involves readlink("/proc/self/fd/n") and
-> accessing through the returned path then the permission checks
-> are different.
-> Using the returned path requires search permissions on all the
-> directories.
+commit f9aab6f2ce57 ("net/smc: immediate freeing in smc_lgr_cleanup_early()")
+left behind smc_lgr_schedule_free_work_fast() declaration.
+And since commit 349d43127dac ("net/smc: fix kernel panic caused by race of smc_sock")
+smc_ib_modify_qp_reset() is not used anymore.
 
-That's *not* how "through procfs" works. The "magic symlinks" in
-/proc/*/fd are not actual symlinks that get dereferenced to the
-contents they readlink() to, but special-type objects that dereference
-directly to the underlying file associated with the open file
-description.
+Signed-off-by: Yue Haibing <yuehaibing@huawei.com>
+---
+ net/smc/smc_core.h | 1 -
+ net/smc/smc_ib.h   | 1 -
+ 2 files changed, 2 deletions(-)
 
-Rich
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 1645fba0d2d3..3c1b31bfa1cf 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -539,7 +539,6 @@ int smc_vlan_by_tcpsk(struct socket *clcsock, struct smc_init_info *ini);
+ 
+ void smc_conn_free(struct smc_connection *conn);
+ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini);
+-void smc_lgr_schedule_free_work_fast(struct smc_link_group *lgr);
+ int smc_core_init(void);
+ void smc_core_exit(void);
+ 
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index 034295676e88..4df5f8c8a0a1 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -96,7 +96,6 @@ void smc_ib_destroy_queue_pair(struct smc_link *lnk);
+ int smc_ib_create_queue_pair(struct smc_link *lnk);
+ int smc_ib_ready_link(struct smc_link *lnk);
+ int smc_ib_modify_qp_rts(struct smc_link *lnk);
+-int smc_ib_modify_qp_reset(struct smc_link *lnk);
+ int smc_ib_modify_qp_error(struct smc_link *lnk);
+ long smc_ib_setup_per_ibdev(struct smc_ib_device *smcibdev);
+ int smc_ib_get_memory_region(struct ib_pd *pd, int access_flags,
+-- 
+2.34.1
+
