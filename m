@@ -2,159 +2,119 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40BBBC001DE
-	for <linux-s390@archiver.kernel.org>; Mon, 31 Jul 2023 18:30:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A8CDC001DE
+	for <linux-s390@archiver.kernel.org>; Mon, 31 Jul 2023 18:39:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231772AbjGaSai (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 Jul 2023 14:30:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57266 "EHLO
+        id S229935AbjGaSje (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 Jul 2023 14:39:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231898AbjGaSag (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jul 2023 14:30:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94ECB1BC3;
-        Mon, 31 Jul 2023 11:30:35 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DAE5061245;
-        Mon, 31 Jul 2023 18:30:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 082BDC433C7;
-        Mon, 31 Jul 2023 18:30:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1690828234;
-        bh=azdNP8cF85m7UDvgXMTAEEGyM/wWyMIGFgmuwIc8ul0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=O1VpJucJ8qJ4G6AE1OKV3xdN/xK/FDklzv/nwqYZajcZtRy+LSUQU50X+sHs9AxvB
-         xsU2buC2SUK4CZR3jjYJZtrydR9Bbqd9WCPwdG5zMYEjJLfGD0nXQIDtdar/ei7qKh
-         Q4AFqyXfVyBH57dywLI4uw0Frcitouu9e42wpiwCGypovk04FOzCfl60zxzFG2eyak
-         ANZHJkor5YlN+5saTB/xwrXYhgw16Q93h89m9IIkWKyhNAHwsbqX1ZrfONEa6iuY6k
-         btG9dsvLFpB0/w7f/xaTE6xEYGtgYWH7rF7vGs2JSC6YVtwrN6iixwxcTNdpmmdRV2
-         wiQHQ/+OXxCxw==
-Date:   Mon, 31 Jul 2023 20:30:21 +0200
-From:   Simon Horman <horms@kernel.org>
-To:     Joel Granados <joel.granados@gmail.com>
-Cc:     mcgrof@kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Iurii Zaikin <yzaikin@google.com>,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Kees Cook <keescook@chromium.org>,
-        "D. Wythe" <alibuda@linux.alibaba.com>, mptcp@lists.linux.dev,
-        Jakub Kicinski <kuba@kernel.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Paolo Abeni <pabeni@redhat.com>, coreteam@netfilter.org,
-        Jan Karcher <jaka@linux.ibm.com>,
-        Alexander Aring <alex.aring@gmail.com>,
-        Will Deacon <will@kernel.org>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        bridge@lists.linux-foundation.org,
-        linux-arm-kernel@lists.infradead.org,
-        Joerg Reuter <jreuter@yaina.de>, Julian Anastasov <ja@ssi.bg>,
-        David Ahern <dsahern@kernel.org>,
-        netfilter-devel@vger.kernel.org, Wen Gu <guwen@linux.alibaba.com>,
-        linux-kernel@vger.kernel.org,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        linux-wpan@vger.kernel.org, lvs-devel@vger.kernel.org,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        linux-sctp@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Florian Westphal <fw@strlen.de>, willy@infradead.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-rdma@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Simon Horman <horms@verge.net.au>,
-        Mat Martineau <martineau@kernel.org>, josh@joshtriplett.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Eric Dumazet <edumazet@google.com>, linux-hams@vger.kernel.org,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        linux-fsdevel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Xin Long <lucien.xin@gmail.com>,
-        Nikolay Aleksandrov <razor@blackwall.org>,
-        netdev@vger.kernel.org, rds-devel@oss.oracle.com,
-        Joel Granados <j.granados@samsung.com>
-Subject: Re: [PATCH v2 03/14] sysctl: Add ctl_table_size to ctl_table_header
-Message-ID: <ZMf9vZpGE98oM9W2@kernel.org>
-References: <20230731071728.3493794-1-j.granados@samsung.com>
- <20230731071728.3493794-4-j.granados@samsung.com>
+        with ESMTP id S229871AbjGaSjd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jul 2023 14:39:33 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C81119BB
+        for <linux-s390@vger.kernel.org>; Mon, 31 Jul 2023 11:39:32 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36VIbPcA021658
+        for <linux-s390@vger.kernel.org>; Mon, 31 Jul 2023 18:39:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=l6QByBUv+9lMYRKF3tXH2OjdcpnoI+jD+vfzYWfbu2Y=;
+ b=bgv57UhKwlu7rmn8sCZdp6Ncb2U8EtlUs8ayJ+oRlSOLwQvc3AoqBcYjhGmHP9cT8USk
+ ugC2/Ji8gAC8Nlb1elTzOb0lJQlJ6s5ggT2/NjjLC0/7GyLvmP01Uy+/WoTq0WMj9GHA
+ MIr4SaehoVWsuY3B+R6XtjuAE4DMmrYETTa0IQXgphF5QWGkR839EJpv6QaXf2GMQEvr
+ eNTh6advwuBmA67Uc80J2rPHxsX4qEM+VFE5kKGp4r1n1+4nK+0L8oQs/qb+dMTTSnfW
+ Pq38oA7oIxeHVRXQfQ941Y4X3Cd2b++GiUlUzdIk49jYV3XOfss8KX+ZxrFnRvztkN9K Iw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s6hk9sm4p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 31 Jul 2023 18:39:32 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36VIcQxa028593
+        for <linux-s390@vger.kernel.org>; Mon, 31 Jul 2023 18:39:31 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s6hk9sm26-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 31 Jul 2023 18:39:31 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36VHLrdP017005;
+        Mon, 31 Jul 2023 18:39:29 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s5dfxwqw3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 31 Jul 2023 18:39:29 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36VIdQoR44565064
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 31 Jul 2023 18:39:26 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 80AF72004B;
+        Mon, 31 Jul 2023 18:39:26 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4631320040;
+        Mon, 31 Jul 2023 18:39:26 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 31 Jul 2023 18:39:26 +0000 (GMT)
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Adrian Reber <areber@redhat.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: [PATCH] s390/ptrace: add missing linux/const.h include
+Date:   Mon, 31 Jul 2023 20:39:26 +0200
+Message-Id: <20230731183926.330932-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.39.2
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 2icdR1RbyxxtNhlb4oSzOnjZ31Ee9m16
+X-Proofpoint-GUID: 9ak6PnwW2xzTsp-7rpxV8WOOiAHEZesN
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230731071728.3493794-4-j.granados@samsung.com>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-31_12,2023-07-31_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
+ adultscore=0 mlxscore=0 lowpriorityscore=0 mlxlogscore=999 spamscore=0
+ impostorscore=0 bulkscore=0 suspectscore=0 clxscore=1015
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2307310168
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jul 31, 2023 at 09:17:17AM +0200, Joel Granados wrote:
-> The new ctl_table_size element will hold the size of the ctl_table
-> arrays contained in the ctl_table_header. This value should eventually
-> be passed by the callers to the sysctl register infrastructure. And
-> while this commit introduces the variable, it does not set nor use it
-> because that requires case by case considerations for each caller.
-> 
-> It provides two important things: (1) A place to put the
-> result of the ctl_table array calculation when it gets introduced for
-> each caller. And (2) the size that will be used as the additional
-> stopping criteria in the list_for_each_table_entry macro (to be added
-> when all the callers are migrated)
-> 
-> Signed-off-by: Joel Granados <j.granados@samsung.com>
-> ---
->  include/linux/sysctl.h | 14 ++++++++++++--
->  1 file changed, 12 insertions(+), 2 deletions(-)
-> 
-> diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-> index 59d451f455bf..33252ad58ebe 100644
-> --- a/include/linux/sysctl.h
-> +++ b/include/linux/sysctl.h
-> @@ -159,12 +159,22 @@ struct ctl_node {
->  	struct ctl_table_header *header;
->  };
->  
-> -/* struct ctl_table_header is used to maintain dynamic lists of
-> -   struct ctl_table trees. */
-> +/**
-> + * struct ctl_table_header - maintains dynamic lists of struct ctl_table trees
-> + * @ctl_table: pointer to the first element in ctl_table array
-> + * @ctl_table_size: number of elements pointed by @ctl_table
-> + * @used: The entry will never be touched when equal to 0.
-> + * @count: Upped every time something is added to @inodes and downed every time
-> + *         something is removed from inodes
-> + * @nreg: When nreg drops to 0 the ctl_table_header will be unregistered.
-> + * @rcu: Delays the freeing of the inode. Introduced with "unfuck proc_sysctl ->d_compare()"
-> + *
-> + */
+Adrian Reber reported the following CRIU build bug after
+commit b8af5999779d ("s390/ptrace: make all psw related
+defines also available for asm"):
 
-Hi Joel,
+compel/arch/s390/src/lib/infect.c: In function 'arch_can_dump_task':
+compel/arch/s390/src/lib/infect.c:523:25: error: 'UL' undeclared (first use in this function)
+  523 |         if (psw->mask & PSW_MASK_RI) {
+      |                         ^~~~~~~~~~~
 
-Please consider also adding kernel doc entries for the other fields of
-struct ctl_table_header. According to ./scripts/kernel-doc -none
-they are:
+Add the missing linux/const.h include to fix this.
 
-  unregistering
-  ctl_table_arg
-  root
-  set
-  parent
-  node
-  inodes
+Reported-by: Adrian Reber <areber@redhat.com>
+Closes: https://bugzilla.redhat.com/show_bug.cgi?id=2225745
+Link: https://github.com/checkpoint-restore/criu/pull/2232
+Fixes: b8af5999779d ("s390/ptrace: make all psw related defines also available for asm")
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ arch/s390/include/uapi/asm/ptrace.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
+diff --git a/arch/s390/include/uapi/asm/ptrace.h b/arch/s390/include/uapi/asm/ptrace.h
+index f0fe3bcc78a8..bb0826024bb9 100644
+--- a/arch/s390/include/uapi/asm/ptrace.h
++++ b/arch/s390/include/uapi/asm/ptrace.h
+@@ -8,6 +8,8 @@
+ #ifndef _UAPI_S390_PTRACE_H
+ #define _UAPI_S390_PTRACE_H
+ 
++#include <linux/const.h>
++
+ /*
+  * Offsets in the user_regs_struct. They are used for the ptrace
+  * system call and in entry.S
+-- 
+2.39.2
 
->  struct ctl_table_header {
->  	union {
->  		struct {
->  			struct ctl_table *ctl_table;
-> +			int ctl_table_size;
->  			int used;
->  			int count;
->  			int nreg;
-> -- 
-> 2.30.2
-> 
