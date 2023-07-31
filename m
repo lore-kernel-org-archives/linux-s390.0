@@ -2,53 +2,53 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11815C04E69
-	for <linux-s390@archiver.kernel.org>; Mon, 31 Jul 2023 07:20:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0A0AC001DC
+	for <linux-s390@archiver.kernel.org>; Mon, 31 Jul 2023 07:20:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231504AbjGaHUe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 Jul 2023 03:20:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59370 "EHLO
+        id S229912AbjGaHUu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 Jul 2023 03:20:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231888AbjGaHT2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jul 2023 03:19:28 -0400
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03AEF19A4;
-        Mon, 31 Jul 2023 00:17:45 -0700 (PDT)
-Received: by mail-wm1-x32d.google.com with SMTP id 5b1f17b1804b1-3fe2048c910so5836485e9.1;
-        Mon, 31 Jul 2023 00:17:44 -0700 (PDT)
+        with ESMTP id S231209AbjGaHT3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jul 2023 03:19:29 -0400
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2455B2D67;
+        Mon, 31 Jul 2023 00:17:59 -0700 (PDT)
+Received: by mail-wm1-x329.google.com with SMTP id 5b1f17b1804b1-3fbab0d0b88so35766965e9.0;
+        Mon, 31 Jul 2023 00:17:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1690787863; x=1691392663;
+        d=gmail.com; s=20221208; t=1690787878; x=1691392678;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=GPr2gCh0WwKGZ3vD5F3mcw/cD05Ywt0Q6uWcdKx3iw8=;
-        b=ODQWGR3LflWQq2OvtY1YynEp6l9qd94J4wKNyHC1oHlJSpHL0Xo0lx7HnVPh+Maav4
-         mdFvIf8q88vjdEfhrWv/mi8K27TOWd10Rfkuz2+tkKycXmM8soU71r2e2LC/cCVW8PZz
-         rEwAtYG8tVYRDVtkFAdTT2B1OmQaCWtLnsADAc48NDQAR4KcEelo5MOqIjDh0HTiLMWs
-         eTzmivPPY1muLmBnjFmKwT38ltKrocMx7hYMk6cMgxR9cuLiAzwnyvbOrj5d05fgDd6t
-         aTA/0Fc49Q2iW1UkOCGVn4PWcKcCz83OlVO72nubL6VbL56RiI98SEglN+i3pXoWKjHs
-         Bljw==
+        bh=q2sRNbI2azaNM3epQYqeDbNNvVsnx+uOoBBxcjhRKfE=;
+        b=FX60aiiY2KctEUh+j9yuK0cGnmKW2WpFZ3k1hVMZjIYTseBraxngepIWNvfcXGsPq1
+         7xSVdY+8zc9yIZ57nKdT+hlUE0Ql178jQsRiH723XYn4HhHTr/pv49QmaTcNQ2XsUNAi
+         PWzt+UqFr/sg0NpYqkGyiJNK7oFd9qBYvtgDfg+keM7SyoPlJi+mcwnnV0qqy8UUXXH+
+         yEQM7BNRR98OhKiErQTxzAomz+aqzdV0nWU9PRrMuhWCCwSQ75cIObdPL85tLs8lZ4Tp
+         84iwFiXBPFqH6x90lqRFXFaxycKbeNqBugndgd7V/GFzGnSbrjoxW1nQKlMiaVkRQI3W
+         1DjQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690787863; x=1691392663;
+        d=1e100.net; s=20221208; t=1690787878; x=1691392678;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=GPr2gCh0WwKGZ3vD5F3mcw/cD05Ywt0Q6uWcdKx3iw8=;
-        b=Oe7lmprXeAtPwnrkH18PlksF1lcGJM51fd/9UQ5ccNw01x7nFl3WuxfFTjH3vQNdEU
-         yj1d//eTuNnGhRuRuY5IcFWQ9IXgNyls/uEefsb2AbbtHsc2ELFfDYl5gXwPCvXKhixd
-         83IRYgNHXJh6azF55J7s5JFMaZQGlZyQixa4tqz1VM54ANiVqMD76Ucy3vy2E7lqlK8H
-         5ZiRY6pL+u+jm+S5ExK0bKhEMPhKn8fJi7nJriRjY3tm8cxCdTnG3vG8VdaKFvDxHibI
-         X/Qlc0xJYSQOwYMtumUUB/ySwUKvmYK6U8nMe/w6RK4XG5ysKjfM+GKzaDnV2e4QhMfm
-         Gaeg==
-X-Gm-Message-State: ABy/qLa6hjdPqmh4GlwuZUuRwxDNIiHC2GiZkg6JiJoAG9a47TWCHKk8
-        h5GhAP2EQyhRgjaBGH1dZeo=
-X-Google-Smtp-Source: APBJJlFUT54AdCuyyb2qFmdAJQLKO+XCQKR52YjLBjQXK2DMkv1v7jl1zW+1BcBKyEgho/gdATMlgQ==
-X-Received: by 2002:a05:600c:2242:b0:3fe:179d:d42e with SMTP id a2-20020a05600c224200b003fe179dd42emr3711564wmm.23.1690787863281;
-        Mon, 31 Jul 2023 00:17:43 -0700 (PDT)
+        bh=q2sRNbI2azaNM3epQYqeDbNNvVsnx+uOoBBxcjhRKfE=;
+        b=HDJUJ5lI3B1ru52ZusBW9FM5UVqAa9eE897G41o42Kj+842Ju+/VQsPjvDRaaBnJGg
+         /QyGOcdSqOx5ToD0N5XIPsMA/RPaKy3DAeVpMHuUCnZcnZau+6QkVicej0ibzOwUHAWu
+         ccOUR8EwLFd31gX9z3FhJ3jpiEVonnaCt/R+TnEL9b7wK0jWvbBLze3I2RUuWwYXPfXl
+         T6YlMDQTBo89L5tKZNkTQ3rVnhGCSy7nwLnP01mXyoTF+QRiGCDQA2Fapih3WAE61p56
+         zjyFwMmgMr7+mppwL/b7vLQcKxXZ+m88Bt5GQWo51Ilpg3VoUffASjtGalUD0wk0EIxZ
+         H49A==
+X-Gm-Message-State: ABy/qLZ0ZGwTE3qVopxwcKG79bf4z4ejDBFk6F+jj/rr6EWIdHBUnwzF
+        GdDYN3kC0MnYld2z/7ID8N8=
+X-Google-Smtp-Source: APBJJlGu0nMEMnREkxmuP9HbttYHTkOQMIO/9DuZ+oCLZJRAJKvQMp2PbLtUuafN9hLtmhCbZ6/OJw==
+X-Received: by 2002:a5d:60c1:0:b0:313:e88d:e6d3 with SMTP id x1-20020a5d60c1000000b00313e88de6d3mr10154506wrt.14.1690787877583;
+        Mon, 31 Jul 2023 00:17:57 -0700 (PDT)
 Received: from localhost ([165.225.194.214])
-        by smtp.gmail.com with ESMTPSA id h14-20020a05600c260e00b003fbca942499sm13493952wma.14.2023.07.31.00.17.42
+        by smtp.gmail.com with ESMTPSA id k1-20020adff5c1000000b00313de682eb3sm12164837wrp.65.2023.07.31.00.17.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Jul 2023 00:17:42 -0700 (PDT)
+        Mon, 31 Jul 2023 00:17:57 -0700 (PDT)
 From:   Joel Granados <joel.granados@gmail.com>
 X-Google-Original-From: Joel Granados <j.granados@samsung.com>
 To:     mcgrof@kernel.org
@@ -97,10 +97,10 @@ Cc:     Catalin Marinas <catalin.marinas@arm.com>,
         Nikolay Aleksandrov <razor@blackwall.org>,
         netdev@vger.kernel.org, rds-devel@oss.oracle.com,
         Joel Granados <j.granados@samsung.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH v2 07/14] sysctl: Add size arg to __register_sysctl_init
-Date:   Mon, 31 Jul 2023 09:17:21 +0200
-Message-Id: <20230731071728.3493794-8-j.granados@samsung.com>
+        Jani Nikula <jani.nikula@linux.intel.com>
+Subject: [PATCH v2 14/14] sysctl: Use ctl_table_size as stopping criteria for list macro
+Date:   Mon, 31 Jul 2023 09:17:28 +0200
+Message-Id: <20230731071728.3493794-15-j.granados@samsung.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20230731071728.3493794-1-j.granados@samsung.com>
 References: <20230731071728.3493794-1-j.granados@samsung.com>
@@ -110,70 +110,45 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This commit adds table_size to __register_sysctl_init in preparation for
-the removal of the sentinel elements in the ctl_table arrays (last empty
-markers). And though we do *not* remove any sentinels in this commit, we
-set things up by calculating the ctl_table array size with ARRAY_SIZE.
+This is a preparation commit to make it easy to remove the sentinel
+elements (empty end markers) from the ctl_table arrays. It both allows
+the systematic removal of the sentinels and adds the ctl_table_size
+variable to the stopping criteria of the list_for_each_table_entry macro
+that traverses all ctl_table arrays. Once all the sentinels are removed
+by subsequent commits, ctl_table_size will become the only stopping
+criteria in the macro. We don't actually remove any elements in this
+commit, but it sets things up to for the removal process to take place.
 
-We add a table_size argument to __register_sysctl_init and modify the
-register_sysctl_init macro to calculate the array size with ARRAY_SIZE.
-The original callers do not need to be updated as they will go through
-the new macro.
+By adding header->ctl_table_size as an additional stopping criteria for
+the list_for_each_table_entry macro, it will execute until it finds an
+"empty" ->procname or until the size runs out. Therefore if a ctl_table
+array with a sentinel is passed its size will be too big (by one
+element) but it will stop on the sentinel. On the other hand, if the
+ctl_table array without a sentinel is passed its size will be just write
+and there will be no need for a sentinel.
 
 Signed-off-by: Joel Granados <j.granados@samsung.com>
-Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Jani Nikula <jani.nikula@linux.intel.com>
 ---
- fs/proc/proc_sysctl.c  | 12 +++---------
- include/linux/sysctl.h |  5 +++--
- 2 files changed, 6 insertions(+), 11 deletions(-)
+ fs/proc/proc_sysctl.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
-index 80d3e2f61947..817bc51c58d8 100644
+index 817bc51c58d8..504e847c2a3a 100644
 --- a/fs/proc/proc_sysctl.c
 +++ b/fs/proc/proc_sysctl.c
-@@ -1433,6 +1433,7 @@ EXPORT_SYMBOL(register_sysctl_sz);
-  * 	lifetime use of the sysctl.
-  * @table_name: The name of sysctl table, only used for log printing when
-  *              registration fails
-+ * @table_size: The number of elements in table
-  *
-  * The sysctl interface is used by userspace to query or modify at runtime
-  * a predefined value set on a variable. These variables however have default
-@@ -1445,16 +1446,9 @@ EXPORT_SYMBOL(register_sysctl_sz);
-  * Context: if your base directory does not exist it will be created for you.
-  */
- void __init __register_sysctl_init(const char *path, struct ctl_table *table,
--				 const char *table_name)
-+				 const char *table_name, size_t table_size)
- {
--	int count = 0;
--	struct ctl_table *entry;
--	struct ctl_table_header t_hdr, *hdr;
--
--	t_hdr.ctl_table = table;
--	list_for_each_table_entry(entry, (&t_hdr))
--		count++;
--	hdr = register_sysctl_sz(path, table, count);
-+	struct ctl_table_header *hdr = register_sysctl_sz(path, table, table_size);
+@@ -19,8 +19,9 @@
+ #include <linux/kmemleak.h>
+ #include "internal.h"
  
- 	if (unlikely(!hdr)) {
- 		pr_err("failed when register_sysctl_sz %s to %s\n", table_name, path);
-diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-index b1168ae281c9..09d7429d67c0 100644
---- a/include/linux/sysctl.h
-+++ b/include/linux/sysctl.h
-@@ -236,8 +236,9 @@ void unregister_sysctl_table(struct ctl_table_header * table);
+-#define list_for_each_table_entry(entry, header) \
+-	for ((entry) = (header->ctl_table); (entry)->procname; (entry)++)
++#define list_for_each_table_entry(entry, header)	\
++	entry = header->ctl_table;			\
++	for (size_t i = 0 ; i < header->ctl_table_size && entry->procname; ++i, entry++)
  
- extern int sysctl_init_bases(void);
- extern void __register_sysctl_init(const char *path, struct ctl_table *table,
--				 const char *table_name);
--#define register_sysctl_init(path, table) __register_sysctl_init(path, table, #table)
-+				 const char *table_name, size_t table_size);
-+#define register_sysctl_init(path, table)	\
-+	__register_sysctl_init(path, table, #table, ARRAY_SIZE(table))
- extern struct ctl_table_header *register_sysctl_mount_point(const char *path);
- 
- void do_sysctl_args(void);
+ static const struct dentry_operations proc_sys_dentry_operations;
+ static const struct file_operations proc_sys_file_operations;
 -- 
 2.30.2
 
