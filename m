@@ -2,104 +2,136 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3142C001DE
-	for <linux-s390@archiver.kernel.org>; Mon, 31 Jul 2023 07:30:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EF35C04FE2
+	for <linux-s390@archiver.kernel.org>; Mon, 31 Jul 2023 10:52:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231300AbjGaHaN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 Jul 2023 03:30:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39294 "EHLO
+        id S232202AbjGaKwb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 Jul 2023 06:52:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231386AbjGaH3i (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jul 2023 03:29:38 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B692C1703;
-        Mon, 31 Jul 2023 00:27:03 -0700 (PDT)
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36V7BwOK002128;
-        Mon, 31 Jul 2023 07:26:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=OGKgTUQdiOBkn8EITMnpjyPTwSnRGvYmwWmatLPbyzs=;
- b=tC1IHoJor0t8foyGv9epTpmmX2M3zNlKapYStTMP5RVxBQde1QwPMQSgTOCZS+Iku8pI
- 2Ekzaik9vA7QEqRWoT5RwSAmehyjU6ISm67ee5iIXmaNzEU9AuwfiiAQHl72wJBN2bcE
- 4lflMmNowtz03UxxF8/tBw8ibjLwEBDh5yj/EOs1A26juTnXmm2sriDjJTbofABTGPNZ
- O9+KwWDiyC80IvVZbDx8hIDAxxHeM5DS5omGHhdNptKEozzj0k16zlIUzPBN7g44jaMt
- AytQqDaD/ASzaIyO0S1E+HvxdVI0H61kgxiXVk85KX7PRLZFRi3d/PHvQS1RpYgoJPPg OQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s68bv0enp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Jul 2023 07:26:47 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 36V7C1Sl002470;
-        Mon, 31 Jul 2023 07:26:47 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s68bv0en0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Jul 2023 07:26:46 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 36V6dYB9015486;
-        Mon, 31 Jul 2023 07:26:45 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s5e3mh6y6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Jul 2023 07:26:45 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-        by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 36V7QibZ34079068
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 31 Jul 2023 07:26:44 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A85765805E;
-        Mon, 31 Jul 2023 07:26:44 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D457D58045;
-        Mon, 31 Jul 2023 07:26:41 +0000 (GMT)
-Received: from [9.171.26.13] (unknown [9.171.26.13])
-        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 31 Jul 2023 07:26:41 +0000 (GMT)
-Message-ID: <67def28b-27cf-560d-8b33-d94a8b8a4d9d@linux.ibm.com>
-Date:   Mon, 31 Jul 2023 09:26:40 +0200
+        with ESMTP id S231432AbjGaKwL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jul 2023 06:52:11 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CBE41BFD;
+        Mon, 31 Jul 2023 03:51:17 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id ED50E22197;
+        Mon, 31 Jul 2023 10:50:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1690800635; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=PJDu3H9G0xjlLFp1Wxvq9yQHkB2Q9jBIbPsGkP5jLhY=;
+        b=LfsIvVgX25rf01P6sVcmZRL3nPMT3sPJRPMrpOspwMqpMg9mmQx6AkDi/eF6WU32a2Vp6x
+        /7YLD1OJK0u+bqfGa4P87gaOpA6/QZlHA1eZkenSQs1V9CjuRPICqxTQ9KdHYFZ84hOqsV
+        4L46K3Rf4+bEtg2brIa/aboXrQrqviE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1690800635;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=PJDu3H9G0xjlLFp1Wxvq9yQHkB2Q9jBIbPsGkP5jLhY=;
+        b=X5g/KyOpcE2CiMGegP9N6Ypxz5sWUyAuayNnMILk5q3XabEg0BuGZ7c8jHqKycooaqKD7s
+        Ajq9KEorZZBfWcDQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id D6932133F7;
+        Mon, 31 Jul 2023 10:50:34 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id ovhUNPqRx2R2ZgAAMHmgww
+        (envelope-from <jack@suse.cz>); Mon, 31 Jul 2023 10:50:34 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+        id 457F5A0767; Mon, 31 Jul 2023 12:50:34 +0200 (CEST)
+Date:   Mon, 31 Jul 2023 12:50:34 +0200
+From:   Jan Kara <jack@suse.cz>
+To:     Haris Iqbal <haris.iqbal@ionos.com>
+Cc:     Christoph Hellwig <hch@infradead.org>, Jan Kara <jack@suse.cz>,
+        linux-block@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Jens Axboe <axboe@kernel.dk>, Alasdair Kergon <agk@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anna Schumaker <anna@kernel.org>, Chao Yu <chao@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Dave Kleikamp <shaggy@kernel.org>,
+        David Sterba <dsterba@suse.com>, dm-devel@redhat.com,
+        drbd-dev@lists.linbit.com, Gao Xiang <xiang@kernel.org>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        jfs-discussion@lists.sourceforge.net,
+        Joern Engel <joern@lazybastard.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        linux-bcache@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, linux-mm@kvack.org,
+        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
+        linux-nilfs@vger.kernel.org, linux-nvme@lists.infradead.org,
+        linux-pm@vger.kernel.org, linux-raid@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-xfs@vger.kernel.org, Mike Snitzer <snitzer@kernel.org>,
+        Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com,
+        reiserfs-devel@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Song Liu <song@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        target-devel@vger.kernel.org, Ted Tso <tytso@mit.edu>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        xen-devel@lists.xenproject.org
+Subject: Re: [PATCH 01/32] block: Provide blkdev_get_handle_* functions
+Message-ID: <20230731105034.43skhi5ubze563c3@quack3>
+References: <20230629165206.383-1-jack@suse.cz>
+ <20230704122224.16257-1-jack@suse.cz>
+ <ZKbgAG5OoHVyUKOG@infradead.org>
+ <CAJpMwyiUcw+mH0sZa8f8UJsaSZ7NSE65s2gZDEia+pASyP_gJQ@mail.gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.13.0
-Subject: Re: [PATCH net-next] net/smc: Remove unused function declarations
-To:     Yue Haibing <yuehaibing@huawei.com>, kgraul@linux.ibm.com,
-        jaka@linux.ibm.com, alibuda@linux.alibaba.com,
-        tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20230729121929.17180-1-yuehaibing@huawei.com>
-From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <20230729121929.17180-1-yuehaibing@huawei.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: uODoM8UPlxLbEVWzylmkl_fwteAOR5j1
-X-Proofpoint-ORIG-GUID: EZqHPi-9IKEEMVyy4IrcDAarHBtdvSRW
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-27_10,2023-07-26_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxscore=0
- clxscore=1011 malwarescore=0 mlxlogscore=999 impostorscore=0 adultscore=0
- phishscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2306200000 definitions=main-2307310062
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAJpMwyiUcw+mH0sZa8f8UJsaSZ7NSE65s2gZDEia+pASyP_gJQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 29.07.23 14:19, Yue Haibing wrote:
-> commit f9aab6f2ce57 ("net/smc: immediate freeing in smc_lgr_cleanup_early()")
-> left behind smc_lgr_schedule_free_work_fast() declaration.
-> And since commit 349d43127dac ("net/smc: fix kernel panic caused by race of smc_sock")
-> smc_ib_modify_qp_reset() is not used anymore.
+On Wed 12-07-23 18:06:35, Haris Iqbal wrote:
+> On Thu, Jul 6, 2023 at 5:38 PM Christoph Hellwig <hch@infradead.org> wrote:
+> >
+> > On Tue, Jul 04, 2023 at 02:21:28PM +0200, Jan Kara wrote:
+> > > Create struct bdev_handle that contains all parameters that need to be
+> > > passed to blkdev_put() and provide blkdev_get_handle_* functions that
+> > > return this structure instead of plain bdev pointer. This will
+> > > eventually allow us to pass one more argument to blkdev_put() without
+> > > too much hassle.
+> >
+> > Can we use the opportunity to come up with better names?  blkdev_get_*
+> > was always a rather horrible naming convention for something that
+> > ends up calling into ->open.
+> >
+> > What about:
+> >
+> > struct bdev_handle *bdev_open_by_dev(dev_t dev, blk_mode_t mode, void *holder,
+> >                 const struct blk_holder_ops *hops);
+> > struct bdev_handle *bdev_open_by_path(dev_t dev, blk_mode_t mode,
+> >                 void *holder, const struct blk_holder_ops *hops);
+> > void bdev_release(struct bdev_handle *handle);
 > 
-> Signed-off-by: Yue Haibing <yuehaibing@huawei.com>
+> +1 to this.
+> Also, if we are removing "handle" from the function, should the name
+> of the structure it returns also change? Would something like bdev_ctx
+> be better?
 
-Thank you for the findings!
+I think the bdev_handle name is fine for the struct. After all it is
+equivalent of an open handle for the block device so IMHO bdev_handle
+captures that better than bdev_ctx.
 
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+								Honza
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
