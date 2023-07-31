@@ -2,53 +2,53 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD2CFC04FE1
-	for <linux-s390@archiver.kernel.org>; Mon, 31 Jul 2023 07:20:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7435C001DF
+	for <linux-s390@archiver.kernel.org>; Mon, 31 Jul 2023 07:20:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230260AbjGaHUz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 Jul 2023 03:20:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59534 "EHLO
+        id S231547AbjGaHU4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 Jul 2023 03:20:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231901AbjGaHT2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jul 2023 03:19:28 -0400
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D2FB1981;
-        Mon, 31 Jul 2023 00:17:36 -0700 (PDT)
-Received: by mail-wr1-x42a.google.com with SMTP id ffacd0b85a97d-3175f17a7baso3771589f8f.0;
-        Mon, 31 Jul 2023 00:17:35 -0700 (PDT)
+        with ESMTP id S231389AbjGaHT3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jul 2023 03:19:29 -0400
+Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 909DC19B7;
+        Mon, 31 Jul 2023 00:17:56 -0700 (PDT)
+Received: by mail-wm1-x32d.google.com with SMTP id 5b1f17b1804b1-3fbc54cab6fso38849145e9.0;
+        Mon, 31 Jul 2023 00:17:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1690787854; x=1691392654;
+        d=gmail.com; s=20221208; t=1690787875; x=1691392675;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=rF1J0XzJl2jEuCsHx7nkNs1OdRX43SORnh/9oIIv32k=;
-        b=oqsIryt2GxpgDCAITNIaXCxHDdR3cVtpe2f7ZX5yNWH+iIKTDyP9HWjuJrFs2+sMti
-         nz/dszslpzNl5CmOVyIxo9flstqLOG9Lkm0NZCdBEnmTU+I1vw89cMQ0SF9WwdKUoM4I
-         XcWmm1bGPvIhG5CX3epdf8PQz1b9WroQTsn7rnMMDg3nS9g5zr+JNBzD7ERJU2+AinRX
-         MHXofl3ANcJEAvB+CVk869XpKrsp2b0FvWFR9bdzEstXBE+7GTB2bqaK0C1x6sILTPh1
-         c3jM3t7rPPIdEypAnu4qsrcw5JUJFj3cl1pq/Q4VBS9yMtigqyYg0I4nF13M1FXKdD6i
-         UhMg==
+        bh=5noSV5uL5R3dSrbr/R0oWH8ijMnn3jtlsPFspVagWKY=;
+        b=SdrDkcAXByY0sJ7+rsAQdKfwmVG3c5WCPbN//BnCCScfOVUkasmGjo067IR+VtoRFo
+         D6fwH8JniXv/Aup+rPGRbJrL8OTu9SbMmBiODdKPF8oMnV5nnhT5Dk8pAsrGnQ1wlSD+
+         ZPSjKJj0Pl4FANdos20Y/es0ysWL5w8sQZmI+ZHUBkv+tuJ1lk6dlgDvkzs/df09zXrj
+         ozr7xMnnfqrKvmouPpdXKljCbCEOiFQv0X/hWykCE2eIqIt79Ja2MJK+869pNwih6sKq
+         TE5UeaBofIs4fRFHFLZTtsmqowO2I2B2j/4dl6w9Zz7MLeQMomK17YoLSMVAB2k5xiif
+         a5kw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690787854; x=1691392654;
+        d=1e100.net; s=20221208; t=1690787875; x=1691392675;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=rF1J0XzJl2jEuCsHx7nkNs1OdRX43SORnh/9oIIv32k=;
-        b=Xg3+WJwvgOQ28bhWLl65zYx/bpk6dcA238Hio5ad18IUt+lQ4YrMxuMuhVIaIQLNTZ
-         2Bf1Ud6vH4JO7KlLeoSgmG4EucElt3poD8S8VxFRQd34VMuY1aBGw9EJzC8EWCDXdB/K
-         IXgaZHTmgWEVA+ejmov5TPLAMpsn3lyeN85GbCe2X7paYoACyL2JNFjVhptjbN/X9A9d
-         PggZVcXYajJylfpcctTMBWUYzrRZXVs0YSa6Ctdl7nXsb2av0X7r57FCZs9MUubxmbHs
-         mPlYsldJ9O5VptMUchupHvBeNs5ao3XdegQMAJcXXZhFItrWue3gmCxA2KsCPb8N4L6t
-         n0bw==
-X-Gm-Message-State: ABy/qLYgaWcaos/cu8wX7UHl0uXDVATI8Qr9WGASPSc2u5cHGjkPgKPZ
-        tLXeTenF2j+7Bg68KfHfoKg=
-X-Google-Smtp-Source: APBJJlH/snPYxm7GXwa1Rggof5k5STEqlwm0FtiAchadIGMCtE1ufLHfEJ1/mE1z3ZZ7UCj5VHH5Tw==
-X-Received: by 2002:a5d:60cb:0:b0:316:f3f3:a1db with SMTP id x11-20020a5d60cb000000b00316f3f3a1dbmr5784721wrt.32.1690787853763;
-        Mon, 31 Jul 2023 00:17:33 -0700 (PDT)
+        bh=5noSV5uL5R3dSrbr/R0oWH8ijMnn3jtlsPFspVagWKY=;
+        b=N2ouy/r5GVUOQi+JrBf2ipL4gUAzxPLYM8mf2Rum2icnbKriJ2bfDR7vhLg2y1Rvz2
+         nelKIQFqde7NzmUgDRFqtVs4gdhCHHwYXsoBudOFbgA7fvCfuxvoDv5v0FcbSTcXAfZr
+         nYhO5ynRTSg8W6nn14WtLedoLiy/QyAnSUkTOW85JD3wh6kFRsYZ/txaueMLPQcf0FdK
+         jraN1SGsFdrX5DIwjZffbHpAy6Vh6yY3i8gqZ/Dmp8NFcrrhXWv8tJPWx/KhYmX3DNS4
+         imWTTyj2QeDTbrJQUGsrG0vpsNNRcPtxEtBg8Hy8y1zD7MmsSX37QwGmRD8pPKS9oJzW
+         +TEQ==
+X-Gm-Message-State: ABy/qLaWU8XN47XpcmrI3gNnL/OednKp9cqzM4bvwzqbeMIUoH70yE6i
+        u16uKZStv4qVcjm1z7WCzdA=
+X-Google-Smtp-Source: APBJJlHpAH3o3EDSC2u2zI8yHuEQrXycm/dtoKdWekhqyBYm7o6lNwNkDT7RDClIujTk2ibrxiYYXQ==
+X-Received: by 2002:a7b:c4d0:0:b0:3fb:ac9c:e6f with SMTP id g16-20020a7bc4d0000000b003fbac9c0e6fmr6026875wmk.38.1690787875090;
+        Mon, 31 Jul 2023 00:17:55 -0700 (PDT)
 Received: from localhost ([165.225.194.214])
-        by smtp.gmail.com with ESMTPSA id m14-20020adffa0e000000b003177e9b2e64sm11978068wrr.90.2023.07.31.00.17.33
+        by smtp.gmail.com with ESMTPSA id s10-20020a7bc38a000000b003fbfc61d36asm10570517wmj.5.2023.07.31.00.17.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Jul 2023 00:17:33 -0700 (PDT)
+        Mon, 31 Jul 2023 00:17:54 -0700 (PDT)
 From:   Joel Granados <joel.granados@gmail.com>
 X-Google-Original-From: Joel Granados <j.granados@samsung.com>
 To:     mcgrof@kernel.org
@@ -96,10 +96,11 @@ Cc:     Catalin Marinas <catalin.marinas@arm.com>,
         Xin Long <lucien.xin@gmail.com>,
         Nikolay Aleksandrov <razor@blackwall.org>,
         netdev@vger.kernel.org, rds-devel@oss.oracle.com,
-        Joel Granados <j.granados@samsung.com>
-Subject: [PATCH v2 02/14] sysctl: Use ctl_table_header in list_for_each_table_entry
-Date:   Mon, 31 Jul 2023 09:17:16 +0200
-Message-Id: <20230731071728.3493794-3-j.granados@samsung.com>
+        Joel Granados <j.granados@samsung.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>
+Subject: [PATCH v2 13/14] sysctl: SIZE_MAX->ARRAY_SIZE in register_net_sysctl
+Date:   Mon, 31 Jul 2023 09:17:27 +0200
+Message-Id: <20230731071728.3493794-14-j.granados@samsung.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20230731071728.3493794-1-j.granados@samsung.com>
 References: <20230731071728.3493794-1-j.granados@samsung.com>
@@ -109,130 +110,40 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-We replace the ctl_table with the ctl_table_header pointer in
-list_for_each_table_entry which is the macro responsible for traversing
-the ctl_table arrays. This is a preparation commit that will make it
-easier to add the ctl_table array size (that will be added to
-ctl_table_header in subsequent commits) to the already existing loop
-logic based on empty ctl_table elements (so called sentinels).
+Replace SIZE_MAX with ARRAY_SIZE in the register_net_sysctl macro. Now
+that all the callers to register_net_sysctl are actual arrays, we can
+call ARRAY_SIZE() without any compilation warnings. By calculating the
+actual array size, this commit is making sure that register_net_sysctl
+and all its callers forward the table_size into sysctl backend for when
+the sentinel elements in the ctl_table arrays (last empty markers) are
+removed. Without it the removal would fail lacking a stopping criteria
+for traversing the ctl_table arrays.
+
+Stopping condition continues to be based on both table size and the
+procname null test. This is needed in order to allow for the systematic
+removal al the sentinel element in subsequent commits: Before removing
+sentinel the stopping criteria will be the last null element. When the
+sentinel is removed then the (correct) size will take over.
 
 Signed-off-by: Joel Granados <j.granados@samsung.com>
+Suggested-by: Jani Nikula <jani.nikula@linux.intel.com>
 ---
- fs/proc/proc_sysctl.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ include/net/net_namespace.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
-index 94d71446da39..884460b0385b 100644
---- a/fs/proc/proc_sysctl.c
-+++ b/fs/proc/proc_sysctl.c
-@@ -19,8 +19,8 @@
- #include <linux/kmemleak.h>
- #include "internal.h"
+diff --git a/include/net/net_namespace.h b/include/net/net_namespace.h
+index e4e5fe75a281..75dba309e043 100644
+--- a/include/net/net_namespace.h
++++ b/include/net/net_namespace.h
+@@ -470,7 +470,7 @@ void unregister_pernet_device(struct pernet_operations *);
+ struct ctl_table;
  
--#define list_for_each_table_entry(entry, table) \
--	for ((entry) = (table); (entry)->procname; (entry)++)
-+#define list_for_each_table_entry(entry, header) \
-+	for ((entry) = (header->ctl_table); (entry)->procname; (entry)++)
- 
- static const struct dentry_operations proc_sys_dentry_operations;
- static const struct file_operations proc_sys_file_operations;
-@@ -204,7 +204,7 @@ static void init_header(struct ctl_table_header *head,
- 	if (node) {
- 		struct ctl_table *entry;
- 
--		list_for_each_table_entry(entry, table) {
-+		list_for_each_table_entry(entry, head) {
- 			node->header = head;
- 			node++;
- 		}
-@@ -215,7 +215,7 @@ static void erase_header(struct ctl_table_header *head)
- {
- 	struct ctl_table *entry;
- 
--	list_for_each_table_entry(entry, head->ctl_table)
-+	list_for_each_table_entry(entry, head)
- 		erase_entry(head, entry);
- }
- 
-@@ -242,7 +242,7 @@ static int insert_header(struct ctl_dir *dir, struct ctl_table_header *header)
- 	err = insert_links(header);
- 	if (err)
- 		goto fail_links;
--	list_for_each_table_entry(entry, header->ctl_table) {
-+	list_for_each_table_entry(entry, header) {
- 		err = insert_entry(header, entry);
- 		if (err)
- 			goto fail;
-@@ -1129,7 +1129,7 @@ static int sysctl_check_table(const char *path, struct ctl_table_header *header)
- {
- 	struct ctl_table *entry;
- 	int err = 0;
--	list_for_each_table_entry(entry, header->ctl_table) {
-+	list_for_each_table_entry(entry, header) {
- 		if ((entry->proc_handler == proc_dostring) ||
- 		    (entry->proc_handler == proc_dobool) ||
- 		    (entry->proc_handler == proc_dointvec) ||
-@@ -1169,7 +1169,7 @@ static struct ctl_table_header *new_links(struct ctl_dir *dir, struct ctl_table_
- 
- 	name_bytes = 0;
- 	nr_entries = 0;
--	list_for_each_table_entry(entry, head->ctl_table) {
-+	list_for_each_table_entry(entry, head) {
- 		nr_entries++;
- 		name_bytes += strlen(entry->procname) + 1;
- 	}
-@@ -1188,7 +1188,7 @@ static struct ctl_table_header *new_links(struct ctl_dir *dir, struct ctl_table_
- 	link_name = (char *)&link_table[nr_entries + 1];
- 	link = link_table;
- 
--	list_for_each_table_entry(entry, head->ctl_table) {
-+	list_for_each_table_entry(entry, head) {
- 		int len = strlen(entry->procname) + 1;
- 		memcpy(link_name, entry->procname, len);
- 		link->procname = link_name;
-@@ -1211,7 +1211,7 @@ static bool get_links(struct ctl_dir *dir,
- 	struct ctl_table *entry, *link;
- 
- 	/* Are there links available for every entry in table? */
--	list_for_each_table_entry(entry, header->ctl_table) {
-+	list_for_each_table_entry(entry, header) {
- 		const char *procname = entry->procname;
- 		link = find_entry(&tmp_head, dir, procname, strlen(procname));
- 		if (!link)
-@@ -1224,7 +1224,7 @@ static bool get_links(struct ctl_dir *dir,
- 	}
- 
- 	/* The checks passed.  Increase the registration count on the links */
--	list_for_each_table_entry(entry, header->ctl_table) {
-+	list_for_each_table_entry(entry, header) {
- 		const char *procname = entry->procname;
- 		link = find_entry(&tmp_head, dir, procname, strlen(procname));
- 		tmp_head->nreg++;
-@@ -1356,12 +1356,14 @@ struct ctl_table_header *__register_sysctl_table(
- {
- 	struct ctl_table_root *root = set->dir.header.root;
- 	struct ctl_table_header *header;
-+	struct ctl_table_header h_tmp;
- 	struct ctl_dir *dir;
- 	struct ctl_table *entry;
- 	struct ctl_node *node;
- 	int nr_entries = 0;
- 
--	list_for_each_table_entry(entry, table)
-+	h_tmp.ctl_table = table;
-+	list_for_each_table_entry(entry, (&h_tmp))
- 		nr_entries++;
- 
- 	header = kzalloc(sizeof(struct ctl_table_header) +
-@@ -1471,7 +1473,7 @@ static void put_links(struct ctl_table_header *header)
- 	if (IS_ERR(core_parent))
- 		return;
- 
--	list_for_each_table_entry(entry, header->ctl_table) {
-+	list_for_each_table_entry(entry, header) {
- 		struct ctl_table_header *link_head;
- 		struct ctl_table *link;
- 		const char *name = entry->procname;
+ #define register_net_sysctl(net, path, table)	\
+-	register_net_sysctl_sz(net, path, table, SIZE_MAX)
++	register_net_sysctl_sz(net, path, table, ARRAY_SIZE(table))
+ #ifdef CONFIG_SYSCTL
+ int net_sysctl_init(void);
+ struct ctl_table_header *register_net_sysctl_sz(struct net *net, const char *path,
 -- 
 2.30.2
 
