@@ -2,167 +2,157 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24EB4C41513
-	for <linux-s390@archiver.kernel.org>; Mon, 31 Jul 2023 12:29:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF313C001DE
+	for <linux-s390@archiver.kernel.org>; Mon, 31 Jul 2023 13:36:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232597AbjGaM32 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 Jul 2023 08:29:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51812 "EHLO
+        id S232297AbjGaNgC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 Jul 2023 09:36:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232608AbjGaM3Z (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jul 2023 08:29:25 -0400
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2045.outbound.protection.outlook.com [40.107.92.45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC083E46;
-        Mon, 31 Jul 2023 05:29:22 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kvH9UWJYfts8U1L/wayxWlUgCLQ+Y0+Ku/apIC6QlpW8/atUfANmdZcESEhY9YmGBIP1I0Bjj7rb2OZG4OMCF4Mvsbb4Di3ep79TvzY6YECrJvgSfcgd4xgeZ+Hbw+Yx5CX7bq8vm8cAXwBJtsaMSOK1aPNtJBYbFXmR8TbdR+ns46lKXBnsF/oMJZdlc7ir8SZyF0OpdwWt8iVWJpDDZ6V7oZLnf4a4IOvB3DHu0GT4XEnnrMKKZo9xrTgXJbf5H51Fx/CVvTPzuhKtjW+axzlQhRKVdSMaawahHJn+/YMHBxF0BFRQJd6OqIBxq01GhOdp3opd3b+dqvbPqEbzyw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=CtEQgwHL7QaCkNYds3zauhwHQxjzmUu3ELTCUFR8EE0=;
- b=MQ92IDnC8FwGlTuf3qXLMki5PkgS+a7GPS48gc8Jve8OS3Men00+vE0KBX9BkNoO12Ez9pLL71dZRlShcUCOznBjkSd3m4BLshEXJzznfVQSm/Rg11LYvmfs7e5JB0rgOcObOxE/UKbZt7ZZzDeE6CEONXifWtPm9wd+c6qmuHJaEGbv5mqBWfWTqrid+WeJAL1TV9mFCXTr+f7HuAzLFC4KQ+i1qlD9wJVVE+3Aw46ztzw0kqssbMCyxBcF7u0JCQxx6qs3tJYNd1N2NC6crz30FvCgL9/fiUfZJr62MOpVv6LqZAkpfSU+gc3d9xRS6+Zj2WwVnCf9G95fD8A11w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=CtEQgwHL7QaCkNYds3zauhwHQxjzmUu3ELTCUFR8EE0=;
- b=FnC7QWEkdR+1LH6gc2fg5dNKS9rhYRIT8tx1t20T6IIdVwu//P8fiAD4ecD/P3Zykd+rTc8Frno11B+NRlnxbF9nevLENwtyDHw/pXV53CS8o9jxq4L2mKrJQXCVbIrqMMdMa3d8VGiTUDCWZT7ezPRBFjmr8SxkrM5Zl++3+p8Had7FW/GmtcOCPqH+DJezVsOm7NMmvwDR6Rl7BGtW1qeIsD6s6XI2KhYdBmk8mAAgNGztC1WiE1Qa5Zf0/jE8T7h0CkQLKHVngJ+P1ot8QKiaHblwDwO2mE9QBXDO5qnJ3Fu3Zs5npQpL2C9OAMK/tvGxcnuAUYXDY212rMN76Q==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by CH2PR12MB4216.namprd12.prod.outlook.com (2603:10b6:610:a8::23) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6631.42; Mon, 31 Jul
- 2023 12:29:20 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::5111:16e8:5afe:1da1]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::5111:16e8:5afe:1da1%6]) with mapi id 15.20.6631.043; Mon, 31 Jul 2023
- 12:29:20 +0000
-Date:   Mon, 31 Jul 2023 09:29:17 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Joerg Roedel <joro@8bytes.org>
-Cc:     Andy Gross <agross@kernel.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        linuxppc-dev@lists.ozlabs.org,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Steven Price <steven.price@arm.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH v5 00/25] iommu: Make default_domain's mandatory
-Message-ID: <ZMepHZrLFURXaIoZ@nvidia.com>
-References: <0-v5-d0a204c678c7+3d16a-iommu_all_defdom_jgg@nvidia.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0-v5-d0a204c678c7+3d16a-iommu_all_defdom_jgg@nvidia.com>
-X-ClientProxiedBy: SJ0PR03CA0375.namprd03.prod.outlook.com
- (2603:10b6:a03:3a1::20) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S232261AbjGaNgB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jul 2023 09:36:01 -0400
+Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41A0B1708;
+        Mon, 31 Jul 2023 06:35:56 -0700 (PDT)
+Received: by mail-yb1-xb35.google.com with SMTP id 3f1490d57ef6-d09ba80fbcaso4675013276.2;
+        Mon, 31 Jul 2023 06:35:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1690810555; x=1691415355;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=oAyXH6ekoTa05SAgzmQb3wllKwSfvfzCrLBBn4jkkW4=;
+        b=gLyC++uMA73NEwRZEkud6ZUJY1Dsimw7XhAv41TwiKC98Ik61qftRevUzwfUiCxVuh
+         3uiAbaiSuFE3ZrDVAso6i83lCKnNJ+FPzNkyVtSgjHfQuoGXYydiYmckIJwB5OfK2reR
+         Pb/ym26WIkf73+Jgbx8ZvnV6cQU6id7zSxbjIZ9J584vqeqvMDGbk7CdMrtKp2LdVAx+
+         /1Ey3DbxGLl4U2VVP0YYA9XL79GU50m5t/jyuaca5rfNmOP1DYjW5RCNVUo4QUPNoi4p
+         DY6ghdxqzyynDLBHa49ou/WG4Q/DI01xGlCKNv3htUCiMk0QXakVvdWP6f5gVqx6O9Gq
+         x7IQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1690810555; x=1691415355;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=oAyXH6ekoTa05SAgzmQb3wllKwSfvfzCrLBBn4jkkW4=;
+        b=kjmaaDsSoJS6xiBmRZMIpu53NaUsr+kbubPhYDT9JVt3aNc7xsNHVdW51XwGP4msfp
+         AbO+QHNLIA3p83MjYHQLNx5ipnhepZHQs1jDdogdf4kLaAoZ5weCzJ4PJd2WbvLBoyuQ
+         PD/ze1ywR3Z8XMftJj/Jt7860Zw9YHu53xLe+G0VF2A3z+WutpffY+8c9uvg7Upspp8v
+         p+Zd9fYJLKNvgYAtjWnn3f7TRFBFHZEeuce752LvshQVEmhEa7JHPfoyW+4lsb5JrEBR
+         JVLfQ/m3Mp+YNxtuYu2A+NJykkDivwVDA7GV8HKc0zHwR1cHFxLbSlqZGZk6V4Ep0HMr
+         XANg==
+X-Gm-Message-State: ABy/qLYxp1SPB37NA2iCO99Cfk4oHZcpJawpbHpRnSIMrp5Mxsal8S3X
+        D4t/o1xgirPX7UeyaNwkIG95ytV3JtYl2lYXrqo=
+X-Google-Smtp-Source: APBJJlHlKQxquau9vHbub3enl9P4TMStwyjPMWusF11iwrzgObp/yDS37tRQeizN7EUqGRl1cyuLrJAbgaz0DyI7iTQ=
+X-Received: by 2002:a25:ce04:0:b0:d0c:9ab2:72d3 with SMTP id
+ x4-20020a25ce04000000b00d0c9ab272d3mr9716417ybe.14.1690810555377; Mon, 31 Jul
+ 2023 06:35:55 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|CH2PR12MB4216:EE_
-X-MS-Office365-Filtering-Correlation-Id: 92bc7af5-e181-4166-70c8-08db91c1c36c
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: kSZqP2P0Fg/KhGLhsvonoUuG9S6jGNf1722Goaiic9/wF7BOn+23Jdh64yG87dY17wLCHHLnliclrPMgCiaFgFPUMYtAxzP1OuemzwaqR7fzdyMnjQMtOf5E2Y2gXYVPkN0vBJf3bhJMkCwYdufwTvp5T/dHuYPyFZLbFuzlbrJM/n6ZIOeezKRgkVNwFEt7ON5SBVwR9fq4sLvHqdj+TMHSsGhoFDgiHJg8pNFSJ9hCXB4KkQpNKFBWLslNCmcwTW0Z9yyvwYwVuIKHCjmBO+V1iS7c+b/RRgDWPv1K+Cyqj87n99yYPHqIJcBxpN6h6CwslPQsLeL8G+FBa+0oe42Xo+jPm9h0XwDWZAFXMdFkMjmcgUtQj+b6Br048T5fARODvXxpCe9akNJ1yenVh9REL8BK1WCnmiDqvUmZFyTAWf3BS9yA3Km1vwnohsYf19gtJyX8Yg3lqLvWYdLTD79DR6p+kEIC0yJDdEH/TWVMZ1DywqVxZzqd2OStf0rWslZcEj9kCubOMD0X9NGA/aXMhvOCorlyzWvuAH7RCORFNgK73OluVtP29UEppPwv
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(396003)(376002)(346002)(39860400002)(366004)(136003)(451199021)(66476007)(86362001)(8676002)(8936002)(316002)(6916009)(4326008)(5660300002)(7406005)(7416002)(41300700001)(66946007)(66556008)(54906003)(38100700002)(478600001)(4744005)(2906002)(6666004)(36756003)(6512007)(6486002)(107886003)(6506007)(26005)(83380400001)(186003)(2616005);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?N0wzJB4BCCyjz2G7e2GQfDtBH+pIrIFkcniUahLMQLSQMbCKgOr1KpkWuF12?=
- =?us-ascii?Q?CZOQvoo6SmYmOJkt56Y78ZUgLx+WuSRCxX8jMOC2Y3dAHUlX4SlmARoYObDZ?=
- =?us-ascii?Q?+WVHwkqfPDaggpWUh67DH8phZdVtczYeg4Fj/QTeiUHcGmM8g5WiOEi2dZ70?=
- =?us-ascii?Q?TBAot+Mh1QuUbswLXmECDXchC+ptg/zoIe4C3DwBmuZG9rVSZQFmBPyFi6fV?=
- =?us-ascii?Q?rdsqmkcPgwAmeyl23C8qi3nqMk50QEcoVXMpdnzcn1qLNjejjw2hmpbRvlMb?=
- =?us-ascii?Q?l33FIWOyQOLj7XcGRBpXMnLXUpNIeumxlLopC2G/i5SIEWHo/vRtyh30oPQW?=
- =?us-ascii?Q?9n1b/fZ+A9XWASyDwBDS5wNkEAKDYvOvV2mvcNSPvQomTXs2Xi3trMfkpL+B?=
- =?us-ascii?Q?QasqJS8GsjZGhf5gOm6AIPuQbyjdBj2gqyv7hEKF2pP4Fus0zerqy1+o2b5A?=
- =?us-ascii?Q?3gJ5Q38alKBessLVtC5WLuuRlJOSYtGUASmXvRWDFxjbdCmmZAgr1ASDOYvs?=
- =?us-ascii?Q?E1wXbXgyjX2gsPwgTq7OSvxsKA8zOPLKvVMvLXiWHrVLlfWA/8wvHYAcM+aK?=
- =?us-ascii?Q?DwvNzXPrbbLHW6S4oeQefqE5ReRqgwEFdRjGbrVT8Ub3MjaNnSpSaS063d3c?=
- =?us-ascii?Q?hNwI1UIvXCOpjDBf4sqLqTHxnT9vub8SKAQj15+4IzQUBW+Njw5eDs7zLdS9?=
- =?us-ascii?Q?jBrRQsbT33aWKl+b3xqR8O+KtUKVlFEw6Ne9MKn+8n+RzoCDwmu3zdh/sVyh?=
- =?us-ascii?Q?MCXAbe36S6xSRX8enNUr2oRYv48rYMBG521CtjTp3TD7Zuq9irSHPoZMMq0a?=
- =?us-ascii?Q?qs/xccM2B7w5nBnODmDYW/Gp98X8gI9KUe62Zeqitxh+qzNGfe5RvwxbY8lU?=
- =?us-ascii?Q?bUdcV+cie9wjoBqC0aprnywT+yP1MJuwwo2lwOtjXY7xeUjGMj502ibfCTt4?=
- =?us-ascii?Q?Ff4wcQo+hRD8H6xXReUIpWCvMvhvvgAP/uzvbblYfotzXzKHpZ1+uvfaCPu2?=
- =?us-ascii?Q?kNZp/xXoM002Zw6KuGf3LICdm85zODHNBQM46ew+PU33/fRnwt837y3u4NK/?=
- =?us-ascii?Q?7AUsI8JJEJbQjFo4E4DfAuVtfzfCXvB1S95RuM06kPYiwB+54HBuydtlTbzr?=
- =?us-ascii?Q?0eS4L0XLwPMo/Q6vnEjZdI1AEf0w6UiCeq4N8jzVqtFWVYtCd14OM72hPbqG?=
- =?us-ascii?Q?2gZhdEBrqra6MkMWEEiUMDLacbHEdOodl2dMvuAYb/JPOWVRKXQLNMpK9fbM?=
- =?us-ascii?Q?3cjrPZ17bbltTCz3YC01gVl4YuN8NUxujm1/Z2jy21RzdqJ4J8iLuTsDqUOh?=
- =?us-ascii?Q?sClBj8slKQkmaLr7qF7QMgJwbFXEoBbwJWOk1CtcvCCXcYj1VP+etdq1ClHw?=
- =?us-ascii?Q?BDOLtS3wGMKukwu0+V1aHHIz0l60mXFP84BnOPdpO7cZaFmutuppyA0dXOzg?=
- =?us-ascii?Q?rT/Rfqs94NQKJQ2n9pb2IsDQaHr26fhU1iAxcJq91bJNMehjEAT9NWpPvLsY?=
- =?us-ascii?Q?nP2jH+A0UNM2ylEPUcidtdPwmErNpV529dsW1sv4T8wz4CrnIGRJ8jbJ6mk+?=
- =?us-ascii?Q?oyImrhUtLrzQkTQjxLo=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 92bc7af5-e181-4166-70c8-08db91c1c36c
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Jul 2023 12:29:19.8773
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 0je1o1rY/zdIQywA98c2fjrR8Z/kPk/uNcuvsq8q/ZbODf1Ez7gG1p6UT3jXo3ZN
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4216
+References: <CAAUqJDuRkHE8fPgZJGaKjUjd3QfGwzfumuJBmStPqBhubxyk_A@mail.gmail.com>
+ <97730.1690408399@warthog.procyon.org.uk> <yt9dbkfxsxtl.fsf@linux.ibm.com>
+In-Reply-To: <yt9dbkfxsxtl.fsf@linux.ibm.com>
+From:   =?UTF-8?B?T25kcmVqIE1vc27DocSNZWs=?= <omosnacek@gmail.com>
+Date:   Mon, 31 Jul 2023 15:35:44 +0200
+Message-ID: <CAAUqJDvk0y4x=fzfe8GX_t7Qj4WcRBfTOK2Za718wki9h-XkjA@mail.gmail.com>
+Subject: Re: [PATCH] crypto: Fix missing initialisation affecting gcm-aes-s390
+To:     Sven Schnelle <svens@linux.ibm.com>
+Cc:     David Howells <dhowells@redhat.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Harald Freudenberger <freude@linux.vnet.ibm.com>,
+        Bagas Sanjaya <bagasdotme@gmail.com>,
+        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, regressions@lists.linux.dev,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jul 24, 2023 at 02:21:50PM -0300, Jason Gunthorpe wrote:
-> [ It would be good to get this in linux-next, we have some good test
-> coverage on the ARM side already, thanks! ]
-> 
-> It has been a long time coming, this series completes the default_domain
-> transition and makes it so that the core IOMMU code will always have a
-> non-NULL default_domain for every driver on every
-> platform. set_platform_dma_ops() turned out to be a bad idea, and so
-> completely remove it.
+On Thu, Jul 27, 2023 at 7:55=E2=80=AFAM Sven Schnelle <svens@linux.ibm.com>=
+ wrote:
+>
+> David Howells <dhowells@redhat.com> writes:
+>
+> >
+> > Fix af_alg_alloc_areq() to initialise areq->first_rsgl.sgl.sgt.sgl to p=
+oint
+> > to the scatterlist array in areq->first_rsgl.sgl.sgl.
+> >
+> > Without this, the gcm-aes-s390 driver will oops when it tries to do
+> > gcm_walk_start() on req->dst because req->dst is set to the value of
+> > areq->first_rsgl.sgl.sgl by _aead_recvmsg() calling
+> > aead_request_set_crypt().
+> >
+> > The problem comes if an empty ciphertext is passed: the loop in
+> > af_alg_get_rsgl() just passes straight out and doesn't set areq->first_=
+rsgl
+> > up.
+> >
+> > This isn't a problem on x86_64 using gcmaes_crypt_by_sg() because, as f=
+ar
+> > as I can tell, that ignores req->dst and only uses req->src[*].
+> >
+> > [*] Is this a bug in aesni-intel_glue.c?
+> >
+> > The s390x oops looks something like:
+> >
+> >  Unable to handle kernel pointer dereference in virtual kernel address =
+space
+> >  Failing address: 0000000a00000000 TEID: 0000000a00000803
+> >  Fault in home space mode while using kernel ASCE.
+> >  AS:00000000a43a0007 R3:0000000000000024
+> >  Oops: 003b ilc:2 [#1] SMP
+> >  ...
+> >  Call Trace:
+> >   [<000003ff7fc3d47e>] gcm_walk_start+0x16/0x28 [aes_s390]
+> >   [<00000000a2a342f2>] crypto_aead_decrypt+0x9a/0xb8
+> >   [<00000000a2a60888>] aead_recvmsg+0x478/0x698
+> >   [<00000000a2e519a0>] sock_recvmsg+0x70/0xb0
+> >   [<00000000a2e51a56>] sock_read_iter+0x76/0xa0
+> >   [<00000000a273e066>] vfs_read+0x26e/0x2a8
+> >   [<00000000a273e8c4>] ksys_read+0xbc/0x100
+> >   [<00000000a311d808>] __do_syscall+0x1d0/0x1f8
+> >   [<00000000a312ff30>] system_call+0x70/0x98
+> >  Last Breaking-Event-Address:
+> >   [<000003ff7fc3e6b4>] gcm_aes_crypt+0x104/0xa68 [aes_s390]
+> >
+> > Fixes: c1abe6f570af ("crypto: af_alg: Use extract_iter_to_sg() to creat=
+e scatterlists")
+> > Reported-by: Ondrej Mosn=C3=A1=C4=8Dek <omosnacek@gmail.com>
+> > Link: https://lore.kernel.org/r/CAAUqJDuRkHE8fPgZJGaKjUjd3QfGwzfumuJBmS=
+tPqBhubxyk_A@mail.gmail.com/
+> > Signed-off-by: David Howells <dhowells@redhat.com>
+> > cc: Herbert Xu <herbert@gondor.apana.org.au>
+> > cc: Sven Schnelle <svens@linux.ibm.com>
+> > cc: Harald Freudenberger <freude@linux.vnet.ibm.com>
+> > cc: "David S. Miller" <davem@davemloft.net>
+> > cc: Paolo Abeni <pabeni@redhat.com>
+> > cc: linux-crypto@vger.kernel.org
+> > cc: linux-s390@vger.kernel.org
+> > cc: regressions@lists.linux.dev
+> > ---
+> >  crypto/af_alg.c |    1 +
+> >  1 file changed, 1 insertion(+)
+> >
+> > diff --git a/crypto/af_alg.c b/crypto/af_alg.c
+> > index 06b15b9f661c..9ee8575d3b1a 100644
+> > --- a/crypto/af_alg.c
+> > +++ b/crypto/af_alg.c
+> > @@ -1192,6 +1192,7 @@ struct af_alg_async_req *af_alg_alloc_areq(struct=
+ sock *sk,
+> >
+> >       areq->areqlen =3D areqlen;
+> >       areq->sk =3D sk;
+> > +     areq->first_rsgl.sgl.sgt.sgl =3D areq->first_rsgl.sgl.sgl;
+> >       areq->last_rsgl =3D NULL;
+> >       INIT_LIST_HEAD(&areq->rsgl_list);
+> >       areq->tsgl =3D NULL;
+>
+> Just tested, with this fix the kernel no longer crashes. Thanks!
+>
+> Tested-by: Sven Schnelle <svens@linux.ibm.com>
 
-Joerg, I think we are done with this now, it has been two months
-since a substantive comment.
+Same here. Thanks for the fix!
 
-Can you take it so we have enough time in linux-next?
-
-There is a small typo in a commit message, patch 15 should have
- s/omap_iommu_set_platform_dma/msm_iommu_set_platform_dma/
-
-Let me know if you want me to resend
-
-Thanks,
-Jason
+Tested-by: Ondrej Mosn=C3=A1=C4=8Dek <omosnacek@gmail.com>
