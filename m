@@ -2,233 +2,92 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A666C04FDF
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Aug 2023 06:12:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 530E6EB64DD
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Aug 2023 06:51:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231391AbjHAGMM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Aug 2023 02:12:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33284 "EHLO
+        id S229825AbjHAGvo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Aug 2023 02:51:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231359AbjHAGML (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Aug 2023 02:12:11 -0400
-Received: from mg.ssi.bg (mg.ssi.bg [193.238.174.37])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B7E61BCF;
-        Mon, 31 Jul 2023 23:12:07 -0700 (PDT)
-Received: from mg.bb.i.ssi.bg (localhost [127.0.0.1])
-        by mg.bb.i.ssi.bg (Proxmox) with ESMTP id 053B317D48;
-        Tue,  1 Aug 2023 09:12:06 +0300 (EEST)
-Received: from ink.ssi.bg (ink.ssi.bg [193.238.174.40])
-        by mg.bb.i.ssi.bg (Proxmox) with ESMTPS id DF87917D40;
-        Tue,  1 Aug 2023 09:12:05 +0300 (EEST)
-Received: from ja.ssi.bg (unknown [213.16.62.126])
-        by ink.ssi.bg (Postfix) with ESMTPSA id D57A13C043A;
-        Tue,  1 Aug 2023 09:11:40 +0300 (EEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=ssi.bg; s=ink;
-        t=1690870305; bh=K3ToJDSb0mjMB1NLV0BUwfRmPEJudUn9AtuMI5luR6U=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References;
-        b=g8VQ+wTIFGtpegn5u/tW44R2fuNOJ5mdhEOWERlo2uGAwt4jdYY1YoeeDuqFVo4U0
-         aNfo6ZYRdJcjGbVx6zImrYA50NgX00UwUU7zEkwQHrQkNmmicTuRpjV7FrGXxh9JhJ
-         dK2ADIy7PUVpdMu+utC6V/dK7/xavRUlvurILIL0=
-Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
-        by ja.ssi.bg (8.17.1/8.17.1) with ESMTP id 3716BQUG027447;
-        Tue, 1 Aug 2023 09:11:27 +0300
-Date:   Tue, 1 Aug 2023 09:11:26 +0300 (EEST)
-From:   Julian Anastasov <ja@ssi.bg>
-To:     Joel Granados <joel.granados@gmail.com>
-cc:     mcgrof@kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Iurii Zaikin <yzaikin@google.com>,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Kees Cook <keescook@chromium.org>,
-        "D. Wythe" <alibuda@linux.alibaba.com>, mptcp@lists.linux.dev,
-        Jakub Kicinski <kuba@kernel.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Paolo Abeni <pabeni@redhat.com>, coreteam@netfilter.org,
-        Jan Karcher <jaka@linux.ibm.com>,
-        Alexander Aring <alex.aring@gmail.com>,
-        Will Deacon <will@kernel.org>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        bridge@lists.linux-foundation.org,
-        linux-arm-kernel@lists.infradead.org,
-        Joerg Reuter <jreuter@yaina.de>,
-        David Ahern <dsahern@kernel.org>,
-        netfilter-devel@vger.kernel.org, Wen Gu <guwen@linux.alibaba.com>,
-        linux-kernel@vger.kernel.org,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        linux-wpan@vger.kernel.org, lvs-devel@vger.kernel.org,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        linux-sctp@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Florian Westphal <fw@strlen.de>, willy@infradead.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-rdma@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Simon Horman <horms@verge.net.au>,
-        Mat Martineau <martineau@kernel.org>, josh@joshtriplett.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Eric Dumazet <edumazet@google.com>, linux-hams@vger.kernel.org,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        linux-fsdevel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Xin Long <lucien.xin@gmail.com>,
-        Nikolay Aleksandrov <razor@blackwall.org>,
-        netdev@vger.kernel.org, rds-devel@oss.oracle.com,
-        Joel Granados <j.granados@samsung.com>
-Subject: Re: [PATCH v2 10/14] netfilter: Update to register_net_sysctl_sz
-In-Reply-To: <20230731071728.3493794-11-j.granados@samsung.com>
-Message-ID: <b8564ac4-ab65-6212-2241-0843413e05de@ssi.bg>
-References: <20230731071728.3493794-1-j.granados@samsung.com> <20230731071728.3493794-11-j.granados@samsung.com>
+        with ESMTP id S231174AbjHAGvo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Aug 2023 02:51:44 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 420DB98;
+        Mon, 31 Jul 2023 23:51:43 -0700 (PDT)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3716mgAW016449;
+        Tue, 1 Aug 2023 06:51:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : from
+ : cc : to : subject : message-id : date; s=pp1;
+ bh=jaK/pRmw/+5njGqW7YJg96mQiDtsZWn3h6xVj/JQ8jY=;
+ b=VQYA8xh78Oxc184GseMDv5mi/G4vLofuaevsJku/J5GjLhstQ4E9/4tnRBaAYLabJnLt
+ WzAmHIKGsRCo6PsNucTaeufb5xiuONCAS+ry/mACioqtGhdoZ7U+DU1jfyLOBb6F1lGr
+ UJ3dgnH+z9Ve1+8/ztcWatRCcOqjn+eE7L4h/QjehbnJ/gVlvE6hnVImUYEBLrxlUhSk
+ lYQHi5/ngKpPm5W2xXIPjwvaSwI5vOlMTSqojf20OUviQbN7IbKcnLKw+otzepQBxdEp
+ ua0DAwFMkX4uL+3jyCekY3KPEBK8y++2VqJMm2AbevyZGGqcJwADuKDOoqaiupC3S+J9 rg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s6w42026s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Aug 2023 06:51:42 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3716pI52025117;
+        Tue, 1 Aug 2023 06:51:42 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s6w420268-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Aug 2023 06:51:42 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3716U8bh015481;
+        Tue, 1 Aug 2023 06:51:41 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s5e3mspb9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Aug 2023 06:51:41 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3716pb6S28639752
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 1 Aug 2023 06:51:38 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D64C32004B;
+        Tue,  1 Aug 2023 06:51:37 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A7C3420043;
+        Tue,  1 Aug 2023 06:51:37 +0000 (GMT)
+Received: from t14-nrb (unknown [9.179.7.232])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue,  1 Aug 2023 06:51:37 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <000b74d7-0b4f-d2b5-81b4-747c99a2df42@redhat.com>
+References: <20230712114149.1291580-1-nrb@linux.ibm.com> <20230712114149.1291580-7-nrb@linux.ibm.com> <1aac769e-7523-a858-8286-35625bfb0145@redhat.com> <168932372015.12187.10530769865303760697@t14-nrb> <fd822214-ce34-41dd-d0b6-d43709803958@redhat.com> <168933116940.12187.12275217086609823396@t14-nrb> <000b74d7-0b4f-d2b5-81b4-747c99a2df42@redhat.com>
+From:   Nico Boehr <nrb@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To:     Thomas Huth <thuth@redhat.com>, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH v5 6/6] s390x: add a test for SIE without MSO/MSL
+Message-ID: <169087269702.10672.8933292419680416340@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Tue, 01 Aug 2023 08:51:37 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 2ppje1aBdvbitkwMX0XnLvfamP7Cxrw6
+X-Proofpoint-ORIG-GUID: bsnaUg_hwV15V_IFYzDpt2_Zcl4TEAPD
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-08-01_03,2023-07-31_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 malwarescore=0 lowpriorityscore=0 phishscore=0
+ suspectscore=0 bulkscore=0 clxscore=1015 mlxscore=0 spamscore=0
+ mlxlogscore=827 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2306200000 definitions=main-2308010059
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Quoting Thomas Huth (2023-07-14 12:52:59)
+[...]
+> Maybe add $(SRCDIR)/s390x to INCLUDE_PATHS in the s390x/Makefile ?
 
-	Hello,
-
-On Mon, 31 Jul 2023, Joel Granados wrote:
-
-> Move from register_net_sysctl to register_net_sysctl_sz for all the
-> netfilter related files. Do this while making sure to mirror the NULL
-> assignments with a table_size of zero for the unprivileged users.
-> 
-> We need to move to the new function in preparation for when we change
-> SIZE_MAX to ARRAY_SIZE() in the register_net_sysctl macro. Failing to do
-> so would erroneously allow ARRAY_SIZE() to be called on a pointer. We
-> hold off the SIZE_MAX to ARRAY_SIZE change until we have migrated all
-> the relevant net sysctl registering functions to register_net_sysctl_sz
-> in subsequent commits.
-> 
-> Signed-off-by: Joel Granados <j.granados@samsung.com>
-
-	The IPVS part in net/netfilter/ipvs/ looks good to me, thanks!
-
-Acked-by: Julian Anastasov <ja@ssi.bg>
-
-> ---
->  net/bridge/br_netfilter_hooks.c         |  3 ++-
->  net/ipv6/netfilter/nf_conntrack_reasm.c |  3 ++-
->  net/netfilter/ipvs/ip_vs_ctl.c          |  8 ++++++--
->  net/netfilter/ipvs/ip_vs_lblc.c         | 10 +++++++---
->  net/netfilter/ipvs/ip_vs_lblcr.c        | 10 +++++++---
->  net/netfilter/nf_conntrack_standalone.c |  4 +++-
->  net/netfilter/nf_log.c                  |  7 ++++---
->  7 files changed, 31 insertions(+), 14 deletions(-)
-> 
-
-...
-
-> --- a/net/netfilter/ipvs/ip_vs_ctl.c
-> +++ b/net/netfilter/ipvs/ip_vs_ctl.c
-> @@ -4266,6 +4266,7 @@ static int __net_init ip_vs_control_net_init_sysctl(struct netns_ipvs *ipvs)
->  	struct net *net = ipvs->net;
->  	struct ctl_table *tbl;
->  	int idx, ret;
-> +	size_t ctl_table_size = ARRAY_SIZE(vs_vars);
->  
->  	atomic_set(&ipvs->dropentry, 0);
->  	spin_lock_init(&ipvs->dropentry_lock);
-> @@ -4282,8 +4283,10 @@ static int __net_init ip_vs_control_net_init_sysctl(struct netns_ipvs *ipvs)
->  			return -ENOMEM;
->  
->  		/* Don't export sysctls to unprivileged users */
-> -		if (net->user_ns != &init_user_ns)
-> +		if (net->user_ns != &init_user_ns) {
->  			tbl[0].procname = NULL;
-> +			ctl_table_size = 0;
-> +		}
->  	} else
->  		tbl = vs_vars;
->  	/* Initialize sysctl defaults */
-> @@ -4353,7 +4356,8 @@ static int __net_init ip_vs_control_net_init_sysctl(struct netns_ipvs *ipvs)
->  #endif
->  
->  	ret = -ENOMEM;
-> -	ipvs->sysctl_hdr = register_net_sysctl(net, "net/ipv4/vs", tbl);
-> +	ipvs->sysctl_hdr = register_net_sysctl_sz(net, "net/ipv4/vs", tbl,
-> +						  ctl_table_size);
->  	if (!ipvs->sysctl_hdr)
->  		goto err;
->  	ipvs->sysctl_tbl = tbl;
-> diff --git a/net/netfilter/ipvs/ip_vs_lblc.c b/net/netfilter/ipvs/ip_vs_lblc.c
-> index 1b87214d385e..cf78ba4ce5ff 100644
-> --- a/net/netfilter/ipvs/ip_vs_lblc.c
-> +++ b/net/netfilter/ipvs/ip_vs_lblc.c
-> @@ -550,6 +550,7 @@ static struct ip_vs_scheduler ip_vs_lblc_scheduler = {
->  static int __net_init __ip_vs_lblc_init(struct net *net)
->  {
->  	struct netns_ipvs *ipvs = net_ipvs(net);
-> +	size_t vars_table_size = ARRAY_SIZE(vs_vars_table);
->  
->  	if (!ipvs)
->  		return -ENOENT;
-> @@ -562,16 +563,19 @@ static int __net_init __ip_vs_lblc_init(struct net *net)
->  			return -ENOMEM;
->  
->  		/* Don't export sysctls to unprivileged users */
-> -		if (net->user_ns != &init_user_ns)
-> +		if (net->user_ns != &init_user_ns) {
->  			ipvs->lblc_ctl_table[0].procname = NULL;
-> +			vars_table_size = 0;
-> +		}
->  
->  	} else
->  		ipvs->lblc_ctl_table = vs_vars_table;
->  	ipvs->sysctl_lblc_expiration = DEFAULT_EXPIRATION;
->  	ipvs->lblc_ctl_table[0].data = &ipvs->sysctl_lblc_expiration;
->  
-> -	ipvs->lblc_ctl_header =
-> -		register_net_sysctl(net, "net/ipv4/vs", ipvs->lblc_ctl_table);
-> +	ipvs->lblc_ctl_header = register_net_sysctl_sz(net, "net/ipv4/vs",
-> +						       ipvs->lblc_ctl_table,
-> +						       vars_table_size);
->  	if (!ipvs->lblc_ctl_header) {
->  		if (!net_eq(net, &init_net))
->  			kfree(ipvs->lblc_ctl_table);
-> diff --git a/net/netfilter/ipvs/ip_vs_lblcr.c b/net/netfilter/ipvs/ip_vs_lblcr.c
-> index ad8f5fea6d3a..9eddf118b40e 100644
-> --- a/net/netfilter/ipvs/ip_vs_lblcr.c
-> +++ b/net/netfilter/ipvs/ip_vs_lblcr.c
-> @@ -736,6 +736,7 @@ static struct ip_vs_scheduler ip_vs_lblcr_scheduler =
->  static int __net_init __ip_vs_lblcr_init(struct net *net)
->  {
->  	struct netns_ipvs *ipvs = net_ipvs(net);
-> +	size_t vars_table_size = ARRAY_SIZE(vs_vars_table);
->  
->  	if (!ipvs)
->  		return -ENOENT;
-> @@ -748,15 +749,18 @@ static int __net_init __ip_vs_lblcr_init(struct net *net)
->  			return -ENOMEM;
->  
->  		/* Don't export sysctls to unprivileged users */
-> -		if (net->user_ns != &init_user_ns)
-> +		if (net->user_ns != &init_user_ns) {
->  			ipvs->lblcr_ctl_table[0].procname = NULL;
-> +			vars_table_size = 0;
-> +		}
->  	} else
->  		ipvs->lblcr_ctl_table = vs_vars_table;
->  	ipvs->sysctl_lblcr_expiration = DEFAULT_EXPIRATION;
->  	ipvs->lblcr_ctl_table[0].data = &ipvs->sysctl_lblcr_expiration;
->  
-> -	ipvs->lblcr_ctl_header =
-> -		register_net_sysctl(net, "net/ipv4/vs", ipvs->lblcr_ctl_table);
-> +	ipvs->lblcr_ctl_header = register_net_sysctl_sz(net, "net/ipv4/vs",
-> +							ipvs->lblcr_ctl_table,
-> +							vars_table_size);
->  	if (!ipvs->lblcr_ctl_header) {
->  		if (!net_eq(net, &init_net))
->  			kfree(ipvs->lblcr_ctl_table);
-
-Regards
-
---
-Julian Anastasov <ja@ssi.bg>
-
+Yeah, that would work, but do we want that? I'd assume that it is a
+concious decision not to have tests depend on one another.
