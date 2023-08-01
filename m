@@ -2,222 +2,133 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D0FFC41513
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Aug 2023 10:03:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41BE7C001E0
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Aug 2023 11:48:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233785AbjHAKDj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Aug 2023 06:03:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58910 "EHLO
+        id S233826AbjHALsb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Aug 2023 07:48:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233982AbjHAKDU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Aug 2023 06:03:20 -0400
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 602F7EE;
-        Tue,  1 Aug 2023 03:03:19 -0700 (PDT)
-Received: by mail-wm1-x32c.google.com with SMTP id 5b1f17b1804b1-3fe167d4a18so31975935e9.0;
-        Tue, 01 Aug 2023 03:03:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1690884198; x=1691488998;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=6xzFd6kXeaygrI5Ej8/AL8nxngfv7zWbrLM3nGa6LwE=;
-        b=eXsvFh6BK+B4iuEJYMTnBcTL7rHnOTSND3P9MAnpkjJqEpLCdcVuq/3LHC8WhWxlOi
-         AYVHc0UleUBBoRaduveJnpBbMfklz/v7bfVQyhDeoiCpwWcDLTvnVdKzWsATvnXRFrIQ
-         4sxETc63wfFaT1bcwPenmbK5Cd68zjDF7/mwm/QlGSxaYKSqfPBfKA0mGUHtfQgxDKuN
-         bfckck3WXSVwZdpmMoaLqOAU0MAofGr+AO2UcfWw2DAsMdq42RxNJsTnAee8Lvikj6hM
-         UobnKUJtXdI2bFxeUV6lKnu0txtKROjJB89U3UM49XZz3hMCMQfPajpd2YztNuqg5bYr
-         w4qQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690884198; x=1691488998;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6xzFd6kXeaygrI5Ej8/AL8nxngfv7zWbrLM3nGa6LwE=;
-        b=FmxKcGxm0PfjF2A3o4YIU4YHqPa2Bb3ZtIwM4LFrKGxKPgIHiGQ0U9QFu0apKbbk7L
-         SIzblwYWgbHhCKloBctr2ZAVJrtelCQNpySQ3TpvXQYl7NRvp8xpinHgD7XtS4DyaIm3
-         ldCYRbGxCfUgQTyXBc9PjwXicwCu4JaQWsUYS3SxC5l6V07X/Q1b1DlTA5WrfF8pKokD
-         DzZpmRZH7Dvrx3Q7GkH0qRn89Xg6ETNC0X1hAo729a+OKdDDytLvfydGvJQQsYZA7BYj
-         UHq+GYSNvtUhMqy1CUuEsSSOdARtoq/JwaUAJ/9/cmXKPRoyBV23SjcpHSPxXNdLoKDx
-         n+cA==
-X-Gm-Message-State: ABy/qLZDBAo9OUQtBN6f2vaJVmGLsCQGz6NhSPLr2IRgTferO15u1Twh
-        g+EjizDozUAixlbWO2BBZ8I=
-X-Google-Smtp-Source: APBJJlHPT6WT6baqr5uMvSTuUS8XBMuz9v2AzEIRtzwB1vPwVdTIJR+TY0kuPM2KiW9G9XEqBLrTBg==
-X-Received: by 2002:a05:600c:214d:b0:3fe:20b6:41b2 with SMTP id v13-20020a05600c214d00b003fe20b641b2mr2182378wml.4.1690884197477;
-        Tue, 01 Aug 2023 03:03:17 -0700 (PDT)
-Received: from localhost (0x934e1fc8.cust.fastspeed.dk. [147.78.31.200])
-        by smtp.gmail.com with ESMTPSA id n1-20020a05600c4f8100b003fe15ac0934sm2670378wmq.1.2023.08.01.03.03.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Aug 2023 03:03:16 -0700 (PDT)
-Date:   Tue, 1 Aug 2023 12:03:15 +0200
-From:   Joel Granados <joel.granados@gmail.com>
-To:     Simon Horman <horms@kernel.org>
-Cc:     mcgrof@kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Iurii Zaikin <yzaikin@google.com>,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Kees Cook <keescook@chromium.org>,
-        "D. Wythe" <alibuda@linux.alibaba.com>, mptcp@lists.linux.dev,
-        Jakub Kicinski <kuba@kernel.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Paolo Abeni <pabeni@redhat.com>, coreteam@netfilter.org,
-        Jan Karcher <jaka@linux.ibm.com>,
-        Alexander Aring <alex.aring@gmail.com>,
-        Will Deacon <will@kernel.org>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        bridge@lists.linux-foundation.org,
-        linux-arm-kernel@lists.infradead.org,
-        Joerg Reuter <jreuter@yaina.de>, Julian Anastasov <ja@ssi.bg>,
-        David Ahern <dsahern@kernel.org>,
-        netfilter-devel@vger.kernel.org, Wen Gu <guwen@linux.alibaba.com>,
-        linux-kernel@vger.kernel.org,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        linux-wpan@vger.kernel.org, lvs-devel@vger.kernel.org,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        linux-sctp@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Florian Westphal <fw@strlen.de>, willy@infradead.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-rdma@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Simon Horman <horms@verge.net.au>,
-        Mat Martineau <martineau@kernel.org>, josh@joshtriplett.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Eric Dumazet <edumazet@google.com>, linux-hams@vger.kernel.org,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        linux-fsdevel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Xin Long <lucien.xin@gmail.com>,
-        Nikolay Aleksandrov <razor@blackwall.org>,
-        netdev@vger.kernel.org, rds-devel@oss.oracle.com
-Subject: Re: [PATCH v2 03/14] sysctl: Add ctl_table_size to ctl_table_header
-Message-ID: <20230801100315.ymcahsxu6qpw7kct@localhost>
-References: <20230731071728.3493794-1-j.granados@samsung.com>
- <20230731071728.3493794-4-j.granados@samsung.com>
- <ZMf9vZpGE98oM9W2@kernel.org>
- <CGME20230731190724eucas1p14cc08261cd20815797958bbebc0fafe7@eucas1p1.samsung.com>
- <ZMgGWm4sT+VqDZ3u@kernel.org>
+        with ESMTP id S234043AbjHALs1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Aug 2023 07:48:27 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41C76199E;
+        Tue,  1 Aug 2023 04:48:16 -0700 (PDT)
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 371BcSHp009487;
+        Tue, 1 Aug 2023 11:48:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : cc :
+ from : to : subject : message-id : date; s=pp1;
+ bh=YeFhAJn5JrzdQnaeXngFMgQVEHf9AbbuNFn7v9q5Gvs=;
+ b=godh8PsMta2XgMWTW8LMo1aClFOXY1jVi2vrDljiQ67AnxSnsZPD+XC6jfx+Q0iWKMWc
+ sASl1+I40IkCmJU2y7wrxC48SlyhmAv7+9d9LXXEbrOFOx3fghhUH2KnrovgXl1aq5ea
+ a61ukZ5uWKcMDSNqNidnXvutOaHK2EjD0hYI2cJ8guHW5T0xWiAD4mbSMLaVzWt9VxOl
+ 2tFa4vdvjl5KAa6e2zsQvzN9EMrbYv+lFuj+GoG86T0sMY4hcwqi0bbbXo43tHAXQc+/
+ wYNdo5h0IHYDqm2/pb70HwA0fURxHiuDDAHJaPvI2RCGwUV9LCrpg44evDsIulf1tFrC Iw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s7111gspy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Aug 2023 11:48:14 +0000
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 371BcXAB009861;
+        Tue, 1 Aug 2023 11:48:14 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s7111gspq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Aug 2023 11:48:14 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 371ACK7i006057;
+        Tue, 1 Aug 2023 11:48:13 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3s5d3sbxuv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Aug 2023 11:48:13 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 371BmBRL11993638
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 1 Aug 2023 11:48:11 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F33952004E;
+        Tue,  1 Aug 2023 11:48:10 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A9CE32004B;
+        Tue,  1 Aug 2023 11:48:10 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.36.136])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue,  1 Aug 2023 11:48:10 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="d62tnfuywe5q6aej"
-Content-Disposition: inline
-In-Reply-To: <ZMgGWm4sT+VqDZ3u@kernel.org>
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <e0b2195a-6f60-6a49-cf3f-4a528eb2df43@redhat.com>
+References: <20230510121822.546629-1-nrb@linux.ibm.com> <20230510121822.546629-2-nrb@linux.ibm.com> <e0b2195a-6f60-6a49-cf3f-4a528eb2df43@redhat.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     David Hildenbrand <david@redhat.com>, borntraeger@linux.ibm.com,
+        frankja@linux.ibm.com, imbrenda@linux.ibm.com
+Subject: Re: [PATCH v2 1/2] KVM: s390: add stat counter for shadow gmap events
+Message-ID: <169089049005.9734.15826596498609647664@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Tue, 01 Aug 2023 13:48:10 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ep6Kg7Cn1ZWQjvd6VDrlqIwP8opHco0C
+X-Proofpoint-GUID: Y_37DqLjX2f1GfvezUrvFfbqG2j0TN6P
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-08-01_06,2023-08-01_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
+ impostorscore=0 malwarescore=0 mlxscore=0 suspectscore=0
+ lowpriorityscore=0 priorityscore=1501 mlxlogscore=999 bulkscore=0
+ clxscore=1015 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2308010105
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
---d62tnfuywe5q6aej
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Jul 31, 2023 at 09:07:06PM +0200, Simon Horman wrote:
-> On Mon, Jul 31, 2023 at 08:30:34PM +0200, Simon Horman wrote:
-> > On Mon, Jul 31, 2023 at 09:17:17AM +0200, Joel Granados wrote:
-> > > The new ctl_table_size element will hold the size of the ctl_table
-> > > arrays contained in the ctl_table_header. This value should eventually
-> > > be passed by the callers to the sysctl register infrastructure. And
-> > > while this commit introduces the variable, it does not set nor use it
-> > > because that requires case by case considerations for each caller.
-> > >=20
-> > > It provides two important things: (1) A place to put the
-> > > result of the ctl_table array calculation when it gets introduced for
-> > > each caller. And (2) the size that will be used as the additional
-> > > stopping criteria in the list_for_each_table_entry macro (to be added
-> > > when all the callers are migrated)
-> > >=20
-> > > Signed-off-by: Joel Granados <j.granados@samsung.com>
-> > > ---
-> > >  include/linux/sysctl.h | 14 ++++++++++++--
-> > >  1 file changed, 12 insertions(+), 2 deletions(-)
-> > >=20
-> > > diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-> > > index 59d451f455bf..33252ad58ebe 100644
-> > > --- a/include/linux/sysctl.h
-> > > +++ b/include/linux/sysctl.h
-> > > @@ -159,12 +159,22 @@ struct ctl_node {
-> > >  	struct ctl_table_header *header;
-> > >  };
-> > > =20
-> > > -/* struct ctl_table_header is used to maintain dynamic lists of
-> > > -   struct ctl_table trees. */
-> > > +/**
-> > > + * struct ctl_table_header - maintains dynamic lists of struct ctl_t=
-able trees
-> > > + * @ctl_table: pointer to the first element in ctl_table array
-> > > + * @ctl_table_size: number of elements pointed by @ctl_table
-> > > + * @used: The entry will never be touched when equal to 0.
-> > > + * @count: Upped every time something is added to @inodes and downed=
- every time
-> > > + *         something is removed from inodes
-> > > + * @nreg: When nreg drops to 0 the ctl_table_header will be unregist=
-ered.
-> > > + * @rcu: Delays the freeing of the inode. Introduced with "unfuck pr=
-oc_sysctl ->d_compare()"
-> > > + *
-> > > + */
-> >=20
-> > Hi Joel,
-> >=20
-> > Please consider also adding kernel doc entries for the other fields of
-> > struct ctl_table_header. According to ./scripts/kernel-doc -none
-> > they are:
-> >=20
-> >   unregistering
-> >   ctl_table_arg
-> >   root
-> >   set
-> >   parent
-> >   node
-> >   inodes
+Quoting David Hildenbrand (2023-07-27 09:37:21)
+[...]
+> > diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/k=
+vm_host.h
+> > index 2bbc3d54959d..d35e03e82d3d 100644
+> > --- a/arch/s390/include/asm/kvm_host.h
+> > +++ b/arch/s390/include/asm/kvm_host.h
+> > @@ -777,6 +777,12 @@ struct kvm_vm_stat {
+> >       u64 inject_service_signal;
+> >       u64 inject_virtio;
+> >       u64 aen_forward;
+> > +     u64 gmap_shadow_acquire;
+> > +     u64 gmap_shadow_r1_te;
+> > +     u64 gmap_shadow_r2_te;
+> > +     u64 gmap_shadow_r3_te;
+> > +     u64 gmap_shadow_sg_te;
+> > +     u64 gmap_shadow_pg_te;
 >=20
-> Sorry, I now realise that I made the same comment on v1.
-> And I didn't see your response to that until after I wrote the above.
-np. I'll hold off adding this to the set until I get feedback from my
-proposal. I do this as I'm unsure about the contents of the docs.
+> Is "te" supposed to stand for "table entry" ?
 
+Yes.
 
+> If so, I'd suggest to just call this gmap_shadow_pg_entry etc.
+
+Janosch, since you suggested the current naming, are you OK with _entry?
+
+[...]
+> > diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+> > index 8d6b765abf29..beb3be037722 100644
+> > --- a/arch/s390/kvm/vsie.c
+> > +++ b/arch/s390/kvm/vsie.c
+> > @@ -1221,6 +1221,7 @@ static int acquire_gmap_shadow(struct kvm_vcpu *v=
+cpu,
+> >       if (IS_ERR(gmap))
+> >               return PTR_ERR(gmap);
+> >       gmap->private =3D vcpu->kvm;
+> > +     vcpu->kvm->stat.gmap_shadow_acquire++;
 >=20
-> >=20
-> >=20
-> > >  struct ctl_table_header {
-> > >  	union {
-> > >  		struct {
-> > >  			struct ctl_table *ctl_table;
-> > > +			int ctl_table_size;
-> > >  			int used;
-> > >  			int count;
-> > >  			int nreg;
-> > > --=20
-> > > 2.30.2
-> > >=20
+>=20
+> Do you rather want to have events for
+>=20
+> gmap_shadow_reuse (if gmap_shadow_valid() succeeded in that function)
+> gmap_shadow_create (if we have to create a new one via gmap_shadow)
+>=20
+> ?
 
---=20
-
-Joel Granados
-
---d62tnfuywe5q6aej
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmTI2GIACgkQupfNUreW
-QU/jnAv/XiexP2W1Y950obHBDBGWwb2QRwk7qg172MXMjFQl6+imM/lk9f2BbUyv
-yHqtlJQeHzRDFmaanGI2f0Cd5i7XkupsNoINecjz4w7t3g4pgPxjYO+KRGJoQxRx
-zfGIkM/UKYfW53TJRg0P0b9t7XnQ+yew+ZAEULLKb23ElXZ+hFXMtH8K938NEqxz
-ETsCG4rlGIO3QMm0epmk4EaMr34faYtf8fzaY6T3PshcTq+vklW7M/gHjcMkICK5
-GZM7Ijb2sU5Xd4d8hkoSpPh8TErgjuNVU2LpzlzjyC25WFM0xpPnKRDB5ENGa4m4
-ZWu67LrebJoLjoE0vJUMMfZu9PCmvQp4Wijuc/ImQA4BA8hNwsarFhYlFMPp3Ixn
-AC51TcUplS956Laxzjd51ql75jba5ul88ZGiqnkNL+IXKOjceJSKM68lVQELv1Lq
-m9Il+S1C7xVBNvDQo9yE5jA7mdju9NyxvL2UXr4sZU7Gmp8qiY5Zw4H6T6dSQy8H
-ELxemNee
-=dUoN
------END PGP SIGNATURE-----
-
---d62tnfuywe5q6aej--
+Yeah, good suggestion. I'll add that.
