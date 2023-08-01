@@ -2,80 +2,93 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B41CEC41513
-	for <linux-s390@archiver.kernel.org>; Mon, 31 Jul 2023 21:50:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0273C001DF
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Aug 2023 02:16:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231528AbjGaVu1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 Jul 2023 17:50:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58228 "EHLO
+        id S229863AbjHACQG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 Jul 2023 22:16:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231504AbjGaVu0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jul 2023 17:50:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33C991736;
-        Mon, 31 Jul 2023 14:50:24 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B57461301;
-        Mon, 31 Jul 2023 21:50:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id A32DCC43395;
-        Mon, 31 Jul 2023 21:50:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1690840222;
-        bh=lFKNR/sceAlnAaw/eBi1eRE4s2qAwFbLSyPmukQH/Ho=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=TRsxmW/RY1aTu6X6bhQwBkFv3hlUNdJGxWywrJGbtTXNKYGr5Q+2bbT4VESKi4zUX
-         BoaSd3DocZICPmS+Ff6ejYvgscitijl0e4slZt8CWA4Si3IhBQmLTFuqczBur+yqCe
-         6uaOXwgFJW6SWQ7zGBs/TMOf+1GvUfpM6c2PWIFyeCEZuCJOi/XJ3E1Z3SiGjodzfI
-         YtPJD+aKXzs8bGD15z+7i9e9eODR0cE8akKAOzou/kuG8a5dvsoDBqsKibSJYMV9E8
-         jPnbBk2K9YnU1q9WYjmb4K/zo9bfAMiUi2MqXxWwQfH3JoHfjGuVZYMj7o5B0VGDvG
-         zoF9KoXoMzMmg==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 8354AE96AC0;
-        Mon, 31 Jul 2023 21:50:22 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229437AbjHACQF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jul 2023 22:16:05 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E195E5C;
+        Mon, 31 Jul 2023 19:16:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+        Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+        bh=k/FrXh/THAB5ueNYpFa+DtWLKwB8v/g7kBddjVkmREY=; b=ho7cwcSoealjW606BJo530kKgt
+        XEUNVH8f1Jjy9VMmO6MzmygNyaxNtutK6gEGLuMfO7nLQK74IxEHYRcufBlmo+K2nJG2545xsctRM
+        OGduqz8m1jy/KSBORvjKB51ymqOlBQe5YrU3IzbMzH57HR3HpQJ5u5sxhiS48iQpVOzRMKPrl4ArT
+        RlA3TdLkYZAxQp2pavftZoRXgVfYC5oOMpZ1jgUkfY/SXw3CuME54IT3XZtJl0It2+4j6QhvSPmhJ
+        Vt9erlupCLsJdrFSVnuOAz4jvtcXgD8J5ieclD6269b7DwiW9AUhbYK2c/gC/pDyI99gG47VeLKFT
+        xHLiHY7w==;
+Received: from [2601:1c2:980:9ec0::2764]
+        by bombadil.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1qQevc-000BnJ-0B;
+        Tue, 01 Aug 2023 02:16:04 +0000
+Message-ID: <57c5ba80-bc87-e76a-98f1-5f8043711b0a@infradead.org>
+Date:   Mon, 31 Jul 2023 19:16:03 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] net/smc: Remove unused function declarations
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <169084022252.13504.15977220371779488988.git-patchwork-notify@kernel.org>
-Date:   Mon, 31 Jul 2023 21:50:22 +0000
-References: <20230729121929.17180-1-yuehaibing@huawei.com>
-In-Reply-To: <20230729121929.17180-1-yuehaibing@huawei.com>
-To:     Yue Haibing <yuehaibing@huawei.com>
-Cc:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
-        guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [PATCH] s390/certstore: select CRYPTO_LIB_SHA256
+Content-Language: en-US
+To:     Sven Schnelle <svens@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-next@vger.kernel.org,
+        Anastasia Eskova <anastasia.eskova@ibm.com>
+References: <20230728100430.1567328-1-svens@linux.ibm.com>
+From:   Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <20230728100430.1567328-1-svens@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
 
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
 
-On Sat, 29 Jul 2023 20:19:29 +0800 you wrote:
-> commit f9aab6f2ce57 ("net/smc: immediate freeing in smc_lgr_cleanup_early()")
-> left behind smc_lgr_schedule_free_work_fast() declaration.
-> And since commit 349d43127dac ("net/smc: fix kernel panic caused by race of smc_sock")
-> smc_ib_modify_qp_reset() is not used anymore.
+On 7/28/23 03:04, Sven Schnelle wrote:
+> A build failure was reported when sha256() is not present:
 > 
-> Signed-off-by: Yue Haibing <yuehaibing@huawei.com>
+> gcc-13.1.0-nolibc/s390-linux/bin/s390-linux-ld: arch/s390/kernel/cert_store.o: in function `check_certificate_hash':
+> arch/s390/kernel/cert_store.c:267: undefined reference to `sha256'
 > 
-> [...]
+> Therefore make CONFIG_CERT_STORE select CRYPTO_LIB_SHA256.
+> 
+> Fixes: 8cf57d7217c3 ("s390: add support for user-defined certificates")
+> Reported-by: Randy Dunlap <rdunlap@infradead.org>
+> Closes: https://lore.kernel.org/all/8ecb57fb-4560-bdfc-9e55-63e3b0937132@infradead.org/
+> Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
 
-Here is the summary with links:
-  - [net-next] net/smc: Remove unused function declarations
-    https://git.kernel.org/netdev/net-next/c/4cbc32a8a2b4
+Sorry for the delay.
 
-You are awesome, thank you!
+Tested-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+
+Thanks.
+
+> ---
+>  arch/s390/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index d9d50a7a2016..18bf754e1fad 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -516,6 +516,7 @@ config KEXEC_SIG
+>  config CERT_STORE
+>  	bool "Get user certificates via DIAG320"
+>  	depends on KEYS
+> +	select CRYPTO_LIB_SHA256
+>  	help
+>  	  Enable this option if you want to access user-provided secure boot
+>  	  certificates via DIAG 0x320.
+
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+~Randy
