@@ -2,84 +2,138 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A49EC001DE
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Aug 2023 09:20:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D711FC001DF
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Aug 2023 10:25:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230456AbjHBJUY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Aug 2023 05:20:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38610 "EHLO
+        id S233855AbjHBKZ1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Aug 2023 06:25:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229482AbjHBJUX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Aug 2023 05:20:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C287A8
-        for <linux-s390@vger.kernel.org>; Wed,  2 Aug 2023 02:20:22 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EDF5C618CC
-        for <linux-s390@vger.kernel.org>; Wed,  2 Aug 2023 09:20:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 4A41FC433C9;
-        Wed,  2 Aug 2023 09:20:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1690968021;
-        bh=K+scnvFOeZn+qs2Y4uK06yD8U/KPe7In361cfN7JZ5Q=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=gtXV1xyVIRPuM2jjLJrAvZM7fBS93gqGVuaSfcB+sbAm/Oqy5uKzzDYW7px93JkEa
-         WBwnNpR8lL3bvsXTCX2z3Yw43EmcSNST44ZYeAYivCnc7MGX0M4npdDCB367GA38RM
-         jUsRZDSqqdvPn16WiQmdDOBlZX5+kOx2h07OMIUWNqiNz7yG0BPw9NWUObiwX0d9Wa
-         CguUzHcCB9iQcIwV39DTY70b9mENDhJaLc1QVUMFEcTE4wcb+AUWhfiqJTnXmQ+sxW
-         1XU9AhYncRQwDKQlJdxwqidyZpmoeQpWXpXiE55SpdnWr7ELAkxs6L9UBS8ItOcfSF
-         hvAQztgyenI6g==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 28D53C6445A;
-        Wed,  2 Aug 2023 09:20:21 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+        with ESMTP id S233960AbjHBKYb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Aug 2023 06:24:31 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA5454691;
+        Wed,  2 Aug 2023 03:22:35 -0700 (PDT)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 372AGpSt004509;
+        Wed, 2 Aug 2023 10:21:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-type : content-transfer-encoding :
+ mime-version; s=pp1; bh=1cNoGJVZF125rBY9OnJDl+Fdl0aPVj1gEkmPLfHnzVU=;
+ b=jyuLNcPjucKRDl4Khvz4jAJYexfGm6X0Eb2jFeiXA21h1A1N0zV/S6mv82bO9mALFVRb
+ 0OG51DH4GgVfqns1C7XBV1qW/Nu8ifUpZaspCxE0FR2nQgZhNY7o4HOKbPfqTjK1y7PU
+ 4nmI6r3Ow7TM/U39Pw4wmNPUTRcM0/c4mJvLsltImt4+vUYFtmkLOpexvGYIVkvmaPTH
+ DT+TwatCE2HT7fjJ4uEfMgO4JdPQaSbDgZafDFVlmGOM84/UirPRp8jRs5TV6zUOYOll
+ M7hnOj0g16F6IHaggCWN5caEaOR5rV5NrCjOLc5f3jQ0/GKb9Nl4R5uzAmLtWcQVGnOD gQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s7n8cr5pw-46
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 02 Aug 2023 10:21:35 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 372A3fuK020068;
+        Wed, 2 Aug 2023 10:10:49 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s7n1u8anw-6
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 02 Aug 2023 10:10:49 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3728xff8015481;
+        Wed, 2 Aug 2023 09:33:18 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s5e3n3c4a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 02 Aug 2023 09:33:18 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3729XFIJ23528092
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 2 Aug 2023 09:33:15 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1923B2004B;
+        Wed,  2 Aug 2023 09:33:15 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4F72320043;
+        Wed,  2 Aug 2023 09:33:14 +0000 (GMT)
+Received: from dilbert5.fritz.box (unknown [9.171.33.230])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed,  2 Aug 2023 09:33:14 +0000 (GMT)
+From:   Gerd Bayer <gbayer@linux.ibm.com>
+To:     Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc:     Karsten Graul <kgraul@linux.ibm.com>,
+        "D . Wythe" <alibuda@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH net 0/2] net/smc: Fix effective buffer size
+Date:   Wed,  2 Aug 2023 11:33:11 +0200
+Message-ID: <20230802093313.1501605-1-gbayer@linux.ibm.com>
+X-Mailer: git-send-email 2.41.0
+Content-Type: text/plain; charset=UTF-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: HUvwGmNfuYDcpw6zsOQC0S1wlYgbMK-4
+X-Proofpoint-GUID: Dl7yEQ6PuQkpfQEpYv8n95HfRyvGks56
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] s390/qeth: Don't call dev_close/dev_open (DOWN/UP)
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <169096802115.5600.7801745258990045314.git-patchwork-notify@kernel.org>
-Date:   Wed, 02 Aug 2023 09:20:21 +0000
-References: <20230801080016.744474-1-wintera@linux.ibm.com>
-In-Reply-To: <20230801080016.744474-1-wintera@linux.ibm.com>
-To:     Alexandra Winter <wintera@linux.ibm.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
-        edumazet@google.com, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, hca@linux.ibm.com, wenjia@linux.ibm.com
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-08-02_05,2023-08-01_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
+ priorityscore=1501 suspectscore=0 impostorscore=0 phishscore=0 mlxscore=0
+ malwarescore=0 spamscore=0 lowpriorityscore=0 clxscore=1011
+ mlxlogscore=838 bulkscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2306200000 definitions=main-2308020089
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+Hi all,
 
-This patch was applied to netdev/net.git (main)
-by David S. Miller <davem@davemloft.net>:
+commit 0227f058aa29 ("net/smc: Unbind r/w buffer size from clcsock
+and make them tunable") started to derive the effective buffer size for
+SMC connections inconsistently in case a TCP fallback was used and
+memory consumption of SMC with the default settings was doubled when
+a connection negotiated SMC. That was not what we want.
 
-On Tue,  1 Aug 2023 10:00:16 +0200 you wrote:
-> dev_close() and dev_open() are issued to change the interface state to DOWN
-> or UP (dev->flags IFF_UP). When the netdev is set DOWN it loses e.g its
-> Ipv6 addresses and routes. We don't want this in cases of device recovery
-> (triggered by hardware or software) or when the qeth device is set
-> offline.
-> 
-> Setting a qeth device offline or online and device recovery actions call
-> netif_device_detach() and/or netif_device_attach(). That will reset or
-> set the LOWER_UP indication i.e. change the dev->state Bit
-> __LINK_STATE_PRESENT. That is enough to e.g. cause bond failovers, and
-> still preserves the interface settings that are handled by the network
-> stack.
-> 
-> [...]
+This series consolidates the resulting effective buffer size that is
+used with SMC sockets, which is based on Jan karcher's effort (see 
+[1]). For all TCP exchanges (in particular in case of a fall back when
+no SMC connection was possible) the values from net.ipv4.tcp_[rw]mem
+are used. If SMC succeeds in establishing a SMC connection, the newly
+introduced values from net.smc.[rw]mem are used.
 
-Here is the summary with links:
-  - [net] s390/qeth: Don't call dev_close/dev_open (DOWN/UP)
-    https://git.kernel.org/netdev/net/c/1cfef80d4c2b
+net.smc.[rw]mem is initialized to 64kB, respectively. Internal test 
+have show this to be a good compromise between throughput/latency 
+and memory consumption. Also net.smc.[rw]mem is now decoupled completely
+from any tuning through net.ipv4.tcp_[rw]mem.
 
-You are awesome, thank you!
+If a user chose to tune a socket's receive or send buffer size with
+setsockopt, this tuning is now consistently applied to either fall-back
+TCP or proper SMC connections over the socket.
+
+Thanks,
+Gerd 
+
+
+[1] https://lore.kernel.org/netdev/20221123104907.14624-1-jaka@linux.ibm.com
+
+
+
+Gerd Bayer (2):
+  net/smc: Fix setsockopt and sysctl to specify same buffer size again
+  net/smc: Use correct buffer sizes when switching between TCP and SMC
+
+ net/smc/af_smc.c     | 80 +++++++++++++++++++++++++++++++-------------
+ net/smc/smc.h        |  2 +-
+ net/smc/smc_clc.c    |  4 +--
+ net/smc/smc_core.c   | 25 +++++++-------
+ net/smc/smc_sysctl.c | 10 ++++--
+ 5 files changed, 79 insertions(+), 42 deletions(-)
+
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.41.0
 
