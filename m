@@ -2,101 +2,119 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 273CCC001DF
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Aug 2023 14:42:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 454A8C04A94
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Aug 2023 06:00:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234590AbjHAOm0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Aug 2023 10:42:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58576 "EHLO
+        id S232158AbjHBGAX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Aug 2023 02:00:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234867AbjHAOmZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Aug 2023 10:42:25 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99EF71712
-        for <linux-s390@vger.kernel.org>; Tue,  1 Aug 2023 07:42:24 -0700 (PDT)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 371Ectxo022185
-        for <linux-s390@vger.kernel.org>; Tue, 1 Aug 2023 14:42:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=uh1RtxRpvP4pM/wx43DSBnnDIfqPPKb5234dg8Gzdlc=;
- b=azQ8wNTrxgXLTT82nISgeNquWLi0IrwqwCVMV7BdzGv4PXCIJ44ENLRT0PvAKfWXpDgf
- VlMGKYQaatg8ClzBlMayLrAXTEcM3ov06HrXF+Iooe6P0WVwO+QLtSntV9v1JCs0QDvD
- nmhXXL9wuv01ZLcE6pm9Ksmwm36IJHewORNzE1JD8pp2fl0wOhfq0Bd0u3uqqIf6uf6N
- FFCpB9grQuH0Bvfo1ny3sQzuZxTonzPd2tyen0/wG1KMipAmw+rgRffirBK4svo/yayA
- TGwsoW0buO7K+1T6ZRnOWEpKsfhJ43dpsziyB357FgEy3nRUv6bKYpRvffyMoknWkpRi Og== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s73r2rkxj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 01 Aug 2023 14:42:24 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 371EdHmV024610
-        for <linux-s390@vger.kernel.org>; Tue, 1 Aug 2023 14:42:23 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s73r2rkwk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Aug 2023 14:42:23 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 371DB3Ld014553;
-        Tue, 1 Aug 2023 14:42:22 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3s5ft1c0eh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Aug 2023 14:42:22 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 371EgKpG37880214
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 1 Aug 2023 14:42:20 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F3A5C20049;
-        Tue,  1 Aug 2023 14:42:19 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C91462004D;
-        Tue,  1 Aug 2023 14:42:19 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.233])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Tue,  1 Aug 2023 14:42:19 +0000 (GMT)
-Date:   Tue, 1 Aug 2023 16:42:19 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Adrian Reber <areber@redhat.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH] s390/ptrace: add missing linux/const.h include
-Message-ID: <20230801144219.6883-D-hca@linux.ibm.com>
-References: <20230731183926.330932-1-hca@linux.ibm.com>
- <ZMkSm+CWmAJ9EOY5@dcbz.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZMkSm+CWmAJ9EOY5@dcbz.redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: U81NOROaAlbJExepQEYnS4s2wx1Lm3C9
-X-Proofpoint-ORIG-GUID: iZB_biglUszABEULbHQ5galMQXHxBWY-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-08-01_10,2023-08-01_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- lowpriorityscore=0 mlxscore=0 adultscore=0 priorityscore=1501
- impostorscore=0 mlxlogscore=494 bulkscore=0 suspectscore=0 malwarescore=0
- clxscore=1015 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2306200000 definitions=main-2308010132
+        with ESMTP id S232118AbjHBGAU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Aug 2023 02:00:20 -0400
+Received: from wout5-smtp.messagingengine.com (wout5-smtp.messagingengine.com [64.147.123.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD24C213D;
+        Tue,  1 Aug 2023 23:00:13 -0700 (PDT)
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
+        by mailout.west.internal (Postfix) with ESMTP id E63BD320094E;
+        Wed,  2 Aug 2023 02:00:10 -0400 (EDT)
+Received: from imap51 ([10.202.2.101])
+  by compute6.internal (MEProxy); Wed, 02 Aug 2023 02:00:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+        :cc:content-type:content-type:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm2; t=1690956010; x=1691042410; bh=Yt
+        vb0mJTCqFvSWUzjrpJ3J+FljcDta2FuHCw3g9+xyM=; b=X8GskQHKcF/CLu6sH9
+        eHdMyaeNGKePN3uazuZn7+yG1MgasXQeSW+4D5a9qh01PZJ7ruxAhWLUmqLv/5A1
+        W6H07qlbCkDckdcSq23RL5reCF4qGn2CJ7AFFzvrvuiIyF6avFGWDuPiIDTDDza7
+        sITrpD0bLEVEOugi610GvCf2CpcRN/uAN7rFDfopQ9Kls2M+mvohHTIgclscWePT
+        IzeLsuUrotGQT+H+7RNajuQNxx1XCoa1DvJJ5Hga0P3V/DrFgmlN48jWyzxywzvR
+        EIsEeQt1j8VMOaYXXdnLEFTpd/PIDbv3gVRDO2Rf4qW2CutL5wCa7f3aFyUesjBm
+        qnXA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:content-type:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; t=1690956010; x=1691042410; bh=Ytvb0mJTCqFvS
+        WUzjrpJ3J+FljcDta2FuHCw3g9+xyM=; b=rVZI7NEq96ProyK7mRRMmZ9uNP1XY
+        U60ejYdcwBAhAR8FRm0b43P47NNM4476RHXJVqz/nect8HFS32ww2FrZLZfDJNFj
+        nTnKfBQ8SOHjto76Bp9hInu8Z2aQgIa95Tj0/F+hnsevQld0WJob9UOapGSFOrr5
+        N+cc0kc4CXtrZ9sb+emUOVvGisqm5TaiFNe0yyVC4BFqIe069x7BSdzhm3i9GTlL
+        AxvGwPLPUCK3283/Shk2fhcVU6K8QFI2TOkxy+6PQD4C/MzdLPr25hYGQV6ncCu9
+        K1tQdzUC8qIQLrxnIQQcYoqNk6IjHludpZUC7nMTg3HpQ+ejVpLz7Nv/A==
+X-ME-Sender: <xms:6fDJZAxUer9v1pqOKwDKxJPmHD6m2WEnq-gFKAVMUjSs92lscT1I2w>
+    <xme:6fDJZEStnpkvBnfb_iENwlU_lnFYxbd-7Ho7ravoYFk-448ZPHdfLsBkq7D46yGlE
+    bia4TPj1nkIiLw9Bhw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedviedrjeejgddutddtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
+    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
+    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
+    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
+    hrnhgusegrrhhnuggsrdguvg
+X-ME-Proxy: <xmx:6fDJZCU2S6Lh3XFdHrkVmf5T2UyWJ4LVI0770K80Yb5gBkjxojhaXA>
+    <xmx:6fDJZOi3qvEj8IktGXtLSuF7DBXnlsvyVKHFAUaYBLa9QLkaV2_Mxw>
+    <xmx:6fDJZCCCDj2SyFda5G2C6Lr1Bd-i411TdgCr_MhafwfaBdfxVAY9sw>
+    <xmx:6vDJZDK3c5_EB4fgcQFgzX4-go5CWzYwLeKaw7J7u6zkYYoyze36mQ>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id D5750B60089; Wed,  2 Aug 2023 02:00:09 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.9.0-alpha0-592-ga9d4a09b4b-fm-defalarms-20230725.001-ga9d4a09b
+Mime-Version: 1.0
+Message-Id: <847747a8-b773-4b7b-8c14-b8ef4ba7c022@app.fastmail.com>
+In-Reply-To: <CAHk-=wgkC80Ey0Wyi3zHYexUmteeDL3hvZrp=EpMrDccRGmMwA@mail.gmail.com>
+References: <20230801-bitwise-v1-1-799bec468dc4@google.com>
+ <CAHk-=wgkC80Ey0Wyi3zHYexUmteeDL3hvZrp=EpMrDccRGmMwA@mail.gmail.com>
+Date:   Wed, 02 Aug 2023 07:59:48 +0200
+From:   "Arnd Bergmann" <arnd@arndb.de>
+To:     "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Nick Desaulniers" <ndesaulniers@google.com>
+Cc:     "Nathan Chancellor" <nathan@kernel.org>,
+        "Tom Rix" <trix@redhat.com>,
+        Linux-Arch <linux-arch@vger.kernel.org>,
+        linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
+        "Heiko Carstens" <hca@linux.ibm.com>,
+        "Vasily Gorbik" <gor@linux.ibm.com>,
+        "Alexander Gordeev" <agordeev@linux.ibm.com>,
+        "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+        "Sven Schnelle" <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+        "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>
+Subject: Re: [PATCH] word-at-a-time: use the same return type for has_zero regardless
+ of endianness
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Aug 01, 2023 at 04:11:39PM +0200, Adrian Reber wrote:
-> On Mon, Jul 31, 2023 at 08:39:26PM +0200, Heiko Carstens wrote:
-> > Adrian Reber reported the following CRIU build bug after
-> > commit b8af5999779d ("s390/ptrace: make all psw related
-> > defines also available for asm"):
-> > 
-> > compel/arch/s390/src/lib/infect.c: In function 'arch_can_dump_task':
-> > compel/arch/s390/src/lib/infect.c:523:25: error: 'UL' undeclared (first use in this function)
-> >   523 |         if (psw->mask & PSW_MASK_RI) {
-> >       |                         ^~~~~~~~~~~
-> > 
-> > Add the missing linux/const.h include to fix this.
-> 
-> Thanks. That fixes the build failure for me.
+On Wed, Aug 2, 2023, at 03:07, Linus Torvalds wrote:
+> On Tue, 1 Aug 2023 at 15:22, <ndesaulniers@google.com> wrote:
 
-Thanks for verifying. This should make it into rc5.
+> Who ends up being affected by this? Powerpc does its own
+> word-at-a-time thing because the big-endian case is nasty and you can
+> do better with special instructions that they have.
+
+powerpc needs the same patch though.
+
+> Who else is even BE any more? Some old 32-bit arm setup?
+>
+> I think the patch is fine, but I guess I'd like to know that people
+> who are affected actually don't see any code generation changes (or
+> possibly see improvements from not turning it into a bool until later)
+
+s390 is the main one here, maintainers added to Cc.
+
+Atheros and Realtek MIPS are older but still shipping in low-end
+network equipment, and there are still users on old embedded
+big-endian mips (broadcom, cavium, intel/lantiq and arm
+(intel ixp4xx) hardware. All modern Arm hardware (v6/v7/v8/v9)
+can do both big-endian and little-endian, but actual user numbers
+for big-endian are close to zero -- I have not heard from anyone
+actually using it in years.
+
+And then there was a lot of the old-school workstation/server
+hardware (m68k, mips, parisc and sparc, not alpha/ia64) that is
+mostly big-endian and still maintained to some degree.
+
+      Arnd
