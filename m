@@ -2,23 +2,23 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 827D0C00528
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Aug 2023 12:33:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86BA3C001E0
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Aug 2023 12:45:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233821AbjHBMdR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Aug 2023 08:33:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54648 "EHLO
+        id S234574AbjHBMpf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Aug 2023 08:45:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232364AbjHBMdQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Aug 2023 08:33:16 -0400
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E64532701;
-        Wed,  2 Aug 2023 05:33:12 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0Vov0kNP_1690979588;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0Vov0kNP_1690979588)
+        with ESMTP id S234495AbjHBMpe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Aug 2023 08:45:34 -0400
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D40502D51;
+        Wed,  2 Aug 2023 05:44:58 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0Vov1X90_1690980241;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0Vov1X90_1690980241)
           by smtp.aliyun-inc.com;
-          Wed, 02 Aug 2023 20:33:09 +0800
-Date:   Wed, 2 Aug 2023 20:33:04 +0800
+          Wed, 02 Aug 2023 20:44:02 +0800
+Date:   Wed, 2 Aug 2023 20:43:56 +0800
 From:   Tony Lu <tonylu@linux.alibaba.com>
 To:     Gerd Bayer <gbayer@linux.ibm.com>
 Cc:     Wenjia Zhang <wenjia@linux.ibm.com>,
@@ -31,258 +31,165 @@ Cc:     Wenjia Zhang <wenjia@linux.ibm.com>,
         Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>, linux-s390@vger.kernel.org,
         netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net 1/2] net/smc: Fix setsockopt and sysctl to specify
- same buffer size again
-Message-ID: <ZMpNALPfBbSFmBAS@TONYMAC-ALIBABA.local>
+Subject: Re: [PATCH net 2/2] net/smc: Use correct buffer sizes when switching
+ between TCP and SMC
+Message-ID: <ZMpPjAaRzSRy-Vo_@TONYMAC-ALIBABA.local>
 Reply-To: Tony Lu <tonylu@linux.alibaba.com>
 References: <20230802093313.1501605-1-gbayer@linux.ibm.com>
- <20230802093313.1501605-2-gbayer@linux.ibm.com>
+ <20230802093313.1501605-3-gbayer@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20230802093313.1501605-2-gbayer@linux.ibm.com>
+In-Reply-To: <20230802093313.1501605-3-gbayer@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Aug 02, 2023 at 11:33:12AM +0200, Gerd Bayer wrote:
-> Commit 0227f058aa29 ("net/smc: Unbind r/w buffer size from clcsock
-> and make them tunable") introduced the net.smc.rmem and net.smc.wmem
-> sysctls to specify the size of buffers to be used for SMC type
-> connections. This created a regression for users that specified the
-> buffer size via setsockopt() as the effective buffer size was now
-> doubled.
-
-The idea of the original patch is going to unbind buffer from clcsock.
-It's great here to determine whether to use original value or doubled.
-
+On Wed, Aug 02, 2023 at 11:33:13AM +0200, Gerd Bayer wrote:
+> Tuning of the effective buffer size through setsockopts was working for
+> SMC traffic only but not for TCP fall-back connections even before
+> commit 0227f058aa29 ("net/smc: Unbind r/w buffer size from clcsock and
+> make them tunable"). That change made it apparent that TCP fall-back
+> connections would use net.smc.[rw]mem as buffer size instead of
+> net.ipv4_tcp_[rw]mem.
 > 
-> Re-introduce the division by 2 in the SMC buffer create code and level
-> this out by duplicating the net.smc.[rw]mem values used for initializing
-> sk_rcvbuf/sk_sndbuf at socket creation time. This gives users of both
-> methods (setsockopt or sysctl) the effective buffer size that they
-> expect.
+> Amend the code that copies attributes between the (TCP) clcsock and the
+> SMC socket and adjust buffer sizes appropriately:
+> - Copy over sk_userlocks so that both sockets agree on whether tuning
+>   via setsockopt is active.
+> - When falling back to TCP use sk_sndbuf or sk_rcvbuf as specified with
+>   setsockopt. Otherwise, use the sysctl value for TCP/IPv4.
+> - Likewise, use either values from setsockopt or from sysctl for SMC
+>   (duplicated) on successful SMC connect.
 > 
-> Initialize net.smc.[rw]mem from its own constant of 64kB, respectively.
-> Internal performance tests show that this value is a good compromise
-> between throughput/latency and memory consumption. Also, this decouples
-> it from any tuning that was done to net.ipv4.tcp_[rw]mem[1] before the
-> module for SMC protocol was loaded. Check that no more than INT_MAX / 2
-> is assigned to net.smc.[rw]mem, in order to avoid any overflow condition
-> when that is doubled for use in sk_sndbuf or sk_rcvbuf.
-
-64kB may be small in our environment, but that's okay to change it with
-systemd during boot. Different networking environment, such as with
-higher latency, should have different buffer size. So two tunable knobs
-are good enough.
-
-> 
-> While at it, drop the confusing sk_buf_size variable from
-> __smc_buf_create and name "compressed" buffer size variables more
-> consistently.
-> 
-> Background:
-> 
-> Before the commit mentioned above, SMC's buffer allocator in
-> __smc_buf_create() always used half of the sockets' sk_rcvbuf/sk_sndbuf
-> value as initial value to search for appropriate buffers. If the search
-> resorted to using a bigger buffer when all buffers of the specified
-> size were busy, the duplicate of the used effective buffer size is
-> stored back to sk_rcvbuf/sk_sndbuf.
-> 
-> When available, buffers of exactly the size that a user had specified as
-> input to setsockopt() were used, despite setsockopt()'s documentation in
-> "man 7 socket" talking of a mandatory duplication:
-> 
-> [...]
->        SO_SNDBUF
->               Sets  or  gets the maximum socket send buffer in bytes.
->               The kernel doubles this value (to allow space for book‐
->               keeping  overhead)  when it is set using setsockopt(2),
->               and this doubled value is  returned  by  getsockopt(2).
->               The     default     value     is     set     by     the
->               /proc/sys/net/core/wmem_default file  and  the  maximum
->               allowed value is set by the /proc/sys/net/core/wmem_max
->               file.  The minimum (doubled) value for this  option  is
->               2048.
-> [...]
+> In smc_tcp_listen_work() drop the explicit copy of buffer sizes as that
+> is taken care of by the attribute copy.
 > 
 > Fixes: 0227f058aa29 ("net/smc: Unbind r/w buffer size from clcsock and make them tunable")
-> Co-developed-by: Jan Karcher <jaka@linux.ibm.com>
-> Signed-off-by: Jan Karcher <jaka@linux.ibm.com>
 > Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
 > Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+> Reviewed-by: Jan Karcher <jaka@linux.ibm.com>
 
 Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
 
+> 
+^^^^ nit: a extra new line here.
 > ---
->  net/smc/af_smc.c     |  4 ++--
->  net/smc/smc.h        |  2 +-
->  net/smc/smc_clc.c    |  4 ++--
->  net/smc/smc_core.c   | 25 ++++++++++++-------------
->  net/smc/smc_sysctl.c | 10 ++++++++--
->  5 files changed, 25 insertions(+), 20 deletions(-)
+>  net/smc/af_smc.c | 76 ++++++++++++++++++++++++++++++++++--------------
+>  1 file changed, 54 insertions(+), 22 deletions(-)
 > 
 > diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index a7f887d91d89..1fcf1e42474a 100644
+> index 1fcf1e42474a..1c8ed19041d7 100644
 > --- a/net/smc/af_smc.c
 > +++ b/net/smc/af_smc.c
-> @@ -378,8 +378,8 @@ static struct sock *smc_sock_alloc(struct net *net, struct socket *sock,
->  	sk->sk_state = SMC_INIT;
->  	sk->sk_destruct = smc_destruct;
->  	sk->sk_protocol = protocol;
-> -	WRITE_ONCE(sk->sk_sndbuf, READ_ONCE(net->smc.sysctl_wmem));
-> -	WRITE_ONCE(sk->sk_rcvbuf, READ_ONCE(net->smc.sysctl_rmem));
-> +	WRITE_ONCE(sk->sk_sndbuf, 2 * READ_ONCE(net->smc.sysctl_wmem));
-> +	WRITE_ONCE(sk->sk_rcvbuf, 2 * READ_ONCE(net->smc.sysctl_rmem));
->  	smc = smc_sk(sk);
->  	INIT_WORK(&smc->tcp_listen_work, smc_tcp_listen_work);
->  	INIT_WORK(&smc->connect_work, smc_connect_work);
-> diff --git a/net/smc/smc.h b/net/smc/smc.h
-> index 2eeea4cdc718..1f2b912c43d1 100644
-> --- a/net/smc/smc.h
-> +++ b/net/smc/smc.h
-> @@ -161,7 +161,7 @@ struct smc_connection {
+> @@ -436,13 +436,63 @@ static int smc_bind(struct socket *sock, struct sockaddr *uaddr,
+>  	return rc;
+>  }
 >  
->  	struct smc_buf_desc	*sndbuf_desc;	/* send buffer descriptor */
->  	struct smc_buf_desc	*rmb_desc;	/* RMBE descriptor */
-> -	int			rmbe_size_short;/* compressed notation */
-> +	int                     rmbe_size_comp; /* compressed notation */
+> +/* copy only relevant settings and flags of SOL_SOCKET level from smc to
+> + * clc socket (since smc is not called for these options from net/core)
+> + */
+> +
+> +#define SK_FLAGS_SMC_TO_CLC ((1UL << SOCK_URGINLINE) | \
+> +			     (1UL << SOCK_KEEPOPEN) | \
+> +			     (1UL << SOCK_LINGER) | \
+> +			     (1UL << SOCK_BROADCAST) | \
+> +			     (1UL << SOCK_TIMESTAMP) | \
+> +			     (1UL << SOCK_DBG) | \
+> +			     (1UL << SOCK_RCVTSTAMP) | \
+> +			     (1UL << SOCK_RCVTSTAMPNS) | \
+> +			     (1UL << SOCK_LOCALROUTE) | \
+> +			     (1UL << SOCK_TIMESTAMPING_RX_SOFTWARE) | \
+> +			     (1UL << SOCK_RXQ_OVFL) | \
+> +			     (1UL << SOCK_WIFI_STATUS) | \
+> +			     (1UL << SOCK_NOFCS) | \
+> +			     (1UL << SOCK_FILTER_LOCKED) | \
+> +			     (1UL << SOCK_TSTAMP_NEW))
+> +
+> +/* if set, use value set by setsockopt() - else use IPv4 or SMC sysctl value */
+> +static void smc_adjust_sock_bufsizes(struct sock *nsk, struct sock *osk,
+> +				     unsigned long mask)
+> +{
+> +	struct net *nnet;
+> +
+> +	nnet = nsk->sk_net.net;
 
-nit: spaces are used here, better to use two tabs.
+Better to combine these two lines with existed helper.
 
->  	int			rmbe_update_limit;
->  						/* lower limit for consumer
->  						 * cursor update
-> diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-> index b9b8b07aa702..c90d9e5dda54 100644
-> --- a/net/smc/smc_clc.c
-> +++ b/net/smc/smc_clc.c
-> @@ -1007,7 +1007,7 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
->  		clc->d0.gid =
->  			conn->lgr->smcd->ops->get_local_gid(conn->lgr->smcd);
->  		clc->d0.token = conn->rmb_desc->token;
-> -		clc->d0.dmbe_size = conn->rmbe_size_short;
-> +		clc->d0.dmbe_size = conn->rmbe_size_comp;
->  		clc->d0.dmbe_idx = 0;
->  		memcpy(&clc->d0.linkid, conn->lgr->id, SMC_LGR_ID_SIZE);
->  		if (version == SMC_V1) {
-> @@ -1050,7 +1050,7 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
->  			clc->r0.qp_mtu = min(link->path_mtu, link->peer_mtu);
->  			break;
->  		}
-> -		clc->r0.rmbe_size = conn->rmbe_size_short;
-> +		clc->r0.rmbe_size = conn->rmbe_size_comp;
->  		clc->r0.rmb_dma_addr = conn->rmb_desc->is_vm ?
->  			cpu_to_be64((uintptr_t)conn->rmb_desc->cpu_addr) :
->  			cpu_to_be64((u64)sg_dma_address
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index 3f465faf2b68..6b78075404d7 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -2309,31 +2309,30 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
->  	struct smc_connection *conn = &smc->conn;
->  	struct smc_link_group *lgr = conn->lgr;
->  	struct list_head *buf_list;
-> -	int bufsize, bufsize_short;
-> +	int bufsize, bufsize_comp;
->  	struct rw_semaphore *lock;	/* lock buffer list */
->  	bool is_dgraded = false;
-> -	int sk_buf_size;
+struct net *net = sock_net(nsk);
+
+> +
+> +	nsk->sk_userlocks = osk->sk_userlocks;
+> +
+> +	if (osk->sk_userlocks & SOCK_SNDBUF_LOCK) {
+> +		nsk->sk_sndbuf = osk->sk_sndbuf;
+> +	} else {
+> +		if (mask == SK_FLAGS_SMC_TO_CLC)
+> +			WRITE_ONCE(nsk->sk_sndbuf,
+> +				   READ_ONCE(nnet->ipv4.sysctl_tcp_wmem[1]));
+> +		else
+> +			WRITE_ONCE(nsk->sk_sndbuf,
+> +				   2 * READ_ONCE(nnet->smc.sysctl_wmem));
+> +	}
+> +	if (osk->sk_userlocks & SOCK_RCVBUF_LOCK) {
+> +		nsk->sk_rcvbuf = osk->sk_rcvbuf;
+> +	} else {
+> +		if (mask == SK_FLAGS_SMC_TO_CLC)
+> +			WRITE_ONCE(nsk->sk_rcvbuf,
+> +				   READ_ONCE(nnet->ipv4.sysctl_tcp_rmem[1]));
+> +		else
+> +			WRITE_ONCE(nsk->sk_rcvbuf,
+> +				   2 * READ_ONCE(nnet->smc.sysctl_rmem));
+> +	}
+> +}
+> +
+>  static void smc_copy_sock_settings(struct sock *nsk, struct sock *osk,
+>  				   unsigned long mask)
+>  {
+>  	/* options we don't get control via setsockopt for */
+>  	nsk->sk_type = osk->sk_type;
+> -	nsk->sk_sndbuf = osk->sk_sndbuf;
+> -	nsk->sk_rcvbuf = osk->sk_rcvbuf;
+>  	nsk->sk_sndtimeo = osk->sk_sndtimeo;
+>  	nsk->sk_rcvtimeo = osk->sk_rcvtimeo;
+>  	nsk->sk_mark = osk->sk_mark;
+> @@ -453,26 +503,10 @@ static void smc_copy_sock_settings(struct sock *nsk, struct sock *osk,
 >  
->  	if (is_rmb)
->  		/* use socket recv buffer size (w/o overhead) as start value */
-> -		sk_buf_size = smc->sk.sk_rcvbuf;
-> +		bufsize = smc->sk.sk_rcvbuf / 2;
->  	else
->  		/* use socket send buffer size (w/o overhead) as start value */
-> -		sk_buf_size = smc->sk.sk_sndbuf;
-> +		bufsize = smc->sk.sk_sndbuf / 2;
+>  	nsk->sk_flags &= ~mask;
+>  	nsk->sk_flags |= osk->sk_flags & mask;
+> +
+> +	smc_adjust_sock_bufsizes(nsk, osk, mask);
+>  }
 >  
-> -	for (bufsize_short = smc_compress_bufsize(sk_buf_size, is_smcd, is_rmb);
-> -	     bufsize_short >= 0; bufsize_short--) {
-> +	for (bufsize_comp = smc_compress_bufsize(bufsize, is_smcd, is_rmb);
-> +	     bufsize_comp >= 0; bufsize_comp--) {
->  		if (is_rmb) {
->  			lock = &lgr->rmbs_lock;
-> -			buf_list = &lgr->rmbs[bufsize_short];
-> +			buf_list = &lgr->rmbs[bufsize_comp];
->  		} else {
->  			lock = &lgr->sndbufs_lock;
-> -			buf_list = &lgr->sndbufs[bufsize_short];
-> +			buf_list = &lgr->sndbufs[bufsize_comp];
->  		}
-> -		bufsize = smc_uncompress_bufsize(bufsize_short);
-> +		bufsize = smc_uncompress_bufsize(bufsize_comp);
->  
->  		/* check for reusable slot in the link group */
-> -		buf_desc = smc_buf_get_slot(bufsize_short, lock, buf_list);
-> +		buf_desc = smc_buf_get_slot(bufsize_comp, lock, buf_list);
->  		if (buf_desc) {
->  			buf_desc->is_dma_need_sync = 0;
->  			SMC_STAT_RMB_SIZE(smc, is_smcd, is_rmb, bufsize);
-> @@ -2377,8 +2376,8 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
->  
->  	if (is_rmb) {
->  		conn->rmb_desc = buf_desc;
-> -		conn->rmbe_size_short = bufsize_short;
-> -		smc->sk.sk_rcvbuf = bufsize;
-> +		conn->rmbe_size_comp = bufsize_comp;
-> +		smc->sk.sk_rcvbuf = bufsize * 2;
->  		atomic_set(&conn->bytes_to_rcv, 0);
->  		conn->rmbe_update_limit =
->  			smc_rmb_wnd_update_limit(buf_desc->len);
-> @@ -2386,7 +2385,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
->  			smc_ism_set_conn(conn); /* map RMB/smcd_dev to conn */
->  	} else {
->  		conn->sndbuf_desc = buf_desc;
-> -		smc->sk.sk_sndbuf = bufsize;
-> +		smc->sk.sk_sndbuf = bufsize * 2;
->  		atomic_set(&conn->sndbuf_space, bufsize);
->  	}
->  	return 0;
-> diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
-> index b6f79fabb9d3..0b2a957ca5f5 100644
-> --- a/net/smc/smc_sysctl.c
-> +++ b/net/smc/smc_sysctl.c
-> @@ -21,6 +21,10 @@
->  
->  static int min_sndbuf = SMC_BUF_MIN_SIZE;
->  static int min_rcvbuf = SMC_BUF_MIN_SIZE;
-> +static int max_sndbuf = INT_MAX / 2;
-> +static int max_rcvbuf = INT_MAX / 2;
-> +static const int net_smc_wmem_init = (64 * 1024);
-> +static const int net_smc_rmem_init = (64 * 1024);
->  
->  static struct ctl_table smc_table[] = {
->  	{
-> @@ -53,6 +57,7 @@ static struct ctl_table smc_table[] = {
->  		.mode		= 0644,
->  		.proc_handler	= proc_dointvec_minmax,
->  		.extra1		= &min_sndbuf,
-> +		.extra2		= &max_sndbuf,
->  	},
->  	{
->  		.procname	= "rmem",
-> @@ -61,6 +66,7 @@ static struct ctl_table smc_table[] = {
->  		.mode		= 0644,
->  		.proc_handler	= proc_dointvec_minmax,
->  		.extra1		= &min_rcvbuf,
-> +		.extra2		= &max_rcvbuf,
->  	},
->  	{  }
->  };
-> @@ -88,8 +94,8 @@ int __net_init smc_sysctl_net_init(struct net *net)
->  	net->smc.sysctl_autocorking_size = SMC_AUTOCORKING_DEFAULT_SIZE;
->  	net->smc.sysctl_smcr_buf_type = SMCR_PHYS_CONT_BUFS;
->  	net->smc.sysctl_smcr_testlink_time = SMC_LLC_TESTLINK_DEFAULT_TIME;
-> -	WRITE_ONCE(net->smc.sysctl_wmem, READ_ONCE(net->ipv4.sysctl_tcp_wmem[1]));
-> -	WRITE_ONCE(net->smc.sysctl_rmem, READ_ONCE(net->ipv4.sysctl_tcp_rmem[1]));
-> +	WRITE_ONCE(net->smc.sysctl_wmem, net_smc_wmem_init);
-> +	WRITE_ONCE(net->smc.sysctl_rmem, net_smc_rmem_init);
->  
->  	return 0;
->  
+> -#define SK_FLAGS_SMC_TO_CLC ((1UL << SOCK_URGINLINE) | \
+> -			     (1UL << SOCK_KEEPOPEN) | \
+> -			     (1UL << SOCK_LINGER) | \
+> -			     (1UL << SOCK_BROADCAST) | \
+> -			     (1UL << SOCK_TIMESTAMP) | \
+> -			     (1UL << SOCK_DBG) | \
+> -			     (1UL << SOCK_RCVTSTAMP) | \
+> -			     (1UL << SOCK_RCVTSTAMPNS) | \
+> -			     (1UL << SOCK_LOCALROUTE) | \
+> -			     (1UL << SOCK_TIMESTAMPING_RX_SOFTWARE) | \
+> -			     (1UL << SOCK_RXQ_OVFL) | \
+> -			     (1UL << SOCK_WIFI_STATUS) | \
+> -			     (1UL << SOCK_NOFCS) | \
+> -			     (1UL << SOCK_FILTER_LOCKED) | \
+> -			     (1UL << SOCK_TSTAMP_NEW))
+> -/* copy only relevant settings and flags of SOL_SOCKET level from smc to
+> - * clc socket (since smc is not called for these options from net/core)
+> - */
+>  static void smc_copy_sock_settings_to_clc(struct smc_sock *smc)
+>  {
+>  	smc_copy_sock_settings(smc->clcsock->sk, &smc->sk, SK_FLAGS_SMC_TO_CLC);
+> @@ -2479,8 +2513,6 @@ static void smc_tcp_listen_work(struct work_struct *work)
+>  		sock_hold(lsk); /* sock_put in smc_listen_work */
+>  		INIT_WORK(&new_smc->smc_listen_work, smc_listen_work);
+>  		smc_copy_sock_settings_to_smc(new_smc);
+> -		new_smc->sk.sk_sndbuf = lsmc->sk.sk_sndbuf;
+> -		new_smc->sk.sk_rcvbuf = lsmc->sk.sk_rcvbuf;
+>  		sock_hold(&new_smc->sk); /* sock_put in passive closing */
+>  		if (!queue_work(smc_hs_wq, &new_smc->smc_listen_work))
+>  			sock_put(&new_smc->sk);
 > -- 
 > 2.41.0
