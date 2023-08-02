@@ -2,174 +2,90 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82D97C001E0
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Aug 2023 16:48:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03EB4C001DF
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Aug 2023 22:26:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231319AbjHBQsJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Aug 2023 12:48:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47264 "EHLO
+        id S233967AbjHBW0N (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Aug 2023 18:26:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230223AbjHBQsJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Aug 2023 12:48:09 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69AA0173A;
-        Wed,  2 Aug 2023 09:48:07 -0700 (PDT)
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 372Gfuw1023825;
-        Wed, 2 Aug 2023 16:48:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=RYhl9o7SKKJztH3JmqXCvUi0CyeUsByFRM8iTudrnzA=;
- b=pOqNeVHqJ7Yp8Y0f9lVTtpwuFisK64YFdNtSp9S56CT0A7jqXCcXA88nvRzhET3kLacw
- +1gxiTT/6IcNScbX9Z7OXdhBFNFujjNW83brkY0cxkLHqdGK2mBBDEe+7u+nOOf2oN5c
- e9vRxEnx6DikaXBUJf0NZL2CvlA9cwiPoCvbC/QncCenVAWxWsZXPFgf9Ggu2u91PxKq
- L7nPtx4kDCptOZ8YXBq0nz0f8hIrBx0LBZ1QSq4uYtbVgIjXVRpPh0FybPyeoQPOBBZt
- opqelYv62ZQacajRUMp3M6PxhbvMi2+jn0NjmcfXYiCm+V6LHsIv5SkrzQMw6jYxAfE2 gw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s7tvvr7gn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Aug 2023 16:48:04 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 372GhqkD031958;
-        Wed, 2 Aug 2023 16:48:04 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s7tvvr7fs-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Aug 2023 16:48:03 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 372F1GkG017116;
-        Wed, 2 Aug 2023 16:48:03 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3s5fajwprq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Aug 2023 16:48:02 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 372Gm0BC20185814
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 2 Aug 2023 16:48:00 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F2EDC20043;
-        Wed,  2 Aug 2023 16:47:59 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2E81020040;
-        Wed,  2 Aug 2023 16:47:59 +0000 (GMT)
-Received: from [9.179.11.37] (unknown [9.179.11.37])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed,  2 Aug 2023 16:47:59 +0000 (GMT)
-Message-ID: <603d2672855d74e9bfc2619156f4ffe7976de4f5.camel@linux.ibm.com>
-Subject: Re: [PATCH net 2/2] net/smc: Use correct buffer sizes when
- switching between TCP and SMC
-From:   Gerd Bayer <gbayer@linux.ibm.com>
-To:     Tony Lu <tonylu@linux.alibaba.com>
-Cc:     Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        "D . Wythe" <alibuda@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Date:   Wed, 02 Aug 2023 18:47:58 +0200
-In-Reply-To: <ZMpPjAaRzSRy-Vo_@TONYMAC-ALIBABA.local>
-References: <20230802093313.1501605-1-gbayer@linux.ibm.com>
-         <20230802093313.1501605-3-gbayer@linux.ibm.com>
-         <ZMpPjAaRzSRy-Vo_@TONYMAC-ALIBABA.local>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.module_f38+17164+63eeee4a) 
-MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: zSPmUnJ3NkZEgtca34jLWGXJ_34EBbIf
-X-Proofpoint-ORIG-GUID: mUWuCCm1BoLhEp0umEXsTl4Akz6lPj6U
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-08-02_12,2023-08-01_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
- priorityscore=1501 suspectscore=0 bulkscore=0 mlxscore=0 mlxlogscore=999
- phishscore=0 malwarescore=0 clxscore=1015 lowpriorityscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2306200000
- definitions=main-2308020146
+        with ESMTP id S231897AbjHBWZw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Aug 2023 18:25:52 -0400
+Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7FC1468F
+        for <linux-s390@vger.kernel.org>; Wed,  2 Aug 2023 15:24:35 -0700 (PDT)
+Received: by mail-pl1-x64a.google.com with SMTP id d9443c01a7336-1bbb34b091dso2953455ad.0
+        for <linux-s390@vger.kernel.org>; Wed, 02 Aug 2023 15:24:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20221208; t=1691015074; x=1691619874;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=F9yIn4dK3mSmUtcCp8LFFT4F/LQPHHPvz5xo49Hmxkk=;
+        b=H+aTSYmBYRO7DEl0/Htl+Y5MU3zO0wo2l+1FTpMwOYDrAjZnYx7ET8cvGNBa+VhiQo
+         VNh5q/Dn9hvp4uKDjTfLgLfw15kkhnDEnfRhiU9yFwZZHyeTWZpXkJqPylFoHBgQAyaf
+         aBTifmJXqJLmP5lVQAoPZsli5/e5GDX78w5BAZjdL1vToFkiklboUC2FYPw4yrY5o7zi
+         FKfloQC0qrIZC8aaCFXsGriAuqPWzKBenKQfVkqPaUsunkHJ9IDkCXMZqn79LQm2+khs
+         y6UAtFp77IpR1eHxik0mHjgsYCbadkRl1CkaPHJo8SdYL1zsjEcOXb/edT5pHOCJNcVZ
+         haXg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1691015074; x=1691619874;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=F9yIn4dK3mSmUtcCp8LFFT4F/LQPHHPvz5xo49Hmxkk=;
+        b=e8mSgeUG7narYZ5bIAYqiPZ0IONPXlIK8j3FC4J5qteq67XoH0CuTJfWkenkyTsiJh
+         u6fiYCHr/0rqAVM1z9WdoBEUfP7snmhMmGYGe3qXnB8++CnIxD3HMK+yD15a7D2B6RD0
+         d6Yt4XA3uEvHKscIfW8mEMffWFsInP888IVUYK9CSRpxLM59TeC8eP0fmexK4JhJo9Yt
+         QeNbQxYqQfKsPhcee2wVZlSpzEjk4BEJwVmDL6a29DlsOAmhNBryM5cZKzR1kLtZzf8c
+         x+KAS/p1aCpVezGwTSFZO3ilVtytEFvFSQo+kClGs9x/XK4aG+dq6VwCZayzFvChKGhF
+         ldVw==
+X-Gm-Message-State: ABy/qLYMl00m1nlQ6YCYdNsdZigah0goD32VGiVEqTs/yUe3P4ed+aEb
+        XFsGJ/5zYirEZMWrGyCQENrDmZ39QNI=
+X-Google-Smtp-Source: APBJJlEIByBfYoY/KC32/g8HzkxLqseO0XeVYpg+NMSyLBH6gtwD9otmWgLk0cSs3kJzChFA66PNbRObft0=
+X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
+ (user=seanjc job=sendgmr) by 2002:a17:903:2291:b0:1b5:2b14:5f2c with SMTP id
+ b17-20020a170903229100b001b52b145f2cmr105841plh.4.1691015074397; Wed, 02 Aug
+ 2023 15:24:34 -0700 (PDT)
+Date:   Wed, 2 Aug 2023 15:24:33 -0700
+In-Reply-To: <20230725143857.228626-1-iii@linux.ibm.com>
+Mime-Version: 1.0
+References: <20230725143857.228626-1-iii@linux.ibm.com>
+Message-ID: <ZMrXoQ0wN5ZyCf6Q@google.com>
+Subject: Re: [PATCH v4 0/6] KVM: s390: interrupt: Fix stepping into interrupt handlers
+From:   Sean Christopherson <seanjc@google.com>
+To:     Ilya Leoshkevich <iii@linux.ibm.com>
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jens Freimann <jfreimann@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2023-08-02 at 20:43 +0800, Tony Lu wrote:
-> On Wed, Aug 02, 2023 at 11:33:13AM +0200, Gerd Bayer wrote:
-> > Tuning of the effective buffer size through setsockopts was working
-> > for
-> > SMC traffic only but not for TCP fall-back connections even before
-> > commit 0227f058aa29 ("net/smc: Unbind r/w buffer size from clcsock
-> > and
-> > make them tunable"). That change made it apparent that TCP fall-
-> > back
-> > connections would use net.smc.[rw]mem as buffer size instead of
-> > net.ipv4_tcp_[rw]mem.
-> >=20
-> > Amend the code that copies attributes between the (TCP) clcsock and
-> > the
-> > SMC socket and adjust buffer sizes appropriately:
-> > - Copy over sk_userlocks so that both sockets agree on whether
-> > tuning
-> > =C2=A0 via setsockopt is active.
-> > - When falling back to TCP use sk_sndbuf or sk_rcvbuf as specified
-> > with
-> > =C2=A0 setsockopt. Otherwise, use the sysctl value for TCP/IPv4.
-> > - Likewise, use either values from setsockopt or from sysctl for
-> > SMC
-> > =C2=A0 (duplicated) on successful SMC connect.
-> >=20
-> > In smc_tcp_listen_work() drop the explicit copy of buffer sizes as
-> > that
-> > is taken care of by the attribute copy.
-> >=20
-> > Fixes: 0227f058aa29 ("net/smc: Unbind r/w buffer size from clcsock
-> > and make them tunable")
-> > Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
-> > Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-> > Reviewed-by: Jan Karcher <jaka@linux.ibm.com>
->=20
-> Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
->=20
-> >=20
-> ^^^^ nit: a extra new line here.
-I'll clean that up.
+On Tue, Jul 25, 2023, Ilya Leoshkevich wrote:
+> Ilya Leoshkevich (6):
+>   KVM: s390: interrupt: Fix single-stepping into interrupt handlers
+>   KVM: s390: interrupt: Fix single-stepping into program interrupt
+>     handlers
+>   KVM: s390: interrupt: Fix single-stepping kernel-emulated instructions
+>   KVM: s390: interrupt: Fix single-stepping userspace-emulated
+>     instructions
+>   KVM: s390: interrupt: Fix single-stepping keyless mode exits
+>   KVM: s390: selftests: Add selftest for single-stepping
 
-> > ---
-> > =C2=A0net/smc/af_smc.c | 76 ++++++++++++++++++++++++++++++++++---------=
--
-> > ----
-> > =C2=A01 file changed, 54 insertions(+), 22 deletions(-)
-> >=20
-> >=20
-[...]
+FYI, the selftests change silently conflicts with a global s/ASSERT_EQ/TEST_ASSERT_EQ
+rename[1], but the conflicts are very straightforward to resolve (just prepend TEST_).
+If we want to proactively avoid mild pain in linux-next, one option would be to merge
+the full kvm-x86/selftests branch/tag once I've made that immutable[2] (will be done
+Friday if there are no fireworks).  Though we can probably just get away with doing
+nothing other than letting Paolo know there's a silent conflict.
 
-> > +/* if set, use value set by setsockopt() - else use IPv4 or SMC
-> > sysctl value */
-> > +static void smc_adjust_sock_bufsizes(struct sock *nsk, struct sock
-> > *osk,
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 unsigned=
- long mask)
-> > +{
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct net *nnet;
-> > +
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0nnet =3D nsk->sk_net.net;
->=20
-> Better to combine these two lines with existed helper.
->=20
-> struct net *net =3D sock_net(nsk);
-Yes, looks much cleaner.
+[1] https://lore.kernel.org/all/169101245511.1754469.7852701829984104093.b4-ty@google.com
+[2] https://lore.kernel.org/all/169101267140.1755771.17089576255751273053.b4-ty@google.com
 
-[...]
->=20
-
-Thank you Tony for your review and comments.
-I'll be sending out a v2 with your recommendations - but give people a
-little more time to look at this version.
-
-Thanks,
-Gerd
