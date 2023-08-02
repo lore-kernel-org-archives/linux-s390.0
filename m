@@ -2,90 +2,161 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03EB4C001DF
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Aug 2023 22:26:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 666A1C001DF
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Aug 2023 23:18:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233967AbjHBW0N (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Aug 2023 18:26:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33682 "EHLO
+        id S232844AbjHBXSv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Aug 2023 19:18:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231897AbjHBWZw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Aug 2023 18:25:52 -0400
-Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7FC1468F
-        for <linux-s390@vger.kernel.org>; Wed,  2 Aug 2023 15:24:35 -0700 (PDT)
-Received: by mail-pl1-x64a.google.com with SMTP id d9443c01a7336-1bbb34b091dso2953455ad.0
-        for <linux-s390@vger.kernel.org>; Wed, 02 Aug 2023 15:24:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1691015074; x=1691619874;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=F9yIn4dK3mSmUtcCp8LFFT4F/LQPHHPvz5xo49Hmxkk=;
-        b=H+aTSYmBYRO7DEl0/Htl+Y5MU3zO0wo2l+1FTpMwOYDrAjZnYx7ET8cvGNBa+VhiQo
-         VNh5q/Dn9hvp4uKDjTfLgLfw15kkhnDEnfRhiU9yFwZZHyeTWZpXkJqPylFoHBgQAyaf
-         aBTifmJXqJLmP5lVQAoPZsli5/e5GDX78w5BAZjdL1vToFkiklboUC2FYPw4yrY5o7zi
-         FKfloQC0qrIZC8aaCFXsGriAuqPWzKBenKQfVkqPaUsunkHJ9IDkCXMZqn79LQm2+khs
-         y6UAtFp77IpR1eHxik0mHjgsYCbadkRl1CkaPHJo8SdYL1zsjEcOXb/edT5pHOCJNcVZ
-         haXg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691015074; x=1691619874;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=F9yIn4dK3mSmUtcCp8LFFT4F/LQPHHPvz5xo49Hmxkk=;
-        b=e8mSgeUG7narYZ5bIAYqiPZ0IONPXlIK8j3FC4J5qteq67XoH0CuTJfWkenkyTsiJh
-         u6fiYCHr/0rqAVM1z9WdoBEUfP7snmhMmGYGe3qXnB8++CnIxD3HMK+yD15a7D2B6RD0
-         d6Yt4XA3uEvHKscIfW8mEMffWFsInP888IVUYK9CSRpxLM59TeC8eP0fmexK4JhJo9Yt
-         QeNbQxYqQfKsPhcee2wVZlSpzEjk4BEJwVmDL6a29DlsOAmhNBryM5cZKzR1kLtZzf8c
-         x+KAS/p1aCpVezGwTSFZO3ilVtytEFvFSQo+kClGs9x/XK4aG+dq6VwCZayzFvChKGhF
-         ldVw==
-X-Gm-Message-State: ABy/qLYMl00m1nlQ6YCYdNsdZigah0goD32VGiVEqTs/yUe3P4ed+aEb
-        XFsGJ/5zYirEZMWrGyCQENrDmZ39QNI=
-X-Google-Smtp-Source: APBJJlEIByBfYoY/KC32/g8HzkxLqseO0XeVYpg+NMSyLBH6gtwD9otmWgLk0cSs3kJzChFA66PNbRObft0=
-X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a17:903:2291:b0:1b5:2b14:5f2c with SMTP id
- b17-20020a170903229100b001b52b145f2cmr105841plh.4.1691015074397; Wed, 02 Aug
- 2023 15:24:34 -0700 (PDT)
-Date:   Wed, 2 Aug 2023 15:24:33 -0700
-In-Reply-To: <20230725143857.228626-1-iii@linux.ibm.com>
-Mime-Version: 1.0
-References: <20230725143857.228626-1-iii@linux.ibm.com>
-Message-ID: <ZMrXoQ0wN5ZyCf6Q@google.com>
-Subject: Re: [PATCH v4 0/6] KVM: s390: interrupt: Fix stepping into interrupt handlers
-From:   Sean Christopherson <seanjc@google.com>
-To:     Ilya Leoshkevich <iii@linux.ibm.com>
-Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jens Freimann <jfreimann@redhat.com>
-Content-Type: text/plain; charset="us-ascii"
+        with ESMTP id S230460AbjHBXSo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Aug 2023 19:18:44 -0400
+Received: from mgamail.intel.com (unknown [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 326C7FB;
+        Wed,  2 Aug 2023 16:18:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1691018317; x=1722554317;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=SnhoA5/+6/yFD18HW0GV1yHz1WPLSZnPwIv9nFl7vTg=;
+  b=EFsFrXTYXa2oWl1XWHZW2oKe+xJBavdMSKyqjqwze/3PK0HjOKOKO0Q/
+   efikLjYuGVTS2rnQyUa5MXNVt++stpy8Bn0Fs/Vs8UFpaJrIba9G0+s/D
+   LqoYyIPoEkHG/XwwtOFPrW3r72NKA9ViNZOaIX+E1t7zl1z5u47yP//PM
+   VzJgqbTub8qR8uYjcna4PC7mSPtoXyOvzIV56bHQ7i5mPArPdC+QOl5eo
+   KMCA11T1JIZrIbQONY9YjJYmzNLFF21hMKd4Kuq8lL1nXec0pf6gmtvJM
+   BaoYI5N3zkS2QRN8+AJJ+6oGB7QonkMiQnmKVko1J7raa6MrA6v3UPpH1
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10790"; a="349320358"
+X-IronPort-AV: E=Sophos;i="6.01,250,1684825200"; 
+   d="scan'208";a="349320358"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Aug 2023 16:18:36 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10790"; a="679262015"
+X-IronPort-AV: E=Sophos;i="6.01,250,1684825200"; 
+   d="scan'208";a="679262015"
+Received: from lkp-server01.sh.intel.com (HELO d1ccc7e87e8f) ([10.239.97.150])
+  by orsmga003.jf.intel.com with ESMTP; 02 Aug 2023 16:18:32 -0700
+Received: from kbuild by d1ccc7e87e8f with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1qRL6t-0001ZD-2w;
+        Wed, 02 Aug 2023 23:18:31 +0000
+Date:   Thu, 3 Aug 2023 07:17:40 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Gerd Bayer <gbayer@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc:     oe-kbuild-all@lists.linux.dev,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        "D . Wythe" <alibuda@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net 2/2] net/smc: Use correct buffer sizes when switching
+ between TCP and SMC
+Message-ID: <202308030722.dV3X9uUQ-lkp@intel.com>
+References: <20230802093313.1501605-3-gbayer@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230802093313.1501605-3-gbayer@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jul 25, 2023, Ilya Leoshkevich wrote:
-> Ilya Leoshkevich (6):
->   KVM: s390: interrupt: Fix single-stepping into interrupt handlers
->   KVM: s390: interrupt: Fix single-stepping into program interrupt
->     handlers
->   KVM: s390: interrupt: Fix single-stepping kernel-emulated instructions
->   KVM: s390: interrupt: Fix single-stepping userspace-emulated
->     instructions
->   KVM: s390: interrupt: Fix single-stepping keyless mode exits
->   KVM: s390: selftests: Add selftest for single-stepping
+Hi Gerd,
 
-FYI, the selftests change silently conflicts with a global s/ASSERT_EQ/TEST_ASSERT_EQ
-rename[1], but the conflicts are very straightforward to resolve (just prepend TEST_).
-If we want to proactively avoid mild pain in linux-next, one option would be to merge
-the full kvm-x86/selftests branch/tag once I've made that immutable[2] (will be done
-Friday if there are no fireworks).  Though we can probably just get away with doing
-nothing other than letting Paolo know there's a silent conflict.
+kernel test robot noticed the following build errors:
 
-[1] https://lore.kernel.org/all/169101245511.1754469.7852701829984104093.b4-ty@google.com
-[2] https://lore.kernel.org/all/169101267140.1755771.17089576255751273053.b4-ty@google.com
+[auto build test ERROR on net-next/main]
+[also build test ERROR on linus/master v6.5-rc4 next-20230802]
+[cannot apply to net/main]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
+url:    https://github.com/intel-lab-lkp/linux/commits/Gerd-Bayer/net-smc-Fix-setsockopt-and-sysctl-to-specify-same-buffer-size-again/20230802-193805
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/20230802093313.1501605-3-gbayer%40linux.ibm.com
+patch subject: [PATCH net 2/2] net/smc: Use correct buffer sizes when switching between TCP and SMC
+config: nios2-randconfig-r006-20230731 (https://download.01.org/0day-ci/archive/20230803/202308030722.dV3X9uUQ-lkp@intel.com/config)
+compiler: nios2-linux-gcc (GCC) 12.3.0
+reproduce: (https://download.01.org/0day-ci/archive/20230803/202308030722.dV3X9uUQ-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202308030722.dV3X9uUQ-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   net/smc/af_smc.c: In function 'smc_adjust_sock_bufsizes':
+>> net/smc/af_smc.c:465:27: error: 'possible_net_t' has no member named 'net'
+     465 |         nnet = nsk->sk_net.net;
+         |                           ^
+
+
+vim +465 net/smc/af_smc.c
+
+   438	
+   439	/* copy only relevant settings and flags of SOL_SOCKET level from smc to
+   440	 * clc socket (since smc is not called for these options from net/core)
+   441	 */
+   442	
+   443	#define SK_FLAGS_SMC_TO_CLC ((1UL << SOCK_URGINLINE) | \
+   444				     (1UL << SOCK_KEEPOPEN) | \
+   445				     (1UL << SOCK_LINGER) | \
+   446				     (1UL << SOCK_BROADCAST) | \
+   447				     (1UL << SOCK_TIMESTAMP) | \
+   448				     (1UL << SOCK_DBG) | \
+   449				     (1UL << SOCK_RCVTSTAMP) | \
+   450				     (1UL << SOCK_RCVTSTAMPNS) | \
+   451				     (1UL << SOCK_LOCALROUTE) | \
+   452				     (1UL << SOCK_TIMESTAMPING_RX_SOFTWARE) | \
+   453				     (1UL << SOCK_RXQ_OVFL) | \
+   454				     (1UL << SOCK_WIFI_STATUS) | \
+   455				     (1UL << SOCK_NOFCS) | \
+   456				     (1UL << SOCK_FILTER_LOCKED) | \
+   457				     (1UL << SOCK_TSTAMP_NEW))
+   458	
+   459	/* if set, use value set by setsockopt() - else use IPv4 or SMC sysctl value */
+   460	static void smc_adjust_sock_bufsizes(struct sock *nsk, struct sock *osk,
+   461					     unsigned long mask)
+   462	{
+   463		struct net *nnet;
+   464	
+ > 465		nnet = nsk->sk_net.net;
+   466	
+   467		nsk->sk_userlocks = osk->sk_userlocks;
+   468	
+   469		if (osk->sk_userlocks & SOCK_SNDBUF_LOCK) {
+   470			nsk->sk_sndbuf = osk->sk_sndbuf;
+   471		} else {
+   472			if (mask == SK_FLAGS_SMC_TO_CLC)
+   473				WRITE_ONCE(nsk->sk_sndbuf,
+   474					   READ_ONCE(nnet->ipv4.sysctl_tcp_wmem[1]));
+   475			else
+   476				WRITE_ONCE(nsk->sk_sndbuf,
+   477					   2 * READ_ONCE(nnet->smc.sysctl_wmem));
+   478		}
+   479		if (osk->sk_userlocks & SOCK_RCVBUF_LOCK) {
+   480			nsk->sk_rcvbuf = osk->sk_rcvbuf;
+   481		} else {
+   482			if (mask == SK_FLAGS_SMC_TO_CLC)
+   483				WRITE_ONCE(nsk->sk_rcvbuf,
+   484					   READ_ONCE(nnet->ipv4.sysctl_tcp_rmem[1]));
+   485			else
+   486				WRITE_ONCE(nsk->sk_rcvbuf,
+   487					   2 * READ_ONCE(nnet->smc.sysctl_rmem));
+   488		}
+   489	}
+   490	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
