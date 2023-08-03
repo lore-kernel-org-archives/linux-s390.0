@@ -2,313 +2,377 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A722C04A6A
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Aug 2023 00:30:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20493C001DF
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Aug 2023 08:00:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232060AbjHCAan (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Aug 2023 20:30:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36450 "EHLO
+        id S231154AbjHCIA2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Aug 2023 04:00:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229832AbjHCAam (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Aug 2023 20:30:42 -0400
-Received: from NAM02-SN1-obe.outbound.protection.outlook.com (mail-sn1nam02on2046.outbound.protection.outlook.com [40.107.96.46])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 633F713D;
-        Wed,  2 Aug 2023 17:30:41 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=iXS1EGv5y8t6SYjHNxUs/8B6U3N172RH0FDqffgXQreP7nzbNwK7A/SI9HKeDzpCfP7D7xgsvak4cYsTI15sGSP8h6sxBXNtK2LIHz/QKcfjAFUgLP2p8aIV/XwnELd9fSYhMpAvfvSoYBfSyecKzakeYxSizR41r/TUXvjOqS2seIdNCy8RjMI1GcV6i9eH1t8sfZA80DayW9HfKlbCf//RM5x5YPaxLWSPx2r8XHtSXQAVfuUlUiUlqhH1pULkGynG1gan2n2vfPJsks3xdxmS8FZcwdpc2S9fgDIv6DvGWr61b1YgOtlZDheymOC+Zai29b013UNogqzBVCS2TA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=tuioqqLJ9nwTxiQOZ8nAoXdBA08XbZNNbPO6KQsUrqM=;
- b=QWlAVH940jarLjjhXOd3ThQAYZcJsaVIx+2S0Gsf8VQCwHPGOwl3l/6LeR16NY1zq3Gr56uhfFDbMu7BsneZF6llZPndcJTEr1603XkrFRSD78MDYQhA5nyXSRWXI58PX0wxSECelmXskE0MLpVq8uyPWfFye0ZCfStLoAzbPLi3qFt/97saEuq+V0DEKfgixfHypofri7D9NSpY57VLaERok4o7k7dUDx8phCmKpWZRr0ftKDVD/XyTthNCc78Skm2A9GM5WwGNqVbuUuj8NloYHKRfjSQqenLY7R7o5fmNCZxKT4QyudMRv3w2J8JbNWv6HwODwqsPr7kvMrtEbA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=tuioqqLJ9nwTxiQOZ8nAoXdBA08XbZNNbPO6KQsUrqM=;
- b=g0+/CMjkbB0WkpBc1Jb8tLQu/bgnMaYBQtdGVjcXhfkWOJk1Iu22MKLFTxwHfp4Lt7nFbn9K7I+t6m2bK2qXoK1rqhglELdkEbsr91aMrp1HteRem8AF5OQ8QFCtKcx8MLOVA+zsdJMNOQB1tFSfgJwWyMPMrhRgX2mPKiPKyuhv3tNUDvysH38vo70tq9uW/x/CnjY8u9t7UZM5+blGiZpbyCfF8fIBMse1gC+0j/N5ZCW4hANRJ0drWsDavAYmBLFg7ULVnNGSdWL71FtEqoymoJeR8Tq4Vs9sH33KvA8h37k2e8ZiTscVnqp8MSbQMY2DbaI7bjx5YOlnopV9sw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by MW4PR12MB7261.namprd12.prod.outlook.com (2603:10b6:303:229::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6631.44; Thu, 3 Aug
- 2023 00:30:38 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::5111:16e8:5afe:1da1]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::5111:16e8:5afe:1da1%6]) with mapi id 15.20.6631.045; Thu, 3 Aug 2023
- 00:30:37 +0000
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Andy Gross <agross@kernel.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        linuxppc-dev@lists.ozlabs.org,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>
-Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Steven Price <steven.price@arm.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH v6 10/25] iommu/exynos: Implement an IDENTITY domain
-Date:   Wed,  2 Aug 2023 21:07:57 -0300
-Message-ID: <10-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
-In-Reply-To: <0-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
-References: 
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: BL1PR13CA0105.namprd13.prod.outlook.com
- (2603:10b6:208:2b9::20) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S233677AbjHCIAD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Aug 2023 04:00:03 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A2054686;
+        Thu,  3 Aug 2023 00:47:48 -0700 (PDT)
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3737gqZG031222;
+        Thu, 3 Aug 2023 07:47:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=UlQ7XXlWS4BJghJZiG7o3JQs+7gOWdl+dgaNdEr06vw=;
+ b=YEa1UFQhnwXtjCCwoI0hB0rU2HETYqQMJfeDaV2JadjHzFD8L9FCFjDPpmT0n0bjvACL
+ S6B2xMSE2JP/CFMFf7RwVT8BdgyT6pzwPQMPqrUgJ8w7F1ueyKs5FWoWt8QDL/Y/5tGj
+ cm7twYRx5t47zDEDw9yP1jgZYPF03QxVhuLTgcvhcc4C4IRXcs7307uDOyrThOaRPVOL
+ D+BM0CyFEx4YvKnuHWaS9LHTHvOThWtGk+myf3PSGzG7+fujxPO81wWoSFfcHQCJtcYd
+ PnFstw4aTia7VzPTA4fIfQk5qQPcCtm6pstGmuWPpvV++we4lrbFZ0D4G4vJgnUZwIwO Rw== 
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s87x1racp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Aug 2023 07:47:47 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3736CQvE015496;
+        Thu, 3 Aug 2023 07:47:46 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s5e3nbpj0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Aug 2023 07:47:46 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3737lhRl066054
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 3 Aug 2023 07:47:43 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AF2D220063;
+        Thu,  3 Aug 2023 07:47:43 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 74AD12004B;
+        Thu,  3 Aug 2023 07:47:43 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.233])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Thu,  3 Aug 2023 07:47:43 +0000 (GMT)
+Date:   Thu, 3 Aug 2023 09:47:42 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] s390 fixes for 6.5-rc5
+Message-ID: <20230803074742.9170-C-hca@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: codbMzRlGbSguAy57z0tyhiPOMxAfCjV
+X-Proofpoint-GUID: codbMzRlGbSguAy57z0tyhiPOMxAfCjV
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|MW4PR12MB7261:EE_
-X-MS-Office365-Filtering-Correlation-Id: fe4e2eac-ba95-477e-3675-08db93b8d829
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: MUqS/SigT+Lw+qA+VxMrInqdOfhZ0+DU3x9N3jt73QgswMJrEUCNTVNtB3p/ot8+dPoggF/qG3+h2k7cUXfwkUEHK9Gfwg7B2hEkRvc+g2KjLrQm1H3UU8Xx6TPXT3M83KCN3uMlUpkRFf6i4EovXdtjEsWOq3G3MLUgMgtrgTRtaAgWZ6Z6TZYiFa/DLH3Y+xMcd/Cxy5tJp6EpysQ8hoC/jc3SdQCbn0bUWOadU27oS+JtzUdDJxH5EzJA3DtmpQBabC2ns4MC8E1tG5/7QqpHL+la8b0sy2ePkWIkww4z6Hoq1CYMA8D7ZAyoTYKV7qJFgNPwy/lTJhqc/xafBKmWukJtf0aL3FRK9n1HUiRHupyIh0sJXDssHSH385yqhHirX45CXeWYSaxBDqGzd67ckQ9WIHB7qxPoHepwB09ns6zFsw+gCI2yqIemnWUcH2Gqc+YmW1DoL/XRu8I4jhZBiHocQse9tzlZdjtdsw7LuEncR0PeiIl1nb1i3/+6lI7DuFf/htC2R0i+C4UVZFnPnwxFH9UgPFjIoe1fhoLVSMpHLEBaqvaSyhzd0VdOsadSQWXe8ixIznUJeTZSz6QzLpMvnL1AEV+wpQufVF8=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(346002)(39860400002)(396003)(376002)(366004)(136003)(451199021)(5660300002)(2616005)(36756003)(38100700002)(921005)(2906002)(316002)(26005)(83380400001)(186003)(7406005)(6506007)(8676002)(8936002)(6666004)(7416002)(54906003)(6512007)(66476007)(6486002)(478600001)(41300700001)(86362001)(66556008)(110136005)(4326008)(66946007)(107886003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?3SU21KRJgYLd5Qz2aSpGPO0VMxmPq19wvehnmoOQLZsWgdqalNgsj5PMLexS?=
- =?us-ascii?Q?yxBn9nCHygqNXivnp2/xMMkyktEeqVcGJZApcA7YjE0r0y7ikANVRFs7h8pN?=
- =?us-ascii?Q?nXByQbIIdSMoJ8kjHmh10Geoc7KesPrYGoOhafeW76r+x72P9PY/+cWhnTQ7?=
- =?us-ascii?Q?kU4lnFofMgYoUc2+Pva0Y12jUYpEPLWDl3JAwK4vtHnKXoi8gfAu4Cf4yVo9?=
- =?us-ascii?Q?ar3vsftpS0UQHEnLpciLo6I4mmNmniWJePhk5oBay3+ixK8YTV5DOg09FXpr?=
- =?us-ascii?Q?KqQMjWqBAzw1TZjqI4iBnSp4yqJgcegiG0XCPrYbFVgRmMg2sf5QkOSCOeJ5?=
- =?us-ascii?Q?OmANZ15YpsSIjNiAtRa4EGC0u2Hd//gQrvRLgRRhvsvHu4BDNlFDgY07oP0C?=
- =?us-ascii?Q?xD+OcsnIXdH4vHqR+HSaWLN5zvAgTIH8wTCuGul4Dp/2AdmPHlCQFa58yeQy?=
- =?us-ascii?Q?ZWW7OwAS0Kx9R1VfbCSXIeF1T5PDvn4cyF9DvbQAXH2xTKh/s0Malw08ku+2?=
- =?us-ascii?Q?kmnFmkIqS8nUkZnvQZT3bxJrvaxHZm7gT2HdTOfnBxo/9tdwH4/+ODGNTft/?=
- =?us-ascii?Q?1mgh6FpwL7+q07gmkMMn16LfVGM73tX2wGH+482jVi8esw8kz8xunLbeNQgM?=
- =?us-ascii?Q?WU9ebov87e4p1OWMvXyYxsVVxqK6AWbDjxh7ZLszX+Cv85mqutGcrsV91kV9?=
- =?us-ascii?Q?X2JRbm4A5R0k7igbVdUe6QGuKWPmusih11w7J/PHtfDbJvL2uXgmd9nGHlE9?=
- =?us-ascii?Q?SwLnP6A8Z3Sjk6XqdiuErmCYieQ50itxap3kwtwlyrF6+LNbNsVbSqRcaKZ9?=
- =?us-ascii?Q?TNjZZNTIK+8akjmbhMSIIKIBJBWXDQhgb32d0eOK1O+ayw1F6tDEsGv3vacH?=
- =?us-ascii?Q?7A0MBd9nJDwefRemXbzh8HuLVnRJHnkzsageLt2j8UxSnagcapfs4qguOP07?=
- =?us-ascii?Q?o9LVoVeuhdHoD6VxiJr4L/VL+aMx/N8RLPVL69d2tFvRll/gN7skDdKi7Ysx?=
- =?us-ascii?Q?V8gHoERqnJaquUaQTLBHK8CFxboc/6cooh6Bj1S7UC+jp0A8XkNCrXmto09Y?=
- =?us-ascii?Q?PFELh3sJJJLyikISG5ssvRV10B2CnV9UsBdaaFGakd0+q68WiazWGhysG1m8?=
- =?us-ascii?Q?KEBkdvB0Y9m/adFlf7jTryFmTdG9r4bl9IGF7dgMAOGcb/ui1fBwOxVRc4hX?=
- =?us-ascii?Q?wD9GyfQDbmbM6Ff5YE4I/v48s3LIc1CLbF3hBw3Iez9k646ULPqUkAZkoAST?=
- =?us-ascii?Q?SUeNIpmpIuOceWeCFQCVVgUAeh3ij9U66eTTVOH7tl7GMYjUHkz00cpCrIoL?=
- =?us-ascii?Q?ht2CE/kbLyO16UDlcCrtL6/HQH2bQZAqx3GlyOXcJhLzun6Mzh6HWeuFOk6d?=
- =?us-ascii?Q?RoZQ8IJ5I7v2h0LWQc1tuUM41OVzxOot4AVsEdazjNRxZ+LeCubj8+J1CnPe?=
- =?us-ascii?Q?hsXL/KBgFZV05v4wInxupfJLGZaLnTXAzmOlCyo2vV4E++F3HMBjh11DkNGt?=
- =?us-ascii?Q?JppK86eNMoEiWtPbQ9cF9VtY/zOCXa+6s9nzqHfaBcx8nI41jMd18I9R/Pj6?=
- =?us-ascii?Q?r1xFGSAxGm/4VvBYt79943ElYsBTQA7be5oQSNbe?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: fe4e2eac-ba95-477e-3675-08db93b8d829
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Aug 2023 00:30:31.4370
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: QaeELlwN5/gdlODTRf6qSAv4wC5aJkyKljfzTVP1NSPLkHrWU4tbh8waSM/ogcMd
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB7261
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-08-03_06,2023-08-01_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
+ spamscore=0 malwarescore=0 suspectscore=0 impostorscore=0 mlxlogscore=999
+ priorityscore=1501 adultscore=0 phishscore=0 clxscore=1015 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2306200000
+ definitions=main-2308030066
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-What exynos calls exynos_iommu_detach_device is actually putting the iommu
-into identity mode.
+Hello Linus,
 
-Move to the new core support for ARM_DMA_USE_IOMMU by defining
-ops->identity_domain.
+please pull a couple of s390 fixes for 6.5-rc5.
 
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
----
- drivers/iommu/exynos-iommu.c | 66 +++++++++++++++++-------------------
- 1 file changed, 32 insertions(+), 34 deletions(-)
+Thanks,
+Heiko
 
-diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
-index c275fe71c4db32..5e12b85dfe8705 100644
---- a/drivers/iommu/exynos-iommu.c
-+++ b/drivers/iommu/exynos-iommu.c
-@@ -24,6 +24,7 @@
+The following changes since commit 6eaae198076080886b9e7d57f4ae06fa782f90ef:
+
+  Linux 6.5-rc3 (2023-07-23 15:24:10 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.5-4
+
+for you to fetch changes up to 388acb471662c273d94163a8502f09668f380686:
+
+  s390/ptrace: add missing linux/const.h include (2023-08-01 16:47:03 +0200)
+
+----------------------------------------------------------------
+s390 fixes for 6.5-rc5
+
+- Split kernel large page mappings into 4k mappings in case debug
+  pagealloc is enabled again. This got by accident removed with
+  commit bb1520d581a3 ("s390/mm: start kernel with DAT enabled")
+
+- Fix error handling in KVM's sthyi handling
+
+- Add missing include to s390's uapi ptrace.h
+
+- Update defconfigs
+
+----------------------------------------------------------------
+Heiko Carstens (3):
+      s390: update defconfigs
+      KVM: s390: fix sthyi error handling
+      s390/ptrace: add missing linux/const.h include
+
+Sven Schnelle (1):
+      s390/vmem: split pages when debug pagealloc is enabled
+
+ arch/s390/configs/debug_defconfig    | 11 ++++++-----
+ arch/s390/configs/defconfig          |  9 +++++----
+ arch/s390/configs/zfcpdump_defconfig |  1 -
+ arch/s390/include/uapi/asm/ptrace.h  |  2 ++
+ arch/s390/kernel/sthyi.c             |  6 +++---
+ arch/s390/kvm/intercept.c            |  9 ++++++---
+ arch/s390/mm/vmem.c                  |  2 ++
+ 7 files changed, 24 insertions(+), 16 deletions(-)
+
+diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_defconfig
+index aa95cf6dfabb..32bf2c7b4057 100644
+--- a/arch/s390/configs/debug_defconfig
++++ b/arch/s390/configs/debug_defconfig
+@@ -116,7 +116,6 @@ CONFIG_UNIX=y
+ CONFIG_UNIX_DIAG=m
+ CONFIG_XFRM_USER=m
+ CONFIG_NET_KEY=m
+-CONFIG_NET_TC_SKB_EXT=y
+ CONFIG_SMC=m
+ CONFIG_SMC_DIAG=m
+ CONFIG_INET=y
+@@ -193,6 +192,7 @@ CONFIG_NFT_REJECT=m
+ CONFIG_NFT_COMPAT=m
+ CONFIG_NFT_HASH=m
+ CONFIG_NFT_FIB_INET=m
++CONFIG_NETFILTER_XTABLES_COMPAT=y
+ CONFIG_NETFILTER_XT_SET=m
+ CONFIG_NETFILTER_XT_TARGET_AUDIT=m
+ CONFIG_NETFILTER_XT_TARGET_CHECKSUM=m
+@@ -379,6 +379,7 @@ CONFIG_NET_ACT_SIMP=m
+ CONFIG_NET_ACT_SKBEDIT=m
+ CONFIG_NET_ACT_CSUM=m
+ CONFIG_NET_ACT_GATE=m
++CONFIG_NET_TC_SKB_EXT=y
+ CONFIG_DNS_RESOLVER=y
+ CONFIG_OPENVSWITCH=m
+ CONFIG_VSOCKETS=m
+@@ -395,6 +396,7 @@ CONFIG_HOTPLUG_PCI=y
+ CONFIG_HOTPLUG_PCI_S390=y
+ CONFIG_DEVTMPFS=y
+ CONFIG_DEVTMPFS_SAFE=y
++# CONFIG_FW_LOADER is not set
+ CONFIG_CONNECTOR=y
+ CONFIG_ZRAM=y
+ CONFIG_BLK_DEV_LOOP=m
+@@ -502,7 +504,6 @@ CONFIG_NLMON=m
+ # CONFIG_NET_VENDOR_GOOGLE is not set
+ # CONFIG_NET_VENDOR_HUAWEI is not set
+ # CONFIG_NET_VENDOR_INTEL is not set
+-# CONFIG_NET_VENDOR_WANGXUN is not set
+ # CONFIG_NET_VENDOR_LITEX is not set
+ # CONFIG_NET_VENDOR_MARVELL is not set
+ CONFIG_MLX4_EN=m
+@@ -542,6 +543,7 @@ CONFIG_MLX5_CORE_EN=y
+ # CONFIG_NET_VENDOR_TI is not set
+ # CONFIG_NET_VENDOR_VERTEXCOM is not set
+ # CONFIG_NET_VENDOR_VIA is not set
++# CONFIG_NET_VENDOR_WANGXUN is not set
+ # CONFIG_NET_VENDOR_WIZNET is not set
+ # CONFIG_NET_VENDOR_XILINX is not set
+ CONFIG_PPP=m
+@@ -646,7 +648,6 @@ CONFIG_TMPFS=y
+ CONFIG_TMPFS_POSIX_ACL=y
+ CONFIG_TMPFS_INODE64=y
+ CONFIG_HUGETLBFS=y
+-CONFIG_CONFIGFS_FS=m
+ CONFIG_ECRYPT_FS=m
+ CONFIG_CRAMFS=m
+ CONFIG_SQUASHFS=m
+@@ -690,7 +691,6 @@ CONFIG_HARDENED_USERCOPY=y
+ CONFIG_FORTIFY_SOURCE=y
+ CONFIG_SECURITY_SELINUX=y
+ CONFIG_SECURITY_SELINUX_BOOTPARAM=y
+-CONFIG_SECURITY_SELINUX_DISABLE=y
+ CONFIG_SECURITY_LOCKDOWN_LSM=y
+ CONFIG_SECURITY_LOCKDOWN_LSM_EARLY=y
+ CONFIG_SECURITY_LANDLOCK=y
+@@ -744,7 +744,6 @@ CONFIG_CRYPTO_MD4=m
+ CONFIG_CRYPTO_MD5=y
+ CONFIG_CRYPTO_MICHAEL_MIC=m
+ CONFIG_CRYPTO_RMD160=m
+-CONFIG_CRYPTO_SHA3=m
+ CONFIG_CRYPTO_SM3_GENERIC=m
+ CONFIG_CRYPTO_VMAC=m
+ CONFIG_CRYPTO_WP512=m
+@@ -844,6 +843,7 @@ CONFIG_PREEMPT_TRACER=y
+ CONFIG_SCHED_TRACER=y
+ CONFIG_FTRACE_SYSCALLS=y
+ CONFIG_BLK_DEV_IO_TRACE=y
++CONFIG_USER_EVENTS=y
+ CONFIG_HIST_TRIGGERS=y
+ CONFIG_FTRACE_STARTUP_TEST=y
+ # CONFIG_EVENT_TRACE_STARTUP_TEST is not set
+@@ -866,6 +866,7 @@ CONFIG_FAIL_MAKE_REQUEST=y
+ CONFIG_FAIL_IO_TIMEOUT=y
+ CONFIG_FAIL_FUTEX=y
+ CONFIG_FAULT_INJECTION_DEBUG_FS=y
++CONFIG_FAULT_INJECTION_CONFIGFS=y
+ CONFIG_FAULT_INJECTION_STACKTRACE_FILTER=y
+ CONFIG_LKDTM=m
+ CONFIG_TEST_MIN_HEAP=y
+diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
+index f041945f9148..f95b7c62a043 100644
+--- a/arch/s390/configs/defconfig
++++ b/arch/s390/configs/defconfig
+@@ -107,7 +107,6 @@ CONFIG_UNIX=y
+ CONFIG_UNIX_DIAG=m
+ CONFIG_XFRM_USER=m
+ CONFIG_NET_KEY=m
+-CONFIG_NET_TC_SKB_EXT=y
+ CONFIG_SMC=m
+ CONFIG_SMC_DIAG=m
+ CONFIG_INET=y
+@@ -184,6 +183,7 @@ CONFIG_NFT_REJECT=m
+ CONFIG_NFT_COMPAT=m
+ CONFIG_NFT_HASH=m
+ CONFIG_NFT_FIB_INET=m
++CONFIG_NETFILTER_XTABLES_COMPAT=y
+ CONFIG_NETFILTER_XT_SET=m
+ CONFIG_NETFILTER_XT_TARGET_AUDIT=m
+ CONFIG_NETFILTER_XT_TARGET_CHECKSUM=m
+@@ -369,6 +369,7 @@ CONFIG_NET_ACT_SIMP=m
+ CONFIG_NET_ACT_SKBEDIT=m
+ CONFIG_NET_ACT_CSUM=m
+ CONFIG_NET_ACT_GATE=m
++CONFIG_NET_TC_SKB_EXT=y
+ CONFIG_DNS_RESOLVER=y
+ CONFIG_OPENVSWITCH=m
+ CONFIG_VSOCKETS=m
+@@ -385,6 +386,7 @@ CONFIG_HOTPLUG_PCI_S390=y
+ CONFIG_UEVENT_HELPER=y
+ CONFIG_DEVTMPFS=y
+ CONFIG_DEVTMPFS_SAFE=y
++# CONFIG_FW_LOADER is not set
+ CONFIG_CONNECTOR=y
+ CONFIG_ZRAM=y
+ CONFIG_BLK_DEV_LOOP=m
+@@ -492,7 +494,6 @@ CONFIG_NLMON=m
+ # CONFIG_NET_VENDOR_GOOGLE is not set
+ # CONFIG_NET_VENDOR_HUAWEI is not set
+ # CONFIG_NET_VENDOR_INTEL is not set
+-# CONFIG_NET_VENDOR_WANGXUN is not set
+ # CONFIG_NET_VENDOR_LITEX is not set
+ # CONFIG_NET_VENDOR_MARVELL is not set
+ CONFIG_MLX4_EN=m
+@@ -532,6 +533,7 @@ CONFIG_MLX5_CORE_EN=y
+ # CONFIG_NET_VENDOR_TI is not set
+ # CONFIG_NET_VENDOR_VERTEXCOM is not set
+ # CONFIG_NET_VENDOR_VIA is not set
++# CONFIG_NET_VENDOR_WANGXUN is not set
+ # CONFIG_NET_VENDOR_WIZNET is not set
+ # CONFIG_NET_VENDOR_XILINX is not set
+ CONFIG_PPP=m
+@@ -673,7 +675,6 @@ CONFIG_SECURITY=y
+ CONFIG_SECURITY_NETWORK=y
+ CONFIG_SECURITY_SELINUX=y
+ CONFIG_SECURITY_SELINUX_BOOTPARAM=y
+-CONFIG_SECURITY_SELINUX_DISABLE=y
+ CONFIG_SECURITY_LOCKDOWN_LSM=y
+ CONFIG_SECURITY_LOCKDOWN_LSM_EARLY=y
+ CONFIG_SECURITY_LANDLOCK=y
+@@ -729,7 +730,6 @@ CONFIG_CRYPTO_MD4=m
+ CONFIG_CRYPTO_MD5=y
+ CONFIG_CRYPTO_MICHAEL_MIC=m
+ CONFIG_CRYPTO_RMD160=m
+-CONFIG_CRYPTO_SHA3=m
+ CONFIG_CRYPTO_SM3_GENERIC=m
+ CONFIG_CRYPTO_VMAC=m
+ CONFIG_CRYPTO_WP512=m
+@@ -793,6 +793,7 @@ CONFIG_STACK_TRACER=y
+ CONFIG_SCHED_TRACER=y
+ CONFIG_FTRACE_SYSCALLS=y
+ CONFIG_BLK_DEV_IO_TRACE=y
++CONFIG_USER_EVENTS=y
+ CONFIG_HIST_TRIGGERS=y
+ CONFIG_SAMPLES=y
+ CONFIG_SAMPLE_TRACE_PRINTK=m
+diff --git a/arch/s390/configs/zfcpdump_defconfig b/arch/s390/configs/zfcpdump_defconfig
+index 6f68b39817ef..e62fb2015102 100644
+--- a/arch/s390/configs/zfcpdump_defconfig
++++ b/arch/s390/configs/zfcpdump_defconfig
+@@ -53,7 +53,6 @@ CONFIG_ZFCP=y
+ # CONFIG_HVC_IUCV is not set
+ # CONFIG_HW_RANDOM_S390 is not set
+ # CONFIG_HMC_DRV is not set
+-# CONFIG_S390_UV_UAPI is not set
+ # CONFIG_S390_TAPE is not set
+ # CONFIG_VMCP is not set
+ # CONFIG_MONWRITER is not set
+diff --git a/arch/s390/include/uapi/asm/ptrace.h b/arch/s390/include/uapi/asm/ptrace.h
+index f0fe3bcc78a8..bb0826024bb9 100644
+--- a/arch/s390/include/uapi/asm/ptrace.h
++++ b/arch/s390/include/uapi/asm/ptrace.h
+@@ -8,6 +8,8 @@
+ #ifndef _UAPI_S390_PTRACE_H
+ #define _UAPI_S390_PTRACE_H
  
- typedef u32 sysmmu_iova_t;
- typedef u32 sysmmu_pte_t;
-+static struct iommu_domain exynos_identity_domain;
- 
- /* We do not consider super section mapping (16MB) */
- #define SECT_ORDER 20
-@@ -829,7 +830,7 @@ static int __maybe_unused exynos_sysmmu_suspend(struct device *dev)
- 		struct exynos_iommu_owner *owner = dev_iommu_priv_get(master);
- 
- 		mutex_lock(&owner->rpm_lock);
--		if (data->domain) {
-+		if (&data->domain->domain != &exynos_identity_domain) {
- 			dev_dbg(data->sysmmu, "saving state\n");
- 			__sysmmu_disable(data);
- 		}
-@@ -847,7 +848,7 @@ static int __maybe_unused exynos_sysmmu_resume(struct device *dev)
- 		struct exynos_iommu_owner *owner = dev_iommu_priv_get(master);
- 
- 		mutex_lock(&owner->rpm_lock);
--		if (data->domain) {
-+		if (&data->domain->domain != &exynos_identity_domain) {
- 			dev_dbg(data->sysmmu, "restoring state\n");
- 			__sysmmu_enable(data);
- 		}
-@@ -980,17 +981,20 @@ static void exynos_iommu_domain_free(struct iommu_domain *iommu_domain)
- 	kfree(domain);
- }
- 
--static void exynos_iommu_detach_device(struct iommu_domain *iommu_domain,
--				    struct device *dev)
-+static int exynos_iommu_identity_attach(struct iommu_domain *identity_domain,
-+					struct device *dev)
- {
--	struct exynos_iommu_domain *domain = to_exynos_domain(iommu_domain);
- 	struct exynos_iommu_owner *owner = dev_iommu_priv_get(dev);
--	phys_addr_t pagetable = virt_to_phys(domain->pgtable);
-+	struct exynos_iommu_domain *domain;
-+	phys_addr_t pagetable;
- 	struct sysmmu_drvdata *data, *next;
- 	unsigned long flags;
- 
--	if (!has_sysmmu(dev) || owner->domain != iommu_domain)
--		return;
-+	if (owner->domain == identity_domain)
-+		return 0;
++#include <linux/const.h>
 +
-+	domain = to_exynos_domain(owner->domain);
-+	pagetable = virt_to_phys(domain->pgtable);
- 
- 	mutex_lock(&owner->rpm_lock);
- 
-@@ -1009,15 +1013,25 @@ static void exynos_iommu_detach_device(struct iommu_domain *iommu_domain,
- 		list_del_init(&data->domain_node);
- 		spin_unlock(&data->lock);
- 	}
--	owner->domain = NULL;
-+	owner->domain = identity_domain;
- 	spin_unlock_irqrestore(&domain->lock, flags);
- 
- 	mutex_unlock(&owner->rpm_lock);
- 
--	dev_dbg(dev, "%s: Detached IOMMU with pgtable %pa\n", __func__,
--		&pagetable);
-+	dev_dbg(dev, "%s: Restored IOMMU to IDENTITY from pgtable %pa\n",
-+		__func__, &pagetable);
-+	return 0;
- }
- 
-+static struct iommu_domain_ops exynos_identity_ops = {
-+	.attach_dev = exynos_iommu_identity_attach,
-+};
-+
-+static struct iommu_domain exynos_identity_domain = {
-+	.type = IOMMU_DOMAIN_IDENTITY,
-+	.ops = &exynos_identity_ops,
-+};
-+
- static int exynos_iommu_attach_device(struct iommu_domain *iommu_domain,
- 				   struct device *dev)
+ /*
+  * Offsets in the user_regs_struct. They are used for the ptrace
+  * system call and in entry.S
+diff --git a/arch/s390/kernel/sthyi.c b/arch/s390/kernel/sthyi.c
+index 4d141e2c132e..2ea7f208f0e7 100644
+--- a/arch/s390/kernel/sthyi.c
++++ b/arch/s390/kernel/sthyi.c
+@@ -459,9 +459,9 @@ static int sthyi_update_cache(u64 *rc)
+  *
+  * Fills the destination with system information returned by the STHYI
+  * instruction. The data is generated by emulation or execution of STHYI,
+- * if available. The return value is the condition code that would be
+- * returned, the rc parameter is the return code which is passed in
+- * register R2 + 1.
++ * if available. The return value is either a negative error value or
++ * the condition code that would be returned, the rc parameter is the
++ * return code which is passed in register R2 + 1.
+  */
+ int sthyi_fill(void *dst, u64 *rc)
  {
-@@ -1026,12 +1040,11 @@ static int exynos_iommu_attach_device(struct iommu_domain *iommu_domain,
- 	struct sysmmu_drvdata *data;
- 	phys_addr_t pagetable = virt_to_phys(domain->pgtable);
- 	unsigned long flags;
-+	int err;
- 
--	if (!has_sysmmu(dev))
--		return -ENODEV;
--
--	if (owner->domain)
--		exynos_iommu_detach_device(owner->domain, dev);
-+	err = exynos_iommu_identity_attach(&exynos_identity_domain, dev);
-+	if (err)
-+		return err;
- 
- 	mutex_lock(&owner->rpm_lock);
- 
-@@ -1407,26 +1420,12 @@ static struct iommu_device *exynos_iommu_probe_device(struct device *dev)
- 	return &data->iommu;
- }
- 
--static void exynos_iommu_set_platform_dma(struct device *dev)
--{
--	struct exynos_iommu_owner *owner = dev_iommu_priv_get(dev);
--
--	if (owner->domain) {
--		struct iommu_group *group = iommu_group_get(dev);
--
--		if (group) {
--			exynos_iommu_detach_device(owner->domain, dev);
--			iommu_group_put(group);
--		}
--	}
--}
--
- static void exynos_iommu_release_device(struct device *dev)
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 954d39adf85c..341abafb96e4 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -389,8 +389,8 @@ static int handle_partial_execution(struct kvm_vcpu *vcpu)
+  */
+ int handle_sthyi(struct kvm_vcpu *vcpu)
  {
- 	struct exynos_iommu_owner *owner = dev_iommu_priv_get(dev);
- 	struct sysmmu_drvdata *data;
+-	int reg1, reg2, r = 0;
+-	u64 code, addr, cc = 0, rc = 0;
++	int reg1, reg2, cc = 0, r = 0;
++	u64 code, addr, rc = 0;
+ 	struct sthyi_sctns *sctns = NULL;
  
--	exynos_iommu_set_platform_dma(dev);
-+	WARN_ON(exynos_iommu_identity_attach(&exynos_identity_domain, dev));
+ 	if (!test_kvm_facility(vcpu->kvm, 74))
+@@ -421,7 +421,10 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
+ 		return -ENOMEM;
  
- 	list_for_each_entry(data, &owner->controllers, owner_node)
- 		device_link_del(data->link);
-@@ -1457,6 +1456,7 @@ static int exynos_iommu_of_xlate(struct device *dev,
+ 	cc = sthyi_fill(sctns, &rc);
+-
++	if (cc < 0) {
++		free_page((unsigned long)sctns);
++		return cc;
++	}
+ out:
+ 	if (!cc) {
+ 		if (kvm_s390_pv_cpu_is_protected(vcpu)) {
+diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+index b26649233d12..24a66670f5c3 100644
+--- a/arch/s390/mm/vmem.c
++++ b/arch/s390/mm/vmem.c
+@@ -763,6 +763,8 @@ void __init vmem_map_init(void)
+ 	if (static_key_enabled(&cpu_has_bear))
+ 		set_memory_nx(0, 1);
+ 	set_memory_nx(PAGE_SIZE, 1);
++	if (debug_pagealloc_enabled())
++		set_memory_4k(0, ident_map_size >> PAGE_SHIFT);
  
- 		INIT_LIST_HEAD(&owner->controllers);
- 		mutex_init(&owner->rpm_lock);
-+		owner->domain = &exynos_identity_domain;
- 		dev_iommu_priv_set(dev, owner);
- 	}
- 
-@@ -1471,11 +1471,9 @@ static int exynos_iommu_of_xlate(struct device *dev,
- }
- 
- static const struct iommu_ops exynos_iommu_ops = {
-+	.identity_domain = &exynos_identity_domain,
- 	.domain_alloc = exynos_iommu_domain_alloc,
- 	.device_group = generic_device_group,
--#ifdef CONFIG_ARM
--	.set_platform_dma_ops = exynos_iommu_set_platform_dma,
--#endif
- 	.probe_device = exynos_iommu_probe_device,
- 	.release_device = exynos_iommu_release_device,
- 	.pgsize_bitmap = SECT_SIZE | LPAGE_SIZE | SPAGE_SIZE,
--- 
-2.41.0
-
+ 	pr_info("Write protected kernel read-only data: %luk\n",
+ 		(unsigned long)(__end_rodata - _stext) >> 10);
