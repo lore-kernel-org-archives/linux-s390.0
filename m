@@ -2,70 +2,84 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AA1EEB64DD
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Aug 2023 16:30:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9067CEB64DD
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Aug 2023 17:43:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233795AbjHCQar (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Aug 2023 12:30:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34530 "EHLO
+        id S233764AbjHCRnF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Aug 2023 13:43:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234103AbjHCQar (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Aug 2023 12:30:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B33E930D3;
-        Thu,  3 Aug 2023 09:30:46 -0700 (PDT)
+        with ESMTP id S235232AbjHCRnF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Aug 2023 13:43:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6776A139;
+        Thu,  3 Aug 2023 10:43:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48D0661E2F;
-        Thu,  3 Aug 2023 16:30:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id A8C4DC433C9;
-        Thu,  3 Aug 2023 16:30:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0541161E57;
+        Thu,  3 Aug 2023 17:43:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE62CC433C8;
+        Thu,  3 Aug 2023 17:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1691080245;
-        bh=+Cx6D7YgBdq4sB54INc4/bcMADVz+UJqomdkMI8E7bQ=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=DwaiaJQpzQot1HmsuMEoAPoZify2ixdm3WERdR7gBymXL6DX5twEiCMhOJ3AaOzme
-         bsCkJH9lEzgUViU1qgX3q8HgZ3VvxdoCe4VFWKlvSd4KH4PCpvERJljkmiXIPR3DOm
-         ImaAM993UrYSQT7in3/Jkfcp83cMwRw63u0rQ1DVgnxWti27XKkkhme/crduDIhoJp
-         cY62NNjfo3jLdwPh4tdpBV5P4E05qKc0rKM9UoVPl8byBS/sd2ovdwl3CfQ5yyyNRg
-         L06g4fy9YrXCzm1HFlJ17+31dOYPh/SorF90vl1oRPp0S4AYV2KnU8lsBCkj0qiimO
-         ddNq1paeWJRrQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 944D6C3274D;
-        Thu,  3 Aug 2023 16:30:45 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 fixes for 6.5-rc5
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20230803074742.9170-C-hca@linux.ibm.com>
-References: <20230803074742.9170-C-hca@linux.ibm.com>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20230803074742.9170-C-hca@linux.ibm.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.5-4
-X-PR-Tracked-Commit-Id: 388acb471662c273d94163a8502f09668f380686
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 5e0ba145952328bf1a9c2f0be0bd59a9cc5a7b21
-Message-Id: <169108024559.31872.6929868768453286379.pr-tracker-bot@kernel.org>
-Date:   Thu, 03 Aug 2023 16:30:45 +0000
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+        s=k20201202; t=1691084583;
+        bh=TXt73pdbEsVjNXx498XOQs5hPMVwlvDMtseT7OsCBTg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=HIYMoE504Ia2M5zkEN+fdiA4gv4woltf3Opl2nbyoWra7Aa/MTzEvymq3lg2Puedq
+         yVW6V4wWznxVdhWnv+mtGNdRSbKyw1DONbXDh1j6BXWsfn2b300r/jAceMd9jbZmt0
+         NcMYtm5d7V/Xi1czCcdKMkLFRc5xJt5zReHDCZbzF6qcBKyFH31zHS9ob27EeR4KC4
+         pf7nHlUGKJNBi0jCOXsw6vDk2ftw7aMVv7zGAxKu5K0zJuaeA60802dmu5TKXMH5p5
+         NNf7aSNdsm8K8a1T7SOrAerdxArv27H/QbnSilSot86JWPSTcbJpcQwugTBdScjO9T
+         2QpkUgfWVBQnA==
+Date:   Thu, 3 Aug 2023 19:42:58 +0200
+From:   Simon Horman <horms@kernel.org>
+To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>
+Cc:     wenjia@linux.ibm.com, jaka@linux.ibm.com, kgraul@linux.ibm.com,
+        tonylu@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
+        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH net-next 1/6] net/smc: support smc release version
+ negotiation in clc handshake
+Message-ID: <ZMvnIszqS4ZpkYHj@kernel.org>
+References: <20230803132422.6280-1-guangguan.wang@linux.alibaba.com>
+ <20230803132422.6280-2-guangguan.wang@linux.alibaba.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230803132422.6280-2-guangguan.wang@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Thu, 3 Aug 2023 09:47:42 +0200:
+On Thu, Aug 03, 2023 at 09:24:17PM +0800, Guangguan Wang wrote:
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.5-4
+...
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/5e0ba145952328bf1a9c2f0be0bd59a9cc5a7b21
+Hi Guangguan Wang,
 
-Thank you!
+> @@ -1063,7 +1063,7 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+>  				memcpy(clc_v2->r1.eid, eid, SMC_MAX_EID_LEN);
+>  			len = SMCR_CLC_ACCEPT_CONFIRM_LEN_V2;
+>  			if (first_contact) {
+> -				smc_clc_fill_fce(&fce, &len);
+> +				smc_clc_fill_fce(&fce, &len, ini->release_ver);
+
+Here ini is dereferenced...
+
+
+>  				fce.v2_direct = !link->lgr->uses_gateway;
+>  				memset(&gle, 0, sizeof(gle));
+>  				if (ini && clc->hdr.type == SMC_CLC_CONFIRM) {
+
+... but here it is assumed that ini may be NULL.
+
+This seems inconsistent.
+
+As flagged by Smatch.
+
+...
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+pw-bot: changes-requested
