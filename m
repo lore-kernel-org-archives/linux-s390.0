@@ -2,127 +2,436 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31E90C04A6A
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Aug 2023 08:00:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1A00C001DF
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Aug 2023 09:18:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232999AbjHCIA5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Aug 2023 04:00:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33004 "EHLO
+        id S235036AbjHCJS2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Aug 2023 05:18:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232950AbjHCIAN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Aug 2023 04:00:13 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 534014494;
-        Thu,  3 Aug 2023 00:48:32 -0700 (PDT)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3737gpWj031073;
-        Thu, 3 Aug 2023 07:48:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=YPFwcTkJCvI8M3nYYBlVngI5KNajrQAqMXUQMy/A6y4=;
- b=tE+kM2YjH3nix04DbuUPIzjf5PG/UVDCiqHycEiAstDXhJHLMRyTZuLqS1Q8bHMUxjnY
- etoY65Mu7PJ4um6LRwFMPPJo40AJ8S/CzDLnPG+2vNjCWDGpD65Lnuwz41lgm8F5MAp1
- ldCI9FcgXy8jrn6xeTAhjdy+5E5Shu/o8TCLxU83voSDdAszpf/FtIl6ux/soN4hye1S
- +hCtcvAoh+jRd3IBroFsoHnjGfOzXtuMWMYykOhql0I5WbsRjuAQza8cF3Ons7U4WlKH
- bV5/Vb8JkVNWd4GrJ94Mo1J3iLHxHCGvDBrlPAOPi6Wgo0OWkK8+wWDlqYAOKe33rtZb ZQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s87x1rbef-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Aug 2023 07:48:31 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3737gxlS031943;
-        Thu, 3 Aug 2023 07:48:30 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s87x1rbdv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Aug 2023 07:48:30 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3735kmQm014530;
-        Thu, 3 Aug 2023 07:48:29 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3s5ft1u2j3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Aug 2023 07:48:29 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3737mQ0Q44565060
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 3 Aug 2023 07:48:27 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D5E102004B;
-        Thu,  3 Aug 2023 07:48:26 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 085C320049;
-        Thu,  3 Aug 2023 07:48:26 +0000 (GMT)
-Received: from [9.171.17.205] (unknown [9.171.17.205])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu,  3 Aug 2023 07:48:25 +0000 (GMT)
-Message-ID: <227357c7-a1c2-a0f9-c57d-536c461f9392@linux.ibm.com>
-Date:   Thu, 3 Aug 2023 09:48:25 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [PATCH v4 0/6] KVM: s390: interrupt: Fix stepping into interrupt
- handlers
-Content-Language: en-US
-To:     Sean Christopherson <seanjc@google.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Cc:     Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jens Freimann <jfreimann@redhat.com>
-References: <20230725143857.228626-1-iii@linux.ibm.com>
- <ZMrXoQ0wN5ZyCf6Q@google.com>
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <ZMrXoQ0wN5ZyCf6Q@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: lYDjnObvJkLeo-jzVbbppsatD6sHzGim
-X-Proofpoint-GUID: b0VuxfuSaLV2NRIfYyeQfAthsiO-0ijp
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S235098AbjHCJSB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Aug 2023 05:18:01 -0400
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9F7EE60
+        for <linux-s390@vger.kernel.org>; Thu,  3 Aug 2023 02:17:56 -0700 (PDT)
+Received: by mail-pf1-x42b.google.com with SMTP id d2e1a72fcca58-686f74a8992so129203b3a.1
+        for <linux-s390@vger.kernel.org>; Thu, 03 Aug 2023 02:17:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1691054276; x=1691659076;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=GRlGFt/b+eLL81fhIoc4g8Xnl9ZXM32WoVDoUNCTBPI=;
+        b=Wy81fxHcIQAkCOjVlz/bXR2PEFHMyBpLCB/0rUSMHU/+AN9M9o+SWg7IeMqOl7dtXJ
+         u4X5Xmtgbr1j2HlIsVyt5UNXMMDLJxoTaRAclA9TqXI7WKrW9+IBnJfH+DTnoe8C1pR/
+         Ua8vJ7SkvZ3BfGOtQX4f/oVAVl0L5wivyhyymiEivlwLY8IuN30VfinZQXBHe84NQwjn
+         vxvkWuD4OufFqIDnDBL6RQ49ypYOjDcMNYf9unSkCaHxT+Wgbf46GjdKuPaFlP2cpDBq
+         02ZumQIM1oI0uqByQs5V8bGS3+Zz9zHG2v99uaBr1W/QHfi9khuYRMuO4GhTbMXqmhfg
+         fEBA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1691054276; x=1691659076;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=GRlGFt/b+eLL81fhIoc4g8Xnl9ZXM32WoVDoUNCTBPI=;
+        b=VlGWtFEqkvyXYY+qYnfo6u/TLGyNjr3O0IVNv7LLZAscvIoOFhypWHXbQatQQiXQ1u
+         rT6UeLl2U0Ynv16XFcB4bN8VHjFiJt3J1+4z6He5ANCwUE1gO7VZMpzTvXx+ydk7ZZ7B
+         DzWxf+fQICO4ht4S2hD7i3DxHN1L5Jd5gGHfgJ28LqrpwOt+8f3HuqNLB13bJ5zFGMs4
+         Eeq0vCRb82xajlkkzrCgvKPUeiqL+24HOKBugG4vkoJ0jb5gHcs94R085fjic8MBPZDs
+         KtB07drIsW5fNHUPVL85FsMJkMzbq3DzFxWMAlA9viHVGZ3L6hWRw+ot6Wa+rMOWwhVs
+         1D8Q==
+X-Gm-Message-State: ABy/qLaVpk6wjKgKA84DMfcMbN3Sd6GXM5guqmdJ+GiQbxHQJksmZ52/
+        phrm8mgmiBe3+O8ynmCk42dkiQ==
+X-Google-Smtp-Source: APBJJlF1R67qBIL1XVp7Pt2rmoZtkUWRGJa2ZDwYOFvPcmMmGiKpQTlnEEw5SIHIdIIPkp3jz66NKQ==
+X-Received: by 2002:a05:6a21:9989:b0:111:a0e5:d2b7 with SMTP id ve9-20020a056a21998900b00111a0e5d2b7mr20024356pzb.4.1691054276027;
+        Thu, 03 Aug 2023 02:17:56 -0700 (PDT)
+Received: from [10.70.252.135] ([203.208.167.146])
+        by smtp.gmail.com with ESMTPSA id g10-20020a63b14a000000b0056471d2ae8fsm3892765pgp.90.2023.08.03.02.17.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 03 Aug 2023 02:17:55 -0700 (PDT)
+Message-ID: <0df84f9f-e9b0-80b1-4c9e-95abc1a73a96@bytedance.com>
+Date:   Thu, 3 Aug 2023 17:17:34 +0800
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-08-03_06,2023-08-01_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
- spamscore=0 malwarescore=0 suspectscore=0 impostorscore=0 mlxlogscore=646
- priorityscore=1501 adultscore=0 phishscore=0 clxscore=1011 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2306200000
- definitions=main-2308030066
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.12.0
+Subject: Re: [PATCH v3 10/13] mm/khugepaged: collapse_pte_mapped_thp() with
+ mmap_read_lock()
+Content-Language: en-US
+To:     Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>
+Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Lorenzo Stoakes <lstoakes@gmail.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Jann Horn <jannh@google.com>,
+        Vishal Moola <vishal.moola@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>, Zi Yan <ziy@nvidia.com>,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <7cd843a9-aa80-14f-5eb2-33427363c20@google.com>
+ <b53be6a4-7715-51f9-aad-f1347dcb7c4@google.com>
+From:   Qi Zheng <zhengqi.arch@bytedance.com>
+In-Reply-To: <b53be6a4-7715-51f9-aad-f1347dcb7c4@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Hi,
 
-
-Am 03.08.23 um 00:24 schrieb Sean Christopherson:
-> On Tue, Jul 25, 2023, Ilya Leoshkevich wrote:
->> Ilya Leoshkevich (6):
->>    KVM: s390: interrupt: Fix single-stepping into interrupt handlers
->>    KVM: s390: interrupt: Fix single-stepping into program interrupt
->>      handlers
->>    KVM: s390: interrupt: Fix single-stepping kernel-emulated instructions
->>    KVM: s390: interrupt: Fix single-stepping userspace-emulated
->>      instructions
->>    KVM: s390: interrupt: Fix single-stepping keyless mode exits
->>    KVM: s390: selftests: Add selftest for single-stepping
+On 2023/7/12 12:42, Hugh Dickins wrote:
+> Bring collapse_and_free_pmd() back into collapse_pte_mapped_thp().
+> It does need mmap_read_lock(), but it does not need mmap_write_lock(),
+> nor vma_start_write() nor i_mmap lock nor anon_vma lock.  All racing
+> paths are relying on pte_offset_map_lock() and pmd_lock(), so use those.
 > 
-> FYI, the selftests change silently conflicts with a global s/ASSERT_EQ/TEST_ASSERT_EQ
-> rename[1], but the conflicts are very straightforward to resolve (just prepend TEST_).
-> If we want to proactively avoid mild pain in linux-next, one option would be to merge
-> the full kvm-x86/selftests branch/tag once I've made that immutable[2] (will be done
-> Friday if there are no fireworks).  Though we can probably just get away with doing
-> nothing other than letting Paolo know there's a silent conflict.
+> Follow the pattern in retract_page_tables(); and using pte_free_defer()
+> removes most of the need for tlb_remove_table_sync_one() here; but call
+> pmdp_get_lockless_sync() to use it in the PAE case.
 > 
-> [1] https://lore.kernel.org/all/169101245511.1754469.7852701829984104093.b4-ty@google.com
-> [2] https://lore.kernel.org/all/169101267140.1755771.17089576255751273053.b4-ty@google.com
+> First check the VMA, in case page tables are being torn down: from JannH.
+> Confirm the preliminary find_pmd_or_thp_or_none() once page lock has been
+> acquired and the page looks suitable: from then on its state is stable.
+> 
+> However, collapse_pte_mapped_thp() was doing something others don't:
+> freeing a page table still containing "valid" entries.  i_mmap lock did
+> stop a racing truncate from double-freeing those pages, but we prefer
+> collapse_pte_mapped_thp() to clear the entries as usual.  Their TLB
+> flush can wait until the pmdp_collapse_flush() which follows, but the
+> mmu_notifier_invalidate_range_start() has to be done earlier.
+> 
+> Do the "step 1" checking loop without mmu_notifier: it wouldn't be good
+> for khugepaged to keep on repeatedly invalidating a range which is then
+> found unsuitable e.g. contains COWs.  "step 2", which does the clearing,
+> must then be more careful (after dropping ptl to do mmu_notifier), with
+> abort prepared to correct the accounting like "step 3".  But with those
+> entries now cleared, "step 4" (after dropping ptl to do pmd_lock) is kept
+> safe by the huge page lock, which stops new PTEs from being faulted in.
+> 
+> Signed-off-by: Hugh Dickins <hughd@google.com>
+> ---
+>   mm/khugepaged.c | 172 ++++++++++++++++++++++----------------------------
+>   1 file changed, 77 insertions(+), 95 deletions(-)
+> 
+> diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+> index 3bb05147961b..46986eb4eebb 100644
+> --- a/mm/khugepaged.c
+> +++ b/mm/khugepaged.c
+> @@ -1483,7 +1483,7 @@ static bool khugepaged_add_pte_mapped_thp(struct mm_struct *mm,
+>   	return ret;
+>   }
+>   
+> -/* hpage must be locked, and mmap_lock must be held in write */
+> +/* hpage must be locked, and mmap_lock must be held */
+>   static int set_huge_pmd(struct vm_area_struct *vma, unsigned long addr,
+>   			pmd_t *pmdp, struct page *hpage)
+>   {
+> @@ -1495,7 +1495,7 @@ static int set_huge_pmd(struct vm_area_struct *vma, unsigned long addr,
+>   	};
+>   
+>   	VM_BUG_ON(!PageTransHuge(hpage));
+> -	mmap_assert_write_locked(vma->vm_mm);
+> +	mmap_assert_locked(vma->vm_mm);
+>   
+>   	if (do_set_pmd(&vmf, hpage))
+>   		return SCAN_FAIL;
+> @@ -1504,48 +1504,6 @@ static int set_huge_pmd(struct vm_area_struct *vma, unsigned long addr,
+>   	return SCAN_SUCCEED;
+>   }
+>   
+> -/*
+> - * A note about locking:
+> - * Trying to take the page table spinlocks would be useless here because those
+> - * are only used to synchronize:
+> - *
+> - *  - modifying terminal entries (ones that point to a data page, not to another
+> - *    page table)
+> - *  - installing *new* non-terminal entries
+> - *
+> - * Instead, we need roughly the same kind of protection as free_pgtables() or
+> - * mm_take_all_locks() (but only for a single VMA):
+> - * The mmap lock together with this VMA's rmap locks covers all paths towards
+> - * the page table entries we're messing with here, except for hardware page
+> - * table walks and lockless_pages_from_mm().
+> - */
+> -static void collapse_and_free_pmd(struct mm_struct *mm, struct vm_area_struct *vma,
+> -				  unsigned long addr, pmd_t *pmdp)
+> -{
+> -	pmd_t pmd;
+> -	struct mmu_notifier_range range;
+> -
+> -	mmap_assert_write_locked(mm);
+> -	if (vma->vm_file)
+> -		lockdep_assert_held_write(&vma->vm_file->f_mapping->i_mmap_rwsem);
+> -	/*
+> -	 * All anon_vmas attached to the VMA have the same root and are
+> -	 * therefore locked by the same lock.
+> -	 */
+> -	if (vma->anon_vma)
+> -		lockdep_assert_held_write(&vma->anon_vma->root->rwsem);
+> -
+> -	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, mm, addr,
+> -				addr + HPAGE_PMD_SIZE);
+> -	mmu_notifier_invalidate_range_start(&range);
+> -	pmd = pmdp_collapse_flush(vma, addr, pmdp);
+> -	tlb_remove_table_sync_one();
+> -	mmu_notifier_invalidate_range_end(&range);
+> -	mm_dec_nr_ptes(mm);
+> -	page_table_check_pte_clear_range(mm, addr, pmd);
+> -	pte_free(mm, pmd_pgtable(pmd));
+> -}
+> -
+>   /**
+>    * collapse_pte_mapped_thp - Try to collapse a pte-mapped THP for mm at
+>    * address haddr.
+> @@ -1561,26 +1519,29 @@ static void collapse_and_free_pmd(struct mm_struct *mm, struct vm_area_struct *v
+>   int collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr,
+>   			    bool install_pmd)
+>   {
+> +	struct mmu_notifier_range range;
+> +	bool notified = false;
+>   	unsigned long haddr = addr & HPAGE_PMD_MASK;
+>   	struct vm_area_struct *vma = vma_lookup(mm, haddr);
+>   	struct page *hpage;
+>   	pte_t *start_pte, *pte;
+> -	pmd_t *pmd;
+> -	spinlock_t *ptl;
+> -	int count = 0, result = SCAN_FAIL;
+> +	pmd_t *pmd, pgt_pmd;
+> +	spinlock_t *pml, *ptl;
+> +	int nr_ptes = 0, result = SCAN_FAIL;
+>   	int i;
+>   
+> -	mmap_assert_write_locked(mm);
+> +	mmap_assert_locked(mm);
+> +
+> +	/* First check VMA found, in case page tables are being torn down */
+> +	if (!vma || !vma->vm_file ||
+> +	    !range_in_vma(vma, haddr, haddr + HPAGE_PMD_SIZE))
+> +		return SCAN_VMA_CHECK;
+>   
+>   	/* Fast check before locking page if already PMD-mapped */
+>   	result = find_pmd_or_thp_or_none(mm, haddr, &pmd);
+>   	if (result == SCAN_PMD_MAPPED)
+>   		return result;
+>   
+> -	if (!vma || !vma->vm_file ||
+> -	    !range_in_vma(vma, haddr, haddr + HPAGE_PMD_SIZE))
+> -		return SCAN_VMA_CHECK;
+> -
+>   	/*
+>   	 * If we are here, we've succeeded in replacing all the native pages
+>   	 * in the page cache with a single hugepage. If a mm were to fault-in
+> @@ -1610,6 +1571,7 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr,
+>   		goto drop_hpage;
+>   	}
+>   
+> +	result = find_pmd_or_thp_or_none(mm, haddr, &pmd);
+>   	switch (result) {
+>   	case SCAN_SUCCEED:
+>   		break;
+> @@ -1623,27 +1585,10 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr,
+>   		goto drop_hpage;
+>   	}
+>   
+> -	/* Lock the vma before taking i_mmap and page table locks */
+> -	vma_start_write(vma);
+> -
+> -	/*
+> -	 * We need to lock the mapping so that from here on, only GUP-fast and
+> -	 * hardware page walks can access the parts of the page tables that
+> -	 * we're operating on.
+> -	 * See collapse_and_free_pmd().
+> -	 */
+> -	i_mmap_lock_write(vma->vm_file->f_mapping);
+> -
+> -	/*
+> -	 * This spinlock should be unnecessary: Nobody else should be accessing
+> -	 * the page tables under spinlock protection here, only
+> -	 * lockless_pages_from_mm() and the hardware page walker can access page
+> -	 * tables while all the high-level locks are held in write mode.
+> -	 */
+>   	result = SCAN_FAIL;
+>   	start_pte = pte_offset_map_lock(mm, pmd, haddr, &ptl);
+> -	if (!start_pte)
+> -		goto drop_immap;
+> +	if (!start_pte)		/* mmap_lock + page lock should prevent this */
+> +		goto drop_hpage;
+>   
+>   	/* step 1: check all mapped PTEs are to the right huge page */
+>   	for (i = 0, addr = haddr, pte = start_pte;
+> @@ -1670,10 +1615,18 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr,
+>   		 */
+>   		if (hpage + i != page)
+>   			goto abort;
+> -		count++;
+>   	}
+>   
+> -	/* step 2: adjust rmap */
+> +	pte_unmap_unlock(start_pte, ptl);
+> +	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, mm,
+> +				haddr, haddr + HPAGE_PMD_SIZE);
+> +	mmu_notifier_invalidate_range_start(&range);
+> +	notified = true;
+> +	start_pte = pte_offset_map_lock(mm, pmd, haddr, &ptl);
+> +	if (!start_pte)		/* mmap_lock + page lock should prevent this */
+> +		goto abort;
+> +
+> +	/* step 2: clear page table and adjust rmap */
+>   	for (i = 0, addr = haddr, pte = start_pte;
+>   	     i < HPAGE_PMD_NR; i++, addr += PAGE_SIZE, pte++) {
+>   		struct page *page;
+> @@ -1681,47 +1634,76 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr,
+>   
+>   		if (pte_none(ptent))
+>   			continue;
+> -		page = vm_normal_page(vma, addr, ptent);
+> -		if (WARN_ON_ONCE(page && is_zone_device_page(page)))
+> +		/*
+> +		 * We dropped ptl after the first scan, to do the mmu_notifier:
+> +		 * page lock stops more PTEs of the hpage being faulted in, but
+> +		 * does not stop write faults COWing anon copies from existing
+> +		 * PTEs; and does not stop those being swapped out or migrated.
+> +		 */
+> +		if (!pte_present(ptent)) {
+> +			result = SCAN_PTE_NON_PRESENT;
+>   			goto abort;
+> +		}
+> +		page = vm_normal_page(vma, addr, ptent);
+> +		if (hpage + i != page)
+> +			goto abort;
+> +
+> +		/*
+> +		 * Must clear entry, or a racing truncate may re-remove it.
+> +		 * TLB flush can be left until pmdp_collapse_flush() does it.
+> +		 * PTE dirty? Shmem page is already dirty; file is read-only.
+> +		 */
+> +		pte_clear(mm, addr, pte);
 
-Thanks for telling. Paolo, do you have a preference?
+This is not non-present PTE entry, so we should call ptep_clear() to let
+page_table_check track the PTE clearing operation, right? Otherwise it
+may lead to false positives?
 
-Janosch, Claudio I think this series is good to go otherwise.
+Thanks,
+Qi
+
+>   		page_remove_rmap(page, vma, false);
+> +		nr_ptes++;
+>   	}
+>   
+>   	pte_unmap_unlock(start_pte, ptl);
+>   
+>   	/* step 3: set proper refcount and mm_counters. */
+> -	if (count) {
+> -		page_ref_sub(hpage, count);
+> -		add_mm_counter(vma->vm_mm, mm_counter_file(hpage), -count);
+> +	if (nr_ptes) {
+> +		page_ref_sub(hpage, nr_ptes);
+> +		add_mm_counter(mm, mm_counter_file(hpage), -nr_ptes);
+>   	}
+>   
+> -	/* step 4: remove pte entries */
+> -	/* we make no change to anon, but protect concurrent anon page lookup */
+> -	if (vma->anon_vma)
+> -		anon_vma_lock_write(vma->anon_vma);
+> +	/* step 4: remove page table */
+>   
+> -	collapse_and_free_pmd(mm, vma, haddr, pmd);
+> +	/* Huge page lock is still held, so page table must remain empty */
+> +	pml = pmd_lock(mm, pmd);
+> +	if (ptl != pml)
+> +		spin_lock_nested(ptl, SINGLE_DEPTH_NESTING);
+> +	pgt_pmd = pmdp_collapse_flush(vma, haddr, pmd);
+> +	pmdp_get_lockless_sync();
+> +	if (ptl != pml)
+> +		spin_unlock(ptl);
+> +	spin_unlock(pml);
+>   
+> -	if (vma->anon_vma)
+> -		anon_vma_unlock_write(vma->anon_vma);
+> -	i_mmap_unlock_write(vma->vm_file->f_mapping);
+> +	mmu_notifier_invalidate_range_end(&range);
+> +
+> +	mm_dec_nr_ptes(mm);
+> +	page_table_check_pte_clear_range(mm, haddr, pgt_pmd);
+> +	pte_free_defer(mm, pmd_pgtable(pgt_pmd));
+>   
+>   maybe_install_pmd:
+>   	/* step 5: install pmd entry */
+>   	result = install_pmd
+>   			? set_huge_pmd(vma, haddr, pmd, hpage)
+>   			: SCAN_SUCCEED;
+> -
+> +	goto drop_hpage;
+> +abort:
+> +	if (nr_ptes) {
+> +		flush_tlb_mm(mm);
+> +		page_ref_sub(hpage, nr_ptes);
+> +		add_mm_counter(mm, mm_counter_file(hpage), -nr_ptes);
+> +	}
+> +	if (start_pte)
+> +		pte_unmap_unlock(start_pte, ptl);
+> +	if (notified)
+> +		mmu_notifier_invalidate_range_end(&range);
+>   drop_hpage:
+>   	unlock_page(hpage);
+>   	put_page(hpage);
+>   	return result;
+> -
+> -abort:
+> -	pte_unmap_unlock(start_pte, ptl);
+> -drop_immap:
+> -	i_mmap_unlock_write(vma->vm_file->f_mapping);
+> -	goto drop_hpage;
+>   }
+>   
+>   static void khugepaged_collapse_pte_mapped_thps(struct khugepaged_mm_slot *mm_slot)
+> @@ -2855,9 +2837,9 @@ int madvise_collapse(struct vm_area_struct *vma, struct vm_area_struct **prev,
+>   		case SCAN_PTE_MAPPED_HUGEPAGE:
+>   			BUG_ON(mmap_locked);
+>   			BUG_ON(*prev);
+> -			mmap_write_lock(mm);
+> +			mmap_read_lock(mm);
+>   			result = collapse_pte_mapped_thp(mm, addr, true);
+> -			mmap_write_unlock(mm);
+> +			mmap_locked = true;
+>   			goto handle_result;
+>   		/* Whitelisted set of results where continuing OK */
+>   		case SCAN_PMD_NULL:
