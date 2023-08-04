@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3220C41513
-	for <linux-s390@archiver.kernel.org>; Fri,  4 Aug 2023 17:06:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99AD3C001DB
+	for <linux-s390@archiver.kernel.org>; Fri,  4 Aug 2023 18:49:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231655AbjHDRGj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 4 Aug 2023 13:06:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41216 "EHLO
+        id S229476AbjHDStv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 4 Aug 2023 14:49:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230526AbjHDRGi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Aug 2023 13:06:38 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28AFC3C25;
-        Fri,  4 Aug 2023 10:06:37 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 374H0epU013363;
-        Fri, 4 Aug 2023 17:06:31 GMT
+        with ESMTP id S229461AbjHDStu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Aug 2023 14:49:50 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 005F0A9;
+        Fri,  4 Aug 2023 11:49:48 -0700 (PDT)
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 374IeQSe008304;
+        Fri, 4 Aug 2023 18:49:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
  bh=QJumNZf8haL2fiWHep9UXE3vaxNlE76FhOZSNxlq2Ss=;
- b=IK/JQTAG9oavUaHT7SLDtbq9lMYoc7Jor2XT46x3oncxVdvB0aSMe49dCmAdedqRFsDl
- LYeJs1wqqRabQQnxfraPzaBVivwd4NZAY3Tx/PwcQjy1Ypkro8HtU35VBDelM05S1b7t
- O1hEJAWMUE8eU9M5v5ofxCsXvVnOl9Dj41Lbkvk/c6D8d7j7UKsjwqCloNS2Ijm1J8Y5
- rzSQ+1pw+Np4BKoHBYbILP9O01Rhkwr82HSTfIk5xslI0cssASVoGlx72TwqMPdn1gHO
- cBVPIqQuPlSsC1HmsUkmHMVw2g2N38mLRyb51ZfAk4Hmj3iSK3kk8jOxGX55hnrRnKcS hw== 
+ b=ANbYIpTnOZIYASSuJVnerVKIpWksu77L8JOIwfUlqUG64OpBqbc8WdXfmFNFej0QKb0L
+ EUk1fgpFzp4O9Zju5mv9kxwVgOtU9I3N7alrYdD0FaLR0SiMFFtZeYAjs/DDoy4brpiL
+ fsQNO2iMYMOlxebtYh2cLBYrGK4SDfUgWbRivywosS/oUDotMOLKzPcELRCTopfVTnKU
+ kmdTjXWChb29FY+FvVx3s7X9RzsC5vqGmlXTZiatYqFLJHbDVxrFoEpUVY1oTd6iBLA9
+ 3KeiAW+fZVWW3F3WThrya0nSfGtVaEkSdRg37GHEbmxu27mCGwNGjT9yyvIkmBA1edsn wA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s95bng58x-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s96h38fdn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 04 Aug 2023 17:06:30 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 374H260W017888;
-        Fri, 4 Aug 2023 17:06:30 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s95bng57g-1
+        Fri, 04 Aug 2023 18:49:45 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 374IhWn9017912;
+        Fri, 4 Aug 2023 18:49:44 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s96h38f4a-22
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 04 Aug 2023 17:06:30 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 374FwpHJ015771;
-        Fri, 4 Aug 2023 17:06:28 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s8kn77h3n-1
+        Fri, 04 Aug 2023 18:49:42 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 374Frf5Q021566;
+        Fri, 4 Aug 2023 16:30:54 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3s8kmcf9m8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 04 Aug 2023 17:06:28 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 374H6PcJ42074596
+        Fri, 04 Aug 2023 16:30:54 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 374GUpdJ22086290
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 4 Aug 2023 17:06:25 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8BE3C20040;
-        Fri,  4 Aug 2023 17:06:25 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 24A632004E;
-        Fri,  4 Aug 2023 17:06:25 +0000 (GMT)
+        Fri, 4 Aug 2023 16:30:51 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 377A220043;
+        Fri,  4 Aug 2023 16:30:51 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B2C1D20040;
+        Fri,  4 Aug 2023 16:30:50 +0000 (GMT)
 Received: from dilbert5.boeblingen.de.ibm.com (unknown [9.155.208.153])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri,  4 Aug 2023 17:06:25 +0000 (GMT)
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri,  4 Aug 2023 16:30:50 +0000 (GMT)
 From:   Gerd Bayer <gbayer@linux.ibm.com>
 To:     Wenjia Zhang <wenjia@linux.ibm.com>,
         Jan Karcher <jaka@linux.ibm.com>,
@@ -69,26 +69,26 @@ Cc:     Karsten Graul <kgraul@linux.ibm.com>,
         Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>, linux-s390@vger.kernel.org,
         netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH net v3 1/2] net/smc: Fix setsockopt and sysctl to specify same buffer size again
-Date:   Fri,  4 Aug 2023 19:06:23 +0200
-Message-ID: <20230804170624.940883-2-gbayer@linux.ibm.com>
+Subject: [PATCH net-next v3 1/2] net/smc: Fix setsockopt and sysctl to specify same buffer size again
+Date:   Fri,  4 Aug 2023 18:30:48 +0200
+Message-ID: <20230804163049.937185-2-gbayer@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20230804170624.940883-1-gbayer@linux.ibm.com>
-References: <20230804170624.940883-1-gbayer@linux.ibm.com>
+In-Reply-To: <20230804163049.937185-1-gbayer@linux.ibm.com>
+References: <20230804163049.937185-1-gbayer@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 6YawMSUxBT-NgGu2LYhvXPh3Nv_z0dTt
-X-Proofpoint-ORIG-GUID: Fxutf9lh4M3Bgl1rXIUA91T56yvdB79_
+X-Proofpoint-GUID: HEvoDMxEPV9oACCZou67D2z2EXCRUp1x
+X-Proofpoint-ORIG-GUID: Mrq2V6uAlOrcbET4VEfKX7aevIJk5CVo
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-08-04_16,2023-08-03_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- lowpriorityscore=0 phishscore=0 mlxscore=0 malwarescore=0 bulkscore=0
- mlxlogscore=999 clxscore=1015 spamscore=0 adultscore=0 impostorscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2306200000 definitions=main-2308040149
+ definitions=2023-08-04_18,2023-08-03_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 clxscore=1015
+ suspectscore=0 bulkscore=0 adultscore=0 priorityscore=1501 phishscore=0
+ malwarescore=0 mlxlogscore=999 lowpriorityscore=0 spamscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2308040165
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
