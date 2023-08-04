@@ -2,98 +2,101 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8CC9C001DB
-	for <linux-s390@archiver.kernel.org>; Fri,  4 Aug 2023 10:00:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 814B9C001DF
+	for <linux-s390@archiver.kernel.org>; Fri,  4 Aug 2023 14:17:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229575AbjHDKAY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 4 Aug 2023 06:00:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53894 "EHLO
+        id S229554AbjHDORK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 4 Aug 2023 10:17:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229718AbjHDKAP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Aug 2023 06:00:15 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B713B4C03
-        for <linux-s390@vger.kernel.org>; Fri,  4 Aug 2023 02:59:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1691143166;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZwNEzLWGsJF00DekH3AwAc6pC/o4FSo3yR01IWQfvHs=;
-        b=atRJDwIqFj7xPQNjfN+KjoEIU7J6tr8ZvQIWdlsAk3vxWxps4QXFyQnIxvNqOqoBF7Vgw5
-        zamyJTxwJr2U7cvWQ27j8+wC/PiDthSNrGAdi1cJrJyz3OTl9cH4cNTDY3ZFHzrCYBz2+O
-        qTu389YXzUjNTZ+WveF02qpHTyB0IQI=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-595-MpEB2PPfO62vAweWVYTXAQ-1; Fri, 04 Aug 2023 05:59:25 -0400
-X-MC-Unique: MpEB2PPfO62vAweWVYTXAQ-1
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-3fe13881511so14206605e9.3
-        for <linux-s390@vger.kernel.org>; Fri, 04 Aug 2023 02:59:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691143164; x=1691747964;
-        h=content-transfer-encoding:in-reply-to:organization:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ZwNEzLWGsJF00DekH3AwAc6pC/o4FSo3yR01IWQfvHs=;
-        b=UA1/yctMab5oM8zg5NZFdd5Hr9OKwiz8MA3DTiYf7fIGJraK1k/8OyrFEuCJFi+1Pd
-         KDBXZJlCPexWyMwhxGtvnaLImo6D7WYV/fOZBO0ahWSh6d9HIBdpmCQk7qovvqBtduqH
-         1rIQpZPoN/aZU2PIhZF+2lhkzJ2rOpZ5G3W3PO4dr5jiSagExv32FcoSp9sdprknUZ02
-         ff/1O5gLWvesV9kWtUpnUdNUVcID/iMI9u9sd7/iphuFlUGvFayd66G/8ZtFhQh3B2av
-         OJq+eDeGTJbqjCsuk2feLiKEWqLnsloC7JgOr13hps76QKYzf2uug4bLOeBGzOu6UNtE
-         Br9w==
-X-Gm-Message-State: AOJu0Yxd3Kv2ONHBzBHG4+XCczJczvr4gzMaZF9EJ8wPoMuBlq33cgs5
-        +Vk0G0iwBtrDtLrakaBRjQPuOfk/qrE5JWDnqI+COBp+wptuqB2M6iLSGrbEOwWimdeA+Dw0UUz
-        ed8pyxFTjibBwUvkfETU0cLhotnSnHQ==
-X-Received: by 2002:a5d:680e:0:b0:317:4ef8:1659 with SMTP id w14-20020a5d680e000000b003174ef81659mr812283wru.28.1691143164584;
-        Fri, 04 Aug 2023 02:59:24 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEue9tewoodArBSqmAheDz6m/xWkDWULrRXyLWMYNeF828bYBIF2Vl1Pj7mVe+YTuhO+DS5ow==
-X-Received: by 2002:a5d:680e:0:b0:317:4ef8:1659 with SMTP id w14-20020a5d680e000000b003174ef81659mr812271wru.28.1691143164268;
-        Fri, 04 Aug 2023 02:59:24 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c724:5900:10b9:2373:11c6:216c? (p200300cbc724590010b9237311c6216c.dip0.t-ipconnect.de. [2003:cb:c724:5900:10b9:2373:11c6:216c])
-        by smtp.gmail.com with ESMTPSA id h3-20020a5d5483000000b0030ae53550f5sm2092325wrv.51.2023.08.04.02.59.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 04 Aug 2023 02:59:23 -0700 (PDT)
-Message-ID: <2e2c5026-4aff-0dc6-9f92-70cb8365c106@redhat.com>
-Date:   Fri, 4 Aug 2023 11:59:22 +0200
+        with ESMTP id S229559AbjHDORK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Aug 2023 10:17:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45E7C122;
+        Fri,  4 Aug 2023 07:17:09 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE4786203B;
+        Fri,  4 Aug 2023 14:17:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3C23C433C8;
+        Fri,  4 Aug 2023 14:17:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1691158628;
+        bh=ApkfPRCB7TcjMWBCpeisWeMpBBs1DqAxZdkPRk8zHOE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=feDjZ8KkGFQ13Fj63EyCGelIBXB5ZtKGGRbSNHEPHEx3OXrCqWQc+OGredJ6Li3of
+         U70LnjcieQAkcPQAt75wjPdFSJgtZ4tn12aaGaaOX0FJGsegTqp8H651vITB0SaA7v
+         TcCf2+hw64XQDFD6QVl7mRcE3cJyH9ovhlV8Y31cnwHW1OLlGrWYL11qlNe3gvn8An
+         WoDlTgLmMocIgV8qKEhVfcbqpFI77iqFs3IYPG7/hQc+0yUFqmq+G8DAL5ehup/sDN
+         eSmAbUA7lcxkH/g0h00ffM9PHgJiEMfdChtPWP6bxwyo1zttJNcbQYN3rNQfn4PXDQ
+         TctT3H+rFI4Zw==
+Date:   Fri, 4 Aug 2023 16:17:03 +0200
+From:   Simon Horman <horms@kernel.org>
+To:     Gerd Bayer <gbayer@linux.ibm.com>
+Cc:     Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        "D . Wythe" <alibuda@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net v2 0/2] net/smc: Fix effective buffer size
+Message-ID: <ZM0IX/YnaawWT9sm@kernel.org>
+References: <20230803144605.477903-1-gbayer@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [PATCH v2 2/2] KVM: s390: add tracepoint in gmap notifier
-Content-Language: en-US
-To:     Nico Boehr <nrb@linux.ibm.com>, borntraeger@linux.ibm.com,
-        frankja@linux.ibm.com, imbrenda@linux.ibm.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20230510121822.546629-1-nrb@linux.ibm.com>
- <20230510121822.546629-3-nrb@linux.ibm.com>
- <6f8951e2-9ea6-5bad-9c2c-b27d70d57ffe@redhat.com>
- <169114236545.36389.12085901437050856794@t14-nrb>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <169114236545.36389.12085901437050856794@t14-nrb>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230803144605.477903-1-gbayer@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
->>>    
->>>    #endif /* _TRACE_KVMS390_H */
->>>    
->>
->> In the context of vsie, I'd have thought you'd be tracing
->> kvm_s390_vsie_gmap_notifier() instead.
+On Thu, Aug 03, 2023 at 04:46:03PM +0200, Gerd Bayer wrote:
+> Hi all,
 > 
-> Right, I can change that if you / others have a preference for that.
+> commit 0227f058aa29 ("net/smc: Unbind r/w buffer size from clcsock
+> and make them tunable") started to derive the effective buffer size for
+> SMC connections inconsistently in case a TCP fallback was used and
+> memory consumption of SMC with the default settings was doubled when
+> a connection negotiated SMC. That was not what we want.
 > 
+> This series consolidates the resulting effective buffer size that is
+> used with SMC sockets, which is based on Jan Karcher's effort (see 
+> [1]). For all TCP exchanges (in particular in case of a fall back when
+> no SMC connection was possible) the values from net.ipv4.tcp_[rw]mem
+> are used. If SMC succeeds in establishing a SMC connection, the newly
+> introduced values from net.smc.[rw]mem are used.
+> 
+> net.smc.[rw]mem is initialized to 64kB, respectively. Internal test 
+> have show this to be a good compromise between throughput/latency 
+> and memory consumption. Also net.smc.[rw]mem is now decoupled completely
+> from any tuning through net.ipv4.tcp_[rw]mem.
+> 
+> If a user chose to tune a socket's receive or send buffer size with
+> setsockopt, this tuning is now consistently applied to either fall-back
+> TCP or proper SMC connections over the socket.
+> 
+> Thanks,
+> Gerd 
+> 
+> v1 - v2:
+>  - In second patch, use sock_net() helper as suggested by Tony and demanded
+>    by kernel test robot.
+> 
+> [1] https://lore.kernel.org/netdev/20221123104907.14624-1-jaka@linux.ibm.com
 
-No strong opinion, just a thought.
+Hi Gerd,
 
+unfortunately this patchset does not appear to apply to current 'net'.
+
+Could you rebase and send a v3?
 
 -- 
-Cheers,
-
-David / dhildenb
+pw-bot: changes-requested
 
