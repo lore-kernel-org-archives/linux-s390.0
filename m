@@ -2,119 +2,104 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22C99C001DB
-	for <linux-s390@archiver.kernel.org>; Fri,  4 Aug 2023 06:41:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D88EC04E69
+	for <linux-s390@archiver.kernel.org>; Fri,  4 Aug 2023 09:14:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233625AbjHDGlG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 4 Aug 2023 02:41:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40184 "EHLO
+        id S229634AbjHDJOr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 4 Aug 2023 05:14:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233740AbjHDGko (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Aug 2023 02:40:44 -0400
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E83A46B1;
-        Thu,  3 Aug 2023 23:40:34 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R311e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0Vp.HeWq_1691131229;
-Received: from 30.221.100.251(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0Vp.HeWq_1691131229)
-          by smtp.aliyun-inc.com;
-          Fri, 04 Aug 2023 14:40:30 +0800
-Message-ID: <3e761be7-c441-4629-3539-f067c6d8c1e8@linux.alibaba.com>
-Date:   Fri, 4 Aug 2023 14:40:27 +0800
+        with ESMTP id S229793AbjHDJOR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Aug 2023 05:14:17 -0400
+Received: from 167-179-156-38.a7b39c.syd.nbn.aussiebb.net (167-179-156-38.a7b39c.syd.nbn.aussiebb.net [167.179.156.38])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E14C49EC;
+        Fri,  4 Aug 2023 02:11:52 -0700 (PDT)
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+        by formenos.hmeau.com with smtp (Exim 4.94.2 #2 (Debian))
+        id 1qRqqT-003ayv-PZ; Fri, 04 Aug 2023 17:11:42 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 04 Aug 2023 17:11:41 +0800
+Date:   Fri, 4 Aug 2023 17:11:41 +0800
+From:   Herbert Xu <herbert@gondor.apana.org.au>
+To:     David Howells <dhowells@redhat.com>
+Cc:     =?us-ascii?B?PT9VVEYtOD9CP1QyNWtjbVZxSUUxdmMyN0RvY1NOWldzPT89?= 
+        <omosnacek@gmail.com>, Paolo Abeni <pabeni@redhat.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.vnet.ibm.com>,
+        Bagas Sanjaya <bagasdotme@gmail.com>,
+        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, regressions@lists.linux.dev,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] crypto: Fix missing initialisation affecting gcm-aes-s390
+Message-ID: <ZMzAzX3WQn3ZT2N+@gondor.apana.org.au>
+References: <CAAUqJDuRkHE8fPgZJGaKjUjd3QfGwzfumuJBmStPqBhubxyk_A@mail.gmail.com>
+ <97730.1690408399@warthog.procyon.org.uk>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.14.0
-Subject: Re: [RFC PATCH net-next 4/6] net/smc: support max connections per lgr
- negotiation
-Content-Language: en-US
-To:     Simon Horman <horms@kernel.org>
-Cc:     wenjia@linux.ibm.com, jaka@linux.ibm.com, kgraul@linux.ibm.com,
-        tonylu@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
-        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20230803132422.6280-1-guangguan.wang@linux.alibaba.com>
- <20230803132422.6280-5-guangguan.wang@linux.alibaba.com>
- <ZMvqJ6FYR6gWS+ZK@kernel.org>
-From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <ZMvqJ6FYR6gWS+ZK@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <97730.1690408399@warthog.procyon.org.uk>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Got it.
-I will remove the check in the next version.
+On Wed, Jul 26, 2023 at 10:53:19PM +0100, David Howells wrote:
+>     
+> Fix af_alg_alloc_areq() to initialise areq->first_rsgl.sgl.sgt.sgl to point
+> to the scatterlist array in areq->first_rsgl.sgl.sgl.
+> 
+> Without this, the gcm-aes-s390 driver will oops when it tries to do
+> gcm_walk_start() on req->dst because req->dst is set to the value of
+> areq->first_rsgl.sgl.sgl by _aead_recvmsg() calling
+> aead_request_set_crypt().
+> 
+> The problem comes if an empty ciphertext is passed: the loop in
+> af_alg_get_rsgl() just passes straight out and doesn't set areq->first_rsgl
+> up.
+> 
+> This isn't a problem on x86_64 using gcmaes_crypt_by_sg() because, as far
+> as I can tell, that ignores req->dst and only uses req->src[*].
+> 
+> [*] Is this a bug in aesni-intel_glue.c?
+> 
+> The s390x oops looks something like:
+> 
+>  Unable to handle kernel pointer dereference in virtual kernel address space
+>  Failing address: 0000000a00000000 TEID: 0000000a00000803
+>  Fault in home space mode while using kernel ASCE.
+>  AS:00000000a43a0007 R3:0000000000000024
+>  Oops: 003b ilc:2 [#1] SMP
+>  ...
+>  Call Trace:
+>   [<000003ff7fc3d47e>] gcm_walk_start+0x16/0x28 [aes_s390]
+>   [<00000000a2a342f2>] crypto_aead_decrypt+0x9a/0xb8
+>   [<00000000a2a60888>] aead_recvmsg+0x478/0x698
+>   [<00000000a2e519a0>] sock_recvmsg+0x70/0xb0
+>   [<00000000a2e51a56>] sock_read_iter+0x76/0xa0
+>   [<00000000a273e066>] vfs_read+0x26e/0x2a8
+>   [<00000000a273e8c4>] ksys_read+0xbc/0x100
+>   [<00000000a311d808>] __do_syscall+0x1d0/0x1f8
+>   [<00000000a312ff30>] system_call+0x70/0x98
+>  Last Breaking-Event-Address:
+>   [<000003ff7fc3e6b4>] gcm_aes_crypt+0x104/0xa68 [aes_s390]
+> 
+> Fixes: c1abe6f570af ("crypto: af_alg: Use extract_iter_to_sg() to create scatterlists")
+> Reported-by: Ondrej Mosnáček <omosnacek@gmail.com>
+> Link: https://lore.kernel.org/r/CAAUqJDuRkHE8fPgZJGaKjUjd3QfGwzfumuJBmStPqBhubxyk_A@mail.gmail.com/
+> Signed-off-by: David Howells <dhowells@redhat.com>
+> cc: Herbert Xu <herbert@gondor.apana.org.au>
+> cc: Sven Schnelle <svens@linux.ibm.com>
+> cc: Harald Freudenberger <freude@linux.vnet.ibm.com>
+> cc: "David S. Miller" <davem@davemloft.net>
+> cc: Paolo Abeni <pabeni@redhat.com>
+> cc: linux-crypto@vger.kernel.org
+> cc: linux-s390@vger.kernel.org
+> cc: regressions@lists.linux.dev
+> ---
+>  crypto/af_alg.c |    1 +
+>  1 file changed, 1 insertion(+)
 
-Thanks,
-Guangguan Wang
-
-On 2023/8/4 01:55, Simon Horman wrote:
-> On Thu, Aug 03, 2023 at 09:24:20PM +0800, Guangguan Wang wrote:
->> Support max connections per lgr negotiation for SMCR v2.1,
->> which is one of smc v2.1 features.
->>
->> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
->> Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-> 
-> ...
-> 
-> Hi Guangguan Wang,
-> 
->>  int smc_clc_cli_v2x_features_validate(struct smc_clc_first_contact_ext *fce,
->>  				      struct smc_init_info *ini)
->>  {
->> +	struct smc_clc_first_contact_ext_v2x *fce_v2x =
->> +		(struct smc_clc_first_contact_ext_v2x *)fce;
->> +
->>  	if (ini->release_ver < SMC_RELEASE_1)
->>  		return 0;
->>  
->> +	if (!ini->is_smcd) {
->> +		if (fce_v2x->max_conns > SMC_CONN_PER_LGR_MAX)
-> 
-> The type of the max_cons field is u8.
-> The value of SMC_CONN_PER_LGR_MAX is 255 (in another patch of this series),
-> the maximum value that the max_cons field can be assigned.
-> So it seems that this condition cannot ever be true.
-> 
-> As flagged by Smatch.
-> 
->> +			return SMC_CLC_DECL_MAXCONNERR;
->> +		ini->max_conns = fce_v2x->max_conns;
->> +	}
->> +
->>  	return 0;
->>  }
-> 
-> ...
-> 
->> diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-> 
-> ...
-> 
->> @@ -236,7 +238,8 @@ struct smc_clc_first_contact_ext {
->>  
->>  struct smc_clc_first_contact_ext_v2x {
->>  	struct smc_clc_first_contact_ext fce_v20;
->> -	u8 reserved3[4];
->> +	u8 max_conns; /* for SMC-R only */
->> +	u8 reserved3[3];
->>  	__be32 vendor_exp_options;
->>  	u8 reserved4[8];
->>  } __packed;		/* format defined in
-> 
-> ...
-> 
->> diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
->> index 1a97fef39127..065369dc6584 100644
->> --- a/net/smc/smc_core.h
->> +++ b/net/smc/smc_core.h
->> @@ -22,6 +22,7 @@
->>  #include "smc_ib.h"
->>  
->>  #define SMC_RMBS_PER_LGR_MAX	255	/* max. # of RMBs per link group */
->> +#define SMC_CONN_PER_LGR_MAX	255	/* max. # of connections per link group */
->>  
->>  struct smc_lgr_list {			/* list of link group definition */
->>  	struct list_head	list;
+Patch applied.  Thanks.
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
