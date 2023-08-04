@@ -2,104 +2,155 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D88EC04E69
-	for <linux-s390@archiver.kernel.org>; Fri,  4 Aug 2023 09:14:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9C32C001DF
+	for <linux-s390@archiver.kernel.org>; Fri,  4 Aug 2023 09:46:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229634AbjHDJOr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 4 Aug 2023 05:14:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58496 "EHLO
+        id S231183AbjHDJqa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 4 Aug 2023 05:46:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229793AbjHDJOR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Aug 2023 05:14:17 -0400
-Received: from 167-179-156-38.a7b39c.syd.nbn.aussiebb.net (167-179-156-38.a7b39c.syd.nbn.aussiebb.net [167.179.156.38])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E14C49EC;
-        Fri,  4 Aug 2023 02:11:52 -0700 (PDT)
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-        by formenos.hmeau.com with smtp (Exim 4.94.2 #2 (Debian))
-        id 1qRqqT-003ayv-PZ; Fri, 04 Aug 2023 17:11:42 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 04 Aug 2023 17:11:41 +0800
-Date:   Fri, 4 Aug 2023 17:11:41 +0800
-From:   Herbert Xu <herbert@gondor.apana.org.au>
-To:     David Howells <dhowells@redhat.com>
-Cc:     =?us-ascii?B?PT9VVEYtOD9CP1QyNWtjbVZxSUUxdmMyN0RvY1NOWldzPT89?= 
-        <omosnacek@gmail.com>, Paolo Abeni <pabeni@redhat.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.vnet.ibm.com>,
-        Bagas Sanjaya <bagasdotme@gmail.com>,
-        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, regressions@lists.linux.dev,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] crypto: Fix missing initialisation affecting gcm-aes-s390
-Message-ID: <ZMzAzX3WQn3ZT2N+@gondor.apana.org.au>
-References: <CAAUqJDuRkHE8fPgZJGaKjUjd3QfGwzfumuJBmStPqBhubxyk_A@mail.gmail.com>
- <97730.1690408399@warthog.procyon.org.uk>
+        with ESMTP id S231238AbjHDJqP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Aug 2023 05:46:15 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E777C49FA;
+        Fri,  4 Aug 2023 02:46:11 -0700 (PDT)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3749ckwc014098;
+        Fri, 4 Aug 2023 09:46:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : from
+ : cc : subject : to : message-id : date; s=pp1;
+ bh=LDWA5hEwRFL2483mPODKHUjFwor5SYcTyNogSzzZouU=;
+ b=ZOdFyqGVfrniQZsp+V7QQUB/ODDulVzC4vuz5xqrSXaCBjEuzDun0rBl4lWNDZGl8IG0
+ 3/lV7ww1ZXaXNF4y7w4A21am7RlRepfdaacdCzveXJxcFFcU9A7dBgJw+Y6koQKmJZeH
+ LywL1RWjdypCllgfYF2uhbCQmbIydcq0XYc7aIyhkGq2blZcAZWvN+I0rwRuW6Irc44k
+ OJ3hPxo6pOulMhJB5vMU0TC3UkTzr/HltT7xHw8ZQ/4Xmozk/b7THYaxSHIeNYp4XK1n
+ B2pplhvlewnwWyO7iJEfIpPILu84zi6JXbwQfyu/yeUu/FaWwQJzf89HXJ19AU0Us2os aQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s8xq08mt4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 04 Aug 2023 09:46:11 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3749d9of017916;
+        Fri, 4 Aug 2023 09:46:10 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3s8xq08msk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 04 Aug 2023 09:46:10 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3749NLcq027816;
+        Fri, 4 Aug 2023 09:46:09 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3s8kp2vg4j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 04 Aug 2023 09:46:09 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3749k6vX35848834
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 4 Aug 2023 09:46:06 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F221120043;
+        Fri,  4 Aug 2023 09:46:05 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C4EBF2005A;
+        Fri,  4 Aug 2023 09:46:05 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.78.151])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri,  4 Aug 2023 09:46:05 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <97730.1690408399@warthog.procyon.org.uk>
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <6f8951e2-9ea6-5bad-9c2c-b27d70d57ffe@redhat.com>
+References: <20230510121822.546629-1-nrb@linux.ibm.com> <20230510121822.546629-3-nrb@linux.ibm.com> <6f8951e2-9ea6-5bad-9c2c-b27d70d57ffe@redhat.com>
+From:   Nico Boehr <nrb@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] KVM: s390: add tracepoint in gmap notifier
+To:     David Hildenbrand <david@redhat.com>, borntraeger@linux.ibm.com,
+        frankja@linux.ibm.com, imbrenda@linux.ibm.com
+Message-ID: <169114236545.36389.12085901437050856794@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Fri, 04 Aug 2023 11:46:05 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: p-_cvb9h6aHmSI6vtKeyjDNBrgtnXeUA
+X-Proofpoint-GUID: huCehl-ochPLzIKgqWR3e02zZJMak3Z3
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-08-04_08,2023-08-03_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ phishscore=0 suspectscore=0 clxscore=1011 adultscore=0 lowpriorityscore=0
+ impostorscore=0 bulkscore=0 priorityscore=1501 mlxscore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2306200000
+ definitions=main-2308040083
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jul 26, 2023 at 10:53:19PM +0100, David Howells wrote:
->     
-> Fix af_alg_alloc_areq() to initialise areq->first_rsgl.sgl.sgt.sgl to point
-> to the scatterlist array in areq->first_rsgl.sgl.sgl.
-> 
-> Without this, the gcm-aes-s390 driver will oops when it tries to do
-> gcm_walk_start() on req->dst because req->dst is set to the value of
-> areq->first_rsgl.sgl.sgl by _aead_recvmsg() calling
-> aead_request_set_crypt().
-> 
-> The problem comes if an empty ciphertext is passed: the loop in
-> af_alg_get_rsgl() just passes straight out and doesn't set areq->first_rsgl
-> up.
-> 
-> This isn't a problem on x86_64 using gcmaes_crypt_by_sg() because, as far
-> as I can tell, that ignores req->dst and only uses req->src[*].
-> 
-> [*] Is this a bug in aesni-intel_glue.c?
-> 
-> The s390x oops looks something like:
-> 
->  Unable to handle kernel pointer dereference in virtual kernel address space
->  Failing address: 0000000a00000000 TEID: 0000000a00000803
->  Fault in home space mode while using kernel ASCE.
->  AS:00000000a43a0007 R3:0000000000000024
->  Oops: 003b ilc:2 [#1] SMP
->  ...
->  Call Trace:
->   [<000003ff7fc3d47e>] gcm_walk_start+0x16/0x28 [aes_s390]
->   [<00000000a2a342f2>] crypto_aead_decrypt+0x9a/0xb8
->   [<00000000a2a60888>] aead_recvmsg+0x478/0x698
->   [<00000000a2e519a0>] sock_recvmsg+0x70/0xb0
->   [<00000000a2e51a56>] sock_read_iter+0x76/0xa0
->   [<00000000a273e066>] vfs_read+0x26e/0x2a8
->   [<00000000a273e8c4>] ksys_read+0xbc/0x100
->   [<00000000a311d808>] __do_syscall+0x1d0/0x1f8
->   [<00000000a312ff30>] system_call+0x70/0x98
->  Last Breaking-Event-Address:
->   [<000003ff7fc3e6b4>] gcm_aes_crypt+0x104/0xa68 [aes_s390]
-> 
-> Fixes: c1abe6f570af ("crypto: af_alg: Use extract_iter_to_sg() to create scatterlists")
-> Reported-by: Ondrej Mosnáček <omosnacek@gmail.com>
-> Link: https://lore.kernel.org/r/CAAUqJDuRkHE8fPgZJGaKjUjd3QfGwzfumuJBmStPqBhubxyk_A@mail.gmail.com/
-> Signed-off-by: David Howells <dhowells@redhat.com>
-> cc: Herbert Xu <herbert@gondor.apana.org.au>
-> cc: Sven Schnelle <svens@linux.ibm.com>
-> cc: Harald Freudenberger <freude@linux.vnet.ibm.com>
-> cc: "David S. Miller" <davem@davemloft.net>
-> cc: Paolo Abeni <pabeni@redhat.com>
-> cc: linux-crypto@vger.kernel.org
-> cc: linux-s390@vger.kernel.org
-> cc: regressions@lists.linux.dev
-> ---
->  crypto/af_alg.c |    1 +
->  1 file changed, 1 insertion(+)
+Quoting David Hildenbrand (2023-07-27 09:41:51)
+> On 10.05.23 14:18, Nico Boehr wrote:
+> > The gmap notifier is called for changes in table entries with the
+> > notifier bit set. To diagnose performance issues, it can be useful to
+> > see what causes certain changes in the gmap.
+> >=20
+> > Hence, add a tracepoint in the gmap notifier.
+> >=20
+> > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> > ---
+> >   arch/s390/kvm/kvm-s390.c   |  2 ++
+> >   arch/s390/kvm/trace-s390.h | 23 +++++++++++++++++++++++
+> >   2 files changed, 25 insertions(+)
+> >=20
+> > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> > index ded4149e145b..e8476c023b07 100644
+> > --- a/arch/s390/kvm/kvm-s390.c
+> > +++ b/arch/s390/kvm/kvm-s390.c
+> > @@ -3982,6 +3982,8 @@ static void kvm_gmap_notifier(struct gmap *gmap, =
+unsigned long start,
+> >       unsigned long prefix;
+> >       unsigned long i;
+> >  =20
+> > +     trace_kvm_s390_gmap_notifier(start, end, gmap_is_shadow(gmap));
+> > +
+> >       if (gmap_is_shadow(gmap))
+> >               return;
+> >       if (start >=3D 1UL << 31)
+> > diff --git a/arch/s390/kvm/trace-s390.h b/arch/s390/kvm/trace-s390.h
+> > index 6f0209d45164..5dabd0b64d6e 100644
+> > --- a/arch/s390/kvm/trace-s390.h
+> > +++ b/arch/s390/kvm/trace-s390.h
+> > @@ -333,6 +333,29 @@ TRACE_EVENT(kvm_s390_airq_suppressed,
+> >                     __entry->id, __entry->isc)
+> >       );
+> >  =20
+> > +/*
+> > + * Trace point for gmap notifier calls.
+> > + */
+> > +TRACE_EVENT(kvm_s390_gmap_notifier,
+> > +             TP_PROTO(unsigned long start, unsigned long end, unsigned=
+ int shadow),
+> > +             TP_ARGS(start, end, shadow),
+> > +
+> > +             TP_STRUCT__entry(
+> > +                     __field(unsigned long, start)
+> > +                     __field(unsigned long, end)
+> > +                     __field(unsigned int, shadow)
+> > +                     ),
+> > +
+> > +             TP_fast_assign(
+> > +                     __entry->start =3D start;
+> > +                     __entry->end =3D end;
+> > +                     __entry->shadow =3D shadow;
+> > +                     ),
+> > +
+> > +             TP_printk("gmap notified (start:0x%lx end:0x%lx shadow:%d=
+)",
+> > +                     __entry->start, __entry->end, __entry->shadow)
+> > +     );
+> > +
+> >  =20
+> >   #endif /* _TRACE_KVMS390_H */
+> >  =20
+>=20
+> In the context of vsie, I'd have thought you'd be tracing=20
+> kvm_s390_vsie_gmap_notifier() instead.
 
-Patch applied.  Thanks.
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Right, I can change that if you / others have a preference for that.
