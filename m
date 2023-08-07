@@ -2,84 +2,113 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57948C001DB
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Aug 2023 15:09:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C273C001DB
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Aug 2023 21:45:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229722AbjHGPJ4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Aug 2023 11:09:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40950 "EHLO
+        id S230272AbjHGVo7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Aug 2023 17:44:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230134AbjHGPJx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Aug 2023 11:09:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65933198D;
-        Mon,  7 Aug 2023 08:09:31 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 68AAE61DB2;
-        Mon,  7 Aug 2023 15:08:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFE9EC433C7;
-        Mon,  7 Aug 2023 15:08:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1691420936;
-        bh=3X1Vxk3O7jBMOUlDxSVXoV/71wfwQb0HWcjFUwMy5Kk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=aoFH7P/uXdhCKxI8ajWHuFOpMCeQRfjNCZMw9N8cD40C7ddzxpedWW4MKBNFRjcBq
-         2XslMjeGyEHH1nM4CyO+2wtPdFrQcag0efOdo2s8cP1w7hDvYgvKmAEAkfwWuceDu/
-         JCkhJOCV9Oauol5guq9lKMBZoaOyqgsyaTmRlKHgm/bomio+3HGZV0gzAjKJlhgVlG
-         C3WtIfy4DLvsAG70e/a72ekV2TpUy3+Yj5nv4JOnLkbRZpZIpvms6l6I/qQPBN9EO0
-         9km67WDRBjsOQWZpLNeg4P4TYqucucJJSarnINgtl3Ym93mmOAxm6VnVgD+tpVGtff
-         ZK0v+sAE3LqoQ==
-Date:   Mon, 7 Aug 2023 17:08:51 +0200
-From:   Simon Horman <horms@kernel.org>
-To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>
-Cc:     wenjia@linux.ibm.com, jaka@linux.ibm.com, kgraul@linux.ibm.com,
-        tonylu@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
-        alibuda@linux.alibaba.com, guwen@linux.alibaba.com,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH v2 net-next 5/6] net/smc: support max links per lgr
- negotiation in clc handshake
-Message-ID: <ZNEJA1E6ouOuaAcc@vergenet.net>
-References: <20230807062720.20555-1-guangguan.wang@linux.alibaba.com>
- <20230807062720.20555-6-guangguan.wang@linux.alibaba.com>
+        with ESMTP id S229615AbjHGVo6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Aug 2023 17:44:58 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA5B0199C;
+        Mon,  7 Aug 2023 14:44:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=g+VsSpIIvTZp+OYSzc71ePgWKvh9dbj0dOgrtfhVY08=; b=nv3YiaN+c2/xvyBTT2Scu3RVHn
+        Tj4b/HyzInNj8yGoInNGOYxe01yyjWs033Jma+vixDeIw5QdEW3/KFTOOcij/qjKWMuu5yJugNPak
+        5bGUWL8QxbO2hds1oMmC1dHP1V6cQK2D4CaALau+vpGeX5XE9OvQJDFIO1Yi21zaO8HE2+pk34l2n
+        BVyUdtZzZvxBzsi1joxY+1qA9ciAyv62012YcPxmBErjy0ZIa5JCIYEpqbx+tuJU0O0v/7lnUWQPd
+        Rgxo3BYCj2n7RrlkjDHbuZtr8gKU8wmwOtvkewC4c71qhu+pMW57ycko0SZ5Zi0jULdqh4x1zPD/o
+        G0OdFzXQ==;
+Received: from mcgrof by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
+        id 1qT81L-000nZJ-0p;
+        Mon, 07 Aug 2023 21:44:11 +0000
+Date:   Mon, 7 Aug 2023 14:44:11 -0700
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     Joel Granados <joel.granados@gmail.com>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Iurii Zaikin <yzaikin@google.com>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Kees Cook <keescook@chromium.org>,
+        "D. Wythe" <alibuda@linux.alibaba.com>, mptcp@lists.linux.dev,
+        Jakub Kicinski <kuba@kernel.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Paolo Abeni <pabeni@redhat.com>, coreteam@netfilter.org,
+        Jan Karcher <jaka@linux.ibm.com>,
+        Alexander Aring <alex.aring@gmail.com>,
+        Will Deacon <will@kernel.org>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        bridge@lists.linux-foundation.org,
+        linux-arm-kernel@lists.infradead.org,
+        Joerg Reuter <jreuter@yaina.de>, Julian Anastasov <ja@ssi.bg>,
+        David Ahern <dsahern@kernel.org>,
+        netfilter-devel@vger.kernel.org, Wen Gu <guwen@linux.alibaba.com>,
+        linux-kernel@vger.kernel.org,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        linux-wpan@vger.kernel.org, lvs-devel@vger.kernel.org,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        linux-sctp@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Florian Westphal <fw@strlen.de>, willy@infradead.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-rdma@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Simon Horman <horms@verge.net.au>,
+        Mat Martineau <martineau@kernel.org>, josh@joshtriplett.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Eric Dumazet <edumazet@google.com>, linux-hams@vger.kernel.org,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        linux-fsdevel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Xin Long <lucien.xin@gmail.com>,
+        Nikolay Aleksandrov <razor@blackwall.org>,
+        netdev@vger.kernel.org, rds-devel@oss.oracle.com,
+        Joel Granados <j.granados@samsung.com>
+Subject: Re: [PATCH v2 00/14] sysctl: Add a size argument to register
+ functions in sysctl
+Message-ID: <ZNFlqwwvE6w6HyHl@bombadil.infradead.org>
+References: <20230731071728.3493794-1-j.granados@samsung.com>
+ <ZMgpck0rjqHR74sl@bombadil.infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230807062720.20555-6-guangguan.wang@linux.alibaba.com>
+In-Reply-To: <ZMgpck0rjqHR74sl@bombadil.infradead.org>
+Sender: Luis Chamberlain <mcgrof@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Aug 07, 2023 at 02:27:19PM +0800, Guangguan Wang wrote:
-
-...
-
-> diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-
-...
-
-> @@ -1414,6 +1420,9 @@ int smc_llc_srv_add_link(struct smc_link *link,
->  		goto out;
->  	}
->  
-> +	if (lgr->type == SMC_LGR_SINGLE && lgr->max_links <= 1)
-
-Hi Guangguan Wang,
-
-The function will return rc.
-Should it be set to an error value here?
-
-Flagged by Smatch.
-
-> +		goto out;
-> +
->  	/* ignore client add link recommendation, start new flow */
->  	ini->vlan_id = lgr->vlan_id;
->  	if (lgr->smc_version == SMC_V2) {
-> -- 
-> 2.24.3 (Apple Git-128)
+On Mon, Jul 31, 2023 at 02:36:50PM -0700, Luis Chamberlain wrote:
+> > Joel Granados (14):
+> >   sysctl: Prefer ctl_table_header in proc_sysctl
+> >   sysctl: Use ctl_table_header in list_for_each_table_entry
+> >   sysctl: Add ctl_table_size to ctl_table_header
+> >   sysctl: Add size argument to init_header
+> >   sysctl: Add a size arg to __register_sysctl_table
+> >   sysctl: Add size to register_sysctl
+> >   sysctl: Add size arg to __register_sysctl_init
 > 
+> This is looking great thanks, I've taken the first 7 patches above
+> to sysctl-next to get more exposure / testing and since we're already
+> on rc4.
+
+Ok I havent't heard much more feedback from networking folks, and
+since this is mostly sysctl love I've taken in the rest of these
+patches. Thanks to Jani Nikula for the reviews and to Greg KH for
+the suggestion on simplifying things.
+
+Let's see what busts in linux-next, and if anything does I can reset
+my tree back to only the first 7 patches.
+
+  Luis
