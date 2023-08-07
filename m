@@ -2,92 +2,84 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D7C4C41513
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Aug 2023 08:51:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57948C001DB
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Aug 2023 15:09:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229588AbjHGIvc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Aug 2023 04:51:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39110 "EHLO
+        id S229722AbjHGPJ4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Aug 2023 11:09:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230199AbjHGIvV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Aug 2023 04:51:21 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80E8292;
-        Mon,  7 Aug 2023 01:51:20 -0700 (PDT)
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3778eEEf016581;
-        Mon, 7 Aug 2023 08:51:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=K3rm8C31M+8bo1MTJ18FryPmqLznOfinr8IhXGF1nUo=;
- b=elG7n4rPNYtHNYCuGUh7fQdG5pKovmN7+yh0fP1Pfmcssm+vefY8C/QkxgEsCjd677Qq
- rY6ZC4t5jYLex9vS12f7gd/XS6Zs22t8Wvc33ui4j5+5cJwFNabb8YAL2/FEa3tD+HI4
- lW60mrbRZhMusBLm+EaSn9v+WznujcX5xEy3QtyA5cWhGJbPFgL0u2Ix++VbWppeoXLl
- nOiJeHsfHbaKK1289vXsHwDHILUjX4jDTSI1LNzcrtsGqDZmWRWqMBRhwHOusz9xUDsO
- OjyiVhhJpoSSesDWLLd5JTvf/Z6RZFzPstvwcXL0zs54qYCQDrY1RTL62sUwSZJ3wn77 iA== 
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3saw2qghqk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Aug 2023 08:51:17 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3777HoMb001597;
-        Mon, 7 Aug 2023 08:51:16 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3sa2yjk59n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Aug 2023 08:51:16 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3778p9ME63832330
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 7 Aug 2023 08:51:09 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F114C2004B;
-        Mon,  7 Aug 2023 08:51:08 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 66F1D20040;
-        Mon,  7 Aug 2023 08:51:08 +0000 (GMT)
-Received: from osiris (unknown [9.171.54.178])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Mon,  7 Aug 2023 08:51:08 +0000 (GMT)
-Date:   Mon, 7 Aug 2023 10:51:06 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Masahiro Yamada <masahiroy@kernel.org>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/3] s390: remove unneeded #include <asm/export.h>
-Message-ID: <20230807085106.19540-B-hca@linux.ibm.com>
-References: <20230806151641.394720-1-masahiroy@kernel.org>
+        with ESMTP id S230134AbjHGPJx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Aug 2023 11:09:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65933198D;
+        Mon,  7 Aug 2023 08:09:31 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 68AAE61DB2;
+        Mon,  7 Aug 2023 15:08:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFE9EC433C7;
+        Mon,  7 Aug 2023 15:08:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1691420936;
+        bh=3X1Vxk3O7jBMOUlDxSVXoV/71wfwQb0HWcjFUwMy5Kk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=aoFH7P/uXdhCKxI8ajWHuFOpMCeQRfjNCZMw9N8cD40C7ddzxpedWW4MKBNFRjcBq
+         2XslMjeGyEHH1nM4CyO+2wtPdFrQcag0efOdo2s8cP1w7hDvYgvKmAEAkfwWuceDu/
+         JCkhJOCV9Oauol5guq9lKMBZoaOyqgsyaTmRlKHgm/bomio+3HGZV0gzAjKJlhgVlG
+         C3WtIfy4DLvsAG70e/a72ekV2TpUy3+Yj5nv4JOnLkbRZpZIpvms6l6I/qQPBN9EO0
+         9km67WDRBjsOQWZpLNeg4P4TYqucucJJSarnINgtl3Ym93mmOAxm6VnVgD+tpVGtff
+         ZK0v+sAE3LqoQ==
+Date:   Mon, 7 Aug 2023 17:08:51 +0200
+From:   Simon Horman <horms@kernel.org>
+To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>
+Cc:     wenjia@linux.ibm.com, jaka@linux.ibm.com, kgraul@linux.ibm.com,
+        tonylu@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+        alibuda@linux.alibaba.com, guwen@linux.alibaba.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH v2 net-next 5/6] net/smc: support max links per lgr
+ negotiation in clc handshake
+Message-ID: <ZNEJA1E6ouOuaAcc@vergenet.net>
+References: <20230807062720.20555-1-guangguan.wang@linux.alibaba.com>
+ <20230807062720.20555-6-guangguan.wang@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230806151641.394720-1-masahiroy@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rlpfzrhkdUkT3gXiqvWQDhFSPnHQ64Xq
-X-Proofpoint-ORIG-GUID: rlpfzrhkdUkT3gXiqvWQDhFSPnHQ64Xq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-08-07_07,2023-08-03_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
- bulkscore=0 priorityscore=1501 impostorscore=0 lowpriorityscore=0
- malwarescore=0 clxscore=1015 mlxscore=0 spamscore=0 mlxlogscore=746
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2306200000 definitions=main-2308070079
+In-Reply-To: <20230807062720.20555-6-guangguan.wang@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Aug 07, 2023 at 12:16:38AM +0900, Masahiro Yamada wrote:
-> There is no EXPORT_SYMBOL line there, hence #include <asm/export.h>
-> is unneeded.
-> 
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> ---
-> 
->  arch/s390/kernel/mcount.S | 2 --
->  1 file changed, 2 deletions(-)
+On Mon, Aug 07, 2023 at 02:27:19PM +0800, Guangguan Wang wrote:
 
-All three patches applied. Thanks!
+...
+
+> diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+
+...
+
+> @@ -1414,6 +1420,9 @@ int smc_llc_srv_add_link(struct smc_link *link,
+>  		goto out;
+>  	}
+>  
+> +	if (lgr->type == SMC_LGR_SINGLE && lgr->max_links <= 1)
+
+Hi Guangguan Wang,
+
+The function will return rc.
+Should it be set to an error value here?
+
+Flagged by Smatch.
+
+> +		goto out;
+> +
+>  	/* ignore client add link recommendation, start new flow */
+>  	ini->vlan_id = lgr->vlan_id;
+>  	if (lgr->smc_version == SMC_V2) {
+> -- 
+> 2.24.3 (Apple Git-128)
+> 
