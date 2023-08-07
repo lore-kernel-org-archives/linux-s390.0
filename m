@@ -2,172 +2,67 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B703C0015E
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Aug 2023 02:21:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0084EB64DD
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Aug 2023 06:27:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229736AbjHGCVl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 6 Aug 2023 22:21:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38870 "EHLO
+        id S230292AbjHGG1d (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Aug 2023 02:27:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229515AbjHGCVk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 6 Aug 2023 22:21:40 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50F011722
-        for <linux-s390@vger.kernel.org>; Sun,  6 Aug 2023 19:21:39 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id d9443c01a7336-1bbb7c3d0f5so8441065ad.1
-        for <linux-s390@vger.kernel.org>; Sun, 06 Aug 2023 19:21:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1691374899; x=1691979699;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Qb/leLE6aCOZIBr9r1JYx3TvNlqeON7iS6luW38r5Jc=;
-        b=MhFGNTSsO4+QWxRK82qumq9rIgYUhYdEtWtmsu+iSWZuXBlQH+Jx6RKgdZZFO06ThW
-         G37Ma8brGBJxWF7UkJspgflGUQaJiZaxjvDyaz18XUG2U/LCOEUXLV+VmlcLXZOvnMmj
-         nyLtb+JMK+VKyjFzRaHEMnMfg4ALVrMpUaU+83cfjao+bENXCNlVA8puNic5zPPgRXMj
-         uJ19xY0Zt3h4aHO3jHr8IVHButtjHyG9SS5gdQy8Dfh5p+amv6EvjCKVeeW5NrJTjjun
-         r34wfS65FaM+UZvBU/e2i5dptVB1aCzmSDwymThGl45g7FJSqbN87dmAD07OZaTzgSR+
-         b51g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691374899; x=1691979699;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Qb/leLE6aCOZIBr9r1JYx3TvNlqeON7iS6luW38r5Jc=;
-        b=MGtnR/EZCLNYVqDinAfJZHdT1yIDp03ZX9BSYXBl+80mzg604oJ2QdGxb1TjHSNbNU
-         iz0nqKXKF3L6LetJz3Oavzdeo1ZDoznPHBAgnpfMRhrLGnRgERhKu9+8TC1SusVth2K9
-         o4ERYsH1cOrXtBuv716sgURZzsmImoUwIlxJE/OO9BB41FY6a0DeCYzpXfTHwlFDtZT9
-         q9u9vKRNOCuA8FPi1gDof+BtCzsDF2kbOWAFAHCz9iL1E59HOoYgdoGAg2+JheM/o/LV
-         P6L1TTelAPimJxweWPoGeDLVrQYWLcomnSfVMaFcjQo8y515dCJxEJyNezTh3AoxTzaS
-         spNQ==
-X-Gm-Message-State: ABy/qLZdnpst2vE2/sHP1/F8XA3BrqA6CGJzsGUSLB8RUl/VdZ4KEsnp
-        YFfKnK6y3hqIooP03x1St7G8gA==
-X-Google-Smtp-Source: APBJJlGpQC/bZc7PkKBaCqakVv3f0BQCW9VbmoYUUceaU6MBY9H2NMC4vSDtjENAGMgNRiun6LJ2JA==
-X-Received: by 2002:a17:902:ce92:b0:1b8:1591:9f81 with SMTP id f18-20020a170902ce9200b001b815919f81mr31962617plg.4.1691374898719;
-        Sun, 06 Aug 2023 19:21:38 -0700 (PDT)
-Received: from [10.70.252.135] ([203.208.167.146])
-        by smtp.gmail.com with ESMTPSA id e6-20020a170902cf4600b001ac5896e96esm5514361plg.207.2023.08.06.19.21.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 06 Aug 2023 19:21:37 -0700 (PDT)
-Message-ID: <3403e5d3-e840-cea7-1863-b6b9ab7ecae0@bytedance.com>
-Date:   Mon, 7 Aug 2023 10:21:20 +0800
+        with ESMTP id S229487AbjHGG1c (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Aug 2023 02:27:32 -0400
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 710D810F9;
+        Sun,  6 Aug 2023 23:27:28 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VpANHth_1691389643;
+Received: from localhost.localdomain(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0VpANHth_1691389643)
+          by smtp.aliyun-inc.com;
+          Mon, 07 Aug 2023 14:27:24 +0800
+From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
+To:     wenjia@linux.ibm.com, jaka@linux.ibm.com, kgraul@linux.ibm.com,
+        tonylu@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com
+Cc:     horms@kernel.org, alibuda@linux.alibaba.com,
+        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [RFC PATCH v2 net-next 0/6] net/smc: several features's implementation for smc v2.1
+Date:   Mon,  7 Aug 2023 14:27:14 +0800
+Message-Id: <20230807062720.20555-1-guangguan.wang@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.3 (Apple Git-128)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.12.0
-Subject: Re: [PATCH v3 10/13] mm/khugepaged: collapse_pte_mapped_thp() with
- mmap_read_lock()
-Content-Language: en-US
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Jann Horn <jannh@google.com>,
-        Vishal Moola <vishal.moola@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>, Zi Yan <ziy@nvidia.com>,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <7cd843a9-aa80-14f-5eb2-33427363c20@google.com>
- <b53be6a4-7715-51f9-aad-f1347dcb7c4@google.com>
- <0df84f9f-e9b0-80b1-4c9e-95abc1a73a96@bytedance.com>
- <884f20fe-d642-3a5f-522a-d756c3443bb4@google.com>
-From:   Qi Zheng <zhengqi.arch@bytedance.com>
-In-Reply-To: <884f20fe-d642-3a5f-522a-d756c3443bb4@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+This patch set implement several new features in SMC v2.1(https://
+www.ibm.com/support/pages/node/7009315), including vendor unique
+experimental options, max connections per lgr negotiation, max links
+per lgr negotiation.
 
+v1 - v2:
+ - Remove ini pointer NULL check and fix code style in
+   smc_clc_send_confirm_accept.
+ - Optimize the max_conns check in smc_clc_xxx_v2x_features_validate.
 
-On 2023/8/6 11:55, Hugh Dickins wrote:
-> On Thu, 3 Aug 2023, Qi Zheng wrote:
->> On 2023/7/12 12:42, Hugh Dickins wrote:
->>> Bring collapse_and_free_pmd() back into collapse_pte_mapped_thp().
->>> It does need mmap_read_lock(), but it does not need mmap_write_lock(),
->>> nor vma_start_write() nor i_mmap lock nor anon_vma lock.  All racing
->>> paths are relying on pte_offset_map_lock() and pmd_lock(), so use those.
-> ...
->>> @@ -1681,47 +1634,76 @@ int collapse_pte_mapped_thp(struct mm_struct *mm,
->>> unsigned long addr,
->>>    
->>>      if (pte_none(ptent))
->>>    			continue;
->>> -		page = vm_normal_page(vma, addr, ptent);
->>> -		if (WARN_ON_ONCE(page && is_zone_device_page(page)))
->>> +		/*
->>> +		 * We dropped ptl after the first scan, to do the
->>> mmu_notifier:
->>> +		 * page lock stops more PTEs of the hpage being faulted in,
->>> but
->>> +		 * does not stop write faults COWing anon copies from existing
->>> +		 * PTEs; and does not stop those being swapped out or
->>> migrated.
->>> +		 */
->>> +		if (!pte_present(ptent)) {
->>> +			result = SCAN_PTE_NON_PRESENT;
->>>    			goto abort;
->>> +		}
->>> +		page = vm_normal_page(vma, addr, ptent);
->>> +		if (hpage + i != page)
->>> +			goto abort;
->>> +
->>> +		/*
->>> +		 * Must clear entry, or a racing truncate may re-remove it.
->>> +		 * TLB flush can be left until pmdp_collapse_flush() does it.
->>> +		 * PTE dirty? Shmem page is already dirty; file is read-only.
->>> +		 */
->>> +		pte_clear(mm, addr, pte);
->>
->> This is not non-present PTE entry, so we should call ptep_clear() to let
->> page_table_check track the PTE clearing operation, right? Otherwise it
->> may lead to false positives?
-> 
-> You are right: thanks a lot for catching that: fix patch follows.
+Guangguan Wang (6):
+  net/smc: support smc release version negotiation in clc handshake
+  net/smc: add vendor unique experimental options area in clc handshake
+  net/smc: support smc v2.x features validate
+  net/smc: support max connections per lgr negotiation
+  net/smc: support max links per lgr negotiation in clc handshake
+  net/smc: Extend SMCR v2 linkgroup netlink attribute
 
-With fix patch:
+ include/uapi/linux/smc.h |   2 +
+ net/smc/af_smc.c         |  87 +++++++++++++++++------
+ net/smc/smc.h            |   5 +-
+ net/smc/smc_clc.c        | 149 ++++++++++++++++++++++++++++++++-------
+ net/smc/smc_clc.h        |  53 ++++++++++++--
+ net/smc/smc_core.c       |  13 +++-
+ net/smc/smc_core.h       |  11 +++
+ net/smc/smc_llc.c        |  21 ++++--
+ 8 files changed, 286 insertions(+), 55 deletions(-)
 
-Reviewed-by: Qi Zheng <zhengqi.arch@bytedance.com>
+-- 
+2.24.3 (Apple Git-128)
 
-Thanks.
-
-> 
-> Hugh
