@@ -2,151 +2,314 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B0B0C0015E
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Aug 2023 10:51:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 567FEC04A6A
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Aug 2023 16:04:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232690AbjHIKvq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Aug 2023 06:51:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40200 "EHLO
+        id S229748AbjHIQD7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Aug 2023 12:03:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232543AbjHIKu4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Aug 2023 06:50:56 -0400
-Received: from mail-lj1-x22e.google.com (mail-lj1-x22e.google.com [IPv6:2a00:1450:4864:20::22e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8810C2137;
-        Wed,  9 Aug 2023 03:50:39 -0700 (PDT)
-Received: by mail-lj1-x22e.google.com with SMTP id 38308e7fff4ca-2b9aa1d3029so105875221fa.2;
-        Wed, 09 Aug 2023 03:50:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1691578238; x=1692183038;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=q2sRNbI2azaNM3epQYqeDbNNvVsnx+uOoBBxcjhRKfE=;
-        b=msEFSbObqY9s8LRvEW0pOyPiCoRYq2OqQ8aFjTaMZp66s9PhBKq77Y9e2V5RWAAEIM
-         9A+oKL3bvIyOMFlQ1PZ1PsE7tBOe+XYywgriqm/pKlDN/VHQQ/ndQfefrtwA9BO7grMn
-         rFSSwL9SpICl8gVA46h6X9EyQ/rbrDfAI1jrBkJ8T1/tFgYZWrqmCHJ9sfcyd34OgJJ1
-         WWFu2ze9vFGpAYum+PC5KqqYb1cTAuOQnLGkolnnwiy1qkFAMphjl6o7RN7pc88mPW67
-         wujo4SNe4ys2qn7qiSiGMeqcr1nqRJRiUNwnC53IV0uMhBehw2NSckriVPDdyv6wB1zr
-         hR1w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691578238; x=1692183038;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=q2sRNbI2azaNM3epQYqeDbNNvVsnx+uOoBBxcjhRKfE=;
-        b=dI2oxWqvq2mFeMM0OD5nFwNSwu2VTzXxNl1wV03Yv2d0gNZwrntfsfAL5xvxaUG2oF
-         6XhDilvwSNmiBgXQJr/Xyg4k2qkS0eT0skRergUm4PY58NTKhRt3nlgL8+5YspZEzXGW
-         YevhJv8ostG8P4zJ3QSwA0xtoAQRknwwn/XeJjgAtT0M1CWHdwlJB1jJjXeu1T0cHSQ5
-         nwfjI1+67DUWxmr4F+QUkB5L1dNeLdtWdG0v557bXpLFB4tWNHqgmdfmzF0LVk3uK9Ym
-         AZDs0W66nRgMcBGEIFSL1E6wGsF1Zo8l7+lP2MDi7RLU3X2899PfzI21FuIGTIPBIzQK
-         lVqg==
-X-Gm-Message-State: AOJu0YxQ+/yoe715BCmDOP46PF/CH5hAjQDQrCfk2QDjk/+7CUONVZG0
-        vPuszLSVBKWVKlF1JG5UjPc=
-X-Google-Smtp-Source: AGHT+IEqxrPAYJZNCqWU257rXs5ZZv/+krpS60QQC5LVhJec2d7jEsNORJzb93LBbrFFUikrXvNUJQ==
-X-Received: by 2002:a2e:8893:0:b0:2b9:44c5:ac15 with SMTP id k19-20020a2e8893000000b002b944c5ac15mr1510364lji.41.1691578237645;
-        Wed, 09 Aug 2023 03:50:37 -0700 (PDT)
-Received: from localhost ([165.225.194.193])
-        by smtp.gmail.com with ESMTPSA id s13-20020a7bc38d000000b003fbb1a9586esm1620796wmj.15.2023.08.09.03.50.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Aug 2023 03:50:37 -0700 (PDT)
-From:   Joel Granados <joel.granados@gmail.com>
-X-Google-Original-From: Joel Granados <j.granados@samsung.com>
-To:     mcgrof@kernel.org
-Cc:     rds-devel@oss.oracle.com, "David S. Miller" <davem@davemloft.net>,
-        Florian Westphal <fw@strlen.de>, willy@infradead.org,
-        Jan Karcher <jaka@linux.ibm.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        Simon Horman <horms@verge.net.au>,
-        Tony Lu <tonylu@linux.alibaba.com>, linux-wpan@vger.kernel.org,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        mptcp@lists.linux.dev, Heiko Carstens <hca@linux.ibm.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Will Deacon <will@kernel.org>, Julian Anastasov <ja@ssi.bg>,
-        netfilter-devel@vger.kernel.org, Joerg Reuter <jreuter@yaina.de>,
-        linux-kernel@vger.kernel.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-sctp@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        linux-hams@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        coreteam@netfilter.org, Ralf Baechle <ralf@linux-mips.org>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        keescook@chromium.org, Roopa Prabhu <roopa@nvidia.com>,
-        David Ahern <dsahern@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
-        Wenjia Zhang <wenjia@linux.ibm.com>, josh@joshtriplett.org,
-        linux-fsdevel@vger.kernel.org,
-        Alexander Aring <alex.aring@gmail.com>,
-        Nikolay Aleksandrov <razor@blackwall.org>,
-        netdev@vger.kernel.org,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        linux-s390@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Eric Dumazet <edumazet@google.com>, lvs-devel@vger.kernel.org,
-        linux-rdma@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Iurii Zaikin <yzaikin@google.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        bridge@lists.linux-foundation.org,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Mat Martineau <martineau@kernel.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Joel Granados <j.granados@samsung.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>
-Subject: [PATCH v3 14/14] sysctl: Use ctl_table_size as stopping criteria for list macro
-Date:   Wed,  9 Aug 2023 12:50:06 +0200
-Message-Id: <20230809105006.1198165-15-j.granados@samsung.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20230809105006.1198165-1-j.granados@samsung.com>
-References: <20230809105006.1198165-1-j.granados@samsung.com>
+        with ESMTP id S229674AbjHIQD7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Aug 2023 12:03:59 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C74B1BD9;
+        Wed,  9 Aug 2023 09:03:58 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 379FxHCs016223;
+        Wed, 9 Aug 2023 16:03:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : from : subject : to : cc : references : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=XQEOLhyeZA2CAGyMflTobdYgDV1gAMa13Hpv99RXsFU=;
+ b=cjhlIjEtL/YT5vE0HH+z+Px6vIChpn6T7mJeehyYlJ1MWXcbItwrYaCMyWoguKRDYUdG
+ S7GRI5y80bePMMl4cB++WvceCq2kpR9JtCpJRyjq1AgbCZ0Z4h0eyZ9+jaTHsCXdXZ9u
+ zf2QbmdazJvFV/9s5B0SclL9MMni+dGBzVw80iCRa/l56/6HecJxalqpOTDB6xxYgNKS
+ R2i+BFwusjPYT2/FBjkhrFHD7IdFK+OkGcvGQvosGKivPmNchnQp38CbLZIgUQEjcVK1
+ 3Unoa6leZaAOw6jQxgO8Fa7MaCQ0LNynFIsGRqVM+JMQpprF17NAaKW6imLLyC5gMDL3 qA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3scdwt0369-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Aug 2023 16:03:46 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 379G03A8017504;
+        Wed, 9 Aug 2023 16:03:45 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3scdwt035v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Aug 2023 16:03:45 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 379EfLhv007543;
+        Wed, 9 Aug 2023 16:03:44 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3sa14yj0xg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Aug 2023 16:03:44 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+        by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 379G3hSq24445596
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 9 Aug 2023 16:03:43 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8AA485803F;
+        Wed,  9 Aug 2023 16:03:43 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4C30E58060;
+        Wed,  9 Aug 2023 16:03:41 +0000 (GMT)
+Received: from [9.171.35.46] (unknown [9.171.35.46])
+        by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Wed,  9 Aug 2023 16:03:41 +0000 (GMT)
+Message-ID: <ecafff58-c93a-5592-ddaa-d8724cf6bdcc@linux.ibm.com>
+Date:   Wed, 9 Aug 2023 18:03:40 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.14.0
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+Subject: Re: [RFC PATCH v2 net-next 1/6] net/smc: support smc release version
+ negotiation in clc handshake
+To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>,
+        jaka@linux.ibm.com, kgraul@linux.ibm.com, tonylu@linux.alibaba.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com
+Cc:     horms@kernel.org, alibuda@linux.alibaba.com,
+        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20230807062720.20555-1-guangguan.wang@linux.alibaba.com>
+ <20230807062720.20555-2-guangguan.wang@linux.alibaba.com>
+In-Reply-To: <20230807062720.20555-2-guangguan.wang@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: x5EylmUXVUkZtT6R8sqgwCByLOEuWFtQ
+X-Proofpoint-ORIG-GUID: GwaGRFOZFGiomFznRO1JC_T985rnyEce
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-08-09_13,2023-08-09_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
+ malwarescore=0 bulkscore=0 impostorscore=0 clxscore=1011 mlxlogscore=999
+ phishscore=0 suspectscore=0 priorityscore=1501 adultscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2306200000
+ definitions=main-2308090137
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This is a preparation commit to make it easy to remove the sentinel
-elements (empty end markers) from the ctl_table arrays. It both allows
-the systematic removal of the sentinels and adds the ctl_table_size
-variable to the stopping criteria of the list_for_each_table_entry macro
-that traverses all ctl_table arrays. Once all the sentinels are removed
-by subsequent commits, ctl_table_size will become the only stopping
-criteria in the macro. We don't actually remove any elements in this
-commit, but it sets things up to for the removal process to take place.
 
-By adding header->ctl_table_size as an additional stopping criteria for
-the list_for_each_table_entry macro, it will execute until it finds an
-"empty" ->procname or until the size runs out. Therefore if a ctl_table
-array with a sentinel is passed its size will be too big (by one
-element) but it will stop on the sentinel. On the other hand, if the
-ctl_table array without a sentinel is passed its size will be just write
-and there will be no need for a sentinel.
 
-Signed-off-by: Joel Granados <j.granados@samsung.com>
-Suggested-by: Jani Nikula <jani.nikula@linux.intel.com>
----
- fs/proc/proc_sysctl.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+On 07.08.23 08:27, Guangguan Wang wrote:
+> Support smc release version negotiation in clc handshake. And set
+> the latest smc release version to 2.1.
+> 
 
-diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
-index 817bc51c58d8..504e847c2a3a 100644
---- a/fs/proc/proc_sysctl.c
-+++ b/fs/proc/proc_sysctl.c
-@@ -19,8 +19,9 @@
- #include <linux/kmemleak.h>
- #include "internal.h"
- 
--#define list_for_each_table_entry(entry, header) \
--	for ((entry) = (header->ctl_table); (entry)->procname; (entry)++)
-+#define list_for_each_table_entry(entry, header)	\
-+	entry = header->ctl_table;			\
-+	for (size_t i = 0 ; i < header->ctl_table_size && entry->procname; ++i, entry++)
- 
- static const struct dentry_operations proc_sys_dentry_operations;
- static const struct file_operations proc_sys_file_operations;
--- 
-2.30.2
+Could you elaborate the changes? Without reading code, it is really 
+difficult to know what you did, and why you did it. Sure, one can read 
+the code and the support document, but the commit message should always 
+be the quick reference. The following information I missed especially:
+- This implementation is based on SMCv2 where no negotiation process for 
+different releases, but for different versions.
+- The Server makes the decision for which release will be used.
 
+> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+> Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+> ---
+>   net/smc/af_smc.c   | 22 ++++++++++++++++++++--
+>   net/smc/smc.h      |  5 ++++-
+>   net/smc/smc_clc.c  | 14 +++++++-------
+>   net/smc/smc_clc.h  | 23 ++++++++++++++++++++++-
+>   net/smc/smc_core.h |  1 +
+>   5 files changed, 54 insertions(+), 11 deletions(-)
+> 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index a7f887d91d89..bac73eb0542d 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -1187,6 +1187,11 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+>   			return SMC_CLC_DECL_NOINDIRECT;
+>   		}
+>   	}
+> +
+> +	if (fce->release > SMC_RELEASE)
+> +		return SMC_CLC_DECL_VERSMISMAT;
+I'm wondering if this check is necessary, how it could happen?
+
+> +	ini->release_ver = fce->release;
+> +
+>   	return 0;
+>   }
+>   
+> @@ -1355,6 +1360,15 @@ static int smc_connect_ism(struct smc_sock *smc,
+>   		struct smc_clc_msg_accept_confirm_v2 *aclc_v2 =
+>   			(struct smc_clc_msg_accept_confirm_v2 *)aclc;
+>   
+> +		if (ini->first_contact_peer) {
+> +			struct smc_clc_first_contact_ext *fce =
+> +				smc_get_clc_first_contact_ext(aclc_v2, true);
+> +
+> +			if (fce->release > SMC_RELEASE)
+> +				return SMC_CLC_DECL_VERSMISMAT;
+> +			ini->release_ver = fce->release;
+> +		}
+> +
+>   		rc = smc_v2_determine_accepted_chid(aclc_v2, ini);
+>   		if (rc)
+>   			return rc;
+> @@ -1389,7 +1403,7 @@ static int smc_connect_ism(struct smc_sock *smc,
+>   	}
+>   
+>   	rc = smc_clc_send_confirm(smc, ini->first_contact_local,
+> -				  aclc->hdr.version, eid, NULL);
+> +				  aclc->hdr.version, eid, ini);
+>   	if (rc)
+>   		goto connect_abort;
+>   	mutex_unlock(&smc_server_lgr_pending);
+> @@ -1965,6 +1979,10 @@ static int smc_listen_v2_check(struct smc_sock *new_smc,
+>   		}
+>   	}
+>   
+> +	ini->release_ver = pclc_v2_ext->hdr.flag.release;
+> +	if (pclc_v2_ext->hdr.flag.release > SMC_RELEASE)
+> +		ini->release_ver = SMC_RELEASE;
+> +
+>   out:
+>   	if (!ini->smcd_version && !ini->smcr_version)
+>   		return rc;
+> @@ -2412,7 +2430,7 @@ static void smc_listen_work(struct work_struct *work)
+>   	/* send SMC Accept CLC message */
+>   	accept_version = ini->is_smcd ? ini->smcd_version : ini->smcr_version;
+>   	rc = smc_clc_send_accept(new_smc, ini->first_contact_local,
+> -				 accept_version, ini->negotiated_eid);
+> +				 accept_version, ini->negotiated_eid, ini);
+>   	if (rc)
+>   		goto out_unlock;
+>   
+> diff --git a/net/smc/smc.h b/net/smc/smc.h
+> index 2eeea4cdc718..9cce1a41e011 100644
+> --- a/net/smc/smc.h
+> +++ b/net/smc/smc.h
+> @@ -21,7 +21,10 @@
+>   
+>   #define SMC_V1		1		/* SMC version V1 */
+>   #define SMC_V2		2		/* SMC version V2 */
+> -#define SMC_RELEASE	0
+> +
+> +#define SMC_RELEASE_0 0
+> +#define SMC_RELEASE_1 1
+> +#define SMC_RELEASE	SMC_RELEASE_1 /* the latest release version */
+>   
+>   #define SMCPROTO_SMC		0	/* SMC protocol, IPv4 */
+>   #define SMCPROTO_SMC6		1	/* SMC protocol, IPv6 */
+> diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+> index b9b8b07aa702..4ae27bf65732 100644
+> --- a/net/smc/smc_clc.c
+> +++ b/net/smc/smc_clc.c
+> @@ -420,11 +420,11 @@ smc_clc_msg_decl_valid(struct smc_clc_msg_decline *dclc)
+>   	return true;
+>   }
+>   
+> -static void smc_clc_fill_fce(struct smc_clc_first_contact_ext *fce, int *len)
+> +static void smc_clc_fill_fce(struct smc_clc_first_contact_ext *fce, int *len, int release_ver)
+>   {
+>   	memset(fce, 0, sizeof(*fce));
+>   	fce->os_type = SMC_CLC_OS_LINUX;
+> -	fce->release = SMC_RELEASE;
+> +	fce->release = release_ver;
+>   	memcpy(fce->hostname, smc_hostname, sizeof(smc_hostname));
+>   	(*len) += sizeof(*fce);
+>   }
+
+Personally I'd like release_nr instead of release_ver.
+
+> @@ -1019,7 +1019,7 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+>   				memcpy(clc_v2->d1.eid, eid, SMC_MAX_EID_LEN);
+>   			len = SMCD_CLC_ACCEPT_CONFIRM_LEN_V2;
+>   			if (first_contact)
+> -				smc_clc_fill_fce(&fce, &len);
+> +				smc_clc_fill_fce(&fce, &len, ini->release_ver);
+>   			clc_v2->hdr.length = htons(len);
+>   		}
+>   		memcpy(trl.eyecatcher, SMCD_EYECATCHER,
+> @@ -1063,10 +1063,10 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+>   				memcpy(clc_v2->r1.eid, eid, SMC_MAX_EID_LEN);
+>   			len = SMCR_CLC_ACCEPT_CONFIRM_LEN_V2;
+>   			if (first_contact) {
+> -				smc_clc_fill_fce(&fce, &len);
+> +				smc_clc_fill_fce(&fce, &len, ini->release_ver);
+>   				fce.v2_direct = !link->lgr->uses_gateway;
+>   				memset(&gle, 0, sizeof(gle));
+> -				if (ini && clc->hdr.type == SMC_CLC_CONFIRM) {
+> +				if (clc->hdr.type == SMC_CLC_CONFIRM) {
+>   					gle.gid_cnt = ini->smcrv2.gidlist.len;
+>   					len += sizeof(gle);
+>   					len += gle.gid_cnt * sizeof(gle.gid[0]);
+> @@ -1141,7 +1141,7 @@ int smc_clc_send_confirm(struct smc_sock *smc, bool clnt_first_contact,
+>   
+>   /* send CLC ACCEPT message across internal TCP socket */
+>   int smc_clc_send_accept(struct smc_sock *new_smc, bool srv_first_contact,
+> -			u8 version, u8 *negotiated_eid)
+> +			u8 version, u8 *negotiated_eid, struct smc_init_info *ini)
+>   {
+>   	struct smc_clc_msg_accept_confirm_v2 aclc_v2;
+>   	int len;
+> @@ -1149,7 +1149,7 @@ int smc_clc_send_accept(struct smc_sock *new_smc, bool srv_first_contact,
+>   	memset(&aclc_v2, 0, sizeof(aclc_v2));
+>   	aclc_v2.hdr.type = SMC_CLC_ACCEPT;
+>   	len = smc_clc_send_confirm_accept(new_smc, &aclc_v2, srv_first_contact,
+> -					  version, negotiated_eid, NULL);
+> +					  version, negotiated_eid, ini);
+>   	if (len < ntohs(aclc_v2.hdr.length))
+>   		len = len >= 0 ? -EPROTO : -new_smc->clcsock->sk->sk_err;
+>   
+> diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+> index 5fee545c9a10..b923e89acafb 100644
+> --- a/net/smc/smc_clc.h
+> +++ b/net/smc/smc_clc.h
+> @@ -370,6 +370,27 @@ smc_get_clc_smcd_v2_ext(struct smc_clc_v2_extension *prop_v2ext)
+>   		 ntohs(prop_v2ext->hdr.smcd_v2_ext_offset));
+>   }
+>   
+> +static inline struct smc_clc_first_contact_ext *
+> +smc_get_clc_first_contact_ext(struct smc_clc_msg_accept_confirm_v2 *clc_v2,
+> +			      bool is_smcd)
+> +{
+> +	int clc_v2_len;
+> +
+> +	if (clc_v2->hdr.version == SMC_V1 ||
+> +	    !(clc_v2->hdr.typev2 & SMC_FIRST_CONTACT_MASK))
+> +		return NULL;
+> +
+> +	if (is_smcd)
+> +		clc_v2_len =
+> +			offsetofend(struct smc_clc_msg_accept_confirm_v2, d1);
+> +	else
+> +		clc_v2_len =
+> +			offsetofend(struct smc_clc_msg_accept_confirm_v2, r1);
+> +
+> +	return (struct smc_clc_first_contact_ext *)(((u8 *)clc_v2) +
+> +						    clc_v2_len);
+> +}
+> +
+>   struct smcd_dev;
+>   struct smc_init_info;
+>   
+> @@ -382,7 +403,7 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini);
+>   int smc_clc_send_confirm(struct smc_sock *smc, bool clnt_first_contact,
+>   			 u8 version, u8 *eid, struct smc_init_info *ini);
+>   int smc_clc_send_accept(struct smc_sock *smc, bool srv_first_contact,
+> -			u8 version, u8 *negotiated_eid);
+> +			u8 version, u8 *negotiated_eid, struct smc_init_info *ini);
+>   void smc_clc_init(void) __init;
+>   void smc_clc_exit(void);
+>   void smc_clc_get_hostname(u8 **host);
+> diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+> index 3c1b31bfa1cf..1a97fef39127 100644
+> --- a/net/smc/smc_core.h
+> +++ b/net/smc/smc_core.h
+> @@ -374,6 +374,7 @@ struct smc_init_info {
+>   	u8			is_smcd;
+>   	u8			smc_type_v1;
+>   	u8			smc_type_v2;
+> +	u8			release_ver;
+
+Also here, I'd like release_nr more.
+
+>   	u8			first_contact_peer;
+>   	u8			first_contact_local;
+>   	unsigned short		vlan_id;
