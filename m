@@ -2,89 +2,69 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D07F5C05052
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Aug 2023 14:20:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8142C41513
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Aug 2023 14:21:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235584AbjHJOUY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Aug 2023 10:20:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58880 "EHLO
+        id S234453AbjHJOVQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 10 Aug 2023 10:21:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230434AbjHJOUW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Aug 2023 10:20:22 -0400
+        with ESMTP id S229890AbjHJOVP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Aug 2023 10:21:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B87B2698;
-        Thu, 10 Aug 2023 07:20:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2AD626BD;
+        Thu, 10 Aug 2023 07:21:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB6F065D22;
-        Thu, 10 Aug 2023 14:20:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E700C433C7;
-        Thu, 10 Aug 2023 14:20:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6053C65D8E;
+        Thu, 10 Aug 2023 14:21:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2378C433C7;
+        Thu, 10 Aug 2023 14:21:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1691677220;
-        bh=M6pCzl56hQfYBur6YmsekmzG2MMWL9hk5rFjJ0OsUU0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=sEToNoLWqGtj4+RI0IeL2/r+G3nimZRvSUqztupu9NJ+WYoZP0DMJQzTc7AhlsCRR
-         jK+SIxlfrcfMXKvWeumyeQOK5nFc2dY4tBk6a84vRp7cTftkekwCVyX2rgv9+6AmrC
-         Dh91SfRjBjwYI9+cQxGNywuPyE4jUPyAUbzRq1qlPCpdc5pfBe17qe4QSw1GWxutDV
-         LEqx6GOFuLUoidCbQEbTBmg9pIzjp2gcCgmaYfyZA/oR7dMrTfDlL6wCOIJiRAEh5z
-         7bD2ltW5YMGSzYVVjE66ksMmUMrACNMp5UJJUI+KM+0mH1fxsUmNyF/NEvXI4YbDxf
-         rS2tPNYilE83g==
+        s=k20201202; t=1691677273;
+        bh=eMg6b9hkzab2TjJ02F2dWzegmP1PyYO6iwxCLd51D7g=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=L7R74EBA2R9WBLHGAWy2nljV13705Iy/m7NIJ2X2632QjPkYqBgi8h9HuikbipJHj
+         TiBvkxqlZNgA6IUVAtWVNsupcb+BfJmQKoE7clkXhdohH+f293R7UXxR64DPQOarXF
+         5D+AINqTp8fo+95gfX2HEAkY+/BuNfKyIsBYlWOf16iUh9OyeZE3wIjD0yJUAwBaSa
+         xo5AT+Is9KC9/LJ1AXOnWX0OhUww/zZPuPwRmAMvppnIAHIeim1I0l3UYwPZiUhoMY
+         wAWMO+N2VGUGp6GMc/btPL38UKiZ91eudUJnkwRJdTFVOzmo+H25YuaSP8fOhYOfZD
+         lvJ/uDzaDGVRg==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     Andrew Morton <akpm@linux-foundation.org>,
         linux-kernel@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Matt Turner <mattst88@gmail.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
+Cc:     Arnd Bergmann <arnd@arndb.de>,
         Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Brian Cain <bcain@quicinc.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Guo Ren <guoren@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Will Deacon <will@kernel.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
         Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
         Heiko Carstens <hca@linux.ibm.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        x86@kernel.org, Borislav Petkov <bp@alien8.de>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Richard Weinberger <richard@nod.at>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        linux-next@vger.kernel.org, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
         linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-block@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-mtd@lists.infradead.org, linux-trace-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-kbuild@vger.kernel.org
-Subject: [PATCH 00/17] -Wmissing-prototype warning fixes
-Date:   Thu, 10 Aug 2023 16:19:18 +0200
-Message-Id: <20230810141947.1236730-1-arnd@kernel.org>
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH 02/17] [RESEND] irq_work: consolidate arch_irq_work_raise prototypes
+Date:   Thu, 10 Aug 2023 16:19:20 +0200
+Message-Id: <20230810141947.1236730-3-arnd@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230810141947.1236730-1-arnd@kernel.org>
+References: <20230810141947.1236730-1-arnd@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -93,170 +73,122 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-Most of the patches I sent so far for the -Wmissing-prototype warnings
-have made it into linux-next now. There are a few that I'm resending
-now as nobody has picked them up, and then a number of fixes that I
-found while test-building across all architectures rather than just the
-ones I usually test.
+The prototype was hidden on x86, which causes a warning:
 
-The first 15 patches in this series should be uncontroversial, so
-I expect that either a subsystem maintainer or Andrew Morton can
-apply these directly.
+kernel/irq_work.c:72:13: error: no previous prototype for 'arch_irq_work_raise' [-Werror=missing-prototypes]
 
-For the last two patches, these might still need some debate about how
-to handle them. I added a Kconfig option to turn off most of the missing
-prototype warnings in the architectures that nobody has fixed yet,
-see patch 16 for those. The last patch does cause some known warnings
-and likely unknown ones for architectures other than x86 and arm,
-so applying it now will bring new problems, but not applying it also
-means that new warnings creep in, so I think this is mainly a question
-of what the best timing is for having this in linux-next.
+Fix this by providing it in only one place that is always visible.
 
-Arnd Bergmann (17):
-  [RESEND] jffs2: mark __jffs2_dbg_superblock_counts() static
-  [RESEND] irq_work: consolidate arch_irq_work_raise prototypes
-  [RESEND] ida: make 'ida_dump' static
-  pci: sysfs: move declarations to linux/pci.h
-  swim3: mark swim3_init() static
-  macintosh/ams: mark ams_init() static
-  scsi: qlogicpti: mark qlogicpti_info() static
-  microblaze: mark flush_dcache_folio() inline
-  parport: gsc: mark init function static
-  zorro: include zorro.h in names.c
-  scsi: gvp11: remove unused gvp11_setup() function
-  time: make sysfs_get_uname() function visible in header
-  stackleak: add declarations for global functions
-  kprobes: unify kprobes_exceptions_nofify() prototypes
-  arch: fix asm-offsets.c building with -Wmissing-prototypes
-  [RFC] arch: turn -Wmissing-prototypes off conditionally
-  [RFC] Makefile.extrawarn: turn on missing-prototypes again
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+Acked-by: Guo Ren <guoren@kernel.org>
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/arm/include/asm/irq_work.h     | 2 --
+ arch/arm64/include/asm/irq_work.h   | 2 --
+ arch/csky/include/asm/irq_work.h    | 2 +-
+ arch/powerpc/include/asm/irq_work.h | 1 -
+ arch/riscv/include/asm/irq_work.h   | 2 +-
+ arch/s390/include/asm/irq_work.h    | 2 --
+ arch/x86/include/asm/irq_work.h     | 1 -
+ include/linux/irq_work.h            | 3 +++
+ 8 files changed, 5 insertions(+), 10 deletions(-)
 
- arch/alpha/Kbuild                        |  2 ++
- arch/alpha/include/asm/pci.h             |  3 ---
- arch/alpha/kernel/asm-offsets.c          |  2 +-
- arch/alpha/lib/Makefile                  |  1 +
- arch/arc/Kbuild                          |  2 ++
- arch/arc/include/asm/kprobes.h           |  3 ---
- arch/arm/include/asm/irq_work.h          |  2 --
- arch/arm/include/asm/kprobes.h           |  2 --
- arch/arm64/include/asm/irq_work.h        |  2 --
- arch/arm64/include/asm/kprobes.h         |  2 --
- arch/csky/Kbuild                         |  2 ++
- arch/csky/include/asm/irq_work.h         |  2 +-
- arch/hexagon/Kbuild                      |  2 ++
- arch/ia64/Kbuild                         |  2 ++
- arch/ia64/include/asm/kprobes.h          |  2 --
- arch/ia64/kernel/asm-offsets.c           |  2 +-
- arch/ia64/lib/Makefile                   |  1 +
- arch/loongarch/Kbuild                    |  2 ++
- arch/loongarch/kernel/asm-offsets.c      | 12 ++++++++++++
- arch/m68k/Kbuild                         |  2 ++
- arch/m68k/lib/Makefile                   |  1 +
- arch/microblaze/Kbuild                   |  2 ++
- arch/microblaze/include/asm/cacheflush.h |  2 +-
- arch/mips/Kbuild                         |  2 ++
- arch/mips/boot/compressed/Makefile       |  3 ++-
- arch/mips/include/asm/kprobes.h          |  2 --
- arch/nios2/Kbuild                        |  2 ++
- arch/nios2/lib/Makefile                  |  1 +
- arch/openrisc/Kbuild                     |  2 ++
- arch/parisc/Kbuild                       |  2 ++
- arch/parisc/lib/Makefile                 |  1 +
- arch/powerpc/include/asm/irq_work.h      |  1 -
- arch/powerpc/include/asm/kprobes.h       |  2 --
- arch/riscv/include/asm/irq_work.h        |  2 +-
- arch/s390/include/asm/irq_work.h         |  2 --
- arch/s390/include/asm/kprobes.h          |  2 --
- arch/sh/Kbuild                           |  2 ++
- arch/sh/boot/compressed/Makefile         |  1 +
- arch/sh/include/asm/kprobes.h            |  2 --
- arch/sparc/Kbuild                        |  2 ++
- arch/sparc/include/asm/kprobes.h         |  2 --
- arch/sparc/kernel/asm-offsets.c          | 13 ++-----------
- arch/sparc/lib/Makefile                  |  1 +
- arch/sparc/prom/Makefile                 |  1 +
- arch/x86/include/asm/irq_work.h          |  1 -
- arch/x86/include/asm/kprobes.h           |  2 --
- arch/xtensa/Kbuild                       |  2 ++
- arch/xtensa/boot/lib/Makefile            |  2 ++
- drivers/block/swim3.c                    |  2 +-
- drivers/macintosh/ams/ams-core.c         |  2 +-
- drivers/parport/parport_gsc.c            |  2 +-
- drivers/scsi/gvp11.c                     |  5 -----
- drivers/scsi/qlogicpti.c                 |  2 +-
- drivers/zorro/names.c                    |  1 +
- fs/jffs2/debug.c                         |  2 +-
- include/linux/irq_work.h                 |  3 +++
- include/linux/kprobes.h                  |  4 ++++
- include/linux/pci.h                      |  5 +++++
- include/linux/stackleak.h                |  6 ++++++
- init/Kconfig                             | 10 ++++++++++
- kernel/time/tick-internal.h              |  3 ++-
- lib/test_ida.c                           |  2 +-
- scripts/Makefile.extrawarn               |  5 +++--
- 63 files changed, 101 insertions(+), 63 deletions(-)
-
+diff --git a/arch/arm/include/asm/irq_work.h b/arch/arm/include/asm/irq_work.h
+index 3149e4dc1b540..8895999834cc0 100644
+--- a/arch/arm/include/asm/irq_work.h
++++ b/arch/arm/include/asm/irq_work.h
+@@ -9,6 +9,4 @@ static inline bool arch_irq_work_has_interrupt(void)
+ 	return is_smp();
+ }
+ 
+-extern void arch_irq_work_raise(void);
+-
+ #endif /* _ASM_ARM_IRQ_WORK_H */
+diff --git a/arch/arm64/include/asm/irq_work.h b/arch/arm64/include/asm/irq_work.h
+index 81bbfa3a035bd..a1020285ea750 100644
+--- a/arch/arm64/include/asm/irq_work.h
++++ b/arch/arm64/include/asm/irq_work.h
+@@ -2,8 +2,6 @@
+ #ifndef __ASM_IRQ_WORK_H
+ #define __ASM_IRQ_WORK_H
+ 
+-extern void arch_irq_work_raise(void);
+-
+ static inline bool arch_irq_work_has_interrupt(void)
+ {
+ 	return true;
+diff --git a/arch/csky/include/asm/irq_work.h b/arch/csky/include/asm/irq_work.h
+index 33aaf39d6f94f..d39fcc1f5395f 100644
+--- a/arch/csky/include/asm/irq_work.h
++++ b/arch/csky/include/asm/irq_work.h
+@@ -7,5 +7,5 @@ static inline bool arch_irq_work_has_interrupt(void)
+ {
+ 	return true;
+ }
+-extern void arch_irq_work_raise(void);
++
+ #endif /* __ASM_CSKY_IRQ_WORK_H */
+diff --git a/arch/powerpc/include/asm/irq_work.h b/arch/powerpc/include/asm/irq_work.h
+index b8b0be8f1a07e..c6d3078bd8c3b 100644
+--- a/arch/powerpc/include/asm/irq_work.h
++++ b/arch/powerpc/include/asm/irq_work.h
+@@ -6,6 +6,5 @@ static inline bool arch_irq_work_has_interrupt(void)
+ {
+ 	return true;
+ }
+-extern void arch_irq_work_raise(void);
+ 
+ #endif /* _ASM_POWERPC_IRQ_WORK_H */
+diff --git a/arch/riscv/include/asm/irq_work.h b/arch/riscv/include/asm/irq_work.h
+index b53891964ae03..b27a4d64fc6a0 100644
+--- a/arch/riscv/include/asm/irq_work.h
++++ b/arch/riscv/include/asm/irq_work.h
+@@ -6,5 +6,5 @@ static inline bool arch_irq_work_has_interrupt(void)
+ {
+ 	return IS_ENABLED(CONFIG_SMP);
+ }
+-extern void arch_irq_work_raise(void);
++
+ #endif /* _ASM_RISCV_IRQ_WORK_H */
+diff --git a/arch/s390/include/asm/irq_work.h b/arch/s390/include/asm/irq_work.h
+index 603783766d0ab..f00c9f610d5a8 100644
+--- a/arch/s390/include/asm/irq_work.h
++++ b/arch/s390/include/asm/irq_work.h
+@@ -7,6 +7,4 @@ static inline bool arch_irq_work_has_interrupt(void)
+ 	return true;
+ }
+ 
+-void arch_irq_work_raise(void);
+-
+ #endif /* _ASM_S390_IRQ_WORK_H */
+diff --git a/arch/x86/include/asm/irq_work.h b/arch/x86/include/asm/irq_work.h
+index 800ffce0db29e..6b4d36c951655 100644
+--- a/arch/x86/include/asm/irq_work.h
++++ b/arch/x86/include/asm/irq_work.h
+@@ -9,7 +9,6 @@ static inline bool arch_irq_work_has_interrupt(void)
+ {
+ 	return boot_cpu_has(X86_FEATURE_APIC);
+ }
+-extern void arch_irq_work_raise(void);
+ #else
+ static inline bool arch_irq_work_has_interrupt(void)
+ {
+diff --git a/include/linux/irq_work.h b/include/linux/irq_work.h
+index 8cd11a2232605..136f2980cba30 100644
+--- a/include/linux/irq_work.h
++++ b/include/linux/irq_work.h
+@@ -66,6 +66,9 @@ void irq_work_sync(struct irq_work *work);
+ void irq_work_run(void);
+ bool irq_work_needs_cpu(void);
+ void irq_work_single(void *arg);
++
++void arch_irq_work_raise(void);
++
+ #else
+ static inline bool irq_work_needs_cpu(void) { return false; }
+ static inline void irq_work_run(void) { }
 -- 
 2.39.2
-Cc: Matt Turner <mattst88@gmail.com>
-Cc: Vineet Gupta <vgupta@kernel.org>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Guo Ren <guoren@kernel.org>
-Cc: Brian Cain <bcain@quicinc.com>
-Cc: Huacai Chen <chenhuacai@kernel.org>
-Cc: WANG Xuerui <kernel@xen0n.name>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Michal Simek <monstr@monstr.eu>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Dinh Nguyen <dinguyen@kernel.org>
-Cc: Jonas Bonn <jonas@southpole.se>
-Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
-Cc: Stafford Horne <shorne@gmail.com>
-Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc: x86@kernel.org
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Max Filippov <jcmvbkbc@gmail.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: linux-next@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-alpha@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-snps-arc@lists.infradead.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-csky@vger.kernel.org
-Cc: linux-hexagon@vger.kernel.org
-Cc: linux-ia64@vger.kernel.org
-Cc: loongarch@lists.linux.dev
-Cc: linux-m68k@lists.linux-m68k.org
-Cc: linux-mips@vger.kernel.org
-Cc: linux-openrisc@vger.kernel.org
-Cc: linux-parisc@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-riscv@lists.infradead.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-sh@vger.kernel.org
-Cc: sparclinux@vger.kernel.org
-Cc: linux-block@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org
-Cc: linux-mtd@lists.infradead.org
-Cc: linux-trace-kernel@vger.kernel.org
-Cc: linux-pci@vger.kernel.org
-Cc: linux-kbuild@vger.kernel.org
+
