@@ -2,110 +2,124 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4869DC001B0
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Aug 2023 21:56:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E4B3C001B0
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Aug 2023 22:10:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237095AbjHKV4U (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Aug 2023 17:56:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35670 "EHLO
+        id S232230AbjHKWK5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Aug 2023 18:10:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229734AbjHKV4T (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Aug 2023 17:56:19 -0400
-Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7729A271E
-        for <linux-s390@vger.kernel.org>; Fri, 11 Aug 2023 14:56:18 -0700 (PDT)
-Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-586a5ac5c29so28283577b3.1
-        for <linux-s390@vger.kernel.org>; Fri, 11 Aug 2023 14:56:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1691790977; x=1692395777;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=lT6tvtL3J1wO3rO58ecG8VmDi6hvumDUq9zV3VFr4l0=;
-        b=4zR6Gk7b5WgoYYkjgHkbEdMl0Npa1klK7G6HU823mI4KCGMmE2ACU7FKX/Rx7djRWM
-         vPSXX8RvxhZhN5BTdzsj7HLLyaKkJiaR/AWNiekKwSXCI0hZJBgaHMal2R1ulnpyTIKT
-         Z4yV5rrzP91cKJNttjtv59XAZFBbEovwcSq3KhLeb9Mb2QbVPmOgqsddE91asxnnNnAf
-         a2off5mhdEoIqCUh2baX3eqv5OzsUpFVQlJIo9QD/SPpjfqtgJdpld9NHRqSe0Q2xxVu
-         /yST74GcCCA4NGu9cTHbIvHYTjCIAu+QwMK0U1NjBwXQfqopCDiAAHhj97LjOvCLXE6R
-         qnmQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691790977; x=1692395777;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=lT6tvtL3J1wO3rO58ecG8VmDi6hvumDUq9zV3VFr4l0=;
-        b=lvVn8x6try3hIdgthrcusjax+D2JbGbaf0YfGpziq7I+TCEFXeT6QxclzmuV0qmrJB
-         XSgGT/7gVvQiyvrvvdluo0NIoi/Secu6Lz6wWBNa7yjFjwcvS3/AFQpovO7grElfnQA4
-         L+MyRM8q/Ek25W78oRX9iavqAzLbBPheRr+5tutE69LwUIfeHmBrWdzFQ5HRe/FrUodX
-         B4wL5Js6KZY0qda5OKVQsSeM4KQilCq4p1/O0uOAwtgNWJABDvhPcC+PLx6BvNM/Zhnj
-         emoM9415avQu2lbKJW7Al5Ku3H/XjglCQ0STZErXJu1AhwPznLmEkKPdz5cAZ/axG76e
-         oLew==
-X-Gm-Message-State: AOJu0YxaUAZr6MpP86ITZK3m4ioZYOAMx5r04ixzbLJxu0zlPI9EGnQj
-        0CFLd8GeR7Acmt9bz71NyTZQBqKljm5edaM7yA==
-X-Google-Smtp-Source: AGHT+IHeErCF9oRJ+YjqL0nvzOSVKIvENViCdgPR6lX/nLxioPJPIyxxMS3l/0/J8uWK2yZvq5UVWwCZX9DkbYQAPQ==
-X-Received: from jstitt-linux1.c.googlers.com ([fda3:e722:ac3:cc00:2b:ff92:c0a8:23b5])
- (user=justinstitt job=sendgmr) by 2002:a81:b64e:0:b0:589:a5c6:4a8f with SMTP
- id h14-20020a81b64e000000b00589a5c64a8fmr56998ywk.6.1691790977740; Fri, 11
- Aug 2023 14:56:17 -0700 (PDT)
-Date:   Fri, 11 Aug 2023 21:56:15 +0000
-Mime-Version: 1.0
-X-B4-Tracking: v=1; b=H4sIAH6u1mQC/x3MQQqAIBBA0avErBvQzKiuEi3EphwKixEikO6et
- HyL/zMkEqYEY5VB6ObEZyzQdQU+uLgR8lIMjWqM6rVGJz5gMoPCnSTSgUPXL8q21rfWQckuoZW ffznN7/sBkre9I2IAAAA=
-X-Developer-Key: i=justinstitt@google.com; a=ed25519; pk=tC3hNkJQTpNX/gLKxTNQKDmiQl6QjBNCGKJINqAdJsE=
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1691790976; l=1354;
- i=justinstitt@google.com; s=20230717; h=from:subject:message-id;
- bh=BDgTepl8ANjK7Fi3fsCGrvFDBI6wG66OFrFJ5xRKuj8=; b=S/xRL7ar/FEQsFKSEeFdyltpdmxSXJiVn2g8hnPqMJK9IO8SDw/aPXvJH2qtnHOc8yzvexD8g
- bE0kNvLPxekBCOjoY8gK0ym/jwQORc9w0odpV6vX7mocLqzapcpEAmr
-X-Mailer: b4 0.12.3
-Message-ID: <20230811-arch-s390-kernel-v1-1-7edbeeab3809@google.com>
-Subject: [PATCH] s390/ipl: refactor deprecated strncpy
-From:   Justin Stitt <justinstitt@google.com>
-To:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        with ESMTP id S229479AbjHKWK4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Aug 2023 18:10:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17AE81716;
+        Fri, 11 Aug 2023 15:10:54 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AAC5E64B4A;
+        Fri, 11 Aug 2023 22:10:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 188D1C4339A;
+        Fri, 11 Aug 2023 22:10:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1691791853;
+        bh=N8lpigPkvlxlig325fbyaTImOPZkDbDukkfY6bibi4k=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=oiLmKr3SBSdDL3sDxTS6aPUrfhjRbHMUZF5t1SOUvaq+3+t1wq0XHtVHW/E9gzGoy
+         rr6E7qE7ej6FIjvDztI8eibsfJ/e4IJEo/bAZpvDoKnMxs8T4POFrJXLjAtwLLav/M
+         LbuMYV7E3cEB5FJj10iucd1IemgC65zFpBITHVWb+j2peLQRZBCtBwpC73rJIUDt6D
+         tSQVCOLWtq5PiDcILdill9IG1vcqHT1s0BUEkZTCmO8u3vu75xaEtApoTAiQ6pRZlE
+         X252IHBujsr63ckTzbkt2EqYaHLH2N1MSmSiQ/UaoczmaJxm9DaXlIiw5zWSOtOc3a
+         +y86OpqD+SI0g==
+Received: by mail-oo1-f52.google.com with SMTP id 006d021491bc7-56ced49d51aso1572357eaf.1;
+        Fri, 11 Aug 2023 15:10:53 -0700 (PDT)
+X-Gm-Message-State: AOJu0YxGlZvxqDx+fxbWD8T4FW77USEwTrY5Ae94Xd+81BeeGBzlqyHj
+        HPhKvs//saCchXv/eK986uE5enknbmOHcHs6vxE=
+X-Google-Smtp-Source: AGHT+IGn1gQn4CG7x4Y66qfsYEz2RYlI/GdSoTxRIWymQmm7uMPiGClKZum+y67wV7ik5jOQYxKVmHuCQntmPwL9x1A=
+X-Received: by 2002:a4a:240c:0:b0:564:e465:5d5c with SMTP id
+ m12-20020a4a240c000000b00564e4655d5cmr2107496oof.2.1691791852125; Fri, 11 Aug
+ 2023 15:10:52 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230810141947.1236730-1-arnd@kernel.org> <20230810141947.1236730-3-arnd@kernel.org>
+In-Reply-To: <20230810141947.1236730-3-arnd@kernel.org>
+From:   Masahiro Yamada <masahiroy@kernel.org>
+Date:   Sat, 12 Aug 2023 07:10:15 +0900
+X-Gmail-Original-Message-ID: <CAK7LNAQo5hri-9JmS_kot1mQ6WHCWAeu+SnW19daWMC1YK5BWA@mail.gmail.com>
+Message-ID: <CAK7LNAQo5hri-9JmS_kot1mQ6WHCWAeu+SnW19daWMC1YK5BWA@mail.gmail.com>
+Subject: Re: [PATCH 02/17] [RESEND] irq_work: consolidate arch_irq_work_raise prototypes
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Guo Ren <guoren@kernel.org>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Will Deacon <will@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
-        linux-hardening@vger.kernel.org,
-        Justin Stitt <justinstitt@google.com>
-Content-Type: text/plain; charset="utf-8"
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-`strncpy` is deprecated for use on NUL-terminated destination strings [1].
+On Fri, Aug 11, 2023 at 10:00=E2=80=AFAM Arnd Bergmann <arnd@kernel.org> wr=
+ote:
+>
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> The prototype was hidden on x86, which causes a warning:
 
-Use `strscpy_pad` which has the same behavior as `strncpy` here with the
-extra safeguard of guaranteeing NUL-termination of destination strings.
-In it's current form, this may result in silent truncation if the src
-string has the same size as the destination string.
 
-Link: www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings[1]
-Link: https://github.com/KSPP/linux/issues/90
-Cc: linux-hardening@vger.kernel.org
-Signed-off-by: Justin Stitt <justinstitt@google.com>
----
- arch/s390/kernel/ipl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+What do you mean by "hidden on x86"?
 
-diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
-index 85a00d97a314..a6dcf6f28197 100644
---- a/arch/s390/kernel/ipl.c
-+++ b/arch/s390/kernel/ipl.c
-@@ -266,7 +266,7 @@ static ssize_t sys_##_prefix##_##_name##_store(struct kobject *kobj,	\
- 		struct kobj_attribute *attr,				\
- 		const char *buf, size_t len)				\
- {									\
--	strncpy(_value, buf, sizeof(_value) - 1);			\
-+	strscpy_pad(_value, buf, sizeof(_value));			\
- 	strim(_value);							\
- 	return len;							\
- }									\
+arch_irq_work_raise() was declared on 7 architectures,
+including x86.
 
----
-base-commit: 52a93d39b17dc7eb98b6aa3edb93943248e03b2f
-change-id: 20230811-arch-s390-kernel-968d0545c45a
 
-Best regards,
+
+
+>
+> kernel/irq_work.c:72:13: error: no previous prototype for 'arch_irq_work_=
+raise' [-Werror=3Dmissing-prototypes]
+>
+> Fix this by providing it in only one place that is always visible.
+>
+> Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+> Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+> Acked-by: Guo Ren <guoren@kernel.org>
+> Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  arch/arm/include/asm/irq_work.h     | 2 --
+>  arch/arm64/include/asm/irq_work.h   | 2 --
+>  arch/csky/include/asm/irq_work.h    | 2 +-
+>  arch/powerpc/include/asm/irq_work.h | 1 -
+>  arch/riscv/include/asm/irq_work.h   | 2 +-
+>  arch/s390/include/asm/irq_work.h    | 2 --
+>  arch/x86/include/asm/irq_work.h     | 1 -
+>  include/linux/irq_work.h            | 3 +++
+>  8 files changed, 5 insertions(+), 10 deletions(-)
+>
+
+
 --
-Justin Stitt <justinstitt@google.com>
-
+Best Regards
+Masahiro Yamada
