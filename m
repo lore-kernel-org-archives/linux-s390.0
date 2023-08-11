@@ -2,175 +2,106 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34BABC04FE2
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Aug 2023 11:05:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C52EC001DB
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Aug 2023 11:30:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235648AbjHKLFL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Aug 2023 07:05:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50524 "EHLO
+        id S235907AbjHKL37 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Aug 2023 07:29:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235518AbjHKLFJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Aug 2023 07:05:09 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54F2210C0;
-        Fri, 11 Aug 2023 04:05:06 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 554E921867;
-        Fri, 11 Aug 2023 11:05:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1691751905; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=5tRGa7YNpy5azfO2DILJGaxnHQqIrHRIuX4HPJpenrQ=;
-        b=nS0o04Ko2eofWDhOvWx6o3T36EV25HqbUFvkN9WMKumyZo3DU5IiWgMskXfjyH4OXEiKYl
-        IITYxvL5Q8pMKkFc8O6biwC3K3TxmcmnzVR3W1NQhsfgztirbY49kzZoor0HytOQKCBlyL
-        GV3cB78+BIPaD5P0M4y2xB0Q495MkAo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1691751905;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=5tRGa7YNpy5azfO2DILJGaxnHQqIrHRIuX4HPJpenrQ=;
-        b=PRu3LFGsOROMaty7jNH51X1wMClD6ZMlY5AdbxYnc0QwtMHxNWZ8s/wVfL1uImLDOQT/Rl
-        cDHfO/YvLXNV1tAw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 40B5313592;
-        Fri, 11 Aug 2023 11:05:05 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id kdy/D+EV1mQuRQAAMHmgww
-        (envelope-from <jack@suse.cz>); Fri, 11 Aug 2023 11:05:05 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id B94BAA076F; Fri, 11 Aug 2023 13:05:04 +0200 (CEST)
-From:   Jan Kara <jack@suse.cz>
-To:     <linux-fsdevel@vger.kernel.org>
-Cc:     <linux-block@vger.kernel.org>,
-        Christoph Hellwig <hch@infradead.org>, Jan Kara <jack@suse.cz>,
-        Alasdair Kergon <agk@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Anna Schumaker <anna@kernel.org>, Chao Yu <chao@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Dave Kleikamp <shaggy@kernel.org>,
-        David Sterba <dsterba@suse.com>, dm-devel@redhat.com,
-        drbd-dev@lists.linbit.com, Gao Xiang <xiang@kernel.org>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        jfs-discussion@lists.sourceforge.net,
-        Joern Engel <joern@lazybastard.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        linux-bcache@vger.kernel.org, linux-btrfs@vger.kernel.org,
-        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net, linux-mm@kvack.org,
-        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
-        linux-nilfs@vger.kernel.org, linux-nvme@lists.infradead.org,
-        linux-pm@vger.kernel.org, linux-raid@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-xfs@vger.kernel.org,
-        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
-        Mike Snitzer <snitzer@kernel.org>,
-        Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com,
-        reiserfs-devel@vger.kernel.org,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Song Liu <song@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        target-devel@vger.kernel.org, Ted Tso <tytso@mit.edu>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        xen-devel@lists.xenproject.org
-Subject: [PATCH v2 0/29] block: Make blkdev_get_by_*() return handle
-Date:   Fri, 11 Aug 2023 13:04:31 +0200
-Message-Id: <20230810171429.31759-1-jack@suse.cz>
-X-Mailer: git-send-email 2.35.3
+        with ESMTP id S233506AbjHKL37 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Aug 2023 07:29:59 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A976E64;
+        Fri, 11 Aug 2023 04:29:58 -0700 (PDT)
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37BBSWvP014101;
+        Fri, 11 Aug 2023 11:29:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=oovwbOe3YxysVBN2CU5Se6/QCcsjf2rFHI4JDDIXwWo=;
+ b=CASHy4VpSQpzhkj9m19phsS9LFtN8NLOtcLs6Ar4KAiB2ieyGQLBpyP3Fg3LE9ozbpgx
+ 70RPYtZIKou5ScK+dSKTYT0B7TPk+v2QGAcow3wAMC5qj5yxHSh+ocacGrosuBV0Ltn5
+ kO0wWeFcuBO27TL2GtOnSzfB4jzOcg0I3p38hG+bL9ZAgS2/FVOG2hPtsAz2y32TPsWV
+ aaRlPcbR8Lv/OD62q/HUFRq1F4bMEUAUS+SPP9g+Rx4prork9Rm0i5+lEce04oXWjXV/
+ mF5H+WjD3E5DY8iQFSh0dQvorluJaetpqldhzl5/wWpgCYjQn97oUrNM8AO5VRZZ3MTO uQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sdm56g0g8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 11 Aug 2023 11:29:58 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37BBTvAj017012;
+        Fri, 11 Aug 2023 11:29:57 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sdm56g0g4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 11 Aug 2023 11:29:57 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37B9rKUI007606;
+        Fri, 11 Aug 2023 11:29:56 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3sa1502mwe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 11 Aug 2023 11:29:53 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37BBToJ562652726
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 11 Aug 2023 11:29:50 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 477BC2004F;
+        Fri, 11 Aug 2023 11:29:50 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E58DF2004E;
+        Fri, 11 Aug 2023 11:29:49 +0000 (GMT)
+Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 11 Aug 2023 11:29:49 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
+        nsg@linux.ibm.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v1] s390x: spec_ex: load full register
+Date:   Fri, 11 Aug 2023 13:29:36 +0200
+Message-ID: <20230811112949.888903-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3218; i=jack@suse.cz; h=from:subject:message-id; bh=8um6o7br1koHMcykRc7ml18Y2BSCm69vwpPmgjRXxkk=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBk1hW86qklK68Z0G139b8b61UzO/oV2Y6qvJg1uvDC +JKlEZuJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCZNYVvAAKCRCcnaoHP2RA2epoB/ 9Sgdf//aomv8tBKGEg1kRzItWS+CXbN/cjy5B6uL3IUWhEY6vxFg7DsN+znMmPFPOp7X1w/e2PExiA dGNvKiX2BNUyl6ZLFstCZUiXyzlig8pnDHrmrN4lbx3SIS3BHdNJ8igPArMWVDYXlZuosexzFn3fIW ELsTpVpNLZdp6BAxZg4925E1qscyN11eFDJecvW+IrpMA1nHR12Y/AX4zqXWcBT8MPUEiJD1Cnfxfa Leji+h3vOG0k2IQAyfN6R1cj/0POs0zJWvSVK9bZM8IYFIOHr+jpYHi0KEVh62q6NLoQxbMBVEzn9K JsmkBplP7UobjvtEWvfH0EwVENii9z
-X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: makIMKgjNYGLz1Mpl6YyRBUExFlvCMbi
+X-Proofpoint-ORIG-GUID: Fvr5o6LZoEAHwe4Fvi-Rkqxqwv1BFlLl
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-08-11_02,2023-08-10_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ clxscore=1015 phishscore=0 mlxlogscore=999 malwarescore=0 adultscore=0
+ impostorscore=0 priorityscore=1501 lowpriorityscore=0 spamscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2308110101
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello,
+There may be contents left in the upper 32 bits of executed_addr; hence
+we should use a 64-bit load to make sure they are overwritten.
 
-this is a v2 of the patch series which implements the idea of blkdev_get_by_*()
-calls returning bdev_handle which is then passed to blkdev_put() [1]. This
-makes the get and put calls for bdevs more obviously matching and allows us to
-propagate context from get to put without having to modify all the users
-(again!).  In particular I need to propagate used open flags to blkdev_put() to
-be able count writeable opens and add support for blocking writes to mounted
-block devices. I'll send that series separately.
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+---
+ s390x/spec_ex.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-The series is based on Christian's vfs tree as of yesterday as there is quite
-some overlap. Patches have passed some reasonable testing - I've tested block
-changes, md, dm, bcache, xfs, btrfs, ext4, swap. This obviously doesn't cover
-everything so I'd like to ask respective maintainers to review / test their
-changes. Thanks! I've pushed out the full branch to:
+diff --git a/s390x/spec_ex.c b/s390x/spec_ex.c
+index e3dd85dcb153..72b942576369 100644
+--- a/s390x/spec_ex.c
++++ b/s390x/spec_ex.c
+@@ -142,7 +142,7 @@ static int psw_odd_address(void)
+ 		"	larl	%%r1,0f\n"
+ 		"	stg	%%r1,%[fixup_addr]\n"
+ 		"	lpswe	%[odd_psw]\n"
+-		"0:	lr	%[executed_addr],%%r0\n"
++		"0:	lgr	%[executed_addr],%%r0\n"
+ 	: [fixup_addr] "=&T" (fixup_psw.addr),
+ 	  [executed_addr] "=d" (executed_addr)
+ 	: [odd_psw] "Q" (odd)
+-- 
+2.41.0
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jack/linux-fs.git bdev_handle
-
-to ease review / testing.
-
-Changes since v1:
-* Rebased on top of current vfs tree
-* Renamed final functions to bdev_open_by_*() and bdev_release()
-* Fixed detection of exclusive open in blkdev_ioctl() and blkdev_fallocate()
-* Fixed swap conversion to properly reinitialize swap_info->bdev_handle
-* Fixed xfs conversion to not oops with rtdev without logdev
-* Couple other minor fixups
-
-								Honza
-
-[1] https://lore.kernel.org/all/ZJGNsVDhZx0Xgs2H@infradead.org
-
-CC: Alasdair Kergon <agk@redhat.com>
-CC: Andrew Morton <akpm@linux-foundation.org>
-CC: Anna Schumaker <anna@kernel.org>
-CC: Chao Yu <chao@kernel.org>
-CC: Christian Borntraeger <borntraeger@linux.ibm.com>
-CC: Coly Li <colyli@suse.de
-CC: "Darrick J. Wong" <djwong@kernel.org>
-CC: Dave Kleikamp <shaggy@kernel.org>
-CC: David Sterba <dsterba@suse.com>
-CC: dm-devel@redhat.com
-CC: drbd-dev@lists.linbit.com
-CC: Gao Xiang <xiang@kernel.org>
-CC: Jack Wang <jinpu.wang@ionos.com>
-CC: Jaegeuk Kim <jaegeuk@kernel.org>
-CC: jfs-discussion@lists.sourceforge.net
-CC: Joern Engel <joern@lazybastard.org>
-CC: Joseph Qi <joseph.qi@linux.alibaba.com>
-CC: Kent Overstreet <kent.overstreet@gmail.com>
-CC: linux-bcache@vger.kernel.org
-CC: linux-btrfs@vger.kernel.org
-CC: linux-erofs@lists.ozlabs.org
-CC: <linux-ext4@vger.kernel.org>
-CC: linux-f2fs-devel@lists.sourceforge.net
-CC: linux-mm@kvack.org
-CC: linux-mtd@lists.infradead.org
-CC: linux-nfs@vger.kernel.org
-CC: linux-nilfs@vger.kernel.org
-CC: linux-nvme@lists.infradead.org
-CC: linux-pm@vger.kernel.org
-CC: linux-raid@vger.kernel.org
-CC: linux-s390@vger.kernel.org
-CC: linux-scsi@vger.kernel.org
-CC: linux-xfs@vger.kernel.org
-CC: "Md. Haris Iqbal" <haris.iqbal@ionos.com>
-CC: Mike Snitzer <snitzer@kernel.org>
-CC: Minchan Kim <minchan@kernel.org>
-CC: ocfs2-devel@oss.oracle.com
-CC: reiserfs-devel@vger.kernel.org
-CC: Sergey Senozhatsky <senozhatsky@chromium.org>
-CC: Song Liu <song@kernel.org>
-CC: Sven Schnelle <svens@linux.ibm.com>
-CC: target-devel@vger.kernel.org
-CC: Ted Tso <tytso@mit.edu>
-CC: Trond Myklebust <trond.myklebust@hammerspace.com>
-CC: xen-devel@lists.xenproject.org
-
-Previous versions:
-Link: http://lore.kernel.org/r/20230629165206.383-1-jack@suse.cz # v1
