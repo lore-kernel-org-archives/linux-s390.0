@@ -2,53 +2,53 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DE04C001DB
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Aug 2023 13:58:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6BEBC001DE
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Aug 2023 14:06:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229592AbjHKN6d (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Aug 2023 09:58:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46770 "EHLO
+        id S231476AbjHKOGk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Aug 2023 10:06:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233777AbjHKN6c (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Aug 2023 09:58:32 -0400
-Received: from mail-qv1-xf31.google.com (mail-qv1-xf31.google.com [IPv6:2607:f8b0:4864:20::f31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04C65E65
-        for <linux-s390@vger.kernel.org>; Fri, 11 Aug 2023 06:58:32 -0700 (PDT)
-Received: by mail-qv1-xf31.google.com with SMTP id 6a1803df08f44-6430bf73e1cso2259656d6.0
-        for <linux-s390@vger.kernel.org>; Fri, 11 Aug 2023 06:58:31 -0700 (PDT)
+        with ESMTP id S230217AbjHKOGk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Aug 2023 10:06:40 -0400
+Received: from mail-qk1-x730.google.com (mail-qk1-x730.google.com [IPv6:2607:f8b0:4864:20::730])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 227571994
+        for <linux-s390@vger.kernel.org>; Fri, 11 Aug 2023 07:06:39 -0700 (PDT)
+Received: by mail-qk1-x730.google.com with SMTP id af79cd13be357-765ae938b1bso156074185a.0
+        for <linux-s390@vger.kernel.org>; Fri, 11 Aug 2023 07:06:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=toxicpanda-com.20221208.gappssmtp.com; s=20221208; t=1691762311; x=1692367111;
+        d=toxicpanda-com.20221208.gappssmtp.com; s=20221208; t=1691762798; x=1692367598;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=MOzDCd04VE0SULfz9lrhi4705BMAE/fYR5J/4qqrUV0=;
-        b=cawaK5Dp6mIWutTITZ4bH4giSOQALDe36gSCfFbV5uiC/RHKJZp5HzGDkOrEWlLKSl
-         47FJHJJzARLEFPuhrTquTWztAtcgaetrdOtVMCpGGKDb8ZDOM3TcW+/B4jbqCWZgpIBL
-         7FgVwbAl4g2q+Yppa4fdCLiL5hOZyH9umaOc4Zv9u7DsfBCQEusJSHhmHwC9ktII82P1
-         YDprV1R9yEHGWV9R9C166iUiKVa7qyTMf/q1R+5/Z6uzw06c3rLstWTlGCmg4dUurxo1
-         +hKBeGi9BMuCbni1Yvc5RfzpHF+8embJvUf+R8j/PCzCh8OPE+DiyYc3UYNuMFKzz8P6
-         fXFA==
+        bh=1LaTqs7ZBDewPUU56wdQ2mZ0WG5gFPridMnasGRU3TE=;
+        b=oSK6H2f1VoLGhkFVBFahTNmiaSz+9ddjuI7eviPMvJ23ReEL68H3nocV28Z1XOeaYw
+         E73p5yUm11yWzBWpXQ6b4KnJaRAGrmcuc3w0c4ulQ7ajDCuO7ry7m2W0MxIn6umjJ6bA
+         umyQzzYTxKp/XHJAzkuzeYwZbvT6dwi5uiJ+4yaRNI4NYJkeJY+aXqkHrUKeF+YN1ou8
+         AWC/NjpndTfNBg3L+YFGahuwqzvKVLB0c9+7+4j0WxrHKwKwhbMb81PY8j0+xMqRZuHM
+         LQjwHspSoiBllinG6/eikDj+TIYrWBESVX4oxvc3KBX4S809bt0wZhm/6JXT6vikdyIz
+         HGSw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691762311; x=1692367111;
+        d=1e100.net; s=20221208; t=1691762798; x=1692367598;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=MOzDCd04VE0SULfz9lrhi4705BMAE/fYR5J/4qqrUV0=;
-        b=LA33iIw+UMtYe2cTV1pR8AuwR7t6rT+8b6T7Xi9ehMRsHQUWbPMj15ff4fLz0HqjCZ
-         MBmd9dqQz9MjyAIZIO74mnpyPTxoGYOtASzrGOQ+//uwhPsDYJFS3rhI29ViKxGRVzgN
-         OPDxuzyhnL/lGzxAWBgvgLLPL0f4oB7EvaCcoQ9r8PhEomaW3/HPGFa9DR813JiAsk3L
-         4J4y7n+hcyEgC8Kzx6YsYGotrnqaAIvrjfJFnUpeFQ0Z1+bVeTnnIZDBlYySGCFp4+Fm
-         kAOAFPxx9HyZp58JLy6DjeVJUK3/U08LRYvvYzcjNje1hfDOE67LJq8trfOlUZNiC0CT
-         I8iA==
-X-Gm-Message-State: AOJu0Yyhlo3wmWJ/rduK3mF2Bf2MOiZDX8d+LznGSVBOtKD+HJ17cUyg
-        WjPaCSbCwPZFHOyDx6cWapoQgg==
-X-Google-Smtp-Source: AGHT+IGVzn498qbFNettmingI72J3rVK4joYT9qIyHhVAUq+7mWAeEKyf6BHcV179iCeBXifA9QbpQ==
-X-Received: by 2002:a0c:e14c:0:b0:63d:f8d:102f with SMTP id c12-20020a0ce14c000000b0063d0f8d102fmr1711178qvl.18.1691762311058;
-        Fri, 11 Aug 2023 06:58:31 -0700 (PDT)
+        bh=1LaTqs7ZBDewPUU56wdQ2mZ0WG5gFPridMnasGRU3TE=;
+        b=WwteSRyj4LNI5huoIW881cmiFZdHE92kZL3nuWbYcijqvBegWMiJmVrNvUFm+DMY+U
+         RvGdA+MIyibdB99+gVqSsF3UOiSZ27HoN1VHpol82XVxUxiuj0uOpXZJjNoAb6WRwhLw
+         qnWv+jz1Kbl4gZoVeXo7bquPCbfuJUMDuDzORDoNSeUFKPEobvLX+yFIaHXwgzBpjK91
+         5VgfU3XtG4TvH0LJo7eSO/+ecORHD0gH/rl4hJj8FFqIoOPMUxEu6+JpwU5CkFhJOqD+
+         6ggJVRty+VS3daf6CYT734E71xdh6itz6dWHzLmCTIJ9onE3/WlHBSlfJYUPt+JIfatf
+         2CjQ==
+X-Gm-Message-State: AOJu0YwIYfe5xdmpL9hf5NE64yOynHpHXDppHjcgDQMCkMjAenoQnqUo
+        9tkYFUZMPrrpdTgmYtZRZvXrwA==
+X-Google-Smtp-Source: AGHT+IHQZCuZ3R57Hm5e/nQz9l3ao+mbtKSvreuooOPx+q/w0ud5TQ0ygRS57Q8Om4iNn3D4C5VUdQ==
+X-Received: by 2002:a05:620a:f13:b0:76a:eee2:cd09 with SMTP id v19-20020a05620a0f1300b0076aeee2cd09mr2216785qkl.9.1691762798225;
+        Fri, 11 Aug 2023 07:06:38 -0700 (PDT)
 Received: from localhost (cpe-76-182-20-124.nc.res.rr.com. [76.182.20.124])
-        by smtp.gmail.com with ESMTPSA id y22-20020a37e316000000b00767dcf6f4adsm1191525qki.51.2023.08.11.06.58.29
+        by smtp.gmail.com with ESMTPSA id m14-20020ae9e70e000000b0076c7f3dd32csm1205342qka.100.2023.08.11.07.06.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Aug 2023 06:58:29 -0700 (PDT)
-Date:   Fri, 11 Aug 2023 09:58:28 -0400
+        Fri, 11 Aug 2023 07:06:37 -0700 (PDT)
+Date:   Fri, 11 Aug 2023 10:06:36 -0400
 From:   Josef Bacik <josef@toxicpanda.com>
 To:     Christoph Hellwig <hch@lst.de>
 Cc:     Al Viro <viro@zeniv.linux.org.uk>,
@@ -64,54 +64,105 @@ Cc:     Al Viro <viro@zeniv.linux.org.uk>,
         David Sterba <dsterba@suse.com>, linux-block@vger.kernel.org,
         nbd@other.debian.org, linux-s390@vger.kernel.org,
         linux-btrfs@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: remove get_super
-Message-ID: <20230811135828.GA2724906@perftesting>
+Subject: Re: [PATCH 15/17] block: call into the file system for ioctl
+ BLKFLSBUF
+Message-ID: <20230811140636.GB2724906@perftesting>
 References: <20230811100828.1897174-1-hch@lst.de>
+ <20230811100828.1897174-16-hch@lst.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230811100828.1897174-1-hch@lst.de>
+In-Reply-To: <20230811100828.1897174-16-hch@lst.de>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Aug 11, 2023 at 12:08:11PM +0200, Christoph Hellwig wrote:
-> Hi all,
+On Fri, Aug 11, 2023 at 12:08:26PM +0200, Christoph Hellwig wrote:
+> BLKFLSBUF is a historic ioctl that is called on a file handle to a
+> block device and syncs either the file system mounted on that block
+> device if there is one, or otherwise the just the data on the block
+> device.
 > 
-> this series against the VFS vfs.super branch finishes off the work to remove
-> get_super and move (almost) all upcalls to use the holder ops.
+> Replace the get_super based syncing with a holder operation to remove
+> the last usage of get_super, and to also support syncing the file system
+> if the block device is not the main block device stored in s_dev.
 > 
-> The first part is the missing btrfs bits so that all file systems use the
-> super_block as holder.
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  block/bdev.c           | 16 ----------------
+>  block/ioctl.c          |  9 ++++++++-
+>  fs/super.c             | 13 +++++++++++++
+>  include/linux/blkdev.h |  7 +++++--
+>  4 files changed, 26 insertions(+), 19 deletions(-)
 > 
-> The second part is various block driver cleanups so that we use proper
-> interfaces instead of raw calls to __invalidate_device and fsync_bdev.
-> 
-> The last part than replaces __invalidate_device and fsync_bdev with upcalls
-> to the file system through the holder ops, and finally removes get_super.
-> 
-> It leaves user_get_super and get_active_super around.  The former is not
-> used for upcalls in the traditional sense, but for legacy UAPI that for
-> some weird reason take a dev_t argument (ustat) or a block device path
-> (quotactl).  get_active_super is only used for calling into the file system
-> on freeze and should get a similar treatment, but given that Darrick has
-> changes to that code queued up already this will be handled in the next
-> merge window.
-> 
-> A git tree is available here:
-> 
->     git://git.infradead.org/users/hch/misc.git remove-get_super
-> 
-> Gitweb:
-> 
->     http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/remove-get_super
-> 
+> diff --git a/block/bdev.c b/block/bdev.c
+> index 658d5dd62cac0a..2a035be7f3ee90 100644
+> --- a/block/bdev.c
+> +++ b/block/bdev.c
+> @@ -206,22 +206,6 @@ int sync_blockdev_range(struct block_device *bdev, loff_t lstart, loff_t lend)
+>  }
+>  EXPORT_SYMBOL(sync_blockdev_range);
+>  
+> -/*
+> - * Write out and wait upon all dirty data associated with this
+> - * device.   Filesystem data as well as the underlying block
+> - * device.  Takes the superblock lock.
+> - */
+> -int fsync_bdev(struct block_device *bdev)
+> -{
+> -	struct super_block *sb = get_super(bdev);
+> -	if (sb) {
+> -		int res = sync_filesystem(sb);
+> -		drop_super(sb);
+> -		return res;
+> -	}
+> -	return sync_blockdev(bdev);
+> -}
+> -
+>  /**
+>   * freeze_bdev - lock a filesystem and force it into a consistent state
+>   * @bdev:	blockdevice to lock
+> diff --git a/block/ioctl.c b/block/ioctl.c
+> index 3be11941fb2ddc..648670ddb164a0 100644
+> --- a/block/ioctl.c
+> +++ b/block/ioctl.c
+> @@ -364,7 +364,14 @@ static int blkdev_flushbuf(struct block_device *bdev, unsigned cmd,
+>  {
+>  	if (!capable(CAP_SYS_ADMIN))
+>  		return -EACCES;
+> -	fsync_bdev(bdev);
+> +
+> +	mutex_lock(&bdev->bd_holder_lock);
+> +	if (bdev->bd_holder_ops && bdev->bd_holder_ops->sync)
+> +		bdev->bd_holder_ops->sync(bdev);
+> +	else
+> +		sync_blockdev(bdev);
+> +	mutex_unlock(&bdev->bd_holder_lock);
+> +
+>  	invalidate_bdev(bdev);
+>  	return 0;
+>  }
+> diff --git a/fs/super.c b/fs/super.c
+> index 94d41040584f7b..714dbae58b5e8e 100644
+> --- a/fs/super.c
+> +++ b/fs/super.c
+> @@ -1248,8 +1248,21 @@ static void fs_bdev_mark_dead(struct block_device *bdev, bool surprise)
+>  	up_read(&sb->s_umount);
+>  }
+>  
+> +static void fs_bdev_sync(struct block_device *bdev)
+> +{
+> +	struct super_block *sb = bdev->bd_holder;
+> +
+> +	lockdep_assert_held(&bdev->bd_holder_lock);
+> +
+> +	if (!lock_active_super(sb))
+> +		return;
+> +	sync_filesystem(sb);
+> +	up_read(&sb->s_umount);
+> +}
+> + 
 
-I rebased this onto misc-next and put in a PR to get it running through the GH
-CI, you can follow it here
-
-https://github.com/btrfs/linux/actions/runs/5833422266
-
-In the meantime I'll start reviewing the patches.  Thanks,
+Whitespace error.  Thanks,
 
 Josef
