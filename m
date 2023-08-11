@@ -2,239 +2,175 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7E14C04FDF
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Aug 2023 11:05:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34BABC04FE2
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Aug 2023 11:05:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235549AbjHKLFK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Aug 2023 07:05:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51780 "EHLO
+        id S235648AbjHKLFL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Aug 2023 07:05:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235374AbjHKLFJ (ORCPT
+        with ESMTP id S235518AbjHKLFJ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Aug 2023 07:05:09 -0400
 Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 553F410DE;
-        Fri, 11 Aug 2023 04:05:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54F2210C0;
+        Fri, 11 Aug 2023 04:05:06 -0700 (PDT)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id DC4722187D;
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 554E921867;
         Fri, 11 Aug 2023 11:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
         t=1691751905; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=62K7rmAiQlT4QiIMgUmahyvAENx33WnRwusS+e6awFw=;
-        b=WuD5vrmr3XVc5ZKVXU6zY5Sj6T7x7AAbovLYbdZRYlo4zkKtj5e/PC5sqzL0Jy1dwdnKNd
-        vwcMX2ea8HiOWZ/XQ4VV6hxcWOBjUicu8SN+0VmCJQRtnqy1CxBPBwY4VY5iyqS9yZJMy9
-        BieoyqKkgh46CTDBUJQomtmHOInJGJw=
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=5tRGa7YNpy5azfO2DILJGaxnHQqIrHRIuX4HPJpenrQ=;
+        b=nS0o04Ko2eofWDhOvWx6o3T36EV25HqbUFvkN9WMKumyZo3DU5IiWgMskXfjyH4OXEiKYl
+        IITYxvL5Q8pMKkFc8O6biwC3K3TxmcmnzVR3W1NQhsfgztirbY49kzZoor0HytOQKCBlyL
+        GV3cB78+BIPaD5P0M4y2xB0Q495MkAo=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
         s=susede2_ed25519; t=1691751905;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=62K7rmAiQlT4QiIMgUmahyvAENx33WnRwusS+e6awFw=;
-        b=b47DlquH2y42BUs1Euci8FoHZUSNF39JrvbebZkC90UwuMarbXPt68wJanMAP18jEBUXCK
-        178cJac1+fMd9dDw==
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=5tRGa7YNpy5azfO2DILJGaxnHQqIrHRIuX4HPJpenrQ=;
+        b=PRu3LFGsOROMaty7jNH51X1wMClD6ZMlY5AdbxYnc0QwtMHxNWZ8s/wVfL1uImLDOQT/Rl
+        cDHfO/YvLXNV1tAw==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id CDE9813A95;
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 40B5313592;
         Fri, 11 Aug 2023 11:05:05 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
         by imap2.suse-dmz.suse.de with ESMTPSA
-        id bohBMuEV1mRQRQAAMHmgww
+        id kdy/D+EV1mQuRQAAMHmgww
         (envelope-from <jack@suse.cz>); Fri, 11 Aug 2023 11:05:05 +0000
 Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id 14967A078D; Fri, 11 Aug 2023 13:05:05 +0200 (CEST)
+        id B94BAA076F; Fri, 11 Aug 2023 13:05:04 +0200 (CEST)
 From:   Jan Kara <jack@suse.cz>
 To:     <linux-fsdevel@vger.kernel.org>
 Cc:     <linux-block@vger.kernel.org>,
         Christoph Hellwig <hch@infradead.org>, Jan Kara <jack@suse.cz>,
-        linux-s390@vger.kernel.org,
+        Alasdair Kergon <agk@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anna Schumaker <anna@kernel.org>, Chao Yu <chao@kernel.org>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Subject: [PATCH 14/29] s390/dasd: Convert to bdev_open_by_path()
-Date:   Fri, 11 Aug 2023 13:04:45 +0200
-Message-Id: <20230811110504.27514-14-jack@suse.cz>
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Dave Kleikamp <shaggy@kernel.org>,
+        David Sterba <dsterba@suse.com>, dm-devel@redhat.com,
+        drbd-dev@lists.linbit.com, Gao Xiang <xiang@kernel.org>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        jfs-discussion@lists.sourceforge.net,
+        Joern Engel <joern@lazybastard.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        linux-bcache@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, linux-mm@kvack.org,
+        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
+        linux-nilfs@vger.kernel.org, linux-nvme@lists.infradead.org,
+        linux-pm@vger.kernel.org, linux-raid@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-xfs@vger.kernel.org,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com,
+        reiserfs-devel@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Song Liu <song@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        target-devel@vger.kernel.org, Ted Tso <tytso@mit.edu>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        xen-devel@lists.xenproject.org
+Subject: [PATCH v2 0/29] block: Make blkdev_get_by_*() return handle
+Date:   Fri, 11 Aug 2023 13:04:31 +0200
+Message-Id: <20230810171429.31759-1-jack@suse.cz>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20230810171429.31759-1-jack@suse.cz>
-References: <20230810171429.31759-1-jack@suse.cz>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=6080; i=jack@suse.cz; h=from:subject; bh=0WZHEI2sSL3SXZX4/9rho4Z8TGlkksR/XxY1b45NdMo=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBk1hXPEqbPsRCUjAJyCIIc5SLwP3SUthUfb22xCLNc Td93p/KJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCZNYVzwAKCRCcnaoHP2RA2bgACA Cs2ku6xgO5K/MLN8y3rKpyYxbylHofMZz5gwtrRpxbHXPz0kC9YTkiOs+QQk99UP8ZQ8e1qv3aiVX2 BAshT3HdlrcqZyBtnOppmgz5y7c9gCrdTyCig+ipFHuLJCe/QsNP1tOdZJcO/wZCSO+hfXP0UXT2m0 gbFNebziHdqnuXRp6L8pNZrXvNQKguOHNwXCpblaRbqpHQ1BYyMfZSXh0qHmGGDewCg5sBQY1zYuWk +KO9joJ5X6d76p8iEhQ24NgwMSeoUdPBzWYfZj+p52cvStdP/VUudO5YTaDGWQeGsDI+DJvlpqfW2K dZ/QqQtjO3iAE+P67b5HwcsXTIRIPK
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3218; i=jack@suse.cz; h=from:subject:message-id; bh=8um6o7br1koHMcykRc7ml18Y2BSCm69vwpPmgjRXxkk=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBk1hW86qklK68Z0G139b8b61UzO/oV2Y6qvJg1uvDC +JKlEZuJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCZNYVvAAKCRCcnaoHP2RA2epoB/ 9Sgdf//aomv8tBKGEg1kRzItWS+CXbN/cjy5B6uL3IUWhEY6vxFg7DsN+znMmPFPOp7X1w/e2PExiA dGNvKiX2BNUyl6ZLFstCZUiXyzlig8pnDHrmrN4lbx3SIS3BHdNJ8igPArMWVDYXlZuosexzFn3fIW ELsTpVpNLZdp6BAxZg4925E1qscyN11eFDJecvW+IrpMA1nHR12Y/AX4zqXWcBT8MPUEiJD1Cnfxfa Leji+h3vOG0k2IQAyfN6R1cj/0POs0zJWvSVK9bZM8IYFIOHr+jpYHi0KEVh62q6NLoQxbMBVEzn9K JsmkBplP7UobjvtEWvfH0EwVENii9z
 X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Convert dasd to use bdev_open_by_path() and pass the handle around.
+Hello,
 
-CC: linux-s390@vger.kernel.org
+this is a v2 of the patch series which implements the idea of blkdev_get_by_*()
+calls returning bdev_handle which is then passed to blkdev_put() [1]. This
+makes the get and put calls for bdevs more obviously matching and allows us to
+propagate context from get to put without having to modify all the users
+(again!).  In particular I need to propagate used open flags to blkdev_put() to
+be able count writeable opens and add support for blocking writes to mounted
+block devices. I'll send that series separately.
+
+The series is based on Christian's vfs tree as of yesterday as there is quite
+some overlap. Patches have passed some reasonable testing - I've tested block
+changes, md, dm, bcache, xfs, btrfs, ext4, swap. This obviously doesn't cover
+everything so I'd like to ask respective maintainers to review / test their
+changes. Thanks! I've pushed out the full branch to:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/jack/linux-fs.git bdev_handle
+
+to ease review / testing.
+
+Changes since v1:
+* Rebased on top of current vfs tree
+* Renamed final functions to bdev_open_by_*() and bdev_release()
+* Fixed detection of exclusive open in blkdev_ioctl() and blkdev_fallocate()
+* Fixed swap conversion to properly reinitialize swap_info->bdev_handle
+* Fixed xfs conversion to not oops with rtdev without logdev
+* Couple other minor fixups
+
+								Honza
+
+[1] https://lore.kernel.org/all/ZJGNsVDhZx0Xgs2H@infradead.org
+
+CC: Alasdair Kergon <agk@redhat.com>
+CC: Andrew Morton <akpm@linux-foundation.org>
+CC: Anna Schumaker <anna@kernel.org>
+CC: Chao Yu <chao@kernel.org>
 CC: Christian Borntraeger <borntraeger@linux.ibm.com>
+CC: Coly Li <colyli@suse.de
+CC: "Darrick J. Wong" <djwong@kernel.org>
+CC: Dave Kleikamp <shaggy@kernel.org>
+CC: David Sterba <dsterba@suse.com>
+CC: dm-devel@redhat.com
+CC: drbd-dev@lists.linbit.com
+CC: Gao Xiang <xiang@kernel.org>
+CC: Jack Wang <jinpu.wang@ionos.com>
+CC: Jaegeuk Kim <jaegeuk@kernel.org>
+CC: jfs-discussion@lists.sourceforge.net
+CC: Joern Engel <joern@lazybastard.org>
+CC: Joseph Qi <joseph.qi@linux.alibaba.com>
+CC: Kent Overstreet <kent.overstreet@gmail.com>
+CC: linux-bcache@vger.kernel.org
+CC: linux-btrfs@vger.kernel.org
+CC: linux-erofs@lists.ozlabs.org
+CC: <linux-ext4@vger.kernel.org>
+CC: linux-f2fs-devel@lists.sourceforge.net
+CC: linux-mm@kvack.org
+CC: linux-mtd@lists.infradead.org
+CC: linux-nfs@vger.kernel.org
+CC: linux-nilfs@vger.kernel.org
+CC: linux-nvme@lists.infradead.org
+CC: linux-pm@vger.kernel.org
+CC: linux-raid@vger.kernel.org
+CC: linux-s390@vger.kernel.org
+CC: linux-scsi@vger.kernel.org
+CC: linux-xfs@vger.kernel.org
+CC: "Md. Haris Iqbal" <haris.iqbal@ionos.com>
+CC: Mike Snitzer <snitzer@kernel.org>
+CC: Minchan Kim <minchan@kernel.org>
+CC: ocfs2-devel@oss.oracle.com
+CC: reiserfs-devel@vger.kernel.org
+CC: Sergey Senozhatsky <senozhatsky@chromium.org>
+CC: Song Liu <song@kernel.org>
 CC: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- drivers/s390/block/dasd.c       | 12 +++++----
- drivers/s390/block/dasd_genhd.c | 45 ++++++++++++++++-----------------
- drivers/s390/block/dasd_int.h   |  2 +-
- drivers/s390/block/dasd_ioctl.c |  2 +-
- 4 files changed, 31 insertions(+), 30 deletions(-)
+CC: target-devel@vger.kernel.org
+CC: Ted Tso <tytso@mit.edu>
+CC: Trond Myklebust <trond.myklebust@hammerspace.com>
+CC: xen-devel@lists.xenproject.org
 
-diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index 50a5ff70814a..b12f5719193f 100644
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -412,7 +412,8 @@ dasd_state_ready_to_online(struct dasd_device * device)
- 					KOBJ_CHANGE);
- 			return 0;
- 		}
--		disk_uevent(device->block->bdev->bd_disk, KOBJ_CHANGE);
-+		disk_uevent(device->block->bdev_handle->bdev->bd_disk,
-+			    KOBJ_CHANGE);
- 	}
- 	return 0;
- }
-@@ -432,7 +433,8 @@ static int dasd_state_online_to_ready(struct dasd_device *device)
- 
- 	device->state = DASD_STATE_READY;
- 	if (device->block && !(device->features & DASD_FEATURE_USERAW))
--		disk_uevent(device->block->bdev->bd_disk, KOBJ_CHANGE);
-+		disk_uevent(device->block->bdev_handle->bdev->bd_disk,
-+			    KOBJ_CHANGE);
- 	return 0;
- }
- 
-@@ -3590,7 +3592,7 @@ int dasd_generic_set_offline(struct ccw_device *cdev)
- 	 * in the other openers.
- 	 */
- 	if (device->block) {
--		max_count = device->block->bdev ? 0 : -1;
-+		max_count = device->block->bdev_handle ? 0 : -1;
- 		open_count = atomic_read(&device->block->open_count);
- 		if (open_count > max_count) {
- 			if (open_count > 0)
-@@ -3636,8 +3638,8 @@ int dasd_generic_set_offline(struct ccw_device *cdev)
- 		 * so sync bdev first and then wait for our queues to become
- 		 * empty
- 		 */
--		if (device->block) {
--			rc = fsync_bdev(device->block->bdev);
-+		if (device->block && device->block->bdev_handle) {
-+			rc = fsync_bdev(device->block->bdev_handle->bdev);
- 			if (rc != 0)
- 				goto interrupted;
- 		}
-diff --git a/drivers/s390/block/dasd_genhd.c b/drivers/s390/block/dasd_genhd.c
-index fe5108a1b332..55e3abe94cde 100644
---- a/drivers/s390/block/dasd_genhd.c
-+++ b/drivers/s390/block/dasd_genhd.c
-@@ -127,15 +127,15 @@ void dasd_gendisk_free(struct dasd_block *block)
-  */
- int dasd_scan_partitions(struct dasd_block *block)
- {
--	struct block_device *bdev;
-+	struct bdev_handle *bdev_handle;
- 	int rc;
- 
--	bdev = blkdev_get_by_dev(disk_devt(block->gdp), BLK_OPEN_READ, NULL,
--				 NULL);
--	if (IS_ERR(bdev)) {
-+	bdev_handle = bdev_open_by_dev(disk_devt(block->gdp), BLK_OPEN_READ,
-+				       NULL, NULL);
-+	if (IS_ERR(bdev_handle)) {
- 		DBF_DEV_EVENT(DBF_ERR, block->base,
- 			      "scan partitions error, blkdev_get returned %ld",
--			      PTR_ERR(bdev));
-+			      PTR_ERR(bdev_handle));
- 		return -ENODEV;
- 	}
- 
-@@ -147,16 +147,15 @@ int dasd_scan_partitions(struct dasd_block *block)
- 				"scan partitions error, rc %d", rc);
- 
- 	/*
--	 * Since the matching blkdev_put call to the blkdev_get in
--	 * this function is not called before dasd_destroy_partitions
--	 * the offline open_count limit needs to be increased from
--	 * 0 to 1. This is done by setting device->bdev (see
--	 * dasd_generic_set_offline). As long as the partition
--	 * detection is running no offline should be allowed. That
--	 * is why the assignment to device->bdev is done AFTER
--	 * the BLKRRPART ioctl.
-+	 * Since the matching bdev_release() call to the
-+	 * bdev_open_by_path() in this function is not called before
-+	 * dasd_destroy_partitions the offline open_count limit needs to be
-+	 * increased from 0 to 1. This is done by setting device->bdev_handle
-+	 * (see dasd_generic_set_offline). As long as the partition detection
-+	 * is running no offline should be allowed. That is why the assignment
-+	 * to block->bdev_handle is done AFTER the BLKRRPART ioctl.
- 	 */
--	block->bdev = bdev;
-+	block->bdev_handle = bdev_handle;
- 	return 0;
- }
- 
-@@ -166,21 +165,21 @@ int dasd_scan_partitions(struct dasd_block *block)
-  */
- void dasd_destroy_partitions(struct dasd_block *block)
- {
--	struct block_device *bdev;
-+	struct bdev_handle *bdev_handle;
- 
- 	/*
--	 * Get the bdev pointer from the device structure and clear
--	 * device->bdev to lower the offline open_count limit again.
-+	 * Get the bdev_handle pointer from the device structure and clear
-+	 * device->bdev_handle to lower the offline open_count limit again.
- 	 */
--	bdev = block->bdev;
--	block->bdev = NULL;
-+	bdev_handle = block->bdev_handle;
-+	block->bdev_handle = NULL;
- 
--	mutex_lock(&bdev->bd_disk->open_mutex);
--	bdev_disk_changed(bdev->bd_disk, true);
--	mutex_unlock(&bdev->bd_disk->open_mutex);
-+	mutex_lock(&bdev_handle->bdev->bd_disk->open_mutex);
-+	bdev_disk_changed(bdev_handle->bdev->bd_disk, true);
-+	mutex_unlock(&bdev_handle->bdev->bd_disk->open_mutex);
- 
- 	/* Matching blkdev_put to the blkdev_get in dasd_scan_partitions. */
--	blkdev_put(bdev, NULL);
-+	bdev_release(bdev_handle);
- }
- 
- int dasd_gendisk_init(void)
-diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
-index 0aa56351da72..73c5eb0ae6ad 100644
---- a/drivers/s390/block/dasd_int.h
-+++ b/drivers/s390/block/dasd_int.h
-@@ -646,7 +646,7 @@ struct dasd_block {
- 	struct gendisk *gdp;
- 	spinlock_t request_queue_lock;
- 	struct blk_mq_tag_set tag_set;
--	struct block_device *bdev;
-+	struct bdev_handle *bdev_handle;
- 	atomic_t open_count;
- 
- 	unsigned long blocks;	   /* size of volume in blocks */
-diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
-index d55862605b82..61b9675e2a67 100644
---- a/drivers/s390/block/dasd_ioctl.c
-+++ b/drivers/s390/block/dasd_ioctl.c
-@@ -537,7 +537,7 @@ static int __dasd_ioctl_information(struct dasd_block *block,
- 	 * This must be hidden from user-space.
- 	 */
- 	dasd_info->open_count = atomic_read(&block->open_count);
--	if (!block->bdev)
-+	if (!block->bdev_handle)
- 		dasd_info->open_count++;
- 
- 	/*
--- 
-2.35.3
-
+Previous versions:
+Link: http://lore.kernel.org/r/20230629165206.383-1-jack@suse.cz # v1
