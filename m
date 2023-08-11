@@ -2,117 +2,110 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62F18C0015E
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Aug 2023 19:05:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4869DC001B0
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Aug 2023 21:56:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236476AbjHKTFN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Aug 2023 15:05:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59598 "EHLO
+        id S237095AbjHKV4U (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Aug 2023 17:56:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235819AbjHKTFM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Aug 2023 15:05:12 -0400
-Received: from mail-oi1-x236.google.com (mail-oi1-x236.google.com [IPv6:2607:f8b0:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8883630F9
-        for <linux-s390@vger.kernel.org>; Fri, 11 Aug 2023 12:05:09 -0700 (PDT)
-Received: by mail-oi1-x236.google.com with SMTP id 5614622812f47-3a7e68f4214so677418b6e.1
-        for <linux-s390@vger.kernel.org>; Fri, 11 Aug 2023 12:05:09 -0700 (PDT)
+        with ESMTP id S229734AbjHKV4T (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Aug 2023 17:56:19 -0400
+Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7729A271E
+        for <linux-s390@vger.kernel.org>; Fri, 11 Aug 2023 14:56:18 -0700 (PDT)
+Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-586a5ac5c29so28283577b3.1
+        for <linux-s390@vger.kernel.org>; Fri, 11 Aug 2023 14:56:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=toxicpanda-com.20221208.gappssmtp.com; s=20221208; t=1691780709; x=1692385509;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=pcEsTcn+SuNhkMLUeSCuQ8sXknpybV5WhOTYGeQ66kk=;
-        b=GouqE1wtiSNd2VDPYzSXDYabK6ZZuVqnse+oyaREUTX1vEIHxzw3JXU8sy106O8h8r
-         rnpMw8phgP/YClOZuJjpMco1VT10oqjwDIWzbnqPj70ZD3tbBDpwX+fq6XJEE5wEdOPx
-         QjJuSZO1QAoh4BNFy8v7WmHglWi2fyVQgieSvCJQTYEBX8M94FcVupMdjmii7uzhb1+N
-         PCnDrpK1CBjSjTQ0w8uVH9MNO5gfSijh5Dq6r7W7lb80R+INHNx9oAEhmCjAGmpudAmM
-         G66IhXvfl+SCyy0DzoFwbWTMmlMKJ1K+X6g88co5Ihkmx34/67BiMkqoFGbe8vanNg4T
-         sffw==
+        d=google.com; s=20221208; t=1691790977; x=1692395777;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=lT6tvtL3J1wO3rO58ecG8VmDi6hvumDUq9zV3VFr4l0=;
+        b=4zR6Gk7b5WgoYYkjgHkbEdMl0Npa1klK7G6HU823mI4KCGMmE2ACU7FKX/Rx7djRWM
+         vPSXX8RvxhZhN5BTdzsj7HLLyaKkJiaR/AWNiekKwSXCI0hZJBgaHMal2R1ulnpyTIKT
+         Z4yV5rrzP91cKJNttjtv59XAZFBbEovwcSq3KhLeb9Mb2QbVPmOgqsddE91asxnnNnAf
+         a2off5mhdEoIqCUh2baX3eqv5OzsUpFVQlJIo9QD/SPpjfqtgJdpld9NHRqSe0Q2xxVu
+         /yST74GcCCA4NGu9cTHbIvHYTjCIAu+QwMK0U1NjBwXQfqopCDiAAHhj97LjOvCLXE6R
+         qnmQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691780709; x=1692385509;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pcEsTcn+SuNhkMLUeSCuQ8sXknpybV5WhOTYGeQ66kk=;
-        b=U4bycAnGEgyYIpzEyKZctos+gEHab+UxHkKUn5sSCShB3woWO+uglNQyH4BTHDBgne
-         slpuji6B2Q6hoc/CasIayVjq2rzM3XJeTj7zGvC8BoC3A4Db5/VnOiDN9G9hrTNQKxFM
-         sbXa+je2AmP+6Jd7qSbeWts8WM3ih6c32q9cKIgY7tI4zd5MSqtWfhbJT5MD8yoqezpZ
-         PrUHYeF4mM0Ne6hyW9mV9l9kL7yb0e/ykufNSogczl7F11sV3Onuv149ku49sHAbgoDr
-         dpHQvTaH9yFynadXLgPFizFJRuH7+vWSdb8CqW74pysRpYOUp16abqDKrTBjRDOS4IXe
-         ERZw==
-X-Gm-Message-State: AOJu0YwEcDERJl0ntrI0Ov26XJ8khTPgUdou3sKLm9xAiQ6PZ47Je1v7
-        /12IIu+v12PRBO+D60NtrEmYcA==
-X-Google-Smtp-Source: AGHT+IHELnDF7HiqdqfbjE1ESPLlwkNJVzceCMXsKsrRJaWJL+rwobZOAgSlRjw7wGzjYOhJLtQejA==
-X-Received: by 2002:a05:6808:2099:b0:3a7:a379:63a with SMTP id s25-20020a056808209900b003a7a379063amr4042976oiw.41.1691780708768;
-        Fri, 11 Aug 2023 12:05:08 -0700 (PDT)
-Received: from localhost (cpe-76-182-20-124.nc.res.rr.com. [76.182.20.124])
-        by smtp.gmail.com with ESMTPSA id e23-20020a05620a12d700b00767ceac979asm1373441qkl.42.2023.08.11.12.05.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Aug 2023 12:05:08 -0700 (PDT)
-Date:   Fri, 11 Aug 2023 15:05:07 -0400
-From:   Josef Bacik <josef@toxicpanda.com>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Al Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <brauner@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Denis Efremov <efremov@linux.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        d=1e100.net; s=20221208; t=1691790977; x=1692395777;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=lT6tvtL3J1wO3rO58ecG8VmDi6hvumDUq9zV3VFr4l0=;
+        b=lvVn8x6try3hIdgthrcusjax+D2JbGbaf0YfGpziq7I+TCEFXeT6QxclzmuV0qmrJB
+         XSgGT/7gVvQiyvrvvdluo0NIoi/Secu6Lz6wWBNa7yjFjwcvS3/AFQpovO7grElfnQA4
+         L+MyRM8q/Ek25W78oRX9iavqAzLbBPheRr+5tutE69LwUIfeHmBrWdzFQ5HRe/FrUodX
+         B4wL5Js6KZY0qda5OKVQsSeM4KQilCq4p1/O0uOAwtgNWJABDvhPcC+PLx6BvNM/Zhnj
+         emoM9415avQu2lbKJW7Al5Ku3H/XjglCQ0STZErXJu1AhwPznLmEkKPdz5cAZ/axG76e
+         oLew==
+X-Gm-Message-State: AOJu0YxaUAZr6MpP86ITZK3m4ioZYOAMx5r04ixzbLJxu0zlPI9EGnQj
+        0CFLd8GeR7Acmt9bz71NyTZQBqKljm5edaM7yA==
+X-Google-Smtp-Source: AGHT+IHeErCF9oRJ+YjqL0nvzOSVKIvENViCdgPR6lX/nLxioPJPIyxxMS3l/0/J8uWK2yZvq5UVWwCZX9DkbYQAPQ==
+X-Received: from jstitt-linux1.c.googlers.com ([fda3:e722:ac3:cc00:2b:ff92:c0a8:23b5])
+ (user=justinstitt job=sendgmr) by 2002:a81:b64e:0:b0:589:a5c6:4a8f with SMTP
+ id h14-20020a81b64e000000b00589a5c64a8fmr56998ywk.6.1691790977740; Fri, 11
+ Aug 2023 14:56:17 -0700 (PDT)
+Date:   Fri, 11 Aug 2023 21:56:15 +0000
+Mime-Version: 1.0
+X-B4-Tracking: v=1; b=H4sIAH6u1mQC/x3MQQqAIBBA0avErBvQzKiuEi3EphwKixEikO6et
+ HyL/zMkEqYEY5VB6ObEZyzQdQU+uLgR8lIMjWqM6rVGJz5gMoPCnSTSgUPXL8q21rfWQckuoZW ffznN7/sBkre9I2IAAAA=
+X-Developer-Key: i=justinstitt@google.com; a=ed25519; pk=tC3hNkJQTpNX/gLKxTNQKDmiQl6QjBNCGKJINqAdJsE=
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1691790976; l=1354;
+ i=justinstitt@google.com; s=20230717; h=from:subject:message-id;
+ bh=BDgTepl8ANjK7Fi3fsCGrvFDBI6wG66OFrFJ5xRKuj8=; b=S/xRL7ar/FEQsFKSEeFdyltpdmxSXJiVn2g8hnPqMJK9IO8SDw/aPXvJH2qtnHOc8yzvexD8g
+ bE0kNvLPxekBCOjoY8gK0ym/jwQORc9w0odpV6vX7mocLqzapcpEAmr
+X-Mailer: b4 0.12.3
+Message-ID: <20230811-arch-s390-kernel-v1-1-7edbeeab3809@google.com>
+Subject: [PATCH] s390/ipl: refactor deprecated strncpy
+From:   Justin Stitt <justinstitt@google.com>
+To:     Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        "Darrick J . Wong" <djwong@kernel.org>, Chris Mason <clm@fb.com>,
-        David Sterba <dsterba@suse.com>, linux-block@vger.kernel.org,
-        nbd@other.debian.org, linux-s390@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: remove get_super
-Message-ID: <20230811190507.GA2791339@perftesting>
-References: <20230811100828.1897174-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230811100828.1897174-1-hch@lst.de>
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        linux-hardening@vger.kernel.org,
+        Justin Stitt <justinstitt@google.com>
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Aug 11, 2023 at 12:08:11PM +0200, Christoph Hellwig wrote:
-> Hi all,
-> 
-> this series against the VFS vfs.super branch finishes off the work to remove
-> get_super and move (almost) all upcalls to use the holder ops.
-> 
-> The first part is the missing btrfs bits so that all file systems use the
-> super_block as holder.
-> 
-> The second part is various block driver cleanups so that we use proper
-> interfaces instead of raw calls to __invalidate_device and fsync_bdev.
-> 
-> The last part than replaces __invalidate_device and fsync_bdev with upcalls
-> to the file system through the holder ops, and finally removes get_super.
-> 
-> It leaves user_get_super and get_active_super around.  The former is not
-> used for upcalls in the traditional sense, but for legacy UAPI that for
-> some weird reason take a dev_t argument (ustat) or a block device path
-> (quotactl).  get_active_super is only used for calling into the file system
-> on freeze and should get a similar treatment, but given that Darrick has
-> changes to that code queued up already this will be handled in the next
-> merge window.
-> 
-> A git tree is available here:
-> 
->     git://git.infradead.org/users/hch/misc.git remove-get_super
-> 
-> Gitweb:
-> 
->     http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/remove-get_super
+`strncpy` is deprecated for use on NUL-terminated destination strings [1].
 
-The CI testing didn't show any regressions or lockdep errors related to moving
-the device opening around (which is what I was worried about).  If you look at
-the status you'll see the subpage compress timed out, that's not you, that's an
-existing bug I haven't devoted time to figuring out yet.  You can add
+Use `strscpy_pad` which has the same behavior as `strncpy` here with the
+extra safeguard of guaranteeing NUL-termination of destination strings.
+In it's current form, this may result in silent truncation if the src
+string has the same size as the destination string.
 
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings[1]
+Link: https://github.com/KSPP/linux/issues/90
+Cc: linux-hardening@vger.kernel.org
+Signed-off-by: Justin Stitt <justinstitt@google.com>
+---
+ arch/s390/kernel/ipl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-to the series, thanks,
+diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
+index 85a00d97a314..a6dcf6f28197 100644
+--- a/arch/s390/kernel/ipl.c
++++ b/arch/s390/kernel/ipl.c
+@@ -266,7 +266,7 @@ static ssize_t sys_##_prefix##_##_name##_store(struct kobject *kobj,	\
+ 		struct kobj_attribute *attr,				\
+ 		const char *buf, size_t len)				\
+ {									\
+-	strncpy(_value, buf, sizeof(_value) - 1);			\
++	strscpy_pad(_value, buf, sizeof(_value));			\
+ 	strim(_value);							\
+ 	return len;							\
+ }									\
 
-Josef
+---
+base-commit: 52a93d39b17dc7eb98b6aa3edb93943248e03b2f
+change-id: 20230811-arch-s390-kernel-968d0545c45a
+
+Best regards,
+--
+Justin Stitt <justinstitt@google.com>
+
