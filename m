@@ -2,205 +2,112 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2040AC04A6A
-	for <linux-s390@archiver.kernel.org>; Sat, 12 Aug 2023 15:13:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A91E0C0015E
+	for <linux-s390@archiver.kernel.org>; Sat, 12 Aug 2023 17:04:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232493AbjHLPNG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 12 Aug 2023 11:13:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43436 "EHLO
+        id S229490AbjHLREW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 12 Aug 2023 13:04:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230004AbjHLPND (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 12 Aug 2023 11:13:03 -0400
-Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ACED1985
-        for <linux-s390@vger.kernel.org>; Sat, 12 Aug 2023 08:12:57 -0700 (PDT)
-Received: by mail-lj1-x22a.google.com with SMTP id 38308e7fff4ca-2b9fa64db41so43624151fa.1
-        for <linux-s390@vger.kernel.org>; Sat, 12 Aug 2023 08:12:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1691853176; x=1692457976;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=ws6iiiqipdTFS/mQpEmQJn0yYytb6SIvgYMxTasFi7k=;
-        b=yEzXdnmaawhbn7lg9CMqwiIrci5pKGz7/T+iFi32rSQLSWxL+OeUVLazjyKOPBALSc
-         MZFE3bp1wY70/CsBefhyJxqN6UOXIX/9DkS6QYKhaOrbCxRno5Nicvx+C1z3Tb8KPG+b
-         SqCy7oUYe//aHx+SFfeOG9pZ9nzG9n7aJQs34hTsnzEI5qT0od7Ht0Uz+sWrRfsNEvnH
-         Y09Mr4erBVDtHcQZPmUpYIkBjDxyXMope6kYjBtkcr1qTPUkjSFWr2upINaN172dNON5
-         wb2bHz8a2IlO05pMo7QFzyu3twqrkpZN0WlA833+5+LLHnGkqZTVnKYt7awow6PJG0T7
-         7AIQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691853176; x=1692457976;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ws6iiiqipdTFS/mQpEmQJn0yYytb6SIvgYMxTasFi7k=;
-        b=cU2rmfPawSRCwn8xbf4J8O72dBfQUMT4DAJZZ+omsxv9Vqj264QsLvgHX4Y/NM2Mvx
-         JPu1+UN/gDqwVKyoWtO7M//wc7M+PdR6r9/KY5ZUdwhd64QuT1SuhTtcZLIy93Q+Yxeg
-         rUDnmKxcVIxuQHeBxnYTwXvuRLUNlUlPALHxkZYGZxvSzNHa6qFoksOwJs6y1kgE95ct
-         eowvY9zQNs4lYaP47e1tom24u4HS6QpBSmm0nO13QzoAI90obmZmUb9ITCaKEbeqQs83
-         jx6LBW8txscLA+8c4HJC5HZFmsx/vDH2WUwa9SS2VKy1hc4vwZ9SV5T7hJ691p3w1ebT
-         getg==
-X-Gm-Message-State: AOJu0YwTPV4k6SWKeLPzxLdlLEClCT2weSK98W7SlmmjJaaAOP6oXVQJ
-        I/I7mota6fbKgk+SaCfmMIhGFg==
-X-Google-Smtp-Source: AGHT+IFYq+X3g/jM4r8YgME91e7lC8uS36s+T11mW56eJqosjwlflQR/AHnV+WWBJQ6rc+rfuGEoOA==
-X-Received: by 2002:a2e:a0c7:0:b0:2b6:9bd3:840e with SMTP id f7-20020a2ea0c7000000b002b69bd3840emr4034308ljm.21.1691853175653;
-        Sat, 12 Aug 2023 08:12:55 -0700 (PDT)
-Received: from [127.0.1.1] ([85.235.12.238])
-        by smtp.gmail.com with ESMTPSA id n15-20020a2e86cf000000b002b9b90474c7sm1396506ljj.129.2023.08.12.08.12.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 12 Aug 2023 08:12:54 -0700 (PDT)
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Sat, 12 Aug 2023 17:12:54 +0200
-Subject: [PATCH v2] s390/mm: Make virt_to_pfn() a static inline
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20230812-virt-to-phys-s390-v2-1-6c40f31fe36f@linaro.org>
-X-B4-Tracking: v=1; b=H4sIAHWh12QC/22NywqDMBBFf0Vm3Sl51BC76n8UFzFGHShGJhIq4
- r83lS67PAfuuTukwBQS3KsdOGRKFOcC6lKBn9w8BqS+MCihtLCiwUy84hpxmbaESTcC1eB0r21
- nbV1D2S0cBnqfzWdbeKK0Rt7Oiyy/9leT8k8tS5TYGSNvynjX+P7xotlxvEYeoT2O4wNh4g99s
- wAAAA==
-To:     Alexander Potapenko <glider@google.com>,
-        Marco Elver <elver@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        with ESMTP id S229568AbjHLREW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 12 Aug 2023 13:04:22 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E612D3;
+        Sat, 12 Aug 2023 10:04:25 -0700 (PDT)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37CH3qnI003858;
+        Sat, 12 Aug 2023 17:04:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=SmhC/43SzCGVPkGdp3KGSK3CuIqDXI2hE9Fo6bvJRhg=;
+ b=g2vc94rrRIGiotOUpbeuHdPF7+CMVjaL7CY/ATdYaEw09HU7QsqJrfMW3Qozqm6zP5Ho
+ gC0Si7zk5XlF1VAAt4Hhb7Awjms39fsC5r0Ca6bmLHvKda1lay2h1VObAs+PyGfJoEbs
+ z//n0Zb31EHljgmvfDnHfBz27ItovSCrL6GZIYn2tc75+mjX23zEf0T/WCr0fAWBo8jG
+ jwqye8rbXfqZhc888cZsAKmIqOG16//qBvgSl8JgdN60+cEV/1v4AOuWVRpHFOJiSK5c
+ AydRlhTTCxyDhSMQ+IzZG+fRlmJS0TCO7OFZtNHaBVwPtGQY7+lTtkA2LkiFwufgT6cw aA== 
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3see538032-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 12 Aug 2023 17:04:06 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37CF8Vqu017891;
+        Sat, 12 Aug 2023 17:04:05 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3se376m5gv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 12 Aug 2023 17:04:05 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37CH42v544040552
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 12 Aug 2023 17:04:02 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A303520043;
+        Sat, 12 Aug 2023 17:04:02 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9F63A20040;
+        Sat, 12 Aug 2023 17:04:01 +0000 (GMT)
+Received: from osiris (unknown [9.171.6.134])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Sat, 12 Aug 2023 17:04:01 +0000 (GMT)
+Date:   Sat, 12 Aug 2023 19:04:00 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>,
+        Christian Brauner <brauner@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>,
+        Denis Efremov <efremov@linux.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>
-Cc:     kasan-dev@googlegroups.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>
-X-Mailer: b4 0.12.3
+        "Darrick J . Wong" <djwong@kernel.org>, Chris Mason <clm@fb.com>,
+        David Sterba <dsterba@suse.com>, linux-block@vger.kernel.org,
+        nbd@other.debian.org, linux-s390@vger.kernel.org,
+        linux-btrfs@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 13/17] block: consolidate __invalidate_device and
+ fsync_bdev
+Message-ID: <20230812170400.11613-A-hca@linux.ibm.com>
+References: <20230811100828.1897174-1-hch@lst.de>
+ <20230811100828.1897174-14-hch@lst.de>
+ <20230812105133.GA11904@lst.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230812105133.GA11904@lst.de>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Xb4epEBeU7tcZo3chXqrwHPkKoiFkVd_
+X-Proofpoint-GUID: Xb4epEBeU7tcZo3chXqrwHPkKoiFkVd_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-08-12_17,2023-08-10_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ priorityscore=1501 mlxscore=0 adultscore=0 impostorscore=0 suspectscore=0
+ mlxlogscore=750 spamscore=0 malwarescore=0 phishscore=0 bulkscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2308120161
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Making virt_to_pfn() a static inline taking a strongly typed
-(const void *) makes the contract of a passing a pointer of that
-type to the function explicit and exposes any misuse of the
-macro virt_to_pfn() acting polymorphic and accepting many types
-such as (void *), (unitptr_t) or (unsigned long) as arguments
-without warnings.
+On Sat, Aug 12, 2023 at 12:51:33PM +0200, Christoph Hellwig wrote:
+> The buildbot pointed out correctly (but rather late), that the special
+> s390/dasd export needs a _MODULE postfix, so this will have to be
+> folded in:
+> 
+> diff --git a/block/bdev.c b/block/bdev.c
+> index 2a035be7f3ee90..a20263fa27a462 100644
+> --- a/block/bdev.c
+> +++ b/block/bdev.c
+> @@ -967,7 +967,7 @@ void bdev_mark_dead(struct block_device *bdev, bool surprise)
+>  
+>  	invalidate_bdev(bdev);
+>  }
+> -#ifdef CONFIG_DASD
+> +#ifdef CONFIG_DASD_MODULE
 
-For symmetry do the same with pfn_to_virt() reflecting the
-current layout in asm-generic/page.h.
+This needs to be
 
-Doing this reveals a number of offenders in the arch code and
-the S390-specific drivers, so just bite the bullet and fix up
-all of those as well.
+#if IS_ENABLED(CONFIG_DASD)
 
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
-Changes in v2:
-- Just drop the cast to (unsigned long) in drivers/s390/char/vmcp.c,
-  we do not need to cast to (void *) from (char *), a pointer is
-  a pointer.
-- Link to v1: https://lore.kernel.org/r/20230811-virt-to-phys-s390-v1-1-b661426ca9cd@linaro.org
----
- arch/s390/include/asm/kfence.h |  2 +-
- arch/s390/include/asm/page.h   | 12 ++++++++++--
- arch/s390/mm/cmm.c             |  2 +-
- arch/s390/mm/vmem.c            |  2 +-
- drivers/s390/block/scm_blk.c   |  2 +-
- drivers/s390/char/vmcp.c       |  2 +-
- 6 files changed, 15 insertions(+), 7 deletions(-)
-
-diff --git a/arch/s390/include/asm/kfence.h b/arch/s390/include/asm/kfence.h
-index d55ba878378b..e47fd8cbe701 100644
---- a/arch/s390/include/asm/kfence.h
-+++ b/arch/s390/include/asm/kfence.h
-@@ -35,7 +35,7 @@ static __always_inline void kfence_split_mapping(void)
- 
- static inline bool kfence_protect_page(unsigned long addr, bool protect)
- {
--	__kernel_map_pages(virt_to_page(addr), 1, !protect);
-+	__kernel_map_pages(virt_to_page((void *)addr), 1, !protect);
- 	return true;
- }
- 
-diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
-index a9c138fcd2ad..cfec0743314e 100644
---- a/arch/s390/include/asm/page.h
-+++ b/arch/s390/include/asm/page.h
-@@ -191,8 +191,16 @@ int arch_make_page_accessible(struct page *page);
- #define phys_to_page(phys)	pfn_to_page(phys_to_pfn(phys))
- #define page_to_phys(page)	pfn_to_phys(page_to_pfn(page))
- 
--#define pfn_to_virt(pfn)	__va(pfn_to_phys(pfn))
--#define virt_to_pfn(kaddr)	(phys_to_pfn(__pa(kaddr)))
-+static inline void *pfn_to_virt(unsigned long pfn)
-+{
-+	return __va(pfn_to_phys(pfn));
-+}
-+
-+static inline unsigned long virt_to_pfn(const void *kaddr)
-+{
-+	return phys_to_pfn(__pa(kaddr));
-+}
-+
- #define pfn_to_kaddr(pfn)	pfn_to_virt(pfn)
- 
- #define virt_to_page(kaddr)	pfn_to_page(virt_to_pfn(kaddr))
-diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
-index 5300c6867d5e..f47515313226 100644
---- a/arch/s390/mm/cmm.c
-+++ b/arch/s390/mm/cmm.c
-@@ -90,7 +90,7 @@ static long cmm_alloc_pages(long nr, long *counter,
- 			} else
- 				free_page((unsigned long) npa);
- 		}
--		diag10_range(virt_to_pfn(addr), 1);
-+		diag10_range(virt_to_pfn((void *)addr), 1);
- 		pa->pages[pa->index++] = addr;
- 		(*counter)++;
- 		spin_unlock(&cmm_lock);
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index b26649233d12..30cd6e1be10d 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -36,7 +36,7 @@ static void vmem_free_pages(unsigned long addr, int order)
- {
- 	/* We don't expect boot memory to be removed ever. */
- 	if (!slab_is_available() ||
--	    WARN_ON_ONCE(PageReserved(virt_to_page(addr))))
-+	    WARN_ON_ONCE(PageReserved(virt_to_page((void *)addr))))
- 		return;
- 	free_pages(addr, order);
- }
-diff --git a/drivers/s390/block/scm_blk.c b/drivers/s390/block/scm_blk.c
-index 0c1df1d5f1ac..3a9cc8a4a230 100644
---- a/drivers/s390/block/scm_blk.c
-+++ b/drivers/s390/block/scm_blk.c
-@@ -134,7 +134,7 @@ static void scm_request_done(struct scm_request *scmrq)
- 
- 		if ((msb->flags & MSB_FLAG_IDA) && aidaw &&
- 		    IS_ALIGNED(aidaw, PAGE_SIZE))
--			mempool_free(virt_to_page(aidaw), aidaw_pool);
-+			mempool_free(virt_to_page((void *)aidaw), aidaw_pool);
- 	}
- 
- 	spin_lock_irqsave(&list_lock, flags);
-diff --git a/drivers/s390/char/vmcp.c b/drivers/s390/char/vmcp.c
-index 4cebfaaa22b4..eb0520a9d4af 100644
---- a/drivers/s390/char/vmcp.c
-+++ b/drivers/s390/char/vmcp.c
-@@ -89,7 +89,7 @@ static void vmcp_response_free(struct vmcp_session *session)
- 	order = get_order(session->bufsize);
- 	nr_pages = ALIGN(session->bufsize, PAGE_SIZE) >> PAGE_SHIFT;
- 	if (session->cma_alloc) {
--		page = virt_to_page((unsigned long)session->response);
-+		page = virt_to_page(session->response);
- 		cma_release(vmcp_cma, page, nr_pages);
- 		session->cma_alloc = 0;
- 	} else {
-
----
-base-commit: 06c2afb862f9da8dc5efa4b6076a0e48c3fbaaa5
-change-id: 20230809-virt-to-phys-s390-2fa3d38b8855
-
-Best regards,
--- 
-Linus Walleij <linus.walleij@linaro.org>
-
+to cover both CONFIG_DASD=y and CONFIG_DASD=m.
