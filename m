@@ -2,124 +2,203 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E4B3C001B0
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Aug 2023 22:10:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FD5CEB64DD
+	for <linux-s390@archiver.kernel.org>; Sat, 12 Aug 2023 01:36:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232230AbjHKWK5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Aug 2023 18:10:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47990 "EHLO
+        id S236005AbjHLBgs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Aug 2023 21:36:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229479AbjHKWK4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Aug 2023 18:10:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17AE81716;
-        Fri, 11 Aug 2023 15:10:54 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAC5E64B4A;
-        Fri, 11 Aug 2023 22:10:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 188D1C4339A;
-        Fri, 11 Aug 2023 22:10:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1691791853;
-        bh=N8lpigPkvlxlig325fbyaTImOPZkDbDukkfY6bibi4k=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=oiLmKr3SBSdDL3sDxTS6aPUrfhjRbHMUZF5t1SOUvaq+3+t1wq0XHtVHW/E9gzGoy
-         rr6E7qE7ej6FIjvDztI8eibsfJ/e4IJEo/bAZpvDoKnMxs8T4POFrJXLjAtwLLav/M
-         LbuMYV7E3cEB5FJj10iucd1IemgC65zFpBITHVWb+j2peLQRZBCtBwpC73rJIUDt6D
-         tSQVCOLWtq5PiDcILdill9IG1vcqHT1s0BUEkZTCmO8u3vu75xaEtApoTAiQ6pRZlE
-         X252IHBujsr63ckTzbkt2EqYaHLH2N1MSmSiQ/UaoczmaJxm9DaXlIiw5zWSOtOc3a
-         +y86OpqD+SI0g==
-Received: by mail-oo1-f52.google.com with SMTP id 006d021491bc7-56ced49d51aso1572357eaf.1;
-        Fri, 11 Aug 2023 15:10:53 -0700 (PDT)
-X-Gm-Message-State: AOJu0YxGlZvxqDx+fxbWD8T4FW77USEwTrY5Ae94Xd+81BeeGBzlqyHj
-        HPhKvs//saCchXv/eK986uE5enknbmOHcHs6vxE=
-X-Google-Smtp-Source: AGHT+IGn1gQn4CG7x4Y66qfsYEz2RYlI/GdSoTxRIWymQmm7uMPiGClKZum+y67wV7ik5jOQYxKVmHuCQntmPwL9x1A=
-X-Received: by 2002:a4a:240c:0:b0:564:e465:5d5c with SMTP id
- m12-20020a4a240c000000b00564e4655d5cmr2107496oof.2.1691791852125; Fri, 11 Aug
- 2023 15:10:52 -0700 (PDT)
+        with ESMTP id S229573AbjHLBgs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Aug 2023 21:36:48 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D41130F8;
+        Fri, 11 Aug 2023 18:36:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1691804207; x=1723340207;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=InQwijdXw9W+QsSLGg97dJTKcOqeU8+07ewmIVxJV4I=;
+  b=mvSGxcEfJHBWtXYluUgJ0C6zu5ZlZ1H2yYzXTO/vCqIkcJ8CMa0OQHHJ
+   giZXNZb281Tbb2iEg4xKhlpcNyl19b46JNdqDWiXRYcBcaRRE24jcpmUg
+   h0uO4whoWLmzTscf7feeXOFi/dfC8139aitEs9/RdW2Lat3tmhityGiHJ
+   UoG1tuZbv0rBoK6ozvKKmC+Hn3OzjDKw/bF+aCwXrWwajLMcrepVfYdi+
+   svBorweuXS3n2zS3gZqFmzsDu1G61oqB4E27A5e4SeuQIm8eH6RHXn3Wf
+   doMXDVL9UUQWzxMEg8zN2jktclZfY48dWveG3D9oCb0C1kly1TkZIaO5/
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10799"; a="371797629"
+X-IronPort-AV: E=Sophos;i="6.01,167,1684825200"; 
+   d="scan'208";a="371797629"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Aug 2023 18:36:46 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10799"; a="1063472658"
+X-IronPort-AV: E=Sophos;i="6.01,167,1684825200"; 
+   d="scan'208";a="1063472658"
+Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.254.215.79]) ([10.254.215.79])
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Aug 2023 18:36:35 -0700
+Message-ID: <dde32ea5-2b1a-1148-c329-3c52ffcb71a7@linux.intel.com>
+Date:   Sat, 12 Aug 2023 09:36:33 +0800
 MIME-Version: 1.0
-References: <20230810141947.1236730-1-arnd@kernel.org> <20230810141947.1236730-3-arnd@kernel.org>
-In-Reply-To: <20230810141947.1236730-3-arnd@kernel.org>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Sat, 12 Aug 2023 07:10:15 +0900
-X-Gmail-Original-Message-ID: <CAK7LNAQo5hri-9JmS_kot1mQ6WHCWAeu+SnW19daWMC1YK5BWA@mail.gmail.com>
-Message-ID: <CAK7LNAQo5hri-9JmS_kot1mQ6WHCWAeu+SnW19daWMC1YK5BWA@mail.gmail.com>
-Subject: Re: [PATCH 02/17] [RESEND] irq_work: consolidate arch_irq_work_raise prototypes
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Guo Ren <guoren@kernel.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Will Deacon <will@kernel.org>,
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.14.0
+Cc:     baolu.lu@linux.intel.com, Dmitry Osipenko <digetx@gmail.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Steven Price <steven.price@arm.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: Re: [PATCH v6 02/25] iommu: Add IOMMU_DOMAIN_PLATFORM
+To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        linuxppc-dev@lists.ozlabs.org,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Orson Zhai <orsonzhai@gmail.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>
+References: <2-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
+Content-Language: en-US
+From:   Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <2-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Aug 11, 2023 at 10:00=E2=80=AFAM Arnd Bergmann <arnd@kernel.org> wr=
-ote:
->
-> From: Arnd Bergmann <arnd@arndb.de>
->
-> The prototype was hidden on x86, which causes a warning:
-
-
-What do you mean by "hidden on x86"?
-
-arch_irq_work_raise() was declared on 7 architectures,
-including x86.
-
-
-
-
->
-> kernel/irq_work.c:72:13: error: no previous prototype for 'arch_irq_work_=
-raise' [-Werror=3Dmissing-prototypes]
->
-> Fix this by providing it in only one place that is always visible.
->
-> Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-> Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
-> Acked-by: Guo Ren <guoren@kernel.org>
-> Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+On 2023/8/3 8:07, Jason Gunthorpe wrote:
+> This is used when the iommu driver is taking control of the dma_ops,
+> currently only on S390 and power spapr. It is designed to preserve the
+> original ops->detach_dev() semantic that these S390 was built around.
+> 
+> Provide an opaque domain type and a 'default_domain' ops value that allows
+> the driver to trivially force any single domain as the default domain.
+> 
+> Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 > ---
->  arch/arm/include/asm/irq_work.h     | 2 --
->  arch/arm64/include/asm/irq_work.h   | 2 --
->  arch/csky/include/asm/irq_work.h    | 2 +-
->  arch/powerpc/include/asm/irq_work.h | 1 -
->  arch/riscv/include/asm/irq_work.h   | 2 +-
->  arch/s390/include/asm/irq_work.h    | 2 --
->  arch/x86/include/asm/irq_work.h     | 1 -
->  include/linux/irq_work.h            | 3 +++
->  8 files changed, 5 insertions(+), 10 deletions(-)
->
+>   drivers/iommu/iommu.c | 14 +++++++++++++-
+>   include/linux/iommu.h |  6 ++++++
+>   2 files changed, 19 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+> index 5e3cdc9f3a9e78..c64365169b678d 100644
+> --- a/drivers/iommu/iommu.c
+> +++ b/drivers/iommu/iommu.c
+> @@ -1705,6 +1705,17 @@ iommu_group_alloc_default_domain(struct iommu_group *group, int req_type)
+>   
+>   	lockdep_assert_held(&group->mutex);
+>   
+> +	/*
+> +	 * Allow legacy drivers to specify the domain that will be the default
+> +	 * domain. This should always be either an IDENTITY or PLATFORM domain.
+> +	 * Do not use in new drivers.
+> +	 */
+> +	if (bus->iommu_ops->default_domain) {
+> +		if (req_type)
+> +			return ERR_PTR(-EINVAL);
+> +		return bus->iommu_ops->default_domain;
+> +	}
+> +
+>   	if (req_type)
+>   		return __iommu_group_alloc_default_domain(bus, group, req_type);
+>   
+> @@ -1967,7 +1978,8 @@ void iommu_domain_free(struct iommu_domain *domain)
+>   	if (domain->type == IOMMU_DOMAIN_SVA)
+>   		mmdrop(domain->mm);
+>   	iommu_put_dma_cookie(domain);
+> -	domain->ops->free(domain);
+> +	if (domain->ops->free)
+> +		domain->ops->free(domain);
+>   }
+>   EXPORT_SYMBOL_GPL(iommu_domain_free);
+>   
+> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+> index e05c93b6c37fba..87aebba474e093 100644
+> --- a/include/linux/iommu.h
+> +++ b/include/linux/iommu.h
+> @@ -64,6 +64,7 @@ struct iommu_domain_geometry {
+>   #define __IOMMU_DOMAIN_DMA_FQ	(1U << 3)  /* DMA-API uses flush queue    */
+>   
+>   #define __IOMMU_DOMAIN_SVA	(1U << 4)  /* Shared process address space */
+> +#define __IOMMU_DOMAIN_PLATFORM	(1U << 5)
+>   
+>   #define IOMMU_DOMAIN_ALLOC_FLAGS ~__IOMMU_DOMAIN_DMA_FQ
+>   /*
+> @@ -81,6 +82,8 @@ struct iommu_domain_geometry {
+>    *				  invalidation.
+>    *	IOMMU_DOMAIN_SVA	- DMA addresses are shared process addresses
+>    *				  represented by mm_struct's.
+> + *	IOMMU_DOMAIN_PLATFORM	- Legacy domain for drivers that do their own
+> + *				  dma_api stuff. Do not use in new drivers.
+>    */
+>   #define IOMMU_DOMAIN_BLOCKED	(0U)
+>   #define IOMMU_DOMAIN_IDENTITY	(__IOMMU_DOMAIN_PT)
+> @@ -91,6 +94,7 @@ struct iommu_domain_geometry {
+>   				 __IOMMU_DOMAIN_DMA_API |	\
+>   				 __IOMMU_DOMAIN_DMA_FQ)
+>   #define IOMMU_DOMAIN_SVA	(__IOMMU_DOMAIN_SVA)
+> +#define IOMMU_DOMAIN_PLATFORM	(__IOMMU_DOMAIN_PLATFORM)
+>   
+>   struct iommu_domain {
+>   	unsigned type;
+> @@ -256,6 +260,7 @@ struct iommu_iotlb_gather {
+>    * @owner: Driver module providing these ops
+>    * @identity_domain: An always available, always attachable identity
+>    *                   translation.
+> + * @default_domain: If not NULL this will always be set as the default domain.
+>    */
+>   struct iommu_ops {
+>   	bool (*capable)(struct device *dev, enum iommu_cap);
+> @@ -290,6 +295,7 @@ struct iommu_ops {
+>   	unsigned long pgsize_bitmap;
+>   	struct module *owner;
+>   	struct iommu_domain *identity_domain;
+> +	struct iommu_domain *default_domain;
 
+I am imaging whether we can merge above two pointers into a single one.
+It is either an IDENTITY or PLATFORM domain and the core will choose it
+as the default domain of a group if iommu_group_alloc_default_domain()
+fails to allocate one through the iommu dev_ops.
 
---
-Best Regards
-Masahiro Yamada
+Those iommu drivers that could result in a NULL default domain could
+provide such domain and guarantee that this domain is always usable for
+devices.
+
+Probably we could give it a more meaningful name? For example,
+supplemental_domain or rescue_domain?
+
+I am not sure whether this can address the NULL-default-domain issues
+of all drivers this series tries to address. So just for discussion
+purpose.
+
+Best regards,
+baolu
