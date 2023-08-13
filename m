@@ -2,36 +2,36 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34B65C001DB
-	for <linux-s390@archiver.kernel.org>; Sun, 13 Aug 2023 16:09:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84CE0C04A94
+	for <linux-s390@archiver.kernel.org>; Sun, 13 Aug 2023 16:12:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232702AbjHMQJI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 13 Aug 2023 12:09:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41974 "EHLO
+        id S232884AbjHMQM1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 13 Aug 2023 12:12:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232705AbjHMQIn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Aug 2023 12:08:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1540C19A3;
-        Sun, 13 Aug 2023 09:08:27 -0700 (PDT)
+        with ESMTP id S233161AbjHMQMC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Aug 2023 12:12:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A533335A8;
+        Sun, 13 Aug 2023 09:11:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD15C6389F;
-        Sun, 13 Aug 2023 16:07:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48DC2C433C7;
-        Sun, 13 Aug 2023 16:07:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF1A661383;
+        Sun, 13 Aug 2023 16:10:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFE09C433C7;
+        Sun, 13 Aug 2023 16:10:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1691942849;
-        bh=2LUK9BBS55WPwsYdRDj0TEiA5roMVehiiOcUVJYA/Zg=;
+        s=k20201202; t=1691943032;
+        bh=m5wO87aQvWdraMoPLNgNqc65NL4cj55ymsTmiQm4jT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jesiPw6b60fxmodDE25pqy+AxThD47zw6tAkHdaEa+E/tTmYPgZcez4iSAMIb/nMg
-         /PaMDoh4gE9oYepb1qr2OQsa6Nnc8CnLE/Nny3vvkJrGhNB+6YQIbXP/PDpg5KJXGx
-         2TYKAtOrDS2VBhdWRYCJWIxm1cOLfXQ4RjWziZI97gujcE3k15shT79bD3C55QOJSC
-         qT9OyLeB5TgWFyAK5ybNTQpZFwD/1zFfvOCpwzsekas0d9YZ3Xc3cE+14pYjVWhqYj
-         5yj6ecKHRj+CSUYriKkJssAEz+6Z3JnWJJlG+dHy4i/lDvcpMuQGTrSfRXhFHfRSX6
-         iaQTmt3ruVauA==
+        b=KAlcmIOhEVdxuNEJw96Bqx0dbvvf0DC+ZVodwDBvUkEq3J5LyHCozSnxCFrezJoPg
+         AoRQGwUol7sR6djS7MBme5f7rwt3cK6PNd1eM8ad328NygqI23UOL/dji31FhZa8Xz
+         edRaVjJjAlY+52FV5E6OzqYuRGYG5uepZacdN3vYIp8UVq5Rerf5weXPisJqUaNCFa
+         6b1fjyWgDOX1uML9C7ZCW4sbCoX861rTYJ0/oYoqjQxNZ7EG9BqW0wu4kpo1SeAtQq
+         X1J4JjEbLT712Pku+2NNb2LPJ+yMXudOvlBc0AgGtk8+oMGrGOMweLNua5rY21hzfK
+         6C5PhUze+AlOQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Stefan Haberland <sth@linux.ibm.com>,
@@ -39,16 +39,16 @@ Cc:     Stefan Haberland <sth@linux.ibm.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
         hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
         linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 14/31] s390/dasd: fix hanging device after request requeue
-Date:   Sun, 13 Aug 2023 12:05:47 -0400
-Message-Id: <20230813160605.1080385-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 12/25] s390/dasd: fix hanging device after request requeue
+Date:   Sun, 13 Aug 2023 12:09:23 -0400
+Message-Id: <20230813160936.1082758-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230813160605.1080385-1-sashal@kernel.org>
-References: <20230813160605.1080385-1-sashal@kernel.org>
+In-Reply-To: <20230813160936.1082758-1-sashal@kernel.org>
+References: <20230813160936.1082758-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.15.126
+X-stable-base: Linux 5.10.190
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -85,10 +85,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 48 insertions(+), 77 deletions(-)
 
 diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index ed897dc499ff6..0c6ab288201e5 100644
+index 792f8f5688085..09e932a7b17f4 100644
 --- a/drivers/s390/block/dasd.c
 +++ b/drivers/s390/block/dasd.c
-@@ -2948,41 +2948,32 @@ static void _dasd_wake_block_flush_cb(struct dasd_ccw_req *cqr, void *data)
+@@ -2985,41 +2985,32 @@ static void _dasd_wake_block_flush_cb(struct dasd_ccw_req *cqr, void *data)
   * Requeue a request back to the block request queue
   * only works for block requests
   */
@@ -137,7 +137,7 @@ index ed897dc499ff6..0c6ab288201e5 100644
  	rc = 0;
  restart:
  	list_for_each_entry_safe(cqr, n, &block->ccw_queue, blocklist) {
-@@ -2997,13 +2988,32 @@ static int dasd_flush_block_queue(struct dasd_block *block)
+@@ -3034,13 +3025,32 @@ static int dasd_flush_block_queue(struct dasd_block *block)
  		 * is returned from the dasd_device layer.
  		 */
  		cqr->callback = _dasd_wake_block_flush_cb;
@@ -173,7 +173,7 @@ index ed897dc499ff6..0c6ab288201e5 100644
  	/* Now call the callback function of flushed requests */
  restart_cb:
  	list_for_each_entry_safe(cqr, n, &flush_queue, blocklist) {
-@@ -3926,75 +3936,36 @@ EXPORT_SYMBOL_GPL(dasd_generic_space_avail);
+@@ -3977,75 +3987,36 @@ EXPORT_SYMBOL_GPL(dasd_generic_space_avail);
   */
  static int dasd_generic_requeue_all_requests(struct dasd_device *device)
  {
