@@ -2,36 +2,36 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F209C001DE
-	for <linux-s390@archiver.kernel.org>; Sun, 13 Aug 2023 16:21:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85C68C001DB
+	for <linux-s390@archiver.kernel.org>; Sun, 13 Aug 2023 16:23:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232958AbjHMQVa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 13 Aug 2023 12:21:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43636 "EHLO
+        id S229905AbjHMQXv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 13 Aug 2023 12:23:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231734AbjHMQV3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Aug 2023 12:21:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E484199B;
-        Sun, 13 Aug 2023 09:21:03 -0700 (PDT)
+        with ESMTP id S233797AbjHMQXa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Aug 2023 12:23:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A10964226;
+        Sun, 13 Aug 2023 09:15:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AD7763B6E;
-        Sun, 13 Aug 2023 16:12:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2D94C433C9;
-        Sun, 13 Aug 2023 16:12:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30A0663B53;
+        Sun, 13 Aug 2023 16:13:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9F82C433C7;
+        Sun, 13 Aug 2023 16:13:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1691943160;
+        s=k20201202; t=1691943232;
         bh=xiTGrDSYlvcJnKr0wiRPk4nN3jl03MAp7/ZN2W90s8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=auf2eV46Q3ju3VKZy/VDcf0d6LN2QawDmcilx3TEJwEVcvtYthjYtKwE3OltsQind
-         fFfuTY3INmVWy14Z1vkEnQenFpiT8chwMPr54Weyun0B0708OmLyv1e9hg+ntLMeFS
-         hpzTZKd3SgKkSxA7WtmoyqGVYXopEhzytrxo8trHYMcY0Dz3Z9X1uaR90RurBNBWS3
-         Mt+d3KWzmB/ghMbKfpTMieLVEYvbX6ACzXpbklyXz+tvtAXYdFj3y4cnjugvpSisUQ
-         wmqOK21ZZdlJYaVNQvgVpvJxltchfEEa4kr25tdZIMlVmlSQTB4g1Hssvl8Fc/4NKr
-         B1pWjg57bbAQw==
+        b=DHRNDJ2FsEYZYe3eoaWwYp9T5/p9MVm7X36EpGuYRc9SEjm+NkPTFUaXhWF1lg3nL
+         mDXWMiZmq5Wk2BPFR0b45DZgdDuY+iv0KzGi9vPs1lgJRtqV6c/meXj00ErJpuB0BD
+         56+b5iY/JlOpT96YlQ5ABgVr4MRnuftrLuVT6xSTDaizzC7MsafGkx42EML+sPeJJZ
+         0dan9dTzKT36QWiH13HIcKJ6xOOy1Vel9CTpgPF1FVPjQJma4ve8ljGJz+ftHEFSFE
+         MmjohNYIxMUMXl8vqqMk9LKpI9z6rKrB1udiToQJDdvAB2p4wZJQCJIDtrf5iuPx6a
+         qHxh+jhoIWf3Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Stefan Haberland <sth@linux.ibm.com>,
@@ -39,16 +39,16 @@ Cc:     Stefan Haberland <sth@linux.ibm.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
         hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
         linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 07/14] s390/dasd: use correct number of retries for ERP requests
-Date:   Sun, 13 Aug 2023 12:11:55 -0400
-Message-Id: <20230813161202.1086004-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 07/13] s390/dasd: use correct number of retries for ERP requests
+Date:   Sun, 13 Aug 2023 12:13:11 -0400
+Message-Id: <20230813161317.1087606-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230813161202.1086004-1-sashal@kernel.org>
-References: <20230813161202.1086004-1-sashal@kernel.org>
+In-Reply-To: <20230813161317.1087606-1-sashal@kernel.org>
+References: <20230813161317.1087606-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.4.253
+X-stable-base: Linux 4.19.291
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
