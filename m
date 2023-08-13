@@ -2,36 +2,36 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 032B8C001DB
-	for <linux-s390@archiver.kernel.org>; Sun, 13 Aug 2023 16:14:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 575B7C001DB
+	for <linux-s390@archiver.kernel.org>; Sun, 13 Aug 2023 16:15:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232909AbjHMQOh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 13 Aug 2023 12:14:37 -0400
+        id S232085AbjHMQPi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 13 Aug 2023 12:15:38 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232838AbjHMQOM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Aug 2023 12:14:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 959DE3C32;
-        Sun, 13 Aug 2023 09:13:37 -0700 (PDT)
+        with ESMTP id S233363AbjHMQPC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Aug 2023 12:15:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBA6747CA;
+        Sun, 13 Aug 2023 09:14:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0267563B89;
-        Sun, 13 Aug 2023 16:12:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7F90C433C7;
-        Sun, 13 Aug 2023 16:12:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42D5563BF7;
+        Sun, 13 Aug 2023 16:13:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 565F9C433C8;
+        Sun, 13 Aug 2023 16:13:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1691943163;
-        bh=x1X4R81XT03ZK8WOrzkWg+Bn60zBkK8naFOVR1APlMI=;
+        s=k20201202; t=1691943234;
+        bh=AvuN/G8sd2WG7TzgTivRZtcRDHJJxxwnzOeQb43Kj88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G0kGzaYo+c0NmOQEQ4FBGFpev/+9C/kOsIU1M1FhP9G2oGZafb0N/AB0igJVvKstu
-         UbnUkwE6ectS7vrIYWlMhl2YfdxB+nFWokMXjwUq4yf8UqIzshq7wrteQnWpWEVokh
-         OY1UPk+1ajssehiFmX0hiHEX41wmoP2HANJblSgIJFzGld69dYzjw5UYPKsVNTfLDr
-         vmlt5Cf05KWrk3q0kbJ2rtRKQ4zuv/F+pRQ3HtHdP9MfQmUlqa56ro+4kmo+la4ofn
-         H/qokoirJJzCKcw1Cau7YqK5ff/z5QX/NpLvX3OWHHY4sfHOsgFbOvOqDifdlR6ANM
-         3ZA9uRsKieWdw==
+        b=PylYrtbJ3yK1PcXPsfgeZFxIxvBaMOJ/WplDHCzr1csntzTTgsA/5A/c6RzSMvvtg
+         0+Ap6UvHRviXiFLHc+d8T0gwCCD1rBEwg755wBz/63bTamcuG05MRwWbhXiUBfcTZh
+         Zza3FRIQDYnXqeec+dD+S+UFERHv1jIDEKTyc68ooRYg2RJtp+f4cnofeWEIWbU2dV
+         BcjOU4M7Jpj54ORVzkc8s6oDIKkubtCXF7jwAhvLLMtVehXVY6BfIOmSwJmCNkOKtE
+         KpJMrOYreF6+VBSD/7JZeOfNFSWkSFhLIlGIosEkefFe7ulaYHDe+HdOjNgwETuFcc
+         paGpZdR8jaC1Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Stefan Haberland <sth@linux.ibm.com>,
@@ -39,16 +39,16 @@ Cc:     Stefan Haberland <sth@linux.ibm.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
         hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
         linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 08/14] s390/dasd: fix hanging device after request requeue
-Date:   Sun, 13 Aug 2023 12:11:56 -0400
-Message-Id: <20230813161202.1086004-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 08/13] s390/dasd: fix hanging device after request requeue
+Date:   Sun, 13 Aug 2023 12:13:12 -0400
+Message-Id: <20230813161317.1087606-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230813161202.1086004-1-sashal@kernel.org>
-References: <20230813161202.1086004-1-sashal@kernel.org>
+In-Reply-To: <20230813161317.1087606-1-sashal@kernel.org>
+References: <20230813161317.1087606-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.4.253
+X-stable-base: Linux 4.19.291
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -85,10 +85,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 48 insertions(+), 77 deletions(-)
 
 diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index 187565830b5b4..58027cdc58e3e 100644
+index c1cf277d0d89a..c0eee7b00442e 100644
 --- a/drivers/s390/block/dasd.c
 +++ b/drivers/s390/block/dasd.c
-@@ -2985,41 +2985,32 @@ static void _dasd_wake_block_flush_cb(struct dasd_ccw_req *cqr, void *data)
+@@ -2826,41 +2826,32 @@ static void _dasd_wake_block_flush_cb(struct dasd_ccw_req *cqr, void *data)
   * Requeue a request back to the block request queue
   * only works for block requests
   */
@@ -137,7 +137,7 @@ index 187565830b5b4..58027cdc58e3e 100644
  	rc = 0;
  restart:
  	list_for_each_entry_safe(cqr, n, &block->ccw_queue, blocklist) {
-@@ -3034,13 +3025,32 @@ static int dasd_flush_block_queue(struct dasd_block *block)
+@@ -2875,13 +2866,32 @@ static int dasd_flush_block_queue(struct dasd_block *block)
  		 * is returned from the dasd_device layer.
  		 */
  		cqr->callback = _dasd_wake_block_flush_cb;
@@ -173,7 +173,7 @@ index 187565830b5b4..58027cdc58e3e 100644
  	/* Now call the callback function of flushed requests */
  restart_cb:
  	list_for_each_entry_safe(cqr, n, &flush_queue, blocklist) {
-@@ -3977,75 +3987,36 @@ EXPORT_SYMBOL_GPL(dasd_generic_space_avail);
+@@ -3832,75 +3842,36 @@ EXPORT_SYMBOL_GPL(dasd_generic_verify_path);
   */
  static int dasd_generic_requeue_all_requests(struct dasd_device *device)
  {
