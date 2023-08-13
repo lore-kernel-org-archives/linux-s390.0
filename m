@@ -2,115 +2,150 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E45BC001B0
-	for <linux-s390@archiver.kernel.org>; Sun, 13 Aug 2023 09:50:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE176EB64DD
+	for <linux-s390@archiver.kernel.org>; Sun, 13 Aug 2023 12:11:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231156AbjHMJuv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 13 Aug 2023 05:50:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40476 "EHLO
+        id S230304AbjHMMLn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 13 Aug 2023 08:11:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229484AbjHMJuv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Aug 2023 05:50:51 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D94A1700
-        for <linux-s390@vger.kernel.org>; Sun, 13 Aug 2023 02:50:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1691920206;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=vBzH8DX3gC9E1Jmln+XcFwun/a5hLI5hdLYcEoW5X28=;
-        b=O18MmOHXJeNawinBy7TmPHIMUR+Aql3oETD96lcDeHRtHg39qD5tx1zpXvom/dl1poQi9Z
-        FrSR6ysTipthYW/gZ9WG8jaJm5Scw8iew+bOD7RVjqf4jmovECFVon/ovmTZX8dSr8WEeh
-        PeCeBx5289xLqOSpBp3PMtY2tv19KQY=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-447-EaMe-hymPv-x7kH8tBR_1Q-1; Sun, 13 Aug 2023 05:50:04 -0400
-X-MC-Unique: EaMe-hymPv-x7kH8tBR_1Q-1
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3197608e8f0so54867f8f.2
-        for <linux-s390@vger.kernel.org>; Sun, 13 Aug 2023 02:50:04 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691920204; x=1692525004;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=vBzH8DX3gC9E1Jmln+XcFwun/a5hLI5hdLYcEoW5X28=;
-        b=WQCobT9GMdx0Xm2rc0n+aacxKOQPeYeA3t4qZfiixQ6DpblSqvBVWufcaM6R39APID
-         DxFZRFFVOErKkXFN7Lwvg3IJ5OVUpih2bhf2nYcL5zJfF6F0aX6J4uAYvsxKL27P4zkg
-         3zVCSBG50rdkssC2G/McaJ9jZsdFcP/Cxrc0LUdWF+29/z+apjzMRPzzgcV+ma6IthmG
-         yGnAo33/+ElXER0kQjVFQEt+w/h+omEhAnHeRBUhrB71B6kVGJ5Dm7ukibbbuFRnvYLy
-         nZe6eYZsdUqj/gXu9owQBK94yzaIaDkZ5H/GkYHrg4DOdzLHY0vANf5k5z19n2LpOl69
-         jKkw==
-X-Gm-Message-State: AOJu0Yzbjor5PJYEjF1G+h4DsEw2zE49H+PARrSzTKQe/LQphn/PawA6
-        a2KwiMaxz6sQ8ZSwgTfsmETXnNWbFLCnWxGpsnuzcjXrsmmZ7eJ2yYQaRrjKBgKlA4P4caeszPx
-        WR4avtLMYvRyfTskRs/XLtA==
-X-Received: by 2002:adf:dec2:0:b0:317:5a99:4549 with SMTP id i2-20020adfdec2000000b003175a994549mr4575279wrn.0.1691920203198;
-        Sun, 13 Aug 2023 02:50:03 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFnfuzkqCoVq8jy6EOVpp+9RneCX6vcEypZHDYoMLweq1/d7QPLQzBD+n4h+KFAZCkbhPdgSQ==
-X-Received: by 2002:adf:dec2:0:b0:317:5a99:4549 with SMTP id i2-20020adfdec2000000b003175a994549mr4575272wrn.0.1691920202897;
-        Sun, 13 Aug 2023 02:50:02 -0700 (PDT)
-Received: from [192.168.0.5] (ip-109-43-177-246.web.vodafone.de. [109.43.177.246])
-        by smtp.gmail.com with ESMTPSA id j4-20020adfff84000000b003142ea7a661sm11038784wrr.21.2023.08.13.02.50.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 13 Aug 2023 02:50:02 -0700 (PDT)
-Message-ID: <981405ed-060f-de0b-8125-29099ba8791a@redhat.com>
-Date:   Sun, 13 Aug 2023 11:50:00 +0200
+        with ESMTP id S229506AbjHMMLm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Aug 2023 08:11:42 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B98F10D0;
+        Sun, 13 Aug 2023 05:11:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1691928705; x=1723464705;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=EPKMap/YIslWzTcA4tjCBfC0/lQThAIgVXzQUtL7nv8=;
+  b=icaOnKDWPE1BMRDDJeFghD0tGekqpGSNrZztug49hOs9VMIGHySckCkw
+   Er3cAap5Ga/h3ZyvTvlFm3A3Ot9mB2PsLsK5o/m1Kb2j1POXR0Vs2BNLB
+   wC58PABNmQMijCbZRY0I/Y0rJHtzoejMKtHjYyd6XxbHd0qHpFdCvBU4o
+   d6g3OLeXhXp5pQPIf5BpeFF/iJh6CwhGqwYIwhg06nQR+UFAZ5YmQ70kU
+   K6YwtjciWwAe/Ohe8afuY8m+Y610k/MF535D/cCttYksobCLGMtH2ldtA
+   solT0XRcmsKm9UN7Ev4iMbPLUtc9UoKJhf4O+gDS5Yp5VP456Qzs3lTN6
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10800"; a="356852432"
+X-IronPort-AV: E=Sophos;i="6.01,170,1684825200"; 
+   d="scan'208";a="356852432"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 05:11:44 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10800"; a="906929981"
+X-IronPort-AV: E=Sophos;i="6.01,170,1684825200"; 
+   d="scan'208";a="906929981"
+Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.249.169.238]) ([10.249.169.238])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 05:11:32 -0700
+Message-ID: <a9651d96-dbfb-aece-0811-2b36c4eb0a07@linux.intel.com>
+Date:   Sun, 13 Aug 2023 20:11:30 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [kvm-unit-tests PATCH v1] s390x: explicitly mark stack as not
- executable
-To:     Nico Boehr <nrb@linux.ibm.com>, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-References: <20230809091717.1549-1-nrb@linux.ibm.com>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.14.0
+Cc:     baolu.lu@linux.intel.com, Andy Gross <agross@kernel.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        linuxppc-dev@lists.ozlabs.org,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Steven Price <steven.price@arm.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: Re: [PATCH v6 02/25] iommu: Add IOMMU_DOMAIN_PLATFORM
+To:     Jason Gunthorpe <jgg@nvidia.com>
+References: <2-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
+ <dde32ea5-2b1a-1148-c329-3c52ffcb71a7@linux.intel.com>
+ <ZNds4kejneylOYBE@nvidia.com>
 Content-Language: en-US
-From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <20230809091717.1549-1-nrb@linux.ibm.com>
+From:   Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <ZNds4kejneylOYBE@nvidia.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 09/08/2023 11.17, Nico Boehr wrote:
-> With somewhat recent GCC versions, we get this warning on s390x:
+On 2023/8/12 19:28, Jason Gunthorpe wrote:
+> On Sat, Aug 12, 2023 at 09:36:33AM +0800, Baolu Lu wrote:
+>>> @@ -290,6 +295,7 @@ struct iommu_ops {
+>>>    	unsigned long pgsize_bitmap;
+>>>    	struct module *owner;
+>>>    	struct iommu_domain *identity_domain;
+>>> +	struct iommu_domain *default_domain;
+>>
+>> I am imaging whether we can merge above two pointers into a single one.
+>> It is either an IDENTITY or PLATFORM domain and the core will choose it
+>> as the default domain of a group if iommu_group_alloc_default_domain()
+>> fails to allocate one through the iommu dev_ops.
 > 
->    /usr/bin/ld: warning: s390x/cpu.o: missing .note.GNU-stack section implies executable stack
->    /usr/bin/ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+> I think that would be the wrong direction..
 > 
-> We don't really care whether stack is executable or not since we set it
-> up ourselves and we're running DAT off mostly anyways.
+> identity_domain is a pointer that is always, ALWAYS an identity
+> domain. It is the shortcut for drivers (and all drivers should do
+> this) that implement a global static identity domain.
+
+I see. I originally thought this was special for arm32.
+
 > 
-> Silence the warning by explicitly marking the stack as not executable.
+> default_domain is a shortcut to avoid implementing the entire flow
+> around def_domain_type/domain_alloc for special cases. For this patch
+> the specialc ase is the IOMMU_DOMAIN_PLATFORM.
+
+I think this is special for drivers like s390. You don't want it to be
+used beyond those special drivers, right?
+
+If so, the naming of default_domain seems to be a bit generic. I can't
+think of a better one, hence I am fine if you keep as it-is. After all,
+the comment for this field has already explained it very clearly.
+
+> We'll probably also get a blocking_domain pointer here too.
+
+Yes.
+
 > 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> ---
->   s390x/Makefile | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+> All of this is removing the type multiplexor in alloc_domain so we can
+> so  alloc_domain_paging()
+
+Agreed with you. The dummy domains like identity and blocking could be
+avoided from calling ops->domain_alloc.
+
+>> Probably we could give it a more meaningful name? For example,
+>> supplemental_domain or rescue_domain?
 > 
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index 706be7920406..afa47ccbeb93 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -79,7 +79,7 @@ CFLAGS += -O2
->   CFLAGS += -march=zEC12
->   CFLAGS += -mbackchain
->   CFLAGS += -fno-delete-null-pointer-checks
-> -LDFLAGS += -nostdlib -Wl,--build-id=none
-> +LDFLAGS += -nostdlib -Wl,--build-id=none -z noexecstack
+> But that isn't what it is for, default_domain is the operational
+> domain for attached drivers..
 
-I already did a similar patch some weeks ago:
-
-  https://lore.kernel.org/kvm/20230623125416.481755-1-thuth@redhat.com/
-
-... we need it for x86, too, so I guess I should go ahead and commit it - 
-and ask Sean to respin his conflicting series.
-
-  Thomas
-
-
+Best regards,
+baolu
