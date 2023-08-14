@@ -2,44 +2,44 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5660DC04A94
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Aug 2023 05:11:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4D77C41513
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Aug 2023 05:54:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233245AbjHNFLM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Aug 2023 01:11:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54800 "EHLO
+        id S233358AbjHNFyE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Aug 2023 01:54:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233208AbjHNFKr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Aug 2023 01:10:47 -0400
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C4F0E5B;
-        Sun, 13 Aug 2023 22:10:47 -0700 (PDT)
+        with ESMTP id S233380AbjHNFxv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Aug 2023 01:53:51 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D15B910D7;
+        Sun, 13 Aug 2023 22:53:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1691989847; x=1723525847;
+  t=1691992430; x=1723528430;
   h=message-id:date:mime-version:cc:subject:to:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=TUpy0yCpdy1QocZ9SL6jg1gXIK1RHtcIWUumpNs6efA=;
-  b=Uwp/0Ua0pgDzAZwjgyNsRaLVOCF+OVBFYocNsHyq5C2piX48PAJCxJCV
-   w2HLlwhhzQ7lrkf4Sf7LwIL0VsUBl/3h/5YsLZ1sIBDbPG4H6NyIm5wln
-   2V8Rwb5hnsbQY3FR+ee+ygpj0t/mkaIpmGIep/XWE+SST1aEg6gJt/j+/
-   wh4kesZ2C/R34/Q5WjEvxIzHGGULNDe266rh5TKDvzT1OAaLl/Xh4Mena
-   D0BIP/ibAfi8whKvUJvD+VBlMNpuy0kTbsq66PhojWtBYnrlpaHAFyeEF
-   lXvDm+Mo//5hXmOFjqeTm0liJhlZlRp0E5veCjOcX0QuRbH2l4asfT/xo
+  bh=a2QSRt0CT0L60eG86wMpFcJf0hM4N1YS5dCIVT5BbyY=;
+  b=mBhjKxox3Rtokqm8y6HXw36ASNraU0/i+2egsmdEEFtjOfSJryOcr8vh
+   GzEbCzY93MNj1urstpCxxoEaolrXR7ZUMTXeuWC7Yenc2yy4r11lU2cOy
+   64ghGB3uGJ2KFA29zQ2jcYyOoWVWvjdmYEhjuHUa2CJo16mrfPAAuaDYg
+   LjOdB+4DP1QBIP48oReNbrYioNBiHverY0HZIntT5/a6hwr1TTnMIZqqe
+   VMG6BKQmVVaKxBwCDBtpd0OZXuiUQxOW4uPWigvUATh4KuUqqj4etwJO/
+   gcRTsS3UgnySWuZSnOyWKQuova6mi+uo+CCZDt2au7iYQoF9Rnu2WkM3N
    A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="369434655"
+X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="458331939"
 X-IronPort-AV: E=Sophos;i="6.01,171,1684825200"; 
-   d="scan'208";a="369434655"
+   d="scan'208";a="458331939"
 Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 22:10:46 -0700
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 22:53:50 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="710202088"
+X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="710209925"
 X-IronPort-AV: E=Sophos;i="6.01,171,1684825200"; 
-   d="scan'208";a="710202088"
+   d="scan'208";a="710209925"
 Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.255.29.49]) ([10.255.29.49])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 22:10:34 -0700
-Message-ID: <2997ef72-37bd-109b-d659-71f259c64eb5@linux.intel.com>
-Date:   Mon, 14 Aug 2023 13:10:32 +0800
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 22:53:38 -0700
+Message-ID: <0fcc42b0-9e11-6787-b678-2714ca92efab@linux.intel.com>
+Date:   Mon, 14 Aug 2023 13:53:36 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.14.0
@@ -49,7 +49,7 @@ Cc:     baolu.lu@linux.intel.com, Dmitry Osipenko <digetx@gmail.com>,
         Niklas Schnelle <schnelle@linux.ibm.com>,
         Steven Price <steven.price@arm.com>,
         Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH v6 13/25] iommu/omap: Implement an IDENTITY domain
+Subject: Re: [PATCH v6 14/25] iommu/msm: Implement an IDENTITY domain
 Content-Language: en-US
 To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
         Alim Akhtar <alim.akhtar@samsung.com>,
@@ -85,9 +85,9 @@ To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
         Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
         Yong Wu <yong.wu@mediatek.com>,
         Chunyan Zhang <zhang.lyra@gmail.com>
-References: <13-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
+References: <14-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
 From:   Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <13-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
+In-Reply-To: <14-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -95,8 +95,8 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 2023/8/3 8:08, Jason Gunthorpe wrote:
-> What omap does during omap_iommu_set_platform_dma() is actually putting
-> the iommu into identity mode.
+> What msm does during msm_iommu_set_platform_dma() is actually putting the
+> iommu into identity mode.
 > 
 > Move to the new core support for ARM_DMA_USE_IOMMU by defining
 > ops->identity_domain.
@@ -106,8 +106,8 @@ On 2023/8/3 8:08, Jason Gunthorpe wrote:
 > 
 > Signed-off-by: Jason Gunthorpe<jgg@nvidia.com>
 > ---
->   drivers/iommu/omap-iommu.c | 21 ++++++++++++++++++---
->   1 file changed, 18 insertions(+), 3 deletions(-)
+>   drivers/iommu/msm_iommu.c | 23 +++++++++++++++++++----
+>   1 file changed, 19 insertions(+), 4 deletions(-)
 
 Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
 
