@@ -2,44 +2,44 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FC4FC04E69
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Aug 2023 06:35:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CEB98C001E0
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Aug 2023 06:36:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231287AbjHNGfI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Aug 2023 02:35:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60246 "EHLO
+        id S232763AbjHNGgM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Aug 2023 02:36:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233130AbjHNGem (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Aug 2023 02:34:42 -0400
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2351120;
-        Sun, 13 Aug 2023 23:34:41 -0700 (PDT)
+        with ESMTP id S233888AbjHNGfy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Aug 2023 02:35:54 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA588120;
+        Sun, 13 Aug 2023 23:35:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1691994881; x=1723530881;
+  t=1691994947; x=1723530947;
   h=message-id:date:mime-version:cc:subject:to:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=SV1XM/mW2ABuCqYRs/3iFjEijdHsFUSy0zTH9to0WAQ=;
-  b=U5JdW0y5XWzjKN6XZXfUjueKIjrhj/ZpsGsuN4O1CCKNWH19Toxsx+T3
-   yi283pWOf+bYzG8G6pZ1PHZctjK5xD5OCHXtBwt34zDHas1DapsP2TJeh
-   75m35VzMnnrU1GEqzJQryzWtXcDN+2/fLdW4ZqVEFe356EodOen1rjsGP
-   /oC39zN/9DfPIdb4PRAnIIisjztIH/IFxKoQk8/WuRpsPTxXMPZ5H9x49
-   QOs/mODiGnlpoj8g2x5VnMWUuiPx2Ubb2hPz+y8w4jhOeVGOFmQPMgZUt
-   15nRTuIF4m4RsTISi6gtla5Ui0sUQCP3Ed+cl8p8G5nEMFagiiRlz1Q/X
+  bh=dCNOqlWk74+ACIseLN11BwaIrH72VHkdICqUZOAYZvM=;
+  b=OkdmzwcVgScHvqtA1L8VzsxFbf/3OOC8jezEY4/GarACRAspMCqfOCQY
+   O0eQHHDBgAJVxUD51lMtAeDMnj4MV2u3YcX+/QPghyyjV1w/ld/ciaH8N
+   CoVYJFyyFXCu9dYaSScaQqcoUiIegeZjF7poO7nEdApHiFmwaZmocjk7K
+   50Btk490rrpfHIrJj017xKyTOtkkyJrpiKuoyDhS0WZOskNn2HKbsV6cI
+   kHZca1sFjR3iPpnQi6FDUd2jdSLQtIJj9Q2J9aHsOOtFkugAS8dM+FcLo
+   k2iO/IjS1YBTmUoOEIYTkQTUQCYeudYZhluYX4HD3y/k5XWYwmVxzXVht
    Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="374740571"
+X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="371976971"
 X-IronPort-AV: E=Sophos;i="6.01,171,1684825200"; 
-   d="scan'208";a="374740571"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 23:34:41 -0700
+   d="scan'208";a="371976971"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 23:35:47 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="736431396"
+X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="823340280"
 X-IronPort-AV: E=Sophos;i="6.01,171,1684825200"; 
-   d="scan'208";a="736431396"
+   d="scan'208";a="823340280"
 Received: from wentaox1-mobl.ccr.corp.intel.com (HELO [10.254.215.205]) ([10.254.215.205])
-  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 23:34:29 -0700
-Message-ID: <4af2fcdb-6c38-8b54-3043-c6da15198dcc@linux.intel.com>
-Date:   Mon, 14 Aug 2023 14:34:27 +0800
+  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 23:35:36 -0700
+Message-ID: <2a98fdf6-f41a-bd9b-d939-2a6afa5bd150@linux.intel.com>
+Date:   Mon, 14 Aug 2023 14:35:34 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.14.0
@@ -49,7 +49,7 @@ Cc:     baolu.lu@linux.intel.com, Dmitry Osipenko <digetx@gmail.com>,
         Niklas Schnelle <schnelle@linux.ibm.com>,
         Steven Price <steven.price@arm.com>,
         Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH v6 18/25] iommu/ipmmu: Add an IOMMU_IDENTITIY_DOMAIN
+Subject: Re: [PATCH v6 19/25] iommu/mtk_iommu: Add an IOMMU_IDENTITIY_DOMAIN
 Content-Language: en-US
 To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
         Alim Akhtar <alim.akhtar@samsung.com>,
@@ -85,9 +85,9 @@ To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
         Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
         Yong Wu <yong.wu@mediatek.com>,
         Chunyan Zhang <zhang.lyra@gmail.com>
-References: <18-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
+References: <19-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
 From:   Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <18-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
+In-Reply-To: <19-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -99,13 +99,10 @@ On 2023/8/3 8:08, Jason Gunthorpe wrote:
 > 1b932ceddd19 ("iommu: Remove detach_dev callbacks") deleted and turns it
 > into an IDENTITY domain.
 > 
-> Also reverts commit 584d334b1393 ("iommu/ipmmu-vmsa: Remove
-> ipmmu_utlb_disable()")
-> 
 > Signed-off-by: Jason Gunthorpe<jgg@nvidia.com>
 > ---
->   drivers/iommu/ipmmu-vmsa.c | 43 ++++++++++++++++++++++++++++++++++++++
->   1 file changed, 43 insertions(+)
+>   drivers/iommu/mtk_iommu.c | 23 +++++++++++++++++++++++
+>   1 file changed, 23 insertions(+)
 
 Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
 
