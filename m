@@ -2,218 +2,140 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62E90C04A94
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Aug 2023 08:45:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28AA1C04A94
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Aug 2023 10:17:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234075AbjHNIoc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Aug 2023 04:44:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46840 "EHLO
+        id S235009AbjHNKQs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Aug 2023 06:16:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235230AbjHNIo1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Aug 2023 04:44:27 -0400
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F4B0170D;
-        Mon, 14 Aug 2023 01:44:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1692002650; x=1723538650;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=BL9tXjKde0HCCblpk5lukrRNwiYGBWwkK40HXgINphM=;
-  b=bV2NKjb88Q6e3rGbb+W7DEOZ9lvamb2Ik4AEbGAhN4W/IEUdQF9vONMM
-   jRfjI0tt/4wICkVJ7MMb23PL6uKzsy5MZWrMW1TNhf5bZ47Mk6CzQhV15
-   skmy28Z+e4tQPiYZ9kkBmqIrrGHjJeL0Re5arakM9si2QWYM9GxGVGz/J
-   p0sReQmkzCP/ALzbc7HRLGoJswKAYkbe0xJ9vHyUqmz60AWsbCbAAIdKj
-   eVqMrPV1hmt2W9S1b0u3plRf2xf0bxa0ykMBEQ14L+zS0Ph9Ad6aNEB78
-   KE5ibSgjcog1lhOvDXOPEEF/wgzOo0j9UJqvtNhQdTc96iTvz2Rk71nZM
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="362144632"
-X-IronPort-AV: E=Sophos;i="6.01,172,1684825200"; 
-   d="scan'208";a="362144632"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Aug 2023 01:43:36 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="823380596"
-X-IronPort-AV: E=Sophos;i="6.01,172,1684825200"; 
-   d="scan'208";a="823380596"
-Received: from haozhou-mobl.ccr.corp.intel.com (HELO [10.254.211.245]) ([10.254.211.245])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Aug 2023 01:43:26 -0700
-Message-ID: <50feed07-f89a-dfc2-d8a8-16f9bf0fe937@linux.intel.com>
-Date:   Mon, 14 Aug 2023 16:43:23 +0800
+        with ESMTP id S236941AbjHNKQh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Aug 2023 06:16:37 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7799171A
+        for <linux-s390@vger.kernel.org>; Mon, 14 Aug 2023 03:15:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1692008122;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=yO4ixNcrplGZ+NAzDMsq0PAPN989Nujk0uRoLq5dtlU=;
+        b=coP40Jt9Xz394Y8ncmAAAZg3//9jjUcSU3fGgxJPvO21fbOVTDgnbndyVWDQeeJMru5S0S
+        fK04ixd3B33fOUseVwylC3qLM/Mgec1GlP1MpYS5I+tpjENeGbvJeXX4CIWTjOhb1pfkOk
+        5ww0/+ISwHenPIBa/uSABZZtfkvXOFg=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-639-U1qA6lYgNqSIVG1ypfbWMA-1; Mon, 14 Aug 2023 06:15:16 -0400
+X-MC-Unique: U1qA6lYgNqSIVG1ypfbWMA-1
+Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-4fe3e3472bcso3685747e87.1
+        for <linux-s390@vger.kernel.org>; Mon, 14 Aug 2023 03:15:13 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1692008111; x=1692612911;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=yO4ixNcrplGZ+NAzDMsq0PAPN989Nujk0uRoLq5dtlU=;
+        b=PJBOyXFXHFQWWVepI3Cz+Om84vmQgZ1XOnsCfZ26yeRn/cPSSyl+NnMl3rFGLucrAt
+         iLd3gs5qUoBj3c8DOKAeVXf+xT7ofojYJcXMfKeCEksLd7dGSb/Tcb9rx4LLG3pcjI7Q
+         fbZjWV6gJnNvY0yavn4HBhL9P1khzuk4Oecm9zXb6jKBg1lUQZZcLTY6WvftTw+Rlzb7
+         WA8/Oqk+ahwHXorHhP496K8e4GCgK3YHowCy1/hfqczkpfQopJGkBfHk92rBiufqIngk
+         /PiBj0H7dpHHeVZcJMnV/JdnkV7491VFNtoLWWvKjPNfS775vNfM/ATnZWEj8TpwKriD
+         uK0A==
+X-Gm-Message-State: AOJu0YwoN859Wd/ucK3LSAlpQRo9hMHD3eKWMcRm48tHA/piOt4NbkZS
+        vFethoGZaSgQhEZ7CxFZCmfUw3Tuij/+pVov0kQx2fvDKSeX4sqVv2RRXd1v/0/dKsG+5tMfKKq
+        bIgde+UCtK5vwpO8TaF/7/g==
+X-Received: by 2002:a05:6512:e82:b0:4fe:536f:4b12 with SMTP id bi2-20020a0565120e8200b004fe536f4b12mr5593174lfb.53.1692008111728;
+        Mon, 14 Aug 2023 03:15:11 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEEca0li3s2cCXU3KqOsIHIl+enh83DStfRjmgDfbqbNRd44kTmw2r9zOvatsjVNqOxQyJB2A==
+X-Received: by 2002:a05:6512:e82:b0:4fe:536f:4b12 with SMTP id bi2-20020a0565120e8200b004fe536f4b12mr5593146lfb.53.1692008111297;
+        Mon, 14 Aug 2023 03:15:11 -0700 (PDT)
+Received: from [192.168.8.105] (dynamic-046-114-244-033.46.114.pool.telefonica.de. [46.114.244.33])
+        by smtp.gmail.com with ESMTPSA id p16-20020a05600c205000b003fe26bf65e7sm13778145wmg.13.2023.08.14.03.15.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 14 Aug 2023 03:15:10 -0700 (PDT)
+Message-ID: <ff259694-eb1b-771a-faaf-b8119b899615@redhat.com>
+Date:   Mon, 14 Aug 2023 12:15:08 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.14.0
-Cc:     baolu.lu@linux.intel.com, Dmitry Osipenko <digetx@gmail.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Steven Price <steven.price@arm.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH v6 00/25] iommu: Make default_domain's mandatory
-To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        linuxppc-dev@lists.ozlabs.org,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>
-References: <0-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [kvm-unit-tests PATCH 2/2] Link with "-z noexecstack" to avoid
+ warning from newer versions of ld
 Content-Language: en-US
-From:   Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <0-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
+To:     Sean Christopherson <seanjc@google.com>, kvm@vger.kernel.org
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?Q?Nico_B=c3=b6hr?= <nrb@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Andrew Jones <andrew.jones@linux.dev>, kvmarm@lists.linux.dev,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        David Hildenbrand <david@redhat.com>,
+        Laurent Vivier <lvivier@redhat.com>,
+        Nico Boehr <nrb@linux.ibm.com>
+References: <20230623125416.481755-1-thuth@redhat.com>
+ <20230623125416.481755-3-thuth@redhat.com> <ZJWrKtnflTrskPkX@google.com>
+ <fc70263c-b7af-d8e0-14f4-4ffcde67aa3e@redhat.com>
+ <ZJoSYnZGYrAj11RN@google.com>
+From:   Thomas Huth <thuth@redhat.com>
+In-Reply-To: <ZJoSYnZGYrAj11RN@google.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2023/8/3 8:07, Jason Gunthorpe wrote:
-> [ It would be good to get this in linux-next, we have some good test
-> coverage on the ARM side already, thanks! ]
+On 27/06/2023 00.34, Sean Christopherson wrote:
+> On Fri, Jun 23, 2023, Thomas Huth wrote:
+>> On 23/06/2023 16.24, Sean Christopherson wrote:
+>>> On Fri, Jun 23, 2023, Thomas Huth wrote:
+>>>> Newer versions of ld (from binutils 2.40) complain on s390x and x86:
+>>>>
+>>>>    ld: warning: s390x/cpu.o: missing .note.GNU-stack section implies
+>>>>                 executable stack
+>>>>    ld: NOTE: This behaviour is deprecated and will be removed in a
+>>>>              future version of the linker
+>>>>
+>>>> We can silence these warnings by using "-z noexecstack" for linking
+>>>> (which should not have any real influence on the kvm-unit-tests since
+>>>> the information from the ELF header is not used here anyway, so it's
+>>>> just cosmetics).
+>>>>
+>>>> Signed-off-by: Thomas Huth <thuth@redhat.com>
+>>>> ---
+>>>>    Makefile | 2 +-
+>>>>    1 file changed, 1 insertion(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/Makefile b/Makefile
+>>>> index 0e5d85a1..20f7137c 100644
+>>>> --- a/Makefile
+>>>> +++ b/Makefile
+>>>> @@ -96,7 +96,7 @@ CFLAGS += -Woverride-init -Wmissing-prototypes -Wstrict-prototypes
+>>>>    autodepend-flags = -MMD -MF $(dir $*).$(notdir $*).d
+>>>> -LDFLAGS += -nostdlib
+>>>> +LDFLAGS += -nostdlib -z noexecstack
+>>>
+>>> Drat, the pull request[1] I sent to Paolo yesterday only fixes x86[2].
+...
+>>> Paolo, want me to redo the pull request to drop the x86-specific patch?
+>>
+>> I can also respin my patch on top of your series later ... the problem
+>> currently also only seems to happen on x86 and s390x, on ppc64 and aarch64,
+>> the linker does not complain ... so maybe it's even better to do it
+>> per-architecture only anyway? Opinions?
 > 
-> It has been a long time coming, this series completes the default_domain
-> transition and makes it so that the core IOMMU code will always have a
-> non-NULL default_domain for every driver on every
-> platform. set_platform_dma_ops() turned out to be a bad idea, and so
-> completely remove it.
+> I don't think it makes sense to do this per-arch, other architectures likely aren't
+> problematic purely because of linker specific behavior, e.g. see
 > 
-> This is achieved by changing each driver to either:
-> 
-> 1 - Convert the existing (or deleted) ops->detach_dev() into an
->      op->attach_dev() of an IDENTITY domain.
-> 
->      This is based on the theory that the ARM32 HW is able to function when
->      the iommu is turned off and so the turned off state is an IDENTITY
->      translation.
-> 
-> 2 - Use a new PLATFORM domain type. This is a hack to accommodate drivers
->      that we don't really know WTF they do. S390 is legitimately using this
->      to switch to it's platform dma_ops implementation, which is where the
->      name comes from.
-> 
-> 3 - Do #1 and force the default domain to be IDENTITY, this corrects
->      the tegra-smmu case where even an ARM64 system would have a NULL
->      default_domain.
-> 
-> Using this we can apply the rules:
-> 
-> a) ARM_DMA_USE_IOMMU mode always uses either the driver's
->     ops->default_domain, ops->def_domain_type(), or an IDENTITY domain.
->     All ARM32 drivers provide one of these three options.
-> 
-> b) dma-iommu.c mode uses either the driver's ops->default_domain,
->     ops->def_domain_type or the usual DMA API policy logic based on the
->     command line/etc to pick IDENTITY/DMA domain types
-> 
-> c) All other arch's (PPC/S390) use ops->default_domain always.
-> 
-> See the patch "Require a default_domain for all iommu drivers" for a
-> per-driver breakdown.
-> 
-> The conversion broadly teaches a bunch of ARM32 drivers that they can do
-> IDENTITY domains. There is some educated guessing involved that these are
-> actual IDENTITY domains. If this turns out to be wrong the driver can be
-> trivially changed to use a BLOCKING domain type instead. Further, the
-> domain type only matters for drivers using ARM64's dma-iommu.c mode as it
-> will select IDENTITY based on the command line and expect IDENTITY to
-> work. For ARM32 and other arch cases it is purely documentation.
-> 
-> Finally, based on all the analysis in this series, we can purge
-> IOMMU_DOMAIN_UNMANAGED/DMA constants from most of the drivers. This
-> greatly simplifies understanding the driver contract to the core
-> code. IOMMU drivers should not be involved in policy for how the DMA API
-> works, that should be a core core decision.
-> 
-> The main gain from this work is to remove alot of ARM_DMA_USE_IOMMU
-> specific code and behaviors from drivers. All that remains in iommu
-> drivers after this series is the calls to arm_iommu_create_mapping().
-> 
-> This is a step toward removing ARM_DMA_USE_IOMMU.
-> 
-> The IDENTITY domains added to the ARM64 supporting drivers can be tested
-> by booting in ARM64 mode and enabling CONFIG_IOMMU_DEFAULT_PASSTHROUGH. If
-> the system still boots then most likely the implementation is an IDENTITY
-> domain. If not we can trivially change it to BLOCKING or at worst PLATFORM
-> if there is no detail what is going on in the HW.
-> 
-> I think this is pretty safe for the ARM32 drivers as they don't really
-> change, the code that was in detach_dev continues to be called in the same
-> places it was called before.
-> 
-> This is on github:https://github.com/jgunthorpe/linux/commits/iommu_all_defdom
+> https://patches.linaro.org/project/binutils/patch/1506025575-1559-1-git-send-email-jim.wilson@linaro.org
 
-It seems that after this series, all ARM iommu drivers are able to
-support the IDENTITY default domain, hence perhaps we can remove below
-code?
+Ok, I've pushed now my patches since other people were running into this 
+issue, too (see 
+https://lore.kernel.org/kvm/20230809091717.1549-1-nrb@linux.ibm.com/ ).
 
-If I remember it correctly, the background of this part of code is
-that some arm drivers didn't support IDENTITY domain, so fall back to
-DMA domain if IDENTITY domain allocation fails.
+Sean, could you please rebase your series now?
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index ddbba3ffbfbd..ee1fa63f0612 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -1798,7 +1798,6 @@ iommu_group_alloc_default_domain(struct 
-iommu_group *group, int req_type)
-  		list_first_entry(&group->devices, struct group_device, list)
-  			->dev;
-  	const struct iommu_ops *ops = dev_iommu_ops(dev);
--	struct iommu_domain *dom;
+  Thanks,
+   Thomas
 
-  	lockdep_assert_held(&group->mutex);
 
-@@ -1817,20 +1816,7 @@ iommu_group_alloc_default_domain(struct 
-iommu_group *group, int req_type)
-  		return __iommu_group_alloc_default_domain(group, req_type);
-
-  	/* The driver gave no guidance on what type to use, try the default */
--	dom = __iommu_group_alloc_default_domain(group, iommu_def_domain_type);
--	if (dom)
--		return dom;
--
--	/* Otherwise IDENTITY and DMA_FQ defaults will try DMA */
--	if (iommu_def_domain_type == IOMMU_DOMAIN_DMA)
--		return NULL;
--	dom = __iommu_group_alloc_default_domain(group, IOMMU_DOMAIN_DMA);
--	if (!dom)
--		return NULL;
--
--	pr_warn("Failed to allocate default IOMMU domain of type %u for group 
-%s - Falling back to IOMMU_DOMAIN_DMA",
--		iommu_def_domain_type, group->name);
--	return dom;
-+	return __iommu_group_alloc_default_domain(group, iommu_def_domain_type);
-  }
-
-  struct iommu_domain *iommu_group_default_domain(struct iommu_group *group)
-
-Best regards,
-baolu
