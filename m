@@ -2,44 +2,44 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49767C41513
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Aug 2023 06:34:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FC4FC04E69
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Aug 2023 06:35:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231669AbjHNGda (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Aug 2023 02:33:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60344 "EHLO
+        id S231287AbjHNGfI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Aug 2023 02:35:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231901AbjHNGc7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Aug 2023 02:32:59 -0400
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F228114;
-        Sun, 13 Aug 2023 23:32:58 -0700 (PDT)
+        with ESMTP id S233130AbjHNGem (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Aug 2023 02:34:42 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2351120;
+        Sun, 13 Aug 2023 23:34:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1691994778; x=1723530778;
+  t=1691994881; x=1723530881;
   h=message-id:date:mime-version:cc:subject:to:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=8GKcCJfcJUphTqzm0WnLK4Rn40GEWwQ/J1t9r2W/Lgo=;
-  b=LIEgoB7t7absdD1z8hX7jSQHo1mWCVZSyLpOxnYyxpYD3ZnlERkmkJDo
-   hbPMRp+Ws/G70sDdYFXn7y39a1vqpq0tRdanMztPtJRsZIHwHnDHRLvf9
-   lMT+vTxsOmfHk+h/xxTIPmnjAay7avZJqlghVmKNHuPdJNx+Zk4Z2bYoW
-   NrdJPUKKlhhOG2m2Imv+5f//rfZ+ACFqlMLYizCnYJ51omt4AffeRL2V9
-   BKNFGGFVj24hyi7gi5zQJA1qo5jsA+QpwSy1moX9WhdkZXHkRw3l0GA4I
-   LfYVDUGICEvkFVivlaIOpxBp83YrgKvKV+iZsOEq5cO8RW4Q5m8vKunfG
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="371976492"
+  bh=SV1XM/mW2ABuCqYRs/3iFjEijdHsFUSy0zTH9to0WAQ=;
+  b=U5JdW0y5XWzjKN6XZXfUjueKIjrhj/ZpsGsuN4O1CCKNWH19Toxsx+T3
+   yi283pWOf+bYzG8G6pZ1PHZctjK5xD5OCHXtBwt34zDHas1DapsP2TJeh
+   75m35VzMnnrU1GEqzJQryzWtXcDN+2/fLdW4ZqVEFe356EodOen1rjsGP
+   /oC39zN/9DfPIdb4PRAnIIisjztIH/IFxKoQk8/WuRpsPTxXMPZ5H9x49
+   QOs/mODiGnlpoj8g2x5VnMWUuiPx2Ubb2hPz+y8w4jhOeVGOFmQPMgZUt
+   15nRTuIF4m4RsTISi6gtla5Ui0sUQCP3Ed+cl8p8G5nEMFagiiRlz1Q/X
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="374740571"
 X-IronPort-AV: E=Sophos;i="6.01,171,1684825200"; 
-   d="scan'208";a="371976492"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 23:32:46 -0700
+   d="scan'208";a="374740571"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 23:34:41 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="823332925"
+X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="736431396"
 X-IronPort-AV: E=Sophos;i="6.01,171,1684825200"; 
-   d="scan'208";a="823332925"
+   d="scan'208";a="736431396"
 Received: from wentaox1-mobl.ccr.corp.intel.com (HELO [10.254.215.205]) ([10.254.215.205])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 23:32:36 -0700
-Message-ID: <8cef9a0d-15ba-f8af-7e22-d4d3063c97bf@linux.intel.com>
-Date:   Mon, 14 Aug 2023 14:32:33 +0800
+  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 23:34:29 -0700
+Message-ID: <4af2fcdb-6c38-8b54-3043-c6da15198dcc@linux.intel.com>
+Date:   Mon, 14 Aug 2023 14:34:27 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.14.0
@@ -49,7 +49,7 @@ Cc:     baolu.lu@linux.intel.com, Dmitry Osipenko <digetx@gmail.com>,
         Niklas Schnelle <schnelle@linux.ibm.com>,
         Steven Price <steven.price@arm.com>,
         Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH v6 17/25] iommu/qcom_iommu: Add an IOMMU_IDENTITIY_DOMAIN
+Subject: Re: [PATCH v6 18/25] iommu/ipmmu: Add an IOMMU_IDENTITIY_DOMAIN
 Content-Language: en-US
 To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
         Alim Akhtar <alim.akhtar@samsung.com>,
@@ -85,9 +85,9 @@ To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
         Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
         Yong Wu <yong.wu@mediatek.com>,
         Chunyan Zhang <zhang.lyra@gmail.com>
-References: <17-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
+References: <18-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
 From:   Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <17-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
+In-Reply-To: <18-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -99,73 +99,13 @@ On 2023/8/3 8:08, Jason Gunthorpe wrote:
 > 1b932ceddd19 ("iommu: Remove detach_dev callbacks") deleted and turns it
 > into an IDENTITY domain.
 > 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->   drivers/iommu/arm/arm-smmu/qcom_iommu.c | 39 +++++++++++++++++++++++++
->   1 file changed, 39 insertions(+)
+> Also reverts commit 584d334b1393 ("iommu/ipmmu-vmsa: Remove
+> ipmmu_utlb_disable()")
 > 
-> diff --git a/drivers/iommu/arm/arm-smmu/qcom_iommu.c b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
-> index a503ed758ec302..9d7b9d8b4386d4 100644
-> --- a/drivers/iommu/arm/arm-smmu/qcom_iommu.c
-> +++ b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
-> @@ -387,6 +387,44 @@ static int qcom_iommu_attach_dev(struct iommu_domain *domain, struct device *dev
->   	return 0;
->   }
->   
-> +static int qcom_iommu_identity_attach(struct iommu_domain *identity_domain,
-> +				      struct device *dev)
-> +{
-> +	struct iommu_domain *domain = iommu_get_domain_for_dev(dev);
-> +	struct qcom_iommu_domain *qcom_domain;
-> +	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-> +	struct qcom_iommu_dev *qcom_iommu = to_iommu(dev);
-> +	unsigned int i;
-> +
-> +	if (domain == identity_domain || !domain)
-> +		return 0;
-> +
-> +	qcom_domain = to_qcom_iommu_domain(domain);
-> +	if (WARN_ON(!qcom_domain->iommu))
-> +		return -EINVAL;
-> +
-> +	pm_runtime_get_sync(qcom_iommu->dev);
-> +	for (i = 0; i < fwspec->num_ids; i++) {
-> +		struct qcom_iommu_ctx *ctx = to_ctx(qcom_domain, fwspec->ids[i]);
-> +
-> +		/* Disable the context bank: */
-> +		iommu_writel(ctx, ARM_SMMU_CB_SCTLR, 0);
-> +
-> +		ctx->domain = NULL;
-
-Does setting ctx->domain to NULL still match this semantics?
-
-> +	}
-> +	pm_runtime_put_sync(qcom_iommu->dev);
-> +	return 0;
-> +}
-> +
-> +static struct iommu_domain_ops qcom_iommu_identity_ops = {
-> +	.attach_dev = qcom_iommu_identity_attach,
-> +};
-> +
-> +static struct iommu_domain qcom_iommu_identity_domain = {
-> +	.type = IOMMU_DOMAIN_IDENTITY,
-> +	.ops = &qcom_iommu_identity_ops,
-> +};
-> +
->   static int qcom_iommu_map(struct iommu_domain *domain, unsigned long iova,
->   			  phys_addr_t paddr, size_t pgsize, size_t pgcount,
->   			  int prot, gfp_t gfp, size_t *mapped)
-> @@ -553,6 +591,7 @@ static int qcom_iommu_of_xlate(struct device *dev, struct of_phandle_args *args)
->   }
->   
->   static const struct iommu_ops qcom_iommu_ops = {
-> +	.identity_domain = &qcom_iommu_identity_domain,
->   	.capable	= qcom_iommu_capable,
->   	.domain_alloc	= qcom_iommu_domain_alloc,
->   	.probe_device	= qcom_iommu_probe_device,
-
-Anyway,
+> Signed-off-by: Jason Gunthorpe<jgg@nvidia.com>
+> ---
+>   drivers/iommu/ipmmu-vmsa.c | 43 ++++++++++++++++++++++++++++++++++++++
+>   1 file changed, 43 insertions(+)
 
 Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
 
