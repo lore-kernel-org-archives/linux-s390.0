@@ -2,44 +2,44 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D4ABC04A6A
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Aug 2023 02:21:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3A81C04A6A
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Aug 2023 02:37:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232367AbjHNCVD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 13 Aug 2023 22:21:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47928 "EHLO
+        id S232471AbjHNCgs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 13 Aug 2023 22:36:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230072AbjHNCUk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Aug 2023 22:20:40 -0400
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4ACE11A;
-        Sun, 13 Aug 2023 19:20:39 -0700 (PDT)
+        with ESMTP id S232740AbjHNCgL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Aug 2023 22:36:11 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E617710F2;
+        Sun, 13 Aug 2023 19:35:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1691979640; x=1723515640;
+  t=1691980557; x=1723516557;
   h=message-id:date:mime-version:cc:subject:to:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=BKroavBK6EnBprtuPd4BTHpO6ajK8Y/4HL8VYFF7pWY=;
-  b=iAvFTew6TSMVPyd8EOi/EVXonMZhkSBLpW/pXuVtFtXeUiUFCBPfP77E
-   40MqmgLy+IRYa3tpPnk3fOf1Uom7FxN5meLfmMxjwegzn2KfuJQ3DXmk7
-   dqaaP6nkb+GOLzvN0xhRdmmpC3I5v40fcISqxlCG/a1AaP3Q/oR1uIX8K
-   t2v33xKaaLhCUbNwrPs4lq1dWwDjMw01EZ/IGARqlyMNSB6rv8QUfHN2h
-   /zcU0D2NytCyY4eav/h4L6i7mTEo5HxfYAoIcZlSZoMiq2QfiR0LX6lLo
-   mnrAohmvJ+nj78G/sZHPrFkB25GtdJb06KZPUKqX7HvW3iSDigyieuTUp
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="374714062"
+  bh=YYBhIRGoXj26+p4KmllL+U9dko7uaqAtFc2nK/rDhX4=;
+  b=TWeKOMq/nfqIqaC8hZubMl1lXZukmawZnw3xtHtwdBClknKFAd7sjpWs
+   himmoLCSSB5TDie0JUS1zvKPjUKok9Qb2gV5fVzwhy3s+/IkDvKM+sSsY
+   Nmr60zbePZ/doEwJXcPRR2UT7P7mB+rHu1emEnQrYVqFKuO9ldN75m0ew
+   v1yYH6McqVMIBJPsYRq7T0YJ5cBdB5lT5//0iNKBCWsjBUB+6fZ7kS4aj
+   jUGh4fOGhQKUEg34yOXYsdqB8Tk1owCqfempOGfYdgM789GFW9LI2PtPC
+   7HbD0DG85gkQVmp5AxM/jcTjiQUZ3V1ryqQUc1F2lelrteU57/Lcc1w1n
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="402932188"
 X-IronPort-AV: E=Sophos;i="6.01,171,1684825200"; 
-   d="scan'208";a="374714062"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 19:20:39 -0700
+   d="scan'208";a="402932188"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 19:35:56 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="768282809"
+X-IronPort-AV: E=McAfee;i="6600,9927,10801"; a="823280871"
 X-IronPort-AV: E=Sophos;i="6.01,171,1684825200"; 
-   d="scan'208";a="768282809"
+   d="scan'208";a="823280871"
 Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.255.29.49]) ([10.255.29.49])
-  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 19:20:28 -0700
-Message-ID: <98f23aee-6861-3aa6-d50d-d712985a09c7@linux.intel.com>
-Date:   Mon, 14 Aug 2023 10:20:25 +0800
+  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Aug 2023 19:35:46 -0700
+Message-ID: <00f84867-c66d-508c-00ac-7fe062905663@linux.intel.com>
+Date:   Mon, 14 Aug 2023 10:35:43 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.14.0
@@ -49,7 +49,7 @@ Cc:     baolu.lu@linux.intel.com, Dmitry Osipenko <digetx@gmail.com>,
         Niklas Schnelle <schnelle@linux.ibm.com>,
         Steven Price <steven.price@arm.com>,
         Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH v6 04/25] iommu: Add IOMMU_DOMAIN_PLATFORM for S390
+Subject: Re: [PATCH v6 05/25] iommu/fsl_pamu: Implement a PLATFORM domain
 Content-Language: en-US
 To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
         Alim Akhtar <alim.akhtar@samsung.com>,
@@ -85,9 +85,9 @@ To:     Jason Gunthorpe <jgg@nvidia.com>, Andy Gross <agross@kernel.org>,
         Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
         Yong Wu <yong.wu@mediatek.com>,
         Chunyan Zhang <zhang.lyra@gmail.com>
-References: <4-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
+References: <5-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
 From:   Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <4-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
+In-Reply-To: <5-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -95,22 +95,16 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 2023/8/3 8:07, Jason Gunthorpe wrote:
-> The PLATFORM domain will be set as the default domain and attached as
-> normal during probe. The driver will ignore the initial attach from a NULL
-> domain to the PLATFORM domain.
+> This driver is nonsensical. To not block migrating the core API away from
+> NULL default_domains give it a hacky of a PLATFORM domain that keeps it
+> working exactly as it always did.
 > 
-> After this, the PLATFORM domain's attach_dev will be called whenever we
-> detach from an UNMANAGED domain (eg for VFIO). This is the same time the
-> original design would have called op->detach_dev().
+> Leave some comments around to warn away any future people looking at this.
 > 
-> This is temporary until the S390 dma-iommu.c conversion is merged.
-> 
-> Tested-by: Heiko Stuebner<heiko@sntech.de>
-> Tested-by: Niklas Schnelle<schnelle@linux.ibm.com>
 > Signed-off-by: Jason Gunthorpe<jgg@nvidia.com>
 > ---
->   drivers/iommu/s390-iommu.c | 21 +++++++++++++++++++--
->   1 file changed, 19 insertions(+), 2 deletions(-)
+>   drivers/iommu/fsl_pamu_domain.c | 41 ++++++++++++++++++++++++++++++---
+>   1 file changed, 38 insertions(+), 3 deletions(-)
 
 Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
 
