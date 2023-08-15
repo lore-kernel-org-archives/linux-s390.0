@@ -2,111 +2,116 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9498FC41513
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Aug 2023 23:33:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8583C001E0
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Aug 2023 00:35:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233479AbjHNXci (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Aug 2023 19:32:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47804 "EHLO
+        id S233389AbjHOAer (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Aug 2023 20:34:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233490AbjHNXcP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Aug 2023 19:32:15 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF9FD1710
-        for <linux-s390@vger.kernel.org>; Mon, 14 Aug 2023 16:32:13 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id d2e1a72fcca58-6873a30d02eso3215136b3a.3
-        for <linux-s390@vger.kernel.org>; Mon, 14 Aug 2023 16:32:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1692055933; x=1692660733;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=cQj/nTjuU53JsbV/ZPiiH3P0xM0mPHFJjukerGJ0WyU=;
-        b=Gpxx7jFnj54y5q+IJpeuy+aEXDgo953bd9rr8xLF/FYGQcZIj6HtqKRLxzsMpzbKqh
-         CQX1tdoncL9IegbC+FQSZ8JXoOC5TvLrb6BwipKvb0AOA70nZpKEm737sLVRuQOqmMjy
-         gnAUye5iHmt0m7hLo2TZxkEMwsa4fpHtX5QfM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692055933; x=1692660733;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cQj/nTjuU53JsbV/ZPiiH3P0xM0mPHFJjukerGJ0WyU=;
-        b=Fz81gQWeeB/UStJMMWSYDOHDMtYrmNQR0q82kdYwCPhvS17z3FfATkb+TNN60ErIfi
-         I3TNg7+bzEML16EppmH2OIOgFiP1QyR69Up1VCZRYv0c3yIoKDAAM7NQQFJ33RikG4SV
-         A7mObWAXXDleS9/s4a4M6IQusmh44+AW8n4d4jww0k9l8YdGOEZWbo7pTMjRU7RmBx2x
-         pLSu68Qi/O1u66YtDc3DzPyF7ZIyxu3gSF8foxmMvkZIKrTRJyF93QWPfXpqFaMXPYQR
-         Ly7M64VDodrFSWaBOdWxm2yVNxe3MNcEp4Pan+MFCNdDnxTKyIhodrQnq1I3zBQME9Z9
-         eOQw==
-X-Gm-Message-State: AOJu0YxI6FExTfcp1uStqeqcLSiv4qxNy56sc0Cmgk0CO1y4v8lAfRZf
-        nWSWsLtqQfUnefPQjMPJm+XFlA==
-X-Google-Smtp-Source: AGHT+IEUvmrXDs073bSxRYuoTAGVJ6TPSzfLJVK6/w5nceeJap/eQ0HBWhM04vYl0/woelmndAb2Xw==
-X-Received: by 2002:a05:6a20:3d29:b0:140:6979:2952 with SMTP id y41-20020a056a203d2900b0014069792952mr11631037pzi.47.1692055933101;
-        Mon, 14 Aug 2023 16:32:13 -0700 (PDT)
-Received: from www.outflux.net (198-0-35-241-static.hfc.comcastbusiness.net. [198.0.35.241])
-        by smtp.gmail.com with ESMTPSA id n24-20020aa78a58000000b0068843400dc5sm983969pfa.100.2023.08.14.16.32.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Aug 2023 16:32:12 -0700 (PDT)
-Date:   Mon, 14 Aug 2023 16:32:11 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Justin Stitt <justinstitt@google.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-hardening@vger.kernel.org
-Subject: Re: [PATCH] s390/ipl: refactor deprecated strncpy
-Message-ID: <202308141626.3F82919BFD@keescook>
-References: <20230811-arch-s390-kernel-v1-1-7edbeeab3809@google.com>
+        with ESMTP id S233372AbjHOAeS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Aug 2023 20:34:18 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FEDB93;
+        Mon, 14 Aug 2023 17:34:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1692059657; x=1723595657;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=VSM1w+2GQF5FWr9+uAkx0UUWSnoPqxj5esYUGnBEoIA=;
+  b=kQl7s4CJiq0bR2DE8WbtUGPY2VZnHUCuVJ3Mxll4b9nehEZLO2p+/Jsh
+   P0triNYETL+GIm6EfI2YuK5bXrBsoknFqNTsLzKTKZj38TCQzgwVL+X8s
+   IsTgp8M/dCFf9cFl7HhPCh8ckSDD4tLJbE5qzy+GKUTYQ57A7XZ6mtvBp
+   Me/9OFWU6C71caaKvc1dyK/Eb5q3oewZaaTI3Hk/vf+pq2W77ByPtdaI9
+   OTI6jID1GxrP6KE0mMYeV1mLtOBN4Qh+F7GLKr2n8XnpBn1C9szJoFBxd
+   hj5dWSNqge4zfTQ/DzXxARBupcIDo2e2oX1G4yhKsvgf86AvliwqX1CFM
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10802"; a="374938114"
+X-IronPort-AV: E=Sophos;i="6.01,173,1684825200"; 
+   d="scan'208";a="374938114"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Aug 2023 17:34:16 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10802"; a="823660205"
+X-IronPort-AV: E=Sophos;i="6.01,173,1684825200"; 
+   d="scan'208";a="823660205"
+Received: from wanglu5-mobl.ccr.corp.intel.com (HELO [10.254.215.149]) ([10.254.215.149])
+  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Aug 2023 17:34:05 -0700
+Message-ID: <8f3ce115-7489-640a-b1fb-a6fb6cfb1682@linux.intel.com>
+Date:   Tue, 15 Aug 2023 08:34:03 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230811-arch-s390-kernel-v1-1-7edbeeab3809@google.com>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.14.0
+Cc:     baolu.lu@linux.intel.com, Andy Gross <agross@kernel.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        linuxppc-dev@lists.ozlabs.org,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Steven Price <steven.price@arm.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: Re: [PATCH v6 07/25] iommu/mtk_iommu_v1: Implement an IDENTITY domain
+To:     Jason Gunthorpe <jgg@nvidia.com>
+References: <7-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
+ <7b6b8118-813a-f4cd-1067-d209d2b40025@linux.intel.com>
+ <ZNo7eqMZEDBf7VKn@nvidia.com>
+Content-Language: en-US
+From:   Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <ZNo7eqMZEDBf7VKn@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Aug 11, 2023 at 09:56:15PM +0000, Justin Stitt wrote:
-> `strncpy` is deprecated for use on NUL-terminated destination strings [1].
+On 2023/8/14 22:34, Jason Gunthorpe wrote:
+>>> @@ -443,7 +459,7 @@ static int mtk_iommu_v1_create_mapping(struct device *dev, struct of_phandle_arg
+>>>    static int mtk_iommu_v1_def_domain_type(struct device *dev)
+>>>    {
+>>> -	return IOMMU_DOMAIN_UNMANAGED;
+>>> +	return IOMMU_DOMAIN_IDENTITY;
+>> def_domain_type can't be used for this purpose. But this seems to be a
+>> temporary code, as it will be removed in patch 09/25.
+> It looked OK when I checked it, mkt_v1 is really confusing what it
+> tries to do, but it should call probe_finalize and basically do the
+> same hacky thing as what UNMANAGED was trying to accomplish.
 > 
-> Use `strscpy_pad` which has the same behavior as `strncpy` here with the
-> extra safeguard of guaranteeing NUL-termination of destination strings.
-> In it's current form, this may result in silent truncation if the src
-> string has the same size as the destination string.
-> 
-> Link: www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings[1]
-> Link: https://github.com/KSPP/linux/issues/90
-> Cc: linux-hardening@vger.kernel.org
-> Signed-off-by: Justin Stitt <justinstitt@google.com>
-> ---
->  arch/s390/kernel/ipl.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
-> index 85a00d97a314..a6dcf6f28197 100644
-> --- a/arch/s390/kernel/ipl.c
-> +++ b/arch/s390/kernel/ipl.c
-> @@ -266,7 +266,7 @@ static ssize_t sys_##_prefix##_##_name##_store(struct kobject *kobj,	\
->  		struct kobj_attribute *attr,				\
->  		const char *buf, size_t len)				\
->  {									\
-> -	strncpy(_value, buf, sizeof(_value) - 1);			\
-> +	strscpy_pad(_value, buf, sizeof(_value));			\
+> Did you see something else?
 
-Padding isn't needed here -- the string are consumed by __cpcmd(), which
-explicitly uses strlen() and a memcpy to pass them off.
+No.
 
->  	strim(_value);							\
-
-This existing code line is buggy, though -- it will not trim leading
-whitespace in the buffer. (It _returns_ a string that has been
-forward-adjusted.)
-
-I think this is an API mistake -- strim() should either do in-place
-changes for both ends or be defined with __much_check so the return
-value doesn't get lost. (But this is a separate issue.)
-
--Kees
-
--- 
-Kees Cook
+Best regards,
+baolu
