@@ -2,68 +2,71 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E01BC0015E
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Aug 2023 14:09:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96A15C04A6A
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Aug 2023 14:27:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237466AbjHOOJP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Aug 2023 10:09:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53028 "EHLO
+        id S237599AbjHOO1E (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Aug 2023 10:27:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237502AbjHOOIo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Aug 2023 10:08:44 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B933199B
-        for <linux-s390@vger.kernel.org>; Tue, 15 Aug 2023 07:07:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1692108477;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=g0ud9ITO1ZEXvHWeeknbA+wMUjqz5W6XeOhuU+ePqbs=;
-        b=gVUbg1degcLQ9uVvaoeb7cwtCOwbCcAiOTTL2jITENonvC0+kLJHS942EqAdmrfDtGivXi
-        gZyMVw7Bk6aU0/USsB5Pxyc7i7tOZNP4uVCM6bfRTB6IeITKNEHu0XHwiZXAC537BnzP0w
-        ZpgjBukVcI0PxOLoO6PLezcw9VRLiEI=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-448-5D5GWA2OO4ybP47fTzW-tQ-1; Tue, 15 Aug 2023 10:07:56 -0400
-X-MC-Unique: 5D5GWA2OO4ybP47fTzW-tQ-1
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-3f42bcef2acso33403235e9.2
-        for <linux-s390@vger.kernel.org>; Tue, 15 Aug 2023 07:07:54 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692108474; x=1692713274;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=g0ud9ITO1ZEXvHWeeknbA+wMUjqz5W6XeOhuU+ePqbs=;
-        b=CaS70HITQein2QFN5nEu3DR1GiF8PeL68Fw531Fz5D7K+XY+XOOAlFBZw4iqeuCaT6
-         0tplb/7fY6iClEJWNY3IWKpjqILPG4oBCfOmN25EHMlssw8KmSmK7PsEoXm19x1C1j3v
-         IS25toeCFkhEKcajTOHa6GcWwr6SXffMVxxFxOZSFTczIq+Jdl/AY+u6JqgbLKySa9pt
-         CJJEY4hBoNUFWnYJeRfaWX8phCdCsts+4C7cx2ogbHwmIESYJM4xKUobi2I2zQI4T5K5
-         axKCnTyMbHJMbVW9jlEW4dEX6kONDozSXRFsw3agK7nSLgBVDqD45VmdLHdX8sPF7FLL
-         rn1A==
-X-Gm-Message-State: AOJu0YxJ1asNVS/svR7VAQshWuDlqOUVGzK6AbHIbJS9XKVnF8pJJq1L
-        98XCGyKkmMeVZrtiRmB7HTQnXCnJhEpcSHbUmUB7ycu3F12VxXcNpJ/BxrtjWqZNX02pBrRhS8P
-        +LudTWQs0VakqGjbYvYvBQQ==
-X-Received: by 2002:a7b:c4d7:0:b0:3fe:1db2:5179 with SMTP id g23-20020a7bc4d7000000b003fe1db25179mr10563881wmk.19.1692108473982;
-        Tue, 15 Aug 2023 07:07:53 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHhWnL9nlm+m1nVt+Nniw6twZtB0zoqSzUtdSSCWEkkLEVm5X76D6NkyIKxY2FCMi+v9zbSKg==
-X-Received: by 2002:a7b:c4d7:0:b0:3fe:1db2:5179 with SMTP id g23-20020a7bc4d7000000b003fe1db25179mr10563862wmk.19.1692108473708;
-        Tue, 15 Aug 2023 07:07:53 -0700 (PDT)
-Received: from [192.168.8.105] (dynamic-046-114-247-132.46.114.pool.telefonica.de. [46.114.247.132])
-        by smtp.gmail.com with ESMTPSA id l6-20020adff486000000b003143867d2ebsm18062361wro.63.2023.08.15.07.07.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 15 Aug 2023 07:07:53 -0700 (PDT)
-Message-ID: <02b01a3a-368a-c7f5-1f9a-fc3139078109@redhat.com>
-Date:   Tue, 15 Aug 2023 16:07:51 +0200
+        with ESMTP id S237699AbjHOO06 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Aug 2023 10:26:58 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1F35173F;
+        Tue, 15 Aug 2023 07:26:52 -0700 (PDT)
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37FEIXec005144;
+        Tue, 15 Aug 2023 14:26:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=YzXD0RWMonie1ep61G3AawK33CW56LRZOVkUSEaN81s=;
+ b=cyVcVbkfEAkRyDQZGWGLv5CFz7SpMy0Lrz4R1/5i3xcXYpN10Bmqv06A3O2zHchOIeHJ
+ Gvb9aa7WSkz5WSy8C4Zv8v8tQtSNZXi4ZAiVH6Zwnw6M2ZIH6GtS0SgrsgtkErVwxZ0K
+ /EnKSZ7Dg/Ttj01PJAyvH+1rB21X1Sbsy/YZ5BcePt1zbzcwpQkfJaptI2Za+rFKR6z2
+ XNWU2e9TGpEbTfw3bykarehFUFmztCZh6Y5G8H2jgwXogtSBRbn2uBU8RpjGBT7jRr6K
+ B/sGU2xD6SdaNiFhxyU8uu1HOArjCfa9C+tY7TnR8SPPh5efGyHhWiAMUbP9z9NEQSR0 Kg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sgb0w85m6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Aug 2023 14:26:52 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37FELGxe012393;
+        Tue, 15 Aug 2023 14:26:51 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sgb0w85k9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Aug 2023 14:26:51 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37FDXrBm007839;
+        Tue, 15 Aug 2023 14:26:50 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3senwk55y2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Aug 2023 14:26:49 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37FEQkW917695402
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 15 Aug 2023 14:26:46 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AEB362004E;
+        Tue, 15 Aug 2023 14:26:46 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4BA862004B;
+        Tue, 15 Aug 2023 14:26:46 +0000 (GMT)
+Received: from [9.171.12.89] (unknown [9.171.12.89])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 15 Aug 2023 14:26:46 +0000 (GMT)
+Message-ID: <86ce9c6c-b33c-5f8e-b260-4add28608b7e@linux.ibm.com>
+Date:   Tue, 15 Aug 2023 16:26:46 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.13.0
 Subject: Re: [kvm-unit-tests PATCH v5 6/6] s390x: add a test for SIE without
  MSO/MSL
-To:     Janosch Frank <frankja@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>, imbrenda@linux.ibm.com
+Content-Language: en-US
+To:     Thomas Huth <thuth@redhat.com>, Nico Boehr <nrb@linux.ibm.com>,
+        imbrenda@linux.ibm.com
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         David Hildenbrand <dhildenb@redhat.com>
 References: <20230712114149.1291580-1-nrb@linux.ibm.com>
@@ -76,33 +79,48 @@ References: <20230712114149.1291580-1-nrb@linux.ibm.com>
  <169087269702.10672.8933292419680416340@t14-nrb>
  <0fc509e0-7c58-fc97-45bc-319d126417c2@redhat.com>
  <6815b8a5-c501-9d76-7032-1b388ed75669@linux.ibm.com>
-Content-Language: en-US
-From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <6815b8a5-c501-9d76-7032-1b388ed75669@linux.ibm.com>
+ <02b01a3a-368a-c7f5-1f9a-fc3139078109@redhat.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <02b01a3a-368a-c7f5-1f9a-fc3139078109@redhat.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: gmxZ3ixMRL8ehO_-9wo8jLdERNLpY53M
+X-Proofpoint-ORIG-GUID: lGgQa9SSP5eoEbe5VoYWIULbNJcOVwVI
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
+ definitions=2023-08-15_14,2023-08-15_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ lowpriorityscore=0 clxscore=1015 priorityscore=1501 adultscore=0
+ spamscore=0 mlxscore=0 malwarescore=0 bulkscore=0 mlxlogscore=999
+ phishscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2306200000 definitions=main-2308150125
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 15/08/2023 13.30, Janosch Frank wrote:
-> On 8/14/23 16:59, Thomas Huth wrote:
->> On 01/08/2023 08.51, Nico Boehr wrote:
->>> Quoting Thomas Huth (2023-07-14 12:52:59)
->>> [...]
->>>> Maybe add $(SRCDIR)/s390x to INCLUDE_PATHS in the s390x/Makefile ?
+On 8/15/23 16:07, Thomas Huth wrote:
+> On 15/08/2023 13.30, Janosch Frank wrote:
+>> On 8/14/23 16:59, Thomas Huth wrote:
+>>> On 01/08/2023 08.51, Nico Boehr wrote:
+>>>> Quoting Thomas Huth (2023-07-14 12:52:59)
+>>>> [...]
+>>>>> Maybe add $(SRCDIR)/s390x to INCLUDE_PATHS in the s390x/Makefile ?
+>>>>
+>>>> Yeah, that would work, but do we want that? I'd assume that it is a
+>>>> concious decision not to have tests depend on one another.
 >>>
->>> Yeah, that would work, but do we want that? I'd assume that it is a
->>> concious decision not to have tests depend on one another.
+>>> IMHO this would still be OK ... Janosch, Claudio, what's your opinion on
+>>> this?
 >>
->> IMHO this would still be OK ... Janosch, Claudio, what's your opinion on 
->> this?
+>> And the headers are then ONLY available via snippets/* ?
+>> Pardon my question, not enough cycles, too much work.
 > 
-> And the headers are then ONLY available via snippets/* ?
-> Pardon my question, not enough cycles, too much work.
+> No, it's about being able to #include "snippets/c/sie-dat.h" from
+> s390x/sie-dat.c, so that guest and host code can share some #defines.
+> 
+>    Thomas
+> 
 
-No, it's about being able to #include "snippets/c/sie-dat.h" from 
-s390x/sie-dat.c, so that guest and host code can share some #defines.
 
-  Thomas
-
+I'm fine with that.
