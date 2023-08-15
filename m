@@ -2,164 +2,151 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B0A6C04FE2
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Aug 2023 15:15:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EDE8C001B0
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Aug 2023 15:42:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237862AbjHOPOq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Aug 2023 11:14:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56982 "EHLO
+        id S238178AbjHOPmC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Aug 2023 11:42:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237912AbjHOPOc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Aug 2023 11:14:32 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 291B01BD1;
-        Tue, 15 Aug 2023 08:14:23 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37FEwYG8021083;
-        Tue, 15 Aug 2023 15:14:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=cxWZ6oWZSyNaJuggyiroB57iMSGwHvpL2RQ+pGm8UkA=;
- b=o2eHu06cml7rUbLksULVpnpRV2bQwPi/R7/p7rEGFSLStg8PKA3p8o7KerednU3981+V
- coDw/R1VfB6Lu5HVCrk97e4w32B5U2C/dxfNOKAaDljruU0W1CsQchuKp/Xh3Hs/9uvJ
- hdKIjy0g8/DVR6ZeP1qGOwk2JRfJVC9fHFAmSyNkcfWY4/DzNFbNjbBJslOWX3ox7YCP
- IZ311GKdwnGu+1FzBz2NSq5zY1gO7BkOL6oaFGOOfxj76vUjRn1dsBGrmUtXK6RwFIjg
- XMDhgx2xlet+M7U+o86x0MyybsHV41lqQDzO69JrRsrHItPVrq3gnb1REPPZv//mZeRV lw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sgbkmgcfg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Aug 2023 15:14:22 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37FF0MC1025702;
-        Tue, 15 Aug 2023 15:14:21 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sgbkmgcf9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Aug 2023 15:14:21 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37FED1Da007861;
-        Tue, 15 Aug 2023 15:14:21 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3senwk5ecg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Aug 2023 15:14:20 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37FFEGIY23921294
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 15 Aug 2023 15:14:16 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C011F20043;
-        Tue, 15 Aug 2023 15:14:16 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 80AFB2004D;
-        Tue, 15 Aug 2023 15:14:16 +0000 (GMT)
-Received: from a46lp73.lnxne.boe (unknown [9.152.108.100])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 15 Aug 2023 15:14:16 +0000 (GMT)
-From:   Steffen Eiden <seiden@linux.ibm.com>
-To:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Michael Mueller <mimu@linux.vnet.ibm.com>,
-        Marc Hartmayer <mhartmay@linux.ibm.com>,
+        with ESMTP id S238210AbjHOPl7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Aug 2023 11:41:59 -0400
+Received: from mail-yw1-x1131.google.com (mail-yw1-x1131.google.com [IPv6:2607:f8b0:4864:20::1131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99454E61
+        for <linux-s390@vger.kernel.org>; Tue, 15 Aug 2023 08:41:58 -0700 (PDT)
+Received: by mail-yw1-x1131.google.com with SMTP id 00721157ae682-586a3159588so78107827b3.0
+        for <linux-s390@vger.kernel.org>; Tue, 15 Aug 2023 08:41:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20221208; t=1692114118; x=1692718918;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=P7TsLh4UpmerFxSf2LHp//sOCj39QtIaP8NhFu7Ity0=;
+        b=v/t1rSu7IOqD7zsEvHxRPZ8PsCIFzAnrAyhA1GeAnqzR3gqcLYYTCisHr6LsT22vfP
+         4laXof+eVPcmpLgSaUurUglySIUk5wTKrOXJIVrfFuzCfybCzb0/0AVfQMVJ0iJIRG4H
+         0geKl/MMV99hPY+b1UkztXinVcOvwL2sVflQuURKZUXygILqXy0hylwT5O5AGgmvPpyb
+         srYr1if/5tuZjeqAnbfWF3gwfEMlVFJI+jpZVbFzcg3JYBWEdRGg/oIVxBn0/AdWjomv
+         dLXCkhljXHfLN7Qp8CgGrb1wPb2fkkHuSPRQ+VOFXR8Uhg34HjYmVoNDAYs3GRvk+rOp
+         M2IA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1692114118; x=1692718918;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=P7TsLh4UpmerFxSf2LHp//sOCj39QtIaP8NhFu7Ity0=;
+        b=JcJg75P2Ev4SiSl0m6I4BuodggBF9Y6/vqIUxM/4pJLsYRjXrV/15LSH2SHDtWMcHn
+         YMB3U3TVDzNXbGfq0MhyNC5crYsckm17k707H3jiqtA+RPL1ap/gOj5HKDezmUiD/3cA
+         5ZBu5aUS8C+LIU5gAoVrlynu4xQSYxIM0K6AtGRCCxbIjfUM97ANruedulxh9VyNk1dj
+         ItRYDqhG7lcnX/8kbAJtNTtw2/K50/cPMufROkGbQLdqjBnNQPFx8I/io9a5lJ36Dv3e
+         UkqfAz8Af+ulnkAYNau028ivfqHTQSIxtSpwuyUIM93L7hf6Wvu0UQYSsb/nmD4e0dbs
+         oEdQ==
+X-Gm-Message-State: AOJu0YwxnKktvJf9arPftYaHoV1N+BkwJnHTFrX2lwV2rfo+sJu6jjlG
+        PlMrFxu72Q97rZ7cEw+8jPFhUA==
+X-Google-Smtp-Source: AGHT+IFym1gqMNFckrS6y/rCULvNhW2b/lORvGgm0DCRSg/pwTXV+un25GqW0LvhUjQm8jbcdgknTw==
+X-Received: by 2002:a0d:cc92:0:b0:589:a4c7:ee40 with SMTP id o140-20020a0dcc92000000b00589a4c7ee40mr2727997ywd.2.1692114117698;
+        Tue, 15 Aug 2023 08:41:57 -0700 (PDT)
+Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id x206-20020a814ad7000000b005707fb5110bsm3475226ywa.58.2023.08.15.08.41.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Aug 2023 08:41:57 -0700 (PDT)
+Date:   Tue, 15 Aug 2023 08:41:45 -0700 (PDT)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@ripple.attlocal.net
+To:     David Hildenbrand <david@redhat.com>
+cc:     Hugh Dickins <hughd@google.com>, Jann Horn <jannh@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Xu <peterx@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Steven Price <steven.price@arm.com>,
+        SeongJae Park <sj@kernel.org>,
+        Lorenzo Stoakes <lstoakes@gmail.com>,
+        Huang Ying <ying.huang@intel.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Song Liu <song@kernel.org>,
+        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Viktor Mihajlovski <mihajlov@linux.ibm.com>
-Subject: [PATCH v4 2/4] s390: uv: UV feature check utility
-Date:   Tue, 15 Aug 2023 17:14:13 +0200
-Message-ID: <20230815151415.379760-3-seiden@linux.ibm.com>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20230815151415.379760-1-seiden@linux.ibm.com>
-References: <20230815151415.379760-1-seiden@linux.ibm.com>
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vishal Moola <vishal.moola@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>, Zi Yan <ziy@nvidia.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        sparclinux@vger.kernel.org,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>
+Subject: Re: [BUG] Re: [PATCH v3 10/13] mm/khugepaged: collapse_pte_mapped_thp()
+ with mmap_read_lock()
+In-Reply-To: <76e6b2ad-4e1e-2ad3-95df-00b4d33ec9d2@redhat.com>
+Message-ID: <35d52c74-9ba9-211e-a4f-ade6ed318e76@google.com>
+References: <7cd843a9-aa80-14f-5eb2-33427363c20@google.com> <b53be6a4-7715-51f9-aad-f1347dcb7c4@google.com> <CAG48ez0FxiRC4d3VTu_a9h=rg5FW-kYD5Rg5xo_RDBM0LTTqZQ@mail.gmail.com> <cacd4a19-386d-8bea-400-e99778dbc3b@google.com>
+ <76e6b2ad-4e1e-2ad3-95df-00b4d33ec9d2@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: hiPVd0w80cORnFT-svOodUZI782jhwZS
-X-Proofpoint-GUID: LPFk17JeW-2Duvme3-fmEgREXgUyylmi
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-08-15_16,2023-08-15_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 bulkscore=0
- impostorscore=0 malwarescore=0 suspectscore=0 mlxlogscore=999
- lowpriorityscore=0 phishscore=0 priorityscore=1501 mlxscore=0 spamscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2306200000 definitions=main-2308150134
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Introduces a function to check the existence of an UV feature.
-Refactor feature bit checks to use the new function.
+On Tue, 15 Aug 2023, David Hildenbrand wrote:
+> On 15.08.23 08:34, Hugh Dickins wrote:
+> > On Mon, 14 Aug 2023, Jann Horn wrote:
+> >>
+> >>          /* step 4: remove page table */
+> >> +       if (strcmp(current->comm, "DELAYME") == 0) {
+> >> +               pr_warn("%s: BEGIN DELAY INJECTION\n", __func__);
+> >> +               mdelay(5000);
+> >> +               pr_warn("%s: END DELAY INJECTION\n", __func__);
+> >> +       }
+> >>
+> >>          /* Huge page lock is still held, so page table must remain empty
+> >>          */
+> >>          pml = pmd_lock(mm, pmd);
+> >>
+> >>
+> >> And then run the attached reproducer against mm/mm-everything. You
+> >> should get this in dmesg:
+> >>
+> >> [  206.578096] BUG: Bad rss-counter state mm:000000000942ebea
+> >> type:MM_ANONPAGES val:1
+> > 
+> > Thanks a lot, Jann. I haven't thought about it at all yet; and just
+> > tried to reproduce, but haven't yet got the "BUG: Bad rss-counter":
+> > just see "Invalid argument" on the UFFDIO_COPY ioctl.
+> > Will investigate tomorrow.
+> 
+> Maybe you're missing a fixup:
+> 
+> https://lkml.kernel.org/r/20230810192128.1855570-1-axelrasmussen@google.com
+> 
+> When the src address is not page aligned, UFFDIO_COPY in mm-unstable would
+> erroneously fail.
 
-Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
----
- arch/s390/include/asm/uv.h | 7 +++++++
- arch/s390/kernel/uv.c      | 2 +-
- arch/s390/kvm/kvm-s390.c   | 2 +-
- arch/s390/mm/fault.c       | 2 +-
- 4 files changed, 10 insertions(+), 3 deletions(-)
+You got it, many thanks David: I had assumed that my next-20230808 tree
+would be up-to-date enough, but it wasn't.  Reproduced now.
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index d2cd42bb2c26..823adfff7315 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -397,6 +397,13 @@ struct uv_info {
- 
- extern struct uv_info uv_info;
- 
-+static inline bool uv_has_feature(u8 feature_bit)
-+{
-+	if (feature_bit >= sizeof(uv_info.uv_feature_indications) * 8)
-+		return false;
-+	return test_bit_inv(feature_bit, &uv_info.uv_feature_indications);
-+}
-+
- #ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
- extern int prot_virt_guest;
- 
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index b771f1b4cdd1..fc07bc39e698 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -258,7 +258,7 @@ static bool should_export_before_import(struct uv_cb_header *uvcb, struct mm_str
- 	 * shared page from a different protected VM will automatically also
- 	 * transfer its ownership.
- 	 */
--	if (test_bit_inv(BIT_UV_FEAT_MISC, &uv_info.uv_feature_indications))
-+	if (uv_has_feature(BIT_UV_FEAT_MISC))
- 		return false;
- 	if (uvcb->cmd == UVC_CMD_UNPIN_PAGE_SHARED)
- 		return false;
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index e6511608280c..813cc3d59c90 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2406,7 +2406,7 @@ static int kvm_s390_cpus_to_pv(struct kvm *kvm, u16 *rc, u16 *rrc)
- 	struct kvm_vcpu *vcpu;
- 
- 	/* Disable the GISA if the ultravisor does not support AIV. */
--	if (!test_bit_inv(BIT_UV_FEAT_AIV, &uv_info.uv_feature_indications))
-+	if (!uv_has_feature(BIT_UV_FEAT_AIV))
- 		kvm_s390_gisa_disable(kvm);
- 
- 	kvm_for_each_vcpu(i, vcpu, kvm) {
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index b5e1bea9194c..8a86dd725870 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -599,7 +599,7 @@ void do_secure_storage_access(struct pt_regs *regs)
- 	 * reliable without the misc UV feature so we need to check
- 	 * for that as well.
- 	 */
--	if (test_bit_inv(BIT_UV_FEAT_MISC, &uv_info.uv_feature_indications) &&
-+	if (uv_has_feature(BIT_UV_FEAT_MISC) &&
- 	    !test_bit_inv(61, &regs->int_parm_long)) {
- 		/*
- 		 * When this happens, userspace did something that it
--- 
-2.41.0
-
+Hugh 
