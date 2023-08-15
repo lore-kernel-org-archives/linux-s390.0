@@ -2,125 +2,132 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96A15C04A6A
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Aug 2023 14:27:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ED1EC0015E
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Aug 2023 15:15:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237599AbjHOO1E (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Aug 2023 10:27:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48362 "EHLO
+        id S237842AbjHOPOo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Aug 2023 11:14:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237699AbjHOO06 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Aug 2023 10:26:58 -0400
+        with ESMTP id S237920AbjHOPOe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Aug 2023 11:14:34 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1F35173F;
-        Tue, 15 Aug 2023 07:26:52 -0700 (PDT)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37FEIXec005144;
-        Tue, 15 Aug 2023 14:26:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=YzXD0RWMonie1ep61G3AawK33CW56LRZOVkUSEaN81s=;
- b=cyVcVbkfEAkRyDQZGWGLv5CFz7SpMy0Lrz4R1/5i3xcXYpN10Bmqv06A3O2zHchOIeHJ
- Gvb9aa7WSkz5WSy8C4Zv8v8tQtSNZXi4ZAiVH6Zwnw6M2ZIH6GtS0SgrsgtkErVwxZ0K
- /EnKSZ7Dg/Ttj01PJAyvH+1rB21X1Sbsy/YZ5BcePt1zbzcwpQkfJaptI2Za+rFKR6z2
- XNWU2e9TGpEbTfw3bykarehFUFmztCZh6Y5G8H2jgwXogtSBRbn2uBU8RpjGBT7jRr6K
- B/sGU2xD6SdaNiFhxyU8uu1HOArjCfa9C+tY7TnR8SPPh5efGyHhWiAMUbP9z9NEQSR0 Kg== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4019F1BDA;
+        Tue, 15 Aug 2023 08:14:24 -0700 (PDT)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37FEvj3E002279;
+        Tue, 15 Aug 2023 15:14:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=zqjFYU5QdPdq/NHI3+4Y4CavCLJM0D8JM50BowmVVHA=;
+ b=iCvRt7B/zb0TuebgrH4XD9DN0TVvhSBF2RDBYUsZw5Aui+hY1doZdQ+EpnulPe8s3CYb
+ md+yb9bec1hHA4d9Pqt1CZToLJLjtsg+BKHzQWtduCII92CJ0D/tM3Pons7aZt/IkTsF
+ RrLc6MTYtK9iR3WB20wwketskjvxsiGvBZPCzjJOfyALonipcl7Rfn8Ho4QxEKo/IoUh
+ OT3bAp85/Vbf/yixmvkPsmcdUWTEwWVkUvcx5cRDnE+KoFAPzc9ioNQul7JLfvoFWDoo
+ p0QlfuFjxbWFidB8eYyop38uxLEXwnrcjNlHCQ1cuFQsqKUpQ2YCkoNEdtj5F3aFngWX YA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sgb0w85m6-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sgbk0gjj4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Aug 2023 14:26:52 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37FELGxe012393;
-        Tue, 15 Aug 2023 14:26:51 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sgb0w85k9-1
+        Tue, 15 Aug 2023 15:14:23 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37FF07SA008888;
+        Tue, 15 Aug 2023 15:14:23 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sgbk0gjhh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Aug 2023 14:26:51 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37FDXrBm007839;
-        Tue, 15 Aug 2023 14:26:50 GMT
+        Tue, 15 Aug 2023 15:14:23 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37FCuZt1002421;
+        Tue, 15 Aug 2023 15:14:21 GMT
 Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3senwk55y2-1
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3sendn5ktv-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Aug 2023 14:26:49 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37FEQkW917695402
+        Tue, 15 Aug 2023 15:14:21 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37FFEGHn23921292
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 15 Aug 2023 14:26:46 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AEB362004E;
-        Tue, 15 Aug 2023 14:26:46 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4BA862004B;
-        Tue, 15 Aug 2023 14:26:46 +0000 (GMT)
-Received: from [9.171.12.89] (unknown [9.171.12.89])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 15 Aug 2023 14:26:46 +0000 (GMT)
-Message-ID: <86ce9c6c-b33c-5f8e-b260-4add28608b7e@linux.ibm.com>
-Date:   Tue, 15 Aug 2023 16:26:46 +0200
+        Tue, 15 Aug 2023 15:14:16 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 30C082004D;
+        Tue, 15 Aug 2023 15:14:16 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E3D262004B;
+        Tue, 15 Aug 2023 15:14:15 +0000 (GMT)
+Received: from a46lp73.lnxne.boe (unknown [9.152.108.100])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 15 Aug 2023 15:14:15 +0000 (GMT)
+From:   Steffen Eiden <seiden@linux.ibm.com>
+To:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Michael Mueller <mimu@linux.vnet.ibm.com>,
+        Marc Hartmayer <mhartmay@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Viktor Mihajlovski <mihajlov@linux.ibm.com>
+Subject: [PATCH v4 0/4] KVM: s390: Enable AP instructions for PV-guests
+Date:   Tue, 15 Aug 2023 17:14:11 +0200
+Message-ID: <20230815151415.379760-1-seiden@linux.ibm.com>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [kvm-unit-tests PATCH v5 6/6] s390x: add a test for SIE without
- MSO/MSL
-Content-Language: en-US
-To:     Thomas Huth <thuth@redhat.com>, Nico Boehr <nrb@linux.ibm.com>,
-        imbrenda@linux.ibm.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        David Hildenbrand <dhildenb@redhat.com>
-References: <20230712114149.1291580-1-nrb@linux.ibm.com>
- <20230712114149.1291580-7-nrb@linux.ibm.com>
- <1aac769e-7523-a858-8286-35625bfb0145@redhat.com>
- <168932372015.12187.10530769865303760697@t14-nrb>
- <fd822214-ce34-41dd-d0b6-d43709803958@redhat.com>
- <168933116940.12187.12275217086609823396@t14-nrb>
- <000b74d7-0b4f-d2b5-81b4-747c99a2df42@redhat.com>
- <169087269702.10672.8933292419680416340@t14-nrb>
- <0fc509e0-7c58-fc97-45bc-319d126417c2@redhat.com>
- <6815b8a5-c501-9d76-7032-1b388ed75669@linux.ibm.com>
- <02b01a3a-368a-c7f5-1f9a-fc3139078109@redhat.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <02b01a3a-368a-c7f5-1f9a-fc3139078109@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: gmxZ3ixMRL8ehO_-9wo8jLdERNLpY53M
-X-Proofpoint-ORIG-GUID: lGgQa9SSP5eoEbe5VoYWIULbNJcOVwVI
+X-Proofpoint-ORIG-GUID: ZfryHlECIzIiy1jgoC-D9LPYFkrKAVrO
+X-Proofpoint-GUID: Uq5wQWdWc86rcHF8N5uUtpVic3igFAjr
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-08-15_14,2023-08-15_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- lowpriorityscore=0 clxscore=1015 priorityscore=1501 adultscore=0
- spamscore=0 mlxscore=0 malwarescore=0 bulkscore=0 mlxlogscore=999
- phishscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2306200000 definitions=main-2308150125
+ definitions=2023-08-15_16,2023-08-15_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 impostorscore=0
+ bulkscore=0 mlxlogscore=542 suspectscore=0 phishscore=0 spamscore=0
+ malwarescore=0 priorityscore=1501 mlxscore=0 lowpriorityscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2308150134
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 8/15/23 16:07, Thomas Huth wrote:
-> On 15/08/2023 13.30, Janosch Frank wrote:
->> On 8/14/23 16:59, Thomas Huth wrote:
->>> On 01/08/2023 08.51, Nico Boehr wrote:
->>>> Quoting Thomas Huth (2023-07-14 12:52:59)
->>>> [...]
->>>>> Maybe add $(SRCDIR)/s390x to INCLUDE_PATHS in the s390x/Makefile ?
->>>>
->>>> Yeah, that would work, but do we want that? I'd assume that it is a
->>>> concious decision not to have tests depend on one another.
->>>
->>> IMHO this would still be OK ... Janosch, Claudio, what's your opinion on
->>> this?
->>
->> And the headers are then ONLY available via snippets/* ?
->> Pardon my question, not enough cycles, too much work.
-> 
-> No, it's about being able to #include "snippets/c/sie-dat.h" from
-> s390x/sie-dat.c, so that guest and host code can share some #defines.
-> 
->    Thomas
-> 
+This series enables general KVM support for AP-passthrough for Secure
+Execution guests (PV-guests).
 
+To enable AP inside PV-guests two things have to be done/considered:
+	1) set corresponding flags in the Create Secure Configuration UVC if
+     firmware supports AP for PV-guests (patch 4).
+	2) enable/disable AP in PV-guests if the VMM wants this (patch 3).
 
-I'm fine with that.
+since v3:
+  - add a patch from Viktor that handles a new rc that can occur with AP-pt.
+  - remove KVM_S390_VM_CPU_UV_FEAT_GUEST_DEFAULT define (Janosch)
+  - add a boundary check in uv_has_feature() (Janosch)
+  - add r-b from Janosch
+
+since v2:
+  - applied styling recommendations from Heiko
+
+since v1:
+  - PATCH 1: r-b from Claudio
+  - PATCH 2: fixed formatting issues (Claudio)
+  - PATCH 3: removed unnecessary checks (Claudio)
+
+Steffen
+
+Steffen Eiden (3):
+  s390: uv: UV feature check utility
+  KVM: s390: Add UV feature negotiation
+  KVM: s390: pv:  Allow AP-instructions for pv-guests
+
+Viktor Mihajlovski (1):
+  KVM: s390: pv: relax WARN_ONCE condition for destroy fast
+
+ arch/s390/include/asm/kvm_host.h |  2 +
+ arch/s390/include/asm/uv.h       | 19 +++++++-
+ arch/s390/include/uapi/asm/kvm.h | 16 +++++++
+ arch/s390/kernel/uv.c            |  2 +-
+ arch/s390/kvm/kvm-s390.c         | 75 +++++++++++++++++++++++++++++++-
+ arch/s390/kvm/pv.c               |  9 ++--
+ arch/s390/mm/fault.c             |  2 +-
+ 7 files changed, 118 insertions(+), 7 deletions(-)
+
+-- 
+2.41.0
+
