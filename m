@@ -2,199 +2,97 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A07CC07E8E
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Aug 2023 14:40:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C443C001B0
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Aug 2023 15:45:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343744AbjHPOju (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Aug 2023 10:39:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50502 "EHLO
+        id S1343730AbjHPPov (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Aug 2023 11:44:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343757AbjHPOjW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Aug 2023 10:39:22 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33B482D42
-        for <linux-s390@vger.kernel.org>; Wed, 16 Aug 2023 07:38:54 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id 98e67ed59e1d1-269304c135aso4718791a91.3
-        for <linux-s390@vger.kernel.org>; Wed, 16 Aug 2023 07:38:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=dabbelt-com.20221208.gappssmtp.com; s=20221208; t=1692196728; x=1692801528;
-        h=content-transfer-encoding:mime-version:message-id:to:from:cc
-         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=z7kyCuHl1t/gCCGpNTbA3hwFj/lf6SuaKvtbsxGuDBs=;
-        b=dZxL0Ptmo/RfqSZAnaNdMqEON3wvqTtz9rCCZbGwRlxrXd7njXeZ9MC0HoDMQnzbMm
-         Mbp7gkbEr8As7DndYa19Nv36eYd2hToSSCFzF826MiTxJFQPanB3TDkisU5ug1n2xO0x
-         lqvfBU8gjYGcjvzm7z1KhnYi76zAKQMvLjSkKN8VKcgO7yrfcLxnnczFGmL7s8fYvGKe
-         iupXY/7su7eB4Qp8Ot15WegMitq0aXkC7C2B4amBqtpQq9iCTqbSvz7oVYvokSqAF4SL
-         qE7Cmnt2iThlim9z5xca3mEZ27llu2nfrUpa7hwX8WY7UkN0OSfjH/LjoRTW/fMpY9+M
-         GNdA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692196728; x=1692801528;
-        h=content-transfer-encoding:mime-version:message-id:to:from:cc
-         :in-reply-to:subject:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=z7kyCuHl1t/gCCGpNTbA3hwFj/lf6SuaKvtbsxGuDBs=;
-        b=bkUIWpavf+BhImPIkCC6kVvZq+hHonU548ieEHqc32ar4/F2e0d4fVwJ+W8XgfgzN7
-         67UEB6KMcOin+N46SsOl0t4ahm5V+CsyhRgPgHARMZyMr4tIkcAfrR4yHfAp0xzXjrJh
-         IuT3Or84u/2dDr/7NvBHXqExylf+r+SDqtqAddSnuXsLk0u3L7bMS67ZTlOhwHxoprX6
-         CgQHb+MJKbsnAufMMAQcS5rOj/6fWVOzjMJI66P5qopGrJChSwz5wDtBIBkqZN/W5r9Y
-         9hht2Tx92YVzV1dZbvviB/E0hKjtDRpxw2fvHm6zivWFw7n4OqmO9ZrM+gH4F3MXkqgL
-         MGCA==
-X-Gm-Message-State: AOJu0YwieK9mB9OM7cCrq5t3zV/+sn6DUa9eJdndkwFSRUGjAjoGiIq/
-        v7Ts8kxf0bX2iep2U9aF2xvZtA==
-X-Google-Smtp-Source: AGHT+IG9lm23RRLom/xb7C80klG2aDXB0ZwUgcZV4fsV/hyXYHdBd19S4I3YH9SwHqrCXPj4TdemSQ==
-X-Received: by 2002:a17:90a:f982:b0:26b:4e59:57e7 with SMTP id cq2-20020a17090af98200b0026b4e5957e7mr1730234pjb.43.1692196727793;
-        Wed, 16 Aug 2023 07:38:47 -0700 (PDT)
-Received: from localhost ([135.180.227.0])
-        by smtp.gmail.com with ESMTPSA id gi23-20020a17090b111700b0025645ce761dsm13120399pjb.35.2023.08.16.07.38.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Aug 2023 07:38:47 -0700 (PDT)
-Date:   Wed, 16 Aug 2023 07:38:47 -0700 (PDT)
-X-Google-Original-Date: Wed, 16 Aug 2023 07:38:45 PDT (-0700)
-Subject:     Re: [PATCH 00/17] -Wmissing-prototype warning fixes
-In-Reply-To: <20230810141947.1236730-1-arnd@kernel.org>
-CC:     akpm@linux-foundation.org, linux-kernel@vger.kernel.org,
-        Arnd Bergmann <arnd@arndb.de>, mattst88@gmail.com,
-        vgupta@kernel.org, linux@armlinux.org.uk,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, guoren@kernel.org,
-        bcain@quicinc.com, chenhuacai@kernel.org, kernel@xen0n.name,
-        geert@linux-m68k.org, monstr@monstr.eu, tsbogend@alpha.franken.de,
-        dinguyen@kernel.org, jonas@southpole.se,
-        stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
-        James.Bottomley@HansenPartnership.com, deller@gmx.de,
-        mpe@ellerman.id.au, christophe.leroy@csgroup.eu, hca@linux.ibm.com,
-        glaubitz@physik.fu-berlin.de, x86@kernel.org, bp@alien8.de,
-        jcmvbkbc@gmail.com, axboe@kernel.dk, sudipm.mukherjee@gmail.com,
-        martin.petersen@oracle.com, richard@nod.at, bhelgaas@google.com,
-        masahiroy@kernel.org, nathan@kernel.org, ndesaulniers@google.com,
-        linux@roeck-us.net, Stephen Rothwell <sfr@canb.auug.org.au>,
-        linux-next@vger.kernel.org, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-block@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-mtd@lists.infradead.org, linux-trace-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-kbuild@vger.kernel.org
-From:   Palmer Dabbelt <palmer@dabbelt.com>
-To:     arnd@kernel.org
-Message-ID: <mhng-ce493a2d-71e9-440f-84d0-522a4f694bbe@palmer-ri-x1c9>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S1344331AbjHPPob (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Aug 2023 11:44:31 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02F5D2711;
+        Wed, 16 Aug 2023 08:44:28 -0700 (PDT)
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37GFeiDr002766;
+        Wed, 16 Aug 2023 15:44:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=Wq4rVGv7mURGeMjWpmI1pyPB5doRfFVO1W+MtKrYPyA=;
+ b=nWdGPzhZ4S238knTsIjTRJv0zTVcrGI3eGSorY8ooQejDQp7AJRQwn7JuBmboxUVtBf7
+ lyRaSitw8eKauGIQlTHCEKULlXb7saSB/3Jb5q2wZKAIbKv/eF4q/6NzbnXybpr6Ovbu
+ DRQlPJf8bshlU531LRlhicFTCsJF50TdSPXgQIP30IVd5JvDuBxt8yzbah+m/8NMUlRz
+ o0vbtI/OWu51LY3Xjlba8J7MHDVPvfN+EUh+qvKWnnekGH6XYgxq6XjEhrYwZZ+rwQzt
+ s0rI+awVoQFyuGrSk63gGv0/dOUvH6fFnMqTOM2s/nZ7vdN8MhQwMJ+R7+kVzzeZpKDf pQ== 
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sh0ymgmbw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Aug 2023 15:44:25 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37GEgOZL001078;
+        Wed, 16 Aug 2023 15:44:25 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3semsyebq4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Aug 2023 15:44:25 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37GFiLS620447850
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 16 Aug 2023 15:44:22 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E451C20043;
+        Wed, 16 Aug 2023 15:44:21 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6F73720040;
+        Wed, 16 Aug 2023 15:44:21 +0000 (GMT)
+Received: from osiris (unknown [9.171.77.81])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Wed, 16 Aug 2023 15:44:21 +0000 (GMT)
+Date:   Wed, 16 Aug 2023 17:44:19 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     Mimi Zohar <zohar@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-integrity@vger.kernel.org
+Subject: Re: [PATCH v2] s390/ipl: fix virtual vs physical address confusion
+Message-ID: <20230816154419.29011-A-hca@linux.ibm.com>
+References: <20230816132942.2540411-1-agordeev@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230816132942.2540411-1-agordeev@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: h-S-ZZLIQBO4a5punWEJTqAf-ESnngyj
+X-Proofpoint-GUID: h-S-ZZLIQBO4a5punWEJTqAf-ESnngyj
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
+ definitions=2023-08-16_15,2023-08-15_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ lowpriorityscore=0 spamscore=0 impostorscore=0 phishscore=0
+ mlxlogscore=689 priorityscore=1501 bulkscore=0 mlxscore=0 adultscore=0
+ suspectscore=0 clxscore=1011 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2306200000 definitions=main-2308160135
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 10 Aug 2023 07:19:18 PDT (-0700), arnd@kernel.org wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
->
-> Most of the patches I sent so far for the -Wmissing-prototype warnings
-> have made it into linux-next now. There are a few that I'm resending
-> now as nobody has picked them up, and then a number of fixes that I
-> found while test-building across all architectures rather than just the
-> ones I usually test.
->
-> The first 15 patches in this series should be uncontroversial, so
-> I expect that either a subsystem maintainer or Andrew Morton can
-> apply these directly.
->
-> For the last two patches, these might still need some debate about how
-> to handle them. I added a Kconfig option to turn off most of the missing
-> prototype warnings in the architectures that nobody has fixed yet,
-> see patch 16 for those. The last patch does cause some known warnings
-> and likely unknown ones for architectures other than x86 and arm,
-> so applying it now will bring new problems, but not applying it also
-> means that new warnings creep in, so I think this is mainly a question
-> of what the best timing is for having this in linux-next.
->
-> Arnd Bergmann (17):
->   [RESEND] jffs2: mark __jffs2_dbg_superblock_counts() static
->   [RESEND] irq_work: consolidate arch_irq_work_raise prototypes
->   [RESEND] ida: make 'ida_dump' static
->   pci: sysfs: move declarations to linux/pci.h
->   swim3: mark swim3_init() static
->   macintosh/ams: mark ams_init() static
->   scsi: qlogicpti: mark qlogicpti_info() static
->   microblaze: mark flush_dcache_folio() inline
->   parport: gsc: mark init function static
->   zorro: include zorro.h in names.c
->   scsi: gvp11: remove unused gvp11_setup() function
->   time: make sysfs_get_uname() function visible in header
->   stackleak: add declarations for global functions
->   kprobes: unify kprobes_exceptions_nofify() prototypes
->   arch: fix asm-offsets.c building with -Wmissing-prototypes
->   [RFC] arch: turn -Wmissing-prototypes off conditionally
->   [RFC] Makefile.extrawarn: turn on missing-prototypes again
->
->  arch/alpha/Kbuild                        |  2 ++
->  arch/alpha/include/asm/pci.h             |  3 ---
->  arch/alpha/kernel/asm-offsets.c          |  2 +-
->  arch/alpha/lib/Makefile                  |  1 +
->  arch/arc/Kbuild                          |  2 ++
->  arch/arc/include/asm/kprobes.h           |  3 ---
->  arch/arm/include/asm/irq_work.h          |  2 --
->  arch/arm/include/asm/kprobes.h           |  2 --
->  arch/arm64/include/asm/irq_work.h        |  2 --
->  arch/arm64/include/asm/kprobes.h         |  2 --
->  arch/csky/Kbuild                         |  2 ++
->  arch/csky/include/asm/irq_work.h         |  2 +-
->  arch/hexagon/Kbuild                      |  2 ++
->  arch/ia64/Kbuild                         |  2 ++
->  arch/ia64/include/asm/kprobes.h          |  2 --
->  arch/ia64/kernel/asm-offsets.c           |  2 +-
->  arch/ia64/lib/Makefile                   |  1 +
->  arch/loongarch/Kbuild                    |  2 ++
->  arch/loongarch/kernel/asm-offsets.c      | 12 ++++++++++++
->  arch/m68k/Kbuild                         |  2 ++
->  arch/m68k/lib/Makefile                   |  1 +
->  arch/microblaze/Kbuild                   |  2 ++
->  arch/microblaze/include/asm/cacheflush.h |  2 +-
->  arch/mips/Kbuild                         |  2 ++
->  arch/mips/boot/compressed/Makefile       |  3 ++-
->  arch/mips/include/asm/kprobes.h          |  2 --
->  arch/nios2/Kbuild                        |  2 ++
->  arch/nios2/lib/Makefile                  |  1 +
->  arch/openrisc/Kbuild                     |  2 ++
->  arch/parisc/Kbuild                       |  2 ++
->  arch/parisc/lib/Makefile                 |  1 +
->  arch/powerpc/include/asm/irq_work.h      |  1 -
->  arch/powerpc/include/asm/kprobes.h       |  2 --
->  arch/riscv/include/asm/irq_work.h        |  2 +-
->  arch/s390/include/asm/irq_work.h         |  2 --
->  arch/s390/include/asm/kprobes.h          |  2 --
->  arch/sh/Kbuild                           |  2 ++
->  arch/sh/boot/compressed/Makefile         |  1 +
->  arch/sh/include/asm/kprobes.h            |  2 --
->  arch/sparc/Kbuild                        |  2 ++
->  arch/sparc/include/asm/kprobes.h         |  2 --
->  arch/sparc/kernel/asm-offsets.c          | 13 ++-----------
->  arch/sparc/lib/Makefile                  |  1 +
->  arch/sparc/prom/Makefile                 |  1 +
->  arch/x86/include/asm/irq_work.h          |  1 -
->  arch/x86/include/asm/kprobes.h           |  2 --
->  arch/xtensa/Kbuild                       |  2 ++
->  arch/xtensa/boot/lib/Makefile            |  2 ++
->  drivers/block/swim3.c                    |  2 +-
->  drivers/macintosh/ams/ams-core.c         |  2 +-
->  drivers/parport/parport_gsc.c            |  2 +-
->  drivers/scsi/gvp11.c                     |  5 -----
->  drivers/scsi/qlogicpti.c                 |  2 +-
->  drivers/zorro/names.c                    |  1 +
->  fs/jffs2/debug.c                         |  2 +-
->  include/linux/irq_work.h                 |  3 +++
->  include/linux/kprobes.h                  |  4 ++++
->  include/linux/pci.h                      |  5 +++++
->  include/linux/stackleak.h                |  6 ++++++
->  init/Kconfig                             | 10 ++++++++++
->  kernel/time/tick-internal.h              |  3 ++-
->  lib/test_ida.c                           |  2 +-
->  scripts/Makefile.extrawarn               |  5 +++--
->  63 files changed, 101 insertions(+), 63 deletions(-)
+On Wed, Aug 16, 2023 at 03:29:42PM +0200, Alexander Gordeev wrote:
+> The value of ipl_cert_list_addr boot variable contains
+> a physical address, which is used directly. That works
+> because virtual and physical address spaces are currently
+> the same, but otherwise it is wrong.
+> 
+> While at it, fix also a comment for the platform keyring.
+> 
+> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> ---
+>  arch/s390/kernel/machine_kexec_file.c             | 4 ++--
+>  arch/s390/kernel/setup.c                          | 2 +-
+>  security/integrity/platform_certs/load_ipl_s390.c | 4 ++--
+>  3 files changed, 5 insertions(+), 5 deletions(-)
 
-Acked-by: Palmer Dabbelt <palmer@rivosinc.com> # RISC-V
+Mimi, Jarkko, any objections from your side?
+I would take this via the s390 tree.
