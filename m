@@ -2,103 +2,81 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2233C04A94
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Aug 2023 07:15:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32509C04A94
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Aug 2023 08:12:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242340AbjHPHPH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Aug 2023 03:15:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36898 "EHLO
+        id S242793AbjHPIME (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Aug 2023 04:12:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242339AbjHPHOo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Aug 2023 03:14:44 -0400
-Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F92E2110;
-        Wed, 16 Aug 2023 00:14:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canb.auug.org.au;
-        s=201702; t=1692170081;
-        bh=+feYQdKM1V6Lo60EyEJBEmLntK2OJwqq3SvU9qUhFsI=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=sfq15zyicbDJREJYQXmG2ooXB6gffWT5twNv9Bn6oRAo5tjeIMy4I0dR1Wl2BdE6h
-         Ysxy6/sIJtFVTddxueKPF6RVps+KlyynwjzBVWqasBvAGNg77t/4TJCNlOg/nydvch
-         sHgJiiLoOLhxuLyyoP6lZ4PW5l6R+U6pLVtqzE5Qn/LkqhMbOl5LPQVPeNnth+oN05
-         hRdEZYaj2MIrMktorrc/wthju6ebvcjfXUg3n3CgY6ruXBYO/kRunT9NDayXxfMbJQ
-         kCdi37FyiuArXqYEL7KcB4sGZ3lSuV4gVDhgOOgK2C5c7RVvnJBycBMzPb8U+xYL0P
-         jXSy1IhfXvDFQ==
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        with ESMTP id S242685AbjHPILd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Aug 2023 04:11:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83023AB;
+        Wed, 16 Aug 2023 01:11:32 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4RQfXK0XZwz4wb0;
-        Wed, 16 Aug 2023 17:14:40 +1000 (AEST)
-Date:   Wed, 16 Aug 2023 17:14:39 +1000
-From:   Stephen Rothwell <sfr@canb.auug.org.au>
-To:     Randy Dunlap <rdunlap@infradead.org>
-Cc:     linux-kernel@vger.kernel.org, linux-next@vger.kernel.org,
-        linux-kbuild@vger.kernel.org,
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 177826345F;
+        Wed, 16 Aug 2023 08:11:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 552FFC433C7;
+        Wed, 16 Aug 2023 08:11:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1692173491;
+        bh=Vaj4jf6XLcsiRxLxN7vFGefZkgbs6uwB9LPt3hNn17k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WEzohTfbauIWJLpGGasVcvpqjbQio9vmTLRIqqxc1ESh1HoWRnBgljFF9Ibuu+3Rb
+         B9TTxjHL97V6ANBb5SwwTXoQs37cqfAeAN/v2ozcDAKtNLps1bhBY86LVHunYplTNP
+         3bregalJtbOUEcDu6nxnZ4Tb8lgDTNv+6/B1cnqRD74xZcNv5Nu6TIZaq6R/xM1nC0
+         yKbBNCGAt/p1eCtvoylCpDU9SquxB542zRG3IheqIxaXDsZhZXaBGLgvyso77512fL
+         p0QBGwloTX8grMsVga6hMOU3ZwmD01an3QypD/BWiZGL11JhvhLFuBwkJU3jJF8VU3
+         hwoJVSYsbMEDA==
+Date:   Wed, 16 Aug 2023 10:11:26 +0200
+From:   Christian Brauner <brauner@kernel.org>
+To:     Stephen Rothwell <sfr@canb.auug.org.au>
+Cc:     Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org,
+        linux-next@vger.kernel.org, linux-kbuild@vger.kernel.org,
         Masahiro Yamada <masahiroy@kernel.org>,
         linux-s390@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
         Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Christian Brauner <brauner@kernel.org>,
         Christoph Hellwig <hch@lst.de>
 Subject: Re: linux-next-2023-0815: s390/block/dasd: build error
-Message-ID: <20230816170934.71a5e306@oak.ozlabs.ibm.com>
-In-Reply-To: <95b176a2-3670-1e89-c8f6-86b094eebc4c@infradead.org>
+Message-ID: <20230816-substantiell-ansporn-5db2e3d0c877@brauner>
 References: <95b176a2-3670-1e89-c8f6-86b094eebc4c@infradead.org>
+ <20230816170934.71a5e306@oak.ozlabs.ibm.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_/kW=O0+B7jK_ZpntnFB2yUm6";
- protocol="application/pgp-signature"; micalg=pgp-sha256
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20230816170934.71a5e306@oak.ozlabs.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
---Sig_/kW=O0+B7jK_ZpntnFB2yUm6
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Wed, Aug 16, 2023 at 05:14:39PM +1000, Stephen Rothwell wrote:
+> Hi Randy,
+> 
+> On Tue, 15 Aug 2023 22:34:19 -0700 Randy Dunlap <rdunlap@infradead.org> wrote:
+> >
+> > I have spent some time on this but I don't see where the problem is.
+> > 
+> > ERROR: modpost: "bdev_mark_dead" [drivers/s390/block/dasd_mod.ko] undefined!
+> > 
+> > CONFIG_BLOCK=y, bdev.o is built and contains the missing symbol.
+> > 
+> > Full randconfig file is attached.
+> > 
+> > Hopefully I'm just overlooking something.
+> 
+> In your config, CONFIG_DASD=m which means "#ifdef CONFIG_DASD" will
+> fail since CONFIG_DASD_MODULE is defined instead ... so maybe it should
+> be "#if IS_ENABLED(CONFIG_DASD)" in block/bdev.c.  This also fails an
+> s390 allmodconfig build (obviously).
+> 
+> So this is caused by commit
+> 
+>   381f678306ce ("block: consolidate __invalidate_device and fsync_bdev")
+> 
+> from the vfs-brauner branch in linux-next.
 
-Hi Randy,
-
-On Tue, 15 Aug 2023 22:34:19 -0700 Randy Dunlap <rdunlap@infradead.org> wro=
-te:
->
-> I have spent some time on this but I don't see where the problem is.
->=20
-> ERROR: modpost: "bdev_mark_dead" [drivers/s390/block/dasd_mod.ko] undefin=
-ed!
->=20
-> CONFIG_BLOCK=3Dy, bdev.o is built and contains the missing symbol.
->=20
-> Full randconfig file is attached.
->=20
-> Hopefully I'm just overlooking something.
-
-In your config, CONFIG_DASD=3Dm which means "#ifdef CONFIG_DASD" will
-fail since CONFIG_DASD_MODULE is defined instead ... so maybe it should
-be "#if IS_ENABLED(CONFIG_DASD)" in block/bdev.c.  This also fails an
-s390 allmodconfig build (obviously).
-
-So this is caused by commit
-
-  381f678306ce ("block: consolidate __invalidate_device and fsync_bdev")
-
-from the vfs-brauner branch in linux-next.
---=20
-Cheers,
-Stephen Rothwell
-
---Sig_/kW=O0+B7jK_ZpntnFB2yUm6
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAmTcd2AACgkQAVBC80lX
-0GxgMwf/dh+8co31G3DSQJ3eyvXpUaeisGE0JCkCBmexHbtGM+G+bKOTwxm3NXqC
-aheTVU66xx5aQODR1aOdfdd9bRSl959MlQ6Mu7SR7ys/Muvxvf+rv78sIkUYaVw1
-I7N6Q7G/G/Hqe/1ebZ29QTJ0gtZ47pG5x/V4882Q6WT64rNcutnbQNnI8vqvqELX
-V3FRt1lxlI2bfzlPWTf1AInuqyCQ/khTang5OVXeEk8ctU3J6bsqCB6zpBINwa8j
-m8sHfhffMkl44cj8asSQPhppiuLOPSzBC7eE2GMw1i7HenrsEgO8+2tU2g1d0IDC
-2f2/KFqR3oxIhmwDb6cFHXSSQJbzrA==
-=lP0e
------END PGP SIGNATURE-----
-
---Sig_/kW=O0+B7jK_ZpntnFB2yUm6--
+Thanks for reporting this everyone. Fixed in-tree.
