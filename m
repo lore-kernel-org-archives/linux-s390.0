@@ -2,209 +2,218 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60602C04E69
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Aug 2023 12:45:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26721C001E0
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Aug 2023 12:58:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244636AbjHPMpR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Aug 2023 08:45:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41480 "EHLO
+        id S232999AbjHPM5f (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Aug 2023 08:57:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244606AbjHPMor (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Aug 2023 08:44:47 -0400
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2059.outbound.protection.outlook.com [40.107.92.59])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 505E726B7;
-        Wed, 16 Aug 2023 05:44:46 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=IWb9Q+f2EXppGaziNP28OUnaeQjMXy4c/b9vVVTlK6KKfHtX92XfP1H9noW6h15v8BeBYAOHbsa+Pgw5y+I/VF1jQRVaSntwQIGuhvqozmS/bFCGIvsOnKSapQjAtTkJq7oXseGNPdabVGpsznLHaka8Nerxf8DICVC7MMuSZftGXvl1O0Jgu2a5dJ2CY9RKqOcQPbLHtOxK3Jme4x7SMFsVrp7dFJvIjVwIAZ1XmMbtdiwDZ6rg2+hEAGUKZ2mC+KNu4xL5EyIUO9+K3qtijyCDgA03D2WvhpKzJm678Uihrbb70JSkwaZjnzCgzYbPq9uEEHxB9TZCN8Aq1t6FAQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=HTIS3tL6o8HXFow2YwPQlHE6eJ8x2zeA+YIsj9Z+Vbg=;
- b=K6+bLeOXOBBTbqjHoDEzbM8EcvtWgnkJ2F4fCPdXSxZefTQJ/Tv2DSZRFILp5OQMxplw4LE0p5dOnpeAW5mpq9JN3DD+3f3tvzhX7VrpkCd9u7uUJLTWyaxqAtxJSSs3f3yxc3zqIl/UTZJIMDHYSVv9oXCPAEnYyRGprfTqPl83NuNisKZDbYKtKbfa2f6GsN3xg2oE/Uejs/FF/FeBR602WGirKo7V7RLGAA36znHvC+rVG2HswV/Q7pdpllxgvwyRu5BTBosmKMVjgxQWQAD/2veQJZDSiPuixSOL5lDa2m5Zf/Ppf8ENB3QrfjoT+pJfUYkuL7voEL3lp7rhog==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HTIS3tL6o8HXFow2YwPQlHE6eJ8x2zeA+YIsj9Z+Vbg=;
- b=MvUcAMIqiNrh/5CBIMIilz1XobwuGwolomHxiVTgo2wex2AdsHvE9g4a1rIC/VIxVrqa4wVmYQ2vbVBXjYTTYQ2wY9yiYVIbO+nee49m0BHoS0g+SvOjQcLvSsRaqrRvfAihXK/slbWnAh5dxEXIMIeyytb/oLM2fHn8pcZFFRYXi41aY5aLhiS9wLIr5N+4+nmtoch9tV5lafCu5TscvtcmuEeJhCoICkui6Xp/3cDlI6xzcAX8bFe5tm0BO4cqC3Q7LEdPZ8qGCaSrz/HnOp9vMmmJHZS9GVgOLkWM9dCvJoLVoJNejXoRGDNzs23+70ImH5AWQn2kc+KWVWVisA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by PH8PR12MB7445.namprd12.prod.outlook.com (2603:10b6:510:217::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6678.26; Wed, 16 Aug
- 2023 12:44:43 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::5111:16e8:5afe:1da1]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::5111:16e8:5afe:1da1%6]) with mapi id 15.20.6678.025; Wed, 16 Aug 2023
- 12:44:43 +0000
-Date:   Wed, 16 Aug 2023 09:44:41 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Baolu Lu <baolu.lu@linux.intel.com>
-Cc:     Andy Gross <agross@kernel.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        linuxppc-dev@lists.ozlabs.org,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Steven Price <steven.price@arm.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH v6 08/25] iommu: Reorganize
- iommu_get_default_domain_type() to respect def_domain_type()
-Message-ID: <ZNzEubbluKrz6lWs@nvidia.com>
-References: <8-v6-e8114faedade+425-iommu_all_defdom_jgg@nvidia.com>
- <b50a464a-fa28-e359-1bc5-4f2b105326ad@linux.intel.com>
- <ZNpjmiBLneBC9oWe@nvidia.com>
- <c24e7eff-b28c-8152-6022-325ca89c8074@linux.intel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c24e7eff-b28c-8152-6022-325ca89c8074@linux.intel.com>
-X-ClientProxiedBy: CH2PR20CA0028.namprd20.prod.outlook.com
- (2603:10b6:610:58::38) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        with ESMTP id S244612AbjHPM5d (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Aug 2023 08:57:33 -0400
+X-Greylist: delayed 493 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 16 Aug 2023 05:57:32 PDT
+Received: from out-22.mta0.migadu.com (out-22.mta0.migadu.com [91.218.175.22])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28D301BFB
+        for <linux-s390@vger.kernel.org>; Wed, 16 Aug 2023 05:57:32 -0700 (PDT)
+Message-ID: <5421115a-a8d0-0eae-78b1-a2c5977e2ba1@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+        t=1692190155;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=/z0Ig5nxkqFBnmZKSAywmHRcxc65yB50Vvosgp1iux4=;
+        b=xGA7jFj5Gs4zr1A4tnJqZ5lclNfr7RAeFbNOStciN9UwrVtBt4GilxsJbsay1cv1p3ZSlb
+        GSAzG4AD3OKPF/TZL+VzNAFVqbYkr97Bst+dAJ6/8YvXoRjJpx/wzNG4kdeqhCl+uFNZMk
+        BNpFUjGwllUh++IrNzunzduC1yxgyIQ=
+Date:   Wed, 16 Aug 2023 13:49:10 +0100
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|PH8PR12MB7445:EE_
-X-MS-Office365-Filtering-Correlation-Id: d3f25203-f6e6-48bf-b6da-08db9e56907a
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: EfcWWQv83+YJofu3dlHUx8ZSpBkFv+ou/rL0iku77GS2fpxFKJtHuYR99H88r7YwTu7XWtnYrVa7lO3DUS5jg8ypZ5J5cSAszyEHisZ2Ql15iOhOOwYX4OYSwYRFr6SzYX2xJkWqUXxN4QOEu5M+ugzcIukpqYLhd0N55391j8MEKrRJpoj44nMcYUiJEyprP79yToyix806bmGZmcqoMC0PPTB2ZtYN7NVzjuPBkU1Z0UQ1QGxzD3vpWvDzCGOo7fW/BHqdKnAfJrljMMEeCkltKXUpO0jm1Yv1N8rkNczIkAz4+BuW2J8u1P5TQEQAY9EILDskOEqhHZvuOp30v1Q+9H7VPoNsMOCUmuOIugcvm8TMshmI4n3G+ra/ndrZ4+74bx0rry+eFS1uKCmesG0rNKFlztzqpkeDIKnqLQlASrnmEv1cbz4w/r8w7ZhVqBVSXivNgEsUks5HI7IPm90r4Cc60V5zAV9vfIDnigyGapjuDfh0weyR6ZDbXrUzEimM5qMo+fNiSgD3QEWqKJt2rWdMm6KPDmEG9cUbM+8A27/LkG7pe8FMpc3Dr0Dh
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(396003)(39860400002)(346002)(366004)(376002)(136003)(1800799009)(451199024)(186009)(316002)(54906003)(6916009)(66946007)(66476007)(66556008)(41300700001)(5660300002)(38100700002)(8676002)(4326008)(8936002)(2906002)(83380400001)(26005)(478600001)(7416002)(7406005)(86362001)(6512007)(107886003)(6506007)(36756003)(2616005)(6486002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?YEFh7EViI9sw9XM5u/anGA7DFEO/4ik18m+UjLV1E9owrdDWtGikl4IJ5704?=
- =?us-ascii?Q?dQyxu5DpSr6jRzjPV2KGWSR4FPc/c5FqbYwMR8J3CMxQz+b/mqlMHGFxj8aC?=
- =?us-ascii?Q?P4li1BDiqm0fq3p1efavgYUFkoiMr37jkQljLO04ORJnT3spTfwBlOqFOM2A?=
- =?us-ascii?Q?4buifHbEKKiLvdjs/1vocGVQtEguGC6EFVmG0ge+urssgvEgM197Jde7ePEX?=
- =?us-ascii?Q?MdOVaf106dyKRxZ1EPg0Cqt30L380Qnbi4YaG0NsbFjbJ7NrivR9kGZjq4dM?=
- =?us-ascii?Q?9ZuDJVmYXJKxkrO7FAl33onaEIZ/LjiIXcvuRk4y5rWg0fV806ybq99CpIci?=
- =?us-ascii?Q?sxrSB7e3ztnsteXYqu8kGh7Y+aRa68Q+AVlEQLoMVTqDNaicNcj7Hd6yaNv4?=
- =?us-ascii?Q?u4Ht219ivTAciyo/iRW8mVGZyrf2rhDmaDHhc3WYrqkAaIIj2YOO4uSDzZnV?=
- =?us-ascii?Q?BcseGP7Tvo3D4/UZkFaC88C+8TDmGF2LilWRGjyME+8YqCZU3AxLr69SqGrD?=
- =?us-ascii?Q?YBiG+r9xt+FNt3ojTb+iRlwpZdtXgEPMAg6YcTXNhdgrqBI1xTQAveBt3wS7?=
- =?us-ascii?Q?Zr9OZO3ueeEsYFKyoW4/lZB/RNHCEb3y/ricMnhP+/9AofCy0X537zkZWfwG?=
- =?us-ascii?Q?4bn1eS8k/l8jS+zXDLsB3ib68rZGWyNSQLyDaz93DYY4ZkUojd75vL2k8rSs?=
- =?us-ascii?Q?cTDLG38jq2MFi7F1bjG+5hJjQqroY0Wf7HzaisqMg5rG9dp4bKzSkvhYbyum?=
- =?us-ascii?Q?bhU+cPcgJUKqiQhpQ3C/EVZ5qN6fURT2otcjzN9UMCOfDsQBQH7tbuq/jg0A?=
- =?us-ascii?Q?XK3xEpMUhOyGtThZB3nwjdNULwjSG+sg/CmdIBanIGXa+jOb02sXL5uF6SHP?=
- =?us-ascii?Q?6oDb6O/8JA2YO3nX0eD6UKFqXACI9zoBHqTYXKnoy7qnaw4H4ph2M2gMNqt3?=
- =?us-ascii?Q?4z30ETvBrpEDly3/IcbDsDVZiVxAJCeXgX2PykNr5HHNPQ1ZtWxDBS89xCXN?=
- =?us-ascii?Q?841P9DveR/c+7NC9GLPFK2ROlIlqi6MRIf98v0nLSDC6nuJccvy47qahrcgG?=
- =?us-ascii?Q?zHbee8pyTwwfd+FBYOxMlOEVO14KHpz86vDuwTd9PJgOtiYQ4f7SNDHWR1jZ?=
- =?us-ascii?Q?VBii4Um7hAvjsLMSlBHiqg4a4iM+8O7YcevYHOdK1nslrW1OUm1Jq4EQY38/?=
- =?us-ascii?Q?/U/FVZ2dUZEtfmhIkGqMtw42FiFJgclG8xr7Hf/4V2kECpuyifT0twKz6reH?=
- =?us-ascii?Q?h4G2DnoiMf8Fd9VUdY/dzhKXIec8gfUPgOyTooVBXZ289X+mQDuVbUTvRB5w?=
- =?us-ascii?Q?0wkv+mNBb40+M/42WeZt1Px0ym5qbRNNo8iOE6QQ/Dz3gapl2HAHA9OAzTkv?=
- =?us-ascii?Q?hosqrRJ+FWq/rz+6Q+B4zHDGYCB+f61uc+N3h4fa/WeWiiwdKZEHRpwLs7/N?=
- =?us-ascii?Q?oNg5tchl0zBvCNRhLXVUO9rpuw/nYzY6JZRLnXFZQta52wkLa0dJmQmEQXv/?=
- =?us-ascii?Q?ywrktU8BJFXMyxj3Q/RY4bcNrA4t4HbuaVUIR5evMLlZneiQ0ycageRlNG0Z?=
- =?us-ascii?Q?HTFhFvUEy7GB1qQ9XoExhL/bV2n6oknOx66RMf51?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d3f25203-f6e6-48bf-b6da-08db9e56907a
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Aug 2023 12:44:43.4838
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: XvkAla3FxciIfevCAI0JAvhgNXpBl1AUzC0EBX68AI1S/+CGyZcR9y9L1Hw0cA0m
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR12MB7445
+Subject: Re: [PATCH net-next 3/6] net/smc: support smc v2.x features validate
+Content-Language: en-US
+To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com, kgraul@linux.ibm.com,
+        tonylu@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com
+Cc:     horms@kernel.org, alibuda@linux.alibaba.com,
+        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20230816083328.95746-1-guangguan.wang@linux.alibaba.com>
+ <20230816083328.95746-4-guangguan.wang@linux.alibaba.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From:   Vadim Fedorenko <vadim.fedorenko@linux.dev>
+In-Reply-To: <20230816083328.95746-4-guangguan.wang@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Aug 15, 2023 at 09:18:59AM +0800, Baolu Lu wrote:
-
-> > 	/*
-> > 	 * Try to recover, drivers are allowed to force IDENITY or DMA, IDENTITY
-> > 	 * takes precedence.
-> > 	 */
-> > 	if (cur_type || type == IOMMU_DOMAIN_IDENTITY)
-> > 		return IOMMU_DOMAIN_IDENTITY;
+On 16/08/2023 09:33, Guangguan Wang wrote:
+> Support SMC v2.x features validate for SMC v2.1. This is the frame
+> code for SMC v2.x features validate, and will take effects only when
+> the negotiated release version is v2.1 or later.
 > 
-> No need to check cur_type. It already returned if cur_type is 0.
-
-Yep
- 
-> > 	return cur_type;
-> > }
-> > 
-> > /*
-> >   * A target_type of 0 will select the best domain type. 0 can be returned in
-> >   * this case meaning the global default should be used.
-> >   */
-> > static int iommu_get_default_domain_type(struct iommu_group *group,
-> > 					 int target_type)
-> > {
-> > 	struct device *untrusted = NULL;
-> > 	struct group_device *gdev;
-> > 	int driver_type = 0;
-> > 
-> > 	lockdep_assert_held(&group->mutex);
-> > 
-> > 	/*
-> > 	 * ARM32 drivers supporting CONFIG_ARM_DMA_USE_IOMMU can declare an
-> > 	 * identity_domain and it will automatically become their default
-> > 	 * domain. Later on ARM_DMA_USE_IOMMU will install its UNMANAGED domain.
-> > 	 * Override the selection to IDENTITY.
-> > 	 */
-> > 	if (IS_ENABLED(CONFIG_ARM_DMA_USE_IOMMU)) {
-> > 		static_assert(!(IS_ENABLED(CONFIG_ARM_DMA_USE_IOMMU) &&
-> > 				IS_ENABLED(CONFIG_IOMMU_DMA)));
+> For Server, v2.x features' validation should be done in smc_clc_srv_
+> v2x_features_validate when receiving v2.1 or later CLC Proposal Message,
+> such as max conns, max links negotiation, the decision of the final
+> value of max conns and max links should be made in this function.
+> And final check for server when receiving v2.1 or later CLC Confirm
+> Message should be done in smc_clc_v2x_features_confirm_check.
 > 
-> IS_ENABLED(CONFIG_ARM_DMA_USE_IOMMU) is duplicate with the condition in the
-> if statement. So only
-> 		static_assert(!IS_ENABLED(CONFIG_IOMMU_DMA));
-> ?
-
-static_assert doesn't work that way, it ignores its calling context
-and always checks during compilation, so the duplication is required
-
-> > 
-> > 	for_each_group_device(group, gdev) {
-> > 		driver_type = iommu_get_def_domain_type(group, gdev->dev,
-> > 							driver_type);
+> For client, v2.x features' validation should be done in smc_clc_cli_
+> v2x_features_validate when receiving v2.1 or later CLC Accept Message,
+> for example, the decision to accpt the accepted value or to decline
+> should be made in this function.
 > 
-> No need to call this in the loop body?
+> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+> Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+> ---
+>   net/smc/af_smc.c  | 18 ++++++++++++++++++
+>   net/smc/smc_clc.c | 46 ++++++++++++++++++++++++++++++++++++++++++++++
+>   net/smc/smc_clc.h |  7 +++++++
+>   3 files changed, 71 insertions(+)
+> 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index 7b54c153bd0d..65c02b48331f 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -1169,6 +1169,7 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+>   	struct smc_clc_first_contact_ext *fce =
+>   		(struct smc_clc_first_contact_ext *)
+>   			(((u8 *)clc_v2) + sizeof(*clc_v2));
+> +	int rc;
+>   
+>   	if (!ini->first_contact_peer || aclc->hdr.version == SMC_V1)
+>   		return 0;
+> @@ -1189,6 +1190,9 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+>   	}
+>   
+>   	ini->release_nr = fce->release;
+> +	rc = smc_clc_cli_v2x_features_validate(fce, ini);
+> +	if (rc)
+> +		return rc;
+>   
+>   	return 0;
+>   }
+> @@ -1363,6 +1367,9 @@ static int smc_connect_ism(struct smc_sock *smc,
+>   				smc_get_clc_first_contact_ext(aclc_v2, true);
+>   
+>   			ini->release_nr = fce->release;
+> +			rc = smc_clc_cli_v2x_features_validate(fce, ini);
+> +			if (rc)
+> +				return rc;
+>   		}
+>   
+>   		rc = smc_v2_determine_accepted_chid(aclc_v2, ini);
+> @@ -2413,6 +2420,10 @@ static void smc_listen_work(struct work_struct *work)
+>   	if (rc)
+>   		goto out_decl;
+>   
+> +	rc = smc_clc_srv_v2x_features_validate(pclc, ini);
+> +	if (rc)
+> +		goto out_decl;
+> +
+>   	mutex_lock(&smc_server_lgr_pending);
+>   	smc_close_init(new_smc);
+>   	smc_rx_init(new_smc);
+> @@ -2445,6 +2456,13 @@ static void smc_listen_work(struct work_struct *work)
+>   		goto out_decl;
+>   	}
+>   
+> +	rc = smc_clc_v2x_features_confirm_check(cclc, ini);
+> +	if (rc) {
+> +		if (!ini->is_smcd)
+> +			goto out_unlock;
+> +		goto out_decl;
+> +	}
+> +
+>   	/* finish worker */
+>   	if (!ini->is_smcd) {
+>   		rc = smc_listen_rdma_finish(new_smc, cclc,
+> diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+> index 624dc970d187..f71b22e50be5 100644
+> --- a/net/smc/smc_clc.c
+> +++ b/net/smc/smc_clc.c
+> @@ -1158,6 +1158,52 @@ int smc_clc_send_accept(struct smc_sock *new_smc, bool srv_first_contact,
+>   	return len > 0 ? 0 : len;
+>   }
+>   
+> +int smc_clc_srv_v2x_features_validate(struct smc_clc_msg_proposal *pclc,
+> +				      struct smc_init_info *ini)
+> +{
+> +	struct smc_clc_v2_extension *pclc_v2_ext;
+> +
+> +	if ((!(ini->smcd_version & SMC_V2) && !(ini->smcr_version & SMC_V2)) ||
+> +	    ini->release_nr < SMC_RELEASE_1)
+> +		return 0;
+> +
+> +	pclc_v2_ext = smc_get_clc_v2_ext(pclc);
+> +	if (!pclc_v2_ext)
+> +		return SMC_CLC_DECL_NOV2EXT;
+> +
+> +	return 0;
+> +}
+> +
+> +int smc_clc_cli_v2x_features_validate(struct smc_clc_first_contact_ext *fce,
+> +				      struct smc_init_info *ini)
+> +{
+> +	if (ini->release_nr < SMC_RELEASE_1)
+> +		return 0;
+> +
+> +	return 0;
+> +}
 
-Do need it, this only gets the def_domain_type of a single device so
-we have to iterate over all the devices in the group to 'reduce' the
-type for the group.
+This function always returns 0. Is it really what expected?
 
-Thanks,
-Jason
+> +
+> +int smc_clc_v2x_features_confirm_check(struct smc_clc_msg_accept_confirm *cclc,
+> +				       struct smc_init_info *ini)
+> +{
+> +	struct smc_clc_msg_accept_confirm_v2 *clc_v2 =
+> +		(struct smc_clc_msg_accept_confirm_v2 *)cclc;
+> +	struct smc_clc_first_contact_ext *fce =
+> +		smc_get_clc_first_contact_ext(clc_v2, ini->is_smcd);
+> +
+> +	if (cclc->hdr.version == SMC_V1 ||
+> +	    !(cclc->hdr.typev2 & SMC_FIRST_CONTACT_MASK))
+> +		return 0;
+> +
+> +	if (ini->release_nr != fce->release)
+> +		return SMC_CLC_DECL_RELEASEERR;
+> +
+> +	if (fce->release < SMC_RELEASE_1)
+> +		return 0;
+> +
+> +	return 0;
+> +}
+> +
+>   void smc_clc_get_hostname(u8 **host)
+>   {
+>   	*host = &smc_hostname[0];
+> diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+> index 6133276a8839..66932bfdc6d0 100644
+> --- a/net/smc/smc_clc.h
+> +++ b/net/smc/smc_clc.h
+> @@ -45,6 +45,7 @@
+>   #define SMC_CLC_DECL_NOSEID	0x03030006  /* peer sent no SEID	      */
+>   #define SMC_CLC_DECL_NOSMCD2DEV	0x03030007  /* no SMC-Dv2 device found	      */
+>   #define SMC_CLC_DECL_NOUEID	0x03030008  /* peer sent no UEID	      */
+> +#define SMC_CLC_DECL_RELEASEERR	0x03030009  /* release version negotiate failed */
+>   #define SMC_CLC_DECL_MODEUNSUPP	0x03040000  /* smc modes do not match (R or D)*/
+>   #define SMC_CLC_DECL_RMBE_EC	0x03050000  /* peer has eyecatcher in RMBE    */
+>   #define SMC_CLC_DECL_OPTUNSUPP	0x03060000  /* fastopen sockopt not supported */
+> @@ -415,6 +416,12 @@ int smc_clc_send_confirm(struct smc_sock *smc, bool clnt_first_contact,
+>   			 u8 version, u8 *eid, struct smc_init_info *ini);
+>   int smc_clc_send_accept(struct smc_sock *smc, bool srv_first_contact,
+>   			u8 version, u8 *negotiated_eid, struct smc_init_info *ini);
+> +int smc_clc_srv_v2x_features_validate(struct smc_clc_msg_proposal *pclc,
+> +				      struct smc_init_info *ini);
+> +int smc_clc_cli_v2x_features_validate(struct smc_clc_first_contact_ext *fce,
+> +				      struct smc_init_info *ini);
+> +int smc_clc_v2x_features_confirm_check(struct smc_clc_msg_accept_confirm *cclc,
+> +				       struct smc_init_info *ini);
+>   void smc_clc_init(void) __init;
+>   void smc_clc_exit(void);
+>   void smc_clc_get_hostname(u8 **host);
+
