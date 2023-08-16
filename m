@@ -2,218 +2,147 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26721C001E0
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Aug 2023 12:58:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 587FAC001B0
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Aug 2023 13:30:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232999AbjHPM5f (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Aug 2023 08:57:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57252 "EHLO
+        id S245518AbjHPNaS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Aug 2023 09:30:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244612AbjHPM5d (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Aug 2023 08:57:33 -0400
-X-Greylist: delayed 493 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 16 Aug 2023 05:57:32 PDT
-Received: from out-22.mta0.migadu.com (out-22.mta0.migadu.com [91.218.175.22])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28D301BFB
-        for <linux-s390@vger.kernel.org>; Wed, 16 Aug 2023 05:57:32 -0700 (PDT)
-Message-ID: <5421115a-a8d0-0eae-78b1-a2c5977e2ba1@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1692190155;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=/z0Ig5nxkqFBnmZKSAywmHRcxc65yB50Vvosgp1iux4=;
-        b=xGA7jFj5Gs4zr1A4tnJqZ5lclNfr7RAeFbNOStciN9UwrVtBt4GilxsJbsay1cv1p3ZSlb
-        GSAzG4AD3OKPF/TZL+VzNAFVqbYkr97Bst+dAJ6/8YvXoRjJpx/wzNG4kdeqhCl+uFNZMk
-        BNpFUjGwllUh++IrNzunzduC1yxgyIQ=
-Date:   Wed, 16 Aug 2023 13:49:10 +0100
+        with ESMTP id S245553AbjHPN35 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Aug 2023 09:29:57 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8669FE52;
+        Wed, 16 Aug 2023 06:29:56 -0700 (PDT)
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37GDNPqj002133;
+        Wed, 16 Aug 2023 13:29:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=OigVN8noRxBDELAL7Iv04TJVBEEGzmfN/blTpSjhA8o=;
+ b=Iv9U9il5VKP7F1ZAm3vnBYr5HjbhqaO5+TB4HGXQaAWwQgzV4LOcb3/BcWfOqS2VpEAJ
+ 2Jlt/j2xfBp7wS1jVqOaFNQuJUG0Xo40vcW4vhe1X6sMXYVqtvdsDji+Vo/X3tx+Z4FW
+ SDHBSVYesQHNVkZuiyVuqhV2+outrqdJuexte1HqGBi2+KE8JQ5CP5BkTuyX9AVXIJbX
+ SLtg8PeYchsNCyaJKXvSazfXyqpymQkylr0ARYp+/970DAwGxrNZVfn1sBoTqKp3kVyg
+ V95B4/mWZtVvXztxyaK+kVYRXqVqShQgEvRTv712fkIkTfWulpdTq+NIXhIpyu/c7ucb Dw== 
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sgy9sg48t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Aug 2023 13:29:47 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37GAwnDC013323;
+        Wed, 16 Aug 2023 13:29:46 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3sepmjv0ws-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Aug 2023 13:29:46 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37GDTgkt61866324
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 16 Aug 2023 13:29:43 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A6ECF2004E;
+        Wed, 16 Aug 2023 13:29:42 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9FBBC2004D;
+        Wed, 16 Aug 2023 13:29:42 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Wed, 16 Aug 2023 13:29:42 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
+        id 60E46E012C; Wed, 16 Aug 2023 15:29:42 +0200 (CEST)
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-integrity@vger.kernel.org
+Subject: [PATCH v2] s390/ipl: fix virtual vs physical address confusion
+Date:   Wed, 16 Aug 2023 15:29:42 +0200
+Message-Id: <20230816132942.2540411-1-agordeev@linux.ibm.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-Subject: Re: [PATCH net-next 3/6] net/smc: support smc v2.x features validate
-Content-Language: en-US
-To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, kgraul@linux.ibm.com,
-        tonylu@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com
-Cc:     horms@kernel.org, alibuda@linux.alibaba.com,
-        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20230816083328.95746-1-guangguan.wang@linux.alibaba.com>
- <20230816083328.95746-4-guangguan.wang@linux.alibaba.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   Vadim Fedorenko <vadim.fedorenko@linux.dev>
-In-Reply-To: <20230816083328.95746-4-guangguan.wang@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: b7QQLr02N6qWdOM5aMQnrJ-5Epm3pFGp
+X-Proofpoint-ORIG-GUID: b7QQLr02N6qWdOM5aMQnrJ-5Epm3pFGp
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
+ definitions=2023-08-16_12,2023-08-15_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
+ bulkscore=0 priorityscore=1501 suspectscore=0 mlxscore=0 impostorscore=0
+ malwarescore=0 mlxlogscore=999 adultscore=0 lowpriorityscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2308160114
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 16/08/2023 09:33, Guangguan Wang wrote:
-> Support SMC v2.x features validate for SMC v2.1. This is the frame
-> code for SMC v2.x features validate, and will take effects only when
-> the negotiated release version is v2.1 or later.
-> 
-> For Server, v2.x features' validation should be done in smc_clc_srv_
-> v2x_features_validate when receiving v2.1 or later CLC Proposal Message,
-> such as max conns, max links negotiation, the decision of the final
-> value of max conns and max links should be made in this function.
-> And final check for server when receiving v2.1 or later CLC Confirm
-> Message should be done in smc_clc_v2x_features_confirm_check.
-> 
-> For client, v2.x features' validation should be done in smc_clc_cli_
-> v2x_features_validate when receiving v2.1 or later CLC Accept Message,
-> for example, the decision to accpt the accepted value or to decline
-> should be made in this function.
-> 
-> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-> Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-> ---
->   net/smc/af_smc.c  | 18 ++++++++++++++++++
->   net/smc/smc_clc.c | 46 ++++++++++++++++++++++++++++++++++++++++++++++
->   net/smc/smc_clc.h |  7 +++++++
->   3 files changed, 71 insertions(+)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 7b54c153bd0d..65c02b48331f 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -1169,6 +1169,7 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
->   	struct smc_clc_first_contact_ext *fce =
->   		(struct smc_clc_first_contact_ext *)
->   			(((u8 *)clc_v2) + sizeof(*clc_v2));
-> +	int rc;
->   
->   	if (!ini->first_contact_peer || aclc->hdr.version == SMC_V1)
->   		return 0;
-> @@ -1189,6 +1190,9 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
->   	}
->   
->   	ini->release_nr = fce->release;
-> +	rc = smc_clc_cli_v2x_features_validate(fce, ini);
-> +	if (rc)
-> +		return rc;
->   
->   	return 0;
->   }
-> @@ -1363,6 +1367,9 @@ static int smc_connect_ism(struct smc_sock *smc,
->   				smc_get_clc_first_contact_ext(aclc_v2, true);
->   
->   			ini->release_nr = fce->release;
-> +			rc = smc_clc_cli_v2x_features_validate(fce, ini);
-> +			if (rc)
-> +				return rc;
->   		}
->   
->   		rc = smc_v2_determine_accepted_chid(aclc_v2, ini);
-> @@ -2413,6 +2420,10 @@ static void smc_listen_work(struct work_struct *work)
->   	if (rc)
->   		goto out_decl;
->   
-> +	rc = smc_clc_srv_v2x_features_validate(pclc, ini);
-> +	if (rc)
-> +		goto out_decl;
-> +
->   	mutex_lock(&smc_server_lgr_pending);
->   	smc_close_init(new_smc);
->   	smc_rx_init(new_smc);
-> @@ -2445,6 +2456,13 @@ static void smc_listen_work(struct work_struct *work)
->   		goto out_decl;
->   	}
->   
-> +	rc = smc_clc_v2x_features_confirm_check(cclc, ini);
-> +	if (rc) {
-> +		if (!ini->is_smcd)
-> +			goto out_unlock;
-> +		goto out_decl;
-> +	}
-> +
->   	/* finish worker */
->   	if (!ini->is_smcd) {
->   		rc = smc_listen_rdma_finish(new_smc, cclc,
-> diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-> index 624dc970d187..f71b22e50be5 100644
-> --- a/net/smc/smc_clc.c
-> +++ b/net/smc/smc_clc.c
-> @@ -1158,6 +1158,52 @@ int smc_clc_send_accept(struct smc_sock *new_smc, bool srv_first_contact,
->   	return len > 0 ? 0 : len;
->   }
->   
-> +int smc_clc_srv_v2x_features_validate(struct smc_clc_msg_proposal *pclc,
-> +				      struct smc_init_info *ini)
-> +{
-> +	struct smc_clc_v2_extension *pclc_v2_ext;
-> +
-> +	if ((!(ini->smcd_version & SMC_V2) && !(ini->smcr_version & SMC_V2)) ||
-> +	    ini->release_nr < SMC_RELEASE_1)
-> +		return 0;
-> +
-> +	pclc_v2_ext = smc_get_clc_v2_ext(pclc);
-> +	if (!pclc_v2_ext)
-> +		return SMC_CLC_DECL_NOV2EXT;
-> +
-> +	return 0;
-> +}
-> +
-> +int smc_clc_cli_v2x_features_validate(struct smc_clc_first_contact_ext *fce,
-> +				      struct smc_init_info *ini)
-> +{
-> +	if (ini->release_nr < SMC_RELEASE_1)
-> +		return 0;
-> +
-> +	return 0;
-> +}
+The value of ipl_cert_list_addr boot variable contains
+a physical address, which is used directly. That works
+because virtual and physical address spaces are currently
+the same, but otherwise it is wrong.
 
-This function always returns 0. Is it really what expected?
+While at it, fix also a comment for the platform keyring.
 
-> +
-> +int smc_clc_v2x_features_confirm_check(struct smc_clc_msg_accept_confirm *cclc,
-> +				       struct smc_init_info *ini)
-> +{
-> +	struct smc_clc_msg_accept_confirm_v2 *clc_v2 =
-> +		(struct smc_clc_msg_accept_confirm_v2 *)cclc;
-> +	struct smc_clc_first_contact_ext *fce =
-> +		smc_get_clc_first_contact_ext(clc_v2, ini->is_smcd);
-> +
-> +	if (cclc->hdr.version == SMC_V1 ||
-> +	    !(cclc->hdr.typev2 & SMC_FIRST_CONTACT_MASK))
-> +		return 0;
-> +
-> +	if (ini->release_nr != fce->release)
-> +		return SMC_CLC_DECL_RELEASEERR;
-> +
-> +	if (fce->release < SMC_RELEASE_1)
-> +		return 0;
-> +
-> +	return 0;
-> +}
-> +
->   void smc_clc_get_hostname(u8 **host)
->   {
->   	*host = &smc_hostname[0];
-> diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-> index 6133276a8839..66932bfdc6d0 100644
-> --- a/net/smc/smc_clc.h
-> +++ b/net/smc/smc_clc.h
-> @@ -45,6 +45,7 @@
->   #define SMC_CLC_DECL_NOSEID	0x03030006  /* peer sent no SEID	      */
->   #define SMC_CLC_DECL_NOSMCD2DEV	0x03030007  /* no SMC-Dv2 device found	      */
->   #define SMC_CLC_DECL_NOUEID	0x03030008  /* peer sent no UEID	      */
-> +#define SMC_CLC_DECL_RELEASEERR	0x03030009  /* release version negotiate failed */
->   #define SMC_CLC_DECL_MODEUNSUPP	0x03040000  /* smc modes do not match (R or D)*/
->   #define SMC_CLC_DECL_RMBE_EC	0x03050000  /* peer has eyecatcher in RMBE    */
->   #define SMC_CLC_DECL_OPTUNSUPP	0x03060000  /* fastopen sockopt not supported */
-> @@ -415,6 +416,12 @@ int smc_clc_send_confirm(struct smc_sock *smc, bool clnt_first_contact,
->   			 u8 version, u8 *eid, struct smc_init_info *ini);
->   int smc_clc_send_accept(struct smc_sock *smc, bool srv_first_contact,
->   			u8 version, u8 *negotiated_eid, struct smc_init_info *ini);
-> +int smc_clc_srv_v2x_features_validate(struct smc_clc_msg_proposal *pclc,
-> +				      struct smc_init_info *ini);
-> +int smc_clc_cli_v2x_features_validate(struct smc_clc_first_contact_ext *fce,
-> +				      struct smc_init_info *ini);
-> +int smc_clc_v2x_features_confirm_check(struct smc_clc_msg_accept_confirm *cclc,
-> +				       struct smc_init_info *ini);
->   void smc_clc_init(void) __init;
->   void smc_clc_exit(void);
->   void smc_clc_get_hostname(u8 **host);
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+---
+ arch/s390/kernel/machine_kexec_file.c             | 4 ++--
+ arch/s390/kernel/setup.c                          | 2 +-
+ security/integrity/platform_certs/load_ipl_s390.c | 4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
+index 2df94d32140c..8d207b82d9fe 100644
+--- a/arch/s390/kernel/machine_kexec_file.c
++++ b/arch/s390/kernel/machine_kexec_file.c
+@@ -188,7 +188,7 @@ static int kexec_file_add_ipl_report(struct kimage *image,
+ 	data->memsz = ALIGN(data->memsz, PAGE_SIZE);
+ 	buf.mem = data->memsz;
+ 
+-	ptr = (void *)ipl_cert_list_addr;
++	ptr = __va(ipl_cert_list_addr);
+ 	end = ptr + ipl_cert_list_size;
+ 	ncerts = 0;
+ 	while (ptr < end) {
+@@ -200,7 +200,7 @@ static int kexec_file_add_ipl_report(struct kimage *image,
+ 
+ 	addr = data->memsz + data->report->size;
+ 	addr += ncerts * sizeof(struct ipl_rb_certificate_entry);
+-	ptr = (void *)ipl_cert_list_addr;
++	ptr = __va(ipl_cert_list_addr);
+ 	while (ptr < end) {
+ 		len = *(unsigned int *)ptr;
+ 		ptr += sizeof(len);
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 393dd8385506..c744104e4a9c 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -875,7 +875,7 @@ static void __init log_component_list(void)
+ 		pr_info("Linux is running with Secure-IPL enabled\n");
+ 	else
+ 		pr_info("Linux is running with Secure-IPL disabled\n");
+-	ptr = (void *) early_ipl_comp_list_addr;
++	ptr = __va(early_ipl_comp_list_addr);
+ 	end = (void *) ptr + early_ipl_comp_list_size;
+ 	pr_info("The IPL report contains the following components:\n");
+ 	while (ptr < end) {
+diff --git a/security/integrity/platform_certs/load_ipl_s390.c b/security/integrity/platform_certs/load_ipl_s390.c
+index e769dcb7ea94..c7c381a9ddaa 100644
+--- a/security/integrity/platform_certs/load_ipl_s390.c
++++ b/security/integrity/platform_certs/load_ipl_s390.c
+@@ -22,8 +22,8 @@ static int __init load_ipl_certs(void)
+ 
+ 	if (!ipl_cert_list_addr)
+ 		return 0;
+-	/* Copy the certificates to the system keyring */
+-	ptr = (void *) ipl_cert_list_addr;
++	/* Copy the certificates to the platform keyring */
++	ptr = __va(ipl_cert_list_addr);
+ 	end = ptr + ipl_cert_list_size;
+ 	while ((void *) ptr < end) {
+ 		len = *(unsigned int *) ptr;
+-- 
+2.39.2
 
