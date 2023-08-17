@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D23B2C27C7A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8B9CC2FC24
 	for <linux-s390@archiver.kernel.org>; Thu, 17 Aug 2023 13:21:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234998AbjHQNUv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Aug 2023 09:20:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42412 "EHLO
+        id S1351364AbjHQNUy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Aug 2023 09:20:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351366AbjHQNUr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Aug 2023 09:20:47 -0400
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF6F71FF3;
-        Thu, 17 Aug 2023 06:20:43 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R731e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0Vq.3QPw_1692278438;
-Received: from localhost.localdomain(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0Vq.3QPw_1692278438)
+        with ESMTP id S1351360AbjHQNUn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Aug 2023 09:20:43 -0400
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F9F02133;
+        Thu, 17 Aug 2023 06:20:41 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0Vq.3QPC_1692278436;
+Received: from localhost.localdomain(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0Vq.3QPC_1692278436)
           by smtp.aliyun-inc.com;
-          Thu, 17 Aug 2023 21:20:38 +0800
+          Thu, 17 Aug 2023 21:20:37 +0800
 From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
 To:     wenjia@linux.ibm.com, jaka@linux.ibm.com, kgraul@linux.ibm.com,
         tonylu@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
@@ -25,9 +25,9 @@ To:     wenjia@linux.ibm.com, jaka@linux.ibm.com, kgraul@linux.ibm.com,
 Cc:     horms@kernel.org, alibuda@linux.alibaba.com,
         guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
         netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH net-next v2 3/6] net/smc: support smc v2.x features validate
-Date:   Thu, 17 Aug 2023 21:20:29 +0800
-Message-Id: <20230817132032.23397-4-guangguan.wang@linux.alibaba.com>
+Subject: [PATCH net-next v2 1/6] net/smc: support smc release version negotiation in clc handshake
+Date:   Thu, 17 Aug 2023 21:20:27 +0800
+Message-Id: <20230817132032.23397-2-guangguan.wang@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.3 (Apple Git-128)
 In-Reply-To: <20230817132032.23397-1-guangguan.wang@linux.alibaba.com>
 References: <20230817132032.23397-1-guangguan.wang@linux.alibaba.com>
@@ -37,169 +37,233 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Support SMC v2.x features validate for SMC v2.1. This is the frame
-code for SMC v2.x features validate, and will take effects only when
-the negotiated release version is v2.1 or later.
+Support smc release version negotiation in clc handshake based on
+SMC v2, where no negotiation process for different releases, but
+for different versions. The latest smc release version was updated
+to v2.1. And currently there are two release versions of SMCv2, v2.0
+and v2.1. In the release version negotiation, client sends the preferred
+release version by CLC Proposal Message, server makes decision for which
+release version to use based on the client preferred release version and
+self-supported release version (here choose the minimum release version
+of the client preferred and server latest supported), then the decision
+returns to client by CLC Accept Message. Client confirms the decision by
+CLC Confirm Message.
 
-For Server, v2.x features' validation should be done in smc_clc_srv_
-v2x_features_validate when receiving v2.1 or later CLC Proposal Message,
-such as max conns, max links negotiation, the decision of the final
-value of max conns and max links should be made in this function.
-And final check for server when receiving v2.1 or later CLC Confirm
-Message should be done in smc_clc_v2x_features_confirm_check.
+Client                                    Server
+      Proposal(preferred release version)
+     ------------------------------------>
 
-For client, v2.x features' validation should be done in smc_clc_clnt_
-v2x_features_validate when receiving v2.1 or later CLC Accept Message,
-for example, the decision to accpt the accepted value or to decline
-should be made in this function.
+      Accept(accpeted release version)
+ min(client preferred, server latest supported)
+     <------------------------------------
+
+      Confirm(accpeted release version)
+     ------------------------------------>
 
 Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
 Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
 ---
- net/smc/af_smc.c  | 18 ++++++++++++++++++
- net/smc/smc_clc.c | 46 ++++++++++++++++++++++++++++++++++++++++++++++
- net/smc/smc_clc.h |  7 +++++++
- 3 files changed, 71 insertions(+)
+ net/smc/af_smc.c   | 21 +++++++++++++++++----
+ net/smc/smc.h      |  5 ++++-
+ net/smc/smc_clc.c  | 14 +++++++-------
+ net/smc/smc_clc.h  | 23 ++++++++++++++++++++++-
+ net/smc/smc_core.h |  1 +
+ 5 files changed, 51 insertions(+), 13 deletions(-)
 
 diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 10bec585983f..9174dedd9b3b 100644
+index a7f887d91d89..c99ac371b5b1 100644
 --- a/net/smc/af_smc.c
 +++ b/net/smc/af_smc.c
-@@ -1168,6 +1168,7 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+@@ -1167,8 +1167,7 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+ 	struct smc_clc_msg_accept_confirm_v2 *clc_v2 =
  		(struct smc_clc_msg_accept_confirm_v2 *)aclc;
  	struct smc_clc_first_contact_ext *fce =
- 		smc_get_clc_first_contact_ext(clc_v2, false);
-+	int rc;
+-		(struct smc_clc_first_contact_ext *)
+-			(((u8 *)clc_v2) + sizeof(*clc_v2));
++		smc_get_clc_first_contact_ext(clc_v2, false);
  
  	if (!ini->first_contact_peer || aclc->hdr.version == SMC_V1)
  		return 0;
-@@ -1188,6 +1189,9 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+@@ -1187,6 +1186,9 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+ 			return SMC_CLC_DECL_NOINDIRECT;
+ 		}
  	}
- 
- 	ini->release_nr = fce->release;
-+	rc = smc_clc_clnt_v2x_features_validate(fce, ini);
-+	if (rc)
-+		return rc;
- 
++
++	ini->release_nr = fce->release;
++
  	return 0;
  }
-@@ -1362,6 +1366,9 @@ static int smc_connect_ism(struct smc_sock *smc,
- 				smc_get_clc_first_contact_ext(aclc_v2, true);
  
- 			ini->release_nr = fce->release;
-+			rc = smc_clc_clnt_v2x_features_validate(fce, ini);
-+			if (rc)
-+				return rc;
- 		}
+@@ -1355,6 +1357,13 @@ static int smc_connect_ism(struct smc_sock *smc,
+ 		struct smc_clc_msg_accept_confirm_v2 *aclc_v2 =
+ 			(struct smc_clc_msg_accept_confirm_v2 *)aclc;
  
- 		rc = smc_v2_determine_accepted_chid(aclc_v2, ini);
-@@ -2412,6 +2419,10 @@ static void smc_listen_work(struct work_struct *work)
- 	if (rc)
- 		goto out_decl;
- 
-+	rc = smc_clc_srv_v2x_features_validate(pclc, ini);
-+	if (rc)
-+		goto out_decl;
++		if (ini->first_contact_peer) {
++			struct smc_clc_first_contact_ext *fce =
++				smc_get_clc_first_contact_ext(aclc_v2, true);
 +
- 	mutex_lock(&smc_server_lgr_pending);
- 	smc_close_init(new_smc);
- 	smc_rx_init(new_smc);
-@@ -2444,6 +2455,13 @@ static void smc_listen_work(struct work_struct *work)
- 		goto out_decl;
++			ini->release_nr = fce->release;
++		}
++
+ 		rc = smc_v2_determine_accepted_chid(aclc_v2, ini);
+ 		if (rc)
+ 			return rc;
+@@ -1389,7 +1398,7 @@ static int smc_connect_ism(struct smc_sock *smc,
  	}
  
-+	rc = smc_clc_v2x_features_confirm_check(cclc, ini);
-+	if (rc) {
-+		if (!ini->is_smcd)
-+			goto out_unlock;
-+		goto out_decl;
-+	}
+ 	rc = smc_clc_send_confirm(smc, ini->first_contact_local,
+-				  aclc->hdr.version, eid, NULL);
++				  aclc->hdr.version, eid, ini);
+ 	if (rc)
+ 		goto connect_abort;
+ 	mutex_unlock(&smc_server_lgr_pending);
+@@ -1965,6 +1974,10 @@ static int smc_listen_v2_check(struct smc_sock *new_smc,
+ 		}
+ 	}
+ 
++	ini->release_nr = pclc_v2_ext->hdr.flag.release;
++	if (pclc_v2_ext->hdr.flag.release > SMC_RELEASE)
++		ini->release_nr = SMC_RELEASE;
 +
- 	/* finish worker */
- 	if (!ini->is_smcd) {
- 		rc = smc_listen_rdma_finish(new_smc, cclc,
+ out:
+ 	if (!ini->smcd_version && !ini->smcr_version)
+ 		return rc;
+@@ -2412,7 +2425,7 @@ static void smc_listen_work(struct work_struct *work)
+ 	/* send SMC Accept CLC message */
+ 	accept_version = ini->is_smcd ? ini->smcd_version : ini->smcr_version;
+ 	rc = smc_clc_send_accept(new_smc, ini->first_contact_local,
+-				 accept_version, ini->negotiated_eid);
++				 accept_version, ini->negotiated_eid, ini);
+ 	if (rc)
+ 		goto out_unlock;
+ 
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index 2eeea4cdc718..9cce1a41e011 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -21,7 +21,10 @@
+ 
+ #define SMC_V1		1		/* SMC version V1 */
+ #define SMC_V2		2		/* SMC version V2 */
+-#define SMC_RELEASE	0
++
++#define SMC_RELEASE_0 0
++#define SMC_RELEASE_1 1
++#define SMC_RELEASE	SMC_RELEASE_1 /* the latest release version */
+ 
+ #define SMCPROTO_SMC		0	/* SMC protocol, IPv4 */
+ #define SMCPROTO_SMC6		1	/* SMC protocol, IPv6 */
 diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-index 728f88616266..d3c892ee7177 100644
+index b9b8b07aa702..7c5627c6abcc 100644
 --- a/net/smc/smc_clc.c
 +++ b/net/smc/smc_clc.c
-@@ -1158,6 +1158,52 @@ int smc_clc_send_accept(struct smc_sock *new_smc, bool srv_first_contact,
- 	return len > 0 ? 0 : len;
+@@ -420,11 +420,11 @@ smc_clc_msg_decl_valid(struct smc_clc_msg_decline *dclc)
+ 	return true;
  }
  
-+int smc_clc_srv_v2x_features_validate(struct smc_clc_msg_proposal *pclc,
-+				      struct smc_init_info *ini)
-+{
-+	struct smc_clc_v2_extension *pclc_v2_ext;
-+
-+	if ((!(ini->smcd_version & SMC_V2) && !(ini->smcr_version & SMC_V2)) ||
-+	    ini->release_nr < SMC_RELEASE_1)
-+		return 0;
-+
-+	pclc_v2_ext = smc_get_clc_v2_ext(pclc);
-+	if (!pclc_v2_ext)
-+		return SMC_CLC_DECL_NOV2EXT;
-+
-+	return 0;
-+}
-+
-+int smc_clc_clnt_v2x_features_validate(struct smc_clc_first_contact_ext *fce,
-+				       struct smc_init_info *ini)
-+{
-+	if (ini->release_nr < SMC_RELEASE_1)
-+		return 0;
-+
-+	return 0;
-+}
-+
-+int smc_clc_v2x_features_confirm_check(struct smc_clc_msg_accept_confirm *cclc,
-+				       struct smc_init_info *ini)
-+{
-+	struct smc_clc_msg_accept_confirm_v2 *clc_v2 =
-+		(struct smc_clc_msg_accept_confirm_v2 *)cclc;
-+	struct smc_clc_first_contact_ext *fce =
-+		smc_get_clc_first_contact_ext(clc_v2, ini->is_smcd);
-+
-+	if (cclc->hdr.version == SMC_V1 ||
-+	    !(cclc->hdr.typev2 & SMC_FIRST_CONTACT_MASK))
-+		return 0;
-+
-+	if (ini->release_nr != fce->release)
-+		return SMC_CLC_DECL_RELEASEERR;
-+
-+	if (fce->release < SMC_RELEASE_1)
-+		return 0;
-+
-+	return 0;
-+}
-+
- void smc_clc_get_hostname(u8 **host)
+-static void smc_clc_fill_fce(struct smc_clc_first_contact_ext *fce, int *len)
++static void smc_clc_fill_fce(struct smc_clc_first_contact_ext *fce, int *len, int release_nr)
  {
- 	*host = &smc_hostname[0];
+ 	memset(fce, 0, sizeof(*fce));
+ 	fce->os_type = SMC_CLC_OS_LINUX;
+-	fce->release = SMC_RELEASE;
++	fce->release = release_nr;
+ 	memcpy(fce->hostname, smc_hostname, sizeof(smc_hostname));
+ 	(*len) += sizeof(*fce);
+ }
+@@ -1019,7 +1019,7 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+ 				memcpy(clc_v2->d1.eid, eid, SMC_MAX_EID_LEN);
+ 			len = SMCD_CLC_ACCEPT_CONFIRM_LEN_V2;
+ 			if (first_contact)
+-				smc_clc_fill_fce(&fce, &len);
++				smc_clc_fill_fce(&fce, &len, ini->release_nr);
+ 			clc_v2->hdr.length = htons(len);
+ 		}
+ 		memcpy(trl.eyecatcher, SMCD_EYECATCHER,
+@@ -1063,10 +1063,10 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+ 				memcpy(clc_v2->r1.eid, eid, SMC_MAX_EID_LEN);
+ 			len = SMCR_CLC_ACCEPT_CONFIRM_LEN_V2;
+ 			if (first_contact) {
+-				smc_clc_fill_fce(&fce, &len);
++				smc_clc_fill_fce(&fce, &len, ini->release_nr);
+ 				fce.v2_direct = !link->lgr->uses_gateway;
+ 				memset(&gle, 0, sizeof(gle));
+-				if (ini && clc->hdr.type == SMC_CLC_CONFIRM) {
++				if (clc->hdr.type == SMC_CLC_CONFIRM) {
+ 					gle.gid_cnt = ini->smcrv2.gidlist.len;
+ 					len += sizeof(gle);
+ 					len += gle.gid_cnt * sizeof(gle.gid[0]);
+@@ -1141,7 +1141,7 @@ int smc_clc_send_confirm(struct smc_sock *smc, bool clnt_first_contact,
+ 
+ /* send CLC ACCEPT message across internal TCP socket */
+ int smc_clc_send_accept(struct smc_sock *new_smc, bool srv_first_contact,
+-			u8 version, u8 *negotiated_eid)
++			u8 version, u8 *negotiated_eid, struct smc_init_info *ini)
+ {
+ 	struct smc_clc_msg_accept_confirm_v2 aclc_v2;
+ 	int len;
+@@ -1149,7 +1149,7 @@ int smc_clc_send_accept(struct smc_sock *new_smc, bool srv_first_contact,
+ 	memset(&aclc_v2, 0, sizeof(aclc_v2));
+ 	aclc_v2.hdr.type = SMC_CLC_ACCEPT;
+ 	len = smc_clc_send_confirm_accept(new_smc, &aclc_v2, srv_first_contact,
+-					  version, negotiated_eid, NULL);
++					  version, negotiated_eid, ini);
+ 	if (len < ntohs(aclc_v2.hdr.length))
+ 		len = len >= 0 ? -EPROTO : -new_smc->clcsock->sk->sk_err;
+ 
 diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index bd75382f374d..552d0656252c 100644
+index 5fee545c9a10..b923e89acafb 100644
 --- a/net/smc/smc_clc.h
 +++ b/net/smc/smc_clc.h
-@@ -45,6 +45,7 @@
- #define SMC_CLC_DECL_NOSEID	0x03030006  /* peer sent no SEID	      */
- #define SMC_CLC_DECL_NOSMCD2DEV	0x03030007  /* no SMC-Dv2 device found	      */
- #define SMC_CLC_DECL_NOUEID	0x03030008  /* peer sent no UEID	      */
-+#define SMC_CLC_DECL_RELEASEERR	0x03030009  /* release version negotiate failed */
- #define SMC_CLC_DECL_MODEUNSUPP	0x03040000  /* smc modes do not match (R or D)*/
- #define SMC_CLC_DECL_RMBE_EC	0x03050000  /* peer has eyecatcher in RMBE    */
- #define SMC_CLC_DECL_OPTUNSUPP	0x03060000  /* fastopen sockopt not supported */
-@@ -415,6 +416,12 @@ int smc_clc_send_confirm(struct smc_sock *smc, bool clnt_first_contact,
+@@ -370,6 +370,27 @@ smc_get_clc_smcd_v2_ext(struct smc_clc_v2_extension *prop_v2ext)
+ 		 ntohs(prop_v2ext->hdr.smcd_v2_ext_offset));
+ }
+ 
++static inline struct smc_clc_first_contact_ext *
++smc_get_clc_first_contact_ext(struct smc_clc_msg_accept_confirm_v2 *clc_v2,
++			      bool is_smcd)
++{
++	int clc_v2_len;
++
++	if (clc_v2->hdr.version == SMC_V1 ||
++	    !(clc_v2->hdr.typev2 & SMC_FIRST_CONTACT_MASK))
++		return NULL;
++
++	if (is_smcd)
++		clc_v2_len =
++			offsetofend(struct smc_clc_msg_accept_confirm_v2, d1);
++	else
++		clc_v2_len =
++			offsetofend(struct smc_clc_msg_accept_confirm_v2, r1);
++
++	return (struct smc_clc_first_contact_ext *)(((u8 *)clc_v2) +
++						    clc_v2_len);
++}
++
+ struct smcd_dev;
+ struct smc_init_info;
+ 
+@@ -382,7 +403,7 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini);
+ int smc_clc_send_confirm(struct smc_sock *smc, bool clnt_first_contact,
  			 u8 version, u8 *eid, struct smc_init_info *ini);
  int smc_clc_send_accept(struct smc_sock *smc, bool srv_first_contact,
- 			u8 version, u8 *negotiated_eid, struct smc_init_info *ini);
-+int smc_clc_srv_v2x_features_validate(struct smc_clc_msg_proposal *pclc,
-+				      struct smc_init_info *ini);
-+int smc_clc_clnt_v2x_features_validate(struct smc_clc_first_contact_ext *fce,
-+				       struct smc_init_info *ini);
-+int smc_clc_v2x_features_confirm_check(struct smc_clc_msg_accept_confirm *cclc,
-+				       struct smc_init_info *ini);
+-			u8 version, u8 *negotiated_eid);
++			u8 version, u8 *negotiated_eid, struct smc_init_info *ini);
  void smc_clc_init(void) __init;
  void smc_clc_exit(void);
  void smc_clc_get_hostname(u8 **host);
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 3c1b31bfa1cf..b6c68db61f23 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -374,6 +374,7 @@ struct smc_init_info {
+ 	u8			is_smcd;
+ 	u8			smc_type_v1;
+ 	u8			smc_type_v2;
++	u8			release_nr;
+ 	u8			first_contact_peer;
+ 	u8			first_contact_local;
+ 	unsigned short		vlan_id;
 -- 
 2.24.3 (Apple Git-128)
 
