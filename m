@@ -2,68 +2,68 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60F75EE499A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25CB4EE498E
 	for <linux-s390@archiver.kernel.org>; Fri, 18 Aug 2023 19:43:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240059AbjHRTm4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Aug 2023 15:42:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38810 "EHLO
+        id S1345944AbjHRTm5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Aug 2023 15:42:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379780AbjHRTm2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Aug 2023 15:42:28 -0400
+        with ESMTP id S1379823AbjHRTmb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Aug 2023 15:42:31 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCA144681;
-        Fri, 18 Aug 2023 12:41:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E741D46A9;
+        Fri, 18 Aug 2023 12:41:31 -0700 (PDT)
 Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37IJZRBW022726;
-        Fri, 18 Aug 2023 19:41:22 GMT
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37IJNbQB029282;
+        Fri, 18 Aug 2023 19:41:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=s7BVM/qKC0aGRo+zRLkHSbcMK2LK36taw0SKWzINMoM=;
- b=lsxV7pr7knfb0PvbnO4UDZk82/M+8JpMDK1ECDOkKuA/UTBHOoNmv7N1JSgpBpUOcPHT
- Izge3/1bGQF0J4KuSB/aqmO3AtBQECQnQTTBhb9F2Fm3Qim7lfZtoYewqJDBZe4V/qA/
- 0pLenw3xpImCgwAfVC43O+X7263oarMyqcGERTtg2pNKs4+mfvW4Ve7J5XRpVTLv2e6H
- vL4d97KU+vGMmKmh7dWSX7RjPlZHc+dC51svJ+I7MPao6NlXWdwEbt9c+8CKMC2UcR07
- GYjvXu7YxftQYXT/0X2VWe0m/OrpEWYr6NV95coDX0k9E+jRHyCnMthZtHyvkPrvnsUN Aw== 
+ bh=03HC+lN9EsOvdVy4bCeL1UamBYO+ZAfRX47tItWTQjc=;
+ b=mYomaf1VvvxwipyRcrQou8LQasDIhEWAlsxSSLmJgVQ7Aoz/qi41YO1/aM1OoA9iXDrd
+ wn8joHqYy5fWWKwDNLrB7b/54Vvh76L6ciOMBkruFohl1i4u8Lx1RS638osAgqnAyDUq
+ wK99KVgCC++Lh63276XqjeXmQw7UlrwbBR11xQkSlij2pVywSBo2Fl0xO1ARloLcfg7o
+ UKVzm/Tc7/HGZe8hAMJWKw9u4tdqLOZHiHHRAqY4S/KI7XahzZwCIT7R/PpSDh3jlC7X
+ KorkCAxENcYhTSnAOWEZlL3j5AqL+xhBSg7BoCgKwtuCDnPLsJGJwrhzRfRsz2TtFlUx ZA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sjerv079h-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sjerv07cb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Aug 2023 19:41:22 +0000
+        Fri, 18 Aug 2023 19:41:28 +0000
 Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37IJZSFL022913;
-        Fri, 18 Aug 2023 19:41:21 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sjerv0791-1
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37IJZT7g023020;
+        Fri, 18 Aug 2023 19:41:28 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sjerv07bw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Aug 2023 19:41:21 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37IHqs9t002403;
-        Fri, 18 Aug 2023 19:41:20 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3sendp1jf1-1
+        Fri, 18 Aug 2023 19:41:28 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37IHQu84013500;
+        Fri, 18 Aug 2023 19:41:27 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3sepmkh490-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Aug 2023 19:41:19 +0000
+        Fri, 18 Aug 2023 19:41:27 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37IJfGQY19333874
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37IJfOSq27394766
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 18 Aug 2023 19:41:16 GMT
+        Fri, 18 Aug 2023 19:41:24 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BFD0320049;
-        Fri, 18 Aug 2023 19:41:16 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 4160A2004B;
+        Fri, 18 Aug 2023 19:41:24 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E8AEA20040;
-        Fri, 18 Aug 2023 19:41:15 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 62AA520040;
+        Fri, 18 Aug 2023 19:41:23 +0000 (GMT)
 Received: from [9.179.22.225] (unknown [9.179.22.225])
         by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 18 Aug 2023 19:41:15 +0000 (GMT)
-Message-ID: <714beaf2-929f-f0ad-f16b-00ca4b2bb2b6@linux.ibm.com>
-Date:   Fri, 18 Aug 2023 21:41:15 +0200
+        Fri, 18 Aug 2023 19:41:23 +0000 (GMT)
+Message-ID: <5fc7b8f9-9893-8051-3c7d-90144db606d7@linux.ibm.com>
+Date:   Fri, 18 Aug 2023 21:41:23 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.14.0
-Subject: Re: [PATCH net-next v2 6/6] net/smc: Extend SMCR v2 linkgroup netlink
- attribute
+Subject: Re: [PATCH net-next v2 4/6] net/smc: support max connections per lgr
+ negotiation
 To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>,
         wenjia@linux.ibm.com, kgraul@linux.ibm.com,
         tonylu@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
@@ -72,15 +72,15 @@ Cc:     horms@kernel.org, alibuda@linux.alibaba.com,
         guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
         netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 References: <20230817132032.23397-1-guangguan.wang@linux.alibaba.com>
- <20230817132032.23397-7-guangguan.wang@linux.alibaba.com>
+ <20230817132032.23397-5-guangguan.wang@linux.alibaba.com>
 From:   Jan Karcher <jaka@linux.ibm.com>
 Organization: IBM - Network Linux on Z
-In-Reply-To: <20230817132032.23397-7-guangguan.wang@linux.alibaba.com>
+In-Reply-To: <20230817132032.23397-5-guangguan.wang@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: vo7LE_OicD7EUL3yfcFeextLU3bjztWE
-X-Proofpoint-GUID: jbZhzyAXrcCYDSjg5zEb54--vzVEOp-i
+X-Proofpoint-ORIG-GUID: 79i5GlH-jI6z4naVNr3KcFgotbyhPnec
+X-Proofpoint-GUID: NHKYqj-5e17p3qZkEH7EuD5qSb8RRtlD
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
  definitions=2023-08-18_24,2023-08-18_01,2023-05-22_02
@@ -96,46 +96,263 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 
 On 17/08/2023 15:20, Guangguan Wang wrote:
-> Add SMC_NLA_LGR_R_V2_MAX_CONNS and SMC_NLA_LGR_R_V2_MAX_LINKS
-> to SMCR v2 linkgroup netlink attribute SMC_NLA_LGR_R_V2 for
-> linkgroup's detail info showing.
+> Support max connections per lgr negotiation for SMCR v2.1,
+> which is one of smc v2.1 features. Server makes decision for
+> the final value of max conns based on the client preferred
+> max conns and self-preferred max conns. Here use the minimum
+> value of client preferred max conns and server preferred max
+> conns.
+> 
+> Client                                     Server
+>       Proposal(max conns(client preferred))
+>       ------------------------------------>
+> 
+>       Accept(max conns(accepted value))
+> accepted value=min(client preferred, server preferred)
+>       <-----------------------------------
+> 
+>       Confirm(max conns(accepted value))
+>       ----------------------------------->
 > 
 > Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+> Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
 
 Thank you for your contribution, Guangguan.
 
 Reviewed-by: Jan Karcher <jaka@linux.ibm.com>
 
 > ---
->   include/uapi/linux/smc.h | 2 ++
->   net/smc/smc_core.c       | 4 ++++
->   2 files changed, 6 insertions(+)
+>   net/smc/af_smc.c   |  1 +
+>   net/smc/smc_clc.c  | 38 ++++++++++++++++++++++++++++++++++++--
+>   net/smc/smc_clc.h  |  7 +++++--
+>   net/smc/smc_core.c |  4 +++-
+>   net/smc/smc_core.h | 12 ++++++++++++
+>   net/smc/smc_llc.c  |  6 +++++-
+>   6 files changed, 62 insertions(+), 6 deletions(-)
 > 
-> diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
-> index bb4dacca31e7..837fcd4b0abc 100644
-> --- a/include/uapi/linux/smc.h
-> +++ b/include/uapi/linux/smc.h
-> @@ -107,6 +107,8 @@ enum {
->   enum {
->   	SMC_NLA_LGR_R_V2_UNSPEC,
->   	SMC_NLA_LGR_R_V2_DIRECT,	/* u8 */
-> +	SMC_NLA_LGR_R_V2_MAX_CONNS,	/* u8 */
-> +	SMC_NLA_LGR_R_V2_MAX_LINKS,	/* u8 */
->   	__SMC_NLA_LGR_R_V2_MAX,
->   	SMC_NLA_LGR_R_V2_MAX = __SMC_NLA_LGR_R_V2_MAX - 1
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index 9174dedd9b3b..8f041e871ddd 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -1211,6 +1211,7 @@ static int smc_connect_rdma(struct smc_sock *smc,
+>   	memcpy(ini->peer_systemid, aclc->r0.lcl.id_for_peer, SMC_SYSTEMID_LEN);
+>   	memcpy(ini->peer_gid, aclc->r0.lcl.gid, SMC_GID_SIZE);
+>   	memcpy(ini->peer_mac, aclc->r0.lcl.mac, ETH_ALEN);
+> +	ini->max_conns = SMC_CONN_PER_LGR_MAX;
+>   
+>   	reason_code = smc_connect_rdma_v2_prepare(smc, aclc, ini);
+>   	if (reason_code)
+> diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+> index d3c892ee7177..60cfe37625b8 100644
+> --- a/net/smc/smc_clc.c
+> +++ b/net/smc/smc_clc.c
+> @@ -427,9 +427,17 @@ static int smc_clc_fill_fce(struct smc_clc_first_contact_ext_v2x *fce,
+>   	fce->fce_v2_base.os_type = SMC_CLC_OS_LINUX;
+>   	fce->fce_v2_base.release = ini->release_nr;
+>   	memcpy(fce->fce_v2_base.hostname, smc_hostname, sizeof(smc_hostname));
+> -	if (ini->is_smcd && ini->release_nr < SMC_RELEASE_1)
+> +	if (ini->is_smcd && ini->release_nr < SMC_RELEASE_1) {
+>   		ret = sizeof(struct smc_clc_first_contact_ext);
+> +		goto out;
+> +	}
+> +
+> +	if (ini->release_nr >= SMC_RELEASE_1) {
+> +		if (!ini->is_smcd)
+> +			fce->max_conns = ini->max_conns;
+> +	}
+>   
+> +out:
+>   	return ret;
+>   }
+>   
+> @@ -931,8 +939,10 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
+>   				sizeof(struct smc_clc_smcd_gid_chid);
+>   		}
+>   	}
+> -	if (smcr_indicated(ini->smc_type_v2))
+> +	if (smcr_indicated(ini->smc_type_v2)) {
+>   		memcpy(v2_ext->roce, ini->smcrv2.ib_gid_v2, SMC_GID_SIZE);
+> +		v2_ext->max_conns = SMC_CONN_PER_LGR_PREFER;
+> +	}
+>   
+>   	pclc_base->hdr.length = htons(plen);
+>   	memcpy(trl->eyecatcher, SMC_EYECATCHER, sizeof(SMC_EYECATCHER));
+> @@ -1163,6 +1173,8 @@ int smc_clc_srv_v2x_features_validate(struct smc_clc_msg_proposal *pclc,
+>   {
+>   	struct smc_clc_v2_extension *pclc_v2_ext;
+>   
+> +	ini->max_conns = SMC_CONN_PER_LGR_MAX;
+> +
+>   	if ((!(ini->smcd_version & SMC_V2) && !(ini->smcr_version & SMC_V2)) ||
+>   	    ini->release_nr < SMC_RELEASE_1)
+>   		return 0;
+> @@ -1171,15 +1183,30 @@ int smc_clc_srv_v2x_features_validate(struct smc_clc_msg_proposal *pclc,
+>   	if (!pclc_v2_ext)
+>   		return SMC_CLC_DECL_NOV2EXT;
+>   
+> +	if (ini->smcr_version & SMC_V2) {
+> +		ini->max_conns = min_t(u8, pclc_v2_ext->max_conns, SMC_CONN_PER_LGR_PREFER);
+> +		if (ini->max_conns < SMC_CONN_PER_LGR_MIN)
+> +			return SMC_CLC_DECL_MAXCONNERR;
+> +	}
+> +
+>   	return 0;
+>   }
+>   
+>   int smc_clc_clnt_v2x_features_validate(struct smc_clc_first_contact_ext *fce,
+>   				       struct smc_init_info *ini)
+>   {
+> +	struct smc_clc_first_contact_ext_v2x *fce_v2x =
+> +		(struct smc_clc_first_contact_ext_v2x *)fce;
+> +
+>   	if (ini->release_nr < SMC_RELEASE_1)
+>   		return 0;
+>   
+> +	if (!ini->is_smcd) {
+> +		if (fce_v2x->max_conns < SMC_CONN_PER_LGR_MIN)
+> +			return SMC_CLC_DECL_MAXCONNERR;
+> +		ini->max_conns = fce_v2x->max_conns;
+> +	}
+> +
+>   	return 0;
+>   }
+>   
+> @@ -1190,6 +1217,8 @@ int smc_clc_v2x_features_confirm_check(struct smc_clc_msg_accept_confirm *cclc,
+>   		(struct smc_clc_msg_accept_confirm_v2 *)cclc;
+>   	struct smc_clc_first_contact_ext *fce =
+>   		smc_get_clc_first_contact_ext(clc_v2, ini->is_smcd);
+> +	struct smc_clc_first_contact_ext_v2x *fce_v2x =
+> +		(struct smc_clc_first_contact_ext_v2x *)fce;
+>   
+>   	if (cclc->hdr.version == SMC_V1 ||
+>   	    !(cclc->hdr.typev2 & SMC_FIRST_CONTACT_MASK))
+> @@ -1201,6 +1230,11 @@ int smc_clc_v2x_features_confirm_check(struct smc_clc_msg_accept_confirm *cclc,
+>   	if (fce->release < SMC_RELEASE_1)
+>   		return 0;
+>   
+> +	if (!ini->is_smcd) {
+> +		if (fce_v2x->max_conns != ini->max_conns)
+> +			return SMC_CLC_DECL_MAXCONNERR;
+> +	}
+> +
+>   	return 0;
+>   }
+>   
+> diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+> index 552d0656252c..464b93b46047 100644
+> --- a/net/smc/smc_clc.h
+> +++ b/net/smc/smc_clc.h
+> @@ -46,6 +46,7 @@
+>   #define SMC_CLC_DECL_NOSMCD2DEV	0x03030007  /* no SMC-Dv2 device found	      */
+>   #define SMC_CLC_DECL_NOUEID	0x03030008  /* peer sent no UEID	      */
+>   #define SMC_CLC_DECL_RELEASEERR	0x03030009  /* release version negotiate failed */
+> +#define SMC_CLC_DECL_MAXCONNERR	0x0303000a  /* max connections negotiate failed */
+>   #define SMC_CLC_DECL_MODEUNSUPP	0x03040000  /* smc modes do not match (R or D)*/
+>   #define SMC_CLC_DECL_RMBE_EC	0x03050000  /* peer has eyecatcher in RMBE    */
+>   #define SMC_CLC_DECL_OPTUNSUPP	0x03060000  /* fastopen sockopt not supported */
+> @@ -134,7 +135,8 @@ struct smc_clc_smcd_gid_chid {
+>   struct smc_clc_v2_extension {
+>   	struct smc_clnt_opts_area_hdr hdr;
+>   	u8 roce[16];		/* RoCEv2 GID */
+> -	u8 reserved[16];
+> +	u8 max_conns;
+> +	u8 reserved[15];
+>   	u8 user_eids[][SMC_MAX_EID_LEN];
 >   };
+>   
+> @@ -236,7 +238,8 @@ struct smc_clc_first_contact_ext {
+>   
+>   struct smc_clc_first_contact_ext_v2x {
+>   	struct smc_clc_first_contact_ext fce_v2_base;
+> -	u8 reserved3[4];
+> +	u8 max_conns; /* for SMC-R only */
+> +	u8 reserved3[3];
+>   	__be32 vendor_exp_options;
+>   	u8 reserved4[8];
+>   } __packed;		/* format defined in
 > diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index 1e1475084bb4..ef5336df3b09 100644
+> index 6aa3db47a956..a8091a3e6cdd 100644
 > --- a/net/smc/smc_core.c
 > +++ b/net/smc/smc_core.c
-> @@ -319,6 +319,10 @@ static int smc_nl_fill_smcr_lgr_v2(struct smc_link_group *lgr,
->   		goto errattr;
->   	if (nla_put_u8(skb, SMC_NLA_LGR_R_V2_DIRECT, !lgr->uses_gateway))
->   		goto errv2attr;
-> +	if (nla_put_u8(skb, SMC_NLA_LGR_R_V2_MAX_CONNS, lgr->max_conns))
-> +		goto errv2attr;
-> +	if (nla_put_u8(skb, SMC_NLA_LGR_R_V2_MAX_LINKS, lgr->max_links))
-> +		goto errv2attr;
+> @@ -895,9 +895,11 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
+>   			lgr->uses_gateway = ini->smcrv2.uses_gateway;
+>   			memcpy(lgr->nexthop_mac, ini->smcrv2.nexthop_mac,
+>   			       ETH_ALEN);
+> +			lgr->max_conns = ini->max_conns;
+>   		} else {
+>   			ibdev = ini->ib_dev;
+>   			ibport = ini->ib_port;
+> +			lgr->max_conns = SMC_CONN_PER_LGR_MAX;
+>   		}
+>   		memcpy(lgr->pnet_id, ibdev->pnetid[ibport - 1],
+>   		       SMC_MAX_PNETID_LEN);
+> @@ -1890,7 +1892,7 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
+>   		    (ini->smcd_version == SMC_V2 ||
+>   		     lgr->vlan_id == ini->vlan_id) &&
+>   		    (role == SMC_CLNT || ini->is_smcd ||
+> -		    (lgr->conns_num < SMC_RMBS_PER_LGR_MAX &&
+> +		    (lgr->conns_num < lgr->max_conns &&
+>   		      !bitmap_full(lgr->rtokens_used_mask, SMC_RMBS_PER_LGR_MAX)))) {
+>   			/* link group found */
+>   			ini->first_contact_local = 0;
+> diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+> index b6c68db61f23..32b199477ef3 100644
+> --- a/net/smc/smc_core.h
+> +++ b/net/smc/smc_core.h
+> @@ -22,6 +22,15 @@
+>   #include "smc_ib.h"
 >   
->   	nla_nest_end(skb, v2_attrs);
->   	return 0;
+>   #define SMC_RMBS_PER_LGR_MAX	255	/* max. # of RMBs per link group */
+> +#define SMC_CONN_PER_LGR_MIN	16	/* min. # of connections per link group */
+> +#define SMC_CONN_PER_LGR_MAX	255	/* max. # of connections per link group,
+> +					 * also is the default value for SMC-R v1 and v2.0
+> +					 */
+> +#define SMC_CONN_PER_LGR_PREFER	255	/* Preferred connections per link group used for
+> +					 * SMC-R v2.1 and later negotiation, vendors or
+> +					 * distrubutions may modify it to a value between
+> +					 * 16-255 as needed.
+> +					 */
+>   
+>   struct smc_lgr_list {			/* list of link group definition */
+>   	struct list_head	list;
+> @@ -331,6 +340,8 @@ struct smc_link_group {
+>   			__be32			saddr;
+>   						/* net namespace */
+>   			struct net		*net;
+> +			u8			max_conns;
+> +						/* max conn can be assigned to lgr */
+>   		};
+>   		struct { /* SMC-D */
+>   			u64			peer_gid;
+> @@ -375,6 +386,7 @@ struct smc_init_info {
+>   	u8			smc_type_v1;
+>   	u8			smc_type_v2;
+>   	u8			release_nr;
+> +	u8			max_conns;
+>   	u8			first_contact_peer;
+>   	u8			first_contact_local;
+>   	unsigned short		vlan_id;
+> diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+> index 90f0b60b196a..5347b62f1518 100644
+> --- a/net/smc/smc_llc.c
+> +++ b/net/smc/smc_llc.c
+> @@ -52,7 +52,8 @@ struct smc_llc_msg_confirm_link {	/* type 0x01 */
+>   	u8 link_num;
+>   	u8 link_uid[SMC_LGR_ID_SIZE];
+>   	u8 max_links;
+> -	u8 reserved[9];
+> +	u8 max_conns;
+> +	u8 reserved[8];
+>   };
+>   
+>   #define SMC_LLC_FLAG_ADD_LNK_REJ	0x40
+> @@ -472,6 +473,9 @@ int smc_llc_send_confirm_link(struct smc_link *link,
+>   	confllc->link_num = link->link_id;
+>   	memcpy(confllc->link_uid, link->link_uid, SMC_LGR_ID_SIZE);
+>   	confllc->max_links = SMC_LLC_ADD_LNK_MAX_LINKS;
+> +	if (link->lgr->smc_version == SMC_V2 &&
+> +	    link->lgr->peer_smc_release >= SMC_RELEASE_1)
+> +		confllc->max_conns = link->lgr->max_conns;
+>   	/* send llc message */
+>   	rc = smc_wr_tx_send(link, pend);
+>   put_out:
