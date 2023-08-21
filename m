@@ -2,25 +2,25 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7A5FEE49AA
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Aug 2023 12:31:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46B96EE49AF
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Aug 2023 12:31:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234927AbjHUMb1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S234949AbjHUMb1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Mon, 21 Aug 2023 08:31:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40888 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234887AbjHUMbX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Aug 2023 08:31:23 -0400
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50999CC;
-        Mon, 21 Aug 2023 05:31:20 -0700 (PDT)
-Received: from dggpemm100001.china.huawei.com (unknown [172.30.72.56])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4RTsHg0Sf6z1L9Pp;
-        Mon, 21 Aug 2023 20:29:51 +0800 (CST)
+        with ESMTP id S234938AbjHUMbY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Aug 2023 08:31:24 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFB5FE2;
+        Mon, 21 Aug 2023 05:31:22 -0700 (PDT)
+Received: from dggpemm100001.china.huawei.com (unknown [172.30.72.53])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4RTsFG5XSpzNnTc;
+        Mon, 21 Aug 2023 20:27:46 +0800 (CST)
 Received: from localhost.localdomain (10.175.112.125) by
  dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.31; Mon, 21 Aug 2023 20:31:16 +0800
+ 15.1.2507.31; Mon, 21 Aug 2023 20:31:19 +0800
 From:   Kefeng Wang <wangkefeng.wang@huawei.com>
 To:     Andrew Morton <akpm@linux-foundation.org>, <linux-mm@kvack.org>
 CC:     <surenb@google.com>, <willy@infradead.org>,
@@ -52,9 +52,9 @@ CC:     <surenb@google.com>, <willy@infradead.org>,
         <linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
         <linux-s390@vger.kernel.org>,
         Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: [PATCH rfc v2 04/10] s390: mm: use try_vma_locked_page_fault()
-Date:   Mon, 21 Aug 2023 20:30:50 +0800
-Message-ID: <20230821123056.2109942-5-wangkefeng.wang@huawei.com>
+Subject: [PATCH rfc v2 06/10] riscv: mm: use try_vma_locked_page_fault()
+Date:   Mon, 21 Aug 2023 20:30:52 +0800
+Message-ID: <20230821123056.2109942-7-wangkefeng.wang@huawei.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20230821123056.2109942-1-wangkefeng.wang@huawei.com>
 References: <20230821123056.2109942-1-wangkefeng.wang@huawei.com>
@@ -74,156 +74,124 @@ No functional change intended.
 
 Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 ---
- arch/s390/mm/fault.c | 66 ++++++++++++++++++--------------------------
- 1 file changed, 27 insertions(+), 39 deletions(-)
+ arch/riscv/mm/fault.c | 58 ++++++++++++++++++-------------------------
+ 1 file changed, 24 insertions(+), 34 deletions(-)
 
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 099c4824dd8a..fbbdebde6ea7 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -357,16 +357,18 @@ static noinline void do_fault_error(struct pt_regs *regs, vm_fault_t fault)
- static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
+index 6115d7514972..b46129b636f2 100644
+--- a/arch/riscv/mm/fault.c
++++ b/arch/riscv/mm/fault.c
+@@ -215,6 +215,13 @@ static inline bool access_error(unsigned long cause, struct vm_area_struct *vma)
+ 	return false;
+ }
+ 
++#ifdef CONFIG_PER_VMA_LOCK
++bool arch_vma_access_error(struct vm_area_struct *vma, struct vm_fault *vmf)
++{
++	return access_error(vmf->fault_code, vma);
++}
++#endif
++
+ /*
+  * This routine handles page faults.  It determines the address and the
+  * problem, and then passes it off to one of the appropriate routines.
+@@ -223,17 +230,16 @@ void handle_page_fault(struct pt_regs *regs)
  {
- 	struct gmap *gmap;
--	struct task_struct *tsk;
--	struct mm_struct *mm;
+ 	struct task_struct *tsk;
  	struct vm_area_struct *vma;
- 	enum fault_type type;
--	unsigned long address;
--	unsigned int flags;
+-	struct mm_struct *mm;
+-	unsigned long addr, cause;
+-	unsigned int flags = FAULT_FLAG_DEFAULT;
 +	struct mm_struct *mm = current->mm;
-+	unsigned long address = get_fault_address(regs);
++	unsigned long addr = regs->badaddr;
++	unsigned long cause = regs->cause;
+ 	int code = SEGV_MAPERR;
  	vm_fault_t fault;
- 	bool is_write;
+-
+-	cause = regs->cause;
+-	addr = regs->badaddr;
+-
+-	tsk = current;
+-	mm = tsk->mm;
 +	struct vm_fault vmf = {
-+		.real_address = address,
++		.real_address = addr,
++		.fault_code = cause,
 +		.flags = FAULT_FLAG_DEFAULT,
-+		.vm_flags = access,
 +	};
  
--	tsk = current;
- 	/*
- 	 * The instruction that caused the program check has
- 	 * been nullified. Don't signal single step via SIGTRAP.
-@@ -376,8 +378,6 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 	if (kprobe_page_fault(regs, 14))
- 		return 0;
- 
--	mm = tsk->mm;
--	address = get_fault_address(regs);
- 	is_write = fault_is_write(regs);
- 
- 	/*
-@@ -398,45 +398,33 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+ 	if (kprobe_page_fault(regs, cause))
+ 		return;
+@@ -268,7 +274,7 @@ void handle_page_fault(struct pt_regs *regs)
  	}
  
- 	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, address);
--	flags = FAULT_FLAG_DEFAULT;
  	if (user_mode(regs))
 -		flags |= FAULT_FLAG_USER;
 +		vmf.flags |= FAULT_FLAG_USER;
- 	if (is_write)
--		access = VM_WRITE;
--	if (access == VM_WRITE)
+ 
+ 	if (!user_mode(regs) && addr < TASK_SIZE && unlikely(!(regs->status & SR_SUM))) {
+ 		if (fixup_exception(regs))
+@@ -280,37 +286,21 @@ void handle_page_fault(struct pt_regs *regs)
+ 	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, addr);
+ 
+ 	if (cause == EXC_STORE_PAGE_FAULT)
 -		flags |= FAULT_FLAG_WRITE;
++		vmf.flags |= FAULT_FLAG_WRITE;
+ 	else if (cause == EXC_INST_PAGE_FAULT)
+-		flags |= FAULT_FLAG_INSTRUCTION;
 -	if (!(flags & FAULT_FLAG_USER))
 -		goto lock_mmap;
--	vma = lock_vma_under_rcu(mm, address);
+-
+-	vma = lock_vma_under_rcu(mm, addr);
 -	if (!vma)
 -		goto lock_mmap;
--	if (!(vma->vm_flags & access)) {
++		vmf.flags |= FAULT_FLAG_INSTRUCTION;
+ 
+-	if (unlikely(access_error(cause, vma))) {
 -		vma_end_read(vma);
 -		goto lock_mmap;
 -	}
--	fault = handle_mm_fault(vma, address, flags | FAULT_FLAG_VMA_LOCK, regs);
+-
+-	fault = handle_mm_fault(vma, addr, flags | FAULT_FLAG_VMA_LOCK, regs);
 -	if (!(fault & (VM_FAULT_RETRY | VM_FAULT_COMPLETED)))
 -		vma_end_read(vma);
+-
 -	if (!(fault & VM_FAULT_RETRY)) {
 -		count_vm_vma_lock_event(VMA_LOCK_SUCCESS);
--		if (likely(!(fault & VM_FAULT_ERROR)))
--			fault = 0;
-+		vmf.vm_flags = VM_WRITE;
-+	if (vmf.vm_flags == VM_WRITE)
-+		vmf.flags |= FAULT_FLAG_WRITE;
-+
 +	fault = try_vma_locked_page_fault(&vmf);
 +	if (fault == VM_FAULT_NONE)
-+		goto lock_mm;
++		goto retry;
 +	if (!(fault & VM_FAULT_RETRY))
- 		goto out;
+ 		goto done;
 -	}
 -	count_vm_vma_lock_event(VMA_LOCK_RETRY);
-+
- 	/* Quick path to respond to signals */
+ 
  	if (fault_signal_pending(fault, regs)) {
- 		fault = VM_FAULT_SIGNAL;
- 		goto out;
+ 		if (!user_mode(regs))
+ 			no_context(regs, addr);
+ 		return;
  	}
 -lock_mmap:
-+
-+lock_mm:
- 	mmap_read_lock(mm);
- 
- 	gmap = NULL;
- 	if (IS_ENABLED(CONFIG_PGSTE) && type == GMAP_FAULT) {
- 		gmap = (struct gmap *) S390_lowcore.gmap;
- 		current->thread.gmap_addr = address;
--		current->thread.gmap_write_flag = !!(flags & FAULT_FLAG_WRITE);
-+		current->thread.gmap_write_flag = !!(vmf.flags & FAULT_FLAG_WRITE);
- 		current->thread.gmap_int_code = regs->int_code & 0xffff;
- 		address = __gmap_translate(gmap, address);
- 		if (address == -EFAULT) {
-@@ -444,7 +432,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 			goto out_up;
- 		}
- 		if (gmap->pfault_enabled)
--			flags |= FAULT_FLAG_RETRY_NOWAIT;
-+			vmf.flags |= FAULT_FLAG_RETRY_NOWAIT;
- 	}
  
  retry:
-@@ -466,7 +454,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 	 * we can handle it..
- 	 */
- 	fault = VM_FAULT_BADACCESS;
--	if (unlikely(!(vma->vm_flags & access)))
-+	if (unlikely(!(vma->vm_flags & vmf.vm_flags)))
- 		goto out_up;
- 
- 	/*
-@@ -474,10 +462,10 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+ 	vma = lock_mm_and_find_vma(mm, addr, regs);
+@@ -337,7 +327,7 @@ void handle_page_fault(struct pt_regs *regs)
  	 * make sure we exit gracefully rather than endlessly redo
  	 * the fault.
  	 */
--	fault = handle_mm_fault(vma, address, flags, regs);
-+	fault = handle_mm_fault(vma, address, vmf.flags, regs);
- 	if (fault_signal_pending(fault, regs)) {
- 		fault = VM_FAULT_SIGNAL;
--		if (flags & FAULT_FLAG_RETRY_NOWAIT)
-+		if (vmf.flags & FAULT_FLAG_RETRY_NOWAIT)
- 			goto out_up;
- 		goto out;
- 	}
-@@ -497,7 +485,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+-	fault = handle_mm_fault(vma, addr, flags, regs);
++	fault = handle_mm_fault(vma, addr, vmf.flags, regs);
  
- 	if (fault & VM_FAULT_RETRY) {
- 		if (IS_ENABLED(CONFIG_PGSTE) && gmap &&
--			(flags & FAULT_FLAG_RETRY_NOWAIT)) {
-+			(vmf.flags & FAULT_FLAG_RETRY_NOWAIT)) {
- 			/*
- 			 * FAULT_FLAG_RETRY_NOWAIT has been set, mmap_lock has
- 			 * not been released
-@@ -506,8 +494,8 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 			fault = VM_FAULT_PFAULT;
- 			goto out_up;
- 		}
--		flags &= ~FAULT_FLAG_RETRY_NOWAIT;
+ 	/*
+ 	 * If we need to retry but a fatal signal is pending, handle the
+@@ -355,7 +345,7 @@ void handle_page_fault(struct pt_regs *regs)
+ 		return;
+ 
+ 	if (unlikely(fault & VM_FAULT_RETRY)) {
 -		flags |= FAULT_FLAG_TRIED;
-+		vmf.flags &= ~FAULT_FLAG_RETRY_NOWAIT;
 +		vmf.flags |= FAULT_FLAG_TRIED;
- 		mmap_read_lock(mm);
- 		goto retry;
- 	}
+ 
+ 		/*
+ 		 * No need to mmap_read_unlock(mm) as we would
 -- 
 2.27.0
 
