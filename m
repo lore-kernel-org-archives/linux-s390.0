@@ -2,309 +2,252 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DF32EE49A6
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Aug 2023 02:51:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B946EE49AB
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Aug 2023 06:34:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230024AbjHVCv5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Aug 2023 22:51:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34066 "EHLO
+        id S233053AbjHVGeG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Aug 2023 02:34:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232380AbjHVCvz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Aug 2023 22:51:55 -0400
-Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B358E194
-        for <linux-s390@vger.kernel.org>; Mon, 21 Aug 2023 19:51:51 -0700 (PDT)
-Received: by mail-yb1-xb29.google.com with SMTP id 3f1490d57ef6-d748d8cf074so3064827276.0
-        for <linux-s390@vger.kernel.org>; Mon, 21 Aug 2023 19:51:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1692672710; x=1693277510;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=BD58/XthciO0sTCaxjR+dsg5ZYNZ/J3nmIWihGISY24=;
-        b=Q0qcwIyCJhThDsq21LrOEUM4nzcH1AytzGvc8q68ncl1mJ+TCbnsbsnqgXNKXHlnfV
-         DW1P2aIRbJwxPz4W/lCAKObkYGQ21iOYfNp3rzyR5qwadhIk7ILSWaIULUS2h8WGw6a9
-         rlXKAzIVrjqasXr8byUeVrdd0PyWBbTaDz736M7iFsTTtsTwOgxmkEgo8Y8npLfzZ6le
-         vZjEl3gNCkWohBuLVPgBLHLBjkVeDc1/PGmPEP/IZ9tWMePJ1s8nI8wLexg9la++INv1
-         iFWlafywvOUU+emzq1kdkkES4j9YqSSYxNCUuV1wQo77eM3kjveaJMseJ2onnShSco3s
-         XhRw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692672710; x=1693277510;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=BD58/XthciO0sTCaxjR+dsg5ZYNZ/J3nmIWihGISY24=;
-        b=Ky9qUoZEqHk5yK6yVWUqEILYvV9wokaKwT3DwvP38nFKRsI568ZW4Z+tZAgo/8+1Us
-         6BKL/IIB5C/cDXJjxp+Gwzpvs8yj/CUzHcqHFw4BO4Gb/ozGJIalgQ527b22zkZE6tT+
-         TdV71b7ooKar+k3Zs6xlfV0FG4JXFeZezgrDB6+Z7wpvISN3JEfloMalOQNQKdv9J15j
-         ELKafk0MaNZGbtpkHXqpp6PYLvb7dOfXyW9xjLPPDBlPbTK1bt6ysWmPvmxMlqyopbQX
-         HLyg11DO8U4OuF2jlO1h4A0m6NNqvVVOd8xqqh0dtX3ERRX8KqAtUeWwO+EjeodoV3oS
-         Wgrw==
-X-Gm-Message-State: AOJu0Yzi+A5vbP4S1i7sxHW5ry4hb6pG//5QRZfP2QJifbJ1rhUh4ina
-        z6V/rkdv3El6tuL+r4jOQuh2Gg==
-X-Google-Smtp-Source: AGHT+IEEalFENjTwS6ybo+mX3CovLc5hqPqdTe+cS18Ojl4MmAmt12MBrpQ2mhlWRcpCfqQmCFJDnQ==
-X-Received: by 2002:a05:6902:566:b0:d0f:dc7d:ff19 with SMTP id a6-20020a056902056600b00d0fdc7dff19mr6752743ybt.9.1692672710361;
-        Mon, 21 Aug 2023 19:51:50 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id n82-20020a25da55000000b00d5d4bae6fdfsm2146761ybf.30.2023.08.21.19.51.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Aug 2023 19:51:49 -0700 (PDT)
-Date:   Mon, 21 Aug 2023 19:51:38 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     Jann Horn <jannh@google.com>
-cc:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Vishal Moola <vishal.moola@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>, Zi Yan <ziy@nvidia.com>,
-        Zach O'Keefe <zokeefe@google.com>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        sparclinux@vger.kernel.org,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>
-Subject: Re: [PATCH mm-unstable] mm/khugepaged: fix collapse_pte_mapped_thp()
- versus uffd
-In-Reply-To: <CAG48ez1XAePj5MUG8AUmnTjRLcxKre-NGYV82kB68-X8Rh6fxA@mail.gmail.com>
-Message-ID: <f2dc6d6b-c516-932-1598-a58e2afffe9a@google.com>
-References: <4d31abf5-56c0-9f3d-d12f-c9317936691@google.com> <CAG48ez1XAePj5MUG8AUmnTjRLcxKre-NGYV82kB68-X8Rh6fxA@mail.gmail.com>
+        with ESMTP id S233049AbjHVGeE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Aug 2023 02:34:04 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D45E1E47;
+        Mon, 21 Aug 2023 23:33:36 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 01FC422C44;
+        Tue, 22 Aug 2023 06:33:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1692685983; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=0LefrGrfWIlUUodSIRfdXfGvUMxOpn3Da/x1z7+TACM=;
+        b=dcW/Td18f6Fki4csXaJVH2kX+joGxDMOht06LwZTOfNsgqpMfncIfcqoPyYT4pr6k4mnSU
+        M0TGSwt1po685EhpFFg+MsGQqwUnObFIRiO2wfy913FH+/Lel6/Fb2dOKqsq92KJa+2uD1
+        Bu3YIapaL9IWtKzXxWr75rikpNrC41E=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1692685983;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=0LefrGrfWIlUUodSIRfdXfGvUMxOpn3Da/x1z7+TACM=;
+        b=rG0JjH04TqT5CksLvToAlLn8tIAFYWH057rgn75zDtNS/jv7ATjOlZlbjVPfguARFEVAuk
+        XrENx1kzxGQ4t0Cg==
+Received: from kitsune.suse.cz (kitsune.suse.cz [10.100.12.127])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 4B5DF2C143;
+        Tue, 22 Aug 2023 06:32:58 +0000 (UTC)
+Date:   Tue, 22 Aug 2023 08:32:57 +0200
+From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+To:     "Leizhen (ThunderTown)" <thunder.leizhen@huawei.com>
+Cc:     Eric DeVolder <eric.devolder@oracle.com>, linux@armlinux.org.uk,
+        catalin.marinas@arm.com, will@kernel.org, chenhuacai@kernel.org,
+        geert@linux-m68k.org, tsbogend@alpha.franken.de,
+        James.Bottomley@hansenpartnership.com, deller@gmx.de,
+        ysato@users.sourceforge.jp, dalias@libc.org,
+        glaubitz@physik.fu-berlin.de, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-ia64@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, peterz@infradead.org,
+        linus.walleij@linaro.org, hpa@zytor.com, kernel@xen0n.name,
+        ardb@kernel.org, tsi@tuyoix.net, agordeev@linux.ibm.com,
+        paulmck@kernel.org, bhe@redhat.com, masahiroy@kernel.org,
+        konrad.wilk@oracle.com, sebastian.reichel@collabora.com,
+        samitolvanen@google.com, ojeda@kernel.org,
+        juerg.haefliger@canonical.com, borntraeger@linux.ibm.com,
+        frederic@kernel.org, arnd@arndb.de, mhiramat@kernel.org,
+        aou@eecs.berkeley.edu, keescook@chromium.org, gor@linux.ibm.com,
+        anshuman.khandual@arm.com, hca@linux.ibm.com, xin3.li@intel.com,
+        npiggin@gmail.com, rmk+kernel@armlinux.org.uk,
+        paul.walmsley@sifive.com, boris.ostrovsky@oracle.com,
+        ziy@nvidia.com, hbathini@linux.ibm.com, gregkh@linuxfoundation.org,
+        kirill.shutemov@linux.intel.com, ndesaulniers@google.com,
+        sourabhjain@linux.ibm.com, palmer@dabbelt.com, svens@linux.ibm.com,
+        tj@kernel.org, akpm@linux-foundation.org, rppt@kernel.org
+Subject: Re: [PATCH v6 02/14] x86/kexec: refactor for kernel/Kconfig.kexec
+Message-ID: <20230822063257.GI8826@kitsune.suse.cz>
+References: <20230712161545.87870-1-eric.devolder@oracle.com>
+ <20230712161545.87870-3-eric.devolder@oracle.com>
+ <d8ddd4bd-fbc9-dbe9-f5c3-daf8d89aa46d@huawei.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="-1463760895-2088143463-1692672709=:1872"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d8ddd4bd-fbc9-dbe9-f5c3-daf8d89aa46d@huawei.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Hello,
 
----1463760895-2088143463-1692672709=:1872
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+On Thu, Jul 13, 2023 at 07:13:57PM +0800, Leizhen (ThunderTown) wrote:
+> 
+> 
+> On 2023/7/13 0:15, Eric DeVolder wrote:
+> > The kexec and crash kernel options are provided in the common
+> > kernel/Kconfig.kexec. Utilize the common options and provide
+> > the ARCH_SUPPORTS_ and ARCH_SELECTS_ entries to recreate the
+> > equivalent set of KEXEC and CRASH options.
+> > 
+> > Signed-off-by: Eric DeVolder <eric.devolder@oracle.com>
+> > ---
+> >  arch/x86/Kconfig | 92 ++++++++++--------------------------------------
+> >  1 file changed, 19 insertions(+), 73 deletions(-)
+> > 
+> > diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+> > index 7422db409770..9767a343f7c2 100644
+> > --- a/arch/x86/Kconfig
+> > +++ b/arch/x86/Kconfig
+> > @@ -2040,88 +2040,34 @@ config EFI_RUNTIME_MAP
+> >  
+> >  source "kernel/Kconfig.hz"
+> >  
+> > -config KEXEC
+> > -	bool "kexec system call"
+> > -	select KEXEC_CORE
+> > -	help
+> > -	  kexec is a system call that implements the ability to shutdown your
+> > -	  current kernel, and to start another kernel.  It is like a reboot
+> > -	  but it is independent of the system firmware.   And like a reboot
+> > -	  you can start any kernel with it, not just Linux.
+> > -
+> > -	  The name comes from the similarity to the exec system call.
+> > -
+> > -	  It is an ongoing process to be certain the hardware in a machine
+> > -	  is properly shutdown, so do not be surprised if this code does not
+> > -	  initially work for you.  As of this writing the exact hardware
+> > -	  interface is strongly in flux, so no good recommendation can be
+> > -	  made.
+> > -
+> > -config KEXEC_FILE
+> > -	bool "kexec file based system call"
+> > -	select KEXEC_CORE
+> > -	select HAVE_IMA_KEXEC if IMA
+> > -	depends on X86_64
+> > -	depends on CRYPTO=y
+> > -	depends on CRYPTO_SHA256=y
+> > -	help
+> > -	  This is new version of kexec system call. This system call is
+> > -	  file based and takes file descriptors as system call argument
+> > -	  for kernel and initramfs as opposed to list of segments as
+> > -	  accepted by previous system call.
+> > +config ARCH_SUPPORTS_KEXEC
+> > +	def_bool y
+> 
+> In v5, Joel Fernandes seems to suggest you change it to the following form:
 
-On Mon, 21 Aug 2023, Jann Horn wrote:
-> On Mon, Aug 21, 2023 at 9:51=E2=80=AFPM Hugh Dickins <hughd@google.com> w=
-rote:
-> > Jann Horn demonstrated how userfaultfd ioctl UFFDIO_COPY into a private
-> > shmem mapping can add valid PTEs to page table collapse_pte_mapped_thp(=
-)
-> > thought it had emptied: page lock on the huge page is enough to protect
-> > against WP faults (which find the PTE has been cleared), but not enough
-> > to protect against userfaultfd.  "BUG: Bad rss-counter state" followed.
-> >
-> > retract_page_tables() protects against this by checking !vma->anon_vma;
-> > but we know that MADV_COLLAPSE needs to be able to work on private shme=
-m
-> > mappings, even those with an anon_vma prepared for another part of the
-> > mapping; and we know that MADV_COLLAPSE needs to work on shared shmem
-> > mappings which are userfaultfd_armed().  Whether it needs to work on
-> > private shmem mappings which are userfaultfd_armed(), I'm not so sure:
-> > but assume that it does.
->=20
-> I think we couldn't rely on anon_vma here anyway, since holding the
-> mmap_lock in read mode doesn't prevent concurrent creation of an
-> anon_vma?
+It's unfortunate that the suggestion did not make it to the mailinglist.
 
-We would have had to do the same as in retract_page_tables() (which
-doesn't even have mmap_lock for read): recheck !vma->anon_vma after
-finally acquiring ptlock.  But the !anon_vma limitation is certainly
-not acceptable here anyway.
+> In arch/Kconfig:
+> +config ARCH_SUPPORTS_KEXEC
+> +	bool
+> 
+> In arch/x86/Kconfig:
+> config X86
+> 	... ...
+> +	select ARCH_SUPPORTS_KEXEC
+> 
+> In arch/arm64/Kconfig:
+> config ARM64
+> 	... ...
+> +	select ARCH_SUPPORTS_KEXEC if PM_SLEEP_SMP
 
->=20
-> > Just for this case, take the pmd_lock() two steps earlier: not because
-> > it gives any protection against this case itself, but because ptlock
-> > nests inside it, and it's the dropping of ptlock which let the bug in.
-> > In other cases, continue to minimize the pmd_lock() hold time.
->=20
-> Special-casing userfaultfd like this makes me a bit uncomfortable; but
-> I also can't find anything other than userfaultfd that would insert
-> pages into regions that are khugepaged-compatible, so I guess this
-> works?
+Which might work for this case
 
-I'm as sure as I can be that it's solely because userfaultfd breaks
-the usual rules here (and in fairness, IIRC Andrea did ask my permission
-before making it behave that way on shmem, COWing without a source page).
+> 
+> etc..
+> 
+> You can refer to ARCH_HAS_DEBUG_VIRTUAL.
+> 
+> >  
+> > -config ARCH_HAS_KEXEC_PURGATORY
+> > -	def_bool KEXEC_FILE
+> > +config ARCH_SUPPORTS_KEXEC_FILE
+> > +	def_bool X86_64 && CRYPTO && CRYPTO_SHA256
+> >  
+> > -config KEXEC_SIG
+> > -	bool "Verify kernel signature during kexec_file_load() syscall"
+> > +config ARCH_SELECTS_KEXEC_FILE
+> > +	def_bool y
+> >  	depends on KEXEC_FILE
+> > -	help
+> > +	select HAVE_IMA_KEXEC if IMA
 
-Perhaps something else will want that same behaviour in future (it's
-tempting, but difficult to guarantee correctness); for now, it is just
-userfaultfd (but by saying "_armed" rather than "_missing", I'm half-
-expecting uffd to add more such exceptional modes in future).
+but not this case, at least not this trivially.
 
->=20
-> I guess an alternative would be to use a spin_trylock() instead of the
-> current pmd_lock(), and if that fails, temporarily drop the page table
-> lock and then restart from step 2 with both locks held - and at that
-> point the page table scan should be fast since we expect it to usually
-> be empty.
+Than for consistency it looks better to keep as is.
 
-That's certainly a good idea, if collapse on userfaultfd_armed private
-is anything of a common case (I doubt, but I don't know).  It may be a
-better idea anyway (saving a drop and retake of ptlock).
+Thanks
 
-I gave it a try, expecting to end up with something that would lead
-me to say "I tried it, but it didn't work out well"; but actually it
-looks okay to me.  I wouldn't say I prefer it, but it seems reasonable,
-and no more complicated (as Peter rightly observes) than the original.
+Michal
 
-It's up to you and Peter, and whoever has strong feelings about it,
-to choose between them: I don't mind (but I shall be sad if someone
-demands that I indent that comment deeper - I'm not a fan of long
-multi-line comments near column 80).
-
-
-[PATCH mm-unstable v2] mm/khugepaged: fix collapse_pte_mapped_thp() versus =
-uffd
-
-Jann Horn demonstrated how userfaultfd ioctl UFFDIO_COPY into a private
-shmem mapping can add valid PTEs to page table collapse_pte_mapped_thp()
-thought it had emptied: page lock on the huge page is enough to protect
-against WP faults (which find the PTE has been cleared), but not enough
-to protect against userfaultfd.  "BUG: Bad rss-counter state" followed.
-
-retract_page_tables() protects against this by checking !vma->anon_vma;
-but we know that MADV_COLLAPSE needs to be able to work on private shmem
-mappings, even those with an anon_vma prepared for another part of the
-mapping; and we know that MADV_COLLAPSE needs to work on shared shmem
-mappings which are userfaultfd_armed().  Whether it needs to work on
-private shmem mappings which are userfaultfd_armed(), I'm not so sure:
-but assume that it does.
-
-Now trylock pmd lock without dropping ptlock (suggested by jannh): if
-that fails, drop and retake ptlock around taking pmd lock, and just in
-the uffd private case, go back to recheck and empty the page table.
-
-Reported-by: Jann Horn <jannh@google.com>
-Closes: https://lore.kernel.org/linux-mm/CAG48ez0FxiRC4d3VTu_a9h=3Drg5FW-kY=
-D5Rg5xo_RDBM0LTTqZQ@mail.gmail.com/
-Fixes: 1043173eb5eb ("mm/khugepaged: collapse_pte_mapped_thp() with mmap_re=
-ad_lock()")
-Signed-off-by: Hugh Dickins <hughd@google.com>
----
- mm/khugepaged.c | 39 +++++++++++++++++++++++++++++----------
- 1 file changed, 29 insertions(+), 10 deletions(-)
-
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index 40d43eccdee8..ad1c571772fe 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -1476,7 +1476,7 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, uns=
-igned long addr,
- =09struct page *hpage;
- =09pte_t *start_pte, *pte;
- =09pmd_t *pmd, pgt_pmd;
--=09spinlock_t *pml, *ptl;
-+=09spinlock_t *pml =3D NULL, *ptl;
- =09int nr_ptes =3D 0, result =3D SCAN_FAIL;
- =09int i;
-=20
-@@ -1572,9 +1572,10 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, un=
-signed long addr,
- =09=09=09=09haddr, haddr + HPAGE_PMD_SIZE);
- =09mmu_notifier_invalidate_range_start(&range);
- =09notified =3D true;
--=09start_pte =3D pte_offset_map_lock(mm, pmd, haddr, &ptl);
--=09if (!start_pte)=09=09/* mmap_lock + page lock should prevent this */
--=09=09goto abort;
-+=09spin_lock(ptl);
-+recheck:
-+=09start_pte =3D pte_offset_map(pmd, haddr);
-+=09VM_BUG_ON(!start_pte);=09/* mmap_lock + page lock should prevent this *=
-/
-=20
- =09/* step 2: clear page table and adjust rmap */
- =09for (i =3D 0, addr =3D haddr, pte =3D start_pte;
-@@ -1608,20 +1609,36 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, u=
-nsigned long addr,
- =09=09nr_ptes++;
- =09}
-=20
--=09pte_unmap_unlock(start_pte, ptl);
-+=09pte_unmap(start_pte);
-=20
- =09/* step 3: set proper refcount and mm_counters. */
- =09if (nr_ptes) {
- =09=09page_ref_sub(hpage, nr_ptes);
- =09=09add_mm_counter(mm, mm_counter_file(hpage), -nr_ptes);
-+=09=09nr_ptes =3D 0;
- =09}
-=20
--=09/* step 4: remove page table */
-+=09/* step 4: remove empty page table */
-+=09if (!pml) {
-+=09=09pml =3D pmd_lockptr(mm, pmd);
-+=09=09if (pml !=3D ptl && !spin_trylock(pml)) {
-+=09=09=09spin_unlock(ptl);
-+=09=09=09spin_lock(pml);
-+=09=09=09spin_lock_nested(ptl, SINGLE_DEPTH_NESTING);
-+=09/*
-+=09 * pmd_lock covers a wider range than ptl, and (if split from mm's
-+=09 * page_table_lock) ptl nests inside pml. The less time we hold pml,
-+=09 * the better; but userfaultfd's mfill_atomic_pte() on a private VMA
-+=09 * inserts a valid as-if-COWed PTE without even looking up page cache.
-+=09 * So page lock of hpage does not protect from it, so we must not drop
-+=09 * ptl before pgt_pmd is removed, so uffd private needs rechecking.
-+=09 */
-+=09=09=09if (userfaultfd_armed(vma) &&
-+=09=09=09    !(vma->vm_flags & VM_SHARED))
-+=09=09=09=09goto recheck;
-+=09=09}
-+=09}
-=20
--=09/* Huge page lock is still held, so page table must remain empty */
--=09pml =3D pmd_lock(mm, pmd);
--=09if (ptl !=3D pml)
--=09=09spin_lock_nested(ptl, SINGLE_DEPTH_NESTING);
- =09pgt_pmd =3D pmdp_collapse_flush(vma, haddr, pmd);
- =09pmdp_get_lockless_sync();
- =09if (ptl !=3D pml)
-@@ -1648,6 +1665,8 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, uns=
-igned long addr,
- =09}
- =09if (start_pte)
- =09=09pte_unmap_unlock(start_pte, ptl);
-+=09if (pml && pml !=3D ptl)
-+=09=09spin_unlock(pml);
- =09if (notified)
- =09=09mmu_notifier_invalidate_range_end(&range);
- drop_hpage:
---=20
-2.35.3
----1463760895-2088143463-1692672709=:1872--
+> >  
+> > -	  This option makes the kexec_file_load() syscall check for a valid
+> > -	  signature of the kernel image.  The image can still be loaded without
+> > -	  a valid signature unless you also enable KEXEC_SIG_FORCE, though if
+> > -	  there's a signature that we can check, then it must be valid.
+> > +config ARCH_HAS_KEXEC_PURGATORY
+> > +	def_bool KEXEC_FILE
+> >  
+> > -	  In addition to this option, you need to enable signature
+> > -	  verification for the corresponding kernel image type being
+> > -	  loaded in order for this to work.
+> > +config ARCH_SUPPORTS_KEXEC_SIG
+> > +	def_bool y
+> >  
+> > -config KEXEC_SIG_FORCE
+> > -	bool "Require a valid signature in kexec_file_load() syscall"
+> > -	depends on KEXEC_SIG
+> > -	help
+> > -	  This option makes kernel signature verification mandatory for
+> > -	  the kexec_file_load() syscall.
+> > +config ARCH_SUPPORTS_KEXEC_SIG_FORCE
+> > +	def_bool y
+> >  
+> > -config KEXEC_BZIMAGE_VERIFY_SIG
+> > -	bool "Enable bzImage signature verification support"
+> > -	depends on KEXEC_SIG
+> > -	depends on SIGNED_PE_FILE_VERIFICATION
+> > -	select SYSTEM_TRUSTED_KEYRING
+> > -	help
+> > -	  Enable bzImage signature verification support.
+> > +config ARCH_SUPPORTS_KEXEC_BZIMAGE_VERIFY_SIG
+> > +	def_bool y
+> >  
+> > -config CRASH_DUMP
+> > -	bool "kernel crash dumps"
+> > -	depends on X86_64 || (X86_32 && HIGHMEM)
+> > -	help
+> > -	  Generate crash dump after being started by kexec.
+> > -	  This should be normally only set in special crash dump kernels
+> > -	  which are loaded in the main kernel with kexec-tools into
+> > -	  a specially reserved region and then later executed after
+> > -	  a crash by kdump/kexec. The crash dump kernel must be compiled
+> > -	  to a memory address not used by the main kernel or BIOS using
+> > -	  PHYSICAL_START, or it must be built as a relocatable image
+> > -	  (CONFIG_RELOCATABLE=y).
+> > -	  For more details see Documentation/admin-guide/kdump/kdump.rst
+> > +config ARCH_SUPPORTS_KEXEC_JUMP
+> > +	def_bool y
+> >  
+> > -config KEXEC_JUMP
+> > -	bool "kexec jump"
+> > -	depends on KEXEC && HIBERNATION
+> > -	help
+> > -	  Jump between original kernel and kexeced kernel and invoke
+> > -	  code in physical address mode via KEXEC
+> > +config ARCH_SUPPORTS_CRASH_DUMP
+> > +	def_bool X86_64 || (X86_32 && HIGHMEM)
+> >  
+> >  config PHYSICAL_START
+> >  	hex "Physical address where the kernel is loaded" if (EXPERT || CRASH_DUMP)
+> > 
+> 
+> -- 
+> Regards,
+>   Zhen Lei
