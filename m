@@ -2,57 +2,63 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38B1BEE49AF
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Aug 2023 18:54:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A3D9EE49AE
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Aug 2023 19:07:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229562AbjHVSys (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 22 Aug 2023 14:54:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48546 "EHLO
+        id S230031AbjHVTH6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Aug 2023 15:07:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229577AbjHVSyr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Aug 2023 14:54:47 -0400
-Received: from mail-yw1-x112f.google.com (mail-yw1-x112f.google.com [IPv6:2607:f8b0:4864:20::112f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B77CE5
-        for <linux-s390@vger.kernel.org>; Tue, 22 Aug 2023 11:54:45 -0700 (PDT)
-Received: by mail-yw1-x112f.google.com with SMTP id 00721157ae682-59209b12c50so30417487b3.0
-        for <linux-s390@vger.kernel.org>; Tue, 22 Aug 2023 11:54:45 -0700 (PDT)
+        with ESMTP id S230023AbjHVTH6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Aug 2023 15:07:58 -0400
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 608A0CFE
+        for <linux-s390@vger.kernel.org>; Tue, 22 Aug 2023 12:07:54 -0700 (PDT)
+Received: by mail-wm1-x32b.google.com with SMTP id 5b1f17b1804b1-3fe2d620d17so22735e9.0
+        for <linux-s390@vger.kernel.org>; Tue, 22 Aug 2023 12:07:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1692730485; x=1693335285;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=EC4FoWXo6SNQKwsXxt28KsctazZB0KZm2Dgg9LreMAM=;
-        b=1YIoFqVN55j3XEBWw5UYnqxvNjoz+koElbxuVIP/CJlJ0hkI9N8eMY39So2s6Zh8e0
-         lYOJwoMEQBCBGM9ObvuUJ43RLHkBTQhPIi4D2e21eC0WOzSMo3w6Pej51GXssjJncxsr
-         40V/Mu1pMG/D3T0D49sODOZIfKYGqNqFAaOkTMSHTKzO6xb16qy4PWhFgzJJXzDEWNDd
-         syAPBovHWWRT8jV5/JwCsG9j6lWmyoq166pYQYj+5LjUZx2PNOAhbu+jAuVXXYMq6btV
-         oWcKnK9p1XjuZsNocTtOJIfHWsLUDWxxgnOuAfTnpiEG8/nc/26eHsq/XlCM+fMpNl17
-         lGng==
+        d=google.com; s=20221208; t=1692731273; x=1693336073;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=sRiBUzL8spKRB1tclE82+u46hrJ1Ih197R4YOzksonI=;
+        b=lMsfT5hx0tLwk2rlaqeI5mSDZwJSP9BkWsHVQo71FW7LKCx8tvIRUuniCr8vZv1pTR
+         vHXATpyKDAkjxKMb1fyNJgYHuXcgcu9oOrQKPMNm0gcohAfiJDoljNpdWErX6OXwP7ej
+         G7rBd82bGdsJXmkhDSUA3nzA0wFkZdDtJzDwG2zKxBoKE4/A0ZNv+HXMbPQZ123shwex
+         vbVcb4kpmwEZjv5e1tWPjpsTmGx+uws9r7k9zU20nwgQ+E8c6cH7kT7S1aNh6M5PYMlW
+         r0ofN2tuS06QEliLcqsX/YwzKyqMfhqNwpGphR1Pyffwu6qvQ73IRtR+h+DudVZkggBA
+         r3sw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692730485; x=1693335285;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=EC4FoWXo6SNQKwsXxt28KsctazZB0KZm2Dgg9LreMAM=;
-        b=ALiD7HqoyxEX41YloQy3kANsC2lJ3MiO0cWQTg5D3KGu0xthVqL6hrrSmvSIUnbui7
-         7xSZObfTrpr7Tcwo400PCWD80tm6NmQo+pQFInleUkhh42ECFegWnpRsIUZ60QsE+7Do
-         5iQ1La0aSXD0Qhf/2z6PLbOJXPttL3NXkdFwsvQQQkRW/Bh5BN1rEadunHszdC/A0pgj
-         fOCnVckWTbe8LPaZhlB7h7alGz4Nce8seWZGl/xkYrx2RnogZk8svDNIqzHnfGtAnld4
-         gIBci6PsL2Mq7YUeFQFQE9a/FG7Ko2kM7KSOvZ7ooYbwmpda20mIyuKe7MZZ6eUhK39a
-         nfdQ==
-X-Gm-Message-State: AOJu0YwEF4cHAdHCfVIkrpzzRf/93yDQtpTuZ5QYxTeJna+Ni1FnlU2r
-        nvP8geizDoGNy2LIaHT7HOXVww==
-X-Google-Smtp-Source: AGHT+IFpHQvIMwN5WYlfI56GAofuwQT9IU67DR/OnesR0CbZe8XpbWpAMdSzZjh6aZoI7atOZrgvQQ==
-X-Received: by 2002:a81:4843:0:b0:583:2df2:35f3 with SMTP id v64-20020a814843000000b005832df235f3mr9917420ywa.1.1692730484669;
-        Tue, 22 Aug 2023 11:54:44 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id r64-20020a815d43000000b00545a08184cesm2915469ywb.94.2023.08.22.11.54.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Aug 2023 11:54:44 -0700 (PDT)
-Date:   Tue, 22 Aug 2023 11:54:39 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     Jann Horn <jannh@google.com>
-cc:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        d=1e100.net; s=20221208; t=1692731273; x=1693336073;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=sRiBUzL8spKRB1tclE82+u46hrJ1Ih197R4YOzksonI=;
+        b=DMibtKOLjDWjthrZLJEj2w8g5VHRvLFC/pDb2i/NiNGkzcRsE/VPcSL1ePmnVSy7WP
+         VEgKuoNLptoV+EB2Xev2yMe2SjRL3fRrhwqJxbSiAAGj+3DwnhkfnjluDRvUq/CQkhMw
+         PRyCWNxNzXQpSJFHEJuII2+nS9jS8eNRx1r3U+174Nh/7uX5C+gjXtzRUYeYZFCVr9Bg
+         OAmHH7hKN+Bh9GyFEGUnkyY9HU7nhXRMee53l+mTy3mXQYiXANbjU0cVfLTqJr/wO4k2
+         5uxJs1RGy2bhMIBhuNLKa9lJ+YBf92edoPAMwh2jhcl06BwCkXbGiwGwmIoAKEzslQFB
+         zH2g==
+X-Gm-Message-State: AOJu0YzlaogE3r8/L+kHK8hFlFeTLqhCky8uBVSlhcGYk1t3yBeImfqS
+        8TYDfeQdy6ew+AP8hIUmpjzOUuDXOucWwYLyDvETTw==
+X-Google-Smtp-Source: AGHT+IGfBnrr77bQYEkOr6KDUL9/HGHICAg72c/uYHb0YNbCMBrO15aEsh2D/Hbolo0yCEKJUgZU8+XffH3Fzjw2Mp0=
+X-Received: by 2002:a7b:c4d9:0:b0:3f4:fb7:48d4 with SMTP id
+ g25-20020a7bc4d9000000b003f40fb748d4mr129596wmk.3.1692731272816; Tue, 22 Aug
+ 2023 12:07:52 -0700 (PDT)
+MIME-Version: 1.0
+References: <4d31abf5-56c0-9f3d-d12f-c9317936691@google.com>
+ <CAG48ez1XAePj5MUG8AUmnTjRLcxKre-NGYV82kB68-X8Rh6fxA@mail.gmail.com>
+ <f2dc6d6b-c516-932-1598-a58e2afffe9a@google.com> <CAG48ez0S-RjAapaDiJ+oZXpn1vs9niWx54iqzusUScS-BYu0hw@mail.gmail.com>
+ <82d294-c9b0-d7b4-71c9-cfed3925c47b@google.com>
+In-Reply-To: <82d294-c9b0-d7b4-71c9-cfed3925c47b@google.com>
+From:   Jann Horn <jannh@google.com>
+Date:   Tue, 22 Aug 2023 21:07:15 +0200
+Message-ID: <CAG48ez0dwYCxMv+e9-Y9XcQjZsXNqjdzhu31k84KoowD9rL+RQ@mail.gmail.com>
+Subject: Re: [PATCH mm-unstable] mm/khugepaged: fix collapse_pte_mapped_thp()
+ versus uffd
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Mike Kravetz <mike.kravetz@oracle.com>,
         Mike Rapoport <rppt@kernel.org>,
         "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
@@ -95,120 +101,21 @@ cc:     Hugh Dickins <hughd@google.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Vishal Moola <vishal.moola@gmail.com>,
         Vlastimil Babka <vbabka@suse.cz>, Zi Yan <ziy@nvidia.com>,
-        Zach O'Keefe <zokeefe@google.com>,
+        "Zach O'Keefe" <zokeefe@google.com>,
         Linux ARM <linux-arm-kernel@lists.infradead.org>,
         sparclinux@vger.kernel.org,
         linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
         linux-s390 <linux-s390@vger.kernel.org>,
         kernel list <linux-kernel@vger.kernel.org>,
         Linux-MM <linux-mm@kvack.org>
-Subject: Re: [PATCH mm-unstable] mm/khugepaged: fix collapse_pte_mapped_thp()
- versus uffd
-In-Reply-To: <CAG48ez0S-RjAapaDiJ+oZXpn1vs9niWx54iqzusUScS-BYu0hw@mail.gmail.com>
-Message-ID: <82d294-c9b0-d7b4-71c9-cfed3925c47b@google.com>
-References: <4d31abf5-56c0-9f3d-d12f-c9317936691@google.com> <CAG48ez1XAePj5MUG8AUmnTjRLcxKre-NGYV82kB68-X8Rh6fxA@mail.gmail.com> <f2dc6d6b-c516-932-1598-a58e2afffe9a@google.com> <CAG48ez0S-RjAapaDiJ+oZXpn1vs9niWx54iqzusUScS-BYu0hw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="-1463760895-405531799-1692730484=:3162"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Tue, Aug 22, 2023 at 8:54=E2=80=AFPM Hugh Dickins <hughd@google.com> wro=
+te:
+> But rather than reworking it, please let's just go with v1 for now.
 
----1463760895-405531799-1692730484=:3162
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-
-On Tue, 22 Aug 2023, Jann Horn wrote:
-> On Tue, Aug 22, 2023 at 4:51=E2=80=AFAM Hugh Dickins <hughd@google.com> w=
-rote:
-> > On Mon, 21 Aug 2023, Jann Horn wrote:
-> > > On Mon, Aug 21, 2023 at 9:51=E2=80=AFPM Hugh Dickins <hughd@google.co=
-m> wrote:
-> > > > Just for this case, take the pmd_lock() two steps earlier: not beca=
-use
-> > > > it gives any protection against this case itself, but because ptloc=
-k
-> > > > nests inside it, and it's the dropping of ptlock which let the bug =
-in.
-> > > > In other cases, continue to minimize the pmd_lock() hold time.
-> > >
-> > > Special-casing userfaultfd like this makes me a bit uncomfortable; bu=
-t
-> > > I also can't find anything other than userfaultfd that would insert
-> > > pages into regions that are khugepaged-compatible, so I guess this
-> > > works?
-> >
-> > I'm as sure as I can be that it's solely because userfaultfd breaks
-> > the usual rules here (and in fairness, IIRC Andrea did ask my permissio=
-n
-> > before making it behave that way on shmem, COWing without a source page=
-).
-> >
-> > Perhaps something else will want that same behaviour in future (it's
-> > tempting, but difficult to guarantee correctness); for now, it is just
-> > userfaultfd (but by saying "_armed" rather than "_missing", I'm half-
-> > expecting uffd to add more such exceptional modes in future).
->=20
-> Hm, yeah, sounds okay. (I guess we'd also run into this if we ever
-> wanted to make it possible to reliably install PTE markers with
-> madvise() or something like that, which might be nice for allowing
-> userspace to create guard pages without unnecessary extra VMAs...)
-
-I see the mailthread has taken inspiration from your comment there,
-and veered off in that direction: but I'll ignore those futures.
-
->=20
-> > > I guess an alternative would be to use a spin_trylock() instead of th=
-e
-> > > current pmd_lock(), and if that fails, temporarily drop the page tabl=
-e
-> > > lock and then restart from step 2 with both locks held - and at that
-> > > point the page table scan should be fast since we expect it to usuall=
-y
-> > > be empty.
-> >
-> > That's certainly a good idea, if collapse on userfaultfd_armed private
-> > is anything of a common case (I doubt, but I don't know).  It may be a
-> > better idea anyway (saving a drop and retake of ptlock).
->=20
-> I was thinking it also has the advantage that it would still perform
-> okay if we got rid of the userfaultfd_armed() condition at some point
-> - though I realize that designing too much for hypothetical future
-> features is an antipattern.
->=20
-> > I gave it a try, expecting to end up with something that would lead
-> > me to say "I tried it, but it didn't work out well"; but actually it
-> > looks okay to me.  I wouldn't say I prefer it, but it seems reasonable,
-> > and no more complicated (as Peter rightly observes) than the original.
-> >
-> > It's up to you and Peter, and whoever has strong feelings about it,
-> > to choose between them: I don't mind (but I shall be sad if someone
-> > demands that I indent that comment deeper - I'm not a fan of long
-> > multi-line comments near column 80).
->=20
-> I prefer this version because it would make it easier to remove the
-> "userfaultfd_armed()" check in the future if we have to, but I guess
-> we could also always change it later if that becomes necessary, so I
-> don't really have strong feelings on it at this point.
-
-Thanks for considering them both, Jann.  I do think your trylock way,
-as in v2, is in principle superior, and we may well have good reason
-to switch over to it in future; but I find it slightly more confusing,
-so will follow your and Peter's "no strong feelings" for now, and ask
-Andrew please to take the original (implicit v1).
-
-Overriding reason: I realized overnight that v2 is not quite correct:
-I was clever enough to realize that nr_ptes needed to be reset to 0
-to get the accounting right with a recheck pass, but not clever enough
-to realize that resetting it to 0 there would likely skip the abort
-path's flush_tlb_mm(mm), when we actually had cleared entries on the
-first pass.  It needs a separate bool to decide the flush_tlb_mm(mm),
-or it needs that (ridiculously minor!) step 3 to be moved down.
-
-But rather than reworking it, please let's just go with v1 for now.
-
-Thanks,
-Hugh
----1463760895-405531799-1692730484=:3162--
+Sounds good to me.
