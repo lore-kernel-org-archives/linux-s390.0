@@ -2,73 +2,66 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A3D9EE49AE
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Aug 2023 19:07:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBFF3EE49AF
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Aug 2023 19:11:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230031AbjHVTH6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 22 Aug 2023 15:07:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52440 "EHLO
+        id S230044AbjHVTLB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Aug 2023 15:11:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230023AbjHVTH6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Aug 2023 15:07:58 -0400
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 608A0CFE
-        for <linux-s390@vger.kernel.org>; Tue, 22 Aug 2023 12:07:54 -0700 (PDT)
-Received: by mail-wm1-x32b.google.com with SMTP id 5b1f17b1804b1-3fe2d620d17so22735e9.0
-        for <linux-s390@vger.kernel.org>; Tue, 22 Aug 2023 12:07:54 -0700 (PDT)
+        with ESMTP id S230039AbjHVTLB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Aug 2023 15:11:01 -0400
+Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D9EF137
+        for <linux-s390@vger.kernel.org>; Tue, 22 Aug 2023 12:10:59 -0700 (PDT)
+Received: by mail-ot1-x333.google.com with SMTP id 46e09a7af769-6b9e478e122so3472578a34.1
+        for <linux-s390@vger.kernel.org>; Tue, 22 Aug 2023 12:10:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1692731273; x=1693336073;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=sRiBUzL8spKRB1tclE82+u46hrJ1Ih197R4YOzksonI=;
-        b=lMsfT5hx0tLwk2rlaqeI5mSDZwJSP9BkWsHVQo71FW7LKCx8tvIRUuniCr8vZv1pTR
-         vHXATpyKDAkjxKMb1fyNJgYHuXcgcu9oOrQKPMNm0gcohAfiJDoljNpdWErX6OXwP7ej
-         G7rBd82bGdsJXmkhDSUA3nzA0wFkZdDtJzDwG2zKxBoKE4/A0ZNv+HXMbPQZ123shwex
-         vbVcb4kpmwEZjv5e1tWPjpsTmGx+uws9r7k9zU20nwgQ+E8c6cH7kT7S1aNh6M5PYMlW
-         r0ofN2tuS06QEliLcqsX/YwzKyqMfhqNwpGphR1Pyffwu6qvQ73IRtR+h+DudVZkggBA
-         r3sw==
+        d=google.com; s=20221208; t=1692731458; x=1693336258;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=IQel4RgNhxgk/AAhqW/nAOn0kPiLXQfoLmnalyqIi64=;
+        b=5JwyMFYvi0OD4mdojayyGpwSZHcbAytYeAtnE7MibV1tAF6SgoCLsB//DV/hGRQAf7
+         c4C+blWdMkYvJc5z/BVKEJ5IO13eri+1BtevVsKnvLaTD0O1oCgAeAaOVhrQvoXQwzUi
+         FBC2QlGTF5PlDsr4019zQfHrYKg/N1lROVz9wLA9UOxemfMjOKuBFTyvg9J6UQWemZqh
+         EC71Try8JOZukw4l9uc4A684zGu0e0Yg8X2MzLul5fftKIL4CdzSe+XLcMUDEEtfVtw9
+         faYRmXMRMpla6ypOplKeSvwwVw7kQ3+VXDlAxf9mlnlIrodzJQQoglYgHfUHMzTtX58w
+         +8lA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692731273; x=1693336073;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=sRiBUzL8spKRB1tclE82+u46hrJ1Ih197R4YOzksonI=;
-        b=DMibtKOLjDWjthrZLJEj2w8g5VHRvLFC/pDb2i/NiNGkzcRsE/VPcSL1ePmnVSy7WP
-         VEgKuoNLptoV+EB2Xev2yMe2SjRL3fRrhwqJxbSiAAGj+3DwnhkfnjluDRvUq/CQkhMw
-         PRyCWNxNzXQpSJFHEJuII2+nS9jS8eNRx1r3U+174Nh/7uX5C+gjXtzRUYeYZFCVr9Bg
-         OAmHH7hKN+Bh9GyFEGUnkyY9HU7nhXRMee53l+mTy3mXQYiXANbjU0cVfLTqJr/wO4k2
-         5uxJs1RGy2bhMIBhuNLKa9lJ+YBf92edoPAMwh2jhcl06BwCkXbGiwGwmIoAKEzslQFB
-         zH2g==
-X-Gm-Message-State: AOJu0YzlaogE3r8/L+kHK8hFlFeTLqhCky8uBVSlhcGYk1t3yBeImfqS
-        8TYDfeQdy6ew+AP8hIUmpjzOUuDXOucWwYLyDvETTw==
-X-Google-Smtp-Source: AGHT+IGfBnrr77bQYEkOr6KDUL9/HGHICAg72c/uYHb0YNbCMBrO15aEsh2D/Hbolo0yCEKJUgZU8+XffH3Fzjw2Mp0=
-X-Received: by 2002:a7b:c4d9:0:b0:3f4:fb7:48d4 with SMTP id
- g25-20020a7bc4d9000000b003f40fb748d4mr129596wmk.3.1692731272816; Tue, 22 Aug
- 2023 12:07:52 -0700 (PDT)
-MIME-Version: 1.0
-References: <4d31abf5-56c0-9f3d-d12f-c9317936691@google.com>
- <CAG48ez1XAePj5MUG8AUmnTjRLcxKre-NGYV82kB68-X8Rh6fxA@mail.gmail.com>
- <f2dc6d6b-c516-932-1598-a58e2afffe9a@google.com> <CAG48ez0S-RjAapaDiJ+oZXpn1vs9niWx54iqzusUScS-BYu0hw@mail.gmail.com>
- <82d294-c9b0-d7b4-71c9-cfed3925c47b@google.com>
-In-Reply-To: <82d294-c9b0-d7b4-71c9-cfed3925c47b@google.com>
-From:   Jann Horn <jannh@google.com>
-Date:   Tue, 22 Aug 2023 21:07:15 +0200
-Message-ID: <CAG48ez0dwYCxMv+e9-Y9XcQjZsXNqjdzhu31k84KoowD9rL+RQ@mail.gmail.com>
-Subject: Re: [PATCH mm-unstable] mm/khugepaged: fix collapse_pte_mapped_thp()
- versus uffd
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        d=1e100.net; s=20221208; t=1692731458; x=1693336258;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=IQel4RgNhxgk/AAhqW/nAOn0kPiLXQfoLmnalyqIi64=;
+        b=XbS14gJEPgiVj0JQVy9+DYSY4rcSaft79pd5mEkLHtFwK5HiprHK/zt+kod54vSEBj
+         yIjujIAlw5qwX5q/SGnEhCxTyxhiOfEEEMxHzdiPj5FNb/KlHOvCtLgQ2y003/h0XZWU
+         gJQIb1n17f7PM3xVBEy2O+xyYeJheCAITdp0NrnovElzPJFJLSTqcVlBFl4OgxjXPR/m
+         5skWIywqqnH8Ccai/Crb5T9VKkNwde22IceosUoWuwZNv7dYNcNoTKIau0w9yBEgVR1B
+         QRmjfP6q7W77sHoVamWg+bR74IU8e2So7wPStXMePTFrQITsCMyi2d0/Fu4ULzAYSukg
+         dLLw==
+X-Gm-Message-State: AOJu0YwlonYrwEGLE5FZ4qmVOxK5Kx4ngqzrSX9on3DI36u9Erxoyk0h
+        ZNON+t0BX7sm1J8sZ7+tBfYnUw==
+X-Google-Smtp-Source: AGHT+IEBm3m/LaDBf/1DgkyNDU6zxtVn+hbaxrHnTVvmv8dzjr9ChOJoftygo0pLRcze1/DlIgis3g==
+X-Received: by 2002:a05:6358:33a2:b0:135:99fa:a125 with SMTP id i34-20020a05635833a200b0013599faa125mr10540178rwd.1.1692731458157;
+        Tue, 22 Aug 2023 12:10:58 -0700 (PDT)
+Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id d74-20020a25e64d000000b00d7360e0b240sm2487223ybh.31.2023.08.22.12.10.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 22 Aug 2023 12:10:57 -0700 (PDT)
+Date:   Tue, 22 Aug 2023 12:10:46 -0700 (PDT)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@ripple.attlocal.net
+To:     Matthew Wilcox <willy@infradead.org>
+cc:     Hugh Dickins <hughd@google.com>, Peter Xu <peterx@redhat.com>,
+        Jann Horn <jannh@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Mike Kravetz <mike.kravetz@oracle.com>,
         Mike Rapoport <rppt@kernel.org>,
         "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
         David Hildenbrand <david@redhat.com>,
         Suren Baghdasaryan <surenb@google.com>,
         Qi Zheng <zhengqi.arch@bytedance.com>,
         Yang Shi <shy828301@gmail.com>,
         Mel Gorman <mgorman@techsingularity.net>,
-        Peter Xu <peterx@redhat.com>,
         Peter Zijlstra <peterz@infradead.org>,
         Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
         Alistair Popple <apopple@nvidia.com>,
@@ -101,21 +94,49 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Vishal Moola <vishal.moola@gmail.com>,
         Vlastimil Babka <vbabka@suse.cz>, Zi Yan <ziy@nvidia.com>,
-        "Zach O'Keefe" <zokeefe@google.com>,
+        Zach O'Keefe <zokeefe@google.com>,
         Linux ARM <linux-arm-kernel@lists.infradead.org>,
         sparclinux@vger.kernel.org,
         linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
         linux-s390 <linux-s390@vger.kernel.org>,
         kernel list <linux-kernel@vger.kernel.org>,
         Linux-MM <linux-mm@kvack.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH mm-unstable] mm/khugepaged: fix collapse_pte_mapped_thp()
+ versus uffd
+In-Reply-To: <ZOUCVRxM8aPH6fva@casper.infradead.org>
+Message-ID: <3f926b9-ee3c-5cae-d7ad-9b3e1986bcbf@google.com>
+References: <4d31abf5-56c0-9f3d-d12f-c9317936691@google.com> <CAG48ez1XAePj5MUG8AUmnTjRLcxKre-NGYV82kB68-X8Rh6fxA@mail.gmail.com> <f2dc6d6b-c516-932-1598-a58e2afffe9a@google.com> <ZOTGvfO31pleXrPF@x1n> <1b7c7056-d742-86bf-fec-fdb024b2381@google.com>
+ <ZOUCVRxM8aPH6fva@casper.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Aug 22, 2023 at 8:54=E2=80=AFPM Hugh Dickins <hughd@google.com> wro=
-te:
-> But rather than reworking it, please let's just go with v1 for now.
+On Tue, 22 Aug 2023, Matthew Wilcox wrote:
+> On Tue, Aug 22, 2023 at 11:34:19AM -0700, Hugh Dickins wrote:
+> > (Yes, the locking is a bit confusing: but mainly for the unrelated reason,
+> > that with the split locking configs, we never quite know whether this lock
+> > is the same as that lock or not, and so have to be rather careful.)
+> 
+> Is it time to remove the PTE split locking config option?  I believe all
+> supported architectures have at least two levels of page tables, so if we
+> have split ptlocks, ptl and pml are always different from each other (it's
+> just that on two level machines, pmd == pud == p4d == pgd).  With huge
+> thread counts now being the norm, it's hard to see why anybody would want
+> to support SMP and !SPLIT_PTE_PTLOCKS.  To quote the documentation ...
+> 
+>   Split page table lock for PTE tables is enabled compile-time if
+>   CONFIG_SPLIT_PTLOCK_CPUS (usually 4) is less or equal to NR_CPUS.
+>   If split lock is disabled, all tables are guarded by mm->page_table_lock.
+> 
+> You can barely buy a wrist-watch without eight CPUs these days.
 
-Sounds good to me.
+Whilst I'm still happy with my 0-CPU wrist-watch, I do think you're right:
+that SPLIT_PTLOCK_CPUS business was really just a safety-valve for when
+introducing split ptlock in the first place, 4 pulled out of a hat, and
+the unsplit ptlock path quite under-tested.
+
+But I'll leave it to someone else do the job of removing it whenever.
+
+Hugh
