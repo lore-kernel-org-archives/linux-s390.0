@@ -2,141 +2,114 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBFF3EE49AF
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Aug 2023 19:11:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A2C8EE49AF
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Aug 2023 23:59:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230044AbjHVTLB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 22 Aug 2023 15:11:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48700 "EHLO
+        id S231831AbjHVX73 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Aug 2023 19:59:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230039AbjHVTLB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Aug 2023 15:11:01 -0400
-Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D9EF137
-        for <linux-s390@vger.kernel.org>; Tue, 22 Aug 2023 12:10:59 -0700 (PDT)
-Received: by mail-ot1-x333.google.com with SMTP id 46e09a7af769-6b9e478e122so3472578a34.1
-        for <linux-s390@vger.kernel.org>; Tue, 22 Aug 2023 12:10:59 -0700 (PDT)
+        with ESMTP id S231834AbjHVX73 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Aug 2023 19:59:29 -0400
+Received: from mail-oa1-x4a.google.com (mail-oa1-x4a.google.com [IPv6:2001:4860:4864:20::4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD119E49
+        for <linux-s390@vger.kernel.org>; Tue, 22 Aug 2023 16:59:27 -0700 (PDT)
+Received: by mail-oa1-x4a.google.com with SMTP id 586e51a60fabf-1cc7407e507so3769514fac.3
+        for <linux-s390@vger.kernel.org>; Tue, 22 Aug 2023 16:59:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1692731458; x=1693336258;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=IQel4RgNhxgk/AAhqW/nAOn0kPiLXQfoLmnalyqIi64=;
-        b=5JwyMFYvi0OD4mdojayyGpwSZHcbAytYeAtnE7MibV1tAF6SgoCLsB//DV/hGRQAf7
-         c4C+blWdMkYvJc5z/BVKEJ5IO13eri+1BtevVsKnvLaTD0O1oCgAeAaOVhrQvoXQwzUi
-         FBC2QlGTF5PlDsr4019zQfHrYKg/N1lROVz9wLA9UOxemfMjOKuBFTyvg9J6UQWemZqh
-         EC71Try8JOZukw4l9uc4A684zGu0e0Yg8X2MzLul5fftKIL4CdzSe+XLcMUDEEtfVtw9
-         faYRmXMRMpla6ypOplKeSvwwVw7kQ3+VXDlAxf9mlnlIrodzJQQoglYgHfUHMzTtX58w
-         +8lA==
+        d=google.com; s=20221208; t=1692748766; x=1693353566;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=cGRueg2eqYbMCY2ShRbCc3/RucSV6L/B/eSOD25AmaY=;
+        b=oE7rm9AjFtO/wJhPR4I/B3C9PzPl0U9GIJtJ8lqhBf1+Myf/+D2iSRfZgrmLr7mR/x
+         nMayejh5oe5AWTapQPCLq5jq9CY0Pyc9ctwVerkEBlIECHUhVK4vkKvWYwR27pziznqm
+         9W/6Luzdj+ygswvRfmFxADqiAuYOViFaMm49y1CXqPV3sBb/+KuycOsoULepp7onHymj
+         YJMqT/JW19FcVl0zqu0VHtUAcLgBtMlKbMHcBgSSsL0o1dCaBKqqRdrNmCLdDIilXVF7
+         j8JurhCuRPmIhc+12Fomrtw8IDBZ0+NlB1WaYQiZQ5AwOcourf0LmrvpQCxGkEeWzW/q
+         LmPg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692731458; x=1693336258;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=IQel4RgNhxgk/AAhqW/nAOn0kPiLXQfoLmnalyqIi64=;
-        b=XbS14gJEPgiVj0JQVy9+DYSY4rcSaft79pd5mEkLHtFwK5HiprHK/zt+kod54vSEBj
-         yIjujIAlw5qwX5q/SGnEhCxTyxhiOfEEEMxHzdiPj5FNb/KlHOvCtLgQ2y003/h0XZWU
-         gJQIb1n17f7PM3xVBEy2O+xyYeJheCAITdp0NrnovElzPJFJLSTqcVlBFl4OgxjXPR/m
-         5skWIywqqnH8Ccai/Crb5T9VKkNwde22IceosUoWuwZNv7dYNcNoTKIau0w9yBEgVR1B
-         QRmjfP6q7W77sHoVamWg+bR74IU8e2So7wPStXMePTFrQITsCMyi2d0/Fu4ULzAYSukg
-         dLLw==
-X-Gm-Message-State: AOJu0YwlonYrwEGLE5FZ4qmVOxK5Kx4ngqzrSX9on3DI36u9Erxoyk0h
-        ZNON+t0BX7sm1J8sZ7+tBfYnUw==
-X-Google-Smtp-Source: AGHT+IEBm3m/LaDBf/1DgkyNDU6zxtVn+hbaxrHnTVvmv8dzjr9ChOJoftygo0pLRcze1/DlIgis3g==
-X-Received: by 2002:a05:6358:33a2:b0:135:99fa:a125 with SMTP id i34-20020a05635833a200b0013599faa125mr10540178rwd.1.1692731458157;
-        Tue, 22 Aug 2023 12:10:58 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id d74-20020a25e64d000000b00d7360e0b240sm2487223ybh.31.2023.08.22.12.10.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Aug 2023 12:10:57 -0700 (PDT)
-Date:   Tue, 22 Aug 2023 12:10:46 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     Matthew Wilcox <willy@infradead.org>
-cc:     Hugh Dickins <hughd@google.com>, Peter Xu <peterx@redhat.com>,
-        Jann Horn <jannh@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        David Hildenbrand <david@redhat.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Steven Price <steven.price@arm.com>,
-        SeongJae Park <sj@kernel.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Huang Ying <ying.huang@intel.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Zack Rusin <zackr@vmware.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Song Liu <song@kernel.org>,
-        Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Vishal Moola <vishal.moola@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>, Zi Yan <ziy@nvidia.com>,
-        Zach O'Keefe <zokeefe@google.com>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        sparclinux@vger.kernel.org,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>
-Subject: Re: [PATCH mm-unstable] mm/khugepaged: fix collapse_pte_mapped_thp()
- versus uffd
-In-Reply-To: <ZOUCVRxM8aPH6fva@casper.infradead.org>
-Message-ID: <3f926b9-ee3c-5cae-d7ad-9b3e1986bcbf@google.com>
-References: <4d31abf5-56c0-9f3d-d12f-c9317936691@google.com> <CAG48ez1XAePj5MUG8AUmnTjRLcxKre-NGYV82kB68-X8Rh6fxA@mail.gmail.com> <f2dc6d6b-c516-932-1598-a58e2afffe9a@google.com> <ZOTGvfO31pleXrPF@x1n> <1b7c7056-d742-86bf-fec-fdb024b2381@google.com>
- <ZOUCVRxM8aPH6fva@casper.infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        d=1e100.net; s=20221208; t=1692748766; x=1693353566;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=cGRueg2eqYbMCY2ShRbCc3/RucSV6L/B/eSOD25AmaY=;
+        b=dvq6VNRq4Utn9EpnyphhLGUJHBrmr6/clE2UpDh8QqxWJGR1Faj7/1wpFp7z1RP/0k
+         wGs8iEySbiN/FCB1YFI2K01as173w9o1jTFEriMJ0OxYLe99S1dRpg00V72bmas8A3PJ
+         QrsEHqtvB5fgH93ocRJ0OWmkHfcsj24LU2kZ4x9lVUNapDEXA6gTsfGjzFkAAz15wZUp
+         2QMZUXmm+G2B8Xx5JapaeQ5MElGkguT+oSU8nnHdVUoSjhNZ8VRKy7Hmxa+CgEv14Jpv
+         O9chIEsjsBsSGwTlnJF7Bh4XoL5eIisyi3HaYwO6blWkiAa+h83ZqpYj1gj1WJnOGGtu
+         tDzw==
+X-Gm-Message-State: AOJu0YwqMOa9lRPu0rT4ugZKMsTpicZUnEP64R6MXlBqmd5Ut/n1h5St
+        ijIx1cbwQPttKRvegPLo/JU+uNmcrosmYXAH3Q==
+X-Google-Smtp-Source: AGHT+IEg7NbVScd59jOYBOeVb3GuBkFoZlJ1jMAeIVZP8P7/g2W+bAHAovNBatxzdjVp9Qhlv5I+h6M7X52P9QgtDQ==
+X-Received: from jstitt-linux1.c.googlers.com ([fda3:e722:ac3:cc00:2b:ff92:c0a8:23b5])
+ (user=justinstitt job=sendgmr) by 2002:a05:6870:c796:b0:1bb:91fa:7aab with
+ SMTP id dy22-20020a056870c79600b001bb91fa7aabmr174453oab.1.1692748766615;
+ Tue, 22 Aug 2023 16:59:26 -0700 (PDT)
+Date:   Tue, 22 Aug 2023 23:59:26 +0000
+Mime-Version: 1.0
+X-B4-Tracking: v=1; b=H4sIAN1L5WQC/x2N0QrCMAxFf2Xk2UCtjIm/Ij60WabBrStJGcrYv
+ xt8PHDPPTsYq7DBrdtBeROTtTicTx3QK5Uno4zOEEO8hGuMaE0L1S/meaU31qRNmjuGtIyzFN/ nBYepz0SpDwMn8KuqPMnnn7k/juMHT0R0HHYAAAA=
+X-Developer-Key: i=justinstitt@google.com; a=ed25519; pk=tC3hNkJQTpNX/gLKxTNQKDmiQl6QjBNCGKJINqAdJsE=
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1692748765; l=1601;
+ i=justinstitt@google.com; s=20230717; h=from:subject:message-id;
+ bh=DvMuu8/lxku646YrnJJTNn2dZrYri5zBU+GthJXHRdo=; b=y9qu1DfwgWfym6uoXSaFbpI+RHlMMNIUgnNRgLwXSTUj4rO+8MpulMdSPc9QurH/sB/n7zscE
+ V8PMAm229yiAOd/7pdZGUlXbYKP5Dt7IqsFe36jFT6eAtvHiQDn1fkp
+X-Mailer: b4 0.12.3
+Message-ID: <20230822-strncpy-block-partitions-cmdline-ibm-v1-1-154dea8f755c@google.com>
+Subject: [PATCH] partitions/ibm: refactor deprecated strncpy
+From:   Justin Stitt <justinstitt@google.com>
+To:     Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Cc:     linux-s390@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org,
+        Justin Stitt <justinstitt@google.com>
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 22 Aug 2023, Matthew Wilcox wrote:
-> On Tue, Aug 22, 2023 at 11:34:19AM -0700, Hugh Dickins wrote:
-> > (Yes, the locking is a bit confusing: but mainly for the unrelated reason,
-> > that with the split locking configs, we never quite know whether this lock
-> > is the same as that lock or not, and so have to be rather careful.)
-> 
-> Is it time to remove the PTE split locking config option?  I believe all
-> supported architectures have at least two levels of page tables, so if we
-> have split ptlocks, ptl and pml are always different from each other (it's
-> just that on two level machines, pmd == pud == p4d == pgd).  With huge
-> thread counts now being the norm, it's hard to see why anybody would want
-> to support SMP and !SPLIT_PTE_PTLOCKS.  To quote the documentation ...
-> 
->   Split page table lock for PTE tables is enabled compile-time if
->   CONFIG_SPLIT_PTLOCK_CPUS (usually 4) is less or equal to NR_CPUS.
->   If split lock is disabled, all tables are guarded by mm->page_table_lock.
-> 
-> You can barely buy a wrist-watch without eight CPUs these days.
+`strncpy` is deprecated for use on NUL-terminated destination strings [1].
 
-Whilst I'm still happy with my 0-CPU wrist-watch, I do think you're right:
-that SPLIT_PTLOCK_CPUS business was really just a safety-valve for when
-introducing split ptlock in the first place, 4 pulled out of a hat, and
-the unsplit ptlock path quite under-tested.
+A suitable replacement is `strscpy` [2] due to the fact that it
+guarantees NUL-termination on its destination buffer argument which is
+_not_ the case for `strncpy`!
 
-But I'll leave it to someone else do the job of removing it whenever.
+Link: www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings[1]
+Link: https://manpages.debian.org/testing/linux-manual-4.8/strscpy.9.en.html [2]
+Link: https://github.com/KSPP/linux/issues/90
+Cc: linux-hardening@vger.kernel.org
+Signed-off-by: Justin Stitt <justinstitt@google.com>
+---
+ block/partitions/ibm.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Hugh
+diff --git a/block/partitions/ibm.c b/block/partitions/ibm.c
+index 403756dbd50d..e5893cf71b57 100644
+--- a/block/partitions/ibm.c
++++ b/block/partitions/ibm.c
+@@ -111,11 +111,11 @@ static int find_label(struct parsed_partitions *state,
+ 		    !strcmp(temp, "LNX1") ||
+ 		    !strcmp(temp, "CMS1")) {
+ 			if (!strcmp(temp, "VOL1")) {
+-				strncpy(type, label->vol.vollbl, 4);
+-				strncpy(name, label->vol.volid, 6);
++				strscpy(type, label->vol.vollbl, 4);
++				strscpy(name, label->vol.volid, 6);
+ 			} else {
+-				strncpy(type, label->lnx.vollbl, 4);
+-				strncpy(name, label->lnx.volid, 6);
++				strscpy(type, label->lnx.vollbl, 4);
++				strscpy(name, label->lnx.volid, 6);
+ 			}
+ 			EBCASC(type, 4);
+ 			EBCASC(name, 6);
+
+---
+base-commit: 706a741595047797872e669b3101429ab8d378ef
+change-id: 20230822-strncpy-block-partitions-cmdline-ibm-7f5bcca507ea
+
+Best regards,
+--
+Justin Stitt <justinstitt@google.com>
+
