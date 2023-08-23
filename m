@@ -2,165 +2,132 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA2E7EE49A0
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Aug 2023 12:42:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 744B9EE49A3
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Aug 2023 13:49:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234404AbjHWMmJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Aug 2023 08:42:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51656 "EHLO
+        id S236135AbjHWNts (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Aug 2023 09:49:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232906AbjHWMmI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Aug 2023 08:42:08 -0400
+        with ESMTP id S236289AbjHWNts (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Aug 2023 09:49:48 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAFAFE45;
-        Wed, 23 Aug 2023 05:42:06 -0700 (PDT)
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37NCTqCX032517;
-        Wed, 23 Aug 2023 12:42:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=HgdAm3/Pz8P6vhOfEhfyu6nnLd0x1EVq+srZg4Khlu4=;
- b=H6fHKSgB5wqnzJVn4vcOPwkRMW13PbBzchERDCXRasXJtxGhGv4/3VXA6bfmQiC2D1Qe
- 6zVsGCS0f3QIWTNy7tMkJvlUU5ZdxMgr4Doa/gDFkVHfmTPJxONR2gNyS0T1ipdngJ9P
- VM2DzHVIiEzToK+xDN1EwCjwfArlXWDGFIRfdPdC2+aw2MC/fgkl/j6iXhxHCD/RuzNI
- Os/NyAtP+Xu4DAhZGzNm/mgoT/AsV2orKuxO03In+Imgj2L61clCbzNagG/qjSG2UDMv
- nuwh3q5SQ+jgwHENeOiIcmHnwJK0oTvbKaJvlXjXv4+buaO8Pbqh7JaLO25wQZV+KrA0 CQ== 
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3snj040g32-1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F729CEC;
+        Wed, 23 Aug 2023 06:49:46 -0700 (PDT)
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37NDkPNM000992;
+        Wed, 23 Aug 2023 13:49:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=BvsJqRxjROcrJONT4v827/N/n+GC3nRM2LNlaPqw7po=;
+ b=oXrAJkBwIchgMIJfd8CLD3kVBZCb8OpJniicgdBplqNmxc4NxWLyqB8JmGN1oRh7V1JH
+ ajokCe7f3KVNIEalrltiv2FZR81aPbdE91BMFuKqZbnHcZsaKsouKeVxtHVspN6T3kNF
+ lFa5fUJH3BBZ7TKGp80WD1pIbcCmI6FU2SzbMFuMmLUWO+r3bsZAPJqcH9Q9BfeQsnu5
+ 9T9NlwU0qCD8cOrOE5zrbYau7nDoZosNqM94kGb9w10444nDwLXOcGJLT94Gkk3qrQ+O
+ kbDNpVRx5eg15vBfqE/LCPDJTiDDTIoiHuyV/ARwQD6ItcNOYJpOWJrH5WlZxJgDNXeW wg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3snk0xrg79-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Aug 2023 12:42:06 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37NC97rE027333;
-        Wed, 23 Aug 2023 12:42:04 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3sn20sebk8-1
+        Wed, 23 Aug 2023 13:49:42 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37NDaO9i029238;
+        Wed, 23 Aug 2023 13:49:42 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3snk0xrg6y-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Aug 2023 12:42:04 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37NCg1es18678294
+        Wed, 23 Aug 2023 13:49:42 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37NCCJwn020117;
+        Wed, 23 Aug 2023 13:49:41 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3sn22aeq91-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Aug 2023 13:49:41 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37NDncRD44630524
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 23 Aug 2023 12:42:01 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6F9E32004E;
-        Wed, 23 Aug 2023 12:42:01 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0E8EE20040;
-        Wed, 23 Aug 2023 12:42:01 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 23 Aug 2023 12:42:00 +0000 (GMT)
-From:   Michael Mueller <mimu@linux.ibm.com>
-To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Viktor Mihajlovski <mihajlov@linux.ibm.com>,
-        Michael Mueller <mimu@linux.ibm.com>
-Subject: [PATCH] KVM: s390: fix gisa destroy operation might lead to cpu stalls
-Date:   Wed, 23 Aug 2023 14:41:40 +0200
-Message-Id: <20230823124140.3839373-1-mimu@linux.ibm.com>
-X-Mailer: git-send-email 2.39.2
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Wed, 23 Aug 2023 13:49:38 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3BFDF2004D;
+        Wed, 23 Aug 2023 13:49:38 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9CC0E20043;
+        Wed, 23 Aug 2023 13:49:37 +0000 (GMT)
+Received: from osiris (unknown [9.171.11.14])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Wed, 23 Aug 2023 13:49:37 +0000 (GMT)
+Date:   Wed, 23 Aug 2023 15:49:36 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Justin Stitt <justinstitt@google.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc:     Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>, linux-s390@vger.kernel.org,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-hardening@vger.kernel.org
+Subject: Re: [PATCH] partitions/ibm: refactor deprecated strncpy
+Message-ID: <20230823134936.14378-E-hca@linux.ibm.com>
+References: <20230822-strncpy-block-partitions-cmdline-ibm-v1-1-154dea8f755c@google.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230822-strncpy-block-partitions-cmdline-ibm-v1-1-154dea8f755c@google.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 0RXvBsQz4WzYMNQF0hThdGPBngPknwbv
-X-Proofpoint-ORIG-GUID: 0RXvBsQz4WzYMNQF0hThdGPBngPknwbv
+X-Proofpoint-ORIG-GUID: UB7biBxPmFfUReZBIw8MNumAiqIFpVrZ
+X-Proofpoint-GUID: 252SuzsGcBtdvErTIcgeQdrJWOCSnR5Y
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-08-23_06,2023-08-22_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
- spamscore=0 clxscore=1015 bulkscore=0 adultscore=0 malwarescore=0
- mlxlogscore=669 suspectscore=0 lowpriorityscore=0 priorityscore=1501
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2308100000 definitions=main-2308230115
+ definitions=2023-08-23_08,2023-08-22_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ priorityscore=1501 phishscore=0 suspectscore=0 spamscore=0 clxscore=1015
+ malwarescore=0 bulkscore=0 mlxscore=0 adultscore=0 impostorscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2308230124
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-A GISA cannot be destroyed as long it is linked in the GIB alert list
-as this would breake the alert list. Just waiting for its removal from
-the list triggered by another vm is not sufficient as it might be the
-only vm. The below shown cpu stall situation might occur when GIB alerts
-are delayed and is fixed by calling process_gib_alert_list() instead of
-waiting. At this time the vcpus of the vm are already destroyed and thus
-no vcpu can be kicked to enter the SIE again if for some reason an
-interrupt is pending for that vm.
+On Tue, Aug 22, 2023 at 11:59:26PM +0000, Justin Stitt wrote:
+> `strncpy` is deprecated for use on NUL-terminated destination strings [1].
+> 
+> A suitable replacement is `strscpy` [2] due to the fact that it
+> guarantees NUL-termination on its destination buffer argument which is
+> _not_ the case for `strncpy`!
+> 
+> Link: www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings[1]
+> Link: https://manpages.debian.org/testing/linux-manual-4.8/strscpy.9.en.html [2]
+> Link: https://github.com/KSPP/linux/issues/90
+> Cc: linux-hardening@vger.kernel.org
+> Signed-off-by: Justin Stitt <justinstitt@google.com>
+> ---
+>  block/partitions/ibm.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/block/partitions/ibm.c b/block/partitions/ibm.c
+> index 403756dbd50d..e5893cf71b57 100644
+> --- a/block/partitions/ibm.c
+> +++ b/block/partitions/ibm.c
+> @@ -111,11 +111,11 @@ static int find_label(struct parsed_partitions *state,
+>  		    !strcmp(temp, "LNX1") ||
+>  		    !strcmp(temp, "CMS1")) {
+>  			if (!strcmp(temp, "VOL1")) {
+> -				strncpy(type, label->vol.vollbl, 4);
+> -				strncpy(name, label->vol.volid, 6);
+> +				strscpy(type, label->vol.vollbl, 4);
+> +				strscpy(name, label->vol.volid, 6);
+>  			} else {
+> -				strncpy(type, label->lnx.vollbl, 4);
+> -				strncpy(name, label->lnx.volid, 6);
+> +				strscpy(type, label->lnx.vollbl, 4);
+> +				strscpy(name, label->lnx.volid, 6);
+>  			}
+>  			EBCASC(type, 4);
+>  			EBCASC(name, 6);
 
-The situation can now be observed in the kvm-trace:
+I'm quite sure this is not correct, since both type and name are not
+necessarily NUL-terminated, and this code operates on purpose on such
+strings.
 
- 00 01692784587:752383 3 - 0014 000003ff80165b58  vm 0x000000008a880000 created by pid 1462
- 00 01692784634:287555 3 - 0007 000003ff80172c14  vm 0x000000008a880000 gisa in alert list during destroy
- 00 01692784634:322955 3 - 0002 000003ff8016219a  vm 0x000000008a880000 destroyed
-
-CPU stall caused by kvm_s390_gisa_destroy():
-
- [ 4915.311372] rcu: INFO: rcu_sched detected expedited stalls on CPUs/tasks: { 14-.... } 24533 jiffies s: 5269 root: 0x1/.
- [ 4915.311390] rcu: blocking rcu_node structures (internal RCU debug): l=1:0-15:0x4000/.
- [ 4915.311394] Task dump for CPU 14:
- [ 4915.311395] task:qemu-system-s39 state:R  running task     stack:0     pid:217198 ppid:1      flags:0x00000045
- [ 4915.311399] Call Trace:
- [ 4915.311401]  [<0000038003a33a10>] 0x38003a33a10
- [ 4933.861321] rcu: INFO: rcu_sched self-detected stall on CPU
- [ 4933.861332] rcu: 	14-....: (42008 ticks this GP) idle=53f4/1/0x4000000000000000 softirq=61530/61530 fqs=14031
- [ 4933.861353] rcu: 	(t=42008 jiffies g=238109 q=100360 ncpus=18)
- [ 4933.861357] CPU: 14 PID: 217198 Comm: qemu-system-s39 Not tainted 6.5.0-20230816.rc6.git26.a9d17c5d8813.300.fc38.s390x #1
- [ 4933.861360] Hardware name: IBM 8561 T01 703 (LPAR)
- [ 4933.861361] Krnl PSW : 0704e00180000000 000003ff804bfc66 (kvm_s390_gisa_destroy+0x3e/0xe0 [kvm])
- [ 4933.861414]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
- [ 4933.861416] Krnl GPRS: 0000000000000000 00000372000000fc 00000002134f8000 000000000d5f5900
- [ 4933.861419]            00000002f5ea1d18 00000002f5ea1d18 0000000000000000 0000000000000000
- [ 4933.861420]            00000002134fa890 00000002134f8958 000000000d5f5900 00000002134f8000
- [ 4933.861422]            000003ffa06acf98 000003ffa06858b0 0000038003a33c20 0000038003a33bc8
- [ 4933.861430] Krnl Code: 000003ff804bfc58: ec66002b007e	cij	%r6,0,6,000003ff804bfcae
-                           000003ff804bfc5e: b904003a		lgr	%r3,%r10
-                          #000003ff804bfc62: a7f40005		brc	15,000003ff804bfc6c
-                          >000003ff804bfc66: e330b7300204	lg	%r3,10032(%r11)
-                           000003ff804bfc6c: 58003000		l	%r0,0(%r3)
-                           000003ff804bfc70: ec03fffb6076	crj	%r0,%r3,6,000003ff804bfc66
-                           000003ff804bfc76: e320b7600271	lay	%r2,10080(%r11)
-                           000003ff804bfc7c: c0e5fffea339	brasl	%r14,000003ff804942ee
- [ 4933.861444] Call Trace:
- [ 4933.861445]  [<000003ff804bfc66>] kvm_s390_gisa_destroy+0x3e/0xe0 [kvm]
- [ 4933.861460] ([<00000002623523de>] free_unref_page+0xee/0x148)
- [ 4933.861507]  [<000003ff804aea98>] kvm_arch_destroy_vm+0x50/0x120 [kvm]
- [ 4933.861521]  [<000003ff8049d374>] kvm_destroy_vm+0x174/0x288 [kvm]
- [ 4933.861532]  [<000003ff8049d4fe>] kvm_vm_release+0x36/0x48 [kvm]
- [ 4933.861542]  [<00000002623cd04a>] __fput+0xea/0x2a8
- [ 4933.861547]  [<00000002620d5bf8>] task_work_run+0x88/0xf0
- [ 4933.861551]  [<00000002620b0aa6>] do_exit+0x2c6/0x528
- [ 4933.861556]  [<00000002620b0f00>] do_group_exit+0x40/0xb8
- [ 4933.861557]  [<00000002620b0fa6>] __s390x_sys_exit_group+0x2e/0x30
- [ 4933.861559]  [<0000000262d481f4>] __do_syscall+0x1d4/0x200
- [ 4933.861563]  [<0000000262d59028>] system_call+0x70/0x98
- [ 4933.861565] Last Breaking-Event-Address:
- [ 4933.861566]  [<0000038003a33b60>] 0x38003a33b60
-
-Fixes: 9f30f6216378 ("KVM: s390: add gib_alert_irq_handler()")
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
----
- arch/s390/kvm/interrupt.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 9bd0a873f3b1..73153bea6c24 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -3205,8 +3205,10 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
- 	if (gi->alert.mask)
- 		KVM_EVENT(3, "vm 0x%pK has unexpected iam 0x%02x",
- 			  kvm, gi->alert.mask);
--	while (gisa_in_alert_list(gi->origin))
--		cpu_relax();
-+	while (gisa_in_alert_list(gi->origin)) {
-+		KVM_EVENT(3, "vm 0x%pK gisa in alert list during destroy", kvm);
-+		process_gib_alert_list();
-+	}
- 	hrtimer_cancel(&gi->timer);
- 	gi->origin = NULL;
- 	VM_EVENT(kvm, 3, "gisa 0x%pK destroyed", gisa);
--- 
-2.39.2
-
+Since currently Stefan and Jan are both not available, I added Peter
+Oberparleiter to Cc who hopefully knows better than me.
