@@ -2,242 +2,210 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 261D2EE49B0
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Aug 2023 10:50:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9D2CEE49B4
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Aug 2023 10:54:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234232AbjHWKu0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Aug 2023 06:50:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34026 "EHLO
+        id S233789AbjHWKyU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Aug 2023 06:54:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233735AbjHWKuH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Aug 2023 06:50:07 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F997E5C;
-        Wed, 23 Aug 2023 03:49:26 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 9975C2074E;
-        Wed, 23 Aug 2023 10:48:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1692787738; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=9gtvKl0NfsHO8JHkLE0cuVXIiAj+C8VAx7zuDTuFkO0=;
-        b=CABKYBRF3yM+9JgT7Exs+R7xjbNFtDWjQL7LUHuj9WmtNCPsOoSSAmvOxkA6ccHTRh2ee4
-        8QGziz6ShwUuP8q7XogjjdXAW9/Je2/ClPmLUEBGA/MMnyah2wRMd7xXpDxjaABYo9cy++
-        N26utEOEN3xgj0Ukpu+PHV4EZKI+/4w=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1692787738;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=9gtvKl0NfsHO8JHkLE0cuVXIiAj+C8VAx7zuDTuFkO0=;
-        b=AscAiqOdJ+JJcFHJ9zy1V1JCMjVOUwmutR5rxmKM3eTkGzwAwk1T/3HT4x+4hBMjegLZ2c
-        +PABs97BbzW6CjDw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 868BC13A1B;
-        Wed, 23 Aug 2023 10:48:58 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id u7TZIBrk5WRHIAAAMHmgww
-        (envelope-from <jack@suse.cz>); Wed, 23 Aug 2023 10:48:58 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id 5B437A078E; Wed, 23 Aug 2023 12:48:57 +0200 (CEST)
-From:   Jan Kara <jack@suse.cz>
-To:     Christian Brauner <brauner@kernel.org>
-Cc:     Jens Axboe <axboe@kernel.dk>, <linux-fsdevel@vger.kernel.org>,
-        <linux-block@vger.kernel.org>,
-        Christoph Hellwig <hch@infradead.org>, Jan Kara <jack@suse.cz>,
-        linux-s390@vger.kernel.org,
+        with ESMTP id S232161AbjHWKyT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Aug 2023 06:54:19 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 162D719A;
+        Wed, 23 Aug 2023 03:54:17 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37NAnB9r030951;
+        Wed, 23 Aug 2023 10:53:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=3eNJ1F1ZIh5qb5ABj3u6R40fpkitePvKxhd0FlU+G8s=;
+ b=VKt8IydGFnohWH59XRysxy6TXiX7WNJup4ggmXgZsJgtwJ0A17CkWAmXdihvozm7b8b7
+ RpfJB/mi8aDIlezw6SNvhk9occtvjPu8efnV7vSE/pWXbGTLRKpVvrsHx6qd7CneFaoy
+ i7RUQlIHzHGCSFEhkbo99IHpGeRRV4LHo7w0KNQyKD8D6uvtr5WBHoitFTotQ69fhAdn
+ wUu2uKRyEo30lmgj58dFk9lTzaGFc1sPjA+XFMEhviWb6/bloLfVQUKmIC2d+t2OLwQ3
+ SkuttcS/e3Or3U9TfQrcjQfiqMZW2oy37iHOUaLQULIq0b1UMVu2gN3yFnI+GqrIEqER hg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sngpfr1qa-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Aug 2023 10:53:11 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37NAnGSX031081;
+        Wed, 23 Aug 2023 10:53:10 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sngpfr1pt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Aug 2023 10:53:10 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37N9Ujs5020144;
+        Wed, 23 Aug 2023 10:53:09 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3sn22adnqx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Aug 2023 10:53:08 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37NAr6TJ45089220
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 23 Aug 2023 10:53:06 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1494B2004D;
+        Wed, 23 Aug 2023 10:53:06 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B274420040;
+        Wed, 23 Aug 2023 10:53:03 +0000 (GMT)
+Received: from [9.171.92.225] (unknown [9.171.92.225])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 23 Aug 2023 10:53:03 +0000 (GMT)
+Message-ID: <67ec0e36908b7e6d7a6eba642ec76ef87d0d4945.camel@linux.ibm.com>
+Subject: Re: [PATCH v11 4/6] iommu/s390: Force ISM devices to use
+ IOMMU_DOMAIN_DMA
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Robin Murphy <robin.murphy@arm.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>
+Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
+        Julian Ruess <julianr@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 14/29] s390/dasd: Convert to bdev_open_by_path()
-Date:   Wed, 23 Aug 2023 12:48:25 +0200
-Message-Id: <20230823104857.11437-14-jack@suse.cz>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20230818123232.2269-1-jack@suse.cz>
-References: <20230818123232.2269-1-jack@suse.cz>
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Hector Martin <marcan@marcan.st>,
+        Sven Peter <sven@svenpeter.dev>,
+        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Jonathan Corbet <corbet@lwn.net>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        iommu@lists.linux.dev, asahi@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
+        linux-doc@vger.kernel.org
+Date:   Wed, 23 Aug 2023 12:53:03 +0200
+In-Reply-To: <ba1e0b29-52e0-2fc0-2eb9-475735febacf@arm.com>
+References: <20230717-dma_iommu-v11-0-a7a0b83c355c@linux.ibm.com>
+         <20230717-dma_iommu-v11-4-a7a0b83c355c@linux.ibm.com>
+         <ba1e0b29-52e0-2fc0-2eb9-475735febacf@arm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=6217; i=jack@suse.cz; h=from:subject; bh=+XrMCFOgQM1AzqlSeLoPponKS4AG2cfn0I/kpH6C150=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBk5eP6o7BWHCIoj5lJBB2O7UwUusqmrNU9lvT6299k teLovmKJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCZOXj+gAKCRCcnaoHP2RA2XYMB/ 9Kptk9IyD9pIfhLdH9xABmzkvzfu1M8s5IifYFGt4wUmKfHXrHP0V8/Vhkwa4eXBlFojK5kGPACtJl g/zwOTg1jsFtK/w2GYglrM1MYp+0+m/1hx42rBHBALPVNm53nfgpAV0H6XcMoF6PPcFGOp1BwwmW9M ilec6icsXwsCXuztrPokUzANninTJPcX9tpWaWAM+wK4Ay5uXt0I4FnMPIlAdp85suQW3lzdVhYoMo ToQralYq2Qsrv5a3voSpl5T78BHJ7tZ5V615bJDg0kxx5ap/qGl56Ddv56D3J4E85vi18VZUPISuCK acsiI5CFQsBZvD622YsJfiwteTGkZt
-X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
-Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Dn5I7UigftX5RBKQwAj9CDPxUIpK94FJ
+X-Proofpoint-GUID: X6PgzynOD1cJFA8yBLSkFvc2jrgZNG5R
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
+ definitions=2023-08-23_06,2023-08-22_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ priorityscore=1501 lowpriorityscore=0 mlxscore=0 malwarescore=0
+ spamscore=0 phishscore=0 adultscore=0 impostorscore=0 bulkscore=0
+ suspectscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2308100000 definitions=main-2308230096
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Convert dasd to use bdev_open_by_path() and pass the handle around.
+On Fri, 2023-08-18 at 20:10 +0100, Robin Murphy wrote:
+> On 2023-07-17 12:00, Niklas Schnelle wrote:
+> > ISM devices are virtual PCI devices used for cross-LPAR communication.
+> > Unlike real PCI devices ISM devices do not use the hardware IOMMU but
+> > inspects IOMMU translation tables directly on IOTLB flush (s390 RPCIT
+> > instruction).
+> >=20
+> > While ISM devices keep their DMA allocations static and only very rarel=
+y
+> > DMA unmap at all, For each IOTLB flush that occurs after unmap the ISM
+> > devices will inspect the area of the IOVA space indicated by the flush.
+> > This means that for the global IOTLB flushes used by the flush queue
+> > mechanism the entire IOVA space would be inspected. In principle this
+> > would be fine, albeit potentially unnecessarily slow, it turns out
+> > however that ISM devices are sensitive to seeing IOVA addresses that ar=
+e
+> > currently in use in the IOVA range being flushed. Seeing such in-use
+> > IOVA addresses will cause the ISM device to enter an error state and
+> > become unusable.
+> >=20
+> > Fix this by forcing IOMMU_DOMAIN_DMA to be used for ISM devices. This
+> > makes sure IOTLB flushes only cover IOVAs that have been unmapped and
+> > also restricts the range of the IOTLB flush potentially reducing latenc=
+y
+> > spikes.
+>=20
+> Would it not be simpler to return false for IOMMU_CAP_DEFERRED_FLUSH for=
+=20
+> these devices?
+>=20
+> Cheers,
+> Robin.
 
-CC: linux-s390@vger.kernel.org
-CC: Christian Borntraeger <borntraeger@linux.ibm.com>
-CC: Sven Schnelle <svens@linux.ibm.com>
-Acked-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- drivers/s390/block/dasd.c       | 12 +++++----
- drivers/s390/block/dasd_genhd.c | 45 ++++++++++++++++-----------------
- drivers/s390/block/dasd_int.h   |  2 +-
- drivers/s390/block/dasd_ioctl.c |  2 +-
- 4 files changed, 31 insertions(+), 30 deletions(-)
+Nice idea thank you. This is indeed less code, basically just return
+zdev->pft !=3D PCI_FUNC_TYPE_ISM for the IOMMU_CAP_DEFERRED_FLUSH check.
+I think it's also semantically more clear in that we don't really care
+about the domain type but about not getting deferred flushes.
 
-diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index 215597f73be4..16a2d631a169 100644
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -412,7 +412,8 @@ dasd_state_ready_to_online(struct dasd_device * device)
- 					KOBJ_CHANGE);
- 			return 0;
- 		}
--		disk_uevent(device->block->bdev->bd_disk, KOBJ_CHANGE);
-+		disk_uevent(device->block->bdev_handle->bdev->bd_disk,
-+			    KOBJ_CHANGE);
- 	}
- 	return 0;
- }
-@@ -432,7 +433,8 @@ static int dasd_state_online_to_ready(struct dasd_device *device)
- 
- 	device->state = DASD_STATE_READY;
- 	if (device->block && !(device->features & DASD_FEATURE_USERAW))
--		disk_uevent(device->block->bdev->bd_disk, KOBJ_CHANGE);
-+		disk_uevent(device->block->bdev_handle->bdev->bd_disk,
-+			    KOBJ_CHANGE);
- 	return 0;
- }
- 
-@@ -3590,7 +3592,7 @@ int dasd_generic_set_offline(struct ccw_device *cdev)
- 	 * in the other openers.
- 	 */
- 	if (device->block) {
--		max_count = device->block->bdev ? 0 : -1;
-+		max_count = device->block->bdev_handle ? 0 : -1;
- 		open_count = atomic_read(&device->block->open_count);
- 		if (open_count > max_count) {
- 			if (open_count > 0)
-@@ -3636,8 +3638,8 @@ int dasd_generic_set_offline(struct ccw_device *cdev)
- 		 * so sync bdev first and then wait for our queues to become
- 		 * empty
- 		 */
--		if (device->block)
--			bdev_mark_dead(device->block->bdev, false);
-+		if (device->block && device->block->bdev_handle) {
-+			bdev_mark_dead(device->block->bdev_handle->bdev, false);
- 		dasd_schedule_device_bh(device);
- 		rc = wait_event_interruptible(shutdown_waitq,
- 					      _wait_for_empty_queues(device));
-diff --git a/drivers/s390/block/dasd_genhd.c b/drivers/s390/block/dasd_genhd.c
-index fe5108a1b332..55e3abe94cde 100644
---- a/drivers/s390/block/dasd_genhd.c
-+++ b/drivers/s390/block/dasd_genhd.c
-@@ -127,15 +127,15 @@ void dasd_gendisk_free(struct dasd_block *block)
-  */
- int dasd_scan_partitions(struct dasd_block *block)
- {
--	struct block_device *bdev;
-+	struct bdev_handle *bdev_handle;
- 	int rc;
- 
--	bdev = blkdev_get_by_dev(disk_devt(block->gdp), BLK_OPEN_READ, NULL,
--				 NULL);
--	if (IS_ERR(bdev)) {
-+	bdev_handle = bdev_open_by_dev(disk_devt(block->gdp), BLK_OPEN_READ,
-+				       NULL, NULL);
-+	if (IS_ERR(bdev_handle)) {
- 		DBF_DEV_EVENT(DBF_ERR, block->base,
- 			      "scan partitions error, blkdev_get returned %ld",
--			      PTR_ERR(bdev));
-+			      PTR_ERR(bdev_handle));
- 		return -ENODEV;
- 	}
- 
-@@ -147,16 +147,15 @@ int dasd_scan_partitions(struct dasd_block *block)
- 				"scan partitions error, rc %d", rc);
- 
- 	/*
--	 * Since the matching blkdev_put call to the blkdev_get in
--	 * this function is not called before dasd_destroy_partitions
--	 * the offline open_count limit needs to be increased from
--	 * 0 to 1. This is done by setting device->bdev (see
--	 * dasd_generic_set_offline). As long as the partition
--	 * detection is running no offline should be allowed. That
--	 * is why the assignment to device->bdev is done AFTER
--	 * the BLKRRPART ioctl.
-+	 * Since the matching bdev_release() call to the
-+	 * bdev_open_by_path() in this function is not called before
-+	 * dasd_destroy_partitions the offline open_count limit needs to be
-+	 * increased from 0 to 1. This is done by setting device->bdev_handle
-+	 * (see dasd_generic_set_offline). As long as the partition detection
-+	 * is running no offline should be allowed. That is why the assignment
-+	 * to block->bdev_handle is done AFTER the BLKRRPART ioctl.
- 	 */
--	block->bdev = bdev;
-+	block->bdev_handle = bdev_handle;
- 	return 0;
- }
- 
-@@ -166,21 +165,21 @@ int dasd_scan_partitions(struct dasd_block *block)
-  */
- void dasd_destroy_partitions(struct dasd_block *block)
- {
--	struct block_device *bdev;
-+	struct bdev_handle *bdev_handle;
- 
- 	/*
--	 * Get the bdev pointer from the device structure and clear
--	 * device->bdev to lower the offline open_count limit again.
-+	 * Get the bdev_handle pointer from the device structure and clear
-+	 * device->bdev_handle to lower the offline open_count limit again.
- 	 */
--	bdev = block->bdev;
--	block->bdev = NULL;
-+	bdev_handle = block->bdev_handle;
-+	block->bdev_handle = NULL;
- 
--	mutex_lock(&bdev->bd_disk->open_mutex);
--	bdev_disk_changed(bdev->bd_disk, true);
--	mutex_unlock(&bdev->bd_disk->open_mutex);
-+	mutex_lock(&bdev_handle->bdev->bd_disk->open_mutex);
-+	bdev_disk_changed(bdev_handle->bdev->bd_disk, true);
-+	mutex_unlock(&bdev_handle->bdev->bd_disk->open_mutex);
- 
- 	/* Matching blkdev_put to the blkdev_get in dasd_scan_partitions. */
--	blkdev_put(bdev, NULL);
-+	bdev_release(bdev_handle);
- }
- 
- int dasd_gendisk_init(void)
-diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
-index 0aa56351da72..73c5eb0ae6ad 100644
---- a/drivers/s390/block/dasd_int.h
-+++ b/drivers/s390/block/dasd_int.h
-@@ -646,7 +646,7 @@ struct dasd_block {
- 	struct gendisk *gdp;
- 	spinlock_t request_queue_lock;
- 	struct blk_mq_tag_set tag_set;
--	struct block_device *bdev;
-+	struct bdev_handle *bdev_handle;
- 	atomic_t open_count;
- 
- 	unsigned long blocks;	   /* size of volume in blocks */
-diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
-index d55862605b82..61b9675e2a67 100644
---- a/drivers/s390/block/dasd_ioctl.c
-+++ b/drivers/s390/block/dasd_ioctl.c
-@@ -537,7 +537,7 @@ static int __dasd_ioctl_information(struct dasd_block *block,
- 	 * This must be hidden from user-space.
- 	 */
- 	dasd_info->open_count = atomic_read(&block->open_count);
--	if (!block->bdev)
-+	if (!block->bdev_handle)
- 		dasd_info->open_count++;
- 
- 	/*
--- 
-2.35.3
+Thanks,
+Niklas
+
+>=20
+> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > ---
+> >   drivers/iommu/s390-iommu.c | 10 ++++++++++
+> >   1 file changed, 10 insertions(+)
+> >=20
+> > diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+> > index f6d6c60e5634..020cc538e4c4 100644
+> > --- a/drivers/iommu/s390-iommu.c
+> > +++ b/drivers/iommu/s390-iommu.c
+> > @@ -710,6 +710,15 @@ struct zpci_iommu_ctrs *zpci_get_iommu_ctrs(struct=
+ zpci_dev *zdev)
+> >   	return &zdev->s390_domain->ctrs;
+> >   }
+> >  =20
+> > +static int s390_iommu_def_domain_type(struct device *dev)
+> > +{
+> > +	struct zpci_dev *zdev =3D to_zpci_dev(dev);
+> > +
+> > +	if (zdev->pft =3D=3D PCI_FUNC_TYPE_ISM)
+> > +		return IOMMU_DOMAIN_DMA;
+> > +	return 0;
+> > +}
+> > +
+> >   int zpci_init_iommu(struct zpci_dev *zdev)
+> >   {
+> >   	u64 aperture_size;
+> > @@ -789,6 +798,7 @@ static const struct iommu_ops s390_iommu_ops =3D {
+> >   	.probe_device =3D s390_iommu_probe_device,
+> >   	.probe_finalize =3D s390_iommu_probe_finalize,
+> >   	.release_device =3D s390_iommu_release_device,
+> > +	.def_domain_type =3D s390_iommu_def_domain_type,
+> >   	.device_group =3D generic_device_group,
+> >   	.pgsize_bitmap =3D SZ_4K,
+> >   	.get_resv_regions =3D s390_iommu_get_resv_regions,
+> >=20
+>=20
 
