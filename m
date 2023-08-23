@@ -2,139 +2,215 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C5C2EE4993
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Aug 2023 16:16:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE636EE49B5
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Aug 2023 16:47:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234791AbjHWQQh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Aug 2023 12:16:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44852 "EHLO
+        id S237631AbjHWQrr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Aug 2023 12:47:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233376AbjHWQQg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Aug 2023 12:16:36 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28F67E78;
-        Wed, 23 Aug 2023 09:16:35 -0700 (PDT)
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37NG7tVv017059;
-        Wed, 23 Aug 2023 16:16:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=w8QYNl3yL/cBFxwdBLHJlStrut5knJs1xpHl5DZXxrg=;
- b=g+XUQseGc67t292FYboz6XFsAhqHM/W0L5eJnRFJVQ66k7rdgGOfDt3y1F4PB2yBL3qn
- pv8O0vN6nJbLP9VlKClfSaevHvyYCE7gYjYd1LrVDbKQwYoUlkoby6HLLavhdVtcqvze
- wF2rwhAzYXbyLOLg3pVQZ0iWE2g6HdT4l9svUjdKUB4d4qD11DDf6mBS7xZnPDd2VIhr
- wLhEaCKSX3W8JI9QwZgo5L5OPU+n9osjc5P+QdXU881pEhvcXvVWJH5e0aJ7Lb2zsbNT
- A3J+vUWdn6iGYieRBmY3mD5OXkq93i0CyvckNJGiFjughjxsLYhRovxlPMnO0+DwFXL5 tQ== 
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3snn72rcg6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Aug 2023 16:16:34 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37NENBE7016549;
-        Wed, 23 Aug 2023 16:16:33 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3sn227qpfh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Aug 2023 16:16:33 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37NGGUPI24511210
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 23 Aug 2023 16:16:30 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F29A720043;
-        Wed, 23 Aug 2023 16:16:29 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AD44220040;
-        Wed, 23 Aug 2023 16:16:29 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 23 Aug 2023 16:16:29 +0000 (GMT)
-Date:   Wed, 23 Aug 2023 18:16:27 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Michael Mueller <mimu@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Viktor Mihajlovski <mihajlov@linux.ibm.com>
-Subject: Re: [PATCH] KVM: s390: fix gisa destroy operation might lead to cpu
- stalls
-Message-ID: <20230823181627.7903ad6f@p-imbrenda>
-In-Reply-To: <ZOYtd7m2TqMDIb++@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20230823124140.3839373-1-mimu@linux.ibm.com>
-        <ZOYIWuq3iqLjDd+q@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-        <e144381d-4ff3-d7b6-5624-813ea22f196a@linux.ibm.com>
-        <ZOYtd7m2TqMDIb++@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+        with ESMTP id S232271AbjHWQrr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Aug 2023 12:47:47 -0400
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2065.outbound.protection.outlook.com [40.107.237.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E9A4CD5;
+        Wed, 23 Aug 2023 09:47:45 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=R2L2m14dJX2herp+cSfrfyyjh6LULsUDu3FmJ70BpYuMlJajFE2yEg1VPrFaURnjX/tDvK4Ds2LZM381Klxm+VXTZWij/LzrXWQv4vx3wLPhsC+ZOs2Q6VEPmsi1HaQPLtzmtOAkMT2RO6fBDcTdA30VSV8D/MzFrBLZbFmrPhQp1u+PRpdO+2LBwfTzyxVWRtjFPggC/ILcoz0KpjOXTy/CLal6ZOiuIKTietaHyxUA42oMZery774ZpuD1/NvF+QtfQeMoeBjDwaz2qOOSsx9RG1dX+eV7NuajkvPFyLdNYq0lUi+k0V07tF33/1Rq3rNV8PHU68w8t/B7Dmc7UA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=X3TeIM1SAg45W6SvBh7RWvFnlBirSJTSHcccY6cpEOQ=;
+ b=PZ3pWUuJNWy/Qr7PsruQ5HUDtdSoL3KcMlc4wuOCn9W+0zoXBeYt+SpPNwsw45fJidmawOabs1Mj4ZCZWcG/ICU3ImhBjWADzqQGPFG1yNBJcLoJrzlfhOyL48ifZ8/kInnWFJMxuqar3CYC1aNjXGHkhMuLlKegz4GoqXvkTN8sGSnuRQtkds263GuwIwPHoRskVdOc1YtE1TIXLOzWHQgKpW95Rq3HTmIKn7pKasIRLqCEytZIPFCrWYlG2p4uTNKySEkFee7U7F6LD1g2pY4Jef7fhNcXgOCnXW8qVKtb9Ht1HWvKpNGFXPySBfdsop07vIGA9p54iXnRrAY46g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=X3TeIM1SAg45W6SvBh7RWvFnlBirSJTSHcccY6cpEOQ=;
+ b=k57zNjc63FKPAT3t2Yojr8QnT/dp0i96XR6mCrifxaU8GZe2NaRQtWHYRIETB3717o4MdVPx0lp0CM/GUeGRbji+SwmatIGhqofCW1ysO+r2eyDXanYvRz6D+WudSE8KKzCpGAgRwWD3Mil4V/wa8KMsYgC43Ew4+KADPeMdPjqQfLZOBk00q9zT/caFGo/S+y79eG5zVbEYt6nWq2jhdy+aiJhX6YL1ehAwPTeBPZC5jecIhXILzrZ2kZCZ75bKlM4x9UvX+Hs9EaQDdYnq8hpPFmQxpR6d8Yf+fymEnQapnybwvl5SUwI1F3m7AaCoumupd4uPt5wsi1Cgu5kg4g==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by CY5PR12MB6346.namprd12.prod.outlook.com (2603:10b6:930:21::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6699.24; Wed, 23 Aug
+ 2023 16:47:42 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::5111:16e8:5afe:1da1]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::5111:16e8:5afe:1da1%6]) with mapi id 15.20.6699.020; Wed, 23 Aug 2023
+ 16:47:42 +0000
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Andy Gross <agross@kernel.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        linuxppc-dev@lists.ozlabs.org,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>
+Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Steven Price <steven.price@arm.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH v7 16/24] iommu/qcom_iommu: Add an IOMMU_IDENTITIY_DOMAIN
+Date:   Wed, 23 Aug 2023 13:47:30 -0300
+Message-ID: <16-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
+In-Reply-To: <0-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
+References: 
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: CH0PR03CA0350.namprd03.prod.outlook.com
+ (2603:10b6:610:11a::24) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: iT3CfrmhEuqtemqA_FVoz6JW3EGkv3xE
-X-Proofpoint-ORIG-GUID: iT3CfrmhEuqtemqA_FVoz6JW3EGkv3xE
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-08-23_10,2023-08-22_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
- bulkscore=0 malwarescore=0 phishscore=0 clxscore=1011 spamscore=0
- priorityscore=1501 mlxlogscore=826 adultscore=0 impostorscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2308100000 definitions=main-2308230147
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|CY5PR12MB6346:EE_
+X-MS-Office365-Filtering-Correlation-Id: c49e4d99-bd83-451f-4af3-08dba3f8aa48
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: pUKUsYEqz+0mnIB2pSdY7M2JMRfJCToch6+kMyJtJ4ltBDn+jOrU+WecNUCdUpsmxmDDe/wjqnsgwlcPyeY4vRS/0PXrEU0fwg9xvMpWB+2NaGCvKtG2OORUMXIEn1v45BWaxfq8+yRQm4HNIdQV7rXYcwzzcPb4eA5xLkxpno6BVaFMJozgbf9Tdm5b393FimdN7seKdkS9TcXjk8md3ej/J7UQ78B9zg+JZ6rH5Qa/t2Fdadak6FcsxIf2rcjc6PyqrSAU2jWpjzVGxi51CyOFSNUhXxxB0HWRb8Z/sPtE00qGIWIuNAKpZZNOB+BLVv/lrcZO2r4fnn8pTLwhm8pe+rZxUcfW16fXQy0b7ZRjHB/xRphvjL53/YohXlcD+iC0ggswLRvwiRUB3vlxWM8HQuu+FCUskcfbPM7O4EgCWvsaPqPrYoR3WmbDyh9uHYvv19zem4JqZyXYORT6JHKIZyvd4MKcZy8crNAcI0d7y1X6JHkSDSMUh57g2OIRpnAgJugi1293LfcGuFX5y5uGNgfgiZPOyaPFCAKukzrAGKckqJqmcydvbtW4AZrymCWpRAzJPLHqsd+GXzwsDOTD453BPHGs6Qbpx5SqtMc=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376002)(396003)(136003)(346002)(366004)(39860400002)(186009)(1800799009)(451199024)(54906003)(66476007)(66946007)(6512007)(316002)(66556008)(110136005)(8676002)(8936002)(107886003)(2616005)(4326008)(36756003)(41300700001)(921005)(478600001)(6666004)(6506007)(38100700002)(6486002)(83380400001)(7416002)(2906002)(7406005)(86362001)(5660300002)(26005);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?bTY+KPioPExDszZcPNP1IcQ+rn30iY8EYgPsXxZMdUxd0EgWO/FZGiSGV/wK?=
+ =?us-ascii?Q?qJzeRAL64Y2rieQjzLLrizNs5kWnLTngxY/SbT3vsShVoc9i3j3qJ4r843qn?=
+ =?us-ascii?Q?NhfqTni2Hv45RY4Dau2upCacH+UEIfrN25lOs/r01EaGdtbghXVXi7c7TpOg?=
+ =?us-ascii?Q?gUpp9uW83QljyHIRR9AmJN+l2WcNUxsb3/rfWvTl8MqI+jnDnpoRZrbLmAJN?=
+ =?us-ascii?Q?fV9mnyllCY3N8pHpgFqWhuu2Uz6uAp2AU0OLQhaDaCxaJHX8sqXpuseRnwJ8?=
+ =?us-ascii?Q?sWmZOa/xuhvNavDm/N6Jk/fXAyea9liRswoPh6ETp3Mi8kztaVBkfSGmvnC9?=
+ =?us-ascii?Q?EGyYcE7MHR93FhWFGrfmFPAyr+0Fu6S+1S0rIbCzRX64qaihxODUvxaNiBef?=
+ =?us-ascii?Q?MyE1+YotqwCoaMfrqyZb1PnYWNbXBPmH3qmI+vtWb+ana1G5ZVop+gNN54hy?=
+ =?us-ascii?Q?FOo/9EgJnsYd/7SrK8SWQ4uo+NJuEdGZmhcZ5PaHTDB3JQbgs8FMI4BaOxQk?=
+ =?us-ascii?Q?QsXVG+xgvHryiarqsnGdi8Q/2K0X83UY3MicGL3hoUBuwfpc/ylFSEOnhTXV?=
+ =?us-ascii?Q?o9bq297UCUqQAnHhtoJNGZGuzKWVNJm37kMMf6/HqWcg5bOldPMzHOKrwG+4?=
+ =?us-ascii?Q?PQK//YGc66zVMvmTQhvpJohi5lVkmxZsgJjid3s5O9iXT0UTNpM4+iK3ryMS?=
+ =?us-ascii?Q?Gkk9psri6NuVVnaHvl1unV9Qw9ZK0rSKp09Dl6ptLK6ZtL1ZikDhoGQzqQcT?=
+ =?us-ascii?Q?5Og3y/xibDl63G1h6ViCcJDpR6Yq10jfRvhPSlM0mO+X4qLUW5p66ti6MMoV?=
+ =?us-ascii?Q?pYn6pI/44xQFzq2do2dtre/Dgc6jEELE/ZZV4gKS9hgmUz9VzOQz1XcuFHw3?=
+ =?us-ascii?Q?gpRg8JjX8cty0Kt2E9QKy/R9wIb9UqJfa0ehV3nTT8XRY9p4j5BtNbrP0aob?=
+ =?us-ascii?Q?2IgdMlGEPW13oyR7qMjBpSekw/0hiw50+2IXPZsi910h2fkoTOe3jgAtkbLJ?=
+ =?us-ascii?Q?Xcj9bQlh/S/lKV40Fr2Gdqfk0YkufPLAz2H85BhwrVCLZUZ5DjvEZDWl0woh?=
+ =?us-ascii?Q?RB/x1rPoKEH2J2+tO973uzmwdsr8PhxsfAr7kmY438KRY3rLhVs4H3UVcQ4a?=
+ =?us-ascii?Q?qCQukxsipdxfuSPbQRvWvypuYMzV6davwDeCJ2ImSt3QZFudVepDi3z9JhOe?=
+ =?us-ascii?Q?VqyPF4iCMISUdfZQXSwAKd6k1iAI9SVb5VzRBeDDx/BsYKaNf/XvUhGLldtL?=
+ =?us-ascii?Q?oXCXmjrRuv7IYzZsekjUi9egknVBf0c45YaUkqFwuZW4hRQf/aWi05cw7lnq?=
+ =?us-ascii?Q?0ec9Hblqbvh7XhUyy5HUZ89/e1oJs/KpMvoyGLg7lp6S/hh55tGs7uf7ynpu?=
+ =?us-ascii?Q?YSfc0KFUL3BQxBkC/om+LC4hqeqbQgMyeVfZEs0/AjTW5fuTHHt+Vrgu0CKw?=
+ =?us-ascii?Q?ENVWI+7bb74MJ2cjljEeCm98/49jQd55tf1B6tEGs95TuIxSTpbIxl289Kqy?=
+ =?us-ascii?Q?ap9Uf0bGUNApwdbam5wxBM4RcMMsx7Np1JHB4DHxWHPRivB8d/wkh55ukG8A?=
+ =?us-ascii?Q?QbfvIDYpv8xUUgku1zv3sfF0V8yzOQyK2vXx/ce7?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c49e4d99-bd83-451f-4af3-08dba3f8aa48
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Aug 2023 16:47:41.0571
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 2ZVwSydoKxg1sB7ifiMfZXEmIKEtt6G3krM7Ijrw+xqiV4hRE3SnCkAGK7s5fpyt
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR12MB6346
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 23 Aug 2023 18:01:59 +0200
-Alexander Gordeev <agordeev@linux.ibm.com> wrote:
+This brings back the ops->detach_dev() code that commit
+1b932ceddd19 ("iommu: Remove detach_dev callbacks") deleted and turns it
+into an IDENTITY domain.
 
-> On Wed, Aug 23, 2023 at 04:09:26PM +0200, Michael Mueller wrote:
-> > 
-> > 
-> > On 23.08.23 15:23, Alexander Gordeev wrote:  
-> > > On Wed, Aug 23, 2023 at 02:41:40PM +0200, Michael Mueller wrote:
-> > > ...  
-> > > > diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> > > > index 9bd0a873f3b1..73153bea6c24 100644
-> > > > --- a/arch/s390/kvm/interrupt.c
-> > > > +++ b/arch/s390/kvm/interrupt.c
-> > > > @@ -3205,8 +3205,10 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
-> > > >   	if (gi->alert.mask)
-> > > >   		KVM_EVENT(3, "vm 0x%pK has unexpected iam 0x%02x",
-> > > >   			  kvm, gi->alert.mask);
-> > > > -	while (gisa_in_alert_list(gi->origin))
-> > > > -		cpu_relax();
-> > > > +	while (gisa_in_alert_list(gi->origin)) {
-> > > > +		KVM_EVENT(3, "vm 0x%pK gisa in alert list during destroy", kvm);
-> > > > +		process_gib_alert_list();  
-> > > 
-> > > process_gib_alert_list() has two nested loops and neither of them
-> > > does cpu_relax(). I guess, those are needed instead of one you remove?  
-> > 
-> > Calling function process_gib_alert_list() guarantees the gisa
-> > is taken out of the alert list immediately and thus the potential
-> > endless loop on gisa_in_alert_list() is solved. The issue surfaced
-> > with the following patch that accidently disabled the GAL interrupt
-> > processing on the host that normaly handles the alert list.
-> > The patch has been reverted from devel and will be re-applied in v2.
-> > 
-> > 88a096a7a460 Revert "s390/airq: remove lsi_mask from airq_struct"
-> > a9d17c5d8813 s390/airq: remove lsi_mask from airq_struct
-> > 
-> > Does that make sense for you?  
-> 
-> Not really. If process_gib_alert_list() does guarantee the removal,
-> then it should be a condition, not the loop.
+Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+---
+ drivers/iommu/arm/arm-smmu/qcom_iommu.c | 39 +++++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
 
-this is actually a good question. why is it still a loop?
-
-> 
-> But I am actually not into this code. Just wanted to point out that
-> cpu_relax() is removed from this loop and the two other loops within
-> process_gib_alert_list() do not have it either.
-> 
-> So up to Christian, Janosch and Claudio.
+diff --git a/drivers/iommu/arm/arm-smmu/qcom_iommu.c b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
+index 775a3cbaff4ed0..bc45d18f350cb9 100644
+--- a/drivers/iommu/arm/arm-smmu/qcom_iommu.c
++++ b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
+@@ -400,6 +400,44 @@ static int qcom_iommu_attach_dev(struct iommu_domain *domain, struct device *dev
+ 	return 0;
+ }
+ 
++static int qcom_iommu_identity_attach(struct iommu_domain *identity_domain,
++				      struct device *dev)
++{
++	struct iommu_domain *domain = iommu_get_domain_for_dev(dev);
++	struct qcom_iommu_domain *qcom_domain;
++	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
++	struct qcom_iommu_dev *qcom_iommu = to_iommu(dev);
++	unsigned int i;
++
++	if (domain == identity_domain || !domain)
++		return 0;
++
++	qcom_domain = to_qcom_iommu_domain(domain);
++	if (WARN_ON(!qcom_domain->iommu))
++		return -EINVAL;
++
++	pm_runtime_get_sync(qcom_iommu->dev);
++	for (i = 0; i < fwspec->num_ids; i++) {
++		struct qcom_iommu_ctx *ctx = to_ctx(qcom_domain, fwspec->ids[i]);
++
++		/* Disable the context bank: */
++		iommu_writel(ctx, ARM_SMMU_CB_SCTLR, 0);
++
++		ctx->domain = NULL;
++	}
++	pm_runtime_put_sync(qcom_iommu->dev);
++	return 0;
++}
++
++static struct iommu_domain_ops qcom_iommu_identity_ops = {
++	.attach_dev = qcom_iommu_identity_attach,
++};
++
++static struct iommu_domain qcom_iommu_identity_domain = {
++	.type = IOMMU_DOMAIN_IDENTITY,
++	.ops = &qcom_iommu_identity_ops,
++};
++
+ static int qcom_iommu_map(struct iommu_domain *domain, unsigned long iova,
+ 			  phys_addr_t paddr, size_t pgsize, size_t pgcount,
+ 			  int prot, gfp_t gfp, size_t *mapped)
+@@ -565,6 +603,7 @@ static int qcom_iommu_of_xlate(struct device *dev, struct of_phandle_args *args)
+ }
+ 
+ static const struct iommu_ops qcom_iommu_ops = {
++	.identity_domain = &qcom_iommu_identity_domain,
+ 	.capable	= qcom_iommu_capable,
+ 	.domain_alloc	= qcom_iommu_domain_alloc,
+ 	.probe_device	= qcom_iommu_probe_device,
+-- 
+2.41.0
 
