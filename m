@@ -2,157 +2,141 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03BABC71145
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Aug 2023 08:34:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24A5BC7113B
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Aug 2023 09:10:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230496AbjHXIeY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Aug 2023 04:34:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56528 "EHLO
+        id S234540AbjHXJJ7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Aug 2023 05:09:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240547AbjHXIeI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Aug 2023 04:34:08 -0400
+        with ESMTP id S240648AbjHXJJz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Aug 2023 05:09:55 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B1151729;
-        Thu, 24 Aug 2023 01:34:06 -0700 (PDT)
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37O8VTbO001260;
-        Thu, 24 Aug 2023 08:33:19 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08DD610FA;
+        Thu, 24 Aug 2023 02:09:51 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37O91AeV012673;
+        Thu, 24 Aug 2023 09:09:50 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=KOHfq7yE34oHMF/DBtgsNugut3nvnkYP0hCTO74X1m8=;
- b=FT/XVGxnbV1yJLUcavz1X/DkKtrpIYKPgr7jA1kh6yoIjCakGbzElNg/24Nfr13mm730
- SrhuxUerPl7q/HjUfJZ0Ej4u4HAY/sWOC/NdESVVU9VmqzuIyh259ikz04aj2G65g47g
- HHhGvubKmqQKVegkU2xZLlKLmFGNuSJyhlVtUWOJiR03Z6SpMyRRfFkNl+5G1mNyUqRJ
- FEUGKLtnH7mhnpL7eYHKA7Kv7pp3XTlIppw48EJbMU7T5WHUp6uMTg6i04y0Oo9qEeAz
- O8n6orMoY88sg/d0Q0WE2Xh61CpMTrcID83QRdE2XgtJDBWrp+IkOIYYmVju1tZNRHiE Sg== 
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=OLuVdAXB/YRIVa6KwfTKGyM1URZGho5Zn4DvYDDw6uY=;
+ b=m1nyXru5Dh6WSJ15aK8gEXzFu3nKKlYWtATsTHJYh8MxiFoi64gam/z4EVvKigiHqgjz
+ cnvS55OOm/dlfUqsuFI2MOVgOlCB4hMH51YqzHMmgEbI2PxVjEZNeGIRx4I/Zj+ibGMI
+ PTk/IX5yCGhKtMK6j+5uCererL+76KYKvp8D88ZjTEZHQbDqmxWYvZfD/J3ME85mQFr0
+ +hKrfoR0l+kNOPx8s28/LF4O6Yc1HcDL2TrfECxgY2KvMkcqQL5DWzecUOJS/FFZeBaB
+ ggcoFmlkWh5BH+OypYp0dxGvE3txMPHzdbXtunOEElvOWa2gGgF+Vlp8UxCEITefOkSs 1Q== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp3rwr0yc-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp4750ht7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Aug 2023 08:33:18 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37O8WAYI003577;
-        Thu, 24 Aug 2023 08:33:18 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp3rwr0y3-1
+        Thu, 24 Aug 2023 09:09:47 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37O91chG013388;
+        Thu, 24 Aug 2023 09:09:25 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp4750epv-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Aug 2023 08:33:18 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37O6ewPB026143;
-        Thu, 24 Aug 2023 08:33:17 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3snqgt4ycw-1
+        Thu, 24 Aug 2023 09:09:25 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37O7C4qp010383;
+        Thu, 24 Aug 2023 09:02:27 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3sn21swren-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Aug 2023 08:33:17 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37O8XEQm41288298
+        Thu, 24 Aug 2023 09:02:27 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37O92OZw3998426
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 24 Aug 2023 08:33:14 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DC7A42005A;
-        Thu, 24 Aug 2023 08:33:13 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 70D4620075;
-        Thu, 24 Aug 2023 08:32:27 +0000 (GMT)
+        Thu, 24 Aug 2023 09:02:24 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7750B2004F;
+        Thu, 24 Aug 2023 09:02:24 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0BC8F20067;
+        Thu, 24 Aug 2023 09:02:24 +0000 (GMT)
 Received: from osiris (unknown [9.171.81.161])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu, 24 Aug 2023 08:32:27 +0000 (GMT)
-Date:   Thu, 24 Aug 2023 10:32:25 +0200
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Thu, 24 Aug 2023 09:02:23 +0000 (GMT)
+Date:   Thu, 24 Aug 2023 11:02:22 +0200
 From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        surenb@google.com, willy@infradead.org,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH rfc v2 04/10] s390: mm: use try_vma_locked_page_fault()
-Message-ID: <20230824083225.10112-A-hca@linux.ibm.com>
-References: <20230821123056.2109942-1-wangkefeng.wang@huawei.com>
- <20230821123056.2109942-5-wangkefeng.wang@huawei.com>
- <ZOcR4Z1WnCy1vl9T@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-MIME-Version: 1.0
+To:     Justin Stitt <justinstitt@google.com>
+Cc:     Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Kees Cook <keescook@chromium.org>, linux-s390@vger.kernel.org,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-hardening@vger.kernel.org
+Subject: Re: [PATCH v2] partitions/ibm: refactor deprecated strncpy
+Message-ID: <20230824090222.10112-B-hca@linux.ibm.com>
+References: <20230823-strncpy-block-partitions-cmdline-ibm-v2-1-40c77f7182fc@google.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ZOcR4Z1WnCy1vl9T@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+In-Reply-To: <20230823-strncpy-block-partitions-cmdline-ibm-v2-1-40c77f7182fc@google.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: _ptMvc4VMCcBQrtNKVMyLJnbnArvRQhH
-X-Proofpoint-GUID: MMqKuJFCH130oxqzSHmDVw6sZHdPY5i-
+X-Proofpoint-GUID: IRdlo-mLY59h8tOrlT9IzrEhNwurc7Ns
+X-Proofpoint-ORIG-GUID: J3I6_x2GjPwypkI5AuWoQ6VdhlLACqUK
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-08-24_05,2023-08-22_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- mlxlogscore=517 mlxscore=0 priorityscore=1501 lowpriorityscore=0
- bulkscore=0 impostorscore=0 malwarescore=0 clxscore=1011 spamscore=0
- adultscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2308100000 definitions=main-2308240065
+ definitions=2023-08-24_06,2023-08-22_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
+ spamscore=0 suspectscore=0 lowpriorityscore=0 impostorscore=0 bulkscore=0
+ phishscore=0 adultscore=0 malwarescore=0 priorityscore=1501 clxscore=1015
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2308100000
+ definitions=main-2308240072
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Aug 24, 2023 at 10:16:33AM +0200, Alexander Gordeev wrote:
-> On Mon, Aug 21, 2023 at 08:30:50PM +0800, Kefeng Wang wrote:
-> > Use new try_vma_locked_page_fault() helper to simplify code.
-> > No functional change intended.
-> > 
-> > Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-> > ---
-> >  arch/s390/mm/fault.c | 66 ++++++++++++++++++--------------------------
-> >  1 file changed, 27 insertions(+), 39 deletions(-)
-...
-> > -	fault = handle_mm_fault(vma, address, flags | FAULT_FLAG_VMA_LOCK, regs);
-> > -	if (!(fault & (VM_FAULT_RETRY | VM_FAULT_COMPLETED)))
-> > -		vma_end_read(vma);
-> > -	if (!(fault & VM_FAULT_RETRY)) {
-> > -		count_vm_vma_lock_event(VMA_LOCK_SUCCESS);
-> > -		if (likely(!(fault & VM_FAULT_ERROR)))
-> > -			fault = 0;
+On Wed, Aug 23, 2023 at 09:24:22PM +0000, Justin Stitt wrote:
+> `strncpy` is deprecated [1] and we should favor different interfaces.
 > 
-> This fault fixup is removed in the new version.
-...
-
-> > +		vmf.vm_flags = VM_WRITE;
-> > +	if (vmf.vm_flags == VM_WRITE)
-> > +		vmf.flags |= FAULT_FLAG_WRITE;
-> > +
-> > +	fault = try_vma_locked_page_fault(&vmf);
-> > +	if (fault == VM_FAULT_NONE)
-> > +		goto lock_mm;
+> A suitable replacement is `strtomem_pad` as it is a more robust and less
+> ambiguous interface. In this case, the destination buffer is not
+> necessarily NUL-terminated as Heiko points out [2]. Using `strtomem_pad`
+> over strncpy means it is now more obvious what is expected of the
+> destination buffer: 1) Not necessarily NUL-terminated and 2) padded with
+> NUL-bytes
 > 
-> Because VM_FAULT_NONE is set to 0 it gets confused with
-> the success code of 0 returned by a fault handler. In the
-> former case we want to continue, while in the latter -
-> successfully return. I think it applies to all archs.
-...
-> FWIW, this series ends up with kernel BUG at arch/s390/mm/fault.c:341!
+> Link: www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings[1]
+> Link: https://lore.kernel.org/all/20230823134936.14378-E-hca@linux.ibm.com/ [2]
+> Link: https://github.com/KSPP/linux/issues/90
+> Suggested-by: Kees Cook <keescook@chromium.org>
+> Cc: linux-hardening@vger.kernel.org
+> Signed-off-by: Justin Stitt <justinstitt@google.com>
+> ---
+> Changes in v2:
+> - prefer `strtomem_pad` over `strscpy` (thanks Kees)
+> - Link to v1: https://lore.kernel.org/r/20230822-strncpy-block-partitions-cmdline-ibm-v1-1-154dea8f755c@google.com
+> ---
+>  block/partitions/ibm.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/block/partitions/ibm.c b/block/partitions/ibm.c
+> index 403756dbd50d..56c076c5523d 100644
+> --- a/block/partitions/ibm.c
+> +++ b/block/partitions/ibm.c
+> @@ -111,11 +111,11 @@ static int find_label(struct parsed_partitions *state,
+>  		    !strcmp(temp, "LNX1") ||
+>  		    !strcmp(temp, "CMS1")) {
+>  			if (!strcmp(temp, "VOL1")) {
+> -				strncpy(type, label->vol.vollbl, 4);
+> -				strncpy(name, label->vol.volid, 6);
+> +				strtomem_pad(type, label->vol.vollbl, 4);
+> +				strtomem_pad(name, label->vol.volid, 6);
+>  			} else {
+> -				strncpy(type, label->lnx.vollbl, 4);
+> -				strncpy(name, label->lnx.volid, 6);
+> +				strtomem_pad(type, label->lnx.vollbl, 4);
+> +				strtomem_pad(name, label->lnx.volid, 6);
+>  			}
+>  			EBCASC(type, 4);
+>  			EBCASC(name, 6);
 
-Without having looked in detail into this patch: all of this is likely
-because s390's fault handling is quite odd. Not only because fault is set
-to 0, but also because of the private VM_FAULT values like
-VM_FAULT_BADCONTEXT. I'm just cleaning up all of this, but it won't make it
-for the next merge window.
+This won't compile if find_label() is not inlined due the BUILD_BUG_ON()
+within strtomem_pad(). However instead of sending new versions, I think it
+would be better to ask Stefan and Jan to have a look at this. I think there
+is room for improvement with the string handling besides getting rid of
+strncpy().
 
-Therefore I'd like to ask to drop the s390 conversion of this series, and
-if this series is supposed to be merged the s390 conversion needs to be
-done later. Let's not waste more time on the current implementation,
-please.
+And they know best the semantics of the (non-)strings.
