@@ -2,251 +2,574 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B49AC3DA6F
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Aug 2023 20:38:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DB08C88CB2
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Aug 2023 22:37:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243540AbjHXUh2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Aug 2023 16:37:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34192 "EHLO
+        id S241943AbjHXWg2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Aug 2023 18:36:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243535AbjHXUhK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Aug 2023 16:37:10 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C17AE6D;
-        Thu, 24 Aug 2023 13:37:04 -0700 (PDT)
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37OKaIn9021115;
-        Thu, 24 Aug 2023 20:37:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=6LipeXD2pq85seGMuz9oZABp52OvB9zKPmig6yiNrH4=;
- b=s2TLnNEUAk2/h18euBOlvIf7VR6eOsIQyMl0v1VIovhQ5In2+TWb8bV8J7ZQdSTr1Yx1
- 6y3X1RtLnaj6Wl/EqPoaz45h+WC3INeL6IQZEa0q3hq39+l04jiRlVm1OTjQlGxuCW2V
- xryEKJFFlqbuH6Y0Xzy2qo/7RWu0PdETW13YP2RTDHGUt1tVwQpeL9Cef9KCDGtc9yjG
- bobl2Dlyj+ZY/pIOVF65bDO+jU0pCIAU/D/8oZMWlDAdSYycfJVSF1VA8HLvO/yyUHfy
- kgoN1lis++xB74Gbs4C1hfWQXmdQ+6JIGbSr+6LAaLPrzFbRnkTE2RWRjzO7oP9Sxxf7 mQ== 
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3spdt79c1y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Aug 2023 20:37:03 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37OIUX6i026120;
-        Thu, 24 Aug 2023 20:37:02 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3snqgt9khc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Aug 2023 20:37:02 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37OKaxmK43844246
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 24 Aug 2023 20:36:59 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 812F920040;
-        Thu, 24 Aug 2023 20:36:59 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D0D5720043;
-        Thu, 24 Aug 2023 20:36:58 +0000 (GMT)
-Received: from [9.171.83.138] (unknown [9.171.83.138])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 24 Aug 2023 20:36:58 +0000 (GMT)
-Message-ID: <a0f4dc8d-a649-3737-df46-c6ce3c1a26dd@linux.ibm.com>
-Date:   Thu, 24 Aug 2023 22:36:58 +0200
+        with ESMTP id S241047AbjHXWgS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Aug 2023 18:36:18 -0400
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 310491BF1
+        for <linux-s390@vger.kernel.org>; Thu, 24 Aug 2023 15:36:13 -0700 (PDT)
+Received: by mail-pf1-x42a.google.com with SMTP id d2e1a72fcca58-68a3f1d8be2so303291b3a.3
+        for <linux-s390@vger.kernel.org>; Thu, 24 Aug 2023 15:36:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1692916572; x=1693521372;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=IQNELjD9r6ncwNErU4xuVmyyowwITagxnHItwiBZGrI=;
+        b=mWNn9xaQh4q3l3U90jKHwZ2ZEd4bGDJnSnaHc7vLVMzLPXQ8/J7+Pl6/YVGxWcZmbF
+         dhpgwBg+v+6EREmJJ5x9+duUuJyt9SAsNlPtLBu7PDN3qZ60pRT8XhqYDqJgLIHUim9U
+         d07O/fy1n+aQq39qB2u01JYtIVhyu6UFqvx8k=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1692916572; x=1693521372;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=IQNELjD9r6ncwNErU4xuVmyyowwITagxnHItwiBZGrI=;
+        b=dDyF1TIIATFd0dq2HwVFTAlFaWJOqyEslRPPPHXtqavjEqzPUVWw0HQ6bw7YueUJpk
+         aQjc3bjPYF7LKMN8WX5nrLeLkxhouBcCOmeENhsBCnZbJcPnlulmUDiTGZgcinwz3j83
+         IFYZsjxQBESYpl/8NieCihFGivSmA7xVSZCZSqXF507kVFWZeywR4Oc2WXz2N1L3CLL5
+         4XdhdZwEvgHVRrNaYC3P220QSh8WT9VHHBrwvkK9N28j6K5HNoyM5G60UBu9ujlDPPEI
+         4PbJs+s2bsuOOyj+lQM21WlEv4i6exyPhQHpIGrZCVsbLIvMGGWsFKTtBB3w1yRGaxCx
+         g2eA==
+X-Gm-Message-State: AOJu0YzqEvKLCXKiBt0axopYiAZMCTSwRQKu6u8ERtNlPdVEx8f0DbuH
+        OTUqRrmE+neoW0fwPwEzy+LPUQ==
+X-Google-Smtp-Source: AGHT+IHJ/TliPENGdo+B7a1Pbup7s10hHNj/3Lp+oQRDTxW2klVd28ofL2vRsevKBfDD315FF/w9pw==
+X-Received: by 2002:a05:6a20:42a5:b0:132:a85f:b20c with SMTP id o37-20020a056a2042a500b00132a85fb20cmr21691642pzj.38.1692916572618;
+        Thu, 24 Aug 2023 15:36:12 -0700 (PDT)
+Received: from www.outflux.net (198-0-35-241-static.hfc.comcastbusiness.net. [198.0.35.241])
+        by smtp.gmail.com with ESMTPSA id t25-20020a63a619000000b0056da0ae25cdsm122431pge.80.2023.08.24.15.36.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 24 Aug 2023 15:36:11 -0700 (PDT)
+From:   Kees Cook <keescook@chromium.org>
+To:     Masahiro Yamada <masahiroy@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kbuild@vger.kernel.org, linux-hardening@vger.kernel.org
+Subject: [PATCH] kbuild: Show Kconfig fragments in "help"
+Date:   Thu, 24 Aug 2023 15:36:10 -0700
+Message-Id: <20230824223606.never.762-kees@kernel.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.14.0
-Subject: Re: [PATCH v2] KVM: s390: fix gisa destroy operation might lead to
- cpu stalls
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Viktor Mihajlovski <mihajlov@linux.ibm.com>
-References: <20230824130932.3573866-1-mimu@linux.ibm.com>
- <f20a40b8-2d7d-2fc5-33eb-ec0273e09308@linux.ibm.com>
-From:   Michael Mueller <mimu@linux.ibm.com>
-In-Reply-To: <f20a40b8-2d7d-2fc5-33eb-ec0273e09308@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: EkSJAuTG-_VDOFLBOzcKkIv2YWDbSn0b
-X-Proofpoint-GUID: EkSJAuTG-_VDOFLBOzcKkIv2YWDbSn0b
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-08-24_17,2023-08-24_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
- impostorscore=0 mlxlogscore=999 priorityscore=1501 mlxscore=0 bulkscore=0
- lowpriorityscore=0 suspectscore=0 adultscore=0 phishscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2308100000
- definitions=main-2308240178
+X-Developer-Signature: v=1; a=openpgp-sha256; l=19925; i=keescook@chromium.org;
+ h=from:subject:message-id; bh=Y0hEgEolJmkc66ZpEOZIuED4Y5POHofSLOrN6lA4xz0=;
+ b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBk59tZi0qXSZLrk9vWztqgJhSrEQowuWl8TDY76
+ td80l1qBp6JAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCZOfbWQAKCRCJcvTf3G3A
+ JgdrD/9NVHEFfda2z2Q2f4X4pa9Q+6bKNb5CnGkY2TnLQT77D5Gnj4GoSnR5BcEd1KSYKTCuvwZ
+ 0R9I6ZLZ1q2kddp02Hkdl5UeondtQxgu5UljAHozzn4r8ynaPdDRuG/GKcO1Jng8w56XwKCHd4U
+ eDQJBNgu8MvOKXLHYjY9TCCJc7G5XFV8cHPBNVBxUSlMvdQgxL7MTE9B429ujzl0YayB3d/8piQ
+ wyu38mrzZXb7BNN6wYgnXVNlfgtiAXmh3ynonED1LxwZoVnLFaKQBRWMdQCepKhTDriJGnEOWbO
+ tWhHjg/2XCbcUySnuhDTh4dEUHppHvAqIrNm7rRnBRo8ExAtboc5qEpwB4u4yFDia08cSAEpF7H
+ UyASXsW7KXe4INjLMp4QCExnQQgd9lLE29stlIQ0Xpdb+JxZOVHMbXLQ5Cmey2tyqqJ0TOdwT5P
+ NvbDv/UDCjwDUgEqCG/dpQTmmxPzAyG88a9vG9Eilnm8n485Y+r8VRiy1P9NNJ93HxhYWenL6YG
+ TNCK0zSMaQigUi+pwlnrpNYyW+OjvwaERLtqHgQP9sxzH/Qwdur8/1mt7cQwFWZCt5UD0boFV39
+ KHB6UH3MVSROFAIMEIl0DKIVxNkC23aGQ3Yz6ctKZa404/8QdXjB5VFcSrX9UrF5ZhrGTlzzgpG
+ 5GW4wO K+cFT3C+A==
+X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Doing a "make help" would show only hard-coded Kconfig targets and
+depended on the archhelp target to include ".config" targets. There was
+nothing showing global kernel/configs/ targets. Solve this by walking
+the wildcard list and include them in the output, using the first comment
+line as the help text.
 
+Update all Kconfig fragments to include help text and adjust archhelp
+targets to avoid redundancy.
 
-On 24.08.23 21:17, Matthew Rosato wrote:
-> On 8/24/23 9:09 AM, Michael Mueller wrote:
->> A GISA cannot be destroyed as long it is linked in the GIB alert list
->> as this would breake the alert list. Just waiting for its removal from
-> 
-> Hi Michael,
-> 
-> Nit: s/breake/break/
-> 
->> the list triggered by another vm is not sufficient as it might be the
->> only vm. The below shown cpu stall situation might occur when GIB alerts
->> are delayed and is fixed by calling process_gib_alert_list() instead of
->> waiting.
->>
->> At this time the vcpus of the vm are already destroyed and thus
->> no vcpu can be kicked to enter the SIE again if for some reason an
->> interrupt is pending for that vm.
->>
->> Additianally the IAM restore value ist set to 0x00 if that was not the
-> 
-> Nits: s/Additianally/Additionally/  as well as s/ist/is/
-> 
+Adds the following section to "help" target output:
 
-Thanks a lot, Matt. I will address of course all these typos ;)
+Configuration fragment targets (for enabling various Kconfig items):
+  debug.config         - Debugging for CI systems and finding regressions
+  kvm_guest.config     - Bootable as a KVM guest
+  nopm.config          - Disable Power Management
+  rust.config          - Enable Rust
+  tiny-base.config     - Minimal options for tiny systems
+  tiny.config          - Smallest possible kernel image
+  x86_debug.config     - Debugging options for tip tree testing
+  xen.config           - Bootable as a Xen guest
+  tiny.config          - x86-specific options for a small kernel image
+  xen.config           - x86-specific options for a Xen virtualization guest
 
->> case. That would be a bug introduced by incomplete device de-registration,
->> i.e. missing kvm_s390_gisc_unregister() call.
-> If this implies a bug, maybe it should be a WARN_ON instead of a KVM_EVENT?  Because if we missed a call to kvm_s390_gisc_unregister() then we're also leaking refcounts (one for each gisc that we didn't unregister).
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: x86@kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+ Makefile                                   |  1 -
+ arch/arm/configs/dram_0x00000000.config    |  1 +
+ arch/arm/configs/dram_0xc0000000.config    |  1 +
+ arch/arm/configs/dram_0xd0000000.config    |  1 +
+ arch/arm/configs/lpae.config               |  1 +
+ arch/arm64/configs/virt.config             |  1 +
+ arch/powerpc/configs/32-bit.config         |  1 +
+ arch/powerpc/configs/64-bit.config         |  1 +
+ arch/powerpc/configs/85xx-32bit.config     |  1 +
+ arch/powerpc/configs/85xx-64bit.config     |  1 +
+ arch/powerpc/configs/85xx-hw.config        |  1 +
+ arch/powerpc/configs/85xx-smp.config       |  1 +
+ arch/powerpc/configs/86xx-hw.config        |  1 +
+ arch/powerpc/configs/86xx-smp.config       |  1 +
+ arch/powerpc/configs/altivec.config        |  1 +
+ arch/powerpc/configs/be.config             |  1 +
+ arch/powerpc/configs/book3s_32.config      |  1 +
+ arch/powerpc/configs/corenet_base.config   |  1 +
+ arch/powerpc/configs/debug.config          |  1 +
+ arch/powerpc/configs/disable-werror.config |  1 +
+ arch/powerpc/configs/dpaa.config           |  1 +
+ arch/powerpc/configs/fsl-emb-nonhw.config  |  1 +
+ arch/powerpc/configs/guest.config          |  1 +
+ arch/powerpc/configs/le.config             |  1 +
+ arch/powerpc/configs/mpc85xx_base.config   |  1 +
+ arch/powerpc/configs/mpc86xx_base.config   |  1 +
+ arch/powerpc/configs/ppc64le.config        |  1 +
+ arch/powerpc/configs/security.config       |  4 +++-
+ arch/riscv/configs/32-bit.config           |  1 +
+ arch/riscv/configs/64-bit.config           |  1 +
+ arch/s390/configs/btf.config               |  1 +
+ arch/s390/configs/kasan.config             |  1 +
+ arch/x86/Makefile                          |  4 ----
+ arch/x86/configs/tiny.config               |  2 ++
+ arch/x86/configs/xen.config                |  2 ++
+ kernel/configs/debug.config                |  2 ++
+ kernel/configs/kvm_guest.config            |  1 +
+ kernel/configs/nopm.config                 |  2 ++
+ kernel/configs/rust.config                 |  1 +
+ kernel/configs/tiny-base.config            |  1 +
+ kernel/configs/tiny.config                 |  2 ++
+ kernel/configs/x86_debug.config            |  1 +
+ kernel/configs/xen.config                  |  2 ++
+ scripts/kconfig/Makefile                   | 13 ++++++++++---
+ 44 files changed, 59 insertions(+), 9 deletions(-)
 
-I was thinking of a WARN_ON() as well and will most probaly add it 
-because it is much better visible.
+diff --git a/Makefile b/Makefile
+index 4739c21a63e2..91c90ce8e0e3 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1674,7 +1674,6 @@ help:
+ 	@echo  '  mrproper	  - Remove all generated files + config + various backup files'
+ 	@echo  '  distclean	  - mrproper + remove editor backup and patch files'
+ 	@echo  ''
+-	@echo  'Configuration targets:'
+ 	@$(MAKE) -f $(srctree)/scripts/kconfig/Makefile help
+ 	@echo  ''
+ 	@echo  'Other generic targets:'
+diff --git a/arch/arm/configs/dram_0x00000000.config b/arch/arm/configs/dram_0x00000000.config
+index db96dcb420ce..4de3fde0de9a 100644
+--- a/arch/arm/configs/dram_0x00000000.config
++++ b/arch/arm/configs/dram_0x00000000.config
+@@ -1 +1,2 @@
++# DRAM base at 0x00000000
+ CONFIG_DRAM_BASE=0x00000000
+diff --git a/arch/arm/configs/dram_0xc0000000.config b/arch/arm/configs/dram_0xc0000000.config
+index 343d5333d973..fdd4c7b1461e 100644
+--- a/arch/arm/configs/dram_0xc0000000.config
++++ b/arch/arm/configs/dram_0xc0000000.config
+@@ -1 +1,2 @@
++# DRAM base at 0xc0000000
+ CONFIG_DRAM_BASE=0xc0000000
+diff --git a/arch/arm/configs/dram_0xd0000000.config b/arch/arm/configs/dram_0xd0000000.config
+index 61ba7045f8a1..54defdc8d24c 100644
+--- a/arch/arm/configs/dram_0xd0000000.config
++++ b/arch/arm/configs/dram_0xd0000000.config
+@@ -1 +1,2 @@
++# DRAM base at 0xd0000000
+ CONFIG_DRAM_BASE=0xd0000000
+diff --git a/arch/arm/configs/lpae.config b/arch/arm/configs/lpae.config
+index a6d6f7ab3c01..e8d3cd8f1e4b 100644
+--- a/arch/arm/configs/lpae.config
++++ b/arch/arm/configs/lpae.config
+@@ -1,2 +1,3 @@
++# Enable Large Physical Address Extension mode
+ CONFIG_ARM_LPAE=y
+ CONFIG_VMSPLIT_2G=y
+diff --git a/arch/arm64/configs/virt.config b/arch/arm64/configs/virt.config
+index 6865d54e68f8..83333a9aa1a5 100644
+--- a/arch/arm64/configs/virt.config
++++ b/arch/arm64/configs/virt.config
+@@ -1,3 +1,4 @@
++# Virtualization guest
+ #
+ # Base options for platforms
+ #
+diff --git a/arch/powerpc/configs/32-bit.config b/arch/powerpc/configs/32-bit.config
+index ad6546850c68..1a4c93a17007 100644
+--- a/arch/powerpc/configs/32-bit.config
++++ b/arch/powerpc/configs/32-bit.config
+@@ -1 +1,2 @@
++# Build a 32-bit image
+ # CONFIG_PPC64 is not set
+diff --git a/arch/powerpc/configs/64-bit.config b/arch/powerpc/configs/64-bit.config
+index 0fe6406929e2..cc371309bb0c 100644
+--- a/arch/powerpc/configs/64-bit.config
++++ b/arch/powerpc/configs/64-bit.config
+@@ -1 +1,2 @@
++# Build a 64-bit image
+ CONFIG_PPC64=y
+diff --git a/arch/powerpc/configs/85xx-32bit.config b/arch/powerpc/configs/85xx-32bit.config
+index 6b8894d727a2..866e77e22762 100644
+--- a/arch/powerpc/configs/85xx-32bit.config
++++ b/arch/powerpc/configs/85xx-32bit.config
+@@ -1,3 +1,4 @@
++# Build a 32-bit 85xx image
+ CONFIG_HIGHMEM=y
+ CONFIG_KEXEC=y
+ CONFIG_PPC_85xx=y
+diff --git a/arch/powerpc/configs/85xx-64bit.config b/arch/powerpc/configs/85xx-64bit.config
+index 4aba81222885..cca4151ee889 100644
+--- a/arch/powerpc/configs/85xx-64bit.config
++++ b/arch/powerpc/configs/85xx-64bit.config
+@@ -1,3 +1,4 @@
++# Build a 64-bit 85xx image
+ CONFIG_MATH_EMULATION=y
+ CONFIG_MATH_EMULATION_HW_UNIMPLEMENTED=y
+ CONFIG_PPC64=y
+diff --git a/arch/powerpc/configs/85xx-hw.config b/arch/powerpc/configs/85xx-hw.config
+index 524db76f47b7..76b22f8a8172 100644
+--- a/arch/powerpc/configs/85xx-hw.config
++++ b/arch/powerpc/configs/85xx-hw.config
+@@ -1,3 +1,4 @@
++# Base hardware support for 86xx
+ CONFIG_AQUANTIA_PHY=y
+ CONFIG_AT803X_PHY=y
+ CONFIG_ATA=y
+diff --git a/arch/powerpc/configs/85xx-smp.config b/arch/powerpc/configs/85xx-smp.config
+index 3b4d1e54636d..d3525e71cb2f 100644
+--- a/arch/powerpc/configs/85xx-smp.config
++++ b/arch/powerpc/configs/85xx-smp.config
+@@ -1,2 +1,3 @@
++# Enable SMP on 85xx
+ CONFIG_NR_CPUS=24
+ CONFIG_SMP=y
+diff --git a/arch/powerpc/configs/86xx-hw.config b/arch/powerpc/configs/86xx-hw.config
+index 0cb24b33c88e..7b8d9f9c3c01 100644
+--- a/arch/powerpc/configs/86xx-hw.config
++++ b/arch/powerpc/configs/86xx-hw.config
+@@ -1,3 +1,4 @@
++# Base hardware support for 86xx
+ CONFIG_ATA=y
+ CONFIG_BLK_DEV_SD=y
+ CONFIG_BLK_DEV_SR=y
+diff --git a/arch/powerpc/configs/86xx-smp.config b/arch/powerpc/configs/86xx-smp.config
+index 40ac38d3038c..e6cd06a35624 100644
+--- a/arch/powerpc/configs/86xx-smp.config
++++ b/arch/powerpc/configs/86xx-smp.config
+@@ -1,2 +1,3 @@
++# Enable SMP on 86xx
+ CONFIG_NR_CPUS=2
+ CONFIG_SMP=y
+diff --git a/arch/powerpc/configs/altivec.config b/arch/powerpc/configs/altivec.config
+index 58a697cb5a62..1c8eb9b23a7f 100644
+--- a/arch/powerpc/configs/altivec.config
++++ b/arch/powerpc/configs/altivec.config
+@@ -1 +1,2 @@
++# Enable Altivec support
+ CONFIG_ALTIVEC=y
+diff --git a/arch/powerpc/configs/be.config b/arch/powerpc/configs/be.config
+index c5cdc99a6530..568bba8ea109 100644
+--- a/arch/powerpc/configs/be.config
++++ b/arch/powerpc/configs/be.config
+@@ -1 +1,2 @@
++# Enable Big Endian mode
+ CONFIG_CPU_BIG_ENDIAN=y
+diff --git a/arch/powerpc/configs/book3s_32.config b/arch/powerpc/configs/book3s_32.config
+index 8721eb7b1294..f33483f077db 100644
+--- a/arch/powerpc/configs/book3s_32.config
++++ b/arch/powerpc/configs/book3s_32.config
+@@ -1,2 +1,3 @@
++# Base support for Book3s
+ CONFIG_PPC64=n
+ CONFIG_PPC_BOOK3S_32=y
+diff --git a/arch/powerpc/configs/corenet_base.config b/arch/powerpc/configs/corenet_base.config
+index 1c40de1e764b..47bb6e25c90b 100644
+--- a/arch/powerpc/configs/corenet_base.config
++++ b/arch/powerpc/configs/corenet_base.config
+@@ -1,2 +1,3 @@
++# Base support for corenet
+ CONFIG_CORENET_GENERIC=y
+ CONFIG_PPC_QEMU_E500=y
+diff --git a/arch/powerpc/configs/debug.config b/arch/powerpc/configs/debug.config
+index a14ae1f20d60..223b8a2ee8ec 100644
+--- a/arch/powerpc/configs/debug.config
++++ b/arch/powerpc/configs/debug.config
+@@ -1 +1,2 @@
++# Enable PowerPC specific debug options
+ CONFIG_SCOM_DEBUGFS=y
+diff --git a/arch/powerpc/configs/disable-werror.config b/arch/powerpc/configs/disable-werror.config
+index 6ea12a12432c..76a7847f39ce 100644
+--- a/arch/powerpc/configs/disable-werror.config
++++ b/arch/powerpc/configs/disable-werror.config
+@@ -1 +1,2 @@
++# Disable -Werror
+ CONFIG_PPC_DISABLE_WERROR=y
+diff --git a/arch/powerpc/configs/dpaa.config b/arch/powerpc/configs/dpaa.config
+index 4ffacafe4036..65a13ba32813 100644
+--- a/arch/powerpc/configs/dpaa.config
++++ b/arch/powerpc/configs/dpaa.config
+@@ -1,3 +1,4 @@
++# Base suppot for DPPA
+ CONFIG_FSL_DPAA=y
+ CONFIG_FSL_PAMU=y
+ CONFIG_FSL_FMAN=y
+diff --git a/arch/powerpc/configs/fsl-emb-nonhw.config b/arch/powerpc/configs/fsl-emb-nonhw.config
+index 3009b0efaf34..d1249996cf45 100644
+--- a/arch/powerpc/configs/fsl-emb-nonhw.config
++++ b/arch/powerpc/configs/fsl-emb-nonhw.config
+@@ -1,3 +1,4 @@
++# Non-hardware options common to 85xx and corenet
+ CONFIG_ADFS_FS=m
+ CONFIG_AFFS_FS=m
+ CONFIG_AUDIT=y
+diff --git a/arch/powerpc/configs/guest.config b/arch/powerpc/configs/guest.config
+index fece83487215..f04ababbb35a 100644
+--- a/arch/powerpc/configs/guest.config
++++ b/arch/powerpc/configs/guest.config
+@@ -1,3 +1,4 @@
++# PowerPC specific virtualization guest options
+ CONFIG_VIRTIO_BLK=y
+ CONFIG_SCSI_VIRTIO=y
+ CONFIG_VIRTIO_NET=y
+diff --git a/arch/powerpc/configs/le.config b/arch/powerpc/configs/le.config
+index ee43fdb3b8f4..bcf657e1d21f 100644
+--- a/arch/powerpc/configs/le.config
++++ b/arch/powerpc/configs/le.config
+@@ -1 +1,2 @@
++# Enable Little Endian mode
+ CONFIG_CPU_LITTLE_ENDIAN=y
+diff --git a/arch/powerpc/configs/mpc85xx_base.config b/arch/powerpc/configs/mpc85xx_base.config
+index a1e4d72ed39d..20ecf6575c5c 100644
+--- a/arch/powerpc/configs/mpc85xx_base.config
++++ b/arch/powerpc/configs/mpc85xx_base.config
+@@ -1,3 +1,4 @@
++# Base mpc85xxx support
+ CONFIG_MATH_EMULATION=y
+ CONFIG_MPC8536_DS=y
+ CONFIG_MPC85xx_DS=y
+diff --git a/arch/powerpc/configs/mpc86xx_base.config b/arch/powerpc/configs/mpc86xx_base.config
+index 632c014b122d..8239d1e7785d 100644
+--- a/arch/powerpc/configs/mpc86xx_base.config
++++ b/arch/powerpc/configs/mpc86xx_base.config
+@@ -1,3 +1,4 @@
++# Base mpc85xxx support
+ CONFIG_PPC_86xx=y
+ CONFIG_GEF_PPC9A=y
+ CONFIG_GEF_SBC310=y
+diff --git a/arch/powerpc/configs/ppc64le.config b/arch/powerpc/configs/ppc64le.config
+index 14dca1062c1b..ac3614cd7926 100644
+--- a/arch/powerpc/configs/ppc64le.config
++++ b/arch/powerpc/configs/ppc64le.config
+@@ -1,2 +1,3 @@
++# Enable ppc64le mode
+ CONFIG_PPC64=y
+ CONFIG_CPU_LITTLE_ENDIAN=y
+diff --git a/arch/powerpc/configs/security.config b/arch/powerpc/configs/security.config
+index 1c91a35c6a73..f47034955d12 100644
+--- a/arch/powerpc/configs/security.config
++++ b/arch/powerpc/configs/security.config
+@@ -1,3 +1,5 @@
++# Common security options for PowerPC builds
++
+ # This is the equivalent of booting with lockdown=integrity
+ CONFIG_SECURITY=y
+ CONFIG_SECURITYFS=y
+@@ -12,4 +14,4 @@ CONFIG_INIT_ON_ALLOC_DEFAULT_ON=y
+ 
+ # UBSAN bounds checking is very cheap and good for hardening
+ CONFIG_UBSAN=y
+-# CONFIG_UBSAN_MISC is not set
+\ No newline at end of file
++# CONFIG_UBSAN_MISC is not set
+diff --git a/arch/riscv/configs/32-bit.config b/arch/riscv/configs/32-bit.config
+index f6af0f708df4..60dfa2809b19 100644
+--- a/arch/riscv/configs/32-bit.config
++++ b/arch/riscv/configs/32-bit.config
+@@ -1,3 +1,4 @@
++# Build a 32-bit image
+ CONFIG_ARCH_RV32I=y
+ CONFIG_32BIT=y
+ # CONFIG_PORTABLE is not set
+diff --git a/arch/riscv/configs/64-bit.config b/arch/riscv/configs/64-bit.config
+index 313edc554d84..31a1ad138944 100644
+--- a/arch/riscv/configs/64-bit.config
++++ b/arch/riscv/configs/64-bit.config
+@@ -1,2 +1,3 @@
++# Build a 64-bit image
+ CONFIG_ARCH_RV64I=y
+ CONFIG_64BIT=y
+diff --git a/arch/s390/configs/btf.config b/arch/s390/configs/btf.config
+index 39227b4511af..c69b1a370990 100644
+--- a/arch/s390/configs/btf.config
++++ b/arch/s390/configs/btf.config
+@@ -1 +1,2 @@
++# Enable BTF debug info
+ CONFIG_DEBUG_INFO_BTF=y
+diff --git a/arch/s390/configs/kasan.config b/arch/s390/configs/kasan.config
+index 700a8b25c3ff..da2e1f28c13c 100644
+--- a/arch/s390/configs/kasan.config
++++ b/arch/s390/configs/kasan.config
+@@ -1,3 +1,4 @@
++# Enable KASan for debugging
+ CONFIG_KASAN=y
+ CONFIG_KASAN_INLINE=y
+ CONFIG_KASAN_VMALLOC=y
+diff --git a/arch/x86/Makefile b/arch/x86/Makefile
+index fdc2e3abd615..c4b2a8a19fc8 100644
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -335,9 +335,5 @@ define archhelp
+   echo  '			  bzdisk/fdimage*/hdimage/isoimage also accept:'
+   echo  '			  FDARGS="..."  arguments for the booted kernel'
+   echo  '			  FDINITRD=file initrd for the booted kernel'
+-  echo  ''
+-  echo  '  kvm_guest.config	- Enable Kconfig items for running this kernel as a KVM guest'
+-  echo  '  xen.config		- Enable Kconfig items for running this kernel as a Xen guest'
+-  echo  '  x86_debug.config	- Enable tip tree debugging options for testing'
+ 
+ endef
+diff --git a/arch/x86/configs/tiny.config b/arch/x86/configs/tiny.config
+index 66c9e2aab16c..4b75a11369e3 100644
+--- a/arch/x86/configs/tiny.config
++++ b/arch/x86/configs/tiny.config
+@@ -1,3 +1,5 @@
++# x86-specific options for a small kernel image
++#
+ CONFIG_NOHIGHMEM=y
+ # CONFIG_HIGHMEM4G is not set
+ # CONFIG_HIGHMEM64G is not set
+diff --git a/arch/x86/configs/xen.config b/arch/x86/configs/xen.config
+index 581296255b39..46653ec602e0 100644
+--- a/arch/x86/configs/xen.config
++++ b/arch/x86/configs/xen.config
+@@ -1,3 +1,5 @@
++# x86-specific options for a Xen virtualization guest
++#
+ # global x86 required specific stuff
+ # On 32-bit HIGHMEM4G is not allowed
+ CONFIG_HIGHMEM64G=y
+diff --git a/kernel/configs/debug.config b/kernel/configs/debug.config
+index e8db8d938661..874afe2cd7c0 100644
+--- a/kernel/configs/debug.config
++++ b/kernel/configs/debug.config
+@@ -1,3 +1,5 @@
++# Debugging for CI systems and finding regressions
++#
+ # The config is based on running daily CI for enterprise Linux distros to
+ # seek regressions on linux-next builds on different bare-metal and virtual
+ # platforms. It can be used for example,
+diff --git a/kernel/configs/kvm_guest.config b/kernel/configs/kvm_guest.config
+index 208481d91090..3cc2810147da 100644
+--- a/kernel/configs/kvm_guest.config
++++ b/kernel/configs/kvm_guest.config
+@@ -1,3 +1,4 @@
++# Bootable as a KVM guest
+ CONFIG_NET=y
+ CONFIG_NET_CORE=y
+ CONFIG_NETDEVICES=y
+diff --git a/kernel/configs/nopm.config b/kernel/configs/nopm.config
+index 81ff07863576..a377c5914218 100644
+--- a/kernel/configs/nopm.config
++++ b/kernel/configs/nopm.config
+@@ -1,3 +1,5 @@
++# Disable Power Management
++
+ CONFIG_PM=n
+ CONFIG_SUSPEND=n
+ CONFIG_HIBERNATION=n
+diff --git a/kernel/configs/rust.config b/kernel/configs/rust.config
+index 38a7c5362c9c..941c69c161ad 100644
+--- a/kernel/configs/rust.config
++++ b/kernel/configs/rust.config
+@@ -1 +1,2 @@
++# Enable Rust
+ CONFIG_RUST=y
+diff --git a/kernel/configs/tiny-base.config b/kernel/configs/tiny-base.config
+index 2f0e6bf6db2c..ac4d254abc3f 100644
+--- a/kernel/configs/tiny-base.config
++++ b/kernel/configs/tiny-base.config
+@@ -1 +1,2 @@
++# Minimal options for tiny systems
+ CONFIG_EMBEDDED=y
+diff --git a/kernel/configs/tiny.config b/kernel/configs/tiny.config
+index 00009f7d0835..ea643e8f7f14 100644
+--- a/kernel/configs/tiny.config
++++ b/kernel/configs/tiny.config
+@@ -1,3 +1,5 @@
++# Smallest possible kernel image
++#
+ # CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE is not set
+ CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+ # CONFIG_KERNEL_GZIP is not set
+diff --git a/kernel/configs/x86_debug.config b/kernel/configs/x86_debug.config
+index 6fac5b405334..8a1129a1d59a 100644
+--- a/kernel/configs/x86_debug.config
++++ b/kernel/configs/x86_debug.config
+@@ -1,3 +1,4 @@
++# Debugging options for tip tree testing
+ CONFIG_X86_DEBUG_FPU=y
+ CONFIG_LOCK_STAT=y
+ CONFIG_DEBUG_VM=y
+diff --git a/kernel/configs/xen.config b/kernel/configs/xen.config
+index 436f806aa1ed..d14880177fd2 100644
+--- a/kernel/configs/xen.config
++++ b/kernel/configs/xen.config
+@@ -1,3 +1,5 @@
++# Bootable as a Xen guest
++#
+ # global stuff - these enable us to allow some
+ # of the not so generic stuff below for xen
+ CONFIG_PARAVIRT=y
+diff --git a/scripts/kconfig/Makefile b/scripts/kconfig/Makefile
+index af1c96198f49..c523f24b504a 100644
+--- a/scripts/kconfig/Makefile
++++ b/scripts/kconfig/Makefile
+@@ -93,11 +93,11 @@ endif
+ %_defconfig: $(obj)/conf
+ 	$(Q)$< $(silent) --defconfig=arch/$(SRCARCH)/configs/$@ $(Kconfig)
+ 
+-configfiles=$(wildcard $(srctree)/kernel/configs/$@ $(srctree)/arch/$(SRCARCH)/configs/$@)
++configfiles=$(wildcard $(srctree)/kernel/configs/$(1) $(srctree)/arch/$(SRCARCH)/configs/$(1))
+ 
+ %.config: $(obj)/conf
+-	$(if $(call configfiles),, $(error No configuration exists for this target on this architecture))
+-	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/kconfig/merge_config.sh -m .config $(configfiles)
++	$(if $(call configfiles,$@),, $(error No configuration exists for this target on this architecture))
++	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/kconfig/merge_config.sh -m .config $(call configfiles,$@)
+ 	$(Q)$(MAKE) -f $(srctree)/Makefile olddefconfig
+ 
+ PHONY += tinyconfig
+@@ -115,6 +115,7 @@ clean-files += tests/.cache
+ 
+ # Help text used by make help
+ help:
++	@echo  'Configuration targets:'
+ 	@echo  '  config	  - Update current config utilising a line-oriented program'
+ 	@echo  '  nconfig         - Update current config utilising a ncurses menu based program'
+ 	@echo  '  menuconfig	  - Update current config utilising a menu based program'
+@@ -141,6 +142,12 @@ help:
+ 	@echo  '                    default value without prompting'
+ 	@echo  '  tinyconfig	  - Configure the tiniest possible kernel'
+ 	@echo  '  testconfig	  - Run Kconfig unit tests (requires python3 and pytest)'
++	@echo  ''
++	@echo  'Configuration fragment targets (for enabling various Kconfig items):'
++	@$(foreach c, $(call configfiles,*.config), \
++		printf "  %-20s - %s\\n" \
++			$(shell basename $(c)) \
++			"$(subst # ,,$(shell grep -m1 '^# ' $(c)))";)
+ 
+ # ===========================================================================
+ # object files used by all kconfig flavours
+-- 
+2.34.1
 
-> 
->>
->> Setting this value guarantees that late interrupts don't bring the GISA
->> back into the alert list.
-> 
-> Just to make sure I understand -- The idea is that once you set the alert mask to 0x00 then it should be impossible for millicode to deliver further alerts associated with this gisa right?  Thus making it OK to do one last process_gib_alert_list() after that point in time.
-> 
-> But I guess my question is: will millicode actually see this gi->alert.mask change soon enough to prevent further alerts?  Don't you need to also cmpxchg the mask update into the contents of kvm_s390_gisa (via gisa_set_iam?) 
-
-It is not the IAM directly that I set to 0x00 but gi->alert.mask. It is 
-used the restore the IAM in the gisa by means of 
-gisa_get_ipm_or_restore_iam() under cmpxchg() conditions which is called 
-by process_gib_alert_list() and the hr_timer function gisa_vcpu_kicker() 
-that it triggers. When the gisa is in the alert list, the IAM is always 
-0x00. It's set by millicode. I just need to ensure that it is not 
-changed to anything else.
-
-in order to ensure an alert can't still be delivered some time after you 
-check gisa_in_alert_list(gi->origin)?  That matches up with what is done 
-per-gisc in kvm_s390_gisc_unregister() today.
-
-right
-
-> 
-> ...  That said, now that I'm looking closer at kvm_s390_gisc_unregister() and gisa_set_iam():  it seems strange that nobody checks the return code from gisa_set_iam today.  AFAICT, even if the device driver(s) call kvm_s390_gisc_unregister correctly for all associated gisc, if gisa_set_iam manages to return -EBUSY because the gisa is already in the alert list then wouldn't the gisc refcounts be decremented but the relevant alert bit left enabled for that gisc until the next time we call gisa_set_iam or gisa_get_ipm_or_restore_iam?
-
-you are right, that should retried in kvm_s390_gisc_register() and 
-kvm_s390_gisc_unregister() until the rc is 0 but that would lead to a 
-CPU stall as well under the condition where GAL interrupts are not 
-delivered in the host.
-
-> 
-> Similar strangeness for kvm_s390_gisc_register() - AFAICT if gisa_set_iam returns -EBUSY then we would increment the gisc refcounts but never actually enable the alert bit for that gisc until the next time we call gisa_set_iam or gisa_get_ipm_or_restore_iam.
-
-I have to think and play around with process_gib_alert_list() being 
-called as well in these situations.
-
-BTW the pci and the vfip_ap device drivers currently also ignore the 
-return codes of kvm_s390_gisc_unregister().
-
-Thanks a lot for your thoughts!
-Michael
-
-> 
-> Thanks,
-> Matt
-> 
->>
->> Both situation can now be observed in the kvm-trace:
->>
->>   00 01692880424:653210 3 - 0004 000003ff80136b58  vm 0x000000008e588000 created by pid 3019
->>   00 01692880472:159783 3 - 0002 000003ff80143c06  vm 0x000000008e588000 has unexpected restore iam 0x02
->>   00 01692880472:159784 3 - 0002 000003ff80143c24  vm 0x000000008e588000 gisa in alert list during destroy
->>   00 01692880472:229846 3 - 0004 000003ff8013319a  vm 0x000000008e588000 destroyed
->>
->> CPU stall caused by kvm_s390_gisa_destroy():
->>
->>   [ 4915.311372] rcu: INFO: rcu_sched detected expedited stalls on CPUs/tasks: { 14-.... } 24533 jiffies s: 5269 root: 0x1/.
->>   [ 4915.311390] rcu: blocking rcu_node structures (internal RCU debug): l=1:0-15:0x4000/.
->>   [ 4915.311394] Task dump for CPU 14:
->>   [ 4915.311395] task:qemu-system-s39 state:R  running task     stack:0     pid:217198 ppid:1      flags:0x00000045
->>   [ 4915.311399] Call Trace:
->>   [ 4915.311401]  [<0000038003a33a10>] 0x38003a33a10
->>   [ 4933.861321] rcu: INFO: rcu_sched self-detected stall on CPU
->>   [ 4933.861332] rcu: 	14-....: (42008 ticks this GP) idle=53f4/1/0x4000000000000000 softirq=61530/61530 fqs=14031
->>   [ 4933.861353] rcu: 	(t=42008 jiffies g=238109 q=100360 ncpus=18)
->>   [ 4933.861357] CPU: 14 PID: 217198 Comm: qemu-system-s39 Not tainted 6.5.0-20230816.rc6.git26.a9d17c5d8813.300.fc38.s390x #1
->>   [ 4933.861360] Hardware name: IBM 8561 T01 703 (LPAR)
->>   [ 4933.861361] Krnl PSW : 0704e00180000000 000003ff804bfc66 (kvm_s390_gisa_destroy+0x3e/0xe0 [kvm])
->>   [ 4933.861414]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
->>   [ 4933.861416] Krnl GPRS: 0000000000000000 00000372000000fc 00000002134f8000 000000000d5f5900
->>   [ 4933.861419]            00000002f5ea1d18 00000002f5ea1d18 0000000000000000 0000000000000000
->>   [ 4933.861420]            00000002134fa890 00000002134f8958 000000000d5f5900 00000002134f8000
->>   [ 4933.861422]            000003ffa06acf98 000003ffa06858b0 0000038003a33c20 0000038003a33bc8
->>   [ 4933.861430] Krnl Code: 000003ff804bfc58: ec66002b007e	cij	%r6,0,6,000003ff804bfcae
->>                             000003ff804bfc5e: b904003a		lgr	%r3,%r10
->>                            #000003ff804bfc62: a7f40005		brc	15,000003ff804bfc6c
->>                            >000003ff804bfc66: e330b7300204	lg	%r3,10032(%r11)
->>                             000003ff804bfc6c: 58003000		l	%r0,0(%r3)
->>                             000003ff804bfc70: ec03fffb6076	crj	%r0,%r3,6,000003ff804bfc66
->>                             000003ff804bfc76: e320b7600271	lay	%r2,10080(%r11)
->>                             000003ff804bfc7c: c0e5fffea339	brasl	%r14,000003ff804942ee
->>   [ 4933.861444] Call Trace:
->>   [ 4933.861445]  [<000003ff804bfc66>] kvm_s390_gisa_destroy+0x3e/0xe0 [kvm]
->>   [ 4933.861460] ([<00000002623523de>] free_unref_page+0xee/0x148)
->>   [ 4933.861507]  [<000003ff804aea98>] kvm_arch_destroy_vm+0x50/0x120 [kvm]
->>   [ 4933.861521]  [<000003ff8049d374>] kvm_destroy_vm+0x174/0x288 [kvm]
->>   [ 4933.861532]  [<000003ff8049d4fe>] kvm_vm_release+0x36/0x48 [kvm]
->>   [ 4933.861542]  [<00000002623cd04a>] __fput+0xea/0x2a8
->>   [ 4933.861547]  [<00000002620d5bf8>] task_work_run+0x88/0xf0
->>   [ 4933.861551]  [<00000002620b0aa6>] do_exit+0x2c6/0x528
->>   [ 4933.861556]  [<00000002620b0f00>] do_group_exit+0x40/0xb8
->>   [ 4933.861557]  [<00000002620b0fa6>] __s390x_sys_exit_group+0x2e/0x30
->>   [ 4933.861559]  [<0000000262d481f4>] __do_syscall+0x1d4/0x200
->>   [ 4933.861563]  [<0000000262d59028>] system_call+0x70/0x98
->>   [ 4933.861565] Last Breaking-Event-Address:
->>   [ 4933.861566]  [<0000038003a33b60>] 0x38003a33b60
->>
->> Fixes: 9f30f6216378 ("KVM: s390: add gib_alert_irq_handler()")
->> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
->> ---
->>   arch/s390/kvm/interrupt.c | 12 ++++++++----
->>   1 file changed, 8 insertions(+), 4 deletions(-)
->>
->> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
->> index 85e39f472bb4..06890a58d001 100644
->> --- a/arch/s390/kvm/interrupt.c
->> +++ b/arch/s390/kvm/interrupt.c
->> @@ -3216,11 +3216,15 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
->>   
->>   	if (!gi->origin)
->>   		return;
->> -	if (gi->alert.mask)
->> -		KVM_EVENT(3, "vm 0x%pK has unexpected iam 0x%02x",
->> +	if (gi->alert.mask) {
->> +		KVM_EVENT(3, "vm 0x%pK has unexpected restore iam 0x%02x",
->>   			  kvm, gi->alert.mask);
->> -	while (gisa_in_alert_list(gi->origin))
->> -		cpu_relax();
->> +		gi->alert.mask = 0x00;
->> +	}
->> +	if (gisa_in_alert_list(gi->origin)) {
->> +		KVM_EVENT(3, "vm 0x%pK gisa in alert list during destroy", kvm);
->> +		process_gib_alert_list();
->> +	}
->>   	hrtimer_cancel(&gi->timer);
->>   	gi->origin = NULL;
->>   	VM_EVENT(kvm, 3, "gisa 0x%pK destroyed", gisa);
-> 
