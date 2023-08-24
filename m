@@ -2,141 +2,158 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24A5BC7113B
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Aug 2023 09:10:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB7D9C3DA6F
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Aug 2023 10:10:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234540AbjHXJJ7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Aug 2023 05:09:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36758 "EHLO
+        id S235835AbjHXKKN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Aug 2023 06:10:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240648AbjHXJJz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Aug 2023 05:09:55 -0400
+        with ESMTP id S238445AbjHXKJm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Aug 2023 06:09:42 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08DD610FA;
-        Thu, 24 Aug 2023 02:09:51 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37O91AeV012673;
-        Thu, 24 Aug 2023 09:09:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=OLuVdAXB/YRIVa6KwfTKGyM1URZGho5Zn4DvYDDw6uY=;
- b=m1nyXru5Dh6WSJ15aK8gEXzFu3nKKlYWtATsTHJYh8MxiFoi64gam/z4EVvKigiHqgjz
- cnvS55OOm/dlfUqsuFI2MOVgOlCB4hMH51YqzHMmgEbI2PxVjEZNeGIRx4I/Zj+ibGMI
- PTk/IX5yCGhKtMK6j+5uCererL+76KYKvp8D88ZjTEZHQbDqmxWYvZfD/J3ME85mQFr0
- +hKrfoR0l+kNOPx8s28/LF4O6Yc1HcDL2TrfECxgY2KvMkcqQL5DWzecUOJS/FFZeBaB
- ggcoFmlkWh5BH+OypYp0dxGvE3txMPHzdbXtunOEElvOWa2gGgF+Vlp8UxCEITefOkSs 1Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp4750ht7-1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A248419A0;
+        Thu, 24 Aug 2023 03:09:38 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37OA6wPq003874;
+        Thu, 24 Aug 2023 10:09:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=TXcV6QLCl9RWInpxgJLVQEsC29bfa8uVk5T+zILKCxg=;
+ b=iVWqYQ3IJq0buvp3oDYJPo8Suk1VUew3YkOcIEjqNR1Klh7JxA/sjfurM9EvQezY3N5S
+ KymVTYT6pJI82/Xrr6/d2P/9F/IpC34PiZkAzyrglIs2BwTuhJClOoVC7SdRpJrkcu5d
+ 5pyVuSmYKE4TgQy1loCa5tkRF4c5qx6g/1oihtltv1/5I+HmREXqtaX5ATkYWLUW6YhK
+ SGYQkS+rCSmD//3bSbJ1iCQPk1qBzlFG0fKDACirbBNB/SzfZImOuavUOTgwfdZcDpKT
+ emzDJN1uwnQXOJiEt8erShPmDm+ZPeZ41Bqj1jKzIyg1sHYtpFA/3e4obeJOYZx+St6V gw== 
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp4hcrv8p-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Aug 2023 09:09:47 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37O91chG013388;
-        Thu, 24 Aug 2023 09:09:25 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp4750epv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Aug 2023 09:09:25 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37O7C4qp010383;
-        Thu, 24 Aug 2023 09:02:27 GMT
+        Thu, 24 Aug 2023 10:09:37 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37O9m0dr018220;
+        Thu, 24 Aug 2023 10:09:36 GMT
 Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3sn21swren-1
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3sn21sp4ep-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Aug 2023 09:02:27 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37O92OZw3998426
+        Thu, 24 Aug 2023 10:09:36 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37OA9XXo18940532
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 24 Aug 2023 09:02:24 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7750B2004F;
-        Thu, 24 Aug 2023 09:02:24 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0BC8F20067;
-        Thu, 24 Aug 2023 09:02:24 +0000 (GMT)
-Received: from osiris (unknown [9.171.81.161])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu, 24 Aug 2023 09:02:23 +0000 (GMT)
-Date:   Thu, 24 Aug 2023 11:02:22 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Justin Stitt <justinstitt@google.com>
-Cc:     Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Kees Cook <keescook@chromium.org>, linux-s390@vger.kernel.org,
-        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-hardening@vger.kernel.org
-Subject: Re: [PATCH v2] partitions/ibm: refactor deprecated strncpy
-Message-ID: <20230824090222.10112-B-hca@linux.ibm.com>
-References: <20230823-strncpy-block-partitions-cmdline-ibm-v2-1-40c77f7182fc@google.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230823-strncpy-block-partitions-cmdline-ibm-v2-1-40c77f7182fc@google.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: IRdlo-mLY59h8tOrlT9IzrEhNwurc7Ns
-X-Proofpoint-ORIG-GUID: J3I6_x2GjPwypkI5AuWoQ6VdhlLACqUK
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Thu, 24 Aug 2023 10:09:33 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 272892004B;
+        Thu, 24 Aug 2023 10:09:33 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9D31520043;
+        Thu, 24 Aug 2023 10:09:32 +0000 (GMT)
+Received: from [9.171.83.138] (unknown [9.171.83.138])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 24 Aug 2023 10:09:32 +0000 (GMT)
+Message-ID: <61f13a05-beac-11fc-5657-03f39856d1df@linux.ibm.com>
+Date:   Thu, 24 Aug 2023 12:09:32 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.14.0
+Subject: Re: [PATCH] KVM: s390: fix gisa destroy operation might lead to cpu
+ stalls
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Viktor Mihajlovski <mihajlov@linux.ibm.com>
+References: <20230823124140.3839373-1-mimu@linux.ibm.com>
+ <ZOYIWuq3iqLjDd+q@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <e144381d-4ff3-d7b6-5624-813ea22f196a@linux.ibm.com>
+ <ZOYtd7m2TqMDIb++@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <20230823181627.7903ad6f@p-imbrenda>
+From:   Michael Mueller <mimu@linux.ibm.com>
+In-Reply-To: <20230823181627.7903ad6f@p-imbrenda>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: J9fTgKP-WJVTL-f9YT3ZHSTU9gKMBRFQ
+X-Proofpoint-GUID: J9fTgKP-WJVTL-f9YT3ZHSTU9gKMBRFQ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-08-24_06,2023-08-22_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
- spamscore=0 suspectscore=0 lowpriorityscore=0 impostorscore=0 bulkscore=0
- phishscore=0 adultscore=0 malwarescore=0 priorityscore=1501 clxscore=1015
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2308100000
- definitions=main-2308240072
+ definitions=2023-08-24_06,2023-08-24_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=801 spamscore=0
+ bulkscore=0 mlxscore=0 clxscore=1015 suspectscore=0 adultscore=0
+ lowpriorityscore=0 priorityscore=1501 malwarescore=0 impostorscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2308240081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Aug 23, 2023 at 09:24:22PM +0000, Justin Stitt wrote:
-> `strncpy` is deprecated [1] and we should favor different interfaces.
-> 
-> A suitable replacement is `strtomem_pad` as it is a more robust and less
-> ambiguous interface. In this case, the destination buffer is not
-> necessarily NUL-terminated as Heiko points out [2]. Using `strtomem_pad`
-> over strncpy means it is now more obvious what is expected of the
-> destination buffer: 1) Not necessarily NUL-terminated and 2) padded with
-> NUL-bytes
-> 
-> Link: www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings[1]
-> Link: https://lore.kernel.org/all/20230823134936.14378-E-hca@linux.ibm.com/ [2]
-> Link: https://github.com/KSPP/linux/issues/90
-> Suggested-by: Kees Cook <keescook@chromium.org>
-> Cc: linux-hardening@vger.kernel.org
-> Signed-off-by: Justin Stitt <justinstitt@google.com>
-> ---
-> Changes in v2:
-> - prefer `strtomem_pad` over `strscpy` (thanks Kees)
-> - Link to v1: https://lore.kernel.org/r/20230822-strncpy-block-partitions-cmdline-ibm-v1-1-154dea8f755c@google.com
-> ---
->  block/partitions/ibm.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/block/partitions/ibm.c b/block/partitions/ibm.c
-> index 403756dbd50d..56c076c5523d 100644
-> --- a/block/partitions/ibm.c
-> +++ b/block/partitions/ibm.c
-> @@ -111,11 +111,11 @@ static int find_label(struct parsed_partitions *state,
->  		    !strcmp(temp, "LNX1") ||
->  		    !strcmp(temp, "CMS1")) {
->  			if (!strcmp(temp, "VOL1")) {
-> -				strncpy(type, label->vol.vollbl, 4);
-> -				strncpy(name, label->vol.volid, 6);
-> +				strtomem_pad(type, label->vol.vollbl, 4);
-> +				strtomem_pad(name, label->vol.volid, 6);
->  			} else {
-> -				strncpy(type, label->lnx.vollbl, 4);
-> -				strncpy(name, label->lnx.volid, 6);
-> +				strtomem_pad(type, label->lnx.vollbl, 4);
-> +				strtomem_pad(name, label->lnx.volid, 6);
->  			}
->  			EBCASC(type, 4);
->  			EBCASC(name, 6);
 
-This won't compile if find_label() is not inlined due the BUILD_BUG_ON()
-within strtomem_pad(). However instead of sending new versions, I think it
-would be better to ask Stefan and Jan to have a look at this. I think there
-is room for improvement with the string handling besides getting rid of
-strncpy().
 
-And they know best the semantics of the (non-)strings.
+On 23.08.23 18:16, Claudio Imbrenda wrote:
+> On Wed, 23 Aug 2023 18:01:59 +0200
+> Alexander Gordeev <agordeev@linux.ibm.com> wrote:
+> 
+>> On Wed, Aug 23, 2023 at 04:09:26PM +0200, Michael Mueller wrote:
+>>>
+>>>
+>>> On 23.08.23 15:23, Alexander Gordeev wrote:
+>>>> On Wed, Aug 23, 2023 at 02:41:40PM +0200, Michael Mueller wrote:
+>>>> ...
+>>>>> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+>>>>> index 9bd0a873f3b1..73153bea6c24 100644
+>>>>> --- a/arch/s390/kvm/interrupt.c
+>>>>> +++ b/arch/s390/kvm/interrupt.c
+>>>>> @@ -3205,8 +3205,10 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
+>>>>>    	if (gi->alert.mask)
+>>>>>    		KVM_EVENT(3, "vm 0x%pK has unexpected iam 0x%02x",
+>>>>>    			  kvm, gi->alert.mask);
+>>>>> -	while (gisa_in_alert_list(gi->origin))
+>>>>> -		cpu_relax();
+>>>>> +	while (gisa_in_alert_list(gi->origin)) {
+>>>>> +		KVM_EVENT(3, "vm 0x%pK gisa in alert list during destroy", kvm);
+>>>>> +		process_gib_alert_list();
+>>>>
+>>>> process_gib_alert_list() has two nested loops and neither of them
+>>>> does cpu_relax(). I guess, those are needed instead of one you remove?
+>>>
+>>> Calling function process_gib_alert_list() guarantees the gisa
+>>> is taken out of the alert list immediately and thus the potential
+>>> endless loop on gisa_in_alert_list() is solved. The issue surfaced
+>>> with the following patch that accidently disabled the GAL interrupt
+>>> processing on the host that normaly handles the alert list.
+>>> The patch has been reverted from devel and will be re-applied in v2.
+>>>
+>>> 88a096a7a460 Revert "s390/airq: remove lsi_mask from airq_struct"
+>>> a9d17c5d8813 s390/airq: remove lsi_mask from airq_struct
+>>>
+>>> Does that make sense for you?
+>>
+>> Not really. If process_gib_alert_list() does guarantee the removal,
+>> then it should be a condition, not the loop.
+> 
+> this is actually a good question. why is it still a loop?
+
+The reason for the loop aproach was that I was not sure if any late
+incoming interrupts would bring the gisa back into the alert list
+by the firmware.
+
+I verified that this cannot happen if the mask that restores the
+interruption alert mask (IAM) is properly set to 0x00 by the last
+device driver de-registration before gisa destruction.
+
+In addition I now enforce it to be 0x00 if not already done. (That would
+be a bug.) That finally means the *if in_alert_list then 
+process_alert_list* is sufficient.
+
+I will send a v2.
+
+> 
+>>
+>> But I am actually not into this code. Just wanted to point out that
+>> cpu_relax() is removed from this loop and the two other loops within
+>> process_gib_alert_list() do not have it either.
+>>
+>> So up to Christian, Janosch and Claudio.
+> 
