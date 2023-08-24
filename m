@@ -2,61 +2,60 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94CD5C83003
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73594C88CB2
 	for <linux-s390@archiver.kernel.org>; Thu, 24 Aug 2023 12:47:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240360AbjHXMq6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S238875AbjHXMq6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Thu, 24 Aug 2023 08:46:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43774 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239192AbjHXMqY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Aug 2023 08:46:24 -0400
+        with ESMTP id S239396AbjHXMq1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Aug 2023 08:46:27 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBDCBE59;
-        Thu, 24 Aug 2023 05:46:22 -0700 (PDT)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37OCgmVR019888;
-        Thu, 24 Aug 2023 12:46:22 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9819510FC;
+        Thu, 24 Aug 2023 05:46:25 -0700 (PDT)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37OCgl5n028742;
+        Thu, 24 Aug 2023 12:46:24 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=/DXnYDnOUNzy3YJlD4pxLtS9/09QGNwXUTgbXk5u/uI=;
- b=ihfcn2lnUqvqjZcEhP+wZxol0pHqCvHA3jbjU0RtOJhrOihyIXy1SHwLbymBfa+1I06i
- SjcWxc2dG/ESW8gU02Bg/1ECeOXcz5fUlgi5sDPcvXLhrNeBX6f9k5vQ8xBW/TA5Rodb
- Cmab1wyu4bnypv1Lyu/ImW65e6Fg5P3fHVSJhy1kgCSorcytXkZdlGN3I9REZjojzC9Y
- Ta2L2e4NMkjQDYFG61KpiVSihzRW7g0eevqLitDCMfbKatXl03NvFz02YXV7OtHALPGX
- h4t/ZWeeWiDjQIEVRathjCyW/WjaMJXWq725zMBWYMmtPZvRHvQdyZvuyjXtR+YI7z+o 2Q== 
+ : date : message-id : in-reply-to : references : content-transfer-encoding
+ : mime-version; s=pp1; bh=lrSanGjCAtF8Xw0z/BFamfJIiVAupEAP3cDT6ZFfGVE=;
+ b=C+GUD7q+AjU1yuZO6D17lEpKUkYL48NFANS4LBjYFZDy7tNuzB7SR4l216oF9+0Quzd2
+ k/bGA+0LgQOBHkFbtIPKjZ3OBAClXIxdVTuh6UcK0ZRWas3/HsY8itToFYsdnuh4yn8j
+ yVbkAr2KByXnlj50Y9RluXCt/loMlWuvUuE9ZEa1bM6dPdNEhceuL7ukzScjOdD6oV0Y
+ UECTSngDB+3Lf5wzUMuPYk7G9eyAu760p45a9ManbH9mPUef/Goxbwlug+hNZSxnHbUk
+ /nGVy2/pn1ZBGacOZ+hyMgi1pBfkPg2Zg8SAHb4umt3CdtqUAtVeBLJuo+MayvFcRLNh Zg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp7ey0gmj-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp7eu0hqq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 24 Aug 2023 12:46:24 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37OCh5UM029898;
+        Thu, 24 Aug 2023 12:46:22 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp7eu0hc8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Thu, 24 Aug 2023 12:46:21 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37OChlaH025816;
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37OCM2ee010414;
         Thu, 24 Aug 2023 12:46:18 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp7ey0gam-1
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3sn21sy075-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Thu, 24 Aug 2023 12:46:18 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37OCcAgY027333;
-        Thu, 24 Aug 2023 12:46:15 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3sn20sq12n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Aug 2023 12:46:15 +0000
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37OCkCDV19792504
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37OCkFUZ34406952
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 24 Aug 2023 12:46:12 GMT
+        Thu, 24 Aug 2023 12:46:15 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1A3342004B;
-        Thu, 24 Aug 2023 12:46:12 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 417FC20043;
+        Thu, 24 Aug 2023 12:46:15 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 66EF520040;
-        Thu, 24 Aug 2023 12:46:11 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 8C0AD20040;
+        Thu, 24 Aug 2023 12:46:14 +0000 (GMT)
 Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.fritz.box (unknown [9.171.27.69])
         by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 24 Aug 2023 12:46:11 +0000 (GMT)
+        Thu, 24 Aug 2023 12:46:14 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     pbonzini@redhat.com
 Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
@@ -64,63 +63,65 @@ Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
         linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         hca@linux.ibm.com, mihajlov@linux.ibm.com, seiden@linux.ibm.com,
         akrowiak@linux.ibm.com
-Subject: [GIT PULL 05/22] KVM: s390: interrupt: Fix single-stepping keyless mode exits
-Date:   Thu, 24 Aug 2023 14:43:14 +0200
-Message-ID: <20230824124522.75408-6-frankja@linux.ibm.com>
+Subject: [GIT PULL 09/22] s390/vfio-ap: wait for response code 05 to clear on queue reset
+Date:   Thu, 24 Aug 2023 14:43:18 +0200
+Message-ID: <20230824124522.75408-10-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20230824124522.75408-1-frankja@linux.ibm.com>
 References: <20230824124522.75408-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: i-YY1tJCxHb8Ri8arOBYjSI-EqyPIFYr
-X-Proofpoint-GUID: VYKE1Mq14U08MMM-LhfblQeJN4WN8hC7
+X-Proofpoint-ORIG-GUID: KOXxtaM1rnapC3NIZI3zZtjNYcztq44M
+X-Proofpoint-GUID: C-zAYyCfG6opTnL-dcN6XSnr0HTa7O3E
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
  definitions=2023-08-24_09,2023-08-24_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- adultscore=0 impostorscore=0 bulkscore=0 lowpriorityscore=0 phishscore=0
- clxscore=1015 priorityscore=1501 mlxscore=0 spamscore=0 mlxlogscore=650
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2308100000
- definitions=main-2308240103
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
+ suspectscore=0 phishscore=0 priorityscore=1501 lowpriorityscore=0
+ mlxlogscore=999 adultscore=0 bulkscore=0 spamscore=0 malwarescore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2308240103
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
 
-kvm_s390_skey_check_enable() does not emulate any instructions, rather,
-it clears CPUSTAT_KSS and arranges the instruction that caused the exit
-(e.g., ISKE, SSKE, RRBE or LPSWE with a keyed PSW) to run again.
+Response code 05, AP busy, is a valid response code for a ZAPQ or TAPQ.
+Instead of returning error -EIO when a ZAPQ fails with response code 05,
+let's wait until the queue is no longer busy and try the ZAPQ again.
 
-Therefore, skip the PER check and let the instruction execution happen.
-Otherwise, a debugger will see two single-step events on the same
-instruction.
-
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Message-ID: <20230725143857.228626-6-iii@linux.ibm.com>
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+Tested-by: Viktor Mihajlovski <mihajlov@linux.ibm.com>
+Link: https://lore.kernel.org/r/20230815184333.6554-4-akrowiak@linux.ibm.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/s390/kvm/intercept.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index db222c749e5e..9f64f27f086e 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -630,8 +630,8 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
- 		rc = handle_partial_execution(vcpu);
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index be92ba45226d..3f67cfb53d0c 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -1611,6 +1611,7 @@ static int apq_status_check(int apqn, struct ap_queue_status *status)
+ 	case AP_RESPONSE_DECONFIGURED:
+ 		return 0;
+ 	case AP_RESPONSE_RESET_IN_PROGRESS:
++	case AP_RESPONSE_BUSY:
+ 		return -EBUSY;
+ 	default:
+ 		WARN(true,
+@@ -1663,6 +1664,7 @@ static int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q)
+ 		}
  		break;
- 	case ICPT_KSS:
--		rc = kvm_s390_skey_check_enable(vcpu);
--		break;
-+		/* Instruction will be redriven, skip the PER check. */
-+		return kvm_s390_skey_check_enable(vcpu);
- 	case ICPT_MCHKREQ:
- 	case ICPT_INT_ENABLE:
+ 	case AP_RESPONSE_RESET_IN_PROGRESS:
++	case AP_RESPONSE_BUSY:
  		/*
+ 		 * There is a reset issued by another process in progress. Let's wait
+ 		 * for that to complete. Since we have no idea whether it was a RAPQ or
 -- 
 2.41.0
 
