@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 276A0C7EE2C
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Aug 2023 07:14:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 67902C6FA8F
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Aug 2023 08:18:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240282AbjHXHOV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Aug 2023 03:14:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49274 "EHLO
+        id S229643AbjHXISS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Aug 2023 04:18:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240266AbjHXHOV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Aug 2023 03:14:21 -0400
+        with ESMTP id S231797AbjHXIR5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Aug 2023 04:17:57 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBC48E4E;
-        Thu, 24 Aug 2023 00:14:18 -0700 (PDT)
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37O79t9V007786;
-        Thu, 24 Aug 2023 07:12:56 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CC3610EF;
+        Thu, 24 Aug 2023 01:17:55 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37O8CUu1006690;
+        Thu, 24 Aug 2023 08:16:44 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=WlYEZfZCf0ozJ1tZc7MZf5FbLW/t+nxFBsciNbifwtA=;
- b=Oi4TfOxu6Sxi9puD2LucXhSgcaGmYR6GxEyyMnZWXYCm72n/s5LX8UoY6gPT8kwSjsi0
- djDZlZcNPPZa8NP2I/NdX09KVld0f+c//v1W72ER5tNZS7lcVMQDnEjC/r7iQKcLlxos
- 2bc9EnBcQGdO9+Q64ihV9S+dDR4fwsifhCvOY5R0yQZtg0sECyhba0kTqzSOEZyKQIvN
- NQYLG0DzsapLaDTEyvB2uUuVuBkxL0n81D1HYhWBDGiPMS+UmOavGUyrPYJyJdqpfPiQ
- zS8zT7UmJIDKtW1K8r8o3g2wfNzWMOtX0eQjC8BC5Rh7YzS3U5XpbPnNkMSWv7gaLJx2 wg== 
+ in-reply-to; s=pp1; bh=KEWHsQIN0ibIJmqlOe+5geBhFJYS7lkWUXsTA+1dW1s=;
+ b=TN7oM66xZFKd9trAoNj/to+wrKk83acTpd3VRV5F9dH+fZ5Z8sBbl2AbNEsG9u4BT/rp
+ hNvSoyMhKrFT5qqUPfCRnAkhAJ301+5YIHUV0Rg6lQKi4uSkTLe0mgBTcgmRidluxFBW
+ O8kB7k0OE2SGBmAXrK2d8yL2biJwNwvIaOEBHrI2guhj4rH8g/rkXHq5HvHg1mT2IGy/
+ eRqnGhLXCq5hKQ4Av/Le3UlaaPX5igLCT04KlszV1NRB6L58s/vOfo9nzDNSbi9O+55t
+ ixanQzhrIZHC+lvbSJ4zTxl/+3WI32IQUVt8Ub1hE7MGlx5pkVibwEct+hn4ag0wCheH AA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp2ba09ak-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp3g705gu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Aug 2023 07:12:55 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37O7B3NX013367;
-        Thu, 24 Aug 2023 07:12:54 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp2ba09a0-1
+        Thu, 24 Aug 2023 08:16:44 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37O8CiYj008191;
+        Thu, 24 Aug 2023 08:16:43 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp3g705ev-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Aug 2023 07:12:54 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37O4MerU016435;
-        Thu, 24 Aug 2023 07:12:52 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3sn227w42u-1
+        Thu, 24 Aug 2023 08:16:43 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37O7E8Q7004093;
+        Thu, 24 Aug 2023 08:16:40 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3sn21rneej-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Aug 2023 07:12:52 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37O7Cnei9896518
+        Thu, 24 Aug 2023 08:16:40 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37O8GalW33030748
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 24 Aug 2023 07:12:49 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3B2B020043;
-        Thu, 24 Aug 2023 07:12:49 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 39CD720040;
-        Thu, 24 Aug 2023 07:12:47 +0000 (GMT)
+        Thu, 24 Aug 2023 08:16:37 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CB4E320040;
+        Thu, 24 Aug 2023 08:16:36 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B6B5020043;
+        Thu, 24 Aug 2023 08:16:34 +0000 (GMT)
 Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.83.96])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu, 24 Aug 2023 07:12:47 +0000 (GMT)
-Date:   Thu, 24 Aug 2023 09:12:45 +0200
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Thu, 24 Aug 2023 08:16:34 +0000 (GMT)
+Date:   Thu, 24 Aug 2023 10:16:33 +0200
 From:   Alexander Gordeev <agordeev@linux.ibm.com>
 To:     Kefeng Wang <wangkefeng.wang@huawei.com>
 Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
@@ -86,168 +86,195 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
         linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH rfc v2 01/10] mm: add a generic VMA lock-based page fault
- handler
-Message-ID: <ZOcC7RsYy5yJLgNb@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+Subject: Re: [PATCH rfc v2 04/10] s390: mm: use try_vma_locked_page_fault()
+Message-ID: <ZOcR4Z1WnCy1vl9T@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
 References: <20230821123056.2109942-1-wangkefeng.wang@huawei.com>
- <20230821123056.2109942-2-wangkefeng.wang@huawei.com>
+ <20230821123056.2109942-5-wangkefeng.wang@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230821123056.2109942-2-wangkefeng.wang@huawei.com>
+In-Reply-To: <20230821123056.2109942-5-wangkefeng.wang@huawei.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: XRoDdEmpcV5g5_mmP6WT_85M4g4eI751
-X-Proofpoint-ORIG-GUID: RuEgWxQsYQ1DVXl1GZzqprjH3NxBC5KY
+X-Proofpoint-GUID: Xe2qvpopgdAywnsIWTGsa_U7sum5c185
+X-Proofpoint-ORIG-GUID: lweXzh7T5jsy5Cw_7-G4eq5m-9pnOzRv
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-08-24_03,2023-08-22_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- priorityscore=1501 impostorscore=0 bulkscore=0 clxscore=1011
- suspectscore=0 mlxlogscore=456 mlxscore=0 spamscore=0 malwarescore=0
- lowpriorityscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2308100000 definitions=main-2308240057
+ definitions=2023-08-24_05,2023-08-22_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=549
+ clxscore=1015 lowpriorityscore=0 phishscore=0 malwarescore=0 adultscore=0
+ priorityscore=1501 spamscore=0 suspectscore=0 impostorscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2308100000
+ definitions=main-2308240065
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Aug 21, 2023 at 08:30:47PM +0800, Kefeng Wang wrote:
-
-Hi Kefeng,
-
-> The ARCH_SUPPORTS_PER_VMA_LOCK are enabled by more and more architectures,
-> eg, x86, arm64, powerpc and s390, and riscv, those implementation are very
-> similar which results in some duplicated codes, let's add a generic VMA
-> lock-based page fault handler try_to_vma_locked_page_fault() to eliminate
-> them, and which also make us easy to support this on new architectures.
-> 
-> Since different architectures use different way to check vma whether is
-> accessable or not, the struct pt_regs, page fault error code and vma flags
-> are added into struct vm_fault, then, the architecture's page fault code
-> could re-use struct vm_fault to record and check vma accessable by each
-> own implementation.
+On Mon, Aug 21, 2023 at 08:30:50PM +0800, Kefeng Wang wrote:
+> Use new try_vma_locked_page_fault() helper to simplify code.
+> No functional change intended.
 > 
 > Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 > ---
->  include/linux/mm.h       | 17 +++++++++++++++++
->  include/linux/mm_types.h |  2 ++
->  mm/memory.c              | 39 +++++++++++++++++++++++++++++++++++++++
->  3 files changed, 58 insertions(+)
+>  arch/s390/mm/fault.c | 66 ++++++++++++++++++--------------------------
+>  1 file changed, 27 insertions(+), 39 deletions(-)
 > 
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index 3f764e84e567..22a6f4c56ff3 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -512,9 +512,12 @@ struct vm_fault {
->  		pgoff_t pgoff;			/* Logical page offset based on vma */
->  		unsigned long address;		/* Faulting virtual address - masked */
->  		unsigned long real_address;	/* Faulting virtual address - unmasked */
-> +		unsigned long fault_code;	/* Faulting error code during page fault */
-> +		struct pt_regs *regs;		/* The registers stored during page fault */
->  	};
->  	enum fault_flag flags;		/* FAULT_FLAG_xxx flags
->  					 * XXX: should really be 'const' */
-> +	vm_flags_t vm_flags;		/* VMA flags to be used for access checking */
->  	pmd_t *pmd;			/* Pointer to pmd entry matching
->  					 * the 'address' */
->  	pud_t *pud;			/* Pointer to pud entry matching
-> @@ -774,6 +777,9 @@ static inline void assert_fault_locked(struct vm_fault *vmf)
->  struct vm_area_struct *lock_vma_under_rcu(struct mm_struct *mm,
->  					  unsigned long address);
+> diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+> index 099c4824dd8a..fbbdebde6ea7 100644
+> --- a/arch/s390/mm/fault.c
+> +++ b/arch/s390/mm/fault.c
+> @@ -357,16 +357,18 @@ static noinline void do_fault_error(struct pt_regs *regs, vm_fault_t fault)
+>  static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+>  {
+>  	struct gmap *gmap;
+> -	struct task_struct *tsk;
+> -	struct mm_struct *mm;
+>  	struct vm_area_struct *vma;
+>  	enum fault_type type;
+> -	unsigned long address;
+> -	unsigned int flags;
+> +	struct mm_struct *mm = current->mm;
+> +	unsigned long address = get_fault_address(regs);
+>  	vm_fault_t fault;
+>  	bool is_write;
+> +	struct vm_fault vmf = {
+> +		.real_address = address,
+> +		.flags = FAULT_FLAG_DEFAULT,
+> +		.vm_flags = access,
+> +	};
 >  
-> +bool arch_vma_access_error(struct vm_area_struct *vma, struct vm_fault *vmf);
-> +vm_fault_t try_vma_locked_page_fault(struct vm_fault *vmf);
-> +
->  #else /* CONFIG_PER_VMA_LOCK */
+> -	tsk = current;
+>  	/*
+>  	 * The instruction that caused the program check has
+>  	 * been nullified. Don't signal single step via SIGTRAP.
+> @@ -376,8 +378,6 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+>  	if (kprobe_page_fault(regs, 14))
+>  		return 0;
 >  
->  static inline bool vma_start_read(struct vm_area_struct *vma)
-> @@ -801,6 +807,17 @@ static inline void assert_fault_locked(struct vm_fault *vmf)
->  	mmap_assert_locked(vmf->vma->vm_mm);
->  }
+> -	mm = tsk->mm;
+> -	address = get_fault_address(regs);
+>  	is_write = fault_is_write(regs);
 >  
-> +static inline struct vm_area_struct *lock_vma_under_rcu(struct mm_struct *mm,
-> +		unsigned long address)
-> +{
-> +	return NULL;
-> +}
-> +
-> +static inline vm_fault_t try_vma_locked_page_fault(struct vm_fault *vmf)
-> +{
-> +	return VM_FAULT_NONE;
-> +}
-> +
->  #endif /* CONFIG_PER_VMA_LOCK */
+>  	/*
+> @@ -398,45 +398,33 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+>  	}
 >  
->  extern const struct vm_operations_struct vma_dummy_vm_ops;
-> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-> index f5ba5b0bc836..702820cea3f9 100644
-> --- a/include/linux/mm_types.h
-> +++ b/include/linux/mm_types.h
-> @@ -1119,6 +1119,7 @@ typedef __bitwise unsigned int vm_fault_t;
->   * fault. Used to decide whether a process gets delivered SIGBUS or
->   * just gets major/minor fault counters bumped up.
->   *
-> + * @VM_FAULT_NONE:		Special case, not starting to handle fault
->   * @VM_FAULT_OOM:		Out Of Memory
->   * @VM_FAULT_SIGBUS:		Bad access
->   * @VM_FAULT_MAJOR:		Page read from storage
-> @@ -1139,6 +1140,7 @@ typedef __bitwise unsigned int vm_fault_t;
->   *
->   */
->  enum vm_fault_reason {
-> +	VM_FAULT_NONE		= (__force vm_fault_t)0x000000,
->  	VM_FAULT_OOM            = (__force vm_fault_t)0x000001,
->  	VM_FAULT_SIGBUS         = (__force vm_fault_t)0x000002,
->  	VM_FAULT_MAJOR          = (__force vm_fault_t)0x000004,
-> diff --git a/mm/memory.c b/mm/memory.c
-> index 3b4aaa0d2fff..60fe35db5134 100644
-> --- a/mm/memory.c
-> +++ b/mm/memory.c
-> @@ -5510,6 +5510,45 @@ struct vm_area_struct *lock_vma_under_rcu(struct mm_struct *mm,
->  	count_vm_vma_lock_event(VMA_LOCK_ABORT);
->  	return NULL;
->  }
-> +
-> +#ifdef CONFIG_PER_VMA_LOCK
-> +bool __weak arch_vma_access_error(struct vm_area_struct *vma, struct vm_fault *vmf)
-> +{
-> +	return (vma->vm_flags & vmf->vm_flags) == 0;
-> +}
-> +#endif
-> +
-> +vm_fault_t try_vma_locked_page_fault(struct vm_fault *vmf)
-> +{
-> +	vm_fault_t fault = VM_FAULT_NONE;
-> +	struct vm_area_struct *vma;
-> +
-> +	if (!(vmf->flags & FAULT_FLAG_USER))
-> +		return fault;
-> +
-> +	vma = lock_vma_under_rcu(current->mm, vmf->real_address);
-> +	if (!vma)
-> +		return fault;
-> +
-> +	if (arch_vma_access_error(vma, vmf)) {
-> +		vma_end_read(vma);
-> +		return fault;
-> +	}
-> +
-> +	fault = handle_mm_fault(vma, vmf->real_address,
-> +				vmf->flags | FAULT_FLAG_VMA_LOCK, vmf->regs);
-> +
-> +	if (!(fault & (VM_FAULT_RETRY | VM_FAULT_COMPLETED)))
-> +		vma_end_read(vma);
+>  	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, address);
+> -	flags = FAULT_FLAG_DEFAULT;
+>  	if (user_mode(regs))
+> -		flags |= FAULT_FLAG_USER;
+> +		vmf.flags |= FAULT_FLAG_USER;
+>  	if (is_write)
+> -		access = VM_WRITE;
+> -	if (access == VM_WRITE)
+> -		flags |= FAULT_FLAG_WRITE;
+> -	if (!(flags & FAULT_FLAG_USER))
+> -		goto lock_mmap;
+> -	vma = lock_vma_under_rcu(mm, address);
+> -	if (!vma)
+> -		goto lock_mmap;
+> -	if (!(vma->vm_flags & access)) {
+> -		vma_end_read(vma);
+> -		goto lock_mmap;
+> -	}
+> -	fault = handle_mm_fault(vma, address, flags | FAULT_FLAG_VMA_LOCK, regs);
+> -	if (!(fault & (VM_FAULT_RETRY | VM_FAULT_COMPLETED)))
+> -		vma_end_read(vma);
+> -	if (!(fault & VM_FAULT_RETRY)) {
+> -		count_vm_vma_lock_event(VMA_LOCK_SUCCESS);
+> -		if (likely(!(fault & VM_FAULT_ERROR)))
+> -			fault = 0;
 
-Could you please explain how vma_end_read() call could be conditional?
+This fault fixup is removed in the new version.
 
+> +		vmf.vm_flags = VM_WRITE;
+> +	if (vmf.vm_flags == VM_WRITE)
+> +		vmf.flags |= FAULT_FLAG_WRITE;
 > +
-> +	if (fault & VM_FAULT_RETRY)
-> +		count_vm_vma_lock_event(VMA_LOCK_RETRY);
-> +	else
-> +		count_vm_vma_lock_event(VMA_LOCK_SUCCESS);
+> +	fault = try_vma_locked_page_fault(&vmf);
+> +	if (fault == VM_FAULT_NONE)
+> +		goto lock_mm;
+
+Because VM_FAULT_NONE is set to 0 it gets confused with
+the success code of 0 returned by a fault handler. In the
+former case we want to continue, while in the latter -
+successfully return. I think it applies to all archs.
+
+> +	if (!(fault & VM_FAULT_RETRY))
+>  		goto out;
+> -	}
+> -	count_vm_vma_lock_event(VMA_LOCK_RETRY);
 > +
-> +	return fault;
-> +}
+>  	/* Quick path to respond to signals */
+>  	if (fault_signal_pending(fault, regs)) {
+>  		fault = VM_FAULT_SIGNAL;
+>  		goto out;
+>  	}
+> -lock_mmap:
 > +
->  #endif /* CONFIG_PER_VMA_LOCK */
+> +lock_mm:
+>  	mmap_read_lock(mm);
 >  
->  #ifndef __PAGETABLE_P4D_FOLDED
+>  	gmap = NULL;
+>  	if (IS_ENABLED(CONFIG_PGSTE) && type == GMAP_FAULT) {
+>  		gmap = (struct gmap *) S390_lowcore.gmap;
+>  		current->thread.gmap_addr = address;
+> -		current->thread.gmap_write_flag = !!(flags & FAULT_FLAG_WRITE);
+> +		current->thread.gmap_write_flag = !!(vmf.flags & FAULT_FLAG_WRITE);
+>  		current->thread.gmap_int_code = regs->int_code & 0xffff;
+>  		address = __gmap_translate(gmap, address);
+>  		if (address == -EFAULT) {
+> @@ -444,7 +432,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+>  			goto out_up;
+>  		}
+>  		if (gmap->pfault_enabled)
+> -			flags |= FAULT_FLAG_RETRY_NOWAIT;
+> +			vmf.flags |= FAULT_FLAG_RETRY_NOWAIT;
+>  	}
+>  
+>  retry:
+> @@ -466,7 +454,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+>  	 * we can handle it..
+>  	 */
+>  	fault = VM_FAULT_BADACCESS;
+> -	if (unlikely(!(vma->vm_flags & access)))
+> +	if (unlikely(!(vma->vm_flags & vmf.vm_flags)))
+>  		goto out_up;
+>  
+>  	/*
+> @@ -474,10 +462,10 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+>  	 * make sure we exit gracefully rather than endlessly redo
+>  	 * the fault.
+>  	 */
+> -	fault = handle_mm_fault(vma, address, flags, regs);
+> +	fault = handle_mm_fault(vma, address, vmf.flags, regs);
+>  	if (fault_signal_pending(fault, regs)) {
+>  		fault = VM_FAULT_SIGNAL;
+> -		if (flags & FAULT_FLAG_RETRY_NOWAIT)
+> +		if (vmf.flags & FAULT_FLAG_RETRY_NOWAIT)
+>  			goto out_up;
+>  		goto out;
+>  	}
+> @@ -497,7 +485,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+>  
+>  	if (fault & VM_FAULT_RETRY) {
+>  		if (IS_ENABLED(CONFIG_PGSTE) && gmap &&
+> -			(flags & FAULT_FLAG_RETRY_NOWAIT)) {
+> +			(vmf.flags & FAULT_FLAG_RETRY_NOWAIT)) {
+>  			/*
+>  			 * FAULT_FLAG_RETRY_NOWAIT has been set, mmap_lock has
+>  			 * not been released
+> @@ -506,8 +494,8 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+>  			fault = VM_FAULT_PFAULT;
+>  			goto out_up;
+>  		}
+> -		flags &= ~FAULT_FLAG_RETRY_NOWAIT;
+> -		flags |= FAULT_FLAG_TRIED;
+> +		vmf.flags &= ~FAULT_FLAG_RETRY_NOWAIT;
+> +		vmf.flags |= FAULT_FLAG_TRIED;
+>  		mmap_read_lock(mm);
+>  		goto retry;
+>  	}
+
+FWIW, this series ends up with kernel BUG at arch/s390/mm/fault.c:341!
+
+Thanks!
