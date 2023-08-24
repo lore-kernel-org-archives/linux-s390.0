@@ -2,60 +2,60 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F48CEE49BD
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BADDFC616B
 	for <linux-s390@archiver.kernel.org>; Thu, 24 Aug 2023 12:47:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239544AbjHXMrD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Aug 2023 08:47:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44792 "EHLO
+        id S240623AbjHXMrC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Aug 2023 08:47:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240250AbjHXMqq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Aug 2023 08:46:46 -0400
+        with ESMTP id S240185AbjHXMqo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Aug 2023 08:46:44 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC957E59;
-        Thu, 24 Aug 2023 05:46:44 -0700 (PDT)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37OCgmWH019888;
-        Thu, 24 Aug 2023 12:46:44 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0562410FA;
+        Thu, 24 Aug 2023 05:46:42 -0700 (PDT)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37OCglKv028748;
+        Thu, 24 Aug 2023 12:46:42 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=+/ABv5bvw78NlqiAXaSESB9aeMK+lpYJDI8klcLdXJk=;
- b=f7TcoRq5bH9XekZmvJLi4cLwrX66PNREhsd8eSMUTfWabq/3ryMzxrTmA2m+LGFZJ38t
- bpFpNq/JvoBAkfxd9ok8xhtH/eFSs7rCvNxsOV+nLqklbqnxjRoeenmSrnTA80vpLIgn
- Y/U9b3cdFzN58vM7NirwO5Op59ktlHzQVEdu40Kn2eoYTkvtxLkUhD1LFKWhB7hQpBsM
- ICoVZCWkDZzquQdbw6+R6vbsq35mlxTis1BiEz9q6uh0KUDZRAS2GLjTVsp1It3K1t47
- bJi3rEpgxja+XlidRFWYuipAHSz/dWe2jhA7YxuSg8HpofZc/V1dmLk3HJNDvfIB9fc3 dg== 
+ : mime-version; s=pp1; bh=75e7cKDwWD87JyOkGfyWJzoYTTbtEnsR5cA99qRKw54=;
+ b=VUwQP6N/sLHLN5MPppZ9OWEOlXzA48sqcmLEVvjqKc28XDgG16w4giLVJsaFyq7IeYk2
+ Al2h5Ytlk+372mDnNm2OVjK4oE+xtZQMIBOOrq74Mpg+/Sh8B7VR01gatWA4K+BAeUjf
+ baQTk3vevWl3L4cIzDjch92O5SGoFvmHjSrHAh3yLX5J8/hgSVYc3YfTqVfD56Gsu8az
+ ZJnYwa3blJ5D9f6tYAe5XTtyyLDeHkjgCDbUBxUTrKoC0DO82u76hVDBQn9RV3MjkCkD
+ vV8ynxEM486PGvr5SZx2Nak9hyMPLhHXF1zdSPTyTiQ/RdPV+j1LlNSXUmp6k06TOLnQ AA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp7ey0hvj-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp7eu0jx9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Aug 2023 12:46:43 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37OCh7O5022481;
-        Thu, 24 Aug 2023 12:46:31 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp7ey0h5v-1
+        Thu, 24 Aug 2023 12:46:41 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37OCguRu029242;
+        Thu, 24 Aug 2023 12:46:34 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sp7eu0j4t-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Aug 2023 12:46:31 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37OCT9l6016735;
-        Thu, 24 Aug 2023 12:46:24 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3sn227xyth-1
+        Thu, 24 Aug 2023 12:46:34 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37OCex6Q010275;
+        Thu, 24 Aug 2023 12:46:26 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3sn21sy093-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Aug 2023 12:46:24 +0000
+        Thu, 24 Aug 2023 12:46:25 +0000
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37OCkLlK18219712
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37OCkNi723921268
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 24 Aug 2023 12:46:21 GMT
+        Thu, 24 Aug 2023 12:46:23 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8139320043;
-        Thu, 24 Aug 2023 12:46:21 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 14D362004D;
+        Thu, 24 Aug 2023 12:46:23 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CF3522004D;
-        Thu, 24 Aug 2023 12:46:20 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 6209A2004B;
+        Thu, 24 Aug 2023 12:46:22 +0000 (GMT)
 Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.fritz.box (unknown [9.171.27.69])
         by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 24 Aug 2023 12:46:20 +0000 (GMT)
+        Thu, 24 Aug 2023 12:46:22 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     pbonzini@redhat.com
 Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
@@ -63,109 +63,64 @@ Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
         linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         hca@linux.ibm.com, mihajlov@linux.ibm.com, seiden@linux.ibm.com,
         akrowiak@linux.ibm.com
-Subject: [GIT PULL 17/22] KVM: s390: export kvm_s390_pv*_is_protected functions
-Date:   Thu, 24 Aug 2023 14:43:26 +0200
-Message-ID: <20230824124522.75408-18-frankja@linux.ibm.com>
+Subject: [GIT PULL 19/22] KVM: s390: pv: relax WARN_ONCE condition for destroy fast
+Date:   Thu, 24 Aug 2023 14:43:28 +0200
+Message-ID: <20230824124522.75408-20-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20230824124522.75408-1-frankja@linux.ibm.com>
 References: <20230824124522.75408-1-frankja@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: vl0wtn39tsw1hxhaKsFlctEZNw0tdATD
-X-Proofpoint-GUID: 15M7DmuBNo5mCjFog2kTRiQvNI01g86L
+X-Proofpoint-ORIG-GUID: CCXaEYqUN_1fRTvb0gqXDmmX-LB5FHuy
+X-Proofpoint-GUID: E5F5-KT7S570vSc_V1ZLyEbv35YkCXql
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
  definitions=2023-08-24_09,2023-08-24_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- adultscore=0 impostorscore=0 bulkscore=0 lowpriorityscore=0 phishscore=0
- clxscore=1015 priorityscore=1501 mlxscore=0 spamscore=0 mlxlogscore=747
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2308100000
- definitions=main-2308240103
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
+ suspectscore=0 phishscore=0 priorityscore=1501 lowpriorityscore=0
+ mlxlogscore=654 adultscore=0 bulkscore=0 spamscore=0 malwarescore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2308240103
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Tony Krowiak <akrowiak@linux.ibm.com>
+From: Viktor Mihajlovski <mihajlov@linux.ibm.com>
 
-Export the kvm_s390_pv_is_protected and kvm_s390_pv_cpu_is_protected
-functions so that they can be called from other modules that carry a
-GPL-compatible license.
+Destroy configuration fast may return with RC 0x104 if there
+are still bound APQNs in the configuration. The final cleanup
+will occur with the standard destroy configuration UVC as
+at this point in time all APQNs have been reset and thus
+unbound. Therefore, don't warn if RC 0x104 is reported.
 
+Signed-off-by: Viktor Mihajlovski <mihajlov@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
+Reviewed-by: Michael Mueller <mimu@linux.ibm.com>
+Link: https://lore.kernel.org/r/20230815151415.379760-2-seiden@linux.ibm.com
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Tested-by: Viktor Mihajlovski <mihajlov@linux.ibm.com>
-Link: https://lore.kernel.org/r/20230815184333.6554-12-akrowiak@linux.ibm.com
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Message-ID: <20230815151415.379760-2-seiden@linux.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |  3 +++
- arch/s390/kvm/kvm-s390.h         | 12 ------------
- arch/s390/kvm/pv.c               | 14 ++++++++++++++
- 3 files changed, 17 insertions(+), 12 deletions(-)
+ arch/s390/kvm/pv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 2bbc3d54959d..91bfecb91321 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -1028,6 +1028,9 @@ static inline int sie64a(struct kvm_s390_sie_block *sie_block, u64 *rsa)
- 
- extern char sie_exit;
- 
-+bool kvm_s390_pv_is_protected(struct kvm *kvm);
-+bool kvm_s390_pv_cpu_is_protected(struct kvm_vcpu *vcpu);
-+
- extern int kvm_s390_gisc_register(struct kvm *kvm, u32 gisc);
- extern int kvm_s390_gisc_unregister(struct kvm *kvm, u32 gisc);
- 
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 0261d42c7d01..a7ea80cfa445 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -270,18 +270,6 @@ static inline u64 kvm_s390_pv_cpu_get_handle(struct kvm_vcpu *vcpu)
- 	return vcpu->arch.pv.handle;
- }
- 
--static inline bool kvm_s390_pv_is_protected(struct kvm *kvm)
--{
--	lockdep_assert_held(&kvm->lock);
--	return !!kvm_s390_pv_get_handle(kvm);
--}
--
--static inline bool kvm_s390_pv_cpu_is_protected(struct kvm_vcpu *vcpu)
--{
--	lockdep_assert_held(&vcpu->mutex);
--	return !!kvm_s390_pv_cpu_get_handle(vcpu);
--}
--
- /* implemented in interrupt.c */
- int kvm_s390_handle_wait(struct kvm_vcpu *vcpu);
- void kvm_s390_vcpu_wakeup(struct kvm_vcpu *vcpu);
 diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index 2f34c7c3c5ab..856140e9942e 100644
+index 856140e9942e..beeebc11b1a1 100644
 --- a/arch/s390/kvm/pv.c
 +++ b/arch/s390/kvm/pv.c
-@@ -18,6 +18,20 @@
- #include <linux/mmu_notifier.h>
- #include "kvm-s390.h"
- 
-+bool kvm_s390_pv_is_protected(struct kvm *kvm)
-+{
-+	lockdep_assert_held(&kvm->lock);
-+	return !!kvm_s390_pv_get_handle(kvm);
-+}
-+EXPORT_SYMBOL_GPL(kvm_s390_pv_is_protected);
-+
-+bool kvm_s390_pv_cpu_is_protected(struct kvm_vcpu *vcpu)
-+{
-+	lockdep_assert_held(&vcpu->mutex);
-+	return !!kvm_s390_pv_cpu_get_handle(vcpu);
-+}
-+EXPORT_SYMBOL_GPL(kvm_s390_pv_cpu_is_protected);
-+
- /**
-  * struct pv_vm_to_be_destroyed - Represents a protected VM that needs to
-  * be destroyed
+@@ -285,7 +285,8 @@ static int kvm_s390_pv_deinit_vm_fast(struct kvm *kvm, u16 *rc, u16 *rrc)
+ 	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
+ 	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY VM FAST: rc %x rrc %x",
+ 		     uvcb.header.rc, uvcb.header.rrc);
+-	WARN_ONCE(cc, "protvirt destroy vm fast failed handle %llx rc %x rrc %x",
++	WARN_ONCE(cc && uvcb.header.rc != 0x104,
++		  "protvirt destroy vm fast failed handle %llx rc %x rrc %x",
+ 		  kvm_s390_pv_get_handle(kvm), uvcb.header.rc, uvcb.header.rrc);
+ 	/* Intended memory leak on "impossible" error */
+ 	if (!cc)
 -- 
 2.41.0
 
