@@ -2,103 +2,123 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57659EE49BC
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 22:00:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59ADDEE49B7
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 22:14:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230071AbjHYWA1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 25 Aug 2023 18:00:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52956 "EHLO
+        id S230110AbjHYWNe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 25 Aug 2023 18:13:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231575AbjHYWAH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Aug 2023 18:00:07 -0400
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B83A0272D
-        for <linux-s390@vger.kernel.org>; Fri, 25 Aug 2023 14:59:46 -0700 (PDT)
-Received: by mail-pf1-x436.google.com with SMTP id d2e1a72fcca58-68bed2c786eso1101219b3a.0
-        for <linux-s390@vger.kernel.org>; Fri, 25 Aug 2023 14:59:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fromorbit-com.20221208.gappssmtp.com; s=20221208; t=1693000786; x=1693605586;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=wCmT1oESbAYhZeNNKJ5ShtRN4csCjH3Kne0S41EAnjg=;
-        b=41e5WqQODP0hmu8CXJSYnJoxP9CYCTQIjvtSx0suLjuCd2LQoihd/jLrKiko4xwooZ
-         7dYHeAbwy4v/acegR7zM2t87koKR6b9HdwUQM9+1khEZHSlP6Ay9Gyi1BnTTJyQ+N1sf
-         Tihv+CPf4TPS3j/ZySi0TL4gDqhyuMZ+nJxTaDnexRh6Pcmjy8aRHLfP/t/1vg9xEN/C
-         0OJKzvJcUqwLuYg4eu+OPeBIRa0lo/YObVmgzaCCijZ7OHy87LLvHUMM6er4JE4Dhtu4
-         AWYpsvb+nGYnjp1AziAY3+XfPWUVf+GXDgs/Cvrt+UTpnf3nupIw3K4PynKsZ49o3GsI
-         BY9g==
+        with ESMTP id S230056AbjHYWNU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Aug 2023 18:13:20 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9609226B0
+        for <linux-s390@vger.kernel.org>; Fri, 25 Aug 2023 15:12:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1693001551;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=e+hge1oDtbK92kc9TmT9Xdf3z4r7E02Hg1hwzgG2crw=;
+        b=VwgihAGFyMDGzqNbg1jyR1TLaVjUlQ4T36BNI4LsrZNp6+7t3uH89NoVzPulaD+R5vPz+P
+        e8Cx0SmilW4NjizO8XYV5kG9okmbiWUYaOHaHe67/daX0GufIJgzXkPPyvQtMWx3Z7lsjq
+        bdYDVz5tcVLjZyyDl1woL45wy4ULX/8=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-508-o8O699qoNFmeu0J3N7PvUg-1; Fri, 25 Aug 2023 18:12:30 -0400
+X-MC-Unique: o8O699qoNFmeu0J3N7PvUg-1
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-59204757627so20884087b3.1
+        for <linux-s390@vger.kernel.org>; Fri, 25 Aug 2023 15:12:30 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693000786; x=1693605586;
+        d=1e100.net; s=20221208; t=1693001549; x=1693606349;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=wCmT1oESbAYhZeNNKJ5ShtRN4csCjH3Kne0S41EAnjg=;
-        b=KjhpQRLgfyBY8BG6vVvXhZcugip5LKc7jZ/Lb+sDOTWQmUNHrmClR4zEogRcIhzjoj
-         HgpF+OXktf8fYuLQjNIHDC8fZ2Ac8zRxLHTKDjJp+3xjO2Rp201QLaTZOy9vzlApgjWN
-         jNXmMZ3GpeCbSqddsXSspqtn6bH2G0qoA2e2xmBmPUZ9V5VysRjFdZfcNdILrRbefxqv
-         reWt0dOSfmu9f68yWz/udveClwuoTG965QGJqyovawZY5KuYp6F9o0UaOXbyYTSoUd3I
-         XaHdBFD7dkGrO1EaHGNQtkxHPJ8Q8BQkB+X0HsYQQZ1YJCEU3mNBk310HUtdPO1pzwuQ
-         ZGuA==
-X-Gm-Message-State: AOJu0YyRJ+hLK1vzH6GVFlx8uKIMN75UaIELlrOViGMIclNJSQ6oZMdr
-        lYzMW18k9AwZUM9aqGePKP7Klg==
-X-Google-Smtp-Source: AGHT+IH1qPsbAkUY/ApYOINMHsRtAsDWZuWyGwI872JdnDKqNbs04KgeM02oT1drFck2zagaT8PEnw==
-X-Received: by 2002:a05:6a00:cc2:b0:68b:a137:3739 with SMTP id b2-20020a056a000cc200b0068ba1373739mr11002510pfv.4.1693000786153;
-        Fri, 25 Aug 2023 14:59:46 -0700 (PDT)
-Received: from dread.disaster.area (pa49-195-66-88.pa.nsw.optusnet.com.au. [49.195.66.88])
-        by smtp.gmail.com with ESMTPSA id g2-20020aa78742000000b0068be98f1228sm2025436pfo.57.2023.08.25.14.59.45
+        bh=e+hge1oDtbK92kc9TmT9Xdf3z4r7E02Hg1hwzgG2crw=;
+        b=jqEPLcSHGoLwevpdiHhtG2xuhxr0TFLzNF2/ktH9ASOCts89P+zdoMX+7BhuFljwmK
+         f7pEgpQQKBbT8ZJOBNYL4XWkj/K5SmZWnF2H63SKbR9+00KPSggrt7YqIKDa5y7KNskj
+         8Rv4W/vETrRZ8bU/9BPYQSfUhgK+tUYN2P/HtJElt6t1bHsggcJRB+VtJt080NMRmip6
+         mgD6IbxGmtppX05b/uty/JimTWjRC6ZJ9Nn15Hub/eMUmU3dMcfNlpqRkBXOjt0Fq1zN
+         imCZSNz6qUaFHjfgOiGuKXw2/PKDiCDy6PLbTgWhHhsbKEOCNIH5IntaNZFDKI0+619B
+         t85A==
+X-Gm-Message-State: AOJu0YyOsdumQmUI0fAeh+wZDOlsNOsB1oSjepPSiLc7EMwTe1vTAfat
+        80J2je67Hzj9RdKM1hHWfjPWcx47SB7UvDnbj32XfTeiSBuSg/gU2KBoAZdwKkdM9jQdpYenxIa
+        23gHfzXiTO3BrROza7JOH0A==
+X-Received: by 2002:a0d:d713:0:b0:586:e50:fb50 with SMTP id z19-20020a0dd713000000b005860e50fb50mr19547772ywd.28.1693001549711;
+        Fri, 25 Aug 2023 15:12:29 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHqzLCDM3DmOkP06FXZ9bPHPMsAQN6X4+gYJTqa+W/zrzV0quaG3oT8K/t8CMwB/6vm0x/C6Q==
+X-Received: by 2002:a0d:d713:0:b0:586:e50:fb50 with SMTP id z19-20020a0dd713000000b005860e50fb50mr19547730ywd.28.1693001549499;
+        Fri, 25 Aug 2023 15:12:29 -0700 (PDT)
+Received: from localhost (ip98-179-76-75.ph.ph.cox.net. [98.179.76.75])
+        by smtp.gmail.com with ESMTPSA id a9-20020a0ce349000000b006418c076f59sm817232qvm.100.2023.08.25.15.12.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Aug 2023 14:59:45 -0700 (PDT)
-Received: from dave by dread.disaster.area with local (Exim 4.96)
-        (envelope-from <david@fromorbit.com>)
-        id 1qZeqF-006VO2-18;
-        Sat, 26 Aug 2023 07:59:43 +1000
-Date:   Sat, 26 Aug 2023 07:59:43 +1000
-From:   Dave Chinner <david@fromorbit.com>
-To:     Hao Xu <hao.xu@linux.dev>
-Cc:     io-uring@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Christian Brauner <brauner@kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Stefan Roesch <shr@fb.com>, Clay Harris <bugs@claycon.org>,
-        "Darrick J . Wong" <djwong@kernel.org>,
-        linux-fsdevel@vger.kernel.org, linux-xfs@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-cachefs@redhat.com,
-        ecryptfs@vger.kernel.org, linux-nfs@vger.kernel.org,
-        linux-unionfs@vger.kernel.org, bpf@vger.kernel.org,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, codalist@coda.cs.cmu.edu,
-        linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
-        linux-mm@kvack.org, linux-nilfs@vger.kernel.org,
-        devel@lists.orangefs.org, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org, linux-mtd@lists.infradead.org,
-        Wanpeng Li <wanpengli@tencent.com>
-Subject: Re: [PATCH 28/29] xfs: support nowait semantics for xc_ctx_lock in
- xlog_cil_commit()
-Message-ID: <ZOkkT5Ai7wyMGcWC@dread.disaster.area>
-References: <20230825135431.1317785-1-hao.xu@linux.dev>
- <20230825135431.1317785-29-hao.xu@linux.dev>
+        Fri, 25 Aug 2023 15:12:28 -0700 (PDT)
+Date:   Fri, 25 Aug 2023 15:12:27 -0700
+From:   Jerry Snitselaar <jsnitsel@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Andy Gross <agross@kernel.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        linuxppc-dev@lists.ozlabs.org,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Steven Price <steven.price@arm.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: Re: [PATCH v7 05/24] iommu/fsl_pamu: Implement a PLATFORM domain
+Message-ID: <2sctnqicp6snn7g7xlis2nfa4owdfbfyp6wuxsi65m2jmxmylv@xxa2ppitoelx>
+References: <0-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
+ <5-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230825135431.1317785-29-hao.xu@linux.dev>
+In-Reply-To: <5-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Aug 25, 2023 at 09:54:30PM +0800, Hao Xu wrote:
-> From: Hao Xu <howeyxu@tencent.com>
+On Wed, Aug 23, 2023 at 01:47:19PM -0300, Jason Gunthorpe wrote:
+> This driver is nonsensical. To not block migrating the core API away from
+> NULL default_domains give it a hacky of a PLATFORM domain that keeps it
+> working exactly as it always did.
 > 
-> Apply trylock logic for xc_ctx_lock in xlog_cil_commit() in nowait
-> case and error out -EAGAIN for xlog_cil_commit().
+> Leave some comments around to warn away any future people looking at this.
+> 
+> Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 
-Again, fundamentally broken. Any error from xlog_cil_commit() will
-result in a filesystem shutdown as we cannot back out from failure
-with dirty log items gracefully at this point.
+Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
 
--Dave.
-
--- 
-Dave Chinner
-david@fromorbit.com
