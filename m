@@ -2,84 +2,151 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81A1AEE49AB
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 18:22:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D39BC6787B
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 18:24:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230344AbjHYSVi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 25 Aug 2023 14:21:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39048 "EHLO
+        id S230521AbjHYSXp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 25 Aug 2023 14:23:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231354AbjHYSVR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Aug 2023 14:21:17 -0400
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6472F2694
-        for <linux-s390@vger.kernel.org>; Fri, 25 Aug 2023 11:21:12 -0700 (PDT)
-Received: by mail-pl1-x62e.google.com with SMTP id d9443c01a7336-1c0c6d4d650so10638515ad.0
-        for <linux-s390@vger.kernel.org>; Fri, 25 Aug 2023 11:21:12 -0700 (PDT)
+        with ESMTP id S231794AbjHYSXh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Aug 2023 14:23:37 -0400
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FA252708
+        for <linux-s390@vger.kernel.org>; Fri, 25 Aug 2023 11:23:19 -0700 (PDT)
+Received: by mail-pl1-x62a.google.com with SMTP id d9443c01a7336-1bf092a16c9so10316155ad.0
+        for <linux-s390@vger.kernel.org>; Fri, 25 Aug 2023 11:23:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1692987672; x=1693592472;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=cd1paIDws1ExLMgJh/WiTiPNEsGUGwcEQ17xiLulNdo=;
-        b=nhk5Ko+OG/2Q2+PvkEDtXdRrk3or+134Updyqdlu1P6XQCscy7egtl8AziCQjtc+Bn
-         zp65RvpL7MR7vfIQJtiyZ3WEwZ2/AOZJxGZQ4mDRGInpxpoBv+UhEk0r9hCNWL5bYNqC
-         5O0xNrQMLaQBipxQ7a78YEG4PHOgm1S3/j8H4=
+        d=chromium.org; s=google; t=1692987798; x=1693592598;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=KJ9zjJeALE62O4cw5IYTaJTtY+w53cmCJ0tqcg+cbfo=;
+        b=HnyXQbm8I0wncS7q6bqpL+84nVc+SRO3gOlr6HSanLhtlUGqe3qLtjl9NoeWnceonY
+         Wszkh9DExW9bToZKm+r3bfPJgD20l6FVa29cqrrXaEROEvs3vo6ecpcyMCQpnRom2zMm
+         0cq8MEdGxeVtq9mis1PNV+itkvcfNqdyC6/XE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692987672; x=1693592472;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=cd1paIDws1ExLMgJh/WiTiPNEsGUGwcEQ17xiLulNdo=;
-        b=FpMOmz/exhRU9pNySPW3U/SMjhDTBh9BAtrL6csQrJK+Taicvdz6nXeXMpFVE0GnCG
-         m06S8H1zuJL6OMUCJ/VCMfcLgvs/ZzYchUbONJjcosStVJWh66DXxl4Kb+e8V81wpznR
-         Km6YJ2mWc3gYvmVLsZQeLdS9+paZv3d8MdCiA9jxqtbvU8/Tyl0fHVJh5iNbO4OiY6t2
-         ko6R8ogArc+LZLtIRjzaOJY+89NEyMZsyr4ZxyG/o16ycpc74hc+R9EVQcH8Lbre6olk
-         DKqOoJPBGKYteyOos/WPbq/hCRnzwbDLu3k8Fob4ba7EiS7YAiAOao68e1lTrzmgfLjB
-         ZGyg==
-X-Gm-Message-State: AOJu0Yzcro+136Ds6AedZrok/kVKx7YiTmZ56iZ9CCDAYlyGXYjiDSTV
-        ywpU/Dyo2lvjxB10ThSQNcWIFrV56i8IRXplVM8=
-X-Google-Smtp-Source: AGHT+IHIDQ9FIJyjliN/xDw65w9ny7WQFMwwk363Mwv+Ejm+xJkfXuvIT+Ox7t86mTNHW1gFw7K36Q==
-X-Received: by 2002:a17:902:ec87:b0:1bb:9f07:5e0 with SMTP id x7-20020a170902ec8700b001bb9f0705e0mr21488860plg.60.1692987671857;
-        Fri, 25 Aug 2023 11:21:11 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1692987798; x=1693592598;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KJ9zjJeALE62O4cw5IYTaJTtY+w53cmCJ0tqcg+cbfo=;
+        b=LmJbGN/inVEzao1aJBx6+a5usZzyjdbd/Xj/QqjXKc5PGTwPeiFyyFs8tlj5zU1a04
+         QTFsAheVxkQ3+fFyWFjSw3PQ0dmk6gjt+tMGxqg33itZ2+O/ypirB3RoehHPN3R/5d+k
+         Usf8S9i7KMmMIEwP4p05lgD32k5h3AfZDCFZrrZMyj46uUtSflgFuQte1HP3LuKfaOiD
+         BQ0kWq3WvmQY9HxAqV7E8bpxMokuBJthGvodzBs5xUlPCpMU470+bEyeiW1/Wqukz5pq
+         VXv0e7Ct0XeD4/gVWq638N284FYeOFjtldAQD3tR3n7T1wv3lnJwWCJ9TssNBVUpocok
+         XiBA==
+X-Gm-Message-State: AOJu0Ywa9AirJVWMgoIcVncuaMhIMSZc8vVxNqqqFFx+DctnaGl0Cdhz
+        KMkJabD5GhhYPs+eW0x2lq+d2g==
+X-Google-Smtp-Source: AGHT+IF5mGfC+hpo4uDUVvE34Zd1neo+8AiXRx90NzQv5YAzJzW8HNQDHc63LgGceQ+tSuoW87RpyA==
+X-Received: by 2002:a17:903:24f:b0:1bf:4833:9c25 with SMTP id j15-20020a170903024f00b001bf48339c25mr22325045plh.36.1692987798689;
+        Fri, 25 Aug 2023 11:23:18 -0700 (PDT)
 Received: from www.outflux.net (198-0-35-241-static.hfc.comcastbusiness.net. [198.0.35.241])
-        by smtp.gmail.com with ESMTPSA id 6-20020a170902c10600b001bbb598b8bbsm2056354pli.41.2023.08.25.11.21.11
+        by smtp.gmail.com with ESMTPSA id d10-20020a170902654a00b001bc930d4517sm2078150pln.42.2023.08.25.11.23.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Aug 2023 11:21:11 -0700 (PDT)
-Date:   Fri, 25 Aug 2023 11:21:10 -0700
+        Fri, 25 Aug 2023 11:23:18 -0700 (PDT)
+Date:   Fri, 25 Aug 2023 11:23:17 -0700
 From:   Kees Cook <keescook@chromium.org>
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc:     Masahiro Yamada <masahiroy@kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-kbuild@vger.kernel.org" <linux-kbuild@vger.kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-hardening@vger.kernel.org" <linux-hardening@vger.kernel.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>
+To:     Nicolas Schier <n.schier@avm.de>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kbuild@vger.kernel.org, linux-hardening@vger.kernel.org
 Subject: Re: [PATCH] kbuild: Show Kconfig fragments in "help"
-Message-ID: <202308251120.159800A@keescook>
+Message-ID: <202308251121.23BAF46E@keescook>
 References: <20230824223606.never.762-kees@kernel.org>
- <42174d5e-59f0-4612-d7a1-11e830d0a044@csgroup.eu>
+ <ZOg/pqoqhp/3rerZ@buildd.core.avm.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <42174d5e-59f0-4612-d7a1-11e830d0a044@csgroup.eu>
+In-Reply-To: <ZOg/pqoqhp/3rerZ@buildd.core.avm.de>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Aug 25, 2023 at 04:56:54AM +0000, Christophe Leroy wrote:
-> Le 25/08/2023 à 00:36, Kees Cook a écrit :
-> > +# Base hardware support for 86xx
+On Fri, Aug 25, 2023 at 07:44:06AM +0200, Nicolas Schier wrote:
+> On Thu, Aug 24, 2023 at 03:36:10PM -0700, Kees Cook wrote:
+> > Doing a "make help" would show only hard-coded Kconfig targets and
+> > depended on the archhelp target to include ".config" targets. There was
+> > nothing showing global kernel/configs/ targets. Solve this by walking
+> > the wildcard list and include them in the output, using the first comment
+> > line as the help text.
+> > [...]
 > 
-> s/86xx/85xx
+> Thanks for that patch!  Several times I found myself searching the tree
+> to find a specific kconfig fragment; I think you found a nice solution.
+> Two minor things below.
+> 
 > [...]
+> > diff --git a/kernel/configs/tiny-base.config b/kernel/configs/tiny-base.config
+> > index 2f0e6bf6db2c..ac4d254abc3f 100644
+> > --- a/kernel/configs/tiny-base.config
+> > +++ b/kernel/configs/tiny-base.config
+> > @@ -1 +1,2 @@
+> > +# Minimal options for tiny systems
+> >  CONFIG_EMBEDDED=y
+> 
+> (just a note: Randy prepared a patch for removing CONFIG_EMBEDDED:
+> https://lore.kernel.org/linux-kbuild/20230816055010.31534-1-rdunlap@infradead.org/)
 
-Thanks for the typo fixes! I'll get these all fixed up. :)
+Ah yeah, I'll rebase this after the merge window, I guess...
+
+> > diff --git a/kernel/configs/tiny.config b/kernel/configs/tiny.config
+> > index 00009f7d0835..ea643e8f7f14 100644
+> > --- a/kernel/configs/tiny.config
+> > +++ b/kernel/configs/tiny.config
+> > @@ -1,3 +1,5 @@
+> > +# Smallest possible kernel image
+> 
+> For this fragment alone (not within 'tinyconfig'), "Size-optimize kernel
+> image" possibly fits better?
+
+Sounds good to me!
+
+> > diff --git a/scripts/kconfig/Makefile b/scripts/kconfig/Makefile
+> > index af1c96198f49..c523f24b504a 100644
+> > --- a/scripts/kconfig/Makefile
+> > +++ b/scripts/kconfig/Makefile
+> > @@ -93,11 +93,11 @@ endif
+> >  %_defconfig: $(obj)/conf
+> >  	$(Q)$< $(silent) --defconfig=arch/$(SRCARCH)/configs/$@ $(Kconfig)
+> >  
+> > -configfiles=$(wildcard $(srctree)/kernel/configs/$@ $(srctree)/arch/$(SRCARCH)/configs/$@)
+> > +configfiles=$(wildcard $(srctree)/kernel/configs/$(1) $(srctree)/arch/$(SRCARCH)/configs/$(1))
+> >  
+> >  %.config: $(obj)/conf
+> > -	$(if $(call configfiles),, $(error No configuration exists for this target on this architecture))
+> > -	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/kconfig/merge_config.sh -m .config $(configfiles)
+> > +	$(if $(call configfiles,$@),, $(error No configuration exists for this target on this architecture))
+> > +	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/kconfig/merge_config.sh -m .config $(call configfiles,$@)
+> >  	$(Q)$(MAKE) -f $(srctree)/Makefile olddefconfig
+> >  
+> >  PHONY += tinyconfig
+> > @@ -115,6 +115,7 @@ clean-files += tests/.cache
+> >  
+> >  # Help text used by make help
+> >  help:
+> > +	@echo  'Configuration targets:'
+> >  	@echo  '  config	  - Update current config utilising a line-oriented program'
+> >  	@echo  '  nconfig         - Update current config utilising a ncurses menu based program'
+> >  	@echo  '  menuconfig	  - Update current config utilising a menu based program'
+> > @@ -141,6 +142,12 @@ help:
+> >  	@echo  '                    default value without prompting'
+> >  	@echo  '  tinyconfig	  - Configure the tiniest possible kernel'
+> >  	@echo  '  testconfig	  - Run Kconfig unit tests (requires python3 and pytest)'
+> > +	@echo  ''
+> > +	@echo  'Configuration fragment targets (for enabling various Kconfig items):'
+> > +	@$(foreach c, $(call configfiles,*.config), \
+> > +		printf "  %-20s - %s\\n" \
+> > +			$(shell basename $(c)) \
+> > +			"$(subst # ,,$(shell grep -m1 '^# ' $(c)))";)
+> 
+> Better use '$(notdir $(c))` instead of forking a shell with
+> '$(shell basename $(c))'.
+
+Ah! Thank you. I *knew* there was a function for this but couldn't find
+it for some reason. :)
 
 -- 
 Kees Cook
