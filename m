@@ -2,35 +2,32 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE268EE49B3
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 14:11:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5080DC3DA6F
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 14:11:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244123AbjHYOKy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 25 Aug 2023 10:10:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51586 "EHLO
+        id S1343521AbjHYOLU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 25 Aug 2023 10:11:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343759AbjHYOKo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Aug 2023 10:10:44 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 624F12D49;
-        Fri, 25 Aug 2023 07:10:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=EU4c+QvmUrzx56YT6HV/cCIR2Pjqx+IXpn7k2GV7Q+c=; b=sXnwInRucx8CcJKwrlTfZ031er
-        LEY7y8jsL9Hib5zZnhCnKvqEBOaupx8CYhaoOaWj/VYF41GGvSOMwZwP7gnqnUjyUY5nybhBoSrxT
-        cix5TlGhcoCY3jjdx5/eXfy7PSYCUWLL6z2ZL1LRTqjCJLf619sI6Mfr/SSckV734m8GK683QEHy+
-        aF/xKkJIUvAhE/VXofyvjMKZ4LYU11OPTfozENym+/mg5hUGQWADpmiwU301hOx3e6IcpV8ta4h3y
-        7U3MMVZnd623qdMqd3D0FkVtdSaK+AiLgU+Qa7F9jQSRFB1EUCUT2iSVWxr49S72DAzkgcEx6R3cM
-        2mytwuWw==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1qZXUl-00HWBm-5H; Fri, 25 Aug 2023 14:09:03 +0000
-Date:   Fri, 25 Aug 2023 15:09:03 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Hao Xu <hao.xu@linux.dev>
-Cc:     io-uring@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Dominique Martinet <asmadeus@codewreck.org>,
+        with ESMTP id S1343674AbjHYOLA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Aug 2023 10:11:00 -0400
+Received: from out-253.mta1.migadu.com (out-253.mta1.migadu.com [IPv6:2001:41d0:203:375::fd])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C9E826A8;
+        Fri, 25 Aug 2023 07:10:35 -0700 (PDT)
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+        t=1692972277;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=sCdpGKioQF34weG5w+z0/y3PF/fjvtNNI35yO4EvtLk=;
+        b=cYsDGPpjRbWUMOTIPyMO/haz1FlbbiWizE4L6+4KiNimBQndM5dbyTTkg9jBA2egpwU6Cb
+        fkg5cTnWwTpMK0RxO73BKMbVgecaeb3ZdD5hvh5LwNn8nQIo0z4wNaoOSgDtnANIdxLDF6
+        nhdxpWfLei5X8co+EkZeZUy0T4PzeHk=
+From:   Hao Xu <hao.xu@linux.dev>
+To:     io-uring@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc:     Dominique Martinet <asmadeus@codewreck.org>,
         Pavel Begunkov <asml.silence@gmail.com>,
         Christian Brauner <brauner@kernel.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
@@ -49,27 +46,46 @@ Cc:     io-uring@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         devel@lists.orangefs.org, linux-cifs@vger.kernel.org,
         samba-technical@lists.samba.org, linux-mtd@lists.infradead.org,
         Wanpeng Li <wanpengli@tencent.com>
-Subject: Re: [PATCH 22/29] xfs: comment page allocation for nowait case in
- xfs_buf_find_insert()
-Message-ID: <ZOi1/yafn3HQFWnW@casper.infradead.org>
+Subject: [PATCH 23/29] xfs: don't print warn info for -EAGAIN error in  xfs_buf_get_map()
+Date:   Fri, 25 Aug 2023 21:54:25 +0800
+Message-Id: <20230825135431.1317785-24-hao.xu@linux.dev>
+In-Reply-To: <20230825135431.1317785-1-hao.xu@linux.dev>
 References: <20230825135431.1317785-1-hao.xu@linux.dev>
- <20230825135431.1317785-23-hao.xu@linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230825135431.1317785-23-hao.xu@linux.dev>
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Aug 25, 2023 at 09:54:24PM +0800, Hao Xu wrote:
-> @@ -633,6 +633,8 @@ xfs_buf_find_insert(
->  	 * allocate the memory from the heap to minimise memory usage. If we
->  	 * can't get heap memory for these small buffers, we fall back to using
->  	 * the page allocator.
-> +	 * xfs_buf_alloc_kmem may return -EAGAIN, let's not return it but turn
-> +	 * to page allocator as well.
+From: Hao Xu <howeyxu@tencent.com>
 
-This new sentence seems like it says exactly the same thing as the
-previous sentence.  What am I missing?
+-EAGAIN is internal error to indicate a retry, no needs to print a
+warn.
+
+Signed-off-by: Hao Xu <howeyxu@tencent.com>
+---
+ fs/xfs/xfs_buf.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/fs/xfs/xfs_buf.c b/fs/xfs/xfs_buf.c
+index 57bdc4c5dde1..cdad80e1ae25 100644
+--- a/fs/xfs/xfs_buf.c
++++ b/fs/xfs/xfs_buf.c
+@@ -730,9 +730,10 @@ xfs_buf_get_map(
+ 	if (!bp->b_addr) {
+ 		error = _xfs_buf_map_pages(bp, flags);
+ 		if (unlikely(error)) {
+-			xfs_warn_ratelimited(btp->bt_mount,
+-				"%s: failed to map %u pages", __func__,
+-				bp->b_page_count);
++			if (error != -EAGAIN)
++				xfs_warn_ratelimited(btp->bt_mount,
++					"%s: failed to map %u pages", __func__,
++					bp->b_page_count);
+ 			xfs_buf_relse(bp);
+ 			return error;
+ 		}
+-- 
+2.25.1
 
