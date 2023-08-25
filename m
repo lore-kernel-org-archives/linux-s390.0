@@ -2,201 +2,190 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C033BC6FA8F
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 02:57:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 950A0C71133
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 04:58:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234786AbjHYC4r (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Aug 2023 22:56:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56070 "EHLO
+        id S229709AbjHYE5c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 25 Aug 2023 00:57:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236143AbjHYC4p (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Aug 2023 22:56:45 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BE39E78;
-        Thu, 24 Aug 2023 19:56:43 -0700 (PDT)
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37P2UqhG002614;
-        Fri, 25 Aug 2023 02:56:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=I54OJKkbfBa18QgwkudA0v/Jsp2IQaUta6yozDU1STw=;
- b=hCe+ym9qHyvgHZy+mE+w1h7nzCPeVsVVMeE6I0F/Wzh2n1hovFPuJ1GoIYsY0iGG/ddU
- oivDW4yTOCmavQvVL4OGV7YUSsRlqYXF9puLRKqkixqWtzP1IGGgkX1nafJNM+/lc6oe
- SKD4kR6D4qwVXpFRjaU7NMhXYH4N2GMolfREPvi8wnnOayVOyohiUBKhJGUo4rORiWVP
- yuOSpzVssqsH9yDtva7XOHUNjYRHvW6gSlUF+IxyDYyu4SufrmCX7u77MBH6gqJXb/AB
- 5P5CUc0L3/kVqBgixIYfzrFyd/x38RaueTkNlGdocc1F7I9L/3ZCtJY5nwCnnhAe5Dpw KA== 
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3spkk68jqw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 25 Aug 2023 02:56:41 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37P2qYi9016727;
-        Fri, 25 Aug 2023 02:56:41 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3sn228496k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 25 Aug 2023 02:56:41 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-        by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37P2uedl66322744
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 25 Aug 2023 02:56:40 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6E8C858059;
-        Fri, 25 Aug 2023 02:56:40 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 594925804B;
-        Fri, 25 Aug 2023 02:56:39 +0000 (GMT)
-Received: from [9.61.160.138] (unknown [9.61.160.138])
-        by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 25 Aug 2023 02:56:39 +0000 (GMT)
-Message-ID: <0ddf808c-e929-c975-1b39-5ebc1f2fab62@linux.ibm.com>
-Date:   Thu, 24 Aug 2023 22:56:38 -0400
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+        with ESMTP id S234469AbjHYE5B (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Aug 2023 00:57:01 -0400
+Received: from FRA01-PR2-obe.outbound.protection.outlook.com (mail-pr2fra01on2045.outbound.protection.outlook.com [40.107.12.45])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45E821FD2;
+        Thu, 24 Aug 2023 21:56:57 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=iXsHBDmfRhHDhMAOh0Jt8xZUOgQU5NREBYML3W0X1Lafyeo64qSqZSi8goiy2YMisPfnViGhbvcehIB/tGBypSeiS0yGREYm/GCM9iz0T8B9Ze/G+2CRmu2PTM8ziPfEatRK6JtC+hUHJIR3VSbrVxbNQha+bhJlvsHE9+2cSj+zq+NZN39FblLBhYjPVFRhoIP7RF6EM9skK96QI17xlbvMdWim1u28s3HO3v3UAczTTNK1agLT89nykdAyJ0WzYxUKM2Yk2eisyx92cElsFemVC8mBD9BtSFj4EO/0YCk2bQwsOxXGYVGfqXUm82bLRZcKr5axOVURM+wqF2WG6g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ozVq43cO/q3kxl0nTD/ZgysPujy2b0cMc6JOkoiyPUs=;
+ b=STohag4ZweqBlt9+3ptHuQ/jEb0Fv3h9PFzvzQXdCUXRF1KvTQ0mI1G/lSvXnrt75L5qo/vo4QC5IE6l2w8+ZcH2Xy5+P6wt0z1CSW1oUdu1FJkknEo6Nq5apvZR+Voj7H7CViI8Mf9YZgei/EXldon8M86jY9CxXHVDYtVU84FG1pPfL/F7d3ze+pO/3drFDh5pY72qV0o3propfH8dzdDkSF+wZVXkB0VedpQ9rAdzXsaRW3sI12BcYSTHYHH6SO1WMDIrOeEuz+nZ5P2frVf9MYYTQLP+PmvNUQHq+yW+d7tt2csFSNWSLq6VqEV/axWY0Z2HpmqZbvV3Ft/Pqw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=csgroup.eu; dmarc=pass action=none header.from=csgroup.eu;
+ dkim=pass header.d=csgroup.eu; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=csgroup.eu;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ozVq43cO/q3kxl0nTD/ZgysPujy2b0cMc6JOkoiyPUs=;
+ b=hwIuEG/VupoOqkFU+MpJVXlQFCZ8foZpGwly0vEZ5YvyF/QYSdERxGsC0Q0O9uSq+Nl4u3gXYibn6NRi47Lnqw/AbSUanl8U/9q7QxS06FNkXwAFfTAbLoG6wS9gZM8HAH3iGwq3Z69Gg7PO7zLdPZ/tsTWIm/ZbNIJVrUWXZxmgsaJOrW/rFBMb/v3XNczAXqN/6gF/Gmm26EO3f8u9S05AmKEZ+sdFv2YyVow5Fl+dA3uKzfiEU+SnCizQabAhrC7pFLFBR/FMjeHGRXwqJm+NJGa8qvn+0yoUOwLzLcORude6q+jyId2iVmOjMH1EMpw806fWzLs0mWHYCwspCA==
+Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:31::15)
+ by MR1P264MB3012.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:3d::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6699.29; Fri, 25 Aug
+ 2023 04:56:54 +0000
+Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+ ([fe80::2820:d3a6:1cdf:c60e]) by MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+ ([fe80::2820:d3a6:1cdf:c60e%7]) with mapi id 15.20.6699.028; Fri, 25 Aug 2023
+ 04:56:54 +0000
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+To:     Kees Cook <keescook@chromium.org>,
+        Masahiro Yamada <masahiroy@kernel.org>
+CC:     "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-kbuild@vger.kernel.org" <linux-kbuild@vger.kernel.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-hardening@vger.kernel.org" <linux-hardening@vger.kernel.org>,
+        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH] kbuild: Show Kconfig fragments in "help"
+Thread-Topic: [PATCH] kbuild: Show Kconfig fragments in "help"
+Thread-Index: AQHZ1tuDAhcovvkCmU+XTZ5bN1Nspa/6c2qA
+Date:   Fri, 25 Aug 2023 04:56:54 +0000
+Message-ID: <42174d5e-59f0-4612-d7a1-11e830d0a044@csgroup.eu>
+References: <20230824223606.never.762-kees@kernel.org>
+In-Reply-To: <20230824223606.never.762-kees@kernel.org>
+Accept-Language: fr-FR, en-US
+Content-Language: fr-FR
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.13.0
-Subject: Re: [PATCH v2] KVM: s390: fix gisa destroy operation might lead to
- cpu stalls
-Content-Language: en-US
-To:     Michael Mueller <mimu@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Viktor Mihajlovski <mihajlov@linux.ibm.com>
-References: <20230824130932.3573866-1-mimu@linux.ibm.com>
- <f20a40b8-2d7d-2fc5-33eb-ec0273e09308@linux.ibm.com>
- <a0f4dc8d-a649-3737-df46-c6ce3c1a26dd@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <a0f4dc8d-a649-3737-df46-c6ce3c1a26dd@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 6SUk2ema7P2nML3beCHLeBwGivHmLj8u
-X-Proofpoint-ORIG-GUID: 6SUk2ema7P2nML3beCHLeBwGivHmLj8u
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-08-25_01,2023-08-24_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
- lowpriorityscore=0 phishscore=0 mlxlogscore=999 spamscore=0 bulkscore=0
- malwarescore=0 suspectscore=0 impostorscore=0 mlxscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2308100000 definitions=main-2308250017
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=csgroup.eu;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: MRZP264MB2988:EE_|MR1P264MB3012:EE_
+x-ms-office365-filtering-correlation-id: ab83a89c-f417-4024-23d8-08dba527b405
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: jP2uTRWfsf/Gal00biZ/28WN5qRj4XIquEeEcPjR96p2gHQE+ngLhE6ia7Him+QzFPHFZ1pifWDhP+RyzMve1AHGVKN6RyDq7nrb4pM7uZQXwnuawXZTIk9CLahVYvJCGyJPAZsgJyrQE2FPu8v/WiyUw36R7nfx5aanDI92cuwi95O2YYLezYLrErRwYI+6lRDeYaoyoZQYg4pgw1E+ybh+j1q6CC97cZNoCkOfCi0H2b7KRhc9Tx58YlVLA1H4l6VJ27WkzRl0CI0NZx6pUuTLYU0Sss4X6puJJY2pwwWV8Mqst5nQ5zmTvS8FJh4Y2yQmCfCiB0JaXi3OQIZt24OJ1l+4I7gJ+7PqWbNr+xjTq43IWdt/pVE/fvCGujSYXBb+UlmHFhTBsAKhEKpyEyyPcmvW4Ya3nxh04LGfX8Kx2zwlwUOrHnW0hYX7/d0rIXP/vV6rqB7oq5QZe3InCj+7327kpm8+T3WhkyWWDKwpsfjTQhukNhjw3XOzyVxmHOvz4JoaZbtBpQCViBFxVXS4zG4I8SQQURkdD1Tq48mWhBoSDMkLo4BfysRL2UVLkQWlgkwwvz7BJd8brnloyY6QweEbgBEsYJyLIp9VkTlDuMgRFjJ3qh29D7b7fKvWBrvaX6gZizvkxDQEy5ty+duso4PoOBs6qK0KkmaYYwBykV426NhLRXAlUW8ez3Dr
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230031)(376002)(366004)(39850400004)(396003)(136003)(346002)(451199024)(1800799009)(186009)(122000001)(38100700002)(38070700005)(8676002)(4326008)(8936002)(54906003)(31696002)(41300700001)(6486002)(6506007)(316002)(36756003)(66446008)(64756008)(66476007)(66556008)(110136005)(91956017)(76116006)(66946007)(86362001)(71200400001)(6512007)(26005)(66574015)(478600001)(44832011)(83380400001)(7416002)(31686004)(2906002)(2616005)(5660300002)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?QkNCZFNoeXBSSkxGMUZyWC9YNEwxMXdwTVJSOEpXVkJhbWZ4OWNqbWxpZFFs?=
+ =?utf-8?B?enBRZ0dvczNOb1UwRDJaYVE0ZUdBWTRKeXlLVDFLSFFxYUdPbkorZUx1bnJY?=
+ =?utf-8?B?NzhNdVhCRkw1Qkxrd3U3UWt4Z2QwYmJHeDIwVjZPUm04WTdEVVlucGd5dkhZ?=
+ =?utf-8?B?Mm5KbTRVbVFCazBWd0YwclQvNXJOWFBJQVA5U2hhYWwzYm5GRFRWRWtJUkZT?=
+ =?utf-8?B?dEorMVcrQlppUUFzMERYK250WHpMQnZsYkh2Vk5YMGVzT2RwdVlNeDJPQXYv?=
+ =?utf-8?B?Z0Y3aFhhL1paeUE1VGhHbVF1NFBqRGpBQWlQdlV1em5kM1QxQWUrMEo5bG5i?=
+ =?utf-8?B?V2g3Y0VEclcwNVZuRUFxU21vWWM4YWMwR1FvQ2pOSzk0cXRaMDg4NnN5dExv?=
+ =?utf-8?B?US94ZWZjMm9iL2tXaEJaTUljTGw4YjBiM3pleGpXSHoreUZSUEhJTEU5Ykdj?=
+ =?utf-8?B?c3o0c1FZNkphdDdDU2VJS1RyKzZPSzhCamxZVU03VjNIN1liVklSQ3B0Mk1J?=
+ =?utf-8?B?VHZET1ZIOHFPUTBUNnJQUXo1dkhkTkZiQlFzMkFpYlJ1Undsek5OVXl0Y1RT?=
+ =?utf-8?B?U1pZWmRHV1ZCL3UyZU1XQmxFZlV6WldhUnhJVEw4bVhFbE8wbkxNUklqSlpE?=
+ =?utf-8?B?OWFCeGZWYzJEWFJ3M1NUcFMycDR2dmdqd2U4ZlNGeVY4QzY1a3JTZkk0TTJM?=
+ =?utf-8?B?YVlFMWRzOGVaSjIwbXFwWk9aaU42T3lJZmU5WnFoa2RHaU1IbUZHV2Riajh2?=
+ =?utf-8?B?NC9jMlVzNG9KWUoxYmc2Tjc3Q1FQMS95SHBkeW4zSDBSdkc0WEs4YUIyYUk0?=
+ =?utf-8?B?dTZEZllITUt1dnpyd3gzV3FGTVh4U05RN2NRV2RpazY1c1hRYkN5L1VKYllw?=
+ =?utf-8?B?SitGa2tqRlBqTVgvbGlIQjM4Q2NITXZ4N0xVN2l5a0xMbkJsa0YrYkU3WWVv?=
+ =?utf-8?B?Mkh0QXgxQkYvS2lkM3NGV3l2bzhZRXZVVlJzaExSSWQyRStZQ05QT1h5TDls?=
+ =?utf-8?B?TG5WYk1wVktWSzE0Wm1LYVFORHlpRFh6VkZiY0dSNWpXK0RjTEU5Vk8xalhO?=
+ =?utf-8?B?dUgvTFlTbzlhb0ZYQWMyc2s0RERIWGRFVnZ2Zi9oc2ZMcjV2aDJpRGpaVjVX?=
+ =?utf-8?B?ajlRTm1rR1FFRGxJVnJaQ0RNTmhLdmxkOGdXM1NSUVNac29ZdExIbm14d21k?=
+ =?utf-8?B?VVhFMFBkc1podTRydGNYYmZHRXlRckNQMkpOMFE3N2IwdVdXRlA1VU80bFhZ?=
+ =?utf-8?B?VFI0WDNDbGJUSWpVTjFLUm0zVU12MW43NnZXd1M2aS9CQW9PUE0vakowR0N6?=
+ =?utf-8?B?RjkzWWVMOVN4ZWJoUGo2WUVPcjdoUmlMdS9qclQ4Nnc4bldnS2FyeS9OYncy?=
+ =?utf-8?B?UlhZNmM1UytkZ0VUdEhMamdGY0ZqOEpmY2hHYTh1K2FhM0pLTEZWVlJ0aW5E?=
+ =?utf-8?B?RWFLek40UTNEN1Z6dFRpOEozUDRwWmdKSHZ6c2x3c2VLRENPZElBcmZFRWw5?=
+ =?utf-8?B?YTNqbTUwaVR1UnZ5ajlnSUZwVHoyems3TzJZRXJXbUlJVFZyeEpkbk81dTZ5?=
+ =?utf-8?B?QTF1YThrNmR6cm9XSzdBNjRvL0NvUXQxOXpDZjZlRUpOc0lSN3pSZUJhWmFi?=
+ =?utf-8?B?dDZvem5RTXY1elBKTjdvR0lxUGtGNjUwb0pJSjIzK2wwNTBLTHdUNE15NURa?=
+ =?utf-8?B?NEJici81TTZOTTdBRDBSMmxncGQ2WnozSmlJcFMybEwrK2ZFWHN0NnN1bzVE?=
+ =?utf-8?B?RVcxWTluUzI2ZGlRSnhVU29tbWN3RVV2K1Zsc0lxZmZOK05DckNjQzcxeDI3?=
+ =?utf-8?B?NHcyRHVTaUk5ZWl4MUI1eGZZdncyVkVpc05pOTFpSnFlcWFyTGp2eG9EMVVV?=
+ =?utf-8?B?bW4wQkxuQjNSZmcyZEEvMXplb2g0Vzg4OXUrQ0I5cVd5SzhHYkd4YXZpRmtJ?=
+ =?utf-8?B?NXdzd3pOTWh4eEw0dnBKb1Eva3BRRndPUDZvUTRCWTdsaWpXYXNaOHNKNjA0?=
+ =?utf-8?B?eWNCVmJKTjZGVTlsd21wdVpjVzM3QkR5MXZ1Vy9scTdkcFJWdHZlc3hNVXRH?=
+ =?utf-8?B?YXVoU2NaTkZiaXVmWWhwaGdodk9tVkZxK0FoOEFtYXVDT2F5OFVUektxaTNQ?=
+ =?utf-8?Q?fOn9tJY3HLtwjTK/7FZtezp+Z?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <9B0681B0050E094BA0D2BCEEA39F876F@FRAP264.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-OriginatorOrg: csgroup.eu
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-Network-Message-Id: ab83a89c-f417-4024-23d8-08dba527b405
+X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Aug 2023 04:56:54.5261
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 9914def7-b676-4fda-8815-5d49fb3b45c8
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: BtMJGE6htyVSGZn7j5/6W+O3w+zZmgsnP+TtKAP90njbKw0Wh5FlLt3NJ3mkqRIxEWTpbrMpxrx8UfP0GEruDD+xt+MDeXq4yS/xVu4AwiE=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MR1P264MB3012
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 8/24/23 4:36 PM, Michael Mueller wrote:
-> 
-> 
-> On 24.08.23 21:17, Matthew Rosato wrote:
->> On 8/24/23 9:09 AM, Michael Mueller wrote:
->>> A GISA cannot be destroyed as long it is linked in the GIB alert list
->>> as this would breake the alert list. Just waiting for its removal from
->>
->> Hi Michael,
->>
->> Nit: s/breake/break/
->>
->>> the list triggered by another vm is not sufficient as it might be the
->>> only vm. The below shown cpu stall situation might occur when GIB alerts
->>> are delayed and is fixed by calling process_gib_alert_list() instead of
->>> waiting.
->>>
->>> At this time the vcpus of the vm are already destroyed and thus
->>> no vcpu can be kicked to enter the SIE again if for some reason an
->>> interrupt is pending for that vm.
->>>
->>> Additianally the IAM restore value ist set to 0x00 if that was not the
->>
->> Nits: s/Additianally/Additionally/  as well as s/ist/is/
->>
-> 
-> Thanks a lot, Matt. I will address of course all these typos ;)
-> 
->>> case. That would be a bug introduced by incomplete device de-registration,
->>> i.e. missing kvm_s390_gisc_unregister() call.
->> If this implies a bug, maybe it should be a WARN_ON instead of a KVM_EVENT?  Because if we missed a call to kvm_s390_gisc_unregister() then we're also leaking refcounts (one for each gisc that we didn't unregister).
-> 
-> I was thinking of a WARN_ON() as well and will most probaly add it because it is much better visible.
-> 
->>
->>>
->>> Setting this value guarantees that late interrupts don't bring the GISA
->>> back into the alert list.
->>
->> Just to make sure I understand -- The idea is that once you set the alert mask to 0x00 then it should be impossible for millicode to deliver further alerts associated with this gisa right?  Thus making it OK to do one last process_gib_alert_list() after that point in time.
->>
->> But I guess my question is: will millicode actually see this gi->alert.mask change soon enough to prevent further alerts?  Don't you need to also cmpxchg the mask update into the contents of kvm_s390_gisa (via gisa_set_iam?) 
-> 
-> It is not the IAM directly that I set to 0x00 but gi->alert.mask. It is used the restore the IAM in the gisa by means of gisa_get_ipm_or_restore_iam() under cmpxchg() conditions which is called by process_gib_alert_list() and the hr_timer function gisa_vcpu_kicker() that it triggers. When the gisa is in the alert list, the IAM is always 0x00. It's set by millicode. I just need to ensure that it is not changed to anything else.
-
-Besides zeroing it while on the alert list and restoring the IAM to re-enable millicode alerts, we also change the IAM to enable a gisc (kvm_s390_gisc_register) and disable a gisc (kvm_s390_gisc_register) for alerts via a call to gisa_set_iam().  AFAIU the IAM is telling millicode what giscs host alerts should happen for, and the point of the gisa_set_iam() call during gisc_unregister is to tell millicode to stop alerts from being delivered for that gisc at that point.
-
-Now for this patch, my understanding is that you are basically cleaning up after a driver that did not handle their gisc refcounts properly, right?  Otherwise by the time you reach gisa_destroy the alert.mask would already be 0x00.  Then in that case, wouldn't you want to force the unregistration of any gisc still in the IAM at gisa_destroy time -- meaning shouldn't we do the equivalent gisa_set_iam that would have previously been done during gisc_unregister, had it been called properly? 
-
-For example, rather than just setting gi->alert.mask = 0x00 in kvm_s390_gisa_destroy(), what if you instead did:
-1) issue the warning that gi->alert.mask was nonzero upon entry to gisa_destroy
-2) perform the equivalent of calling kvm_s390_gisc_unregister() for every bit that is still on in the gi->alert.mask, performing the same actions as though the refcount were reaching 0 for each gisc (remove the bit from the alert mask, call gisa_set_iam).
-3) Finally, process the alert list one more time if gisa_in_alert_list(gi->origin).  At this point, since we already set IAM to 0x00, millicode would have no further reason to deliver more alerts, so doing one last check should be safe.
-
-That would be the same chain of events (minus the warning) that would occur if a driver actually called kvm_s390_gisc_unregister() the correct number of times.  Of course you could also just collapse step #2 -- doing that gets us _very_ close to this patch; you could just set gi->alert.mask directly to 0x00 like you do here but then you would also need a gisa_set_iam call to tell millicode to stop sending alerts for all of the giscs you just removed from the alert.mask.  In either approach, the -EBUSY return from gisa_set_iam would be an issue that needs to be handled.
-
-Overall I guess until the IAM visible to millicode is set to 0x00 I'm not sure I understand what would prevent millicode from delivering another alert to any gisc still enabled in the IAM.  You say above it will be cmpxchg()'d during process_gib_alert_list() via gisa_get_ipm_or_restore_iam() but if we first check gisa_in_alert_list(gi->origin) with this new patch and the gisa is not yet in the alert list then we would skip the call to process_gib_alert_list() and instead just cancel the timer -- I could very well be misunderstanding something, but my concern is that you are shrinking but not eliminating the window here.  Let me try an example -- With this patch, isn't the following chain of events still possible:
-
-1) enter kvm_s390_gisa_destroy.  Let's say gi->alert.mask = 0x80.
-2) set gi->alert.mask = 0x00
-3) check if(gisa_in_alert_list(gi->origin)) -- it returns false
-4) Since the IAM still had a bit on at this point, millicode now delivers an alert for the gisc associated with bit 0x80 and sets IAM to 0x00 to indicate the gisa in the alert list
-5) call hrtimer_cancel (since we already checked gisa_in_alert_list, we don't notice that last alert delivered)
-6) set gi->origin = NULL, return from kvm_s390_gisa_destroy
-
-Assuming that series of events is possible, wouldn't a solution be to replace step #3 above with something along the lines of this (untested diff on top of this patch):
-
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 06890a58d001..ab99c9ec1282 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -3220,6 +3220,10 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
-                KVM_EVENT(3, "vm 0x%pK has unexpected restore iam 0x%02x",
-                          kvm, gi->alert.mask);
-                gi->alert.mask = 0x00;
-+               while (gisa_set_iam(gi->origin, gi->alert.mask)) {
-+                       KVM_EVENT(3, "vm 0x%pK alert while clearing iam", kvm);
-+                       process_gib_alert_list();
-+               }
-        }
-        if (gisa_in_alert_list(gi->origin)) {
-                KVM_EVENT(3, "vm 0x%pK gisa in alert list during destroy", kvm);
-
-> 
-> in order to ensure an alert can't still be delivered some time after you check gisa_in_alert_list(gi->origin)?  That matches up with what is done per-gisc in kvm_s390_gisc_unregister() today.
-> 
-> right
-> 
->>
->> ...  That said, now that I'm looking closer at kvm_s390_gisc_unregister() and gisa_set_iam():  it seems strange that nobody checks the return code from gisa_set_iam today.  AFAICT, even if the device driver(s) call kvm_s390_gisc_unregister correctly for all associated gisc, if gisa_set_iam manages to return -EBUSY because the gisa is already in the alert list then wouldn't the gisc refcounts be decremented but the relevant alert bit left enabled for that gisc until the next time we call gisa_set_iam or gisa_get_ipm_or_restore_iam?
-> 
-> you are right, that should retried in kvm_s390_gisc_register() and kvm_s390_gisc_unregister() until the rc is 0 but that would lead to a CPU stall as well under the condition where GAL interrupts are not delivered in the host.
-> 
->>
->> Similar strangeness for kvm_s390_gisc_register() - AFAICT if gisa_set_iam returns -EBUSY then we would increment the gisc refcounts but never actually enable the alert bit for that gisc until the next time we call gisa_set_iam or gisa_get_ipm_or_restore_iam.
-> 
-> I have to think and play around with process_gib_alert_list() being called as well in these situations.
-> 
-> BTW the pci and the vfip_ap device drivers currently also ignore the return codes of kvm_s390_gisc_unregister().
-> 
-
-Hmm, good point.  You're right, we should probably do something there.  I think the 3 reasons kvm_s390_gisc_unregister() could give a nonzero RC today would all be strange, likely implementation bugs...
-
--ENODEV we also would have never been able to register, or something odd happened to gisa after registration
--ERANGE we also would have never been able to register, or the gisc got clobbered sometime after registration
--EINVAL either we never registered, unregistered too many times or gisa was destroyed on us somehow
-
-I think for these cases the best pci/ap can do would be to WARN_ON(_ONCE) and then proceed just assuming that the gisc was unregistered or never properly registered.
-
-Thanks,
-Matt
+DQoNCkxlIDI1LzA4LzIwMjMgw6AgMDA6MzYsIEtlZXMgQ29vayBhIMOpY3JpdMKgOg0KPiBEb2lu
+ZyBhICJtYWtlIGhlbHAiIHdvdWxkIHNob3cgb25seSBoYXJkLWNvZGVkIEtjb25maWcgdGFyZ2V0
+cyBhbmQNCj4gZGVwZW5kZWQgb24gdGhlIGFyY2hoZWxwIHRhcmdldCB0byBpbmNsdWRlICIuY29u
+ZmlnIiB0YXJnZXRzLiBUaGVyZSB3YXMNCj4gbm90aGluZyBzaG93aW5nIGdsb2JhbCBrZXJuZWwv
+Y29uZmlncy8gdGFyZ2V0cy4gU29sdmUgdGhpcyBieSB3YWxraW5nDQo+IHRoZSB3aWxkY2FyZCBs
+aXN0IGFuZCBpbmNsdWRlIHRoZW0gaW4gdGhlIG91dHB1dCwgdXNpbmcgdGhlIGZpcnN0IGNvbW1l
+bnQNCj4gbGluZSBhcyB0aGUgaGVscCB0ZXh0Lg0KPiANCj4gVXBkYXRlIGFsbCBLY29uZmlnIGZy
+YWdtZW50cyB0byBpbmNsdWRlIGhlbHAgdGV4dCBhbmQgYWRqdXN0IGFyY2hoZWxwDQo+IHRhcmdl
+dHMgdG8gYXZvaWQgcmVkdW5kYW5jeS4NCj4gDQo+IEFkZHMgdGhlIGZvbGxvd2luZyBzZWN0aW9u
+IHRvICJoZWxwIiB0YXJnZXQgb3V0cHV0Og0KPiANCj4gQ29uZmlndXJhdGlvbiBmcmFnbWVudCB0
+YXJnZXRzIChmb3IgZW5hYmxpbmcgdmFyaW91cyBLY29uZmlnIGl0ZW1zKToNCj4gICAgZGVidWcu
+Y29uZmlnICAgICAgICAgLSBEZWJ1Z2dpbmcgZm9yIENJIHN5c3RlbXMgYW5kIGZpbmRpbmcgcmVn
+cmVzc2lvbnMNCj4gICAga3ZtX2d1ZXN0LmNvbmZpZyAgICAgLSBCb290YWJsZSBhcyBhIEtWTSBn
+dWVzdA0KPiAgICBub3BtLmNvbmZpZyAgICAgICAgICAtIERpc2FibGUgUG93ZXIgTWFuYWdlbWVu
+dA0KPiAgICBydXN0LmNvbmZpZyAgICAgICAgICAtIEVuYWJsZSBSdXN0DQo+ICAgIHRpbnktYmFz
+ZS5jb25maWcgICAgIC0gTWluaW1hbCBvcHRpb25zIGZvciB0aW55IHN5c3RlbXMNCj4gICAgdGlu
+eS5jb25maWcgICAgICAgICAgLSBTbWFsbGVzdCBwb3NzaWJsZSBrZXJuZWwgaW1hZ2UNCj4gICAg
+eDg2X2RlYnVnLmNvbmZpZyAgICAgLSBEZWJ1Z2dpbmcgb3B0aW9ucyBmb3IgdGlwIHRyZWUgdGVz
+dGluZw0KPiAgICB4ZW4uY29uZmlnICAgICAgICAgICAtIEJvb3RhYmxlIGFzIGEgWGVuIGd1ZXN0
+DQo+ICAgIHRpbnkuY29uZmlnICAgICAgICAgIC0geDg2LXNwZWNpZmljIG9wdGlvbnMgZm9yIGEg
+c21hbGwga2VybmVsIGltYWdlDQo+ICAgIHhlbi5jb25maWcgICAgICAgICAgIC0geDg2LXNwZWNp
+ZmljIG9wdGlvbnMgZm9yIGEgWGVuIHZpcnR1YWxpemF0aW9uIGd1ZXN0DQo+IA0KPiBDYzogTWFz
+YWhpcm8gWWFtYWRhIDxtYXNhaGlyb3lAa2VybmVsLm9yZz4NCj4gQ2M6IHg4NkBrZXJuZWwub3Jn
+DQo+IENjOiBsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcNCj4gQ2M6IGxpbnV4
+cHBjLWRldkBsaXN0cy5vemxhYnMub3JnDQo+IENjOiBsaW51eC1yaXNjdkBsaXN0cy5pbmZyYWRl
+YWQub3JnDQo+IENjOiBsaW51eC1zMzkwQHZnZXIua2VybmVsLm9yZw0KPiBTaWduZWQtb2ZmLWJ5
+OiBLZWVzIENvb2sgPGtlZXNjb29rQGNocm9taXVtLm9yZz4NCj4gLS0tDQoNCj4gZGlmZiAtLWdp
+dCBhL2FyY2gvcG93ZXJwYy9jb25maWdzLzg1eHgtaHcuY29uZmlnIGIvYXJjaC9wb3dlcnBjL2Nv
+bmZpZ3MvODV4eC1ody5jb25maWcNCj4gaW5kZXggNTI0ZGI3NmY0N2I3Li43NmIyMmY4YTgxNzIg
+MTAwNjQ0DQo+IC0tLSBhL2FyY2gvcG93ZXJwYy9jb25maWdzLzg1eHgtaHcuY29uZmlnDQo+ICsr
+KyBiL2FyY2gvcG93ZXJwYy9jb25maWdzLzg1eHgtaHcuY29uZmlnDQo+IEBAIC0xLDMgKzEsNCBA
+QA0KPiArIyBCYXNlIGhhcmR3YXJlIHN1cHBvcnQgZm9yIDg2eHgNCg0Kcy84Nnh4Lzg1eHgNCg0K
+PiAgIENPTkZJR19BUVVBTlRJQV9QSFk9eQ0KPiAgIENPTkZJR19BVDgwM1hfUEhZPXkNCj4gICBD
+T05GSUdfQVRBPXkNCg0KPiBkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2NvbmZpZ3MvYm9vazNz
+XzMyLmNvbmZpZyBiL2FyY2gvcG93ZXJwYy9jb25maWdzL2Jvb2szc18zMi5jb25maWcNCj4gaW5k
+ZXggODcyMWViN2IxMjk0Li5mMzM0ODNmMDc3ZGIgMTAwNjQ0DQo+IC0tLSBhL2FyY2gvcG93ZXJw
+Yy9jb25maWdzL2Jvb2szc18zMi5jb25maWcNCj4gKysrIGIvYXJjaC9wb3dlcnBjL2NvbmZpZ3Mv
+Ym9vazNzXzMyLmNvbmZpZw0KPiBAQCAtMSwyICsxLDMgQEANCj4gKyMgQmFzZSBzdXBwb3J0IGZv
+ciBCb29rM3MNCg0KMzIgYml0cyBCb29rM3MNCg0KPiAgIENPTkZJR19QUEM2ND1uDQo+ICAgQ09O
+RklHX1BQQ19CT09LM1NfMzI9eQ0KDQo+IGRpZmYgLS1naXQgYS9hcmNoL3Bvd2VycGMvY29uZmln
+cy9kcGFhLmNvbmZpZyBiL2FyY2gvcG93ZXJwYy9jb25maWdzL2RwYWEuY29uZmlnDQo+IGluZGV4
+IDRmZmFjYWZlNDAzNi4uNjVhMTNiYTMyODEzIDEwMDY0NA0KPiAtLS0gYS9hcmNoL3Bvd2VycGMv
+Y29uZmlncy9kcGFhLmNvbmZpZw0KPiArKysgYi9hcmNoL3Bvd2VycGMvY29uZmlncy9kcGFhLmNv
+bmZpZw0KPiBAQCAtMSwzICsxLDQgQEANCj4gKyMgQmFzZSBzdXBwb3QgZm9yIERQUEENCg0Kcy9z
+dXBwb3Qvc3VwcG9ydC8NCg0KPiAgIENPTkZJR19GU0xfRFBBQT15DQo+ICAgQ09ORklHX0ZTTF9Q
+QU1VPXkNCj4gICBDT05GSUdfRlNMX0ZNQU49eQ0KDQo+IGRpZmYgLS1naXQgYS9hcmNoL3Bvd2Vy
+cGMvY29uZmlncy9tcGM4NXh4X2Jhc2UuY29uZmlnIGIvYXJjaC9wb3dlcnBjL2NvbmZpZ3MvbXBj
+ODV4eF9iYXNlLmNvbmZpZw0KPiBpbmRleCBhMWU0ZDcyZWQzOWQuLjIwZWNmNjU3NWM1YyAxMDA2
+NDQNCj4gLS0tIGEvYXJjaC9wb3dlcnBjL2NvbmZpZ3MvbXBjODV4eF9iYXNlLmNvbmZpZw0KPiAr
+KysgYi9hcmNoL3Bvd2VycGMvY29uZmlncy9tcGM4NXh4X2Jhc2UuY29uZmlnDQo+IEBAIC0xLDMg
+KzEsNCBAQA0KPiArIyBCYXNlIG1wYzg1eHh4IHN1cHBvcnQNCg0Kcy9tcGM4NXh4eC9tcGM4NXh4
+Lw0KDQo+ICAgQ09ORklHX01BVEhfRU1VTEFUSU9OPXkNCj4gICBDT05GSUdfTVBDODUzNl9EUz15
+DQo+ICAgQ09ORklHX01QQzg1eHhfRFM9eQ0KPiBkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2Nv
+bmZpZ3MvbXBjODZ4eF9iYXNlLmNvbmZpZyBiL2FyY2gvcG93ZXJwYy9jb25maWdzL21wYzg2eHhf
+YmFzZS5jb25maWcNCj4gaW5kZXggNjMyYzAxNGIxMjJkLi44MjM5ZDFlNzc4NWQgMTAwNjQ0DQo+
+IC0tLSBhL2FyY2gvcG93ZXJwYy9jb25maWdzL21wYzg2eHhfYmFzZS5jb25maWcNCj4gKysrIGIv
+YXJjaC9wb3dlcnBjL2NvbmZpZ3MvbXBjODZ4eF9iYXNlLmNvbmZpZw0KPiBAQCAtMSwzICsxLDQg
+QEANCj4gKyMgQmFzZSBtcGM4NXh4eCBzdXBwb3J0DQoNCnMvbXBjODV4eHgvbXBjODZ4eC8NCg0K
+PiAgIENPTkZJR19QUENfODZ4eD15DQo+ICAgQ09ORklHX0dFRl9QUEM5QT15DQo+ICAgQ09ORklH
+X0dFRl9TQkMzMTA9eQ0K
