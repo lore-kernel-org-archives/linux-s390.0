@@ -2,249 +2,116 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D1A3C6FA8F
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 01:53:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF1EFEE49B2
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 01:59:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234188AbjHYBw4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Aug 2023 21:52:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47750 "EHLO
+        id S240311AbjHYB73 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Aug 2023 21:59:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239493AbjHYBwq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Aug 2023 21:52:46 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77DC8A8
-        for <linux-s390@vger.kernel.org>; Thu, 24 Aug 2023 18:51:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1692928312;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=DWLhpWKTuJ/+RpYHbnTOi50aZ6LnaGdh4R08Ifp1NrU=;
-        b=RqRT/ORQBbwwT6Ay4VCYEG5Un3Um36dcB7OOb44eagUoW8+Ba8Pwq5eVsRnzoYY7iotCYM
-        T+qsDQ5YmeGp9u4BF8TBxmedtSCOUejHPwaCphHuoOpqfS5soRw38UDLVTaWFLT9kSOrZ1
-        vDogYTMr4nMQkLN5fKoi20qULf2wQ5M=
-Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
- [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-626-9ypIAyWTNCCDe93MVXnI0A-1; Thu, 24 Aug 2023 21:51:51 -0400
-X-MC-Unique: 9ypIAyWTNCCDe93MVXnI0A-1
-Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-41044a474f6so13635191cf.1
-        for <linux-s390@vger.kernel.org>; Thu, 24 Aug 2023 18:51:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692928310; x=1693533110;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=DWLhpWKTuJ/+RpYHbnTOi50aZ6LnaGdh4R08Ifp1NrU=;
-        b=MOGKlumF8/rs96xx5dwDDF1o68u1J4qvyskbZhoxcPnENkiHEoaVkFEamGc2BFCgWl
-         q4PNh9wEt+P2+2GtVSI9n6xndAKEnWrrccfb+uyAvhePim7zMGrOU9mWmLWFE9F+c+yZ
-         wR2Mox0YapeKf+WNz88VAOyotSQ0JahaMJewXWqamn5rI5LPO/0dCMSt31K7cAi9/aAa
-         o1cqQ27D5z3hhZx+c/ShxoeLRdp+DHHz65C2kukJlQ/jJY5yiGFt3mf1KjWu3GwutrMr
-         cshO2XLmZo/bssps0r+MeTEgYlbogeuoAwZO/RGWYEx6Bb2xyo3tv5NwhmygQuYjwheg
-         5aJw==
-X-Gm-Message-State: AOJu0Yzg5W7G28CyBQYCM+MTXJB4ESwYQySps9TlJlCHhcScU5Lg7mcW
-        XZ0idNXgr0m8S5fT8X2r2t6falK+IUVPbhrYAwPYV6Xy+sppPR66j97w6zQaiIdUhRGoQOl5SLt
-        2slRHYMXN7hSa309Z5QkAQw==
-X-Received: by 2002:ac8:59d6:0:b0:400:8613:5378 with SMTP id f22-20020ac859d6000000b0040086135378mr20752346qtf.20.1692928310638;
-        Thu, 24 Aug 2023 18:51:50 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHSb6TqK3YZra5FavtOfFBMuLIN1bj8qAZDBsTSTbyHb3Qk54OyKXOKpdirNK5+OZKcbYX2cg==
-X-Received: by 2002:ac8:59d6:0:b0:400:8613:5378 with SMTP id f22-20020ac859d6000000b0040086135378mr20752335qtf.20.1692928310369;
-        Thu, 24 Aug 2023 18:51:50 -0700 (PDT)
-Received: from localhost (ip98-179-76-75.ph.ph.cox.net. [98.179.76.75])
-        by smtp.gmail.com with ESMTPSA id i17-20020ac860d1000000b00405447ee5e8sm224859qtm.55.2023.08.24.18.51.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Aug 2023 18:51:49 -0700 (PDT)
-Date:   Thu, 24 Aug 2023 18:51:48 -0700
-From:   Jerry Snitselaar <jsnitsel@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Andy Gross <agross@kernel.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        linuxppc-dev@lists.ozlabs.org,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Steven Price <steven.price@arm.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH v7 02/24] iommu: Add IOMMU_DOMAIN_PLATFORM
-Message-ID: <hbmfqpq2oyjjz3loccfbslpalzhlsyr2w3bpx6qasq23kyrfso@e6kry74ifgnt>
-References: <0-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
- <2-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
+        with ESMTP id S229797AbjHYB6z (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Aug 2023 21:58:55 -0400
+Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [IPv6:2a03:a000:7:0:5054:ff:fe1c:15ff])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A012B1BD1;
+        Thu, 24 Aug 2023 18:58:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=GqmLor0hgV4H3x7IuvuyaB/m3hDiUm8Yzrd7b9keFg8=; b=bxxlNJ96rsx4L2kKszQ8LF6ai5
+        iNtBNOQ6lzvCMPjrA8d2B5SKpMA8ehWy3QlKX8FPouK+kPzVIEZKx+nUetaQRW5JSdDZgZ40B7sUp
+        hz637OO4Su1eEUgn8Gl/dIA4NQM5w6cHamU5x0h4uc+j+8uZ5OMjiX5dOjWaEByfsbwcty7NjoKFy
+        3XYbSKjy+5wYC+oyCRnyAV7fQupk+8Mu6cgtvaubPBjXdneuinMhpNkKRGbKhUYZMh2pnc+qlSq3t
+        /phSE0e2tky2IO5H3c5MgeU2/J9SsgCPwQOsXy7U4/wxiV2850iLaIsQdHEKmyDTGxCmoecJk/YQG
+        iXEtALAQ==;
+Received: from viro by zeniv.linux.org.uk with local (Exim 4.96 #2 (Red Hat Linux))
+        id 1qZM5z-000dvR-0M;
+        Fri, 25 Aug 2023 01:58:43 +0000
+Date:   Fri, 25 Aug 2023 02:58:43 +0100
+From:   Al Viro <viro@zeniv.linux.org.uk>
+To:     Jan Kara <jack@suse.cz>
+Cc:     linux-fsdevel@vger.kernel.org, linux-block@vger.kernel.org,
+        Christoph Hellwig <hch@infradead.org>,
+        Alasdair Kergon <agk@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anna Schumaker <anna@kernel.org>, Chao Yu <chao@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Dave Kleikamp <shaggy@kernel.org>,
+        David Sterba <dsterba@suse.com>, dm-devel@redhat.com,
+        drbd-dev@lists.linbit.com, Gao Xiang <xiang@kernel.org>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        jfs-discussion@lists.sourceforge.net,
+        Joern Engel <joern@lazybastard.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        linux-bcache@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, linux-mm@kvack.org,
+        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
+        linux-nilfs@vger.kernel.org, linux-nvme@lists.infradead.org,
+        linux-pm@vger.kernel.org, linux-raid@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-xfs@vger.kernel.org,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com,
+        reiserfs-devel@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Song Liu <song@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        target-devel@vger.kernel.org, Ted Tso <tytso@mit.edu>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        xen-devel@lists.xenproject.org
+Subject: Re: [PATCH v2 0/29] block: Make blkdev_get_by_*() return handle
+Message-ID: <20230825015843.GB95084@ZenIV>
+References: <20230810171429.31759-1-jack@suse.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
+In-Reply-To: <20230810171429.31759-1-jack@suse.cz>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Aug 23, 2023 at 01:47:16PM -0300, Jason Gunthorpe wrote:
-> This is used when the iommu driver is taking control of the dma_ops,
-> currently only on S390 and power spapr. It is designed to preserve the
-> original ops->detach_dev() semantic that these S390 was built around.
+On Fri, Aug 11, 2023 at 01:04:31PM +0200, Jan Kara wrote:
+> Hello,
 > 
-> Provide an opaque domain type and a 'default_domain' ops value that allows
-> the driver to trivially force any single domain as the default domain.
+> this is a v2 of the patch series which implements the idea of blkdev_get_by_*()
+> calls returning bdev_handle which is then passed to blkdev_put() [1]. This
+> makes the get and put calls for bdevs more obviously matching and allows us to
+> propagate context from get to put without having to modify all the users
+> (again!).  In particular I need to propagate used open flags to blkdev_put() to
+> be able count writeable opens and add support for blocking writes to mounted
+> block devices. I'll send that series separately.
 > 
-> Update iommufd selftest to use this instead of set_platform_dma_ops
+> The series is based on Christian's vfs tree as of yesterday as there is quite
+> some overlap. Patches have passed some reasonable testing - I've tested block
+> changes, md, dm, bcache, xfs, btrfs, ext4, swap. This obviously doesn't cover
+> everything so I'd like to ask respective maintainers to review / test their
+> changes. Thanks! I've pushed out the full branch to:
 > 
-> Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  drivers/iommu/iommu.c            | 13 +++++++++++++
->  drivers/iommu/iommufd/selftest.c | 14 +++++---------
->  include/linux/iommu.h            |  6 ++++++
->  3 files changed, 24 insertions(+), 9 deletions(-)
+> git://git.kernel.org/pub/scm/linux/kernel/git/jack/linux-fs.git bdev_handle
 > 
-> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-> index 33bd1107090720..7cedb0640290c8 100644
-> --- a/drivers/iommu/iommu.c
-> +++ b/drivers/iommu/iommu.c
-> @@ -184,6 +184,8 @@ static const char *iommu_domain_type_str(unsigned int t)
->  	case IOMMU_DOMAIN_DMA:
->  	case IOMMU_DOMAIN_DMA_FQ:
->  		return "Translated";
-> +	case IOMMU_DOMAIN_PLATFORM:
-> +		return "Platform";
->  	default:
->  		return "Unknown";
->  	}
-> @@ -1752,6 +1754,17 @@ iommu_group_alloc_default_domain(struct iommu_group *group, int req_type)
->  
->  	lockdep_assert_held(&group->mutex);
->  
-> +	/*
-> +	 * Allow legacy drivers to specify the domain that will be the default
-> +	 * domain. This should always be either an IDENTITY or PLATFORM domain.
-> +	 * Do not use in new drivers.
-> +	 */
+> to ease review / testing.
 
-Would it be worthwhile to mention this in iommu.h for the iommu_ops default_domain?
+Hmm...  Completely Insane Idea(tm): how about turning that thing inside out and
+having your bdev_open_by... return an actual opened struct file?
 
-> +	if (bus->iommu_ops->default_domain) {
-> +		if (req_type)
-> +			return ERR_PTR(-EINVAL);
-> +		return bus->iommu_ops->default_domain;
-> +	}
-> +
->  	if (req_type)
->  		return __iommu_group_alloc_default_domain(bus, group, req_type);
->  
-> diff --git a/drivers/iommu/iommufd/selftest.c b/drivers/iommu/iommufd/selftest.c
-> index d48a202a7c3b81..fb981ba97c4e87 100644
-> --- a/drivers/iommu/iommufd/selftest.c
-> +++ b/drivers/iommu/iommufd/selftest.c
-> @@ -281,14 +281,6 @@ static bool mock_domain_capable(struct device *dev, enum iommu_cap cap)
->  	return cap == IOMMU_CAP_CACHE_COHERENCY;
->  }
->  
-> -static void mock_domain_set_plaform_dma_ops(struct device *dev)
-> -{
-> -	/*
-> -	 * mock doesn't setup default domains because we can't hook into the
-> -	 * normal probe path
-> -	 */
-> -}
-> -
->  static struct iommu_device mock_iommu_device = {
->  };
->  
-> @@ -298,12 +290,16 @@ static struct iommu_device *mock_probe_device(struct device *dev)
->  }
->  
->  static const struct iommu_ops mock_ops = {
-> +	/*
-> +	 * IOMMU_DOMAIN_BLOCKED cannot be returned from def_domain_type()
-> +	 * because it is zero.
-> +	 */
-> +	.default_domain = &mock_blocking_domain,
->  	.owner = THIS_MODULE,
->  	.pgsize_bitmap = MOCK_IO_PAGE_SIZE,
->  	.hw_info = mock_domain_hw_info,
->  	.domain_alloc = mock_domain_alloc,
->  	.capable = mock_domain_capable,
-> -	.set_platform_dma_ops = mock_domain_set_plaform_dma_ops,
->  	.device_group = generic_device_group,
->  	.probe_device = mock_probe_device,
->  	.default_domain_ops =
-> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-> index d0920b2a9f1c0e..48a18b6e07abff 100644
-> --- a/include/linux/iommu.h
-> +++ b/include/linux/iommu.h
-> @@ -64,6 +64,7 @@ struct iommu_domain_geometry {
->  #define __IOMMU_DOMAIN_DMA_FQ	(1U << 3)  /* DMA-API uses flush queue    */
->  
->  #define __IOMMU_DOMAIN_SVA	(1U << 4)  /* Shared process address space */
-> +#define __IOMMU_DOMAIN_PLATFORM	(1U << 5)
->  
->  #define IOMMU_DOMAIN_ALLOC_FLAGS ~__IOMMU_DOMAIN_DMA_FQ
->  /*
-> @@ -81,6 +82,8 @@ struct iommu_domain_geometry {
->   *				  invalidation.
->   *	IOMMU_DOMAIN_SVA	- DMA addresses are shared process addresses
->   *				  represented by mm_struct's.
-> + *	IOMMU_DOMAIN_PLATFORM	- Legacy domain for drivers that do their own
-> + *				  dma_api stuff. Do not use in new drivers.
->   */
->  #define IOMMU_DOMAIN_BLOCKED	(0U)
->  #define IOMMU_DOMAIN_IDENTITY	(__IOMMU_DOMAIN_PT)
-> @@ -91,6 +94,7 @@ struct iommu_domain_geometry {
->  				 __IOMMU_DOMAIN_DMA_API |	\
->  				 __IOMMU_DOMAIN_DMA_FQ)
->  #define IOMMU_DOMAIN_SVA	(__IOMMU_DOMAIN_SVA)
-> +#define IOMMU_DOMAIN_PLATFORM	(__IOMMU_DOMAIN_PLATFORM)
->  
->  struct iommu_domain {
->  	unsigned type;
-> @@ -262,6 +266,7 @@ struct iommu_iotlb_gather {
->   * @owner: Driver module providing these ops
->   * @identity_domain: An always available, always attachable identity
->   *                   translation.
-> + * @default_domain: If not NULL this will always be set as the default domain.
->   */
->  struct iommu_ops {
->  	bool (*capable)(struct device *dev, enum iommu_cap);
-> @@ -297,6 +302,7 @@ struct iommu_ops {
->  	unsigned long pgsize_bitmap;
->  	struct module *owner;
->  	struct iommu_domain *identity_domain;
-> +	struct iommu_domain *default_domain;
->  };
->  
->  /**
-> -- 
-> 2.41.0
-> 
+After all, we do that for sockets and pipes just fine and that's a whole lot
+hotter area.
 
+Suppose we leave blkdev_open()/blkdev_release() as-is.  No need to mess with
+what we have for normal opened files for block devices.  And have block_open_by_dev()
+that would find bdev, etc., same yours does and shove it into anon file.
+
+Paired with plain fput() - no need to bother with new primitives for closing.
+With a helper returning I_BDEV(bdev_file_inode(file)) to get from those to bdev.
+
+NOTE: I'm not suggesting replacing ->s_bdev with struct file * if we do that -
+we want that value cached, obviously.  Just store both...
+
+Not saying it's a good idea, but... might be interesting to look into.
+Comments?
