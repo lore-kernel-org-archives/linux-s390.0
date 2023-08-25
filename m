@@ -2,137 +2,140 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45BD8C7EE2C
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 06:12:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A00B9EE49B9
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 07:40:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241291AbjHYGM0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 25 Aug 2023 02:12:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51628 "EHLO
+        id S243195AbjHYHju convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 25 Aug 2023 03:39:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241612AbjHYGMF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Aug 2023 02:12:05 -0400
-Received: from gandalf.ozlabs.org (mail.ozlabs.org [IPv6:2404:9400:2221:ea00::3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA0291FFB;
-        Thu, 24 Aug 2023 23:12:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1692943919;
-        bh=Cc2wNrVySgQWB1oZUr5oEwkwqvGvweIc8X/OBtG4+Wg=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=iXSFfKONhaS61Wio3k/V1b70XjLLTQdt8vrEOUswdKDp7oPYD+2VsdrF14uK01p64
-         XXlT9K+fMxudJ8FOKNRLR6XGVcf35t4ZKkoKMI8rzvIHhKUlVXdEuAhvNneqf/3BKB
-         zxIP+l0zO05GipBAPeUhsSs3ZPmmChBaE4wXoIVUixOzyK7TIexFrSpeC7Sl9v0kGz
-         q8BWc/9IsPu+6fJocKU/6khYcBr1rEVzf06tM/e4KaUSImp+IRv5bY+pH9J7IsQG/j
-         dkA4oO/aRIG2l8rjLjajtdwh4qjdqeh8OAtvDnuqzZ5Yrqcq5mhGzx+uYqjvY3iwzJ
-         sDFScRxVAy46g==
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4RX8jp5yZWz4wxR;
-        Fri, 25 Aug 2023 16:11:58 +1000 (AEST)
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Kees Cook <keescook@chromium.org>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Cc:     Kees Cook <keescook@chromium.org>, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kbuild@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH] kbuild: Show Kconfig fragments in "help"
-In-Reply-To: <20230824223606.never.762-kees@kernel.org>
-References: <20230824223606.never.762-kees@kernel.org>
-Date:   Fri, 25 Aug 2023 16:11:58 +1000
-Message-ID: <87a5ufvefl.fsf@mail.lhotse>
+        with ESMTP id S243279AbjHYHjo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Aug 2023 03:39:44 -0400
+Received: from mail-yw1-f170.google.com (mail-yw1-f170.google.com [209.85.128.170])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA19D1FCA;
+        Fri, 25 Aug 2023 00:39:42 -0700 (PDT)
+Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-5921a962adfso7750207b3.1;
+        Fri, 25 Aug 2023 00:39:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1692949182; x=1693553982;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=E5r8bhhlGnXrx708tsGw6Ag8gm7AVkEO6BeDk4HD7tk=;
+        b=WLwKyxXquJm5Xn2E5suH9Ccdce9jLlK+GauaIf0md59SIWvBfCcZk4dC06SZ0nwQ5K
+         o8mlkO6FrAPPZ3xikK2nHElJNrNcLfVrv2YPtiaWl+//7MkAIb0Vy9SjeVnmpHyCYH4W
+         I5mObQzFhw+m1eUuyVIrzuU9uKe9VfJqoq2WCZPHWNbvYfU/7BBGvgSdw3Aj94FOHzun
+         daBwzKmfiYOEG8N743Xq7gSnARMMxTcLLRtVzpgdK587Rrb1jXfjpcGRqZ29++t0F+TH
+         kPYRW1w9pwZo8+0r6gIkcz/69x/2ENZa+/qIVHSblZZT+i08RU5Os3RvT9tGC4TBTm90
+         tNnA==
+X-Gm-Message-State: AOJu0YzJmfhWcq6vO1UlWpwHrSuIxQLbZeRqaa3IxlV4wtuvVLN03mWl
+        TT2srflCsiYRdKyAssRS2LZd8SWeNqosAGzC
+X-Google-Smtp-Source: AGHT+IG5X+1N+9gN7m2P63rFzRbifScZ6dVPHHJG1DUCTreGK5Pu6Rcf3MDfyMu9eFYv5GgCMrEEDw==
+X-Received: by 2002:a0d:cd45:0:b0:561:206a:ee52 with SMTP id p66-20020a0dcd45000000b00561206aee52mr20431530ywd.24.1692949181853;
+        Fri, 25 Aug 2023 00:39:41 -0700 (PDT)
+Received: from mail-yw1-f172.google.com (mail-yw1-f172.google.com. [209.85.128.172])
+        by smtp.gmail.com with ESMTPSA id l132-20020a0de28a000000b0058e430889d5sm379613ywe.10.2023.08.25.00.39.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 25 Aug 2023 00:39:40 -0700 (PDT)
+Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-5924093a9b2so7680237b3.2;
+        Fri, 25 Aug 2023 00:39:40 -0700 (PDT)
+X-Received: by 2002:a25:34cd:0:b0:d0b:5b6:4629 with SMTP id
+ b196-20020a2534cd000000b00d0b05b64629mr19382891yba.46.1692949180028; Fri, 25
+ Aug 2023 00:39:40 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
+References: <20230810141947.1236730-1-arnd@kernel.org> <169292577153.789945.11297239773543112051.b4-ty@oracle.com>
+ <3956e2a4-c545-1212-e95f-3cf61a60d6a4@gmail.com>
+In-Reply-To: <3956e2a4-c545-1212-e95f-3cf61a60d6a4@gmail.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Fri, 25 Aug 2023 09:39:28 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdWC2S330_Vb_NTHTDC=BakBsw4ouP-eFJv0erV1-jmvTQ@mail.gmail.com>
+Message-ID: <CAMuHMdWC2S330_Vb_NTHTDC=BakBsw4ouP-eFJv0erV1-jmvTQ@mail.gmail.com>
+Subject: Re: (subset) [PATCH 00/17] -Wmissing-prototype warning fixes
+To:     Michael Schmitz <schmitzmic@gmail.com>
+Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Matt Turner <mattst88@gmail.com>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Brian Cain <bcain@quicinc.com>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        WANG Xuerui <kernel@xen0n.name>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Stafford Horne <shorne@gmail.com>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        x86@kernel.org, Borislav Petkov <bp@alien8.de>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Richard Weinberger <richard@nod.at>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        linux-next@vger.kernel.org, linux-alpha@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-block@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-mtd@lists.infradead.org, linux-trace-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org, linux-kbuild@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Kees Cook <keescook@chromium.org> writes:
-> Doing a "make help" would show only hard-coded Kconfig targets and
-> depended on the archhelp target to include ".config" targets. There was
-> nothing showing global kernel/configs/ targets. Solve this by walking
-> the wildcard list and include them in the output, using the first comment
-> line as the help text.
+Hi Michael,
+
+On Fri, Aug 25, 2023 at 3:31 AM Michael Schmitz <schmitzmic@gmail.com> wrote:
+> On 25/08/23 13:12, Martin K. Petersen wrote:
+> > [11/17] scsi: gvp11: remove unused gvp11_setup() function
+> >          https://git.kernel.org/mkp/scsi/c/bfaa4a0ce1bb
 >
-> Update all Kconfig fragments to include help text and adjust archhelp
-> targets to avoid redundancy.
+> I somehow missed that one ...
 >
-> Adds the following section to "help" target output:
+> The gvp11_setup() function was probably a relic from the times before
+> module parameters.
 >
-> Configuration fragment targets (for enabling various Kconfig items):
->   debug.config         - Debugging for CI systems and finding regressions
->   kvm_guest.config     - Bootable as a KVM guest
->   nopm.config          - Disable Power Management
->   rust.config          - Enable Rust
->   tiny-base.config     - Minimal options for tiny systems
->   tiny.config          - Smallest possible kernel image
->   x86_debug.config     - Debugging options for tip tree testing
->   xen.config           - Bootable as a Xen guest
->   tiny.config          - x86-specific options for a small kernel image
->   xen.config           - x86-specific options for a Xen virtualization guest
+> Since gvp11_xfer_mask appears to be required for some Amiga systems to
+> set the DMA mask, I'd best send a patch to add such a module parameter ...
+>
+> Do you know any details around the use of DMA masks for Amiga WD33C93
+> drivers, Geert?
 
-I think we need a way to opt some files out.
+Doh, it's been a while, and I never had an affected system.
+Probably it's needed on A2000 with an accelerator card and GVP II SCSI,
+to prevent DMA to RAM banks that do not support fast DMA cycles.
 
-It's a bit ugly on powerpc because there are so many fragments:
+Gr{oetje,eeting}s,
 
-Configuration fragment targets (for enabling various Kconfig items):
-  debug.config         - Debugging for CI systems and finding regressions
-  kvm_guest.config     - Bootable as a KVM guest
-  nopm.config          - Disable Power Management
-  rust.config          - Enable Rust
-  tiny-base.config     - Minimal options for tiny systems
-  tiny.config          - Smallest possible kernel image
-  x86_debug.config     - Debugging options for tip tree testing
-  xen.config           - Bootable as a Xen guest
-  32-bit.config        - Build a 32-bit image
-  64-bit.config        - Build a 64-bit image
-  85xx-32bit.config    - Build a 32-bit 85xx image
-  85xx-64bit.config    - Build a 64-bit 85xx image
-  85xx-hw.config       - Base hardware support for 86xx
-  85xx-smp.config      - Enable SMP on 85xx
-  86xx-hw.config       - Base hardware support for 86xx
-  86xx-smp.config      - Enable SMP on 86xx
-  altivec.config       - Enable Altivec support
-  be.config            - Enable Big Endian mode
-  book3s_32.config     - Base support for Book3s
-  corenet_base.config  - Base support for corenet
-  debug.config         - Enable PowerPC specific debug options
-  disable-werror.config - Disable -Werror
-  dpaa.config          - Base suppot for DPPA
-  fsl-emb-nonhw.config - Non-hardware options common to 85xx and corenet
-  guest.config         - PowerPC specific virtualization guest options
-  kvm_guest.config     - Bootable as a KVM guest
-  le.config            - Enable Little Endian mode
-  mpc85xx_base.config  - Base mpc85xxx support
-  mpc86xx_base.config  - Base mpc85xxx support
-  ppc64le.config       - Enable ppc64le mode
-  security.config      - Common security options for PowerPC builds
+                        Geert
 
-And some of those are not intended for use with "make foo.config",
-they're used internally for generating our "normal" defconfigs and they
-don't necessarily work on their own.
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Also I'd like to add more fragments in future, to the point where nearly
-all our configs are generated by them.
-
-Can we have some way to differentiate fragments that are intended to be
-used with "make foo.config" vs just being used internally to generate
-other configs.
-
-The obvious thing would be to use a different suffix, eg. "foo.fragment"
-for internal use fragments. That would require changing
-merge_into_defconfig and merge_into_defconfig_override to not assume the
-.config suffix, and update the users in arm, arm64 and powerpc.
-
-The other option would be to ignore .config files starting with eg. "_".
-
-+       @$(foreach c, $(filter-out $(call configfiles,_*.config),$(call configfiles,*.config)), \
-+               printf "  %-20s - %s\\n" \
-+                       $(shell basename $(c)) \
-+                       "$(subst # ,,$(shell grep -m1 '^# ' $(c)))";)
-
-Not sure which is preferable.
-
-cheers
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
