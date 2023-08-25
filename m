@@ -2,59 +2,59 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CBE1C3DA66
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 20:26:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 838BAEE49A0
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 21:17:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231204AbjHYUZf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 25 Aug 2023 16:25:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56488 "EHLO
+        id S230166AbjHYVQn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 25 Aug 2023 17:16:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231201AbjHYUZ2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Aug 2023 16:25:28 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DC242130
-        for <linux-s390@vger.kernel.org>; Fri, 25 Aug 2023 13:24:44 -0700 (PDT)
+        with ESMTP id S231499AbjHYVQl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Aug 2023 17:16:41 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80A48211E
+        for <linux-s390@vger.kernel.org>; Fri, 25 Aug 2023 14:15:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1692995084;
+        s=mimecast20190719; t=1692998155;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=T9GaVO4jGruWR+C5Izp9D7v0Lmi9Kx5kTKgCOaeAvTc=;
-        b=USbQCScXGh10jkYMkDH8IK1zZhsPkdUjB7Mh2pLKrvGjebskKGKPKRXVUI10k/8lLhK7UG
-        T92HtPEV3kn/S3VvO+nHI9OT15y/J7jqi2vyKDuO7u01kLc3XltUXv4SHMstDF+xm7hYQ4
-        iZHelGuqH9mtQTiv6t2Eq9cxWpo2EOU=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=RNGvpBuIiKL3Cl4QX+janawTefek15UWSwqXPvpbHmo=;
+        b=RblqpsP5As6DNMM0DFb07ibechcPArr9ltecTkvAUIlZ2SoHL89vo1vrNVLOQTpCMey2+B
+        3x8OZLmHnEelev/irEXRtWpX8yMUns6R1e2FIu2i35egjzs8PE8jB72U9mCwSvYLg+DOHZ
+        W7St8O7vkY2lsfIoTg+aW2kYJ/5cNIQ=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-591-mkcj3HPAMaWB156KT-bMQg-1; Fri, 25 Aug 2023 16:24:28 -0400
-X-MC-Unique: mkcj3HPAMaWB156KT-bMQg-1
-Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-76de9c1d13cso136374085a.2
-        for <linux-s390@vger.kernel.org>; Fri, 25 Aug 2023 13:24:28 -0700 (PDT)
+ us-mta-310-fmlDn4vmPFOsbQ9KkJn16Q-1; Fri, 25 Aug 2023 17:15:54 -0400
+X-MC-Unique: fmlDn4vmPFOsbQ9KkJn16Q-1
+Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-411f7e77b44so13781651cf.3
+        for <linux-s390@vger.kernel.org>; Fri, 25 Aug 2023 14:15:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692995068; x=1693599868;
+        d=1e100.net; s=20221208; t=1692998154; x=1693602954;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=T9GaVO4jGruWR+C5Izp9D7v0Lmi9Kx5kTKgCOaeAvTc=;
-        b=hwgnz7oXUyoyK2RFjTGTpvJioSgzTqz29UfzUA2bPuug1e+1Mx+CU+/HV0kw7iHFGr
-         hrFhmBskGPcd7eiPiXKhMNOcFFXggUjWfdUdq3h4N2dOh8peK9dGZkwkQmjQJOH2bGtt
-         Oqkyb/8W0oQBHN+56sjVvti3LGdit55tpUBqwmgkUcPRA21s887AMr88HShiM9P2kXCx
-         nhcqx3S9XL+DkdI0bg7kROstQ0MRlYhRPFELf5zj/1LWba1zJX10atpb9TpfTKpUw+wV
-         Ll5q+Z95g9s6x/o4nFyq/zSOJUilxhJpiieYsAIZIdr6bMQxXEIHGnW4DQmQQpvAMStn
-         L+qg==
-X-Gm-Message-State: AOJu0Yye827dCNlVxCROFOSPyNmXeUkl/N2cpnpBAKm6HtiRywfR3ZWn
-        oXItb2x3od56DUXPKLIvlVKbq1cqR0MqzwOc+/oiU3kpYM2MFWs57xOk6E4XFTFkz8hcgeIbLId
-        UO6vEl49LpsttdjlVP5C+dw==
-X-Received: by 2002:a05:620a:4009:b0:76e:eeaa:a079 with SMTP id h9-20020a05620a400900b0076eeeaaa079mr7880719qko.10.1692995067934;
-        Fri, 25 Aug 2023 13:24:27 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGLBKI1XGw7s6CbX7jhIzTvhmgnGyxca1Jm6YHCiJ3dxbM+m70gQmthLg44868T29Hr/JESWg==
-X-Received: by 2002:a05:620a:4009:b0:76e:eeaa:a079 with SMTP id h9-20020a05620a400900b0076eeeaaa079mr7880679qko.10.1692995067632;
-        Fri, 25 Aug 2023 13:24:27 -0700 (PDT)
+        bh=RNGvpBuIiKL3Cl4QX+janawTefek15UWSwqXPvpbHmo=;
+        b=kqB4K09Eux2PI6vqLjvYXnfl2vxVI9VfZJUOm4DHTH77KWZUksn+rkmdd1ABH7QCit
+         ieHWiM7bmqapNIloiu16OUNTB1UN5GrT8VS8xtd3esfKc/YQSRfQaIBt6okwUlcVrSrY
+         s3PqBAaFHwFD9wq8kC+KO+Tu7L20ZuCfrHfVnjlG4zULL+CIgQvMiVbbid7jTJ/pGcrr
+         JRgJQku+NVMJvY1G1md8gA1nRXN9bMzpR+Ro3Z7gAHWhuSY9VFMf5bbQK0e14Z5LSTf7
+         zbYjoHNKbBslxSPfZTHp7eerETqP6yZDOA1gC5O79UQJLValnP9zGQ26NTtOZYqVhSE0
+         3+/Q==
+X-Gm-Message-State: AOJu0YyGE2ORLMqBrF2JEpai0q2nWzantfLYmtwifnqOq9APs83i09al
+        VmpAZhOLobA/KTsdDvaBYRMGTzcFg/M22OPI10Fvy67nhwJ69SRk9rIA1/FB42kSn844j9Lvcfj
+        cAC8UdCVLjR46S/CNP1dryw==
+X-Received: by 2002:a05:622a:138c:b0:411:fc77:5863 with SMTP id o12-20020a05622a138c00b00411fc775863mr9742826qtk.34.1692998153917;
+        Fri, 25 Aug 2023 14:15:53 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFGkTdJ1PESb45xmKP1IyMr0VhacrVsFun4AHO5ghG+vkiiDrIbNOg/oEp2bfPugUDBb4fzHQ==
+X-Received: by 2002:a05:622a:138c:b0:411:fc77:5863 with SMTP id o12-20020a05622a138c00b00411fc775863mr9742803qtk.34.1692998153629;
+        Fri, 25 Aug 2023 14:15:53 -0700 (PDT)
 Received: from localhost (ip98-179-76-75.ph.ph.cox.net. [98.179.76.75])
-        by smtp.gmail.com with ESMTPSA id g7-20020a37e207000000b0075cd80fde9esm741104qki.89.2023.08.25.13.24.26
+        by smtp.gmail.com with ESMTPSA id i3-20020ae9ee03000000b0076745f352adsm759948qkg.59.2023.08.25.14.15.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Aug 2023 13:24:27 -0700 (PDT)
-Date:   Fri, 25 Aug 2023 13:24:25 -0700
+        Fri, 25 Aug 2023 14:15:53 -0700 (PDT)
+Date:   Fri, 25 Aug 2023 14:15:51 -0700
 From:   Jerry Snitselaar <jsnitsel@redhat.com>
 To:     Jason Gunthorpe <jgg@nvidia.com>
 Cc:     Andy Gross <agross@kernel.org>,
@@ -98,37 +98,33 @@ Cc:     Andy Gross <agross@kernel.org>,
         Niklas Schnelle <schnelle@linux.ibm.com>,
         Steven Price <steven.price@arm.com>,
         Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH v7 03/24] powerpc/iommu: Setup a default domain and
- remove set_platform_dma_ops
-Message-ID: <zbmf64fbpp5zsolyqd74px3hpgvvorc3xal6pvaxdw3uoccb6c@epcqhetd6n6l>
+Subject: Re: [PATCH v7 04/24] iommu: Add IOMMU_DOMAIN_PLATFORM for S390
+Message-ID: <qlgsyftnpb55wn6jcsdx27u3vnc66h5dmtcuelw4y5wgk3vorf@ctgykaa5wp7d>
 References: <0-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
- <3-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
+ <4-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
+In-Reply-To: <4-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Aug 23, 2023 at 01:47:17PM -0300, Jason Gunthorpe wrote:
-> POWER is using the set_platform_dma_ops() callback to hook up its private
-> dma_ops, but this is buired under some indirection and is weirdly
-> happening for a BLOCKED domain as well.
+On Wed, Aug 23, 2023 at 01:47:18PM -0300, Jason Gunthorpe wrote:
+> The PLATFORM domain will be set as the default domain and attached as
+> normal during probe. The driver will ignore the initial attach from a NULL
+> domain to the PLATFORM domain.
 > 
-> For better documentation create a PLATFORM domain to manage the dma_ops,
-> since that is what it is for, and make the BLOCKED domain an alias for
-> it. BLOCKED is required for VFIO.
+> After this, the PLATFORM domain's attach_dev will be called whenever we
+> detach from an UNMANAGED domain (eg for VFIO). This is the same time the
+> original design would have called op->detach_dev().
 > 
-> Also removes the leaky allocation of the BLOCKED domain by using a global
-> static.
+> This is temporary until the S390 dma-iommu.c conversion is merged.
 > 
+> Tested-by: Heiko Stuebner <heiko@sntech.de>
+> Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
 > Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
 > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  arch/powerpc/kernel/iommu.c | 38 +++++++++++++++++--------------------
->  1 file changed, 17 insertions(+), 21 deletions(-)
-> 
 
 Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
 
