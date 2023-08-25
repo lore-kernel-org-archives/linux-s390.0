@@ -2,29 +2,29 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3E4EC79F67
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 14:06:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2A99EE49B2
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 14:08:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245620AbjHYOGK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 25 Aug 2023 10:06:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33384 "EHLO
+        id S245711AbjHYOHO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 25 Aug 2023 10:07:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245667AbjHYOCp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Aug 2023 10:02:45 -0400
-Received: from out-244.mta1.migadu.com (out-244.mta1.migadu.com [95.215.58.244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A90D2722;
-        Fri, 25 Aug 2023 07:02:17 -0700 (PDT)
+        with ESMTP id S245736AbjHYOGw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Aug 2023 10:06:52 -0400
+Received: from out-249.mta1.migadu.com (out-249.mta1.migadu.com [IPv6:2001:41d0:203:375::f9])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF8252694
+        for <linux-s390@vger.kernel.org>; Fri, 25 Aug 2023 07:06:24 -0700 (PDT)
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1692972134;
+        t=1692972368;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=KWqxpxLv+BWdZ1zPLCWWiPjW3gW3QR8GdaNCgbqB+rA=;
-        b=W3mJ9hHH5VKigloC5U9bTjeZXL1WzXE+if57PbkgslJR/vwxXv7urAz03rnLzn8z8erL5h
-        VCpx6iOsBDC23kpw8k8XGE0qr0cLxvBRgKj1NfrV6YtEtntJMub0qfyQ1aHr3mZsH0O0dL
-        P836PFFsTuNux9i0jwQOVu5ehTDOpZM=
+        bh=o5eD4gq5Ypmv7xNjaJcQB3ZOSw79lNA3YgufxQ7kbUU=;
+        b=IDkI/8FcKGXMrBLpAzKCujyKyUIvnRClPZG+PDDA+Kg6Ww/HgNrG0d8/UaYBPttRvdNV2G
+        ImRsaH6EObyEWgQtf31bAS82oxf65cz7kpZXIj7D5nH1V4igKHLmt2T1OZkYhVy9UsI8OJ
+        u9rq7LaZ7EE10dyazZwRdVBs5aqDaMI=
 From:   Hao Xu <hao.xu@linux.dev>
 To:     io-uring@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 Cc:     Dominique Martinet <asmadeus@codewreck.org>,
@@ -46,9 +46,9 @@ Cc:     Dominique Martinet <asmadeus@codewreck.org>,
         devel@lists.orangefs.org, linux-cifs@vger.kernel.org,
         samba-technical@lists.samba.org, linux-mtd@lists.infradead.org,
         Wanpeng Li <wanpengli@tencent.com>
-Subject: [PATCH 16/29] xfs: add nowait parameter for xfs_inode_item_init()
-Date:   Fri, 25 Aug 2023 21:54:18 +0800
-Message-Id: <20230825135431.1317785-17-hao.xu@linux.dev>
+Subject: [PATCH 28/29] xfs: support nowait semantics for xc_ctx_lock in xlog_cil_commit()
+Date:   Fri, 25 Aug 2023 21:54:30 +0800
+Message-Id: <20230825135431.1317785-29-hao.xu@linux.dev>
 In-Reply-To: <20230825135431.1317785-1-hao.xu@linux.dev>
 References: <20230825135431.1317785-1-hao.xu@linux.dev>
 MIME-Version: 1.0
@@ -60,78 +60,88 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Hao Xu <howeyxu@tencent.com>
 
-Add nowait parameter for xfs_inode_item_init() to support nowait
-semantics.
+Apply trylock logic for xc_ctx_lock in xlog_cil_commit() in nowait
+case and error out -EAGAIN for xlog_cil_commit().
 
 Signed-off-by: Hao Xu <howeyxu@tencent.com>
 ---
- fs/xfs/libxfs/xfs_trans_inode.c |  3 ++-
- fs/xfs/xfs_inode_item.c         | 12 ++++++++----
- fs/xfs/xfs_inode_item.h         |  3 ++-
- 3 files changed, 12 insertions(+), 6 deletions(-)
+ fs/xfs/xfs_log_cil.c  | 12 ++++++++++--
+ fs/xfs/xfs_log_priv.h |  2 +-
+ fs/xfs/xfs_trans.c    |  4 +++-
+ 3 files changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_trans_inode.c b/fs/xfs/libxfs/xfs_trans_inode.c
-index cb4796b6e693..e7a8f63c8975 100644
---- a/fs/xfs/libxfs/xfs_trans_inode.c
-+++ b/fs/xfs/libxfs/xfs_trans_inode.c
-@@ -33,7 +33,8 @@ xfs_trans_ijoin(
- 
- 	ASSERT(xfs_isilocked(ip, XFS_ILOCK_EXCL));
- 	if (ip->i_itemp == NULL)
--		xfs_inode_item_init(ip, ip->i_mount);
-+		xfs_inode_item_init(ip, ip->i_mount,
-+				    tp->t_flags & XFS_TRANS_NOWAIT);
- 	iip = ip->i_itemp;
- 
- 	ASSERT(iip->ili_lock_flags == 0);
-diff --git a/fs/xfs/xfs_inode_item.c b/fs/xfs/xfs_inode_item.c
-index 91c847a84e10..1742920bb4ce 100644
---- a/fs/xfs/xfs_inode_item.c
-+++ b/fs/xfs/xfs_inode_item.c
-@@ -825,21 +825,25 @@ static const struct xfs_item_ops xfs_inode_item_ops = {
- /*
-  * Initialize the inode log item for a newly allocated (in-core) inode.
+diff --git a/fs/xfs/xfs_log_cil.c b/fs/xfs/xfs_log_cil.c
+index b31830ee36dd..6d054359bbb5 100644
+--- a/fs/xfs/xfs_log_cil.c
++++ b/fs/xfs/xfs_log_cil.c
+@@ -1613,7 +1613,7 @@ xlog_cil_process_intents(
+  * background commit, returns without it held once background commits are
+  * allowed again.
   */
 -void
 +int
- xfs_inode_item_init(
- 	struct xfs_inode	*ip,
--	struct xfs_mount	*mp)
-+	struct xfs_mount	*mp,
-+	bool			nowait)
- {
- 	struct xfs_inode_log_item *iip;
-+	gfp_t gfp_flags = GFP_KERNEL | (nowait ? 0 : __GFP_NOFAIL);
+ xlog_cil_commit(
+ 	struct xlog		*log,
+ 	struct xfs_trans	*tp,
+@@ -1623,6 +1623,7 @@ xlog_cil_commit(
+ 	struct xfs_cil		*cil = log->l_cilp;
+ 	struct xfs_log_item	*lip, *next;
+ 	uint32_t		released_space = 0;
++	bool			nowait = tp->t_flags & XFS_TRANS_NOWAIT;
  
- 	ASSERT(ip->i_itemp == NULL);
--	iip = ip->i_itemp = kmem_cache_zalloc(xfs_ili_cache,
--					      GFP_KERNEL | __GFP_NOFAIL);
-+	iip = ip->i_itemp = kmem_cache_zalloc(xfs_ili_cache, gfp_flags);
-+	if (!iip)
-+		return -EAGAIN;
+ 	/*
+ 	 * Do all necessary memory allocation before we lock the CIL.
+@@ -1632,7 +1633,12 @@ xlog_cil_commit(
+ 	xlog_cil_alloc_shadow_bufs(log, tp);
  
- 	iip->ili_inode = ip;
- 	spin_lock_init(&iip->ili_lock);
- 	xfs_log_item_init(mp, &iip->ili_item, XFS_LI_INODE,
- 						&xfs_inode_item_ops);
+ 	/* lock out background commit */
+-	down_read(&cil->xc_ctx_lock);
++	if (nowait) {
++		if (!down_read_trylock(&cil->xc_ctx_lock))
++			return -EAGAIN;
++	} else {
++		down_read(&cil->xc_ctx_lock);
++	}
+ 
+ 	if (tp->t_flags & XFS_TRANS_HAS_INTENT_DONE)
+ 		released_space = xlog_cil_process_intents(cil, tp);
+@@ -1668,6 +1674,8 @@ xlog_cil_commit(
+ 
+ 	/* xlog_cil_push_background() releases cil->xc_ctx_lock */
+ 	xlog_cil_push_background(log);
++
 +	return 0;
  }
  
  /*
-diff --git a/fs/xfs/xfs_inode_item.h b/fs/xfs/xfs_inode_item.h
-index 377e06007804..7ba6f8a6b243 100644
---- a/fs/xfs/xfs_inode_item.h
-+++ b/fs/xfs/xfs_inode_item.h
-@@ -42,7 +42,8 @@ static inline int xfs_inode_clean(struct xfs_inode *ip)
- 	return !ip->i_itemp || !(ip->i_itemp->ili_fields & XFS_ILOG_ALL);
- }
+diff --git a/fs/xfs/xfs_log_priv.h b/fs/xfs/xfs_log_priv.h
+index 41edaa0ae869..eb7a1241deab 100644
+--- a/fs/xfs/xfs_log_priv.h
++++ b/fs/xfs/xfs_log_priv.h
+@@ -580,7 +580,7 @@ int	xlog_cil_init(struct xlog *log);
+ void	xlog_cil_init_post_recovery(struct xlog *log);
+ void	xlog_cil_destroy(struct xlog *log);
+ bool	xlog_cil_empty(struct xlog *log);
+-void	xlog_cil_commit(struct xlog *log, struct xfs_trans *tp,
++int	xlog_cil_commit(struct xlog *log, struct xfs_trans *tp,
+ 			xfs_csn_t *commit_seq, bool regrant);
+ void	xlog_cil_set_ctx_write_state(struct xfs_cil_ctx *ctx,
+ 			struct xlog_in_core *iclog);
+diff --git a/fs/xfs/xfs_trans.c b/fs/xfs/xfs_trans.c
+index f1f84a3dd456..e5beda636a37 100644
+--- a/fs/xfs/xfs_trans.c
++++ b/fs/xfs/xfs_trans.c
+@@ -1037,7 +1037,9 @@ __xfs_trans_commit(
+ 		xfs_trans_apply_sb_deltas(tp);
+ 	xfs_trans_apply_dquot_deltas(tp);
  
--extern void xfs_inode_item_init(struct xfs_inode *, struct xfs_mount *);
-+extern int xfs_inode_item_init(struct xfs_inode *ip, struct xfs_mount *mp,
-+			       bool nowait);
- extern void xfs_inode_item_destroy(struct xfs_inode *);
- extern void xfs_iflush_abort(struct xfs_inode *);
- extern void xfs_iflush_shutdown_abort(struct xfs_inode *);
+-	xlog_cil_commit(log, tp, &commit_seq, regrant);
++	error = xlog_cil_commit(log, tp, &commit_seq, regrant);
++	if (error)
++		goto out_unreserve;
+ 
+ 	xfs_trans_free(tp);
+ 
 -- 
 2.25.1
 
