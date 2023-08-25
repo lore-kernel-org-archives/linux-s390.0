@@ -2,191 +2,110 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA7B3C6787B
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 17:41:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BB46C71134
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 18:21:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232169AbjHYRku (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 25 Aug 2023 13:40:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37616 "EHLO
+        id S229925AbjHYSVE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 25 Aug 2023 14:21:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231178AbjHYRkS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Aug 2023 13:40:18 -0400
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2073.outbound.protection.outlook.com [40.107.100.73])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF9042128;
-        Fri, 25 Aug 2023 10:40:15 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=earOp9wCjbvXhNpxjZk6iiF1c5jKGxaHfnVf0WMl1z1Xaxeq27UJk8/RlIaGp0FYbWFN3iFZ0CPvBVTJBGB2SzYSP5AaGgHwpBCbpwtwR0Ep8I7xcg7b1iXrj/H8qFhJVOzdLT+YsigkHD5Sm9LMG6nWZyXNR7ck2Ht05IZVeTZ+z8ngPGO3iNzdIADnU54tTXThbLxcZoc8Qk6HaSYKYbjQ7IF2fN6JmM+Cwa3VZzcTJjhPBQJCJGAmRBWg9Dydgs+QWeQOcSDbBIykWrZ4DONfg+BIm37LRjwOBx7LB10RVBILNnPFEoMc2qcRRys5l9Ye3irQ5DeGzW5UBJw/nQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=OimMWhjF3ieb++tVHK4fhFxIVzoG4uTQFZmSsIrjuv8=;
- b=P9hdq7UEBhwu9Va4C1XThgQhBmo8qzUkf2+BalVJ8QvMcy5Lu1kRfFWwlVCcic9/GflR5XCnAAaBlPvuSjZQ9A/pIwjrpr3wxK0UPtZBXWHUmyy6vU79fUWgJNyH7Fe90V3x6b9WghR3vXRoJkKhhnmF/rVh0/ZQAm8lBQYGDw7u6snPfdOc1HsQJbQIuJCyDlH9CnE9UA5DVRklrYDWPJdeOPV6Jv7q46rztsnE06x4FZxJetVWRhc45HDIAAUdzqYli9wiSy4JDzPNYg92P87m57uH7CoP/jqU3cKlh7116WL5avy3ROqEDcnbkZopSOJ0lg0MfcunjqKOA1Yxrw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=OimMWhjF3ieb++tVHK4fhFxIVzoG4uTQFZmSsIrjuv8=;
- b=bOByqItZSNBSr5J9I12IpliLcN6gb8qorA3kBFiAdHzE7OmejI8GAaLgqMpisO9lg6S1gbz/Y1FwiB28/ezSKqAwapV8/t9zwSD1FkVfR/7p6ZUOk6r6wQEx6c6uj5aHQ00jjXMBiH8YVDn4ISH/5vDxNFfgTk9aRT1Wm6rzH1i+LUJfQc74+X56zsdS7ivUqxrCNpGJi9a7Wc0I1izxcrVoTMruHgHwQSOBEXlXU0C2HPAdDlC8S2B74Rem3rOwA3zkh5f7QU+ohyTKo68WtLu00gsJ/LXTJIUXKJhFQ/CbZOAdj7c8MJUHHKCOp8Me3MRvl7NBYo1dVlguWcnncA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by DM3PR12MB9326.namprd12.prod.outlook.com (2603:10b6:0:3d::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6699.30; Fri, 25 Aug
- 2023 17:40:13 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::5111:16e8:5afe:1da1]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::5111:16e8:5afe:1da1%6]) with mapi id 15.20.6699.032; Fri, 25 Aug 2023
- 17:40:13 +0000
-Date:   Fri, 25 Aug 2023 14:40:10 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Jerry Snitselaar <jsnitsel@redhat.com>
-Cc:     Andy Gross <agross@kernel.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        with ESMTP id S230209AbjHYSUg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Aug 2023 14:20:36 -0400
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13C3DE50
+        for <linux-s390@vger.kernel.org>; Fri, 25 Aug 2023 11:20:34 -0700 (PDT)
+Received: by mail-pj1-x1030.google.com with SMTP id 98e67ed59e1d1-26f3e26e59cso896772a91.0
+        for <linux-s390@vger.kernel.org>; Fri, 25 Aug 2023 11:20:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1692987633; x=1693592433;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=GYd1wVFPRI7NiM/Sx4/tad/ZtbY6g9sye8P5AXqu+fc=;
+        b=E4mC5YAXMMgmUHgfRiWFcSZjAFYw1waD0EqZCNwtYhRSRtgJoFZVlCS3JG3wV7FXjd
+         sXVU7RTKIYiV68OaJT+pNyPhtCG1CpcRdXA82AG5ofhhqR/vSGm3tvd1mpbR6M1weagG
+         NwWQJu1Josu1pkUS1L/DPphW0b+C0Nzy+d45c=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1692987633; x=1693592433;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GYd1wVFPRI7NiM/Sx4/tad/ZtbY6g9sye8P5AXqu+fc=;
+        b=Cso8UphB48mbIfj2vLB8QyevWxbhCaLs5Afgj/N1nF9U/6XHRTMv/IIiYb+rb3T6yl
+         2/8Li8DTC8PF3DjbB9bGkxVmma2SBn7KMsVgiUvl5EW9RXISyfaPkSZw0surSByDRYGT
+         TFixedYvjopjy8q5yqhKox24ds6xsAM+B56W3KNI9Pnsd61Zt6eFr1XhpLLblfA6UOkM
+         YkKGhiGpgDxOYm3UoypyTy9ITfF6be+7GcxVXqG3aOPEA5W7S30ztLPrFx9aXlXFkfAg
+         X1rh/DLQjldsMIM5aCteIA35gK0u7rJw/nkwTaCYooIEEMc5tR0eAj/Z791/p8dZjDKW
+         +DSQ==
+X-Gm-Message-State: AOJu0YxbRMI4MBqj3nltJ+ppuxjd0TeaP7vmA9EHshEyHX3WLXXkcQ1Y
+        ty+hNheJ2VhOvkRHCJWzbVz9wQ==
+X-Google-Smtp-Source: AGHT+IF6DSGG+sLTemEr6zFswCsdJsrOmZC3VrMrE6v1fI8J4N4rJsVzak2qfPMHQ2MCnkGlwtuaPA==
+X-Received: by 2002:a17:90a:c08d:b0:267:f8f4:73ab with SMTP id o13-20020a17090ac08d00b00267f8f473abmr28444155pjs.16.1692987633516;
+        Fri, 25 Aug 2023 11:20:33 -0700 (PDT)
+Received: from www.outflux.net (198-0-35-241-static.hfc.comcastbusiness.net. [198.0.35.241])
+        by smtp.gmail.com with ESMTPSA id d12-20020a17090a628c00b0026b3f76a063sm1910536pjj.44.2023.08.25.11.20.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 25 Aug 2023 11:20:32 -0700 (PDT)
+Date:   Fri, 25 Aug 2023 11:20:32 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Randy Dunlap <rdunlap@infradead.org>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>, x86@kernel.org,
         linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        linuxppc-dev@lists.ozlabs.org,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Steven Price <steven.price@arm.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH v7 02/24] iommu: Add IOMMU_DOMAIN_PLATFORM
-Message-ID: <ZOjneiqLzRRD7ulL@nvidia.com>
-References: <0-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
- <2-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
- <hbmfqpq2oyjjz3loccfbslpalzhlsyr2w3bpx6qasq23kyrfso@e6kry74ifgnt>
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kbuild@vger.kernel.org, linux-hardening@vger.kernel.org
+Subject: Re: [PATCH] kbuild: Show Kconfig fragments in "help"
+Message-ID: <202308251119.B93C95A3A7@keescook>
+References: <20230824223606.never.762-kees@kernel.org>
+ <21193a52-0425-f5ae-90f0-10e4c578ae90@infradead.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <hbmfqpq2oyjjz3loccfbslpalzhlsyr2w3bpx6qasq23kyrfso@e6kry74ifgnt>
-X-ClientProxiedBy: SJ0PR05CA0141.namprd05.prod.outlook.com
- (2603:10b6:a03:33d::26) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|DM3PR12MB9326:EE_
-X-MS-Office365-Filtering-Correlation-Id: 58786a3e-aa3c-45af-dcc2-08dba59255eb
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: a8Gnigr2aF9SIPJCrxuBJK0DSHHSWMBbcxYk0WxAHH+TojN1Gvlky7nyxLoGUigqZx+wWQse5Eif5ixtjUTWxNw9v/ugMBXUFH6ND0qCuEcW2sc66uhLKr000hB29sEehLToAiTtbrDLvgB9LLezXQAJkbL5mcBuM27vGR8hpiHLc0xvDiuDHbQYSI7vflacHe8ThaM5nwDXzuvuF0v37H66N+VRIK/vsAfKSXD8lxYEn44ZLMkfG5cafZvhqjDh5TwZWJrX6YLR4j8eo1w97hRkW3uLun6CdwqPZWly8fBhvcdHwHzkbI2xhH6fh+6t6nn8Jgk1IslBiooHII9xrzoe7VFEzSmUP8snbrSDrDeCLm+nEbgrpy/ux0jCvar5lsqaaqL/ZsmLDMAi5esuLJ+YFl8gBWqM03xfVSmmvT/XRvlwmnLSeuW0/Dfve/gJKJG0JxK+TK9yvPInRO4lg/2ANi2TvXQ9b+ktVpDKTiK9GdEK3Se3Qwcj17nXmn3FoOwl7gEY2mV0uGvJFo0op67WrPjfNH0/1nNJDMDfxlPJRGy7ebPGUaVIVjiOr5zN
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(39860400002)(136003)(376002)(396003)(366004)(346002)(1800799009)(186009)(451199024)(5660300002)(83380400001)(86362001)(6512007)(6506007)(26005)(2616005)(6486002)(38100700002)(107886003)(36756003)(66946007)(478600001)(54906003)(4326008)(8936002)(6916009)(8676002)(66476007)(316002)(66556008)(41300700001)(7406005)(7416002)(2906002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?vvgV5ntNbJnFy5TerXzlekncoqxnviQO4r6DerMaR7/Xw8peRzERjkiAau8j?=
- =?us-ascii?Q?YTRWOFswON+4fKllm1SrjUXZX4pLpQiXapVA3glR1/fM9N8Bj1qs4ffqBhZF?=
- =?us-ascii?Q?XSwuk6COHMfBSoNhdw7hroan2o36kidxruhSGM28UFBsyWuy55LgWCOwPX9s?=
- =?us-ascii?Q?BBOSbJhmmvE1NbFaSfZNsLzCzifVVKZRALPhkZCzZ6qOnJcjm9eQc+3A1oj9?=
- =?us-ascii?Q?It52NOulwurqZfk23csGiIc3WYS2j3v9cHwU3QiNZeKRkab0bW1FucSMqdix?=
- =?us-ascii?Q?m4Zmbg0GGSK9Nemgc24cZ1hNo46qrLpVVDep8FZxjdGf6VSXMhNV7Y/J3jy+?=
- =?us-ascii?Q?t0hgqAp9Vlyp+nXc5OzPJpRymYwoNHD8RXhf13kaGDRnjlfZHb4nzAzZr4t/?=
- =?us-ascii?Q?DhlcCY23vNG1SFcK5OkTVogVaTZgo7kS0dZhoBmXDwsHyfRxpLR0SsadzUTx?=
- =?us-ascii?Q?7PVSKoMB9epwl9ji04a92GCaVxv1heeNbfUroQIrMyvPn5O9udlZYgb/pW8x?=
- =?us-ascii?Q?pLHUV4daK2vjxfwRPldDcqlENxHVrqr9FoqRaGugEEHi0QQp7wqD/vfeooNh?=
- =?us-ascii?Q?d6XrbBH5VDQKv22/hln8SQtf+SpAZE5APLoziCBPZ36ShGGmRY49X9g1axx4?=
- =?us-ascii?Q?jP5RfcrqATYeFMvilpsdGZqVYZKU+cdHkJF5+T20kW9EPVoYA5jgi5Pa07Bx?=
- =?us-ascii?Q?4GSxCVm2pDuffgCfh/AhO6RUke6ldQz/P5i4VM22WDrpXyb+lA0oLvsK+3U4?=
- =?us-ascii?Q?T8i/9qMXqWfrBBdOV16xiOaSM0Q5odNsD9A8ufbUC6wAqwCiYjeZXd/E72ol?=
- =?us-ascii?Q?Jnhn3TxxRQGeTosqkt0vaQlB9sqFQ3hPIyTHxG6RxHiIaqRTMWPhZ9rpXNQQ?=
- =?us-ascii?Q?g7IgJjiu7byaYZj9M0VeTNCVLr/jMxgz8mg/KVTroZFQM/vAOcIA41pzQtei?=
- =?us-ascii?Q?VDV+VEGmyTCCWwYBW3uYU6D8RV61C2Lv8MGFD9F/Dy2xSESbAKWkYhx1AD3J?=
- =?us-ascii?Q?s2p3TQKoRpAOPHN6sOEReEi1BfCE78EeehELV/TdIVapsK96ovX/b7FCAPoY?=
- =?us-ascii?Q?8OJVV0jevWjA0o84otiauvU0hOwsuxY02Lda3knBRrI/pbg1E/MV2uC0K95f?=
- =?us-ascii?Q?Nk4A/jt1adEHhTvsEyNRoOgqVc7tlqQ2WeiDOheHJHJo+cPZ4yAbyOzwrA9/?=
- =?us-ascii?Q?agi1uFJKwTzqUp7d1ACXHEzfdz0d7pnXhOon6p8qGMjwXHqjUF7xkNlTbFr+?=
- =?us-ascii?Q?B+8/P53OdCSSRhwGvFg/zsLwnDpO14wHNsaJNwyGdCVDNShuv4/+rYLa6ouY?=
- =?us-ascii?Q?2er0IWGnsD/PXHQSvYY8SYu0wRpmApig2zVHMVFtGiRx7lE/SBoqOPzJvuk3?=
- =?us-ascii?Q?E0Q2Py+SENB8FMtyEFKrX4DzEZoTQEcN4ZBxMYyp4owAXD1222aCRO0cDaP/?=
- =?us-ascii?Q?ZhDJ/4G6mdu9JakGiSYrFXVDQTNQMqW7BQEgDIySWAP8keEExA9/p1kxwW7M?=
- =?us-ascii?Q?e/IoAeX2HuRg37EhGM+UiXcbLY9L1EXOueraZu/Jinq8K5h34zk+LqWcqnvs?=
- =?us-ascii?Q?MD54E5k+9Lu2J+Rb5HHttaheDoy+0aXMw709c2md?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 58786a3e-aa3c-45af-dcc2-08dba59255eb
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Aug 2023 17:40:13.0741
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: c/lHqPfLm8ZdGGXUSmMC6bjlG6PP0TtcgCXnvFIc/GCrpMVM1mXDhZvZRzMfHio0
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM3PR12MB9326
+In-Reply-To: <21193a52-0425-f5ae-90f0-10e4c578ae90@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Aug 24, 2023 at 06:51:48PM -0700, Jerry Snitselaar wrote:
-
-> > +	/*
-> > +	 * Allow legacy drivers to specify the domain that will be the default
-> > +	 * domain. This should always be either an IDENTITY or PLATFORM domain.
-> > +	 * Do not use in new drivers.
-> > +	 */
+On Thu, Aug 24, 2023 at 05:04:02PM -0700, Randy Dunlap wrote:
+> Hi Kees,
 > 
-> Would it be worthwhile to mention this in iommu.h for the iommu_ops default_domain?
+> On 8/24/23 15:36, Kees Cook wrote:
+> > Doing a "make help" would show only hard-coded Kconfig targets and
+> > depended on the archhelp target to include ".config" targets. There was
+> > nothing showing global kernel/configs/ targets. Solve this by walking
+> > the wildcard list and include them in the output, using the first comment
+> > line as the help text.
+> > 
+> > Update all Kconfig fragments to include help text and adjust archhelp
+> > targets to avoid redundancy.
+> > 
+> > Adds the following section to "help" target output:
+> > 
+> > Configuration fragment targets (for enabling various Kconfig items):
+> >   debug.config         - Debugging for CI systems and finding regressions
+> >   kvm_guest.config     - Bootable as a KVM guest
+> >   nopm.config          - Disable Power Management
+> >   rust.config          - Enable Rust
+> >   tiny-base.config     - Minimal options for tiny systems
+> >   tiny.config          - Smallest possible kernel image
+> >   x86_debug.config     - Debugging options for tip tree testing
+> >   xen.config           - Bootable as a Xen guest
+> >   tiny.config          - x86-specific options for a small kernel image
+> >   xen.config           - x86-specific options for a Xen virtualization guest
+> 
+> ISTM that you are missing the "why" part of this change in the commit
+> description.
 
-I did this:
+I want to see what fragments are available without needing to know the
+source tree layout for their locations. :)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 11d47f9ac9b345..7fa53d28feca87 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -1757,8 +1757,8 @@ iommu_group_alloc_default_domain(struct iommu_group *group, int req_type)
- 
-        /*
-         * Allow legacy drivers to specify the domain that will be the default
--        * domain. This should always be either an IDENTITY or PLATFORM domain.
--        * Do not use in new drivers.
-+        * domain. This should always be either an IDENTITY/BLOCKED/PLATFORM
-+        * domain. Do not use in new drivers.
-         */
-        if (ops->default_domain) {
-                if (req_type)
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 7e9d94a56f473e..6f9e0aacc4431a 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -267,6 +267,8 @@ struct iommu_iotlb_gather {
-  * @blocked_domain: An always available, always attachable blocking
-  *                  translation.
-  * @default_domain: If not NULL this will always be set as the default domain.
-+ *                  This should be an IDENTITY/BLOCKED/PLATFORM domain.
-+ *                  Do not use in new drivers.
-  */
- struct iommu_ops {
-        bool (*capable)(struct device *dev, enum iommu_cap);
+> "make tinyconfig" is the real target here.  The other (tiny.) files are just
+> implementation details.
+> We can't put all implementation details into help messages and it's not
+> difficult to find that the (tiny.) config files are merged to make the
+> final .config file.
 
-Thanks,
-Jason
+Yeah, this seems true for much of the ppc stuff to, as pointed out by
+mpe. I'll go answer there...
+
+-- 
+Kees Cook
