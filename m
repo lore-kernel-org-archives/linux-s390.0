@@ -2,71 +2,69 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9734BC3DA66
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 10:14:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C269C79F63
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Aug 2023 10:14:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243305AbjHYKNg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 25 Aug 2023 06:13:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59560 "EHLO
+        id S243400AbjHYKNh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 25 Aug 2023 06:13:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243701AbjHYKN2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Aug 2023 06:13:28 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85F18210A;
-        Fri, 25 Aug 2023 03:13:26 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37PA6cHH004928;
-        Fri, 25 Aug 2023 10:12:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : subject : date :
- message-id : content-type : to : cc : content-transfer-encoding :
- mime-version; s=pp1; bh=oiA+9NpEPf9GTx0JLBeyyu3lv7OtMEA3kC6IB/XYeNY=;
- b=ITqgtshZGG5zdMQi0X33sB7sAHRp5PG04p/b8e/nrA2CBMlBbO/upiTgCVfz7PFNLEeF
- wNYe3EpFZRjLXKB/msLGqmZjVYddjs7D+0EH73L84hgGgt1szz1ISsOjab583hFJrbEP
- r1JNjjJSMfj4gJpYWMeF5F2r2JWxcnw5GNL1ixCgZV3Jmc+Aahj8OQ8ukN3DrEWAWOuw
- 3MevOQYVHnJQ809DiB6+3101EhZJXQKXEBgjjK4u3fZ8MV/yjaUyqtFTfeiq+N+lAZeU
- vSQPGsGFwXzx6CoJPNm9UTJ5hvLCGrD6nq6vHC9tlX61WG/H92Vw1dptW4UfNl2bWCzv FA== 
+        with ESMTP id S243787AbjHYKNa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Aug 2023 06:13:30 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AACE92110;
+        Fri, 25 Aug 2023 03:13:27 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37PA8TwB019766;
+        Fri, 25 Aug 2023 10:12:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : date : subject :
+ content-type : message-id : references : in-reply-to : to : cc :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=xC8vXlREPf8kLHpO+uYwWDK2EqCGCczaeE2Wup3Ma9c=;
+ b=gNmbFyiAvQ2Qp0RFFt4XshUpSje7l6N24KU26LdXNPUbj+wP4C6kIlJ4qDhk61bom7Ze
+ NkkZZhNhRPhGFXJwHuXoOyHLXPdHjpv+/K9d+e3CY+dIe26jpwKLvE8q0I6JezvpmmIi
+ lql/C1ymJZLEPOu1xVR8Jp4mhvb3hanaW+jki/U3qQeAWLdk4VnHziBQv/+QU7bSr0PY
+ JELlVxKNY7aFAiBs5Dhj2Zjn8nKnpdFoIe/XVrtemgGov1VTjwTXhA+nLSV06CXQrkO3
+ 15wfodblKkGG00l6fQerLkAQLJLvWaXaAWwRuZk4pr/7bAx8ANys1y6s7Tol/v3RxLT6 Iw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3spsw58kr4-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3spt9h05nc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 25 Aug 2023 10:12:11 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37PA7BGC008384;
-        Fri, 25 Aug 2023 10:12:10 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3spsw58kqd-1
+        Fri, 25 Aug 2023 10:12:18 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37PA95bt021506;
+        Fri, 25 Aug 2023 10:12:17 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3spt9h05km-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 25 Aug 2023 10:12:10 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37PA0iE6026120;
-        Fri, 25 Aug 2023 10:12:09 GMT
+        Fri, 25 Aug 2023 10:12:17 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37P7p5SC027375;
+        Fri, 25 Aug 2023 10:12:15 GMT
 Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3snqgte3hc-1
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3sn20sxrmr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 25 Aug 2023 10:12:08 +0000
+        Fri, 25 Aug 2023 10:12:15 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37PAC5KW24314372
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37PACCUp23921288
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 25 Aug 2023 10:12:05 GMT
+        Fri, 25 Aug 2023 10:12:12 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E52322006A;
-        Fri, 25 Aug 2023 10:12:04 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 09A452005A;
+        Fri, 25 Aug 2023 10:12:12 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8213520067;
-        Fri, 25 Aug 2023 10:12:03 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 9F66620067;
+        Fri, 25 Aug 2023 10:12:10 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 25 Aug 2023 10:12:03 +0000 (GMT)
+        Fri, 25 Aug 2023 10:12:10 +0000 (GMT)
 From:   Niklas Schnelle <schnelle@linux.ibm.com>
-Subject: [PATCH v12 0/6] iommu/dma: s390 DMA API conversion and optimized
- IOTLB flushing
-Date:   Fri, 25 Aug 2023 12:11:15 +0200
-Message-Id: <20230825-dma_iommu-v12-0-4134455994a7@linux.ibm.com>
+Date:   Fri, 25 Aug 2023 12:11:20 +0200
+Subject: [PATCH v12 5/6] iommu/dma: Allow a single FQ in addition to
+ per-CPU FQs
 Content-Type: text/plain; charset="utf-8"
-X-B4-Tracking: v=1; b=H4sIAEN+6GQC/3WOzW7DIBCEXyXiXCx+A8mp71FVFT9LjWSggthKF
- fndi3OJGjl7m939ZuaGGtQIDZ0PN1RhiS2W3AVlbwfkRpO/AUffF4gRxgmnBPtkvmJJacYSiNB
- Ocn0UCvV/axpgW012YyfyPE19+VMhxOs94eOz61BLwpexgnnYMkaoZH0GqqnmQmCKmxszTBO8T
- zHP1yHaNLiStpgxtkupv/fKi95898otGhPMuFA+WPDKhCejrctyekmfOn2U1mrwnlmwezQlL/G
- uCA40WK/7RUuxy9MHr6j6x9POG2WI1dxxKd0zv67rH77Nf3q8AQAA
+Message-Id: <20230825-dma_iommu-v12-5-4134455994a7@linux.ibm.com>
+References: <20230825-dma_iommu-v12-0-4134455994a7@linux.ibm.com>
+In-Reply-To: <20230825-dma_iommu-v12-0-4134455994a7@linux.ibm.com>
 To:     Joerg Roedel <joro@8bytes.org>,
         Matthew Rosato <mjrosato@linux.ibm.com>,
         Will Deacon <will@kernel.org>,
@@ -114,174 +112,380 @@ Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
         linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
         linux-doc@vger.kernel.org
 X-Mailer: b4 0.12.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=7079;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=10915;
  i=schnelle@linux.ibm.com; h=from:subject:message-id;
- bh=mIEee9jsOChN6yd+9SwZcJR8JQ+fCRq5982xchekuIc=;
- b=owGbwMvMwCH2Wz534YHOJ2GMp9WSGFJe1LnJLv+w73DDc7n1iyf/M0h2FvQU1ffUfbzrxYr6y
- R9y37HO7yhlYRDjYJAVU2RZ1OXst65giumeoP4OmDmsTCBDGLg4BWAirYWMDL8L/wS5F/pN7ijf
- fU3R4bD7wYeHcoOcvp2Of1rqn32DTYPhv/fN/TyX/59eeurgmVtiXG9T3Ve7R9nInX7luOP02qq
- HLnwA
+ bh=xslKDYkoNUO4JfwG/7C4jAD7KqyQywkHGkbM3dxD7R8=;
+ b=owGbwMvMwCH2Wz534YHOJ2GMp9WSGFJe1KU5XRYLfv1/47r19pXtRs4ZR/dc1WGVnx8RXbbl5
+ MuEh7fWdZSyMIhxMMiKKbIs6nL2W1cwxXRPUH8HzBxWJpAhDFycAjCR5kaGv5KVAoFHliv+aj1x
+ 7uvRP+sjBPmsg5SbdWuKgy9nSFtNnMbwP1ytTCZZZOWM3bsCorecFdvf0i21cnOcb2vMes3lV13
+ 9uAE=
 X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
  fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ljcqv6hn41MqjsXgC51a4PrvLRBheLHl
-X-Proofpoint-GUID: VOacENZhgJdFiCdMZLjt_QUKGyJ-K0FH
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-ORIG-GUID: s8wbl8COrQ6SoBPtN3BNTKFu7CC0Jx_D
+X-Proofpoint-GUID: iXs8CsJensb2wSdtscU1mfn3znGUxEBb
+Content-Transfer-Encoding: 7bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-08-25_08,2023-08-24_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- clxscore=1015 suspectscore=0 mlxscore=0 malwarescore=0 phishscore=0
- mlxlogscore=999 adultscore=0 impostorscore=0 spamscore=0
- priorityscore=1501 bulkscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2308100000 definitions=main-2308250087
+ definitions=2023-08-25_07,2023-08-24_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
+ lowpriorityscore=0 malwarescore=0 priorityscore=1501 mlxlogscore=896
+ bulkscore=0 spamscore=0 adultscore=0 impostorscore=0 suspectscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2308250087
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi All,
+In some virtualized environments, including s390 paged memory guests,
+IOTLB flushes are used to update IOMMU shadow tables. Due to this, they
+are much more expensive than in typical bare metal environments or
+non-paged s390 guests. In addition they may parallelize poorly in
+virtualized environments. This changes the trade off for flushing IOVAs
+such that minimizing the number of IOTLB flushes trumps any benefit of
+cheaper queuing operations or increased paralellism.
 
-This patch series converts s390's PCI support from its platform specific DMA
-API implementation in arch/s390/pci/pci_dma.c to the common DMA IOMMU layer.
-The conversion itself is done in patches 3-4 with patch 2 providing the final
-necessary IOMMU driver improvement to handle s390's special IOTLB flush
-out-of-resource indication in virtualized environments. The conversion
-itself only touches the s390 IOMMU driver and s390 arch code moving over
-remaining functions from the s390 DMA API implementation. No changes to
-common code are necessary.
+In this scenario per-CPU flush queues pose several problems. Firstly
+per-CPU memory is often quite limited prohibiting larger queues.
+Secondly collecting IOVAs per-CPU but flushing via a global timeout
+reduces the number of IOVAs flushed for each timeout especially on s390
+where PCI interrupts may not be bound to a specific CPU.
 
-After patch 4 the basic conversion is done and on our partitioning
-machine hypervisor LPAR performance matches the previous implementation.
-When running under z/VM or KVM however, performance plummets to about
-half of the existing code due to a much higher rate of IOTLB flushes for
-unmapped pages. Due to the hypervisors use of IOTLB flushes to
-synchronize their shadow tables these are very expensive and minimizing
-them is key for regaining the performance loss.
+Let's introduce a single flush queue mode that reuses the same queue
+logic but only allocates a single global queue. This mode is selected by
+dma-iommu if a newly introduced .shadow_on_flush flag is set in struct
+dev_iommu. As a first user the s390 IOMMU driver sets this flag during
+probe_device. With the unchanged small FQ size and timeouts this setting
+is worse than per-CPU queues but a follow up patch will make the FQ size
+and timeout variable. Together this allows the common IOVA flushing code
+to more closely resemble the global flush behavior used on s390's
+previous internal DMA API implementation.
 
-To this end patches 5-6 add a new, single queue, IOTLB flushing scheme
-as an alternative to the existing per-CPU flush queues. Introducing an
-alternative scheme was suggested by Robin Murphy[1]. The single queue
-mode is introduced in patch 4 together with a new .shadow_on_flush flag
-bit in struct dev_iommu. This allows IOMMU drivers to indicate that
-their IOTLB flushes do the extra work of shadowing. This then lets the
-dma-iommu code use a single queue.
-
-Then patch 6 enables variable queue sizes using power of 2 values and
-shift/mask to keep performance as close to the fixed size queue code as
-possible. A larger queue size and timeout is used by dma-iommu when
-shadow_on_flush is set. This same scheme may also be used by other IOMMU
-drivers with similar requirements. Particularly virtio-iommu may be
-a candidate.
-
-I tested this code on s390x with LPAR, z/VM and KVM hypervisors on an
-AMD Ryzen x86 system with native IOMMU and a guest with a modified
-virtio-iommu[4] that set .shadow_on_flush = true.
-
-This code is also available in the b4/dma_iommu topic branch of my
-git.kernel.org repository[3] with tags matching the version sent.
-
-NOTE: Due to the large drop in performance I think we should not merge
-the DMA API conversion (patch 4) until we have a more suited IOVA
-flushing scheme with similar improvements as the proposed changes.
-
-Best regards,
-Niklas
-
-[0] https://lore.kernel.org/linux-iommu/20221109142903.4080275-1-schnelle@linux.ibm.com/
-[1] https://lore.kernel.org/linux-iommu/3e402947-61f9-b7e8-1414-fde006257b6f@arm.com/
-[2] https://lore.kernel.org/linux-iommu/a8e778da-7b41-a6ba-83c3-c366a426c3da@arm.com/
-[3] https://git.kernel.org/pub/scm/linux/kernel/git/niks/linux.git/
-[4] https://lore.kernel.org/lkml/20230726111433.1105665-1-schnelle@linux.ibm.com/
-
+Link: https://lore.kernel.org/all/9a466109-01c5-96b0-bf03-304123f435ee@arm.com/
+Acked-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com> #s390
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 ---
-Changes in v12:
-- Rebased on v6.5-rc7
-- Changed queue type flag to an enum
-- Incorporated feedback from Robin Murphy
-  - Set options centrally and only once in iommu_dma_init_domain() with
-    new helper iommu_dma_init_options()
-  - Do not reset options of failing to init FQ
-  - Fixed rebase mishap that partially rolled back patch 2
-  - Simplified patch 4 by simply no claiming the deferred flush
-    capability for ISM
-  - Inlined and removed fq_flush_percpu()
-  - Changed vzalloc() to vmalloc() for queue
-- Added Acked-by's from Robin Murphy
-- Link to v11: https://lore.kernel.org/r/20230717-dma_iommu-v11-0-a7a0b83c355c@linux.ibm.com
+ drivers/iommu/dma-iommu.c  | 168 ++++++++++++++++++++++++++++++++++-----------
+ drivers/iommu/s390-iommu.c |   3 +
+ include/linux/iommu.h      |   2 +
+ 3 files changed, 134 insertions(+), 39 deletions(-)
 
-Changes in v11:
-- Rebased on v6.5-rc2
-- Added patch to force IOMMU_DOMAIN_DMA on s390 specific ISM devices
-- Dropped the patch to properly set DMA mask on ISM devices which went upstream separately.
-- s390 IOMMU driver now uses IOMMU_CAP_DEFERRED_FLUSH to enable DMA-FQ
-  leaving no uses of IOMMU_DOMAIN_DMA_FQ in the driver.
-- Link to v10: https://lore.kernel.org/r/20230310-dma_iommu-v10-0-f1fbd8310854@linux.ibm.com
+diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+index e57724163835..09660b0af130 100644
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -43,14 +43,26 @@ enum iommu_dma_cookie_type {
+ 	IOMMU_DMA_MSI_COOKIE,
+ };
+ 
++enum iommu_dma_queue_type {
++	IOMMU_DMA_OPTS_PER_CPU_QUEUE,
++	IOMMU_DMA_OPTS_SINGLE_QUEUE,
++};
++
++struct iommu_dma_options {
++	enum iommu_dma_queue_type qt;
++};
++
+ struct iommu_dma_cookie {
+ 	enum iommu_dma_cookie_type	type;
+ 	union {
+ 		/* Full allocator for IOMMU_DMA_IOVA_COOKIE */
+ 		struct {
+ 			struct iova_domain	iovad;
+-
+-			struct iova_fq __percpu *fq;	/* Flush queue */
++			/* Flush queue */
++			union {
++				struct iova_fq	*single_fq;
++				struct iova_fq	__percpu *percpu_fq;
++			};
+ 			/* Number of TLB flushes that have been started */
+ 			atomic64_t		fq_flush_start_cnt;
+ 			/* Number of TLB flushes that have been finished */
+@@ -67,6 +79,8 @@ struct iommu_dma_cookie {
+ 
+ 	/* Domain for flush queue callback; NULL if flush queue not in use */
+ 	struct iommu_domain		*fq_domain;
++	/* Options for dma-iommu use */
++	struct iommu_dma_options	options;
+ 	struct mutex			mutex;
+ };
+ 
+@@ -124,7 +138,7 @@ static inline unsigned int fq_ring_add(struct iova_fq *fq)
+ 	return idx;
+ }
+ 
+-static void fq_ring_free(struct iommu_dma_cookie *cookie, struct iova_fq *fq)
++static void fq_ring_free_locked(struct iommu_dma_cookie *cookie, struct iova_fq *fq)
+ {
+ 	u64 counter = atomic64_read(&cookie->fq_flush_finish_cnt);
+ 	unsigned int idx;
+@@ -145,6 +159,15 @@ static void fq_ring_free(struct iommu_dma_cookie *cookie, struct iova_fq *fq)
+ 	}
+ }
+ 
++static void fq_ring_free(struct iommu_dma_cookie *cookie, struct iova_fq *fq)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&fq->lock, flags);
++	fq_ring_free_locked(cookie, fq);
++	spin_unlock_irqrestore(&fq->lock, flags);
++}
++
+ static void fq_flush_iotlb(struct iommu_dma_cookie *cookie)
+ {
+ 	atomic64_inc(&cookie->fq_flush_start_cnt);
+@@ -160,14 +183,11 @@ static void fq_flush_timeout(struct timer_list *t)
+ 	atomic_set(&cookie->fq_timer_on, 0);
+ 	fq_flush_iotlb(cookie);
+ 
+-	for_each_possible_cpu(cpu) {
+-		unsigned long flags;
+-		struct iova_fq *fq;
+-
+-		fq = per_cpu_ptr(cookie->fq, cpu);
+-		spin_lock_irqsave(&fq->lock, flags);
+-		fq_ring_free(cookie, fq);
+-		spin_unlock_irqrestore(&fq->lock, flags);
++	if (cookie->options.qt == IOMMU_DMA_OPTS_SINGLE_QUEUE) {
++		fq_ring_free(cookie, cookie->single_fq);
++	} else {
++		for_each_possible_cpu(cpu)
++			fq_ring_free(cookie, per_cpu_ptr(cookie->percpu_fq, cpu));
+ 	}
+ }
+ 
+@@ -188,7 +208,11 @@ static void queue_iova(struct iommu_dma_cookie *cookie,
+ 	 */
+ 	smp_mb();
+ 
+-	fq = raw_cpu_ptr(cookie->fq);
++	if (cookie->options.qt == IOMMU_DMA_OPTS_SINGLE_QUEUE)
++		fq = cookie->single_fq;
++	else
++		fq = raw_cpu_ptr(cookie->percpu_fq);
++
+ 	spin_lock_irqsave(&fq->lock, flags);
+ 
+ 	/*
+@@ -196,11 +220,11 @@ static void queue_iova(struct iommu_dma_cookie *cookie,
+ 	 * flushed out on another CPU. This makes the fq_full() check below less
+ 	 * likely to be true.
+ 	 */
+-	fq_ring_free(cookie, fq);
++	fq_ring_free_locked(cookie, fq);
+ 
+ 	if (fq_full(fq)) {
+ 		fq_flush_iotlb(cookie);
+-		fq_ring_free(cookie, fq);
++		fq_ring_free_locked(cookie, fq);
+ 	}
+ 
+ 	idx = fq_ring_add(fq);
+@@ -219,31 +243,88 @@ static void queue_iova(struct iommu_dma_cookie *cookie,
+ 			  jiffies + msecs_to_jiffies(IOVA_FQ_TIMEOUT));
+ }
+ 
+-static void iommu_dma_free_fq(struct iommu_dma_cookie *cookie)
++static void iommu_dma_free_fq_single(struct iova_fq *fq)
++{
++	int idx;
++
++	fq_ring_for_each(idx, fq)
++		put_pages_list(&fq->entries[idx].freelist);
++	vfree(fq);
++}
++
++static void iommu_dma_free_fq_percpu(struct iova_fq __percpu *percpu_fq)
+ {
+ 	int cpu, idx;
+ 
+-	if (!cookie->fq)
+-		return;
+-
+-	del_timer_sync(&cookie->fq_timer);
+ 	/* The IOVAs will be torn down separately, so just free our queued pages */
+ 	for_each_possible_cpu(cpu) {
+-		struct iova_fq *fq = per_cpu_ptr(cookie->fq, cpu);
++		struct iova_fq *fq = per_cpu_ptr(percpu_fq, cpu);
+ 
+ 		fq_ring_for_each(idx, fq)
+ 			put_pages_list(&fq->entries[idx].freelist);
+ 	}
+ 
+-	free_percpu(cookie->fq);
++	free_percpu(percpu_fq);
++}
++
++static void iommu_dma_free_fq(struct iommu_dma_cookie *cookie)
++{
++	if (!cookie->fq_domain)
++		return;
++
++	del_timer_sync(&cookie->fq_timer);
++	if (cookie->options.qt == IOMMU_DMA_OPTS_SINGLE_QUEUE)
++		iommu_dma_free_fq_single(cookie->single_fq);
++	else
++		iommu_dma_free_fq_percpu(cookie->percpu_fq);
++}
++
++static void iommu_dma_init_one_fq(struct iova_fq *fq)
++{
++	int i;
++
++	fq->head = 0;
++	fq->tail = 0;
++
++	spin_lock_init(&fq->lock);
++
++	for (i = 0; i < IOVA_FQ_SIZE; i++)
++		INIT_LIST_HEAD(&fq->entries[i].freelist);
++}
++
++static int iommu_dma_init_fq_single(struct iommu_dma_cookie *cookie)
++{
++	struct iova_fq *queue;
++
++	queue = vmalloc(sizeof(*queue));
++	if (!queue)
++		return -ENOMEM;
++	iommu_dma_init_one_fq(queue);
++	cookie->single_fq = queue;
++
++	return 0;
++}
++
++static int iommu_dma_init_fq_percpu(struct iommu_dma_cookie *cookie)
++{
++	struct iova_fq __percpu *queue;
++	int cpu;
++
++	queue = alloc_percpu(struct iova_fq);
++	if (!queue)
++		return -ENOMEM;
++
++	for_each_possible_cpu(cpu)
++		iommu_dma_init_one_fq(per_cpu_ptr(queue, cpu));
++	cookie->percpu_fq = queue;
++	return 0;
+ }
+ 
+ /* sysfs updates are serialised by the mutex of the group owning @domain */
+ int iommu_dma_init_fq(struct iommu_domain *domain)
+ {
+ 	struct iommu_dma_cookie *cookie = domain->iova_cookie;
+-	struct iova_fq __percpu *queue;
+-	int i, cpu;
++	int rc;
+ 
+ 	if (cookie->fq_domain)
+ 		return 0;
+@@ -251,26 +332,16 @@ int iommu_dma_init_fq(struct iommu_domain *domain)
+ 	atomic64_set(&cookie->fq_flush_start_cnt,  0);
+ 	atomic64_set(&cookie->fq_flush_finish_cnt, 0);
+ 
+-	queue = alloc_percpu(struct iova_fq);
+-	if (!queue) {
++	if (cookie->options.qt == IOMMU_DMA_OPTS_SINGLE_QUEUE)
++		rc = iommu_dma_init_fq_single(cookie);
++	else
++		rc = iommu_dma_init_fq_percpu(cookie);
++
++	if (rc) {
+ 		pr_warn("iova flush queue initialization failed\n");
+ 		return -ENOMEM;
+ 	}
+ 
+-	for_each_possible_cpu(cpu) {
+-		struct iova_fq *fq = per_cpu_ptr(queue, cpu);
+-
+-		fq->head = 0;
+-		fq->tail = 0;
+-
+-		spin_lock_init(&fq->lock);
+-
+-		for (i = 0; i < IOVA_FQ_SIZE; i++)
+-			INIT_LIST_HEAD(&fq->entries[i].freelist);
+-	}
+-
+-	cookie->fq = queue;
+-
+ 	timer_setup(&cookie->fq_timer, fq_flush_timeout, 0);
+ 	atomic_set(&cookie->fq_timer_on, 0);
+ 	/*
+@@ -554,6 +625,23 @@ static bool dev_use_sg_swiotlb(struct device *dev, struct scatterlist *sg,
+ 	return false;
+ }
+ 
++/**
++ * iommu_dma_init_options - Initialize dma-iommu options
++ * @options: The options to be initialized
++ * @dev: Device the options are set for
++ *
++ * This allows tuning dma-iommu specific to device properties
++ */
++static void iommu_dma_init_options(struct iommu_dma_options *options,
++				   struct device *dev)
++{
++	/* Shadowing IOTLB flushes do better with a single queue */
++	if (dev->iommu->shadow_on_flush)
++		options->qt = IOMMU_DMA_OPTS_SINGLE_QUEUE;
++	else
++		options->qt = IOMMU_DMA_OPTS_PER_CPU_QUEUE;
++}
++
+ /**
+  * iommu_dma_init_domain - Initialise a DMA mapping domain
+  * @domain: IOMMU domain previously prepared by iommu_get_dma_cookie()
+@@ -614,6 +702,8 @@ static int iommu_dma_init_domain(struct iommu_domain *domain, dma_addr_t base,
+ 	if (ret)
+ 		goto done_unlock;
+ 
++	iommu_dma_init_options(&cookie->options, dev);
++
+ 	/* If the FQ fails we can simply fall back to strict mode */
+ 	if (domain->type == IOMMU_DOMAIN_DMA_FQ &&
+ 	    (!device_iommu_capable(dev, IOMMU_CAP_DEFERRED_FLUSH) || iommu_dma_init_fq(domain)))
+diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+index 8310180a102c..14e0c0b72630 100644
+--- a/drivers/iommu/s390-iommu.c
++++ b/drivers/iommu/s390-iommu.c
+@@ -470,6 +470,9 @@ static struct iommu_device *s390_iommu_probe_device(struct device *dev)
+ 	if (zdev->end_dma > ZPCI_TABLE_SIZE_RT - 1)
+ 		zdev->end_dma = ZPCI_TABLE_SIZE_RT - 1;
+ 
++	if (zdev->tlb_refresh)
++		dev->iommu->shadow_on_flush = 1;
++
+ 	return &zdev->iommu_dev;
+ }
+ 
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index 182cc4c71e62..c3687e066ed7 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -409,6 +409,7 @@ struct iommu_fault_param {
+  * @priv:	 IOMMU Driver private data
+  * @max_pasids:  number of PASIDs this device can consume
+  * @attach_deferred: the dma domain attachment is deferred
++ * @shadow_on_flush: IOTLB flushes are used to sync shadow tables
+  *
+  * TODO: migrate other per device data pointers under iommu_dev_data, e.g.
+  *	struct iommu_group	*iommu_group;
+@@ -422,6 +423,7 @@ struct dev_iommu {
+ 	void				*priv;
+ 	u32				max_pasids;
+ 	u32				attach_deferred:1;
++	u32				shadow_on_flush:1;
+ };
+ 
+ int iommu_device_register(struct iommu_device *iommu,
 
-Changes in v10:
-- Rebased on v6.4-rc3
-- Removed the .tune_dma_iommu() op in favor of a .shadow_on_flush flag
-  in struct dev_iommu which then let's the dma-iommu choose a single
-  queue and larger timeouts and IOVA counts. This leaves the dma-iommu
-  with full responsibility for the settings.
-- The above change affects patches 5 and 6 and lead to a new subject for
-  patch 6 since the flush queue size and timeout is no longer driver
-  controlled
-- Link to v9: https://lore.kernel.org/r/20230310-dma_iommu-v9-0-65bb8edd2beb@linux.ibm.com
-
-Changes in v9:
-- Rebased on v6.4-rc2
-- Re-ordered iommu_group_store_type() to allow passing the device to
-  iommu_dma_init_fq()
-- Link to v8: https://lore.kernel.org/r/20230310-dma_iommu-v8-0-2347dfbed7af@linux.ibm.com
-
----
-Niklas Schnelle (6):
-      iommu: Allow .iotlb_sync_map to fail and handle s390's -ENOMEM return
-      s390/pci: prepare is_passed_through() for dma-iommu
-      s390/pci: Use dma-iommu layer
-      iommu/s390: Disable deferred flush for ISM devices
-      iommu/dma: Allow a single FQ in addition to per-CPU FQs
-      iommu/dma: Use a large flush queue and timeout for shadow_on_flush
-
- Documentation/admin-guide/kernel-parameters.txt |   9 +-
- arch/s390/include/asm/pci.h                     |   7 -
- arch/s390/include/asm/pci_clp.h                 |   3 +
- arch/s390/include/asm/pci_dma.h                 | 119 +---
- arch/s390/pci/Makefile                          |   2 +-
- arch/s390/pci/pci.c                             |  22 +-
- arch/s390/pci/pci_bus.c                         |   5 -
- arch/s390/pci/pci_debug.c                       |  12 +-
- arch/s390/pci/pci_dma.c                         | 735 ------------------------
- arch/s390/pci/pci_event.c                       |  17 +-
- arch/s390/pci/pci_sysfs.c                       |  19 +-
- drivers/iommu/Kconfig                           |   4 +-
- drivers/iommu/amd/iommu.c                       |   5 +-
- drivers/iommu/apple-dart.c                      |   5 +-
- drivers/iommu/dma-iommu.c                       | 200 +++++--
- drivers/iommu/intel/iommu.c                     |   5 +-
- drivers/iommu/iommu.c                           |  20 +-
- drivers/iommu/msm_iommu.c                       |   5 +-
- drivers/iommu/mtk_iommu.c                       |   5 +-
- drivers/iommu/s390-iommu.c                      | 425 ++++++++++++--
- drivers/iommu/sprd-iommu.c                      |   5 +-
- drivers/iommu/sun50i-iommu.c                    |   6 +-
- drivers/iommu/tegra-gart.c                      |   5 +-
- include/linux/iommu.h                           |   6 +-
- 24 files changed, 643 insertions(+), 1003 deletions(-)
----
-base-commit: 706a741595047797872e669b3101429ab8d378ef
-change-id: 20230310-dma_iommu-5e048c538647
-
-Best regards,
 -- 
-Niklas Schnelle
-Linux on Z Development
-
-IBM Deutschland Research & Development GmbH
-Vorsitzender des Aufsichtsrats: Gregor Pillen
-Geschäftsführung: David Faller
-Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
-IBM Data Privacy Statement - https://www.ibm.com/privacy 
+2.39.2
 
