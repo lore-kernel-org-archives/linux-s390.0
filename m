@@ -2,99 +2,90 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C88BC83F15
-	for <linux-s390@archiver.kernel.org>; Sun, 27 Aug 2023 21:33:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9496C83F11
+	for <linux-s390@archiver.kernel.org>; Sun, 27 Aug 2023 23:43:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230348AbjH0Vcr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 27 Aug 2023 17:32:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53088 "EHLO
+        id S229670AbjH0Xms (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 27 Aug 2023 19:42:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230245AbjH0Vcj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 27 Aug 2023 17:32:39 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F91CEC;
-        Sun, 27 Aug 2023 14:32:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=/6hpsLsV03ieW4vELbhOk4pxiCIUuyn6Bpw1V8QuWjA=; b=vTYL9F6nmyMC1z4vgUQ57UMuze
-        c8bgt9vFOKWzPspRsbeTFLgLHz/hKRnLtd9UWTyKshqJF7eN4C3F+EMjcufK9pmtU6JnMc8dQv1Vt
-        5InC4HIkUznFa/hnNRczUUX7xHbrfZD4svYR9Kg0wslB46dSko8l2iAdkLRH/H5iWuiyt8iN5XazN
-        QityxWl2yb3p6DSle3T84m2jiGMPG15FtuhdmZtjHlUbcKD8n1NBcGDOexBbj8JBeLDTA1BEKmInL
-        888FPoRnfrZ00U1GiFcxw/e4IZGsn0ijlmA9d45AXC5VifFlQ9hZQtQ/XxGEdq6/5qdn+lFw1Ut3Y
-        +YmC6jBQ==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1qaNMq-00DvXM-Sy; Sun, 27 Aug 2023 21:32:21 +0000
-Date:   Sun, 27 Aug 2023 22:32:20 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Hao Xu <hao.xu@linux.dev>
-Cc:     io-uring@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Christian Brauner <brauner@kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Stefan Roesch <shr@fb.com>, Clay Harris <bugs@claycon.org>,
-        Dave Chinner <david@fromorbit.com>,
-        "Darrick J . Wong" <djwong@kernel.org>,
-        linux-fsdevel@vger.kernel.org, linux-xfs@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-cachefs@redhat.com,
-        ecryptfs@vger.kernel.org, linux-nfs@vger.kernel.org,
-        linux-unionfs@vger.kernel.org, bpf@vger.kernel.org,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, codalist@coda.cs.cmu.edu,
-        linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
-        linux-mm@kvack.org, linux-nilfs@vger.kernel.org,
-        devel@lists.orangefs.org, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org, linux-mtd@lists.infradead.org,
-        Wanpeng Li <wanpengli@tencent.com>
-Subject: Re: [PATCH 07/11] vfs: add nowait parameter for file_accessed()
-Message-ID: <ZOvA5DJDZN0FRymp@casper.infradead.org>
-References: <20230827132835.1373581-1-hao.xu@linux.dev>
- <20230827132835.1373581-8-hao.xu@linux.dev>
+        with ESMTP id S229379AbjH0Xmf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 27 Aug 2023 19:42:35 -0400
+Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59D98D8;
+        Sun, 27 Aug 2023 16:42:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canb.auug.org.au;
+        s=201702; t=1693179750;
+        bh=oQw+CaWDrGtDtZjGxuU+HGlxJuh5yV8okwZVL9K0+IY=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=G6C9BfwvMcJgGzMFNuI0cvRPk77V5vmZHVy5oVhzs4M/uVVC3l3xe4H7Ye2wThWsM
+         UkdfpQgj547GcQ/JzBGKp2UAza/GY8AU49zrrL+0k41Vv/7iuioulYSrWpy+SQeu+c
+         V6Q9TbbkM/EA+94ifNVwQPEO3QvgrCeGsvKmFFzS8u5tYkuNs0gywax0Z4Ma09bD+5
+         cwMD1bWk2xtwOIhQcpKHBZBhA6l/E4YPnAwHj5DKqe4BsDiOT30PGBQNE3Cx2QQLBX
+         TtmFCIcrnAUyQnI0gZVTarZH/HD1F9pmuQbFMhXLasugb+WUm6y5jpAKaam1vxpxc8
+         CLfYb+DPBgfdA==
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4RYqx23qrzz4wb8;
+        Mon, 28 Aug 2023 09:42:30 +1000 (AEST)
+Date:   Mon, 28 Aug 2023 09:42:28 +1000
+From:   Stephen Rothwell <sfr@canb.auug.org.au>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [GIT PULL] s390 updates for 6.6 merge window
+Message-ID: <20230828094228.2381967f@canb.auug.org.au>
+In-Reply-To: <20230827203401.5559-B-hca@linux.ibm.com>
+References: <20230827203058.5559-A-hca@linux.ibm.com>
+        <20230827203401.5559-B-hca@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230827132835.1373581-8-hao.xu@linux.dev>
+Content-Type: multipart/signed; boundary="Sig_/c=PxV_9WEcCkRj9cHpf=UNd";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Aug 27, 2023 at 09:28:31PM +0800, Hao Xu wrote:
-> From: Hao Xu <howeyxu@tencent.com>
-> 
-> Add a boolean parameter for file_accessed() to support nowait semantics.
-> Currently it is true only with io_uring as its initial caller.
+--Sig_/c=PxV_9WEcCkRj9cHpf=UNd
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-So why do we need to do this as part of this series?  Apparently it
-hasn't caused any problems for filemap_read().
+Hi Heiko,
 
-> +++ b/mm/filemap.c
-> @@ -2723,7 +2723,7 @@ ssize_t filemap_read(struct kiocb *iocb, struct iov_iter *iter,
->  		folio_batch_init(&fbatch);
->  	} while (iov_iter_count(iter) && iocb->ki_pos < isize && !error);
->  
-> -	file_accessed(filp);
-> +	file_accessed(filp, false);
->  
->  	return already_read ? already_read : error;
->  }
-> @@ -2809,7 +2809,7 @@ generic_file_read_iter(struct kiocb *iocb, struct iov_iter *iter)
->  		retval = kiocb_write_and_wait(iocb, count);
->  		if (retval < 0)
->  			return retval;
-> -		file_accessed(file);
-> +		file_accessed(file, false);
->  
->  		retval = mapping->a_ops->direct_IO(iocb, iter);
->  		if (retval >= 0) {
-> @@ -2978,7 +2978,7 @@ ssize_t filemap_splice_read(struct file *in, loff_t *ppos,
->  
->  out:
->  	folio_batch_release(&fbatch);
-> -	file_accessed(in);
-> +	file_accessed(in, false);
->  
->  	return total_spliced ? total_spliced : error;
->  }
+On Sun, 27 Aug 2023 22:34:01 +0200 Heiko Carstens <hca@linux.ibm.com> wrote:
+>
+> On Sun, Aug 27, 2023 at 10:31:00PM +0200, Heiko Carstens wrote:
+>=20
+> Maybe I'm doing something wrong, but below is the rather large diff
+> of the merge commit, using "git diff HEAD HEAD^@", where HEAD is the
+> merge commit.
+
+Something weird there.  I just see the arch/s390/Kconfig part (I use
+git diff-tree <merge commit>).  What did you merge?
+
+I can't see any commits affecting kernel/Kconfig.kexec in the s390
+branch in linux-next.
+--=20
+Cheers,
+Stephen Rothwell
+
+--Sig_/c=PxV_9WEcCkRj9cHpf=UNd
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEyBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAmTr32QACgkQAVBC80lX
+0GyQ7wf1FNIfepFsUDSfIHgK1DUpYria/ObmqgZbD7b6GqwjC7Ed/jNIbxnwAJTZ
+S6b0MUZa0XFbOnOBWjek+kc7II9WXPxdmLE2sH13cDVzqUJ1is63GUwSMVGfmN34
+iZdXQakCHLIQXVtoT9esdGfwiAp+URxshJqS41xTQFNC9HLDVcYN70T36nQ7Uzel
+oDFfuOtIphh+3wnUGImovqMoSp/JyAhfc5UX3EjhLcDOrxl/ZC66V2CLriNUYIlE
+ziJhLJ3rZqxgnXuFaFkZEE1grOi7kTfWfVTQGtmY2E07jJGjgB+CnqG8x1mRaEAn
+iK90W4q6aVngh/eV7Pg6qJ4J+U8V
+=+vIK
+-----END PGP SIGNATURE-----
+
+--Sig_/c=PxV_9WEcCkRj9cHpf=UNd--
