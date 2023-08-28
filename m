@@ -2,86 +2,82 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FA5AC83F14
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Aug 2023 01:11:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82166C83F13
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Aug 2023 06:18:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229470AbjH1BK5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 27 Aug 2023 21:10:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47714 "EHLO
+        id S229728AbjH1GSK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Aug 2023 02:18:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbjH1BK2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 27 Aug 2023 21:10:28 -0400
-Received: from gandalf.ozlabs.org (mail.ozlabs.org [IPv6:2404:9400:2221:ea00::3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 774B2AA;
-        Sun, 27 Aug 2023 18:10:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canb.auug.org.au;
-        s=201702; t=1693185020;
-        bh=hiT5q+hGC2lwo08ERy44QxB5Jj+2K1z0AdLVE/fhAc0=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=ARoxuzWq2dpAxnho9INpeo+/DFKRPgZNu8cq/w5Gpgxnk0hn7O/b9PuXhNGzYT8Fg
-         yC5QTTsrWoFAjA1unjbu1oxiVuNYFBuesMpG1lqgHNJOY1qy++kB+Kv6OyytmBYfQx
-         GylSRcWBJ6hqNbWkJ3f46xXUJ7khbbIV6chjh/B9+bZpXTvnnuA/Q9+snV/kg7ovx+
-         OSanCCB1IBiWixJtUzLK5RTdZn3akj5Px7GDUw5nvyne3rULb6flSGRj4uvh9Fh4pY
-         dwAUPQTzEJHmpcz7sikWLmET4PmbKOMTFiewuUiZLh5L5AS5T2Zy2i1J9AK6Y07rUc
-         ol4qYnWUXU3Ag==
+        with ESMTP id S229513AbjH1GRm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Aug 2023 02:17:42 -0400
+Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49F9BC6;
+        Sun, 27 Aug 2023 23:17:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1693203432;
+        bh=RLh/iKkhkkusFbJvY334+vB2M1uIDZ/5pE7VOu44/vs=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=JTyQZFDqNMeMVmO4EfPbcnBAZ1DuSvbuwFjAnB8hSINbPAT7GN+TCyGskVksx4HqU
+         qlglGjm7W6QpmD7R7ZY055gnq3+8SzUN1VvjbGgrCt8xLS9ywu8I2IEGj4hyM/rFrs
+         EKBPeTE+KGWADe4s4DSkURpDjiH+ruEWVi6fPTUSRb86CcALzqCZc2iaDeQZOJC0xR
+         ai+fS4iHyIw2BWPMTGlKuLeyZyb6kxF0Csk351GZU+Rfl0awmhXkm90BAZ4gsOMSiU
+         7QdNfRvx++uGuFtP9TmDplcr+JF1HigKcAAfv4Kangxy0rMI5AHg4zzZ1CgZ5knBpH
+         m//LD/elqaqXQ==
 Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4RYstN5CYHz4wd0;
-        Mon, 28 Aug 2023 11:10:20 +1000 (AEST)
-Date:   Mon, 28 Aug 2023 11:10:18 +1000
-From:   Stephen Rothwell <sfr@canb.auug.org.au>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [GIT PULL] s390 updates for 6.6 merge window
-Message-ID: <20230828111018.42b6733d@canb.auug.org.au>
-In-Reply-To: <20230828094228.2381967f@canb.auug.org.au>
-References: <20230827203058.5559-A-hca@linux.ibm.com>
-        <20230827203401.5559-B-hca@linux.ibm.com>
-        <20230828094228.2381967f@canb.auug.org.au>
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4RZ0hQ2vSYz4wxQ;
+        Mon, 28 Aug 2023 16:17:10 +1000 (AEST)
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Masahiro Yamada <masahiroy@kernel.org>,
+        Kees Cook <keescook@chromium.org>
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Nicolas Schier <nicolas@fjasle.eu>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        linux-kernel@vger.kernel.org, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-kbuild@vger.kernel.org,
+        linux-hardening@vger.kernel.org
+Subject: Re: [PATCH v2 0/2] kbuild: Show Kconfig fragments in "help"
+In-Reply-To: <CAK7LNATcTw+btQVri7SBA8gFbDNMYz7D2gMQaoZp9sQGFjCw8Q@mail.gmail.com>
+References: <20230825194329.gonna.911-kees@kernel.org>
+ <CAK7LNATcTw+btQVri7SBA8gFbDNMYz7D2gMQaoZp9sQGFjCw8Q@mail.gmail.com>
+Date:   Mon, 28 Aug 2023 16:17:07 +1000
+Message-ID: <87ttsjlmho.fsf@mail.lhotse>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_/Z_5TIPutUKvAAZMmpk216i1";
- protocol="application/pgp-signature"; micalg=pgp-sha256
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
---Sig_/Z_5TIPutUKvAAZMmpk216i1
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
-
-Hi all,
-
-On Mon, 28 Aug 2023 09:42:28 +1000 Stephen Rothwell <sfr@canb.auug.org.au> =
-wrote:
+Masahiro Yamada <masahiroy@kernel.org> writes:
+> On Sat, Aug 26, 2023 at 4:55=E2=80=AFAM Kees Cook <keescook@chromium.org>=
+ wrote:
+>>
+>> Hi,
+>>
+>> This is my series to show *.config targets in the "help" target so these
+>> various topics can be more easily discoverd.
+>>
+>> v2:
+>>  - split .fragment from .config to hide "internal" fragments
 >
->> Something weird there.  I just see the arch/s390/Kconfig part (I use
-> git diff-tree <merge commit>).  What did you merge?
+> Please do not do this churn.
 
-Actually I use "git diff-tree --cc <merge commit>"
+That was my idea :}
 
---=20
-Cheers,
-Stephen Rothwell
+> Like Randy, I did not get "why" part quiet well,
+> but if you are eager about this,
+> you can show help message only when the following
+> ("# Help:" prefix for example) is found in the first line.
+>
+> # Help: blah blah
+> # other comment
 
---Sig_/Z_5TIPutUKvAAZMmpk216i1
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
+I did think of that, but wasn't sure how to do it in make.
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAmTr8/oACgkQAVBC80lX
-0GyQEAf/f+C/omFbtznRGxh00Gg5LqIfbKwJPx9WxoEAOVzTiJBb/8StxEdecUwD
-J0P/GNQ7pxyVi38KbLGUDxSf74MioIM2t/W1xf+ewIvzoC6P0II6cwrz5Fy8EC79
-pFthdfJ58jKFkhv8hoKY4oLnmOphb8PmpOebvsr1we9ed4uDVWzOQkn8iZYBV9Vk
-/BTm6Pl/BUNmYg+Znws6EB8rB0Jrdzghujd0OhcNTinqTWlUa0QT3v1nD+6fHqVq
-T28TuTmdTWD7Ys2KUmPDIMVUYeIL/GMMVsHz4xNQlq1ezCnVKF5OvqPOUq8GtHsT
-ORhYdypX6R3w4noPO5+AN3xTtuMO1Q==
-=iJOD
------END PGP SIGNATURE-----
-
---Sig_/Z_5TIPutUKvAAZMmpk216i1--
+cheers
