@@ -2,118 +2,174 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CCC7C83F18
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Aug 2023 14:28:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF4E5C83F12
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Aug 2023 15:16:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231376AbjH1O2D (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Aug 2023 10:28:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46812 "EHLO
+        id S230149AbjH1PP7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Aug 2023 11:15:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231778AbjH1O1n (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Aug 2023 10:27:43 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90E6D9D;
-        Mon, 28 Aug 2023 07:27:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=uSnxqZdcrAYLPJPn0DfMY9X2iPdkTMayza8iox8Bem8=; b=rbTi8dih1WwPPGr+ioF2zSIKKN
-        0mmMd7Mf6Y5CF6A3xbL6k1rG0Eq5PWNYD84YkTP/PYD6I8n7fwj9JtPf3x5xfflk7Of9PmT6yVoWg
-        jDUfTlhnUqF1ibZ6C9C5Qp1FAcJBPSA1UYGVoKPgYhWBRS4hFyN/qulLfky0u5g5JfBjJuWo9rAVd
-        OmVBPYeBaMmY44rW3+ehZ8vQr36snspggxlo5N+wQ2MnsZOlSw7LhANyJrm+6WDGYJ2q3IlcmhpsD
-        alE6KXAxYfEVAogHtFQTNBnQoXb84wJ9x/IDWMwjf/34MizydIM1onWP9QQVyidEc4XNREZoED++f
-        uj07NLVA==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
-        id 1qadDM-009iIb-0l;
-        Mon, 28 Aug 2023 14:27:36 +0000
-Date:   Mon, 28 Aug 2023 07:27:36 -0700
-From:   Christoph Hellwig <hch@infradead.org>
-To:     Al Viro <viro@zeniv.linux.org.uk>
-Cc:     Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org,
-        linux-block@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-        Alasdair Kergon <agk@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Anna Schumaker <anna@kernel.org>, Chao Yu <chao@kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Dave Kleikamp <shaggy@kernel.org>,
-        David Sterba <dsterba@suse.com>, dm-devel@redhat.com,
-        drbd-dev@lists.linbit.com, Gao Xiang <xiang@kernel.org>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        jfs-discussion@lists.sourceforge.net,
-        Joern Engel <joern@lazybastard.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        linux-bcache@vger.kernel.org, linux-btrfs@vger.kernel.org,
-        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net, linux-mm@kvack.org,
-        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
-        linux-nilfs@vger.kernel.org, linux-nvme@lists.infradead.org,
-        linux-pm@vger.kernel.org, linux-raid@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-xfs@vger.kernel.org,
-        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
-        Mike Snitzer <snitzer@kernel.org>,
-        Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com,
-        reiserfs-devel@vger.kernel.org,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Song Liu <song@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        target-devel@vger.kernel.org, Ted Tso <tytso@mit.edu>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        xen-devel@lists.xenproject.org, Jens Axboe <axboe@kernel.dk>,
-        Christian Brauner <brauner@kernel.org>
-Subject: Re: [PATCH v2 0/29] block: Make blkdev_get_by_*() return handle
-Message-ID: <ZOyu2FX7Fmzj6JJz@infradead.org>
-References: <20230810171429.31759-1-jack@suse.cz>
- <20230825015843.GB95084@ZenIV>
- <20230825134756.o3wpq6bogndukn53@quack3>
- <20230826022852.GO3390869@ZenIV>
+        with ESMTP id S232418AbjH1PPi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Aug 2023 11:15:38 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BE4E1B1;
+        Mon, 28 Aug 2023 08:15:33 -0700 (PDT)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37SFCElP032262;
+        Mon, 28 Aug 2023 15:15:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=a9zW4y6wX+Vjd4cyRYYup7zG8XHC/V5PSyLZbrCMtp4=;
+ b=Xp5YyjDHLeiM6N+cmcS5cdpEE4fCu4hXk9mueZxxhZhTYZ76fMZhEEt4GPXcrG5sHXe5
+ Vd0Nz35K0qyOB/wf4OHOpTqCrkr0i1JiOj/dX6QUKPeI5J62DeoQWygQ20wjTmoBHAey
+ 9saGgCh7MyZhGLF3J5C5qTxO7J308NG7806DwMcUikucfmwNRgd5PVM4Xbk3xG3QQtfV
+ VjwpN4WXPwEK2BU0D1/Ar7PjlTog+RQiSbhqdRhvi0rDdyecHTiqzuxiBH1TF1Roa8xP
+ ZdGqEkpHrs3d0d48bHEKZPW7b/ZOtmScTYmWeofi86h3h26zdKY4Z3GVdfVMTjdVonco WA== 
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sr8q797vg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 28 Aug 2023 15:15:31 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37SEpmME004888;
+        Mon, 28 Aug 2023 15:15:31 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3squqscfh8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 28 Aug 2023 15:15:31 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37SFFSJo58327298
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 28 Aug 2023 15:15:28 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F23F22004B;
+        Mon, 28 Aug 2023 15:15:27 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8A5D820040;
+        Mon, 28 Aug 2023 15:15:27 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 28 Aug 2023 15:15:27 +0000 (GMT)
+From:   Michael Mueller <mimu@linux.ibm.com>
+To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Viktor Mihajlovski <mihajlov@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Michael Mueller <mimu@linux.ibm.com>
+Subject: [PATCH v3] KVM: s390: fix gisa destroy operation might lead to cpu stalls
+Date:   Mon, 28 Aug 2023 17:15:19 +0200
+Message-Id: <20230828151519.2187418-1-mimu@linux.ibm.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230826022852.GO3390869@ZenIV>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: zUj5h_lKi6ydOdfuzzWmMUct5Xfc099e
+X-Proofpoint-ORIG-GUID: zUj5h_lKi6ydOdfuzzWmMUct5Xfc099e
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
+ definitions=2023-08-28_12,2023-08-28_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
+ mlxlogscore=816 suspectscore=0 bulkscore=0 spamscore=0 malwarescore=0
+ priorityscore=1501 lowpriorityscore=0 phishscore=0 mlxscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2308280132
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Aug 26, 2023 at 03:28:52AM +0100, Al Viro wrote:
-> I mean, look at claim_swapfile() for example:
->                 p->bdev = blkdev_get_by_dev(inode->i_rdev,
->                                    FMODE_READ | FMODE_WRITE | FMODE_EXCL, p);
->                 if (IS_ERR(p->bdev)) {
->                         error = PTR_ERR(p->bdev);
->                         p->bdev = NULL;
->                         return error;
->                 }
->                 p->old_block_size = block_size(p->bdev);
->                 error = set_blocksize(p->bdev, PAGE_SIZE);
->                 if (error < 0)
->                         return error;
-> we already have the file opened, and we keep it opened all the way until
-> the swapoff(2); here we have noticed that it's a block device and we
-> 	* open the fucker again (by device number), this time claiming
-> it with our swap_info_struct as holder, to be closed at swapoff(2) time
-> (just before we close the file)
+A GISA cannot be destroyed as long it is linked in the GIB alert list
+as this would break the alert list. Just waiting for its removal from
+the list triggered by another vm is not sufficient as it might be the
+only vm. The below shown cpu stall situation might occur when GIB alerts
+are delayed and is fixed by calling process_gib_alert_list() instead of
+waiting.
 
-Note that some drivers look at FMODE_EXCL/BLK_OPEN_EXCL in ->open.
-These are probably bogus and maybe we want to kill them, but that will
-need an audit first.
+At this time the vcpus of the vm are already destroyed and thus
+no vcpu can be kicked to enter the SIE again if for some reason an
+interrupt is pending for that vm.
 
-> BTW, what happens if two threads call ioctl(fd, BLKBSZSET, &n)
-> for the same descriptor that happens to have been opened O_EXCL?
-> Without O_EXCL they would've been unable to claim the sucker at the same
-> time - the holder we are using is the address of a function argument,
-> i.e. something that points to kernel stack of the caller.  Those would
-> conflict and we either get set_blocksize() calls fully serialized, or
-> one of the callers would eat -EBUSY.  Not so in "opened with O_EXCL"
-> case - they can very well overlap and IIRC set_blocksize() does *not*
-> expect that kind of crap...  It's all under CAP_SYS_ADMIN, so it's not
-> as if it was a meaningful security hole anyway, but it does look fishy.
+Additionally the IAM restore value is set to 0x00. That would be a bug
+introduced by incomplete device de-registration, i.e. missing
+kvm_s390_gisc_unregister() call.
 
-The user get to keep the pieces..  BLKBSZSET is kinda bogus anyway
-as the soft blocksize only matters for buffer_head-like I/O, and
-there only for file systems.  Not idea why anyone would set it manually.
+Setting this value and the IAM in the GISA to 0x00 guarantees that late
+interrupts don't bring the GISA back into the alert list.
+
+CPU stall caused by kvm_s390_gisa_destroy():
+
+ [ 4915.311372] rcu: INFO: rcu_sched detected expedited stalls on CPUs/tasks: { 14-.... } 24533 jiffies s: 5269 root: 0x1/.
+ [ 4915.311390] rcu: blocking rcu_node structures (internal RCU debug): l=1:0-15:0x4000/.
+ [ 4915.311394] Task dump for CPU 14:
+ [ 4915.311395] task:qemu-system-s39 state:R  running task     stack:0     pid:217198 ppid:1      flags:0x00000045
+ [ 4915.311399] Call Trace:
+ [ 4915.311401]  [<0000038003a33a10>] 0x38003a33a10
+ [ 4933.861321] rcu: INFO: rcu_sched self-detected stall on CPU
+ [ 4933.861332] rcu: 	14-....: (42008 ticks this GP) idle=53f4/1/0x4000000000000000 softirq=61530/61530 fqs=14031
+ [ 4933.861353] rcu: 	(t=42008 jiffies g=238109 q=100360 ncpus=18)
+ [ 4933.861357] CPU: 14 PID: 217198 Comm: qemu-system-s39 Not tainted 6.5.0-20230816.rc6.git26.a9d17c5d8813.300.fc38.s390x #1
+ [ 4933.861360] Hardware name: IBM 8561 T01 703 (LPAR)
+ [ 4933.861361] Krnl PSW : 0704e00180000000 000003ff804bfc66 (kvm_s390_gisa_destroy+0x3e/0xe0 [kvm])
+ [ 4933.861414]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
+ [ 4933.861416] Krnl GPRS: 0000000000000000 00000372000000fc 00000002134f8000 000000000d5f5900
+ [ 4933.861419]            00000002f5ea1d18 00000002f5ea1d18 0000000000000000 0000000000000000
+ [ 4933.861420]            00000002134fa890 00000002134f8958 000000000d5f5900 00000002134f8000
+ [ 4933.861422]            000003ffa06acf98 000003ffa06858b0 0000038003a33c20 0000038003a33bc8
+ [ 4933.861430] Krnl Code: 000003ff804bfc58: ec66002b007e	cij	%r6,0,6,000003ff804bfcae
+                           000003ff804bfc5e: b904003a		lgr	%r3,%r10
+                          #000003ff804bfc62: a7f40005		brc	15,000003ff804bfc6c
+                          >000003ff804bfc66: e330b7300204	lg	%r3,10032(%r11)
+                           000003ff804bfc6c: 58003000		l	%r0,0(%r3)
+                           000003ff804bfc70: ec03fffb6076	crj	%r0,%r3,6,000003ff804bfc66
+                           000003ff804bfc76: e320b7600271	lay	%r2,10080(%r11)
+                           000003ff804bfc7c: c0e5fffea339	brasl	%r14,000003ff804942ee
+ [ 4933.861444] Call Trace:
+ [ 4933.861445]  [<000003ff804bfc66>] kvm_s390_gisa_destroy+0x3e/0xe0 [kvm]
+ [ 4933.861460] ([<00000002623523de>] free_unref_page+0xee/0x148)
+ [ 4933.861507]  [<000003ff804aea98>] kvm_arch_destroy_vm+0x50/0x120 [kvm]
+ [ 4933.861521]  [<000003ff8049d374>] kvm_destroy_vm+0x174/0x288 [kvm]
+ [ 4933.861532]  [<000003ff8049d4fe>] kvm_vm_release+0x36/0x48 [kvm]
+ [ 4933.861542]  [<00000002623cd04a>] __fput+0xea/0x2a8
+ [ 4933.861547]  [<00000002620d5bf8>] task_work_run+0x88/0xf0
+ [ 4933.861551]  [<00000002620b0aa6>] do_exit+0x2c6/0x528
+ [ 4933.861556]  [<00000002620b0f00>] do_group_exit+0x40/0xb8
+ [ 4933.861557]  [<00000002620b0fa6>] __s390x_sys_exit_group+0x2e/0x30
+ [ 4933.861559]  [<0000000262d481f4>] __do_syscall+0x1d4/0x200
+ [ 4933.861563]  [<0000000262d59028>] system_call+0x70/0x98
+ [ 4933.861565] Last Breaking-Event-Address:
+ [ 4933.861566]  [<0000038003a33b60>] 0x38003a33b60
+
+Fixes: 9f30f6216378 ("KVM: s390: add gib_alert_irq_handler()")
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+---
+ arch/s390/kvm/interrupt.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 85e39f472bb4..75e200bd1030 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -3216,11 +3216,12 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
+ 
+ 	if (!gi->origin)
+ 		return;
+-	if (gi->alert.mask)
+-		KVM_EVENT(3, "vm 0x%pK has unexpected iam 0x%02x",
+-			  kvm, gi->alert.mask);
+-	while (gisa_in_alert_list(gi->origin))
+-		cpu_relax();
++	WARN(gi->alert.mask != 0x00,
++	     "unexpected non zero alert.mask 0x%02x",
++	     gi->alert.mask);
++	gi->alert.mask = 0x00;
++	if (gisa_set_iam(gi->origin, gi->alert.mask))
++		process_gib_alert_list();
+ 	hrtimer_cancel(&gi->timer);
+ 	gi->origin = NULL;
+ 	VM_EVENT(kvm, 3, "gisa 0x%pK destroyed", gisa);
+-- 
+2.39.2
+
