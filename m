@@ -2,59 +2,59 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 335DFC83F11
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Aug 2023 21:04:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46A58C83F15
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Aug 2023 21:05:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229490AbjH1VDy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Aug 2023 17:03:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37536 "EHLO
+        id S233291AbjH1VFA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Aug 2023 17:05:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233472AbjH1VDb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Aug 2023 17:03:31 -0400
+        with ESMTP id S232656AbjH1VEd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Aug 2023 17:04:33 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB5A5139
-        for <linux-s390@vger.kernel.org>; Mon, 28 Aug 2023 14:02:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9463D2
+        for <linux-s390@vger.kernel.org>; Mon, 28 Aug 2023 14:03:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1693256564;
+        s=mimecast20190719; t=1693256631;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=P4Hc7lOVUb37Hr8DSGTvFTUMZzvNY/pqjNxxEvyeHyI=;
-        b=M8r6rZBU9LrEhYHADcGLbqegvB5OrT+yqsmTY6nOHKHxLQ1nrGK2/uEQXIXFEHg8Q3driv
-        pyAtaFjvSwVxaudrN5ZnqTOU51V4wqVUi6EHEJrsVE8xYRAF+SB0PXX16b4vtbsseUfjlH
-        Jwpws3KdZAnsQdz9VaC5nCMkUUToLs8=
-Received: from mail-vs1-f69.google.com (mail-vs1-f69.google.com
- [209.85.217.69]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=HWGAjWA2SZIgARlOfsf2TOxHPntdeHshE+ifQSu/y8U=;
+        b=SJy7J7OO5NgCERnXV/0/R0fqYuRw7BCXluBJhF7R8Cv3Eudkt8kzf68fkDLvuWSFjMgYT2
+        +Tnfn2mg2IPm2P+9ydYF9beTYpqNMzvQH85nKpjiV0JxIctRd/F5n6z2aosUVCjoFgqF49
+        oDONxOsCnym5ahxTMQkzEkgG9gvkoF4=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-326-bSJsIs1-Pp6oHyzbOPBT_g-1; Mon, 28 Aug 2023 17:02:42 -0400
-X-MC-Unique: bSJsIs1-Pp6oHyzbOPBT_g-1
-Received: by mail-vs1-f69.google.com with SMTP id ada2fe7eead31-44d46b22e9eso1614807137.1
-        for <linux-s390@vger.kernel.org>; Mon, 28 Aug 2023 14:02:42 -0700 (PDT)
+ us-mta-132-FdyrMosgOTi-bPCmaCJQkw-1; Mon, 28 Aug 2023 17:03:49 -0400
+X-MC-Unique: FdyrMosgOTi-bPCmaCJQkw-1
+Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-76ef205d695so350075585a.0
+        for <linux-s390@vger.kernel.org>; Mon, 28 Aug 2023 14:03:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693256562; x=1693861362;
+        d=1e100.net; s=20221208; t=1693256629; x=1693861429;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=P4Hc7lOVUb37Hr8DSGTvFTUMZzvNY/pqjNxxEvyeHyI=;
-        b=DDr5mo48s6H42TZapn4BOBJEK3GLHEq/4fYb9kRJ6E2iiOGZlcKGJaEGy5lnW1lnf6
-         mLKpIqQNNRt5o2pZGXBQmQ+q9Bmd7JC9PhD2FLZvvlh3VKejpbRy91V8bEnxKrfnbPis
-         y9z8zqx6GQXIVVG4fXCrc75Bf94p+RLUsbXtqkTFas6uKyxDHQ/Xw6/YAEqJ8715VCzf
-         jxMNc2qert7amHId1edHPM62CPUD8iLdJea314APykLRJGK3KfyNWUdvAjY8Cdx3tFz/
-         7Zdwx+EpBjjdNi0dZeRzbNHumi5pxIhABLSbMMmW7NszvMUVGbFhIyDpW06RN40XJjKa
-         gMKg==
-X-Gm-Message-State: AOJu0YzxUrculPwfnW8J293eGF8b0KXLtrTOJEeVkX4AZFsx0nBcK8yB
-        1TiOEoVDdEqS8rlANNTvHyWnx/WPO4pycdGIbuWHz81/HAJae/QpjsjrN1Gt3fTFwEe+DGmHEFf
-        BBek7huM3N8gMy3Ni0AT6mA==
-X-Received: by 2002:a67:ad1a:0:b0:44d:4196:f374 with SMTP id t26-20020a67ad1a000000b0044d4196f374mr21657372vsl.14.1693256562234;
-        Mon, 28 Aug 2023 14:02:42 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG1O+ulqQs16fLrviLhIDcWj2NFGLF73P8fTFl1IfopkK1Ei1hjIoNJD//dyDhnkd8Fjfj6aA==
-X-Received: by 2002:a67:ad1a:0:b0:44d:4196:f374 with SMTP id t26-20020a67ad1a000000b0044d4196f374mr21657332vsl.14.1693256561816;
-        Mon, 28 Aug 2023 14:02:41 -0700 (PDT)
+        bh=HWGAjWA2SZIgARlOfsf2TOxHPntdeHshE+ifQSu/y8U=;
+        b=lr7uoQR1Nncgh4N6qAIbXitv8dfzrpjwu9B3urWqkdMgYwJGT1chj2EV8wZZhAK/Et
+         a+/FMhJaxNdgAuVty5a6uUfQgu+WsLMUUZ6HLhlPt90gst9I4/cyRK9JrCHkDmk3x8u4
+         BP+J05yGu4IV3+D/o7d8b2uZxYb4ylnt/BcPQaZ8wDlddV6ldO60GGrDM8U2FynvkLa6
+         Ekh4ibO1zkiBjKhqrOxLYCsuSEbAhpM+BRiYlMfljy3L2YXhWTra5n0SgyoQPO/lrVNE
+         5uga+K/uPN4O6+m0BLgiK6tyWjTUhV2JCVB0BMbZihc3kpKExjRyTG7f7QTT4d6Y2UBJ
+         Q8fg==
+X-Gm-Message-State: AOJu0Yx+cm7pmrKGQ3GRihDG6wuq+lSjMtELnS5nDeESEAsN8NgHmjY5
+        Vu/I+Jy6Y45nLl4LzU+oyVaNyY0N2T5ZcA0gp6h7ZvYeEp0UfbG2vzz0u73QPLslkKpuYM12dzp
+        DS7c6fQI37c/9BTDXQK6mng==
+X-Received: by 2002:a05:620a:4043:b0:76d:a569:cca9 with SMTP id i3-20020a05620a404300b0076da569cca9mr1135630qko.16.1693256629216;
+        Mon, 28 Aug 2023 14:03:49 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHPzgbmIBwnSRpgIiayc8cNLu07wX9Qi7uegSYIbsuDejPaJeraN4CSa9e1P57NFTVOJ82DNQ==
+X-Received: by 2002:a05:620a:4043:b0:76d:a569:cca9 with SMTP id i3-20020a05620a404300b0076da569cca9mr1135581qko.16.1693256628994;
+        Mon, 28 Aug 2023 14:03:48 -0700 (PDT)
 Received: from localhost (ip98-179-76-75.ph.ph.cox.net. [98.179.76.75])
-        by smtp.gmail.com with ESMTPSA id j10-20020a0cf50a000000b0064f732aa45csm2873129qvm.133.2023.08.28.14.02.41
+        by smtp.gmail.com with ESMTPSA id l19-20020ac87253000000b0041061a16791sm2555777qtp.67.2023.08.28.14.03.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Aug 2023 14:02:41 -0700 (PDT)
-Date:   Mon, 28 Aug 2023 14:02:40 -0700
+        Mon, 28 Aug 2023 14:03:48 -0700 (PDT)
+Date:   Mon, 28 Aug 2023 14:03:47 -0700
 From:   Jerry Snitselaar <jsnitsel@redhat.com>
 To:     Jason Gunthorpe <jgg@nvidia.com>
 Cc:     Andy Gross <agross@kernel.org>,
@@ -98,31 +98,28 @@ Cc:     Andy Gross <agross@kernel.org>,
         Niklas Schnelle <schnelle@linux.ibm.com>,
         Steven Price <steven.price@arm.com>,
         Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH v7 17/24] iommu/ipmmu: Add an IOMMU_IDENTITIY_DOMAIN
-Message-ID: <ftxla3xdnxqknqg4k6qxwh6nquhdpzfmzyuvkzg7gwjxf42p6w@7ek73gnk5mue>
+Subject: Re: [PATCH v7 18/24] iommu/mtk_iommu: Add an IOMMU_IDENTITIY_DOMAIN
+Message-ID: <co5jqsviedblnyi7gkdkjuo6n3ai6o4qvzclvqfyrl6h7ugtdr@lkwojyyjq3qh>
 References: <0-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
- <17-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
+ <18-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
+In-Reply-To: <18-v7-de04a3217c48+15055-iommu_all_defdom_jgg@nvidia.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Aug 23, 2023 at 01:47:31PM -0300, Jason Gunthorpe wrote:
+On Wed, Aug 23, 2023 at 01:47:32PM -0300, Jason Gunthorpe wrote:
 > This brings back the ops->detach_dev() code that commit
 > 1b932ceddd19 ("iommu: Remove detach_dev callbacks") deleted and turns it
 > into an IDENTITY domain.
 > 
-> Also reverts commit 584d334b1393 ("iommu/ipmmu-vmsa: Remove
-> ipmmu_utlb_disable()")
-> 
 > Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
 > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 > ---
->  drivers/iommu/ipmmu-vmsa.c | 43 ++++++++++++++++++++++++++++++++++++++
->  1 file changed, 43 insertions(+)
+>  drivers/iommu/mtk_iommu.c | 23 +++++++++++++++++++++++
+>  1 file changed, 23 insertions(+)
 > 
 
 Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
