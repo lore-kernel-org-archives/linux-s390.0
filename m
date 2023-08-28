@@ -2,174 +2,196 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF4E5C83F12
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Aug 2023 15:16:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C32F2C83F12
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Aug 2023 15:38:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230149AbjH1PP7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Aug 2023 11:15:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48436 "EHLO
+        id S231936AbjH1Phd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Aug 2023 11:37:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232418AbjH1PPi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Aug 2023 11:15:38 -0400
+        with ESMTP id S231740AbjH1PhC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Aug 2023 11:37:02 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BE4E1B1;
-        Mon, 28 Aug 2023 08:15:33 -0700 (PDT)
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37SFCElP032262;
-        Mon, 28 Aug 2023 15:15:32 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ED17CC1;
+        Mon, 28 Aug 2023 08:36:48 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37SF9DW0011291;
+        Mon, 28 Aug 2023 15:36:47 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=a9zW4y6wX+Vjd4cyRYYup7zG8XHC/V5PSyLZbrCMtp4=;
- b=Xp5YyjDHLeiM6N+cmcS5cdpEE4fCu4hXk9mueZxxhZhTYZ76fMZhEEt4GPXcrG5sHXe5
- Vd0Nz35K0qyOB/wf4OHOpTqCrkr0i1JiOj/dX6QUKPeI5J62DeoQWygQ20wjTmoBHAey
- 9saGgCh7MyZhGLF3J5C5qTxO7J308NG7806DwMcUikucfmwNRgd5PVM4Xbk3xG3QQtfV
- VjwpN4WXPwEK2BU0D1/Ar7PjlTog+RQiSbhqdRhvi0rDdyecHTiqzuxiBH1TF1Roa8xP
- ZdGqEkpHrs3d0d48bHEKZPW7b/ZOtmScTYmWeofi86h3h26zdKY4Z3GVdfVMTjdVonco WA== 
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sr8q797vg-1
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=C3N5EnXS5L0CyvjvT6IR8it7UFFm20tYn+27wtltb8U=;
+ b=LI1xksP2s8hhc60KuuR2ImtJZ7CMAJh7dN0cNnW7+64iULOMeXJGuVkDjom6N7ZWnIWH
+ 1vni9UcCSdUjdQTjeL32fGru9Ohe6dRal+ibMINs7GycAMu63X/v5XjsILPOmqtIrW0S
+ 1Jj45DYODrj2tZB8z8Oki5IxHTvsKDtpzNtbgq0/Kv0f8e7A6vb67jIPsXJN8K+zMXAy
+ MHdtYSDFH2TmxT2taGOR3HHgaqtOf3PECPCpeaFIU71cD54L/j4Xixx+ZrxGRLc/dkLO
+ F9wOIXDJ2ltE+KZIBQjPLRBOw0PnJqbjIoUPXaJ8wMFgPpf4EBo2k9uNpAIDrG6xtdcp 1w== 
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sr8n5h43f-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Aug 2023 15:15:31 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37SEpmME004888;
-        Mon, 28 Aug 2023 15:15:31 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3squqscfh8-1
+        Mon, 28 Aug 2023 15:36:46 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37SEf5Q7014196;
+        Mon, 28 Aug 2023 15:31:46 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3sqwxjkthk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Aug 2023 15:15:31 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37SFFSJo58327298
+        Mon, 28 Aug 2023 15:31:46 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37SFVhm014221920
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 28 Aug 2023 15:15:28 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F23F22004B;
-        Mon, 28 Aug 2023 15:15:27 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8A5D820040;
-        Mon, 28 Aug 2023 15:15:27 +0000 (GMT)
+        Mon, 28 Aug 2023 15:31:43 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0C81220040;
+        Mon, 28 Aug 2023 15:31:43 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D8A9F2004B;
+        Mon, 28 Aug 2023 15:31:42 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 28 Aug 2023 15:15:27 +0000 (GMT)
-From:   Michael Mueller <mimu@linux.ibm.com>
-To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Viktor Mihajlovski <mihajlov@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Michael Mueller <mimu@linux.ibm.com>
-Subject: [PATCH v3] KVM: s390: fix gisa destroy operation might lead to cpu stalls
-Date:   Mon, 28 Aug 2023 17:15:19 +0200
-Message-Id: <20230828151519.2187418-1-mimu@linux.ibm.com>
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 28 Aug 2023 15:31:42 +0000 (GMT)
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Stefan Haberland <sth@linux.ibm.com>,
+        =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-block@vger.kernel.org
+Subject: [PATCH 1/1] s390/dasd: fix string length handling
+Date:   Mon, 28 Aug 2023 17:31:42 +0200
+Message-Id: <20230828153142.2843753-2-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230828153142.2843753-1-hca@linux.ibm.com>
+References: <20230828153142.2843753-1-hca@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: zUj5h_lKi6ydOdfuzzWmMUct5Xfc099e
-X-Proofpoint-ORIG-GUID: zUj5h_lKi6ydOdfuzzWmMUct5Xfc099e
+X-Proofpoint-ORIG-GUID: 7Oy3v3oSMLC7gXuDXAPkdiisWYXW8uwr
+X-Proofpoint-GUID: 7Oy3v3oSMLC7gXuDXAPkdiisWYXW8uwr
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
  definitions=2023-08-28_12,2023-08-28_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
- mlxlogscore=816 suspectscore=0 bulkscore=0 spamscore=0 malwarescore=0
- priorityscore=1501 lowpriorityscore=0 phishscore=0 mlxscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2308100000 definitions=main-2308280132
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ adultscore=0 impostorscore=0 priorityscore=1501 mlxscore=0
+ lowpriorityscore=0 mlxlogscore=999 malwarescore=0 clxscore=1015
+ spamscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2308280137
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-A GISA cannot be destroyed as long it is linked in the GIB alert list
-as this would break the alert list. Just waiting for its removal from
-the list triggered by another vm is not sufficient as it might be the
-only vm. The below shown cpu stall situation might occur when GIB alerts
-are delayed and is fixed by calling process_gib_alert_list() instead of
-waiting.
+Building dasd_eckd.o with latest clang reveals this bug:
 
-At this time the vcpus of the vm are already destroyed and thus
-no vcpu can be kicked to enter the SIE again if for some reason an
-interrupt is pending for that vm.
+    CC      drivers/s390/block/dasd_eckd.o
+      drivers/s390/block/dasd_eckd.c:1082:3: warning: 'snprintf' will always be truncated;
+      specified size is 1, but format string expands to at least 11 [-Wfortify-source]
+       1082 |                 snprintf(print_uid, sizeof(*print_uid),
+            |                 ^
+      drivers/s390/block/dasd_eckd.c:1087:3: warning: 'snprintf' will always be truncated;
+      specified size is 1, but format string expands to at least 10 [-Wfortify-source]
+       1087 |                 snprintf(print_uid, sizeof(*print_uid),
+            |                 ^
 
-Additionally the IAM restore value is set to 0x00. That would be a bug
-introduced by incomplete device de-registration, i.e. missing
-kvm_s390_gisc_unregister() call.
+Fix this by moving and using the existing UID_STRLEN for the arrays
+that are being written to. Also rename UID_STRLEN to DASD_UID_STRLEN
+to clarify its scope.
 
-Setting this value and the IAM in the GISA to 0x00 guarantees that late
-interrupts don't bring the GISA back into the alert list.
-
-CPU stall caused by kvm_s390_gisa_destroy():
-
- [ 4915.311372] rcu: INFO: rcu_sched detected expedited stalls on CPUs/tasks: { 14-.... } 24533 jiffies s: 5269 root: 0x1/.
- [ 4915.311390] rcu: blocking rcu_node structures (internal RCU debug): l=1:0-15:0x4000/.
- [ 4915.311394] Task dump for CPU 14:
- [ 4915.311395] task:qemu-system-s39 state:R  running task     stack:0     pid:217198 ppid:1      flags:0x00000045
- [ 4915.311399] Call Trace:
- [ 4915.311401]  [<0000038003a33a10>] 0x38003a33a10
- [ 4933.861321] rcu: INFO: rcu_sched self-detected stall on CPU
- [ 4933.861332] rcu: 	14-....: (42008 ticks this GP) idle=53f4/1/0x4000000000000000 softirq=61530/61530 fqs=14031
- [ 4933.861353] rcu: 	(t=42008 jiffies g=238109 q=100360 ncpus=18)
- [ 4933.861357] CPU: 14 PID: 217198 Comm: qemu-system-s39 Not tainted 6.5.0-20230816.rc6.git26.a9d17c5d8813.300.fc38.s390x #1
- [ 4933.861360] Hardware name: IBM 8561 T01 703 (LPAR)
- [ 4933.861361] Krnl PSW : 0704e00180000000 000003ff804bfc66 (kvm_s390_gisa_destroy+0x3e/0xe0 [kvm])
- [ 4933.861414]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
- [ 4933.861416] Krnl GPRS: 0000000000000000 00000372000000fc 00000002134f8000 000000000d5f5900
- [ 4933.861419]            00000002f5ea1d18 00000002f5ea1d18 0000000000000000 0000000000000000
- [ 4933.861420]            00000002134fa890 00000002134f8958 000000000d5f5900 00000002134f8000
- [ 4933.861422]            000003ffa06acf98 000003ffa06858b0 0000038003a33c20 0000038003a33bc8
- [ 4933.861430] Krnl Code: 000003ff804bfc58: ec66002b007e	cij	%r6,0,6,000003ff804bfcae
-                           000003ff804bfc5e: b904003a		lgr	%r3,%r10
-                          #000003ff804bfc62: a7f40005		brc	15,000003ff804bfc6c
-                          >000003ff804bfc66: e330b7300204	lg	%r3,10032(%r11)
-                           000003ff804bfc6c: 58003000		l	%r0,0(%r3)
-                           000003ff804bfc70: ec03fffb6076	crj	%r0,%r3,6,000003ff804bfc66
-                           000003ff804bfc76: e320b7600271	lay	%r2,10080(%r11)
-                           000003ff804bfc7c: c0e5fffea339	brasl	%r14,000003ff804942ee
- [ 4933.861444] Call Trace:
- [ 4933.861445]  [<000003ff804bfc66>] kvm_s390_gisa_destroy+0x3e/0xe0 [kvm]
- [ 4933.861460] ([<00000002623523de>] free_unref_page+0xee/0x148)
- [ 4933.861507]  [<000003ff804aea98>] kvm_arch_destroy_vm+0x50/0x120 [kvm]
- [ 4933.861521]  [<000003ff8049d374>] kvm_destroy_vm+0x174/0x288 [kvm]
- [ 4933.861532]  [<000003ff8049d4fe>] kvm_vm_release+0x36/0x48 [kvm]
- [ 4933.861542]  [<00000002623cd04a>] __fput+0xea/0x2a8
- [ 4933.861547]  [<00000002620d5bf8>] task_work_run+0x88/0xf0
- [ 4933.861551]  [<00000002620b0aa6>] do_exit+0x2c6/0x528
- [ 4933.861556]  [<00000002620b0f00>] do_group_exit+0x40/0xb8
- [ 4933.861557]  [<00000002620b0fa6>] __s390x_sys_exit_group+0x2e/0x30
- [ 4933.861559]  [<0000000262d481f4>] __do_syscall+0x1d4/0x200
- [ 4933.861563]  [<0000000262d59028>] system_call+0x70/0x98
- [ 4933.861565] Last Breaking-Event-Address:
- [ 4933.861566]  [<0000038003a33b60>] 0x38003a33b60
-
-Fixes: 9f30f6216378 ("KVM: s390: add gib_alert_irq_handler()")
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Fixes: 23596961b437 ("s390/dasd: split up dasd_eckd_read_conf")
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/s390/block/dasd_devmap.c |  6 +-----
+ drivers/s390/block/dasd_eckd.c   | 10 +++++-----
+ drivers/s390/block/dasd_int.h    |  4 ++++
+ 3 files changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 85e39f472bb4..75e200bd1030 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -3216,11 +3216,12 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
+diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_devmap.c
+index 620fab01b710..c4e36650c426 100644
+--- a/drivers/s390/block/dasd_devmap.c
++++ b/drivers/s390/block/dasd_devmap.c
+@@ -1378,16 +1378,12 @@ static ssize_t dasd_vendor_show(struct device *dev,
  
- 	if (!gi->origin)
- 		return;
--	if (gi->alert.mask)
--		KVM_EVENT(3, "vm 0x%pK has unexpected iam 0x%02x",
--			  kvm, gi->alert.mask);
--	while (gisa_in_alert_list(gi->origin))
--		cpu_relax();
-+	WARN(gi->alert.mask != 0x00,
-+	     "unexpected non zero alert.mask 0x%02x",
-+	     gi->alert.mask);
-+	gi->alert.mask = 0x00;
-+	if (gisa_set_iam(gi->origin, gi->alert.mask))
-+		process_gib_alert_list();
- 	hrtimer_cancel(&gi->timer);
- 	gi->origin = NULL;
- 	VM_EVENT(kvm, 3, "gisa 0x%pK destroyed", gisa);
+ static DEVICE_ATTR(vendor, 0444, dasd_vendor_show, NULL);
+ 
+-#define UID_STRLEN ( /* vendor */ 3 + 1 + /* serial    */ 14 + 1 +\
+-		     /* SSID   */ 4 + 1 + /* unit addr */ 2 + 1 +\
+-		     /* vduit */ 32 + 1)
+-
+ static ssize_t
+ dasd_uid_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
++	char uid_string[DASD_UID_STRLEN];
+ 	struct dasd_device *device;
+ 	struct dasd_uid uid;
+-	char uid_string[UID_STRLEN];
+ 	char ua_string[3];
+ 
+ 	device = dasd_device_from_cdev(to_ccwdev(dev));
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 8587e423169e..bd89b032968a 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -1079,12 +1079,12 @@ static void dasd_eckd_get_uid_string(struct dasd_conf *conf,
+ 
+ 	create_uid(conf, &uid);
+ 	if (strlen(uid.vduit) > 0)
+-		snprintf(print_uid, sizeof(*print_uid),
++		snprintf(print_uid, DASD_UID_STRLEN,
+ 			 "%s.%s.%04x.%02x.%s",
+ 			 uid.vendor, uid.serial, uid.ssid,
+ 			 uid.real_unit_addr, uid.vduit);
+ 	else
+-		snprintf(print_uid, sizeof(*print_uid),
++		snprintf(print_uid, DASD_UID_STRLEN,
+ 			 "%s.%s.%04x.%02x",
+ 			 uid.vendor, uid.serial, uid.ssid,
+ 			 uid.real_unit_addr);
+@@ -1093,8 +1093,8 @@ static void dasd_eckd_get_uid_string(struct dasd_conf *conf,
+ static int dasd_eckd_check_cabling(struct dasd_device *device,
+ 				   void *conf_data, __u8 lpm)
+ {
++	char print_path_uid[DASD_UID_STRLEN], print_device_uid[DASD_UID_STRLEN];
+ 	struct dasd_eckd_private *private = device->private;
+-	char print_path_uid[60], print_device_uid[60];
+ 	struct dasd_conf path_conf;
+ 
+ 	path_conf.data = conf_data;
+@@ -1293,9 +1293,9 @@ static void dasd_eckd_path_available_action(struct dasd_device *device,
+ 	__u8 path_rcd_buf[DASD_ECKD_RCD_DATA_SIZE];
+ 	__u8 lpm, opm, npm, ppm, epm, hpfpm, cablepm;
+ 	struct dasd_conf_data *conf_data;
++	char print_uid[DASD_UID_STRLEN];
+ 	struct dasd_conf path_conf;
+ 	unsigned long flags;
+-	char print_uid[60];
+ 	int rc, pos;
+ 
+ 	opm = 0;
+@@ -5855,8 +5855,8 @@ static void dasd_eckd_dump_sense(struct dasd_device *device,
+ static int dasd_eckd_reload_device(struct dasd_device *device)
+ {
+ 	struct dasd_eckd_private *private = device->private;
++	char print_uid[DASD_UID_STRLEN];
+ 	int rc, old_base;
+-	char print_uid[60];
+ 	struct dasd_uid uid;
+ 	unsigned long flags;
+ 
+diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
+index 0aa56351da72..8a4dbe9d7741 100644
+--- a/drivers/s390/block/dasd_int.h
++++ b/drivers/s390/block/dasd_int.h
+@@ -259,6 +259,10 @@ struct dasd_uid {
+ 	char vduit[33];
+ };
+ 
++#define DASD_UID_STRLEN ( /* vendor */ 3 + 1 + /* serial    */ 14 + 1 +	\
++			  /* SSID   */ 4 + 1 + /* unit addr */ 2 + 1 +	\
++			  /* vduit */ 32 + 1)
++
+ /*
+  * PPRC Status data
+  */
 -- 
 2.39.2
 
