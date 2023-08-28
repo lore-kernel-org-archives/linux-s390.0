@@ -2,101 +2,138 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0864C71153
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Aug 2023 15:38:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84EB8C83F1A
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Aug 2023 17:10:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231646AbjH1Phc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Aug 2023 11:37:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58172 "EHLO
+        id S232269AbjH1RKQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Aug 2023 13:10:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231481AbjH1PhB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Aug 2023 11:37:01 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EB621B1;
-        Mon, 28 Aug 2023 08:36:48 -0700 (PDT)
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37SF8LkI016755;
-        Mon, 28 Aug 2023 15:36:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=fuSNwwow7xUdJM87SsviW6neX56cMmlgdBfa7WN6Pes=;
- b=tZz6wiCvOiAJIkOZwHKFSx9RDcuVCg2xVFHxxO8dwuzgHi1FJ8THOYMhtf1WMekpiZvn
- ok7sD8NfjNcn/smgJIDII3SPeoDrz6ve8He8iyWq5cPBR/aVD0It37c/P3YZDBFbzTGi
- fi5lZpFoUisEwWMOoTrcfMKTJmccHEMMiHEr1YcFGN60a+avBAJ0PSS9TK9p6cG3pVnO
- O+IMqcfQABShEo2l7ZXZCrRIY+N/OW9nr9MN+luMTnyGPOhwFy7luMBu/eUlR/F2modO
- aWVe2AwwnvvwOo9sP1VMkRGrp7VKSXhX/NMO5lS9TZ00SOuugigs2TJu2p4UgQ/cvuVy 6g== 
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sr87h2p5p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Aug 2023 15:36:46 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37SEqxLU019181;
-        Mon, 28 Aug 2023 15:31:45 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3sqxe1bnvc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Aug 2023 15:31:45 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37SFVg1F22020654
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 28 Aug 2023 15:31:43 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D207920043;
-        Mon, 28 Aug 2023 15:31:42 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9F2D320040;
-        Mon, 28 Aug 2023 15:31:42 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 28 Aug 2023 15:31:42 +0000 (GMT)
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Stefan Haberland <sth@linux.ibm.com>,
-        =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-block@vger.kernel.org
-Subject: [PATCH 0/1] s390/dasd: fix string length handling
-Date:   Mon, 28 Aug 2023 17:31:41 +0200
-Message-Id: <20230828153142.2843753-1-hca@linux.ibm.com>
-X-Mailer: git-send-email 2.39.2
+        with ESMTP id S232123AbjH1RJp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Aug 2023 13:09:45 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3655FE4F;
+        Mon, 28 Aug 2023 10:09:09 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 873FB1F37E;
+        Mon, 28 Aug 2023 17:07:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1693242465; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=gY+yGRa61TK2BR8Nw1XPStAseZID7tr6EzNodmZtwGI=;
+        b=qVtknFwaytxobpauxbbKFuuIVi6tPH4Iq6U6De70imbcWuGOxhftHNb/4FbPSlc5GK5oK7
+        GshsV6S1hXqpxSKPutaEa7H9BjX/0wslT8a/D4qnl6I13zhL54OxmZm3biLLUgjj3B0284
+        RPao+ZPH1kv8DfDq9EfFHRPOBMpXacI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1693242465;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=gY+yGRa61TK2BR8Nw1XPStAseZID7tr6EzNodmZtwGI=;
+        b=R3UkEJ5CJtN+ADS2q+nxkKoBRTSfFifpdVN9hgBj3Kx2evg21jSoeC6uq7LeWXoMGsRfiN
+        pZDyCc1pRe5jtEDQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 6A42A139CC;
+        Mon, 28 Aug 2023 17:07:45 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id scxcGWHU7GQMNQAAMHmgww
+        (envelope-from <jack@suse.cz>); Mon, 28 Aug 2023 17:07:45 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+        id CE101A0774; Mon, 28 Aug 2023 19:07:44 +0200 (CEST)
+Date:   Mon, 28 Aug 2023 19:07:44 +0200
+From:   Jan Kara <jack@suse.cz>
+To:     Christian Brauner <brauner@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
+        linux-fsdevel@vger.kernel.org, linux-block@vger.kernel.org,
+        Christoph Hellwig <hch@infradead.org>,
+        Alasdair Kergon <agk@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anna Schumaker <anna@kernel.org>, Chao Yu <chao@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Dave Kleikamp <shaggy@kernel.org>,
+        David Sterba <dsterba@suse.com>, dm-devel@redhat.com,
+        drbd-dev@lists.linbit.com, Gao Xiang <xiang@kernel.org>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        jfs-discussion@lists.sourceforge.net,
+        Joern Engel <joern@lazybastard.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        linux-bcache@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, linux-mm@kvack.org,
+        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
+        linux-nilfs@vger.kernel.org, linux-nvme@lists.infradead.org,
+        linux-pm@vger.kernel.org, linux-raid@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-xfs@vger.kernel.org,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com,
+        reiserfs-devel@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Song Liu <song@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        target-devel@vger.kernel.org, Ted Tso <tytso@mit.edu>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        xen-devel@lists.xenproject.org
+Subject: Re: [PATCH v3 0/29] block: Make blkdev_get_by_*() return handle
+Message-ID: <20230828170744.iifdmaw732cfiauf@quack3>
+References: <20230818123232.2269-1-jack@suse.cz>
+ <20230825-hubraum-gedreht-8c5c4db9330a@brauner>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Jqw_vFUrPEw0Lb7OVDvQuxgkGNAiOsnO
-X-Proofpoint-GUID: Jqw_vFUrPEw0Lb7OVDvQuxgkGNAiOsnO
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-08-28_12,2023-08-28_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=477
- priorityscore=1501 clxscore=1015 impostorscore=0 suspectscore=0
- adultscore=0 mlxscore=0 malwarescore=0 phishscore=0 bulkscore=0
- lowpriorityscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2308100000 definitions=main-2308280137
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230825-hubraum-gedreht-8c5c4db9330a@brauner>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Jens,
+On Fri 25-08-23 15:32:47, Christian Brauner wrote:
+> On Wed, Aug 23, 2023 at 12:48:11PM +0200, Jan Kara wrote:
+> > Hello,
+> > 
+> > this is a v3 of the patch series which implements the idea of blkdev_get_by_*()
+> > calls returning bdev_handle which is then passed to blkdev_put() [1]. This
+> > makes the get and put calls for bdevs more obviously matching and allows us to
+> > propagate context from get to put without having to modify all the users
+> > (again!). In particular I need to propagate used open flags to blkdev_put() to
+> > be able count writeable opens and add support for blocking writes to mounted
+> > block devices. I'll send that series separately.
+> > 
+> > The series is based on Christian's vfs tree as of today as there is quite
+> > some overlap. Patches have passed some reasonable testing - I've tested block
+> > changes, md, dm, bcache, xfs, btrfs, ext4, swap. More testing or review is
+> > always welcome. Thanks! I've pushed out the full branch to:
+> > 
+> > git://git.kernel.org/pub/scm/linux/kernel/git/jack/linux-fs.git bdev_handle
+> > 
+> > to ease review / testing. Since there were not many comments for v2 and
+> > Christoph has acked the series I think we should start discussing how to merge
+> > the series. Most collisions with this series seem to happen in the filesystems
+> > area so VFS tree would seem as the least painful way to merge this. Jens,
+> 
+> I really do like this series especially struct bdev_handle and moving
+> the mode bits in there. I'll happily take this. So far there have only
+> been minor things that can easily be fixed.
 
-since both Stefan and Jan are not available, I'm sending a simple fix
-to address a valid clang finding. Since I expect more reports and
-patches for this, I'm sending this now in order to avoid that more
-people spend time on this.
+Thanks. Since Al is fine with just doing a potential conversion to 'struct
+file' as a handle on top of this series (it will be dumb Coccinelle
+replacement) I think we can go ahead with the series as is. As you said
+there will be some conflicts in btrfs and I've learned about f2fs conflicts
+as well so I can rebase & repost the series on top of rc1 to make life
+easier for you.
 
-Please apply.
-
-Thanks,
-Heiko
-
-Heiko Carstens (1):
-  s390/dasd: fix string length handling
-
- drivers/s390/block/dasd_devmap.c |  6 +-----
- drivers/s390/block/dasd_eckd.c   | 10 +++++-----
- drivers/s390/block/dasd_int.h    |  4 ++++
- 3 files changed, 10 insertions(+), 10 deletions(-)
-
+								Honza
 -- 
-2.39.2
-
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
