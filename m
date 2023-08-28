@@ -2,203 +2,86 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 903CFC83F14
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Aug 2023 01:05:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FA5AC83F14
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Aug 2023 01:11:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229513AbjH1BEo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 27 Aug 2023 21:04:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51282 "EHLO
+        id S229470AbjH1BK5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 27 Aug 2023 21:10:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229460AbjH1BEN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 27 Aug 2023 21:04:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FDFCF4;
-        Sun, 27 Aug 2023 18:04:11 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        with ESMTP id S229436AbjH1BK2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 27 Aug 2023 21:10:28 -0400
+Received: from gandalf.ozlabs.org (mail.ozlabs.org [IPv6:2404:9400:2221:ea00::3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 774B2AA;
+        Sun, 27 Aug 2023 18:10:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canb.auug.org.au;
+        s=201702; t=1693185020;
+        bh=hiT5q+hGC2lwo08ERy44QxB5Jj+2K1z0AdLVE/fhAc0=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=ARoxuzWq2dpAxnho9INpeo+/DFKRPgZNu8cq/w5Gpgxnk0hn7O/b9PuXhNGzYT8Fg
+         yC5QTTsrWoFAjA1unjbu1oxiVuNYFBuesMpG1lqgHNJOY1qy++kB+Kv6OyytmBYfQx
+         GylSRcWBJ6hqNbWkJ3f46xXUJ7khbbIV6chjh/B9+bZpXTvnnuA/Q9+snV/kg7ovx+
+         OSanCCB1IBiWixJtUzLK5RTdZn3akj5Px7GDUw5nvyne3rULb6flSGRj4uvh9Fh4pY
+         dwAUPQTzEJHmpcz7sikWLmET4PmbKOMTFiewuUiZLh5L5AS5T2Zy2i1J9AK6Y07rUc
+         ol4qYnWUXU3Ag==
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+         key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8D8A61A98;
-        Mon, 28 Aug 2023 01:04:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E1A1C433D9;
-        Mon, 28 Aug 2023 01:04:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1693184650;
-        bh=7d6QsySf2gd+L+AO0DGE52ifXzUav4vvh3Pzbz+MguI=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=h9r8Xs18EEJZy6xGdnpurwAcC4dI8Zo0XkCbPLZsQfEZ8h+twtCBqTaZN+iKLUk/F
-         ZOv1YpC6wlvRCCWCXaGzPtMX/B//7KpYhatc4+ErFMHjQMEznee9wzgYHonoMV0A8b
-         hV7Cih9zxqMGSVPWJf92hQOnVHToGZzWH5KjTLGRDclwMuFLPS7gJYd3voFEElpxhY
-         wQkve6zevEN4Cit56v6svNMujPuQ/xxnYkjcqgKt0CAwBy2ENQf/6YXKuk5h6nOrTU
-         Suvfx/Byjw5Z/LbQFR5+DPpXbv8KS32TrAD8jVFsmU4EOFvxtZnQEIRyCgB6ACgOv/
-         Ri/nBxhUeeqew==
-Received: by mail-oa1-f54.google.com with SMTP id 586e51a60fabf-1ccb58b0099so1868910fac.0;
-        Sun, 27 Aug 2023 18:04:10 -0700 (PDT)
-X-Gm-Message-State: AOJu0Yz7azUPfiruzySZqwFYH5soEkq50mkGLwamGlVHBUfkr3nQl9PE
-        bb2Pkjw6dg0q163DOtYnNV8Kfj2jFgPRJpAIIs4=
-X-Google-Smtp-Source: AGHT+IEak5zcXFSIFNfF8EdO9/s3v9inAZbyIexqYgsn9SCfLTxxBE6ChlOh4wUhzQSAPtM3t40DM0c5ZfD6PzA7Hog=
-X-Received: by 2002:a05:6870:b523:b0:1c8:b870:4e55 with SMTP id
- v35-20020a056870b52300b001c8b8704e55mr10551563oap.49.1693184649240; Sun, 27
- Aug 2023 18:04:09 -0700 (PDT)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4RYstN5CYHz4wd0;
+        Mon, 28 Aug 2023 11:10:20 +1000 (AEST)
+Date:   Mon, 28 Aug 2023 11:10:18 +1000
+From:   Stephen Rothwell <sfr@canb.auug.org.au>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [GIT PULL] s390 updates for 6.6 merge window
+Message-ID: <20230828111018.42b6733d@canb.auug.org.au>
+In-Reply-To: <20230828094228.2381967f@canb.auug.org.au>
+References: <20230827203058.5559-A-hca@linux.ibm.com>
+        <20230827203401.5559-B-hca@linux.ibm.com>
+        <20230828094228.2381967f@canb.auug.org.au>
 MIME-Version: 1.0
-References: <20230825194329.gonna.911-kees@kernel.org>
-In-Reply-To: <20230825194329.gonna.911-kees@kernel.org>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Mon, 28 Aug 2023 10:03:32 +0900
-X-Gmail-Original-Message-ID: <CAK7LNATcTw+btQVri7SBA8gFbDNMYz7D2gMQaoZp9sQGFjCw8Q@mail.gmail.com>
-Message-ID: <CAK7LNATcTw+btQVri7SBA8gFbDNMYz7D2gMQaoZp9sQGFjCw8Q@mail.gmail.com>
-Subject: Re: [PATCH v2 0/2] kbuild: Show Kconfig fragments in "help"
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Nicolas Schier <nicolas@fjasle.eu>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        linux-kernel@vger.kernel.org, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-kbuild@vger.kernel.org,
-        linux-hardening@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; boundary="Sig_/Z_5TIPutUKvAAZMmpk216i1";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Aug 26, 2023 at 4:55=E2=80=AFAM Kees Cook <keescook@chromium.org> w=
-rote:
+--Sig_/Z_5TIPutUKvAAZMmpk216i1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+
+Hi all,
+
+On Mon, 28 Aug 2023 09:42:28 +1000 Stephen Rothwell <sfr@canb.auug.org.au> =
+wrote:
 >
-> Hi,
->
-> This is my series to show *.config targets in the "help" target so these
-> various topics can be more easily discoverd.
->
-> v2:
->  - split .fragment from .config to hide "internal" fragments
+>> Something weird there.  I just see the arch/s390/Kconfig part (I use
+> git diff-tree <merge commit>).  What did you merge?
 
-Please do not do this churn.
-
-
-Like Randy, I did not get "why" part quiet well,
-but if you are eager about this,
-you can show help message only when the following
-("# Help:" prefix for example) is found in the first line.
-
-
-# Help: blah blah
-# other comment
-
-
-
-
-
-
-
-
->  - fix various typos
->  - avoid duplicate entries
-> v1: https://lore.kernel.org/all/20230824223606.never.762-kees@kernel.org
->
-> Thanks!
->
-> -Kees
->
-> Kees Cook (2):
->   kbuild: Show Kconfig fragments in "help"
->   kbuild: Split internal config targets from .config into .fragment
->
->  Makefile                                      |  1 -
->  arch/arm/configs/dram_0x00000000.config       |  1 +
->  arch/arm/configs/dram_0xc0000000.config       |  1 +
->  arch/arm/configs/dram_0xd0000000.config       |  1 +
->  arch/arm/configs/lpae.config                  |  1 +
->  arch/arm64/configs/virt.config                |  1 +
->  arch/powerpc/Makefile                         | 26 +++++++++----------
->  .../{32-bit.config =3D> 32-bit.fragment}        |  1 +
->  arch/powerpc/configs/64-bit.config            |  1 -
->  arch/powerpc/configs/64-bit.fragment          |  2 ++
->  ...{85xx-32bit.config =3D> 85xx-32bit.fragment} |  1 +
->  ...{85xx-64bit.config =3D> 85xx-64bit.fragment} |  1 +
->  .../{85xx-hw.config =3D> 85xx-hw.fragment}      |  1 +
->  .../{85xx-smp.config =3D> 85xx-smp.fragment}    |  1 +
->  .../{86xx-hw.config =3D> 86xx-hw.fragment}      |  1 +
->  .../{86xx-smp.config =3D> 86xx-smp.fragment}    |  1 +
->  arch/powerpc/configs/altivec.config           |  1 -
->  arch/powerpc/configs/altivec.fragment         |  2 ++
->  arch/powerpc/configs/be.config                |  1 -
->  arch/powerpc/configs/be.fragment              |  2 ++
->  .../{book3s_32.config =3D> book3s_32.fragment}  |  1 +
->  ...enet_base.config =3D> corenet_base.fragment} |  1 +
->  arch/powerpc/configs/debug.config             |  1 +
->  arch/powerpc/configs/disable-werror.config    |  1 +
->  .../configs/{dpaa.config =3D> dpaa.fragment}    |  1 +
->  ...mb-nonhw.config =3D> fsl-emb-nonhw.fragment} |  1 +
->  .../configs/{guest.config =3D> guest.fragment}  |  1 +
->  arch/powerpc/configs/le.config                |  1 -
->  arch/powerpc/configs/le.fragment              |  2 ++
->  ...85xx_base.config =3D> mpc85xx_base.fragment} |  1 +
->  ...86xx_base.config =3D> mpc86xx_base.fragment} |  1 +
->  .../{ppc64le.config =3D> ppc64le.fragment}      |  1 +
->  arch/powerpc/configs/security.config          |  4 ++-
->  arch/riscv/configs/32-bit.config              |  1 +
->  arch/riscv/configs/64-bit.config              |  1 +
->  arch/s390/configs/btf.config                  |  1 +
->  arch/s390/configs/kasan.config                |  1 +
->  arch/x86/Makefile                             |  4 ---
->  arch/x86/configs/tiny.config                  |  2 ++
->  {kernel =3D> arch/x86}/configs/x86_debug.config |  1 +
->  arch/x86/configs/xen.config                   |  2 ++
->  kernel/configs/debug.config                   |  2 ++
->  kernel/configs/kvm_guest.config               |  1 +
->  kernel/configs/nopm.config                    |  2 ++
->  kernel/configs/rust.config                    |  1 +
->  kernel/configs/tiny-base.config               |  1 -
->  kernel/configs/tiny-base.fragment             |  2 ++
->  kernel/configs/tiny.config                    |  2 ++
->  kernel/configs/xen.config                     |  2 ++
->  scripts/Makefile.defconf                      | 12 ++++++---
->  scripts/kconfig/Makefile                      | 16 +++++++++---
->  51 files changed, 87 insertions(+), 32 deletions(-)
->  rename arch/powerpc/configs/{32-bit.config =3D> 32-bit.fragment} (53%)
->  delete mode 100644 arch/powerpc/configs/64-bit.config
->  create mode 100644 arch/powerpc/configs/64-bit.fragment
->  rename arch/powerpc/configs/{85xx-32bit.config =3D> 85xx-32bit.fragment}=
- (76%)
->  rename arch/powerpc/configs/{85xx-64bit.config =3D> 85xx-64bit.fragment}=
- (78%)
->  rename arch/powerpc/configs/{85xx-hw.config =3D> 85xx-hw.fragment} (98%)
->  rename arch/powerpc/configs/{85xx-smp.config =3D> 85xx-smp.fragment} (59=
-%)
->  rename arch/powerpc/configs/{86xx-hw.config =3D> 86xx-hw.fragment} (98%)
->  rename arch/powerpc/configs/{86xx-smp.config =3D> 86xx-smp.fragment} (58=
-%)
->  delete mode 100644 arch/powerpc/configs/altivec.config
->  create mode 100644 arch/powerpc/configs/altivec.fragment
->  delete mode 100644 arch/powerpc/configs/be.config
->  create mode 100644 arch/powerpc/configs/be.fragment
->  rename arch/powerpc/configs/{book3s_32.config =3D> book3s_32.fragment} (=
-52%)
->  rename arch/powerpc/configs/{corenet_base.config =3D> corenet_base.fragm=
-ent} (64%)
->  rename arch/powerpc/configs/{dpaa.config =3D> dpaa.fragment} (80%)
->  rename arch/powerpc/configs/{fsl-emb-nonhw.config =3D> fsl-emb-nonhw.fra=
-gment} (98%)
->  rename arch/powerpc/configs/{guest.config =3D> guest.fragment} (85%)
->  delete mode 100644 arch/powerpc/configs/le.config
->  create mode 100644 arch/powerpc/configs/le.fragment
->  rename arch/powerpc/configs/{mpc85xx_base.config =3D> mpc85xx_base.fragm=
-ent} (94%)
->  rename arch/powerpc/configs/{mpc86xx_base.config =3D> mpc86xx_base.fragm=
-ent} (86%)
->  rename arch/powerpc/configs/{ppc64le.config =3D> ppc64le.fragment} (65%)
->  rename {kernel =3D> arch/x86}/configs/x86_debug.config (90%)
->  delete mode 100644 kernel/configs/tiny-base.config
->  create mode 100644 kernel/configs/tiny-base.fragment
->
-> --
-> 2.34.1
->
-
+Actually I use "git diff-tree --cc <merge commit>"
 
 --=20
-Best Regards
-Masahiro Yamada
+Cheers,
+Stephen Rothwell
+
+--Sig_/Z_5TIPutUKvAAZMmpk216i1
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAmTr8/oACgkQAVBC80lX
+0GyQEAf/f+C/omFbtznRGxh00Gg5LqIfbKwJPx9WxoEAOVzTiJBb/8StxEdecUwD
+J0P/GNQ7pxyVi38KbLGUDxSf74MioIM2t/W1xf+ewIvzoC6P0II6cwrz5Fy8EC79
+pFthdfJ58jKFkhv8hoKY4oLnmOphb8PmpOebvsr1we9ed4uDVWzOQkn8iZYBV9Vk
+/BTm6Pl/BUNmYg+Znws6EB8rB0Jrdzghujd0OhcNTinqTWlUa0QT3v1nD+6fHqVq
+T28TuTmdTWD7Ys2KUmPDIMVUYeIL/GMMVsHz4xNQlq1ezCnVKF5OvqPOUq8GtHsT
+ORhYdypX6R3w4noPO5+AN3xTtuMO1Q==
+=iJOD
+-----END PGP SIGNATURE-----
+
+--Sig_/Z_5TIPutUKvAAZMmpk216i1--
