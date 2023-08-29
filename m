@@ -2,140 +2,101 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86E8EC6FA8F
-	for <linux-s390@archiver.kernel.org>; Tue, 29 Aug 2023 08:03:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C819C83F12
+	for <linux-s390@archiver.kernel.org>; Tue, 29 Aug 2023 08:33:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232725AbjH2IC4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 29 Aug 2023 04:02:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50238 "EHLO
+        id S233406AbjH2Icn convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 29 Aug 2023 04:32:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233971AbjH2IC1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Aug 2023 04:02:27 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A61D113;
-        Tue, 29 Aug 2023 01:02:24 -0700 (PDT)
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37T7cFbI012948;
-        Tue, 29 Aug 2023 08:02:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=cn9NV29aqxy8rCeQ939fkpQKBjrL9TcklKlwn/V539E=;
- b=SnDaPmqPcZdC6nBpqSUNT9o9W3iGJmK7PiesGJwZyYkWh6KBvaXkst54TEqSzLEvpgcR
- PyUxp4NinMnca/NY39wx0oY5hYudeIczHjf2xeDf17uEtSZqa+8zuhRCDz9SqNkXGXAa
- JFx2Uyaa46co2wD+Cw2Rr42/CxQb1NZiNg/wUeXO2IOimSK//srm/rE9tDMrGt00Nusu
- JETqyOKCYmbyb3+CSGMJsySxJA36xaczRWwlgZprtJLBJnR8YFaYRWGS58+/z96DjTgF
- 714irIz/3FEhHrEPIrreF1nyCwmxqjZ22fEfqx8r/Scyu56kdC0a7bNvOP06gRuVYKx5 jg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sr87hnrb1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Aug 2023 08:02:09 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37T80ohf000302;
-        Tue, 29 Aug 2023 08:02:09 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sr87hnrak-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Aug 2023 08:02:09 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37T6ZT7V004891;
-        Tue, 29 Aug 2023 08:02:08 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3squqsj3xn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Aug 2023 08:02:08 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37T8252Z44499284
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 29 Aug 2023 08:02:05 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4072B20043;
-        Tue, 29 Aug 2023 08:02:05 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 05ED020040;
-        Tue, 29 Aug 2023 08:02:05 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.148])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Tue, 29 Aug 2023 08:02:04 +0000 (GMT)
-Date:   Tue, 29 Aug 2023 10:02:02 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Jens Axboe <axboe@kernel.dk>, Stefan Haberland <sth@linux.ibm.com>,
-        Jan =?iso-8859-1?Q?H=F6ppner?= <hoeppner@linux.ibm.com>,
+        with ESMTP id S234174AbjH2IcM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Aug 2023 04:32:12 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AAC7A0
+        for <linux-s390@vger.kernel.org>; Tue, 29 Aug 2023 01:32:09 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-159-gZBynCznM8iIH1jW_lZGuw-1; Tue, 29 Aug 2023 09:32:06 +0100
+X-MC-Unique: gZBynCznM8iIH1jW_lZGuw-1
+Received: from AcuMS.Aculab.com (10.202.163.6) by AcuMS.aculab.com
+ (10.202.163.6) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Tue, 29 Aug
+ 2023 09:32:09 +0100
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.048; Tue, 29 Aug 2023 09:32:09 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Heiko Carstens' <hca@linux.ibm.com>,
+        Nick Desaulniers <ndesaulniers@google.com>
+CC:     Jens Axboe <axboe@kernel.dk>, Stefan Haberland <sth@linux.ibm.com>,
+        =?iso-8859-1?Q?Jan_H=F6ppner?= <hoeppner@linux.ibm.com>,
         Peter Oberparleiter <oberpar@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-block@vger.kernel.org, nathan@kernel.org,
-        llvm@lists.linux.dev, David Laight <David.Laight@aculab.com>
-Subject: Re: [PATCH 1/1] s390/dasd: fix string length handling
-Message-ID: <20230829080202.7031-B-hca@linux.ibm.com>
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
+        "llvm@lists.linux.dev" <llvm@lists.linux.dev>
+Subject: RE: [PATCH 1/1] s390/dasd: fix string length handling
+Thread-Topic: [PATCH 1/1] s390/dasd: fix string length handling
+Thread-Index: AQHZ2cWnhKdW55JwuUOen/9fPqAWJK//8duQgAD1MkKAAAt+0A==
+Date:   Tue, 29 Aug 2023 08:32:09 +0000
+Message-ID: <51f70b0ad37f469a93242db9cfc6d9e8@AcuMS.aculab.com>
 References: <20230828153142.2843753-1-hca@linux.ibm.com>
  <20230828153142.2843753-2-hca@linux.ibm.com>
- <ZO0j3M8KFWeEznXy@google.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZO0j3M8KFWeEznXy@google.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: CrzYG7I7CQWlUL5LRJ7yoU_EOCjjHrPy
-X-Proofpoint-GUID: ArBgXdNqSPFzG8FatX2Jiz2AEZtsDvcl
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+ <f0419f6428ad404386ebca813dc1ec03@AcuMS.aculab.com>
+ <ZO0k1Par4i4FBCWF@google.com> <20230829074854.7031-A-hca@linux.ibm.com>
+In-Reply-To: <20230829074854.7031-A-hca@linux.ibm.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-08-29_04,2023-08-28_04,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=983
- priorityscore=1501 clxscore=1015 impostorscore=0 suspectscore=0
- adultscore=0 mlxscore=0 malwarescore=0 phishscore=0 bulkscore=0
- lowpriorityscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2308100000 definitions=main-2308290064
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Aug 28, 2023 at 03:46:52PM -0700, Nick Desaulniers wrote:
-> On Mon, Aug 28, 2023 at 05:31:42PM +0200, Heiko Carstens wrote:
-> > Building dasd_eckd.o with latest clang reveals this bug:
-> > 
-> >     CC      drivers/s390/block/dasd_eckd.o
-> >       drivers/s390/block/dasd_eckd.c:1082:3: warning: 'snprintf' will always be truncated;
-> >       specified size is 1, but format string expands to at least 11 [-Wfortify-source]
-> >        1082 |                 snprintf(print_uid, sizeof(*print_uid),
-> >             |                 ^
-> >       drivers/s390/block/dasd_eckd.c:1087:3: warning: 'snprintf' will always be truncated;
-> >       specified size is 1, but format string expands to at least 10 [-Wfortify-source]
-> >        1087 |                 snprintf(print_uid, sizeof(*print_uid),
-> >             |                 ^
-> > 
-> > Fix this by moving and using the existing UID_STRLEN for the arrays
-> > that are being written to. Also rename UID_STRLEN to DASD_UID_STRLEN
-> > to clarify its scope.
-> > 
-> > Fixes: 23596961b437 ("s390/dasd: split up dasd_eckd_read_conf")
-> > Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-> > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+From: Heiko Carstens
+> Sent: 29 August 2023 08:49
 > 
-> Thanks for the patch! Nathan just reported a bunch of these. I took a
-> look at these two and thought "yeah that's clearly a bug in the kernel
-> sources." Fix LGTM.
+> On Mon, Aug 28, 2023 at 03:51:00PM -0700, Nick Desaulniers wrote:
+> > On Mon, Aug 28, 2023 at 05:18:37PM +0000, David Laight wrote:
+> > > From: Heiko Carstens
+> > > > Sent: 28 August 2023 16:32
+> > > >  	if (strlen(uid.vduit) > 0)
+> > >
+> > > Does the compiler know enough to optimise that brain-dead test?
+> > >
+> >
+> > For the purposes of skipping diagnostics, no; clang performs semantic
+> > analysis BEFORE optimization (which is handled by LLVM). As such, clang
+> > will produce diagnostics on dead code.
+> >
+> > Partly because LLVM isn't very ergonomic at emitting diagnostics from
+> > the backend, partly because Clang code owner and developers don't want
+> > clang to emit diagnostics dependent on optimization level.
+> >
+> > I disagree with my compatriots, and you can read more thoughts here:
+> > https://discourse.llvm.org/t/rfc-improving-clangs-middle-and-back-end-
+> diagnostics/69261?u=nickdesaulniers
 > 
-> Reported-by: Nathan Chancellor <nathan@kernel.org>
-> Closes: https://github.com/ClangBuiltLinux/linux/issues/1923
-> Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+> Maybe I misunderstand what you write above, however clang (latest+greatest)
+> does indeed optimize the strlen() away and generates code which only tests
+> if uid.vduit[0] is zero or not.
 > 
-> I also like David's idea of passing `char ident [DASD_UID_STRLEN]`, too,
-> but I don't feel strongly either way.
+> Unlike gcc, which does not optimize this away and which uses the strlen()
+> inline assembly provided via string.h...
 
-Well, this is supposed to be the "minimal" fix. I consider everything else
-additional cleanup work, which can and should be done by Stefan and Jan who
-maintain this device driver.
+And, if -ffreestanding is set (as in some kernel builds), the compiler
+can't assume what strlen() does.
 
-For example there is more or less identical code within dasd_devmap.c
-(dasd_uid_show()), where it would make sense to de-deduplicate the
-code. And then of course there is the already mentioned rather pointless
-strlen() invocation; plus there are many other string operations / format
-strings, which also should be addressed.
-E.g. there are quite a couple of "%p" printk format specifiers which are
-pointless, since pointer values get hashed since years - so a more or less
-random value will be printed, etc.
+	David
 
-However all of this is up to Stefan and Jan.
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
-So I consider this current fix as good enough and final.
