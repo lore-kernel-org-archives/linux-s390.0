@@ -2,101 +2,89 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C819C83F12
-	for <linux-s390@archiver.kernel.org>; Tue, 29 Aug 2023 08:33:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF868C83F19
+	for <linux-s390@archiver.kernel.org>; Tue, 29 Aug 2023 11:04:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233406AbjH2Icn convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 29 Aug 2023 04:32:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41922 "EHLO
+        id S235292AbjH2LDi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 29 Aug 2023 07:03:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234174AbjH2IcM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Aug 2023 04:32:12 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AAC7A0
-        for <linux-s390@vger.kernel.org>; Tue, 29 Aug 2023 01:32:09 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-159-gZBynCznM8iIH1jW_lZGuw-1; Tue, 29 Aug 2023 09:32:06 +0100
-X-MC-Unique: gZBynCznM8iIH1jW_lZGuw-1
-Received: from AcuMS.Aculab.com (10.202.163.6) by AcuMS.aculab.com
- (10.202.163.6) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Tue, 29 Aug
- 2023 09:32:09 +0100
-Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
- id 15.00.1497.048; Tue, 29 Aug 2023 09:32:09 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Heiko Carstens' <hca@linux.ibm.com>,
-        Nick Desaulniers <ndesaulniers@google.com>
-CC:     Jens Axboe <axboe@kernel.dk>, Stefan Haberland <sth@linux.ibm.com>,
-        =?iso-8859-1?Q?Jan_H=F6ppner?= <hoeppner@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
-        "llvm@lists.linux.dev" <llvm@lists.linux.dev>
-Subject: RE: [PATCH 1/1] s390/dasd: fix string length handling
-Thread-Topic: [PATCH 1/1] s390/dasd: fix string length handling
-Thread-Index: AQHZ2cWnhKdW55JwuUOen/9fPqAWJK//8duQgAD1MkKAAAt+0A==
-Date:   Tue, 29 Aug 2023 08:32:09 +0000
-Message-ID: <51f70b0ad37f469a93242db9cfc6d9e8@AcuMS.aculab.com>
-References: <20230828153142.2843753-1-hca@linux.ibm.com>
- <20230828153142.2843753-2-hca@linux.ibm.com>
- <f0419f6428ad404386ebca813dc1ec03@AcuMS.aculab.com>
- <ZO0k1Par4i4FBCWF@google.com> <20230829074854.7031-A-hca@linux.ibm.com>
-In-Reply-To: <20230829074854.7031-A-hca@linux.ibm.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S235370AbjH2LDP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Aug 2023 07:03:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07E8DCDA;
+        Tue, 29 Aug 2023 04:03:00 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54FF9654FA;
+        Tue, 29 Aug 2023 11:03:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A91DC433C8;
+        Tue, 29 Aug 2023 11:02:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1693306979;
+        bh=U8tO0dLFljDnktuq80r4afitP93wv2ZaRihVU0Qyu2I=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Zpf44oWH5Z2L6QhPNIGp7PeBhJpnP4KfVurKgcL9DEj/BIRmEq8ijJzbb6q5k8Ovs
+         9bWmbNzBkJw5MyDAxRy27lwjHGda6NbScABpEWJtXeah3765gQ9TUqIkk0ScRRsr4B
+         pgJc/+HtIStX4e0zZcs6Mgm/y0cAQCiR+vX0i9HUCQ2jW21Dvj1m5KvDe2xJG8sZD9
+         7J/ySnM4IatjDikdEeiDLegDHPGVAKFz5CZJOY4FIoLRlouJhKb12RDwuxVPSp/21Q
+         Im6ZTKLVuSh6T0hvwNEhJP5WmzsfCpgy49EfIICESoo8yOH/FPp5HVYEAtlfB2KJ19
+         jLNduaFs+ry8A==
+Date:   Tue, 29 Aug 2023 13:02:47 +0200
+From:   Christian Brauner <brauner@kernel.org>
+To:     Jan Kara <jack@suse.cz>
+Cc:     Jens Axboe <axboe@kernel.dk>, linux-fsdevel@vger.kernel.org,
+        linux-block@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+        Alasdair Kergon <agk@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anna Schumaker <anna@kernel.org>, Chao Yu <chao@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Dave Kleikamp <shaggy@kernel.org>,
+        David Sterba <dsterba@suse.com>, dm-devel@redhat.com,
+        drbd-dev@lists.linbit.com, Gao Xiang <xiang@kernel.org>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        jfs-discussion@lists.sourceforge.net,
+        Joern Engel <joern@lazybastard.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        linux-bcache@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, linux-mm@kvack.org,
+        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
+        linux-nilfs@vger.kernel.org, linux-nvme@lists.infradead.org,
+        linux-pm@vger.kernel.org, linux-raid@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-xfs@vger.kernel.org,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com,
+        reiserfs-devel@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Song Liu <song@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        target-devel@vger.kernel.org, Ted Tso <tytso@mit.edu>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        xen-devel@lists.xenproject.org
+Subject: Re: [PATCH v3 0/29] block: Make blkdev_get_by_*() return handle
+Message-ID: <20230829-stark-trapez-2251bf78c6a9@brauner>
+References: <20230818123232.2269-1-jack@suse.cz>
+ <20230825-hubraum-gedreht-8c5c4db9330a@brauner>
+ <20230828170744.iifdmaw732cfiauf@quack3>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20230828170744.iifdmaw732cfiauf@quack3>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Heiko Carstens
-> Sent: 29 August 2023 08:49
-> 
-> On Mon, Aug 28, 2023 at 03:51:00PM -0700, Nick Desaulniers wrote:
-> > On Mon, Aug 28, 2023 at 05:18:37PM +0000, David Laight wrote:
-> > > From: Heiko Carstens
-> > > > Sent: 28 August 2023 16:32
-> > > >  	if (strlen(uid.vduit) > 0)
-> > >
-> > > Does the compiler know enough to optimise that brain-dead test?
-> > >
-> >
-> > For the purposes of skipping diagnostics, no; clang performs semantic
-> > analysis BEFORE optimization (which is handled by LLVM). As such, clang
-> > will produce diagnostics on dead code.
-> >
-> > Partly because LLVM isn't very ergonomic at emitting diagnostics from
-> > the backend, partly because Clang code owner and developers don't want
-> > clang to emit diagnostics dependent on optimization level.
-> >
-> > I disagree with my compatriots, and you can read more thoughts here:
-> > https://discourse.llvm.org/t/rfc-improving-clangs-middle-and-back-end-
-> diagnostics/69261?u=nickdesaulniers
-> 
-> Maybe I misunderstand what you write above, however clang (latest+greatest)
-> does indeed optimize the strlen() away and generates code which only tests
-> if uid.vduit[0] is zero or not.
-> 
-> Unlike gcc, which does not optimize this away and which uses the strlen()
-> inline assembly provided via string.h...
+> replacement) I think we can go ahead with the series as is. As you said
+> there will be some conflicts in btrfs and I've learned about f2fs conflicts
+> as well so I can rebase & repost the series on top of rc1 to make life
+> easier for you.
 
-And, if -ffreestanding is set (as in some kernel builds), the compiler
-can't assume what strlen() does.
-
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
-
+That is be much appreciated. Thank you!
