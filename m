@@ -2,61 +2,60 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A23ABC6FA8F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9C99C83F1B
 	for <linux-s390@archiver.kernel.org>; Tue, 29 Aug 2023 12:10:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233851AbjH2MKI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 29 Aug 2023 08:10:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47472 "EHLO
+        id S234004AbjH2MKK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 29 Aug 2023 08:10:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233602AbjH2MJk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Aug 2023 08:09:40 -0400
+        with ESMTP id S233741AbjH2MJo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Aug 2023 08:09:44 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7617A3;
-        Tue, 29 Aug 2023 05:09:34 -0700 (PDT)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37TBgaEO021533;
-        Tue, 29 Aug 2023 12:09:34 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AED3BB;
+        Tue, 29 Aug 2023 05:09:42 -0700 (PDT)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37TBaD5C006195;
+        Tue, 29 Aug 2023 12:09:42 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=kN0bo2Q/5OU/SZ7yFbjzShYLy77yKOLZbfagdp7xa0Y=;
- b=N1Lm0WM018mxWa6W79PH/jJSyWc+J9o0sL07abF9JNbB6divoaA6cJhtsd90C5PAZqY0
- H7TsxDo89sjQcQEQWyX+LHiIY9zEGRmqbgVEmBwaGpUI3T4JAxffTLuV4thiw6l44BWA
- Mk1GG1W6RHA03KDrSbWqCrUxwXHY2FdMpXWPegeonmYTQ05k3HSBu8dpvUdTVFBxRenY
- c/TvHu2jsMcYXvxV7objZfWtO7kN6CGiAQJTE1dD/9HIlPz0qtgXADzM7oU1EJfIQw8W
- 8WYR2zbZJUudP4sNyPw5Qlkdl/QbZbZ5oYANmfLykZFPoqlK3cb5IZ1N4i1UCG/LfpDG 5A== 
+ : date : message-id : in-reply-to : references : content-transfer-encoding
+ : mime-version; s=pp1; bh=75e7cKDwWD87JyOkGfyWJzoYTTbtEnsR5cA99qRKw54=;
+ b=NyGlb3n1pHvPZoJwXZIZyli05RofxORrFV/7WxPg0R5Lxjem/BNmd7i9IIp3m56wfcTJ
+ ld0W4VKfwXXVtO9pQT9BQ2BZ6wwsG871vt/Z4AH9TdKyMwu5/UamP1P7YToIH7kpbgty
+ 7u9xRa0QF81Mswewu77UyMDkiCLyXjh8YMY1UtRgx9PFt6BbhoPK7QaCBfniG8kA/srs
+ Nh4fZmL0ECNwIB4LcOOJfTNRVFv8uFljIdT8UP5XUsVCmfVuQxEFWd9BeKvzUK/PHKhG
+ h26XOsrDQG9XSV0FTooHcK1vbzb3+cOLLC339+uJsHVYc6WlO4wKLW832Sqje0C4NzRh 6A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ssg1frqpb-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sra09taja-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Aug 2023 12:09:33 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37TC5rLd029927;
-        Tue, 29 Aug 2023 12:09:32 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ssg1frqgc-1
+        Tue, 29 Aug 2023 12:09:38 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37TC5w1S019705;
+        Tue, 29 Aug 2023 12:09:34 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sra09taes-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Aug 2023 12:09:32 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37TBkD90020520;
-        Tue, 29 Aug 2023 12:09:25 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3sqv3ybcpv-1
+        Tue, 29 Aug 2023 12:09:34 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37TBNiMF004929;
+        Tue, 29 Aug 2023 12:09:27 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3squqskgge-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Aug 2023 12:09:25 +0000
+        Tue, 29 Aug 2023 12:09:27 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37TC9MpO20579002
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37TC9OjE10617574
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 29 Aug 2023 12:09:22 GMT
+        Tue, 29 Aug 2023 12:09:25 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3411520040;
-        Tue, 29 Aug 2023 12:09:22 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id DBC4020040;
+        Tue, 29 Aug 2023 12:09:24 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 698992004D;
-        Tue, 29 Aug 2023 12:09:21 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 1E2252004D;
+        Tue, 29 Aug 2023 12:09:24 +0000 (GMT)
 Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com.com (unknown [9.171.19.123])
         by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 29 Aug 2023 12:09:21 +0000 (GMT)
+        Tue, 29 Aug 2023 12:09:24 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     pbonzini@redhat.com
 Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
@@ -64,103 +63,64 @@ Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
         linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         hca@linux.ibm.com, mihajlov@linux.ibm.com, seiden@linux.ibm.com,
         akrowiak@linux.ibm.com, seanjc@google.com
-Subject: [GIT PULL v2 04/10] KVM: s390: interrupt: Fix single-stepping userspace-emulated instructions
-Date:   Tue, 29 Aug 2023 14:03:59 +0200
-Message-ID: <20230829120843.66637-5-frankja@linux.ibm.com>
+Subject: [GIT PULL v2 07/10] KVM: s390: pv: relax WARN_ONCE condition for destroy fast
+Date:   Tue, 29 Aug 2023 14:04:02 +0200
+Message-ID: <20230829120843.66637-8-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20230829120843.66637-1-frankja@linux.ibm.com>
 References: <20230829120843.66637-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: i-hEF_SF3MYfc1r0ExDNR1Al7IBBDO_9
-X-Proofpoint-GUID: sDFGDypMlsEsO3iuNGzzu4__rjqyx9M0
+X-Proofpoint-ORIG-GUID: GkAsXCLtEOOsSGM82UJp8Mtpg1R2nbVz
+X-Proofpoint-GUID: 1ndQMy55r7JEXmgTgN2pwcg_QMeNGVsA
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
  definitions=2023-08-29_09,2023-08-29_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
- malwarescore=0 adultscore=0 mlxlogscore=901 lowpriorityscore=0 spamscore=0
- impostorscore=0 phishscore=0 bulkscore=0 priorityscore=1501 clxscore=1015
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2308100000
- definitions=main-2308290105
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 suspectscore=0 spamscore=0 bulkscore=0 mlxscore=0
+ priorityscore=1501 adultscore=0 mlxlogscore=645 impostorscore=0
+ malwarescore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2308100000 definitions=main-2308290105
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Viktor Mihajlovski <mihajlov@linux.ibm.com>
 
-Single-stepping a userspace-emulated instruction that generates an
-interrupt causes GDB to land on the instruction following it instead of
-the respective interrupt handler.
+Destroy configuration fast may return with RC 0x104 if there
+are still bound APQNs in the configuration. The final cleanup
+will occur with the standard destroy configuration UVC as
+at this point in time all APQNs have been reset and thus
+unbound. Therefore, don't warn if RC 0x104 is reported.
 
-The reason is that after arranging a KVM_EXIT_S390_SIEIC exit,
-kvm_handle_sie_intercept() calls kvm_s390_handle_per_ifetch_icpt(),
-which sets KVM_GUESTDBG_EXIT_PENDING. This bit, however, is not
-processed immediately, but rather persists until the next ioctl(),
-causing a spurious single-step exit.
-
-Fix by clearing this bit in ioctl().
-
-Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Viktor Mihajlovski <mihajlov@linux.ibm.com>
 Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Message-ID: <20230725143857.228626-5-iii@linux.ibm.com>
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
+Reviewed-by: Michael Mueller <mimu@linux.ibm.com>
+Link: https://lore.kernel.org/r/20230815151415.379760-2-seiden@linux.ibm.com
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <20230815151415.379760-2-seiden@linux.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 23 ++++++++++++++++++++---
- 1 file changed, 20 insertions(+), 3 deletions(-)
+ arch/s390/kvm/pv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 0c6333b108ba..e6511608280c 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -5383,6 +5383,7 @@ long kvm_arch_vcpu_async_ioctl(struct file *filp,
- {
- 	struct kvm_vcpu *vcpu = filp->private_data;
- 	void __user *argp = (void __user *)arg;
-+	int rc;
- 
- 	switch (ioctl) {
- 	case KVM_S390_IRQ: {
-@@ -5390,7 +5391,8 @@ long kvm_arch_vcpu_async_ioctl(struct file *filp,
- 
- 		if (copy_from_user(&s390irq, argp, sizeof(s390irq)))
- 			return -EFAULT;
--		return kvm_s390_inject_vcpu(vcpu, &s390irq);
-+		rc = kvm_s390_inject_vcpu(vcpu, &s390irq);
-+		break;
- 	}
- 	case KVM_S390_INTERRUPT: {
- 		struct kvm_s390_interrupt s390int;
-@@ -5400,10 +5402,25 @@ long kvm_arch_vcpu_async_ioctl(struct file *filp,
- 			return -EFAULT;
- 		if (s390int_to_s390irq(&s390int, &s390irq))
- 			return -EINVAL;
--		return kvm_s390_inject_vcpu(vcpu, &s390irq);
-+		rc = kvm_s390_inject_vcpu(vcpu, &s390irq);
-+		break;
- 	}
-+	default:
-+		rc = -ENOIOCTLCMD;
-+		break;
- 	}
--	return -ENOIOCTLCMD;
-+
-+	/*
-+	 * To simplify single stepping of userspace-emulated instructions,
-+	 * KVM_EXIT_S390_SIEIC exit sets KVM_GUESTDBG_EXIT_PENDING (see
-+	 * should_handle_per_ifetch()). However, if userspace emulation injects
-+	 * an interrupt, it needs to be cleared, so that KVM_EXIT_DEBUG happens
-+	 * after (and not before) the interrupt delivery.
-+	 */
-+	if (!rc)
-+		vcpu->guest_debug &= ~KVM_GUESTDBG_EXIT_PENDING;
-+
-+	return rc;
- }
- 
- static int kvm_s390_handle_pv_vcpu_dump(struct kvm_vcpu *vcpu,
+diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+index 856140e9942e..beeebc11b1a1 100644
+--- a/arch/s390/kvm/pv.c
++++ b/arch/s390/kvm/pv.c
+@@ -285,7 +285,8 @@ static int kvm_s390_pv_deinit_vm_fast(struct kvm *kvm, u16 *rc, u16 *rrc)
+ 	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
+ 	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY VM FAST: rc %x rrc %x",
+ 		     uvcb.header.rc, uvcb.header.rrc);
+-	WARN_ONCE(cc, "protvirt destroy vm fast failed handle %llx rc %x rrc %x",
++	WARN_ONCE(cc && uvcb.header.rc != 0x104,
++		  "protvirt destroy vm fast failed handle %llx rc %x rrc %x",
+ 		  kvm_s390_pv_get_handle(kvm), uvcb.header.rc, uvcb.header.rrc);
+ 	/* Intended memory leak on "impossible" error */
+ 	if (!cc)
 -- 
 2.41.0
 
