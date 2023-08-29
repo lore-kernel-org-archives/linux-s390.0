@@ -2,278 +2,197 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FD2FC83F17
-	for <linux-s390@archiver.kernel.org>; Tue, 29 Aug 2023 20:15:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF92DC83F18
+	for <linux-s390@archiver.kernel.org>; Tue, 29 Aug 2023 20:46:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239141AbjH2UPO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 29 Aug 2023 16:15:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49124 "EHLO
+        id S240409AbjH2Up2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 29 Aug 2023 16:45:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240493AbjH2UPI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Aug 2023 16:15:08 -0400
-Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BDF199;
-        Tue, 29 Aug 2023 13:15:01 -0700 (PDT)
-Received: from leknes.fjasle.eu ([46.142.49.30]) by mrelayeu.kundenserver.de
- (mreue011 [212.227.15.167]) with ESMTPSA (Nemesis) id
- 1My2lr-1plB1Y2Khr-00zZZb; Tue, 29 Aug 2023 22:07:23 +0200
-Received: by leknes.fjasle.eu (Postfix, from userid 1000)
-        id 1A2013E768; Tue, 29 Aug 2023 22:07:19 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=fjasle.eu; s=mail;
-        t=1693339640; bh=l+HLj7y9TY6hnwNLh5Tvgor5q1S2kg+NBhBTFWf7BDE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TZjNabJFSEjakaf8YUJrtigZNKhmAm/vXSk/OlmIWUMQpA+H/yNDSs0zMiyYamtp7
-         tbZpqHv09gSqIzJk39c3HaMBGk+KKsV6TrkHj/EVF4TvbbXnVepzgpINm7goS0E79Q
-         MD4EH+3oEaVdp1z7tYdc9/aj5vf+42HKlJWQmjBU=
-Date:   Tue, 29 Aug 2023 22:07:19 +0200
-From:   Nicolas Schier <nicolas@fjasle.eu>
-To:     Masahiro Yamada <masahiroy@kernel.org>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Kees Cook <keescook@chromium.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        linux-kernel@vger.kernel.org, x86@kernel.org,
+        with ESMTP id S240188AbjH2UpM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Aug 2023 16:45:12 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5FD21BB;
+        Tue, 29 Aug 2023 13:45:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Sender:Content-Transfer-Encoding:
+        Content-Type:MIME-Version:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=qqpCUFR3P/c8X+gNxuXmGaV/FqFgRToVQytMVMpzzZU=; b=Dve5+6o8hMnkJ5nWqXTD/1k5Ig
+        c+eL+0Tiv6N9rCEFJgeCjKJ4omPyPHn9fnqB3Jf8MqMaOyZqL+1UBHqlsS5YXH7+VQoXGOrthij6U
+        wXE8kb0bhwdeKsa8zyMuKPbVXAZmTXwfMMt3f1XiBd7bIzJsMtP+il1X36DMva9FrwpSsxX2Bbm+7
+        EuvcibeFMzWbVd3TNrqT4ZRzkQJ0Q9NQiatktpBmVWsXjDxGZFkVQEKbevr1IsN647m6SvvMo+viz
+        Yvy04a63uv+YPdHNtPwsUdAKlVbW2MWxd4cief6pa6kf+sxylyo5091Al/BfKdZkegt5uFBdYqewR
+        nJDOB6Og==;
+Received: from mcgrof by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
+        id 1qb5a3-00CF5F-1u;
+        Tue, 29 Aug 2023 20:44:55 +0000
+Date:   Tue, 29 Aug 2023 13:44:55 -0700
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Joel Granados <joel.granados@gmail.com>,
+        linux-fsdevel@vger.kernel.org, rds-devel@oss.oracle.com,
+        "David S. Miller" <davem@davemloft.net>,
+        Florian Westphal <fw@strlen.de>, willy@infradead.org,
+        Jan Karcher <jaka@linux.ibm.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        Simon Horman <horms@verge.net.au>,
+        Tony Lu <tonylu@linux.alibaba.com>, linux-wpan@vger.kernel.org,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        mptcp@lists.linux.dev, Heiko Carstens <hca@linux.ibm.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Will Deacon <will@kernel.org>, Julian Anastasov <ja@ssi.bg>,
+        netfilter-devel@vger.kernel.org, Joerg Reuter <jreuter@yaina.de>,
+        linux-kernel@vger.kernel.org,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-sctp@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        linux-hams@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        coreteam@netfilter.org, Ralf Baechle <ralf@linux-mips.org>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        keescook@chromium.org, Roopa Prabhu <roopa@nvidia.com>,
+        David Ahern <dsahern@kernel.org>,
         linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-kbuild@vger.kernel.org,
-        linux-hardening@vger.kernel.org
-Subject: Re: [PATCH v2 0/2] kbuild: Show Kconfig fragments in "help"
-Message-ID: <ZO5P9597qqm3P+li@fjasle.eu>
-References: <20230825194329.gonna.911-kees@kernel.org>
- <CAK7LNATcTw+btQVri7SBA8gFbDNMYz7D2gMQaoZp9sQGFjCw8Q@mail.gmail.com>
- <87ttsjlmho.fsf@mail.lhotse>
- <ZO2NVLipjlzIh0YS@bergen.fjasle.eu>
- <CAK7LNARjsB+LTBGRfWX68Ld7oehhuBv9SY8scoC=Xk8EJc-OHw@mail.gmail.com>
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        Wenjia Zhang <wenjia@linux.ibm.com>, josh@joshtriplett.org,
+        Alexander Aring <alex.aring@gmail.com>,
+        Nikolay Aleksandrov <razor@blackwall.org>,
+        netdev@vger.kernel.org,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        linux-s390@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Eric Dumazet <edumazet@google.com>, lvs-devel@vger.kernel.org,
+        linux-rdma@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Iurii Zaikin <yzaikin@google.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        bridge@lists.linux-foundation.org,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Mat Martineau <martineau@kernel.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Joel Granados <j.granados@samsung.com>, mcgrof@kernel.org
+Subject: [GIT PULL] sysctl changes for v6.6-rc1
+Message-ID: <ZO5Yx5JFogGi/cBo@bombadil.infradead.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="jAIN7/hQsTcrQJVA"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <CAK7LNARjsB+LTBGRfWX68Ld7oehhuBv9SY8scoC=Xk8EJc-OHw@mail.gmail.com>
-X-Provags-ID: V03:K1:H6j0VbafbOwtymffj5vqJ5spHUNhWSXsYRHmYahDmlcdTnCoTSZ
- Y5deAqJtEaYxv+Zf/xYkwayr4y4RNjk3w2RNVWySOnUPB/x0mu0L/JGvGPQfzXd3wHiwRcN
- YOMrA0qs7TWDwkPnZ+kORWHa27x5NXqsgFcQ2DBLwt4XYH7sv7LWUW+BfDZKHog98GfWyCc
- M1HtNk4/feeh4gsXKAj9g==
-UI-OutboundReport: notjunk:1;M01:P0:+tijSOgLLm4=;nQFaSgJLuvbuIG0FHHwE2Kx1Cgx
- LtnRBkqC/ZiYeaehMhdBRHwLt2v0rz3Xt4ho4DEpd1+SUjT4500/3HEPTVjO0mezatKA83e00
- 5kqFNpm1WoI7RGqSz00Z5IsvQMt3+J4v1NNaq44EU6m6+clUtEVDktK7SDBIwiWULEWiFSHMf
- O+kw8NtwNHt2Ig52ML1iwfPJkaRnbxb6Q/woXVo5oelW/WB2nNZ0MTO9Fx8KwkKBNI+3zuIGv
- pP9AYc9LwDpjsWZrvNS0UtdZuUW6zBVgZbaxRz2z0jxMpTKQAbqHszcM+ohBFG89T4J5Y6nT7
- euJuuneeHW7gP+xI31sZmMgRVknwhX0vZlSN1AYmiMAL02xugDss8f5FJP3v6UhkQoyCwT9SI
- 5FxUR+w2llXs7SYRiq7YmJUvtScjjKSn7CcjENH8Dmgi95VoGl3ibAsFBHIVXh5UkoLvaMLoA
- pf6DvEY2JGKJM+RjQGyzd/ZmeX+H3zepeoeqToTzpojyn+bGbyr0FDMCG5Lt3oL3xnsCBxBQW
- cp/uRuqe9Yk1w8xMTlR1EiXPYnz/0AEoBT+YluGsb0awndUPcvd3Kh0n1Of6wt0FSkdph/ch3
- jrEX51co3TH4PoidqKMaYwOcNoEslJ3+r6tuaJTfqnUvw/Ni9tENEXzlsnbuJ7ftP17TM/e0P
- EWRJQEkPuf+RIDm6UCvXyu34rs1WGAIfrfbMefBQ7MJ7fTST4J7VV88nHUFM+0XRWyK+HT19v
- 7WThijSPzr0/40fhVhcpuaPW8X1Ryt+fQFQmyKErUJMviMvPmOaeV8duixrz4SeljiKHFSqOC
- /KTtXUAYFaqFCP2klrn5nzJgkfbcjLuCQ1iIuuJLt6shzn9bHymMJxcMhj5wpFOP3ITDEfq1G
- jeiWv7/88SRk2ng==
+Content-Transfer-Encoding: 8bit
+Sender: Luis Chamberlain <mcgrof@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+The following changes since commit 06c2afb862f9da8dc5efa4b6076a0e48c3fbaaa5:
 
---jAIN7/hQsTcrQJVA
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+  Linux 6.5-rc1 (2023-07-09 13:53:13 -0700)
 
-On Tue, Aug 29, 2023 at 11:57:19PM +0900 Masahiro Yamada wrote:
-> On Tue, Aug 29, 2023 at 3:55=E2=80=AFPM Nicolas Schier <nicolas@fjasle.eu=
-> wrote:
-> >
-> > On Mon 28 Aug 2023 16:17:07 GMT, Michael Ellerman wrote:
-> > > Masahiro Yamada <masahiroy@kernel.org> writes:
-> > > > On Sat, Aug 26, 2023 at 4:55=E2=80=AFAM Kees Cook <keescook@chromiu=
-m.org> wrote:
-> > > >>
-> > > >> Hi,
-> > > >>
-> > > >> This is my series to show *.config targets in the "help" target so=
- these
-> > > >> various topics can be more easily discoverd.
-> > > >>
-> > > >> v2:
-> > > >>  - split .fragment from .config to hide "internal" fragments
-> > > >
-> > > > Please do not do this churn.
-> > >
-> > > That was my idea :}
-> > >
-> > > > Like Randy, I did not get "why" part quiet well,
-> > > > but if you are eager about this,
-> > > > you can show help message only when the following
-> > > > ("# Help:" prefix for example) is found in the first line.
-> > > >
-> > > > # Help: blah blah
-> > > > # other comment
-> > >
-> > > I did think of that, but wasn't sure how to do it in make.
-> >
-> > Something like this should do it:
-> >
-> >         @grep -Hnm1 -e '^# Help:' $(foreach f, $(sort $(notdir $(call c=
-onfigfiles,*.config))), $(firstword $(call configfiles,$(f)))) | \
-> >          while read loc dummy helptext; do \
-> >                 tmp=3D"$${loc%:#}"; file=3D"$${tmp%:*}"; line=3D"$${tmp=
-##*:}"; \
-> >                 [ "$${line}" =3D "1" ] && \
-> >                   printf "  %-25s - %s\\n" "$${file##*/}" "$${helptext}=
-"; \
-> >          done
-> >
-> > but this neither beautiful nor elegant it likes to be improved.
-> >
-> > Kind regards,
-> > Nicolas
->=20
->=20
->=20
->=20
-> The attached patch will work too.
->=20
-> I dropped the "in the first line" restriction
-> because SPDX might be placed in the first line
-> of config fragments.
->=20
->=20
->=20
-> --=20
-> Best Regards
-> Masahiro Yamada
+are available in the Git repository at:
 
-> diff --git a/Makefile b/Makefile
-> index e21bf66af6fd..23cd62a5ff05 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -1552,7 +1552,6 @@ help:
->  	@echo  '  mrproper	  - Remove all generated files + config + various ba=
-ckup files'
->  	@echo  '  distclean	  - mrproper + remove editor backup and patch files'
->  	@echo  ''
-> -	@echo  'Configuration targets:'
->  	@$(MAKE) -f $(srctree)/scripts/kconfig/Makefile help
->  	@echo  ''
->  	@echo  'Other generic targets:'
-> diff --git a/arch/x86/Makefile b/arch/x86/Makefile
-> index fdc2e3abd615..c4b2a8a19fc8 100644
-> --- a/arch/x86/Makefile
-> +++ b/arch/x86/Makefile
-> @@ -335,9 +335,5 @@ define archhelp
->    echo  '			  bzdisk/fdimage*/hdimage/isoimage also accept:'
->    echo  '			  FDARGS=3D"..."  arguments for the booted kernel'
->    echo  '			  FDINITRD=3Dfile initrd for the booted kernel'
-> -  echo  ''
-> -  echo  '  kvm_guest.config	- Enable Kconfig items for running this kern=
-el as a KVM guest'
-> -  echo  '  xen.config		- Enable Kconfig items for running this kernel as=
- a Xen guest'
-> -  echo  '  x86_debug.config	- Enable tip tree debugging options for test=
-ing'
-> =20
->  endef
-> diff --git a/kernel/configs/kvm_guest.config b/kernel/configs/kvm_guest.c=
-onfig
-> index 208481d91090..d0877063d925 100644
-> --- a/kernel/configs/kvm_guest.config
-> +++ b/kernel/configs/kvm_guest.config
-> @@ -1,3 +1,4 @@
-> +# Help: Bootable as a KVM guest
->  CONFIG_NET=3Dy
->  CONFIG_NET_CORE=3Dy
->  CONFIG_NETDEVICES=3Dy
-> diff --git a/kernel/configs/x86_debug.config b/kernel/configs/x86_debug.c=
-onfig
-> index 6fac5b405334..35f48671b8d5 100644
-> --- a/kernel/configs/x86_debug.config
-> +++ b/kernel/configs/x86_debug.config
-> @@ -1,3 +1,4 @@
-> +# Help: Debugging options for tip tree testing
->  CONFIG_X86_DEBUG_FPU=3Dy
->  CONFIG_LOCK_STAT=3Dy
->  CONFIG_DEBUG_VM=3Dy
-> diff --git a/kernel/configs/xen.config b/kernel/configs/xen.config
-> index 436f806aa1ed..6878b9a49be8 100644
-> --- a/kernel/configs/xen.config
-> +++ b/kernel/configs/xen.config
-> @@ -1,3 +1,5 @@
-> +# Help: Bootable as a Xen guest
-> +#
->  # global stuff - these enable us to allow some
->  # of the not so generic stuff below for xen
->  CONFIG_PARAVIRT=3Dy
-> diff --git a/scripts/kconfig/Makefile b/scripts/kconfig/Makefile
-> index af1c96198f49..e72c5ee659a9 100644
-> --- a/scripts/kconfig/Makefile
-> +++ b/scripts/kconfig/Makefile
-> @@ -93,11 +93,13 @@ endif
->  %_defconfig: $(obj)/conf
->  	$(Q)$< $(silent) --defconfig=3Darch/$(SRCARCH)/configs/$@ $(Kconfig)
-> =20
-> -configfiles=3D$(wildcard $(srctree)/kernel/configs/$@ $(srctree)/arch/$(=
-SRCARCH)/configs/$@)
-> +configfiles =3D $(wildcard $(srctree)/kernel/configs/$(1) $(srctree)/arc=
-h/$(SRCARCH)/configs/$(1))
-> +all-config-fragments =3D $(call configfiles,*)
-> +config-fragments =3D $(call configfiles,$@)
-> =20
->  %.config: $(obj)/conf
-> -	$(if $(call configfiles),, $(error No configuration exists for this tar=
-get on this architecture))
-> -	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/kconfig/merge_config.sh -m .conf=
-ig $(configfiles)
-> +	$(if $(config-fragments),, $(error $@ fragment does not exists on this =
-architecture))
-> +	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/kconfig/merge_config.sh -m .conf=
-ig $(config-fragments)
->  	$(Q)$(MAKE) -f $(srctree)/Makefile olddefconfig
-> =20
->  PHONY +=3D tinyconfig
-> @@ -115,6 +117,7 @@ clean-files +=3D tests/.cache
-> =20
->  # Help text used by make help
->  help:
-> +	@echo  'Configuration targets:'
->  	@echo  '  config	  - Update current config utilising a line-oriented pr=
-ogram'
->  	@echo  '  nconfig         - Update current config utilising a ncurses m=
-enu based program'
->  	@echo  '  menuconfig	  - Update current config utilising a menu based p=
-rogram'
-> @@ -141,6 +144,12 @@ help:
->  	@echo  '                    default value without prompting'
->  	@echo  '  tinyconfig	  - Configure the tiniest possible kernel'
->  	@echo  '  testconfig	  - Run Kconfig unit tests (requires python3 and p=
-ytest)'
-> +	@echo  ''
-> +	@echo  'Configuration topic targets:'
-> +	@$(foreach f, $(all-config-fragments), \
-> +		if help=3D$$(grep -m1 '^# Help: ' $(f)); then \
-> +			printf '  %-25s - %s\n' '$(notdir $(f))' "$${help#*: }"; \
-> +		fi;)
+  git://git.kernel.org/pub/scm/linux/kernel/git/mcgrof/linux.git/ tags/sysctl-6.6-rc1
 
-thanks, this looks much better, and SPDX is a good point.
+for you to fetch changes up to 53f3811dfd5e39507ee3aaea1be09aabce8f9c98:
 
-Kind regards,
-Nicolas
+  sysctl: Use ctl_table_size as stopping criteria for list macro (2023-08-15 15:26:18 -0700)
 
---jAIN7/hQsTcrQJVA
-Content-Type: application/pgp-signature; name="signature.asc"
+----------------------------------------------------------------
+sysctl-6.6-rc1
 
------BEGIN PGP SIGNATURE-----
+Long ago we set out to remove the kitchen sink on kernel/sysctl.c arrays and
+placings sysctls to their own sybsystem or file to help avoid merge conflicts.
+Matthew Wilcox pointed out though that if we're going to do that we might as
+well also *save* space while at it and try to remove the extra last sysctl
+entry added at the end of each array, a sentintel, instead of bloating the
+kernel by adding a new sentinel with each array moved.
 
-iQIzBAABCAAdFiEEh0E3p4c3JKeBvsLGB1IKcBYmEmkFAmTuT/cACgkQB1IKcBYm
-EmlEpBAA7EkWGNiEhiWIxoOzhdqdsKaNQxgOjYbqO/5twfQCF8a28YvjT5rz5+4c
-zPaZ2m/zhowV0qsT8Ic7f6+g1ScrV4kyFmwDnsPy4nq/Kv+idjqKxp9fvrznAO9A
-4y3NL0GVRWYkfk50CSIU9QfxpArZdpfTmFI/C8hO4mxUnDWTkApYhaMo1arXxPaU
-eegk3YDPFW4C7jkOeZm+RNrx8WVCbFEshzKPUt1av0RcSwieZcSL3DiHMqYMapWj
-ydkoxuaC6R6L4nlZv0oLwLbSmIDqy4qVMscsEkREwROezN2+f0pJUnjELIFVpTbQ
-JSE9vEYdKdM362Fk1ehON8QZF4tY6Z9gz5tQ+61zutDCa3/ZZxSAzBdz16vYjPtn
-LzX4D+g1vbJUhQSmtsmnTVwnIf9X/TMGLVrKte+iB+wso642TqIdJCpI7Yn6th7h
-9ni2QcqIyCgkvoSX4T/2WYdCeipITjBRaMtP9pRo6ORQZN9D0WYakVoSXCgv2P0e
-WEWpp88brXiio9h66oXrxKexHqNuCnLB43eKBWIvNVN+5JoJJk8PBD66X66i53/u
-7MHJb/vaStGawuOLeic+YJ0qM4mKtHqwd7rdU+HE8BedURnxdQdKCtiSu7n6Kc+g
-gA7K076mUUemwOYxKPSTsu2NHn+iUKuziiqc47dT/pOS+cql8TY=
-=Fe5h
------END PGP SIGNATURE-----
+Doing that was not so trivial, and has required slowing down the moves of
+kernel/sysctl.c arrays and measuring the impact on size by each new move.
 
---jAIN7/hQsTcrQJVA--
+The complex part of the effort to help reduce the size of each sysctl is being
+done by the patient work of el señor Don Joel Granados. A lot of this is truly
+painful code refactoring and testing and then trying to measure the savings of
+each move and removing the sentinels. Although Joel already has code which does
+most of this work, experience with sysctl moves in the past shows is we need to
+be careful due to the slew of odd build failures that are possible due to the
+amount of random Kconfig options sysctls use.
+
+To that end Joel's work is split by first addressing the major housekeeping
+needed to remove the sentinels, which is part of this merge request. The rest
+of the work to actually remove the sentinels will be done later in future
+kernel releases.
+
+At first I was only going to send his first 7 patches of his patch series,
+posted 1 month ago, but in retrospect due to the testing the changes have
+received in linux-next and the minor changes they make this goes with the
+entire set of patches Joel had planned: just sysctl house keeping. There are
+networking changes but these are part of the house keeping too.
+
+The preliminary math is showing this will all help reduce the overall build
+time size of the kernel and run time memory consumed by the kernel by about
+~64 bytes per array where we are able to remove each sentinel in the future.
+That also means there is no more bloating the kernel with the extra ~64 bytes
+per array moved as no new sentinels are created.
+
+Most of this has been in linux-next for about a month, the last 7 patches took
+a minor refresh 2 week ago based on feedback.
+
+----------------------------------------------------------------
+Joel Granados (14):
+      sysctl: Prefer ctl_table_header in proc_sysctl
+      sysctl: Use ctl_table_header in list_for_each_table_entry
+      sysctl: Add ctl_table_size to ctl_table_header
+      sysctl: Add size argument to init_header
+      sysctl: Add a size arg to __register_sysctl_table
+      sysctl: Add size to register_sysctl
+      sysctl: Add size arg to __register_sysctl_init
+      sysctl: Add size to register_net_sysctl function
+      ax.25: Update to register_net_sysctl_sz
+      netfilter: Update to register_net_sysctl_sz
+      networking: Update to register_net_sysctl_sz
+      vrf: Update to register_net_sysctl_sz
+      sysctl: SIZE_MAX->ARRAY_SIZE in register_net_sysctl
+      sysctl: Use ctl_table_size as stopping criteria for list macro
+
+ arch/arm64/kernel/armv8_deprecated.c    |  2 +-
+ arch/s390/appldata/appldata_base.c      |  2 +-
+ drivers/net/vrf.c                       |  3 +-
+ fs/proc/proc_sysctl.c                   | 90 +++++++++++++++++----------------
+ include/linux/sysctl.h                  | 31 +++++++++---
+ include/net/ipv6.h                      |  2 +
+ include/net/net_namespace.h             | 10 ++--
+ ipc/ipc_sysctl.c                        |  4 +-
+ ipc/mq_sysctl.c                         |  4 +-
+ kernel/ucount.c                         |  5 +-
+ net/ax25/sysctl_net_ax25.c              |  3 +-
+ net/bridge/br_netfilter_hooks.c         |  3 +-
+ net/core/neighbour.c                    |  8 ++-
+ net/core/sysctl_net_core.c              |  3 +-
+ net/ieee802154/6lowpan/reassembly.c     |  8 ++-
+ net/ipv4/devinet.c                      |  3 +-
+ net/ipv4/ip_fragment.c                  |  3 +-
+ net/ipv4/route.c                        |  8 ++-
+ net/ipv4/sysctl_net_ipv4.c              |  3 +-
+ net/ipv4/xfrm4_policy.c                 |  3 +-
+ net/ipv6/addrconf.c                     |  3 +-
+ net/ipv6/icmp.c                         |  5 ++
+ net/ipv6/netfilter/nf_conntrack_reasm.c |  3 +-
+ net/ipv6/reassembly.c                   |  3 +-
+ net/ipv6/route.c                        |  9 ++++
+ net/ipv6/sysctl_net_ipv6.c              | 16 ++++--
+ net/ipv6/xfrm6_policy.c                 |  3 +-
+ net/mpls/af_mpls.c                      |  6 ++-
+ net/mptcp/ctrl.c                        |  3 +-
+ net/netfilter/ipvs/ip_vs_ctl.c          |  8 ++-
+ net/netfilter/ipvs/ip_vs_lblc.c         | 10 ++--
+ net/netfilter/ipvs/ip_vs_lblcr.c        | 10 ++--
+ net/netfilter/nf_conntrack_standalone.c |  4 +-
+ net/netfilter/nf_log.c                  |  7 +--
+ net/rds/tcp.c                           |  3 +-
+ net/sctp/sysctl.c                       |  4 +-
+ net/smc/smc_sysctl.c                    |  3 +-
+ net/sysctl_net.c                        | 26 +++++++---
+ net/unix/sysctl_net_unix.c              |  3 +-
+ net/xfrm/xfrm_sysctl.c                  |  8 ++-
+ 40 files changed, 222 insertions(+), 113 deletions(-)
