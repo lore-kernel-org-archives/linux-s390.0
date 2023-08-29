@@ -2,70 +2,129 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 911E6C83F13
-	for <linux-s390@archiver.kernel.org>; Tue, 29 Aug 2023 00:46:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44D80C83F12
+	for <linux-s390@archiver.kernel.org>; Tue, 29 Aug 2023 02:32:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234785AbjH2AqL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Aug 2023 20:46:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52710 "EHLO
+        id S233776AbjH2CcG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Aug 2023 22:32:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234713AbjH2AqF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Aug 2023 20:46:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70450DF;
-        Mon, 28 Aug 2023 17:46:02 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05F28617F1;
-        Tue, 29 Aug 2023 00:46:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 6DACEC433C7;
-        Tue, 29 Aug 2023 00:46:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1693269961;
-        bh=9mivrV705YGeKPaLtBhvFUSi7qoTXpcJ2aF7cLdR9dE=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=RTcV3A1gNiYf1II0ckKJ66GmU5DJKujgEBtcOwBzv1bErmvwz4wA8QEJ4S7ptyxVk
-         zkGbMiM5M9TSHTFulX4sUiPtB78ALDmYXbZH7RNPiMCY3nzV4ejZSKtD8Bpzkkdauq
-         O4cc7aPtTPna7S/PbblTfLho1ggv8Ud/fO4OOOIO4pvpcSrc+fc9jGmr6KVPZZtRK8
-         rTBNr2bJjEb8cdkjJSdUl3SIzd3zZqZEoXODRvaAx0KWZAMM64kGgGJFyA/iTHCMxE
-         LDKBbcFTyytnvDfNLBqgJqe4SHbsMb4Gm2lS9JV4psU93HMCKVLa28eRN0rqTZhRxB
-         PLW7gYjV6P77g==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 5BEFAC3274C;
-        Tue, 29 Aug 2023 00:46:01 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 updates for 6.6 merge window
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20230827203058.5559-A-hca@linux.ibm.com>
-References: <20230827203058.5559-A-hca@linux.ibm.com>
-X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20230827203058.5559-A-hca@linux.ibm.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.6-1
-X-PR-Tracked-Commit-Id: dedf98dd1cfb61cfc74be9248b90a49b42c6dead
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: e5b7ca09e9aa4d483ab84c5f2ba88f0cc7c66540
-Message-Id: <169326996137.22794.8832134670034941690.pr-tracker-bot@kernel.org>
-Date:   Tue, 29 Aug 2023 00:46:01 +0000
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+        with ESMTP id S235530AbjH2CcG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Aug 2023 22:32:06 -0400
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B5601A2;
+        Mon, 28 Aug 2023 19:32:00 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VqpTdBj_1693276315;
+Received: from 30.221.110.25(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0VqpTdBj_1693276315)
+          by smtp.aliyun-inc.com;
+          Tue, 29 Aug 2023 10:31:56 +0800
+Message-ID: <484c9f62-748c-6193-9c02-c41449b757b4@linux.alibaba.com>
+Date:   Tue, 29 Aug 2023 10:31:52 +0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.14.0
+Subject: Re: [RFC PATCH v2 net-next 4/6] net/smc: support max connections per
+ lgr negotiation
+To:     Wenjia Zhang <wenjia@linux.ibm.com>, jaka@linux.ibm.com,
+        kgraul@linux.ibm.com, tonylu@linux.alibaba.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com
+Cc:     horms@kernel.org, alibuda@linux.alibaba.com,
+        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20230807062720.20555-1-guangguan.wang@linux.alibaba.com>
+ <20230807062720.20555-5-guangguan.wang@linux.alibaba.com>
+ <a7ed9f2d-5c50-b37f-07d4-088ceef6aeac@linux.ibm.com>
+ <9f4292c4-4004-b73b-1079-41ce7b1a5750@linux.alibaba.com>
+ <2dbf25a0-05a6-d899-3351-598e952a927d@linux.ibm.com>
+Content-Language: en-US
+From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
+In-Reply-To: <2dbf25a0-05a6-d899-3351-598e952a927d@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Sun, 27 Aug 2023 22:30:58 +0200:
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.6-1
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/e5b7ca09e9aa4d483ab84c5f2ba88f0cc7c66540
+On 2023/8/28 20:54, Wenjia Zhang wrote:
+> 
+> 
+> On 15.08.23 08:31, Guangguan Wang wrote:
+>>
+>>
+>> On 2023/8/10 00:04, Wenjia Zhang wrote:
+>>>
+>>>
+>>> On 07.08.23 08:27, Guangguan Wang wrote:
+>>>> Support max connections per lgr negotiation for SMCR v2.1,
+>>>> which is one of smc v2.1 features.
+>> ...
+>>>> @@ -472,6 +473,9 @@ int smc_llc_send_confirm_link(struct smc_link *link,
+>>>>        confllc->link_num = link->link_id;
+>>>>        memcpy(confllc->link_uid, link->link_uid, SMC_LGR_ID_SIZE);
+>>>>        confllc->max_links = SMC_LLC_ADD_LNK_MAX_LINKS;
+>>>> +    if (link->lgr->smc_version == SMC_V2 &&
+>>>> +        link->lgr->peer_smc_release >= SMC_RELEASE_1)
+>>>> +        confllc->max_conns = link->lgr->max_conns;
+>>>>        /* send llc message */
+>>>>        rc = smc_wr_tx_send(link, pend);
+>>>>    put_out:
+>>>
+>>> Did I miss the negotiation process somewhere for the following scenario?
+>>> (Example 4 in the document)
+>>> Client                 Server
+>>>      Proposal(max conns(16))
+>>>      ----------------------->
+>>>
+>>>      Accept(max conns(32))
+>>>      <-----------------------
+>>>
+>>>      Confirm(max conns(32))
+>>>      ----------------------->
+>>
+>> Did you mean the accepted max conns is different(not 32) from the Example 4 when the proposal max conns is 16?
+>>
+>> As described in (https://www.ibm.com/support/pages/node/7009315) page 41:
+>> ...
+>> 2. Max conns and max links values sent in the CLC Proposal are the client preferred values.
+>> 3. The v2.1 values sent in the Accept message are the final values. The client must accept the values or
+>> DECLINE the connection.
+>> 4. Max conns and links values sent in the CLC Accept are the final values (server dictates). The server can
+>> either honor the client’s preferred values or return different (negotiated but final) values.
+>> ...
+>>
+>> If I understand correctly, the server dictates the final value of max conns, but how the server dictates the final
+>> value of max conns is not defined in SMC v2.1. In this patch, the server use the minimum value of client preferred
+>> value and server preferred value as the final value of max conns. The max links is negotiated with the same logic.
+>>
+>> Client                 Server
+>>       Proposal(max conns(client preferred))
+>>       ----------------------->
+>>         Accept(max conns(accepted value)) accepted value=min(client preferred, server preferred)
+>>       <-----------------------
+>>         Confirm(max conns(accepted value))
+>>       ----------------------->
+>>
+>> I also will add this description into commit message for better understanding.
+>>
+>> Thanks,
+>> Guangguan Wang
+>>
+>>
+>>
+> 
+> Sorry for the late answer, I'm just back from vacation.
+> 
+> That's true that the protocol does not define how the server decides the final value(s). I'm wondering if there is some reason for you to use the minimum value instead of maximum (corresponding to the examples in the document). If the both prefered values (client's and server's) are in the range of the acceptable value, why not the maximum? Is there any consideration on that?
+> 
+> Best,
+> Wenjia
 
-Thank you!
+Since the value of the default preferred max conns is already the maximum value of the range(16-255), I am wondering
+whether it makes any sense to use the maximum for decision, where the negotiated result of max conns is always 255.
+So does the max links. 
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Thanks,
+Guangguan
