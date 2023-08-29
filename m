@@ -2,140 +2,113 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9147C83F18
-	for <linux-s390@archiver.kernel.org>; Tue, 29 Aug 2023 15:42:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59FF7C83F12
+	for <linux-s390@archiver.kernel.org>; Tue, 29 Aug 2023 15:44:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236430AbjH2Plt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 29 Aug 2023 11:41:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36688 "EHLO
+        id S232996AbjH2Pn5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 29 Aug 2023 11:43:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237332AbjH2Pl1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Aug 2023 11:41:27 -0400
-Received: from mail-qv1-xf31.google.com (mail-qv1-xf31.google.com [IPv6:2607:f8b0:4864:20::f31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 179B4CD1
-        for <linux-s390@vger.kernel.org>; Tue, 29 Aug 2023 08:41:21 -0700 (PDT)
-Received: by mail-qv1-xf31.google.com with SMTP id 6a1803df08f44-6491907dbc3so28137216d6.2
-        for <linux-s390@vger.kernel.org>; Tue, 29 Aug 2023 08:41:21 -0700 (PDT)
+        with ESMTP id S237362AbjH2Pnf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Aug 2023 11:43:35 -0400
+Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2E50E6C
+        for <linux-s390@vger.kernel.org>; Tue, 29 Aug 2023 08:43:09 -0700 (PDT)
+Received: by mail-qk1-x72c.google.com with SMTP id af79cd13be357-76ef03f76c7so298500785a.3
+        for <linux-s390@vger.kernel.org>; Tue, 29 Aug 2023 08:43:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1693323680; x=1693928480;
+        d=google.com; s=20221208; t=1693323788; x=1693928588;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=6w1Ls1sn3g8EuR9FLr87CmzSLawvlZA36YBFNsEyrqo=;
-        b=RePQtCbtJb8yTnPCG6XhU52r+nhBacgJ3m1Hf6++uzNpY5WVwBEgEeUOJJj5tRKsdG
-         Mw6sLocWVTveeyxm84ASXXZicf/JLpdRkJSwmatVMFNPEe5goKu6QN7BEo66ZLqhi1T+
-         oLie1Sx5nFp2iIxc7d6WlHxlqh6rUAF0Dymb9N1RfMjYr/aRUEeFv+K8CnDi5xIM85Xi
-         17dO0P9uDb3w45zqDsQWdD6UB9Q87aEBW1ZGKFFgfONnSR6z9Q7U/sy4bYcgvat1rACc
-         DXb1bskKsPhCDT9n049AqzRNxxbZE5euxOXUwImZiMxURyBMN/kwGdUZq9+Oruj5kfuq
-         ZjEg==
+        bh=lBTH3KqXgFJRqcMAbzLE/ja4EQ9oM7ASpBmuXdwwsEI=;
+        b=HVI6FJsyGs541XjaMgVduX7Uc1sfhiaAfYG1AooHHyQPpd7jEsnrKktawbP7iuEXzU
+         ujwrfFOLNG61awVH7O8MajC8Kn1E7Xrc2PPeNuAnMVUU+QrRxcqQY14cINXgTirBcRoo
+         9Kt1S7N1bkJR92e8IosfYJ0EhZJw5Ai8ZnNLNtGxk01jR1/Idy5BfjQd4NjWYszST29F
+         5sDRHiy/fBOYAVK4kzMJ8JimZATeE55gclkMQ6T4VXRP+nVed0rYVZqaiaJem2VXcsM1
+         8W0Bjmb+wH93fcCd/n6lPfcJG1SFYUHs1pDyNFaeDZjJDqb1zKoqRjTle/fFPK6zFBSP
+         PfdQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693323680; x=1693928480;
+        d=1e100.net; s=20221208; t=1693323788; x=1693928588;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=6w1Ls1sn3g8EuR9FLr87CmzSLawvlZA36YBFNsEyrqo=;
-        b=PFmOsArmPbld1h3i2x9MFNZwCcUmpce4uzUsjH8pwligFYF1QXxVL1+zlDLT7z8UZC
-         tQKn7BmZsWOz1dDGxEK19ObtjzgUVUnAnD08OaL4J5fHk/crs3XZYnUS4d/NxXPSerRu
-         KA6Lo+KTzHV0mH0EWCQjJPSGdoaZNuajNAPKUcw0YWGtH0zCPx1Y7MWGsWFmQwOtSDy3
-         yw7TUFn6TZH52rLNEyVrjdyS4YwI/zEmZzE/P+/HG/ZVOqaCj+I76xaepNuoQl3jGNET
-         bmQ3uL0oE/ev+ummsPdoRIZTmCZPteet/0B4sbRgxUAhF1/shG0uoaYwNu9uZVUgQJMO
-         aRHQ==
-X-Gm-Message-State: AOJu0YywjQICq+Qf48yXRbtqMAj3YUP5VJQv45LKfFi3tjoxl7dR2E2Q
-        Dwlw3LZXlOKxwOXTW+ZTOJNOLGNWamDiQVxVB0L3zA==
-X-Google-Smtp-Source: AGHT+IGHcq6O4w4Xaif/Wkg7G2cp5jDPTlWZCjK9MvTG1O3GXizQyZyXKPiWJ235Db2+y9z6DE/nb27moDetWPL+YZ8=
-X-Received: by 2002:a0c:ab5d:0:b0:64f:42eb:92ea with SMTP id
- i29-20020a0cab5d000000b0064f42eb92eamr24008326qvb.4.1693323680063; Tue, 29
- Aug 2023 08:41:20 -0700 (PDT)
+        bh=lBTH3KqXgFJRqcMAbzLE/ja4EQ9oM7ASpBmuXdwwsEI=;
+        b=ZWrxRfGJBCG1HVhXyVYoJ3Kpee3Vfr4XuXOxis72kKjePBXvufEWCXcaxZ960eDGSf
+         kFZs9/YLiduQhHk9YM726pvb3mXbQl4GiFTN1izaaLXy4os0O7bj4bAQF8oF+emw4KEk
+         IVnW/Cjby6K3JfO9Fwl/REILbltKXtrLcUTeYVKN/BAlz8Wvhqa29xZ/WzsXOEVT620T
+         OwKM7Cuq5pD1Rf36f1FrvljONdSfipYeTD4y8tQN8alotXdQFqy6uA9vR4347zNMvPcO
+         9BGmZw54YEiqaKG0dnxnzY+r/t4NTWBWABHIUDQtraoxFqTY4n9NWQ1p4LfYy9jJYBwe
+         +SMw==
+X-Gm-Message-State: AOJu0YxvUDyGvDEe+UEnqFQCZdvjtQnskKM3RP4WM4KwtIObtIGfv9w6
+        zB3ori1BY4kEtTDaK7RB9zCrcAiabTJV0/jF0ViWVQ==
+X-Google-Smtp-Source: AGHT+IFI195D/AC2c/3Bu7IIaQoiyLB0K4oEif6OroPsGolMUfKUAgcMd4pgiugVDhV5XGVzvFQe2vWKh9zFprkhljc=
+X-Received: by 2002:a0c:f484:0:b0:64f:4e7a:bc3a with SMTP id
+ i4-20020a0cf484000000b0064f4e7abc3amr24893513qvm.26.1693323788232; Tue, 29
+ Aug 2023 08:43:08 -0700 (PDT)
 MIME-Version: 1.0
 References: <20230828153142.2843753-1-hca@linux.ibm.com> <20230828153142.2843753-2-hca@linux.ibm.com>
- <ZO0j3M8KFWeEznXy@google.com> <20230829080202.7031-B-hca@linux.ibm.com>
-In-Reply-To: <20230829080202.7031-B-hca@linux.ibm.com>
+ <f0419f6428ad404386ebca813dc1ec03@AcuMS.aculab.com> <ZO0k1Par4i4FBCWF@google.com>
+ <20230829074854.7031-A-hca@linux.ibm.com>
+In-Reply-To: <20230829074854.7031-A-hca@linux.ibm.com>
 From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Tue, 29 Aug 2023 08:41:09 -0700
-Message-ID: <CAKwvOd=Q1woTad6wFMm=Phs36FTyQ5Gg1wFwZZUhe6j5x3zEqw@mail.gmail.com>
+Date:   Tue, 29 Aug 2023 08:42:57 -0700
+Message-ID: <CAKwvOd=23+rjzB96jpYgb4-J2jniTWXbT+638gQJ2mmShVfN=A@mail.gmail.com>
 Subject: Re: [PATCH 1/1] s390/dasd: fix string length handling
 To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Jens Axboe <axboe@kernel.dk>, Stefan Haberland <sth@linux.ibm.com>,
+Cc:     David Laight <David.Laight@aculab.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Stefan Haberland <sth@linux.ibm.com>,
         =?UTF-8?B?SmFuIEjDtnBwbmVy?= <hoeppner@linux.ibm.com>,
         Peter Oberparleiter <oberpar@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-block@vger.kernel.org, nathan@kernel.org,
-        llvm@lists.linux.dev, David Laight <David.Laight@aculab.com>
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
+        llvm@lists.linux.dev
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Aug 29, 2023 at 1:02=E2=80=AFAM Heiko Carstens <hca@linux.ibm.com> =
-wrote:
+On Tue, Aug 29, 2023 at 12:49=E2=80=AFAM Heiko Carstens <hca@linux.ibm.com>=
+ wrote:
 >
-> On Mon, Aug 28, 2023 at 03:46:52PM -0700, Nick Desaulniers wrote:
-> > On Mon, Aug 28, 2023 at 05:31:42PM +0200, Heiko Carstens wrote:
-> > > Building dasd_eckd.o with latest clang reveals this bug:
+> On Mon, Aug 28, 2023 at 03:51:00PM -0700, Nick Desaulniers wrote:
+> > On Mon, Aug 28, 2023 at 05:18:37PM +0000, David Laight wrote:
+> > > From: Heiko Carstens
+> > > > Sent: 28 August 2023 16:32
+> > > >   if (strlen(uid.vduit) > 0)
 > > >
-> > >     CC      drivers/s390/block/dasd_eckd.o
-> > >       drivers/s390/block/dasd_eckd.c:1082:3: warning: 'snprintf' will=
- always be truncated;
-> > >       specified size is 1, but format string expands to at least 11 [=
--Wfortify-source]
-> > >        1082 |                 snprintf(print_uid, sizeof(*print_uid),
-> > >             |                 ^
-> > >       drivers/s390/block/dasd_eckd.c:1087:3: warning: 'snprintf' will=
- always be truncated;
-> > >       specified size is 1, but format string expands to at least 10 [=
--Wfortify-source]
-> > >        1087 |                 snprintf(print_uid, sizeof(*print_uid),
-> > >             |                 ^
+> > > Does the compiler know enough to optimise that brain-dead test?
 > > >
-> > > Fix this by moving and using the existing UID_STRLEN for the arrays
-> > > that are being written to. Also rename UID_STRLEN to DASD_UID_STRLEN
-> > > to clarify its scope.
-> > >
-> > > Fixes: 23596961b437 ("s390/dasd: split up dasd_eckd_read_conf")
-> > > Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-> > > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 > >
-> > Thanks for the patch! Nathan just reported a bunch of these. I took a
-> > look at these two and thought "yeah that's clearly a bug in the kernel
-> > sources." Fix LGTM.
+> > For the purposes of skipping diagnostics, no; clang performs semantic
+> > analysis BEFORE optimization (which is handled by LLVM). As such, clang
+> > will produce diagnostics on dead code.
 > >
-> > Reported-by: Nathan Chancellor <nathan@kernel.org>
-> > Closes: https://github.com/ClangBuiltLinux/linux/issues/1923
-> > Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+> > Partly because LLVM isn't very ergonomic at emitting diagnostics from
+> > the backend, partly because Clang code owner and developers don't want
+> > clang to emit diagnostics dependent on optimization level.
 > >
-> > I also like David's idea of passing `char ident [DASD_UID_STRLEN]`, too=
-,
-> > but I don't feel strongly either way.
+> > I disagree with my compatriots, and you can read more thoughts here:
+> > https://discourse.llvm.org/t/rfc-improving-clangs-middle-and-back-end-d=
+iagnostics/69261?u=3Dnickdesaulniers
 >
-> Well, this is supposed to be the "minimal" fix. I consider everything els=
-e
-> additional cleanup work, which can and should be done by Stefan and Jan w=
-ho
-> maintain this device driver.
-
-Sure, like I said, I don't care either way.
-
->
-> For example there is more or less identical code within dasd_devmap.c
-> (dasd_uid_show()), where it would make sense to de-deduplicate the
-> code. And then of course there is the already mentioned rather pointless
-> strlen() invocation; plus there are many other string operations / format
-> strings, which also should be addressed.
-> E.g. there are quite a couple of "%p" printk format specifiers which are
-> pointless, since pointer values get hashed since years - so a more or les=
+> Maybe I misunderstand what you write above, however clang (latest+greates=
+t)
+> does indeed optimize the strlen() away and generates code which only test=
 s
-> random value will be printed, etc.
+> if uid.vduit[0] is zero or not.
 
-kptr_restrict can be disabled at runtime though, so it's not useless
-to print pointer values (IMO).
+Oh, yeah, sorry I was talking about something else. Nevermind my point.
 
 >
-> However all of this is up to Stefan and Jan.
->
-> So I consider this current fix as good enough and final.
+> Unlike gcc, which does not optimize this away and which uses the strlen()
+> inline assembly provided via string.h...
 
-Thanks for the patch.
+heh, I feel like I was just having a conversation yesterday with
+someone about pessimizing compile-time calculations...
 
 --=20
 Thanks,
