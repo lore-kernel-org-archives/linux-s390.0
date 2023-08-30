@@ -2,153 +2,108 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1EB5C71153
-	for <linux-s390@archiver.kernel.org>; Wed, 30 Aug 2023 03:30:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5612BC83F01
+	for <linux-s390@archiver.kernel.org>; Wed, 30 Aug 2023 06:18:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232055AbjH3DaI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 29 Aug 2023 23:30:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37606 "EHLO
+        id S236107AbjH3GSB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 30 Aug 2023 02:18:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241810AbjH3DRV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Aug 2023 23:17:21 -0400
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0232D1A4;
-        Tue, 29 Aug 2023 20:17:14 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R771e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VqtENhb_1693365430;
-Received: from 30.221.109.125(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0VqtENhb_1693365430)
-          by smtp.aliyun-inc.com;
-          Wed, 30 Aug 2023 11:17:12 +0800
-Message-ID: <8eb02141-9c5e-8380-285c-d96e6184f539@linux.alibaba.com>
-Date:   Wed, 30 Aug 2023 11:17:09 +0800
+        with ESMTP id S240298AbjH3GRi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Aug 2023 02:17:38 -0400
+X-Greylist: delayed 328 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 29 Aug 2023 23:17:32 PDT
+Received: from out-246.mta0.migadu.com (out-246.mta0.migadu.com [91.218.175.246])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94C73CEA;
+        Tue, 29 Aug 2023 23:17:32 -0700 (PDT)
+Message-ID: <642de4e6-801d-fcad-a7ce-bfc6dec3b6e5@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+        t=1693375918;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=JMzOvVHk770qYz+7D4bRM3eiaC0WBb12Z/fuZleaQ2g=;
+        b=n8qZNKHDJ8ZkQN8s6YCFhUc5vlrIehXvAzssrfT4lOFAEgM70y7j9ccF+kTN544/il9mhv
+        /Qwyv0zoAHdwAPeCdmanHqcxV7A/7XcL4G5u9c/o5+tWUqR2xZIKUSlHotdEAwwwHhjWvg
+        KLK2CGyPGmGk32bcLUct3rbhOUMJhk8=
+Date:   Wed, 30 Aug 2023 14:11:31 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.14.0
-Subject: Re: [RFC PATCH v2 net-next 4/6] net/smc: support max connections per
- lgr negotiation
+Subject: Re: [PATCH 07/11] vfs: add nowait parameter for file_accessed()
 Content-Language: en-US
-To:     Wenjia Zhang <wenjia@linux.ibm.com>, jaka@linux.ibm.com,
-        kgraul@linux.ibm.com, tonylu@linux.alibaba.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com
-Cc:     horms@kernel.org, alibuda@linux.alibaba.com,
-        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20230807062720.20555-1-guangguan.wang@linux.alibaba.com>
- <20230807062720.20555-5-guangguan.wang@linux.alibaba.com>
- <a7ed9f2d-5c50-b37f-07d4-088ceef6aeac@linux.ibm.com>
- <9f4292c4-4004-b73b-1079-41ce7b1a5750@linux.alibaba.com>
- <2dbf25a0-05a6-d899-3351-598e952a927d@linux.ibm.com>
- <484c9f62-748c-6193-9c02-c41449b757b4@linux.alibaba.com>
- <e1cba3b8-1333-3b30-04f2-c7634bf02da1@linux.ibm.com>
-From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <e1cba3b8-1333-3b30-04f2-c7634bf02da1@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     io-uring@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Dominique Martinet <asmadeus@codewreck.org>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Christian Brauner <brauner@kernel.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Stefan Roesch <shr@fb.com>, Clay Harris <bugs@claycon.org>,
+        Dave Chinner <david@fromorbit.com>,
+        "Darrick J . Wong" <djwong@kernel.org>,
+        linux-fsdevel@vger.kernel.org, linux-xfs@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-cachefs@redhat.com,
+        ecryptfs@vger.kernel.org, linux-nfs@vger.kernel.org,
+        linux-unionfs@vger.kernel.org, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-btrfs@vger.kernel.org, codalist@coda.cs.cmu.edu,
+        linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
+        linux-mm@kvack.org, linux-nilfs@vger.kernel.org,
+        devel@lists.orangefs.org, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org, linux-mtd@lists.infradead.org,
+        Wanpeng Li <wanpengli@tencent.com>
+References: <20230827132835.1373581-1-hao.xu@linux.dev>
+ <20230827132835.1373581-8-hao.xu@linux.dev>
+ <ZOvA5DJDZN0FRymp@casper.infradead.org>
+ <c728bf3f-d9db-4865-8473-058b26c11c06@linux.dev>
+ <ZO3cI+DkotHQo3md@casper.infradead.org>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From:   Hao Xu <hao.xu@linux.dev>
+In-Reply-To: <ZO3cI+DkotHQo3md@casper.infradead.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 2023/8/29 21:18, Wenjia Zhang wrote:
-> 
-> 
-> On 29.08.23 04:31, Guangguan Wang wrote:
+On 8/29/23 19:53, Matthew Wilcox wrote:
+> On Tue, Aug 29, 2023 at 03:46:13PM +0800, Hao Xu wrote:
+>> On 8/28/23 05:32, Matthew Wilcox wrote:
+>>> On Sun, Aug 27, 2023 at 09:28:31PM +0800, Hao Xu wrote:
+>>>> From: Hao Xu <howeyxu@tencent.com>
+>>>>
+>>>> Add a boolean parameter for file_accessed() to support nowait semantics.
+>>>> Currently it is true only with io_uring as its initial caller.
+>>>
+>>> So why do we need to do this as part of this series?  Apparently it
+>>> hasn't caused any problems for filemap_read().
+>>>
 >>
->>
->> On 2023/8/28 20:54, Wenjia Zhang wrote:
->>>
->>>
->>> On 15.08.23 08:31, Guangguan Wang wrote:
->>>>
->>>>
->>>> On 2023/8/10 00:04, Wenjia Zhang wrote:
->>>>>
->>>>>
->>>>> On 07.08.23 08:27, Guangguan Wang wrote:
->>>>>> Support max connections per lgr negotiation for SMCR v2.1,
->>>>>> which is one of smc v2.1 features.
->>>> ...
->>>>>> @@ -472,6 +473,9 @@ int smc_llc_send_confirm_link(struct smc_link *link,
->>>>>>         confllc->link_num = link->link_id;
->>>>>>         memcpy(confllc->link_uid, link->link_uid, SMC_LGR_ID_SIZE);
->>>>>>         confllc->max_links = SMC_LLC_ADD_LNK_MAX_LINKS;
->>>>>> +    if (link->lgr->smc_version == SMC_V2 &&
->>>>>> +        link->lgr->peer_smc_release >= SMC_RELEASE_1)
->>>>>> +        confllc->max_conns = link->lgr->max_conns;
->>>>>>         /* send llc message */
->>>>>>         rc = smc_wr_tx_send(link, pend);
->>>>>>     put_out:
->>>>>
->>>>> Did I miss the negotiation process somewhere for the following scenario?
->>>>> (Example 4 in the document)
->>>>> Client                 Server
->>>>>       Proposal(max conns(16))
->>>>>       ----------------------->
->>>>>
->>>>>       Accept(max conns(32))
->>>>>       <-----------------------
->>>>>
->>>>>       Confirm(max conns(32))
->>>>>       ----------------------->
->>>>
->>>> Did you mean the accepted max conns is different(not 32) from the Example 4 when the proposal max conns is 16?
->>>>
->>>> As described in (https://www.ibm.com/support/pages/node/7009315) page 41:
->>>> ...
->>>> 2. Max conns and max links values sent in the CLC Proposal are the client preferred values.
->>>> 3. The v2.1 values sent in the Accept message are the final values. The client must accept the values or
->>>> DECLINE the connection.
->>>> 4. Max conns and links values sent in the CLC Accept are the final values (server dictates). The server can
->>>> either honor the client’s preferred values or return different (negotiated but final) values.
->>>> ...
->>>>
->>>> If I understand correctly, the server dictates the final value of max conns, but how the server dictates the final
->>>> value of max conns is not defined in SMC v2.1. In this patch, the server use the minimum value of client preferred
->>>> value and server preferred value as the final value of max conns. The max links is negotiated with the same logic.
->>>>
->>>> Client                 Server
->>>>        Proposal(max conns(client preferred))
->>>>        ----------------------->
->>>>          Accept(max conns(accepted value)) accepted value=min(client preferred, server preferred)
->>>>        <-----------------------
->>>>          Confirm(max conns(accepted value))
->>>>        ----------------------->
->>>>
->>>> I also will add this description into commit message for better understanding.
->>>>
->>>> Thanks,
->>>> Guangguan Wang
->>>>
->>>>
->>>>
->>>
->>> Sorry for the late answer, I'm just back from vacation.
->>>
->>> That's true that the protocol does not define how the server decides the final value(s). I'm wondering if there is some reason for you to use the minimum value instead of maximum (corresponding to the examples in the document). If the both prefered values (client's and server's) are in the range of the acceptable value, why not the maximum? Is there any consideration on that?
->>>
->>> Best,
->>> Wenjia
->>
->> Since the value of the default preferred max conns is already the maximum value of the range(16-255), I am wondering
->> whether it makes any sense to use the maximum for decision, where the negotiated result of max conns is always 255.
->> So does the max links.
->>
->> Thanks,
->> Guangguan
+>> We need this parameter to indicate if nowait semantics should be enforced in
+>> touch_atime(), There are locks and maybe IOs in it.
 > 
-> I don't think the server's default maxconns must be the maximum value, i.e 255. Since the patches series are already applied, we say the previous implementation uses maximus value because the maxconns is not tunable, so that we choose an appropriate value as the default value.
-> Now the value is negotiable, the default value could be also the server's prefer value.
-If the server's default maxconns could be other value rather than maximum value, it's OK to use other decision algorithm(minimum, maximum or others).
-But it is still a question that how to tune the default maxconns, maybe it is different from different linux distributions and different vendors of rdma nic.
-
-> But regarding maxlinks, I'm fine with the minimus, and actually it should be, because it should not be possible to try to add another link if one of the peers can and want to support only one link, i.e. down-level.
-Agree with you.
-
-> Any opinion?
+> That's not my point.  We currently call file_accessed() and
+> touch_atime() for nowait reads and nowait writes.  You haven't done
+> anything to fix those.
 > 
-> Best,
-> Wenjia
+> I suspect you can trim this patchset down significantly by avoiding
+> fixing the file_accessed() problem.  And then come back with a later
+> patchset that fixes it for all nowait i/o.  Or do a separate prep series
 
-Thanks,
-Guangguan Wang
+I'm ok to do that.
+
+> first that fixes it for the existing nowait users, and then a second
+> series to do all the directory stuff.
+> 
+> I'd do the first thing.  Just ignore the problem.  Directory atime
+> updates cause I/O so rarely that you can afford to ignore it.  Almost
+> everyone uses relatime or nodiratime.
+
+Hi Matthew,
+The previous discussion shows this does cause issues in real
+producations: 
+https://lore.kernel.org/io-uring/2785f009-2ebb-028d-8250-d5f3a30510f0@gmail.com/#:~:text=fwiw%2C%20we%27ve%20just%20recently%20had%20similar%20problems%20with%20io_uring%20read/write
+
+
+
+
