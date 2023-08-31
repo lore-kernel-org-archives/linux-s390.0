@@ -2,116 +2,84 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94DCCC83F01
-	for <linux-s390@archiver.kernel.org>; Thu, 31 Aug 2023 10:29:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06419C83F10
+	for <linux-s390@archiver.kernel.org>; Thu, 31 Aug 2023 11:00:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242580AbjHaK3Z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 31 Aug 2023 06:29:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55962 "EHLO
+        id S238381AbjHaLAL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 31 Aug 2023 07:00:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234457AbjHaK3Z (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 31 Aug 2023 06:29:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0FA2C5;
-        Thu, 31 Aug 2023 03:29:22 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FE526264F;
-        Thu, 31 Aug 2023 10:29:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6958C433C7;
-        Thu, 31 Aug 2023 10:29:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1693477762;
-        bh=qFrUjga7zFiJnDdj3g/wc5+Eq1FXVtXe0tkhwpI7QQk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SUq4GJsccfOR05SPSnyMyAN3qE02/2AS7Qzec8yZUD0g6yjqbdG1TVxFjrCKBA/Mh
-         Pedw/ShzpNrm+XUCZ0vbf9kmqFIcj1kBIbleQxOQNfdOHpznAJLw3pJZ20UZc1D6l0
-         iRWctifKSneHjKP9AZMEJFI1gJxQynGt0c+90DL81Dj3D64yprG1tHXna8ttJ7WlTi
-         CzeGVIJg3t4ZXf6F8K9TnK0BeqXUnK/X7PfvMSPIt9Pvi/lmfEjcuteKjQzQ3sehgN
-         JzkBLS60mhtOLUXqBOG+D2hsKsQH+HafDWaGqlhawLVlCq3bML0EP2r9eZP8ZhxMOJ
-         gkvZdWWnMjzpA==
-Date:   Thu, 31 Aug 2023 12:29:11 +0200
-From:   Christian Brauner <brauner@kernel.org>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        with ESMTP id S233916AbjHaLAK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 31 Aug 2023 07:00:10 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CB21CF3;
+        Thu, 31 Aug 2023 04:00:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1693479608; x=1725015608;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=DzmC6rc6oIaljneM3MgAfhj+b0WcoR4Oi851fK2n3HI=;
+  b=OO68EcOEAwVdNqTExMlBbHdL+ApM6ICLRtXSVnaxwhLvCZ9fWAFsrH0b
+   U43E4O9Z59uqGpc1ecbDpEQ6NVwdbskuESSyihMnvT/n0963HmAiBnQRU
+   Pu1oepTULaCq+LS6w3tleGZhNH2+2Kj+BvywADcswxZHD8TJDR2TAYxdj
+   mz9/W0XO87xGdRcbOaDpNyijMsMYQDwNxgw9W2p90TuCL31ZSBDDz9HCw
+   aMyiyepCHvukLBnhdkdat1MMKAuvozA22xwg3aeXKR321ZfBQnuflYkXL
+   9ytIp6P9B1VyPf1bNZwXQCqkG7IHR1IxPR7EHi14e2u6G6WftsU7EthmC
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10818"; a="373301974"
+X-IronPort-AV: E=Sophos;i="6.02,216,1688454000"; 
+   d="scan'208";a="373301974"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Aug 2023 04:00:07 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10818"; a="716300039"
+X-IronPort-AV: E=Sophos;i="6.02,216,1688454000"; 
+   d="scan'208";a="716300039"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orsmga006.jf.intel.com with ESMTP; 31 Aug 2023 04:00:04 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id 6233B3B5; Thu, 31 Aug 2023 14:00:03 +0300 (EEST)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Harald Freudenberger <freude@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, linux-s390@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: sb->s_fs_info freeing fixes
-Message-ID: <20230831-tiefbau-freuden-3e8225acc81d@brauner>
-References: <20230831053157.256319-1-hch@lst.de>
- <20230831-dazulernen-gepflanzt-8a64056bf362@brauner>
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 1/2] s390/zcrtpt: Don't leak memory if dev_set_name() fails
+Date:   Thu, 31 Aug 2023 13:59:59 +0300
+Message-Id: <20230831110000.24279-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.40.0.1.gaa8946217a0b
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20230831-dazulernen-gepflanzt-8a64056bf362@brauner>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Aug 31, 2023 at 12:20:32PM +0200, Christian Brauner wrote:
-> On Thu, Aug 31, 2023 at 07:31:53AM +0200, Christoph Hellwig wrote:
-> > sb->s_fs_info should only be freed after the superblock has been marked
-> > inactive in generic_shutdown_super, which means either in ->put_super or
-> > in ->kill_sb after generic_shutdown_super has returned.  Fix the
-> > instances where that is not the case.
-> 
-> Funny, I had looked at all those filesystems a while back to
-> double-check that things are sane and that's why I didn't change them.
-> 
-> >  arch/s390/hypfs/inode.c      |    3 +--
-> 
-> get_tree_single() -> single instance
-> => doesn't match on sb->s_fs_info
-> 
-> >  fs/devpts/inode.c            |    2 +-
-> 
-> get_tree_nodev() -> each mount is a new instance
-> => We don't match on sb->s_fs_info
-> 
-> >  fs/ramfs/inode.c             |    2 +-
-> 
-> get_tree_nodev() -> each mount is a new instance
-> => We don't match on sb->s_fs_info
-> 
-> >  security/selinux/selinuxfs.c |    5 +----
-> 
-> get_tree_single() -> single instance
-> => doesn't match on sb->s_fs_info
-> 
-> Al roughly said the same thing afaict.
-> 
-> I still think that there's no need to deviate from the basic logic:
-> 
-> (1) call generic kill_*() helper
-> (2) wipe sb->s_fs_info
-> 
-> So I think that's a cleanup we should do. Just change the rationale to
-> say that this deviation is pointless and just means the reader of the
-> code has to sanity check against the superblock helper that's used.
+When dev_set_name() fails, the zcdn_create() doesn't free
+the newly allocated resources. Do it.
 
-I changed the commit messages to say:
+Fixes: 00fab2350e6b ("s390/zcrypt: multiple zcrypt device nodes support")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/s390/crypto/zcrypt_api.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-"Since ramfs/devpts uses get_tree_nodev() it doesn't rely on
-sb->s_fs_info. So there's no use after free risk as with other
-filesystems.
+diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
+index 4b23c9f7f3e5..6b99f7dd0643 100644
+--- a/drivers/s390/crypto/zcrypt_api.c
++++ b/drivers/s390/crypto/zcrypt_api.c
+@@ -413,6 +413,7 @@ static int zcdn_create(const char *name)
+ 			 ZCRYPT_NAME "_%d", (int)MINOR(devt));
+ 	nodename[sizeof(nodename) - 1] = '\0';
+ 	if (dev_set_name(&zcdndev->device, nodename)) {
++		kfree(zcdndev);
+ 		rc = -EINVAL;
+ 		goto unlockout;
+ 	}
+-- 
+2.40.0.1.gaa8946217a0b
 
-But there's no need to deviate from the standard cleanup logic and cause
-reviewers to verify whether that is safe or not."
-
-and similar for the other two:
-
-"Since hypfs/selinuxfs uses get_tree_single() it doesn't rely on
-sb->s_fs_info. So there's no use after free risk as with other
-filesystems.
-
-But there's no need to deviate from the standard cleanup logic and cause
-reviewers to verify whether that is safe or not."
-
-If that is good enough for people then I can grab it.
