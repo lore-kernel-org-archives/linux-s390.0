@@ -2,111 +2,92 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F0B3CA0FE1
-	for <linux-s390@archiver.kernel.org>; Fri,  1 Sep 2023 13:39:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 607F5CA0FE6
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Sep 2023 13:48:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240413AbjIANjG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 1 Sep 2023 09:39:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39180 "EHLO
+        id S243519AbjIANsB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 1 Sep 2023 09:48:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233098AbjIANjF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Sep 2023 09:39:05 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60AF7E4C;
-        Fri,  1 Sep 2023 06:39:02 -0700 (PDT)
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 381DccGm019319;
-        Fri, 1 Sep 2023 13:38:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=lKatZ2/Cc1BaS6JWQPOwLl2JiazNzu2oTp+AqekD1Gw=;
- b=nPUPDwzE1o8ECB4vda46e+WkrWpPMPGrr/Xbre62W97Xd1lGa2Tfngy4h9d3vDKqeOgy
- VRPeWGrOiACpydUEp6DQzP1hLERvzvs1iTtZwQq5vCV4kyJzlNBMRUKdp0TOL9zFdKUu
- nDjLub+j4hat6JrOL1lKE01LwcBWSavpupo/ZB8s3D91gL5/P4vu0cJRTZsRDv1RM8pS
- vnbqKQPY78EWgDk5Wxqy4FluSc4zf/qz1vBAS6EDOiVK9hM0S+YTRgJqRjzkXFBmJyA9
- 3oMR8wPFuCAeCtNM3WZsirIClJPe27Vj+BlO5iB0O+rlE/F880PyFdpHuXwkC1aET93O Fw== 
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sugcbhfrk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 01 Sep 2023 13:38:58 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 381CED7v004928;
-        Fri, 1 Sep 2023 13:38:57 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3squqtddf5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 01 Sep 2023 13:38:57 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 381DcsXY46203326
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 1 Sep 2023 13:38:54 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2FA392004B;
-        Fri,  1 Sep 2023 13:38:54 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CEE4E20043;
-        Fri,  1 Sep 2023 13:38:53 +0000 (GMT)
-Received: from osiris (unknown [9.171.88.193])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Fri,  1 Sep 2023 13:38:53 +0000 (GMT)
-Date:   Fri, 1 Sep 2023 15:38:52 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Jens Axboe <axboe@kernel.dk>
+        with ESMTP id S237982AbjIANsA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Sep 2023 09:48:00 -0400
+Received: from mail-io1-xd2e.google.com (mail-io1-xd2e.google.com [IPv6:2607:f8b0:4864:20::d2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A019BCFE
+        for <linux-s390@vger.kernel.org>; Fri,  1 Sep 2023 06:47:57 -0700 (PDT)
+Received: by mail-io1-xd2e.google.com with SMTP id ca18e2360f4ac-790b9d7d643so26388639f.1
+        for <linux-s390@vger.kernel.org>; Fri, 01 Sep 2023 06:47:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1693576077; x=1694180877; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=kmFqd0RbA0WcuZBMIdIT4BmUFRAQgFIypD312R8UhzU=;
+        b=RuAvsUp/vDVMqUrcJUNtWRXPsqan/zL3OT3gv3mLHMgRHgqE7soRLT3ll/CNacfta0
+         afAfDe5ViJRYQKJq7jM7TWyj7tDggyQr0CRjo1+B/Pq7TybY+L+4W8AZMMIucKQWDpoq
+         ELHwuiKzAo8UaQqXxBmDTf6WUSz+ztAmcq4ZaIQ+LGkqtCNABqPkSBiIIM89aycytS2d
+         aHCl6qr5NHXZdEe5elGFsieIJEfUFsyNlobkRWm00cxqkP1Zrmk/xPRuJDRkwsyYmExH
+         D7REQTgu9aeBkLgRr4BUNgejieJL2ASBfbK02iqXNlsKzbB24nrhXRdtVOm1IOYdEtt7
+         gb9w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1693576077; x=1694180877;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=kmFqd0RbA0WcuZBMIdIT4BmUFRAQgFIypD312R8UhzU=;
+        b=i4R+YygGYbvrFbCnjTrTsw0AACDxRa7JwcTE7qPBYZKqUWAatHTbx8bRM+ghfey2+f
+         yQPuz/d2+KiUebqXeTEdEbjyyJ+LSHGY/lbi2fgf2yW/t8PpnEXSgvfxuzdkt3Qvo54w
+         /QVNV/ZVeyQi0cl4AupCtlzAOZAKJGd10LGm1dvGBX+BXnxsAsEGzrpPrhjujPnTNluZ
+         qTG9vR2g+bqvpzWKMOs6V1JJTobrQ9ZXx1o3c1bByuQcI5nYq+ZWqqUjkv+7VPHlcIwV
+         c6p+4f8VS3+qqxw78yOY41/LYodQY+OQUGPimMpqIm5S9+weo47s3FNx6mM9X4+EOogk
+         PC2w==
+X-Gm-Message-State: AOJu0Ywkr/DKxF1/cHy4fB4JSYH1mWhaivNieerprg7Jltu8oudbgIev
+        JiNyMgd/HhDSGFIFZAsO/Py6Dg==
+X-Google-Smtp-Source: AGHT+IFS0So0giDhkiP6ZhQSrxon+4wrCd3spsAFzBK1P7OazDHtwnuCVD59lDg796XOVHb/T4eHow==
+X-Received: by 2002:a05:6602:1a0c:b0:792:6068:dcc8 with SMTP id bo12-20020a0566021a0c00b007926068dcc8mr2692241iob.2.1693576077039;
+        Fri, 01 Sep 2023 06:47:57 -0700 (PDT)
+Received: from [127.0.0.1] ([96.43.243.2])
+        by smtp.gmail.com with ESMTPSA id u4-20020a6b4904000000b0079216d6f219sm1065493iob.14.2023.09.01.06.47.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 01 Sep 2023 06:47:55 -0700 (PDT)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     Heiko Carstens <hca@linux.ibm.com>
 Cc:     Stefan Haberland <sth@linux.ibm.com>,
-        Jan =?iso-8859-1?Q?H=F6ppner?= <hoeppner@linux.ibm.com>,
+        =?utf-8?q?Jan_H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
         Peter Oberparleiter <oberpar@linux.ibm.com>,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-block@vger.kernel.org
-Subject: Re: [PATCH 1/1] s390/dasd: fix string length handling
-Message-ID: <20230901133852.5990-A-hca@linux.ibm.com>
+In-Reply-To: <20230828153142.2843753-1-hca@linux.ibm.com>
 References: <20230828153142.2843753-1-hca@linux.ibm.com>
- <20230828153142.2843753-2-hca@linux.ibm.com>
+Subject: Re: [PATCH 0/1] s390/dasd: fix string length handling
+Message-Id: <169357607517.292044.9672490907419732432.b4-ty@kernel.dk>
+Date:   Fri, 01 Sep 2023 07:47:55 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230828153142.2843753-2-hca@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: aao6eX7HV6tUxRH2llbjf0RVoPlzK54R
-X-Proofpoint-ORIG-GUID: aao6eX7HV6tUxRH2llbjf0RVoPlzK54R
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-09-01_11,2023-08-31_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=956 mlxscore=0
- suspectscore=0 bulkscore=0 clxscore=1015 lowpriorityscore=0 phishscore=0
- malwarescore=0 impostorscore=0 priorityscore=1501 spamscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2308100000
- definitions=main-2309010127
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.13-dev-034f2
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Jens,
 
-On Mon, Aug 28, 2023 at 05:31:42PM +0200, Heiko Carstens wrote:
-> Building dasd_eckd.o with latest clang reveals this bug:
+On Mon, 28 Aug 2023 17:31:41 +0200, Heiko Carstens wrote:
+> since both Stefan and Jan are not available, I'm sending a simple fix
+> to address a valid clang finding. Since I expect more reports and
+> patches for this, I'm sending this now in order to avoid that more
+> people spend time on this.
 > 
->     CC      drivers/s390/block/dasd_eckd.o
->       drivers/s390/block/dasd_eckd.c:1082:3: warning: 'snprintf' will always be truncated;
->       specified size is 1, but format string expands to at least 11 [-Wfortify-source]
->        1082 |                 snprintf(print_uid, sizeof(*print_uid),
->             |                 ^
->       drivers/s390/block/dasd_eckd.c:1087:3: warning: 'snprintf' will always be truncated;
->       specified size is 1, but format string expands to at least 10 [-Wfortify-source]
->        1087 |                 snprintf(print_uid, sizeof(*print_uid),
->             |                 ^
+> Please apply.
 > 
-> Fix this by moving and using the existing UID_STRLEN for the arrays
-> that are being written to. Also rename UID_STRLEN to DASD_UID_STRLEN
-> to clarify its scope.
-> 
-> Fixes: 23596961b437 ("s390/dasd: split up dasd_eckd_read_conf")
-> Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> ---
->  drivers/s390/block/dasd_devmap.c |  6 +-----
->  drivers/s390/block/dasd_eckd.c   | 10 +++++-----
->  drivers/s390/block/dasd_int.h    |  4 ++++
->  3 files changed, 10 insertions(+), 10 deletions(-)
+> [...]
 
-Just wondering, will you pick this one up, or should I route this via
-the s390 tree?
+Applied, thanks!
+
+[1/1] s390/dasd: fix string length handling
+      commit: f7cf22424665043787a96a66a048ff6b2cfd473c
+
+Best regards,
+-- 
+Jens Axboe
+
+
+
