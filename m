@@ -2,92 +2,166 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 607F5CA0FE6
-	for <linux-s390@archiver.kernel.org>; Fri,  1 Sep 2023 13:48:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91A67CA0FF6
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Sep 2023 19:50:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243519AbjIANsB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 1 Sep 2023 09:48:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56568 "EHLO
+        id S1350109AbjIATuf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 1 Sep 2023 15:50:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237982AbjIANsA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Sep 2023 09:48:00 -0400
-Received: from mail-io1-xd2e.google.com (mail-io1-xd2e.google.com [IPv6:2607:f8b0:4864:20::d2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A019BCFE
-        for <linux-s390@vger.kernel.org>; Fri,  1 Sep 2023 06:47:57 -0700 (PDT)
-Received: by mail-io1-xd2e.google.com with SMTP id ca18e2360f4ac-790b9d7d643so26388639f.1
-        for <linux-s390@vger.kernel.org>; Fri, 01 Sep 2023 06:47:57 -0700 (PDT)
+        with ESMTP id S236606AbjIATue (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Sep 2023 15:50:34 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ECFD10FD
+        for <linux-s390@vger.kernel.org>; Fri,  1 Sep 2023 12:50:31 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id d9443c01a7336-1bdbf10333bso19561035ad.1
+        for <linux-s390@vger.kernel.org>; Fri, 01 Sep 2023 12:50:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1693576077; x=1694180877; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kmFqd0RbA0WcuZBMIdIT4BmUFRAQgFIypD312R8UhzU=;
-        b=RuAvsUp/vDVMqUrcJUNtWRXPsqan/zL3OT3gv3mLHMgRHgqE7soRLT3ll/CNacfta0
-         afAfDe5ViJRYQKJq7jM7TWyj7tDggyQr0CRjo1+B/Pq7TybY+L+4W8AZMMIucKQWDpoq
-         ELHwuiKzAo8UaQqXxBmDTf6WUSz+ztAmcq4ZaIQ+LGkqtCNABqPkSBiIIM89aycytS2d
-         aHCl6qr5NHXZdEe5elGFsieIJEfUFsyNlobkRWm00cxqkP1Zrmk/xPRuJDRkwsyYmExH
-         D7REQTgu9aeBkLgRr4BUNgejieJL2ASBfbK02iqXNlsKzbB24nrhXRdtVOm1IOYdEtt7
-         gb9w==
+        d=chromium.org; s=google; t=1693597831; x=1694202631; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=TnGlOgpcJfhSyX3oWtweduRxRFI+vcvjVBEfz8W6REE=;
+        b=fthS1VCzHXcUTE00n6Svm+w9LyBnWbPXRCnrtKgX+lTjv3pVBau3i2G6Pvfs8DVQzU
+         /nfveQ+9ZqExXKHzR6oyct+mYWKIOxeSp3O/Vx8676FV08K0KqjBfMlfIm31/aag0RFb
+         yo7ea3ltuXO9s6NKx5UR7Anzy/EYzDLZSjHfI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693576077; x=1694180877;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=kmFqd0RbA0WcuZBMIdIT4BmUFRAQgFIypD312R8UhzU=;
-        b=i4R+YygGYbvrFbCnjTrTsw0AACDxRa7JwcTE7qPBYZKqUWAatHTbx8bRM+ghfey2+f
-         yQPuz/d2+KiUebqXeTEdEbjyyJ+LSHGY/lbi2fgf2yW/t8PpnEXSgvfxuzdkt3Qvo54w
-         /QVNV/ZVeyQi0cl4AupCtlzAOZAKJGd10LGm1dvGBX+BXnxsAsEGzrpPrhjujPnTNluZ
-         qTG9vR2g+bqvpzWKMOs6V1JJTobrQ9ZXx1o3c1bByuQcI5nYq+ZWqqUjkv+7VPHlcIwV
-         c6p+4f8VS3+qqxw78yOY41/LYodQY+OQUGPimMpqIm5S9+weo47s3FNx6mM9X4+EOogk
-         PC2w==
-X-Gm-Message-State: AOJu0Ywkr/DKxF1/cHy4fB4JSYH1mWhaivNieerprg7Jltu8oudbgIev
-        JiNyMgd/HhDSGFIFZAsO/Py6Dg==
-X-Google-Smtp-Source: AGHT+IFS0So0giDhkiP6ZhQSrxon+4wrCd3spsAFzBK1P7OazDHtwnuCVD59lDg796XOVHb/T4eHow==
-X-Received: by 2002:a05:6602:1a0c:b0:792:6068:dcc8 with SMTP id bo12-20020a0566021a0c00b007926068dcc8mr2692241iob.2.1693576077039;
-        Fri, 01 Sep 2023 06:47:57 -0700 (PDT)
-Received: from [127.0.0.1] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id u4-20020a6b4904000000b0079216d6f219sm1065493iob.14.2023.09.01.06.47.55
+        d=1e100.net; s=20221208; t=1693597831; x=1694202631;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=TnGlOgpcJfhSyX3oWtweduRxRFI+vcvjVBEfz8W6REE=;
+        b=CiHzSi7osAG9uFflAuVAKrXyeKU2VQRbnyLMM8IgBe1JBTPxSJyTFplvbragFObUMi
+         K3wD6wWxryVNjo8WwrT6N88dfGxDAHtmEcTJqr8D9tmPuVz/DfTTUjDT6GoMaEJy1CQI
+         GlWmmuLqvGlZu1KtuCuDWamXMTAoF2pq2/ZGnp0kjTzhRnnVETdOSxZyuYt0fYc59nId
+         dPWCKValCup8OamVAsoq0r1uXPw3Ns5Kv9npC09zsPficE1duCb85Gqa2pBTOnuOjhdM
+         X6+G3Df+JYG0FMpBjKs356AOan0GMF5XnLUtE2VGVR7Wu1sw+3tRcDOa/TepuZn2SyY3
+         JgtQ==
+X-Gm-Message-State: AOJu0Yz1YQ2aPWdObX4A5JHMqVMe0QgIb1m2oNEX2xlZqZcGVi2Fe1Ki
+        g/bwzty7W5r5aDgZmq3vO8vwPQ==
+X-Google-Smtp-Source: AGHT+IFLMLtB06xgjItzzUv50zhsXFZ37ehwBfgJSIF2V6heU41cis1M/xhTkDTyzQL7J2okpu7MHw==
+X-Received: by 2002:a17:902:f682:b0:1c0:b7f4:5b86 with SMTP id l2-20020a170902f68200b001c0b7f45b86mr3871500plg.65.1693597830846;
+        Fri, 01 Sep 2023 12:50:30 -0700 (PDT)
+Received: from www.outflux.net (198-0-35-241-static.hfc.comcastbusiness.net. [198.0.35.241])
+        by smtp.gmail.com with ESMTPSA id d10-20020a170902654a00b001b8b2b95068sm3397478pln.204.2023.09.01.12.50.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Sep 2023 06:47:55 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Stefan Haberland <sth@linux.ibm.com>,
-        =?utf-8?q?Jan_H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-block@vger.kernel.org
-In-Reply-To: <20230828153142.2843753-1-hca@linux.ibm.com>
-References: <20230828153142.2843753-1-hca@linux.ibm.com>
-Subject: Re: [PATCH 0/1] s390/dasd: fix string length handling
-Message-Id: <169357607517.292044.9672490907419732432.b4-ty@kernel.dk>
-Date:   Fri, 01 Sep 2023 07:47:55 -0600
+        Fri, 01 Sep 2023 12:50:30 -0700 (PDT)
+Date:   Fri, 1 Sep 2023 12:50:29 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Masahiro Yamada <masahiroy@kernel.org>
+Cc:     Nicolas Schier <nicolas@fjasle.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        linux-kernel@vger.kernel.org, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-kbuild@vger.kernel.org,
+        linux-hardening@vger.kernel.org
+Subject: Re: [PATCH v3] kbuild: Show marked Kconfig fragments in "help"
+Message-ID: <202309011250.AB0DAA03@keescook>
+References: <20230831191335.give.534-kees@kernel.org>
+ <CAK7LNATENQQy6LrWS10S-EXsyAvTraSj2WA=O7rFsS9Ht6a+3g@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.13-dev-034f2
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAK7LNATENQQy6LrWS10S-EXsyAvTraSj2WA=O7rFsS9Ht6a+3g@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-On Mon, 28 Aug 2023 17:31:41 +0200, Heiko Carstens wrote:
-> since both Stefan and Jan are not available, I'm sending a simple fix
-> to address a valid clang finding. Since I expect more reports and
-> patches for this, I'm sending this now in order to avoid that more
-> people spend time on this.
+On Fri, Sep 01, 2023 at 04:58:37PM +0900, Masahiro Yamada wrote:
+> On Fri, Sep 1, 2023 at 4:13 AM Kees Cook <keescook@chromium.org> wrote:
+> >
+> > Currently the Kconfig fragments in kernel/configs and arch/*/configs
+> > that aren't used internally aren't discoverable through "make help",
+> > which consists of hard-coded lists of config fragments. Instead, list
+> > all the fragment targets that have a "# Help: " comment prefix so the
+> > targets can be generated dynamically.
+> >
+> > Add logic to the Makefile to search for and display the fragment and
+> > comment. Add comments to fragments that are intended to be direct targets.
+> >
+> > Cc: Nicolas Schier <nicolas@fjasle.eu>
+> > Cc: Michael Ellerman <mpe@ellerman.id.au>
+> > Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+> > Cc: Randy Dunlap <rdunlap@infradead.org>
+> > Cc: linux-kernel@vger.kernel.org
+> > Cc: x86@kernel.org
+> > Cc: linux-arm-kernel@lists.infradead.org
+> > Cc: linuxppc-dev@lists.ozlabs.org
+> > Cc: linux-riscv@lists.infradead.org
+> > Cc: linux-s390@vger.kernel.org
+> > Cc: linux-kbuild@vger.kernel.org
+> > Cc: linux-hardening@vger.kernel.org
+> > Signed-off-by: Kees Cook <keescook@chromium.org>
+> > Co-developed-by: Masahiro Yamada <masahiroy@kernel.org>
+> > ---
+> > v3:
+> > - Use Makefile logic from Masahiro Yamada
+> > - Use "# Help: " prefix, but only on desired fragment targets
+> > v2: https://lore.kernel.org/all/20230825194329.gonna.911-kees@kernel.org
+> > v1: https://lore.kernel.org/all/20230824223606.never.762-kees@kernel.org
+> > ---
+> >  Makefile                                   |  1 -
+> >  arch/arm/configs/dram_0x00000000.config    |  1 +
+> >  arch/arm/configs/dram_0xc0000000.config    |  1 +
+> >  arch/arm/configs/dram_0xd0000000.config    |  1 +
+> >  arch/arm/configs/lpae.config               |  1 +
+> >  arch/arm64/configs/virt.config             |  1 +
+> >  arch/powerpc/configs/disable-werror.config |  1 +
+> >  arch/powerpc/configs/security.config       |  4 +++-
+> >  arch/riscv/configs/32-bit.config           |  1 +
+> >  arch/riscv/configs/64-bit.config           |  1 +
+> >  arch/s390/configs/btf.config               |  1 +
+> >  arch/s390/configs/kasan.config             |  1 +
+> >  arch/x86/Makefile                          |  4 ----
+> >  kernel/configs/debug.config                |  2 ++
+> >  kernel/configs/kvm_guest.config            |  1 +
+> >  kernel/configs/nopm.config                 |  2 ++
+> >  kernel/configs/rust.config                 |  1 +
+> >  kernel/configs/tiny.config                 |  2 ++
+> >  kernel/configs/x86_debug.config            |  1 +
+> >  kernel/configs/xen.config                  |  2 ++
+> >  scripts/kconfig/Makefile                   | 15 ++++++++++++---
+> >  21 files changed, 36 insertions(+), 9 deletions(-)
+> >
 > 
-> Please apply.
 > 
-> [...]
+> Just one thing.
+> 
+> 
+> 
+> 
+> 
+> > diff --git a/kernel/configs/tiny.config b/kernel/configs/tiny.config
+> > index 00009f7d0835..60a4b6d80b36 100644
+> > --- a/kernel/configs/tiny.config
+> > +++ b/kernel/configs/tiny.config
+> > @@ -1,3 +1,5 @@
+> > +# Help: Size-optimized kernel image
+> 
+> 
+> I will drop this.
+> 
+> 
+> We already have a hard-coded help message.
+> 
+>   tinyconfig   - Configure the tiniest possible kernel
+> 
+> 
+> 
+> 
+> Then, some lines below, again.
+> 
+>   tiny.config               - Size-optimized kernel image
+> 
+> 
+> 
+> tiny.config is for internal use for tinyconfig.
 
-Applied, thanks!
+Shall I send a v4, or did you fix this up already?
 
-[1/1] s390/dasd: fix string length handling
-      commit: f7cf22424665043787a96a66a048ff6b2cfd473c
-
-Best regards,
 -- 
-Jens Axboe
-
-
-
+Kees Cook
