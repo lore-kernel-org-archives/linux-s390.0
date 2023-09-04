@@ -2,110 +2,125 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C45C1C83F2C
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Sep 2023 10:40:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98F1BC71153
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Sep 2023 11:07:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234139AbjIDKkK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Sep 2023 06:40:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48906 "EHLO
+        id S234903AbjIDLH7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Sep 2023 07:07:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230247AbjIDKkI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Sep 2023 06:40:08 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE2D618F
-        for <linux-s390@vger.kernel.org>; Mon,  4 Sep 2023 03:39:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1693823965;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=wrrAxmOl7Fc5ehdBn/+i35ndvgk9dyz/k3neFMBGrkA=;
-        b=JI71jmpRD2qsNpMUQzu2dGoXzXSk72A0gdSQhcaC8obz7TODCrtG1P7hY4wTtFwpcJoTeq
-        jBKelOqrxX8ktv5wUkgwjiW7xFB7zIdaBecZv1lUILtyed2F5h5QD6irMPKKW283xksW6Z
-        OkJFcj/gJxxGccXfBgDV1favNCPPUlM=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-563-VRU8bZekMouz18pWZFBs5w-1; Mon, 04 Sep 2023 06:39:23 -0400
-X-MC-Unique: VRU8bZekMouz18pWZFBs5w-1
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-31c7bfba03dso732259f8f.3
-        for <linux-s390@vger.kernel.org>; Mon, 04 Sep 2023 03:39:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693823962; x=1694428762;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=wrrAxmOl7Fc5ehdBn/+i35ndvgk9dyz/k3neFMBGrkA=;
-        b=KxkEUTGO8xEXNtSmWH6F+igosURgo2WIX/Pg+9g4ufCYOoFYBfz+pBsNWz6vnGB6X8
-         B5+kAZlI5bmGlxNMuFq2NZQ7MWDhSKuAEr4Xv+8eajBQBQgWcYVis5NMXAJcgwTpV6vD
-         94rS3WMvW1yHfimDSjtU4TIBgZAspXHrMWL3Yz7+lpLeVckHxdC9v9tHfencXEHIKFFe
-         +UUrbCpC5M86iYp9I7i+LlQjjz7m2ajuu9TBTvsapFGe7primdCLvCNPEKXBTziHxG8b
-         xFGZO/9e+kRp5X8Iu/p6kDn84N8GkpzKlyQPAs9miQWFlLJJMyNITnnIaB8aGBKk6g0u
-         iXbA==
-X-Gm-Message-State: AOJu0YyuSk2Un3n9Q24DJ5JsSa5s39yIMoKtm0FZOfzOBfyCviWdGSr+
-        ks3Ck3OaTdeneZQAyK6IvVOnjAX5FpR1XYvUF4l6b2OKMCc3m8D0sJUZn2aqwM82BMmWwlqmZ5G
-        CaOcHWHf9gHi93vBlhXZeMg==
-X-Received: by 2002:adf:ed08:0:b0:313:f957:bf29 with SMTP id a8-20020adfed08000000b00313f957bf29mr7363510wro.65.1693823962422;
-        Mon, 04 Sep 2023 03:39:22 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFbgplqKkw6Vu6xARK0QJsuOMRprGgSL6s3l9wtqZ/cakGNrxcvoJVirpVMtfzIKF1H1hlANQ==
-X-Received: by 2002:adf:ed08:0:b0:313:f957:bf29 with SMTP id a8-20020adfed08000000b00313f957bf29mr7363503wro.65.1693823962157;
-        Mon, 04 Sep 2023 03:39:22 -0700 (PDT)
-Received: from [10.33.192.199] (nat-pool-str-t.redhat.com. [149.14.88.106])
-        by smtp.gmail.com with ESMTPSA id a2-20020adff7c2000000b003177074f830sm14146238wrq.59.2023.09.04.03.39.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 04 Sep 2023 03:39:21 -0700 (PDT)
-Message-ID: <c81706fb-5e90-d431-2f6d-07c1f328e7ed@redhat.com>
-Date:   Mon, 4 Sep 2023 12:39:21 +0200
+        with ESMTP id S229818AbjIDLH6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Sep 2023 07:07:58 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73DE5CC0;
+        Mon,  4 Sep 2023 04:07:55 -0700 (PDT)
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 384B72gU010961;
+        Mon, 4 Sep 2023 11:07:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : cc :
+ to : subject : from : message-id : date; s=pp1;
+ bh=L2rZM2ve5mboGRtXbmEUq5q8d2aHXOw9PB0RiBy9gD0=;
+ b=MIu1UKSJJwKYnmKax6xPKq9L/9P3OtEvawLcFoJsLoTFlcYHld6ffKuWEoSu5/2iGDjl
+ l+AOruuYvkGdUMSGicrkRBY04jeOcpzZNqJoYu6K+hx+Xc70v0XqpqTNfgYsOLoyyyRu
+ Q1BoqlK2K2m4s9uSU7wEn2aCylb1RECnMgDd0E+qD1nxIRDGAZTgS916gPTt+A5ldhbx
+ ukqoUqRI+Yz4rbYrhXNPjMEigDvmVx+ToakJkUWqAEUzUAzsHeXm9amZ/KhTLFBsp1wR
+ H//66kr+gRnzV6dWfii6AO/zwuhZPp4P3YNBY58XY0wOrz+HXX3/mqAMl22whorqooUc yQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sw7qw9m54-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Sep 2023 11:07:54 +0000
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 384B7Dmn012013;
+        Mon, 4 Sep 2023 11:07:53 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sw7qw9m3p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Sep 2023 11:07:53 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3848weG0012209;
+        Mon, 4 Sep 2023 11:07:52 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3svhkjhjf8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Sep 2023 11:07:52 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 384B7nwY22545062
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 4 Sep 2023 11:07:49 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B57C720040;
+        Mon,  4 Sep 2023 11:07:49 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 152512004E;
+        Mon,  4 Sep 2023 11:07:49 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.14.38])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  4 Sep 2023 11:07:48 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.14.0
-Subject: Re: [kvm-unit-tests PATCH v6 8/8] lib: s390x: interrupt: remove
- TEID_ASCE defines
-Content-Language: en-US
-To:     Nico Boehr <nrb@linux.ibm.com>, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <e6b8a718-4c99-cd37-c73f-fcb604a67af4@redhat.com>
+References: <20230904082318.1465055-1-nrb@linux.ibm.com> <20230904082318.1465055-4-nrb@linux.ibm.com> <e6b8a718-4c99-cd37-c73f-fcb604a67af4@redhat.com>
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20230904082318.1465055-1-nrb@linux.ibm.com>
- <20230904082318.1465055-9-nrb@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <20230904082318.1465055-9-nrb@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To:     Thomas Huth <thuth@redhat.com>, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH v6 3/8] s390x: sie: switch to home space mode before entering SIE
+From:   Nico Boehr <nrb@linux.ibm.com>
+Message-ID: <169382566786.97137.9911014409792025043@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Mon, 04 Sep 2023 13:07:47 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: gx7LIITZYj64qWBOTdVlAyUOBV8_pgPB
+X-Proofpoint-GUID: nV5CEHWDXxZgMPYUxVEWRILmy0jf9EdF
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
+ definitions=2023-09-04_07,2023-08-31_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 adultscore=0
+ bulkscore=0 impostorscore=0 priorityscore=1501 suspectscore=0
+ clxscore=1015 phishscore=0 mlxscore=0 spamscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2309040099
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 04/09/2023 10.22, Nico Boehr wrote:
-> These defines were - I can only guess - ment for the asce_id field.
+Quoting Thomas Huth (2023-09-04 11:59:30)
+[...]
+> If we want tests to be able in other modes in the future...
+>=20
+> > +      */
+> > +     old_cr13 =3D stctg(13);
+> > +     lctlg(13, stctg(1));
+> > +
+> > +     /* switch to home space so guest tables can be different from hos=
+t */
+> > +     psw_mask_set_bits(PSW_MASK_HOME);
+> > +
+> > +     /* also handle all interruptions in home space while in SIE */
+> > +     irq_set_dat_mode(true, AS_HOME);
+> > +
+> >       while (vm->sblk->icptcode =3D=3D 0) {
+> >               sie64a(vm->sblk, &vm->save_area);
+> >               sie_handle_validity(vm);
+> > @@ -66,6 +86,12 @@ void sie(struct vm *vm)
+> >       vm->save_area.guest.grs[14] =3D vm->sblk->gg14;
+> >       vm->save_area.guest.grs[15] =3D vm->sblk->gg15;
+> >  =20
+> > +     irq_set_dat_mode(true, AS_PRIM);
+> > +     psw_mask_clear_bits(PSW_MASK_HOME);
+>=20
+> ... we should maybe restore the previous mode here instead of switching=20
+> always to primary mode?
 
-s/ment/meant/
+I don't want to add untested "should work" code, so I'd much prefer if we'd
+have a proper test which uses multiple address spaces - and that seems out
+of scope for this series to me.
 
-> Since print_decode_teid() used AS_PRIM and friends instead, I see little
-> benefit in keeping these around.
-> 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> ---
->   lib/s390x/asm/interrupt.h | 5 -----
->   1 file changed, 5 deletions(-)
-> 
-> diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
-> index 7f73d473b346..48bd78fa1515 100644
-> --- a/lib/s390x/asm/interrupt.h
-> +++ b/lib/s390x/asm/interrupt.h
-> @@ -13,11 +13,6 @@
->   #define EXT_IRQ_EXTERNAL_CALL	0x1202
->   #define EXT_IRQ_SERVICE_SIG	0x2401
->   
-> -#define TEID_ASCE_PRIMARY	0
-> -#define TEID_ASCE_AR		1
-> -#define TEID_ASCE_SECONDARY	2
-> -#define TEID_ASCE_HOME		3
-> -
->   union teid {
->   	unsigned long val;
->   	union {
+> Anyway, could be done later, but you might want to update your comment.
 
-With the nit fixed:
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Yep, agree, I'd prefer to do this later.
 
+Pardon if I'm not getting it but the comment IMO makes sufficiently clear
+that multiple AS are for future extensions. If you have any suggestion on
+how this could be clearer, I'd be happy to incorporate.
