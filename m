@@ -2,128 +2,121 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6C32C71153
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Sep 2023 06:41:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 898F6C71153
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Sep 2023 07:10:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230159AbjIDGlG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Sep 2023 02:41:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59002 "EHLO
+        id S233955AbjIDHKW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Sep 2023 03:10:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347117AbjIDGlF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Sep 2023 02:41:05 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C3FA106;
-        Sun,  3 Sep 2023 23:41:00 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3846cGQU028469;
-        Mon, 4 Sep 2023 06:40:59 GMT
+        with ESMTP id S230299AbjIDHKV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Sep 2023 03:10:21 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9881E12D;
+        Mon,  4 Sep 2023 00:10:18 -0700 (PDT)
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38477rQd018474;
+        Mon, 4 Sep 2023 07:10:17 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- in-reply-to : references : cc : to : subject : from : message-id : date :
- content-transfer-encoding : mime-version; s=pp1;
- bh=FfVRcwlRJcoMS36uxppnXHoRJjYjGRzxm90M5y9htoQ=;
- b=NefFCvDop1hOjIlk8xUn8yZDnaXdwHE9TZcnumvBhB7NC2E5w8LgyIedkVjyGppOFCP+
- BV6XB78rhIpm8hD9phTXi51JsKCU1IayZLW6Bja0EXHz5QWSOYCDtNJSmiBiXK/FxnrH
- AZgZvJbehVB4GLqUxbEWw7uDYeDORd88cnyE5Ry/BM37l7LmzVeZho1MqrlzIi0LaVqr
- Q44kCGDB/vUL0cFtCzdmEqjlmCMh5NYhSHXopFeeOl//lFhv5a1hwNoRhr3UHIe5Uvx5
- 1eOcp8EjsPLqfX7sE/0fcvZODG+ZCnTjfhPNIbI363FvG++jEHf3mnj2MzjSFOQw4ub9 kw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sw87nabq5-1
+ mime-version : content-transfer-encoding : in-reply-to : references : cc :
+ to : subject : from : message-id : date; s=pp1;
+ bh=Ut2Koxy/lbycBlgqtEQMOJLEp39pDo0hH7dXFfAPhVU=;
+ b=ZqKT80IIMESxGGVQwWtitadmv/jqpcbUgFyAbXUbTsxezuqAxsAl08GCf6Vv5kw0vqai
+ 2nSyt1hkDhkej1gbpfVkxvQ76YoNPTqWIJgOq+gC7zh0JS+0YxnW9vpDU5vu1vrqcO1P
+ IsbLL0gWYldEZSEh9zMsVDfc4gTLR9e9P9kGTU+zKab/zhTCL0dg0eDFLqJqzSSksido
+ F2fsebs1b7FlmX+EdOkgRyTRQbpNfEKOYx2f//L6f6GLFoPoiQIsragVj1ySwGNdkSZK
+ REW7y5Bxg7tca7+PdXpLwJijFZ+H08gU7R+Ib1ldobD7IZ1ZxJcSosoDh2qOCjSLiA98 9A== 
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sw7qw3n9w-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Sep 2023 06:40:58 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3846cire029737;
-        Mon, 4 Sep 2023 06:40:58 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sw87nabpn-1
+        Mon, 04 Sep 2023 07:10:17 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3846m8DR001615;
+        Mon, 4 Sep 2023 07:05:15 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3svfcs8wbp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Sep 2023 06:40:58 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3844Ppmn021459;
-        Mon, 4 Sep 2023 06:40:57 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3svfry0mh4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Sep 2023 06:40:56 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3846erbN20579056
+        Mon, 04 Sep 2023 07:05:15 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38475Ail3539636
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 4 Sep 2023 06:40:53 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7EBC120043;
-        Mon,  4 Sep 2023 06:40:53 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 48D4320040;
-        Mon,  4 Sep 2023 06:40:53 +0000 (GMT)
+        Mon, 4 Sep 2023 07:05:10 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0476620043;
+        Mon,  4 Sep 2023 07:05:10 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A8FEC20040;
+        Mon,  4 Sep 2023 07:05:09 +0000 (GMT)
 Received: from t14-nrb (unknown [9.179.12.249])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  4 Sep 2023 06:40:53 +0000 (GMT)
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  4 Sep 2023 07:05:09 +0000 (GMT)
 Content-Type: text/plain; charset="utf-8"
-In-Reply-To: <981405ed-060f-de0b-8125-29099ba8791a@redhat.com>
-References: <20230809091717.1549-1-nrb@linux.ibm.com> <981405ed-060f-de0b-8125-29099ba8791a@redhat.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-To:     Thomas Huth <thuth@redhat.com>, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com
-Subject: Re: [kvm-unit-tests PATCH v1] s390x: explicitly mark stack as not executable
-From:   Nico Boehr <nrb@linux.ibm.com>
-Message-ID: <169380965283.97137.623872032086698797@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Mon, 04 Sep 2023 08:40:52 +0200
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: kOnGeAwRR8z-kP7euWzERHmAlyvNVzfQ
-X-Proofpoint-ORIG-GUID: UM3Rc0pqDTTlEYYccLKJiVXuh5HGUdjQ
-Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20230901105823.3973928-1-mimu@linux.ibm.com>
+References: <20230901105823.3973928-1-mimu@linux.ibm.com>
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Viktor Mihajlovski <mihajlov@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Michael Mueller <mimu@linux.ibm.com>
+To:     Michael Mueller <mimu@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v4] KVM: s390: fix gisa destroy operation might lead to cpu stalls
+From:   Nico Boehr <nrb@linux.ibm.com>
+Message-ID: <169381110909.97137.16554568711338641072@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Mon, 04 Sep 2023 09:05:09 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: oqOp2fyk9GpLLcprNhf55P8KNChfUJJO
+X-Proofpoint-GUID: oqOp2fyk9GpLLcprNhf55P8KNChfUJJO
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-09-04_03,2023-08-31_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 clxscore=1011
- suspectscore=0 bulkscore=0 adultscore=0 priorityscore=1501 malwarescore=0
- phishscore=0 lowpriorityscore=0 impostorscore=0 mlxscore=0 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2308100000
- definitions=main-2309040058
+ definitions=2023-09-04_04,2023-08-31_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=470 adultscore=0
+ bulkscore=0 impostorscore=0 priorityscore=1501 suspectscore=0
+ clxscore=1015 phishscore=0 mlxscore=0 spamscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2309040063
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Thomas Huth (2023-08-13 11:50:00)
-> On 09/08/2023 11.17, Nico Boehr wrote:
-> > With somewhat recent GCC versions, we get this warning on s390x:
-> >=20
-> >    /usr/bin/ld: warning: s390x/cpu.o: missing .note.GNU-stack section i=
-mplies executable stack
-> >    /usr/bin/ld: NOTE: This behaviour is deprecated and will be removed =
-in a future version of the linker
-> >=20
-> > We don't really care whether stack is executable or not since we set it
-> > up ourselves and we're running DAT off mostly anyways.
-> >=20
-> > Silence the warning by explicitly marking the stack as not executable.
-> >=20
-> > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> > ---
-> >   s390x/Makefile | 2 +-
-> >   1 file changed, 1 insertion(+), 1 deletion(-)
-> >=20
-> > diff --git a/s390x/Makefile b/s390x/Makefile
-> > index 706be7920406..afa47ccbeb93 100644
-> > --- a/s390x/Makefile
-> > +++ b/s390x/Makefile
-> > @@ -79,7 +79,7 @@ CFLAGS +=3D -O2
-> >   CFLAGS +=3D -march=3DzEC12
-> >   CFLAGS +=3D -mbackchain
-> >   CFLAGS +=3D -fno-delete-null-pointer-checks
-> > -LDFLAGS +=3D -nostdlib -Wl,--build-id=3Dnone
-> > +LDFLAGS +=3D -nostdlib -Wl,--build-id=3Dnone -z noexecstack
->=20
-> I already did a similar patch some weeks ago:
->=20
->   https://lore.kernel.org/kvm/20230623125416.481755-1-thuth@redhat.com/
->=20
-> ... we need it for x86, too, so I guess I should go ahead and commit it -=
-=20
-> and ask Sean to respin his conflicting series.
+Quoting Michael Mueller (2023-09-01 12:58:23)
+[...]
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 9bd0a873f3b1..96450e5c4b6f 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+[...]
+>  static inline void gisa_set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gis=
+c)
+>  {
+>         set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
+> @@ -3202,11 +3197,12 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
+> =20
+>         if (!gi->origin)
+>                 return;
+> -       if (gi->alert.mask)
+> -               KVM_EVENT(3, "vm 0x%pK has unexpected iam 0x%02x",
+> -                         kvm, gi->alert.mask);
+> -       while (gisa_in_alert_list(gi->origin))
+> -               cpu_relax();
+> +       WARN(gi->alert.mask !=3D 0x00,
+> +            "unexpected non zero alert.mask 0x%02x",
+> +            gi->alert.mask);
+> +       gi->alert.mask =3D 0x00;
+> +       if (gisa_set_iam(gi->origin, gi->alert.mask))
+> +               process_gib_alert_list();
 
-Thanks!
+I am not an expert for the GISA, so excuse my possibly stupid question:
+process_gib_alert_list() starts the timer. So can gisa_vcpu_kicker()
+already be running before we reach hrtimer_cancel() below? Is this fine?
+
+>         hrtimer_cancel(&gi->timer);
+>         gi->origin =3D NULL;
+>         VM_EVENT(kvm, 3, "gisa 0x%pK destroyed", gisa);
