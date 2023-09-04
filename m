@@ -2,74 +2,74 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85E73C71153
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Sep 2023 10:00:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B34CCC71153
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Sep 2023 10:38:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233880AbjIDKAn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Sep 2023 06:00:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44860 "EHLO
+        id S239249AbjIDKix (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Sep 2023 06:38:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229729AbjIDKAm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Sep 2023 06:00:42 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58C231B5
-        for <linux-s390@vger.kernel.org>; Mon,  4 Sep 2023 02:59:35 -0700 (PDT)
+        with ESMTP id S230121AbjIDKix (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Sep 2023 06:38:53 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0573B18F
+        for <linux-s390@vger.kernel.org>; Mon,  4 Sep 2023 03:38:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1693821574;
+        s=mimecast20190719; t=1693823881;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=/gLQONe3A7A3zhpq2R2f2t/QPz1+qDDXvx06VKYHFco=;
-        b=GTxicPdNtOoCNWUBEHaD+9dZVoAjtyQfJMWrJhL+DtLoO3DZCyfNCbhKM32t61rEmiYSWo
-        ZzzT8eZhpxp0jNyPBp8wyz4D2ZbgkPDMKoEzqIt3zgQTktLnP34oSPqT6VOK/BbxwKttNq
-        btBgx8Mgk2r1ZCZ2S3c+B4ROtdxOiDY=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=kB/mKl04D1nauBtQD42CnfhXSKfamjz9K6ZUolRckUw=;
+        b=V1PvnFiqpS4veVfLWoLiKlQ4RqdJcaDy8tFY37HcTJ4eG9wrsG0MEwZGRozI8p8ZCX5PZc
+        H0DhW6Yhooriaz0Hr3tdzTjsAyNC9LsWcFcUR5l4qzLgX64QsD8HondXqFhwf49YqiG+82
+        lkOd+Ji1EPcH6HIMZnq5KSrhOJl3DGI=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-518-1ATOShZfObyKQtL9KT5ZbQ-1; Mon, 04 Sep 2023 05:59:33 -0400
-X-MC-Unique: 1ATOShZfObyKQtL9KT5ZbQ-1
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-31c5cc3b512so648680f8f.1
-        for <linux-s390@vger.kernel.org>; Mon, 04 Sep 2023 02:59:33 -0700 (PDT)
+ us-mta-29-aeEimJCVPpiuSku3IT6xZw-1; Mon, 04 Sep 2023 06:37:59 -0400
+X-MC-Unique: aeEimJCVPpiuSku3IT6xZw-1
+Received: by mail-lf1-f71.google.com with SMTP id 2adb3069b0e04-500b0aa547eso1403040e87.2
+        for <linux-s390@vger.kernel.org>; Mon, 04 Sep 2023 03:37:59 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693821572; x=1694426372;
+        d=1e100.net; s=20221208; t=1693823878; x=1694428678;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=/gLQONe3A7A3zhpq2R2f2t/QPz1+qDDXvx06VKYHFco=;
-        b=HJDVbfJ/f+Goi9z2l8yztvMuD51y/cI6mnCrGcPRBrTWxtWmoHXmyZp+JffSO91i9Z
-         A8qZRy2Wd0AcupCRYsnsqk+MjX3kfzxdGKhmBTrhvprsBbqKNQC1Mvf49/Ifyl1/F+GO
-         FK3MK4/FSDDviaInyStkOYz83P9Y9nHNK6O5JkQwExc2nfs+F9ub2I8m7iAknpbSHdsN
-         w7SeEAaZrZhrR27cWoU9V7sj36SJP90hx33b0KA4TQpPHhM3ZspoQilep68dNVDcizyE
-         P8C++UAe3eEJgY8KlHa2L15lfBEmilLApKms2fzggijMlOBVn7uAuR0LG2sOBzxreZfV
-         zXJQ==
-X-Gm-Message-State: AOJu0Yw76gNZErVBOQ5U8zhwwgnJ86orIPK3qSXfWPAyGvn4KNZd4n99
-        p43DXnb2sgK5c68/elsKODsalrg60kWwYAu3o6jtx90Ch/ia+C03RFehG0jkifkGtEKvDh2bfKA
-        qnSCaVhA3rOhcEPLv5+P1hw==
-X-Received: by 2002:a5d:4803:0:b0:313:f5f8:a331 with SMTP id l3-20020a5d4803000000b00313f5f8a331mr5923391wrq.34.1693821572321;
-        Mon, 04 Sep 2023 02:59:32 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEaOZWp3NC9aQ89fp1eDlPRv2ilOOeQD7G7e3dFArroHsCUJ+caLPVVnJf4hSIVe9Nl9ly3vw==
-X-Received: by 2002:a5d:4803:0:b0:313:f5f8:a331 with SMTP id l3-20020a5d4803000000b00313f5f8a331mr5923382wrq.34.1693821572032;
-        Mon, 04 Sep 2023 02:59:32 -0700 (PDT)
+        bh=kB/mKl04D1nauBtQD42CnfhXSKfamjz9K6ZUolRckUw=;
+        b=KBks4/uUcT+qKjsifuMX918c2DX7eebrfXgfpoC9fQi5jxrMEi5OfyKpK65fNLpUjD
+         f/u/YsPKuKlJB5Id0fB/WIOGcM8ybExNj1Jd4mjz80Rlhb0Xa2R0DoFu0Uf/OnqZjSvw
+         q4lftQESJLmiY56riREU5DVhiq95Qm4vmn2fE6ZW0qagubClouU1sqq7qsxxpCh6XIgZ
+         eJI1WsU5RhPViFds6M2qaIpGa6mXF7HurF4y7jifSsYhdb71oM9K5fnmp2htj24rVpat
+         CNOZSaXTROdu3xStS9gDhB1rVzY3HpqRKJoGLW7iMbHl2vxPmrdipGlNTz1hEO6G4egs
+         qOLg==
+X-Gm-Message-State: AOJu0Yx0tMXVfeKpnwzG591Kof+p3/6CzCOIPlSM0k7TkGF7iAQx+Bcc
+        TIZdCybI3X0Ax7T8OTE1cnmJkPHsMRFR26/AgeFddLum3EGPOUTmaxURrwyMFGmBIOFOM60wQJ3
+        tfvti7iKhsekS9dkJP9MB8RWlte6IgyP7
+X-Received: by 2002:a05:6512:401e:b0:500:b7dc:6c90 with SMTP id br30-20020a056512401e00b00500b7dc6c90mr8035074lfb.36.1693823878406;
+        Mon, 04 Sep 2023 03:37:58 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFZy+TKH5uraUkUcIKJ3GTBj7PqNOLTlrizw3fYS9+pkb9g/V6szA42tCREnPG0KkrnJtrHfQ==
+X-Received: by 2002:a05:6512:401e:b0:500:b7dc:6c90 with SMTP id br30-20020a056512401e00b00500b7dc6c90mr8035061lfb.36.1693823878121;
+        Mon, 04 Sep 2023 03:37:58 -0700 (PDT)
 Received: from [10.33.192.199] (nat-pool-str-t.redhat.com. [149.14.88.106])
-        by smtp.gmail.com with ESMTPSA id n18-20020a5d4012000000b0031c79de4d8bsm14060748wrp.106.2023.09.04.02.59.31
+        by smtp.gmail.com with ESMTPSA id 17-20020a05600c249100b003fbc30825fbsm13500437wms.39.2023.09.04.03.37.57
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 04 Sep 2023 02:59:31 -0700 (PDT)
-Message-ID: <e6b8a718-4c99-cd37-c73f-fcb604a67af4@redhat.com>
-Date:   Mon, 4 Sep 2023 11:59:30 +0200
+        Mon, 04 Sep 2023 03:37:57 -0700 (PDT)
+Message-ID: <e1fa6315-5de1-e843-3022-7f3023b1e189@redhat.com>
+Date:   Mon, 4 Sep 2023 12:37:57 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.14.0
-Subject: Re: [kvm-unit-tests PATCH v6 3/8] s390x: sie: switch to home space
- mode before entering SIE
+Subject: Re: [kvm-unit-tests PATCH v6 6/8] s390x: add test source dir to
+ include paths
 Content-Language: en-US
 To:     Nico Boehr <nrb@linux.ibm.com>, frankja@linux.ibm.com,
         imbrenda@linux.ibm.com
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
 References: <20230904082318.1465055-1-nrb@linux.ibm.com>
- <20230904082318.1465055-4-nrb@linux.ibm.com>
+ <20230904082318.1465055-7-nrb@linux.ibm.com>
 From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <20230904082318.1465055-4-nrb@linux.ibm.com>
+In-Reply-To: <20230904082318.1465055-7-nrb@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -77,96 +77,31 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 04/09/2023 10.22, Nico Boehr wrote:
-> This is to prepare for running guests without MSO/MSL, which is
-> currently not possible.
+> Sometimes, it is useful to share some defines between a snippet and a
+> test. By adding the source directory to include paths, header files can
+> be placed in the snippet directory and included from the test (or vice
+> versa).
 > 
-> We already have code in sie64a to setup a guest primary ASCE before
-> entering SIE, so we can in theory switch to the page tables which
-> translate gpa to hpa.
-> 
-> But the host is running in primary space mode already, so changing the
-> primary ASCE before entering SIE will also affect the host's code and
-> data.
-> 
-> To make this switch useful, the host should run in a different address
-> space mode. Hence, set up and change to home address space mode before
-> installing the guest ASCE.
-> 
-> The home space ASCE is just copied over from the primary space ASCE, so
-> no functional change is intended, also for tests that want to use
-> MSO/MSL. If a test intends to use a different primary space ASCE, it can
-> now just set the guest.asce in the save_area.
+> This is a prerequisite for "s390x: add a test for SIE without MSO/MSL".
 > 
 > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 > ---
->   lib/s390x/asm/arch_def.h |  1 +
->   lib/s390x/sie.c          | 26 ++++++++++++++++++++++++++
->   2 files changed, 27 insertions(+)
+>   s390x/Makefile | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index 5638fd01fd85..90a178ca0351 100644
-> --- a/lib/s390x/asm/arch_def.h
-> +++ b/lib/s390x/asm/arch_def.h
-> @@ -93,6 +93,7 @@ enum address_space {
->   };
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index 706be7920406..9d5c08339d16 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -67,7 +67,7 @@ test_cases: $(tests)
+>   test_cases_binary: $(tests_binary)
+>   test_cases_pv: $(tests_pv_binary)
 >   
->   #define PSW_MASK_DAT			0x0400000000000000UL
-> +#define PSW_MASK_HOME			0x0000C00000000000UL
->   #define PSW_MASK_IO			0x0200000000000000UL
->   #define PSW_MASK_EXT			0x0100000000000000UL
->   #define PSW_MASK_KEY			0x00F0000000000000UL
-> diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
-> index b44febdeaaac..7f4474555ff7 100644
-> --- a/lib/s390x/sie.c
-> +++ b/lib/s390x/sie.c
-> @@ -52,6 +52,8 @@ void sie_handle_validity(struct vm *vm)
->   
->   void sie(struct vm *vm)
->   {
-> +	uint64_t old_cr13;
-> +
->   	if (vm->sblk->sdf == 2)
->   		memcpy(vm->sblk->pv_grregs, vm->save_area.guest.grs,
->   		       sizeof(vm->save_area.guest.grs));
-> @@ -59,6 +61,24 @@ void sie(struct vm *vm)
->   	/* Reset icptcode so we don't trip over it below */
->   	vm->sblk->icptcode = 0;
->   
-> +	/*
-> +	 * Set up home address space to match primary space. Instead of running
-> +	 * in home space all the time, we switch every time in sie() because:
-> +	 * - tests that depend on running in primary space mode don't need to be
-> +	 *   touched
-> +	 * - it avoids regressions in tests
-> +	 * - switching every time makes it easier to extend this in the future,
-> +	 *   for example to allow tests to run in whatever space they want
-
-If we want tests to be able in other modes in the future...
-
-> +	 */
-> +	old_cr13 = stctg(13);
-> +	lctlg(13, stctg(1));
-> +
-> +	/* switch to home space so guest tables can be different from host */
-> +	psw_mask_set_bits(PSW_MASK_HOME);
-> +
-> +	/* also handle all interruptions in home space while in SIE */
-> +	irq_set_dat_mode(true, AS_HOME);
-> +
->   	while (vm->sblk->icptcode == 0) {
->   		sie64a(vm->sblk, &vm->save_area);
->   		sie_handle_validity(vm);
-> @@ -66,6 +86,12 @@ void sie(struct vm *vm)
->   	vm->save_area.guest.grs[14] = vm->sblk->gg14;
->   	vm->save_area.guest.grs[15] = vm->sblk->gg15;
->   
-> +	irq_set_dat_mode(true, AS_PRIM);
-> +	psw_mask_clear_bits(PSW_MASK_HOME);
-
-... we should maybe restore the previous mode here instead of switching 
-always to primary mode?
-
-Anyway, could be done later, but you might want to update your comment.
+> -INCLUDE_PATHS = $(SRCDIR)/lib $(SRCDIR)/lib/s390x
+> +INCLUDE_PATHS = $(SRCDIR)/lib $(SRCDIR)/lib/s390x $(SRCDIR)/s390x
+>   # Include generated header files (e.g. in case of out-of-source builds)
+>   INCLUDE_PATHS += lib
+>   CPPFLAGS = $(addprefix -I,$(INCLUDE_PATHS))
 
 Reviewed-by: Thomas Huth <thuth@redhat.com>
 
