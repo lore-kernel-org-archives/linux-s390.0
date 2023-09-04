@@ -2,385 +2,128 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5006BCA0FFB
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Sep 2023 01:02:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6C32C71153
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Sep 2023 06:41:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350311AbjIDBC7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 3 Sep 2023 21:02:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57122 "EHLO
+        id S230159AbjIDGlG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Sep 2023 02:41:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350309AbjIDBC6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 3 Sep 2023 21:02:58 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A107106
-        for <linux-s390@vger.kernel.org>; Sun,  3 Sep 2023 18:02:37 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id d9443c01a7336-1c09673b006so1999065ad.1
-        for <linux-s390@vger.kernel.org>; Sun, 03 Sep 2023 18:02:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fromorbit-com.20230601.gappssmtp.com; s=20230601; t=1693789356; x=1694394156; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=7SkjlWpTOnFF4QpgAAxUR7lqv3IHtXsX9Ov+YWVrmXw=;
-        b=qC164uBpiTqMDgXCvRgiQKt4Gh699N5mZOL/vYt7en0Jbwz76nMzEY83UKBVSQIW6l
-         aeb79T1fQrqEYwAnWqEg0BUEVogsLmyDn7Er7QB5MMmb3evyGFkJ31LnyaFbCd66DWcw
-         2rEqHGNd94yLw2873vPlsxfffzMVRPFxi+gQvuhDp/nt+kHeFVOC7RU50NpTqz237x8d
-         0EgVDl7W9L5GKWAUtPLGkVf3nghZNwTKtocs80JusMNZMyy2xNrwPVPtVOWAc9Ov7Ec+
-         l+Jy4wlPaRYKxlaBf+eoyU6yz7sgMqtArlqAkIUtWnDR1tDFWMVYywwL0pwAGBUewBHm
-         OWuA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693789356; x=1694394156;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=7SkjlWpTOnFF4QpgAAxUR7lqv3IHtXsX9Ov+YWVrmXw=;
-        b=guKwZ9tlfOpZzISCM5XSpOlt5eb2/hBQvzcIUhAtc+2oLYhZFpvs7LGNUYHraaCg1C
-         LuugpTgqu9U7cUmz3mPej/5Dar48DStBFGDt0qzt1aysOJvxvKWOPGdzT5pi099K6/uv
-         ZXw+pNsm0u9CYj88lNGVHmk0UFBT/+yOq4FaUAe+LvGDx2Z6VXC/iwJKjYqzdEoWO6oA
-         0F2RYmLyq1QADmL/RRAYVmAMEPTS8ldkc6gY8GxQbrA04zGDxoyjq4R6Kdkcgf0qHAMD
-         o8dhGUFcPqgSl8i+eEDkMW8sxjl0N7OCKGvbhD8McGXl/YIeB8jLoq9P5GswiTpftpsQ
-         B3xw==
-X-Gm-Message-State: AOJu0YwEBZzSPirikBpMuN8acpDmTSuUjLg5uoqDmUeJybV+AiOqXHRb
-        r17XejkDmEujf+0P5NCOH0CItQ==
-X-Google-Smtp-Source: AGHT+IGGrky2P+bBuH4AKgWBeYdqXOP6u+qaOJyeKMBTbWb7BRdsdnk0jjxmGVwySX0sZe8eaRNDcw==
-X-Received: by 2002:a17:902:ecc8:b0:1c1:fe97:bf34 with SMTP id a8-20020a170902ecc800b001c1fe97bf34mr8040994plh.24.1693789355853;
-        Sun, 03 Sep 2023 18:02:35 -0700 (PDT)
-Received: from dread.disaster.area (pa49-195-66-88.pa.nsw.optusnet.com.au. [49.195.66.88])
-        by smtp.gmail.com with ESMTPSA id d4-20020a170902c18400b001bdcafcf8d3sm6351806pld.69.2023.09.03.18.02.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 03 Sep 2023 18:02:35 -0700 (PDT)
-Received: from dave by dread.disaster.area with local (Exim 4.96)
-        (envelope-from <david@fromorbit.com>)
-        id 1qcxz6-00AVA9-2L;
-        Mon, 04 Sep 2023 11:02:32 +1000
-Date:   Mon, 4 Sep 2023 11:02:32 +1000
-From:   Dave Chinner <david@fromorbit.com>
-To:     Hao Xu <hao.xu@linux.dev>
-Cc:     io-uring@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Christian Brauner <brauner@kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Stefan Roesch <shr@fb.com>, Clay Harris <bugs@claycon.org>,
-        "Darrick J . Wong" <djwong@kernel.org>,
-        linux-fsdevel@vger.kernel.org, linux-xfs@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-cachefs@redhat.com,
-        ecryptfs@vger.kernel.org, linux-nfs@vger.kernel.org,
-        linux-unionfs@vger.kernel.org, bpf@vger.kernel.org,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, codalist@coda.cs.cmu.edu,
-        linux-f2fs-devel@lists.sourceforge.net, cluster-devel@redhat.com,
-        linux-mm@kvack.org, linux-nilfs@vger.kernel.org,
-        devel@lists.orangefs.org, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org, linux-mtd@lists.infradead.org,
-        Wanpeng Li <wanpengli@tencent.com>
-Subject: Re: [PATCH 02/11] xfs: add NOWAIT semantics for readdir
-Message-ID: <ZPUsqGfeUwupdlLE@dread.disaster.area>
-References: <20230827132835.1373581-1-hao.xu@linux.dev>
- <20230827132835.1373581-3-hao.xu@linux.dev>
+        with ESMTP id S1347117AbjIDGlF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Sep 2023 02:41:05 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C3FA106;
+        Sun,  3 Sep 2023 23:41:00 -0700 (PDT)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3846cGQU028469;
+        Mon, 4 Sep 2023 06:40:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ in-reply-to : references : cc : to : subject : from : message-id : date :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=FfVRcwlRJcoMS36uxppnXHoRJjYjGRzxm90M5y9htoQ=;
+ b=NefFCvDop1hOjIlk8xUn8yZDnaXdwHE9TZcnumvBhB7NC2E5w8LgyIedkVjyGppOFCP+
+ BV6XB78rhIpm8hD9phTXi51JsKCU1IayZLW6Bja0EXHz5QWSOYCDtNJSmiBiXK/FxnrH
+ AZgZvJbehVB4GLqUxbEWw7uDYeDORd88cnyE5Ry/BM37l7LmzVeZho1MqrlzIi0LaVqr
+ Q44kCGDB/vUL0cFtCzdmEqjlmCMh5NYhSHXopFeeOl//lFhv5a1hwNoRhr3UHIe5Uvx5
+ 1eOcp8EjsPLqfX7sE/0fcvZODG+ZCnTjfhPNIbI363FvG++jEHf3mnj2MzjSFOQw4ub9 kw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sw87nabq5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Sep 2023 06:40:58 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3846cire029737;
+        Mon, 4 Sep 2023 06:40:58 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sw87nabpn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Sep 2023 06:40:58 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3844Ppmn021459;
+        Mon, 4 Sep 2023 06:40:57 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3svfry0mh4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Sep 2023 06:40:56 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3846erbN20579056
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 4 Sep 2023 06:40:53 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7EBC120043;
+        Mon,  4 Sep 2023 06:40:53 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 48D4320040;
+        Mon,  4 Sep 2023 06:40:53 +0000 (GMT)
+Received: from t14-nrb (unknown [9.179.12.249])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  4 Sep 2023 06:40:53 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <981405ed-060f-de0b-8125-29099ba8791a@redhat.com>
+References: <20230809091717.1549-1-nrb@linux.ibm.com> <981405ed-060f-de0b-8125-29099ba8791a@redhat.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+To:     Thomas Huth <thuth@redhat.com>, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH v1] s390x: explicitly mark stack as not executable
+From:   Nico Boehr <nrb@linux.ibm.com>
+Message-ID: <169380965283.97137.623872032086698797@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Mon, 04 Sep 2023 08:40:52 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: kOnGeAwRR8z-kP7euWzERHmAlyvNVzfQ
+X-Proofpoint-ORIG-GUID: UM3Rc0pqDTTlEYYccLKJiVXuh5HGUdjQ
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230827132835.1373581-3-hao.xu@linux.dev>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
+ definitions=2023-09-04_03,2023-08-31_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 clxscore=1011
+ suspectscore=0 bulkscore=0 adultscore=0 priorityscore=1501 malwarescore=0
+ phishscore=0 lowpriorityscore=0 impostorscore=0 mlxscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2308100000
+ definitions=main-2309040058
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Aug 27, 2023 at 09:28:26PM +0800, Hao Xu wrote:
-> From: Hao Xu <howeyxu@tencent.com>
-> 
-> Implement NOWAIT semantics for readdir. Return EAGAIN error to the
-> caller if it would block, like failing to get locks, or going to
-> do IO.
-> 
-> Co-developed-by: Dave Chinner <dchinner@redhat.com>
+Quoting Thomas Huth (2023-08-13 11:50:00)
+> On 09/08/2023 11.17, Nico Boehr wrote:
+> > With somewhat recent GCC versions, we get this warning on s390x:
+> >=20
+> >    /usr/bin/ld: warning: s390x/cpu.o: missing .note.GNU-stack section i=
+mplies executable stack
+> >    /usr/bin/ld: NOTE: This behaviour is deprecated and will be removed =
+in a future version of the linker
+> >=20
+> > We don't really care whether stack is executable or not since we set it
+> > up ourselves and we're running DAT off mostly anyways.
+> >=20
+> > Silence the warning by explicitly marking the stack as not executable.
+> >=20
+> > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> > ---
+> >   s390x/Makefile | 2 +-
+> >   1 file changed, 1 insertion(+), 1 deletion(-)
+> >=20
+> > diff --git a/s390x/Makefile b/s390x/Makefile
+> > index 706be7920406..afa47ccbeb93 100644
+> > --- a/s390x/Makefile
+> > +++ b/s390x/Makefile
+> > @@ -79,7 +79,7 @@ CFLAGS +=3D -O2
+> >   CFLAGS +=3D -march=3DzEC12
+> >   CFLAGS +=3D -mbackchain
+> >   CFLAGS +=3D -fno-delete-null-pointer-checks
+> > -LDFLAGS +=3D -nostdlib -Wl,--build-id=3Dnone
+> > +LDFLAGS +=3D -nostdlib -Wl,--build-id=3Dnone -z noexecstack
+>=20
+> I already did a similar patch some weeks ago:
+>=20
+>   https://lore.kernel.org/kvm/20230623125416.481755-1-thuth@redhat.com/
+>=20
+> ... we need it for x86, too, so I guess I should go ahead and commit it -=
+=20
+> and ask Sean to respin his conflicting series.
 
-Not really.
-
-"Co-developed" implies equal development input between all the
-parties, which is not the case here - this patch is based on
-prototype I wrote, whilst you're doing the refining, testing and
-correctness work.
-
-In these cases with XFS code, we add a line in the commit message to
-say:
-
-"This is based on a patch originally written by Dave Chinner."
-
-
-> Signed-off-by: Dave Chinner <dchinner@redhat.com>
-> Signed-off-by: Hao Xu <howeyxu@tencent.com>
-> [fixes deadlock issue, tweak code style]
-
-With a signoff chain like you already have.
-
-In the end you'll also get a RVB from me, which seems rather wrong
-to me if I've apparently been "co-developing" the code....
-
-....
-
-> @@ -156,7 +157,9 @@ xfs_dir2_block_getdents(
->  	if (xfs_dir2_dataptr_to_db(geo, ctx->pos) > geo->datablk)
->  		return 0;
->  
-> -	error = xfs_dir3_block_read(args->trans, dp, &bp);
-> +	if (ctx->flags & DIR_CONTEXT_F_NOWAIT)
-> +		flags |= XFS_DABUF_NOWAIT;
-> +	error = xfs_dir3_block_read(args->trans, dp, flags, &bp);
->  	if (error)
->  		return error;
->  
-
-Given we do this same check in both block and leaf formats to set
-XFS_DABUF_NOWAIT, and we do the DIR_CONTEXT_F_NOWAIT check in
-xfs_readdir() as well, we should probably do this check once at the
-higher level and pass flags down from there with XFS_DABUF_NOWAIT
-already set.
-
-> @@ -240,6 +243,7 @@ xfs_dir2_block_getdents(
->  STATIC int
->  xfs_dir2_leaf_readbuf(
->  	struct xfs_da_args	*args,
-> +	struct dir_context	*ctx,
->  	size_t			bufsize,
->  	xfs_dir2_off_t		*cur_off,
->  	xfs_dablk_t		*ra_blk,
-> @@ -258,10 +262,15 @@ xfs_dir2_leaf_readbuf(
->  	struct xfs_iext_cursor	icur;
->  	int			ra_want;
->  	int			error = 0;
-> -
-> -	error = xfs_iread_extents(args->trans, dp, XFS_DATA_FORK);
-> -	if (error)
-> -		goto out;
-> +	unsigned int		flags = 0;
-> +
-> +	if (ctx->flags & DIR_CONTEXT_F_NOWAIT) {
-> +		flags |= XFS_DABUF_NOWAIT;
-> +	} else {
-> +		error = xfs_iread_extents(args->trans, dp, XFS_DATA_FORK);
-> +		if (error)
-> +			goto out;
-> +	}
-
-Especially as, in hindsight, this doesn't make a whole lot of sense.
-If XFS_DABUF_NOWAIT is set, we keep going until
-xfs_ilock_data_map_shared_nowait() where we call
-xfs_need_iread_extents() to see if we need to read the extents in
-and abort at that point.
-
-So, really, we shouldn't get this far with nowait semantics if
-we haven't read the extents in yet - we're supposed to already have
-the inode locked here and so we should have already checked this
-condition before we bother locking the inode...
-
-i.e. all we should be doing here is this:
-
-	if (!(flags & XFS_DABUF_NOWAIT)) {
-		error = xfs_iread_extents(args->trans, dp, XFS_DATA_FORK);
-		if (error)
-			goto out;
-	}
-
-And then we don't need to pass the VFS dir_context down into low
-level XFS functions unnecessarily.
-
-
->  
->  	/*
->  	 * Look for mapped directory blocks at or above the current offset.
-> @@ -280,7 +289,7 @@ xfs_dir2_leaf_readbuf(
->  	new_off = xfs_dir2_da_to_byte(geo, map.br_startoff);
->  	if (new_off > *cur_off)
->  		*cur_off = new_off;
-> -	error = xfs_dir3_data_read(args->trans, dp, map.br_startoff, 0, &bp);
-> +	error = xfs_dir3_data_read(args->trans, dp, map.br_startoff, flags, &bp);
->  	if (error)
->  		goto out;
->  
-> @@ -360,6 +369,7 @@ xfs_dir2_leaf_getdents(
->  	int			byteoff;	/* offset in current block */
->  	unsigned int		offset = 0;
->  	int			error = 0;	/* error return value */
-> +	int			written = 0;
->  
->  	/*
->  	 * If the offset is at or past the largest allowed value,
-> @@ -391,10 +401,17 @@ xfs_dir2_leaf_getdents(
->  				bp = NULL;
->  			}
->  
-> -			if (*lock_mode == 0)
-> -				*lock_mode = xfs_ilock_data_map_shared(dp);
-> -			error = xfs_dir2_leaf_readbuf(args, bufsize, &curoff,
-> -					&rablk, &bp);
-> +			if (*lock_mode == 0) {
-> +				*lock_mode =
-> +					xfs_ilock_data_map_shared_generic(dp,
-> +					ctx->flags & DIR_CONTEXT_F_NOWAIT);
-> +				if (!*lock_mode) {
-> +					error = -EAGAIN;
-> +					break;
-> +				}
-> +			}
-> +			error = xfs_dir2_leaf_readbuf(args, ctx, bufsize,
-> +					&curoff, &rablk, &bp);
-
-int
-xfs_ilock_readdir(
-	struct xfs_inode	*ip,
-	int			flags)
-{
-	if (flags & XFS_DABUF_NOWAIT) {
-		if (!xfs_ilock_nowait(dp, XFS_ILOCK_SHARED))
-			return -EAGAIN;
-		return XFS_ILOCK_SHARED;
-	}
-	return xfs_ilock_data_map_shared(dp);
-}
-
-And then this code simply becomes:
-
-			if (*lock_mode == 0)
-				*lock_mode = xfs_ilock_readdir(ip, flags);
-
-
->  			if (error || !bp)
->  				break;
->  
-> @@ -479,6 +496,7 @@ xfs_dir2_leaf_getdents(
->  		 */
->  		offset += length;
->  		curoff += length;
-> +		written += length;
->  		/* bufsize may have just been a guess; don't go negative */
->  		bufsize = bufsize > length ? bufsize - length : 0;
->  	}
-> @@ -492,6 +510,8 @@ xfs_dir2_leaf_getdents(
->  		ctx->pos = xfs_dir2_byte_to_dataptr(curoff) & 0x7fffffff;
->  	if (bp)
->  		xfs_trans_brelse(args->trans, bp);
-> +	if (error == -EAGAIN && written > 0)
-> +		error = 0;
->  	return error;
->  }
->  
-> @@ -514,6 +534,7 @@ xfs_readdir(
->  	unsigned int		lock_mode;
->  	bool			isblock;
->  	int			error;
-> +	bool			nowait;
->  
->  	trace_xfs_readdir(dp);
->  
-> @@ -531,7 +552,11 @@ xfs_readdir(
->  	if (dp->i_df.if_format == XFS_DINODE_FMT_LOCAL)
->  		return xfs_dir2_sf_getdents(&args, ctx);
->  
-> -	lock_mode = xfs_ilock_data_map_shared(dp);
-> +	nowait = ctx->flags & DIR_CONTEXT_F_NOWAIT;
-> +	lock_mode = xfs_ilock_data_map_shared_generic(dp, nowait);
-> +	if (!lock_mode)
-> +		return -EAGAIN;
-> +
-
-Given what I said above:
-
-	if (ctx->flags & DIR_CONTEXT_F_NOWAIT) {
-		/*
-		 * If we need to read extents, then we must do IO
-		 * and we must use exclusive locking. We don't want
-		 * to do either of those things, so just bail if we
-		 * have to read extents. Doing this check explicitly
-		 * here means we don't have to do it anywhere else
-		 * in the XFS_DABUF_NOWAIT path.
-		 */
-		if (xfs_need_iread_extents(&ip->i_df))
-			return -EAGAIN;
-		flags |= XFS_DABUF_NOWAIT;
-	}
-	lock_mode = xfs_ilock_readdir(dp, flags);
-
-And with this change, we probably should be marking the entire
-operation as having nowait semantics. i.e. using args->op_flags here
-and only use XFS_DABUF_NOWAIT for the actual IO. ie.
-
-		args->op_flags |= XFS_DA_OP_NOWAIT;
-
-This makes it clear that the entire directory op should run under
-NOWAIT constraints, and it avoids needing to pass an extra flag
-through the stack.  That then makes the readdir locking function
-look like this:
-
-/*
- * When we are locking an inode for readdir, we need to ensure that
- * the extents have been read in first. This requires the inode to
- * be locked exclusively across the extent read, but otherwise we
- * want to use shared locking.
- *
- * For XFS_DA_OP_NOWAIT operations, we do an up-front check to see
- * if the extents have been read in, so all we need to do in this
- * case is a shared try-lock as we never need exclusive locking in
- * this path.
- */
-static int
-xfs_ilock_readdir(
-	struct xfs_da_args	*args)
-{
-	if (args->op_flags & XFS_DA_OP_NOWAIT) {
-		if (!xfs_ilock_nowait(args->dp, XFS_ILOCK_SHARED))
-			return -EAGAIN;
-		return XFS_ILOCK_SHARED;
-	}
-	return xfs_ilock_data_map_shared(args->dp);
-}
-
-> diff --git a/fs/xfs/xfs_inode.c b/fs/xfs/xfs_inode.c
-> index 9e62cc500140..d088f7d0c23a 100644
-> --- a/fs/xfs/xfs_inode.c
-> +++ b/fs/xfs/xfs_inode.c
-> @@ -120,6 +120,33 @@ xfs_ilock_data_map_shared(
->  	return lock_mode;
->  }
->  
-> +/*
-> + * Similar to xfs_ilock_data_map_shared(), except that it will only try to lock
-> + * the inode in shared mode if the extents are already in memory. If it fails to
-> + * get the lock or has to do IO to read the extent list, fail the operation by
-> + * returning 0 as the lock mode.
-> + */
-> +uint
-> +xfs_ilock_data_map_shared_nowait(
-> +	struct xfs_inode	*ip)
-> +{
-> +	if (xfs_need_iread_extents(&ip->i_df))
-> +		return 0;
-> +	if (!xfs_ilock_nowait(ip, XFS_ILOCK_SHARED))
-> +		return 0;
-> +	return XFS_ILOCK_SHARED;
-> +}
-> +
-> +int
-> +xfs_ilock_data_map_shared_generic(
-> +	struct xfs_inode	*dp,
-> +	bool			nowait)
-> +{
-> +	if (nowait)
-> +		return xfs_ilock_data_map_shared_nowait(dp);
-> +	return xfs_ilock_data_map_shared(dp);
-> +}
-
-And all this "generic" locking stuff goes away.
-
-FWIW, IMO, "generic" is a poor name for an XFS function as there's
-nothing "generic" in XFS.  We tend name the functions after what
-they do, not some abstract concept. Leave "generic" as a keyword for
-widely used core infrastructure functions, not niche, one-off use
-cases like this.
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-david@fromorbit.com
+Thanks!
