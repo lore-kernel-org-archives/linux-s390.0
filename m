@@ -2,236 +2,143 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B498C83F2C
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Sep 2023 13:31:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE01AC71153
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Sep 2023 14:11:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238164AbjIDNbM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Sep 2023 09:31:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42772 "EHLO
+        id S232476AbjIDOLg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Sep 2023 10:11:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231185AbjIDNbM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Sep 2023 09:31:12 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 689FCCD5;
-        Mon,  4 Sep 2023 06:31:08 -0700 (PDT)
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 384C7Zdx016984;
-        Mon, 4 Sep 2023 13:31:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=MNs0+dXUJXtLRzWXB96kKWiutdZWmFuySVe7ddzp05M=;
- b=j4ZpO40RFZicRfTPKky5kW+6Cpu88+4o19YkBnb5QoMkJEwCEO8ALob9WJMNgGuF0vJL
- TUPPjpoM00b6GxKP2K+r+qRCtb2znK8wZSLOh0u6cm9jkHAxWK0qVhIoECtKAk1lpWn7
- 8Cy1my7tX0X/CIRuqPSHYmXUsAftQ4052yBdNhVXnN5O8AIuNiL49cj12sGc97G+Qsq4
- YWa+FvRO/lL0g/0knowthLJHZWv1aAdEkage1SMPaSC8Uc0fMzhoj6pTzxzjJ1XJN8WB
- GS0VYdqmbktxHdDFJavaJ+nVz9GRUkTImlM5328B/0YN5e3aZmw2s9CeZ+vXs8N4twlE bQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sw80jbqhy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Sep 2023 13:31:07 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 384DQYn4005890;
-        Mon, 4 Sep 2023 13:31:07 GMT
+        with ESMTP id S231701AbjIDOLg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Sep 2023 10:11:36 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEE20C6;
+        Mon,  4 Sep 2023 07:11:32 -0700 (PDT)
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 384E8U1E014343;
+        Mon, 4 Sep 2023 14:11:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=zx9s4nr9xPNGO957zvWk6oOb8KoVuhnUNTWYPvr9+tY=;
+ b=V1Jf+vtunSy8D9bCD3+fX2T2Hy3wYz9II6G8aH0SJ+++msvFRm2ckkUCfy9yYF2xVYGu
+ Oh+sXoFEBJU9fLOr+7vh4Kl+G34ig+1dyGYks33557snCE2C02B+uZn+8RSxjaYYU6pf
+ OTw2ZZGPwkiOlbnuGUMxGslukiLM713E9DIMxNH1wu5qxesuiiHZU0guY3r8LtSeTQ63
+ LbpsDsjSFmE/mpvkwkx8kDnufFFCOpq3mKMEZPIQ8OhGXuo2Rhc/1WPdnDbuYedIBYzX
+ jrYtcx5Gn+BZS0MyWiqnT9BQXoua4ufCv/q9YGp4diS2Bq0ZGVYBOBQkpBhx9mJMpwyv pg== 
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sw80jbqdk-11
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sw6p8w5m3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Sep 2023 13:31:07 +0000
+        Mon, 04 Sep 2023 14:11:31 +0000
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 384BWeZx011121;
-        Mon, 4 Sep 2023 13:01:44 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3svj31a6uy-1
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 384DtE31011130;
+        Mon, 4 Sep 2023 14:11:31 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3svj31amrd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Sep 2023 13:01:44 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 384D1fr06554172
+        Mon, 04 Sep 2023 14:11:31 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 384EBRY627656880
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 4 Sep 2023 13:01:41 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 868092004D;
-        Mon,  4 Sep 2023 13:01:41 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4B87A2004E;
-        Mon,  4 Sep 2023 13:01:41 +0000 (GMT)
-Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  4 Sep 2023 13:01:41 +0000 (GMT)
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH v3 1/2] KVM: s390: add stat counter for shadow gmap events
-Date:   Mon,  4 Sep 2023 15:01:38 +0200
-Message-ID: <20230904130140.22006-2-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20230904130140.22006-1-nrb@linux.ibm.com>
-References: <20230904130140.22006-1-nrb@linux.ibm.com>
+        Mon, 4 Sep 2023 14:11:27 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4D63B20043;
+        Mon,  4 Sep 2023 14:11:27 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9605120040;
+        Mon,  4 Sep 2023 14:11:26 +0000 (GMT)
+Received: from [9.171.43.82] (unknown [9.171.43.82])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  4 Sep 2023 14:11:26 +0000 (GMT)
+Message-ID: <1f5636f6-18f3-442a-4a60-62440d4907af@linux.ibm.com>
+Date:   Mon, 4 Sep 2023 16:11:26 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.0
+Subject: Re: [PATCH v4] KVM: s390: fix gisa destroy operation might lead to
+ cpu stalls
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Viktor Mihajlovski <mihajlov@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        Michael Mueller <mimu@linux.vnet.ibm.com>
+References: <20230901105823.3973928-1-mimu@linux.ibm.com>
+ <169381110909.97137.16554568711338641072@t14-nrb>
+From:   Michael Mueller <mimu@linux.ibm.com>
+In-Reply-To: <169381110909.97137.16554568711338641072@t14-nrb>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rIhFc5ItFPibY9MYN3tp2OGnzo0RPyy1
-X-Proofpoint-ORIG-GUID: eNwbZ5EteVcfoiGBhr7nFgIKE7xaqHMF
+X-Proofpoint-GUID: -IGfxAbo9aKu1BM81IINUAyCdlcp9YdN
+X-Proofpoint-ORIG-GUID: -IGfxAbo9aKu1BM81IINUAyCdlcp9YdN
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
  definitions=2023-09-04_07,2023-08-31_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 bulkscore=0
- mlxlogscore=999 suspectscore=0 spamscore=0 mlxscore=0 impostorscore=0
- priorityscore=1501 adultscore=0 clxscore=1015 malwarescore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
+ adultscore=0 spamscore=0 clxscore=1015 malwarescore=0 mlxlogscore=474
+ impostorscore=0 suspectscore=0 priorityscore=1501 phishscore=0
  lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2308100000 definitions=main-2309040117
+ engine=8.12.0-2308100000 definitions=main-2309040126
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The shadow gmap tracks memory of nested guests (guest-3). In certain
-scenarios, the shadow gmap needs to be rebuilt, which is a costly operation
-since it involves a SIE exit into guest-1 for every entry in the respective
-shadow level.
 
-Add kvm stat counters when new shadow structures are created at various
-levels. Also add a counter gmap_shadow_create when a completely fresh
-shadow gmap is created as well as a counter gmap_shadow_reuse when an
-existing gmap is being reused.
 
-Note that when several levels are shadowed at once, counters on all
-affected levels will be increased.
+On 04.09.23 09:05, Nico Boehr wrote:
+> Quoting Michael Mueller (2023-09-01 12:58:23)
+> [...]
+>> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+>> index 9bd0a873f3b1..96450e5c4b6f 100644
+>> --- a/arch/s390/kvm/interrupt.c
+>> +++ b/arch/s390/kvm/interrupt.c
+> [...]
+>>   static inline void gisa_set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+>>   {
+>>          set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
+>> @@ -3202,11 +3197,12 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
+>>   
+>>          if (!gi->origin)
+>>                  return;
+>> -       if (gi->alert.mask)
+>> -               KVM_EVENT(3, "vm 0x%pK has unexpected iam 0x%02x",
+>> -                         kvm, gi->alert.mask);
+>> -       while (gisa_in_alert_list(gi->origin))
+>> -               cpu_relax();
+>> +       WARN(gi->alert.mask != 0x00,
+>> +            "unexpected non zero alert.mask 0x%02x",
+>> +            gi->alert.mask);
+>> +       gi->alert.mask = 0x00;
+>> +       if (gisa_set_iam(gi->origin, gi->alert.mask))
+>> +               process_gib_alert_list();
+> 
+> I am not an expert for the GISA, so excuse my possibly stupid question:
+> process_gib_alert_list() starts the timer. So can gisa_vcpu_kicker()
+> already be running before we reach hrtimer_cancel() below? Is this fine?
 
-Also note that not all page table levels need to be present and a ASCE
-can directly point to e.g. a segment table. In this case, a new segment
-table will always be equivalent to a new shadow gmap and hence will be
-counted as gmap_shadow_create and not as gmap_shadow_segment.
+You are right, It cannnot be running in that situation because 
+gisa_vcpu_kicker() has returned with HRTIMER_NORESTART and no vcpus are 
+defined anymore.
 
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
----
- arch/s390/include/asm/kvm_host.h | 7 +++++++
- arch/s390/kvm/gaccess.c          | 7 +++++++
- arch/s390/kvm/kvm-s390.c         | 9 ++++++++-
- arch/s390/kvm/vsie.c             | 5 ++++-
- 4 files changed, 26 insertions(+), 2 deletions(-)
+There is another case when the gisa specific timer is started not only 
+in the process_gib_alert() case but also when a vcpu of the guest owning 
+the gisa is put into wait state, see kvm_s390_handle_wait(). Thus yes, 
+it could be running already in that situation. I remember having seen 
+this situation when I write the gisa/gib code. But that's case in 
+process_gib_alert_list()
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 91bfecb91321..5243cbd57e2f 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -777,6 +777,13 @@ struct kvm_vm_stat {
- 	u64 inject_service_signal;
- 	u64 inject_virtio;
- 	u64 aen_forward;
-+	u64 gmap_shadow_create;
-+	u64 gmap_shadow_reuse;
-+	u64 gmap_shadow_r1_entry;
-+	u64 gmap_shadow_r2_entry;
-+	u64 gmap_shadow_r3_entry;
-+	u64 gmap_shadow_sg_entry;
-+	u64 gmap_shadow_pg_entry;
- };
- 
- struct kvm_arch_memory_slot {
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index 6d6bc19b37dc..ff8349d17b33 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -1382,6 +1382,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
- 				  unsigned long *pgt, int *dat_protection,
- 				  int *fake)
- {
-+	struct kvm *kvm;
- 	struct gmap *parent;
- 	union asce asce;
- 	union vaddress vaddr;
-@@ -1390,6 +1391,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
- 
- 	*fake = 0;
- 	*dat_protection = 0;
-+	kvm = sg->private;
- 	parent = sg->parent;
- 	vaddr.addr = saddr;
- 	asce.val = sg->orig_asce;
-@@ -1450,6 +1452,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
- 		rc = gmap_shadow_r2t(sg, saddr, rfte.val, *fake);
- 		if (rc)
- 			return rc;
-+		kvm->stat.gmap_shadow_r1_entry++;
- 	}
- 		fallthrough;
- 	case ASCE_TYPE_REGION2: {
-@@ -1478,6 +1481,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
- 		rc = gmap_shadow_r3t(sg, saddr, rste.val, *fake);
- 		if (rc)
- 			return rc;
-+		kvm->stat.gmap_shadow_r2_entry++;
- 	}
- 		fallthrough;
- 	case ASCE_TYPE_REGION3: {
-@@ -1515,6 +1519,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
- 		rc = gmap_shadow_sgt(sg, saddr, rtte.val, *fake);
- 		if (rc)
- 			return rc;
-+		kvm->stat.gmap_shadow_r3_entry++;
- 	}
- 		fallthrough;
- 	case ASCE_TYPE_SEGMENT: {
-@@ -1548,6 +1553,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
- 		rc = gmap_shadow_pgt(sg, saddr, ste.val, *fake);
- 		if (rc)
- 			return rc;
-+		kvm->stat.gmap_shadow_sg_entry++;
- 	}
- 	}
- 	/* Return the parent address of the page table */
-@@ -1618,6 +1624,7 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
- 	pte.p |= dat_protection;
- 	if (!rc)
- 		rc = gmap_shadow_page(sg, saddr, __pte(pte.val));
-+	vcpu->kvm->stat.gmap_shadow_pg_entry++;
- 	ipte_unlock(vcpu->kvm);
- 	mmap_read_unlock(sg->mm);
- 	return rc;
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d1e768bcfe1d..9379471081fa 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -66,7 +66,14 @@ const struct _kvm_stats_desc kvm_vm_stats_desc[] = {
- 	STATS_DESC_COUNTER(VM, inject_pfault_done),
- 	STATS_DESC_COUNTER(VM, inject_service_signal),
- 	STATS_DESC_COUNTER(VM, inject_virtio),
--	STATS_DESC_COUNTER(VM, aen_forward)
-+	STATS_DESC_COUNTER(VM, aen_forward),
-+	STATS_DESC_COUNTER(VM, gmap_shadow_reuse),
-+	STATS_DESC_COUNTER(VM, gmap_shadow_create),
-+	STATS_DESC_COUNTER(VM, gmap_shadow_r1_entry),
-+	STATS_DESC_COUNTER(VM, gmap_shadow_r2_entry),
-+	STATS_DESC_COUNTER(VM, gmap_shadow_r3_entry),
-+	STATS_DESC_COUNTER(VM, gmap_shadow_sg_entry),
-+	STATS_DESC_COUNTER(VM, gmap_shadow_pg_entry),
- };
- 
- const struct kvm_stats_header kvm_vm_stats_header = {
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 61499293c2ac..02dcbe82a8e5 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -1214,8 +1214,10 @@ static int acquire_gmap_shadow(struct kvm_vcpu *vcpu,
- 	 * we're holding has been unshadowed. If the gmap is still valid,
- 	 * we can safely reuse it.
- 	 */
--	if (vsie_page->gmap && gmap_shadow_valid(vsie_page->gmap, asce, edat))
-+	if (vsie_page->gmap && gmap_shadow_valid(vsie_page->gmap, asce, edat)) {
-+		vcpu->kvm->stat.gmap_shadow_reuse++;
- 		return 0;
-+	}
- 
- 	/* release the old shadow - if any, and mark the prefix as unmapped */
- 	release_gmap_shadow(vsie_page);
-@@ -1223,6 +1225,7 @@ static int acquire_gmap_shadow(struct kvm_vcpu *vcpu,
- 	if (IS_ERR(gmap))
- 		return PTR_ERR(gmap);
- 	gmap->private = vcpu->kvm;
-+	vcpu->kvm->stat.gmap_shadow_create++;
- 	WRITE_ONCE(vsie_page->gmap, gmap);
- 	return 0;
- }
--- 
-2.41.0
+It does not hurt to have the hrtimer_cancel() here but I don't want to 
+add a change to this patch. Eventually a new one.
 
+Thanks for asking!
+
+> 
+>>          hrtimer_cancel(&gi->timer);
+>>          gi->origin = NULL;
+>>          VM_EVENT(kvm, 3, "gisa 0x%pK destroyed", gisa);
