@@ -2,149 +2,107 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CC13CA0FE2
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Sep 2023 16:26:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40747C83F3E
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Sep 2023 19:32:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352180AbjIEQ0d (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Sep 2023 12:26:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58282 "EHLO
+        id S234961AbjIETct (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Sep 2023 15:32:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354714AbjIENpx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Sep 2023 09:45:53 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE0C5191;
-        Tue,  5 Sep 2023 06:45:45 -0700 (PDT)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 385Dd2Z5009902;
-        Tue, 5 Sep 2023 13:45:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : to : cc : references : from : subject : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=sOrf9bMG9yQu4ljAz6PSN8Fr/regDOPoMhzl1jU+Rv8=;
- b=kk2HDDB4feJsTbyIfSlMW/VE0IokzAwF79knMb2J8NEj5+y/50hIyGSufq+UkA8yruBz
- /4lZ0sEEdujt53TfERZMJrrelSHkHakb9wvMh5Al00Si+a5iEJ96KxI8m7F/QY87ni7C
- 6dq+VgqcqOaEwQFcJsflJFJODAqIIJ7kFJT5CK5e6mgDW8p1ZyCgx9fvLrbojCQNV+aG
- qt/UUX+AF/VHawN06TmNIgA7D3yW+LRjKj/rYoV8m8YwqYL+Vm3qKuOorLWuW/pbseG7
- ZDDf3K9sxK8WMEhF3+BoSs5N1YJT3amhCu7nXgmis1vbFvJddb+QiMbGJqLVfj7kX8tG hg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sx44vjhqh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Sep 2023 13:45:44 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 385DdFN5011557;
-        Tue, 5 Sep 2023 13:45:44 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sx44vjhq7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Sep 2023 13:45:44 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 385BGecI001603;
-        Tue, 5 Sep 2023 13:45:43 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3svfcskagh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Sep 2023 13:45:43 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 385Djepu38273356
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 5 Sep 2023 13:45:40 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B9C9620040;
-        Tue,  5 Sep 2023 13:45:40 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 745632004B;
-        Tue,  5 Sep 2023 13:45:40 +0000 (GMT)
-Received: from [9.171.57.58] (unknown [9.171.57.58])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  5 Sep 2023 13:45:40 +0000 (GMT)
-Message-ID: <d6a62a3d-b15f-e1a7-c07e-00a599f5f041@linux.ibm.com>
-Date:   Tue, 5 Sep 2023 15:45:40 +0200
+        with ESMTP id S243110AbjIETcr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Sep 2023 15:32:47 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 068711719;
+        Tue,  5 Sep 2023 12:32:23 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B6CB8106F;
+        Tue,  5 Sep 2023 09:10:04 -0700 (PDT)
+Received: from [10.1.36.15] (010265703453.arm.com [10.1.36.15])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 0AFCF3F64C;
+        Tue,  5 Sep 2023 09:09:19 -0700 (PDT)
+Message-ID: <e949a91f-88b3-681e-6e0e-d5d1e8922284@arm.com>
+Date:   Tue, 5 Sep 2023 17:09:15 +0100
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Content-Language: en-US
-To:     Nico Boehr <nrb@linux.ibm.com>, imbrenda@linux.ibm.com,
-        thuth@redhat.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20230904082318.1465055-1-nrb@linux.ibm.com>
- <20230904082318.1465055-8-nrb@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v6 7/8] s390x: add a test for SIE without
- MSO/MSL
-In-Reply-To: <20230904082318.1465055-8-nrb@linux.ibm.com>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.0
+Subject: Re: [PATCH v12 0/6] iommu/dma: s390 DMA API conversion and optimized
+ IOTLB flushing
+Content-Language: en-GB
+To:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>
+Cc:     Gerd Bayer <gbayer@linux.ibm.com>,
+        Julian Ruess <julianr@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Hector Martin <marcan@marcan.st>,
+        Sven Peter <sven@svenpeter.dev>,
+        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Jonathan Corbet <corbet@lwn.net>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        iommu@lists.linux.dev, asahi@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
+        linux-doc@vger.kernel.org
+References: <20230825-dma_iommu-v12-0-4134455994a7@linux.ibm.com>
+ <240c26d3-b821-8410-3142-62e9a8656146@linux.ibm.com>
+From:   Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <240c26d3-b821-8410-3142-62e9a8656146@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: eLHRHoMlEPdCwKfrwBGAgqmb2LWAdlt0
-X-Proofpoint-GUID: lM1ehDRDQdcuQB5TSVyCwTJLUaP6_rd1
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-09-05_10,2023-09-05_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
- impostorscore=0 lowpriorityscore=0 malwarescore=0 phishscore=0 mlxscore=0
- mlxlogscore=999 clxscore=1015 adultscore=0 priorityscore=1501 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2308100000
- definitions=main-2309050118
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 9/4/23 10:22, Nico Boehr wrote:
-> Since we now have the ability to run guests without MSO/MSL, add a test
-> to make sure this doesn't break.
+On 2023-08-25 19:26, Matthew Rosato wrote:
+> On 8/25/23 6:11 AM, Niklas Schnelle wrote:
+>> Hi All,
+>>
+>> This patch series converts s390's PCI support from its platform specific DMA
+>> API implementation in arch/s390/pci/pci_dma.c to the common DMA IOMMU layer.
+>> The conversion itself is done in patches 3-4 with patch 2 providing the final
+>> necessary IOMMU driver improvement to handle s390's special IOTLB flush
+>> out-of-resource indication in virtualized environments. The conversion
+>> itself only touches the s390 IOMMU driver and s390 arch code moving over
+>> remaining functions from the s390 DMA API implementation. No changes to
+>> common code are necessary.
+>>
 > 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> Reviewed-by: Thomas Huth <thuth@redhat.com>
-[...]
-> diff --git a/s390x/snippets/c/sie-dat.c b/s390x/snippets/c/sie-dat.c
-> new file mode 100644
-> index 000000000000..f29887643df9
-> --- /dev/null
-> +++ b/s390x/snippets/c/sie-dat.c
-> @@ -0,0 +1,54 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +/*
-> + * Snippet used by the sie-dat.c test to verify paging without MSO/MSL
-> + *
-> + * Copyright (c) 2023 IBM Corp
-> + *
-> + * Authors:
-> + *  Nico Boehr <nrb@linux.ibm.com>
-> + */
-> +#include <stddef.h>
-> +#include <inttypes.h>
-> +#include <string.h>
-> +#include <asm-generic/page.h>
+> I also picked up this latest version and ran various tests with ISM, mlx5 and some NVMe drives.  FWIW, I have been including versions of this series in my s390 dev environments for a number of months now and have also been building my s390 pci iommufd nested translation series on top of this, so it's seen quite a bit of testing from me at least.
+> 
+> So as far as I'm concerned anyway, this series is ready for -next (after the merge window).
 
-Please include libcflat.h and remove the standard library includes.
+Agreed; I'll trust your reviews for the s390-specific parts, so indeed 
+it looks like this should have all it needs now and is ready for a nice 
+long soak in -next once Joerg opens the tree for 6.7 material.
 
-> +#include "sie-dat.h"
-> +
-[...]
-> diff --git a/s390x/snippets/c/sie-dat.h b/s390x/snippets/c/sie-dat.h
-> new file mode 100644
-> index 000000000000..a3a1c38861fa
-> --- /dev/null
-> +++ b/s390x/snippets/c/sie-dat.h
-> @@ -0,0 +1,5 @@
-> +/* keep in sync with TEST_PAGE_COUNT in s390x/snippets/c/sie-dat.c */
-> +#define GUEST_TEST_PAGE_COUNT 10
-> +
-> +/* keep in sync with TOTAL_PAGE_COUNT in s390x/snippets/c/sie-dat.c */
-> +#define GUEST_TOTAL_PAGE_COUNT 256
-
-You should remove the comments now that we can include this header in 
-the test.
-
-> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-> index 68e119e4fcaa..184658ff7d8d 100644
-> --- a/s390x/unittests.cfg
-> +++ b/s390x/unittests.cfg
-> @@ -247,3 +247,6 @@ file = topology.elf
->   [topology-2]
->   file = topology.elf
->   extra_params = -cpu max,ctop=on -smp sockets=31,cores=8,maxcpus=248  -append '-sockets 31 -cores 8'
-> +
-> +[sie-dat]
-> +file = sie-dat.elf
-
+Cheers,
+Robin.
