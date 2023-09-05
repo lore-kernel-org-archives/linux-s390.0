@@ -2,143 +2,100 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B149BCA0FF3
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Sep 2023 16:26:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80745C83F3E
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Sep 2023 16:26:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351874AbjIEQ0V (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Sep 2023 12:26:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39740 "EHLO
+        id S1351894AbjIEQ0W (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Sep 2023 12:26:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353916AbjIEIhg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Sep 2023 04:37:36 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 220CBCC7;
-        Tue,  5 Sep 2023 01:37:32 -0700 (PDT)
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3858bKZI009860;
-        Tue, 5 Sep 2023 08:37:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : cc :
- to : subject : from : message-id : date; s=pp1;
- bh=PftVLyxWaT5nKTiMLWpPAX2kgsuGTFwBaIE8EbFXHeY=;
- b=fNFujD3vYYzCuLtossVjwddcDwHhpcoynQm3BEWPdeELcldjjEoLxJ9sm8ZMoDiX9i4A
- dbDUCVjGKjNm1pLcbPXFd8x6w4ZHqwA0yXY8Sg79qahQSpCnk+hv1tbh+6n5e7dKMX0K
- /tyf3PVOyrXnsYpENAOek4UtzfYJ/o3bJjb6tf65bC7AbDAlZQAcuZiStKUNtQW5x5Iz
- vfGjOSF2hPmgSXaaXRL4+7iDYxldIoLRHtDvOcJA9Jk5He0KNakeBJYE6TNmph8DO66/
- O8yH3XwFNkh8CK0DzN3BD/GUiHyHlFGzRblzWzig3zrQYmU6hcQt6AWrH8JgUWQKz6nr sA== 
+        with ESMTP id S1354540AbjIEM1C (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Sep 2023 08:27:02 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 279521A8;
+        Tue,  5 Sep 2023 05:26:59 -0700 (PDT)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 385C96qN015703;
+        Tue, 5 Sep 2023 12:26:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ox06hk7Ma88m9/CpG4aJpbzd97a9hxVKMX7B1CxuL3M=;
+ b=Sj+O5BwvccH0UfhWTz4MUN2z09OUg9pzzjZW1dWWogxR0oX7z7Mq+grSmFprA31YoVvj
+ bg5DVt+dBY5+g84RWPtiWSyobM8KVd2pI1PEoiOEJ8HA8rUkHBam9tRhuIQwFZ2WfTTp
+ vJKOgOVFRI9qAmEXq3/SFvSfveYlm3nsku4jw10/y6S1Fj5tDTqBuWZZeHRA5aONtt4A
+ 1TUJ+dHjt/y02XY+ELyDJ2AWNQ0oDCD1ILYP1m6dvMlxyxzhtHtc+KYToSjfNtIDuER/
+ xNjpj9IfJ+vmJExg0nph5pvjkDQJfGneJ12isv3z5s4S+syP0+RYYwGHj0YZVTdsxXcg Ag== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3swxq4kbpr-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sww7425fx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Sep 2023 08:37:30 +0000
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3858bRJx010429;
-        Tue, 5 Sep 2023 08:37:27 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3swxq4kbj9-1
+        Tue, 05 Sep 2023 12:26:58 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 385C9M1h017345;
+        Tue, 5 Sep 2023 12:26:58 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sww7425fg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Sep 2023 08:37:27 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3856U7TC011138;
-        Tue, 5 Sep 2023 08:33:27 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3svj31gj2u-1
+        Tue, 05 Sep 2023 12:26:58 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 385BReGO001624;
+        Tue, 5 Sep 2023 12:26:57 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3svfcsju84-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Sep 2023 08:33:27 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3858XOdN19857932
+        Tue, 05 Sep 2023 12:26:57 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 385CQsnR18612898
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 5 Sep 2023 08:33:24 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9FD7C20043;
-        Tue,  5 Sep 2023 08:33:24 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 41ACF20040;
-        Tue,  5 Sep 2023 08:33:24 +0000 (GMT)
-Received: from t14-nrb (unknown [9.179.21.157])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  5 Sep 2023 08:33:24 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 5 Sep 2023 12:26:54 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 54FB020043;
+        Tue,  5 Sep 2023 12:26:54 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 00DCD20040;
+        Tue,  5 Sep 2023 12:26:54 +0000 (GMT)
+Received: from [9.171.57.58] (unknown [9.171.57.58])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue,  5 Sep 2023 12:26:53 +0000 (GMT)
+Message-ID: <68cf97bc-4b51-e8b4-5001-11a9ce19fa57@linux.ibm.com>
+Date:   Tue, 5 Sep 2023 14:26:53 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <a41f6fc29032d345b3c2f24e19f32282dd627e5c.camel@linux.ibm.com>
-References: <20230904130140.22006-1-nrb@linux.ibm.com> <a41f6fc29032d345b3c2f24e19f32282dd627e5c.camel@linux.ibm.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [kvm-unit-tests PATCH v6 2/8] s390x: add function to set DAT mode
+ for all interrupts
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>, imbrenda@linux.ibm.com,
+        thuth@redhat.com
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        borntraeger@linux.ibm.com, david@redhat.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com
-Subject: Re: [PATCH v3 0/2] KVM: s390: add counters for vsie performance
-From:   Nico Boehr <nrb@linux.ibm.com>
-Message-ID: <169390280362.97137.14761686200997364254@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Tue, 05 Sep 2023 10:33:23 +0200
+References: <20230904082318.1465055-1-nrb@linux.ibm.com>
+ <20230904082318.1465055-3-nrb@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20230904082318.1465055-3-nrb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: eFhMuOZ_4TVoN-a1nn2y-R_wCh0ncEMp
-X-Proofpoint-GUID: qkQFMT3OknUv3qlTW9fU39LqWPOCUC3k
+X-Proofpoint-GUID: Tbfdpbcp88yTT6Y7rb0FkMd5UuCs0Uyz
+X-Proofpoint-ORIG-GUID: 5FwTN1rxJKvIzYOdcKbxvC8V7K64Fl7b
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-09-05_07,2023-08-31_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
- priorityscore=1501 mlxscore=0 bulkscore=0 clxscore=1015 spamscore=0
- impostorscore=0 malwarescore=0 mlxlogscore=999 adultscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2308100000 definitions=main-2309050076
+ definitions=2023-09-05_10,2023-09-05_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
+ phishscore=0 bulkscore=0 spamscore=0 suspectscore=0 malwarescore=0
+ priorityscore=1501 mlxlogscore=839 adultscore=0 impostorscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2309050107
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Niklas Schnelle (2023-09-05 09:53:40)
-> On Mon, 2023-09-04 at 15:01 +0200, Nico Boehr wrote:
-> > v3:
-> > ---
-> > * rename te -> entry (David)
-> > * add counters for gmap reuse and gmap create (David)
-> >=20
-> > v2:
-> > ---
-> > * also count shadowing of pages (Janosch)
-> > * fix naming of counters (Janosch)
-> > * mention shadowing of multiple levels is counted in each level (Claudi=
-o)
-> > * fix inaccuate commit description regarding gmap notifier (Claudio)
-> >=20
-> > When running a guest-3 via VSIE, guest-1 needs to shadow the page table
-> > structures of guest-2.
-> >=20
-> > To reflect changes of the guest-2 in the _shadowed_ page table structur=
-es,
-> > the _shadowing_ sturctures sometimes need to be rebuilt. Since this is a
-> > costly operation, it should be avoided whenever possible.
-> >=20
-> > This series adds kvm stat counters to count the number of shadow gmaps
-> > created and a tracepoint whenever something is unshadowed. This is a fi=
-rst
-> > step to try and improve VSIE performance.
-> >=20
-> > Please note that "KVM: s390: add tracepoint in gmap notifier" has some
-> > checkpatch --strict findings. I did not fix these since the tracepoint
-> > definition would then look completely different from all the other
-> > tracepoints in arch/s390/kvm/trace-s390.h. If you want me to fix that,
-> > please let me know.
-> >=20
-> > While developing this, a question regarding the stat counters came up:
-> > there's usually no locking involved when the stat counters are incremen=
-ted.
-> > On s390, GCC accidentally seems to do the right thing(TM) most of the t=
-ime
-> > by generating a agsi instruction (which should be atomic given proper
-> > alignment). However, it's not guaranteed, so would we rather want to go
-> > with an atomic for the stat counters to avoid losing events? Or do we j=
-ust
-> > accept the fact that we might loose events sometimes? Is there anything
-> > that speaks against having an atomic in kvm_stat?
-> >=20
->=20
-> FWIW the PCI counters (/sys/kernel/debug/pci/<dev>/statistics) use
-> atomic64_add(). Also, s390's memory model is strong enough that these
-> are actually just normal loads/stores/adds (see
-> arch/s390/include/asm/atomic_ops.h) with the generic atomic64_xx()
-> adding debug instrumentation.
+On 9/4/23 10:22, Nico Boehr wrote:
+> When toggling DAT or switch address space modes, it is likely that
+> interrupts should be handled in the same DAT or address space mode.
+> 
+> Add a function which toggles DAT and address space mode for all
+> interruptions, except restart interrupts.
+> 
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 
-In KVM I am mostly concerned about the compiler since we just do counter++
-- right now this always seems to result in an agsi instruction, but that's
-of course not guaranteed.
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
