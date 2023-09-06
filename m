@@ -2,121 +2,109 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A940FEB8FD6
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Sep 2023 13:55:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79DE2C83F2D
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Sep 2023 14:45:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241278AbjIFNzu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Sep 2023 09:55:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52018 "EHLO
+        id S241844AbjIFOpP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Sep 2023 10:45:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239958AbjIFNzu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Sep 2023 09:55:50 -0400
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09EFBD7;
-        Wed,  6 Sep 2023 06:55:43 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R221e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VrU7-yS_1694008540;
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VrU7-yS_1694008540)
-          by smtp.aliyun-inc.com;
-          Wed, 06 Sep 2023 21:55:41 +0800
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        "D. Wythe" <alibuda@linux.alibaba.com>
-Subject: [RFC net-next 2/2] net/smc: remove locks smc_client_lgr_pending and smc_server_lgr_pending
-Date:   Wed,  6 Sep 2023 21:55:30 +0800
-Message-Id: <1694008530-85087-3-git-send-email-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1694008530-85087-1-git-send-email-alibuda@linux.alibaba.com>
-References: <1694008530-85087-1-git-send-email-alibuda@linux.alibaba.com>
+        with ESMTP id S237678AbjIFOpP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Sep 2023 10:45:15 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26769172C;
+        Wed,  6 Sep 2023 07:45:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1694011511; x=1725547511;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=HKIKo8gJxS6xNqAxkMxzWOKQ5+W7pcHDwu58cyKSvBQ=;
+  b=OOuPPinN4LxTy7L0QxtKdAySp8/EiQe3KsxeBqvNZ4pYOObCfFXJVc9B
+   dZpxbTWTNjEh0PvN54sMULJmc6lXBdVHI5ZCSP7Y+sOT4KCxglAK2kGZF
+   2HjQPUsmgsj/ZyUdu4sTIBAq5BqFSKE36RpUoHFrymA8gfaxlSTmq3sYP
+   67uid6ayaMNcqgpTyvDH8+zPoXChcIS91y5fJPCZS9mK1d8Gw9+cqt2uv
+   BA4bipRwXIQ5N+I/RKGea4iyuSLtJijMhobzHfNDLH0wH0CUguIIGn8M+
+   nv+ZjiKqlkt3I/IecfWUxJPpwWkYlTuQN3CsWxEV2sAUFA9Kc+Ihd2CMM
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10825"; a="357393634"
+X-IronPort-AV: E=Sophos;i="6.02,232,1688454000"; 
+   d="scan'208";a="357393634"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Sep 2023 07:45:10 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10825"; a="770777884"
+X-IronPort-AV: E=Sophos;i="6.02,232,1688454000"; 
+   d="scan'208";a="770777884"
+Received: from lmgabald-mobl2.amr.corp.intel.com (HELO [10.212.242.149]) ([10.212.242.149])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Sep 2023 07:45:09 -0700
+Message-ID: <d0d30ad4-7837-b0c4-39f4-3e317e35a41b@intel.com>
+Date:   Wed, 6 Sep 2023 07:45:09 -0700
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.0
+Subject: Re: [PATCH 3/8] arch/x86: Remove sentinel elem from ctl_table arrays
+Content-Language: en-US
+To:     j.granados@samsung.com, Luis Chamberlain <mcgrof@kernel.org>,
+        willy@infradead.org, josh@joshtriplett.org,
+        Kees Cook <keescook@chromium.org>,
+        Iurii Zaikin <yzaikin@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Guo Ren <guoren@kernel.org>
+Cc:     linux-fsdevel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+        linux-ia64@vger.kernel.org, linux-csky@vger.kernel.org
+References: <20230906-jag-sysctl_remove_empty_elem_arch-v1-0-3935d4854248@samsung.com>
+ <20230906-jag-sysctl_remove_empty_elem_arch-v1-3-3935d4854248@samsung.com>
+From:   Dave Hansen <dave.hansen@intel.com>
+In-Reply-To: <20230906-jag-sysctl_remove_empty_elem_arch-v1-3-3935d4854248@samsung.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: "D. Wythe" <alibuda@linux.alibaba.com>
+On 9/6/23 03:03, Joel Granados via B4 Relay wrote:
+> This commit comes at the tail end of a greater effort to remove the
+> empty elements at the end of the ctl_table arrays (sentinels) which
+> will reduce the overall build time size of the kernel and run time
+> memory bloat by ~64 bytes per sentinel (further information Link :
+> https://lore.kernel.org/all/ZO5Yx5JFogGi%2FcBo@bombadil.infradead.org/)
+> 
+> Remove sentinel element from sld_sysctl and itmt_kern_table.
 
-This patch attempts to remove locks named smc_client_lgr_pending and
-smc_server_lgr_pending, which aim to serialize the creation of link
-group. However, once link group existed already, those locks are
-meaningless, worse still, they make incoming connections have to be
-queued one after the other.
+There's a *LOT* of content to read for a reviewer to figure out what's
+going on here between all the links.  I would have appreciated one more
+sentence here, maybe:
 
-Before attempting to locking at xxx_lgr_pending, trying to invoke
-smc_conn_create() firstly but does not allow it to create link group.
-Once we found we MUST create link group, then we can make lock on it.
-In that way, we can skip meaningless lock.
+	This is now safe because the sysctl registration code
+	(register_sysctl()) implicitly uses ARRAY_SIZE() in addition
+	to checking for a sentinel.
 
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
----
- net/smc/smc_clc.h  |  1 +
- net/smc/smc_core.c | 28 ++++++++++++++++++++++++++--
- 2 files changed, 27 insertions(+), 2 deletions(-)
+That needs to be more prominent _somewhere_.  Maybe here, or maybe in
+the cover letter, but _somewhere_.
 
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index c5c8e7d..050484a 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -48,6 +48,7 @@
- #define SMC_CLC_DECL_RELEASEERR	0x03030009  /* release version negotiate failed */
- #define SMC_CLC_DECL_MAXCONNERR	0x0303000a  /* max connections negotiate failed */
- #define SMC_CLC_DECL_MAXLINKERR	0x0303000b  /* max links negotiate failed */
-+#define SMC_CLC_DECL_REQLGR	0x0303000c  /* required create link grou */
- #define SMC_CLC_DECL_MODEUNSUPP	0x03040000  /* smc modes do not match (R or D)*/
- #define SMC_CLC_DECL_RMBE_EC	0x03050000  /* peer has eyecatcher in RMBE    */
- #define SMC_CLC_DECL_OPTUNSUPP	0x03060000  /* fastopen sockopt not supported */
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index bd01dd3..76c82ae 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1863,8 +1863,7 @@ static bool smcd_lgr_match(struct smc_link_group *lgr,
- 	return lgr->peer_gid == peer_gid && lgr->smcd == smcismdev;
- }
- 
--/* create a new SMC connection (and a new link group if necessary) */
--int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
-+static int __smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini, bool create_lgr)
- {
- 	struct smc_connection *conn = &smc->conn;
- 	struct net *net = sock_net(&smc->sk);
-@@ -1927,6 +1926,8 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
- 
- create:
- 	if (ini->first_contact_local) {
-+		if (!create_lgr)
-+			return SMC_CLC_DECL_REQLGR;
- 		rc = smc_lgr_create(smc, ini);
- 		if (rc)
- 			goto out;
-@@ -1962,6 +1963,29 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
- 	return rc;
- }
- 
-+/* create a new SMC connection (and a new link group if necessary) */
-+int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
-+{
-+	int rc;
-+
-+	/* make no impact on SMCD */
-+	if (ini->is_smcd)
-+		goto locked;
-+
-+	/* try create conn without create lgr first */
-+	rc = __smc_conn_create(smc, ini, /* disallow create lgr */ false);
-+	if (!rc) {
-+		/* not rely on new lgr, unlock lgr pending lock in advance. */
-+		smc_lgr_pending_unlock(ini, ini->mutex);
-+		return 0;
-+	} else if (rc != SMC_CLC_DECL_REQLGR) {
-+		/* that's unexcepted error */
-+		return rc;
-+	}
-+locked:
-+	return __smc_conn_create(smc, ini, /* create lgr if needed */ true);
-+}
-+
- #define SMCD_DMBE_SIZES		6 /* 0 -> 16KB, 1 -> 32KB, .. 6 -> 1MB */
- #define SMCR_RMBE_SIZES		5 /* 0 -> 16KB, 1 -> 32KB, .. 5 -> 512KB */
- 
--- 
-1.8.3.1
+That said, feel free to add this to the two x86 patches:
 
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com> # for x86
