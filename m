@@ -2,97 +2,93 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A153DEC8738
-	for <linux-s390@archiver.kernel.org>; Thu,  7 Sep 2023 16:20:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AD54EC8726
+	for <linux-s390@archiver.kernel.org>; Thu,  7 Sep 2023 18:03:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231410AbjIGQUR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 7 Sep 2023 12:20:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54598 "EHLO
+        id S232716AbjIGSDG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 7 Sep 2023 14:03:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239790AbjIGQTy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Sep 2023 12:19:54 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5E26B186;
-        Thu,  7 Sep 2023 08:46:38 -0700 (PDT)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3878cUaV000863;
-        Thu, 7 Sep 2023 08:50:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references :
- subject : from : cc : to : message-id : date; s=pp1;
- bh=dFCc0qTzdrwocEFsIvYEmIazAX+uga/LQ0XFfx6bZ88=;
- b=oAo/j4yONZbUSveEubI2aOck2s8VuNJaOrGzLLPkZfWcoqqyXJp+gsKBX7uMrQ3u+H5U
- j2v94I6epJWe8amRHfcQA9KfMKIPbZnL0x4PB8wULDZI6iMPzveB/gOLpEjDJfq5lZZN
- lT4NdO8X5BBNuKqYW2JGIRSEVtwjg8mLSgb5G785uioblkJJomxezK/T7dYD2OYH0IEH
- G4e+wB2EUXCxxAy2MTJqs2GCpRvtUEZeGg5/s+R2BJegxgnKm3+nhtm+Q/sy8LujVILK
- Wy7man1Ps2dVqZLATpMGHNDhC8CFWJRv4vcvfZVOeCku0SN11Yr9s2Vp9DtHhDvLNT7H Uw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3syay10g9y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Sep 2023 08:50:37 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3878cdcP001441;
-        Thu, 7 Sep 2023 08:50:36 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3syay10g9q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Sep 2023 08:50:36 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3878eq1x026756;
-        Thu, 7 Sep 2023 08:50:35 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3svgcnt9d4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Sep 2023 08:50:35 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3878oWqA35651852
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 7 Sep 2023 08:50:32 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1F6A220040;
-        Thu,  7 Sep 2023 08:50:32 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 001F52004E;
-        Thu,  7 Sep 2023 08:50:31 +0000 (GMT)
-Received: from t14-nrb (unknown [9.179.12.47])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu,  7 Sep 2023 08:50:31 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S241371AbjIGSDE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Sep 2023 14:03:04 -0400
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1A561FEA
+        for <linux-s390@vger.kernel.org>; Thu,  7 Sep 2023 11:02:44 -0700 (PDT)
+Received: by mail-ej1-x633.google.com with SMTP id a640c23a62f3a-99bf1f632b8so158682766b.1
+        for <linux-s390@vger.kernel.org>; Thu, 07 Sep 2023 11:02:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1694109763; x=1694714563; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=hPr/PaYxGMdYMFVhUkN8avwnHv5koLDyq16882quvVs=;
+        b=Rr2Zemtulye/lWWXa06FG3k1XRm+VmE+zVWUtEYXFjGAU0ZQXoPFanl7kHIsKDbMXk
+         iadWQ2A9sZz9KtPeXbKvIDNj9Yg1xQQChiQYc85AqhIiU2qdd2bksWvwx/TM+by0KVEJ
+         tmdFMbRDpkjeoJWQ3Yxr5wrP6BXL7lgz+Z2Ss=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1694109763; x=1694714563;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=hPr/PaYxGMdYMFVhUkN8avwnHv5koLDyq16882quvVs=;
+        b=wEhLk62rKFkobfWvLwjaHTvsk/4PXQEfPujto+Sj/+sK7vJ+Ca6LZs5cUvIly90LyS
+         +Y3t7wwmNUS9mgpDdulAinVapUuHZj5Myr4hBZodZGaLDER2LAAfJWhZszj4TBAl9Jmr
+         9gZpXoiEtzHCoM5L+2tVuYs7JfNZDBRngaKTjqKEMbuIijprK61HlcwBG0yj144lLzE7
+         ieX/ds89cNjrQDqtx04nqweNLFSjiWU6oQgsyI2ZOaAergUwQvzpR1f19b7CPRdhmfnd
+         kQPjFIJCfNNZJu1Txo/M0292yMVKgFFAuRL7iOeP5tm1H/MyP+33XSR5VJCx1X+OPpxl
+         y/Rg==
+X-Gm-Message-State: AOJu0Yw8PHf3aJraOheAP2ynqZ13DF+M5WYV7urFLgY//Or4JAT2Qpcp
+        rYWg+XS4z1pUe1QZvK453LOaPz5LQNp1QdSMD23CqooU
+X-Google-Smtp-Source: AGHT+IH1NzMdWcFlyJvgCxUrl58uKCXrCElYaqMRMPYSx99KnWLnrj0YnqGgxjG/vnUb2RDTBiafkQ==
+X-Received: by 2002:a17:907:7795:b0:9a1:db97:62a1 with SMTP id ky21-20020a170907779500b009a1db9762a1mr76291ejc.46.1694109762595;
+        Thu, 07 Sep 2023 11:02:42 -0700 (PDT)
+Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com. [209.85.208.47])
+        by smtp.gmail.com with ESMTPSA id fx4-20020a170906b74400b009887f4e0291sm10676064ejb.27.2023.09.07.11.02.41
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 07 Sep 2023 11:02:41 -0700 (PDT)
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-52a4737a08fso1640822a12.3
+        for <linux-s390@vger.kernel.org>; Thu, 07 Sep 2023 11:02:41 -0700 (PDT)
+X-Received: by 2002:a05:6402:1644:b0:522:29d3:4185 with SMTP id
+ s4-20020a056402164400b0052229d34185mr44289edx.32.1694109760777; Thu, 07 Sep
+ 2023 11:02:40 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <411a4c35-4f65-c166-0eb0-994b8e39f9c6@redhat.com>
-References: <20230904130140.22006-1-nrb@linux.ibm.com> <a41f6fc29032d345b3c2f24e19f32282dd627e5c.camel@linux.ibm.com> <169390280362.97137.14761686200997364254@t14-nrb> <411a4c35-4f65-c166-0eb0-994b8e39f9c6@redhat.com>
-Subject: Re: [PATCH v3 0/2] KVM: s390: add counters for vsie performance
-From:   Nico Boehr <nrb@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-To:     David Hildenbrand <david@redhat.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com
-Message-ID: <169407663163.12126.3803431831591387133@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Thu, 07 Sep 2023 10:50:31 +0200
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: BhrJnjoYTD1nFzWJQvZ5BqKEbpcnCZqd
-X-Proofpoint-GUID: cIKtLQdGh3AmXR6UWn-yP6R12VeXYDi0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-09-06_12,2023-09-05_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=437
- lowpriorityscore=0 bulkscore=0 adultscore=0 phishscore=0 spamscore=0
- malwarescore=0 clxscore=1015 priorityscore=1501 suspectscore=0
- impostorscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2308100000 definitions=main-2309070074
+References: <20230907112743.6134-E-hca@linux.ibm.com>
+In-Reply-To: <20230907112743.6134-E-hca@linux.ibm.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Thu, 7 Sep 2023 11:02:23 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wgZP5uKXLmunUNotMo0cXhz=un5BzB_fB4zaefVR2Ex2Q@mail.gmail.com>
+Message-ID: <CAHk-=wgZP5uKXLmunUNotMo0cXhz=un5BzB_fB4zaefVR2Ex2Q@mail.gmail.com>
+Subject: Re: [GIT PULL] more s390 updates for 6.6 merge window
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting David Hildenbrand (2023-09-06 09:37:28)
-[...]
-> Right, the compiler can do what it wants with that. The question is if=20
-> we care about a slight imprecision, though.
->=20
-> Probably not worth the trouble for something that never happens and is=20
-> only used for debugging purposes.
+On Thu, 7 Sept 2023 at 04:27, Heiko Carstens <hca@linux.ibm.com> wrote:
+>
+>   Note that the set_memory_xx() family comes with an int num_pages
+>   parameter which overflows with 8TB. This could be addressed by
+>   changing the num_pages parameter to unsigned long, however requires
+>   to change all architectures, since the module code expects an int
+>   parameter (see module_set_memory()).
 
-Yep, probably true. Thanks!
+Bah. We should just do this. Change the 'start' to a pointer, and
+change the page count to 'unsigned long'.
+
+Changing module_set_memory() to take the right kind of function
+pointer looks trivial too.
+
+I'm not even sure why we did that "unsigned long addr" thing, but I
+assume it is because of our (very very _very_ old) historical
+get_free_pages() model.
+
+We should probably change get_free_pages() too, but that literally
+goes back to linux-0.01. It's horrendously bad, but it's _very_
+traditional, and it comes from the VM code historically using bitops
+on the page pointers.
+
+           Linus
