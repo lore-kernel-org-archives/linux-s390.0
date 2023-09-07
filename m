@@ -2,136 +2,179 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 100A3EC8741
-	for <linux-s390@archiver.kernel.org>; Thu,  7 Sep 2023 15:46:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81AE4EC8740
+	for <linux-s390@archiver.kernel.org>; Thu,  7 Sep 2023 15:46:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233150AbjIGPqY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 7 Sep 2023 11:46:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35464 "EHLO
+        id S233160AbjIGPq3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 7 Sep 2023 11:46:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344305AbjIGPcw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Sep 2023 11:32:52 -0400
+        with ESMTP id S245437AbjIGP3b (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Sep 2023 11:29:31 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 116EA10F7;
-        Thu,  7 Sep 2023 08:32:35 -0700 (PDT)
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3879caOR000951;
-        Thu, 7 Sep 2023 10:00:54 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE96C198E;
+        Thu,  7 Sep 2023 08:29:02 -0700 (PDT)
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 387B7BH4026681;
+        Thu, 7 Sep 2023 11:27:50 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=I6yKRPq+c/Elou32cUh1duley7ZNzCzx4dQ/LkpfUxA=;
- b=DHZPQ3XGt33x5GrsId/vXYrG/iE6E+gLrOKL+U/VBJeW1vQgM6j4lPAkPytg5yNyn4yC
- NnLZ5I7eNikiD1CNmPx8keD5poJzm+agENSTbS0nTQ9Suh3Z74JOzOoxlyxj6w4UuPDe
- 6FGh3s703rP9WxKOILztdPuC6HHT3j0oU/XrJGheS6W5kfMlMLbcLsZNXiXPTIPa+X8k
- Dd/VnjBmIij+CBeIxHBAsYfT8aUL+BWpmN1xeapO8VO+rKi7r/QP2ks34gKCEgzCz+qQ
- l3l+d10nbE06eDslOYbDPbHR3lzBRFReLxGBevEkdsg3sN5IUhD94CoFPZFOVRgYkv+a Bg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sybvkrphg-1
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=jghDJWKbU4WyoWwwYDICU+1lrxq0o3QcDHslt8jbfR0=;
+ b=S2jItPlh63GkqXH+Ac6KQYkvClORfuukyAjFgrFvj9fUgFM6Zl/6IsL87x69bRYmW+Qs
+ R0sYrj49cgamKgtnjzJtXSyMNRbpC54Z9R2Qc5I44g2W5R4VsiyE0L/5yTlw87hAOSbY
+ vvfh1EzOb5kmA0mSUVPVOdUMrPAzvoiIvpt6/r2SA/niatPv0vjD5aZhp33N2b/rjsqH
+ JbO4bgrZzzjLXEuay7RX5eP6ytC2OpermG/+ibZbjbOAVMRFtYuJCtSdkNipckcRh/xn
+ FVoTKyuAeSHYyVx3gdCy2wQ5hox4dI9asoeb7VFjm3+qm9+MApoiobR4WUUfsGKPXz5m hQ== 
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3syd5agv4j-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Sep 2023 10:00:53 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3879cqIs002126;
-        Thu, 7 Sep 2023 10:00:52 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sybvkrpe2-9
+        Thu, 07 Sep 2023 11:27:50 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3879A73f006603;
+        Thu, 7 Sep 2023 11:27:49 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3svgvktyeb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Sep 2023 10:00:52 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3877lVZc021441;
-        Thu, 7 Sep 2023 09:08:22 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3svfrytjyw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Sep 2023 09:08:22 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38798JP624511186
+        Thu, 07 Sep 2023 11:27:49 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 387BRknG45220494
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 7 Sep 2023 09:08:19 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 24B6E20067;
-        Thu,  7 Sep 2023 09:08:19 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9BBF92006C;
-        Thu,  7 Sep 2023 09:08:16 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.70.29])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu,  7 Sep 2023 09:08:16 +0000 (GMT)
-Date:   Thu, 7 Sep 2023 11:08:15 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     j.granados@samsung.com
-Cc:     Luis Chamberlain <mcgrof@kernel.org>, willy@infradead.org,
-        josh@joshtriplett.org, Kees Cook <keescook@chromium.org>,
-        Iurii Zaikin <yzaikin@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Guo Ren <guoren@kernel.org>, linux-fsdevel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-        linux-ia64@vger.kernel.org, linux-csky@vger.kernel.org
-Subject: Re: [PATCH 1/8] S390: Remove sentinel elem from ctl_table arrays
-Message-ID: <ZPmS/zkAs66pLcum@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20230906-jag-sysctl_remove_empty_elem_arch-v1-0-3935d4854248@samsung.com>
- <20230906-jag-sysctl_remove_empty_elem_arch-v1-1-3935d4854248@samsung.com>
+        Thu, 7 Sep 2023 11:27:46 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AB49420043;
+        Thu,  7 Sep 2023 11:27:46 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8173920040;
+        Thu,  7 Sep 2023 11:27:46 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.60])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Thu,  7 Sep 2023 11:27:46 +0000 (GMT)
+Date:   Thu, 7 Sep 2023 13:27:43 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] more s390 updates for 6.6 merge window
+Message-ID: <20230907112743.6134-E-hca@linux.ibm.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230906-jag-sysctl_remove_empty_elem_arch-v1-1-3935d4854248@samsung.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: GQagwlLX8g4Qk39DU96L0orHwbmZ3MCK
-X-Proofpoint-GUID: zMgjc5iBGTBt0dXVXUPsKepJtgT9tqBy
+X-Proofpoint-GUID: YDH4etDBfsDpwKTaYlLnxH1yd0gP19s0
+X-Proofpoint-ORIG-GUID: YDH4etDBfsDpwKTaYlLnxH1yd0gP19s0
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-09-07_01,2023-09-05_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 mlxscore=0 phishscore=0 bulkscore=0 clxscore=1011
- mlxlogscore=794 spamscore=0 suspectscore=0 impostorscore=0 adultscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2308100000 definitions=main-2309070084
+ definitions=2023-09-07_04,2023-09-05_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
+ priorityscore=1501 lowpriorityscore=0 suspectscore=0 clxscore=1015
+ phishscore=0 spamscore=0 malwarescore=0 mlxlogscore=999 impostorscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2309070098
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Sep 06, 2023 at 12:03:22PM +0200, Joel Granados via B4 Relay wrote:
-> From: Joel Granados <j.granados@samsung.com>
-> 
-> This commit comes at the tail end of a greater effort to remove the
-> empty elements at the end of the ctl_table arrays (sentinels) which
-> will reduce the overall build time size of the kernel and run time
-> memory bloat by ~64 bytes per sentinel (further information Link :
-> https://lore.kernel.org/all/ZO5Yx5JFogGi%2FcBo@bombadil.infradead.org/)
-> 
-> Remove the sentinel element from appldata_table, s390dbf_table,
-> topology_ctl_table, cmm_table and page_table_sysctl. Reduced the
-> memory allocation in appldata_register_ops by 1 effectively removing the
-> sentinel from ops->ctl_table.
-> 
-> Signed-off-by: Joel Granados <j.granados@samsung.com>
-> ---
->  arch/s390/appldata/appldata_base.c | 6 ++----
->  arch/s390/kernel/debug.c           | 3 +--
->  arch/s390/kernel/topology.c        | 3 +--
->  arch/s390/mm/cmm.c                 | 3 +--
->  arch/s390/mm/pgalloc.c             | 3 +--
->  5 files changed, 6 insertions(+), 12 deletions(-)
+Hi Linus,
 
-Tested-by: Alexander Gordeev <agordeev@linux.ibm.com>
+please pull a couple of additional s390 patches for the 6.6 merge
+window.
+
+Thanks,
+Heiko
+
+The following changes since commit e5b7ca09e9aa4d483ab84c5f2ba88f0cc7c66540:
+
+  Merge tag 's390-6.6-1' of git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux (2023-08-28 17:22:39 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.6-2
+
+for you to fetch changes up to 06fc3b0d2251b550f530a1c42e0f9c5d022476dd:
+
+  s390/vmem: do not silently ignore mapping limit (2023-09-05 20:12:52 +0200)
+
+----------------------------------------------------------------
+more s390 updates for 6.6 merge window
+
+- Couple of virtual vs physical address confusion fixes
+
+- Rework locking in dcssblk driver to address a lockdep warning
+
+- Remove support for "noexec" kernel command line option since there
+  is no use case where it would make sense
+
+- Simplify kernel mapping setup and get rid of quite a bit of code
+
+- Add architecture specific __set_memory_yy() functions which allow to
+  modify kernel mappings. Unlike the set_memory_xx() variants they
+  take void pointer start and end parameters, which allows to use them
+  without the usual casts, and also to use them on areas larger than
+  8TB.
+  Note that the set_memory_xx() family comes with an int num_pages
+  parameter which overflows with 8TB. This could be addressed by
+  changing the num_pages parameter to unsigned long, however requires
+  to change all architectures, since the module code expects an int
+  parameter (see module_set_memory()).
+  This was indeed an issue since for debug_pagealloc() we call
+  set_memory_4k() on the whole identity mapping. Therefore address
+  this for now with the __set_memory_yy() variant, and address common
+  code later
+
+- Use dev_set_name() and also fix memory leak in zcrypt driver error
+  handling
+
+- Remove unused lsi_mask from airq_struct
+
+- Add warning for invalid kernel mapping requests
+
+----------------------------------------------------------------
+Alexander Gordeev (3):
+      s390/vmem: fix virtual vs physical address confusion
+      s390/mm: fix MAX_DMA_ADDRESS physical vs virtual confusion
+      s390/vmem: do not silently ignore mapping limit
+
+Andy Shevchenko (2):
+      s390/zcrypt: don't leak memory if dev_set_name() fails
+      s390/zcrypt: utilize dev_set_name() ability to use a formatted string
+
+Benjamin Block (1):
+      s390/airq: remove lsi_mask from airq_struct
+
+Gerald Schaefer (2):
+      s390/monreader: fix virtual vs physical address confusion
+      s390/dcssblk: fix lockdep warning
+
+Heiko Carstens (7):
+      s390: remove "noexec" option
+      s390/mm: simplify kernel mapping setup
+      s390/amode31: change type of __samode31, __eamode31, etc
+      s390/mm: improve description of mapping permissions of prefix pages
+      s390/set_memory: generate all set_memory() functions
+      s390/set_memory: add __set_memory() variant
+      s390/mm: use __set_memory() variants where useful
+
+ arch/s390/boot/ipl_parm.c          |   7 --
+ arch/s390/boot/startup.c           |   4 +-
+ arch/s390/boot/vmem.c              |  12 ++-
+ arch/s390/include/asm/airq.h       |   1 -
+ arch/s390/include/asm/dma.h        |   2 +-
+ arch/s390/include/asm/sections.h   |   4 +-
+ arch/s390/include/asm/set_memory.h |  64 ++++++++--------
+ arch/s390/include/asm/setup.h      |   1 -
+ arch/s390/kernel/early.c           |   5 +-
+ arch/s390/kernel/machine_kexec.c   |   4 +-
+ arch/s390/kernel/setup.c           |  17 ++---
+ arch/s390/kvm/interrupt.c          |   3 +-
+ arch/s390/mm/dump_pagetables.c     |   4 +-
+ arch/s390/mm/init.c                |   4 +-
+ arch/s390/mm/pageattr.c            |   2 +-
+ arch/s390/mm/vmem.c                | 148 ++++++-------------------------------
+ drivers/s390/block/dcssblk.c       |  13 ++--
+ drivers/s390/char/monreader.c      |  12 ++-
+ drivers/s390/cio/airq.c            |   4 +-
+ drivers/s390/crypto/zcrypt_api.c   |  11 +--
+ drivers/s390/virtio/virtio_ccw.c   |   1 -
+ 21 files changed, 99 insertions(+), 224 deletions(-)
