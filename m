@@ -2,122 +2,151 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 526D6EE57E6
-	for <linux-s390@archiver.kernel.org>; Fri,  8 Sep 2023 09:02:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41DDFEE57E8
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Sep 2023 09:10:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238816AbjIHJCX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 8 Sep 2023 05:02:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43978 "EHLO
+        id S241028AbjIHJKS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 8 Sep 2023 05:10:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229844AbjIHJCX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Sep 2023 05:02:23 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47B341BC8;
-        Fri,  8 Sep 2023 02:02:19 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9FA3C433C9;
-        Fri,  8 Sep 2023 09:02:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1694163739;
-        bh=rRKEvIB0lVb2uGUWPoA0+XeAQvNtg/fARJrpqhmZI3E=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=bOXNj24SHdKL79z6qfM1jz0YMFFEnZqcAWfQGXW2LdIVaQDbeY0DQhD5/JprtiyDj
-         5D1k99+9Ug9dFN3lpUVgUMFb+noK4GaCPvJKFCJwg7T2e2+JUsNC8ryA59UAI/MjA+
-         nhZly7RSUCbgUDXu5rbOkRxYN7fIeaweU9f951Eubr4hYUupmCp3r0d0X0xr56GoG7
-         TSWC4FWPFYAvPS4fSD21+7m/TJTDKv1lgcMSbfjITw67g2TtEjYcmoKItUG7Y97Hw0
-         VZNeNKEm7ZluvzqobouSn1v3ioXDS3dPfdRUJCnjtDuu6e2FCsvfTpz6bPkSMQxquU
-         qkfRaTdEcE2/w==
-Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-99c4923195dso225185366b.2;
-        Fri, 08 Sep 2023 02:02:18 -0700 (PDT)
-X-Gm-Message-State: AOJu0YzYmmn3N0eJ86RY5UVSHuEGe+d4IgMAB/ImN5j7vzi/Vz9f9yFn
-        iUsjCB6DYZbEYE+aeyfhtgSAlHG1MfyORDaVyE4=
-X-Google-Smtp-Source: AGHT+IHIxkho9CXfRVQdHREUP1Ny9xnSRZ4p9AxmPd+t8Z6hWpbhNEsJKkVWz7HAOHHA2nwechuLx9pmYabZgwNqZ0U=
-X-Received: by 2002:a17:906:18aa:b0:9a1:c42e:5e5e with SMTP id
- c10-20020a17090618aa00b009a1c42e5e5emr1264248ejf.42.1694163717201; Fri, 08
- Sep 2023 02:01:57 -0700 (PDT)
+        with ESMTP id S240567AbjIHJKR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Sep 2023 05:10:17 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A900A1BF1;
+        Fri,  8 Sep 2023 02:10:05 -0700 (PDT)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38896c9I022792;
+        Fri, 8 Sep 2023 09:10:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=HSal6POAnTxn4mXSUvG2CN7NaUOa+qNP4LeSP48EDWM=;
+ b=FsqE/aqh4Htlvy5K5IDfkOdm4dNL0HZj8Ont5o9uhPVs5xfS1LrgKqUSHB7mb0qeLDf/
+ NAfrSNZ8q52U5EB9RjGKSPBP8kNu7/VPtmw+QhHqp73TYc6D6Mf3KbAd2Io1liWnKxRV
+ q2XLqpqSFjevqbPgn9WIq++NToAnzApBPZgc/3oPC+mKwCdVQSsE3MOAa1eRI2p6kTwF
+ ixAEQxPoojdIkHWJxKdc614BZlwJhj5dGvfk6xuj7Rttz41wMDREloL4chySSpIFPsJi
+ d0Yy2F+7fQM+8NyJwhWjrTuyXKwlTjitdW7j42tUVezhu3wT2Ue3rzxBsdd3tWZoEFbd eA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t00gw0d2g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 08 Sep 2023 09:10:01 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38896t9k025091;
+        Fri, 8 Sep 2023 09:08:23 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t00gw0985-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 08 Sep 2023 09:08:22 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3888ipmn006651;
+        Fri, 8 Sep 2023 09:07:41 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3svgvm2ahm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 08 Sep 2023 09:07:41 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38897bJw45351550
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 8 Sep 2023 09:07:37 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CC70920043;
+        Fri,  8 Sep 2023 09:07:37 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4349820040;
+        Fri,  8 Sep 2023 09:07:37 +0000 (GMT)
+Received: from [9.171.2.42] (unknown [9.171.2.42])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri,  8 Sep 2023 09:07:37 +0000 (GMT)
+Message-ID: <794f9f68-4671-5e5e-45e4-2c8a4de568b3@linux.ibm.com>
+Date:   Fri, 8 Sep 2023 11:07:36 +0200
 MIME-Version: 1.0
-References: <20230906-jag-sysctl_remove_empty_elem_arch-v1-0-3935d4854248@samsung.com>
- <20230906-jag-sysctl_remove_empty_elem_arch-v1-8-3935d4854248@samsung.com>
-In-Reply-To: <20230906-jag-sysctl_remove_empty_elem_arch-v1-8-3935d4854248@samsung.com>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Fri, 8 Sep 2023 17:01:44 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTRFrd4zs_8vv5-n5p_+GYxnTJcRBtYDJaMZQQMOVKKOTw@mail.gmail.com>
-Message-ID: <CAJF2gTRFrd4zs_8vv5-n5p_+GYxnTJcRBtYDJaMZQQMOVKKOTw@mail.gmail.com>
-Subject: Re: [PATCH 8/8] c-sky: rm sentinel element from ctl_talbe array
-To:     j.granados@samsung.com
-Cc:     Luis Chamberlain <mcgrof@kernel.org>, willy@infradead.org,
-        josh@joshtriplett.org, Kees Cook <keescook@chromium.org>,
-        Iurii Zaikin <yzaikin@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        linux-fsdevel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-        linux-ia64@vger.kernel.org, linux-csky@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.0
+Subject: Re: [RFC net-next 0/2] Optimize the parallelism of SMC-R connections
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1694008530-85087-1-git-send-email-alibuda@linux.alibaba.com>
+Content-Language: en-US
+From:   Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <1694008530-85087-1-git-send-email-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Ep2os8SGSnpKYVSyUgwoH1m4iVvcnAdH
+X-Proofpoint-GUID: ADbQ_6StDG1LXKn67n6JzCEta4tr6Ga-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
+ definitions=2023-09-08_06,2023-09-05_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ priorityscore=1501 impostorscore=0 malwarescore=0 mlxscore=0 adultscore=0
+ clxscore=1011 bulkscore=0 suspectscore=0 spamscore=0 mlxlogscore=734
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2309080083
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Acked-by: Guo Ren <guoren@kernel.org>
-
-On Wed, Sep 6, 2023 at 6:04=E2=80=AFPM Joel Granados via B4 Relay
-<devnull+j.granados.samsung.com@kernel.org> wrote:
->
-> From: Joel Granados <j.granados@samsung.com>
->
-> This commit comes at the tail end of a greater effort to remove the
-> empty elements at the end of the ctl_table arrays (sentinels) which
-> will reduce the overall build time size of the kernel and run time
-> memory bloat by ~64 bytes per sentinel (further information Link :
-> https://lore.kernel.org/all/ZO5Yx5JFogGi%2FcBo@bombadil.infradead.org/)
->
-> Remove sentinel from alignment_tbl ctl_table array.
->
-> Signed-off-by: Joel Granados <j.granados@samsung.com>
-> ---
->  arch/csky/abiv1/alignment.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/arch/csky/abiv1/alignment.c b/arch/csky/abiv1/alignment.c
-> index b60259daed1b..0d75ce7b0328 100644
-> --- a/arch/csky/abiv1/alignment.c
-> +++ b/arch/csky/abiv1/alignment.c
-> @@ -328,8 +328,7 @@ static struct ctl_table alignment_tbl[5] =3D {
->                 .maxlen =3D sizeof(align_usr_count),
->                 .mode =3D 0666,
->                 .proc_handler =3D &proc_dointvec
-> -       },
-> -       {}
-> +       }
->  };
->
->  static int __init csky_alignment_init(void)
->
-> --
-> 2.30.2
->
 
 
---=20
-Best Regards
- Guo Ren
+On 06.09.23 15:55, D. Wythe wrote:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
+> 
+> This patchset attempts to optimize the parallelism of SMC-R connections
+> in quite a SIMPLE way, reduce unnecessary blocking on locks.
+> 
+> According to Off-CPU statistics, SMC worker's off-CPU statistics
+> as that: 
+> 
+> smc_listen_work 			(48.17%)
+> 	__mutex_lock.isra.11 		(47.96%)
+> 
+> An ideal SMC-R connection process should only block on the IO events
+> of the network, but it's quite clear that the SMC-R connection now is
+> queued on the lock most of the time.
+> 
+> Before creating a connection, we always try to see if it can be
+> successfully created without allowing the creation of an lgr,
+> if so, it means it does not rely on new link group.
+> In other words, locking on xxx_lgr_pending is not necessary
+> any more.
+> 
+> Noted that removing this lock will not have an immediate effect
+> in the current version, as there are still some concurrency issues
+> in the SMC handshake phase. However, regardless, removing this lock
+> is a prerequisite for other optimizations.
+> 
+> If you have any questions or suggestions, please let me know.
+> 
+> D. Wythe (2):
+>   net/smc: refactoring lgr pending lock
+>   net/smc: remove locks smc_client_lgr_pending and
+>     smc_server_lgr_pending
+> 
+>  net/smc/af_smc.c   | 24 ++++++++++++------------
+>  net/smc/smc_clc.h  |  1 +
+>  net/smc/smc_core.c | 28 ++++++++++++++++++++++++++--
+>  net/smc/smc_core.h | 21 +++++++++++++++++++++
+>  4 files changed, 60 insertions(+), 14 deletions(-)
+> 
+
+
+I have to admit that locking in SMC is quite confusing to me, so this is just my thougths.
+
+Your proposal seems to make things even more complex.
+
+I understand the goal to optimize parallelism.
+Today we have the global smc_server/client_lgr_pending AND smc_lgr_list.lock (and more).
+There seems to be some overlpa in scope..
+Maybe there is some way to reduce the length of the locked paths?
+Or use other mechanisms than the big fat smc_server/client_lgr_pending mutex?
+e.g.
+If you think you can unlock after __smc_conn_create in the re-use-existing_LGR case,
+why is the lock needed until after smc_clc_send_confirm in the new-LGR case??
+
+
+Your use of storing the global lock per ini and then double-freeing it sometimes,
+seems a bit homebrewed, though.
+E.g. I'm afraid the existing lock checking algorithms could not verify this pattern.
+
