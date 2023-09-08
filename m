@@ -2,46 +2,46 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1705EEB562
-	for <linux-s390@archiver.kernel.org>; Fri,  8 Sep 2023 18:01:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5C2AEEB560
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Sep 2023 18:03:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238089AbjIHSBQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 8 Sep 2023 14:01:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49800 "EHLO
+        id S236548AbjIHSDc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 8 Sep 2023 14:03:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245489AbjIHSBP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Sep 2023 14:01:15 -0400
+        with ESMTP id S245727AbjIHSDX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Sep 2023 14:03:23 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DCF726BB;
-        Fri,  8 Sep 2023 11:00:39 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F5EC433CB;
-        Fri,  8 Sep 2023 18:00:33 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E18126A5;
+        Fri,  8 Sep 2023 11:02:49 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3866EC43395;
+        Fri,  8 Sep 2023 18:01:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1694196034;
+        s=k20201202; t=1694196095;
         bh=w6qHlNyMN4kEXbZIw0AZpfeiBoj3N8yPUsiJu+tEJe4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F7/Br+mI7rt8Uf8q27pxvoDZ4Gl1uSM1jTRWR/4u2RRI49bL2aNZJZ6/7XQxC3cwF
-         VAdskm46/fmrbqDKjIWcTFT9YuvsYxC2vk9A/q5VuNURiUN1nPa3m/c+bL1N4/ItEC
-         xN2dXiY5CX1CBvEI+Ec1zdVyBXhVXn4YMB+3V/wO10j7RgpmCcpQ8VPrP5Lau5iYUg
-         CvR05tbAbCCXe9Fct1KF+zYQ91TR0P58TUPVeOAIfyQNjjlxvxQugTftuRr9x/UmVp
-         aNrk6bHbf6kqB8Ea0D4LU6vzNgBN61tcyWS8q/NP2qvJDnHaRBy1Dn6AnSn3oI0ivo
-         bctNaqJI1Ljzw==
+        b=ByE9QECGOQVCSAeaw041aGnfx/KLkCtgqGzVlUQsQUfHCcI4KPXuB2IyDSz4Mwzja
+         WPZGID9n88nTGVnBI+GULLWJWuwX8r7OPBkMgsSBQnAG5lOv0waJ6+mQQGQxflirtu
+         HCwmj1kdRg6jvmgXbLcklnd2yXYhac0oSckyB5XcOyBaDjPaHlaQHyw42JsGfvmfTE
+         5R/S6yhuZaA8qsRo3P+zdSBPOnjJ95NNJxpuzOrGJqRKVs0Cnz5koWM7pK+0YUuKpH
+         K3qnHgynLcTY+JtLpYQHMYpZf8sgkKRE5bV7TjDVmPX811vE94i5fwbQpbn0291ktJ
+         k73u8Yfw+h7fw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
         linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.5 09/16] s390/boot: cleanup number of page table levels setup
-Date:   Fri,  8 Sep 2023 13:59:46 -0400
-Message-Id: <20230908175953.3457942-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.4 07/13] s390/boot: cleanup number of page table levels setup
+Date:   Fri,  8 Sep 2023 14:00:53 -0400
+Message-Id: <20230908180100.3458151-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230908175953.3457942-1-sashal@kernel.org>
-References: <20230908175953.3457942-1-sashal@kernel.org>
+In-Reply-To: <20230908180100.3458151-1-sashal@kernel.org>
+References: <20230908180100.3458151-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.5.2
+X-stable-base: Linux 6.4.15
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
