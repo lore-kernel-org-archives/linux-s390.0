@@ -2,151 +2,123 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41DDFEE57E8
-	for <linux-s390@archiver.kernel.org>; Fri,  8 Sep 2023 09:10:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D5B6EE57EC
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Sep 2023 09:42:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241028AbjIHJKS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 8 Sep 2023 05:10:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60254 "EHLO
+        id S233391AbjIHJmu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 8 Sep 2023 05:42:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240567AbjIHJKR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Sep 2023 05:10:17 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A900A1BF1;
-        Fri,  8 Sep 2023 02:10:05 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38896c9I022792;
-        Fri, 8 Sep 2023 09:10:02 GMT
+        with ESMTP id S231948AbjIHJmu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Sep 2023 05:42:50 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1702D19A8;
+        Fri,  8 Sep 2023 02:42:47 -0700 (PDT)
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3889cXQD031752;
+        Fri, 8 Sep 2023 09:42:42 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=HSal6POAnTxn4mXSUvG2CN7NaUOa+qNP4LeSP48EDWM=;
- b=FsqE/aqh4Htlvy5K5IDfkOdm4dNL0HZj8Ont5o9uhPVs5xfS1LrgKqUSHB7mb0qeLDf/
- NAfrSNZ8q52U5EB9RjGKSPBP8kNu7/VPtmw+QhHqp73TYc6D6Mf3KbAd2Io1liWnKxRV
- q2XLqpqSFjevqbPgn9WIq++NToAnzApBPZgc/3oPC+mKwCdVQSsE3MOAa1eRI2p6kTwF
- ixAEQxPoojdIkHWJxKdc614BZlwJhj5dGvfk6xuj7Rttz41wMDREloL4chySSpIFPsJi
- d0Yy2F+7fQM+8NyJwhWjrTuyXKwlTjitdW7j42tUVezhu3wT2Ue3rzxBsdd3tWZoEFbd eA== 
+ bh=6MGczS6Yh85U4Nu66lvBdcsqE1SDsXC6dQIdLvw11KE=;
+ b=B0pBctTDp+LeUJoqSJL9+YKsn3AdbRk23IjeqfcMWrTI7GIijq4h1nz5mjLhDl+4iR71
+ 7rh4CMhlGOciss9AxJ3G5E7Ks5j05ikbhvIC7QMppzvxtkfng5U2C1JRelvqcnQBCcBC
+ XoHSYxc4pcCf/nyC5D4dJq7JBz8rz6GI6sm38kDve4qhZ8dNFBuarUupn6sb15/+fH2D
+ sg+4W3/qGTObU3WhTv/n4hQrnQap31yvPxFlp2DtnPntW7NcktHl+eLRJiwQrZQTCrx+
+ aArEhG6EdNYoLucTQI0OPQFuAQKcswPD1qodtU8UOd92LeYHnaB3owRllJZBpqkU3XUl Qg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t00gw0d2g-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t00xfgaey-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Sep 2023 09:10:01 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38896t9k025091;
-        Fri, 8 Sep 2023 09:08:23 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t00gw0985-1
+        Fri, 08 Sep 2023 09:42:42 +0000
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3889e2wc007022;
+        Fri, 8 Sep 2023 09:42:41 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t00xfgaef-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Sep 2023 09:08:22 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3888ipmn006651;
-        Fri, 8 Sep 2023 09:07:41 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3svgvm2ahm-1
+        Fri, 08 Sep 2023 09:42:41 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3889Ssfk001598;
+        Fri, 8 Sep 2023 09:42:40 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3svfctb1q8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Sep 2023 09:07:41 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38897bJw45351550
+        Fri, 08 Sep 2023 09:42:40 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+        by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3889gdgj65667386
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 8 Sep 2023 09:07:37 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CC70920043;
-        Fri,  8 Sep 2023 09:07:37 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4349820040;
-        Fri,  8 Sep 2023 09:07:37 +0000 (GMT)
-Received: from [9.171.2.42] (unknown [9.171.2.42])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri,  8 Sep 2023 09:07:37 +0000 (GMT)
-Message-ID: <794f9f68-4671-5e5e-45e4-2c8a4de568b3@linux.ibm.com>
-Date:   Fri, 8 Sep 2023 11:07:36 +0200
+        Fri, 8 Sep 2023 09:42:39 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 65F895804E;
+        Fri,  8 Sep 2023 09:42:39 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 08BF95803F;
+        Fri,  8 Sep 2023 09:42:37 +0000 (GMT)
+Received: from [9.179.12.78] (unknown [9.179.12.78])
+        by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Fri,  8 Sep 2023 09:42:36 +0000 (GMT)
+Message-ID: <be086da3-061d-8f39-6e79-0e5d21771453@linux.ibm.com>
+Date:   Fri, 8 Sep 2023 11:42:36 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
  Gecko/20100101 Thunderbird/102.15.0
-Subject: Re: [RFC net-next 0/2] Optimize the parallelism of SMC-R connections
-To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1694008530-85087-1-git-send-email-alibuda@linux.alibaba.com>
-Content-Language: en-US
-From:   Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <1694008530-85087-1-git-send-email-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH net 1/2] net/smc: bugfix for smcr v2 server connect
+ success statistic
+To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>,
+        jaka@linux.ibm.com, kgraul@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc:     tonylu@linux.alibaba.com, alibuda@linux.alibaba.com,
+        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20230908033143.89489-1-guangguan.wang@linux.alibaba.com>
+ <20230908033143.89489-2-guangguan.wang@linux.alibaba.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <20230908033143.89489-2-guangguan.wang@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Ep2os8SGSnpKYVSyUgwoH1m4iVvcnAdH
-X-Proofpoint-GUID: ADbQ_6StDG1LXKn67n6JzCEta4tr6Ga-
+X-Proofpoint-ORIG-GUID: 2qYvur1I44TmMN5WPEEjbUnTQayqm5n2
+X-Proofpoint-GUID: t6H5re0ezIwEuW5nJIQkuuFW31qx8AN8
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
  definitions=2023-09-08_06,2023-09-05_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- priorityscore=1501 impostorscore=0 malwarescore=0 mlxscore=0 adultscore=0
- clxscore=1011 bulkscore=0 suspectscore=0 spamscore=0 mlxlogscore=734
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2308100000 definitions=main-2309080083
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
+ priorityscore=1501 malwarescore=0 mlxlogscore=999 lowpriorityscore=0
+ bulkscore=0 mlxscore=0 spamscore=0 suspectscore=0 clxscore=1015
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2309080088
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-On 06.09.23 15:55, D. Wythe wrote:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
+On 08.09.23 05:31, Guangguan Wang wrote:
+> In the macro SMC_STAT_SERV_SUCC_INC, the smcd_version is used
+> to determin whether to increase the v1 statistic or the v2
+> statistic. It is correct for SMCD. But for SMCR, smcr_version
+> should be used.
 > 
-> This patchset attempts to optimize the parallelism of SMC-R connections
-> in quite a SIMPLE way, reduce unnecessary blocking on locks.
+> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+> ---
+>   net/smc/smc_stats.h | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> According to Off-CPU statistics, SMC worker's off-CPU statistics
-> as that: 
-> 
-> smc_listen_work 			(48.17%)
-> 	__mutex_lock.isra.11 		(47.96%)
-> 
-> An ideal SMC-R connection process should only block on the IO events
-> of the network, but it's quite clear that the SMC-R connection now is
-> queued on the lock most of the time.
-> 
-> Before creating a connection, we always try to see if it can be
-> successfully created without allowing the creation of an lgr,
-> if so, it means it does not rely on new link group.
-> In other words, locking on xxx_lgr_pending is not necessary
-> any more.
-> 
-> Noted that removing this lock will not have an immediate effect
-> in the current version, as there are still some concurrency issues
-> in the SMC handshake phase. However, regardless, removing this lock
-> is a prerequisite for other optimizations.
-> 
-> If you have any questions or suggestions, please let me know.
-> 
-> D. Wythe (2):
->   net/smc: refactoring lgr pending lock
->   net/smc: remove locks smc_client_lgr_pending and
->     smc_server_lgr_pending
-> 
->  net/smc/af_smc.c   | 24 ++++++++++++------------
->  net/smc/smc_clc.h  |  1 +
->  net/smc/smc_core.c | 28 ++++++++++++++++++++++++++--
->  net/smc/smc_core.h | 21 +++++++++++++++++++++
->  4 files changed, 60 insertions(+), 14 deletions(-)
-> 
+> diff --git a/net/smc/smc_stats.h b/net/smc/smc_stats.h
+> index b60fe1eb37ab..aa8928975cc6 100644
+> --- a/net/smc/smc_stats.h
+> +++ b/net/smc/smc_stats.h
+> @@ -243,8 +243,9 @@ while (0)
+>   #define SMC_STAT_SERV_SUCC_INC(net, _ini) \
+>   do { \
+>   	typeof(_ini) i = (_ini); \
+> -	bool is_v2 = (i->smcd_version & SMC_V2); \
+>   	bool is_smcd = (i->is_smcd); \
+> +	u8 version = is_smcd ? i->smcd_version : i->smcr_version; \
+> +	bool is_v2 = (version & SMC_V2); \
+>   	typeof(net->smc.smc_stats) smc_stats = (net)->smc.smc_stats; \
+>   	if (is_v2 && is_smcd) \
+>   		this_cpu_inc(smc_stats->smc[SMC_TYPE_D].srv_v2_succ_cnt); \
 
-
-I have to admit that locking in SMC is quite confusing to me, so this is just my thougths.
-
-Your proposal seems to make things even more complex.
-
-I understand the goal to optimize parallelism.
-Today we have the global smc_server/client_lgr_pending AND smc_lgr_list.lock (and more).
-There seems to be some overlpa in scope..
-Maybe there is some way to reduce the length of the locked paths?
-Or use other mechanisms than the big fat smc_server/client_lgr_pending mutex?
-e.g.
-If you think you can unlock after __smc_conn_create in the re-use-existing_LGR case,
-why is the lock needed until after smc_clc_send_confirm in the new-LGR case??
-
-
-Your use of storing the global lock per ini and then double-freeing it sometimes,
-seems a bit homebrewed, though.
-E.g. I'm afraid the existing lock checking algorithms could not verify this pattern.
-
+ohje, that is because the statistic was implemented first, then SMCR_v2. 
+Good catch! Thank you!
