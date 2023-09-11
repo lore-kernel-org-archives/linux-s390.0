@@ -2,136 +2,130 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63B0DCA0EC3
-	for <linux-s390@archiver.kernel.org>; Mon, 11 Sep 2023 22:25:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23308CA0EC6
+	for <linux-s390@archiver.kernel.org>; Mon, 11 Sep 2023 22:25:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239649AbjIKWWv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 11 Sep 2023 18:22:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60474 "EHLO
+        id S241281AbjIKWW7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 11 Sep 2023 18:22:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238486AbjIKN5h (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Sep 2023 09:57:37 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A569FCD7;
-        Mon, 11 Sep 2023 06:57:33 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3DCBC433C7;
-        Mon, 11 Sep 2023 13:57:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1694440653;
-        bh=CU1g8Lrs6EaUNCYAPQHJ7zHQs/cwzFvskhy2PCvPc98=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R1YVtmnarCG1NzXEslc0QO12B4eWDiAycYzExvbrbPxKyFvPCCAgDkzl19UqGyjTZ
-         ioVI+/Q03ulHEgj5lZm9pLsIsD1nRv6cYBQPB07OFx8uR6KdPYVDBXIr9tgDskC3nS
-         77p3jjpI5betd/rMrMr4de6hAKZuPQ7GDclEBTm8=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ondrej=20Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>,
-        David Howells <dhowells@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.vnet.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Paolo Abeni <pabeni@redhat.com>, linux-crypto@vger.kernel.org,
-        linux-s390@vger.kernel.org, regressions@lists.linux.dev,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.5 110/739] crypto: af_alg - Fix missing initialisation affecting gcm-aes-s390
-Date:   Mon, 11 Sep 2023 15:38:29 +0200
-Message-ID: <20230911134654.173764504@linuxfoundation.org>
-X-Mailer: git-send-email 2.42.0
-In-Reply-To: <20230911134650.921299741@linuxfoundation.org>
-References: <20230911134650.921299741@linuxfoundation.org>
-User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
+        with ESMTP id S237047AbjIKLyg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Sep 2023 07:54:36 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07AA5E40;
+        Mon, 11 Sep 2023 04:54:30 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38BB7fEA011377;
+        Mon, 11 Sep 2023 11:54:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=6zAtbOPLTprDp5l7a3xBBQM94y0SgE+eMjbCRCMbzIQ=;
+ b=JLN5RrouLe82dpApYqPuGsE594lDoDu5EmAF/495hcmALP0d7EnL/hRlmyS0r4mJd52D
+ /L+OG25knQuEVzINCmGB7jSF2tENrljlEVBRWl3csgzN8tvKm5YmUUWe3PqDYS5Unx7i
+ EmjouTBTPxJQo4DnVi8ENKLWL5xXH4NpeF4xHOcQ3X+ufkGAFgguCqniWs9luegi44JK
+ wTFCRw8s77Ep03NlDbYfozSsLd9j7yVlGWt7ga7onmh4XNdtVRGmcrlSgA6CUUcNYqwQ
+ Ssq0CS3xgniphTh7dNCd9BNjauRJNLGmDNe23vxUBNim4Hb5mpot2xspqe7ra8rqW9J/ 8w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t20gp2w4h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 11 Sep 2023 11:54:25 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38BBb5tU023469;
+        Mon, 11 Sep 2023 11:54:25 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t20gp2w44-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 11 Sep 2023 11:54:25 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38B9UCVw012083;
+        Mon, 11 Sep 2023 11:54:24 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3t13dyadxm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 11 Sep 2023 11:54:24 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+        by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38BBsN2820185526
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 11 Sep 2023 11:54:23 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 12FB65805C;
+        Mon, 11 Sep 2023 11:54:23 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6ECA75805A;
+        Mon, 11 Sep 2023 11:54:17 +0000 (GMT)
+Received: from [9.171.51.126] (unknown [9.171.51.126])
+        by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 11 Sep 2023 11:54:16 +0000 (GMT)
+Message-ID: <2b1d129c-06e2-0161-7c8a-1e930150d797@linux.ibm.com>
+Date:   Mon, 11 Sep 2023 13:54:15 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.0
+Subject: Re: [RFC PATCH net-next] net/smc: Introduce SMC-related proc files
+To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com
+Cc:     alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1694416820-60340-1-git-send-email-guwen@linux.alibaba.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <1694416820-60340-1-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: zZ85GoqsMvyzF1GYSDC44WzjAXuOsqnB
+X-Proofpoint-ORIG-GUID: tVcKMCzZtJNKN0HX0ekLoduII0CImiOx
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
+ definitions=2023-09-11_06,2023-09-05_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1011
+ mlxlogscore=700 priorityscore=1501 malwarescore=0 spamscore=0 adultscore=0
+ phishscore=0 impostorscore=0 mlxscore=0 lowpriorityscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2308100000
+ definitions=main-2309110105
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-6.5-stable review patch.  If anyone has any objections, please let me know.
-
-------------------
-
-From: David Howells <dhowells@redhat.com>
-
-[ Upstream commit 6a4b8aa0a916b39a39175584c07222434fa6c6ef ]
-
-Fix af_alg_alloc_areq() to initialise areq->first_rsgl.sgl.sgt.sgl to point
-to the scatterlist array in areq->first_rsgl.sgl.sgl.
-
-Without this, the gcm-aes-s390 driver will oops when it tries to do
-gcm_walk_start() on req->dst because req->dst is set to the value of
-areq->first_rsgl.sgl.sgl by _aead_recvmsg() calling
-aead_request_set_crypt().
-
-The problem comes if an empty ciphertext is passed: the loop in
-af_alg_get_rsgl() just passes straight out and doesn't set areq->first_rsgl
-up.
-
-This isn't a problem on x86_64 using gcmaes_crypt_by_sg() because, as far
-as I can tell, that ignores req->dst and only uses req->src[*].
-
-[*] Is this a bug in aesni-intel_glue.c?
-
-The s390x oops looks something like:
-
- Unable to handle kernel pointer dereference in virtual kernel address space
- Failing address: 0000000a00000000 TEID: 0000000a00000803
- Fault in home space mode while using kernel ASCE.
- AS:00000000a43a0007 R3:0000000000000024
- Oops: 003b ilc:2 [#1] SMP
- ...
- Call Trace:
-  [<000003ff7fc3d47e>] gcm_walk_start+0x16/0x28 [aes_s390]
-  [<00000000a2a342f2>] crypto_aead_decrypt+0x9a/0xb8
-  [<00000000a2a60888>] aead_recvmsg+0x478/0x698
-  [<00000000a2e519a0>] sock_recvmsg+0x70/0xb0
-  [<00000000a2e51a56>] sock_read_iter+0x76/0xa0
-  [<00000000a273e066>] vfs_read+0x26e/0x2a8
-  [<00000000a273e8c4>] ksys_read+0xbc/0x100
-  [<00000000a311d808>] __do_syscall+0x1d0/0x1f8
-  [<00000000a312ff30>] system_call+0x70/0x98
- Last Breaking-Event-Address:
-  [<000003ff7fc3e6b4>] gcm_aes_crypt+0x104/0xa68 [aes_s390]
-
-Fixes: c1abe6f570af ("crypto: af_alg: Use extract_iter_to_sg() to create scatterlists")
-Reported-by: Ondrej Mosnáček <omosnacek@gmail.com>
-Link: https://lore.kernel.org/r/CAAUqJDuRkHE8fPgZJGaKjUjd3QfGwzfumuJBmStPqBhubxyk_A@mail.gmail.com/
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Herbert Xu <herbert@gondor.apana.org.au>
-cc: Sven Schnelle <svens@linux.ibm.com>
-cc: Harald Freudenberger <freude@linux.vnet.ibm.com>
-cc: "David S. Miller" <davem@davemloft.net>
-cc: Paolo Abeni <pabeni@redhat.com>
-cc: linux-crypto@vger.kernel.org
-cc: linux-s390@vger.kernel.org
-cc: regressions@lists.linux.dev
-Tested-by: Sven Schnelle <svens@linux.ibm.com>
-Tested-by: Ondrej Mosnáček <omosnacek@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- crypto/af_alg.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/crypto/af_alg.c b/crypto/af_alg.c
-index 10efb56d8b481..ad02ca0a8cdde 100644
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -1192,6 +1192,7 @@ struct af_alg_async_req *af_alg_alloc_areq(struct sock *sk,
- 
- 	areq->areqlen = areqlen;
- 	areq->sk = sk;
-+	areq->first_rsgl.sgl.sgt.sgl = areq->first_rsgl.sgl.sgl;
- 	areq->last_rsgl = NULL;
- 	INIT_LIST_HEAD(&areq->rsgl_list);
- 	areq->tsgl = NULL;
--- 
-2.40.1
 
 
+On 11.09.23 09:20, Wen Gu wrote:
+> This patch introduces /proc/net/smc4 and /proc/net/smc6 files to report
+> statistic information of SMC connections.
+> 
+> Compared with 'smcss' command in smc-tools, getting SMC connections via
+> proc files is not efficient. However, in some container scenarios, some
+> dependencies are lacked for compiling and using smc-tools. In this case,
+> using proc files to check SMC connections becomes a simple and fast way.
+> 
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> ---
+>   include/net/smc.h  |   5 +-
+>   net/smc/Makefile   |   2 +-
+>   net/smc/af_smc.c   |  22 ++++-
+>   net/smc/smc_diag.c |  29 +++---
+>   net/smc/smc_proc.c | 283 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+>   net/smc/smc_proc.h |  35 +++++++
+>   6 files changed, 355 insertions(+), 21 deletions(-)
+>   create mode 100644 net/smc/smc_proc.c
+>   create mode 100644 net/smc/smc_proc.h
+> 
 
+Hi Wen,
+
+I can understand your problem and frustration. However, there are two 
+reasons I'm not really convinced by the proc file method:
+1) AFAI, the proc method could consume many CPU time especially in case 
+with a log of sockets to read the pseudo files.
+2) We have already implemented the complex netlink method on the same 
+purpose. I see the double expense to main the code.
+
+Then the question is if the lack of dependency issue can be handle 
+somehow, or the proc method is the only way to achieve this purpose?
+
+Any opinion is welcome!
+
+Thanks,
+Wenjia
