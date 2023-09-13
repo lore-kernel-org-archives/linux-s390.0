@@ -2,138 +2,248 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 811FDEDEC52
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Sep 2023 13:07:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F17E8EDEC50
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Sep 2023 13:44:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240718AbjIMNHL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Sep 2023 09:07:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48962 "EHLO
+        id S240967AbjIMNoH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 13 Sep 2023 09:44:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240711AbjIMNHK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Sep 2023 09:07:10 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2099019B6;
-        Wed, 13 Sep 2023 06:07:06 -0700 (PDT)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38DCRWOI016469;
-        Wed, 13 Sep 2023 13:07:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=U6m79bn53R80K62WnFpoCyhwSnR4yQVNhqrLWqqZQwk=;
- b=e96pzpA0D/LpdPvP69j0Grf4IDP3ysXoivr94YT+362omeS1wFuGjf/Ygv8J3vMJZJDK
- gq3B5JdYyEeczlYhKJ8RsOevvLti1KP+pC7eLYIhU43sH6iVnmW/PVsUHaD8gOllypV/
- BeBs/few4NGfsG9adVArhNt8Kymb6Pcb9qtem5p37UBRyzxSfyPY8UbmrJWbE7I7kBqp
- qqinfGg9xfR96FMqsT6O3gwtdnfH+/ikzBir9e3QjrnEduv02L94fofnKkns8J8ZOE5Z
- wpc85/02p7U9YuCrk/mjBR2oq1uIoaz6l0qW3bELb+UooHJGpx/fYhM87L/7GkrHfBnr Lw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t3d3qs6cu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Sep 2023 13:07:03 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38DCc9Gh002970;
-        Wed, 13 Sep 2023 13:06:44 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t3d3qs627-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Sep 2023 13:06:44 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38DC14AA024021;
-        Wed, 13 Sep 2023 13:06:30 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3t131tbka0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Sep 2023 13:06:30 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-        by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38DD6UOf2032354
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 13 Sep 2023 13:06:30 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3925D58059;
-        Wed, 13 Sep 2023 13:06:30 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5B58758058;
-        Wed, 13 Sep 2023 13:06:29 +0000 (GMT)
-Received: from li-2c1e724c-2c76-11b2-a85c-ae42eaf3cb3d.ibm.com.com (unknown [9.61.101.13])
-        by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 13 Sep 2023 13:06:29 +0000 (GMT)
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     jjherne@linux.ibm.com, pasic@linux.ibm.com,
-        alex.williamson@redhat.com, borntraeger@linux.ibm.com,
-        kwankhede@nvidia.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com,
-        Anthony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH 2/2] s390/vfio-ap: set status response code to 06 on gisc registration failure
-Date:   Wed, 13 Sep 2023 09:06:22 -0400
-Message-ID: <20230913130626.217665-3-akrowiak@linux.ibm.com>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20230913130626.217665-1-akrowiak@linux.ibm.com>
-References: <20230913130626.217665-1-akrowiak@linux.ibm.com>
-MIME-Version: 1.0
+        with ESMTP id S234545AbjIMNoG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Sep 2023 09:44:06 -0400
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2041.outbound.protection.outlook.com [40.107.244.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEC9B19B1;
+        Wed, 13 Sep 2023 06:44:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=cR2tRT36dLFayp/Y2lcwwAlQ11hAFBvPOX5dB1W/xzvZsbJV3siuADzj4JXmhBmfOIZHrMHEvlaIfyvKIpsl81ED0IhePIUU07uzGAPmEOiQo7xga7YYhs+HfElKCMGSwKOcuJrkXtNFwJjgoBDi1obAEhSE1gI2ZmPLsb1FzhwA91UZsnbwWzQAxAt7I8vIOdK4BNCAl4p3WOu6Vy4DKKKSCxs3kDpZ7EHyVzQebHdkMY5UaY0Cc6Nfku7CfbzLmF+ux5kxe8BtXPPgEQKeBSft6ckPi+1+Q0e6c6pFh7uZiiwsu4SQ5rFTBGxQN7qZXGCBFsM4pTuUjwrbIsVKLA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=J2YV82KTe9tTn6wXwywS38VBJ/YQmzoHk5lBFezbS+M=;
+ b=PtKVnOmkBUgi1ywg4vceJGDYUQdpq+pzUlCLS5LEwJWg5rIRttwYwOLx6fGrcB28FkFx+3W9yXNl4dW2iy30zFdTy5kWuXhc/il2iB9iumBQ9tgaR++Iq85/1j+HJHBrlZxJ8InrGq0Ie/K5zkWN4rXLCk3g8BepSfGhcJAFcMHDBfM5oW5q/ZpaAySKT+kF100799MFaFJaT5mIFoBi+gg00WAuaxuGE+OvsEmWPc8cjRvsFXfhu/edhgUBlajOYJjNpn9GWxAS/M+I1iE4oMTmeQikSPR3iaCwLV61sCIPsfy4a1CW9ybjeImXdTEQCGXKrznqp29S4pDXc00q2Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=J2YV82KTe9tTn6wXwywS38VBJ/YQmzoHk5lBFezbS+M=;
+ b=apOnIc472rN/kplTzr1X8p/DKnzclOA07YcySTxc4hUdLuymtFZRAIWVG9ygYoyxhpbd2OFeIWgyoiKDLvx96wOekFYWyJb21AixMmXwnv/wWTSYTrTgGiCWLmQb6sHXPgJiDq0/gnCcEfFrn/6gF81xFqvq8Q2qj5fTCbRlf6lmtFtYebLUhUSjFIUpQdluLVbTCV7Na5nfk6G47UN6DFrKanp7bwmad9Pd83cmu2nBlwyZFEjZg/qzfl16ejkYDyP4XPJS9XoEtw8Bd25ZaNKIiHObYszF0QZiQOMc6yh7Hs8uSmABGD80mAF5Cs9mE1CoUhet9fTHclu2oetFLQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by BL1PR12MB5096.namprd12.prod.outlook.com (2603:10b6:208:316::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6768.40; Wed, 13 Sep
+ 2023 13:43:59 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::faf:4cd0:ae27:1073]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::faf:4cd0:ae27:1073%6]) with mapi id 15.20.6768.036; Wed, 13 Sep 2023
+ 13:43:58 +0000
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Andy Gross <agross@kernel.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        linuxppc-dev@lists.ozlabs.org,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>
+Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Steven Price <steven.price@arm.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH v8 05/24] iommu/fsl_pamu: Implement a PLATFORM domain
+Date:   Wed, 13 Sep 2023 10:43:38 -0300
+Message-ID: <5-v8-81230027b2fa+9d-iommu_all_defdom_jgg@nvidia.com>
+In-Reply-To: <0-v8-81230027b2fa+9d-iommu_all_defdom_jgg@nvidia.com>
+References: 
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: lU2LQRYLG9tuGBlkzrvvtPDdHVoJbi4C
-X-Proofpoint-ORIG-GUID: q5sFbLFVHWMbtwh9T3ABJjGAKtNL1md0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-09-13_06,2023-09-13_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 mlxscore=0 suspectscore=0 spamscore=0 adultscore=0
- mlxlogscore=999 lowpriorityscore=0 phishscore=0 malwarescore=0
- impostorscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2308100000 definitions=main-2309130101
+Content-Type: text/plain
+X-ClientProxiedBy: BL1PR13CA0374.namprd13.prod.outlook.com
+ (2603:10b6:208:2c0::19) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|BL1PR12MB5096:EE_
+X-MS-Office365-Filtering-Correlation-Id: 51b65053-2dd1-410a-4ed0-08dbb45f7b2e
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: QK+SVRoe1GYmeuALXotx91V9+Z5HB1Schl246Zs7lNEJU8SdcTHPVPlMn0FiZZsGt6c/p2WEspesWhnqcxFsW88Eti5JW0peTLjvR/TuJnfijbzdW3Vk9cECbnMRf9+frgINi4DV9kB8r9YQZBipsghkfJa+JGPEDRm9V2y/qmHSe2BjaJ+vxLQ5lmXMlPIlkIMqRKlQjhPJbe4xsUfkxphGwAkM6PTpRWG3RVQW6XsKOdrIm3iMxAIEvCzfw9c46ICTJCVlLlvQ7b8KTcrKNUCFIMQQrUADoSI6aV1/Z67BNxL1bhgly+ul7cG3tvGKjxL7CpuIP5kt1hsUqqRIqwJHVrsvshToJGsmg5WBwPbNoE/sPs0LT4B7xMhRWWAPJ62yrOUqqKZmcyPvN4fwejkkhCiqQEJ0wbdDucwnT9U2M60xxFmudjvQTO26k5xZlLTl+nH61ArZldOV1k5ScmjMPHIi9MPYa6bHKkqA9pVPwcj3h9nrDmlY3majonIw0Ht12PZZet62ucHV5P2pR1NI79X9hlLktWrQLe2W0UfbWrEKHwThazsqRZBJlBM8XRujrPbkLYUhZfqrh9ekNdSR9G/0hT2i1IvTfXAlh+8slDMvGyym43mEo86pW7qb
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366004)(376002)(346002)(39860400002)(396003)(136003)(1800799009)(451199024)(186009)(26005)(8936002)(8676002)(4326008)(6666004)(921005)(38100700002)(2616005)(107886003)(478600001)(5660300002)(66556008)(54906003)(66946007)(110136005)(41300700001)(6506007)(6486002)(6512007)(316002)(66476007)(83380400001)(7406005)(7416002)(2906002)(86362001)(36756003)(4216001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?7JMzYFtm89P7Cupcn5oZIJRilgeOBkOFwhCeCM2m8NffMFP7q9G3sI7Y443W?=
+ =?us-ascii?Q?qzWzkih2i9fPmlzJoKe8ASLm4DIa6KC87oGzV6WBzVUuWENfGYdoksIYE0b6?=
+ =?us-ascii?Q?T42pph+lkkuhIJVnFccWBWeSsm5QPQ/3MV0PJJmwGsck+FfGhohDnPReb0QY?=
+ =?us-ascii?Q?6roCUG5eX1q9EOOBmITbapL6FNTRH6g4T9FNi/OeUWlayFhzO/TCvUWYqCaT?=
+ =?us-ascii?Q?KSyL5Bh0ZpbIuhdtN4p0orwJJMpTLFTkhOYHVZ4f9KHiJABUWZLBsfGMZysC?=
+ =?us-ascii?Q?dKPtXR9JL7EZZWtf0q+rSw69ywLZbD6E1LAIIlkg5gfnpyXUAeSE1hPT/ziz?=
+ =?us-ascii?Q?08Zv+3CICNgC2UYY6zrKtJm23N7dF4pBkJafeOnr43gl07wST+hYuNSDJPrd?=
+ =?us-ascii?Q?FnG6bHd3bhO7AroQH6kv5QVrtCpeFe9+4/JEfxF935JEOmN2xzPY/Rnx3ENY?=
+ =?us-ascii?Q?4qMkMtw4K6SiIGsmgJ030Wfnqrx8A+4aTawXSrjEQz9zRgWIdE+04KPBrrt6?=
+ =?us-ascii?Q?29urmRYc89GwrM4HhySaTQX+ZDv599WkNGcA4KsEQ5jROi8LvwH/lKvCAWz9?=
+ =?us-ascii?Q?ngu4LvEDDngFVnS0NYG8P1yl4u7LiQwUc5pYXqGZnYZc6a6wk0rWIBlGmu/H?=
+ =?us-ascii?Q?KscIFoQUpv2sj5iWPVvKg4cNp8wPY6Rb1TASseEEMzSdhEaLJz7qJ46dwGQC?=
+ =?us-ascii?Q?8rkxTgLYVDD4cq+y6sw9ZgbyBfH2VT5B45JP/208zp34d2YqSO2YtmBgiy2Z?=
+ =?us-ascii?Q?igxcMkriF+JcK8GXMGhEvfve33er/rRXHCH61zanOlHocAzoee+A2Hq4aDL8?=
+ =?us-ascii?Q?3RC9Om7NuaX/7l3atCy1KTKKessJLSYkWc0iH0ApWnZSD+HmHC1oGrGXCaDi?=
+ =?us-ascii?Q?rYX/H2F7Bz3IIjRtYopGch/8TiWUVVV1X7UW4MzLZ7ZMO09O+cf1ORc2llxX?=
+ =?us-ascii?Q?nhqXuRlj1641hTUkX7/925W6fyfhXuqwjm/Wm5zM2Rw1v8npEkkb4fDe/HGI?=
+ =?us-ascii?Q?snpRQ/BEiCIXGYPA7+EA69mIbDsjhcGDH2SZp3u354881vBm4U3AiNZTV2HH?=
+ =?us-ascii?Q?Wkls758t0VyKRwhstmpYUrsW7QJY8V+5I+OJ5CtFLdKHtE0o/vH9ZvKtzZzH?=
+ =?us-ascii?Q?FnOD6F2ya7n19g3fEOymvhvgxARHIW3PTT/dUeyQPoUdsrwDo4hTBBg3MaIr?=
+ =?us-ascii?Q?vVPDlw23wbOMMMAe1BrolmRGUkiGr6OQcDIWnMo8UgUpLM1FeBwWiRi+hEJq?=
+ =?us-ascii?Q?ja4VdEUtN1w3z2h6XQJW0Jeofmf/J8u2bGbIp28TgehkhmuKoQOyQNButhK5?=
+ =?us-ascii?Q?Yd182Zr2ujyryt0wqXv54Ck/JLdsgH4jRq/+4ngW4sWet+MQZBzjTAnsHdFD?=
+ =?us-ascii?Q?1EWGW9cYoQF5eLCVemX3bsRLBduIWe4aeAHTS2QSsqdSZGInW38sHn8L6u6n?=
+ =?us-ascii?Q?rMkh8Ui1LOmYvw9JkjNGQa0q98nA1dbnm4ZnJ3LiocozUWwOQfqiujyG/hef?=
+ =?us-ascii?Q?Hi0Fh5y9BTMwDp2POxsX79FsF5upMHAl0QkZnZMll+UqTgeXXo8UybaZKf86?=
+ =?us-ascii?Q?vK3iCtoTquZwgXtgY80KNX160tAQbnI5iHxnBiMm?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 51b65053-2dd1-410a-4ed0-08dbb45f7b2e
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Sep 2023 13:43:58.6553
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: MMPVIg6mxgtnxTIGYCrMiXvRV2XJG4EhUJXtFqMxaGxUNpLyKL3Tye/W9QA5eKx2
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5096
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
+This driver is nonsensical. To not block migrating the core API away from
+NULL default_domains give it a hacky of a PLATFORM domain that keeps it
+working exactly as it always did.
 
-The interception handler for the PQAP(AQIC) command calls the
-kvm_s390_gisc_register function to register the guest ISC with the channel
-subsystem. If that call fails, the status response code 08 - indicating
-Invalid ZONE/GISA designation - is returned to the guest. This response
-code does not make sense because the non-zero return code from the
-kvm_s390_gisc_register function can be due one of two things: Either the
-ISC passed as a parameter by the guest to the PQAP(AQIC) command is greater
-than the maximum ISC value allowed, or the guest is not using a GISA.
+Leave some comments around to warn away any future people looking at this.
 
-Since this scenario is very unlikely to happen and there is no status
-response code to indicate an invalid ISC value, let's set the
-response code to 06 indicating 'Invalid address of AP-queue notification
-byte'. While this is not entirely accurate, it is better than indicating
-that the ZONE/GISA designation is invalid which is something the guest
-can do nothing about since those values are set by the hypervisor.
-
-Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
-Suggested-by: Halil Pasic <pasic@linux.ibm.com>
+Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iommu/fsl_pamu_domain.c | 41 ++++++++++++++++++++++++++++++---
+ 1 file changed, 38 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 9cb28978c186..e7e4dbbf5ad3 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -394,7 +394,7 @@ static int ensure_nib_shared(unsigned long addr, struct gmap *gmap)
-  * host ISC to issue the host side PQAP/AQIC
-  *
-  * Response.status may be set to AP_RESPONSE_INVALID_ADDRESS in case the
-- * vfio_pin_pages failed.
-+ * vfio_pin_pages or kvm_s390_gisc_register failed.
-  *
-  * Otherwise return the ap_queue_status returned by the ap_aqic(),
-  * all retry handling will be done by the guest.
-@@ -458,7 +458,7 @@ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
- 				 __func__, nisc, isc, q->apqn);
+diff --git a/drivers/iommu/fsl_pamu_domain.c b/drivers/iommu/fsl_pamu_domain.c
+index 4ac0e247ec2b51..e9d2bff4659b7c 100644
+--- a/drivers/iommu/fsl_pamu_domain.c
++++ b/drivers/iommu/fsl_pamu_domain.c
+@@ -196,6 +196,13 @@ static struct iommu_domain *fsl_pamu_domain_alloc(unsigned type)
+ {
+ 	struct fsl_dma_domain *dma_domain;
  
- 		vfio_unpin_pages(&q->matrix_mdev->vdev, nib, 1);
--		status.response_code = AP_RESPONSE_INVALID_GISA;
-+		status.response_code = AP_RESPONSE_INVALID_ADDRESS;
- 		return status;
- 	}
++	/*
++	 * FIXME: This isn't creating an unmanaged domain since the
++	 * default_domain_ops do not have any map/unmap function it doesn't meet
++	 * the requirements for __IOMMU_DOMAIN_PAGING. The only purpose seems to
++	 * allow drivers/soc/fsl/qbman/qman_portal.c to do
++	 * fsl_pamu_configure_l1_stash()
++	 */
+ 	if (type != IOMMU_DOMAIN_UNMANAGED)
+ 		return NULL;
  
+@@ -283,15 +290,33 @@ static int fsl_pamu_attach_device(struct iommu_domain *domain,
+ 	return ret;
+ }
+ 
+-static void fsl_pamu_set_platform_dma(struct device *dev)
++/*
++ * FIXME: fsl/pamu is completely broken in terms of how it works with the iommu
++ * API. Immediately after probe the HW is left in an IDENTITY translation and
++ * the driver provides a non-working UNMANAGED domain that it can switch over
++ * to. However it cannot switch back to an IDENTITY translation, instead it
++ * switches to what looks like BLOCKING.
++ */
++static int fsl_pamu_platform_attach(struct iommu_domain *platform_domain,
++				    struct device *dev)
+ {
+ 	struct iommu_domain *domain = iommu_get_domain_for_dev(dev);
+-	struct fsl_dma_domain *dma_domain = to_fsl_dma_domain(domain);
++	struct fsl_dma_domain *dma_domain;
+ 	const u32 *prop;
+ 	int len;
+ 	struct pci_dev *pdev = NULL;
+ 	struct pci_controller *pci_ctl;
+ 
++	/*
++	 * Hack to keep things working as they always have, only leaving an
++	 * UNMANAGED domain makes it BLOCKING.
++	 */
++	if (domain == platform_domain || !domain ||
++	    domain->type != IOMMU_DOMAIN_UNMANAGED)
++		return 0;
++
++	dma_domain = to_fsl_dma_domain(domain);
++
+ 	/*
+ 	 * Use LIODN of the PCI controller while detaching a
+ 	 * PCI device.
+@@ -312,8 +337,18 @@ static void fsl_pamu_set_platform_dma(struct device *dev)
+ 		detach_device(dev, dma_domain);
+ 	else
+ 		pr_debug("missing fsl,liodn property at %pOF\n", dev->of_node);
++	return 0;
+ }
+ 
++static struct iommu_domain_ops fsl_pamu_platform_ops = {
++	.attach_dev = fsl_pamu_platform_attach,
++};
++
++static struct iommu_domain fsl_pamu_platform_domain = {
++	.type = IOMMU_DOMAIN_PLATFORM,
++	.ops = &fsl_pamu_platform_ops,
++};
++
+ /* Set the domain stash attribute */
+ int fsl_pamu_configure_l1_stash(struct iommu_domain *domain, u32 cpu)
+ {
+@@ -395,11 +430,11 @@ static struct iommu_device *fsl_pamu_probe_device(struct device *dev)
+ }
+ 
+ static const struct iommu_ops fsl_pamu_ops = {
++	.default_domain = &fsl_pamu_platform_domain,
+ 	.capable	= fsl_pamu_capable,
+ 	.domain_alloc	= fsl_pamu_domain_alloc,
+ 	.probe_device	= fsl_pamu_probe_device,
+ 	.device_group   = fsl_pamu_device_group,
+-	.set_platform_dma_ops = fsl_pamu_set_platform_dma,
+ 	.default_domain_ops = &(const struct iommu_domain_ops) {
+ 		.attach_dev	= fsl_pamu_attach_device,
+ 		.iova_to_phys	= fsl_pamu_iova_to_phys,
 -- 
-2.41.0
+2.42.0
 
