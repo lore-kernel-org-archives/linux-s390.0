@@ -2,114 +2,129 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB33CEDE9A2
-	for <linux-s390@archiver.kernel.org>; Thu, 14 Sep 2023 10:23:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A110EDE99C
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Sep 2023 10:29:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230141AbjINKXX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 14 Sep 2023 06:23:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52282 "EHLO
+        id S237198AbjINK33 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 14 Sep 2023 06:29:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237123AbjINKXU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Sep 2023 06:23:20 -0400
-Received: from mx01.omp.ru (mx01.omp.ru [90.154.21.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E9B1BFE;
-        Thu, 14 Sep 2023 03:23:15 -0700 (PDT)
-Received: from [192.168.1.103] (178.176.78.252) by msexch01.omp.ru
- (10.188.4.12) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.986.14; Thu, 14 Sep
- 2023 13:23:00 +0300
-Subject: Re: [PATCH 10/19] USB: gadget/legacy: remove sb_mutex
-To:     Christoph Hellwig <hch@lst.de>,
-        Christian Brauner <brauner@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>
-CC:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Tejun Heo <tj@kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Damien Le Moal <dlemoal@kernel.org>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-s390@vger.kernel.org>, <linux-rdma@vger.kernel.org>,
-        <linux-nfs@vger.kernel.org>, <linux-hardening@vger.kernel.org>,
-        <cgroups@vger.kernel.org>
-References: <20230913111013.77623-1-hch@lst.de>
- <20230913111013.77623-11-hch@lst.de>
-From:   Sergey Shtylyov <s.shtylyov@omp.ru>
-Organization: Open Mobile Platform
-Message-ID: <d3935129-2ab9-0341-c606-fabac4a49010@omp.ru>
-Date:   Thu, 14 Sep 2023 13:22:59 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        with ESMTP id S230141AbjINK31 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Sep 2023 06:29:27 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 140791BE9;
+        Thu, 14 Sep 2023 03:29:22 -0700 (PDT)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38EADAR6009551;
+        Thu, 14 Sep 2023 10:29:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=tDkkOsocqls0t+Q5ELLs9Xlf48gqtWqdENRZHsKALys=;
+ b=s3PBRqjZdZxyUyh3YAa4pFcEEr+axzEf8LcU15PQ/9WLuwDtZRqUK9QX3HftB3ayoPiD
+ n8DbCGUn0JD9uNvz7DVapZJ94elga0WRjRzPLG4cFsmiN/U89AHyEZq+zDuVna2JwIfk
+ DV0s9G/YEzEfNyL+ce1WdW0iJCHG7bm4q15iZKV8PZF3Ci15nPknr0/LqriAqdvYvbuI
+ 5B+rmXGxzw7ThJ/raCK75XPSglDSdrh1Ow5AaYMS79z+RXEdyPaub7iqZKa0tDAsWTY8
+ eSG3wSBEoPvVAot6qVVG334YsLEQE/ukAuScaF3YjRkz1eAPeM7XvlYb16ZMaMMiO07m 5Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t3yvms0g9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 14 Sep 2023 10:29:19 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38E9nn4L007950;
+        Thu, 14 Sep 2023 10:29:19 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t3yvms0fn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 14 Sep 2023 10:29:19 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38E8bvLi002755;
+        Thu, 14 Sep 2023 10:29:18 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3t14hma24p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 14 Sep 2023 10:29:17 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38EATEgf63504642
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 14 Sep 2023 10:29:14 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8A78F2004B;
+        Thu, 14 Sep 2023 10:29:14 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3746420043;
+        Thu, 14 Sep 2023 10:29:14 +0000 (GMT)
+Received: from [9.152.224.42] (unknown [9.152.224.42])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 14 Sep 2023 10:29:14 +0000 (GMT)
+Message-ID: <30bbcc92-f5ff-cbda-7a3b-cc801aa560ed@linux.ibm.com>
+Date:   Thu, 14 Sep 2023 12:29:14 +0200
 MIME-Version: 1.0
-In-Reply-To: <20230913111013.77623-11-hch@lst.de>
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.1
+Subject: Re: [RFC PATCH net-next] net/smc: Introduce SMC-related proc files
+To:     Wen Gu <guwen@linux.alibaba.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com
+Cc:     alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1694416820-60340-1-git-send-email-guwen@linux.alibaba.com>
+ <2b1d129c-06e2-0161-7c8a-1e930150d797@linux.ibm.com>
+ <a0a4567e-07f1-91db-50cb-bbfc803f5969@linux.alibaba.com>
 Content-Language: en-US
+From:   Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <a0a4567e-07f1-91db-50cb-bbfc803f5969@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [178.176.78.252]
-X-ClientProxiedBy: msexch01.omp.ru (10.188.4.12) To msexch01.omp.ru
- (10.188.4.12)
-X-KSE-ServerInfo: msexch01.omp.ru, 9
-X-KSE-AntiSpam-Interceptor-Info: scan successful
-X-KSE-AntiSpam-Version: 5.9.59, Database issued on: 09/14/2023 10:01:12
-X-KSE-AntiSpam-Status: KAS_STATUS_NOT_DETECTED
-X-KSE-AntiSpam-Method: none
-X-KSE-AntiSpam-Rate: 59
-X-KSE-AntiSpam-Info: Lua profiles 179856 [Sep 14 2023]
-X-KSE-AntiSpam-Info: Version: 5.9.59.0
-X-KSE-AntiSpam-Info: Envelope from: s.shtylyov@omp.ru
-X-KSE-AntiSpam-Info: LuaCore: 530 530 ecb1547b3f72d1df4c71c0b60e67ba6b4aea5432
-X-KSE-AntiSpam-Info: {rep_avail}
-X-KSE-AntiSpam-Info: {Tracking_from_domain_doesnt_match_to}
-X-KSE-AntiSpam-Info: {relay has no DNS name}
-X-KSE-AntiSpam-Info: {SMTP from is not routable}
-X-KSE-AntiSpam-Info: {Found in DNSBL: 178.176.78.252 in (user)
- b.barracudacentral.org}
-X-KSE-AntiSpam-Info: {Found in DNSBL: 178.176.78.252 in (user)
- dbl.spamhaus.org}
-X-KSE-AntiSpam-Info: d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;127.0.0.199:7.1.2;omp.ru:7.1.1
-X-KSE-AntiSpam-Info: FromAlignment: s
-X-KSE-AntiSpam-Info: {rdns complete}
-X-KSE-AntiSpam-Info: {fromrtbl complete}
-X-KSE-AntiSpam-Info: ApMailHostAddress: 178.176.78.252
-X-KSE-AntiSpam-Info: Rate: 59
-X-KSE-AntiSpam-Info: Status: not_detected
-X-KSE-AntiSpam-Info: Method: none
-X-KSE-AntiSpam-Info: Auth:dmarc=none header.from=omp.ru;spf=none
- smtp.mailfrom=omp.ru;dkim=none
-X-KSE-Antiphishing-Info: Clean
-X-KSE-Antiphishing-ScanningType: Heuristic
-X-KSE-Antiphishing-Method: None
-X-KSE-Antiphishing-Bases: 09/14/2023 10:07:00
-X-KSE-Antivirus-Interceptor-Info: scan successful
-X-KSE-Antivirus-Info: Clean, bases: 9/14/2023 9:01:00 AM
-X-KSE-Attachment-Filter-Triggered-Rules: Clean
-X-KSE-Attachment-Filter-Triggered-Filters: Clean
-X-KSE-BulkMessagesFiltering-Scan-Result: InTheLimit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 4fx-3ooD91c3ydo1CMa1Lpm2-ZiD0jFe
+X-Proofpoint-ORIG-GUID: Q_MUuDzbxZRPe2jKpigVVMnUXad3vX-m
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.601,FMLib:17.11.176.26
+ definitions=2023-09-14_08,2023-09-13_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 phishscore=0 mlxlogscore=727 clxscore=1011
+ suspectscore=0 bulkscore=0 spamscore=0 impostorscore=0 mlxscore=0
+ malwarescore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2308100000 definitions=main-2309140085
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 9/13/23 2:10 PM, Christoph Hellwig wrote:
 
-> Creating new a new super_block vs freeing the old one for single instance
-           ^^^^^^^^^
-   I can't parse that. :-)
 
-> file systems is serialized by the wait for SB_DEAD.
+On 13.09.23 11:53, Wen Gu wrote:
 > 
-> Remove the superfluous sb_mutex.
 > 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-[...]
-
-MBR, Sergey
+> On 2023/9/11 19:54, Wenjia Zhang wrote:
+>>
+>>
+>>
+>> Hi Wen,
+>>
+>> I can understand your problem and frustration. However, there are two reasons I'm not really convinced by the proc file method:
+>> 1) AFAI, the proc method could consume many CPU time especially in case with a log of sockets to read the pseudo files.
+>> 2) We have already implemented the complex netlink method on the same purpose. I see the double expense to main the code.
+>>
+>> Then the question is if the lack of dependency issue can be handle somehow, or the proc method is the only way to achieve this purpose?
+>>
+>> Any opinion is welcome!
+>>
+>> Thanks,
+>> Wenjia
+> 
+> Hi, Wenjia. I agree with your concerns.
+> 
+> My initial intention is to make these proc files serve as a supplement to netlink to conveniently
+> check smc connections in an environment where smc-tools cannot be easily obtained.
+> 
+> Yes, proc files won't be the first choice for diagnosis, but can be a convenient backup.
+> 
+> Thanks,
+> Wen Gu
+> 
+> 
+As /proc is an interface to userface,  we would have to maintain the 2 redundant methods basically forever.
+I personally don't think we should implement another interface without a very strong reason.
