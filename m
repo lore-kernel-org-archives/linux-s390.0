@@ -2,117 +2,125 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57A3EEED61E
-	for <linux-s390@archiver.kernel.org>; Fri, 15 Sep 2023 17:29:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51942EED61A
+	for <linux-s390@archiver.kernel.org>; Fri, 15 Sep 2023 17:55:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235862AbjIOR3J (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 15 Sep 2023 13:29:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49062 "EHLO
+        id S235978AbjIORzY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 15 Sep 2023 13:55:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235876AbjIOR2r (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 13:28:47 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE74F2120;
-        Fri, 15 Sep 2023 10:28:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
-        Content-Type:Content-ID:Content-Description;
-        bh=ljKmIcCKst9DHe3IfbavuoPBudCpT3+oRR2H1OkUvA4=; b=BRBrYogwJLaEabmxwgaUjlbSMe
-        CV4/6qA1wg4YbLawsYY/VjTxp1stCVMiCAgB+7R6R1Hr8iIZrKnUsgRIJgSLZCwquuBYaop7JUycL
-        nnI55Gtyn7HE1B7S/aAmNZPp6xWVHaWcZYCRAavD/29BcSWVAVHStrrm4JEluywCFhysOG5RdTR3F
-        CEps4GThOwQsircqgTvFoEEnrxZ9BS3hNq5jpnpRVg5oLKNbRO3RUNyIds+CQu5wawdN1MyJXwu/0
-        LrkZJ8R8iDRKcZkHEmRa8QaPMfd5AQxzdnBpcfJHjVJqRLGVf+RYyy8dXMgXHqMoxUy8OHEEJlmrN
-        fvln2Fgg==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1qhCcI-00B2xt-Jb; Fri, 15 Sep 2023 17:28:30 +0000
-From:   "Matthew Wilcox (Oracle)" <willy@infradead.org>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        linux-mm@kvack.org, Heiko Carstens <hca@linux.ibm.com>,
+        with ESMTP id S236431AbjIORzR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 13:55:17 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ACAD1FF5;
+        Fri, 15 Sep 2023 10:55:10 -0700 (PDT)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38FHhGUG015625;
+        Fri, 15 Sep 2023 17:54:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=6w9nbkaMwyGCC2VPdZHSANF4Nh5aKQT7FvVJ+0Nvv+w=;
+ b=OSVD3k2VgQgtqvwaT1YiXfTRs6OEL9uqoCiwlmn4j81yCKqKQT7RJIw6O1ufn+3Xn1P6
+ kixv9Y5n5jXFFJ/LV/GMd27ty4/phjKs1VU9ohWalFZ7tadWxkpuqnTavvzfZerM0U2d
+ tleS35sZtOzvN3ehJE64oqYJG1uqhsyHzuX8GJpRrgRbjwCT1f+Mj2Q6+19FrrN2TqtY
+ BNxxZXSL1mV9x6rVU4/r4Y0Xmvc2ewSuFqBzA+7Tsp7ZLLwUOROL5epf/coov1Ir8dQI
+ xTQ1QscOPTyF6zCZUKvWVXIoYU0/HNcxL0OfRoHBjen9Mcb25qcesYvzj5AYCZeemHm4 KQ== 
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t4ukd8wqv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 15 Sep 2023 17:54:56 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38FG6LcW002401;
+        Fri, 15 Sep 2023 17:54:55 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3t158kwnsj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 15 Sep 2023 17:54:54 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38FHsqPF24445610
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 15 Sep 2023 17:54:52 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0BF7C2004D;
+        Fri, 15 Sep 2023 17:54:52 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CB3EE20043;
+        Fri, 15 Sep 2023 17:54:51 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.66])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 15 Sep 2023 17:54:51 +0000 (GMT)
+Date:   Fri, 15 Sep 2023 19:54:50 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
         linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Subject: [PATCH 2/3] mm: Convert follow_page_pte() to use a folio
-Date:   Fri, 15 Sep 2023 18:28:27 +0100
-Message-Id: <20230915172829.2632994-3-willy@infradead.org>
-X-Mailer: git-send-email 2.37.1
+Subject: Re: [PATCH 0/3] Use arch_make_folio_accessible() everywhere
+Message-ID: <20230915195450.1fd35f48@p-imbrenda>
 In-Reply-To: <20230915172829.2632994-1-willy@infradead.org>
 References: <20230915172829.2632994-1-willy@infradead.org>
+Organization: IBM
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: -qdZCiIKDqTehVkEeLmO5vr7qd8z_a9Y
+X-Proofpoint-GUID: -qdZCiIKDqTehVkEeLmO5vr7qd8z_a9Y
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.601,FMLib:17.11.176.26
+ definitions=2023-09-15_14,2023-09-15_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 malwarescore=0
+ priorityscore=1501 mlxscore=0 bulkscore=0 phishscore=0 adultscore=0
+ suspectscore=0 spamscore=0 lowpriorityscore=0 impostorscore=0
+ mlxlogscore=936 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2309150157
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Remove uses of PageAnon(), unpin_user_page(), PageDirty(),
-set_page_dirty() and mark_page_accessed(), all of which have a hidden
-call to compound_head().
+On Fri, 15 Sep 2023 18:28:25 +0100
+"Matthew Wilcox (Oracle)" <willy@infradead.org> wrote:
 
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
----
- mm/gup.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+> We introduced arch_make_folio_accessible() a couple of years
+> ago, and it's in use in the page writeback path.  GUP still uses
+> arch_make_page_accessible(), which means that we can succeed in making
+> a single page of a folio accessible, then fail to make the rest of the
+> folio accessible when it comes time to do writeback and it's too late
+> to do anything about it.  I'm not sure how much of a real problem this is.
+> 
+> Switching everything around to arch_make_folio_accessible() also lets
+> us switch the page flag to be per-folio instead of per-page, which is
+> a good step towards dynamically allocated folios.
+> 
+> Build-tested only.
+> 
+> Matthew Wilcox (Oracle) (3):
+>   mm: Use arch_make_folio_accessible() in gup_pte_range()
+>   mm: Convert follow_page_pte() to use a folio
+>   s390: Convert arch_make_page_accessible() to
+>     arch_make_folio_accessible()
+> 
+>  arch/s390/include/asm/page.h |  5 ++--
+>  arch/s390/kernel/uv.c        | 46 +++++++++++++++++++++++-------------
+>  arch/s390/mm/fault.c         | 15 ++++++------
+>  include/linux/mm.h           | 20 ++--------------
+>  mm/gup.c                     | 22 +++++++++--------
+>  5 files changed, 54 insertions(+), 54 deletions(-)
+> 
 
-diff --git a/mm/gup.c b/mm/gup.c
-index ab8a0ebc728e..ff1eaaba5720 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -582,6 +582,7 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
- {
- 	struct mm_struct *mm = vma->vm_mm;
- 	struct page *page;
-+	struct folio *folio;
- 	spinlock_t *ptl;
- 	pte_t *ptep, pte;
- 	int ret;
-@@ -644,7 +645,8 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
- 		goto out;
- 	}
- 
--	VM_BUG_ON_PAGE((flags & FOLL_PIN) && PageAnon(page) &&
-+	folio = page_folio(page);
-+	VM_BUG_ON_PAGE((flags & FOLL_PIN) && folio_test_anon(folio) &&
- 		       !PageAnonExclusive(page), page);
- 
- 	/* try_grab_page() does nothing unless FOLL_GET or FOLL_PIN is set. */
-@@ -655,28 +657,28 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
- 	}
- 
- 	/*
--	 * We need to make the page accessible if and only if we are going
-+	 * We need to make the folio accessible if and only if we are going
- 	 * to access its content (the FOLL_PIN case).  Please see
- 	 * Documentation/core-api/pin_user_pages.rst for details.
- 	 */
- 	if (flags & FOLL_PIN) {
--		ret = arch_make_page_accessible(page);
-+		ret = arch_make_folio_accessible(folio);
- 		if (ret) {
--			unpin_user_page(page);
-+			gup_put_folio(folio, 1, FOLL_PIN);
- 			page = ERR_PTR(ret);
- 			goto out;
- 		}
- 	}
- 	if (flags & FOLL_TOUCH) {
- 		if ((flags & FOLL_WRITE) &&
--		    !pte_dirty(pte) && !PageDirty(page))
--			set_page_dirty(page);
-+		    !pte_dirty(pte) && !folio_test_dirty(folio))
-+			folio_mark_dirty(folio);
- 		/*
- 		 * pte_mkyoung() would be more correct here, but atomic care
- 		 * is needed to avoid losing the dirty bit: it is easier to use
--		 * mark_page_accessed().
-+		 * folio_mark_accessed().
- 		 */
--		mark_page_accessed(page);
-+		folio_mark_accessed(folio);
- 	}
- out:
- 	pte_unmap_unlock(ptep, ptl);
--- 
-2.40.1
+if I understand correctly, this will as a matter of fact move the
+security property from pages to folios.
 
+this means that trying to access a page will (try to) make the whole
+folio accessible, even though that might be counterproductive.... 
+
+and there is no way to simply split a folio
+
+I don't like this
+
+there are also other reasons, but I don't have time to go into the
+details on a Friday evening (will elaborate more on Monday)
