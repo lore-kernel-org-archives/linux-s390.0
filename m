@@ -2,145 +2,228 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58556EE645D
-	for <linux-s390@archiver.kernel.org>; Fri, 15 Sep 2023 14:04:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A59E3EDE988
+	for <linux-s390@archiver.kernel.org>; Fri, 15 Sep 2023 14:12:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235203AbjIOOEY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 15 Sep 2023 10:04:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36394 "EHLO
+        id S234055AbjIOOMW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 15 Sep 2023 10:12:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235486AbjIOOEX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 10:04:23 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 194D61FCE;
-        Fri, 15 Sep 2023 07:04:19 -0700 (PDT)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38FE3ae0018474;
-        Fri, 15 Sep 2023 14:04:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=Y+WwTtVVIEVlyjTXDCy8B6tsMdV6svWm5RmLNNGeGMg=;
- b=BsduZN1+/M2CqaabPjLd6+oG89nQ4ydUzMy6+96/I6JbjKT7Ht9x84u1//trc7n4dep0
- 17qd+NT5lgHuYM1QhRcii4X/Ceya8+ft9BauvpdvcpfzMjfG2Zl4vz6j4EHXCbiqWQvJ
- lZqY7QrANpWraP66fGDT9CeC3IMKOKPTqA86rjOSuB5ZW5ABv30zZ3lSncpNoVx1J6UE
- yQ1zPmkuhMdt9Q2OOohiHJm4q7OA8Q/0oceBApolIGxNG/tj6krxQY1D66xAy+TFxrEp
- gCR1DouR17OdsYdrW/ANabVA5e1FeOKOo5Th0AjKEaViVB6Mq29VygRJdF0tOEO+tKqK lA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t4qk01wfm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 15 Sep 2023 14:04:16 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38FDuhjk023498;
-        Fri, 15 Sep 2023 14:04:16 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t4qk01weh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 15 Sep 2023 14:04:16 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38FDMGer023099;
-        Fri, 15 Sep 2023 14:04:15 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3t141pc61t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 15 Sep 2023 14:04:15 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-        by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38FE4Eso24772882
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 15 Sep 2023 14:04:14 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 13EC758052;
-        Fri, 15 Sep 2023 14:04:14 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 129EB5805D;
-        Fri, 15 Sep 2023 14:04:13 +0000 (GMT)
-Received: from [9.61.101.13] (unknown [9.61.101.13])
-        by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 15 Sep 2023 14:04:12 +0000 (GMT)
-Message-ID: <5c7920fc-7e15-dbd2-91e6-c6822500d9ec@linux.ibm.com>
-Date:   Fri, 15 Sep 2023 10:04:12 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [PATCH 0/2] a couple of corrections to the IRQ enablement
- function
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     jjherne@linux.ibm.com, pasic@linux.ibm.com,
-        alex.williamson@redhat.com, borntraeger@linux.ibm.com,
-        kwankhede@nvidia.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com,
-        Michael Mueller <mimu@linux.ibm.com>
-References: <20230913130626.217665-1-akrowiak@linux.ibm.com>
- <83cab22d-71c3-2bbc-856f-6527479f10ec@linux.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <83cab22d-71c3-2bbc-856f-6527479f10ec@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: mCYJvD3ViZxvcvtfmu9mDH8lYCSn4K-P
-X-Proofpoint-ORIG-GUID: KfGkphu9VH5zwJXooqwTssgi5BLwnm4N
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S235582AbjIOOMV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 10:12:21 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E30661FCE;
+        Fri, 15 Sep 2023 07:12:15 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 717D9C433C9;
+        Fri, 15 Sep 2023 14:12:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1694787135;
+        bh=/HmAzgm/+XfH2LHmsna9iSpae4XQo0btQtAdXOJ8lmI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=mjYxRMQNwaQHIKQyYqQlgdWqCfnn9IZcTlEUtfZyLYqAA8oxvZV68JJrPo0oh4EU4
+         qE3X4RPLodL+YxmytKft3urNRQvw8EPPPH3HAwKX2yBZB3zGvHGs/+IduNDyKBBbow
+         QuhJk/wvqrH3k9B90Zpu5zsZQIBgqVGR+mYFK84Gsf6pcSGVhGScXYV5+3z6xVEBf/
+         oNL0GGCMG6glpSM0mBHJU/C/3ByYZIxqHkDjj7XWdyKEv5C1vsjrWl2Pv7YeHNVN0w
+         3oirLCA0Aem0LuUgx4+aDtkfgK5H5gz6yC9ZH+Qq1gcUYC6xhhht/1NJ9PYsBDN6rV
+         QxAi18p1Ej6Bg==
+Date:   Fri, 15 Sep 2023 16:12:07 +0200
+From:   Christian Brauner <brauner@kernel.org>
+To:     Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>
+Cc:     Christoph Hellwig <hch@lst.de>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Tejun Heo <tj@kernel.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Damien Le Moal <dlemoal@kernel.org>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-hardening@vger.kernel.org,
+        cgroups@vger.kernel.org
+Subject: Re: [PATCH 03/19] fs: release anon dev_t in deactivate_locked_super
+Message-ID: <20230915-zweit-frech-0e06394208a3@brauner>
+References: <20230913111013.77623-1-hch@lst.de>
+ <20230913111013.77623-4-hch@lst.de>
+ <20230913232712.GC800259@ZenIV>
+ <20230914023705.GH800259@ZenIV>
+ <20230914053843.GI800259@ZenIV>
+ <20230914-munkeln-pelzmantel-3e3a761acb72@brauner>
+ <20230914165805.GJ800259@ZenIV>
+ <20230915-elstern-etatplanung-906c6780af19@brauner>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-09-15_10,2023-09-14_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 spamscore=0 malwarescore=0 phishscore=0 impostorscore=0
- clxscore=1015 mlxscore=0 bulkscore=0 lowpriorityscore=0 adultscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2308100000 definitions=main-2309150121
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20230915-elstern-etatplanung-906c6780af19@brauner>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+> > tree of any filesystem (in-tree one or not) will have to go through the
+> > changes and figure out WTF to do with their existing code.  We are
+> > going to play whack-a-mole for at least several years as development
+> > branches get rebased and merged.
+> 
+> Let me write something up.
 
+So here I've written two porting.rst patches that aim to reflect the
+current state of things (They do _not_ reflect what's in Christoph's
+series here as that'ss again pretty separate and will require additional
+spelling out.).
 
-On 9/13/23 14:13, Matthew Rosato wrote:
-> On 9/13/23 9:06 AM, Tony Krowiak wrote:
->> This series corrects two issues related to enablement of interrupts in
->> response to interception of the PQAP(AQIC) command:
->>
->> 1. Returning a status response code 06 (Invalid address of AP-queue
->>     notification byte) when the call to register a guest ISC fails makes no
->>     sense.
->>     
->> 2. The pages containing the interrupt notification-indicator byte are not
->>     freed after a failure to register the guest ISC fails.
->>
-> 
-> Hi Tony,
-> 
-> 3. Since you're already making changes related to gisc registration, you might consider a 3rd patch that looks at the return code for kvm_s390_gisc_unregister and tags the unexpected error rc somehow.  This came up in a recent conversation I had with Michael, see this conversation towards the bottom:
-> 
-> https://lore.kernel.org/linux-s390/0ddf808c-e929-c975-1b39-5ebc1f2fab62@linux.ibm.com/
+I'm adding explanation for both the old and new logic fwiw. I hope to
+upstream these docs soon so we all have something to point to.
 
-When we receive a non-zero return code from kvm_s390_gisc_register, we 
-log a DBF warning message. We can do the same for a non-zero rc from 
-kvm_s390_gisc_unregister.
+From 200666901f53db74edf309d48e3c74fd275a822a Mon Sep 17 00:00:00 2001
+From: Christian Brauner <brauner@kernel.org>
+Date: Fri, 15 Sep 2023 16:01:02 +0200
+Subject: [PATCH 1/2] porting: document new block device opening order
 
-> 
-> 4. While looking at patch 1 I also had a question re: the AP_RESPONSE_OTHERWISE_CHANGED path in vfio_ap_irq_enable.  Here's a snippet of the current code:
-> 
-> 	case AP_RESPONSE_OTHERWISE_CHANGED:
-> 		/* We could not modify IRQ settings: clear new configuration */
-> 		vfio_unpin_pages(&q->matrix_mdev->vdev, nib, 1);
-> 		kvm_s390_gisc_unregister(kvm, isc);
-> 		break;
-> 
-> Is it safe to unpin the page before unregistering the gisc in this case?  Or shouldn't the unpin happen after we have unregistered the gisc / set the IAM?
+Signed-off-by: Christian Brauner <brauner@kernel.org>
+---
+ Documentation/filesystems/porting.rst | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-I don't know the answer to the question, but it makes logical sense; so, 
-I'll go ahead and create a third patch as you suggested.
+diff --git a/Documentation/filesystems/porting.rst b/Documentation/filesystems/porting.rst
+index deac4e973ddc..f436b64b77bf 100644
+--- a/Documentation/filesystems/porting.rst
++++ b/Documentation/filesystems/porting.rst
+@@ -949,3 +949,27 @@ mmap_lock held.  All in-tree users have been audited and do not seem to
+ depend on the mmap_lock being held, but out of tree users should verify
+ for themselves.  If they do need it, they can return VM_FAULT_RETRY to
+ be called with the mmap_lock held.
++
++---
++
++**mandatory**
++
++The order of opening block devices and matching or creating superblocks has
++changed.
++
++The old logic opened block devices first and then tried to find a
++suitable superblock to reuse based on the block device pointer.
++
++The new logic finds or creates a superblock first, opening block devices
++afterwards. Since opening block devices cannot happen under s_umount because of
++lock ordering requirements s_umount is now dropped while opening block
++devices and reacquired before calling fill_super().
++
++In the old logic concurrent mounters would find the superblock on the list of
++active superblock for the filesystem type. Since the first opener of the block
++device would hold s_umount they would wait until the superblock became either
++born or died prematurely due to initialization failure.
++
++Since the new logic drops s_umount concurrent mounters could grab s_umount and
++would spin. Instead they are now made to wait using an explicit wait-wake
++mechanism without having to hold s_umount.
+-- 
+2.34.1
 
-> 
->> Anthony Krowiak (2):
->>    s390/vfio-ap: unpin pages on gisc registration failure
->>    s390/vfio-ap: set status response code to 06 on gisc registration
->>      failure
->>
->>   drivers/s390/crypto/vfio_ap_ops.c | 5 +++--
->>   1 file changed, 3 insertions(+), 2 deletions(-)
->>
-> 
+From 1f09898322b4402219d8d3219d399c9e56a76bae Mon Sep 17 00:00:00 2001
+From: Christian Brauner <brauner@kernel.org>
+Date: Fri, 15 Sep 2023 16:01:40 +0200
+Subject: [PATCH 2/2] porting: document superblock as block device holder
+
+Signed-off-by: Christian Brauner <brauner@kernel.org>
+---
+ Documentation/filesystems/porting.rst | 79 +++++++++++++++++++++++++++
+ 1 file changed, 79 insertions(+)
+
+diff --git a/Documentation/filesystems/porting.rst b/Documentation/filesystems/porting.rst
+index f436b64b77bf..fefefaf289b4 100644
+--- a/Documentation/filesystems/porting.rst
++++ b/Documentation/filesystems/porting.rst
+@@ -973,3 +973,82 @@ born or died prematurely due to initialization failure.
+ Since the new logic drops s_umount concurrent mounters could grab s_umount and
+ would spin. Instead they are now made to wait using an explicit wait-wake
+ mechanism without having to hold s_umount.
++
++---
++
++**mandatory**
++
++The holder of a block device is now the superblock.
++
++The holder of a block device used to be the file_system_type which wasn't
++particularly useful. It wasn't possible to go from block device to owning
++superblock without matching on the device pointer stored in the superblock.
++This mechanism would only work for a single device so the block layer couldn't
++find the owning superblock associated with additional devices.
++
++In the old mechanism reusing or creating a superblock for racing mount(2) and
++umount(2) relied on the file_system_type as the holder. This was severly
++underdocumented however:
++
++(1) If the concurrent mount(2) managed to grab an active reference before the
++    umount(2) dropped the last active reference in deactivate_locked_super()
++    the mounter would simply reuse the existing superblock.
++
++(2) If the mounter came after deactivate_locked_super() but before
++    the superblock had been removed from the list of superblocks of the
++    filesystem type the mounter would wait until the superblock was shutdown
++    and allocated a new superblock.
++
++(3) If the mounter came after deactivate_locked_super() and after
++    the superblock had been removed from the list of superblocks of the
++    filesystem type the mounter would allocate a new superblock.
++
++Because the holder of the block device was the filesystem type any concurrent
++mounter could open the block device without risking seeing EBUSY because the
++block device was still in use.
++
++Making the superblock the owner of the block device changes this as the holder
++is now a unique superblock and not shared among all superblocks of the
++filesystem type. So a concurrent mounter in (2) could suddenly see EBUSY when
++trying to open a block device whose holder was a different superblock.
++
++The new logic thus waits until the superblock and the devices are shutdown in
++->kill_sb(). Removal of the superblock from the list of superblocks of the
++filesystem type is now moved to a later point when the devices are closed:
++
++(1) Any concurrent mounter managing to grab an active reference on an existing
++    superblock is made to wait until the superblock is either ready or until
++    the superblock and all devices are shutdown in ->kill_sb().
++
++(2) If the mounter came after deactivate_locked_super() but before
++    the superblock had been removed from the list of superblocks of the
++    filesystem type the mounter is made to wait until the superblock and the
++    devices are shut down in ->kill_sb() and the superblock is removed from the
++    list of superblocks of the filesystem type.
++
++(3) This case is now collapsed into (2) as the superblock is left on the list
++    of superblocks of the filesystem type until all devices are shutdown in
++    ->kill_sb().
++
++As this is a VFS level change it has no practical consequences for filesystems
++other than that all of them must use one of the provided kill_litter_super(),
++kill_anon_super(), or kill_block_super() helpers.
++
++Filesystems that reuse superblocks based on non-static keys such as
++sb->s_fs_info must ensure that these keys remain valid across kill_*_super()
++calls. The expected pattern is::
++
++	static struct file_system_type some_fs_type = {
++		.name 		= "somefs",
++		.kill_sb 	= some_fs_kill_sb,
++	};
++
++	static void some_fs_kill_sb(struct super_block *sb)
++	{
++		struct some_fs_info *info = sb->s_fs_info;
++
++		kill_*_super(sb);
++		kfree(info);
++	}
++
++It's best practice to never deviate from this pattern.
+-- 
+2.34.1
+
