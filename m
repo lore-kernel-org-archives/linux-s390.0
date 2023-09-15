@@ -2,77 +2,133 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA9AEEEB59B
-	for <linux-s390@archiver.kernel.org>; Fri, 15 Sep 2023 14:40:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87AA2EED61A
+	for <linux-s390@archiver.kernel.org>; Fri, 15 Sep 2023 17:29:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235785AbjIOOkV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 15 Sep 2023 10:40:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41920 "EHLO
+        id S235637AbjIOR2f (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 15 Sep 2023 13:28:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235633AbjIOOkT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 10:40:19 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A9AC1AC;
-        Fri, 15 Sep 2023 07:40:15 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6453C433C9;
-        Fri, 15 Sep 2023 14:40:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1694788814;
-        bh=PvlOjbLkc3tgSHNCaVnS82ty1H0lvym1p0dyZTkOFDQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GsMXd6mZ8RM6Ehv3+oeXSFdJBK4XfA1s5jG3qJW397E3aH+o329rZ/VtgcJhEI2Ek
-         GIJfdrxXDV/D+2h214W5hbDliVTBm3yN1eUgvtUVVZ1/ZgLJyELtBnprCB74Mvp2bO
-         Y9yAjyDUJYhLQ2LABIiRFS7SjQAloadGL5GvZIH6h3ow+QooG9ilUBP37mYSe/gnfx
-         Oe0um8v+i1YG5HcXkyDRJwPVS8rwGOnzAUkEZB8JlS5KwPI8HWoWokIviZ30JYSJLI
-         VjWkPZQ6+IEwE3hlmnfM8EB719A4Al+/b90kwWaliUnxciX021zodiQcb+zRxyFzBc
-         v2OPDzI9ovPwA==
-Date:   Fri, 15 Sep 2023 16:40:06 +0200
-From:   Christian Brauner <brauner@kernel.org>
-To:     Al Viro <viro@zeniv.linux.org.uk>
+        with ESMTP id S236118AbjIOR2c (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 13:28:32 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D3341BF2;
+        Fri, 15 Sep 2023 10:28:27 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id C91941F74D;
+        Fri, 15 Sep 2023 17:28:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1694798905; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=jYlrXr9COsiXTqZelDYIvgSCoIEmwG74Vx0nCHq6QF4=;
+        b=Ri5ozDQmN+12TtSf7/86mvip2TrUxYmT0KtDA2adIhQWfaJ8nbofS2/7HSdjGItU1HaKF9
+        CU6HlSSYBR23C33IfBEmcqKS14SH6mstqOm3r4FlPvZqoxlLgggMXsz1kkBHIGO5nnmiUJ
+        OUvvykuDidP7HORcTXLRznxgIQPIXXY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1694798905;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=jYlrXr9COsiXTqZelDYIvgSCoIEmwG74Vx0nCHq6QF4=;
+        b=yN+SOk2sDHFaDDAew0tRGThDY9EavXDcQkSD3mtfLV16TSOHJIRvZf2OYKiTRfnJ5LdT3m
+        IwT7IIdzFpVqV+CQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id B528F1358A;
+        Fri, 15 Sep 2023 17:28:25 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 6Cw/LDmUBGXtTwAAMHmgww
+        (envelope-from <jack@suse.cz>); Fri, 15 Sep 2023 17:28:25 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+        id 43D39A0759; Fri, 15 Sep 2023 19:28:25 +0200 (CEST)
+Date:   Fri, 15 Sep 2023 19:28:25 +0200
+From:   Jan Kara <jack@suse.cz>
+To:     David Sterba <dsterba@suse.cz>
 Cc:     Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Christian Brauner <brauner@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>,
+        Denis Efremov <efremov@linux.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Tejun Heo <tj@kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Damien Le Moal <dlemoal@kernel.org>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-hardening@vger.kernel.org,
-        cgroups@vger.kernel.org
-Subject: Re: [PATCH 03/19] fs: release anon dev_t in deactivate_locked_super
-Message-ID: <20230915-brust-gratis-156b7572a7c9@brauner>
-References: <20230913111013.77623-1-hch@lst.de>
- <20230913111013.77623-4-hch@lst.de>
- <20230913232712.GC800259@ZenIV>
- <20230914023705.GH800259@ZenIV>
- <20230914053843.GI800259@ZenIV>
- <20230914-munkeln-pelzmantel-3e3a761acb72@brauner>
- <20230914165805.GJ800259@ZenIV>
- <20230915-elstern-etatplanung-906c6780af19@brauner>
- <20230915-zweit-frech-0e06394208a3@brauner>
- <20230915142814.GL800259@ZenIV>
+        "Darrick J . Wong" <djwong@kernel.org>, Chris Mason <clm@fb.com>,
+        David Sterba <dsterba@suse.com>, linux-block@vger.kernel.org,
+        nbd@other.debian.org, linux-s390@vger.kernel.org,
+        linux-btrfs@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: remove get_super
+Message-ID: <20230915172825.xedwomfct3sc6ars@quack3>
+References: <20230811100828.1897174-1-hch@lst.de>
+ <20230912174245.GC20408@twin.jikos.cz>
+ <20230914084809.arzw34svsvvkwivm@quack3>
+ <20230914120320.GY20408@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230915142814.GL800259@ZenIV>
+In-Reply-To: <20230914120320.GY20408@suse.cz>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> Lifetime rules for fs-private parts of superblock are really private to
+On Thu 14-09-23 14:03:20, David Sterba wrote:
+> On Thu, Sep 14, 2023 at 10:48:09AM +0200, Jan Kara wrote:
+> > On Tue 12-09-23 19:42:45, David Sterba wrote:
+> > > On Fri, Aug 11, 2023 at 12:08:11PM +0200, Christoph Hellwig wrote:
+> > > > Hi all,
+> > > > 
+> > > > this series against the VFS vfs.super branch finishes off the work to remove
+> > > > get_super and move (almost) all upcalls to use the holder ops.
+> > > > 
+> > > > The first part is the missing btrfs bits so that all file systems use the
+> > > > super_block as holder.
+> > > > 
+> > > > The second part is various block driver cleanups so that we use proper
+> > > > interfaces instead of raw calls to __invalidate_device and fsync_bdev.
+> > > > 
+> > > > The last part than replaces __invalidate_device and fsync_bdev with upcalls
+> > > > to the file system through the holder ops, and finally removes get_super.
+> > > > 
+> > > > It leaves user_get_super and get_active_super around.  The former is not
+> > > > used for upcalls in the traditional sense, but for legacy UAPI that for
+> > > > some weird reason take a dev_t argument (ustat) or a block device path
+> > > > (quotactl).  get_active_super is only used for calling into the file system
+> > > > on freeze and should get a similar treatment, but given that Darrick has
+> > > > changes to that code queued up already this will be handled in the next
+> > > > merge window.
+> > > > 
+> > > > A git tree is available here:
+> > > > 
+> > > >     git://git.infradead.org/users/hch/misc.git remove-get_super
+> > > 
+> > > FYI, I've added patches 2-5 as a topic branch to btrfs for-next.
+> > 
+> > Hum, I don't see them there. Some glitch somewhere?
+> 
+> There will be a delay before the patches show up in the pushed for-next
+> branch, some tests failed (maybe not related to this series) and there
+> are other merge conflicts that I need to resolve first.
 
-Fine, I'll drop that. It's still correct that a filesystem needs to take
-care when it frees sb->s_fs_info. See the RCU fun you just encountered.
+Thanks for picking up the patches, I can see them in your tree now. But
+I've also noticed (by comparing my local branch with your tree), that in
+this series is also a patch 6/17 "btrfs: use the super_block as holder when
+mounting file systems" which you didn't pick up. It actually fixes block
+device freezing for btrfs as a sideeffect as Christian found out [1]. Can
+you please pick it up as well? Thanks!
 
+								Honza
 
+[1] https://lore.kernel.org/all/20230908-merklich-bebauen-11914a630db4@brauner
+
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
