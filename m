@@ -2,127 +2,92 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4442BEE3F01
-	for <linux-s390@archiver.kernel.org>; Fri, 15 Sep 2023 03:24:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB688EE6433
+	for <linux-s390@archiver.kernel.org>; Fri, 15 Sep 2023 07:41:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231792AbjIODYK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 14 Sep 2023 23:24:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48770 "EHLO
+        id S232752AbjIOHlT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 15 Sep 2023 03:41:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229767AbjIODYJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Sep 2023 23:24:09 -0400
-Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1F14270C;
-        Thu, 14 Sep 2023 20:24:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1694748242;
-        bh=6XG3B0FzXsmvZoKkkhm5wOJHB7Zd1TpS1JWjBGpTusE=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=PKpIyJXfdhJr2Sk2XiFpR9ouUJal5nD2tBGYvkTi+yQRsa9ZIvCgirZ5+6besrqBL
-         UlCTRNeIti/3HlXKC5s/hNh/zWDyp0CAj38ooZCtURDec0zV29n1q0vvHWP8LzC/8u
-         j+BMCh8sirKL/ZLOdFgRYAJwTicvGuLLCgCMve6s4NNE6G+YTeu3xI1X+6WSPiiUmJ
-         53dID1WgSubZVw/xkbEC18yiNd+dsH+sCiTIMfNZ4C0SAAbyPBEWD+PT1gDHirRJ7I
-         e1Oe/pJXxiN5V+sroGp3Ed6zutx8sxe3J/0iaG/Wx6C4lA/ghdRZcbu2waY0Piauup
-         ceLVj/+K8GSVw==
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4Rn0045DDWz4wxR;
-        Fri, 15 Sep 2023 13:23:48 +1000 (AEST)
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Sohil Mehta <sohil.mehta@intel.com>, linux-api@vger.kernel.org,
-        linux-arch@vger.kernel.org
-Cc:     Sohil Mehta <sohil.mehta@intel.com>,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        with ESMTP id S232698AbjIOHlP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 03:41:15 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4664CA1;
+        Fri, 15 Sep 2023 00:41:10 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB267C433C9;
+        Fri, 15 Sep 2023 07:41:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1694763669;
+        bh=dVfu4w2NiWvgQSrc/fseHwlP/NzWq4M7GMOTKHDsJZQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=KXYk3ApLn9hfsQ83Z/yA6JxgIS4oIbIBX57XuMRQSgST503VKG5H48dhCgKwIcbyR
+         OK9J7rZgn6k47BvOuP6sTlgz2Ev5NIXDDt2xIT3tdRt9Sf/+A3ItmVyFs4Y3n5KRWc
+         RB1nL5Hr9+90KR12bQJaTW2uw+9tjzNcHO+akP2BPrvzI/FAReCs9pbsxATiEHEnYu
+         StTeTqQ7By5inCTKASjqvskqPfUL4X4ab1Ru90yUuajA5gmiERdJiMXi/MHler+Zts
+         x9GS0+nYSSjg0n7UbZNR+ipQT4+5rOnSP8BaeZLWKwj4bpm7PylJg0p7v18IHTEtPP
+         y4y7LwClq8iew==
+Date:   Fri, 15 Sep 2023 09:40:57 +0200
+From:   Christian Brauner <brauner@kernel.org>
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Christoph Hellwig <hch@lst.de>, Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H . Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Sergei Trofimovich <slyich@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Rohan McLure <rmclure@linux.ibm.com>,
-        Andreas Schwab <schwab@linux-m68k.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Brian Gerst <brgerst@gmail.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Rick Edgecombe <rick.p.edgecombe@intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Deepak Gupta <debug@rivosinc.com>, linux-alpha@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-perf-users@vger.kernel.org
-Subject: Re: [PATCH v2] arch: Reserve map_shadow_stack() syscall number for
- all architectures
-In-Reply-To: <20230914185804.2000497-1-sohil.mehta@intel.com>
-References: <20230914185804.2000497-1-sohil.mehta@intel.com>
-Date:   Fri, 15 Sep 2023 13:23:43 +1000
-Message-ID: <878r986rwg.fsf@mail.lhotse>
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Tejun Heo <tj@kernel.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Damien Le Moal <dlemoal@kernel.org>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-hardening@vger.kernel.org,
+        cgroups@vger.kernel.org, Jan Kara <jack@suse.cz>
+Subject: Re: [PATCH 03/19] fs: release anon dev_t in deactivate_locked_super
+Message-ID: <20230915-nieren-bebauen-f5e2e23ac914@brauner>
+References: <20230913111013.77623-1-hch@lst.de>
+ <20230913111013.77623-4-hch@lst.de>
+ <20230913232712.GC800259@ZenIV>
+ <20230914023705.GH800259@ZenIV>
+ <20230914053843.GI800259@ZenIV>
+ <20230914-munkeln-pelzmantel-3e3a761acb72@brauner>
+ <20230914165805.GJ800259@ZenIV>
+ <20230914192331.GK800259@ZenIV>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20230914192331.GK800259@ZenIV>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Sohil Mehta <sohil.mehta@intel.com> writes:
-> commit c35559f94ebc ("x86/shstk: Introduce map_shadow_stack syscall")
-> recently added support for map_shadow_stack() but it is limited to x86
-> only for now. There is a possibility that other architectures (namely,
-> arm64 and RISC-V), that are implementing equivalent support for shadow
-> stacks, might need to add support for it.
->
-> Independent of that, reserving arch-specific syscall numbers in the
-> syscall tables of all architectures is good practice and would help
-> avoid future conflicts. map_shadow_stack() is marked as a conditional
-> syscall in sys_ni.c. Adding it to the syscall tables of other
-> architectures is harmless and would return ENOSYS when exercised.
->
-> Note, map_shadow_stack() was assigned #453 during the merge process
-> since #452 was taken by fchmodat2().
->
-> For Powerpc, map it to sys_ni_syscall() as is the norm for Powerpc
-> syscall tables.
+On Thu, Sep 14, 2023 at 08:23:31PM +0100, Al Viro wrote:
+> On Thu, Sep 14, 2023 at 05:58:05PM +0100, Al Viro wrote:
+> 
+> > Incidentally, I'm going to add a (belated by 10 years) chunk in porting.rst
+> > re making sure that anything in superblock that might be needed by methods
+> > called in RCU mode should *not* be freed without an RCU delay...  Should've
+> > done that back in 3.12 merge window when RCU'd vfsmounts went in; as it
+> > is, today we have several filesystems with exact same kind of breakage.
+> > hfsplus and affs breakage had been there in 3.13 (missed those two), exfat
+> > and ntfs3 - introduced later, by initial merges of filesystems in question.
+> > Missed on review...
+> > 
+> > Hell knows - perhaps Documentation/filesystems/whack-a-mole might be a good
+> > idea...
 
-Mapping it to sys_map_shadow_stack() would work fine, but I'm happy with
-sys_ni_syscall as I don't see powerpc implementing map_shadow_stack()
-any time soon.
+pitfalls.rst or common-bugs.rst
 
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+or something like that.
 
-cheers
+> 
+> Actually, utf8 casefolding stuff also has the same problem, so ext4 and f2fs
+> with casefolding are also affected ;-/
+
+
