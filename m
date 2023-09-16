@@ -2,58 +2,58 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E5C2CD37AF
-	for <linux-s390@archiver.kernel.org>; Sat, 16 Sep 2023 00:33:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 134C9CD37B2
+	for <linux-s390@archiver.kernel.org>; Sat, 16 Sep 2023 00:33:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239021AbjIPAdU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 15 Sep 2023 20:33:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57098 "EHLO
+        id S238479AbjIPAdV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 15 Sep 2023 20:33:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238804AbjIPAcs (ORCPT
+        with ESMTP id S238810AbjIPAcs (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 20:32:48 -0400
-Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E272630C0
-        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:53 -0700 (PDT)
-Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-59c240e637aso11256777b3.3
-        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:53 -0700 (PDT)
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 170C72D4C
+        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:39 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id 3f1490d57ef6-d8141d6fbe3so3253459276.3
+        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1694824313; x=1695429113; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1694824298; x=1695429098; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=pl7bBxxWVXjTf9iTQwKV6iNN5dTCLVhIVjlh92R6IC4=;
-        b=zOLzyvf9Xh9Oyip0BwJ83PeBHCS/GkeIkYW7amwKWpbVRBulRSs+M2ewlVHSYEk8Y1
-         fZi/rLeXSktTS8MyrHSb7oSjjoji3mP8DLBFys3HTkweHkzNEjUj/MYjO6bhCObLf6WI
-         C4epHaQCDHjamTfPTIFUVJo9uV7rJeD8D3Ev5VTy1GaRUXNCbP9vUakULPRry3f2UmYw
-         gyw5WDenpiA4SZAJNYLZ4b5c/W6CHbsXfPj0GoeSA/wcWsneuM9gT86MPn9Q/cBxCCsq
-         e6qXt7/vwX6T3FspiyVRjD7e2hTXM1HQsLlpY6p8Z4vdzbokFmWoStzOeNzcENym+vhB
-         +SRw==
+        bh=OjnVLG9a9LJLqorH8Rj1ZnrY26noTE5ZeEoscx0wCrE=;
+        b=3iwsnBBg9U9rpDKqYhVnwIOmDRQRmg6VPUkonz/huNUXNLJwhQBvwByqsEaueNfXsG
+         3FRR/r+a38kQBwhJqk8rnRXZ6B25yca5VIiPhk/HlCGmCwQFo7S0Jy7SCZt7mDqcRtaS
+         WNfLsZPOSBNhaWmq59Gx9VrL5De2F0OpOU9uoEPEnntmkk/j5pSN5+lhF0SoyvbSmLGg
+         0jdpYz2TnQgNkxXIhgUFs6rHAycucPVycDEZ+eIzigDEm96Ewq8OuxMO0cFbbQVTYRzG
+         ZS4R7RSd4dPGC/Kbd5b65d+sV1BBGAKwQ167T0oAG8kRxOWlmFQSICPuARM7hNT4eYFs
+         w2Ow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694824313; x=1695429113;
+        d=1e100.net; s=20230601; t=1694824298; x=1695429098;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=pl7bBxxWVXjTf9iTQwKV6iNN5dTCLVhIVjlh92R6IC4=;
-        b=HC4neKs/yk63zc+qRsGJTEX5soXVpcrAQwqCt8Cvvb/z0DA7lm5TMhuyPkSFAwIe1b
-         bkn3W00NeEnCfH3jd1hDr8GFGcXyfx4wlk9+GAXERc9HcvlLjHbraxlrG2zo9XkXz862
-         iOFMmAHOlKGfochscXyoZnBbP0aPua+iciUYB02mSe9Q9ZcYsAkgZjntBpjGQ0JqBu2m
-         QgZ+R7C/ttf3Awtt4jYeJBLis8UfYDfgSPKsbn1TY+dZJxcooXcPMHHQSN4rBSWNduJI
-         ozJhywYjnuxkQgycTmoS8wYRw+bM3hry7Q7DOllLzKRryxfSIdNrPWRkdA5ImS5olrRM
-         JDnw==
-X-Gm-Message-State: AOJu0YyxFCb67PRfsI6oBqwAn63NQkWXpLOVkt3XLd65ELZpkawzWPKl
-        OB+BNVTAg/6N9YvLidRDnYhmmFVlVVg=
-X-Google-Smtp-Source: AGHT+IHIEoJ5Qp0cT7058FSDnFlcgu0NfKZ+k2cnwo0UQE0i+ifeNt8ssvIZEJlieWuqLdMggeWcLX6T9W4=
+        bh=OjnVLG9a9LJLqorH8Rj1ZnrY26noTE5ZeEoscx0wCrE=;
+        b=KhumUKE/Fe76Rr3DXeXg2eVKS4bpVw3jLtwt0T7f/CL2O77456Pjm8/tIKLfH0T2iO
+         RhcEi18sMV3DhZuC2YQxp+4ku6ksHk27P04zROH2f7JaXJWoIMmXh5KfahuFBViE17vO
+         /CPG0yzSXjyIRNTzI3di5qOgYU8c4jmMzk3ZkGa+mcuITDL+cAXECKVoy1B5aeavepiu
+         U+Vh+eLZIPwaI1CXrLvJUiJ1Ml4vT4JmvtfczbrYj7z8f/FVM6+xSSB4wZNV9OuHM/lT
+         A87ZyGrQjgl1Chqr5aBf54dYum+QlPndwTV97jVUl4zd6cBi/+q9iOAQSvjpNgYAEEXm
+         ossQ==
+X-Gm-Message-State: AOJu0YwTZLCUb5PULNTIF5f6mMhtttg6gVNnz0DWpzILMF9rDHW5Mz+l
+        gTVllQZbobbVrbb0JKpjduekHDA/0VI=
+X-Google-Smtp-Source: AGHT+IEejUplN0yThqJglSyf2PAl899GMvDcyB4OaKD9HL7AL2P8QSuIFDWAjhltJc72cwzADimsWD5lopA=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a05:6902:4cf:b0:d7b:92d7:5629 with SMTP id
- v15-20020a05690204cf00b00d7b92d75629mr82335ybs.8.1694824312956; Fri, 15 Sep
- 2023 17:31:52 -0700 (PDT)
+ (user=seanjc job=sendgmr) by 2002:a05:6902:138e:b0:d78:245a:aac4 with SMTP id
+ x14-20020a056902138e00b00d78245aaac4mr82623ybu.1.1694824298283; Fri, 15 Sep
+ 2023 17:31:38 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Fri, 15 Sep 2023 17:31:08 -0700
+Date:   Fri, 15 Sep 2023 17:31:01 -0700
 In-Reply-To: <20230916003118.2540661-1-seanjc@google.com>
 Mime-Version: 1.0
 References: <20230916003118.2540661-1-seanjc@google.com>
 X-Mailer: git-send-email 2.42.0.459.ge4e396fd5e-goog
-Message-ID: <20230916003118.2540661-17-seanjc@google.com>
-Subject: [PATCH 16/26] KVM: MIPS: Stop adding virt/kvm to the arch include path
+Message-ID: <20230916003118.2540661-10-seanjc@google.com>
+Subject: [PATCH 09/26] KVM: arm64: Stop selecting and depending on HAVE_KVM
 From:   Sean Christopherson <seanjc@google.com>
 To:     Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
@@ -96,30 +96,40 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Don't add virt/kvm to KVM MIPS' include path, the headers in virt/kvm are
-intended to be used only by other code in virt/kvm, i.e. are "private" to
-the core KVM code.  It's not clear that MIPS *ever* included a header from
-virt/kvm, i.e. odds are good the "-Ivirt/kvm" was copied from a different
-architecture's Makefile when MIPS support was first added.
+Now that nothing in arm64 or architecture agnostic code consumes HAVE_KVM,
+stop selecting it in arm64.  This is one of several steps towards deleting
+HAVE_KVM from the common KVM Kconfig.
 
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- arch/mips/kvm/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/Kconfig     | 1 -
+ arch/arm64/kvm/Kconfig | 1 -
+ 2 files changed, 2 deletions(-)
 
-diff --git a/arch/mips/kvm/Makefile b/arch/mips/kvm/Makefile
-index 805aeea2166e..96a7cd21b140 100644
---- a/arch/mips/kvm/Makefile
-+++ b/arch/mips/kvm/Makefile
-@@ -4,7 +4,7 @@
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index b10515c0200b..7d99f132e57c 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -214,7 +214,6 @@ config ARM64
+ 	select HAVE_HW_BREAKPOINT if PERF_EVENTS
+ 	select HAVE_IOREMAP_PROT
+ 	select HAVE_IRQ_TIME_ACCOUNTING
+-	select HAVE_KVM
+ 	select HAVE_MOD_ARCH_SPECIFIC
+ 	select HAVE_NMI
+ 	select HAVE_PERF_EVENTS
+diff --git a/arch/arm64/kvm/Kconfig b/arch/arm64/kvm/Kconfig
+index 2b5c332f157d..c76af1973315 100644
+--- a/arch/arm64/kvm/Kconfig
++++ b/arch/arm64/kvm/Kconfig
+@@ -20,7 +20,6 @@ if VIRTUALIZATION
  
- include $(srctree)/virt/kvm/Makefile.kvm
- 
--ccflags-y += -Ivirt/kvm -Iarch/mips/kvm
-+ccflags-y += -Iarch/mips/kvm
- 
- kvm-$(CONFIG_CPU_HAS_MSA) += msa.o
- 
+ menuconfig KVM
+ 	bool "Kernel-based Virtual Machine (KVM) support"
+-	depends on HAVE_KVM
+ 	select KVM_GENERIC_HARDWARE_ENABLING
+ 	select MMU_NOTIFIER
+ 	select PREEMPT_NOTIFIERS
 -- 
 2.42.0.459.ge4e396fd5e-goog
 
