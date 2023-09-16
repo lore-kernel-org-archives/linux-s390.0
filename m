@@ -2,59 +2,58 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32BBDCD37B4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51F3ECD37B8
 	for <linux-s390@archiver.kernel.org>; Sat, 16 Sep 2023 00:33:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238393AbjIPAdX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 15 Sep 2023 20:33:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38908 "EHLO
+        id S238618AbjIPAdY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 15 Sep 2023 20:33:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238830AbjIPAdH (ORCPT
+        with ESMTP id S238826AbjIPAdH (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 20:33:07 -0400
-Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B0E0CE5
-        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:45 -0700 (PDT)
-Received: by mail-yb1-xb49.google.com with SMTP id 3f1490d57ef6-d81c39acfd9so1556394276.0
-        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:45 -0700 (PDT)
+Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0081D2738
+        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:32:03 -0700 (PDT)
+Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-58f9db8bc1dso34790827b3.3
+        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:32:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1694824304; x=1695429104; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1694824323; x=1695429123; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=T4d9JtkzBqCpjbUcqi6GepdBrHqatH15LR+RcbQRSno=;
-        b=TRJ05qkikeAFbtjeAVx1soHRBMwfMmICSMxDL3NqsjXKuPVJFKwL/Xj9QGZFgLO+XY
-         NQsEOkCJLeopu+07c1zKvPw/bjH3fDjxvda9AVeqF5ZOGzmKImlUk2N/QBYa8b+dIBST
-         jO1PE1VbwLZlbiC5oSro83X1D5XECqRnvUxeL91RtnK33fWA5CGmW1IUB0EaiAkazUdg
-         7/+Vcxnp6FwTEfdMwaTKGZvMEhrWdRuhv/00SCWeK7G46wfFINhKKIQyUB9ct1yVSAbK
-         t28d8TgxkozGsV2svrC1aaS0dJFxM+x1IMmpSf3VkggGAZ9WdoZh9z1sAgE0ZsrimOyz
-         TVog==
+        bh=kZSgVl8Q+hmlGcu9E42B+6nCYbsSFCH4k+E/cwlLEa8=;
+        b=bPv1OfhNBPdU0sr0XJk80Rkg5EW4P1gXiI2In4zbIY41ZlOFQYLOnz6HKhuHcRDqZH
+         h0A0HVwECGR4XrRSThDKFML+RxobkgH0LoQLA3xy2rM/pEa/0gq/BQLNU+NqcpWWg33x
+         8VIc1BFq9LgZv3B+EJD5EdoLiJ+4ulr0g9J6prUugANFkmRo+CDgD0zynjLtm1t24GY0
+         xkDMUF55KabBZNnKiaK/9uoOcHm5/3lbOPXGA3a98soE/v3dJuZksD5HaUcOjAC/JwVh
+         mLCLc5erjSCqqYTXKP6YaxPdzN4vsytcejG5rjU2sdPLHjLw45d/3OhXWuB52uGzMTbJ
+         D1sg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694824304; x=1695429104;
+        d=1e100.net; s=20230601; t=1694824323; x=1695429123;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=T4d9JtkzBqCpjbUcqi6GepdBrHqatH15LR+RcbQRSno=;
-        b=qrH6uKmfb4DBaOJp7g9MDUwE+tYWRFgf9fSAQS8NBmC3+eedrqAO6RYyk4UrMmJ51e
-         tFoo94yyX94Y2bhmMy/J/Hs7I+tc6fQ7b34WHdz3o+fIQRsdVMG0TBfgE05ap0hEg5t9
-         yA51c4GGZIv3T2RtzO3vO3XpB/cWrwrrjzZsEl0r9AaeT/QsfwMShXk6KRKHQli4foPp
-         qlAfl/xrIShW0TsthaaESwp5yTrSFcDNSmy8+N2icA9+oUoPbyb41ZheUOl2cEiUA/wu
-         LJ2Gol8GcUjbs9+R41G+mi7jSMPcHLywNia42YBrvwRgE1AfCpNAXRP2eyHuxPIu4pEw
-         7Cag==
-X-Gm-Message-State: AOJu0YyNCcjabV04UEN6aYRy5vLVzzJOR3KCFSXiGgIf0LfWC2AJqj8b
-        8gCjMd3b1tyy3h+B6jqtmCl2d9kGyt4=
-X-Google-Smtp-Source: AGHT+IFHuI3+InjaYoGpeoRnBjmpOWBEwR2qvNTEjtEAfl3mVa5tl1N1hW80goIMLDXxJcvVvIl5YUYpSE0=
+        bh=kZSgVl8Q+hmlGcu9E42B+6nCYbsSFCH4k+E/cwlLEa8=;
+        b=nsE/xjXbj30DYMTnQYAiJU2GG+aEe+SAhP6mKd4awtvk/SJDsy5IiD4PlSBDLsnwrO
+         393/7iPLELd77ADnxY8DwHPvWVFkTk7ezayMvxFnnbo2/Gqjb91y/kM25NV0QAgxMUfe
+         SHKScKtOvbm4yv6RzkQIPbI4m7jLDcNGNePjBaUY+nKX676rjwEa8T05FQy9PTmgvVlp
+         Cfj1WFrDvhGbx/O6/Yg5RvlSGHic3vEnYv1lAEtszaNqks1NBRcdGiieHvdUlP2keC3H
+         CSFdZ+f5XaS5OsIFtLjSS5ldkwgOJeH/oh9wXbLPfBcsZ+JzPwNlkrbk3ltSzDQaDkBU
+         lkqA==
+X-Gm-Message-State: AOJu0YyattkCUu4ulL5lw41aU33cNOxLYHg9RzVscDD3LMJa5rYbQyNx
+        o3QhVwaOczBR0mIDAAxg6aYOFgJTeSA=
+X-Google-Smtp-Source: AGHT+IGvK90kPH1o5bQH0EPib2Mktorl92L52Xc3vYMLm3HoBq+aka+3/3i87f2Q/TuhX6d+6vnq3Y1BBZw=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a05:6902:181b:b0:d81:4107:7a1 with SMTP id
- cf27-20020a056902181b00b00d81410707a1mr70396ybb.2.1694824304643; Fri, 15 Sep
- 2023 17:31:44 -0700 (PDT)
+ (user=seanjc job=sendgmr) by 2002:a81:b60c:0:b0:586:a58d:2e24 with SMTP id
+ u12-20020a81b60c000000b00586a58d2e24mr95790ywh.5.1694824323076; Fri, 15 Sep
+ 2023 17:32:03 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Fri, 15 Sep 2023 17:31:04 -0700
+Date:   Fri, 15 Sep 2023 17:31:13 -0700
 In-Reply-To: <20230916003118.2540661-1-seanjc@google.com>
 Mime-Version: 1.0
 References: <20230916003118.2540661-1-seanjc@google.com>
 X-Mailer: git-send-email 2.42.0.459.ge4e396fd5e-goog
-Message-ID: <20230916003118.2540661-13-seanjc@google.com>
-Subject: [PATCH 12/26] KVM: arm64: Move arm_{psci,hypercalls}.h to an internal
- KVM path
+Message-ID: <20230916003118.2540661-22-seanjc@google.com>
+Subject: [PATCH 21/26] entry/kvm: Drop @vcpu param from arch_xfer_to_guest_mode_handle_work()
 From:   Sean Christopherson <seanjc@google.com>
 To:     Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
@@ -97,226 +96,53 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Anish Ghulati <aghulati@google.com>
+Drop the "struct kvm_vcpu" parameter from
+arch_xfer_to_guest_mode_handle_work() as a preparatory step towards
+removing the vCPU parameter from xfer_to_guest_mode_work() as well.
 
-Move arm_hypercalls.h and arm_psci.h into arch/arm64/kvm now that KVM
-no longer supports 32-bit ARM, i.e. now that there's no reason to make
-the hypercall and PSCI APIs "public".
-
-Signed-off-by: Anish Ghulati <aghulati@google.com>
-[sean: squash into one patch, write changelog]
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- arch/arm64/kvm/arm.c                         | 5 +++--
- {include => arch/arm64}/kvm/arm_hypercalls.h | 0
- {include => arch/arm64}/kvm/arm_psci.h       | 0
- arch/arm64/kvm/guest.c                       | 2 +-
- arch/arm64/kvm/handle_exit.c                 | 2 +-
- arch/arm64/kvm/hyp/Makefile                  | 4 ++--
- arch/arm64/kvm/hyp/include/hyp/switch.h      | 4 ++--
- arch/arm64/kvm/hyp/nvhe/switch.c             | 4 ++--
- arch/arm64/kvm/hyp/vhe/switch.c              | 4 ++--
- arch/arm64/kvm/hypercalls.c                  | 4 ++--
- arch/arm64/kvm/psci.c                        | 4 ++--
- arch/arm64/kvm/pvtime.c                      | 2 +-
- arch/arm64/kvm/trng.c                        | 2 +-
- 13 files changed, 19 insertions(+), 18 deletions(-)
- rename {include => arch/arm64}/kvm/arm_hypercalls.h (100%)
- rename {include => arch/arm64}/kvm/arm_psci.h (100%)
+ include/linux/entry-kvm.h | 7 ++-----
+ kernel/entry/kvm.c        | 2 +-
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
-index 4866b3f7b4ea..6de1d63b981b 100644
---- a/arch/arm64/kvm/arm.c
-+++ b/arch/arm64/kvm/arm.c
-@@ -41,9 +41,10 @@
- #include <asm/kvm_emulate.h>
- #include <asm/sections.h>
+diff --git a/include/linux/entry-kvm.h b/include/linux/entry-kvm.h
+index 6813171afccb..e7d90d06e566 100644
+--- a/include/linux/entry-kvm.h
++++ b/include/linux/entry-kvm.h
+@@ -25,18 +25,15 @@ struct kvm_vcpu;
+ /**
+  * arch_xfer_to_guest_mode_handle_work - Architecture specific xfer to guest
+  *					 mode work handling function.
+- * @vcpu:	Pointer to current's VCPU data
+  * @ti_work:	Cached TIF flags gathered in xfer_to_guest_mode_handle_work()
+  *
+  * Invoked from xfer_to_guest_mode_handle_work(). Defaults to NOOP. Can be
+  * replaced by architecture specific code.
+  */
+-static inline int arch_xfer_to_guest_mode_handle_work(struct kvm_vcpu *vcpu,
+-						      unsigned long ti_work);
++static inline int arch_xfer_to_guest_mode_handle_work(unsigned long ti_work);
  
--#include <kvm/arm_hypercalls.h>
- #include <kvm/arm_pmu.h>
--#include <kvm/arm_psci.h>
-+
-+#include "arm_hypercalls.h"
-+#include "arm_psci.h"
- 
- static enum kvm_mode kvm_mode = KVM_MODE_DEFAULT;
- 
-diff --git a/include/kvm/arm_hypercalls.h b/arch/arm64/kvm/arm_hypercalls.h
-similarity index 100%
-rename from include/kvm/arm_hypercalls.h
-rename to arch/arm64/kvm/arm_hypercalls.h
-diff --git a/include/kvm/arm_psci.h b/arch/arm64/kvm/arm_psci.h
-similarity index 100%
-rename from include/kvm/arm_psci.h
-rename to arch/arm64/kvm/arm_psci.h
-diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
-index 95f6945c4432..32045ad51ec4 100644
---- a/arch/arm64/kvm/guest.c
-+++ b/arch/arm64/kvm/guest.c
-@@ -18,7 +18,6 @@
- #include <linux/string.h>
- #include <linux/vmalloc.h>
- #include <linux/fs.h>
--#include <kvm/arm_hypercalls.h>
- #include <asm/cputype.h>
- #include <linux/uaccess.h>
- #include <asm/fpsimd.h>
-@@ -27,6 +26,7 @@
- #include <asm/kvm_nested.h>
- #include <asm/sigcontext.h>
- 
-+#include "arm_hypercalls.h"
- #include "trace.h"
- 
- const struct _kvm_stats_desc kvm_vm_stats_desc[] = {
-diff --git a/arch/arm64/kvm/handle_exit.c b/arch/arm64/kvm/handle_exit.c
-index 617ae6dea5d5..f1d02d6f8683 100644
---- a/arch/arm64/kvm/handle_exit.c
-+++ b/arch/arm64/kvm/handle_exit.c
-@@ -21,7 +21,7 @@
- #include <asm/stacktrace/nvhe.h>
- #include <asm/traps.h>
- 
--#include <kvm/arm_hypercalls.h>
-+#include "arm_hypercalls.h"
- 
- #define CREATE_TRACE_POINTS
- #include "trace_handle_exit.h"
-diff --git a/arch/arm64/kvm/hyp/Makefile b/arch/arm64/kvm/hyp/Makefile
-index a38dea6186c9..4ce8c86967b5 100644
---- a/arch/arm64/kvm/hyp/Makefile
-+++ b/arch/arm64/kvm/hyp/Makefile
-@@ -4,7 +4,7 @@
- #
- 
- incdir := $(srctree)/$(src)/include
--subdir-asflags-y := -I$(incdir)
--subdir-ccflags-y := -I$(incdir)
-+subdir-asflags-y := -I$(incdir) -I$(srctree)/arch/arm64/kvm
-+subdir-ccflags-y := -I$(incdir) -I$(srctree)/arch/arm64/kvm
- 
- obj-$(CONFIG_KVM) += vhe/ nvhe/ pgtable.o
-diff --git a/arch/arm64/kvm/hyp/include/hyp/switch.h b/arch/arm64/kvm/hyp/include/hyp/switch.h
-index 9cfe6bd1dbe4..cd21cf71d7db 100644
---- a/arch/arm64/kvm/hyp/include/hyp/switch.h
-+++ b/arch/arm64/kvm/hyp/include/hyp/switch.h
-@@ -16,8 +16,6 @@
- #include <linux/jump_label.h>
- #include <uapi/linux/psci.h>
- 
--#include <kvm/arm_psci.h>
--
- #include <asm/barrier.h>
- #include <asm/cpufeature.h>
- #include <asm/extable.h>
-@@ -31,6 +29,8 @@
- #include <asm/debug-monitors.h>
- #include <asm/processor.h>
- 
-+#include "arm_psci.h"
-+
- struct kvm_exception_table_entry {
- 	int insn, fixup;
- };
-diff --git a/arch/arm64/kvm/hyp/nvhe/switch.c b/arch/arm64/kvm/hyp/nvhe/switch.c
-index c353a06ee7e6..c0553ac36a46 100644
---- a/arch/arm64/kvm/hyp/nvhe/switch.c
-+++ b/arch/arm64/kvm/hyp/nvhe/switch.c
-@@ -13,8 +13,6 @@
- #include <linux/jump_label.h>
- #include <uapi/linux/psci.h>
- 
--#include <kvm/arm_psci.h>
--
- #include <asm/barrier.h>
- #include <asm/cpufeature.h>
- #include <asm/kprobes.h>
-@@ -29,6 +27,8 @@
- #include <nvhe/fixed_config.h>
- #include <nvhe/mem_protect.h>
- 
-+#include "arm_psci.h"
-+
- /* Non-VHE specific context */
- DEFINE_PER_CPU(struct kvm_host_data, kvm_host_data);
- DEFINE_PER_CPU(struct kvm_cpu_context, kvm_hyp_ctxt);
-diff --git a/arch/arm64/kvm/hyp/vhe/switch.c b/arch/arm64/kvm/hyp/vhe/switch.c
-index 6537f58b1a8c..f7423c890b5c 100644
---- a/arch/arm64/kvm/hyp/vhe/switch.c
-+++ b/arch/arm64/kvm/hyp/vhe/switch.c
-@@ -13,8 +13,6 @@
- #include <linux/percpu.h>
- #include <uapi/linux/psci.h>
- 
--#include <kvm/arm_psci.h>
--
- #include <asm/barrier.h>
- #include <asm/cpufeature.h>
- #include <asm/kprobes.h>
-@@ -28,6 +26,8 @@
- #include <asm/thread_info.h>
- #include <asm/vectors.h>
- 
-+#include "arm_psci.h"
-+
- /* VHE specific context */
- DEFINE_PER_CPU(struct kvm_host_data, kvm_host_data);
- DEFINE_PER_CPU(struct kvm_cpu_context, kvm_hyp_ctxt);
-diff --git a/arch/arm64/kvm/hypercalls.c b/arch/arm64/kvm/hypercalls.c
-index 7fb4df0456de..d34a31c9ace2 100644
---- a/arch/arm64/kvm/hypercalls.c
-+++ b/arch/arm64/kvm/hypercalls.c
-@@ -6,8 +6,8 @@
- 
- #include <asm/kvm_emulate.h>
- 
--#include <kvm/arm_hypercalls.h>
--#include <kvm/arm_psci.h>
-+#include "arm_hypercalls.h"
-+#include "arm_psci.h"
- 
- #define KVM_ARM_SMCCC_STD_FEATURES				\
- 	GENMASK(KVM_REG_ARM_STD_BMAP_BIT_COUNT - 1, 0)
-diff --git a/arch/arm64/kvm/psci.c b/arch/arm64/kvm/psci.c
-index 1f69b667332b..c461e15026c9 100644
---- a/arch/arm64/kvm/psci.c
-+++ b/arch/arm64/kvm/psci.c
-@@ -13,8 +13,8 @@
- #include <asm/cputype.h>
- #include <asm/kvm_emulate.h>
- 
--#include <kvm/arm_psci.h>
--#include <kvm/arm_hypercalls.h>
-+#include "arm_hypercalls.h"
-+#include "arm_psci.h"
- 
- /*
-  * This is an implementation of the Power State Coordination Interface
-diff --git a/arch/arm64/kvm/pvtime.c b/arch/arm64/kvm/pvtime.c
-index 4ceabaa4c30b..b07d250d223c 100644
---- a/arch/arm64/kvm/pvtime.c
-+++ b/arch/arm64/kvm/pvtime.c
-@@ -8,7 +8,7 @@
- #include <asm/kvm_mmu.h>
- #include <asm/pvclock-abi.h>
- 
--#include <kvm/arm_hypercalls.h>
-+#include "arm_hypercalls.h"
- 
- void kvm_update_stolen_time(struct kvm_vcpu *vcpu)
+ #ifndef arch_xfer_to_guest_mode_work
+-static inline int arch_xfer_to_guest_mode_handle_work(struct kvm_vcpu *vcpu,
+-						      unsigned long ti_work)
++static inline int arch_xfer_to_guest_mode_handle_work(unsigned long ti_work)
  {
-diff --git a/arch/arm64/kvm/trng.c b/arch/arm64/kvm/trng.c
-index 99bdd7103c9c..b5dc0f09797a 100644
---- a/arch/arm64/kvm/trng.c
-+++ b/arch/arm64/kvm/trng.c
-@@ -6,7 +6,7 @@
+ 	return 0;
+ }
+diff --git a/kernel/entry/kvm.c b/kernel/entry/kvm.c
+index 2e0f75bcb7fd..c2fc39824157 100644
+--- a/kernel/entry/kvm.c
++++ b/kernel/entry/kvm.c
+@@ -19,7 +19,7 @@ static int xfer_to_guest_mode_work(struct kvm_vcpu *vcpu, unsigned long ti_work)
+ 		if (ti_work & _TIF_NOTIFY_RESUME)
+ 			resume_user_mode_work(NULL);
  
- #include <asm/kvm_emulate.h>
- 
--#include <kvm/arm_hypercalls.h>
-+#include "arm_hypercalls.h"
- 
- #define ARM_SMCCC_TRNG_VERSION_1_0	0x10000UL
+-		ret = arch_xfer_to_guest_mode_handle_work(vcpu, ti_work);
++		ret = arch_xfer_to_guest_mode_handle_work(ti_work);
+ 		if (ret)
+ 			return ret;
  
 -- 
 2.42.0.459.ge4e396fd5e-goog
