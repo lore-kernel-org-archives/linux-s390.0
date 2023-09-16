@@ -2,58 +2,59 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51F3ECD37B8
-	for <linux-s390@archiver.kernel.org>; Sat, 16 Sep 2023 00:33:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 413A0CD37B2
+	for <linux-s390@archiver.kernel.org>; Sat, 16 Sep 2023 00:34:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238618AbjIPAdY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 15 Sep 2023 20:33:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57074 "EHLO
+        id S238641AbjIPAdw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 15 Sep 2023 20:33:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238826AbjIPAdH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 20:33:07 -0400
+        with ESMTP id S238503AbjIPAdW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 20:33:22 -0400
 Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0081D2738
-        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:32:03 -0700 (PDT)
-Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-58f9db8bc1dso34790827b3.3
-        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:32:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD79B2130
+        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:32:09 -0700 (PDT)
+Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-58c9d29588aso33549417b3.0
+        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:32:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1694824323; x=1695429123; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1694824329; x=1695429129; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=kZSgVl8Q+hmlGcu9E42B+6nCYbsSFCH4k+E/cwlLEa8=;
-        b=bPv1OfhNBPdU0sr0XJk80Rkg5EW4P1gXiI2In4zbIY41ZlOFQYLOnz6HKhuHcRDqZH
-         h0A0HVwECGR4XrRSThDKFML+RxobkgH0LoQLA3xy2rM/pEa/0gq/BQLNU+NqcpWWg33x
-         8VIc1BFq9LgZv3B+EJD5EdoLiJ+4ulr0g9J6prUugANFkmRo+CDgD0zynjLtm1t24GY0
-         xkDMUF55KabBZNnKiaK/9uoOcHm5/3lbOPXGA3a98soE/v3dJuZksD5HaUcOjAC/JwVh
-         mLCLc5erjSCqqYTXKP6YaxPdzN4vsytcejG5rjU2sdPLHjLw45d/3OhXWuB52uGzMTbJ
-         D1sg==
+        bh=0VtgUtus3LRehL4neqp1OYPW/02VDjf+LHA0REetHQw=;
+        b=4AI9NYwOs7Qxw+F4NZFoKEvkF/ZhJhsoOqPm3pP+SBcEGD4pphMfgvr2oo2Sdm3PGX
+         JfCT6509S/I71oH8ban7uIF5Td8ynYv4sED2o/8WRpjFyyJkWaj14lYJRPq+LiB0L/hv
+         PJkh+NgRmVQME5EKzrxILu5YSGUY8j9n2/yjotBC6TLm7nXXUuL7ZE+vPdBE7KvfuMUR
+         8Kz2aXpwhnjFkqDktr4zIpXAVG+YentMA68hD+Kk/flY5i4QXqwc360B3xdG3OY8Q60z
+         wnOrzJWg7kW8JHZLv4A2zNYDQxxYdoKzYA4qQWREXcEWHnXvb1aQqABFI5LPbgTy1ypd
+         thSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694824323; x=1695429123;
+        d=1e100.net; s=20230601; t=1694824329; x=1695429129;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=kZSgVl8Q+hmlGcu9E42B+6nCYbsSFCH4k+E/cwlLEa8=;
-        b=nsE/xjXbj30DYMTnQYAiJU2GG+aEe+SAhP6mKd4awtvk/SJDsy5IiD4PlSBDLsnwrO
-         393/7iPLELd77ADnxY8DwHPvWVFkTk7ezayMvxFnnbo2/Gqjb91y/kM25NV0QAgxMUfe
-         SHKScKtOvbm4yv6RzkQIPbI4m7jLDcNGNePjBaUY+nKX676rjwEa8T05FQy9PTmgvVlp
-         Cfj1WFrDvhGbx/O6/Yg5RvlSGHic3vEnYv1lAEtszaNqks1NBRcdGiieHvdUlP2keC3H
-         CSFdZ+f5XaS5OsIFtLjSS5ldkwgOJeH/oh9wXbLPfBcsZ+JzPwNlkrbk3ltSzDQaDkBU
-         lkqA==
-X-Gm-Message-State: AOJu0YyattkCUu4ulL5lw41aU33cNOxLYHg9RzVscDD3LMJa5rYbQyNx
-        o3QhVwaOczBR0mIDAAxg6aYOFgJTeSA=
-X-Google-Smtp-Source: AGHT+IGvK90kPH1o5bQH0EPib2Mktorl92L52Xc3vYMLm3HoBq+aka+3/3i87f2Q/TuhX6d+6vnq3Y1BBZw=
+        bh=0VtgUtus3LRehL4neqp1OYPW/02VDjf+LHA0REetHQw=;
+        b=oRg0aspxeGszpGuI4RtbFUMtDWeN+tdUyJig3jgt0M8r2MDyp4mM0k6eCTmxCbt3tJ
+         BPWmymHSduAIQRu9eS/4xmYDEmvAehPC8iSmW5m22/RZKjWSPMalY1FfO45hNIoXZp1U
+         6pbiUlGpA/MyeOo1zPJADh4w67p+vcUQ2qVbeez1mMzZu1t2pcIPMO37vHSCRD1wxXsv
+         TGcZBcTG5eNAHHTsQDlaCPtCJ7gXDa4d0++a+2/7Ge4VMJ1OYC5beTL1AtKdNNviN3rN
+         U0B4lWx1PFApzMZ0Sjlz9Xyg9hI5LgXwqBiVQM6z9PIuTelc9hQI4KUiFlRdPJJU1RQ3
+         qGiQ==
+X-Gm-Message-State: AOJu0YxbMNKjg6wtQT9paatMadWXVZY1D/a+h2r0UBeLAE1XrOyDhM4P
+        xCbsVvdmXgELFVTXv9K9eCtNrmnFLzQ=
+X-Google-Smtp-Source: AGHT+IGS7sQUeRqIzboGgj+JmfOv6SrnKFoWg2KC/khh+vzWzgZdEe9LRtHGjdK8tkWZSSHoGr6LIc8WFow=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a81:b60c:0:b0:586:a58d:2e24 with SMTP id
- u12-20020a81b60c000000b00586a58d2e24mr95790ywh.5.1694824323076; Fri, 15 Sep
- 2023 17:32:03 -0700 (PDT)
+ (user=seanjc job=sendgmr) by 2002:a81:b620:0:b0:58c:a9b4:a64c with SMTP id
+ u32-20020a81b620000000b0058ca9b4a64cmr86672ywh.1.1694824328926; Fri, 15 Sep
+ 2023 17:32:08 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Fri, 15 Sep 2023 17:31:13 -0700
+Date:   Fri, 15 Sep 2023 17:31:16 -0700
 In-Reply-To: <20230916003118.2540661-1-seanjc@google.com>
 Mime-Version: 1.0
 References: <20230916003118.2540661-1-seanjc@google.com>
 X-Mailer: git-send-email 2.42.0.459.ge4e396fd5e-goog
-Message-ID: <20230916003118.2540661-22-seanjc@google.com>
-Subject: [PATCH 21/26] entry/kvm: Drop @vcpu param from arch_xfer_to_guest_mode_handle_work()
+Message-ID: <20230916003118.2540661-25-seanjc@google.com>
+Subject: [PATCH 24/26] powerpc/xics: Move declaration of xics_wake_cpu() out
+ of kvm_ppc.h
 From:   Sean Christopherson <seanjc@google.com>
 To:     Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
@@ -96,54 +97,40 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Drop the "struct kvm_vcpu" parameter from
-arch_xfer_to_guest_mode_handle_work() as a preparatory step towards
-removing the vCPU parameter from xfer_to_guest_mode_work() as well.
+xics_wake_cpu() is provided by core PPC code, not by KVM.  Move its
+declaration out of kvm_ppc.h and into xics.h.
 
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- include/linux/entry-kvm.h | 7 ++-----
- kernel/entry/kvm.c        | 2 +-
- 2 files changed, 3 insertions(+), 6 deletions(-)
+ arch/powerpc/include/asm/kvm_ppc.h | 2 --
+ arch/powerpc/include/asm/xics.h    | 3 +++
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/entry-kvm.h b/include/linux/entry-kvm.h
-index 6813171afccb..e7d90d06e566 100644
---- a/include/linux/entry-kvm.h
-+++ b/include/linux/entry-kvm.h
-@@ -25,18 +25,15 @@ struct kvm_vcpu;
- /**
-  * arch_xfer_to_guest_mode_handle_work - Architecture specific xfer to guest
-  *					 mode work handling function.
-- * @vcpu:	Pointer to current's VCPU data
-  * @ti_work:	Cached TIF flags gathered in xfer_to_guest_mode_handle_work()
-  *
-  * Invoked from xfer_to_guest_mode_handle_work(). Defaults to NOOP. Can be
-  * replaced by architecture specific code.
-  */
--static inline int arch_xfer_to_guest_mode_handle_work(struct kvm_vcpu *vcpu,
--						      unsigned long ti_work);
-+static inline int arch_xfer_to_guest_mode_handle_work(unsigned long ti_work);
- 
- #ifndef arch_xfer_to_guest_mode_work
--static inline int arch_xfer_to_guest_mode_handle_work(struct kvm_vcpu *vcpu,
--						      unsigned long ti_work)
-+static inline int arch_xfer_to_guest_mode_handle_work(unsigned long ti_work)
- {
- 	return 0;
+diff --git a/arch/powerpc/include/asm/kvm_ppc.h b/arch/powerpc/include/asm/kvm_ppc.h
+index b4da8514af43..72fee202d3ec 100644
+--- a/arch/powerpc/include/asm/kvm_ppc.h
++++ b/arch/powerpc/include/asm/kvm_ppc.h
+@@ -1072,6 +1072,4 @@ static inline ulong kvmppc_get_ea_indexed(struct kvm_vcpu *vcpu, int ra, int rb)
+ 	return ea;
  }
-diff --git a/kernel/entry/kvm.c b/kernel/entry/kvm.c
-index 2e0f75bcb7fd..c2fc39824157 100644
---- a/kernel/entry/kvm.c
-+++ b/kernel/entry/kvm.c
-@@ -19,7 +19,7 @@ static int xfer_to_guest_mode_work(struct kvm_vcpu *vcpu, unsigned long ti_work)
- 		if (ti_work & _TIF_NOTIFY_RESUME)
- 			resume_user_mode_work(NULL);
  
--		ret = arch_xfer_to_guest_mode_handle_work(vcpu, ti_work);
-+		ret = arch_xfer_to_guest_mode_handle_work(ti_work);
- 		if (ret)
- 			return ret;
- 
+-extern void xics_wake_cpu(int cpu);
+-
+ #endif /* __POWERPC_KVM_PPC_H__ */
+diff --git a/arch/powerpc/include/asm/xics.h b/arch/powerpc/include/asm/xics.h
+index 89090485bec1..17a45c022bd9 100644
+--- a/arch/powerpc/include/asm/xics.h
++++ b/arch/powerpc/include/asm/xics.h
+@@ -32,6 +32,9 @@
+ extern int icp_native_init(void);
+ extern void icp_native_flush_interrupt(void);
+ extern void icp_native_cause_ipi_rm(int cpu);
++#ifdef CONFIG_SMP
++extern void xics_wake_cpu(int cpu);
++#endif
+ #else
+ static inline int icp_native_init(void) { return -ENODEV; }
+ #endif
 -- 
 2.42.0.459.ge4e396fd5e-goog
 
