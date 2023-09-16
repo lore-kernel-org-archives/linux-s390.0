@@ -2,59 +2,58 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 741DACD37B3
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91B78CD37B6
 	for <linux-s390@archiver.kernel.org>; Sat, 16 Sep 2023 00:33:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238814AbjIPAct (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 15 Sep 2023 20:32:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34198 "EHLO
+        id S238468AbjIPAcv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 15 Sep 2023 20:32:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238671AbjIPAcQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 20:32:16 -0400
-Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A01BE2727
-        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:31 -0700 (PDT)
-Received: by mail-pl1-x64a.google.com with SMTP id d9443c01a7336-1c0cfc2b995so24151635ad.2
-        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:31 -0700 (PDT)
+        with ESMTP id S238634AbjIPAcZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 20:32:25 -0400
+Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C05822D73
+        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:51 -0700 (PDT)
+Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-59c0dd156e5so14959277b3.3
+        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1694824291; x=1695429091; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1694824311; x=1695429111; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=C0sn2AnVcRbsYEvqFgh4BzWbc2uKAyyxP92cnWXv5Gc=;
-        b=jvDBnkFi8COrquzeFvzZe1NGIcw2+MdT3qMRI4S7MM7TtszA/o4dFGVmucHUardQ0N
-         nGh/1bkIjVTOZz4YECMI/AWeidonXnZiVATf/POPsl2fjOLRExjl3/OV0GV3vw5y5BjP
-         6YYSZ48XUlyCXQuzXpGRve5bffxA0OSzOhkTIJj8ObEZO9M3vcX8ub2TXheKDnfYpGDJ
-         WW9O9i8K/UqxEYpWt+N+D4xO1KLq5GpE5gSkZQbgtA2XIpHKtfv5EX2VrBgQz1Hb2oK6
-         aDcZuaC1yLFZfkK0plhW0iiZN+cRhrYegjy5+73NURC3ACgUCig5UVuHKxhPx6BM7Ra4
-         PyYQ==
+        bh=K+4wLZRg/fEoTWN91R6Hud4ODei52D2o77Nnp/okXhc=;
+        b=HpUBRAj0XTY8DTNT1FZXthO/kSUOHmAEXO4Q6EhzM0LLh4eWwJNsfSzzJQy4JG7wgl
+         uHgcmdWBUTyHrwKfxFI1+YiDBQO8Q4eOGiwgTmrQYiIyq9FNgYNvubdkVnIXolF31lan
+         kIpDyUwVM02vSYN09CzeS1b9JuIlEyUmMXh2avqsuwVm+aUDzIgzyqffJyUNWLq1YpC+
+         XHGxYiWcZerKCRd5PCOzWM65cPccrVVJi69aEx0/jpc49BkOL/VFoEwz06TfXemgmndW
+         rW0QrCRYemg3jK3M21kw/9dNwqFf/AsmVtFrgU6jqfsvmj2p1mlsQ9AmgCQ9m6lIVqqy
+         dc1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694824291; x=1695429091;
+        d=1e100.net; s=20230601; t=1694824311; x=1695429111;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=C0sn2AnVcRbsYEvqFgh4BzWbc2uKAyyxP92cnWXv5Gc=;
-        b=EFMZ5eMCvvXs2566nE9VopKjwl6JIAz92M0rVaeYSlzWjqkuvqN/mcNGkUzfVqqSt9
-         pJfwJhfyFLIuLqhh4C+X1keq+g/sF0ccb1yhr/13wmTll84LRxH9lT3oQNq8MD8QW1SK
-         UpcAZfNXKFZGWxU+shqftyqf1DIKEkju0aTLergEownNhcJ4MLhH+3xnR2aWV6fPNEDu
-         xe2d/waNYr9cUHJZPgAXt5q5vnN1BXaCr/MqpRxG0aa/rEqSqkG8b6hS/hSydy6mzovT
-         +fcTCAId2zzUDRQQaN0owWCq3WfDJUYtqrxi2rB2rQQmjaZXVLzF9XHwI0Aan9ItgOFp
-         mgfA==
-X-Gm-Message-State: AOJu0YzjgXE8XeB58pIoNyEFE3odsvXPKmreB08Gd4NImpEzSqlqK2tS
-        w2NM5i3XcF1+AWGgq7MwRVMJsSPguPQ=
-X-Google-Smtp-Source: AGHT+IHtRyj8S1iXRa1AyuzUMEtuqAzbJZbP2iFNCt3KVQZXM+xbuQMnV6uSJ406DSy/keoiXYz83X05kPo=
+        bh=K+4wLZRg/fEoTWN91R6Hud4ODei52D2o77Nnp/okXhc=;
+        b=s+5ObJ09qoY6yERkuNrJW73UqnyGa/jds/oAzEh+SXaTAayMNWyDDRVxiWQIbXfdc0
+         ugvLAytvG4uLWlbaRzwAlF1YKa73M2DJ3uFDx0u6Mjs7mZfh5u6ehb+ugNDLD107IncR
+         OAet+G/r/RvRleAQpHhxYC3f6vdJxp8zoQMBlXXLjWdlzEklN97gEbdtN985y7gU1NIj
+         DvpmcJppJdoNCH7jcFabZiGqSMmaYdM9WmNrcH/C6f11ckSAZaSTOMRP+K2t0XHsHxRd
+         3TafkGEjivmT/88SIag9HiFfftxi/SuJGb4296qywbzbCr4K3Mmor6vBhwcgcDEM8O6l
+         E3kw==
+X-Gm-Message-State: AOJu0Yz28Bfb/RMLG/XuOEADAJjNvw31nZbIteWEQUCdwKdHFrUybga3
+        Xtva02DSRMdlXVMGGf1pAo834NyR/LQ=
+X-Google-Smtp-Source: AGHT+IGeLhjeWaYzJPE1mCnK9Csjwjlwkmu8U9lPUcubvqyfYiZpHoa2TM+ffhRiOESL+mVFdN06uDg2kmM=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a17:903:41c2:b0:1c1:fbec:bc39 with SMTP id
- u2-20020a17090341c200b001c1fbecbc39mr73146ple.4.1694824290982; Fri, 15 Sep
- 2023 17:31:30 -0700 (PDT)
+ (user=seanjc job=sendgmr) by 2002:a81:ca08:0:b0:59b:f493:813c with SMTP id
+ p8-20020a81ca08000000b0059bf493813cmr84977ywi.9.1694824310900; Fri, 15 Sep
+ 2023 17:31:50 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Fri, 15 Sep 2023 17:30:57 -0700
+Date:   Fri, 15 Sep 2023 17:31:07 -0700
 In-Reply-To: <20230916003118.2540661-1-seanjc@google.com>
 Mime-Version: 1.0
 References: <20230916003118.2540661-1-seanjc@google.com>
 X-Mailer: git-send-email 2.42.0.459.ge4e396fd5e-goog
-Message-ID: <20230916003118.2540661-6-seanjc@google.com>
-Subject: [PATCH 05/26] vfio: KVM: Pass get/put helpers from KVM to VFIO, don't
- do circular lookup
+Message-ID: <20230916003118.2540661-16-seanjc@google.com>
+Subject: [PATCH 15/26] KVM: Move include/kvm/iodev.h to include/linux as kvm_iodev.h
 From:   Sean Christopherson <seanjc@google.com>
 To:     Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
@@ -97,215 +96,268 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Explicitly pass KVM's get/put helpers to VFIO when attaching a VM to
-VFIO instead of having VFIO do a symbol lookup back into KVM.  Having both
-KVM and VFIO do symbol lookups increases the overall complexity and places
-an unnecessary dependency on KVM (from VFIO) without adding any value.
+Move iodev.h, the last remaining holdout in include/kvm, to the standard
+include/linux directory as kvm_iodev.h and delete include/kvm.
 
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- drivers/vfio/vfio.h      |  2 ++
- drivers/vfio/vfio_main.c | 74 +++++++++++++++++++---------------------
- include/linux/vfio.h     |  4 ++-
- virt/kvm/vfio.c          |  9 +++--
- 4 files changed, 47 insertions(+), 42 deletions(-)
+ MAINTAINERS                                | 1 -
+ arch/arm64/include/asm/kvm_vgic.h          | 2 +-
+ arch/arm64/kvm/vgic/vgic-mmio-v2.c         | 2 +-
+ arch/arm64/kvm/vgic/vgic-mmio-v3.c         | 2 +-
+ arch/arm64/kvm/vgic/vgic-mmio.c            | 2 +-
+ arch/mips/include/asm/kvm_host.h           | 3 +--
+ arch/powerpc/kvm/mpic.c                    | 2 +-
+ arch/riscv/kvm/aia_aplic.c                 | 2 +-
+ arch/riscv/kvm/aia_imsic.c                 | 2 +-
+ arch/x86/kvm/i8254.h                       | 2 +-
+ arch/x86/kvm/ioapic.h                      | 2 +-
+ arch/x86/kvm/irq.h                         | 2 +-
+ arch/x86/kvm/lapic.h                       | 2 +-
+ include/{kvm/iodev.h => linux/kvm_iodev.h} | 0
+ virt/kvm/coalesced_mmio.c                  | 3 +--
+ virt/kvm/eventfd.c                         | 2 +-
+ virt/kvm/kvm_main.c                        | 3 +--
+ 17 files changed, 15 insertions(+), 19 deletions(-)
+ rename include/{kvm/iodev.h => linux/kvm_iodev.h} (100%)
 
-diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-index a1f741365075..eec51c7ee822 100644
---- a/drivers/vfio/vfio.h
-+++ b/drivers/vfio/vfio.h
-@@ -19,6 +19,8 @@ struct vfio_container;
- 
- struct vfio_kvm_reference {
- 	struct kvm			*kvm;
-+	bool				(*get_kvm)(struct kvm *kvm);
-+	void				(*put_kvm)(struct kvm *kvm);
- 	spinlock_t			lock;
- };
- 
-diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-index e77e8c6aae2f..1f58ab6dbcd2 100644
---- a/drivers/vfio/vfio_main.c
-+++ b/drivers/vfio/vfio_main.c
-@@ -16,7 +16,6 @@
- #include <linux/fs.h>
- #include <linux/idr.h>
- #include <linux/iommu.h>
--#include <linux/kvm_host.h>
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 90f13281d297..ddc8375d536c 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11498,7 +11498,6 @@ W:	http://www.linux-kvm.org
+ T:	git git://git.kernel.org/pub/scm/virt/kvm/kvm.git
+ F:	Documentation/virt/kvm/
+ F:	include/asm-generic/kvm*
+-F:	include/kvm/iodev.h
+ F:	include/linux/kvm*
+ F:	include/trace/events/kvm.h
+ F:	include/uapi/asm-generic/kvm*
+diff --git a/arch/arm64/include/asm/kvm_vgic.h b/arch/arm64/include/asm/kvm_vgic.h
+index 5b27f94d4fad..2ca52888bc75 100644
+--- a/arch/arm64/include/asm/kvm_vgic.h
++++ b/arch/arm64/include/asm/kvm_vgic.h
+@@ -13,7 +13,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/static_key.h>
+ #include <linux/types.h>
+-#include <kvm/iodev.h>
++#include <linux/kvm_iodev.h>
  #include <linux/list.h>
- #include <linux/miscdevice.h>
- #include <linux/module.h>
-@@ -1306,38 +1305,22 @@ EXPORT_SYMBOL_GPL(vfio_file_enforced_coherent);
- void vfio_device_get_kvm_safe(struct vfio_device *device,
- 			      struct vfio_kvm_reference *ref)
- {
--	void (*pfn)(struct kvm *kvm);
--	bool (*fn)(struct kvm *kvm);
--	bool ret;
--
- 	lockdep_assert_held(&device->dev_set->lock);
+ #include <linux/jump_label.h>
  
-+	/*
-+	 * Note!  The "kvm" and "put_kvm" pointers *must* be transferred to the
-+	 * device so that the device can put its reference to KVM.  KVM can
-+	 * invoke vfio_device_set_kvm() to detach from VFIO, i.e. nullify all
-+	 * pointers in @ref, even if a device holds a reference to KVM!  That
-+	 * also means that detaching KVM from VFIO only prevents "new" devices
-+	 * from using KVM, it doesn't invalidate KVM references in existing
-+	 * devices.
-+	 */
- 	spin_lock(&ref->lock);
--
--	if (!ref->kvm)
--		goto out;
--
--	pfn = symbol_get(kvm_put_kvm);
--	if (WARN_ON(!pfn))
--		goto out;
--
--	fn = symbol_get(kvm_get_kvm_safe);
--	if (WARN_ON(!fn)) {
--		symbol_put(kvm_put_kvm);
--		goto out;
-+	if (ref->kvm && ref->get_kvm(ref->kvm)) {
-+		device->kvm = ref->kvm;
-+		device->put_kvm = ref->put_kvm;
- 	}
--
--	ret = fn(ref->kvm);
--	symbol_put(kvm_get_kvm_safe);
--	if (!ret) {
--		symbol_put(kvm_put_kvm);
--		goto out;
--	}
--
--	device->put_kvm = pfn;
--	device->kvm = ref->kvm;
--
--out:
- 	spin_unlock(&ref->lock);
- }
+diff --git a/arch/arm64/kvm/vgic/vgic-mmio-v2.c b/arch/arm64/kvm/vgic/vgic-mmio-v2.c
+index bba0cfeefffe..646053ee892f 100644
+--- a/arch/arm64/kvm/vgic/vgic-mmio-v2.c
++++ b/arch/arm64/kvm/vgic/vgic-mmio-v2.c
+@@ -6,9 +6,9 @@
+ #include <linux/irqchip/arm-gic.h>
+ #include <linux/kvm.h>
+ #include <linux/kvm_host.h>
++#include <linux/kvm_iodev.h>
+ #include <linux/nospec.h>
  
-@@ -1353,28 +1336,37 @@ void vfio_device_put_kvm(struct vfio_device *device)
+-#include <kvm/iodev.h>
+ #include <asm/kvm_vgic.h>
  
- 	device->put_kvm(device->kvm);
- 	device->put_kvm = NULL;
--	symbol_put(kvm_put_kvm);
+ #include "vgic.h"
+diff --git a/arch/arm64/kvm/vgic/vgic-mmio-v3.c b/arch/arm64/kvm/vgic/vgic-mmio-v3.c
+index d54a90beef61..b79a2e860415 100644
+--- a/arch/arm64/kvm/vgic/vgic-mmio-v3.c
++++ b/arch/arm64/kvm/vgic/vgic-mmio-v3.c
+@@ -7,8 +7,8 @@
+ #include <linux/irqchip/arm-gic-v3.h>
+ #include <linux/kvm.h>
+ #include <linux/kvm_host.h>
++#include <linux/kvm_iodev.h>
+ #include <linux/interrupt.h>
+-#include <kvm/iodev.h>
+ 
+ #include <asm/kvm_emulate.h>
+ #include <asm/kvm_arm.h>
+diff --git a/arch/arm64/kvm/vgic/vgic-mmio.c b/arch/arm64/kvm/vgic/vgic-mmio.c
+index 68a3d8062473..4feca3b1d915 100644
+--- a/arch/arm64/kvm/vgic/vgic-mmio.c
++++ b/arch/arm64/kvm/vgic/vgic-mmio.c
+@@ -9,7 +9,7 @@
+ #include <linux/irq.h>
+ #include <linux/kvm.h>
+ #include <linux/kvm_host.h>
+-#include <kvm/iodev.h>
++#include <linux/kvm_iodev.h>
+ #include <asm/kvm_arch_timer.h>
+ #include <asm/kvm_vgic.h>
+ 
+diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
+index 54a85f1d4f2c..f8f63d0aa399 100644
+--- a/arch/mips/include/asm/kvm_host.h
++++ b/arch/mips/include/asm/kvm_host.h
+@@ -16,6 +16,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/types.h>
+ #include <linux/kvm.h>
++#include <linux/kvm_iodev.h>
+ #include <linux/kvm_types.h>
+ #include <linux/threads.h>
+ #include <linux/spinlock.h>
+@@ -24,8 +25,6 @@
+ #include <asm/inst.h>
+ #include <asm/mipsregs.h>
+ 
+-#include <kvm/iodev.h>
 -
- clear:
- 	device->kvm = NULL;
- }
+ /* MIPS KVM register ids */
+ #define MIPS_CP0_32(_R, _S)					\
+ 	(KVM_REG_MIPS_CP0 | KVM_REG_SIZE_U32 | (8 * (_R) + (_S)))
+diff --git a/arch/powerpc/kvm/mpic.c b/arch/powerpc/kvm/mpic.c
+index 23e9c2bd9f27..b25a03251544 100644
+--- a/arch/powerpc/kvm/mpic.c
++++ b/arch/powerpc/kvm/mpic.c
+@@ -26,6 +26,7 @@
+ #include <linux/slab.h>
+ #include <linux/mutex.h>
+ #include <linux/kvm_host.h>
++#include <linux/kvm_iodev.h>
+ #include <linux/errno.h>
+ #include <linux/fs.h>
+ #include <linux/anon_inodes.h>
+@@ -33,7 +34,6 @@
+ #include <asm/mpic.h>
+ #include <asm/kvm_para.h>
+ #include <asm/kvm_ppc.h>
+-#include <kvm/iodev.h>
  
- static void vfio_device_set_kvm(struct vfio_kvm_reference *ref,
--				struct kvm *kvm)
-+				struct kvm *kvm,
-+				bool (*get_kvm)(struct kvm *kvm),
-+				void (*put_kvm)(struct kvm *kvm))
- {
-+	if (WARN_ON_ONCE(kvm && (!get_kvm || !put_kvm)))
-+		return;
-+
- 	spin_lock(&ref->lock);
- 	ref->kvm = kvm;
-+	ref->get_kvm = get_kvm;
-+	ref->put_kvm = put_kvm;
- 	spin_unlock(&ref->lock);
- }
+ #define MAX_CPU     32
+ #define MAX_SRC     256
+diff --git a/arch/riscv/kvm/aia_aplic.c b/arch/riscv/kvm/aia_aplic.c
+index 39e72aa016a4..b49e747f2bad 100644
+--- a/arch/riscv/kvm/aia_aplic.c
++++ b/arch/riscv/kvm/aia_aplic.c
+@@ -11,7 +11,7 @@
+ #include <linux/math.h>
+ #include <linux/spinlock.h>
+ #include <linux/swab.h>
+-#include <kvm/iodev.h>
++#include <linux/kvm_iodev.h>
+ #include <asm/kvm_aia_aplic.h>
  
--static void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm)
-+static void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm,
-+			       bool (*get_kvm)(struct kvm *kvm),
-+			       void (*put_kvm)(struct kvm *kvm))
- {
- #if IS_ENABLED(CONFIG_VFIO_GROUP)
--	vfio_device_set_kvm(&group->kvm_ref, kvm);
-+	vfio_device_set_kvm(&group->kvm_ref, kvm, get_kvm, put_kvm);
- #endif
- }
+ struct aplic_irq {
+diff --git a/arch/riscv/kvm/aia_imsic.c b/arch/riscv/kvm/aia_imsic.c
+index 6cf23b8adb71..586e466a1c6d 100644
+--- a/arch/riscv/kvm/aia_imsic.c
++++ b/arch/riscv/kvm/aia_imsic.c
+@@ -10,10 +10,10 @@
+ #include <linux/atomic.h>
+ #include <linux/bitmap.h>
+ #include <linux/kvm_host.h>
++#include <linux/kvm_iodev.h>
+ #include <linux/math.h>
+ #include <linux/spinlock.h>
+ #include <linux/swab.h>
+-#include <kvm/iodev.h>
+ #include <asm/csr.h>
+ #include <asm/kvm_aia_imsic.h>
  
--static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm)
-+static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm,
-+				     bool (*get_kvm)(struct kvm *kvm),
-+				     void (*put_kvm)(struct kvm *kvm))
- {
- 	struct vfio_device_file *df = file->private_data;
+diff --git a/arch/x86/kvm/i8254.h b/arch/x86/kvm/i8254.h
+index a768212ba821..4de7a0b88e4f 100644
+--- a/arch/x86/kvm/i8254.h
++++ b/arch/x86/kvm/i8254.h
+@@ -4,7 +4,7 @@
  
-@@ -1383,27 +1375,31 @@ static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm)
- 	 * be propagated to vfio_device::kvm when the file is bound to
- 	 * iommufd successfully in the vfio device cdev path.
- 	 */
--	vfio_device_set_kvm(&df->kvm_ref, kvm);
-+	vfio_device_set_kvm(&df->kvm_ref, kvm, get_kvm, put_kvm);
- }
+ #include <linux/kthread.h>
  
- /**
-  * vfio_file_set_kvm - Link a kvm with VFIO drivers
-  * @file: VFIO group file or VFIO device file
-  * @kvm: KVM to link
-+ * @get_kvm: Callback to get a reference to @kvm
-+ * @put_kvm: Callback to put a reference to @kvm
+-#include <kvm/iodev.h>
++#include <linux/kvm_iodev.h>
+ 
+ struct kvm_kpit_channel_state {
+ 	u32 count; /* can be 65536 */
+diff --git a/arch/x86/kvm/ioapic.h b/arch/x86/kvm/ioapic.h
+index 539333ac4b38..2beec2daf1a3 100644
+--- a/arch/x86/kvm/ioapic.h
++++ b/arch/x86/kvm/ioapic.h
+@@ -3,7 +3,7 @@
+ #define __KVM_IO_APIC_H
+ 
+ #include <linux/kvm_host.h>
+-#include <kvm/iodev.h>
++#include <linux/kvm_iodev.h>
+ #include "irq.h"
+ 
+ struct kvm;
+diff --git a/arch/x86/kvm/irq.h b/arch/x86/kvm/irq.h
+index c2d7cfe82d00..f9530e9a66f8 100644
+--- a/arch/x86/kvm/irq.h
++++ b/arch/x86/kvm/irq.h
+@@ -13,9 +13,9 @@
+ #include <linux/mm_types.h>
+ #include <linux/hrtimer.h>
+ #include <linux/kvm_host.h>
++#include <linux/kvm_iodev.h>
+ #include <linux/spinlock.h>
+ 
+-#include <kvm/iodev.h>
+ #include "lapic.h"
+ 
+ #define PIC_NUM_PINS 16
+diff --git a/arch/x86/kvm/lapic.h b/arch/x86/kvm/lapic.h
+index 0a0ea4b5dd8c..bfd99ad1882e 100644
+--- a/arch/x86/kvm/lapic.h
++++ b/arch/x86/kvm/lapic.h
+@@ -2,7 +2,7 @@
+ #ifndef __KVM_X86_LAPIC_H
+ #define __KVM_X86_LAPIC_H
+ 
+-#include <kvm/iodev.h>
++#include <linux/kvm_iodev.h>
+ 
+ #include <linux/kvm_host.h>
+ 
+diff --git a/include/kvm/iodev.h b/include/linux/kvm_iodev.h
+similarity index 100%
+rename from include/kvm/iodev.h
+rename to include/linux/kvm_iodev.h
+diff --git a/virt/kvm/coalesced_mmio.c b/virt/kvm/coalesced_mmio.c
+index 1b90acb6e3fe..cfcb4b84d632 100644
+--- a/virt/kvm/coalesced_mmio.c
++++ b/virt/kvm/coalesced_mmio.c
+@@ -9,8 +9,7 @@
   *
-  * When a VFIO device is first opened the KVM will be available in
-  * device->kvm if one was associated with the file.
   */
--void vfio_file_set_kvm(struct file *file, struct kvm *kvm)
-+void vfio_file_set_kvm(struct file *file, struct kvm *kvm,
-+		       bool (*get_kvm)(struct kvm *kvm),
-+		       void (*put_kvm)(struct kvm *kvm))
- {
- 	struct vfio_group *group;
  
- 	group = vfio_group_from_file(file);
- 	if (group)
--		vfio_group_set_kvm(group, kvm);
-+		vfio_group_set_kvm(group, kvm, get_kvm, put_kvm);
+-#include <kvm/iodev.h>
+-
++#include <linux/kvm_iodev.h>
+ #include <linux/kvm_host.h>
+ #include <linux/slab.h>
+ #include <linux/kvm.h>
+diff --git a/virt/kvm/eventfd.c b/virt/kvm/eventfd.c
+index 89912a17f5d5..4d7cfb1095fd 100644
+--- a/virt/kvm/eventfd.c
++++ b/virt/kvm/eventfd.c
+@@ -26,7 +26,7 @@
+ #include <linux/irqbypass.h>
+ #include <trace/events/kvm.h>
  
- 	if (vfio_device_from_file(file))
--		vfio_device_file_set_kvm(file, kvm);
-+		vfio_device_file_set_kvm(file, kvm, get_kvm, put_kvm);
- }
- EXPORT_SYMBOL_GPL(vfio_file_set_kvm);
- #endif
-diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-index e80955de266c..35e970e3d3fb 100644
---- a/include/linux/vfio.h
-+++ b/include/linux/vfio.h
-@@ -312,7 +312,9 @@ static inline bool vfio_file_has_dev(struct file *file, struct vfio_device *devi
- bool vfio_file_is_valid(struct file *file);
- bool vfio_file_enforced_coherent(struct file *file);
- #if IS_ENABLED(CONFIG_KVM)
--void vfio_file_set_kvm(struct file *file, struct kvm *kvm);
-+void vfio_file_set_kvm(struct file *file, struct kvm *kvm,
-+		       bool (*get_kvm)(struct kvm *kvm),
-+		       void (*put_kvm)(struct kvm *kvm));
- #endif
+-#include <kvm/iodev.h>
++#include <linux/kvm_iodev.h>
  
- #define VFIO_PIN_PAGES_MAX_ENTRIES	(PAGE_SIZE/sizeof(unsigned long))
-diff --git a/virt/kvm/vfio.c b/virt/kvm/vfio.c
-index ca24ce120906..f14fcbb34bc6 100644
---- a/virt/kvm/vfio.c
-+++ b/virt/kvm/vfio.c
-@@ -37,13 +37,18 @@ struct kvm_vfio {
+ #ifdef CONFIG_HAVE_KVM_IRQFD
  
- static void kvm_vfio_file_set_kvm(struct file *file, struct kvm *kvm)
- {
--	void (*fn)(struct file *file, struct kvm *kvm);
-+	void (*fn)(struct file *file, struct kvm *kvm,
-+		   bool (*get_kvm)(struct kvm *kvm),
-+		   void (*put_kvm)(struct kvm *kvm));
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 486800a7024b..f585a159b4f5 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -13,9 +13,8 @@
+  *   Yaniv Kamay  <yaniv@qumranet.com>
+  */
  
- 	fn = symbol_get(vfio_file_set_kvm);
- 	if (!fn)
- 		return;
- 
--	fn(file, kvm);
-+	if (kvm)
-+		fn(file, kvm, kvm_get_kvm_safe, kvm_put_kvm);
-+	else
-+		fn(file, kvm, NULL, NULL);
- 
- 	symbol_put(vfio_file_set_kvm);
- }
+-#include <kvm/iodev.h>
+-
+ #include <linux/kvm_host.h>
++#include <linux/kvm_iodev.h>
+ #include <linux/kvm.h>
+ #include <linux/module.h>
+ #include <linux/errno.h>
 -- 
 2.42.0.459.ge4e396fd5e-goog
 
