@@ -2,59 +2,58 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77855CD37B6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EF96CD37B3
 	for <linux-s390@archiver.kernel.org>; Sat, 16 Sep 2023 00:32:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238349AbjIPAcS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S238375AbjIPAcS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Fri, 15 Sep 2023 20:32:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34126 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238647AbjIPAcO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 20:32:14 -0400
-Received: from mail-oa1-x4a.google.com (mail-oa1-x4a.google.com [IPv6:2001:4860:4864:20::4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66B641FD4
-        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:25 -0700 (PDT)
-Received: by mail-oa1-x4a.google.com with SMTP id 586e51a60fabf-1d64f81e0daso3248022fac.0
-        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:25 -0700 (PDT)
+        with ESMTP id S238664AbjIPAcP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 20:32:15 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84E06272A
+        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:33 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id 3f1490d57ef6-d81486a0382so3069564276.0
+        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1694824284; x=1695429084; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1694824292; x=1695429092; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=NdOAPx70WjWtTXOKtIxgwEtN+XJRELer/ruyZoFwPzQ=;
-        b=RlXJm+mZvrxm3TdH7rqHIPrlVvTo4KquPvK8UVq3NN5veuJB/mi9ryJHvFeKMAtnPp
-         hPxgp34Yh6rJ5lm+4syv8SCZe+7xA7Fv6c1FljwvDQiy3j2D5SfDPLC4LvU4LK+f0Hnd
-         XzPGLz6ybxyOrNbEJSaoUgSEsV9nduzwqd8vi1CA4uDfumU39XR/gEIesx64Hi95yPKN
-         7OdYcCV1Sv/tEKMWY6ex/Wwd6o1RSVZW3lb5oOgf0+xs2BvFq4c43x+2pmamAn+AbBR8
-         aeZDJ4jC0Gn6tEare6UsiV0E76tCnR9I5p3lITfJ2MvZSPAoe7bUb/PsN2uzYgSF4MPp
-         Dh+w==
+        bh=qo2m7xsYGxv0LvZBx1IOU3suTnYOrGiO/bIX70mqbME=;
+        b=0Xk8gZPflQVqaq/vlUJdcRa9p7xIMOzEa5g9R42WTgCevO3d5rSYLZjmLcqdaKD+OT
+         hif3vZaEQg18h0S3QKbC7F9dj9R2Pp4vparuModnLT2yf/tR8fwlco7cqJwYaMekK2Ih
+         IbdLjirPOEJs+F4hM7TgiB8Frh+lOWgXKoN3h24nBPndBVizR74FLh3A+l3WiA0JUFSe
+         gGjMnbO+/D7TY9rIiQTo2hKzDcyrhlFn1QcWDnr72nyQRv6sBYi14uq7CcjnLbvQThVs
+         Y158Bgn/1VYRbgy8SSitkxWpQUZwm4r3vP95VIXYT4VivNqCF9pIE/EY+b5gWBkhhdon
+         ErbQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694824284; x=1695429084;
+        d=1e100.net; s=20230601; t=1694824292; x=1695429092;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=NdOAPx70WjWtTXOKtIxgwEtN+XJRELer/ruyZoFwPzQ=;
-        b=VZaD74KqrDgdxiRnNm21uv/IzMDM9gH9FEIYKQb7EKKsf4z/yULfE8I2hLJUN2P8Bb
-         wyvSgeLmeN3bqJ6WWr1e4ZP+QtGf7yCVtX9BVnZNAHuJHvyI1l9rjRXlGM9yIp6x/y/g
-         CMtafOny9yR9seGei90ygHxvuuwIl7at8HEXgvHqcMeANA3LTCA+SRE8F57oJkEuZ+LN
-         tTcoKMseC1OzQT2STzs6t9uYEBSif8+0BlbJ2JomY2vqHGoqce6zphB2BF0CxkJQ+BGP
-         7BOf7HsBq7LNbBo7288WznFpN70lDMkEtz5qfBjSppfiPtkdkox/C3xbfVliXvd3S5xY
-         G6Ng==
-X-Gm-Message-State: AOJu0YxFH3HLMfulIERZBCFJP2IUVi1CiFN79WlBNb9X23qrVOd5EpF6
-        f90I4WvLRBmUnaf0V778l+S+cVQbxjk=
-X-Google-Smtp-Source: AGHT+IFjfayrLbVmI/uUcITF7riix4t2p7LQSznFwYgaB2xPw0hEc6MrZUjOPPPKeYuL02E3L+TxPOZWHW4=
+        bh=qo2m7xsYGxv0LvZBx1IOU3suTnYOrGiO/bIX70mqbME=;
+        b=WxAa084Fa/xyvuUEYLkTrRzjUS0acQ3D+CbTT3RG9x6T3ZsRa8T0FjSjOww/F7voC0
+         2l3CHweLsox43zuAzkPtgjezG4W91UnxZEzv7ZJaBINkWIWDs+m3uzucncbtnW4yNkQy
+         Y2K+ZDmEFBd2kLjCpZ0KjAhdYM0pquJ16QwbDQDM0b+/d+fej9qKPmF0ys6cSgiRALeh
+         LyUAvXkqHBLsxs0XrKzrJ2MOSaPbb0mHAYebJXZqdyjGWRkTvOL7VQm8T1PtqEq927dW
+         v4CsdFg+imzMy7+3E75O9yakl00XpcSG1ncRMHwZ8MAwjxfohFw6+wYvsr/szQA7+M3C
+         4rhQ==
+X-Gm-Message-State: AOJu0Yxj1hbd+ItwDtNk6rkiVOmiRzj8Qmgo19ZCgyMAePI/vrYMOAo3
+        30fviO+4VIThIxUFZ+9rMjAGu0dy02k=
+X-Google-Smtp-Source: AGHT+IGldyHqJlNQwUdnpkugxOOkbUw+dVHZu9n7C9ywbITmCocjjVdCkDZmP9v50Lpi+O1mI86Ze95fAkM=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a05:6870:b7ad:b0:1d6:4da3:ae2d with SMTP id
- ed45-20020a056870b7ad00b001d64da3ae2dmr1068876oab.7.1694824284654; Fri, 15
- Sep 2023 17:31:24 -0700 (PDT)
+ (user=seanjc job=sendgmr) by 2002:a25:d045:0:b0:d7e:afff:c8fa with SMTP id
+ h66-20020a25d045000000b00d7eafffc8famr73977ybg.5.1694824292733; Fri, 15 Sep
+ 2023 17:31:32 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Fri, 15 Sep 2023 17:30:54 -0700
+Date:   Fri, 15 Sep 2023 17:30:58 -0700
 In-Reply-To: <20230916003118.2540661-1-seanjc@google.com>
 Mime-Version: 1.0
 References: <20230916003118.2540661-1-seanjc@google.com>
 X-Mailer: git-send-email 2.42.0.459.ge4e396fd5e-goog
-Message-ID: <20230916003118.2540661-3-seanjc@google.com>
-Subject: [PATCH 02/26] vfio: Move KVM get/put helpers to colocate it with
- other KVM related code
+Message-ID: <20230916003118.2540661-7-seanjc@google.com>
+Subject: [PATCH 06/26] KVM: Drop CONFIG_KVM_VFIO and just look at KVM+VFIO
 From:   Sean Christopherson <seanjc@google.com>
 To:     Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
@@ -97,137 +96,117 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Move the definitions of vfio_device_get_kvm_safe() and vfio_device_put_kvm()
-down in vfio_main.c to colocate them with other KVM-specific functions,
-e.g. to allow wrapping them all with a single CONFIG_KVM check.
+Drop KVM's KVM_VFIO Kconfig, and instead compile in VFIO support if
+and only if VFIO itself is enabled.  Similar to the recent change to have
+VFIO stop looking at HAVE_KVM, compiling in support for talking to VFIO
+just because the architecture supports VFIO is nonsensical.
+
+This fixes a bug where RISC-V doesn't select KVM_VFIO, i.e. would silently
+fail to do connect KVM and VFIO, even though RISC-V supports VFIO.  The
+bug is benign as the only driver in all of Linux that actually uses the
+KVM reference provided by VFIO is KVM-GT, which is x86/Intel specific.
 
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- drivers/vfio/vfio_main.c | 104 +++++++++++++++++++--------------------
- 1 file changed, 52 insertions(+), 52 deletions(-)
+ arch/arm64/kvm/Kconfig   | 1 -
+ arch/powerpc/kvm/Kconfig | 1 -
+ arch/s390/kvm/Kconfig    | 1 -
+ arch/x86/kvm/Kconfig     | 1 -
+ virt/kvm/Kconfig         | 3 ---
+ virt/kvm/Makefile.kvm    | 4 +++-
+ virt/kvm/vfio.h          | 2 +-
+ 7 files changed, 4 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-index 80e39f7a6d8f..6368eed7b7b2 100644
---- a/drivers/vfio/vfio_main.c
-+++ b/drivers/vfio/vfio_main.c
-@@ -381,58 +381,6 @@ void vfio_unregister_group_dev(struct vfio_device *device)
- }
- EXPORT_SYMBOL_GPL(vfio_unregister_group_dev);
+diff --git a/arch/arm64/kvm/Kconfig b/arch/arm64/kvm/Kconfig
+index 83c1e09be42e..2b5c332f157d 100644
+--- a/arch/arm64/kvm/Kconfig
++++ b/arch/arm64/kvm/Kconfig
+@@ -28,7 +28,6 @@ menuconfig KVM
+ 	select KVM_MMIO
+ 	select KVM_GENERIC_DIRTYLOG_READ_PROTECT
+ 	select KVM_XFER_TO_GUEST_WORK
+-	select KVM_VFIO
+ 	select HAVE_KVM_EVENTFD
+ 	select HAVE_KVM_IRQFD
+ 	select HAVE_KVM_DIRTY_RING_ACQ_REL
+diff --git a/arch/powerpc/kvm/Kconfig b/arch/powerpc/kvm/Kconfig
+index 902611954200..c4beb49c0eb2 100644
+--- a/arch/powerpc/kvm/Kconfig
++++ b/arch/powerpc/kvm/Kconfig
+@@ -22,7 +22,6 @@ config KVM
+ 	select PREEMPT_NOTIFIERS
+ 	select HAVE_KVM_EVENTFD
+ 	select HAVE_KVM_VCPU_ASYNC_IOCTL
+-	select KVM_VFIO
+ 	select IRQ_BYPASS_MANAGER
+ 	select HAVE_KVM_IRQ_BYPASS
+ 	select INTERVAL_TREE
+diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+index 45fdf2a9b2e3..459d536116a6 100644
+--- a/arch/s390/kvm/Kconfig
++++ b/arch/s390/kvm/Kconfig
+@@ -31,7 +31,6 @@ config KVM
+ 	select HAVE_KVM_IRQ_ROUTING
+ 	select HAVE_KVM_INVALID_WAKEUPS
+ 	select HAVE_KVM_NO_POLL
+-	select KVM_VFIO
+ 	select INTERVAL_TREE
+ 	select MMU_NOTIFIER
+ 	help
+diff --git a/arch/x86/kvm/Kconfig b/arch/x86/kvm/Kconfig
+index ed90f148140d..0f01e5600b5f 100644
+--- a/arch/x86/kvm/Kconfig
++++ b/arch/x86/kvm/Kconfig
+@@ -45,7 +45,6 @@ config KVM
+ 	select HAVE_KVM_NO_POLL
+ 	select KVM_XFER_TO_GUEST_WORK
+ 	select KVM_GENERIC_DIRTYLOG_READ_PROTECT
+-	select KVM_VFIO
+ 	select INTERVAL_TREE
+ 	select HAVE_KVM_PM_NOTIFIER if PM
+ 	select KVM_GENERIC_HARDWARE_ENABLING
+diff --git a/virt/kvm/Kconfig b/virt/kvm/Kconfig
+index 484d0873061c..f0be3b55cea6 100644
+--- a/virt/kvm/Kconfig
++++ b/virt/kvm/Kconfig
+@@ -59,9 +59,6 @@ config HAVE_KVM_MSI
+ config HAVE_KVM_CPU_RELAX_INTERCEPT
+        bool
  
--#if IS_ENABLED(CONFIG_KVM)
--void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm)
--{
--	void (*pfn)(struct kvm *kvm);
--	bool (*fn)(struct kvm *kvm);
--	bool ret;
+-config KVM_VFIO
+-       bool
 -
--	lockdep_assert_held(&device->dev_set->lock);
--
--	if (!kvm)
--		return;
--
--	pfn = symbol_get(kvm_put_kvm);
--	if (WARN_ON(!pfn))
--		return;
--
--	fn = symbol_get(kvm_get_kvm_safe);
--	if (WARN_ON(!fn)) {
--		symbol_put(kvm_put_kvm);
--		return;
--	}
--
--	ret = fn(kvm);
--	symbol_put(kvm_get_kvm_safe);
--	if (!ret) {
--		symbol_put(kvm_put_kvm);
--		return;
--	}
--
--	device->put_kvm = pfn;
--	device->kvm = kvm;
--}
--
--void vfio_device_put_kvm(struct vfio_device *device)
--{
--	lockdep_assert_held(&device->dev_set->lock);
--
--	if (!device->kvm)
--		return;
--
--	if (WARN_ON(!device->put_kvm))
--		goto clear;
--
--	device->put_kvm(device->kvm);
--	device->put_kvm = NULL;
--	symbol_put(kvm_put_kvm);
--
--clear:
--	device->kvm = NULL;
--}
--#endif
--
- /* true if the vfio_device has open_device() called but not close_device() */
- static bool vfio_assert_device_open(struct vfio_device *device)
- {
-@@ -1354,6 +1302,58 @@ bool vfio_file_enforced_coherent(struct file *file)
- }
- EXPORT_SYMBOL_GPL(vfio_file_enforced_coherent);
+ config HAVE_KVM_INVALID_WAKEUPS
+        bool
  
-+#if IS_ENABLED(CONFIG_KVM)
-+void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm)
-+{
-+	void (*pfn)(struct kvm *kvm);
-+	bool (*fn)(struct kvm *kvm);
-+	bool ret;
-+
-+	lockdep_assert_held(&device->dev_set->lock);
-+
-+	if (!kvm)
-+		return;
-+
-+	pfn = symbol_get(kvm_put_kvm);
-+	if (WARN_ON(!pfn))
-+		return;
-+
-+	fn = symbol_get(kvm_get_kvm_safe);
-+	if (WARN_ON(!fn)) {
-+		symbol_put(kvm_put_kvm);
-+		return;
-+	}
-+
-+	ret = fn(kvm);
-+	symbol_put(kvm_get_kvm_safe);
-+	if (!ret) {
-+		symbol_put(kvm_put_kvm);
-+		return;
-+	}
-+
-+	device->put_kvm = pfn;
-+	device->kvm = kvm;
-+}
-+
-+void vfio_device_put_kvm(struct vfio_device *device)
-+{
-+	lockdep_assert_held(&device->dev_set->lock);
-+
-+	if (!device->kvm)
-+		return;
-+
-+	if (WARN_ON(!device->put_kvm))
-+		goto clear;
-+
-+	device->put_kvm(device->kvm);
-+	device->put_kvm = NULL;
-+	symbol_put(kvm_put_kvm);
-+
-+clear:
-+	device->kvm = NULL;
-+}
-+#endif
-+
- static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm)
- {
- 	struct vfio_device_file *df = file->private_data;
+diff --git a/virt/kvm/Makefile.kvm b/virt/kvm/Makefile.kvm
+index 2c27d5d0c367..29373b59d89a 100644
+--- a/virt/kvm/Makefile.kvm
++++ b/virt/kvm/Makefile.kvm
+@@ -6,7 +6,9 @@
+ KVM ?= ../../../virt/kvm
+ 
+ kvm-y := $(KVM)/kvm_main.o $(KVM)/eventfd.o $(KVM)/binary_stats.o
+-kvm-$(CONFIG_KVM_VFIO) += $(KVM)/vfio.o
++ifdef CONFIG_VFIO
++kvm-y += $(KVM)/vfio.o
++endif
+ kvm-$(CONFIG_KVM_MMIO) += $(KVM)/coalesced_mmio.o
+ kvm-$(CONFIG_KVM_ASYNC_PF) += $(KVM)/async_pf.o
+ kvm-$(CONFIG_HAVE_KVM_IRQ_ROUTING) += $(KVM)/irqchip.o
+diff --git a/virt/kvm/vfio.h b/virt/kvm/vfio.h
+index e130a4a03530..af475a323965 100644
+--- a/virt/kvm/vfio.h
++++ b/virt/kvm/vfio.h
+@@ -2,7 +2,7 @@
+ #ifndef __KVM_VFIO_H
+ #define __KVM_VFIO_H
+ 
+-#ifdef CONFIG_KVM_VFIO
++#if IS_ENABLED(CONFIG_KVM) && IS_ENABLED(CONFIG_VFIO)
+ int kvm_vfio_ops_init(void);
+ void kvm_vfio_ops_exit(void);
+ #else
 -- 
 2.42.0.459.ge4e396fd5e-goog
 
