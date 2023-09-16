@@ -2,79 +2,250 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 688EBEED61F
-	for <linux-s390@archiver.kernel.org>; Fri, 15 Sep 2023 18:18:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72042CD37B1
+	for <linux-s390@archiver.kernel.org>; Sat, 16 Sep 2023 00:32:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230460AbjIOSSa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 15 Sep 2023 14:18:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43372 "EHLO
+        id S238171AbjIPAbo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 15 Sep 2023 20:31:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234568AbjIOSSC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 14:18:02 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9C1E1FD7;
-        Fri, 15 Sep 2023 11:17:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=IZ/9ERMD1BXqY95VFvXjlfOuZqoMJEOwgTSIpzzRviw=; b=kXs/rKPpldhZt2Fy5p1oCe7PlF
-        l/MgRT9cyliL8/TeECOPaIxyP9fFf4AGuQhw4Jp/bInA/rIaaZAa/uhdNc0gkBVpEVVsypd8ljkeo
-        TR0z3xBskjfPSDiZzVsuBsAoxFiVdTk8nqU/Dq76azj5ikZdOe3sqF1wtjK+JrWI9elDIRy8aQMcn
-        2XIOrnuP/MbNL1zopokoVyrw3HHMUoi2aPLl+BkfATkgtW8uzapQd3BLNSE55LoAWYKnblUTsIafk
-        3cGFF8kYoaL6rEVWF3W7qLoNHK9yvzBv08ydcHs2lq4f9+Xmh0hRsPtlIdk14hrrykDXIXNRLZw6k
-        LC57XZBg==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1qhDO3-00BGn6-Hc; Fri, 15 Sep 2023 18:17:51 +0000
-Date:   Fri, 15 Sep 2023 19:17:51 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        with ESMTP id S238667AbjIPAbn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 20:31:43 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36C2F139
+        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:35 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id 3f1490d57ef6-d818e01823aso3037279276.2
+        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1694824294; x=1695429094; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
+        bh=XQRlLqUbNuYp1+FU2drQZXL0G0BiKv3N4ijMXeK3kKU=;
+        b=pj+m+tw+Vr/7p8Y5xI2nRJIZqZ/Aw+drvFtF210Mgaro8VDbTprQ03KYl+1DG+Mvl2
+         /bdOATaYzWI/O45mTeZvtWzhWrTvGZXveG3TkQVLbNXmY4oarqZBSdBXu6mi0Bpij+Jn
+         x0qNy9xNJ6AddCeezhpXBS6bbXEd5lyUgNoG5RF280zx+bPVBT836B0ZYrGoS3Ers/v3
+         o5F/EuxdVMrweazOTgz2lLagFBmcXPX/gbRLmEk6NNvwPTLcWPU6oWBEHq9LcBTp9Zct
+         1+LXloWwjp6h8rjp+cKpuJfk7yPEH9ApKIJIquVdMZ5HEtoO9NFyc9oZ4Gfl9RpP4sfP
+         Hz0w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1694824294; x=1695429094;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=XQRlLqUbNuYp1+FU2drQZXL0G0BiKv3N4ijMXeK3kKU=;
+        b=CHmfUMzvODXmEk1B8LSE7EqGwb4RUG82P66uZnaQp0LGlDSAKfL9XBOe8wMPJRvzSu
+         5rUDCGpNmAkbV6OB/VfunddGmnclm0VLcV0yG8iBaAUsTHxULPzyOHT4mnzNMRIhquIQ
+         EqpjY2htkar69NhR2hsB6kJW7zsyDx8prZw2Y4+7IzuIXc2kevfPGYFSQHLocaHy9RxM
+         IUuqpwQHKmFNOf4jP1GsUdUFZzjnARJ3EEWysYPdsCBs26Qy8HY3A43hBb0lH8yPEW8t
+         nA6lKPKCuCcuTV6KpONLa1Odntx3QsuJy7qBVjbZV7sSW4625dZHOLMMtPSsIUMreT7v
+         eO4g==
+X-Gm-Message-State: AOJu0Yw3rUAf/EH5moNtQixvwPd/EWGFUYprnpBPL9o+vgbBbYY+L1+G
+        6R5Rl6mjdKD/3xvM1G0B+cvsczUg2WY=
+X-Google-Smtp-Source: AGHT+IHBAJpKVTk5K4TnqnuCpKfAMfti0UcZajyltDkU/ESq4jqN2J77nrZn8mACY7DFJ5DSU6KVipQ1KO4=
+X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
+ (user=seanjc job=sendgmr) by 2002:a25:aa6c:0:b0:d7e:a025:2672 with SMTP id
+ s99-20020a25aa6c000000b00d7ea0252672mr72126ybi.9.1694824294437; Fri, 15 Sep
+ 2023 17:31:34 -0700 (PDT)
+Reply-To: Sean Christopherson <seanjc@google.com>
+Date:   Fri, 15 Sep 2023 17:30:59 -0700
+In-Reply-To: <20230916003118.2540661-1-seanjc@google.com>
+Mime-Version: 1.0
+References: <20230916003118.2540661-1-seanjc@google.com>
+X-Mailer: git-send-email 2.42.0.459.ge4e396fd5e-goog
+Message-ID: <20230916003118.2540661-8-seanjc@google.com>
+Subject: [PATCH 07/26] x86/idt: Wrap KVM logic with CONFIG_KVM instead of CONFIG_HAVE_KVM
+From:   Sean Christopherson <seanjc@google.com>
+To:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Anup Patel <anup@brainfault.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Subject: Re: [PATCH 0/3] Use arch_make_folio_accessible() everywhere
-Message-ID: <ZQSfz1Kx9/QhN64E@casper.infradead.org>
-References: <20230915172829.2632994-1-willy@infradead.org>
- <20230915195450.1fd35f48@p-imbrenda>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230915195450.1fd35f48@p-imbrenda>
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Andy Lutomirski <luto@kernel.org>
+Cc:     linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
+        linux-mips@vger.kernel.org, kvm@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+        Anish Ghulati <aghulati@google.com>,
+        Venkatesh Srinivas <venkateshs@chromium.org>,
+        Andrew Thornton <andrewth@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Sep 15, 2023 at 07:54:50PM +0200, Claudio Imbrenda wrote:
-> On Fri, 15 Sep 2023 18:28:25 +0100
-> "Matthew Wilcox (Oracle)" <willy@infradead.org> wrote:
-> 
-> > We introduced arch_make_folio_accessible() a couple of years
-> > ago, and it's in use in the page writeback path.  GUP still uses
-> > arch_make_page_accessible(), which means that we can succeed in making
-> > a single page of a folio accessible, then fail to make the rest of the
-> > folio accessible when it comes time to do writeback and it's too late
-> > to do anything about it.  I'm not sure how much of a real problem this is.
-> > 
-> > Switching everything around to arch_make_folio_accessible() also lets
-> > us switch the page flag to be per-folio instead of per-page, which is
-> > a good step towards dynamically allocated folios.
-> 
-> if I understand correctly, this will as a matter of fact move the
-> security property from pages to folios.
+Wrap all of the IDT-related code that deals with KVM in CONFIG_KVM instead
+of CONFIG_HAVE_KVM.  x86 always "has" KVM, i.e. checking CONFIG_HAVE_KVM
+is pointless.
 
-Correct.
+Alternatively, the #ifdefs could simply be deleted, but the only potential
+value is in printing the number of posted interrupts that end up being
+handled by the host, everything else is completely dead code when KVM is
+disabled.  And if KVM is disabled, there should not be any posted
+interrupts, i.e. NOT wiring up the "dummy" handlers and treating IRQs on
+those vectors as spurious is the right thing to do.
 
-> this means that trying to access a page will (try to) make the whole
-> folio accessible, even though that might be counterproductive.... 
-> 
-> and there is no way to simply split a folio
-> 
-> I don't like this
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+---
+ arch/x86/include/asm/hardirq.h           | 2 +-
+ arch/x86/include/asm/idtentry.h          | 2 +-
+ arch/x86/include/asm/irq.h               | 2 +-
+ arch/x86/include/asm/irq_vectors.h       | 2 +-
+ arch/x86/kernel/idt.c                    | 2 +-
+ arch/x86/kernel/irq.c                    | 4 ++--
+ scripts/gdb/linux/constants.py.in        | 2 +-
+ scripts/gdb/linux/interrupts.py          | 2 +-
+ tools/arch/x86/include/asm/irq_vectors.h | 2 +-
+ 9 files changed, 10 insertions(+), 10 deletions(-)
 
-As I said in the cover letter, we already make the entire folio
-accessible in the writeback path.  I suppose if you never write the
-folio back, this is new ...
+diff --git a/arch/x86/include/asm/hardirq.h b/arch/x86/include/asm/hardirq.h
+index 66837b8c67f1..fbc7722b87d1 100644
+--- a/arch/x86/include/asm/hardirq.h
++++ b/arch/x86/include/asm/hardirq.h
+@@ -15,7 +15,7 @@ typedef struct {
+ 	unsigned int irq_spurious_count;
+ 	unsigned int icr_read_retry_count;
+ #endif
+-#ifdef CONFIG_HAVE_KVM
++#if IS_ENABLED(CONFIG_KVM)
+ 	unsigned int kvm_posted_intr_ipis;
+ 	unsigned int kvm_posted_intr_wakeup_ipis;
+ 	unsigned int kvm_posted_intr_nested_ipis;
+diff --git a/arch/x86/include/asm/idtentry.h b/arch/x86/include/asm/idtentry.h
+index 05fd175cec7d..8eef16d0d72b 100644
+--- a/arch/x86/include/asm/idtentry.h
++++ b/arch/x86/include/asm/idtentry.h
+@@ -671,7 +671,7 @@ DECLARE_IDTENTRY_SYSVEC(IRQ_WORK_VECTOR,		sysvec_irq_work);
+ # endif
+ #endif
+ 
+-#ifdef CONFIG_HAVE_KVM
++#if IS_ENABLED(CONFIG_KVM)
+ DECLARE_IDTENTRY_SYSVEC(POSTED_INTR_VECTOR,		sysvec_kvm_posted_intr_ipi);
+ DECLARE_IDTENTRY_SYSVEC(POSTED_INTR_WAKEUP_VECTOR,	sysvec_kvm_posted_intr_wakeup_ipi);
+ DECLARE_IDTENTRY_SYSVEC(POSTED_INTR_NESTED_VECTOR,	sysvec_kvm_posted_intr_nested_ipi);
+diff --git a/arch/x86/include/asm/irq.h b/arch/x86/include/asm/irq.h
+index 836c170d3087..194dfff84cb1 100644
+--- a/arch/x86/include/asm/irq.h
++++ b/arch/x86/include/asm/irq.h
+@@ -29,7 +29,7 @@ struct irq_desc;
+ 
+ extern void fixup_irqs(void);
+ 
+-#ifdef CONFIG_HAVE_KVM
++#if IS_ENABLED(CONFIG_KVM)
+ extern void kvm_set_posted_intr_wakeup_handler(void (*handler)(void));
+ #endif
+ 
+diff --git a/arch/x86/include/asm/irq_vectors.h b/arch/x86/include/asm/irq_vectors.h
+index 3a19904c2db6..3f73ac3ed3a0 100644
+--- a/arch/x86/include/asm/irq_vectors.h
++++ b/arch/x86/include/asm/irq_vectors.h
+@@ -84,7 +84,7 @@
+ #define HYPERVISOR_CALLBACK_VECTOR	0xf3
+ 
+ /* Vector for KVM to deliver posted interrupt IPI */
+-#ifdef CONFIG_HAVE_KVM
++#if IS_ENABLED(CONFIG_KVM)
+ #define POSTED_INTR_VECTOR		0xf2
+ #define POSTED_INTR_WAKEUP_VECTOR	0xf1
+ #define POSTED_INTR_NESTED_VECTOR	0xf0
+diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
+index b786d48f5a0f..a9e6363d88c2 100644
+--- a/arch/x86/kernel/idt.c
++++ b/arch/x86/kernel/idt.c
+@@ -149,7 +149,7 @@ static const __initconst struct idt_data apic_idts[] = {
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 	INTG(LOCAL_TIMER_VECTOR,		asm_sysvec_apic_timer_interrupt),
+ 	INTG(X86_PLATFORM_IPI_VECTOR,		asm_sysvec_x86_platform_ipi),
+-# ifdef CONFIG_HAVE_KVM
++#if IS_ENABLED(CONFIG_KVM)
+ 	INTG(POSTED_INTR_VECTOR,		asm_sysvec_kvm_posted_intr_ipi),
+ 	INTG(POSTED_INTR_WAKEUP_VECTOR,		asm_sysvec_kvm_posted_intr_wakeup_ipi),
+ 	INTG(POSTED_INTR_NESTED_VECTOR,		asm_sysvec_kvm_posted_intr_nested_ipi),
+diff --git a/arch/x86/kernel/irq.c b/arch/x86/kernel/irq.c
+index 11761c124545..35fde0107901 100644
+--- a/arch/x86/kernel/irq.c
++++ b/arch/x86/kernel/irq.c
+@@ -164,7 +164,7 @@ int arch_show_interrupts(struct seq_file *p, int prec)
+ #if defined(CONFIG_X86_IO_APIC)
+ 	seq_printf(p, "%*s: %10u\n", prec, "MIS", atomic_read(&irq_mis_count));
+ #endif
+-#ifdef CONFIG_HAVE_KVM
++#if IS_ENABLED(CONFIG_KVM)
+ 	seq_printf(p, "%*s: ", prec, "PIN");
+ 	for_each_online_cpu(j)
+ 		seq_printf(p, "%10u ", irq_stats(j)->kvm_posted_intr_ipis);
+@@ -290,7 +290,7 @@ DEFINE_IDTENTRY_SYSVEC(sysvec_x86_platform_ipi)
+ }
+ #endif
+ 
+-#ifdef CONFIG_HAVE_KVM
++#if IS_ENABLED(CONFIG_KVM)
+ static void dummy_handler(void) {}
+ static void (*kvm_posted_intr_wakeup_handler)(void) = dummy_handler;
+ 
+diff --git a/scripts/gdb/linux/constants.py.in b/scripts/gdb/linux/constants.py.in
+index e3517d4ab8ec..054630f511e0 100644
+--- a/scripts/gdb/linux/constants.py.in
++++ b/scripts/gdb/linux/constants.py.in
+@@ -129,7 +129,7 @@ LX_CONFIG(CONFIG_X86_MCE_THRESHOLD)
+ LX_CONFIG(CONFIG_X86_MCE_AMD)
+ LX_CONFIG(CONFIG_X86_MCE)
+ LX_CONFIG(CONFIG_X86_IO_APIC)
+-LX_CONFIG(CONFIG_HAVE_KVM)
++LX_CONFIG(CONFIG_KVM)
+ LX_CONFIG(CONFIG_NUMA)
+ LX_CONFIG(CONFIG_ARM64)
+ LX_CONFIG(CONFIG_ARM64_4K_PAGES)
+diff --git a/scripts/gdb/linux/interrupts.py b/scripts/gdb/linux/interrupts.py
+index ef478e273791..66ae5c7690cf 100644
+--- a/scripts/gdb/linux/interrupts.py
++++ b/scripts/gdb/linux/interrupts.py
+@@ -151,7 +151,7 @@ def x86_show_interupts(prec):
+         if cnt is not None:
+             text += "%*s: %10u\n" % (prec, "MIS", cnt['counter'])
+ 
+-    if constants.LX_CONFIG_HAVE_KVM:
++    if constants.LX_CONFIG_KVM:
+         text += x86_show_irqstat(prec, "PIN", 'kvm_posted_intr_ipis', 'Posted-interrupt notification event')
+         text += x86_show_irqstat(prec, "NPI", 'kvm_posted_intr_nested_ipis', 'Nested posted-interrupt event')
+         text += x86_show_irqstat(prec, "PIW", 'kvm_posted_intr_wakeup_ipis', 'Posted-interrupt wakeup event')
+diff --git a/tools/arch/x86/include/asm/irq_vectors.h b/tools/arch/x86/include/asm/irq_vectors.h
+index 3a19904c2db6..3f73ac3ed3a0 100644
+--- a/tools/arch/x86/include/asm/irq_vectors.h
++++ b/tools/arch/x86/include/asm/irq_vectors.h
+@@ -84,7 +84,7 @@
+ #define HYPERVISOR_CALLBACK_VECTOR	0xf3
+ 
+ /* Vector for KVM to deliver posted interrupt IPI */
+-#ifdef CONFIG_HAVE_KVM
++#if IS_ENABLED(CONFIG_KVM)
+ #define POSTED_INTR_VECTOR		0xf2
+ #define POSTED_INTR_WAKEUP_VECTOR	0xf1
+ #define POSTED_INTR_NESTED_VECTOR	0xf0
+-- 
+2.42.0.459.ge4e396fd5e-goog
 
-Anyway, looking forward to a more substantial discussion on Monday.
