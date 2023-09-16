@@ -2,58 +2,58 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54682CD37B4
-	for <linux-s390@archiver.kernel.org>; Sat, 16 Sep 2023 00:33:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D7BDCD37BB
+	for <linux-s390@archiver.kernel.org>; Sat, 16 Sep 2023 00:33:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238567AbjIPAcu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 15 Sep 2023 20:32:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34274 "EHLO
+        id S238695AbjIPAcw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 15 Sep 2023 20:32:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238639AbjIPAcZ (ORCPT
+        with ESMTP id S238640AbjIPAcZ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Sep 2023 20:32:25 -0400
-Received: from mail-pl1-x649.google.com (mail-pl1-x649.google.com [IPv6:2607:f8b0:4864:20::649])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB8FF2D5D
-        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:46 -0700 (PDT)
-Received: by mail-pl1-x649.google.com with SMTP id d9443c01a7336-1c08a15fcf4so25899575ad.3
-        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:46 -0700 (PDT)
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1859B1B8
+        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:37 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id 3f1490d57ef6-d818fb959f4so2979491276.1
+        for <linux-s390@vger.kernel.org>; Fri, 15 Sep 2023 17:31:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1694824306; x=1695429106; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1694824296; x=1695429096; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=HQNUEYOJ/ozgdrFnqx+YRCy2I1exOHPHuH58RF8SFNA=;
-        b=M0gIO6eCoTEr3GyvSoSXqbffxgpKcvL2iExYuoC1k1A0QMa49lgLHRLuf83fPt2EER
-         p0/XkGy+aPVxOCMzm4qhlUVO/7ZRz0RX4ZihqJ7KPu43EhRaqjry7XDN6ggrYCUt1c6b
-         tNceeQyuPYGXl4IN20FmDkP3TIvgnbd0ghe2QEmzk2zQrTObxyL31Qo9CebNV3oLQKZb
-         kIih2H1Er1Y0nc45248g1TcaTDnKgzorYoWeRLQ5BxFSK6YQE/mY03l0aSYr+g4n556e
-         tHJg3zYqqP9MZgotM5PRIhgFbRicKza8GjnFEYqjmqSe8gktBCVv50aAB1P1pWIB4r3Q
-         +TmA==
+        bh=2bGNmVCdNvvogzEXgW0zNdAXreJziaadtBBldNfFmhI=;
+        b=4WEhzq8YYbH5MYS8LF3fNZDW9/doxPBMM5mnRkHh7rJfKucqCpmHfMn8Dk8I5T1Vjw
+         r7GKVcMcJezlwbwZdQwe5awi4/JsVEXewSxl/8kp7Zq7Jsnufc0JDsztP0h7mR5pI0hk
+         90GGOrwszrDkx1ckPXbKoPWJITxFpbbVdVMfjuB1P12117rdZoMXWD/T6fi2bLBNYM37
+         qNnR1Xa0L12cfVJN4IQcUJIBgcxgx3WqXFeJlD79YjBEClF6YfD2xbgF61lTjSnKppKl
+         wuTsp8sAceoHv77LPkGb4unAjBl8gAta2F+LLf2CZKmCUljmlURPF6ZLjRkpYyfMkyjv
+         k+QA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694824306; x=1695429106;
+        d=1e100.net; s=20230601; t=1694824296; x=1695429096;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=HQNUEYOJ/ozgdrFnqx+YRCy2I1exOHPHuH58RF8SFNA=;
-        b=XClRD8WFw39NE2wbP9d0RssP0i6kpxPmhuS7/ihgGrfSBzjid/e+CDlJ0Raodkvyeh
-         rk4QIprePqMhKzo1e2xuUwbljTfCvPzX2XyueC0RjeuZt1quIlwWQMCA8qoY0PStxDvL
-         Ib29Wocmha1ODOZ1RcB+E0/2VXQHKvtdTSegYi5uK+VO1PFvJ41Rucyu2JC9CY3NOso0
-         bOrW7wDGk7Ufyg3vC2hG2uTcTc+NKfUXjs9pDebyZwlUNjV0xzZ77wwo7TkbJqyFC4cj
-         mhOJs2koFzgO2DVr+n5RpNCOpeIgbb4ls/VdMzSLuLkZoeNfCme1OfRrvfZf0gUaoqpH
-         WDJg==
-X-Gm-Message-State: AOJu0YyM9pQnkk5yaI+0MJd7pgTsx6YPwRzK7FXLdM0pIMf6DYx0mE3N
-        zMQkRJqoFZwpOhK2cXMmKg1qd6yVn8A=
-X-Google-Smtp-Source: AGHT+IHwZjKrwGdEWszMvnFwhRAkOaZ4ZXt/sllxoteViYwmhz1Ar6ouDJgF8x4FFhszG2C3n1vTw2Lw6BE=
+        bh=2bGNmVCdNvvogzEXgW0zNdAXreJziaadtBBldNfFmhI=;
+        b=htkq3IyzTOq/nWBTr05bUjArfXOkAyAbFkZ7QJzESim3ZVZF7xaZAwgqRyUD9hL+KJ
+         ImFngMvy9ZlHUWgH26amphKmbpWdk360/8sN8qFpj4utv/6BMX297X0kvn0SugxVlq3j
+         DWzkaNxWJ+LjoEHIaHPEUhhn2iwd9GNZQKOC30IbfskPrfvIwIE6TQO/tj2/pkxdnKs5
+         95G04IRHvrpcEphkhMHqP54dsj14PCAu3ihpRs4lSj+BL0o0IsTlbX/hz6jgOHSZfs/7
+         nXWb7B3LoLV8iuJFysZu66WmWGov1+Qbjuf33XvMzk5oyb6nvU4dACYTtOwmCV54CLx2
+         rWPg==
+X-Gm-Message-State: AOJu0YwfCy4n7auncPajRSh53Oma0E6HS7Toas2x7V+CRgBOTbMhf7xD
+        lmm9GCR3+khhwAIndrDP9GS7cPSgTPU=
+X-Google-Smtp-Source: AGHT+IEii4782d+JzWBACVp4gsfxYcFW3PZ67SLHnb796XbOz2rrTeQdE9Xb83Qlv7LO8McNRbBpWAwnK1E=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a17:903:32ca:b0:1b8:8c7:31e6 with SMTP id
- i10-20020a17090332ca00b001b808c731e6mr93755plr.1.1694824306427; Fri, 15 Sep
- 2023 17:31:46 -0700 (PDT)
+ (user=seanjc job=sendgmr) by 2002:a25:2982:0:b0:d05:98ef:c16b with SMTP id
+ p124-20020a252982000000b00d0598efc16bmr77753ybp.5.1694824296181; Fri, 15 Sep
+ 2023 17:31:36 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date:   Fri, 15 Sep 2023 17:31:05 -0700
+Date:   Fri, 15 Sep 2023 17:31:00 -0700
 In-Reply-To: <20230916003118.2540661-1-seanjc@google.com>
 Mime-Version: 1.0
 References: <20230916003118.2540661-1-seanjc@google.com>
 X-Mailer: git-send-email 2.42.0.459.ge4e396fd5e-goog
-Message-ID: <20230916003118.2540661-14-seanjc@google.com>
-Subject: [PATCH 13/26] KVM: arm64: Include KVM headers to get forward declarations
+Message-ID: <20230916003118.2540661-9-seanjc@google.com>
+Subject: [PATCH 08/26] KVM: x86: Stop selecting and depending on HAVE_KVM
 From:   Sean Christopherson <seanjc@google.com>
 To:     Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
@@ -96,50 +96,48 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Include include/uapi/linux/kvm.h and include/linux/kvm_types.h in ARM's
-public arm_arch_timer.h and arm_pmu.h headers to get forward declarations
-of things like "struct kvm_vcpu" and "struct kvm_device_attr", which are
-referenced but never declared (neither file includes *any* KVM headers).
+Now that nothing in x86 or architecture agnostic code consumes HAVE_KVM,
+stop selecting it in x86.  This is one of several steps towards deleting
+HAVE_KVM from the common KVM Kconfig.
 
-The missing includes don't currently cause problems because of the order
-of includes in parent files, but that order is largely arbitrary and is
-subject to change, e.g. a future commit will move the ARM specific headers
-to arch/arm64/include/asm and reorder parent includes to maintain
-alphabetic ordering.
-
-Reported-by: kernel test robot <lkp@intel.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- include/kvm/arm_arch_timer.h | 2 ++
- include/kvm/arm_pmu.h        | 2 ++
- 2 files changed, 4 insertions(+)
+ arch/x86/Kconfig     | 1 -
+ arch/x86/kvm/Kconfig | 2 --
+ 2 files changed, 3 deletions(-)
 
-diff --git a/include/kvm/arm_arch_timer.h b/include/kvm/arm_arch_timer.h
-index bb3cb005873e..e22a15c66288 100644
---- a/include/kvm/arm_arch_timer.h
-+++ b/include/kvm/arm_arch_timer.h
-@@ -7,6 +7,8 @@
- #ifndef __ASM_ARM_KVM_ARCH_TIMER_H
- #define __ASM_ARM_KVM_ARCH_TIMER_H
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 982b777eadc7..32eb288a4e3a 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -240,7 +240,6 @@ config X86
+ 	select HAVE_FUNCTION_ERROR_INJECTION
+ 	select HAVE_KRETPROBES
+ 	select HAVE_RETHOOK
+-	select HAVE_KVM
+ 	select HAVE_LIVEPATCH			if X86_64
+ 	select HAVE_MIXED_BREAKPOINTS_REGS
+ 	select HAVE_MOD_ARCH_SPECIFIC
+diff --git a/arch/x86/kvm/Kconfig b/arch/x86/kvm/Kconfig
+index 0f01e5600b5f..8c5fb7f57b4c 100644
+--- a/arch/x86/kvm/Kconfig
++++ b/arch/x86/kvm/Kconfig
+@@ -7,7 +7,6 @@ source "virt/kvm/Kconfig"
  
-+#include <linux/kvm.h>
-+#include <linux/kvm_types.h>
- #include <linux/clocksource.h>
- #include <linux/hrtimer.h>
+ menuconfig VIRTUALIZATION
+ 	bool "Virtualization"
+-	depends on HAVE_KVM || X86
+ 	default y
+ 	help
+ 	  Say Y here to get to see options for using your Linux host to run other
+@@ -20,7 +19,6 @@ if VIRTUALIZATION
  
-diff --git a/include/kvm/arm_pmu.h b/include/kvm/arm_pmu.h
-index 31029f4f7be8..e80f1d090579 100644
---- a/include/kvm/arm_pmu.h
-+++ b/include/kvm/arm_pmu.h
-@@ -7,6 +7,8 @@
- #ifndef __ASM_ARM_KVM_PMU_H
- #define __ASM_ARM_KVM_PMU_H
- 
-+#include <linux/kvm.h>
-+#include <linux/kvm_types.h>
- #include <linux/perf_event.h>
- #include <linux/perf/arm_pmuv3.h>
- 
+ config KVM
+ 	tristate "Kernel-based Virtual Machine (KVM) support"
+-	depends on HAVE_KVM
+ 	depends on HIGH_RES_TIMERS
+ 	depends on X86_LOCAL_APIC
+ 	select PREEMPT_NOTIFIERS
 -- 
 2.42.0.459.ge4e396fd5e-goog
 
