@@ -2,63 +2,58 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E455CD37B0
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Sep 2023 15:22:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26138C46CA1
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Sep 2023 15:23:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234787AbjIRPW5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Sep 2023 11:22:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43980 "EHLO
+        id S240351AbjIRPXe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Sep 2023 11:23:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238837AbjIRPW5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Sep 2023 11:22:57 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E87AE4D;
-        Mon, 18 Sep 2023 08:18:26 -0700 (PDT)
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38ID7m8K022184;
-        Mon, 18 Sep 2023 13:39:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=uFeVU8GBdED+6wySKC1QfNlfLSeapRp6zibRkLvoEAg=;
- b=EUgSQDYEXZESVbmvkEiNuTPHwixQI0U9Ur8KrwnxnMW2rt/Omu+WNYY+LSeIucK5gSnp
- S46UxA82HvBTG79IhgqPc3bJWagb2EQrV6N6sBiCAQfeDqMb1/IRaAevgqWYUEmNprJM
- CoQge9/E6BjJJexoJEcwD8pFZZH5lUVqkDK+rtX6/jOGGKyAGgZxTW7kCP7IloKLULSA
- uLF9aW9go5BJnf502MEDdq0h/x/9yJ4/9antoFKqhJIdLC0b7ZLwyR3kUrL4qzyRBTUl
- 434+oSex3Z32l1kYQ/R9tHJdVDFCiMdI6l9ljlLNe7B8KabkWYR0oTSwNKAaxenA0HxS mg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t6p46325r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 18 Sep 2023 13:39:09 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38IDVHPH027141;
-        Mon, 18 Sep 2023 13:39:08 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t6p46325b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 18 Sep 2023 13:39:08 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38ICo7GK031259;
-        Mon, 18 Sep 2023 13:39:07 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3t5r6kayvt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 18 Sep 2023 13:39:06 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38IDd36h20185604
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 18 Sep 2023 13:39:04 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CF04D20040;
-        Mon, 18 Sep 2023 13:39:03 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 04E452004B;
-        Mon, 18 Sep 2023 13:39:03 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 18 Sep 2023 13:39:02 +0000 (GMT)
-Date:   Mon, 18 Sep 2023 15:38:35 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+        with ESMTP id S234787AbjIRPXd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Sep 2023 11:23:33 -0400
+Received: from mail-qk1-x72d.google.com (mail-qk1-x72d.google.com [IPv6:2607:f8b0:4864:20::72d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 181501737
+        for <linux-s390@vger.kernel.org>; Mon, 18 Sep 2023 08:21:36 -0700 (PDT)
+Received: by mail-qk1-x72d.google.com with SMTP id af79cd13be357-773ac11de71so231450985a.2
+        for <linux-s390@vger.kernel.org>; Mon, 18 Sep 2023 08:21:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1695050472; x=1695655272; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=9iwt12QdmH2nPtcjR0iEq1G+1D18erLjJ1cQj58qe4I=;
+        b=Q/2lfiKYNE/5K44PTGLhus4LlnlDi7yhqp/bgjYuFQ0srmDvs9Vtf+YrDz+IMsI1HW
+         8WvtWWsMgjFnPgsBGQaoAkFmfzAva1/GK+AfQarXQ6qfMQV0DGj8+Gy8CfKOOwJovRTu
+         k8biRM6eQ1SdamNDRhZcNmwefP1gxTQZAevYCGXlMHDNI02s5j/dcovffbbAJuSz5x79
+         pvDtijN5fAs8mvNBahRLnCvozpxm7uSEkD1oz0Bb1GySdXnLQq9/IXTZRMsUXFfq74BR
+         pKjFQ6T951q3tMjM6MNkEuZBLWQ3Yu/qzjivb8N9rDCwpFzpjjj9OFyIEvF2qF8qG2yP
+         Fw0g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1695050472; x=1695655272;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=9iwt12QdmH2nPtcjR0iEq1G+1D18erLjJ1cQj58qe4I=;
+        b=iBkwBc4TP7Ti/mKlg+UHqF2CSEdSgWd0xEZbHQbMNS3qAFljvU0JKJsGB/ZKanN5aw
+         oehR9b7kF2w0tlg7GpfYssO47Dim0BVduyEHWFfc0+ecw2TGMUbh/pJ/0rAoxHcYCvB8
+         mivCUN9ntQ3dMNldXdwi2wcbX/GWUFtCZiWDOwCN9DgcV8v+/K+kQb+waXS34KmEYMaL
+         I265OHcfJXaxLHa0+1e0U/Do5zzQR47tTHBMFWR8rq6oqQ70WRFCBp32oJIc4ZV9Yo4H
+         lPTku6kFp0BQ+xeWr+m2fmGLfC/Yv+gDQ4QxHVr/QkUQr3mQ/+fQGwOtYZMcK0zN4M0E
+         CxnQ==
+X-Gm-Message-State: AOJu0YynuUKk95aiIcrB6r3ui4rYQdCsVcZDMh/mic7zyiV76+EZF/83
+        v/LqKXuQ0HF0hTKhpW8JKM8t9w==
+X-Google-Smtp-Source: AGHT+IEUJFa3aXEX1YodKfdMrwJPEEuzBhbA2hgycHy86i8DANtxQ0UmL29SlN96YZ1Wg+zGpbaj/w==
+X-Received: by 2002:a05:620a:31a8:b0:76d:a110:856d with SMTP id bi40-20020a05620a31a800b0076da110856dmr11089993qkb.0.1695050471902;
+        Mon, 18 Sep 2023 08:21:11 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-68-26-201.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.26.201])
+        by smtp.gmail.com with ESMTPSA id i20-20020a05620a145400b0076f18be9a64sm3220186qkl.81.2023.09.18.08.21.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 18 Sep 2023 08:21:11 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1qiG3i-0005PK-IY;
+        Mon, 18 Sep 2023 12:21:10 -0300
+Date:   Mon, 18 Sep 2023 12:21:10 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
 To:     Sean Christopherson <seanjc@google.com>
 Cc:     Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
@@ -74,6 +69,7 @@ Cc:     Catalin Marinas <catalin.marinas@arm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
         Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
@@ -94,70 +90,39 @@ Cc:     Catalin Marinas <catalin.marinas@arm.com>,
         Anish Ghulati <aghulati@google.com>,
         Venkatesh Srinivas <venkateshs@chromium.org>,
         Andrew Thornton <andrewth@google.com>
-Subject: Re: [PATCH 10/26] KVM: s390: Stop selecting and depending on
- HAVE_KVM
-Message-ID: <20230918153835.3303b94c@p-imbrenda>
-In-Reply-To: <20230916003118.2540661-11-seanjc@google.com>
+Subject: Re: [PATCH 05/26] vfio: KVM: Pass get/put helpers from KVM to VFIO,
+ don't do circular lookup
+Message-ID: <20230918152110.GI13795@ziepe.ca>
 References: <20230916003118.2540661-1-seanjc@google.com>
-        <20230916003118.2540661-11-seanjc@google.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+ <20230916003118.2540661-6-seanjc@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: gka9lWRUKLxmY8CnWLPRD9lJIPkhC1FX
-X-Proofpoint-GUID: SpRDGM75-9ApKh_bEVRf-E8W1-9pMypd
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-09-18_06,2023-09-18_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- lowpriorityscore=0 malwarescore=0 phishscore=0 mlxlogscore=719
- priorityscore=1501 spamscore=0 suspectscore=0 impostorscore=0 bulkscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2308100000 definitions=main-2309180114
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230916003118.2540661-6-seanjc@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 15 Sep 2023 17:31:02 -0700
-Sean Christopherson <seanjc@google.com> wrote:
-
-> Now that nothing in s390 or architecture agnostic code consumes HAVE_KVM,
-> stop selecting it in s390.  This is one of several steps towards deleting
-> HAVE_KVM from the common KVM Kconfig.
+On Fri, Sep 15, 2023 at 05:30:57PM -0700, Sean Christopherson wrote:
+> Explicitly pass KVM's get/put helpers to VFIO when attaching a VM to
+> VFIO instead of having VFIO do a symbol lookup back into KVM.  Having both
+> KVM and VFIO do symbol lookups increases the overall complexity and places
+> an unnecessary dependency on KVM (from VFIO) without adding any value.
 > 
 > Signed-off-by: Sean Christopherson <seanjc@google.com>
 > ---
->  arch/s390/Kconfig     | 1 -
->  arch/s390/kvm/Kconfig | 1 -
->  2 files changed, 2 deletions(-)
-> 
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index ae29e4392664..8a5dca0036d9 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -193,7 +193,6 @@ config S390
->  	select HAVE_KPROBES
->  	select HAVE_KPROBES_ON_FTRACE
->  	select HAVE_KRETPROBES
-> -	select HAVE_KVM
->  	select HAVE_LIVEPATCH
->  	select HAVE_MEMBLOCK_PHYS_MAP
->  	select HAVE_MOD_ARCH_SPECIFIC
-> diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
-> index 459d536116a6..9056cee72945 100644
-> --- a/arch/s390/kvm/Kconfig
-> +++ b/arch/s390/kvm/Kconfig
-> @@ -19,7 +19,6 @@ if VIRTUALIZATION
->  config KVM
->  	def_tristate y
->  	prompt "Kernel-based Virtual Machine (KVM) support"
-> -	depends on HAVE_KVM
->  	select PREEMPT_NOTIFIERS
->  	select HAVE_KVM_CPU_RELAX_INTERCEPT
->  	select HAVE_KVM_VCPU_ASYNC_IOCTL
+>  drivers/vfio/vfio.h      |  2 ++
+>  drivers/vfio/vfio_main.c | 74 +++++++++++++++++++---------------------
+>  include/linux/vfio.h     |  4 ++-
+>  virt/kvm/vfio.c          |  9 +++--
+>  4 files changed, 47 insertions(+), 42 deletions(-)
 
-it looks like we don't use HAVE_KVM on s390x
+I don't mind this, but Christoph had disliked my prior attempt to do
+this with function pointers..
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+The get can be inlined, IIRC, what about putting a pointer to the put
+inside the kvm struct?
+
+The the normal kvm get/put don't have to exported symbols at all?
+
+Jason
