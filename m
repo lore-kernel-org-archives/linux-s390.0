@@ -2,57 +2,57 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 373C7C46CA1
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Sep 2023 16:17:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39D87C46CA1
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Sep 2023 16:32:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230134AbjIRQR6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Sep 2023 12:17:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60930 "EHLO
+        id S230012AbjIRQc6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Sep 2023 12:32:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230059AbjIRQRu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Sep 2023 12:17:50 -0400
-Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 071117D99
-        for <linux-s390@vger.kernel.org>; Mon, 18 Sep 2023 09:12:22 -0700 (PDT)
-Received: by mail-yb1-xb2d.google.com with SMTP id 3f1490d57ef6-d852b28ec3bso575553276.2
-        for <linux-s390@vger.kernel.org>; Mon, 18 Sep 2023 09:12:21 -0700 (PDT)
+        with ESMTP id S230195AbjIRQce (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Sep 2023 12:32:34 -0400
+Received: from mail-oo1-xc2f.google.com (mail-oo1-xc2f.google.com [IPv6:2607:f8b0:4864:20::c2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D18F2724
+        for <linux-s390@vger.kernel.org>; Mon, 18 Sep 2023 09:17:52 -0700 (PDT)
+Received: by mail-oo1-xc2f.google.com with SMTP id 006d021491bc7-572a7141434so2821639eaf.2
+        for <linux-s390@vger.kernel.org>; Mon, 18 Sep 2023 09:17:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1695053541; x=1695658341; darn=vger.kernel.org;
+        d=ziepe.ca; s=google; t=1695053871; x=1695658671; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=nmpxNm78kWfejPgZcglZLNttpcA+aOzIbjCglm6BlEY=;
-        b=PfOvp4DDqhsXIubO0v9nTeL3XolQ8fusDqLFhZBLDhdQeBTizOwDDD7u+zGSndajRO
-         VCt74HzavqjVqiyuWAY7ukOp/t+wXT5jWLsYZIqKM98u68IS8qiJr1LVgdHXAFAFidsv
-         ROr/TQ3m0MY9siTv18IuM0QV8I42iQzLd7tUlthucATqpLGJul3haGFI2CViLYBFTdfh
-         Wo9imjguYJKJH7QNOG/ESWwH1rJaajYJ3TiT6CtXAbmprbXyPRuWnPkZj+23V1S+WqzY
-         ZglCB4UOhivjoWvSb2FP2s/vP8R573T34SaTaAKcA+oOC5+uq+bY2jyq/xHLzThwQbGq
-         V54Q==
+        bh=2rBowV5k7lk2ieUe+gHPEvDWhBOkpthR4x1/BaQpS1E=;
+        b=ESaHyDhWEulbPo6HdTI8dpbxc78878phm1n7MTeZWOcJ1glIlDFB+xvREUCeBiF31u
+         ZYoc0Y3VCiJBk3x9AGNvfPKdY6FrH3bCOSEb3Dkrph1fbhg7zAcPSd4b98mHfLlmIU1W
+         2gVeR2PNdPG73CAz326pM8+sBULieLySXErI9f5dK7lNSKRQDHQdKNBbzoO8GIklD3UH
+         +uWySu2PI4Ybv6+cMxQY1GICAc+7ucSB98SwS7NY1Gqbv3dyv3hB4XVYdFQ19qZBiW+r
+         6bYXjKAzpFVHw2ZVlCKyVEp/WmOpzMI6ILOFjCSc2Io0PvFM+pGfYmSh4HQ+nSvLqAld
+         vitw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1695053541; x=1695658341;
+        d=1e100.net; s=20230601; t=1695053871; x=1695658671;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=nmpxNm78kWfejPgZcglZLNttpcA+aOzIbjCglm6BlEY=;
-        b=YRfLuAbt37goFDGFnVEFQuYehkGEXzgv+A6o9WEzoa73yHSPdJCOHFllIMYSk0DPVt
-         xRmxR5yYzVVLfFXtNQlTUVoJRkMWsJDdwVpRtSckfJXY6Z8DcYmnZpkVMg9FrKCvBUdt
-         /144lKjthuIaGfqxoKSNbUfkWm4A5akfNOeYL3yjvO2bnGINwqDZocztcoyswr9KJy70
-         HJ0HsohgdXYlpaHip+7kef2WQxsMjUtlUrtZ4XpgBrOv6qrY1fUycHVFWVWqLV+CrtPE
-         Pnpf9lMj5zaeRnIk4v442pH4QVGFAyHV6s3llhS77qd9MmvgOgkXacAQ7nXe1yGkrkSp
-         t4Xw==
-X-Gm-Message-State: AOJu0Yyf52SlLxcrJWm5tixfDtSz2LJblc8lKPLTpsWGEhTn4YoIFGDh
-        Ihgjl6M39yHHrjdly8ys+4Ztuv9R/f/VpWnBKLk=
-X-Google-Smtp-Source: AGHT+IE5R1x821mq0T9l2iChMZP/v62/zLl2heVXzUEZigk+bm+oq/r6FG+m4/T/InbSxJxTjGr9mw==
-X-Received: by 2002:a05:620a:2887:b0:76d:aa93:2e3c with SMTP id j7-20020a05620a288700b0076daa932e3cmr11157815qkp.24.1695050987781;
-        Mon, 18 Sep 2023 08:29:47 -0700 (PDT)
+        bh=2rBowV5k7lk2ieUe+gHPEvDWhBOkpthR4x1/BaQpS1E=;
+        b=RRzqRnhAcCjRl/WtqZgcXYF8E+2K+Wn84ZXmEBgJbvVjAnQbJxxgTYzhkJRVYV+UjN
+         LwyV3fgKVaRVwgm2qn9MEYI9Nmw1bPfzg4++n1TJYaNOdKJlvlnG1YnEthyUznL5l+KI
+         b5US8dLWU4IL6pawzLqO78hHrXpYlwK+Ree/fJs9ejJC69EfH4d5qYxrCHFCS6k1WtDv
+         kwZRapdcwEc+y/STBMH00Rj2mf0rLBpSngtmKeoJZUfc9Qpzcm+wIk1o94TgLRich56L
+         xXvVE4fp0kbeqyc5P2kJus9F9aWatolZho7hejUz0iGSG4JF0NJGtOhz2FXFYW9R0CJY
+         OAew==
+X-Gm-Message-State: AOJu0YxCq4PWBBuVhNOIn92xyx99pbToKx0z6tsaaNV8u2Tizj2/cQXa
+        6sZn8DO0BFUa4wdrzwkjowAqlQ==
+X-Google-Smtp-Source: AGHT+IEIIPi01LMzDkzmjlUBhug1qKaxU6nRjVuZ+XGbMUgkxm1Qfw0TLzJDUPnbwFfEuT1QKajmag==
+X-Received: by 2002:a05:6358:7207:b0:13f:411:c1a9 with SMTP id h7-20020a056358720700b0013f0411c1a9mr13490229rwa.17.1695053871422;
+        Mon, 18 Sep 2023 09:17:51 -0700 (PDT)
 Received: from ziepe.ca (hlfxns017vw-142-68-26-201.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.26.201])
-        by smtp.gmail.com with ESMTPSA id s4-20020a05620a16a400b0076d0312b8basm3183843qkj.131.2023.09.18.08.29.47
+        by smtp.gmail.com with ESMTPSA id pz10-20020ad4550a000000b00656260e67afsm3340834qvb.115.2023.09.18.09.17.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Sep 2023 08:29:47 -0700 (PDT)
+        Mon, 18 Sep 2023 09:17:50 -0700 (PDT)
 Received: from jgg by wakko with local (Exim 4.95)
         (envelope-from <jgg@ziepe.ca>)
-        id 1qiGC2-0005S2-Ku;
-        Mon, 18 Sep 2023 12:29:46 -0300
-Date:   Mon, 18 Sep 2023 12:29:46 -0300
+        id 1qiGwY-0005mj-Ao;
+        Mon, 18 Sep 2023 13:17:50 -0300
+Date:   Mon, 18 Sep 2023 13:17:50 -0300
 From:   Jason Gunthorpe <jgg@ziepe.ca>
 To:     Sean Christopherson <seanjc@google.com>
 Cc:     Catalin Marinas <catalin.marinas@arm.com>,
@@ -91,59 +91,48 @@ Cc:     Catalin Marinas <catalin.marinas@arm.com>,
         Venkatesh Srinivas <venkateshs@chromium.org>,
         Andrew Thornton <andrewth@google.com>
 Subject: Re: [PATCH 06/26] KVM: Drop CONFIG_KVM_VFIO and just look at KVM+VFIO
-Message-ID: <20230918152946.GJ13795@ziepe.ca>
+Message-ID: <20230918161750.GM13795@ziepe.ca>
 References: <20230916003118.2540661-1-seanjc@google.com>
  <20230916003118.2540661-7-seanjc@google.com>
+ <20230918152946.GJ13795@ziepe.ca>
+ <ZQhySMjmuyW2Czas@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230916003118.2540661-7-seanjc@google.com>
+In-Reply-To: <ZQhySMjmuyW2Czas@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Sep 15, 2023 at 05:30:58PM -0700, Sean Christopherson wrote:
-> Drop KVM's KVM_VFIO Kconfig, and instead compile in VFIO support if
-> and only if VFIO itself is enabled.  Similar to the recent change to have
-> VFIO stop looking at HAVE_KVM, compiling in support for talking to VFIO
-> just because the architecture supports VFIO is nonsensical.
+On Mon, Sep 18, 2023 at 08:52:40AM -0700, Sean Christopherson wrote:
+
+> > I wonder if we should be making the VFIO drivers that need the kvm to
+> > ask for it? 'select CONFIG_NEED_VFIO_KVM' or something?
 > 
-> This fixes a bug where RISC-V doesn't select KVM_VFIO, i.e. would silently
-> fail to do connect KVM and VFIO, even though RISC-V supports VFIO.  The
-> bug is benign as the only driver in all of Linux that actually uses the
-> KVM reference provided by VFIO is KVM-GT, which is x86/Intel specific.
+> I wondered the same thing, if only to make it easier to track which
+> drivers actually end up interacting directly with KVM.
 
-Hmm, I recall that all the S390 drivers need it as well.
+There are two usages I've seen..
 
-static int vfio_ap_mdev_open_device(struct vfio_device *vdev)
-{
-        struct ap_matrix_mdev *matrix_mdev =
-                container_of(vdev, struct ap_matrix_mdev, vdev);
+GVT's uage is just totally broken:
 
-        if (!vdev->kvm)
-                return -EINVAL;
+https://lore.kernel.org/kvm/661447fd-b041-c08d-cedc-341b31c405f8@intel.com/
 
-        return vfio_ap_mdev_set_kvm(matrix_mdev, vdev->kvm);
+It is trying to use KVM to write protect IOVA DMA memory, and it just
+doesn't work. If we want to do something like this the core vfio code
+should provide this service and it should be wired into KVM
+properly.
 
+power and s390 have actual architectural "virtual machines" and they
+need actual arch operations to install VFIO devices into those
+things. In this regard having the arch opt into the integration would
+make some sense. I expect this will get worse in our CC future where
+VFIO devices will need to be passed into arch specific CC code
+somehow.
 
-I wonder if we should be making the VFIO drivers that need the kvm to
-ask for it? 'select CONFIG_NEED_VFIO_KVM' or something?
+This arch stuff isn't cleanly done, the code is sprinkled all over the
+place. Some in mdevs, some in PCI arch code, some in #ifdefs..
 
-Regardless, I fully agree with getting rid of the arch flag.
-
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-
-> --- a/virt/kvm/Makefile.kvm
-> +++ b/virt/kvm/Makefile.kvm
-> @@ -6,7 +6,9 @@
->  KVM ?= ../../../virt/kvm
->  
->  kvm-y := $(KVM)/kvm_main.o $(KVM)/eventfd.o $(KVM)/binary_stats.o
-> -kvm-$(CONFIG_KVM_VFIO) += $(KVM)/vfio.o
-> +ifdef CONFIG_VFIO
-> +kvm-y += $(KVM)/vfio.o
-> +endif
-
-I wonder if kvm-m magically works in kbuild so you don't need the ifdef?
+Maybe the CC people will clean it up instead of making the mess bigger :)
 
 Jason
