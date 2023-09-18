@@ -2,59 +2,59 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D75C3C46CA1
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Sep 2023 16:03:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D30A8CD13D9
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Sep 2023 16:05:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229778AbjIRQDK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Sep 2023 12:03:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56462 "EHLO
+        id S229904AbjIRQFM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Sep 2023 12:05:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229796AbjIRQDK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Sep 2023 12:03:10 -0400
-Received: from mail-oi1-x24a.google.com (mail-oi1-x24a.google.com [IPv6:2607:f8b0:4864:20::24a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A5C610EA
-        for <linux-s390@vger.kernel.org>; Mon, 18 Sep 2023 09:02:39 -0700 (PDT)
-Received: by mail-oi1-x24a.google.com with SMTP id 5614622812f47-3acfa8f8df3so5778543b6e.3
-        for <linux-s390@vger.kernel.org>; Mon, 18 Sep 2023 09:02:39 -0700 (PDT)
+        with ESMTP id S229980AbjIRQFJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Sep 2023 12:05:09 -0400
+Received: from mail-qv1-xf36.google.com (mail-qv1-xf36.google.com [IPv6:2607:f8b0:4864:20::f36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C134490
+        for <linux-s390@vger.kernel.org>; Mon, 18 Sep 2023 09:03:54 -0700 (PDT)
+Received: by mail-qv1-xf36.google.com with SMTP id 6a1803df08f44-64cca551ae2so28298516d6.0
+        for <linux-s390@vger.kernel.org>; Mon, 18 Sep 2023 09:03:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1695052762; x=1695657562; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=sNXD76U7haNeW91VMZlpdLB8TVqFEiovhx95zes76gg=;
-        b=k72SlCfX3fQYm78wUXNTgG6ok+Pf1dFf32Z6j2EQS+QJX5NmS5eHFaupmDzthJWqb2
-         6Or7rhB3wQdE7sM6GbHVI4fYL+2IGXieBVw0yJPiEyraoSEvw+2h4go82gA0mAY/hp5V
-         1NreLFuza6P7XjGN+xzyD3ARsh/lnFg+4/8q0mqJ9Rn3B/dimRSKDqaADoLwcQfJsdaS
-         NwbVRd+azySRzqe5E4yiOIs75QGp1wnTpWZIBwfuBeKvn4VKbGdFAfzWRoOmwHVrHnER
-         HXUWTdiFG1xJirXuLNr3buDYAiKTKjK2IUy3/WaRCqA8WsTgan9LwmFVVDJemWcmbTQA
-         OtfA==
+        d=ziepe.ca; s=google; t=1695052995; x=1695657795; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=1AtaBW2SsBllDiJ99v10Ny7HNDE5iUEtI8mOBYM/rVQ=;
+        b=QcT8VRQR0nVk6/rpvToRMTGkj1JnIolzTymFJ+HOZps7wbKs57hP8AymhKiO/C7+NF
+         cly+sa77kUZvBl2zOLDMBGEpIutrPSd8cngVV6W0o3COHx+OZZFIGIiWqrtnuOiSbooZ
+         avrCxZS+yY1zFMpM1/Li9lf+YyIb7QaXy0UHb1H5c0J5pxycyus+EwneOm3Hd49K/3LI
+         cOYZX3SVgP4TRI2P11J0DtXIGjJRb6MIAeEoC35A0SMuhXirC1PisWBgSBBSowb9Q/k1
+         +9RR27cfzUZ2uCqiO65xO/LU0dnHjWfo+wANnZh9dCpurKRHFRhN+Rwv0zn0B0+KR+++
+         rOYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1695052762; x=1695657562;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=sNXD76U7haNeW91VMZlpdLB8TVqFEiovhx95zes76gg=;
-        b=u7dG6qOvWCXjcpAeuMVidYFlX0TWFdlRd05vYCNX+B/Pm88G9c+qgLtgKpYPjqXNOJ
-         2bWmTFw5MNeVLATLzJUuEIXDqO0QRImSxfuZj05Vt/KlaNtY9g/CzwvPletoGIyDku0i
-         MJQc7JLpb3gBsyd/VeKo2pNmWs+sS+Nb0bM0f8z3768/gCtU9Tfk4wsP77S4eCBD3pG1
-         zFflbxVz6jifCUV9ObnL7+Rm+riwflklpZPuZNaFz4Il1HVRdeKrpWwvhqjdGwB8gAoz
-         6b0BIjRJUhLdux5jVgH8ig1pfyVAb7L/hJySzcLM+1QfnXtll+gTYKS83OWAV0t5Kwux
-         QYdA==
-X-Gm-Message-State: AOJu0YyIgBeuZ+/e5vdsx2nquLoEub645Yr3K9LbWpFIY/bLf1MWqhwT
-        9GIkaMefGH9veYQdJNB8Unim+dGn9I0=
-X-Google-Smtp-Source: AGHT+IE1DPoRp0N2nDleDeL+nMknRqhKzdJCPwHMJrwMUBjkYLBNjcfJz91+ASKxJdGzFGGlGgloaP/fXoU=
-X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a25:2411:0:b0:d81:78ec:c403 with SMTP id
- k17-20020a252411000000b00d8178ecc403mr192905ybk.12.1695052199184; Mon, 18 Sep
- 2023 08:49:59 -0700 (PDT)
-Date:   Mon, 18 Sep 2023 08:49:57 -0700
-In-Reply-To: <20230918152110.GI13795@ziepe.ca>
-Mime-Version: 1.0
-References: <20230916003118.2540661-1-seanjc@google.com> <20230916003118.2540661-6-seanjc@google.com>
- <20230918152110.GI13795@ziepe.ca>
-Message-ID: <ZQhxpesyXeG+qbS6@google.com>
-Subject: Re: [PATCH 05/26] vfio: KVM: Pass get/put helpers from KVM to VFIO,
- don't do circular lookup
-From:   Sean Christopherson <seanjc@google.com>
-To:     Jason Gunthorpe <jgg@ziepe.ca>
+        d=1e100.net; s=20230601; t=1695052995; x=1695657795;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1AtaBW2SsBllDiJ99v10Ny7HNDE5iUEtI8mOBYM/rVQ=;
+        b=uYoQVeKRGTtj5C4swK91YrhNgZ+w5v534NOcTmU5IbVEKrb1A3gIZjDmn9oG9MxyC6
+         cWZQSWP79jsC5kH2U12lXYB/p8r+tlYOVA3aXKEey+jYYocAw+kuw0Vd2rdLi3u4LFtR
+         piTLAaClxG7dOGEc2GQ+bXtVtLQLLi1ug+t7rtfYL0fLEZ2QenbgDh9SjvAp0T7ZEMfq
+         lO/GBKINezye1e/1TPHkI2IqLJm8HBCbDsO4/jbi44UVoH2PlHnpBA+4/xzyZ+Z5X+t2
+         TpANltF71HBGa3qBisL7LTg2mOj0TPFsujR5wl3DuAJtUP47Yhxx3ziKvLQtk1TAePZy
+         zDgg==
+X-Gm-Message-State: AOJu0Yyukpflg4x8zz/+BGZ4WtiI6InFnxUY7xh1/1Oj5kRZjSZ5UrDq
+        oH2mVZm0++cs9OkHgORqPDnEcQ==
+X-Google-Smtp-Source: AGHT+IH/YnREI891cZLYoBidRStzCIsQeTayS2VX/iNCJzxAWIRbDBhzALGmOqWbEj1DKL9seHAlIw==
+X-Received: by 2002:a0c:eacf:0:b0:655:78f5:bef7 with SMTP id y15-20020a0ceacf000000b0065578f5bef7mr9471806qvp.21.1695052995341;
+        Mon, 18 Sep 2023 09:03:15 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-68-26-201.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.26.201])
+        by smtp.gmail.com with ESMTPSA id u20-20020a0cdd14000000b006581e82a628sm989437qvk.134.2023.09.18.09.02.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 18 Sep 2023 09:03:14 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1qiGiA-0005k6-DG;
+        Mon, 18 Sep 2023 13:02:58 -0300
+Date:   Mon, 18 Sep 2023 13:02:58 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Sean Christopherson <seanjc@google.com>
 Cc:     Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
         Oliver Upton <oliver.upton@linux.dev>,
@@ -90,46 +90,63 @@ Cc:     Catalin Marinas <catalin.marinas@arm.com>,
         Anish Ghulati <aghulati@google.com>,
         Venkatesh Srinivas <venkateshs@chromium.org>,
         Andrew Thornton <andrewth@google.com>
-Content-Type: text/plain; charset="us-ascii"
+Subject: Re: [PATCH 05/26] vfio: KVM: Pass get/put helpers from KVM to VFIO,
+ don't do circular lookup
+Message-ID: <20230918160258.GL13795@ziepe.ca>
+References: <20230916003118.2540661-1-seanjc@google.com>
+ <20230916003118.2540661-6-seanjc@google.com>
+ <20230918152110.GI13795@ziepe.ca>
+ <ZQhxpesyXeG+qbS6@google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZQhxpesyXeG+qbS6@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Sep 18, 2023, Jason Gunthorpe wrote:
-> On Fri, Sep 15, 2023 at 05:30:57PM -0700, Sean Christopherson wrote:
-> > Explicitly pass KVM's get/put helpers to VFIO when attaching a VM to
-> > VFIO instead of having VFIO do a symbol lookup back into KVM.  Having both
-> > KVM and VFIO do symbol lookups increases the overall complexity and places
-> > an unnecessary dependency on KVM (from VFIO) without adding any value.
+On Mon, Sep 18, 2023 at 08:49:57AM -0700, Sean Christopherson wrote:
+> On Mon, Sep 18, 2023, Jason Gunthorpe wrote:
+> > On Fri, Sep 15, 2023 at 05:30:57PM -0700, Sean Christopherson wrote:
+> > > Explicitly pass KVM's get/put helpers to VFIO when attaching a VM to
+> > > VFIO instead of having VFIO do a symbol lookup back into KVM.  Having both
+> > > KVM and VFIO do symbol lookups increases the overall complexity and places
+> > > an unnecessary dependency on KVM (from VFIO) without adding any value.
+> > > 
+> > > Signed-off-by: Sean Christopherson <seanjc@google.com>
+> > > ---
+> > >  drivers/vfio/vfio.h      |  2 ++
+> > >  drivers/vfio/vfio_main.c | 74 +++++++++++++++++++---------------------
+> > >  include/linux/vfio.h     |  4 ++-
+> > >  virt/kvm/vfio.c          |  9 +++--
+> > >  4 files changed, 47 insertions(+), 42 deletions(-)
 > > 
-> > Signed-off-by: Sean Christopherson <seanjc@google.com>
-> > ---
-> >  drivers/vfio/vfio.h      |  2 ++
-> >  drivers/vfio/vfio_main.c | 74 +++++++++++++++++++---------------------
-> >  include/linux/vfio.h     |  4 ++-
-> >  virt/kvm/vfio.c          |  9 +++--
-> >  4 files changed, 47 insertions(+), 42 deletions(-)
+> > I don't mind this, but Christoph had disliked my prior attempt to do
+> > this with function pointers..
+> > 
+> > The get can be inlined, IIRC, what about putting a pointer to the put
+> > inside the kvm struct?
 > 
-> I don't mind this, but Christoph had disliked my prior attempt to do
-> this with function pointers..
+> That wouldn't allow us to achieve our goal, which is to hide the details of
+> "struct kvm" from VFIO (and the rest of the kernel).
+
+> What's the objection to handing VFIO a function pointer?
+
+Hmm, looks like it was this thread:
+
+ https://lore.kernel.org/r/0-v1-33906a626da1+16b0-vfio_kvm_no_group_jgg@nvidia.com
+
+Your rational looks a little better to me.
+
+> > The the normal kvm get/put don't have to exported symbols at all?
 > 
-> The get can be inlined, IIRC, what about putting a pointer to the put
-> inside the kvm struct?
+> The export of kvm_get_kvm_safe() can go away (I forgot to do that in this series),
+> but kvm_get_kvm() will hang around as it's needed by KVM sub-modules (PPC and x86),
+> KVMGT (x86), and drivers/s390/crypto/vfio_ap_ops.c (no idea what to call that beast).
 
-That wouldn't allow us to achieve our goal, which is to hide the details of
-"struct kvm" from VFIO (and the rest of the kernel).
+My thought would be to keep it as an inline, there should be some way
+to do that without breaking your desire to hide the bulk of the kvm
+struct content. Like put the refcount as the first element in the
+struct and just don't ifdef it away?.
 
-What's the objection to handing VFIO a function pointer?
-
-> The the normal kvm get/put don't have to exported symbols at all?
-
-The export of kvm_get_kvm_safe() can go away (I forgot to do that in this series),
-but kvm_get_kvm() will hang around as it's needed by KVM sub-modules (PPC and x86),
-KVMGT (x86), and drivers/s390/crypto/vfio_ap_ops.c (no idea what to call that beast).
-
-Gah, KVMGT doesn't actually need to call get/put, that can be handled by
-kvm_page_track_register_notifier().
-
-I am planning on making exports for sub-modules conditional on there actually
-being submodules, so that's 2 of the 3 gone, but tackling the s390 crypto driver
-is an entirely different story.
+Jason
