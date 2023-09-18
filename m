@@ -2,30 +2,30 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0656CD342E
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Sep 2023 07:32:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BFB42CD3421
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Sep 2023 07:32:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240339AbjIRHcF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Sep 2023 03:32:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58136 "EHLO
+        id S240171AbjIRHcb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Sep 2023 03:32:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240215AbjIRHbY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Sep 2023 03:31:24 -0400
+        with ESMTP id S240385AbjIRHb4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Sep 2023 03:31:56 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF01A19A;
-        Mon, 18 Sep 2023 00:31:03 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68ED7C433C8;
-        Mon, 18 Sep 2023 07:30:54 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03D8118C;
+        Mon, 18 Sep 2023 00:31:42 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5155AC433B7;
+        Mon, 18 Sep 2023 07:31:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1695022263;
-        bh=mbiiTE+Ax/Si/BZxcJVEdVXi15nThNmQlUqiyILb0zo=;
+        s=k20201202; t=1695022302;
+        bh=35ZlmvV7rKqwzQaOmbBijH380/EeVtPirZbGWiToTW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ojfgNgsup07S+iaZErkHdPn6pFXvUxpfd0rqcJ0g/fFjdgDTdp5RCwZChtRwqs+hU
-         358zdLhiRZXyw3aIFuKwPq3ciyzug59B+euqQg31hDJF2IYAsE+6D264chrRpy0JCv
-         lIJDaEg0ezBhP+IOLDXi95uXUolbh37QjiMgyCp6vToq0/niAQX3TSUJ4+A3chXFuR
-         Fz6pQnaNxbhFzVVMJL+/JI6h0Va38Wr9Y8Zzq0rWzkuGOl0+j0c7QpIR3g6g0WJ4vh
-         Na6tomyrzTQLlYxetqXYeBzvBjSJ3J7TMO8PQeFVdg4iyOutejtYTgrDjMGzC7l/J1
-         0uZomhqve3rWw==
+        b=d2NNM60PB58jmuhS2dGN8NLbq1KB4ygYvRR0t6DZZJS7qBVZpROHao20O2uQV3bli
+         0QvXp0s5+eLFeJhc/w10Fn3KC9lksq3uhoYzEZC5CWp+6gjai+j/d0a89/bBUhyjJy
+         FfXXBFOSn88hPGWgJbSxUtSr8ULAUympoyAWJKP5uJmt4lykdt9r5kJb2u9np9CG9l
+         pAU2vChu/4/QGlbV5wO6V/EhzFjCpLIlsY1oLhcdgzQ+bitYphtILzsTup5ZLrX357
+         OmssgGZ5JmBAamSicGtU177ClYYdO2+YHkslBuFOroSFhEYDOcBWDp8NAr0VRv3fiX
+         mkBw/0g11HpDQ==
 From:   Mike Rapoport <rppt@kernel.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
@@ -59,9 +59,9 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
         netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: [PATCH v3 05/13] modules, execmem: drop module_alloc
-Date:   Mon, 18 Sep 2023 10:29:47 +0300
-Message-Id: <20230918072955.2507221-6-rppt@kernel.org>
+Subject: [PATCH v3 09/13] powerpc: extend execmem_params for kprobes allocations
+Date:   Mon, 18 Sep 2023 10:29:51 +0300
+Message-Id: <20230918072955.2507221-10-rppt@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230918072955.2507221-1-rppt@kernel.org>
 References: <20230918072955.2507221-1-rppt@kernel.org>
@@ -73,119 +73,75 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: "Mike Rapoport (IBM)" <rppt@kernel.org>
 
-Define default parameters for address range for code allocations using
-the current values in module_alloc() and make execmem_text_alloc() use
-these defaults when an architecture does not supply its specific
-parameters.
+powerpc overrides kprobes::alloc_insn_page() to remove writable
+permissions when STRICT_MODULE_RWX is on.
 
-With this, execmem_text_alloc() implements memory allocation in a way
-compatible with module_alloc() and can be used as a replacement for
-module_alloc().
+Add definition of EXECMEM_KRPOBES to execmem_params to allow using the
+generic kprobes::alloc_insn_page() with the desired permissions.
+
+As powerpc uses breakpoint instructions to inject kprobes, it does not
+need to constrain kprobe allocations to the modules area and can use the
+entire vmalloc address space.
 
 Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
 ---
- include/linux/execmem.h      |  8 ++++++++
- include/linux/moduleloader.h | 12 ------------
- kernel/module/main.c         |  7 -------
- mm/execmem.c                 | 12 ++++++++----
- 4 files changed, 16 insertions(+), 23 deletions(-)
+ arch/powerpc/kernel/kprobes.c | 14 --------------
+ arch/powerpc/kernel/module.c  | 11 +++++++++++
+ 2 files changed, 11 insertions(+), 14 deletions(-)
 
-diff --git a/include/linux/execmem.h b/include/linux/execmem.h
-index 806ad1a0088d..519bdfdca595 100644
---- a/include/linux/execmem.h
-+++ b/include/linux/execmem.h
-@@ -4,6 +4,14 @@
- 
- #include <linux/types.h>
- 
-+#if (defined(CONFIG_KASAN_GENERIC) || defined(CONFIG_KASAN_SW_TAGS)) && \
-+		!defined(CONFIG_KASAN_VMALLOC)
-+#include <linux/kasan.h>
-+#define MODULE_ALIGN (PAGE_SIZE << KASAN_SHADOW_SCALE_SHIFT)
-+#else
-+#define MODULE_ALIGN PAGE_SIZE
-+#endif
-+
- /**
-  * enum execmem_type - types of executable memory ranges
-  *
-diff --git a/include/linux/moduleloader.h b/include/linux/moduleloader.h
-index a23718aa2f4d..8c81f389117d 100644
---- a/include/linux/moduleloader.h
-+++ b/include/linux/moduleloader.h
-@@ -25,10 +25,6 @@ int module_frob_arch_sections(Elf_Ehdr *hdr,
- /* Additional bytes needed by arch in front of individual sections */
- unsigned int arch_mod_section_prepend(struct module *mod, unsigned int section);
- 
--/* Allocator used for allocating struct module, core sections and init
--   sections.  Returns NULL on failure. */
--void *module_alloc(unsigned long size);
--
- /* Determines if the section name is an init section (that is only used during
-  * module loading).
-  */
-@@ -118,12 +114,4 @@ void module_arch_cleanup(struct module *mod);
- /* Any cleanup before freeing mod->module_init */
- void module_arch_freeing_init(struct module *mod);
- 
--#if (defined(CONFIG_KASAN_GENERIC) || defined(CONFIG_KASAN_SW_TAGS)) && \
--		!defined(CONFIG_KASAN_VMALLOC)
--#include <linux/kasan.h>
--#define MODULE_ALIGN (PAGE_SIZE << KASAN_SHADOW_SCALE_SHIFT)
--#else
--#define MODULE_ALIGN PAGE_SIZE
--#endif
--
- #endif
-diff --git a/kernel/module/main.c b/kernel/module/main.c
-index 4ec982cc943c..c4146bfcd0a7 100644
---- a/kernel/module/main.c
-+++ b/kernel/module/main.c
-@@ -1601,13 +1601,6 @@ static void free_modinfo(struct module *mod)
- 	}
+diff --git a/arch/powerpc/kernel/kprobes.c b/arch/powerpc/kernel/kprobes.c
+index 62228c7072a2..14c5ddec3056 100644
+--- a/arch/powerpc/kernel/kprobes.c
++++ b/arch/powerpc/kernel/kprobes.c
+@@ -126,20 +126,6 @@ kprobe_opcode_t *arch_adjust_kprobe_addr(unsigned long addr, unsigned long offse
+ 	return (kprobe_opcode_t *)(addr + offset);
  }
  
--void * __weak module_alloc(unsigned long size)
+-void *alloc_insn_page(void)
 -{
--	return __vmalloc_node_range(size, 1, VMALLOC_START, VMALLOC_END,
--			GFP_KERNEL, PAGE_KERNEL_EXEC, VM_FLUSH_RESET_PERMS,
--			NUMA_NO_NODE, __builtin_return_address(0));
+-	void *page;
+-
+-	page = execmem_text_alloc(EXECMEM_KPROBES, PAGE_SIZE);
+-	if (!page)
+-		return NULL;
+-
+-	if (strict_module_rwx_enabled())
+-		set_memory_rox((unsigned long)page, 1);
+-
+-	return page;
 -}
 -
- bool __weak module_init_section(const char *name)
+ int arch_prepare_kprobe(struct kprobe *p)
  {
- 	return strstarts(name, ".init");
-diff --git a/mm/execmem.c b/mm/execmem.c
-index a8c2f44d0133..abcbd07e05ac 100644
---- a/mm/execmem.c
-+++ b/mm/execmem.c
-@@ -55,9 +55,6 @@ static void *execmem_alloc(size_t size, struct execmem_range *range)
+ 	int ret = 0;
+diff --git a/arch/powerpc/kernel/module.c b/arch/powerpc/kernel/module.c
+index 824d9541a310..bf2c62aef628 100644
+--- a/arch/powerpc/kernel/module.c
++++ b/arch/powerpc/kernel/module.c
+@@ -95,6 +95,9 @@ static struct execmem_params execmem_params __ro_after_init = {
+ 		[EXECMEM_DEFAULT] = {
+ 			.alignment = 1,
+ 		},
++		[EXECMEM_KPROBES] = {
++			.alignment = 1,
++		},
+ 		[EXECMEM_MODULE_DATA] = {
+ 			.alignment = 1,
+ 		},
+@@ -135,5 +138,13 @@ struct execmem_params __init *execmem_arch_params(void)
  
- void *execmem_text_alloc(enum execmem_type type, size_t size)
- {
--	if (!execmem_params.ranges[type].start)
--		return module_alloc(size);
--
- 	return execmem_alloc(size, &execmem_params.ranges[type]);
- }
+ 	range->pgprot = prot;
  
-@@ -111,8 +108,15 @@ void __init execmem_init(void)
- {
- 	struct execmem_params *p = execmem_arch_params();
- 
--	if (!p)
-+	if (!p) {
-+		p = &execmem_params;
-+		p->ranges[EXECMEM_DEFAULT].start = VMALLOC_START;
-+		p->ranges[EXECMEM_DEFAULT].end = VMALLOC_END;
-+		p->ranges[EXECMEM_DEFAULT].pgprot = PAGE_KERNEL_EXEC;
-+		p->ranges[EXECMEM_DEFAULT].alignment = 1;
++	execmem_params.ranges[EXECMEM_KPROBES].start = VMALLOC_START;
++	execmem_params.ranges[EXECMEM_KPROBES].start = VMALLOC_END;
 +
- 		return;
-+	}
- 
- 	if (!execmem_validate_params(p))
- 		return;
++	if (strict_module_rwx_enabled())
++		execmem_params.ranges[EXECMEM_KPROBES].pgprot = PAGE_KERNEL_ROX;
++	else
++		execmem_params.ranges[EXECMEM_KPROBES].pgprot = PAGE_KERNEL_EXEC;
++
+ 	return &execmem_params;
+ }
 -- 
 2.39.2
 
