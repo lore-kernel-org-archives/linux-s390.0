@@ -2,30 +2,30 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BFB42CD3421
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Sep 2023 07:32:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20A95CD3425
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Sep 2023 07:32:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240171AbjIRHcb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Sep 2023 03:32:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34880 "EHLO
+        id S240274AbjIRHcd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Sep 2023 03:32:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240385AbjIRHb4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Sep 2023 03:31:56 -0400
+        with ESMTP id S240456AbjIRHc0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Sep 2023 03:32:26 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03D8118C;
-        Mon, 18 Sep 2023 00:31:42 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5155AC433B7;
-        Mon, 18 Sep 2023 07:31:33 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D3421B9;
+        Mon, 18 Sep 2023 00:32:02 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE792C433BC;
+        Mon, 18 Sep 2023 07:31:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1695022302;
-        bh=35ZlmvV7rKqwzQaOmbBijH380/EeVtPirZbGWiToTW8=;
+        s=k20201202; t=1695022322;
+        bh=1UL8tl9eANdNOFG3ZTSYgBTww7VCSn8pNWCEuJfnTK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d2NNM60PB58jmuhS2dGN8NLbq1KB4ygYvRR0t6DZZJS7qBVZpROHao20O2uQV3bli
-         0QvXp0s5+eLFeJhc/w10Fn3KC9lksq3uhoYzEZC5CWp+6gjai+j/d0a89/bBUhyjJy
-         FfXXBFOSn88hPGWgJbSxUtSr8ULAUympoyAWJKP5uJmt4lykdt9r5kJb2u9np9CG9l
-         pAU2vChu/4/QGlbV5wO6V/EhzFjCpLIlsY1oLhcdgzQ+bitYphtILzsTup5ZLrX357
-         OmssgGZ5JmBAamSicGtU177ClYYdO2+YHkslBuFOroSFhEYDOcBWDp8NAr0VRv3fiX
-         mkBw/0g11HpDQ==
+        b=jOnWnURBWcrt92iQ1E5Vr3mXWyQ6RAJ4i9B8tsY7FXOUVwWaNtFLbRVsEzVfJ0Nfg
+         zcF2T76bilI3SPkaUjpMzEfs1sQN/JzTRMR83DnXh+Ov+MJ2AuKwZwF8Fnu/AObC0k
+         QAdcrio7/1JZevOAFEj9aMF9cUGQUD6UCX9K1G2jVF2I2HWuIYbnj0wy/Rm4EXVNom
+         HeAH3TaXGuMZDe4Y3BnUwv/DnuIZbNW8G+v45crhACvScxYPJb49nAjf6MNnqIIZFe
+         chFFMgGweSzKG7hh/3g3keI9zbSw1HmwgbPcUexA3rwgKV2tInhKeo5IsMuopaavQ2
+         VqOvvHTW8VtZw==
 From:   Mike Rapoport <rppt@kernel.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
@@ -59,9 +59,9 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
         netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: [PATCH v3 09/13] powerpc: extend execmem_params for kprobes allocations
-Date:   Mon, 18 Sep 2023 10:29:51 +0300
-Message-Id: <20230918072955.2507221-10-rppt@kernel.org>
+Subject: [PATCH v3 11/13] x86/ftrace: enable dynamic ftrace without CONFIG_MODULES
+Date:   Mon, 18 Sep 2023 10:29:53 +0300
+Message-Id: <20230918072955.2507221-12-rppt@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230918072955.2507221-1-rppt@kernel.org>
 References: <20230918072955.2507221-1-rppt@kernel.org>
@@ -73,75 +73,61 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: "Mike Rapoport (IBM)" <rppt@kernel.org>
 
-powerpc overrides kprobes::alloc_insn_page() to remove writable
-permissions when STRICT_MODULE_RWX is on.
+Dynamic ftrace must allocate memory for code and this was impossible
+without CONFIG_MODULES.
 
-Add definition of EXECMEM_KRPOBES to execmem_params to allow using the
-generic kprobes::alloc_insn_page() with the desired permissions.
+With execmem separated from the modules code, execmem_text_alloc() is
+available regardless of CONFIG_MODULES.
 
-As powerpc uses breakpoint instructions to inject kprobes, it does not
-need to constrain kprobe allocations to the modules area and can use the
-entire vmalloc address space.
+Remove dependency of dynamic ftrace on CONFIG_MODULES and make
+CONFIG_DYNAMIC_FTRACE select CONFIG_EXECMEM in Kconfig.
 
 Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
 ---
- arch/powerpc/kernel/kprobes.c | 14 --------------
- arch/powerpc/kernel/module.c  | 11 +++++++++++
- 2 files changed, 11 insertions(+), 14 deletions(-)
+ arch/x86/Kconfig         |  1 +
+ arch/x86/kernel/ftrace.c | 10 ----------
+ 2 files changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/arch/powerpc/kernel/kprobes.c b/arch/powerpc/kernel/kprobes.c
-index 62228c7072a2..14c5ddec3056 100644
---- a/arch/powerpc/kernel/kprobes.c
-+++ b/arch/powerpc/kernel/kprobes.c
-@@ -126,20 +126,6 @@ kprobe_opcode_t *arch_adjust_kprobe_addr(unsigned long addr, unsigned long offse
- 	return (kprobe_opcode_t *)(addr + offset);
- }
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 982b777eadc7..cc7c4a0a8c16 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -35,6 +35,7 @@ config X86_64
+ 	select SWIOTLB
+ 	select ARCH_HAS_ELFCORE_COMPAT
+ 	select ZONE_DMA32
++	select EXECMEM if DYNAMIC_FTRACE
  
--void *alloc_insn_page(void)
--{
--	void *page;
--
--	page = execmem_text_alloc(EXECMEM_KPROBES, PAGE_SIZE);
--	if (!page)
--		return NULL;
--
--	if (strict_module_rwx_enabled())
--		set_memory_rox((unsigned long)page, 1);
--
--	return page;
--}
--
- int arch_prepare_kprobe(struct kprobe *p)
+ config FORCE_DYNAMIC_FTRACE
+ 	def_bool y
+diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
+index ae56d79a6a74..7ed7e8297ba3 100644
+--- a/arch/x86/kernel/ftrace.c
++++ b/arch/x86/kernel/ftrace.c
+@@ -261,8 +261,6 @@ void arch_ftrace_update_code(int command)
+ /* Currently only x86_64 supports dynamic trampolines */
+ #ifdef CONFIG_X86_64
+ 
+-#ifdef CONFIG_MODULES
+-/* Module allocation simplifies allocating memory for code */
+ static inline void *alloc_tramp(unsigned long size)
  {
- 	int ret = 0;
-diff --git a/arch/powerpc/kernel/module.c b/arch/powerpc/kernel/module.c
-index 824d9541a310..bf2c62aef628 100644
---- a/arch/powerpc/kernel/module.c
-+++ b/arch/powerpc/kernel/module.c
-@@ -95,6 +95,9 @@ static struct execmem_params execmem_params __ro_after_init = {
- 		[EXECMEM_DEFAULT] = {
- 			.alignment = 1,
- 		},
-+		[EXECMEM_KPROBES] = {
-+			.alignment = 1,
-+		},
- 		[EXECMEM_MODULE_DATA] = {
- 			.alignment = 1,
- 		},
-@@ -135,5 +138,13 @@ struct execmem_params __init *execmem_arch_params(void)
- 
- 	range->pgprot = prot;
- 
-+	execmem_params.ranges[EXECMEM_KPROBES].start = VMALLOC_START;
-+	execmem_params.ranges[EXECMEM_KPROBES].start = VMALLOC_END;
-+
-+	if (strict_module_rwx_enabled())
-+		execmem_params.ranges[EXECMEM_KPROBES].pgprot = PAGE_KERNEL_ROX;
-+	else
-+		execmem_params.ranges[EXECMEM_KPROBES].pgprot = PAGE_KERNEL_EXEC;
-+
- 	return &execmem_params;
+ 	return execmem_text_alloc(EXECMEM_FTRACE, size);
+@@ -271,14 +269,6 @@ static inline void tramp_free(void *tramp)
+ {
+ 	execmem_free(tramp);
  }
+-#else
+-/* Trampolines can only be created if modules are supported */
+-static inline void *alloc_tramp(unsigned long size)
+-{
+-	return NULL;
+-}
+-static inline void tramp_free(void *tramp) { }
+-#endif
+ 
+ /* Defined as markers to the end of the ftrace default trampolines */
+ extern void ftrace_regs_caller_end(void);
 -- 
 2.39.2
 
