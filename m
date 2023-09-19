@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BACD7CD5BCE
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Sep 2023 14:43:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 046FECD5BD1
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Sep 2023 14:43:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233054AbjISOnk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 19 Sep 2023 10:43:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34234 "EHLO
+        id S233055AbjISOnl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 19 Sep 2023 10:43:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233050AbjISOna (ORCPT
+        with ESMTP id S233056AbjISOna (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Sep 2023 10:43:30 -0400
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FD22CDC;
-        Tue, 19 Sep 2023 07:43:07 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R731e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VsRqc92_1695134576;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VsRqc92_1695134576)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14170CE0;
+        Tue, 19 Sep 2023 07:43:08 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VsRxWEI_1695134583;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VsRxWEI_1695134583)
           by smtp.aliyun-inc.com;
-          Tue, 19 Sep 2023 22:42:58 +0800
+          Tue, 19 Sep 2023 22:43:04 +0800
 From:   Wen Gu <guwen@linux.alibaba.com>
 To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
         davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
@@ -25,9 +25,9 @@ To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
 Cc:     alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
         guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
         netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH net-next 11/18] net/smc: implement some unsupported operations of loopback
-Date:   Tue, 19 Sep 2023 22:41:55 +0800
-Message-Id: <1695134522-126655-12-git-send-email-guwen@linux.alibaba.com>
+Subject: [PATCH net-next 14/18] net/smc: add operation for getting DMB attribute
+Date:   Tue, 19 Sep 2023 22:41:58 +0800
+Message-Id: <1695134522-126655-15-git-send-email-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1695134522-126655-1-git-send-email-guwen@linux.alibaba.com>
 References: <1695134522-126655-1-git-send-email-guwen@linux.alibaba.com>
@@ -35,71 +35,79 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Vlan operations are not supported currently since the need for vlan in
-loopback does not seem to be strong.
+On s390, ISM devices are used on machine level hypervisors which is a
+partitioning hypervisor without paging. The sndbufs and peer DMBs in such
+case can't be mapped to the same physical memory.
 
-Signal_event operation is not supported since no event now needs to be
-processed by loopback device.
+However in other cases, such as communication within the same OS instance
+with loopback, the sndbufs and peer DMBs can be mapped to the same physical
+memory to avoid memory copy from sndbufs to peer DMBs.
+
+So this patch introduces an operation to smcd_ops to judge whether the
+sndbufs-DMB map is available. And for reuse, the interface is designed to
+return DMB attribute, not only the sndbuf-DMB map feature.
 
 Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 ---
- net/smc/smc_loopback.c | 36 +++++++++++++++++++++++++++++++-----
- 1 file changed, 31 insertions(+), 5 deletions(-)
+ include/net/smc.h | 5 +++++
+ net/smc/smc_ism.c | 8 ++++++++
+ net/smc/smc_ism.h | 1 +
+ 3 files changed, 14 insertions(+)
 
-diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
-index 6b8ff65..fe61260 100644
---- a/net/smc/smc_loopback.c
-+++ b/net/smc/smc_loopback.c
-@@ -73,6 +73,32 @@ static int smc_lo_query_rgid(struct smcd_dev *smcd, struct smcd_gid *rgid,
- 	return 0;
+diff --git a/include/net/smc.h b/include/net/smc.h
+index 389d26d..6930c8a 100644
+--- a/include/net/smc.h
++++ b/include/net/smc.h
+@@ -55,6 +55,10 @@ struct smcd_seid {
+ 
+ #define ISM_ERROR	0xFFFF
+ 
++enum {
++	ISM_ATTR_DMB_MAP = 0,
++};
++
+ struct smcd_dev;
+ 
+ struct smcd_gid {
+@@ -82,6 +86,7 @@ struct smcd_ops {
+ 	void (*get_local_gid)(struct smcd_dev *dev, struct smcd_gid *gid);
+ 	u16 (*get_chid)(struct smcd_dev *dev);
+ 	struct device* (*get_dev)(struct smcd_dev *dev);
++	int (*get_dev_attr)(struct smcd_dev *dev);
+ };
+ 
+ struct smcd_dev {
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index ba37b27..14e018c 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -214,6 +214,14 @@ int smc_ism_unregister_dmb(struct smcd_dev *smcd, struct smc_buf_desc *dmb_desc)
+ 	return rc;
  }
  
-+static int smc_lo_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
++bool smc_ism_dmb_mappable(struct smcd_dev *smcd)
 +{
-+	return -EOPNOTSUPP;
++	if (smcd->ops->get_dev_attr &&
++	    (smcd->ops->get_dev_attr(smcd) & BIT(ISM_ATTR_DMB_MAP)))
++		return true;
++	return false;
 +}
 +
-+static int smc_lo_del_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static int smc_lo_set_vlan_required(struct smcd_dev *smcd)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static int smc_lo_reset_vlan_required(struct smcd_dev *smcd)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static int smc_lo_signal_event(struct smcd_dev *dev, u64 rgid, u32 trigger_irq,
-+			       u32 event_code, u64 info)
-+{
-+	return 0;
-+}
-+
- static int smc_lo_supports_v2(void)
+ int smc_ism_register_dmb(struct smc_link_group *lgr, int dmb_len,
+ 			 struct smc_buf_desc *dmb_desc)
  {
- 	return SMC_LO_SUPPORTS_V2;
-@@ -106,11 +132,11 @@ static struct device *smc_lo_get_dev(struct smcd_dev *smcd)
- 	.query_remote_gid = smc_lo_query_rgid,
- 	.register_dmb		= NULL,
- 	.unregister_dmb		= NULL,
--	.add_vlan_id		= NULL,
--	.del_vlan_id		= NULL,
--	.set_vlan_required	= NULL,
--	.reset_vlan_required	= NULL,
--	.signal_event		= NULL,
-+	.add_vlan_id = smc_lo_add_vlan_id,
-+	.del_vlan_id = smc_lo_del_vlan_id,
-+	.set_vlan_required = smc_lo_set_vlan_required,
-+	.reset_vlan_required = smc_lo_reset_vlan_required,
-+	.signal_event = smc_lo_signal_event,
- 	.move_data		= NULL,
- 	.supports_v2 = smc_lo_supports_v2,
- 	.get_system_eid = smc_lo_get_system_eid,
+diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
+index 7ab82dd..cef212c 100644
+--- a/net/smc/smc_ism.h
++++ b/net/smc/smc_ism.h
+@@ -44,6 +44,7 @@ int smc_ism_cantalk(struct smcd_gid *peer_gid, unsigned short vlan_id,
+ int smc_ism_register_dmb(struct smc_link_group *lgr, int buf_size,
+ 			 struct smc_buf_desc *dmb_desc);
+ int smc_ism_unregister_dmb(struct smcd_dev *dev, struct smc_buf_desc *dmb_desc);
++bool smc_ism_dmb_mappable(struct smcd_dev *smcd);
+ int smc_ism_signal_shutdown(struct smc_link_group *lgr);
+ void smc_ism_get_system_eid(u8 **eid);
+ u16 smc_ism_get_chid(struct smcd_dev *dev);
 -- 
 1.8.3.1
 
