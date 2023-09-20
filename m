@@ -2,138 +2,84 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83B9AC05025
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Sep 2023 20:41:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 572C9C05024
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Sep 2023 21:01:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229473AbjITUlW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Sep 2023 16:41:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33150 "EHLO
+        id S229541AbjITVBp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Sep 2023 17:01:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229498AbjITUlV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Sep 2023 16:41:21 -0400
-Received: from mail-qt1-x833.google.com (mail-qt1-x833.google.com [IPv6:2607:f8b0:4864:20::833])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76748B9
-        for <linux-s390@vger.kernel.org>; Wed, 20 Sep 2023 13:41:14 -0700 (PDT)
-Received: by mail-qt1-x833.google.com with SMTP id d75a77b69052e-414b3b65e85so1145191cf.1
-        for <linux-s390@vger.kernel.org>; Wed, 20 Sep 2023 13:41:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sifive.com; s=google; t=1695242473; x=1695847273; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=gWfoV3C+7YSBwabU1RrTm8uXi7/h5S313DOQ9XVA4fs=;
-        b=ll42s7Zw90tsjWd0E2BU7/7sJ/jiJ+kxuR6GFEOw+jkTvDFcUtLYINP90IDwFI4hGV
-         K+egE2k1NR89tBtiCbQz56anRWdpdVnb3WhCAS+MYPgYFdNEAUUvZdkwmC39fRwhpwvw
-         US8TD28CfIt17GPAIZX/QAfwB5tR56/VKTvtOP3ByJhwPdKhImi6c3AfR0dAEpGbVY7o
-         utZXJAWfqc4nnPAEYdg7FIAlaRvflddvaNzNElUYC9f0aJVODyT9AtcqCBZvNwYnzBAH
-         wnFo6DcKdcXIEW302r60Wqhv1STdkIVnEFj8FadghQLRyYnhvi4VTELZNbEW2W8IMIN9
-         lwFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1695242473; x=1695847273;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=gWfoV3C+7YSBwabU1RrTm8uXi7/h5S313DOQ9XVA4fs=;
-        b=v9bcEaQ1ZJj63OrAxwvMm7uTNsvwAcFQq9YsORndbG1ZQoEXe8hf/7py47o9gk/sw3
-         lNuYSke/ah/Jq2D5T5EtkviPcqvR6G9x3Wz+XV9PyRt0FfvvasLpuMrStfCIRUP0uCJZ
-         Xzb7GPO910o/nRLpBqd+WRJ4QQpB+reB6PNMIuZfdu/3bnOxhzuHgQr6Z3kSzEOohZlT
-         YUCebWI+j/22Mkagk54vPtgfTPfhu7o0MsXogetamVUh3WPfPn2ouNwe/IkVNxIZ8UK6
-         oDG+tvOa/ghz3/C9hKkPUxqgP67IXVnM+330LE8ecgCiZgMJvsKgLGOWhp6L6E8L6D8X
-         cQ6g==
-X-Gm-Message-State: AOJu0YwTc5rvatU0VFjqu24Tv1S527SZdpxC1/aw2GI7sL/GG5chAgez
-        DV1b81M3ucJ9MQxy0uVn9FLjSA==
-X-Google-Smtp-Source: AGHT+IHCzJajQHoo4ag+MBSCuMbz+nBgjUOKbqVuICXRsb6shtfJZIsUaiffrvD5xvp+3k7IrE2ufA==
-X-Received: by 2002:a05:622a:551:b0:412:1163:1d20 with SMTP id m17-20020a05622a055100b0041211631d20mr4219646qtx.48.1695242473530;
-        Wed, 20 Sep 2023 13:41:13 -0700 (PDT)
-Received: from ?IPV6:2600:1700:2000:b002:104:ea12:bd23:169? ([2600:1700:2000:b002:104:ea12:bd23:169])
-        by smtp.gmail.com with ESMTPSA id c17-20020a05622a025100b004166905aa2asm1690qtx.28.2023.09.20.13.41.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 20 Sep 2023 13:41:13 -0700 (PDT)
-Message-ID: <79af9398-167f-440e-a493-390dc4ccbd85@sifive.com>
-Date:   Wed, 20 Sep 2023 15:41:11 -0500
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 07/17] nbd: call blk_mark_disk_dead in
- nbd_clear_sock_ioctl
-Content-Language: en-US
-To:     Christoph Hellwig <hch@lst.de>, Al Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <brauner@kernel.org>
-Cc:     Jens Axboe <axboe@kernel.dk>, Denis Efremov <efremov@linux.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        with ESMTP id S229463AbjITVBo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Sep 2023 17:01:44 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C2C3BB;
+        Wed, 20 Sep 2023 14:01:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=az/Js1qF679MHxIz4hhXazYZEbEi8gu09dkZtiwmuX0=; b=UvFQToudjIHsbXoBhoCpv/JCy5
+        q0xUgS0z5kAtDjmhlolxdXTv9bksN8Pf8xZWK/pHqcVzdRAOHmz/01zFL3BtMMR8cqsRGxs+pxnXI
+        BuLXY775HyQC8SyYkSmupfEcsbPlT9P9uqkxymu1Y2hKEO/3YUTfzgIglXw3YZV/FIigu2WnPoKgT
+        jR0K72e08akM941MjuMFG5p3zV1PUlT6c8L5oEhS1PdkM2ngJ0uoo0BCAEngPPSx4jpzWQRTa1pUO
+        4iFf5VdrG47kBUv1+FhEJS/K/GS8sWTh1J0gYywbvikVoKmcvntPLFZKBCIU6GzkfxnqIbVBhlfzQ
+        Pmu4VU4A==;
+Received: from mcgrof by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
+        id 1qj4Jj-004CX6-2H;
+        Wed, 20 Sep 2023 21:01:04 +0000
+Date:   Wed, 20 Sep 2023 14:01:03 -0700
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     j.granados@samsung.com
+Cc:     willy@infradead.org, josh@joshtriplett.org,
+        Kees Cook <keescook@chromium.org>,
+        Iurii Zaikin <yzaikin@google.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        "Darrick J . Wong" <djwong@kernel.org>, Chris Mason <clm@fb.com>,
-        David Sterba <dsterba@suse.com>, linux-block@vger.kernel.org,
-        nbd@other.debian.org, linux-s390@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, linux-fsdevel@vger.kernel.org
-References: <20230811100828.1897174-1-hch@lst.de>
- <20230811100828.1897174-8-hch@lst.de>
-From:   Samuel Holland <samuel.holland@sifive.com>
-In-Reply-To: <20230811100828.1897174-8-hch@lst.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Guo Ren <guoren@kernel.org>,
+        Alexey Gladkov <legion@kernel.org>,
+        linux-fsdevel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+        linux-ia64@vger.kernel.org, linux-csky@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH v2 0/8] sysctl: Remove sentinel elements from arch
+Message-ID: <ZQtdj211q5PekVRc@bombadil.infradead.org>
+References: <20230913-jag-sysctl_remove_empty_elem_arch-v2-0-d1bd13a29bae@samsung.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230913-jag-sysctl_remove_empty_elem_arch-v2-0-d1bd13a29bae@samsung.com>
+Sender: Luis Chamberlain <mcgrof@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2023-08-11 5:08 AM, Christoph Hellwig wrote:
-> nbd_clear_sock_ioctl kills the socket and with that the block
-> device.  Instead of just invalidating file system buffers,
-> mark the device as dead, which will also invalidate the buffers
-> as part of the proper shutdown sequence.  This also includes
-> invalidating partitions if there are any.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  drivers/block/nbd.c | 8 +++-----
->  1 file changed, 3 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-> index 8576d696c7a221..42e0159bb258fa 100644
-> --- a/drivers/block/nbd.c
-> +++ b/drivers/block/nbd.c
-> @@ -1434,12 +1434,10 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd)
->  	return ret;
->  }
->  
-> -static void nbd_clear_sock_ioctl(struct nbd_device *nbd,
-> -				 struct block_device *bdev)
-> +static void nbd_clear_sock_ioctl(struct nbd_device *nbd)
->  {
-> +	blk_mark_disk_dead(nbd->disk);
->  	nbd_clear_sock(nbd);
-> -	__invalidate_device(bdev, true);
-> -	nbd_bdev_reset(nbd);
+On Wed, Sep 13, 2023 at 11:10:54AM +0200, Joel Granados via B4 Relay wrote:
+> V2:
+> * Added clarification both in the commit messages and the coverletter as
+>   to why this patch is safe to apply.
+> * Added {Acked,Reviewed,Tested}-by from list
+> * Link to v1: https://lore.kernel.org/r/20230906-jag-sysctl_remove_empty_elem_arch-v1-0-3935d4854248@samsung.com
 
-This change breaks nbd-client, which calls the NBD_CLEAR_SOCK ioctl during
-device setup and socket reconnection. After merging this series (bisected to
-511fb5bafed1), all NBD devices are immediately dead on arrival:
+Thanks! I've merged this onto sysctl-next.
 
-[   14.605849] nbd0: detected capacity change from 0 to 4194304
-
-[   14.606211] Buffer I/O error on dev nbd0, logical block 0, async page read
-[   14.619101] Buffer I/O error on dev nbd0, logical block 0, async page read
-
-[   14.630490]  nbd0: unable to read partition table
-
-I wonder if disk_force_media_change() is the right thing to call here instead.
-
-Regards,
-Samuel
-
->  	if (test_and_clear_bit(NBD_RT_HAS_CONFIG_REF,
->  			       &nbd->config->runtime_flags))
->  		nbd_config_put(nbd);
-> @@ -1465,7 +1463,7 @@ static int __nbd_ioctl(struct block_device *bdev, struct nbd_device *nbd,
->  	case NBD_DISCONNECT:
->  		return nbd_disconnect(nbd);
->  	case NBD_CLEAR_SOCK:
-> -		nbd_clear_sock_ioctl(nbd, bdev);
-> +		nbd_clear_sock_ioctl(nbd);
->  		return 0;
->  	case NBD_SET_SOCK:
->  		return nbd_add_socket(nbd, arg, false);
-
+  Luis
