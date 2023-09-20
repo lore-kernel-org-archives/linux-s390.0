@@ -2,73 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3AEFCE79CF
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Sep 2023 12:08:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C0E0CE79D1
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Sep 2023 13:05:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235304AbjITMJC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Sep 2023 08:09:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48892 "EHLO
+        id S236515AbjITNFy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Sep 2023 09:05:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235266AbjITMIw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Sep 2023 08:08:52 -0400
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A78C93;
-        Wed, 20 Sep 2023 05:08:44 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R241e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VsV5XW0_1695211715;
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VsV5XW0_1695211715)
+        with ESMTP id S236516AbjITNFu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Sep 2023 09:05:50 -0400
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3125E12B;
+        Wed, 20 Sep 2023 06:05:37 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0VsVIPo7_1695215133;
+Received: from 30.221.128.235(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VsVIPo7_1695215133)
           by smtp.aliyun-inc.com;
-          Wed, 20 Sep 2023 20:08:41 +0800
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        "D. Wythe" <alibuda@linux.alibaba.com>
-Subject: [PATCH net] net/smc: fix panic smc_tcp_syn_recv_sock() while closing listen socket
-Date:   Wed, 20 Sep 2023 20:08:34 +0800
-Message-Id: <1695211714-66958-1-git-send-email-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+          Wed, 20 Sep 2023 21:05:34 +0800
+Message-ID: <447f1d11-38de-e896-dead-6b27502e1886@linux.alibaba.com>
+Date:   Wed, 20 Sep 2023 21:05:30 +0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.0
+Subject: Re: [PATCH net-next 06/18] net/smc: extend GID to 128bits for virtual
+ ISM device
+To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        kernel test robot <lkp@intel.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc:     oe-kbuild-all@lists.linux.dev, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1695134522-126655-7-git-send-email-guwen@linux.alibaba.com>
+ <202309201408.95QRxHEl-lkp@intel.com>
+ <50feb145-c658-b9a1-7261-b67bb82767dc@linux.alibaba.com>
+ <09ef007793b27e2ba5cc75a33c99cf8ead62c7f3.camel@linux.ibm.com>
+From:   Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <09ef007793b27e2ba5cc75a33c99cf8ead62c7f3.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-Consider the following scenarios:
 
-smc_release
-	smc_close_active
-		write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
-		smc->clcsock->sk->sk_user_data = NULL;
-		write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
+On 2023/9/20 17:00, Niklas Schnelle wrote:
 
-smc_tcp_syn_recv_sock
-	smc = smc_clcsock_user_data(sk);
-	/* now */
-	/* smc == NULL */
+>>
+>> I do not have a local compilation environment for s390 (IBM Z) architecture. But I think
+>> it can be fixed by the following patch.
+> 
+> With these kernel test robot mails the bot provides
+> instructions for reproducing with a cross toolchain from the 0day
+> project. See the line starting with "reproduce (this is a W=1 build):"
+> i.e. in this particular case it links the URL:
+> https://download.01.org/0day-ci/archive/20230920/202309201408.95QRxHEl-lkp@intel.com/reproduce
 
-Hence, we may read the a NULL value in smc_tcp_syn_recv_sock(). And
-since we only unset sk_user_data during smc_release, it's safe to
-drop the incoming tcp reqsock.
 
-Fixes:  ("net/smc: net/smc: Limit backlog connections"
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
----
- net/smc/af_smc.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index bacdd97..b4acf47 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -125,6 +125,8 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
- 	struct sock *child;
- 
- 	smc = smc_clcsock_user_data(sk);
-+	if (unlikely(!smc))
-+		goto drop;
- 
- 	if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->queued_smc_hs) >
- 				sk->sk_max_ack_backlog)
--- 
-1.8.3.1
-
+Ah, I see. Thank you Niklas for the explanation. :)
