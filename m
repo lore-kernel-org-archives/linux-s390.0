@@ -2,242 +2,106 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 502CEC04FD1
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Sep 2023 18:18:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BAA40C05022
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Sep 2023 20:36:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229698AbjITSS7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Sep 2023 14:18:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55830 "EHLO
+        id S229640AbjITUgo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Sep 2023 16:36:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229790AbjITSS6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Sep 2023 14:18:58 -0400
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2052.outbound.protection.outlook.com [40.107.94.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92273CF;
-        Wed, 20 Sep 2023 11:18:46 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Nlw2mcU3zX9QDYO49IGntlEHfQh+eRyePFjjXHOJJkbnLlaJmk0t1fgGUpdfI2UPYXhoFqNa7vibbMB2Ec5p3Zt2grgeLzz+oyroQC+erOTYjDca1KYgymS6yI4yYUGdIr3xTNJtGgErPIygndxRoMvXERhmaoJ9UxkDTupFHcbLz+AUfZVSYWupPSzXpC94+4T/X2XFW55zN5v04uq36MVgIuRQFDuZTsM2vcNvroN2KbW+OtsJ6BYAz/N3FM1YXCCs0fs+iZ9HtbtT1ZQwAngbpPX/IyeZvcacBq+UxoUQeu7Q/3EHcdghkd6COU/i3Xr/rw8rSy/p1kLX+ujEKA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ONOlYSkAUskXnG8NC46lJLrDYInndfas+vsGNRsOjTI=;
- b=YxMijU/aqelR2DIzbnyjJdJp7J1MkyyMaLFd4YELs1xjo77+WdQJuPPqATtdwRPDOBOwSz0UWq/imFScQh1Mtn3F1vMDLdE+2bhw/wNN5BxOMu1yOkiokQ5L8S3myQsOH3pEByYmVbSf5NZqhLcDFmiE/2F+KO90fNy3a/5Da62R5ZPSPpiafaPy7uFEWYKZyBrxGCv7a6Znm3mEqs7Mm6BQf6bdAEjOfNFbcK/HZ+HSDV1Ea6O1DAx755yYKkLGatWL1I8IY/VzcQMXSG7QvhL5C7/kcIlmvlz8dOnxLMWFbc2HMS6T2lksmRJF4IU2oXQwK5zh+RuSU7pfx1hBpw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ONOlYSkAUskXnG8NC46lJLrDYInndfas+vsGNRsOjTI=;
- b=sihvanFbZ+t21Tthz59Wrmtsbp7M4/0nUugl9n3HiEmsAYWcZZLIQGrkfqgjEzvKhi4qtKyXfAaC+9ulNUfH9jndhpA+njIvdN2ywsPsTGAa4cCS8tbCQnoNK0AQhgxrns9Icp3eurRPU/YRiSyXdksgG2EmBhlOiHkVkHx+Bxg3seCjeL9FDK5tXYc2eymPGCbnmRHsqDzn4Gt4AFSlFW47VRbNtTHSWS1J3Vu/2kaO6qA+fRR6d8KEEoo5Qz42C3IiUGVCz57AMHqopXG2w68NQRjOQJig2xSvvsZchoTHKdlR8QgbaDWLWhUwSPDyPTxCYzV8mIcxlu5FXiWykQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
- by CY8PR12MB7414.namprd12.prod.outlook.com (2603:10b6:930:5e::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6792.30; Wed, 20 Sep
- 2023 18:18:43 +0000
-Received: from LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::faf:4cd0:ae27:1073]) by LV2PR12MB5869.namprd12.prod.outlook.com
- ([fe80::faf:4cd0:ae27:1073%6]) with mapi id 15.20.6792.026; Wed, 20 Sep 2023
- 18:18:42 +0000
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
+        with ESMTP id S229451AbjITUgo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Sep 2023 16:36:44 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93177B9
+        for <linux-s390@vger.kernel.org>; Wed, 20 Sep 2023 13:35:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1695242156;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=X7Fy9zw5ej/V6zjA8OzVPy/jO4OeVwHuOObAxe8q5yo=;
+        b=SFPn6xQkEBsltxL3VvwOzU81Qy6IF5PBdexf5JphFGSSz9M6vn0tIYdA+PItmy9hVB2exj
+        cnPwamDQaRURDrofZLjrM0jgvDClXurLX8Y5fTjLtKUvIvYY05CAsgKg1XovG/qPjChLK0
+        0INoJc7BvC1Q8oDGu4zaB/TqB1kY+eM=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-161-2-hTVdAfMjGx01ME_rzv1Q-1; Wed, 20 Sep 2023 16:35:53 -0400
+X-MC-Unique: 2-hTVdAfMjGx01ME_rzv1Q-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 14DE728EC106;
+        Wed, 20 Sep 2023 20:35:52 +0000 (UTC)
+Received: from warthog.procyon.org.uk (unknown [10.42.28.216])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5507940C2064;
+        Wed, 20 Sep 2023 20:35:47 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+        Kingdom.
+        Registered in England and Wales under Company Registration No. 3798903
+From:   David Howells <dhowells@redhat.com>
+In-Reply-To: <20230920130400.203330-6-dhowells@redhat.com>
+References: <20230920130400.203330-6-dhowells@redhat.com> <20230920130400.203330-1-dhowells@redhat.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     David Howells <dhowells@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Christian Brauner <christian@brauner.io>,
+        David Laight <David.Laight@ACULAB.COM>,
+        Matthew Wilcox <willy@infradead.org>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        David Gow <davidgow@google.com>, linux-fsdevel@vger.kernel.org,
+        linux-block@vger.kernel.org, linux-mm@kvack.org,
+        netdev@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        kunit-dev@googlegroups.com, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Christian Brauner <brauner@kernel.org>,
         David Hildenbrand <david@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        WANG Xuerui <kernel@xen0n.name>,
         Heiko Carstens <hca@linux.ibm.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        James Morse <james.morse@arm.com>, kvm@vger.kernel.org,
-        kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-        linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        Marc Zyngier <maz@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Oliver Upton <oliver.upton@linux.dev>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, x86@kernel.org,
-        Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH rc] kvm: Prevent compiling virt/kvm/vfio.c unless VFIO is selected
-Date:   Wed, 20 Sep 2023 15:18:40 -0300
-Message-ID: <0-v1-08396538817d+13c5-vfio_kvm_kconfig_jgg@nvidia.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: YT4PR01CA0300.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:b01:10e::25) To LV2PR12MB5869.namprd12.prod.outlook.com
- (2603:10b6:408:176::16)
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, loongarch@lists.linux.dev,
+        linux-s390@vger.kernel.org
+Subject: Re: [RFC PATCH v2 5/9] iov_iter: Create a function to prepare userspace VM for UBUF/IOVEC tests
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|CY8PR12MB7414:EE_
-X-MS-Office365-Filtering-Correlation-Id: cb035663-8985-448a-aac4-08dbba060580
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: akF1jWMmrhSXHr/nsWp/EZ/tVQWxt9lE5f43rKIjziO2r6hG5/tZAWR8boelX5U+vVKfhUBeXdjmv3R7iXrcyco4sgzyEABMx6mbcczePsBxCVlkZIcHk2W5URUlEQGN36H0jjJr9CVRGHGvQoud29BWMl4lQCt2DlTLfik6mXB27jiV9ZXGaF+lQKUy+x9H6vhKyf6DMM1Dc+ZxHjrB2q3BBlyy9nhd9M3Gb6g4dx6X/i2vs2q0h6jsyGnMZCDk1lLWZq3q7f0Ua5hEbWrEc0y3uMZaz/8K1vKC2YvKM0VnaWo93emH+kDfeYFqeyOz5+SOk4Ufxgaz8+pN3kT8UC53baJIjsLTRS1Y5JHlLlEO1mJdaA4aV5QL3c8c7UkFJEvi+o1jY3jB5qUiQqfYa+YFC6IM00wXfDPp5zv8ZHFZYXhsdsPUdCcneaNPxIwMEG4XDz8HZTO9P6+43ciKuZOkyiw5MRGCxUpPnlcipdXAHa1Q3syNZnis2tSUxr5s1ruHdfHBFRVfJ4ZnbnaIwiuv1Q5qJ2f7IJkHaorwCzazkWyTrRGWgkVOlhb5dlOFHFBHVkdqi3pGIkdSXTcpyG4O30C3J6t3Vz25Iu9VO5NCSzYWsBJfVVwT92JeJ+fiSo9NmV1Tua+LaIIppeAB7fzKaZfMWmKwPju8E0hhmc4swNDIBiWeV1KIA/Kvkgeo1T9n+ljdJHhmfata16hc/g==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(136003)(346002)(39860400002)(376002)(366004)(396003)(1800799009)(186009)(451199024)(478600001)(6486002)(6506007)(966005)(6512007)(83380400001)(2616005)(2906002)(26005)(66476007)(7406005)(7416002)(66946007)(66556008)(316002)(41300700001)(8676002)(110136005)(5660300002)(8936002)(36756003)(86362001)(921005)(38100700002)(4216001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?omifWeHF9snkGB0ePFj2C3Emw2SGA5w+eKF72AXi27yKyjnxu3qQxbu9aw6G?=
- =?us-ascii?Q?/gfDTRcQ4+r27/DGqehcr0jFjigqzCtdHijHB8Z4HmINI0ndpS8A3pagINTG?=
- =?us-ascii?Q?Z0AyQx8oyM1DMBTcFJCGyRWEjq9YiRYWmYGktWbUt4DVSanoXpKHZeJU0RpA?=
- =?us-ascii?Q?vILQsqtG2xioZi4coPoFtDHhPhXdmDBtHdTVrPZE9c44Y0K4fdnb4rWveqEq?=
- =?us-ascii?Q?dZFo6iUJlEmTPjv6A7QwiD7FvDL+63D+ERuG8geMvJB0WvaVEyE6H4ULY3rN?=
- =?us-ascii?Q?CzZneVI5GdHrhzDkh2HBgqd2FO5AfEfNmXLV+9EROtkdxI8l2kw642SV0Szm?=
- =?us-ascii?Q?nXFBQQXAOWrPq0CQF7bH7HVNS2t5/z3Ejiq7vJgxwwbRiSi0pEPalpU3vLs+?=
- =?us-ascii?Q?jtZ8ky+4F30N3rIwVxucQO4WABCquNpAjEGuT+D4TDvQ0ChMuNbg/JWQInmS?=
- =?us-ascii?Q?UY0GUi9ffHILmQG/XHrZjEZiKxXELKnLM8mtg8bRjyvUqWdpmQJUbPpUHfhK?=
- =?us-ascii?Q?PTkzfT3V2i2A48j0mO+aMOwdmkt6LiWPrlCj3WT7DkzQTEPkYh3L/3B76EWo?=
- =?us-ascii?Q?R4mBBzAOZp/b0Irp9KMR7gKnyKs5eT64+AVJquGFsE2z1cmg1fKA0jk9cihL?=
- =?us-ascii?Q?EyPD/RRa8ZFmw+Dg8DcmWy8uqriei5HWynqRb5cQ6aVnNo7lCq6js2Pzefox?=
- =?us-ascii?Q?nQE4Rja5O3IifKBby6p6mo8Ca8MpJ3ZLYTVONgrNM8xZdwJ/qr/oRhznCQgb?=
- =?us-ascii?Q?OssKEqmvOO+v99jElAifturubFntRDoVA3HPZ0ZySJ8l1t8AAmwIL09VtUb2?=
- =?us-ascii?Q?1eKpRsNjgjJnFNVC7LYKJjCkCMlhZj/beRrnDfpQ19Qa/xKcbl163nY+cbuN?=
- =?us-ascii?Q?WgHLlcwBjsJm+FGp/OzRKeA/7kLBhz66HhmsRhweD7LOgzA5hmqA6kuNx9zj?=
- =?us-ascii?Q?KTlyoMvI+3ij7g5o1J1gBReiGEv1Aky9Zyxo8bqO3rFeto/5AK65Zgmv9rMT?=
- =?us-ascii?Q?nzepuIJjnEqUcYzWYexnO/bC0Nm6axSXQPI43I+beobJzgTtx1VqnX7iOnf7?=
- =?us-ascii?Q?NZiOYByDTytHmXj6CqHwfJwYXklBQec0rZWmKmiF1hxa1Fd4HDcRFdNMmnJt?=
- =?us-ascii?Q?7UAQuJ3ZppJTA/7qzs3kLFL/K/phzhpNuPwNx2lhDIPNEx0vZtw7yyHJGTdV?=
- =?us-ascii?Q?rhT6xCBQVWJTWSUDN5pbtg/ZxBEtr5zIXLnqMKd1CPs3/IlKTWXVZI730FuQ?=
- =?us-ascii?Q?DNmG3f6S8daH279SVcbKtrzEBNhaXbdq63lZ4JRVgzQK+HUxK6gJY/DCbvyS?=
- =?us-ascii?Q?l5IH7PPf+juC+8pSUaVt5SON3RIZtqra9AqRH1dw5h4s7aCoN28R7fQ8uSqs?=
- =?us-ascii?Q?b7hU0UigyNtggh53LvI76sha0dm3WzpDwbfDBXsyYexxaieZoZ9vC7SYFkfh?=
- =?us-ascii?Q?L4sR+cwkp0JIpESK4rqzFULLV3aTCNcfmuFUvBqp8IIvfRZecG74v0zIDqqF?=
- =?us-ascii?Q?ZdIS+OiJk7RqnebcdNCCp8BRJEVE7k0Tfb1gYSkIpZjW5j7rYVsdYUhdivct?=
- =?us-ascii?Q?5zZjZaqgqlHofHiqhwhXYMJLSa+8me7Yol70nRby?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: cb035663-8985-448a-aac4-08dbba060580
-X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Sep 2023 18:18:42.8925
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: opa3BNPFW9b76Wi03pf5tKZfjHJZL6BqnrC6sg4ffm/GrFagxKLYWeMnD5u0i4Tl
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB7414
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <578661.1695242146.1@warthog.procyon.org.uk>
+Content-Transfer-Encoding: quoted-printable
+Date:   Wed, 20 Sep 2023 21:35:46 +0100
+Message-ID: <578662.1695242146@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-There are a bunch of reported randconfig failures now because of this,
-something like:
+David Howells <dhowells@redhat.com> wrote:
 
->> arch/powerpc/kvm/../../../virt/kvm/vfio.c:89:7: warning: attribute declaration must precede definition [-Wignored-attributes]
-           fn = symbol_get(vfio_file_iommu_group);
-                ^
-   include/linux/module.h:805:60: note: expanded from macro 'symbol_get'
-   #define symbol_get(x) ({ extern typeof(x) x __attribute__((weak,visibility("hidden"))); &(x); })
+> diff --git a/arch/loongarch/include/asm/page.h b/arch/loongarch/include/=
+asm/page.h
+> index 63f137ce82a4..c7c5f5b4c0d3 100644
+> --- a/arch/loongarch/include/asm/page.h
+> +++ b/arch/loongarch/include/asm/page.h
+> @@ -32,6 +32,7 @@
+>  =
 
-It happens because the arch forces KVM_VFIO without knowing if VFIO is
-even enabled.
+>  #include <linux/kernel.h>
+>  #include <linux/pfn.h>
+> +#include <linux/personality.h>
+>  =
 
-Split the kconfig so the arch selects the usual HAVE_KVM_ARCH_VFIO and
-then KVM_VFIO is only enabled if the arch wants it and VFIO is turned on.
+>  /*
+>   * It's normally defined only for FLATMEM config but it's
 
-Reported-by: kernel test robot <lkp@intel.com>
-Closes: https://lore.kernel.org/oe-kbuild-all/202308251949.5IiaV0sz-lkp@intel.com/
-Closes: https://lore.kernel.org/oe-kbuild-all/202309030741.82aLACDG-lkp@intel.com/
-Closes: https://lore.kernel.org/oe-kbuild-all/202309110914.QLH0LU6L-lkp@intel.com/
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Fixes: c1cce6d079b8 ("vfio: Compile vfio_group infrastructure optionally")
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
----
- arch/arm64/kvm/Kconfig   | 2 +-
- arch/powerpc/kvm/Kconfig | 2 +-
- arch/s390/kvm/Kconfig    | 2 +-
- arch/x86/kvm/Kconfig     | 2 +-
- virt/kvm/Kconfig         | 7 ++++++-
- 5 files changed, 10 insertions(+), 5 deletions(-)
+I've moved this addition to lib/kunit_iov_iter.c as the READ_IMPLIES_EXEC =
+flag
+is also not defined otherwise on powerpc and repushed my patches.
 
-Sean's large series will also address this:
-
-https://lore.kernel.org/kvm/20230916003118.2540661-7-seanjc@google.com/
-
-I don't know if it is sever enough to fix in the rc cycle, but here is the
-patch.
-
-diff --git a/arch/arm64/kvm/Kconfig b/arch/arm64/kvm/Kconfig
-index 83c1e09be42e5b..7c43eaea51ce05 100644
---- a/arch/arm64/kvm/Kconfig
-+++ b/arch/arm64/kvm/Kconfig
-@@ -28,7 +28,7 @@ menuconfig KVM
- 	select KVM_MMIO
- 	select KVM_GENERIC_DIRTYLOG_READ_PROTECT
- 	select KVM_XFER_TO_GUEST_WORK
--	select KVM_VFIO
-+	select HAVE_KVM_ARCH_VFIO
- 	select HAVE_KVM_EVENTFD
- 	select HAVE_KVM_IRQFD
- 	select HAVE_KVM_DIRTY_RING_ACQ_REL
-diff --git a/arch/powerpc/kvm/Kconfig b/arch/powerpc/kvm/Kconfig
-index 902611954200df..b64824e4cbc1eb 100644
---- a/arch/powerpc/kvm/Kconfig
-+++ b/arch/powerpc/kvm/Kconfig
-@@ -22,7 +22,7 @@ config KVM
- 	select PREEMPT_NOTIFIERS
- 	select HAVE_KVM_EVENTFD
- 	select HAVE_KVM_VCPU_ASYNC_IOCTL
--	select KVM_VFIO
-+	select HAVE_KVM_ARCH_VFIO
- 	select IRQ_BYPASS_MANAGER
- 	select HAVE_KVM_IRQ_BYPASS
- 	select INTERVAL_TREE
-diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
-index 45fdf2a9b2e326..d206ad3a777d5d 100644
---- a/arch/s390/kvm/Kconfig
-+++ b/arch/s390/kvm/Kconfig
-@@ -31,7 +31,7 @@ config KVM
- 	select HAVE_KVM_IRQ_ROUTING
- 	select HAVE_KVM_INVALID_WAKEUPS
- 	select HAVE_KVM_NO_POLL
--	select KVM_VFIO
-+	select HAVE_KVM_ARCH_VFIO
- 	select INTERVAL_TREE
- 	select MMU_NOTIFIER
- 	help
-diff --git a/arch/x86/kvm/Kconfig b/arch/x86/kvm/Kconfig
-index ed90f148140dfe..8e70e693f90e30 100644
---- a/arch/x86/kvm/Kconfig
-+++ b/arch/x86/kvm/Kconfig
-@@ -45,7 +45,7 @@ config KVM
- 	select HAVE_KVM_NO_POLL
- 	select KVM_XFER_TO_GUEST_WORK
- 	select KVM_GENERIC_DIRTYLOG_READ_PROTECT
--	select KVM_VFIO
-+	select HAVE_KVM_ARCH_VFIO
- 	select INTERVAL_TREE
- 	select HAVE_KVM_PM_NOTIFIER if PM
- 	select KVM_GENERIC_HARDWARE_ENABLING
-diff --git a/virt/kvm/Kconfig b/virt/kvm/Kconfig
-index 484d0873061ca5..0bf34809e1bbfe 100644
---- a/virt/kvm/Kconfig
-+++ b/virt/kvm/Kconfig
-@@ -59,9 +59,14 @@ config HAVE_KVM_MSI
- config HAVE_KVM_CPU_RELAX_INTERCEPT
-        bool
- 
--config KVM_VFIO
-+config HAVE_KVM_ARCH_VFIO
-        bool
- 
-+config KVM_VFIO
-+       def_bool y
-+       depends on HAVE_KVM_ARCH_VFIO
-+       depends on VFIO
-+
- config HAVE_KVM_INVALID_WAKEUPS
-        bool
- 
-
-base-commit: 0bb80ecc33a8fb5a682236443c1e740d5c917d1d
--- 
-2.42.0
+David
 
