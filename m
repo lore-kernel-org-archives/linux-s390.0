@@ -2,184 +2,183 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81FBACE79AC
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Sep 2023 08:11:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 126B7CE79AC
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Sep 2023 09:03:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232575AbjITILv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Sep 2023 04:11:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59532 "EHLO
+        id S233977AbjITJDE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Sep 2023 05:03:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230447AbjITILv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Sep 2023 04:11:51 -0400
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A62F1A1;
-        Wed, 20 Sep 2023 01:11:43 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VsUU1SX_1695197499;
-Received: from 30.221.128.235(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VsUU1SX_1695197499)
-          by smtp.aliyun-inc.com;
-          Wed, 20 Sep 2023 16:11:40 +0800
-Message-ID: <50feb145-c658-b9a1-7261-b67bb82767dc@linux.alibaba.com>
-Date:   Wed, 20 Sep 2023 16:11:37 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.0
-Subject: Re: [PATCH net-next 06/18] net/smc: extend GID to 128bits for virtual
- ISM device
-To:     kernel test robot <lkp@intel.com>, kgraul@linux.ibm.com,
+        with ESMTP id S233912AbjITJCx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Sep 2023 05:02:53 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BE60E6B;
+        Wed, 20 Sep 2023 02:01:20 -0700 (PDT)
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38K8bgQR030527;
+        Wed, 20 Sep 2023 09:01:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=Mohp1it2fuStPgjZFWndSxQM4fJB7eSFvn/pk/8hp3g=;
+ b=R62j+KGMg8MLPWL5rWd49EBtjA0Bso+JGYrzPvvwXROLpBbptsp83iXbrZXNpPXF8tLu
+ se5PP/rlSNlwsxtvZNWFEAupeLGAZ5c0AWBUTygs/NU7aU/SsmFD3MJ+CKHZx+YVmLWP
+ RvRou0VIs/F/8AMv1rBmJgU+l+R4kTeSZvL9kEWf7BJPoT2zLRnyyg3lATinrnc98+is
+ ZrDnbzxiLlNywzjkP1BYk7E9lJh5TGPQguSUzrankfIne/aVNM5ntT6rAuHjCoj+IrzD
+ oMiX20YR7DXX7SymfoMS8XbhtgIPkiKVRTOx9nOT3xEW7rVC8H6r8rbE3IKIIUAcJyIm Ag== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t7uyktreq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 20 Sep 2023 09:01:05 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38K8oL2j020320;
+        Wed, 20 Sep 2023 09:01:05 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t7uyktrdn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 20 Sep 2023 09:01:04 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38K80FOJ016478;
+        Wed, 20 Sep 2023 09:01:03 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3t5sd23pnf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 20 Sep 2023 09:01:03 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38K910iM42860902
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 20 Sep 2023 09:01:00 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9CADD2004B;
+        Wed, 20 Sep 2023 09:01:00 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9EF3C20043;
+        Wed, 20 Sep 2023 09:00:59 +0000 (GMT)
+Received: from [9.171.25.3] (unknown [9.171.25.3])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 20 Sep 2023 09:00:59 +0000 (GMT)
+Message-ID: <09ef007793b27e2ba5cc75a33c99cf8ead62c7f3.camel@linux.ibm.com>
+Subject: Re: [PATCH net-next 06/18] net/smc: extend GID to 128bits for
+ virtual ISM device
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Wen Gu <guwen@linux.alibaba.com>,
+        kernel test robot <lkp@intel.com>, kgraul@linux.ibm.com,
         wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
         edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
 Cc:     oe-kbuild-all@lists.linux.dev, alibuda@linux.alibaba.com,
         tonylu@linux.alibaba.com, linux-s390@vger.kernel.org,
         netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Wed, 20 Sep 2023 11:00:59 +0200
+In-Reply-To: <50feb145-c658-b9a1-7261-b67bb82767dc@linux.alibaba.com>
 References: <1695134522-126655-7-git-send-email-guwen@linux.alibaba.com>
- <202309201408.95QRxHEl-lkp@intel.com>
-From:   Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <202309201408.95QRxHEl-lkp@intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+         <202309201408.95QRxHEl-lkp@intel.com>
+         <50feb145-c658-b9a1-7261-b67bb82767dc@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: -xJqZMDZELOQZeTMMC-6VI-qX47e5pK8
+X-Proofpoint-ORIG-GUID: 5i4CY911fQhg1eaHcOE9NGFW-SNB-Uy8
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.601,FMLib:17.11.176.26
+ definitions=2023-09-20_03,2023-09-19_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ spamscore=0 clxscore=1011 bulkscore=0 lowpriorityscore=0 adultscore=0
+ impostorscore=0 mlxlogscore=999 phishscore=0 malwarescore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2309200067
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, 2023-09-20 at 16:11 +0800, Wen Gu wrote:
+>=20
+> On 2023/9/20 15:02, kernel test robot wrote:
+> > Hi Wen,
+> >=20
+> > kernel test robot noticed the following build errors:
+> >=20
+> > [auto build test ERROR on net-next/main]
+> >=20
+> > url:    https://github.com/intel-lab-lkp/linux/commits/Wen-Gu/net-smc-d=
+ecouple-ism_dev-from-SMC-D-device-dump/20230920-010019
+> > base:   net-next/main
+> > patch link:    https://lore.kernel.org/r/1695134522-126655-7-git-send-e=
+mail-guwen%40linux.alibaba.com
+> > patch subject: [PATCH net-next 06/18] net/smc: extend GID to 128bits fo=
+r virtual ISM device
+> > config: s390-defconfig (https://download.01.org/0day-ci/archive/2023092=
+0/202309201408.95QRxHEl-lkp@intel.com/config)
+> > compiler: s390-linux-gcc (GCC) 13.2.0
+> > reproduce (this is a W=3D1 build): (https://download.01.org/0day-ci/arc=
+hive/20230920/202309201408.95QRxHEl-lkp@intel.com/reproduce)
+> >=20
+> > If you fix the issue in a separate patch/commit (i.e. not just a new ve=
+rsion of
+> > the same patch/commit), kindly add following tags
+> > > Reported-by: kernel test robot <lkp@intel.com>
+> > > Closes: https://lore.kernel.org/oe-kbuild-all/202309201408.95QRxHEl-l=
+kp@intel.com/
+> >=20
+> > All errors (new ones prefixed by >>):
+> >=20
+> >     net/smc/smc_ism.c: In function 'smc_ism_signal_shutdown':
+> > > > net/smc/smc_ism.c:539:57: error: incompatible type for argument 2 o=
+f 'lgr-><U72f8>.<U7260>.smcd->ops->signal_event'
+> >       539 |         rc =3D lgr->smcd->ops->signal_event(lgr->smcd, lgr-=
+>peer_gid,
+> >           |                                                      ~~~^~~=
+~~~~~~~
+> >           |                                                         |
+> >           |                                                         str=
+uct smcd_gid
+> >     net/smc/smc_ism.c:539:57: note: expected 'u64' {aka 'long long unsi=
+gned int'} but argument is of type 'struct smcd_gid'
+> >=20
+> >=20
+> > vim +539 net/smc/smc_ism.c
+> >=20
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  526
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  527  int smc_ism_signal_shutdo=
+wn(struct smc_link_group *lgr)
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  528  {
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  529  	int rc =3D 0;
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  530  #if IS_ENABLED(CONFIG_ISM)
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  531  	union smcd_sw_event_info=
+ ev_info;
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  532
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  533  	if (lgr->peer_shutdown)
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  534  		return 0;
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  535
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  536  	memcpy(ev_info.uid, lgr-=
+>id, SMC_LGR_ID_SIZE);
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  537  	ev_info.vlan_id =3D lgr-=
+>vlan_id;
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  538  	ev_info.code =3D ISM_EVE=
+NT_REQUEST;
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23 @539  	rc =3D lgr->smcd->ops->s=
+ignal_event(lgr->smcd, lgr->peer_gid,
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  540  					  ISM_EVENT_REQUEST_=
+IR,
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  541  					  ISM_EVENT_CODE_SHU=
+TDOWN,
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  542  					  ev_info.info);
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  543  #endif
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  544  	return rc;
+> > 820f21009f1bc7a Stefan Raspl 2023-01-23  545  }
+> > 201091ebb2a161a Ursula Braun 2020-09-26  546
+> >=20
+>=20
+> I do not have a local compilation environment for s390 (IBM Z) architectu=
+re. But I think
+> it can be fixed by the following patch.
 
+With these kernel test robot mails the bot provides
+instructions for reproducing with a cross toolchain from the 0day
+project. See the line starting with "reproduce (this is a W=3D1 build):"
+i.e. in this particular case it links the URL:
+https://download.01.org/0day-ci/archive/20230920/202309201408.95QRxHEl-lkp@=
+intel.com/reproduce
 
-On 2023/9/20 15:02, kernel test robot wrote:
-> Hi Wen,
-> 
-> kernel test robot noticed the following build errors:
-> 
-> [auto build test ERROR on net-next/main]
-> 
-> url:    https://github.com/intel-lab-lkp/linux/commits/Wen-Gu/net-smc-decouple-ism_dev-from-SMC-D-device-dump/20230920-010019
-> base:   net-next/main
-> patch link:    https://lore.kernel.org/r/1695134522-126655-7-git-send-email-guwen%40linux.alibaba.com
-> patch subject: [PATCH net-next 06/18] net/smc: extend GID to 128bits for virtual ISM device
-> config: s390-defconfig (https://download.01.org/0day-ci/archive/20230920/202309201408.95QRxHEl-lkp@intel.com/config)
-> compiler: s390-linux-gcc (GCC) 13.2.0
-> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20230920/202309201408.95QRxHEl-lkp@intel.com/reproduce)
-> 
-> If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> the same patch/commit), kindly add following tags
-> | Reported-by: kernel test robot <lkp@intel.com>
-> | Closes: https://lore.kernel.org/oe-kbuild-all/202309201408.95QRxHEl-lkp@intel.com/
-> 
-> All errors (new ones prefixed by >>):
-> 
->     net/smc/smc_ism.c: In function 'smc_ism_signal_shutdown':
->>> net/smc/smc_ism.c:539:57: error: incompatible type for argument 2 of 'lgr-><U72f8>.<U7260>.smcd->ops->signal_event'
->       539 |         rc = lgr->smcd->ops->signal_event(lgr->smcd, lgr->peer_gid,
->           |                                                      ~~~^~~~~~~~~~
->           |                                                         |
->           |                                                         struct smcd_gid
->     net/smc/smc_ism.c:539:57: note: expected 'u64' {aka 'long long unsigned int'} but argument is of type 'struct smcd_gid'
-> 
-> 
-> vim +539 net/smc/smc_ism.c
-> 
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  526
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  527  int smc_ism_signal_shutdown(struct smc_link_group *lgr)
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  528  {
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  529  	int rc = 0;
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  530  #if IS_ENABLED(CONFIG_ISM)
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  531  	union smcd_sw_event_info ev_info;
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  532
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  533  	if (lgr->peer_shutdown)
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  534  		return 0;
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  535
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  536  	memcpy(ev_info.uid, lgr->id, SMC_LGR_ID_SIZE);
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  537  	ev_info.vlan_id = lgr->vlan_id;
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  538  	ev_info.code = ISM_EVENT_REQUEST;
-> 820f21009f1bc7a Stefan Raspl 2023-01-23 @539  	rc = lgr->smcd->ops->signal_event(lgr->smcd, lgr->peer_gid,
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  540  					  ISM_EVENT_REQUEST_IR,
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  541  					  ISM_EVENT_CODE_SHUTDOWN,
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  542  					  ev_info.info);
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  543  #endif
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  544  	return rc;
-> 820f21009f1bc7a Stefan Raspl 2023-01-23  545  }
-> 201091ebb2a161a Ursula Braun 2020-09-26  546
-> 
-
-I do not have a local compilation environment for s390 (IBM Z) architecture. But I think
-it can be fixed by the following patch.
-
-After this v1 exceeds 24 hours, I will send a v2 with this fix. Thanks.
-
-
-
-Fix:
-
-
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index 1b714f6..7801a6a 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -811,10 +811,10 @@ static int smcd_reset_vlan_required(struct smcd_dev *smcd)
-         return ism_cmd_simple(smcd->priv, ISM_RESET_VLAN);
-  }
-
--static int smcd_signal_ieq(struct smcd_dev *smcd, u64 rgid, u32 trigger_irq,
--                          u32 event_code, u64 info)
-+static int smcd_signal_ieq(struct smcd_dev *smcd, struct smcd_gid *rgid,
-+                          u32 trigger_irq, u32 event_code, u64 info)
-  {
--       return ism_signal_ieq(smcd->priv, rgid, trigger_irq, event_code, info);
-+       return ism_signal_ieq(smcd->priv, rgid->gid, trigger_irq, event_code, info);
-  }
-
-  static int smcd_move(struct smcd_dev *smcd, u64 dmb_tok, unsigned int idx,
-diff --git a/include/net/smc.h b/include/net/smc.h
-index 04dbaa4..39a21ed 100644
---- a/include/net/smc.h
-+++ b/include/net/smc.h
-@@ -78,8 +78,8 @@ struct smcd_ops {
-         int (*del_vlan_id)(struct smcd_dev *dev, u64 vlan_id);
-         int (*set_vlan_required)(struct smcd_dev *dev);
-         int (*reset_vlan_required)(struct smcd_dev *dev);
--       int (*signal_event)(struct smcd_dev *dev, u64 rgid, u32 trigger_irq,
--                           u32 event_code, u64 info);
-+       int (*signal_event)(struct smcd_dev *dev, struct smcd_gid *rgid,
-+                           u32 trigger_irq, u32 event_code, u64 info);
-         int (*move_data)(struct smcd_dev *dev, u64 dmb_tok, unsigned int idx,
-                          bool sf, unsigned int offset, void *data,
-                          unsigned int size);
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index 0c20745..3d9588e 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -404,10 +404,11 @@ static void smcd_handle_sw_event(struct smc_ism_event_work *wrk)
-                 smc_smcd_terminate(wrk->smcd, &peer_gid, ev_info.vlan_id);
-                 break;
-         case ISM_EVENT_CODE_TESTLINK:   /* Activity timer */
-+               peer_gid.gid = wrk->event.tok;
-                 if (ev_info.code == ISM_EVENT_REQUEST) {
-                         ev_info.code = ISM_EVENT_RESPONSE;
-                         wrk->smcd->ops->signal_event(wrk->smcd,
--                                                    wrk->event.tok,
-+                                                    &peer_gid,
-                                                      ISM_EVENT_REQUEST_IR,
-                                                      ISM_EVENT_CODE_TESTLINK,
-                                                      ev_info.info);
-@@ -575,7 +576,7 @@ int smc_ism_signal_shutdown(struct smc_link_group *lgr)
-         memcpy(ev_info.uid, lgr->id, SMC_LGR_ID_SIZE);
-         ev_info.vlan_id = lgr->vlan_id;
-         ev_info.code = ISM_EVENT_REQUEST;
--       rc = lgr->smcd->ops->signal_event(lgr->smcd, lgr->peer_gid,
-+       rc = lgr->smcd->ops->signal_event(lgr->smcd, &lgr->peer_gid,
-                                           ISM_EVENT_REQUEST_IR,
-                                           ISM_EVENT_CODE_SHUTDOWN,
-                                           ev_info.info);
-diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
-index 611998b..8b249a5 100644
---- a/net/smc/smc_loopback.c
-+++ b/net/smc/smc_loopback.c
-@@ -253,8 +253,8 @@ static int smc_lo_reset_vlan_required(struct smcd_dev *smcd)
-         return -EOPNOTSUPP;
-  }
-
--static int smc_lo_signal_event(struct smcd_dev *dev, u64 rgid, u32 trigger_irq,
--                              u32 event_code, u64 info)
-+static int smc_lo_signal_event(struct smcd_dev *dev, struct smcd_gid *rgid,
-+                              u32 trigger_irq, u32 event_code, u64 info)
-  {
-         return 0;
-  }
