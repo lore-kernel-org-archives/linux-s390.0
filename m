@@ -2,266 +2,436 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DBB7CD5BD0
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Sep 2023 14:44:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E71ACE79A9
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Sep 2023 00:12:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233132AbjISOoG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 19 Sep 2023 10:44:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50074 "EHLO
+        id S229690AbjITAMp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 19 Sep 2023 20:12:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232964AbjISOnk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Sep 2023 10:43:40 -0400
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F37BE64;
-        Tue, 19 Sep 2023 07:43:19 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VsRqcDd_1695134591;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VsRqcDd_1695134591)
-          by smtp.aliyun-inc.com;
-          Tue, 19 Sep 2023 22:43:13 +0800
-From:   Wen Gu <guwen@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com
-Cc:     alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
-        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH net-next 18/18] net/smc: add interface implementation of loopback device
-Date:   Tue, 19 Sep 2023 22:42:02 +0800
-Message-Id: <1695134522-126655-19-git-send-email-guwen@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1695134522-126655-1-git-send-email-guwen@linux.alibaba.com>
-References: <1695134522-126655-1-git-send-email-guwen@linux.alibaba.com>
+        with ESMTP id S229590AbjITAMo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Sep 2023 20:12:44 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95F3595
+        for <linux-s390@vger.kernel.org>; Tue, 19 Sep 2023 17:12:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1695168757; x=1726704757;
+  h=date:from:to:cc:subject:message-id:mime-version;
+  bh=94qp9IrobOWmSrBzI137PRIjqt4vvamPJjVL/zPgL48=;
+  b=Py5BD+fECCcYyS1JjrdOenTCoPYOPaXcvC3qiV+Ni9wWWKfTZxK54UXJ
+   6+J35uFtwFe/wk5a8SKAowa3BVLekSvliGqZnC52gFFHj3uMtgVAKdEt8
+   8iRJ/drDbxRobiDLW9/w8V9+sxgi3tk8Pi1Gyl1DIjXN40KYaFvlDtYGB
+   4N3EiWhHElnrUeLLdVZ5AwUXTwkcAjJt1XpVNlGsbY4YHLdpDQBMvoRTb
+   DPXyqf8l5v0KoRBegdVa0AqFGyr5azZBdPu5p6ywdcT2DKErEhO5BKTMU
+   rTlCP+bCG97V4k1AXsfCFSfZELp8Nee8ho+ZOrtQDqQkHGnPpQTxF1n2z
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10838"; a="377400569"
+X-IronPort-AV: E=Sophos;i="6.02,160,1688454000"; 
+   d="scan'208";a="377400569"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Sep 2023 17:12:37 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10838"; a="749678608"
+X-IronPort-AV: E=Sophos;i="6.02,160,1688454000"; 
+   d="scan'208";a="749678608"
+Received: from lkp-server02.sh.intel.com (HELO 9ef86b2655e5) ([10.239.97.151])
+  by fmsmga007.fm.intel.com with ESMTP; 19 Sep 2023 17:12:35 -0700
+Received: from kbuild by 9ef86b2655e5 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1qikpV-000862-1D;
+        Wed, 20 Sep 2023 00:12:33 +0000
+Date:   Wed, 20 Sep 2023 08:11:48 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     oe-kbuild-all@lists.linux.dev, linux-s390@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: [s390:features 15/24] arch/s390/include/asm/ctlreg.h:80:9: warning:
+ array subscript 0 is outside array bounds of 'struct ctlreg[0]'
+Message-ID: <202309200800.w8cCwbsF-lkp@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch completes the specific implementation of loopback device
-for the newly added SMC-D DMB-related interface.
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
+head:   99441a38c391b1115e405d1f47ede237fca37f1b
+commit: 527618abb92793b9d4dba548d55822dcebd95317 [15/24] s390/ctlreg: add struct ctlreg
+config: s390-allnoconfig (https://download.01.org/0day-ci/archive/20230920/202309200800.w8cCwbsF-lkp@intel.com/config)
+compiler: s390-linux-gcc (GCC) 13.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20230920/202309200800.w8cCwbsF-lkp@intel.com/reproduce)
 
-The loopback device always provides mappable DMB because the device
-users are in the same OS instance.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202309200800.w8cCwbsF-lkp@intel.com/
 
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
----
- net/smc/smc_loopback.c | 105 ++++++++++++++++++++++++++++++++++++++++++++-----
- net/smc/smc_loopback.h |   5 +++
- 2 files changed, 100 insertions(+), 10 deletions(-)
+All warnings (new ones prefixed by >>):
 
-diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
-index 650561b..611998b 100644
---- a/net/smc/smc_loopback.c
-+++ b/net/smc/smc_loopback.c
-@@ -105,6 +105,7 @@ static int smc_lo_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
- 	}
- 	dmb_node->len = dmb->dmb_len;
- 	dmb_node->dma_addr = (dma_addr_t)dmb_node->cpu_addr;
-+	refcount_set(&dmb_node->refcnt, 1);
- 
- again:
- 	/* add new dmb into hash table */
-@@ -118,6 +119,7 @@ static int smc_lo_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
- 	}
- 	hash_add(ldev->dmb_ht, &dmb_node->list, dmb_node->token);
- 	write_unlock(&ldev->dmb_ht_lock);
-+	atomic_inc(&ldev->dmb_cnt);
- 
- 	dmb->sba_idx = dmb_node->sba_idx;
- 	dmb->dmb_tok = dmb_node->token;
-@@ -139,28 +141,98 @@ static int smc_lo_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
- 	struct smc_lo_dmb_node *dmb_node = NULL, *tmp_node;
- 	struct smc_lo_dev *ldev = smcd->priv;
- 
--	/* remove dmb from hash table */
--	write_lock(&ldev->dmb_ht_lock);
-+	/* find dmb from hash table */
-+	read_lock(&ldev->dmb_ht_lock);
- 	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb->dmb_tok) {
- 		if (tmp_node->token == dmb->dmb_tok) {
- 			dmb_node = tmp_node;
-+			dmb_node->freeing = 1;
- 			break;
- 		}
- 	}
- 	if (!dmb_node) {
--		write_unlock(&ldev->dmb_ht_lock);
-+		read_unlock(&ldev->dmb_ht_lock);
- 		return -EINVAL;
- 	}
-+	read_unlock(&ldev->dmb_ht_lock);
-+
-+	/* wait for dmb refcnt to be 0 */
-+	if (!refcount_dec_and_test(&dmb_node->refcnt))
-+		wait_event(ldev->dmbs_release, !refcount_read(&dmb_node->refcnt));
-+
-+	/* remove dmb from hash table */
-+	write_lock(&ldev->dmb_ht_lock);
- 	hash_del(&dmb_node->list);
- 	write_unlock(&ldev->dmb_ht_lock);
- 
- 	clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
-+
- 	kfree(dmb_node->cpu_addr);
- 	kfree(dmb_node);
- 
-+	if (atomic_dec_and_test(&ldev->dmb_cnt))
-+		wake_up(&ldev->ldev_release);
-+	return 0;
-+}
-+
-+static int smc_lo_attach_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
-+{
-+	struct smc_lo_dmb_node *dmb_node = NULL, *tmp_node;
-+	struct smc_lo_dev *ldev = smcd->priv;
-+
-+	/* find dmb_node according to dmb->dmb_tok */
-+	read_lock(&ldev->dmb_ht_lock);
-+	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb->dmb_tok) {
-+		if (tmp_node->token == dmb->dmb_tok && !tmp_node->freeing) {
-+			dmb_node = tmp_node;
-+			break;
-+		}
-+	}
-+	if (!dmb_node) {
-+		read_unlock(&ldev->dmb_ht_lock);
-+		return -EINVAL;
-+	}
-+	refcount_inc(&dmb_node->refcnt);
-+	read_unlock(&ldev->dmb_ht_lock);
-+
-+	/* provide dmb information */
-+	dmb->sba_idx = dmb_node->sba_idx;
-+	dmb->dmb_tok = dmb_node->token;
-+	dmb->cpu_addr = dmb_node->cpu_addr;
-+	dmb->dma_addr = dmb_node->dma_addr;
-+	dmb->dmb_len = dmb_node->len;
- 	return 0;
- }
- 
-+static int smc_lo_detach_dmb(struct smcd_dev *smcd, u64 token)
-+{
-+	struct smc_lo_dmb_node *dmb_node = NULL, *tmp_node;
-+	struct smc_lo_dev *ldev = smcd->priv;
-+
-+	/* find dmb_node according to dmb->dmb_tok */
-+	read_lock(&ldev->dmb_ht_lock);
-+	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, token) {
-+		if (tmp_node->token == token) {
-+			dmb_node = tmp_node;
-+			break;
-+		}
-+	}
-+	if (!dmb_node) {
-+		read_unlock(&ldev->dmb_ht_lock);
-+		return -EINVAL;
-+	}
-+	read_unlock(&ldev->dmb_ht_lock);
-+
-+	if (refcount_dec_and_test(&dmb_node->refcnt))
-+		wake_up_all(&ldev->dmbs_release);
-+	return 0;
-+}
-+
-+static int smc_lo_get_dev_attr(struct smcd_dev *smcd)
-+{
-+	return BIT(ISM_ATTR_DMB_MAP);
-+}
-+
- static int smc_lo_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
- {
- 	return -EOPNOTSUPP;
-@@ -193,7 +265,15 @@ static int smc_lo_move_data(struct smcd_dev *smcd, u64 dmb_tok, unsigned int idx
- {
- 	struct smc_lo_dmb_node *rmb_node = NULL, *tmp_node;
- 	struct smc_lo_dev *ldev = smcd->priv;
--
-+	struct smc_connection *conn;
-+
-+	if (!sf) {
-+		/* local sndbuf shares the same physical memory with
-+		 * peer RMB, so no need to copy data from local sndbuf
-+		 * to peer RMB.
-+		 */
-+		return 0;
-+	}
- 	read_lock(&ldev->dmb_ht_lock);
- 	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_tok) {
- 		if (tmp_node->token == dmb_tok) {
-@@ -209,13 +289,10 @@ static int smc_lo_move_data(struct smcd_dev *smcd, u64 dmb_tok, unsigned int idx
- 
- 	memcpy((char *)rmb_node->cpu_addr + offset, data, size);
- 
--	if (sf) {
--		struct smc_connection *conn =
--			smcd->conn[rmb_node->sba_idx];
-+	conn = smcd->conn[rmb_node->sba_idx];
-+	if (conn && !conn->killed)
-+		smcd_cdc_rx_handler(conn);
- 
--		if (conn && !conn->killed)
--			smcd_cdc_rx_handler(conn);
--	}
- 	return 0;
- }
- 
-@@ -252,6 +329,8 @@ static struct device *smc_lo_get_dev(struct smcd_dev *smcd)
- 	.query_remote_gid = smc_lo_query_rgid,
- 	.register_dmb = smc_lo_register_dmb,
- 	.unregister_dmb = smc_lo_unregister_dmb,
-+	.attach_dmb = smc_lo_attach_dmb,
-+	.detach_dmb = smc_lo_detach_dmb,
- 	.add_vlan_id = smc_lo_add_vlan_id,
- 	.del_vlan_id = smc_lo_del_vlan_id,
- 	.set_vlan_required = smc_lo_set_vlan_required,
-@@ -263,6 +342,7 @@ static struct device *smc_lo_get_dev(struct smcd_dev *smcd)
- 	.get_local_gid = smc_lo_get_local_gid,
- 	.get_chid = smc_lo_get_chid,
- 	.get_dev = smc_lo_get_dev,
-+	.get_dev_attr = smc_lo_get_dev_attr,
- };
- 
- static struct smcd_dev *smcd_lo_alloc_dev(const struct smcd_ops *ops,
-@@ -342,6 +422,9 @@ static int smc_lo_dev_init(struct smc_lo_dev *ldev)
- 	smc_lo_generate_id(ldev);
- 	rwlock_init(&ldev->dmb_ht_lock);
- 	hash_init(ldev->dmb_ht);
-+	atomic_set(&ldev->dmb_cnt, 0);
-+	init_waitqueue_head(&ldev->dmbs_release);
-+	init_waitqueue_head(&ldev->ldev_release);
- 
- 	return smcd_lo_register_dev(ldev);
- }
-@@ -375,6 +458,8 @@ static int smc_lo_dev_probe(void)
- static void smc_lo_dev_exit(struct smc_lo_dev *ldev)
- {
- 	smcd_lo_unregister_dev(ldev);
-+	if (atomic_read(&ldev->dmb_cnt))
-+		wait_event(ldev->ldev_release, !atomic_read(&ldev->dmb_cnt));
- }
- 
- static void smc_lo_dev_remove(void)
-diff --git a/net/smc/smc_loopback.h b/net/smc/smc_loopback.h
-index 943424f..506e524 100644
---- a/net/smc/smc_loopback.h
-+++ b/net/smc/smc_loopback.h
-@@ -29,6 +29,8 @@ struct smc_lo_dmb_node {
- 	u32 sba_idx;
- 	void *cpu_addr;
- 	dma_addr_t dma_addr;
-+	refcount_t refcnt;
-+	u8 freeing : 1;
- };
- 
- struct smc_lo_dev {
-@@ -39,6 +41,9 @@ struct smc_lo_dev {
- 	DECLARE_BITMAP(sba_idx_mask, SMC_LODEV_MAX_DMBS);
- 	rwlock_t dmb_ht_lock;
- 	DECLARE_HASHTABLE(dmb_ht, SMC_LODEV_DMBS_HASH_BITS);
-+	atomic_t dmb_cnt;
-+	wait_queue_head_t dmbs_release;
-+	wait_queue_head_t ldev_release;
- };
- 
- int smc_loopback_init(void);
+   In file included from arch/s390/include/asm/lowcore.h:14,
+                    from arch/s390/include/asm/current.h:13,
+                    from arch/s390/include/asm/preempt.h:5,
+                    from include/linux/preempt.h:79,
+                    from include/linux/spinlock.h:56,
+                    from include/linux/mmzone.h:8,
+                    from include/linux/gfp.h:7,
+                    from include/linux/mm.h:7,
+                    from kernel/kthread.c:11:
+   In function 'local_ctl_load',
+       inlined from 'finish_arch_post_lock_switch' at arch/s390/include/asm/mmu_context.h:114:2,
+       inlined from 'kthread_use_mm' at kernel/kthread.c:1436:2:
+>> arch/s390/include/asm/ctlreg.h:80:9: warning: array subscript 0 is outside array bounds of 'struct ctlreg[0]' [-Warray-bounds=]
+      80 |         asm volatile(
+         |         ^~~
+   In function 'kthread_use_mm':
+   cc1: note: source object is likely at address zero
+--
+   In file included from arch/s390/include/asm/lowcore.h:14,
+                    from arch/s390/include/asm/current.h:13,
+                    from arch/s390/include/asm/preempt.h:5,
+                    from include/linux/preempt.h:79,
+                    from include/linux/spinlock.h:56,
+                    from include/linux/mmzone.h:8,
+                    from include/linux/gfp.h:7,
+                    from include/linux/slab.h:16,
+                    from fs/exec.c:27:
+   In function 'local_ctl_load',
+       inlined from 'activate_mm' at arch/s390/include/asm/mmu_context.h:123:2,
+       inlined from 'exec_mmap' at fs/exec.c:1026:2:
+>> arch/s390/include/asm/ctlreg.h:80:9: warning: array subscript 0 is outside array bounds of 'struct ctlreg[0]' [-Warray-bounds=]
+      80 |         asm volatile(
+         |         ^~~
+   In function 'exec_mmap':
+   cc1: note: source object is likely at address zero
+--
+   In file included from arch/s390/include/asm/lowcore.h:14,
+                    from arch/s390/include/asm/current.h:13,
+                    from arch/s390/include/asm/preempt.h:5,
+                    from include/linux/preempt.h:79,
+                    from arch/s390/include/asm/percpu.h:5,
+                    from include/linux/irqflags.h:18,
+                    from include/linux/rcupdate.h:26,
+                    from include/linux/sysctl.h:26,
+                    from arch/s390/mm/pgalloc.c:9:
+   In function 'local_ctl_load',
+       inlined from '__crst_table_upgrade' at arch/s390/mm/pgalloc.c:66:3:
+>> arch/s390/include/asm/ctlreg.h:80:9: warning: array subscript 0 is outside array bounds of 'struct ctlreg[0]' [-Warray-bounds=]
+      80 |         asm volatile(
+         |         ^~~
+   In function '__crst_table_upgrade':
+   cc1: note: source object is likely at address zero
+   In file included from arch/s390/include/asm/atomic.h:14,
+                    from include/linux/atomic.h:7,
+                    from include/linux/rcupdate.h:25:
+   In function '__atomic_add',
+       inlined from '__preempt_count_add' at arch/s390/include/asm/preempt.h:59:2,
+       inlined from '__local_bh_disable_ip' at include/linux/bottom_half.h:13:2,
+       inlined from '__raw_spin_lock_bh' at include/linux/spinlock_api_smp.h:125:2,
+       inlined from 'spin_lock_bh' at include/linux/spinlock.h:356:2,
+       inlined from 'crst_table_upgrade' at arch/s390/mm/pgalloc.c:95:2:
+   arch/s390/include/asm/atomic_ops.h:52:9: warning: array subscript 0 is outside array bounds of 'int[0]' [-Warray-bounds=]
+      52 |         asm volatile(                                                   \
+         |         ^~~
+   arch/s390/include/asm/atomic_ops.h:61:9: note: in expansion of macro '__ATOMIC_OP'
+      61 |         __ATOMIC_OP(op_name, op_type, op_string, "\n")                  \
+         |         ^~~~~~~~~~~
+   arch/s390/include/asm/atomic_ops.h:64:1: note: in expansion of macro '__ATOMIC_OPS'
+      64 | __ATOMIC_OPS(__atomic_add, int, "laa")
+         | ^~~~~~~~~~~~
+   In function 'crst_table_upgrade':
+   cc1: note: source object is likely at address zero
+   In function '__atomic_add',
+       inlined from '__preempt_count_add' at arch/s390/include/asm/preempt.h:59:2,
+       inlined from '__local_bh_disable_ip' at include/linux/bottom_half.h:13:2,
+       inlined from '__raw_spin_lock_bh' at include/linux/spinlock_api_smp.h:125:2,
+       inlined from 'spin_lock_bh' at include/linux/spinlock.h:356:2,
+       inlined from 'crst_table_upgrade' at arch/s390/mm/pgalloc.c:95:2:
+   arch/s390/include/asm/atomic_ops.h:52:9: warning: array subscript 0 is outside array bounds of 'int[0]' [-Warray-bounds=]
+      52 |         asm volatile(                                                   \
+         |         ^~~
+   arch/s390/include/asm/atomic_ops.h:61:9: note: in expansion of macro '__ATOMIC_OP'
+      61 |         __ATOMIC_OP(op_name, op_type, op_string, "\n")                  \
+         |         ^~~~~~~~~~~
+   arch/s390/include/asm/atomic_ops.h:64:1: note: in expansion of macro '__ATOMIC_OPS'
+      64 | __ATOMIC_OPS(__atomic_add, int, "laa")
+         | ^~~~~~~~~~~~
+   In function 'crst_table_upgrade':
+   cc1: note: source object is likely at address zero
+   In function '__atomic_add',
+       inlined from '__preempt_count_add' at arch/s390/include/asm/preempt.h:59:2,
+       inlined from '__local_bh_disable_ip' at include/linux/bottom_half.h:13:2,
+       inlined from '__raw_spin_lock_bh' at include/linux/spinlock_api_smp.h:125:2,
+       inlined from 'spin_lock_bh' at include/linux/spinlock.h:356:2,
+       inlined from 'page_table_alloc' at arch/s390/mm/pgalloc.c:251:3:
+   arch/s390/include/asm/atomic_ops.h:52:9: warning: array subscript 0 is outside array bounds of 'int[0]' [-Warray-bounds=]
+      52 |         asm volatile(                                                   \
+         |         ^~~
+   arch/s390/include/asm/atomic_ops.h:61:9: note: in expansion of macro '__ATOMIC_OP'
+      61 |         __ATOMIC_OP(op_name, op_type, op_string, "\n")                  \
+         |         ^~~~~~~~~~~
+   arch/s390/include/asm/atomic_ops.h:64:1: note: in expansion of macro '__ATOMIC_OPS'
+      64 | __ATOMIC_OPS(__atomic_add, int, "laa")
+         | ^~~~~~~~~~~~
+   In function 'page_table_alloc':
+   cc1: note: source object is likely at address zero
+   In function '__atomic_add',
+       inlined from '__preempt_count_add' at arch/s390/include/asm/preempt.h:59:2,
+       inlined from '__local_bh_disable_ip' at include/linux/bottom_half.h:13:2,
+       inlined from '__raw_spin_lock_bh' at include/linux/spinlock_api_smp.h:125:2,
+       inlined from 'spin_lock_bh' at include/linux/spinlock.h:356:2,
+       inlined from 'page_table_alloc' at arch/s390/mm/pgalloc.c:251:3:
+   arch/s390/include/asm/atomic_ops.h:52:9: warning: array subscript 0 is outside array bounds of 'int[0]' [-Warray-bounds=]
+      52 |         asm volatile(                                                   \
+         |         ^~~
+   arch/s390/include/asm/atomic_ops.h:61:9: note: in expansion of macro '__ATOMIC_OP'
+      61 |         __ATOMIC_OP(op_name, op_type, op_string, "\n")                  \
+         |         ^~~~~~~~~~~
+   arch/s390/include/asm/atomic_ops.h:64:1: note: in expansion of macro '__ATOMIC_OPS'
+      64 | __ATOMIC_OPS(__atomic_add, int, "laa")
+         | ^~~~~~~~~~~~
+   In function 'page_table_alloc':
+   cc1: note: source object is likely at address zero
+   In function '__atomic_add',
+       inlined from '__preempt_count_add' at arch/s390/include/asm/preempt.h:59:2,
+       inlined from '__local_bh_disable_ip' at include/linux/bottom_half.h:13:2,
+       inlined from '__raw_spin_lock_bh' at include/linux/spinlock_api_smp.h:125:2,
+       inlined from 'spin_lock_bh' at include/linux/spinlock.h:356:2,
+       inlined from 'page_table_alloc' at arch/s390/mm/pgalloc.c:301:3:
+   arch/s390/include/asm/atomic_ops.h:52:9: warning: array subscript 0 is outside array bounds of 'int[0]' [-Warray-bounds=]
+      52 |         asm volatile(                                                   \
+         |         ^~~
+   arch/s390/include/asm/atomic_ops.h:61:9: note: in expansion of macro '__ATOMIC_OP'
+      61 |         __ATOMIC_OP(op_name, op_type, op_string, "\n")                  \
+         |         ^~~~~~~~~~~
+   arch/s390/include/asm/atomic_ops.h:64:1: note: in expansion of macro '__ATOMIC_OPS'
+      64 | __ATOMIC_OPS(__atomic_add, int, "laa")
+         | ^~~~~~~~~~~~
+   In function 'page_table_alloc':
+   cc1: note: source object is likely at address zero
+   In function '__atomic_add',
+       inlined from '__preempt_count_add' at arch/s390/include/asm/preempt.h:59:2,
+       inlined from '__local_bh_disable_ip' at include/linux/bottom_half.h:13:2,
+       inlined from '__raw_spin_lock_bh' at include/linux/spinlock_api_smp.h:125:2,
+       inlined from 'spin_lock_bh' at include/linux/spinlock.h:356:2,
+       inlined from 'page_table_alloc' at arch/s390/mm/pgalloc.c:301:3:
+   arch/s390/include/asm/atomic_ops.h:52:9: warning: array subscript 0 is outside array bounds of 'int[0]' [-Warray-bounds=]
+      52 |         asm volatile(                                                   \
+--
+   In file included from arch/s390/include/asm/rwonce.h:29,
+                    from include/linux/compiler.h:246,
+                    from include/linux/export.h:5,
+                    from include/linux/linkage.h:7,
+                    from include/linux/fs.h:5,
+                    from include/linux/highmem.h:5,
+                    from kernel/sched/core.c:9:
+   In function 'preempt_count',
+       inlined from '__schedule_bug' at kernel/sched/core.c:5912:2:
+   include/asm-generic/rwonce.h:44:26: warning: array subscript 0 is outside array bounds of 'const volatile int[0]' [-Warray-bounds=]
+      44 | #define __READ_ONCE(x)  (*(const volatile __unqual_scalar_typeof(x) *)&(x))
+         |                         ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/asm-generic/rwonce.h:50:9: note: in expansion of macro '__READ_ONCE'
+      50 |         __READ_ONCE(x);                                                 \
+         |         ^~~~~~~~~~~
+   arch/s390/include/asm/preempt.h:17:16: note: in expansion of macro 'READ_ONCE'
+      17 |         return READ_ONCE(S390_lowcore.preempt_count) & ~PREEMPT_NEED_RESCHED;
+         |                ^~~~~~~~~
+   In function '__schedule_bug':
+   cc1: note: source object is likely at address zero
+   In function 'preempt_count',
+       inlined from 'finish_task_switch.isra' at kernel/sched/core.c:5229:6:
+   include/asm-generic/rwonce.h:44:26: warning: array subscript 0 is outside array bounds of 'const volatile int[0]' [-Warray-bounds=]
+      44 | #define __READ_ONCE(x)  (*(const volatile __unqual_scalar_typeof(x) *)&(x))
+         |                         ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/asm-generic/rwonce.h:50:9: note: in expansion of macro '__READ_ONCE'
+      50 |         __READ_ONCE(x);                                                 \
+         |         ^~~~~~~~~~~
+   arch/s390/include/asm/preempt.h:17:16: note: in expansion of macro 'READ_ONCE'
+      17 |         return READ_ONCE(S390_lowcore.preempt_count) & ~PREEMPT_NEED_RESCHED;
+         |                ^~~~~~~~~
+   In function 'finish_task_switch.isra':
+   cc1: note: source object is likely at address zero
+   In function 'preempt_count',
+       inlined from 'finish_task_switch.isra' at kernel/sched/core.c:5229:6:
+   include/asm-generic/rwonce.h:44:26: warning: array subscript 0 is outside array bounds of 'const volatile int[0]' [-Warray-bounds=]
+      44 | #define __READ_ONCE(x)  (*(const volatile __unqual_scalar_typeof(x) *)&(x))
+         |                         ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/asm-generic/rwonce.h:50:9: note: in expansion of macro '__READ_ONCE'
+      50 |         __READ_ONCE(x);                                                 \
+         |         ^~~~~~~~~~~
+   arch/s390/include/asm/preempt.h:17:16: note: in expansion of macro 'READ_ONCE'
+      17 |         return READ_ONCE(S390_lowcore.preempt_count) & ~PREEMPT_NEED_RESCHED;
+         |                ^~~~~~~~~
+   In function 'finish_task_switch.isra':
+   cc1: note: source object is likely at address zero
+   In function 'preempt_count_set',
+       inlined from 'finish_task_switch.isra' at kernel/sched/core.c:5232:3:
+   include/asm-generic/rwonce.h:44:26: warning: array subscript 0 is outside array bounds of 'const volatile int[0]' [-Warray-bounds=]
+      44 | #define __READ_ONCE(x)  (*(const volatile __unqual_scalar_typeof(x) *)&(x))
+         |                         ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/asm-generic/rwonce.h:50:9: note: in expansion of macro '__READ_ONCE'
+      50 |         __READ_ONCE(x);                                                 \
+         |         ^~~~~~~~~~~
+   arch/s390/include/asm/preempt.h:25:23: note: in expansion of macro 'READ_ONCE'
+      25 |                 old = READ_ONCE(S390_lowcore.preempt_count);
+         |                       ^~~~~~~~~
+   In function 'finish_task_switch.isra':
+   cc1: note: source object is likely at address zero
+   In file included from arch/s390/include/asm/atomic.h:14,
+                    from include/linux/atomic.h:7,
+                    from include/linux/jump_label.h:255,
+                    from arch/s390/include/asm/cpu.h:15,
+                    from arch/s390/include/asm/lowcore.h:15,
+                    from arch/s390/include/asm/current.h:13,
+                    from arch/s390/include/asm/preempt.h:5,
+                    from include/linux/preempt.h:79,
+                    from include/linux/spinlock.h:56,
+                    from include/linux/wait.h:9,
+                    from include/linux/wait_bit.h:8,
+                    from include/linux/fs.h:6:
+   In function '__atomic_cmpxchg',
+       inlined from 'preempt_count_set' at arch/s390/include/asm/preempt.h:28:11,
+       inlined from 'finish_task_switch.isra' at kernel/sched/core.c:5232:3:
+   arch/s390/include/asm/atomic_ops.h:159:9: warning: array subscript 0 is outside array bounds of 'int[0]' [-Warray-bounds=]
+     159 |         asm volatile(
+         |         ^~~
+   In function 'finish_task_switch.isra':
+   cc1: note: source object is likely at address zero
+   In function '__atomic_cmpxchg',
+       inlined from 'preempt_count_set' at arch/s390/include/asm/preempt.h:28:11,
+       inlined from 'finish_task_switch.isra' at kernel/sched/core.c:5232:3:
+   arch/s390/include/asm/atomic_ops.h:159:9: warning: array subscript 0 is outside array bounds of 'int[0]' [-Warray-bounds=]
+   In function 'finish_task_switch.isra':
+   cc1: note: source object is likely at address zero
+   In file included from arch/s390/include/asm/lowcore.h:14:
+   In function 'local_ctl_load',
+       inlined from 'finish_arch_post_lock_switch' at arch/s390/include/asm/mmu_context.h:114:2,
+       inlined from 'finish_task_switch.isra' at kernel/sched/core.c:5253:2:
+>> arch/s390/include/asm/ctlreg.h:80:9: warning: array subscript 0 is outside array bounds of 'struct ctlreg[0]' [-Warray-bounds=]
+      80 |         asm volatile(
+         |         ^~~
+   In function 'finish_task_switch.isra':
+   cc1: note: source object is likely at address zero
+   In function 'preempt_count',
+       inlined from 'schedule_debug' at kernel/sched/core.c:5952:6,
+       inlined from '__schedule' at kernel/sched/core.c:6589:2:
+   include/asm-generic/rwonce.h:44:26: warning: array subscript 0 is outside array bounds of 'const volatile int[0]' [-Warray-bounds=]
+      44 | #define __READ_ONCE(x)  (*(const volatile __unqual_scalar_typeof(x) *)&(x))
+         |                         ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/asm-generic/rwonce.h:50:9: note: in expansion of macro '__READ_ONCE'
+      50 |         __READ_ONCE(x);                                                 \
+         |         ^~~~~~~~~~~
+   arch/s390/include/asm/preempt.h:17:16: note: in expansion of macro 'READ_ONCE'
+      17 |         return READ_ONCE(S390_lowcore.preempt_count) & ~PREEMPT_NEED_RESCHED;
+         |                ^~~~~~~~~
+   In function '__schedule':
+   cc1: note: source object is likely at address zero
+   In function 'preempt_count_set',
+       inlined from 'schedule_debug' at kernel/sched/core.c:5954:3,
+       inlined from '__schedule' at kernel/sched/core.c:6589:2:
+   include/asm-generic/rwonce.h:44:26: warning: array subscript 0 is outside array bounds of 'const volatile int[0]' [-Warray-bounds=]
+      44 | #define __READ_ONCE(x)  (*(const volatile __unqual_scalar_typeof(x) *)&(x))
+         |                         ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/asm-generic/rwonce.h:50:9: note: in expansion of macro '__READ_ONCE'
+      50 |         __READ_ONCE(x);                                                 \
+         |         ^~~~~~~~~~~
+   arch/s390/include/asm/preempt.h:25:23: note: in expansion of macro 'READ_ONCE'
+      25 |                 old = READ_ONCE(S390_lowcore.preempt_count);
+         |                       ^~~~~~~~~
+   In function '__schedule':
+   cc1: note: source object is likely at address zero
+   In function '__atomic_cmpxchg',
+       inlined from 'preempt_count_set' at arch/s390/include/asm/preempt.h:28:11,
+       inlined from 'schedule_debug' at kernel/sched/core.c:5954:3,
+       inlined from '__schedule' at kernel/sched/core.c:6589:2:
+   arch/s390/include/asm/atomic_ops.h:159:9: warning: array subscript 0 is outside array bounds of 'int[0]' [-Warray-bounds=]
+     159 |         asm volatile(
+         |         ^~~
+   In function '__schedule':
+   cc1: note: source object is likely at address zero
+   In function '__atomic_cmpxchg',
+       inlined from 'preempt_count_set' at arch/s390/include/asm/preempt.h:28:11,
+       inlined from 'schedule_debug' at kernel/sched/core.c:5954:3,
+       inlined from '__schedule' at kernel/sched/core.c:6589:2:
+   arch/s390/include/asm/atomic_ops.h:159:9: warning: array subscript 0 is outside array bounds of 'int[0]' [-Warray-bounds=]
+   In function '__schedule':
+   cc1: note: source object is likely at address zero
+   In function '__atomic_or',
+       inlined from 'clear_preempt_need_resched' at arch/s390/include/asm/preempt.h:39:2,
+       inlined from '__schedule' at kernel/sched/core.c:6661:2:
+   arch/s390/include/asm/atomic_ops.h:52:9: warning: array subscript 0 is outside array bounds of 'int[0]' [-Warray-bounds=]
+      52 |         asm volatile(                                                   \
+         |         ^~~
+   arch/s390/include/asm/atomic_ops.h:61:9: note: in expansion of macro '__ATOMIC_OP'
+      61 |         __ATOMIC_OP(op_name, op_type, op_string, "\n")                  \
+         |         ^~~~~~~~~~~
+   arch/s390/include/asm/atomic_ops.h:66:1: note: in expansion of macro '__ATOMIC_OPS'
+      66 | __ATOMIC_OPS(__atomic_or,  int, "lao")
+         | ^~~~~~~~~~~~
+   In function '__schedule':
+   cc1: note: source object is likely at address zero
+   In function '__atomic_or',
+       inlined from 'clear_preempt_need_resched' at arch/s390/include/asm/preempt.h:39:2,
+       inlined from '__schedule' at kernel/sched/core.c:6661:2:
+   arch/s390/include/asm/atomic_ops.h:52:9: warning: array subscript 0 is outside array bounds of 'int[0]' [-Warray-bounds=]
+      52 |         asm volatile(                                                   \
+         |         ^~~
+   arch/s390/include/asm/atomic_ops.h:61:9: note: in expansion of macro '__ATOMIC_OP'
+      61 |         __ATOMIC_OP(op_name, op_type, op_string, "\n")                  \
+         |         ^~~~~~~~~~~
+   arch/s390/include/asm/atomic_ops.h:66:1: note: in expansion of macro '__ATOMIC_OPS'
+      66 | __ATOMIC_OPS(__atomic_or,  int, "lao")
+         | ^~~~~~~~~~~~
+   In function '__schedule':
+   cc1: note: source object is likely at address zero
+   In function 'should_resched',
+       inlined from '__cond_resched' at kernel/sched/core.c:8562:6:
+   include/asm-generic/rwonce.h:44:26: warning: array subscript 0 is outside array bounds of 'const volatile int[0]' [-Warray-bounds=]
+      44 | #define __READ_ONCE(x)  (*(const volatile __unqual_scalar_typeof(x) *)&(x))
+         |                         ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/linux/compiler.h:77:45: note: in definition of macro 'unlikely'
+      77 | # define unlikely(x)    __builtin_expect(!!(x), 0)
+         |                                             ^
+   include/asm-generic/rwonce.h:50:9: note: in expansion of macro '__READ_ONCE'
+      50 |         __READ_ONCE(x);                                                 \
+         |         ^~~~~~~~~~~
+   arch/s390/include/asm/preempt.h:74:25: note: in expansion of macro 'READ_ONCE'
+      74 |         return unlikely(READ_ONCE(S390_lowcore.preempt_count) ==
+         |                         ^~~~~~~~~
+   In function '__cond_resched':
+   cc1: note: source object is likely at address zero
+   In function 'should_resched',
+       inlined from '__cond_resched_lock' at kernel/sched/core.c:8628:16:
+   include/asm-generic/rwonce.h:44:26: warning: array subscript 0 is outside array bounds of 'const volatile int[0]' [-Warray-bounds=]
+      44 | #define __READ_ONCE(x)  (*(const volatile __unqual_scalar_typeof(x) *)&(x))
+         |                         ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/linux/compiler.h:77:45: note: in definition of macro 'unlikely'
+      77 | # define unlikely(x)    __builtin_expect(!!(x), 0)
+         |                                             ^
+..
+
+
+vim +80 arch/s390/include/asm/ctlreg.h
+
+a0616cdebcfd57 arch/s390/include/asm/ctl_reg.h David Howells  2012-03-28  77  
+527618abb92793 arch/s390/include/asm/ctlreg.h  Heiko Carstens 2023-09-11  78  static __always_inline void local_ctl_load(unsigned int cr, struct ctlreg *reg)
+dfa33ce1245a4b arch/s390/include/asm/ctlreg.h  Heiko Carstens 2023-09-11  79  {
+dfa33ce1245a4b arch/s390/include/asm/ctlreg.h  Heiko Carstens 2023-09-11 @80  	asm volatile(
+dfa33ce1245a4b arch/s390/include/asm/ctlreg.h  Heiko Carstens 2023-09-11  81  		"	lctlg	%[cr],%[cr],%[reg]\n"
+dfa33ce1245a4b arch/s390/include/asm/ctlreg.h  Heiko Carstens 2023-09-11  82  		:
+dfa33ce1245a4b arch/s390/include/asm/ctlreg.h  Heiko Carstens 2023-09-11  83  		: [reg] "Q" (*reg), [cr] "i" (cr)
+dfa33ce1245a4b arch/s390/include/asm/ctlreg.h  Heiko Carstens 2023-09-11  84  		: "memory");
+dfa33ce1245a4b arch/s390/include/asm/ctlreg.h  Heiko Carstens 2023-09-11  85  }
+dfa33ce1245a4b arch/s390/include/asm/ctlreg.h  Heiko Carstens 2023-09-11  86  
+
+:::::: The code at line 80 was first introduced by commit
+:::::: dfa33ce1245a4b88402947fa0a847e179044d2fc s390/ctlreg: add local_ctl_load() and local_ctl_store()
+
+:::::: TO: Heiko Carstens <hca@linux.ibm.com>
+:::::: CC: Vasily Gorbik <gor@linux.ibm.com>
+
 -- 
-1.8.3.1
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
