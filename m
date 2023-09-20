@@ -2,389 +2,242 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F48FCE79D1
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Sep 2023 13:06:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 502CEC04FD1
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Sep 2023 18:18:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236482AbjITNGH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Sep 2023 09:06:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56272 "EHLO
+        id S229698AbjITSS7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Sep 2023 14:18:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236571AbjITNF5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Sep 2023 09:05:57 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55E8FE4
-        for <linux-s390@vger.kernel.org>; Wed, 20 Sep 2023 06:05:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1695215102;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=uub17mzu8dgUj1tkqvUjJMJqsHG/bWf8Fylywc+muQE=;
-        b=EY1PgM+JBGGWJsL1itf5wf0GRtKbPiaGlicCKoGdqDeQkwVK8co4Dag8cu3WQQMSyGoSlf
-        mubsEOhoS8UYGRRAUHFk80Ishp1B7xx/dkefVbBDhaO482xCSWcdGnMlyc+STHACylwJir
-        lPOUFAFqrGq/GmLvNEwWY2FPHAb8BRQ=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-106-K9l0k3J9MKGNVn_uOBNDsQ-1; Wed, 20 Sep 2023 09:05:00 -0400
-X-MC-Unique: K9l0k3J9MKGNVn_uOBNDsQ-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8B6913C18C27;
-        Wed, 20 Sep 2023 13:04:58 +0000 (UTC)
-Received: from warthog.procyon.org.com (unknown [10.42.28.216])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2FF68202696C;
-        Wed, 20 Sep 2023 13:04:54 +0000 (UTC)
-From:   David Howells <dhowells@redhat.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     David Howells <dhowells@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Christian Brauner <christian@brauner.io>,
-        David Laight <David.Laight@ACULAB.COM>,
-        Matthew Wilcox <willy@infradead.org>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        David Gow <davidgow@google.com>, linux-fsdevel@vger.kernel.org,
-        linux-block@vger.kernel.org, linux-mm@kvack.org,
-        netdev@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        kunit-dev@googlegroups.com, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Christian Brauner <brauner@kernel.org>,
-        David Hildenbrand <david@redhat.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        with ESMTP id S229790AbjITSS6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Sep 2023 14:18:58 -0400
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2052.outbound.protection.outlook.com [40.107.94.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92273CF;
+        Wed, 20 Sep 2023 11:18:46 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Nlw2mcU3zX9QDYO49IGntlEHfQh+eRyePFjjXHOJJkbnLlaJmk0t1fgGUpdfI2UPYXhoFqNa7vibbMB2Ec5p3Zt2grgeLzz+oyroQC+erOTYjDca1KYgymS6yI4yYUGdIr3xTNJtGgErPIygndxRoMvXERhmaoJ9UxkDTupFHcbLz+AUfZVSYWupPSzXpC94+4T/X2XFW55zN5v04uq36MVgIuRQFDuZTsM2vcNvroN2KbW+OtsJ6BYAz/N3FM1YXCCs0fs+iZ9HtbtT1ZQwAngbpPX/IyeZvcacBq+UxoUQeu7Q/3EHcdghkd6COU/i3Xr/rw8rSy/p1kLX+ujEKA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ONOlYSkAUskXnG8NC46lJLrDYInndfas+vsGNRsOjTI=;
+ b=YxMijU/aqelR2DIzbnyjJdJp7J1MkyyMaLFd4YELs1xjo77+WdQJuPPqATtdwRPDOBOwSz0UWq/imFScQh1Mtn3F1vMDLdE+2bhw/wNN5BxOMu1yOkiokQ5L8S3myQsOH3pEByYmVbSf5NZqhLcDFmiE/2F+KO90fNy3a/5Da62R5ZPSPpiafaPy7uFEWYKZyBrxGCv7a6Znm3mEqs7Mm6BQf6bdAEjOfNFbcK/HZ+HSDV1Ea6O1DAx755yYKkLGatWL1I8IY/VzcQMXSG7QvhL5C7/kcIlmvlz8dOnxLMWFbc2HMS6T2lksmRJF4IU2oXQwK5zh+RuSU7pfx1hBpw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ONOlYSkAUskXnG8NC46lJLrDYInndfas+vsGNRsOjTI=;
+ b=sihvanFbZ+t21Tthz59Wrmtsbp7M4/0nUugl9n3HiEmsAYWcZZLIQGrkfqgjEzvKhi4qtKyXfAaC+9ulNUfH9jndhpA+njIvdN2ywsPsTGAa4cCS8tbCQnoNK0AQhgxrns9Icp3eurRPU/YRiSyXdksgG2EmBhlOiHkVkHx+Bxg3seCjeL9FDK5tXYc2eymPGCbnmRHsqDzn4Gt4AFSlFW47VRbNtTHSWS1J3Vu/2kaO6qA+fRR6d8KEEoo5Qz42C3IiUGVCz57AMHqopXG2w68NQRjOQJig2xSvvsZchoTHKdlR8QgbaDWLWhUwSPDyPTxCYzV8mIcxlu5FXiWykQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by CY8PR12MB7414.namprd12.prod.outlook.com (2603:10b6:930:5e::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6792.30; Wed, 20 Sep
+ 2023 18:18:43 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::faf:4cd0:ae27:1073]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::faf:4cd0:ae27:1073%6]) with mapi id 15.20.6792.026; Wed, 20 Sep 2023
+ 18:18:42 +0000
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, loongarch@lists.linux.dev,
-        linux-s390@vger.kernel.org
-Subject: [RFC PATCH v2 5/9] iov_iter: Create a function to prepare userspace VM for UBUF/IOVEC tests
-Date:   Wed, 20 Sep 2023 14:03:56 +0100
-Message-ID: <20230920130400.203330-6-dhowells@redhat.com>
-In-Reply-To: <20230920130400.203330-1-dhowells@redhat.com>
-References: <20230920130400.203330-1-dhowells@redhat.com>
-MIME-Version: 1.0
+        Borislav Petkov <bp@alien8.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        James Morse <james.morse@arm.com>, kvm@vger.kernel.org,
+        kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+        linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        Marc Zyngier <maz@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, x86@kernel.org,
+        Zenghui Yu <yuzenghui@huawei.com>
+Subject: [PATCH rc] kvm: Prevent compiling virt/kvm/vfio.c unless VFIO is selected
+Date:   Wed, 20 Sep 2023 15:18:40 -0300
+Message-ID: <0-v1-08396538817d+13c5-vfio_kvm_kconfig_jgg@nvidia.com>
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
+Content-Type: text/plain
+X-ClientProxiedBy: YT4PR01CA0300.CANPRD01.PROD.OUTLOOK.COM
+ (2603:10b6:b01:10e::25) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|CY8PR12MB7414:EE_
+X-MS-Office365-Filtering-Correlation-Id: cb035663-8985-448a-aac4-08dbba060580
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: akF1jWMmrhSXHr/nsWp/EZ/tVQWxt9lE5f43rKIjziO2r6hG5/tZAWR8boelX5U+vVKfhUBeXdjmv3R7iXrcyco4sgzyEABMx6mbcczePsBxCVlkZIcHk2W5URUlEQGN36H0jjJr9CVRGHGvQoud29BWMl4lQCt2DlTLfik6mXB27jiV9ZXGaF+lQKUy+x9H6vhKyf6DMM1Dc+ZxHjrB2q3BBlyy9nhd9M3Gb6g4dx6X/i2vs2q0h6jsyGnMZCDk1lLWZq3q7f0Ua5hEbWrEc0y3uMZaz/8K1vKC2YvKM0VnaWo93emH+kDfeYFqeyOz5+SOk4Ufxgaz8+pN3kT8UC53baJIjsLTRS1Y5JHlLlEO1mJdaA4aV5QL3c8c7UkFJEvi+o1jY3jB5qUiQqfYa+YFC6IM00wXfDPp5zv8ZHFZYXhsdsPUdCcneaNPxIwMEG4XDz8HZTO9P6+43ciKuZOkyiw5MRGCxUpPnlcipdXAHa1Q3syNZnis2tSUxr5s1ruHdfHBFRVfJ4ZnbnaIwiuv1Q5qJ2f7IJkHaorwCzazkWyTrRGWgkVOlhb5dlOFHFBHVkdqi3pGIkdSXTcpyG4O30C3J6t3Vz25Iu9VO5NCSzYWsBJfVVwT92JeJ+fiSo9NmV1Tua+LaIIppeAB7fzKaZfMWmKwPju8E0hhmc4swNDIBiWeV1KIA/Kvkgeo1T9n+ljdJHhmfata16hc/g==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(136003)(346002)(39860400002)(376002)(366004)(396003)(1800799009)(186009)(451199024)(478600001)(6486002)(6506007)(966005)(6512007)(83380400001)(2616005)(2906002)(26005)(66476007)(7406005)(7416002)(66946007)(66556008)(316002)(41300700001)(8676002)(110136005)(5660300002)(8936002)(36756003)(86362001)(921005)(38100700002)(4216001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?omifWeHF9snkGB0ePFj2C3Emw2SGA5w+eKF72AXi27yKyjnxu3qQxbu9aw6G?=
+ =?us-ascii?Q?/gfDTRcQ4+r27/DGqehcr0jFjigqzCtdHijHB8Z4HmINI0ndpS8A3pagINTG?=
+ =?us-ascii?Q?Z0AyQx8oyM1DMBTcFJCGyRWEjq9YiRYWmYGktWbUt4DVSanoXpKHZeJU0RpA?=
+ =?us-ascii?Q?vILQsqtG2xioZi4coPoFtDHhPhXdmDBtHdTVrPZE9c44Y0K4fdnb4rWveqEq?=
+ =?us-ascii?Q?dZFo6iUJlEmTPjv6A7QwiD7FvDL+63D+ERuG8geMvJB0WvaVEyE6H4ULY3rN?=
+ =?us-ascii?Q?CzZneVI5GdHrhzDkh2HBgqd2FO5AfEfNmXLV+9EROtkdxI8l2kw642SV0Szm?=
+ =?us-ascii?Q?nXFBQQXAOWrPq0CQF7bH7HVNS2t5/z3Ejiq7vJgxwwbRiSi0pEPalpU3vLs+?=
+ =?us-ascii?Q?jtZ8ky+4F30N3rIwVxucQO4WABCquNpAjEGuT+D4TDvQ0ChMuNbg/JWQInmS?=
+ =?us-ascii?Q?UY0GUi9ffHILmQG/XHrZjEZiKxXELKnLM8mtg8bRjyvUqWdpmQJUbPpUHfhK?=
+ =?us-ascii?Q?PTkzfT3V2i2A48j0mO+aMOwdmkt6LiWPrlCj3WT7DkzQTEPkYh3L/3B76EWo?=
+ =?us-ascii?Q?R4mBBzAOZp/b0Irp9KMR7gKnyKs5eT64+AVJquGFsE2z1cmg1fKA0jk9cihL?=
+ =?us-ascii?Q?EyPD/RRa8ZFmw+Dg8DcmWy8uqriei5HWynqRb5cQ6aVnNo7lCq6js2Pzefox?=
+ =?us-ascii?Q?nQE4Rja5O3IifKBby6p6mo8Ca8MpJ3ZLYTVONgrNM8xZdwJ/qr/oRhznCQgb?=
+ =?us-ascii?Q?OssKEqmvOO+v99jElAifturubFntRDoVA3HPZ0ZySJ8l1t8AAmwIL09VtUb2?=
+ =?us-ascii?Q?1eKpRsNjgjJnFNVC7LYKJjCkCMlhZj/beRrnDfpQ19Qa/xKcbl163nY+cbuN?=
+ =?us-ascii?Q?WgHLlcwBjsJm+FGp/OzRKeA/7kLBhz66HhmsRhweD7LOgzA5hmqA6kuNx9zj?=
+ =?us-ascii?Q?KTlyoMvI+3ij7g5o1J1gBReiGEv1Aky9Zyxo8bqO3rFeto/5AK65Zgmv9rMT?=
+ =?us-ascii?Q?nzepuIJjnEqUcYzWYexnO/bC0Nm6axSXQPI43I+beobJzgTtx1VqnX7iOnf7?=
+ =?us-ascii?Q?NZiOYByDTytHmXj6CqHwfJwYXklBQec0rZWmKmiF1hxa1Fd4HDcRFdNMmnJt?=
+ =?us-ascii?Q?7UAQuJ3ZppJTA/7qzs3kLFL/K/phzhpNuPwNx2lhDIPNEx0vZtw7yyHJGTdV?=
+ =?us-ascii?Q?rhT6xCBQVWJTWSUDN5pbtg/ZxBEtr5zIXLnqMKd1CPs3/IlKTWXVZI730FuQ?=
+ =?us-ascii?Q?DNmG3f6S8daH279SVcbKtrzEBNhaXbdq63lZ4JRVgzQK+HUxK6gJY/DCbvyS?=
+ =?us-ascii?Q?l5IH7PPf+juC+8pSUaVt5SON3RIZtqra9AqRH1dw5h4s7aCoN28R7fQ8uSqs?=
+ =?us-ascii?Q?b7hU0UigyNtggh53LvI76sha0dm3WzpDwbfDBXsyYexxaieZoZ9vC7SYFkfh?=
+ =?us-ascii?Q?L4sR+cwkp0JIpESK4rqzFULLV3aTCNcfmuFUvBqp8IIvfRZecG74v0zIDqqF?=
+ =?us-ascii?Q?ZdIS+OiJk7RqnebcdNCCp8BRJEVE7k0Tfb1gYSkIpZjW5j7rYVsdYUhdivct?=
+ =?us-ascii?Q?5zZjZaqgqlHofHiqhwhXYMJLSa+8me7Yol70nRby?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: cb035663-8985-448a-aac4-08dbba060580
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Sep 2023 18:18:42.8925
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: opa3BNPFW9b76Wi03pf5tKZfjHJZL6BqnrC6sg4ffm/GrFagxKLYWeMnD5u0i4Tl
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB7414
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Create a function to set up a userspace VM for the kunit testing thread and
-set up a buffer within it such that ITER_UBUF and ITER_IOVEC tests can be
-performed.
+There are a bunch of reported randconfig failures now because of this,
+something like:
 
-Note that this requires current->mm to point to a sufficiently set up
-mm_struct.  This is done by partially mirroring what execve does.
+>> arch/powerpc/kvm/../../../virt/kvm/vfio.c:89:7: warning: attribute declaration must precede definition [-Wignored-attributes]
+           fn = symbol_get(vfio_file_iommu_group);
+                ^
+   include/linux/module.h:805:60: note: expanded from macro 'symbol_get'
+   #define symbol_get(x) ({ extern typeof(x) x __attribute__((weak,visibility("hidden"))); &(x); })
 
-The following steps are performed:
+It happens because the arch forces KVM_VFIO without knowing if VFIO is
+even enabled.
 
- (1) Allocate an mm_struct and pick an arch layout (required to set
-     mm->get_unmapped_area).
+Split the kconfig so the arch selects the usual HAVE_KVM_ARCH_VFIO and
+then KVM_VFIO is only enabled if the arch wants it and VFIO is turned on.
 
- (2) Create an empty "stack" VMA so that the VMA maple tree is set up and
-     won't cause a crash in the maple tree code later.  We don't actually
-     care about the stack as we're not going to actually execute userspace.
-
- (3) Create an anon file and attach a bunch of folios to it so that the
-     requested number of pages are accessible.
-
- (4) Make the kthread use the mm.  This must be done before mmap is called.
-
- (5) Shared-mmap the anon file into the allocated mm_struct.
-
-This requires access to otherwise unexported core symbols: mm_alloc(),
-vm_area_alloc(), insert_vm_struct() arch_pick_mmap_layout() and
-anon_inode_getfile_secure(), which I've exported _GPL.
-
-[?] Would it be better if this were done in core and not in a module?
-
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Andrew Morton <akpm@linux-foundation.org>
-cc: Christoph Hellwig <hch@lst.de>
-cc: Christian Brauner <brauner@kernel.org>
-cc: Jens Axboe <axboe@kernel.dk>
-cc: Al Viro <viro@zeniv.linux.org.uk>
-cc: Matthew Wilcox <willy@infradead.org>
-cc: David Hildenbrand <david@redhat.com>
-cc: John Hubbard <jhubbard@nvidia.com>
-cc: Brendan Higgins <brendanhiggins@google.com>
-cc: David Gow <davidgow@google.com>
-cc: Huacai Chen <chenhuacai@kernel.org>
-cc: WANG Xuerui <kernel@xen0n.name>
-cc: Heiko Carstens <hca@linux.ibm.com>
-cc: Vasily Gorbik <gor@linux.ibm.com>
-cc: Alexander Gordeev <agordeev@linux.ibm.com>
-cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-cc: Sven Schnelle <svens@linux.ibm.com>
-cc: linux-mm@kvack.org
-cc: loongarch@lists.linux.dev
-cc: linux-s390@vger.kernel.org
-cc: linux-fsdevel@vger.kernel.org
-cc: linux-kselftest@vger.kernel.org
-cc: kunit-dev@googlegroups.com
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202308251949.5IiaV0sz-lkp@intel.com/
+Closes: https://lore.kernel.org/oe-kbuild-all/202309030741.82aLACDG-lkp@intel.com/
+Closes: https://lore.kernel.org/oe-kbuild-all/202309110914.QLH0LU6L-lkp@intel.com/
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Fixes: c1cce6d079b8 ("vfio: Compile vfio_group infrastructure optionally")
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 ---
- arch/loongarch/include/asm/page.h |   1 +
- arch/s390/kernel/vdso.c           |   1 +
- fs/anon_inodes.c                  |   1 +
- kernel/fork.c                     |   2 +
- lib/kunit_iov_iter.c              | 142 ++++++++++++++++++++++++++++++
- mm/mmap.c                         |   1 +
- mm/util.c                         |   3 +
- 7 files changed, 151 insertions(+)
+ arch/arm64/kvm/Kconfig   | 2 +-
+ arch/powerpc/kvm/Kconfig | 2 +-
+ arch/s390/kvm/Kconfig    | 2 +-
+ arch/x86/kvm/Kconfig     | 2 +-
+ virt/kvm/Kconfig         | 7 ++++++-
+ 5 files changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/arch/loongarch/include/asm/page.h b/arch/loongarch/include/asm/page.h
-index 63f137ce82a4..c7c5f5b4c0d3 100644
---- a/arch/loongarch/include/asm/page.h
-+++ b/arch/loongarch/include/asm/page.h
-@@ -32,6 +32,7 @@
+Sean's large series will also address this:
+
+https://lore.kernel.org/kvm/20230916003118.2540661-7-seanjc@google.com/
+
+I don't know if it is sever enough to fix in the rc cycle, but here is the
+patch.
+
+diff --git a/arch/arm64/kvm/Kconfig b/arch/arm64/kvm/Kconfig
+index 83c1e09be42e5b..7c43eaea51ce05 100644
+--- a/arch/arm64/kvm/Kconfig
++++ b/arch/arm64/kvm/Kconfig
+@@ -28,7 +28,7 @@ menuconfig KVM
+ 	select KVM_MMIO
+ 	select KVM_GENERIC_DIRTYLOG_READ_PROTECT
+ 	select KVM_XFER_TO_GUEST_WORK
+-	select KVM_VFIO
++	select HAVE_KVM_ARCH_VFIO
+ 	select HAVE_KVM_EVENTFD
+ 	select HAVE_KVM_IRQFD
+ 	select HAVE_KVM_DIRTY_RING_ACQ_REL
+diff --git a/arch/powerpc/kvm/Kconfig b/arch/powerpc/kvm/Kconfig
+index 902611954200df..b64824e4cbc1eb 100644
+--- a/arch/powerpc/kvm/Kconfig
++++ b/arch/powerpc/kvm/Kconfig
+@@ -22,7 +22,7 @@ config KVM
+ 	select PREEMPT_NOTIFIERS
+ 	select HAVE_KVM_EVENTFD
+ 	select HAVE_KVM_VCPU_ASYNC_IOCTL
+-	select KVM_VFIO
++	select HAVE_KVM_ARCH_VFIO
+ 	select IRQ_BYPASS_MANAGER
+ 	select HAVE_KVM_IRQ_BYPASS
+ 	select INTERVAL_TREE
+diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+index 45fdf2a9b2e326..d206ad3a777d5d 100644
+--- a/arch/s390/kvm/Kconfig
++++ b/arch/s390/kvm/Kconfig
+@@ -31,7 +31,7 @@ config KVM
+ 	select HAVE_KVM_IRQ_ROUTING
+ 	select HAVE_KVM_INVALID_WAKEUPS
+ 	select HAVE_KVM_NO_POLL
+-	select KVM_VFIO
++	select HAVE_KVM_ARCH_VFIO
+ 	select INTERVAL_TREE
+ 	select MMU_NOTIFIER
+ 	help
+diff --git a/arch/x86/kvm/Kconfig b/arch/x86/kvm/Kconfig
+index ed90f148140dfe..8e70e693f90e30 100644
+--- a/arch/x86/kvm/Kconfig
++++ b/arch/x86/kvm/Kconfig
+@@ -45,7 +45,7 @@ config KVM
+ 	select HAVE_KVM_NO_POLL
+ 	select KVM_XFER_TO_GUEST_WORK
+ 	select KVM_GENERIC_DIRTYLOG_READ_PROTECT
+-	select KVM_VFIO
++	select HAVE_KVM_ARCH_VFIO
+ 	select INTERVAL_TREE
+ 	select HAVE_KVM_PM_NOTIFIER if PM
+ 	select KVM_GENERIC_HARDWARE_ENABLING
+diff --git a/virt/kvm/Kconfig b/virt/kvm/Kconfig
+index 484d0873061ca5..0bf34809e1bbfe 100644
+--- a/virt/kvm/Kconfig
++++ b/virt/kvm/Kconfig
+@@ -59,9 +59,14 @@ config HAVE_KVM_MSI
+ config HAVE_KVM_CPU_RELAX_INTERCEPT
+        bool
  
- #include <linux/kernel.h>
- #include <linux/pfn.h>
-+#include <linux/personality.h>
+-config KVM_VFIO
++config HAVE_KVM_ARCH_VFIO
+        bool
  
- /*
-  * It's normally defined only for FLATMEM config but it's
-diff --git a/arch/s390/kernel/vdso.c b/arch/s390/kernel/vdso.c
-index bbaefd84f15e..6849eac59129 100644
---- a/arch/s390/kernel/vdso.c
-+++ b/arch/s390/kernel/vdso.c
-@@ -223,6 +223,7 @@ unsigned long vdso_size(void)
- 		size += vdso64_end - vdso64_start;
- 	return PAGE_ALIGN(size);
- }
-+EXPORT_SYMBOL_GPL(vdso_size);
++config KVM_VFIO
++       def_bool y
++       depends on HAVE_KVM_ARCH_VFIO
++       depends on VFIO
++
+ config HAVE_KVM_INVALID_WAKEUPS
+        bool
  
- int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
- {
-diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
-index 24192a7667ed..4190336180ee 100644
---- a/fs/anon_inodes.c
-+++ b/fs/anon_inodes.c
-@@ -176,6 +176,7 @@ struct file *anon_inode_getfile_secure(const char *name,
- 	return __anon_inode_getfile(name, fops, priv, flags,
- 				    context_inode, true);
- }
-+EXPORT_SYMBOL_GPL(anon_inode_getfile_secure);
- 
- static int __anon_inode_getfd(const char *name,
- 			      const struct file_operations *fops,
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 3b6d20dfb9a8..9ab604574400 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -494,6 +494,7 @@ struct vm_area_struct *vm_area_alloc(struct mm_struct *mm)
- 
- 	return vma;
- }
-+EXPORT_SYMBOL_GPL(vm_area_alloc);
- 
- struct vm_area_struct *vm_area_dup(struct vm_area_struct *orig)
- {
-@@ -1337,6 +1338,7 @@ struct mm_struct *mm_alloc(void)
- 	memset(mm, 0, sizeof(*mm));
- 	return mm_init(mm, current, current_user_ns());
- }
-+EXPORT_SYMBOL_GPL(mm_alloc);
- 
- static inline void __mmput(struct mm_struct *mm)
- {
-diff --git a/lib/kunit_iov_iter.c b/lib/kunit_iov_iter.c
-index eb86371b67d0..85387a25484e 100644
---- a/lib/kunit_iov_iter.c
-+++ b/lib/kunit_iov_iter.c
-@@ -10,6 +10,12 @@
- #include <linux/module.h>
- #include <linux/vmalloc.h>
- #include <linux/mm.h>
-+#include <linux/pagemap.h>
-+#include <linux/mman.h>
-+#include <linux/file.h>
-+#include <linux/kthread.h>
-+#include <linux/anon_inodes.h>
-+#include <linux/writeback.h>
- #include <linux/uio.h>
- #include <linux/bvec.h>
- #include <kunit/test.h>
-@@ -68,6 +74,20 @@ static void iov_kunit_unmap(void *data)
- 	vunmap(data);
- }
- 
-+static void iov_kunit_mmdrop(void *data)
-+{
-+	struct mm_struct *mm = data;
-+
-+	if (current->mm == mm)
-+		kthread_unuse_mm(mm);
-+	mmdrop(mm);
-+}
-+
-+static void iov_kunit_fput(void *data)
-+{
-+	fput(data);
-+}
-+
- /*
-  * Create a buffer out of some pages and return a vmap'd pointer to it.
-  */
-@@ -151,6 +171,128 @@ static void iov_kunit_check_pattern(struct kunit *test, const u8 *buffer,
- 	}
- }
- 
-+static const struct file_operations iov_kunit_user_file_fops = {
-+	.mmap = generic_file_mmap,
-+};
-+
-+static int iov_kunit_user_file_read_folio(struct file *file, struct folio *folio)
-+{
-+	folio_mark_uptodate(folio);
-+	folio_unlock(folio);
-+	return 0;
-+}
-+
-+static const struct address_space_operations iov_kunit_user_file_aops = {
-+	.read_folio	= iov_kunit_user_file_read_folio,
-+	.dirty_folio	= filemap_dirty_folio,
-+};
-+
-+/*
-+ * Create an anonymous file and attach a bunch of pages to it.  We can then use
-+ * this in mmap() and check the pages against it when doing extraction tests.
-+ */
-+static struct file *iov_kunit_create_file(struct kunit *test, size_t npages,
-+					  struct page ***ppages)
-+{
-+	struct folio *folio;
-+	struct file *file;
-+	struct page **pages = NULL;
-+	size_t i;
-+
-+	if (ppages) {
-+		pages = kunit_kcalloc(test, npages, sizeof(struct page *), GFP_KERNEL);
-+		KUNIT_ASSERT_NOT_ERR_OR_NULL(test, pages);
-+		*ppages = pages;
-+	}
-+
-+	file = anon_inode_getfile_secure("kunit-iov-test",
-+					 &iov_kunit_user_file_fops,
-+					 NULL, O_RDWR, NULL);
-+	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, file);
-+	kunit_add_action_or_reset(test, iov_kunit_fput, file);
-+	file->f_mapping->a_ops = &iov_kunit_user_file_aops;
-+
-+	i_size_write(file_inode(file), npages * PAGE_SIZE);
-+	for (i = 0; i < npages; i++) {
-+		folio = filemap_grab_folio(file->f_mapping, i);
-+		KUNIT_ASSERT_NOT_ERR_OR_NULL(test, folio);
-+		if (pages)
-+			*pages++ = folio_page(folio, 0);
-+		folio_unlock(folio);
-+		folio_put(folio);
-+	}
-+
-+	return file;
-+}
-+
-+/*
-+ * Attach a userspace buffer to a kernel thread by adding an mm_struct to it
-+ * and mmapping the buffer.  If the caller requires a list of pages for
-+ * checking, then an anon_inode file is created, populated with pages and
-+ * mmapped otherwise an anonymous mapping is used.
-+ */
-+static u8 __user *__init iov_kunit_create_user_buf(struct kunit *test,
-+						   size_t npages,
-+						   struct page ***ppages)
-+{
-+	struct rlimit rlim_stack = {
-+		.rlim_cur = LONG_MAX,
-+		.rlim_max = LONG_MAX,
-+	};
-+	struct vm_area_struct *vma;
-+	struct mm_struct *mm;
-+	struct file *file;
-+	u8 __user *buffer;
-+	int ret;
-+
-+	KUNIT_ASSERT_NULL(test, current->mm);
-+
-+	mm = mm_alloc();
-+	KUNIT_ASSERT_NOT_NULL(test, mm);
-+	kunit_add_action_or_reset(test, iov_kunit_mmdrop, mm);
-+	arch_pick_mmap_layout(mm, &rlim_stack);
-+
-+	vma = vm_area_alloc(mm);
-+	KUNIT_ASSERT_NOT_NULL(test, vma);
-+	vma_set_anonymous(vma);
-+
-+	/*
-+	 * Place the stack at the largest stack address the architecture
-+	 * supports. Later, we'll move this to an appropriate place. We don't
-+	 * use STACK_TOP because that can depend on attributes which aren't
-+	 * configured yet.
-+	 */
-+	vma->vm_end = STACK_TOP_MAX;
-+	vma->vm_start = vma->vm_end - PAGE_SIZE;
-+	vm_flags_init(vma, VM_SOFTDIRTY | VM_STACK_FLAGS | VM_STACK_INCOMPLETE_SETUP);
-+	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
-+
-+	ret = insert_vm_struct(mm, vma);
-+	KUNIT_ASSERT_EQ(test, ret, 0);
-+
-+	mm->stack_vm = mm->total_vm = 1;
-+
-+	/*
-+	 * If we want the pages, attach the pages to a file to prevent swap
-+	 * interfering, otherwise use an anonymous mapping.
-+	 */
-+	if (ppages) {
-+		file = iov_kunit_create_file(test, npages, ppages);
-+
-+		kthread_use_mm(mm);
-+		buffer = (u8 __user *)vm_mmap(file, 0, PAGE_SIZE * npages,
-+					      PROT_READ | PROT_WRITE,
-+					      MAP_SHARED, 0);
-+	} else {
-+		kthread_use_mm(mm);
-+		buffer = (u8 __user *)vm_mmap(NULL, 0, PAGE_SIZE * npages,
-+					      PROT_READ | PROT_WRITE,
-+					      MAP_PRIVATE | MAP_ANONYMOUS, 0);
-+	}
-+	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, (void __force *)buffer);
-+	return buffer;
-+}
-+
- static void __init iov_kunit_load_kvec(struct kunit *test,
- 				       struct iov_iter *iter, int dir,
- 				       struct kvec *kvec, unsigned int kvmax,
-diff --git a/mm/mmap.c b/mm/mmap.c
-index b56a7f0c9f85..2ea4a98a2cab 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -3284,6 +3284,7 @@ int insert_vm_struct(struct mm_struct *mm, struct vm_area_struct *vma)
- 
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(insert_vm_struct);
- 
- /*
-  * Copy the vma structure to a new location in the same mm,
-diff --git a/mm/util.c b/mm/util.c
-index 8cbbfd3a3d59..09895358f067 100644
---- a/mm/util.c
-+++ b/mm/util.c
-@@ -455,6 +455,9 @@ void arch_pick_mmap_layout(struct mm_struct *mm, struct rlimit *rlim_stack)
- 	mm->get_unmapped_area = arch_get_unmapped_area;
- }
- #endif
-+#ifdef CONFIG_MMU
-+EXPORT_SYMBOL_GPL(arch_pick_mmap_layout);
-+#endif
- 
- /**
-  * __account_locked_vm - account locked pages to an mm's locked_vm
+
+base-commit: 0bb80ecc33a8fb5a682236443c1e740d5c917d1d
+-- 
+2.42.0
 
