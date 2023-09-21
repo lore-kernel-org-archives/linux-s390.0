@@ -2,148 +2,163 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A778E71096
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Sep 2023 17:07:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B4A0E7D0A5
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Sep 2023 18:16:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229737AbjIURHJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Sep 2023 13:07:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38556 "EHLO
+        id S230300AbjIUSQ1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Sep 2023 14:16:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229922AbjIURGd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Sep 2023 13:06:33 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9CAF4493;
-        Thu, 21 Sep 2023 10:04:05 -0700 (PDT)
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38LAbsbV008389;
-        Thu, 21 Sep 2023 10:47:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to : sender :
- content-transfer-encoding : mime-version; s=pp1;
- bh=tC0z5s3RdP9QagJBrQju/hCR80f7lEFVYo0jybcVgTM=;
- b=HdWa/AEjA4+xZ3TUtE1VtWYjY1c7NEir8CR9mzXEm2zoafqm/DVkf4mvOuZFnL75iZCX
- AsPKuAf8lorZYFJoJ6/BEZqu1vvAqfvLZzWN66caULCp6WZdvh+2gdfj5J8gS7M0JPuv
- XEth5u3wftn+eKwsb1O7WVix3oWTH46u8txnpr5MGRvKIQ8JAdTFtYDcTqeaLm+1sm5g
- FIH7kUQ0QN8Ga5ZH1FkWpSixRzSAjek2u3V6tkm0yVPFuh9HlOULIMNzZEPrHCBMt0c9
- 4cQvpGDkYOrIw9cFgoY77x9MopU2xWsQm27hBpRrUgNPIXQIdDqIFRF5xWovlK+ZvO90 OA== 
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t848tfpq9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Sep 2023 10:47:53 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38L9g03G016432;
-        Thu, 21 Sep 2023 10:47:52 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3t5sd2ffs1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Sep 2023 10:47:52 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38LAllZM28639826
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 21 Sep 2023 10:47:47 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C4C082004B;
-        Thu, 21 Sep 2023 10:47:47 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B169220043;
-        Thu, 21 Sep 2023 10:47:47 +0000 (GMT)
-Received: from p1gen4-pw042f0m (unknown [9.196.32.213])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu, 21 Sep 2023 10:47:47 +0000 (GMT)
-Received: from bblock by p1gen4-pw042f0m with local (Exim 4.96)
-        (envelope-from <bblock@linux.ibm.com>)
-        id 1qjHDm-001qiu-1v;
-        Thu, 21 Sep 2023 12:47:46 +0200
-Date:   Thu, 21 Sep 2023 12:47:46 +0200
-From:   Benjamin Block <bblock@linux.ibm.com>
-To:     Dinghao Liu <dinghao.liu@zju.edu.cn>
-Cc:     Steffen Maier <maier@linux.ibm.com>,
+        with ESMTP id S230254AbjIUSQP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Sep 2023 14:16:15 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2D5BB7EA33;
+        Thu, 21 Sep 2023 10:37:38 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 911D21764;
+        Thu, 21 Sep 2023 09:21:37 -0700 (PDT)
+Received: from e125769.cambridge.arm.com (e125769.cambridge.arm.com [10.1.196.26])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 26AFE3F59C;
+        Thu, 21 Sep 2023 09:20:56 -0700 (PDT)
+From:   Ryan Roberts <ryan.roberts@arm.com>
+To:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        James Bottomley <James.Bottomley@suse.de>,
-        Swen Schillig <swen@vnet.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Mailing List linux-scsi <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] scsi: zfcp: Fix a potential double free in
- zfcp_port_enqueue
-Message-ID: <20230921104746.GG10864@p1gen4-pw042f0m.fritz.box>
-References: <20230921063915.7703-1-dinghao.liu@zju.edu.cn>
- <20230921102102.GF10864@p1gen4-pw042f0m.fritz.box>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20230921102102.GF10864@p1gen4-pw042f0m.fritz.box>
-Sender: Benjamin Block <bblock@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 4HTqd0pstE7eD7KZs3X4dIgUVQj2m89p
-X-Proofpoint-ORIG-GUID: 4HTqd0pstE7eD7KZs3X4dIgUVQj2m89p
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Muchun Song <muchun.song@linux.dev>,
+        SeongJae Park <sj@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Lorenzo Stoakes <lstoakes@gmail.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Peter Xu <peterx@redhat.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>
+Cc:     Ryan Roberts <ryan.roberts@arm.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-mm@kvack.org,
+        stable@vger.kernel.org
+Subject: [PATCH v1 8/8] arm64: hugetlb: Fix set_huge_pte_at() to work with all swap entries
+Date:   Thu, 21 Sep 2023 17:20:07 +0100
+Message-Id: <20230921162007.1630149-9-ryan.roberts@arm.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230921162007.1630149-1-ryan.roberts@arm.com>
+References: <20230921162007.1630149-1-ryan.roberts@arm.com>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-09-21_07,2023-09-20_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
- adultscore=0 impostorscore=0 lowpriorityscore=0 mlxlogscore=940
- suspectscore=0 clxscore=1011 bulkscore=0 malwarescore=0 spamscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2308100000 definitions=main-2309210092
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Sep 21, 2023 at 12:21:02PM +0200, Benjamin Block wrote:
-> Hello Liu Dinghao,
-> 
-> good find.
+When called with a swap entry that does not embed a PFN (e.g.
+PTE_MARKER_POISONED or PTE_MARKER_UFFD_WP), the previous implementation
+of set_huge_pte_at() would either cause a BUG() to fire (if
+CONFIG_DEBUG_VM is enabled) or cause a dereference of an invalid address
+and subsequent panic.
 
-Oh, also, please put linux-scsi on the CC list. Patches to zfcp go via
-linux-scsi, not linux-s390.
+arm64's huge pte implementation supports multiple huge page sizes, some
+of which are implemented in the page table with contiguous mappings. So
+set_huge_pte_at() needs to work out how big the logical pte is, so that
+it can also work out how many physical ptes (or pmds) need to be
+written. It does this by grabbing the folio out of the pte and querying
+its size.
 
-> 
-> On Thu, Sep 21, 2023 at 02:39:15PM +0800, Dinghao Liu wrote:
-> > When device_register() fails, zfcp_port_release() will be called
-> > after put_device(). As a result, the zfcp_ccw_adapter_put() after
-> > err_out is redundant because it will be called in the call-back
-> > function zfcp_port_release(). Remove it from this error path.
-> 
-> So the reference on the adapter object is doubly put, which may
-> lead to a premature free of the adapter object itself. Please mention that
-> either in the subject, or description; it makes it easier to see what exactly
-> breaks at a glance.
-> 
-> > 
-> > Fixes: f3450c7b9172 ("[SCSI] zfcp: Replace local reference counting with common kref")
-> > Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-> > ---
-> >  drivers/s390/scsi/zfcp_aux.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
-> > index df782646e856..489e6239dedf 100644
-> > --- a/drivers/s390/scsi/zfcp_aux.c
-> > +++ b/drivers/s390/scsi/zfcp_aux.c
-> > @@ -552,7 +552,7 @@ struct zfcp_port *zfcp_port_enqueue(struct zfcp_adapter *adapter, u64 wwpn,
-> >  
-> >  	if (device_register(&port->dev)) {
-> >  		put_device(&port->dev);
-> > -		goto err_out;
-> > +		return ERR_PTR(retval);
-> 
-> I'd rather have a new label at the bottom, in front of the return that is
-> already there, and jump to that, instead of a different function exit point.
-> 
-> >  	}
-> >  
-> >  	write_lock_irq(&adapter->port_list_lock);
-> > -- 
-> > 2.17.1
-> > 
+However, there are cases when the pte being set is actually a swap
+entry. But this also used to work fine, because for huge ptes, we only
+ever saw migration entries and hwpoison entries. And both of these types
+of swap entries have a PFN embedded, so the code would grab that and
+everything still worked out.
 
+But over time, more calls to set_huge_pte_at() have been added that set
+swap entry types that do not embed a PFN. And this causes the code to go
+bang. The triggering case is for the uffd poison test, commit
+99aa77215ad0 ("selftests/mm: add uffd unit test for UFFDIO_POISON"),
+which sets a PTE_MARKER_POISONED swap entry. But review shows there are
+other places too (PTE_MARKER_UFFD_WP).
+
+So the root cause is due to commit 18f3962953e4 ("mm: hugetlb: kill
+set_huge_swap_pte_at()"), which aimed to simplify the interface to the
+core code by removing set_huge_swap_pte_at() (which took a page size
+parameter) and replacing it with calls to set_huge_swap_pte_at() where
+the size was inferred from the folio, as descibed above. While that
+commit didn't break anything at the time, it did break the interface
+because it couldn't handle swap entries without PFNs. And since then new
+callers have come along which rely on this working.
+
+Now that we have modified the set_huge_pte_at() interface to pass the
+vma, we can extract the huge page size from it and fix this issue.
+
+I'm tagging the commit that added the uffd poison feature, since that is
+what exposed the problem, as well as the original change that broke the
+interface. Hopefully this is valuable for people doing bisect.
+
+Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
+Fixes: 18f3962953e4 ("mm: hugetlb: kill set_huge_swap_pte_at()")
+Fixes: 8a13897fb0da ("mm: userfaultfd: support UFFDIO_POISON for hugetlbfs")
+---
+ arch/arm64/mm/hugetlbpage.c | 17 +++--------------
+ 1 file changed, 3 insertions(+), 14 deletions(-)
+
+diff --git a/arch/arm64/mm/hugetlbpage.c b/arch/arm64/mm/hugetlbpage.c
+index 844832511c1e..a08601a14689 100644
+--- a/arch/arm64/mm/hugetlbpage.c
++++ b/arch/arm64/mm/hugetlbpage.c
+@@ -241,13 +241,6 @@ static void clear_flush(struct mm_struct *mm,
+ 	flush_tlb_range(&vma, saddr, addr);
+ }
+ 
+-static inline struct folio *hugetlb_swap_entry_to_folio(swp_entry_t entry)
+-{
+-	VM_BUG_ON(!is_migration_entry(entry) && !is_hwpoison_entry(entry));
+-
+-	return page_folio(pfn_to_page(swp_offset_pfn(entry)));
+-}
+-
+ void set_huge_pte_at(struct vm_area_struct *vma, unsigned long addr,
+ 			    pte_t *ptep, pte_t pte)
+ {
+@@ -258,13 +251,10 @@ void set_huge_pte_at(struct vm_area_struct *vma, unsigned long addr,
+ 	unsigned long pfn, dpfn;
+ 	pgprot_t hugeprot;
+ 
+-	if (!pte_present(pte)) {
+-		struct folio *folio;
+-
+-		folio = hugetlb_swap_entry_to_folio(pte_to_swp_entry(pte));
+-		ncontig = num_contig_ptes(folio_size(folio), &pgsize);
++	ncontig = num_contig_ptes(huge_page_size(hstate_vma(vma)), &pgsize);
+ 
+-		for (i = 0; i < ncontig; i++, ptep++)
++	if (!pte_present(pte)) {
++		for (i = 0; i < ncontig; i++, ptep++, addr += pgsize)
+ 			set_pte_at(mm, addr, ptep, pte);
+ 		return;
+ 	}
+@@ -274,7 +264,6 @@ void set_huge_pte_at(struct vm_area_struct *vma, unsigned long addr,
+ 		return;
+ 	}
+ 
+-	ncontig = find_num_contig(mm, addr, ptep, &pgsize);
+ 	pfn = pte_pfn(pte);
+ 	dpfn = pgsize >> PAGE_SHIFT;
+ 	hugeprot = pte_pgprot(pte);
 -- 
-Best Regards, Benjamin Block        /        Linux on IBM Z Kernel Development
-IBM Deutschland Research & Development GmbH    /   https://www.ibm.com/privacy
-Vors. Aufs.-R.: Gregor Pillen         /         Geschäftsführung: David Faller
-Sitz der Ges.: Böblingen     /    Registergericht: AmtsG Stuttgart, HRB 243294
+2.25.1
+
