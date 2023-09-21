@@ -2,24 +2,24 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57EE6E7D0B3
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Sep 2023 20:35:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A18EE7D0AD
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Sep 2023 21:02:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231389AbjIUUfy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Sep 2023 16:35:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49130 "EHLO
+        id S230499AbjIUVCv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Sep 2023 17:02:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232135AbjIUUel (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Sep 2023 16:34:41 -0400
+        with ESMTP id S232273AbjIUVCe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Sep 2023 17:02:34 -0400
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4299685D06;
-        Thu, 21 Sep 2023 10:37:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AB52D85D14;
+        Thu, 21 Sep 2023 10:37:48 -0700 (PDT)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 177461763;
-        Thu, 21 Sep 2023 09:21:33 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 75302175A;
+        Thu, 21 Sep 2023 09:21:19 -0700 (PDT)
 Received: from e125769.cambridge.arm.com (e125769.cambridge.arm.com [10.1.196.26])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A068D3F59C;
-        Thu, 21 Sep 2023 09:20:51 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 09E233F59C;
+        Thu, 21 Sep 2023 09:20:37 -0700 (PDT)
 From:   Ryan Roberts <ryan.roberts@arm.com>
 To:     Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>,
@@ -55,9 +55,9 @@ Cc:     Ryan Roberts <ryan.roberts@arm.com>,
         linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
         sparclinux@vger.kernel.org, linux-mm@kvack.org,
         stable@vger.kernel.org
-Subject: [PATCH v1 7/8] arm64: hugetlb: Convert set_huge_pte_at() to take vma
-Date:   Thu, 21 Sep 2023 17:20:06 +0100
-Message-Id: <20230921162007.1630149-8-ryan.roberts@arm.com>
+Subject: [PATCH v1 4/8] s390: hugetlb: Convert set_huge_pte_at() to take vma
+Date:   Thu, 21 Sep 2023 17:20:03 +0100
+Message-Id: <20230921162007.1630149-5-ryan.roberts@arm.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230921162007.1630149-1-ryan.roberts@arm.com>
 References: <20230921162007.1630149-1-ryan.roberts@arm.com>
@@ -72,7 +72,7 @@ implementation of set_huge_pte_at(). Provide for this by converting the
 mm parameter to be a vma. Any implementations that require the mm can
 access it via vma->vm_mm.
 
-This commit makes the required arm64 modifications. Separate commits
+This commit makes the required s390 modifications. Separate commits
 update the other arches and core code, before the actual bug is fixed in
 arm64.
 
@@ -80,46 +80,69 @@ No behavioral changes intended.
 
 Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
 ---
- arch/arm64/include/asm/hugetlb.h | 2 +-
- arch/arm64/mm/hugetlbpage.c      | 5 +++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ arch/s390/include/asm/hugetlb.h | 8 +++++---
+ arch/s390/mm/hugetlbpage.c      | 8 +++++++-
+ 2 files changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/include/asm/hugetlb.h b/arch/arm64/include/asm/hugetlb.h
-index f43a38ac1779..efc9025b9d27 100644
---- a/arch/arm64/include/asm/hugetlb.h
-+++ b/arch/arm64/include/asm/hugetlb.h
-@@ -27,7 +27,7 @@ static inline void arch_clear_hugepage_flags(struct page *page)
- pte_t arch_make_huge_pte(pte_t entry, unsigned int shift, vm_flags_t flags);
- #define arch_make_huge_pte arch_make_huge_pte
- #define __HAVE_ARCH_HUGE_SET_HUGE_PTE_AT
--extern void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
-+extern void set_huge_pte_at(struct vm_area_struct *vma, unsigned long addr,
- 			    pte_t *ptep, pte_t pte);
- #define __HAVE_ARCH_HUGE_PTEP_SET_ACCESS_FLAGS
- extern int huge_ptep_set_access_flags(struct vm_area_struct *vma,
-diff --git a/arch/arm64/mm/hugetlbpage.c b/arch/arm64/mm/hugetlbpage.c
-index 9c52718ea750..844832511c1e 100644
---- a/arch/arm64/mm/hugetlbpage.c
-+++ b/arch/arm64/mm/hugetlbpage.c
-@@ -248,9 +248,10 @@ static inline struct folio *hugetlb_swap_entry_to_folio(swp_entry_t entry)
- 	return page_folio(pfn_to_page(swp_offset_pfn(entry)));
- }
+diff --git a/arch/s390/include/asm/hugetlb.h b/arch/s390/include/asm/hugetlb.h
+index f07267875a19..da7f43b1871f 100644
+--- a/arch/s390/include/asm/hugetlb.h
++++ b/arch/s390/include/asm/hugetlb.h
+@@ -15,7 +15,9 @@
+ #define hugetlb_free_pgd_range			free_pgd_range
+ #define hugepages_supported()			(MACHINE_HAS_EDAT1)
  
 -void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
 +void set_huge_pte_at(struct vm_area_struct *vma, unsigned long addr,
- 			    pte_t *ptep, pte_t pte)
- {
-+	struct mm_struct *mm = vma->vm_mm;
- 	size_t pgsize;
- 	int i;
- 	int ncontig;
-@@ -571,5 +572,5 @@ pte_t huge_ptep_modify_prot_start(struct vm_area_struct *vma, unsigned long addr
- void huge_ptep_modify_prot_commit(struct vm_area_struct *vma, unsigned long addr, pte_t *ptep,
- 				  pte_t old_pte, pte_t pte)
- {
--	set_huge_pte_at(vma->vm_mm, addr, ptep, pte);
-+	set_huge_pte_at(vma, addr, ptep, pte);
++		     pte_t *ptep, pte_t pte);
++void __set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
+ 		     pte_t *ptep, pte_t pte);
+ pte_t huge_ptep_get(pte_t *ptep);
+ pte_t huge_ptep_get_and_clear(struct mm_struct *mm,
+@@ -65,7 +67,7 @@ static inline int huge_ptep_set_access_flags(struct vm_area_struct *vma,
+ 	int changed = !pte_same(huge_ptep_get(ptep), pte);
+ 	if (changed) {
+ 		huge_ptep_get_and_clear(vma->vm_mm, addr, ptep);
+-		set_huge_pte_at(vma->vm_mm, addr, ptep, pte);
++		__set_huge_pte_at(vma->vm_mm, addr, ptep, pte);
+ 	}
+ 	return changed;
  }
+@@ -74,7 +76,7 @@ static inline void huge_ptep_set_wrprotect(struct mm_struct *mm,
+ 					   unsigned long addr, pte_t *ptep)
+ {
+ 	pte_t pte = huge_ptep_get_and_clear(mm, addr, ptep);
+-	set_huge_pte_at(mm, addr, ptep, pte_wrprotect(pte));
++	__set_huge_pte_at(mm, addr, ptep, pte_wrprotect(pte));
+ }
+ 
+ static inline pte_t mk_huge_pte(struct page *page, pgprot_t pgprot)
+diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
+index c718f2a0de94..d69e2dc6e508 100644
+--- a/arch/s390/mm/hugetlbpage.c
++++ b/arch/s390/mm/hugetlbpage.c
+@@ -142,7 +142,7 @@ static void clear_huge_pte_skeys(struct mm_struct *mm, unsigned long rste)
+ 		__storage_key_init_range(paddr, paddr + size - 1);
+ }
+ 
+-void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
++void __set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
+ 		     pte_t *ptep, pte_t pte)
+ {
+ 	unsigned long rste;
+@@ -163,6 +163,12 @@ void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
+ 	set_pte(ptep, __pte(rste));
+ }
+ 
++void set_huge_pte_at(struct vm_area_struct *vma, unsigned long addr,
++		     pte_t *ptep, pte_t pte)
++{
++	__set_huge_pte_at(vma->vm_mm, addr, ptep, pte);
++}
++
+ pte_t huge_ptep_get(pte_t *ptep)
+ {
+ 	return __rste_to_pte(pte_val(*ptep));
 -- 
 2.25.1
 
