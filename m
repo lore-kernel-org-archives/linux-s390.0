@@ -2,84 +2,85 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 572C9C05024
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Sep 2023 21:01:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E02F3CD4942
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Sep 2023 03:20:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229541AbjITVBp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Sep 2023 17:01:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48630 "EHLO
+        id S229459AbjIUDUI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Sep 2023 23:20:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229463AbjITVBo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Sep 2023 17:01:44 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C2C3BB;
-        Wed, 20 Sep 2023 14:01:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=az/Js1qF679MHxIz4hhXazYZEbEi8gu09dkZtiwmuX0=; b=UvFQToudjIHsbXoBhoCpv/JCy5
-        q0xUgS0z5kAtDjmhlolxdXTv9bksN8Pf8xZWK/pHqcVzdRAOHmz/01zFL3BtMMR8cqsRGxs+pxnXI
-        BuLXY775HyQC8SyYkSmupfEcsbPlT9P9uqkxymu1Y2hKEO/3YUTfzgIglXw3YZV/FIigu2WnPoKgT
-        jR0K72e08akM941MjuMFG5p3zV1PUlT6c8L5oEhS1PdkM2ngJ0uoo0BCAEngPPSx4jpzWQRTa1pUO
-        4iFf5VdrG47kBUv1+FhEJS/K/GS8sWTh1J0gYywbvikVoKmcvntPLFZKBCIU6GzkfxnqIbVBhlfzQ
-        Pmu4VU4A==;
-Received: from mcgrof by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
-        id 1qj4Jj-004CX6-2H;
-        Wed, 20 Sep 2023 21:01:04 +0000
-Date:   Wed, 20 Sep 2023 14:01:03 -0700
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     j.granados@samsung.com
-Cc:     willy@infradead.org, josh@joshtriplett.org,
-        Kees Cook <keescook@chromium.org>,
-        Iurii Zaikin <yzaikin@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Guo Ren <guoren@kernel.org>,
-        Alexey Gladkov <legion@kernel.org>,
-        linux-fsdevel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-        linux-ia64@vger.kernel.org, linux-csky@vger.kernel.org,
-        Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH v2 0/8] sysctl: Remove sentinel elements from arch
-Message-ID: <ZQtdj211q5PekVRc@bombadil.infradead.org>
-References: <20230913-jag-sysctl_remove_empty_elem_arch-v2-0-d1bd13a29bae@samsung.com>
+        with ESMTP id S229445AbjIUDUH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Sep 2023 23:20:07 -0400
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50E20ED;
+        Wed, 20 Sep 2023 20:20:00 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VsWyC7J_1695266396;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0VsWyC7J_1695266396)
+          by smtp.aliyun-inc.com;
+          Thu, 21 Sep 2023 11:19:57 +0800
+Date:   Thu, 21 Sep 2023 11:19:56 +0800
+From:   Dust Li <dust.li@linux.alibaba.com>
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: Re: [PATCH net] net/smc: fix panic smc_tcp_syn_recv_sock() while
+ closing listen socket
+Message-ID: <20230921031956.GA92403@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <1695211714-66958-1-git-send-email-alibuda@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230913-jag-sysctl_remove_empty_elem_arch-v2-0-d1bd13a29bae@samsung.com>
-Sender: Luis Chamberlain <mcgrof@infradead.org>
+In-Reply-To: <1695211714-66958-1-git-send-email-alibuda@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Sep 13, 2023 at 11:10:54AM +0200, Joel Granados via B4 Relay wrote:
-> V2:
-> * Added clarification both in the commit messages and the coverletter as
->   to why this patch is safe to apply.
-> * Added {Acked,Reviewed,Tested}-by from list
-> * Link to v1: https://lore.kernel.org/r/20230906-jag-sysctl_remove_empty_elem_arch-v1-0-3935d4854248@samsung.com
+On Wed, Sep 20, 2023 at 08:08:34PM +0800, D. Wythe wrote:
+>From: "D. Wythe" <alibuda@linux.alibaba.com>
+>
+>Consider the following scenarios:
+>
+>smc_release
+>	smc_close_active
+>		write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
+>		smc->clcsock->sk->sk_user_data = NULL;
+>		write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
+>
+>smc_tcp_syn_recv_sock
+>	smc = smc_clcsock_user_data(sk);
+>	/* now */
+>	/* smc == NULL */
+>
+>Hence, we may read the a NULL value in smc_tcp_syn_recv_sock(). And
+>since we only unset sk_user_data during smc_release, it's safe to
+>drop the incoming tcp reqsock.
+>
+>Fixes:  ("net/smc: net/smc: Limit backlog connections"
+>Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>---
+> net/smc/af_smc.c | 2 ++
+> 1 file changed, 2 insertions(+)
+>
+>diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>index bacdd97..b4acf47 100644
+>--- a/net/smc/af_smc.c
+>+++ b/net/smc/af_smc.c
+>@@ -125,6 +125,8 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+> 	struct sock *child;
+> 
+> 	smc = smc_clcsock_user_data(sk);
+>+	if (unlikely(!smc))
+>+		goto drop;
 
-Thanks! I've merged this onto sysctl-next.
+Is it possible smc != NULL here
+> 
+> 	if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->queued_smc_hs) >
+But later turns to NULL in 'atomic_read(&smc->queue_smc_hs)'
+> 				sk->sk_max_ack_backlog)
 
-  Luis
+Seems there is still a race ?
+
+>-- 
+>1.8.3.1
