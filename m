@@ -2,116 +2,120 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 272A3E7D0AF
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Sep 2023 22:12:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27BAAE7D0AF
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Sep 2023 22:13:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232992AbjIUWMz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Sep 2023 18:12:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53472 "EHLO
+        id S233152AbjIUWNq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Sep 2023 18:13:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232999AbjIUWMU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Sep 2023 18:12:20 -0400
+        with ESMTP id S232874AbjIUWN3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Sep 2023 18:13:29 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5E4A86E58;
-        Thu, 21 Sep 2023 10:38:17 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE57AC433C8;
-        Thu, 21 Sep 2023 17:38:09 +0000 (UTC)
-Date:   Thu, 21 Sep 2023 18:38:07 +0100
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Ryan Roberts <ryan.roberts@arm.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Will Deacon <will@kernel.org>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Muchun Song <muchun.song@linux.dev>,
-        SeongJae Park <sj@kernel.org>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Peter Xu <peterx@redhat.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v1 0/8] Fix set_huge_pte_at() panic on arm64
-Message-ID: <ZQx/f35o0zT2lug4@arm.com>
-References: <20230921162007.1630149-1-ryan.roberts@arm.com>
- <20230921093026.230b2991be551093e397f462@linux-foundation.org>
- <7c5c2c00-d657-44fd-b478-743b43c57e8a@arm.com>
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C42F61BD;
+        Thu, 21 Sep 2023 15:10:40 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D5E4C433CB;
+        Thu, 21 Sep 2023 22:10:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1695334240;
+        bh=N5hdFpyXSiGpYG0511NDyp6fv24cJcs4QSVnP7w1UAU=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=Wvqk0n6jq0ct52sblCUd8L/Xq8+N+SorW8zAWVSuS8RApVD17k7plQRRz/k5AtqcZ
+         GfT0CHWwJxWi4gUehtxR+8ljjuQTqjvYKgxWb2XNuVdjKevxRu1ENJFvPX5YXAHSbF
+         Ix9CdbGlyzCm8uVsj2Qxltwpt5fiLP3w48irVYCfZTdJDqTfRku6xjijf57j/ZypWU
+         97yg0mO2y5J78oLs+yCmKD+nXRc3T+EFcvHppUt3wuFXOaWZdvIvQ4j8dq0mhxHV1+
+         hn7FVpnRYo4KhRE7dodDocdh21fQMMb+Di7kRnH5vPdK32pTNVgx3GHtydByNaiHSX
+         2EmQpYW6b+alA==
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5041bb9ce51so2466137e87.1;
+        Thu, 21 Sep 2023 15:10:40 -0700 (PDT)
+X-Gm-Message-State: AOJu0YxFcVtmEm3oEWo8idFtMNYq2G4WIU9xIxKGAeDSLaC8XzC5nHA6
+        A/Os7unXe6c0ie2bw3wFW2fEWkGcW0nssbBNJ5k=
+X-Google-Smtp-Source: AGHT+IFpnRd6TFzlAtTmG0SVL+ey3URugDNbqT5vmaLEkxDXDZHK88BxPcak1tSmyXSq9q54rWpyKjCd5XFO26LBHOk=
+X-Received: by 2002:a19:6903:0:b0:4fe:2d93:2b50 with SMTP id
+ e3-20020a196903000000b004fe2d932b50mr5173357lfc.31.1695334238605; Thu, 21 Sep
+ 2023 15:10:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7c5c2c00-d657-44fd-b478-743b43c57e8a@arm.com>
+References: <20230918072955.2507221-1-rppt@kernel.org> <20230918072955.2507221-3-rppt@kernel.org>
+In-Reply-To: <20230918072955.2507221-3-rppt@kernel.org>
+From:   Song Liu <song@kernel.org>
+Date:   Thu, 21 Sep 2023 15:10:26 -0700
+X-Gmail-Original-Message-ID: <CAPhsuW4bQY5fo_+K2z4uUdd4r0wYF1eT3bAya=YqcEcmqdGXvg@mail.gmail.com>
+Message-ID: <CAPhsuW4bQY5fo_+K2z4uUdd4r0wYF1eT3bAya=YqcEcmqdGXvg@mail.gmail.com>
+Subject: Re: [PATCH v3 02/13] mm: introduce execmem_text_alloc() and execmem_free()
+To:     Mike Rapoport <rppt@kernel.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Kent Overstreet <kent.overstreet@linux.dev>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Puranjay Mohan <puranjay12@gmail.com>,
+        Rick Edgecombe <rick.p.edgecombe@intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Sep 21, 2023 at 05:35:54PM +0100, Ryan Roberts wrote:
-> On 21/09/2023 17:30, Andrew Morton wrote:
-> > On Thu, 21 Sep 2023 17:19:59 +0100 Ryan Roberts <ryan.roberts@arm.com> wrote:
-> >> Ryan Roberts (8):
-> >>   parisc: hugetlb: Convert set_huge_pte_at() to take vma
-> >>   powerpc: hugetlb: Convert set_huge_pte_at() to take vma
-> >>   riscv: hugetlb: Convert set_huge_pte_at() to take vma
-> >>   s390: hugetlb: Convert set_huge_pte_at() to take vma
-> >>   sparc: hugetlb: Convert set_huge_pte_at() to take vma
-> >>   mm: hugetlb: Convert set_huge_pte_at() to take vma
-> >>   arm64: hugetlb: Convert set_huge_pte_at() to take vma
-> >>   arm64: hugetlb: Fix set_huge_pte_at() to work with all swap entries
-> >>
-> >>  arch/arm64/include/asm/hugetlb.h              |  2 +-
-> >>  arch/arm64/mm/hugetlbpage.c                   | 22 ++++----------
-> >>  arch/parisc/include/asm/hugetlb.h             |  2 +-
-> >>  arch/parisc/mm/hugetlbpage.c                  |  4 +--
-> >>  .../include/asm/nohash/32/hugetlb-8xx.h       |  3 +-
-> >>  arch/powerpc/mm/book3s64/hugetlbpage.c        |  2 +-
-> >>  arch/powerpc/mm/book3s64/radix_hugetlbpage.c  |  2 +-
-> >>  arch/powerpc/mm/nohash/8xx.c                  |  2 +-
-> >>  arch/powerpc/mm/pgtable.c                     |  7 ++++-
-> >>  arch/riscv/include/asm/hugetlb.h              |  2 +-
-> >>  arch/riscv/mm/hugetlbpage.c                   |  3 +-
-> >>  arch/s390/include/asm/hugetlb.h               |  8 +++--
-> >>  arch/s390/mm/hugetlbpage.c                    |  8 ++++-
-> >>  arch/sparc/include/asm/hugetlb.h              |  8 +++--
-> >>  arch/sparc/mm/hugetlbpage.c                   |  8 ++++-
-> >>  include/asm-generic/hugetlb.h                 |  6 ++--
-> >>  include/linux/hugetlb.h                       |  6 ++--
-> >>  mm/damon/vaddr.c                              |  2 +-
-> >>  mm/hugetlb.c                                  | 30 +++++++++----------
-> >>  mm/migrate.c                                  |  2 +-
-> >>  mm/rmap.c                                     | 10 +++----
-> >>  mm/vmalloc.c                                  |  5 +++-
-> >>  22 files changed, 80 insertions(+), 64 deletions(-)
-> > 
-> > Looks scary but it's actually a fairly modest patchset.  It could
-> > easily be all rolled into a single patch for ease of backporting. 
-> > Maybe Greg has an opinion?
-> 
-> Yes, I thought about doing that; or perhaps 2 patches - one for the interface
-> change across all arches and core code, and one for the actual bug fix?
+On Mon, Sep 18, 2023 at 12:30=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wr=
+ote:
+>
+[...]
+> +
+> +#include <linux/mm.h>
+> +#include <linux/vmalloc.h>
+> +#include <linux/execmem.h>
+> +#include <linux/moduleloader.h>
+> +
+> +static void *execmem_alloc(size_t size)
+> +{
+> +       return module_alloc(size);
+> +}
+> +
+> +void *execmem_text_alloc(enum execmem_type type, size_t size)
+> +{
+> +       return execmem_alloc(size);
+> +}
 
-I think this would make more sense, especially if we want to backport
-it. The first patch would have no functional change, only an interface
-change, followed by the arm64 fix.
+execmem_text_alloc (and later execmem_data_alloc) both take "type" as
+input. I guess we can just use execmem_alloc(type, size) for everything?
 
--- 
-Catalin
+Thanks,
+Song
+
+> +
+> +void execmem_free(void *ptr)
+> +{
+> +       /*
+> +        * This memory may be RO, and freeing RO memory in an interrupt i=
+s not
+> +        * supported by vmalloc.
+> +        */
+> +       WARN_ON(in_interrupt());
+> +       vfree(ptr);
+> +}
+> --
+> 2.39.2
+>
