@@ -2,224 +2,339 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 015B4E7D0B7
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Sep 2023 22:52:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A06E1E7D0B4
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Sep 2023 23:37:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229649AbjIUWwm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Sep 2023 18:52:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56424 "EHLO
+        id S229767AbjIUXhW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Sep 2023 19:37:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229449AbjIUWwm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Sep 2023 18:52:42 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B66DF7;
-        Thu, 21 Sep 2023 15:52:36 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C784EC433AD;
-        Thu, 21 Sep 2023 22:52:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1695336755;
-        bh=N+rCKzD4RnGgPH16U+ccWdzVA4uu9GwvbHIaEOV8lLA=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=bjJNwevJA42TvkguuRjTs76ETN2R6q990VwsQaX+fVZHYFTVg3twcHMCXBi+EwswY
-         KDvM3rQnSpp34FNwfM0U/WFpPi5sxiWBihMbkmLQVD3dMwe0w1TV/6pnGa5fK7MnRq
-         f/RnmF4zvwavGrTVGR9fsTL6T+hC8QShKMLdwjOkeOLZk0rpJgxA2dFhnnTnVB9Xwk
-         TCSjg9WYJ/gz4jSOZ5+6CD4cbsh3pPk93gUBjEKQnbqdin3Ors6QaTCSNo54GO47rs
-         GROCJ3RhQnOtTsYPDlxmiEmDKgihH28meWIoUHV/vobKuLSBg7uQPTbsXHKf9QQFkj
-         fMbBtTpx4QTiw==
-Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-50305abe5f0so2439551e87.2;
-        Thu, 21 Sep 2023 15:52:35 -0700 (PDT)
-X-Gm-Message-State: AOJu0Yy//vzaxhq2PC0z+wVHGEwKZ4Ke1r5YMDZ7obAXNGj3Ajce+ERv
-        D+V05edYEmk4pGL+49y5p6NzoHP4lvUy0x6hZ3E=
-X-Google-Smtp-Source: AGHT+IHrJYRcXcnBl5OYoAS68DJ303ssKI8aEm5234o+h+Cle34G5bJm6ZjjrxLZlbKjfe5M7kikSCFf7m0lncLYrfA=
-X-Received: by 2002:a05:6512:ac7:b0:500:b3e3:6fa6 with SMTP id
- n7-20020a0565120ac700b00500b3e36fa6mr7384141lfu.68.1695336753899; Thu, 21 Sep
- 2023 15:52:33 -0700 (PDT)
+        with ESMTP id S229572AbjIUXhV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Sep 2023 19:37:21 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6852DF7;
+        Thu, 21 Sep 2023 16:37:14 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38LNaVq3019344;
+        Thu, 21 Sep 2023 23:37:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : from : subject : to : cc : references : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=EO/d9pHekLqRpgsfzm2Ra1JOPWYWuC4JKQlVK5hjhhA=;
+ b=T0q5uCQuREtvugGsjcjC7XVvlb8JAgLxenZ048lNxrr8teV4asoMhem+EmlKbH+yuyaM
+ VtI/megQtpDZ+ndDSHCCSOQwpCjSZwLD7oCcUjiR61L8JUjbNdDjqkcxLisZjsKItHGs
+ svzxCRZOfZYq7D1kqfgh+UbirSR9WyGTIvdPQz2X7yoTmkNPwwqYMP2hkBFfO1NJYQdY
+ 0kXGXlel7agSMsH3L3MT/qx0gGjIBFRvuF7P7WVcykV9V6UfX5sQSImz0JVk72yDbpcJ
+ fRyxloD/22lCUT2pS1/iJSVmeDsnQN+H6GZRBAq7RhAiCU2qd0+viyEPMeBJVvFrxh7L wQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t8xvg91ru-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Sep 2023 23:37:08 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38LNb4X0022362;
+        Thu, 21 Sep 2023 23:37:04 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t8xvg9169-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Sep 2023 23:37:04 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38LN8Hv2015471;
+        Thu, 21 Sep 2023 23:31:56 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3t8tsp4rpt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Sep 2023 23:31:56 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+        by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38LNVuO020906610
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 21 Sep 2023 23:31:56 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E04975805F;
+        Thu, 21 Sep 2023 23:31:55 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9210258043;
+        Thu, 21 Sep 2023 23:31:53 +0000 (GMT)
+Received: from [9.171.4.137] (unknown [9.171.4.137])
+        by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 21 Sep 2023 23:31:53 +0000 (GMT)
+Message-ID: <881e43f8-54e0-4847-67c4-82b9c0b3e50c@linux.ibm.com>
+Date:   Fri, 22 Sep 2023 01:31:52 +0200
 MIME-Version: 1.0
-References: <20230918072955.2507221-1-rppt@kernel.org> <20230918072955.2507221-7-rppt@kernel.org>
-In-Reply-To: <20230918072955.2507221-7-rppt@kernel.org>
-From:   Song Liu <song@kernel.org>
-Date:   Thu, 21 Sep 2023 15:52:21 -0700
-X-Gmail-Original-Message-ID: <CAPhsuW73NMvdpmyrhGouQSAHEL9wRw_A+8dZ-5R4BU=UHH83cw@mail.gmail.com>
-Message-ID: <CAPhsuW73NMvdpmyrhGouQSAHEL9wRw_A+8dZ-5R4BU=UHH83cw@mail.gmail.com>
-Subject: Re: [PATCH v3 06/13] mm/execmem: introduce execmem_data_alloc()
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Kent Overstreet <kent.overstreet@linux.dev>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Puranjay Mohan <puranjay12@gmail.com>,
-        Rick Edgecombe <rick.p.edgecombe@intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-modules@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.1
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+Subject: Re: [PATCH net-next v3 12/18] net/smc: implement DMB-related
+ operations of loopback
+To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com
+Cc:     alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1695302360-46691-1-git-send-email-guwen@linux.alibaba.com>
+ <1695302360-46691-13-git-send-email-guwen@linux.alibaba.com>
+In-Reply-To: <1695302360-46691-13-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: yXKKzDRr1JKdcoHGtq4N7wSiX_CjoCuA
+X-Proofpoint-GUID: 636YQuLCp2OOa0fo0e_k2ywgefInpqJ9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-09-21_19,2023-09-21_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ priorityscore=1501 spamscore=0 malwarescore=0 mlxlogscore=874 mlxscore=0
+ lowpriorityscore=0 phishscore=0 clxscore=1011 impostorscore=0
+ suspectscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2309180000 definitions=main-2309210205
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Sep 18, 2023 at 12:31=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wr=
-ote:
->
-[...]
-> diff --git a/include/linux/execmem.h b/include/linux/execmem.h
-> index 519bdfdca595..09d45ac786e9 100644
-> --- a/include/linux/execmem.h
-> +++ b/include/linux/execmem.h
-> @@ -29,6 +29,7 @@
->   * @EXECMEM_KPROBES: parameters for kprobes
->   * @EXECMEM_FTRACE: parameters for ftrace
->   * @EXECMEM_BPF: parameters for BPF
-> + * @EXECMEM_MODULE_DATA: parameters for module data sections
->   * @EXECMEM_TYPE_MAX:
->   */
->  enum execmem_type {
-> @@ -37,6 +38,7 @@ enum execmem_type {
->         EXECMEM_KPROBES,
->         EXECMEM_FTRACE,
-
-In longer term, I think we can improve the JITed code and merge
-kprobe/ftrace/bpf. to use the same ranges. Also, do we need special
-setting for FTRACE? If not, let's just remove it.
-
->         EXECMEM_BPF,
-> +       EXECMEM_MODULE_DATA,
->         EXECMEM_TYPE_MAX,
->  };
-
-Overall, it is great that kprobe/ftrace/bpf no longer depend on modules.
-
-OTOH, I think we should merge execmem_type and existing mod_mem_type.
-Otherwise, we still need to handle page permissions in multiple places.
-What is our plan for that?
-
-Thanks,
-Song
 
 
->
-> @@ -107,6 +109,23 @@ struct execmem_params *execmem_arch_params(void);
->   */
->  void *execmem_text_alloc(enum execmem_type type, size_t size);
->
-> +/**
-> + * execmem_data_alloc - allocate memory for data coupled to code
-> + * @type: type of the allocation
-> + * @size: how many bytes of memory are required
-> + *
-> + * Allocates memory that will contain data coupled with executable code,
-> + * like data sections in kernel modules.
-> + *
-> + * The memory will have protections defined by architecture.
-> + *
-> + * The allocated memory will reside in an area that does not impose
-> + * restrictions on the addressing modes.
-> + *
-> + * Return: a pointer to the allocated memory or %NULL
-> + */
-> +void *execmem_data_alloc(enum execmem_type type, size_t size);
+On 21.09.23 15:19, Wen Gu wrote:
+> This patch implements DMB registration, unregistration and data move
+> operations of SMC-D loopback.
+> 
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> ---
+>   net/smc/smc_cdc.c      |   6 +++
+>   net/smc/smc_cdc.h      |   1 +
+>   net/smc/smc_loopback.c | 128 +++++++++++++++++++++++++++++++++++++++++++++++--
+>   net/smc/smc_loopback.h |  13 +++++
+>   4 files changed, 145 insertions(+), 3 deletions(-)
+> 
+> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+> index 89105e9..2641800 100644
+> --- a/net/smc/smc_cdc.c
+> +++ b/net/smc/smc_cdc.c
+> @@ -411,6 +411,12 @@ static void smc_cdc_msg_recv(struct smc_sock *smc, struct smc_cdc_msg *cdc)
+>   static void smcd_cdc_rx_tsklet(struct tasklet_struct *t)
+>   {
+>   	struct smc_connection *conn = from_tasklet(conn, t, rx_tsklet);
 > +
->  /**
->   * execmem_free - free executable memory
->   * @ptr: pointer to the memory that should be freed
-> diff --git a/kernel/module/main.c b/kernel/module/main.c
-> index c4146bfcd0a7..2ae83a6abf66 100644
-> --- a/kernel/module/main.c
-> +++ b/kernel/module/main.c
-> @@ -1188,25 +1188,16 @@ void __weak module_arch_freeing_init(struct modul=
-e *mod)
->  {
->  }
->
-> -static bool mod_mem_use_vmalloc(enum mod_mem_type type)
-> -{
-> -       return IS_ENABLED(CONFIG_ARCH_WANTS_MODULES_DATA_IN_VMALLOC) &&
-> -               mod_mem_type_is_core_data(type);
-> -}
-> -
->  static void *module_memory_alloc(unsigned int size, enum mod_mem_type ty=
-pe)
->  {
-> -       if (mod_mem_use_vmalloc(type))
-> -               return vzalloc(size);
-> +       if (mod_mem_type_is_data(type))
-> +               return execmem_data_alloc(EXECMEM_MODULE_DATA, size);
->         return execmem_text_alloc(EXECMEM_MODULE_TEXT, size);
->  }
->
->  static void module_memory_free(void *ptr, enum mod_mem_type type)
->  {
-> -       if (mod_mem_use_vmalloc(type))
-> -               vfree(ptr);
-> -       else
-> -               execmem_free(ptr);
-> +       execmem_free(ptr);
->  }
->
->  static void free_mod_mem(struct module *mod)
-> diff --git a/mm/execmem.c b/mm/execmem.c
-> index abcbd07e05ac..aeff85261360 100644
-> --- a/mm/execmem.c
-> +++ b/mm/execmem.c
-> @@ -53,11 +53,23 @@ static void *execmem_alloc(size_t size, struct execme=
-m_range *range)
->         return kasan_reset_tag(p);
->  }
->
-> +static inline bool execmem_range_is_data(enum execmem_type type)
-> +{
-> +       return type =3D=3D EXECMEM_MODULE_DATA;
+> +	smcd_cdc_rx_handler(conn);
 > +}
 > +
->  void *execmem_text_alloc(enum execmem_type type, size_t size)
->  {
->         return execmem_alloc(size, &execmem_params.ranges[type]);
->  }
->
-> +void *execmem_data_alloc(enum execmem_type type, size_t size)
+> +void smcd_cdc_rx_handler(struct smc_connection *conn)
 > +{
-> +       WARN_ON_ONCE(!execmem_range_is_data(type));
+>   	struct smcd_cdc_msg *data_cdc;
+>   	struct smcd_cdc_msg cdc;
+>   	struct smc_sock *smc;
+> diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
+> index 696cc11..11559d4 100644
+> --- a/net/smc/smc_cdc.h
+> +++ b/net/smc/smc_cdc.h
+> @@ -301,5 +301,6 @@ int smcr_cdc_msg_send_validation(struct smc_connection *conn,
+>   				 struct smc_wr_buf *wr_buf);
+>   int smc_cdc_init(void) __init;
+>   void smcd_cdc_rx_init(struct smc_connection *conn);
+> +void smcd_cdc_rx_handler(struct smc_connection *conn);
+>   
+>   #endif /* SMC_CDC_H */
+> diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
+> index 9034ebd..cfbcabf 100644
+> --- a/net/smc/smc_loopback.c
+> +++ b/net/smc/smc_loopback.c
+> @@ -16,6 +16,7 @@
+>   #include <linux/smc.h>
+>   #include <net/smc.h>
+>   
+> +#include "smc_cdc.h"
+>   #include "smc_ism.h"
+>   #include "smc_loopback.h"
+>   
+> @@ -74,6 +75,93 @@ static int smc_lo_query_rgid(struct smcd_dev *smcd, struct smcd_gid *rgid,
+>   	return 0;
+>   }
+>   
+> +static int smc_lo_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
+> +			       void *client_priv)
+> +{
+> +	struct smc_lo_dmb_node *dmb_node, *tmp_node;
+> +	struct smc_lo_dev *ldev = smcd->priv;
+> +	int sba_idx, rc;
 > +
-> +       return execmem_alloc(size, &execmem_params.ranges[type]);
+> +	/* check space for new dmb */
+> +	for_each_clear_bit(sba_idx, ldev->sba_idx_mask, SMC_LODEV_MAX_DMBS) {
+> +		if (!test_and_set_bit(sba_idx, ldev->sba_idx_mask))
+> +			break;
+> +	}
+> +	if (sba_idx == SMC_LODEV_MAX_DMBS)
+> +		return -ENOSPC;
+> +
+> +	dmb_node = kzalloc(sizeof(*dmb_node), GFP_KERNEL);
+> +	if (!dmb_node) {
+> +		rc = -ENOMEM;
+> +		goto err_bit;
+> +	}
+> +
+> +	dmb_node->sba_idx = sba_idx;
+> +	dmb_node->cpu_addr = kzalloc(dmb->dmb_len, GFP_KERNEL |
+> +				     __GFP_NOWARN | __GFP_NORETRY |
+> +				     __GFP_NOMEMALLOC);
+kzalloc()/kmalloc() allocates physically contigueous memory. Are you 
+sure it is suitable for allocating the dmb?
+
+> +	if (!dmb_node->cpu_addr) {
+> +		rc = -ENOMEM;
+> +		goto err_node;
+> +	}
+> +	dmb_node->len = dmb->dmb_len;
+> +	dmb_node->dma_addr = (dma_addr_t)dmb_node->cpu_addr;
+> +
+> +again:
+> +	/* add new dmb into hash table */
+> +	get_random_bytes(&dmb_node->token, sizeof(dmb_node->token));
+> +	write_lock(&ldev->dmb_ht_lock);
+> +	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_node->token) {
+> +		if (tmp_node->token == dmb_node->token) {
+> +			write_unlock(&ldev->dmb_ht_lock);
+> +			goto again;
+> +		}
+> +	}
+> +	hash_add(ldev->dmb_ht, &dmb_node->list, dmb_node->token);
+> +	write_unlock(&ldev->dmb_ht_lock);
+> +
+> +	dmb->sba_idx = dmb_node->sba_idx;
+> +	dmb->dmb_tok = dmb_node->token;
+> +	dmb->cpu_addr = dmb_node->cpu_addr;
+> +	dmb->dma_addr = dmb_node->dma_addr;
+> +	dmb->dmb_len = dmb_node->len;
+> +
+> +	return 0;
+> +
+> +err_node:
+> +	kfree(dmb_node);
+> +err_bit:
+> +	clear_bit(sba_idx, ldev->sba_idx_mask);
+> +	return rc;
 > +}
 > +
->  void execmem_free(void *ptr)
->  {
->         /*
-> @@ -93,7 +105,10 @@ static void execmem_init_missing(struct execmem_param=
-s *p)
->                 struct execmem_range *r =3D &p->ranges[i];
->
->                 if (!r->start) {
-> -                       r->pgprot =3D default_range->pgprot;
-> +                       if (execmem_range_is_data(i))
-> +                               r->pgprot =3D PAGE_KERNEL;
-> +                       else
-> +                               r->pgprot =3D default_range->pgprot;
->                         r->alignment =3D default_range->alignment;
->                         r->start =3D default_range->start;
->                         r->end =3D default_range->end;
-> --
-> 2.39.2
->
+> +static int smc_lo_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
+> +{
+> +	struct smc_lo_dmb_node *dmb_node = NULL, *tmp_node;
+> +	struct smc_lo_dev *ldev = smcd->priv;
+> +
+> +	/* remove dmb from hash table */
+> +	write_lock(&ldev->dmb_ht_lock);
+> +	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb->dmb_tok) {
+> +		if (tmp_node->token == dmb->dmb_tok) {
+> +			dmb_node = tmp_node;
+> +			break;
+> +		}
+> +	}
+> +	if (!dmb_node) {
+> +		write_unlock(&ldev->dmb_ht_lock);
+> +		return -EINVAL;
+> +	}
+> +	hash_del(&dmb_node->list);
+> +	write_unlock(&ldev->dmb_ht_lock);
+> +
+> +	clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
+> +	kfree(dmb_node->cpu_addr);
+> +	kfree(dmb_node);
+> +
+> +	return 0;
+> +}
+> +
+>   static int smc_lo_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
+>   {
+>   	return -EOPNOTSUPP;
+> @@ -100,6 +188,38 @@ static int smc_lo_signal_event(struct smcd_dev *dev, struct smcd_gid *rgid,
+>   	return 0;
+>   }
+>   
+> +static int smc_lo_move_data(struct smcd_dev *smcd, u64 dmb_tok, unsigned int idx,
+> +			    bool sf, unsigned int offset, void *data,
+> +			    unsigned int size)
+> +{
+> +	struct smc_lo_dmb_node *rmb_node = NULL, *tmp_node;
+> +	struct smc_lo_dev *ldev = smcd->priv;
+> +
+> +	read_lock(&ldev->dmb_ht_lock);
+> +	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_tok) {
+> +		if (tmp_node->token == dmb_tok) {
+> +			rmb_node = tmp_node;
+> +			break;
+> +		}
+> +	}
+> +	if (!rmb_node) {
+> +		read_unlock(&ldev->dmb_ht_lock);
+> +		return -EINVAL;
+> +	}
+> +	read_unlock(&ldev->dmb_ht_lock);
+> +
+> +	memcpy((char *)rmb_node->cpu_addr + offset, data, size);
+> +
+> +	if (sf) {
+> +		struct smc_connection *conn =
+> +			smcd->conn[rmb_node->sba_idx];
+> +
+> +		if (conn && !conn->killed)
+> +			smcd_cdc_rx_handler(conn);
+> +	}
+> +	return 0;
+> +}
+> +
+>   static int smc_lo_supports_v2(void)
+>   {
+>   	return SMC_LO_SUPPORTS_V2;
+> @@ -131,14 +251,14 @@ static struct device *smc_lo_get_dev(struct smcd_dev *smcd)
+>   
+>   static const struct smcd_ops lo_ops = {
+>   	.query_remote_gid = smc_lo_query_rgid,
+> -	.register_dmb		= NULL,
+> -	.unregister_dmb		= NULL,
+> +	.register_dmb = smc_lo_register_dmb,
+> +	.unregister_dmb = smc_lo_unregister_dmb,
+>   	.add_vlan_id = smc_lo_add_vlan_id,
+>   	.del_vlan_id = smc_lo_del_vlan_id,
+>   	.set_vlan_required = smc_lo_set_vlan_required,
+>   	.reset_vlan_required = smc_lo_reset_vlan_required,
+>   	.signal_event = smc_lo_signal_event,
+> -	.move_data		= NULL,
+> +	.move_data = smc_lo_move_data,
+>   	.supports_v2 = smc_lo_supports_v2,
+>   	.get_system_eid = smc_lo_get_system_eid,
+>   	.get_local_gid = smc_lo_get_local_gid,
+> @@ -212,6 +332,8 @@ static void smc_lo_dev_release(struct device *dev)
+>   static int smc_lo_dev_init(struct smc_lo_dev *ldev)
+>   {
+>   	smc_lo_generate_id(ldev);
+> +	rwlock_init(&ldev->dmb_ht_lock);
+> +	hash_init(ldev->dmb_ht);
+>   
+>   	return smcd_lo_register_dev(ldev);
+>   }
+> diff --git a/net/smc/smc_loopback.h b/net/smc/smc_loopback.h
+> index 2156f22..943424f 100644
+> --- a/net/smc/smc_loopback.h
+> +++ b/net/smc/smc_loopback.h
+> @@ -20,12 +20,25 @@
+>   
+>   #define SMC_LO_CHID 0xFFFF
+>   #define SMC_LODEV_MAX_DMBS 5000
+> +#define SMC_LODEV_DMBS_HASH_BITS 12
+> +
+> +struct smc_lo_dmb_node {
+> +	struct hlist_node list;
+> +	u64 token;
+> +	u32 len;
+> +	u32 sba_idx;
+> +	void *cpu_addr;
+> +	dma_addr_t dma_addr;
+> +};
+>   
+>   struct smc_lo_dev {
+>   	struct smcd_dev *smcd;
+>   	struct device dev;
+>   	u16 chid;
+>   	struct smcd_gid local_gid;
+> +	DECLARE_BITMAP(sba_idx_mask, SMC_LODEV_MAX_DMBS);
+> +	rwlock_t dmb_ht_lock;
+> +	DECLARE_HASHTABLE(dmb_ht, SMC_LODEV_DMBS_HASH_BITS);
+>   };
+>   
+>   int smc_loopback_init(void);
