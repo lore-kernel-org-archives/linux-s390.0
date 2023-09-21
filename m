@@ -2,26 +2,32 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B4A0E7D0A5
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Sep 2023 18:16:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44AE6E7D0A4
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Sep 2023 18:36:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230300AbjIUSQ1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Sep 2023 14:16:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51560 "EHLO
+        id S229572AbjIUSgx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Sep 2023 14:36:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230254AbjIUSQP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Sep 2023 14:16:15 -0400
+        with ESMTP id S229540AbjIUSgg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Sep 2023 14:36:36 -0400
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2D5BB7EA33;
-        Thu, 21 Sep 2023 10:37:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1F7044563F;
+        Thu, 21 Sep 2023 10:13:57 -0700 (PDT)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 911D21764;
-        Thu, 21 Sep 2023 09:21:37 -0700 (PDT)
-Received: from e125769.cambridge.arm.com (e125769.cambridge.arm.com [10.1.196.26])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 26AFE3F59C;
-        Thu, 21 Sep 2023 09:20:56 -0700 (PDT)
-From:   Ryan Roberts <ryan.roberts@arm.com>
-To:     Catalin Marinas <catalin.marinas@arm.com>,
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C5882176C;
+        Thu, 21 Sep 2023 09:36:37 -0700 (PDT)
+Received: from [10.1.34.154] (XHFQ2J9959.cambridge.arm.com [10.1.34.154])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 82BA63F59C;
+        Thu, 21 Sep 2023 09:35:55 -0700 (PDT)
+Message-ID: <7c5c2c00-d657-44fd-b478-743b43c57e8a@arm.com>
+Date:   Thu, 21 Sep 2023 17:35:54 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 0/8] Fix set_huge_pte_at() panic on arm64
+Content-Language: en-GB
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>,
         "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
         Helge Deller <deller@gmx.de>,
@@ -41,124 +47,95 @@ To:     Catalin Marinas <catalin.marinas@arm.com>,
         Mike Kravetz <mike.kravetz@oracle.com>,
         Muchun Song <muchun.song@linux.dev>,
         SeongJae Park <sj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
         Uladzislau Rezki <urezki@gmail.com>,
         Christoph Hellwig <hch@infradead.org>,
         Lorenzo Stoakes <lstoakes@gmail.com>,
         Anshuman Khandual <anshuman.khandual@arm.com>,
         Peter Xu <peterx@redhat.com>,
         Axel Rasmussen <axelrasmussen@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>
-Cc:     Ryan Roberts <ryan.roberts@arm.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
         linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
         sparclinux@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org
-Subject: [PATCH v1 8/8] arm64: hugetlb: Fix set_huge_pte_at() to work with all swap entries
-Date:   Thu, 21 Sep 2023 17:20:07 +0100
-Message-Id: <20230921162007.1630149-9-ryan.roberts@arm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20230921162007.1630149-1-ryan.roberts@arm.com>
+        stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 References: <20230921162007.1630149-1-ryan.roberts@arm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+ <20230921093026.230b2991be551093e397f462@linux-foundation.org>
+From:   Ryan Roberts <ryan.roberts@arm.com>
+In-Reply-To: <20230921093026.230b2991be551093e397f462@linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When called with a swap entry that does not embed a PFN (e.g.
-PTE_MARKER_POISONED or PTE_MARKER_UFFD_WP), the previous implementation
-of set_huge_pte_at() would either cause a BUG() to fire (if
-CONFIG_DEBUG_VM is enabled) or cause a dereference of an invalid address
-and subsequent panic.
+On 21/09/2023 17:30, Andrew Morton wrote:
+> On Thu, 21 Sep 2023 17:19:59 +0100 Ryan Roberts <ryan.roberts@arm.com> wrote:
+> 
+>> Hi All,
+>>
+>> This series fixes a bug in arm64's implementation of set_huge_pte_at(), which
+>> can result in an unprivileged user causing a kernel panic. The problem was
+>> triggered when running the new uffd poison mm selftest for HUGETLB memory. This
+>> test (and the uffd poison feature) was merged for v6.6-rc1. However, upon
+>> inspection there are multiple other pre-existing paths that can trigger this
+>> bug.
+>>
+>> Ideally, I'd like to get this fix in for v6.6 if possible? And I guess it should
+>> be backported too, given there are call sites where this can theoretically
+>> happen that pre-date v6.6-rc1 (I've cc'ed stable@vger.kernel.org).
+> 
+> This gets you a naggygram from Greg.  The way to request a backport is
+> to add cc:stable to all the changelogs.  I'll make that change to my copy.
 
-arm64's huge pte implementation supports multiple huge page sizes, some
-of which are implemented in the page table with contiguous mappings. So
-set_huge_pte_at() needs to work out how big the logical pte is, so that
-it can also work out how many physical ptes (or pmds) need to be
-written. It does this by grabbing the folio out of the pte and querying
-its size.
+Ahh, sorry about that... I just got the same moan from the kernel test robot too.
 
-However, there are cases when the pte being set is actually a swap
-entry. But this also used to work fine, because for huge ptes, we only
-ever saw migration entries and hwpoison entries. And both of these types
-of swap entries have a PFN embedded, so the code would grab that and
-everything still worked out.
+> 
+> 
+>> Ryan Roberts (8):
+>>   parisc: hugetlb: Convert set_huge_pte_at() to take vma
+>>   powerpc: hugetlb: Convert set_huge_pte_at() to take vma
+>>   riscv: hugetlb: Convert set_huge_pte_at() to take vma
+>>   s390: hugetlb: Convert set_huge_pte_at() to take vma
+>>   sparc: hugetlb: Convert set_huge_pte_at() to take vma
+>>   mm: hugetlb: Convert set_huge_pte_at() to take vma
+>>   arm64: hugetlb: Convert set_huge_pte_at() to take vma
+>>   arm64: hugetlb: Fix set_huge_pte_at() to work with all swap entries
+>>
+>>  arch/arm64/include/asm/hugetlb.h              |  2 +-
+>>  arch/arm64/mm/hugetlbpage.c                   | 22 ++++----------
+>>  arch/parisc/include/asm/hugetlb.h             |  2 +-
+>>  arch/parisc/mm/hugetlbpage.c                  |  4 +--
+>>  .../include/asm/nohash/32/hugetlb-8xx.h       |  3 +-
+>>  arch/powerpc/mm/book3s64/hugetlbpage.c        |  2 +-
+>>  arch/powerpc/mm/book3s64/radix_hugetlbpage.c  |  2 +-
+>>  arch/powerpc/mm/nohash/8xx.c                  |  2 +-
+>>  arch/powerpc/mm/pgtable.c                     |  7 ++++-
+>>  arch/riscv/include/asm/hugetlb.h              |  2 +-
+>>  arch/riscv/mm/hugetlbpage.c                   |  3 +-
+>>  arch/s390/include/asm/hugetlb.h               |  8 +++--
+>>  arch/s390/mm/hugetlbpage.c                    |  8 ++++-
+>>  arch/sparc/include/asm/hugetlb.h              |  8 +++--
+>>  arch/sparc/mm/hugetlbpage.c                   |  8 ++++-
+>>  include/asm-generic/hugetlb.h                 |  6 ++--
+>>  include/linux/hugetlb.h                       |  6 ++--
+>>  mm/damon/vaddr.c                              |  2 +-
+>>  mm/hugetlb.c                                  | 30 +++++++++----------
+>>  mm/migrate.c                                  |  2 +-
+>>  mm/rmap.c                                     | 10 +++----
+>>  mm/vmalloc.c                                  |  5 +++-
+>>  22 files changed, 80 insertions(+), 64 deletions(-)
+> 
+> Looks scary but it's actually a fairly modest patchset.  It could
+> easily be all rolled into a single patch for ease of backporting. 
+> Maybe Greg has an opinion?
 
-But over time, more calls to set_huge_pte_at() have been added that set
-swap entry types that do not embed a PFN. And this causes the code to go
-bang. The triggering case is for the uffd poison test, commit
-99aa77215ad0 ("selftests/mm: add uffd unit test for UFFDIO_POISON"),
-which sets a PTE_MARKER_POISONED swap entry. But review shows there are
-other places too (PTE_MARKER_UFFD_WP).
+Yes, I thought about doing that; or perhaps 2 patches - one for the interface
+change across all arches and core code, and one for the actual bug fix?
 
-So the root cause is due to commit 18f3962953e4 ("mm: hugetlb: kill
-set_huge_swap_pte_at()"), which aimed to simplify the interface to the
-core code by removing set_huge_swap_pte_at() (which took a page size
-parameter) and replacing it with calls to set_huge_swap_pte_at() where
-the size was inferred from the folio, as descibed above. While that
-commit didn't break anything at the time, it did break the interface
-because it couldn't handle swap entries without PFNs. And since then new
-callers have come along which rely on this working.
+But I thought the arch people might prefer to see exactly what's going on in
+each arch. Let me know the preference and I can repost if necessary.
 
-Now that we have modified the set_huge_pte_at() interface to pass the
-vma, we can extract the huge page size from it and fix this issue.
-
-I'm tagging the commit that added the uffd poison feature, since that is
-what exposed the problem, as well as the original change that broke the
-interface. Hopefully this is valuable for people doing bisect.
-
-Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
-Fixes: 18f3962953e4 ("mm: hugetlb: kill set_huge_swap_pte_at()")
-Fixes: 8a13897fb0da ("mm: userfaultfd: support UFFDIO_POISON for hugetlbfs")
----
- arch/arm64/mm/hugetlbpage.c | 17 +++--------------
- 1 file changed, 3 insertions(+), 14 deletions(-)
-
-diff --git a/arch/arm64/mm/hugetlbpage.c b/arch/arm64/mm/hugetlbpage.c
-index 844832511c1e..a08601a14689 100644
---- a/arch/arm64/mm/hugetlbpage.c
-+++ b/arch/arm64/mm/hugetlbpage.c
-@@ -241,13 +241,6 @@ static void clear_flush(struct mm_struct *mm,
- 	flush_tlb_range(&vma, saddr, addr);
- }
- 
--static inline struct folio *hugetlb_swap_entry_to_folio(swp_entry_t entry)
--{
--	VM_BUG_ON(!is_migration_entry(entry) && !is_hwpoison_entry(entry));
--
--	return page_folio(pfn_to_page(swp_offset_pfn(entry)));
--}
--
- void set_huge_pte_at(struct vm_area_struct *vma, unsigned long addr,
- 			    pte_t *ptep, pte_t pte)
- {
-@@ -258,13 +251,10 @@ void set_huge_pte_at(struct vm_area_struct *vma, unsigned long addr,
- 	unsigned long pfn, dpfn;
- 	pgprot_t hugeprot;
- 
--	if (!pte_present(pte)) {
--		struct folio *folio;
--
--		folio = hugetlb_swap_entry_to_folio(pte_to_swp_entry(pte));
--		ncontig = num_contig_ptes(folio_size(folio), &pgsize);
-+	ncontig = num_contig_ptes(huge_page_size(hstate_vma(vma)), &pgsize);
- 
--		for (i = 0; i < ncontig; i++, ptep++)
-+	if (!pte_present(pte)) {
-+		for (i = 0; i < ncontig; i++, ptep++, addr += pgsize)
- 			set_pte_at(mm, addr, ptep, pte);
- 		return;
- 	}
-@@ -274,7 +264,6 @@ void set_huge_pte_at(struct vm_area_struct *vma, unsigned long addr,
- 		return;
- 	}
- 
--	ncontig = find_num_contig(mm, addr, ptep, &pgsize);
- 	pfn = pte_pfn(pte);
- 	dpfn = pgsize >> PAGE_SHIFT;
- 	hugeprot = pte_pgprot(pte);
--- 
-2.25.1
+> 
 
