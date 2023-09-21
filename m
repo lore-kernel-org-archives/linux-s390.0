@@ -2,118 +2,175 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F22EE7D0A5
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Sep 2023 18:51:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C821BE7D0A2
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Sep 2023 20:15:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230371AbjIUSv0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Sep 2023 14:51:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46556 "EHLO
+        id S229834AbjIUUPu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Sep 2023 16:15:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229924AbjIUSvR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Sep 2023 14:51:17 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 28BC77EA31;
-        Thu, 21 Sep 2023 10:37:38 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id ECB2D1713;
-        Thu, 21 Sep 2023 09:21:05 -0700 (PDT)
-Received: from e125769.cambridge.arm.com (e125769.cambridge.arm.com [10.1.196.26])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 811AA3F59C;
-        Thu, 21 Sep 2023 09:20:24 -0700 (PDT)
-From:   Ryan Roberts <ryan.roberts@arm.com>
-To:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Muchun Song <muchun.song@linux.dev>,
-        SeongJae Park <sj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Peter Xu <peterx@redhat.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>
-Cc:     Ryan Roberts <ryan.roberts@arm.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org
-Subject: [PATCH v1 1/8] parisc: hugetlb: Convert set_huge_pte_at() to take vma
-Date:   Thu, 21 Sep 2023 17:20:00 +0100
-Message-Id: <20230921162007.1630149-2-ryan.roberts@arm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20230921162007.1630149-1-ryan.roberts@arm.com>
-References: <20230921162007.1630149-1-ryan.roberts@arm.com>
-MIME-Version: 1.0
+        with ESMTP id S229592AbjIUUPa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Sep 2023 16:15:30 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7907A43CB4;
+        Thu, 21 Sep 2023 10:16:17 -0700 (PDT)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38LCaUDN029973;
+        Thu, 21 Sep 2023 12:37:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=iySTcB8YPzCuneBG/HH3M+8tVPuZgnLJvVYQh59frdk=;
+ b=tdzvLqZ3rB0vbquq4pgg3CC9893HAupuqpwi9JDn30Gs/98hs4+Zm60Zzgqr2Y7Uwl63
+ DXIvJrQzWi4m1+GoRPyqxObiC79ahSA2f6SVo4LM6vgRity/0w9jx7plJKnIBdOD6U6r
+ eQ1XgEHKa/mNyERKFbu8jChljAz3zms5wbDmzNtkEyoYcelXBSVkzpkpxL1cqDrNlbbO
+ LWaA7bgJw5acMYCNXCU8AX1GgUplt+GWEqT/0b54nO0/yFGlLuwOWn/qRtC+E4JqyiVp
+ EUYVwUGQNSGM7fEsZo4PCNE5DaGPumJq1N6t0j2bB/abd0eT9jj6ompYjU9GXwlteahK Lg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t855eyy66-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Sep 2023 12:37:09 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38LCabdW030858;
+        Thu, 21 Sep 2023 12:36:55 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t855eyx3s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Sep 2023 12:36:55 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38LBfGVE018185;
+        Thu, 21 Sep 2023 12:36:40 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3t5ppt9yh6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Sep 2023 12:36:39 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38LCab6C59900370
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 21 Sep 2023 12:36:37 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 15E372005A;
+        Thu, 21 Sep 2023 12:36:37 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D5A5220040;
+        Thu, 21 Sep 2023 12:36:36 +0000 (GMT)
+Received: from [9.152.224.54] (unknown [9.152.224.54])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 21 Sep 2023 12:36:36 +0000 (GMT)
+Message-ID: <c0ba8e0b-f2b2-b65b-e21a-54c3d920ba72@linux.ibm.com>
+Date:   Thu, 21 Sep 2023 14:36:36 +0200
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.1
+Subject: Re: [RFC net-next 0/2] Optimize the parallelism of SMC-R connections
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1694008530-85087-1-git-send-email-alibuda@linux.alibaba.com>
+ <794f9f68-4671-5e5e-45e4-2c8a4de568b3@linux.ibm.com>
+ <522d823c-b656-ffb5-bcce-65b96bdfa46d@linux.alibaba.com>
+Content-Language: en-US
+From:   Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <522d823c-b656-ffb5-bcce-65b96bdfa46d@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: zQHcU6IWTThM4VmpFRZJtWe-KBM2aC_p
+X-Proofpoint-GUID: zFotIsyC8_fziOcjR2d03rmbctIchod0
 Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-09-21_10,2023-09-21_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 adultscore=0
+ clxscore=1015 spamscore=0 priorityscore=1501 impostorscore=0 phishscore=0
+ suspectscore=0 mlxscore=0 bulkscore=0 malwarescore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2308100000
+ definitions=main-2309210111
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-In order to fix a bug, arm64 needs access to the vma inside it's
-implementation of set_huge_pte_at(). Provide for this by converting the
-mm parameter to be a vma. Any implementations that require the mm can
-access it via vma->vm_mm.
 
-This commit makes the required parisc modifications. Separate commits
-update the other arches and core code, before the actual bug is fixed in
-arm64.
 
-No behavioral changes intended.
+On 18.09.23 05:58, D. Wythe wrote:
+> Hi Alexandra,
+> 
+> Sorry for the late reply. I have been thinking about the question you mentioned for a while, and this is a great opportunity to discuss this issue.
+> My point is that the purpose of the locks is to minimize the expansion of the number of link groups as much as possible.
+> 
+> As we all know, the SMC-R protocol has the following specifications:
+> 
+>  * A SMC-R connection MUST be mapped into one link group.
+>  * A link group is usually created by a connection, which is also known
+>    as "First Contact."
+> 
+> If we start from scratch, we can design the connection process as follows:
+> 
+> 1. Check if there are any available link groups. If so, map the
+>    connection into it and go to step 3.
+> 2. Mark this connection as "First Contact," create a link group, and
+>    mark the new link group as unavailable.
+> 3. Finish connection establishment.
+> 4. If the connection is "First Contact," mark the new link group as
+>    available and map the connection into it.
+> 
+> I think there is no logical problem with this process, but there is a practical issue where burst traffic can result in burst link groups.
+> 
+> For example, if there are 10,000 incoming connections, based on the above logic, the most extreme scenario would be to create 10,000 link groups.
+> This can cause significant memory pressure and even be used for security attacks.
+> 
+> To address this goal, the simplest way is to make each connection process mutually exclusive, having the following process:
+> 
+> 1. Block other incoming connections.
+> 2. Check if there are any available link groups. If so, map the
+>    connection into it and go to step 4.
+> 3. Mark this connection as "First Contact," create a link group, and
+>    mark it as unavailable.
+> 4. Finish connection establishment.
+> 5. If the connection is "First Contact," mark the new link group as
+>    available and map the connection into it.
+> 6. Allow other connections to come in.
+> 
+> And this is our current process now!
+> 
+> Regarding the purpose of the locks, to minimize the expansion of the number of link groups. If we agree with this point, we can observe that
+> in phase 2 going to phase 4, this process will never create a new link group. Obviously, the lock is not needed here.
 
-Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
----
- arch/parisc/include/asm/hugetlb.h | 2 +-
- arch/parisc/mm/hugetlbpage.c      | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+Well, you still have issue of a link group going away. Thread 1 is deleting the last connection from a link group and shutting it down. Thread 2 is adding a 'second' connection (from its poitn ov view) to the linkgroup.
 
-diff --git a/arch/parisc/include/asm/hugetlb.h b/arch/parisc/include/asm/hugetlb.h
-index f7f078c2872c..29ba631862c5 100644
---- a/arch/parisc/include/asm/hugetlb.h
-+++ b/arch/parisc/include/asm/hugetlb.h
-@@ -5,7 +5,7 @@
- #include <asm/page.h>
- 
- #define __HAVE_ARCH_HUGE_SET_HUGE_PTE_AT
--void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
-+void set_huge_pte_at(struct vm_area_struct *vma, unsigned long addr,
- 		     pte_t *ptep, pte_t pte);
- 
- #define __HAVE_ARCH_HUGE_PTEP_GET_AND_CLEAR
-diff --git a/arch/parisc/mm/hugetlbpage.c b/arch/parisc/mm/hugetlbpage.c
-index a8a1a7c1e16e..fc5e1ad8e5e8 100644
---- a/arch/parisc/mm/hugetlbpage.c
-+++ b/arch/parisc/mm/hugetlbpage.c
-@@ -139,10 +139,10 @@ static void __set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
- 	purge_tlb_entries_huge(mm, addr_start);
- }
- 
--void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
-+void set_huge_pte_at(struct vm_area_struct *vma, unsigned long addr,
- 		     pte_t *ptep, pte_t entry)
- {
--	__set_huge_pte_at(mm, addr, ptep, entry);
-+	__set_huge_pte_at(vma->vm_mm, addr, ptep, entry);
- }
- 
- 
--- 
-2.25.1
+> 
+> Then the last question: why is the lock needed until after smc_clc_send_confirm in the new-LGR case? We can try to move phase 6 ahead as follows:
+> 
+> 1. Block other incoming connections.
+> 2. Check if there are any available link groups. If so, map the
+>    connection into it and go to step 4.
+> 3. Mark this connection as "First Contact," create a link group, and
+>    mark it as unavailable.
+> 4. Allow other connections to come in.
+> 5. Finish connection establishment.
+> 6. If the connection is "First Contact," mark the new link group as
+>    available and map the connection into it.
+> 
+> There is also no problem with this process! However, note that this logic does not address burst issues.
+> Burst traffic will still result in burst link groups because a new link group can only be marked as available when the "First Contact" is completed,
+> which is after sending the CLC Confirm.
+> 
+> Hope my point is helpful to you. If you have any questions, please let me know. Thanks.
+> 
+> Best wishes,
+> D. Wythe
+
+You are asking exactly the right questions here. Creation of new connections is on the critical path,
+and if the design can be optimized for parallelism that will increase perfromance, while insufficient
+locking will create nasty bugs.
+Many programmers have dealt with these issues before us. I would recommend to consult existing proven
+patterns; e.g. the ones listed in Paul McKenney's book 
+(https://mirrors.edge.kernel.org/pub/linux/kernel/people/paulmck/perfbook/) 
+e.g. 'Chapter 10.3 Read-Mostly Data Structures' and of course the kernel documentation folder.
+Improving an existing codebase like smc without breaking is not trivial. Obviuosly a step-by-step approach,
+works best. So if you can identify actions that can be be done under a smaller (as in more granular) lock
+instead of under a global lock. OR change a mutex into R/W or RCU.
+Smaller changes are easier to review (and bisect in case of regressions).
+
 
