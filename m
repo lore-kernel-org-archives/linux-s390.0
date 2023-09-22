@@ -2,138 +2,162 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75D75CD4F3B
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Sep 2023 08:55:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78B0ECD4F35
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Sep 2023 08:59:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232693AbjIVIzu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 22 Sep 2023 04:55:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50650 "EHLO
+        id S232615AbjIVI7w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 22 Sep 2023 04:59:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232389AbjIVIzt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Sep 2023 04:55:49 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DE77A9;
-        Fri, 22 Sep 2023 01:55:44 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B218CC433C9;
-        Fri, 22 Sep 2023 08:55:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1695372943;
-        bh=8QkGhwghTGYPhExKboS3z0PsUiDKGGvXCleAsd5SH5o=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=CjAAOHnW+m8+RDAztDmFbJSI8mdUHvPboMtroHiybyvatO27zYyfR1Wv55g8Fv01I
-         te0s9HGkJ0VGUxcVzi6S21q5ZnP3kW3G91E9EzkcgwFh/S+KI1A7tuuEMTGE3HIqBt
-         6nRrji+IFh6kZxhnMEpdwcEddc5XEiLgoKEsYESe9+KRFo95Dw/rmUlDTh3/54BTTX
-         9KM5MArpAD0s7o4CKVI6Ii4apE868YOc1Vz8d3/fGW7P9s5e+247+f0d/ycaOQufD9
-         8mHhukuVVMeyYfCV4bv8fVCeskg+IFFN9ztlmxGPfhc3ExSSu6BsWAGJwgW8ktELWJ
-         FSaXLLenObg+g==
-Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-502a4f33440so3234084e87.1;
-        Fri, 22 Sep 2023 01:55:43 -0700 (PDT)
-X-Gm-Message-State: AOJu0YyoBMjZb8rQESVje9/kRPLVWuTOkCtq5JEZr4gWNmQaTKnELTh/
-        rNJEHyctSpE+6kVmt2HO/SEyUHB8fr33pwPeRNw=
-X-Google-Smtp-Source: AGHT+IF8cgUepodrWyUy99Ge6z4o9GbKwpmdAjZ3R33ypUsIeilkKxYeO+uhK8l2iNZFEKGHs3hnsEm9jfUciGjro48=
-X-Received: by 2002:ac2:5bc5:0:b0:503:79e:fb7b with SMTP id
- u5-20020ac25bc5000000b00503079efb7bmr6817575lfn.68.1695372941964; Fri, 22 Sep
- 2023 01:55:41 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230918072955.2507221-1-rppt@kernel.org> <20230918072955.2507221-7-rppt@kernel.org>
- <CAPhsuW73NMvdpmyrhGouQSAHEL9wRw_A+8dZ-5R4BU=UHH83cw@mail.gmail.com> <9b73ad3d-cfda-bce5-2589-e8674a58c827@csgroup.eu>
-In-Reply-To: <9b73ad3d-cfda-bce5-2589-e8674a58c827@csgroup.eu>
-From:   Song Liu <song@kernel.org>
-Date:   Fri, 22 Sep 2023 01:55:29 -0700
-X-Gmail-Original-Message-ID: <CAPhsuW4_3oYhN6LnPPyBVA4VAM=7voXKmcJNKLqiNEUboq1rnA@mail.gmail.com>
-Message-ID: <CAPhsuW4_3oYhN6LnPPyBVA4VAM=7voXKmcJNKLqiNEUboq1rnA@mail.gmail.com>
-Subject: Re: [PATCH v3 06/13] mm/execmem: introduce execmem_data_alloc()
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc:     Mike Rapoport <rppt@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        with ESMTP id S232885AbjIVI7p (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Sep 2023 04:59:45 -0400
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1906FA9
+        for <linux-s390@vger.kernel.org>; Fri, 22 Sep 2023 01:59:16 -0700 (PDT)
+Received: by mail-pl1-x62c.google.com with SMTP id d9443c01a7336-1c47309a8ccso22981375ad.1
+        for <linux-s390@vger.kernel.org>; Fri, 22 Sep 2023 01:59:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1695373155; x=1695977955; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=dzmBYOC+iwFysYemk8kdLeE2Dt2aHmz4Un9SzH6Y5Wg=;
+        b=lyjSFPQxZerMNiYrZXuVliZlWmFh5LIAThvgjhB3iNeC2Mt94o5pZiJQOqlMqRn1bs
+         ySPwySrva3vkCafEMyxVcC9fFZlQdIgG20ESS5iy3XTsM6TPRgT8lbC3CDv8aH7zeBft
+         iClF+8PEJbi3B69yQ9yWNzvzXlT6D+URoPD/MrmMm1KvavKZaiaSsy3Op9TTAzjBqaXo
+         dePXMsATFG25vtsCXTUxgR35tlqa7jHhkxc+9ggrabEdfNvP1U82OaoMh28hB/GZMMth
+         Fv077mS2yvRl6I/d3/nbZF1HdQ1lH+ks67H4HOXlN1CNLZjnefldRModOTbDxXPZczKV
+         QkOQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1695373155; x=1695977955;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=dzmBYOC+iwFysYemk8kdLeE2Dt2aHmz4Un9SzH6Y5Wg=;
+        b=xFbG1+1VL4HnkglzjxT0IzzLqhlkLCnfm94VfbPRlosMZZts6Sp07yd7/XCxRuvutV
+         dXeCu5B8zXC62998MOSeWhAOYnwItHtVzcFL08Oc2i6jp3IQiylUSptmLJbEHRhTtMdo
+         fsJZqLjMZQj6HI6NCs2O9K/kYaWrFPPfjkSov8pZs/X+5cud4oa+ixdPK5Grr3HRh4q8
+         HOLxVzQvlbIS4B3YtbKcPuxSsHNoGY+/2ltIfXBTNZOQcBA/4Hq8q2v1xCevo186bP6Q
+         P1+8OYYEUhhPxEbJaBhYXV31IG/eU30Nfq6GPv551LZu/4qQWRQDuvqFPieoGyIouHhT
+         WFaw==
+X-Gm-Message-State: AOJu0Yw7h3EBx7xg0T28OroHo5jQUtdmyM4SIy0ECJBG5Ll9ggkgMgQK
+        Cpq/OXcTj+0KWnUi4mo0wgd1244/+UGvkLeDob42jQ==
+X-Google-Smtp-Source: AGHT+IFHn6zFsbxC6Px/kYrE/VewG99QOyuNc/L9KNbSJ1RnItq0VSO1sfkNnq46uUNUq9YCJ713gA==
+X-Received: by 2002:a17:902:e84e:b0:1bf:193a:70b6 with SMTP id t14-20020a170902e84e00b001bf193a70b6mr3278217plg.5.1695373155445;
+        Fri, 22 Sep 2023 01:59:15 -0700 (PDT)
+Received: from C02FG34NMD6R.bytedance.net ([240e:6b1:c0:120::2:d])
+        by smtp.gmail.com with ESMTPSA id l19-20020a170902d35300b001bf5e24b2a8sm2927604plk.174.2023.09.22.01.59.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 Sep 2023 01:59:14 -0700 (PDT)
+From:   Albert Huang <huangjie.albert@bytedance.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>
+Cc:     Albert Huang <huangjie.albert@bytedance.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Kent Overstreet <kent.overstreet@linux.dev>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Puranjay Mohan <puranjay12@gmail.com>,
-        Rick Edgecombe <rick.p.edgecombe@intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>,
-        "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-modules@vger.kernel.org" <linux-modules@vger.kernel.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-trace-kernel@vger.kernel.org" 
-        <linux-trace-kernel@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] net/smc: add support for netdevice in containers.
+Date:   Fri, 22 Sep 2023 16:58:57 +0800
+Message-Id: <20230922085858.94747-1-huangjie.albert@bytedance.com>
+X-Mailer: git-send-email 2.37.1 (Apple Git-137.1)
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Sep 22, 2023 at 12:17=E2=80=AFAM Christophe Leroy
-<christophe.leroy@csgroup.eu> wrote:
->
->
->
-> Le 22/09/2023 =C3=A0 00:52, Song Liu a =C3=A9crit :
-> > On Mon, Sep 18, 2023 at 12:31=E2=80=AFAM Mike Rapoport <rppt@kernel.org=
-> wrote:
-> >>
-> > [...]
-> >> diff --git a/include/linux/execmem.h b/include/linux/execmem.h
-> >> index 519bdfdca595..09d45ac786e9 100644
-> >> --- a/include/linux/execmem.h
-> >> +++ b/include/linux/execmem.h
-> >> @@ -29,6 +29,7 @@
-> >>    * @EXECMEM_KPROBES: parameters for kprobes
-> >>    * @EXECMEM_FTRACE: parameters for ftrace
-> >>    * @EXECMEM_BPF: parameters for BPF
-> >> + * @EXECMEM_MODULE_DATA: parameters for module data sections
-> >>    * @EXECMEM_TYPE_MAX:
-> >>    */
-> >>   enum execmem_type {
-> >> @@ -37,6 +38,7 @@ enum execmem_type {
-> >>          EXECMEM_KPROBES,
-> >>          EXECMEM_FTRACE,
-> >
-> > In longer term, I think we can improve the JITed code and merge
-> > kprobe/ftrace/bpf. to use the same ranges. Also, do we need special
-> > setting for FTRACE? If not, let's just remove it.
->
-> How can we do that ? Some platforms like powerpc require executable
-> memory for BPF and non-exec mem for KPROBE so it can't be in the same
-> area/ranges.
+If the netdevice is within a container and communicates externally
+through network technologies like VXLAN, we won't be able to find
+routing information in the init_net namespace. To address this issue,
+we need to add a struct net parameter to the smc_ib_find_route function.
+This allow us to locate the routing information within the corresponding
+net namespace, ensuring the correct completion of the SMC CLC interaction.
 
-Hmm... non-exec mem for kprobes?
+Signed-off-by: Albert Huang <huangjie.albert@bytedance.com>
+---
+ net/smc/af_smc.c | 3 ++-
+ net/smc/smc_ib.c | 7 ++++---
+ net/smc/smc_ib.h | 2 +-
+ 3 files changed, 7 insertions(+), 5 deletions(-)
 
-       if (strict_module_rwx_enabled())
-               execmem_params.ranges[EXECMEM_KPROBES].pgprot =3D PAGE_KERNE=
-L_ROX;
-       else
-               execmem_params.ranges[EXECMEM_KPROBES].pgprot =3D PAGE_KERNE=
-L_EXEC;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index bacdd971615e..7a874da90c7f 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1201,6 +1201,7 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+ 		(struct smc_clc_msg_accept_confirm_v2 *)aclc;
+ 	struct smc_clc_first_contact_ext *fce =
+ 		smc_get_clc_first_contact_ext(clc_v2, false);
++	struct net *net = sock_net(&smc->sk);
+ 	int rc;
+ 
+ 	if (!ini->first_contact_peer || aclc->hdr.version == SMC_V1)
+@@ -1210,7 +1211,7 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+ 		memcpy(ini->smcrv2.nexthop_mac, &aclc->r0.lcl.mac, ETH_ALEN);
+ 		ini->smcrv2.uses_gateway = false;
+ 	} else {
+-		if (smc_ib_find_route(smc->clcsock->sk->sk_rcv_saddr,
++		if (smc_ib_find_route(net, smc->clcsock->sk->sk_rcv_saddr,
+ 				      smc_ib_gid_to_ipv4(aclc->r0.lcl.gid),
+ 				      ini->smcrv2.nexthop_mac,
+ 				      &ini->smcrv2.uses_gateway))
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index 9b66d6aeeb1a..89981dbe46c9 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -193,7 +193,7 @@ bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport)
+ 	return smcibdev->pattr[ibport - 1].state == IB_PORT_ACTIVE;
+ }
+ 
+-int smc_ib_find_route(__be32 saddr, __be32 daddr,
++int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
+ 		      u8 nexthop_mac[], u8 *uses_gateway)
+ {
+ 	struct neighbour *neigh = NULL;
+@@ -205,7 +205,7 @@ int smc_ib_find_route(__be32 saddr, __be32 daddr,
+ 
+ 	if (daddr == cpu_to_be32(INADDR_NONE))
+ 		goto out;
+-	rt = ip_route_output_flow(&init_net, &fl4, NULL);
++	rt = ip_route_output_flow(net, &fl4, NULL);
+ 	if (IS_ERR(rt))
+ 		goto out;
+ 	if (rt->rt_uses_gateway && rt->rt_gw_family != AF_INET)
+@@ -235,6 +235,7 @@ static int smc_ib_determine_gid_rcu(const struct net_device *ndev,
+ 	if (smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP &&
+ 	    smc_ib_gid_to_ipv4((u8 *)&attr->gid) != cpu_to_be32(INADDR_NONE)) {
+ 		struct in_device *in_dev = __in_dev_get_rcu(ndev);
++		struct net *net = dev_net(ndev);
+ 		const struct in_ifaddr *ifa;
+ 		bool subnet_match = false;
+ 
+@@ -248,7 +249,7 @@ static int smc_ib_determine_gid_rcu(const struct net_device *ndev,
+ 		}
+ 		if (!subnet_match)
+ 			goto out;
+-		if (smcrv2->daddr && smc_ib_find_route(smcrv2->saddr,
++		if (smcrv2->daddr && smc_ib_find_route(net, smcrv2->saddr,
+ 						       smcrv2->daddr,
+ 						       smcrv2->nexthop_mac,
+ 						       &smcrv2->uses_gateway))
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index 4df5f8c8a0a1..ef8ac2b7546d 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -112,7 +112,7 @@ void smc_ib_sync_sg_for_device(struct smc_link *lnk,
+ int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
+ 			 unsigned short vlan_id, u8 gid[], u8 *sgid_index,
+ 			 struct smc_init_info_smcrv2 *smcrv2);
+-int smc_ib_find_route(__be32 saddr, __be32 daddr,
++int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
+ 		      u8 nexthop_mac[], u8 *uses_gateway);
+ bool smc_ib_is_valid_local_systemid(void);
+ int smcr_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
+-- 
+2.37.1 (Apple Git-137.1)
 
-Do you mean the latter case?
-
-Thanks,
-Song
