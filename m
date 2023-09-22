@@ -2,35 +2,34 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 594AFCD4F32
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Sep 2023 07:40:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A38BCD4F32
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Sep 2023 07:42:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230525AbjIVHku (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 22 Sep 2023 03:40:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38236 "EHLO
+        id S231989AbjIVHms (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 22 Sep 2023 03:42:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230327AbjIVHkt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Sep 2023 03:40:49 -0400
+        with ESMTP id S231725AbjIVHmN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Sep 2023 03:42:13 -0400
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0CB6FF7;
-        Fri, 22 Sep 2023 00:40:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E905B1A2;
+        Fri, 22 Sep 2023 00:42:06 -0700 (PDT)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 3803DDA7;
-        Fri, 22 Sep 2023 00:41:16 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1CC2DDA7;
+        Fri, 22 Sep 2023 00:42:43 -0700 (PDT)
 Received: from [10.57.65.11] (unknown [10.57.65.11])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 65CC23F5A1;
-        Fri, 22 Sep 2023 00:40:29 -0700 (PDT)
-Message-ID: <3358e732-8df9-4408-8249-384b102f5d75@arm.com>
-Date:   Fri, 22 Sep 2023 08:40:26 +0100
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id F3AA23F5A1;
+        Fri, 22 Sep 2023 00:41:54 -0700 (PDT)
+Message-ID: <af6a0bb0-4645-4667-aa0e-e78fac3aad28@arm.com>
+Date:   Fri, 22 Sep 2023 08:41:54 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 8/8] arm64: hugetlb: Fix set_huge_pte_at() to work with
- all swap entries
+Subject: Re: [PATCH v1 0/8] Fix set_huge_pte_at() panic on arm64
 Content-Language: en-GB
-To:     Qi Zheng <zhengqi.arch@bytedance.com>
-Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+To:     Catalin Marinas <catalin.marinas@arm.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Will Deacon <will@kernel.org>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
         Helge Deller <deller@gmx.de>,
         Nicholas Piggin <npiggin@gmail.com>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
@@ -48,146 +47,80 @@ Cc:     Catalin Marinas <catalin.marinas@arm.com>,
         Mike Kravetz <mike.kravetz@oracle.com>,
         Muchun Song <muchun.song@linux.dev>,
         SeongJae Park <sj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
         Uladzislau Rezki <urezki@gmail.com>,
         Christoph Hellwig <hch@infradead.org>,
         Lorenzo Stoakes <lstoakes@gmail.com>,
         Anshuman Khandual <anshuman.khandual@arm.com>,
         Peter Xu <peterx@redhat.com>,
         Axel Rasmussen <axelrasmussen@google.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
         linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
         sparclinux@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org
+        stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 References: <20230921162007.1630149-1-ryan.roberts@arm.com>
- <20230921162007.1630149-9-ryan.roberts@arm.com>
- <217bb956-b9f6-1057-914b-436d4c775a8b@bytedance.com>
+ <20230921093026.230b2991be551093e397f462@linux-foundation.org>
+ <7c5c2c00-d657-44fd-b478-743b43c57e8a@arm.com> <ZQx/f35o0zT2lug4@arm.com>
 From:   Ryan Roberts <ryan.roberts@arm.com>
-In-Reply-To: <217bb956-b9f6-1057-914b-436d4c775a8b@bytedance.com>
+In-Reply-To: <ZQx/f35o0zT2lug4@arm.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 22/09/2023 03:54, Qi Zheng wrote:
-> Hi Ryan,
-> 
-> On 2023/9/22 00:20, Ryan Roberts wrote:
->> When called with a swap entry that does not embed a PFN (e.g.
->> PTE_MARKER_POISONED or PTE_MARKER_UFFD_WP), the previous implementation
->> of set_huge_pte_at() would either cause a BUG() to fire (if
->> CONFIG_DEBUG_VM is enabled) or cause a dereference of an invalid address
->> and subsequent panic.
+On 21/09/2023 18:38, Catalin Marinas wrote:
+> On Thu, Sep 21, 2023 at 05:35:54PM +0100, Ryan Roberts wrote:
+>> On 21/09/2023 17:30, Andrew Morton wrote:
+>>> On Thu, 21 Sep 2023 17:19:59 +0100 Ryan Roberts <ryan.roberts@arm.com> wrote:
+>>>> Ryan Roberts (8):
+>>>>   parisc: hugetlb: Convert set_huge_pte_at() to take vma
+>>>>   powerpc: hugetlb: Convert set_huge_pte_at() to take vma
+>>>>   riscv: hugetlb: Convert set_huge_pte_at() to take vma
+>>>>   s390: hugetlb: Convert set_huge_pte_at() to take vma
+>>>>   sparc: hugetlb: Convert set_huge_pte_at() to take vma
+>>>>   mm: hugetlb: Convert set_huge_pte_at() to take vma
+>>>>   arm64: hugetlb: Convert set_huge_pte_at() to take vma
+>>>>   arm64: hugetlb: Fix set_huge_pte_at() to work with all swap entries
+>>>>
+>>>>  arch/arm64/include/asm/hugetlb.h              |  2 +-
+>>>>  arch/arm64/mm/hugetlbpage.c                   | 22 ++++----------
+>>>>  arch/parisc/include/asm/hugetlb.h             |  2 +-
+>>>>  arch/parisc/mm/hugetlbpage.c                  |  4 +--
+>>>>  .../include/asm/nohash/32/hugetlb-8xx.h       |  3 +-
+>>>>  arch/powerpc/mm/book3s64/hugetlbpage.c        |  2 +-
+>>>>  arch/powerpc/mm/book3s64/radix_hugetlbpage.c  |  2 +-
+>>>>  arch/powerpc/mm/nohash/8xx.c                  |  2 +-
+>>>>  arch/powerpc/mm/pgtable.c                     |  7 ++++-
+>>>>  arch/riscv/include/asm/hugetlb.h              |  2 +-
+>>>>  arch/riscv/mm/hugetlbpage.c                   |  3 +-
+>>>>  arch/s390/include/asm/hugetlb.h               |  8 +++--
+>>>>  arch/s390/mm/hugetlbpage.c                    |  8 ++++-
+>>>>  arch/sparc/include/asm/hugetlb.h              |  8 +++--
+>>>>  arch/sparc/mm/hugetlbpage.c                   |  8 ++++-
+>>>>  include/asm-generic/hugetlb.h                 |  6 ++--
+>>>>  include/linux/hugetlb.h                       |  6 ++--
+>>>>  mm/damon/vaddr.c                              |  2 +-
+>>>>  mm/hugetlb.c                                  | 30 +++++++++----------
+>>>>  mm/migrate.c                                  |  2 +-
+>>>>  mm/rmap.c                                     | 10 +++----
+>>>>  mm/vmalloc.c                                  |  5 +++-
+>>>>  22 files changed, 80 insertions(+), 64 deletions(-)
+>>>
+>>> Looks scary but it's actually a fairly modest patchset.  It could
+>>> easily be all rolled into a single patch for ease of backporting. 
+>>> Maybe Greg has an opinion?
 >>
->> arm64's huge pte implementation supports multiple huge page sizes, some
->> of which are implemented in the page table with contiguous mappings. So
->> set_huge_pte_at() needs to work out how big the logical pte is, so that
->> it can also work out how many physical ptes (or pmds) need to be
->> written. It does this by grabbing the folio out of the pte and querying
->> its size.
->>
->> However, there are cases when the pte being set is actually a swap
->> entry. But this also used to work fine, because for huge ptes, we only
->> ever saw migration entries and hwpoison entries. And both of these types
->> of swap entries have a PFN embedded, so the code would grab that and
->> everything still worked out.
->>
->> But over time, more calls to set_huge_pte_at() have been added that set
->> swap entry types that do not embed a PFN. And this causes the code to go
->> bang. The triggering case is for the uffd poison test, commit
->> 99aa77215ad0 ("selftests/mm: add uffd unit test for UFFDIO_POISON"),
->> which sets a PTE_MARKER_POISONED swap entry. But review shows there are
->> other places too (PTE_MARKER_UFFD_WP).
->>
->> So the root cause is due to commit 18f3962953e4 ("mm: hugetlb: kill
->> set_huge_swap_pte_at()"), which aimed to simplify the interface to the
->> core code by removing set_huge_swap_pte_at() (which took a page size
->> parameter) and replacing it with calls to set_huge_swap_pte_at() where
->> the size was inferred from the folio, as descibed above. While that
->> commit didn't break anything at the time, 
+>> Yes, I thought about doing that; or perhaps 2 patches - one for the interface
+>> change across all arches and core code, and one for the actual bug fix?
 > 
-> If it didn't break anything at that time, then shouldn't the Fixes tag
-> be added to this commit?
-> 
->> it did break the interface
->> because it couldn't handle swap entries without PFNs. And since then new
->> callers have come along which rely on this working.
-> 
-> So the Fixes tag should be added only to the commit that introduces the
-> first new callers?
+> I think this would make more sense, especially if we want to backport
+> it. The first patch would have no functional change, only an interface
+> change, followed by the arm64 fix.
 
-Well I guess it's a matter of point of view; My view is that 18f3962953e4 is the
-buggy change because it broke the interface to not be able to handle swap
-entries which do not contain PFNs. The fact that there were no callers that used
-the interface in this way at the time of the commit is irrelevant in my view.
-But I already added 2 fixes tags; one for the buggy commit, and the other for
-the commit containing the new user of the interface.
+OK I'll do it like this for v2.
 
 > 
-> Other than that, LGTM.
-
-Thanks!
-
-> 
-> Thanks,
-> Qi
-> 
->>
->> Now that we have modified the set_huge_pte_at() interface to pass the
->> vma, we can extract the huge page size from it and fix this issue.
->>
->> I'm tagging the commit that added the uffd poison feature, since that is
->> what exposed the problem, as well as the original change that broke the
->> interface. Hopefully this is valuable for people doing bisect.
->>
->> Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
->> Fixes: 18f3962953e4 ("mm: hugetlb: kill set_huge_swap_pte_at()")
->> Fixes: 8a13897fb0da ("mm: userfaultfd: support UFFDIO_POISON for hugetlbfs")
->> ---
->>   arch/arm64/mm/hugetlbpage.c | 17 +++--------------
->>   1 file changed, 3 insertions(+), 14 deletions(-)
->>
->> diff --git a/arch/arm64/mm/hugetlbpage.c b/arch/arm64/mm/hugetlbpage.c
->> index 844832511c1e..a08601a14689 100644
->> --- a/arch/arm64/mm/hugetlbpage.c
->> +++ b/arch/arm64/mm/hugetlbpage.c
->> @@ -241,13 +241,6 @@ static void clear_flush(struct mm_struct *mm,
->>       flush_tlb_range(&vma, saddr, addr);
->>   }
->>   -static inline struct folio *hugetlb_swap_entry_to_folio(swp_entry_t entry)
->> -{
->> -    VM_BUG_ON(!is_migration_entry(entry) && !is_hwpoison_entry(entry));
->> -
->> -    return page_folio(pfn_to_page(swp_offset_pfn(entry)));
->> -}
->> -
->>   void set_huge_pte_at(struct vm_area_struct *vma, unsigned long addr,
->>                   pte_t *ptep, pte_t pte)
->>   {
->> @@ -258,13 +251,10 @@ void set_huge_pte_at(struct vm_area_struct *vma,
->> unsigned long addr,
->>       unsigned long pfn, dpfn;
->>       pgprot_t hugeprot;
->>   -    if (!pte_present(pte)) {
->> -        struct folio *folio;
->> -
->> -        folio = hugetlb_swap_entry_to_folio(pte_to_swp_entry(pte));
->> -        ncontig = num_contig_ptes(folio_size(folio), &pgsize);
->> +    ncontig = num_contig_ptes(huge_page_size(hstate_vma(vma)), &pgsize);
->>   -        for (i = 0; i < ncontig; i++, ptep++)
->> +    if (!pte_present(pte)) {
->> +        for (i = 0; i < ncontig; i++, ptep++, addr += pgsize)
->>               set_pte_at(mm, addr, ptep, pte);
->>           return;
->>       }
->> @@ -274,7 +264,6 @@ void set_huge_pte_at(struct vm_area_struct *vma, unsigned
->> long addr,
->>           return;
->>       }
->>   -    ncontig = find_num_contig(mm, addr, ptep, &pgsize);
->>       pfn = pte_pfn(pte);
->>       dpfn = pgsize >> PAGE_SHIFT;
->>       hugeprot = pte_pgprot(pte);
 
