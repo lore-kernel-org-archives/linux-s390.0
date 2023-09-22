@@ -2,168 +2,181 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1301AE7D0BB
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Sep 2023 01:37:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 068D0E7D0BE
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Sep 2023 01:51:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230137AbjIVBhW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Sep 2023 21:37:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56312 "EHLO
+        id S229538AbjIVBvQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Sep 2023 21:51:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229497AbjIVBhW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Sep 2023 21:37:22 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECDF2F5;
-        Thu, 21 Sep 2023 18:37:15 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2723CC433C8;
-        Fri, 22 Sep 2023 01:37:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1695346635;
-        bh=zRyL223DT0AFJx1gaOEUn6WcLlX2Kysk+6Fs0mtLrOo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PNAAsjxZ/e5mSgGg/LPftlkbNKpcN/rnJGyJdb//w0VkNEAdvtPkglz83EUpi+iRP
-         CUifgPcEfIXikkO8FSBVWAewa4zbTOyW/Yl5flrqUDllqJAE3SzG2kmjrjAZrmJDHo
-         crbAM8SWYY+JnkBboXDn+/Qz7CHhlgXE7xG/2qP2x0dmB0tprvlPXeP9NzkYvk+r3s
-         0uxngMBI0XN0BvxVhCId+ACbyTDCZOXDjS5wdL3TxpEGcwtg23dBoXZkT0xPOs4c86
-         SSz1LUNN37N0YRjVtKgcGjRfXwPjXi9P2JOPVjrrrvT7bUtXub+Siisb+MvwlrdxSE
-         a+KWdAyrmeGOA==
-From:   SeongJae Park <sj@kernel.org>
-To:     Ryan Roberts <ryan.roberts@arm.com>
-Cc:     Will Deacon <will@kernel.org>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
+        with ESMTP id S229458AbjIVBvQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Sep 2023 21:51:16 -0400
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11D50F1;
+        Thu, 21 Sep 2023 18:51:06 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R521e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0Vsa-hC4_1695347462;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0Vsa-hC4_1695347462)
+          by smtp.aliyun-inc.com;
+          Fri, 22 Sep 2023 09:51:04 +0800
+Message-ID: <1695347358.2770545-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v14 30/42] virtio_pci: introduce helper to get/set queue reset
+Date:   Fri, 22 Sep 2023 09:49:18 +0800
+From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     virtualization@lists.linux-foundation.org,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Muchun Song <muchun.song@linux.dev>,
-        SeongJae Park <sj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Lorenzo Stoakes <lstoakes@gmail.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Peter Xu <peterx@redhat.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v1 6/8] mm: hugetlb: Convert set_huge_pte_at() to take vma
-Date:   Fri, 22 Sep 2023 01:37:11 +0000
-Message-Id: <20230922013711.100278-1-sj@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20230921162007.1630149-7-ryan.roberts@arm.com>
-References: 
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, bpf@vger.kernel.org,
+        kangjie.xu@linux.alibaba.com
+References: <20220801063902.129329-1-xuanzhuo@linux.alibaba.com>
+ <20220801063902.129329-31-xuanzhuo@linux.alibaba.com>
+ <20230921100112-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20230921100112-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Ryan,
-
-On Thu, 21 Sep 2023 17:20:05 +0100 Ryan Roberts <ryan.roberts@arm.com> wrote:
-
-> In order to fix a bug, arm64 needs access to the vma inside it's
-> implementation of set_huge_pte_at(). Provide for this by converting the
-> mm parameter to be a vma. Any implementations that require the mm can
-> access it via vma->vm_mm.
-> 
-> This commit makes the required modifications to the core mm. Separate
-> commits update the arches, before the actual bug is fixed in arm64.
-> 
-> No behavioral changes intended.
-> 
-> Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
-
-For mm/damon/ part change,
-
-Reviewed-by: SeongJae Park <sj@kernel.org>
-
-
-Thanks,
-SJ
-
-
-> ---
->  include/asm-generic/hugetlb.h |  6 +++---
->  include/linux/hugetlb.h       |  6 +++---
->  mm/damon/vaddr.c              |  2 +-
->  mm/hugetlb.c                  | 30 +++++++++++++++---------------
->  mm/migrate.c                  |  2 +-
->  mm/rmap.c                     | 10 +++++-----
->  mm/vmalloc.c                  |  5 ++++-
->  7 files changed, 32 insertions(+), 29 deletions(-)
-> 
-> diff --git a/include/asm-generic/hugetlb.h b/include/asm-generic/hugetlb.h
-> index 4da02798a00b..515e4777fb65 100644
-> --- a/include/asm-generic/hugetlb.h
-> +++ b/include/asm-generic/hugetlb.h
-> @@ -75,10 +75,10 @@ static inline void hugetlb_free_pgd_range(struct mmu_gather *tlb,
->  #endif
->  
->  #ifndef __HAVE_ARCH_HUGE_SET_HUGE_PTE_AT
-> -static inline void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
-> -		pte_t *ptep, pte_t pte)
-> +static inline void set_huge_pte_at(struct vm_area_struct *vma,
-> +		unsigned long addr, pte_t *ptep, pte_t pte)
->  {
-> -	set_pte_at(mm, addr, ptep, pte);
-> +	set_pte_at(vma->vm_mm, addr, ptep, pte);
->  }
->  #endif
->  
-> diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-> index 5b2626063f4f..08184f32430c 100644
-> --- a/include/linux/hugetlb.h
-> +++ b/include/linux/hugetlb.h
-> @@ -984,7 +984,7 @@ static inline void huge_ptep_modify_prot_commit(struct vm_area_struct *vma,
->  						unsigned long addr, pte_t *ptep,
->  						pte_t old_pte, pte_t pte)
->  {
-> -	set_huge_pte_at(vma->vm_mm, addr, ptep, pte);
-> +	set_huge_pte_at(vma, addr, ptep, pte);
->  }
->  #endif
->  
-> @@ -1172,8 +1172,8 @@ static inline pte_t huge_ptep_clear_flush(struct vm_area_struct *vma,
->  #endif
->  }
->  
-> -static inline void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
-> -				   pte_t *ptep, pte_t pte)
-> +static inline void set_huge_pte_at(struct vm_area_struct *vma,
-> +				   unsigned long addr, pte_t *ptep, pte_t pte)
->  {
->  }
->  
-> diff --git a/mm/damon/vaddr.c b/mm/damon/vaddr.c
-> index 4c81a9dbd044..55da8cee8fbc 100644
-> --- a/mm/damon/vaddr.c
-> +++ b/mm/damon/vaddr.c
-> @@ -347,7 +347,7 @@ static void damon_hugetlb_mkold(pte_t *pte, struct mm_struct *mm,
->  	if (pte_young(entry)) {
->  		referenced = true;
->  		entry = pte_mkold(entry);
-> -		set_huge_pte_at(mm, addr, pte, entry);
-> +		set_huge_pte_at(vma, addr, pte, entry);
->  	}
->  
->  #ifdef CONFIG_MMU_NOTIFIER
-[...]
+On Thu, 21 Sep 2023 10:02:53 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Mon, Aug 01, 2022 at 02:38:50PM +0800, Xuan Zhuo wrote:
+> > Introduce new helpers to implement queue reset and get queue reset
+> > status.
+> >
+> >  https://github.com/oasis-tcs/virtio-spec/issues/124
+> >  https://github.com/oasis-tcs/virtio-spec/issues/139
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > Acked-by: Jason Wang <jasowang@redhat.com>
+> > ---
+> >  drivers/virtio/virtio_pci_modern_dev.c | 39 ++++++++++++++++++++++++++
+> >  include/linux/virtio_pci_modern.h      |  2 ++
+> >  2 files changed, 41 insertions(+)
+> >
+> > diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
+> > index fa2a9445bb18..869cb46bef96 100644
+> > --- a/drivers/virtio/virtio_pci_modern_dev.c
+> > +++ b/drivers/virtio/virtio_pci_modern_dev.c
+> > @@ -3,6 +3,7 @@
+> >  #include <linux/virtio_pci_modern.h>
+> >  #include <linux/module.h>
+> >  #include <linux/pci.h>
+> > +#include <linux/delay.h>
+> >
+> >  /*
+> >   * vp_modern_map_capability - map a part of virtio pci capability
+> > @@ -474,6 +475,44 @@ void vp_modern_set_status(struct virtio_pci_modern_device *mdev,
+> >  }
+> >  EXPORT_SYMBOL_GPL(vp_modern_set_status);
+> >
+> > +/*
+> > + * vp_modern_get_queue_reset - get the queue reset status
+> > + * @mdev: the modern virtio-pci device
+> > + * @index: queue index
+> > + */
+> > +int vp_modern_get_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
+> > +{
+> > +	struct virtio_pci_modern_common_cfg __iomem *cfg;
+> > +
+> > +	cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev->common;
+> > +
+> > +	vp_iowrite16(index, &cfg->cfg.queue_select);
+> > +	return vp_ioread16(&cfg->queue_reset);
+> > +}
+> > +EXPORT_SYMBOL_GPL(vp_modern_get_queue_reset);
+> > +
+>
+> Actually, this does not validate that the config structure is big
+> enough. So it can access some unrelated memory. Don't know whether
+> that's exploitable e.g. for CoCo but not nice, anyway.
+> Need to validate the size and disable reset if it's too small.
 
 
-Thanks,
-SJ
+static int vp_modern_disable_vq_and_reset(struct virtqueue *vq)
+{
+	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
+	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
+	struct virtio_pci_vq_info *info;
+	unsigned long flags;
+
+->	if (!virtio_has_feature(vq->vdev, VIRTIO_F_RING_RESET))
+		return -ENOENT;
+
+	vp_modern_set_queue_reset(mdev, vq->index);
+
+
+I checked VIRTIO_F_RING_RESET before call this.
+
+Do you mean, we should put the check to this function.
+
+
+Thanks.
+
+
+
+>
+>
+> > +/*
+> > + * vp_modern_set_queue_reset - reset the queue
+> > + * @mdev: the modern virtio-pci device
+> > + * @index: queue index
+> > + */
+> > +void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
+> > +{
+> > +	struct virtio_pci_modern_common_cfg __iomem *cfg;
+> > +
+> > +	cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev->common;
+> > +
+> > +	vp_iowrite16(index, &cfg->cfg.queue_select);
+> > +	vp_iowrite16(1, &cfg->queue_reset);
+> > +
+> > +	while (vp_ioread16(&cfg->queue_reset))
+> > +		msleep(1);
+> > +
+> > +	while (vp_ioread16(&cfg->cfg.queue_enable))
+> > +		msleep(1);
+> > +}
+> > +EXPORT_SYMBOL_GPL(vp_modern_set_queue_reset);
+> > +
+> >  /*
+> >   * vp_modern_queue_vector - set the MSIX vector for a specific virtqueue
+> >   * @mdev: the modern virtio-pci device
+> > diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
+> > index 05123b9a606f..c4eeb79b0139 100644
+> > --- a/include/linux/virtio_pci_modern.h
+> > +++ b/include/linux/virtio_pci_modern.h
+> > @@ -113,4 +113,6 @@ void __iomem * vp_modern_map_vq_notify(struct virtio_pci_modern_device *mdev,
+> >  				       u16 index, resource_size_t *pa);
+> >  int vp_modern_probe(struct virtio_pci_modern_device *mdev);
+> >  void vp_modern_remove(struct virtio_pci_modern_device *mdev);
+> > +int vp_modern_get_queue_reset(struct virtio_pci_modern_device *mdev, u16 index);
+> > +void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index);
+> >  #endif
+> > --
+> > 2.31.0
+>
