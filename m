@@ -2,26 +2,26 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9226CE7D0D8
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Sep 2023 07:19:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAC64CD4F2E
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Sep 2023 07:33:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230254AbjIVHTj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 22 Sep 2023 03:19:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48504 "EHLO
+        id S231455AbjIVHdl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 22 Sep 2023 03:33:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229796AbjIVHTi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Sep 2023 03:19:38 -0400
+        with ESMTP id S230166AbjIVHdk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Sep 2023 03:33:40 -0400
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E0D0EC2;
-        Fri, 22 Sep 2023 00:19:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9BC1E195;
+        Fri, 22 Sep 2023 00:33:33 -0700 (PDT)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C9E51DA7;
-        Fri, 22 Sep 2023 00:20:07 -0700 (PDT)
-Received: from [192.168.68.106] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 11BBC3F5A1;
-        Fri, 22 Sep 2023 00:19:20 -0700 (PDT)
-Message-ID: <f6ad20a0-2f3f-414a-845a-948f6d06aaf3@arm.com>
-Date:   Fri, 22 Sep 2023 08:19:18 +0100
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B091CDA7;
+        Fri, 22 Sep 2023 00:34:09 -0700 (PDT)
+Received: from [10.57.65.11] (unknown [10.57.65.11])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 412E53F5A1;
+        Fri, 22 Sep 2023 00:33:09 -0700 (PDT)
+Message-ID: <597e7496-ef99-4505-88ee-91701af02835@arm.com>
+Date:   Fri, 22 Sep 2023 08:33:03 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v1 2/8] powerpc: hugetlb: Convert set_huge_pte_at() to
@@ -67,69 +67,150 @@ Cc:     "linux-arm-kernel@lists.infradead.org"
         "stable@vger.kernel.org" <stable@vger.kernel.org>
 References: <20230921162007.1630149-1-ryan.roberts@arm.com>
  <20230921162007.1630149-3-ryan.roberts@arm.com>
- <9864a7eb-004d-14c6-c2bd-bb9333fe67be@csgroup.eu>
- <0958d813-15f8-5ed5-1e20-08b8feb465ad@csgroup.eu>
+ <0f2dd31a-a361-24ba-154d-4e614c0eff73@csgroup.eu>
 From:   Ryan Roberts <ryan.roberts@arm.com>
-In-Reply-To: <0958d813-15f8-5ed5-1e20-08b8feb465ad@csgroup.eu>
+In-Reply-To: <0f2dd31a-a361-24ba-154d-4e614c0eff73@csgroup.eu>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 22/09/2023 07:44, Christophe Leroy wrote:
+On 22/09/2023 07:56, Christophe Leroy wrote:
 > 
 > 
-> Le 21/09/2023 à 20:43, Christophe Leroy a écrit :
+> Le 21/09/2023 à 18:20, Ryan Roberts a écrit :
+>> In order to fix a bug, arm64 needs access to the vma inside it's
+>> implementation of set_huge_pte_at(). Provide for this by converting the
+>> mm parameter to be a vma. Any implementations that require the mm can
+>> access it via vma->vm_mm.
 >>
+>> This commit makes the required powerpc modifications. Separate commits
+>> update the other arches and core code, before the actual bug is fixed in
+>> arm64.
 >>
->> Le 21/09/2023 à 18:20, Ryan Roberts a écrit :
->>> In order to fix a bug, arm64 needs access to the vma inside it's
->>> implementation of set_huge_pte_at(). Provide for this by converting the
->>> mm parameter to be a vma. Any implementations that require the mm can
->>> access it via vma->vm_mm.
->>>
->>> This commit makes the required powerpc modifications. Separate commits
->>> update the other arches and core code, before the actual bug is fixed in
->>> arm64.
->>>
->>> No behavioral changes intended.
+>> No behavioral changes intended.
 >>
->> This patch doesn't build, allthough I have also applied patch 1. Is
->> something missing ?
+>> Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
+>> ---
+>>   arch/powerpc/include/asm/nohash/32/hugetlb-8xx.h | 3 ++-
+>>   arch/powerpc/mm/book3s64/hugetlbpage.c           | 2 +-
+>>   arch/powerpc/mm/book3s64/radix_hugetlbpage.c     | 2 +-
+>>   arch/powerpc/mm/nohash/8xx.c                     | 2 +-
+>>   arch/powerpc/mm/pgtable.c                        | 7 ++++++-
+>>   5 files changed, 11 insertions(+), 5 deletions(-)
 >>
->>     CALL    scripts/checksyscalls.sh
->>     CC      arch/powerpc/kernel/setup-common.o
->> In file included from arch/powerpc/kernel/setup-common.c:37:
->> ./include/linux/hugetlb.h: In function 'huge_ptep_modify_prot_commit':
->> ./include/linux/hugetlb.h:987:28: error: passing argument 1 of
->> 'set_huge_pte_at' from incompatible pointer type
->> [-Werror=incompatible-pointer-types]
->>     987 |         set_huge_pte_at(vma->vm_mm, addr, ptep, pte);
->>         |                         ~~~^~~~~~~
->>         |                            |
->>         |                            struct mm_struct *
->> In file included from ./arch/powerpc/include/asm/hugetlb.h:13,
->>                    from ./include/linux/hugetlb.h:815:
->> ./arch/powerpc/include/asm/nohash/32/hugetlb-8xx.h:49:45: note: expected
->> 'struct vm_area_struct *' but argument is of type 'struct mm_struct *'
->>      49 | void set_huge_pte_at(struct vm_area_struct *vma, unsigned long
->> addr, pte_t *ptep, pte_t pte);
->>         |                      ~~~~~~~~~~~~~~~~~~~~~~~^~~
->> cc1: all warnings being treated as errors
->> make[4]: *** [scripts/Makefile.build:243:
+>> diff --git a/arch/powerpc/include/asm/nohash/32/hugetlb-8xx.h b/arch/powerpc/include/asm/nohash/32/hugetlb-8xx.h
+>> index de092b04ee1a..fff8cd726bc7 100644
+>> --- a/arch/powerpc/include/asm/nohash/32/hugetlb-8xx.h
+>> +++ b/arch/powerpc/include/asm/nohash/32/hugetlb-8xx.h
+>> @@ -46,7 +46,8 @@ static inline int check_and_get_huge_psize(int shift)
+>>   }
+>>   
+>>   #define __HAVE_ARCH_HUGE_SET_HUGE_PTE_AT
+>> -void set_huge_pte_at(struct mm_struct *mm, unsigned long addr, pte_t *ptep, pte_t pte);
+>> +void set_huge_pte_at(struct vm_area_struct *vma, unsigned long addr, pte_t *ptep, pte_t pte);
+>> +void __set_huge_pte_at(struct mm_struct *mm, unsigned long addr, pte_t *ptep, pte_t pte);
 > 
-> Oh, I realised that it requires patch 6 to build properly. This is not 
-> good. Your series should be bisectable, that means it must build and run 
-> successfully after each patch. Therefore you have to squash patches 1 to 
-> 7 all togethers.
+> Don't add the burden of an additional function, see below
+> 
+>>   
+>>   #define __HAVE_ARCH_HUGE_PTE_CLEAR
+>>   static inline void huge_pte_clear(struct mm_struct *mm, unsigned long addr,
+>> diff --git a/arch/powerpc/mm/book3s64/hugetlbpage.c b/arch/powerpc/mm/book3s64/hugetlbpage.c
+>> index 3bc0eb21b2a0..ae7fd7c90eb8 100644
+>> --- a/arch/powerpc/mm/book3s64/hugetlbpage.c
+>> +++ b/arch/powerpc/mm/book3s64/hugetlbpage.c
+>> @@ -147,7 +147,7 @@ void huge_ptep_modify_prot_commit(struct vm_area_struct *vma, unsigned long addr
+>>   	if (radix_enabled())
+>>   		return radix__huge_ptep_modify_prot_commit(vma, addr, ptep,
+>>   							   old_pte, pte);
+>> -	set_huge_pte_at(vma->vm_mm, addr, ptep, pte);
+>> +	set_huge_pte_at(vma, addr, ptep, pte);
+>>   }
+>>   
+>>   void __init hugetlbpage_init_defaultsize(void)
+>> diff --git a/arch/powerpc/mm/book3s64/radix_hugetlbpage.c b/arch/powerpc/mm/book3s64/radix_hugetlbpage.c
+>> index 17075c78d4bc..7cd40a334c3a 100644
+>> --- a/arch/powerpc/mm/book3s64/radix_hugetlbpage.c
+>> +++ b/arch/powerpc/mm/book3s64/radix_hugetlbpage.c
+>> @@ -58,5 +58,5 @@ void radix__huge_ptep_modify_prot_commit(struct vm_area_struct *vma,
+>>   	    atomic_read(&mm->context.copros) > 0)
+>>   		radix__flush_hugetlb_page(vma, addr);
+>>   
+>> -	set_huge_pte_at(vma->vm_mm, addr, ptep, pte);
+>> +	set_huge_pte_at(vma, addr, ptep, pte);
+>>   }
+>> diff --git a/arch/powerpc/mm/nohash/8xx.c b/arch/powerpc/mm/nohash/8xx.c
+>> index dbbfe897455d..650a7a8496b6 100644
+>> --- a/arch/powerpc/mm/nohash/8xx.c
+>> +++ b/arch/powerpc/mm/nohash/8xx.c
+>> @@ -91,7 +91,7 @@ static int __ref __early_map_kernel_hugepage(unsigned long va, phys_addr_t pa,
+>>   	if (new && WARN_ON(pte_present(*ptep) && pgprot_val(prot)))
+>>   		return -EINVAL;
+>>   
+>> -	set_huge_pte_at(&init_mm, va, ptep, pte_mkhuge(pfn_pte(pa >> PAGE_SHIFT, prot)));
+>> +	__set_huge_pte_at(&init_mm, va, ptep, pte_mkhuge(pfn_pte(pa >> PAGE_SHIFT, prot)));
+> 
+> Call set_huge_pte_at() with a NULL vma instead.
 
-Yeah my bad - sorry about that. I thought it would be better to separate the
-changes for each arch. But as already suggested by Andrew and Catalin, I'll
-squash the first 7 patches into 1 for v2.
+I'm happy to take your proposed approach if that's your preference. Another
+option is to use a dummy VMA, as I have done in the core code, for the one call
+site that calls set_huge_pte_at() with init_mm:
+
+struct vm_area_struct vma = TLB_FLUSH_VMA(&init_mm, 0);
+
+This is an existing macro that creates a dummy vma with vma->vm_mm filled in.
+Then I pass &vma to the function.
+
+Or yet another option would be to keep the mm param as is in set_huge_pte_at(),
+and add a size param to the function. But then all call sites have the burden of
+figuring out the size of the huge pte (although I think most know already).
+
+Thanks,
+Ryan
 
 > 
-> I'll send you comments on the powerpc part in another mail.
+>>   
+>>   	return 0;
+>>   }
+>> diff --git a/arch/powerpc/mm/pgtable.c b/arch/powerpc/mm/pgtable.c
+>> index 3f86fd217690..9cbcb561a4d8 100644
+>> --- a/arch/powerpc/mm/pgtable.c
+>> +++ b/arch/powerpc/mm/pgtable.c
+>> @@ -288,7 +288,7 @@ int huge_ptep_set_access_flags(struct vm_area_struct *vma,
+>>   }
+>>   
+>>   #if defined(CONFIG_PPC_8xx)
+>> -void set_huge_pte_at(struct mm_struct *mm, unsigned long addr, pte_t *ptep, pte_t pte)
+>> +void __set_huge_pte_at(struct mm_struct *mm, unsigned long addr, pte_t *ptep, pte_t pte)
+> 
+> Keep it as set_huge_pte_at() with vma argument.
+> 
+>>   {
+>>   	pmd_t *pmd = pmd_off(mm, addr);
+> 
+> Change to:
+> 
+> 	pmd_t *pmd = vma ? pmd_off(vma->vm_mm, addr) : pmd_off_k(addr);
+> 
+>>   	pte_basic_t val;
+>> @@ -310,6 +310,11 @@ void set_huge_pte_at(struct mm_struct *mm, unsigned long addr, pte_t *ptep, pte_
+>>   	for (i = 0; i < num; i++, entry++, val += SZ_4K)
+>>   		*entry = val;
+>>   }
+>> +
+>> +void set_huge_pte_at(struct vm_area_struct *vma, unsigned long addr, pte_t *ptep, pte_t pte)
+>> +{
+>> +	__set_huge_pte_at(vma->vm_mm, addr, ptep, pte);
+>> +}
+> 
+> Remove this burden.
+> 
+>>   #endif
+>>   #endif /* CONFIG_HUGETLB_PAGE */
+>>   
+> 
 > 
 > Christophe
 
