@@ -2,139 +2,193 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F77DE7D0A1
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Sep 2023 23:59:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 296DAE7D0A1
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Sep 2023 00:00:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229936AbjIUX7m (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Sep 2023 19:59:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50462 "EHLO
+        id S229509AbjIVAA4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Sep 2023 20:00:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229649AbjIUX7l (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Sep 2023 19:59:41 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D536F4;
-        Thu, 21 Sep 2023 16:59:35 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38LNaWRW019394;
-        Thu, 21 Sep 2023 23:59:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=GqSRrvuzmUHbgVX5ow5+x1HPRKyMaqOJIHeMkbK/UlI=;
- b=H+R6aZ01dXI/TZBQVlI+EvoCZZWuwSI3ZPTpOpVHynxUSSt+FdSGSfyDMsW0hc5JDG99
- YA/N1eoZugtYAzv3gXcrwU5JNUd37RdtO7Se8aIWoAvr9cbGCRvIfxLe5dKYf7Otvojf
- D8Xjeuv5PPR29wbHWLtKYwx95qYGzeb5LU4LJHfp4V6UTOfrSm64POInU1yLqfuHgnSf
- bwIzKvT05qRsboK4jp6WBU3fALYvNP/+csLTJhQ7SN4wi3fE7S+Zfmp8hCJZ0V7PVU0c
- nDbGgDlcPwoy52WvGxW24BwhmlvE7+VJq3oztZnQDPgtgN//6g0OQpj4kPTGVsLlgLn2 fw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t8xvg9hhj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Sep 2023 23:59:30 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38LNaZx3019897;
-        Thu, 21 Sep 2023 23:59:30 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t8xvg9hgn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Sep 2023 23:59:29 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38LN7VAC018806;
-        Thu, 21 Sep 2023 23:59:28 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3t8tsnn4eq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Sep 2023 23:59:28 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-        by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38LNxRQC63177088
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 21 Sep 2023 23:59:27 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 69D895805F;
-        Thu, 21 Sep 2023 23:59:27 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CB4AF58043;
-        Thu, 21 Sep 2023 23:59:25 +0000 (GMT)
-Received: from [9.171.4.137] (unknown [9.171.4.137])
-        by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 21 Sep 2023 23:59:25 +0000 (GMT)
-Message-ID: <0902f55b-0d51-7f4d-0a9e-4b9423217fcf@linux.ibm.com>
-Date:   Fri, 22 Sep 2023 01:59:24 +0200
+        with ESMTP id S229477AbjIVAAz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Sep 2023 20:00:55 -0400
+Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 298B1F9;
+        Thu, 21 Sep 2023 17:00:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1695340847;
+        bh=R/VgVhr9X0HDtbhByU19PzH3x9CzJFuyVh93BLbm8XY=;
+        h=From:To:Subject:In-Reply-To:References:Date:From;
+        b=EUj1hKtv69g+9+nHaOHHtRLCs4SHBdba41Ptbk8nE0yB2aVWS47UCVmbCiEPRl3OS
+         OOOmwbvjXOGRW4+l+Fl5Db4/dr1OmHm7MrwulVHxJbKTdyEHQ3NTGcdOMdEgeyjp8x
+         Bnhvsybnbj7XLRupXWsVSvlbZl5l0MkRPAmNgCHLopPgDW88Klsc03QWfixcsMp1ds
+         +aTlrZPTdD+D3j3dxUqa8Amstg4Jm6Ls7tDlHjwAmIJRs0+hlsAiHuqOW6oF7u3daV
+         6pJaAyNaWqCjBOraN+K5IIYx7vpYRHJKUfWFE2ALkjnpNdro2udTrbfcUvW8kYfIQr
+         Wz7OBF1jOw3AQ==
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4RsC8Y0yCxz4x2b;
+        Fri, 22 Sep 2023 10:00:45 +1000 (AEST)
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Jason Gunthorpe <jgg@nvidia.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        James Morse <james.morse@arm.com>, kvm@vger.kernel.org,
+        kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+        linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        Marc Zyngier <maz@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, x86@kernel.org,
+        Zenghui Yu <yuzenghui@huawei.com>
+Subject: Re: [PATCH rc] kvm: Prevent compiling virt/kvm/vfio.c unless VFIO
+ is selected
+In-Reply-To: <0-v1-08396538817d+13c5-vfio_kvm_kconfig_jgg@nvidia.com>
+References: <0-v1-08396538817d+13c5-vfio_kvm_kconfig_jgg@nvidia.com>
+Date:   Fri, 22 Sep 2023 10:00:44 +1000
+Message-ID: <87leczm5zn.fsf@mail.lhotse>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.1
-Subject: Re: [PATCH net] net/smc: fix panic smc_tcp_syn_recv_sock() while
- closing listen socket
-To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        jaka@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1695211714-66958-1-git-send-email-alibuda@linux.alibaba.com>
-From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <1695211714-66958-1-git-send-email-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: UkOgE4FmI97diwg6vitq6lg7NHFC630Z
-X-Proofpoint-GUID: On0vEL_-A4dXscm68g4-a-xwmrPsRfZK
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-09-21_19,2023-09-21_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- priorityscore=1501 spamscore=0 malwarescore=0 mlxlogscore=999 mlxscore=0
- lowpriorityscore=0 phishscore=0 clxscore=1011 impostorscore=0
- suspectscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2309180000 definitions=main-2309210205
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 20.09.23 14:08, D. Wythe wrote:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
-> 
-> Consider the following scenarios:
-> 
-> smc_release
-> 	smc_close_active
-> 		write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
-> 		smc->clcsock->sk->sk_user_data = NULL;
-> 		write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
-> 
-> smc_tcp_syn_recv_sock
-> 	smc = smc_clcsock_user_data(sk);
-> 	/* now */
-> 	/* smc == NULL */
-> 
-> Hence, we may read the a NULL value in smc_tcp_syn_recv_sock(). And
-> since we only unset sk_user_data during smc_release, it's safe to
-> drop the incoming tcp reqsock.
-> 
-> Fixes:  ("net/smc: net/smc: Limit backlog connections"
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+Jason Gunthorpe <jgg@nvidia.com> writes:
+> There are a bunch of reported randconfig failures now because of this,
+> something like:
+>
+>>> arch/powerpc/kvm/../../../virt/kvm/vfio.c:89:7: warning: attribute declaration must precede definition [-Wignored-attributes]
+>            fn = symbol_get(vfio_file_iommu_group);
+>                 ^
+>    include/linux/module.h:805:60: note: expanded from macro 'symbol_get'
+>    #define symbol_get(x) ({ extern typeof(x) x __attribute__((weak,visibility("hidden"))); &(x); })
+>
+> It happens because the arch forces KVM_VFIO without knowing if VFIO is
+> even enabled.
+>
+> Split the kconfig so the arch selects the usual HAVE_KVM_ARCH_VFIO and
+> then KVM_VFIO is only enabled if the arch wants it and VFIO is turned on.
+>
+> Reported-by: kernel test robot <lkp@intel.com>
+> Closes: https://lore.kernel.org/oe-kbuild-all/202308251949.5IiaV0sz-lkp@intel.com/
+> Closes: https://lore.kernel.org/oe-kbuild-all/202309030741.82aLACDG-lkp@intel.com/
+> Closes: https://lore.kernel.org/oe-kbuild-all/202309110914.QLH0LU6L-lkp@intel.com/
+> Cc: Nick Desaulniers <ndesaulniers@google.com>
+> Fixes: c1cce6d079b8 ("vfio: Compile vfio_group infrastructure optionally")
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 > ---
->   net/smc/af_smc.c | 2 ++
->   1 file changed, 2 insertions(+)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index bacdd97..b4acf47 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -125,6 +125,8 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
->   	struct sock *child;
->   
->   	smc = smc_clcsock_user_data(sk);
-> +	if (unlikely(!smc))
-> +		goto drop;
->   
->   	if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->queued_smc_hs) >
->   				sk->sk_max_ack_backlog)
+>  arch/arm64/kvm/Kconfig   | 2 +-
+>  arch/powerpc/kvm/Kconfig | 2 +-
+>  arch/s390/kvm/Kconfig    | 2 +-
+>  arch/x86/kvm/Kconfig     | 2 +-
+>  virt/kvm/Kconfig         | 7 ++++++-
+>  5 files changed, 10 insertions(+), 5 deletions(-)
+>
+> Sean's large series will also address this:
+>
+> https://lore.kernel.org/kvm/20230916003118.2540661-7-seanjc@google.com/
+>
+> I don't know if it is sever enough to fix in the rc cycle, but here is the
+> patch.
 
-Hi D.Wythe,
+Thanks for debugging this, I had seen it but hadn't got around to it.
 
-this is unfortunately not sufficient for this fix. You have to make sure 
-that is not a life-time problem. Even so, READ_ONCE() is also needed in 
-this case.
+I think it's definitely worth fixing now. It's a pretty simple patch and
+it's still early in the rc cycle.
 
-Thanks,
-Wenjia
+Tested-by: Michael Ellerman <mpe@ellerman.id.au>
+
+cheers
+
+> diff --git a/arch/arm64/kvm/Kconfig b/arch/arm64/kvm/Kconfig
+> index 83c1e09be42e5b..7c43eaea51ce05 100644
+> --- a/arch/arm64/kvm/Kconfig
+> +++ b/arch/arm64/kvm/Kconfig
+> @@ -28,7 +28,7 @@ menuconfig KVM
+>  	select KVM_MMIO
+>  	select KVM_GENERIC_DIRTYLOG_READ_PROTECT
+>  	select KVM_XFER_TO_GUEST_WORK
+> -	select KVM_VFIO
+> +	select HAVE_KVM_ARCH_VFIO
+>  	select HAVE_KVM_EVENTFD
+>  	select HAVE_KVM_IRQFD
+>  	select HAVE_KVM_DIRTY_RING_ACQ_REL
+> diff --git a/arch/powerpc/kvm/Kconfig b/arch/powerpc/kvm/Kconfig
+> index 902611954200df..b64824e4cbc1eb 100644
+> --- a/arch/powerpc/kvm/Kconfig
+> +++ b/arch/powerpc/kvm/Kconfig
+> @@ -22,7 +22,7 @@ config KVM
+>  	select PREEMPT_NOTIFIERS
+>  	select HAVE_KVM_EVENTFD
+>  	select HAVE_KVM_VCPU_ASYNC_IOCTL
+> -	select KVM_VFIO
+> +	select HAVE_KVM_ARCH_VFIO
+>  	select IRQ_BYPASS_MANAGER
+>  	select HAVE_KVM_IRQ_BYPASS
+>  	select INTERVAL_TREE
+> diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+> index 45fdf2a9b2e326..d206ad3a777d5d 100644
+> --- a/arch/s390/kvm/Kconfig
+> +++ b/arch/s390/kvm/Kconfig
+> @@ -31,7 +31,7 @@ config KVM
+>  	select HAVE_KVM_IRQ_ROUTING
+>  	select HAVE_KVM_INVALID_WAKEUPS
+>  	select HAVE_KVM_NO_POLL
+> -	select KVM_VFIO
+> +	select HAVE_KVM_ARCH_VFIO
+>  	select INTERVAL_TREE
+>  	select MMU_NOTIFIER
+>  	help
+> diff --git a/arch/x86/kvm/Kconfig b/arch/x86/kvm/Kconfig
+> index ed90f148140dfe..8e70e693f90e30 100644
+> --- a/arch/x86/kvm/Kconfig
+> +++ b/arch/x86/kvm/Kconfig
+> @@ -45,7 +45,7 @@ config KVM
+>  	select HAVE_KVM_NO_POLL
+>  	select KVM_XFER_TO_GUEST_WORK
+>  	select KVM_GENERIC_DIRTYLOG_READ_PROTECT
+> -	select KVM_VFIO
+> +	select HAVE_KVM_ARCH_VFIO
+>  	select INTERVAL_TREE
+>  	select HAVE_KVM_PM_NOTIFIER if PM
+>  	select KVM_GENERIC_HARDWARE_ENABLING
+> diff --git a/virt/kvm/Kconfig b/virt/kvm/Kconfig
+> index 484d0873061ca5..0bf34809e1bbfe 100644
+> --- a/virt/kvm/Kconfig
+> +++ b/virt/kvm/Kconfig
+> @@ -59,9 +59,14 @@ config HAVE_KVM_MSI
+>  config HAVE_KVM_CPU_RELAX_INTERCEPT
+>         bool
+>  
+> -config KVM_VFIO
+> +config HAVE_KVM_ARCH_VFIO
+>         bool
+>  
+> +config KVM_VFIO
+> +       def_bool y
+> +       depends on HAVE_KVM_ARCH_VFIO
+> +       depends on VFIO
+> +
+>  config HAVE_KVM_INVALID_WAKEUPS
+>         bool
+>  
+>
+> base-commit: 0bb80ecc33a8fb5a682236443c1e740d5c917d1d
+> -- 
+> 2.42.0
