@@ -2,126 +2,127 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4315ECD4847
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Sep 2023 18:13:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04F1ACD4852
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Sep 2023 19:15:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230076AbjIVSNa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 22 Sep 2023 14:13:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45098 "EHLO
+        id S233253AbjIVTQC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 22 Sep 2023 15:16:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229630AbjIVSN3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Sep 2023 14:13:29 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15C009F;
-        Fri, 22 Sep 2023 11:13:24 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38MI7TrA018275;
-        Fri, 22 Sep 2023 18:13:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=tXL9ZfYTERR3en1PBqoFEJXsooQVxAx94EFww22n28M=;
- b=YB1Yic+Ha629EOugPehYhBqa0hKg3NAiiD3Z+q3pT8w44sY1n4aNhIWRAGUjp4X0VBCt
- XLdZq3hI2nA8KMVbAf1IFuhGL22xqTND6yxJUgt6oJ3FIqZALGxJNEKaCZbpHxQlfDmc
- AecUUEeZcBe2Koaewtlacrm/LZsVPZjBU3ARH2Nl3pVlcz9D2uBaiq+YAvitYFnjM3g1
- lys6jAY072m9wZ9SfDTO9NlRrD597kJEzHSLLb1SPz+yEIF1P+EFiXIsCT7/L/YLYai3
- /6S4NMsslbZV6XtLoqbD0um1LLiPYFRVHo/HQzJIHjCYBVt//5qvikZ/cyx7V878ICi1 0g== 
+        with ESMTP id S231226AbjIVTQB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Sep 2023 15:16:01 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 356AAAF;
+        Fri, 22 Sep 2023 12:15:55 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38MJEKcZ021852;
+        Fri, 22 Sep 2023 19:15:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=HVfyxw/Kl8/+TQQ2WdC9XhJKmxyl8eQRXxHJLzVysuU=;
+ b=c0RLGFRnxuoHtZEx9SRZj41qa6wGhBFHyPBp2xi8NahLKm60TYAl+DsraQioXS5TLFIw
+ cZgldxh7aUN4/MDIbGO8pS/i4gzFEMtfo4Q6u1QAiUgDJW+DDN0h/HCPqGm1q5y0456Y
+ tPpaoq8FdshCojJotVy9jzZU9QwhlaIoY8KUvmEgSmItMnQj597OKFjCJAsUMvSwhqo7
+ r18+Q7ahfeU9Eolbp6cVgWgKKEIB/cUg+iAisiTeHu8w6hoSRkHOg9g7qALEBVEtTF1J
+ cBKDEmnA0kChtZcN4jiCIrvRolhT+bYNM3Eto0ttlh9k8oLS3rZJ1aoju69GLTN16vv7 eA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t9f8y8wrm-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t9gwdr110-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 22 Sep 2023 18:13:19 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38MI7iui020475;
-        Fri, 22 Sep 2023 18:13:19 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t9f8y8wr5-1
+        Fri, 22 Sep 2023 19:15:54 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38MJEMCN021963;
+        Fri, 22 Sep 2023 19:15:53 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t9gwdr10n-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 22 Sep 2023 18:13:19 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38MHKkdS015474;
-        Fri, 22 Sep 2023 18:13:17 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3t8tspphbv-1
+        Fri, 22 Sep 2023 19:15:53 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38MIb30H029794;
+        Fri, 22 Sep 2023 19:15:53 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3t8tsp764k-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 22 Sep 2023 18:13:17 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38MIDEfP22938114
+        Fri, 22 Sep 2023 19:15:52 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38MJFnLj27198148
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 22 Sep 2023 18:13:14 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B08752004B;
-        Fri, 22 Sep 2023 18:13:14 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F1BE420043;
-        Fri, 22 Sep 2023 18:13:13 +0000 (GMT)
-Received: from [9.171.80.27] (unknown [9.171.80.27])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 22 Sep 2023 18:13:13 +0000 (GMT)
-Message-ID: <b7dad8b72ec94d27378eca87fea4cb0c86b8c361.camel@linux.ibm.com>
-Subject: Re: [PATCH net-next 01/18] net/smc: decouple ism_dev from SMC-D
- device dump
-From:   Gerd Bayer <gbayer@linux.ibm.com>
-To:     Wen Gu <guwen@linux.alibaba.com>, Simon Horman <horms@kernel.org>
-Cc:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, alibuda@linux.alibaba.com,
-        tonylu@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Date:   Fri, 22 Sep 2023 20:13:13 +0200
-In-Reply-To: <2c9d570c-f780-0484-a26c-78b115e1a6a3@linux.alibaba.com>
-References: <1695134522-126655-1-git-send-email-guwen@linux.alibaba.com>
-         <1695134522-126655-2-git-send-email-guwen@linux.alibaba.com>
-         <20230921204153.GQ224399@kernel.org>
-         <2c9d570c-f780-0484-a26c-78b115e1a6a3@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.module_f38+17164+63eeee4a) 
+        Fri, 22 Sep 2023 19:15:49 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D047420043;
+        Fri, 22 Sep 2023 19:15:49 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2F82A20040;
+        Fri, 22 Sep 2023 19:15:49 +0000 (GMT)
+Received: from [9.171.40.202] (unknown [9.171.40.202])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Fri, 22 Sep 2023 19:15:49 +0000 (GMT)
+Message-ID: <b9e9eca9-413c-0301-3839-bb7534ac76d2@linux.ibm.com>
+Date:   Fri, 22 Sep 2023 21:15:48 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.14.0
+Subject: Re: [PATCH] s390/cio: Fix a memleak in css_alloc_subchannel
+Content-Language: en-US
+To:     Halil Pasic <pasic@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>
+Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20230921071412.13806-1-dinghao.liu@zju.edu.cn>
+ <20230922141700.10895474.pasic@linux.ibm.com> <87sf76z961.fsf@redhat.com>
+ <20230922152035.3ef1cb7e.pasic@linux.ibm.com>
+From:   Vineeth Vijayan <vneethv@linux.ibm.com>
+In-Reply-To: <20230922152035.3ef1cb7e.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3D4AtFu0GrkfgE5YJ6-yJxHczBLp0Bq3
-X-Proofpoint-GUID: gVtzBIBRzLHhqbexIMkocvwnOQ7UsNQr
+X-Proofpoint-GUID: xDptwDPUkk6uTTiLnmC_34Hzon01rhdX
+X-Proofpoint-ORIG-GUID: PiT7fz-S8xg7tnqFFWmCzPbK8SBCe1xC
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-09-22_16,2023-09-21_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
- phishscore=0 mlxlogscore=779 spamscore=0 lowpriorityscore=0
- priorityscore=1501 impostorscore=0 bulkscore=0 suspectscore=0
- clxscore=1011 malwarescore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2309180000 definitions=main-2309220156
+ definitions=2023-09-22_17,2023-09-21_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 adultscore=0 bulkscore=0 mlxlogscore=725 malwarescore=0
+ mlxscore=0 lowpriorityscore=0 suspectscore=0 clxscore=1011 phishscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2309180000 definitions=main-2309220164
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 2023-09-22 at 16:05 +0800, Wen Gu wrote:
-> On 2023/9/22 04:41, Simon Horman wrote:
-> > On Tue, Sep 19, 2023 at 10:41:45PM +0800, Wen Gu wrote:
-> >=20
-> > priv_dev is uninitialised here.
-> >=20
-> > > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0smc_set_pci_values(to_pci_=
-dev(ism->dev.parent),
-> > > &smc_pci_dev);
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (smcd->ops->get_dev)
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0priv_dev =3D smcd->ops->get_dev(smcd);
-> >=20
-> > It is conditionally initialised here.
-> >=20
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (priv_dev->parent)
-> >=20
-> > But unconditionally dereferenced here.
-> >=20
-> > As flagged by clang-16 W=3D1, and Smatch
-> >=20
->=20
-> Hi Simon. Yes, I fixed it in v3. Thank you!
 
-Hi Wen Gu,
 
-seems like there is some email filter at work. Neither v2 nor v3 made
-it to the netdev mailing list - nor to patchwork.kernel.org.
-There's traces of Wenjia's replies and your replies to her - but not
-the original mail.
+On 9/22/23 15:20, Halil Pasic wrote:
+>> Author of 2ec2298412e1 here. If I don't completely misremember things,
+>> this was for the orphanage stuff (i.e. ccw devices that were still kept
+>> as disconnected, like dasd still in use, that had to be moved from their
+>> old subchannel object because a different device appeared on that
+>> subchannel.) That orphanage used a single dummy subchannel for all ccw
+>> devices moved there.
+>>
+>> I have no idea how the current common I/O layer works, but that might
+>> give you a hint about what to look for 😄
+> Yes, that is what the commit states and what the series is about. I hope
+> Vineeth can give us some answers 😄 maybe even out of the top of his
+> head... If not, I would trust his judgment on whether figuring things
+> out is worthwhile or not.
+> 
+As Corny mentioned, orphanage is the only case i remember where
+this scenario of dynamically allocated sch->lock  being used. I hope
+you remember the cdev->ccwlock, which is nothing but the copy of
+sch->lock pointer. This is rather a tricky design, where we are using 
+the sch->lock and cdev->ccwlock, which are same pointers.
+Because this sch is exclusively for the cdev ops. But at the same time,
+a CC3 code in the stsch can make the attached device an orphanage and
+remove the sch.
 
-Could you please check? Thanks!
-Gerd
+We have already seen an issue with this approach and had couple of
+discussions about avoiding this pointer usage without using an extra
+lock but do not have a right solution for this now.
