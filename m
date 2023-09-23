@@ -2,64 +2,137 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28824CE7A89
-	for <linux-s390@archiver.kernel.org>; Sat, 23 Sep 2023 18:25:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 163FFCE7A88
+	for <linux-s390@archiver.kernel.org>; Sat, 23 Sep 2023 22:36:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232257AbjIWSZY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 23 Sep 2023 14:25:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45910 "EHLO
+        id S229514AbjIWWgX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 23 Sep 2023 18:36:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231869AbjIWSZX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 23 Sep 2023 14:25:23 -0400
+        with ESMTP id S229458AbjIWWgW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 23 Sep 2023 18:36:22 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C915127;
-        Sat, 23 Sep 2023 11:25:17 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id ECAC8C433C8;
-        Sat, 23 Sep 2023 18:25:16 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46AC9180;
+        Sat, 23 Sep 2023 15:36:16 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0672C433A9;
+        Sat, 23 Sep 2023 22:36:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1695493517;
-        bh=jR1PYwfjtifeo+aidOdDqlmhMBznbf6iGJEwLA+1+D0=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=AuVrabsmqx4VgV4p0SlBr8QozZK8rSFdoeEUzemqY0c3oprwSn4Fjli4Oj+KaBCo8
-         6L9SXPiOVULkQ2Jr4AVatQNEleG/jzopiUxYpqcviTVGcRJ647OBsWizZp88Lmoy+9
-         O2VnY2UvhjJtVHjMIt4cr0pxpMOoC/46x5LFnzlZ78v713aFRoCZGs68S+TU5UGVXB
-         pYOZnxVX5VxQvdUUJ5nofgcSLBxYx0Z5/qZfbKK5u66Wj34xLj8/6Gd27Eceif+JHm
-         RucD1WPq3HuZFjtso97oa5O+CellkD7zuY9LafjWG3QeSUznzd+Uhak2wR8nhTyTKP
-         W9B6FGVXPe+CQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id DAD0FC561EE;
-        Sat, 23 Sep 2023 18:25:16 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 updates for 6.6-rc3
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <your-ad-here.call-01695459401-ext-1349@work.hours>
-References: <your-ad-here.call-01695459401-ext-1349@work.hours>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <your-ad-here.call-01695459401-ext-1349@work.hours>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.6-3
-X-PR-Tracked-Commit-Id: 5c95bf274665cc9f5126e4a48a9da51114f7afd2
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 2e3d39118460730ec007cc8a492e5add1c2a3cb9
-Message-Id: <169549351689.14827.10011904236553550024.pr-tracker-bot@kernel.org>
-Date:   Sat, 23 Sep 2023 18:25:16 +0000
-To:     Vasily Gorbik <gor@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        s=k20201202; t=1695508575;
+        bh=p6KwkG6gIDCpi+5ECOWCYMC6fT/RtPXwryMv7tZb+xk=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=Sdoueq4M4QTiFNPfWfSloC8UKyAofVMUXLdmfW+XAUHMMD2LvJyRaeus5UjoSPFlr
+         88Wh6CmBckFHEhnxKycvXUfGgEmVhnkNg21KC23xUdnnlxkbYasPjPKkQlrcNAebr5
+         9pHynRgrmwdFQyLAu3/g4ssd40NJcoo3KIo3EFZJ61BFYwbJKaub/jIgdHGDYqoLbp
+         CkKxHqxZ+lcZkLuiQ0SW3Jhlx3Q2UF/lc1lkzKluKqJLT3FIFmzOl5wuIzY8rKKn7h
+         rcNc8n7xzQhAsBwvPQXPLNwkEJiEajEWMRQOGpAKemjtGyymfK7KXS5SUzAoMHpafQ
+         UD9dEvhoDjHEA==
+Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-2b9338e4695so68340991fa.2;
+        Sat, 23 Sep 2023 15:36:15 -0700 (PDT)
+X-Gm-Message-State: AOJu0Yx6003vTGJetNVXAgkTYYVPsm5O353i0/nhni2wWF7WYIoBOkST
+        G0c0ytrTg/9PMRl6Vn8n4baU5RCn+09TRgWJah8=
+X-Google-Smtp-Source: AGHT+IHGEMyzPMP0PdtKXqSKknw0oXHfeYEIvmKQhWxGVhq9jrC3LZkcXvNIlQvBWHbanSZQKP0MnXe/fed+WldiSzw=
+X-Received: by 2002:a05:6512:250d:b0:4fb:90c6:c31a with SMTP id
+ be13-20020a056512250d00b004fb90c6c31amr2958776lfb.14.1695508573892; Sat, 23
+ Sep 2023 15:36:13 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230918072955.2507221-1-rppt@kernel.org> <20230918072955.2507221-3-rppt@kernel.org>
+ <CAPhsuW5-=H1V=VXUYxyGnUdJuNUpRt44QmpwjkDUD=9i0itjuw@mail.gmail.com> <20230923153808.GI3303@kernel.org>
+In-Reply-To: <20230923153808.GI3303@kernel.org>
+From:   Song Liu <song@kernel.org>
+Date:   Sat, 23 Sep 2023 15:36:01 -0700
+X-Gmail-Original-Message-ID: <CAPhsuW6TxG87ZBwQ_027iiE+_UmXweZEPh8wKHkHo7wA+qXZUg@mail.gmail.com>
+Message-ID: <CAPhsuW6TxG87ZBwQ_027iiE+_UmXweZEPh8wKHkHo7wA+qXZUg@mail.gmail.com>
+Subject: Re: [PATCH v3 02/13] mm: introduce execmem_text_alloc() and execmem_free()
+To:     Mike Rapoport <rppt@kernel.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Kent Overstreet <kent.overstreet@linux.dev>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Puranjay Mohan <puranjay12@gmail.com>,
+        Rick Edgecombe <rick.p.edgecombe@intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Sat, 23 Sep 2023 10:56:41 +0200:
+On Sat, Sep 23, 2023 at 8:39=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wro=
+te:
+>
+> On Thu, Sep 21, 2023 at 03:34:18PM -0700, Song Liu wrote:
+> > On Mon, Sep 18, 2023 at 12:30=E2=80=AFAM Mike Rapoport <rppt@kernel.org=
+> wrote:
+> > >
+> >
+> > [...]
+> >
+> > > diff --git a/arch/s390/kernel/module.c b/arch/s390/kernel/module.c
+> > > index 42215f9404af..db5561d0c233 100644
+> > > --- a/arch/s390/kernel/module.c
+> > > +++ b/arch/s390/kernel/module.c
+> > > @@ -21,6 +21,7 @@
+> > >  #include <linux/moduleloader.h>
+> > >  #include <linux/bug.h>
+> > >  #include <linux/memory.h>
+> > > +#include <linux/execmem.h>
+> > >  #include <asm/alternative.h>
+> > >  #include <asm/nospec-branch.h>
+> > >  #include <asm/facility.h>
+> > > @@ -76,7 +77,7 @@ void *module_alloc(unsigned long size)
+> > >  #ifdef CONFIG_FUNCTION_TRACER
+> > >  void module_arch_cleanup(struct module *mod)
+> > >  {
+> > > -       module_memfree(mod->arch.trampolines_start);
+> > > +       execmem_free(mod->arch.trampolines_start);
+> > >  }
+> > >  #endif
+> > >
+> > > @@ -510,7 +511,7 @@ static int module_alloc_ftrace_hotpatch_trampolin=
+es(struct module *me,
+> > >
+> > >         size =3D FTRACE_HOTPATCH_TRAMPOLINES_SIZE(s->sh_size);
+> > >         numpages =3D DIV_ROUND_UP(size, PAGE_SIZE);
+> > > -       start =3D module_alloc(numpages * PAGE_SIZE);
+> > > +       start =3D execmem_text_alloc(EXECMEM_FTRACE, numpages * PAGE_=
+SIZE);
+> >
+> > This should be EXECMEM_MODULE_TEXT?
+>
+> This is an ftrace trampoline, so I think it should be FTRACE type of
+> allocation.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.6-3
+Yeah, I was aware of the ftrace trampoline. My point was, ftrace trampoline
+doesn't seem to have any special requirements. Therefore, it is probably no=
+t
+necessary to have a separate type just for it.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/2e3d39118460730ec007cc8a492e5add1c2a3cb9
+AFAICT, kprobe, ftrace, and BPF (JIT and trampoline) can share the same
+execmem_type. We may need some work for some archs, but nothing is
+fundamentally different among these.
 
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Thanks,
+Song
