@@ -2,158 +2,125 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0075CE7A88
-	for <linux-s390@archiver.kernel.org>; Sat, 23 Sep 2023 15:24:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DDF6CE7A89
+	for <linux-s390@archiver.kernel.org>; Sat, 23 Sep 2023 15:39:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231684AbjIWPYk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 23 Sep 2023 11:24:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42322 "EHLO
+        id S231821AbjIWPjK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 23 Sep 2023 11:39:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231799AbjIWPYj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 23 Sep 2023 11:24:39 -0400
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D904193;
-        Sat, 23 Sep 2023 08:24:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1695482673; x=1727018673;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=ojI4s1wPBBnFIMYvl5fmYJRtR96GMyfGr6X3iwZe/dc=;
-  b=ZZYRH1+7CtIiLeqBauUmKLCLF+Xh4T8fp5JvAagRK1Zrjm5vCQck375L
-   ksL41bJ9h7vk1VfRDmTz07Nl+D98TuR2TEIB7U8uw2mtv1RBr19sbe+/i
-   vFzqxCGs4M7YwJ1zO0XMnTJ+Xea1FwvNwSwyZqWsq4DJ3WCZufQwHIL1P
-   SfMjh6QFRfdOhFNcbXWElGl4S3NGxAAqdgswS0Doz8EhsYm7gCLLXx0zg
-   wpggFghpK13OlDOAY9o/84giFXNG+rDbHFlZdduhrX+zzA/i4vksL0HiM
-   bYRCmK1763qaKrdDgcte4UvN+Xh5mkw9R3kJuMNvvakp1w4bS5Be1R+3k
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10842"; a="383786109"
-X-IronPort-AV: E=Sophos;i="6.03,171,1694761200"; 
-   d="scan'208";a="383786109"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Sep 2023 08:24:32 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10842"; a="777189471"
-X-IronPort-AV: E=Sophos;i="6.03,171,1694761200"; 
-   d="scan'208";a="777189471"
-Received: from lkp-server02.sh.intel.com (HELO 493f6c7fed5d) ([10.239.97.151])
-  by orsmga008.jf.intel.com with ESMTP; 23 Sep 2023 08:24:29 -0700
-Received: from kbuild by 493f6c7fed5d with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1qk4Uc-0002Vv-2w;
-        Sat, 23 Sep 2023 15:24:26 +0000
-Date:   Sat, 23 Sep 2023 23:24:13 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
-Cc:     oe-kbuild-all@lists.linux.dev, alibuda@linux.alibaba.com,
-        tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next 12/18] net/smc: implement DMB-related operations
- of loopback
-Message-ID: <202309232327.nzXalNsH-lkp@intel.com>
-References: <1695134522-126655-13-git-send-email-guwen@linux.alibaba.com>
+        with ESMTP id S229946AbjIWPjK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 23 Sep 2023 11:39:10 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51EE8100;
+        Sat, 23 Sep 2023 08:39:04 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2139BC433C8;
+        Sat, 23 Sep 2023 15:38:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1695483543;
+        bh=44aW6DcKJaHGXelf02UJMtFK5RbIa4QmGjb00e/7p/A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=fw2A/tcOcobQiglJay8dvPT5bEfVdzbbmq0FwMYYkRDEvMMNze6l5vdxXC61b2ule
+         JFCwMCsxrAuMW6D9gVnh2enWSeUtDeXGmVEjWBDuVv9KbPW1MRt9tzybn9NNKJQMj2
+         y3Lc/W+nmmCK2KsTrqRVvz29GuwFbt1mGULYw6jBfPPwRcYXpuSga9okI5ya4zHkUD
+         tynDeAbBph8ozw0L4VOesv/AFGSBeSrp7QqXSV98fLRWfSHzHFilN6nNqox4/XsFqb
+         GBdnrmPrEZw+uXG8gLcDpColobXRcu9WsCK8bgQKX9ms+oqH3fV0ph2eOZh795NWNU
+         moLZ9gWnlnDaA==
+Date:   Sat, 23 Sep 2023 18:38:08 +0300
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Song Liu <song@kernel.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        =?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Kent Overstreet <kent.overstreet@linux.dev>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Puranjay Mohan <puranjay12@gmail.com>,
+        Rick Edgecombe <rick.p.edgecombe@intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v3 02/13] mm: introduce execmem_text_alloc() and
+ execmem_free()
+Message-ID: <20230923153808.GI3303@kernel.org>
+References: <20230918072955.2507221-1-rppt@kernel.org>
+ <20230918072955.2507221-3-rppt@kernel.org>
+ <CAPhsuW5-=H1V=VXUYxyGnUdJuNUpRt44QmpwjkDUD=9i0itjuw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1695134522-126655-13-git-send-email-guwen@linux.alibaba.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAPhsuW5-=H1V=VXUYxyGnUdJuNUpRt44QmpwjkDUD=9i0itjuw@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Wen,
+On Thu, Sep 21, 2023 at 03:34:18PM -0700, Song Liu wrote:
+> On Mon, Sep 18, 2023 at 12:30 AM Mike Rapoport <rppt@kernel.org> wrote:
+> >
+> 
+> [...]
+> 
+> > diff --git a/arch/s390/kernel/module.c b/arch/s390/kernel/module.c
+> > index 42215f9404af..db5561d0c233 100644
+> > --- a/arch/s390/kernel/module.c
+> > +++ b/arch/s390/kernel/module.c
+> > @@ -21,6 +21,7 @@
+> >  #include <linux/moduleloader.h>
+> >  #include <linux/bug.h>
+> >  #include <linux/memory.h>
+> > +#include <linux/execmem.h>
+> >  #include <asm/alternative.h>
+> >  #include <asm/nospec-branch.h>
+> >  #include <asm/facility.h>
+> > @@ -76,7 +77,7 @@ void *module_alloc(unsigned long size)
+> >  #ifdef CONFIG_FUNCTION_TRACER
+> >  void module_arch_cleanup(struct module *mod)
+> >  {
+> > -       module_memfree(mod->arch.trampolines_start);
+> > +       execmem_free(mod->arch.trampolines_start);
+> >  }
+> >  #endif
+> >
+> > @@ -510,7 +511,7 @@ static int module_alloc_ftrace_hotpatch_trampolines(struct module *me,
+> >
+> >         size = FTRACE_HOTPATCH_TRAMPOLINES_SIZE(s->sh_size);
+> >         numpages = DIV_ROUND_UP(size, PAGE_SIZE);
+> > -       start = module_alloc(numpages * PAGE_SIZE);
+> > +       start = execmem_text_alloc(EXECMEM_FTRACE, numpages * PAGE_SIZE);
+> 
+> This should be EXECMEM_MODULE_TEXT?
 
-kernel test robot noticed the following build warnings:
-
-[auto build test WARNING on net-next/main]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Wen-Gu/net-smc-decouple-ism_dev-from-SMC-D-device-dump/20230920-010019
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/1695134522-126655-13-git-send-email-guwen%40linux.alibaba.com
-patch subject: [PATCH net-next 12/18] net/smc: implement DMB-related operations of loopback
-config: arc-allmodconfig (https://download.01.org/0day-ci/archive/20230923/202309232327.nzXalNsH-lkp@intel.com/config)
-compiler: arceb-elf-gcc (GCC) 13.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20230923/202309232327.nzXalNsH-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202309232327.nzXalNsH-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
-   net/smc/smc_loopback.c: In function 'smc_lo_register_dmb':
->> net/smc/smc_loopback.c:107:30: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-     107 |         dmb_node->dma_addr = (dma_addr_t)dmb_node->cpu_addr;
-         |                              ^
-
-
-vim +107 net/smc/smc_loopback.c
-
-    76	
-    77	static int smc_lo_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
-    78				       void *client_priv)
-    79	{
-    80		struct smc_lo_dmb_node *dmb_node, *tmp_node;
-    81		struct smc_lo_dev *ldev = smcd->priv;
-    82		int sba_idx, rc;
-    83	
-    84		/* check space for new dmb */
-    85		for_each_clear_bit(sba_idx, ldev->sba_idx_mask, SMC_LODEV_MAX_DMBS) {
-    86			if (!test_and_set_bit(sba_idx, ldev->sba_idx_mask))
-    87				break;
-    88		}
-    89		if (sba_idx == SMC_LODEV_MAX_DMBS)
-    90			return -ENOSPC;
-    91	
-    92		dmb_node = kzalloc(sizeof(*dmb_node), GFP_KERNEL);
-    93		if (!dmb_node) {
-    94			rc = -ENOMEM;
-    95			goto err_bit;
-    96		}
-    97	
-    98		dmb_node->sba_idx = sba_idx;
-    99		dmb_node->cpu_addr = kzalloc(dmb->dmb_len, GFP_KERNEL |
-   100					     __GFP_NOWARN | __GFP_NORETRY |
-   101					     __GFP_NOMEMALLOC);
-   102		if (!dmb_node->cpu_addr) {
-   103			rc = -ENOMEM;
-   104			goto err_node;
-   105		}
-   106		dmb_node->len = dmb->dmb_len;
- > 107		dmb_node->dma_addr = (dma_addr_t)dmb_node->cpu_addr;
-   108	
-   109	again:
-   110		/* add new dmb into hash table */
-   111		get_random_bytes(&dmb_node->token, sizeof(dmb_node->token));
-   112		write_lock(&ldev->dmb_ht_lock);
-   113		hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_node->token) {
-   114			if (tmp_node->token == dmb_node->token) {
-   115				write_unlock(&ldev->dmb_ht_lock);
-   116				goto again;
-   117			}
-   118		}
-   119		hash_add(ldev->dmb_ht, &dmb_node->list, dmb_node->token);
-   120		write_unlock(&ldev->dmb_ht_lock);
-   121	
-   122		dmb->sba_idx = dmb_node->sba_idx;
-   123		dmb->dmb_tok = dmb_node->token;
-   124		dmb->cpu_addr = dmb_node->cpu_addr;
-   125		dmb->dma_addr = dmb_node->dma_addr;
-   126		dmb->dmb_len = dmb_node->len;
-   127	
-   128		return 0;
-   129	
-   130	err_node:
-   131		kfree(dmb_node);
-   132	err_bit:
-   133		clear_bit(sba_idx, ldev->sba_idx_mask);
-   134		return rc;
-   135	}
-   136	
+This is an ftrace trampoline, so I think it should be FTRACE type of
+allocation.
+ 
+> Thanks,
+> Song
+> 
+> >         if (!start)
+> >                 return -ENOMEM;
+> >         set_memory_rox((unsigned long)start, numpages);
+> [...]
 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Sincerely yours,
+Mike.
