@@ -2,93 +2,116 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F542CE7A86
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Sep 2023 21:37:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5407CE7A89
+	for <linux-s390@archiver.kernel.org>; Sat, 23 Sep 2023 08:56:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229924AbjIVVhs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 22 Sep 2023 17:37:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34572 "EHLO
+        id S231146AbjIWI47 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 23 Sep 2023 04:56:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229894AbjIVVhr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Sep 2023 17:37:47 -0400
-Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4883DC1;
-        Fri, 22 Sep 2023 14:37:42 -0700 (PDT)
-Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-692a885f129so1287372b3a.0;
-        Fri, 22 Sep 2023 14:37:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1695418662; x=1696023462;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=mLqEBhAlMkPX+Dn8nS29WI6I17tSvmMyFsE5yPt5Elo=;
-        b=K24ho1oRDlqB8p20or4zSczMSNka9D5anKfbvYALC8XovSkd08EkIB1L6gGzO05Jwf
-         ulXgHXs++RE0kkH/DVYvYxXyl13k1okqoaDPL/jjtr/wVKnSnM+9bs52y3QAdrgznQnO
-         LT+m5mrTy6EUMOfHzxTztxMxO8v5n4b1oSQi+G8agw/W4PjlV7rJEbvkeNtOcOh7VHo4
-         +4ntrMIpgTjEc7dCwRo+p9EAFUyc3xHC82VwmKSIkyuPxsx0kOH5VDTI6prVl21sawn+
-         XWCH88bJVm2MSjZCd8bKomj5S5MoVUDRPy37J4bK9HOx0ARbafYTFdDX2ITWQzYRAG0b
-         u2MA==
-X-Gm-Message-State: AOJu0YwrkFcFzgbOb/qXXh5+M0uDQJxpxHCWzjc72s+mfA3dcjqzalUq
-        IZ5jw6Kq9TsMqayd2DTwbVI=
-X-Google-Smtp-Source: AGHT+IFiaytuz1ewXfl+c3OSQRSc5DdzwEvPUsadJuMAYOF6GPe/oRD9ijOEXXIyFGZMxR2qVH4r3A==
-X-Received: by 2002:a05:6a00:24cf:b0:68f:e810:e86f with SMTP id d15-20020a056a0024cf00b0068fe810e86fmr648287pfv.28.1695418661634;
-        Fri, 22 Sep 2023 14:37:41 -0700 (PDT)
-Received: from ?IPV6:2601:647:4d7e:54f3:667:4981:ffa1:7be1? ([2601:647:4d7e:54f3:667:4981:ffa1:7be1])
-        by smtp.gmail.com with ESMTPSA id e15-20020a62ee0f000000b00686fe7b7b48sm3639737pfi.121.2023.09.22.14.37.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 22 Sep 2023 14:37:41 -0700 (PDT)
-Message-ID: <f01f34ae-156f-446c-8bf4-f52c439a0f5d@acm.org>
-Date:   Fri, 22 Sep 2023 14:37:39 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] [v2] scsi: zfcp: Fix a double put in zfcp_port_enqueue
-Content-Language: en-US
-To:     Dinghao Liu <dinghao.liu@zju.edu.cn>
-Cc:     linux-scsi@vger.kernel.org, Steffen Maier <maier@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        with ESMTP id S230523AbjIWI4y (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 23 Sep 2023 04:56:54 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4857194;
+        Sat, 23 Sep 2023 01:56:48 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38N8rbdD004418;
+        Sat, 23 Sep 2023 08:56:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=lhJM4nHcNVKXoWsAi7uyveJv5UuaJLckzF29N/p01KM=;
+ b=kIbC17fSMWhk7C2C6j1nD748svOZsUJRxx8uyvBMWt0UGdgIaPLcfqROhmoy5fUQOISJ
+ eFkbB10U726QLAK4aubUuHgQOKz+iZLR1Epb0k0IT2p1GUODf3GDWA8Xdy8SNhdSuM+3
+ lQcVr0I0N6nl2UZvkgOyFToIhoP/GIWwDIgZeuDL3MT8ngA+OAq/GEhtH67a2uJ1WKTc
+ M0OHpPhwOHE0P9OsWEnWkyqO/hvyEpZHFdl/fD9tvWp/s4knF1x1M0nVFbiQpyYcEKJW
+ 3+gXYx77w0gL18aMjuEeAVYbi+mD4J7PnXszCAoG/3lHcpP4VsuXS+mrGtjXlT4ujfkl jA== 
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t9vwfr172-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 23 Sep 2023 08:56:46 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38N8cF9e002541;
+        Sat, 23 Sep 2023 08:56:46 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3t8tspcqrx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 23 Sep 2023 08:56:46 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38N8uhbd44761648
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 23 Sep 2023 08:56:43 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ECF2C2004E;
+        Sat, 23 Sep 2023 08:56:42 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8E99920043;
+        Sat, 23 Sep 2023 08:56:42 +0000 (GMT)
+Received: from localhost (unknown [9.171.34.117])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Sat, 23 Sep 2023 08:56:42 +0000 (GMT)
+Date:   Sat, 23 Sep 2023 10:56:41 +0200
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        James Bottomley <James.Bottomley@suse.de>,
-        Swen Schillig <swen@vnet.ibm.com>,
-        Christof Schmitt <christof.schmitt@de.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20230922074631.9408-1-dinghao.liu@zju.edu.cn>
-From:   Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <20230922074631.9408-1-dinghao.liu@zju.edu.cn>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 updates for 6.6-rc3
+Message-ID: <your-ad-here.call-01695459401-ext-1349@work.hours>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Htcmc5tdjTL7mBbnoJ6rxRS5wht_Cye9
+X-Proofpoint-ORIG-GUID: Htcmc5tdjTL7mBbnoJ6rxRS5wht_Cye9
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-09-23_06,2023-09-21_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ impostorscore=0 bulkscore=0 priorityscore=1501 suspectscore=0 phishscore=0
+ adultscore=0 mlxlogscore=514 mlxscore=0 clxscore=1011 spamscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2309180000 definitions=main-2309230073
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 9/22/23 00:46, Dinghao Liu wrote:
-> diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
-> index df782646e856..ad0ef9546501 100644
-> --- a/drivers/s390/scsi/zfcp_aux.c
-> +++ b/drivers/s390/scsi/zfcp_aux.c
-> @@ -552,7 +552,7 @@ struct zfcp_port *zfcp_port_enqueue(struct zfcp_adapter *adapter, u64 wwpn,
->   
->   	if (device_register(&port->dev)) {
->   		put_device(&port->dev);
-> -		goto err_out;
-> +		goto err_register;
->   	}
->   
->   	write_lock_irq(&adapter->port_list_lock);
-> @@ -565,5 +565,6 @@ struct zfcp_port *zfcp_port_enqueue(struct zfcp_adapter *adapter, u64 wwpn,
->   
->   err_out:
->   	zfcp_ccw_adapter_put(adapter);
-> +err_register:
->   	return ERR_PTR(retval);
->   }
+Hello Linus,
 
-goto labels should be named after the code below the goto label instead
-of reflecting where the goto statement comes from.
+please pull s390 changes for 6.6-rc3.
 
-Thanks,
+Thank you,
+Vasily
 
-Bart.
+The following changes since commit ce9ecca0238b140b88f43859b211c9fdfd8e5b70:
+
+  Linux 6.6-rc2 (2023-09-17 14:40:24 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.6-3
+
+for you to fetch changes up to 5c95bf274665cc9f5126e4a48a9da51114f7afd2:
+
+  s390/cert_store: fix string length handling (2023-09-19 13:25:44 +0200)
+
+----------------------------------------------------------------
+s390 updates for 6.6-rc3
+
+- Fix potential string buffer overflow in hypervisor user-defined
+  certificates handling.
+
+- Update defconfigs.
+
+----------------------------------------------------------------
+Heiko Carstens (1):
+      s390: update defconfigs
+
+Peter Oberparleiter (1):
+      s390/cert_store: fix string length handling
+
+ arch/s390/configs/debug_defconfig    | 14 ++++++++++----
+ arch/s390/configs/defconfig          | 13 +++++++++----
+ arch/s390/configs/zfcpdump_defconfig |  4 ++--
+ arch/s390/kernel/cert_store.c        |  7 ++++---
+ 4 files changed, 25 insertions(+), 13 deletions(-)
