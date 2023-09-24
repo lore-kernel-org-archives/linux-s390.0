@@ -2,144 +2,195 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1CDBCE7A88
-	for <linux-s390@archiver.kernel.org>; Sun, 24 Sep 2023 17:58:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 485FFCE7A91
+	for <linux-s390@archiver.kernel.org>; Sun, 24 Sep 2023 23:30:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229930AbjIXR6i (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 24 Sep 2023 13:58:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60498 "EHLO
+        id S229487AbjIXXaM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 24 Sep 2023 19:30:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229437AbjIXR6i (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Sep 2023 13:58:38 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A596FA;
-        Sun, 24 Sep 2023 10:58:29 -0700 (PDT)
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38OHjTPu009471;
-        Sun, 24 Sep 2023 17:58:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=7BtC9/lrc/fww1dep8gZWJTE7ouTVPIG0IE1y03qkt8=;
- b=jdZy/IajWMtVT9RlLZkKgV0AmwfAP3AOULSYkGu34a03NhmmlaOshXQNTlCQvJM3zeB/
- TUCdAJDQd5Ev0+qshRBEzFyxP0Yu3uLbg4XwpylZNdAOJ18/ZEVK36eAWk9CzoW1cIR9
- KuUpz8yThOUaIksuNZafdZVIVq3woX+R1Xo6ZBVmRxHOyu+UtFitbBpqkGEpWB0TPRf5
- eJx0bLwtQOgK9/LGx5HSGALegZP0ySjhP5SOjDTSTicK1ADOagQEtd8IfxmGKIqcHFVv
- aLp0rIU6xKZr4TN2a/PVI/3Nzj3wUdS4rcjhHAneefnRY5ejEmvi+4Uc5NarQ8rrySB0 BQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ta6un7q2n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 24 Sep 2023 17:58:27 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38OHsahT026598;
-        Sun, 24 Sep 2023 17:58:27 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ta6un7q2b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 24 Sep 2023 17:58:27 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38OHoZH7011010;
-        Sun, 24 Sep 2023 17:58:26 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tabujvdqw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 24 Sep 2023 17:58:25 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38OHwMEQ26804918
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sun, 24 Sep 2023 17:58:22 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C533920043;
-        Sun, 24 Sep 2023 17:58:22 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1488A20040;
-        Sun, 24 Sep 2023 17:58:22 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.171.29.239])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with SMTP;
-        Sun, 24 Sep 2023 17:58:22 +0000 (GMT)
-Date:   Sun, 24 Sep 2023 19:58:20 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Vineeth Vijayan <vneethv@linux.ibm.com>
-Cc:     Cornelia Huck <cohuck@redhat.com>,
-        Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH] s390/cio: Fix a memleak in css_alloc_subchannel
-Message-ID: <20230924195820.1a2865c3.pasic@linux.ibm.com>
-In-Reply-To: <b9e9eca9-413c-0301-3839-bb7534ac76d2@linux.ibm.com>
-References: <20230921071412.13806-1-dinghao.liu@zju.edu.cn>
-        <20230922141700.10895474.pasic@linux.ibm.com>
-        <87sf76z961.fsf@redhat.com>
-        <20230922152035.3ef1cb7e.pasic@linux.ibm.com>
-        <b9e9eca9-413c-0301-3839-bb7534ac76d2@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        with ESMTP id S229480AbjIXXaL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Sep 2023 19:30:11 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44CBDE3;
+        Sun, 24 Sep 2023 16:30:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1695598205; x=1727134205;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=YHZ6WWFMihmwwYSimo0khu4TlbPVE2K5QH/2yj5Cfa8=;
+  b=Suyol8ikmWGenCqpyfT3Vi/Ru/29eKynGY5ZhzD4xmRGZiEafsHp/aK5
+   7RlW3njRYFDW6fSCQ/C3PsByj/PiZtpWbHTx7RiEHY0hRe6pPPStgl+aC
+   k/hj090SYoN3vVB+OtbFvn8wLDpOp+u93qR0KeagIAMeI1gxkf7GlGVm1
+   YIumWav4RA5o8+Ywd0UUQwOCvDnXe4B2NUrDYa/Z7qUrx3d/+hAFUgrZi
+   u9c0rU3Pu5ALuf0dd7rDP/LwpIzQSX1Gf3RXVCv8+l0E44PMXcFtBGfSc
+   sEOwxza3ZF6VhBQtGsptFrjIqHm9tmH5ZFl//XSQlx4OCDoL2dXes0yr5
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10843"; a="360519181"
+X-IronPort-AV: E=Sophos;i="6.03,174,1694761200"; 
+   d="scan'208";a="360519181"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Sep 2023 16:30:04 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10843"; a="995169635"
+X-IronPort-AV: E=Sophos;i="6.03,174,1694761200"; 
+   d="scan'208";a="995169635"
+Received: from lkp-server02.sh.intel.com (HELO 32c80313467c) ([10.239.97.151])
+  by fmsmga006.fm.intel.com with ESMTP; 24 Sep 2023 16:30:00 -0700
+Received: from kbuild by 32c80313467c with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1qkYY2-0000bV-0W;
+        Sun, 24 Sep 2023 23:29:58 +0000
+Date:   Mon, 25 Sep 2023 07:29:44 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc:     oe-kbuild-all@lists.linux.dev, wintera@linux.ibm.com,
+        schnelle@linux.ibm.com, gbayer@linux.ibm.com, pasic@linux.ibm.com,
+        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        dust.li@linux.alibaba.com, guwen@linux.alibaba.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next v4 12/18] net/smc: implement DMB-related
+ operations of loopback
+Message-ID: <202309250749.LB7ZUUGJ-lkp@intel.com>
+References: <1695568613-125057-13-git-send-email-guwen@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: FxKv3IkqSwxGOiGuiFHnSmhr87GZ3GTv
-X-Proofpoint-GUID: M5z6rkkoNYwFVYac1f8IEhuSeaQeflyd
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-09-24_15,2023-09-21_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
- bulkscore=0 adultscore=0 impostorscore=0 malwarescore=0 phishscore=0
- mlxlogscore=635 suspectscore=0 lowpriorityscore=0 priorityscore=1501
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2309240154
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1695568613-125057-13-git-send-email-guwen@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 22 Sep 2023 21:15:48 +0200
-Vineeth Vijayan <vneethv@linux.ibm.com> wrote:
+Hi Wen,
 
-> On 9/22/23 15:20, Halil Pasic wrote:
-> >> Author of 2ec2298412e1 here. If I don't completely misremember things,
-> >> this was for the orphanage stuff (i.e. ccw devices that were still kept
-> >> as disconnected, like dasd still in use, that had to be moved from their
-> >> old subchannel object because a different device appeared on that
-> >> subchannel.) That orphanage used a single dummy subchannel for all ccw
-> >> devices moved there.
-> >>
-> >> I have no idea how the current common I/O layer works, but that might
-> >> give you a hint about what to look for 😄  
-> > Yes, that is what the commit states and what the series is about. I hope
-> > Vineeth can give us some answers 😄 maybe even out of the top of his
-> > head... If not, I would trust his judgment on whether figuring things
-> > out is worthwhile or not.
-> >   
-> As Corny mentioned, orphanage is the only case i remember where
-> this scenario of dynamically allocated sch->lock  being used. I hope
-> you remember the cdev->ccwlock, which is nothing but the copy of
-> sch->lock pointer. This is rather a tricky design, where we are using 
-> the sch->lock and cdev->ccwlock, which are same pointers.
-> Because this sch is exclusively for the cdev ops. But at the same time,
-> a CC3 code in the stsch can make the attached device an orphanage and
-> remove the sch.
-> 
-> We have already seen an issue with this approach and had couple of
-> discussions about avoiding this pointer usage without using an extra
-> lock but do not have a right solution for this now.
+kernel test robot noticed the following build errors:
 
-Based on your response it seem you do understand the problem but are
-struggling to find a solution. You are ahead of me. I'm still at the
-stage where I don't understand the problem. I had another look at
-that orphanage code, especially at ccw_device_move_to_sch(). Looks
-to me that the *(sch->lock) ins not required outlive the *sch and
-also that there is no move semantic in place.
+[auto build test ERROR on net-next/main]
 
-Based on that let's take this offline, find a quiet hour and have a look 
-at the code and the problem. Maybe I can help with the solution once I
-understand the problem -- but maybe not.
+url:    https://github.com/intel-lab-lkp/linux/commits/Wen-Gu/net-smc-decouple-ism_dev-from-SMC-D-device-dump/20230924-231933
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/1695568613-125057-13-git-send-email-guwen%40linux.alibaba.com
+patch subject: [PATCH net-next v4 12/18] net/smc: implement DMB-related operations of loopback
+config: mips-allmodconfig (https://download.01.org/0day-ci/archive/20230925/202309250749.LB7ZUUGJ-lkp@intel.com/config)
+compiler: mips-linux-gcc (GCC) 13.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20230925/202309250749.LB7ZUUGJ-lkp@intel.com/reproduce)
 
-Regards,
-Halil
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202309250749.LB7ZUUGJ-lkp@intel.com/
+
+All error/warnings (new ones prefixed by >>):
+
+   net/smc/smc_loopback.c: In function 'smc_lo_register_dmb':
+>> net/smc/smc_loopback.c:102:30: error: implicit declaration of function 'vzalloc'; did you mean 'kvzalloc'? [-Werror=implicit-function-declaration]
+     102 |         dmb_node->cpu_addr = vzalloc(dmb->dmb_len);
+         |                              ^~~~~~~
+         |                              kvzalloc
+>> net/smc/smc_loopback.c:102:28: warning: assignment to 'void *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+     102 |         dmb_node->cpu_addr = vzalloc(dmb->dmb_len);
+         |                            ^
+   net/smc/smc_loopback.c: In function 'smc_lo_unregister_dmb':
+>> net/smc/smc_loopback.c:159:9: error: implicit declaration of function 'vfree'; did you mean 'kvfree'? [-Werror=implicit-function-declaration]
+     159 |         vfree(dmb_node->cpu_addr);
+         |         ^~~~~
+         |         kvfree
+   cc1: some warnings being treated as errors
+
+
+vim +102 net/smc/smc_loopback.c
+
+    79	
+    80	static int smc_lo_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
+    81				       void *client_priv)
+    82	{
+    83		struct smc_lo_dmb_node *dmb_node, *tmp_node;
+    84		struct smc_lo_dev *ldev = smcd->priv;
+    85		int sba_idx, rc;
+    86	
+    87		/* check space for new dmb */
+    88		for_each_clear_bit(sba_idx, ldev->sba_idx_mask, SMC_LODEV_MAX_DMBS) {
+    89			if (!test_and_set_bit(sba_idx, ldev->sba_idx_mask))
+    90				break;
+    91		}
+    92		if (sba_idx == SMC_LODEV_MAX_DMBS)
+    93			return -ENOSPC;
+    94	
+    95		dmb_node = kzalloc(sizeof(*dmb_node), GFP_KERNEL);
+    96		if (!dmb_node) {
+    97			rc = -ENOMEM;
+    98			goto err_bit;
+    99		}
+   100	
+   101		dmb_node->sba_idx = sba_idx;
+ > 102		dmb_node->cpu_addr = vzalloc(dmb->dmb_len);
+   103		if (!dmb_node->cpu_addr) {
+   104			rc = -ENOMEM;
+   105			goto err_node;
+   106		}
+   107		dmb_node->len = dmb->dmb_len;
+   108		dmb_node->dma_addr = SMC_DMA_ADDR_INVALID;
+   109	
+   110	again:
+   111		/* add new dmb into hash table */
+   112		get_random_bytes(&dmb_node->token, sizeof(dmb_node->token));
+   113		write_lock(&ldev->dmb_ht_lock);
+   114		hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_node->token) {
+   115			if (tmp_node->token == dmb_node->token) {
+   116				write_unlock(&ldev->dmb_ht_lock);
+   117				goto again;
+   118			}
+   119		}
+   120		hash_add(ldev->dmb_ht, &dmb_node->list, dmb_node->token);
+   121		write_unlock(&ldev->dmb_ht_lock);
+   122	
+   123		dmb->sba_idx = dmb_node->sba_idx;
+   124		dmb->dmb_tok = dmb_node->token;
+   125		dmb->cpu_addr = dmb_node->cpu_addr;
+   126		dmb->dma_addr = dmb_node->dma_addr;
+   127		dmb->dmb_len = dmb_node->len;
+   128	
+   129		return 0;
+   130	
+   131	err_node:
+   132		kfree(dmb_node);
+   133	err_bit:
+   134		clear_bit(sba_idx, ldev->sba_idx_mask);
+   135		return rc;
+   136	}
+   137	
+   138	static int smc_lo_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
+   139	{
+   140		struct smc_lo_dmb_node *dmb_node = NULL, *tmp_node;
+   141		struct smc_lo_dev *ldev = smcd->priv;
+   142	
+   143		/* remove dmb from hash table */
+   144		write_lock(&ldev->dmb_ht_lock);
+   145		hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb->dmb_tok) {
+   146			if (tmp_node->token == dmb->dmb_tok) {
+   147				dmb_node = tmp_node;
+   148				break;
+   149			}
+   150		}
+   151		if (!dmb_node) {
+   152			write_unlock(&ldev->dmb_ht_lock);
+   153			return -EINVAL;
+   154		}
+   155		hash_del(&dmb_node->list);
+   156		write_unlock(&ldev->dmb_ht_lock);
+   157	
+   158		clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
+ > 159		vfree(dmb_node->cpu_addr);
+   160		kfree(dmb_node);
+   161	
+   162		return 0;
+   163	}
+   164	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
