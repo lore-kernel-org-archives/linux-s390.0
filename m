@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E34DCCE7A8D
-	for <linux-s390@archiver.kernel.org>; Sun, 24 Sep 2023 15:17:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38FD1CE7A88
+	for <linux-s390@archiver.kernel.org>; Sun, 24 Sep 2023 15:17:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229667AbjIXPRU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 24 Sep 2023 11:17:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47216 "EHLO
+        id S229647AbjIXPRW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 24 Sep 2023 11:17:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229634AbjIXPRR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Sep 2023 11:17:17 -0400
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C165CF;
-        Sun, 24 Sep 2023 08:17:11 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0Vsipe5h_1695568624;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Vsipe5h_1695568624)
+        with ESMTP id S229708AbjIXPRV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Sep 2023 11:17:21 -0400
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC60EFD;
+        Sun, 24 Sep 2023 08:17:13 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R221e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0Vsio7sa_1695568628;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Vsio7sa_1695568628)
           by smtp.aliyun-inc.com;
-          Sun, 24 Sep 2023 23:17:06 +0800
+          Sun, 24 Sep 2023 23:17:10 +0800
 From:   Wen Gu <guwen@linux.alibaba.com>
 To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
         davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
@@ -28,9 +28,9 @@ Cc:     wintera@linux.ibm.com, schnelle@linux.ibm.com,
         dust.li@linux.alibaba.com, guwen@linux.alibaba.com,
         linux-s390@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH net-next v4 03/18] net/smc: extract v2 check helper from SMC-D device registration
-Date:   Sun, 24 Sep 2023 23:16:38 +0800
-Message-Id: <1695568613-125057-4-git-send-email-guwen@linux.alibaba.com>
+Subject: [PATCH net-next v4 05/18] net/smc: reserve CHID range for SMC-D virtual device
+Date:   Sun, 24 Sep 2023 23:16:40 +0800
+Message-Id: <1695568613-125057-6-git-send-email-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1695568613-125057-1-git-send-email-guwen@linux.alibaba.com>
 References: <1695568613-125057-1-git-send-email-guwen@linux.alibaba.com>
@@ -38,85 +38,45 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch extracts v2-capable logic from the process of registering the
-ISM device as an SMC-D device, so that the registration process of other
-underlying devices can reuse it.
+This patch reserve CHID range from 0xFF00 to 0xFFFF for SMC-D virtual
+device and introduces helpers to identify them.
 
 Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 ---
- net/smc/smc_ism.c | 29 ++++++++++++++++++-----------
- net/smc/smc_ism.h |  1 +
- 2 files changed, 19 insertions(+), 11 deletions(-)
+ net/smc/smc_ism.h | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index 455ae0a..8f1ba74 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -69,6 +69,22 @@ bool smc_ism_is_v2_capable(void)
- 	return smc_ism_v2_capable;
- }
- 
-+/* must be called under smcd_dev_list.mutex lock */
-+void smc_ism_check_v2_capable(struct smcd_dev *smcd)
-+{
-+	u8 *system_eid = NULL;
-+
-+	if (smc_ism_v2_capable)
-+		return;
-+
-+	system_eid = smcd->ops->get_system_eid();
-+	if (smcd->ops->supports_v2()) {
-+		smc_ism_v2_capable = true;
-+		memcpy(smc_ism_v2_system_eid, system_eid,
-+		       SMC_MAX_EID_LEN);
-+	}
-+}
-+
- /* Set a connection using this DMBE. */
- void smc_ism_set_conn(struct smc_connection *conn)
- {
-@@ -423,16 +439,7 @@ static void smcd_register_dev(struct ism_dev *ism)
- 		smc_pnetid_by_table_smcd(smcd);
- 
- 	mutex_lock(&smcd_dev_list.mutex);
--	if (list_empty(&smcd_dev_list.list)) {
--		u8 *system_eid = NULL;
--
--		system_eid = smcd->ops->get_system_eid();
--		if (smcd->ops->supports_v2()) {
--			smc_ism_v2_capable = true;
--			memcpy(smc_ism_v2_system_eid, system_eid,
--			       SMC_MAX_EID_LEN);
--		}
--	}
-+	smc_ism_check_v2_capable(smcd);
- 	/* sort list: devices without pnetid before devices with pnetid */
- 	if (smcd->pnetid[0])
- 		list_add_tail(&smcd->list, &smcd_dev_list.list);
-@@ -535,10 +542,10 @@ int smc_ism_init(void)
- {
- 	int rc = 0;
- 
--#if IS_ENABLED(CONFIG_ISM)
- 	smc_ism_v2_capable = false;
- 	memset(smc_ism_v2_system_eid, 0, SMC_MAX_EID_LEN);
- 
-+#if IS_ENABLED(CONFIG_ISM)
- 	rc = ism_register_client(&smc_ism_client);
- #endif
- 	return rc;
 diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
-index 832b2f4..14d2e77 100644
+index 14d2e77..2ecc8de 100644
 --- a/net/smc/smc_ism.h
 +++ b/net/smc/smc_ism.h
-@@ -42,6 +42,7 @@ int smc_ism_register_dmb(struct smc_link_group *lgr, int buf_size,
- void smc_ism_get_system_eid(u8 **eid);
- u16 smc_ism_get_chid(struct smcd_dev *dev);
- bool smc_ism_is_v2_capable(void);
-+void smc_ism_check_v2_capable(struct smcd_dev *dev);
- int smc_ism_init(void);
- void smc_ism_exit(void);
- int smcd_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
+@@ -15,6 +15,9 @@
+ 
+ #include "smc.h"
+ 
++#define SMC_VIRT_ISM_CHID_MAX		0xFFFF
++#define SMC_VIRT_ISM_CHID_MIN		0xFF00
++
+ struct smcd_dev_list {	/* List of SMCD devices */
+ 	struct list_head list;
+ 	struct mutex mutex;	/* Protects list of devices */
+@@ -57,4 +60,16 @@ static inline int smc_ism_write(struct smcd_dev *smcd, u64 dmb_tok,
+ 	return rc < 0 ? rc : 0;
+ }
+ 
++static inline bool __smc_ism_is_virtdev(u16 chid)
++{
++	return (chid >= SMC_VIRT_ISM_CHID_MIN && chid <= SMC_VIRT_ISM_CHID_MAX);
++}
++
++static inline bool smc_ism_is_virtdev(struct smcd_dev *smcd)
++{
++	u16 chid = smcd->ops->get_chid(smcd);
++
++	return __smc_ism_is_virtdev(chid);
++}
++
+ #endif
 -- 
 1.8.3.1
 
