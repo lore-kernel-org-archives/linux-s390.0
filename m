@@ -2,139 +2,84 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0EEACE7A88
-	for <linux-s390@archiver.kernel.org>; Sun, 24 Sep 2023 08:54:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4369CCE7A92
+	for <linux-s390@archiver.kernel.org>; Sun, 24 Sep 2023 13:17:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229529AbjIXIyT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 24 Sep 2023 04:54:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56328 "EHLO
+        id S229790AbjIXNR1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 24 Sep 2023 09:17:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229489AbjIXIyT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Sep 2023 04:54:19 -0400
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20D41100;
-        Sun, 24 Sep 2023 01:54:11 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R961e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VsiANs2_1695545648;
-Received: from 30.13.48.111(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VsiANs2_1695545648)
-          by smtp.aliyun-inc.com;
-          Sun, 24 Sep 2023 16:54:09 +0800
-Message-ID: <41d1f41f-737a-7705-c09d-f3678387f8d4@linux.alibaba.com>
-Date:   Sun, 24 Sep 2023 16:54:07 +0800
+        with ESMTP id S229993AbjIXNRD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Sep 2023 09:17:03 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44E161717;
+        Sun, 24 Sep 2023 06:16:14 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA7A0C433C8;
+        Sun, 24 Sep 2023 13:16:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1695561372;
+        bh=pPmCSRq7LsPwt9WgVd4iUn6iV3z68X5Q8RyzgZcg6pU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=TQ1/R55tew0kfIWmT/4kjT17k+5E7mxZH2Myo6IiHaQFyU9eWJPW2mPnULSV5Kkks
+         PE/dD6yM+fi9quaiuBPaijjF9S6fosQbTSS6KnzWKByg8lta98Ki7oAaCdl+TGKOS6
+         4EsHlkrGARLFW59tKk4yGMTcPLbSCkSmTXtgAHFk6OrkMI6HYyaBegj4PzA91IpTqw
+         5ZErywm7b5CiUxZpkpQaMPMKmqmwiQnp1RJWMTnBRVf2FHr1R2oiYd29kmM8e62ubc
+         sHJwxVX6k7KTn82vJoW4js6dcU0Qd+p311+x95mU3o0Ekpj06PPRgPGjIOjA5jc6Gn
+         x7ynvtd+Vg0ng==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Guangguan Wang <guangguan.wang@linux.alibaba.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.5 18/41] net/smc: bugfix for smcr v2 server connect success statistic
+Date:   Sun, 24 Sep 2023 09:15:06 -0400
+Message-Id: <20230924131529.1275335-18-sashal@kernel.org>
+X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20230924131529.1275335-1-sashal@kernel.org>
+References: <20230924131529.1275335-1-sashal@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.0
-Subject: Re: [PATCH net-next 12/18] net/smc: implement DMB-related operations
- of loopback
-To:     kernel test robot <lkp@intel.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
-Cc:     oe-kbuild-all@lists.linux.dev, alibuda@linux.alibaba.com,
-        tonylu@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1695134522-126655-13-git-send-email-guwen@linux.alibaba.com>
- <202309232327.nzXalNsH-lkp@intel.com>
-From:   Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <202309232327.nzXalNsH-lkp@intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.5.5
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
 
+[ Upstream commit 6912e724832c47bb381eb1bd1e483ec8df0d0f0f ]
 
-On 2023/9/23 23:24, kernel test robot wrote:
-> Hi Wen,
-> 
-> kernel test robot noticed the following build warnings:
-> 
-> [auto build test WARNING on net-next/main]
-> 
-> url:    https://github.com/intel-lab-lkp/linux/commits/Wen-Gu/net-smc-decouple-ism_dev-from-SMC-D-device-dump/20230920-010019
-> base:   net-next/main
-> patch link:    https://lore.kernel.org/r/1695134522-126655-13-git-send-email-guwen%40linux.alibaba.com
-> patch subject: [PATCH net-next 12/18] net/smc: implement DMB-related operations of loopback
-> config: arc-allmodconfig (https://download.01.org/0day-ci/archive/20230923/202309232327.nzXalNsH-lkp@intel.com/config)
-> compiler: arceb-elf-gcc (GCC) 13.2.0
-> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20230923/202309232327.nzXalNsH-lkp@intel.com/reproduce)
-> 
-> If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> the same patch/commit), kindly add following tags
-> | Reported-by: kernel test robot <lkp@intel.com>
-> | Closes: https://lore.kernel.org/oe-kbuild-all/202309232327.nzXalNsH-lkp@intel.com/
-> 
-> All warnings (new ones prefixed by >>):
-> 
->     net/smc/smc_loopback.c: In function 'smc_lo_register_dmb':
->>> net/smc/smc_loopback.c:107:30: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
->       107 |         dmb_node->dma_addr = (dma_addr_t)dmb_node->cpu_addr;
->           |                              ^
-> 
-> 
+In the macro SMC_STAT_SERV_SUCC_INC, the smcd_version is used
+to determin whether to increase the v1 statistic or the v2
+statistic. It is correct for SMCD. But for SMCR, smcr_version
+should be used.
 
-Will fix it on v4. Thanks!
+Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/smc/smc_stats.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-> vim +107 net/smc/smc_loopback.c
-> 
->      76	
->      77	static int smc_lo_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
->      78				       void *client_priv)
->      79	{
->      80		struct smc_lo_dmb_node *dmb_node, *tmp_node;
->      81		struct smc_lo_dev *ldev = smcd->priv;
->      82		int sba_idx, rc;
->      83	
->      84		/* check space for new dmb */
->      85		for_each_clear_bit(sba_idx, ldev->sba_idx_mask, SMC_LODEV_MAX_DMBS) {
->      86			if (!test_and_set_bit(sba_idx, ldev->sba_idx_mask))
->      87				break;
->      88		}
->      89		if (sba_idx == SMC_LODEV_MAX_DMBS)
->      90			return -ENOSPC;
->      91	
->      92		dmb_node = kzalloc(sizeof(*dmb_node), GFP_KERNEL);
->      93		if (!dmb_node) {
->      94			rc = -ENOMEM;
->      95			goto err_bit;
->      96		}
->      97	
->      98		dmb_node->sba_idx = sba_idx;
->      99		dmb_node->cpu_addr = kzalloc(dmb->dmb_len, GFP_KERNEL |
->     100					     __GFP_NOWARN | __GFP_NORETRY |
->     101					     __GFP_NOMEMALLOC);
->     102		if (!dmb_node->cpu_addr) {
->     103			rc = -ENOMEM;
->     104			goto err_node;
->     105		}
->     106		dmb_node->len = dmb->dmb_len;
->   > 107		dmb_node->dma_addr = (dma_addr_t)dmb_node->cpu_addr;
->     108	
->     109	again:
->     110		/* add new dmb into hash table */
->     111		get_random_bytes(&dmb_node->token, sizeof(dmb_node->token));
->     112		write_lock(&ldev->dmb_ht_lock);
->     113		hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_node->token) {
->     114			if (tmp_node->token == dmb_node->token) {
->     115				write_unlock(&ldev->dmb_ht_lock);
->     116				goto again;
->     117			}
->     118		}
->     119		hash_add(ldev->dmb_ht, &dmb_node->list, dmb_node->token);
->     120		write_unlock(&ldev->dmb_ht_lock);
->     121	
->     122		dmb->sba_idx = dmb_node->sba_idx;
->     123		dmb->dmb_tok = dmb_node->token;
->     124		dmb->cpu_addr = dmb_node->cpu_addr;
->     125		dmb->dma_addr = dmb_node->dma_addr;
->     126		dmb->dmb_len = dmb_node->len;
->     127	
->     128		return 0;
->     129	
->     130	err_node:
->     131		kfree(dmb_node);
->     132	err_bit:
->     133		clear_bit(sba_idx, ldev->sba_idx_mask);
->     134		return rc;
->     135	}
->     136	
-> 
+diff --git a/net/smc/smc_stats.h b/net/smc/smc_stats.h
+index b60fe1eb37ab6..aa8928975cc63 100644
+--- a/net/smc/smc_stats.h
++++ b/net/smc/smc_stats.h
+@@ -243,8 +243,9 @@ while (0)
+ #define SMC_STAT_SERV_SUCC_INC(net, _ini) \
+ do { \
+ 	typeof(_ini) i = (_ini); \
+-	bool is_v2 = (i->smcd_version & SMC_V2); \
+ 	bool is_smcd = (i->is_smcd); \
++	u8 version = is_smcd ? i->smcd_version : i->smcr_version; \
++	bool is_v2 = (version & SMC_V2); \
+ 	typeof(net->smc.smc_stats) smc_stats = (net)->smc.smc_stats; \
+ 	if (is_v2 && is_smcd) \
+ 		this_cpu_inc(smc_stats->smc[SMC_TYPE_D].srv_v2_succ_cnt); \
+-- 
+2.40.1
+
