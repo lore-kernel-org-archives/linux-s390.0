@@ -2,30 +2,30 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4369CCE7A92
-	for <linux-s390@archiver.kernel.org>; Sun, 24 Sep 2023 13:17:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B24B2CE7A8D
+	for <linux-s390@archiver.kernel.org>; Sun, 24 Sep 2023 13:21:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229790AbjIXNR1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 24 Sep 2023 09:17:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46088 "EHLO
+        id S230168AbjIXNVG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 24 Sep 2023 09:21:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229993AbjIXNRD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Sep 2023 09:17:03 -0400
+        with ESMTP id S229714AbjIXNUp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Sep 2023 09:20:45 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44E161717;
-        Sun, 24 Sep 2023 06:16:14 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA7A0C433C8;
-        Sun, 24 Sep 2023 13:16:10 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EA03171F;
+        Sun, 24 Sep 2023 06:18:23 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B034C43391;
+        Sun, 24 Sep 2023 13:18:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1695561372;
-        bh=pPmCSRq7LsPwt9WgVd4iUn6iV3z68X5Q8RyzgZcg6pU=;
+        s=k20201202; t=1695561502;
+        bh=zbFmQ45HpDOudC7crOmoknEiEDeFeWVX6XUc7yFMAUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TQ1/R55tew0kfIWmT/4kjT17k+5E7mxZH2Myo6IiHaQFyU9eWJPW2mPnULSV5Kkks
-         PE/dD6yM+fi9quaiuBPaijjF9S6fosQbTSS6KnzWKByg8lta98Ki7oAaCdl+TGKOS6
-         4EsHlkrGARLFW59tKk4yGMTcPLbSCkSmTXtgAHFk6OrkMI6HYyaBegj4PzA91IpTqw
-         5ZErywm7b5CiUxZpkpQaMPMKmqmwiQnp1RJWMTnBRVf2FHr1R2oiYd29kmM8e62ubc
-         sHJwxVX6k7KTn82vJoW4js6dcU0Qd+p311+x95mU3o0Ekpj06PPRgPGjIOjA5jc6Gn
-         x7ynvtd+Vg0ng==
+        b=CFY+rDLr7YpEQZqk6gnSmDjAFHmDqK53bLNp1t0MkPQ/Q/aoXhmLeLaKzmdCxAQzN
+         zHKVIuiVJtuvuCtGdWx81pVQ+yPeSv3Rnnud39z757d3jhCHYJ0WKinQ3gtNE1EvhF
+         XUQ1MeMtoVR7GoVOMQ2N3KJA3epkN6VOPZ17KLCG+T/+RMdhYCV3F8WDlb+l2p1JWa
+         7pGn5SXUMDoBBEYVLQajLpWhXtNmVKeLalL/9jmWGjlAdkzUS9dnxcDyW2SjsYcfZ/
+         5QF9AuZ5YjtZvPbK+xphGYHJ4xvokPGpLFE5QclYoqytYNezKYn6wAcBiDaN2rGUyz
+         N3YB23l5WuKqA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Guangguan Wang <guangguan.wang@linux.alibaba.com>,
@@ -34,16 +34,16 @@ Cc:     Guangguan Wang <guangguan.wang@linux.alibaba.com>,
         wenjia@linux.ibm.com, jaka@linux.ibm.com, edumazet@google.com,
         kuba@kernel.org, pabeni@redhat.com, linux-s390@vger.kernel.org,
         netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.5 18/41] net/smc: bugfix for smcr v2 server connect success statistic
-Date:   Sun, 24 Sep 2023 09:15:06 -0400
-Message-Id: <20230924131529.1275335-18-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 15/28] net/smc: bugfix for smcr v2 server connect success statistic
+Date:   Sun, 24 Sep 2023 09:17:32 -0400
+Message-Id: <20230924131745.1275960-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230924131529.1275335-1-sashal@kernel.org>
-References: <20230924131529.1275335-1-sashal@kernel.org>
+In-Reply-To: <20230924131745.1275960-1-sashal@kernel.org>
+References: <20230924131745.1275960-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.5.5
+X-stable-base: Linux 6.1.55
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -66,10 +66,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/net/smc/smc_stats.h b/net/smc/smc_stats.h
-index b60fe1eb37ab6..aa8928975cc63 100644
+index 84b7ecd8c05ca..4dbc237b7c19e 100644
 --- a/net/smc/smc_stats.h
 +++ b/net/smc/smc_stats.h
-@@ -243,8 +243,9 @@ while (0)
+@@ -244,8 +244,9 @@ while (0)
  #define SMC_STAT_SERV_SUCC_INC(net, _ini) \
  do { \
  	typeof(_ini) i = (_ini); \
