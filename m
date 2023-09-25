@@ -2,183 +2,199 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D945ECE7A91
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Sep 2023 01:47:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64F8CCE7A91
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Sep 2023 02:03:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229561AbjIYBrX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 24 Sep 2023 21:47:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49160 "EHLO
+        id S229810AbjIYCDz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 24 Sep 2023 22:03:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229480AbjIYBrX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Sep 2023 21:47:23 -0400
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E86AFBD;
-        Sun, 24 Sep 2023 18:47:15 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0Vsjo5EY_1695606431;
-Received: from 30.221.129.66(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Vsjo5EY_1695606431)
+        with ESMTP id S229561AbjIYCDy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Sep 2023 22:03:54 -0400
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E87BD;
+        Sun, 24 Sep 2023 19:03:45 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0VsjlAa9_1695607420;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VsjlAa9_1695607420)
           by smtp.aliyun-inc.com;
-          Mon, 25 Sep 2023 09:47:13 +0800
-Message-ID: <0b49743f-1e2f-f0fd-22af-b9f76068fa75@linux.alibaba.com>
-Date:   Mon, 25 Sep 2023 09:47:11 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.0
-Subject: Re: [PATCH net-next v4 12/18] net/smc: implement DMB-related
- operations of loopback
-To:     kernel test robot <lkp@intel.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
-Cc:     oe-kbuild-all@lists.linux.dev, wintera@linux.ibm.com,
-        schnelle@linux.ibm.com, gbayer@linux.ibm.com, pasic@linux.ibm.com,
-        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
-        dust.li@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1695568613-125057-13-git-send-email-guwen@linux.alibaba.com>
- <202309250749.LB7ZUUGJ-lkp@intel.com>
-From:   Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <202309250749.LB7ZUUGJ-lkp@intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+          Mon, 25 Sep 2023 10:03:41 +0800
+Message-ID: <1695607353.8416731-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v14 30/42] virtio_pci: introduce helper to get/set queue reset
+Date:   Mon, 25 Sep 2023 10:02:33 +0800
+From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     virtualization@lists.linux-foundation.org,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, bpf@vger.kernel.org,
+        kangjie.xu@linux.alibaba.com
+References: <20220801063902.129329-1-xuanzhuo@linux.alibaba.com>
+ <20220801063902.129329-31-xuanzhuo@linux.alibaba.com>
+ <20230921100112-mutt-send-email-mst@kernel.org>
+ <1695347358.2770545-1-xuanzhuo@linux.alibaba.com>
+ <20230922064550-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20230922064550-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Fri, 22 Sep 2023 06:46:39 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Fri, Sep 22, 2023 at 09:49:18AM +0800, Xuan Zhuo wrote:
+> > On Thu, 21 Sep 2023 10:02:53 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > On Mon, Aug 01, 2022 at 02:38:50PM +0800, Xuan Zhuo wrote:
+> > > > Introduce new helpers to implement queue reset and get queue reset
+> > > > status.
+> > > >
+> > > >  https://github.com/oasis-tcs/virtio-spec/issues/124
+> > > >  https://github.com/oasis-tcs/virtio-spec/issues/139
+> > > >
+> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > Acked-by: Jason Wang <jasowang@redhat.com>
+> > > > ---
+> > > >  drivers/virtio/virtio_pci_modern_dev.c | 39 ++++++++++++++++++++++++++
+> > > >  include/linux/virtio_pci_modern.h      |  2 ++
+> > > >  2 files changed, 41 insertions(+)
+> > > >
+> > > > diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
+> > > > index fa2a9445bb18..869cb46bef96 100644
+> > > > --- a/drivers/virtio/virtio_pci_modern_dev.c
+> > > > +++ b/drivers/virtio/virtio_pci_modern_dev.c
+> > > > @@ -3,6 +3,7 @@
+> > > >  #include <linux/virtio_pci_modern.h>
+> > > >  #include <linux/module.h>
+> > > >  #include <linux/pci.h>
+> > > > +#include <linux/delay.h>
+> > > >
+> > > >  /*
+> > > >   * vp_modern_map_capability - map a part of virtio pci capability
+> > > > @@ -474,6 +475,44 @@ void vp_modern_set_status(struct virtio_pci_modern_device *mdev,
+> > > >  }
+> > > >  EXPORT_SYMBOL_GPL(vp_modern_set_status);
+> > > >
+> > > > +/*
+> > > > + * vp_modern_get_queue_reset - get the queue reset status
+> > > > + * @mdev: the modern virtio-pci device
+> > > > + * @index: queue index
+> > > > + */
+> > > > +int vp_modern_get_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
+> > > > +{
+> > > > +	struct virtio_pci_modern_common_cfg __iomem *cfg;
+> > > > +
+> > > > +	cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev->common;
+> > > > +
+> > > > +	vp_iowrite16(index, &cfg->cfg.queue_select);
+> > > > +	return vp_ioread16(&cfg->queue_reset);
+> > > > +}
+> > > > +EXPORT_SYMBOL_GPL(vp_modern_get_queue_reset);
+> > > > +
+> > >
+> > > Actually, this does not validate that the config structure is big
+> > > enough. So it can access some unrelated memory. Don't know whether
+> > > that's exploitable e.g. for CoCo but not nice, anyway.
+> > > Need to validate the size and disable reset if it's too small.
+> >
+> >
+> > static int vp_modern_disable_vq_and_reset(struct virtqueue *vq)
+> > {
+> > 	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
+> > 	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
+> > 	struct virtio_pci_vq_info *info;
+> > 	unsigned long flags;
+> >
+> > ->	if (!virtio_has_feature(vq->vdev, VIRTIO_F_RING_RESET))
+> > 		return -ENOENT;
+> >
+> > 	vp_modern_set_queue_reset(mdev, vq->index);
+> >
+> >
+> > I checked VIRTIO_F_RING_RESET before call this.
+>
+> Yes but the point is that virtio is used with untrusted devices
+> (e.g. for SEV/TDX), so you can't really assume config structures
+> are in sync with feature bits.
 
+I see.
 
-On 2023/9/25 07:29, kernel test robot wrote:
-> Hi Wen,
-> 
-> kernel test robot noticed the following build errors:
-> 
-> [auto build test ERROR on net-next/main]
-> 
-> url:    https://github.com/intel-lab-lkp/linux/commits/Wen-Gu/net-smc-decouple-ism_dev-from-SMC-D-device-dump/20230924-231933
-> base:   net-next/main
-> patch link:    https://lore.kernel.org/r/1695568613-125057-13-git-send-email-guwen%40linux.alibaba.com
-> patch subject: [PATCH net-next v4 12/18] net/smc: implement DMB-related operations of loopback
-> config: mips-allmodconfig (https://download.01.org/0day-ci/archive/20230925/202309250749.LB7ZUUGJ-lkp@intel.com/config)
-> compiler: mips-linux-gcc (GCC) 13.2.0
-> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20230925/202309250749.LB7ZUUGJ-lkp@intel.com/reproduce)
-> 
-> If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> the same patch/commit), kindly add following tags
-> | Reported-by: kernel test robot <lkp@intel.com>
-> | Closes: https://lore.kernel.org/oe-kbuild-all/202309250749.LB7ZUUGJ-lkp@intel.com/
-> 
-> All error/warnings (new ones prefixed by >>):
-> 
->     net/smc/smc_loopback.c: In function 'smc_lo_register_dmb':
->>> net/smc/smc_loopback.c:102:30: error: implicit declaration of function 'vzalloc'; did you mean 'kvzalloc'? [-Werror=implicit-function-declaration]
->       102 |         dmb_node->cpu_addr = vzalloc(dmb->dmb_len);
->           |                              ^~~~~~~
->           |                              kvzalloc
->>> net/smc/smc_loopback.c:102:28: warning: assignment to 'void *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
->       102 |         dmb_node->cpu_addr = vzalloc(dmb->dmb_len);
->           |                            ^
->     net/smc/smc_loopback.c: In function 'smc_lo_unregister_dmb':
->>> net/smc/smc_loopback.c:159:9: error: implicit declaration of function 'vfree'; did you mean 'kvfree'? [-Werror=implicit-function-declaration]
->       159 |         vfree(dmb_node->cpu_addr);
->           |         ^~~~~
->           |         kvfree
->     cc1: some warnings being treated as errors
-> 
-
-It can be fixed by including corresponding header file:
-
-#include <linux/vmalloc.h>
-
-
-Continue to wait for other review comments and will fix this in the next version.
+I will post a patch to check the length of the common cfg.
 
 Thanks.
 
-> 
-> vim +102 net/smc/smc_loopback.c
-> 
->      79	
->      80	static int smc_lo_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
->      81				       void *client_priv)
->      82	{
->      83		struct smc_lo_dmb_node *dmb_node, *tmp_node;
->      84		struct smc_lo_dev *ldev = smcd->priv;
->      85		int sba_idx, rc;
->      86	
->      87		/* check space for new dmb */
->      88		for_each_clear_bit(sba_idx, ldev->sba_idx_mask, SMC_LODEV_MAX_DMBS) {
->      89			if (!test_and_set_bit(sba_idx, ldev->sba_idx_mask))
->      90				break;
->      91		}
->      92		if (sba_idx == SMC_LODEV_MAX_DMBS)
->      93			return -ENOSPC;
->      94	
->      95		dmb_node = kzalloc(sizeof(*dmb_node), GFP_KERNEL);
->      96		if (!dmb_node) {
->      97			rc = -ENOMEM;
->      98			goto err_bit;
->      99		}
->     100	
->     101		dmb_node->sba_idx = sba_idx;
->   > 102		dmb_node->cpu_addr = vzalloc(dmb->dmb_len);
->     103		if (!dmb_node->cpu_addr) {
->     104			rc = -ENOMEM;
->     105			goto err_node;
->     106		}
->     107		dmb_node->len = dmb->dmb_len;
->     108		dmb_node->dma_addr = SMC_DMA_ADDR_INVALID;
->     109	
->     110	again:
->     111		/* add new dmb into hash table */
->     112		get_random_bytes(&dmb_node->token, sizeof(dmb_node->token));
->     113		write_lock(&ldev->dmb_ht_lock);
->     114		hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_node->token) {
->     115			if (tmp_node->token == dmb_node->token) {
->     116				write_unlock(&ldev->dmb_ht_lock);
->     117				goto again;
->     118			}
->     119		}
->     120		hash_add(ldev->dmb_ht, &dmb_node->list, dmb_node->token);
->     121		write_unlock(&ldev->dmb_ht_lock);
->     122	
->     123		dmb->sba_idx = dmb_node->sba_idx;
->     124		dmb->dmb_tok = dmb_node->token;
->     125		dmb->cpu_addr = dmb_node->cpu_addr;
->     126		dmb->dma_addr = dmb_node->dma_addr;
->     127		dmb->dmb_len = dmb_node->len;
->     128	
->     129		return 0;
->     130	
->     131	err_node:
->     132		kfree(dmb_node);
->     133	err_bit:
->     134		clear_bit(sba_idx, ldev->sba_idx_mask);
->     135		return rc;
->     136	}
->     137	
->     138	static int smc_lo_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
->     139	{
->     140		struct smc_lo_dmb_node *dmb_node = NULL, *tmp_node;
->     141		struct smc_lo_dev *ldev = smcd->priv;
->     142	
->     143		/* remove dmb from hash table */
->     144		write_lock(&ldev->dmb_ht_lock);
->     145		hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb->dmb_tok) {
->     146			if (tmp_node->token == dmb->dmb_tok) {
->     147				dmb_node = tmp_node;
->     148				break;
->     149			}
->     150		}
->     151		if (!dmb_node) {
->     152			write_unlock(&ldev->dmb_ht_lock);
->     153			return -EINVAL;
->     154		}
->     155		hash_del(&dmb_node->list);
->     156		write_unlock(&ldev->dmb_ht_lock);
->     157	
->     158		clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
->   > 159		vfree(dmb_node->cpu_addr);
->     160		kfree(dmb_node);
->     161	
->     162		return 0;
->     163	}
->     164	
-> 
+
+>
+>
+> > Do you mean, we should put the check to this function.
+> >
+> >
+> > Thanks.
+> >
+> >
+> >
+> > >
+> > >
+> > > > +/*
+> > > > + * vp_modern_set_queue_reset - reset the queue
+> > > > + * @mdev: the modern virtio-pci device
+> > > > + * @index: queue index
+> > > > + */
+> > > > +void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
+> > > > +{
+> > > > +	struct virtio_pci_modern_common_cfg __iomem *cfg;
+> > > > +
+> > > > +	cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev->common;
+> > > > +
+> > > > +	vp_iowrite16(index, &cfg->cfg.queue_select);
+> > > > +	vp_iowrite16(1, &cfg->queue_reset);
+> > > > +
+> > > > +	while (vp_ioread16(&cfg->queue_reset))
+> > > > +		msleep(1);
+> > > > +
+> > > > +	while (vp_ioread16(&cfg->cfg.queue_enable))
+> > > > +		msleep(1);
+> > > > +}
+> > > > +EXPORT_SYMBOL_GPL(vp_modern_set_queue_reset);
+> > > > +
+> > > >  /*
+> > > >   * vp_modern_queue_vector - set the MSIX vector for a specific virtqueue
+> > > >   * @mdev: the modern virtio-pci device
+> > > > diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
+> > > > index 05123b9a606f..c4eeb79b0139 100644
+> > > > --- a/include/linux/virtio_pci_modern.h
+> > > > +++ b/include/linux/virtio_pci_modern.h
+> > > > @@ -113,4 +113,6 @@ void __iomem * vp_modern_map_vq_notify(struct virtio_pci_modern_device *mdev,
+> > > >  				       u16 index, resource_size_t *pa);
+> > > >  int vp_modern_probe(struct virtio_pci_modern_device *mdev);
+> > > >  void vp_modern_remove(struct virtio_pci_modern_device *mdev);
+> > > > +int vp_modern_get_queue_reset(struct virtio_pci_modern_device *mdev, u16 index);
+> > > > +void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index);
+> > > >  #endif
+> > > > --
+> > > > 2.31.0
+> > >
+>
