@@ -2,150 +2,172 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82D07CE7A94
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Sep 2023 10:11:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EC2CCE7A94
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Sep 2023 10:12:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229981AbjIYKLc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Sep 2023 06:11:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41826 "EHLO
+        id S231351AbjIYKM2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Sep 2023 06:12:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231567AbjIYKLE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Sep 2023 06:11:04 -0400
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3759E1B8;
-        Mon, 25 Sep 2023 03:10:51 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VsqfW0y_1695636647;
-Received: from 30.221.144.144(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VsqfW0y_1695636647)
-          by smtp.aliyun-inc.com;
-          Mon, 25 Sep 2023 18:10:48 +0800
-Message-ID: <a3e80a67-e8b8-ce94-fc11-254d056d37a9@linux.alibaba.com>
-Date:   Mon, 25 Sep 2023 18:10:46 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.14.0
-Subject: Re: [RFC net-next 0/2] Optimize the parallelism of SMC-R connections
-Content-Language: en-US
-To:     Alexandra Winter <wintera@linux.ibm.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1694008530-85087-1-git-send-email-alibuda@linux.alibaba.com>
- <794f9f68-4671-5e5e-45e4-2c8a4de568b3@linux.ibm.com>
- <522d823c-b656-ffb5-bcce-65b96bdfa46d@linux.alibaba.com>
- <c0ba8e0b-f2b2-b65b-e21a-54c3d920ba72@linux.ibm.com>
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <c0ba8e0b-f2b2-b65b-e21a-54c3d920ba72@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        with ESMTP id S231308AbjIYKMR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Sep 2023 06:12:17 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44AAA10DB;
+        Mon, 25 Sep 2023 03:12:10 -0700 (PDT)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38P98dFT003707;
+        Mon, 25 Sep 2023 10:12:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to : sender :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=96psxN1f9XQziopU35QMc9HEX23km0D8MWKqNpx5f/A=;
+ b=S1KLfwCr7U5E1iT6apQf6fHJdXmjpbAqIEBJXodxr9SEQN7ug1/6mibp8SIMr2Oi2adn
+ QY4UMTmrFM1rfTpIzqpI3dm+9/Rd+t07qAK7ccp0NrU0kmfpfzCvMk6ivkAZBDi0gJ33
+ b76UM5Es5g4QolM7223ZblQ008g05SH3yWHfPKDR9zpQDpAtoeLmmQx708NmWoiGn4mX
+ 4K2J4ZnnsF3UaqWoHafauYUH3XkuXlYX/4TfeZWP4DVP/SN/n9Fn3gjE+FAitMGs6F8w
+ N2tVG+M6hV/yIhQZ//kRFfSzUzCRKnK1XqIg5+fr1xj9WLjT0tdCtsI0hVwUwWGVLv1I zQ== 
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ta5rd8hvr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 25 Sep 2023 10:12:08 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38P8uVB2008253;
+        Mon, 25 Sep 2023 10:07:06 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tabbms82q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 25 Sep 2023 10:07:06 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38PA739W14811882
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 25 Sep 2023 10:07:03 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4DFDC20065;
+        Mon, 25 Sep 2023 10:07:03 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 347D32004F;
+        Mon, 25 Sep 2023 10:07:03 +0000 (GMT)
+Received: from p1gen4-pw042f0m (unknown [9.171.44.172])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Mon, 25 Sep 2023 10:07:03 +0000 (GMT)
+Received: from bblock by p1gen4-pw042f0m with local (Exim 4.96)
+        (envelope-from <bblock@linux.ibm.com>)
+        id 1qkiUY-0039iO-2G;
+        Mon, 25 Sep 2023 12:07:02 +0200
+Date:   Mon, 25 Sep 2023 12:07:02 +0200
+From:   Benjamin Block <bblock@linux.ibm.com>
+To:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc:     linux-scsi@vger.kernel.org, Steffen Maier <maier@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [v3] scsi: zfcp: Fix a double put in zfcp_port_enqueue
+Message-ID: <20230925100702.GA650446@p1gen4-pw042f0m.fritz.box>
+References: <20230923103723.10320-1-dinghao.liu@zju.edu.cn>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20230923103723.10320-1-dinghao.liu@zju.edu.cn>
+Sender: Benjamin Block <bblock@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: cDUwzamnM3SGE02sFbPz0Oa8_j5jzsyU
+X-Proofpoint-GUID: cDUwzamnM3SGE02sFbPz0Oa8_j5jzsyU
 Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-09-25_07,2023-09-21_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ mlxlogscore=999 phishscore=0 adultscore=0 clxscore=1015 impostorscore=0
+ malwarescore=0 priorityscore=1501 mlxscore=0 spamscore=0 suspectscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2309180000 definitions=main-2309250073
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Sat, Sep 23, 2023 at 06:37:23PM +0800, Dinghao Liu wrote:
+> When device_register() fails, zfcp_port_release() will be called
+> after put_device(). As a result, zfcp_ccw_adapter_put() will be
+> called twice: one in zfcp_port_release() and one in the error path
+> after device_register(). So the reference on the adapter object is
+> doubly put, which may lead to a premature free. Fix this by adjusting
+> the error tag after device_register().
+> 
+> Fixes: f3450c7b9172 ("[SCSI] zfcp: Replace local reference counting with common kref")
+> Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+> ---
+> 
+> Changelog:
+> 
+> v2: -Improve the patch description.
+>     -Add a new label 'err_register' to unify code style.
+> 
+> v3: -Improve the names of goto labels.
+> ---
+>  drivers/s390/scsi/zfcp_aux.c | 9 +++++----
+>  1 file changed, 5 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
+> index df782646e856..ab2f35bc294d 100644
+> --- a/drivers/s390/scsi/zfcp_aux.c
+> +++ b/drivers/s390/scsi/zfcp_aux.c
+> @@ -518,12 +518,12 @@ struct zfcp_port *zfcp_port_enqueue(struct zfcp_adapter *adapter, u64 wwpn,
+>  	if (port) {
+>  		put_device(&port->dev);
+>  		retval = -EEXIST;
+> -		goto err_out;
+> +		goto err_put;
+>  	}
+>  
+>  	port = kzalloc(sizeof(struct zfcp_port), GFP_KERNEL);
+>  	if (!port)
+> -		goto err_out;
+> +		goto err_put;
+>  
+>  	rwlock_init(&port->unit_list_lock);
+>  	INIT_LIST_HEAD(&port->unit_list);
+> @@ -546,7 +546,7 @@ struct zfcp_port *zfcp_port_enqueue(struct zfcp_adapter *adapter, u64 wwpn,
+>  
+>  	if (dev_set_name(&port->dev, "0x%016llx", (unsigned long long)wwpn)) {
+>  		kfree(port);
+> -		goto err_out;
+> +		goto err_put;
+>  	}
+>  	retval = -EINVAL;
+>  
+> @@ -563,7 +563,8 @@ struct zfcp_port *zfcp_port_enqueue(struct zfcp_adapter *adapter, u64 wwpn,
+>  
+>  	return port;
+>  
+> -err_out:
+> +err_put:
+>  	zfcp_ccw_adapter_put(adapter);
+> +err_out:
+>  	return ERR_PTR(retval);
+>  }
+> -- 
+> 2.17.1
+> 
+
+Looks good to me. Ideally we would have a stable tag (v2.6.33+) in with the
+Fixes tag as well, but I don't think we need to fly an extra round just for
+that. We can ask the stable team once this is included upstream.
 
 
-On 9/21/23 8:36 PM, Alexandra Winter wrote:
-> On 18.09.23 05:58, D. Wythe wrote:
->> Hi Alexandra,
->>
->> Sorry for the late reply. I have been thinking about the question you mentioned for a while, and this is a great opportunity to discuss this issue.
->> My point is that the purpose of the locks is to minimize the expansion of the number of link groups as much as possible.
->>
->> As we all know, the SMC-R protocol has the following specifications:
->>
->>   * A SMC-R connection MUST be mapped into one link group.
->>   * A link group is usually created by a connection, which is also known
->>     as "First Contact."
->>
->> If we start from scratch, we can design the connection process as follows:
->>
->> 1. Check if there are any available link groups. If so, map the
->>     connection into it and go to step 3.
->> 2. Mark this connection as "First Contact," create a link group, and
->>     mark the new link group as unavailable.
->> 3. Finish connection establishment.
->> 4. If the connection is "First Contact," mark the new link group as
->>     available and map the connection into it.
->>
->> I think there is no logical problem with this process, but there is a practical issue where burst traffic can result in burst link groups.
->>
->> For example, if there are 10,000 incoming connections, based on the above logic, the most extreme scenario would be to create 10,000 link groups.
->> This can cause significant memory pressure and even be used for security attacks.
->>
->> To address this goal, the simplest way is to make each connection process mutually exclusive, having the following process:
->>
->> 1. Block other incoming connections.
->> 2. Check if there are any available link groups. If so, map the
->>     connection into it and go to step 4.
->> 3. Mark this connection as "First Contact," create a link group, and
->>     mark it as unavailable.
->> 4. Finish connection establishment.
->> 5. If the connection is "First Contact," mark the new link group as
->>     available and map the connection into it.
->> 6. Allow other connections to come in.
->>
->> And this is our current process now!
->>
->> Regarding the purpose of the locks, to minimize the expansion of the number of link groups. If we agree with this point, we can observe that
->> in phase 2 going to phase 4, this process will never create a new link group. Obviously, the lock is not needed here.
-> Well, you still have issue of a link group going away. Thread 1 is deleting the last connection from a link group and shutting it down. Thread 2 is adding a 'second' connection (from its poitn ov view) to the linkgroup.
-
-Hi Alexandra,
-
-That's right.  But even if we do nothing, the current implements still 
-has this problem.
-And this problem can be solved by the spinlock inside smc_conn_create, 
-rather than the
-pending lock.
-
-And also deleting the last connection from a link group will not 
-shutting the down right now,
-usually waiting for 10 minutes of idle time.
-
->> Then the last question: why is the lock needed until after smc_clc_send_confirm in the new-LGR case? We can try to move phase 6 ahead as follows:
->>
->> 1. Block other incoming connections.
->> 2. Check if there are any available link groups. If so, map the
->>     connection into it and go to step 4.
->> 3. Mark this connection as "First Contact," create a link group, and
->>     mark it as unavailable.
->> 4. Allow other connections to come in.
->> 5. Finish connection establishment.
->> 6. If the connection is "First Contact," mark the new link group as
->>     available and map the connection into it.
->>
->> There is also no problem with this process! However, note that this logic does not address burst issues.
->> Burst traffic will still result in burst link groups because a new link group can only be marked as available when the "First Contact" is completed,
->> which is after sending the CLC Confirm.
->>
->> Hope my point is helpful to you. If you have any questions, please let me know. Thanks.
->>
->> Best wishes,
->> D. Wythe
-> You are asking exactly the right questions here. Creation of new connections is on the critical path,
-> and if the design can be optimized for parallelism that will increase perfromance, while insufficient
-> locking will create nasty bugs.
-> Many programmers have dealt with these issues before us. I would recommend to consult existing proven
-> patterns; e.g. the ones listed in Paul McKenney's book
-> (https://mirrors.edge.kernel.org/pub/linux/kernel/people/paulmck/perfbook/)
-> e.g. 'Chapter 10.3 Read-Mostly Data Structures' and of course the kernel documentation folder.
-> Improving an existing codebase like smc without breaking is not trivial. Obviuosly a step-by-step approach,
-> works best. So if you can identify actions that can be be done under a smaller (as in more granular) lock
-> instead of under a global lock. OR change a mutex into R/W or RCU.
-> Smaller changes are easier to review (and bisect in case of regressions).
-
-I have to say it's quite hard to make the lock smaller, we have indeed 
-considered the impact of the complexity of the patch on review,
-and this might be the simplest solution we can think of. If this 
-solution is not okay for you, perhaps we can discuss
-whether there is a better solution ?
-
-Best wishes,
-D. Wythe
+Acked-by: Benjamin Block <bblock@linux.ibm.com>
 
 
+Martin, can you please pick this directly?
 
 
-
-
-
-
+-- 
+Best Regards, Benjamin Block        /        Linux on IBM Z Kernel Development
+IBM Deutschland Research & Development GmbH    /   https://www.ibm.com/privacy
+Vors. Aufs.-R.: Gregor Pillen         /         Gesch�ftsf�hrung: David Faller
+Sitz der Ges.: B�blingen     /    Registergericht: AmtsG Stuttgart, HRB 243294
