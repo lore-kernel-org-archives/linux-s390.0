@@ -2,199 +2,162 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64F8CCE7A91
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Sep 2023 02:03:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45405CE7A91
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Sep 2023 02:36:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229810AbjIYCDz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 24 Sep 2023 22:03:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57428 "EHLO
+        id S231792AbjIYCgk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 24 Sep 2023 22:36:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229561AbjIYCDy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Sep 2023 22:03:54 -0400
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E87BD;
-        Sun, 24 Sep 2023 19:03:45 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0VsjlAa9_1695607420;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VsjlAa9_1695607420)
-          by smtp.aliyun-inc.com;
-          Mon, 25 Sep 2023 10:03:41 +0800
-Message-ID: <1695607353.8416731-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v14 30/42] virtio_pci: introduce helper to get/set queue reset
-Date:   Mon, 25 Sep 2023 10:02:33 +0800
-From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     virtualization@lists.linux-foundation.org,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Jason Wang <jasowang@redhat.com>,
+        with ESMTP id S231797AbjIYCgf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Sep 2023 22:36:35 -0400
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10D27D3
+        for <linux-s390@vger.kernel.org>; Sun, 24 Sep 2023 19:36:02 -0700 (PDT)
+Received: by mail-pl1-x631.google.com with SMTP id d9443c01a7336-1c434c33ec0so38435825ad.3
+        for <linux-s390@vger.kernel.org>; Sun, 24 Sep 2023 19:36:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1695609361; x=1696214161; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=dzmBYOC+iwFysYemk8kdLeE2Dt2aHmz4Un9SzH6Y5Wg=;
+        b=bEPsr68MnOBQdj+Rj5S5E9z+oTlmdfS3vCrMIPE2MugjG3iq6EtHs+RL3S0noErXHF
+         Gtf6ucm30U2aeRbb59OuRWRh6Bqan4lbe3206VlgZlpDgP/HJH86yZCc3XGYQGIv9S20
+         BuQEGUd+s71KazqxFCeAyiGAqM++LRocDdekkc5SenypHyLqCVKDopwscI5pBBbqG+bD
+         Sql6HNSekdhWUxlJD/v6B5ArwDocOSa5qt+GqxFtO3/x8lkxrsWN+nNAvR55N7uckpG7
+         9AVm02ydI4EtbuJkwQeZ8d2Z2GvneG2Ic5lUZ74HDzAvGnNy5SON8QvcUwiqynXiWh49
+         AFSw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1695609361; x=1696214161;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=dzmBYOC+iwFysYemk8kdLeE2Dt2aHmz4Un9SzH6Y5Wg=;
+        b=frwrZG+LO3yQaS//ft5dOSQ2M5JbjJ/FbsypG/rX2rVPWLeE1cqHp/h1J2FccT5ml9
+         Zz6j42luJSp3lJJA5RneIewME9JWDbBHSbTHzJwi78isEnoh2y8EK5bfvPN5Lp9yuWEN
+         d5//WT/W8cLaOqPKBl2CJBosCmQm6bs93TDjVU+Tw7yuj3wsA+Wta0Itpb0q3JmurD74
+         kN5nPY+XCp0pSCDwgZVHjVNAV355sH0AaHAhDwN7vcQ5/NUvZ5p+u5X8T3D8KB44Rmw+
+         hYPDqXb/nu2wgwIi6EVFB/bjeQYmgfgjQ/FRGceZ2VHECOwd055RPm9uqZ5eWUm4uBEc
+         IUOw==
+X-Gm-Message-State: AOJu0Yz5i5q2m/WEbMB5qFUnmVTOp18VnLCD7jZhXpgJoaGgY7NC6t20
+        MDUCU4kZ/sK/lD+zC06zDrkbJw==
+X-Google-Smtp-Source: AGHT+IGI/P4ONGXx2/V7iBF+Z7EgcwNg8/ly8pcWV1DYWBNVGQ2Hpvcgq3ygJUmT517X+1OMzu2zig==
+X-Received: by 2002:a17:902:bd97:b0:1bb:9506:d47c with SMTP id q23-20020a170902bd9700b001bb9506d47cmr3693386pls.19.1695609361476;
+        Sun, 24 Sep 2023 19:36:01 -0700 (PDT)
+Received: from C02FG34NMD6R.bytedance.net ([203.208.189.6])
+        by smtp.gmail.com with ESMTPSA id u15-20020a170902e5cf00b001a5fccab02dsm7516445plf.177.2023.09.24.19.35.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 24 Sep 2023 19:36:00 -0700 (PDT)
+From:   Albert Huang <huangjie.albert@bytedance.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>
+Cc:     Albert Huang <huangjie.albert@bytedance.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
         "David S. Miller" <davem@davemloft.net>,
         Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, netdev@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, bpf@vger.kernel.org,
-        kangjie.xu@linux.alibaba.com
-References: <20220801063902.129329-1-xuanzhuo@linux.alibaba.com>
- <20220801063902.129329-31-xuanzhuo@linux.alibaba.com>
- <20230921100112-mutt-send-email-mst@kernel.org>
- <1695347358.2770545-1-xuanzhuo@linux.alibaba.com>
- <20230922064550-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20230922064550-mutt-send-email-mst@kernel.org>
+        Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH net-next] net/smc: add support for netdevice in containers.
+Date:   Mon, 25 Sep 2023 10:35:45 +0800
+Message-Id: <20230925023546.9964-1-huangjie.albert@bytedance.com>
+X-Mailer: git-send-email 2.37.1 (Apple Git-137.1)
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 22 Sep 2023 06:46:39 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Fri, Sep 22, 2023 at 09:49:18AM +0800, Xuan Zhuo wrote:
-> > On Thu, 21 Sep 2023 10:02:53 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > On Mon, Aug 01, 2022 at 02:38:50PM +0800, Xuan Zhuo wrote:
-> > > > Introduce new helpers to implement queue reset and get queue reset
-> > > > status.
-> > > >
-> > > >  https://github.com/oasis-tcs/virtio-spec/issues/124
-> > > >  https://github.com/oasis-tcs/virtio-spec/issues/139
-> > > >
-> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > Acked-by: Jason Wang <jasowang@redhat.com>
-> > > > ---
-> > > >  drivers/virtio/virtio_pci_modern_dev.c | 39 ++++++++++++++++++++++++++
-> > > >  include/linux/virtio_pci_modern.h      |  2 ++
-> > > >  2 files changed, 41 insertions(+)
-> > > >
-> > > > diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
-> > > > index fa2a9445bb18..869cb46bef96 100644
-> > > > --- a/drivers/virtio/virtio_pci_modern_dev.c
-> > > > +++ b/drivers/virtio/virtio_pci_modern_dev.c
-> > > > @@ -3,6 +3,7 @@
-> > > >  #include <linux/virtio_pci_modern.h>
-> > > >  #include <linux/module.h>
-> > > >  #include <linux/pci.h>
-> > > > +#include <linux/delay.h>
-> > > >
-> > > >  /*
-> > > >   * vp_modern_map_capability - map a part of virtio pci capability
-> > > > @@ -474,6 +475,44 @@ void vp_modern_set_status(struct virtio_pci_modern_device *mdev,
-> > > >  }
-> > > >  EXPORT_SYMBOL_GPL(vp_modern_set_status);
-> > > >
-> > > > +/*
-> > > > + * vp_modern_get_queue_reset - get the queue reset status
-> > > > + * @mdev: the modern virtio-pci device
-> > > > + * @index: queue index
-> > > > + */
-> > > > +int vp_modern_get_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
-> > > > +{
-> > > > +	struct virtio_pci_modern_common_cfg __iomem *cfg;
-> > > > +
-> > > > +	cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev->common;
-> > > > +
-> > > > +	vp_iowrite16(index, &cfg->cfg.queue_select);
-> > > > +	return vp_ioread16(&cfg->queue_reset);
-> > > > +}
-> > > > +EXPORT_SYMBOL_GPL(vp_modern_get_queue_reset);
-> > > > +
-> > >
-> > > Actually, this does not validate that the config structure is big
-> > > enough. So it can access some unrelated memory. Don't know whether
-> > > that's exploitable e.g. for CoCo but not nice, anyway.
-> > > Need to validate the size and disable reset if it's too small.
-> >
-> >
-> > static int vp_modern_disable_vq_and_reset(struct virtqueue *vq)
-> > {
-> > 	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
-> > 	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
-> > 	struct virtio_pci_vq_info *info;
-> > 	unsigned long flags;
-> >
-> > ->	if (!virtio_has_feature(vq->vdev, VIRTIO_F_RING_RESET))
-> > 		return -ENOENT;
-> >
-> > 	vp_modern_set_queue_reset(mdev, vq->index);
-> >
-> >
-> > I checked VIRTIO_F_RING_RESET before call this.
->
-> Yes but the point is that virtio is used with untrusted devices
-> (e.g. for SEV/TDX), so you can't really assume config structures
-> are in sync with feature bits.
+If the netdevice is within a container and communicates externally
+through network technologies like VXLAN, we won't be able to find
+routing information in the init_net namespace. To address this issue,
+we need to add a struct net parameter to the smc_ib_find_route function.
+This allow us to locate the routing information within the corresponding
+net namespace, ensuring the correct completion of the SMC CLC interaction.
 
-I see.
+Signed-off-by: Albert Huang <huangjie.albert@bytedance.com>
+---
+ net/smc/af_smc.c | 3 ++-
+ net/smc/smc_ib.c | 7 ++++---
+ net/smc/smc_ib.h | 2 +-
+ 3 files changed, 7 insertions(+), 5 deletions(-)
 
-I will post a patch to check the length of the common cfg.
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index bacdd971615e..7a874da90c7f 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1201,6 +1201,7 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+ 		(struct smc_clc_msg_accept_confirm_v2 *)aclc;
+ 	struct smc_clc_first_contact_ext *fce =
+ 		smc_get_clc_first_contact_ext(clc_v2, false);
++	struct net *net = sock_net(&smc->sk);
+ 	int rc;
+ 
+ 	if (!ini->first_contact_peer || aclc->hdr.version == SMC_V1)
+@@ -1210,7 +1211,7 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+ 		memcpy(ini->smcrv2.nexthop_mac, &aclc->r0.lcl.mac, ETH_ALEN);
+ 		ini->smcrv2.uses_gateway = false;
+ 	} else {
+-		if (smc_ib_find_route(smc->clcsock->sk->sk_rcv_saddr,
++		if (smc_ib_find_route(net, smc->clcsock->sk->sk_rcv_saddr,
+ 				      smc_ib_gid_to_ipv4(aclc->r0.lcl.gid),
+ 				      ini->smcrv2.nexthop_mac,
+ 				      &ini->smcrv2.uses_gateway))
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index 9b66d6aeeb1a..89981dbe46c9 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -193,7 +193,7 @@ bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport)
+ 	return smcibdev->pattr[ibport - 1].state == IB_PORT_ACTIVE;
+ }
+ 
+-int smc_ib_find_route(__be32 saddr, __be32 daddr,
++int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
+ 		      u8 nexthop_mac[], u8 *uses_gateway)
+ {
+ 	struct neighbour *neigh = NULL;
+@@ -205,7 +205,7 @@ int smc_ib_find_route(__be32 saddr, __be32 daddr,
+ 
+ 	if (daddr == cpu_to_be32(INADDR_NONE))
+ 		goto out;
+-	rt = ip_route_output_flow(&init_net, &fl4, NULL);
++	rt = ip_route_output_flow(net, &fl4, NULL);
+ 	if (IS_ERR(rt))
+ 		goto out;
+ 	if (rt->rt_uses_gateway && rt->rt_gw_family != AF_INET)
+@@ -235,6 +235,7 @@ static int smc_ib_determine_gid_rcu(const struct net_device *ndev,
+ 	if (smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP &&
+ 	    smc_ib_gid_to_ipv4((u8 *)&attr->gid) != cpu_to_be32(INADDR_NONE)) {
+ 		struct in_device *in_dev = __in_dev_get_rcu(ndev);
++		struct net *net = dev_net(ndev);
+ 		const struct in_ifaddr *ifa;
+ 		bool subnet_match = false;
+ 
+@@ -248,7 +249,7 @@ static int smc_ib_determine_gid_rcu(const struct net_device *ndev,
+ 		}
+ 		if (!subnet_match)
+ 			goto out;
+-		if (smcrv2->daddr && smc_ib_find_route(smcrv2->saddr,
++		if (smcrv2->daddr && smc_ib_find_route(net, smcrv2->saddr,
+ 						       smcrv2->daddr,
+ 						       smcrv2->nexthop_mac,
+ 						       &smcrv2->uses_gateway))
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index 4df5f8c8a0a1..ef8ac2b7546d 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -112,7 +112,7 @@ void smc_ib_sync_sg_for_device(struct smc_link *lnk,
+ int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
+ 			 unsigned short vlan_id, u8 gid[], u8 *sgid_index,
+ 			 struct smc_init_info_smcrv2 *smcrv2);
+-int smc_ib_find_route(__be32 saddr, __be32 daddr,
++int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
+ 		      u8 nexthop_mac[], u8 *uses_gateway);
+ bool smc_ib_is_valid_local_systemid(void);
+ int smcr_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
+-- 
+2.37.1 (Apple Git-137.1)
 
-Thanks.
-
-
->
->
-> > Do you mean, we should put the check to this function.
-> >
-> >
-> > Thanks.
-> >
-> >
-> >
-> > >
-> > >
-> > > > +/*
-> > > > + * vp_modern_set_queue_reset - reset the queue
-> > > > + * @mdev: the modern virtio-pci device
-> > > > + * @index: queue index
-> > > > + */
-> > > > +void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
-> > > > +{
-> > > > +	struct virtio_pci_modern_common_cfg __iomem *cfg;
-> > > > +
-> > > > +	cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev->common;
-> > > > +
-> > > > +	vp_iowrite16(index, &cfg->cfg.queue_select);
-> > > > +	vp_iowrite16(1, &cfg->queue_reset);
-> > > > +
-> > > > +	while (vp_ioread16(&cfg->queue_reset))
-> > > > +		msleep(1);
-> > > > +
-> > > > +	while (vp_ioread16(&cfg->cfg.queue_enable))
-> > > > +		msleep(1);
-> > > > +}
-> > > > +EXPORT_SYMBOL_GPL(vp_modern_set_queue_reset);
-> > > > +
-> > > >  /*
-> > > >   * vp_modern_queue_vector - set the MSIX vector for a specific virtqueue
-> > > >   * @mdev: the modern virtio-pci device
-> > > > diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
-> > > > index 05123b9a606f..c4eeb79b0139 100644
-> > > > --- a/include/linux/virtio_pci_modern.h
-> > > > +++ b/include/linux/virtio_pci_modern.h
-> > > > @@ -113,4 +113,6 @@ void __iomem * vp_modern_map_vq_notify(struct virtio_pci_modern_device *mdev,
-> > > >  				       u16 index, resource_size_t *pa);
-> > > >  int vp_modern_probe(struct virtio_pci_modern_device *mdev);
-> > > >  void vp_modern_remove(struct virtio_pci_modern_device *mdev);
-> > > > +int vp_modern_get_queue_reset(struct virtio_pci_modern_device *mdev, u16 index);
-> > > > +void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index);
-> > > >  #endif
-> > > > --
-> > > > 2.31.0
-> > >
->
