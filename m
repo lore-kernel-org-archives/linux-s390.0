@@ -2,60 +2,118 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C00D5CE7A89
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Sep 2023 07:48:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F7B8CE7A81
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Sep 2023 08:30:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232003AbjIYHsu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Sep 2023 03:48:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58514 "EHLO
+        id S232827AbjIYIaI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Sep 2023 04:30:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230148AbjIYHst (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Sep 2023 03:48:49 -0400
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F8CAD3;
-        Mon, 25 Sep 2023 00:48:43 -0700 (PDT)
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id F173068D05; Mon, 25 Sep 2023 09:48:38 +0200 (CEST)
-Date:   Mon, 25 Sep 2023 09:48:38 +0200
-From:   Christoph Hellwig <hch@lst.de>
-To:     Samuel Holland <samuel.holland@sifive.com>
-Cc:     Christoph Hellwig <hch@lst.de>, Al Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <brauner@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Denis Efremov <efremov@linux.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        "Darrick J . Wong" <djwong@kernel.org>, Chris Mason <clm@fb.com>,
-        David Sterba <dsterba@suse.com>, linux-block@vger.kernel.org,
-        nbd@other.debian.org, linux-s390@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: Re: [PATCH 07/17] nbd: call blk_mark_disk_dead in
- nbd_clear_sock_ioctl
-Message-ID: <20230925074838.GA28522@lst.de>
-References: <20230811100828.1897174-1-hch@lst.de> <20230811100828.1897174-8-hch@lst.de> <79af9398-167f-440e-a493-390dc4ccbd85@sifive.com>
+        with ESMTP id S232664AbjIYIaH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Sep 2023 04:30:07 -0400
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFB58C4;
+        Mon, 25 Sep 2023 01:29:59 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VsoSBCa_1695630596;
+Received: from 30.221.144.144(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VsoSBCa_1695630596)
+          by smtp.aliyun-inc.com;
+          Mon, 25 Sep 2023 16:29:57 +0800
+Message-ID: <ee2a5f8c-4119-c84a-05bc-03015e6c9bea@linux.alibaba.com>
+Date:   Mon, 25 Sep 2023 16:29:53 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <79af9398-167f-440e-a493-390dc4ccbd85@sifive.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.14.0
+Subject: Re: [PATCH net] net/smc: fix panic smc_tcp_syn_recv_sock() while
+ closing listen socket
+Content-Language: en-US
+To:     Wenjia Zhang <wenjia@linux.ibm.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1695211714-66958-1-git-send-email-alibuda@linux.alibaba.com>
+ <0902f55b-0d51-7f4d-0a9e-4b9423217fcf@linux.ibm.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <0902f55b-0d51-7f4d-0a9e-4b9423217fcf@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Sep 20, 2023 at 03:41:11PM -0500, Samuel Holland wrote:
-> [   14.619101] Buffer I/O error on dev nbd0, logical block 0, async page read
-> 
-> [   14.630490]  nbd0: unable to read partition table
-> 
-> I wonder if disk_force_media_change() is the right thing to call here instead.
 
-So what are the semantics of clearing the socket?
 
-The <= 6.5 behavior of invalidating fs caches, but not actually marking
-the fs shutdown is pretty broken, especially if this expects to resurrect
-the device and thus the file system later on.
+On 9/22/23 7:59 AM, Wenjia Zhang wrote:
+>
+>
+> On 20.09.23 14:08, D. Wythe wrote:
+>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>
+>> Consider the following scenarios:
+>>
+>> smc_release
+>>     smc_close_active
+>> write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
+>>         smc->clcsock->sk->sk_user_data = NULL;
+>> write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
+>>
+>> smc_tcp_syn_recv_sock
+>>     smc = smc_clcsock_user_data(sk);
+>>     /* now */
+>>     /* smc == NULL */
+>>
+>> Hence, we may read the a NULL value in smc_tcp_syn_recv_sock(). And
+>> since we only unset sk_user_data during smc_release, it's safe to
+>> drop the incoming tcp reqsock.
+>>
+>> Fixes:  ("net/smc: net/smc: Limit backlog connections"
+>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>> ---
+>>   net/smc/af_smc.c | 2 ++
+>>   1 file changed, 2 insertions(+)
+>>
+>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>> index bacdd97..b4acf47 100644
+>> --- a/net/smc/af_smc.c
+>> +++ b/net/smc/af_smc.c
+>> @@ -125,6 +125,8 @@ static struct sock *smc_tcp_syn_recv_sock(const 
+>> struct sock *sk,
+>>       struct sock *child;
+>>         smc = smc_clcsock_user_data(sk);
+>> +    if (unlikely(!smc))
+>> +        goto drop;
+>>         if (READ_ONCE(sk->sk_ack_backlog) + 
+>> atomic_read(&smc->queued_smc_hs) >
+>>                   sk->sk_max_ack_backlog)
+
+Hi Wenjia,
+
+>
+> this is unfortunately not sufficient for this fix. You have to make 
+> sure that is not a life-time problem. Even so, READ_ONCE() is also 
+> needed in this case.
+>
+
+Life-time problem? If you means the smc will still be NULL in the 
+future,  I don't really think so, smc is a local variable assigned by 
+smc_clcsock_user_data.
+it's either NULL or a valid and unchanged value.
+
+And READ_ONCE() is needed indeed, considering not make too much change, 
+maybe we can protected following
+
+smc = smc_clcsock_user_data(sk);
+
+with sk_callback_lock， which solves the same problem. What do you think?
+
+Best Wishes
+D. Wythe
+
+
+
+
+
+
+
+
+
+
