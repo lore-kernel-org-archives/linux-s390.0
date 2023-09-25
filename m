@@ -2,118 +2,116 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F7B8CE7A81
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Sep 2023 08:30:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70189CE7A81
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Sep 2023 09:48:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232827AbjIYIaI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Sep 2023 04:30:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57802 "EHLO
+        id S229437AbjIYJsZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Sep 2023 05:48:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232664AbjIYIaH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Sep 2023 04:30:07 -0400
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFB58C4;
-        Mon, 25 Sep 2023 01:29:59 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VsoSBCa_1695630596;
-Received: from 30.221.144.144(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VsoSBCa_1695630596)
-          by smtp.aliyun-inc.com;
-          Mon, 25 Sep 2023 16:29:57 +0800
-Message-ID: <ee2a5f8c-4119-c84a-05bc-03015e6c9bea@linux.alibaba.com>
-Date:   Mon, 25 Sep 2023 16:29:53 +0800
+        with ESMTP id S229456AbjIYJsZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Sep 2023 05:48:25 -0400
+X-Greylist: delayed 395 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 25 Sep 2023 02:48:18 PDT
+Received: from mail.8bytes.org (mail.8bytes.org [IPv6:2a01:238:42d9:3f00:e505:6202:4f0c:f051])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1B6469C;
+        Mon, 25 Sep 2023 02:48:17 -0700 (PDT)
+Received: from 8bytes.org (pd9fe9df8.dip0.t-ipconnect.de [217.254.157.248])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.8bytes.org (Postfix) with ESMTPSA id 77E231A21FF;
+        Mon, 25 Sep 2023 11:41:39 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=8bytes.org;
+        s=default; t=1695634900;
+        bh=NxrKhr6WG806XBJKBm2IQBKy1pD2rNt9qo9c3PhenPs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GA2roFK14T/HQ96iZoC9nQCcCo2VMXnhAiD8ufn22sBjj4nGQjiI9eN19UQ841ll3
+         tvmwuAznroYnlkDSX8YTdeSVvZ5KpTzjXvuSOcVi3oi86ErBR5VUYuyHP/MA5BOWAU
+         2wX/3AeQvi06bRFniHUSbxMlOYWJVwrevTN+8G/rCRuZXK0/Oah1SMzErVPnQM/e2T
+         NUJCJaJ6P7HXKFeguW86oDlRl/R1XGiBrT/L/fsslL6xPva/C12AXKWxwIS06iDf1G
+         mjJRMv3x6qjDMx6PAdu3wlyXUnjfaKVtb3KqzO0YfjGfzBDGWx9Kyiat+OEkROq8qK
+         VOyZFET5SBvfw==
+Date:   Mon, 25 Sep 2023 11:41:38 +0200
+From:   Joerg Roedel <joro@8bytes.org>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Andy Gross <agross@kernel.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        linuxppc-dev@lists.ozlabs.org,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Rob Clark <robdclark@gmail.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Nicolin Chen <nicolinc@nvidia.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Steven Price <steven.price@arm.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: Re: [PATCH v8 00/24] iommu: Make default_domain's mandatory
+Message-ID: <ZRFV0vxoexLu-CWJ@8bytes.org>
+References: <0-v8-81230027b2fa+9d-iommu_all_defdom_jgg@nvidia.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.14.0
-Subject: Re: [PATCH net] net/smc: fix panic smc_tcp_syn_recv_sock() while
- closing listen socket
-Content-Language: en-US
-To:     Wenjia Zhang <wenjia@linux.ibm.com>, kgraul@linux.ibm.com,
-        jaka@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1695211714-66958-1-git-send-email-alibuda@linux.alibaba.com>
- <0902f55b-0d51-7f4d-0a9e-4b9423217fcf@linux.ibm.com>
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <0902f55b-0d51-7f4d-0a9e-4b9423217fcf@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0-v8-81230027b2fa+9d-iommu_all_defdom_jgg@nvidia.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, Sep 13, 2023 at 10:43:33AM -0300, Jason Gunthorpe wrote:
+> Jason Gunthorpe (24):
+>   iommu: Add iommu_ops->identity_domain
+>   iommu: Add IOMMU_DOMAIN_PLATFORM
+>   powerpc/iommu: Setup a default domain and remove set_platform_dma_ops
+>   iommu: Add IOMMU_DOMAIN_PLATFORM for S390
+>   iommu/fsl_pamu: Implement a PLATFORM domain
+>   iommu/tegra-gart: Remove tegra-gart
+>   iommu/mtk_iommu_v1: Implement an IDENTITY domain
+>   iommu: Reorganize iommu_get_default_domain_type() to respect
+>     def_domain_type()
+>   iommu: Allow an IDENTITY domain as the default_domain in ARM32
+>   iommu/exynos: Implement an IDENTITY domain
+>   iommu/tegra-smmu: Implement an IDENTITY domain
+>   iommu/tegra-smmu: Support DMA domains in tegra
+>   iommu/omap: Implement an IDENTITY domain
+>   iommu/msm: Implement an IDENTITY domain
+>   iommu: Remove ops->set_platform_dma_ops()
+>   iommu/qcom_iommu: Add an IOMMU_IDENTITIY_DOMAIN
+>   iommu/ipmmu: Add an IOMMU_IDENTITIY_DOMAIN
+>   iommu/mtk_iommu: Add an IOMMU_IDENTITIY_DOMAIN
+>   iommu/sun50i: Add an IOMMU_IDENTITIY_DOMAIN
+>   iommu: Require a default_domain for all iommu drivers
+>   iommu: Add __iommu_group_domain_alloc()
+>   iommu: Add ops->domain_alloc_paging()
+>   iommu: Convert simple drivers with DOMAIN_DMA to domain_alloc_paging()
+>   iommu: Convert remaining simple drivers to domain_alloc_paging()
 
-
-On 9/22/23 7:59 AM, Wenjia Zhang wrote:
->
->
-> On 20.09.23 14:08, D. Wythe wrote:
->> From: "D. Wythe" <alibuda@linux.alibaba.com>
->>
->> Consider the following scenarios:
->>
->> smc_release
->>     smc_close_active
->> write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
->>         smc->clcsock->sk->sk_user_data = NULL;
->> write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
->>
->> smc_tcp_syn_recv_sock
->>     smc = smc_clcsock_user_data(sk);
->>     /* now */
->>     /* smc == NULL */
->>
->> Hence, we may read the a NULL value in smc_tcp_syn_recv_sock(). And
->> since we only unset sk_user_data during smc_release, it's safe to
->> drop the incoming tcp reqsock.
->>
->> Fixes:  ("net/smc: net/smc: Limit backlog connections"
->> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
->> ---
->>   net/smc/af_smc.c | 2 ++
->>   1 file changed, 2 insertions(+)
->>
->> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
->> index bacdd97..b4acf47 100644
->> --- a/net/smc/af_smc.c
->> +++ b/net/smc/af_smc.c
->> @@ -125,6 +125,8 @@ static struct sock *smc_tcp_syn_recv_sock(const 
->> struct sock *sk,
->>       struct sock *child;
->>         smc = smc_clcsock_user_data(sk);
->> +    if (unlikely(!smc))
->> +        goto drop;
->>         if (READ_ONCE(sk->sk_ack_backlog) + 
->> atomic_read(&smc->queued_smc_hs) >
->>                   sk->sk_max_ack_backlog)
-
-Hi Wenjia,
-
->
-> this is unfortunately not sufficient for this fix. You have to make 
-> sure that is not a life-time problem. Even so, READ_ONCE() is also 
-> needed in this case.
->
-
-Life-time problem? If you means the smc will still be NULL in the 
-future,  I don't really think so, smc is a local variable assigned by 
-smc_clcsock_user_data.
-it's either NULL or a valid and unchanged value.
-
-And READ_ONCE() is needed indeed, considering not make too much change, 
-maybe we can protected following
-
-smc = smc_clcsock_user_data(sk);
-
-with sk_callback_lock， which solves the same problem. What do you think?
-
-Best Wishes
-D. Wythe
-
-
-
-
-
-
-
-
-
-
+Applied, thanks.
