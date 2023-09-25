@@ -2,172 +2,124 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EC2CCE7A94
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Sep 2023 10:12:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D114CE7A94
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Sep 2023 11:50:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231351AbjIYKM2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Sep 2023 06:12:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34952 "EHLO
+        id S230479AbjIYLuj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Sep 2023 07:50:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231308AbjIYKMR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Sep 2023 06:12:17 -0400
+        with ESMTP id S229456AbjIYLug (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Sep 2023 07:50:36 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44AAA10DB;
-        Mon, 25 Sep 2023 03:12:10 -0700 (PDT)
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38P98dFT003707;
-        Mon, 25 Sep 2023 10:12:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to : sender :
- content-transfer-encoding : mime-version; s=pp1;
- bh=96psxN1f9XQziopU35QMc9HEX23km0D8MWKqNpx5f/A=;
- b=S1KLfwCr7U5E1iT6apQf6fHJdXmjpbAqIEBJXodxr9SEQN7ug1/6mibp8SIMr2Oi2adn
- QY4UMTmrFM1rfTpIzqpI3dm+9/Rd+t07qAK7ccp0NrU0kmfpfzCvMk6ivkAZBDi0gJ33
- b76UM5Es5g4QolM7223ZblQ008g05SH3yWHfPKDR9zpQDpAtoeLmmQx708NmWoiGn4mX
- 4K2J4ZnnsF3UaqWoHafauYUH3XkuXlYX/4TfeZWP4DVP/SN/n9Fn3gjE+FAitMGs6F8w
- N2tVG+M6hV/yIhQZ//kRFfSzUzCRKnK1XqIg5+fr1xj9WLjT0tdCtsI0hVwUwWGVLv1I zQ== 
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ta5rd8hvr-1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DF3E9B;
+        Mon, 25 Sep 2023 04:50:30 -0700 (PDT)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38PBbbSR000407;
+        Mon, 25 Sep 2023 11:50:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=u/uhG0g/kXxNmlqKDXNg/CTspL0SQq4wEiD1G7ilDOA=;
+ b=gPk0OIhhwM4P/q0SQJ8jShpAnQvbf8wHyamg1+r0ImY1fE+0375sSKWLzFisMCp7SKRW
+ zt4eA1tPDWGVaLSylOF+8molm1X3gDsHxo1PBsaKxL3AKBSBUeCexzTtoEWSg76efouN
+ owxOIY37Dk/22AU/JGGZxVIF9P3MobfeXQ52wrusa/+6/yF0/2Hd5bKTkUn5/YbVo1A3
+ eEDxG5dAbrcW2n5gu14igOHUZ/M/a0GYIzsCoKL+7EBFOnCyFwOn0gLs3kfieVMqDi94
+ xE1xWrNpzomuY0v1bjJIUEfu8OBJKQJg8WT8rcshuP+sivlM+rTFaaHAf5yuqaxYF+mz TQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tb7m62ts9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Sep 2023 10:12:08 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38P8uVB2008253;
-        Mon, 25 Sep 2023 10:07:06 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tabbms82q-1
+        Mon, 25 Sep 2023 11:50:27 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38PBbp5h002470;
+        Mon, 25 Sep 2023 11:50:27 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tb7m62trt-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Sep 2023 10:07:06 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38PA739W14811882
+        Mon, 25 Sep 2023 11:50:26 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38P9tmFS030719;
+        Mon, 25 Sep 2023 11:50:26 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tacjjhd4d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 25 Sep 2023 11:50:25 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38PBoMN116908974
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 25 Sep 2023 10:07:03 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4DFDC20065;
-        Mon, 25 Sep 2023 10:07:03 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 347D32004F;
-        Mon, 25 Sep 2023 10:07:03 +0000 (GMT)
-Received: from p1gen4-pw042f0m (unknown [9.171.44.172])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Mon, 25 Sep 2023 10:07:03 +0000 (GMT)
-Received: from bblock by p1gen4-pw042f0m with local (Exim 4.96)
-        (envelope-from <bblock@linux.ibm.com>)
-        id 1qkiUY-0039iO-2G;
-        Mon, 25 Sep 2023 12:07:02 +0200
-Date:   Mon, 25 Sep 2023 12:07:02 +0200
-From:   Benjamin Block <bblock@linux.ibm.com>
-To:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc:     linux-scsi@vger.kernel.org, Steffen Maier <maier@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [v3] scsi: zfcp: Fix a double put in zfcp_port_enqueue
-Message-ID: <20230925100702.GA650446@p1gen4-pw042f0m.fritz.box>
-References: <20230923103723.10320-1-dinghao.liu@zju.edu.cn>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20230923103723.10320-1-dinghao.liu@zju.edu.cn>
-Sender: Benjamin Block <bblock@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: cDUwzamnM3SGE02sFbPz0Oa8_j5jzsyU
-X-Proofpoint-GUID: cDUwzamnM3SGE02sFbPz0Oa8_j5jzsyU
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Mon, 25 Sep 2023 11:50:23 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CE75320043;
+        Mon, 25 Sep 2023 11:50:22 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9433F20040;
+        Mon, 25 Sep 2023 11:50:22 +0000 (GMT)
+Received: from [9.152.224.54] (unknown [9.152.224.54])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 25 Sep 2023 11:50:22 +0000 (GMT)
+Message-ID: <3febdf3e-e213-7acf-7dd4-75d177676c3e@linux.ibm.com>
+Date:   Mon, 25 Sep 2023 13:50:22 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.1
+Subject: Re: [PATCH net-next v4 09/18] net/smc: introduce SMC-D loopback
+ device
+Content-Language: en-US
+To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc:     schnelle@linux.ibm.com, gbayer@linux.ibm.com, pasic@linux.ibm.com,
+        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        dust.li@linux.alibaba.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1695568613-125057-1-git-send-email-guwen@linux.alibaba.com>
+ <1695568613-125057-10-git-send-email-guwen@linux.alibaba.com>
+From:   Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <1695568613-125057-10-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: t_8wHPH4AWvOWU9GE8aKNKofI0SNlpax
+X-Proofpoint-GUID: RlZnKHlCw6vIphuA58WF_Icozxk9YcXO
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-09-25_07,2023-09-21_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- mlxlogscore=999 phishscore=0 adultscore=0 clxscore=1015 impostorscore=0
- malwarescore=0 priorityscore=1501 mlxscore=0 spamscore=0 suspectscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2309250073
+ definitions=2023-09-25_08,2023-09-25_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ lowpriorityscore=0 clxscore=1015 priorityscore=1501 adultscore=0
+ impostorscore=0 phishscore=0 spamscore=0 mlxlogscore=577 suspectscore=0
+ mlxscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2309180000 definitions=main-2309250086
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Sep 23, 2023 at 06:37:23PM +0800, Dinghao Liu wrote:
-> When device_register() fails, zfcp_port_release() will be called
-> after put_device(). As a result, zfcp_ccw_adapter_put() will be
-> called twice: one in zfcp_port_release() and one in the error path
-> after device_register(). So the reference on the adapter object is
-> doubly put, which may lead to a premature free. Fix this by adjusting
-> the error tag after device_register().
+
+
+On 24.09.23 17:16, Wen Gu wrote:
+> This patch introduces a kind of loopback device for SMC-D. The device
+> is created when SMC module is loaded and destroyed when the SMC module
+> is unloaded. The loopback device is a kernel device used only by the
+> SMC module and is not restricted by net namespace, so it can be used
+> for local inter-process or inter-container communication.
 > 
-> Fixes: f3450c7b9172 ("[SCSI] zfcp: Replace local reference counting with common kref")
-> Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 > ---
-> 
-> Changelog:
-> 
-> v2: -Improve the patch description.
->     -Add a new label 'err_register' to unify code style.
-> 
-> v3: -Improve the names of goto labels.
-> ---
->  drivers/s390/scsi/zfcp_aux.c | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
-> index df782646e856..ab2f35bc294d 100644
-> --- a/drivers/s390/scsi/zfcp_aux.c
-> +++ b/drivers/s390/scsi/zfcp_aux.c
-> @@ -518,12 +518,12 @@ struct zfcp_port *zfcp_port_enqueue(struct zfcp_adapter *adapter, u64 wwpn,
->  	if (port) {
->  		put_device(&port->dev);
->  		retval = -EEXIST;
-> -		goto err_out;
-> +		goto err_put;
->  	}
->  
->  	port = kzalloc(sizeof(struct zfcp_port), GFP_KERNEL);
->  	if (!port)
-> -		goto err_out;
-> +		goto err_put;
->  
->  	rwlock_init(&port->unit_list_lock);
->  	INIT_LIST_HEAD(&port->unit_list);
-> @@ -546,7 +546,7 @@ struct zfcp_port *zfcp_port_enqueue(struct zfcp_adapter *adapter, u64 wwpn,
->  
->  	if (dev_set_name(&port->dev, "0x%016llx", (unsigned long long)wwpn)) {
->  		kfree(port);
-> -		goto err_out;
-> +		goto err_put;
->  	}
->  	retval = -EINVAL;
->  
-> @@ -563,7 +563,8 @@ struct zfcp_port *zfcp_port_enqueue(struct zfcp_adapter *adapter, u64 wwpn,
->  
->  	return port;
->  
-> -err_out:
-> +err_put:
->  	zfcp_ccw_adapter_put(adapter);
-> +err_out:
->  	return ERR_PTR(retval);
->  }
-> -- 
-> 2.17.1
-> 
-
-Looks good to me. Ideally we would have a stable tag (v2.6.33+) in with the
-Fixes tag as well, but I don't think we need to fly an extra round just for
-that. We can ask the stable team once this is included upstream.
+>  net/smc/Kconfig        |  13 ++++
+>  net/smc/Makefile       |   2 +-
+>  net/smc/af_smc.c       |  12 +++-
+>  net/smc/smc_loopback.c | 165 +++++++++++++++++++++++++++++++++++++++++++++++++
+>  net/smc/smc_loopback.h |  33 ++++++++++
+>  5 files changed, 223 insertions(+), 2 deletions(-)
+>  create mode 100644 net/smc/smc_loopback.c
+>  create mode 100644 net/smc/smc_loopback.h
 
 
-Acked-by: Benjamin Block <bblock@linux.ibm.com>
+Hello Wen Gu,
 
+thank you for adding the Kconfig, so the distributions can decide when to offer this feature.
 
-Martin, can you please pick this directly?
+I propose you add some kind of runtime switch as well. Not every user who loads the SMC module
+may want to exploit smcd-loopback. Especially in native environements without containers.
 
-
--- 
-Best Regards, Benjamin Block        /        Linux on IBM Z Kernel Development
-IBM Deutschland Research & Development GmbH    /   https://www.ibm.com/privacy
-Vors. Aufs.-R.: Gregor Pillen         /         Geschäftsführung: David Faller
-Sitz der Ges.: Böblingen     /    Registergericht: AmtsG Stuttgart, HRB 243294
+If no RoCE interfaces or no ISM interfaces exist, the respective handling is skipped in SMC.
+If loopback is always created unconditionally, there is no way to opt-out.
