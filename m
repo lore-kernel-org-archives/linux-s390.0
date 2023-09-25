@@ -2,153 +2,107 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BFD3DCE7A95
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Sep 2023 15:00:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3053CCE7A81
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Sep 2023 15:18:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230479AbjIYPAc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Sep 2023 11:00:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59124 "EHLO
+        id S232770AbjIYPSh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Sep 2023 11:18:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229522AbjIYPAb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Sep 2023 11:00:31 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 339C2103;
-        Mon, 25 Sep 2023 08:00:25 -0700 (PDT)
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38PEdjPc003761;
-        Mon, 25 Sep 2023 15:00:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=0XnGU+HhFugEoI566S2IeVCh7/GRwEQPF9PUwnwFgzs=;
- b=mAJLTkqgu+BRtK0+zd7QFBKcU1iyQaCMrsbJ2NH4WY52TSgxqgEQw5Yhsl0NS4luRTZV
- sxRj3mLGn1oEMwN9huyu/p5OwjkhsLQrf5r/ks4FA1rcg0YuSVi6K8R8v5C1xVeEgeJk
- G5G/kFCPZOgfJL0Pjap6uVVz9xhLIqn9hft8IRoba7B+jlO3w9OxegtP27FE2KxLtO5K
- NY13f2B6T4ZSJ5ABe9gNaBnccUijsEa1QCurArfxGOH9ah2lA6p9JKENSGmXK2QHI4bG
- DHNkQhwdIJKptkWDItZmBMDMjdwjbAxVkAni2z58ltoXfmRhq7zviWNdOgGfw1MAIMcv xQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ta5rdg8d6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Sep 2023 15:00:24 +0000
-Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38PCf25q031182;
-        Mon, 25 Sep 2023 15:00:23 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ta5rdg8bq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Sep 2023 15:00:23 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38PEoMLk030544;
-        Mon, 25 Sep 2023 15:00:22 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tad21ajhm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Sep 2023 15:00:22 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38PF0JvA38994194
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 25 Sep 2023 15:00:19 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7D48A20063;
-        Mon, 25 Sep 2023 15:00:19 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 48D4D2006A;
-        Mon, 25 Sep 2023 15:00:19 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 25 Sep 2023 15:00:19 +0000 (GMT)
-Date:   Mon, 25 Sep 2023 17:00:17 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, nsg@linux.ibm.com,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v1] s390x: run PV guests with
- confidential guest enabled
-Message-ID: <20230925170017.7ab08784@p-imbrenda>
-In-Reply-To: <20230925135259.1685540-1-nrb@linux.ibm.com>
-References: <20230925135259.1685540-1-nrb@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+        with ESMTP id S232789AbjIYPSf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Sep 2023 11:18:35 -0400
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F41FE101;
+        Mon, 25 Sep 2023 08:18:22 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0VsthvN7_1695655096;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0VsthvN7_1695655096)
+          by smtp.aliyun-inc.com;
+          Mon, 25 Sep 2023 23:18:17 +0800
+Date:   Mon, 25 Sep 2023 23:18:16 +0800
+From:   Dust Li <dust.li@linux.alibaba.com>
+To:     Alexandra Winter <wintera@linux.ibm.com>,
+        Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc:     schnelle@linux.ibm.com, gbayer@linux.ibm.com, pasic@linux.ibm.com,
+        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next v4 09/18] net/smc: introduce SMC-D loopback
+ device
+Message-ID: <20230925151816.GC92403@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <1695568613-125057-1-git-send-email-guwen@linux.alibaba.com>
+ <1695568613-125057-10-git-send-email-guwen@linux.alibaba.com>
+ <3febdf3e-e213-7acf-7dd4-75d177676c3e@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: I4z1nAcAJtar0tGdUmSj6DY0uDEmtJvu
-X-Proofpoint-GUID: av6KdGFoTLA6Xliaxdb7j21zWqM8SQEq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-09-25_12,2023-09-25_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- mlxlogscore=999 phishscore=0 adultscore=0 clxscore=1015 impostorscore=0
- malwarescore=0 priorityscore=1501 mlxscore=0 spamscore=0 suspectscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2309250111
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3febdf3e-e213-7acf-7dd4-75d177676c3e@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 25 Sep 2023 15:52:45 +0200
-Nico Boehr <nrb@linux.ibm.com> wrote:
+On Mon, Sep 25, 2023 at 01:50:22PM +0200, Alexandra Winter wrote:
+>
+>
+>On 24.09.23 17:16, Wen Gu wrote:
+>> This patch introduces a kind of loopback device for SMC-D. The device
+>> is created when SMC module is loaded and destroyed when the SMC module
+>> is unloaded. The loopback device is a kernel device used only by the
+>> SMC module and is not restricted by net namespace, so it can be used
+>> for local inter-process or inter-container communication.
+>> 
+>> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+>> ---
+>>  net/smc/Kconfig        |  13 ++++
+>>  net/smc/Makefile       |   2 +-
+>>  net/smc/af_smc.c       |  12 +++-
+>>  net/smc/smc_loopback.c | 165 +++++++++++++++++++++++++++++++++++++++++++++++++
+>>  net/smc/smc_loopback.h |  33 ++++++++++
+>>  5 files changed, 223 insertions(+), 2 deletions(-)
+>>  create mode 100644 net/smc/smc_loopback.c
+>>  create mode 100644 net/smc/smc_loopback.h
+>
+>
+>Hello Wen Gu,
+>
+>thank you for adding the Kconfig, so the distributions can decide when to offer this feature.
+>
+>I propose you add some kind of runtime switch as well. Not every user who loads the SMC module
+>may want to exploit smcd-loopback. Especially in native environements without containers.
+>
+>If no RoCE interfaces or no ISM interfaces exist, the respective handling is skipped in SMC.
+>If loopback is always created unconditionally, there is no way to opt-out.
 
-> PV can only handle one page of SCLP read info, hence it can only support
-> a maximum of 247 CPUs.
-> 
-> To make sure we respect these limitations under PV, add a confidential
-> guest device to QEMU when launching a PV guest.
-> 
-> This fixes the topology-2 test failing under PV.
-> 
-> Also refactor the run script a bit to reduce code duplication by moving
-> the check whether we're running a PV guest to a function.
-> 
-> Suggested-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Hi Sandy,
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+After talking to Wen Gu offline, I think the real issue here might be
+we don't have an abstract layer in SMC, something like net/core/dev.c
 
-> ---
->  s390x/run | 19 +++++++++++++++++--
->  1 file changed, 17 insertions(+), 2 deletions(-)
-> 
-> diff --git a/s390x/run b/s390x/run
-> index dcbf3f036415..e58fa4af9f23 100755
-> --- a/s390x/run
-> +++ b/s390x/run
-> @@ -14,19 +14,34 @@ set_qemu_accelerator || exit $?
->  qemu=$(search_qemu_binary) ||
->  	exit $?
->  
-> -if [ "${1: -7}" = ".pv.bin" ] || [ "${TESTNAME: -3}" = "_PV" ] && [ "$ACCEL" = "tcg" ]; then
-> +is_pv() {
-> +	if [ "${1: -7}" = ".pv.bin" ] || [ "${TESTNAME: -3}" = "_PV" ]; then
-> +		return 0
-> +	fi
-> +	return 1
-> +}
-> +
-> +if is_pv && [ "$ACCEL" = "tcg" ]; then
->  	echo "Protected Virtualization isn't supported under TCG"
->  	exit 2
->  fi
->  
-> -if [ "${1: -7}" = ".pv.bin" ] || [ "${TESTNAME: -3}" = "_PV" ] && [ "$MIGRATION" = "yes" ]; then
-> +if is_pv && [ "$MIGRATION" = "yes" ]; then
->  	echo "Migration isn't supported under Protected Virtualization"
->  	exit 2
->  fi
->  
->  M='-machine s390-ccw-virtio'
->  M+=",accel=$ACCEL$ACCEL_PROPS"
-> +
-> +if is_pv; then
-> +	M+=",confidential-guest-support=pv0"
-> +fi
-> +
->  command="$qemu -nodefaults -nographic $M"
-> +if is_pv; then
-> +	command+=" -object s390-pv-guest,id=pv0"
-> +fi
->  command+=" -chardev stdio,id=con0 -device sclpconsole,chardev=con0"
->  command+=" -kernel"
->  command="$(panic_cmd) $(migration_cmd) $(timeout_cmd) $command"
+Without this, we cannot do:
 
+1. Enable/disable those devices dynamically
+   Currently, If we want to disable a SMC-R device to communicate with
+   others, we need to refer to 'ip link set dev xxx down' to disable the
+   netdevice, then Infiniband subsystem will notify SMC that the state of
+   the IB device has changed. We cannot explicitly choose not to use some
+   specific IB/RoCE devices without disable totally.
+   If the loopback device need to support enable/disable itself, I
+   think it might be better to enable this feature for all SMC devices.
+
+2. Do statistics per device
+   Now, we have to relay on IB/RoCE devices' hardware statistics to see
+   how many packets/bytes we have sent through this device.
+
+Both the above issues get worse when the IB/RoCE device is shared by SMC
+and userspace RDMA applications. If SMC-R and userspace RDMA applications
+run at the same time, we can't enable the device to run userspace RDMA
+applications while block it from running SMC. For statistics, we cannot
+tell how many packets/bytes were sent by SMC and how many were sent by
+userspace RDMA applications.
+
+So I think those are better to support in the SMC layer.
+
+Best regards!
+Dust
