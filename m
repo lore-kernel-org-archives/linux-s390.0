@@ -2,82 +2,109 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05483E7E62E
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Sep 2023 12:09:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96870E7E64A
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Sep 2023 15:05:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234481AbjIZMJP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Sep 2023 08:09:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42344 "EHLO
+        id S235176AbjIZPFS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Sep 2023 11:05:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230231AbjIZMJO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Sep 2023 08:09:14 -0400
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DF89E6;
-        Tue, 26 Sep 2023 05:09:07 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R721e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0VswpDWa_1695730143;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0VswpDWa_1695730143)
-          by smtp.aliyun-inc.com;
-          Tue, 26 Sep 2023 20:09:04 +0800
-Date:   Tue, 26 Sep 2023 20:09:03 +0800
-From:   Dust Li <dust.li@linux.alibaba.com>
-To:     Leon Romanovsky <leon@kernel.org>,
-        Alexandra Winter <wintera@linux.ibm.com>
-Cc:     Albert Huang <huangjie.albert@bytedance.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
+        with ESMTP id S234991AbjIZPFA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Sep 2023 11:05:00 -0400
+Received: from mail.8bytes.org (mail.8bytes.org [85.214.250.239])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 62F3FCCA;
+        Tue, 26 Sep 2023 08:04:32 -0700 (PDT)
+Received: from 8bytes.org (pd9fe9df8.dip0.t-ipconnect.de [217.254.157.248])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.8bytes.org (Postfix) with ESMTPSA id CA82A1A21CC;
+        Tue, 26 Sep 2023 17:04:29 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=8bytes.org;
+        s=default; t=1695740670;
+        bh=o8oWUCyKGLr6aRpJEcyERxcIW3a0GD0rf9gmZgpvK2A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=6TpFhndRPNvIgt7yzA2/aJMoYkdnS16cebzf4UtP23CQlpQ+Gak1eYrm6l6OjKYEx
+         6ov9MN4xTFyWr54bLnOpm430Hupplf8W0SxvaQlB6FgmJn2Bupf3Brid8BS/nZqAQO
+         hvu4Svos9D+f462V9LsyrLj63TJ5HQrEH7+hL9EoBYr83zCI6QFPn3sNZtjggMsFkX
+         51VP71UAzDGONwXr20Y36QdQJVa+iP+T27lz3G41fM7pXzHksLzD0rpLSvyCctLemD
+         t/LuaiNXAWO/0BIuVB8b3mYUK3IzpvwsvgMpvM9qZ4RAN8ZffK3kqVvFnLVTK8C6cL
+         klQPepXng8EOg==
+Date:   Tue, 26 Sep 2023 17:04:28 +0200
+From:   Joerg Roedel <joro@8bytes.org>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
         Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org,
+        Robin Murphy <robin.murphy@arm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>,
+        Julian Ruess <julianr@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Hector Martin <marcan@marcan.st>,
+        Sven Peter <sven@svenpeter.dev>,
+        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Jonathan Corbet <corbet@lwn.net>, linux-s390@vger.kernel.org,
         netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        RDMA mailing list <linux-rdma@vger.kernel.org>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: Re: [PATCH net-next] net/smc: add support for netdevice in
- containers.
-Message-ID: <20230926120903.GD92403@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20230925023546.9964-1-huangjie.albert@bytedance.com>
- <20230926104831.GJ1642130@unreal>
- <76a74084-a900-d559-1f63-deff84e5848a@linux.ibm.com>
- <20230926114104.GL1642130@unreal>
+        iommu@lists.linux.dev, asahi@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
+        linux-doc@vger.kernel.org
+Subject: Re: [PATCH v12 0/6] iommu/dma: s390 DMA API conversion and optimized
+ IOTLB flushing
+Message-ID: <ZRLy_AaJiXxZ2AfK@8bytes.org>
+References: <20230825-dma_iommu-v12-0-4134455994a7@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230926114104.GL1642130@unreal>
+In-Reply-To: <20230825-dma_iommu-v12-0-4134455994a7@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Sep 26, 2023 at 02:41:04PM +0300, Leon Romanovsky wrote:
->On Tue, Sep 26, 2023 at 01:14:04PM +0200, Alexandra Winter wrote:
->> 
->> 
->> On 26.09.23 12:48, Leon Romanovsky wrote:
->> > This patch made me wonder, why doesn't SMC use RDMA-CM like all other
->> > in-kernel ULPs which work over RDMA?
->> > 
->> > Thanks
->> 
->> The idea behind SMC is that it should look an feel to the applications
->> like TCP sockets. So for connection management it uses TCP over IP;
->> RDMA is just used for the data transfer.
->
->I think that it is not different from other ULPs. For example, RDS works
->over sockets and doesn't touch or reimplement GID management logic.
+Hi Niklas,
 
-I think the difference is SMC socket need to be compatible with TCP
-socket, so it need a tcp socket to fallback when something is not working.
+On Fri, Aug 25, 2023 at 12:11:15PM +0200, Niklas Schnelle wrote:
+> Niklas Schnelle (6):
+>       iommu: Allow .iotlb_sync_map to fail and handle s390's -ENOMEM return
+>       s390/pci: prepare is_passed_through() for dma-iommu
+>       s390/pci: Use dma-iommu layer
+>       iommu/s390: Disable deferred flush for ISM devices
+>       iommu/dma: Allow a single FQ in addition to per-CPU FQs
+>       iommu/dma: Use a large flush queue and timeout for shadow_on_flush
 
-If SMC works with rdmacm, it still need a fallback-to-tcp socket, and
-the tcp connection has to be established for each SMC socket before the
-SMC socket got established, that would make rdmacm meaningless.
+Turned out this series has non-trivial conflicts with Jasons
+default-domain work so I had to remove it from the IOMMU tree for now.
+Can you please rebase it to the latest iommu/core branch and re-send? I
+will take it into the tree again then.
 
-Best regards,
-Dust
+Thanks,
 
->
->Thanks
+	Joerg
