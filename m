@@ -2,123 +2,82 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86F0CE7E62E
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Sep 2023 12:08:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05483E7E62E
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Sep 2023 12:09:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233219AbjIZMIt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Sep 2023 08:08:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57204 "EHLO
+        id S234481AbjIZMJP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Sep 2023 08:09:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230231AbjIZMIs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Sep 2023 08:08:48 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B277E6;
-        Tue, 26 Sep 2023 05:08:42 -0700 (PDT)
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38QBiPGr028118;
-        Tue, 26 Sep 2023 12:08:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=1gJpuwdVqRAqlnTtVV631/kgV+qLy2bqFt2x6eyTQb8=;
- b=DEBWZv1jcCHhPGYbyaEHPBZJA8PEB9j4S6EgtEPaW1PQ7du0OqQbCf4KDJxMgccouSpQ
- xF0KIhiR+2XIZXTIRMyEEeOgep2d2h8Pk+5SfMV1ic+SEDUAAyPE1K2abH3cYeWptF4t
- NvYGXf9jrDaZYfdQvzLZP9KRLpgvU9G9Pvamyc/VPwrGABHtC6ekNOIFwCildkAMxfxB
- ZNUbFUDO4FfSsMIk/s/t2mu4WT43XmiETUeL4kzlzRpxkCJ5QBPesZIpXrJp8UU7nQMQ
- 6beQgu97WJ8mPGC1AwCQFZh1kwRbGqgSfS/TP9fHfTPo3HhVBhiNwM55jWyOB2LKWdlx FA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tbwk8tahk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Sep 2023 12:08:33 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38QC6b7Y015419;
-        Tue, 26 Sep 2023 12:08:33 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tbwk8tah5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Sep 2023 12:08:32 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38QBJo4f008143;
-        Tue, 26 Sep 2023 12:08:32 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3taaqybgpr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Sep 2023 12:08:32 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38QC8SMc45810398
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 26 Sep 2023 12:08:29 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E180820043;
-        Tue, 26 Sep 2023 12:08:28 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B7DAE20040;
-        Tue, 26 Sep 2023 12:08:28 +0000 (GMT)
-Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 26 Sep 2023 12:08:28 +0000 (GMT)
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
-        pbonzini@redhat.com, andrew.jones@linux.dev
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v1] arch-run: migration: properly handle crashing outgoing QEMU
-Date:   Tue, 26 Sep 2023 14:08:23 +0200
-Message-ID: <20230926120828.1830840-1-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.41.0
+        with ESMTP id S230231AbjIZMJO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Sep 2023 08:09:14 -0400
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DF89E6;
+        Tue, 26 Sep 2023 05:09:07 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R721e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0VswpDWa_1695730143;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0VswpDWa_1695730143)
+          by smtp.aliyun-inc.com;
+          Tue, 26 Sep 2023 20:09:04 +0800
+Date:   Tue, 26 Sep 2023 20:09:03 +0800
+From:   Dust Li <dust.li@linux.alibaba.com>
+To:     Leon Romanovsky <leon@kernel.org>,
+        Alexandra Winter <wintera@linux.ibm.com>
+Cc:     Albert Huang <huangjie.albert@bytedance.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        RDMA mailing list <linux-rdma@vger.kernel.org>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH net-next] net/smc: add support for netdevice in
+ containers.
+Message-ID: <20230926120903.GD92403@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20230925023546.9964-1-huangjie.albert@bytedance.com>
+ <20230926104831.GJ1642130@unreal>
+ <76a74084-a900-d559-1f63-deff84e5848a@linux.ibm.com>
+ <20230926114104.GL1642130@unreal>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: S4Kg005CW5jlplTrnNAp5iWhV9dIu93M
-X-Proofpoint-ORIG-GUID: SdO8uUsa6Vc_CnwDokNRXewpIrx2lwHG
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-09-26_08,2023-09-25_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
- mlxlogscore=680 suspectscore=0 spamscore=0 bulkscore=0 malwarescore=0
- impostorscore=0 phishscore=0 clxscore=1011 priorityscore=1501
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2309260104
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230926114104.GL1642130@unreal>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When outgoing (live) QEMU crashes or times out during migration, we
-currently hang forever.
+On Tue, Sep 26, 2023 at 02:41:04PM +0300, Leon Romanovsky wrote:
+>On Tue, Sep 26, 2023 at 01:14:04PM +0200, Alexandra Winter wrote:
+>> 
+>> 
+>> On 26.09.23 12:48, Leon Romanovsky wrote:
+>> > This patch made me wonder, why doesn't SMC use RDMA-CM like all other
+>> > in-kernel ULPs which work over RDMA?
+>> > 
+>> > Thanks
+>> 
+>> The idea behind SMC is that it should look an feel to the applications
+>> like TCP sockets. So for connection management it uses TCP over IP;
+>> RDMA is just used for the data transfer.
+>
+>I think that it is not different from other ULPs. For example, RDS works
+>over sockets and doesn't touch or reimplement GID management logic.
 
-This is because we don't exit the loop querying migration state when QMP
-communication fails.
+I think the difference is SMC socket need to be compatible with TCP
+socket, so it need a tcp socket to fallback when something is not working.
 
-Add proper error handling to the loop and exit when QMP communication
-fails for whatever reason.
+If SMC works with rdmacm, it still need a fallback-to-tcp socket, and
+the tcp connection has to be established for each SMC socket before the
+SMC socket got established, that would make rdmacm meaningless.
 
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
----
-Sorry I accidentally sent this only to s390x maintainers and forgot
-Paolo and Andrew, hence resending.
+Best regards,
+Dust
 
- scripts/arch-run.bash | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
-
-diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
-index 518607f4b75d..de9890408e24 100644
---- a/scripts/arch-run.bash
-+++ b/scripts/arch-run.bash
-@@ -162,8 +162,14 @@ run_migration ()
- 	migstatus=`qmp ${qmp1} '"query-migrate"' | grep return`
- 	while ! grep -q '"completed"' <<<"$migstatus" ; do
- 		sleep 1
--		migstatus=`qmp ${qmp1} '"query-migrate"' | grep return`
--		if grep -q '"failed"' <<<"$migstatus" ; then
-+		if ! migstatus=`qmp ${qmp1} '"query-migrate"'`; then
-+			echo "ERROR: Querying migration state failed." >&2
-+			echo > ${fifo}
-+			qmp ${qmp2} '"quit"'> ${qmpout2} 2>/dev/null
-+			return 2
-+		fi
-+		migstatus=`grep return <<<"$migstatus"`
-+		if grep -q '"failed"' <<<"$migstatus"; then
- 			echo "ERROR: Migration failed." >&2
- 			echo > ${fifo}
- 			qmp ${qmp1} '"quit"'> ${qmpout1} 2>/dev/null
--- 
-2.41.0
-
+>
+>Thanks
