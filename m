@@ -2,75 +2,115 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB321E7D270
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Sep 2023 09:41:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A9C8E7D27C
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Sep 2023 10:48:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234143AbjIZJlm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Sep 2023 05:41:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39700 "EHLO
+        id S234387AbjIZKso (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Sep 2023 06:48:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233835AbjIZJll (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Sep 2023 05:41:41 -0400
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DAF4B3;
-        Tue, 26 Sep 2023 02:41:35 -0700 (PDT)
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id DEB6468AA6; Tue, 26 Sep 2023 11:41:30 +0200 (CEST)
-Date:   Tue, 26 Sep 2023 11:41:30 +0200
-From:   Christoph Hellwig <hch@lst.de>
-To:     Al Viro <viro@zeniv.linux.org.uk>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Christian Brauner <brauner@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Tejun Heo <tj@kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Damien Le Moal <dlemoal@kernel.org>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-hardening@vger.kernel.org,
-        cgroups@vger.kernel.org
-Subject: Re: [PATCH 03/19] fs: release anon dev_t in deactivate_locked_super
-Message-ID: <20230926094130.GC13806@lst.de>
-References: <20230913111013.77623-1-hch@lst.de> <20230913111013.77623-4-hch@lst.de> <20230913232712.GC800259@ZenIV> <20230914023705.GH800259@ZenIV> <20230914053843.GI800259@ZenIV>
+        with ESMTP id S229845AbjIZKsn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Sep 2023 06:48:43 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3737E5;
+        Tue, 26 Sep 2023 03:48:36 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8F71C433C7;
+        Tue, 26 Sep 2023 10:48:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1695725316;
+        bh=gfpodpHfgZZFmWpZek88hhLj+CrA/PUJ6CzxGFqNpDs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=RacYjwlWhlo3fxqW7MYGVcgelHBOGGA2WF7lAZ7BUr4nK0qk1yNlFAIWyiwGsak30
+         Vwbz1+6aRSBTpL7QVVrRjm6HnZC304KdKOMqmrw2hJh5X6YWR8y8lSps7WknviAAhg
+         06QCITk6NDNHytVf6a7jkh6QIYQSSGPSgd5Wt733z/Hr2OyprsVh/nKIQ6u8E5gcNs
+         HW12F4xlgBqU8O/ovsCkYjSLaoQBH31X68GVlHCfpqEUS0tobwnPA+U/MZyzCkPgYd
+         Nie/z1bFdKRwbH/5j/uM3KBZybZhnl3XqLnNFEtii375Gu7rCKVCvIHoawyGPosH7X
+         bP6QfsBWmFJNA==
+Date:   Tue, 26 Sep 2023 13:48:31 +0300
+From:   Leon Romanovsky <leon@kernel.org>
+To:     Albert Huang <huangjie.albert@bytedance.com>
+Cc:     Karsten Graul <kgraul@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        RDMA mailing list <linux-rdma@vger.kernel.org>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH net-next] net/smc: add support for netdevice in
+ containers.
+Message-ID: <20230926104831.GJ1642130@unreal>
+References: <20230925023546.9964-1-huangjie.albert@bytedance.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230914053843.GI800259@ZenIV>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+In-Reply-To: <20230925023546.9964-1-huangjie.albert@bytedance.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Sep 14, 2023 at 06:38:43AM +0100, Al Viro wrote:
-> It's worse - look at the rationale for 2c18a63b760a "super: wait until
-> we passed kill super".  Basically, "don't remove from the lists
-> until after block device closing".  IOW, we have
-
-As of this stage we don't even touch anything related to block devices..
-
-> That was *NOT* what a recent rework had done.  Block device closing had never
-> been inside ->put_super() - at no point since that (closing, that is) had been
-> introduced back in 0.97 ;-)  ->put_super() predates it (0.95c+).
+On Mon, Sep 25, 2023 at 10:35:45AM +0800, Albert Huang wrote:
+> If the netdevice is within a container and communicates externally
+> through network technologies like VXLAN, we won't be able to find
+> routing information in the init_net namespace. To address this issue,
+> we need to add a struct net parameter to the smc_ib_find_route function.
+> This allow us to locate the routing information within the corresponding
+> net namespace, ensuring the correct completion of the SMC CLC interaction.
 > 
-> The race is real, but the cause is not some kind of move of blkdev_put().
-> Your 2ea6f68932f7 "fs: use the super_block as holder when mounting file
-> systems" is where it actually came from.
+> Signed-off-by: Albert Huang <huangjie.albert@bytedance.com>
+> ---
+>  net/smc/af_smc.c | 3 ++-
+>  net/smc/smc_ib.c | 7 ++++---
+>  net/smc/smc_ib.h | 2 +-
+>  3 files changed, 7 insertions(+), 5 deletions(-)
 > 
-> Christoph, could you explain what the hell do we need that for?  It does
-> create the race in question and AFAICS 2c18a63b760a (and followups trying
-> to plug holes in it) had been nothing but headache.
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index bacdd971615e..7a874da90c7f 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -1201,6 +1201,7 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+>  		(struct smc_clc_msg_accept_confirm_v2 *)aclc;
+>  	struct smc_clc_first_contact_ext *fce =
+>  		smc_get_clc_first_contact_ext(clc_v2, false);
+> +	struct net *net = sock_net(&smc->sk);
+>  	int rc;
+>  
+>  	if (!ini->first_contact_peer || aclc->hdr.version == SMC_V1)
+> @@ -1210,7 +1211,7 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+>  		memcpy(ini->smcrv2.nexthop_mac, &aclc->r0.lcl.mac, ETH_ALEN);
+>  		ini->smcrv2.uses_gateway = false;
+>  	} else {
+> -		if (smc_ib_find_route(smc->clcsock->sk->sk_rcv_saddr,
+> +		if (smc_ib_find_route(net, smc->clcsock->sk->sk_rcv_saddr,
+>  				      smc_ib_gid_to_ipv4(aclc->r0.lcl.gid),
+>  				      ini->smcrv2.nexthop_mac,
+>  				      &ini->smcrv2.uses_gateway))
+> diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+> index 9b66d6aeeb1a..89981dbe46c9 100644
+> --- a/net/smc/smc_ib.c
+> +++ b/net/smc/smc_ib.c
+> @@ -193,7 +193,7 @@ bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport)
+>  	return smcibdev->pattr[ibport - 1].state == IB_PORT_ACTIVE;
+>  }
+>  
+> -int smc_ib_find_route(__be32 saddr, __be32 daddr,
+> +int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
+>  		      u8 nexthop_mac[], u8 *uses_gateway)
+>  {
+>  	struct neighbour *neigh = NULL;
+> @@ -205,7 +205,7 @@ int smc_ib_find_route(__be32 saddr, __be32 daddr,
+>  
+>  	if (daddr == cpu_to_be32(INADDR_NONE))
+>  		goto out;
+> -	rt = ip_route_output_flow(&init_net, &fl4, NULL);
+> +	rt = ip_route_output_flow(net, &fl4, NULL);
 
-Because it allows us to actually get from the bdev to the holder directly,
-someting we've badly neeed for a while.
+This patch made me wonder, why doesn't SMC use RDMA-CM like all other
+in-kernel ULPs which work over RDMA?
+
+Thanks
