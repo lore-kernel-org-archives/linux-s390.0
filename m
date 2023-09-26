@@ -2,108 +2,147 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE32FE7D246
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Sep 2023 07:38:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E8CBE7D24C
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Sep 2023 08:05:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231908AbjIZHiF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Sep 2023 03:38:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44172 "EHLO
+        id S233817AbjIZIFd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Sep 2023 04:05:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233666AbjIZHiE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Sep 2023 03:38:04 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07009F3;
-        Tue, 26 Sep 2023 00:37:56 -0700 (PDT)
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38Q7OWik023749;
-        Tue, 26 Sep 2023 07:37:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=fWR1/uuDBcY3PfqAN7mQ2K/NuZL/nN/N9hnZrtG/ukM=;
- b=Pm3RxKuirlYJznbgUZeqEHWes2ve8xrZp2FH4L9c8+XW5WxVo8berTUrnxYBdDXdSsWO
- ZyRqBUN5WLopFY4XqqsdG9oi6PZo4MTI9ZCrEqwNELFIydcvfTlLPIF3/vyvkfV10Let
- 7kpcEmg4sVVEUcJsRScmdzsrsbluVHW4ixXurqEjdjWMBoD+YxAAEFaLAfQ682PQKcPl
- zYDaBf/qonPUgQFmXrwELAozWyyLdu9rHK4R6CAeM1Y4q5Gt+VJpDAL1HQggNDMvOBpf
- b1hoJ+biZ+zp737WS8Rb2lpcN1VF8yrp7f/+Gx2LdBKnzr9HhaKHnb73RXYp1xWgo0eM tQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tbtvu8c58-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Sep 2023 07:37:52 +0000
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38Q7Ze0B024089;
-        Tue, 26 Sep 2023 07:37:51 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tbtvu8c4k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Sep 2023 07:37:51 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38Q5fQN6008126;
-        Tue, 26 Sep 2023 07:37:51 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3taaqya0u2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Sep 2023 07:37:50 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38Q7bl8Q45089198
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 26 Sep 2023 07:37:47 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8132920080;
-        Tue, 26 Sep 2023 07:37:47 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 55D5B2007A;
-        Tue, 26 Sep 2023 07:37:47 +0000 (GMT)
-Received: from [9.152.224.54] (unknown [9.152.224.54])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 26 Sep 2023 07:37:47 +0000 (GMT)
-Message-ID: <d488ff86-8b99-e669-dfbf-ee05bb7b1536@linux.ibm.com>
-Date:   Tue, 26 Sep 2023 09:37:47 +0200
+        with ESMTP id S233807AbjIZIFb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Sep 2023 04:05:31 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B933D116;
+        Tue, 26 Sep 2023 01:05:24 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEB07C433C7;
+        Tue, 26 Sep 2023 08:05:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1695715524;
+        bh=+Amk36a0CBOiKu5+FtjGQvFX395/lzfG991XVrUkCKk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=RLx2TLWKtN7VAMAOy6Z+yt+5L2H3WvCxgk6fo3xEAFTVDZv0mPqQm9oryMdet+1qZ
+         obrB5TY2nE/qbUSfaI1uId3y2yRK2qnxEYYQpqf8IMXRqLpaWcyp6r1h8W5YGqDDxg
+         /Ipk9rb4CjRrT7bowSHMduOUAEuaFMTD7nXxu83iUI+O1xmmOj2PJsMoiGARKNDMsM
+         m8lXDTJPRNGVXjXTr34wm+BzlG4p+UzrUM7cd5TVxTprWIBaR+mK3IXevwTFE0yWC2
+         SIHL7mRKLFjL2iR5rLVY4OdrYFjdV9kMecllhx3OCPX+UXN+tAGab3AHw/soEZdxZb
+         tvxNd43ZGN+BA==
+Date:   Tue, 26 Sep 2023 11:04:22 +0300
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Song Liu <song@kernel.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        =?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Kent Overstreet <kent.overstreet@linux.dev>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Puranjay Mohan <puranjay12@gmail.com>,
+        Rick Edgecombe <rick.p.edgecombe@intel.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-modules@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v3 02/13] mm: introduce execmem_text_alloc() and
+ execmem_free()
+Message-ID: <20230926080422.GP3303@kernel.org>
+References: <20230918072955.2507221-1-rppt@kernel.org>
+ <20230918072955.2507221-3-rppt@kernel.org>
+ <CAPhsuW5-=H1V=VXUYxyGnUdJuNUpRt44QmpwjkDUD=9i0itjuw@mail.gmail.com>
+ <20230923153808.GI3303@kernel.org>
+ <CAPhsuW6TxG87ZBwQ_027iiE+_UmXweZEPh8wKHkHo7wA+qXZUg@mail.gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.1
-Subject: Re: [RFC net-next 0/2] Optimize the parallelism of SMC-R connections
-Content-Language: en-US
-To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1694008530-85087-1-git-send-email-alibuda@linux.alibaba.com>
- <794f9f68-4671-5e5e-45e4-2c8a4de568b3@linux.ibm.com>
- <522d823c-b656-ffb5-bcce-65b96bdfa46d@linux.alibaba.com>
- <c0ba8e0b-f2b2-b65b-e21a-54c3d920ba72@linux.ibm.com>
- <a3e80a67-e8b8-ce94-fc11-254d056d37a9@linux.alibaba.com>
-From:   Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <a3e80a67-e8b8-ce94-fc11-254d056d37a9@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: HpqpkSkRMLNDjhQjDjslhy6XgQIHzkDi
-X-Proofpoint-GUID: NTjuWDrNpg3BuHopxLXWXaKAPm2017Ae
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-09-26_05,2023-09-25_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- spamscore=0 malwarescore=0 suspectscore=0 impostorscore=0 adultscore=0
- bulkscore=0 phishscore=0 mlxscore=0 mlxlogscore=499 priorityscore=1501
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2309260065
+In-Reply-To: <CAPhsuW6TxG87ZBwQ_027iiE+_UmXweZEPh8wKHkHo7wA+qXZUg@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 25.09.23 12:10, D. Wythe wrote:
-> That's right.  But even if we do nothing, the current implements still has this problem.
-> And this problem can be solved by the spinlock inside smc_conn_create, rather than the
-> pending lock.
+On Sat, Sep 23, 2023 at 03:36:01PM -0700, Song Liu wrote:
+> On Sat, Sep 23, 2023 at 8:39 AM Mike Rapoport <rppt@kernel.org> wrote:
+> >
+> > On Thu, Sep 21, 2023 at 03:34:18PM -0700, Song Liu wrote:
+> > > On Mon, Sep 18, 2023 at 12:30 AM Mike Rapoport <rppt@kernel.org> wrote:
+> > > >
+> > >
+> > > [...]
+> > >
+> > > > diff --git a/arch/s390/kernel/module.c b/arch/s390/kernel/module.c
+> > > > index 42215f9404af..db5561d0c233 100644
+> > > > --- a/arch/s390/kernel/module.c
+> > > > +++ b/arch/s390/kernel/module.c
+> > > > @@ -21,6 +21,7 @@
+> > > >  #include <linux/moduleloader.h>
+> > > >  #include <linux/bug.h>
+> > > >  #include <linux/memory.h>
+> > > > +#include <linux/execmem.h>
+> > > >  #include <asm/alternative.h>
+> > > >  #include <asm/nospec-branch.h>
+> > > >  #include <asm/facility.h>
+> > > > @@ -76,7 +77,7 @@ void *module_alloc(unsigned long size)
+> > > >  #ifdef CONFIG_FUNCTION_TRACER
+> > > >  void module_arch_cleanup(struct module *mod)
+> > > >  {
+> > > > -       module_memfree(mod->arch.trampolines_start);
+> > > > +       execmem_free(mod->arch.trampolines_start);
+> > > >  }
+> > > >  #endif
+> > > >
+> > > > @@ -510,7 +511,7 @@ static int module_alloc_ftrace_hotpatch_trampolines(struct module *me,
+> > > >
+> > > >         size = FTRACE_HOTPATCH_TRAMPOLINES_SIZE(s->sh_size);
+> > > >         numpages = DIV_ROUND_UP(size, PAGE_SIZE);
+> > > > -       start = module_alloc(numpages * PAGE_SIZE);
+> > > > +       start = execmem_text_alloc(EXECMEM_FTRACE, numpages * PAGE_SIZE);
+> > >
+> > > This should be EXECMEM_MODULE_TEXT?
+> >
+> > This is an ftrace trampoline, so I think it should be FTRACE type of
+> > allocation.
 > 
+> Yeah, I was aware of the ftrace trampoline. My point was, ftrace trampoline
+> doesn't seem to have any special requirements. Therefore, it is probably not
+> necessary to have a separate type just for it.
 
-May I kindly propose to fix this problem first and then do performance improvements after that?
+Since ftrace trampolines are currently used only on s390 and x86 which
+enforce the same range for all executable allocations there are no special
+requirements indeed. But I think that explicitly marking these allocations
+as FTRACE makes it clearer what are they used for and I don't see downsides
+to having a type for FTRACE.
+ 
+> AFAICT, kprobe, ftrace, and BPF (JIT and trampoline) can share the same
+> execmem_type. We may need some work for some archs, but nothing is
+> fundamentally different among these.
 
+Using the same type for all generated code implies that all types of the
+generated code must live in the same range and I don't think we want to
+impose this limitation on architectures.
 
-> And also deleting the last connection from a link group will not shutting the down right now,
-> usually waiting for 10 minutes of idle time.
+For example, RISC-V deliberately added a range for BPF code to allow
+relative addressing, see commit 7f3631e88ee6 ("riscv, bpf: Provide RISC-V
+specific JIT image alloc/free").
+ 
+> Thanks,
+> Song
 
-Still the new connection could come in just the moment when the 10 minutes are over. 
+-- 
+Sincerely yours,
+Mike.
