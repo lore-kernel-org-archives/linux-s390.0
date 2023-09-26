@@ -2,100 +2,118 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBE67E7E656
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Sep 2023 17:30:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A333DE7F144
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Sep 2023 22:52:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234282AbjIZRaS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Sep 2023 13:30:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48778 "EHLO
+        id S231801AbjIZWwC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Sep 2023 18:52:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233857AbjIZRaR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Sep 2023 13:30:17 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A435124;
-        Tue, 26 Sep 2023 10:30:11 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27C84C433C8;
-        Tue, 26 Sep 2023 17:30:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1695749410;
-        bh=4BCR5+ia34bKjgZ3WQ5jOW0HdAcDUewCNvoaxlZIikg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pxTD8f9RFgHUxrpUlPk3ZJXa9TAqzdd3SLKBcMb0ooRvgr9o3kknjmYA96UZpArs1
-         LTIXntUVgKRlOTp+yshSgN680kRTkJLGLH7d9DEeCMec4v3cKy0yInZwDZmnwUW4z3
-         LpcHkNDg5WaY8Xn053Vn/43gHTuP1DAloEtIqw4gIZL/ci8MIdve7WSREPTcJDT4Uo
-         frAcf2Vhf/pLCbKztN2kGy+PFRWjfQQv/YVrkW5Yt/y8kru9GTHATd08dIT5JekphW
-         uPmJT3Kxavr6RO1McwcNjAW478UC3tUYsKKNX1RObSMDBVhssk/dYRtvCfzYspZByL
-         FI5VE1kDNVxQg==
-Date:   Tue, 26 Sep 2023 20:30:06 +0300
-From:   Leon Romanovsky <leon@kernel.org>
-To:     Dust Li <dust.li@linux.alibaba.com>
-Cc:     Alexandra Winter <wintera@linux.ibm.com>,
-        Albert Huang <huangjie.albert@bytedance.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        RDMA mailing list <linux-rdma@vger.kernel.org>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: Re: [PATCH net-next] net/smc: add support for netdevice in
- containers.
-Message-ID: <20230926173006.GN1642130@unreal>
-References: <20230925023546.9964-1-huangjie.albert@bytedance.com>
- <20230926104831.GJ1642130@unreal>
- <76a74084-a900-d559-1f63-deff84e5848a@linux.ibm.com>
- <20230926114104.GL1642130@unreal>
- <20230926120903.GD92403@linux.alibaba.com>
+        with ESMTP id S231808AbjIZWuA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Sep 2023 18:50:00 -0400
+Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [IPv6:2a03:a000:7:0:5054:ff:fe1c:15ff])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A76A2900F;
+        Tue, 26 Sep 2023 14:25:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=WccGIMN5Qv0lQD3hgxuM1vcIL4JfsNLSXHYfA6JcKbA=; b=OsDkrrtpZVXrV5cPooFVpQ+DsW
+        efu7lcfWUFBZQaHC0VFHyjjlC9IDm/yz/ZSlLHkS56BIBF1rqS35BSa4iOCFAMWKpcXpAAhZiLrpb
+        /5MwxV8qJttJgFtRzaN+w6Z85LOr7HVhGxkZL88Sv5A/SkYZv7JMKEyrCWFeL2Yf9rWDNOyHisFva
+        qNGTFJp2isj0JVlKyHCS19X3cR12y4OMvncSwP7i60r/thlVuHEHxR25fZSDXn83II/AWC7INUFn6
+        8+uAPErM2QG6BrRdCCZ6OQ8tCEmDrSMgrY6TSaupVewWlaEaPlhNXIhz6JXLVcFKp8/OKJhckJeHZ
+        DAUjL3zQ==;
+Received: from viro by zeniv.linux.org.uk with local (Exim 4.96 #2 (Red Hat Linux))
+        id 1qlFYR-00Bljq-2w;
+        Tue, 26 Sep 2023 21:25:16 +0000
+Date:   Tue, 26 Sep 2023 22:25:15 +0100
+From:   Al Viro <viro@zeniv.linux.org.uk>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Christian Brauner <brauner@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Tejun Heo <tj@kernel.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Damien Le Moal <dlemoal@kernel.org>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-hardening@vger.kernel.org,
+        cgroups@vger.kernel.org
+Subject: Re: [PATCH 03/19] fs: release anon dev_t in deactivate_locked_super
+Message-ID: <20230926212515.GN800259@ZenIV>
+References: <20230913111013.77623-1-hch@lst.de>
+ <20230913111013.77623-4-hch@lst.de>
+ <20230913232712.GC800259@ZenIV>
+ <20230926093834.GB13806@lst.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230926120903.GD92403@linux.alibaba.com>
+In-Reply-To: <20230926093834.GB13806@lst.de>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Sep 26, 2023 at 08:09:03PM +0800, Dust Li wrote:
-> On Tue, Sep 26, 2023 at 02:41:04PM +0300, Leon Romanovsky wrote:
-> >On Tue, Sep 26, 2023 at 01:14:04PM +0200, Alexandra Winter wrote:
-> >> 
-> >> 
-> >> On 26.09.23 12:48, Leon Romanovsky wrote:
-> >> > This patch made me wonder, why doesn't SMC use RDMA-CM like all other
-> >> > in-kernel ULPs which work over RDMA?
-> >> > 
-> >> > Thanks
-> >> 
-> >> The idea behind SMC is that it should look an feel to the applications
-> >> like TCP sockets. So for connection management it uses TCP over IP;
-> >> RDMA is just used for the data transfer.
-> >
-> >I think that it is not different from other ULPs. For example, RDS works
-> >over sockets and doesn't touch or reimplement GID management logic.
-> 
-> I think the difference is SMC socket need to be compatible with TCP
-> socket, so it need a tcp socket to fallback when something is not working.
-> 
-> If SMC works with rdmacm, it still need a fallback-to-tcp socket, and
-> the tcp connection has to be established for each SMC socket before the
-> SMC socket got established, that would make rdmacm meaningless.
+On Tue, Sep 26, 2023 at 11:38:34AM +0200, Christoph Hellwig wrote:
 
-You still need to perform device-GID-route translations [1], which sounds
-to me very RDMA-CM. I'm not asking you to rewrite the code, but trying
-to get rationale behind reimplementing part of RDMA subsystem.
-
-Thanks
-
-[1] 24fb68111d45 ("net/smc: retrieve v2 gid from IB device")
-
+> How?
 > 
-> Best regards,
-> Dust
+> Old sequence before his patch:
 > 
-> >
-> >Thanks
+> 	deactivate_locked_super()
+> 	  -> kill_anon_super()
+> 	    -> generic_shutdown_super()
+> 	    -> kill_super_notify()
+> 	    -> free_anon_bdev()
+> 	  -> kill_super_notify()
+> 
+> New sequence with this patch:
+> 
+> 	deactivate_locked_super()
+> 	  -> generic_shutdown_super()
+> 	    -> kill_super_notify()
+> 	    -> free_anon_bdev()
+> 
+
+Before your patch: foo_kill_super() calls kill_anon_super(),
+which calls kill_super_notify(), which removes the sucker from
+the list, then frees ->s_fs_info.  After your patch:
+removal from the lists happens via the call of kill_super_notify()
+*after* both of your methods had been called, while freeing
+->s_fs_info happens from the method call.  IOW, you've restored
+the situation prior to "super: ensure valid info".  The whole
+point of that commit had been to make sure that we have nothing
+in the lists with ->s_fs_info pointing to a freed object.
+
+It's not about free_anon_bdev(); that part is fine - it's the
+"we can drop the weird second call site of kill_super_notify()"
+thing that is broken.
+
+Al, still slogging through the rcu pathwalk races in the methods...
+The latest catch: nfs_set_verifier() can get called on a dentry
+that had just been seen to have positive parent, but is not
+pinned down.
+	grab ->d_lock; OK, we know that dentry won't get freed under us
+	fetch ->d_parent->d_inode
+	pass that to nfs_verify_change_attribute()
+... which assumes that inode it's been given is not NULL.  Normally it
+would've been - ->d_lock stabilizes ->d_parent, and negative dentries
+obviously have no children.  Except that we might've been just hit
+by dentry_kill() due to eviction on memory pressure, got ->d_lock
+right after that and proceeded to play with ->d_parent, just as
+that parent is going through dentry_kill() from the same eviction on
+memory pressure...  If it gets to dentry_unlink_inode() before we get to
+fetching ->d_parent->d_inode, nfs_verify_change_attribute(NULL, whatever)
+is going to oops...
