@@ -2,203 +2,198 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F379FE80ABE
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Sep 2023 14:42:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3267CE82CA1
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Sep 2023 15:16:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232123AbjI0OmX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Sep 2023 10:42:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44760 "EHLO
+        id S232322AbjI0PQv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Sep 2023 11:16:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232107AbjI0OmW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Sep 2023 10:42:22 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B15ABF9;
-        Wed, 27 Sep 2023 07:42:18 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38REeoSf013717;
-        Wed, 27 Sep 2023 14:41:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
+        with ESMTP id S232289AbjI0PQv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Sep 2023 11:16:51 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99CF3121;
+        Wed, 27 Sep 2023 08:16:49 -0700 (PDT)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38REdBKl008435;
+        Wed, 27 Sep 2023 15:16:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
  content-transfer-encoding : mime-version; s=pp1;
- bh=SA0vmiS/p2eSmGSBAdVBC3GbqSanJU141RtIeVTT6OM=;
- b=TGpXx0Ln9HtdYNuFyOP8Hq5Zocf8QxQDnVI5kwwA4PAFAl/hhJowWiFhv3Xf2BfMbdC1
- OOoI5mBUpLFB8uRUcmNYwei9TldVUR0ZNj2vjFMu89fbqX93HpnGRHiWYey5kr1N54tP
- z3T4HZZeyqIn05a1apvR4Awqq6tuQ2Gbc/bGQ3HpAHVdOdzOvtoby2ytC07g7Wcy4S/U
- 3MxjOkq/QtwX+TT7VLWTv6JJ9F8cVb4wPqewSJE6KwkVTwl9gptyoPjD12MltW03r2g4
- 1MOtZHO0acF77JzuVw6YKJihtCL0WGNuuvZ4YEPscljp+MOj6IrXF2OMFxidjM9s8euj nA== 
+ bh=v9WDm3swDxscG39kJoxW69ln7dXHTF+Bl/xaN5IviGE=;
+ b=oh4ZMEcSSsC5E/Ob9R4hjNaeeiUeZW2bvP5n97p9Neoq2h1plFTI7ywIozx+0yt15qc0
+ djfHAqkD4tn/0vlf60JAmDqo7rGyo3mxGX9ampwaieZWN8yWOOWBH8GnmSOA3tC2Fce9
+ E+J52mE8Rqpr5zudvjdZ5MV/NSJ9O7DI9BO5Bb4NJsg53vfo8lO7yMb7PQ1mjiV1Ye+d
+ TQmbKaPAU3gssC0fO103YPIZmK9tdH3iwWEe8ImietQJnTklvn/KyrfVD4RQlS55RDTn
+ SWCHZcI2NCWNsy6dIhQsSYwfSfYpDT3ZczGaNxtLQK2Cm4rQDKjApYXFIRbWgnWeDhk3 cA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tcnh8sqcw-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tcnrejp0s-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Sep 2023 14:41:30 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38REfDmF017965;
-        Wed, 27 Sep 2023 14:41:17 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tcnh8snj3-1
+        Wed, 27 Sep 2023 15:16:44 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38REdiol011469;
+        Wed, 27 Sep 2023 15:16:44 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tcnrejnyw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Sep 2023 14:41:17 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38RChTDb030454;
-        Wed, 27 Sep 2023 14:31:15 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tad21un14-1
+        Wed, 27 Sep 2023 15:16:43 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38RDlpZW008192;
+        Wed, 27 Sep 2023 15:16:42 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tabbnce06-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Sep 2023 14:31:15 +0000
+        Wed, 27 Sep 2023 15:16:42 +0000
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38REVCoW44892656
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38RFGdGj27460316
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 27 Sep 2023 14:31:12 GMT
+        Wed, 27 Sep 2023 15:16:39 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4205820043;
-        Wed, 27 Sep 2023 14:31:12 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 5733420043;
+        Wed, 27 Sep 2023 15:16:39 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 91F0E20040;
-        Wed, 27 Sep 2023 14:31:11 +0000 (GMT)
-Received: from [9.152.212.236] (unknown [9.152.212.236])
+        by IMSVA (Postfix) with ESMTP id 0E06C20040;
+        Wed, 27 Sep 2023 15:16:39 +0000 (GMT)
+Received: from [9.152.224.54] (unknown [9.152.224.54])
         by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 27 Sep 2023 14:31:11 +0000 (GMT)
-Message-ID: <6dab29f58ac1ccd58caaee031f98f4d0d382cbcd.camel@linux.ibm.com>
-Subject: Re: [PATCH v12 0/6] iommu/dma: s390 DMA API conversion and
- optimized IOTLB flushing
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Joerg Roedel <joro@8bytes.org>
-Cc:     Jason Gunthorpe <jgg@ziepe.ca>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Hector Martin <marcan@marcan.st>,
-        Sven Peter <sven@svenpeter.dev>,
-        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Jonathan Corbet <corbet@lwn.net>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        iommu@lists.linux.dev, asahi@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
-        linux-doc@vger.kernel.org
-Date:   Wed, 27 Sep 2023 16:31:11 +0200
-In-Reply-To: <e1efbbd827e34800bd7fb0ea687645cc6c65e1ab.camel@linux.ibm.com>
-References: <20230825-dma_iommu-v12-0-4134455994a7@linux.ibm.com>
-         <ZRLy_AaJiXxZ2AfK@8bytes.org> <20230926160832.GM13795@ziepe.ca>
-         <cfc9e9128ed5571d2e36421e347301057662a09e.camel@linux.ibm.com>
-         <ZRP8CiBui7suB5D6@8bytes.org>
-         <b06a14de270a63050b0d027c24b333dba25001a4.camel@linux.ibm.com>
-         <e1efbbd827e34800bd7fb0ea687645cc6c65e1ab.camel@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
-MIME-Version: 1.0
+        Wed, 27 Sep 2023 15:16:39 +0000 (GMT)
+Message-ID: <2e4bb42a-1a6c-476e-c982-c4d6cfdac63b@linux.ibm.com>
+Date:   Wed, 27 Sep 2023 17:16:38 +0200
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.1
+Subject: Re: [PATCH net-next v4 00/18] net/smc: implement virtual ISM
+ extension and loopback-ism
+To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc:     schnelle@linux.ibm.com, gbayer@linux.ibm.com, pasic@linux.ibm.com,
+        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        dust.li@linux.alibaba.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1695568613-125057-1-git-send-email-guwen@linux.alibaba.com>
+Content-Language: en-US
+From:   Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <1695568613-125057-1-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 9DVW-bLHKWJTvCvlDlYeq4_osgrJTxpT
-X-Proofpoint-ORIG-GUID: HDx50Cd-5cLuaqZZQuVFQjoyrLSQCgHY
+X-Proofpoint-GUID: D3TzLw2NxL2MMA3iaphM9MHelsWsd5FI
+X-Proofpoint-ORIG-GUID: bDksIiKl37y27rHIoRyXx7P-b45IYNCI
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 4 URL's were un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-09-27_09,2023-09-27_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- clxscore=1015 bulkscore=0 lowpriorityscore=0 priorityscore=1501
- impostorscore=0 adultscore=0 mlxscore=0 mlxlogscore=999 spamscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2309270124
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 malwarescore=0 bulkscore=0 clxscore=1015 adultscore=0
+ phishscore=0 impostorscore=0 mlxlogscore=629 mlxscore=0 spamscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2309180000 definitions=main-2309270127
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2023-09-27 at 15:20 +0200, Niklas Schnelle wrote:
-> On Wed, 2023-09-27 at 13:24 +0200, Niklas Schnelle wrote:
-> > On Wed, 2023-09-27 at 11:55 +0200, Joerg Roedel wrote:
-> > > Hi Niklas,
-> > >=20
-> > > On Wed, Sep 27, 2023 at 10:55:23AM +0200, Niklas Schnelle wrote:
-> > > > The problem is that something seems to  be broken in the iommu/core
-> > > > branch. Regardless of whether I have my DMA API conversion on top o=
-r
-> > > > with the base iommu/core branch I can not use ConnectX-4 VFs.
-> > >=20
-> > > Have you already tried to bisect the issue in the iommu/core branch?
-> > > The result might sched some light on the issue.
-> > >=20
-> > > Regards,
-> > >=20
-> > > 	Joerg
-> >=20
-> > Hi Joerg,
-> >=20
-> > Working on it, somehow I must have messed up earlier. It now looks like
-> > it might in fact be caused by my DMA API conversion rebase and the
-> > "s390/pci: Use dma-iommu layer" commit. Maybe there is some interaction
-> > with Jason's patches that I haven't thought about. So sorry for any
-> > wrong blame.
-> >=20
-> > Thanks,
-> > Niklas
->=20
-> Hi,
->=20
-> I tracked the problem=C2=A0down from mlx5_core's alloc_cmd_page() via
-> dma_alloc_coherent(), ops->alloc, iommu_dma_alloc_remap(), and
-> __iommu_dma_alloc_noncontiguous() to a failed iommu_dma_alloc_iova().
-> The allocation here is for 4K so nothing crazy.
->=20
-> On second look I also noticed:
->=20
-> nvme 2007:00:00.0: Using 42-bit DMA addresses
->=20
-> for the NVMe that is working. The problem here seems to be that we set
-> iommu_dma_forcedac =3D true in s390_iommu_probe_finalize() because we
-> have currently have a reserved region over the first 4 GiB anyway so
-> will always use IOVAs larger than that. That however is too late since
-> iommu_dma_set_pci_32bit_workaround() is already checked in
-> __iommu_probe_device() which is called just before ops-
-> > probe_finalize(). So I moved setting iommu_dma_forcedac =3D true to
-> zpci_init_iommu() and that gets rid of the notice for the NVMe but I
-> still get a failure of iommu_dma_alloc_iova() in
-> __iommu_dma_alloc_noncontiguous(). So I'll keep digging.
->=20
-> Thanks,
-> Niklas
 
 
-Ok I think I got it and this doesn't seem strictly s390x specific but
-I'd think should happen with iommu.forcedac=3D1 everywhere.
+On 24.09.23 17:16, Wen Gu wrote:
+> Wen Gu (18):
+>   net/smc: decouple ism_dev from SMC-D device dump
+>   net/smc: decouple ism_dev from SMC-D DMB registration
+>   net/smc: extract v2 check helper from SMC-D device registration
+>   net/smc: support SMCv2.x supplemental features negotiation
+>   net/smc: reserve CHID range for SMC-D virtual device
+>   net/smc: extend GID to 128bits only for virtual ISM device
+>   net/smc: disable SEID on non-s390 architecture
+>   net/smc: enable virtual ISM device feature bit
+>   net/smc: introduce SMC-D loopback device
+>   net/smc: implement ID-related operations of loopback
+>   net/smc: implement some unsupported operations of loopback
+>   net/smc: implement DMB-related operations of loopback
+>   net/smc: register loopback device as SMC-Dv2 device
+>   net/smc: add operation for getting DMB attribute
+>   net/smc: add operations for DMB attach and detach
+>   net/smc: avoid data copy from sndbuf to peer RMB in SMC-D
+>   net/smc: modify cursor update logic when sndbuf mapped to RMB
+>   net/smc: add interface implementation of loopback device
+> 
+>  drivers/s390/net/ism_drv.c    |  20 +-
+>  include/net/smc.h             |  32 ++-
+>  include/uapi/linux/smc.h      |   3 +
+>  include/uapi/linux/smc_diag.h |   2 +
+>  net/smc/Kconfig               |  13 ++
+>  net/smc/Makefile              |   2 +-
+>  net/smc/af_smc.c              |  88 ++++++--
+>  net/smc/smc.h                 |   7 +
+>  net/smc/smc_cdc.c             |  56 ++++-
+>  net/smc/smc_cdc.h             |   1 +
+>  net/smc/smc_clc.c             |  64 ++++--
+>  net/smc/smc_clc.h             |  10 +-
+>  net/smc/smc_core.c            | 111 +++++++++-
+>  net/smc/smc_core.h            |   9 +-
+>  net/smc/smc_diag.c            |  11 +-
+>  net/smc/smc_ism.c             | 100 ++++++---
+>  net/smc/smc_ism.h             |  24 ++-
+>  net/smc/smc_loopback.c        | 489 ++++++++++++++++++++++++++++++++++++++++++
+>  net/smc/smc_loopback.h        |  54 +++++
+>  net/smc/smc_pnet.c            |   4 +-
+>  20 files changed, 996 insertions(+), 104 deletions(-)
+>  create mode 100644 net/smc/smc_loopback.c
+>  create mode 100644 net/smc/smc_loopback.h
 
-The reason iommu_dma_alloc_iova() fails seems to be that mlx5_core does
-dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64)) in=C2=A0
-mlx5_pci_init()->set_dma_caps() which happens after it already called
-mlx5_mdev_init()->mlx5_cmd_init()->alloc_cmd_page() so for the
-dma_alloc_coherent() in there the dev->coherent_dma_mask is still
-DMA_BIT_MASK(32) for which we can't find an IOVA because well we don't
-have IOVAs below 4 GiB. Not entirely sure what caused this not to be
-enforced before.
 
-Thanks,
-Niklas
+Hello Wen Gu,
+
+I applied and built your patches and noticed some things that you may want to consider in the next version:
+
+Series should be split up [2]
+
+Several lines exceed 80 columns [1][3]
+
+'git clang-format HEAD~18' finds several formatting issues.
+	Maybe not all of them need to be fixed.
+
+codespell *.patch
+0006-net-smc-extend-GID-to-128bits-only-for-virtual-ISM-d.patch:7: protocal ==> protocol
+
+With your patches applied I get some new warnings [4]:
+Seems there are some ntoh conversions missing
+
+  CHECK   net/smc/af_smc.c
+net/smc/af_smc.c:723:32: warning: cast to restricted __be64
+net/smc/af_smc.c:1427:52: warning: cast to restricted __be64
+  CHECK   net/smc/smc_pnet.c
+  CHECK   net/smc/smc_ib.c
+  CHECK   net/smc/smc_clc.c
+net/smc/smc_clc.c:954:72: warning: incorrect type in argument 1 (different base types)
+net/smc/smc_clc.c:954:72:    expected unsigned short [usertype] chid
+net/smc/smc_clc.c:954:72:    got restricted __be16 [usertype] chid
+net/smc/smc_clc.c:1050:29: warning: incorrect type in assignment (different base types)
+net/smc/smc_clc.c:1050:29:    expected unsigned long long [usertype] gid
+net/smc/smc_clc.c:1050:29:    got restricted __be64 [usertype]
+net/smc/smc_clc.c:1051:31: warning: incorrect type in assignment (different base types)
+net/smc/smc_clc.c:1051:31:    expected unsigned long long [usertype] token
+net/smc/smc_clc.c:1051:31:    got restricted __be64 [usertype]
+
+
+[1] linux/Documentation/process/coding-style.rst
+[2] https://www.kernel.org/doc/html/v6.3/process/maintainer-netdev.html?highlight=network
+[3] scripts/checkpatch.pl --strict --max-line-length=80 --git HEAD-18
+[4] make C=2 CF=-D__CHECK_ENDIAN__ M=net/smc -Wunused-function -Wimplicit-fallthrough -Wincompatible-function-pointer-types-strict
+
+
+
+When I installed the patches, I noticed that 
+> smcd info
+showed an SEID, even though I had no ISM device --> good
+
+
+> smcd device
+FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
+0000 0                   0000   Yes       2
+
+This needs some improvements.., but I'm not sure what is the best way to display virtual smcd interfaces in the smc-tools.
+
+
+I was able to do SMC transfers via the smcd-loopback feature :-D
+
+
