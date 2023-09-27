@@ -2,167 +2,98 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3777E82CB2
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Sep 2023 16:21:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F2C2E82CCD
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Sep 2023 19:34:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231157AbjI0QVg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Sep 2023 12:21:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47384 "EHLO
+        id S229761AbjI0Te2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Sep 2023 15:34:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229901AbjI0QVe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Sep 2023 12:21:34 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E702DD;
-        Wed, 27 Sep 2023 09:21:31 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF3E3C433C7;
-        Wed, 27 Sep 2023 16:21:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1695831690;
-        bh=5fVqTod0fsU3D85/NgpH5eX11yWtVW2s8jme29QI3SA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=K+SdxwDZhx8uxbb5abeHgPolVgmwSiIBL6/AzX/eEpmg7s5Jd1TwEPpueT17Z+y1i
-         r/3aJFhGZoIRaqB+ADboLRaAQZpJm6SMvyfu5jpdUX9fmjLLqHrtdJHSnoHaBHBoNB
-         1Ras0NDOeGzjZ5rjoNJ7hj3RFSgjPFHQeOCu0doiR1ZFlmc7Dtn7+Tg4yFYE5HRxY7
-         FflbgLOEB1zCas3wjtrhbqXfzlZd6DZqKcBXDoRDLeETsNHRLxD2cXgjOH7guvx0ma
-         AufPlRnLwdi+pMqoWiBGk6SGa+Snjtz53w/pXkwTjOc2fDnSaUxFN105snuKm+T14u
-         FBsBAdYo6oMFA==
-Date:   Wed, 27 Sep 2023 18:21:19 +0200
-From:   Christian Brauner <brauner@kernel.org>
-To:     Jan Kara <jack@suse.cz>
-Cc:     linux-fsdevel@vger.kernel.org, linux-block@vger.kernel.org,
-        Christoph Hellwig <hch@infradead.org>,
-        Alasdair Kergon <agk@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Anna Schumaker <anna@kernel.org>, Chao Yu <chao@kernel.org>,
+        with ESMTP id S229595AbjI0Te0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Sep 2023 15:34:26 -0400
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEB351B2;
+        Wed, 27 Sep 2023 12:34:19 -0700 (PDT)
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38RIx6RT007876;
+        Wed, 27 Sep 2023 19:34:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=corp-2023-03-30;
+ bh=5/Withjkp7BxI9AgxCuFLL2xAgHIN8igANqjSkzu3Q4=;
+ b=jUlw4V3mup3Csoqfqd8xQpMCoGbhvcsd8QlLpf6GQBiA5FUNGzMp8+ksstEksKGHtkxc
+ 4VFEGI7m/LOg8cboVqYZJ+02SroYSWz4gAeEH2XEX4hkCU/nTRZZooPqkh4G58naVTWB
+ K5R7qE3eWBtDPsfkjr7zJI8vUvrxLm/DTbUvJ4u81nuGLZMAICvuIHS90sYCUXmtOiSJ
+ hJGMHvnkkiKoa4dexQsgMwR1i01ceQKclHdBp0ufnUO6Jr0JkS+TZdyzN5YZO76GUso+
+ mbz6NqDiCKsq1hc4CLaeZww59debUUaQwTPh+arQ8aXlY2GVSHcSOOwwMW2LzZYlHxpY cQ== 
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3t9rjujf30-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 27 Sep 2023 19:34:10 +0000
+Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 38RI0MGv030591;
+        Wed, 27 Sep 2023 19:34:10 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3t9pf8cueh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 27 Sep 2023 19:34:10 +0000
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38RJY90l008431;
+        Wed, 27 Sep 2023 19:34:09 GMT
+Received: from ca-mkp2.ca.oracle.com.com (mpeterse-ol9.allregionaliads.osdevelopmeniad.oraclevcn.com [100.100.251.135])
+        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 3t9pf8cub4-1;
+        Wed, 27 Sep 2023 19:34:08 +0000
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+To:     Dinghao Liu <dinghao.liu@zju.edu.cn>
+Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
+        linux-scsi@vger.kernel.org, Steffen Maier <maier@linux.ibm.com>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Dave Kleikamp <shaggy@kernel.org>,
-        David Sterba <dsterba@suse.com>, dm-devel@redhat.com,
-        drbd-dev@lists.linbit.com, Gao Xiang <xiang@kernel.org>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        jfs-discussion@lists.sourceforge.net,
-        Joern Engel <joern@lazybastard.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        linux-bcache@vger.kernel.org, linux-btrfs@vger.kernel.org,
-        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net, linux-mm@kvack.org,
-        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
-        linux-nilfs@vger.kernel.org, linux-nvme@lists.infradead.org,
-        linux-pm@vger.kernel.org, linux-raid@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-xfs@vger.kernel.org,
-        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
-        Mike Snitzer <snitzer@kernel.org>,
-        Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com,
-        reiserfs-devel@vger.kernel.org,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Song Liu <song@kernel.org>,
         Sven Schnelle <svens@linux.ibm.com>,
-        target-devel@vger.kernel.org, Ted Tso <tytso@mit.edu>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        xen-devel@lists.xenproject.org
-Subject: Re: [PATCH v4 0/29] block: Make blkdev_get_by_*() return handle
-Message-ID: <20230927-prahlen-reintreten-93706074e58d@brauner>
-References: <20230818123232.2269-1-jack@suse.cz>
+        Christof Schmitt <christof.schmitt@de.ibm.com>,
+        James Bottomley <James.Bottomley@suse.de>,
+        Swen Schillig <swen@vnet.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [v3] scsi: zfcp: Fix a double put in zfcp_port_enqueue
+Date:   Wed, 27 Sep 2023 15:34:00 -0400
+Message-Id: <169584315413.1272983.1280092821984155852.b4-ty@oracle.com>
+X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20230923103723.10320-1-dinghao.liu@zju.edu.cn>
+References: <20230923103723.10320-1-dinghao.liu@zju.edu.cn>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20230818123232.2269-1-jack@suse.cz>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-09-27_12,2023-09-27_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 suspectscore=0 phishscore=0
+ mlxscore=0 malwarescore=0 mlxlogscore=956 bulkscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2309180000
+ definitions=main-2309270166
+X-Proofpoint-ORIG-GUID: v71FJI6HIYe9Cxeax3MQtVJ-uf3-PIqe
+X-Proofpoint-GUID: v71FJI6HIYe9Cxeax3MQtVJ-uf3-PIqe
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 27 Sep 2023 11:34:07 +0200, Jan Kara wrote:
-> Create struct bdev_handle that contains all parameters that need to be
-> passed to blkdev_put() and provide bdev_open_* functions that return
-> this structure instead of plain bdev pointer. This will eventually allow
-> us to pass one more argument to blkdev_put() (renamed to bdev_release())
-> without too much hassle.
-> 
+On Sat, 23 Sep 2023 18:37:23 +0800, Dinghao Liu wrote:
+
+> When device_register() fails, zfcp_port_release() will be called
+> after put_device(). As a result, zfcp_ccw_adapter_put() will be
+> called twice: one in zfcp_port_release() and one in the error path
+> after device_register(). So the reference on the adapter object is
+> doubly put, which may lead to a premature free. Fix this by adjusting
+> the error tag after device_register().
 > 
 > [...]
 
-> to ease review / testing. Christian, can you pull the patches to your tree
-> to get some exposure in linux-next as well? Thanks!
+Applied to 6.6/scsi-fixes, thanks!
 
-Yep. So I did it slighly differently. I pulled in the btrfs prereqs and
-then applied your series on top of it so we get all the Link: tags right.
-I'm running tests right now. Please double-check.
+[1/1] scsi: zfcp: Fix a double put in zfcp_port_enqueue
+      https://git.kernel.org/mkp/scsi/c/b481f644d917
 
----
-
-Applied to the vfs.super branch of the vfs/vfs.git tree.
-Patches in the vfs.super branch should appear in linux-next soon.
-
-Please report any outstanding bugs that were missed during review in a
-new review to the original patch series allowing us to drop it.
-
-It's encouraged to provide Acked-bys and Reviewed-bys even though the
-patch has now been applied. If possible patch trailers will be updated.
-
-Note that commit hashes shown below are subject to change due to rebase,
-trailer updates or similar. If in doubt, please check the listed branch.
-
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs.git
-branch: vfs.super
-
-[01/29] block: Provide bdev_open_* functions
-       https://git.kernel.org/vfs/vfs/c/b7c828aa0b3c
-[02/29] block: Use bdev_open_by_dev() in blkdev_open()
-        https://git.kernel.org/vfs/vfs/c/d4e36f27b45a
-[03/29] block: Use bdev_open_by_dev() in disk_scan_partitions() and blkdev_bszset()
-        https://git.kernel.org/vfs/vfs/c/5f9bd6764c7a
-[04/29] drdb: Convert to use bdev_open_by_path()
-        https://git.kernel.org/vfs/vfs/c/0220ca8e443d
-[05/29] pktcdvd: Convert to bdev_open_by_dev()
-        https://git.kernel.org/vfs/vfs/c/7af10b889789
-[06/29] rnbd-srv: Convert to use bdev_open_by_path()
-        https://git.kernel.org/vfs/vfs/c/3d27892a4be7
-[07/29] xen/blkback: Convert to bdev_open_by_dev()
-        https://git.kernel.org/vfs/vfs/c/26afb0ed10b3
-[08/29] zram: Convert to use bdev_open_by_dev()
-        https://git.kernel.org/vfs/vfs/c/efc8e3f4c6dc
-[09/29] bcache: Convert to bdev_open_by_path()
-        https://git.kernel.org/vfs/vfs/c/dc893f51d24a
-[10/29] dm: Convert to bdev_open_by_dev()
-        https://git.kernel.org/vfs/vfs/c/80c2267c6d07
-[11/29] md: Convert to bdev_open_by_dev()
-        https://git.kernel.org/vfs/vfs/c/15db36126ca6
-[12/29] mtd: block2mtd: Convert to bdev_open_by_dev/path()
-        https://git.kernel.org/vfs/vfs/c/4c27234bf3ce
-[13/29] nvmet: Convert to bdev_open_by_path()
-        https://git.kernel.org/vfs/vfs/c/70cffddcc300
-[14/29] s390/dasd: Convert to bdev_open_by_path()
-        https://git.kernel.org/vfs/vfs/c/5581d03457f8
-[15/29] scsi: target: Convert to bdev_open_by_path()
-        https://git.kernel.org/vfs/vfs/c/43de7d844d47
-[16/29] PM: hibernate: Convert to bdev_open_by_dev()
-        https://git.kernel.org/vfs/vfs/c/105ea4a2fd18
-[17/29] PM: hibernate: Drop unused snapshot_test argument
-        https://git.kernel.org/vfs/vfs/c/b589a66e3688
-[18/29] mm/swap: Convert to use bdev_open_by_dev()
-        https://git.kernel.org/vfs/vfs/c/615af8e29233
-[19/29] fs: Convert to bdev_open_by_dev()
-        https://git.kernel.org/vfs/vfs/c/5173192bcfe6
-[20/29] btrfs: Convert to bdev_open_by_path()
-        https://git.kernel.org/vfs/vfs/c/8cf64782764f
-[21/29] erofs: Convert to use bdev_open_by_path()
-        https://git.kernel.org/vfs/vfs/c/4d41880bf249
-[22/29] ext4: Convert to bdev_open_by_dev()
-        https://git.kernel.org/vfs/vfs/c/f7507612395e
-[23/29] f2fs: Convert to bdev_open_by_dev/path()
-        https://git.kernel.org/vfs/vfs/c/d9ff8e3b6498
-[24/29] jfs: Convert to bdev_open_by_dev()
-        https://git.kernel.org/vfs/vfs/c/459dc6376338
-[25/29] nfs/blocklayout: Convert to use bdev_open_by_dev/path()
-        https://git.kernel.org/vfs/vfs/c/5b1df9a40929
-[26/29] ocfs2: Convert to use bdev_open_by_dev()
-        https://git.kernel.org/vfs/vfs/c/b6b95acbd943
-[27/29] reiserfs: Convert to bdev_open_by_dev/path()
-        https://git.kernel.org/vfs/vfs/c/7e3615ff6119
-[28/29] xfs: Convert to bdev_open_by_path()
-        https://git.kernel.org/vfs/vfs/c/176ccb99e207
-[29/29] block: Remove blkdev_get_by_*() functions
-        https://git.kernel.org/vfs/vfs/c/953863a5a2ff
+-- 
+Martin K. Petersen	Oracle Linux Engineering
