@@ -2,37 +2,66 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AFB93E810B2
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Sep 2023 09:55:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BAE0E810D1
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Sep 2023 11:25:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230481AbjI0Jz2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Sep 2023 05:55:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44450 "EHLO
+        id S230494AbjI0LZK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Sep 2023 07:25:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230461AbjI0Jz2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Sep 2023 05:55:28 -0400
-Received: from mail.8bytes.org (mail.8bytes.org [85.214.250.239])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DCC0AEB;
-        Wed, 27 Sep 2023 02:55:25 -0700 (PDT)
-Received: from 8bytes.org (pd9fe9df8.dip0.t-ipconnect.de [217.254.157.248])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.8bytes.org (Postfix) with ESMTPSA id 4F8C51A2317;
-        Wed, 27 Sep 2023 11:55:23 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=8bytes.org;
-        s=default; t=1695808524;
-        bh=BDI7NuvcdVt/emhHi62PabcawiLywtBEcxLt+G847YM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bJ/0NZxxI8l619eMViTN7wFColaAK2C1MPyqL9FW/o8oWbcGgurcTymg7qYfnv2Za
-         8eFN6JofYvpBcVna5x6SdpHz5PZL8hmEwxDQgaep3/HiQgeUWy4U5YHirYA1sszR8J
-         e7ewyfn2eCMIYpUr+BrGwz67R3IjLc410DYmaJiPyv+1Fc53ag6teNCgufMzfRTaYd
-         X+RQSNMGK+8w3hxgWaYEpnjqVeyU+g+qhDc5yTY7Quvw9wkOxUIXHcLEN3aJmQIMvW
-         2RoCQvwl2aQDtZF06zge3qV3VdPsrkOYdzHaaS7L2KgRXAKDke4iUYkX7n/e0UMIYo
-         xLYhyuiRZPN8g==
-Date:   Wed, 27 Sep 2023 11:55:22 +0200
-From:   Joerg Roedel <joro@8bytes.org>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
+        with ESMTP id S230510AbjI0LZI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Sep 2023 07:25:08 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72228F3;
+        Wed, 27 Sep 2023 04:25:07 -0700 (PDT)
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38RB8ZfJ023157;
+        Wed, 27 Sep 2023 11:24:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=ukKTZnSC4IUGOzm2dwsJIW4yCSu7IaynshNH9BezX44=;
+ b=NffwGDkpt3O3XCbGuzhkAED5ru3+k0e8hiNyyXgfRIwZ3lTxVWxb8rXYkULNOlXcLckN
+ peMowhk4Biy57/wr4fgENcltJ6YfxhmWUPHYEBBypsLxcO64CCco1zwdg40ouswcqudn
+ H7TL36M9culsMFTc+GIRcQfvACTH7MuP52ejM4VBMtc24d5jan3WJcaTZ+H4yS5z2ES+
+ m7Wopyv89/pCV35iFmG0JtXwTt7S8o22ipoCs0bFZlLTYCy5qFW/itPEr3+/CRt5wRWS
+ kLDCNC5kx9KtA/1JrLGwY/4MsdZ7yGcVMMbUL9iPiiRR1nL55X1Gsw251vHHIWSZtRLj ag== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tchpmtjde-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 Sep 2023 11:24:09 +0000
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38RBG0oQ030327;
+        Wed, 27 Sep 2023 11:24:09 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tchpmtjcq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 Sep 2023 11:24:08 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38R9vgip030392;
+        Wed, 27 Sep 2023 11:24:07 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tad21tgsc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 Sep 2023 11:24:07 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38RBO48i46203340
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 27 Sep 2023 11:24:04 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 080D320043;
+        Wed, 27 Sep 2023 11:24:04 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7A7BC2004B;
+        Wed, 27 Sep 2023 11:24:03 +0000 (GMT)
+Received: from [9.152.212.236] (unknown [9.152.212.236])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 27 Sep 2023 11:24:03 +0000 (GMT)
+Message-ID: <b06a14de270a63050b0d027c24b333dba25001a4.camel@linux.ibm.com>
+Subject: Re: [PATCH v12 0/6] iommu/dma: s390 DMA API conversion and
+ optimized IOTLB flushing
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Joerg Roedel <joro@8bytes.org>
 Cc:     Jason Gunthorpe <jgg@ziepe.ca>,
         Matthew Rosato <mjrosato@linux.ibm.com>,
         Will Deacon <will@kernel.org>,
@@ -77,31 +106,53 @@ Cc:     Jason Gunthorpe <jgg@ziepe.ca>,
         linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
         linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
         linux-doc@vger.kernel.org
-Subject: Re: [PATCH v12 0/6] iommu/dma: s390 DMA API conversion and optimized
- IOTLB flushing
-Message-ID: <ZRP8CiBui7suB5D6@8bytes.org>
+Date:   Wed, 27 Sep 2023 13:24:03 +0200
+In-Reply-To: <ZRP8CiBui7suB5D6@8bytes.org>
 References: <20230825-dma_iommu-v12-0-4134455994a7@linux.ibm.com>
- <ZRLy_AaJiXxZ2AfK@8bytes.org>
- <20230926160832.GM13795@ziepe.ca>
- <cfc9e9128ed5571d2e36421e347301057662a09e.camel@linux.ibm.com>
+         <ZRLy_AaJiXxZ2AfK@8bytes.org> <20230926160832.GM13795@ziepe.ca>
+         <cfc9e9128ed5571d2e36421e347301057662a09e.camel@linux.ibm.com>
+         <ZRP8CiBui7suB5D6@8bytes.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cfc9e9128ed5571d2e36421e347301057662a09e.camel@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: bLtkRXrEY3SfXBdyvYi4Yk-ISraKqz9W
+X-Proofpoint-ORIG-GUID: 0_s5ZArBvU0BtJm2m4rsOO0oeH2MXCgb
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-09-27_06,2023-09-27_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
+ spamscore=0 mlxlogscore=646 priorityscore=1501 clxscore=1015
+ lowpriorityscore=0 impostorscore=0 suspectscore=0 malwarescore=0
+ mlxscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2309180000 definitions=main-2309270092
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Niklas,
+On Wed, 2023-09-27 at 11:55 +0200, Joerg Roedel wrote:
+> Hi Niklas,
+>=20
+> On Wed, Sep 27, 2023 at 10:55:23AM +0200, Niklas Schnelle wrote:
+> > The problem is that something seems to  be broken in the iommu/core
+> > branch. Regardless of whether I have my DMA API conversion on top or
+> > with the base iommu/core branch I can not use ConnectX-4 VFs.
+>=20
+> Have you already tried to bisect the issue in the iommu/core branch?
+> The result might sched some light on the issue.
+>=20
+> Regards,
+>=20
+> 	Joerg
 
-On Wed, Sep 27, 2023 at 10:55:23AM +0200, Niklas Schnelle wrote:
-> The problem is that something seems to  be broken in the iommu/core
-> branch. Regardless of whether I have my DMA API conversion on top or
-> with the base iommu/core branch I can not use ConnectX-4 VFs.
+Hi Joerg,
 
-Have you already tried to bisect the issue in the iommu/core branch?
-The result might sched some light on the issue.
+Working on it, somehow I must have messed up earlier. It now looks like
+it might in fact be caused by my DMA API conversion rebase and the
+"s390/pci: Use dma-iommu layer" commit. Maybe there is some interaction
+with Jason's patches that I haven't thought about. So sorry for any
+wrong blame.
 
-Regards,
-
-	Joerg
+Thanks,
+Niklas
