@@ -2,184 +2,134 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34B6DE7F14E
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Sep 2023 13:21:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4320CE80AB5
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Sep 2023 14:20:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231905AbjI0NVC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Sep 2023 09:21:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47480 "EHLO
+        id S232107AbjI0OUX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Sep 2023 10:20:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231825AbjI0NVB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Sep 2023 09:21:01 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE5A410A;
-        Wed, 27 Sep 2023 06:20:59 -0700 (PDT)
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38RCOdCv005069;
-        Wed, 27 Sep 2023 13:20:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=jv2J3s2T7OsfdnfP7xO+3G5kReH0lMyKgLkynJikBfI=;
- b=tJIYGGNUI7x+MeeJeVOcBbjIZ9cgqX/dZ9HPkBeNoUFHx0zzCrPigTsA7KPeSNVc2TlV
- aSZZAFNRXvLMnc9cKkp4H+TksK4oudv79qebAVsJSiesoktymHl8Qq4tGl1ObhMy105j
- LUPVKX8r0gSe7KenI/NO6by0jBuTUr9CLpGc0CK/y2rGBtILhqBEPlwmn8hN8GE2v64I
- VQ9BJzTe/t5LvFvuHmAdiXAHDXTPGfFyMtrMYYR+FDM33QxfGdFwNQqizZziKEZFNIZk
- TrKWWuLLepClvqBEL3FNdMYrhZfE3mX2at15iULH9drm5/lGV3qIhionZ4DbSC9hC5DT 7Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tcmcgsw85-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Sep 2023 13:20:14 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38RD5BuN028501;
-        Wed, 27 Sep 2023 13:20:13 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tcmcgsw6v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Sep 2023 13:20:13 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38RB85s1011019;
-        Wed, 27 Sep 2023 13:20:11 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tabukkhhn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Sep 2023 13:20:11 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38RDK8uR42861118
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 27 Sep 2023 13:20:08 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3124720067;
-        Wed, 27 Sep 2023 13:20:08 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 30B3420040;
-        Wed, 27 Sep 2023 13:20:07 +0000 (GMT)
-Received: from [9.152.212.236] (unknown [9.152.212.236])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 27 Sep 2023 13:20:07 +0000 (GMT)
-Message-ID: <e1efbbd827e34800bd7fb0ea687645cc6c65e1ab.camel@linux.ibm.com>
-Subject: Re: [PATCH v12 0/6] iommu/dma: s390 DMA API conversion and
- optimized IOTLB flushing
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Joerg Roedel <joro@8bytes.org>
-Cc:     Jason Gunthorpe <jgg@ziepe.ca>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Hector Martin <marcan@marcan.st>,
-        Sven Peter <sven@svenpeter.dev>,
-        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Jonathan Corbet <corbet@lwn.net>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        iommu@lists.linux.dev, asahi@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
-        linux-doc@vger.kernel.org
-Date:   Wed, 27 Sep 2023 15:20:07 +0200
-In-Reply-To: <b06a14de270a63050b0d027c24b333dba25001a4.camel@linux.ibm.com>
-References: <20230825-dma_iommu-v12-0-4134455994a7@linux.ibm.com>
-         <ZRLy_AaJiXxZ2AfK@8bytes.org> <20230926160832.GM13795@ziepe.ca>
-         <cfc9e9128ed5571d2e36421e347301057662a09e.camel@linux.ibm.com>
-         <ZRP8CiBui7suB5D6@8bytes.org>
-         <b06a14de270a63050b0d027c24b333dba25001a4.camel@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+        with ESMTP id S232222AbjI0OTq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Sep 2023 10:19:46 -0400
+Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6525CDE
+        for <linux-s390@vger.kernel.org>; Wed, 27 Sep 2023 07:19:40 -0700 (PDT)
+Received: by mail-lj1-x22b.google.com with SMTP id 38308e7fff4ca-2c18b0569b6so549131fa.1
+        for <linux-s390@vger.kernel.org>; Wed, 27 Sep 2023 07:19:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1695824379; x=1696429179; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:from:user-agent:mime-version:date:message-id:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=Wwk46okUDVQfnnelgDDAXJI2PyNHcNwKe3ka13udWbU=;
+        b=DeI+ndmzygXiV26g14+sM5/i8LsgL9CgDy9VB19Br8mLYRZAuIXT5fRRQQG6dlR8uL
+         ZHHEpTz9ZokFgwqp34n75yS1PY5jIPS2kExh12XhknOQ2eKCYOv28dsCXeJAXJsi1HEl
+         F2Zx2jmfkSiekVnLkJ+WFP/RjHCF0P4hSSv/TEmiFoZUevCIhKJiTrNv3PuTvlSLSujz
+         Wf0VyalzJuC9m/i5NNQ2Jq1nDpP2QrA8a1dJThFB6+d4PeMeHZ2KUcdfKMEpuuI5ak06
+         ZG9/SXQPZ7P5UXbdQF7zqfmdxHWvYx4R5uZ/etWrlX8CR5WPQ2foeStaY5DOJOnP6vcl
+         LLCw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1695824379; x=1696429179;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:from:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Wwk46okUDVQfnnelgDDAXJI2PyNHcNwKe3ka13udWbU=;
+        b=DM9BAXjIWvnXh1IocjFuCBDfk2Uv6V4EkzrpoCxe/O5d1o+/t9LNgQPtWzSz+sDniL
+         zxLOtd5Anu+AfoeYHO3dMA2GRyENlv5ivefWLYoIqAFEtK8is47IijBUAHndU6tuN1Rt
+         MiDKVU1hNj3GBX12zj5pXegZ/H/WkfxFEi7afVP2he3aBGVa0Fv1D4hY+9xdrLzu8hpe
+         4XvJ/kN1IfUi5Sy2huAxFpS7Tx2qDZT3UlAeH7x2odYh65ZR6cy6phR2QuJHddDYEEBs
+         Jf9mdyakmDaYi0LQDZtiuUwwgDxWkFrssGpwt1/AsRT/PCI1Xe5NKsSTn6epse+QRDVx
+         SAXw==
+X-Gm-Message-State: AOJu0YxVb22/gCBWozLWtbqALDJ2D7Nv5LyYn/tEABFxJCJgx+LmTWu0
+        lR/2c+Fxve6qlr41qkUtJd1y1A==
+X-Google-Smtp-Source: AGHT+IExVCqrFIxKzo43T8FMa/9T5rz6/xdccYRyI4cqxFk27k3RqgKqbk6x0v1Y5TMyg8NtKFdEkg==
+X-Received: by 2002:a05:651c:3cf:b0:2b6:cd7f:5ea8 with SMTP id f15-20020a05651c03cf00b002b6cd7f5ea8mr1801740ljp.1.1695824378667;
+        Wed, 27 Sep 2023 07:19:38 -0700 (PDT)
+Received: from [172.20.13.88] ([45.147.210.162])
+        by smtp.gmail.com with ESMTPSA id mh2-20020a170906eb8200b00992b2c55c67sm9370253ejb.156.2023.09.27.07.19.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 27 Sep 2023 07:19:37 -0700 (PDT)
+Message-ID: <9cc59d88-4b77-4e56-ae54-737baca1d435@kernel.dk>
+Date:   Wed, 27 Sep 2023 08:19:36 -0600
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: VXZxHUsIjNmP_Qb7Pwq1202Mna4hsBUK
-X-Proofpoint-ORIG-GUID: LYDctZpbLtyEpOclC1b66ehHlfvfc4KR
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-09-27_07,2023-09-27_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- mlxlogscore=999 lowpriorityscore=0 malwarescore=0 spamscore=0
- suspectscore=0 clxscore=1015 impostorscore=0 mlxscore=0 adultscore=0
- phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2309270110
+User-Agent: Mozilla Thunderbird
+From:   Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH v4 0/29] block: Make blkdev_get_by_*() return handle
+To:     Jan Kara <jack@suse.cz>
+Cc:     Christian Brauner <brauner@kernel.org>,
+        linux-fsdevel@vger.kernel.org, linux-block@vger.kernel.org,
+        Christoph Hellwig <hch@infradead.org>, Jan Kara <jack@suse.cz>,
+        Alasdair Kergon <agk@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anna Schumaker <anna@kernel.org>, Chao Yu <chao@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Dave Kleikamp <shaggy@kernel.org>,
+        David Sterba <dsterba@suse.com>, dm-devel@redhat.com,
+        drbd-dev@lists.linbit.com, Gao Xiang <xiang@kernel.org>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        jfs-discussion@lists.sourceforge.net,
+        Joern Engel <joern@lazybastard.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        linux-bcache@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, linux-mm@kvack.org,
+        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
+        linux-nilfs@vger.kernel.org, linux-nvme@lists.infradead.org,
+        linux-pm@vger.kernel.org, linux-raid@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-xfs@vger.kernel.org,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com,
+        reiserfs-devel@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Song Liu <song@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        target-devel@vger.kernel.org, Ted Tso <tytso@mit.edu>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        xen-devel@lists.xenproject.org
+References: <20230818123232.2269-1-jack@suse.cz>
+Content-Language: en-US
+In-Reply-To: <20230818123232.2269-1-jack@suse.cz>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2023-09-27 at 13:24 +0200, Niklas Schnelle wrote:
-> On Wed, 2023-09-27 at 11:55 +0200, Joerg Roedel wrote:
-> > Hi Niklas,
-> >=20
-> > On Wed, Sep 27, 2023 at 10:55:23AM +0200, Niklas Schnelle wrote:
-> > > The problem is that something seems to  be broken in the iommu/core
-> > > branch. Regardless of whether I have my DMA API conversion on top or
-> > > with the base iommu/core branch I can not use ConnectX-4 VFs.
-> >=20
-> > Have you already tried to bisect the issue in the iommu/core branch?
-> > The result might sched some light on the issue.
-> >=20
-> > Regards,
-> >=20
-> > 	Joerg
->=20
-> Hi Joerg,
->=20
-> Working on it, somehow I must have messed up earlier. It now looks like
-> it might in fact be caused by my DMA API conversion rebase and the
-> "s390/pci: Use dma-iommu layer" commit. Maybe there is some interaction
-> with Jason's patches that I haven't thought about. So sorry for any
-> wrong blame.
->=20
-> Thanks,
-> Niklas
+On Wed, Sep 27, 2023 at 3:34?AM Jan Kara <jack@suse.cz> wrote:
+>
+> Hello,
+>
+> this is a v3 of the patch series which implements the idea of blkdev_get_by_*()
 
-Hi,
+v4?
 
-I tracked the problem=C2=A0down from mlx5_core's alloc_cmd_page() via
-dma_alloc_coherent(), ops->alloc, iommu_dma_alloc_remap(), and
-__iommu_dma_alloc_noncontiguous() to a failed iommu_dma_alloc_iova().
-The allocation here is for 4K so nothing crazy.
+> calls returning bdev_handle which is then passed to blkdev_put() [1]. This
+> makes the get and put calls for bdevs more obviously matching and allows us to
+> propagate context from get to put without having to modify all the users
+> (again!). In particular I need to propagate used open flags to blkdev_put() to
+> be able count writeable opens and add support for blocking writes to mounted
+> block devices. I'll send that series separately.
+>
+> The series is based on Btrfs tree's for-next branch [2] as of today as the
+> series depends on Christoph's changes to btrfs device handling.  Patches have
+> passed some reasonable testing - I've tested block changes, md, dm, bcache,
+> xfs, btrfs, ext4, swap. More testing or review is always welcome. Thanks! I've
+> pushed out the full branch to:
+>
+> git://git.kernel.org/pub/scm/linux/kernel/git/jack/linux-fs.git bdev_handle
+>
+> to ease review / testing. Christian, can you pull the patches to your tree
+> to get some exposure in linux-next as well? Thanks!
 
-On second look I also noticed:
+For the block bits:
 
-nvme 2007:00:00.0: Using 42-bit DMA addresses
+Acked-by: Jens Axboe <axboe@kernel.dk>
 
-for the NVMe that is working. The problem here seems to be that we set
-iommu_dma_forcedac =3D true in s390_iommu_probe_finalize() because we
-have currently have a reserved region over the first 4 GiB anyway so
-will always use IOVAs larger than that. That however is too late since
-iommu_dma_set_pci_32bit_workaround() is already checked in
-__iommu_probe_device() which is called just before ops-
->probe_finalize(). So I moved setting iommu_dma_forcedac =3D true to
-zpci_init_iommu() and that gets rid of the notice for the NVMe but I
-still get a failure of iommu_dma_alloc_iova() in
-__iommu_dma_alloc_noncontiguous(). So I'll keep digging.
+-- 
+Jens Axboe
 
-Thanks,
-Niklas
