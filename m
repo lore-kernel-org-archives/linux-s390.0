@@ -2,157 +2,116 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BAE0E810D1
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Sep 2023 11:25:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CB3CE810DA
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Sep 2023 12:16:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230494AbjI0LZK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Sep 2023 07:25:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33370 "EHLO
+        id S231545AbjI0MQu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Sep 2023 08:16:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230510AbjI0LZI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Sep 2023 07:25:08 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72228F3;
-        Wed, 27 Sep 2023 04:25:07 -0700 (PDT)
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38RB8ZfJ023157;
-        Wed, 27 Sep 2023 11:24:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=ukKTZnSC4IUGOzm2dwsJIW4yCSu7IaynshNH9BezX44=;
- b=NffwGDkpt3O3XCbGuzhkAED5ru3+k0e8hiNyyXgfRIwZ3lTxVWxb8rXYkULNOlXcLckN
- peMowhk4Biy57/wr4fgENcltJ6YfxhmWUPHYEBBypsLxcO64CCco1zwdg40ouswcqudn
- H7TL36M9culsMFTc+GIRcQfvACTH7MuP52ejM4VBMtc24d5jan3WJcaTZ+H4yS5z2ES+
- m7Wopyv89/pCV35iFmG0JtXwTt7S8o22ipoCs0bFZlLTYCy5qFW/itPEr3+/CRt5wRWS
- kLDCNC5kx9KtA/1JrLGwY/4MsdZ7yGcVMMbUL9iPiiRR1nL55X1Gsw251vHHIWSZtRLj ag== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tchpmtjde-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Sep 2023 11:24:09 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38RBG0oQ030327;
-        Wed, 27 Sep 2023 11:24:09 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tchpmtjcq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Sep 2023 11:24:08 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38R9vgip030392;
-        Wed, 27 Sep 2023 11:24:07 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tad21tgsc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Sep 2023 11:24:07 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38RBO48i46203340
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 27 Sep 2023 11:24:04 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 080D320043;
-        Wed, 27 Sep 2023 11:24:04 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7A7BC2004B;
-        Wed, 27 Sep 2023 11:24:03 +0000 (GMT)
-Received: from [9.152.212.236] (unknown [9.152.212.236])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 27 Sep 2023 11:24:03 +0000 (GMT)
-Message-ID: <b06a14de270a63050b0d027c24b333dba25001a4.camel@linux.ibm.com>
-Subject: Re: [PATCH v12 0/6] iommu/dma: s390 DMA API conversion and
- optimized IOTLB flushing
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Joerg Roedel <joro@8bytes.org>
-Cc:     Jason Gunthorpe <jgg@ziepe.ca>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Hector Martin <marcan@marcan.st>,
-        Sven Peter <sven@svenpeter.dev>,
-        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Jonathan Corbet <corbet@lwn.net>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        iommu@lists.linux.dev, asahi@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
-        linux-doc@vger.kernel.org
-Date:   Wed, 27 Sep 2023 13:24:03 +0200
-In-Reply-To: <ZRP8CiBui7suB5D6@8bytes.org>
-References: <20230825-dma_iommu-v12-0-4134455994a7@linux.ibm.com>
-         <ZRLy_AaJiXxZ2AfK@8bytes.org> <20230926160832.GM13795@ziepe.ca>
-         <cfc9e9128ed5571d2e36421e347301057662a09e.camel@linux.ibm.com>
-         <ZRP8CiBui7suB5D6@8bytes.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+        with ESMTP id S231547AbjI0MQt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Sep 2023 08:16:49 -0400
+X-Greylist: delayed 428 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 27 Sep 2023 05:16:43 PDT
+Received: from m1-bln.bund.de (m1-bln.bund.de [77.87.224.105])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18D6EFC
+        for <linux-s390@vger.kernel.org>; Wed, 27 Sep 2023 05:16:43 -0700 (PDT)
+Received: from m1-bln.bund.de (localhost [127.0.0.1])
+        by m1-bln.bund.de (Postfix) with ESMTP id BCFD8AB5D1
+        for <linux-s390@vger.kernel.org>; Wed, 27 Sep 2023 14:09:33 +0200 (CEST)
+Received: (from localhost) by m1-bln.bund.de (MSCAN) id 6/m1-bln.bund.de/smtp-gw/mscan;
+     Wed Sep 27 14:09:33 2023
+X-NdB-Source: NdB
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/simple; d=itzbund.de;
+        s=230316-2017-ed25519; t=1695816564;
+        bh=NuCL+Ul/0dtzEbUBik1/xqBHCY4XgXXsKJePOuodXgc=;
+        h=Date:From:To:Subject:MIME-Version:Content-Type:
+         Content-Transfer-Encoding:Autocrypt:Cc:Content-Transfer-Encoding:
+         Content-Type:Date:From:In-Reply-To:Mime-Version:Openpgp:References:
+         Reply-To:Resent-To:Sender:Subject:To;
+        b=J9VTnYh+gbk+nQT6ZjPtLdbsIPFNTv5/uOyVVn1YfrxlifvHSsTow9FEdElh4Iszg
+         20gWoG8K1KimAKN4T7yCg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=itzbund.de;
+        s=230316-2017-rsa; t=1695816564;
+        bh=NuCL+Ul/0dtzEbUBik1/xqBHCY4XgXXsKJePOuodXgc=;
+        h=Date:From:To:Subject:MIME-Version:Content-Type:
+         Content-Transfer-Encoding:Autocrypt:Cc:Content-Transfer-Encoding:
+         Content-Type:Date:From:In-Reply-To:Mime-Version:Openpgp:References:
+         Reply-To:Resent-To:Sender:Subject:To;
+        b=lAtyDV6lZy9fjTrCANp/l1izGQ8BEVOkjVTU1FXMUFMmITrFtFFVgb8oN2GDB2AD/
+         B5h7ZIQI6XbWl4w54jGi/GGAP1UfxlCjnce6i7ESTJ/jY0/8GNFLRKZ3nTaX7T22B2
+         zZ8kp35wnT/e8Bc3DBBZBTWwwdujAqp0Z4BfjoRHj9/EBH96r7ozxGFxR3nqpOBQdI
+         HKKVmEz6xcMk40QzxJSuPrhSeG+yx0ptrRvQcNHQ/Dvhmz2opsL78kGwjpbrfEjY8g
+         WFjk+sH8DbMiFM/+brhbp0mLr3MzNmc04aWunIxx8Bo+Xzjf7ne4WyZJlTr6r9tmRG
+         PWCMjHySFFw4g==
+X-P350-Id: 28a0dba0e2161a8e
+Date:   Wed, 27 Sep 2023 14:09:23 +0200
+From:   E-Mail-Administration ITZBund <noreply@itzbund.de>
+To:     linux-s390@vger.kernel.org
+Subject: Ihre E-Mail konnte nicht zugestellt werden
+Message-ID: <20230927120923.GA4295@vlp22140.prod.groupware.itz.itzbund.net>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: bLtkRXrEY3SfXBdyvYi4Yk-ISraKqz9W
-X-Proofpoint-ORIG-GUID: 0_s5ZArBvU0BtJm2m4rsOO0oeH2MXCgb
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-09-27_06,2023-09-27_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
- spamscore=0 mlxlogscore=646 priorityscore=1501 clxscore=1015
- lowpriorityscore=0 impostorscore=0 suspectscore=0 malwarescore=0
- mlxscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2309270092
+User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+X-Rusd: domwl, Pass through domain itzbund.de
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2023-09-27 at 11:55 +0200, Joerg Roedel wrote:
-> Hi Niklas,
->=20
-> On Wed, Sep 27, 2023 at 10:55:23AM +0200, Niklas Schnelle wrote:
-> > The problem is that something seems to  be broken in the iommu/core
-> > branch. Regardless of whether I have my DMA API conversion on top or
-> > with the base iommu/core branch I can not use ConnectX-4 VFs.
->=20
-> Have you already tried to bisect the issue in the iommu/core branch?
-> The result might sched some light on the issue.
->=20
-> Regards,
->=20
-> 	Joerg
+Sehr geehrte Damen und Herren,
 
-Hi Joerg,
+bitte antworten Sie nicht auf diese Benachrichtigung. Kontaktm=F6glichkeite=
+n entnehmen Sie bitte der E-Mail-Signatur.
 
-Working on it, somehow I must have messed up earlier. It now looks like
-it might in fact be caused by my DMA API conversion rebase and the
-"s390/pci: Use dma-iommu layer" commit. Maybe there is some interaction
-with Jason's patches that I haven't thought about. So sorry for any
-wrong blame.
+Aufgrund eines Zertifikatsproblems auf einem Antivirus-Gateway des ITZBund =
+konnten E-Mails nicht zugestellt werden. Diese Nachrichten sollten daher no=
+ch einmal versendet werden.
 
-Thanks,
-Niklas
+Sie erhalten diese Benachrichtigung, da Ihre E-Mail-Adresse in einer der fr=
+aglichen Nachrichten enthalten war. Nachfolgend finden Sie die Einzelheiten=
+ zu dieser E-Mail:
+
+Datumsstempel: 25.09.2023 11:48
+
+Absender: joro@8bytes.org
+Empf=E4nger: samuel@sholland.org, mpe@ellerman.id.au, christophe.leroy@csgr=
+oup.eu, orsonzhai@gmail.com, jsnitsel@redhat.com, angelogioacchino.delregno=
+@collabora.com, linux-sunxi@lists.linux.dev, matthias.bgg@gmail.com, digetx=
+@gmail.com, yong.wu@mediatek.com, jonathanh@nvidia.com, linux-arm-kernel@li=
+sts.infradead.org, mjrosato@linux.ibm.com, jernej.skrabec@gmail.com, baolu.=
+lu@linux.intel.com, krzysztof.kozlowski@linaro.org, jgg@nvidia.com, thierry=
+=2Ereding@gmail.com, alim.akhtar@samsung.com, will@kernel.org, m.szyprowski=
+@samsung.com, nicolinc@nvidia.com, linux-mediatek@lists.infradead.org, ande=
+rsson@kernel.org, agross@kernel.org, linux-tegra@vger.kernel.org, linuxppc-=
+dev@lists.ozlabs.org, extern.martin.grimm@itzbund.de, treding@nvidia.com, k=
+onrad.dybcio@linaro.org, baolin.wang@linux.alibaba.com, npiggin@gmail.com, =
+kevin.tian@intel.com, linux-s390@vger.kernel.org, linux-samsung-soc@vger.ke=
+rnel.org, linux@armlinux.org.uk, zhang.lyra@gmail.com, steven.price@arm.com=
+, schnelle@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-rockchip@lis=
+ts.infradead.org, iommu@lists.linux.dev, vdumpa@nvidia.com, heiko@sntech.de=
+, linux-arm-msm@vger.kernel.org, robin.murphy@arm.com, wens@csie.org, robdc=
+lark@gmail.com
+
+Betreff: 'Re: [PATCH v8 00/24] iommu: Make default_domain's mandatory'
+
+Sollten Sie der Absender sein, so erw=E4gen Sie bitte den erneuten Versand.=
+ In dem Fall, da=DF Sie diese E-Mail h=E4tten erhalten sollen, informieren =
+Sie bitte den Absender =FCber Ihren Wunsch, die E-Mail erneut zu versenden.
+
+Wir m=F6chten uns f=FCr die Unannehmlichkeiten entschuldigen.
+
+F=FCr R=FCckfragen steht Ihnen die E-Mail-Administration des ITZBund gerne =
+zur Verf=FCgung.
+
+
+Freundliche Gr=FC=DFe
+
+Ihre E-Mail-Administration
+_______________________________________
+V A 51 40 - Gateway-Systeme und Schnittstellen
+Informationstechnikzentrum Bund (ITZBund)
+
+Postanschrift: Postfach 301645, 53196 Bonn
+E-Mail: VA5140@itzbund.de
+
