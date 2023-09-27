@@ -2,167 +2,103 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0889E810DA
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Sep 2023 12:17:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4FF5E810DC
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Sep 2023 12:45:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231637AbjI0MR6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Sep 2023 08:17:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34810 "EHLO
+        id S231689AbjI0MpB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Sep 2023 08:45:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231659AbjI0MRr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Sep 2023 08:17:47 -0400
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A859194;
-        Wed, 27 Sep 2023 05:17:44 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R331e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0Vt-RWub_1695817060;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0Vt-RWub_1695817060)
-          by smtp.aliyun-inc.com;
-          Wed, 27 Sep 2023 20:17:41 +0800
-Date:   Wed, 27 Sep 2023 20:17:40 +0800
-From:   Dust Li <dust.li@linux.alibaba.com>
-To:     Leon Romanovsky <leon@kernel.org>
-Cc:     Albert Huang <huangjie.albert@bytedance.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next] net/smc: add support for netdevice in
- containers.
-Message-ID: <20230927121740.GF92403@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20230925023546.9964-1-huangjie.albert@bytedance.com>
- <20230927034209.GE92403@linux.alibaba.com>
- <20230927055528.GP1642130@unreal>
+        with ESMTP id S231686AbjI0MpA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Sep 2023 08:45:00 -0400
+Received: from m4-bln.bund.de (m4-bln.bund.de [77.87.224.108])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3AA7E6
+        for <linux-s390@vger.kernel.org>; Wed, 27 Sep 2023 05:44:58 -0700 (PDT)
+Received: from m4-bln.bund.de (localhost [127.0.0.1])
+        by m4-bln.bund.de (Postfix) with ESMTP id 9D7006AA91E
+        for <linux-s390@vger.kernel.org>; Wed, 27 Sep 2023 14:44:56 +0200 (CEST)
+Received: (from localhost) by m4-bln.bund.de (MSCAN) id 6/m4-bln.bund.de/smtp-gw/mscan;
+     Wed Sep 27 14:44:56 2023
+X-NdB-Source: NdB
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/simple; d=itzbund.de;
+        s=230316-2017-ed25519; t=1695818696;
+        bh=JzV03SOJfmOsV1V8NePw9A1n04lNTFYSP415BNgFqJ4=;
+        h=Date:From:To:Subject:MIME-Version:Content-Type:
+         Content-Transfer-Encoding:Autocrypt:Cc:Content-Transfer-Encoding:
+         Content-Type:Date:From:In-Reply-To:Mime-Version:Openpgp:References:
+         Reply-To:Resent-To:Sender:Subject:To;
+        b=6t3okHw8hnLe5FQEiCU3zMYqgHflOrOl7vO6fU0gxgSu5/kIBtw7bCzskr+oQLuis
+         8efhE8DN1ukWejJELRfAg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=itzbund.de;
+        s=230316-2017-rsa; t=1695818695;
+        bh=JzV03SOJfmOsV1V8NePw9A1n04lNTFYSP415BNgFqJ4=;
+        h=Date:From:To:Subject:MIME-Version:Content-Type:
+         Content-Transfer-Encoding:Autocrypt:Cc:Content-Transfer-Encoding:
+         Content-Type:Date:From:In-Reply-To:Mime-Version:Openpgp:References:
+         Reply-To:Resent-To:Sender:Subject:To;
+        b=yBb+6UVbL1mWGPi9fsYTwqsSiWGooR41CoULc+wmLSMPaJlhU3sci74d0EVhW+r0j
+         5iOXwsRaCGd43GY5Iy6/S9OnKAT7qcwfjY2nXzZ+/fWCu+dKBIhyUzqWaSOxAd5nMs
+         TuJCJ2AojWDOmjjcDCG5npjuqBgvF8y2ztRlNvLicpm4+XxXMZ7Ey5dhMO8i5u/xW4
+         3o3uEVAHkf9wjBtqdOTeIy2v5e0PtP0g8TCbGwmD3qjI2XEioaX7ttWCCrSBbo7mrF
+         d9DDVI5/5Dt6rYY/zTY6o0YJDHETBobKXlvKbGq2gS2yfJkYVlhRtgk4FLxHebPzr2
+         qvA+0qIquJlCw==
+X-P350-Id: 28a11e38e0c076b4
+Date:   Wed, 27 Sep 2023 14:44:55 +0200
+From:   E-Mail-Administration ITZBund <noreply@itzbund.de>
+To:     linux-s390@vger.kernel.org
+Subject: Ihre E-Mail konnte nicht zugestellt werden
+Message-ID: <20230927124455.GA120116@vlp22140.prod.groupware.itz.itzbund.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20230927055528.GP1642130@unreal>
+Content-Transfer-Encoding: quoted-printable
+X-Rusd: domwl, Pass through domain itzbund.de
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Sep 27, 2023 at 08:55:28AM +0300, Leon Romanovsky wrote:
->On Wed, Sep 27, 2023 at 11:42:09AM +0800, Dust Li wrote:
->> On Mon, Sep 25, 2023 at 10:35:45AM +0800, Albert Huang wrote:
->> >If the netdevice is within a container and communicates externally
->> >through network technologies like VXLAN, we won't be able to find
->> >routing information in the init_net namespace. To address this issue,
->> 
->> Thanks for your founding !
->> 
->> I think this is a more generic problem, but not just related to VXLAN ?
->> If we use SMC-R v2 and the netdevice is in a net namespace which is not
->> init_net, we should always fail, right ? If so, I'd prefer this to be a bugfix.
->
->BTW, does this patch take into account net namespace of ib_device?
+Sehr geehrte Damen und Herren,
 
-I think this patch is irrelevant with the netns of ib_device.
+bitte antworten Sie nicht auf diese Benachrichtigung. Kontaktm=F6glichkei=
+ten entnehmen Sie bitte der E-Mail-Signatur.
 
-SMC has a global smc_ib_devices list reported by ib_client, and checked
-the netns using rdma_dev_access_netns. So I think we should have handled
-that well.
+Aufgrund eines Zertifikatsproblems auf einem Antivirus-Gateway des ITZBun=
+d konnten E-Mails nicht zugestellt werden. Diese Nachrichten sollten dahe=
+r noch einmal versendet werden.
 
-Best regards,
-Dust
+Sie erhalten diese Benachrichtigung, da Ihre E-Mail-Adresse in einer der =
+fraglichen Nachrichten enthalten war. Nachfolgend finden Sie die Einzelhe=
+iten zu dieser E-Mail:
 
->
->Thanks
->
->> 
->> Best regards,
->> Dust
->> 
->> >we need to add a struct net parameter to the smc_ib_find_route function.
->> >This allow us to locate the routing information within the corresponding
->> >net namespace, ensuring the correct completion of the SMC CLC interaction.
->> >
->> >Signed-off-by: Albert Huang <huangjie.albert@bytedance.com>
->> >---
->> > net/smc/af_smc.c | 3 ++-
->> > net/smc/smc_ib.c | 7 ++++---
->> > net/smc/smc_ib.h | 2 +-
->> > 3 files changed, 7 insertions(+), 5 deletions(-)
->> >
->> >diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
->> >index bacdd971615e..7a874da90c7f 100644
->> >--- a/net/smc/af_smc.c
->> >+++ b/net/smc/af_smc.c
->> >@@ -1201,6 +1201,7 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
->> > 		(struct smc_clc_msg_accept_confirm_v2 *)aclc;
->> > 	struct smc_clc_first_contact_ext *fce =
->> > 		smc_get_clc_first_contact_ext(clc_v2, false);
->> >+	struct net *net = sock_net(&smc->sk);
->> > 	int rc;
->> > 
->> > 	if (!ini->first_contact_peer || aclc->hdr.version == SMC_V1)
->> >@@ -1210,7 +1211,7 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
->> > 		memcpy(ini->smcrv2.nexthop_mac, &aclc->r0.lcl.mac, ETH_ALEN);
->> > 		ini->smcrv2.uses_gateway = false;
->> > 	} else {
->> >-		if (smc_ib_find_route(smc->clcsock->sk->sk_rcv_saddr,
->> >+		if (smc_ib_find_route(net, smc->clcsock->sk->sk_rcv_saddr,
->> > 				      smc_ib_gid_to_ipv4(aclc->r0.lcl.gid),
->> > 				      ini->smcrv2.nexthop_mac,
->> > 				      &ini->smcrv2.uses_gateway))
->> >diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
->> >index 9b66d6aeeb1a..89981dbe46c9 100644
->> >--- a/net/smc/smc_ib.c
->> >+++ b/net/smc/smc_ib.c
->> >@@ -193,7 +193,7 @@ bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport)
->> > 	return smcibdev->pattr[ibport - 1].state == IB_PORT_ACTIVE;
->> > }
->> > 
->> >-int smc_ib_find_route(__be32 saddr, __be32 daddr,
->> >+int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
->> > 		      u8 nexthop_mac[], u8 *uses_gateway)
->> > {
->> > 	struct neighbour *neigh = NULL;
->> >@@ -205,7 +205,7 @@ int smc_ib_find_route(__be32 saddr, __be32 daddr,
->> > 
->> > 	if (daddr == cpu_to_be32(INADDR_NONE))
->> > 		goto out;
->> >-	rt = ip_route_output_flow(&init_net, &fl4, NULL);
->> >+	rt = ip_route_output_flow(net, &fl4, NULL);
->> > 	if (IS_ERR(rt))
->> > 		goto out;
->> > 	if (rt->rt_uses_gateway && rt->rt_gw_family != AF_INET)
->> >@@ -235,6 +235,7 @@ static int smc_ib_determine_gid_rcu(const struct net_device *ndev,
->> > 	if (smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP &&
->> > 	    smc_ib_gid_to_ipv4((u8 *)&attr->gid) != cpu_to_be32(INADDR_NONE)) {
->> > 		struct in_device *in_dev = __in_dev_get_rcu(ndev);
->> >+		struct net *net = dev_net(ndev);
->> > 		const struct in_ifaddr *ifa;
->> > 		bool subnet_match = false;
->> > 
->> >@@ -248,7 +249,7 @@ static int smc_ib_determine_gid_rcu(const struct net_device *ndev,
->> > 		}
->> > 		if (!subnet_match)
->> > 			goto out;
->> >-		if (smcrv2->daddr && smc_ib_find_route(smcrv2->saddr,
->> >+		if (smcrv2->daddr && smc_ib_find_route(net, smcrv2->saddr,
->> > 						       smcrv2->daddr,
->> > 						       smcrv2->nexthop_mac,
->> > 						       &smcrv2->uses_gateway))
->> >diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
->> >index 4df5f8c8a0a1..ef8ac2b7546d 100644
->> >--- a/net/smc/smc_ib.h
->> >+++ b/net/smc/smc_ib.h
->> >@@ -112,7 +112,7 @@ void smc_ib_sync_sg_for_device(struct smc_link *lnk,
->> > int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
->> > 			 unsigned short vlan_id, u8 gid[], u8 *sgid_index,
->> > 			 struct smc_init_info_smcrv2 *smcrv2);
->> >-int smc_ib_find_route(__be32 saddr, __be32 daddr,
->> >+int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
->> > 		      u8 nexthop_mac[], u8 *uses_gateway);
->> > bool smc_ib_is_valid_local_systemid(void);
->> > int smcr_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
->> >-- 
->> >2.37.1 (Apple Git-137.1)
->> 
+Datumsstempel: 25.09.2023 10:30
+
+Absender: alibuda@linux.alibaba.com
+Empf=E4nger: jaka@linux.ibm.com, linux-s390@vger.kernel.org, netdev@vger.=
+kernel.org, davem@davemloft.net, extern.martin.grimm@itzbund.de, wenjia@l=
+inux.ibm.com, kgraul@linux.ibm.com
+
+Betreff: 'Re: [PATCH net] net/smc: fix panic smc_tcp_syn_recv_sock() whil=
+e closing listen socket'
+
+Sollten Sie der Absender sein, so erw=E4gen Sie bitte den erneuten Versan=
+d. In dem Fall, da=DF Sie diese E-Mail h=E4tten erhalten sollen, informie=
+ren Sie bitte den Absender =FCber Ihren Wunsch, die E-Mail erneut zu vers=
+enden.
+
+Wir m=F6chten uns f=FCr die Unannehmlichkeiten entschuldigen.
+
+F=FCr R=FCckfragen steht Ihnen die E-Mail-Administration des ITZBund gern=
+e zur Verf=FCgung.
+
+
+Freundliche Gr=FC=DFe
+
+Ihre E-Mail-Administration
+_______________________________________
+V A 51 40 - Gateway-Systeme und Schnittstellen
+Informationstechnikzentrum Bund (ITZBund)
+
+Postanschrift: Postfach 301645, 53196 Bonn
+E-Mail: VA5140@itzbund.de
+
