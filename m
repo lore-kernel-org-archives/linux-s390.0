@@ -2,150 +2,245 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6CAFE732E2
-	for <linux-s390@archiver.kernel.org>; Thu, 28 Sep 2023 15:05:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 199B7E732F1
+	for <linux-s390@archiver.kernel.org>; Thu, 28 Sep 2023 15:48:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231669AbjI1PF6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 28 Sep 2023 11:05:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48610 "EHLO
+        id S232157AbjI1Psq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 28 Sep 2023 11:48:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231601AbjI1PFz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Sep 2023 11:05:55 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12F961B5;
-        Thu, 28 Sep 2023 08:05:51 -0700 (PDT)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38SEk0A1016005;
-        Thu, 28 Sep 2023 15:05:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=vMb+aAFI53ERmvbLOOTAtUBUQQ2YlNOdAoSkYas6PIs=;
- b=fqxXj/gGnysYI56fZBP5xMx1inty/A4K5R5fY99jdQinjZ5cgH5jpPPimvK6mUC1Vn6r
- ZoKo6oRD1yzduE26+WMRxLKF9pGDAr9VPlnSAnSzN6Wm0ghuFgFv1nq5/XQklxZtbe1J
- TRqXGf4vauENod9ioPWeMoAKBy9+M5np3v4PlqmUBw5j53nI6Baba41OzsI6gwWycYF1
- 6HAIClkwOGYUNLmUH6XwlNNeOH6OOIvjirJMa8cpfBNXlUD3bnk+3O5ahU/1iTtseidq
- nDsreta227ePBS3fWAfd5uzzdo60IqnhDgP04EI6Fe0SpVVCkSpvddXIeBxt1ASKSLE+ Tw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tdbath78n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 28 Sep 2023 15:05:29 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38SEWP4Z017327;
-        Thu, 28 Sep 2023 15:05:13 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tdbath4rm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 28 Sep 2023 15:05:12 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38SDN3Zm008143;
-        Thu, 28 Sep 2023 15:04:26 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3taaqywhhd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 28 Sep 2023 15:04:26 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38SF4Mla40239544
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 28 Sep 2023 15:04:23 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CFD662004D;
-        Thu, 28 Sep 2023 15:04:22 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D54B820040;
-        Thu, 28 Sep 2023 15:04:21 +0000 (GMT)
-Received: from [9.171.80.248] (unknown [9.171.80.248])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 28 Sep 2023 15:04:21 +0000 (GMT)
-Message-ID: <00bbbf48440c1889ecd16a590ebb746b820a4f48.camel@linux.ibm.com>
-Subject: Re: [PATCH net-next] net/smc: add support for netdevice in
- containers.
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Albert Huang <huangjie.albert@bytedance.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>
-Cc:     "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Date:   Thu, 28 Sep 2023 17:04:21 +0200
-In-Reply-To: <20230925023546.9964-1-huangjie.albert@bytedance.com>
-References: <20230925023546.9964-1-huangjie.albert@bytedance.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _N-fuUIetudV9Wfdz9MzlhKJuUTHPCUW
-X-Proofpoint-ORIG-GUID: yxZhCqvuEiIotfJ6ZZcsgkArZ504hZj_
-Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S231821AbjI1Psm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Sep 2023 11:48:42 -0400
+Received: from out3-smtp.messagingengine.com (out3-smtp.messagingengine.com [66.111.4.27])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9BD0EB;
+        Thu, 28 Sep 2023 08:48:39 -0700 (PDT)
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
+        by mailout.nyi.internal (Postfix) with ESMTP id 4F0615C0DBB;
+        Thu, 28 Sep 2023 11:48:39 -0400 (EDT)
+Received: from imap51 ([10.202.2.101])
+  by compute6.internal (MEProxy); Thu, 28 Sep 2023 11:48:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+        :cc:content-type:content-type:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm1; t=1695916119; x=1696002519; bh=AE
+        M/fDbI9O0BImAELzI+hfXsnObtdXB3nh8ZZCXXqn0=; b=rYRrfUWcGURzZi2Kx3
+        x77+TyShR9Sib8UhEkjRsEvF3DnYBPdVY6rzWwYeuhr4tdntul3oHtfVUF/z6EV2
+        heYFaG3+Ohoslr/oEpgzvbQj8Ap/BO0Uo8fukRIGEYSG2EFeIuADh6kTnG/e/ZnK
+        WKoyOI7jTOa1WvXs1EnNIde2dL42+ityLyFsYeIVnenJ8nJu5KRjOGJhaF2H5eLA
+        4Rc3nmIeAUGsRgwN8l/vUa6uyPahwW8/lYYQtjTd1GdPmcRjEc4yki4fcm3o+0bg
+        CM1ceI9x2XAIhPoWvIWcG7Pse0IJVI89HVvLU8Sx5WjoReHRv+R8kwtcD43rgTqO
+        1Txg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:content-type:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm2; t=1695916119; x=1696002519; bh=AEM/fDbI9O0BI
+        mAELzI+hfXsnObtdXB3nh8ZZCXXqn0=; b=SVhvpMNNu2832r96OQM+NAupTyZUu
+        9ApC30lDjAFYMGWGRYhGk9Ktw4UV75/4wX1D/NFDsHe0J/F4WGv8mVpKtbEtvn7p
+        Rmjsr58zIcRx0QQa/XsGbKIRMC4kmp2y+lV4iGP4YPyx6mdJFfcRgxpTGWbUkYul
+        fg2q9Uk1M3TSIwSOpuuTWD6z9oXV7akZjN8oooViePicLGd71ehHsuxX95jowg+t
+        sIH70F+Njj7J5uzvO8LCP4IepniwS53HFBN7DFlHjczusBIIb6hJ6o+OFnMH7yBO
+        ef+exyTTPsXWvxZc+NE+84UqAYqQq2LcMfq4tomSwJikU7iHJ9es8eYXA==
+X-ME-Sender: <xms:VqAVZTp80fxHAbyOrOLozy8oSIIHqQ8-uQi65BHGMCHFY2uP19KKDw>
+    <xme:VqAVZdocPPRCkDqLMsDAsTzMnCL_hi_3AeWHiaLGnH49qHHA2EbULHHp32fE-IqJO
+    LKNp0MKQfoi5rOEkGs>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrtddtgdeifecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefofgggkfgjfhffhffvvefutgesthdtredtreertdenucfhrhhomhepfdetrhhn
+    ugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtth
+    gvrhhnpeevhfffledtgeehfeffhfdtgedvheejtdfgkeeuvefgudffteettdekkeeufeeh
+    udenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptd
+    enucfrrghrrghmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvg
+X-ME-Proxy: <xmx:VqAVZQN93Juw9XiE898XRfbgEHqEl2cwevHPLOiPOvmsMuT6V2Wjwg>
+    <xmx:VqAVZW5Y2ZL47jAZLy1P_hatPiBd5qOL0KmpEAGxRBZoBCe3-Rqhfw>
+    <xmx:VqAVZS4_qfE88pGkCU7hjxlJPieMhGBt0fgKWeWdE9tfpBrYfI6xdw>
+    <xmx:V6AVZa6XYaRu-pt9bUmgxdeIF3j6xxqNhfjqV2pVTPKFlHygW6TLhA>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id BE4B9B60089; Thu, 28 Sep 2023 11:48:38 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.9.0-alpha0-958-g1b1b911df8-fm-20230927.002-g1b1b911d
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-09-28_14,2023-09-28_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- mlxlogscore=999 spamscore=0 impostorscore=0 suspectscore=0 mlxscore=0
- phishscore=0 clxscore=1011 priorityscore=1501 bulkscore=0 malwarescore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2309280130
+Message-Id: <6020d6e7-b187-4abb-bf38-dc09d8bd0f6d@app.fastmail.com>
+In-Reply-To: <20230928110554.34758-2-jlayton@kernel.org>
+References: <20230928110554.34758-1-jlayton@kernel.org>
+ <20230928110554.34758-2-jlayton@kernel.org>
+Date:   Thu, 28 Sep 2023 11:48:16 -0400
+From:   "Arnd Bergmann" <arnd@arndb.de>
+To:     "Jeff Layton" <jlayton@kernel.org>,
+        "Alexander Viro" <viro@zeniv.linux.org.uk>,
+        "Christian Brauner" <brauner@kernel.org>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "David Sterba" <dsterba@suse.cz>,
+        "Amir Goldstein" <amir73il@gmail.com>,
+        "Theodore Ts'o" <tytso@mit.edu>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        "Kees Cook" <keescook@chromium.org>, "Jeremy Kerr" <jk@ozlabs.org>,
+        "Michael Ellerman" <mpe@ellerman.id.au>,
+        "Nicholas Piggin" <npiggin@gmail.com>,
+        "Christophe Leroy" <christophe.leroy@csgroup.eu>,
+        "Heiko Carstens" <hca@linux.ibm.com>,
+        "Vasily Gorbik" <gor@linux.ibm.com>,
+        "Alexander Gordeev" <agordeev@linux.ibm.com>,
+        "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+        "Sven Schnelle" <svens@linux.ibm.com>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        =?UTF-8?Q?Arve_Hj=C3=B8nnev=C3=A5g?= <arve@android.com>,
+        "Todd Kjos" <tkjos@android.com>,
+        "Martijn Coenen" <maco@android.com>,
+        "Joel Fernandes" <joel@joelfernandes.org>,
+        "Carlos Llamas" <cmllamas@google.com>,
+        "Suren Baghdasaryan" <surenb@google.com>,
+        "Mattia Dongili" <malattia@linux.it>,
+        "Dennis Dalessandro" <dennis.dalessandro@cornelisnetworks.com>,
+        "Jason Gunthorpe" <jgg@ziepe.ca>,
+        "Leon Romanovsky" <leon@kernel.org>,
+        "Brad Warrum" <bwarrum@linux.ibm.com>,
+        "Ritu Agarwal" <rituagar@linux.ibm.com>,
+        "Hans de Goede" <hdegoede@redhat.com>,
+        =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        "Mark Gross" <markgross@kernel.org>,
+        "Jiri Slaby" <jirislaby@kernel.org>,
+        "Eric Van Hensbergen" <ericvh@kernel.org>,
+        "Latchesar Ionkov" <lucho@ionkov.net>,
+        "Dominique Martinet" <asmadeus@codewreck.org>,
+        "Christian Schoenebeck" <linux_oss@crudebyte.com>,
+        "David Sterba" <dsterba@suse.com>,
+        "David Howells" <dhowells@redhat.com>,
+        "Marc Dionne" <marc.dionne@auristor.com>,
+        "Ian Kent" <raven@themaw.net>,
+        "Luis de Bethencourt" <luisbg@kernel.org>,
+        "Salah Triki" <salah.triki@gmail.com>,
+        "Tigran A. Aivazian" <aivazian.tigran@gmail.com>,
+        "Chris Mason" <clm@fb.com>, "Josef Bacik" <josef@toxicpanda.com>,
+        "Xiubo Li" <xiubli@redhat.com>,
+        "Ilya Dryomov" <idryomov@gmail.com>,
+        "Jan Harkes" <jaharkes@cs.cmu.edu>, coda@cs.cmu.edu,
+        "Joel Becker" <jlbec@evilplan.org>,
+        "Christoph Hellwig" <hch@lst.de>,
+        "Nicolas Pitre" <nico@fluxnic.net>,
+        "Rafael J . Wysocki" <rafael@kernel.org>,
+        "Ard Biesheuvel" <ardb@kernel.org>, "Gao Xiang" <xiang@kernel.org>,
+        "Chao Yu" <chao@kernel.org>, "Yue Hu" <huyue2@coolpad.com>,
+        "Jeffle Xu" <jefflexu@linux.alibaba.com>,
+        "Namjae Jeon" <linkinjeon@kernel.org>,
+        "Sungjong Seo" <sj1557.seo@samsung.com>,
+        "Jan Kara" <jack@suse.com>,
+        "Andreas Dilger" <adilger.kernel@dilger.ca>,
+        "Jaegeuk Kim" <jaegeuk@kernel.org>,
+        "OGAWA Hirofumi" <hirofumi@mail.parknet.co.jp>,
+        "Christoph Hellwig" <hch@infradead.org>,
+        "Miklos Szeredi" <miklos@szeredi.hu>,
+        "Bob Peterson" <rpeterso@redhat.com>,
+        "Andreas Gruenbacher" <agruenba@redhat.com>,
+        "Richard Weinberger" <richard@nod.at>,
+        "Anton Ivanov" <anton.ivanov@cambridgegreys.com>,
+        "Johannes Berg" <johannes@sipsolutions.net>,
+        "Mikulas Patocka" <mikulas@artax.karlin.mff.cuni.cz>,
+        "Mike Kravetz" <mike.kravetz@oracle.com>,
+        "Muchun Song" <muchun.song@linux.dev>, "Jan Kara" <jack@suse.cz>,
+        "David Woodhouse" <dwmw2@infradead.org>,
+        "Dave Kleikamp" <shaggy@kernel.org>, "Tejun Heo" <tj@kernel.org>,
+        "Trond Myklebust" <trond.myklebust@hammerspace.com>,
+        "Anna Schumaker" <anna@kernel.org>,
+        "Chuck Lever" <chuck.lever@oracle.com>,
+        "Neil Brown" <neilb@suse.de>,
+        "Olga Kornievskaia" <kolga@netapp.com>,
+        "Dai Ngo" <Dai.Ngo@oracle.com>, "Tom Talpey" <tom@talpey.com>,
+        "Ryusuke Konishi" <konishi.ryusuke@gmail.com>,
+        "Anton Altaparmakov" <anton@tuxera.com>,
+        "Konstantin Komarov" <almaz.alexandrovich@paragon-software.com>,
+        "Mark Fasheh" <mark@fasheh.com>,
+        "Joseph Qi" <joseph.qi@linux.alibaba.com>,
+        "Bob Copeland" <me@bobcopeland.com>,
+        "Mike Marshall" <hubcap@omnibond.com>,
+        "Martin Brandenburg" <martin@omnibond.com>,
+        "Luis Chamberlain" <mcgrof@kernel.org>,
+        "Iurii Zaikin" <yzaikin@google.com>,
+        "Tony Luck" <tony.luck@intel.com>,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        "Anders Larsen" <al@alarsen.net>,
+        "Steve French" <sfrench@samba.org>,
+        "Paulo Alcantara" <pc@manguebit.com>,
+        "Ronnie Sahlberg" <lsahlber@redhat.com>,
+        "Shyam Prasad N" <sprasad@microsoft.com>,
+        "Sergey Senozhatsky" <senozhatsky@chromium.org>,
+        "Phillip Lougher" <phillip@squashfs.org.uk>,
+        "Steven Rostedt" <rostedt@goodmis.org>,
+        "Masami Hiramatsu" <mhiramat@kernel.org>,
+        "Evgeniy Dushistov" <dushistov@mail.ru>,
+        "Chandan Babu R" <chandan.babu@oracle.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        "Damien Le Moal" <dlemoal@kernel.org>,
+        "Naohiro Aota" <naohiro.aota@wdc.com>,
+        "Johannes Thumshirn" <jth@kernel.org>,
+        "Alexei Starovoitov" <ast@kernel.org>,
+        "Daniel Borkmann" <daniel@iogearbox.net>,
+        "Andrii Nakryiko" <andrii@kernel.org>,
+        "Martin KaFai Lau" <martin.lau@linux.dev>,
+        "Song Liu" <song@kernel.org>,
+        "Yonghong Song" <yonghong.song@linux.dev>,
+        "John Fastabend" <john.fastabend@gmail.com>,
+        "KP Singh" <kpsingh@kernel.org>,
+        "Stanislav Fomichev" <sdf@google.com>,
+        "Hao Luo" <haoluo@google.com>, "Jiri Olsa" <jolsa@kernel.org>,
+        "Hugh Dickins" <hughd@google.com>,
+        "Andrew Morton" <akpm@linux-foundation.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        "Eric Dumazet" <edumazet@google.com>,
+        "Jakub Kicinski" <kuba@kernel.org>,
+        "Paolo Abeni" <pabeni@redhat.com>,
+        "John Johansen" <john.johansen@canonical.com>,
+        "Paul Moore" <paul@paul-moore.com>,
+        "James Morris" <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        "Stephen Smalley" <stephen.smalley.work@gmail.com>,
+        "Eric Paris" <eparis@parisplace.org>
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-serial@vger.kernel.org,
+        linux-usb@vger.kernel.org, v9fs@lists.linux.dev,
+        linux-afs@lists.infradead.org, autofs@vger.kernel.org,
+        linux-btrfs@vger.kernel.org, ceph-devel@vger.kernel.org,
+        codalist@coda.cs.cmu.edu, linux-efi@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, gfs2@lists.linux.dev,
+        linux-um@lists.infradead.org, linux-mtd@lists.infradead.org,
+        jfs-discussion@lists.sourceforge.net, linux-nfs@vger.kernel.org,
+        linux-nilfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
+        ntfs3@lists.linux.dev, ocfs2-devel@lists.linux.dev,
+        linux-karma-devel@lists.sourceforge.net, devel@lists.orangefs.org,
+        linux-unionfs@vger.kernel.org, linux-hardening@vger.kernel.org,
+        reiserfs-devel@vger.kernel.org, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org,
+        linux-trace-kernel@vger.kernel.org, linux-xfs@vger.kernel.org,
+        bpf@vger.kernel.org, Netdev <netdev@vger.kernel.org>,
+        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org
+Subject: Re: [PATCH 86/87] fs: switch timespec64 fields in inode to discrete integers
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 2023-09-25 at 10:35 +0800, Albert Huang wrote:
-> If the netdevice is within a container and communicates externally
-> through network technologies like VXLAN, we won't be able to find
-> routing information in the init_net namespace. To address this issue,
-> we need to add a struct net parameter to the smc_ib_find_route function.
-> This allow us to locate the routing information within the corresponding
-> net namespace, ensuring the correct completion of the SMC CLC interaction.
->=20
-> Signed-off-by: Albert Huang <huangjie.albert@bytedance.com>
-> ---
->  net/smc/af_smc.c | 3 ++-
->  net/smc/smc_ib.c | 7 ++++---
->  net/smc/smc_ib.h | 2 +-
->  3 files changed, 7 insertions(+), 5 deletions(-)
->=20
+On Thu, Sep 28, 2023, at 07:05, Jeff Layton wrote:
+> This shaves 8 bytes off struct inode, according to pahole.
+>
+> Signed-off-by: Jeff Layton <jlayton@kernel.org>
 
-I'm trying to test this patch on s390x but I'm running into the same
-issue I ran into with the original SMC namespace
-support:https://lore.kernel.org/netdev/8701fa4557026983a9ec687cfdd7ac5b3b85=
-fd39.camel@linux.ibm.com/
+FWIW, this is similar to the approach that Deepa suggested
+back in 2016:
 
-Just like back then I'm using a server and a client network namespace
-on the same system with two ConnectX-4 VFs from the same card and port.
-Both TCP/IP traffic as well as user-space RDMA via "qperf =E2=80=A6 rc_bw" =
-and
-`qperf =E2=80=A6 rc_lat` work between namespaces and definitely go via the
-card.
+https://lore.kernel.org/lkml/1452144972-15802-3-git-send-email-deepa.kernel@gmail.com/
 
-I did use "rdma system set netns exclusive" then moved the RDMA devices
-into the namespaces with "rdma dev set <rdma_dev> netns <namespace>". I
-also verified with "ip netns exec <namespace> rdma dev"
-that the RDMA devices are in the network namespace and as seen by the
-qperf runs normal RDMA does work.
+It was NaKed at the time because of the added complexity,
+though it would have been much easier to do it then,
+as we had to touch all the timespec references anyway.
 
-For reference the smc_chck tool gives me the following output:
+The approach still seems ok to me, but I'm not sure it's worth
+doing it now if we didn't do it then.
 
-Server started on port 37373
-[DEBUG] Interfaces to check: eno4378
-Test with target IP 10.10.93.12 and port 37373
-  Live test (SMC-D and SMC-R)
-[DEBUG] Running client: smc_run /tmp/echo-clt.x0q8iO 10.10.93.12 -p
-37373
-[DEBUG] Client result: TCP 0x05000000/0x03030000
-     Failed  (TCP fallback), reasons:
-          Client:        0x05000000   Peer declined during handshake
-          Server:        0x03030000   No SMC devices found (R and D)
-
-I also checked that SMC is generally working, once I add an ISM device
-I do get SMC-D between the namespaces. Any ideas what could break SMC-R
-here?
-
-Thanks,
-Niklas
+     Arnd
