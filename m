@@ -2,60 +2,60 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DCC1E743C9
-	for <linux-s390@archiver.kernel.org>; Thu, 28 Sep 2023 22:22:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5543EE743C8
+	for <linux-s390@archiver.kernel.org>; Thu, 28 Sep 2023 22:22:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232166AbjI1WWQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 28 Sep 2023 18:22:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53952 "EHLO
+        id S232552AbjI1WWX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 28 Sep 2023 18:22:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231651AbjI1WWP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Sep 2023 18:22:15 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A7BE1A4
-        for <linux-s390@vger.kernel.org>; Thu, 28 Sep 2023 15:21:36 -0700 (PDT)
+        with ESMTP id S231446AbjI1WWW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Sep 2023 18:22:22 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF49A1A1
+        for <linux-s390@vger.kernel.org>; Thu, 28 Sep 2023 15:21:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1695939695;
+        s=mimecast20190719; t=1695939693;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=29G1BYuCds6xnt+aRDjOqp1d8b71T59JlT2+VGIavIo=;
-        b=VtHY83YRmhVYJfigUO/Yw+X1+yesbEsa0dwl24ZDIXq1DsTC1r+YwG55pkVg3DMidjRfmz
-        D5Sp9w8xrnvNE5k3e4weDjb1IBMuLqDW8NUcD7xioX9yZZbqG6eHTbUuf1idEUG/OucnV9
-        xedNY8w3vacX6rbuLmvbSenXH2hfCkQ=
-Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
- [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=/l7DOL4i9eWpBdCSwTRJyugH/jLo/b6g4jXHDN7U+14=;
+        b=TReJVHr7yKYtPFr4fcOVdPHQE2V1AczSv89K3NkcBS9sx4uy6tM9sPBNRw8u8eflRkOwEe
+        plNtFt3mj+4rQsINyVR9P9O5jsG0q0TE64dekKjKeJJrP+6oXvvRO5c4tA13M0qCGb0Qno
+        EoP+YMlBMHtDh+0E/49ze7sl7DRD0cQ=
+Received: from mail-io1-f71.google.com (mail-io1-f71.google.com
+ [209.85.166.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-617-TlnStyawMs-2Nurl0nMOsA-1; Thu, 28 Sep 2023 18:21:34 -0400
-X-MC-Unique: TlnStyawMs-2Nurl0nMOsA-1
-Received: by mail-io1-f72.google.com with SMTP id ca18e2360f4ac-7a2576bdcb7so182510639f.0
-        for <linux-s390@vger.kernel.org>; Thu, 28 Sep 2023 15:21:34 -0700 (PDT)
+ us-mta-548-T23DvfyKOZmczhfuyjs7bA-1; Thu, 28 Sep 2023 18:21:31 -0400
+X-MC-Unique: T23DvfyKOZmczhfuyjs7bA-1
+Received: by mail-io1-f71.google.com with SMTP id ca18e2360f4ac-79f9edb0086so1530951339f.2
+        for <linux-s390@vger.kernel.org>; Thu, 28 Sep 2023 15:21:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1695939693; x=1696544493;
+        d=1e100.net; s=20230601; t=1695939690; x=1696544490;
         h=content-transfer-encoding:mime-version:organization:references
          :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=29G1BYuCds6xnt+aRDjOqp1d8b71T59JlT2+VGIavIo=;
-        b=CMl7XlXbxThFsA2An/I8wrs4oSP/LS+Mr7LY3RH3MgrWjCOnoEOf1GOT43yN2WmTEs
-         rjJHj2v8brtFtGe2p58cPepv3GQG/wvnPaLmIKP2M9eaQoQEcD7UtlOjR9h82CeOP73M
-         jCWurIB5Qdvq0JTjgbwq6cic2ty4Z44TLO7seFZtk4n1o1Rd1d9+uWxjG9A59oGpWq5d
-         VnSLzG4cGDMROcWVPDKxrfRowPk5eaMlz6Wuw5wU1RDW5UyiygeW5AZHhygun7FjvgZg
-         qsqi3Q3kDKxAFtgKgYk2GaTaAkVoxz+7+JqJx654vnk4lAqjfmTFpVnHu8zLd6WSgU0K
-         4QSQ==
-X-Gm-Message-State: AOJu0YzGzt6H7gXSzc+SvP749gfSUW6/M25dWtU7IfBP//Ms8VRP4ne5
-        gPiSkVkxoyWfF2r349biJv0n2n2spSr+ZfTbt57EZOCCFewmQ4ODi/YkmQrYc7tZAGh/1MNgxs5
-        7DOKzRYZnV6Msx4dTOWmnsQ==
-X-Received: by 2002:a5e:a907:0:b0:790:ab53:ed16 with SMTP id c7-20020a5ea907000000b00790ab53ed16mr2491890iod.21.1695939693561;
-        Thu, 28 Sep 2023 15:21:33 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEM9rzDoRunyOXP5133v1Lo+cjXO3E6zwL+8+g1e4+R6wKyGcuEKXEoPgEET4hcDTu/MP0tQg==
-X-Received: by 2002:a5e:a907:0:b0:790:ab53:ed16 with SMTP id c7-20020a5ea907000000b00790ab53ed16mr2491880iod.21.1695939693228;
-        Thu, 28 Sep 2023 15:21:33 -0700 (PDT)
+        bh=/l7DOL4i9eWpBdCSwTRJyugH/jLo/b6g4jXHDN7U+14=;
+        b=UrVO+IzlfhnmoEmpRtf02iwYJUASWbUpoKgPgOQBBiTFEMhysxYv7JJqmu2So/fQe7
+         U+bq7U5uK7ISR5OLSXV9/qRkPqbCec3YscZhlLqeZIdxrfvaiPRSocSXGBe/nyOkyvBF
+         LmA2YcgLPGsSxCro6BWLEJvcOH5w1MXFgQvKdxxQOWACjr6tVrLPLLRsJ6PN/el3SJCk
+         biu9AWtHWFBz2YbtdIYmWUTMr9M5scMSiA0RzmrqVdJxM/stPy9hSdqs7+wK4prqKf9j
+         KrbgDQrqf3V2/rU0OEHhVUb5D8QHYMadgvnhRSrRMJqRumwIbWsN5cV+EYqvpH9fYN5p
+         M8Sw==
+X-Gm-Message-State: AOJu0YxsUpy8hINq8owV7silRys1mioZYX8KFBEm5a1a4MgrjdrpsOaA
+        9KVzU/wO+usSHqp3WLHWqpd9oe7uQCARXJyqoxsnL1Lwf3nbsh82cGO+xrXyoN8VDEJd1RthFt1
+        hAo4/AOawvJSmJ0UWcU8VlQ==
+X-Received: by 2002:a05:6e02:1809:b0:34f:ed76:7db8 with SMTP id a9-20020a056e02180900b0034fed767db8mr3391324ilv.26.1695939690603;
+        Thu, 28 Sep 2023 15:21:30 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFOH5tZZiZuKh+d30ZefE58SY4OZ2k4eRgPtsp2uogyFxnPRFAQcoCds5f0KJfUDnAzkmiCTw==
+X-Received: by 2002:a05:6e02:1809:b0:34f:ed76:7db8 with SMTP id a9-20020a056e02180900b0034fed767db8mr3391301ilv.26.1695939690276;
+        Thu, 28 Sep 2023 15:21:30 -0700 (PDT)
 Received: from redhat.com ([38.15.60.12])
-        by smtp.gmail.com with ESMTPSA id t23-20020a02c497000000b0042b10d42c90sm4610172jam.113.2023.09.28.15.21.30
+        by smtp.gmail.com with ESMTPSA id t23-20020a02c497000000b0042b10d42c90sm4610172jam.113.2023.09.28.15.21.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Sep 2023 15:21:31 -0700 (PDT)
-Date:   Thu, 28 Sep 2023 16:21:11 -0600
+        Thu, 28 Sep 2023 15:21:28 -0700 (PDT)
+Date:   Thu, 28 Sep 2023 16:21:08 -0600
 From:   Alex Williamson <alex.williamson@redhat.com>
 To:     Sean Christopherson <seanjc@google.com>
 Cc:     Catalin Marinas <catalin.marinas@arm.com>,
@@ -92,12 +92,12 @@ Cc:     Catalin Marinas <catalin.marinas@arm.com>,
         Anish Ghulati <aghulati@google.com>,
         Venkatesh Srinivas <venkateshs@chromium.org>,
         Andrew Thornton <andrewth@google.com>
-Subject: Re: [PATCH 06/26] KVM: Drop CONFIG_KVM_VFIO and just look at
- KVM+VFIO
-Message-ID: <20230928162111.09820688.alex.williamson@redhat.com>
-In-Reply-To: <20230916003118.2540661-7-seanjc@google.com>
+Subject: Re: [PATCH 04/26] vfio: Add struct to hold KVM assets and dedup
+ group vs. iommufd code
+Message-ID: <20230928162108.3fdd73bf.alex.williamson@redhat.com>
+In-Reply-To: <20230916003118.2540661-5-seanjc@google.com>
 References: <20230916003118.2540661-1-seanjc@google.com>
-        <20230916003118.2540661-7-seanjc@google.com>
+        <20230916003118.2540661-5-seanjc@google.com>
 Organization: Red Hat
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -106,122 +106,276 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 15 Sep 2023 17:30:58 -0700
+On Fri, 15 Sep 2023 17:30:56 -0700
 Sean Christopherson <seanjc@google.com> wrote:
 
-> Drop KVM's KVM_VFIO Kconfig, and instead compile in VFIO support if
-> and only if VFIO itself is enabled.  Similar to the recent change to have
-> VFIO stop looking at HAVE_KVM, compiling in support for talking to VFIO
-> just because the architecture supports VFIO is nonsensical.
-> 
-> This fixes a bug where RISC-V doesn't select KVM_VFIO, i.e. would silently
-> fail to do connect KVM and VFIO, even though RISC-V supports VFIO.  The
-> bug is benign as the only driver in all of Linux that actually uses the
-> KVM reference provided by VFIO is KVM-GT, which is x86/Intel specific.
+> Add a struct to hold the KVM assets need to manage and pass along KVM
+> references to VFIO devices.  Providing a common struct deduplicates the
+> group vs. iommufd code, and will make it easier to rework the attachment
+> logic so that VFIO doesn't have to do a symbol lookup to retrieve the
+> get/put helpers from KVM.
 > 
 > Signed-off-by: Sean Christopherson <seanjc@google.com>
 > ---
->  arch/arm64/kvm/Kconfig   | 1 -
->  arch/powerpc/kvm/Kconfig | 1 -
->  arch/s390/kvm/Kconfig    | 1 -
->  arch/x86/kvm/Kconfig     | 1 -
->  virt/kvm/Kconfig         | 3 ---
->  virt/kvm/Makefile.kvm    | 4 +++-
->  virt/kvm/vfio.h          | 2 +-
->  7 files changed, 4 insertions(+), 9 deletions(-)
+>  drivers/vfio/device_cdev.c |  9 +-------
+>  drivers/vfio/group.c       | 18 ++--------------
+>  drivers/vfio/vfio.h        | 22 +++++++++----------
+>  drivers/vfio/vfio_main.c   | 43 +++++++++++++++++++++++++++-----------
+>  4 files changed, 45 insertions(+), 47 deletions(-)
 
 
 Reviewed-by: Alex Williamson <alex.williamson@redhat.com>
 
-
-> diff --git a/arch/arm64/kvm/Kconfig b/arch/arm64/kvm/Kconfig
-> index 83c1e09be42e..2b5c332f157d 100644
-> --- a/arch/arm64/kvm/Kconfig
-> +++ b/arch/arm64/kvm/Kconfig
-> @@ -28,7 +28,6 @@ menuconfig KVM
->  	select KVM_MMIO
->  	select KVM_GENERIC_DIRTYLOG_READ_PROTECT
->  	select KVM_XFER_TO_GUEST_WORK
-> -	select KVM_VFIO
->  	select HAVE_KVM_EVENTFD
->  	select HAVE_KVM_IRQFD
->  	select HAVE_KVM_DIRTY_RING_ACQ_REL
-> diff --git a/arch/powerpc/kvm/Kconfig b/arch/powerpc/kvm/Kconfig
-> index 902611954200..c4beb49c0eb2 100644
-> --- a/arch/powerpc/kvm/Kconfig
-> +++ b/arch/powerpc/kvm/Kconfig
-> @@ -22,7 +22,6 @@ config KVM
->  	select PREEMPT_NOTIFIERS
->  	select HAVE_KVM_EVENTFD
->  	select HAVE_KVM_VCPU_ASYNC_IOCTL
-> -	select KVM_VFIO
->  	select IRQ_BYPASS_MANAGER
->  	select HAVE_KVM_IRQ_BYPASS
->  	select INTERVAL_TREE
-> diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
-> index 45fdf2a9b2e3..459d536116a6 100644
-> --- a/arch/s390/kvm/Kconfig
-> +++ b/arch/s390/kvm/Kconfig
-> @@ -31,7 +31,6 @@ config KVM
->  	select HAVE_KVM_IRQ_ROUTING
->  	select HAVE_KVM_INVALID_WAKEUPS
->  	select HAVE_KVM_NO_POLL
-> -	select KVM_VFIO
->  	select INTERVAL_TREE
->  	select MMU_NOTIFIER
->  	help
-> diff --git a/arch/x86/kvm/Kconfig b/arch/x86/kvm/Kconfig
-> index ed90f148140d..0f01e5600b5f 100644
-> --- a/arch/x86/kvm/Kconfig
-> +++ b/arch/x86/kvm/Kconfig
-> @@ -45,7 +45,6 @@ config KVM
->  	select HAVE_KVM_NO_POLL
->  	select KVM_XFER_TO_GUEST_WORK
->  	select KVM_GENERIC_DIRTYLOG_READ_PROTECT
-> -	select KVM_VFIO
->  	select INTERVAL_TREE
->  	select HAVE_KVM_PM_NOTIFIER if PM
->  	select KVM_GENERIC_HARDWARE_ENABLING
-> diff --git a/virt/kvm/Kconfig b/virt/kvm/Kconfig
-> index 484d0873061c..f0be3b55cea6 100644
-> --- a/virt/kvm/Kconfig
-> +++ b/virt/kvm/Kconfig
-> @@ -59,9 +59,6 @@ config HAVE_KVM_MSI
->  config HAVE_KVM_CPU_RELAX_INTERCEPT
->         bool
+ 
+> diff --git a/drivers/vfio/device_cdev.c b/drivers/vfio/device_cdev.c
+> index e75da0a70d1f..e484d6d6400a 100644
+> --- a/drivers/vfio/device_cdev.c
+> +++ b/drivers/vfio/device_cdev.c
+> @@ -46,13 +46,6 @@ int vfio_device_fops_cdev_open(struct inode *inode, struct file *filep)
+>  	return ret;
+>  }
 >  
-> -config KVM_VFIO
-> -       bool
+> -static void vfio_df_get_kvm_safe(struct vfio_device_file *df)
+> -{
+> -	spin_lock(&df->kvm_ref_lock);
+> -	vfio_device_get_kvm_safe(df->device, df->kvm);
+> -	spin_unlock(&df->kvm_ref_lock);
+> -}
 > -
->  config HAVE_KVM_INVALID_WAKEUPS
->         bool
+>  long vfio_df_ioctl_bind_iommufd(struct vfio_device_file *df,
+>  				struct vfio_device_bind_iommufd __user *arg)
+>  {
+> @@ -99,7 +92,7 @@ long vfio_df_ioctl_bind_iommufd(struct vfio_device_file *df,
+>  	 * a reference.  This reference is held until device closed.
+>  	 * Save the pointer in the device for use by drivers.
+>  	 */
+> -	vfio_df_get_kvm_safe(df);
+> +	vfio_device_get_kvm_safe(df->device, &df->kvm_ref);
 >  
-> diff --git a/virt/kvm/Makefile.kvm b/virt/kvm/Makefile.kvm
-> index 2c27d5d0c367..29373b59d89a 100644
-> --- a/virt/kvm/Makefile.kvm
-> +++ b/virt/kvm/Makefile.kvm
-> @@ -6,7 +6,9 @@
->  KVM ?= ../../../virt/kvm
+>  	ret = vfio_df_open(df);
+>  	if (ret)
+> diff --git a/drivers/vfio/group.c b/drivers/vfio/group.c
+> index 610a429c6191..756e47ff4cf0 100644
+> --- a/drivers/vfio/group.c
+> +++ b/drivers/vfio/group.c
+> @@ -157,13 +157,6 @@ static int vfio_group_ioctl_set_container(struct vfio_group *group,
+>  	return ret;
+>  }
 >  
->  kvm-y := $(KVM)/kvm_main.o $(KVM)/eventfd.o $(KVM)/binary_stats.o
-> -kvm-$(CONFIG_KVM_VFIO) += $(KVM)/vfio.o
-> +ifdef CONFIG_VFIO
-> +kvm-y += $(KVM)/vfio.o
-> +endif
->  kvm-$(CONFIG_KVM_MMIO) += $(KVM)/coalesced_mmio.o
->  kvm-$(CONFIG_KVM_ASYNC_PF) += $(KVM)/async_pf.o
->  kvm-$(CONFIG_HAVE_KVM_IRQ_ROUTING) += $(KVM)/irqchip.o
-> diff --git a/virt/kvm/vfio.h b/virt/kvm/vfio.h
-> index e130a4a03530..af475a323965 100644
-> --- a/virt/kvm/vfio.h
-> +++ b/virt/kvm/vfio.h
-> @@ -2,7 +2,7 @@
->  #ifndef __KVM_VFIO_H
->  #define __KVM_VFIO_H
+> -static void vfio_device_group_get_kvm_safe(struct vfio_device *device)
+> -{
+> -	spin_lock(&device->group->kvm_ref_lock);
+> -	vfio_device_get_kvm_safe(device, device->group->kvm);
+> -	spin_unlock(&device->group->kvm_ref_lock);
+> -}
+> -
+>  static int vfio_df_group_open(struct vfio_device_file *df)
+>  {
+>  	struct vfio_device *device = df->device;
+> @@ -184,7 +177,7 @@ static int vfio_df_group_open(struct vfio_device_file *df)
+>  	 * the pointer in the device for use by drivers.
+>  	 */
+>  	if (device->open_count == 0)
+> -		vfio_device_group_get_kvm_safe(device);
+> +		vfio_device_get_kvm_safe(device, &device->group->kvm_ref);
 >  
-> -#ifdef CONFIG_KVM_VFIO
-> +#if IS_ENABLED(CONFIG_KVM) && IS_ENABLED(CONFIG_VFIO)
->  int kvm_vfio_ops_init(void);
->  void kvm_vfio_ops_exit(void);
+>  	df->iommufd = device->group->iommufd;
+>  	if (df->iommufd && vfio_device_is_noiommu(device) && device->open_count == 0) {
+> @@ -560,7 +553,7 @@ static struct vfio_group *vfio_group_alloc(struct iommu_group *iommu_group,
+>  
+>  	refcount_set(&group->drivers, 1);
+>  	mutex_init(&group->group_lock);
+> -	spin_lock_init(&group->kvm_ref_lock);
+> +	spin_lock_init(&group->kvm_ref.lock);
+>  	INIT_LIST_HEAD(&group->device_list);
+>  	mutex_init(&group->device_lock);
+>  	group->iommu_group = iommu_group;
+> @@ -884,13 +877,6 @@ bool vfio_group_enforced_coherent(struct vfio_group *group)
+>  	return ret;
+>  }
+>  
+> -void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm)
+> -{
+> -	spin_lock(&group->kvm_ref_lock);
+> -	group->kvm = kvm;
+> -	spin_unlock(&group->kvm_ref_lock);
+> -}
+> -
+>  /**
+>   * vfio_file_has_dev - True if the VFIO file is a handle for device
+>   * @file: VFIO file to check
+> diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
+> index c26d1ad68105..a1f741365075 100644
+> --- a/drivers/vfio/vfio.h
+> +++ b/drivers/vfio/vfio.h
+> @@ -12,18 +12,23 @@
+>  #include <linux/module.h>
+>  #include <linux/vfio.h>
+>  
+> +struct kvm;
+>  struct iommufd_ctx;
+>  struct iommu_group;
+>  struct vfio_container;
+>  
+> +struct vfio_kvm_reference {
+> +	struct kvm			*kvm;
+> +	spinlock_t			lock;
+> +};
+> +
+>  struct vfio_device_file {
+>  	struct vfio_device *device;
+>  	struct vfio_group *group;
+>  
+>  	u8 access_granted;
+>  	u32 devid; /* only valid when iommufd is valid */
+> -	spinlock_t kvm_ref_lock; /* protect kvm field */
+> -	struct kvm *kvm;
+> +	struct vfio_kvm_reference kvm_ref;
+>  	struct iommufd_ctx *iommufd; /* protected by struct vfio_device_set::lock */
+>  };
+>  
+> @@ -88,11 +93,10 @@ struct vfio_group {
+>  #endif
+>  	enum vfio_group_type		type;
+>  	struct mutex			group_lock;
+> -	struct kvm			*kvm;
+> +	struct vfio_kvm_reference	kvm_ref;
+>  	struct file			*opened_file;
+>  	struct blocking_notifier_head	notifier;
+>  	struct iommufd_ctx		*iommufd;
+> -	spinlock_t			kvm_ref_lock;
+>  	unsigned int			cdev_device_open_cnt;
+>  };
+>  
+> @@ -108,7 +112,6 @@ void vfio_device_group_unuse_iommu(struct vfio_device *device);
+>  void vfio_df_group_close(struct vfio_device_file *df);
+>  struct vfio_group *vfio_group_from_file(struct file *file);
+>  bool vfio_group_enforced_coherent(struct vfio_group *group);
+> -void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm);
+>  bool vfio_device_has_container(struct vfio_device *device);
+>  int __init vfio_group_init(void);
+>  void vfio_group_cleanup(void);
+> @@ -171,10 +174,6 @@ static inline bool vfio_group_enforced_coherent(struct vfio_group *group)
+>  	return true;
+>  }
+>  
+> -static inline void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm)
+> -{
+> -}
+> -
+>  static inline bool vfio_device_has_container(struct vfio_device *device)
+>  {
+>  	return false;
+> @@ -435,11 +434,12 @@ static inline void vfio_virqfd_exit(void)
+>  #endif
+>  
+>  #if IS_ENABLED(CONFIG_KVM)
+> -void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm);
+> +void vfio_device_get_kvm_safe(struct vfio_device *device,
+> +			      struct vfio_kvm_reference *ref);
+>  void vfio_device_put_kvm(struct vfio_device *device);
 >  #else
+>  static inline void vfio_device_get_kvm_safe(struct vfio_device *device,
+> -					    struct kvm *kvm)
+> +					    struct vfio_kvm_reference *ref)
+>  {
+>  }
+>  
+> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+> index 124cc88966a7..e77e8c6aae2f 100644
+> --- a/drivers/vfio/vfio_main.c
+> +++ b/drivers/vfio/vfio_main.c
+> @@ -397,7 +397,7 @@ vfio_allocate_device_file(struct vfio_device *device)
+>  		return ERR_PTR(-ENOMEM);
+>  
+>  	df->device = device;
+> -	spin_lock_init(&df->kvm_ref_lock);
+> +	spin_lock_init(&df->kvm_ref.lock);
+>  
+>  	return df;
+>  }
+> @@ -1303,7 +1303,8 @@ bool vfio_file_enforced_coherent(struct file *file)
+>  EXPORT_SYMBOL_GPL(vfio_file_enforced_coherent);
+>  
+>  #if IS_ENABLED(CONFIG_KVM)
+> -void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm)
+> +void vfio_device_get_kvm_safe(struct vfio_device *device,
+> +			      struct vfio_kvm_reference *ref)
+>  {
+>  	void (*pfn)(struct kvm *kvm);
+>  	bool (*fn)(struct kvm *kvm);
+> @@ -1311,28 +1312,33 @@ void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm)
+>  
+>  	lockdep_assert_held(&device->dev_set->lock);
+>  
+> -	if (!kvm)
+> -		return;
+> +	spin_lock(&ref->lock);
+> +
+> +	if (!ref->kvm)
+> +		goto out;
+>  
+>  	pfn = symbol_get(kvm_put_kvm);
+>  	if (WARN_ON(!pfn))
+> -		return;
+> +		goto out;
+>  
+>  	fn = symbol_get(kvm_get_kvm_safe);
+>  	if (WARN_ON(!fn)) {
+>  		symbol_put(kvm_put_kvm);
+> -		return;
+> +		goto out;
+>  	}
+>  
+> -	ret = fn(kvm);
+> +	ret = fn(ref->kvm);
+>  	symbol_put(kvm_get_kvm_safe);
+>  	if (!ret) {
+>  		symbol_put(kvm_put_kvm);
+> -		return;
+> +		goto out;
+>  	}
+>  
+>  	device->put_kvm = pfn;
+> -	device->kvm = kvm;
+> +	device->kvm = ref->kvm;
+> +
+> +out:
+> +	spin_unlock(&ref->lock);
+>  }
+>  
+>  void vfio_device_put_kvm(struct vfio_device *device)
+> @@ -1353,6 +1359,21 @@ void vfio_device_put_kvm(struct vfio_device *device)
+>  	device->kvm = NULL;
+>  }
+>  
+> +static void vfio_device_set_kvm(struct vfio_kvm_reference *ref,
+> +				struct kvm *kvm)
+> +{
+> +	spin_lock(&ref->lock);
+> +	ref->kvm = kvm;
+> +	spin_unlock(&ref->lock);
+> +}
+> +
+> +static void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm)
+> +{
+> +#if IS_ENABLED(CONFIG_VFIO_GROUP)
+> +	vfio_device_set_kvm(&group->kvm_ref, kvm);
+> +#endif
+> +}
+> +
+>  static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm)
+>  {
+>  	struct vfio_device_file *df = file->private_data;
+> @@ -1362,9 +1383,7 @@ static void vfio_device_file_set_kvm(struct file *file, struct kvm *kvm)
+>  	 * be propagated to vfio_device::kvm when the file is bound to
+>  	 * iommufd successfully in the vfio device cdev path.
+>  	 */
+> -	spin_lock(&df->kvm_ref_lock);
+> -	df->kvm = kvm;
+> -	spin_unlock(&df->kvm_ref_lock);
+> +	vfio_device_set_kvm(&df->kvm_ref, kvm);
+>  }
+>  
+>  /**
 
