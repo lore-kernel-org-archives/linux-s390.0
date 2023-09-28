@@ -2,221 +2,193 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 157CEE732D0
-	for <linux-s390@archiver.kernel.org>; Thu, 28 Sep 2023 12:02:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BFBD2E732D0
+	for <linux-s390@archiver.kernel.org>; Thu, 28 Sep 2023 13:56:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232265AbjI1MCN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 28 Sep 2023 08:02:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39860 "EHLO
+        id S232201AbjI1N4M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 28 Sep 2023 09:56:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229980AbjI1MCJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Sep 2023 08:02:09 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2071A11F;
-        Thu, 28 Sep 2023 05:02:06 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DA9FC433C8;
-        Thu, 28 Sep 2023 12:01:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1695902525;
-        bh=1OUz3HfWq12NDsf5pt/6tI4U8Mw0C+kMAWU6iE/wPW8=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=X75jpHewuenH5i4yKP6hTRRG96bBnvYSW9ppyaPCvnjRr7Vm9FFZm7UX9cHhEdgJN
-         9sWsiJl4JoQqsZw/GKoi7gqY0vw1WSuYAKrfeyF1owUUDgi337zCsV6xBykTFrjqQ4
-         1IMm02SWv3ExmYV6PPhf6pdloK7xjV68MtysVko9J4sCrAu5RV7rZ7A69VK3LrHZj/
-         A70QTwuFIQFa4pBSyL7/hVskPkmrikqba+e0r1Z/ds7+Y2X+m8S6nvykGKta//EbMF
-         i8R56KOYB+jvupadzk05Se+6sdUCAkxdoK6c3HGUXdwYBTc4QSGFZzFBPryJ+pbGMH
-         lSy4ugTII5Mvw==
-Message-ID: <f88106b26a2b647a1541d049999d5546d2ee3e51.camel@kernel.org>
-Subject: Re: [PATCH 87/87] fs: move i_blocks up a few places in struct inode
-From:   Jeff Layton <jlayton@kernel.org>
-To:     Amir Goldstein <amir73il@gmail.com>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <brauner@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        David Sterba <dsterba@suse.cz>, Theodore Ts'o <tytso@mit.edu>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Kees Cook <keescook@chromium.org>, Jeremy Kerr <jk@ozlabs.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arve =?ISO-8859-1?Q?Hj=F8nnev=E5g?= <arve@android.com>,
-        Todd Kjos <tkjos@android.com>,
-        Martijn Coenen <maco@android.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Carlos Llamas <cmllamas@google.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Mattia Dongili <malattia@linux.it>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
+        with ESMTP id S231524AbjI1N4L (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Sep 2023 09:56:11 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD42D19C;
+        Thu, 28 Sep 2023 06:56:09 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38SDdwE9011105;
+        Thu, 28 Sep 2023 13:55:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : date : subject :
+ content-type : message-id : to : cc : content-transfer-encoding :
+ mime-version; s=pp1; bh=7YWFzEl6wImcRaco2nBjK1nY0Gsj359awacK8TSbAyA=;
+ b=e6E4J1FpGW/MttKb29T1JSpGhF2ggZ9gQSDNloR+QlaIYWRNLkCq1Mq8rX1WVQ5qv5uy
+ Ea3P0hXSTi/p2nRMrleT3un9rTne0tYHRvIj3ZGEboOy+BQDc9qE7mRlDiFMqtM7TpJW
+ P1W7gma2L1YVXGF6nn9J7zgEy8dTAruHMgv9gIt/RPMUnx37DFGELF+gcR8axDh1Jimz
+ UBQBTq/MRnXI/e2aBwk5pRTwX+l/Jbbu7VIRJdH14WGHSGeAnnlJcW2W+p+2W9ZmrOp9
+ /OzMvUKJ25lNrj5CNV5g6q2B33OBTiVklpnETCJKy68Y21RYtihT4bXY9O57s2AEP0eg sw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3td7p0dyjr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 28 Sep 2023 13:55:59 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38SDk8IP029613;
+        Thu, 28 Sep 2023 13:55:58 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3td7p0dyhr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 28 Sep 2023 13:55:58 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38SCB6xK030392;
+        Thu, 28 Sep 2023 13:55:57 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tad224ada-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 28 Sep 2023 13:55:57 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38SDtsuJ23331528
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 28 Sep 2023 13:55:54 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AC9BE20043;
+        Thu, 28 Sep 2023 13:55:54 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 519AA20040;
+        Thu, 28 Sep 2023 13:55:54 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 28 Sep 2023 13:55:54 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+Date:   Thu, 28 Sep 2023 15:55:47 +0200
+Subject: [PATCH net] net/mlx5: fix calling mlx5_cmd_init() before DMA mask
+ is set
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20230928-mlx5_init_fix-v1-1-79749d45ce60@linux.ibm.com>
+X-B4-Tracking: v=1; b=H4sIAOKFFWUC/x2MWwqAIBAArxL7nVCava4SEWZbLZSFRgji3ZM+Z
+ 2AmgENL6KDPAlh8ydFlEpR5BnpXZkNGS2LgBRdFx1t2Hl5OZOiZVvJMV7WcpV6U4A2k5raY9P8
+ bwOADY4wfaNspNGQAAAA=
+To:     Saeed Mahameed <saeedm@nvidia.com>,
         Leon Romanovsky <leon@kernel.org>,
-        Brad Warrum <bwarrum@linux.ibm.com>,
-        Ritu Agarwal <rituagar@linux.ibm.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Ilpo =?ISO-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Mark Gross <markgross@kernel.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Eric Van Hensbergen <ericvh@kernel.org>,
-        Latchesar Ionkov <lucho@ionkov.net>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Christian Schoenebeck <linux_oss@crudebyte.com>,
-        David Sterba <dsterba@suse.com>,
-        David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        Ian Kent <raven@themaw.net>,
-        Luis de Bethencourt <luisbg@kernel.org>,
-        Salah Triki <salah.triki@gmail.com>,
-        "Tigran A. Aivazian" <aivazian.tigran@gmail.com>,
-        Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>,
-        Xiubo Li <xiubli@redhat.com>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Jan Harkes <jaharkes@cs.cmu.edu>, coda@cs.cmu.edu,
-        Joel Becker <jlbec@evilplan.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Nicolas Pitre <nico@fluxnic.net>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>, Gao Xiang <xiang@kernel.org>,
-        Chao Yu <chao@kernel.org>, Yue Hu <huyue2@coolpad.com>,
-        Jeffle Xu <jefflexu@linux.alibaba.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Sungjong Seo <sj1557.seo@samsung.com>,
-        Jan Kara <jack@suse.com>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Christoph Hellwig <hch@infradead.org>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Muchun Song <muchun.song@linux.dev>, Jan Kara <jack@suse.cz>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Dave Kleikamp <shaggy@kernel.org>, Tejun Heo <tj@kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Neil Brown <neilb@suse.de>,
-        Olga Kornievskaia <kolga@netapp.com>,
-        Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Bob Copeland <me@bobcopeland.com>,
-        Mike Marshall <hubcap@omnibond.com>,
-        Martin Brandenburg <martin@omnibond.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Iurii Zaikin <yzaikin@google.com>,
-        Tony Luck <tony.luck@intel.com>,
-        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        Anders Larsen <al@alarsen.net>,
-        Steve French <sfrench@samba.org>,
-        Paulo Alcantara <pc@manguebit.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Shyam Prasad N <sprasad@microsoft.com>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Phillip Lougher <phillip@squashfs.org.uk>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Evgeniy Dushistov <dushistov@mail.ru>,
-        Chandan Babu R <chandan.babu@oracle.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Damien Le Moal <dlemoal@kernel.org>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
-        Johannes Thumshirn <jth@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Song Liu <song@kernel.org>,
-        Yonghong Song <yonghong.song@linux.dev>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Robin Murphy <robin.murphy@arm.com>,
         "David S. Miller" <davem@davemloft.net>,
         Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        John Johansen <john.johansen@canonical.com>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-usb@vger.kernel.org, v9fs@lists.linux.dev,
-        linux-afs@lists.infradead.org, autofs@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, ceph-devel@vger.kernel.org,
-        codalist@coda.cs.cmu.edu, linux-efi@vger.kernel.org,
-        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net, gfs2@lists.linux.dev,
-        linux-um@lists.infradead.org, linux-mtd@lists.infradead.org,
-        jfs-discussion@lists.sourceforge.net, linux-nfs@vger.kernel.org,
-        linux-nilfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
-        ntfs3@lists.linux.dev, ocfs2-devel@lists.linux.dev,
-        linux-karma-devel@lists.sourceforge.net, devel@lists.orangefs.org,
-        linux-unionfs@vger.kernel.org, linux-hardening@vger.kernel.org,
-        reiserfs-devel@vger.kernel.org, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org,
-        linux-trace-kernel@vger.kernel.org, linux-xfs@vger.kernel.org,
-        bpf@vger.kernel.org, netdev@vger.kernel.org,
-        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Date:   Thu, 28 Sep 2023 08:01:50 -0400
-In-Reply-To: <CAOQ4uxjSrgGr+6UOs4ADGYCderpQ7hAaPjNmB1DExAPLQQsHSg@mail.gmail.com>
-References: <20230928110554.34758-1-jlayton@kernel.org>
-         <20230928110554.34758-3-jlayton@kernel.org>
-         <CAOQ4uxjSrgGr+6UOs4ADGYCderpQ7hAaPjNmB1DExAPLQQsHSg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+        Paolo Abeni <pabeni@redhat.com>, Shay Drory <shayd@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Niklas Schnelle <schnelle@linux.ibm.com>
+X-Mailer: b4 0.12.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3327;
+ i=schnelle@linux.ibm.com; h=from:subject:message-id;
+ bh=NA7Oh67Tj0uc/EsbJ3FQ2S/ba9LUghLw/dRgo0jeWNE=;
+ b=owGbwMvMwCH2Wz534YHOJ2GMp9WSGFJFWx/Pza6bdlMq2PHDXJEflSIWKXwWCRc23EtJmsiuH
+ Kj799XrjlIWBjEOBlkxRZZFXc5+6wqmmO4J6u+AmcPKBDKEgYtTACbieZ2R4VxtissJ/7V8/zaL
+ MMxOVj8nq3x1S32d75En73+nXg/LVmL4Z/WX96/hpttTTP4qH+V/cv6KsfvSAKE4vaLpysxxOzO
+ NeQA=
+X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
+ fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: BXkdPTVzkiYOcaO5cXp72ZMrpllRU6ip
+X-Proofpoint-ORIG-GUID: leOd-UmwHl-uRqBXxwxdgs7m0aK8DaEw
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-09-28_13,2023-09-28_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
+ mlxlogscore=999 bulkscore=0 phishscore=0 impostorscore=0
+ priorityscore=1501 suspectscore=0 adultscore=0 clxscore=1011
+ malwarescore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2309180000 definitions=main-2309280117
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 2023-09-28 at 14:35 +0300, Amir Goldstein wrote:
-> On Thu, Sep 28, 2023 at 2:06=E2=80=AFPM Jeff Layton <jlayton@kernel.org> =
-wrote:
-> >=20
-> > The recent change to use discrete integers instead of struct timespec64
-> > in struct inode shaved 8 bytes off of it, but it also moves the i_lock
-> > into the previous cacheline, away from the fields that it protects.
-> >=20
-> > Move i_blocks up above the i_lock, which moves the new 4 byte hole to
-> > just after the timestamps, without changing the size of the structure.
-> >=20
->=20
-> Instead of creating an implicit hole, can you please move i_generation
-> to fill the 4 bytes hole.
->=20
-> It makes sense in the same cache line with i_ino and I could
-> use the vacant 4 bytes hole above i_fsnotify_mask to expand the
-> mask to 64bit (the 32bit event mask space is running out).
->=20
-> Thanks,
-> Amir.
->=20
+Since commit 06cd555f73ca ("net/mlx5: split mlx5_cmd_init() to probe and
+reload routines") mlx5_cmd_init() is called in mlx5_mdev_init() which is
+called in probe_one() before mlx5_pci_init(). This is a problem because
+mlx5_pci_init() is where the DMA and coherent mask is set but
+mlx5_cmd_init() already does a dma_alloc_coherent(). Thus a DMA
+allocation is done during probe before the correct mask is set. This
+causes probe to fail initialization of the cmdif SW structs on s390x
+after that is converted to the common dma-iommu code. This is because on
+s390x DMA addresses below 4 GiB are reserved on current machines and
+unlike the old s390x specific DMA API implementation common code
+enforces DMA masks. Fix this by switching the order of the
+mlx5_mdev_init() and mlx5_pci_init() in probe_one().
 
-Sounds like a plan. Resulting struct inode size is the same (616 bytes
-with my kdevops kconfig). BTW: all of these changes are in my "amtime"
-branch if anyone wants to pull them down.
---
-Jeff Layton <jlayton@kernel.org>
+Link: https://lore.kernel.org/linux-iommu/cfc9e9128ed5571d2e36421e347301057662a09e.camel@linux.ibm.com/
+Fixes: 06cd555f73ca ("net/mlx5: split mlx5_cmd_init() to probe and reload routines")
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+Note: I ran into this while testing the linked series for converting
+s390x to use dma-iommu. The existing s390x specific DMA API
+implementation doesn't respect DMA masks and is thus not affected
+despite of course also only supporting DMA addresses above 4 GiB.
+That said ConnectX VFs are the primary users of native PCI on s390x and
+we'd really like to get the DMA API conversion into v6.7 so this has
+high priority for us.
+---
+ drivers/net/ethernet/mellanox/mlx5/core/main.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+index 15561965d2af..06744dedd928 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+@@ -1908,10 +1908,6 @@ static int probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		goto adev_init_err;
+ 	}
+ 
+-	err = mlx5_mdev_init(dev, prof_sel);
+-	if (err)
+-		goto mdev_init_err;
+-
+ 	err = mlx5_pci_init(dev, pdev, id);
+ 	if (err) {
+ 		mlx5_core_err(dev, "mlx5_pci_init failed with error code %d\n",
+@@ -1919,6 +1915,10 @@ static int probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		goto pci_init_err;
+ 	}
+ 
++	err = mlx5_mdev_init(dev, prof_sel);
++	if (err)
++		goto mdev_init_err;
++
+ 	err = mlx5_init_one(dev);
+ 	if (err) {
+ 		mlx5_core_err(dev, "mlx5_init_one failed with error code %d\n",
+@@ -1939,10 +1939,10 @@ static int probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	return 0;
+ 
+ err_init_one:
+-	mlx5_pci_close(dev);
+-pci_init_err:
+ 	mlx5_mdev_uninit(dev);
+ mdev_init_err:
++	mlx5_pci_close(dev);
++pci_init_err:
+ 	mlx5_adev_idx_free(dev->priv.adev_idx);
+ adev_init_err:
+ 	mlx5_devlink_free(devlink);
+
+---
+base-commit: 6465e260f48790807eef06b583b38ca9789b6072
+change-id: 20230928-mlx5_init_fix-c465b5cda327
+
+Best regards,
+-- 
+Niklas Schnelle
+Linux on Z Development
+
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Gregor Pillen
+Geschäftsführung: David Faller
+Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
+IBM Data Privacy Statement - https://www.ibm.com/privacy 
+
