@@ -2,196 +2,275 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 267D8E728C3
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Sep 2023 15:57:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15826E728CA
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Sep 2023 16:22:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233737AbjI2P5c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 29 Sep 2023 11:57:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40948 "EHLO
+        id S233147AbjI2QW7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 29 Sep 2023 12:22:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233714AbjI2P5a (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Sep 2023 11:57:30 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82C401B1;
-        Fri, 29 Sep 2023 08:57:28 -0700 (PDT)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38TFqlFD005235;
-        Fri, 29 Sep 2023 15:57:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=oFacZOwOoY+LYBCFwIGVQ2DczoB89O2NEgGXDXHXHEw=;
- b=jaLf//oVIUj3oJJQtjCctc2T1FG/KCU0qQRy5Lj7uBK+Hul1yWeZ9ZWot5MNyitkdUVw
- f9aycGyqx1HJlT5vea7KAcZaY7bo7YhXfYzA3UnW2dD3uPZ6/6Zwop88LlRnlubteun7
- FyWrITIlSNE4Coat5j6da5NTbiISu/dP5NxZug2wE7e/oGeRrhFvGGaFzhefvYTn7lQT
- Gt9TK3g5bkaGnnUvaHzrbD/uuH6XodB4/QJa344yqRznfJbsYihxh+bMM4FOqjbfLhqa
- kLJxjzFlTryLJta25b7dquNIdaeReMhWMz6IvXrbfrf12RU+Mgw64Jsky/6ACCZ0QHJs 7Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3te1kxr2q5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 29 Sep 2023 15:57:27 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38TFuB3w023474;
-        Fri, 29 Sep 2023 15:57:27 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3te1kxr2fq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 29 Sep 2023 15:57:27 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38TFBfdw008130;
-        Fri, 29 Sep 2023 15:57:11 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3taar05ym9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 29 Sep 2023 15:57:10 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38TFv6D964356812
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 29 Sep 2023 15:57:06 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B231420049;
-        Fri, 29 Sep 2023 15:57:06 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 96F7A2004D;
-        Fri, 29 Sep 2023 15:57:06 +0000 (GMT)
-Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 29 Sep 2023 15:57:06 +0000 (GMT)
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     pbonzini@redhat.com
-Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, borntraeger@de.ibm.com,
-        linux-s390@vger.kernel.org
-Subject: [GIT PULL 1/1] KVM: s390: fix gisa destroy operation might lead to cpu stalls
-Date:   Fri, 29 Sep 2023 17:57:06 +0200
-Message-ID: <20230929155706.81033-2-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20230929155706.81033-1-imbrenda@linux.ibm.com>
-References: <20230929155706.81033-1-imbrenda@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: T8PMJ5F0jrCAxncZ31aW-v4a84Lml5Qd
-X-Proofpoint-GUID: nQNi4ttSNWP0rHR5eytZT8SvYKP21Owa
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S232883AbjI2QW6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Sep 2023 12:22:58 -0400
+Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14ED0199
+        for <linux-s390@vger.kernel.org>; Fri, 29 Sep 2023 09:22:55 -0700 (PDT)
+Received: by mail-lf1-x12d.google.com with SMTP id 2adb3069b0e04-50337b43ee6so23193406e87.3
+        for <linux-s390@vger.kernel.org>; Fri, 29 Sep 2023 09:22:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1696004573; x=1696609373; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=1jnYTA/sVS+Z8Orhdi2AQdhdCY0rlD66I6Sde9ZBPos=;
+        b=YhgQsmeOGeWDZOaQqQB6/HR5utY/gZgwSxnttZ576OkVnJINGzBE9nKjlzKhHLKGKL
+         hNNLBJKjgyLDm6IYuJFPhLiHxGunu4YN7ZcnzyNTXsUqzwhNDhiZhl+vDF7TrSAJN7yI
+         M2EjE5ta22LME+6oBhoY+48k62GkwNVJq0guI=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1696004573; x=1696609373;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=1jnYTA/sVS+Z8Orhdi2AQdhdCY0rlD66I6Sde9ZBPos=;
+        b=TXl03ULlIefJcdgEC4lErXcAzWMTV3EX07nMolCkI8xQ8jO6gXvpI7EkPERK/k/rs4
+         4NYcOMPWNA23itE/6ZGM58Fmq3ZQoMOe5LTAhu4KNjOQLPufdSItBZSFQm4nkwN5DhGz
+         PJ8iSqST1BvFtyhlLs+7X1N8BiAwn1kdsEQWqPjA/oQW4WB8dyB/D5LUoInU8SgXvm/9
+         NS+n6fZDpZX+/bx96Xoyk/Q1pZnmRCZQVeqYprmAv1v+zSQWe+1eN8IhsQzcep9JdTrR
+         Ex1OxS+aOB3kVN+RDMxQBz0qH/R5qmR8HiPbkWNpPs93EFhVVqHZdSE5RLIumP7bmDct
+         oWqg==
+X-Gm-Message-State: AOJu0Yz1ftB+Ea9sgznMoJv7wGwGkpIXCXqjbLCeH5Re3TUURCi/9dFH
+        StOD4seImXOr2YFKPQXQLf9hBHMgs7/zV2sgJxl+z7eP
+X-Google-Smtp-Source: AGHT+IFAsAXEhydI9UFqgmTurCpk+oyE/eyc1BwVdIEsMq6kXmSrnwMpGH1xZpVbqrsq1ZTOTJKP6w==
+X-Received: by 2002:ac2:4d8e:0:b0:503:3890:ca3a with SMTP id g14-20020ac24d8e000000b005033890ca3amr3857310lfe.66.1696004573343;
+        Fri, 29 Sep 2023 09:22:53 -0700 (PDT)
+Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com. [209.85.167.45])
+        by smtp.gmail.com with ESMTPSA id q9-20020a19a409000000b005008757cd6csm3562945lfc.241.2023.09.29.09.22.52
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 29 Sep 2023 09:22:53 -0700 (PDT)
+Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-5041d6d8b10so23165351e87.2
+        for <linux-s390@vger.kernel.org>; Fri, 29 Sep 2023 09:22:52 -0700 (PDT)
+X-Received: by 2002:a17:907:2722:b0:9a1:cdf1:ba3 with SMTP id
+ d2-20020a170907272200b009a1cdf10ba3mr4628345ejl.27.1696004552316; Fri, 29 Sep
+ 2023 09:22:32 -0700 (PDT)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-09-29_13,2023-09-28_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- priorityscore=1501 clxscore=1015 mlxscore=0 malwarescore=0 spamscore=0
- mlxlogscore=990 suspectscore=0 adultscore=0 bulkscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2309180000
- definitions=main-2309290134
+References: <20230928110554.34758-1-jlayton@kernel.org> <20230928110554.34758-2-jlayton@kernel.org>
+ <6020d6e7-b187-4abb-bf38-dc09d8bd0f6d@app.fastmail.com> <af047e4a1c6947c59d4a13d4ae221c784a5386b4.camel@kernel.org>
+ <20230928171943.GK11439@frogsfrogsfrogs> <6a6f37d16b55a3003af3f3dbb7778a367f68cd8d.camel@kernel.org>
+ <20230928212656.GC189345@mit.edu> <CAHk-=wjTynK9BdGbi+8eShU77nkPvipFwRxEd1TSBrw2+LiuDg@mail.gmail.com>
+ <CAOQ4uxg5ctY9yCjLOjN1nETAcEuNb2UERnYuDv7PoErdxX=WUw@mail.gmail.com>
+In-Reply-To: <CAOQ4uxg5ctY9yCjLOjN1nETAcEuNb2UERnYuDv7PoErdxX=WUw@mail.gmail.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri, 29 Sep 2023 09:22:14 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wjTZ=6QkE_eksL+kzywj2cA_kiY-ydZKoz-+kBQwtNWwQ@mail.gmail.com>
+Message-ID: <CAHk-=wjTZ=6QkE_eksL+kzywj2cA_kiY-ydZKoz-+kBQwtNWwQ@mail.gmail.com>
+Subject: Re: [PATCH 86/87] fs: switch timespec64 fields in inode to discrete integers
+To:     Amir Goldstein <amir73il@gmail.com>
+Cc:     "Theodore Ts'o" <tytso@mit.edu>, Jeff Layton <jlayton@kernel.org>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christian Brauner <brauner@kernel.org>,
+        David Sterba <dsterba@suse.cz>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Kees Cook <keescook@chromium.org>, Jeremy Kerr <jk@ozlabs.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>,
+        Todd Kjos <tkjos@android.com>,
+        Martijn Coenen <maco@android.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Carlos Llamas <cmllamas@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Mattia Dongili <malattia@linux.it>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Leon Romanovsky <leon@kernel.org>,
+        Brad Warrum <bwarrum@linux.ibm.com>,
+        Ritu Agarwal <rituagar@linux.ibm.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Mark Gross <markgross@kernel.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Eric Van Hensbergen <ericvh@kernel.org>,
+        Latchesar Ionkov <lucho@ionkov.net>,
+        Dominique Martinet <asmadeus@codewreck.org>,
+        Christian Schoenebeck <linux_oss@crudebyte.com>,
+        David Sterba <dsterba@suse.com>,
+        David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        Ian Kent <raven@themaw.net>,
+        Luis de Bethencourt <luisbg@kernel.org>,
+        Salah Triki <salah.triki@gmail.com>,
+        "Tigran A. Aivazian" <aivazian.tigran@gmail.com>,
+        Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>,
+        Xiubo Li <xiubli@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Jan Harkes <jaharkes@cs.cmu.edu>, coda@cs.cmu.edu,
+        Joel Becker <jlbec@evilplan.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        "Rafael J . Wysocki" <rafael@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>, Gao Xiang <xiang@kernel.org>,
+        Chao Yu <chao@kernel.org>,
+        Yue Hu <huyue2@gl0jj8bn.sched.sma.tdnsstic1.cn>,
+        Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        Jan Kara <jack@suse.com>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Christoph Hellwig <hch@infradead.org>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Muchun Song <muchun.song@linux.dev>, Jan Kara <jack@suse.cz>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Dave Kleikamp <shaggy@kernel.org>, Tejun Heo <tj@kernel.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Neil Brown <neilb@suse.de>,
+        Olga Kornievskaia <kolga@netapp.com>,
+        Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Bob Copeland <me@bobcopeland.com>,
+        Mike Marshall <hubcap@omnibond.com>,
+        Martin Brandenburg <martin@omnibond.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Iurii Zaikin <yzaikin@google.com>,
+        Tony Luck <tony.luck@intel.com>,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Anders Larsen <al@alarsen.net>,
+        Steve French <sfrench@samba.org>,
+        Paulo Alcantara <pc@manguebit.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Shyam Prasad N <sprasad@microsoft.com>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Phillip Lougher <phillip@squashfs.org.uk>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Evgeniy Dushistov <dushistov@mail.ru>,
+        Chandan Babu R <chandan.babu@oracle.com>,
+        Damien Le Moal <dlemoal@kernel.org>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        Johannes Thumshirn <jth@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        Song Liu <song@kernel.org>,
+        Yonghong Song <yonghong.song@linux.dev>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        John Johansen <john.johansen@canonical.com>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-serial@vger.kernel.org,
+        linux-usb@vger.kernel.org, v9fs@lists.linux.dev,
+        linux-afs@lists.infradead.org, autofs@vger.kernel.org,
+        linux-btrfs@vger.kernel.org, ceph-devel@vger.kernel.org,
+        codalist@telemann.coda.cs.cmu.edu, linux-efi@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, gfs2@lists.linux.dev,
+        linux-um@lists.infradead.org, linux-mtd@lists.infradead.org,
+        jfs-discussion@lists.sourceforge.net, linux-nfs@vger.kernel.org,
+        linux-nilfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
+        ntfs3@lists.linux.dev, ocfs2-devel@lists.linux.dev,
+        linux-karma-devel@lists.sourceforge.net, devel@lists.orangefs.org,
+        linux-unionfs@vger.kernel.org, linux-hardening@vger.kernel.org,
+        reiserfs-devel@vger.kernel.org, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org,
+        linux-trace-kernel@vger.kernel.org, linux-xfs@vger.kernel.org,
+        bpf@vger.kernel.org, Netdev <netdev@vger.kernel.org>,
+        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Michael Mueller <mimu@linux.ibm.com>
+On Thu, 28 Sept 2023 at 20:50, Amir Goldstein <amir73il@gmail.com> wrote:
+>
+> OTOH, it is perfectly fine if the vfs wants to stop providing sub 100ns
+> services to filesystems. It's just going to be the fs problem and the
+> preserved pre-historic/fine-grained time on existing files would only
+> need to be provided in getattr(). It does not need to be in __i_mtime.
 
-A GISA cannot be destroyed as long it is linked in the GIB alert list
-as this would break the alert list. Just waiting for its removal from
-the list triggered by another vm is not sufficient as it might be the
-only vm. The below shown cpu stall situation might occur when GIB alerts
-are delayed and is fixed by calling process_gib_alert_list() instead of
-waiting.
+Hmm. That sounds technically sane, but for one thing: if the aim is to try to do
 
-At this time the vcpus of the vm are already destroyed and thus
-no vcpu can be kicked to enter the SIE again if for some reason an
-interrupt is pending for that vm.
+ (a) atomic timestamp access
 
-Additionally the IAM restore value is set to 0x00. That would be a bug
-introduced by incomplete device de-registration, i.e. missing
-kvm_s390_gisc_unregister() call.
+ (b) shrink the inode
 
-Setting this value and the IAM in the GISA to 0x00 guarantees that late
-interrupts don't bring the GISA back into the alert list.
+then having the filesystem maintain its own timestamp for fine-grained
+data will break both of those goals.
 
-CPU stall caused by kvm_s390_gisa_destroy():
+Yes, we'd make 'struct inode' smaller if we pack the times into one
+64-bit entity, but if btrfs responds by adding mtime fields to "struct
+btrfs_inode", we lost the size advantage and only made things worse.
 
- [ 4915.311372] rcu: INFO: rcu_sched detected expedited stalls on CPUs/tasks: { 14-.... } 24533 jiffies s: 5269 root: 0x1/.
- [ 4915.311390] rcu: blocking rcu_node structures (internal RCU debug): l=1:0-15:0x4000/.
- [ 4915.311394] Task dump for CPU 14:
- [ 4915.311395] task:qemu-system-s39 state:R  running task     stack:0     pid:217198 ppid:1      flags:0x00000045
- [ 4915.311399] Call Trace:
- [ 4915.311401]  [<0000038003a33a10>] 0x38003a33a10
- [ 4933.861321] rcu: INFO: rcu_sched self-detected stall on CPU
- [ 4933.861332] rcu: 	14-....: (42008 ticks this GP) idle=53f4/1/0x4000000000000000 softirq=61530/61530 fqs=14031
- [ 4933.861353] rcu: 	(t=42008 jiffies g=238109 q=100360 ncpus=18)
- [ 4933.861357] CPU: 14 PID: 217198 Comm: qemu-system-s39 Not tainted 6.5.0-20230816.rc6.git26.a9d17c5d8813.300.fc38.s390x #1
- [ 4933.861360] Hardware name: IBM 8561 T01 703 (LPAR)
- [ 4933.861361] Krnl PSW : 0704e00180000000 000003ff804bfc66 (kvm_s390_gisa_destroy+0x3e/0xe0 [kvm])
- [ 4933.861414]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
- [ 4933.861416] Krnl GPRS: 0000000000000000 00000372000000fc 00000002134f8000 000000000d5f5900
- [ 4933.861419]            00000002f5ea1d18 00000002f5ea1d18 0000000000000000 0000000000000000
- [ 4933.861420]            00000002134fa890 00000002134f8958 000000000d5f5900 00000002134f8000
- [ 4933.861422]            000003ffa06acf98 000003ffa06858b0 0000038003a33c20 0000038003a33bc8
- [ 4933.861430] Krnl Code: 000003ff804bfc58: ec66002b007e	cij	%r6,0,6,000003ff804bfcae
-                           000003ff804bfc5e: b904003a		lgr	%r3,%r10
-                          #000003ff804bfc62: a7f40005		brc	15,000003ff804bfc6c
-                          >000003ff804bfc66: e330b7300204	lg	%r3,10032(%r11)
-                           000003ff804bfc6c: 58003000		l	%r0,0(%r3)
-                           000003ff804bfc70: ec03fffb6076	crj	%r0,%r3,6,000003ff804bfc66
-                           000003ff804bfc76: e320b7600271	lay	%r2,10080(%r11)
-                           000003ff804bfc7c: c0e5fffea339	brasl	%r14,000003ff804942ee
- [ 4933.861444] Call Trace:
- [ 4933.861445]  [<000003ff804bfc66>] kvm_s390_gisa_destroy+0x3e/0xe0 [kvm]
- [ 4933.861460] ([<00000002623523de>] free_unref_page+0xee/0x148)
- [ 4933.861507]  [<000003ff804aea98>] kvm_arch_destroy_vm+0x50/0x120 [kvm]
- [ 4933.861521]  [<000003ff8049d374>] kvm_destroy_vm+0x174/0x288 [kvm]
- [ 4933.861532]  [<000003ff8049d4fe>] kvm_vm_release+0x36/0x48 [kvm]
- [ 4933.861542]  [<00000002623cd04a>] __fput+0xea/0x2a8
- [ 4933.861547]  [<00000002620d5bf8>] task_work_run+0x88/0xf0
- [ 4933.861551]  [<00000002620b0aa6>] do_exit+0x2c6/0x528
- [ 4933.861556]  [<00000002620b0f00>] do_group_exit+0x40/0xb8
- [ 4933.861557]  [<00000002620b0fa6>] __s390x_sys_exit_group+0x2e/0x30
- [ 4933.861559]  [<0000000262d481f4>] __do_syscall+0x1d4/0x200
- [ 4933.861563]  [<0000000262d59028>] system_call+0x70/0x98
- [ 4933.861565] Last Breaking-Event-Address:
- [ 4933.861566]  [<0000038003a33b60>] 0x38003a33b60
+And if ->getattr() then reads those fields without locking (and we
+definitely don't want locking in that path), then we lost the
+atomicity thing too.
 
-Fixes: 9f30f6216378 ("KVM: s390: add gib_alert_irq_handler()")
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
-Link: https://lore.kernel.org/r/20230901105823.3973928-1-mimu@linux.ibm.com
-Message-ID: <20230901105823.3973928-1-mimu@linux.ibm.com>
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- arch/s390/kvm/interrupt.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+So no. A "but the filesystem can maintain finer granularity" model is
+not acceptable, I think.
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index c1b47d608a2b..efaebba5ee19 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -303,11 +303,6 @@ static inline u8 gisa_get_ipm_or_restore_iam(struct kvm_s390_gisa_interrupt *gi)
- 	return 0;
- }
- 
--static inline int gisa_in_alert_list(struct kvm_s390_gisa *gisa)
--{
--	return READ_ONCE(gisa->next_alert) != (u32)virt_to_phys(gisa);
--}
--
- static inline void gisa_set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
- {
- 	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
-@@ -3216,11 +3211,12 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
- 
- 	if (!gi->origin)
- 		return;
--	if (gi->alert.mask)
--		KVM_EVENT(3, "vm 0x%pK has unexpected iam 0x%02x",
--			  kvm, gi->alert.mask);
--	while (gisa_in_alert_list(gi->origin))
--		cpu_relax();
-+	WARN(gi->alert.mask != 0x00,
-+	     "unexpected non zero alert.mask 0x%02x",
-+	     gi->alert.mask);
-+	gi->alert.mask = 0x00;
-+	if (gisa_set_iam(gi->origin, gi->alert.mask))
-+		process_gib_alert_list();
- 	hrtimer_cancel(&gi->timer);
- 	gi->origin = NULL;
- 	VM_EVENT(kvm, 3, "gisa 0x%pK destroyed", gisa);
--- 
-2.41.0
+If we do require nanoseconds for compatibility, what we could possibly
+do is say "we guarantee nanosecond values for *legacy* dates", and say
+that future dates use 100ns resolution. We'd define "legacy dates" to
+be the traditional 32-bit signed time_t.
 
+So with a 64-bit fstime_t, we'd have the "legacy format":
+
+ - top 32 bits are seconds, bottom 32 bits are ns
+
+which gives us that ns format.
+
+Then, because only 30 bits are needed for nanosecond resolution, we
+use the top two bits of that ns field as flags. '00' means that legacy
+format, and '01' would mean "we're not doing nanosecond resolution,
+we're doing 64ns resolution, and the low 6 bits of the ns field are
+actually bits 32-37 of the seconds field".
+
+That still gives us some extensibility (unless the multi-grain code
+still wants to use the other top bit), and it gives us 40 bits of
+seconds, which is quite a lot.
+
+And all the conversion functions will be simple bit field
+manipulations, so there are no expensive ops here.
+
+Anyway, I agree with the "let's introduce the accessor functions
+first, we can do the 'pack into one word' decisions later".
+
+                Linus
