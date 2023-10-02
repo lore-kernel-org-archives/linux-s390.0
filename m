@@ -2,100 +2,200 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA669E7849A
-	for <linux-s390@archiver.kernel.org>; Mon,  2 Oct 2023 06:59:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBA49E784A5
+	for <linux-s390@archiver.kernel.org>; Mon,  2 Oct 2023 07:57:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235589AbjJBG77 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 2 Oct 2023 02:59:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52400 "EHLO
+        id S235806AbjJBH5k (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 2 Oct 2023 03:57:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235580AbjJBG77 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Oct 2023 02:59:59 -0400
-Received: from mail.8bytes.org (mail.8bytes.org [IPv6:2a01:238:42d9:3f00:e505:6202:4f0c:f051])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C1175A4;
-        Sun,  1 Oct 2023 23:59:55 -0700 (PDT)
-Received: from 8bytes.org (pd9fe9df8.dip0.t-ipconnect.de [217.254.157.248])
+        with ESMTP id S229712AbjJBH5h (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Oct 2023 03:57:37 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E755BC;
+        Mon,  2 Oct 2023 00:57:34 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by mail.8bytes.org (Postfix) with ESMTPSA id ECDA51A2626;
-        Mon,  2 Oct 2023 08:59:53 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=8bytes.org;
-        s=default; t=1696229994;
-        bh=AIFVwF7V2yCwhyWe75DvT7fYSBhwm/fBmqB8nOMomrQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qpnLCwzk2x1keRMkLPeYurvT7r9OO8YOJ6/7Vx/qRYBDxYBtaFczM0bl0X3CwM+Z8
-         JjZ2S2KL1yCjIcyOYKVBFX3TnYJH3DgXndhq33RdOr06+/f4P6g8ed5YusHJpPxKBf
-         /cC8uVfAa/rk6Wr3PPtDNHTnxEpzpMy8C+fcOb8G29mwxCh4jTTbUwvHTKVDKKREHN
-         XKS42S0qW6PWzXZYxLGalC73IDOoglQpj2vweIfb/B9jDLMPy04LKeueQ7Vtaof2m0
-         /U/pjbpVoAN9ULRqOfwjMT62szxrFLqy3anLaW4GIZc388p9f5N34fWI0GM1KG2Gfs
-         vlKBpUHgqfWmA==
-Date:   Mon, 2 Oct 2023 08:59:52 +0200
-From:   Joerg Roedel <joro@8bytes.org>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        by smtp-out2.suse.de (Postfix) with ESMTPS id AB8121F459;
+        Mon,  2 Oct 2023 07:57:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1696233452; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=HRtvvsbDRmaIGA2qlEwuFNnN4SG9to1RwhMyTnDS1Ek=;
+        b=AelUG9FSlQyUcQTA9I9qRJmPzMA6mvk2OLx4Qv2PacqmgU2FkeI54uQfwuwk8GDISDrHf1
+        K6okkr5Yua+jK8r2TTOukY7745vay4e4z1caiTsHAigkH18O5VWdMY9s+0PKMe8/Ta1ITc
+        H4lySULw9TgNQsjwAFd513U/tj8Iifc=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1696233452;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=HRtvvsbDRmaIGA2qlEwuFNnN4SG9to1RwhMyTnDS1Ek=;
+        b=4yX5F6ZD5YaXQ1SgLuHClpbWfxc1xKg7esoSW59wSh/oO7HSeTROmd590v4TgEevJu81R5
+        RAceDQWhH8NjA0AQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 83FA513434;
+        Mon,  2 Oct 2023 07:57:32 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id JLsgIOx3GmUuEgAAMHmgww
+        (envelope-from <jack@suse.cz>); Mon, 02 Oct 2023 07:57:32 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+        id 27D44A07C9; Mon,  2 Oct 2023 09:57:32 +0200 (CEST)
+Date:   Mon, 2 Oct 2023 09:57:32 +0200
+From:   Jan Kara <jack@suse.cz>
+To:     Christian Brauner <brauner@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org,
+        linux-block@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+        Alasdair Kergon <agk@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anna Schumaker <anna@kernel.org>, Chao Yu <chao@kernel.org>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Dave Kleikamp <shaggy@kernel.org>,
+        David Sterba <dsterba@suse.com>, dm-devel@redhat.com,
+        drbd-dev@lists.linbit.com, Gao Xiang <xiang@kernel.org>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        jfs-discussion@lists.sourceforge.net,
+        Joern Engel <joern@lazybastard.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        linux-bcache@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, linux-mm@kvack.org,
+        linux-mtd@lists.infradead.org, linux-nfs@vger.kernel.org,
+        linux-nilfs@vger.kernel.org, linux-nvme@lists.infradead.org,
+        linux-pm@vger.kernel.org, linux-raid@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-xfs@vger.kernel.org,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Minchan Kim <minchan@kernel.org>, ocfs2-devel@oss.oracle.com,
+        reiserfs-devel@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Song Liu <song@kernel.org>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Hector Martin <marcan@marcan.st>,
-        Sven Peter <sven@svenpeter.dev>,
-        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Jonathan Corbet <corbet@lwn.net>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        iommu@lists.linux.dev, asahi@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
-        linux-doc@vger.kernel.org
-Subject: Re: [PATCH v13 0/6] iommu/dma: s390 DMA API conversion and optimized
- IOTLB flushing
-Message-ID: <ZRpqaJEQLRDp5b1L@8bytes.org>
-References: <20230928-dma_iommu-v13-0-9e5fc4dacc36@linux.ibm.com>
+        target-devel@vger.kernel.org, Ted Tso <tytso@mit.edu>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        xen-devel@lists.xenproject.org
+Subject: Re: [PATCH v4 0/29] block: Make blkdev_get_by_*() return handle
+Message-ID: <20231002075732.4c5oslpabrmw3niz@quack3>
+References: <20230818123232.2269-1-jack@suse.cz>
+ <20230927-prahlen-reintreten-93706074e58d@brauner>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230928-dma_iommu-v13-0-9e5fc4dacc36@linux.ibm.com>
+In-Reply-To: <20230927-prahlen-reintreten-93706074e58d@brauner>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Sep 28, 2023 at 04:31:34PM +0200, Niklas Schnelle wrote:
-> Niklas Schnelle (6):
->       iommu: Allow .iotlb_sync_map to fail and handle s390's -ENOMEM return
->       s390/pci: prepare is_passed_through() for dma-iommu
->       s390/pci: Use dma-iommu layer
->       iommu/s390: Disable deferred flush for ISM devices
->       iommu/dma: Allow a single FQ in addition to per-CPU FQs
->       iommu/dma: Use a large flush queue and timeout for shadow_on_flush
+On Wed 27-09-23 18:21:19, Christian Brauner wrote:
+> On Wed, 27 Sep 2023 11:34:07 +0200, Jan Kara wrote:
+> > Create struct bdev_handle that contains all parameters that need to be
+> > passed to blkdev_put() and provide bdev_open_* functions that return
+> > this structure instead of plain bdev pointer. This will eventually allow
+> > us to pass one more argument to blkdev_put() (renamed to bdev_release())
+> > without too much hassle.
+> > 
+> > 
+> > [...]
+> 
+> > to ease review / testing. Christian, can you pull the patches to your tree
+> > to get some exposure in linux-next as well? Thanks!
+> 
+> Yep. So I did it slighly differently. I pulled in the btrfs prereqs and
+> then applied your series on top of it so we get all the Link: tags right.
+> I'm running tests right now. Please double-check.
 
-Applied, thanks Niklas.
+Thanks for picking patches up! I've checked the branch and it looks good to
+me. 
+
+								Honza
+
+> 
+> ---
+> 
+> Applied to the vfs.super branch of the vfs/vfs.git tree.
+> Patches in the vfs.super branch should appear in linux-next soon.
+> 
+> Please report any outstanding bugs that were missed during review in a
+> new review to the original patch series allowing us to drop it.
+> 
+> It's encouraged to provide Acked-bys and Reviewed-bys even though the
+> patch has now been applied. If possible patch trailers will be updated.
+> 
+> Note that commit hashes shown below are subject to change due to rebase,
+> trailer updates or similar. If in doubt, please check the listed branch.
+> 
+> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs.git
+> branch: vfs.super
+> 
+> [01/29] block: Provide bdev_open_* functions
+>        https://git.kernel.org/vfs/vfs/c/b7c828aa0b3c
+> [02/29] block: Use bdev_open_by_dev() in blkdev_open()
+>         https://git.kernel.org/vfs/vfs/c/d4e36f27b45a
+> [03/29] block: Use bdev_open_by_dev() in disk_scan_partitions() and blkdev_bszset()
+>         https://git.kernel.org/vfs/vfs/c/5f9bd6764c7a
+> [04/29] drdb: Convert to use bdev_open_by_path()
+>         https://git.kernel.org/vfs/vfs/c/0220ca8e443d
+> [05/29] pktcdvd: Convert to bdev_open_by_dev()
+>         https://git.kernel.org/vfs/vfs/c/7af10b889789
+> [06/29] rnbd-srv: Convert to use bdev_open_by_path()
+>         https://git.kernel.org/vfs/vfs/c/3d27892a4be7
+> [07/29] xen/blkback: Convert to bdev_open_by_dev()
+>         https://git.kernel.org/vfs/vfs/c/26afb0ed10b3
+> [08/29] zram: Convert to use bdev_open_by_dev()
+>         https://git.kernel.org/vfs/vfs/c/efc8e3f4c6dc
+> [09/29] bcache: Convert to bdev_open_by_path()
+>         https://git.kernel.org/vfs/vfs/c/dc893f51d24a
+> [10/29] dm: Convert to bdev_open_by_dev()
+>         https://git.kernel.org/vfs/vfs/c/80c2267c6d07
+> [11/29] md: Convert to bdev_open_by_dev()
+>         https://git.kernel.org/vfs/vfs/c/15db36126ca6
+> [12/29] mtd: block2mtd: Convert to bdev_open_by_dev/path()
+>         https://git.kernel.org/vfs/vfs/c/4c27234bf3ce
+> [13/29] nvmet: Convert to bdev_open_by_path()
+>         https://git.kernel.org/vfs/vfs/c/70cffddcc300
+> [14/29] s390/dasd: Convert to bdev_open_by_path()
+>         https://git.kernel.org/vfs/vfs/c/5581d03457f8
+> [15/29] scsi: target: Convert to bdev_open_by_path()
+>         https://git.kernel.org/vfs/vfs/c/43de7d844d47
+> [16/29] PM: hibernate: Convert to bdev_open_by_dev()
+>         https://git.kernel.org/vfs/vfs/c/105ea4a2fd18
+> [17/29] PM: hibernate: Drop unused snapshot_test argument
+>         https://git.kernel.org/vfs/vfs/c/b589a66e3688
+> [18/29] mm/swap: Convert to use bdev_open_by_dev()
+>         https://git.kernel.org/vfs/vfs/c/615af8e29233
+> [19/29] fs: Convert to bdev_open_by_dev()
+>         https://git.kernel.org/vfs/vfs/c/5173192bcfe6
+> [20/29] btrfs: Convert to bdev_open_by_path()
+>         https://git.kernel.org/vfs/vfs/c/8cf64782764f
+> [21/29] erofs: Convert to use bdev_open_by_path()
+>         https://git.kernel.org/vfs/vfs/c/4d41880bf249
+> [22/29] ext4: Convert to bdev_open_by_dev()
+>         https://git.kernel.org/vfs/vfs/c/f7507612395e
+> [23/29] f2fs: Convert to bdev_open_by_dev/path()
+>         https://git.kernel.org/vfs/vfs/c/d9ff8e3b6498
+> [24/29] jfs: Convert to bdev_open_by_dev()
+>         https://git.kernel.org/vfs/vfs/c/459dc6376338
+> [25/29] nfs/blocklayout: Convert to use bdev_open_by_dev/path()
+>         https://git.kernel.org/vfs/vfs/c/5b1df9a40929
+> [26/29] ocfs2: Convert to use bdev_open_by_dev()
+>         https://git.kernel.org/vfs/vfs/c/b6b95acbd943
+> [27/29] reiserfs: Convert to bdev_open_by_dev/path()
+>         https://git.kernel.org/vfs/vfs/c/7e3615ff6119
+> [28/29] xfs: Convert to bdev_open_by_path()
+>         https://git.kernel.org/vfs/vfs/c/176ccb99e207
+> [29/29] block: Remove blkdev_get_by_*() functions
+>         https://git.kernel.org/vfs/vfs/c/953863a5a2ff
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
