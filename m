@@ -2,45 +2,25 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C5E5E748E9
-	for <linux-s390@archiver.kernel.org>; Sun,  1 Oct 2023 17:51:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D251CE7849A
+	for <linux-s390@archiver.kernel.org>; Mon,  2 Oct 2023 06:22:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235252AbjJARvK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 1 Oct 2023 13:51:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43242 "EHLO
+        id S229832AbjJBGWG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 2 Oct 2023 02:22:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233932AbjJARvJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 1 Oct 2023 13:51:09 -0400
-X-Greylist: delayed 2374 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 01 Oct 2023 10:51:04 PDT
-Received: from lounge.grep.be (lounge.grep.be [IPv6:2a01:4f8:200:91e8::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04007DA;
-        Sun,  1 Oct 2023 10:51:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=uter.be;
-        s=2021.lounge; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-        Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=N1C8OuXGq/Bdvr1xe7dP3su2WBfI6fQiXd6UfybheFE=; b=bSGFLGPJKNt5kRJKMGm/90sESH
-        DMZEixE+Cund10XKRDJ8kZjhG9SJfku+c0pPyP9a8SvRp7s5laXYIIUs6vCP8ISDb1JRTK7eQZi+u
-        FZhyyCStjYgdW0gxgPf6oVGPJvQQf0xT6sbQj5penqJAgXw88iemrZeqxH0gAlZxTeQ1hvc+G2B7V
-        G2oVofVAaOjElA/771b9qCecBsQNOJjvOodJTs0Q70kSXGyNB302BVVbkm3YdmrDyjxREX2yXzIMn
-        AdRb/K4OjWQELyk7/5Zxmq6ELmicipBUYTkFa3pm26ozLNrh3dB6JVomx3OFbJGbbL7l2tqcVCF30
-        WQnnmWxQ==;
-Received: from [102.39.158.142] (helo=pc220518)
-        by lounge.grep.be with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.96)
-        (envelope-from <w@uter.be>)
-        id 1qmzyK-008WyJ-2V;
-        Sun, 01 Oct 2023 19:11:12 +0200
-Received: from wouter by pc220518 with local (Exim 4.97-RC0)
-        (envelope-from <w@uter.be>)
-        id 1qmzy1-00000001YPq-0d7j;
-        Sun, 01 Oct 2023 19:10:53 +0200
-Date:   Sun, 1 Oct 2023 19:10:53 +0200
-From:   Wouter Verhelst <w@uter.be>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Samuel Holland <samuel.holland@sifive.com>,
+        with ESMTP id S229720AbjJBGWG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Oct 2023 02:22:06 -0400
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAF639B;
+        Sun,  1 Oct 2023 23:22:03 -0700 (PDT)
+Received: by verein.lst.de (Postfix, from userid 2407)
+        id 91BE168D07; Mon,  2 Oct 2023 08:21:59 +0200 (CEST)
+Date:   Mon, 2 Oct 2023 08:21:59 +0200
+From:   Christoph Hellwig <hch@lst.de>
+To:     Wouter Verhelst <w@uter.be>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Samuel Holland <samuel.holland@sifive.com>,
         Al Viro <viro@zeniv.linux.org.uk>,
         Christian Brauner <brauner@kernel.org>,
         Jens Axboe <axboe@kernel.dk>,
@@ -58,73 +38,35 @@ Cc:     Samuel Holland <samuel.holland@sifive.com>,
         Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 Subject: Re: [PATCH 07/17] nbd: call blk_mark_disk_dead in
  nbd_clear_sock_ioctl
-Message-ID: <ZRmoHaSojk6ra5OU@pc220518.home.grep.be>
-References: <20230811100828.1897174-1-hch@lst.de>
- <20230811100828.1897174-8-hch@lst.de>
- <79af9398-167f-440e-a493-390dc4ccbd85@sifive.com>
- <20230925074838.GA28522@lst.de>
+Message-ID: <20231002062159.GB1140@lst.de>
+References: <20230811100828.1897174-1-hch@lst.de> <20230811100828.1897174-8-hch@lst.de> <79af9398-167f-440e-a493-390dc4ccbd85@sifive.com> <20230925074838.GA28522@lst.de> <ZRmoHaSojk6ra5OU@pc220518.home.grep.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230925074838.GA28522@lst.de>
-X-Speed: Gates' Law: Every 18 months, the speed of software halves.
-Organization: none
+In-Reply-To: <ZRmoHaSojk6ra5OU@pc220518.home.grep.be>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Sep 25, 2023 at 09:48:38AM +0200, Christoph Hellwig wrote:
-> On Wed, Sep 20, 2023 at 03:41:11PM -0500, Samuel Holland wrote:
-> > [   14.619101] Buffer I/O error on dev nbd0, logical block 0, async page read
+On Sun, Oct 01, 2023 at 07:10:53PM +0200, Wouter Verhelst wrote:
+> > So what are the semantics of clearing the socket?
 > > 
-> > [   14.630490]  nbd0: unable to read partition table
-> > 
-> > I wonder if disk_force_media_change() is the right thing to call here instead.
+> > The <= 6.5 behavior of invalidating fs caches, but not actually marking
+> > the fs shutdown is pretty broken, especially if this expects to resurrect
+> > the device and thus the file system later on.
 > 
-> So what are the semantics of clearing the socket?
+> nbd-client -d calls
 > 
-> The <= 6.5 behavior of invalidating fs caches, but not actually marking
-> the fs shutdown is pretty broken, especially if this expects to resurrect
-> the device and thus the file system later on.
+> ioctl(nbd, NBD_DISCONNECT);
+> ioctl(nbd, NBD_CLEAR_SOCK);
+> 
+> (error handling removed for clarity)
+> 
+> where "nbd" is the file handle to the nbd device. This expects that the
+> device is cleared and that then the device can be reused for a different
+> connection, much like "losetup -d". Expecting that the next connection
+> would talk to the same file system is wrong.
 
-nbd-client -d calls
-
-ioctl(nbd, NBD_DISCONNECT);
-ioctl(nbd, NBD_CLEAR_SOCK);
-
-(error handling removed for clarity)
-
-where "nbd" is the file handle to the nbd device. This expects that the
-device is cleared and that then the device can be reused for a different
-connection, much like "losetup -d". Expecting that the next connection
-would talk to the same file system is wrong.
-
-In netlink mode, it obviously doesn't use the ioctl()s, but instead
-sends an NBD_CMD_DISCONNECT command, without any NBD_CLEAR_SOCK, for
-which no equivalent message exists. At this point, obviously the same
-result is expected in userspace, i.e., the device should now be
-available for the next connection that may or may not be the same one.
-
-nbd-client also has "-persist" option that used to work. This does
-expect to resurrect the device and file system. It depends on semantics
-where the kernel would block IO to the device until the nbd-client
-process that initiated the connection exits, thus allowing it to
-re-establish the connection if possible. When doing this, we don't issue
-a DISCONNECT or CLEAR_SOCK message and obviously the client is expected
-to re-establish a connection to the same device, thus some state should
-be retained.
-
-These semantics have however been broken at some point over the past decade
-or so, but I didn't notice that at the time, so I didn't complain, and
-it's therefore probably not relevant anymore. We should perhaps rethink
-whether this is still a good idea given the way the netlink mode does
-not have a client waiting for a return of the ioctl() call, and if so
-how to implement a replacement.
-
-Kind regards,
-
--- 
-     w@uter.{be,co.za}
-wouter@{grep.be,fosdem.org,debian.org}
-
-I will have a Tin-Actinium-Potassium mixture, thanks.
+So a fs shutdown seems like a the right thing.  So I'm a little confused
+on what actualy broke here.
