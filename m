@@ -2,153 +2,142 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD7F5E784AC
-	for <linux-s390@archiver.kernel.org>; Mon,  2 Oct 2023 11:24:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFD9FE784B5
+	for <linux-s390@archiver.kernel.org>; Mon,  2 Oct 2023 11:29:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236621AbjJBLYx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 2 Oct 2023 07:24:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47898 "EHLO
+        id S236689AbjJBL3U (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 2 Oct 2023 07:29:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231290AbjJBLYw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Oct 2023 07:24:52 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76B6493;
-        Mon,  2 Oct 2023 04:24:49 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 150841F747;
-        Mon,  2 Oct 2023 11:24:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1696245888; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=UETf0HnSrYrHffzzDaQE3QI/XIRNycdg/wMl5wFYBxk=;
-        b=jod2GzS9xClNnguLkyhnWMa1FAQb+eWHBJZZU6+C7Fy85SVZVL1al/umKrSFjsyZgbmq6O
-        i5didEvHntFhC3e/mkwlsfjRfT5TRtZfLE1buaGgsFn+PkrrrFk3X5B6F4ZpOOn4/2AgNm
-        HsFYnI/hvd7E2IqLJSa01T5DHUBiTMg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1696245888;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=UETf0HnSrYrHffzzDaQE3QI/XIRNycdg/wMl5wFYBxk=;
-        b=bayjhQINgaDk3ugerAs9Ixox0YVDMjKvzpn9kaObrN3m8MD2mQvqWBRBL3rxEZ6/FbIw/c
-        w7yN+frmnAyntjAQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 01F8C13456;
-        Mon,  2 Oct 2023 11:24:48 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id PHNyAICoGmVNAwAAMHmgww
-        (envelope-from <jack@suse.cz>); Mon, 02 Oct 2023 11:24:48 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id 80327A07C9; Mon,  2 Oct 2023 13:24:47 +0200 (CEST)
-Date:   Mon, 2 Oct 2023 13:24:47 +0200
-From:   Jan Kara <jack@suse.cz>
-To:     Stefan Haberland <sth@linux.ibm.com>
-Cc:     Jan Kara <jack@suse.cz>, Christian Brauner <brauner@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, linux-fsdevel@vger.kernel.org,
-        linux-block@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-        linux-s390@vger.kernel.org,
+        with ESMTP id S236626AbjJBL3U (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Oct 2023 07:29:20 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90DFBE1;
+        Mon,  2 Oct 2023 04:29:17 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id E58DFC433A9;
+        Mon,  2 Oct 2023 11:29:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1696246157;
+        bh=paEg7jbS6ClwadfTjCY8spaWc4zoBRD4LNZENNl+tI0=;
+        h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+        b=g63JmB3FwRN+ONhF0yFWNoeQbjgW/+dLj88bOfgo+g4WnhlVqgsUhvBXVnqIBEzEa
+         NKA9xpv4v5bqJz5FshYIhdGxjJU/3V+BIpN6DXNW9yYrdu3/naHi10PvjraNLxtpvP
+         lqVL9unEsn8m6mroat6KP9YTq+agMsSs1+ErBDFVshRf5GSQdusPBba1LGchOx1Xw8
+         ZC73IWYzrJKtOWva3dJcYa0yaY51FbhDQU/XF7igYRnnXwiQodv8iGaZ712BCL6IEh
+         wNHCzz00hC9vYtc17q6bF+uXjeU37b1Ejcs8O5iyNoQZWkXnhXqj8ZfBgNxH5Kk0qe
+         f49vMMABDx3zA==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by smtp.lore.kernel.org (Postfix) with ESMTP id C993EE784B3;
+        Mon,  2 Oct 2023 11:29:16 +0000 (UTC)
+From:   Joel Granados via B4 Relay 
+        <devnull+j.granados.samsung.com@kernel.org>
+Date:   Mon, 02 Oct 2023 13:30:38 +0200
+Subject: [PATCH v3 3/7] arch/x86: Remove now superfluous sentinel elem from
+ ctl_table arrays
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20231002-jag-sysctl_remove_empty_elem_arch-v3-3-606da2840a7a@samsung.com>
+References: <20231002-jag-sysctl_remove_empty_elem_arch-v3-0-606da2840a7a@samsung.com>
+In-Reply-To: <20231002-jag-sysctl_remove_empty_elem_arch-v3-0-606da2840a7a@samsung.com>
+To:     Luis Chamberlain <mcgrof@kernel.org>, willy@infradead.org,
+        josh@joshtriplett.org, Kees Cook <keescook@chromium.org>,
+        Iurii Zaikin <yzaikin@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>
-Subject: Re: [PATCH 14/29] s390/dasd: Convert to bdev_open_by_path()
-Message-ID: <20231002112447.aecbad2w6lh4p3fp@quack3>
-References: <20230818123232.2269-1-jack@suse.cz>
- <20230823104857.11437-14-jack@suse.cz>
- <51e1e42a-2ed8-a664-f26f-bc5bc1762884@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <51e1e42a-2ed8-a664-f26f-bc5bc1762884@linux.ibm.com>
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Guo Ren <guoren@kernel.org>, Alexey Gladkov <legion@kernel.org>
+Cc:     linux-fsdevel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+        linux-ia64@vger.kernel.org, linux-csky@vger.kernel.org,
+        Joel Granados <j.granados@samsung.com>,
+        Ingo Molnar <mingo@kernel.org>
+X-Mailer: b4 0.13-dev-86aa5
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1593;
+ i=j.granados@samsung.com; h=from:subject:message-id;
+ bh=PwJWF8dvooepoMNz/p+1M3MxYdMvjcobbwcaQ8BSBXs=;
+ b=owEB7QES/pANAwAKAbqXzVK3lkFPAcsmYgBlGqoTaJgUocisU/uKHeKQW8lN62asIcRF0tSyU
+ j1bINvl5aaJAbMEAAEKAB0WIQSuRwlXJeYxJc7LJ5C6l81St5ZBTwUCZRqqEwAKCRC6l81St5ZB
+ T2WoC/42iLPK3Fpv9v0/UXHAJOtoq4rmwpC6LV+o8A8lRqkO0uVf5VMImgogTwxzXQr1P3Yp0/f
+ VkRKFwLFysV0LI5OTH18s+1eSsihUKcyNYRItL+Uq+SG7vI8uv3w4uq7ydWykr0/1p5fe90bFnZ
+ rT/ph6DGwQ4RaSRd2IwaAXrJoLHLTaGD3zAA5eRCmU++8Rwy2+XIB0JWzH9N6Mp7B4yMOH+oCni
+ h64V+45R1T69SCPmnI4rrG9sYfo2+IWLBGP+D8FI36C+FMUkuhSBjEnDfpt24eZTWWnMsAsJRbS
+ 541J6mTwxGXlPqq3c2f4wXLAMWCm7qio0X0B9ufvk4Ck4h8LNlUwr4yB41O/apZOtev+opRUo2B
+ KvuQDk4hosgIzP4dO6PC22swDlVoomqCwgBL6V0twDOwiRoFLJstFxcGJY+c4YgKfSn9XOzxLK0
+ boNkZU5mRziaQEPzuSz2ndrwThriKlNPPGY3pJaax9H01L2JtJ5vAJV1/zgY7rDFMm7jU=
+X-Developer-Key: i=j.granados@samsung.com; a=openpgp;
+ fpr=F1F8E46D30F0F6C4A45FF4465895FAAC338C6E77
+X-Endpoint-Received: by B4 Relay for j.granados@samsung.com/default with auth_id=70
+X-Original-From: Joel Granados <j.granados@samsung.com>
+Reply-To: <j.granados@samsung.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed 27-09-23 23:43:44, Stefan Haberland wrote:
-> Am 23.08.23 um 12:48 schrieb Jan Kara:
-> > Convert dasd to use bdev_open_by_path() and pass the handle around.
-> > 
-> > CC: linux-s390@vger.kernel.org
-> > CC: Christian Borntraeger <borntraeger@linux.ibm.com>
-> > CC: Sven Schnelle <svens@linux.ibm.com>
-> > Acked-by: Christoph Hellwig <hch@lst.de>
-> > Signed-off-by: Jan Kara <jack@suse.cz>
-> > ---
-> 
-> The DASD part does not compile. please see below.
-> 
-> Beside of this the patch looks OK to me.
-> 
-> with the error fixed:
-> Acked-by: Stefan Haberland <sth@linux.ibm.com>
+From: Joel Granados <j.granados@samsung.com>
 
-Thanks for noticing. I can see Christian has already fixed up the problem
-in his tree. I guess he'll pick up your ack once he returns from vacation.
+This commit comes at the tail end of a greater effort to remove the
+empty elements at the end of the ctl_table arrays (sentinels) which
+will reduce the overall build time size of the kernel and run time
+memory bloat by ~64 bytes per sentinel (further information Link :
+https://lore.kernel.org/all/ZO5Yx5JFogGi%2FcBo@bombadil.infradead.org/)
 
-								Honza
+Remove sentinel element from sld_sysctl and itmt_kern_table. This
+removal is safe because register_sysctl_init and register_sysctl
+implicitly use the array size in addition to checking for the sentinel.
 
-> 
-> >   drivers/s390/block/dasd.c       | 12 +++++----
-> >   drivers/s390/block/dasd_genhd.c | 45 ++++++++++++++++-----------------
-> >   drivers/s390/block/dasd_int.h   |  2 +-
-> >   drivers/s390/block/dasd_ioctl.c |  2 +-
-> >   4 files changed, 31 insertions(+), 30 deletions(-)
-> > 
-> > diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-> > index 215597f73be4..16a2d631a169 100644
-> > --- a/drivers/s390/block/dasd.c
-> > +++ b/drivers/s390/block/dasd.c
-> > @@ -412,7 +412,8 @@ dasd_state_ready_to_online(struct dasd_device * device)
-> >   					KOBJ_CHANGE);
-> >   			return 0;
-> >   		}
-> > -		disk_uevent(device->block->bdev->bd_disk, KOBJ_CHANGE);
-> > +		disk_uevent(device->block->bdev_handle->bdev->bd_disk,
-> > +			    KOBJ_CHANGE);
-> >   	}
-> >   	return 0;
-> >   }
-> > @@ -432,7 +433,8 @@ static int dasd_state_online_to_ready(struct dasd_device *device)
-> >   	device->state = DASD_STATE_READY;
-> >   	if (device->block && !(device->features & DASD_FEATURE_USERAW))
-> > -		disk_uevent(device->block->bdev->bd_disk, KOBJ_CHANGE);
-> > +		disk_uevent(device->block->bdev_handle->bdev->bd_disk,
-> > +			    KOBJ_CHANGE);
-> >   	return 0;
-> >   }
-> > @@ -3590,7 +3592,7 @@ int dasd_generic_set_offline(struct ccw_device *cdev)
-> >   	 * in the other openers.
-> >   	 */
-> >   	if (device->block) {
-> > -		max_count = device->block->bdev ? 0 : -1;
-> > +		max_count = device->block->bdev_handle ? 0 : -1;
-> >   		open_count = atomic_read(&device->block->open_count);
-> >   		if (open_count > max_count) {
-> >   			if (open_count > 0)
-> > @@ -3636,8 +3638,8 @@ int dasd_generic_set_offline(struct ccw_device *cdev)
-> >   		 * so sync bdev first and then wait for our queues to become
-> >   		 * empty
-> >   		 */
-> > -		if (device->block)
-> > -			bdev_mark_dead(device->block->bdev, false);
-> > +		if (device->block && device->block->bdev_handle) {
-> 
-> the brace is not needed here and there is no matching right brace.
-> 
-> > +			bdev_mark_dead(device->block->bdev_handle->bdev, false);
-> >   		dasd_schedule_device_bh(device);
-> >   		rc = wait_event_interruptible(shutdown_waitq,
-> >   					      _wait_for_empty_queues(device));
-> > 
-> 
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com> # for x86
+Signed-off-by: Joel Granados <j.granados@samsung.com>
+---
+ arch/x86/kernel/cpu/intel.c | 1 -
+ arch/x86/kernel/itmt.c      | 1 -
+ 2 files changed, 2 deletions(-)
+
+diff --git a/arch/x86/kernel/cpu/intel.c b/arch/x86/kernel/cpu/intel.c
+index be4045628fd3..d9bb53f49a4d 100644
+--- a/arch/x86/kernel/cpu/intel.c
++++ b/arch/x86/kernel/cpu/intel.c
+@@ -1016,7 +1016,6 @@ static struct ctl_table sld_sysctls[] = {
+ 		.extra1         = SYSCTL_ZERO,
+ 		.extra2         = SYSCTL_ONE,
+ 	},
+-	{}
+ };
+ 
+ static int __init sld_mitigate_sysctl_init(void)
+diff --git a/arch/x86/kernel/itmt.c b/arch/x86/kernel/itmt.c
+index ee4fe8cdb857..9a7c03d47861 100644
+--- a/arch/x86/kernel/itmt.c
++++ b/arch/x86/kernel/itmt.c
+@@ -74,7 +74,6 @@ static struct ctl_table itmt_kern_table[] = {
+ 		.extra1		= SYSCTL_ZERO,
+ 		.extra2		= SYSCTL_ONE,
+ 	},
+-	{}
+ };
+ 
+ static struct ctl_table_header *itmt_sysctl_header;
+
 -- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+2.30.2
+
