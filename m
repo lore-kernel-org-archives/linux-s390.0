@@ -2,71 +2,76 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D251CE7849A
-	for <linux-s390@archiver.kernel.org>; Mon,  2 Oct 2023 06:22:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFA0CE7849A
+	for <linux-s390@archiver.kernel.org>; Mon,  2 Oct 2023 06:46:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229832AbjJBGWG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 2 Oct 2023 02:22:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39050 "EHLO
+        id S235544AbjJBGqy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 2 Oct 2023 02:46:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229720AbjJBGWG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Oct 2023 02:22:06 -0400
+        with ESMTP id S235321AbjJBGqx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Oct 2023 02:46:53 -0400
 Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAF639B;
-        Sun,  1 Oct 2023 23:22:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A6119E;
+        Sun,  1 Oct 2023 23:46:50 -0700 (PDT)
 Received: by verein.lst.de (Postfix, from userid 2407)
-        id 91BE168D07; Mon,  2 Oct 2023 08:21:59 +0200 (CEST)
-Date:   Mon, 2 Oct 2023 08:21:59 +0200
+        id BB46A68C7B; Mon,  2 Oct 2023 08:46:46 +0200 (CEST)
+Date:   Mon, 2 Oct 2023 08:46:46 +0200
 From:   Christoph Hellwig <hch@lst.de>
-To:     Wouter Verhelst <w@uter.be>
+To:     Al Viro <viro@zeniv.linux.org.uk>
 Cc:     Christoph Hellwig <hch@lst.de>,
-        Samuel Holland <samuel.holland@sifive.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
         Christian Brauner <brauner@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Denis Efremov <efremov@linux.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        "Darrick J . Wong" <djwong@kernel.org>, Chris Mason <clm@fb.com>,
-        David Sterba <dsterba@suse.com>, linux-block@vger.kernel.org,
-        nbd@other.debian.org, linux-s390@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: Re: [PATCH 07/17] nbd: call blk_mark_disk_dead in
- nbd_clear_sock_ioctl
-Message-ID: <20231002062159.GB1140@lst.de>
-References: <20230811100828.1897174-1-hch@lst.de> <20230811100828.1897174-8-hch@lst.de> <79af9398-167f-440e-a493-390dc4ccbd85@sifive.com> <20230925074838.GA28522@lst.de> <ZRmoHaSojk6ra5OU@pc220518.home.grep.be>
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Tejun Heo <tj@kernel.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Damien Le Moal <dlemoal@kernel.org>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-hardening@vger.kernel.org,
+        cgroups@vger.kernel.org
+Subject: Re: [PATCH 03/19] fs: release anon dev_t in deactivate_locked_super
+Message-ID: <20231002064646.GA1799@lst.de>
+References: <20230913111013.77623-1-hch@lst.de> <20230913111013.77623-4-hch@lst.de> <20230913232712.GC800259@ZenIV> <20230926093834.GB13806@lst.de> <20230926212515.GN800259@ZenIV>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ZRmoHaSojk6ra5OU@pc220518.home.grep.be>
+In-Reply-To: <20230926212515.GN800259@ZenIV>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Oct 01, 2023 at 07:10:53PM +0200, Wouter Verhelst wrote:
-> > So what are the semantics of clearing the socket?
-> > 
-> > The <= 6.5 behavior of invalidating fs caches, but not actually marking
-> > the fs shutdown is pretty broken, especially if this expects to resurrect
-> > the device and thus the file system later on.
+On Tue, Sep 26, 2023 at 10:25:15PM +0100, Al Viro wrote:
+> Before your patch: foo_kill_super() calls kill_anon_super(),
+> which calls kill_super_notify(), which removes the sucker from
+> the list, then frees ->s_fs_info.  After your patch:
+> removal from the lists happens via the call of kill_super_notify()
+> *after* both of your methods had been called, while freeing
+> ->s_fs_info happens from the method call.  IOW, you've restored
+> the situation prior to "super: ensure valid info".  The whole
+> point of that commit had been to make sure that we have nothing
+> in the lists with ->s_fs_info pointing to a freed object.
 > 
-> nbd-client -d calls
-> 
-> ioctl(nbd, NBD_DISCONNECT);
-> ioctl(nbd, NBD_CLEAR_SOCK);
-> 
-> (error handling removed for clarity)
-> 
-> where "nbd" is the file handle to the nbd device. This expects that the
-> device is cleared and that then the device can be reused for a different
-> connection, much like "losetup -d". Expecting that the next connection
-> would talk to the same file system is wrong.
+> It's not about free_anon_bdev(); that part is fine - it's the
+> "we can drop the weird second call site of kill_super_notify()"
+> thing that is broken.
 
-So a fs shutdown seems like a the right thing.  So I'm a little confused
-on what actualy broke here.
+The point has been to only release the anon dev_t after
+kill_super_notify, to prevent two of them beeing reused.
+
+Which we do as the free_anon_bdev is done directly in
+deactivate_locked_super.  The new ->free_sb for non-block file systems
+frees resources, but none of them matter for sget.
+
