@@ -2,164 +2,106 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9586BE75435
-	for <linux-s390@archiver.kernel.org>; Tue,  3 Oct 2023 08:34:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 214AEE7544A
+	for <linux-s390@archiver.kernel.org>; Tue,  3 Oct 2023 10:42:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231223AbjJCIe0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 3 Oct 2023 04:34:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33778 "EHLO
+        id S231173AbjJCKmP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 3 Oct 2023 06:42:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230330AbjJCIe0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Oct 2023 04:34:26 -0400
-Received: from mail-yw1-x112e.google.com (mail-yw1-x112e.google.com [IPv6:2607:f8b0:4864:20::112e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0F0EA4
-        for <linux-s390@vger.kernel.org>; Tue,  3 Oct 2023 01:34:21 -0700 (PDT)
-Received: by mail-yw1-x112e.google.com with SMTP id 00721157ae682-59c268676a9so8193497b3.0
-        for <linux-s390@vger.kernel.org>; Tue, 03 Oct 2023 01:34:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1696322061; x=1696926861; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=bitTTBesOlX5jNs0WrntjlIVBf0r6k8vUqdJl07s2a4=;
-        b=Nnyho37JLe/shXs59RWxP0LFbzenNiR7+5J+u4OAHOuBBKhQn1bK3OeFbKaCNYd6z+
-         ve2ZdPw882VgiWs9bqNMe7MmlrKBvyPeaFeU+Y6HmdCxarKB+Y6yMgCFv1mv9R6lnP8h
-         G8SBMa316LXAo4KbAezbxDHhVuZfO/O7ohK5Vjd8qld5xA3ea604mL/48FE5FeUNJ6le
-         YW6TQz4u89BmIde+aETFaEPCSvhUNfD1xzrcE9riCiWQIZbnLsDzWqTgcgFE4wLV+CQx
-         XfLYhOsNt57SLwhwyA41vZ2pmtff3203+Hq/OZnPPuJNbUl1iX1V2bJK9JvCtnTzs8et
-         O+wg==
+        with ESMTP id S230215AbjJCKmO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Oct 2023 06:42:14 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93935B4
+        for <linux-s390@vger.kernel.org>; Tue,  3 Oct 2023 03:41:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1696329690;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=xEM5s9LjMr/YRPee+FNwgiSqc+ylSynZdt7LNsU3DA8=;
+        b=DSLIzrKjcWZypmbh1z5xtD0OfVGSU0vrcSXfbrfUQ94MJnRfDv3lkeDdAgfFAbP7/ZN049
+        2PQ4uEyQnJJwK8JvkW7HZui81i+ZlSGuGs/pxSkMsNwCvf6zsuuneXmC6WNtS21gDHDpb2
+        lhoV/P2CoXwD5t/aXijmM2LBIJrpevA=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-66-vrhKY99bPaeD0MVTBqnQ5A-1; Tue, 03 Oct 2023 06:41:29 -0400
+X-MC-Unique: vrhKY99bPaeD0MVTBqnQ5A-1
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-9ae6afce33fso17928466b.0
+        for <linux-s390@vger.kernel.org>; Tue, 03 Oct 2023 03:41:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696322061; x=1696926861;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=bitTTBesOlX5jNs0WrntjlIVBf0r6k8vUqdJl07s2a4=;
-        b=C8Y8OvpogSA0pjNM1WsOCuIO0siVty4Zo8/2IFfCh8795ATOjop6Od7tM8/ENC8g+l
-         l1BE4mK6UiT2jKUltMXDT83i7SKLeejdDPfa94sViD4KJZITG5YdoBVXLje1gMaQqTCk
-         9Z9F/8x5+STyK2zL4dGChk8aLEa9yMGVToKw1+eMbyK8KqTxUl545zhLXfYivPYl7S3C
-         x0M8sbMs5lsUzoAxUY2zJQA8sI4z53euxEd0b/TpFKu1/naKadYgMZ4SVpgZ4PYDf5zm
-         NTG4l6dfH3i5fQBpHqUKvluZ0UeeL5kY7vZMJSB67TG1KJfmr8ssIprjMnQfKy0QP8xZ
-         6Vsw==
-X-Gm-Message-State: AOJu0YxDRJpkTpiFt6K/bATDLf4KYNJAVtOeVPwiK/4VckEy5w9ZX8El
-        7nngB1pYRyhPjKjyx2Fim6dO2m+yvPNQKnqOXYaaMw==
-X-Google-Smtp-Source: AGHT+IFDzIQLW0laXGE7JKd6lbdhFAMnDeThlxxmtoO8UChMspJgCI8sx/aRikQspuJgbcSRJHW6nrx+DUBW3F7ngjs=
-X-Received: by 2002:a0d:f685:0:b0:59e:8f6d:92e with SMTP id
- g127-20020a0df685000000b0059e8f6d092emr14665847ywf.49.1696322060718; Tue, 03
- Oct 2023 01:34:20 -0700 (PDT)
-MIME-Version: 1.0
-References: <0-v8-81230027b2fa+9d-iommu_all_defdom_jgg@nvidia.com>
- <20-v8-81230027b2fa+9d-iommu_all_defdom_jgg@nvidia.com> <CAA8EJprz7VVmBG68U9zLuqPd0UdSRHYoLDJSP6tCj6H6qanuTQ@mail.gmail.com>
- <20231002230000.GA682044@nvidia.com>
-In-Reply-To: <20231002230000.GA682044@nvidia.com>
-From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Date:   Tue, 3 Oct 2023 11:34:08 +0300
-Message-ID: <CAA8EJpr-CpgTVipd_t1uj7iHHq6__pj3mrm4Mn-pdZwhpS8aDA@mail.gmail.com>
-Subject: Re: [PATCH v8 20/24] iommu: Require a default_domain for all iommu drivers
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Rob Clark <robdclark@gmail.com>, Andy Gross <agross@kernel.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        linuxppc-dev@lists.ozlabs.org,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Krishna Reddy <vdumpa@nvidia.com>,
-        Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
-        Yong Wu <yong.wu@mediatek.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Nicolin Chen <nicolinc@nvidia.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Steven Price <steven.price@arm.com>,
-        Thierry Reding <treding@nvidia.com>
+        d=1e100.net; s=20230601; t=1696329688; x=1696934488;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=xEM5s9LjMr/YRPee+FNwgiSqc+ylSynZdt7LNsU3DA8=;
+        b=ayxVYt81GmVBjWgJR49qZ84UXmHOo8FGzAdALUoL+0+f7ha48fp1l3usGCmUxGI/t/
+         XEeSDsFd1arqC9TfLxw1hOBTyAQC092w2T7pxlr092p13IVEkOxkzSgpdl6pwzFmRerQ
+         diFwNBccMpYxAXQANu436NbtFcDMQRMRDu1kcrVXg2Ta3rcQ0WNOJ1GSIGvR6uwwMtk9
+         ZKUXQTpuK3GIj+TBKIJVeoKbwE1T9MXd56b7Xtrybh0Vvh4ihhGiqE+J0zMQGLo/xZRu
+         bT4a/WX+4iRk/gd/3hVZ/AXpubYUptEsUl2dc7My0OKCuO5DUuUVbPnWTdWneBD1jx6b
+         X81A==
+X-Gm-Message-State: AOJu0YwBldBPsDFjYmDrZCTUSNHJTIUFeWxtA1KAITJBNsdpJHnh2FIQ
+        aBl1asjhVHJOheqeyp88DJcLbGrneeT19wtTt7d0PPuuXOalEzK4qBdc6+kL2ivlmU5DqPpeurL
+        96Vu18699eHpOP17PE7EoAw==
+X-Received: by 2002:a17:906:25d:b0:9b2:bf2d:6b65 with SMTP id 29-20020a170906025d00b009b2bf2d6b65mr13123545ejl.4.1696329688204;
+        Tue, 03 Oct 2023 03:41:28 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFTp4Yzu/cOAedVnFfUtha2zEKWPPeZzfa3qsmsNMKsBJ+r6YYEbp9xiJ3pmDMPdNIMRLIP9g==
+X-Received: by 2002:a17:906:25d:b0:9b2:bf2d:6b65 with SMTP id 29-20020a170906025d00b009b2bf2d6b65mr13123529ejl.4.1696329687871;
+        Tue, 03 Oct 2023 03:41:27 -0700 (PDT)
+Received: from gerbillo.redhat.com (146-241-232-193.dyn.eolo.it. [146.241.232.193])
+        by smtp.gmail.com with ESMTPSA id n10-20020a170906118a00b009a19701e7b5sm832863eja.96.2023.10.03.03.41.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Oct 2023 03:41:27 -0700 (PDT)
+Message-ID: <6e5fb3e148ae1fb4a29561fe9d04235d8be6ab1f.camel@redhat.com>
+Subject: Re: [PATCH net-next] net/smc: add support for netdevice in
+ containers.
+From:   Paolo Abeni <pabeni@redhat.com>
+To:     dust.li@linux.alibaba.com,
+        Albert Huang <huangjie.albert@bytedance.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>
+Cc:     "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Tue, 03 Oct 2023 12:41:25 +0200
+In-Reply-To: <20230927034209.GE92403@linux.alibaba.com>
+References: <20230925023546.9964-1-huangjie.albert@bytedance.com>
+         <20230927034209.GE92403@linux.alibaba.com>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
+MIME-Version: 1.0
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 3 Oct 2023 at 02:00, Jason Gunthorpe <jgg@nvidia.com> wrote:
->
-> On Tue, Oct 03, 2023 at 12:21:59AM +0300, Dmitry Baryshkov wrote:
-> > On Wed, 13 Sept 2023 at 16:45, Jason Gunthorpe <jgg@nvidia.com> wrote:
-> > >
-> > > At this point every iommu driver will cause a default_domain to be
-> > > selected, so we can finally remove this gap from the core code.
-> > >
-> > > The following table explains what each driver supports and what the
-> > > resulting default_domain will be:
-> > >
-> > >                                         ops->defaut_domain
-> > >                     IDENTITY   DMA  PLATFORM    v      ARM32          dma-iommu  ARCH
-> > > amd/iommu.c             Y       Y                       N/A             either
-> > > apple-dart.c            Y       Y                       N/A             either
-> > > arm-smmu.c              Y       Y                       IDENTITY        either
-> > > qcom_iommu.c            G       Y                       IDENTITY        either
-> > > arm-smmu-v3.c           Y       Y                       N/A             either
-> > > exynos-iommu.c          G       Y                       IDENTITY        either
-> > > fsl_pamu_domain.c                       Y       Y       N/A             N/A     PLATFORM
-> > > intel/iommu.c           Y       Y                       N/A             either
-> > > ipmmu-vmsa.c            G       Y                       IDENTITY        either
-> > > msm_iommu.c             G                               IDENTITY        N/A
-> >
-> > Unfortunately this patch breaks msm_iommu platforms. This driver
-> > doesn't select ARM_DMA_USE_IOMMU, so iommu_get_default_domain_type()
-> > returns 0, bus_iommu_probe() fails with -ENODEV.
-> > If I make MSM_IOMMU select ARM_DMA_USE_IOMMU, then GPU probing fails
-> > with -EBUSY.
->
-> Oh, OK.
->
-> Does this fix it?
+On Wed, 2023-09-27 at 11:42 +0800, Dust Li wrote:
+> On Mon, Sep 25, 2023 at 10:35:45AM +0800, Albert Huang wrote:
+> > If the netdevice is within a container and communicates externally
+> > through network technologies like VXLAN, we won't be able to find
+> > routing information in the init_net namespace. To address this issue,
+>=20
+> Thanks for your founding !
+>=20
+> I think this is a more generic problem, but not just related to VXLAN ?
+> If we use SMC-R v2 and the netdevice is in a net namespace which is not
+> init_net, we should always fail, right ? If so, I'd prefer this to be a b=
+ugfix.
 
-It indeed fixes the issue, so could you please post it, adding:
-Tested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Re-stating the above to be on the same page: the patch should be re-
+posted targeting the net tree, and including a suitable fixes tag.
 
-> diff --git a/drivers/iommu/msm_iommu.c b/drivers/iommu/msm_iommu.c
-> index cdc7b730192a35..f7ef081c33dcb2 100644
-> --- a/drivers/iommu/msm_iommu.c
-> +++ b/drivers/iommu/msm_iommu.c
-> @@ -685,10 +685,16 @@ irqreturn_t msm_iommu_fault_handler(int irq, void *dev_id)
->         return 0;
->  }
->
-> +static int msm_iommu_def_domain_type(struct device *dev)
-> +{
-> +       return IOMMU_DOMAIN_IDENTITY;
-> +}
-> +
->  static struct iommu_ops msm_iommu_ops = {
->         .identity_domain = &msm_iommu_identity_domain,
->         .domain_alloc_paging = msm_iommu_domain_alloc_paging,
->         .probe_device = msm_iommu_probe_device,
-> +       .def_domain_type = msm_iommu_def_domain_type,
->         .device_group = generic_device_group,
->         .pgsize_bitmap = MSM_IOMMU_PGSIZES,
->         .of_xlate = qcom_iommu_of_xlate,
+@Dust Li: please correct me if I misread you.
 
--- 
-With best wishes
-Dmitry
+Thanks,
+
+Paolo
+
