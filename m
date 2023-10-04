@@ -2,90 +2,152 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0020E8FDDC
-	for <linux-s390@archiver.kernel.org>; Wed,  4 Oct 2023 08:42:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DC41E8FDDF
+	for <linux-s390@archiver.kernel.org>; Wed,  4 Oct 2023 08:56:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241758AbjJDImr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 4 Oct 2023 04:42:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36012 "EHLO
+        id S241855AbjJDI4D (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 4 Oct 2023 04:56:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241744AbjJDImq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Oct 2023 04:42:46 -0400
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E0A1A7;
-        Wed,  4 Oct 2023 01:42:42 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0VtMTZNd_1696408958;
-Received: from 30.13.48.40(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VtMTZNd_1696408958)
-          by smtp.aliyun-inc.com;
-          Wed, 04 Oct 2023 16:42:40 +0800
-Message-ID: <0af36858-5141-4e7b-744d-ec446993010f@linux.alibaba.com>
-Date:   Wed, 4 Oct 2023 16:42:35 +0800
+        with ESMTP id S241844AbjJDI4C (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Oct 2023 04:56:02 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2831CA6;
+        Wed,  4 Oct 2023 01:55:58 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3947iwHF012341;
+        Wed, 4 Oct 2023 08:55:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=G3eu+o+jYD03B/2vSJeSyHMaPAmhLz8sTDvwliqmwig=;
+ b=nrDyw1lemn6qjWyVMj3sPDfdFNS9l7wW/iKCjClC7OUsa6+ht2ViFRM8NGyb9gcdm2//
+ blnHtikqM0XjxwPNAT2iessUtljLlrysFBeKvvUUarAYKOMzkLKSWKCBLgxxglF3pTTy
+ FGjYxK8svlZEBvT3aB+ns6eDfy1v8+xdb/tusDYFgSjIWOZ0cWjVcu3fKofAfRjxubVJ
+ 3lIvgwdbeRqBOnJKkA3u2/M3L4WSD1qkXlS2xmjALMcSHdLiS12Q4YwDX/i+veXLzrt2
+ jh35/Bej0beB3jfo2p+W4AeivIvNZZAIbipIuNgSrwiItrO3JfM54xctCClt6bCrcFNB 9A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3th3f4aejd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 04 Oct 2023 08:55:07 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39480Iv9021327;
+        Wed, 4 Oct 2023 08:55:06 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3th3f4aehx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 04 Oct 2023 08:55:06 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3948oUL2025047;
+        Wed, 4 Oct 2023 08:55:05 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3texcyad4s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 04 Oct 2023 08:55:04 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3948t17r7471696
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 4 Oct 2023 08:55:01 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AA9A62004B;
+        Wed,  4 Oct 2023 08:55:01 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E8AA820040;
+        Wed,  4 Oct 2023 08:54:58 +0000 (GMT)
+Received: from [9.171.77.142] (unknown [9.171.77.142])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed,  4 Oct 2023 08:54:58 +0000 (GMT)
+Message-ID: <dec2767815f6f765c452a025ccec1ce6d3635cdd.camel@linux.ibm.com>
+Subject: Re: [PATCH v13 0/6] iommu/dma: s390 DMA API conversion and
+ optimized IOTLB flushing
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Joerg Roedel <joro@8bytes.org>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Gerd Bayer <gbayer@linux.ibm.com>,
+        Julian Ruess <julianr@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Hector Martin <marcan@marcan.st>,
+        Sven Peter <sven@svenpeter.dev>,
+        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Yong Wu <yong.wu@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Jonathan Corbet <corbet@lwn.net>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        iommu@lists.linux.dev, asahi@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
+        linux-doc@vger.kernel.org
+Date:   Wed, 04 Oct 2023 10:54:58 +0200
+In-Reply-To: <ZRpqaJEQLRDp5b1L@8bytes.org>
+References: <20230928-dma_iommu-v13-0-9e5fc4dacc36@linux.ibm.com>
+         <ZRpqaJEQLRDp5b1L@8bytes.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.1
-Subject: Re: [PATCH net-next v4 00/18] net/smc: implement virtual ISM
- extension and loopback-ism
-To:     Alexandra Winter <wintera@linux.ibm.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
-Cc:     schnelle@linux.ibm.com, gbayer@linux.ibm.com, pasic@linux.ibm.com,
-        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
-        dust.li@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1695568613-125057-1-git-send-email-guwen@linux.alibaba.com>
- <2e4bb42a-1a6c-476e-c982-c4d6cfdac63b@linux.ibm.com>
- <1fc9a6aa-019d-f3f5-7cac-3b78388c2730@linux.ibm.com>
- <4bac8bcf-5507-0982-fed2-c507fc3264c2@linux.alibaba.com>
- <da1d0698-ea4c-12b3-3e20-fc9b65e56a3a@linux.ibm.com>
-From:   Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <da1d0698-ea4c-12b3-3e20-fc9b65e56a3a@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: -eMPc60Y5y2woUrjzjpWax0AtUM-alm0
+X-Proofpoint-GUID: ubAyYZVvTV1Zj6WBmrCFf5U92Rsidz7u
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-04_01,2023-10-02_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ priorityscore=1501 spamscore=0 phishscore=0 mlxlogscore=501 mlxscore=0
+ adultscore=0 lowpriorityscore=0 malwarescore=0 suspectscore=0
+ impostorscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2309180000 definitions=main-2310040049
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, 2023-10-02 at 08:59 +0200, Joerg Roedel wrote:
+> On Thu, Sep 28, 2023 at 04:31:34PM +0200, Niklas Schnelle wrote:
+> > Niklas Schnelle (6):
+> >       iommu: Allow .iotlb_sync_map to fail and handle s390's -ENOMEM re=
+turn
+> >       s390/pci: prepare is_passed_through() for dma-iommu
+> >       s390/pci: Use dma-iommu layer
+> >       iommu/s390: Disable deferred flush for ISM devices
+> >       iommu/dma: Allow a single FQ in addition to per-CPU FQs
+> >       iommu/dma: Use a large flush queue and timeout for shadow_on_flus=
+h
+>=20
+> Applied, thanks Niklas.
+>=20
 
+Thank you Joerg. During some more testing I've found a minor issue
+where resetting the debug statistics still used the now obsolete
+counters that should have been removed. So I'll send a follow up patch,
+sorry for not noticing this sooner.
 
-On 2023/9/29 21:31, Alexandra Winter wrote:
-> 
-> 
-> On 28.09.23 19:29, Wen Gu wrote:
->>
->>
->> On 2023/9/28 16:56, Alexandra Winter wrote:
->>>
->>>
->>> On 27.09.23 17:16, Alexandra Winter wrote:
->>>> Hello Wen Gu,
->>>>
->>>> I applied and built your patches and noticed some things that you may want to consider in the next version:
->>>
->>>
->>> FYI, patchwork basically complains about many the same issues:
->>> https://patchwork.kernel.org/project/netdevbpf/list/?series=787037&state=*
->>>
->>> In general you should run those check BEFORE you send the patches and not rely on patchwork.
->> Thank you Sandy. I seem to have not seen the specific content of these checks. May I ask how to
->> run those patchwork check locally? So that I can make sure everything is ok before send them.
->>
-> 
-> Citing from Documentation/process/maintainer-netdev.rst :
-> 
-> "patchwork checks
-> ~~~~~~~~~~~~~~~~
-> 
-> Checks in patchwork are mostly simple wrappers around existing kernel
-> scripts, the sources are available at:
-> 
-> https://github.com/kuba-moo/nipa/tree/master/tests
-> 
-> **Do not** post your patches just to run them through the checks.
-> You must ensure that your patches are ready by testing them locally
-> before posting to the mailing list. The patchwork build bot instance
-> gets overloaded very easily and netdev@vger really doesn't need more
-> traffic if we can help it."
-> 
-> HTH
-
-Thank you! Sandy.
+Thanks,
+Niklas
