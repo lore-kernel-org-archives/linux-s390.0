@@ -2,173 +2,121 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F5D9E8FDDE
-	for <linux-s390@archiver.kernel.org>; Wed,  4 Oct 2023 09:06:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B392FE7B5E2
+	for <linux-s390@archiver.kernel.org>; Wed,  4 Oct 2023 09:59:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241926AbjJDJGu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 4 Oct 2023 05:06:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41768 "EHLO
+        id S233019AbjJDJ7v (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 4 Oct 2023 05:59:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242170AbjJDJGh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Oct 2023 05:06:37 -0400
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 072DF1732;
-        Wed,  4 Oct 2023 02:06:06 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0VtMf2lx_1696410362;
-Received: from 30.13.48.40(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VtMf2lx_1696410362)
-          by smtp.aliyun-inc.com;
-          Wed, 04 Oct 2023 17:06:03 +0800
-Message-ID: <e3819550-7b10-4f9c-7347-dcf1f97b8e6b@linux.alibaba.com>
-Date:   Wed, 4 Oct 2023 17:05:57 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.1
-Subject: Re: [PATCH net-next v4 09/18] net/smc: introduce SMC-D loopback
- device
-To:     Alexandra Winter <wintera@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>, dust.li@linux.alibaba.com,
-        kgraul@linux.ibm.com, wenjia@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
-Cc:     schnelle@linux.ibm.com, gbayer@linux.ibm.com, pasic@linux.ibm.com,
-        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1695568613-125057-1-git-send-email-guwen@linux.alibaba.com>
- <1695568613-125057-10-git-send-email-guwen@linux.alibaba.com>
- <3febdf3e-e213-7acf-7dd4-75d177676c3e@linux.ibm.com>
- <20230925151816.GC92403@linux.alibaba.com>
- <3f71928e-157a-748e-42ee-4de3c80ed109@linux.ibm.com>
- <e85fe903-a025-a693-906b-834ff2a2a812@linux.ibm.com>
- <22858b56-dee0-e65f-a698-b0f2090a872d@linux.alibaba.com>
- <c2117ecb-466c-cc45-04c5-f12adedec217@linux.ibm.com>
-From:   Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <c2117ecb-466c-cc45-04c5-f12adedec217@linux.ibm.com>
+        with ESMTP id S232909AbjJDJ7u (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Oct 2023 05:59:50 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD858A7;
+        Wed,  4 Oct 2023 02:59:47 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3949sE6j025751;
+        Wed, 4 Oct 2023 09:59:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : from : to : cc : references : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=Bp/EmzSSU8jFBY2TIgWtfMvhr+UqBiHzWjjGZ+tmiSY=;
+ b=W1bXjflL1hWBchtPcjf9WD0wucpiHl7hs49KaEfgWgvKe1bHY7ir28G9V0R+9te3A29S
+ wkJldKj1nczJy0vi5b6MOzsrherAf6k/fBCuOY/IYXMeXbAcQqdJ8BaL8nWPqt/LlEZP
+ DMpkwgPodFNlWD6elHh21FQB35iQ3PdNYnJO/W2XU5ikGSNaeFPK4x8rPhwlqYpjCTx4
+ W6zoh5cICLNfb1wLr1yylMGkYRnjfuSs47s1dmFrDLe6hU8cirY2lh1nzaNHX7ZXfcFL
+ i3anblGpyhX/r+b/OxDBBiqwug7zJttlzYkUQjJbqwfeIlxiwSZ85BM1v3nETcqAtXM2 Rw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3th5u0r3vt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 04 Oct 2023 09:59:45 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3949tHqk028077;
+        Wed, 4 Oct 2023 09:59:45 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3th5u0r3vf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 04 Oct 2023 09:59:45 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3948Z4bn005863;
+        Wed, 4 Oct 2023 09:59:44 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tex0su0me-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 04 Oct 2023 09:59:44 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3949xeG419923576
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 4 Oct 2023 09:59:40 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ACE6020043;
+        Wed,  4 Oct 2023 09:59:40 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 27A7020040;
+        Wed,  4 Oct 2023 09:59:40 +0000 (GMT)
+Received: from [9.171.71.190] (unknown [9.171.71.190])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed,  4 Oct 2023 09:59:40 +0000 (GMT)
+Message-ID: <c9c468df-e67a-4cb8-ef26-12c380fd55e2@linux.ibm.com>
+Date:   Wed, 4 Oct 2023 11:59:39 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [PATCH 0/3] partitions/ibm: Replace strncpy() and cleanups
+From:   Stefan Haberland <sth@linux.ibm.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Justin Stitt <justinstitt@google.com>
+References: <20230915131001.697070-1-sth@linux.ibm.com>
+Content-Language: en-US
+In-Reply-To: <20230915131001.697070-1-sth@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ItPerJnwHdh6ykSuqzH6SJgWmqV7xO-2
+X-Proofpoint-GUID: -Njy6KLmLVG_iGK9mGIkR_66QxkajMO6
 Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-04_01,2023-10-02_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 clxscore=1015 impostorscore=0 lowpriorityscore=0
+ malwarescore=0 mlxlogscore=989 mlxscore=0 spamscore=0 adultscore=0
+ phishscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2309180000 definitions=main-2310040060
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Am 15.09.23 um 15:09 schrieb Stefan Haberland:
+> Hi Jens,
+>
+> please apply the following patches for the next merge window that remove
+> strncpy() from DASD partition detection. This includes some cleanups that
+> should increase readability of the code.
+>
+> This is based on the discussion started with the patches by Justin Stitt:
+> https://lore.kernel.org/linux-s390/20230822-strncpy-block-partitions-cmdline-ibm-v1-1-154dea8f755c@google.com/
+> https://lore.kernel.org/linux-s390/20230823-strncpy-block-partitions-cmdline-ibm-v2-1-40c77f7182fc@google.com/
+>
+> Thanks.
+>
+> Jan Höppner (3):
+>    partitions/ibm: Remove unnecessary memset
+>    partitions/ibm: Replace strncpy() and improve readability
+>    partitions/ibm: Introduce defines for magic string length values
+>
+>   block/partitions/ibm.c | 98 +++++++++++++++++++++++++++++-------------
+>   1 file changed, 68 insertions(+), 30 deletions(-)
+>
 
-On 2023/9/29 22:08, Alexandra Winter wrote:
-> 
-> 
-> On 28.09.23 20:35, Wen Gu wrote:
->>
->>
->> On 2023/9/28 11:16, Jan Karcher wrote:
->>>
->>>
->>> On 26/09/2023 09:24, Alexandra Winter wrote:
->>>>
->>>>
->>>> On 25.09.23 17:18, Dust Li wrote:
->>>>>> Hello Wen Gu,
->>>>>>
->>>>>> thank you for adding the Kconfig, so the distributions can decide when to offer this feature.
->>>>>>
->>>>>> I propose you add some kind of runtime switch as well. Not every user who loads the SMC module
->>>>>> may want to exploit smcd-loopback. Especially in native environements without containers.
->>>>>>
->>>>>> If no RoCE interfaces or no ISM interfaces exist, the respective handling is skipped in SMC.
->>>>>> If loopback is always created unconditionally, there is no way to opt-out.
->>>>> Hi Sandy,
->>>>>
->>>>> After talking to Wen Gu offline, I think the real issue here might be
->>>>> we don't have an abstract layer in SMC, something like net/core/dev.c
->>>>>
->>>>> Without this, we cannot do:
->>>>>
->>>>> 1. Enable/disable those devices dynamically
->>>>>      Currently, If we want to disable a SMC-R device to communicate with
->>>>>      others, we need to refer to 'ip link set dev xxx down' to disable the
->>>>>      netdevice, then Infiniband subsystem will notify SMC that the state of
->>>>>      the IB device has changed. We cannot explicitly choose not to use some
->>>>>      specific IB/RoCE devices without disable totally.
->>>>>      If the loopback device need to support enable/disable itself, I
->>>>>      think it might be better to enable this feature for all SMC devices.
->>>>>
->>>>> 2. Do statistics per device
->>>>>      Now, we have to relay on IB/RoCE devices' hardware statistics to see
->>>>>      how many packets/bytes we have sent through this device.
->>>>>
->>>>> Both the above issues get worse when the IB/RoCE device is shared by SMC
->>>>> and userspace RDMA applications. If SMC-R and userspace RDMA applications
->>>>> run at the same time, we can't enable the device to run userspace RDMA
->>>>> applications while block it from running SMC. For statistics, we cannot
->>>>> tell how many packets/bytes were sent by SMC and how many were sent by
->>>>> userspace RDMA applications.
->>>>>
->>>>> So I think those are better to support in the SMC layer.
->>>>>
->>>>> Best regards!
->>>>> Dust
->>>>
->>>> Thank you very much for your considerations. I also think a generic handling
->>>> of these requirements in the smc layer would be best. Especially, if we want
->>>> to add virtio-ism support soon. There we will face the same issues again.
->>>> Let's hear what others think about this.
->>>>
->>>>
->>>
->>> Thanks you Sandy for bringing it up and Dust Li & Wen Gu for your thoughts.
->>> I agree that such a runtime switch is needed and also that this generic handling would be good in the smc layer.
->>
->> Right. runtime switch is necessary. I'm trying some ways to see which one is more suitable.
->>
->>
->> As for implementing a abstract layer that capable of handling 1) enable/disable SMC usage of
->> RDMA/ISM devices. 2) count packets/bytes of RDMA/ISM devices that generated/consumed by SMC,
->> I believe it would be helpful, and IMHO its architecture may be:
->>
->> ----------------------------------------------
->>                    SMC protocol
->>      (af_smc.c / smc_core.c / smc_clc.c ...)
->> ----------------------------------------------
->>            Abstract layer of SMC device
->>        (define SMC device common operations)
->> ----------------------------------------------
->>    RDMA device |        (virt) ISM device
->>    (smc_ib.c)  |   (smc_ism.c / smc_loopback.c)
->> ----------------------------------------------
->>
->> But I also believe this may require a lot of works and may be a long-term job.
->>
-> 
-> I like that concept a lot. If we can agree on a direction, we can define
-> meaningful pieces and approach it piece by piece.
-> 
+Hi Jens,
 
-Yes. It can be added to our interlock's backup list.
+polite ping.
+Any objections against the patches?
 
-> 
->> If only for the virtual ISM device, e.g.loopback-ism, I am considering adding it to the Linux
->> device tree (/sys/devices/virtual/) to make it more 'device-like', and controlling its
->> enable/disable and get the statistics through some files, such as
->> echo 1 > /sys/devices/virtual/loopback-ism/alive
->> or
->> cat /sys/devices/virtual/loopback-ism/statistics/{rx|tx}_{bytes|packets}
->> (similar to what tcp lo have in /sys/devices/virtual/net/lo)
->>
->> What are your thoughts on it? Thanks.
->>
-> 
-> Makes sense to me, but I don't have too much experience in that area.
-> I have never seen an attribute called 'alive' before.
-> I think attributes like 'power', 'enable' or 'online' are used for other device types.
-> 
-
-Thanks. I will refer to existing devices for reference.
-
->>
->> -- 
->> A little off-topic, it's currently China's National Day holiday, which lasts for about a week,
->> so we are now on vacation. As a result, my responses might be a bit slower, but I will still
->> make time to check/reply the mail and prepare for my new version. Thank you all very much!
->>
->> Regards,
->> Wen Gu
-> 
-> Next week is Germany's national holiday, so many of us are out as well.
-
-Have a nice holiday! :)
+regards,
+Stefan
