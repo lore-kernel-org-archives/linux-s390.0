@@ -2,196 +2,246 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3566CE92723
-	for <linux-s390@archiver.kernel.org>; Thu,  5 Oct 2023 18:15:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47270E94119
+	for <linux-s390@archiver.kernel.org>; Fri,  6 Oct 2023 20:01:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232119AbjJESPY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 Oct 2023 14:15:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51924 "EHLO
+        id S233363AbjJFUBl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 6 Oct 2023 16:01:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232618AbjJESOt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Oct 2023 14:14:49 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BBD490;
-        Thu,  5 Oct 2023 11:14:48 -0700 (PDT)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 395IATn3009789;
-        Thu, 5 Oct 2023 18:14:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=+L4uBN3V6SGI+UzD1bnXmWtYj0cde2bUpvKlk/TPzJ0=;
- b=tWknqM8xVf8eXnsHxPcSs+bCLDcGgWUVaAoywcvdi+NpqumGRm6u2ER76g+8LJhBhgw4
- OJYdN1EwC/la1p66EfxiHo7PeV9F2eprPWnHv3Pydp+fzYpMBIQImVUaiYDL40Z1nwr8
- cx3HkbvhWb+0rZb//z9023DJpXrHSLw78uO/pd5nr4PVFOMKciJgsR1TrAQINYbnbjJQ
- XzmM7Wxv3Ny7Op11iKBpjd6N9UwN3IH/392/cWUczoTZCWdXCaEqZfrXFiD+iwu5x5N5
- xGRmiMM6zj4ug9oz332kRfFKBayGQfa9E8NM1UMRpzCLc3z0y3bEo3V+L9QhuM0h4aaU 2Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tj26h866n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 Oct 2023 18:14:43 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 395IAXfk010416;
-        Thu, 5 Oct 2023 18:14:42 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tj26h8664-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 Oct 2023 18:14:42 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 395HstF9005868;
-        Thu, 5 Oct 2023 18:14:42 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tex0tgjug-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 Oct 2023 18:14:42 +0000
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-        by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 395IEed42622178
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 5 Oct 2023 18:14:40 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5E79E58062;
-        Thu,  5 Oct 2023 18:14:40 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D9B3B58052;
-        Thu,  5 Oct 2023 18:14:38 +0000 (GMT)
-Received: from [9.171.41.118] (unknown [9.171.41.118])
-        by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Thu,  5 Oct 2023 18:14:38 +0000 (GMT)
-Message-ID: <b4470cec-7b9b-5ce5-01e0-9270f6564fbb@linux.ibm.com>
-Date:   Thu, 5 Oct 2023 20:14:37 +0200
+        with ESMTP id S233283AbjJFUBi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Oct 2023 16:01:38 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 076C983;
+        Fri,  6 Oct 2023 13:01:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1696622497; x=1728158497;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-id:content-transfer-encoding:
+   mime-version;
+  bh=w18bicPFsa6muxGkgTV16Ht3yE15FqqvBTrUOmV0dfc=;
+  b=HK0Ha5l/GV32WRbGxVR6NXQkG9DIr6Po7NvtSd1WsJvY+LxPc4I20bhT
+   F6qbrIZ0gdUFi9HLAsuDpTBOFR7sn5FxnQCKzBAHjsE4uSp1HqPmnmaPB
+   KEDxFTwha/Dm0wtHzjPjciLlb7uJor/3EYjmc3S3zHse6nUsZJ+i/LFWc
+   PNk2KgoYpwd/wjEvmX4bmbdHiYObVDrt3oqJFnFP1zAaQ/d2TYe512kEx
+   9cSv7QYnfpQr08zN+uBePE0gEJRM/icgUbTRG9mJj6NDu0pr9y+UrgAS8
+   sM98+E7Eab6IwxwlwU+pz1xFYEk0HRtma8rAoOg1f5wAi3RSeR+xA3S6i
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10855"; a="383710496"
+X-IronPort-AV: E=Sophos;i="6.03,204,1694761200"; 
+   d="scan'208";a="383710496"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Oct 2023 13:01:35 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10855"; a="842947806"
+X-IronPort-AV: E=Sophos;i="6.03,204,1694761200"; 
+   d="scan'208";a="842947806"
+Received: from fmsmsx601.amr.corp.intel.com ([10.18.126.81])
+  by FMSMGA003.fm.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 06 Oct 2023 13:01:35 -0700
+Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
+ fmsmsx601.amr.corp.intel.com (10.18.126.81) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.32; Fri, 6 Oct 2023 13:01:35 -0700
+Received: from fmsmsx603.amr.corp.intel.com (10.18.126.83) by
+ fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.32; Fri, 6 Oct 2023 13:01:35 -0700
+Received: from fmsedg601.ED.cps.intel.com (10.1.192.135) by
+ fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.32 via Frontend Transport; Fri, 6 Oct 2023 13:01:35 -0700
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (104.47.66.47) by
+ edgegateway.intel.com (192.55.55.70) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.32; Fri, 6 Oct 2023 13:01:34 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=iDLREd1fmnJhWqMT+I3tNpL/XXE+IfEwf+CtlaNUhpAw5L/D8ZN4b6n32qSmyCR+Ktsbvr8Tz3kfW7pMYtWBQcEUtbIRc4/J0/CfT7NXmz7aPQA4/+hj6QEt7U1W+L4shGU6Uwt9KJXumLZfiykp1Lng1Ki0CY9qGbvMuZKnITSm0hNEInWajSPHklyou+/SMBM5ox3yu1f5K7khibVho2f5LVjbJQVaEZtH1cmGlIHxi38U80RCdjgBlkh/DrXs94moeit3SGtiBeLscK79N97x0x7AnGsVHjbDdYhAFVCaFUl4EGMhHL/3bjkc1iIsLv3BP4nbw/hSPZg/uccb3g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=w18bicPFsa6muxGkgTV16Ht3yE15FqqvBTrUOmV0dfc=;
+ b=YABE15NdwbB79Pd1NDFGK14mnTv9LUhNb8X/bLBz8kyhF53eDohBLVibU0JusdTPCyhhWKXzLYkwM7tF5dWjwUJdpbL6aSO0Zqua7XD9XEmOJk+G5xm3knVT3F56q28+OsXcpqjjOKJ20M8UdIdwsFu/J+o86Mdp66Qwh2Q6VxeVh/QzVCPIBU69f/sdnUw9Rsj1Kbvd4F1m7ce2GXYT4j4xQAzVQ6CwESWMik7sQTLWfAGcei5YNeBcnsW7CswsF9uMeBOrgz8uo8KXgIfT5q/avdr3vphTGLK4bzY3kKvGCCNKL2fmG64WgK3yZRuVRj4G9zeURvf1SLICVEBtnw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from MN0PR11MB5963.namprd11.prod.outlook.com (2603:10b6:208:372::10)
+ by SA3PR11MB7655.namprd11.prod.outlook.com (2603:10b6:806:307::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6838.24; Fri, 6 Oct
+ 2023 20:01:31 +0000
+Received: from MN0PR11MB5963.namprd11.prod.outlook.com
+ ([fe80::56f1:507b:133e:57cf]) by MN0PR11MB5963.namprd11.prod.outlook.com
+ ([fe80::56f1:507b:133e:57cf%5]) with mapi id 15.20.6838.033; Fri, 6 Oct 2023
+ 20:01:31 +0000
+From:   "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>
+To:     "Mehta, Sohil" <sohil.mehta@intel.com>,
+        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
+        "arnd@arndb.de" <arnd@arndb.de>,
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
+CC:     "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "deller@gmx.de" <deller@gmx.de>,
+        "lukas.bulwahn@gmail.com" <lukas.bulwahn@gmail.com>,
+        "irogers@google.com" <irogers@google.com>,
+        "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "Lutomirski, Andy" <luto@kernel.org>,
+        "jcmvbkbc@gmail.com" <jcmvbkbc@gmail.com>,
+        "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
+        "ysato@users.sourceforge.jp" <ysato@users.sourceforge.jp>,
+        "Hunter, Adrian" <adrian.hunter@intel.com>,
+        "chris@zankel.net" <chris@zankel.net>,
+        "hca@linux.ibm.com" <hca@linux.ibm.com>,
+        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+        "peterz@infradead.org" <peterz@infradead.org>,
+        "brgerst@gmail.com" <brgerst@gmail.com>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "broonie@kernel.org" <broonie@kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "christophe.leroy@csgroup.eu" <christophe.leroy@csgroup.eu>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "mpe@ellerman.id.au" <mpe@ellerman.id.au>,
+        "tsbogend@alpha.franken.de" <tsbogend@alpha.franken.de>,
+        "ink@jurassic.park.msu.ru" <ink@jurassic.park.msu.ru>,
+        "bp@alien8.de" <bp@alien8.de>,
+        "geert@linux-m68k.org" <geert@linux-m68k.org>,
+        "rdunlap@infradead.org" <rdunlap@infradead.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+        "namhyung@kernel.org" <namhyung@kernel.org>,
+        "jolsa@kernel.org" <jolsa@kernel.org>,
+        "npiggin@gmail.com" <npiggin@gmail.com>,
+        "monstr@monstr.eu" <monstr@monstr.eu>,
+        "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>,
+        "debug@rivosinc.com" <debug@rivosinc.com>,
+        "ebiederm@xmission.com" <ebiederm@xmission.com>,
+        "richard.henderson@linaro.org" <richard.henderson@linaro.org>,
+        "will@kernel.org" <will@kernel.org>,
+        "hpa@zytor.com" <hpa@zytor.com>,
+        "gor@linux.ibm.com" <gor@linux.ibm.com>,
+        "alexander.shishkin@linux.intel.com" 
+        <alexander.shishkin@linux.intel.com>,
+        "mattst88@gmail.com" <mattst88@gmail.com>,
+        "glaubitz@physik.fu-berlin.de" <glaubitz@physik.fu-berlin.de>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "acme@kernel.org" <acme@kernel.org>,
+        "slyich@gmail.com" <slyich@gmail.com>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
+        "James.Bottomley@HansenPartnership.com" 
+        <James.Bottomley@HansenPartnership.com>,
+        "rmclure@linux.ibm.com" <rmclure@linux.ibm.com>,
+        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
+        "svens@linux.ibm.com" <svens@linux.ibm.com>,
+        "dalias@libc.org" <dalias@libc.org>,
+        "schwab@linux-m68k.org" <schwab@linux-m68k.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
+        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>
+Subject: Re: [PATCH v2] arch: Reserve map_shadow_stack() syscall number for
+ all architectures
+Thread-Topic: [PATCH v2] arch: Reserve map_shadow_stack() syscall number for
+ all architectures
+Thread-Index: AQHZ5z2WzPjTzalN7Ei06VoIKvvJZ7A4YMaAgAAFboCAAAaGAIAE5JYA
+Date:   Fri, 6 Oct 2023 20:01:31 +0000
+Message-ID: <3bd9a85c6f10279af6372cf17064978ad38c18b3.camel@intel.com>
+References: <20230914185804.2000497-1-sohil.mehta@intel.com>
+         <487836fc-7c9f-2662-66a4-fa5e3829cf6b@intel.com>
+         <231994b0-ca11-4347-8d93-ce66fdbe3d25@app.fastmail.com>
+         <622b95d8-f8ad-5bd4-0145-d6aed2e3c07d@intel.com>
+In-Reply-To: <622b95d8-f8ad-5bd4-0145-d6aed2e3c07d@intel.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Evolution 3.44.4-0ubuntu2 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: MN0PR11MB5963:EE_|SA3PR11MB7655:EE_
+x-ms-office365-filtering-correlation-id: b2d26037-faf1-48cc-8352-08dbc6a708bb
+x-ld-processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: jaX1Pd6ew70OEJ8SnmQTMbzU9crA0n7TyQtG7/s7zq10nJhRlgLbrqT0kTBhRbQs0DeG5Q2OUSC1sf5Zc9kZagmBl3/eL0BiVJSjjeG85LNAZYY3wxlXvlRe0wRukh6SeX7+N3xukFsa03O/SM8F0Demp1Z6QT9JeVL5ENgdlRhKdenh3mewROtbcUsS/etkIpw74dcp7e+8xImLOqUgmUmTGSq5PKoA/qlKVqGIBfjn6w6bqIR61kxRga5h3hQhQDnTfaO4SINf4Qn7y+OyimJ9JsyICSus1F+IOQfSCiL0KMKRJrrTHs6KEN7uvKYMKZZSxrCF2fNilvF7IMm2A8usqSZ1Ace1XLwD3TribKZPdRqHO9H/rpK/mzApDcPgN1Ixl0s0T9MH5bWvQoYsft1wTHdBYCxJXNYGLg3w99Bck/0S5QMiQVAeEr2sBKe+RjVKL9rMyIb1DB1tVHUcTHDpIU7Bd+LczGtIBhByVdbxiojQ7my5E07ystRhjWZ6332/bFlwHpQNKHQq4qToCTOvvWwNmJ/b9nuCyxfZN4OP6dZGnd1KUh5iPwWqFCcV8lYaq5IhemEgiP/PwHsgIGOP5vMcy/AnKzrncxauXVNcFLWX0Fe4ReD7fOA2v1yD
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN0PR11MB5963.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(396003)(376002)(136003)(346002)(39860400002)(366004)(230922051799003)(64100799003)(186009)(451199024)(1800799009)(8936002)(2616005)(66946007)(54906003)(66446008)(66476007)(66556008)(64756008)(316002)(41300700001)(6506007)(86362001)(6512007)(26005)(36756003)(71200400001)(6486002)(38100700002)(82960400001)(122000001)(478600001)(76116006)(110136005)(91956017)(4744005)(7366002)(7416002)(7406005)(38070700005)(2906002)(4326008)(5660300002)(8676002);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?WDNCTDcvd3F5djFlaDY3QTQzVDU0Y2Z0VXZ2aGlpTFpla01XU2Q2YnA0MEhj?=
+ =?utf-8?B?bi93bUtpZUlEVDVZR0ZGTmJ1bS9BNE8xcm9vbmtRQmtwb0taQmhQclFkbEV4?=
+ =?utf-8?B?UUNtaURuUGFFZ2JjeFJJMyswc1VXckJiRlZ0WFVYTkd0c1hWZmZuVm1QdWNZ?=
+ =?utf-8?B?NnhMYjlTZzRXcTN5VVg3RFNFWkd2ZkdJR2lya0lZMmMwbXJ5MXZkTnc1d2Y4?=
+ =?utf-8?B?NjhvYmlVc0NxMlo4M2VFL010d1psdEVpclJNV0JUdXgvUVQ1bUZCbit5MkRx?=
+ =?utf-8?B?UjE4alpMYU1xTlZsMjVOSFBOcWVWZE91TjVsRzZpTmlVV0JSK25MS3JXYzFs?=
+ =?utf-8?B?TWRSUUpYM0p0ZklrNFJFNGhxRFR3a3ZnNnRxL0JFMjFad1J2bEY3VEduVnVo?=
+ =?utf-8?B?YnlSQnYyaGxHanBnQlVZN1o0MlpuYlpGZExMNE5YM0lzQjlvNnI5VHIydldy?=
+ =?utf-8?B?RGFhZ2pRUy92QTl4MnBtYXE2czFDcEZEeVd0dW1QNDJreUZ5TjB5cjRlZ2FV?=
+ =?utf-8?B?NlRJMUpCb3NybFRZcjI4MFFhS0dXVmpBclFTeG1kdTVMQlpOTmNmZk9lYmRl?=
+ =?utf-8?B?K3pPdkl0cmJCVHNWbGtBYm9TZ24vNFZRVVMwYmlmeWVaYmZsekN1ZDZIeENt?=
+ =?utf-8?B?YWJEZkVPbm5rYVVFdTJBR05IenYvakVZdFArY1J1WWRJWW84d1lqS29QVkwr?=
+ =?utf-8?B?RWMxa0MrTjZTMEpJVkw2cGFBRGVmWS9TTEhHaFp2TXMvRmZpekwvOUFoWGpM?=
+ =?utf-8?B?OEFJMGFRWktodXlpdnRqNU8wOHI1YlRNRTA2RG1CYnBsQWpqSkhobk95Rkpi?=
+ =?utf-8?B?eWg1U29vbWdvZXFCZjVDSzNKRmtBd3U5dXp1NDV6cE8zVTBocm82VitZSW5n?=
+ =?utf-8?B?L01PZlM4RzVWWmkvUUFxZWoveGo0Uk10VnRlWmJiR1lGQ2FXbThIdHJIRUF1?=
+ =?utf-8?B?M1FRWEV5UkE2cWRsQTZBSDRjR1g5M0lSWEJnTUxwd0NMM0ZGOVJ1bnBYaFNQ?=
+ =?utf-8?B?SWNXNHplYjhFNnFESURKSlNvVGlVcW1BRmUwSzRJL1V1SCtuUDVtMlZ4bFBK?=
+ =?utf-8?B?NWh3VG9PaWJybGUyd1NIelR2c3BHWXVwNGRPZFB4UzR5SllyK2dneW9mTlk5?=
+ =?utf-8?B?QS9XbFNjQlUwMnJMMWFsckFvbFhoWURxN0ZBc1JFUHUvbWZUYmw5TXVyZFN6?=
+ =?utf-8?B?b0V3OXNTdmkweEIvdWx2YTF4NHIyYVJYWDA4ZEwzdmJiNm5LK0xRSDJucEdF?=
+ =?utf-8?B?RkpyU2lxdzhPc3krZTZhSkhzdVhJdkFQWHNGM1RFMVM0Y3BpSWQxTmpsQ21a?=
+ =?utf-8?B?eTNieU90emk3L1FDdjgraUR1akNnWHorOHd4V25TRWFBRWY1WUc1Z3FndVNU?=
+ =?utf-8?B?TEpPeDduYWM0c3FvTDQ3STYvdEd3dVd0WlRSVlI5UkpKUFhFY1RVWElIcXJH?=
+ =?utf-8?B?eWRuOCtNSWJSSVRlU0NOSk1oUlRoaWpFRWgwVjYzNlAwWk0zSFlSdGxoMTFS?=
+ =?utf-8?B?b0lVanpyUTV0L09POHJlRnREZlJmQ1hNeE94ekNvUC81Q1prYUZSMTlnZnpN?=
+ =?utf-8?B?dVNzRUV5UnAxS0g3K0doaGJoMzNMTWVERlNLMlB6WXNjcDBvK3Zmc0w4eloy?=
+ =?utf-8?B?SUsrYy91TVdzV2ZQN3gyK25DN3NkTUVBOW1SNVEwZHNJR0h6NFJLZVdhSFdE?=
+ =?utf-8?B?Y05ZcEhWa3JNbGY2VThFTGV2V2JWRm8rakdFMUJqbEpGWXFjRWhuVXZiNzBN?=
+ =?utf-8?B?b3ZhKzNrNHVwdDJHNS9UYkFLWTJhYjl3WjBSbng0UUdyUXRUSWp4VlllcFgy?=
+ =?utf-8?B?Skl6SUQ5czhzQzZNclhKSXBCNDRkWGpmZFlCWm1uM2ozNnpQdmJSa0NSRXAw?=
+ =?utf-8?B?bUVSOHRZS2Q0d2Fuai9mYjh1akljc3JlYjlLbUwyTnhMamJTcDNETU5wS0VQ?=
+ =?utf-8?B?dEg1ZDNFZFV0T0RhOUpadmw4R2s2Q05URzVWdGpMb2RnbGRMakVjL0dhbmxM?=
+ =?utf-8?B?RllsZEZjbnlLVGZZU3JNU0owbVJ2WTVpdFp6dE1HbGZxb3pqdmR6YkZ0UWow?=
+ =?utf-8?B?ZllzckNyMEVMTXVnOUFnd1hEZnlGREg3VlgyZCt6ZlZmMVNBUzFqdWdFR0d6?=
+ =?utf-8?B?QlBRemJHVnJibkZLZ0crVk9obmNvQ1ZDQ1NxUVFVMU1QNFV2SldkdG53bG1r?=
+ =?utf-8?B?b3c9PQ==?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <0C2B3A20E2357943B9266903966FAF59@namprd11.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.1
-Subject: Re: [PATCH net] net/smc: fix panic smc_tcp_syn_recv_sock() while
- closing listen socket
-To:     "D. Wythe" <alibuda@linux.alibaba.com>,
-        Alexandra Winter <wintera@linux.ibm.com>
-Cc:     jaka@linux.ibm.com, kgraul@linux.ibm.com, kuba@kernel.org,
-        davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1695211714-66958-1-git-send-email-alibuda@linux.alibaba.com>
- <0902f55b-0d51-7f4d-0a9e-4b9423217fcf@linux.ibm.com>
- <ee2a5f8c-4119-c84a-05bc-03015e6c9bea@linux.alibaba.com>
- <3d1b5c12-971f-3464-5f28-79477f1f9eb2@linux.ibm.com>
- <c03dad67-169a-bf6d-1915-a9bb722a7259@linux.alibaba.com>
- <d18e1a78-3b3a-8f23-6db1-20c16795d3ef@linux.ibm.com>
- <ab417654-8aba-f357-8ac5-16c4c2b291e1@linux.alibaba.com>
-From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <ab417654-8aba-f357-8ac5-16c4c2b291e1@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: wMYgbD3jlaPQC1CoZLS2I20axn_izngw
-X-Proofpoint-GUID: eshURJbDpCklhdltI2Sf_VWvncdgshg7
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-10-05_12,2023-10-05_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
- bulkscore=0 lowpriorityscore=0 impostorscore=0 mlxlogscore=999
- suspectscore=0 clxscore=1015 phishscore=0 mlxscore=0 priorityscore=1501
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2310050137
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MN0PR11MB5963.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b2d26037-faf1-48cc-8352-08dbc6a708bb
+X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Oct 2023 20:01:31.1308
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: y+a1VFJnoIQj7e9E6vA7aNpD9bLEnNFQ9SCLb2RbHpQ+n+fwWkFOHk4aPyQw6o99d0pByBmjyl6/DnKmvIfacs1wG89qpEjTdZ0PYDilOxk=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR11MB7655
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 26.09.23 11:06, D. Wythe wrote:
-> 
-> 
-> On 9/26/23 3:18 PM, Alexandra Winter wrote:
->>
->> On 26.09.23 05:00, D. Wythe wrote:
->>> You are right. The key point is how to ensure the valid of smc sock 
->>> during the life time of clc sock, If so, READ_ONCE is good
->>> enough. Unfortunately, I found  that there are no such guarantee, so 
->>> it's still a life-time problem.
->> Did you discover a scenario, where clc sock could live longer than smc 
->> sock?
->> Wouldn't that be a dangerous scenario in itself? I still have some 
->> hope that the lifetime of an smc socket is by design longer
->> than that of the corresponding tcp socket.
-> 
-> 
-> Hi Alexandra,
-> 
-> Yes there is. Considering scenario:
-> 
-> tcp_v4_rcv(skb)
-> 
-> /* req sock */
-> reqsk = _inet_lookup_skb(skb)
-> 
-> /* listen sock */
-> sk = reqsk(reqsk)->rsk_listener;
-> sock_hold(sk);
-> tcp_check_req(sk)
-> 
-> 
->                                                  smc_release /* release 
-> smc listen sock */
->                                                  __smc_release
-> smc_close_active()         /*  smc_sk->sk_state = SMC_CLOSED; */
->                                                      if 
-> (smc_sk->sk_state == SMC_CLOSED)
-> smc_clcsock_release();
-> sock_release(clcsk);        /* close clcsock */
->      sock_put(sk);              /* might not  the final refcnt */
-> 
-> sock_put(smc_sk)    /* might be the final refcnt of smc_sock  */
-> 
-> syn_recv_sock(sk...)
-> /* might be the final refcnt of tcp listen sock */
-> sock_put(sk);
-> 
-> Fortunately, this scenario only affects smc_syn_recv_sock and 
-> smc_hs_congested, as other callbacks already have locks to protect smc,
-> which can guarantee that the sk_user_data is either NULL (set in 
-> smc_close_active) or valid under the lock.
-> I'm kind of confused with this scenario. How could the 
-smc_clcsock_release()->sock_release(clcsk) happen?
-Because the syn_recv_sock happens short prior to accept(), that means 
-that the &smc->tcp_listen_work is already triggered but the real 
-accept() is still not happening. At this moment, the incoming connection 
-is being added into the accept queue. Thus, if the sk->sk_state is 
-changed from SMC_LISTEN to SMC_CLOSED in smc_close_active(), there is 
-still "flush_work(&smc->tcp_listen_work);" after that. That ensures the 
-smc_clcsock_release() should not happen, if smc_clcsock_accept() is not 
-finished. Do you think that the execution of the &smc->tcp_listen_work 
-is already done? Or am I missing something?
-
->> Considering the const, maybe
->>> we need to do :
->>>
->>> 1. hold a refcnt of smc_sock for syn_recv_sock to keep smc sock valid 
->>> during life time of clc sock
->>> 2. put the refcnt of smc_sock in sk_destruct in tcp_sock to release 
->>> the very smc sock .
->>>
->>> In that way, we can always make sure the valid of smc sock during the 
->>> life time of clc sock. Then we can use READ_ONCE rather
->>> than lock.  What do you think ?
->> I am not sure I fully understand the details what you propose to do. 
->> And it is not only syn_recv_sock(), right?
->> You need to consider all relations between smc socks and tcp socks; 
->> fallback to tcp, initial creation, children of listen sockets, 
->> variants of shutdown, ... Preferrably a single simple mechanism covers 
->> all situations. Maybe there is such a mechanism already today?
->> (I don't think clcsock->sk->sk_user_data or sk_callback_lock provide 
->> this general coverage)
->> If we really have a gap, a general refcnt'ing on smc sock could be a 
->> solution, but needs to be designed carefully.
-> 
-> You are right , we need designed it with care, we will try the 
-> referenced solutions internally first, and I will also send some RFCs so 
-> that everyone can track the latest progress
-> and make it can be all agreed.
->> Many thanks to you and the team to help make smc more stable and robust.
-> 
-> Our pleasure 😁.  The stability of smc is important to us too.
-> 
-> Best wishes,
-> D. Wythe
-> 
-> 
+T24gVHVlLCAyMDIzLTEwLTAzIGF0IDEwOjE4IC0wNzAwLCBTb2hpbCBNZWh0YSB3cm90ZToNCj4g
+PiBJZiB5b3UgbGlrZSwgSSBjYW4gcGljayB0aGlzIHVwIGZvciA2LjcgdGhyb3VnaCB0aGUgYXNt
+LWdlbmVyaWMNCj4gPiB0cmVlLiBJZiB5b3UgdGhpbmsgdGhpcyBzaG91bGQgYmUgcGFydCBvZiA2
+LjYsIEkgd291bGQgc3VnZ2VzdA0KPiA+IHRvIG1lcmdlIGl0IHRocm91Z2ggdGhlIHRyZWUgdGhh
+dCBvcmlnaW5hbGx5IGNvbnRhaW5lZCB0aGUNCj4gPiBzeXNjYWxsIGNvZGUuDQo+ID4gDQo+IA0K
+PiBEYXZlLCBJbmdvLCB3b3VsZCB5b3UgcHJlZmVyIHRvIHRha2UgdGhpcyBwYXRjaCB0aHJvdWdo
+IDYuNiBvciBkZWZlcg0KPiBpdA0KPiB1bnRpbCA2Ljc/DQo+IA0KPiBJdCdzIG5vdCBuZWNlc3Nh
+cmlseSBhIGZpeCBidXQgaXQgZG9lcyBoZWxwIGZpbmlzaCB1cCB0aGUgc2hzdGsNCj4gc3lzY2Fs
+bA0KPiBhZGRlZCB3aXRoIDYuNi4gQWxzbywgaXQgbWlnaHQgaGVscCByZWR1Y2Ugc29tZSBtZXJn
+ZSBjb25mbGljdHMgbGF0ZXINCj4gaWYNCj4gbmV3ZXIgc3lzY2FsbHMgYXJlIGJlaW5nIGFkZGVk
+IGR1cmluZyB0aGUgNi43IHdpbmRvdy4NCg0KSGkgQXJuZCwNCg0KSXQgZG9lc24ndCBsb29rIGxp
+a2UgYW55b25lIGlzIHBvdW5jaW5nIG9uIHRoZSBzeXNjYWxsIG51bWJlciBpbiBsaW51eC0NCm5l
+eHQgY3VycmVudGx5LiBJdCBtaWdodCBiZSBuaWNlIHRvIGhhdmUgdGhpcyBwYXRjaCBnbyB0aHJv
+dWdoIGxpbnV4LQ0KbmV4dCBzaW5jZSBpdCB0b3VjaGVzIHNvIG1hbnkgYXJjaGl0ZWN0dXJlcy4g
+QW5kIGl0IHNvdW5kcyBsaWtlIHg4Ng0KZm9sayBhcmUgb2sgd2l0aCB0aGlzLCBzbyBpZiB5b3Ug
+Y291bGQgcGljayBpdCB1cCBmb3IgNi43IHRoYXQgd291bGQgYmUNCmdyZWF0LiBUaGFua3MhDQo=
