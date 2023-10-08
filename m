@@ -2,104 +2,166 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C580E95A67
-	for <linux-s390@archiver.kernel.org>; Sun,  8 Oct 2023 07:19:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7F2AE95A82
+	for <linux-s390@archiver.kernel.org>; Sun,  8 Oct 2023 08:23:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229988AbjJHHTs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 8 Oct 2023 03:19:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33540 "EHLO
+        id S232001AbjJHIXJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 8 Oct 2023 04:23:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229966AbjJHHTs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 8 Oct 2023 03:19:48 -0400
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B981B9;
-        Sun,  8 Oct 2023 00:19:45 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R471e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0VtdMUrf_1696749581;
-Received: from 30.221.129.17(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VtdMUrf_1696749581)
+        with ESMTP id S229988AbjJHIXI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 8 Oct 2023 04:23:08 -0400
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DCB1C6;
+        Sun,  8 Oct 2023 01:23:05 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R341e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VtdcqcW_1696753375;
+Received: from 30.221.145.250(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VtdcqcW_1696753375)
           by smtp.aliyun-inc.com;
-          Sun, 08 Oct 2023 15:19:42 +0800
-Message-ID: <d04f304b-fe41-09b5-b2a5-5ce0e8254e41@linux.alibaba.com>
-Date:   Sun, 8 Oct 2023 15:19:40 +0800
+          Sun, 08 Oct 2023 16:23:02 +0800
+Message-ID: <3e41f49d-abec-34b4-283b-7ad4bbff3b41@linux.alibaba.com>
+Date:   Sun, 8 Oct 2023 16:22:55 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
  Gecko/20100101 Thunderbird/102.15.1
-Subject: Re: [PATCH net-next v4 00/18] net/smc: implement virtual ISM
- extension and loopback-ism
-To:     Niklas Schnelle <schnelle@linux.ibm.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
-Cc:     wintera@linux.ibm.com, gbayer@linux.ibm.com, pasic@linux.ibm.com,
-        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
-        dust.li@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1695568613-125057-1-git-send-email-guwen@linux.alibaba.com>
- <dcc46fedda57e7e3ade14685ddb262309544ad7e.camel@linux.ibm.com>
-From:   Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <dcc46fedda57e7e3ade14685ddb262309544ad7e.camel@linux.ibm.com>
+Subject: Re: [PATCH net] net/smc: fix panic smc_tcp_syn_recv_sock() while
+ closing listen socket
+Content-Language: en-US
+To:     Wenjia Zhang <wenjia@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>
+Cc:     jaka@linux.ibm.com, kgraul@linux.ibm.com, kuba@kernel.org,
+        davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1695211714-66958-1-git-send-email-alibuda@linux.alibaba.com>
+ <0902f55b-0d51-7f4d-0a9e-4b9423217fcf@linux.ibm.com>
+ <ee2a5f8c-4119-c84a-05bc-03015e6c9bea@linux.alibaba.com>
+ <3d1b5c12-971f-3464-5f28-79477f1f9eb2@linux.ibm.com>
+ <c03dad67-169a-bf6d-1915-a9bb722a7259@linux.alibaba.com>
+ <d18e1a78-3b3a-8f23-6db1-20c16795d3ef@linux.ibm.com>
+ <ab417654-8aba-f357-8ac5-16c4c2b291e1@linux.alibaba.com>
+ <b4470cec-7b9b-5ce5-01e0-9270f6564fbb@linux.ibm.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <b4470cec-7b9b-5ce5-01e0-9270f6564fbb@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-On 2023/10/5 16:21, Niklas Schnelle wrote:
+On 10/6/23 2:14 AM, Wenjia Zhang wrote:
+>
+>
+> On 26.09.23 11:06, D. Wythe wrote:
+>>
+>>
+>> On 9/26/23 3:18 PM, Alexandra Winter wrote:
+>>>
+>>> On 26.09.23 05:00, D. Wythe wrote:
+>>>> You are right. The key point is how to ensure the valid of smc sock 
+>>>> during the life time of clc sock, If so, READ_ONCE is good
+>>>> enough. Unfortunately, I found  that there are no such guarantee, 
+>>>> so it's still a life-time problem.
+>>> Did you discover a scenario, where clc sock could live longer than 
+>>> smc sock?
+>>> Wouldn't that be a dangerous scenario in itself? I still have some 
+>>> hope that the lifetime of an smc socket is by design longer
+>>> than that of the corresponding tcp socket.
+>>
+>>
+>> Hi Alexandra,
+>>
+>> Yes there is. Considering scenario:
+>>
+>> tcp_v4_rcv(skb)
+>>
+>> /* req sock */
+>> reqsk = _inet_lookup_skb(skb)
+>>
+>> /* listen sock */
+>> sk = reqsk(reqsk)->rsk_listener;
+>> sock_hold(sk);
+>> tcp_check_req(sk)
+>>
+>>
+>>                                                  smc_release /* 
+>> release smc listen sock */
+>>                                                  __smc_release
+>> smc_close_active()         /*  smc_sk->sk_state = SMC_CLOSED; */
+>>                                                      if 
+>> (smc_sk->sk_state == SMC_CLOSED)
+>> smc_clcsock_release();
+>> sock_release(clcsk);        /* close clcsock */
+>>      sock_put(sk);              /* might not  the final refcnt */
+>>
+>> sock_put(smc_sk)    /* might be the final refcnt of smc_sock  */
+>>
+>> syn_recv_sock(sk...)
+>> /* might be the final refcnt of tcp listen sock */
+>> sock_put(sk);
+>>
+>> Fortunately, this scenario only affects smc_syn_recv_sock and 
+>> smc_hs_congested, as other callbacks already have locks to protect smc,
+>> which can guarantee that the sk_user_data is either NULL (set in 
+>> smc_close_active) or valid under the lock.
+>> I'm kind of confused with this scenario. How could the 
+> smc_clcsock_release()->sock_release(clcsk) happen?
+> Because the syn_recv_sock happens short prior to accept(), that means 
+> that the &smc->tcp_listen_work is already triggered but the real 
+> accept() is still not happening. At this moment, the incoming 
+> connection is being added into the accept queue. Thus, if the 
+> sk->sk_state is changed from SMC_LISTEN to SMC_CLOSED in 
+> smc_close_active(), there is still 
+> "flush_work(&smc->tcp_listen_work);" after that. That ensures the 
+> smc_clcsock_release() should not happen, if smc_clcsock_accept() is 
+> not finished. Do you think that the execution of the 
+> &smc->tcp_listen_work is already done? Or am I missing something?
+>
+Hi wenjia,
 
-> 
-> Hi Wen Gu,
-> 
-> I've been trying out your series with iperf3, qperf, and uperf on
-> s390x. I'm using network namespaces with a ConnectX VF from the same
-> card in each namespace for the initial TCP/IP connection i.e. initially
-> it goes out to a real NIC even if that can switch internally. All of
-> these look great for streaming workloads both in terms of performance
-> and stability. With a Connect-Request-Response workload and uperf
-> however I've run into issues. The test configuration I use is as
-> follows:
-> 
-> Client Command:
-> 
-> # host=$ip_server ip netns exec client smc_run uperf -m tcp_crr.xml
-> 
-> Server Command:
-> 
-> # ip netns exec server smc_run uperf -s &> /dev/null
-> 
-> Uperf tcp_crr.xml:
-> 
-> <?xml version="1.0"?>
-> <profile name="TCP_CRR">
->          <group nthreads="12">
->                  <transaction duration="120">
->                          <flowop type="connect" options="remotehost=$host protocol=tcp" />
->                          <flowop type="write" options="size=200"/>
->                          <flowop type="read" options="size=1000"/>
->                          <flowop type="disconnect" />
->                  </transaction>
->          </group>
-> </profile>
-> 
-> The workload first runs fine but then after about 4 GB of data
-> transferred fails with "Connection refused" and "Connection reset by
-> peer" errors. The failure is not permanent however and re-running
-> the streaming workloads run fine again (with both uperf server and
-> client restarted). So I suspect something gets stuck in either the
-> client or server sockets. The same workload runs fine with TCP/IP of
-> course.
-> 
-> Thanks,
-> Niklas
-> 
-> 
+Sorry for late reply, we have just returned from vacation.
 
-Hi Niklas,
+The smc_clcsock_release here release the listen clcsock rather than the 
+child clcsock.
+So the flush_work might not be helpful for this scenario.
 
-Thank you very much for the test. With the test example you provided, I've
-reproduced the issue in my VM. And moreover, sometimes the test complains
-with 'Error saying goodbye with <ip>'
+Best wishes,
+D. Wythe
 
-I'll figure out what's going on here.
 
-Thanks!
-Wen Gu
+>>> Considering the const, maybe
+>>>> we need to do :
+>>>>
+>>>> 1. hold a refcnt of smc_sock for syn_recv_sock to keep smc sock 
+>>>> valid during life time of clc sock
+>>>> 2. put the refcnt of smc_sock in sk_destruct in tcp_sock to release 
+>>>> the very smc sock .
+>>>>
+>>>> In that way, we can always make sure the valid of smc sock during 
+>>>> the life time of clc sock. Then we can use READ_ONCE rather
+>>>> than lock.  What do you think ?
+>>> I am not sure I fully understand the details what you propose to do. 
+>>> And it is not only syn_recv_sock(), right?
+>>> You need to consider all relations between smc socks and tcp socks; 
+>>> fallback to tcp, initial creation, children of listen sockets, 
+>>> variants of shutdown, ... Preferrably a single simple mechanism 
+>>> covers all situations. Maybe there is such a mechanism already today?
+>>> (I don't think clcsock->sk->sk_user_data or sk_callback_lock provide 
+>>> this general coverage)
+>>> If we really have a gap, a general refcnt'ing on smc sock could be a 
+>>> solution, but needs to be designed carefully.
+>>
+>> You are right , we need designed it with care, we will try the 
+>> referenced solutions internally first, and I will also send some RFCs 
+>> so that everyone can track the latest progress
+>> and make it can be all agreed.
+>>> Many thanks to you and the team to help make smc more stable and 
+>>> robust.
+>>
+>> Our pleasure 😁.  The stability of smc is important to us too.
+>>
+>> Best wishes,
+>> D. Wythe
+>>
+>>
+
