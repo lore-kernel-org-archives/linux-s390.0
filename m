@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9895AE95A96
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 15:13:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B80E4E95A95
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 15:14:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346607AbjJIPNm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Oct 2023 11:13:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43084 "EHLO
+        id S1346624AbjJIPOI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Oct 2023 11:14:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376478AbjJIPNf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 11:13:35 -0400
+        with ESMTP id S1377005AbjJIPNq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 11:13:46 -0400
 Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E6DF119;
-        Mon,  9 Oct 2023 08:13:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55317C6;
+        Mon,  9 Oct 2023 08:13:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1696864406; x=1728400406;
+  t=1696864415; x=1728400415;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=Mw29f1QIt7U37r6p+V4Yyfpi9cV1+O/PtDoSzXpXBFY=;
-  b=O6L/5LimJBecOPUb4EF/dGVcLKyAGaVBau+lEDMdGu8azVl1/I/UL5iD
-   S5ZtwtzDc+dDoBLUE+WV6Jict+wfwaxQLEep5Gf1Nt0C3I2Taxe/QHpzq
-   h3VOqSa+jMRMWRgr+lTgPx0qPF4DdkjQz8RVra+zZxjCiE+CTvBtSDnDh
-   Vqw1X8qnFRfgyp7HACSe336PGvni1ycubSRQOqvbXuVbtW0v4bR+8Kb09
-   QbdyEH6lNHDJ9m5xS9iu47pIwbcVNSJjaFYGoSwYQqrOdI0icdJj1Dijt
-   +5oWyygg6pCjVSswIlQufZvDmIVpymoPl28grYCa44Xq5SQlS1KtfYkRO
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10858"; a="369232116"
+  bh=qZMyF6TDtCKn2j7MBSZqcT5w2Tsjobk9HIX7JwHcMVA=;
+  b=PCmpo63rTrk5KVCZeDp4qVwaMdHtGifBQQJCc/vfUQvvgMvXhVqIqxA7
+   NTeUsbtXSkHte6rTfyqsDUknHWeS9m+SnucFW5EZkOStAzp/WaUUoW5To
+   7Bv/jU0ImFqeReEG/Bj2U1HYlXZefc19Q7DP3//KeKovbfTxoG/+884Sc
+   SV3AuktK93d88OkX/UgH899v8qLoVtzhX6kJVG0+V/ZHLTO6XQrz5Zyj6
+   XO+v1Unze8JexpuB7fEMqe7oXL6p3lxSMkAB+jGSu1tgUIlUzvoGA7SIE
+   F5ehPHpu8J5ZGaSp/3zpcmluOil12VoCXNwpaJJYAqgDSqwJAg7+H7YOJ
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10858"; a="369232223"
 X-IronPort-AV: E=Sophos;i="6.03,210,1694761200"; 
-   d="scan'208";a="369232116"
+   d="scan'208";a="369232223"
 Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2023 08:13:21 -0700
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2023 08:13:29 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10858"; a="869287992"
+X-IronPort-AV: E=McAfee;i="6600,9927,10858"; a="869288032"
 X-IronPort-AV: E=Sophos;i="6.03,210,1694761200"; 
-   d="scan'208";a="869287992"
+   d="scan'208";a="869288032"
 Received: from newjersey.igk.intel.com ([10.102.20.203])
-  by fmsmga002.fm.intel.com with ESMTP; 09 Oct 2023 08:13:18 -0700
+  by fmsmga002.fm.intel.com with ESMTP; 09 Oct 2023 08:13:25 -0700
 From:   Alexander Lobakin <aleksander.lobakin@intel.com>
 To:     Yury Norov <yury.norov@gmail.com>
 Cc:     Alexander Lobakin <aleksander.lobakin@intel.com>,
@@ -52,9 +52,9 @@ Cc:     Alexander Lobakin <aleksander.lobakin@intel.com>,
         netdev@vger.kernel.org, linux-btrfs@vger.kernel.org,
         dm-devel@redhat.com, ntfs3@lists.linux.dev,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 05/14] s390/cio: rename bitmap_size() -> idset_bitmap_size()
-Date:   Mon,  9 Oct 2023 17:10:17 +0200
-Message-ID: <20231009151026.66145-6-aleksander.lobakin@intel.com>
+Subject: [PATCH 07/14] btrfs: rename bitmap_set_bits() -> btrfs_bitmap_set_bits()
+Date:   Mon,  9 Oct 2023 17:10:19 +0200
+Message-ID: <20231009151026.66145-8-aleksander.lobakin@intel.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20231009151026.66145-1-aleksander.lobakin@intel.com>
 References: <20231009151026.66145-1-aleksander.lobakin@intel.com>
@@ -64,60 +64,43 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-bitmap_size() is a pretty generic name and one may want to use it for
-a generic bitmap API function. At the same time, its logic is not
-"generic", i.e. it's not just `nbits -> size of bitmap in bytes`
-converter as it would be expected from its name.
-Add the prefix 'idset_' used throughout the file where the function
-resides.
+bitmap_set_bits() does not start with the FS' prefix and may collide
+with a new generic helper one day. It operates with the FS-specific
+types, so there's no change those two could do the same thing.
+Just add the prefix to exclude such possible conflict.
 
 Reviewed-by: Przemek Kitszel <przemyslaw.kitszel@intel.com>
 Signed-off-by: Alexander Lobakin <aleksander.lobakin@intel.com>
 ---
-idset_new() really wants its vmalloc() + memset() pair to be replaced
-with vzalloc().
----
- drivers/s390/cio/idset.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/btrfs/free-space-cache.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/cio/idset.c b/drivers/s390/cio/idset.c
-index 45f9c0736be4..0a1105a483bf 100644
---- a/drivers/s390/cio/idset.c
-+++ b/drivers/s390/cio/idset.c
-@@ -16,7 +16,7 @@ struct idset {
- 	unsigned long bitmap[];
- };
- 
--static inline unsigned long bitmap_size(int num_ssid, int num_id)
-+static inline unsigned long idset_bitmap_size(int num_ssid, int num_id)
- {
- 	return BITS_TO_LONGS(num_ssid * num_id) * sizeof(unsigned long);
- }
-@@ -25,11 +25,12 @@ static struct idset *idset_new(int num_ssid, int num_id)
- {
- 	struct idset *set;
- 
--	set = vmalloc(sizeof(struct idset) + bitmap_size(num_ssid, num_id));
-+	set = vmalloc(sizeof(struct idset) +
-+		      idset_bitmap_size(num_ssid, num_id));
- 	if (set) {
- 		set->num_ssid = num_ssid;
- 		set->num_id = num_id;
--		memset(set->bitmap, 0, bitmap_size(num_ssid, num_id));
-+		memset(set->bitmap, 0, idset_bitmap_size(num_ssid, num_id));
- 	}
- 	return set;
- }
-@@ -41,7 +42,8 @@ void idset_free(struct idset *set)
- 
- void idset_fill(struct idset *set)
- {
--	memset(set->bitmap, 0xff, bitmap_size(set->num_ssid, set->num_id));
-+	memset(set->bitmap, 0xff,
-+	       idset_bitmap_size(set->num_ssid, set->num_id));
+diff --git a/fs/btrfs/free-space-cache.c b/fs/btrfs/free-space-cache.c
+index 27fad70451aa..94249b5ee447 100644
+--- a/fs/btrfs/free-space-cache.c
++++ b/fs/btrfs/free-space-cache.c
+@@ -1909,9 +1909,9 @@ static inline void bitmap_clear_bits(struct btrfs_free_space_ctl *ctl,
+ 		ctl->free_space -= bytes;
  }
  
- static inline void idset_add(struct idset *set, int ssid, int id)
+-static void bitmap_set_bits(struct btrfs_free_space_ctl *ctl,
+-			    struct btrfs_free_space *info, u64 offset,
+-			    u64 bytes)
++static void btrfs_bitmap_set_bits(struct btrfs_free_space_ctl *ctl,
++				  struct btrfs_free_space *info, u64 offset,
++				  u64 bytes)
+ {
+ 	unsigned long start, count, end;
+ 	int extent_delta = 1;
+@@ -2247,7 +2247,7 @@ static u64 add_bytes_to_bitmap(struct btrfs_free_space_ctl *ctl,
+ 
+ 	bytes_to_set = min(end - offset, bytes);
+ 
+-	bitmap_set_bits(ctl, info, offset, bytes_to_set);
++	btrfs_bitmap_set_bits(ctl, info, offset, bytes_to_set);
+ 
+ 	return bytes_to_set;
+ 
 -- 
 2.41.0
 
