@@ -2,166 +2,129 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7F2AE95A82
-	for <linux-s390@archiver.kernel.org>; Sun,  8 Oct 2023 08:23:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E69EE95A91
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 09:33:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232001AbjJHIXJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 8 Oct 2023 04:23:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33680 "EHLO
+        id S1345804AbjJIJdN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Oct 2023 05:33:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229988AbjJHIXI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 8 Oct 2023 04:23:08 -0400
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DCB1C6;
-        Sun,  8 Oct 2023 01:23:05 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R341e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VtdcqcW_1696753375;
-Received: from 30.221.145.250(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VtdcqcW_1696753375)
-          by smtp.aliyun-inc.com;
-          Sun, 08 Oct 2023 16:23:02 +0800
-Message-ID: <3e41f49d-abec-34b4-283b-7ad4bbff3b41@linux.alibaba.com>
-Date:   Sun, 8 Oct 2023 16:22:55 +0800
+        with ESMTP id S1345799AbjJIJdM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 05:33:12 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 918EACA;
+        Mon,  9 Oct 2023 02:33:10 -0700 (PDT)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3998vYLA005159;
+        Mon, 9 Oct 2023 09:33:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=DEGfXopXxfNFo2GLBi+C68L/Odr0Kc84gq4TMiQHlHo=;
+ b=TVKm265r0kf3o8SD9qVCN+Vo2koLMDvHHrputHtkXIgCfXpSESTMk22qyBGhdeOFg0Ej
+ 3QNPNtuHKgpREtoUthvxueznQAg4oEmZFTRN7q8PZbzs6JxUcQf72IDHPMLxsDl/oh/4
+ jcoCmXuB2hgk0SoGZ5crt3sdxwyZ80LwFp7584EItHwS6D2niKHdpNKJpCXCzZLihlbB
+ vN40N/pyV2JV5rxAcbUJQKXovgCTNlzMFS7TQ6oGZW2ZMCJSosu4uMDFdwnC/jC1IsQJ
+ 6hxfnAyedJZgLUXtM7u6afmr6WNGTA1sgndFSKoiW36wc11kTnMwcOKMJCOICA8UX74k vQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tmefbrscs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 09 Oct 2023 09:33:09 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3999FvHL013656;
+        Mon, 9 Oct 2023 09:33:09 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tmefbrsc4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 09 Oct 2023 09:33:09 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3999KNVl025927;
+        Mon, 9 Oct 2023 09:33:08 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tkjnmyyac-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 09 Oct 2023 09:33:08 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3999X4ZX43778760
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 9 Oct 2023 09:33:04 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BEF392004B;
+        Mon,  9 Oct 2023 09:33:04 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8A0F720040;
+        Mon,  9 Oct 2023 09:33:04 +0000 (GMT)
+Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  9 Oct 2023 09:33:04 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH v4 0/2] KVM: s390: add counters for vsie performance
+Date:   Mon,  9 Oct 2023 11:32:51 +0200
+Message-ID: <20231009093304.2555344-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.1
-Subject: Re: [PATCH net] net/smc: fix panic smc_tcp_syn_recv_sock() while
- closing listen socket
-Content-Language: en-US
-To:     Wenjia Zhang <wenjia@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>
-Cc:     jaka@linux.ibm.com, kgraul@linux.ibm.com, kuba@kernel.org,
-        davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1695211714-66958-1-git-send-email-alibuda@linux.alibaba.com>
- <0902f55b-0d51-7f4d-0a9e-4b9423217fcf@linux.ibm.com>
- <ee2a5f8c-4119-c84a-05bc-03015e6c9bea@linux.alibaba.com>
- <3d1b5c12-971f-3464-5f28-79477f1f9eb2@linux.ibm.com>
- <c03dad67-169a-bf6d-1915-a9bb722a7259@linux.alibaba.com>
- <d18e1a78-3b3a-8f23-6db1-20c16795d3ef@linux.ibm.com>
- <ab417654-8aba-f357-8ac5-16c4c2b291e1@linux.alibaba.com>
- <b4470cec-7b9b-5ce5-01e0-9270f6564fbb@linux.ibm.com>
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <b4470cec-7b9b-5ce5-01e0-9270f6564fbb@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: DQAds250jDIYJ9B3AJhHb3c7H2LYGo_5
+X-Proofpoint-ORIG-GUID: kXmfZ4gjVH0q0mnLI2BYUQ_vAbsMznqG
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-09_07,2023-10-06_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
+ adultscore=0 impostorscore=0 spamscore=0 priorityscore=1501 bulkscore=0
+ lowpriorityscore=0 clxscore=1015 mlxscore=0 mlxlogscore=999 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2309180000
+ definitions=main-2310090078
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+v4:
+---
+* fix indent in tracepoint (thanks Janosch)
 
+v3:
+---
+* rename te -> entry (David)
+* add counters for gmap reuse and gmap create (David)
 
-On 10/6/23 2:14 AM, Wenjia Zhang wrote:
->
->
-> On 26.09.23 11:06, D. Wythe wrote:
->>
->>
->> On 9/26/23 3:18 PM, Alexandra Winter wrote:
->>>
->>> On 26.09.23 05:00, D. Wythe wrote:
->>>> You are right. The key point is how to ensure the valid of smc sock 
->>>> during the life time of clc sock, If so, READ_ONCE is good
->>>> enough. Unfortunately, I found  that there are no such guarantee, 
->>>> so it's still a life-time problem.
->>> Did you discover a scenario, where clc sock could live longer than 
->>> smc sock?
->>> Wouldn't that be a dangerous scenario in itself? I still have some 
->>> hope that the lifetime of an smc socket is by design longer
->>> than that of the corresponding tcp socket.
->>
->>
->> Hi Alexandra,
->>
->> Yes there is. Considering scenario:
->>
->> tcp_v4_rcv(skb)
->>
->> /* req sock */
->> reqsk = _inet_lookup_skb(skb)
->>
->> /* listen sock */
->> sk = reqsk(reqsk)->rsk_listener;
->> sock_hold(sk);
->> tcp_check_req(sk)
->>
->>
->>                                                  smc_release /* 
->> release smc listen sock */
->>                                                  __smc_release
->> smc_close_active()         /*  smc_sk->sk_state = SMC_CLOSED; */
->>                                                      if 
->> (smc_sk->sk_state == SMC_CLOSED)
->> smc_clcsock_release();
->> sock_release(clcsk);        /* close clcsock */
->>      sock_put(sk);              /* might not  the final refcnt */
->>
->> sock_put(smc_sk)    /* might be the final refcnt of smc_sock  */
->>
->> syn_recv_sock(sk...)
->> /* might be the final refcnt of tcp listen sock */
->> sock_put(sk);
->>
->> Fortunately, this scenario only affects smc_syn_recv_sock and 
->> smc_hs_congested, as other callbacks already have locks to protect smc,
->> which can guarantee that the sk_user_data is either NULL (set in 
->> smc_close_active) or valid under the lock.
->> I'm kind of confused with this scenario. How could the 
-> smc_clcsock_release()->sock_release(clcsk) happen?
-> Because the syn_recv_sock happens short prior to accept(), that means 
-> that the &smc->tcp_listen_work is already triggered but the real 
-> accept() is still not happening. At this moment, the incoming 
-> connection is being added into the accept queue. Thus, if the 
-> sk->sk_state is changed from SMC_LISTEN to SMC_CLOSED in 
-> smc_close_active(), there is still 
-> "flush_work(&smc->tcp_listen_work);" after that. That ensures the 
-> smc_clcsock_release() should not happen, if smc_clcsock_accept() is 
-> not finished. Do you think that the execution of the 
-> &smc->tcp_listen_work is already done? Or am I missing something?
->
-Hi wenjia,
+v2:
+---
+* also count shadowing of pages (Janosch)
+* fix naming of counters (Janosch)
+* mention shadowing of multiple levels is counted in each level (Claudio)
+* fix inaccuate commit description regarding gmap notifier (Claudio)
 
-Sorry for late reply, we have just returned from vacation.
+When running a guest-3 via VSIE, guest-1 needs to shadow the page table
+structures of guest-2.
 
-The smc_clcsock_release here release the listen clcsock rather than the 
-child clcsock.
-So the flush_work might not be helpful for this scenario.
+To reflect changes of the guest-2 in the _shadowed_ page table structures,
+the _shadowing_ sturctures sometimes need to be rebuilt. Since this is a
+costly operation, it should be avoided whenever possible.
 
-Best wishes,
-D. Wythe
+This series adds kvm stat counters to count the number of shadow gmaps
+created and a tracepoint whenever something is unshadowed. This is a first
+step to try and improve VSIE performance.
 
+Please note that "KVM: s390: add tracepoint in gmap notifier" has some
+checkpatch --strict findings. I did not fix these since the tracepoint
+definition would then look completely different from all the other
+tracepoints in arch/s390/kvm/trace-s390.h. If you want me to fix that,
+please let me know.
 
->>> Considering the const, maybe
->>>> we need to do :
->>>>
->>>> 1. hold a refcnt of smc_sock for syn_recv_sock to keep smc sock 
->>>> valid during life time of clc sock
->>>> 2. put the refcnt of smc_sock in sk_destruct in tcp_sock to release 
->>>> the very smc sock .
->>>>
->>>> In that way, we can always make sure the valid of smc sock during 
->>>> the life time of clc sock. Then we can use READ_ONCE rather
->>>> than lock.  What do you think ?
->>> I am not sure I fully understand the details what you propose to do. 
->>> And it is not only syn_recv_sock(), right?
->>> You need to consider all relations between smc socks and tcp socks; 
->>> fallback to tcp, initial creation, children of listen sockets, 
->>> variants of shutdown, ... Preferrably a single simple mechanism 
->>> covers all situations. Maybe there is such a mechanism already today?
->>> (I don't think clcsock->sk->sk_user_data or sk_callback_lock provide 
->>> this general coverage)
->>> If we really have a gap, a general refcnt'ing on smc sock could be a 
->>> solution, but needs to be designed carefully.
->>
->> You are right , we need designed it with care, we will try the 
->> referenced solutions internally first, and I will also send some RFCs 
->> so that everyone can track the latest progress
->> and make it can be all agreed.
->>> Many thanks to you and the team to help make smc more stable and 
->>> robust.
->>
->> Our pleasure 😁.  The stability of smc is important to us too.
->>
->> Best wishes,
->> D. Wythe
->>
->>
+Nico Boehr (2):
+  KVM: s390: add stat counter for shadow gmap events
+  KVM: s390: add tracepoint in gmap notifier
+
+ arch/s390/include/asm/kvm_host.h |  7 +++++++
+ arch/s390/kvm/gaccess.c          |  7 +++++++
+ arch/s390/kvm/kvm-s390.c         | 11 ++++++++++-
+ arch/s390/kvm/trace-s390.h       | 23 +++++++++++++++++++++++
+ arch/s390/kvm/vsie.c             |  5 ++++-
+ 5 files changed, 51 insertions(+), 2 deletions(-)
+
+-- 
+2.41.0
 
