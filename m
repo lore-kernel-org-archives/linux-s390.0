@@ -2,46 +2,56 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 292ABCD6104
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 16:19:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9616DCD6105
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 16:31:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376995AbjJIQTx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Oct 2023 12:19:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49620 "EHLO
+        id S1377181AbjJIQbU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Oct 2023 12:31:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377358AbjJIPOP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 11:14:15 -0400
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99F4F10E;
-        Mon,  9 Oct 2023 08:14:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1696864446; x=1728400446;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=MDqxXWy3FQK4bmmnOnFrjc86dXXtL75Q8r+lD3avrI0=;
-  b=SIGwEomj3Rhy5xumK/gV9ijGyIOYKp3OZkAx24fGojKPIAngXpO40WtO
-   NHnyBnZYtALEqGCJ6uiFwUP8mX5pknU8Mnt4k3kDpM3k+uQ8sz1bjm1iW
-   5UnqNLfyv7z1s+cHTZY93EtVdpQICd5T/zknX7GTPBVS1QW7i95W9Xi+x
-   IvzW039OI4l0R2pi6xOmboFd6/7j/IwKKsxlx9ZDvWDPFLGiNARNGOOYr
-   u4sk6Y5Tc1jFnvQ4HKIkPR7ukbz3p11sGYnJU5k0PkuEGFTdqvKvib1Dv
-   ghGgE+30j44kK7/3pk2rqwqgjR8FYkQfOS+J8OmVVOYXDljOb+AqvCCzI
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10858"; a="369232534"
-X-IronPort-AV: E=Sophos;i="6.03,210,1694761200"; 
-   d="scan'208";a="369232534"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2023 08:13:52 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10858"; a="869288197"
-X-IronPort-AV: E=Sophos;i="6.03,210,1694761200"; 
-   d="scan'208";a="869288197"
-Received: from newjersey.igk.intel.com ([10.102.20.203])
-  by fmsmga002.fm.intel.com with ESMTP; 09 Oct 2023 08:13:48 -0700
-From:   Alexander Lobakin <aleksander.lobakin@intel.com>
-To:     Yury Norov <yury.norov@gmail.com>
-Cc:     Alexander Lobakin <aleksander.lobakin@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        with ESMTP id S1377196AbjJIQbT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 12:31:19 -0400
+Received: from mail-yw1-x1134.google.com (mail-yw1-x1134.google.com [IPv6:2607:f8b0:4864:20::1134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B2BDAF;
+        Mon,  9 Oct 2023 09:31:18 -0700 (PDT)
+Received: by mail-yw1-x1134.google.com with SMTP id 00721157ae682-59f6e6b7600so56280237b3.3;
+        Mon, 09 Oct 2023 09:31:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1696869077; x=1697473877; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZwJG0ZcdADOiEPsRD1fp8I+0b5ih4BdS68Cgas4xJ7g=;
+        b=EqxmU5teWNdEaPpgJA2o0T/ghM9GXOlFNUNJfBtVW+EkVpiHlbHLrk6DA+G34wrXgb
+         S0Ya1gnzffYaUlgmMmISDNE4Y94p6um02EvxSCH0ehuoXbzOd3+AGMHvXPgBsAQ9Z/16
+         VfBiLvyUlLSEJPTAV4+g8ZkBVv4Z1j/W+5rexg6e0bwrwLT+dEjMlkzJr/2oS2Hx445S
+         SUOE90cx3RpyFEtw4on25mInxVgQWqBmLRg6j0JXpeu5mJcCV1XxdLBcFnZzrbSMUxuj
+         HPsgLK1VsS1Agh4j1ZI2Qw0cEgN7mZC1IZdxz8KAstenN9zaVRofYkie8UAq+7kKdSs6
+         9f5Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1696869077; x=1697473877;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ZwJG0ZcdADOiEPsRD1fp8I+0b5ih4BdS68Cgas4xJ7g=;
+        b=ODW7BE7YRdT1e0HRXZHKIJqVyCPP5zMcpm/h+iiYkt7KdQ50NKoRhX1VbASH44bZiK
+         esBfrVSi6dEPT7/G4BVPcTSOGyV/eTae9QR0qV1AlPTAwBTOfWfmf2wegUDJs9yGGRHI
+         T8egPnFN8F70irQBMjW4Y++lmOFGvOzDZ1YGUEig/u4qMEYGvgpHfVadISyIifGwgRSK
+         NyEbL6X7s9ETfsvHjpDHZeLLLB2gZRW9woJ/6HkQRTERQiEnzLzfWRI+0Yk1va63gY4T
+         tFwy4y9eEYRNOVL3HAURDPzslImf+pjzGBy1eOHN9wweyNzWsgdxyUTsLu7SqbgcPQCT
+         N3zw==
+X-Gm-Message-State: AOJu0YxPyAyU5I4liXL3Op0egXAb/m86haIYzV8gUPUySuCo0QEGgGBF
+        kfNBJ37CeDgn8Da0EzvEilnp3+DMTa4WIg==
+X-Google-Smtp-Source: AGHT+IEXYlVGR26h67lZ0CQFtDdopC6qPtwRiCX8u/eS0Le2sSi4IxhnE11TM3OyRpNoFH8rv8Esgw==
+X-Received: by 2002:a81:7b8a:0:b0:59b:c805:de60 with SMTP id w132-20020a817b8a000000b0059bc805de60mr15386292ywc.45.1696869076997;
+        Mon, 09 Oct 2023 09:31:16 -0700 (PDT)
+Received: from localhost ([2607:fb90:be22:da0:a050:8c3a:c782:514b])
+        by smtp.gmail.com with ESMTPSA id g139-20020a0ddd91000000b00589a999038asm3797246ywe.77.2023.10.09.09.31.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Oct 2023 09:31:16 -0700 (PDT)
+Date:   Mon, 9 Oct 2023 09:31:15 -0700
+From:   Yury Norov <yury.norov@gmail.com>
+To:     Alexander Lobakin <aleksander.lobakin@intel.com>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Alexander Potapenko <glider@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
@@ -52,129 +62,141 @@ Cc:     Alexander Lobakin <aleksander.lobakin@intel.com>,
         netdev@vger.kernel.org, linux-btrfs@vger.kernel.org,
         dm-devel@redhat.com, ntfs3@lists.linux.dev,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 13/14] lib/bitmap: add tests for bitmap_{get,set}_bits()
-Date:   Mon,  9 Oct 2023 17:10:25 +0200
-Message-ID: <20231009151026.66145-14-aleksander.lobakin@intel.com>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20231009151026.66145-1-aleksander.lobakin@intel.com>
+Subject: Re: [PATCH 09/14] bitmap: extend bitmap_{get,set}_value8() to
+ bitmap_{get,set}_bits()
+Message-ID: <ZSQq02A9mTireK71@yury-ThinkPad>
 References: <20231009151026.66145-1-aleksander.lobakin@intel.com>
+ <20231009151026.66145-10-aleksander.lobakin@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231009151026.66145-10-aleksander.lobakin@intel.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-bitmap_{get,set}_value8() is now bitmap_{get,set}_bits(). The former
-didn't have any dedicated tests in the bitmap test suite.
-Add a pack of test cases with variable offset, width, and value to set
-(for _set_bits()), randomly generated with the only limitation:
-``offset % 32 + width <= 32``, to make sure the tests won't fail or
-trigger kernel warnings on 32-bit platforms. For _get_bits(), compare
-the return values with the expected ones, calculated and saved manually.
-For _set_bit(), do several modifications of the source bitmap and then
-compare against the expected resulting one, also pre-calculated.
++ Alexander Potapenko <glider@google.com>
 
-Reviewed-by: Przemek Kitszel <przemyslaw.kitszel@intel.com>
-Signed-off-by: Alexander Lobakin <aleksander.lobakin@intel.com>
----
- lib/test_bitmap.c | 77 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 77 insertions(+)
+On Mon, Oct 09, 2023 at 05:10:21PM +0200, Alexander Lobakin wrote:
+> Sometimes there's need to get a 8/16/...-bit piece of a bitmap at a
+> particular offset. Currently, there are only bitmap_{get,set}_value8()
+> to do that for 8 bits and that's it.
 
-diff --git a/lib/test_bitmap.c b/lib/test_bitmap.c
-index cbf1b9611616..6037b66fd30a 100644
---- a/lib/test_bitmap.c
-+++ b/lib/test_bitmap.c
-@@ -1161,6 +1161,82 @@ static void __init test_bitmap_print_buf(void)
- 	}
- }
- 
-+struct getset_test {
-+	u16	offset;
-+	u16	width;
-+	union {
-+		u32	expect;
-+		u32	value;
-+	};
-+};
-+
-+#define GETSET_TEST(o, w, v) {	\
-+	.offset	= (o),		\
-+	.width	= (w),		\
-+	.value	= (v),		\
-+}
-+
-+static const unsigned long getset_src[] __initconst = {
-+	BITMAP_FROM_U64(0x4329c918b472468eULL),
-+	BITMAP_FROM_U64(0xb2c20a622474a119ULL),
-+	BITMAP_FROM_U64(0x3a08cb5591cea40dULL),
-+	BITMAP_FROM_U64(0xc9a7550384e145f8ULL),
-+};
-+
-+static const struct getset_test get_bits_test[] __initconst = {
-+	GETSET_TEST(208, 16, 0x84e1),
-+	GETSET_TEST(104, 8, 0xa),
-+	GETSET_TEST(224, 32, 0xc9a75503),
-+	GETSET_TEST(64, 16, 0xa119),
-+	GETSET_TEST(169, 1, 0x1),
-+	GETSET_TEST(144, 8, 0xce),
-+	GETSET_TEST(80, 4, 0x4),
-+	GETSET_TEST(24, 4, 0x4),
-+};
-+
-+static const struct getset_test set_bits_test[] __initconst = {
-+	GETSET_TEST(56, 4, 0xa),
-+	GETSET_TEST(80, 16, 0xb17a),
-+	GETSET_TEST(112, 8, 0x1b),
-+	GETSET_TEST(0, 32, 0xe8a555f2),
-+	GETSET_TEST(16, 2, 0),
-+	GETSET_TEST(72, 8, 0x7d),
-+	GETSET_TEST(47, 1, 0),
-+	GETSET_TEST(160, 16, 0x1622),
-+};
-+
-+static const unsigned long getset_out[] __initconst = {
-+	BITMAP_FROM_U64(0x4a294918e8a455f2ULL),
-+	BITMAP_FROM_U64(0xb21b0a62b17a7d19ULL),
-+	BITMAP_FROM_U64(0x3a08162291cea40dULL),
-+	BITMAP_FROM_U64(0xc9a7550384e145f8ULL),
-+};
-+
-+#define GETSET_TEST_BITS	BYTES_TO_BITS(sizeof(getset_out))
-+
-+static void __init test_bitmap_getset_bits(void)
-+{
-+	DECLARE_BITMAP(out, GETSET_TEST_BITS);
-+
-+	for (u32 i = 0; i < ARRAY_SIZE(get_bits_test); i++) {
-+		const struct getset_test *test = &get_bits_test[i];
-+		u32 val;
-+
-+		val = bitmap_get_bits(getset_src, test->offset, test->width);
-+		expect_eq_uint(test->expect, val);
-+	}
-+
-+	bitmap_copy(out, getset_src, GETSET_TEST_BITS);
-+
-+	for (u32 i = 0; i < ARRAY_SIZE(set_bits_test); i++) {
-+		const struct getset_test *test = &set_bits_test[i];
-+
-+		bitmap_set_bits(out, test->offset, test->value, test->width);
-+	}
-+
-+	expect_eq_bitmap(getset_out, out, GETSET_TEST_BITS);
-+}
-+
- /*
-  * FIXME: Clang breaks compile-time evaluations when KASAN and GCOV are enabled.
-  * To workaround it, GCOV is force-disabled in Makefile for this configuration.
-@@ -1238,6 +1314,7 @@ static void __init selftest(void)
- 	test_mem_optimisations();
- 	test_bitmap_cut();
- 	test_bitmap_print_buf();
-+	test_bitmap_getset_bits();
- 	test_bitmap_const_eval();
- 
- 	test_find_nth_bit();
--- 
-2.41.0
+And also a series from Alexander Potapenko, which I really hope will
+get into the -next really soon. It introduces bitmap_read/write which
+can set up to BITS_PER_LONG at once, with no limitations on alignment
+of position and length:
 
+https://lore.kernel.org/linux-arm-kernel/ZRXbOoKHHafCWQCW@yury-ThinkPad/T/#mc311037494229647088b3a84b9f0d9b50bf227cb
+
+Can you consider building your series on top of it?
+
+> Instead of introducing a separate pair for u16 and so on, which doesn't
+> scale well, extend the existing functions to be able to pass the wanted
+> value width. Make both offset and width arbitrary, but in order to not
+> over complicate the current logic and keep the helpers as optimized as
+> the current ones, require the width to be a pow-2 value and the offset
+> to be a multiple of the width, while the target piece should not cross
+> a %BITS_PER_LONG boundary and stay within one long.
+> Avoid adjusting all the already existing callsites by defining oneliner
+> wrapper macros named after the former functions. bloat-o-meter shows
+> almost no difference (+1-2 bytes in a couple of places), meaning the
+> new helpers get optimized just nicely.
+> 
+> Reviewed-by: Przemek Kitszel <przemyslaw.kitszel@intel.com>
+> Signed-off-by: Alexander Lobakin <aleksander.lobakin@intel.com>
+> ---
+>  include/linux/bitmap.h | 51 ++++++++++++++++++++++++++++++------------
+>  1 file changed, 37 insertions(+), 14 deletions(-)
+> 
+> diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
+> index 63e422f8ba3d..9c010a7fa331 100644
+> --- a/include/linux/bitmap.h
+> +++ b/include/linux/bitmap.h
+> @@ -6,8 +6,10 @@
+>  
+>  #include <linux/align.h>
+>  #include <linux/bitops.h>
+> +#include <linux/bug.h>
+>  #include <linux/find.h>
+>  #include <linux/limits.h>
+> +#include <linux/log2.h>
+>  #include <linux/string.h>
+>  #include <linux/types.h>
+>  
+> @@ -569,38 +571,59 @@ static inline void bitmap_from_u64(unsigned long *dst, u64 mask)
+>  }
+>  
+>  /**
+> - * bitmap_get_value8 - get an 8-bit value within a memory region
+> + * bitmap_get_bits - get a 8/16/32/64-bit value within a memory region
+>   * @map: address to the bitmap memory region
+> - * @start: bit offset of the 8-bit value; must be a multiple of 8
+> + * @start: bit offset of the value; must be a multiple of @len
+> + * @len: bit width of the value; must be a power of two
+>   *
+> - * Returns the 8-bit value located at the @start bit offset within the @src
+> - * memory region.
+> + * Return: the 8/16/32/64-bit value located at the @start bit offset within
+> + * the @src memory region. Its position (@start + @len) can't cross
+> + * a ``BITS_PER_LONG`` boundary.
+>   */
+> -static inline unsigned long bitmap_get_value8(const unsigned long *map,
+> -					      unsigned long start)
+> +static inline unsigned long bitmap_get_bits(const unsigned long *map,
+> +					    unsigned long start, size_t len)
+>  {
+>  	const size_t index = BIT_WORD(start);
+>  	const unsigned long offset = start % BITS_PER_LONG;
+>  
+> -	return (map[index] >> offset) & 0xFF;
+> +	if (WARN_ON_ONCE(!is_power_of_2(len) || offset % len ||
+> +			 offset + len > BITS_PER_LONG))
+> +		return 0;
+> +
+> +	return (map[index] >> offset) & GENMASK(len - 1, 0);
+>  }
+>  
+>  /**
+> - * bitmap_set_value8 - set an 8-bit value within a memory region
+> + * bitmap_set_bits - set a 8/16/32/64-bit value within a memory region
+>   * @map: address to the bitmap memory region
+> - * @value: the 8-bit value; values wider than 8 bits may clobber bitmap
+> - * @start: bit offset of the 8-bit value; must be a multiple of 8
+> + * @start: bit offset of the value; must be a multiple of @len
+> + * @value: new value to set
+> + * @len: bit width of the value; must be a power of two
+> + *
+> + * Replaces the 8/16/32/64-bit value located at the @start bit offset within
+> + * the @src memory region with the new @value. Its position (@start + @len)
+> + * can't cross a ``BITS_PER_LONG`` boundary.
+>   */
+> -static inline void bitmap_set_value8(unsigned long *map, unsigned long value,
+> -				     unsigned long start)
+> +static inline void bitmap_set_bits(unsigned long *map, unsigned long start,
+> +				   unsigned long value, size_t len)
+>  {
+>  	const size_t index = BIT_WORD(start);
+>  	const unsigned long offset = start % BITS_PER_LONG;
+> +	unsigned long mask = GENMASK(len - 1, 0);
+>  
+> -	map[index] &= ~(0xFFUL << offset);
+> -	map[index] |= value << offset;
+> +	if (WARN_ON_ONCE(!is_power_of_2(len) || offset % len ||
+> +			 offset + len > BITS_PER_LONG))
+> +		return;
+> +
+> +	map[index] &= ~(mask << offset);
+> +	map[index] |= (value & mask) << offset;
+>  }
+>  
+> +#define bitmap_get_value8(map, start)				\
+> +	bitmap_get_bits(map, start, BITS_PER_BYTE)
+> +#define bitmap_set_value8(map, value, start)			\
+> +	bitmap_set_bits(map, start, value, BITS_PER_BYTE)
+> +
+>  #endif /* __ASSEMBLY__ */
+>  
+>  #endif /* __LINUX_BITMAP_H */
+> -- 
+> 2.41.0
