@@ -2,237 +2,120 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69A99E95A8E
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 09:33:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81E60E95A8E
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 11:31:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345846AbjJIJdP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Oct 2023 05:33:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38654 "EHLO
+        id S234589AbjJILa7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Oct 2023 07:30:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345801AbjJIJdN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 05:33:13 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3423D6;
-        Mon,  9 Oct 2023 02:33:10 -0700 (PDT)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3999KKi0010556;
-        Mon, 9 Oct 2023 09:33:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=GsAqcjRhOdbINkMlShceUBTTxT/OYQCO13amGLaXTq8=;
- b=mbYqLPBcAyV+dWJEIebsEE51QHC41LtmbMfbh2QBWy0s6wxQNK9AAg1kCOjHjC8+19M2
- FSI4IW3fV7CgsIFnZEtkTgOc7bvk0ElDm8U/mdbmb1LSahkie7zLzcpgwnRV67Nss7QM
- b4HRfmwpLyjO0S7dCtZN3mxwulYDKSqWDLQETpatRKkH3VmcsoOMeFoCmZDj0OP9zfeu
- nWUmktyOsezsLHYTzcxHqqzIjltX1aar48Oh1V7vLC9M0Y3Bh8ZdSV7qB91xfomwFAu7
- 5gJlefed2BNi8Sw+XayFQ1xc1ByZ3ZRxssw5PLUTRGtBZg9+9I3fPiwWALDOB5W0HRJ/ 6Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tmesv0b6j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Oct 2023 09:33:09 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3999LIE5012300;
-        Mon, 9 Oct 2023 09:33:09 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tmesv0b60-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Oct 2023 09:33:09 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39995WlK026364;
-        Mon, 9 Oct 2023 09:33:08 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tkjnmyyad-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Oct 2023 09:33:08 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3999X5bh13107746
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 9 Oct 2023 09:33:05 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 07D4820040;
-        Mon,  9 Oct 2023 09:33:05 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C7FF12004D;
-        Mon,  9 Oct 2023 09:33:04 +0000 (GMT)
-Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  9 Oct 2023 09:33:04 +0000 (GMT)
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH v4 1/2] KVM: s390: add stat counter for shadow gmap events
-Date:   Mon,  9 Oct 2023 11:32:52 +0200
-Message-ID: <20231009093304.2555344-2-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20231009093304.2555344-1-nrb@linux.ibm.com>
-References: <20231009093304.2555344-1-nrb@linux.ibm.com>
+        with ESMTP id S234534AbjJILax (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 07:30:53 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF1401703
+        for <linux-s390@vger.kernel.org>; Mon,  9 Oct 2023 04:29:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1696850986;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=N7mGg0R3DrljgvJw1y1ejeFG5groXtawWx848a8zT7M=;
+        b=Wq79EOwlrkBxw3+Hr6gKVFqS43VC28gAcB3RKTEveBZK2b8YB1ReNuOpGgA6P4jn9lIZwo
+        dBV0/tPKyD0Mnkv2i6hQM5DmCaag3taypqDCZKLe7v6fBDZDXmmaa0mzn3gL5jXMq9KBpE
+        UOSIR7T1qZxMRUVskFIwf/TeWKaj9ec=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-621-EsASE0bPPhqJpbgqUI4Vyg-1; Mon, 09 Oct 2023 07:29:41 -0400
+X-MC-Unique: EsASE0bPPhqJpbgqUI4Vyg-1
+Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-418ce89e56cso53927551cf.0
+        for <linux-s390@vger.kernel.org>; Mon, 09 Oct 2023 04:29:41 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1696850981; x=1697455781;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=N7mGg0R3DrljgvJw1y1ejeFG5groXtawWx848a8zT7M=;
+        b=CQsIUA8LNXa4DtjOazrjF1829J+JRQnLkS4WbbvNhFvEzNTY3lr7GXSAdd+KwzZ/e0
+         uvfFG9uA2PxVD1siJjD+RrFdZiyte3tlUoir5Y5hqs73ii7Tw/umYnThxr2USfVb+aJT
+         nojjt/bBBJ7oQGistfa73O9Sl228/G4xif0B+X3a6IldUwFU39hFpPTHg87NVJ5G5CQm
+         uKqr0nOCa0ABaCQuotLXTFXK+wAAl6yloLmrodYJ0WHamrJ3a0mskWKzelFjUXuOPLkV
+         Nh7mn18oKhnssG3hMbonRRdZepBlaOjOdsgZZwzZXIxRFxGtNaxBd62gc4w3G7wymxTV
+         L8Uw==
+X-Gm-Message-State: AOJu0YyQrdgzucGI5Q/H4q7Z/oeT33Ciu3xa1k6yuHrohUZ2zMIeyXJ8
+        yegXU6gCjoUGMRxQM+mL/0oygldIIMWk+1TV6qUNCitDmndV8CYtbDE/QXo/XwTsrBWWqrAMLd7
+        zhL7GQZcES9yWCnrRABN7LQ==
+X-Received: by 2002:a05:6214:5ece:b0:65c:fec4:30a1 with SMTP id mn14-20020a0562145ece00b0065cfec430a1mr16083511qvb.55.1696850981414;
+        Mon, 09 Oct 2023 04:29:41 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGqNXr7WTdcy5s+sDGx50As8M2XI8LIkeXeM5nKPCfmHcAFZLWCxvpJzCcvYF/o5/ZKNSoq2A==
+X-Received: by 2002:a05:6214:5ece:b0:65c:fec4:30a1 with SMTP id mn14-20020a0562145ece00b0065cfec430a1mr16083496qvb.55.1696850981156;
+        Mon, 09 Oct 2023 04:29:41 -0700 (PDT)
+Received: from [192.168.0.5] (ip-109-43-176-27.web.vodafone.de. [109.43.176.27])
+        by smtp.gmail.com with ESMTPSA id l19-20020a0ce513000000b006616fbcc077sm3811795qvm.129.2023.10.09.04.29.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 09 Oct 2023 04:29:40 -0700 (PDT)
+Message-ID: <082a6b8b-6138-bf42-3f5e-0c2995bfe382@redhat.com>
+Date:   Mon, 9 Oct 2023 13:29:38 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: pWoxjNQxLrBI20JSa4CWVFkTxaVWPwyN
-X-Proofpoint-GUID: 1aFz4AGrsWTq88VeE7S3pSqlxTQ7wcy5
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-10-09_07,2023-10-06_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
- impostorscore=0 phishscore=0 adultscore=0 priorityscore=1501 spamscore=0
- clxscore=1015 mlxlogscore=999 lowpriorityscore=0 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2310090078
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.1
+Subject: Re: [kvm-unit-tests PATCH v1] arch-run: migration: properly handle
+ crashing outgoing QEMU
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, pbonzini@redhat.com, andrew.jones@linux.dev
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20230926120828.1830840-1-nrb@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+In-Reply-To: <20230926120828.1830840-1-nrb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The shadow gmap tracks memory of nested guests (guest-3). In certain
-scenarios, the shadow gmap needs to be rebuilt, which is a costly operation
-since it involves a SIE exit into guest-1 for every entry in the respective
-shadow level.
+On 26/09/2023 14.08, Nico Boehr wrote:
+> When outgoing (live) QEMU crashes or times out during migration, we
+> currently hang forever.
+> 
+> This is because we don't exit the loop querying migration state when QMP
+> communication fails.
+> 
+> Add proper error handling to the loop and exit when QMP communication
+> fails for whatever reason.
+> 
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> ---
+> Sorry I accidentally sent this only to s390x maintainers and forgot
+> Paolo and Andrew, hence resending.
+> 
+>   scripts/arch-run.bash | 10 ++++++++--
+>   1 file changed, 8 insertions(+), 2 deletions(-)
+> 
+> diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
+> index 518607f4b75d..de9890408e24 100644
+> --- a/scripts/arch-run.bash
+> +++ b/scripts/arch-run.bash
+> @@ -162,8 +162,14 @@ run_migration ()
+>   	migstatus=`qmp ${qmp1} '"query-migrate"' | grep return`
+>   	while ! grep -q '"completed"' <<<"$migstatus" ; do
+>   		sleep 1
+> -		migstatus=`qmp ${qmp1} '"query-migrate"' | grep return`
+> -		if grep -q '"failed"' <<<"$migstatus" ; then
+> +		if ! migstatus=`qmp ${qmp1} '"query-migrate"'`; then
+> +			echo "ERROR: Querying migration state failed." >&2
+> +			echo > ${fifo}
+> +			qmp ${qmp2} '"quit"'> ${qmpout2} 2>/dev/null
+> +			return 2
+> +		fi
+> +		migstatus=`grep return <<<"$migstatus"`
+> +		if grep -q '"failed"' <<<"$migstatus"; then
+>   			echo "ERROR: Migration failed." >&2
+>   			echo > ${fifo}
+>   			qmp ${qmp1} '"quit"'> ${qmpout1} 2>/dev/null
 
-Add kvm stat counters when new shadow structures are created at various
-levels. Also add a counter gmap_shadow_create when a completely fresh
-shadow gmap is created as well as a counter gmap_shadow_reuse when an
-existing gmap is being reused.
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 
-Note that when several levels are shadowed at once, counters on all
-affected levels will be increased.
-
-Also note that not all page table levels need to be present and a ASCE
-can directly point to e.g. a segment table. In this case, a new segment
-table will always be equivalent to a new shadow gmap and hence will be
-counted as gmap_shadow_create and not as gmap_shadow_segment.
-
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
----
- arch/s390/include/asm/kvm_host.h | 7 +++++++
- arch/s390/kvm/gaccess.c          | 7 +++++++
- arch/s390/kvm/kvm-s390.c         | 9 ++++++++-
- arch/s390/kvm/vsie.c             | 5 ++++-
- 4 files changed, 26 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 427f9528a7b6..67a298b6cf6e 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -777,6 +777,13 @@ struct kvm_vm_stat {
- 	u64 inject_service_signal;
- 	u64 inject_virtio;
- 	u64 aen_forward;
-+	u64 gmap_shadow_create;
-+	u64 gmap_shadow_reuse;
-+	u64 gmap_shadow_r1_entry;
-+	u64 gmap_shadow_r2_entry;
-+	u64 gmap_shadow_r3_entry;
-+	u64 gmap_shadow_sg_entry;
-+	u64 gmap_shadow_pg_entry;
- };
- 
- struct kvm_arch_memory_slot {
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index 6d6bc19b37dc..ff8349d17b33 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -1382,6 +1382,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
- 				  unsigned long *pgt, int *dat_protection,
- 				  int *fake)
- {
-+	struct kvm *kvm;
- 	struct gmap *parent;
- 	union asce asce;
- 	union vaddress vaddr;
-@@ -1390,6 +1391,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
- 
- 	*fake = 0;
- 	*dat_protection = 0;
-+	kvm = sg->private;
- 	parent = sg->parent;
- 	vaddr.addr = saddr;
- 	asce.val = sg->orig_asce;
-@@ -1450,6 +1452,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
- 		rc = gmap_shadow_r2t(sg, saddr, rfte.val, *fake);
- 		if (rc)
- 			return rc;
-+		kvm->stat.gmap_shadow_r1_entry++;
- 	}
- 		fallthrough;
- 	case ASCE_TYPE_REGION2: {
-@@ -1478,6 +1481,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
- 		rc = gmap_shadow_r3t(sg, saddr, rste.val, *fake);
- 		if (rc)
- 			return rc;
-+		kvm->stat.gmap_shadow_r2_entry++;
- 	}
- 		fallthrough;
- 	case ASCE_TYPE_REGION3: {
-@@ -1515,6 +1519,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
- 		rc = gmap_shadow_sgt(sg, saddr, rtte.val, *fake);
- 		if (rc)
- 			return rc;
-+		kvm->stat.gmap_shadow_r3_entry++;
- 	}
- 		fallthrough;
- 	case ASCE_TYPE_SEGMENT: {
-@@ -1548,6 +1553,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
- 		rc = gmap_shadow_pgt(sg, saddr, ste.val, *fake);
- 		if (rc)
- 			return rc;
-+		kvm->stat.gmap_shadow_sg_entry++;
- 	}
- 	}
- 	/* Return the parent address of the page table */
-@@ -1618,6 +1624,7 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
- 	pte.p |= dat_protection;
- 	if (!rc)
- 		rc = gmap_shadow_page(sg, saddr, __pte(pte.val));
-+	vcpu->kvm->stat.gmap_shadow_pg_entry++;
- 	ipte_unlock(vcpu->kvm);
- 	mmap_read_unlock(sg->mm);
- 	return rc;
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index b3f17e014cab..b42493110d76 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -66,7 +66,14 @@ const struct _kvm_stats_desc kvm_vm_stats_desc[] = {
- 	STATS_DESC_COUNTER(VM, inject_pfault_done),
- 	STATS_DESC_COUNTER(VM, inject_service_signal),
- 	STATS_DESC_COUNTER(VM, inject_virtio),
--	STATS_DESC_COUNTER(VM, aen_forward)
-+	STATS_DESC_COUNTER(VM, aen_forward),
-+	STATS_DESC_COUNTER(VM, gmap_shadow_reuse),
-+	STATS_DESC_COUNTER(VM, gmap_shadow_create),
-+	STATS_DESC_COUNTER(VM, gmap_shadow_r1_entry),
-+	STATS_DESC_COUNTER(VM, gmap_shadow_r2_entry),
-+	STATS_DESC_COUNTER(VM, gmap_shadow_r3_entry),
-+	STATS_DESC_COUNTER(VM, gmap_shadow_sg_entry),
-+	STATS_DESC_COUNTER(VM, gmap_shadow_pg_entry),
- };
- 
- const struct kvm_stats_header kvm_vm_stats_header = {
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 61499293c2ac..02dcbe82a8e5 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -1214,8 +1214,10 @@ static int acquire_gmap_shadow(struct kvm_vcpu *vcpu,
- 	 * we're holding has been unshadowed. If the gmap is still valid,
- 	 * we can safely reuse it.
- 	 */
--	if (vsie_page->gmap && gmap_shadow_valid(vsie_page->gmap, asce, edat))
-+	if (vsie_page->gmap && gmap_shadow_valid(vsie_page->gmap, asce, edat)) {
-+		vcpu->kvm->stat.gmap_shadow_reuse++;
- 		return 0;
-+	}
- 
- 	/* release the old shadow - if any, and mark the prefix as unmapped */
- 	release_gmap_shadow(vsie_page);
-@@ -1223,6 +1225,7 @@ static int acquire_gmap_shadow(struct kvm_vcpu *vcpu,
- 	if (IS_ERR(gmap))
- 		return PTR_ERR(gmap);
- 	gmap->private = vcpu->kvm;
-+	vcpu->kvm->stat.gmap_shadow_create++;
- 	WRITE_ONCE(vsie_page->gmap, gmap);
- 	return 0;
- }
--- 
-2.41.0
+and pushed to the repository.
 
