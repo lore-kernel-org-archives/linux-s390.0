@@ -2,103 +2,92 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B4F0E95A9A
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 15:17:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BE5BE95A91
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 15:29:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376540AbjJIPRM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Oct 2023 11:17:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56784 "EHLO
+        id S1376424AbjJIP34 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Oct 2023 11:29:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346594AbjJIPRA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 11:17:00 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06768110;
-        Mon,  9 Oct 2023 08:16:46 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C207C433C9;
-        Mon,  9 Oct 2023 15:16:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1696864605;
-        bh=gyjT+k3AHCiRmdkHp4cLqbLW9JDEEgp8ck+rIXkHvJQ=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=YJGiEP+weJoUqeSv3oPzBGav0eFeFLFN82uF7EZyUcIhjA1EyjtYEuvkTlDrGhT0u
-         /V6nqwJvEQiqK7quVzb9Mqx6BtYpts9uQj3DVjcVXHHivYIhQ8ORfVnqzTdkWRU/v3
-         wRVA8NX3ZkKN/h5XCbjRIjaE1hm1JmzPLBMtM4y2Gk9/cEEB1mNGHUHod+l4SFMh87
-         ENpghqeBL286Kg9eUYfedeZX8BZqcVmxCDaPAm36D7+yzAV2vClCWTidtcI5CjIMGr
-         Iaf2JFtfAf0CPD/R07NCGZNx8VciV8lRbmV+YXEK/ywMrYBtVO7HWBOJg77NV1ICFl
-         AhwayJmx43TWQ==
-Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-53808d5b774so8404436a12.3;
-        Mon, 09 Oct 2023 08:16:45 -0700 (PDT)
-X-Gm-Message-State: AOJu0YxYwm5UTDUdaHvmaxjXROKTM1aYxYE+RYMGyfIO25emcCmkwrX1
-        khn0NUbptVF5Mt3xvSctUQeuzukz0UYHY4vp4sk=
-X-Google-Smtp-Source: AGHT+IGSLEtp8/ZbK1MsosRqbvxV8azkLSHz9Otz3nXZ+lvSbGwGVYiT2aLKFzSbqavypW8JCUPmWuuVmeizyQ6W5pM=
-X-Received: by 2002:a05:6402:3445:b0:52f:a5d4:1f5b with SMTP id
- l5-20020a056402344500b0052fa5d41f5bmr12782747edc.9.1696864604058; Mon, 09 Oct
- 2023 08:16:44 -0700 (PDT)
+        with ESMTP id S1346514AbjJIP3z (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 11:29:55 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E13DA3;
+        Mon,  9 Oct 2023 08:29:53 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 596911F390;
+        Mon,  9 Oct 2023 15:29:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1696865392;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=1HqVDwiKT9mbTGEItnnXsmJW+0BorQwUwbFjLDILKpM=;
+        b=IBt9Zzx2vnJP6XRjCOrKnO5zaH9qGvhlvFzX23Np5EN62Oka65H94E02xzbrf2BF2j2hYP
+        OkJFMDYyth0+YKWqpE8gZf/nEYM6P9u5OT5oGsQq8kLvUuQrnNMUOq+uI3O+dOkWhobYVE
+        MBtaz7oU8HkN92ra4x/WuptgJ4+sRsM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1696865392;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=1HqVDwiKT9mbTGEItnnXsmJW+0BorQwUwbFjLDILKpM=;
+        b=FoC9feVo75wyhxH+ko20yCQhE2NzB0aY1NCI+iAyPXNH9DLlo/DznBcljU7/bC8PLaeqys
+        oH9uSBdq6JhXmiDA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 02E5A13586;
+        Mon,  9 Oct 2023 15:29:51 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id AEc+O28cJGVpMQAAMHmgww
+        (envelope-from <dsterba@suse.cz>); Mon, 09 Oct 2023 15:29:51 +0000
+Date:   Mon, 9 Oct 2023 17:23:06 +0200
+From:   David Sterba <dsterba@suse.cz>
+To:     Alexander Lobakin <aleksander.lobakin@intel.com>
+Cc:     Yury Norov <yury.norov@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Alexander Potapenko <glider@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        David Ahern <dsahern@kernel.org>,
+        Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        netdev@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        dm-devel@redhat.com, ntfs3@lists.linux.dev,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 07/14] btrfs: rename bitmap_set_bits() ->
+ btrfs_bitmap_set_bits()
+Message-ID: <20231009152306.GQ28758@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+References: <20231009151026.66145-1-aleksander.lobakin@intel.com>
+ <20231009151026.66145-8-aleksander.lobakin@intel.com>
 MIME-Version: 1.0
-References: <20231009124210.1064021-1-masahiroy@kernel.org>
-In-Reply-To: <20231009124210.1064021-1-masahiroy@kernel.org>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Mon, 9 Oct 2023 23:16:30 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTQxiCEyGiGieHJMBK0Hmj49f8mdcm1TwsTZbgbvxVxGcw@mail.gmail.com>
-Message-ID: <CAJF2gTQxiCEyGiGieHJMBK0Hmj49f8mdcm1TwsTZbgbvxVxGcw@mail.gmail.com>
-Subject: Re: [PATCH 1/5] csky: remove unused cmd_vdso_install
-To:     Masahiro Yamada <masahiroy@kernel.org>
-Cc:     linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
-        loongarch@lists.linux.dev, sparclinux@vger.kernel.org,
-        x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231009151026.66145-8-aleksander.lobakin@intel.com>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 9, 2023 at 8:42=E2=80=AFPM Masahiro Yamada <masahiroy@kernel.or=
-g> wrote:
->
-> You cannot run this code because arch/csky/Makefile does not define the
-> vdso_install target.
->
-> It appears that this code was blindly copied from another architecture.
-Yes, I do that. Thx for pointing it out.
+On Mon, Oct 09, 2023 at 05:10:19PM +0200, Alexander Lobakin wrote:
+> bitmap_set_bits() does not start with the FS' prefix and may collide
+> with a new generic helper one day. It operates with the FS-specific
+> types, so there's no change those two could do the same thing.
+> Just add the prefix to exclude such possible conflict.
+> 
+> Reviewed-by: Przemek Kitszel <przemyslaw.kitszel@intel.com>
+> Signed-off-by: Alexander Lobakin <aleksander.lobakin@intel.com>
 
-Acked-by: Guo Ren <guoren@kernel.org>
+Acked-by: David Sterba <dsterba@suse.com>
 
->
-> Remove the dead code.
->
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> ---
->
->  arch/csky/kernel/vdso/Makefile | 10 ----------
->  1 file changed, 10 deletions(-)
->
-> diff --git a/arch/csky/kernel/vdso/Makefile b/arch/csky/kernel/vdso/Makef=
-ile
-> index 299e4e41ebc5..ddf784a62c11 100644
-> --- a/arch/csky/kernel/vdso/Makefile
-> +++ b/arch/csky/kernel/vdso/Makefile
-> @@ -58,13 +58,3 @@ quiet_cmd_vdsold =3D VDSOLD  $@
->  # that contains the same symbols at the same offsets.
->  quiet_cmd_so2s =3D SO2S    $@
->        cmd_so2s =3D $(NM) -D $< | $(srctree)/$(src)/so2s.sh > $@
-> -
-> -# install commands for the unstripped file
-> -quiet_cmd_vdso_install =3D INSTALL $@
-> -      cmd_vdso_install =3D cp $(obj)/$@.dbg $(MODLIB)/vdso/$@
-> -
-> -vdso.so: $(obj)/vdso.so.dbg
-> -       @mkdir -p $(MODLIB)/vdso
-> -       $(call cmd,vdso_install)
-> -
-> -vdso_install: vdso.so
-> --
-> 2.39.2
->
-
-
---=20
-Best Regards
- Guo Ren
+We don't have any other code pending that would potentially collide with
+this change so I don't care when and via which tree this gets merged. I
+can take it by btrfs too.
