@@ -2,108 +2,89 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E702E95A9E
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 12:42:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D8ACE95A9A
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 13:09:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376577AbjJIMmi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Oct 2023 08:42:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51578 "EHLO
+        id S1376745AbjJINJ1 convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Oct 2023 09:09:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376574AbjJIMmg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 08:42:36 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10110C6;
-        Mon,  9 Oct 2023 05:42:32 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AD3BC433C8;
-        Mon,  9 Oct 2023 12:42:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1696855351;
-        bh=ohuZp0WsPxcwHw6R6rlObohasBZPv2zNfsGPMOVNB0w=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BKSDQENlvCmvcUrtGTpvgpXpECfR89ZihieZKhN8yFEcgvnaQah5u+fu1s9cT4cyh
-         t0XXIrXBr5Wh2tHs5U1wgNNLvlJriRBgYeecMegYSMNkZLiT37eCLJlFIUbu7rxsbG
-         5sr0In6kOsFUzhVpOudgXO5aL4REohZCiaJPgybNzfR2soQZC2ttQ0uYemp5lQ6Wtx
-         vi8oA26zKj5teKiNkX8lGRKZNfEXHLCGSxdgSIRTbQ/cGXWeU3YnKa2qbLlIVXNKLs
-         UbTjRun9wVsuKTpkgtho/Jv5qMGp9UmJAFMvr18c5+F3RNdavwcms6ANinS9j1avAn
-         oEcB4ugnaUyQg==
-From:   Masahiro Yamada <masahiroy@kernel.org>
-To:     linux-kbuild@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org,
+        with ESMTP id S1376649AbjJINJ0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 09:09:26 -0400
+Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1096394;
+        Mon,  9 Oct 2023 06:09:23 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by lithops.sigma-star.at (Postfix) with ESMTP id ACBC36340DFB;
+        Mon,  9 Oct 2023 15:09:20 +0200 (CEST)
+Received: from lithops.sigma-star.at ([127.0.0.1])
+        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id fAqWxJUbVZPL; Mon,  9 Oct 2023 15:09:19 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by lithops.sigma-star.at (Postfix) with ESMTP id 86D316234897;
+        Mon,  9 Oct 2023 15:09:19 +0200 (CEST)
+Received: from lithops.sigma-star.at ([127.0.0.1])
+        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id qGg_8h5ogqvU; Mon,  9 Oct 2023 15:09:19 +0200 (CEST)
+Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
+        by lithops.sigma-star.at (Postfix) with ESMTP id 2312E6340DFB;
+        Mon,  9 Oct 2023 15:09:19 +0200 (CEST)
+Date:   Mon, 9 Oct 2023 15:09:18 +0200 (CEST)
+From:   Richard Weinberger <richard@nod.at>
+To:     masahiroy <masahiroy@kernel.org>
+Cc:     linux-kbuild <linux-kbuild@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        linux-parisc <linux-parisc@vger.kernel.org>,
         linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-um@lists.infradead.org, loongarch@lists.linux.dev,
-        sparclinux@vger.kernel.org, x86@kernel.org,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nicolas Schier <nicolas@fjasle.eu>
-Subject: [PATCH 5/5] kbuild: unify no-compiler-targets and no-sync-config-targets
-Date:   Mon,  9 Oct 2023 21:42:10 +0900
-Message-Id: <20231009124210.1064021-5-masahiroy@kernel.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20231009124210.1064021-1-masahiroy@kernel.org>
-References: <20231009124210.1064021-1-masahiroy@kernel.org>
+        linux-um <linux-um@lists.infradead.org>,
+        loongarch <loongarch@lists.linux.dev>,
+        sparclinux <sparclinux@vger.kernel.org>, x86 <x86@kernel.org>,
+        anton ivanov <anton.ivanov@cambridgegreys.com>,
+        bp <bp@alien8.de>, dave hansen <dave.hansen@linux.intel.com>,
+        hpa <hpa@zytor.com>, mingo <mingo@redhat.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        tglx <tglx@linutronix.de>
+Message-ID: <687416388.7594.1696856958852.JavaMail.zimbra@nod.at>
+In-Reply-To: <20231009124210.1064021-2-masahiroy@kernel.org>
+References: <20231009124210.1064021-1-masahiroy@kernel.org> <20231009124210.1064021-2-masahiroy@kernel.org>
+Subject: Re: [PATCH 2/5] UML: remove unused cmd_vdso_install
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+X-Originating-IP: [195.201.40.130]
+X-Mailer: Zimbra 8.8.12_GA_3807 (ZimbraWebClient - FF97 (Linux)/8.8.12_GA_3809)
+Thread-Topic: remove unused cmd_vdso_install
+Thread-Index: 3hBejy77kYh6pqow8LgNKN8Tb77OsQ==
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Now that vdso_install does not depend on any in-tree build artifact,
-it no longer invokes a compiler, making no-compiler-targets the same
-as no-sync-config-targets.
+----- Ursprüngliche Mail -----
+> Von: "masahiroy" <masahiroy@kernel.org>
+> An: "linux-kbuild" <linux-kbuild@vger.kernel.org>
+> CC: "linux-kernel" <linux-kernel@vger.kernel.org>, "linux-arm-kernel" <linux-arm-kernel@lists.infradead.org>,
+> linux-csky@vger.kernel.org, "linux-parisc" <linux-parisc@vger.kernel.org>, linux-riscv@lists.infradead.org,
+> linux-s390@vger.kernel.org, "linux-um" <linux-um@lists.infradead.org>, "loongarch" <loongarch@lists.linux.dev>,
+> "sparclinux" <sparclinux@vger.kernel.org>, "x86" <x86@kernel.org>, "masahiroy" <masahiroy@kernel.org>, "anton ivanov"
+> <anton.ivanov@cambridgegreys.com>, "bp" <bp@alien8.de>, "dave hansen" <dave.hansen@linux.intel.com>, "hpa"
+> <hpa@zytor.com>, "mingo" <mingo@redhat.com>, "Johannes Berg" <johannes@sipsolutions.net>, "richard" <richard@nod.at>,
+> "tglx" <tglx@linutronix.de>
+> Gesendet: Montag, 9. Oktober 2023 14:42:07
+> Betreff: [PATCH 2/5] UML: remove unused cmd_vdso_install
 
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
----
+> You cannot run this code because arch/um/Makefile does not define the
+> vdso_install target.
+> 
+> It appears that this code was blindly copied from another architecture.
+> 
+> Remove the dead code.
+> 
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 
- Makefile | 13 +------------
- 1 file changed, 1 insertion(+), 12 deletions(-)
+Acked-by: Richard Weinberger <richard@nod.at>
 
-diff --git a/Makefile b/Makefile
-index 2170d56630e8..982b1ad33287 100644
---- a/Makefile
-+++ b/Makefile
-@@ -277,10 +277,6 @@ no-dot-config-targets := $(clean-targets) \
- 			 $(version_h) headers headers_% archheaders archscripts \
- 			 %asm-generic kernelversion %src-pkg dt_binding_check \
- 			 outputmakefile rustavailable rustfmt rustfmtcheck
--# Installation targets should not require compiler. Unfortunately, vdso_install
--# is an exception where build artifacts may be updated. This must be fixed.
--no-compiler-targets := $(no-dot-config-targets) install dtbs_install \
--			headers_install modules_install modules_sign kernelrelease image_name
- no-sync-config-targets := $(no-dot-config-targets) %install modules_sign kernelrelease \
- 			  image_name
- single-targets := %.a %.i %.ko %.lds %.ll %.lst %.mod %.o %.rsi %.s %.symtypes %/
-@@ -288,7 +284,6 @@ single-targets := %.a %.i %.ko %.lds %.ll %.lst %.mod %.o %.rsi %.s %.symtypes %
- config-build	:=
- mixed-build	:=
- need-config	:= 1
--need-compiler	:= 1
- may-sync-config	:= 1
- single-build	:=
- 
-@@ -298,12 +293,6 @@ ifneq ($(filter $(no-dot-config-targets), $(MAKECMDGOALS)),)
- 	endif
- endif
- 
--ifneq ($(filter $(no-compiler-targets), $(MAKECMDGOALS)),)
--	ifeq ($(filter-out $(no-compiler-targets), $(MAKECMDGOALS)),)
--		need-compiler :=
--	endif
--endif
--
- ifneq ($(filter $(no-sync-config-targets), $(MAKECMDGOALS)),)
- 	ifeq ($(filter-out $(no-sync-config-targets), $(MAKECMDGOALS)),)
- 		may-sync-config :=
-@@ -675,7 +664,7 @@ endif
- 
- # Include this also for config targets because some architectures need
- # cc-cross-prefix to determine CROSS_COMPILE.
--ifdef need-compiler
-+ifdef may-sync-config
- include $(srctree)/scripts/Makefile.compiler
- endif
- 
--- 
-2.39.2
-
+Thanks,
+//richard
