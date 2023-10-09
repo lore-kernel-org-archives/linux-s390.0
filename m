@@ -2,246 +2,190 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9478DCD6112
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 17:04:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ACA6CD613C
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 21:58:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377386AbjJIREX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Oct 2023 13:04:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52084 "EHLO
+        id S1378828AbjJIV6V (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Oct 2023 17:58:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377770AbjJIREV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 13:04:21 -0400
-Received: from mail-yw1-x112c.google.com (mail-yw1-x112c.google.com [IPv6:2607:f8b0:4864:20::112c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96E2AE0;
-        Mon,  9 Oct 2023 10:04:19 -0700 (PDT)
-Received: by mail-yw1-x112c.google.com with SMTP id 00721157ae682-5a200028437so59285467b3.1;
-        Mon, 09 Oct 2023 10:04:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1696871059; x=1697475859; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=GrtA6lKuYWUe++j58BXstURMH0ObpUyX8a0STO/sotc=;
-        b=K6jLv5cdIQU+SaHszFfqY1VFnxkSC3nwghT0YoNrHAE0NRDR7mpix5d+HXaQU17Lk0
-         06BDVP47MPdCpLivJciHNdpJKrJU+3UgNY+ZaFDYEsX7t0S/lHAgmAJbjzVYdxPosgdc
-         jDXGgrtorFpN8Xuft8/7ZFP0PRqXhmCSWw35z60A+BB6l+zfr2iUjQIOxNfsGLFMv6Dl
-         bE2czH9gv2BbpuB/2tQCH1UyxC9BhVA+XVM0dcRiIY8NZtK3MepgiTQO8Bm5divKxVbT
-         UgMtWE4PnqoKIyh45djGZ2OsvPavSS9u3eP6lW6HMoz8y3xpiurw4S76YKuhmcxr4AsR
-         BIlA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696871059; x=1697475859;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GrtA6lKuYWUe++j58BXstURMH0ObpUyX8a0STO/sotc=;
-        b=vDEYQ7xDJksEXZmSEP2IsSjXR68hzcNxTEt305bPOCqk83aCsLmvP+PHcsWaOY0Gys
-         M3XIFBY6lgcSAjQawBpEEDZxlJNejE2Mpv10V3BU/rsXpo6Af9pVe3/m+ukX77xfpqL1
-         yDsz0koSygjyC7EzU/qXNak5CqXXBf0IB3OfKMGUwaZaXl2/1izw+0tPEUmixOmopPOB
-         XL/ZGZSEBaemI8RDgLfZxYrLU8YTqv5LpZidh88gWPozD15wfFqF/gdveOhdkzeOKWsL
-         yZAvH/JFJ9mEu4KmnD4l4r1cmzjRpnYGdFkjd6g9Ch7WYwfwTH7xa1r9cK0fm1xHLvN4
-         E6hg==
-X-Gm-Message-State: AOJu0Yyzb0HR1tIwalnFmUcTKyipL53GOgHOkSXjx7Nu309gaxcj+EOF
-        Y4v8MOuwqpDI+WpakKn4iOk=
-X-Google-Smtp-Source: AGHT+IFCaKLUIQtaVFO6RZQ7mzNkB38jHP0WXbG7WaO+K53JI2BYGR30cn9swjnv1mxH93LfVRqHVw==
-X-Received: by 2002:a0d:f542:0:b0:59f:5361:d18c with SMTP id e63-20020a0df542000000b0059f5361d18cmr15848023ywf.41.1696871058634;
-        Mon, 09 Oct 2023 10:04:18 -0700 (PDT)
-Received: from localhost ([2607:fb90:be22:da0:a050:8c3a:c782:514b])
-        by smtp.gmail.com with ESMTPSA id g192-20020a0dddc9000000b0054bfc94a10dsm3799789ywe.47.2023.10.09.10.04.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Oct 2023 10:04:18 -0700 (PDT)
-Date:   Mon, 9 Oct 2023 10:04:16 -0700
-From:   Yury Norov <yury.norov@gmail.com>
-To:     Alexander Lobakin <aleksander.lobakin@intel.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Alexander Potapenko <glider@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        David Ahern <dsahern@kernel.org>,
-        Przemek Kitszel <przemyslaw.kitszel@intel.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        netdev@vger.kernel.org, linux-btrfs@vger.kernel.org,
-        dm-devel@redhat.com, ntfs3@lists.linux.dev,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 08/14] bitmap: introduce generic optimized bitmap_size()
-Message-ID: <ZSQykJtkemZTiYHP@yury-ThinkPad>
-References: <20231009151026.66145-1-aleksander.lobakin@intel.com>
- <20231009151026.66145-9-aleksander.lobakin@intel.com>
+        with ESMTP id S1378789AbjJIV6U (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 17:58:20 -0400
+Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [IPv6:2a03:a000:7:0:5054:ff:fe1c:15ff])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2B5499;
+        Mon,  9 Oct 2023 14:58:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=Uo1EiyojZdAoskTvMvtwCcjNoSWtdzYtyhDVJ0XRCLA=; b=tQPA9yIqHmqNSbhOVvxiucllWR
+        l2tso1BLwh5CGWav21hSNoCV18PYO+IsxWdqSb/pXzM2cPknMXd9P7ke0zHb6UliQGYi6gLyRpPKv
+        U7hiFaveQ7mceuNDQ8jXcyNC9Wn3AkdirOyK8p0NOTO/Oj6yURkgBAyy5W9y7bWeLSH/O6DDIkmyl
+        WCp+Xw1NcUBfI4VrenMtUjHlxEHqjrSYPedcuoxv/CrT5Nzph7SfGqANRPJyxErt/tMNNVW/JgwXK
+        fM0gVUEdTnwkyob+53dTu2ypbGyfYDxKYT5I9ypDKvQN6UcsFeM5PE4elD0hso579aRXCVJbRT5mn
+        T7zz5aAw==;
+Received: from viro by zeniv.linux.org.uk with local (Exim 4.96 #2 (Red Hat Linux))
+        id 1qpyGA-00HK0m-1f;
+        Mon, 09 Oct 2023 21:57:54 +0000
+Date:   Mon, 9 Oct 2023 22:57:54 +0100
+From:   Al Viro <viro@zeniv.linux.org.uk>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Christian Brauner <brauner@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Tejun Heo <tj@kernel.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Damien Le Moal <dlemoal@kernel.org>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-hardening@vger.kernel.org,
+        cgroups@vger.kernel.org
+Subject: Re: [PATCH 03/19] fs: release anon dev_t in deactivate_locked_super
+Message-ID: <20231009215754.GL800259@ZenIV>
+References: <20230913111013.77623-1-hch@lst.de>
+ <20230913111013.77623-4-hch@lst.de>
+ <20230913232712.GC800259@ZenIV>
+ <20230926093834.GB13806@lst.de>
+ <20230926212515.GN800259@ZenIV>
+ <20231002064646.GA1799@lst.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20231009151026.66145-9-aleksander.lobakin@intel.com>
+In-Reply-To: <20231002064646.GA1799@lst.de>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 09, 2023 at 05:10:20PM +0200, Alexander Lobakin wrote:
-> The number of times yet another open coded
-> `BITS_TO_LONGS(nbits) * sizeof(long)` can be spotted is huge.
-> Some generic helper is long overdue.
+On Mon, Oct 02, 2023 at 08:46:46AM +0200, Christoph Hellwig wrote:
+> On Tue, Sep 26, 2023 at 10:25:15PM +0100, Al Viro wrote:
+> > Before your patch: foo_kill_super() calls kill_anon_super(),
+> > which calls kill_super_notify(), which removes the sucker from
+> > the list, then frees ->s_fs_info.  After your patch:
+> > removal from the lists happens via the call of kill_super_notify()
+> > *after* both of your methods had been called, while freeing
+> > ->s_fs_info happens from the method call.  IOW, you've restored
+> > the situation prior to "super: ensure valid info".  The whole
+> > point of that commit had been to make sure that we have nothing
+> > in the lists with ->s_fs_info pointing to a freed object.
+> > 
+> > It's not about free_anon_bdev(); that part is fine - it's the
+> > "we can drop the weird second call site of kill_super_notify()"
+> > thing that is broken.
+> 
+> The point has been to only release the anon dev_t after
+> kill_super_notify, to prevent two of them beeing reused.
+> 
+> Which we do as the free_anon_bdev is done directly in
+> deactivate_locked_super.  The new ->free_sb for non-block file systems
+> frees resources, but none of them matter for sget.
 
-OK, I see your point. Indeed, opencoding this again and again may be
-annoying. 
+We keep talking past each other...  Let me try again:
+at the tip of your branch you have
 
-Acked-by: Yury Norov <yury.norov@gmail.com>
- 
-> Add one, bitmap_size(), but with one detail.
-> BITS_TO_LONGS() uses DIV_ROUND_UP(). The latter works well when both
-> divident and divisor are compile-time constants or when the divisor
-> is not a pow-of-2. When it is however, the compilers sometimes tend
-> to generate suboptimal code (GCC 13):
-> 
-> 48 83 c0 3f          	add    $0x3f,%rax
-> 48 c1 e8 06          	shr    $0x6,%rax
-> 48 8d 14 c5 00 00 00 00	lea    0x0(,%rax,8),%rdx
-> 
-> %BITS_PER_LONG is always a pow-2 (either 32 or 64), but GCC still does
-> full division of `nbits + 63` by it and then multiplication by 8.
-> Instead of BITS_TO_LONGS(), use ALIGN() and then divide by 8. GCC:
-> 
-> 8d 50 3f             	lea    0x3f(%rax),%edx
-> c1 ea 03             	shr    $0x3,%edx
-> 81 e2 f8 ff ff 1f    	and    $0x1ffffff8,%edx
-> 
-> Now it divides `nbits + 63` by 8 and then masks bits[2:0].
-> bloat-o-meter:
-> 
-> add/remove: 0/0 grow/shrink: 20/133 up/down: 156/-773 (-617)
-> 
-> Clang does it better and generates the same code before/after starting
-> from -O1, except that with the ALIGN() approach it uses %edx and thus
-> still saves some bytes:
-> 
-> add/remove: 0/0 grow/shrink: 9/133 up/down: 18/-538 (-520)
-> 
-> Note that we can't expand DIV_ROUND_UP() by adding a check and using
-> this approach there, as it's used in array declarations where
-> expressions are not allowed.
-> Add this helper to tools/ as well.
-> 
-> Reviewed-by: Przemek Kitszel <przemyslaw.kitszel@intel.com>
-> Signed-off-by: Alexander Lobakin <aleksander.lobakin@intel.com>
-> ---
->  drivers/md/dm-clone-metadata.c | 5 -----
->  include/linux/bitmap.h         | 8 +++++---
->  include/linux/cpumask.h        | 2 +-
->  lib/math/prime_numbers.c       | 2 --
->  tools/include/linux/bitmap.h   | 8 +++++---
->  5 files changed, 11 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/md/dm-clone-metadata.c b/drivers/md/dm-clone-metadata.c
-> index c43d55672bce..47c1fa7aad8b 100644
-> --- a/drivers/md/dm-clone-metadata.c
-> +++ b/drivers/md/dm-clone-metadata.c
-> @@ -465,11 +465,6 @@ static void __destroy_persistent_data_structures(struct dm_clone_metadata *cmd)
->  
->  /*---------------------------------------------------------------------------*/
->  
-> -static size_t bitmap_size(unsigned long nr_bits)
-> -{
-> -	return BITS_TO_LONGS(nr_bits) * sizeof(long);
-> -}
-> -
->  static int __dirty_map_init(struct dirty_map *dmap, unsigned long nr_words,
->  			    unsigned long nr_regions)
->  {
-> diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
-> index 03644237e1ef..63e422f8ba3d 100644
-> --- a/include/linux/bitmap.h
-> +++ b/include/linux/bitmap.h
-> @@ -237,9 +237,11 @@ extern int bitmap_print_list_to_buf(char *buf, const unsigned long *maskp,
->  #define BITMAP_FIRST_WORD_MASK(start) (~0UL << ((start) & (BITS_PER_LONG - 1)))
->  #define BITMAP_LAST_WORD_MASK(nbits) (~0UL >> (-(nbits) & (BITS_PER_LONG - 1)))
->  
-> +#define bitmap_size(nbits)	(ALIGN(nbits, BITS_PER_LONG) / BITS_PER_BYTE)
-> +
->  static inline void bitmap_zero(unsigned long *dst, unsigned int nbits)
->  {
-> -	unsigned int len = BITS_TO_LONGS(nbits) * sizeof(unsigned long);
-> +	unsigned int len = bitmap_size(nbits);
->  
->  	if (small_const_nbits(nbits))
->  		*dst = 0;
-> @@ -249,7 +251,7 @@ static inline void bitmap_zero(unsigned long *dst, unsigned int nbits)
->  
->  static inline void bitmap_fill(unsigned long *dst, unsigned int nbits)
->  {
-> -	unsigned int len = BITS_TO_LONGS(nbits) * sizeof(unsigned long);
-> +	unsigned int len = bitmap_size(nbits);
->  
->  	if (small_const_nbits(nbits))
->  		*dst = ~0UL;
-> @@ -260,7 +262,7 @@ static inline void bitmap_fill(unsigned long *dst, unsigned int nbits)
->  static inline void bitmap_copy(unsigned long *dst, const unsigned long *src,
->  			unsigned int nbits)
->  {
-> -	unsigned int len = BITS_TO_LONGS(nbits) * sizeof(unsigned long);
-> +	unsigned int len = bitmap_size(nbits);
->  
->  	if (small_const_nbits(nbits))
->  		*dst = *src;
-> diff --git a/include/linux/cpumask.h b/include/linux/cpumask.h
-> index f10fb87d49db..dbdbf1451cad 100644
-> --- a/include/linux/cpumask.h
-> +++ b/include/linux/cpumask.h
-> @@ -821,7 +821,7 @@ static inline int cpulist_parse(const char *buf, struct cpumask *dstp)
->   */
->  static inline unsigned int cpumask_size(void)
->  {
-> -	return BITS_TO_LONGS(large_cpumask_bits) * sizeof(long);
-> +	return bitmap_size(large_cpumask_bits);
->  }
->  
->  /*
-> diff --git a/lib/math/prime_numbers.c b/lib/math/prime_numbers.c
-> index d42cebf7407f..d3b64b10da1c 100644
-> --- a/lib/math/prime_numbers.c
-> +++ b/lib/math/prime_numbers.c
-> @@ -6,8 +6,6 @@
->  #include <linux/prime_numbers.h>
->  #include <linux/slab.h>
->  
-> -#define bitmap_size(nbits) (BITS_TO_LONGS(nbits) * sizeof(unsigned long))
-> -
->  struct primes {
->  	struct rcu_head rcu;
->  	unsigned long last, sz;
-> diff --git a/tools/include/linux/bitmap.h b/tools/include/linux/bitmap.h
-> index f3566ea0f932..81a2299ace15 100644
-> --- a/tools/include/linux/bitmap.h
-> +++ b/tools/include/linux/bitmap.h
-> @@ -2,6 +2,7 @@
->  #ifndef _TOOLS_LINUX_BITMAP_H
->  #define _TOOLS_LINUX_BITMAP_H
->  
-> +#include <linux/align.h>
->  #include <string.h>
->  #include <linux/bitops.h>
->  #include <linux/find.h>
-> @@ -25,13 +26,14 @@ bool __bitmap_intersects(const unsigned long *bitmap1,
->  #define BITMAP_FIRST_WORD_MASK(start) (~0UL << ((start) & (BITS_PER_LONG - 1)))
->  #define BITMAP_LAST_WORD_MASK(nbits) (~0UL >> (-(nbits) & (BITS_PER_LONG - 1)))
->  
-> +#define bitmap_size(nbits)	(ALIGN(nbits, BITS_PER_LONG) / BITS_PER_BYTE)
-> +
->  static inline void bitmap_zero(unsigned long *dst, unsigned int nbits)
->  {
->  	if (small_const_nbits(nbits))
->  		*dst = 0UL;
->  	else {
-> -		int len = BITS_TO_LONGS(nbits) * sizeof(unsigned long);
-> -		memset(dst, 0, len);
-> +		memset(dst, 0, bitmap_size(nbits));
->  	}
->  }
->  
-> @@ -83,7 +85,7 @@ static inline void bitmap_or(unsigned long *dst, const unsigned long *src1,
->   */
->  static inline unsigned long *bitmap_zalloc(int nbits)
->  {
-> -	return calloc(1, BITS_TO_LONGS(nbits) * sizeof(unsigned long));
-> +	return calloc(1, bitmap_size(nbits));
->  }
->  
->  /*
-> -- 
-> 2.41.0
+static struct file_system_type ubifs_fs_type = {
+        .name    = "ubifs",
+	.owner   = THIS_MODULE,
+	.mount   = ubifs_mount,
+	.free_sb = ubifs_free_sb,
+};
+
+static void ubifs_free_sb(struct super_block *s)
+{
+        kfree(s->s_fs_info);
+}
+
+static struct dentry *ubifs_mount(struct file_system_type *fs_type, int flags,
+                        const char *name, void *data)
+{
+	...
+        sb = sget(fs_type, sb_test, sb_set, flags, c);
+	...
+}
+
+static int sb_test(struct super_block *sb, void *data)
+{
+        struct ubifs_info *c1 = data;
+        struct ubifs_info *c = sb->s_fs_info;
+
+        return c->vi.cdev == c1->vi.cdev;
+}
+
+See the problem?  Mainline has
+
+static void kill_ubifs_super(struct super_block *s)
+{
+        struct ubifs_info *c = s->s_fs_info;
+        kill_anon_super(s);
+        kfree(c);
+}
+and
+void kill_anon_super(struct super_block *sb)
+{
+        dev_t dev = sb->s_dev;
+        generic_shutdown_super(sb);
+        kill_super_notify(sb);
+        free_anon_bdev(dev);
+}
+
+That removes the superblock from the list of instances before its
+->s_fs_info is freed.  In your branch removal happens here:
+
+        if (fs->shutdown_sb)
+                fs->shutdown_sb(s);
+        generic_shutdown_super(s);
+        if (fs->free_sb)
+                fs->free_sb(s);
+
+        kill_super_notify(s);
+
+That comes *after* ubifs_free_sb() has freed ->s_fs_info.  And there's
+nothing to stop ubifs_mount() (on a completely unrelated device) to get
+called right at that moment.  Doing the sget() call quoted above.  Now,
+in sget() we have
+                hlist_for_each_entry(old, &type->fs_supers, s_instances) {
+                        if (!test(old, data))
+and that will hit sb_test(old, data), with old being a superblock still
+in ->fs_supers, but with ->s_fs_info already freed.  So in sb_test()
+we have c equal to old->s_fs_info and
+        return c->vi.cdev == c1->vi.cdev;
+is a bloody use after free.
+
+Here we are unlikely to get fucked over - it's a plain fetch from freed
+object.  If you look at e.g. nfs, you'll see a lot more than that -
+pointer chasing from freed (and possibly reused) object.  The only
+difference is that there you have sget_fc() instead of sget() - same
+loop anyway.
+
+The bottom line: in the form it is posted, your series reintroduces the
+class of UAF that had been added by taking removal from the instances
+list out of generic_shutdown_super() and then papered over by adding
+that kill_super_notify() into kill_anon_super().
+
+And frankly, I believe that the root cause is the insistence that
+list removal should happen after generic_shutdown_super().  Sure, you
+want the superblock to serve as bdev holder, which leads to fun
+with -EBUSY if mount comes while umount still hadn't closed the
+device.  I suspect that it would make a lot more sense to
+introduce an intermediate state - "held, but will be released
+in a short while".  You already have something similar, but
+only for the entire disk ->bd_claiming stuff.
+
+Add a new primitive (will_release_bdev()), so that attempts to
+claim the sucker will wait until it gets released instead of
+failing with -EBUSY.  And do *that* before generic_shutdown_super()
+when unmounting something that is block-based.  Allows to bring
+the list removal back where it used to be, no UAF at all...
+
+IMO that direction is a lot more promising.
