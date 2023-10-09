@@ -2,95 +2,134 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9777E95A96
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 13:24:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3267E95A95
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 13:32:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376478AbjJINYT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Oct 2023 09:24:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39270 "EHLO
+        id S1377094AbjJINb7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Oct 2023 09:31:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346443AbjJINYS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 09:24:18 -0400
+        with ESMTP id S1377086AbjJINb6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 09:31:58 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACD2691;
-        Mon,  9 Oct 2023 06:24:16 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 399DF9PA028609;
-        Mon, 9 Oct 2023 13:24:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87978A3;
+        Mon,  9 Oct 2023 06:31:56 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 399DNkT6007377;
+        Mon, 9 Oct 2023 13:31:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=vnZ2wA0ELzlOrQWQXwKJ3p7yUOIDeHTJQvq9Yonxozs=;
- b=emYoOIEi1LpDu3QXh1PoVoNuJ54MgHBSAEur8WL4G1X70DZY6TZyhAC3d7QLsBM9IxDv
- 1G5QxM2ikqHinM4DStu2ipgUKDNjkx+3fiX4bhH9Sglxhli57vIxRwO0QjW+9KC0I/fV
- nuz3okakzjUTxjycki2mFpXEP2J8J9+YmKj6337EfM4O/CJg/w/YBHaHTiK8fw9VeR2V
- ODUUVYPeIOIVUKDXsEVpcTMmmWFQLk5SZQy8jgkjXQ3NIPKAuFgyjYTgzuQ/3Ba/ddXc
- gLFIL3AsMyXqi76BMkEPn7n0lAdiMJBW7rZ0bRsBl9f557wocE8h/veufA8qwZJKeqlf ww== 
+ bh=jhkpuwHDG8pBouseIPSDQ3Du5VYP7xsF5Tr5cCZLulw=;
+ b=RwZnCTVP6GdFLTmT5NTOy7Xw0lYQ1r+pRtS119mqCx9zSa+ICAhb/FHmmpSTTZdKNHnY
+ p8hYj3ZpUlKztR+Zz2Ef4NBJH/U+mZcZCJbnvlubzMawKE00Q3Dh/N0i4AeVc8Y+H5Cj
+ ixGyR2xMLNAeTV4mnLJn35wJIeM39cvqciaKPcPIEf2noUf+PA+wkTFA2S7fj5imxL4v
+ IoqwmwgT2PN8HJv0T/CQ8T3irCgxpVtm99IqmvfaR0U0slkQ60lkqrQTlZGES5HP0sRe
+ cDbuhI7zx1gIJPpmoyp06CZ4KJEGVWnNk1x5i40dkgn+GV0KKvuZrXswZrkUzAIDO5PG fA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tmj800j93-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tmj628t5a-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Oct 2023 13:24:13 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 399DFHLp028912;
-        Mon, 9 Oct 2023 13:24:12 GMT
+        Mon, 09 Oct 2023 13:31:55 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 399DO7uZ011219;
+        Mon, 9 Oct 2023 13:31:54 GMT
 Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tmj800fe1-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tmj628t53-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Oct 2023 13:24:11 +0000
+        Mon, 09 Oct 2023 13:31:54 +0000
 Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 399C555Q026364;
-        Mon, 9 Oct 2023 13:21:59 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tkjnn1418-1
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 399CW489025883;
+        Mon, 9 Oct 2023 13:31:54 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tkjnn16b4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Oct 2023 13:21:58 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 399DLt1f15008274
+        Mon, 09 Oct 2023 13:31:54 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 399DVpuo42009156
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 9 Oct 2023 13:21:55 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C7AF920040;
-        Mon,  9 Oct 2023 13:21:55 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9F7C820043;
-        Mon,  9 Oct 2023 13:21:55 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  9 Oct 2023 13:21:55 +0000 (GMT)
-Date:   Mon, 9 Oct 2023 15:20:09 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
-Cc:     borntraeger@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v4 1/2] KVM: s390: add stat counter for shadow gmap
- events
-Message-ID: <20231009152009.2102a545@p-imbrenda>
-In-Reply-To: <20231009093304.2555344-2-nrb@linux.ibm.com>
-References: <20231009093304.2555344-1-nrb@linux.ibm.com>
-        <20231009093304.2555344-2-nrb@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+        Mon, 9 Oct 2023 13:31:51 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0DE272004D;
+        Mon,  9 Oct 2023 13:31:51 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 992042004B;
+        Mon,  9 Oct 2023 13:31:50 +0000 (GMT)
+Received: from [9.179.29.36] (unknown [9.179.29.36])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  9 Oct 2023 13:31:50 +0000 (GMT)
+Message-ID: <c881a0d9-4a9d-4c2a-9e37-496308674b24@linux.ibm.com>
+Date:   Mon, 9 Oct 2023 15:31:50 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 1/2] KVM: s390: add stat counter for shadow gmap events
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>, borntraeger@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20231009093304.2555344-1-nrb@linux.ibm.com>
+ <20231009093304.2555344-2-nrb@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20231009093304.2555344-2-nrb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: TWH07_tPHcRe8Uht0ccVMCGJ6yBwu_Bv
-X-Proofpoint-ORIG-GUID: Md29XTqnhpTQGy3-e3eqKeCbz19-lPvS
+X-Proofpoint-ORIG-GUID: VYYogdIEe-JQ3LX40xHamicqpIeaYE6l
+X-Proofpoint-GUID: sMjkTfBfot7fmRwOhgpkvZcTZwN2cEBE
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-10-09_11,2023-10-09_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 lowpriorityscore=0 impostorscore=0 mlxscore=0 bulkscore=0
- clxscore=1011 adultscore=0 mlxlogscore=999 spamscore=0 phishscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2310090109
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
+ impostorscore=0 mlxlogscore=999 lowpriorityscore=0 suspectscore=0
+ priorityscore=1501 clxscore=1011 mlxscore=0 malwarescore=0 spamscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2309180000 definitions=main-2310090110
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon,  9 Oct 2023 11:32:52 +0200
-Nico Boehr <nrb@linux.ibm.com> wrote:
-
+On 10/9/23 11:32, Nico Boehr wrote:
 > The shadow gmap tracks memory of nested guests (guest-3). In certain
 > scenarios, the shadow gmap needs to be rebuilt, which is a costly operation
 > since it involves a SIE exit into guest-1 for every entry in the respective
@@ -112,135 +151,5 @@ Nico Boehr <nrb@linux.ibm.com> wrote:
 > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 > Reviewed-by: David Hildenbrand <david@redhat.com>
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-> ---
->  arch/s390/include/asm/kvm_host.h | 7 +++++++
->  arch/s390/kvm/gaccess.c          | 7 +++++++
->  arch/s390/kvm/kvm-s390.c         | 9 ++++++++-
->  arch/s390/kvm/vsie.c             | 5 ++++-
->  4 files changed, 26 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index 427f9528a7b6..67a298b6cf6e 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -777,6 +777,13 @@ struct kvm_vm_stat {
->  	u64 inject_service_signal;
->  	u64 inject_virtio;
->  	u64 aen_forward;
-> +	u64 gmap_shadow_create;
-> +	u64 gmap_shadow_reuse;
-> +	u64 gmap_shadow_r1_entry;
-> +	u64 gmap_shadow_r2_entry;
-> +	u64 gmap_shadow_r3_entry;
-> +	u64 gmap_shadow_sg_entry;
-> +	u64 gmap_shadow_pg_entry;
->  };
->  
->  struct kvm_arch_memory_slot {
-> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-> index 6d6bc19b37dc..ff8349d17b33 100644
-> --- a/arch/s390/kvm/gaccess.c
-> +++ b/arch/s390/kvm/gaccess.c
-> @@ -1382,6 +1382,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->  				  unsigned long *pgt, int *dat_protection,
->  				  int *fake)
->  {
-> +	struct kvm *kvm;
->  	struct gmap *parent;
->  	union asce asce;
->  	union vaddress vaddr;
-> @@ -1390,6 +1391,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->  
->  	*fake = 0;
->  	*dat_protection = 0;
-> +	kvm = sg->private;
->  	parent = sg->parent;
->  	vaddr.addr = saddr;
->  	asce.val = sg->orig_asce;
-> @@ -1450,6 +1452,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->  		rc = gmap_shadow_r2t(sg, saddr, rfte.val, *fake);
->  		if (rc)
->  			return rc;
-> +		kvm->stat.gmap_shadow_r1_entry++;
->  	}
->  		fallthrough;
->  	case ASCE_TYPE_REGION2: {
-> @@ -1478,6 +1481,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->  		rc = gmap_shadow_r3t(sg, saddr, rste.val, *fake);
->  		if (rc)
->  			return rc;
-> +		kvm->stat.gmap_shadow_r2_entry++;
->  	}
->  		fallthrough;
->  	case ASCE_TYPE_REGION3: {
-> @@ -1515,6 +1519,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->  		rc = gmap_shadow_sgt(sg, saddr, rtte.val, *fake);
->  		if (rc)
->  			return rc;
-> +		kvm->stat.gmap_shadow_r3_entry++;
->  	}
->  		fallthrough;
->  	case ASCE_TYPE_SEGMENT: {
-> @@ -1548,6 +1553,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
->  		rc = gmap_shadow_pgt(sg, saddr, ste.val, *fake);
->  		if (rc)
->  			return rc;
-> +		kvm->stat.gmap_shadow_sg_entry++;
->  	}
->  	}
->  	/* Return the parent address of the page table */
-> @@ -1618,6 +1624,7 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
->  	pte.p |= dat_protection;
->  	if (!rc)
->  		rc = gmap_shadow_page(sg, saddr, __pte(pte.val));
-> +	vcpu->kvm->stat.gmap_shadow_pg_entry++;
->  	ipte_unlock(vcpu->kvm);
->  	mmap_read_unlock(sg->mm);
->  	return rc;
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index b3f17e014cab..b42493110d76 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -66,7 +66,14 @@ const struct _kvm_stats_desc kvm_vm_stats_desc[] = {
->  	STATS_DESC_COUNTER(VM, inject_pfault_done),
->  	STATS_DESC_COUNTER(VM, inject_service_signal),
->  	STATS_DESC_COUNTER(VM, inject_virtio),
-> -	STATS_DESC_COUNTER(VM, aen_forward)
-> +	STATS_DESC_COUNTER(VM, aen_forward),
-> +	STATS_DESC_COUNTER(VM, gmap_shadow_reuse),
-> +	STATS_DESC_COUNTER(VM, gmap_shadow_create),
-> +	STATS_DESC_COUNTER(VM, gmap_shadow_r1_entry),
-> +	STATS_DESC_COUNTER(VM, gmap_shadow_r2_entry),
-> +	STATS_DESC_COUNTER(VM, gmap_shadow_r3_entry),
-> +	STATS_DESC_COUNTER(VM, gmap_shadow_sg_entry),
-> +	STATS_DESC_COUNTER(VM, gmap_shadow_pg_entry),
->  };
->  
->  const struct kvm_stats_header kvm_vm_stats_header = {
-> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index 61499293c2ac..02dcbe82a8e5 100644
-> --- a/arch/s390/kvm/vsie.c
-> +++ b/arch/s390/kvm/vsie.c
-> @@ -1214,8 +1214,10 @@ static int acquire_gmap_shadow(struct kvm_vcpu *vcpu,
->  	 * we're holding has been unshadowed. If the gmap is still valid,
->  	 * we can safely reuse it.
->  	 */
-> -	if (vsie_page->gmap && gmap_shadow_valid(vsie_page->gmap, asce, edat))
-> +	if (vsie_page->gmap && gmap_shadow_valid(vsie_page->gmap, asce, edat)) {
-> +		vcpu->kvm->stat.gmap_shadow_reuse++;
->  		return 0;
-> +	}
->  
->  	/* release the old shadow - if any, and mark the prefix as unmapped */
->  	release_gmap_shadow(vsie_page);
-> @@ -1223,6 +1225,7 @@ static int acquire_gmap_shadow(struct kvm_vcpu *vcpu,
->  	if (IS_ERR(gmap))
->  		return PTR_ERR(gmap);
->  	gmap->private = vcpu->kvm;
-> +	vcpu->kvm->stat.gmap_shadow_create++;
->  	WRITE_ONCE(vsie_page->gmap, gmap);
->  	return 0;
->  }
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
