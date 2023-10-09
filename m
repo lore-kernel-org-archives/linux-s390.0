@@ -2,138 +2,115 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55025CD6109
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 16:35:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CA72CD610D
+	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 16:44:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377612AbjJIQf0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Oct 2023 12:35:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48020 "EHLO
+        id S1377299AbjJIQo2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 Oct 2023 12:44:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377299AbjJIQfY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 12:35:24 -0400
-Received: from mail-yw1-x112c.google.com (mail-yw1-x112c.google.com [IPv6:2607:f8b0:4864:20::112c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC55199;
-        Mon,  9 Oct 2023 09:35:22 -0700 (PDT)
-Received: by mail-yw1-x112c.google.com with SMTP id 00721157ae682-59f6492b415so40738947b3.0;
-        Mon, 09 Oct 2023 09:35:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1696869322; x=1697474122; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=RsC4B5mELowhLCBdNvaIf+LwPDrz+keu3BL55c6ZynM=;
-        b=ExJqmyPw90udlhP9ASCiGzsxkcH1bmj/pFkmFimTNIWolKEOyNgnO/qXv0eV8+4R7z
-         iqyUl0kMrGbZTYcKpIpF2g4heBKnctCerXdpJxAv8pjL494Ot2gkpHQViTCeZt86tzE9
-         W4hN9db0w+WEJqet2eJSXwiT9Tjd65XtUkV1mRKRSDle/mRWSf913iGF3Rn3Yvi+exJp
-         qip12KbjRfgwYzRYk2lqYO+TatV89d2eds7K85kBTUUA+YcDtN399zBxcMrWIbuUioi5
-         KFhyVw03c4xGGOA5WL1icXbnIauewBLB4zy2LIQNlAXZQAlnDSsJcrQeYntJUnmjOWUg
-         YeBA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696869322; x=1697474122;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=RsC4B5mELowhLCBdNvaIf+LwPDrz+keu3BL55c6ZynM=;
-        b=irDJwMC+muHoPJ4CKoWycFO9hnMoyOqEyVj4gDY7VkEGSJsf8c5xgs8l74R1AXGA3c
-         vYT3zL1pWKuNIfLdoxsNyyKH0vKSdaUThADTgmAuuaOHPmKkqRogF+RlpB4m4nriCyab
-         8/62Z//8MpIJuAsKC5RKXJE3xVNWOwpIPrUToR7TGTMwgoTse7u1eBs2zVJNwHQnGewI
-         SWb4Xi1PvEjuwu0sJguetHVVB4BT9+beZ6HXfiyqBpbbqj/Tx7sZsN5yqQ5A9Xrnv54n
-         U9Mc91SFhvnormMfrxoW+HUun5cH00QT1BFEFlTv6w7pQ6eLhdv/QSnjlQcKiG9ozqfK
-         7qyQ==
-X-Gm-Message-State: AOJu0YygAEwQd6Mq8M5bdikXutV1oggZzFDj2+gs8+lf7EYzUEg1NHDo
-        dX4axM0iylMf5Kal1HLNP4U=
-X-Google-Smtp-Source: AGHT+IFsvzJ6MeZI8r2v1L+4g/jHEVPfPdzddzGB/p3atEyZSUf9/4/r7GGX68WKl3pdJXGPfRRxWA==
-X-Received: by 2002:a81:a1c2:0:b0:5a4:dde3:6db5 with SMTP id y185-20020a81a1c2000000b005a4dde36db5mr8226753ywg.10.1696869321805;
-        Mon, 09 Oct 2023 09:35:21 -0700 (PDT)
-Received: from localhost ([2607:fb90:be22:da0:a050:8c3a:c782:514b])
-        by smtp.gmail.com with ESMTPSA id s7-20020a817707000000b005707fb5110bsm3798669ywc.58.2023.10.09.09.35.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Oct 2023 09:35:21 -0700 (PDT)
-Date:   Mon, 9 Oct 2023 09:35:20 -0700
-From:   Yury Norov <yury.norov@gmail.com>
-To:     Alexander Lobakin <aleksander.lobakin@intel.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Alexander Potapenko <glider@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        David Ahern <dsahern@kernel.org>,
-        Przemek Kitszel <przemyslaw.kitszel@intel.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        netdev@vger.kernel.org, linux-btrfs@vger.kernel.org,
-        dm-devel@redhat.com, ntfs3@lists.linux.dev,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 05/14] s390/cio: rename bitmap_size() ->
- idset_bitmap_size()
-Message-ID: <ZSQryML6+uySSQ55@yury-ThinkPad>
-References: <20231009151026.66145-1-aleksander.lobakin@intel.com>
- <20231009151026.66145-6-aleksander.lobakin@intel.com>
+        with ESMTP id S1377138AbjJIQo2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 12:44:28 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 219D49C;
+        Mon,  9 Oct 2023 09:44:27 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F078CC433C9;
+        Mon,  9 Oct 2023 16:44:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1696869866;
+        bh=hih2ojuht8Q/T9suSdsZNAYc2MUvDRpGqPW8913YgAY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Fv81rrzfBlhmCSyzSbFm4f8JmVVlagKhI0OSyXRpR9/9h6b+FdXcgjHwMZf+cp2su
+         mbqmY3gelrBeruWabdjhdJ7id0I+kYb4WQts1gPqLjS+3CJCbaChYfdPpuALshd0S2
+         D0ujnmXLy7Y+ZKbyA/zoyhV0p0PlZ4oe0eSIh2/bG/xa0s8wb7AWDZcGyWM51/JUlA
+         zGbn0/kqtcasGNaUv9ytjnTsHF9fztBTPtXE3lvmuDEhMnXarop6rBifKltQEQZBbh
+         6dACfPxTF0tS/Qi+1I18u2riwu+RYVcpIqDkoZorHn1XiP07DP4IBEhM9xHDO58CAb
+         sMMh+aXVY62tA==
+Date:   Mon, 9 Oct 2023 09:44:24 -0700
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Masahiro Yamada <masahiroy@kernel.org>
+Cc:     linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
+        loongarch@lists.linux.dev, sparclinux@vger.kernel.org,
+        x86@kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Nicolas Schier <nicolas@fjasle.eu>
+Subject: Re: [PATCH 5/5] kbuild: unify no-compiler-targets and
+ no-sync-config-targets
+Message-ID: <20231009164424.GB1153868@dev-arch.thelio-3990X>
+References: <20231009124210.1064021-1-masahiroy@kernel.org>
+ <20231009124210.1064021-5-masahiroy@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20231009151026.66145-6-aleksander.lobakin@intel.com>
+In-Reply-To: <20231009124210.1064021-5-masahiroy@kernel.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 09, 2023 at 05:10:17PM +0200, Alexander Lobakin wrote:
-> bitmap_size() is a pretty generic name and one may want to use it for
-> a generic bitmap API function. At the same time, its logic is not
-> "generic", i.e. it's not just `nbits -> size of bitmap in bytes`
-> converter as it would be expected from its name.
-> Add the prefix 'idset_' used throughout the file where the function
-> resides.
-
-At the first glance, this custom implementation just duplicates the
-generic one that you introduce in the following patch. If so, why
-don't you switch idset to just use generic bitmap_size()?
-
+On Mon, Oct 09, 2023 at 09:42:10PM +0900, Masahiro Yamada wrote:
+> Now that vdso_install does not depend on any in-tree build artifact,
+> it no longer invokes a compiler, making no-compiler-targets the same
+> as no-sync-config-targets.
 > 
-> Reviewed-by: Przemek Kitszel <przemyslaw.kitszel@intel.com>
-> Signed-off-by: Alexander Lobakin <aleksander.lobakin@intel.com>
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 > ---
-> idset_new() really wants its vmalloc() + memset() pair to be replaced
-> with vzalloc().
-> ---
->  drivers/s390/cio/idset.c | 10 ++++++----
->  1 file changed, 6 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/s390/cio/idset.c b/drivers/s390/cio/idset.c
-> index 45f9c0736be4..0a1105a483bf 100644
-> --- a/drivers/s390/cio/idset.c
-> +++ b/drivers/s390/cio/idset.c
-> @@ -16,7 +16,7 @@ struct idset {
->  	unsigned long bitmap[];
->  };
+>  Makefile | 13 +------------
+>  1 file changed, 1 insertion(+), 12 deletions(-)
+> 
+> diff --git a/Makefile b/Makefile
+> index 2170d56630e8..982b1ad33287 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -277,10 +277,6 @@ no-dot-config-targets := $(clean-targets) \
+>  			 $(version_h) headers headers_% archheaders archscripts \
+>  			 %asm-generic kernelversion %src-pkg dt_binding_check \
+>  			 outputmakefile rustavailable rustfmt rustfmtcheck
+> -# Installation targets should not require compiler. Unfortunately, vdso_install
+> -# is an exception where build artifacts may be updated. This must be fixed.
+> -no-compiler-targets := $(no-dot-config-targets) install dtbs_install \
+> -			headers_install modules_install modules_sign kernelrelease image_name
+>  no-sync-config-targets := $(no-dot-config-targets) %install modules_sign kernelrelease \
+>  			  image_name
+>  single-targets := %.a %.i %.ko %.lds %.ll %.lst %.mod %.o %.rsi %.s %.symtypes %/
+> @@ -288,7 +284,6 @@ single-targets := %.a %.i %.ko %.lds %.ll %.lst %.mod %.o %.rsi %.s %.symtypes %
+>  config-build	:=
+>  mixed-build	:=
+>  need-config	:= 1
+> -need-compiler	:= 1
+>  may-sync-config	:= 1
+>  single-build	:=
 >  
-> -static inline unsigned long bitmap_size(int num_ssid, int num_id)
-> +static inline unsigned long idset_bitmap_size(int num_ssid, int num_id)
->  {
->  	return BITS_TO_LONGS(num_ssid * num_id) * sizeof(unsigned long);
->  }
-> @@ -25,11 +25,12 @@ static struct idset *idset_new(int num_ssid, int num_id)
->  {
->  	struct idset *set;
+> @@ -298,12 +293,6 @@ ifneq ($(filter $(no-dot-config-targets), $(MAKECMDGOALS)),)
+>  	endif
+>  endif
 >  
-> -	set = vmalloc(sizeof(struct idset) + bitmap_size(num_ssid, num_id));
-> +	set = vmalloc(sizeof(struct idset) +
-> +		      idset_bitmap_size(num_ssid, num_id));
->  	if (set) {
->  		set->num_ssid = num_ssid;
->  		set->num_id = num_id;
-> -		memset(set->bitmap, 0, bitmap_size(num_ssid, num_id));
-> +		memset(set->bitmap, 0, idset_bitmap_size(num_ssid, num_id));
->  	}
->  	return set;
->  }
-> @@ -41,7 +42,8 @@ void idset_free(struct idset *set)
+> -ifneq ($(filter $(no-compiler-targets), $(MAKECMDGOALS)),)
+> -	ifeq ($(filter-out $(no-compiler-targets), $(MAKECMDGOALS)),)
+> -		need-compiler :=
+> -	endif
+> -endif
+> -
+
+MIPS and LoongArch seem to have grown a usage of need-compiler in
+4fe4a6374c4d ("MIPS: Only fiddle with CHECKFLAGS if `need-compiler'")
+and 54c2c9df083f ("LoongArch: Only fiddle with CHECKFLAGS if
+`need-compiler'"). With this removal, should those be updated as well?
+
+>  ifneq ($(filter $(no-sync-config-targets), $(MAKECMDGOALS)),)
+>  	ifeq ($(filter-out $(no-sync-config-targets), $(MAKECMDGOALS)),)
+>  		may-sync-config :=
+> @@ -675,7 +664,7 @@ endif
 >  
->  void idset_fill(struct idset *set)
->  {
-> -	memset(set->bitmap, 0xff, bitmap_size(set->num_ssid, set->num_id));
-> +	memset(set->bitmap, 0xff,
-> +	       idset_bitmap_size(set->num_ssid, set->num_id));
->  }
+>  # Include this also for config targets because some architectures need
+>  # cc-cross-prefix to determine CROSS_COMPILE.
+> -ifdef need-compiler
+> +ifdef may-sync-config
+>  include $(srctree)/scripts/Makefile.compiler
+>  endif
 >  
->  static inline void idset_add(struct idset *set, int ssid, int id)
 > -- 
-> 2.41.0
+> 2.39.2
+> 
