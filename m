@@ -2,86 +2,172 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98277CD68F1
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Oct 2023 04:32:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24FB3CD68F8
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Oct 2023 07:38:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376812AbjJJEcI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 Oct 2023 00:32:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40956 "EHLO
+        id S1442419AbjJJHiA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 Oct 2023 03:38:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376523AbjJJEcI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Oct 2023 00:32:08 -0400
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D521593;
-        Mon,  9 Oct 2023 21:32:06 -0700 (PDT)
-Received: by mail-lf1-x136.google.com with SMTP id 2adb3069b0e04-5041bb9ce51so6593866e87.1;
-        Mon, 09 Oct 2023 21:32:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1696912325; x=1697517125; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=9nKNkeB60RcbKm6PBPumuMk8T7ADkJrETtJNbo1qqOk=;
-        b=QkYtLvqgeZBo+muGmPfmDHF+W4IO0Z8kcszfW7pSpMUgWlt0ZIKA8zYaaa1dcp2DkP
-         4Qb+Of1dtcCAz2BaO5Ssqy+41nYCqeEphBWsRxmH66ISgx9Mc0jpjjUsP6BGHZ7QmsX0
-         e6OFgtsVM/CY4PQKVUEMMfAn1tsLbByv7B6X9y2OWvXTIjr5f6OPgOzLu6HwyyyBYnD+
-         fZfzhJ8yLDsbNOjEvrmDp4QbF2A+h3v/tdEy36WbnYqhjlv2kOAPShWEVCm2pokSH3ib
-         4ASfGzxKgd7BEJFSsHYE/IKvk3laT/I898RprWD8SZdLqlSlhdFG98YHoNi0a3BewOyx
-         BZRA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696912325; x=1697517125;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=9nKNkeB60RcbKm6PBPumuMk8T7ADkJrETtJNbo1qqOk=;
-        b=uosltJ9A+AB0V5P3LiQl6yvPN8l9Yf9XHqLaNmkXazvLEEr8u3vY07VpP+lHy/8zbY
-         N07VGE7+Guy4ONwkehtfsOsB6fDNe5Q8PVb6BevNtagCnMRd+XRNTUCmeyrUTEFr/j2m
-         U/P7iaktsgN3kY7z6F986GKZ0mHjxeuXLbrDqqX+E2SO7oAxFp/m8jMRoUzvU4yrPkYT
-         1GfzZO/O9eHzvSO8ZE1jzvxTXsVWS7hXovpLfWaTOYvGpNTgxtGKCe9dDQbUvPEbjAMK
-         CPg4d0YZe98cI6RZrWPTMd4gk14Qf5lwhyallT1BJ4pbgcH0zYK53PsCQkMpWmirvqMI
-         5U2g==
-X-Gm-Message-State: AOJu0YxJr+w8TrC0ufEOqF7rTM4ei13kbnqqDG4oW4yx6WGf3m0Q7lbO
-        ODexvVug40UXTYRrYcqXd+V5LWph3PaTMA==
-X-Google-Smtp-Source: AGHT+IHWRx+A7cJPzt73D92sd+iDa7yee5wkK1MMtlIDbr0A0Xd9lNB4XQli8GkxmceQ14MGPzKuqw==
-X-Received: by 2002:a05:6512:3b28:b0:500:7de4:300e with SMTP id f40-20020a0565123b2800b005007de4300emr19372157lfv.58.1696912324724;
-        Mon, 09 Oct 2023 21:32:04 -0700 (PDT)
-Received: from dreambig.dreambig.corp ([58.27.187.115])
-        by smtp.gmail.com with ESMTPSA id i12-20020a5d630c000000b00326b8a0e817sm11351688wru.84.2023.10.09.21.32.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Oct 2023 21:32:04 -0700 (PDT)
-From:   Muhammad Muzammil <m.muzzammilashraf@gmail.com>
-To:     sth@linux.ibm.com, hoeppner@linux.ibm.com
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Muhammad Muzammil <m.muzzammilashraf@gmail.com>
-Subject: [PATCH] drivers: s390: dasd_int.h: resolved spelling mistake
-Date:   Tue, 10 Oct 2023 09:31:40 +0500
-Message-Id: <20231010043140.28416-1-m.muzzammilashraf@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S1442324AbjJJHh7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Oct 2023 03:37:59 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DBA39E;
+        Tue, 10 Oct 2023 00:37:57 -0700 (PDT)
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39A79XvC020878;
+        Tue, 10 Oct 2023 07:37:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : references : date : in-reply-to : message-id : mime-version :
+ content-type; s=pp1; bh=5aaW2dPRZNtep/xpizNo1N37xs+hP26eCD8NQHP4dYg=;
+ b=fVtGrVHngctrT1pbGLa4kXC6Fe5YJewBoz+fvd2PlEeRlwxFa8Mz8htlgo7LyeE5ZKxo
+ c38UNaXtlvi9WBRAV/TfG4SKfPb4XcA+Hbld4wCXOaoJTNV2SbPzFI5HGTPFPnrhOkuz
+ i+YzokrsJB6sw/l2hFqMyvVR7xdXygmj1olabaYPAf+NZfRUu6ndv/LPY5Er8eJImBtA
+ U9r8/auWcw6/6ciwOREGLWgjdv+uTA6uft3ai5yHqErbT2l3rHRRts1J7YocsGqZqScZ
+ OCiu5nb92oYYMMDAZNTDF5zdFqt9utJzeOSvHKZyurFYuaX/3geRwZTDR8N1jW9Y/2nh KQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tn1yq1513-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Oct 2023 07:37:04 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39A79caK021024;
+        Tue, 10 Oct 2023 07:37:03 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tn1yq150m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Oct 2023 07:37:03 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39A4lurn028185;
+        Tue, 10 Oct 2023 07:37:02 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tkj1xy0hm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Oct 2023 07:37:02 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39A7ax5Y22086166
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 10 Oct 2023 07:36:59 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0F70A20040;
+        Tue, 10 Oct 2023 07:36:59 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4797420043;
+        Tue, 10 Oct 2023 07:36:58 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue, 10 Oct 2023 07:36:58 +0000 (GMT)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Masahiro Yamada <masahiroy@kernel.org>
+Cc:     linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
+        loongarch@lists.linux.dev, sparclinux@vger.kernel.org,
+        x86@kernel.org, Albert Ou <aou@eecs.berkeley.edu>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Guo Ren <guoren@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nicolas Schier <nicolas@fjasle.eu>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        WANG Xuerui <kernel@xen0n.name>, Will Deacon <will@kernel.org>
+Subject: Re: [PATCH 4/5] kbuild: unify vdso_install rules
+References: <20231009124210.1064021-1-masahiroy@kernel.org>
+        <20231009124210.1064021-4-masahiroy@kernel.org>
+Date:   Tue, 10 Oct 2023 09:36:57 +0200
+In-Reply-To: <20231009124210.1064021-4-masahiroy@kernel.org> (Masahiro
+        Yamada's message of "Mon, 9 Oct 2023 21:42:09 +0900")
+Message-ID: <yt9dfs2judwm.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: _CGlDQcO5kaF2u-illDRNoa12BhAMAB3
+X-Proofpoint-GUID: 5Ae0OhPocEUKJk2CSLcSZHHAMy_Wm0U-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-10_04,2023-10-09_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=931
+ bulkscore=0 clxscore=1011 suspectscore=0 adultscore=0 priorityscore=1501
+ malwarescore=0 lowpriorityscore=0 impostorscore=0 phishscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2309180000
+ definitions=main-2310100056
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-resolved typing mistake from pimary to primary
+Masahiro Yamada <masahiroy@kernel.org> writes:
 
-Signed-off-by: Muhammad Muzammil <m.muzzammilashraf@gmail.com>
----
- drivers/s390/block/dasd_int.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Currently, there is no standard implementation for vdso_install,
+> leading to various issues:
+>
+>  1. Code duplication
+>
+>     Many architectures duplicate similar code just for copying files
+>     to the install destination.
+>
+>     Some architectures (arm, sparc, x86) create build-id symlinks,
+>     introducing more code duplication.
+>
+>  2. Accidental updates of in-tree build artifacts
+>
+>     The vdso_install rule depends on the vdso files to install.
+>     It may update in-tree build artifacts. This can be problematic,
+>     as explained in commit 19514fc665ff ("arm, kbuild: make
+>     "make install" not depend on vmlinux").
+>
+>  3. Broken code in some architectures
+>
+>     Makefile code is often copied from one architecture to another
+>     without proper adaptation or testing.
+>
+>     The previous commits removed broken code from csky, UML, and parisc.
+>
+>     Another issue is that 'make vdso_install' for ARCH=s390 installs
+>     vdso64, but not vdso32.
+>
+> To address these problems, this commit introduces the generic vdso_install.
+>
+> Architectures that support vdso_install need to define vdso-install-y
+> in arch/*/Makefile.
+>
+> vdso-install-y lists the files to install. For example, arch/x86/Makefile
+> looks like this:
+>
+>   vdso-install-$(CONFIG_X86_64)           += arch/x86/entry/vdso/vdso64.so.dbg
+>   vdso-install-$(CONFIG_X86_X32_ABI)      += arch/x86/entry/vdso/vdsox32.so.dbg
+>   vdso-install-$(CONFIG_X86_32)           += arch/x86/entry/vdso/vdso32.so.dbg
+>   vdso-install-$(CONFIG_IA32_EMULATION)   += arch/x86/entry/vdso/vdso32.so.dbg
+>
+> These files will be installed to $(MODLIB)/vdso/ with the .dbg suffix,
+> if exists, stripped away.
+>
+> vdso-install-y can optionally take the second field after the colon
+> separator. This is needed because some architectures install vdso
+> files as a different base name.
+>
+> The following is a snippet from arch/arm64/Makefile.
+>
+>   vdso-install-$(CONFIG_COMPAT_VDSO)      += arch/arm64/kernel/vdso32/vdso.so.dbg:vdso32.so
+>
+> This will rename vdso.so.dbg to vdso32.so during installation. If such
+> architectures change their implementation so that the file names match,
+> this workaround will go away.
+>
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> ---
 
-diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
-index 2e663131adaf..1b1b8a41c4d4 100644
---- a/drivers/s390/block/dasd_int.h
-+++ b/drivers/s390/block/dasd_int.h
-@@ -283,7 +283,7 @@ struct dasd_pprc_dev_info {
- 	__u8 secondary;		/* 7       Secondary device address */
- 	__u16 pprc_id;		/* 8-9     Peer-to-Peer Remote Copy ID */
- 	__u8 reserved2[12];	/* 10-21   reserved */
--	__u16 prim_cu_ssid;	/* 22-23   Pimary Control Unit SSID */
-+	__u16 prim_cu_ssid;	/* 22-23   Primary Control Unit SSID */
- 	__u8 reserved3[12];	/* 24-35   reserved */
- 	__u16 sec_cu_ssid;	/* 36-37   Secondary Control Unit SSID */
- 	__u8 reserved4[90];	/* 38-127  reserved */
--- 
-2.27.0
-
+Acked-by: Sven Schnelle <svens@linux.ibm.com> # s390
