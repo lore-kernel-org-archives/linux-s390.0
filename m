@@ -2,84 +2,99 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C32AFCD690B
-	for <linux-s390@archiver.kernel.org>; Tue, 10 Oct 2023 08:44:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DD44CD80A1
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Oct 2023 10:32:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231270AbjJJIo0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 Oct 2023 04:44:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58518 "EHLO
+        id S230446AbjJJKcf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 Oct 2023 06:32:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230294AbjJJIoT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Oct 2023 04:44:19 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B439BB6;
-        Tue, 10 Oct 2023 01:44:17 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE21CC433CA;
-        Tue, 10 Oct 2023 08:44:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1696927457;
-        bh=AklOIwjkDmHZ1qM9UpDtEjm30BDgtD6wXE6WJ8v7kog=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=G7lOH156oFDWcy0YvnnmfIKiP+AA04u9jmSgZxeP9pFQRuB0xFOH6pNBpaqYfXqXp
-         3mRaPYMrIgET9ngpczaZP0eVoEh95kzdTZCqkxCAPKxJ3wVR6Hnp+M54eurWuP+0M7
-         wI8veqWTWaeqQcFbsSYLer/c5CfeMXYbxgK5GftSIl81sle/8orkomjomDP87716vQ
-         AFyueGH7t8whd7YDB0EZIy3ggPZhJ4A6fI5v7mN/OpVjaq0V0yxfi4XHPHkIhAnYPx
-         QNcZ4vokyqRLryzgaVzAPFzsRGCqCgub/0GMZWBX6BEbdxvLT75NoesRd06HwSJNdg
-         Dly9CwNw/fNSw==
-Date:   Tue, 10 Oct 2023 10:44:09 +0200
-From:   Christian Brauner <brauner@kernel.org>
-To:     Al Viro <viro@zeniv.linux.org.uk>
-Cc:     Christoph Hellwig <hch@lst.de>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        with ESMTP id S231124AbjJJKce (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Oct 2023 06:32:34 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B16C4;
+        Tue, 10 Oct 2023 03:32:32 -0700 (PDT)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39AAMUIK022219;
+        Tue, 10 Oct 2023 10:32:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=G4ZN2prybdRxjNMpLfgdIP1IbuHzdG4M/LEnYvyrvaY=;
+ b=RkPHVsJvnXXq9AlQIeRc8ezYAw+NDvivDQn3zjpKZN8Q38KlxaixLM/HSvveNvlFstqX
+ tQZaUaW//CmxpMhv3aWvHNRle3RhkPfzv4o0ZRfmWF0ZQgy6fpAn3PJH5kyLy3vIG3F3
+ 5KMnq/fPx3AY0XK90qL30fl4QJCQM5DIl0nwkCRdq4vIJZa8f6ePmAA4ciZjZibQrtTA
+ FnhQPrRa7r5j6PF9uFZHbTqDbC787/iS0YEAd3Li/yO2ZGevfsFpt5f8ul12VbuLYySN
+ kGmDBTg2aaCUiBgQMRLzOw0M8fDoloaop2ZT5ggDPr2JYaKkk7ztmpWf2Vllh+iyOKDr FQ== 
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tn4t4gaf8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Oct 2023 10:32:31 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39A88wJ3025927;
+        Tue, 10 Oct 2023 10:32:30 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tkjnn7p11-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Oct 2023 10:32:30 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39AAWQ2Y46137614
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 10 Oct 2023 10:32:26 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BB4952004D;
+        Tue, 10 Oct 2023 10:32:26 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0D8BC20040;
+        Tue, 10 Oct 2023 10:32:26 +0000 (GMT)
+Received: from localhost (unknown [9.171.24.117])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue, 10 Oct 2023 10:32:25 +0000 (GMT)
+Date:   Tue, 10 Oct 2023 12:32:24 +0200
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Tejun Heo <tj@kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Damien Le Moal <dlemoal@kernel.org>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-hardening@vger.kernel.org,
-        cgroups@vger.kernel.org
-Subject: Re: [PATCH 03/19] fs: release anon dev_t in deactivate_locked_super
-Message-ID: <20231010-zulagen-bisschen-9657746c1fc0@brauner>
-References: <20230913111013.77623-1-hch@lst.de>
- <20230913111013.77623-4-hch@lst.de>
- <20230913232712.GC800259@ZenIV>
- <20230926093834.GB13806@lst.de>
- <20230926212515.GN800259@ZenIV>
- <20231002064646.GA1799@lst.de>
- <20231009215754.GL800259@ZenIV>
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390/cio: Fix a memleak in css_alloc_subchannel
+Message-ID: <your-ad-here.call-01696933944-ext-3327@work.hours>
+References: <20230921071412.13806-1-dinghao.liu@zju.edu.cn>
+ <bd38baa8-7b9d-4d89-9422-7e943d626d6e@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20231009215754.GL800259@ZenIV>
+In-Reply-To: <bd38baa8-7b9d-4d89-9422-7e943d626d6e@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 9T8T13insnaSR3sdLLL219eJzjiz1LHd
+X-Proofpoint-GUID: 9T8T13insnaSR3sdLLL219eJzjiz1LHd
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-10_05,2023-10-10_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ suspectscore=0 priorityscore=1501 malwarescore=0 spamscore=0 mlxscore=0
+ phishscore=0 adultscore=0 clxscore=1011 lowpriorityscore=0 bulkscore=0
+ mlxlogscore=706 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2309180000 definitions=main-2310100078
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> list removal should happen after generic_shutdown_super().  Sure, you
-> want the superblock to serve as bdev holder, which leads to fun
-> with -EBUSY if mount comes while umount still hadn't closed the
-> device.  I suspect that it would make a lot more sense to
-> introduce an intermediate state - "held, but will be released
-> in a short while".  You already have something similar, but
-> only for the entire disk ->bd_claiming stuff.
+On Thu, Oct 05, 2023 at 05:12:54PM +0200, Peter Oberparleiter wrote:
+> On 21.09.2023 09:14, Dinghao Liu wrote:
+> > When dma_set_coherent_mask() fails, sch->lock has not been
+> > freed, which is allocated in css_sch_create_locks(), leading
+> > to a memleak.
+> > 
+> > Fixes: 4520a91a976e ("s390/cio: use dma helpers for setting masks")
+> > Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
 > 
-> Add a new primitive (will_release_bdev()), so that attempts to
-> claim the sucker will wait until it gets released instead of
-> failing with -EBUSY.  And do *that* before generic_shutdown_super()
-> when unmounting something that is block-based.  Allows to bring
-> the list removal back where it used to be, no UAF at all...
+> Looks good to me.
+> 
+> Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
 
-This is essentially equivalent to what is done right now. Only that this
-would then happen in the block layer. I'm not sure it would buy us that
-much. In all likelyhood we just get a range of other issues to fix.
+Applied, thank you.
