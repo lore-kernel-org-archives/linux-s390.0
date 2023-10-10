@@ -2,190 +2,86 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ACA6CD613C
-	for <linux-s390@archiver.kernel.org>; Mon,  9 Oct 2023 21:58:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98277CD68F1
+	for <linux-s390@archiver.kernel.org>; Tue, 10 Oct 2023 04:32:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378828AbjJIV6V (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 Oct 2023 17:58:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60822 "EHLO
+        id S1376812AbjJJEcI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 Oct 2023 00:32:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378789AbjJIV6U (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Oct 2023 17:58:20 -0400
-Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [IPv6:2a03:a000:7:0:5054:ff:fe1c:15ff])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2B5499;
-        Mon,  9 Oct 2023 14:58:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=Uo1EiyojZdAoskTvMvtwCcjNoSWtdzYtyhDVJ0XRCLA=; b=tQPA9yIqHmqNSbhOVvxiucllWR
-        l2tso1BLwh5CGWav21hSNoCV18PYO+IsxWdqSb/pXzM2cPknMXd9P7ke0zHb6UliQGYi6gLyRpPKv
-        U7hiFaveQ7mceuNDQ8jXcyNC9Wn3AkdirOyK8p0NOTO/Oj6yURkgBAyy5W9y7bWeLSH/O6DDIkmyl
-        WCp+Xw1NcUBfI4VrenMtUjHlxEHqjrSYPedcuoxv/CrT5Nzph7SfGqANRPJyxErt/tMNNVW/JgwXK
-        fM0gVUEdTnwkyob+53dTu2ypbGyfYDxKYT5I9ypDKvQN6UcsFeM5PE4elD0hso579aRXCVJbRT5mn
-        T7zz5aAw==;
-Received: from viro by zeniv.linux.org.uk with local (Exim 4.96 #2 (Red Hat Linux))
-        id 1qpyGA-00HK0m-1f;
-        Mon, 09 Oct 2023 21:57:54 +0000
-Date:   Mon, 9 Oct 2023 22:57:54 +0100
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Christian Brauner <brauner@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Tejun Heo <tj@kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Damien Le Moal <dlemoal@kernel.org>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-hardening@vger.kernel.org,
-        cgroups@vger.kernel.org
-Subject: Re: [PATCH 03/19] fs: release anon dev_t in deactivate_locked_super
-Message-ID: <20231009215754.GL800259@ZenIV>
-References: <20230913111013.77623-1-hch@lst.de>
- <20230913111013.77623-4-hch@lst.de>
- <20230913232712.GC800259@ZenIV>
- <20230926093834.GB13806@lst.de>
- <20230926212515.GN800259@ZenIV>
- <20231002064646.GA1799@lst.de>
+        with ESMTP id S1376523AbjJJEcI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Oct 2023 00:32:08 -0400
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D521593;
+        Mon,  9 Oct 2023 21:32:06 -0700 (PDT)
+Received: by mail-lf1-x136.google.com with SMTP id 2adb3069b0e04-5041bb9ce51so6593866e87.1;
+        Mon, 09 Oct 2023 21:32:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1696912325; x=1697517125; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=9nKNkeB60RcbKm6PBPumuMk8T7ADkJrETtJNbo1qqOk=;
+        b=QkYtLvqgeZBo+muGmPfmDHF+W4IO0Z8kcszfW7pSpMUgWlt0ZIKA8zYaaa1dcp2DkP
+         4Qb+Of1dtcCAz2BaO5Ssqy+41nYCqeEphBWsRxmH66ISgx9Mc0jpjjUsP6BGHZ7QmsX0
+         e6OFgtsVM/CY4PQKVUEMMfAn1tsLbByv7B6X9y2OWvXTIjr5f6OPgOzLu6HwyyyBYnD+
+         fZfzhJ8yLDsbNOjEvrmDp4QbF2A+h3v/tdEy36WbnYqhjlv2kOAPShWEVCm2pokSH3ib
+         4ASfGzxKgd7BEJFSsHYE/IKvk3laT/I898RprWD8SZdLqlSlhdFG98YHoNi0a3BewOyx
+         BZRA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1696912325; x=1697517125;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=9nKNkeB60RcbKm6PBPumuMk8T7ADkJrETtJNbo1qqOk=;
+        b=uosltJ9A+AB0V5P3LiQl6yvPN8l9Yf9XHqLaNmkXazvLEEr8u3vY07VpP+lHy/8zbY
+         N07VGE7+Guy4ONwkehtfsOsB6fDNe5Q8PVb6BevNtagCnMRd+XRNTUCmeyrUTEFr/j2m
+         U/P7iaktsgN3kY7z6F986GKZ0mHjxeuXLbrDqqX+E2SO7oAxFp/m8jMRoUzvU4yrPkYT
+         1GfzZO/O9eHzvSO8ZE1jzvxTXsVWS7hXovpLfWaTOYvGpNTgxtGKCe9dDQbUvPEbjAMK
+         CPg4d0YZe98cI6RZrWPTMd4gk14Qf5lwhyallT1BJ4pbgcH0zYK53PsCQkMpWmirvqMI
+         5U2g==
+X-Gm-Message-State: AOJu0YxJr+w8TrC0ufEOqF7rTM4ei13kbnqqDG4oW4yx6WGf3m0Q7lbO
+        ODexvVug40UXTYRrYcqXd+V5LWph3PaTMA==
+X-Google-Smtp-Source: AGHT+IHWRx+A7cJPzt73D92sd+iDa7yee5wkK1MMtlIDbr0A0Xd9lNB4XQli8GkxmceQ14MGPzKuqw==
+X-Received: by 2002:a05:6512:3b28:b0:500:7de4:300e with SMTP id f40-20020a0565123b2800b005007de4300emr19372157lfv.58.1696912324724;
+        Mon, 09 Oct 2023 21:32:04 -0700 (PDT)
+Received: from dreambig.dreambig.corp ([58.27.187.115])
+        by smtp.gmail.com with ESMTPSA id i12-20020a5d630c000000b00326b8a0e817sm11351688wru.84.2023.10.09.21.32.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Oct 2023 21:32:04 -0700 (PDT)
+From:   Muhammad Muzammil <m.muzzammilashraf@gmail.com>
+To:     sth@linux.ibm.com, hoeppner@linux.ibm.com
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Muhammad Muzammil <m.muzzammilashraf@gmail.com>
+Subject: [PATCH] drivers: s390: dasd_int.h: resolved spelling mistake
+Date:   Tue, 10 Oct 2023 09:31:40 +0500
+Message-Id: <20231010043140.28416-1-m.muzzammilashraf@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231002064646.GA1799@lst.de>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 02, 2023 at 08:46:46AM +0200, Christoph Hellwig wrote:
-> On Tue, Sep 26, 2023 at 10:25:15PM +0100, Al Viro wrote:
-> > Before your patch: foo_kill_super() calls kill_anon_super(),
-> > which calls kill_super_notify(), which removes the sucker from
-> > the list, then frees ->s_fs_info.  After your patch:
-> > removal from the lists happens via the call of kill_super_notify()
-> > *after* both of your methods had been called, while freeing
-> > ->s_fs_info happens from the method call.  IOW, you've restored
-> > the situation prior to "super: ensure valid info".  The whole
-> > point of that commit had been to make sure that we have nothing
-> > in the lists with ->s_fs_info pointing to a freed object.
-> > 
-> > It's not about free_anon_bdev(); that part is fine - it's the
-> > "we can drop the weird second call site of kill_super_notify()"
-> > thing that is broken.
-> 
-> The point has been to only release the anon dev_t after
-> kill_super_notify, to prevent two of them beeing reused.
-> 
-> Which we do as the free_anon_bdev is done directly in
-> deactivate_locked_super.  The new ->free_sb for non-block file systems
-> frees resources, but none of them matter for sget.
+resolved typing mistake from pimary to primary
 
-We keep talking past each other...  Let me try again:
-at the tip of your branch you have
+Signed-off-by: Muhammad Muzammil <m.muzzammilashraf@gmail.com>
+---
+ drivers/s390/block/dasd_int.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-static struct file_system_type ubifs_fs_type = {
-        .name    = "ubifs",
-	.owner   = THIS_MODULE,
-	.mount   = ubifs_mount,
-	.free_sb = ubifs_free_sb,
-};
+diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
+index 2e663131adaf..1b1b8a41c4d4 100644
+--- a/drivers/s390/block/dasd_int.h
++++ b/drivers/s390/block/dasd_int.h
+@@ -283,7 +283,7 @@ struct dasd_pprc_dev_info {
+ 	__u8 secondary;		/* 7       Secondary device address */
+ 	__u16 pprc_id;		/* 8-9     Peer-to-Peer Remote Copy ID */
+ 	__u8 reserved2[12];	/* 10-21   reserved */
+-	__u16 prim_cu_ssid;	/* 22-23   Pimary Control Unit SSID */
++	__u16 prim_cu_ssid;	/* 22-23   Primary Control Unit SSID */
+ 	__u8 reserved3[12];	/* 24-35   reserved */
+ 	__u16 sec_cu_ssid;	/* 36-37   Secondary Control Unit SSID */
+ 	__u8 reserved4[90];	/* 38-127  reserved */
+-- 
+2.27.0
 
-static void ubifs_free_sb(struct super_block *s)
-{
-        kfree(s->s_fs_info);
-}
-
-static struct dentry *ubifs_mount(struct file_system_type *fs_type, int flags,
-                        const char *name, void *data)
-{
-	...
-        sb = sget(fs_type, sb_test, sb_set, flags, c);
-	...
-}
-
-static int sb_test(struct super_block *sb, void *data)
-{
-        struct ubifs_info *c1 = data;
-        struct ubifs_info *c = sb->s_fs_info;
-
-        return c->vi.cdev == c1->vi.cdev;
-}
-
-See the problem?  Mainline has
-
-static void kill_ubifs_super(struct super_block *s)
-{
-        struct ubifs_info *c = s->s_fs_info;
-        kill_anon_super(s);
-        kfree(c);
-}
-and
-void kill_anon_super(struct super_block *sb)
-{
-        dev_t dev = sb->s_dev;
-        generic_shutdown_super(sb);
-        kill_super_notify(sb);
-        free_anon_bdev(dev);
-}
-
-That removes the superblock from the list of instances before its
-->s_fs_info is freed.  In your branch removal happens here:
-
-        if (fs->shutdown_sb)
-                fs->shutdown_sb(s);
-        generic_shutdown_super(s);
-        if (fs->free_sb)
-                fs->free_sb(s);
-
-        kill_super_notify(s);
-
-That comes *after* ubifs_free_sb() has freed ->s_fs_info.  And there's
-nothing to stop ubifs_mount() (on a completely unrelated device) to get
-called right at that moment.  Doing the sget() call quoted above.  Now,
-in sget() we have
-                hlist_for_each_entry(old, &type->fs_supers, s_instances) {
-                        if (!test(old, data))
-and that will hit sb_test(old, data), with old being a superblock still
-in ->fs_supers, but with ->s_fs_info already freed.  So in sb_test()
-we have c equal to old->s_fs_info and
-        return c->vi.cdev == c1->vi.cdev;
-is a bloody use after free.
-
-Here we are unlikely to get fucked over - it's a plain fetch from freed
-object.  If you look at e.g. nfs, you'll see a lot more than that -
-pointer chasing from freed (and possibly reused) object.  The only
-difference is that there you have sget_fc() instead of sget() - same
-loop anyway.
-
-The bottom line: in the form it is posted, your series reintroduces the
-class of UAF that had been added by taking removal from the instances
-list out of generic_shutdown_super() and then papered over by adding
-that kill_super_notify() into kill_anon_super().
-
-And frankly, I believe that the root cause is the insistence that
-list removal should happen after generic_shutdown_super().  Sure, you
-want the superblock to serve as bdev holder, which leads to fun
-with -EBUSY if mount comes while umount still hadn't closed the
-device.  I suspect that it would make a lot more sense to
-introduce an intermediate state - "held, but will be released
-in a short while".  You already have something similar, but
-only for the entire disk ->bd_claiming stuff.
-
-Add a new primitive (will_release_bdev()), so that attempts to
-claim the sucker will wait until it gets released instead of
-failing with -EBUSY.  And do *that* before generic_shutdown_super()
-when unmounting something that is block-based.  Allows to bring
-the list removal back where it used to be, no UAF at all...
-
-IMO that direction is a lot more promising.
