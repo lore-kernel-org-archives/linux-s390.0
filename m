@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F399CD6E46
-	for <linux-s390@archiver.kernel.org>; Wed, 11 Oct 2023 08:56:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5709CCD6E4B
+	for <linux-s390@archiver.kernel.org>; Wed, 11 Oct 2023 08:57:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230437AbjJKI47 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 Oct 2023 04:56:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53998 "EHLO
+        id S1345663AbjJKI5A (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 Oct 2023 04:57:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230392AbjJKI45 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 04:56:57 -0400
+        with ESMTP id S1345652AbjJKI47 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 04:56:59 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96C5AA7;
-        Wed, 11 Oct 2023 01:56:56 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39B8npxW020773;
-        Wed, 11 Oct 2023 08:56:46 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F520BA;
+        Wed, 11 Oct 2023 01:56:57 -0700 (PDT)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39B8srm0020451;
+        Wed, 11 Oct 2023 08:56:47 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=iQkY72E/ULAP0jO9xOJa81ucrv5Bd02sKU6uZ8jdksY=;
- b=CDzrbLqqHLpNYM138wZz/l1KUXHFC+rzTJCXj2IGnk8iVeTGu2E3rKfrjOEylukNbA2H
- 78aiI+U9uOhrLJxVRevG39c8WuIvNDbm6HYcesAWhoNI6Uk0/yU1CRKYdbdvC4gMXDcY
- sKahwOwX+VDrC4vtRinaaqxWEzuC0Q9t6vo9B+YPn5ZPZwzfnBD9HJKSuOe3+mA33MAS
- geViWi29EjpziyCKEptMuIdd0KQsra8DOj0h+Fe9tUaSv8HHZO+IW7PKzaXlrw5FjUzD
- xskJjXLuURCrYxMMs9HwsUXdFeovNKIBiniUCRMGBY1oLCAFKbthKfUBHEU5t0BVMswn 6g== 
+ bh=0zPOz7x89n6p8+3LYNGYTUmGK9PbxGrBfAyFwA+l8sM=;
+ b=eLkUwUCl/sojayVTvMITch6QErkYjVRqPCXWCVYXPhddcMQX/HPEweMSzbK+3ZOgwD/a
+ dgSlBSAHv5x4aqyK9nr9ta9Xqv/oaB7pYLubJc9sQKx7UGFOy3gYyOTcVFeqUOPKfBCW
+ 0owF4LiWOH5wiaoz5YFgdKg6jwMIvgNBt1J6zNdqfwNYLWYMrFHc8oeWfkNYWl7LyHTy
+ 21Vp6dW/wE4zQ7Mj0ZQOZc496ZQWTxfRr+atUJIzHCcgaNpGdnu5wpm5wErNwpBq389u
+ ZZjgkph0FZWZQeioHUiU1doO45Hc1jl1gl/QLKJQbQTUJMzxvWfOztF4zWa3BbNlg0zo lg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tnrhng9k0-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tnrkw01fh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 11 Oct 2023 08:56:45 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39B8oZWQ022907;
+        Wed, 11 Oct 2023 08:56:47 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39B8uKFv024852;
+        Wed, 11 Oct 2023 08:56:46 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tnrkw01f7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 11 Oct 2023 08:56:46 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39B7QNwv023106;
         Wed, 11 Oct 2023 08:56:45 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tnrhng9jn-1
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tkmc1pcqc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 11 Oct 2023 08:56:45 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39B7InYJ024465;
-        Wed, 11 Oct 2023 08:56:44 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tkhnsq6pv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 11 Oct 2023 08:56:44 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39B8ufnK11928126
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39B8uhjs24642280
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 11 Oct 2023 08:56:41 GMT
+        Wed, 11 Oct 2023 08:56:43 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A489F20043;
-        Wed, 11 Oct 2023 08:56:41 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id E5BF720043;
+        Wed, 11 Oct 2023 08:56:42 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6DAC820040;
-        Wed, 11 Oct 2023 08:56:41 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id A49E320040;
+        Wed, 11 Oct 2023 08:56:42 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 11 Oct 2023 08:56:41 +0000 (GMT)
+        Wed, 11 Oct 2023 08:56:42 +0000 (GMT)
 From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 To:     Janosch Frank <frankja@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
@@ -67,96 +67,74 @@ Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
         kvm@vger.kernel.org, Andrew Jones <andrew.jones@linux.dev>,
         Colton Lewis <coltonlewis@google.com>,
         Nikos Nikoleris <nikos.nikoleris@arm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Shaoqin Huang <shahuang@redhat.com>
-Subject: [kvm-unit-tests PATCH 4/9] s390x: topology: Don't use non unique message
-Date:   Wed, 11 Oct 2023 10:56:27 +0200
-Message-Id: <20231011085635.1996346-5-nsg@linux.ibm.com>
+        Ricardo Koller <ricarkol@google.com>,
+        Sean Christopherson <seanjc@google.com>
+Subject: [kvm-unit-tests PATCH 6/9] s390x: topology: Rename topology_core to topology_cpu
+Date:   Wed, 11 Oct 2023 10:56:29 +0200
+Message-Id: <20231011085635.1996346-7-nsg@linux.ibm.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20231011085635.1996346-1-nsg@linux.ibm.com>
 References: <20231011085635.1996346-1-nsg@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: bMfkiFZNjYYr4hOviTJblzPuK-9Yoraf
-X-Proofpoint-GUID: uCv95cGAf0i4oTwCE6WwleAi1j-StHnz
+X-Proofpoint-ORIG-GUID: HiYsuaFR2vK8Ps1J9VZfdEX8cJyjPCwB
+X-Proofpoint-GUID: qNCjy8k7mVX7CNo4MMQp_scuya7sx-h4
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-10-11_06,2023-10-10_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
- suspectscore=0 impostorscore=0 bulkscore=0 phishscore=0 spamscore=0
- mlxlogscore=999 lowpriorityscore=0 mlxscore=0 malwarescore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ malwarescore=0 lowpriorityscore=0 bulkscore=0 adultscore=0 impostorscore=0
+ mlxscore=0 spamscore=0 clxscore=1015 suspectscore=0 phishscore=0
  priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2309180000 definitions=main-2310110077
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When we test something, i.e. do a report() we want unique messages,
-otherwise, from the test output, it will appear as if the same test was
-run multiple times, possible with different PASS/FAIL values.
-
-Convert some reports that don't actually test anything topology specific
-into asserts.
-Refine the report message for others.
+This is more in line with the nomenclature in the PoP.
 
 Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 ---
- s390x/topology.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ lib/s390x/stsi.h | 4 ++--
+ s390x/topology.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/lib/s390x/stsi.h b/lib/s390x/stsi.h
+index 1351a6f3..8a97f44e 100644
+--- a/lib/s390x/stsi.h
++++ b/lib/s390x/stsi.h
+@@ -30,7 +30,7 @@ struct sysinfo_3_2_2 {
+ };
+ 
+ #define CPUS_TLE_RES_BITS 0x00fffffff8000000UL
+-struct topology_core {
++struct topology_cpu {
+ 	uint8_t nl;
+ 	uint8_t reserved1[3];
+ 	uint8_t reserved4:5;
+@@ -50,7 +50,7 @@ struct topology_container {
+ 
+ union topology_entry {
+ 	uint8_t nl;
+-	struct topology_core cpu;
++	struct topology_cpu cpu;
+ 	struct topology_container container;
+ };
+ 
 diff --git a/s390x/topology.c b/s390x/topology.c
-index 49d6dfeb..5374582f 100644
+index 0ba57986..c1f6520f 100644
 --- a/s390x/topology.c
 +++ b/s390x/topology.c
-@@ -114,7 +114,7 @@ static void check_polarization_change(void)
- 	report_prefix_push("Polarization change");
+@@ -246,7 +246,7 @@ done:
+ static uint8_t *check_tle(void *tc)
+ {
+ 	struct topology_container *container = tc;
+-	struct topology_core *cpus;
++	struct topology_cpu *cpus;
+ 	int n;
  
- 	/* We expect a clean state through reset */
--	report(diag308_load_reset(1), "load normal reset done");
-+	assert(diag308_load_reset(1));
- 
- 	/*
- 	 * Set vertical polarization to verify that RESET sets
-@@ -123,7 +123,7 @@ static void check_polarization_change(void)
- 	cc = ptf(PTF_REQ_VERTICAL, &rc);
- 	report(cc == 0, "Set vertical polarization.");
- 
--	report(diag308_load_reset(1), "load normal reset done");
-+	assert(diag308_load_reset(1));
- 
- 	cc = ptf(PTF_CHECK, &rc);
- 	report(cc == 0, "Reset should clear topology report");
-@@ -137,25 +137,25 @@ static void check_polarization_change(void)
- 	report(cc == 0, "Change to vertical");
- 
- 	cc = ptf(PTF_CHECK, &rc);
--	report(cc == 1, "Should report");
-+	report(cc == 1, "Should report change after horizontal -> vertical");
- 
- 	cc = ptf(PTF_REQ_VERTICAL, &rc);
- 	report(cc == 2 && rc == PTF_ERR_ALRDY_POLARIZED, "Double change to vertical");
- 
- 	cc = ptf(PTF_CHECK, &rc);
--	report(cc == 0, "Should not report");
-+	report(cc == 0, "Should not report change after vertical -> vertical");
- 
- 	cc = ptf(PTF_REQ_HORIZONTAL, &rc);
- 	report(cc == 0, "Change to horizontal");
- 
- 	cc = ptf(PTF_CHECK, &rc);
--	report(cc == 1, "Should Report");
-+	report(cc == 1, "Should report change after vertical -> horizontal");
- 
- 	cc = ptf(PTF_REQ_HORIZONTAL, &rc);
- 	report(cc == 2 && rc == PTF_ERR_ALRDY_POLARIZED, "Double change to horizontal");
- 
- 	cc = ptf(PTF_CHECK, &rc);
--	report(cc == 0, "Should not report");
-+	report(cc == 0, "Should not report change after horizontal -> horizontal");
- 
- 	report_prefix_pop();
- }
+ 	if (container->nl) {
 -- 
 2.41.0
 
