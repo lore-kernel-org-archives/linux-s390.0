@@ -2,75 +2,78 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA18CCD6E7C
-	for <linux-s390@archiver.kernel.org>; Wed, 11 Oct 2023 14:54:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CEBEFCDB473
+	for <linux-s390@archiver.kernel.org>; Wed, 11 Oct 2023 18:20:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232553AbjJKOyu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 Oct 2023 10:54:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55446 "EHLO
+        id S233157AbjJKSUG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 Oct 2023 14:20:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232036AbjJKOyu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 10:54:50 -0400
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C46B90;
-        Wed, 11 Oct 2023 07:54:46 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R561e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0VtxF.Kl_1697036080;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0VtxF.Kl_1697036080)
-          by smtp.aliyun-inc.com;
-          Wed, 11 Oct 2023 22:54:41 +0800
-Date:   Wed, 11 Oct 2023 22:54:40 +0800
-From:   Dust Li <dust.li@linux.alibaba.com>
-To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, wintera@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net 5/5] net/smc: put sk reference if close work was
- canceled
-Message-ID: <20231011145440.GP92403@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
- <1697009600-22367-6-git-send-email-alibuda@linux.alibaba.com>
+        with ESMTP id S232983AbjJKSUF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 14:20:05 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ACF193;
+        Wed, 11 Oct 2023 11:20:04 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5CA8C433C9;
+        Wed, 11 Oct 2023 18:20:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1697048403;
+        bh=YIm0FW45BPKvF+X1OFYkrHMeewnDQo6DSIeSnbcXoY4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Gz/caJMS9XpLYzznkn7hbGtO6iBp5YQBwlWeXaVO2aeovc1X8OVQhZQ7jlcUIW7o+
+         ghCN+1bWAdy0HcDAyLR8SRpK7fumfmCZfanA/BiLwPgDo7ZH/LuzcYFGzxWET9HfLv
+         i0+LbdnW8MGuGS/1sxtaXjNoZIRsAMHfSdJICxy7HM4cd5pM3HLStAi+sujH1YzqTm
+         DgFgNbm57sUo9HuWgnWs8WhQsA59oXfgINZeLmcvjc2D4IeCxLI2Cd6tu8gHppiFbm
+         08tttYidJWmRwXBdRo+KbhJFrtevCU7wleE/0NkNQkL9cGp87SZOiOFA4vzEXrImMm
+         +YnnjvkNJ4r4w==
+Date:   Wed, 11 Oct 2023 11:20:02 -0700
+From:   Saeed Mahameed <saeed@kernel.org>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     Saeed Mahameed <saeedm@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Shay Drory <shayd@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jacob Keller <jacob.e.keller@intel.com>
+Subject: Re: [PATCH net v3] net/mlx5: fix calling mlx5_cmd_init() before DMA
+ mask is set
+Message-ID: <ZSbnUlJT1u3xUIqY@x130>
+References: <20231011-mlx5_init_fix-v3-1-787ffb9183c6@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <1697009600-22367-6-git-send-email-alibuda@linux.alibaba.com>
+In-Reply-To: <20231011-mlx5_init_fix-v3-1-787ffb9183c6@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Oct 11, 2023 at 03:33:20PM +0800, D. Wythe wrote:
->From: "D. Wythe" <alibuda@linux.alibaba.com>
+On 11 Oct 09:57, Niklas Schnelle wrote:
+>Since commit 06cd555f73ca ("net/mlx5: split mlx5_cmd_init() to probe and
+>reload routines") mlx5_cmd_init() is called in mlx5_mdev_init() which is
+>called in probe_one() before mlx5_pci_init(). This is a problem because
+>mlx5_pci_init() is where the DMA and coherent mask is set but
+>mlx5_cmd_init() already does a dma_alloc_coherent(). Thus a DMA
+>allocation is done during probe before the correct mask is set. This
+>causes probe to fail initialization of the cmdif SW structs on s390x
+>after that is converted to the common dma-iommu code. This is because on
+>s390x DMA addresses below 4 GiB are reserved on current machines and
+>unlike the old s390x specific DMA API implementation common code
+>enforces DMA masks.
 >
->Note that we always hold a reference to sock when attempting
->to submit close_work. Therefore, if we have successfully
->canceled close_work from pending, we MUST release that reference
->to avoid potential leaks.
+>Fix this by moving set_dma_caps() out of mlx5_pci_init() and into
+>probe_one() before mlx5_mdev_init(). To match the overall naming scheme
+>rename it to mlx5_dma_init().
+
+How about we just call mlx5_pci_init() before mlx5_mdev_init(), instead of
+breaking it apart ? 
 >
->Fixes: 42bfba9eaa33 ("net/smc: immediate termination for SMCD link groups")
->Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-
-Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
-
-Best regards,
-Dust
-
->---
-> net/smc/smc_close.c | 3 ++-
-> 1 file changed, 2 insertions(+), 1 deletion(-)
->
->diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
->index 449ef45..10219f5 100644
->--- a/net/smc/smc_close.c
->+++ b/net/smc/smc_close.c
->@@ -116,7 +116,8 @@ static void smc_close_cancel_work(struct smc_sock *smc)
-> 	struct sock *sk = &smc->sk;
-> 
-> 	release_sock(sk);
->-	cancel_work_sync(&smc->conn.close_work);
->+	if (cancel_work_sync(&smc->conn.close_work))
->+		sock_put(sk);
-> 	cancel_delayed_work_sync(&smc->conn.tx_work);
-> 	lock_sock(sk);
-> }
->-- 
->1.8.3.1
