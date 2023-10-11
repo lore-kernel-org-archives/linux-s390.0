@@ -2,157 +2,194 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FA07C41513
-	for <linux-s390@archiver.kernel.org>; Wed, 11 Oct 2023 20:19:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6508DCDB482
+	for <linux-s390@archiver.kernel.org>; Wed, 11 Oct 2023 20:31:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233358AbjJKUTp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 Oct 2023 16:19:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41928 "EHLO
+        id S233360AbjJKUbr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 Oct 2023 16:31:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231226AbjJKUTo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 16:19:44 -0400
-X-Greylist: delayed 406 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 11 Oct 2023 13:19:39 PDT
-Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AED2990;
-        Wed, 11 Oct 2023 13:19:39 -0700 (PDT)
-Received: from leknes.fjasle.eu ([46.142.98.201]) by mrelayeu.kundenserver.de
- (mreue010 [212.227.15.167]) with ESMTPSA (Nemesis) id
- 1N8XkP-1rd3321Guf-014Paf; Wed, 11 Oct 2023 22:10:25 +0200
-Received: from localhost.fjasle.eu (kirkenes.fjasle.eu [10.10.0.5])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by leknes.fjasle.eu (Postfix) with ESMTPS id 9DCA03F840;
-        Wed, 11 Oct 2023 22:10:15 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=fjasle.eu; s=mail;
-        t=1697055016; bh=5Fr/47OcVCuPllaYQgCL+zdi7dPjAjL3MNWZhdULIc8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=5WImRH0w1AH69SJDHrWAjBqhWAtqvRtsHukVpQNPqSKcrMzjMa8QWAh7Sy2kg/Nii
-         cNKr21hCCqvUTUPfee6kxSqzD2EW093Yu8e5H/j30R+OnBFpAlQ1Wl4y/NvNCujB6z
-         7ZYgYAxnN9X+ortJfAYnkbWwxYwRsiCYWqBUTebE=
-Received: by localhost.fjasle.eu (Postfix, from userid 1000)
-        id ABC4A251E; Wed, 11 Oct 2023 22:10:14 +0200 (CEST)
-Date:   Wed, 11 Oct 2023 22:10:14 +0200
-From:   Nicolas Schier <nicolas@fjasle.eu>
-To:     Masahiro Yamada <masahiroy@kernel.org>
-Cc:     linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
-        loongarch@lists.linux.dev, sparclinux@vger.kernel.org,
-        x86@kernel.org, Albert Ou <aou@eecs.berkeley.edu>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Guo Ren <guoren@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        WANG Xuerui <kernel@xen0n.name>, Will Deacon <will@kernel.org>
-Subject: Re: [PATCH 4/5] kbuild: unify vdso_install rules
-Message-ID: <ZScBJp-nen5wDRkT@bergen.fjasle.eu>
-References: <20231009124210.1064021-1-masahiroy@kernel.org>
- <20231009124210.1064021-4-masahiroy@kernel.org>
+        with ESMTP id S233427AbjJKUbq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 16:31:46 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2274091;
+        Wed, 11 Oct 2023 13:31:45 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39BKErVt006601;
+        Wed, 11 Oct 2023 20:31:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Wz952yxI+W2urZ0VD9E40vDqhU0tEtGlzr5j5jcMADw=;
+ b=X424MufFhCuSu0IZiWUXDgA0yr1GP+uhey6nLJEXwzaaFwB5jC3dD75dpbCVSzjQAtd8
+ si7oeoriz9bNTcLZLjrnnKNelnItVoKzGaAcrS5PIMqPev4coNSQLx7kOIbVLGskDXvE
+ emagMB6svEt6hhF6DDCWORfZtY36yLH2fmXTJGxeOTEbLOnAyfHsnGCp7RNlAjhmuZRU
+ anODlyEx8hGgMzGc3kKiyl+iZmj4HwiwjYTL+28daFOc4jJQsdE+YFLWsO9UPF1yJ+nM
+ uSGmrzCkM/m4sHKVBE6n/YTC7ynRrDBU5OJLrpjrzusiraUWpaDaqyhusppnwjvPx38d oQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tp2jugjac-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 11 Oct 2023 20:31:39 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39BKPNL5012901;
+        Wed, 11 Oct 2023 20:31:39 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tp2jugja1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 11 Oct 2023 20:31:39 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39BILYbR028188;
+        Wed, 11 Oct 2023 20:31:38 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tkj1yb0f4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 11 Oct 2023 20:31:38 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+        by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39BKVbUR27394682
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 11 Oct 2023 20:31:37 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 42F5158059;
+        Wed, 11 Oct 2023 20:31:37 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 870BC5804B;
+        Wed, 11 Oct 2023 20:31:35 +0000 (GMT)
+Received: from [9.171.29.13] (unknown [9.171.29.13])
+        by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 11 Oct 2023 20:31:35 +0000 (GMT)
+Message-ID: <e63b546f-b993-4e42-8269-e4d9afa5b845@linux.ibm.com>
+Date:   Wed, 11 Oct 2023 22:31:34 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20231009124210.1064021-4-masahiroy@kernel.org>
-X-Operating-System: Debian GNU/Linux trixie/sid
-Jabber-ID: nicolas@jabber.no
-X-Provags-ID: V03:K1:GUfrfLlCUzJuMEjs4zRXdY1OuzE+qTNGx7LxKM1S1e9ReRxprWw
- QTcaTBx+t0EkTRqYWkYL67T9+ycHGZaqicx6qJ56Gqgjv4SNCVgkolt4r+0ZEgWqOlo+M4w
- O8j6dJv9DPnZVx+Re6NhFwDsF9/Jz5Qda20FlFD/v/59oC+e5T2V9+yc9jzxg8tnQCrfW6W
- OrXnxMb3y1nL8PBSSLcbA==
-UI-OutboundReport: notjunk:1;M01:P0:nh2StqpSjAc=;pNUkTpIHYhCCE7CUQUZ/AYgiXOx
- vofRovAKGVbBxjKviHdHoaGxLrVNj3yW7x7Pt3f2heaTRrDQV8ir/anc38K99HoBICqk/ZbUO
- OPkthadGR31TRd9SAchUp1NMCorZfflFflYzqBBtseJoIab4yzkGmFQ1WjD9Y1zhYSNaj549U
- Jx0iVDm9QftBr/A6Q/KnhOsGlGlH8HNqkFLCjKW7JQ58eVRxkRwRfZbRn3X3pD7cu3sNJVHqS
- BG+NkUgqX/RqJrLc9QXP1+pekba1gFCfDFQh7qClYVKgRiG/w0T5JmqfCIztjY7DdvHA85GIV
- rzYOA/a4xCQx445Cf//MLnNnFU6v7ZJZV1PasAIUux4oRoF/AFODSzGtegJZf/CkRk3b9jjXI
- UnmoDuK3pW+Va277I7Gt1oEB6m571GKCdWhFT22YQO4G4eBU1ofBGcuVD+kpzHxZ/UW1PTPb+
- l8xAnJ0vaeIbUHf9fD3e+5/mrcJVz523UQVvxaoLVgsM40nZuQOGtu/gJRig+86cxXeNCb8fY
- kbDIMAYxbTz2kBaXHn9ID/r0YrrkF+0gcnKzwuh36FtIc1BDWYEkoR+d9CoUowxNX8DaWxVyI
- ryBcb/Wky2eEdGYhxt77djdpO9Gsz2wpbSiGoJIyEFCgvFBt3bhHBsplnqZ1vHhL1/tMJLSk2
- H1CGRu/j7BFJt2du1RBXxe787BZkslDW7pqfq+MGc0HuKc1bWJOBs0gAegOek4Ts+3zW60M6U
- TwJEizx9yNUs5Etau4/+QmroLvG6DMlZBlwzJXmdtFptrd+CiUqJaIRNcOQTi1pQ2Ykmz0kMs
- yLojx/7MQP3uvdWwHvUmXpqi6vE5e9IYuy1FEb8XV2Lq7/xkRV8yJNika5QDoJkMZcX+5Nmjx
- EJvAPGMFAWGRF9A==
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net 1/5] net/smc: fix dangling sock under state
+ SMC_APPFINCLOSEWAIT
+Content-Language: en-GB
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com, wintera@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
+ <1697009600-22367-2-git-send-email-alibuda@linux.alibaba.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <1697009600-22367-2-git-send-email-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: GyiSunecSvoAHVnxNuwSVWlrlOcK-b6i
+X-Proofpoint-GUID: JqdmAmwyOrN2dAHJjyNZlq23tbcQKitD
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-11_15,2023-10-11_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ mlxlogscore=999 clxscore=1015 priorityscore=1501 adultscore=0 phishscore=0
+ bulkscore=0 impostorscore=0 spamscore=0 lowpriorityscore=0 mlxscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2309180000 definitions=main-2310110179
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon 09 Oct 2023 21:42:09 GMT, Masahiro Yamada wrote:
-> Currently, there is no standard implementation for vdso_install,
-> leading to various issues:
+
+
+On 11.10.23 09:33, D. Wythe wrote:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
 > 
->  1. Code duplication
+> Considering scenario:
 > 
->     Many architectures duplicate similar code just for copying files
->     to the install destination.
+> 				smc_cdc_rx_handler_rwwi
+> __smc_release
+> 				sock_set_flag
+> smc_close_active()
+> sock_set_flag
 > 
->     Some architectures (arm, sparc, x86) create build-id symlinks,
->     introducing more code duplication.
+> __set_bit(DEAD)			__set_bit(DONE)
 > 
->  2. Accidental updates of in-tree build artifacts
+> Dues to __set_bit is not atomic, the DEAD or DONE might be lost.
+> if the DEAD flag lost, the state SMC_CLOSED  will be never be reached
+> in smc_close_passive_work:
 > 
->     The vdso_install rule depends on the vdso files to install.
->     It may update in-tree build artifacts. This can be problematic,
->     as explained in commit 19514fc665ff ("arm, kbuild: make
->     "make install" not depend on vmlinux").
+> if (sock_flag(sk, SOCK_DEAD) &&
+> 	smc_close_sent_any_close(conn)) {
+> 	sk->sk_state = SMC_CLOSED;
+> } else {
+> 	/* just shutdown, but not yet closed locally */
+> 	sk->sk_state = SMC_APPFINCLOSEWAIT;
+> }
 > 
->  3. Broken code in some architectures
+> Replace sock_set_flags or __set_bit to set_bit will fix this problem.
+> Since set_bit is atomic.
 > 
->     Makefile code is often copied from one architecture to another
->     without proper adaptation or testing.
-> 
->     The previous commits removed broken code from csky, UML, and parisc.
-> 
->     Another issue is that 'make vdso_install' for ARCH=s390 installs
->     vdso64, but not vdso32.
-> 
-> To address these problems, this commit introduces the generic vdso_install.
-> 
-> Architectures that support vdso_install need to define vdso-install-y
-> in arch/*/Makefile.
-> 
-> vdso-install-y lists the files to install. For example, arch/x86/Makefile
-> looks like this:
-> 
->   vdso-install-$(CONFIG_X86_64)           += arch/x86/entry/vdso/vdso64.so.dbg
->   vdso-install-$(CONFIG_X86_X32_ABI)      += arch/x86/entry/vdso/vdsox32.so.dbg
->   vdso-install-$(CONFIG_X86_32)           += arch/x86/entry/vdso/vdso32.so.dbg
->   vdso-install-$(CONFIG_IA32_EMULATION)   += arch/x86/entry/vdso/vdso32.so.dbg
-> 
-> These files will be installed to $(MODLIB)/vdso/ with the .dbg suffix,
-> if exists, stripped away.
-> 
-> vdso-install-y can optionally take the second field after the colon
-> separator. This is needed because some architectures install vdso
-> files as a different base name.
-> 
-> The following is a snippet from arch/arm64/Makefile.
-> 
->   vdso-install-$(CONFIG_COMPAT_VDSO)      += arch/arm64/kernel/vdso32/vdso.so.dbg:vdso32.so
-> 
-> This will rename vdso.so.dbg to vdso32.so during installation. If such
-> architectures change their implementation so that the file names match,
-> this workaround will go away.
-> 
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+I didn't really understand the scenario. What is 
+smc_cdc_rx_handler_rwwi()? What does it do? Don't it get the lock during 
+the runtime?
+
+> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
 > ---
-
-Thanks for cleaning this up!
-
-Reviewed-by: Nicolas Schier <nicolas@fjasle.eu>
+>   net/smc/af_smc.c    | 4 ++--
+>   net/smc/smc.h       | 5 +++++
+>   net/smc/smc_cdc.c   | 2 +-
+>   net/smc/smc_close.c | 2 +-
+>   4 files changed, 9 insertions(+), 4 deletions(-)
+> 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index bacdd97..5ad2a9f 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -275,7 +275,7 @@ static int __smc_release(struct smc_sock *smc)
+>   
+>   	if (!smc->use_fallback) {
+>   		rc = smc_close_active(smc);
+> -		sock_set_flag(sk, SOCK_DEAD);
+> +		smc_sock_set_flag(sk, SOCK_DEAD);
+>   		sk->sk_shutdown |= SHUTDOWN_MASK;
+>   	} else {
+>   		if (sk->sk_state != SMC_CLOSED) {
+> @@ -1742,7 +1742,7 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
+>   		if (new_clcsock)
+>   			sock_release(new_clcsock);
+>   		new_sk->sk_state = SMC_CLOSED;
+> -		sock_set_flag(new_sk, SOCK_DEAD);
+> +		smc_sock_set_flag(new_sk, SOCK_DEAD);
+>   		sock_put(new_sk); /* final */
+>   		*new_smc = NULL;
+>   		goto out;
+> diff --git a/net/smc/smc.h b/net/smc/smc.h
+> index 24745fd..e377980 100644
+> --- a/net/smc/smc.h
+> +++ b/net/smc/smc.h
+> @@ -377,4 +377,9 @@ void smc_fill_gid_list(struct smc_link_group *lgr,
+>   int smc_nl_enable_hs_limitation(struct sk_buff *skb, struct genl_info *info);
+>   int smc_nl_disable_hs_limitation(struct sk_buff *skb, struct genl_info *info);
+>   
+> +static inline void smc_sock_set_flag(struct sock *sk, enum sock_flags flag)
+> +{
+> +	set_bit(flag, &sk->sk_flags);
+> +}
+> +
+>   #endif	/* __SMC_H */
+> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+> index 89105e9..01bdb79 100644
+> --- a/net/smc/smc_cdc.c
+> +++ b/net/smc/smc_cdc.c
+> @@ -385,7 +385,7 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
+>   		smc->sk.sk_shutdown |= RCV_SHUTDOWN;
+>   		if (smc->clcsock && smc->clcsock->sk)
+>   			smc->clcsock->sk->sk_shutdown |= RCV_SHUTDOWN;
+> -		sock_set_flag(&smc->sk, SOCK_DONE);
+> +		smc_sock_set_flag(&smc->sk, SOCK_DONE);
+>   		sock_hold(&smc->sk); /* sock_put in close_work */
+>   		if (!queue_work(smc_close_wq, &conn->close_work))
+>   			sock_put(&smc->sk);
+> diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+> index dbdf03e..449ef45 100644
+> --- a/net/smc/smc_close.c
+> +++ b/net/smc/smc_close.c
+> @@ -173,7 +173,7 @@ void smc_close_active_abort(struct smc_sock *smc)
+>   		break;
+>   	}
+>   
+> -	sock_set_flag(sk, SOCK_DEAD);
+> +	smc_sock_set_flag(sk, SOCK_DEAD);
+>   	sk->sk_state_change(sk);
+>   
+>   	if (release_clcsock) {
