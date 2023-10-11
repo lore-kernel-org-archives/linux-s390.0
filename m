@@ -2,163 +2,207 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A38E1CD98F8
-	for <linux-s390@archiver.kernel.org>; Wed, 11 Oct 2023 07:49:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E84ACD98F9
+	for <linux-s390@archiver.kernel.org>; Wed, 11 Oct 2023 07:58:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229743AbjJKHtg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 Oct 2023 03:49:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49458 "EHLO
+        id S230003AbjJKH6D (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 Oct 2023 03:58:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229602AbjJKHtg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 03:49:36 -0400
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F326098
-        for <linux-s390@vger.kernel.org>; Wed, 11 Oct 2023 00:49:10 -0700 (PDT)
-Received: by mail-pl1-x631.google.com with SMTP id d9443c01a7336-1c9d3a21f7aso624305ad.2
-        for <linux-s390@vger.kernel.org>; Wed, 11 Oct 2023 00:49:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1697010550; x=1697615350; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=YFdj5CLJdNz+//giZZucR/OWu0lsyTJv2DBHSoR3lfg=;
-        b=J8YyDLbL3F3wWm7UL5vmnth/P2d0Md3x+dd5DCd2cnM4laYk92Rm85a9IsNZ5fl38H
-         /hBzE6LP6LNxK2OcJOr+QOVJOhsAkVIRnfoStBCauBL9XZObHcG6OE/7hZYTXj8HLv2p
-         mpzk0+TH9UXPfMZ7nsSkNUhItqwsEXH6230zm6Y1IpH0yvtr5d/gNR9pWhRGXGTLsqeK
-         /E6kuNYXYKLzjHUdsq+TBuxYWJPRXw9zWY5HawfLB6AXcOhg12vzIQi8lEOatGDGz1O7
-         WHZDKh9KTA+5ihIAoKWQVKoIupr7A726wp0z2Sse4BZ9hSPKMbaBQKbOmE2OLgCxXmjc
-         sinw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697010550; x=1697615350;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=YFdj5CLJdNz+//giZZucR/OWu0lsyTJv2DBHSoR3lfg=;
-        b=hEa+bpWinLHDV+RRxCFFFNeUntwiQRWVom4owdnng3BE7wYUex6pT0d0S0oHordcL9
-         QBOGBZ9myPrn7PleKj9Tj3pq5wZNWcSCX52v7XFoP97PiNRhoakOFdAID36QKt3SN/Uv
-         jdZ03obe4vr5VTffAEzeU8w0O3O/6eciAmKgJ/90j+Nq4k+Xi/obSB1XVIaaa5IgHE4t
-         w6L2NhiVYWxkOdjxDc9AhX31cQMv8EqDzXJCr7BYf0ysYJIjBotQyWU1QHUTyVu08HGn
-         6WXWyLCVnY7nCa2E29jYarfWKigxLHQuzTaY1kPtkyKsFz94CpH1E0A0FZk6Gv5RotuI
-         1lMQ==
-X-Gm-Message-State: AOJu0YythHu3iM4kFrNiCG5rqj7kUxVG6n3aWPkKrXWXC0JJhE7qSvub
-        CMXvIg7zTPSKGLsOg93w4g1sz74gMp1ZtwqKEbI=
-X-Google-Smtp-Source: AGHT+IF1M4EyHVTTetj9ME03k8xm8dQG9IBYcNIdDps13o0xrA9uZNxWJca1jYT2wUVJ5VtEy0wEoQ==
-X-Received: by 2002:a17:902:c40c:b0:1c8:90bf:4234 with SMTP id k12-20020a170902c40c00b001c890bf4234mr18546713plk.61.1697010550331;
-        Wed, 11 Oct 2023 00:49:10 -0700 (PDT)
-Received: from C02FG34NMD6R.bytedance.net ([203.208.189.8])
-        by smtp.gmail.com with ESMTPSA id n3-20020a170902e54300b001a98f844e60sm13193921plf.263.2023.10.11.00.49.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Oct 2023 00:49:09 -0700 (PDT)
-From:   Albert Huang <huangjie.albert@bytedance.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>
-Cc:     Albert Huang <huangjie.albert@bytedance.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
+        with ESMTP id S229743AbjJKH6C (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 03:58:02 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2873F91;
+        Wed, 11 Oct 2023 00:58:01 -0700 (PDT)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39B7vZnq027168;
+        Wed, 11 Oct 2023 07:57:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : date : subject :
+ content-type : message-id : to : cc : content-transfer-encoding :
+ mime-version; s=pp1; bh=+Nh+ttaIlUVnlNuQdKZMcQ5FWauLUpkU6fMAGytoJds=;
+ b=j7DqAfo0xor59I2htFF3DcLs60Qnewu5gu7tytRoBYhTWRlbJ5Of0iA2mkgefCBMbVGj
+ /qaO/NJUZZ4gDiTNq8TwnP4GeN87hQSScOPNUKxzkha5drEMUKL3MkTb01mM/84S5ygp
+ Dat9fgdHsK0OWfESORHYxa2t6V0w4nPTyed+IFhWhtmGPlr3JPWOQPK5Kpc794Qohn5M
+ kEx9uLjoz5Bf6D46RiVFIun4Q2h6+PufaW/PoST5MTfL7J4o6OE5Gh6kQdFLoXj+HdMC
+ uqQhG1L2DrPCjGfc7SgibEOPtfISz26FwlgFYV07Ud1WYbvd9tYQcZ0V01AJAk5FBryt 3w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tnqs40077-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 11 Oct 2023 07:57:50 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39B7vZYj027159;
+        Wed, 11 Oct 2023 07:57:50 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tnqs4006v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 11 Oct 2023 07:57:49 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39B7XOis024458;
+        Wed, 11 Oct 2023 07:57:48 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tkhnspwqj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 11 Oct 2023 07:57:48 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39B7vkYl44565194
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 11 Oct 2023 07:57:46 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EE93E20043;
+        Wed, 11 Oct 2023 07:57:45 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8F5AB20040;
+        Wed, 11 Oct 2023 07:57:45 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 11 Oct 2023 07:57:45 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+Date:   Wed, 11 Oct 2023 09:57:38 +0200
+Subject: [PATCH net v3] net/mlx5: fix calling mlx5_cmd_init() before DMA
+ mask is set
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20231011-mlx5_init_fix-v3-1-787ffb9183c6@linux.ibm.com>
+X-B4-Tracking: v=1; b=H4sIAHFVJmUC/3XN0QqDIBQG4FcJr2eoaeWu9h5jROnZOrBsaJNG9
+ O4Tr0awy/8//N/ZSACPEMi52IiHiAFnl0J1KogZe/cAijZlIpiomBYtnZ6r6tDh0t1xpUbWalD
+ G9pVoSNq8PKQ6e1fiYCG3VI4Yltl/8o/I8+kPFznltNGN1FYqAzW7PNG91xKHqTTzlLUofgV9F
+ EQSFAcrmJZG2/Yo7Pv+BbgqfYf1AAAA
+To:     Saeed Mahameed <saeedm@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Robin Murphy <robin.murphy@arm.com>,
         "David S. Miller" <davem@davemloft.net>,
         Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 net] net/smc: fix smc clc failed issue when netdevice not in init_net
-Date:   Wed, 11 Oct 2023 15:48:51 +0800
-Message-Id: <20231011074851.95280-1-huangjie.albert@bytedance.com>
-X-Mailer: git-send-email 2.37.1 (Apple Git-137.1)
+        Paolo Abeni <pabeni@redhat.com>, Shay Drory <shayd@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Leon Romanovsky <leon@kernel.org>
+X-Mailer: b4 0.12.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3636;
+ i=schnelle@linux.ibm.com; h=from:subject:message-id;
+ bh=s4vuRbe1ctTn2sX8uQsBeRCDfvcgXhkrwsTDFdyTJEc=;
+ b=owGbwMvMwCH2Wz534YHOJ2GMp9WSGFLVQotOqvYpbb5vnW8vZjv72Mb9Et7BRWwRXyY/fp/Zz
+ iT999W8jlIWBjEOBlkxRZZFXc5+6wqmmO4J6u+AmcPKBDKEgYtTACby0Izhr0DtVN2L530+rM/a
+ MPeRy23GvMZHH+S8v+v6Ca98vXvP+hkMfyWmPtDIyNzdznbn11vlzVr/jGTlTQUufJFJ+73wxL7
+ 0szwA
+X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
+ fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 3JCCzQyui7zKBQUbndel4jsSrX-48M9N
+X-Proofpoint-GUID: uvKxe_HwHqSYX_Vf6ALqULCM6UY1N_Bh
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-11_05,2023-10-10_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 bulkscore=0
+ impostorscore=0 lowpriorityscore=0 adultscore=0 malwarescore=0
+ clxscore=1011 mlxscore=0 suspectscore=0 mlxlogscore=999 spamscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2309180000 definitions=main-2310110069
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-If the netdevice is within a container and communicates externally
-through network technologies such as VxLAN, we won't be able to find
-routing information in the init_net namespace. To address this issue,
-we need to add a struct net parameter to the smc_ib_find_route function.
-This allow us to locate the routing information within the corresponding
-net namespace, ensuring the correct completion of the SMC CLC interaction.
+Since commit 06cd555f73ca ("net/mlx5: split mlx5_cmd_init() to probe and
+reload routines") mlx5_cmd_init() is called in mlx5_mdev_init() which is
+called in probe_one() before mlx5_pci_init(). This is a problem because
+mlx5_pci_init() is where the DMA and coherent mask is set but
+mlx5_cmd_init() already does a dma_alloc_coherent(). Thus a DMA
+allocation is done during probe before the correct mask is set. This
+causes probe to fail initialization of the cmdif SW structs on s390x
+after that is converted to the common dma-iommu code. This is because on
+s390x DMA addresses below 4 GiB are reserved on current machines and
+unlike the old s390x specific DMA API implementation common code
+enforces DMA masks.
 
-Fixes: e5c4744cfb59 ("net/smc: add SMC-Rv2 connection establishment")
-Signed-off-by: Albert Huang <huangjie.albert@bytedance.com>
+Fix this by moving set_dma_caps() out of mlx5_pci_init() and into
+probe_one() before mlx5_mdev_init(). To match the overall naming scheme
+rename it to mlx5_dma_init().
+
+Link: https://lore.kernel.org/linux-iommu/cfc9e9128ed5571d2e36421e347301057662a09e.camel@linux.ibm.com/
+Fixes: 06cd555f73ca ("net/mlx5: split mlx5_cmd_init() to probe and reload routines")
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 ---
- net/smc/af_smc.c | 3 ++-
- net/smc/smc_ib.c | 7 ++++---
- net/smc/smc_ib.h | 2 +-
- 3 files changed, 7 insertions(+), 5 deletions(-)
+Note: I ran into this while testing the linked series for converting
+s390x to use dma-iommu. The existing s390x specific DMA API
+implementation doesn't respect DMA masks and is thus not affected.
+---
+Changes in v3:
+- Added R-b's from Leon R and Jacob K
+- Link to v2: https://lore.kernel.org/r/20230929-mlx5_init_fix-v2-1-51ed2094c9d8@linux.ibm.com
+---
+ drivers/net/ethernet/mellanox/mlx5/core/main.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index bacdd971615e..7a874da90c7f 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1201,6 +1201,7 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
- 		(struct smc_clc_msg_accept_confirm_v2 *)aclc;
- 	struct smc_clc_first_contact_ext *fce =
- 		smc_get_clc_first_contact_ext(clc_v2, false);
-+	struct net *net = sock_net(&smc->sk);
- 	int rc;
- 
- 	if (!ini->first_contact_peer || aclc->hdr.version == SMC_V1)
-@@ -1210,7 +1211,7 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
- 		memcpy(ini->smcrv2.nexthop_mac, &aclc->r0.lcl.mac, ETH_ALEN);
- 		ini->smcrv2.uses_gateway = false;
- 	} else {
--		if (smc_ib_find_route(smc->clcsock->sk->sk_rcv_saddr,
-+		if (smc_ib_find_route(net, smc->clcsock->sk->sk_rcv_saddr,
- 				      smc_ib_gid_to_ipv4(aclc->r0.lcl.gid),
- 				      ini->smcrv2.nexthop_mac,
- 				      &ini->smcrv2.uses_gateway))
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index 9b66d6aeeb1a..89981dbe46c9 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -193,7 +193,7 @@ bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport)
- 	return smcibdev->pattr[ibport - 1].state == IB_PORT_ACTIVE;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+index 15561965d2af..f251d233a16c 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+@@ -250,7 +250,7 @@ static void mlx5_set_driver_version(struct mlx5_core_dev *dev)
+ 	mlx5_cmd_exec_in(dev, set_driver_version, in);
  }
  
--int smc_ib_find_route(__be32 saddr, __be32 daddr,
-+int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
- 		      u8 nexthop_mac[], u8 *uses_gateway)
+-static int set_dma_caps(struct pci_dev *pdev)
++static int mlx5_dma_init(struct pci_dev *pdev)
  {
- 	struct neighbour *neigh = NULL;
-@@ -205,7 +205,7 @@ int smc_ib_find_route(__be32 saddr, __be32 daddr,
+ 	int err;
  
- 	if (daddr == cpu_to_be32(INADDR_NONE))
- 		goto out;
--	rt = ip_route_output_flow(&init_net, &fl4, NULL);
-+	rt = ip_route_output_flow(net, &fl4, NULL);
- 	if (IS_ERR(rt))
- 		goto out;
- 	if (rt->rt_uses_gateway && rt->rt_gw_family != AF_INET)
-@@ -235,6 +235,7 @@ static int smc_ib_determine_gid_rcu(const struct net_device *ndev,
- 	if (smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP &&
- 	    smc_ib_gid_to_ipv4((u8 *)&attr->gid) != cpu_to_be32(INADDR_NONE)) {
- 		struct in_device *in_dev = __in_dev_get_rcu(ndev);
-+		struct net *net = dev_net(ndev);
- 		const struct in_ifaddr *ifa;
- 		bool subnet_match = false;
+@@ -905,12 +905,6 @@ static int mlx5_pci_init(struct mlx5_core_dev *dev, struct pci_dev *pdev,
  
-@@ -248,7 +249,7 @@ static int smc_ib_determine_gid_rcu(const struct net_device *ndev,
- 		}
- 		if (!subnet_match)
- 			goto out;
--		if (smcrv2->daddr && smc_ib_find_route(smcrv2->saddr,
-+		if (smcrv2->daddr && smc_ib_find_route(net, smcrv2->saddr,
- 						       smcrv2->daddr,
- 						       smcrv2->nexthop_mac,
- 						       &smcrv2->uses_gateway))
-diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
-index 4df5f8c8a0a1..ef8ac2b7546d 100644
---- a/net/smc/smc_ib.h
-+++ b/net/smc/smc_ib.h
-@@ -112,7 +112,7 @@ void smc_ib_sync_sg_for_device(struct smc_link *lnk,
- int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
- 			 unsigned short vlan_id, u8 gid[], u8 *sgid_index,
- 			 struct smc_init_info_smcrv2 *smcrv2);
--int smc_ib_find_route(__be32 saddr, __be32 daddr,
-+int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
- 		      u8 nexthop_mac[], u8 *uses_gateway);
- bool smc_ib_is_valid_local_systemid(void);
- int smcr_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
+ 	pci_set_master(pdev);
+ 
+-	err = set_dma_caps(pdev);
+-	if (err) {
+-		mlx5_core_err(dev, "Failed setting DMA capabilities mask, aborting\n");
+-		goto err_clr_master;
+-	}
+-
+ 	if (pci_enable_atomic_ops_to_root(pdev, PCI_EXP_DEVCAP2_ATOMIC_COMP32) &&
+ 	    pci_enable_atomic_ops_to_root(pdev, PCI_EXP_DEVCAP2_ATOMIC_COMP64) &&
+ 	    pci_enable_atomic_ops_to_root(pdev, PCI_EXP_DEVCAP2_ATOMIC_COMP128))
+@@ -1908,9 +1902,15 @@ static int probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		goto adev_init_err;
+ 	}
+ 
++	err = mlx5_dma_init(pdev);
++	if (err) {
++		mlx5_core_err(dev, "Failed setting DMA capabilities mask, aborting\n");
++		goto dma_init_err;
++	}
++
+ 	err = mlx5_mdev_init(dev, prof_sel);
+ 	if (err)
+-		goto mdev_init_err;
++		goto dma_init_err;
+ 
+ 	err = mlx5_pci_init(dev, pdev, id);
+ 	if (err) {
+@@ -1942,7 +1942,7 @@ static int probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	mlx5_pci_close(dev);
+ pci_init_err:
+ 	mlx5_mdev_uninit(dev);
+-mdev_init_err:
++dma_init_err:
+ 	mlx5_adev_idx_free(dev->priv.adev_idx);
+ adev_init_err:
+ 	mlx5_devlink_free(devlink);
+
+---
+base-commit: 94f6f0550c625fab1f373bb86a6669b45e9748b3
+change-id: 20230928-mlx5_init_fix-c465b5cda327
+
+Best regards,
 -- 
-2.20.1
+Niklas Schnelle
 
