@@ -2,148 +2,115 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C0CFCDB47E
-	for <linux-s390@archiver.kernel.org>; Wed, 11 Oct 2023 20:37:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3341ACDB465
+	for <linux-s390@archiver.kernel.org>; Wed, 11 Oct 2023 23:10:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233360AbjJKUhr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 Oct 2023 16:37:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45174 "EHLO
+        id S233849AbjJKXKZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 Oct 2023 19:10:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233318AbjJKUhr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 16:37:47 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F8A790;
-        Wed, 11 Oct 2023 13:37:45 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39BKK6oJ006249;
-        Wed, 11 Oct 2023 20:37:41 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=9isG40MYYrMsVcHuFQAN5p4+9+E7ozxEC7n2qA1qXeA=;
- b=XI9FEHqcH478I2vjzWC9uLn1fzr24vCmGXylKcXNQqktbm9fyL7s/m07KWQUT/ZZEUyZ
- moedajqfz4xAz8wnBviW9qIybM8CrE1hHLt3nTnZHZ4aDA8TUcBUDUYkpO/VzkdKC091
- wpHClRxVP1k0CpWxTDbIc0gBprJ4nOxWKeht48y5j/Swu5hCyl2X/85RT7WqGOH9ffhr
- uf7D1PynIR8WhE7/tOrcEETK8jslQ4UWVc9jh6hvU2TEw5iSUv4KcP4UPoQ+wofwWrRM
- Uw791d2AnEOaI6yxUPXsjNjbqyJtulTtsYvCkvniTqdWL7zWGib0eygwCaMzPl0VrQ8f 9w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tp2ga8vpe-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 11 Oct 2023 20:37:40 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39BKZsux000525;
-        Wed, 11 Oct 2023 20:37:40 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tp2ga8vn8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 11 Oct 2023 20:37:40 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39BJGWIB000693;
-        Wed, 11 Oct 2023 20:37:39 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tkk5ktn5k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 11 Oct 2023 20:37:39 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-        by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39BKbcRh29033204
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 11 Oct 2023 20:37:38 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F29755805B;
-        Wed, 11 Oct 2023 20:37:37 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 243BE5804B;
-        Wed, 11 Oct 2023 20:37:36 +0000 (GMT)
-Received: from [9.171.29.13] (unknown [9.171.29.13])
-        by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 11 Oct 2023 20:37:35 +0000 (GMT)
-Message-ID: <5e2efb4b-1d26-4159-a2c7-b0107cb6381c@linux.ibm.com>
-Date:   Wed, 11 Oct 2023 22:37:35 +0200
+        with ESMTP id S233834AbjJKXKY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 19:10:24 -0400
+Received: from mail-qt1-x831.google.com (mail-qt1-x831.google.com [IPv6:2607:f8b0:4864:20::831])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5027A9
+        for <linux-s390@vger.kernel.org>; Wed, 11 Oct 2023 16:10:22 -0700 (PDT)
+Received: by mail-qt1-x831.google.com with SMTP id d75a77b69052e-41810cfc569so2417571cf.2
+        for <linux-s390@vger.kernel.org>; Wed, 11 Oct 2023 16:10:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1697065822; x=1697670622; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=pE4C1PjtBwHfwQnQ/BWQr6OrTGyHylYmZgGyzqVL5/U=;
+        b=XpNHneBPrWUvofoEizNZP5HzzkxU8yrUIF5sl8cT5G4aG1Xkz2P0UFrCMgc9bJ4nkG
+         bdsQYfFwU58uIjlunSvwTAgF2ioZ5AShGdrxfo6Jucnsu+109NrrkLvNdtEq1wuMLFF/
+         hwGYLJO7swgyeEgJzvnScORJWDbPq3vrP6481X/nRK1Hz5pxAz0dmtYyBvYO8qTKyofZ
+         urG+miT8HC/sRHNpGRGV3vCxudRWHOsE1j0NTO4lRXE+9PpoYKfiOGxaj1mEZrkqK6Ku
+         d0MczA8VO9WOpMSpa+ES97K8sk1B3r21AHqx3f9bKgvQh5eqN4BYhgMgAavAefuoL1Uj
+         x+Sg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1697065822; x=1697670622;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=pE4C1PjtBwHfwQnQ/BWQr6OrTGyHylYmZgGyzqVL5/U=;
+        b=dSf+SK/Ua9pesIJBsHpz+NTsi9YIo5bJ61YbZtNT5gMPsv+zTInLlMs1641Sbn21bL
+         mt3DeEPm1955MRWCi5udIa7hzmBwEYfE3QRWgaaxzZRwdPDX1wm7vVG7PSiRR0+BQZJT
+         +vKU0DuYeCOwZNyXnKikRlTyt9pN3qdz72rPWD+lyQ9Pwz89bkkVN2FJ8IPPgcVKYK3u
+         hld29TYrl2x9eG98hpl0vuUnOU51f2TyOFqL9aLkfxDbhVMt5bX+s2jQkgN05K+77Tb+
+         hMMC+LIdv54i37kxwo6AW7omU8gRoNbQrPSXTKmv9ngO9IxF4eF69n98Hr8tGdNPGlOP
+         Iu7A==
+X-Gm-Message-State: AOJu0YxfOpWhgfT1zEP5yyb2DVvxci0PSUU7hUF9t5vuCoVqcwsI8d7w
+        n2qzbVfd7dwNEcREhfgr9xIzzQ==
+X-Google-Smtp-Source: AGHT+IEsBh106ERG5fcZutotax71+to9I7W4F2Eq39+fQZfREWil8ZfLKHw8e5yzZK96gO3ySOZs3g==
+X-Received: by 2002:ac8:5d8f:0:b0:410:60a4:ffbc with SMTP id d15-20020ac85d8f000000b0041060a4ffbcmr26726688qtx.66.1697065821813;
+        Wed, 11 Oct 2023 16:10:21 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-68-26-201.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.26.201])
+        by smtp.gmail.com with ESMTPSA id l17-20020ac81491000000b004181d77e08fsm5699199qtj.85.2023.10.11.16.10.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Oct 2023 16:10:21 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1qqiLM-0014Y3-H6;
+        Wed, 11 Oct 2023 20:10:20 -0300
+Date:   Wed, 11 Oct 2023 20:10:20 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Saeed Mahameed <saeed@kernel.org>
+Cc:     Leon Romanovsky <leon@kernel.org>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Shay Drory <shayd@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net] net/mlx5: fix calling mlx5_cmd_init() before DMA
+ mask is set
+Message-ID: <20231011231020.GG55194@ziepe.ca>
+References: <20230928-mlx5_init_fix-v1-1-79749d45ce60@linux.ibm.com>
+ <20230928175959.GU1642130@unreal>
+ <a1f8b9f8c2f9aecde8ac17831b66f72319bf425a.camel@linux.ibm.com>
+ <20230929103117.GB1296942@unreal>
+ <ZSbtMO8AWLx29RBS@x130>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 3/5] net/smc: allow cdc msg send rather than drop it
- with NULL sndbuf_desc
-Content-Language: en-GB
-To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        jaka@linux.ibm.com, wintera@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
- <1697009600-22367-4-git-send-email-alibuda@linux.alibaba.com>
-From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <1697009600-22367-4-git-send-email-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 4O3lQcSlKbjw33V-zRiqaqoy55qReCp7
-X-Proofpoint-GUID: Y2fu8aWMw6eAr7szU0arHfILivWUZgM-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-10-11_15,2023-10-11_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- mlxlogscore=999 bulkscore=0 impostorscore=0 phishscore=0 malwarescore=0
- spamscore=0 priorityscore=1501 mlxscore=0 adultscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2309180000
- definitions=main-2310110180
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZSbtMO8AWLx29RBS@x130>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, Oct 11, 2023 at 11:45:04AM -0700, Saeed Mahameed wrote:
+> > > The above works too. Maybe for consistency within probe_one() it would
+> > > then make sense to also rename set_dma_caps() to mlx5_dma_init()?
+> > 
+> > Sounds great, thanks
+> > 
+> > BTW, I was informed offlist that Saeed also has fix to this issue,
+> > but I don't know if he wants to progress with that fix as it has wrong
+> > RCA in commit message and as an outcome of that much complex solution,
+> > which is not necessary.
+> > 
+> > So I would be happy to see your patch with mlx5_dma_init().
+> > 
+> > Thanks
+> > 
+> 
+> Actually I prefer the internal patch, it moves the dma parts out of
+> mlx5_cmd_init() into mlx5_cmd_enable() which happens after dma caps are
+> set. since it is using the current mlx5 function structure and breakdown, I
+> prefer it over adding new function to the driver.
+> 
+> I will share the patch, I will let Niklas test it and approve it before
+> submission.
 
+Let's hurry please, mlx5 will be broken on S390 in rc1 if this is not
+fixed soon.
 
-On 11.10.23 09:33, D. Wythe wrote:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
-> 
-> This patch re-fix the issues memtianed by commit 22a825c541d7
-> ("net/smc: fix NULL sndbuf_desc in smc_cdc_tx_handler()").
-> 
-> Blocking sending message do solve the issues though, but it also
-> prevents the peer to receive the final message. Besides, in logic,
-> whether the sndbuf_desc is NULL or not have no impact on the processing
-> of cdc message sending.
-> 
-Agree.
-
-> Hence that, this patch allow the cdc message sending but to check the
-> sndbuf_desc with care in smc_cdc_tx_handler().
-> 
-> Fixes: 22a825c541d7 ("net/smc: fix NULL sndbuf_desc in smc_cdc_tx_handler()")
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> ---
->   net/smc/smc_cdc.c | 9 ++++-----
->   1 file changed, 4 insertions(+), 5 deletions(-)
-> 
-> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-> index 01bdb79..3c06625 100644
-> --- a/net/smc/smc_cdc.c
-> +++ b/net/smc/smc_cdc.c
-> @@ -28,13 +28,15 @@ static void smc_cdc_tx_handler(struct smc_wr_tx_pend_priv *pnd_snd,
->   {
->   	struct smc_cdc_tx_pend *cdcpend = (struct smc_cdc_tx_pend *)pnd_snd;
->   	struct smc_connection *conn = cdcpend->conn;
-> +	struct smc_buf_desc *sndbuf_desc;
->   	struct smc_sock *smc;
->   	int diff;
->   
-> +	sndbuf_desc = conn->sndbuf_desc;
->   	smc = container_of(conn, struct smc_sock, conn);
->   	bh_lock_sock(&smc->sk);
-> -	if (!wc_status) {
-> -		diff = smc_curs_diff(cdcpend->conn->sndbuf_desc->len,
-> +	if (!wc_status && sndbuf_desc) {
-> +		diff = smc_curs_diff(sndbuf_desc->len,
-How could this guarantee that the sndbuf_desc would not be NULL?
-
->   				     &cdcpend->conn->tx_curs_fin,
->   				     &cdcpend->cursor);
->   		/* sndbuf_space is decreased in smc_sendmsg */
-> @@ -114,9 +116,6 @@ int smc_cdc_msg_send(struct smc_connection *conn,
->   	union smc_host_cursor cfed;
->   	int rc;
->   
-> -	if (unlikely(!READ_ONCE(conn->sndbuf_desc)))
-> -		return -ENOBUFS;
-> -
->   	smc_cdc_add_pending_send(conn, pend);
->   
->   	conn->tx_cdc_seq++;
+Jason
