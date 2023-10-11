@@ -2,64 +2,102 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 705ACCD98F6
-	for <linux-s390@archiver.kernel.org>; Wed, 11 Oct 2023 07:33:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFA60CD98F7
+	for <linux-s390@archiver.kernel.org>; Wed, 11 Oct 2023 07:33:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344715AbjJKHdb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 Oct 2023 03:33:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33378 "EHLO
+        id S1344944AbjJKHdh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 Oct 2023 03:33:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344466AbjJKHdb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 03:33:31 -0400
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C55391;
-        Wed, 11 Oct 2023 00:33:28 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R571e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0VtvoMBA_1697009602;
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VtvoMBA_1697009602)
+        with ESMTP id S1344839AbjJKHdh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 03:33:37 -0400
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B8CD91;
+        Wed, 11 Oct 2023 00:33:33 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R301e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0VtvoMDz_1697009610;
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VtvoMDz_1697009610)
           by smtp.aliyun-inc.com;
-          Wed, 11 Oct 2023 15:33:26 +0800
+          Wed, 11 Oct 2023 15:33:30 +0800
 From:   "D. Wythe" <alibuda@linux.alibaba.com>
 To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
         wintera@linux.ibm.com
 Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
         linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        "D. Wythe" <alibuda@linux.alibaba.com>
-Subject: [PATCH net 0/5] net/smc: bugfixs for smc-r
-Date:   Wed, 11 Oct 2023 15:33:15 +0800
-Message-Id: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH net 2/5] net/smc: fix incorrect barrier usage
+Date:   Wed, 11 Oct 2023 15:33:17 +0800
+Message-Id: <1697009600-22367-3-git-send-email-alibuda@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
+References: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-This patches contains bugfix following:
+This patch add explicit CPU barrier to ensure memory
+consistency rather than compiler barrier.
 
-1. hung state
-2. sock leak
-3. potential panic 
+Besides, the atomicity between READ_ONCE and cmpxhcg cannot
+be guaranteed, so we need to use atomic ops. The simple way
+is to replace READ_ONCE with xchg.
 
-We have been testing these patches for some time, but
-if you have any questions, please let us know.
+Fixes: 475f9ff63ee8 ("net/smc: fix application data exception")
+Co-developed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+Links: https://lore.kernel.org/netdev/1b7c95be-d3d9-53c3-3152-cd835314d37c@linux.ibm.com/T/
+---
+ net/smc/smc_core.c | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
-Thanks,
-D. Wythe
-
-D. Wythe (5):
-  net/smc: fix dangling sock under state SMC_APPFINCLOSEWAIT
-  net/smc: fix incorrect barrier usage
-  net/smc: allow cdc msg send rather than drop it with NULL sndbuf_desc
-  net/smc: protect connection state transitions in listen work
-  net/smc: put sk reference if close work was canceled
-
- net/smc/af_smc.c    |  9 +++++++--
- net/smc/smc.h       |  5 +++++
- net/smc/smc_cdc.c   | 11 +++++------
- net/smc/smc_close.c |  5 +++--
- net/smc/smc_core.c  | 21 +++++++++++++--------
- 5 files changed, 33 insertions(+), 18 deletions(-)
-
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index d520ee6..cc7d72e 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1133,9 +1133,10 @@ static void smcr_buf_unuse(struct smc_buf_desc *buf_desc, bool is_rmb,
+ 
+ 		smc_buf_free(lgr, is_rmb, buf_desc);
+ 	} else {
+-		/* memzero_explicit provides potential memory barrier semantics */
+-		memzero_explicit(buf_desc->cpu_addr, buf_desc->len);
+-		WRITE_ONCE(buf_desc->used, 0);
++		memset(buf_desc->cpu_addr, 0, buf_desc->len);
++		/* make sure buf_desc->used not be reordered ahead */
++		smp_mb__before_atomic();
++		xchg(&buf_desc->used, 0);
+ 	}
+ }
+ 
+@@ -1146,17 +1147,21 @@ static void smc_buf_unuse(struct smc_connection *conn,
+ 		if (!lgr->is_smcd && conn->sndbuf_desc->is_vm) {
+ 			smcr_buf_unuse(conn->sndbuf_desc, false, lgr);
+ 		} else {
+-			memzero_explicit(conn->sndbuf_desc->cpu_addr, conn->sndbuf_desc->len);
+-			WRITE_ONCE(conn->sndbuf_desc->used, 0);
++			memset(conn->sndbuf_desc->cpu_addr, 0, conn->sndbuf_desc->len);
++			/* make sure buf_desc->used not be reordered ahead */
++			smp_mb__before_atomic();
++			xchg(&conn->sndbuf_desc->used, 0);
+ 		}
+ 	}
+ 	if (conn->rmb_desc) {
+ 		if (!lgr->is_smcd) {
+ 			smcr_buf_unuse(conn->rmb_desc, true, lgr);
+ 		} else {
+-			memzero_explicit(conn->rmb_desc->cpu_addr,
+-					 conn->rmb_desc->len + sizeof(struct smcd_cdc_msg));
+-			WRITE_ONCE(conn->rmb_desc->used, 0);
++			memset(conn->rmb_desc->cpu_addr, 0,
++			       conn->rmb_desc->len + sizeof(struct smcd_cdc_msg));
++			/* make sure buf_desc->used not be reordered ahead */
++			smp_mb__before_atomic();
++			xchg(&conn->rmb_desc->used, 0);
+ 		}
+ 	}
+ }
 -- 
 1.8.3.1
 
