@@ -2,78 +2,113 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADC23CD6E53
-	for <linux-s390@archiver.kernel.org>; Wed, 11 Oct 2023 09:40:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FB12CD6E54
+	for <linux-s390@archiver.kernel.org>; Wed, 11 Oct 2023 10:36:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345736AbjJKJk3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 Oct 2023 05:40:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46788 "EHLO
+        id S231597AbjJKKg5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 Oct 2023 06:36:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231388AbjJKJk2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 05:40:28 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61578A7
-        for <linux-s390@vger.kernel.org>; Wed, 11 Oct 2023 02:40:27 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id EEF1AC433C9;
-        Wed, 11 Oct 2023 09:40:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1697017227;
-        bh=EEVqh0ZE/scMal1VISi9CLgOEYyaXTXceYU+wIgHpuo=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=cv3/k5EACOc8x9sRymmmEcMLGFEDR8IFWtKEt7i96FIbuV+ol/9cRmbIuWT+SlE6m
-         uXdBfto4kAd28DxKuavZaXkPT3S6QgljOhf0We8ZprH0lraTnKvGy4fdkDQ8XcgnDN
-         sBnjKs/tiCS/xVXsfMeVGc4aK6RiGYHCZuMykk/DYAyfovOsMCPc40miNgxfXVyigI
-         C5U4Um4Dlkrzs91Tyn3qAn6IRmUSAOx3j+xJEn/qPTiAlrfoKrV6XRBKmXPeRowp+2
-         dlM9NqBym+ZESxHKJyHzX8mUj1BVvUT5nLpwmU/KLnHuWQtDpeoGZ5oXJEGbAYib1D
-         0AnR3h9TD6txg==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id D12D1E000BB;
-        Wed, 11 Oct 2023 09:40:26 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S231657AbjJKKg4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 06:36:56 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 912BFB7;
+        Wed, 11 Oct 2023 03:36:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1697020615; x=1728556615;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=52YiH9Rm64BW8CkQzXjUhpKwgm4oo9z7eHhxwksiAv4=;
+  b=UglVFxDZiGCyI1bnaBQ4VxS4tOIW5Hp8CO60QnsG+tYHH8Isk3iRwnpc
+   NwHL4gdZeEj5MNzNdofCvtp/3WXbSYK+6NBIhVGQq655fVZr4rKczu0dz
+   PKe/Lfh7nZ9QtX4sKr0b4rhInphagaLr12aJnzAhT14L6hUDwW6wutghx
+   P5hV7jTi3B+AP6/noFqd3FfV3XXcaA8GefjLOl6LEH2DeuHXJq3OVMDWx
+   htVxoB9Vz5eZUR0aXEun8HTzXFe4oVemN84RPocqsrEgBhjU6nszso4MC
+   hhlSjIJiiqo3pzlwW1WMEkiRYdlbtrN5JiNTmk+YAse927WA9nPM/lBbO
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10859"; a="415675482"
+X-IronPort-AV: E=Sophos;i="6.03,214,1694761200"; 
+   d="scan'208";a="415675482"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Oct 2023 03:36:54 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10859"; a="824114342"
+X-IronPort-AV: E=Sophos;i="6.03,214,1694761200"; 
+   d="scan'208";a="824114342"
+Received: from unknown (HELO smile.fi.intel.com) ([10.237.72.54])
+  by fmsmga004.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Oct 2023 03:36:50 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.97-RC1)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1qqWa7-00000004azc-2aLH;
+        Wed, 11 Oct 2023 13:36:47 +0300
+Date:   Wed, 11 Oct 2023 13:36:47 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Alexander Lobakin <aleksander.lobakin@intel.com>
+Cc:     Yury Norov <yury.norov@gmail.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Alexander Potapenko <glider@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        David Ahern <dsahern@kernel.org>,
+        Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        netdev@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        dm-devel@redhat.com, ntfs3@lists.linux.dev,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 09/14] bitmap: extend bitmap_{get,set}_value8() to
+ bitmap_{get,set}_bits()
+Message-ID: <ZSZ6v1qgZbqKgKXa@smile.fi.intel.com>
+References: <20231009151026.66145-1-aleksander.lobakin@intel.com>
+ <20231009151026.66145-10-aleksander.lobakin@intel.com>
+ <ZSQq02A9mTireK71@yury-ThinkPad>
+ <a28542e2-4a5b-4c29-9d4a-12a0d2ab5527@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] net/smc: Fix pos miscalculation in statistics
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <169701722685.1947.1054550686820287565.git-patchwork-notify@kernel.org>
-Date:   Wed, 11 Oct 2023 09:40:26 +0000
-References: <20231009144048.73130-1-wenjia@linux.ibm.com>
-In-Reply-To: <20231009144048.73130-1-wenjia@linux.ibm.com>
-To:     Wenjia Zhang <wenjia@linux.ibm.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, edumazet@google.com, pabeni@redhat.com,
-        hca@linux.ibm.com, jaka@linux.ibm.com, wintera@linux.ibm.com,
-        kgraul@linux.ibm.com, raspl@linux.ibm.com, gbayer@linux.ibm.com,
-        twinkler@linux.ibm.com, pasic@linux.ibm.com, niho@linux.ibm.com,
-        schnelle@linux.ibm.com, tonylu@linux.alibaba.com,
-        guwen@linux.alibaba.com, alibuda@linux.alibaba.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a28542e2-4a5b-4c29-9d4a-12a0d2ab5527@intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
-
-This patch was applied to netdev/net.git (main)
-by David S. Miller <davem@davemloft.net>:
-
-On Mon,  9 Oct 2023 16:40:48 +0200 you wrote:
-> From: Nils Hoppmann <niho@linux.ibm.com>
+On Wed, Oct 11, 2023 at 11:33:25AM +0200, Alexander Lobakin wrote:
+> From: Yury Norov <yury.norov@gmail.com>
+> Date: Mon, 9 Oct 2023 09:31:15 -0700
 > 
-> SMC_STAT_PAYLOAD_SUB(_smc_stats, _tech, key, _len, _rc) will calculate
-> wrong bucket positions for payloads of exactly 4096 bytes and
-> (1 << (m + 12)) bytes, with m == SMC_BUF_MAX - 1.
+> > + Alexander Potapenko <glider@google.com>
+> > 
+> > On Mon, Oct 09, 2023 at 05:10:21PM +0200, Alexander Lobakin wrote:
+> >> Sometimes there's need to get a 8/16/...-bit piece of a bitmap at a
+> >> particular offset. Currently, there are only bitmap_{get,set}_value8()
+> >> to do that for 8 bits and that's it.
+> > 
+> > And also a series from Alexander Potapenko, which I really hope will
+> > get into the -next really soon. It introduces bitmap_read/write which
+> > can set up to BITS_PER_LONG at once, with no limitations on alignment
+> > of position and length:
+> > 
+> > https://lore.kernel.org/linux-arm-kernel/ZRXbOoKHHafCWQCW@yury-ThinkPad/T/#mc311037494229647088b3a84b9f0d9b50bf227cb
+> > 
+> > Can you consider building your series on top of it?
 > 
-> Intended bucket distribution:
-> Assume l == size of payload, m == SMC_BUF_MAX - 1.
-> 
-> [...]
+> Yeah, I mentioned in the cover letter that I'm aware of it and in fact
+> it doesn't conflict much, as the functions I'm adding here get optimized
+> as much as the original bitmap_{get,set}_value8(), while Alexander's
+> generic helpers are heavier.
+> I realize lots of calls will be optimized as well due to the offset and
+> the width being compile-time constants, but not all of them. The idea of
+> keeping two pairs of helpers initially came from Andy if I understood
+> him correctly.
 
-Here is the summary with links:
-  - [net] net/smc: Fix pos miscalculation in statistics
-    https://git.kernel.org/netdev/net/c/a950a5921db4
+Just a disclaimer: The idea came before I saw the series by Alexander Potapenko.
 
-You are awesome, thank you!
+> What do you think? I can provide some bloat-o-meter stats after
+> rebasing. And either way, I see no issue in basing this series on top of
+> Alex' one.
+
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+With Best Regards,
+Andy Shevchenko
 
 
