@@ -2,145 +2,140 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75AD2CD6E6E
-	for <linux-s390@archiver.kernel.org>; Wed, 11 Oct 2023 14:00:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A966CD6E6E
+	for <linux-s390@archiver.kernel.org>; Wed, 11 Oct 2023 14:01:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232435AbjJKOAR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 Oct 2023 10:00:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39410 "EHLO
+        id S232125AbjJKOBn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 Oct 2023 10:01:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232473AbjJKOAQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 10:00:16 -0400
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92EF39E;
-        Wed, 11 Oct 2023 07:00:13 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R361e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0Vtx7pyZ_1697032809;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0Vtx7pyZ_1697032809)
+        with ESMTP id S232412AbjJKOBm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 10:01:42 -0400
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C36E90;
+        Wed, 11 Oct 2023 07:01:37 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0Vtx5zOd_1697032891;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0Vtx5zOd_1697032891)
           by smtp.aliyun-inc.com;
-          Wed, 11 Oct 2023 22:00:09 +0800
-Date:   Wed, 11 Oct 2023 22:00:09 +0800
+          Wed, 11 Oct 2023 22:01:32 +0800
+Date:   Wed, 11 Oct 2023 22:01:31 +0800
 From:   Dust Li <dust.li@linux.alibaba.com>
-To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, wintera@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net 1/5] net/smc: fix dangling sock under state
- SMC_APPFINCLOSEWAIT
-Message-ID: <20231011140009.GK92403@linux.alibaba.com>
+To:     Albert Huang <huangjie.albert@bytedance.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>
+Cc:     "D. Wythe" <alibuda@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 net] net/smc: fix smc clc failed issue when netdevice
+ not in init_net
+Message-ID: <20231011140131.GL92403@linux.alibaba.com>
 Reply-To: dust.li@linux.alibaba.com
-References: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
- <1697009600-22367-2-git-send-email-alibuda@linux.alibaba.com>
+References: <20231011074851.95280-1-huangjie.albert@bytedance.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1697009600-22367-2-git-send-email-alibuda@linux.alibaba.com>
+In-Reply-To: <20231011074851.95280-1-huangjie.albert@bytedance.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Oct 11, 2023 at 03:33:16PM +0800, D. Wythe wrote:
->From: "D. Wythe" <alibuda@linux.alibaba.com>
+On Wed, Oct 11, 2023 at 03:48:51PM +0800, Albert Huang wrote:
+>If the netdevice is within a container and communicates externally
+>through network technologies such as VxLAN, we won't be able to find
+>routing information in the init_net namespace. To address this issue,
+>we need to add a struct net parameter to the smc_ib_find_route function.
+>This allow us to locate the routing information within the corresponding
+>net namespace, ensuring the correct completion of the SMC CLC interaction.
 >
->Considering scenario:
->
->				smc_cdc_rx_handler_rwwi
->__smc_release
->				sock_set_flag
->smc_close_active()
->sock_set_flag
->
->__set_bit(DEAD)			__set_bit(DONE)
+>Fixes: e5c4744cfb59 ("net/smc: add SMC-Rv2 connection establishment")
+>Signed-off-by: Albert Huang <huangjie.albert@bytedance.com>
 
-If I understand correctly, both operations should hold sock_lock,
-that means thay should not race, have I missed something ?
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
 
->
->Dues to __set_bit is not atomic, the DEAD or DONE might be lost.
->if the DEAD flag lost, the state SMC_CLOSED  will be never be reached
->in smc_close_passive_work:
->
->if (sock_flag(sk, SOCK_DEAD) &&
->	smc_close_sent_any_close(conn)) {
->	sk->sk_state = SMC_CLOSED;
->} else {
->	/* just shutdown, but not yet closed locally */
->	sk->sk_state = SMC_APPFINCLOSEWAIT;
->}
->
->Replace sock_set_flags or __set_bit to set_bit will fix this problem.
->Since set_bit is atomic.
->
-
-You should add a fixes tag.
->Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
 >---
-> net/smc/af_smc.c    | 4 ++--
-> net/smc/smc.h       | 5 +++++
-> net/smc/smc_cdc.c   | 2 +-
-> net/smc/smc_close.c | 2 +-
-> 4 files changed, 9 insertions(+), 4 deletions(-)
+> net/smc/af_smc.c | 3 ++-
+> net/smc/smc_ib.c | 7 ++++---
+> net/smc/smc_ib.h | 2 +-
+> 3 files changed, 7 insertions(+), 5 deletions(-)
 >
 >diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
->index bacdd97..5ad2a9f 100644
+>index bacdd971615e..7a874da90c7f 100644
 >--- a/net/smc/af_smc.c
 >+++ b/net/smc/af_smc.c
->@@ -275,7 +275,7 @@ static int __smc_release(struct smc_sock *smc)
+>@@ -1201,6 +1201,7 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+> 		(struct smc_clc_msg_accept_confirm_v2 *)aclc;
+> 	struct smc_clc_first_contact_ext *fce =
+> 		smc_get_clc_first_contact_ext(clc_v2, false);
+>+	struct net *net = sock_net(&smc->sk);
+> 	int rc;
 > 
-> 	if (!smc->use_fallback) {
-> 		rc = smc_close_active(smc);
->-		sock_set_flag(sk, SOCK_DEAD);
->+		smc_sock_set_flag(sk, SOCK_DEAD);
-> 		sk->sk_shutdown |= SHUTDOWN_MASK;
+> 	if (!ini->first_contact_peer || aclc->hdr.version == SMC_V1)
+>@@ -1210,7 +1211,7 @@ static int smc_connect_rdma_v2_prepare(struct smc_sock *smc,
+> 		memcpy(ini->smcrv2.nexthop_mac, &aclc->r0.lcl.mac, ETH_ALEN);
+> 		ini->smcrv2.uses_gateway = false;
 > 	} else {
-> 		if (sk->sk_state != SMC_CLOSED) {
->@@ -1742,7 +1742,7 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
-> 		if (new_clcsock)
-> 			sock_release(new_clcsock);
-> 		new_sk->sk_state = SMC_CLOSED;
->-		sock_set_flag(new_sk, SOCK_DEAD);
->+		smc_sock_set_flag(new_sk, SOCK_DEAD);
-> 		sock_put(new_sk); /* final */
-> 		*new_smc = NULL;
+>-		if (smc_ib_find_route(smc->clcsock->sk->sk_rcv_saddr,
+>+		if (smc_ib_find_route(net, smc->clcsock->sk->sk_rcv_saddr,
+> 				      smc_ib_gid_to_ipv4(aclc->r0.lcl.gid),
+> 				      ini->smcrv2.nexthop_mac,
+> 				      &ini->smcrv2.uses_gateway))
+>diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+>index 9b66d6aeeb1a..89981dbe46c9 100644
+>--- a/net/smc/smc_ib.c
+>+++ b/net/smc/smc_ib.c
+>@@ -193,7 +193,7 @@ bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport)
+> 	return smcibdev->pattr[ibport - 1].state == IB_PORT_ACTIVE;
+> }
+> 
+>-int smc_ib_find_route(__be32 saddr, __be32 daddr,
+>+int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
+> 		      u8 nexthop_mac[], u8 *uses_gateway)
+> {
+> 	struct neighbour *neigh = NULL;
+>@@ -205,7 +205,7 @@ int smc_ib_find_route(__be32 saddr, __be32 daddr,
+> 
+> 	if (daddr == cpu_to_be32(INADDR_NONE))
 > 		goto out;
->diff --git a/net/smc/smc.h b/net/smc/smc.h
->index 24745fd..e377980 100644
->--- a/net/smc/smc.h
->+++ b/net/smc/smc.h
->@@ -377,4 +377,9 @@ void smc_fill_gid_list(struct smc_link_group *lgr,
-> int smc_nl_enable_hs_limitation(struct sk_buff *skb, struct genl_info *info);
-> int smc_nl_disable_hs_limitation(struct sk_buff *skb, struct genl_info *info);
+>-	rt = ip_route_output_flow(&init_net, &fl4, NULL);
+>+	rt = ip_route_output_flow(net, &fl4, NULL);
+> 	if (IS_ERR(rt))
+> 		goto out;
+> 	if (rt->rt_uses_gateway && rt->rt_gw_family != AF_INET)
+>@@ -235,6 +235,7 @@ static int smc_ib_determine_gid_rcu(const struct net_device *ndev,
+> 	if (smcrv2 && attr->gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP &&
+> 	    smc_ib_gid_to_ipv4((u8 *)&attr->gid) != cpu_to_be32(INADDR_NONE)) {
+> 		struct in_device *in_dev = __in_dev_get_rcu(ndev);
+>+		struct net *net = dev_net(ndev);
+> 		const struct in_ifaddr *ifa;
+> 		bool subnet_match = false;
 > 
->+static inline void smc_sock_set_flag(struct sock *sk, enum sock_flags flag)
->+{
->+	set_bit(flag, &sk->sk_flags);
->+}
->+
-> #endif	/* __SMC_H */
->diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
->index 89105e9..01bdb79 100644
->--- a/net/smc/smc_cdc.c
->+++ b/net/smc/smc_cdc.c
->@@ -385,7 +385,7 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
-> 		smc->sk.sk_shutdown |= RCV_SHUTDOWN;
-> 		if (smc->clcsock && smc->clcsock->sk)
-> 			smc->clcsock->sk->sk_shutdown |= RCV_SHUTDOWN;
->-		sock_set_flag(&smc->sk, SOCK_DONE);
->+		smc_sock_set_flag(&smc->sk, SOCK_DONE);
-> 		sock_hold(&smc->sk); /* sock_put in close_work */
-> 		if (!queue_work(smc_close_wq, &conn->close_work))
-> 			sock_put(&smc->sk);
->diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
->index dbdf03e..449ef45 100644
->--- a/net/smc/smc_close.c
->+++ b/net/smc/smc_close.c
->@@ -173,7 +173,7 @@ void smc_close_active_abort(struct smc_sock *smc)
-> 		break;
-> 	}
-> 
->-	sock_set_flag(sk, SOCK_DEAD);
->+	smc_sock_set_flag(sk, SOCK_DEAD);
-> 	sk->sk_state_change(sk);
-> 
-> 	if (release_clcsock) {
+>@@ -248,7 +249,7 @@ static int smc_ib_determine_gid_rcu(const struct net_device *ndev,
+> 		}
+> 		if (!subnet_match)
+> 			goto out;
+>-		if (smcrv2->daddr && smc_ib_find_route(smcrv2->saddr,
+>+		if (smcrv2->daddr && smc_ib_find_route(net, smcrv2->saddr,
+> 						       smcrv2->daddr,
+> 						       smcrv2->nexthop_mac,
+> 						       &smcrv2->uses_gateway))
+>diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+>index 4df5f8c8a0a1..ef8ac2b7546d 100644
+>--- a/net/smc/smc_ib.h
+>+++ b/net/smc/smc_ib.h
+>@@ -112,7 +112,7 @@ void smc_ib_sync_sg_for_device(struct smc_link *lnk,
+> int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
+> 			 unsigned short vlan_id, u8 gid[], u8 *sgid_index,
+> 			 struct smc_init_info_smcrv2 *smcrv2);
+>-int smc_ib_find_route(__be32 saddr, __be32 daddr,
+>+int smc_ib_find_route(struct net *net, __be32 saddr, __be32 daddr,
+> 		      u8 nexthop_mac[], u8 *uses_gateway);
+> bool smc_ib_is_valid_local_systemid(void);
+> int smcr_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
 >-- 
->1.8.3.1
+>2.20.1
