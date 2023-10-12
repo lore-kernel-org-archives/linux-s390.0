@@ -2,151 +2,133 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 761E8CDB46E
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Oct 2023 07:25:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22528CDB484
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Oct 2023 07:25:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377653AbjJLHZD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 Oct 2023 03:25:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42688 "EHLO
+        id S1377717AbjJLHZx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 Oct 2023 03:25:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377623AbjJLHZC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Oct 2023 03:25:02 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C030F90;
-        Thu, 12 Oct 2023 00:24:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de; s=s31663417;
- t=1697095477; x=1697700277; i=deller@gmx.de;
- bh=oXy5tX2J/Ph6eTM9bAGsgHUtEr/KjBOa9YKsIsb+zZo=;
- h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
- b=RyEsuy/MOe7+0kyhqW5fyiLrNtgpGiIcosZ+Yvw2I1towJ5lpw/71QVowPMw2iGkSfYG1lCcX3c
- Je+1IHNlE7kTz4gU5bwGssFPDS0SgG2M8YS/LEgM8w0p6siZd6vFj6GFNZn2TKbKMJrNTiy//ez7J
- BWHEfo4AmOU19+TIkXKez5VI+LLLHx1vqbnfcm9Ob1rJ9TnlUN9BFrO2AFDGBA2GU3pcqDyRY6sEJ
- 7xEgtkzBhhmLDMPw+aUp/0uIKiiDxgz8W4zq5e2P5ijjY6GUDiipzkw0zioaOviN7rc3mXYCksL2E
- fVd6jyqzV7Vqq9xuqFbqpqijcdmVLA5uMf1Q==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from [192.168.20.60] ([94.134.153.231]) by mail.gmx.net (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1Mk0JM-1rJKFJ2X96-00kRh2; Thu, 12
- Oct 2023 09:24:37 +0200
-Message-ID: <d886d83a-87b4-428d-856e-9bbaa554563a@gmx.de>
-Date:   Thu, 12 Oct 2023 09:24:36 +0200
+        with ESMTP id S1347114AbjJLHZv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Oct 2023 03:25:51 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 203B990;
+        Thu, 12 Oct 2023 00:25:50 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39C7JN7v017051;
+        Thu, 12 Oct 2023 07:25:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=5MqhUHWaw+1K2HvrJPqGawKne8YN3vxBSsQbSVm1zg8=;
+ b=p50xijw8s91A2Q9ug3Gd49JWz4ZvgqA6Hy+zMLFDqVv4bzeNaYOveL4uET4RJOp3gesp
+ DAwgrwHJ03HgF9eeEvp+eOO7qwrmg+XNvm8OUqoLNt7lJlDAVEqtjN8CiKqDMXhlLcky
+ eKGNUZ1kMUtv/z8/kUcfCyEga3J/tdfvDxnt6ZfgS26CGMmztvCMkSoI1bmaVHklgkOD
+ 4j0SuHSA9ruFRWECactW6nhgOGtTYpcc3OzdI19+LWOAFipwZEMmcg23yiLFkz2UiyBh
+ lGMGaxZYCj+Q2PbNgyXx8ufLOeAMZwfSd+coiMBtiELvWv8yrxN+BKmJ1I/kFUJhuVnc VA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tpca988bj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Oct 2023 07:25:11 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39C7JNSY017085;
+        Thu, 12 Oct 2023 07:25:10 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tpca988ax-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Oct 2023 07:25:10 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39C4sB2E001239;
+        Thu, 12 Oct 2023 07:25:09 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tkkvk5hry-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Oct 2023 07:25:09 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39C7P7Zc27001390
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 12 Oct 2023 07:25:08 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DA71020065;
+        Thu, 12 Oct 2023 07:25:07 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8AAA920063;
+        Thu, 12 Oct 2023 07:25:07 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.60])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Thu, 12 Oct 2023 07:25:07 +0000 (GMT)
+Date:   Thu, 12 Oct 2023 09:25:05 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+        Hugh Dickins <hughd@google.com>,
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Mike Rapoport <rppt@kernel.org>
+Subject: Re: [PATCH mm-unstable v9 14/31] s390: Convert various pgalloc
+ functions to use ptdescs
+Message-ID: <20231012072505.6160-A-hca@linux.ibm.com>
+References: <20230807230513.102486-1-vishal.moola@gmail.com>
+ <20230807230513.102486-15-vishal.moola@gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/5] parisc: remove broken vdso_install
-Content-Language: en-US
-To:     Masahiro Yamada <masahiroy@kernel.org>,
-        linux-kbuild@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-um@lists.infradead.org, loongarch@lists.linux.dev,
-        sparclinux@vger.kernel.org, x86@kernel.org,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-References: <20231009124210.1064021-1-masahiroy@kernel.org>
- <20231009124210.1064021-3-masahiroy@kernel.org>
-From:   Helge Deller <deller@gmx.de>
-Autocrypt: addr=deller@gmx.de; keydata=
- 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
-In-Reply-To: <20231009124210.1064021-3-masahiroy@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:UuRaX4Qyf+vUPdgU+tYXxohqJX86snYyiLQ1GLwyp69h7XprT7J
- gIJCWxMLT7TqKQsMWUziQR7PpqexRnlVJX67B6UFqqJbheZPMEsh0SpQwpREUZ/Y3tt0CfN
- kjZK7PN2+my2xbvTvkBpXNP34rbV4u+xF3gnjATHAkV27ITVERd44tDpb5ZQZgxCpiM+VDN
- 9bEi/P7yFjW3vQAAdC8LA==
-UI-OutboundReport: notjunk:1;M01:P0:dv/izyBJz7w=;o5X8ff7JU/4ObAv70zN3D0eXcDJ
- OVfsETuHPyw3nTXayRCSQOPexM75ofy/ywHIBwCbaVz3aXtDraxdIBPjGkx0ece6TfSHpAq8N
- Xncx0BomXSTwi7heFKQy1Zo5VFQrovcVbBk6e/11NpG7PNIpZEd1ZXXPQJYLR9jnaSgzrepA6
- j+LqSzqCjNakNJOOk3WnUTAldNR9Ge6O3H0i3Bu63mzofi5You9/hmHi+yybdfBIOhDtlU4Rd
- D7M91OPVWpSgD3/+O//pmdtgBwhtCy+wMSAd0q6d+RqSjCuWULgLksUa95Ozn0ptf9ovP0U3a
- aD0TmiHaggRj9CQOGILxGjvw2/ODYbWkFzZRoeIeEb0JspbccSNMbGLgE2sMdI8fFtOmMKTkO
- efqooP33QDLhTYzLZ24pEnqej2ks6vbhnckjqk76gO9spWC0UwmU8H7siUv45VZYBIqWiIjUM
- E7Mm5JgpLt7+dLilET0lvbjpU8vGWqpsEsqhqIOcPT6MH36M7CdPM7r9EA0x9bRWuTFPop5PC
- doZt7uUewz9zq8qLH7b7piwrymrisWA3uTq9MW2USW2Jb4kd7TWQEIJvXfGUL/V61YnDHSavl
- gui+DDcLya8/0lS1PZ2z3GkpFGkkfv6A5Krtg4thvjBQ7n8jQs59N/OF+P/ZKK2ka06NbK764
- 60oq7csCNkPDpJan/HY5YOVvJKGE3YOQBDCkSRX8HKsmbKSz8eVDq47/ptiqyCD8e9Blw64Gb
- qPVCYbmECBAHBUOm4cWWExMaHd9PRqzaO5jVo6CE0YtmYYW0lSkF0R37BGIRsjGJNgYTEiznA
- DV1JSqTkjL3BbQ8DfdA6eF/OBoo4H/3zrE1hbQ0i69b6WI81gdwviBLE6sH/Xv7OuTbD94tWU
- TE2nsqlAVkS7no9QaJgAgYsABy6qwO54aZEiJbVKRHf+ff/bMAxBjRPhCKIHS23TP9n8Iml2b
- GuJX9A==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230807230513.102486-15-vishal.moola@gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: R9BBv1jP5we_uE3OHfXIw10GtOr53ihr
+X-Proofpoint-GUID: -0DchMoDG4gnKEi3H7t5YnEcLMTMxRGv
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-12_02,2023-10-11_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
+ mlxscore=0 priorityscore=1501 suspectscore=0 adultscore=0 mlxlogscore=661
+ impostorscore=0 clxscore=1011 lowpriorityscore=0 malwarescore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2309180000 definitions=main-2310120061
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Masahiro,
+On Mon, Aug 07, 2023 at 04:04:56PM -0700, Vishal Moola (Oracle) wrote:
+> As part of the conversions to replace pgtable constructor/destructors with
+> ptdesc equivalents, convert various page table functions to use ptdescs.
+> 
+> Some of the functions use the *get*page*() helper functions. Convert
+> these to use pagetable_alloc() and ptdesc_address() instead to help
+> standardize page tables further.
+> 
+> Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
+> Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> ---
+>  arch/s390/include/asm/pgalloc.h |   4 +-
+>  arch/s390/include/asm/tlb.h     |   4 +-
+>  arch/s390/mm/pgalloc.c          | 128 ++++++++++++++++----------------
+>  3 files changed, 69 insertions(+), 67 deletions(-)
+...
+> diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
+> index d7374add7820..07fc660a24aa 100644
+> --- a/arch/s390/mm/pgalloc.c
+> +++ b/arch/s390/mm/pgalloc.c
+...
+> @@ -488,16 +486,20 @@ static void base_pgt_free(unsigned long *table)
+>  static unsigned long *base_crst_alloc(unsigned long val)
+>  {
+>  	unsigned long *table;
+> +	struct ptdesc *ptdesc;
+>  
+> -	table =	(unsigned long *)__get_free_pages(GFP_KERNEL, CRST_ALLOC_ORDER);
+> -	if (table)
+> -		crst_table_init(table, val);
+> +	ptdesc = pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM, CRST_ALLOC_ORDER);
 
-On 10/9/23 14:42, Masahiro Yamada wrote:
-> 'make ARCH=3Dparisc vdso_install' has never worked. It attempts to
-> descend into arch/parisc/kernel/vdso/, which does not exist.
->
-> The command just fails:
->
->    scripts/Makefile.build:41: arch/parisc/kernel/vdso/Makefile: No such =
-file or directory
->
-> The second line is also meaningless because parisc does not define
-> CONFIG_COMPAT_VDSO.
->
-> It appears that this code was copied from another architecture without
-> proper adaptation.
-
-Yes.
-
-> Remove the broken code.
->
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-
-Thanks for cleaning this up and making it consistent across the architectu=
-res.
-
-Acked-by: Helge Deller <deller@gmx.de>  # parisc
-
-In case you do a v2 version of the patch, would you add to arch/parisc/Mak=
-efile
-(otherwise I can send a follow-up patch in the parisc git tree):
-
-vdso-install-y               +=3D arch/parisc/kernel/vdso32/vdso32.so
-vdso-install-$(CONFIG_64BIT) +=3D arch/parisc/kernel/vdso64/vdso64.so
-
-Thanks!
-Helge
+I guess I must miss something, but what is the reason to mask out
+__GFP_HIGHMEM here? It is not part of GFP_KERNEL, nor does s390 support
+HIGHMEM.
