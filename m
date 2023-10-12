@@ -2,129 +2,71 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27F17CDB482
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Oct 2023 12:17:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83D35CDB47E
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Oct 2023 12:37:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347213AbjJLMRr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 Oct 2023 08:17:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51478 "EHLO
+        id S1378632AbjJLMhn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 Oct 2023 08:37:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343908AbjJLMRq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Oct 2023 08:17:46 -0400
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E792B7;
-        Thu, 12 Oct 2023 05:17:44 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0Vu-eJHp_1697113061;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0Vu-eJHp_1697113061)
+        with ESMTP id S235745AbjJLMhk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Oct 2023 08:37:40 -0400
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D81DC4;
+        Thu, 12 Oct 2023 05:37:34 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0Vu-nLib_1697114249;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0Vu-nLib_1697114249)
           by smtp.aliyun-inc.com;
-          Thu, 12 Oct 2023 20:17:41 +0800
-Date:   Thu, 12 Oct 2023 20:17:40 +0800
+          Thu, 12 Oct 2023 20:37:30 +0800
 From:   Dust Li <dust.li@linux.alibaba.com>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Albert Huang <huangjie.albert@bytedance.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
+To:     Karsten Graul <kgraul@linux.ibm.com>,
         Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>
-Cc:     "D. Wythe" <alibuda@linux.alibaba.com>,
+        Jan Karcher <jaka@linux.ibm.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
         Tony Lu <tonylu@linux.alibaba.com>,
         Wen Gu <guwen@linux.alibaba.com>,
         "David S. Miller" <davem@davemloft.net>,
         Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org,
+        Paolo Abeni <pabeni@redhat.com>
+Cc:     Dust Li <dust.li@linux.alibaba.com>, linux-s390@vger.kernel.org,
         netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next] net/smc: add support for netdevice in
- containers.
-Message-ID: <20231012121740.GR92403@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20230925023546.9964-1-huangjie.albert@bytedance.com>
- <00bbbf48440c1889ecd16a590ebb746b820a4f48.camel@linux.ibm.com>
- <20231011144816.GO92403@linux.alibaba.com>
+Subject: [PATCH net] net/smc: return the right falback reason when prefix checks fail
+Date:   Thu, 12 Oct 2023 20:37:29 +0800
+Message-Id: <20231012123729.29307-1-dust.li@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20231011144816.GO92403@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Oct 11, 2023 at 10:48:16PM +0800, Dust Li wrote:
->On Thu, Sep 28, 2023 at 05:04:21PM +0200, Niklas Schnelle wrote:
->>On Mon, 2023-09-25 at 10:35 +0800, Albert Huang wrote:
->>> If the netdevice is within a container and communicates externally
->>> through network technologies like VXLAN, we won't be able to find
->>> routing information in the init_net namespace. To address this issue,
->>> we need to add a struct net parameter to the smc_ib_find_route function.
->>> This allow us to locate the routing information within the corresponding
->>> net namespace, ensuring the correct completion of the SMC CLC interaction.
->>> 
->>> Signed-off-by: Albert Huang <huangjie.albert@bytedance.com>
->>> ---
->>>  net/smc/af_smc.c | 3 ++-
->>>  net/smc/smc_ib.c | 7 ++++---
->>>  net/smc/smc_ib.h | 2 +-
->>>  3 files changed, 7 insertions(+), 5 deletions(-)
->>> 
->>
->>I'm trying to test this patch on s390x but I'm running into the same
->>issue I ran into with the original SMC namespace
->>support:https://lore.kernel.org/netdev/8701fa4557026983a9ec687cfdd7ac5b3b85fd39.camel@linux.ibm.com/
->>
->>Just like back then I'm using a server and a client network namespace
->>on the same system with two ConnectX-4 VFs from the same card and port.
->>Both TCP/IP traffic as well as user-space RDMA via "qperf … rc_bw" and
->>`qperf … rc_lat` work between namespaces and definitely go via the
->>card.
->>
->>I did use "rdma system set netns exclusive" then moved the RDMA devices
->>into the namespaces with "rdma dev set <rdma_dev> netns <namespace>". I
->>also verified with "ip netns exec <namespace> rdma dev"
->>that the RDMA devices are in the network namespace and as seen by the
->>qperf runs normal RDMA does work.
->>
->>For reference the smc_chck tool gives me the following output:
->>
->>Server started on port 37373
->>[DEBUG] Interfaces to check: eno4378
->>Test with target IP 10.10.93.12 and port 37373
->>  Live test (SMC-D and SMC-R)
->>[DEBUG] Running client: smc_run /tmp/echo-clt.x0q8iO 10.10.93.12 -p
->>37373
->>[DEBUG] Client result: TCP 0x05000000/0x03030000
->>     Failed  (TCP fallback), reasons:
->>          Client:        0x05000000   Peer declined during handshake
->>          Server:        0x03030000   No SMC devices found (R and D)
->>
->>I also checked that SMC is generally working, once I add an ISM device
->>I do get SMC-D between the namespaces. Any ideas what could break SMC-R
->>here?
->
->I missed the email :(
->
->Are you running SMC-Rv2 or v1 ?
+In the smc_listen_work(), if smc_listen_prfx_check() failed,
+the real reason: SMC_CLC_DECL_DIFFPREFIX was dropped, and
+SMC_CLC_DECL_NOSMCDEV was returned.
 
-Hi Niklas,
+Althrough this is also kind of SMC_CLC_DECL_NOSMCDEV, but return
+the real reason is much friendly for debugging.
 
-I tried your test today, and I encounter the same issue.
-But I found it's because my 2 VFs are in difference subnets,
-SMC-Rv2 work fine, SMC-Rv1 won't work, which is expected.
-When I set the 2 VFs in the same subnet, SMC-Rv1 also works.
+Fixes: e49300a6bf62 ("net/smc: add listen processing for SMC-Rv2")
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+---
+ net/smc/af_smc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-So I'm not sure it's the same for you. Can you check it out ?
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index bacdd971615e..21d4476b937b 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -2361,7 +2361,7 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
+ 		smc_find_ism_store_rc(rc, ini);
+ 		return (!rc) ? 0 : ini->rc;
+ 	}
+-	return SMC_CLC_DECL_NOSMCDEV;
++	return prfx_rc;
+ }
+ 
+ /* listen worker: finish RDMA setup */
+-- 
+2.19.1.6.gb485710b
 
-BTW, the fallback reason(SMC_CLC_DECL_NOSMCDEV) in this case
-is really not friendly, it's better to return SMC_CLC_DECL_DIFFPREFIX.
-
-Best regards,
-Dust
-
-
->
->Best regards,
->Dust
->
->
->>
->>Thanks,
->>Niklas
