@@ -2,115 +2,177 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3341ACDB465
-	for <linux-s390@archiver.kernel.org>; Wed, 11 Oct 2023 23:10:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 377B6CDB465
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Oct 2023 02:47:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233849AbjJKXKZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 11 Oct 2023 19:10:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57840 "EHLO
+        id S235244AbjJLCrP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 11 Oct 2023 22:47:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233834AbjJKXKY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 19:10:24 -0400
-Received: from mail-qt1-x831.google.com (mail-qt1-x831.google.com [IPv6:2607:f8b0:4864:20::831])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5027A9
-        for <linux-s390@vger.kernel.org>; Wed, 11 Oct 2023 16:10:22 -0700 (PDT)
-Received: by mail-qt1-x831.google.com with SMTP id d75a77b69052e-41810cfc569so2417571cf.2
-        for <linux-s390@vger.kernel.org>; Wed, 11 Oct 2023 16:10:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1697065822; x=1697670622; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=pE4C1PjtBwHfwQnQ/BWQr6OrTGyHylYmZgGyzqVL5/U=;
-        b=XpNHneBPrWUvofoEizNZP5HzzkxU8yrUIF5sl8cT5G4aG1Xkz2P0UFrCMgc9bJ4nkG
-         bdsQYfFwU58uIjlunSvwTAgF2ioZ5AShGdrxfo6Jucnsu+109NrrkLvNdtEq1wuMLFF/
-         hwGYLJO7swgyeEgJzvnScORJWDbPq3vrP6481X/nRK1Hz5pxAz0dmtYyBvYO8qTKyofZ
-         urG+miT8HC/sRHNpGRGV3vCxudRWHOsE1j0NTO4lRXE+9PpoYKfiOGxaj1mEZrkqK6Ku
-         d0MczA8VO9WOpMSpa+ES97K8sk1B3r21AHqx3f9bKgvQh5eqN4BYhgMgAavAefuoL1Uj
-         x+Sg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697065822; x=1697670622;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pE4C1PjtBwHfwQnQ/BWQr6OrTGyHylYmZgGyzqVL5/U=;
-        b=dSf+SK/Ua9pesIJBsHpz+NTsi9YIo5bJ61YbZtNT5gMPsv+zTInLlMs1641Sbn21bL
-         mt3DeEPm1955MRWCi5udIa7hzmBwEYfE3QRWgaaxzZRwdPDX1wm7vVG7PSiRR0+BQZJT
-         +vKU0DuYeCOwZNyXnKikRlTyt9pN3qdz72rPWD+lyQ9Pwz89bkkVN2FJ8IPPgcVKYK3u
-         hld29TYrl2x9eG98hpl0vuUnOU51f2TyOFqL9aLkfxDbhVMt5bX+s2jQkgN05K+77Tb+
-         hMMC+LIdv54i37kxwo6AW7omU8gRoNbQrPSXTKmv9ngO9IxF4eF69n98Hr8tGdNPGlOP
-         Iu7A==
-X-Gm-Message-State: AOJu0YxfOpWhgfT1zEP5yyb2DVvxci0PSUU7hUF9t5vuCoVqcwsI8d7w
-        n2qzbVfd7dwNEcREhfgr9xIzzQ==
-X-Google-Smtp-Source: AGHT+IEsBh106ERG5fcZutotax71+to9I7W4F2Eq39+fQZfREWil8ZfLKHw8e5yzZK96gO3ySOZs3g==
-X-Received: by 2002:ac8:5d8f:0:b0:410:60a4:ffbc with SMTP id d15-20020ac85d8f000000b0041060a4ffbcmr26726688qtx.66.1697065821813;
-        Wed, 11 Oct 2023 16:10:21 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-68-26-201.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.26.201])
-        by smtp.gmail.com with ESMTPSA id l17-20020ac81491000000b004181d77e08fsm5699199qtj.85.2023.10.11.16.10.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Oct 2023 16:10:21 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1qqiLM-0014Y3-H6;
-        Wed, 11 Oct 2023 20:10:20 -0300
-Date:   Wed, 11 Oct 2023 20:10:20 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Saeed Mahameed <saeed@kernel.org>
-Cc:     Leon Romanovsky <leon@kernel.org>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Shay Drory <shayd@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net] net/mlx5: fix calling mlx5_cmd_init() before DMA
- mask is set
-Message-ID: <20231011231020.GG55194@ziepe.ca>
-References: <20230928-mlx5_init_fix-v1-1-79749d45ce60@linux.ibm.com>
- <20230928175959.GU1642130@unreal>
- <a1f8b9f8c2f9aecde8ac17831b66f72319bf425a.camel@linux.ibm.com>
- <20230929103117.GB1296942@unreal>
- <ZSbtMO8AWLx29RBS@x130>
+        with ESMTP id S233040AbjJLCrO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Oct 2023 22:47:14 -0400
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56515A9;
+        Wed, 11 Oct 2023 19:47:11 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R311e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0Vtyo4xT_1697078827;
+Received: from 30.221.149.75(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Vtyo4xT_1697078827)
+          by smtp.aliyun-inc.com;
+          Thu, 12 Oct 2023 10:47:08 +0800
+Message-ID: <0490cd90-1ec9-9d10-90fc-8fd0cf4a1a9c@linux.alibaba.com>
+Date:   Thu, 12 Oct 2023 10:47:07 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZSbtMO8AWLx29RBS@x130>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.1
+Subject: Re: [PATCH net 1/5] net/smc: fix dangling sock under state
+ SMC_APPFINCLOSEWAIT
+Content-Language: en-US
+To:     Wenjia Zhang <wenjia@linux.ibm.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com, wintera@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
+ <1697009600-22367-2-git-send-email-alibuda@linux.alibaba.com>
+ <e63b546f-b993-4e42-8269-e4d9afa5b845@linux.ibm.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <e63b546f-b993-4e42-8269-e4d9afa5b845@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Oct 11, 2023 at 11:45:04AM -0700, Saeed Mahameed wrote:
-> > > The above works too. Maybe for consistency within probe_one() it would
-> > > then make sense to also rename set_dma_caps() to mlx5_dma_init()?
-> > 
-> > Sounds great, thanks
-> > 
-> > BTW, I was informed offlist that Saeed also has fix to this issue,
-> > but I don't know if he wants to progress with that fix as it has wrong
-> > RCA in commit message and as an outcome of that much complex solution,
-> > which is not necessary.
-> > 
-> > So I would be happy to see your patch with mlx5_dma_init().
-> > 
-> > Thanks
-> > 
-> 
-> Actually I prefer the internal patch, it moves the dma parts out of
-> mlx5_cmd_init() into mlx5_cmd_enable() which happens after dma caps are
-> set. since it is using the current mlx5 function structure and breakdown, I
-> prefer it over adding new function to the driver.
-> 
-> I will share the patch, I will let Niklas test it and approve it before
-> submission.
 
-Let's hurry please, mlx5 will be broken on S390 in rc1 if this is not
-fixed soon.
 
-Jason
+On 10/12/23 4:31 AM, Wenjia Zhang wrote:
+>
+>
+> On 11.10.23 09:33, D. Wythe wrote:
+>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>
+>> Considering scenario:
+>>
+>>                 smc_cdc_rx_handler_rwwi
+>> __smc_release
+>>                 sock_set_flag
+>> smc_close_active()
+>> sock_set_flag
+>>
+>> __set_bit(DEAD)            __set_bit(DONE)
+>>
+>> Dues to __set_bit is not atomic, the DEAD or DONE might be lost.
+>> if the DEAD flag lost, the state SMC_CLOSED  will be never be reached
+>> in smc_close_passive_work:
+>>
+>> if (sock_flag(sk, SOCK_DEAD) &&
+>>     smc_close_sent_any_close(conn)) {
+>>     sk->sk_state = SMC_CLOSED;
+>> } else {
+>>     /* just shutdown, but not yet closed locally */
+>>     sk->sk_state = SMC_APPFINCLOSEWAIT;
+>> }
+>>
+>> Replace sock_set_flags or __set_bit to set_bit will fix this problem.
+>> Since set_bit is atomic.
+>>
+> I didn't really understand the scenario. What is 
+> smc_cdc_rx_handler_rwwi()? What does it do? Don't it get the lock 
+> during the runtime?
+>
+
+Hi Wenjia,
+
+Sorry for that, It is not smc_cdc_rx_handler_rwwi() but 
+smc_cdc_rx_handler();
+
+Following is a more specific description of the issues
+
+
+lock_sock()
+__smc_release
+
+smc_cdc_rx_handler()
+smc_cdc_msg_recv()
+bh_lock_sock()
+smc_cdc_msg_recv_action()
+sock_set_flag(DONE) sock_set_flag(DEAD)
+__set_bit __set_bit
+bh_unlock_sock()
+release_sock()
+
+
+Note :  bh_lock_sock and lock_sock are not mutually exclusive.
+They are actually used for different purposes and contexts.
+
+
+>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>> ---
+>>   net/smc/af_smc.c    | 4 ++--
+>>   net/smc/smc.h       | 5 +++++
+>>   net/smc/smc_cdc.c   | 2 +-
+>>   net/smc/smc_close.c | 2 +-
+>>   4 files changed, 9 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>> index bacdd97..5ad2a9f 100644
+>> --- a/net/smc/af_smc.c
+>> +++ b/net/smc/af_smc.c
+>> @@ -275,7 +275,7 @@ static int __smc_release(struct smc_sock *smc)
+>>         if (!smc->use_fallback) {
+>>           rc = smc_close_active(smc);
+>> -        sock_set_flag(sk, SOCK_DEAD);
+>> +        smc_sock_set_flag(sk, SOCK_DEAD);
+>>           sk->sk_shutdown |= SHUTDOWN_MASK;
+>>       } else {
+>>           if (sk->sk_state != SMC_CLOSED) {
+>> @@ -1742,7 +1742,7 @@ static int smc_clcsock_accept(struct smc_sock 
+>> *lsmc, struct smc_sock **new_smc)
+>>           if (new_clcsock)
+>>               sock_release(new_clcsock);
+>>           new_sk->sk_state = SMC_CLOSED;
+>> -        sock_set_flag(new_sk, SOCK_DEAD);
+>> +        smc_sock_set_flag(new_sk, SOCK_DEAD);
+>>           sock_put(new_sk); /* final */
+>>           *new_smc = NULL;
+>>           goto out;
+>> diff --git a/net/smc/smc.h b/net/smc/smc.h
+>> index 24745fd..e377980 100644
+>> --- a/net/smc/smc.h
+>> +++ b/net/smc/smc.h
+>> @@ -377,4 +377,9 @@ void smc_fill_gid_list(struct smc_link_group *lgr,
+>>   int smc_nl_enable_hs_limitation(struct sk_buff *skb, struct 
+>> genl_info *info);
+>>   int smc_nl_disable_hs_limitation(struct sk_buff *skb, struct 
+>> genl_info *info);
+>>   +static inline void smc_sock_set_flag(struct sock *sk, enum 
+>> sock_flags flag)
+>> +{
+>> +    set_bit(flag, &sk->sk_flags);
+>> +}
+>> +
+>>   #endif    /* __SMC_H */
+>> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+>> index 89105e9..01bdb79 100644
+>> --- a/net/smc/smc_cdc.c
+>> +++ b/net/smc/smc_cdc.c
+>> @@ -385,7 +385,7 @@ static void smc_cdc_msg_recv_action(struct 
+>> smc_sock *smc,
+>>           smc->sk.sk_shutdown |= RCV_SHUTDOWN;
+>>           if (smc->clcsock && smc->clcsock->sk)
+>>               smc->clcsock->sk->sk_shutdown |= RCV_SHUTDOWN;
+>> -        sock_set_flag(&smc->sk, SOCK_DONE);
+>> +        smc_sock_set_flag(&smc->sk, SOCK_DONE);
+>>           sock_hold(&smc->sk); /* sock_put in close_work */
+>>           if (!queue_work(smc_close_wq, &conn->close_work))
+>>               sock_put(&smc->sk);
+>> diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+>> index dbdf03e..449ef45 100644
+>> --- a/net/smc/smc_close.c
+>> +++ b/net/smc/smc_close.c
+>> @@ -173,7 +173,7 @@ void smc_close_active_abort(struct smc_sock *smc)
+>>           break;
+>>       }
+>>   -    sock_set_flag(sk, SOCK_DEAD);
+>> +    smc_sock_set_flag(sk, SOCK_DEAD);
+>>       sk->sk_state_change(sk);
+>>         if (release_clcsock) {
+
