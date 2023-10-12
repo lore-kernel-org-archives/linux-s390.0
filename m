@@ -2,125 +2,123 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55F7DCDB46E
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Oct 2023 19:04:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB0E4CDB46E
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Oct 2023 19:15:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235773AbjJLTE0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 Oct 2023 15:04:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37042 "EHLO
+        id S1344140AbjJLTPx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 Oct 2023 15:15:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229576AbjJLTEZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Oct 2023 15:04:25 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EAB483;
-        Thu, 12 Oct 2023 12:04:23 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39CIxTJ3027496;
-        Thu, 12 Oct 2023 19:04:19 GMT
+        with ESMTP id S1347370AbjJLTPu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Oct 2023 15:15:50 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A394CBB;
+        Thu, 12 Oct 2023 12:15:48 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39CJCEXf003454;
+        Thu, 12 Oct 2023 19:15:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=TcbF7u6h8UanVvB4kjio1B54RIcwpdiPlHJIrm5KHLw=;
- b=HSJ3N7rC8AhJnjY7E/03t16tnbHGAo1F4E47rBxpe7IJbNl2E0tiyhTk6Bk6Nk9J6P8M
- atiCAR4PAZxS2DlCTtfgI+f5C/VxVyFxKRbQVJT5VXor4uesldSsk1U3zDYfj+SSDula
- lee6BXBtI8w6Y0FaYro9GcjmZ8H1qQaV6uwv9PjReHuhxJ2hQBIHcPpYNz5hsJB5Z6sa
- 9XoFmNaT+M3hEOc0KCCapgdC6wcJ33MPMTrpbiq2Zl0/yXWkueMCpPoG2qm2urPygxhu
- I23uihDhzjsSGx6X6Kjk9IFcHv6omueOZl9cNAj6DlgJqRJ6tLnJSty6rc+K1BHOJ4aH JQ== 
+ bh=G2v9NhoJB2fTb6Fwt17r/EK6+zn7uPTqlFs2lOHCHcc=;
+ b=tnRim4a3HmTjRL6TDkyteROThiZdk+eu/zTR8hqp28HUfw6bbnUs/ARLsjgOUMSwaHr+
+ uBLUeucf/7fLHCMl2awntUu0NXTcgHErSXByhHtKQyv9QIFRlT+LMYapLg/F1tiKjnj4
+ 1vBazY/zJpmEu/PH8oE+ypYWtaUxYpQPPP3M28QiMz8FoseqxyI4XbePoNLxoRriX/YE
+ BYCvWuTqBAIBN89JjAHsrHBZVuNPnGqGhi6uKiHEJon+dSz0WiRUSEIcH2w4eSIObiLl
+ Asb9+SJLZJoa49eha4E5avCuOAq+ajX7ZILsH3xZSC0HnM2JP/UB/vq9FjVhpFN3uNE/ sw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tppjbr8p2-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tpprj874v-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Oct 2023 19:04:18 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39CJ0uDc004429;
-        Thu, 12 Oct 2023 19:04:18 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tppjbr8n7-1
+        Thu, 12 Oct 2023 19:15:44 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39CJCTWN005536;
+        Thu, 12 Oct 2023 19:15:44 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tpprj8736-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Oct 2023 19:04:18 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39CIq8Fn001270;
-        Thu, 12 Oct 2023 19:04:17 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tkkvk9cnn-1
+        Thu, 12 Oct 2023 19:15:43 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39CHwVtO000647;
+        Thu, 12 Oct 2023 19:15:41 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tkk5m1n1m-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Oct 2023 19:04:17 +0000
+        Thu, 12 Oct 2023 19:15:41 +0000
 Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-        by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39CJ4G0j2163202
+        by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39CJFe4F39059838
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 12 Oct 2023 19:04:16 GMT
+        Thu, 12 Oct 2023 19:15:40 GMT
 Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7642E5805B;
-        Thu, 12 Oct 2023 19:04:16 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 9038558059;
+        Thu, 12 Oct 2023 19:15:40 +0000 (GMT)
 Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1DE7B58058;
-        Thu, 12 Oct 2023 19:04:13 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 09EB05805B;
+        Thu, 12 Oct 2023 19:15:38 +0000 (GMT)
 Received: from [9.171.29.13] (unknown [9.171.29.13])
         by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 12 Oct 2023 19:04:12 +0000 (GMT)
-Message-ID: <bdcb307f-d2a8-4aef-bb7d-dd87e56ff740@linux.ibm.com>
-Date:   Thu, 12 Oct 2023 21:04:11 +0200
+        Thu, 12 Oct 2023 19:15:37 +0000 (GMT)
+Message-ID: <1cd92217-1926-4990-abae-dcdd2e87cfaa@linux.ibm.com>
+Date:   Thu, 12 Oct 2023 21:15:35 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 5/5] net/smc: put sk reference if close work was
- canceled
+Subject: Re: [PATCH net] net/smc: return the right falback reason when prefix
+ checks fail
 Content-Language: en-GB
-To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        jaka@linux.ibm.com, wintera@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
- <1697009600-22367-6-git-send-email-alibuda@linux.alibaba.com>
+To:     Alexandra Winter <wintera@linux.ibm.com>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20231012123729.29307-1-dust.li@linux.alibaba.com>
+ <5b54a227-2e18-46d5-9b15-aea9709cf2a5@linux.ibm.com>
 From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <1697009600-22367-6-git-send-email-alibuda@linux.alibaba.com>
+In-Reply-To: <5b54a227-2e18-46d5-9b15-aea9709cf2a5@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xTSy0oJ5xzOmyXfFWym16YkPX7EqljP4
-X-Proofpoint-ORIG-GUID: dZIvluRzZfjkAwF0iy6-331tX2Cvbcyi
+X-Proofpoint-ORIG-GUID: NpfroVktJi40t2XVKiiSmYMBGjJvtkz2
+X-Proofpoint-GUID: yny9i5_eR4foP1UqceZ_ct5ODc7zbYsi
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-10-12_11,2023-10-12_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
- lowpriorityscore=0 priorityscore=1501 impostorscore=0 mlxlogscore=999
- mlxscore=0 phishscore=0 adultscore=0 malwarescore=0 spamscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2310120158
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 bulkscore=0
+ lowpriorityscore=0 adultscore=0 mlxlogscore=861 mlxscore=0 impostorscore=0
+ clxscore=1015 spamscore=0 priorityscore=1501 suspectscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2309180000
+ definitions=main-2310120160
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-On 11.10.23 09:33, D. Wythe wrote:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
+On 12.10.23 15:05, Alexandra Winter wrote:
 > 
-> Note that we always hold a reference to sock when attempting
-> to submit close_work. 
-yes
-Therefore, if we have successfully
-> canceled close_work from pending, we MUST release that reference
-> to avoid potential leaks.
 > 
-Isn't the corresponding reference already released inside the 
-smc_close_passive_work()?
+> On 12.10.23 14:37, Dust Li wrote:
+>> In the smc_listen_work(), if smc_listen_prfx_check() failed,
+>> the real reason: SMC_CLC_DECL_DIFFPREFIX was dropped, and
+>> SMC_CLC_DECL_NOSMCDEV was returned.
+>>
+>> Althrough this is also kind of SMC_CLC_DECL_NOSMCDEV, but return
+>> the real reason is much friendly for debugging.
+>>
+>> Fixes: e49300a6bf62 ("net/smc: add listen processing for SMC-Rv2")
+>> Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+> 
+> As you point out the current code is not really wrong. So I am not sure,
+> whether this should be a fix for net, or rather a debug improvement for
+> net-next.
+> The return code was not precise, and since we do have already a more 
+appropriate return code to use. IMO, it was wrong. I'm for net.
 
-> Fixes: 42bfba9eaa33 ("net/smc: immediate termination for SMCD link groups")
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> ---
->   net/smc/smc_close.c | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
-> index 449ef45..10219f5 100644
-> --- a/net/smc/smc_close.c
-> +++ b/net/smc/smc_close.c
-> @@ -116,7 +116,8 @@ static void smc_close_cancel_work(struct smc_sock *smc)
->   	struct sock *sk = &smc->sk;
->   
->   	release_sock(sk);
-> -	cancel_work_sync(&smc->conn.close_work);
-> +	if (cancel_work_sync(&smc->conn.close_work))
-> +		sock_put(sk);
->   	cancel_delayed_work_sync(&smc->conn.tx_work);
->   	lock_sock(sk);
->   }
+Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+
