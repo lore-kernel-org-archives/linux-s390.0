@@ -2,167 +2,133 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D294CDB47E
-	for <linux-s390@archiver.kernel.org>; Thu, 12 Oct 2023 15:15:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1644BCDB47E
+	for <linux-s390@archiver.kernel.org>; Thu, 12 Oct 2023 16:55:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347295AbjJLPPh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 12 Oct 2023 11:15:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51176 "EHLO
+        id S1344025AbjJLQzS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 12 Oct 2023 12:55:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347171AbjJLPPc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Oct 2023 11:15:32 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F385C0;
-        Thu, 12 Oct 2023 08:15:30 -0700 (PDT)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39CFC6fs014877;
-        Thu, 12 Oct 2023 15:15:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=cu4OWlFcSkzAgQ1ZSUgowb6rWlcfQOprHpsTpGYe/I0=;
- b=Zzp61f7SDD20yZHSnGWqesTlBhZRuuPoLqAjpRrWTbkF/dRS10ZY1wbaObTb/RaF2PRB
- xGy8gFA9BclT6cTXjwSs3yQqcaNzgl7D78zUi3SHETVJYJEMcvCKFESBF09SdpTxKCNl
- Hk7NKJyOiLpbFKoZ0VIzCwjH2Q2BXL8sWV7RBk5ZbOMpPh2ufPugW3VLu3FDpGpZ1sZO
- BVHohNuDINuQuc+J48gvU4h1tAOQ1+7cos3J0FbrPFFvF8Eo7nw4ij4PfwK2sAng8enT
- 7DdHNm/fz1swRhq8aD+EqFetZO3g07VtiU3+9Gws8O8YvC/4eUJbj1FF3k5kmHIZAguR 8w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tpk8084cp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Oct 2023 15:15:20 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39CFDFJs019790;
-        Thu, 12 Oct 2023 15:15:20 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tpk8084bs-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Oct 2023 15:15:20 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39CFCslU028188;
-        Thu, 12 Oct 2023 15:15:19 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tkj1ygf6p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 12 Oct 2023 15:15:19 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-        by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39CFFHUv17891842
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 12 Oct 2023 15:15:18 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CAA1958058;
-        Thu, 12 Oct 2023 15:15:17 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1423458059;
-        Thu, 12 Oct 2023 15:15:16 +0000 (GMT)
-Received: from [9.171.29.13] (unknown [9.171.29.13])
-        by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 12 Oct 2023 15:15:15 +0000 (GMT)
-Message-ID: <bf52b502-6be0-467d-bf0a-5ae0e8d84fe8@linux.ibm.com>
-Date:   Thu, 12 Oct 2023 17:15:15 +0200
+        with ESMTP id S233290AbjJLQzS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 12 Oct 2023 12:55:18 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A106C6;
+        Thu, 12 Oct 2023 09:55:16 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BEB6C433C8;
+        Thu, 12 Oct 2023 16:55:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1697129716;
+        bh=O8UY1DvSBTTGnjJ9XccnIy1wMqCD+BqiH+/36Y/1MZE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=KWlJSI0PM5XU1MvuMXMhSDW/+KG+gbxWbms9N1wWVEH1VHrp+PFFEtMNA1F7TmINm
+         Vir1kvxAz3S+1cc+zoO7leMpyyRGnmRGzjtRhw9QTRvJ0KMNE9sN7RqKLK/wjOTbR0
+         ze0K4mY+siE80ZYGdCFyj5fcVc/tER/4FQYJnm/LG1IE2JmtmB+L+EDdD93plmDbOT
+         du6vLsLK2S6IIEku5xngpqCJKauULlg/U/LFlNjHCOu+HtyXVzlxkE8IsVY2wZMe+8
+         rDhYakUxcDXcf05AQGHpAX84l3Xa/U9F0OGH/13wuCux+RljgfU1sGrqIQXBBtZFdg
+         w+oZslObnrF3g==
+Date:   Thu, 12 Oct 2023 09:55:14 -0700
+From:   Saeed Mahameed <saeed@kernel.org>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     Saeed Mahameed <saeedm@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Shay Drory <shayd@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jacob Keller <jacob.e.keller@intel.com>
+Subject: Re: [PATCH net v3] net/mlx5: fix calling mlx5_cmd_init() before DMA
+ mask is set
+Message-ID: <ZSgk8huR9xCUHWBi@x130>
+References: <20231011-mlx5_init_fix-v3-1-787ffb9183c6@linux.ibm.com>
+ <ZSbnUlJT1u3xUIqY@x130>
+ <ZSbvxeLKS8zHltdg@x130>
+ <5e7ec86d690ec5337052742ca75ad2ade23f291e.camel@linux.ibm.com>
+ <ead14a91ffaec7b9e818edf735dbc18510d7915e.camel@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 3/5] net/smc: allow cdc msg send rather than drop it
- with NULL sndbuf_desc
-Content-Language: en-GB
-To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        jaka@linux.ibm.com, wintera@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
- <1697009600-22367-4-git-send-email-alibuda@linux.alibaba.com>
- <5e2efb4b-1d26-4159-a2c7-b0107cb6381c@linux.ibm.com>
- <9f8f7a96-fcb0-3088-6d2f-d7e7d0fc83a1@linux.alibaba.com>
-From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <9f8f7a96-fcb0-3088-6d2f-d7e7d0fc83a1@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: q7HZO0k_fuPjYd-RATOmZrt8Lv4X_j76
-X-Proofpoint-ORIG-GUID: c0urxwtWFHVgYYKy7AKzynSqeqhVINgp
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-10-12_05,2023-10-12_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
- spamscore=0 lowpriorityscore=0 mlxscore=0 malwarescore=0
- priorityscore=1501 bulkscore=0 clxscore=1015 adultscore=0 mlxlogscore=999
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2310120125
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <ead14a91ffaec7b9e818edf735dbc18510d7915e.camel@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 12.10.23 04:49, D. Wythe wrote:
-> 
-> 
-> On 10/12/23 4:37 AM, Wenjia Zhang wrote:
+On 12 Oct 13:39, Niklas Schnelle wrote:
+>On Thu, 2023-10-12 at 12:53 +0200, Niklas Schnelle wrote:
+>> On Wed, 2023-10-11 at 11:56 -0700, Saeed Mahameed wrote:
+>> > On 11 Oct 11:20, Saeed Mahameed wrote:
+>> > > On 11 Oct 09:57, Niklas Schnelle wrote:
+>> > > > Since commit 06cd555f73ca ("net/mlx5: split mlx5_cmd_init() to probe and
+>> > > > reload routines") mlx5_cmd_init() is called in mlx5_mdev_init() which is
+>> > > > called in probe_one() before mlx5_pci_init(). This is a problem because
+>> > > > mlx5_pci_init() is where the DMA and coherent mask is set but
+>> > > > mlx5_cmd_init() already does a dma_alloc_coherent(). Thus a DMA
+>> > > > allocation is done during probe before the correct mask is set. This
+>> > > > causes probe to fail initialization of the cmdif SW structs on s390x
+>> > > > after that is converted to the common dma-iommu code. This is because on
+>> > > > s390x DMA addresses below 4 GiB are reserved on current machines and
+>> > > > unlike the old s390x specific DMA API implementation common code
+>> > > > enforces DMA masks.
+>> > > >
+>> > > > Fix this by moving set_dma_caps() out of mlx5_pci_init() and into
+>> > > > probe_one() before mlx5_mdev_init(). To match the overall naming scheme
+>> > > > rename it to mlx5_dma_init().
+>> > >
+>> > > How about we just call mlx5_pci_init() before mlx5_mdev_init(), instead of
+>> > > breaking it apart ?
+>> >
+>> > I just posted this RFC patch [1]:
 >>
+>> This patch works to solve the problem as well.
 >>
->> On 11.10.23 09:33, D. Wythe wrote:
->>> From: "D. Wythe" <alibuda@linux.alibaba.com>
->>>
->>> This patch re-fix the issues memtianed by commit 22a825c541d7
->>> ("net/smc: fix NULL sndbuf_desc in smc_cdc_tx_handler()").
->>>
->>> Blocking sending message do solve the issues though, but it also
->>> prevents the peer to receive the final message. Besides, in logic,
->>> whether the sndbuf_desc is NULL or not have no impact on the processing
->>> of cdc message sending.
->>>
->> Agree.
+>> >
+>> > I am working in very limited conditions these days, and I don't have strong
+>> > opinion on which approach to take, Leon, Niklas, please advise.
+>> >
+>> > The three possible solutions:
+>> >
+>> > 1) mlx5_pci_init() before mlx5_mdev_init(), I don't think enabling pci
+>> > before initializing cmd dma would be a problem.
+>> >
+>> > 2) This patch.
+>> >
+>> > 3) Shay's patch from the link below:
+>> > [1] https://patchwork.kernel.org/project/netdevbpf/patch/20231011184511.19818-1-saeed@kernel.org/
+>> >
+>> > Thanks,
+>> > Saeed.
 >>
->>> Hence that, this patch allow the cdc message sending but to check the
->>> sndbuf_desc with care in smc_cdc_tx_handler().
->>>
->>> Fixes: 22a825c541d7 ("net/smc: fix NULL sndbuf_desc in 
->>> smc_cdc_tx_handler()")
->>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
->>> ---
->>>   net/smc/smc_cdc.c | 9 ++++-----
->>>   1 file changed, 4 insertions(+), 5 deletions(-)
->>>
->>> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
->>> index 01bdb79..3c06625 100644
->>> --- a/net/smc/smc_cdc.c
->>> +++ b/net/smc/smc_cdc.c
->>> @@ -28,13 +28,15 @@ static void smc_cdc_tx_handler(struct 
->>> smc_wr_tx_pend_priv *pnd_snd,
->>>   {
->>>       struct smc_cdc_tx_pend *cdcpend = (struct smc_cdc_tx_pend 
->>> *)pnd_snd;
->>>       struct smc_connection *conn = cdcpend->conn;
->>> +    struct smc_buf_desc *sndbuf_desc;
->>>       struct smc_sock *smc;
->>>       int diff;
->>>   +    sndbuf_desc = conn->sndbuf_desc;
->>>       smc = container_of(conn, struct smc_sock, conn);
->>>       bh_lock_sock(&smc->sk);
->>> -    if (!wc_status) {
->>> -        diff = smc_curs_diff(cdcpend->conn->sndbuf_desc->len,
->>> +    if (!wc_status && sndbuf_desc) {
->>> +        diff = smc_curs_diff(sndbuf_desc->len,
->> How could this guarantee that the sndbuf_desc would not be NULL?
+>> My first gut feeling was option 1) but I'm just as happy with 2) or 3).
+>> For me option 2 is the least invasive but not by much.
 >>
-> 
-> It can not guarantee he sndbuf_desc would not be NULL, but it will prevents
-> the smc_cdc_tx_handler() to access a NULL sndbuf_desc. So that we
-> can avoid the panic descried in commit 22a825c541d7
-> ("net/smc: fix NULL sndbuf_desc in smc_cdc_tx_handler()").
-> 
-got it, thanks!
+>> For me the important thing is what Jason also said yesterday. We need
+>> to merge something now to unbreak linux-next on s390x and to make sure
+>> we don't end up with a broken v6.7-rc1. This is already hampering our
+>> CI tests with linux-next. So let's do whatever can be merged the
+>> quickest and then feel free to do any refactoring ideas that this
+>> discussion might have spawned on top of that. My guess for this
+>> criteria would be 2).
+>>
+>> Thanks,
+>> Niklas
+>>
+>
+>Looking closer at the patch from Shay I do like that it changes the
+>order in the disable/tear down path too. So since that also fixes a PPC
+>issue I guess that may indeed be the best solution if we can get it
+>merged quickly. I'll comment with my Tested-by there too.
+>
 
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+Ack, will take Shay's patch then, Will add your Test-by and 
+Reviewed-by.
 
->>> &cdcpend->conn->tx_curs_fin,
->>>                        &cdcpend->cursor);
->>>           /* sndbuf_space is decreased in smc_sendmsg */
->>> @@ -114,9 +116,6 @@ int smc_cdc_msg_send(struct smc_connection *conn,
->>>       union smc_host_cursor cfed;
->>>       int rc;
->>>   -    if (unlikely(!READ_ONCE(conn->sndbuf_desc)))
->>> -        return -ENOBUFS;
->>> -
->>>       smc_cdc_add_pending_send(conn, pend);
->>>         conn->tx_cdc_seq++;
-> 
+>Thanks,
+>Niklas
