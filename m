@@ -2,232 +2,128 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99B6CCDB482
-	for <linux-s390@archiver.kernel.org>; Fri, 13 Oct 2023 12:27:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD723C41513
+	for <linux-s390@archiver.kernel.org>; Fri, 13 Oct 2023 21:03:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231339AbjJMM1h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 Oct 2023 08:27:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48400 "EHLO
+        id S231553AbjJMVD1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 Oct 2023 17:03:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231283AbjJMM1g (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 Oct 2023 08:27:36 -0400
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 580EFBD;
-        Fri, 13 Oct 2023 05:27:33 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0Vu2UsWU_1697200049;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0Vu2UsWU_1697200049)
-          by smtp.aliyun-inc.com;
-          Fri, 13 Oct 2023 20:27:30 +0800
-Date:   Fri, 13 Oct 2023 20:27:29 +0800
-From:   Dust Li <dust.li@linux.alibaba.com>
-To:     Wenjia Zhang <wenjia@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        jaka@linux.ibm.com, wintera@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net 1/5] net/smc: fix dangling sock under state
- SMC_APPFINCLOSEWAIT
-Message-ID: <20231013122729.GU92403@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
- <1697009600-22367-2-git-send-email-alibuda@linux.alibaba.com>
- <e63b546f-b993-4e42-8269-e4d9afa5b845@linux.ibm.com>
- <f8089b26-bb11-f82d-8070-222b1f8c1db1@linux.alibaba.com>
- <745d3174-f497-4d6a-ba13-1074128ad99d@linux.ibm.com>
- <20231013053214.GT92403@linux.alibaba.com>
- <6666db42-a4de-425e-a96d-bfa899ab265e@linux.ibm.com>
+        with ESMTP id S229679AbjJMVDZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 Oct 2023 17:03:25 -0400
+Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15B3AB7;
+        Fri, 13 Oct 2023 14:03:21 -0700 (PDT)
+Received: by mail-yb1-xb31.google.com with SMTP id 3f1490d57ef6-d9ac43d3b71so2385538276.0;
+        Fri, 13 Oct 2023 14:03:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1697231000; x=1697835800; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JtiOVCn2uSsz0FoSYRDQt6Ad/oEEDkzUyvmWznVzlSA=;
+        b=azcdS5mk3fTak+nb/eug5AYpCwxC5kpdPWDxsTbKwRaTZsnLV+Lx6RGqcJnIyUdE7E
+         i8mcurTG2K1UAzdKUEP1S6mdqR+ibq2oLmQ3X9nYbM0kG2dZD3+5jy7tWcqTlQuPlXEn
+         YxekVNV3znDqK079lRSP9QXygD9u0NmyD1tg7EsKIgxZZ9rwNdXqbYT+ovXnVO/ci831
+         mgB/pG84f12ARASoT4IyPoOJNm6RHJASuCu6rXvY9sR+TJqwnt77yCRbkYhGzdUBrhXd
+         8X5ZM+bDS4cgt/tdAP3JdjHz4hcbnQ2wJko+oS911py/MlPJdtAAXbYPgvNL5+6cI/+s
+         ivbA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1697231000; x=1697835800;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=JtiOVCn2uSsz0FoSYRDQt6Ad/oEEDkzUyvmWznVzlSA=;
+        b=EoOdS6t9q5onboOSajiihDPwrOvD9jjmmZ0TIdOI+n9UUe11Qay6YbTt3flkCOKUJQ
+         ARCPDnwSv6Bs3VDI5IxdZzbQJCIQeqxrf3xuzq1iuv5bwBBeLK+nEebUyPBjCUySqrIR
+         0J68695SPTegha0BBJICgKu6KzXmAdwngFFH/rOG0W2o+RGqynfvOSZaggW1LjGxFCjS
+         3yslMQT6PQGUZSF7jsbLXGalqj48rkF+6H8UV7eBkF7tvXblE7/vRwBvtycqMznRcLJh
+         3l7WnU9pim0Tk9jgbHQv0qJQYzmiG5GIStf3RfL1H0Tt/MyisN30fssYiGCIRgg/Takh
+         049g==
+X-Gm-Message-State: AOJu0YwuMAUa/Yms10yiEquu3Ujskw3v3j1JidWpHUt+4pt3l+aT8B3W
+        QwBTXNyvRLeShvHZLvHa5uEIsTYwQeSGzw8QLec=
+X-Google-Smtp-Source: AGHT+IHWHj9ILTPWExZ8ekeA0/ryyRW0ZV6k5VhEVnOo+k5EpZsvEbKt/nom23K7vTTS2zHZvjjk2tEmm58T8MLLm1U=
+X-Received: by 2002:a5b:64d:0:b0:d9b:3b3e:5a07 with SMTP id
+ o13-20020a5b064d000000b00d9b3b3e5a07mr2004058ybq.5.1697230999223; Fri, 13 Oct
+ 2023 14:03:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <6666db42-a4de-425e-a96d-bfa899ab265e@linux.ibm.com>
+References: <20230807230513.102486-1-vishal.moola@gmail.com>
+ <20230807230513.102486-15-vishal.moola@gmail.com> <20231012072505.6160-A-hca@linux.ibm.com>
+In-Reply-To: <20231012072505.6160-A-hca@linux.ibm.com>
+From:   Vishal Moola <vishal.moola@gmail.com>
+Date:   Fri, 13 Oct 2023 14:03:08 -0700
+Message-ID: <CAOzc2px-SFSnmjcPriiB3cm1fNj3+YC8S0VSp4t1QvDR0f4E2A@mail.gmail.com>
+Subject: Re: [PATCH mm-unstable v9 14/31] s390: Convert various pgalloc
+ functions to use ptdescs
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        xen-devel@lists.xenproject.org, kvm@vger.kernel.org,
+        Hugh Dickins <hughd@google.com>,
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Mike Rapoport <rppt@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Oct 13, 2023 at 01:52:09PM +0200, Wenjia Zhang wrote:
+On Thu, Oct 12, 2023 at 12:25=E2=80=AFAM Heiko Carstens <hca@linux.ibm.com>=
+ wrote:
 >
+> On Mon, Aug 07, 2023 at 04:04:56PM -0700, Vishal Moola (Oracle) wrote:
+> > As part of the conversions to replace pgtable constructor/destructors w=
+ith
+> > ptdesc equivalents, convert various page table functions to use ptdescs=
+.
+> >
+> > Some of the functions use the *get*page*() helper functions. Convert
+> > these to use pagetable_alloc() and ptdesc_address() instead to help
+> > standardize page tables further.
+> >
+> > Acked-by: Mike Rapoport (IBM) <rppt@kernel.org>
+> > Signed-off-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> > ---
+> >  arch/s390/include/asm/pgalloc.h |   4 +-
+> >  arch/s390/include/asm/tlb.h     |   4 +-
+> >  arch/s390/mm/pgalloc.c          | 128 ++++++++++++++++----------------
+> >  3 files changed, 69 insertions(+), 67 deletions(-)
+> ...
+> > diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
+> > index d7374add7820..07fc660a24aa 100644
+> > --- a/arch/s390/mm/pgalloc.c
+> > +++ b/arch/s390/mm/pgalloc.c
+> ...
+> > @@ -488,16 +486,20 @@ static void base_pgt_free(unsigned long *table)
+> >  static unsigned long *base_crst_alloc(unsigned long val)
+> >  {
+> >       unsigned long *table;
+> > +     struct ptdesc *ptdesc;
+> >
+> > -     table =3D (unsigned long *)__get_free_pages(GFP_KERNEL, CRST_ALLO=
+C_ORDER);
+> > -     if (table)
+> > -             crst_table_init(table, val);
+> > +     ptdesc =3D pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM, CRST_ALLO=
+C_ORDER);
 >
->On 13.10.23 07:32, Dust Li wrote:
->> On Thu, Oct 12, 2023 at 01:51:54PM +0200, Wenjia Zhang wrote:
->> > 
->> > 
->> > On 12.10.23 04:37, D. Wythe wrote:
->> > > 
->> > > 
->> > > On 10/12/23 4:31 AM, Wenjia Zhang wrote:
->> > > > 
->> > > > 
->> > > > On 11.10.23 09:33, D. Wythe wrote:
->> > > > > From: "D. Wythe" <alibuda@linux.alibaba.com>
->> > > > > 
->> > > > > Considering scenario:
->> > > > > 
->> > > > >                  smc_cdc_rx_handler_rwwi
->> > > > > __smc_release
->> > > > >                  sock_set_flag
->> > > > > smc_close_active()
->> > > > > sock_set_flag
->> > > > > 
->> > > > > __set_bit(DEAD)            __set_bit(DONE)
->> > > > > 
->> > > > > Dues to __set_bit is not atomic, the DEAD or DONE might be lost.
->> > > > > if the DEAD flag lost, the state SMC_CLOSED  will be never be reached
->> > > > > in smc_close_passive_work:
->> > > > > 
->> > > > > if (sock_flag(sk, SOCK_DEAD) &&
->> > > > >      smc_close_sent_any_close(conn)) {
->> > > > >      sk->sk_state = SMC_CLOSED;
->> > > > > } else {
->> > > > >      /* just shutdown, but not yet closed locally */
->> > > > >      sk->sk_state = SMC_APPFINCLOSEWAIT;
->> > > > > }
->> > > > > 
->> > > > > Replace sock_set_flags or __set_bit to set_bit will fix this problem.
->> > > > > Since set_bit is atomic.
->> > > > > 
->> > > > I didn't really understand the scenario. What is
->> > > > smc_cdc_rx_handler_rwwi()? What does it do? Don't it get the lock
->> > > > during the runtime?
->> > > > 
->> > > 
->> > > Hi Wenjia,
->> > > 
->> > > Sorry for that, It is not smc_cdc_rx_handler_rwwi() but
->> > > smc_cdc_rx_handler();
->> > > 
->> > > Following is a more specific description of the issues
->> > > 
->> > > 
->> > > lock_sock()
->> > > __smc_release
->> > > 
->> > > smc_cdc_rx_handler()
->> > > smc_cdc_msg_recv()
->> > > bh_lock_sock()
->> > > smc_cdc_msg_recv_action()
->> > > sock_set_flag(DONE) sock_set_flag(DEAD)
->> > > __set_bit __set_bit
->> > > bh_unlock_sock()
->> > > release_sock()
->> > > 
->> > > 
->> > > 
->> > > Note : |bh_lock_sock|and |lock_sock|are not mutually exclusive. They are
->> > > actually used for different purposes and contexts.
->> > > 
->> > > 
->> > ok, that's true that |bh_lock_sock|and |lock_sock|are not really mutually
->> > exclusive. However, since bh_lock_sock() is used, this scenario you described
->> > above should not happen, because that gets the sk_lock.slock. Following this
->> > scenarios, IMO, only the following situation can happen.
->> > 
->> > lock_sock()
->> > __smc_release
->> > 
->> > smc_cdc_rx_handler()
->> > smc_cdc_msg_recv()
->> > bh_lock_sock()
->> > smc_cdc_msg_recv_action()
->> > sock_set_flag(DONE)
->> > bh_unlock_sock()
->> > sock_set_flag(DEAD)
->> > release_sock()
->> 
->> Hi wenjia,
->> 
->> I think I know what D. Wythe means now, and I think he is right on this.
->> 
->> IIUC, in process context, lock_sock() won't respect bh_lock_sock() if it
->> acquires the lock before bh_lock_sock(). This is how the sock lock works.
->> 
->>      PROCESS CONTEXT                                 INTERRUPT CONTEXT
->> ------------------------------------------------------------------------
->> lock_sock()
->>      spin_lock_bh(&sk->sk_lock.slock);
->>      ...
->>      sk->sk_lock.owned = 1;
->>      // here the spinlock is released
->>      spin_unlock_bh(&sk->sk_lock.slock);
->> __smc_release()
->>                                                     bh_lock_sock(&smc->sk);
->>                                                     smc_cdc_msg_recv_action(smc, cdc);
->>                                                         sock_set_flag(&smc->sk, SOCK_DONE);
->>                                                     bh_unlock_sock(&smc->sk);
->> 
->>      sock_set_flag(DEAD)  <-- Can be before or after sock_set_flag(DONE)
->> release_sock()
->> 
->> The bh_lock_sock() only spins on sk->sk_lock.slock, which is already released
->> after lock_sock() return. Therefor, there is actually no lock between
->> the code after lock_sock() and before release_sock() with bh_lock_sock()...bh_unlock_sock().
->> Thus, sock_set_flag(DEAD) won't respect bh_lock_sock() at all, and might be
->> before or after sock_set_flag(DONE).
->> 
->> 
->> Actually, in TCP, the interrupt context will check sock_owned_by_user().
->> If it returns true, the softirq just defer the process to backlog, and process
->> that in release_sock(). Which avoid the race between softirq and process
->> when visiting the 'struct sock'.
->> 
->> tcp_v4_rcv()
->>           bh_lock_sock_nested(sk);
->>           tcp_segs_in(tcp_sk(sk), skb);
->>           ret = 0;
->>           if (!sock_owned_by_user(sk)) {
->>                   ret = tcp_v4_do_rcv(sk, skb);
->>           } else {
->>                   if (tcp_add_backlog(sk, skb, &drop_reason))
->>                           goto discard_and_relse;
->>           }
->>           bh_unlock_sock(sk);
->> 
->> 
->> But in SMC we don't have a backlog, that means fields in 'struct sock'
->> might all have race, and this sock_set_flag() is just one of the cases.
->> 
->> Best regards,
->> Dust
->> 
->I agree on your description above.
->Sure, the following case 1) can also happen
->
->case 1)
->-------
-> lock_sock()
-> __smc_release
->
-> sock_set_flag(DEAD)
-> bh_lock_sock()
-> smc_cdc_msg_recv_action()
-> sock_set_flag(DONE)
-> bh_unlock_sock()
-> release_sock()
->
->case 2)
->-------
-> lock_sock()
-> __smc_release
->
-> bh_lock_sock()
-> smc_cdc_msg_recv_action()
-> sock_set_flag(DONE) sock_set_flag(DEAD)
-> __set_bit __set_bit
-> bh_unlock_sock()
-> release_sock()
->
->My point here is that case2) can never happen. i.e that sock_set_flag(DONE)
->and sock_set_flag(DEAD) can not happen concurrently. Thus, how could
->the atomic set help make sure that the Dead flag would not be overwritten
->with DONE?
+> I guess I must miss something, but what is the reason to mask out
+> __GFP_HIGHMEM here? It is not part of GFP_KERNEL, nor does s390 support
+> HIGHMEM.
 
-I agree with you on this. I also don't see using atomic can
-solve the problem of overwriting the DEAD flag with DONE.
+You're not missing anything.
 
-I think we need some mechanisms to ensure that sk_flags and other
-struct sock related fields are not modified simultaneously.
-
-Best regards,
-Dust
-
-
+This was replacing __get_free_pages() which also doesn't support HIGHMEM,
+so I had that in to ensure a non-HIGHMEM allocation in case a
+passed-in gfp_flags
+had it set. In hindsight since we're just passing in the GFP flags
+directly here, we don't
+actually need to mask out GFP_HIGHMEM.
