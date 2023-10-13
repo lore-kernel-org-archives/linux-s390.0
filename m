@@ -2,109 +2,116 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A39ECDB483
-	for <linux-s390@archiver.kernel.org>; Fri, 13 Oct 2023 08:38:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F478CDB47E
+	for <linux-s390@archiver.kernel.org>; Fri, 13 Oct 2023 09:18:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230075AbjJMIiz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 13 Oct 2023 04:38:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44784 "EHLO
+        id S230380AbjJMJSd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 13 Oct 2023 05:18:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230194AbjJMIix (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 Oct 2023 04:38:53 -0400
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4B43C2;
-        Fri, 13 Oct 2023 01:38:51 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R911e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0Vu1XK7x_1697186328;
-Received: from 30.221.100.207(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0Vu1XK7x_1697186328)
-          by smtp.aliyun-inc.com;
-          Fri, 13 Oct 2023 16:38:49 +0800
-Message-ID: <1b317491-5995-4277-bcad-455bece62666@linux.alibaba.com>
-Date:   Fri, 13 Oct 2023 16:38:46 +0800
+        with ESMTP id S230369AbjJMJSc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 Oct 2023 05:18:32 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C54395;
+        Fri, 13 Oct 2023 02:18:30 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39D9ERmZ032594;
+        Fri, 13 Oct 2023 09:18:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=LAuOu56vhQ61V5HtfuNWXmXEsG8RHTg2aOXfBU6PuLM=;
+ b=PWmJ6L1HytkNjFaBw8+KyE3QmhhON0LZpLx3/lT/fDv+N91fkiSADCnIXalxxmGifgQO
+ D/qTqpixiiml5XbxKxaEjMy8vtdEW0k/Rof60OXnwAufPeXpbOwaoBOX+JDlomWcmKWy
+ ZZNoplskUN/q/of1TQYR+XneOkJEbkMdHyw0lUPTcy56fsehyUfN2iWHAqzfilrUoYwg
+ 3PiS26XJvScCl4DgKN7PXlvtZJ3wxH8fq2A1hL+8qtrcoqkuQOVM9EMru15wD3hl9LNe
+ xVi8ymiEn/QdWKHZK6sWxHa0wQp71B2F3nurhD1l3deyRg7vdU2FB+5nXhVDJ4B3Mt/D vQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tq339g55c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 Oct 2023 09:18:18 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39D9GXRc009097;
+        Fri, 13 Oct 2023 09:18:18 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tq339g54f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 Oct 2023 09:18:18 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39D8KZsv009102;
+        Fri, 13 Oct 2023 09:18:17 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tpt57jvmv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 Oct 2023 09:18:17 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39D9IEVc47513976
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 13 Oct 2023 09:18:14 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5004C20043;
+        Fri, 13 Oct 2023 09:18:14 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ACA5820040;
+        Fri, 13 Oct 2023 09:18:13 +0000 (GMT)
+Received: from li-978a334c-2cba-11b2-a85c-a0743a31b510.ibm.com (unknown [9.171.74.130])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 13 Oct 2023 09:18:13 +0000 (GMT)
+Message-ID: <2172cf228f38150844ddf1af9e4f453238d85a29.camel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH 4/9] s390x: topology: Don't use non
+ unique message
+From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Thomas Huth <thuth@redhat.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Andrew Jones <andrew.jones@linux.dev>,
+        Colton Lewis <coltonlewis@google.com>,
+        Nikos Nikoleris <nikos.nikoleris@arm.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Shaoqin Huang <shahuang@redhat.com>
+Date:   Fri, 13 Oct 2023 11:18:13 +0200
+In-Reply-To: <169718501727.15841.5127785267238990595@t14-nrb>
+References: <20231011085635.1996346-1-nsg@linux.ibm.com>
+         <20231011085635.1996346-5-nsg@linux.ibm.com>
+         <169718501727.15841.5127785267238990595@t14-nrb>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net/smc: return the right falback reason when prefix
- checks fail
-Content-Language: en-US
-To:     Wen Gu <guwen@linux.alibaba.com>,
-        Dust Li <dust.li@linux.alibaba.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20231012123729.29307-1-dust.li@linux.alibaba.com>
- <f54560ac-03fd-1a91-e38b-0e67b2c7959d@linux.alibaba.com>
-From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <f54560ac-03fd-1a91-e38b-0e67b2c7959d@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: DQFt8axMDffZIztpenYQEX7ufnk8LA7B
+X-Proofpoint-ORIG-GUID: KLnICVFCtl92vpPcgn0bLzfA-93a0w1M
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-13_03,2023-10-12_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ adultscore=0 mlxlogscore=935 lowpriorityscore=0 phishscore=0 clxscore=1015
+ mlxscore=0 spamscore=0 priorityscore=1501 malwarescore=0 impostorscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2309180000
+ definitions=main-2310130075
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Fri, 2023-10-13 at 10:16 +0200, Nico Boehr wrote:
+> Quoting Nina Schoetterl-Glausch (2023-10-11 10:56:27)
+> > When we test something, i.e. do a report() we want unique messages,
+> > otherwise, from the test output, it will appear as if the same test was
+> > run multiple times, possible with different PASS/FAIL values.
+> >=20
+> > Convert some reports that don't actually test anything topology specifi=
+c
+> > into asserts.
+> > Refine the report message for others.
+> >=20
+> > Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+>=20
+> There is still the "TLE: reserved bits 0000000000000000" message which ma=
+y
+> be duplicate, but I think you fix that in a later patch.
+>=20
+> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
 
-
-On 2023/10/13 16:00, Wen Gu wrote:
-> 
-> 
-> On 2023/10/12 20:37, Dust Li wrote:
-> 
->> In the smc_listen_work(), if smc_listen_prfx_check() failed,
->> the real reason: SMC_CLC_DECL_DIFFPREFIX was dropped, and
->> SMC_CLC_DECL_NOSMCDEV was returned.
->>
->> Althrough this is also kind of SMC_CLC_DECL_NOSMCDEV, but return
->> the real reason is much friendly for debugging.
->>
->> Fixes: e49300a6bf62 ("net/smc: add listen processing for SMC-Rv2")
->> Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
->> ---
->>   net/smc/af_smc.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
->> index bacdd971615e..21d4476b937b 100644
->> --- a/net/smc/af_smc.c
->> +++ b/net/smc/af_smc.c
->> @@ -2361,7 +2361,7 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
->>           smc_find_ism_store_rc(rc, ini);
->>           return (!rc) ? 0 : ini->rc;
->>       }
->> -    return SMC_CLC_DECL_NOSMCDEV;
->> +    return prfx_rc;
->>   }
->>     /* listen worker: finish RDMA setup */
-> Inspired by this fix, I am thinking that is it suitable to store the first
-> decline reason rather than real decline reason that caused the return of
-> smc_listen_find_device()?
-> 
-> For example, when running SMC between two peers with only RDMA devices. Then
-> in smc_listen_find_device():
-> 
-> 1. call smc_find_ism_v2_device_serv() and find that no ISMv2 can be used.
->    the reason code will be stored as SMC_CLC_DECL_NOSMCD2DEV.
-> 
-> ...
-> 
-> 2. call smc_find_rdma_v1_device_serv() and find a RDMA device, but somehow
->    it failed to create buffers. It should inform users that SMC_CLC_DECL_MEM
->    occurs, but now the reason code returned SMC_CLC_DECL_NOSMCD2DEV.
-> 
-> I think users may be confused that why peer declines with this reason and
-> wonder what happens when trying to use SMC-R.
-
-Yes, the reason code here also makes me confused.
-I think it is caused by not correctly using the function smc_find_ism_store_rc.
-I'm working for the fix.
-
-> 
-> 
-> Thanks,
-> Wen Gu
-> 
+Yes, this isn't comprehensive, the rewrite takes care of the rest.
