@@ -2,135 +2,76 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C8CCC41513
-	for <linux-s390@archiver.kernel.org>; Sat, 14 Oct 2023 08:42:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F2C0C46CA1
+	for <linux-s390@archiver.kernel.org>; Sat, 14 Oct 2023 09:09:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232750AbjJNImE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 14 Oct 2023 04:42:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35218 "EHLO
+        id S232977AbjJNJJS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 14 Oct 2023 05:09:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232981AbjJNImE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 14 Oct 2023 04:42:04 -0400
+        with ESMTP id S231377AbjJNJJS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 14 Oct 2023 05:09:18 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26EF8CF;
-        Sat, 14 Oct 2023 01:42:02 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4D53C433CC;
-        Sat, 14 Oct 2023 08:42:01 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27AC5BF;
+        Sat, 14 Oct 2023 02:09:17 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB373C433C8;
+        Sat, 14 Oct 2023 09:09:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1697272921;
-        bh=G4Swg/OELkKA5zlwNUrWJdm9EBLT0JpHuSiYFDVKAVw=;
+        s=k20201202; t=1697274556;
+        bh=QMKGeVOd3CQqoQwVajdhLaEh2KmBVSf8R3WFPYadptc=;
         h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=K+yp/KOZHEM3arVfGghtli0iELZWZqeBdZQjVLVWAUiNiyjaLooZNU+qmDCQBd7ul
-         wJaBzeZOVlPFEUG5h5tlObcnYkX0avwfR0zxFXrVQEiQDnBc/Lml9dt/p9dThylmIB
-         6dy7VAWjVXsKM31JLEaZWzS991xED7EXyxYEqup8PHhHUWT6i4XXZP3blNDWD9gE4P
-         HBZnzVjpf+964c0m1gsJz512u75AQxj5sGo0kVtbsfwjz6xNJ/scm1p3BONbVF4ExA
-         K1tnbxCnRJlB0L9unW/GUHbyPmh79PM5kqNhJnIfBbfDsshHj4MN11rBcR3rT09vWo
-         iM+Y47HqeqnfA==
-Received: by mail-oa1-f54.google.com with SMTP id 586e51a60fabf-1e12f41e496so1689244fac.3;
-        Sat, 14 Oct 2023 01:42:01 -0700 (PDT)
-X-Gm-Message-State: AOJu0Yz4FCxjo8rnzI9SUZWLZiNWUksnpsU8wpWJrHegCFqAKgy8qbpN
-        b6VpC3Sujat6zTsBAlc5WTJ1PeSa0Fe2M75/tcU=
-X-Google-Smtp-Source: AGHT+IEDHn8hDctpEgrOdAxDg4ZGS+fyZbcsCWC8+bRNQUrpKMWoTdaHrZNdtFPEOiGiKHQudHJYv6z04ih1iicSLkY=
-X-Received: by 2002:a05:6870:7687:b0:1e9:d6c8:d031 with SMTP id
- dx7-20020a056870768700b001e9d6c8d031mr4746345oab.26.1697272921007; Sat, 14
- Oct 2023 01:42:01 -0700 (PDT)
+        b=HZWvF6fhPJyRBXJV6sf2vMWNoPu/ZNCKgiUmo0OQXjc/z03PSmpR6MbeNUKEdo1w4
+         m8QBx2FruJm9mxg+hHrr6iGRH1hB/t61ooXfrX8ZKg2vICkEBGpyBHJSXPP7pNVf8P
+         /Nv1p7C0+uXxUjchzbq98DaDOoQcTu9SkfzuaTJwIf6JwPx3/dmQugsWZqfDx77sVv
+         L2B3sqkAwG12YedKz3eeTDZcqR+B+eIVo06uwynAjrqQFqsVwza8dzmdhq3n5hpCxH
+         O2BHBQAx05gFteBHw94KFS986YvVFSjOlg2SRCQXiWF4MkjoSCwGINQSDuMzAldz+3
+         VCq8BYKf+YD3Q==
+Received: by mail-oa1-f42.google.com with SMTP id 586e51a60fabf-1e9baf16a86so1426864fac.1;
+        Sat, 14 Oct 2023 02:09:16 -0700 (PDT)
+X-Gm-Message-State: AOJu0YyaUxcAhjCog6pLv8U1QVblb2HpPSBZ1p9Dbv6CZEtgLczxHWik
+        yuugxxmAP3mw2M0BXXkN3RIoQB7uPiuPPduhr4M=
+X-Google-Smtp-Source: AGHT+IHedrA3UMSJSZgJvBvP0ejVRXx5lRC+UJuOuF1WIWquOiHBeVkX9c2aoRHTFlsXmzRC+2SAleIJLiufg2NmOCc=
+X-Received: by 2002:a05:6870:a99a:b0:1d5:c417:503e with SMTP id
+ ep26-20020a056870a99a00b001d5c417503emr32560193oab.57.1697274556176; Sat, 14
+ Oct 2023 02:09:16 -0700 (PDT)
 MIME-Version: 1.0
-References: <20231009124210.1064021-1-masahiroy@kernel.org>
- <20231009124210.1064021-5-masahiroy@kernel.org> <20231009164424.GB1153868@dev-arch.thelio-3990X>
-In-Reply-To: <20231009164424.GB1153868@dev-arch.thelio-3990X>
+References: <20231009124210.1064021-1-masahiroy@kernel.org> <CAJF2gTQxiCEyGiGieHJMBK0Hmj49f8mdcm1TwsTZbgbvxVxGcw@mail.gmail.com>
+In-Reply-To: <CAJF2gTQxiCEyGiGieHJMBK0Hmj49f8mdcm1TwsTZbgbvxVxGcw@mail.gmail.com>
 From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Sat, 14 Oct 2023 17:41:25 +0900
-X-Gmail-Original-Message-ID: <CAK7LNASZ78NX13cfGiCeXGxB7A_2CasuAgNv-XzyWM79PD2NwA@mail.gmail.com>
-Message-ID: <CAK7LNASZ78NX13cfGiCeXGxB7A_2CasuAgNv-XzyWM79PD2NwA@mail.gmail.com>
-Subject: Re: [PATCH 5/5] kbuild: unify no-compiler-targets and no-sync-config-targets
-To:     Nathan Chancellor <nathan@kernel.org>
+Date:   Sat, 14 Oct 2023 18:08:40 +0900
+X-Gmail-Original-Message-ID: <CAK7LNAQPupf+iMNxs7gNAAm15Y1Eg8eXuZTWwVai23heZE8FjA@mail.gmail.com>
+Message-ID: <CAK7LNAQPupf+iMNxs7gNAAm15Y1Eg8eXuZTWwVai23heZE8FjA@mail.gmail.com>
+Subject: Re: [PATCH 1/5] csky: remove unused cmd_vdso_install
+To:     Guo Ren <guoren@kernel.org>
 Cc:     linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
         linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
         linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
         loongarch@lists.linux.dev, sparclinux@vger.kernel.org,
-        x86@kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nicolas Schier <nicolas@fjasle.eu>
+        x86@kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Oct 10, 2023 at 1:44=E2=80=AFAM Nathan Chancellor <nathan@kernel.or=
-g> wrote:
+On Tue, Oct 10, 2023 at 12:16=E2=80=AFAM Guo Ren <guoren@kernel.org> wrote:
 >
-> On Mon, Oct 09, 2023 at 09:42:10PM +0900, Masahiro Yamada wrote:
-> > Now that vdso_install does not depend on any in-tree build artifact,
-> > it no longer invokes a compiler, making no-compiler-targets the same
-> > as no-sync-config-targets.
+> On Mon, Oct 9, 2023 at 8:42=E2=80=AFPM Masahiro Yamada <masahiroy@kernel.=
+org> wrote:
 > >
-> > Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> > ---
+> > You cannot run this code because arch/csky/Makefile does not define the
+> > vdso_install target.
 > >
-> >  Makefile | 13 +------------
-> >  1 file changed, 1 insertion(+), 12 deletions(-)
-> >
-> > diff --git a/Makefile b/Makefile
-> > index 2170d56630e8..982b1ad33287 100644
-> > --- a/Makefile
-> > +++ b/Makefile
-> > @@ -277,10 +277,6 @@ no-dot-config-targets :=3D $(clean-targets) \
-> >                        $(version_h) headers headers_% archheaders archs=
-cripts \
-> >                        %asm-generic kernelversion %src-pkg dt_binding_c=
-heck \
-> >                        outputmakefile rustavailable rustfmt rustfmtchec=
-k
-> > -# Installation targets should not require compiler. Unfortunately, vds=
-o_install
-> > -# is an exception where build artifacts may be updated. This must be f=
-ixed.
-> > -no-compiler-targets :=3D $(no-dot-config-targets) install dtbs_install=
- \
-> > -                     headers_install modules_install modules_sign kern=
-elrelease image_name
-> >  no-sync-config-targets :=3D $(no-dot-config-targets) %install modules_=
-sign kernelrelease \
-> >                         image_name
-> >  single-targets :=3D %.a %.i %.ko %.lds %.ll %.lst %.mod %.o %.rsi %.s =
-%.symtypes %/
-> > @@ -288,7 +284,6 @@ single-targets :=3D %.a %.i %.ko %.lds %.ll %.lst %=
-.mod %.o %.rsi %.s %.symtypes %
-> >  config-build :=3D
-> >  mixed-build  :=3D
-> >  need-config  :=3D 1
-> > -need-compiler        :=3D 1
-> >  may-sync-config      :=3D 1
-> >  single-build :=3D
-> >
-> > @@ -298,12 +293,6 @@ ifneq ($(filter $(no-dot-config-targets), $(MAKECM=
-DGOALS)),)
-> >       endif
-> >  endif
-> >
-> > -ifneq ($(filter $(no-compiler-targets), $(MAKECMDGOALS)),)
-> > -     ifeq ($(filter-out $(no-compiler-targets), $(MAKECMDGOALS)),)
-> > -             need-compiler :=3D
-> > -     endif
-> > -endif
-> > -
+> > It appears that this code was blindly copied from another architecture.
+> Yes, I do that. Thx for pointing it out.
 >
-> MIPS and LoongArch seem to have grown a usage of need-compiler in
-> 4fe4a6374c4d ("MIPS: Only fiddle with CHECKFLAGS if `need-compiler'")
-> and 54c2c9df083f ("LoongArch: Only fiddle with CHECKFLAGS if
-> `need-compiler'"). With this removal, should those be updated as well?
+> Acked-by: Guo Ren <guoren@kernel.org>
 
 
-Right, but may-sync-config and need-compiler are not
-interchangeable due to the following code.
-
-ifneq ($(KBUILD_EXTMOD),)
-        may-sync-config :=3D
-endif
+Applied to linux-kbuild.
 
 
-I will keep both.
 
 
 --=20
