@@ -2,225 +2,367 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AFFD3CDB465
-	for <linux-s390@archiver.kernel.org>; Mon, 16 Oct 2023 17:55:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F0ACCDB465
+	for <linux-s390@archiver.kernel.org>; Mon, 16 Oct 2023 20:35:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232973AbjJPRzF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 Oct 2023 13:55:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60428 "EHLO
+        id S233768AbjJPUfo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 16 Oct 2023 16:35:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230271AbjJPRzF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Oct 2023 13:55:05 -0400
-Received: from mail-yw1-x1130.google.com (mail-yw1-x1130.google.com [IPv6:2607:f8b0:4864:20::1130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE6929F;
-        Mon, 16 Oct 2023 10:55:02 -0700 (PDT)
-Received: by mail-yw1-x1130.google.com with SMTP id 00721157ae682-59b5484fbe6so59595477b3.1;
-        Mon, 16 Oct 2023 10:55:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1697478902; x=1698083702; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=6bw4UalwD6RTLFekVHi/CP+1fpgIfdUhpzj+EU1oO1Y=;
-        b=Ehnii5Fvv+q37inI2bgPxt/tDJwBITGIAX/JudZB10YG5v4J/xm1zEymVLuCOezk8C
-         wPnZ+OqIoww/SNHoGCE4NDGvneA5ikO3we7X2k7LtvA6i157fBKWcTNS+Ly5bgAYwt4i
-         XRqio5LvVONQdmUHwBii2+OQxjUCLT6Lhp/dAn0ma6e/tzGE0OzqS/FqUd1skNuL60ym
-         AfGkxs6fo1HdGjeVSiyFRTTQib9jjV8EUZRMDXV9m8EBK0xAgDTJZgtMbaMSqguLCZt5
-         4961jUOSki5MharLFidAZ3jRjPB426zzdR3ORzSbXLxdklpiohH+7IRMMJRvI9MH5ao5
-         MFeQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697478902; x=1698083702;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6bw4UalwD6RTLFekVHi/CP+1fpgIfdUhpzj+EU1oO1Y=;
-        b=otrILlBHyA75SqU+D8A5qpt90aoVxL0NJtzfcldtc7UTTyqpVxB8qCaQqNlzeQpg26
-         /uR4cP4IlWSzEnPr0EvbUIKqUP00vC9I5ul7F2WbUgpNnvgMx/YiJLKObmCFufsGiV3o
-         yVNoNVnvsu2OsHIw4q8KvV0DF449ewziIWM2p0adILtkuQTQomKvkaWiRAMbbkslfSnc
-         4GvOm5C8Xhriof0wBUYN6pXH0TdFHevemxEaqa8Yi3eLKfqwsz2EqpJzkQYgtOHSEknX
-         I8FNiLatrJ6NfNklkTDLw26sHVeydbAv+KAo/wixoSiHjiR46je/aItKaw60DD180XDP
-         rgZA==
-X-Gm-Message-State: AOJu0Yyz5wiyf6h7a9XYj6Iz0NbKCAqqvNb5PX8HU9toL/Zd9o+vTD/z
-        GTuDjm7yaSii1MHz6+JRaQA=
-X-Google-Smtp-Source: AGHT+IGTSnIMdj/n4Ja3NbcbsGlcoAWOTqGIDx359ahueXqqmFI98BytrXJ2gg+e90t8fNnGTP3pNA==
-X-Received: by 2002:a05:690c:95:b0:5a8:6286:bee with SMTP id be21-20020a05690c009500b005a862860beemr5534482ywb.4.1697478901928;
-        Mon, 16 Oct 2023 10:55:01 -0700 (PDT)
-Received: from localhost ([2607:fb90:be80:2b9:64a5:5a0e:5435:bd4])
-        by smtp.gmail.com with ESMTPSA id w185-20020a817bc2000000b005a7ab32d454sm2404120ywc.10.2023.10.16.10.54.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Oct 2023 10:55:01 -0700 (PDT)
-Date:   Mon, 16 Oct 2023 10:54:58 -0700
-From:   Yury Norov <yury.norov@gmail.com>
-To:     Alexander Lobakin <aleksander.lobakin@intel.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Alexander Potapenko <glider@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
+        with ESMTP id S234158AbjJPUfm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Oct 2023 16:35:42 -0400
+Received: from tarta.nabijaczleweli.xyz (tarta.nabijaczleweli.xyz [139.28.40.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61876D9;
+        Mon, 16 Oct 2023 13:35:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nabijaczleweli.xyz;
+        s=202305; t=1697488528;
+        bh=hE6P+UeSTjBDi8P6I4RDjWfKNFfmgZelAHcwkGv1j+w=;
+        h=Date:From:Cc:Subject:From;
+        b=Ez7/hijKau5Lfmad7NlihjquU9cwrP/ej/6VcMJq2WKr3BF7vOHThZrRf+f4ze2fE
+         0UJxRSd3M3xfSEEFT1sNJ81b1VeXwXk3W7iaB57CKI+9k2XvDHD+yhfsJIxqUPMYk8
+         X2MPSEPebSOnE4OPysXFmnNTHPORUAWvXghxmidVE3DyXB6+Q8dTi0+xw6qNjAXEB5
+         QXmz+uaXnJ6bqOXXW4dfwoufuHdIJGbf76wsZ6I7ECUE+HOHbjpduO7yRlZa5yjANm
+         +Tqu13HfPBZLLGiZfdcQebVeCj2G6yg/DLgXMZLjIt+PsxkKiBrs0qhHbYYBCKkmvF
+         +lqeTQoelE1lQ==
+Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
+        by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id 66926FC72;
+        Mon, 16 Oct 2023 22:35:28 +0200 (CEST)
+Date:   Mon, 16 Oct 2023 22:35:28 +0200
+From:   Ahelenia =?utf-8?Q?Ziemia=C5=84ska?= 
+        <nabijaczleweli@nabijaczleweli.xyz>
+Cc:     "D. Wythe" <alibuda@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        Alexander Mikhalitsyn <alexander@mihalicyn.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foudation.org>,
+        Boris Pismenny <borisp@nvidia.com>,
+        Christian Brauner <brauner@kernel.org>,
+        Cong Wang <cong.wang@bytedance.com>,
         David Ahern <dsahern@kernel.org>,
-        Przemek Kitszel <przemyslaw.kitszel@intel.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        netdev@vger.kernel.org, linux-btrfs@vger.kernel.org,
-        dm-devel@redhat.com, ntfs3@lists.linux.dev,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 00/13] ip_tunnel: convert __be16 tunnel flags to
- bitmaps
-Message-ID: <ZS148saIsG7WY8ul@yury-ThinkPad>
-References: <20231016165247.14212-1-aleksander.lobakin@intel.com>
+        David Howells <dhowells@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Jan Karcher <jaka@linux.ibm.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Kirill Tkhai <tkhai@ya.ru>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Li kunyu <kunyu@nfschina.com>, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Miklos Szeredi <miklos@szeredi.hu>, netdev@vger.kernel.org,
+        Paolo Abeni <pabeni@redhat.com>,
+        Pengcheng Yang <yangpc@wangsu.com>,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Xu Panda <xu.panda@zte.com.cn>,
+        Zhang Zhengming <zhang.zhengming@h3c.com>
+Subject: [PATCH 00/11] splice(file<>pipe) I/O on file as-if O_NONBLOCK
+Message-ID: <cover.1697486714.git.nabijaczleweli@nabijaczleweli.xyz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="pqm5boxqnux3b3rj"
 Content-Disposition: inline
-In-Reply-To: <20231016165247.14212-1-aleksander.lobakin@intel.com>
+User-Agent: NeoMutt/20231006
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 16, 2023 at 06:52:34PM +0200, Alexander Lobakin wrote:
-> Based on top of "Implement MTE tag compression for swapped pages"[0]
-> from Alexander Potapenko as it uses its bitmap_{read,write}() functions
-> to not introduce another pair of similar ones.
-> 
-> Derived from the PFCP support series[1] as this grew bigger (2 -> 13
-> commits) and involved more core bitmap changes. Only commits 10 and 11
-> are from the mentioned tree, the rest is new. PFCP itself still depends
-> on this series.
-> 
-> IP tunnels have their flags defined as `__be16`, including UAPI, and
-> after GTP was accepted, there are no more free bits left. UAPI (incl.
-> direct usage of one of the user structs) and explicit Endianness only
-> complicate things.
-> Since it would either way end up with hundreds of locs due to all that,
-> pick bitmaps right from the start to store the flags in the most native
-> and scalable format with rich API. I don't think it's worth trying to
-> praise luck and pick smth like u32 only to redo everything in x years :)
-> More details regarding the IP tunnel flags is in 11 and 13.
-> 
-> The rest is just a good bunch of prereqs and tests: a couple of new
-> helpers and extensions to the old ones, a few optimizations to partially
-> mitigate IP tunnel object code growth due to __be16 -> long, and
-> decouping one UAPI struct used throughout the whole kernel into the
-> userspace and the kernel space counterparts to eliminate the dependency.
-> 
-> [0] https://lore.kernel.org/lkml/20231011172836.2579017-1-glider@google.com
-> [1] https://lore.kernel.org/netdev/20230721071532.613888-1-marcin.szycik@linux.intel.com
-> 
-> Alexander Lobakin (13):
->   bitops: add missing prototype check
->   bitops: make BYTES_TO_BITS() treewide-available
->   bitops: let the compiler optimize {__,}assign_bit()
->   linkmode: convert linkmode_{test,set,clear,mod}_bit() to macros
->   s390/cio: rename bitmap_size() -> idset_bitmap_size()
->   fs/ntfs3: add prefix to bitmap_size() and use BITS_TO_U64()
->   btrfs: rename bitmap_set_bits() -> btrfs_bitmap_set_bits()
->   bitmap: introduce generic optimized bitmap_size()
->   bitmap: make bitmap_{get,set}_value8() use bitmap_{read,write}()
->   ip_tunnel: use a separate struct to store tunnel params in the kernel
->   ip_tunnel: convert __be16 tunnel flags to bitmaps
->   lib/bitmap: add compile-time test for __assign_bit() optimization
->   lib/bitmap: add tests for IP tunnel flags conversion helpers
-> 
->  drivers/md/dm-clone-metadata.c                |   5 -
->  drivers/net/bareudp.c                         |  19 ++-
->  .../ethernet/mellanox/mlx5/core/en/tc_tun.h   |   2 +-
->  .../mellanox/mlx5/core/en/tc_tun_encap.c      |   6 +-
->  .../mellanox/mlx5/core/en/tc_tun_geneve.c     |  12 +-
->  .../mellanox/mlx5/core/en/tc_tun_gre.c        |   8 +-
->  .../mellanox/mlx5/core/en/tc_tun_vxlan.c      |   9 +-
->  .../net/ethernet/mellanox/mlx5/core/en_tc.c   |  16 +-
->  .../ethernet/mellanox/mlxsw/spectrum_ipip.c   |  56 ++++---
->  .../ethernet/mellanox/mlxsw/spectrum_ipip.h   |   2 +-
->  .../ethernet/mellanox/mlxsw/spectrum_span.c   |  10 +-
->  .../ethernet/netronome/nfp/flower/action.c    |  27 +++-
->  drivers/net/geneve.c                          |  44 +++---
->  drivers/net/vxlan/vxlan_core.c                |  14 +-
->  drivers/s390/cio/idset.c                      |  12 +-
->  fs/btrfs/free-space-cache.c                   |   8 +-
->  fs/ntfs3/bitmap.c                             |   4 +-
->  fs/ntfs3/fsntfs.c                             |   2 +-
->  fs/ntfs3/index.c                              |  11 +-
->  fs/ntfs3/ntfs_fs.h                            |   4 +-
->  fs/ntfs3/super.c                              |   2 +-
->  include/linux/bitmap.h                        |  46 ++----
->  include/linux/bitops.h                        |  23 +--
->  include/linux/cpumask.h                       |   2 +-
->  include/linux/linkmode.h                      |  27 +---
->  include/linux/netdevice.h                     |   7 +-
->  include/net/dst_metadata.h                    |  10 +-
->  include/net/flow_dissector.h                  |   2 +-
->  include/net/gre.h                             |  70 +++++----
->  include/net/ip6_tunnel.h                      |   4 +-
->  include/net/ip_tunnels.h                      | 136 ++++++++++++++---
->  include/net/udp_tunnel.h                      |   4 +-
->  include/uapi/linux/if_tunnel.h                |  33 ++++
->  kernel/trace/trace_probe.c                    |   2 -
->  lib/math/prime_numbers.c                      |   2 -
->  lib/test_bitmap.c                             | 123 ++++++++++++++-
->  net/bridge/br_vlan_tunnel.c                   |   9 +-
->  net/core/filter.c                             |  26 ++--
->  net/core/flow_dissector.c                     |  20 ++-
->  net/ipv4/fou_bpf.c                            |   2 +-
->  net/ipv4/gre_demux.c                          |   2 +-
->  net/ipv4/ip_gre.c                             | 144 +++++++++++-------
->  net/ipv4/ip_tunnel.c                          | 109 ++++++++-----
->  net/ipv4/ip_tunnel_core.c                     |  82 ++++++----
->  net/ipv4/ip_vti.c                             |  41 +++--
->  net/ipv4/ipip.c                               |  33 ++--
->  net/ipv4/ipmr.c                               |   2 +-
->  net/ipv4/udp_tunnel_core.c                    |   5 +-
->  net/ipv6/addrconf.c                           |   3 +-
->  net/ipv6/ip6_gre.c                            |  85 ++++++-----
->  net/ipv6/ip6_tunnel.c                         |  14 +-
->  net/ipv6/sit.c                                |  38 ++---
->  net/netfilter/ipvs/ip_vs_core.c               |   6 +-
->  net/netfilter/ipvs/ip_vs_xmit.c               |  20 +--
->  net/netfilter/nft_tunnel.c                    |  44 +++---
->  net/openvswitch/flow_netlink.c                |  61 +++++---
->  net/psample/psample.c                         |  26 ++--
->  net/sched/act_tunnel_key.c                    |  36 ++---
->  net/sched/cls_flower.c                        |  27 ++--
->  tools/include/linux/bitmap.h                  |   8 +-
->  tools/include/linux/bitops.h                  |   2 +
->  tools/perf/util/probe-finder.c                |   2 -
->  62 files changed, 1011 insertions(+), 600 deletions(-)
-> 
-> ---
-> Not sure whether it's fine to have that all in one series, but OTOH
-> there's not much stuff I could split (like, 3 commits), it either
-> depends directly (new helpers etc.) or will just generate suboptimal
-> code w/o some of the commits.
-> 
-> I'm also thinking of which tree this would ideally be taken through.
-> The main subject is networking, but most of the commits are generic.
-> My idea is to push this via Yury / bitmaps and then ask the netdev
-> maintainers to pull his tree before they take PFCP (dependent on this
-> one).
 
-Let's wait for more comments, but I'm generally OK with the generic
-part, and have nothing against moving it, or the whole series, through
-bitmap-for-next.
+--pqm5boxqnux3b3rj
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
-Yury
- 
-> >From v1[2]:
->  * 03: convert assign_bit() to a macro as well, saves some bytes and
->    looks more consistent (Yury);
->  * 03: enclose each argument into own pair of braces (Yury);
->  * 06: use generic BITS_TO_U64() while at it (Yury);
->  * 07: pick Acked-by (David);
->  * 08: Acked-by, use bitmap_size() in the code from 05 as well (Yury);
->  * 09: instead of introducing a new pair of functions, use generic
->    bitmap_{read,write}() from [0]. bloat-o-meter shows no regressions
->    from the switch (Yury, also Andy).
-> 
-> Old pfcp -> bitmap changelog:
-> 
-> As for former commits (now 10 and 11), almost all of the changes were
-> suggested by Andy, notably: stop violating bitmap API, use
-> __assign_bit() where appropriate, and add more tests to make sure
-> everything works as expected. Apart from that, add simple wrappers for
-> bitmap_*() used in the IP tunnel code to avoid manually specifying
-> ``__IP_TUNNEL_FLAG_NUM`` each time.
-> 
-> [2] https://lore.kernel.org/lkml/20231009151026.66145-1-aleksander.lobakin@intel.com
-> -- 
-> 2.41.0
+Hi!
+
+As it stands, splice(file -> pipe):
+1. locks the pipe,
+2. does a read from the file,
+3. unlocks the pipe.
+
+For reading from regular files and blcokdevs this makes no difference.
+But if the file is a tty or a socket, for example, this means that until
+data appears, which it may never do, every process trying to read from
+or open the pipe enters an uninterruptible sleep,
+and will only exit it if the splicing process is killed.
+
+This trivially denies service to:
+* any hypothetical pipe-based log collexion system
+* all nullmailer installations
+* me, personally, when I'm pasting stuff into qemu -serial chardev:pipe
+
+This follows:
+1. https://lore.kernel.org/linux-fsdevel/qk6hjuam54khlaikf2ssom6custxf5is2e=
+kkaequf4hvode3ls@zgf7j5j4ubvw/t/#u
+2. a security@ thread rooted in
+   <irrrblivicfc7o3lfq7yjm2lrxq35iyya4gyozlohw24gdzyg7@azmluufpdfvu>
+3. https://nabijaczleweli.xyz/content/blogn_t/011-linux-splice-exclusion.ht=
+ml
+
+Patches were posted and then discarded on principle or funxionality,
+all in all terminating in Linus posting
+> But it is possible that we need to just bite the bullet and say
+> "copy_splice_read() needs to use a non-blocking kiocb for the IO".
+
+This does that, effectively making splice(file -> pipe)
+request (and require) O_NONBLOCK on reads fron the file:
+this doesn't affect splicing from regular files and blockdevs,
+since they're always non-blocking
+(and requesting the stronger "no kernel sleep" IOCB_NOWAIT is non-sensical),
+but always returns -EINVAL for ttys.
+Sockets behave as expected from O_NONBLOCK reads:
+splice if there's data available else -EAGAIN.
+
+This should all pretty much behave as-expected.
+
+Mostly a re-based version of the summary diff from
+<gnj4drf7llod4voaaasoh5jdlq545gduishrbc3ql3665pw7qy@ytd5ykxc4gsr>.
+
+Bisexion yields commit 8924feff66f35fe22ce77aafe3f21eb8e5cff881
+("splice: lift pipe_lock out of splice_to_pipe()") as first bad.
+
+
+The patchset is made quite wide due to the many implementations
+of the splice_read callback, and was based entirely on results from
+  $ git grep '\.splice_read.*=3D' | cut -d=3D -f2 |
+      tr -s ',;[:space:]' '\n' | sort -u
+
+I'm assuming this is exhaustive, but it's 27 distinct implementations.
+Of these, I've classified these as trivial delegating wrappers:
+  nfs_file_splice_read               filemap_splice_read
+  afs_file_splice_read               filemap_splice_read
+  ceph_splice_read                   filemap_splice_read
+  ecryptfs_splice_read_update_atime  filemap_splice_read
+  ext4_file_splice_read              filemap_splice_read
+  f2fs_file_splice_read              filemap_splice_read
+  ntfs_file_splice_read              filemap_splice_read
+  ocfs2_file_splice_read             filemap_splice_read
+  orangefs_file_splice_read          filemap_splice_read
+  v9fs_file_splice_read              filemap_splice_read
+  xfs_file_splice_read               filemap_splice_read
+  zonefs_file_splice_read            filemap_splice_read
+  sock_splice_read                   copy_splice_read or a socket-specific =
+one
+  coda_file_splice_read              vfs_splice_read
+  ovl_splice_read                    vfs_splice_read
+
+
+filemap_splice_read() is used for regular files and blockdevs,
+and thus needs no changes, and is thus unchanged.
+
+vfs_splice_read() delegates to copy_splice_read() or f_op->splice_read().
+
+
+The rest are fixed, in patch order:
+01. copy_splice_read() by simply doing the I/O with IOCB_NOWAIT;
+    diff from Linus:
+      https://lore.kernel.org/lkml/5osglsw36dla3mubtpsmdwdid4fsdacplyd6acx2=
+igo4atogdg@yur3idyim3cc/t/#ee67de5a9ec18886c434113637d7eff6cd7acac4b
+02. unix_stream_splice_read() by unconditionally passing MSG_DONTWAIT
+03. fuse_dev_splice_read() by behaving as-if O_NONBLOCK
+04. tracing_buffers_splice_read() by behaving as-if O_NONBLOCK
+    (this also removes the retry loop)
+05. relay_file_splice_read() by behaving as-if SPLICE_F_NONBLOCK
+    (this just means EAGAINing unconditionally for an empty transfer)
+06. smc_splice_read() by unconditionally passing MSG_DONTWAIT
+07. kcm_splice_read() by unconditionally passing MSG_DONTWAIT
+08. tls_sw_splice_read() by behaving as-if SPLICE_F_NONBLOCK
+09. tcp_splice_read() by behaving as-if O_NONBLOCK
+    (this also removes the retry loop)
+
+10. EINVALs on files that neither have FMODE_NOWAIT nor are S_ISREG
+
+    We don't want this to be just FMODE_NOWAIT since most regular files
+    don't have it set and that's not the right semantic anyway,
+    as noted at the top of this mail,
+
+    But this allows blockdevs "by accident", effectively,
+    since they have FMODE_NOWAIT (at least the ones I tried),
+    even though they're just like regular files:
+    handled by filemap_splice_read(),
+    thus not dispatched with IOCB_NOWAIT. since always non-blocking.
+
+    Should this be a check for FMODE_NOWAIT && (S_ISREG || S_ISBLK)?
+    Should it remain FMODE_NOWAIT && S_ISREG?
+    Is there an even better way of spelling this?
+
+
+In net/kcm, this also fixes kcm_splice_read() passing SPLICE_F_*-style
+flags to skb_recv_datagram(), which takes MSG_*-style flags.
+I don't think they did anything anyway? But.
+
+
+
+I would of course be remiss to not analyse splice(pipe -> file) as well:
+  gfs2_file_splice_write  iter_file_splice_write
+  ovl_splice_write        iter_file_splice_write
+  splice_write_null       splice_from_pipe(pipe_to_null), does nothing
+
+fuse_dev_splice_write() locks, copies the iovs, unlocks, does I/O,
+                        locks, frees the pipe's iovs, unlocks
+port_fops_splice_write() locks, steals or copies pages, unlocks, does I/O
+
+
+11. splice_to_socket():
+    has sock_sendmsg() inside the pipe lock;
+    filling the socket buffer sleeps in splice with the pipe locked,
+    and this is trivial to trigger with
+      ./af_unix_ptf ./splicing-cat < fifo &
+      cat > fifo &
+      cp 64k fifo a couple times
+    patch does unconditional MSG_DONTWAIT, tests sensibly
+
+
+iter_file_splice_write():
+  has vfs_iter_write() inside the pipe lock,
+  but appears to be attached to regular files and blockdevs,
+  but also random_fops & urandom_fops (looks like not an issue)
+  and tty_fops & console_fops
+  (this only means non-pty ttys so no issue with a full buffer?
+   idk if there's a situation where a tty or the discipline can block forev=
+er
+   or if it's guaranteed forward progress, however slow?
+   still kinda ass to have the pipe lock hard-held for, say,
+   (64*1024)/(300/8)s=3D30min if the pipe has 64k in the buffer?
+   this predixion aligns precisely with what I measured:
+    1# stty 300 < /dev/ttyS0
+    1# ./splicing-cat < fifo > /dev/ttyS0
+
+    2$ cat > fifo    # and typing works
+    3$ cp 64k fifo   # uninterrupitbly sleeps in write(4, "SzmprOmdIIkciMwb=
+pxhsEyFVORaPGbRQ"..., 66560
+    1: now sleeping in splice
+    2: typing more into the cat uninterruptibly sleeps in write
+    4$ : > /tmp/fifo # uninterruptibly hangs in open
+
+   similarly, "cp 10k fifo" uninterruptibly sleeps in close,
+   with the same effects on other (potential) writers,
+   and woke up after around five minutes, which matches my maths
+
+   so presumably something should be done about this as well?
+   just idk what)
+
+So. AFAIK, just iter_file_splice_write() on ttys remains.
+
+
+This needs a man-pages patch as well,
+but I'd go rabid if I were to write it rn.
+
+
+For the samples above, af_unix_ptf.c:
+-- >8 --
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/un.h>
+#include <unistd.h>
+
+int main(int argc, char ** argv) {
+  int fds[2];
+  if(socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, fds))
+    abort();
+
+  if(!vfork()) {
+    dup2(fds[1], 1);
+    _exit(execvp(argv[1], argv + 1));
+  }
+  dup2(fds[0], 0);
+  for(;;) {
+    char buf[16];
+    int r =3D read(0, buf, 16);
+    fprintf(stderr, "read %d\n", r);
+    sleep(10);
+  }
+}
+-- >8 --
+
+splicing-cat.c:
+-- >8 --
+#define _GNU_SOURCE
+#include <fcntl.h>
+#include <stdio.h>
+#include <errno.h>
+int main() {
+  int lasterr =3D -1;
+  unsigned ctr =3D 0;
+  for(;;) {
+    errno =3D 0;
+    ssize_t ret =3D splice(0, 0, 1, 0, 128 * 1024 * 1024, 0);
+    if(ret >=3D 0 || errno !=3D lasterr) {
+      fprintf(stderr, "\n\t%m" + (lasterr =3D=3D -1));
+      lasterr =3D errno;
+      ctr =3D 0;
+    }
+    if(ret =3D=3D -1) {
+      ++ctr;
+      fprintf(stderr, "\r%u", ctr);
+    } else
+      fprintf(stderr, "\r%zu", ret);
+    if(!ret)
+      break;
+  }
+  fprintf(stderr, "\n");
+}
+-- >8 --
+
+Ahelenia Ziemia=C5=84ska (11):
+  splice: copy_splice_read: do the I/O with IOCB_NOWAIT
+  af_unix: unix_stream_splice_read: always request MSG_DONTWAIT
+  fuse: fuse_dev_splice_read: use nonblocking I/O
+  tracing: tracing_buffers_splice_read: behave as-if non-blocking I/O
+  relayfs: relay_file_splice_read: always return -EAGAIN for no data
+  net/smc: smc_splice_read: always request MSG_DONTWAIT
+  kcm: kcm_splice_read: always request MSG_DONTWAIT
+  tls/sw: tls_sw_splice_read: always request non-blocking I/O
+  net/tcp: tcp_splice_read: always do non-blocking reads
+  splice: file->pipe: -EINVAL for non-regular files w/o FMODE_NOWAIT
+  splice: splice_to_socket: always request MSG_DONTWAIT
+
+ fs/fuse/dev.c        | 10 ++++++----
+ fs/splice.c          |  7 ++++---
+ kernel/relay.c       |  3 +--
+ kernel/trace/trace.c | 32 ++++----------------------------
+ net/ipv4/tcp.c       | 30 +++---------------------------
+ net/kcm/kcmsock.c    |  2 +-
+ net/smc/af_smc.c     |  6 +-----
+ net/tls/tls_sw.c     |  5 ++---
+ net/unix/af_unix.c   |  5 +----
+ 9 files changed, 23 insertions(+), 77 deletions(-)
+
+
+base-commit: 58720809f52779dc0f08e53e54b014209d13eebb
+--
+2.39.2
+
+--pqm5boxqnux3b3rj
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmUtno0ACgkQvP0LAY0m
+WPGuvA/8CDMCC3Jqrxzh67RnsX6AnDvMlmOFnNMSx1ufj+0S7i5vzt4MtSXpzAOo
+zHshxG2VAylYZYhG0ifhkUpRWvwKLmxjhfz9F1mGVWa0xJsXYQX221huSygD4L49
+bgYsH+XOzXfScqDRwJoXTgCXfhM8cXts2fCRYs6MS26wIY/qdqXm1NaqaNtASATv
+eT0Iktoc4TkrvqbLYsvCOhpwXLU3xcdYQxj3w2nVfrzGDkeZmGNJmzz8kjCjxfvD
+sAbrnnYQwZG8FpKceXBNqrtKosvonPqydFKdbA9+OJnEzma7l3NzeQ/BoUKUX9vj
+rTFNZsh7jPe5fMboaL5LkMCrs4UgIXTJ04dZfgSXML4YiRs/kqbycu8jL2IyylIV
+xOhjaD6/YOzfgCRkY/E/4QsVN5LkPkNnCuzleBr7OyZJxmKg39hmd69Rm8tR+bTV
+cmPHxfXi2/faJ+4BW5jIsMkZwqwzJXDze9Ulr8+ZfefPSGxA5z06N2y/E/sFLWte
+9PrrHPZC3A0V3oDQCm0BK1d3armLoUR7eyjVqmo+52AQue3F1rsgZHapTvtHZuAp
+FsLnyjWv+JvP3smu3iA3ZnW8f8PXepWGNcPZ3zDQJGEFfUOXRsVgFOTS7/0oYyrx
+YMd0ql5nhNwc+g3jsGFt1rlJK/P1FcQh0DO+XBeaYfcOLDGd6RA=
+=49HP
+-----END PGP SIGNATURE-----
+
+--pqm5boxqnux3b3rj--
