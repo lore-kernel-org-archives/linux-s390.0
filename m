@@ -2,115 +2,75 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9FAFCDB483
-	for <linux-s390@archiver.kernel.org>; Mon, 16 Oct 2023 20:36:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 821CDCDB465
+	for <linux-s390@archiver.kernel.org>; Mon, 16 Oct 2023 23:40:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234268AbjJPUgI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 Oct 2023 16:36:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52918 "EHLO
+        id S233714AbjJPXk1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 16 Oct 2023 19:40:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234232AbjJPUgE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Oct 2023 16:36:04 -0400
-Received: from tarta.nabijaczleweli.xyz (tarta.nabijaczleweli.xyz [139.28.40.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05108A2;
-        Mon, 16 Oct 2023 13:35:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nabijaczleweli.xyz;
-        s=202305; t=1697488550;
-        bh=U1WgWCtmO/bEZ1AED24mCSnyrNXJpL+Y8jZtS7Uiqmw=;
-        h=Date:From:Cc:Subject:References:In-Reply-To:From;
-        b=NnbBuKeKpbCRZiKTZ0ErYxqllKdbeGYbOkrq7PCgezUnRSCKITL04C3B52B4ezIC2
-         qbWjx5knHEvFjx/c5qAQDFXWn4Gq1xy00JsQOD5qStbtjJ0JXZQP9eFmH4w+6qbKrk
-         i++jePBXe+2YsLtyp8j/DCzzc/CrE87I4JuWKRcHLIaXzAL4BCGCTL7OLrEmTcZTlf
-         /a4FJ6fSFhuU3Ow4xYUbIFIPmBMbTyDa/pzGfpK+kgNvBjOvcVPaYhy0A4hOmfl538
-         kFfoa8qrYOXCvCsZmeSve3t+x5tf85mAbx5H0jX9qIkYpcnSvoeHTkh4jbUMMJpHQR
-         4u9r4mx4oGR5g==
-Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
-        by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id 298CE10414;
-        Mon, 16 Oct 2023 22:35:50 +0200 (CEST)
-Date:   Mon, 16 Oct 2023 22:35:50 +0200
-From:   Ahelenia =?utf-8?Q?Ziemia=C5=84ska?= 
-        <nabijaczleweli@nabijaczleweli.xyz>
-Cc:     Karsten Graul <kgraul@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 06/11] net/smc: smc_splice_read: always request MSG_DONTWAIT
-Message-ID: <45da5ab094bcc7d3331385e8813074922c2a13c6.1697486714.git.nabijaczleweli@nabijaczleweli.xyz>
-References: <cover.1697486714.git.nabijaczleweli@nabijaczleweli.xyz>
+        with ESMTP id S232457AbjJPXk0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Oct 2023 19:40:26 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 353A992;
+        Mon, 16 Oct 2023 16:40:25 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id B1B33C433C9;
+        Mon, 16 Oct 2023 23:40:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1697499624;
+        bh=yAE3WCFOI0yZilWtjGaUmPJMyDPKdTzBz1qnAUBk1sw=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=OGg0wTDygQcdc2yqeKGX9YoFB9/l2bejjMKfPwnv/NSkWkrdZbHYTAN2xw9EgPlXL
+         zSAJDBcjidkyxLMkAtycSL4afWm6NBHYtZPVhoFPolrCRqa5otceqSqhOuuYAN76MO
+         r6qgGbBOFzK191o0RX7GZW9Lly8SOCRkQ3q7JwQngOiKgKbYz2+rMZ/7Big9E1uJjD
+         GBeilFKSjjTKqMCR03AjBXm3p3b0RtfGLm+da2M4CroOX+hVrRhXyItzckmMoZ15hA
+         gdbqH9NEWofCKx3+uwBmz21hZnE0EwaoHydXp5vZsGtcHtE5fC8BDg12NCYReh2K4t
+         1xZfJtTxhJNRA==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 96638E4E9B6;
+        Mon, 16 Oct 2023 23:40:24 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="47tcgm2g6sbkxgtd"
-Content-Disposition: inline
-In-Reply-To: <cover.1697486714.git.nabijaczleweli@nabijaczleweli.xyz>
-User-Agent: NeoMutt/20231006
-To:     unlisted-recipients:; (no To-header on input)
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] net/smc: return the right falback reason when prefix
+ checks fail
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <169749962461.28594.523885663724959725.git-patchwork-notify@kernel.org>
+Date:   Mon, 16 Oct 2023 23:40:24 +0000
+References: <20231012123729.29307-1-dust.li@linux.alibaba.com>
+In-Reply-To: <20231012123729.29307-1-dust.li@linux.alibaba.com>
+To:     Dust Li <dust.li@linux.alibaba.com>
+Cc:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Hello:
 
---47tcgm2g6sbkxgtd
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-Otherwise we risk sleeping with the pipe locked for indeterminate
-lengths of time.
+On Thu, 12 Oct 2023 20:37:29 +0800 you wrote:
+> In the smc_listen_work(), if smc_listen_prfx_check() failed,
+> the real reason: SMC_CLC_DECL_DIFFPREFIX was dropped, and
+> SMC_CLC_DECL_NOSMCDEV was returned.
+> 
+> Althrough this is also kind of SMC_CLC_DECL_NOSMCDEV, but return
+> the real reason is much friendly for debugging.
+> 
+> [...]
 
-Link: https://lore.kernel.org/linux-fsdevel/qk6hjuam54khlaikf2ssom6custxf5i=
-s2ekkaequf4hvode3ls@zgf7j5j4ubvw/t/#u
-Signed-off-by: Ahelenia Ziemia=C5=84ska <nabijaczleweli@nabijaczleweli.xyz>
----
- net/smc/af_smc.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+Here is the summary with links:
+  - [net] net/smc: return the right falback reason when prefix checks fail
+    https://git.kernel.org/netdev/net/c/4abbd2e3c1db
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index bacdd971615e..89473305f629 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -3243,12 +3243,8 @@ static ssize_t smc_splice_read(struct socket *sock, =
-loff_t *ppos,
- 			rc =3D -ESPIPE;
- 			goto out;
- 		}
--		if (flags & SPLICE_F_NONBLOCK)
--			flags =3D MSG_DONTWAIT;
--		else
--			flags =3D 0;
- 		SMC_STAT_INC(smc, splice_cnt);
--		rc =3D smc_rx_recvmsg(smc, NULL, pipe, len, flags);
-+		rc =3D smc_rx_recvmsg(smc, NULL, pipe, len, MSG_DONTWAIT);
- 	}
- out:
- 	release_sock(sk);
---=20
-2.39.2
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
---47tcgm2g6sbkxgtd
-Content-Type: application/pgp-signature; name="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmUtnqUACgkQvP0LAY0m
-WPFUKxAAtTKaJX/sYGTuVM8QUutGSWhA+NIlyw7Q1JsrTd4NMyNOH5/q0d+w2cO1
-cJ97addBcqUihdkjrxN4J4OCdcgi2ZZOspVFvEKxRVdcuE63+ua1l/xdZ9Yn08Tm
-KZMgk6khtM8Sh0cvOZKpkC2kNyLlavNBXmmd8efd+yCOJOaUIingaqaj7pOJOvf2
-PPU3a1ErK8TCFIEugu/XDPvbvShTSJzOyw91E11NBB19TS72oxUdUoCW07OtZGoP
-8nXUiQpKaG+LyKdam4qazu4oLBP5gBIy/cnYbwRrOtj8xdiOhxYBLSp7pYETWQQm
-YqWe+IAnHzkzJUmdC+RcohBlFNAhIV4hPaGXS77VU3XKZgtGxvI4lrNIYwN3580K
-JAVhAda2mbmqo5F7VWQt/mygvRtRy8AhWhffsPEdbQFvy9kIJj69cXmWtw6rrn+1
-pQRc30hv1lDhsDug304WZMaub5XJujUzX3J8+7eGnBASw9bOb1K1pEpYaFlC6l2f
-B5HmhckumNimxxG6To2FjxLLQytKZ2dr34g1B1xWVexdOVOkr2mc1WL/GabKh/53
-/BPXGZ8jcvf4Ly1x41sO2xO2914R+jnjVVWwio32Eig5EemORZarxFbwB/KIo4G5
-P29UVPy+jes7Icui9Zg1lxgYherj24YqXwfzbxKa+XQbO1Vho0Q=
-=jEe8
------END PGP SIGNATURE-----
-
---47tcgm2g6sbkxgtd--
