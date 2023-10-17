@@ -2,75 +2,86 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 821CDCDB465
-	for <linux-s390@archiver.kernel.org>; Mon, 16 Oct 2023 23:40:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E1C1CDB465
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Oct 2023 01:57:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233714AbjJPXk1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 Oct 2023 19:40:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40880 "EHLO
+        id S232577AbjJQB5L (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 16 Oct 2023 21:57:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232457AbjJPXk0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Oct 2023 19:40:26 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 353A992;
-        Mon, 16 Oct 2023 16:40:25 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id B1B33C433C9;
-        Mon, 16 Oct 2023 23:40:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1697499624;
-        bh=yAE3WCFOI0yZilWtjGaUmPJMyDPKdTzBz1qnAUBk1sw=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=OGg0wTDygQcdc2yqeKGX9YoFB9/l2bejjMKfPwnv/NSkWkrdZbHYTAN2xw9EgPlXL
-         zSAJDBcjidkyxLMkAtycSL4afWm6NBHYtZPVhoFPolrCRqa5otceqSqhOuuYAN76MO
-         r6qgGbBOFzK191o0RX7GZW9Lly8SOCRkQ3q7JwQngOiKgKbYz2+rMZ/7Big9E1uJjD
-         GBeilFKSjjTKqMCR03AjBXm3p3b0RtfGLm+da2M4CroOX+hVrRhXyItzckmMoZ15hA
-         gdbqH9NEWofCKx3+uwBmz21hZnE0EwaoHydXp5vZsGtcHtE5fC8BDg12NCYReh2K4t
-         1xZfJtTxhJNRA==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 96638E4E9B6;
-        Mon, 16 Oct 2023 23:40:24 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S231955AbjJQB5K (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Oct 2023 21:57:10 -0400
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0613B4;
+        Mon, 16 Oct 2023 18:57:05 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VuL.UJ1_1697507816;
+Received: from 30.221.149.45(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VuL.UJ1_1697507816)
+          by smtp.aliyun-inc.com;
+          Tue, 17 Oct 2023 09:57:02 +0800
+Message-ID: <eecd0cbe-1dc5-c3e8-c047-6a3d9382ac58@linux.alibaba.com>
+Date:   Tue, 17 Oct 2023 09:56:55 +0800
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.1
+Subject: Re: [PATCH net 0/5] net/smc: bugfixs for smc-r
+Content-Language: en-US
+To:     Alexandra Winter <wintera@linux.ibm.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
+ <4a1b965e-b026-45d7-bd09-7b23b797ee90@linux.ibm.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <4a1b965e-b026-45d7-bd09-7b23b797ee90@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] net/smc: return the right falback reason when prefix
- checks fail
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <169749962461.28594.523885663724959725.git-patchwork-notify@kernel.org>
-Date:   Mon, 16 Oct 2023 23:40:24 +0000
-References: <20231012123729.29307-1-dust.li@linux.alibaba.com>
-In-Reply-To: <20231012123729.29307-1-dust.li@linux.alibaba.com>
-To:     Dust Li <dust.li@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
-        guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
 
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
 
-On Thu, 12 Oct 2023 20:37:29 +0800 you wrote:
-> In the smc_listen_work(), if smc_listen_prfx_check() failed,
-> the real reason: SMC_CLC_DECL_DIFFPREFIX was dropped, and
-> SMC_CLC_DECL_NOSMCDEV was returned.
-> 
-> Althrough this is also kind of SMC_CLC_DECL_NOSMCDEV, but return
-> the real reason is much friendly for debugging.
-> 
-> [...]
+On 10/12/23 9:43 PM, Alexandra Winter wrote:
+> The subject of the thread says 'smc-r', but some of the changes affect smc-d alike,
+> don't they?
 
-Here is the summary with links:
-  - [net] net/smc: return the right falback reason when prefix checks fail
-    https://git.kernel.org/netdev/net/c/4abbd2e3c1db
+Yes, sorry for this mistake, it should be bugfix for smc.
+>
+>
+> On 11.10.23 09:33, D. Wythe wrote:
+>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>
+>> This patches contains bugfix following:
+>>
+>> 1. hung state
+>> 2. sock leak
+>> 3. potential panic
+>>
+> I may be helpful for the reviewers, when you point out, which patch fixes which problem.
+>
+> Were they all found by code reviews?
+> Or did some occur in real life? If so, then what were the symptoms?
+> A description of the symptoms is helpful for somebody who is debugging and wants to check
+> whether the issue was already fixed upstream.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Hi Alexandra,
+
+Except for the issue with the barrier, which was feedback from the 
+review, all other issues have actually occurred in our environment
+and have been verified through internal testing. However, most of these 
+issues are caused by reference leakage rather than panic, so it is 
+difficult to provide a
+representative phenomenon. But what you said is do necessary, so I will 
+post some phenomena in the next version, such as
+
+lsmod | grep smc
+or
+smcss - a
+
+In that case, we can found  the issues of reference residue or the 
+connection residue. Hope it can be helpful to you.
+
+Thanks,
+D. Wythe
 
 
