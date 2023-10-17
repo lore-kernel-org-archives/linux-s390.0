@@ -2,125 +2,318 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B89CCDB474
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Oct 2023 13:29:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC19CCDB474
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Oct 2023 17:03:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343802AbjJQN3c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 Oct 2023 09:29:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46086 "EHLO
+        id S231569AbjJQRDQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 Oct 2023 13:03:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343794AbjJQN33 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Oct 2023 09:29:29 -0400
+        with ESMTP id S229459AbjJQRDP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Oct 2023 13:03:15 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D35B5EA;
-        Tue, 17 Oct 2023 06:29:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BABFDAB;
+        Tue, 17 Oct 2023 10:03:13 -0700 (PDT)
 Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39HDRKGA026063;
-        Tue, 17 Oct 2023 13:29:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references :
- subject : cc : to : from : message-id : date; s=pp1;
- bh=/G50PTyPk1sf3k/tPQcbY3p7/yzoDDZIrTqn/r9khvw=;
- b=tFCjOkShtjeUY2UeKNtPRXwd9m4ZGO5DeWhPhPCPQKGaBdEQmwcauQqm/sVI7eAabuLV
- PPPHbbUiGmZhoPQr1il3P5GFNxluJcym1Hlpas6UrzMsVI4d0oXixE7I1seOm+6B1OQr
- dgLdcMdtW6VR8prxDZmeepHbO+MHfPvRezhyk2iXV8bg4m7051NCHkHZIxsVhFAYdRB0
- s1fh4aHE7EFy/dyDFOCGi2BmYIG8cPqxuCGs4Op8jdP5bwlpR5R0wq/5ptAT0u8GS/HN
- ZYvUVfzKSn+imeIi72JBsXTiG06uCupEHUudJlSuXV1Sy6huu/BL4bkheaK0uZC66B5E 0w== 
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39HH2Fj5026481;
+        Tue, 17 Oct 2023 17:03:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=8/Zwfj6R1eK4/u/hdrrJ9mdLcyQSnZZX0l+rS01es1E=;
+ b=G5x5TKzYlpXaT7yw/g/356gObOCTDxNQdPXflJSxwlUp4pJE3Z+0IRt+AN2pW1w404vp
+ x6HaVt2bRS1sLpTgqG40452DNyrj2n2DCoiS5sdXv7M0tAqkNdBtZD8oHsuzjOBI7nFw
+ OYmYRRytkdiDDS6IrP7Am3tS28EdRv0UHBiSDklRGtAa9cuAHQsYMiNH15YVe717PGB2
+ ZMVDIrWuVHQOewUat/Ju//A0iJeIt99oxB8G8/GdRxbkPgSYZdi2WU2Ts3vbFOMiVbWu
+ 4ePLbvijLklo+EJmqkW7+I/1YiVVSncICFk2LwsPfa1LBC6QUBXviGEVc/6wb2PLIu2T 5g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tsu5t04p8-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tsxakg15u-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 Oct 2023 13:29:21 +0000
+        Tue, 17 Oct 2023 17:03:07 +0000
 Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39HDSRPY000949;
-        Tue, 17 Oct 2023 13:29:21 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tsu5t04m8-1
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39HH2jKo028820;
+        Tue, 17 Oct 2023 17:03:07 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tsxakg13k-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 Oct 2023 13:29:21 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39HBeBuQ020150;
-        Tue, 17 Oct 2023 13:29:20 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tr6an13a4-1
+        Tue, 17 Oct 2023 17:03:07 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39HEpNBO027177;
+        Tue, 17 Oct 2023 17:03:06 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tr6tka737-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 17 Oct 2023 13:29:19 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39HDTG7x4653644
+        Tue, 17 Oct 2023 17:03:06 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+        by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39HH35SU18940424
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 17 Oct 2023 13:29:16 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A45E320049;
-        Tue, 17 Oct 2023 13:29:16 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 793EB20040;
-        Tue, 17 Oct 2023 13:29:16 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.66.53])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 17 Oct 2023 13:29:16 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 17 Oct 2023 17:03:05 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2BA8058045;
+        Tue, 17 Oct 2023 17:03:05 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 192F958050;
+        Tue, 17 Oct 2023 17:03:03 +0000 (GMT)
+Received: from [9.171.53.134] (unknown [9.171.53.134])
+        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 17 Oct 2023 17:03:02 +0000 (GMT)
+Message-ID: <2a72918a-2782-4d21-be50-2c3931957f16@linux.ibm.com>
+Date:   Tue, 17 Oct 2023 19:03:02 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20231011085635.1996346-8-nsg@linux.ibm.com>
-References: <20231011085635.1996346-1-nsg@linux.ibm.com> <20231011085635.1996346-8-nsg@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH 7/9] s390x: topology: Rewrite topology list test
-Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Thomas Huth <thuth@redhat.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, Andrew Jones <andrew.jones@linux.dev>,
-        Colton Lewis <coltonlewis@google.com>,
-        Nikos Nikoleris <nikos.nikoleris@arm.com>,
-        Shaoqin Huang <shahuang@redhat.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-From:   Nico Boehr <nrb@linux.ibm.com>
-Message-ID: <169754935612.81646.10599656708946436495@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Tue, 17 Oct 2023 15:29:16 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net 1/5] net/smc: fix dangling sock under state
+ SMC_APPFINCLOSEWAIT
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, dust.li@linux.alibaba.com,
+        kgraul@linux.ibm.com, jaka@linux.ibm.com, wintera@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
+ <1697009600-22367-2-git-send-email-alibuda@linux.alibaba.com>
+ <e63b546f-b993-4e42-8269-e4d9afa5b845@linux.ibm.com>
+ <f8089b26-bb11-f82d-8070-222b1f8c1db1@linux.alibaba.com>
+ <745d3174-f497-4d6a-ba13-1074128ad99d@linux.ibm.com>
+ <20231013053214.GT92403@linux.alibaba.com>
+ <6666db42-a4de-425e-a96d-bfa899ab265e@linux.ibm.com>
+ <20231013122729.GU92403@linux.alibaba.com>
+ <2eabf3fb-9613-1b96-3ce9-993f94ef081d@linux.alibaba.com>
+Content-Language: en-GB
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <2eabf3fb-9613-1b96-3ce9-993f94ef081d@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: mndcA9zcLWf0GgQNGfietp5PyIZ4Cy3M
-X-Proofpoint-GUID: 4quASyOogIKsToOYCaSofu4tHkb6RH8M
+X-Proofpoint-ORIG-GUID: hqL54ccYXCtVdEAN9ZPfqccg0NAweWIG
+X-Proofpoint-GUID: 6vJuSgZiWss-CRFjdwk3GNIGvQeVx1Eb
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-10-17_02,2023-10-17_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 lowpriorityscore=0 impostorscore=0 phishscore=0
- malwarescore=0 suspectscore=0 bulkscore=0 mlxlogscore=999 spamscore=0
- mlxscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2310170114
+ definitions=2023-10-17_03,2023-10-17_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
+ impostorscore=0 lowpriorityscore=0 spamscore=0 suspectscore=0 bulkscore=0
+ clxscore=1015 adultscore=0 phishscore=0 malwarescore=0 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2309180000
+ definitions=main-2310170144
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Nina Schoetterl-Glausch (2023-10-11 10:56:30)
-> Rewrite recursion with separate functions for checking containers,
-> containers containing CPUs and CPUs.
-> This improves comprehension and allows for more tests.
-> We now also test for ordering of CPU TLEs and number of child entries.
->=20
-> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-[...]
-> diff --git a/s390x/topology.c b/s390x/topology.c
-> index c1f6520f..9838434c 100644
-> --- a/s390x/topology.c
-> +++ b/s390x/topology.c
-[...]
-> +static union topology_container *check_child_cpus(struct sysinfo_15_1_x =
-*info,
-> +                                                 union topology_containe=
-r *cont,
-> +                                                 union topology_cpu *chi=
-ld,
-> +                                                 int *cpus_in_masks)
-> +{
-> +       void *last =3D ((void *)info) + info->length;
-> +       union topology_cpu *prev_cpu =3D NULL;
-> +       int cpus =3D 0;
 
-I know __builtin_popcountl returns int, but maybe it makes sense to make
-this and cpus_in_masks an unsigned type?
 
-> +       for (; (void *)child < last && child->nl =3D=3D 0; child++) {
-
-Personal preference, I prefer simply iterating over a counter, but its up
-to you.
+On 17.10.23 04:00, D. Wythe wrote:
+> 
+> 
+> On 10/13/23 8:27 PM, Dust Li wrote:
+>> On Fri, Oct 13, 2023 at 01:52:09PM +0200, Wenjia Zhang wrote:
+>>>
+>>> On 13.10.23 07:32, Dust Li wrote:
+>>>> On Thu, Oct 12, 2023 at 01:51:54PM +0200, Wenjia Zhang wrote:
+>>>>>
+>>>>> On 12.10.23 04:37, D. Wythe wrote:
+>>>>>>
+>>>>>> On 10/12/23 4:31 AM, Wenjia Zhang wrote:
+>>>>>>>
+>>>>>>> On 11.10.23 09:33, D. Wythe wrote:
+>>>>>>>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>>>>>>>
+>>>>>>>> Considering scenario:
+>>>>>>>>
+>>>>>>>>                   smc_cdc_rx_handler_rwwi
+>>>>>>>> __smc_release
+>>>>>>>>                   sock_set_flag
+>>>>>>>> smc_close_active()
+>>>>>>>> sock_set_flag
+>>>>>>>>
+>>>>>>>> __set_bit(DEAD)            __set_bit(DONE)
+>>>>>>>>
+>>>>>>>> Dues to __set_bit is not atomic, the DEAD or DONE might be lost.
+>>>>>>>> if the DEAD flag lost, the state SMC_CLOSED  will be never be 
+>>>>>>>> reached
+>>>>>>>> in smc_close_passive_work:
+>>>>>>>>
+>>>>>>>> if (sock_flag(sk, SOCK_DEAD) &&
+>>>>>>>>       smc_close_sent_any_close(conn)) {
+>>>>>>>>       sk->sk_state = SMC_CLOSED;
+>>>>>>>> } else {
+>>>>>>>>       /* just shutdown, but not yet closed locally */
+>>>>>>>>       sk->sk_state = SMC_APPFINCLOSEWAIT;
+>>>>>>>> }
+>>>>>>>>
+>>>>>>>> Replace sock_set_flags or __set_bit to set_bit will fix this 
+>>>>>>>> problem.
+>>>>>>>> Since set_bit is atomic.
+>>>>>>>>
+>>>>>>> I didn't really understand the scenario. What is
+>>>>>>> smc_cdc_rx_handler_rwwi()? What does it do? Don't it get the lock
+>>>>>>> during the runtime?
+>>>>>>>
+>>>>>> Hi Wenjia,
+>>>>>>
+>>>>>> Sorry for that, It is not smc_cdc_rx_handler_rwwi() but
+>>>>>> smc_cdc_rx_handler();
+>>>>>>
+>>>>>> Following is a more specific description of the issues
+>>>>>>
+>>>>>>
+>>>>>> lock_sock()
+>>>>>> __smc_release
+>>>>>>
+>>>>>> smc_cdc_rx_handler()
+>>>>>> smc_cdc_msg_recv()
+>>>>>> bh_lock_sock()
+>>>>>> smc_cdc_msg_recv_action()
+>>>>>> sock_set_flag(DONE) sock_set_flag(DEAD)
+>>>>>> __set_bit __set_bit
+>>>>>> bh_unlock_sock()
+>>>>>> release_sock()
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>> Note : |bh_lock_sock|and |lock_sock|are not mutually exclusive. 
+>>>>>> They are
+>>>>>> actually used for different purposes and contexts.
+>>>>>>
+>>>>>>
+>>>>> ok, that's true that |bh_lock_sock|and |lock_sock|are not really 
+>>>>> mutually
+>>>>> exclusive. However, since bh_lock_sock() is used, this scenario you 
+>>>>> described
+>>>>> above should not happen, because that gets the sk_lock.slock. 
+>>>>> Following this
+>>>>> scenarios, IMO, only the following situation can happen.
+>>>>>
+>>>>> lock_sock()
+>>>>> __smc_release
+>>>>>
+>>>>> smc_cdc_rx_handler()
+>>>>> smc_cdc_msg_recv()
+>>>>> bh_lock_sock()
+>>>>> smc_cdc_msg_recv_action()
+>>>>> sock_set_flag(DONE)
+>>>>> bh_unlock_sock()
+>>>>> sock_set_flag(DEAD)
+>>>>> release_sock()
+>>>> Hi wenjia,
+>>>>
+>>>> I think I know what D. Wythe means now, and I think he is right on 
+>>>> this.
+>>>>
+>>>> IIUC, in process context, lock_sock() won't respect bh_lock_sock() 
+>>>> if it
+>>>> acquires the lock before bh_lock_sock(). This is how the sock lock 
+>>>> works.
+>>>>
+>>>>       PROCESS CONTEXT                                 INTERRUPT CONTEXT
+>>>> ------------------------------------------------------------------------
+>>>> lock_sock()
+>>>>       spin_lock_bh(&sk->sk_lock.slock);
+>>>>       ...
+>>>>       sk->sk_lock.owned = 1;
+>>>>       // here the spinlock is released
+>>>>       spin_unlock_bh(&sk->sk_lock.slock);
+>>>> __smc_release()
+>>>>                                                      
+>>>> bh_lock_sock(&smc->sk);
+>>>>                                                      
+>>>> smc_cdc_msg_recv_action(smc, cdc);
+>>>>                                                          
+>>>> sock_set_flag(&smc->sk, SOCK_DONE);
+>>>>                                                      
+>>>> bh_unlock_sock(&smc->sk);
+>>>>
+>>>>       sock_set_flag(DEAD)  <-- Can be before or after 
+>>>> sock_set_flag(DONE)
+>>>> release_sock()
+>>>>
+>>>> The bh_lock_sock() only spins on sk->sk_lock.slock, which is already 
+>>>> released
+>>>> after lock_sock() return. Therefor, there is actually no lock between
+>>>> the code after lock_sock() and before release_sock() with 
+>>>> bh_lock_sock()...bh_unlock_sock().
+>>>> Thus, sock_set_flag(DEAD) won't respect bh_lock_sock() at all, and 
+>>>> might be
+>>>> before or after sock_set_flag(DONE).
+>>>>
+>>>>
+>>>> Actually, in TCP, the interrupt context will check 
+>>>> sock_owned_by_user().
+>>>> If it returns true, the softirq just defer the process to backlog, 
+>>>> and process
+>>>> that in release_sock(). Which avoid the race between softirq and 
+>>>> process
+>>>> when visiting the 'struct sock'.
+>>>>
+>>>> tcp_v4_rcv()
+>>>>            bh_lock_sock_nested(sk);
+>>>>            tcp_segs_in(tcp_sk(sk), skb);
+>>>>            ret = 0;
+>>>>            if (!sock_owned_by_user(sk)) {
+>>>>                    ret = tcp_v4_do_rcv(sk, skb);
+>>>>            } else {
+>>>>                    if (tcp_add_backlog(sk, skb, &drop_reason))
+>>>>                            goto discard_and_relse;
+>>>>            }
+>>>>            bh_unlock_sock(sk);
+>>>>
+>>>>
+>>>> But in SMC we don't have a backlog, that means fields in 'struct sock'
+>>>> might all have race, and this sock_set_flag() is just one of the cases.
+>>>>
+>>>> Best regards,
+>>>> Dust
+>>>>
+>>> I agree on your description above.
+>>> Sure, the following case 1) can also happen
+>>>
+>>> case 1)
+>>> -------
+>>> lock_sock()
+>>> __smc_release
+>>>
+>>> sock_set_flag(DEAD)
+>>> bh_lock_sock()
+>>> smc_cdc_msg_recv_action()
+>>> sock_set_flag(DONE)
+>>> bh_unlock_sock()
+>>> release_sock()
+>>>
+>>> case 2)
+>>> -------
+>>> lock_sock()
+>>> __smc_release
+>>>
+>>> bh_lock_sock()
+>>> smc_cdc_msg_recv_action()
+>>> sock_set_flag(DONE) sock_set_flag(DEAD)
+>>> __set_bit __set_bit
+>>> bh_unlock_sock()
+>>> release_sock()
+>>>
+>>> My point here is that case2) can never happen. i.e that 
+>>> sock_set_flag(DONE)
+>>> and sock_set_flag(DEAD) can not happen concurrently. Thus, how could
+>>> the atomic set help make sure that the Dead flag would not be 
+>>> overwritten
+>>> with DONE?
+>> I agree with you on this. I also don't see using atomic can
+>> solve the problem of overwriting the DEAD flag with DONE.
+>>
+>> I think we need some mechanisms to ensure that sk_flags and other
+>> struct sock related fields are not modified simultaneously.
+>>
+>> Best regards,
+>> Dust
+> 
+> It seems that everyone has agrees on that case 2 is impossible. I'm a 
+> bit confused, why that
+> sock_set_flag(DONE) and sock_set_flag(DEAD) can not happen concurrently. 
+> What mechanism
+> prevents their parallel execution?
+> 
+> Best wishes,
+> D. Wythe
+> 
+>>
+> 
+In the smc_cdc_rx_handler(), if bh_lock_sock() is got, how could the 
+sock_set_flag(DEAD) in the __smc_release() modify the flag concurrently? 
+As I said, that could be just kind of lapse of my thought, but I still 
+want to make it clarify.
