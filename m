@@ -2,108 +2,125 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7908ACDB474
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Oct 2023 12:42:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B89CCDB474
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Oct 2023 13:29:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233549AbjJQMmu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 Oct 2023 08:42:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36880 "EHLO
+        id S1343802AbjJQN3c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 Oct 2023 09:29:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234612AbjJQMms (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Oct 2023 08:42:48 -0400
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A26EF7;
-        Tue, 17 Oct 2023 05:42:45 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VuNiO3D_1697546559;
-Received: from localhost.localdomain(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0VuNiO3D_1697546559)
-          by smtp.aliyun-inc.com;
-          Tue, 17 Oct 2023 20:42:39 +0800
-From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com
-Cc:     tonylu@linux.alibaba.com, alibuda@linux.alibaba.com,
-        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH net v2 2/2] net/smc: correct the reason code in smc_listen_find_device when fallback
-Date:   Tue, 17 Oct 2023 20:42:34 +0800
-Message-Id: <20231017124234.99574-3-guangguan.wang@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.3 (Apple Git-128)
-In-Reply-To: <20231017124234.99574-1-guangguan.wang@linux.alibaba.com>
-References: <20231017124234.99574-1-guangguan.wang@linux.alibaba.com>
+        with ESMTP id S1343794AbjJQN33 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Oct 2023 09:29:29 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D35B5EA;
+        Tue, 17 Oct 2023 06:29:27 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39HDRKGA026063;
+        Tue, 17 Oct 2023 13:29:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references :
+ subject : cc : to : from : message-id : date; s=pp1;
+ bh=/G50PTyPk1sf3k/tPQcbY3p7/yzoDDZIrTqn/r9khvw=;
+ b=tFCjOkShtjeUY2UeKNtPRXwd9m4ZGO5DeWhPhPCPQKGaBdEQmwcauQqm/sVI7eAabuLV
+ PPPHbbUiGmZhoPQr1il3P5GFNxluJcym1Hlpas6UrzMsVI4d0oXixE7I1seOm+6B1OQr
+ dgLdcMdtW6VR8prxDZmeepHbO+MHfPvRezhyk2iXV8bg4m7051NCHkHZIxsVhFAYdRB0
+ s1fh4aHE7EFy/dyDFOCGi2BmYIG8cPqxuCGs4Op8jdP5bwlpR5R0wq/5ptAT0u8GS/HN
+ ZYvUVfzKSn+imeIi72JBsXTiG06uCupEHUudJlSuXV1Sy6huu/BL4bkheaK0uZC66B5E 0w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tsu5t04p8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 17 Oct 2023 13:29:21 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39HDSRPY000949;
+        Tue, 17 Oct 2023 13:29:21 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tsu5t04m8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 17 Oct 2023 13:29:21 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39HBeBuQ020150;
+        Tue, 17 Oct 2023 13:29:20 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tr6an13a4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 17 Oct 2023 13:29:19 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39HDTG7x4653644
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 17 Oct 2023 13:29:16 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A45E320049;
+        Tue, 17 Oct 2023 13:29:16 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 793EB20040;
+        Tue, 17 Oct 2023 13:29:16 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.66.53])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 17 Oct 2023 13:29:16 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20231011085635.1996346-8-nsg@linux.ibm.com>
+References: <20231011085635.1996346-1-nsg@linux.ibm.com> <20231011085635.1996346-8-nsg@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH 7/9] s390x: topology: Rewrite topology list test
+Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Thomas Huth <thuth@redhat.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Andrew Jones <andrew.jones@linux.dev>,
+        Colton Lewis <coltonlewis@google.com>,
+        Nikos Nikoleris <nikos.nikoleris@arm.com>,
+        Shaoqin Huang <shahuang@redhat.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+From:   Nico Boehr <nrb@linux.ibm.com>
+Message-ID: <169754935612.81646.10599656708946436495@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Tue, 17 Oct 2023 15:29:16 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: mndcA9zcLWf0GgQNGfietp5PyIZ4Cy3M
+X-Proofpoint-GUID: 4quASyOogIKsToOYCaSofu4tHkb6RH8M
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-17_02,2023-10-17_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ priorityscore=1501 lowpriorityscore=0 impostorscore=0 phishscore=0
+ malwarescore=0 suspectscore=0 bulkscore=0 mlxlogscore=999 spamscore=0
+ mlxscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2309180000 definitions=main-2310170114
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The ini->rc is used to store the last error happened when finding usable
-ism or rdma device in smc_listen_find_device, and is set by calling smc_
-find_device_store_rc. Once the ini->rc is assigned to an none-zero value,
-the value can not be overwritten anymore. So the ini-rc should be set to
-the error reason only when an error actually occurs.
+Quoting Nina Schoetterl-Glausch (2023-10-11 10:56:30)
+> Rewrite recursion with separate functions for checking containers,
+> containers containing CPUs and CPUs.
+> This improves comprehension and allows for more tests.
+> We now also test for ordering of CPU TLEs and number of child entries.
+>=20
+> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+[...]
+> diff --git a/s390x/topology.c b/s390x/topology.c
+> index c1f6520f..9838434c 100644
+> --- a/s390x/topology.c
+> +++ b/s390x/topology.c
+[...]
+> +static union topology_container *check_child_cpus(struct sysinfo_15_1_x =
+*info,
+> +                                                 union topology_containe=
+r *cont,
+> +                                                 union topology_cpu *chi=
+ld,
+> +                                                 int *cpus_in_masks)
+> +{
+> +       void *last =3D ((void *)info) + info->length;
+> +       union topology_cpu *prev_cpu =3D NULL;
+> +       int cpus =3D 0;
 
-When finding ISM/RDMA devices, device not found is not a real error, as
-not all machine have ISM/RDMA devices. Failures after device found, when
-initializing device or when initializing connection, is real errors, and
-should be store in ini->rc.
+I know __builtin_popcountl returns int, but maybe it makes sense to make
+this and cpus_in_masks an unsigned type?
 
-SMC_CLC_DECL_DIFFPREFIX also is not a real error, as for SMC-RV2, it is
-not require same prefix.
+> +       for (; (void *)child < last && child->nl =3D=3D 0; child++) {
 
-Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
----
- net/smc/af_smc.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index b3a67a168495..21e9c6ec4d01 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2163,10 +2163,8 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
- 	}
- 	mutex_unlock(&smcd_dev_list.mutex);
- 
--	if (!ini->ism_dev[0]) {
--		smc_find_device_store_rc(SMC_CLC_DECL_NOSMCD2DEV, ini);
-+	if (!ini->ism_dev[0])
- 		goto not_found;
--	}
- 
- 	smc_ism_get_system_eid(&eid);
- 	if (!smc_clc_match_eid(ini->negotiated_eid, smc_v2_ext,
-@@ -2216,9 +2214,9 @@ static void smc_find_ism_v1_device_serv(struct smc_sock *new_smc,
- 	rc = smc_listen_ism_init(new_smc, ini);
- 	if (!rc)
- 		return;		/* V1 ISM device found */
-+	smc_find_device_store_rc(rc, ini);
- 
- not_found:
--	smc_find_device_store_rc(rc, ini);
- 	ini->smcd_version &= ~SMC_V1;
- 	ini->ism_dev[0] = NULL;
- 	ini->is_smcd = false;
-@@ -2267,10 +2265,8 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
- 	ini->smcrv2.saddr = new_smc->clcsock->sk->sk_rcv_saddr;
- 	ini->smcrv2.daddr = smc_ib_gid_to_ipv4(smc_v2_ext->roce);
- 	rc = smc_find_rdma_device(new_smc, ini);
--	if (rc) {
--		smc_find_device_store_rc(rc, ini);
-+	if (rc)
- 		goto not_found;
--	}
- 	if (!ini->smcrv2.uses_gateway)
- 		memcpy(ini->smcrv2.nexthop_mac, pclc->lcl.mac, ETH_ALEN);
- 
-@@ -2331,8 +2327,6 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
- 
- 	/* check for matching IP prefix and subnet length (V1) */
- 	prfx_rc = smc_listen_prfx_check(new_smc, pclc);
--	if (prfx_rc)
--		smc_find_device_store_rc(prfx_rc, ini);
- 
- 	/* get vlan id from IP device */
- 	if (smc_vlan_by_tcpsk(new_smc->clcsock, ini))
--- 
-2.24.3 (Apple Git-128)
-
+Personal preference, I prefer simply iterating over a counter, but its up
+to you.
