@@ -2,171 +2,247 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31A89CDB474
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Oct 2023 08:07:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 961E8CDB474
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Oct 2023 08:39:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232134AbjJQIHx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 Oct 2023 04:07:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57080 "EHLO
+        id S234749AbjJQIjv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 Oct 2023 04:39:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233857AbjJQHhk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Oct 2023 03:37:40 -0400
+        with ESMTP id S234746AbjJQIju (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Oct 2023 04:39:50 -0400
 Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B365A93;
-        Tue, 17 Oct 2023 00:37:37 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R611e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VuMT906_1697528253;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0VuMT906_1697528253)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04D39FB;
+        Tue, 17 Oct 2023 01:39:46 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0VuMbDuC_1697531983;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0VuMbDuC_1697531983)
           by smtp.aliyun-inc.com;
-          Tue, 17 Oct 2023 15:37:34 +0800
-Date:   Tue, 17 Oct 2023 15:37:33 +0800
+          Tue, 17 Oct 2023 16:39:44 +0800
+Date:   Tue, 17 Oct 2023 16:39:42 +0800
 From:   Dust Li <dust.li@linux.alibaba.com>
-To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>,
-        kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com
-Cc:     tonylu@linux.alibaba.com, alibuda@linux.alibaba.com,
-        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net] net/smc: correct the reason code in
- smc_listen_find_device when fallback
-Message-ID: <20231017073733.GV92403@linux.alibaba.com>
+To:     "D. Wythe" <alibuda@linux.alibaba.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com, wintera@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: Re: [PATCH net 1/5] net/smc: fix dangling sock under state
+ SMC_APPFINCLOSEWAIT
+Message-ID: <20231017083942.GW92403@linux.alibaba.com>
 Reply-To: dust.li@linux.alibaba.com
-References: <20231016061153.40057-1-guangguan.wang@linux.alibaba.com>
+References: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
+ <1697009600-22367-2-git-send-email-alibuda@linux.alibaba.com>
+ <e63b546f-b993-4e42-8269-e4d9afa5b845@linux.ibm.com>
+ <f8089b26-bb11-f82d-8070-222b1f8c1db1@linux.alibaba.com>
+ <745d3174-f497-4d6a-ba13-1074128ad99d@linux.ibm.com>
+ <20231013053214.GT92403@linux.alibaba.com>
+ <6666db42-a4de-425e-a96d-bfa899ab265e@linux.ibm.com>
+ <20231013122729.GU92403@linux.alibaba.com>
+ <2eabf3fb-9613-1b96-3ce9-993f94ef081d@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20231016061153.40057-1-guangguan.wang@linux.alibaba.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <2eabf3fb-9613-1b96-3ce9-993f94ef081d@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 16, 2023 at 02:11:53PM +0800, Guangguan Wang wrote:
-
-Hi guangguan,
-
-This patch doesn't apply clearly on net because it conflict with my
-previous patch 4abbd2e3c1db(net/smc: return the right falback reason
-when prefix checks fail), pls rebase.
-
->The function smc_find_ism_store_rc is not only used for ism, so it is
->reasonable to change the function name to smc_find_device_store_rc.
+On Tue, Oct 17, 2023 at 10:00:28AM +0800, D. Wythe wrote:
 >
->The ini->rc is used to store the last error happened when finding usable
->ism or rdma device in smc_listen_find_device, and is set by calling smc_
->find_device_store_rc. Once the ini->rc is assigned to an none-zero value,
->the value can not be overwritten anymore. So the ini-rc should be set to
->the error reason only when an error actually occurs.
 >
->When finding ISM/RDMA devices, device not found is not a real error, as
->not all machine have ISM/RDMA devices. Failures after device found, when
->initializing device or when initializing connection, is real errors, and
->should be store in ini->rc.
+>On 10/13/23 8:27 PM, Dust Li wrote:
+>> On Fri, Oct 13, 2023 at 01:52:09PM +0200, Wenjia Zhang wrote:
+>> > 
+>> > On 13.10.23 07:32, Dust Li wrote:
+>> > > On Thu, Oct 12, 2023 at 01:51:54PM +0200, Wenjia Zhang wrote:
+>> > > > 
+>> > > > On 12.10.23 04:37, D. Wythe wrote:
+>> > > > > 
+>> > > > > On 10/12/23 4:31 AM, Wenjia Zhang wrote:
+>> > > > > > 
+>> > > > > > On 11.10.23 09:33, D. Wythe wrote:
+>> > > > > > > From: "D. Wythe" <alibuda@linux.alibaba.com>
+>> > > > > > > 
+>> > > > > > > Considering scenario:
+>> > > > > > > 
+>> > > > > > >                   smc_cdc_rx_handler_rwwi
+>> > > > > > > __smc_release
+>> > > > > > >                   sock_set_flag
+>> > > > > > > smc_close_active()
+>> > > > > > > sock_set_flag
+>> > > > > > > 
+>> > > > > > > __set_bit(DEAD)            __set_bit(DONE)
+>> > > > > > > 
+>> > > > > > > Dues to __set_bit is not atomic, the DEAD or DONE might be lost.
+>> > > > > > > if the DEAD flag lost, the state SMC_CLOSED  will be never be reached
+>> > > > > > > in smc_close_passive_work:
+>> > > > > > > 
+>> > > > > > > if (sock_flag(sk, SOCK_DEAD) &&
+>> > > > > > >       smc_close_sent_any_close(conn)) {
+>> > > > > > >       sk->sk_state = SMC_CLOSED;
+>> > > > > > > } else {
+>> > > > > > >       /* just shutdown, but not yet closed locally */
+>> > > > > > >       sk->sk_state = SMC_APPFINCLOSEWAIT;
+>> > > > > > > }
+>> > > > > > > 
+>> > > > > > > Replace sock_set_flags or __set_bit to set_bit will fix this problem.
+>> > > > > > > Since set_bit is atomic.
+>> > > > > > > 
+>> > > > > > I didn't really understand the scenario. What is
+>> > > > > > smc_cdc_rx_handler_rwwi()? What does it do? Don't it get the lock
+>> > > > > > during the runtime?
+>> > > > > > 
+>> > > > > Hi Wenjia,
+>> > > > > 
+>> > > > > Sorry for that, It is not smc_cdc_rx_handler_rwwi() but
+>> > > > > smc_cdc_rx_handler();
+>> > > > > 
+>> > > > > Following is a more specific description of the issues
+>> > > > > 
+>> > > > > 
+>> > > > > lock_sock()
+>> > > > > __smc_release
+>> > > > > 
+>> > > > > smc_cdc_rx_handler()
+>> > > > > smc_cdc_msg_recv()
+>> > > > > bh_lock_sock()
+>> > > > > smc_cdc_msg_recv_action()
+>> > > > > sock_set_flag(DONE) sock_set_flag(DEAD)
+>> > > > > __set_bit __set_bit
+>> > > > > bh_unlock_sock()
+>> > > > > release_sock()
+>> > > > > 
+>> > > > > 
+>> > > > > 
+>> > > > > Note : |bh_lock_sock|and |lock_sock|are not mutually exclusive. They are
+>> > > > > actually used for different purposes and contexts.
+>> > > > > 
+>> > > > > 
+>> > > > ok, that's true that |bh_lock_sock|and |lock_sock|are not really mutually
+>> > > > exclusive. However, since bh_lock_sock() is used, this scenario you described
+>> > > > above should not happen, because that gets the sk_lock.slock. Following this
+>> > > > scenarios, IMO, only the following situation can happen.
+>> > > > 
+>> > > > lock_sock()
+>> > > > __smc_release
+>> > > > 
+>> > > > smc_cdc_rx_handler()
+>> > > > smc_cdc_msg_recv()
+>> > > > bh_lock_sock()
+>> > > > smc_cdc_msg_recv_action()
+>> > > > sock_set_flag(DONE)
+>> > > > bh_unlock_sock()
+>> > > > sock_set_flag(DEAD)
+>> > > > release_sock()
+>> > > Hi wenjia,
+>> > > 
+>> > > I think I know what D. Wythe means now, and I think he is right on this.
+>> > > 
+>> > > IIUC, in process context, lock_sock() won't respect bh_lock_sock() if it
+>> > > acquires the lock before bh_lock_sock(). This is how the sock lock works.
+>> > > 
+>> > >       PROCESS CONTEXT                                 INTERRUPT CONTEXT
+>> > > ------------------------------------------------------------------------
+>> > > lock_sock()
+>> > >       spin_lock_bh(&sk->sk_lock.slock);
+>> > >       ...
+>> > >       sk->sk_lock.owned = 1;
+>> > >       // here the spinlock is released
+>> > >       spin_unlock_bh(&sk->sk_lock.slock);
+>> > > __smc_release()
+>> > >                                                      bh_lock_sock(&smc->sk);
+>> > >                                                      smc_cdc_msg_recv_action(smc, cdc);
+>> > >                                                          sock_set_flag(&smc->sk, SOCK_DONE);
+>> > >                                                      bh_unlock_sock(&smc->sk);
+>> > > 
+>> > >       sock_set_flag(DEAD)  <-- Can be before or after sock_set_flag(DONE)
+>> > > release_sock()
+>> > > 
+>> > > The bh_lock_sock() only spins on sk->sk_lock.slock, which is already released
+>> > > after lock_sock() return. Therefor, there is actually no lock between
+>> > > the code after lock_sock() and before release_sock() with bh_lock_sock()...bh_unlock_sock().
+>> > > Thus, sock_set_flag(DEAD) won't respect bh_lock_sock() at all, and might be
+>> > > before or after sock_set_flag(DONE).
+>> > > 
+>> > > 
+>> > > Actually, in TCP, the interrupt context will check sock_owned_by_user().
+>> > > If it returns true, the softirq just defer the process to backlog, and process
+>> > > that in release_sock(). Which avoid the race between softirq and process
+>> > > when visiting the 'struct sock'.
+>> > > 
+>> > > tcp_v4_rcv()
+>> > >            bh_lock_sock_nested(sk);
+>> > >            tcp_segs_in(tcp_sk(sk), skb);
+>> > >            ret = 0;
+>> > >            if (!sock_owned_by_user(sk)) {
+>> > >                    ret = tcp_v4_do_rcv(sk, skb);
+>> > >            } else {
+>> > >                    if (tcp_add_backlog(sk, skb, &drop_reason))
+>> > >                            goto discard_and_relse;
+>> > >            }
+>> > >            bh_unlock_sock(sk);
+>> > > 
+>> > > 
+>> > > But in SMC we don't have a backlog, that means fields in 'struct sock'
+>> > > might all have race, and this sock_set_flag() is just one of the cases.
+>> > > 
+>> > > Best regards,
+>> > > Dust
+>> > > 
+>> > I agree on your description above.
+>> > Sure, the following case 1) can also happen
+>> > 
+>> > case 1)
+>> > -------
+>> > lock_sock()
+>> > __smc_release
+>> > 
+>> > sock_set_flag(DEAD)
+>> > bh_lock_sock()
+>> > smc_cdc_msg_recv_action()
+>> > sock_set_flag(DONE)
+>> > bh_unlock_sock()
+>> > release_sock()
+>> > 
+>> > case 2)
+>> > -------
+>> > lock_sock()
+>> > __smc_release
+>> > 
+>> > bh_lock_sock()
+>> > smc_cdc_msg_recv_action()
+>> > sock_set_flag(DONE) sock_set_flag(DEAD)
+>> > __set_bit __set_bit
+>> > bh_unlock_sock()
+>> > release_sock()
+>> > 
+>> > My point here is that case2) can never happen. i.e that sock_set_flag(DONE)
+>> > and sock_set_flag(DEAD) can not happen concurrently. Thus, how could
+>> > the atomic set help make sure that the Dead flag would not be overwritten
+>> > with DONE?
+>> I agree with you on this. I also don't see using atomic can
+>> solve the problem of overwriting the DEAD flag with DONE.
+>> 
+>> I think we need some mechanisms to ensure that sk_flags and other
+>> struct sock related fields are not modified simultaneously.
+>> 
+>> Best regards,
+>> Dust
 >
->SMC_CLC_DECL_DIFFPREFIX also is not a real error, as for SMC-RV2, it is
->not require same prefix.
+>It seems that everyone has agrees on that case 2 is impossible. I'm a bit
+>confused, why that
+>sock_set_flag(DONE) and sock_set_flag(DEAD) can not happen concurrently. What
+>mechanism
+>prevents their parallel execution?
 
-I think it's better to seperate this patch into 2:
-- one for changing the name from smc_find_ism_store_rc to smc_find_device_store_rc.
-- one for fixing the return reason.
+Upon reviewing the code again, I realize that my previous understanding
+was incorrect. I mistakenly believed that the DEAD and DONE flags would
+overwrite each other, without realizing that sk_flags is actually used
+as a bitmap.
 
-More comments below.
+So, I think you are right, using atomic will ensure that the DEAD flag is
+always set.
 
->
->Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
->---
-> net/smc/af_smc.c | 23 +++++++++--------------
-> 1 file changed, 9 insertions(+), 14 deletions(-)
->
->diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
->index bacdd971615e..15d8ad7af75d 100644
->--- a/net/smc/af_smc.c
->+++ b/net/smc/af_smc.c
->@@ -2121,7 +2121,7 @@ static void smc_check_ism_v2_match(struct smc_init_info *ini,
-> 	}
-> }
-> 
->-static void smc_find_ism_store_rc(u32 rc, struct smc_init_info *ini)
->+static void smc_find_device_store_rc(u32 rc, struct smc_init_info *ini)
-> {
-> 	if (!ini->rc)
-> 		ini->rc = rc;
->@@ -2162,10 +2162,8 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
-> 	}
-> 	mutex_unlock(&smcd_dev_list.mutex);
-> 
->-	if (!ini->ism_dev[0]) {
->-		smc_find_ism_store_rc(SMC_CLC_DECL_NOSMCD2DEV, ini);
->+	if (!ini->ism_dev[0])
-> 		goto not_found;
->-	}
-> 
-> 	smc_ism_get_system_eid(&eid);
-> 	if (!smc_clc_match_eid(ini->negotiated_eid, smc_v2_ext,
->@@ -2180,7 +2178,7 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
-> 		ini->ism_selected = i;
-> 		rc = smc_listen_ism_init(new_smc, ini);
-> 		if (rc) {
->-			smc_find_ism_store_rc(rc, ini);
->+			smc_find_device_store_rc(rc, ini);
-> 			/* try next active ISM device */
-> 			continue;
-> 		}
->@@ -2213,11 +2211,12 @@ static void smc_find_ism_v1_device_serv(struct smc_sock *new_smc,
-> 		goto not_found;
-> 	ini->ism_selected = 0;
-> 	rc = smc_listen_ism_init(new_smc, ini);
->-	if (!rc)
->+	if (!rc) {
->+		smc_find_device_store_rc(rc, ini);
+Best regards,
+Dust
 
-This smc_find_device_store_rc() seems useless when rc == 0 here ?
-
-> 		return;		/* V1 ISM device found */
->+	}
-> 
-> not_found:
->-	smc_find_ism_store_rc(rc, ini);
-> 	ini->smcd_version &= ~SMC_V1;
-> 	ini->ism_dev[0] = NULL;
-> 	ini->is_smcd = false;
->@@ -2266,10 +2265,8 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
-> 	ini->smcrv2.saddr = new_smc->clcsock->sk->sk_rcv_saddr;
-> 	ini->smcrv2.daddr = smc_ib_gid_to_ipv4(smc_v2_ext->roce);
-> 	rc = smc_find_rdma_device(new_smc, ini);
->-	if (rc) {
->-		smc_find_ism_store_rc(rc, ini);
->+	if (rc)
-> 		goto not_found;
->-	}
-> 	if (!ini->smcrv2.uses_gateway)
-> 		memcpy(ini->smcrv2.nexthop_mac, pclc->lcl.mac, ETH_ALEN);
-> 
->@@ -2284,7 +2281,7 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
-> 	if (!rc)
-> 		return;
-> 	ini->smcr_version = smcr_version;
->-	smc_find_ism_store_rc(rc, ini);
->+	smc_find_device_store_rc(rc, ini);
-> 
-> not_found:
-> 	ini->smcr_version &= ~SMC_V2;
->@@ -2330,8 +2327,6 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
-> 
-> 	/* check for matching IP prefix and subnet length (V1) */
-> 	prfx_rc = smc_listen_prfx_check(new_smc, pclc);
->-	if (prfx_rc)
->-		smc_find_ism_store_rc(prfx_rc, ini);
-> 
-> 	/* get vlan id from IP device */
-> 	if (smc_vlan_by_tcpsk(new_smc->clcsock, ini))
->@@ -2358,7 +2353,7 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
-> 		int rc;
-> 
-> 		rc = smc_find_rdma_v1_device_serv(new_smc, pclc, ini);
->-		smc_find_ism_store_rc(rc, ini);
->+		smc_find_device_store_rc(rc, ini);
-> 		return (!rc) ? 0 : ini->rc;
-> 	}
-> 	return SMC_CLC_DECL_NOSMCDEV;
->-- 
->2.24.3 (Apple Git-128)
