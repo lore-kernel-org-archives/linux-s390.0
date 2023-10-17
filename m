@@ -2,95 +2,157 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A16ECCDB474
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Oct 2023 19:51:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19995CDB482
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Oct 2023 20:25:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344438AbjJQTvL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 Oct 2023 15:51:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41270 "EHLO
+        id S232568AbjJQUZb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 Oct 2023 16:25:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344424AbjJQTvK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Oct 2023 15:51:10 -0400
-Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [IPv6:2a03:a000:7:0:5054:ff:fe1c:15ff])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 282CBF0;
-        Tue, 17 Oct 2023 12:51:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=GNBVHxO35CtDJJ50FQl58Qlyu6FwrHZDEfJe+KyOfnA=; b=TOLZFA3ZsXFSoHiXsJUWtNefxf
-        /7Ldgtep1APqXhU3Pnqp43XUP8SdedLg/FnZnEa23b65yJg1PfwulbjHBUlUTaUICa4TsIf6p6dZf
-        zVGDN0pNEzmeQFLKd0mQN/u8ANpEZVs+GsafaCNfu8XON4VcC/6GlURdiGwVltij/6p+JrNRqP66N
-        Ot4MY5I81RTajeTMxvIckOEqNf94el+KrpwOPumLy5wVHCrvO8B0HZ3w2LxgTiCZRNCYrPdYECmdl
-        yJtunmqBT9I9ddYUnyIH+5Bp6kTy7ZaMtLmUkYG7kqdRIIJ3hUHRbCCF97ijTRlTKUnW46xBK+4nq
-        +sYDDQ4Q==;
-Received: from viro by zeniv.linux.org.uk with local (Exim 4.96 #2 (Red Hat Linux))
-        id 1qsq5R-0027ua-2y;
-        Tue, 17 Oct 2023 19:50:42 +0000
-Date:   Tue, 17 Oct 2023 20:50:41 +0100
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Christian Brauner <brauner@kernel.org>
-Cc:     Christoph Hellwig <hch@lst.de>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Tejun Heo <tj@kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Damien Le Moal <dlemoal@kernel.org>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-hardening@vger.kernel.org,
-        cgroups@vger.kernel.org
-Subject: Re: [PATCH 03/19] fs: release anon dev_t in deactivate_locked_super
-Message-ID: <20231017195041.GQ800259@ZenIV>
-References: <20230913111013.77623-1-hch@lst.de>
- <20230913111013.77623-4-hch@lst.de>
- <20230913232712.GC800259@ZenIV>
- <20230926093834.GB13806@lst.de>
- <20230926212515.GN800259@ZenIV>
- <20231002064646.GA1799@lst.de>
- <20231009215754.GL800259@ZenIV>
- <20231010-zulagen-bisschen-9657746c1fc0@brauner>
+        with ESMTP id S229459AbjJQUZa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Oct 2023 16:25:30 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D09E0F0;
+        Tue, 17 Oct 2023 13:25:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1697574329; x=1729110329;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=GidCfHFt8RPhycoP1wfXlb89hDpzBE5Ubdb1ihTFzYc=;
+  b=oIiPe8O3j8PAnMJTJfNGS/VZZGuavCLCy8IrqRjMo4qbGfR81/dJoo+b
+   T78DiMw6DE6fQKZT+k5QqM9gZ137zevxfFU0JFdg7RPDKrAUPHGyOpujq
+   NUUCSjgnvFjzlaRefFN1cTxXXf7aDem3Cik0fZlTcbwA5yPx25asXnd91
+   lDSpaHIpLJTga07S6j3OP7LM7tBszLfFycNg2N2IpEB5EwoRfVW3Tnid8
+   XCI87PxH5Djwig+3Lj3NP1d31Rv1rCfsAQf+CrRAvz/1o/uERZaMdkFzr
+   HlHaKZJdObF3zAswzK4Fi9xaqVjeJQy1gCyFHiFJTYICkcQRdvKG8WQbg
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10866"; a="7429472"
+X-IronPort-AV: E=Sophos;i="6.03,233,1694761200"; 
+   d="scan'208";a="7429472"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Oct 2023 13:25:28 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10866"; a="900040430"
+X-IronPort-AV: E=Sophos;i="6.03,233,1694761200"; 
+   d="scan'208";a="900040430"
+Received: from rtdinh-mobl1.amr.corp.intel.com (HELO rpedgeco-desk4.intel.com) ([10.212.150.155])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Oct 2023 13:23:24 -0700
+From:   Rick Edgecombe <rick.p.edgecombe@intel.com>
+To:     x86@kernel.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, hpa@zytor.com, luto@kernel.org,
+        peterz@infradead.org, kirill.shutemov@linux.intel.com,
+        elena.reshetova@intel.com, isaku.yamahata@intel.com,
+        seanjc@google.com, Michael Kelley <mikelley@microsoft.com>,
+        thomas.lendacky@amd.com, decui@microsoft.com,
+        sathyanarayanan.kuppuswamy@linux.intel.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc:     rick.p.edgecombe@intel.com
+Subject: [PATCH 00/10] Handle set_memory_XXcrypted() errors
+Date:   Tue, 17 Oct 2023 13:24:55 -0700
+Message-Id: <20231017202505.340906-1-rick.p.edgecombe@intel.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231010-zulagen-bisschen-9657746c1fc0@brauner>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Oct 10, 2023 at 10:44:09AM +0200, Christian Brauner wrote:
-> > list removal should happen after generic_shutdown_super().  Sure, you
-> > want the superblock to serve as bdev holder, which leads to fun
-> > with -EBUSY if mount comes while umount still hadn't closed the
-> > device.  I suspect that it would make a lot more sense to
-> > introduce an intermediate state - "held, but will be released
-> > in a short while".  You already have something similar, but
-> > only for the entire disk ->bd_claiming stuff.
-> > 
-> > Add a new primitive (will_release_bdev()), so that attempts to
-> > claim the sucker will wait until it gets released instead of
-> > failing with -EBUSY.  And do *that* before generic_shutdown_super()
-> > when unmounting something that is block-based.  Allows to bring
-> > the list removal back where it used to be, no UAF at all...
-> 
-> This is essentially equivalent to what is done right now. Only that this
-> would then happen in the block layer. I'm not sure it would buy us that
-> much. In all likelyhood we just get a range of other issues to fix.
+Shared pages should never return to the page allocator, or future usage of
+the pages may allow for the contents to be exposed to the host. They may
+also cause the guest to crash if the page is used in way disallowed by HW 
+(i.e. for executable code or as a page table).
 
-The difference is, we separate the "close the block device" (which
-can't be done until we stopped generating any IO on it, obviously)
-from "tell anyone who wants to claim the sucker that we are going
-to release it and they just need to wait".  That can be done before
-generic_shutdown_super(), or from it (e.g. from ->put_super()),
-untangling the ordering mess.
+Normally set_memory() call failures are rare. But on TDX 
+set_memory_XXcrypted() involves calls to the untrusted VMM, and an attacker
+could fail these calls such that:
+ 1. set_memory_encrypted() returns an error and leaves the pages fully
+    shared.
+ 2. set_memory_decrypted() returns an error, but the pages are actually
+    full converted to shared.
+
+This means that patterns like the below can cause problems:
+void *addr = alloc();
+int fail = set_memory_decrypted(addr, 1);
+if (fail)
+	free_pages(addr, 0);
+
+And:
+void *addr = alloc();
+int fail = set_memory_decrypted(addr, 1);
+if (fail) {
+	set_memory_encrypted(addr, 1);
+	free_pages(addr, 0);
+}
+
+Unfortunately these patterns are all over the place. And what the 
+set_memory() callers should do in this situation is not clear either. They 
+shouldn’t use them as shared because something clearly went wrong, but 
+they also need to fully reset the pages to private to free them. But, the 
+kernel needs the VMMs help to do this and the VMM is already being 
+uncooperative around the needed operations. So this isn't guaranteed to 
+succeed and the caller is kind of stuck with unusable pages.
+
+Looking at QEMU/KVM as an example, these VMM converstion failures either 
+indicates an attempt to attack the guest, or resource constraints on the 
+host. Preventing a DOS attack is out of scope for the coco threat model. 
+So this leaves the host resource constraint cause. When similar resource 
+constraints are encountered in the host, KVM punts the problem to 
+userspace and QEMU terminates the guest. When similar problems are 
+detected inside set_memory(), SEV issues a command to terminate the guest. 
+
+This all makes it appealing to simply panic (via tdx_panic() call 
+which informs the host what is happening) when observing troublesome VMM 
+behavior around the memory conversion. It is:
+ - Consistent with similar behavior on SEV side.
+ - Generally more consistent with how host resource constraints are handled
+   (at least in QEMU/KVM)
+ - Would be a more foolproof defense against the attack scenario.
+
+Never-the-less, doing so would be an instance of the “crash the kernel for 
+security reasons” pattern. This is a big reason, and crashing is not fully 
+needed because the unusable pages could just be leaked (as they already 
+are in some cases). So instead, this series does a tree-wide search and 
+fixes the callers to handle the error by leaking the pages. Going forward 
+callers will need to handle the set_memory() errors correctly in order to 
+not reintroduce the issue.
+
+I think there are some points for both sides, and we had some internal
+discussion on the right way to handle it. So I've tried to characterize
+both arguments. I'm interested to hear opinions on which is the best.
+
+I’ve marked the hyperv guest parts in this as RFC, both because I can’t 
+test them and I believe Linux TDs can’t run on hyperv yet due to some
+missing support. I would appreciate a correction on this if it’s wrong.
+
+Rick Edgecombe (10):
+  mm: Add helper for freeing decrypted memory
+  x86/mm/cpa: Reject incorrect encryption change requests
+  kvmclock: Use free_decrypted_pages()
+  swiotlb: Use free_decrypted_pages()
+  ptp: Use free_decrypted_pages()
+  dma: Use free_decrypted_pages()
+  hv: Use free_decrypted_pages()
+  hv: Track decrypted status in vmbus_gpadl
+  hv_nstvsc: Don't free decrypted memory
+  uio_hv_generic: Don't free decrypted memory
+
+ arch/s390/include/asm/set_memory.h |  1 +
+ arch/x86/kernel/kvmclock.c         |  2 +-
+ arch/x86/mm/pat/set_memory.c       | 41 +++++++++++++++++++++++++++++-
+ drivers/hv/channel.c               | 18 ++++++++-----
+ drivers/hv/connection.c            | 13 +++++++---
+ drivers/net/hyperv/netvsc.c        |  7 +++--
+ drivers/ptp/ptp_kvm_x86.c          |  2 +-
+ drivers/uio/uio_hv_generic.c       | 12 ++++++---
+ include/linux/dma-map-ops.h        |  3 ++-
+ include/linux/hyperv.h             |  1 +
+ include/linux/set_memory.h         | 13 ++++++++++
+ kernel/dma/contiguous.c            |  2 +-
+ kernel/dma/swiotlb.c               | 11 +++++---
+ 13 files changed, 101 insertions(+), 25 deletions(-)
+
+-- 
+2.34.1
+
