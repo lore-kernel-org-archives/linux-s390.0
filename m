@@ -2,119 +2,78 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C202CDB474
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Oct 2023 08:52:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 048FECDB474
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Oct 2023 12:06:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234771AbjJQIwY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 Oct 2023 04:52:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49852 "EHLO
+        id S234898AbjJQMGA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 Oct 2023 08:06:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234620AbjJQIwS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Oct 2023 04:52:18 -0400
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A425493;
-        Tue, 17 Oct 2023 01:52:15 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VuMgVhC_1697532731;
-Received: from 30.221.102.81(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0VuMgVhC_1697532731)
-          by smtp.aliyun-inc.com;
-          Tue, 17 Oct 2023 16:52:13 +0800
-Message-ID: <e89d6d5d-9fde-43b3-9cbc-ddefe56d188a@linux.alibaba.com>
-Date:   Tue, 17 Oct 2023 16:52:10 +0800
+        with ESMTP id S235001AbjJQMFc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Oct 2023 08:05:32 -0400
+X-Greylist: delayed 426 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 17 Oct 2023 05:05:05 PDT
+Received: from mail.avm.de (mail.avm.de [IPv6:2001:bf0:244:244::120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2993E134;
+        Tue, 17 Oct 2023 05:05:04 -0700 (PDT)
+Received: from mail-auth.avm.de (dovecot-mx-01.avm.de [212.42.244.71])
+        by mail.avm.de (Postfix) with ESMTPS;
+        Tue, 17 Oct 2023 13:57:52 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
+        t=1697543873; bh=osOPrqiiKOprJxC70XFTAVq992xL7ZaM2aZVaEQG2Qc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LnJgpiNWAMGVc0xEWtD9K4S88LSSPMbgijDz2pOHmBktW2Orxe1PlrhnLTDsBrgGX
+         tfFz/35yEpjsd2lWXJB3L8dxOM1f2ywcRKM8oZxaKD9ofLnmAeJI+8zMVH6ERwT4HW
+         LewlwUwa8Y743N4nthnjDBYgG1826/sWxFei++6o=
+Received: from buildd.core.avm.de (buildd-sv-01.avm.de [172.16.0.225])
+        by mail-auth.avm.de (Postfix) with ESMTPA id 1002280683;
+        Tue, 17 Oct 2023 13:57:54 +0200 (CEST)
+Received: by buildd.core.avm.de (Postfix, from userid 1000)
+        id 0841B1819FD; Tue, 17 Oct 2023 13:57:54 +0200 (CEST)
+Date:   Tue, 17 Oct 2023 13:57:54 +0200
+From:   Nicolas Schier <n.schier@avm.de>
+To:     Masahiro Yamada <masahiroy@kernel.org>
+Cc:     linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
+        loongarch@lists.linux.dev, sparclinux@vger.kernel.org,
+        x86@kernel.org, Nicolas Schier <nicolas@fjasle.eu>
+Subject: Re: [PATCH v2 2/2] kbuild: unify no-compiler-targets and
+ no-sync-config-targets
+Message-ID: <ZS52wrL9meW8iehZ@buildd.core.avm.de>
+Mail-Followup-To: Masahiro Yamada <masahiroy@kernel.org>,
+        linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
+        loongarch@lists.linux.dev, sparclinux@vger.kernel.org,
+        x86@kernel.org
+References: <20231014105436.2119702-1-masahiroy@kernel.org>
+ <20231014105436.2119702-2-masahiroy@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net/smc: correct the reason code in
- smc_listen_find_device when fallback
-Content-Language: en-US
-To:     dust.li@linux.alibaba.com, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
-Cc:     tonylu@linux.alibaba.com, alibuda@linux.alibaba.com,
-        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20231016061153.40057-1-guangguan.wang@linux.alibaba.com>
- <20231017073733.GV92403@linux.alibaba.com>
-From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <20231017073733.GV92403@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20231014105436.2119702-2-masahiroy@kernel.org>
+X-purgate-ID: 149429::1697543872-187BED95-BE924DB1/0/0
+X-purgate-type: clean
+X-purgate-size: 416
+X-purgate-Ad: Categorized by eleven eXpurgate (R) http://www.eleven.de
+X-purgate: This mail is considered clean (visit http://www.eleven.de for further information)
+X-purgate: clean
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 2023/10/17 15:37, Dust Li wrote:
-> On Mon, Oct 16, 2023 at 02:11:53PM +0800, Guangguan Wang wrote:
+On Sat, Oct 14, 2023 at 07:54:36PM +0900, Masahiro Yamada wrote:
+> Now that vdso_install does not depend on any in-tree build artifact,
+> it no longer needs a compiler, making no-compiler-targets the same
+> as no-sync-config-targets.
 > 
-> Hi guangguan,
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> ---
 > 
-> This patch doesn't apply clearly on net because it conflict with my
-> previous patch 4abbd2e3c1db(net/smc: return the right falback reason
-> when prefix checks fail), pls rebase.
->
-
-This patch sent before the patch 4abbd2e3c1db applied. I will rebase it
-in the next version.
- 
->> The function smc_find_ism_store_rc is not only used for ism, so it is
->> reasonable to change the function name to smc_find_device_store_rc.
->>
->> The ini->rc is used to store the last error happened when finding usable
->> ism or rdma device in smc_listen_find_device, and is set by calling smc_
->> find_device_store_rc. Once the ini->rc is assigned to an none-zero value,
->> the value can not be overwritten anymore. So the ini-rc should be set to
->> the error reason only when an error actually occurs.
->>
->> When finding ISM/RDMA devices, device not found is not a real error, as
->> not all machine have ISM/RDMA devices. Failures after device found, when
->> initializing device or when initializing connection, is real errors, and
->> should be store in ini->rc.
->>
->> SMC_CLC_DECL_DIFFPREFIX also is not a real error, as for SMC-RV2, it is
->> not require same prefix.
+> Changes in v2:
+>   - Revive need-compiler flag
 > 
-> I think it's better to seperate this patch into 2:
-> - one for changing the name from smc_find_ism_store_rc to smc_find_device_store_rc.
-> - one for fixing the return reason.
-> 
-> More comments below.
-> 
-OK, I will seperate it.
->>
->> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
 
->> @@ -2213,11 +2211,12 @@ static void smc_find_ism_v1_device_serv(struct smc_sock *new_smc,
->> 		goto not_found;
->> 	ini->ism_selected = 0;
->> 	rc = smc_listen_ism_init(new_smc, ini);
->> -	if (!rc)
->> +	if (!rc) {
->> +		smc_find_device_store_rc(rc, ini);
-> 
-> This smc_find_device_store_rc() seems useless when rc == 0 here ?
-
-Oh, I see. The code here should be:
-
-rc = smc_listen_ism_init(new_smc, ini);
-if (!rc)
-    return;
-smc_find_device_store_rc(rc, ini);
-
-not_found:
-    ini->smcd_version &= ~SMC_V1;
-    ini->ism_dev[0] = NULL;
-    ini->is_smcd = false;
-
-
-Thanks,
-Guangguan Wang.
-> 
->> 		return;		/* V1 ISM device found */
->> +	}
->>
->> not_found:
->> -	smc_find_ism_store_rc(rc, ini);
->> 	ini->smcd_version &= ~SMC_V1;
->> 	ini->ism_dev[0] = NULL;
->> 	ini->is_smcd = false;
-
+Reviewed-by: Nicolas Schier <nicolas@fjasle.eu>
