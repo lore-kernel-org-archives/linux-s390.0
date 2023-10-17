@@ -2,127 +2,171 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 304EBCDB474
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Oct 2023 03:49:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31A89CDB474
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Oct 2023 08:07:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232411AbjJQDtM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 16 Oct 2023 23:49:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57200 "EHLO
+        id S232134AbjJQIHx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 Oct 2023 04:07:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231856AbjJQDtM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Oct 2023 23:49:12 -0400
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A67BE83;
-        Mon, 16 Oct 2023 20:49:09 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R701e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0VuLP0Gd_1697514545;
-Received: from 30.221.128.209(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VuLP0Gd_1697514545)
+        with ESMTP id S233857AbjJQHhk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Oct 2023 03:37:40 -0400
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B365A93;
+        Tue, 17 Oct 2023 00:37:37 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R611e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VuMT906_1697528253;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0VuMT906_1697528253)
           by smtp.aliyun-inc.com;
-          Tue, 17 Oct 2023 11:49:06 +0800
-Message-ID: <49847786-9914-b615-56d6-f39fbc6e03c2@linux.alibaba.com>
-Date:   Tue, 17 Oct 2023 11:49:04 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.1
-Subject: Re: [PATCH net-next v4 00/18] net/smc: implement virtual ISM
- extension and loopback-ism
-From:   Wen Gu <guwen@linux.alibaba.com>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
-Cc:     wintera@linux.ibm.com, gbayer@linux.ibm.com, pasic@linux.ibm.com,
-        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
-        dust.li@linux.alibaba.com, linux-s390@vger.kernel.org,
+          Tue, 17 Oct 2023 15:37:34 +0800
+Date:   Tue, 17 Oct 2023 15:37:33 +0800
+From:   Dust Li <dust.li@linux.alibaba.com>
+To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>,
+        kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com
+Cc:     tonylu@linux.alibaba.com, alibuda@linux.alibaba.com,
+        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
         netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1695568613-125057-1-git-send-email-guwen@linux.alibaba.com>
- <dcc46fedda57e7e3ade14685ddb262309544ad7e.camel@linux.ibm.com>
- <d04f304b-fe41-09b5-b2a5-5ce0e8254e41@linux.alibaba.com>
-In-Reply-To: <d04f304b-fe41-09b5-b2a5-5ce0e8254e41@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] net/smc: correct the reason code in
+ smc_listen_find_device when fallback
+Message-ID: <20231017073733.GV92403@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20231016061153.40057-1-guangguan.wang@linux.alibaba.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231016061153.40057-1-guangguan.wang@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, Oct 16, 2023 at 02:11:53PM +0800, Guangguan Wang wrote:
 
+Hi guangguan,
 
-On 2023/10/8 15:19, Wen Gu wrote:
-> 
-> 
-> On 2023/10/5 16:21, Niklas Schnelle wrote:
-> 
->>
->> Hi Wen Gu,
->>
->> I've been trying out your series with iperf3, qperf, and uperf on
->> s390x. I'm using network namespaces with a ConnectX VF from the same
->> card in each namespace for the initial TCP/IP connection i.e. initially
->> it goes out to a real NIC even if that can switch internally. All of
->> these look great for streaming workloads both in terms of performance
->> and stability. With a Connect-Request-Response workload and uperf
->> however I've run into issues. The test configuration I use is as
->> follows:
->>
->> Client Command:
->>
->> # host=$ip_server ip netns exec client smc_run uperf -m tcp_crr.xml
->>
->> Server Command:
->>
->> # ip netns exec server smc_run uperf -s &> /dev/null
->>
->> Uperf tcp_crr.xml:
->>
->> <?xml version="1.0"?>
->> <profile name="TCP_CRR">
->>          <group nthreads="12">
->>                  <transaction duration="120">
->>                          <flowop type="connect" options="remotehost=$host protocol=tcp" />
->>                          <flowop type="write" options="size=200"/>
->>                          <flowop type="read" options="size=1000"/>
->>                          <flowop type="disconnect" />
->>                  </transaction>
->>          </group>
->> </profile>
->>
->> The workload first runs fine but then after about 4 GB of data
->> transferred fails with "Connection refused" and "Connection reset by
->> peer" errors. The failure is not permanent however and re-running
->> the streaming workloads run fine again (with both uperf server and
->> client restarted). So I suspect something gets stuck in either the
->> client or server sockets. The same workload runs fine with TCP/IP of
->> course.
->>
->> Thanks,
->> Niklas
->>
->>
-> 
-> Hi Niklas,
-> 
-> Thank you very much for the test. With the test example you provided, I've
-> reproduced the issue in my VM. And moreover, sometimes the test complains
-> with 'Error saying goodbye with <ip>'
-> 
-> I'll figure out what's going on here.
-> 
-> Thanks!
-> Wen Gu
+This patch doesn't apply clearly on net because it conflict with my
+previous patch 4abbd2e3c1db(net/smc: return the right falback reason
+when prefix checks fail), pls rebase.
 
-I think that there is a common issue for SMC-R and SMC-D. I also reproduce
-'connection reset by peer' and 'Error saying goodbye with <ip>' when using
-SMC-R under the same test condition. They occur at the end of the test.
+>The function smc_find_ism_store_rc is not only used for ism, so it is
+>reasonable to change the function name to smc_find_device_store_rc.
+>
+>The ini->rc is used to store the last error happened when finding usable
+>ism or rdma device in smc_listen_find_device, and is set by calling smc_
+>find_device_store_rc. Once the ini->rc is assigned to an none-zero value,
+>the value can not be overwritten anymore. So the ini-rc should be set to
+>the error reason only when an error actually occurs.
+>
+>When finding ISM/RDMA devices, device not found is not a real error, as
+>not all machine have ISM/RDMA devices. Failures after device found, when
+>initializing device or when initializing connection, is real errors, and
+>should be store in ini->rc.
+>
+>SMC_CLC_DECL_DIFFPREFIX also is not a real error, as for SMC-RV2, it is
+>not require same prefix.
 
-When the uperf test time ends, some signals are sent. At this point there
-are usually some SMC connections doing CLC handshake. I catch some -EINTR(-4)
-in client and -ECONNRESET(-104) in server returned from smc_clc_wait_msg,
-(correspondingly handshake error counts also increase) and TCP RST packets
-sent to terminate the CLC TCP connection(clcsock).
+I think it's better to seperate this patch into 2:
+- one for changing the name from smc_find_ism_store_rc to smc_find_device_store_rc.
+- one for fixing the return reason.
 
-I am not sure if this should be considered as a bydesign or a bug of SMC.
- From an application perspective, the conn reset behavior only happens when
-using SMC.
+More comments below.
 
-@Wenjia, could you please take a look at this?
+>
+>Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+>---
+> net/smc/af_smc.c | 23 +++++++++--------------
+> 1 file changed, 9 insertions(+), 14 deletions(-)
+>
+>diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>index bacdd971615e..15d8ad7af75d 100644
+>--- a/net/smc/af_smc.c
+>+++ b/net/smc/af_smc.c
+>@@ -2121,7 +2121,7 @@ static void smc_check_ism_v2_match(struct smc_init_info *ini,
+> 	}
+> }
+> 
+>-static void smc_find_ism_store_rc(u32 rc, struct smc_init_info *ini)
+>+static void smc_find_device_store_rc(u32 rc, struct smc_init_info *ini)
+> {
+> 	if (!ini->rc)
+> 		ini->rc = rc;
+>@@ -2162,10 +2162,8 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
+> 	}
+> 	mutex_unlock(&smcd_dev_list.mutex);
+> 
+>-	if (!ini->ism_dev[0]) {
+>-		smc_find_ism_store_rc(SMC_CLC_DECL_NOSMCD2DEV, ini);
+>+	if (!ini->ism_dev[0])
+> 		goto not_found;
+>-	}
+> 
+> 	smc_ism_get_system_eid(&eid);
+> 	if (!smc_clc_match_eid(ini->negotiated_eid, smc_v2_ext,
+>@@ -2180,7 +2178,7 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
+> 		ini->ism_selected = i;
+> 		rc = smc_listen_ism_init(new_smc, ini);
+> 		if (rc) {
+>-			smc_find_ism_store_rc(rc, ini);
+>+			smc_find_device_store_rc(rc, ini);
+> 			/* try next active ISM device */
+> 			continue;
+> 		}
+>@@ -2213,11 +2211,12 @@ static void smc_find_ism_v1_device_serv(struct smc_sock *new_smc,
+> 		goto not_found;
+> 	ini->ism_selected = 0;
+> 	rc = smc_listen_ism_init(new_smc, ini);
+>-	if (!rc)
+>+	if (!rc) {
+>+		smc_find_device_store_rc(rc, ini);
 
-Thanks,
-Wen Gu
+This smc_find_device_store_rc() seems useless when rc == 0 here ?
+
+> 		return;		/* V1 ISM device found */
+>+	}
+> 
+> not_found:
+>-	smc_find_ism_store_rc(rc, ini);
+> 	ini->smcd_version &= ~SMC_V1;
+> 	ini->ism_dev[0] = NULL;
+> 	ini->is_smcd = false;
+>@@ -2266,10 +2265,8 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
+> 	ini->smcrv2.saddr = new_smc->clcsock->sk->sk_rcv_saddr;
+> 	ini->smcrv2.daddr = smc_ib_gid_to_ipv4(smc_v2_ext->roce);
+> 	rc = smc_find_rdma_device(new_smc, ini);
+>-	if (rc) {
+>-		smc_find_ism_store_rc(rc, ini);
+>+	if (rc)
+> 		goto not_found;
+>-	}
+> 	if (!ini->smcrv2.uses_gateway)
+> 		memcpy(ini->smcrv2.nexthop_mac, pclc->lcl.mac, ETH_ALEN);
+> 
+>@@ -2284,7 +2281,7 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
+> 	if (!rc)
+> 		return;
+> 	ini->smcr_version = smcr_version;
+>-	smc_find_ism_store_rc(rc, ini);
+>+	smc_find_device_store_rc(rc, ini);
+> 
+> not_found:
+> 	ini->smcr_version &= ~SMC_V2;
+>@@ -2330,8 +2327,6 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
+> 
+> 	/* check for matching IP prefix and subnet length (V1) */
+> 	prfx_rc = smc_listen_prfx_check(new_smc, pclc);
+>-	if (prfx_rc)
+>-		smc_find_ism_store_rc(prfx_rc, ini);
+> 
+> 	/* get vlan id from IP device */
+> 	if (smc_vlan_by_tcpsk(new_smc->clcsock, ini))
+>@@ -2358,7 +2353,7 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
+> 		int rc;
+> 
+> 		rc = smc_find_rdma_v1_device_serv(new_smc, pclc, ini);
+>-		smc_find_ism_store_rc(rc, ini);
+>+		smc_find_device_store_rc(rc, ini);
+> 		return (!rc) ? 0 : ini->rc;
+> 	}
+> 	return SMC_CLC_DECL_NOSMCDEV;
+>-- 
+>2.24.3 (Apple Git-128)
