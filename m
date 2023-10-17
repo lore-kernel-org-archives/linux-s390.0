@@ -2,42 +2,42 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8166CDB482
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Oct 2023 20:25:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 643A1C41513
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Oct 2023 20:25:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344427AbjJQUZr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 Oct 2023 16:25:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41356 "EHLO
+        id S1344562AbjJQUZy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 Oct 2023 16:25:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344429AbjJQUZh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Oct 2023 16:25:37 -0400
+        with ESMTP id S1344481AbjJQUZo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Oct 2023 16:25:44 -0400
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2023FF;
-        Tue, 17 Oct 2023 13:25:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 340EE113;
+        Tue, 17 Oct 2023 13:25:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1697574336; x=1729110336;
+  t=1697574338; x=1729110338;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=DeK9M9T8xLg82lbSzsd9PGh1edTcS0OzTNpNIQkWt+o=;
-  b=ibyLT5MepQhobD67/052nfhe6pYBEQu/Oy3Bz4PQaXwxoNNmUsmzruXB
-   2JPoCZAuETRn+kV2/hlOIGcSyYiXnaUswIaSF2sLKUwmiDjLAOg1dmWPo
-   Sqq1GjHNS8STK5wZMyEe1a07nKuHWJSYa5ngdAihkYtDajbUVsnMg3VF3
-   yjGWnGMICqR3JPuwu+uYdamomDxnCuokp3b9kAgRM9lCmpGbYWuuu3OIf
-   LRvwnG3p7I/8VTAz9aLtOi4nOFsAdtPqgtNxEDHHHfcqH8JHIS6lwBX1Y
-   1ZmhTDMShiAWHq5g6mdmSDRWwF8ydRUtrOjByStvvBPm9jASHivRKQ5xe
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10866"; a="7429573"
+  bh=n7cfqZUhm+mNRuq80sD29C7/lYhruGMsgMoNg518Mk8=;
+  b=YXuEGd1YuuA8OqolNFitTWvyC72DXCtDVrq4iC64qSq0H+WUXbWwob+q
+   moFldGrUAkrqIsmMoMBrwZ6+cuYbWgJb5SdNWl1xgaz271bELU9leP1Ew
+   xzjHZB5UBcLRhfA3PLkJz1TK4OaCFuGBDJeRzpeRCuibVL7Jf3clrDbTy
+   mNqR85YNWgSggizAPJxn3LEW2iBDTt1tJg/EpOSRWV1fSyhnn8uv4TGKX
+   z2snsrvYHjwgkdn6EsgEwlC3CYsavy99A7Qulh4pyuiTTo9VxKiittR0C
+   muzvRKkUiEFuZ0p6cHvGUTg99J7FnvevMoN32XQfR/dDcVVhpZOGCrPtu
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10866"; a="7429596"
 X-IronPort-AV: E=Sophos;i="6.03,233,1694761200"; 
-   d="scan'208";a="7429573"
+   d="scan'208";a="7429596"
 Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Oct 2023 13:25:36 -0700
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Oct 2023 13:25:38 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10866"; a="900040468"
+X-IronPort-AV: E=McAfee;i="6600,9927,10866"; a="900040475"
 X-IronPort-AV: E=Sophos;i="6.03,233,1694761200"; 
-   d="scan'208";a="900040468"
+   d="scan'208";a="900040475"
 Received: from rtdinh-mobl1.amr.corp.intel.com (HELO rpedgeco-desk4.intel.com) ([10.212.150.155])
-  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Oct 2023 13:23:32 -0700
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Oct 2023 13:23:34 -0700
 From:   Rick Edgecombe <rick.p.edgecombe@intel.com>
 To:     x86@kernel.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
         dave.hansen@linux.intel.com, hpa@zytor.com, luto@kernel.org,
@@ -50,9 +50,9 @@ To:     x86@kernel.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
 Cc:     rick.p.edgecombe@intel.com, "K. Y. Srinivasan" <kys@microsoft.com>,
         Haiyang Zhang <haiyangz@microsoft.com>,
         Wei Liu <wei.liu@kernel.org>, linux-hyperv@vger.kernel.org
-Subject: [RFC 07/10] hv: Use free_decrypted_pages()
-Date:   Tue, 17 Oct 2023 13:25:02 -0700
-Message-Id: <20231017202505.340906-8-rick.p.edgecombe@intel.com>
+Subject: [RFC 09/10] hv_nstvsc: Don't free decrypted memory
+Date:   Tue, 17 Oct 2023 13:25:04 -0700
+Message-Id: <20231017202505.340906-10-rick.p.edgecombe@intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20231017202505.340906-1-rick.p.edgecombe@intel.com>
 References: <20231017202505.340906-1-rick.p.edgecombe@intel.com>
@@ -68,8 +68,9 @@ error is returned and the resulting memory is shared. Callers need to take
 care to handle these errors to avoid returning decrypted (shared) memory to
 the page allocator, which could lead to functional or security issues.
 
-Hyperv could free decrypted/shared pages if set_memory_decrypted() fails.
-Use the recently added free_decrypted_pages() to avoid this.
+hv_nstvsc could free decrypted/shared pages if set_memory_decrypted()
+fails. Check the decrypted field in the gpadl before freeing in order to
+not leak the memory.
 
 Only compile tested.
 
@@ -80,60 +81,27 @@ Cc: Dexuan Cui <decui@microsoft.com>
 Cc: linux-hyperv@vger.kernel.org
 Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
 ---
- drivers/hv/channel.c    |  7 ++++---
- drivers/hv/connection.c | 13 +++++++++----
- 2 files changed, 13 insertions(+), 7 deletions(-)
+ drivers/net/hyperv/netvsc.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hv/channel.c b/drivers/hv/channel.c
-index 56f7e06c673e..1ad8f7fabe06 100644
---- a/drivers/hv/channel.c
-+++ b/drivers/hv/channel.c
-@@ -153,9 +153,10 @@ void vmbus_free_ring(struct vmbus_channel *channel)
- 	hv_ringbuffer_cleanup(&channel->inbound);
+diff --git a/drivers/net/hyperv/netvsc.c b/drivers/net/hyperv/netvsc.c
+index 82e9796c8f5e..70b7f91fb96b 100644
+--- a/drivers/net/hyperv/netvsc.c
++++ b/drivers/net/hyperv/netvsc.c
+@@ -154,8 +154,11 @@ static void free_netvsc_device(struct rcu_head *head)
+ 	int i;
  
- 	if (channel->ringbuffer_page) {
--		__free_pages(channel->ringbuffer_page,
--			     get_order(channel->ringbuffer_pagecount
--				       << PAGE_SHIFT));
-+		int order = get_order(channel->ringbuffer_pagecount << PAGE_SHIFT);
-+		unsigned long addr = (unsigned long)page_address(channel->ringbuffer_page);
+ 	kfree(nvdev->extension);
+-	vfree(nvdev->recv_buf);
+-	vfree(nvdev->send_buf);
 +
-+		free_decrypted_pages(addr, order);
- 		channel->ringbuffer_page = NULL;
- 	}
- }
-diff --git a/drivers/hv/connection.c b/drivers/hv/connection.c
-index 3cabeeabb1ca..cffad9b139d3 100644
---- a/drivers/hv/connection.c
-+++ b/drivers/hv/connection.c
-@@ -315,6 +315,7 @@ int vmbus_connect(void)
++	if (!nvdev->recv_buf_gpadl_handle.decrypted)
++		vfree(nvdev->recv_buf);
++	if (!nvdev->send_buf_gpadl_handle.decrypted)
++		vfree(nvdev->send_buf);
+ 	bitmap_free(nvdev->send_section_map);
  
- void vmbus_disconnect(void)
- {
-+	int ret;
- 	/*
- 	 * First send the unload request to the host.
- 	 */
-@@ -337,11 +338,15 @@ void vmbus_disconnect(void)
- 		vmbus_connection.int_page = NULL;
- 	}
- 
--	set_memory_encrypted((unsigned long)vmbus_connection.monitor_pages[0], 1);
--	set_memory_encrypted((unsigned long)vmbus_connection.monitor_pages[1], 1);
-+	ret = set_memory_encrypted((unsigned long)vmbus_connection.monitor_pages[0], 1);
-+	ret |= set_memory_encrypted((unsigned long)vmbus_connection.monitor_pages[1], 1);
- 
--	hv_free_hyperv_page(vmbus_connection.monitor_pages[0]);
--	hv_free_hyperv_page(vmbus_connection.monitor_pages[1]);
-+	if (!ret) {
-+		hv_free_hyperv_page(vmbus_connection.monitor_pages[0]);
-+		hv_free_hyperv_page(vmbus_connection.monitor_pages[1]);
-+	} else {
-+		WARN_ONCE(1, "Failed to re-encrypt memory before freeing, leaking pages!\n");
-+	}
- 	vmbus_connection.monitor_pages[0] = NULL;
- 	vmbus_connection.monitor_pages[1] = NULL;
- }
+ 	for (i = 0; i < VRSS_CHANNEL_MAX; i++) {
 -- 
 2.34.1
 
