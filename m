@@ -2,78 +2,152 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 048FECDB474
-	for <linux-s390@archiver.kernel.org>; Tue, 17 Oct 2023 12:06:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F4185CDB474
+	for <linux-s390@archiver.kernel.org>; Tue, 17 Oct 2023 12:32:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234898AbjJQMGA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 17 Oct 2023 08:06:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43370 "EHLO
+        id S1343507AbjJQMcU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 17 Oct 2023 08:32:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235001AbjJQMFc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Oct 2023 08:05:32 -0400
-X-Greylist: delayed 426 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 17 Oct 2023 05:05:05 PDT
-Received: from mail.avm.de (mail.avm.de [IPv6:2001:bf0:244:244::120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2993E134;
-        Tue, 17 Oct 2023 05:05:04 -0700 (PDT)
-Received: from mail-auth.avm.de (dovecot-mx-01.avm.de [212.42.244.71])
-        by mail.avm.de (Postfix) with ESMTPS;
-        Tue, 17 Oct 2023 13:57:52 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
-        t=1697543873; bh=osOPrqiiKOprJxC70XFTAVq992xL7ZaM2aZVaEQG2Qc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LnJgpiNWAMGVc0xEWtD9K4S88LSSPMbgijDz2pOHmBktW2Orxe1PlrhnLTDsBrgGX
-         tfFz/35yEpjsd2lWXJB3L8dxOM1f2ywcRKM8oZxaKD9ofLnmAeJI+8zMVH6ERwT4HW
-         LewlwUwa8Y743N4nthnjDBYgG1826/sWxFei++6o=
-Received: from buildd.core.avm.de (buildd-sv-01.avm.de [172.16.0.225])
-        by mail-auth.avm.de (Postfix) with ESMTPA id 1002280683;
-        Tue, 17 Oct 2023 13:57:54 +0200 (CEST)
-Received: by buildd.core.avm.de (Postfix, from userid 1000)
-        id 0841B1819FD; Tue, 17 Oct 2023 13:57:54 +0200 (CEST)
-Date:   Tue, 17 Oct 2023 13:57:54 +0200
-From:   Nicolas Schier <n.schier@avm.de>
-To:     Masahiro Yamada <masahiroy@kernel.org>
-Cc:     linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
-        loongarch@lists.linux.dev, sparclinux@vger.kernel.org,
-        x86@kernel.org, Nicolas Schier <nicolas@fjasle.eu>
-Subject: Re: [PATCH v2 2/2] kbuild: unify no-compiler-targets and
- no-sync-config-targets
-Message-ID: <ZS52wrL9meW8iehZ@buildd.core.avm.de>
-Mail-Followup-To: Masahiro Yamada <masahiroy@kernel.org>,
-        linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
-        loongarch@lists.linux.dev, sparclinux@vger.kernel.org,
-        x86@kernel.org
-References: <20231014105436.2119702-1-masahiroy@kernel.org>
- <20231014105436.2119702-2-masahiroy@kernel.org>
+        with ESMTP id S234647AbjJQMcT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 17 Oct 2023 08:32:19 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B73995;
+        Tue, 17 Oct 2023 05:32:17 -0700 (PDT)
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39HCA20r025050;
+        Tue, 17 Oct 2023 12:32:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references :
+ subject : cc : to : from : message-id : date; s=pp1;
+ bh=3jYBblpQmTnyPbk5ecIa6Ffw4/vEZXpk2tAFD54T+AM=;
+ b=p01rbc9+PHQJheDgRqv8j9uUTvySG2ZX/aoO/hjvc+ndL2v0vF5nMxqyLIQ7m3RJLZp3
+ Ld7Ui2wM7RNP8KxbXP55JWHMInWTNYNzq4KNSHTkPR3nxEjaYTCIhA6A9x1IA+1dDR8l
+ cPeUTMP750SlTBezEjz+KFO9NqSml7sjKzd4E+tJk0OxgSIOPKiCvBbgBAk87U9KaVn0
+ OB10i+gGurvpVIvyCRInsz0D3fN7TEVZlE8Zk4FqJeAU+g+ucyo080331+7JH1RKiEj+
+ zZlbIIp1IzmcJ6S3rI3weSSnYrr8io5TfmgGT/yNpUOO1Qc7sLA3NbYRbtbydrQQ0KuM 6A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tst1krmwd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 17 Oct 2023 12:32:06 +0000
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39HCAO0x025750;
+        Tue, 17 Oct 2023 12:32:06 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tst1krmut-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 17 Oct 2023 12:32:05 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39HAq4qe026885;
+        Tue, 17 Oct 2023 12:32:04 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tr5as9485-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 17 Oct 2023 12:32:04 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39HCW1Nh14156490
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 17 Oct 2023 12:32:01 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AC66520040;
+        Tue, 17 Oct 2023 12:32:01 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 05E9220043;
+        Tue, 17 Oct 2023 12:32:01 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.66.53])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 17 Oct 2023 12:32:00 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20231014105436.2119702-2-masahiroy@kernel.org>
-X-purgate-ID: 149429::1697543872-187BED95-BE924DB1/0/0
-X-purgate-type: clean
-X-purgate-size: 416
-X-purgate-Ad: Categorized by eleven eXpurgate (R) http://www.eleven.de
-X-purgate: This mail is considered clean (visit http://www.eleven.de for further information)
-X-purgate: clean
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <37a91515-38d9-420f-89e9-cf18ab1ef997@linux.ibm.com>
+References: <20231011085635.1996346-1-nsg@linux.ibm.com> <20231011085635.1996346-6-nsg@linux.ibm.com> <fc59fb56-4848-4282-bec5-bdef40c817ff@linux.ibm.com> <58d8c91480041e3516837ec2d26562de656ea7b9.camel@linux.ibm.com> <37a91515-38d9-420f-89e9-cf18ab1ef997@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH 5/9] s390x: topology: Refine stsi header test
+Cc:     David Hildenbrand <david@redhat.com>,
+        Thomas Huth <thuth@redhat.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Andrew Jones <andrew.jones@linux.dev>,
+        Colton Lewis <coltonlewis@google.com>,
+        Nikos Nikoleris <nikos.nikoleris@arm.com>,
+        Ricardo Koller <ricarkol@google.com>,
+        Sean Christopherson <seanjc@google.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+From:   Nico Boehr <nrb@linux.ibm.com>
+Message-ID: <169754591970.81646.12090809106412524268@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Tue, 17 Oct 2023 14:31:59 +0200
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 0meEgO7eMybKEVqACH-oWVBmCXb-QTjr
+X-Proofpoint-ORIG-GUID: tUsUy22fE63dt6pj_rNtkN1ysabKdRHs
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-16_13,2023-10-17_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ priorityscore=1501 bulkscore=0 lowpriorityscore=0 spamscore=0 phishscore=0
+ clxscore=1015 mlxscore=0 adultscore=0 malwarescore=0 mlxlogscore=999
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2309180000 definitions=main-2310170105
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Oct 14, 2023 at 07:54:36PM +0900, Masahiro Yamada wrote:
-> Now that vdso_install does not depend on any in-tree build artifact,
-> it no longer needs a compiler, making no-compiler-targets the same
-> as no-sync-config-targets.
-> 
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> ---
-> 
-> Changes in v2:
->   - Revive need-compiler flag
-> 
+Quoting Janosch Frank (2023-10-11 13:22:03)
+> On 10/11/23 13:19, Nina Schoetterl-Glausch wrote:
+> > On Wed, 2023-10-11 at 13:16 +0200, Janosch Frank wrote:
+> >> On 10/11/23 10:56, Nina Schoetterl-Glausch wrote:
+> >>> Add checks for length field.
+> >>> Also minor refactor.
+> >>>
+> >>> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+> >>> ---
+> >>>    s390x/topology.c | 15 +++++++++------
+> >>>    1 file changed, 9 insertions(+), 6 deletions(-)
+> >>>
+> >>> diff --git a/s390x/topology.c b/s390x/topology.c
+> >>> index 5374582f..0ba57986 100644
+> >>> --- a/s390x/topology.c
+> >>> +++ b/s390x/topology.c
+> >>> @@ -187,18 +187,22 @@ static void stsi_check_maxcpus(struct sysinfo_1=
+5_1_x *info)
+> >>>    }
+> >>>   =20
+> >>>    /*
+> >>> - * stsi_check_mag
+> >>> + * stsi_check_header
+> >>>     * @info: Pointer to the stsi information
+> >>> + * @sel2: stsi selector 2 value
+> >>>     *
+> >>>     * MAG field should match the architecture defined containers
+> >>>     * when MNEST as returned by SCLP matches MNEST of the SYSIB.
+> >>>     */
+> >>> -static void stsi_check_mag(struct sysinfo_15_1_x *info)
+> >>> +static void stsi_check_header(struct sysinfo_15_1_x *info, int sel2)
+> >>>    {
+> >>>     int i;
+> >>>   =20
+> >>> -   report_prefix_push("MAG");
+> >>> +   report_prefix_push("Header");
+> >>>   =20
+> >>> +   report(IS_ALIGNED(info->length, 8), "Length %d multiple of 8", in=
+fo->length);
+> >>
+> >> STSI 15 works on Words, not DWords, no?
+> >> So we need to check length against 4, not 8.
+> >=20
+> > The header is 16 bytes.
+> > Topology list entries are 8 or 16, so it must be a multiple of 8 at lea=
+st.
+>=20
+> Fair enough
 
-Reviewed-by: Nicolas Schier <nicolas@fjasle.eu>
+Since I had the same question, can we have a comment here?
+
+This isn't perfect but good enough IMO:
+
+/* PoP mandates 4-byte alignment, but header is 16 bytes, TLEs are 8 or 16 =
+bytes, so check for 8 byte align */
+
+Otherwise:
+
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
