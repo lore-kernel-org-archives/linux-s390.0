@@ -2,63 +2,63 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21FCBCDB47E
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Oct 2023 19:44:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B56A8CDB47E
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Oct 2023 19:48:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231703AbjJRToT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 Oct 2023 15:44:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60940 "EHLO
+        id S229968AbjJRTsI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 Oct 2023 15:48:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231705AbjJRToS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Oct 2023 15:44:18 -0400
+        with ESMTP id S229702AbjJRTsH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Oct 2023 15:48:07 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FE31114;
-        Wed, 18 Oct 2023 12:44:17 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39IJc8HK014172;
-        Wed, 18 Oct 2023 19:44:14 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63D4195;
+        Wed, 18 Oct 2023 12:48:06 -0700 (PDT)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39IJkAn5021294;
+        Wed, 18 Oct 2023 19:48:04 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=AjO0+DMZK14GwTlpeBi1dhU00X8CMlyCeEpqSlp6+ks=;
- b=Iaarea27KH35WAJCF6v7BuQkObgbCzHIS2ey8QWyJuxCP4noy3JCBTHUBSP5NUBwt5+p
- kUXvziR5vcaNwLhnk/eOL8w/cijKoGkXE5YaU0Jm/uuAo1aUgzw7QoBS/eWPb7OZoZTe
- riN1H5EQ2hvNCUWCPko+KcqOranHWNQyNcK2WeVLWG/hohvfATqC7nsYrvuUJzE0lV5+
- nMqS4pnvUfTdmaoiGflmTUTw8pnNpZ4S5/FTqW2PhfOrRIaMbGhZbW3FCwFbbxSIWgZX
- XIdcxTZ3ip7D33IXOKh9tPVqiyranCdWdCTQcQG8zJqRWHYaXATSsu6VxqwVSCX0glXh Dw== 
+ bh=FpMPMvLMbHyms6D+yKm1lAAYT/LnaHzuY9KJAnlmIXA=;
+ b=Fnu/a6dDtbaVl1DUpEKZTr/+iLVdv+UdgTn2uzPzHt3Ywpiau0AtuqOUIOsHhGY6U/xJ
+ NVhva1XigzXNBqMRWRH3tFL3feglv7Iwd6E8ppq0NiAgH+LSQr5hxjdqqbfctYKjI5AT
+ Xf8jA3LcgbgiBz02VAww2fy+6N7eI/1fOQtsBSBxWDVunqfA+lP44Rxl7Ywnt6MkgbAQ
+ 5A5Jx3uXn9RyHvJ4ecsN9Oj+d7ueXUvNLAYgr0atErBjAeJ+zXXrz7prw9nxa5qUtOaw
+ ksy1VbpeQ3JbLKIn/nui8rneXVqFGddUctK7f2/KLCG1x52kuWh4O3t+lKtkqJ/Oxc1y kQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ttnpdr9xw-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ttnpbr7je-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 18 Oct 2023 19:44:14 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39IJcJlg014497;
-        Wed, 18 Oct 2023 19:44:13 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ttnpdr9qh-1
+        Wed, 18 Oct 2023 19:48:03 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39IJkOZZ023064;
+        Wed, 18 Oct 2023 19:48:03 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ttnpbr7hw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 18 Oct 2023 19:44:13 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39IJ75aj020486;
-        Wed, 18 Oct 2023 19:44:08 GMT
+        Wed, 18 Oct 2023 19:48:03 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39IILPLu012858;
+        Wed, 18 Oct 2023 19:48:02 GMT
 Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tr6anbf6u-1
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tr5pykq52-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 18 Oct 2023 19:44:08 +0000
+        Wed, 18 Oct 2023 19:48:02 +0000
 Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-        by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39IJi79517302174
+        by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39IJm1U610486482
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 18 Oct 2023 19:44:07 GMT
+        Wed, 18 Oct 2023 19:48:01 GMT
 Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9257458056;
-        Wed, 18 Oct 2023 19:44:07 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 3077F5803F;
+        Wed, 18 Oct 2023 19:48:01 +0000 (GMT)
 Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 022675804E;
-        Wed, 18 Oct 2023 19:44:05 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id C72E95804E;
+        Wed, 18 Oct 2023 19:47:56 +0000 (GMT)
 Received: from [9.171.53.134] (unknown [9.171.53.134])
         by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 18 Oct 2023 19:44:04 +0000 (GMT)
-Message-ID: <f67f97e0-b298-4fcb-ad23-4af389f255b5@linux.ibm.com>
-Date:   Wed, 18 Oct 2023 21:44:04 +0200
+        Wed, 18 Oct 2023 19:47:56 +0000 (GMT)
+Message-ID: <77dbc865-2f19-45f3-ae4d-53d0b53e5dad@linux.ibm.com>
+Date:   Wed, 18 Oct 2023 21:47:55 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH net v2 1/2] net/smc: change function name from
@@ -77,15 +77,15 @@ In-Reply-To: <20231017124234.99574-2-guangguan.wang@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: o8yaggoV8SLYYU4-l2Q07Dqg8UOWNx3j
-X-Proofpoint-GUID: DS2PTqMOHC6oXwDZNB4LKgcS6mDXPAvS
+X-Proofpoint-GUID: yq3jji94Sg9yEnzCTWnDPMKcmlxLrppB
+X-Proofpoint-ORIG-GUID: vkN3FwgQ1RCrIuMU46rngvk3sp2AM--E
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-10-18_18,2023-10-18_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- phishscore=0 mlxlogscore=911 mlxscore=0 bulkscore=0 clxscore=1015
- adultscore=0 priorityscore=1501 suspectscore=0 impostorscore=0
- malwarescore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
+ impostorscore=0 bulkscore=0 clxscore=1015 malwarescore=0 mlxscore=0
+ suspectscore=0 mlxlogscore=999 priorityscore=1501 lowpriorityscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2309180000 definitions=main-2310180162
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -98,5 +98,86 @@ On 17.10.23 14:42, Guangguan Wang wrote:
 > reasonable to change the function name to smc_find_device_store_rc.
 > 
 > Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+> ---
 
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+same as the patch [2/2], please see the comment from Jakub
+
+>   net/smc/af_smc.c | 16 ++++++++--------
+>   1 file changed, 8 insertions(+), 8 deletions(-)
+> 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index 35ddebae8894..b3a67a168495 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -2122,7 +2122,7 @@ static void smc_check_ism_v2_match(struct smc_init_info *ini,
+>   	}
+>   }
+>   
+> -static void smc_find_ism_store_rc(u32 rc, struct smc_init_info *ini)
+> +static void smc_find_device_store_rc(u32 rc, struct smc_init_info *ini)
+>   {
+>   	if (!ini->rc)
+>   		ini->rc = rc;
+> @@ -2164,7 +2164,7 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
+>   	mutex_unlock(&smcd_dev_list.mutex);
+>   
+>   	if (!ini->ism_dev[0]) {
+> -		smc_find_ism_store_rc(SMC_CLC_DECL_NOSMCD2DEV, ini);
+> +		smc_find_device_store_rc(SMC_CLC_DECL_NOSMCD2DEV, ini);
+>   		goto not_found;
+>   	}
+>   
+> @@ -2181,7 +2181,7 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
+>   		ini->ism_selected = i;
+>   		rc = smc_listen_ism_init(new_smc, ini);
+>   		if (rc) {
+> -			smc_find_ism_store_rc(rc, ini);
+> +			smc_find_device_store_rc(rc, ini);
+>   			/* try next active ISM device */
+>   			continue;
+>   		}
+> @@ -2218,7 +2218,7 @@ static void smc_find_ism_v1_device_serv(struct smc_sock *new_smc,
+>   		return;		/* V1 ISM device found */
+>   
+>   not_found:
+> -	smc_find_ism_store_rc(rc, ini);
+> +	smc_find_device_store_rc(rc, ini);
+>   	ini->smcd_version &= ~SMC_V1;
+>   	ini->ism_dev[0] = NULL;
+>   	ini->is_smcd = false;
+> @@ -2268,7 +2268,7 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
+>   	ini->smcrv2.daddr = smc_ib_gid_to_ipv4(smc_v2_ext->roce);
+>   	rc = smc_find_rdma_device(new_smc, ini);
+>   	if (rc) {
+> -		smc_find_ism_store_rc(rc, ini);
+> +		smc_find_device_store_rc(rc, ini);
+>   		goto not_found;
+>   	}
+>   	if (!ini->smcrv2.uses_gateway)
+> @@ -2285,7 +2285,7 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
+>   	if (!rc)
+>   		return;
+>   	ini->smcr_version = smcr_version;
+> -	smc_find_ism_store_rc(rc, ini);
+> +	smc_find_device_store_rc(rc, ini);
+>   
+>   not_found:
+>   	ini->smcr_version &= ~SMC_V2;
+> @@ -2332,7 +2332,7 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
+>   	/* check for matching IP prefix and subnet length (V1) */
+>   	prfx_rc = smc_listen_prfx_check(new_smc, pclc);
+>   	if (prfx_rc)
+> -		smc_find_ism_store_rc(prfx_rc, ini);
+> +		smc_find_device_store_rc(prfx_rc, ini);
+>   
+>   	/* get vlan id from IP device */
+>   	if (smc_vlan_by_tcpsk(new_smc->clcsock, ini))
+> @@ -2359,7 +2359,7 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
+>   		int rc;
+>   
+>   		rc = smc_find_rdma_v1_device_serv(new_smc, pclc, ini);
+> -		smc_find_ism_store_rc(rc, ini);
+> +		smc_find_device_store_rc(rc, ini);
+>   		return (!rc) ? 0 : ini->rc;
+>   	}
+>   	return prfx_rc;
