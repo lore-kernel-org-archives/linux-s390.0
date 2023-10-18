@@ -2,160 +2,103 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2041C41513
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Oct 2023 08:45:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 401FCCDB47E
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Oct 2023 13:24:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230231AbjJRIpA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 Oct 2023 04:45:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41662 "EHLO
+        id S231549AbjJRNYV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 Oct 2023 09:24:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230038AbjJRIo6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Oct 2023 04:44:58 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1058AFE;
-        Wed, 18 Oct 2023 01:44:56 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id a640c23a62f3a-9c5b313b3ffso293353366b.0;
-        Wed, 18 Oct 2023 01:44:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1697618694; x=1698223494; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=wSgTjdOEv9o43R13g98wkLpNBZhKvWTIsoJaIcBH5Qg=;
-        b=dUT+VUwSgajNZTNtOq55n8P0FbvbUTCnglGBanOK6I5IP00cBd1CPq9bHdy3/nWYfk
-         3D63mrlvDkTXi2BTPsBenI+S+k7Cx+NFrSG7fGHZXsgsdFueRaZTnpDUd2Qe/2kaao5D
-         BYdOHRIm0M1RrHIjaCp/kz80vucEeFJcuBZpotGv+Iyx36NkCsxCQCnxN9KV4miHU+vm
-         6nKFDINB2ZntP9eO80e21w+RZrGQ+mahObOFdTiVzE52gOjHKS4WQH7ILR+srxjamJif
-         ZsrG8MZIgSRDOzv0MHHy7QEF0Sxe82X8CW7m1fudx5bjSqQlyh08wuSKr3Fop3wRazjW
-         kSug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697618694; x=1698223494;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=wSgTjdOEv9o43R13g98wkLpNBZhKvWTIsoJaIcBH5Qg=;
-        b=Shgw45MmT0yiYaJcoTiUl+PNTYBhCGNeLkul5TPiLfbsqNxC6UHSXqeMfYMwAFnuEc
-         c7IMQAbD2qRb7lsbuY7Atn3PewU2cWG8gBi0hfT1zwWzsks/gYCexOYg2x9LG5adWyyy
-         Z9RXqcK71KDD4rKFDFE3H31cFpRfhpGZrjqfKQsYJjvozvXyvebuG3u6UAs+FRCyemEF
-         ACJy8ET03907fltuDKG6rH2tSZEdMg+E8bNCcI+E4kNKTJR9EMn94pzA9O26hIj3GibH
-         NA2avAzc55V0ipQOMl+ni1nEl17qlMKNLjWNtgkeWOWShBkJQ/zE1jAmQdzFXtwZZyXs
-         bB5Q==
-X-Gm-Message-State: AOJu0YzBTdorps58Blrrcd0ojcdAA9FrrKt4i5IWfWG/YdbDv7rITZ97
-        8LFRqDr7ceB78PUNRrk4bXU=
-X-Google-Smtp-Source: AGHT+IHJtepEuoueIQMXTSwDOKujhTHfpU5bGtfZ1JuGIz+mNfQtsgcwCoVq7SqybQGWRk3sN1hh+g==
-X-Received: by 2002:a17:907:7d9e:b0:9be:8ead:54c7 with SMTP id oz30-20020a1709077d9e00b009be8ead54c7mr3542268ejc.12.1697618694114;
-        Wed, 18 Oct 2023 01:44:54 -0700 (PDT)
-Received: from gmail.com (1F2EF7B2.nat.pool.telekom.hu. [31.46.247.178])
-        by smtp.gmail.com with ESMTPSA id a7-20020a170906468700b009b957d5237asm1199002ejr.80.2023.10.18.01.44.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Oct 2023 01:44:53 -0700 (PDT)
-Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
-Date:   Wed, 18 Oct 2023 10:44:51 +0200
-From:   Ingo Molnar <mingo@kernel.org>
-To:     Rick Edgecombe <rick.p.edgecombe@intel.com>
-Cc:     x86@kernel.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, hpa@zytor.com, luto@kernel.org,
-        peterz@infradead.org, kirill.shutemov@linux.intel.com,
-        elena.reshetova@intel.com, isaku.yamahata@intel.com,
-        seanjc@google.com, Michael Kelley <mikelley@microsoft.com>,
-        thomas.lendacky@amd.com, decui@microsoft.com,
-        sathyanarayanan.kuppuswamy@linux.intel.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 02/10] x86/mm/cpa: Reject incorrect encryption change
- requests
-Message-ID: <ZS+bA2l/yh0zZLmd@gmail.com>
-References: <20231017202505.340906-1-rick.p.edgecombe@intel.com>
- <20231017202505.340906-3-rick.p.edgecombe@intel.com>
+        with ESMTP id S231618AbjJRNYT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Oct 2023 09:24:19 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB40B83;
+        Wed, 18 Oct 2023 06:24:16 -0700 (PDT)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39IDMRVm009680;
+        Wed, 18 Oct 2023 13:24:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=TiOX6dll2bvGdWalE9/Utntb+gAx0yYM4DDzC7MoWvI=;
+ b=qqmQ6GQ8skPeKGNU7xDyOwp5sPN2w/xmnR/1t9AKSRONMnrj/iNWWvLPg9KJsLX8Fi1V
+ 3dKaz1WYlPSQtfMQXyvBqgDRz2OLGDuw9xpvt7Ql5jFA5DRG4D0mYOMG3Y9n/SGxjIk3
+ KR20neAE6ZGjKxYC6iyLUpmc9ql8+FP+h98AYBGXalanNlUnQ5N5IAWcFv+Bks7o6Qg5
+ CN4zuIG+Jf3Xfb4+SY02mwF6FnrB9cLDpcj/Gh3L0btZ+YPWqvN2Qtsp84YIr4cHs/e8
+ 7cWgmKT9OQrR/W9+WzKEDczz5eXcQU0zX/vMG5xbh36NFePqBeCxc4trZcc9/FbYH71w NQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ttg6g8396-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 18 Oct 2023 13:24:13 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39IDMWfV010043;
+        Wed, 18 Oct 2023 13:24:12 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ttg6g8382-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 18 Oct 2023 13:24:12 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39IBBhAx030719;
+        Wed, 18 Oct 2023 13:24:11 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tr7hjrafv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 18 Oct 2023 13:24:11 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39IDO83n18088602
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 18 Oct 2023 13:24:08 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0F11B20043;
+        Wed, 18 Oct 2023 13:24:08 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B039A20040;
+        Wed, 18 Oct 2023 13:24:07 +0000 (GMT)
+Received: from [9.152.224.54] (unknown [9.152.224.54])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 18 Oct 2023 13:24:07 +0000 (GMT)
+Message-ID: <0d6c3a16-bba1-4f7d-bfbc-44efb7e73706@linux.ibm.com>
+Date:   Wed, 18 Oct 2023 15:24:07 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231017202505.340906-3-rick.p.edgecombe@intel.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v4 10/18] net/smc: implement ID-related
+ operations of loopback
+Content-Language: en-US
+To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc:     schnelle@linux.ibm.com, gbayer@linux.ibm.com, pasic@linux.ibm.com,
+        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        dust.li@linux.alibaba.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1695568613-125057-1-git-send-email-guwen@linux.alibaba.com>
+ <1695568613-125057-11-git-send-email-guwen@linux.alibaba.com>
+From:   Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <1695568613-125057-11-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ugbjpdp0hi_8TGux2-ODi44VSmBAfyAA
+X-Proofpoint-GUID: i8QepzJQ-DOyQjH0mORVfHrOJtpPRnsK
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-18_12,2023-10-18_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
+ priorityscore=1501 mlxlogscore=650 bulkscore=0 lowpriorityscore=0
+ malwarescore=0 clxscore=1015 adultscore=0 impostorscore=0 mlxscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2309180000 definitions=main-2310180111
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
-* Rick Edgecombe <rick.p.edgecombe@intel.com> wrote:
 
-> Kernel memory is "encrypted" by default.  Some callers may "decrypt" it
-> in order to share it with things outside the kernel like a device or an
-> untrusted VMM.
-> 
-> There is nothing to stop set_memory_encrypted() from being passed memory
-> that is already "encrypted" (aka. "private" on TDX).  In fact, some
-> callers do this because ... $REASONS.  Unfortunately, part of the TDX
-> decrypted=>encrypted transition is truly one way*.  It can't handle
-> being asked to encrypt an already encrypted page
-> 
-> Allow __set_memory_enc_pgtable() to detect already-encrypted memory
-> before it hits the TDX code.
-> 
-> * The one way part is "page acceptance"
-> 
-> [commit log written by Dave Hansen]
-> Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
-> ---
->  arch/x86/mm/pat/set_memory.c | 41 +++++++++++++++++++++++++++++++++++-
->  1 file changed, 40 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
-> index bda9f129835e..1238b0db3e33 100644
-> --- a/arch/x86/mm/pat/set_memory.c
-> +++ b/arch/x86/mm/pat/set_memory.c
-> @@ -2122,6 +2122,21 @@ int set_memory_global(unsigned long addr, int numpages)
->  				    __pgprot(_PAGE_GLOBAL), 0);
->  }
->  
-> +static bool kernel_vaddr_encryped(unsigned long addr, bool enc)
-> +{
-> +	unsigned int level;
-> +	pte_t *pte;
-> +
-> +	pte = lookup_address(addr, &level);
-> +	if (!pte)
-> +		return false;
-> +
-> +	if (enc)
-> +		return pte_val(*pte) == cc_mkenc(pte_val(*pte));
-> +
-> +	return pte_val(*pte) == cc_mkdec(pte_val(*pte));
-> +}
-> +
->  /*
->   * __set_memory_enc_pgtable() is used for the hypervisors that get
->   * informed about "encryption" status via page tables.
-> @@ -2130,7 +2145,7 @@ static int __set_memory_enc_pgtable(unsigned long addr, int numpages, bool enc)
->  {
->  	pgprot_t empty = __pgprot(0);
->  	struct cpa_data cpa;
-> -	int ret;
-> +	int ret, numpages_in_state = 0;
->  
->  	/* Should not be working on unaligned addresses */
->  	if (WARN_ONCE(addr & ~PAGE_MASK, "misaligned address: %#lx\n", addr))
-> @@ -2143,6 +2158,30 @@ static int __set_memory_enc_pgtable(unsigned long addr, int numpages, bool enc)
->  	cpa.mask_clr = enc ? pgprot_decrypted(empty) : pgprot_encrypted(empty);
->  	cpa.pgd = init_mm.pgd;
->  
-> +	/*
-> +	 * If any page is already in the right state, bail with an error
-> +	 * because the code doesn't handled it. This is likely because
+On 24.09.23 17:16, Wen Gu wrote:
+> This patch implements GID/CHID/SEID related operations of SMC-D loopback device. In loopback device, GID is generated by UUIDv4 algorithm, CHID is reserved 0xFFFF, SEID is generated using the same algorithm as ISM device under s390 architecture, and is 0 and disabled under non-s390 architecture. Signed-off-by: Wen Gu <guwen@linux.alibaba.com> ---
 
-Grammar mistake here.
+IMO, get_system_eid should not be part of smcd_ops. And should not be provided by an smcd device.
+It is a system_eid is a global value that is valid for all smcd interfaces of this system (os instance).
+So I think it should be provided by the smc module. 
 
-> +	 * something has gone wrong and isn't worth optimizing for.
-> +	 *
-> +	 * If all the memory pages are already in the desired state return
-> +	 * success.
-
-Missing comma.
-
-> +	 *
-> +	 * kernel_vaddr_encryped() does not synchronize against huge page
-> +	 * splits so take pgd_lock. A caller doing strange things could
-
-Missing comma.
-
-Thanks,
-
-	Ingo
+I agree it needs to be architecture dependent and same as today for s390.
