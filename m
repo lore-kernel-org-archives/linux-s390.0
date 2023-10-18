@@ -2,147 +2,160 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D80E8CDB482
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Oct 2023 08:35:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2041C41513
+	for <linux-s390@archiver.kernel.org>; Wed, 18 Oct 2023 08:45:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235168AbjJRIfp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 Oct 2023 04:35:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56368 "EHLO
+        id S230231AbjJRIpA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 Oct 2023 04:45:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235151AbjJRIfo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Oct 2023 04:35:44 -0400
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7458BBA;
-        Wed, 18 Oct 2023 01:35:41 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VuQCMVo_1697618136;
-Received: from 30.221.100.193(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0VuQCMVo_1697618136)
-          by smtp.aliyun-inc.com;
-          Wed, 18 Oct 2023 16:35:37 +0800
-Message-ID: <c7277fd2-cc44-40a1-9f56-9341d3340e2e@linux.alibaba.com>
-Date:   Wed, 18 Oct 2023 16:35:33 +0800
+        with ESMTP id S230038AbjJRIo6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Oct 2023 04:44:58 -0400
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1058AFE;
+        Wed, 18 Oct 2023 01:44:56 -0700 (PDT)
+Received: by mail-ej1-x629.google.com with SMTP id a640c23a62f3a-9c5b313b3ffso293353366b.0;
+        Wed, 18 Oct 2023 01:44:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1697618694; x=1698223494; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=wSgTjdOEv9o43R13g98wkLpNBZhKvWTIsoJaIcBH5Qg=;
+        b=dUT+VUwSgajNZTNtOq55n8P0FbvbUTCnglGBanOK6I5IP00cBd1CPq9bHdy3/nWYfk
+         3D63mrlvDkTXi2BTPsBenI+S+k7Cx+NFrSG7fGHZXsgsdFueRaZTnpDUd2Qe/2kaao5D
+         BYdOHRIm0M1RrHIjaCp/kz80vucEeFJcuBZpotGv+Iyx36NkCsxCQCnxN9KV4miHU+vm
+         6nKFDINB2ZntP9eO80e21w+RZrGQ+mahObOFdTiVzE52gOjHKS4WQH7ILR+srxjamJif
+         ZsrG8MZIgSRDOzv0MHHy7QEF0Sxe82X8CW7m1fudx5bjSqQlyh08wuSKr3Fop3wRazjW
+         kSug==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1697618694; x=1698223494;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=wSgTjdOEv9o43R13g98wkLpNBZhKvWTIsoJaIcBH5Qg=;
+        b=Shgw45MmT0yiYaJcoTiUl+PNTYBhCGNeLkul5TPiLfbsqNxC6UHSXqeMfYMwAFnuEc
+         c7IMQAbD2qRb7lsbuY7Atn3PewU2cWG8gBi0hfT1zwWzsks/gYCexOYg2x9LG5adWyyy
+         Z9RXqcK71KDD4rKFDFE3H31cFpRfhpGZrjqfKQsYJjvozvXyvebuG3u6UAs+FRCyemEF
+         ACJy8ET03907fltuDKG6rH2tSZEdMg+E8bNCcI+E4kNKTJR9EMn94pzA9O26hIj3GibH
+         NA2avAzc55V0ipQOMl+ni1nEl17qlMKNLjWNtgkeWOWShBkJQ/zE1jAmQdzFXtwZZyXs
+         bB5Q==
+X-Gm-Message-State: AOJu0YzBTdorps58Blrrcd0ojcdAA9FrrKt4i5IWfWG/YdbDv7rITZ97
+        8LFRqDr7ceB78PUNRrk4bXU=
+X-Google-Smtp-Source: AGHT+IHJtepEuoueIQMXTSwDOKujhTHfpU5bGtfZ1JuGIz+mNfQtsgcwCoVq7SqybQGWRk3sN1hh+g==
+X-Received: by 2002:a17:907:7d9e:b0:9be:8ead:54c7 with SMTP id oz30-20020a1709077d9e00b009be8ead54c7mr3542268ejc.12.1697618694114;
+        Wed, 18 Oct 2023 01:44:54 -0700 (PDT)
+Received: from gmail.com (1F2EF7B2.nat.pool.telekom.hu. [31.46.247.178])
+        by smtp.gmail.com with ESMTPSA id a7-20020a170906468700b009b957d5237asm1199002ejr.80.2023.10.18.01.44.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Oct 2023 01:44:53 -0700 (PDT)
+Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
+Date:   Wed, 18 Oct 2023 10:44:51 +0200
+From:   Ingo Molnar <mingo@kernel.org>
+To:     Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc:     x86@kernel.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, hpa@zytor.com, luto@kernel.org,
+        peterz@infradead.org, kirill.shutemov@linux.intel.com,
+        elena.reshetova@intel.com, isaku.yamahata@intel.com,
+        seanjc@google.com, Michael Kelley <mikelley@microsoft.com>,
+        thomas.lendacky@amd.com, decui@microsoft.com,
+        sathyanarayanan.kuppuswamy@linux.intel.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 02/10] x86/mm/cpa: Reject incorrect encryption change
+ requests
+Message-ID: <ZS+bA2l/yh0zZLmd@gmail.com>
+References: <20231017202505.340906-1-rick.p.edgecombe@intel.com>
+ <20231017202505.340906-3-rick.p.edgecombe@intel.com>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v2 2/2] net/smc: correct the reason code in
- smc_listen_find_device when fallback
-Content-Language: en-US
-To:     dust.li@linux.alibaba.com, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
-Cc:     tonylu@linux.alibaba.com, alibuda@linux.alibaba.com,
-        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20231017124234.99574-1-guangguan.wang@linux.alibaba.com>
- <20231017124234.99574-3-guangguan.wang@linux.alibaba.com>
- <20231018070142.GY92403@linux.alibaba.com>
-From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <20231018070142.GY92403@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231017202505.340906-3-rick.p.edgecombe@intel.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
+* Rick Edgecombe <rick.p.edgecombe@intel.com> wrote:
 
-On 2023/10/18 15:01, Dust Li wrote:
-> On Tue, Oct 17, 2023 at 08:42:34PM +0800, Guangguan Wang wrote:
->> The ini->rc is used to store the last error happened when finding usable
->> ism or rdma device in smc_listen_find_device, and is set by calling smc_
->> find_device_store_rc. Once the ini->rc is assigned to an none-zero value,
->> the value can not be overwritten anymore. So the ini-rc should be set to
->> the error reason only when an error actually occurs.
->>
->> When finding ISM/RDMA devices, device not found is not a real error, as
->> not all machine have ISM/RDMA devices. Failures after device found, when
->> initializing device or when initializing connection, is real errors, and
->> should be store in ini->rc.
->>
->> SMC_CLC_DECL_DIFFPREFIX also is not a real error, as for SMC-RV2, it is
->> not require same prefix.
->>
->> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
->> ---
->> net/smc/af_smc.c | 12 +++---------
->> 1 file changed, 3 insertions(+), 9 deletions(-)
->>
->> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
->> index b3a67a168495..21e9c6ec4d01 100644
->> --- a/net/smc/af_smc.c
->> +++ b/net/smc/af_smc.c
->> @@ -2163,10 +2163,8 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
->> 	}
->> 	mutex_unlock(&smcd_dev_list.mutex);
->>
->> -	if (!ini->ism_dev[0]) {
->> -		smc_find_device_store_rc(SMC_CLC_DECL_NOSMCD2DEV, ini);
->> +	if (!ini->ism_dev[0])
+> Kernel memory is "encrypted" by default.  Some callers may "decrypt" it
+> in order to share it with things outside the kernel like a device or an
+> untrusted VMM.
 > 
-> Hi Guangguan,
+> There is nothing to stop set_memory_encrypted() from being passed memory
+> that is already "encrypted" (aka. "private" on TDX).  In fact, some
+> callers do this because ... $REASONS.  Unfortunately, part of the TDX
+> decrypted=>encrypted transition is truly one way*.  It can't handle
+> being asked to encrypt an already encrypted page
 > 
-> Generally, I think this is right. Fallback in one kind of device should
-> not be the final fallback reason.
+> Allow __set_memory_enc_pgtable() to detect already-encrypted memory
+> before it hits the TDX code.
 > 
-> But what if we have more than one device and failed more than once, for
-> example:
-> Let's say we have an ISM device, a RDMA device. First we looked the ISM device
-> and failed during the initialization, we got a fallback reason A. Then we
-> looked for the RDMA device, and failed again, with another reason B.
-> Finally, we fallback to TCP. What should fallback reason be ?
+> * The one way part is "page acceptance"
+> 
+> [commit log written by Dave Hansen]
+> Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
+> ---
+>  arch/x86/mm/pat/set_memory.c | 41 +++++++++++++++++++++++++++++++++++-
+>  1 file changed, 40 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
+> index bda9f129835e..1238b0db3e33 100644
+> --- a/arch/x86/mm/pat/set_memory.c
+> +++ b/arch/x86/mm/pat/set_memory.c
+> @@ -2122,6 +2122,21 @@ int set_memory_global(unsigned long addr, int numpages)
+>  				    __pgprot(_PAGE_GLOBAL), 0);
+>  }
+>  
+> +static bool kernel_vaddr_encryped(unsigned long addr, bool enc)
+> +{
+> +	unsigned int level;
+> +	pte_t *pte;
+> +
+> +	pte = lookup_address(addr, &level);
+> +	if (!pte)
+> +		return false;
+> +
+> +	if (enc)
+> +		return pte_val(*pte) == cc_mkenc(pte_val(*pte));
+> +
+> +	return pte_val(*pte) == cc_mkdec(pte_val(*pte));
+> +}
+> +
+>  /*
+>   * __set_memory_enc_pgtable() is used for the hypervisors that get
+>   * informed about "encryption" status via page tables.
+> @@ -2130,7 +2145,7 @@ static int __set_memory_enc_pgtable(unsigned long addr, int numpages, bool enc)
+>  {
+>  	pgprot_t empty = __pgprot(0);
+>  	struct cpa_data cpa;
+> -	int ret;
+> +	int ret, numpages_in_state = 0;
+>  
+>  	/* Should not be working on unaligned addresses */
+>  	if (WARN_ONCE(addr & ~PAGE_MASK, "misaligned address: %#lx\n", addr))
+> @@ -2143,6 +2158,30 @@ static int __set_memory_enc_pgtable(unsigned long addr, int numpages, bool enc)
+>  	cpa.mask_clr = enc ? pgprot_decrypted(empty) : pgprot_encrypted(empty);
+>  	cpa.pgd = init_mm.pgd;
+>  
+> +	/*
+> +	 * If any page is already in the right state, bail with an error
+> +	 * because the code doesn't handled it. This is likely because
 
-IMO, the order of finding devices is defined by preference. ISM v2, ISM v1, RDMA v2, RDMA v1, the former the prefer.
-I think it should return the most preferred device's failure reason if found and failed during the initialization.
-So, here should return the first reason(reason A). 
+Grammar mistake here.
 
-> 
-> OTOH, SMC_CLC_DECL_NOSMCD2DEV is only used here. Removing it would mean
-> that we would never see SMC_CLC_DECL_NOSMCD2DEV in the fallback reason,
-> which makes it meaningless.
->
- 
-Is SMC_CLC_DECL_NOSMCD2DEV really necessary? There is no reason names SMC_CLC_DECL_NOSMCR2DEV.
+> +	 * something has gone wrong and isn't worth optimizing for.
+> +	 *
+> +	 * If all the memory pages are already in the desired state return
+> +	 * success.
+
+Missing comma.
+
+> +	 *
+> +	 * kernel_vaddr_encryped() does not synchronize against huge page
+> +	 * splits so take pgd_lock. A caller doing strange things could
+
+Missing comma.
 
 Thanks,
-Guangguan Wang
 
-> Best regards,
-> Dust
-> 
->> 		goto not_found;
->> -	}
->>
->> 	smc_ism_get_system_eid(&eid);
->> 	if (!smc_clc_match_eid(ini->negotiated_eid, smc_v2_ext,
->> @@ -2216,9 +2214,9 @@ static void smc_find_ism_v1_device_serv(struct smc_sock *new_smc,
->> 	rc = smc_listen_ism_init(new_smc, ini);
->> 	if (!rc)
->> 		return;		/* V1 ISM device found */
->> +	smc_find_device_store_rc(rc, ini);
->>
->> not_found:
->> -	smc_find_device_store_rc(rc, ini);
->> 	ini->smcd_version &= ~SMC_V1;
->> 	ini->ism_dev[0] = NULL;
->> 	ini->is_smcd = false;
->> @@ -2267,10 +2265,8 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
->> 	ini->smcrv2.saddr = new_smc->clcsock->sk->sk_rcv_saddr;
->> 	ini->smcrv2.daddr = smc_ib_gid_to_ipv4(smc_v2_ext->roce);
->> 	rc = smc_find_rdma_device(new_smc, ini);
->> -	if (rc) {
->> -		smc_find_device_store_rc(rc, ini);
->> +	if (rc)
->> 		goto not_found;
->> -	}
->> 	if (!ini->smcrv2.uses_gateway)
->> 		memcpy(ini->smcrv2.nexthop_mac, pclc->lcl.mac, ETH_ALEN);
->>
->> @@ -2331,8 +2327,6 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
->>
->> 	/* check for matching IP prefix and subnet length (V1) */
->> 	prfx_rc = smc_listen_prfx_check(new_smc, pclc);
->> -	if (prfx_rc)
->> -		smc_find_device_store_rc(prfx_rc, ini);
->>
->> 	/* get vlan id from IP device */
->> 	if (smc_vlan_by_tcpsk(new_smc->clcsock, ini))
->> -- 
->> 2.24.3 (Apple Git-128)
+	Ingo
