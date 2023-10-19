@@ -2,76 +2,151 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F442CDB47E
-	for <linux-s390@archiver.kernel.org>; Thu, 19 Oct 2023 00:28:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E1BBCDB465
+	for <linux-s390@archiver.kernel.org>; Thu, 19 Oct 2023 07:33:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232180AbjJSA2A (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 Oct 2023 20:28:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47296 "EHLO
+        id S232825AbjJSHdM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 19 Oct 2023 03:33:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232169AbjJSA15 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Oct 2023 20:27:57 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFA16120;
-        Wed, 18 Oct 2023 17:27:55 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2589C433C9;
-        Thu, 19 Oct 2023 00:27:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1697675275;
-        bh=2nh52jDJ6PylCe2C2NgD1C26nReaVji3095976lKB7Q=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=F8jNVxjwwNREaqtRMYhgWQLYcGrhhAcFqAvHSRLvDEMXpLEpQc5vcEyuuBIlaLBCc
-         8eYPCv/oKbh9BlkdyIo0MoAgFO+EVrmwbn8hPcy5+rAmK6c+Th3k3zd6r48xwfnMOC
-         npMX7cw86HSBBrcNGpXgmUSlyjScWsxfCRIcDMtF52OzyVtZZsdDRJm3NQOwMcWrfY
-         H/5Uy8uNIG7mc8qcgS5ZZOwjFMoy4r5jNBWCoc4fIHcO/NDB7C3gJOuOQ66wFZpkU+
-         2q2A4H6YDDL2cuC9g+fEzYj4Y/XKBwus5qeGAG/hbsj/6EszF8rXcnfkDo//f0fQ5j
-         6MCqABy3D2JfA==
-Date:   Wed, 18 Oct 2023 17:27:54 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Alexander Lobakin <aleksander.lobakin@intel.com>
-Cc:     Yury Norov <yury.norov@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Alexander Potapenko <glider@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        David Ahern <dsahern@kernel.org>,
-        Przemek Kitszel <przemyslaw.kitszel@intel.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        netdev@vger.kernel.org, linux-btrfs@vger.kernel.org,
-        dm-devel@redhat.com, ntfs3@lists.linux.dev,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 04/13] linkmode: convert
- linkmode_{test,set,clear,mod}_bit() to macros
-Message-ID: <20231018172754.3eec4885@kernel.org>
-In-Reply-To: <20231016165247.14212-5-aleksander.lobakin@intel.com>
-References: <20231016165247.14212-1-aleksander.lobakin@intel.com>
-        <20231016165247.14212-5-aleksander.lobakin@intel.com>
+        with ESMTP id S232326AbjJSHdM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Oct 2023 03:33:12 -0400
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 617809F;
+        Thu, 19 Oct 2023 00:33:09 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VuTArjW_1697700785;
+Received: from 30.221.144.219(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VuTArjW_1697700785)
+          by smtp.aliyun-inc.com;
+          Thu, 19 Oct 2023 15:33:06 +0800
+Message-ID: <305c7ae2-a902-3e30-5e67-b590d848d0ba@linux.alibaba.com>
+Date:   Thu, 19 Oct 2023 15:33:04 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.1
+Subject: Re: [PATCH net 5/5] net/smc: put sk reference if close work was
+ canceled
+Content-Language: en-US
+To:     Wenjia Zhang <wenjia@linux.ibm.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com, wintera@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
+ <1697009600-22367-6-git-send-email-alibuda@linux.alibaba.com>
+ <bdcb307f-d2a8-4aef-bb7d-dd87e56ff740@linux.ibm.com>
+ <ee641ca5-104b-d1ec-5b2a-e20237c5378a@linux.alibaba.com>
+ <ad5e4191-227e-4a62-a110-472618ef7de1@linux.ibm.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <ad5e4191-227e-4a62-a110-472618ef7de1@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 16 Oct 2023 18:52:38 +0200 Alexander Lobakin wrote:
-> Since commit b03fc1173c0c ("bitops: let optimize out non-atomic bitops
-> on compile-time constants"), the non-atomic bitops are macros which can
-> be expanded by the compilers into compile-time expressions, which will
-> result in better optimized object code. Unfortunately, turned out that
-> passing `volatile` to those macros discards any possibility of
-> optimization, as the compilers then don't even try to look whether
-> the passed bitmap is known at compilation time. In addition to that,
-> the mentioned linkmode helpers are marked with `inline`, not
-> `__always_inline`, meaning that it's not guaranteed some compiler won't
-> uninline them for no reason, which will also effectively prevent them
-> from being optimized (it's a well-known thing the compilers sometimes
-> uninline `2 + 2`).
-> Convert linkmode_*_bit() from inlines to macros. Their calling
-> convention are 1:1 with the corresponding bitops, so that it's not even
-> needed to enumerate and map the arguments, only the names. No changes in
-> vmlinux' object code (compiled by LLVM for x86_64) whatsoever, but that
-> doesn't necessarily means the change is meaningless.
 
-Acked-by: Jakub Kicinski <kuba@kernel.org>
 
-This one can go in with the rest, it's trivial enough.
+On 10/19/23 4:26 AM, Wenjia Zhang wrote:
+>
+>
+> On 17.10.23 04:06, D. Wythe wrote:
+>>
+>>
+>> On 10/13/23 3:04 AM, Wenjia Zhang wrote:
+>>>
+>>>
+>>> On 11.10.23 09:33, D. Wythe wrote:
+>>>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>>>
+>>>> Note that we always hold a reference to sock when attempting
+>>>> to submit close_work. 
+>>> yes
+>>> Therefore, if we have successfully
+>>>> canceled close_work from pending, we MUST release that reference
+>>>> to avoid potential leaks.
+>>>>
+>>> Isn't the corresponding reference already released inside the 
+>>> smc_close_passive_work()?
+>>>
+>>
+>> Hi Wenjia,
+>>
+>> If we successfully cancel the close work from the pending state,
+>> it means that smc_close_passive_work() has never been executed.
+>>
+>> You can find more details here.
+>>
+>> /**
+>> * cancel_work_sync - cancel a work and wait for it to finish
+>> * @work:the work to cancel
+>> *
+>> * Cancel @work and wait for its execution to finish. This function
+>> * can be used even if the work re-queues itself or migrates to
+>> * another workqueue. On return from this function, @work is
+>> * guaranteed to be not pending or executing on any CPU.
+>> *
+>> * cancel_work_sync(&delayed_work->work) must not be used for
+>> * delayed_work's. Use cancel_delayed_work_sync() instead.
+>> *
+>> * The caller must ensure that the workqueue on which @work was last
+>> * queued can't be destroyed before this function returns.
+>> *
+>> * Return:
+>> * %true if @work was pending, %false otherwise.
+>> */
+>> boolcancel_work_sync(structwork_struct *work)
+>> {
+>> return__cancel_work_timer(work, false);
+>> }
+>>
+>> Best wishes,
+>> D. Wythe
+> As I understand, queue_work() would wake up the work if the work is 
+> not already on the queue. And the sock_hold() is just prio to the 
+> queue_work(). That means, cancel_work_sync() would cancel the work 
+> either before its execution or after. If your fix refers to the former 
+> case, at this moment, I don't think the reference can be hold, thus it 
+> is unnecessary to put it.
+>>
+
+I am quite confuse about why you think when we cancel the work before 
+its execution,
+the reference can not be hold ?
+
+
+Perhaps the following diagram can describe the problem in better way :
+
+smc_close_cancel_work
+smc_cdc_msg_recv_action
+
+
+sock_hold
+queue_work
+                                                                if 
+(cancel_work_sync())        // successfully cancel before execution
+sock_put()                        //  need to put it since we already 
+hold a ref before   queue_work()
+
+
+>>>> Fixes: 42bfba9eaa33 ("net/smc: immediate termination for SMCD link 
+>>>> groups")
+>>>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>>>> ---
+>>>>   net/smc/smc_close.c | 3 ++-
+>>>>   1 file changed, 2 insertions(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+>>>> index 449ef45..10219f5 100644
+>>>> --- a/net/smc/smc_close.c
+>>>> +++ b/net/smc/smc_close.c
+>>>> @@ -116,7 +116,8 @@ static void smc_close_cancel_work(struct 
+>>>> smc_sock *smc)
+>>>>       struct sock *sk = &smc->sk;
+>>>>         release_sock(sk);
+>>>> -    cancel_work_sync(&smc->conn.close_work);
+>>>> +    if (cancel_work_sync(&smc->conn.close_work))
+>>>> +        sock_put(sk);
+>>>>       cancel_delayed_work_sync(&smc->conn.tx_work);
+>>>>       lock_sock(sk);
+>>>>   }
+>>
+
