@@ -2,36 +2,50 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B98ADCDB483
-	for <linux-s390@archiver.kernel.org>; Wed, 18 Oct 2023 20:52:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BC01CDB47E
+	for <linux-s390@archiver.kernel.org>; Thu, 19 Oct 2023 00:27:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231254AbjJRUwO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 18 Oct 2023 16:52:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60564 "EHLO
+        id S231199AbjJSA1u (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 18 Oct 2023 20:27:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229721AbjJRUwO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Oct 2023 16:52:14 -0400
+        with ESMTP id S229632AbjJSA1u (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Oct 2023 20:27:50 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C418EFE;
-        Wed, 18 Oct 2023 13:52:12 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BCE0C433C8;
-        Wed, 18 Oct 2023 20:52:10 +0000 (UTC)
-Date:   Wed, 18 Oct 2023 16:52:08 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     kernel test robot <lkp@intel.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        amd-gfx@lists.freedesktop.org, kvm@vger.kernel.org,
-        linux-arch@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-rockchip@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: Re: [linux-next:master] BUILD REGRESSION
- 2dac75696c6da3c848daa118a729827541c89d33
-Message-ID: <20231018165208.5267a9b9@gandalf.local.home>
-In-Reply-To: <202310190456.pryB092r-lkp@intel.com>
-References: <202310190456.pryB092r-lkp@intel.com>
-X-Mailer: Claws Mail 3.19.1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9AC9FE;
+        Wed, 18 Oct 2023 17:27:48 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDBB4C433C7;
+        Thu, 19 Oct 2023 00:27:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1697675268;
+        bh=jHDQqSS8ZaH9Uy7TQHB6qJm6Cs7OcqGT8rO524V8Zow=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=eKdfe0Ofzge00ZDfDlnuCMUEScoQywz09l4jkmlclhCPRw0u00shfEbaLaa8zMx9E
+         lQ7iLz39Y53gPcWphz9okx9ykrt/I3WPsmXrRaNlfA+Ex5sFWXvUo3jIJNJKXtQO7r
+         bMe1uwejICnTXHwHyhN8fS19yvRR/Aac0wubmU4FeNI4nYTZGOz0P2OaWXUn2gsNyu
+         Rn7qpjcfpBwBXDOSzmO7g0UB4cm9obwYPAUcmeEP0Jb4pSRxhsgRyTRaLZpWwVTPdX
+         VMcQ9/07YBtVuFo26rtQdLIC0AHRV8cmvwKiJMmIH35Xu81SqGaTzjHdoMiLTZHyfG
+         8KgCl4U7k2gNw==
+Date:   Wed, 18 Oct 2023 17:27:47 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Alexander Lobakin <aleksander.lobakin@intel.com>
+Cc:     Yury Norov <yury.norov@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Alexander Potapenko <glider@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        David Ahern <dsahern@kernel.org>,
+        Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        netdev@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        dm-devel@redhat.com, ntfs3@lists.linux.dev,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 11/13] ip_tunnel: convert __be16 tunnel flags to
+ bitmaps
+Message-ID: <20231018172747.305c65bd@kernel.org>
+In-Reply-To: <20231016165247.14212-12-aleksander.lobakin@intel.com>
+References: <20231016165247.14212-1-aleksander.lobakin@intel.com>
+        <20231016165247.14212-12-aleksander.lobakin@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -39,13 +53,9 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 19 Oct 2023 04:07:35 +0800
-kernel test robot <lkp@intel.com> wrote:
+On Mon, 16 Oct 2023 18:52:45 +0200 Alexander Lobakin wrote:
+>  40 files changed, 715 insertions(+), 415 deletions(-)
 
-> Documentation/devicetree/bindings/mfd/qcom,tcsr.yaml:
-> Documentation/devicetree/bindings/mfd/qcom-pm8xxx.yaml:
-> fs/tracefs/event_inode.c:782:11-21: ERROR: ei is NULL but dereferenced.
-
-This was already reported and I'm currently testing a patch to fix it.
-
--- Steve
+This already has at least two conflicts with networking if I'm looking
+right. Please let the pre-req's go in via Yury's tree and then send
+this for net-next in the next release cycle.
