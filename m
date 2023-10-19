@@ -2,218 +2,157 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 508C1CDB465
-	for <linux-s390@archiver.kernel.org>; Thu, 19 Oct 2023 17:41:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DE42CDB465
+	for <linux-s390@archiver.kernel.org>; Thu, 19 Oct 2023 19:13:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235495AbjJSRlK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 19 Oct 2023 13:41:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33228 "EHLO
+        id S233086AbjJSTN0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 19 Oct 2023 15:13:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235491AbjJSRlI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Oct 2023 13:41:08 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 045E2CF;
-        Thu, 19 Oct 2023 10:41:06 -0700 (PDT)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39JHNp5h017916;
-        Thu, 19 Oct 2023 17:40:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=XNxuSWlmwFpqmROgKJVOTG1Nz3hnSDWsr+Z+rZVP7lo=;
- b=cxTD0TFaWM/zkb98jUifI8qBrJi5k0q9QFvPjbgbiYj1nmZTKlZ+g3fshLAyVoQ7/Dm5
- WDUMUHXfS9qvY6biW8/o3GgMCvAh5CCuOglTnai25Gl9U5EwI7jB545XNFAZGXvZ+EoF
- 9XDyWsNlGyb6GZkf1NnB0+DtcHxQTeQvbQPUC3kPO0DDctqelFPEOX82BNzvLVpC4CHR
- UHWPwXwuIVv4mVHDp4xgTufULRYJrVFaKI0h3272it9OTEl8vbVoSa0E7ZhIafBMWOlv
- flgPUDkt/YyZJhJJrixcgoGf4GEGPJaPrVU+9BzHHm94c3eHfeMo2+84Gj9ol4qXYHv9 7Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tu8pd0nuv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 Oct 2023 17:40:55 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39JHeHEw004606;
-        Thu, 19 Oct 2023 17:40:54 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tu8pd0nuh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 Oct 2023 17:40:54 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39JFVHgP019700;
-        Thu, 19 Oct 2023 17:40:54 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tr8121yrc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 Oct 2023 17:40:54 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-        by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39JHerKK20644464
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 19 Oct 2023 17:40:53 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5E27258065;
-        Thu, 19 Oct 2023 17:40:53 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 418D458052;
-        Thu, 19 Oct 2023 17:40:47 +0000 (GMT)
-Received: from [9.179.18.71] (unknown [9.179.18.71])
-        by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 19 Oct 2023 17:40:47 +0000 (GMT)
-Message-ID: <990a6b09-135a-41fb-a375-c37ffec6fe99@linux.ibm.com>
-Date:   Thu, 19 Oct 2023 19:40:46 +0200
+        with ESMTP id S232935AbjJSTNZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Oct 2023 15:13:25 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7269DBE;
+        Thu, 19 Oct 2023 12:13:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1697742804; x=1729278804;
+  h=message-id:date:mime-version:subject:to:references:from:
+   in-reply-to:content-transfer-encoding;
+  bh=ZJC8rrHuNIoci9DqC6b4f56zRDd7mS77CoHPmU6d+kw=;
+  b=NyQQOOCm6L9/FOsUvr94GOEt4eijupD5Qz4/Q5KOQIwVE2teaNw8uehr
+   3yEjfoMUFC4XLCdghiveQ2ak/8CzhOdKklNy87Go9FkPCktXbOGJNo5xY
+   RsFGnMPlkJ7+q3H6YsKIfsanig/QNqqKQ4E+1OJqgoEolvJ4wmMK7nf+i
+   LdRz8iLu7wdUHdjRuomFNaWe1HgaYfXWECu9g6UDuC2HGT5rcU+pQUz+S
+   dikobMGafKCUinaCe2Fo6+4tvlKQYXyYOWoQ/PF/qQev9bDMzm40UI0l9
+   BiU07ZcwbEJEHHHW+QVHufPhdmVINwKk0fdi0LjY1IhAc5cXnRozYywIs
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10868"; a="383559824"
+X-IronPort-AV: E=Sophos;i="6.03,238,1694761200"; 
+   d="scan'208";a="383559824"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2023 12:13:23 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10868"; a="1004344527"
+X-IronPort-AV: E=Sophos;i="6.03,238,1694761200"; 
+   d="scan'208";a="1004344527"
+Received: from nsuwanda-mobl.amr.corp.intel.com (HELO [10.212.222.219]) ([10.212.222.219])
+  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2023 12:13:22 -0700
+Message-ID: <73b02835-dbd6-4662-91f9-e8324d8cbf98@intel.com>
+Date:   Thu, 19 Oct 2023 12:13:20 -0700
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 5/5] net/smc: put sk reference if close work was
- canceled
-Content-Language: en-GB
-To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        jaka@linux.ibm.com, wintera@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
- <1697009600-22367-6-git-send-email-alibuda@linux.alibaba.com>
- <bdcb307f-d2a8-4aef-bb7d-dd87e56ff740@linux.ibm.com>
- <ee641ca5-104b-d1ec-5b2a-e20237c5378a@linux.alibaba.com>
- <ad5e4191-227e-4a62-a110-472618ef7de1@linux.ibm.com>
- <305c7ae2-a902-3e30-5e67-b590d848d0ba@linux.alibaba.com>
-From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <305c7ae2-a902-3e30-5e67-b590d848d0ba@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: C0quyvYEP4WhzEn6KStJRDVYT6ASe0AI
-X-Proofpoint-ORIG-GUID: vYMkW1jrXkGUBppO7mOHdx9bREvSSiN0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-10-19_16,2023-10-19_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- mlxscore=0 adultscore=0 impostorscore=0 lowpriorityscore=0 bulkscore=0
- spamscore=0 priorityscore=1501 mlxlogscore=999 phishscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2309180000
- definitions=main-2310190148
+Subject: Re: [PATCH 00/10] Handle set_memory_XXcrypted() errors
+Content-Language: en-US
+To:     "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
+        Rick Edgecombe <rick.p.edgecombe@intel.com>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "bp@alien8.de" <bp@alien8.de>,
+        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+        "hpa@zytor.com" <hpa@zytor.com>,
+        "luto@kernel.org" <luto@kernel.org>,
+        "peterz@infradead.org" <peterz@infradead.org>,
+        "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>,
+        "elena.reshetova@intel.com" <elena.reshetova@intel.com>,
+        "isaku.yamahata@intel.com" <isaku.yamahata@intel.com>,
+        "seanjc@google.com" <seanjc@google.com>,
+        "thomas.lendacky@amd.com" <thomas.lendacky@amd.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        "sathyanarayanan.kuppuswamy@linux.intel.com" 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
+References: <20231017202505.340906-1-rick.p.edgecombe@intel.com>
+ <BYAPR21MB1688075D6262FAA18941E40AD7D4A@BYAPR21MB1688.namprd21.prod.outlook.com>
+From:   Dave Hansen <dave.hansen@intel.com>
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+In-Reply-To: <BYAPR21MB1688075D6262FAA18941E40AD7D4A@BYAPR21MB1688.namprd21.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On 10/19/23 10:05, Michael Kelley (LINUX) wrote:
+> I'm more in favor of the "simply panic" approach.   What you've done
+> in your Patch 1 and Patch 2 is an intriguing way to try to get the memory
+> back into a consistent state.  But I'm concerned that there are failure
+> modes that make it less than 100% foolproof (more on that below).  If
+> we can't be sure that the memory is back in a consistent state, then the
+> original problem isn't fully solved.   I'm also not sure of the value of
+> investing effort to ensure that some errors cases are handled without
+> panic'ing.  The upside benefit of not panic'ing seems small compared to
+> the downside risk of leaking guest VM data to the host.
 
+panic() should be a last resort.  We *always* continue unless we know
+that something is so bad that we're going to make things worse by
+continuing to run.
 
-On 19.10.23 09:33, D. Wythe wrote:
-> 
-> 
-> On 10/19/23 4:26 AM, Wenjia Zhang wrote:
->>
->>
->> On 17.10.23 04:06, D. Wythe wrote:
->>>
->>>
->>> On 10/13/23 3:04 AM, Wenjia Zhang wrote:
->>>>
->>>>
->>>> On 11.10.23 09:33, D. Wythe wrote:
->>>>> From: "D. Wythe" <alibuda@linux.alibaba.com>
->>>>>
->>>>> Note that we always hold a reference to sock when attempting
->>>>> to submit close_work. 
->>>> yes
->>>> Therefore, if we have successfully
->>>>> canceled close_work from pending, we MUST release that reference
->>>>> to avoid potential leaks.
->>>>>
->>>> Isn't the corresponding reference already released inside the 
->>>> smc_close_passive_work()?
->>>>
->>>
->>> Hi Wenjia,
->>>
->>> If we successfully cancel the close work from the pending state,
->>> it means that smc_close_passive_work() has never been executed.
->>>
->>> You can find more details here.
->>>
->>> /**
->>> * cancel_work_sync - cancel a work and wait for it to finish
->>> * @work:the work to cancel
->>> *
->>> * Cancel @work and wait for its execution to finish. This function
->>> * can be used even if the work re-queues itself or migrates to
->>> * another workqueue. On return from this function, @work is
->>> * guaranteed to be not pending or executing on any CPU.
->>> *
->>> * cancel_work_sync(&delayed_work->work) must not be used for
->>> * delayed_work's. Use cancel_delayed_work_sync() instead.
->>> *
->>> * The caller must ensure that the workqueue on which @work was last
->>> * queued can't be destroyed before this function returns.
->>> *
->>> * Return:
->>> * %true if @work was pending, %false otherwise.
->>> */
->>> boolcancel_work_sync(structwork_struct *work)
->>> {
->>> return__cancel_work_timer(work, false);
->>> }
->>>
->>> Best wishes,
->>> D. Wythe
->> As I understand, queue_work() would wake up the work if the work is 
->> not already on the queue. And the sock_hold() is just prio to the 
->> queue_work(). That means, cancel_work_sync() would cancel the work 
->> either before its execution or after. If your fix refers to the former 
->> case, at this moment, I don't think the reference can be hold, thus it 
->> is unnecessary to put it.
->>>
-> 
-> I am quite confuse about why you think when we cancel the work before 
-> its execution,
-> the reference can not be hold ?
-> 
-> 
-> Perhaps the following diagram can describe the problem in better way :
-> 
-> smc_close_cancel_work
-> smc_cdc_msg_recv_action
-> 
-> 
-> sock_hold
-> queue_work
->                                                                 if 
-> (cancel_work_sync())        // successfully cancel before execution
-> sock_put()                        //  need to put it since we already 
-> hold a ref before   queue_work()
-> 
-> 
-ha, I already thought you might ask such question:P
+We shouldn't panic() on the first little thing that goes wrong.  If
+folks want *that*, then they can set panic_on_warn.
 
-I think here two Problems need to be clarified:
+> My concern about Patches 1 and 2 is that the encryption bit in the PTE
+> is not a reliable indicator of the state that the host thinks the page is
+> in.  Changing the state requires two steps (in either order):  1) updating
+> the guest VM PTEs, and 2) updating the host's view of the page state.
+> Both steps may be done on a range of pages.  If #2 fails, the guest
+> doesn't know which pages in the batch were updated and which were
+> not, so the guest PTEs may not match the host state.  In such a case,
+> set_memory_encrypted() could succeed based on checking the
+> PTEs when in fact the host still thinks some of the pages are shared.
+> Such a mismatch will produce a guest panic later on if the page is
+> referenced.
 
-1) Do you think the bh_lock_sock/bh_unlock_sock in the smc_cdc_msg_recv 
-does not protect the smc_cdc_msg_recv_action() from cancel_work_sync()?
-Maybe that would go back to the discussion in the other patch on the 
-behaviors of the locks.
+I think that's OK.  In the end, the page state is controlled by the VMM.
+ The guest has zero control.  All it can do is make the PTEs consistent
+and hold on for dear life.  That's a general statement and not specific
+to this problem.
 
-2) If the queue_work returns true, as I said in the last main, the work 
-should be (being) executed. How could the cancel_work_sync() cancel the 
-work before execution successgully?
-
->>>>> Fixes: 42bfba9eaa33 ("net/smc: immediate termination for SMCD link 
->>>>> groups")
->>>>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
->>>>> ---
->>>>>   net/smc/smc_close.c | 3 ++-
->>>>>   1 file changed, 2 insertions(+), 1 deletion(-)
->>>>>
->>>>> diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
->>>>> index 449ef45..10219f5 100644
->>>>> --- a/net/smc/smc_close.c
->>>>> +++ b/net/smc/smc_close.c
->>>>> @@ -116,7 +116,8 @@ static void smc_close_cancel_work(struct 
->>>>> smc_sock *smc)
->>>>>       struct sock *sk = &smc->sk;
->>>>>         release_sock(sk);
->>>>> -    cancel_work_sync(&smc->conn.close_work);
->>>>> +    if (cancel_work_sync(&smc->conn.close_work))
->>>>> +        sock_put(sk);
->>>>>       cancel_delayed_work_sync(&smc->conn.tx_work);
->>>>>       lock_sock(sk);
->>>>>   }
->>>
-> 
-> 
+In other words, it's fine for CoCo folks to be paranoid.  It's fine for
+them to set panic_on_{warn,oops,whatever}=1.  But it's *NOT* fine to say
+that every TDX guest will want to do that.
