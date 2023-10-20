@@ -2,167 +2,157 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 974EAC001DF
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Oct 2023 15:32:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57975C001DF
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Oct 2023 20:48:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377701AbjJTPcx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 Oct 2023 11:32:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50278 "EHLO
+        id S230383AbjJTUsq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 20 Oct 2023 16:48:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377725AbjJTPcw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Oct 2023 11:32:52 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E4F9D6E;
-        Fri, 20 Oct 2023 08:32:48 -0700 (PDT)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39KFEXYS006326;
-        Fri, 20 Oct 2023 15:32:44 GMT
+        with ESMTP id S230117AbjJTUsp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Oct 2023 16:48:45 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B92EDBF;
+        Fri, 20 Oct 2023 13:48:43 -0700 (PDT)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39KKgCbT002542;
+        Fri, 20 Oct 2023 20:48:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=s9EX2lIAtk9uao5McAdt1Ddbm+myB+BjqVbx+TMyoXA=;
- b=j8E/0fyL1CHn832cATMu4G7DyNqhEotu9/CADmqwTY1NC2KNAuNM1X3mw+SOVLHY2uzO
- RLMd36k5uin4QRz7Ix94atiU6lkBH4hi6JShGBy7uk392fX13Yl0u2FEI5esdgwYISob
- oVWloGaw2AHtlojJhBajYhHIrrzi5ukOklTh+AO8Gd93AYPIwHbb+JPST6M9uackWEy2
- c88F9c5pSgtiIeB48EQNTZX2NB+Hmc78Tea2zs3QR8oSafSNOP/eAFHZ1sui6p7kXj6H
- md37KNyRSuZYYG1hww+WbkI5YM5RMJePkgvYUKDLs1DQLnoC3y3+RNf2AyNwKM6sy+Fm IQ== 
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=Yhoq0dxrpX3TpGKNPe1ltxOKvYmmrUr2BhsB7idTqzQ=;
+ b=MgUhH2r2QfQlDEGIbVSvyCdO1A2nYvtMWTzIaki9sbvYYFklfWgDCRoQNC5Nay4t2L7/
+ H7xL4dV8IBZNww2AghZRAQ5Ko+ziYMur7JvQqk8ghzoXlDtnSrREjR5392yJih4jufmI
+ z+2AJBurlsttEWzQkQN3X/1PNF6rO8Oa8zzG4HnbAiLnLDffncfnVSM7y9rR1ZTQAMQM
+ JYAr++RngRbUWcIHDljnubEkiO1olxxmONYhcYDKx9hrNcAwN6XmqoQtn6gYKWIFrs52
+ /znAzi1b+PMfjimX5E/FOD5bsXc51iNI91FcPsKYvN/+f+ukpInP64yPxg4Kv1AYZG8Q ow== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tuv120skv-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tv0tk07ty-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 Oct 2023 15:32:43 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39KFEXOX006341;
-        Fri, 20 Oct 2023 15:32:43 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tuv120sc9-14
+        Fri, 20 Oct 2023 20:48:43 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39KKglu0004392;
+        Fri, 20 Oct 2023 20:48:42 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tv0tk07t6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 Oct 2023 15:32:43 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39KCCgCB019392;
-        Fri, 20 Oct 2023 14:49:09 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tuc4556ek-1
+        Fri, 20 Oct 2023 20:48:42 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39KKIR77024205;
+        Fri, 20 Oct 2023 20:48:41 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tuc2977h2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 Oct 2023 14:49:09 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39KEn6mc37093984
+        Fri, 20 Oct 2023 20:48:41 +0000
+Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
+        by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39KKmeci27263626
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 20 Oct 2023 14:49:06 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BBCF520040;
-        Fri, 20 Oct 2023 14:49:06 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 82BED2004B;
-        Fri, 20 Oct 2023 14:49:06 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 20 Oct 2023 14:49:06 +0000 (GMT)
-From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>,
-        Nikos Nikoleris <nikos.nikoleris@arm.com>,
-        Shaoqin Huang <shahuang@redhat.com>,
-        Andrew Jones <andrew.jones@linux.dev>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Colton Lewis <coltonlewis@google.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Ricardo Koller <ricarkol@google.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        linux-s390@vger.kernel.org,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
-Subject: [kvm-unit-tests PATCH 09/10] scripts: Implement multiline strings for extra_params
-Date:   Fri, 20 Oct 2023 16:48:59 +0200
-Message-Id: <20231020144900.2213398-10-nsg@linux.ibm.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20231020144900.2213398-1-nsg@linux.ibm.com>
-References: <20231020144900.2213398-1-nsg@linux.ibm.com>
+        Fri, 20 Oct 2023 20:48:40 GMT
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4ACA35805D;
+        Fri, 20 Oct 2023 20:48:40 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7C50F58059;
+        Fri, 20 Oct 2023 20:48:39 +0000 (GMT)
+Received: from li-2c1e724c-2c76-11b2-a85c-ae42eaf3cb3d.ibm.com.com (unknown [9.61.44.83])
+        by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 20 Oct 2023 20:48:39 +0000 (GMT)
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     jjherne@linux.ibm.com, pasic@linux.ibm.com,
+        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com, stable@vger.kernel.org
+Subject: [PATCH] s390/vfio-ap: fix sysfs status attribute for AP queue devices
+Date:   Fri, 20 Oct 2023 16:48:35 -0400
+Message-ID: <20231020204838.409521-1-akrowiak@linux.ibm.com>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: JZk7ZdMXW1IxR-YNLazzMXQDcp0A-OmC
-X-Proofpoint-ORIG-GUID: 298pfpG1O1wftfqKStlZAurirNHaqWwh
+X-Proofpoint-GUID: ptKSrGG7XvvzpbUdR3T97HTB6g-QQpxD
+X-Proofpoint-ORIG-GUID: mVxkVwVB00tUJmAdfDS7gFvl3AyJMGQd
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-10-20_10,2023-10-19_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 suspectscore=0 impostorscore=0
- mlxlogscore=999 adultscore=0 phishscore=0 malwarescore=0
- priorityscore=1501 spamscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2310170001 definitions=main-2310200128
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ adultscore=0 malwarescore=0 phishscore=0 suspectscore=0 impostorscore=0
+ mlxlogscore=999 clxscore=1015 spamscore=0 lowpriorityscore=0 bulkscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310170001 definitions=main-2310200176
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Implement a rudimentary form only.
-extra_params can get long when passing a lot of arguments to qemu.
-Multiline strings help with readability of the .cfg file.
-Multiline strings begin and end with """, which must occur on separate
-lines.
-
+The 'status' attribute for AP queue devices bound to the vfio_ap device
+driver displays incorrect status when the mediated device is attached to a
+guest, but the queue device is not passed through. In the current
+implementation, the status displayed is 'in_use' which is not correct; it
+should be 'assigned'. This can happen if one of the queue devices
+associated with a given adapter is not bound to the vfio_ap device driver.
 For example:
-extra_params = """-cpu max,ctop=on -smp cpus=1,cores=16,maxcpus=128 \
--append '-drawers 2 -books 2 -sockets 2 -cores 16' \
--device max-s390x-cpu,core-id=31,drawer-id=0,book-id=0,socket-id=0"""
 
-The command string built with extra_params is eval'ed by the runtime
-script, so the newlines need to be escaped with \.
+Queues listed in /sys/bus/ap/drivers/vfio_ap:
+14.0005
+14.0006
+14.000d
+16.0006
+16.000d
 
-Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Queues listed in /sys/devices/vfio_ap/matrix/$UUID/matrix
+14.0005
+14.0006
+14.000d
+16.0005
+16.0006
+16.000d
+
+Queues listed in /sys/devices/vfio_ap/matrix/$UUID/guest_matrix
+14.0005
+14.0006
+14.000d
+
+The reason no queues for adapter 0x16 are listed in the guest_matrix is
+because queue 16.0005 is not bound to the vfio_ap device driver, so no
+queue associated with the adapter is passed through to the guest;
+therefore, each queue device for adapter 0x16 should display 'assigned'
+instead of 'in_use', because those queues are not in use by a guest, but
+only assigned to the mediated device.
+
+Let's check the AP configuration for the guest to determine whether a
+queue device is passed through before displaying a status of 'in_use'.
+
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Fixes: f139862b92cf ("s390/vfio-ap: add status attribute to AP queue device's sysfs dir")
+Cc: stable@vger.kernel.org
 ---
- scripts/common.bash  | 16 ++++++++++++++++
- scripts/runtime.bash |  4 ++--
- 2 files changed, 18 insertions(+), 2 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/scripts/common.bash b/scripts/common.bash
-index 7b983f7d..b9413d68 100644
---- a/scripts/common.bash
-+++ b/scripts/common.bash
-@@ -36,6 +36,22 @@ function for_each_unittest()
- 			kernel=$TEST_DIR/${BASH_REMATCH[1]}
- 		elif [[ $line =~ ^smp\ *=\ *(.*)$ ]]; then
- 			smp=${BASH_REMATCH[1]}
-+		elif [[ $line =~ ^extra_params\ *=\ *'"""'(.*)$ ]]; then
-+			opts=${BASH_REMATCH[1]}$'\n'
-+			while read -r -u $fd; do
-+				#escape backslash newline, but not double backslash
-+				if [[ $opts =~ [^\\]*(\\*)$'\n'$ ]]; then
-+					if (( ${#BASH_REMATCH[1]} % 2 == 1 )); then
-+						opts=${opts%\\$'\n'}
-+					fi
-+				fi
-+				if [[ "$REPLY" =~ ^(.*)'"""'[:blank:]*$ ]]; then
-+					opts+=${BASH_REMATCH[1]}
-+					break
-+				else
-+					opts+=$REPLY$'\n'
-+				fi
-+			done
- 		elif [[ $line =~ ^extra_params\ *=\ *(.*)$ ]]; then
- 			opts=${BASH_REMATCH[1]}
- 		elif [[ $line =~ ^groups\ *=\ *(.*)$ ]]; then
-diff --git a/scripts/runtime.bash b/scripts/runtime.bash
-index ada8ffd7..fc156f2f 100644
---- a/scripts/runtime.bash
-+++ b/scripts/runtime.bash
-@@ -15,7 +15,7 @@ extract_summary()
- # We assume that QEMU is going to work if it tried to load the kernel
- premature_failure()
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 4db538a55192..871c14a6921f 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -1976,6 +1976,7 @@ static ssize_t status_show(struct device *dev,
  {
--    local log="$(eval $(get_cmdline _NO_FILE_4Uhere_) 2>&1)"
-+    local log="$(eval "$(get_cmdline _NO_FILE_4Uhere_)" 2>&1)"
+ 	ssize_t nchars = 0;
+ 	struct vfio_ap_queue *q;
++	unsigned long apid, apqi;
+ 	struct ap_matrix_mdev *matrix_mdev;
+ 	struct ap_device *apdev = to_ap_dev(dev);
  
-     echo "$log" | grep "_NO_FILE_4Uhere_" |
-         grep -q -e "could not \(load\|open\) kernel" -e "error loading" &&
-@@ -168,7 +168,7 @@ function run()
-     # extra_params in the config file may contain backticks that need to be
-     # expanded, so use eval to start qemu.  Use "> >(foo)" instead of a pipe to
-     # preserve the exit status.
--    summary=$(eval $cmdline 2> >(RUNTIME_log_stderr $testname) \
-+    summary=$(eval "$cmdline" 2> >(RUNTIME_log_stderr $testname) \
-                              > >(tee >(RUNTIME_log_stdout $testname $kernel) | extract_summary))
-     ret=$?
-     [ "$KUT_STANDALONE" != "yes" ] && echo > >(RUNTIME_log_stdout $testname $kernel)
+@@ -1984,7 +1985,11 @@ static ssize_t status_show(struct device *dev,
+ 	matrix_mdev = vfio_ap_mdev_for_queue(q);
+ 
+ 	if (matrix_mdev) {
+-		if (matrix_mdev->kvm)
++		apid = AP_QID_CARD(q->apqn);
++		apqi = AP_QID_QUEUE(q->apqn);
++		if (matrix_mdev->kvm &&
++		    test_bit_inv(apid, matrix_mdev->shadow_apcb.apm) &&
++		    test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
+ 			nchars = scnprintf(buf, PAGE_SIZE, "%s\n",
+ 					   AP_QUEUE_IN_USE);
+ 		else
 -- 
 2.41.0
 
