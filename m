@@ -2,62 +2,59 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CDBFCDB474
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Oct 2023 07:41:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A42BC001DF
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Oct 2023 12:31:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376438AbjJTHly (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 Oct 2023 03:41:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59944 "EHLO
+        id S1377186AbjJTMbA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 20 Oct 2023 08:31:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376422AbjJTHlx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Oct 2023 03:41:53 -0400
-Received: from mail-qv1-xf2a.google.com (mail-qv1-xf2a.google.com [IPv6:2607:f8b0:4864:20::f2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22EF4D7
-        for <linux-s390@vger.kernel.org>; Fri, 20 Oct 2023 00:41:51 -0700 (PDT)
-Received: by mail-qv1-xf2a.google.com with SMTP id 6a1803df08f44-66d36b2a247so3325496d6.1
-        for <linux-s390@vger.kernel.org>; Fri, 20 Oct 2023 00:41:51 -0700 (PDT)
+        with ESMTP id S1377175AbjJTMbA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Oct 2023 08:31:00 -0400
+Received: from mail-yw1-x1136.google.com (mail-yw1-x1136.google.com [IPv6:2607:f8b0:4864:20::1136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46542D49;
+        Fri, 20 Oct 2023 05:30:58 -0700 (PDT)
+Received: by mail-yw1-x1136.google.com with SMTP id 00721157ae682-5a8ada42c2aso7762647b3.3;
+        Fri, 20 Oct 2023 05:30:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1697787710; x=1698392510; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lBa0xa/eHNcCLSN4jU5w9L+UgbLX0/qpCkz9jorDITs=;
-        b=AvAcrGW5aY1lChxIAg/NbMHQ3hA8v4cgab7mfBDL4APx+gjN6uvUBsgeNoU/Bvh2Y6
-         nf0fIgpZF0y6jfzKhI1uhyGuzmG148xrvklISNAYk6zwEWveZqKz4oFvDMPRidT7IZdw
-         nhckKrrAWYxW9G+zgFFX6JCI3/Hvrf6YK8n710rdNHmDYh4APf7KOUOEi6GSGam+RInA
-         yocUWPBUf7p+M7kzj/BP07qylEu60z2U9vlSgW1AxkANHQM3AuOZOcLnhQCyC7Q+WGUn
-         eHVdE0zPK51YZvVVHJPZxeQV+SXVORm4TLLXBZbtJPCKevpfdt/6wRpjmVHVzzDTndlm
-         +QVg==
+        d=gmail.com; s=20230601; t=1697805057; x=1698409857; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=po603pLa6+WCSRfB+kSK68fxdf9syke8GemdI09pYiI=;
+        b=TweTCJmWt58QJ7k5GsMn9IadDX1CerCnT3A+hwl+vEzMtCDu3kzuq7TH4t9QlnMRc4
+         six2o5MvuoaWvz4uX2LnlfZ+DuSIzVH2hkLahj1IoGTSkGqMgTZhBghdG4kvI75gba1e
+         YfWC3hDFv+Nu7BeNO+mgihl0RNmGPH67/UIPE9WCXWqt0xLHAhYH+q96vPe+v8D5gm9L
+         XIU0i1PSP6KsYdj7JwLJvUWgkZ/VhI4Kc0IGLNz1JB673YZx6LF/XrMff9hKMVHbAhus
+         NJZL5Docy8NojZezpvn+jlk1CTgW/fQ16A3NjeQtES+BugVj34Arl+0L4Zuh281MVPWq
+         DxMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697787710; x=1698392510;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=lBa0xa/eHNcCLSN4jU5w9L+UgbLX0/qpCkz9jorDITs=;
-        b=QwG50bdlZamsGvf2MtHWsQrkZ7AMR11btACZhluPHaLO7qbTcnKDWUXZvaaJFl8+7Z
-         tiBO6/xKBJOm52+vwfErQVKdDIOu0xTTJFOyGzt0fHZ8CAVsWfHOsAiZNx61xAmucUlu
-         qgQzosr2v2zqCi2sXlhkIm/oFR4M1G1O6bGlxDEpFu3AjL0fBwayHj8Whm3e+gyFsLxD
-         Oj3DucMb61j4n5qk7J6rfRiNkycPHB6EAhGgd9W2Vn/FLSLsqqwvkbV7Nf+GtXvrEeQO
-         Orj1z8OoAecGWHY92tHulO0y4d0/YATdFVrNzevOpIqK5r6q35ACpit9vKkdRkwjNUvz
-         mxbQ==
-X-Gm-Message-State: AOJu0YzZtgwojUiCoz20vfZBhmryjYWqzCkhFphLdc6I9Gi7CT6nTfaG
-        JDhNRx+3PqSiTbsvExVEftyeoWCot/Po1WjWiicDiQ==
-X-Google-Smtp-Source: AGHT+IF4DP8EnmUuEgxb0AWEosQEB3fTMTya1XnxFLtaGR6STLfbHmgJkB9SCGKsieIg9mX9CbrMN19r3UImMJv5EAs=
-X-Received: by 2002:ad4:596a:0:b0:66d:1230:9682 with SMTP id
- eq10-20020ad4596a000000b0066d12309682mr1436777qvb.62.1697787710110; Fri, 20
- Oct 2023 00:41:50 -0700 (PDT)
-MIME-Version: 1.0
-References: <20231016165247.14212-1-aleksander.lobakin@intel.com>
- <20231016165247.14212-12-aleksander.lobakin@intel.com> <20231018172747.305c65bd@kernel.org>
-In-Reply-To: <20231018172747.305c65bd@kernel.org>
-From:   Alexander Potapenko <glider@google.com>
-Date:   Fri, 20 Oct 2023 09:41:10 +0200
-Message-ID: <CAG_fn=XP819PnkoR0G6_anRNq0t_r=drCFx4PT2VgRnrBaUjdA@mail.gmail.com>
-Subject: Re: [PATCH v2 11/13] ip_tunnel: convert __be16 tunnel flags to bitmaps
-To:     Jakub Kicinski <kuba@kernel.org>,
-        Yury Norov <yury.norov@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Alexander Lobakin <aleksander.lobakin@intel.com>,
+        d=1e100.net; s=20230601; t=1697805057; x=1698409857;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=po603pLa6+WCSRfB+kSK68fxdf9syke8GemdI09pYiI=;
+        b=MkwtQsBAjSq+wUOzCO50p03KezTzlKsGmhht1mWcHEFj9Ur0s0A72d9pkovdQMqrzw
+         5srzuxdy2R3eF++0hf2cRppvVByEMjmB9sjkXiaakvyb0x2jr0HNZRnou2Sdv27kk1OP
+         ausBWtHynB5oZ6GNLyfx648exc6ZXfWXyCm6EpbtyKqk45v5/sHZMvLcFVt73chdQQ8Y
+         uBwwuG7j19f5Tx/f6PuFxYt19VshZyZPh1BO9jahu80aIZwdw8uulq2b5WTtSxxN8SG9
+         4PlaxtSaWLRQ6FT+VVd0TydV8Sjdg59to5mIYnuDwfnoO82HkvZIGD/kYmHcAv8FJzSb
+         u4zA==
+X-Gm-Message-State: AOJu0Ywrf7wwYFWSBbxws/i+/geabpZTMI60k8PW4Fwiy/gqLTXCWx+x
+        RC4Rqj9TAYK41YW2SimMcnU=
+X-Google-Smtp-Source: AGHT+IEOIarenbX043L5oIbX6lbvtuAP32bTGnwRaigZvMyalrTwJO+TskT/MUvUAG4FNXSH60Yzgw==
+X-Received: by 2002:a81:4f57:0:b0:5a7:b8d4:60e1 with SMTP id d84-20020a814f57000000b005a7b8d460e1mr1817405ywb.9.1697805057406;
+        Fri, 20 Oct 2023 05:30:57 -0700 (PDT)
+Received: from localhost ([2607:fb90:3e1a:8bc6:bf58:5f88:bb90:604])
+        by smtp.gmail.com with ESMTPSA id v77-20020a814850000000b005a7daa09f43sm641359ywa.125.2023.10.20.05.30.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Oct 2023 05:30:56 -0700 (PDT)
+Date:   Fri, 20 Oct 2023 05:30:55 -0700
+From:   Yury Norov <yury.norov@gmail.com>
+To:     Alexander Potapenko <glider@google.com>
+Cc:     Jakub Kicinski <kuba@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Alexander Lobakin <aleksander.lobakin@intel.com>,
         Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Eric Dumazet <edumazet@google.com>,
         David Ahern <dsahern@kernel.org>,
@@ -66,38 +63,37 @@ Cc:     Alexander Lobakin <aleksander.lobakin@intel.com>,
         netdev@vger.kernel.org, linux-btrfs@vger.kernel.org,
         dm-devel@redhat.com, ntfs3@lists.linux.dev,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v2 11/13] ip_tunnel: convert __be16 tunnel flags to
+ bitmaps
+Message-ID: <ZTJy/7PMX/kGw2EL@yury-ThinkPad>
+References: <20231016165247.14212-1-aleksander.lobakin@intel.com>
+ <20231016165247.14212-12-aleksander.lobakin@intel.com>
+ <20231018172747.305c65bd@kernel.org>
+ <CAG_fn=XP819PnkoR0G6_anRNq0t_r=drCFx4PT2VgRnrBaUjdA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAG_fn=XP819PnkoR0G6_anRNq0t_r=drCFx4PT2VgRnrBaUjdA@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Oct 19, 2023 at 2:27=E2=80=AFAM Jakub Kicinski <kuba@kernel.org> wr=
-ote:
->
-> On Mon, 16 Oct 2023 18:52:45 +0200 Alexander Lobakin wrote:
-> >  40 files changed, 715 insertions(+), 415 deletions(-)
->
-> This already has at least two conflicts with networking if I'm looking
-> right. Please let the pre-req's go in via Yury's tree and then send
-> this for net-next in the next release cycle.
-
-Yury, Andy,
-
-The MTE part of my series will need to be reworked, so it might take a whil=
-e.
-Shall I maybe send v8 of
-https://lore.kernel.org/lkml/20231011172836.2579017-1-glider@google.com/
-(plus the test) separately to unblock Alexander?
-
---=20
-Alexander Potapenko
-Software Engineer
-
-Google Germany GmbH
-Erika-Mann-Stra=C3=9Fe, 33
-80636 M=C3=BCnchen
-
-Gesch=C3=A4ftsf=C3=BChrer: Paul Manicle, Liana Sebastian
-Registergericht und -nummer: Hamburg, HRB 86891
-Sitz der Gesellschaft: Hamburg
+On Fri, Oct 20, 2023 at 09:41:10AM +0200, Alexander Potapenko wrote:
+> On Thu, Oct 19, 2023 at 2:27 AM Jakub Kicinski <kuba@kernel.org> wrote:
+> >
+> > On Mon, 16 Oct 2023 18:52:45 +0200 Alexander Lobakin wrote:
+> > >  40 files changed, 715 insertions(+), 415 deletions(-)
+> >
+> > This already has at least two conflicts with networking if I'm looking
+> > right. Please let the pre-req's go in via Yury's tree and then send
+> > this for net-next in the next release cycle.
+> 
+> Yury, Andy,
+> 
+> The MTE part of my series will need to be reworked, so it might take a while.
+> Shall I maybe send v8 of
+> https://lore.kernel.org/lkml/20231011172836.2579017-1-glider@google.com/
+> (plus the test) separately to unblock Alexander?
+ 
+You better ask Alexander :). No objections from me.
