@@ -2,137 +2,151 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 501C8C001DF
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Oct 2023 12:46:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52A60CDB474
+	for <linux-s390@archiver.kernel.org>; Fri, 20 Oct 2023 14:49:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377381AbjJTMqQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 Oct 2023 08:46:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50374 "EHLO
+        id S1377537AbjJTOtW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 20 Oct 2023 10:49:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377437AbjJTMqL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Oct 2023 08:46:11 -0400
-Received: from mail-yw1-x1134.google.com (mail-yw1-x1134.google.com [IPv6:2607:f8b0:4864:20::1134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A21A610F0;
-        Fri, 20 Oct 2023 05:46:03 -0700 (PDT)
-Received: by mail-yw1-x1134.google.com with SMTP id 00721157ae682-5a81ab75f21so8124947b3.2;
-        Fri, 20 Oct 2023 05:46:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1697805963; x=1698410763; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=jps82JBDACzoR3tUfyIbEtBbVZCxrcf9ApmwOX34umg=;
-        b=laXN9bG1zVF8AtIP8UkdsW4iRjoCMsoW78sUky8pqGfIcUCKqVF3FjUMaqPVB0aEIL
-         ku62I1LU5ZzawW4qAepATyBTtIpAj047WXFJ2Rk67D3TnSRHuGhKP+1IF9HsScbgq3ZF
-         LlLL6M/td5VDMMdOm5eWny9ezycVrh/AYKwnN6g8uBfkldhZAwetXX6HmhKkyZ56LwFb
-         4zFtVi5Nk8hiKI+xlolDk5yPwcLx783Gk25bf55nY4VoGR+EDnSNWpAPClKNMJ1VpxiU
-         z0G5SdkX3fdaVud8BbJGZbXNGgrLeQf1OXj9iAu1BxZpsQ+g9Mt4x3nQ8yGfOn0pqNsx
-         kDBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697805963; x=1698410763;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jps82JBDACzoR3tUfyIbEtBbVZCxrcf9ApmwOX34umg=;
-        b=qhuh/oRxJJJgUOCEPj+/kKXMzOgkjr7fL9gBRn6SAElBVOWH858SZblwIGsgmkiaxA
-         +Xszia2hqTZ6i6y81L2LLECOnYmDvJzB1Pm5ctrvy71+ZcmlhpzqfQAsdrljlNcD8rjK
-         T0aGk0GpJQUVcTll1KvBXUYn24HHtLmgSBBiU3nymeAx736cTTBSXz/FEuAn+Cv2aOQu
-         j2H/jvtSaslQHVqwm4Yk3kxFSEied0IXl8tIFccV9NQyHPSbzgVXRZCrtF3zJXPIq5TU
-         ln2ITDKAZJU3VrTCmkwxvNVzlB6qD6HOA7DQRPBVQMP+Q+o6Iyk2nq4yjj9tkohWa1qJ
-         idXw==
-X-Gm-Message-State: AOJu0YyU70G84/rrY/EOfaMmxuxuAOeVssndcSr1hKLOcMFnSLrfQFyR
-        W+1mZRGhwQvdvkrr8y+JZMQ=
-X-Google-Smtp-Source: AGHT+IE6t/1v27h+fcqmTdO36JdundJNToc6FICMQ+l92k0VypVbJHWYvo6kei8XbZDOyOkNc3/wwA==
-X-Received: by 2002:a05:690c:dc4:b0:5a7:aa54:42b1 with SMTP id db4-20020a05690c0dc400b005a7aa5442b1mr2232055ywb.28.1697805962604;
-        Fri, 20 Oct 2023 05:46:02 -0700 (PDT)
-Received: from localhost ([2607:fb90:3e1a:8bc6:bf58:5f88:bb90:604])
-        by smtp.gmail.com with ESMTPSA id m205-20020a8171d6000000b0059af121d0b8sm654571ywc.52.2023.10.20.05.46.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Oct 2023 05:46:01 -0700 (PDT)
-Date:   Fri, 20 Oct 2023 05:46:00 -0700
-From:   Yury Norov <yury.norov@gmail.com>
-To:     Alexander Lobakin <aleksander.lobakin@intel.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Alexander Potapenko <glider@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        David Ahern <dsahern@kernel.org>,
-        Przemek Kitszel <przemyslaw.kitszel@intel.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        netdev@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        linux-btrfs@vger.kernel.org, dm-devel@redhat.com,
-        ntfs3@lists.linux.dev, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 00/13] ip_tunnel: convert __be16 tunnel flags to
- bitmaps
-Message-ID: <ZTJ2iKk3sBFzVQJl@yury-ThinkPad>
-References: <20231016165247.14212-1-aleksander.lobakin@intel.com>
- <ZS148saIsG7WY8ul@yury-ThinkPad>
+        with ESMTP id S1377239AbjJTOtW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Oct 2023 10:49:22 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 868B6CF;
+        Fri, 20 Oct 2023 07:49:20 -0700 (PDT)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39KEiUKN017421;
+        Fri, 20 Oct 2023 14:49:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=FBU0jEH+CVW+vsZZRGYN0d0LaP3FyhG2Nym9IxQsdNU=;
+ b=j1AxkgxV0op6c1g2lRDkzTba6oYgouy/4CkDXmYpTUPyOCwAOeAuoJm0LpzwfrNOmz1i
+ ZbOg7W+N4vU5j7+mEN1654XlXceptuzLMLo6x+qr9C1/qFjXi8kc+26tM2ahp9BCbwi3
+ 2tYxgfJSEZaD1HYNz0MpGA4op3LbIgVR9vOctMpm5KucKV0fE7df6Vib92fS5jKeNjXF
+ rTEs+m1fOheb4SV3xotMojHl1rlg0CgIR6OV9axU06XpuIG0+HpUvYk5ph61JLvXl7T5
+ 7ICMp3IdUU2dm6h3TN3qE1X06HucGIZz6y1Xq6+j2ILUGqR4p3hL5wLNET1EoHzdzeND Ng== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tuuk086n9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 Oct 2023 14:49:08 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39KEixD1019370;
+        Fri, 20 Oct 2023 14:49:08 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tuuk086mb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 Oct 2023 14:49:08 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39KCLSNB029895;
+        Fri, 20 Oct 2023 14:49:07 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tuc47n67e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 20 Oct 2023 14:49:07 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39KEn47Y25494154
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 20 Oct 2023 14:49:04 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 13E9320040;
+        Fri, 20 Oct 2023 14:49:04 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CD3A720043;
+        Fri, 20 Oct 2023 14:49:03 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 20 Oct 2023 14:49:03 +0000 (GMT)
+From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        =?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>
+Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Nikos Nikoleris <nikos.nikoleris@arm.com>,
+        linux-s390@vger.kernel.org, Shaoqin Huang <shahuang@redhat.com>,
+        Sean Christopherson <seanjc@google.com>, kvm@vger.kernel.org,
+        Andrew Jones <andrew.jones@linux.dev>,
+        Ricardo Koller <ricarkol@google.com>,
+        Colton Lewis <coltonlewis@google.com>,
+        Thomas Huth <thuth@redhat.com>
+Subject: [kvm-unit-tests PATCH 01/10] s390x: topology: Introduce enums for polarization & cpu type
+Date:   Fri, 20 Oct 2023 16:48:51 +0200
+Message-Id: <20231020144900.2213398-2-nsg@linux.ibm.com>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20231020144900.2213398-1-nsg@linux.ibm.com>
+References: <20231020144900.2213398-1-nsg@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZS148saIsG7WY8ul@yury-ThinkPad>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: UBY9aPhk0Ju7FnjBelXIEmat90q1AOCK
+X-Proofpoint-ORIG-GUID: 6zk7NlwVBMCK-YxdXD85tnbentjUakDn
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-20_10,2023-10-19_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ phishscore=0 mlxlogscore=999 spamscore=0 clxscore=1015 mlxscore=0
+ suspectscore=0 malwarescore=0 lowpriorityscore=0 impostorscore=0
+ bulkscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310170001 definitions=main-2310200121
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-+ Stephen
+Thereby get rid of magic values.
 
-On Mon, Oct 16, 2023 at 10:55:02AM -0700, Yury Norov wrote:
-> On Mon, Oct 16, 2023 at 06:52:34PM +0200, Alexander Lobakin wrote:
-> > Based on top of "Implement MTE tag compression for swapped pages"[0]
-> > from Alexander Potapenko as it uses its bitmap_{read,write}() functions
-> > to not introduce another pair of similar ones.
-> > 
-> > Derived from the PFCP support series[1] as this grew bigger (2 -> 13
-> > commits) and involved more core bitmap changes. Only commits 10 and 11
-> > are from the mentioned tree, the rest is new. PFCP itself still depends
-> > on this series.
-> > 
-> > IP tunnels have their flags defined as `__be16`, including UAPI, and
-> > after GTP was accepted, there are no more free bits left. UAPI (incl.
-> > direct usage of one of the user structs) and explicit Endianness only
-> > complicate things.
-> > Since it would either way end up with hundreds of locs due to all that,
-> > pick bitmaps right from the start to store the flags in the most native
-> > and scalable format with rich API. I don't think it's worth trying to
-> > praise luck and pick smth like u32 only to redo everything in x years :)
-> > More details regarding the IP tunnel flags is in 11 and 13.
-> > 
-> > The rest is just a good bunch of prereqs and tests: a couple of new
-> > helpers and extensions to the old ones, a few optimizations to partially
-> > mitigate IP tunnel object code growth due to __be16 -> long, and
-> > decouping one UAPI struct used throughout the whole kernel into the
-> > userspace and the kernel space counterparts to eliminate the dependency.
-> > 
-> > [0] https://lore.kernel.org/lkml/20231011172836.2579017-1-glider@google.com
-> > [1] https://lore.kernel.org/netdev/20230721071532.613888-1-marcin.szycik@linux.intel.com
+Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+---
+ lib/s390x/stsi.h | 11 +++++++++++
+ s390x/topology.c |  6 ++++--
+ 2 files changed, 15 insertions(+), 2 deletions(-)
 
-[...]
+diff --git a/lib/s390x/stsi.h b/lib/s390x/stsi.h
+index 1351a6f3..2f6182c1 100644
+--- a/lib/s390x/stsi.h
++++ b/lib/s390x/stsi.h
+@@ -41,6 +41,17 @@ struct topology_core {
+ 	uint64_t mask;
+ };
+ 
++enum topology_polarization {
++	POLARIZATION_HORIZONTAL = 0,
++	POLARIZATION_VERTICAL_LOW = 1,
++	POLARIZATION_VERTICAL_MEDIUM = 2,
++	POLARIZATION_VERTICAL_HIGH = 3,
++};
++
++enum cpu_type {
++	CPU_TYPE_IFL = 3,
++};
++
+ #define CONTAINER_TLE_RES_BITS 0x00ffffffffffff00UL
+ struct topology_container {
+ 	uint8_t nl;
+diff --git a/s390x/topology.c b/s390x/topology.c
+index 69558236..6ab8c8d4 100644
+--- a/s390x/topology.c
++++ b/s390x/topology.c
+@@ -261,7 +261,7 @@ static uint8_t *check_tle(void *tc)
+ 	report(!(*(uint64_t *)tc & CPUS_TLE_RES_BITS), "reserved bits %016lx",
+ 	       *(uint64_t *)tc & CPUS_TLE_RES_BITS);
+ 
+-	report(cpus->type == 0x03, "type IFL");
++	report(cpus->type == CPU_TYPE_IFL, "type IFL");
+ 
+ 	report_info("origin: %d", cpus->origin);
+ 	report_info("mask: %016lx", cpus->mask);
+@@ -275,7 +275,9 @@ static uint8_t *check_tle(void *tc)
+ 	if (!cpus->d)
+ 		report_skip("Not dedicated");
+ 	else
+-		report(cpus->pp == 3 || cpus->pp == 0, "Dedicated CPUs are either vertically polarized or have high entitlement");
++		report(cpus->pp == POLARIZATION_VERTICAL_HIGH ||
++		       cpus->pp == POLARIZATION_HORIZONTAL,
++		       "Dedicated CPUs are either vertically polarized or have high entitlement");
+ 
+ 	return tc + sizeof(*cpus);
+ }
+-- 
+2.41.0
 
-> > ---
-> > Not sure whether it's fine to have that all in one series, but OTOH
-> > there's not much stuff I could split (like, 3 commits), it either
-> > depends directly (new helpers etc.) or will just generate suboptimal
-> > code w/o some of the commits.
-> > 
-> > I'm also thinking of which tree this would ideally be taken through.
-> > The main subject is networking, but most of the commits are generic.
-> > My idea is to push this via Yury / bitmaps and then ask the netdev
-> > maintainers to pull his tree before they take PFCP (dependent on this
-> > one).
-> 
-> Let's wait for more comments, but I'm generally OK with the generic
-> part, and have nothing against moving it, or the whole series, through
-> bitmap-for-next.
-
-I put this into bitmap-for-next, and it caused build failures for
-Stephen:
-
-https://lore.kernel.org/lkml/20220722191657.1d7282c2@canb.auug.org.au/
-
-I can reproduce them too. So, removing from -next. Alexander, can you
-run another round with all found issues fixed?
-
-Thanks,
-Yury
