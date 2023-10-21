@@ -2,157 +2,122 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57975C001DF
-	for <linux-s390@archiver.kernel.org>; Fri, 20 Oct 2023 20:48:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A597C001E0
+	for <linux-s390@archiver.kernel.org>; Sat, 21 Oct 2023 09:44:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230383AbjJTUsq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 20 Oct 2023 16:48:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49654 "EHLO
+        id S229623AbjJUJoL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 21 Oct 2023 05:44:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230117AbjJTUsp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Oct 2023 16:48:45 -0400
+        with ESMTP id S229574AbjJUJoK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 21 Oct 2023 05:44:10 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B92EDBF;
-        Fri, 20 Oct 2023 13:48:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CCF213E;
+        Sat, 21 Oct 2023 02:44:09 -0700 (PDT)
 Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39KKgCbT002542;
-        Fri, 20 Oct 2023 20:48:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=Yhoq0dxrpX3TpGKNPe1ltxOKvYmmrUr2BhsB7idTqzQ=;
- b=MgUhH2r2QfQlDEGIbVSvyCdO1A2nYvtMWTzIaki9sbvYYFklfWgDCRoQNC5Nay4t2L7/
- H7xL4dV8IBZNww2AghZRAQ5Ko+ziYMur7JvQqk8ghzoXlDtnSrREjR5392yJih4jufmI
- z+2AJBurlsttEWzQkQN3X/1PNF6rO8Oa8zzG4HnbAiLnLDffncfnVSM7y9rR1ZTQAMQM
- JYAr++RngRbUWcIHDljnubEkiO1olxxmONYhcYDKx9hrNcAwN6XmqoQtn6gYKWIFrs52
- /znAzi1b+PMfjimX5E/FOD5bsXc51iNI91FcPsKYvN/+f+ukpInP64yPxg4Kv1AYZG8Q ow== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tv0tk07ty-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 Oct 2023 20:48:43 +0000
-Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39KKglu0004392;
-        Fri, 20 Oct 2023 20:48:42 GMT
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39L9gNAp028149;
+        Sat, 21 Oct 2023 09:44:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=wiznSzPHeDvgCYmBpLCxQSz2kUh0Y5cwbWCJqEw6UC4=;
+ b=B++XRKSFFkRhrwMFPwI7jYlIAUaBh+ZtowErnbxY77jeVtPjU7UK1UoC/XHpObzaR7xP
+ TwTN5Xnq1+7G/dONwKE+gMpOdfrl8IYNoUTirTcoPptgZ9QsPiww51guYwi1uj9SXG3m
+ hEC+MtD531KNTi40qxOdAy9GrNanVf6rU0xMUjrHZD7cA0ZsXIh68IzMpD/6e5oed5+4
+ 5Mwjap40CtfCo64cvNNKffI7gsVbo14uz1vfEf6xOCS6QOMGha8aILYVHmfspW01n3lf
+ o2zfzK4k/Db2GoBRaUgfYg1E3ET2napegbcadpmXxsRGZQsWAHF7DADfEJ56nlE+COeN pw== 
 Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tv0tk07t6-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tvc88r1e3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 Oct 2023 20:48:42 +0000
+        Sat, 21 Oct 2023 09:44:06 +0000
 Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39KKIR77024205;
-        Fri, 20 Oct 2023 20:48:41 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tuc2977h2-1
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39L5rstq024179;
+        Sat, 21 Oct 2023 09:44:05 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tuc29akkr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 Oct 2023 20:48:41 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-        by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39KKmeci27263626
+        Sat, 21 Oct 2023 09:44:05 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39L9i2eU000512
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 20 Oct 2023 20:48:40 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4ACA35805D;
-        Fri, 20 Oct 2023 20:48:40 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7C50F58059;
-        Fri, 20 Oct 2023 20:48:39 +0000 (GMT)
-Received: from li-2c1e724c-2c76-11b2-a85c-ae42eaf3cb3d.ibm.com.com (unknown [9.61.44.83])
-        by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 20 Oct 2023 20:48:39 +0000 (GMT)
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     jjherne@linux.ibm.com, pasic@linux.ibm.com,
-        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com, stable@vger.kernel.org
-Subject: [PATCH] s390/vfio-ap: fix sysfs status attribute for AP queue devices
-Date:   Fri, 20 Oct 2023 16:48:35 -0400
-Message-ID: <20231020204838.409521-1-akrowiak@linux.ibm.com>
-X-Mailer: git-send-email 2.41.0
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Sat, 21 Oct 2023 09:44:02 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EE6CB2004E;
+        Sat, 21 Oct 2023 09:44:01 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9C82620043;
+        Sat, 21 Oct 2023 09:44:01 +0000 (GMT)
+Received: from localhost (unknown [9.179.5.188])
+        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Sat, 21 Oct 2023 09:44:01 +0000 (GMT)
+Date:   Sat, 21 Oct 2023 11:44:00 +0200
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 fixes for 6.6-rc7
+Message-ID: <your-ad-here.call-01697881440-ext-2458@work.hours>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ptKSrGG7XvvzpbUdR3T97HTB6g-QQpxD
-X-Proofpoint-ORIG-GUID: mVxkVwVB00tUJmAdfDS7gFvl3AyJMGQd
+X-Proofpoint-GUID: cJbZbqwRyhTlqxB2eXYiZ6KhBivFH6Ep
+X-Proofpoint-ORIG-GUID: cJbZbqwRyhTlqxB2eXYiZ6KhBivFH6Ep
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-10-20_10,2023-10-19_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- adultscore=0 malwarescore=0 phishscore=0 suspectscore=0 impostorscore=0
- mlxlogscore=999 clxscore=1015 spamscore=0 lowpriorityscore=0 bulkscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2310170001 definitions=main-2310200176
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ lowpriorityscore=0 phishscore=0 spamscore=0 clxscore=1011 mlxscore=0
+ adultscore=0 priorityscore=1501 suspectscore=0 bulkscore=0 mlxlogscore=602
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310170001 definitions=main-2310210088
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The 'status' attribute for AP queue devices bound to the vfio_ap device
-driver displays incorrect status when the mediated device is attached to a
-guest, but the queue device is not passed through. In the current
-implementation, the status displayed is 'in_use' which is not correct; it
-should be 'assigned'. This can happen if one of the queue devices
-associated with a given adapter is not bound to the vfio_ap device driver.
-For example:
+Hello Linus,
 
-Queues listed in /sys/bus/ap/drivers/vfio_ap:
-14.0005
-14.0006
-14.000d
-16.0006
-16.000d
+please pull s390 fixes for 6.6-rc7.
 
-Queues listed in /sys/devices/vfio_ap/matrix/$UUID/matrix
-14.0005
-14.0006
-14.000d
-16.0005
-16.0006
-16.000d
+Thank you,
+Vasily
 
-Queues listed in /sys/devices/vfio_ap/matrix/$UUID/guest_matrix
-14.0005
-14.0006
-14.000d
+The following changes since commit 5c95bf274665cc9f5126e4a48a9da51114f7afd2:
 
-The reason no queues for adapter 0x16 are listed in the guest_matrix is
-because queue 16.0005 is not bound to the vfio_ap device driver, so no
-queue associated with the adapter is passed through to the guest;
-therefore, each queue device for adapter 0x16 should display 'assigned'
-instead of 'in_use', because those queues are not in use by a guest, but
-only assigned to the mediated device.
+  s390/cert_store: fix string length handling (2023-09-19 13:25:44 +0200)
 
-Let's check the AP configuration for the guest to determine whether a
-queue device is passed through before displaying a status of 'in_use'.
+are available in the Git repository at:
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Fixes: f139862b92cf ("s390/vfio-ap: add status attribute to AP queue device's sysfs dir")
-Cc: stable@vger.kernel.org
----
- drivers/s390/crypto/vfio_ap_ops.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.6-4
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 4db538a55192..871c14a6921f 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1976,6 +1976,7 @@ static ssize_t status_show(struct device *dev,
- {
- 	ssize_t nchars = 0;
- 	struct vfio_ap_queue *q;
-+	unsigned long apid, apqi;
- 	struct ap_matrix_mdev *matrix_mdev;
- 	struct ap_device *apdev = to_ap_dev(dev);
- 
-@@ -1984,7 +1985,11 @@ static ssize_t status_show(struct device *dev,
- 	matrix_mdev = vfio_ap_mdev_for_queue(q);
- 
- 	if (matrix_mdev) {
--		if (matrix_mdev->kvm)
-+		apid = AP_QID_CARD(q->apqn);
-+		apqi = AP_QID_QUEUE(q->apqn);
-+		if (matrix_mdev->kvm &&
-+		    test_bit_inv(apid, matrix_mdev->shadow_apcb.apm) &&
-+		    test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
- 			nchars = scnprintf(buf, PAGE_SIZE, "%s\n",
- 					   AP_QUEUE_IN_USE);
- 		else
--- 
-2.41.0
+for you to fetch changes up to c1ae1c59c8c6e0b66a718308c623e0cb394dab6b:
 
+  s390/pci: fix iommu bitmap allocation (2023-10-19 16:35:41 +0200)
+
+----------------------------------------------------------------
+s390 updates for 6.6-rc7
+
+- Fix IOMMU bitmap allocation in s390 PCI to avoid out of bounds access
+  when IOMMU pages aren't a multiple of 64.
+
+- Fix kasan crashes when accessing DCSS mapping in memory holes by adding
+  corresponding kasan zero shadow mappings.
+
+- Fix a memory leak in css_alloc_subchannel in case dma_set_coherent_mask
+  fails.
+
+----------------------------------------------------------------
+Dinghao Liu (1):
+      s390/cio: fix a memleak in css_alloc_subchannel
+
+Niklas Schnelle (1):
+      s390/pci: fix iommu bitmap allocation
+
+Vasily Gorbik (1):
+      s390/kasan: handle DCSS mapping in memory holes
+
+ arch/s390/boot/vmem.c   |  7 ++++++-
+ arch/s390/pci/pci_dma.c | 15 +++++++++++++--
+ drivers/s390/cio/css.c  |  6 ++++--
+ 3 files changed, 23 insertions(+), 5 deletions(-)
