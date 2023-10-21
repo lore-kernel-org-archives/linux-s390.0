@@ -2,122 +2,178 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A597C001E0
-	for <linux-s390@archiver.kernel.org>; Sat, 21 Oct 2023 09:44:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F792C07545
+	for <linux-s390@archiver.kernel.org>; Sat, 21 Oct 2023 17:56:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229623AbjJUJoL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 21 Oct 2023 05:44:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37534 "EHLO
+        id S229621AbjJUR46 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 21 Oct 2023 13:56:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229574AbjJUJoK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 21 Oct 2023 05:44:10 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CCF213E;
-        Sat, 21 Oct 2023 02:44:09 -0700 (PDT)
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39L9gNAp028149;
-        Sat, 21 Oct 2023 09:44:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : content-type : mime-version; s=pp1;
- bh=wiznSzPHeDvgCYmBpLCxQSz2kUh0Y5cwbWCJqEw6UC4=;
- b=B++XRKSFFkRhrwMFPwI7jYlIAUaBh+ZtowErnbxY77jeVtPjU7UK1UoC/XHpObzaR7xP
- TwTN5Xnq1+7G/dONwKE+gMpOdfrl8IYNoUTirTcoPptgZ9QsPiww51guYwi1uj9SXG3m
- hEC+MtD531KNTi40qxOdAy9GrNanVf6rU0xMUjrHZD7cA0ZsXIh68IzMpD/6e5oed5+4
- 5Mwjap40CtfCo64cvNNKffI7gsVbo14uz1vfEf6xOCS6QOMGha8aILYVHmfspW01n3lf
- o2zfzK4k/Db2GoBRaUgfYg1E3ET2napegbcadpmXxsRGZQsWAHF7DADfEJ56nlE+COeN pw== 
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tvc88r1e3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 21 Oct 2023 09:44:06 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39L5rstq024179;
-        Sat, 21 Oct 2023 09:44:05 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tuc29akkr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 21 Oct 2023 09:44:05 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39L9i2eU000512
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 21 Oct 2023 09:44:02 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EE6CB2004E;
-        Sat, 21 Oct 2023 09:44:01 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9C82620043;
-        Sat, 21 Oct 2023 09:44:01 +0000 (GMT)
-Received: from localhost (unknown [9.179.5.188])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Sat, 21 Oct 2023 09:44:01 +0000 (GMT)
-Date:   Sat, 21 Oct 2023 11:44:00 +0200
-From:   Vasily Gorbik <gor@linux.ibm.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
+        with ESMTP id S229478AbjJUR45 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 21 Oct 2023 13:56:57 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04EE0121
+        for <linux-s390@vger.kernel.org>; Sat, 21 Oct 2023 10:56:50 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id a640c23a62f3a-9b9faf05f51so275341066b.2
+        for <linux-s390@vger.kernel.org>; Sat, 21 Oct 2023 10:56:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1697911008; x=1698515808; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=ILprG4exMXJZBE2W/AdcWEmO8g6abjcQF7Y2TjAbtlE=;
+        b=T0oCKoRQtuH5grcYxKY+vMgU58ZaLoL5RWKB+2eXYCYBaOUkHxCtKh9SVUGQzwZUiM
+         dLu+ZsOLJXUHHtsmppJOW6UkloD3uFLZS7+SPn0lndQDTT6L38kcAklgZdbOhyvKYjxT
+         faohfxTW6QfiN2if5lJtv6l4lcvNTBVCVLf08=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1697911008; x=1698515808;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ILprG4exMXJZBE2W/AdcWEmO8g6abjcQF7Y2TjAbtlE=;
+        b=LzagkxyG4xMBHiH/VTF6BJjrkbWYAKbAPXL5c+uzMynVWs6Qd3h6yjUQczch8T/FGS
+         lhQePdVY2fIaeB1fPdi38ibaKP4paoO70swZw3AI4JK8MhK2ZnOOUtTv2UNPwtj4bJPH
+         KI4kn/syZ6g0vbRPlW2q/LxhyZJpaPDfQV/e+2mR3BZ/ITR4DRv+A9rIDy4vyEkostmE
+         EgI0n9J/LikJkqs7PZKwhmBLBkK2D7YGzbq3LT6Ysx3dX9YykMMvxoHFB7Sn+FwxG9uB
+         OMDt5k+7UFGfSZOucydwSyth/o9SBMNRtiT7PWDKBhTSWQzOo8VWmL4xw1JYSdD9EL4Q
+         SEuA==
+X-Gm-Message-State: AOJu0YyyZpe/9C7FLLG2KXt0t8sh1/EnaplKj04lVNzJX5fpNYFHhKK/
+        M+7Ms8zPvc4q5xjIbOny72CZSXmlbo5McTCIckjG9t0z
+X-Google-Smtp-Source: AGHT+IGe1jXaofwRYPOGe5INdBopol9CJKGAGu+c5EDIXcVOxIc1Ju9AfFdL9+XG5NOcmchhns0bGA==
+X-Received: by 2002:a17:907:1ca4:b0:9bf:5696:9155 with SMTP id nb36-20020a1709071ca400b009bf56969155mr3669052ejc.8.1697911008098;
+        Sat, 21 Oct 2023 10:56:48 -0700 (PDT)
+Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com. [209.85.208.53])
+        by smtp.gmail.com with ESMTPSA id pj19-20020a170906d79300b009ad829ed144sm3892948ejb.130.2023.10.21.10.56.47
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 21 Oct 2023 10:56:47 -0700 (PDT)
+Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-53f6ccea1eeso2782748a12.3
+        for <linux-s390@vger.kernel.org>; Sat, 21 Oct 2023 10:56:47 -0700 (PDT)
+X-Received: by 2002:a05:6402:2553:b0:53d:b52a:5f4b with SMTP id
+ l19-20020a056402255300b0053db52a5f4bmr3519347edb.41.1697911006627; Sat, 21
+ Oct 2023 10:56:46 -0700 (PDT)
+MIME-Version: 1.0
+References: <your-ad-here.call-01697881440-ext-2458@work.hours>
+In-Reply-To: <your-ad-here.call-01697881440-ext-2458@work.hours>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Sat, 21 Oct 2023 10:56:29 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wgTUz1bdY6zvsN4ED0arCLE8Sb==1GH8d0sjm5bu7zesQ@mail.gmail.com>
+Message-ID: <CAHk-=wgTUz1bdY6zvsN4ED0arCLE8Sb==1GH8d0sjm5bu7zesQ@mail.gmail.com>
+Subject: Re: [GIT PULL] s390 fixes for 6.6-rc7
+To:     Vasily Gorbik <gor@linux.ibm.com>
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [GIT PULL] s390 fixes for 6.6-rc7
-Message-ID: <your-ad-here.call-01697881440-ext-2458@work.hours>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: cJbZbqwRyhTlqxB2eXYiZ6KhBivFH6Ep
-X-Proofpoint-ORIG-GUID: cJbZbqwRyhTlqxB2eXYiZ6KhBivFH6Ep
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-10-20_10,2023-10-19_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- lowpriorityscore=0 phishscore=0 spamscore=0 clxscore=1011 mlxscore=0
- adultscore=0 priorityscore=1501 suspectscore=0 bulkscore=0 mlxlogscore=602
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2310170001 definitions=main-2310210088
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello Linus,
+On Sat, 21 Oct 2023 at 02:44, Vasily Gorbik <gor@linux.ibm.com> wrote:
+>
+> please pull s390 fixes for 6.6-rc7.
 
-please pull s390 fixes for 6.6-rc7.
+Pulled. HOWEVER.
 
-Thank you,
-Vasily
+> - Fix IOMMU bitmap allocation in s390 PCI to avoid out of bounds access
+>   when IOMMU pages aren't a multiple of 64.
 
-The following changes since commit 5c95bf274665cc9f5126e4a48a9da51114f7afd2:
+Please don't do this kind of thing.
 
-  s390/cert_store: fix string length handling (2023-09-19 13:25:44 +0200)
+And I quote:
 
-are available in the Git repository at:
+    static unsigned long *bitmap_vzalloc(size_t bits, gfp_t flags)
+    {
+        size_t n = BITS_TO_LONGS(bits);
+        size_t bytes;
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.6-4
+        if (unlikely(check_mul_overflow(n, sizeof(unsigned long), &bytes)))
+                return NULL;
 
-for you to fetch changes up to c1ae1c59c8c6e0b66a718308c623e0cb394dab6b:
+        return vzalloc(bytes);
+    }
 
-  s390/pci: fix iommu bitmap allocation (2023-10-19 16:35:41 +0200)
+the above overflow handling is *not* "defensive and good programming".
 
-----------------------------------------------------------------
-s390 updates for 6.6-rc7
+The above is just "unreadable mindless boiler plate".
 
-- Fix IOMMU bitmap allocation in s390 PCI to avoid out of bounds access
-  when IOMMU pages aren't a multiple of 64.
+Seriously, you're taking a 'size_t' of number of bits, turning it into
+number of longs, and you're then turning *that* into number of bytes,
+AND YOU ADD OVERFLOW CHECKING?!??!!!
 
-- Fix kasan crashes when accessing DCSS mapping in memory holes by adding
-  corresponding kasan zero shadow mappings.
+Now, to make matters worse, the above calculation can actually
+overflow in theory - but not in the place where you added the
+protection!
 
-- Fix a memory leak in css_alloc_subchannel in case dma_set_coherent_mask
-  fails.
+Because the "longs to bytes" sure as hell can't overflow. We know
+that, because the number of longs is guaranteed to have a much smaller
+range, since it came from a calculation of bits.
 
-----------------------------------------------------------------
-Dinghao Liu (1):
-      s390/cio: fix a memleak in css_alloc_subchannel
+But what can actually overflow? BITS_TO_LONGS(bits) will overflow, and
+turn ~0ul to 0, because it does the __KERNEL_DIV_ROUND_UP thing, which
+is the simplistic
 
-Niklas Schnelle (1):
-      s390/pci: fix iommu bitmap allocation
+    #define __KERNEL_DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
 
-Vasily Gorbik (1):
-      s390/kasan: handle DCSS mapping in memory holes
+so that code added overflow protection that doesn't make sense, in all
+the wrong places.
 
- arch/s390/boot/vmem.c   |  7 ++++++-
- arch/s390/pci/pci_dma.c | 15 +++++++++++++--
- drivers/s390/cio/css.c  |  6 ++++--
- 3 files changed, 23 insertions(+), 5 deletions(-)
+You need to verify the sanity of the number of bits first anyway.
+
+Of course, in your use-case, the number of bits is also not unlimited,
+because the source is
+
+        zdev->iommu_pages = zdev->iommu_size >> PAGE_SHIFT;
+
+so it turns out that no, the BITS_TO_LONGS() won't overflow either,
+but at least in some other situations - and only looking at that
+bitmap_vzalloc() in a vacuum - it *could* have.
+
+Now, I will argue that you always need range checking on the number of
+bits *anyway* for other reasons - trying to just blindly allocate some
+random amount of memory isn't acceptable, so there should to be some
+range checking before anyway.
+
+But that code is wrong, because the overflow is simply not an issue.
+Adding overflow handling code is literally only actively misleading,
+making the code harder to read, for no reason, and making people
+*think* it's being careful when it is anything *but* careful.
+
+I suspect that the compiler actually sees "that is stupid" and turns
+the overflow into just a single left-shift again because it has seen
+the (bigger) right-shift and knows it cannot overflow, but the problem
+I'm ranting against is mindlessly adding boiler plate code that makes
+the code harder to read for *humans*.
+
+If you *do* want to add proper overflow handling, you'd need to either
+fix BITS_TO_LONGS() some way (which is actually non-trivial since it
+needs to be able to stay a constant and only use the argument once),
+or you do something like
+
+        if (!bits)
+                return ZERO_SIZE_PTR;
+        longs = BITS_TO_LONG(bits);
+        if (!longs)
+                return NULL;
+        return vzalloc(longs * sizeof(long));
+
+and I'd suggest maybe we should
+
+ (a) do the above checking in our bitmap_alloc() routines
+
+ (b) also change our bitmap_alloc() routines to take 'size_t' instead
+of 'unsigned int' bit counts
+
+ (c) and finally, add that vzalloc() case, but simply using
+
+        kvmalloc_array(n, size, flags | __GFP_ZERO);
+
+instead.
+
+(And yes, kvmalloc_array() will actually then also do that
+check_mul_overflow() thing, but now it's not pointless boiler plate
+any more, now it's actually meaningful for *other* cases than the
+bitmap allocation one that cannot overflow).
+
+Hmm?
+
+           Linus
