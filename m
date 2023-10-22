@@ -2,165 +2,94 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BAABFC001DF
-	for <linux-s390@archiver.kernel.org>; Sun, 22 Oct 2023 13:18:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAB93C25B41
+	for <linux-s390@archiver.kernel.org>; Sun, 22 Oct 2023 14:54:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231139AbjJVNSK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 22 Oct 2023 09:18:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60484 "EHLO
+        id S231139AbjJVOyg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 22 Oct 2023 10:54:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229500AbjJVNSK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 22 Oct 2023 09:18:10 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 284C4A1;
-        Sun, 22 Oct 2023 06:18:05 -0700 (PDT)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39MDA9B1024218;
-        Sun, 22 Oct 2023 13:18:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=FozGdIRQmW2EWY82p0+85v8JSoc6DFTbluojPbCfYpI=;
- b=CvijnA/XVqP6m/hUU7yVVZk2vlh+AwWiQ4Frvgko18WP4fiaYphbOF8Jys0Cy1UjwfI3
- rKyEKl1NyDdkM3fZuQqXyUiWOe0qfFGO7p76VYpRgTbKT3CkC1qiThJ1BFxaA/6/38oS
- ZGeAmbzkUVfTlGNFgYMOwo6cpBRdeNjOtNrqdsR4jP4P43+8vLAIO9au/VCoI4uO+TMt
- CdHPbBPhjV3kNx5EDn701pUrJSFGLKar7P7DbmVvBzSY4kVogYwdAYHSaebQOmjh9b6S
- o044hPfJCG4MaG/aEFxWOKxp6gk7EmlYmuLD4SuhT4ddqJ/vBMAgFjvHDcokIPCY+FbW YA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tw4cjr4g5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 22 Oct 2023 13:18:01 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39MDBBml027279;
-        Sun, 22 Oct 2023 13:18:00 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tw4cjr4fy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 22 Oct 2023 13:18:00 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39MAkWr8012399;
-        Sun, 22 Oct 2023 13:18:00 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tvup1aaxb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 22 Oct 2023 13:17:59 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39MDHvbj45154598
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sun, 22 Oct 2023 13:17:57 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 111A720043;
-        Sun, 22 Oct 2023 13:17:57 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 715C020040;
-        Sun, 22 Oct 2023 13:17:56 +0000 (GMT)
-Received: from localhost (unknown [9.171.9.54])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Sun, 22 Oct 2023 13:17:56 +0000 (GMT)
-Date:   Sun, 22 Oct 2023 15:17:54 +0200
-From:   Vasily Gorbik <gor@linux.ibm.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
+        with ESMTP id S229500AbjJVOyf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 22 Oct 2023 10:54:35 -0400
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09BB1A4
+        for <linux-s390@vger.kernel.org>; Sun, 22 Oct 2023 07:54:34 -0700 (PDT)
+Received: by mail-ej1-x62d.google.com with SMTP id a640c23a62f3a-9a6190af24aso390962366b.0
+        for <linux-s390@vger.kernel.org>; Sun, 22 Oct 2023 07:54:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1697986472; x=1698591272; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=G0Ah1cO2lJiXDFUGG0RJnDjIa5urZ8iO5hsK/cwibK4=;
+        b=NJKWCVIy51ZTwTHQqF5jfYrcDdZKwkB0KAYLw6tqRg0K99e0Mie6WwsUuRcr95oJrN
+         SELDi2/iS9ji6LLDy2QrB2QqtQgEKoJ1O2bW+BxT/ByuWgfcFJ6xDVbVHBTrxpZ96mwj
+         MsmzkV4trP/eOjA8omwKwOKCCQ48xLjhxnK9Y=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1697986472; x=1698591272;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=G0Ah1cO2lJiXDFUGG0RJnDjIa5urZ8iO5hsK/cwibK4=;
+        b=ORc4sSNYIjXVTDmES9sR/Mebemfdhq9aTl9tcE7cG78OHEZIPocPWfstrk/ml0/39P
+         5AWsAoMf3Njr4q1jFQluMV5uENkkFnfRRgVYmJW8LTiuf+l5hL3l651lsmMFtu0OM4Ij
+         d1FTgsXEMBV4URD/TJ4vJqAOSsx5oM/u9iqvn8dgmamjWh3j0WqdYW9n2wbRpuLD7Znb
+         YXubQcqNaysaYb7Cn02WLsPMar78bsnEkWeyUqcZzm7pml6FzahTyVy5BEJVgWRQ16GW
+         lUeDe7QQTopaxV9k8Cm5o4S9UY4OK//05Mq7K3T/Eq1b2LPX/oZIKHuevQj94BXQERtx
+         hx2g==
+X-Gm-Message-State: AOJu0YwZHO8ONRjz7dyl8fat9KieRHZPBamPTTUl2J8ZgwHWMBVfKWqD
+        JLCf27dPdzBPDJgKgnIqbBIVp2UQEcW+0Uqu1w9J6Q==
+X-Google-Smtp-Source: AGHT+IFDvHuOktRdh4vFt1gTncFYiM5DoeTL2O1FCbdRmjhXWGfDEtprH1x9kRYqAKqQArpNc1qj4w==
+X-Received: by 2002:a17:907:1b0a:b0:9a6:1446:852c with SMTP id mp10-20020a1709071b0a00b009a61446852cmr6435921ejc.27.1697986472247;
+        Sun, 22 Oct 2023 07:54:32 -0700 (PDT)
+Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com. [209.85.208.50])
+        by smtp.gmail.com with ESMTPSA id j20-20020a170906051400b009bf7a4d591dsm5128957eja.32.2023.10.22.07.54.31
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 22 Oct 2023 07:54:31 -0700 (PDT)
+Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-53dfc28a2afso3486592a12.1
+        for <linux-s390@vger.kernel.org>; Sun, 22 Oct 2023 07:54:31 -0700 (PDT)
+X-Received: by 2002:a50:9318:0:b0:53e:3d9f:3c74 with SMTP id
+ m24-20020a509318000000b0053e3d9f3c74mr4973803eda.14.1697986470852; Sun, 22
+ Oct 2023 07:54:30 -0700 (PDT)
+MIME-Version: 1.0
+References: <your-ad-here.call-01697881440-ext-2458@work.hours>
+ <CAHk-=wgTUz1bdY6zvsN4ED0arCLE8Sb==1GH8d0sjm5bu7zesQ@mail.gmail.com>
+ <CAHk-=wjxAk=PQBX4OvscNfGKfc+M8iKmNd6D39wOZzXV0k729w@mail.gmail.com> <your-ad-here.call-01697980674-ext-9589@work.hours>
+In-Reply-To: <your-ad-here.call-01697980674-ext-9589@work.hours>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Sun, 22 Oct 2023 07:54:13 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wizgxqjSk7fhyqPuW7Nkt3qwCkr-WKE2DsRu8tK7CC2Tw@mail.gmail.com>
+Message-ID: <CAHk-=wizgxqjSk7fhyqPuW7Nkt3qwCkr-WKE2DsRu8tK7CC2Tw@mail.gmail.com>
+Subject: Re: [GIT PULL] s390 fixes for 6.6-rc7
+To:     Vasily Gorbik <gor@linux.ibm.com>
 Cc:     Andy Shevchenko <andriy.shevchenko@intel.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Kees Cook <keescook@chromium.org>,
         Heiko Carstens <hca@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [GIT PULL] s390 fixes for 6.6-rc7
-Message-ID: <your-ad-here.call-01697980674-ext-9589@work.hours>
-References: <your-ad-here.call-01697881440-ext-2458@work.hours>
- <CAHk-=wgTUz1bdY6zvsN4ED0arCLE8Sb==1GH8d0sjm5bu7zesQ@mail.gmail.com>
- <CAHk-=wjxAk=PQBX4OvscNfGKfc+M8iKmNd6D39wOZzXV0k729w@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wjxAk=PQBX4OvscNfGKfc+M8iKmNd6D39wOZzXV0k729w@mail.gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: aPVmjF00rwTxrNjB_9hQ_Bj55XRM0iMD
-X-Proofpoint-GUID: amtIQaC2dMxAfJ0XIJ_PzqcYIFVYY9uv
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-10-22_10,2023-10-19_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- mlxlogscore=999 priorityscore=1501 mlxscore=0 phishscore=0 malwarescore=0
- adultscore=0 clxscore=1011 bulkscore=0 lowpriorityscore=0 impostorscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2310170001 definitions=main-2310220120
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Oct 21, 2023 at 11:08:31AM -0700, Linus Torvalds wrote:
-> in case you or somebody has a better idea for BITS_TO_LONG handling
-> than just "you need to check for zero before and after".
-> 
-> On Sat, 21 Oct 2023 at 10:56, Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
-> >
-> > If you *do* want to add proper overflow handling, you'd need to either
-> > fix BITS_TO_LONGS() some way (which is actually non-trivial since it
-> > needs to be able to stay a constant and only use the argument once),
-> > or you do something like
-> >
-> >         if (!bits)
-> >                 return ZERO_SIZE_PTR;
-> >         longs = BITS_TO_LONG(bits);
-> >         if (!longs)
-> >                 return NULL;
-> >         return vzalloc(longs * sizeof(long));
+On Sun, 22 Oct 2023 at 06:18, Vasily Gorbik <gor@linux.ibm.com> wrote:
+>
+> This might work.
 
-This might work.
+Hmm. Yes.
 
-BITS_TO_<TYPE>(bits) utilizes __KERNEL_DIV_ROUND_UP, which may potentially
-result in an overflow condition when
+But let's fix __KERNEL_DIV_ROUND_UP itself while at it.
 
-	bits > ULONG_MAX - sizeof(<TYPE>) * 8 + 1.
+(And perhaps move it out of the odd location it is in now - its in
+<uapi/linux/const.h> for some unfathomable reason)
 
-To resolve this issue, avoid using the overflow-prone
-__KERNEL_DIV_ROUND_UP. To meet the requirements of BITS_TO<TYPE>(bits)
-for remaining constant and preventing side effects from multiple
-argument uses, employ __is_constexpr to differentiate between constant
-and non-constant cases, employing a helper function in the latter.
+And maybe we could do a helper like
 
-In the constant case, this ensures compatibility with constructs like
-DECLARE_BITMAP. While in the non-constant case, the __bits_to_elem_count
-function could be optimized for potentially improved code generation
-by compilers, though this might come at the expense of readability and
-visual consistency between the constant and non-constant cases.
-I could further investigate if this approach, in general, appears acceptable.
----
- include/linux/bitops.h | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+    #define __if_constexpr(x, a, b) \
+        __builtin_choose_expr(__is_constexpr(x), a, b)
 
-diff --git a/include/linux/bitops.h b/include/linux/bitops.h
-index 2ba557e067fe..72be25d4b95d 100644
---- a/include/linux/bitops.h
-+++ b/include/linux/bitops.h
-@@ -15,11 +15,21 @@
- #  define aligned_byte_mask(n) (~0xffUL << (BITS_PER_LONG - 8 - 8*(n)))
- #endif
- 
-+static inline unsigned long __bits_to_elem_count(size_t nr, size_t sz)
-+{
-+	return nr / sz + (nr % sz ? 1 : 0);
-+}
-+
-+#define BITS_TO_ELEM_COUNT(nr, sz)					\
-+	__builtin_choose_expr(__is_constexpr(nr),			\
-+			     (nr) / sz + ((nr) % sz ? 1 : 0),		\
-+			     __bits_to_elem_count((nr), sz))
-+
- #define BITS_PER_TYPE(type)	(sizeof(type) * BITS_PER_BYTE)
--#define BITS_TO_LONGS(nr)	__KERNEL_DIV_ROUND_UP(nr, BITS_PER_TYPE(long))
--#define BITS_TO_U64(nr)		__KERNEL_DIV_ROUND_UP(nr, BITS_PER_TYPE(u64))
--#define BITS_TO_U32(nr)		__KERNEL_DIV_ROUND_UP(nr, BITS_PER_TYPE(u32))
--#define BITS_TO_BYTES(nr)	__KERNEL_DIV_ROUND_UP(nr, BITS_PER_TYPE(char))
-+#define BITS_TO_LONGS(nr)	BITS_TO_ELEM_COUNT(nr, BITS_PER_TYPE(long))
-+#define BITS_TO_U64(nr)		BITS_TO_ELEM_COUNT(nr, BITS_PER_TYPE(u64))
-+#define BITS_TO_U32(nr)		BITS_TO_ELEM_COUNT(nr, BITS_PER_TYPE(u32))
-+#define BITS_TO_BYTES(nr)	BITS_TO_ELEM_COUNT(nr, BITS_PER_TYPE(char))
- 
- extern unsigned int __sw_hweight8(unsigned int w);
- extern unsigned int __sw_hweight16(unsigned int w);
--- 
-2.39.2
+since that is one of the main reasons for that __is_constexpr macro
+(and _that_ makes sense in the const.h header file).
 
+                 Linus
