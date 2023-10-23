@@ -2,143 +2,115 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6CC1C25B46
-	for <linux-s390@archiver.kernel.org>; Mon, 23 Oct 2023 17:21:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87538C25B45
+	for <linux-s390@archiver.kernel.org>; Mon, 23 Oct 2023 17:23:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230201AbjJWRVN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 Oct 2023 13:21:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44556 "EHLO
+        id S229570AbjJWRXF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 Oct 2023 13:23:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229453AbjJWRVM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 Oct 2023 13:21:12 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EE3794;
-        Mon, 23 Oct 2023 10:21:10 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 977DEC433C7;
-        Mon, 23 Oct 2023 17:21:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1698081670;
-        bh=WQYEKm0Mc7inaH0wFnxcEUmfAmPR1JoMV7fRygVNKQQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZOVDksWfw+hV9R+Z5ZexM6NcY3xDNdzdq9AsRt4vO9wMdxWhqWWcxLwP+eW4A962q
-         Qk6ekhq2Ipm65VVsfFxXGy8qQeQOWzCvDqLJfEU8nWaZHFbI6flnaXvlVH0CRDWH+w
-         hIMRahts5mdD+tpF+6eXFcpVMEl1Ep7tHL5W7fbVdPmlfZ6yQugf14RafBolwJcEMn
-         21vyDdZz0h9WC0+Q/QJBX2oIB6fGQ1kXhcFuxCsKB2tbLoPEgU/BSdSOixB9qw31iO
-         OgDPN8A4Uqs6uFqTMJcPk6zjMZ/offJmG+hcHSxPefHsLKYd1oYsfoKs6fvoRIkbKX
-         wMvEth+vb/+ag==
-Date:   Mon, 23 Oct 2023 18:21:00 +0100
-From:   Will Deacon <will@kernel.org>
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        =?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Kent Overstreet <kent.overstreet@linux.dev>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Puranjay Mohan <puranjay12@gmail.com>,
-        Rick Edgecombe <rick.p.edgecombe@intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Song Liu <song@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>, bpf@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-modules@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-        netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Subject: Re: [PATCH v3 07/13] arm64, execmem: extend execmem_params for
- generated code allocations
-Message-ID: <20231023172059.GB4041@willie-the-truck>
-References: <20230918072955.2507221-1-rppt@kernel.org>
- <20230918072955.2507221-8-rppt@kernel.org>
+        with ESMTP id S229453AbjJWRXF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 Oct 2023 13:23:05 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id F2EF3A2;
+        Mon, 23 Oct 2023 10:23:02 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6DEDE2F4;
+        Mon, 23 Oct 2023 10:23:43 -0700 (PDT)
+Received: from [10.57.5.125] (unknown [10.57.5.125])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 19BFE3F762;
+        Mon, 23 Oct 2023 10:22:58 -0700 (PDT)
+Message-ID: <289f5f83-adc7-4077-b4c0-c951484dd092@arm.com>
+Date:   Mon, 23 Oct 2023 18:22:57 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230918072955.2507221-8-rppt@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 06/10] dma: Use free_decrypted_pages()
+Content-Language: en-GB
+To:     "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>,
+        "Lutomirski, Andy" <luto@kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+        "thomas.lendacky@amd.com" <thomas.lendacky@amd.com>,
+        "Reshetova, Elena" <elena.reshetova@intel.com>,
+        "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "Christopherson,, Sean" <seanjc@google.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "Yamahata, Isaku" <isaku.yamahata@intel.com>,
+        "Cui, Dexuan" <decui@microsoft.com>,
+        "mikelley@microsoft.com" <mikelley@microsoft.com>,
+        "hpa@zytor.com" <hpa@zytor.com>,
+        "peterz@infradead.org" <peterz@infradead.org>,
+        "bp@alien8.de" <bp@alien8.de>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "sathyanarayanan.kuppuswamy@linux.intel.com" 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        "x86@kernel.org" <x86@kernel.org>
+Cc:     "hch@lst.de" <hch@lst.de>,
+        "m.szyprowski@samsung.com" <m.szyprowski@samsung.com>,
+        "iommu@lists.linux.dev" <iommu@lists.linux.dev>
+References: <20231017202505.340906-1-rick.p.edgecombe@intel.com>
+ <20231017202505.340906-7-rick.p.edgecombe@intel.com>
+ <b4dc423b-a658-449f-9c6d-1502685a2f1b@arm.com>
+ <ea8ad4e75303178ee907682797dea7de36441c95.camel@intel.com>
+From:   Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <ea8ad4e75303178ee907682797dea7de36441c95.camel@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Sep 18, 2023 at 10:29:49AM +0300, Mike Rapoport wrote:
-> From: "Mike Rapoport (IBM)" <rppt@kernel.org>
+On 2023-10-23 17:46, Edgecombe, Rick P wrote:
+> On Wed, 2023-10-18 at 18:42 +0100, Robin Murphy wrote:
+>> On 2023-10-17 21:25, Rick Edgecombe wrote:
+>>> On TDX it is possible for the untrusted host to cause
+>>> set_memory_encrypted() or set_memory_decrypted() to fail such that
+>>> an
+>>> error is returned and the resulting memory is shared. Callers need
+>>> to take
+>>> care to handle these errors to avoid returning decrypted (shared)
+>>> memory to
+>>> the page allocator, which could lead to functional or security
+>>> issues.
+>>>
+>>> DMA could free decrypted/shared pages if set_memory_decrypted()
+>>> fails.
+>>> Use the recently added free_decrypted_pages() to avoid this.
+>>>
+>>> Several paths also result in proper encrypted pages being freed
+>>> through
+>>> the same freeing function. Rely on free_decrypted_pages() to not
+>>> leak the
+>>> memory in these cases.
+>>
+>> If something's needed in the fallback path here, what about the
+>> cma_release() paths?
 > 
-> The memory allocations for kprobes and BPF on arm64 can be placed
-> anywhere in vmalloc address space and currently this is implemented with
-> overrides of alloc_insn_page() and bpf_jit_alloc_exec() in arm64.
+> You mean inside cma_release(). If so, unfortunately I think it won't
+> fit great because there are callers that are never dealing with shared
+> memory (huge tlb). The reset-to-private operation does extra work that
+> would be nice to avoid when possible.
 > 
-> Define EXECMEM_KPROBES and EXECMEM_BPF ranges in arm64::execmem_params and
-> drop overrides of alloc_insn_page() and bpf_jit_alloc_exec().
+> The cases I thought exhibited the issue were the two calls sites of
+> dma_set_decrypted(). Playing around with it, I was thinking it might be
+> easier to just fix those to open code leaking the pages on
+> dma_set_decrypted() error. In which case it won't have the re-encrypt
+> problem.
 > 
-> Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
-> ---
->  arch/arm64/kernel/module.c         | 13 +++++++++++++
->  arch/arm64/kernel/probes/kprobes.c |  7 -------
->  arch/arm64/net/bpf_jit_comp.c      | 11 -----------
->  3 files changed, 13 insertions(+), 18 deletions(-)
-> 
-> diff --git a/arch/arm64/kernel/module.c b/arch/arm64/kernel/module.c
-> index cd6320de1c54..d27db168d2a2 100644
-> --- a/arch/arm64/kernel/module.c
-> +++ b/arch/arm64/kernel/module.c
-> @@ -116,6 +116,16 @@ static struct execmem_params execmem_params __ro_after_init = {
->  			.flags = EXECMEM_KASAN_SHADOW,
->  			.alignment = MODULE_ALIGN,
->  		},
-> +		[EXECMEM_KPROBES] = {
-> +			.start = VMALLOC_START,
-> +			.end = VMALLOC_END,
-> +			.alignment = 1,
-> +		},
-> +		[EXECMEM_BPF] = {
-> +			.start = VMALLOC_START,
-> +			.end = VMALLOC_END,
-> +			.alignment = 1,
-> +		},
->  	},
->  };
->  
-> @@ -140,6 +150,9 @@ struct execmem_params __init *execmem_arch_params(void)
->  		r->end = module_plt_base + SZ_2G;
->  	}
->  
-> +	execmem_params.ranges[EXECMEM_KPROBES].pgprot = PAGE_KERNEL_ROX;
-> +	execmem_params.ranges[EXECMEM_BPF].pgprot = PAGE_KERNEL;
-> +
->  	return &execmem_params;
->  }
->  
-> diff --git a/arch/arm64/kernel/probes/kprobes.c b/arch/arm64/kernel/probes/kprobes.c
-> index 70b91a8c6bb3..6fccedd02b2a 100644
-> --- a/arch/arm64/kernel/probes/kprobes.c
-> +++ b/arch/arm64/kernel/probes/kprobes.c
-> @@ -129,13 +129,6 @@ int __kprobes arch_prepare_kprobe(struct kprobe *p)
->  	return 0;
->  }
->  
-> -void *alloc_insn_page(void)
-> -{
-> -	return __vmalloc_node_range(PAGE_SIZE, 1, VMALLOC_START, VMALLOC_END,
-> -			GFP_KERNEL, PAGE_KERNEL_ROX, VM_FLUSH_RESET_PERMS,
-> -			NUMA_NO_NODE, __builtin_return_address(0));
-> -}
+> It make's it less fool proof, but more efficient. And
+> free_decrypted_pages() doesn't fit great anyway, as pointed out by
+> Christoph.
 
-It's slightly curious that we didn't clear the tag here, so it's nice that
-it all happens magically with your series:
+My point is that in dma_direct_alloc(), we get some memory either 
+straight from the page allocator *or* from a CMA area, then call 
+set_memory_decrypted() on it. If the problem is that 
+set_memory_decrypted() can fail and require cleanup, then logically if 
+that cleanup is necessary for the dma_free_contiguous()->__free_pages() 
+call, then surely it must also be necessary for the 
+dma_free_contiguous()->cma_release()->free_contig_range()->__free_page() 
+calls.
 
-Acked-by: Will Deacon <will@kernel.org>
-
-Will
+Thanks,
+Robin.
