@@ -2,174 +2,275 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B5EEC001E0
-	for <linux-s390@archiver.kernel.org>; Mon, 23 Oct 2023 11:09:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BC36C001E0
+	for <linux-s390@archiver.kernel.org>; Mon, 23 Oct 2023 11:56:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233571AbjJWLJv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 Oct 2023 07:09:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36362 "EHLO
+        id S233381AbjJWL4Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 Oct 2023 07:56:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233576AbjJWLJu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 Oct 2023 07:09:50 -0400
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D34F1C5;
-        Mon, 23 Oct 2023 04:09:44 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R771e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VukpTBs_1698059380;
-Received: from 30.221.100.158(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0VukpTBs_1698059380)
+        with ESMTP id S232985AbjJWL4O (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 Oct 2023 07:56:14 -0400
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8481EAF;
+        Mon, 23 Oct 2023 04:56:10 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R671e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0Vukpg-z_1698062164;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0Vukpg-z_1698062164)
           by smtp.aliyun-inc.com;
-          Mon, 23 Oct 2023 19:09:41 +0800
-Message-ID: <e028c610-80d0-4e2e-8e9f-0aaa87df8ebf@linux.alibaba.com>
-Date:   Mon, 23 Oct 2023 19:09:38 +0800
+          Mon, 23 Oct 2023 19:56:05 +0800
+Date:   Mon, 23 Oct 2023 19:56:04 +0800
+From:   Dust Li <dust.li@linux.alibaba.com>
+To:     Wenjia Zhang <wenjia@linux.ibm.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com, wintera@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: Re: [PATCH net 5/5] net/smc: put sk reference if close work was
+ canceled
+Message-ID: <20231023115604.GZ92403@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <1697009600-22367-6-git-send-email-alibuda@linux.alibaba.com>
+ <bdcb307f-d2a8-4aef-bb7d-dd87e56ff740@linux.ibm.com>
+ <ee641ca5-104b-d1ec-5b2a-e20237c5378a@linux.alibaba.com>
+ <ad5e4191-227e-4a62-a110-472618ef7de1@linux.ibm.com>
+ <305c7ae2-a902-3e30-5e67-b590d848d0ba@linux.alibaba.com>
+ <990a6b09-135a-41fb-a375-c37ffec6fe99@linux.ibm.com>
+ <94f89147-cedc-b8b2-415f-942ec14cd670@linux.alibaba.com>
+ <83476aac-a2f6-4705-8aec-762b1f165210@linux.ibm.com>
+ <567c792e-33e0-9ff6-f5c2-0eae356c7eb1@linux.alibaba.com>
+ <ea0dcf7d-8406-476c-b027-145af207873a@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v2 2/2] net/smc: correct the reason code in
- smc_listen_find_device when fallback
-Content-Language: en-US
-To:     Wenjia Zhang <wenjia@linux.ibm.com>, dust.li@linux.alibaba.com,
-        kgraul@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
-Cc:     tonylu@linux.alibaba.com, alibuda@linux.alibaba.com,
-        guwen@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20231017124234.99574-1-guangguan.wang@linux.alibaba.com>
- <20231017124234.99574-3-guangguan.wang@linux.alibaba.com>
- <20231018070142.GY92403@linux.alibaba.com>
- <c7277fd2-cc44-40a1-9f56-9341d3340e2e@linux.alibaba.com>
- <a33cb54f-3414-4034-bb0a-9aeebd65f044@linux.ibm.com>
-From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <a33cb54f-3414-4034-bb0a-9aeebd65f044@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <ea0dcf7d-8406-476c-b027-145af207873a@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, Oct 23, 2023 at 12:28:16PM +0200, Wenjia Zhang wrote:
+>
+>
+>On 23.10.23 10:52, D. Wythe wrote:
+>> 
+>> 
+>> On 10/23/23 4:19 PM, Wenjia Zhang wrote:
+>> > 
+>> > 
+>> > On 20.10.23 04:41, D. Wythe wrote:
+>> > > 
+>> > > 
+>> > > On 10/20/23 1:40 AM, Wenjia Zhang wrote:
+>> > > > 
+>> > > > 
+>> > > > On 19.10.23 09:33, D. Wythe wrote:
+>> > > > > 
+>> > > > > 
+>> > > > > On 10/19/23 4:26 AM, Wenjia Zhang wrote:
+>> > > > > > 
+>> > > > > > 
+>> > > > > > On 17.10.23 04:06, D. Wythe wrote:
+>> > > > > > > 
+>> > > > > > > 
+>> > > > > > > On 10/13/23 3:04 AM, Wenjia Zhang wrote:
+>> > > > > > > > 
+>> > > > > > > > 
+>> > > > > > > > On 11.10.23 09:33, D. Wythe wrote:
+>> > > > > > > > > From: "D. Wythe" <alibuda@linux.alibaba.com>
+>> > > > > > > > > 
+>> > > > > > > > > Note that we always hold a reference to sock when attempting
+>> > > > > > > > > to submit close_work.
+>> > > > > > > > yes
+>> > > > > > > > Therefore, if we have successfully
+>> > > > > > > > > canceled close_work from pending, we MUST release that reference
+>> > > > > > > > > to avoid potential leaks.
+>> > > > > > > > > 
+>> > > > > > > > Isn't the corresponding reference already
+>> > > > > > > > released inside the smc_close_passive_work()?
+>> > > > > > > > 
+>> > > > > > > 
+>> > > > > > > Hi Wenjia,
+>> > > > > > > 
+>> > > > > > > If we successfully cancel the close work from the pending state,
+>> > > > > > > it means that smc_close_passive_work() has never been executed.
+>> > > > > > > 
+>> > > > > > > You can find more details here.
+>> > > > > > > 
+>> > > > > > > /**
+>> > > > > > > * cancel_work_sync - cancel a work and wait for it to finish
+>> > > > > > > * @work:the work to cancel
+>> > > > > > > *
+>> > > > > > > * Cancel @work and wait for its execution to finish. This function
+>> > > > > > > * can be used even if the work re-queues itself or migrates to
+>> > > > > > > * another workqueue. On return from this function, @work is
+>> > > > > > > * guaranteed to be not pending or executing on any CPU.
+>> > > > > > > *
+>> > > > > > > * cancel_work_sync(&delayed_work->work) must not be used for
+>> > > > > > > * delayed_work's. Use cancel_delayed_work_sync() instead.
+>> > > > > > > *
+>> > > > > > > * The caller must ensure that the workqueue on which @work was last
+>> > > > > > > * queued can't be destroyed before this function returns.
+>> > > > > > > *
+>> > > > > > > * Return:
+>> > > > > > > * %true if @work was pending, %false otherwise.
+>> > > > > > > */
+>> > > > > > > boolcancel_work_sync(structwork_struct *work)
+>> > > > > > > {
+>> > > > > > > return__cancel_work_timer(work, false);
+>> > > > > > > }
+>> > > > > > > 
+>> > > > > > > Best wishes,
+>> > > > > > > D. Wythe
+>> > > > > > As I understand, queue_work() would wake up the work
+>> > > > > > if the work is not already on the queue. And the
+>> > > > > > sock_hold() is just prio to the queue_work(). That
+>> > > > > > means, cancel_work_sync() would cancel the work
+>> > > > > > either before its execution or after. If your fix
+>> > > > > > refers to the former case, at this moment, I don't
+>> > > > > > think the reference can be hold, thus it is
+>> > > > > > unnecessary to put it.
+>> > > > > > > 
+>> > > > > 
+>> > > > > I am quite confuse about why you think when we cancel the
+>> > > > > work before its execution,
+>> > > > > the reference can not be hold ?
+>> > > > > 
+>> > > > > 
+>> > > > > Perhaps the following diagram can describe the problem in better way :
+>> > > > > 
+>> > > > > smc_close_cancel_work
+>> > > > > smc_cdc_msg_recv_action
+>> > > > > 
+>> > > > > 
+>> > > > > sock_hold
+>> > > > > queue_work
+>> > > > > if (cancel_work_sync())        // successfully cancel before execution
+>> > > > > sock_put()                        //  need to put it
+>> > > > > since we already hold a ref before   queue_work()
+>> > > > > 
+>> > > > > 
+>> > > > ha, I already thought you might ask such question:P
+>> > > > 
+>> > > > I think here two Problems need to be clarified:
+>> > > > 
+>> > > > 1) Do you think the bh_lock_sock/bh_unlock_sock in the
+>> > > > smc_cdc_msg_recv does not protect the
+>> > > > smc_cdc_msg_recv_action() from cancel_work_sync()?
+>> > > > Maybe that would go back to the discussion in the other patch
+>> > > > on the behaviors of the locks.
+>> > > > 
+>> > > 
+>> > > Yes. bh_lock_sock/bh_unlock_sock can not block code execution
+>> > > protected by lock_sock/unlock(). That is to say, they are not
+>> > > exclusive.
+>> > > 
+>> > No, the logic of the inference is very vague to me. My understand is
+>> > completely different. That is what I read from the kernel code. They
+>> > are not *completely* exclusive, because while the bottom half context
+>> > holds the lock i.e. bh_lock_sock, the process context can not get the
+>> > lock by lock_sock. (This is actually my main point of my argument for
+>> > these fixes, and I didn't see any clarify from you). However, while
+>> > the process context holds the lock by lock_sock, the bottom half
+>> > context can still get it by bh_lock_sock, this is just like what you
+>> > showed in the code in lock_sock. Once it gets the ownership, it
+>> > release the spinlock.
+>> > 
+>> 
+>> “ while the process context holds the lock by lock_sock, the bottom half
+>> context can still get it by bh_lock_sock,  ”
+>> 
+>> You already got that, so why that sock_set_flag(DONE) and
+>> sock_set_flag(DEAD) can not happen concurrently ?
+>> 
+>
+>Then I'd ask how do you understand this sentence I wrote? "while the bottom
+>half context holds the lock i.e. bh_lock_sock, the process context can not
+>get the lock by lock_sock."
+
+That's correct, but the reverse is not true. i.e. if the process context
+hold the lock, the botton half context can still acquire the lock.
+
+Best regards,
+Dust
 
 
-On 2023/10/19 03:43, Wenjia Zhang wrote:
-> 
-> 
-> On 18.10.23 10:35, Guangguan Wang wrote:
->>
->>
->> On 2023/10/18 15:01, Dust Li wrote:
->>> On Tue, Oct 17, 2023 at 08:42:34PM +0800, Guangguan Wang wrote:
->>>> The ini->rc is used to store the last error happened when finding usable
->>>> ism or rdma device in smc_listen_find_device, and is set by calling smc_
->>>> find_device_store_rc. Once the ini->rc is assigned to an none-zero value,
->>>> the value can not be overwritten anymore. So the ini-rc should be set to
->>>> the error reason only when an error actually occurs.
->>>>
->>>> When finding ISM/RDMA devices, device not found is not a real error, as
->>>> not all machine have ISM/RDMA devices. Failures after device found, when
-> What do you mean about this sentence? Do you mean that no any (ISM/RDMA) device  found is not real error? If not, what is the real reason?
-> 
-
-Sorry for not describing it clearly.
-
-I mean either ISM or RDMA devices not found is not real error, as not all machine have ISM and RDMA devices.
-
-Both of ISM and RDMA devices not found is real error, and in this patch it will return SMC_CLC_DECL_NOSMCDEV.
-
->>>> initializing device or when initializing connection, is real errors, and
->>>> should be store in ini->rc.
->>>>
->>>> SMC_CLC_DECL_DIFFPREFIX also is not a real error, as for SMC-RV2, it is
->>>> not require same prefix.
->>>>
->>>> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
->>>> ---
->>>> net/smc/af_smc.c | 12 +++---------
->>>> 1 file changed, 3 insertions(+), 9 deletions(-)
->>>>
->>>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
->>>> index b3a67a168495..21e9c6ec4d01 100644
->>>> --- a/net/smc/af_smc.c
->>>> +++ b/net/smc/af_smc.c
->>>> @@ -2163,10 +2163,8 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
->>>>     }
->>>>     mutex_unlock(&smcd_dev_list.mutex);
->>>>
->>>> -    if (!ini->ism_dev[0]) {
->>>> -        smc_find_device_store_rc(SMC_CLC_DECL_NOSMCD2DEV, ini);
->>>> +    if (!ini->ism_dev[0])
->>>
->>> Hi Guangguan,
->>>
->>> Generally, I think this is right. Fallback in one kind of device should
->>> not be the final fallback reason.
->>>
->>> But what if we have more than one device and failed more than once, for
->>> example:
->>> Let's say we have an ISM device, a RDMA device. First we looked the ISM device
->>> and failed during the initialization, we got a fallback reason A. Then we
->>> looked for the RDMA device, and failed again, with another reason B.
->>> Finally, we fallback to TCP. What should fallback reason be ?
->>
->> IMO, the order of finding devices is defined by preference. ISM v2, ISM v1, RDMA v2, RDMA v1, the former the prefer.
->> I think it should return the most preferred device's failure reason if found and failed during the initialization.
->> So, here should return the first reason(reason A).
->>
-> In this case Dust mentioned, I'd prefer a reaon including A and B, like current reason SMC_CLC_DECL_NOSMCDEV.
-> 
-
-For debugging purpose, I'd rather give a reason that actually occurred during the initialization, 
-since SMC_CLC_DECL_NOSMCDEV doesn't give any detailed information about the failure.
-
-
-Thanks,
-Guangguan Wang
-
->>>
->>> OTOH, SMC_CLC_DECL_NOSMCD2DEV is only used here. Removing it would mean
->>> that we would never see SMC_CLC_DECL_NOSMCD2DEV in the fallback reason,
->>> which makes it meaningless.
->>>
->>   Is SMC_CLC_DECL_NOSMCD2DEV really necessary? There is no reason names SMC_CLC_DECL_NOSMCR2DEV.
->>
-> I do see the necessity for the debugging.
->> Thanks,
->> Guangguan Wang
->>
->>> Best regards,
->>> Dust
->>>
->>>>         goto not_found;
->>>> -    }
->>>>
->>>>     smc_ism_get_system_eid(&eid);
->>>>     if (!smc_clc_match_eid(ini->negotiated_eid, smc_v2_ext,
->>>> @@ -2216,9 +2214,9 @@ static void smc_find_ism_v1_device_serv(struct smc_sock *new_smc,
->>>>     rc = smc_listen_ism_init(new_smc, ini);
->>>>     if (!rc)
->>>>         return;        /* V1 ISM device found */
->>>> +    smc_find_device_store_rc(rc, ini);
->>>>
->>>> not_found:
->>>> -    smc_find_device_store_rc(rc, ini);
->>>>     ini->smcd_version &= ~SMC_V1;
->>>>     ini->ism_dev[0] = NULL;
->>>>     ini->is_smcd = false;
->>>> @@ -2267,10 +2265,8 @@ static void smc_find_rdma_v2_device_serv(struct smc_sock *new_smc,
->>>>     ini->smcrv2.saddr = new_smc->clcsock->sk->sk_rcv_saddr;
->>>>     ini->smcrv2.daddr = smc_ib_gid_to_ipv4(smc_v2_ext->roce);
->>>>     rc = smc_find_rdma_device(new_smc, ini);
->>>> -    if (rc) {
->>>> -        smc_find_device_store_rc(rc, ini);
->>>> +    if (rc)
->>>>         goto not_found;
->>>> -    }
->>>>     if (!ini->smcrv2.uses_gateway)
->>>>         memcpy(ini->smcrv2.nexthop_mac, pclc->lcl.mac, ETH_ALEN);
->>>>
->>>> @@ -2331,8 +2327,6 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
->>>>
->>>>     /* check for matching IP prefix and subnet length (V1) */
->>>>     prfx_rc = smc_listen_prfx_check(new_smc, pclc);
->>>> -    if (prfx_rc)
->>>> -        smc_find_device_store_rc(prfx_rc, ini);
->>>>
->>>>     /* get vlan id from IP device */
->>>>     if (smc_vlan_by_tcpsk(new_smc->clcsock, ini))
->>>> -- 
->>>> 2.24.3 (Apple Git-128)
+>> 
+>> > > We can use a very simple example to infer that since bh_lock_sock
+>> > > is type of spin-lock, if bh_lock_sock/bh_unlock_sock can block
+>> > > lock_sock/unlock(),
+>> > > then lock_sock/unlock() can also block bh_lock_sock/bh_unlock_sock.
+>> > > 
+>> > > If this is true, when the process context already lock_sock(),
+>> > > the interrupt context must wait for the process to call
+>> > > release_sock(). Obviously, this is very unreasonable.
+>> > > 
+>> > > 
+>> > > > 2) If the queue_work returns true, as I said in the last
+>> > > > main, the work should be (being) executed. How could the
+>> > > > cancel_work_sync() cancel the work before execution
+>> > > > successgully?
+>> > > 
+>> > > No, that's not true. In fact, if queue_work returns true, it
+>> > > simply means that we have added the task to the queue and may
+>> > > schedule a worker to execute it,
+>> > > but it does not guarantee that the task will be executed or is
+>> > > being executed when it returns true,
+>> > > the task might still in the list and waiting some worker to execute it.
+>> > > 
+>> > > We can make a simple inference,
+>> > > 
+>> > > 1. A known fact is that if no special flag (WORK_UNBOUND) is
+>> > > given, tasks submitted will eventually be executed on the CPU
+>> > > where they were submitted.
+>> > > 
+>> > > 2. If the queue_work returns true, the work should be or is being
+>> > > executed
+>> > > 
+>> > > If all of the above are true, when we invoke queue_work in an
+>> > > interrupt context, does it mean that the submitted task will be
+>> > > executed in the interrupt context?
+>> > > 
+>> > > 
+>> > > Best wishes,
+>> > > D. Wythe
+>> > > 
+>> > If you say the thread is not gauranteed to be waken up in then
+>> > queue_work to execute the work, please explain what the kick_pool
+>> > function does.
+>> 
+>> I never said that.
+>> 
+>What do you understand on the kick_pool there?
+>> > 
+>> > However, the spin_lock understanding is still the key problem in the
+>> > cases. As I said, if it is not get clarify, we don't really need to
+>> > go on to disucss this.
+>> > 
+>> > > > 
+>> > > > > > > > > Fixes: 42bfba9eaa33 ("net/smc: immediate
+>> > > > > > > > > termination for SMCD link groups")
+>> > > > > > > > > Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>> > > > > > > > > ---
+>> > > > > > > > >   net/smc/smc_close.c | 3 ++-
+>> > > > > > > > >   1 file changed, 2 insertions(+), 1 deletion(-)
+>> > > > > > > > > 
+>> > > > > > > > > diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+>> > > > > > > > > index 449ef45..10219f5 100644
+>> > > > > > > > > --- a/net/smc/smc_close.c
+>> > > > > > > > > +++ b/net/smc/smc_close.c
+>> > > > > > > > > @@ -116,7 +116,8 @@ static void
+>> > > > > > > > > smc_close_cancel_work(struct smc_sock
+>> > > > > > > > > *smc)
+>> > > > > > > > >       struct sock *sk = &smc->sk;
+>> > > > > > > > >         release_sock(sk);
+>> > > > > > > > > -    cancel_work_sync(&smc->conn.close_work);
+>> > > > > > > > > +    if (cancel_work_sync(&smc->conn.close_work))
+>> > > > > > > > > +        sock_put(sk);
+>> > > > > > > > > cancel_delayed_work_sync(&smc->conn.tx_work);
+>> > > > > > > > >       lock_sock(sk);
+>> > > > > > > > >   }
+>> > > > > > > 
+>> > > > > 
+>> > > > > 
+>> > > 
+>> 
