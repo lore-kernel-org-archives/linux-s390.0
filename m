@@ -2,137 +2,112 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74E70C004C0
-	for <linux-s390@archiver.kernel.org>; Mon, 23 Oct 2023 16:04:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05794C004C0
+	for <linux-s390@archiver.kernel.org>; Mon, 23 Oct 2023 16:09:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229569AbjJWQEe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 23 Oct 2023 12:04:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52110 "EHLO
+        id S229448AbjJWQJP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 Oct 2023 12:09:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229512AbjJWQEe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 Oct 2023 12:04:34 -0400
-Received: from out4-smtp.messagingengine.com (out4-smtp.messagingengine.com [66.111.4.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 028F1E9;
-        Mon, 23 Oct 2023 09:04:31 -0700 (PDT)
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.nyi.internal (Postfix) with ESMTP id 8937F5C035C;
-        Mon, 23 Oct 2023 12:04:29 -0400 (EDT)
-Received: from imap51 ([10.202.2.101])
-  by compute5.internal (MEProxy); Mon, 23 Oct 2023 12:04:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-        :cc:content-type:content-type:date:date:from:from:in-reply-to
-        :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm2; t=1698077069; x=1698163469; bh=om
-        I9l4fCxrjkUcM6JOxkmrHVP/pj0MGxudyGyoWqQuM=; b=YxgVjGh0doHzbzLi6q
-        PClGd5HsxejBbgx4/5RYmtv09+HQiwZyaplfE0ewOGHiZzudSB0S0OL4Jiqq0uno
-        HLmpLafWY0qN31re7VYCs5H6sSnmT22PQ/FroqKVZiCs5uHKY8oFQ4unPLZ/8cZ8
-        O3WvNiXOfjxKatsocYQ/Jy/kFCsfdj9aK7yXnJ2qoaQEY4+YNBKvOBqKd34f8Mzg
-        +9wsurB+1CVTUSJi2XymLm4v7rGK+FMAXIK03s6+HdkrM5s4RUEdsyuZb+fp0NVu
-        EC5Nf2uyZcEkgvV7qC8wKZmmCNnbMvTbCNH7D2eD2/4uqUfXGaMowPbfcQCg6/xu
-        jpdQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:content-type:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; t=1698077069; x=1698163469; bh=omI9l4fCxrjkU
-        cM6JOxkmrHVP/pj0MGxudyGyoWqQuM=; b=goUABzr458FRgBTpbBm0q4IpvczdQ
-        KTIemYL/NQhTZLhC/R8Z0ECg7u4Rzies++Bue1MGJNA98zrqnpWljNwQpoGs3A2C
-        9KzYFHanyP9UlexGaMOIS5xcW/XDhcr8gJMd6nGFY8ojDRdRHCwrSJtQzU1NxG1u
-        2M4Yxn9QZzcuk0Bo99b9Ro9Bf/XkUlEZ4U4vIRS6cEL9QibvirBy2+fzQMP1M16X
-        8tCg2cYkJMgX6RpYI47knEJ0GcEWwVcd2pkpRAQdc/nBAiET6Mb6xynZ5eVU0Fth
-        ZpzCQEhPJi0wC+zg9GGFGpRQx32w8YTxcFQhKPoQQi7J4hWuMSFDcadHQ==
-X-ME-Sender: <xms:ipk2ZVhT4Q7U3rlVPfW6JKAMtC2N9okTbizpJ3P3Oap_eMJvxcPZrw>
-    <xme:ipk2ZaCo5zM_znjZySQclLg6gH4Ce9b1PyWyyo-56ccAgas4botCTMAJRpvpOjTjF
-    -mcRos6BJhhm8WMcEc>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrkeeigdelgecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefofgggkfgjfhffhffvvefutgesthdtredtreertdenucfhrhhomhepfdetrhhn
-    ugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtth
-    gvrhhnpeffheeugeetiefhgeethfejgfdtuefggeejleehjeeutefhfeeggefhkedtkeet
-    ffenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrh
-    hnugesrghrnhgusgdruggv
-X-ME-Proxy: <xmx:ipk2ZVHkAmZgTGbdYztn-3M84qLcVS8pe1rA4bds0EXimFGYSKjFRQ>
-    <xmx:ipk2ZaRo6wVWBh9dfhMu9_4kRJVuwNrd8B1V16--Pj3fDp5R2XUXhw>
-    <xmx:ipk2ZSyqsvA_VFvYy1yKK8DuNSTwo8Z7XkmtezqUoocM4oqGoW5u8w>
-    <xmx:jZk2ZeGTfhPPESNsU1_qLoddAy-LAJrJ7kEMiBqqu0ThAmA8qoLoig>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 78236B60089; Mon, 23 Oct 2023 12:04:26 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.9.0-alpha0-1048-g9229b632c5-fm-20231019.001-g9229b632
+        with ESMTP id S231938AbjJWQJO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 Oct 2023 12:09:14 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFB2A103;
+        Mon, 23 Oct 2023 09:09:12 -0700 (PDT)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39NFuXgM013400;
+        Mon, 23 Oct 2023 16:09:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=6ObqH4e4bV+JHId4K2De8BGViudSJ57UfgnPV6M4KeI=;
+ b=H/YDsuQOPuJw+VgelXjsrDoFXUVg9Dy6tO7tubwkdhelBMWqLBNt85zaPuqhB2XFF4Gz
+ YLVhkNdbvRr0S4T7lxerN2c4oY1k2O5QxrZJy3k1rf0HOkQ49lMAVrRfGjFt9iQXTSkR
+ hMOHdvEK7eFSscmyqaQtcb3tspdSs+PeOivEsVVI6Mh/iD6GY0q1u5ZuFWbNLowT1j51
+ sROdCj0dFmZ/GeJW+ms34TA4bt2OjmBj2KWV/gAXg0nGYE6NLP7pWt92mwRD8VQFuHkW
+ xQqnM8K9O8XMDew3WB6okIGoJ6naYEw/x57lRIW+obLZFWa5yp1CV/4fUtjTvdv3Rki+ tw== 
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3twuq3s2s8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 23 Oct 2023 16:09:11 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39NFWIT4010250;
+        Mon, 23 Oct 2023 16:09:10 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tvsby9tv1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 23 Oct 2023 16:09:10 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39NG96Fa30409436
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 23 Oct 2023 16:09:07 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E41D22004B;
+        Mon, 23 Oct 2023 16:09:06 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 687E920040;
+        Mon, 23 Oct 2023 16:09:06 +0000 (GMT)
+Received: from localhost (unknown [9.171.43.41])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Mon, 23 Oct 2023 16:09:06 +0000 (GMT)
+Date:   Mon, 23 Oct 2023 18:09:04 +0200
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [GIT PULL] s390 fixes for 6.6-rc7
+Message-ID: <your-ad-here.call-01698077344-ext-9104@work.hours>
+References: <your-ad-here.call-01697881440-ext-2458@work.hours>
+ <CAHk-=wgTUz1bdY6zvsN4ED0arCLE8Sb==1GH8d0sjm5bu7zesQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wgTUz1bdY6zvsN4ED0arCLE8Sb==1GH8d0sjm5bu7zesQ@mail.gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: QXT1zwmDyRmUpZHFiyf6-MWXsig0RILD
+X-Proofpoint-ORIG-GUID: QXT1zwmDyRmUpZHFiyf6-MWXsig0RILD
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Message-Id: <67ddd260-d424-4229-a815-e3fcfb864a77@app.fastmail.com>
-In-Reply-To: <20231023-thievish-imitation-c7c4b36d76f1@spud>
-References: <20231023110308.1202042-1-arnd@kernel.org>
- <20231023-thievish-imitation-c7c4b36d76f1@spud>
-Date:   Mon, 23 Oct 2023 18:04:06 +0200
-From:   "Arnd Bergmann" <arnd@arndb.de>
-To:     "Conor Dooley" <conor@kernel.org>,
-        "Arnd Bergmann" <arnd@kernel.org>
-Cc:     "Andrew Morton" <akpm@linux-foundation.org>,
-        "Eric DeVolder" <eric.devolder@oracle.com>,
-        "Herbert Xu" <herbert@gondor.apana.org.au>,
-        "David S . Miller" <davem@davemloft.net>,
-        linux-crypto@vger.kernel.org,
-        "Nicholas Piggin" <npiggin@gmail.com>,
-        "Christophe Leroy" <christophe.leroy@csgroup.eu>,
-        "Paul Walmsley" <paul.walmsley@sifive.com>,
-        "Palmer Dabbelt" <palmer@dabbelt.com>,
-        "Albert Ou" <aou@eecs.berkeley.edu>,
-        "Heiko Carstens" <hca@linux.ibm.com>,
-        "Vasily Gorbik" <gor@linux.ibm.com>,
-        "Alexander Gordeev" <agordeev@linux.ibm.com>,
-        "Christian Borntraeger" <borntraeger@linux.ibm.com>,
-        "Sven Schnelle" <svens@linux.ibm.com>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Ingo Molnar" <mingo@redhat.com>, "Borislav Petkov" <bp@alien8.de>,
-        "Dave Hansen" <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        "Ard Biesheuvel" <ardb@kernel.org>, linuxppc-dev@lists.ozlabs.org,
-        linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH 1/2] kexec: fix KEXEC_FILE dependencies
-Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-23_15,2023-10-19_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 mlxscore=0 suspectscore=0 phishscore=0 adultscore=0
+ impostorscore=0 spamscore=0 malwarescore=0 bulkscore=0 priorityscore=1501
+ mlxlogscore=522 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310170001 definitions=main-2310230140
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 23, 2023, at 17:37, Conor Dooley wrote:
-> On Mon, Oct 23, 2023 at 01:01:54PM +0200, Arnd Bergmann wrote:
+On Sat, Oct 21, 2023 at 10:56:29AM -0700, Linus Torvalds wrote:
+> On Sat, 21 Oct 2023 at 02:44, Vasily Gorbik <gor@linux.ibm.com> wrote:
+> > - Fix IOMMU bitmap allocation in s390 PCI to avoid out of bounds access
+> >   when IOMMU pages aren't a multiple of 64.
 
->> index 25474f8c12b79..f571bad2d22d0 100644
->> --- a/arch/riscv/Kconfig
->> +++ b/arch/riscv/Kconfig
->> @@ -687,9 +687,7 @@ config ARCH_SELECTS_KEXEC_FILE
->>  	select KEXEC_ELF
->>  
->>  config ARCH_SUPPORTS_KEXEC_PURGATORY
->> -	def_bool KEXEC_FILE
->> -	depends on CRYPTO=y
->> -	depends on CRYPTO_SHA256=y
->> +	def_bool y
->
-> This being the problem, KEXEC_FILE is 64-bit only.
->
-> IIRC I commented on this same thing during the original conversion
-> patches.
+> But that code is wrong, because the overflow is simply not an issue.
+> Adding overflow handling code is literally only actively misleading,
+> making the code harder to read, for no reason, and making people
+> *think* it's being careful when it is anything *but* careful.
 
-Does it work with this patch on top?
+Right, I should have done a better job reviewing this patch when picking
+it up.
 
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -687,7 +687,7 @@ config ARCH_SELECTS_KEXEC_FILE
-        select KEXEC_ELF
- 
- config ARCH_SUPPORTS_KEXEC_PURGATORY
--       def_bool y
-+       def_bool ARCH_SUPPORTS_KEXEC_FILE
- 
- config ARCH_SUPPORTS_CRASH_DUMP
-        def_bool y
+Please consider a follow-up patch (in reply) that cleans up unnecessary
+and misleading overflow handling. There is no real benefit in getting
+it into linux-next because the upcoming conversion to use the common
+code DMA API on s390
+Link: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=next-20231020&id=c76c067e488c
+eliminates arch/s390/pci/pci_dma.c entirely and, therefore, addresses the
+original problem in another way. That's why this fix is only relevant for
+the current v6.6 and stable backports and is kept as simple as possible.
 
+Let me know if you prefer the regular way, and I should include this
+follow-up patch in my pull request later this week.
 
-     Arnd
+> If you *do* want to add proper overflow handling, you'd need to either
+> fix BITS_TO_LONGS() some way (which is actually non-trivial since it
+> needs to be able to stay a constant and only use the argument once),
+
+Looking into that. Let's see if handling overflow in __KERNEL_DIV_ROUND_UP
+turns out to be doable.
