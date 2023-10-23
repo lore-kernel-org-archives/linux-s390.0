@@ -2,94 +2,283 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAB93C25B41
-	for <linux-s390@archiver.kernel.org>; Sun, 22 Oct 2023 14:54:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD38DC001E0
+	for <linux-s390@archiver.kernel.org>; Mon, 23 Oct 2023 08:20:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231139AbjJVOyg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 22 Oct 2023 10:54:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46738 "EHLO
+        id S229541AbjJWIUN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 23 Oct 2023 04:20:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229500AbjJVOyf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 22 Oct 2023 10:54:35 -0400
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09BB1A4
-        for <linux-s390@vger.kernel.org>; Sun, 22 Oct 2023 07:54:34 -0700 (PDT)
-Received: by mail-ej1-x62d.google.com with SMTP id a640c23a62f3a-9a6190af24aso390962366b.0
-        for <linux-s390@vger.kernel.org>; Sun, 22 Oct 2023 07:54:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1697986472; x=1698591272; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=G0Ah1cO2lJiXDFUGG0RJnDjIa5urZ8iO5hsK/cwibK4=;
-        b=NJKWCVIy51ZTwTHQqF5jfYrcDdZKwkB0KAYLw6tqRg0K99e0Mie6WwsUuRcr95oJrN
-         SELDi2/iS9ji6LLDy2QrB2QqtQgEKoJ1O2bW+BxT/ByuWgfcFJ6xDVbVHBTrxpZ96mwj
-         MsmzkV4trP/eOjA8omwKwOKCCQ48xLjhxnK9Y=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697986472; x=1698591272;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=G0Ah1cO2lJiXDFUGG0RJnDjIa5urZ8iO5hsK/cwibK4=;
-        b=ORc4sSNYIjXVTDmES9sR/Mebemfdhq9aTl9tcE7cG78OHEZIPocPWfstrk/ml0/39P
-         5AWsAoMf3Njr4q1jFQluMV5uENkkFnfRRgVYmJW8LTiuf+l5hL3l651lsmMFtu0OM4Ij
-         d1FTgsXEMBV4URD/TJ4vJqAOSsx5oM/u9iqvn8dgmamjWh3j0WqdYW9n2wbRpuLD7Znb
-         YXubQcqNaysaYb7Cn02WLsPMar78bsnEkWeyUqcZzm7pml6FzahTyVy5BEJVgWRQ16GW
-         lUeDe7QQTopaxV9k8Cm5o4S9UY4OK//05Mq7K3T/Eq1b2LPX/oZIKHuevQj94BXQERtx
-         hx2g==
-X-Gm-Message-State: AOJu0YwZHO8ONRjz7dyl8fat9KieRHZPBamPTTUl2J8ZgwHWMBVfKWqD
-        JLCf27dPdzBPDJgKgnIqbBIVp2UQEcW+0Uqu1w9J6Q==
-X-Google-Smtp-Source: AGHT+IFDvHuOktRdh4vFt1gTncFYiM5DoeTL2O1FCbdRmjhXWGfDEtprH1x9kRYqAKqQArpNc1qj4w==
-X-Received: by 2002:a17:907:1b0a:b0:9a6:1446:852c with SMTP id mp10-20020a1709071b0a00b009a61446852cmr6435921ejc.27.1697986472247;
-        Sun, 22 Oct 2023 07:54:32 -0700 (PDT)
-Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com. [209.85.208.50])
-        by smtp.gmail.com with ESMTPSA id j20-20020a170906051400b009bf7a4d591dsm5128957eja.32.2023.10.22.07.54.31
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 22 Oct 2023 07:54:31 -0700 (PDT)
-Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-53dfc28a2afso3486592a12.1
-        for <linux-s390@vger.kernel.org>; Sun, 22 Oct 2023 07:54:31 -0700 (PDT)
-X-Received: by 2002:a50:9318:0:b0:53e:3d9f:3c74 with SMTP id
- m24-20020a509318000000b0053e3d9f3c74mr4973803eda.14.1697986470852; Sun, 22
- Oct 2023 07:54:30 -0700 (PDT)
+        with ESMTP id S230090AbjJWIUL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 Oct 2023 04:20:11 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7878FEE;
+        Mon, 23 Oct 2023 01:20:08 -0700 (PDT)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39N8GTQP025249;
+        Mon, 23 Oct 2023 08:19:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=XCFY9Zt73C/zdSBvzDn5qUMBCE/4dyHPB6YcoeLIraw=;
+ b=ZgddJsDzHQOYtq6A6nqgQdZhrJkOVRI7/6nS3RwcJr8RIbK0kKgpkjbuJVjPxZFyr3PY
+ JHFeBw+TFClQmtLjoW1nt18NGF6jCssRuh/KBa8RthSqpGMWc9NmgG+KxyE4Ozjlos2i
+ 9JgT1/7RAKGmrY4X17BlS2xBb4COzhOoufCHwaNI4S9VC8YVI8dWCdswnS480TK6/Gxm
+ DXWGteUptCQ1sww+3BJX5eDY70/z4cCeSykOG8xYvH5jGMDZNQM+EAz4qrH4zylMFXxu
+ gk9D0dagWEXMSxQOr5lMZwPz6cOFdbGmTwiBAJubsC43IYmd+RLJfNTRxXnJMM8KWAwl 1g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3twmrhgswn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 23 Oct 2023 08:19:59 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39N8GvUd028304;
+        Mon, 23 Oct 2023 08:19:58 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3twmrhgsw8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 23 Oct 2023 08:19:58 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39N7AgL3026833;
+        Mon, 23 Oct 2023 08:19:57 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tvsynfbks-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 23 Oct 2023 08:19:57 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+        by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39N8JulW19661452
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 23 Oct 2023 08:19:56 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 582C758056;
+        Mon, 23 Oct 2023 08:19:56 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C9AA058052;
+        Mon, 23 Oct 2023 08:19:54 +0000 (GMT)
+Received: from [9.171.5.241] (unknown [9.171.5.241])
+        by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 23 Oct 2023 08:19:54 +0000 (GMT)
+Message-ID: <83476aac-a2f6-4705-8aec-762b1f165210@linux.ibm.com>
+Date:   Mon, 23 Oct 2023 10:19:53 +0200
 MIME-Version: 1.0
-References: <your-ad-here.call-01697881440-ext-2458@work.hours>
- <CAHk-=wgTUz1bdY6zvsN4ED0arCLE8Sb==1GH8d0sjm5bu7zesQ@mail.gmail.com>
- <CAHk-=wjxAk=PQBX4OvscNfGKfc+M8iKmNd6D39wOZzXV0k729w@mail.gmail.com> <your-ad-here.call-01697980674-ext-9589@work.hours>
-In-Reply-To: <your-ad-here.call-01697980674-ext-9589@work.hours>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Sun, 22 Oct 2023 07:54:13 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wizgxqjSk7fhyqPuW7Nkt3qwCkr-WKE2DsRu8tK7CC2Tw@mail.gmail.com>
-Message-ID: <CAHk-=wizgxqjSk7fhyqPuW7Nkt3qwCkr-WKE2DsRu8tK7CC2Tw@mail.gmail.com>
-Subject: Re: [GIT PULL] s390 fixes for 6.6-rc7
-To:     Vasily Gorbik <gor@linux.ibm.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@intel.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net 5/5] net/smc: put sk reference if close work was
+ canceled
+Content-Language: en-GB
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com, wintera@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
+ <1697009600-22367-6-git-send-email-alibuda@linux.alibaba.com>
+ <bdcb307f-d2a8-4aef-bb7d-dd87e56ff740@linux.ibm.com>
+ <ee641ca5-104b-d1ec-5b2a-e20237c5378a@linux.alibaba.com>
+ <ad5e4191-227e-4a62-a110-472618ef7de1@linux.ibm.com>
+ <305c7ae2-a902-3e30-5e67-b590d848d0ba@linux.alibaba.com>
+ <990a6b09-135a-41fb-a375-c37ffec6fe99@linux.ibm.com>
+ <94f89147-cedc-b8b2-415f-942ec14cd670@linux.alibaba.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <94f89147-cedc-b8b2-415f-942ec14cd670@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: oiew6GEP6bnlVrDSVrvVm_dRJRq3_6Ba
+X-Proofpoint-GUID: jzW80NNb-lmu6XtFigsua8tCnBNmers6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-23_06,2023-10-19_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
+ lowpriorityscore=0 suspectscore=0 adultscore=0 malwarescore=0
+ impostorscore=0 spamscore=0 phishscore=0 bulkscore=0 priorityscore=1501
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310170001 definitions=main-2310230071
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, 22 Oct 2023 at 06:18, Vasily Gorbik <gor@linux.ibm.com> wrote:
->
-> This might work.
 
-Hmm. Yes.
 
-But let's fix __KERNEL_DIV_ROUND_UP itself while at it.
+On 20.10.23 04:41, D. Wythe wrote:
+> 
+> 
+> On 10/20/23 1:40 AM, Wenjia Zhang wrote:
+>>
+>>
+>> On 19.10.23 09:33, D. Wythe wrote:
+>>>
+>>>
+>>> On 10/19/23 4:26 AM, Wenjia Zhang wrote:
+>>>>
+>>>>
+>>>> On 17.10.23 04:06, D. Wythe wrote:
+>>>>>
+>>>>>
+>>>>> On 10/13/23 3:04 AM, Wenjia Zhang wrote:
+>>>>>>
+>>>>>>
+>>>>>> On 11.10.23 09:33, D. Wythe wrote:
+>>>>>>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>>>>>>
+>>>>>>> Note that we always hold a reference to sock when attempting
+>>>>>>> to submit close_work. 
+>>>>>> yes
+>>>>>> Therefore, if we have successfully
+>>>>>>> canceled close_work from pending, we MUST release that reference
+>>>>>>> to avoid potential leaks.
+>>>>>>>
+>>>>>> Isn't the corresponding reference already released inside the 
+>>>>>> smc_close_passive_work()?
+>>>>>>
+>>>>>
+>>>>> Hi Wenjia,
+>>>>>
+>>>>> If we successfully cancel the close work from the pending state,
+>>>>> it means that smc_close_passive_work() has never been executed.
+>>>>>
+>>>>> You can find more details here.
+>>>>>
+>>>>> /**
+>>>>> * cancel_work_sync - cancel a work and wait for it to finish
+>>>>> * @work:the work to cancel
+>>>>> *
+>>>>> * Cancel @work and wait for its execution to finish. This function
+>>>>> * can be used even if the work re-queues itself or migrates to
+>>>>> * another workqueue. On return from this function, @work is
+>>>>> * guaranteed to be not pending or executing on any CPU.
+>>>>> *
+>>>>> * cancel_work_sync(&delayed_work->work) must not be used for
+>>>>> * delayed_work's. Use cancel_delayed_work_sync() instead.
+>>>>> *
+>>>>> * The caller must ensure that the workqueue on which @work was last
+>>>>> * queued can't be destroyed before this function returns.
+>>>>> *
+>>>>> * Return:
+>>>>> * %true if @work was pending, %false otherwise.
+>>>>> */
+>>>>> boolcancel_work_sync(structwork_struct *work)
+>>>>> {
+>>>>> return__cancel_work_timer(work, false);
+>>>>> }
+>>>>>
+>>>>> Best wishes,
+>>>>> D. Wythe
+>>>> As I understand, queue_work() would wake up the work if the work is 
+>>>> not already on the queue. And the sock_hold() is just prio to the 
+>>>> queue_work(). That means, cancel_work_sync() would cancel the work 
+>>>> either before its execution or after. If your fix refers to the 
+>>>> former case, at this moment, I don't think the reference can be 
+>>>> hold, thus it is unnecessary to put it.
+>>>>>
+>>>
+>>> I am quite confuse about why you think when we cancel the work before 
+>>> its execution,
+>>> the reference can not be hold ?
+>>>
+>>>
+>>> Perhaps the following diagram can describe the problem in better way :
+>>>
+>>> smc_close_cancel_work
+>>> smc_cdc_msg_recv_action
+>>>
+>>>
+>>> sock_hold
+>>> queue_work
+>>> if (cancel_work_sync())        // successfully cancel before execution
+>>> sock_put()                        //  need to put it since we already 
+>>> hold a ref before   queue_work()
+>>>
+>>>
+>> ha, I already thought you might ask such question:P
+>>
+>> I think here two Problems need to be clarified:
+>>
+>> 1) Do you think the bh_lock_sock/bh_unlock_sock in the 
+>> smc_cdc_msg_recv does not protect the smc_cdc_msg_recv_action() from 
+>> cancel_work_sync()?
+>> Maybe that would go back to the discussion in the other patch on the 
+>> behaviors of the locks.
+>>
+> 
+> Yes. bh_lock_sock/bh_unlock_sock can not block code execution protected 
+> by lock_sock/unlock(). That is to say, they are not exclusive.
+> 
+No, the logic of the inference is very vague to me. My understand is 
+completely different. That is what I read from the kernel code. They are 
+not *completely* exclusive, because while the bottom half context holds 
+the lock i.e. bh_lock_sock, the process context can not get the lock by 
+lock_sock. (This is actually my main point of my argument for these 
+fixes, and I didn't see any clarify from you). However, while the 
+process context holds the lock by lock_sock, the bottom half context can 
+still get it by bh_lock_sock, this is just like what you showed in the 
+code in lock_sock. Once it gets the ownership, it release the spinlock.
 
-(And perhaps move it out of the odd location it is in now - its in
-<uapi/linux/const.h> for some unfathomable reason)
+> We can use a very simple example to infer that since bh_lock_sock is 
+> type of spin-lock, if bh_lock_sock/bh_unlock_sock can block 
+> lock_sock/unlock(),
+> then lock_sock/unlock() can also block bh_lock_sock/bh_unlock_sock.
+> 
+> If this is true, when the process context already lock_sock(), the 
+> interrupt context must wait for the process to call
+> release_sock(). Obviously, this is very unreasonable.
+> 
+> 
+>> 2) If the queue_work returns true, as I said in the last main, the 
+>> work should be (being) executed. How could the cancel_work_sync() 
+>> cancel the work before execution successgully?
+> 
+> No, that's not true. In fact, if queue_work returns true, it simply 
+> means that we have added the task to the queue and may schedule a worker 
+> to execute it,
+> but it does not guarantee that the task will be executed or is being 
+> executed when it returns true,
+> the task might still in the list and waiting some worker to execute it.
+> 
+> We can make a simple inference,
+> 
+> 1. A known fact is that if no special flag (WORK_UNBOUND) is given, 
+> tasks submitted will eventually be executed on the CPU where they were 
+> submitted.
+> 
+> 2. If the queue_work returns true, the work should be or is being executed
+> 
+> If all of the above are true, when we invoke queue_work in an interrupt 
+> context, does it mean that the submitted task will be executed in the 
+> interrupt context?
+> 
+> 
+> Best wishes,
+> D. Wythe
+> 
+If you say the thread is not gauranteed to be waken up in then 
+queue_work to execute the work, please explain what the kick_pool 
+function does.
 
-And maybe we could do a helper like
+However, the spin_lock understanding is still the key problem in the 
+cases. As I said, if it is not get clarify, we don't really need to go 
+on to disucss this.
 
-    #define __if_constexpr(x, a, b) \
-        __builtin_choose_expr(__is_constexpr(x), a, b)
-
-since that is one of the main reasons for that __is_constexpr macro
-(and _that_ makes sense in the const.h header file).
-
-                 Linus
+>>
+>>>>>>> Fixes: 42bfba9eaa33 ("net/smc: immediate termination for SMCD 
+>>>>>>> link groups")
+>>>>>>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>>>>>>> ---
+>>>>>>>   net/smc/smc_close.c | 3 ++-
+>>>>>>>   1 file changed, 2 insertions(+), 1 deletion(-)
+>>>>>>>
+>>>>>>> diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+>>>>>>> index 449ef45..10219f5 100644
+>>>>>>> --- a/net/smc/smc_close.c
+>>>>>>> +++ b/net/smc/smc_close.c
+>>>>>>> @@ -116,7 +116,8 @@ static void smc_close_cancel_work(struct 
+>>>>>>> smc_sock *smc)
+>>>>>>>       struct sock *sk = &smc->sk;
+>>>>>>>         release_sock(sk);
+>>>>>>> -    cancel_work_sync(&smc->conn.close_work);
+>>>>>>> +    if (cancel_work_sync(&smc->conn.close_work))
+>>>>>>> +        sock_put(sk);
+>>>>>>> cancel_delayed_work_sync(&smc->conn.tx_work);
+>>>>>>>       lock_sock(sk);
+>>>>>>>   }
+>>>>>
+>>>
+>>>
+> 
