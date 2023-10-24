@@ -2,50 +2,50 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D329C07545
-	for <linux-s390@archiver.kernel.org>; Tue, 24 Oct 2023 17:28:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05C15C00A8F
+	for <linux-s390@archiver.kernel.org>; Tue, 24 Oct 2023 18:08:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234315AbjJXR2y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 24 Oct 2023 13:28:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59166 "EHLO
+        id S1344108AbjJXSIY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 24 Oct 2023 14:08:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234497AbjJXR2w (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 24 Oct 2023 13:28:52 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8999CD7A
-        for <linux-s390@vger.kernel.org>; Tue, 24 Oct 2023 10:28:50 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id d9443c01a7336-1cac925732fso30960135ad.1
-        for <linux-s390@vger.kernel.org>; Tue, 24 Oct 2023 10:28:50 -0700 (PDT)
+        with ESMTP id S1344103AbjJXSIX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 24 Oct 2023 14:08:23 -0400
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D2DD10D5
+        for <linux-s390@vger.kernel.org>; Tue, 24 Oct 2023 11:08:21 -0700 (PDT)
+Received: by mail-pf1-x430.google.com with SMTP id d2e1a72fcca58-6b1e46ca282so4725485b3a.2
+        for <linux-s390@vger.kernel.org>; Tue, 24 Oct 2023 11:08:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1698168530; x=1698773330; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1698170900; x=1698775700; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=v5+vnHpkaeDGkL4KU8yjQESLCmsVuX8ylTfakxaPTtU=;
-        b=WSiqAtdN8PzA+kCu8lcgn/moDnuGBVsVifULPm264T9xl2ixUN+CEzB/G8SfDDTV8K
-         pM/NokKvdXpktq5+3wT1s+7bXFZ5Wz1n07B/3QbktvU3O8cA6e2u08kUIjzMEkJ+g75q
-         FuGmP5bOxY51HjMomrGGTqXaam5F5M+pWfakg=
+        bh=k3017rfLAsmBWrjhLTGlW8FveYh7+csB/i8dPVteIyE=;
+        b=KMSq+g5B/9/mmBrXtqyNbFrp+0a6B204TjFXffcvyOjFPY0rGmqwfBWVTDiv6HtseO
+         MvfxKD0P36CPrfLAwoKQATvJPJk2T8W1WCFYc6eZCoNaSuDnsCgUoX6S4CXvqIcaKQOW
+         ChWI30wJAjUeSLvpD7ATMycS43SqfZ3ziZ9j4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1698168530; x=1698773330;
+        d=1e100.net; s=20230601; t=1698170900; x=1698775700;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=v5+vnHpkaeDGkL4KU8yjQESLCmsVuX8ylTfakxaPTtU=;
-        b=NV441tOKnWA/BP3+vhMcWX5R9dg7Pb6MqFFpqRjzhHQgvSsy9WMmiXuc7viCHDuXvT
-         lkAbywMNO279dEGLeqSD0t1qXRgNxhaffdScTG6oghg+REQiZVWIfRzLTHbSAszYdLWz
-         TN20WDpyQTumeB7tlW2+EYSft7NVbzkyAdsw6WfScs6ZoybA5hZ9mGudNTWMqXC8dnlu
-         EpWXKE3eUEejrvxXQyrgH1cn90chFH9HJMND24vqOqEQP7pIBR07YNZ6QyIF5laURZNG
-         jXhRhf7d5wuvJwkIGOCnwZYTa5vd52TUX+aKZHEArxFg841AkRPfQGEtSCfN74Nc1xnk
-         uxUA==
-X-Gm-Message-State: AOJu0YxaGofDfkSdlXH1PD5kKmJsLkZyB1K8dF64Xw6sn8PlRql/549+
-        A/tga0gTZ4af6MPMkIO18OngFXIjpG7++UHR/JE=
-X-Google-Smtp-Source: AGHT+IFQks8f7taxe/T8lJX4HzjJyBwLcpA05m1ZgzLrUenz+1s8G0m8uqUjTVMkOtGRSqaCkc2qWw==
-X-Received: by 2002:a17:902:ce88:b0:1ca:59bf:6cc9 with SMTP id f8-20020a170902ce8800b001ca59bf6cc9mr13033744plg.57.1698168529819;
-        Tue, 24 Oct 2023 10:28:49 -0700 (PDT)
+        bh=k3017rfLAsmBWrjhLTGlW8FveYh7+csB/i8dPVteIyE=;
+        b=WxeLCrCZvcHsFBGjtLlbBSc0IdlCzGeBN883vkaQ+ZOmf2DYfeXr7JPvky4FeBwuSM
+         eU28BYrXhzqQGMfCcDMDcWcXc+ZAYkSXoOfPioy684QsNa2Y3wpI8T7jersHM7moGhZs
+         6FvO4Zhf7n8tzKZf6PzW0uawgFg5ngTCoNjecd4kb2i5N4G72pYvyHi9Ke2jRoZI128T
+         q34xS65OxGeK37GkjesBeKXLe8wwjkdf7BqUmAEFwuAcoQR9WGN0Ick8Qk5dJ+VxkeOF
+         fLwd5cTUdudR28bJ0slYhDMKqKDI0PiyvhKJlGq3nBYNc8OHxiwgfzGF1oU4+HvPRZ6v
+         SZqw==
+X-Gm-Message-State: AOJu0YxbrxIW/6tLHNYByU7rxpiot/8C0+awXFgvxYfpZGXmat+5n+U1
+        jNEF9AhXX2m6cTgYC3B3KlnCnw==
+X-Google-Smtp-Source: AGHT+IFGxHFp5kySQjiH/D3DhnH8iCrDxB0Ra53C+jTN6JyknU2xEf0SERhhIgYYJS8DDiyE+OW6OQ==
+X-Received: by 2002:a05:6a21:7803:b0:16b:e46e:1246 with SMTP id be3-20020a056a21780300b0016be46e1246mr3564795pzc.30.1698170900569;
+        Tue, 24 Oct 2023 11:08:20 -0700 (PDT)
 Received: from www.outflux.net (198-0-35-241-static.hfc.comcastbusiness.net. [198.0.35.241])
-        by smtp.gmail.com with ESMTPSA id n17-20020a170902e55100b001bb1f0605b2sm7650806plf.214.2023.10.24.10.28.49
+        by smtp.gmail.com with ESMTPSA id d15-20020a65620f000000b0057e7ae47893sm6448886pgv.47.2023.10.24.11.08.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Oct 2023 10:28:49 -0700 (PDT)
-Date:   Tue, 24 Oct 2023 10:28:48 -0700
+        Tue, 24 Oct 2023 11:08:19 -0700 (PDT)
+Date:   Tue, 24 Oct 2023 11:08:19 -0700
 From:   Kees Cook <keescook@chromium.org>
 To:     Justin Stitt <justinstitt@google.com>
 Cc:     Alexandra Winter <wintera@linux.ibm.com>,
@@ -57,39 +57,36 @@ Cc:     Alexandra Winter <wintera@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         linux-s390@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH] s390/ctcm: replace deprecated strncpy with strscpy
-Message-ID: <202310241027.516C46AA@keescook>
-References: <20231023-strncpy-drivers-s390-net-ctcm_main-c-v1-1-265db6e78165@google.com>
+Subject: Re: [PATCH] s390/qeth: replace deprecated strncpy with strscpy
+Message-ID: <202310241029.3E4A634@keescook>
+References: <20231023-strncpy-drivers-s390-net-qeth_core_main-c-v1-1-e7ce65454446@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20231023-strncpy-drivers-s390-net-ctcm_main-c-v1-1-265db6e78165@google.com>
+In-Reply-To: <20231023-strncpy-drivers-s390-net-qeth_core_main-c-v1-1-e7ce65454446@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 23, 2023 at 07:35:07PM +0000, Justin Stitt wrote:
+On Mon, Oct 23, 2023 at 07:39:39PM +0000, Justin Stitt wrote:
 > strncpy() is deprecated for use on NUL-terminated destination strings
 > [1] and as such we should prefer more robust and less ambiguous string
 > interfaces.
 > 
-> We expect chid to be NUL-terminated based on its use with format
-> strings:
+> We expect new_entry->dbf_name to be NUL-terminated based on its use with
+> strcmp():
+> |       if (strcmp(entry->dbf_name, name) == 0) {
 > 
-> 	CTCM_DBF_TEXT_(SETUP, CTC_DBF_INFO, "%s(%s) %s", CTCM_FUNTAIL,
-> 			chid, ok ? "OK" : "failed");
+> Moreover, NUL-padding is not required as new_entry is kzalloc'd just
+> before this assignment:
+> |       new_entry = kzalloc(sizeof(struct qeth_dbf_entry), GFP_KERNEL);
 > 
-> Moreover, NUL-padding is not required as it is _only_ used in this one
-> instance with a format string.
+> ... rendering any future NUL-byte assignments (like the ones strncpy()
+> does) redundant.
 > 
 > Considering the above, a suitable replacement is `strscpy` [2] due to
 > the fact that it guarantees NUL-termination on the destination buffer
 > without unnecessarily NUL-padding.
-> 
-> We can also drop the +1 from chid's declaration as we no longer need to
-> be cautious about leaving a spot for a NUL-byte. Let's use the more
-> idiomatic strscpy usage of (dest, src, sizeof(dest)) as this more
-> closely ties the destination buffer to the length.
 > 
 > Link: https://www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings [1]
 > Link: https://manpages.debian.org/testing/linux-manual-4.8/strscpy.9.en.html [2]
@@ -97,9 +94,46 @@ On Mon, Oct 23, 2023 at 07:35:07PM +0000, Justin Stitt wrote:
 > Cc: linux-hardening@vger.kernel.org
 > Signed-off-by: Justin Stitt <justinstitt@google.com>
 
-Yeah, all looks correct to me.
+struct qeth_dbf_entry {
+        char dbf_name[DBF_NAME_LEN];
+
+The sizeof() replace looks right to me.
 
 Reviewed-by: Kees Cook <keescook@chromium.org>
+
+-Kees
+
+> ---
+> Note: build-tested only.
+> 
+> Found with: $ rg "strncpy\("
+> ---
+>  drivers/s390/net/qeth_core_main.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+> index cd783290bde5..6af2511e070c 100644
+> --- a/drivers/s390/net/qeth_core_main.c
+> +++ b/drivers/s390/net/qeth_core_main.c
+> @@ -6226,7 +6226,7 @@ static int qeth_add_dbf_entry(struct qeth_card *card, char *name)
+>  	new_entry = kzalloc(sizeof(struct qeth_dbf_entry), GFP_KERNEL);
+>  	if (!new_entry)
+>  		goto err_dbg;
+> -	strncpy(new_entry->dbf_name, name, DBF_NAME_LEN);
+> +	strscpy(new_entry->dbf_name, name, sizeof(new_entry->dbf_name));
+>  	new_entry->dbf_info = card->debug;
+>  	mutex_lock(&qeth_dbf_list_mutex);
+>  	list_add(&new_entry->dbf_list, &qeth_dbf_list);
+> 
+> ---
+> base-commit: 9c5d00cb7b6bbc5a7965d9ab7d223b5402d1f02c
+> change-id: 20231023-strncpy-drivers-s390-net-qeth_core_main-c-0b0ee08672ec
+> 
+> Best regards,
+> --
+> Justin Stitt <justinstitt@google.com>
+> 
+> 
 
 -- 
 Kees Cook
