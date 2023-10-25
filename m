@@ -2,102 +2,128 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09829C25B47
-	for <linux-s390@archiver.kernel.org>; Wed, 25 Oct 2023 10:23:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 613C8C25B47
+	for <linux-s390@archiver.kernel.org>; Wed, 25 Oct 2023 10:25:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234693AbjJYKXe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 25 Oct 2023 06:23:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32882 "EHLO
+        id S1343512AbjJYKZS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 25 Oct 2023 06:25:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234721AbjJYKXd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Oct 2023 06:23:33 -0400
+        with ESMTP id S234793AbjJYKZO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Oct 2023 06:25:14 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E17CB181;
-        Wed, 25 Oct 2023 03:23:29 -0700 (PDT)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39PALWd2000532;
-        Wed, 25 Oct 2023 10:23:29 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36A8510A;
+        Wed, 25 Oct 2023 03:25:12 -0700 (PDT)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39PAD2o6009968;
+        Wed, 25 Oct 2023 10:25:11 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=avlWrltZO0CuUWblDeg1QvRCCsEXeaH57k5OV9KiXxw=;
- b=X5lJAs7NbW78QPOZMh7lG6YrE8p+X49kN4+wG33a1mDa+nlh72oF7ygCWEZSjRa1ah6P
- /b8Bg4aTItos3uKxT99vVLYMQIPJDY1qXxhE2w3GSZZplTAjYBlGrOrWuQSrZBMh10tY
- 4KPvBaGMpHJMck532PtNh/cUSxHEyq/j/cCNQProAkLxynN+RbyLCXnIGjpOhDQ2VAgi
- z9+oJDPdHtnajV+8cfoExOUxOgKGM9chuDvY7E5YBaCMIRB5J/vr20quFkDTRJn6YQ94
- uJCM5lX9J1tB7QHKHoNFuJYYhBSNxa2VFUhM9IgHuHdOgnZERpqbigI+gQucZwUC5oN6 lA== 
+ mime-version; s=pp1; bh=dkngY/uGd72QquiKqtcqhmUawOZGFn6Q2/mrRwMoXOI=;
+ b=feNU6oA06+oxLvt8OVk4isxTTZrHa4ZLtcGHzCluIYfD2LYQGj11z1PPJ/ljpz9dq8RY
+ g99TvP39niEGdQ2QbwfulZoz2oq/091oT228dWS6WfuEahciJrLt5aRlr94Kj9nVARtF
+ 1S/Nbidw/fVZkySnLqO0TQ0KtxDI23++PI696po3k1+8HyUkKbW5GRDCvz7J35wn/H8w
+ fpFC2fevnhqGobPUvkg+xu6ExGmAZumOZ8zitZzMY3Tpyj/e2yzbiSKJLdetbEbjMKxM
+ 8NZZAVgt9XNRvF3xrAphwhScHyrQzJfAdHwzGMOu0hKOPi1IFY8Dm3sQ5B4wTfV0BrIW 3w== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ty16eg1q1-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ty12hgfbn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 25 Oct 2023 10:23:29 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39PANFAF008047;
-        Wed, 25 Oct 2023 10:23:28 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ty16eg1pq-1
+        Wed, 25 Oct 2023 10:25:11 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39PADHxR011526;
+        Wed, 25 Oct 2023 10:25:10 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ty12hgfb1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 25 Oct 2023 10:23:28 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39P8bwtZ012344;
-        Wed, 25 Oct 2023 10:23:27 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tvup1wcyr-1
+        Wed, 25 Oct 2023 10:25:10 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39P9jwmr023804;
+        Wed, 25 Oct 2023 10:25:09 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tvryt65fe-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 25 Oct 2023 10:23:27 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39PANOsB39125670
+        Wed, 25 Oct 2023 10:25:09 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39PAP6N221627458
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 25 Oct 2023 10:23:24 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BE3AE2004D;
-        Wed, 25 Oct 2023 10:23:24 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 26E952004B;
-        Wed, 25 Oct 2023 10:23:24 +0000 (GMT)
+        Wed, 25 Oct 2023 10:25:06 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 609352006C;
+        Wed, 25 Oct 2023 10:25:06 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C053A2006A;
+        Wed, 25 Oct 2023 10:25:05 +0000 (GMT)
 Received: from localhost (unknown [9.171.93.15])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Wed, 25 Oct 2023 10:23:24 +0000 (GMT)
-Date:   Wed, 25 Oct 2023 12:23:22 +0200
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Wed, 25 Oct 2023 10:25:05 +0000 (GMT)
+Date:   Wed, 25 Oct 2023 12:25:04 +0200
 From:   Vasily Gorbik <gor@linux.ibm.com>
 To:     Justin Stitt <justinstitt@google.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
+Cc:     Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-hardening@vger.kernel.org
-Subject: Re: [PATCH] s390/sclp: replace deprecated strncpy with strtomem
-Message-ID: <your-ad-here.call-01698229402-ext-6422@work.hours>
-References: <20231023-strncpy-drivers-s390-char-sclp-c-v1-1-eaeef80522bb@google.com>
+Subject: Re: [PATCH] s390/cio: replace deprecated strncpy with strscpy
+Message-ID: <your-ad-here.call-01698229504-ext-3663@work.hours>
+References: <20231023-strncpy-drivers-s390-cio-chsc-c-v1-1-8b76a7b83260@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20231023-strncpy-drivers-s390-char-sclp-c-v1-1-eaeef80522bb@google.com>
+In-Reply-To: <20231023-strncpy-drivers-s390-cio-chsc-c-v1-1-8b76a7b83260@google.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: x8P8agS-hJQXnec20Z0XlYGOuYtPPzmD
-X-Proofpoint-ORIG-GUID: tNau09rVp_RbVxAnyWKrmpxJa8HwOGiR
+X-Proofpoint-GUID: 3SBpjJkcNnbczjvgkGjTSrryDl5jq5VM
+X-Proofpoint-ORIG-GUID: 91nL1D4q-fQhbSJX2D92Akiq1Y2gfbsz
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-10-25_01,2023-10-25_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 malwarescore=0
- suspectscore=0 spamscore=0 priorityscore=1501 adultscore=0 bulkscore=0
- lowpriorityscore=0 impostorscore=0 mlxlogscore=503 phishscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2310170001
- definitions=main-2310250089
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1015 impostorscore=0 malwarescore=0 adultscore=0 mlxlogscore=823
+ mlxscore=0 suspectscore=0 phishscore=0 lowpriorityscore=0 spamscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310170001 definitions=main-2310250089
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Oct 23, 2023 at 07:14:49PM +0000, Justin Stitt wrote:
-> Let's move away from using strncpy() as it is deprecated [1].
+On Mon, Oct 23, 2023 at 07:24:38PM +0000, Justin Stitt wrote:
+> strncpy() is deprecated for use on NUL-terminated destination strings
+> [1] and as such we should prefer more robust and less ambiguous string
+> interfaces.
 > 
-> Instead use strtomem() as `e.id` is already marked as nonstring:
-> |       char id[4] __nonstring;
+> We expect both `params` and `id` to be NUL-terminated based on their
+> usage with format strings:
 > 
-> We don't need strtomem_pad() because `e` is already memset to 0 --
-> rendering any additional NUL-padding useless.
+> 	format_node_data(iuparams, iunodeid, &lir->incident_node);
+> 	format_node_data(auparams, aunodeid, &lir->attached_node);
+> 
+> 	switch (lir->iq.class) {
+> 	case LIR_IQ_CLASS_DEGRADED:
+> 		pr_warn("Link degraded: RS=%02x RSID=%04x IC=%02x "
+> 			"IUPARAMS=%s IUNODEID=%s AUPARAMS=%s AUNODEID=%s\n",
+> 			sei_area->rs, sei_area->rsid, lir->ic, iuparams,
+> 			iunodeid, auparams, aunodeid);
+> 
+> NUL-padding is not required as both `params` and `id` have been memset
+> to 0:
+> 
+> 	memset(params, 0, PARAMS_LEN);
+> 	memset(id, 0, NODEID_LEN);
+> 
+> Considering the above, a suitable replacement is `strscpy` [2] due to
+> the fact that it guarantees NUL-termination on the destination buffer
+> without unnecessarily NUL-padding.
+> 
+> Note that there's no overread bugs in the current implementation as the
+> string literal "n/a" has a size much smaller than PARAMS_LEN or
+> NODEID_LEN. Nonetheless, let's favor strscpy().
 > 
 > Link: https://www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings [1]
+> Link: https://manpages.debian.org/testing/linux-manual-4.8/strscpy.9.en.html [2]
 > Link: https://github.com/KSPP/linux/issues/90
 > Cc: linux-hardening@vger.kernel.org
 > Signed-off-by: Justin Stitt <justinstitt@google.com>
@@ -106,7 +132,7 @@ On Mon, Oct 23, 2023 at 07:14:49PM +0000, Justin Stitt wrote:
 > 
 > Found with: $ rg "strncpy\("
 > ---
->  drivers/s390/char/sclp.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/s390/cio/chsc.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
 Applied, thank you!
