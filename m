@@ -2,142 +2,188 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F8AFC25B6E
-	for <linux-s390@archiver.kernel.org>; Wed, 25 Oct 2023 07:38:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CDEA8C0032E
+	for <linux-s390@archiver.kernel.org>; Wed, 25 Oct 2023 09:59:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233766AbjJYHiW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 25 Oct 2023 03:38:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46316 "EHLO
+        id S234242AbjJYJ7G (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 25 Oct 2023 05:59:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234055AbjJYHhn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Oct 2023 03:37:43 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF07B1FCA;
-        Wed, 25 Oct 2023 00:35:50 -0700 (PDT)
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39P5lajh002210;
-        Wed, 25 Oct 2023 07:35:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=zZQJyqYnoH2mzbn59fDX9/iMeNtBFAOOWV3pVH2j/QI=;
- b=nvPQfugpHLczE4gwcBZCU+aIugpqorc4IuAPjtawzOgw1Ad+8Lq2y9zqptO0kb2SgBXr
- l5ypbZ28ewhyT56SjqRpVImCHFfQEUHXd6YjfwhSoiNRqFQVGgbrKtqN3oT30cR5qBxs
- llaQQX9EB3dgiUS/K6yszebzG3g7hoWMFUZSCEOj+pSOX5Rvv02OoH6NJahhRVKPDIS2
- WNrFZr+73SlQKFDqfKMBGuFceqecBINvGUWczZEsUyAgqhQKDbDExwcVmxo24r7NrgHw
- 9ozAbQHVALkf3ubA1Ui4VxsEdztEtjTWittRibPChhvr4mR7XK4hHKE4S2gm5AZv9jJU UQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3txw662spq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 25 Oct 2023 07:35:48 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39P6eM0s004566;
-        Wed, 25 Oct 2023 07:35:45 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3txw662sgx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 25 Oct 2023 07:35:35 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39P73fEg010290;
-        Wed, 25 Oct 2023 07:32:51 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tvsbyn7rj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 25 Oct 2023 07:32:51 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39P7WluP23003820
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 25 Oct 2023 07:32:47 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C922A20043;
-        Wed, 25 Oct 2023 07:32:47 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4955A20040;
-        Wed, 25 Oct 2023 07:32:47 +0000 (GMT)
-Received: from [9.171.33.174] (unknown [9.171.33.174])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Wed, 25 Oct 2023 07:32:47 +0000 (GMT)
-Message-ID: <a528b8ca-dde1-1cd2-19c8-be760e5de14e@linux.ibm.com>
-Date:   Wed, 25 Oct 2023 09:32:46 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.14.0
-Subject: Re: [PATCH] s390/cio: replace deprecated strncpy with strscpy
-Content-Language: en-US
-To:     Justin Stitt <justinstitt@google.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-hardening@vger.kernel.org
-References: <20231023-strncpy-drivers-s390-cio-chsc-c-v1-1-8b76a7b83260@google.com>
-From:   Vineeth Vijayan <vneethv@linux.ibm.com>
-In-Reply-To: <20231023-strncpy-drivers-s390-cio-chsc-c-v1-1-8b76a7b83260@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: xinD0Af57LbnLx_POYEuKSJBZNjhrwwR
-X-Proofpoint-GUID: 4BzELyR0UkvbYAYckLgbrc3_9b-I-vLi
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S232691AbjJYJ7F (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Oct 2023 05:59:05 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03D7DB4
+        for <linux-s390@vger.kernel.org>; Wed, 25 Oct 2023 02:58:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1698227899;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=hY1uTHtPvGX6qPxYPyCytvqtD0NKbkwvoAm0a0RsVuk=;
+        b=FFPYVoGq0+DtFPUmCdbMfOVfGYIhTvV8OLQEArHB4jTrJhI34XsblkMdjBuEip9tbSyxhB
+        aPFjRnHsvXgxrFzVtzuH5EqEzajyi3XogGJkqO5BiWLNGSdypMGc8Su8BPbHnHvRAFJURq
+        zJq3mWUL4hGbo+5mBDYljFsoZM2JxEY=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-347-4ArESoOsO4WzaKRFgFR3qQ-1; Wed,
+ 25 Oct 2023 05:58:14 -0400
+X-MC-Unique: 4ArESoOsO4WzaKRFgFR3qQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 0F3B73C0E237;
+        Wed, 25 Oct 2023 09:58:14 +0000 (UTC)
+Received: from localhost (unknown [10.72.112.53])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 0ADFA40C6F79;
+        Wed, 25 Oct 2023 09:58:12 +0000 (UTC)
+Date:   Wed, 25 Oct 2023 17:58:10 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     Arnd Bergmann <arnd@arndb.de>, eric_devolder@yahoo.com
+Cc:     Vivek Goyal <vgoyal@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, kexec@lists.infradead.org,
+        x86@kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-crypto@vger.kernel.org
+Subject: Re: [PATCH 1/2] kexec: fix KEXEC_FILE dependencies
+Message-ID: <ZTjmsku919U6u6wt@MiWiFi-R3L-srv>
+References: <20231023110308.1202042-1-arnd@kernel.org>
+ <ZTe8NOgAjvKDA6z0@MiWiFi-R3L-srv>
+ <b71034f4-5cdc-44e0-b72f-1a8ffae0593e@app.fastmail.com>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-10-25_01,2023-10-24_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
- bulkscore=0 malwarescore=0 priorityscore=1501 lowpriorityscore=0
- suspectscore=0 mlxlogscore=999 mlxscore=0 phishscore=0 impostorscore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2310170001 definitions=main-2310250064
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b71034f4-5cdc-44e0-b72f-1a8ffae0593e@app.fastmail.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.2
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On 10/24/23 at 03:17pm, Arnd Bergmann wrote:
+> On Tue, Oct 24, 2023, at 14:44, Baoquan He wrote:
+> > Just add people and mailing list to CC since I didn't find this mail in
+> > my box, just drag it via 'b4 am'.
+> >
+> > On 10/23/23 at 01:01pm, Arnd Bergmann wrote:
+> > ......
+> 
+> >> diff --git a/kernel/Kconfig.kexec b/kernel/Kconfig.kexec
+> >> index 7aff28ded2f48..bfc636d64ff2b 100644
+> >> --- a/kernel/Kconfig.kexec
+> >> +++ b/kernel/Kconfig.kexec
+> >> @@ -36,6 +36,7 @@ config KEXEC
+> >>  config KEXEC_FILE
+> >>  	bool "Enable kexec file based system call"
+> >>  	depends on ARCH_SUPPORTS_KEXEC_FILE
+> >> +	depends on CRYPTO_SHA256=y || !ARCH_SUPPORTS_KEXEC_PURGATORY
+> >
+> > I am not sure if the logic is correct. In theory, kexec_file code
+> > utilizes purgatory to verify the checksum digested during kernel loading
+> > when try to jump to the kernel. That means kexec_file depends on
+> > purgatory, but not contrary?
+> 
+> The expression I wrote is a bit confusing, but I think this just
+> keeps the existing behavior:
+> 
+> - on architectures that select ARCH_SUPPORTS_KEXEC_PURGATORY
+>   (powerpc, riscv, s390 and x86), we also require CRYPTO_SHA256
+>   to be built-in.
+> - on architectures that do not have ARCH_SUPPORTS_KEXEC_PURGATORY
+>   (arm64 and parisc), CRYPTO_SHA256 is not used and can be disabled
+>   or =m.
+> 
+> Since ARCH_SUPPORTS_KEXEC_PURGATORY is a 'bool' symbol, it could
+> be written as
+> 
+> depends on (ARCH_SUPPORTS_KEXEC_PURGATORY && CRYPTO_SHA256=y) \
+>            || !ARCH_SUPPORTS_KEXEC_PURGATORY
 
+Yes, this seems to be clearer to me. Thanks.
 
-On 10/23/23 21:24, Justin Stitt wrote:
-> strncpy() is deprecated for use on NUL-terminated destination strings
-> [1] and as such we should prefer more robust and less ambiguous string
-> interfaces.
 > 
-> We expect both `params` and `id` to be NUL-terminated based on their
-> usage with format strings:
+> if you find that clearer. I see that the second patch
+> actually gets this wrong, it should actually do
 > 
-> 	format_node_data(iuparams, iunodeid, &lir->incident_node);
-> 	format_node_data(auparams, aunodeid, &lir->attached_node);
-> 
-> 	switch (lir->iq.class) {
-> 	case LIR_IQ_CLASS_DEGRADED:
-> 		pr_warn("Link degraded: RS=%02x RSID=%04x IC=%02x "
-> 			"IUPARAMS=%s IUNODEID=%s AUPARAMS=%s AUNODEID=%s\n",
-> 			sei_area->rs, sei_area->rsid, lir->ic, iuparams,
-> 			iunodeid, auparams, aunodeid);
-> 
-> NUL-padding is not required as both `params` and `id` have been memset
-> to 0:
-> 
-> 	memset(params, 0, PARAMS_LEN);
-> 	memset(id, 0, NODEID_LEN);
-> 
-> Considering the above, a suitable replacement is `strscpy` [2] due to
-> the fact that it guarantees NUL-termination on the destination buffer
-> without unnecessarily NUL-padding.
-> 
-> Note that there's no overread bugs in the current implementation as the
-> string literal "n/a" has a size much smaller than PARAMS_LEN or
-> NODEID_LEN. Nonetheless, let's favor strscpy().
-> 
-> Link:https://www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings  [1]
-> Link:https://manpages.debian.org/testing/linux-manual-4.8/strscpy.9.en.html  [2]
-> Link:https://github.com/KSPP/linux/issues/90
-> Cc:linux-hardening@vger.kernel.org
-> Signed-off-by: Justin Stitt<justinstitt@google.com>
+> select CRYPTO if ARCH_SUPPORTS_KEXEC_PURGATORY
+> select CRYPTO_SHA256 if ARCH_SUPPORTS_KEXEC_PURGATORY
 
-LGTM. Thank you.
+Yeah, makes sense to me.
 
-Reviewed-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Hi Eric,
 
-I can push this to s390-tree and Heiko/Vasily will upstream it.
+Do you have comment about these?
 
----snip---
+> 
+> > With these changes, we can achieve the goal to avoid building issue,
+> > whereas the code logic becomes confusing. E.g people could disable
+> > CONFIG_KEXEC_FILE, but still get purgatory code built in which is
+> > totally useless.
+> >
+> > Not sure if I think too much over this.
+> 
+> I see your point here, and I would suggest changing the
+> CONFIG_ARCH_SUPPORTS_KEXEC_PURGATORY symbol to just indicate
+> the availability of the purgatory code for the arch, rather
+> than actually controlling the code itself. I already mentioned
+> this for s390, but riscv would need the same thing on top.
+> 
+> I think the change below should address your concern.
+> 
+>      Arnd
+> 
+> diff --git a/arch/riscv/kernel/elf_kexec.c b/arch/riscv/kernel/elf_kexec.c
+> index e60fbd8660c4..3ac341d296db 100644
+> --- a/arch/riscv/kernel/elf_kexec.c
+> +++ b/arch/riscv/kernel/elf_kexec.c
+> @@ -266,7 +266,7 @@ static void *elf_kexec_load(struct kimage *image, char *kernel_buf,
+>                 cmdline = modified_cmdline;
+>         }
+>  
+> -#ifdef CONFIG_ARCH_SUPPORTS_KEXEC_PURGATORY
+> +#ifdef CONFIG_KEXEC_FILE
+>         /* Add purgatory to the image */
+>         kbuf.top_down = true;
+>         kbuf.mem = KEXEC_BUF_MEM_UNKNOWN;
+> @@ -280,7 +280,7 @@ static void *elf_kexec_load(struct kimage *image, char *kernel_buf,
+>                                              sizeof(kernel_start), 0);
+>         if (ret)
+>                 pr_err("Error update purgatory ret=%d\n", ret);
+> -#endif /* CONFIG_ARCH_SUPPORTS_KEXEC_PURGATORY */
+> +#endif /* CONFIG_KEXEC_FILE */
+
+If so, we don't need the CONFIG_KEXEC_FILE ifdeffery because the
+file elf_kexec.c relied on CONFIG_KEXEC_FILE enabling to build in.
+We can just remove the "#ifdef CONFIG_KEXEC_FILE..#endif" as x86 does.
+
+>  
+>         /* Add the initrd to the image */
+>         if (initrd != NULL) {
+> diff --git a/arch/riscv/Kbuild b/arch/riscv/Kbuild
+> index d25ad1c19f88..ab181d187c23 100644
+> --- a/arch/riscv/Kbuild
+> +++ b/arch/riscv/Kbuild
+> @@ -5,7 +5,7 @@ obj-$(CONFIG_BUILTIN_DTB) += boot/dts/
+>  obj-y += errata/
+>  obj-$(CONFIG_KVM) += kvm/
+>  
+> -obj-$(CONFIG_ARCH_SUPPORTS_KEXEC_PURGATORY) += purgatory/
+> +obj-$(CONFIG_KEXEC_FILE) += purgatory/
+>  
+>  # for cleaning
+>  subdir- += boot
+> diff --git a/arch/s390/Kbuild b/arch/s390/Kbuild
+> index a5d3503b353c..361aa01dbd49 100644
+> --- a/arch/s390/Kbuild
+> +++ b/arch/s390/Kbuild
+> @@ -7,7 +7,7 @@ obj-$(CONFIG_S390_HYPFS)        += hypfs/
+>  obj-$(CONFIG_APPLDATA_BASE)    += appldata/
+>  obj-y                          += net/
+>  obj-$(CONFIG_PCI)              += pci/
+> -obj-$(CONFIG_ARCH_SUPPORTS_KEXEC_PURGATORY) += purgatory/
+> +obj-$(CONFIG_KEXEC_FILE)       += purgatory/
+>  
+>  # for cleaning
+>  subdir- += boot tools
+> 
+
