@@ -2,121 +2,115 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 930D0C25B67
-	for <linux-s390@archiver.kernel.org>; Thu, 26 Oct 2023 18:18:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6D77C25B6B
+	for <linux-s390@archiver.kernel.org>; Thu, 26 Oct 2023 18:32:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230205AbjJZSSr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 26 Oct 2023 14:18:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40128 "EHLO
+        id S230078AbjJZSc7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 26 Oct 2023 14:32:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231625AbjJZSSq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Oct 2023 14:18:46 -0400
+        with ESMTP id S230205AbjJZSc6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Oct 2023 14:32:58 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2294192;
-        Thu, 26 Oct 2023 11:18:43 -0700 (PDT)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39QIEZ30017809;
-        Thu, 26 Oct 2023 18:18:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=qVfPEdY12sude9qpb6x/6PCFbJmpKdpptoj/LQcqZfM=;
- b=cFdLibiL/4C0OS+i048SwImrl+sFyn1g0PeqNmLQ4X1yGu04Rn8ZlIioz2G5jL5HVM84
- lyPiw5kIrBFUjdXVMQW8M0rGlsATXna2NV380dH3k3RF4/EjPvfrYB4hEQ9WAbP1oxQX
- M78CiWMz1R/RhUpnybYIH2UQBEUELrOpozi9plmGHePod1iCFsihf3XNt5UoqMHtuOww
- 1Ah8nKUyFIL7JiDNfcsOYTeLy8ziuiWILUgKcdj4YIXNRQq4RbmRjuaxp4C0qMnH7giu
- RDVuTo3ZGElQa9B7n1AHV6KVXk4YuGN42Jf6PuLhUW4uIn/MAoQWRR/VWTpS/J4OCIlG sw== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3179A1B8;
+        Thu, 26 Oct 2023 11:32:56 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39QIFKOY015487;
+        Thu, 26 Oct 2023 18:32:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=I8g4WZ45keuK5ZPWXm39AOm5K/MtLpijoPesCUiKBXg=;
+ b=GrHbGePUe4epRO8pC6Fe95gdJFepVx4BrkOJvaVRxF6OI8+PGPTlabfvM21rDWkuf9N9
+ R5wI2rffjWFTK+p5Cxp1wf+lgnr/10haonQrH93PME/AfWB6kmuo2P/HycFLkBDorO4z
+ HeRvLFLip8jF6G4M0Xynojn/Irc6LpGcLRH/U0CHFi5o1+UYNjREhaA7JPPEvLm7tMmj
+ quq8fpKr5Fxiux5oHF6uQ7GEAxPWPo/58cruuufpAOZ/UwYrqLq/BASVFj87uqRwcF0e
+ jCwrx5GiklqircyJRPU2/Icn9ZBTG/WUPKqYOeXpqedZvUrUfoyVoxfWmEVaNpcuIAKy YA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tyw7fr4mw-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tyw7m0f0j-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 26 Oct 2023 18:18:42 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39QIFSE5023224;
-        Thu, 26 Oct 2023 18:18:42 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tyw7fr4mh-1
+        Thu, 26 Oct 2023 18:32:55 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39QIGoCa019174;
+        Thu, 26 Oct 2023 18:32:54 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tyw7m0f06-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 26 Oct 2023 18:18:42 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39QHUSVr026878;
-        Thu, 26 Oct 2023 18:18:41 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tvsyp7y0e-1
+        Thu, 26 Oct 2023 18:32:54 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39QI46gx024397;
+        Thu, 26 Oct 2023 18:32:54 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tvu6kfs1k-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 26 Oct 2023 18:18:41 +0000
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-        by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39QIIehY64487752
+        Thu, 26 Oct 2023 18:32:53 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+        by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39QIWqcB52035950
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 26 Oct 2023 18:18:41 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C9DD358056;
-        Thu, 26 Oct 2023 18:18:40 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 17B2858052;
-        Thu, 26 Oct 2023 18:18:40 +0000 (GMT)
-Received: from [9.61.161.121] (unknown [9.61.161.121])
-        by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 26 Oct 2023 18:18:39 +0000 (GMT)
-Message-ID: <425ba458-3eba-4742-930d-1248be2c2cd3@linux.ibm.com>
-Date:   Thu, 26 Oct 2023 14:18:39 -0400
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 3/3] s390/vfio-ap: improve reaction to response code 07
- from PQAP(AQIC) command
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Thu, 26 Oct 2023 18:32:52 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8EB2F58056;
+        Thu, 26 Oct 2023 18:32:52 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B39FE58052;
+        Thu, 26 Oct 2023 18:32:51 +0000 (GMT)
+Received: from li-2c1e724c-2c76-11b2-a85c-ae42eaf3cb3d.ibm.com.com (unknown [9.61.161.121])
+        by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 26 Oct 2023 18:32:51 +0000 (GMT)
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org
 Cc:     jjherne@linux.ibm.com, pasic@linux.ibm.com,
         borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com
-References: <20231018133829.147226-1-akrowiak@linux.ibm.com>
- <20231018133829.147226-4-akrowiak@linux.ibm.com>
- <0bed3d29-7fb1-d56d-5f12-e2010ae7d97f@linux.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <0bed3d29-7fb1-d56d-5f12-e2010ae7d97f@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        imbrenda@linux.ibm.com, david@redhat.com, mjrosato@linux.ibm.com
+Subject: [PATCH v3 0/3] a couple of corrections to the IRQ enablement function
+Date:   Thu, 26 Oct 2023 14:32:42 -0400
+Message-ID: <20231026183250.254432-1-akrowiak@linux.ibm.com>
+X-Mailer: git-send-email 2.41.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: sB2KYg-oJIwPyNuaaK5HFwsVLqWdNtpy
-X-Proofpoint-GUID: Qd7b1hmbPOGqG2axWloFvVZO9-_qCLyz
+X-Proofpoint-ORIG-GUID: -KSTEzUt464HNTkbBlR6yfkeZcHLZmF6
+X-Proofpoint-GUID: rmJ9Adbdo4cYaeUfMmxiJszqvmTELMVZ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-10-26_16,2023-10-26_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- priorityscore=1501 spamscore=0 malwarescore=0 clxscore=1015
- impostorscore=0 suspectscore=0 phishscore=0 mlxlogscore=945
- lowpriorityscore=0 mlxscore=0 adultscore=0 classifier=spam adjust=0
- reason=mlx scancount=1 engine=8.12.0-2310170001
- definitions=main-2310260158
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 lowpriorityscore=0 mlxlogscore=999 adultscore=0
+ suspectscore=0 bulkscore=0 mlxscore=0 clxscore=1015 spamscore=0
+ priorityscore=1501 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2310170001 definitions=main-2310260158
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+This series corrects two issues related to enablement of interrupts in 
+response to interception of the PQAP(AQIC) command:
 
+1. Returning a status response code 06 (Invalid address of AP-queue 
+   notification byte) when the call to register a guest ISC fails makes no
+   sense.
+   
+2. The pages containing the interrupt notification-indicator byte are not
+   freed after a failure to register the guest ISC fails.
 
-On 10/26/23 10:15, Matthew Rosato wrote:
-> On 10/18/23 9:38 AM, Tony Krowiak wrote:
->> Let's improve the vfio_ap driver's reaction to reception of response code
->> 07 from the PQAP(AQIC) command when enabling interrupts on behalf of a
->> guest:
->>
->> * Unregister the guest's ISC before the pages containing the notification
->>    indicator bytes are unpinned.
->>
->> * Capture the return code from the kvm_s390_gisc_unregister function and
->>    log a DBF warning if it fails.
->>
->> Suggested-by: Matthew Rosato <mjrosato@linux.ibm.com>
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> 
-> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> 
-> I went back-and-forth on whether this should be a stable/fixes candidate but I think no...  I happened to notice it while reviewing other code, I'm not aware that it's ever created a visible issue, and it's on a pretty immediate error path.  If anyone thinks it should be a stable candidate I have no objection but in that case would suggest to break the patch up to separate the new WARN from the fix.
+Change log v2 ==> v3:
+--------------------
+* Added 'Co-developed-by' for Janosch (Christian)
 
-Nothing has ever been reported and is probably very unlikely to be 
-reported; so, I agree it should not be a stable/fixes candidate.
+* Added 'Reviewed-by' tag for Matt Rosato (Matt)
 
-> 
-> 
-> 
+Anthony Krowiak (2):
+  s390/vfio-ap: unpin pages on gisc registration failure
+  s390/vfio-ap: set status response code to 06 on gisc registration
+    failure
+
+Tony Krowiak (1):
+  s390/vfio-ap: improve reaction to response code 07 from PQAP(AQIC)
+    command
+
+ drivers/s390/crypto/vfio_ap_ops.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+-- 
+2.41.0
+
