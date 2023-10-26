@@ -2,104 +2,121 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0EA9C25B67
-	for <linux-s390@archiver.kernel.org>; Thu, 26 Oct 2023 14:59:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 930D0C25B67
+	for <linux-s390@archiver.kernel.org>; Thu, 26 Oct 2023 18:18:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231482AbjJZO7h convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 26 Oct 2023 10:59:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49820 "EHLO
+        id S230205AbjJZSSr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 26 Oct 2023 14:18:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231477AbjJZO7g (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Oct 2023 10:59:36 -0400
-Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84B65187;
-        Thu, 26 Oct 2023 07:59:32 -0700 (PDT)
-Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-53dd3f169d8so1510861a12.3;
-        Thu, 26 Oct 2023 07:59:32 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1698332371; x=1698937171;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=0zqVne5kt5gdp1Lm2joR84aZ94MORpFkf1BW3//kdMk=;
-        b=Is8Ny08Q6Cla/8/h3MLekcRpaoyX5FBhJoGV8FWGY5eq6JI1dCBvGDt4uzDENn9Fqw
-         WybNJdJuXCRmPOgQzqeDom4cOj8RouzFjDyxLuRFLY+IZCyLXT3hiv5PGNoGxxx14p9O
-         opGLCgdD2pY7dR2BTuRx7Gdg7WEd6t3fd3IRuQelLqKmjyKeLLH7hDKKAGILd3ikpByO
-         0IpcnP8D/k7ZQTGZPBuTJ+rHG55CPeUZ9RMK0a+GJJvWPCNXlCKflrkDUHOzbsefmSTY
-         mFuhKwxE62IY+Mv4UfBuRh1PQJR/j/xJ7WoTlx4KBKDvquNnjUw1z4kXxzlr1eouIDVW
-         4L9A==
-X-Gm-Message-State: AOJu0YyXpLdk8bEd8wSEj8f9fLPnvHo1K3EqZcG9K+1CfDUEeZwAz0d3
-        udkVCjN/bJZ+ahrEWyC9gR4CsgVB24+npYIb7Qk=
-X-Google-Smtp-Source: AGHT+IHLg8ZbKdKeQ7Sbgl7WtbZtflsd3XeCqa50alQqc122ppmD9DEO8sF9qLZcg/WlezBTDxe5EA==
-X-Received: by 2002:a17:907:9618:b0:9a2:139:f45d with SMTP id gb24-20020a170907961800b009a20139f45dmr13995455ejc.43.1698332370519;
-        Thu, 26 Oct 2023 07:59:30 -0700 (PDT)
-Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com. [209.85.208.45])
-        by smtp.gmail.com with ESMTPSA id b24-20020a170906039800b0098669cc16b2sm11654840eja.83.2023.10.26.07.59.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 26 Oct 2023 07:59:30 -0700 (PDT)
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-533d31a8523so1517352a12.1;
-        Thu, 26 Oct 2023 07:59:30 -0700 (PDT)
-X-Received: by 2002:aa7:d394:0:b0:53f:f908:eda8 with SMTP id
- x20-20020aa7d394000000b0053ff908eda8mr45086edq.4.1698332370208; Thu, 26 Oct
- 2023 07:59:30 -0700 (PDT)
+        with ESMTP id S231625AbjJZSSq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Oct 2023 14:18:46 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2294192;
+        Thu, 26 Oct 2023 11:18:43 -0700 (PDT)
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39QIEZ30017809;
+        Thu, 26 Oct 2023 18:18:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=qVfPEdY12sude9qpb6x/6PCFbJmpKdpptoj/LQcqZfM=;
+ b=cFdLibiL/4C0OS+i048SwImrl+sFyn1g0PeqNmLQ4X1yGu04Rn8ZlIioz2G5jL5HVM84
+ lyPiw5kIrBFUjdXVMQW8M0rGlsATXna2NV380dH3k3RF4/EjPvfrYB4hEQ9WAbP1oxQX
+ M78CiWMz1R/RhUpnybYIH2UQBEUELrOpozi9plmGHePod1iCFsihf3XNt5UoqMHtuOww
+ 1Ah8nKUyFIL7JiDNfcsOYTeLy8ziuiWILUgKcdj4YIXNRQq4RbmRjuaxp4C0qMnH7giu
+ RDVuTo3ZGElQa9B7n1AHV6KVXk4YuGN42Jf6PuLhUW4uIn/MAoQWRR/VWTpS/J4OCIlG sw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tyw7fr4mw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 26 Oct 2023 18:18:42 +0000
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39QIFSE5023224;
+        Thu, 26 Oct 2023 18:18:42 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tyw7fr4mh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 26 Oct 2023 18:18:42 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39QHUSVr026878;
+        Thu, 26 Oct 2023 18:18:41 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tvsyp7y0e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 26 Oct 2023 18:18:41 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+        by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39QIIehY64487752
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 26 Oct 2023 18:18:41 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C9DD358056;
+        Thu, 26 Oct 2023 18:18:40 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 17B2858052;
+        Thu, 26 Oct 2023 18:18:40 +0000 (GMT)
+Received: from [9.61.161.121] (unknown [9.61.161.121])
+        by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 26 Oct 2023 18:18:39 +0000 (GMT)
+Message-ID: <425ba458-3eba-4742-930d-1248be2c2cd3@linux.ibm.com>
+Date:   Thu, 26 Oct 2023 14:18:39 -0400
 MIME-Version: 1.0
-References: <CAO8sHcn3+_qrnvp0580aK7jN0Wion5F7KYeBAa4MnCY4mqABPA@mail.gmail.com>
- <20231026145659.7063-A-hca@linux.ibm.com>
-In-Reply-To: <20231026145659.7063-A-hca@linux.ibm.com>
-From:   Neal Gompa <ngompa@fedoraproject.org>
-Date:   Thu, 26 Oct 2023 10:58:53 -0400
-X-Gmail-Original-Message-ID: <CAEg-Je_ncGOFXVWHztqoZZUJqu+UR_U_WWwPgnhzOUqNWOkwiQ@mail.gmail.com>
-Message-ID: <CAEg-Je_ncGOFXVWHztqoZZUJqu+UR_U_WWwPgnhzOUqNWOkwiQ@mail.gmail.com>
-Subject: Re: s390x stack unwinding with perf?
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Daan De Meyer <daan.j.demeyer@gmail.com>,
-        linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        Andreas Krebbel <krebbel@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Davide Cavalca <dcavalca@meta.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 3/3] s390/vfio-ap: improve reaction to response code 07
+ from PQAP(AQIC) command
+Content-Language: en-US
+To:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     jjherne@linux.ibm.com, pasic@linux.ibm.com,
+        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com
+References: <20231018133829.147226-1-akrowiak@linux.ibm.com>
+ <20231018133829.147226-4-akrowiak@linux.ibm.com>
+ <0bed3d29-7fb1-d56d-5f12-e2010ae7d97f@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <0bed3d29-7fb1-d56d-5f12-e2010ae7d97f@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: sB2KYg-oJIwPyNuaaK5HFwsVLqWdNtpy
+X-Proofpoint-GUID: Qd7b1hmbPOGqG2axWloFvVZO9-_qCLyz
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-26_16,2023-10-26_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ priorityscore=1501 spamscore=0 malwarescore=0 clxscore=1015
+ impostorscore=0 suspectscore=0 phishscore=0 mlxlogscore=945
+ lowpriorityscore=0 mlxscore=0 adultscore=0 classifier=spam adjust=0
+ reason=mlx scancount=1 engine=8.12.0-2310170001
+ definitions=main-2310260158
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Oct 26, 2023 at 10:57 AM Heiko Carstens <hca@linux.ibm.com> wrote:
->
-> On Thu, Oct 26, 2023 at 02:30:41PM +0200, Daan De Meyer wrote:
-> > Hi,
-> >
-> > As part of enabling frame pointers system wide for Fedora to get fast
-> > system wide stack unwinding, we're now looking to do the same for
-> > s390x after previously enabling frame pointers for x86-64 and aarch64.
-> > From what we can find, on s390x stack unwinding is done via the
-> > "-mbackchain" compiler option. However, from some early experiments
-> > rebuilding a small part of the distro, this option alone does not seem
-> > to result in usable stack traces in perf (perf record -g => perf
-> > report).
-> >
-> > Are there any other compiler options that need to be enabled in order
-> > to get usable stack traces in perf for s390x? Has anyone managed to
-> > get this working before?
->
-> So, are you saying that you want to enable "-mbackchain" for whole user
-> space for Fedora? If that is the case, what certainly is missing is kernel
-> support to unwind user space stack frames from the kernel, since until now
-> no distribution had user space where it would be possible to unwind the
-> user space stack from the kernel; which is the reason why this was never
-> implemented.
->
-> If this (or some other compiler options) will be enabled for user space, we
-> need to add kernel support in order to make this work.
-
-Yes, the idea is that we'd want to have this supported in Fedora to
-match all the other architectures where "-fno-omit-frame-pointer" is
-used.
 
 
+On 10/26/23 10:15, Matthew Rosato wrote:
+> On 10/18/23 9:38 AM, Tony Krowiak wrote:
+>> Let's improve the vfio_ap driver's reaction to reception of response code
+>> 07 from the PQAP(AQIC) command when enabling interrupts on behalf of a
+>> guest:
+>>
+>> * Unregister the guest's ISC before the pages containing the notification
+>>    indicator bytes are unpinned.
+>>
+>> * Capture the return code from the kvm_s390_gisc_unregister function and
+>>    log a DBF warning if it fails.
+>>
+>> Suggested-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> 
+> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> 
+> I went back-and-forth on whether this should be a stable/fixes candidate but I think no...  I happened to notice it while reviewing other code, I'm not aware that it's ever created a visible issue, and it's on a pretty immediate error path.  If anyone thinks it should be a stable candidate I have no objection but in that case would suggest to break the patch up to separate the new WARN from the fix.
 
---
-Neal Gompa (FAS: ngompa)
+Nothing has ever been reported and is probably very unlikely to be 
+reported; so, I agree it should not be a stable/fixes candidate.
+
+> 
+> 
+> 
