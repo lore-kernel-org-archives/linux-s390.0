@@ -2,177 +2,140 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 905C5C25B47
-	for <linux-s390@archiver.kernel.org>; Fri, 27 Oct 2023 16:36:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAFCAC25B47
+	for <linux-s390@archiver.kernel.org>; Fri, 27 Oct 2023 17:16:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231721AbjJ0Qgb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 27 Oct 2023 12:36:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53198 "EHLO
+        id S235248AbjJ0RQx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 27 Oct 2023 13:16:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231669AbjJ0Qg3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Oct 2023 12:36:29 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C03710A;
-        Fri, 27 Oct 2023 09:36:27 -0700 (PDT)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39RGRnmV006484;
-        Fri, 27 Oct 2023 16:36:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=dBNzKf8TYsgPTt0drQJ8VtmCCbSATVBzvyfVbIMYBzE=;
- b=X3rScWNCGUl3BQjXgdYq+zg+E2iQveZXAj0fgn8I6kwfB9YFeWeS9F3IEbjb96I+IAcO
- dpND7VkxZUWV73XT/rjR/BZ7qvNBcAcrEt16Bj5mEJsdJNzNwfITLvTTOclp+M9bIagd
- xYKCMEQb+YrE2pqwboI2MUEAb55FRXYATxC0s0uCTf7m3Wsd8C+9M/TeuVameBsXcrY/
- amPlRwyTFqKmlqG/5oBzlW4CujMM+bYgd78oGCvlVGBXQ60GBt60fraaCJXA6uD1nPAl
- WfV/GzpkKVTYlTbYUDb7JKqCYtKYqqDwr+gzRcJgEskFjsJ9unUIvC6oHyy2b1SMXTRG Zg== 
+        with ESMTP id S235169AbjJ0RQk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Oct 2023 13:16:40 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2FCA728C;
+        Fri, 27 Oct 2023 10:07:03 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39RGxmjE014112;
+        Fri, 27 Oct 2023 17:07:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=9PiBRvuTQVipxlh/1jsfRJuy0oTJAEeGNzQ1zi8CZWA=;
+ b=ab+/CCMjyO0AYDXi1iMOh3K3l7Ez7Mak2ETNklXC7Uv5YBtQBVTqx4llM6d/lIqJsfry
+ x7l3Oxqw7OdtX7qNHv8UsLHictFnpdnNo3ueEZZSV5eE5+FKPxbfsnNS+Gj82gvXlC0H
+ VlAnlBas6rD7m0PojUgChKSO+gZv2VyaUmBRbl6tlpN837bhePfXfXanFNsxsc94jp1C
+ PHCo9mMYZKba1mZk6Q2kpHTJnmfzoJDvWfaGQXry4pXi9tvPgwLaj2e/LIcXF6Pgmfjv
+ oXnKhGDlSyhkCXk4A3VFhw8fEFBiQJ2gSNduCboFA7ZPvAagDZSJ4NR5g9baXl5FcIfc TA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u0gr787va-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u0h76g5q4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 Oct 2023 16:36:22 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39RGYahM029335;
-        Fri, 27 Oct 2023 16:36:21 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u0gr787up-1
+        Fri, 27 Oct 2023 17:07:02 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39RH2SSe024216;
+        Fri, 27 Oct 2023 17:07:01 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u0h76g5pu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 Oct 2023 16:36:21 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39RG5oN6025448;
-        Fri, 27 Oct 2023 16:36:20 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tywqrx9jg-1
+        Fri, 27 Oct 2023 17:07:01 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39RGDip1011341;
+        Fri, 27 Oct 2023 17:07:01 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tywqr6fwd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 27 Oct 2023 16:36:20 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39RGaHk8787098
+        Fri, 27 Oct 2023 17:07:01 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+        by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39RH6xB132506552
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 27 Oct 2023 16:36:17 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A12EF2004B;
-        Fri, 27 Oct 2023 16:36:17 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D298520040;
-        Fri, 27 Oct 2023 16:36:16 +0000 (GMT)
-Received: from li-978a334c-2cba-11b2-a85c-a0743a31b510.ibm.com (unknown [9.179.1.132])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 27 Oct 2023 16:36:16 +0000 (GMT)
-Message-ID: <0f132157ec6437326c6bd63f8be18976b19f058a.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH 00/10] s390x: topology: Fixes and
- extension
-From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>,
-        Andrew Jones <andrew.jones@linux.dev>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Colton Lewis <coltonlewis@google.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Nikos Nikoleris <nikos.nikoleris@arm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Shaoqin Huang <shahuang@redhat.com>,
-        Thomas Huth <thuth@redhat.com>
-Cc:     linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        kvm@vger.kernel.org, Ricardo Koller <ricarkol@google.com>
-Date:   Fri, 27 Oct 2023 18:36:12 +0200
-In-Reply-To: <169823651572.67523.10556581938548735484@t14-nrb>
-References: <20231020144900.2213398-1-nsg@linux.ibm.com>
-         <169823651572.67523.10556581938548735484@t14-nrb>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+        Fri, 27 Oct 2023 17:07:00 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D81A058045;
+        Fri, 27 Oct 2023 17:06:58 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F2DCF58052;
+        Fri, 27 Oct 2023 17:06:57 +0000 (GMT)
+Received: from [9.61.163.200] (unknown [9.61.163.200])
+        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 27 Oct 2023 17:06:57 +0000 (GMT)
+Message-ID: <1aa17b46-18ce-403d-b511-ee6c8f7142b3@linux.ibm.com>
+Date:   Fri, 27 Oct 2023 13:06:57 -0400
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 2/3] s390/vfio-ap: set status response code to 06 on
+ gisc registration failure
+Content-Language: en-US
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com,
+        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com
+References: <20231018133829.147226-1-akrowiak@linux.ibm.com>
+ <20231018133829.147226-3-akrowiak@linux.ibm.com>
+ <20231027125638.67a65ab9.pasic@linux.ibm.com>
+ <8eb41445-1eff-4da7-830f-156f420afd5d@linux.ibm.com>
+ <20231027160347.05c6cd60.pasic@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <20231027160347.05c6cd60.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Ddesj4U5-InKb5xYkgmC4-BzAXmTOYoj
-X-Proofpoint-ORIG-GUID: Q1Yv0u0EPaVkoPDF7ZPhCXOzJOb87oa_
+X-Proofpoint-GUID: XyDmZpMoXmLgfpGRua-eqUyAGojE7jEm
+X-Proofpoint-ORIG-GUID: 9Uz6woctzq8CYCJX1jkkdMRQTRpqYpv-
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-10-27_15,2023-10-27_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- priorityscore=1501 mlxlogscore=999 malwarescore=0 spamscore=0 phishscore=0
- clxscore=1015 impostorscore=0 suspectscore=0 lowpriorityscore=0
- bulkscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2310240000 definitions=main-2310270143
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
+ suspectscore=0 phishscore=0 mlxlogscore=988 priorityscore=1501 mlxscore=0
+ spamscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310240000 definitions=main-2310270146
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2023-10-25 at 14:21 +0200, Nico Boehr wrote:
-> Quoting Nina Schoetterl-Glausch (2023-10-20 16:48:50)
-> > v1 -> v2:
-> >  * patch 1, introducing enums (Janosch)
-> >  * add comment explaining 8 alignment of stsi block length
-> >  * unsigned cpu_in_masks, iteration (Nico)
-> >  * fix copy paste error when checking ordering (thanks Nina)
-> >  * don't escape newline when \\ at end of line in multiline string
-> >  * change commit messages (thanks Janosch, thanks Nico)
-> >  * pick up tags (thanks Janosch, thanks Nico)
-> >=20
-> > Fix a number of issues as well as rewrite and extend the topology list
-> > checking.
-> > Add a test case with a complex topology configuration.
-> > In order to keep the unittests.cfg file readable, implement multiline
-> > strings for extra_params.
->=20
-> Thanks, I've pushed this to our CI for coverage.
 
-And it found some problems.
-Want me to resend the series or just fixup patches?
-Preview (copy pasted):
---- a/s390x/topology.c
-+++ b/s390x/topology.c
-@@ -294,25 +294,38 @@ static union topology_container *check_child_cpus(str=
-uct sysinfo_15_1_x *info,
- {
-        void *last =3D ((void *)info) + info->length;
-        union topology_cpu *prev_cpu =3D NULL;
-+       bool correct_ordering =3D true;
-        unsigned int cpus =3D 0;
-        int i;
 
--       for (i =3D 0; (void *)&child[i] < last && child[i].nl =3D=3D 0; i++=
-) {
-+       for (i =3D 0; (void *)&child[i] < last && child[i].nl =3D=3D 0; pre=
-v_cpu =3D &child[i++]) {
-                cpus +=3D check_cpu(&child[i], cont);
-                if (prev_cpu) {
--                       report(prev_cpu->type <=3D child[i].type, "Correct =
-ordering wrt type");
-+                       if (prev_cpu->type > child[i].type) {
-+                               report_info("Incorrect ordering wrt type fo=
-r child %d", i);
-+                               correct_ordering =3D false;
-+                       }
-                        if (prev_cpu->type < child[i].type)
-                                continue;
--                       report(prev_cpu->pp >=3D child[i].pp, "Correct orde=
-ring wrt polarization");
-+                       if (prev_cpu->pp < child[i].pp) {
-+                               report_info("Incorrect ordering wrt polariz=
-ation for child %d", i);
-+                               correct_ordering =3D false;
-+                       }
-                        if (prev_cpu->pp > child[i].pp)
-                                continue;
--                       report(prev_cpu->d || !child[i].d, "Correct orderin=
-g wrt dedication");
-+                       if (!prev_cpu->d && child[i].d) {
-+                               report_info("Incorrect ordering wrt dedicat=
-ion for child %d", i);
-+                               correct_ordering =3D false;
-+                       }
-                        if (prev_cpu->d && !child[i].d)
-                                continue;
--                       report(prev_cpu->origin <=3D child[i].origin, "Corr=
-ect ordering wrt origin");
-+                       if (prev_cpu->origin > child[i].origin) {
-+                               report_info("Incorrect ordering wrt origin =
-for child %d", i);
-+                               correct_ordering =3D false;
-+                       }
-                }
--               prev_cpu =3D &child[i];
-        }
-+       report(correct_ordering, "children correctly ordered");
-        report(cpus <=3D expected_topo_lvl[0], "%d children <=3D max of %d"=
-,
-               cpus, expected_topo_lvl[0]);
-        *cpus_in_masks +=3D cpus;
+On 10/27/23 10:03, Halil Pasic wrote:
+> On Fri, 27 Oct 2023 09:36:26 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+> 
+>>>> The interception handler for the PQAP(AQIC) command calls the
+>>>> kvm_s390_gisc_register function to register the guest ISC with the channel
+>>>> subsystem. If that call fails, the status response code 08 - indicating
+>>>> Invalid ZONE/GISA designation - is returned to the guest. This response
+>>>> code does not make sense because the non-zero return code from the
+>>>> kvm_s390_gisc_register function can be due one of two things: Either the
+>>>> ISC passed as a parameter by the guest to the PQAP(AQIC) command is greater
+>>>> than the maximum ISC value allowed, or the guest is not using a GISA.
+>>>
+>>> The "ISC passed as a parameter by the guest to the PQAP(AQIC) command is
+>>> greater than the maximum ISC value allowed" is not possible. The isc is
+>>> 3 bits wide and all 8 values that can be represented on 3 bits are valid.
+>>>
+>>> This is only possible if the hypervisor was to mess up, or if the machine
+>>> was broken.
+>>
+>> kvm_s390_gisc_register(struct kvm *kvm, u32 gisc)
+>> {
+>> 	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
+>>
+>> 	if (!gi->origin)
+>> 		return -ENODEV;
+>> 	if (gisc > MAX_ISC)
+>> 		return -ERANGE;
+>> ...
+>>
+>> Just quoting what is in the code.
+> 
+> Right! But it is not the guest that calls this function directly. This
+> function is called by the vfio_ap code.
+> 
+> The guest passes ISC in bits 61, 62 and 63 of GR1.
+> 
+> So the guest can't give you an invalid value.
+
+Yes, I got it the first time you said that.
+
+> 
+> Regards,
+> Halil
