@@ -2,137 +2,159 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C41FEC25B47
-	for <linux-s390@archiver.kernel.org>; Fri, 27 Oct 2023 08:01:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37C78C25B47
+	for <linux-s390@archiver.kernel.org>; Fri, 27 Oct 2023 08:26:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230523AbjJ0IBL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 27 Oct 2023 04:01:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46080 "EHLO
+        id S1345515AbjJ0I0F (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 27 Oct 2023 04:26:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234816AbjJ0IBH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Oct 2023 04:01:07 -0400
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EAEA1B4;
-        Fri, 27 Oct 2023 01:01:05 -0700 (PDT)
-Received: by mail-pf1-x432.google.com with SMTP id d2e1a72fcca58-6bd32d1a040so1758482b3a.3;
-        Fri, 27 Oct 2023 01:01:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1698393664; x=1698998464; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=HcgTb1uk+LNET/CdwAZQedqtTls7gJN7u/d99YpV55w=;
-        b=P/eFvflarEUqQj5mTndnOvUNh5X8QKTacIA01uiR+572YFSR96Mo4NknFcqcTNjchf
-         bAUsFMdoEZVdSgvsCPPXcVG2KD4xSUna28Jax0+S86KLTqH6Wc45HQQtZeqzWygUn6Lm
-         Y8CxirOe7UbgWJl73QVASFXT26LaN7sg15xhVlq9ABydTa06/xNRgXhXREcW2e5LOJYE
-         xCqjGPHwO4mfHgS7LyIJ6hfEZHWQmeomYiGvmuFUVy0WkTZBkr7UmHcpa1MN7FzcpqdP
-         esubUsLEZkzyWwfWtMktqOu9KwlzgjzZp3GB+Jn9dnn870Dj+2awNiAlc1q+FwPobNBW
-         H5DA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1698393664; x=1698998464;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=HcgTb1uk+LNET/CdwAZQedqtTls7gJN7u/d99YpV55w=;
-        b=leCieb8cETS0ggutk7wnGcWB1Dd1jirgsDqFcgEGIxWok5qRHyyQuTrNdWt1UEL1s6
-         uvrnKIv1C7RplmF0PH+gRHG3jbxL6StJ66R6jTCbIG7PIxhSAAeqtpRM8H19FC/Ff7Hk
-         LFq+Bwltnj4j7l/ib3GBFZcPJLWCtgNUU1pF6Emx1hqX4OBULyEknBDkbxs33QoLYTTW
-         jwecJM0bcMk/r8WWUl6fZz+PXkMKiidTxHM32cobcEeAcSw6oIk8oN30YWJHtthsHDKN
-         bATrvPipyklk7SncsqfiuYfcTpE4D75gsAPAjhLFi/U5HWQ0ol7MSEH7jzJsZzSgVX7M
-         7epQ==
-X-Gm-Message-State: AOJu0YzEPLRpVPM6S2906Id2mIfl3aUb46RWPDvr802mmkIKAJrnuPKp
-        k7deiILv90PySKDRPCzmo5P13hBGJbwKD058mgpCai+WL8KeeMsu
-X-Google-Smtp-Source: AGHT+IE+cWamXBpcNmOndSqM2PXeMYmq4wS3kkttK+0iU1/3Sst/PqOIa91Kf4ZC1XQ3lTMcsohN1Eq96Oc3+EdeRWA=
-X-Received: by 2002:a17:90a:7563:b0:27d:853:9109 with SMTP id
- q90-20020a17090a756300b0027d08539109mr1881208pjk.20.1698393664495; Fri, 27
- Oct 2023 01:01:04 -0700 (PDT)
+        with ESMTP id S1345539AbjJ0I0C (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Oct 2023 04:26:02 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 422891AD;
+        Fri, 27 Oct 2023 01:25:59 -0700 (PDT)
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39R85X43005432;
+        Fri, 27 Oct 2023 08:25:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=mime-version : date :
+ from : to : cc : subject : reply-to : in-reply-to : references :
+ message-id : content-type : content-transfer-encoding; s=pp1;
+ bh=Ydc/j18p3b7EHQ/VYDnN7DJ8GH9rECYSsKAj2yxuRrQ=;
+ b=k66R5I553ezE4knFNEcqmh3oSuHjdXdaM3AV1isaoW7CI+h3BK+kPzpAIfH53POJxwH3
+ NjcTuA+WbcO9n0ceR/qnTYltbHI5Ts25YeyqeIaq3e+Z7blpiqyyyiqkoYfGzFy1aMfX
+ 8AavoLfekBiyM+NqyJ2rbkNdYEVA4JERyQkOhGAhi/T2zM9DEE1DUG2023j6bIQSlSxH
+ 5ywAWepNFTaIib4UFh3nSdErfzUmVicq7ojh3T2wkp1WWVWx94Ox2p2QiTkCIAzIzn/u
+ 4rrTLBJ/ynUuviRDTUW132NDGcM+8wgKQuRvXwUkhur3kWf0mzapg3JJuD0NXldo97+F Lg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u09cyrnmk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 27 Oct 2023 08:25:58 +0000
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39R85VFS005360;
+        Fri, 27 Oct 2023 08:25:57 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u09cyrnkx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 27 Oct 2023 08:25:57 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39R7phEO021554;
+        Fri, 27 Oct 2023 08:25:57 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tywqrbrbk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 27 Oct 2023 08:25:57 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+        by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39R8PtYd8651374
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 27 Oct 2023 08:25:56 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B090058055;
+        Fri, 27 Oct 2023 08:25:55 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C16225803F;
+        Fri, 27 Oct 2023 08:25:54 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+        by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 27 Oct 2023 08:25:54 +0000 (GMT)
 MIME-Version: 1.0
-References: <CAO8sHcn3+_qrnvp0580aK7jN0Wion5F7KYeBAa4MnCY4mqABPA@mail.gmail.com>
- <20231026145659.7063-A-hca@linux.ibm.com>
-In-Reply-To: <20231026145659.7063-A-hca@linux.ibm.com>
-From:   Daan De Meyer <daan.j.demeyer@gmail.com>
-Date:   Fri, 27 Oct 2023 10:00:53 +0200
-Message-ID: <CAO8sHckF_D+SjvGySsGHOpOcdy6y7pwQEF9SfV3sw4Ye4_sCKA@mail.gmail.com>
-Subject: Re: s390x stack unwinding with perf?
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        "dcavalca@meta.com" <dcavalca@meta.com>, ngompa@fedoraproject.org,
-        Andreas Krebbel <krebbel@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
+Date:   Fri, 27 Oct 2023 10:25:54 +0200
+From:   Harald Freudenberger <freude@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com, pasic@linux.ibm.com,
+        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com, mjrosato@linux.ibm.com
+Subject: Re: [PATCH v3 2/3] s390/vfio-ap: set status response code to 06 on
+ gisc registration failure
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <20231026183250.254432-3-akrowiak@linux.ibm.com>
+References: <20231026183250.254432-1-akrowiak@linux.ibm.com>
+ <20231026183250.254432-3-akrowiak@linux.ibm.com>
+Message-ID: <b1ef49cb13547f9c51e47534d3f18e2a@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: WK9z_048pRAA6Uu47XJJisIS8aaRAfUM
+X-Proofpoint-ORIG-GUID: CkPyB9-wDSfB82hIVAlCbVBQIlDjRrQf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-27_06,2023-10-26_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1011
+ lowpriorityscore=0 adultscore=0 spamscore=0 priorityscore=1501
+ mlxlogscore=999 impostorscore=0 malwarescore=0 suspectscore=0 mlxscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310240000 definitions=main-2310270071
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> > Hi,
-> >
-> > As part of enabling frame pointers system wide for Fedora to get fast
-> > system wide stack unwinding, we're now looking to do the same for
-> > s390x after previously enabling frame pointers for x86-64 and aarch64.
-> > From what we can find, on s390x stack unwinding is done via the
-> > "-mbackchain" compiler option. However, from some early experiments
-> > rebuilding a small part of the distro, this option alone does not seem
-> > to result in usable stack traces in perf (perf record -g => perf
-> > report).
-> >
-> > Are there any other compiler options that need to be enabled in order
-> > to get usable stack traces in perf for s390x? Has anyone managed to
-> > get this working before?
->
-> So, are you saying that you want to enable "-mbackchain" for whole user
-> space for Fedora? If that is the case, what certainly is missing is kernel
-> support to unwind user space stack frames from the kernel, since until now
-> no distribution had user space where it would be possible to unwind the
-> user space stack from the kernel; which is the reason why this was never
-> implemented.
->
-> If this (or some other compiler options) will be enabled for user space, we
-> need to add kernel support in order to make this work.
+On 2023-10-26 20:32, Tony Krowiak wrote:
+> From: Anthony Krowiak <akrowiak@linux.ibm.com>
+> 
+> The interception handler for the PQAP(AQIC) command calls the
+> kvm_s390_gisc_register function to register the guest ISC with the 
+> channel
+> subsystem. If that call fails, the status response code 08 - indicating
+> Invalid ZONE/GISA designation - is returned to the guest. This response
+> code does not make sense because the non-zero return code from the
+> kvm_s390_gisc_register function can be due one of two things: Either 
+> the
+> ISC passed as a parameter by the guest to the PQAP(AQIC) command is 
+> greater
+> than the maximum ISC value allowed, or the guest is not using a GISA.
+> 
+> Since this scenario is very unlikely to happen and there is no status
+> response code to indicate an invalid ISC value, let's set the
+> response code to 06 indicating 'Invalid address of AP-queue 
+> notification
+> byte'. While this is not entirely accurate, it is better than 
+> indicating
+> that the ZONE/GISA designation is invalid which is something the guest
+> can do nothing about since those values are set by the hypervisor.
+> 
+> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+> Suggested-by: Halil Pasic <pasic@linux.ibm.com>
+> ---
+>  drivers/s390/crypto/vfio_ap_ops.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c
+> b/drivers/s390/crypto/vfio_ap_ops.c
+> index 9cb28978c186..25d7ce2094f8 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -393,8 +393,8 @@ static int ensure_nib_shared(unsigned long addr,
+> struct gmap *gmap)
+>   * Register the guest ISC to GIB interface and retrieve the
+>   * host ISC to issue the host side PQAP/AQIC
+>   *
+> - * Response.status may be set to AP_RESPONSE_INVALID_ADDRESS in case 
+> the
+> - * vfio_pin_pages failed.
+> + * status.response_code may be set to AP_RESPONSE_INVALID_ADDRESS in 
+> case the
+> + * vfio_pin_pages or kvm_s390_gisc_register failed.
+>   *
+>   * Otherwise return the ap_queue_status returned by the ap_aqic(),
+>   * all retry handling will be done by the guest.
+> @@ -458,7 +458,7 @@ static struct ap_queue_status
+> vfio_ap_irq_enable(struct vfio_ap_queue *q,
+>  				 __func__, nisc, isc, q->apqn);
+> 
+>  		vfio_unpin_pages(&q->matrix_mdev->vdev, nib, 1);
+> -		status.response_code = AP_RESPONSE_INVALID_GISA;
+> +		status.response_code = AP_RESPONSE_INVALID_ADDRESS;
+>  		return status;
+>  	}
 
-If the kernel gets support for s390x user space unwinding using the backchain,
-we'll propose to enable -mbackchain in the default compilation flags for Fedora
-so that s390x on Fedora will have the same profiling experience as x86-64, arm64
-and ppc64. For now we'll keep the status quo since compiling with the backchain
-doesn't provide any benefit until the kernel unwinder can unwind user
-space stacks
-using it.
+Interesting ... The INVALID_GISA is handled in the default arm of the 
+switch
+in ap_queue.c but the INVALID_ADDRESS is handled as irq enablement 
+failed.
+So this change fits more to the current AP bus code. Thanks
 
-Thanks for clarifying the current state of user space stack unwinding on s390x!
-
-Cheers,
-
-Daan
-
-
-
-
-
-On Thu, 26 Oct 2023 at 16:57, Heiko Carstens <hca@linux.ibm.com> wrote:
->
-> On Thu, Oct 26, 2023 at 02:30:41PM +0200, Daan De Meyer wrote:
-> > Hi,
-> >
-> > As part of enabling frame pointers system wide for Fedora to get fast
-> > system wide stack unwinding, we're now looking to do the same for
-> > s390x after previously enabling frame pointers for x86-64 and aarch64.
-> > From what we can find, on s390x stack unwinding is done via the
-> > "-mbackchain" compiler option. However, from some early experiments
-> > rebuilding a small part of the distro, this option alone does not seem
-> > to result in usable stack traces in perf (perf record -g => perf
-> > report).
-> >
-> > Are there any other compiler options that need to be enabled in order
-> > to get usable stack traces in perf for s390x? Has anyone managed to
-> > get this working before?
->
-> So, are you saying that you want to enable "-mbackchain" for whole user
-> space for Fedora? If that is the case, what certainly is missing is kernel
-> support to unwind user space stack frames from the kernel, since until now
-> no distribution had user space where it would be possible to unwind the
-> user space stack from the kernel; which is the reason why this was never
-> implemented.
->
-> If this (or some other compiler options) will be enabled for user space, we
-> need to add kernel support in order to make this work.
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
