@@ -2,84 +2,84 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BB7BC4167D
-	for <linux-s390@archiver.kernel.org>; Mon, 30 Oct 2023 16:04:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E39A4C4167B
+	for <linux-s390@archiver.kernel.org>; Mon, 30 Oct 2023 16:04:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232469AbjJ3QEO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 30 Oct 2023 12:04:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49750 "EHLO
+        id S233776AbjJ3QEP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 30 Oct 2023 12:04:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233782AbjJ3QEL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Oct 2023 12:04:11 -0400
+        with ESMTP id S233801AbjJ3QEM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Oct 2023 12:04:12 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 039A7E4;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3FB8DF;
         Mon, 30 Oct 2023 09:04:09 -0700 (PDT)
 Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39UFGMHL028334;
-        Mon, 30 Oct 2023 16:03:58 GMT
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39UFGK1j028262;
+        Mon, 30 Oct 2023 16:03:59 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=XEFT1vpBsh/Qy1ZUIq/TkJbyFcZcKA0ThT98aOc3XuE=;
- b=T/d/5F6gkayVlvBduzMymTSxmqBgpJnDbahBlDjokP8KaHXQ3/g6hgX+DDqh3F2MT8he
- KK2fyn7IGD9FDD3H6c/h3Skv82MbPVY8emDzwqdRj03IhVRrIzI+oRuu7W5Znd/n1qb5
- AJ9rtQN2IO5jJAI8L1ynjm2PW0XW9o7Rg2UE3sjIfhqrmlkJOqNgBVA310myiSWPxbMd
- FtaoQ2RZJF1TdCsWQbZe3Z0EjUH+Ts7tgkF+53/Ap3SR3AC3LreCTOlHfMZ6HXc1ARp1
- oLJ2FOHGbI27ebOw5G++2dNn0W2fGW4aOjWirY++Y9qPUmMnD6Ltn3LSrz+LAhUIAK+p zA== 
+ bh=Kaz1ZAB6nK3IbptVY/pEWTU37xKrHWxpq8e63wCzV4I=;
+ b=FcfPYZkhDvNo2T8ZxJuZcY5gjRd20JYZvRiOzBmwLhAO0zf3SEOjQbTQVruc0XRItvNa
+ hovVnVMae2HTHTeCE22pginJQYTJOdTM2YqrHlJ30hrOq1FrX6vhs/5HJag6k3q7ZNO7
+ kweW6sc/zKaxGaLLqkI2Sl9m0gND8jnqbHFWN3Nmc3zGb2WlIuNYP8DeCa6UTh6EY54E
+ k9TWVSzkv9zrilr/6pUtdf3faYq9e+aSY7HJOaQaHoBCHSUBrcxf3IWH77/BBd4ZQKZQ
+ 7esHy472q0tJIIGNIiPws4rrlxR4ubuUcQ3sfbYvky2lMKPp3X1uBjz7WchXxlFX34Te iw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u2escsv0c-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u2escsv1p-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 Oct 2023 16:03:57 +0000
+        Mon, 30 Oct 2023 16:03:59 +0000
 Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39UFhT9l001944;
-        Mon, 30 Oct 2023 16:03:57 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u2escsuy8-1
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39UFgdfR031699;
+        Mon, 30 Oct 2023 16:03:58 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u2escsv01-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 Oct 2023 16:03:57 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39UEAPir020308;
-        Mon, 30 Oct 2023 16:03:55 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u1d0yac1n-1
+        Mon, 30 Oct 2023 16:03:58 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39UEWUq3007734;
+        Mon, 30 Oct 2023 16:03:56 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u1dmna5gk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 Oct 2023 16:03:55 +0000
+        Mon, 30 Oct 2023 16:03:56 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39UG3q4n1245724
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39UG3re124642150
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 30 Oct 2023 16:03:52 GMT
+        Mon, 30 Oct 2023 16:03:53 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 25CAF20040;
-        Mon, 30 Oct 2023 16:03:52 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 7621620040;
+        Mon, 30 Oct 2023 16:03:53 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E638420043;
-        Mon, 30 Oct 2023 16:03:51 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 428F420043;
+        Mon, 30 Oct 2023 16:03:53 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 30 Oct 2023 16:03:51 +0000 (GMT)
+        Mon, 30 Oct 2023 16:03:53 +0000 (GMT)
 From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        =?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>
+To:     =?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>
 Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        Ricardo Koller <ricarkol@google.com>, kvm@vger.kernel.org,
+        Ricardo Koller <ricarkol@google.com>,
         Nikos Nikoleris <nikos.nikoleris@arm.com>,
-        Andrew Jones <andrew.jones@linux.dev>,
-        Thomas Huth <thuth@redhat.com>,
-        Colton Lewis <coltonlewis@google.com>,
+        Andrew Jones <andrew.jones@linux.dev>, kvm@vger.kernel.org,
         David Hildenbrand <david@redhat.com>,
-        linux-s390@vger.kernel.org, Sean Christopherson <seanjc@google.com>
-Subject: [kvm-unit-tests PATCH v3 02/10] s390x: topology: Fix report message
-Date:   Mon, 30 Oct 2023 17:03:41 +0100
-Message-Id: <20231030160349.458764-3-nsg@linux.ibm.com>
+        Sean Christopherson <seanjc@google.com>,
+        Colton Lewis <coltonlewis@google.com>,
+        linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>
+Subject: [kvm-unit-tests PATCH v3 07/10] s390x: topology: Rename topology_core to topology_cpu
+Date:   Mon, 30 Oct 2023 17:03:46 +0100
+Message-Id: <20231030160349.458764-8-nsg@linux.ibm.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20231030160349.458764-1-nsg@linux.ibm.com>
 References: <20231030160349.458764-1-nsg@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 18Y6-OXOR71brAc_3LvS3HjU5UCjqA9U
-X-Proofpoint-ORIG-GUID: 9yIoCh-eXovCB7D7oMyD5jlQxtXfFcLa
+X-Proofpoint-GUID: TR_5AZP8Ds-NAdMe-yGRbVNxamE4x0GW
+X-Proofpoint-ORIG-GUID: y6Rw0E7K0R4Flf8McS_pRR0B81ZrW_79
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-10-30_10,2023-10-27_01,2023-05-22_02
@@ -92,28 +92,51 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-A polarization value of 0 means horizontal polarization.
+This is more in line with the nomenclature in the PoP.
 
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
 Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
 Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 ---
+ lib/s390x/stsi.h | 4 ++--
  s390x/topology.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/lib/s390x/stsi.h b/lib/s390x/stsi.h
+index 2f6182c1..1e9d0958 100644
+--- a/lib/s390x/stsi.h
++++ b/lib/s390x/stsi.h
+@@ -30,7 +30,7 @@ struct sysinfo_3_2_2 {
+ };
+ 
+ #define CPUS_TLE_RES_BITS 0x00fffffff8000000UL
+-struct topology_core {
++struct topology_cpu {
+ 	uint8_t nl;
+ 	uint8_t reserved1[3];
+ 	uint8_t reserved4:5;
+@@ -61,7 +61,7 @@ struct topology_container {
+ 
+ union topology_entry {
+ 	uint8_t nl;
+-	struct topology_core cpu;
++	struct topology_cpu cpu;
+ 	struct topology_container container;
+ };
+ 
 diff --git a/s390x/topology.c b/s390x/topology.c
-index 6ab8c8d4..1c4a86fe 100644
+index 6a5f100e..df158aef 100644
 --- a/s390x/topology.c
 +++ b/s390x/topology.c
-@@ -277,7 +277,7 @@ static uint8_t *check_tle(void *tc)
- 	else
- 		report(cpus->pp == POLARIZATION_VERTICAL_HIGH ||
- 		       cpus->pp == POLARIZATION_HORIZONTAL,
--		       "Dedicated CPUs are either vertically polarized or have high entitlement");
-+		       "Dedicated CPUs are either horizontally polarized or have high entitlement");
+@@ -247,7 +247,7 @@ done:
+ static uint8_t *check_tle(void *tc)
+ {
+ 	struct topology_container *container = tc;
+-	struct topology_core *cpus;
++	struct topology_cpu *cpus;
+ 	int n;
  
- 	return tc + sizeof(*cpus);
- }
+ 	if (container->nl) {
 -- 
 2.41.0
 
