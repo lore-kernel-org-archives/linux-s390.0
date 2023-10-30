@@ -2,164 +2,118 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B6D2C00142
-	for <linux-s390@archiver.kernel.org>; Mon, 30 Oct 2023 16:04:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA4E3C4167B
+	for <linux-s390@archiver.kernel.org>; Mon, 30 Oct 2023 16:04:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233799AbjJ3QEM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 30 Oct 2023 12:04:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33530 "EHLO
+        id S233797AbjJ3QEL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 30 Oct 2023 12:04:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233767AbjJ3QEJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Oct 2023 12:04:09 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 454CAC5;
+        with ESMTP id S233799AbjJ3QEI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Oct 2023 12:04:08 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 206B7DF;
         Mon, 30 Oct 2023 09:04:06 -0700 (PDT)
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39UFsajb027120;
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39UFvnZZ014560;
         Mon, 30 Oct 2023 16:03:58 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=E+9VC00axoKNcG+/46kpAZAMqqi6XIuvh2+2SCG58rY=;
- b=iwQo7vSCdB5LNH9pcDFwc3Pkn8ko1en+iWZeQfCJan6xuk9GbtYnYCZvrAvSRWmVbqpt
- l57crtKfAQ+vxSvmRB9rlquPKee41HMioPJjmW/gYQm+qSlCrRQg0EhTpeIXVxFqSDqU
- bCVXw1yy0Y8sz6e81Y5suwNsxsWpEIvFE+jzzXSWuawcFzqjMzJKHr1/LRxwwWuQVFJD
- QQyq/s8+nbFE0CoOARJbP3cFRd8TGYeuh3UADXzdVMuObqpI35WMhF8I9GaZoIV6YLNJ
- +N4IPO8JWRFVn3gP+OPr/O4Vf//36TywWOyZOcpb77sbm5sRDYShcSZrEFuZm51cWrzh kw== 
+ bh=P15pKw3iO8U9apMdKV6iYWUbiOqdU/+zz7bKOfbipt0=;
+ b=GYxQY4ivH25zAwaiKAQYsMun1MgCSvuUT8XAtvNPn2514W71tF3j7ut20bwPagPy+GQM
+ 0NjIoBtAeTWUMv+qZ0UX9udok5bZvy9a/gfoDbDf8DSuEVRILFvrcSnUy6Mt1A5rx+4h
+ uPjvVQKybck5q6oUsdnUspdNozCZGI5WSBJIw/d0jhTPl4c5iYr//SmKOQFXDx1dd3LZ
+ e0kN5GnZRI3YQoSLvlSk4krpC0B65xeIRchGf8d8xKnO1qRBdSYBLuJxKoKDxpTMq9SG
+ gLgGpB0nmKR6IoiizDWV6l6jJ5iEdHiIMUxkoYYUXssWEqQgf428xkEUJQ1VNDYpj6kr jw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u2fhqgctd-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u2ex09cea-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 30 Oct 2023 16:03:57 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39UFsvv1028141;
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39UFpapb025242;
         Mon, 30 Oct 2023 16:03:57 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u2fhqgcsd-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u2ex09cdg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 Oct 2023 16:03:56 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39UDYTlH031388;
+        Mon, 30 Oct 2023 16:03:57 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39UE5BHB020321;
         Mon, 30 Oct 2023 16:03:56 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u1fb1skwb-1
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u1d0yac1p-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 Oct 2023 16:03:56 +0000
+        Mon, 30 Oct 2023 16:03:55 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39UG3rIP24642148
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39UG3qsU1245728
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 30 Oct 2023 16:03:53 GMT
+        Mon, 30 Oct 2023 16:03:52 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3143620040;
-        Mon, 30 Oct 2023 16:03:53 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id B03482004B;
+        Mon, 30 Oct 2023 16:03:52 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 073DB2004D;
-        Mon, 30 Oct 2023 16:03:53 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 7C7E220043;
+        Mon, 30 Oct 2023 16:03:52 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
         Mon, 30 Oct 2023 16:03:52 +0000 (GMT)
 From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To:     =?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        =?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>
 Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Andrew Jones <andrew.jones@linux.dev>,
         Sean Christopherson <seanjc@google.com>,
-        Nikos Nikoleris <nikos.nikoleris@arm.com>,
+        Andrew Jones <andrew.jones@linux.dev>,
+        Nikos Nikoleris <nikos.nikoleris@arm.com>, kvm@vger.kernel.org,
+        Colton Lewis <coltonlewis@google.com>,
+        linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>,
         Ricardo Koller <ricarkol@google.com>,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        David Hildenbrand <david@redhat.com>,
-        Colton Lewis <coltonlewis@google.com>
-Subject: [kvm-unit-tests PATCH v3 06/10] s390x: topology: Refine stsi header test
-Date:   Mon, 30 Oct 2023 17:03:45 +0100
-Message-Id: <20231030160349.458764-7-nsg@linux.ibm.com>
+        Thomas Huth <thuth@redhat.com>
+Subject: [kvm-unit-tests PATCH v3 04/10] s390x: topology: Fix parsing loop
+Date:   Mon, 30 Oct 2023 17:03:43 +0100
+Message-Id: <20231030160349.458764-5-nsg@linux.ibm.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20231030160349.458764-1-nsg@linux.ibm.com>
 References: <20231030160349.458764-1-nsg@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 2ez_5syqyMdzBNriN1VIFOyu7vMYKXkE
-X-Proofpoint-GUID: YRVjrMwpNqFJ2Vo_HgiedNpOrDrdYrBA
+X-Proofpoint-GUID: AC8gdVCjsKUq8T_OgJgIfywxXVjHSTpK
+X-Proofpoint-ORIG-GUID: fPBA4dnvOmrFYQxdd4y63CYc8iR4AJ3k
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-10-30_10,2023-10-27_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
- lowpriorityscore=0 adultscore=0 mlxscore=0 priorityscore=1501
- mlxlogscore=999 spamscore=0 impostorscore=0 suspectscore=0 malwarescore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2310240000 definitions=main-2310300124
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ suspectscore=0 lowpriorityscore=0 adultscore=0 priorityscore=1501
+ clxscore=1015 phishscore=0 spamscore=0 malwarescore=0 mlxscore=0
+ mlxlogscore=889 bulkscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2310240000 definitions=main-2310300124
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add checks for length field.
-Also minor refactor.
+Without a comparison the loop is infinite.
 
 Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
 Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 ---
- s390x/topology.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ s390x/topology.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/s390x/topology.c b/s390x/topology.c
-index 03bc3d3b..6a5f100e 100644
+index 032e80dc..c8ad4bcb 100644
 --- a/s390x/topology.c
 +++ b/s390x/topology.c
-@@ -187,18 +187,23 @@ static void stsi_check_maxcpus(struct sysinfo_15_1_x *info)
- }
- 
- /*
-- * stsi_check_mag
-+ * stsi_check_header
-  * @info: Pointer to the stsi information
-+ * @sel2: stsi selector 2 value
-  *
-  * MAG field should match the architecture defined containers
-  * when MNEST as returned by SCLP matches MNEST of the SYSIB.
-  */
--static void stsi_check_mag(struct sysinfo_15_1_x *info)
-+static void stsi_check_header(struct sysinfo_15_1_x *info, int sel2)
- {
- 	int i;
- 
--	report_prefix_push("MAG");
-+	report_prefix_push("Header");
- 
-+	/* Header is 16 bytes, each TLE 8 or 16, therefore alignment must be 8 at least */
-+	report(IS_ALIGNED(info->length, 8), "Length %d multiple of 8", info->length);
-+	report(info->length < PAGE_SIZE, "Length %d in bounds", info->length);
-+	report(sel2 == info->mnest, "Valid mnest");
- 	stsi_check_maxcpus(info);
- 
- 	/*
-@@ -328,7 +333,6 @@ static int stsi_get_sysib(struct sysinfo_15_1_x *info, int sel2)
- 
- 	if (max_nested_lvl >= sel2) {
- 		report(!ret, "Valid instruction");
--		report(sel2 == info->mnest, "Valid mnest");
- 	} else {
- 		report(ret, "Invalid instruction");
- 	}
-@@ -367,7 +371,7 @@ static void check_sysinfo_15_1_x(struct sysinfo_15_1_x *info, int sel2)
- 		goto vertical;
- 	}
- 
--	stsi_check_mag(info);
-+	stsi_check_header(info, sel2);
- 	stsi_check_tle_coherency(info);
- 
- vertical:
-@@ -380,7 +384,7 @@ vertical:
- 		goto end;
- 	}
- 
--	stsi_check_mag(info);
-+	stsi_check_header(info, sel2);
- 	stsi_check_tle_coherency(info);
- 	report_prefix_pop();
- 
+@@ -468,7 +468,7 @@ static void parse_topology_args(int argc, char **argv)
+ 		if (flag[0] != '-')
+ 			report_abort("Argument is expected to begin with '-'");
+ 		flag++;
+-		for (level = 0; ARRAY_SIZE(levels); level++) {
++		for (level = 0; level < ARRAY_SIZE(levels); level++) {
+ 			if (!strcmp(levels[level], flag))
+ 				break;
+ 		}
 -- 
 2.41.0
 
