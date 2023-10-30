@@ -2,153 +2,167 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E7DBC4332F
-	for <linux-s390@archiver.kernel.org>; Mon, 30 Oct 2023 16:04:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F65FC4167D
+	for <linux-s390@archiver.kernel.org>; Mon, 30 Oct 2023 16:04:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233793AbjJ3QEF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 30 Oct 2023 12:04:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33436 "EHLO
+        id S233796AbjJ3QEI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 30 Oct 2023 12:04:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233796AbjJ3QEE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Oct 2023 12:04:04 -0400
+        with ESMTP id S233801AbjJ3QEG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Oct 2023 12:04:06 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C375FDB;
-        Mon, 30 Oct 2023 09:04:01 -0700 (PDT)
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39UFWgc0000937;
-        Mon, 30 Oct 2023 16:03:56 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13839F7;
+        Mon, 30 Oct 2023 09:04:04 -0700 (PDT)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39UFGNW2028460;
+        Mon, 30 Oct 2023 16:03:59 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=T7bKmjCxT/flSwqFMf476Xcj0BMGu3w3JNB8reTFC8w=;
- b=JEQHlPPwxqn+laAgDPRhpoCKdr5fBD7e4RX4E3NPo4JfJCRbtwb3ayB5chs3JZV/QkEC
- GbOGUIHphrP2mqjxFGEOeqd9GswQuwpy5uePValkPuI/lbyYkXn1Gon7Os3ucTCOtsd0
- AT1iDdhmAJQcgbuz6rxqv6EGuU7/uCwYnOIBWQSxr7jr/irmTbwpXyrwy2N/4l08LGZ/
- EokeRR6lf0lkAqHMy4VetGJewVxXEt2QuBA/M5AGRhiwgUTGiNF9v0SloxshsLuoPGqS
- ywLNseZwAKNgWmm5F+dPWt1LJKwBBz0B77LXkJMKgvejm7MKHqWJ87isbVkMspb2feUe Ug== 
+ bh=T+KK4iHoPpXSCeFZ9GUqRcs3dIrnE46B59xOeReic6M=;
+ b=F6djy3hWeqL2CGsC3kUV+r+L0H+kVxczZrhHvLB9uuqemV1Izxtn5F5P+93SF4HGQ50v
+ sDiWsax8JbV6S9lGsKN+i57Gfk1NQPHIYDLqSSNeBkzee5mPjz/wmkSbvWc8O1W8J9oC
+ Fz2GCdc6FJUxrSn8RJZQxx+2JLdZPFW4v6Xyw6qIC2Cj6BMy4MgS5Ha0w/gcJEVQv4AX
+ g/AektS/vKlLvvHCuycKxL5A0f+xoWY2HAr5Ne6mSycZ3b0CTCNHk7Wbym/FWkTxAlP3
+ WkdvLGSL2/u27/DHS4OJ613OSTPyGcT/oMFwdT1TQ+UPuzH0uDPU60uMup3Sp6rHK8di mw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u2f7dh6q3-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u2escsv1h-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 Oct 2023 16:03:56 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39UG01M9032036;
-        Mon, 30 Oct 2023 16:03:55 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u2f7dh6ph-1
+        Mon, 30 Oct 2023 16:03:59 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39UFfr0X029033;
+        Mon, 30 Oct 2023 16:03:58 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u2escsv0f-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 Oct 2023 16:03:55 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39UFsvag011280;
-        Mon, 30 Oct 2023 16:03:54 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u1eujsryb-1
+        Mon, 30 Oct 2023 16:03:58 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39UEWUq4007734;
+        Mon, 30 Oct 2023 16:03:57 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u1dmna5gm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 Oct 2023 16:03:54 +0000
+        Mon, 30 Oct 2023 16:03:57 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39UG3pt126411444
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39UG3s7O26149334
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 30 Oct 2023 16:03:52 GMT
+        Mon, 30 Oct 2023 16:03:54 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D59F520040;
-        Mon, 30 Oct 2023 16:03:51 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id F357120040;
+        Mon, 30 Oct 2023 16:03:53 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AAC032004B;
-        Mon, 30 Oct 2023 16:03:51 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id C96992004D;
+        Mon, 30 Oct 2023 16:03:53 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 30 Oct 2023 16:03:51 +0000 (GMT)
+        Mon, 30 Oct 2023 16:03:53 +0000 (GMT)
 From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To:     =?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        Colton Lewis <coltonlewis@google.com>, kvm@vger.kernel.org,
-        Andrew Jones <andrew.jones@linux.dev>,
-        Nikos Nikoleris <nikos.nikoleris@arm.com>,
-        David Hildenbrand <david@redhat.com>,
+To:     Andrew Jones <andrew.jones@linux.dev>,
         Thomas Huth <thuth@redhat.com>,
+        Colton Lewis <coltonlewis@google.com>,
+        Nikos Nikoleris <nikos.nikoleris@arm.com>,
         Ricardo Koller <ricarkol@google.com>,
-        Sean Christopherson <seanjc@google.com>,
-        linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v3 01/10] s390x: topology: Introduce enums for polarization & cpu type
-Date:   Mon, 30 Oct 2023 17:03:40 +0100
-Message-Id: <20231030160349.458764-2-nsg@linux.ibm.com>
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>,
+        Sean Christopherson <seanjc@google.com>
+Cc:     linux-s390@vger.kernel.org,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v3 09/10] scripts: Implement multiline strings for extra_params
+Date:   Mon, 30 Oct 2023 17:03:48 +0100
+Message-Id: <20231030160349.458764-10-nsg@linux.ibm.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20231030160349.458764-1-nsg@linux.ibm.com>
 References: <20231030160349.458764-1-nsg@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: CYkGpUKabxzfDWanoMdCkM34_UlSfoAg
-X-Proofpoint-ORIG-GUID: NFvWbr8-Wbwr7UOqkGEIJCRoNg_CKVEv
+X-Proofpoint-GUID: fXToMO4aVHjXk2q7B5bKWPZHbocppo5Z
+X-Proofpoint-ORIG-GUID: b631_-FIwI66t-730ApdAYJrq3839x4H
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-10-30_10,2023-10-27_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- lowpriorityscore=0 priorityscore=1501 bulkscore=0 mlxscore=0 adultscore=0
- spamscore=0 impostorscore=0 suspectscore=0 malwarescore=0 phishscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
+ priorityscore=1501 impostorscore=0 lowpriorityscore=0 suspectscore=0
+ spamscore=0 bulkscore=0 malwarescore=0 adultscore=0 mlxlogscore=999
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2310240000 definitions=main-2310300124
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Thereby get rid of magic values.
+Implement a rudimentary form only.
+extra_params can get long when passing a lot of arguments to qemu.
+Multiline strings help with readability of the .cfg file.
+Multiline strings begin and end with """, which must occur on separate
+lines.
 
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+For example:
+extra_params = """-cpu max,ctop=on -smp cpus=1,cores=16,maxcpus=128 \
+-append '-drawers 2 -books 2 -sockets 2 -cores 16' \
+-device max-s390x-cpu,core-id=31,drawer-id=0,book-id=0,socket-id=0"""
+
+The command string built with extra_params is eval'ed by the runtime
+script, so the newlines need to be escaped with \.
+
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 ---
- lib/s390x/stsi.h | 11 +++++++++++
- s390x/topology.c |  6 ++++--
- 2 files changed, 15 insertions(+), 2 deletions(-)
+ scripts/common.bash  | 16 ++++++++++++++++
+ scripts/runtime.bash |  4 ++--
+ 2 files changed, 18 insertions(+), 2 deletions(-)
 
-diff --git a/lib/s390x/stsi.h b/lib/s390x/stsi.h
-index 1351a6f3..2f6182c1 100644
---- a/lib/s390x/stsi.h
-+++ b/lib/s390x/stsi.h
-@@ -41,6 +41,17 @@ struct topology_core {
- 	uint64_t mask;
- };
+diff --git a/scripts/common.bash b/scripts/common.bash
+index 7b983f7d..b9413d68 100644
+--- a/scripts/common.bash
++++ b/scripts/common.bash
+@@ -36,6 +36,22 @@ function for_each_unittest()
+ 			kernel=$TEST_DIR/${BASH_REMATCH[1]}
+ 		elif [[ $line =~ ^smp\ *=\ *(.*)$ ]]; then
+ 			smp=${BASH_REMATCH[1]}
++		elif [[ $line =~ ^extra_params\ *=\ *'"""'(.*)$ ]]; then
++			opts=${BASH_REMATCH[1]}$'\n'
++			while read -r -u $fd; do
++				#escape backslash newline, but not double backslash
++				if [[ $opts =~ [^\\]*(\\*)$'\n'$ ]]; then
++					if (( ${#BASH_REMATCH[1]} % 2 == 1 )); then
++						opts=${opts%\\$'\n'}
++					fi
++				fi
++				if [[ "$REPLY" =~ ^(.*)'"""'[:blank:]*$ ]]; then
++					opts+=${BASH_REMATCH[1]}
++					break
++				else
++					opts+=$REPLY$'\n'
++				fi
++			done
+ 		elif [[ $line =~ ^extra_params\ *=\ *(.*)$ ]]; then
+ 			opts=${BASH_REMATCH[1]}
+ 		elif [[ $line =~ ^groups\ *=\ *(.*)$ ]]; then
+diff --git a/scripts/runtime.bash b/scripts/runtime.bash
+index ada8ffd7..fc156f2f 100644
+--- a/scripts/runtime.bash
++++ b/scripts/runtime.bash
+@@ -15,7 +15,7 @@ extract_summary()
+ # We assume that QEMU is going to work if it tried to load the kernel
+ premature_failure()
+ {
+-    local log="$(eval $(get_cmdline _NO_FILE_4Uhere_) 2>&1)"
++    local log="$(eval "$(get_cmdline _NO_FILE_4Uhere_)" 2>&1)"
  
-+enum topology_polarization {
-+	POLARIZATION_HORIZONTAL = 0,
-+	POLARIZATION_VERTICAL_LOW = 1,
-+	POLARIZATION_VERTICAL_MEDIUM = 2,
-+	POLARIZATION_VERTICAL_HIGH = 3,
-+};
-+
-+enum cpu_type {
-+	CPU_TYPE_IFL = 3,
-+};
-+
- #define CONTAINER_TLE_RES_BITS 0x00ffffffffffff00UL
- struct topology_container {
- 	uint8_t nl;
-diff --git a/s390x/topology.c b/s390x/topology.c
-index 69558236..6ab8c8d4 100644
---- a/s390x/topology.c
-+++ b/s390x/topology.c
-@@ -261,7 +261,7 @@ static uint8_t *check_tle(void *tc)
- 	report(!(*(uint64_t *)tc & CPUS_TLE_RES_BITS), "reserved bits %016lx",
- 	       *(uint64_t *)tc & CPUS_TLE_RES_BITS);
- 
--	report(cpus->type == 0x03, "type IFL");
-+	report(cpus->type == CPU_TYPE_IFL, "type IFL");
- 
- 	report_info("origin: %d", cpus->origin);
- 	report_info("mask: %016lx", cpus->mask);
-@@ -275,7 +275,9 @@ static uint8_t *check_tle(void *tc)
- 	if (!cpus->d)
- 		report_skip("Not dedicated");
- 	else
--		report(cpus->pp == 3 || cpus->pp == 0, "Dedicated CPUs are either vertically polarized or have high entitlement");
-+		report(cpus->pp == POLARIZATION_VERTICAL_HIGH ||
-+		       cpus->pp == POLARIZATION_HORIZONTAL,
-+		       "Dedicated CPUs are either vertically polarized or have high entitlement");
- 
- 	return tc + sizeof(*cpus);
- }
+     echo "$log" | grep "_NO_FILE_4Uhere_" |
+         grep -q -e "could not \(load\|open\) kernel" -e "error loading" &&
+@@ -168,7 +168,7 @@ function run()
+     # extra_params in the config file may contain backticks that need to be
+     # expanded, so use eval to start qemu.  Use "> >(foo)" instead of a pipe to
+     # preserve the exit status.
+-    summary=$(eval $cmdline 2> >(RUNTIME_log_stderr $testname) \
++    summary=$(eval "$cmdline" 2> >(RUNTIME_log_stderr $testname) \
+                              > >(tee >(RUNTIME_log_stdout $testname $kernel) | extract_summary))
+     ret=$?
+     [ "$KUT_STANDALONE" != "yes" ] && echo > >(RUNTIME_log_stdout $testname $kernel)
 -- 
 2.41.0
 
