@@ -2,124 +2,157 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 676F9C4332F
-	for <linux-s390@archiver.kernel.org>; Mon, 30 Oct 2023 09:22:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EB43C4167B
+	for <linux-s390@archiver.kernel.org>; Mon, 30 Oct 2023 09:22:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232212AbjJ3JWd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S232231AbjJ3JWd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Mon, 30 Oct 2023 05:22:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35856 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230477AbjJ3JWc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Oct 2023 05:22:32 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92DA1A7;
-        Mon, 30 Oct 2023 02:22:30 -0700 (PDT)
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39U8dkl9029922;
+        with ESMTP id S230477AbjJ3JWd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Oct 2023 05:22:33 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C809B7;
+        Mon, 30 Oct 2023 02:22:31 -0700 (PDT)
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39U9EAnx001214;
         Mon, 30 Oct 2023 09:22:30 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=xYp5j6JaDmSLU0rCkU/L24F97cUjtLsyKSWKmOrGVtU=;
- b=KXt/3h411cAEs4SRbIqKiiJFJhOOMRrACNSp0HKRnUTlFSCtj6rJOiWm5Ab49AYwy37o
- AdcIHMaS2ynCRpRoYhFOBvjj19V+Epkhod9kNh8WwU3K+wFus/VAX9nvQPEabJ23uYYC
- D+cYCOW0zw0n9iWXHKwfQ6C/7B8m47pW/1K4jnhR+O07kyXowdLgDnIrPCJruDIRIxP5
- 54UmJLnpeN0n3LbppcZ0Yo8jf6TSaDcaLPEcDqusKPMKq13kxlYytygj84t32HFycv11
- gqRdvih+Y+ZQsxFR+sXcN6HWsS6xvnqldkQET72dfVSoXl2UhiURb8/k0Fn+RYHFoGRk kw== 
+ : date : message-id : in-reply-to : references : content-transfer-encoding
+ : mime-version; s=pp1; bh=7cQ1XKmOyULFwtMyGL/OA0Nq4rIkBR5sHXe1NuRjNd4=;
+ b=Ww1+dYOu0yZN6K/Wj5d80+/7DfWgZoarpntBC6QvOLkHcUoZ50ooAxiBELPDMIlLWr1R
+ KxKMHdxXbswv18evcgkpsuL7JNzlp521sxrta9RbOR5u1KCQYlEpc3ntxVQhv/YjCJTs
+ xq8oXULTCPwUgAoHfwqgFiQCo8AuPwxTZFuhQq2KWztc0oP1UwYcLA1H1swSohjSDAsO
+ hiWgBA4IH2Bbtg9+/VbYO+xhv93JA76f/TVYkkjzmYSIjPiz10yIMIdeeEv15DSVZoy4
+ jchIlJK+7rp8C3DfirfEx93PjCY9CIRlCsVZ27t6cd/7AbJopZ43fNUdb8XMFoGyoCFx Tg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u27834mge-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u29p4r700-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 30 Oct 2023 09:22:30 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39U9F1vM007519;
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39U9FXS4006049;
         Mon, 30 Oct 2023 09:22:29 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u27834mfu-1
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u29p4r6yn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 30 Oct 2023 09:22:29 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39U8CUQH019881;
-        Mon, 30 Oct 2023 09:22:28 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u1d0y87p2-1
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39U7FEcW011300;
+        Mon, 30 Oct 2023 09:22:29 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u1eujqmfu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 Oct 2023 09:22:28 +0000
+        Mon, 30 Oct 2023 09:22:29 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39U9MP0m6488732
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39U9MQ3r45351196
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 30 Oct 2023 09:22:25 GMT
+        Mon, 30 Oct 2023 09:22:26 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F356420043;
-        Mon, 30 Oct 2023 09:22:24 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 37DC320043;
+        Mon, 30 Oct 2023 09:22:26 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7254420040;
-        Mon, 30 Oct 2023 09:22:24 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id AC3C020040;
+        Mon, 30 Oct 2023 09:22:25 +0000 (GMT)
 Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com.com (unknown [9.171.67.230])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 30 Oct 2023 09:22:24 +0000 (GMT)
+        Mon, 30 Oct 2023 09:22:25 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     pbonzini@redhat.com
 Cc:     kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
         borntraeger@linux.ibm.com, cohuck@redhat.com,
         linux-s390@vger.kernel.org, nrb@linux.ibm.com,
         imbrenda@linux.ibm.com
-Subject: [GIT PULL 0/2] KVM: s390: Changes for 6.7
-Date:   Mon, 30 Oct 2023 10:08:37 +0100
-Message-ID: <20231030092101.66014-1-frankja@linux.ibm.com>
+Subject: [GIT PULL 2/2] KVM: s390: add tracepoint in gmap notifier
+Date:   Mon, 30 Oct 2023 10:08:39 +0100
+Message-ID: <20231030092101.66014-3-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
+In-Reply-To: <20231030092101.66014-1-frankja@linux.ibm.com>
+References: <20231030092101.66014-1-frankja@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _Yty2AKsy1auTczTYScNkem57x-6afbb
-X-Proofpoint-ORIG-GUID: 4ynvrgdgeHTO9blLP1Fa9b_0dPNMs8kj
+X-Proofpoint-GUID: 1hSXPOqPXk4x987oORQyzFbWydRq8Hg1
+X-Proofpoint-ORIG-GUID: cDWTvYXn6Un2tFTiIs3-R2VHHp-SOD2C
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-10-30_08,2023-10-27_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
- lowpriorityscore=0 mlxlogscore=614 suspectscore=0 spamscore=0 mlxscore=0
- impostorscore=0 priorityscore=1501 adultscore=0 phishscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2310240000 definitions=main-2310300071
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ bulkscore=0 suspectscore=0 priorityscore=1501 spamscore=0
+ lowpriorityscore=0 malwarescore=0 mlxlogscore=999 phishscore=0
+ adultscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310240000 definitions=main-2310300070
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Paolo, please pull these two patches for 6.7.
+From: Nico Boehr <nrb@linux.ibm.com>
 
-They introduce counters and a tracepoint into our nested VM page table
-management code. Debuging nested page table management is notoriously
-hard but the added low-overhead debug data will allow us to get a feel
-for the problem before deploying deeper and higher overhead debugging
-means.
+The gmap notifier is called for changes in table entries with the
+notifier bit set. To diagnose performance issues, it can be useful to
+see what causes certain changes in the gmap.
 
-I've held back the patches for a bit since we had suspicious CI fails
-but they turned out to be unrelated and have been fixed at the end of
-last week.
+Hence, add a tracepoint in the gmap notifier.
 
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Link: https://lore.kernel.org/r/20231009093304.2555344-3-nrb@linux.ibm.com
+Message-Id: <20231009093304.2555344-3-nrb@linux.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c   |  2 ++
+ arch/s390/kvm/trace-s390.h | 23 +++++++++++++++++++++++
+ 2 files changed, 25 insertions(+)
 
-The following changes since commit ce9ecca0238b140b88f43859b211c9fdfd8e5b70:
-
-  Linux 6.6-rc2 (2023-09-17 14:40:24 -0700)
-
-are available in the Git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-next-6.7-1
-
-for you to fetch changes up to 70fea30195168fd84e7076720c984f0ac1af5b09:
-
-  KVM: s390: add tracepoint in gmap notifier (2023-10-16 14:54:29 +0200)
-
-Nico Boehr (2):
-  KVM: s390: add stat counter for shadow gmap events
-  KVM: s390: add tracepoint in gmap notifier
-
- arch/s390/include/asm/kvm_host.h |  7 +++++++
- arch/s390/kvm/gaccess.c          |  7 +++++++
- arch/s390/kvm/kvm-s390.c         | 11 ++++++++++-
- arch/s390/kvm/trace-s390.h       | 23 +++++++++++++++++++++++
- arch/s390/kvm/vsie.c             |  5 ++++-
- 5 files changed, 51 insertions(+), 2 deletions(-)
-
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index b42493110d76..11676b81e6bf 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4060,6 +4060,8 @@ static void kvm_gmap_notifier(struct gmap *gmap, unsigned long start,
+ 	unsigned long prefix;
+ 	unsigned long i;
+ 
++	trace_kvm_s390_gmap_notifier(start, end, gmap_is_shadow(gmap));
++
+ 	if (gmap_is_shadow(gmap))
+ 		return;
+ 	if (start >= 1UL << 31)
+diff --git a/arch/s390/kvm/trace-s390.h b/arch/s390/kvm/trace-s390.h
+index 6f0209d45164..9ac92dbf680d 100644
+--- a/arch/s390/kvm/trace-s390.h
++++ b/arch/s390/kvm/trace-s390.h
+@@ -333,6 +333,29 @@ TRACE_EVENT(kvm_s390_airq_suppressed,
+ 		      __entry->id, __entry->isc)
+ 	);
+ 
++/*
++ * Trace point for gmap notifier calls.
++ */
++TRACE_EVENT(kvm_s390_gmap_notifier,
++	    TP_PROTO(unsigned long start, unsigned long end, unsigned int shadow),
++	    TP_ARGS(start, end, shadow),
++
++	    TP_STRUCT__entry(
++		    __field(unsigned long, start)
++		    __field(unsigned long, end)
++		    __field(unsigned int, shadow)
++		    ),
++
++	    TP_fast_assign(
++		    __entry->start = start;
++		    __entry->end = end;
++		    __entry->shadow = shadow;
++		    ),
++
++	    TP_printk("gmap notified (start:0x%lx end:0x%lx shadow:%d)",
++		      __entry->start, __entry->end, __entry->shadow)
++	);
++
+ 
+ #endif /* _TRACE_KVMS390_H */
+ 
 -- 
 2.41.0
 
