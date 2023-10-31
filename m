@@ -2,427 +2,131 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E36FC001B0
-	for <linux-s390@archiver.kernel.org>; Mon, 30 Oct 2023 16:04:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 975B4C4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 31 Oct 2023 03:04:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233782AbjJ3QEO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 30 Oct 2023 12:04:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49762 "EHLO
+        id S231258AbjJaDEa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 30 Oct 2023 23:04:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233798AbjJ3QEM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Oct 2023 12:04:12 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9F7EE1;
-        Mon, 30 Oct 2023 09:04:08 -0700 (PDT)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39UFqZ8r025061;
-        Mon, 30 Oct 2023 16:03:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=SWr5K5e2XW2UvfadKzHqaS95+Rmnr0pCAtfwXKVQDKI=;
- b=ApPsRsUK1waXcSZ5Po+9sv8U4FwEmpGWjEVW/7II2E7kdJ2U9RqQt+2VMBPsQmju6ogV
- 8PYYwoizbf+VCoXlPse+GeZUFhia9fvo2HUKLylMHATILk+Nm2o89URI0LR6ImWmH7xl
- 08XoFAVVVOQSUTEGv9iuXdraiVYFeYtv2YPZ0NwKk744/zDTgMOnI2v+lrwnQEErDuwa
- BtKfhodnM3O1LDtXYs4WpdoP4YwtuB+HDTbq+bSaNZZ2AdPtgL+KzabVdPXbe9kj8jWx
- 2JYASqKBjzvC7ozyq/HCFEy/FNHTuoiibeV4ISCGllrdhwbk/VpICF8Q1Lw6GqBgomrk rg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u2fgtrc2j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 Oct 2023 16:03:58 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39UFqXew024808;
-        Mon, 30 Oct 2023 16:03:57 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u2fgtrc1b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 Oct 2023 16:03:57 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39UDauEW031403;
-        Mon, 30 Oct 2023 16:03:56 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u1fb1skwc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 30 Oct 2023 16:03:56 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39UG3r8024642152
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 30 Oct 2023 16:03:53 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B8FD620040;
-        Mon, 30 Oct 2023 16:03:53 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8709E20043;
-        Mon, 30 Oct 2023 16:03:53 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 30 Oct 2023 16:03:53 +0000 (GMT)
-From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        =?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>
-Cc:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        Andrew Jones <andrew.jones@linux.dev>,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        Nikos Nikoleris <nikos.nikoleris@arm.com>,
-        Colton Lewis <coltonlewis@google.com>,
-        Ricardo Koller <ricarkol@google.com>,
-        Thomas Huth <thuth@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [kvm-unit-tests PATCH v3 08/10] s390x: topology: Rewrite topology list test
-Date:   Mon, 30 Oct 2023 17:03:47 +0100
-Message-Id: <20231030160349.458764-9-nsg@linux.ibm.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20231030160349.458764-1-nsg@linux.ibm.com>
-References: <20231030160349.458764-1-nsg@linux.ibm.com>
+        with ESMTP id S230409AbjJaDE3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Oct 2023 23:04:29 -0400
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29026A6;
+        Mon, 30 Oct 2023 20:04:25 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R851e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VvFmQjo_1698721454;
+Received: from 30.221.149.157(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VvFmQjo_1698721454)
+          by smtp.aliyun-inc.com;
+          Tue, 31 Oct 2023 11:04:22 +0800
+Message-ID: <947b7e7d-3b65-af4c-4583-04913f98b2d3@linux.alibaba.com>
+Date:   Tue, 31 Oct 2023 11:04:13 +0800
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.1
+Subject: Re: [PATCH net 4/5] net/smc: protect connection state transitions in
+ listen work
+To:     Wenjia Zhang <wenjia@linux.ibm.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com, wintera@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
+ <1697009600-22367-5-git-send-email-alibuda@linux.alibaba.com>
+ <52133656-4dc6-4f32-9881-b63f19bb8859@linux.ibm.com>
+Content-Language: en-US
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <52133656-4dc6-4f32-9881-b63f19bb8859@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 2q83HzMQNGtWSq2qPd_yvG1xRWZFQJcf
-X-Proofpoint-GUID: 8DBBwGndW6PSn13dC62pVYauY-oEbhFK
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-10-30_10,2023-10-27_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- mlxscore=0 adultscore=0 malwarescore=0 suspectscore=0 spamscore=0
- priorityscore=1501 bulkscore=0 mlxlogscore=999 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2310240000 definitions=main-2310300124
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Rewrite recursion with separate functions for checking containers,
-containers containing CPUs and CPUs.
-This improves comprehension and allows for more tests.
-We now also test for ordering of CPU TLEs and number of child entries.
 
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
----
- lib/s390x/stsi.h |  36 ++++----
- s390x/topology.c | 214 +++++++++++++++++++++++++++++------------------
- 2 files changed, 155 insertions(+), 95 deletions(-)
 
-diff --git a/lib/s390x/stsi.h b/lib/s390x/stsi.h
-index 1e9d0958..f2290ca7 100644
---- a/lib/s390x/stsi.h
-+++ b/lib/s390x/stsi.h
-@@ -30,15 +30,18 @@ struct sysinfo_3_2_2 {
- };
- 
- #define CPUS_TLE_RES_BITS 0x00fffffff8000000UL
--struct topology_cpu {
--	uint8_t nl;
--	uint8_t reserved1[3];
--	uint8_t reserved4:5;
--	uint8_t d:1;
--	uint8_t pp:2;
--	uint8_t type;
--	uint16_t origin;
--	uint64_t mask;
-+union topology_cpu {
-+	uint64_t raw[2];
-+	struct {
-+		uint8_t nl;
-+		uint8_t reserved1[3];
-+		uint8_t reserved4:5;
-+		uint8_t d:1;
-+		uint8_t pp:2;
-+		uint8_t type;
-+		uint16_t origin;
-+		uint64_t mask;
-+	};
- };
- 
- enum topology_polarization {
-@@ -53,16 +56,19 @@ enum cpu_type {
- };
- 
- #define CONTAINER_TLE_RES_BITS 0x00ffffffffffff00UL
--struct topology_container {
--	uint8_t nl;
--	uint8_t reserved[6];
--	uint8_t id;
-+union topology_container {
-+	uint64_t raw;
-+	struct {
-+		uint8_t nl;
-+		uint8_t reserved[6];
-+		uint8_t id;
-+	};
- };
- 
- union topology_entry {
- 	uint8_t nl;
--	struct topology_cpu cpu;
--	struct topology_container container;
-+	union topology_cpu cpu;
-+	union topology_container container;
- };
- 
- #define CPU_TOPOLOGY_MAX_LEVEL 6
-diff --git a/s390x/topology.c b/s390x/topology.c
-index df158aef..01021eb0 100644
---- a/s390x/topology.c
-+++ b/s390x/topology.c
-@@ -2,7 +2,7 @@
- /*
-  * CPU Topology
-  *
-- * Copyright IBM Corp. 2022
-+ * Copyright IBM Corp. 2022, 2023
-  *
-  * Authors:
-  *  Pierre Morel <pmorel@linux.ibm.com>
-@@ -23,7 +23,6 @@ static uint8_t pagebuf[PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
- 
- static int max_nested_lvl;
- static int number_of_cpus;
--static int cpus_in_masks;
- static int max_cpus;
- 
- /*
-@@ -237,82 +236,6 @@ done:
- 	report_prefix_pop();
- }
- 
--/**
-- * check_tle:
-- * @tc: pointer to first TLE
-- *
-- * Recursively check the containers TLEs until we
-- * find a CPU TLE.
-- */
--static uint8_t *check_tle(void *tc)
--{
--	struct topology_container *container = tc;
--	struct topology_cpu *cpus;
--	int n;
--
--	if (container->nl) {
--		report_info("NL: %d id: %d", container->nl, container->id);
--
--		report(!(*(uint64_t *)tc & CONTAINER_TLE_RES_BITS),
--		       "reserved bits %016lx",
--		       *(uint64_t *)tc & CONTAINER_TLE_RES_BITS);
--
--		return check_tle(tc + sizeof(*container));
--	}
--
--	report_info("NL: %d", container->nl);
--	cpus = tc;
--
--	report(!(*(uint64_t *)tc & CPUS_TLE_RES_BITS), "reserved bits %016lx",
--	       *(uint64_t *)tc & CPUS_TLE_RES_BITS);
--
--	report(cpus->type == CPU_TYPE_IFL, "type IFL");
--
--	report_info("origin: %d", cpus->origin);
--	report_info("mask: %016lx", cpus->mask);
--	report_info("dedicated: %d entitlement: %d", cpus->d, cpus->pp);
--
--	n = __builtin_popcountl(cpus->mask);
--	report(n <= expected_topo_lvl[0], "CPUs per mask: %d out of max %d",
--	       n, expected_topo_lvl[0]);
--	cpus_in_masks += n;
--
--	if (!cpus->d)
--		report_skip("Not dedicated");
--	else
--		report(cpus->pp == POLARIZATION_VERTICAL_HIGH ||
--		       cpus->pp == POLARIZATION_HORIZONTAL,
--		       "Dedicated CPUs are either horizontally polarized or have high entitlement");
--
--	return tc + sizeof(*cpus);
--}
--
--/**
-- * stsi_check_tle_coherency:
-- * @info: Pointer to the stsi information
-- *
-- * We verify that we get the expected number of Topology List Entry
-- * containers for a specific level.
-- */
--static void stsi_check_tle_coherency(struct sysinfo_15_1_x *info)
--{
--	void *tc, *end;
--
--	report_prefix_push("TLE");
--	cpus_in_masks = 0;
--
--	tc = info->tle;
--	end = (void *)info + info->length;
--
--	while (tc < end)
--		tc = check_tle(tc);
--
--	report(cpus_in_masks == number_of_cpus, "CPUs in mask %d",
--	       cpus_in_masks);
--
--	report_prefix_pop();
--}
--
- /**
-  * stsi_get_sysib:
-  * @info: pointer to the STSI info structure
-@@ -342,6 +265,137 @@ static int stsi_get_sysib(struct sysinfo_15_1_x *info, int sel2)
- 	return ret;
- }
- 
-+static int check_cpu(union topology_cpu *cpu,
-+		     union topology_container *parent)
-+{
-+	report_prefix_pushf("%d:%d:%d:%d", cpu->d, cpu->pp, cpu->type, cpu->origin);
-+
-+	report(!(cpu->raw[0] & CPUS_TLE_RES_BITS), "reserved bits %016lx",
-+	       cpu->raw[0] & CPUS_TLE_RES_BITS);
-+
-+	report(cpu->type == CPU_TYPE_IFL, "type IFL");
-+
-+	if (cpu->d)
-+		report(cpu->pp == POLARIZATION_VERTICAL_HIGH ||
-+		       cpu->pp == POLARIZATION_HORIZONTAL,
-+		       "Dedicated CPUs are either horizontally polarized or have high entitlement");
-+	else
-+		report_skip("Not dedicated");
-+
-+	report_prefix_pop();
-+
-+	return __builtin_popcountl(cpu->mask);
-+}
-+
-+static union topology_container *check_child_cpus(struct sysinfo_15_1_x *info,
-+						  union topology_container *cont,
-+						  union topology_cpu *child,
-+						  unsigned int *cpus_in_masks)
-+{
-+	void *last = ((void *)info) + info->length;
-+	union topology_cpu *prev_cpu = NULL;
-+	bool correct_ordering = true;
-+	unsigned int cpus = 0;
-+	int i;
-+
-+	for (i = 0; (void *)&child[i] < last && child[i].nl == 0; prev_cpu = &child[i++]) {
-+		cpus += check_cpu(&child[i], cont);
-+		if (prev_cpu) {
-+			if (prev_cpu->type > child[i].type) {
-+				report_info("Incorrect ordering wrt type for child %d", i);
-+				correct_ordering = false;
-+			}
-+			if (prev_cpu->type < child[i].type)
-+				continue;
-+			if (prev_cpu->pp < child[i].pp) {
-+				report_info("Incorrect ordering wrt polarization for child %d", i);
-+				correct_ordering = false;
-+			}
-+			if (prev_cpu->pp > child[i].pp)
-+				continue;
-+			if (!prev_cpu->d && child[i].d) {
-+				report_info("Incorrect ordering wrt dedication for child %d", i);
-+				correct_ordering = false;
-+			}
-+			if (prev_cpu->d && !child[i].d)
-+				continue;
-+			if (prev_cpu->origin > child[i].origin) {
-+				report_info("Incorrect ordering wrt origin for child %d", i);
-+				correct_ordering = false;
-+			}
-+		}
-+	}
-+	report(correct_ordering, "children correctly ordered");
-+	report(cpus <= expected_topo_lvl[0], "%d children <= max of %d",
-+	       cpus, expected_topo_lvl[0]);
-+	*cpus_in_masks += cpus;
-+
-+	return (union topology_container *)&child[i];
-+}
-+
-+static union topology_container *check_container(struct sysinfo_15_1_x *info,
-+						 union topology_container *cont,
-+						 union topology_entry *child,
-+						 unsigned int *cpus_in_masks);
-+
-+static union topology_container *check_child_containers(struct sysinfo_15_1_x *info,
-+							union topology_container *cont,
-+							union topology_container *child,
-+							unsigned int *cpus_in_masks)
-+{
-+	void *last = ((void *)info) + info->length;
-+	union topology_container *entry;
-+	int i;
-+
-+	for (i = 0, entry = child; (void *)entry < last && entry->nl == cont->nl - 1; i++) {
-+		entry = check_container(info, entry, (union topology_entry *)(entry + 1),
-+					cpus_in_masks);
-+	}
-+	if (max_nested_lvl == info->mnest)
-+		report(i <= expected_topo_lvl[cont->nl - 1], "%d children <= max of %d",
-+		       i, expected_topo_lvl[cont->nl - 1]);
-+
-+	return entry;
-+}
-+
-+static union topology_container *check_container(struct sysinfo_15_1_x *info,
-+						 union topology_container *cont,
-+						 union topology_entry *child,
-+						 unsigned int *cpus_in_masks)
-+{
-+	union topology_container *entry;
-+
-+	report_prefix_pushf("%d", cont->id);
-+
-+	report(cont->nl - 1 == child->nl, "Level %d one above child level %d",
-+	       cont->nl, child->nl);
-+	report(!(cont->raw & CONTAINER_TLE_RES_BITS), "reserved bits %016lx",
-+	       cont->raw & CONTAINER_TLE_RES_BITS);
-+
-+	if (cont->nl > 1)
-+		entry = check_child_containers(info, cont, &child->container, cpus_in_masks);
-+	else
-+		entry = check_child_cpus(info, cont, &child->cpu, cpus_in_masks);
-+
-+	report_prefix_pop();
-+	return entry;
-+}
-+
-+static void check_topology_list(struct sysinfo_15_1_x *info, int sel2)
-+{
-+	union topology_container dummy = { .nl = sel2, .id = 0 };
-+	unsigned int cpus_in_masks = 0;
-+
-+	report_prefix_push("TLE");
-+
-+	check_container(info, &dummy, info->tle, &cpus_in_masks);
-+	report(cpus_in_masks == number_of_cpus,
-+	       "Number of CPUs %d equals  %d CPUs in masks",
-+	       number_of_cpus, cpus_in_masks);
-+
-+	report_prefix_pop();
-+}
-+
- /**
-  * check_sysinfo_15_1_x:
-  * @info: pointer to the STSI info structure
-@@ -372,7 +426,7 @@ static void check_sysinfo_15_1_x(struct sysinfo_15_1_x *info, int sel2)
- 	}
- 
- 	stsi_check_header(info, sel2);
--	stsi_check_tle_coherency(info);
-+	check_topology_list(info, sel2);
- 
- vertical:
- 	report_prefix_pop();
-@@ -385,7 +439,7 @@ vertical:
- 	}
- 
- 	stsi_check_header(info, sel2);
--	stsi_check_tle_coherency(info);
-+	check_topology_list(info, sel2);
- 	report_prefix_pop();
- 
- end:
--- 
-2.41.0
+On 10/13/23 1:14 AM, Wenjia Zhang wrote:
+>
+>
+> On 11.10.23 09:33, D. Wythe wrote:
+>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>
+>> Consider the following scenario:
+>>
+>>                 smc_close_passive_work
+>> smc_listen_out_connected
+>>                 lock_sock()
+>> if (state  == SMC_INIT)
+>>                 if (state  == SMC_INIT)
+>>                     state = SMC_APPCLOSEWAIT1;
+>>     state = SMC_ACTIVE
+>>                 release_sock()
+>>
+>> This would cause the state machine of the connection to be corrupted.
+>> Also, this issue can occur in smc_listen_out_err().
+>>
+>> To solve this problem, we can protect the state transitions under
+>> the lock of sock to avoid collision.
+>>
+> To this fix, I have to repeat the question from Alexandra.
+> Did the scenario occur in real life? Or is it just kind of potencial 
+> problem you found during the code review?
+>
+
+Hi Wenjia,
+
+This is a real issue that occurred in our environment rather than being 
+obtained from code reviews.
+Unfortunately, since this patch does not cause panic, but rather 
+potential reference leaks, so it is difficult for me
+to provide a very intuitive error message.
+
+> If it is the former one, could you please show us the corresponding 
+> message, e.g. from dmesg? If it is the latter one, I'd like to deal 
+> with it more carefully. Going from this scenario, I noticed that there 
+> could also be other similar places where we need to make sure that no 
+> race happens. Thus, it would make more sense to find a systematic 
+> approach.
+>
+
+We agree that we should deal with it with more care, In fact, this issue 
+is very complex and we may spend a lot of time discussing it. Therefore, 
+I suggest that we can temporarily drop it
+so that we can quickly accept the patch we have already agreed on. I 
+will send those patches separately in the future.
+
+Best Wishes,
+D. Wythe
+
+>> Fixes: 3b2dec2603d5 ("net/smc: restructure client and server code in 
+>> af_smc")
+>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>> ---
+>>   net/smc/af_smc.c | 5 +++++
+>>   1 file changed, 5 insertions(+)
+>>
+>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>> index 5ad2a9f..3bb8265 100644
+>> --- a/net/smc/af_smc.c
+>> +++ b/net/smc/af_smc.c
+>> @@ -1926,8 +1926,10 @@ static void smc_listen_out_connected(struct 
+>> smc_sock *new_smc)
+>>   {
+>>       struct sock *newsmcsk = &new_smc->sk;
+>>   +    lock_sock(newsmcsk);
+>>       if (newsmcsk->sk_state == SMC_INIT)
+>>           newsmcsk->sk_state = SMC_ACTIVE;
+>> +    release_sock(newsmcsk);
+>>         smc_listen_out(new_smc);
+>>   }
+>> @@ -1939,9 +1941,12 @@ static void smc_listen_out_err(struct smc_sock 
+>> *new_smc)
+>>       struct net *net = sock_net(newsmcsk);
+>> this_cpu_inc(net->smc.smc_stats->srv_hshake_err_cnt);
+>> +
+>> +    lock_sock(newsmcsk);
+>>       if (newsmcsk->sk_state == SMC_INIT)
+>>           sock_put(&new_smc->sk); /* passive closing */
+>>       newsmcsk->sk_state = SMC_CLOSED;
+>> +    release_sock(newsmcsk);
+>>         smc_listen_out(new_smc);
+>>   }
 
