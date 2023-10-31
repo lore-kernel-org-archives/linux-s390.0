@@ -2,131 +2,141 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 975B4C4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 31 Oct 2023 03:04:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE69BC4167D
+	for <linux-s390@archiver.kernel.org>; Tue, 31 Oct 2023 10:43:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231258AbjJaDEa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 30 Oct 2023 23:04:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50968 "EHLO
+        id S236299AbjJaKnc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 31 Oct 2023 06:43:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230409AbjJaDE3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Oct 2023 23:04:29 -0400
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29026A6;
-        Mon, 30 Oct 2023 20:04:25 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R851e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VvFmQjo_1698721454;
-Received: from 30.221.149.157(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VvFmQjo_1698721454)
-          by smtp.aliyun-inc.com;
-          Tue, 31 Oct 2023 11:04:22 +0800
-Message-ID: <947b7e7d-3b65-af4c-4583-04913f98b2d3@linux.alibaba.com>
-Date:   Tue, 31 Oct 2023 11:04:13 +0800
+        with ESMTP id S236300AbjJaKnb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 31 Oct 2023 06:43:31 -0400
+Received: from bee.tesarici.cz (bee.tesarici.cz [77.93.223.253])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83E9C83
+        for <linux-s390@vger.kernel.org>; Tue, 31 Oct 2023 03:43:29 -0700 (PDT)
+Received: from meshulam.tesarici.cz (dynamic-2a00-1028-83b8-1e7a-4427-cc85-6706-c595.ipv6.o2.cz [IPv6:2a00:1028:83b8:1e7a:4427:cc85:6706:c595])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by bee.tesarici.cz (Postfix) with ESMTPSA id B244D190C97;
+        Tue, 31 Oct 2023 11:43:22 +0100 (CET)
+Authentication-Results: mail.tesarici.cz; dmarc=fail (p=none dis=none) header.from=tesarici.cz
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tesarici.cz; s=mail;
+        t=1698749003; bh=jdCPy8MRdQgBRdIuWsT+HvlNGVFk2v04c88rT8qjyqw=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=oa8JtXsdnPE4gwCftToiBbqkSMSYruxk7HFOzsgPFJUXN1KiQHmEZIDe7FYcTPyyi
+         iPd2ruOehuiA3Az6MM9lOXB1GWJkpnQ+j9aKMyJwzCGi5Lp1RWh6FzOOvgz5LUYgoI
+         SiZRztBziVKU/KKg1uSgtLTWa0nQPknt/a1qt9VqbPjT20dPJ1M+mnCdfHzPPLkhEk
+         vekx+ktehleXu753zt6LKNMwyN88zJCOmjW9Gol2ANZToAEdT9pPeyHRynkr1CZ5Aa
+         9z7+uDLcktI5MFk85meR7Bjtx+7FZuq3Qu5ZRHLaC9DnjR8+ckQVEw/jMWRqaq6oDV
+         TCBIzrCEp6BLA==
+Date:   Tue, 31 Oct 2023 11:43:16 +0100
+From:   Petr =?UTF-8?B?VGVzYcWZw61r?= <petr@tesarici.cz>
+To:     Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc:     x86@kernel.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, hpa@zytor.com, luto@kernel.org,
+        peterz@infradead.org, kirill.shutemov@linux.intel.com,
+        elena.reshetova@intel.com, isaku.yamahata@intel.com,
+        seanjc@google.com, Michael Kelley <mikelley@microsoft.com>,
+        thomas.lendacky@amd.com, decui@microsoft.com,
+        sathyanarayanan.kuppuswamy@linux.intel.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Robin Murphy <robin.murphy@arm.com>, iommu@lists.linux.dev
+Subject: Re: [PATCH 04/10] swiotlb: Use free_decrypted_pages()
+Message-ID: <20231031114316.0bfa8d91@meshulam.tesarici.cz>
+In-Reply-To: <20231017202505.340906-5-rick.p.edgecombe@intel.com>
+References: <20231017202505.340906-1-rick.p.edgecombe@intel.com>
+        <20231017202505.340906-5-rick.p.edgecombe@intel.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-suse-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.1
-Subject: Re: [PATCH net 4/5] net/smc: protect connection state transitions in
- listen work
-To:     Wenjia Zhang <wenjia@linux.ibm.com>, kgraul@linux.ibm.com,
-        jaka@linux.ibm.com, wintera@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1697009600-22367-1-git-send-email-alibuda@linux.alibaba.com>
- <1697009600-22367-5-git-send-email-alibuda@linux.alibaba.com>
- <52133656-4dc6-4f32-9881-b63f19bb8859@linux.ibm.com>
-Content-Language: en-US
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <52133656-4dc6-4f32-9881-b63f19bb8859@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Tue, 17 Oct 2023 13:24:59 -0700
+Rick Edgecombe <rick.p.edgecombe@intel.com> wrote:
 
+> On TDX it is possible for the untrusted host to cause
+> set_memory_encrypted() or set_memory_decrypted() to fail such that an
+> error is returned and the resulting memory is shared. Callers need to take
+> care to handle these errors to avoid returning decrypted (shared) memory to
+> the page allocator, which could lead to functional or security issues.
+> 
+> Swiotlb could free decrypted/shared pages if set_memory_decrypted() fails.
+> Use the recently added free_decrypted_pages() to avoid this.
+> 
+> In swiotlb_exit(), check for set_memory_encrypted() errors manually,
+> because the pages are not nessarily going to the page allocator.
+> 
+> Cc: Christoph Hellwig <hch@lst.de>
+> Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+> Cc: Robin Murphy <robin.murphy@arm.com>
+> Cc: iommu@lists.linux.dev
+> Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
+> ---
+>  kernel/dma/swiotlb.c | 11 +++++++----
+>  1 file changed, 7 insertions(+), 4 deletions(-)
+> 
+> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+> index 394494a6b1f3..ad06786c4f98 100644
+> --- a/kernel/dma/swiotlb.c
+> +++ b/kernel/dma/swiotlb.c
+> @@ -524,6 +524,7 @@ void __init swiotlb_exit(void)
+>  	unsigned long tbl_vaddr;
+>  	size_t tbl_size, slots_size;
+>  	unsigned int area_order;
+> +	int ret;
+>  
+>  	if (swiotlb_force_bounce)
+>  		return;
+> @@ -536,17 +537,19 @@ void __init swiotlb_exit(void)
+>  	tbl_size = PAGE_ALIGN(mem->end - mem->start);
+>  	slots_size = PAGE_ALIGN(array_size(sizeof(*mem->slots), mem->nslabs));
+>  
+> -	set_memory_encrypted(tbl_vaddr, tbl_size >> PAGE_SHIFT);
+> +	ret = set_memory_encrypted(tbl_vaddr, tbl_size >> PAGE_SHIFT);
+>  	if (mem->late_alloc) {
+>  		area_order = get_order(array_size(sizeof(*mem->areas),
+>  			mem->nareas));
+>  		free_pages((unsigned long)mem->areas, area_order);
+> -		free_pages(tbl_vaddr, get_order(tbl_size));
+> +		if (!ret)
+> +			free_pages(tbl_vaddr, get_order(tbl_size));
+>  		free_pages((unsigned long)mem->slots, get_order(slots_size));
+>  	} else {
+>  		memblock_free_late(__pa(mem->areas),
+>  			array_size(sizeof(*mem->areas), mem->nareas));
+> -		memblock_free_late(mem->start, tbl_size);
+> +		if (!ret)
+> +			memblock_free_late(mem->start, tbl_size);
+>  		memblock_free_late(__pa(mem->slots), slots_size);
+>  	}
+>  
+> @@ -581,7 +584,7 @@ static struct page *alloc_dma_pages(gfp_t gfp, size_t bytes)
+>  	return page;
+>  
+>  error:
+> -	__free_pages(page, order);
+> +	free_decrypted_pages((unsigned long)vaddr, order);
+>  	return NULL;
+>  }
 
-On 10/13/23 1:14 AM, Wenjia Zhang wrote:
->
->
-> On 11.10.23 09:33, D. Wythe wrote:
->> From: "D. Wythe" <alibuda@linux.alibaba.com>
->>
->> Consider the following scenario:
->>
->>                 smc_close_passive_work
->> smc_listen_out_connected
->>                 lock_sock()
->> if (state  == SMC_INIT)
->>                 if (state  == SMC_INIT)
->>                     state = SMC_APPCLOSEWAIT1;
->>     state = SMC_ACTIVE
->>                 release_sock()
->>
->> This would cause the state machine of the connection to be corrupted.
->> Also, this issue can occur in smc_listen_out_err().
->>
->> To solve this problem, we can protect the state transitions under
->> the lock of sock to avoid collision.
->>
-> To this fix, I have to repeat the question from Alexandra.
-> Did the scenario occur in real life? Or is it just kind of potencial 
-> problem you found during the code review?
->
+I admit I'm not familiar with the encryption/decryption API, but if a
+__free_pages() is not sufficient here, then it is quite confusing.
+The error label is reached only if set_memory_decrypted() returns
+non-zero. My naive expectation is that the memory is *not* decrypted in
+that case and does not require special treatment. Is this assumption
+wrong?
 
-Hi Wenjia,
+OTOH I believe there is a bug in the logic. The subsequent
+__free_pages() in swiotlb_alloc_tlb() would have to be changed to a
+free_decrypted_pages(). However, I'm proposing a different approach to
+address the latter issue here:
 
-This is a real issue that occurred in our environment rather than being 
-obtained from code reviews.
-Unfortunately, since this patch does not cause panic, but rather 
-potential reference leaks, so it is difficult for me
-to provide a very intuitive error message.
+https://lore.kernel.org/linux-iommu/20231026095123.222-1-petrtesarik@huaweicloud.com/T/
 
-> If it is the former one, could you please show us the corresponding 
-> message, e.g. from dmesg? If it is the latter one, I'd like to deal 
-> with it more carefully. Going from this scenario, I noticed that there 
-> could also be other similar places where we need to make sure that no 
-> race happens. Thus, it would make more sense to find a systematic 
-> approach.
->
-
-We agree that we should deal with it with more care, In fact, this issue 
-is very complex and we may spend a lot of time discussing it. Therefore, 
-I suggest that we can temporarily drop it
-so that we can quickly accept the patch we have already agreed on. I 
-will send those patches separately in the future.
-
-Best Wishes,
-D. Wythe
-
->> Fixes: 3b2dec2603d5 ("net/smc: restructure client and server code in 
->> af_smc")
->> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
->> ---
->>   net/smc/af_smc.c | 5 +++++
->>   1 file changed, 5 insertions(+)
->>
->> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
->> index 5ad2a9f..3bb8265 100644
->> --- a/net/smc/af_smc.c
->> +++ b/net/smc/af_smc.c
->> @@ -1926,8 +1926,10 @@ static void smc_listen_out_connected(struct 
->> smc_sock *new_smc)
->>   {
->>       struct sock *newsmcsk = &new_smc->sk;
->>   +    lock_sock(newsmcsk);
->>       if (newsmcsk->sk_state == SMC_INIT)
->>           newsmcsk->sk_state = SMC_ACTIVE;
->> +    release_sock(newsmcsk);
->>         smc_listen_out(new_smc);
->>   }
->> @@ -1939,9 +1941,12 @@ static void smc_listen_out_err(struct smc_sock 
->> *new_smc)
->>       struct net *net = sock_net(newsmcsk);
->> this_cpu_inc(net->smc.smc_stats->srv_hshake_err_cnt);
->> +
->> +    lock_sock(newsmcsk);
->>       if (newsmcsk->sk_state == SMC_INIT)
->>           sock_put(&new_smc->sk); /* passive closing */
->>       newsmcsk->sk_state = SMC_CLOSED;
->> +    release_sock(newsmcsk);
->>         smc_listen_out(new_smc);
->>   }
-
+Petr T
