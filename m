@@ -2,141 +2,120 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE69BC4167D
-	for <linux-s390@archiver.kernel.org>; Tue, 31 Oct 2023 10:43:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60094C4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 31 Oct 2023 14:11:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236299AbjJaKnc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 31 Oct 2023 06:43:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58066 "EHLO
+        id S230405AbjJaOLk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 31 Oct 2023 10:11:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236300AbjJaKnb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 31 Oct 2023 06:43:31 -0400
-Received: from bee.tesarici.cz (bee.tesarici.cz [77.93.223.253])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83E9C83
-        for <linux-s390@vger.kernel.org>; Tue, 31 Oct 2023 03:43:29 -0700 (PDT)
-Received: from meshulam.tesarici.cz (dynamic-2a00-1028-83b8-1e7a-4427-cc85-6706-c595.ipv6.o2.cz [IPv6:2a00:1028:83b8:1e7a:4427:cc85:6706:c595])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by bee.tesarici.cz (Postfix) with ESMTPSA id B244D190C97;
-        Tue, 31 Oct 2023 11:43:22 +0100 (CET)
-Authentication-Results: mail.tesarici.cz; dmarc=fail (p=none dis=none) header.from=tesarici.cz
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tesarici.cz; s=mail;
-        t=1698749003; bh=jdCPy8MRdQgBRdIuWsT+HvlNGVFk2v04c88rT8qjyqw=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=oa8JtXsdnPE4gwCftToiBbqkSMSYruxk7HFOzsgPFJUXN1KiQHmEZIDe7FYcTPyyi
-         iPd2ruOehuiA3Az6MM9lOXB1GWJkpnQ+j9aKMyJwzCGi5Lp1RWh6FzOOvgz5LUYgoI
-         SiZRztBziVKU/KKg1uSgtLTWa0nQPknt/a1qt9VqbPjT20dPJ1M+mnCdfHzPPLkhEk
-         vekx+ktehleXu753zt6LKNMwyN88zJCOmjW9Gol2ANZToAEdT9pPeyHRynkr1CZ5Aa
-         9z7+uDLcktI5MFk85meR7Bjtx+7FZuq3Qu5ZRHLaC9DnjR8+ckQVEw/jMWRqaq6oDV
-         TCBIzrCEp6BLA==
-Date:   Tue, 31 Oct 2023 11:43:16 +0100
-From:   Petr =?UTF-8?B?VGVzYcWZw61r?= <petr@tesarici.cz>
-To:     Rick Edgecombe <rick.p.edgecombe@intel.com>
-Cc:     x86@kernel.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, hpa@zytor.com, luto@kernel.org,
-        peterz@infradead.org, kirill.shutemov@linux.intel.com,
-        elena.reshetova@intel.com, isaku.yamahata@intel.com,
-        seanjc@google.com, Michael Kelley <mikelley@microsoft.com>,
-        thomas.lendacky@amd.com, decui@microsoft.com,
-        sathyanarayanan.kuppuswamy@linux.intel.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Robin Murphy <robin.murphy@arm.com>, iommu@lists.linux.dev
-Subject: Re: [PATCH 04/10] swiotlb: Use free_decrypted_pages()
-Message-ID: <20231031114316.0bfa8d91@meshulam.tesarici.cz>
-In-Reply-To: <20231017202505.340906-5-rick.p.edgecombe@intel.com>
-References: <20231017202505.340906-1-rick.p.edgecombe@intel.com>
-        <20231017202505.340906-5-rick.p.edgecombe@intel.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-suse-linux-gnu)
+        with ESMTP id S232444AbjJaOLj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 31 Oct 2023 10:11:39 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C41F11C
+        for <linux-s390@vger.kernel.org>; Tue, 31 Oct 2023 07:10:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1698761451;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+29grXFJZojFwHG1sZMUj8N4tYbCAXJFoBUSIxQKeyY=;
+        b=eD6TW17FcLteN7LBHLH1xMpKnoD53DS/htYT0H9fVG8P4rMsDrM3KmW73UhD8KT5ZEDPSG
+        TngtDt4u11xuTtXdrFcJWm5+RJSLi1R2y6v/pJYCtSTJEk3deIS2k20ue4HdN6I5+iu2r1
+        RVOUpE+UdZCgh+MEmmr29m+FRVoo+kA=
+Received: from mail-oa1-f71.google.com (mail-oa1-f71.google.com
+ [209.85.160.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-591-Ql-fGae4N8KlEg7lDsNZyg-1; Tue, 31 Oct 2023 10:10:50 -0400
+X-MC-Unique: Ql-fGae4N8KlEg7lDsNZyg-1
+Received: by mail-oa1-f71.google.com with SMTP id 586e51a60fabf-1bf00f8cf77so7494776fac.0
+        for <linux-s390@vger.kernel.org>; Tue, 31 Oct 2023 07:10:50 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1698761449; x=1699366249;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+29grXFJZojFwHG1sZMUj8N4tYbCAXJFoBUSIxQKeyY=;
+        b=AWad49itRntBTcSvLvBvLmcl6eT4WZ+YboaqT4f+vhE9WMRq7Nc7oWdr3GAUezP3xm
+         oNoduOgk2APcyHVF5znbf1eVno0fx3yIyM7mj86BZK91gds5ocAqWrIkIEKuRuevoT4w
+         2efbWumBKotkOxJDGp8qmQfd+RxxW5XJvF2/0ICq/nrEnRLkBqAeJzr8J2efOdgERopT
+         NziE54ktpGECCdLG6WiW9RcPL9YPjnYwW9pFjeR8gSGYP04YQ/3QheWHt7/mxFa9+oxl
+         Ltekkxu9rAwxDJyd/tHMhAyXJ+vdQe3KGlXvAgQuc372++a1KfBPbrE4La+ubGM/EhC3
+         3xTw==
+X-Gm-Message-State: AOJu0Yy76ZgrFMjyI/qoj4N76LsbU4khS2ksUFNVO5te72AWafknOqFJ
+        Ap7/t6GxlCeGPMzPhDGbLMUuLJ+6/yr7nhPhJkayH3PY3wBEFt8JSUJCBGP0z93yr7kZLZHTc42
+        0n457dIE9Bc4o7f9REQtg0PkYLVMLhdXgdTILHRlHN5Yx3A==
+X-Received: by 2002:a05:6871:23c7:b0:1e9:edd1:2176 with SMTP id xy7-20020a05687123c700b001e9edd12176mr12825501oab.33.1698761449245;
+        Tue, 31 Oct 2023 07:10:49 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFkDNkghapOOyIO7MlIs094HOLFT5jnQNcb86xPe9HYK72gpMCPOxpT4qdgb2CzpsWn5KZbftCAGayTULfQu1w=
+X-Received: by 2002:a05:6871:23c7:b0:1e9:edd1:2176 with SMTP id
+ xy7-20020a05687123c700b001e9edd12176mr12825480oab.33.1698761448978; Tue, 31
+ Oct 2023 07:10:48 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20231030092101.66014-1-frankja@linux.ibm.com>
+In-Reply-To: <20231030092101.66014-1-frankja@linux.ibm.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Date:   Tue, 31 Oct 2023 15:10:37 +0100
+Message-ID: <CABgObfZtmcbdtWRFmhEuZuKBMf-AgNG_25g9GHZ0o3ZPnthtZA@mail.gmail.com>
+Subject: Re: [GIT PULL 0/2] KVM: s390: Changes for 6.7
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, david@redhat.com, borntraeger@linux.ibm.com,
+        cohuck@redhat.com, linux-s390@vger.kernel.org, nrb@linux.ibm.com,
+        imbrenda@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 17 Oct 2023 13:24:59 -0700
-Rick Edgecombe <rick.p.edgecombe@intel.com> wrote:
+On Mon, Oct 30, 2023 at 10:22=E2=80=AFAM Janosch Frank <frankja@linux.ibm.c=
+om> wrote:
+>
+> Paolo, please pull these two patches for 6.7.
+>
+> They introduce counters and a tracepoint into our nested VM page table
+> management code. Debuging nested page table management is notoriously
+> hard but the added low-overhead debug data will allow us to get a feel
+> for the problem before deploying deeper and higher overhead debugging
+> means.
+>
+> I've held back the patches for a bit since we had suspicious CI fails
+> but they turned out to be unrelated and have been fixed at the end of
+> last week.
 
-> On TDX it is possible for the untrusted host to cause
-> set_memory_encrypted() or set_memory_decrypted() to fail such that an
-> error is returned and the resulting memory is shared. Callers need to take
-> care to handle these errors to avoid returning decrypted (shared) memory to
-> the page allocator, which could lead to functional or security issues.
-> 
-> Swiotlb could free decrypted/shared pages if set_memory_decrypted() fails.
-> Use the recently added free_decrypted_pages() to avoid this.
-> 
-> In swiotlb_exit(), check for set_memory_encrypted() errors manually,
-> because the pages are not nessarily going to the page allocator.
-> 
-> Cc: Christoph Hellwig <hch@lst.de>
-> Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-> Cc: Robin Murphy <robin.murphy@arm.com>
-> Cc: iommu@lists.linux.dev
-> Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
-> ---
->  kernel/dma/swiotlb.c | 11 +++++++----
->  1 file changed, 7 insertions(+), 4 deletions(-)
-> 
-> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-> index 394494a6b1f3..ad06786c4f98 100644
-> --- a/kernel/dma/swiotlb.c
-> +++ b/kernel/dma/swiotlb.c
-> @@ -524,6 +524,7 @@ void __init swiotlb_exit(void)
->  	unsigned long tbl_vaddr;
->  	size_t tbl_size, slots_size;
->  	unsigned int area_order;
-> +	int ret;
->  
->  	if (swiotlb_force_bounce)
->  		return;
-> @@ -536,17 +537,19 @@ void __init swiotlb_exit(void)
->  	tbl_size = PAGE_ALIGN(mem->end - mem->start);
->  	slots_size = PAGE_ALIGN(array_size(sizeof(*mem->slots), mem->nslabs));
->  
-> -	set_memory_encrypted(tbl_vaddr, tbl_size >> PAGE_SHIFT);
-> +	ret = set_memory_encrypted(tbl_vaddr, tbl_size >> PAGE_SHIFT);
->  	if (mem->late_alloc) {
->  		area_order = get_order(array_size(sizeof(*mem->areas),
->  			mem->nareas));
->  		free_pages((unsigned long)mem->areas, area_order);
-> -		free_pages(tbl_vaddr, get_order(tbl_size));
-> +		if (!ret)
-> +			free_pages(tbl_vaddr, get_order(tbl_size));
->  		free_pages((unsigned long)mem->slots, get_order(slots_size));
->  	} else {
->  		memblock_free_late(__pa(mem->areas),
->  			array_size(sizeof(*mem->areas), mem->nareas));
-> -		memblock_free_late(mem->start, tbl_size);
-> +		if (!ret)
-> +			memblock_free_late(mem->start, tbl_size);
->  		memblock_free_late(__pa(mem->slots), slots_size);
->  	}
->  
-> @@ -581,7 +584,7 @@ static struct page *alloc_dma_pages(gfp_t gfp, size_t bytes)
->  	return page;
->  
->  error:
-> -	__free_pages(page, order);
-> +	free_decrypted_pages((unsigned long)vaddr, order);
->  	return NULL;
->  }
+Pulled, thanks.
 
-I admit I'm not familiar with the encryption/decryption API, but if a
-__free_pages() is not sufficient here, then it is quite confusing.
-The error label is reached only if set_memory_decrypted() returns
-non-zero. My naive expectation is that the memory is *not* decrypted in
-that case and does not require special treatment. Is this assumption
-wrong?
+Paolo
 
-OTOH I believe there is a bug in the logic. The subsequent
-__free_pages() in swiotlb_alloc_tlb() would have to be changed to a
-free_decrypted_pages(). However, I'm proposing a different approach to
-address the latter issue here:
+>
+>
+> The following changes since commit ce9ecca0238b140b88f43859b211c9fdfd8e5b=
+70:
+>
+>   Linux 6.6-rc2 (2023-09-17 14:40:24 -0700)
+>
+> are available in the Git repository at:
+>
+>   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/=
+kvm-s390-next-6.7-1
+>
+> for you to fetch changes up to 70fea30195168fd84e7076720c984f0ac1af5b09:
+>
+>   KVM: s390: add tracepoint in gmap notifier (2023-10-16 14:54:29 +0200)
+>
+> Nico Boehr (2):
+>   KVM: s390: add stat counter for shadow gmap events
+>   KVM: s390: add tracepoint in gmap notifier
+>
+>  arch/s390/include/asm/kvm_host.h |  7 +++++++
+>  arch/s390/kvm/gaccess.c          |  7 +++++++
+>  arch/s390/kvm/kvm-s390.c         | 11 ++++++++++-
+>  arch/s390/kvm/trace-s390.h       | 23 +++++++++++++++++++++++
+>  arch/s390/kvm/vsie.c             |  5 ++++-
+>  5 files changed, 51 insertions(+), 2 deletions(-)
+>
+> --
+> 2.41.0
+>
 
-https://lore.kernel.org/linux-iommu/20231026095123.222-1-petrtesarik@huaweicloud.com/T/
-
-Petr T
