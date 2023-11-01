@@ -2,89 +2,119 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBE32C001B5
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Nov 2023 03:43:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AFEAC4332F
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Nov 2023 06:27:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233120AbjKADnP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 31 Oct 2023 23:43:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55272 "EHLO
+        id S232135AbjKAG1h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Nov 2023 02:27:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232941AbjKADnO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 31 Oct 2023 23:43:14 -0400
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFDD0DF;
-        Tue, 31 Oct 2023 20:43:09 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VvKVDPG_1698810185;
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VvKVDPG_1698810185)
-          by smtp.aliyun-inc.com;
-          Wed, 01 Nov 2023 11:43:05 +0800
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        wintera@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: [PATCH net 2/3] net/smc: allow cdc msg send rather than drop it with NULL sndbuf_desc
-Date:   Wed,  1 Nov 2023 11:42:56 +0800
-Message-Id: <1698810177-69740-3-git-send-email-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1698810177-69740-1-git-send-email-alibuda@linux.alibaba.com>
-References: <1698810177-69740-1-git-send-email-alibuda@linux.alibaba.com>
+        with ESMTP id S229569AbjKAG1g (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Nov 2023 02:27:36 -0400
+X-Greylist: delayed 71043 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 31 Oct 2023 23:27:29 PDT
+Received: from bee.tesarici.cz (bee.tesarici.cz [IPv6:2a03:3b40:fe:2d4::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 365A5F4;
+        Tue, 31 Oct 2023 23:27:29 -0700 (PDT)
+Received: from meshulam.tesarici.cz (dynamic-2a00-1028-83b8-1e7a-b985-910f-39e1-703f.ipv6.o2.cz [IPv6:2a00:1028:83b8:1e7a:b985:910f:39e1:703f])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by bee.tesarici.cz (Postfix) with ESMTPSA id 1F6671922D4;
+        Wed,  1 Nov 2023 07:27:25 +0100 (CET)
+Authentication-Results: mail.tesarici.cz; dmarc=fail (p=none dis=none) header.from=tesarici.cz
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tesarici.cz; s=mail;
+        t=1698820045; bh=2K38LTZ5EoAOqClnClNnktlaqykSFUpuuZUZg3QG0Xs=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=3gVKEleekoVAHcBLOfcL+izq2BI4OydQGxObjHIt3+wSzt5Yd2uF7ZIgn5MXx6YYX
+         O6q4MsnkcxkoMLELGHuTkKwnvHGvH0bu40gmZctNfY2hTWvHoN+AluJrxZ17iey9/f
+         wJ2nItTpXDczp1AvNybKWUGfhGFuu4Wb3badjbRg7I7t6NlUZOPmu9LKn4ejW5lrgS
+         EGbbSsTRO7jZCUrXB5orn9YIZgwbN8Ao7Xkb/aPrAelyV7uA5Bczegnm0mjyszr45M
+         eFDTksnSvTIqHkylNovjtcs+B2f91lFBN1OdgZG4+RODglkiuvS4xNcKcIrS8o6Fl2
+         J6iadcl/6oyHQ==
+Date:   Wed, 1 Nov 2023 07:27:23 +0100
+From:   Petr =?UTF-8?B?VGVzYcWZw61r?= <petr@tesarici.cz>
+To:     "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>
+Cc:     "Lutomirski, Andy" <luto@kernel.org>,
+        "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
+        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+        "thomas.lendacky@amd.com" <thomas.lendacky@amd.com>,
+        "robin.murphy@arm.com" <robin.murphy@arm.com>,
+        "Reshetova, Elena" <elena.reshetova@intel.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "Christopherson,, Sean" <seanjc@google.com>,
+        "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "Yamahata, Isaku" <isaku.yamahata@intel.com>,
+        "Cui, Dexuan" <decui@microsoft.com>,
+        "mikelley@microsoft.com" <mikelley@microsoft.com>,
+        "m.szyprowski@samsung.com" <m.szyprowski@samsung.com>,
+        "hch@lst.de" <hch@lst.de>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "hpa@zytor.com" <hpa@zytor.com>,
+        "peterz@infradead.org" <peterz@infradead.org>,
+        "bp@alien8.de" <bp@alien8.de>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "sathyanarayanan.kuppuswamy@linux.intel.com" 
+        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        "x86@kernel.org" <x86@kernel.org>
+Subject: Re: [PATCH 04/10] swiotlb: Use free_decrypted_pages()
+Message-ID: <20231101072723.44d00721@meshulam.tesarici.cz>
+In-Reply-To: <3903bbaade7ba9577da88d053b67b8bfdf0d3582.camel@intel.com>
+References: <20231017202505.340906-1-rick.p.edgecombe@intel.com>
+        <20231017202505.340906-5-rick.p.edgecombe@intel.com>
+        <20231031114316.0bfa8d91@meshulam.tesarici.cz>
+        <c0233c531965a69ffb55210ace6a8a9d0f844e74.camel@intel.com>
+        <20231031181340.30233c17@meshulam.tesarici.cz>
+        <3903bbaade7ba9577da88d053b67b8bfdf0d3582.camel@intel.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-suse-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: "D. Wythe" <alibuda@linux.alibaba.com>
+Hi,
 
-This patch re-fix the issues memtianed by commit 22a825c541d7
-("net/smc: fix NULL sndbuf_desc in smc_cdc_tx_handler()").
+On Tue, 31 Oct 2023 17:29:25 +0000
+"Edgecombe, Rick P" <rick.p.edgecombe@intel.com> wrote:
 
-Blocking sending message do solve the issues though, but it also
-prevents the peer to receive the final message. Besides, in logic,
-whether the sndbuf_desc is NULL or not have no impact on the processing
-of cdc message sending.
+> On Tue, 2023-10-31 at 18:13 +0100, Petr Tesa=C5=99=C3=ADk wrote:
+> > Thank you for the explanation. So, after set_memory_decrypted()
+> > fails,
+> > the pages become Schroedinger-crypted, but since its true state
+> > cannot
+> > be observed by the guest kernel, it stays as such forever.
+> >=20
+> > Sweet.
+> >  =20
+> Yes... The untrusted host (the part of the VMM TDX is defending
+> against) gets to specify the return code of these operations (success
+> or failure). But the coco(a general term for TDX and similar from other
+> vendors) threat model doesn't include DOS. So the guest should trust
+> the return code as far as trying to not crash, but not trust it in
+> regards to the potential to leak data.
+>=20
+> It's a bit to ask of the callers, but the other solution we discussed
+> was to panic the guest if any weirdness is observed by the VMM, in
+> which case the callers would never see the error. And of course
+> panicing the kernel is Bad. So that is how we arrived at this request
+> of the callers. Appreciate the effort to handle it on that side.
+>=20
+>=20
+> > Hm, should I incorporate this knowledge into a v2 of my patch and
+> > address both issues? =20
+>=20
+> That sounds good to me! Feel free to CC me if you would like, and I can
+> scrutinize it for this particular issue.
 
-Hence that, this patch allow the cdc message sending but to check the
-sndbuf_desc with care in smc_cdc_tx_handler().
+I'm sorry I missed that free_decrypted_pages() is added by the very
+same series, so I cannot use it just yet. I can open-code it and let
+you convert the code to the new function. You may then also want to
+convert another open-coded instance further down in swiotlb_free_tlb().
 
-Fixes: 22a825c541d7 ("net/smc: fix NULL sndbuf_desc in smc_cdc_tx_handler()")
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
----
- net/smc/smc_cdc.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+In any case, there is an interdependency between the two patches, so we
+should agree in which order to apply them.
 
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 01bdb79..3c06625 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -28,13 +28,15 @@ static void smc_cdc_tx_handler(struct smc_wr_tx_pend_priv *pnd_snd,
- {
- 	struct smc_cdc_tx_pend *cdcpend = (struct smc_cdc_tx_pend *)pnd_snd;
- 	struct smc_connection *conn = cdcpend->conn;
-+	struct smc_buf_desc *sndbuf_desc;
- 	struct smc_sock *smc;
- 	int diff;
- 
-+	sndbuf_desc = conn->sndbuf_desc;
- 	smc = container_of(conn, struct smc_sock, conn);
- 	bh_lock_sock(&smc->sk);
--	if (!wc_status) {
--		diff = smc_curs_diff(cdcpend->conn->sndbuf_desc->len,
-+	if (!wc_status && sndbuf_desc) {
-+		diff = smc_curs_diff(sndbuf_desc->len,
- 				     &cdcpend->conn->tx_curs_fin,
- 				     &cdcpend->cursor);
- 		/* sndbuf_space is decreased in smc_sendmsg */
-@@ -114,9 +116,6 @@ int smc_cdc_msg_send(struct smc_connection *conn,
- 	union smc_host_cursor cfed;
- 	int rc;
- 
--	if (unlikely(!READ_ONCE(conn->sndbuf_desc)))
--		return -ENOBUFS;
--
- 	smc_cdc_add_pending_send(conn, pend);
- 
- 	conn->tx_cdc_seq++;
--- 
-1.8.3.1
-
+Petr T
