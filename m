@@ -2,119 +2,143 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AFEAC4332F
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Nov 2023 06:27:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DECA1C4332F
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Nov 2023 08:13:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232135AbjKAG1h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Nov 2023 02:27:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51482 "EHLO
+        id S229931AbjKAINh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Nov 2023 04:13:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229569AbjKAG1g (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Nov 2023 02:27:36 -0400
-X-Greylist: delayed 71043 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 31 Oct 2023 23:27:29 PDT
-Received: from bee.tesarici.cz (bee.tesarici.cz [IPv6:2a03:3b40:fe:2d4::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 365A5F4;
-        Tue, 31 Oct 2023 23:27:29 -0700 (PDT)
-Received: from meshulam.tesarici.cz (dynamic-2a00-1028-83b8-1e7a-b985-910f-39e1-703f.ipv6.o2.cz [IPv6:2a00:1028:83b8:1e7a:b985:910f:39e1:703f])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by bee.tesarici.cz (Postfix) with ESMTPSA id 1F6671922D4;
-        Wed,  1 Nov 2023 07:27:25 +0100 (CET)
-Authentication-Results: mail.tesarici.cz; dmarc=fail (p=none dis=none) header.from=tesarici.cz
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tesarici.cz; s=mail;
-        t=1698820045; bh=2K38LTZ5EoAOqClnClNnktlaqykSFUpuuZUZg3QG0Xs=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=3gVKEleekoVAHcBLOfcL+izq2BI4OydQGxObjHIt3+wSzt5Yd2uF7ZIgn5MXx6YYX
-         O6q4MsnkcxkoMLELGHuTkKwnvHGvH0bu40gmZctNfY2hTWvHoN+AluJrxZ17iey9/f
-         wJ2nItTpXDczp1AvNybKWUGfhGFuu4Wb3badjbRg7I7t6NlUZOPmu9LKn4ejW5lrgS
-         EGbbSsTRO7jZCUrXB5orn9YIZgwbN8Ao7Xkb/aPrAelyV7uA5Bczegnm0mjyszr45M
-         eFDTksnSvTIqHkylNovjtcs+B2f91lFBN1OdgZG4+RODglkiuvS4xNcKcIrS8o6Fl2
-         J6iadcl/6oyHQ==
-Date:   Wed, 1 Nov 2023 07:27:23 +0100
-From:   Petr =?UTF-8?B?VGVzYcWZw61r?= <petr@tesarici.cz>
-To:     "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>
-Cc:     "Lutomirski, Andy" <luto@kernel.org>,
-        "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
-        "thomas.lendacky@amd.com" <thomas.lendacky@amd.com>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "Reshetova, Elena" <elena.reshetova@intel.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "mingo@redhat.com" <mingo@redhat.com>,
-        "Christopherson,, Sean" <seanjc@google.com>,
-        "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "Yamahata, Isaku" <isaku.yamahata@intel.com>,
-        "Cui, Dexuan" <decui@microsoft.com>,
-        "mikelley@microsoft.com" <mikelley@microsoft.com>,
-        "m.szyprowski@samsung.com" <m.szyprowski@samsung.com>,
-        "hch@lst.de" <hch@lst.de>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "hpa@zytor.com" <hpa@zytor.com>,
-        "peterz@infradead.org" <peterz@infradead.org>,
-        "bp@alien8.de" <bp@alien8.de>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "sathyanarayanan.kuppuswamy@linux.intel.com" 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        "x86@kernel.org" <x86@kernel.org>
-Subject: Re: [PATCH 04/10] swiotlb: Use free_decrypted_pages()
-Message-ID: <20231101072723.44d00721@meshulam.tesarici.cz>
-In-Reply-To: <3903bbaade7ba9577da88d053b67b8bfdf0d3582.camel@intel.com>
-References: <20231017202505.340906-1-rick.p.edgecombe@intel.com>
-        <20231017202505.340906-5-rick.p.edgecombe@intel.com>
-        <20231031114316.0bfa8d91@meshulam.tesarici.cz>
-        <c0233c531965a69ffb55210ace6a8a9d0f844e74.camel@intel.com>
-        <20231031181340.30233c17@meshulam.tesarici.cz>
-        <3903bbaade7ba9577da88d053b67b8bfdf0d3582.camel@intel.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-suse-linux-gnu)
+        with ESMTP id S229590AbjKAINh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Nov 2023 04:13:37 -0400
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98963B4;
+        Wed,  1 Nov 2023 01:13:32 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R311e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0VvQMaox_1698826408;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0VvQMaox_1698826408)
+          by smtp.aliyun-inc.com;
+          Wed, 01 Nov 2023 16:13:29 +0800
+Date:   Wed, 1 Nov 2023 16:13:28 +0800
+From:   Dust Li <dust.li@linux.alibaba.com>
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com, wintera@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: Re: [PATCH net 1/3] net/smc: fix dangling sock under state
+ SMC_APPFINCLOSEWAIT
+Message-ID: <20231101081328.GE92403@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <1698810177-69740-1-git-send-email-alibuda@linux.alibaba.com>
+ <1698810177-69740-2-git-send-email-alibuda@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1698810177-69740-2-git-send-email-alibuda@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi,
+On Wed, Nov 01, 2023 at 11:42:55AM +0800, D. Wythe wrote:
+>From: "D. Wythe" <alibuda@linux.alibaba.com>
+>
+>Considering scenario:
+>
+>				smc_cdc_rx_handler_rwwi
+>__smc_release
+>				sock_set_flag
+>smc_close_active()
+>sock_set_flag
+>
+>__set_bit(DEAD)			__set_bit(DONE)
+>
+>Dues to __set_bit is not atomic, the DEAD or DONE might be lost.
+>if the DEAD flag lost, the state SMC_CLOSED  will be never be reached
+>in smc_close_passive_work:
+>
+>if (sock_flag(sk, SOCK_DEAD) &&
+>	smc_close_sent_any_close(conn)) {
+>	sk->sk_state = SMC_CLOSED;
+>} else {
+>	/* just shutdown, but not yet closed locally */
+>	sk->sk_state = SMC_APPFINCLOSEWAIT;
+>}
+>
+>Replace sock_set_flags or __set_bit to set_bit will fix this problem.
+>Since set_bit is atomic.
+>
+>Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
 
-On Tue, 31 Oct 2023 17:29:25 +0000
-"Edgecombe, Rick P" <rick.p.edgecombe@intel.com> wrote:
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
 
-> On Tue, 2023-10-31 at 18:13 +0100, Petr Tesa=C5=99=C3=ADk wrote:
-> > Thank you for the explanation. So, after set_memory_decrypted()
-> > fails,
-> > the pages become Schroedinger-crypted, but since its true state
-> > cannot
-> > be observed by the guest kernel, it stays as such forever.
-> >=20
-> > Sweet.
-> >  =20
-> Yes... The untrusted host (the part of the VMM TDX is defending
-> against) gets to specify the return code of these operations (success
-> or failure). But the coco(a general term for TDX and similar from other
-> vendors) threat model doesn't include DOS. So the guest should trust
-> the return code as far as trying to not crash, but not trust it in
-> regards to the potential to leak data.
->=20
-> It's a bit to ask of the callers, but the other solution we discussed
-> was to panic the guest if any weirdness is observed by the VMM, in
-> which case the callers would never see the error. And of course
-> panicing the kernel is Bad. So that is how we arrived at this request
-> of the callers. Appreciate the effort to handle it on that side.
->=20
->=20
-> > Hm, should I incorporate this knowledge into a v2 of my patch and
-> > address both issues? =20
->=20
-> That sounds good to me! Feel free to CC me if you would like, and I can
-> scrutinize it for this particular issue.
-
-I'm sorry I missed that free_decrypted_pages() is added by the very
-same series, so I cannot use it just yet. I can open-code it and let
-you convert the code to the new function. You may then also want to
-convert another open-coded instance further down in swiotlb_free_tlb().
-
-In any case, there is an interdependency between the two patches, so we
-should agree in which order to apply them.
-
-Petr T
+>---
+> net/smc/af_smc.c    | 4 ++--
+> net/smc/smc.h       | 5 +++++
+> net/smc/smc_cdc.c   | 2 +-
+> net/smc/smc_close.c | 2 +-
+> 4 files changed, 9 insertions(+), 4 deletions(-)
+>
+>diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>index abd2667..da97f94 100644
+>--- a/net/smc/af_smc.c
+>+++ b/net/smc/af_smc.c
+>@@ -275,7 +275,7 @@ static int __smc_release(struct smc_sock *smc)
+> 
+> 	if (!smc->use_fallback) {
+> 		rc = smc_close_active(smc);
+>-		sock_set_flag(sk, SOCK_DEAD);
+>+		smc_sock_set_flag(sk, SOCK_DEAD);
+> 		sk->sk_shutdown |= SHUTDOWN_MASK;
+> 	} else {
+> 		if (sk->sk_state != SMC_CLOSED) {
+>@@ -1743,7 +1743,7 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
+> 		if (new_clcsock)
+> 			sock_release(new_clcsock);
+> 		new_sk->sk_state = SMC_CLOSED;
+>-		sock_set_flag(new_sk, SOCK_DEAD);
+>+		smc_sock_set_flag(new_sk, SOCK_DEAD);
+> 		sock_put(new_sk); /* final */
+> 		*new_smc = NULL;
+> 		goto out;
+>diff --git a/net/smc/smc.h b/net/smc/smc.h
+>index 24745fd..e377980 100644
+>--- a/net/smc/smc.h
+>+++ b/net/smc/smc.h
+>@@ -377,4 +377,9 @@ void smc_fill_gid_list(struct smc_link_group *lgr,
+> int smc_nl_enable_hs_limitation(struct sk_buff *skb, struct genl_info *info);
+> int smc_nl_disable_hs_limitation(struct sk_buff *skb, struct genl_info *info);
+> 
+>+static inline void smc_sock_set_flag(struct sock *sk, enum sock_flags flag)
+>+{
+>+	set_bit(flag, &sk->sk_flags);
+>+}
+>+
+> #endif	/* __SMC_H */
+>diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+>index 89105e9..01bdb79 100644
+>--- a/net/smc/smc_cdc.c
+>+++ b/net/smc/smc_cdc.c
+>@@ -385,7 +385,7 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
+> 		smc->sk.sk_shutdown |= RCV_SHUTDOWN;
+> 		if (smc->clcsock && smc->clcsock->sk)
+> 			smc->clcsock->sk->sk_shutdown |= RCV_SHUTDOWN;
+>-		sock_set_flag(&smc->sk, SOCK_DONE);
+>+		smc_sock_set_flag(&smc->sk, SOCK_DONE);
+> 		sock_hold(&smc->sk); /* sock_put in close_work */
+> 		if (!queue_work(smc_close_wq, &conn->close_work))
+> 			sock_put(&smc->sk);
+>diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+>index dbdf03e..449ef45 100644
+>--- a/net/smc/smc_close.c
+>+++ b/net/smc/smc_close.c
+>@@ -173,7 +173,7 @@ void smc_close_active_abort(struct smc_sock *smc)
+> 		break;
+> 	}
+> 
+>-	sock_set_flag(sk, SOCK_DEAD);
+>+	smc_sock_set_flag(sk, SOCK_DEAD);
+> 	sk->sk_state_change(sk);
+> 
+> 	if (release_clcsock) {
+>-- 
+>1.8.3.1
