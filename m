@@ -2,60 +2,66 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41742C4332F
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Nov 2023 03:43:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24341C00142
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Nov 2023 03:43:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232599AbjKADnN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 31 Oct 2023 23:43:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55236 "EHLO
+        id S232456AbjKADnO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 31 Oct 2023 23:43:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232204AbjKADnN (ORCPT
+        with ESMTP id S232724AbjKADnN (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Tue, 31 Oct 2023 23:43:13 -0400
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 781B8A4;
-        Tue, 31 Oct 2023 20:43:07 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R831e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VvKVDMt_1698810177;
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VvKVDMt_1698810177)
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 334ABEA;
+        Tue, 31 Oct 2023 20:43:09 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R721e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VvKVDPU_1698810185;
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VvKVDPU_1698810185)
           by smtp.aliyun-inc.com;
-          Wed, 01 Nov 2023 11:43:04 +0800
+          Wed, 01 Nov 2023 11:43:05 +0800
 From:   "D. Wythe" <alibuda@linux.alibaba.com>
 To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
         wintera@linux.ibm.com
 Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
         linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: [PATCH net 0/3] bugfixs for smc
-Date:   Wed,  1 Nov 2023 11:42:54 +0800
-Message-Id: <1698810177-69740-1-git-send-email-alibuda@linux.alibaba.com>
+Subject: [PATCH net 3/3] net/smc: put sk reference if close work was canceled
+Date:   Wed,  1 Nov 2023 11:42:57 +0800
+Message-Id: <1698810177-69740-4-git-send-email-alibuda@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1698810177-69740-1-git-send-email-alibuda@linux.alibaba.com>
+References: <1698810177-69740-1-git-send-email-alibuda@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-This patches includes bugfix following:
+Note that we always hold a reference to sock when attempting
+to submit close_work. Therefore, if we have successfully
+canceled close_work from pending, we MUST release that reference
+to avoid potential leaks.
 
-1. hung state
-2. sock leak
-3. potential panic 
+Fixes: 42bfba9eaa33 ("net/smc: immediate termination for SMCD link groups")
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+---
+ net/smc/smc_close.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-We have been testing these patches for some time, but
-if you have any questions, please let us know.
-
-Thanks,
-D. Wythe
-
-D. Wythe (3):
-  net/smc: fix dangling sock under state SMC_APPFINCLOSEWAIT
-  net/smc: allow cdc msg send rather than drop it with NULL sndbuf_desc
-  net/smc: put sk reference if close work was canceled
-
- net/smc/af_smc.c    |  4 ++--
- net/smc/smc.h       |  5 +++++
- net/smc/smc_cdc.c   | 11 +++++------
- net/smc/smc_close.c |  5 +++--
- 4 files changed, 15 insertions(+), 10 deletions(-)
-
+diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+index 449ef45..10219f5 100644
+--- a/net/smc/smc_close.c
++++ b/net/smc/smc_close.c
+@@ -116,7 +116,8 @@ static void smc_close_cancel_work(struct smc_sock *smc)
+ 	struct sock *sk = &smc->sk;
+ 
+ 	release_sock(sk);
+-	cancel_work_sync(&smc->conn.close_work);
++	if (cancel_work_sync(&smc->conn.close_work))
++		sock_put(sk);
+ 	cancel_delayed_work_sync(&smc->conn.tx_work);
+ 	lock_sock(sk);
+ }
 -- 
 1.8.3.1
 
