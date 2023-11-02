@@ -2,85 +2,117 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 385DBC4332F
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Nov 2023 14:54:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 652E0C4332F
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Nov 2023 18:16:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232145AbjKBOya (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 2 Nov 2023 10:54:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51004 "EHLO
+        id S235273AbjKBSQy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Nov 2023 14:16:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232828AbjKBOy3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Nov 2023 10:54:29 -0400
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F30A13D;
-        Thu,  2 Nov 2023 07:54:24 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R881e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VvWTSr._1698936858;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0VvWTSr._1698936858)
-          by smtp.aliyun-inc.com;
-          Thu, 02 Nov 2023 22:54:19 +0800
-Date:   Thu, 2 Nov 2023 22:54:18 +0800
-From:   Dust Li <dust.li@linux.alibaba.com>
-To:     Li RongQing <lirongqing@baidu.com>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: Re: [PATCH] net/smc: avoid atomic_set and smp_wmb in the tx path
- when possible
-Message-ID: <20231102145418.GH92403@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20231102092712.30793-1-lirongqing@baidu.com>
+        with ESMTP id S234461AbjKBSQx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Nov 2023 14:16:53 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9210195
+        for <linux-s390@vger.kernel.org>; Thu,  2 Nov 2023 11:16:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1698948967;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=yH09Py8IYRdWEq70yMXJ3wDczRklXyABpCu4Oku+uko=;
+        b=SizAcB/3S6N6dFX/+7vHslRbTJZWQGV8h18TpFfF2Q0/czKw6ppyPhL1OpXx1nYy9wCCpE
+        6VU1tpakKfkpBCdQosH6JaeN/YI5nvXfUvN/Oy9g1052k9tSizXDUfoIEDcxk7YAM2q5di
+        Naeb5omcrrNq1XCbi1Wx344v1b20osE=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-331-RLBysd_KNy63FxD0Z1u9PQ-1; Thu, 02 Nov 2023 14:16:04 -0400
+X-MC-Unique: RLBysd_KNy63FxD0Z1u9PQ-1
+Received: by mail-lj1-f200.google.com with SMTP id 38308e7fff4ca-2c3e3672dc8so2089181fa.1
+        for <linux-s390@vger.kernel.org>; Thu, 02 Nov 2023 11:16:04 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1698948963; x=1699553763;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=yH09Py8IYRdWEq70yMXJ3wDczRklXyABpCu4Oku+uko=;
+        b=IHdj7Kwp05d0px3az4ZP2vahEuK8OIrcIMKN976gNjaluvvgF5/eMs5Uufnkdz43Jl
+         gczjCZX0OwNzwFohW7/CyxgEjgBA4bF9+WBgsjyaK3HWZRlkde6iV9q7M7hdl0VjLLPz
+         d3MrjUBpZJgUk9HVhFpthba4J2dL989YSEhuSN82/N/GvqMJmkP5NLPLnGD1cb9Mcjh/
+         uUoIhx1V04syxBr8hpOTdMPvMZYTiMKUOW/mdDExDOwbxVEc2DqaqP4iiUF6hWqX5Zil
+         0EIGu7+3ioQBP0bBHt0QnZiQiymzb68z5zsrRJxK9PgUhLHThlfRQ485UWjaAvNE1IGp
+         2ReQ==
+X-Gm-Message-State: AOJu0YzksQqQicHaJC07CSTi5zYap37OeGbbqeHWeMQL5YWkjnTMJfB/
+        LgRsUZntVua0q6Ub5Vgnc40IAwaDQSMHFnWmgf8wWJp8B6cg00ysLyQ4Y230fTdWVgjuKn+R1c7
+        FYoqLFJ8uceK6ffhPqUj+cw==
+X-Received: by 2002:a2e:9695:0:b0:2c4:ff24:b02e with SMTP id q21-20020a2e9695000000b002c4ff24b02emr14483930lji.3.1698948963408;
+        Thu, 02 Nov 2023 11:16:03 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFS1zGZUHtg3KOcze+sfSekgUGd8coQqnik/gqhe4Qn0cg6IP3P+fkjw/XDjmt/1fT6T4eXsA==
+X-Received: by 2002:a2e:9695:0:b0:2c4:ff24:b02e with SMTP id q21-20020a2e9695000000b002c4ff24b02emr14483906lji.3.1698948963067;
+        Thu, 02 Nov 2023 11:16:03 -0700 (PDT)
+Received: from pstanner-thinkpadt14sgen1.remote.csb ([2001:9e8:32c5:d600:227b:d2ff:fe26:2a7a])
+        by smtp.gmail.com with ESMTPSA id m28-20020a05600c3b1c00b004076f522058sm3879929wms.0.2023.11.02.11.16.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Nov 2023 11:16:02 -0700 (PDT)
+From:   Philipp Stanner <pstanner@redhat.com>
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, x86@kernel.org,
+        Philipp Stanner <pstanner@redhat.com>,
+        Dave Airlie <airlied@redhat.com>
+Subject: [PATCH 3/3] virt/kvm: copy userspace-array safely
+Date:   Thu,  2 Nov 2023 19:15:26 +0100
+Message-ID: <20231102181526.43279-4-pstanner@redhat.com>
+X-Mailer: git-send-email 2.41.0
+In-Reply-To: <20231102181526.43279-1-pstanner@redhat.com>
+References: <20231102181526.43279-1-pstanner@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231102092712.30793-1-lirongqing@baidu.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Nov 02, 2023 at 05:27:12PM +0800, Li RongQing wrote:
->these is less opportunity that conn->tx_pushing is not 1, since
+kvm_main.c utilizes vmemdup_user() and array_size() to copy a userspace
+array. Currently, this does not check for an overflow.
 
-these -> there ?
+Use the new wrapper vmemdup_array_user() to copy the array more safely.
 
->tx_pushing is just checked with 1, so move the setting tx_pushing
->to 1 after atomic_dec_and_test() return false, to avoid atomic_set
->and smp_wmb in tx path when possible
+Suggested-by: Dave Airlie <airlied@redhat.com>
+Signed-off-by: Philipp Stanner <pstanner@redhat.com>
+---
+ virt/kvm/kvm_main.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-The patch should add [PATCH net-next] subject-prefix since this is an optimization.
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 486800a7024b..2a2f409c2a7d 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -4932,9 +4932,8 @@ static long kvm_vm_ioctl(struct file *filp,
+ 			goto out;
+ 		if (routing.nr) {
+ 			urouting = argp;
+-			entries = vmemdup_user(urouting->entries,
+-					       array_size(sizeof(*entries),
+-							  routing.nr));
++			entries = vmemdup_array_user(urouting->entries,
++						     routing.nr, sizeof(*entries));
+ 			if (IS_ERR(entries)) {
+ 				r = PTR_ERR(entries);
+ 				goto out;
+-- 
+2.41.0
 
-Besides, do you have any performance number ?
-
-Thanks
-
->
->Signed-off-by: Li RongQing <lirongqing@baidu.com>
->---
-> net/smc/smc_tx.c | 7 ++++---
-> 1 file changed, 4 insertions(+), 3 deletions(-)
->
->diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
->index 3b0ff3b..72dbdee 100644
->--- a/net/smc/smc_tx.c
->+++ b/net/smc/smc_tx.c
->@@ -667,8 +667,6 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
-> 		return 0;
-> 
-> again:
->-	atomic_set(&conn->tx_pushing, 1);
->-	smp_wmb(); /* Make sure tx_pushing is 1 before real send */
-> 	rc = __smc_tx_sndbuf_nonempty(conn);
-> 
-> 	/* We need to check whether someone else have added some data into
->@@ -677,8 +675,11 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
-> 	 * If so, we need to push again to prevent those data hang in the send
-> 	 * queue.
-> 	 */
->-	if (unlikely(!atomic_dec_and_test(&conn->tx_pushing)))
->+	if (unlikely(!atomic_dec_and_test(&conn->tx_pushing))) {
->+		atomic_set(&conn->tx_pushing, 1);
->+		smp_wmb(); /* Make sure tx_pushing is 1 before real send */
-> 		goto again;
->+	}
-> 
-> 	return rc;
-> }
->-- 
->2.9.4
