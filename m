@@ -2,123 +2,126 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86A36C4167B
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Nov 2023 18:16:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5B61C4332F
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Nov 2023 20:42:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377140AbjKBSQ6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 2 Nov 2023 14:16:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44294 "EHLO
+        id S229462AbjKBUml (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Nov 2023 16:42:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235013AbjKBSQy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Nov 2023 14:16:54 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2876192
-        for <linux-s390@vger.kernel.org>; Thu,  2 Nov 2023 11:16:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1698948963;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=lX9pDYhUv0xNWCwt2hkI8FAcvsPw051Wv1MARO9LEh8=;
-        b=bFfPgMvOPB2357SzbJws51CKGTPxicMLFpsF9oPnlJNwyhpmnlvX789gCsbzPxv2o7vgb3
-        ZNcAYiPz34hALSev1ScpVd5wmfiAhcNplUriMmTkF2rY8+LqKV+/PEfB3AfzERloiuSDAy
-        qaMI4Nq4u3h8ZUu5YMXKL4K/enbIy1A=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-674-MJI4G3ZmNS2YAnRAv2RGgA-1; Thu, 02 Nov 2023 14:16:02 -0400
-X-MC-Unique: MJI4G3ZmNS2YAnRAv2RGgA-1
-Received: by mail-lj1-f199.google.com with SMTP id 38308e7fff4ca-2c56c75ea84so2546551fa.1
-        for <linux-s390@vger.kernel.org>; Thu, 02 Nov 2023 11:16:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1698948961; x=1699553761;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=lX9pDYhUv0xNWCwt2hkI8FAcvsPw051Wv1MARO9LEh8=;
-        b=M3Wl0R+BEQFfZa7f5hN3IA/nrCad2NNCUZHpgJU8bEL/L3aalDAZausc5yR4tOwwpt
-         TmUKNipC4TlPoqyJTXaBOmnLhDOVOKM5vTwCA7An1YPpeX/YHJjYlDUO1ksT6tigsOj8
-         s7fQCdV69/CgEhJs41Grf4fgpSjqY34aOErXNDsynNMD5qef7AH2aOcimkf+K2BQGjW4
-         YOfI8HI9GMUNpINY5NQMPhh8InI32KKojjMBQuKgrrD/zvsgITpmtxPKje7olNZ9FQ/F
-         PRGVukkVv2QSUZ0WxeReusP7Ypycefy0Tj/6uSuvV3YcdDSoK76rz0R4816RP705IJ7N
-         5bPg==
-X-Gm-Message-State: AOJu0YxkqlZUcZJKuEet2F24h8IVdwBHS+WquvRNQbq4VI99sfWg7MYm
-        gljKj2FhdaDVASB+Wmee9rU0MwIFwF3RVi5jxmwXVKGldvNKQK1OA6UiJiIzc4mORE60nP/LXNN
-        RtWhucPCAZ4M5HcpPH6+3bw==
-X-Received: by 2002:a2e:b5cd:0:b0:2c0:7d6:1349 with SMTP id g13-20020a2eb5cd000000b002c007d61349mr13191958ljn.0.1698948960955;
-        Thu, 02 Nov 2023 11:16:00 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEA9GFg/9wbEsQk9hiRtyKr5Sw8+tU0lzjpfffLtjFPJgequPAx/iZqfrIIRwYQeDUno1rPwQ==
-X-Received: by 2002:a2e:b5cd:0:b0:2c0:7d6:1349 with SMTP id g13-20020a2eb5cd000000b002c007d61349mr13191934ljn.0.1698948960612;
-        Thu, 02 Nov 2023 11:16:00 -0700 (PDT)
-Received: from pstanner-thinkpadt14sgen1.remote.csb ([2001:9e8:32c5:d600:227b:d2ff:fe26:2a7a])
-        by smtp.gmail.com with ESMTPSA id m28-20020a05600c3b1c00b004076f522058sm3879929wms.0.2023.11.02.11.15.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Nov 2023 11:16:00 -0700 (PDT)
-From:   Philipp Stanner <pstanner@redhat.com>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, x86@kernel.org,
-        Philipp Stanner <pstanner@redhat.com>,
-        Dave Airlie <airlied@redhat.com>
-Subject: [PATCH 1/3] arch/x86/kvm: copy user-array with overflow-check
-Date:   Thu,  2 Nov 2023 19:15:24 +0100
-Message-ID: <20231102181526.43279-2-pstanner@redhat.com>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20231102181526.43279-1-pstanner@redhat.com>
-References: <20231102181526.43279-1-pstanner@redhat.com>
+        with ESMTP id S229459AbjKBUmk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Nov 2023 16:42:40 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80633181;
+        Thu,  2 Nov 2023 13:42:38 -0700 (PDT)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A2K7Our019191;
+        Thu, 2 Nov 2023 20:42:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : references : from : cc : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=6T2zyMbjK1cZjAPB5KZIio/2H5h9yh3osA1ZwvHqBNM=;
+ b=DI5kpa0wjyCc0khDQO4v0u1cZcRthGGEGzZFbN8kVu+viRJ1ww/eg33jYcTiniUpm567
+ 7phin9+dsCDkfzlFHJizPJ4kLUh616zczkUxhKwkV9Sp0iAHc8IRHawcl9d/KCu06gO6
+ eLbF5ALvmMRb174ADnxCnpt4Z6/jkp3gKZytsb38CP60KskVDANoAom4IijqBiN0pGSt
+ Kj29yDNT/Rjj8+2UzURm/auVNkDV6HEfyR1gjZ/JPqyWggMpf2bsIO+id4uWWrzKbRt9
+ MN8FhitNR3d5f90MUXgIIK9Gr5XDLqOk6WYgwMDzyiE1QGUa96/kX3b2PxPWpANLMPyN 6A== 
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u4jhb9088-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 02 Nov 2023 20:42:30 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A2J3w6M011286;
+        Thu, 2 Nov 2023 20:42:29 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u1eukgy4r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 02 Nov 2023 20:42:29 +0000
+Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
+        by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A2KgSKa46072402
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 2 Nov 2023 20:42:29 GMT
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BA54A58058;
+        Thu,  2 Nov 2023 20:42:28 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2B33D5805D;
+        Thu,  2 Nov 2023 20:42:28 +0000 (GMT)
+Received: from [9.171.80.36] (unknown [9.171.80.36])
+        by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Thu,  2 Nov 2023 20:42:27 +0000 (GMT)
+Message-ID: <4b1c9303-9ad1-42f3-a1a2-b9ccfcafd022@linux.ibm.com>
+Date:   Thu, 2 Nov 2023 21:42:27 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] net/smc: avoid atomic_set and smp_wmb in the tx path when
+ possible
+Content-Language: en-GB
+To:     Li RongQing <lirongqing@baidu.com>
+References: <20231102092712.30793-1-lirongqing@baidu.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <20231102092712.30793-1-lirongqing@baidu.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: vQOBN3Z0hfpzgLBfQlDo9MBCzKCLGO83
+X-Proofpoint-ORIG-GUID: vQOBN3Z0hfpzgLBfQlDo9MBCzKCLGO83
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-02_10,2023-11-02_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
+ lowpriorityscore=0 priorityscore=1501 mlxlogscore=687 malwarescore=0
+ bulkscore=0 suspectscore=0 mlxscore=0 phishscore=0 impostorscore=0
+ clxscore=1011 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310240000 definitions=main-2311020168
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-cpuid.c utilizes vmemdup_user() and array_size() to copy two userspace
-arrays. This, currently, does not check for an overflow.
 
-Use the new wrapper vmemdup_array_user() to copy the arrays more safely.
 
-Suggested-by: Dave Airlie <airlied@redhat.com>
-Signed-off-by: Philipp Stanner <pstanner@redhat.com>
----
- arch/x86/kvm/cpuid.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+On 02.11.23 10:27, Li RongQing wrote:
+> these is less opportunity that conn->tx_pushing is not 1, since
+> tx_pushing is just checked with 1, so move the setting tx_pushing
+> to 1 after atomic_dec_and_test() return false, to avoid atomic_set
+> and smp_wmb in tx path when possible
+> 
+I think we should avoid to use argument like "less opportunity" in 
+commit message. Because "less opportunity" does not mean "no 
+opportunity". Once it occurs, does it mean that what the patch changes 
+is useless or wrong?
 
-diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
-index 773132c3bf5a..4a15b2a20f84 100644
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -467,7 +467,7 @@ int kvm_vcpu_ioctl_set_cpuid(struct kvm_vcpu *vcpu,
- 		return -E2BIG;
- 
- 	if (cpuid->nent) {
--		e = vmemdup_user(entries, array_size(sizeof(*e), cpuid->nent));
-+		e = vmemdup_array_user(entries, cpuid->nent, sizeof(*e));
- 		if (IS_ERR(e))
- 			return PTR_ERR(e);
- 
-@@ -511,7 +511,7 @@ int kvm_vcpu_ioctl_set_cpuid2(struct kvm_vcpu *vcpu,
- 		return -E2BIG;
- 
- 	if (cpuid->nent) {
--		e2 = vmemdup_user(entries, array_size(sizeof(*e2), cpuid->nent));
-+		e2 = vmemdup_array_user(entries, cpuid->nent, sizeof(*e2));
- 		if (IS_ERR(e2))
- 			return PTR_ERR(e2);
- 	}
--- 
-2.41.0
-
+> Signed-off-by: Li RongQing <lirongqing@baidu.com>
+> ---
+>   net/smc/smc_tx.c | 7 ++++---
+>   1 file changed, 4 insertions(+), 3 deletions(-)
+> 
+> diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+> index 3b0ff3b..72dbdee 100644
+> --- a/net/smc/smc_tx.c
+> +++ b/net/smc/smc_tx.c
+> @@ -667,8 +667,6 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+>   		return 0;
+>   
+>   again:
+> -	atomic_set(&conn->tx_pushing, 1);
+> -	smp_wmb(); /* Make sure tx_pushing is 1 before real send */
+>   	rc = __smc_tx_sndbuf_nonempty(conn);
+>   
+>   	/* We need to check whether someone else have added some data into
+> @@ -677,8 +675,11 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+>   	 * If so, we need to push again to prevent those data hang in the send
+>   	 * queue.
+>   	 */
+> -	if (unlikely(!atomic_dec_and_test(&conn->tx_pushing)))
+> +	if (unlikely(!atomic_dec_and_test(&conn->tx_pushing))) {
+> +		atomic_set(&conn->tx_pushing, 1);
+> +		smp_wmb(); /* Make sure tx_pushing is 1 before real send */
+>   		goto again;
+> +	}
+>   
+>   	return rc;
+>   }
+I'm afraid that the *if* statement would never be true, without setting 
+the value of &conn->tx_pushing firstly.
