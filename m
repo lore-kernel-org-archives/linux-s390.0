@@ -2,30 +2,30 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2304C4167D
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Nov 2023 05:52:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A133C0018C
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Nov 2023 05:52:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231829AbjKBFwZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 2 Nov 2023 01:52:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50186 "EHLO
+        id S232524AbjKBFw3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Nov 2023 01:52:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232546AbjKBFwX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Nov 2023 01:52:23 -0400
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18527182;
-        Wed,  1 Nov 2023 22:52:17 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R761e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VvUokzo_1698904334;
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VvUokzo_1698904334)
+        with ESMTP id S232546AbjKBFw2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Nov 2023 01:52:28 -0400
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3656195;
+        Wed,  1 Nov 2023 22:52:21 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VvUol-K_1698904335;
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VvUol-K_1698904335)
           by smtp.aliyun-inc.com;
-          Thu, 02 Nov 2023 13:52:14 +0800
+          Thu, 02 Nov 2023 13:52:15 +0800
 From:   "D. Wythe" <alibuda@linux.alibaba.com>
 To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
         wintera@linux.ibm.com
 Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
         linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: [PATCH net v1 1/3] net/smc: fix dangling sock under state SMC_APPFINCLOSEWAIT
-Date:   Thu,  2 Nov 2023 13:52:02 +0800
-Message-Id: <1698904324-33238-2-git-send-email-alibuda@linux.alibaba.com>
+Subject: [PATCH net v1 3/3] net/smc: put sk reference if close work was canceled
+Date:   Thu,  2 Nov 2023 13:52:04 +0800
+Message-Id: <1698904324-33238-4-git-send-email-alibuda@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1698904324-33238-1-git-send-email-alibuda@linux.alibaba.com>
 References: <1698904324-33238-1-git-send-email-alibuda@linux.alibaba.com>
@@ -35,102 +35,32 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-Considering scenario:
+Note that we always hold a reference to sock when attempting
+to submit close_work. Therefore, if we have successfully
+canceled close_work from pending, we MUST release that reference
+to avoid potential leaks.
 
-				smc_cdc_rx_handler
-__smc_release
-				sock_set_flag
-smc_close_active()
-sock_set_flag
-
-__set_bit(DEAD)			__set_bit(DONE)
-
-Dues to __set_bit is not atomic, the DEAD or DONE might be lost.
-if the DEAD flag lost, the state SMC_CLOSED  will be never be reached
-in smc_close_passive_work:
-
-if (sock_flag(sk, SOCK_DEAD) &&
-	smc_close_sent_any_close(conn)) {
-	sk->sk_state = SMC_CLOSED;
-} else {
-	/* just shutdown, but not yet closed locally */
-	sk->sk_state = SMC_APPFINCLOSEWAIT;
-}
-
-Replace sock_set_flags or __set_bit to set_bit will fix this problem.
-Since set_bit is atomic.
-
+Fixes: 42bfba9eaa33 ("net/smc: immediate termination for SMCD link groups")
 Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
 Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
 ---
- net/smc/af_smc.c    | 4 ++--
- net/smc/smc.h       | 5 +++++
- net/smc/smc_cdc.c   | 2 +-
- net/smc/smc_close.c | 2 +-
- 4 files changed, 9 insertions(+), 4 deletions(-)
+ net/smc/smc_close.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index abd2667..da97f94 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -275,7 +275,7 @@ static int __smc_release(struct smc_sock *smc)
- 
- 	if (!smc->use_fallback) {
- 		rc = smc_close_active(smc);
--		sock_set_flag(sk, SOCK_DEAD);
-+		smc_sock_set_flag(sk, SOCK_DEAD);
- 		sk->sk_shutdown |= SHUTDOWN_MASK;
- 	} else {
- 		if (sk->sk_state != SMC_CLOSED) {
-@@ -1743,7 +1743,7 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
- 		if (new_clcsock)
- 			sock_release(new_clcsock);
- 		new_sk->sk_state = SMC_CLOSED;
--		sock_set_flag(new_sk, SOCK_DEAD);
-+		smc_sock_set_flag(new_sk, SOCK_DEAD);
- 		sock_put(new_sk); /* final */
- 		*new_smc = NULL;
- 		goto out;
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 24745fd..e377980 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -377,4 +377,9 @@ void smc_fill_gid_list(struct smc_link_group *lgr,
- int smc_nl_enable_hs_limitation(struct sk_buff *skb, struct genl_info *info);
- int smc_nl_disable_hs_limitation(struct sk_buff *skb, struct genl_info *info);
- 
-+static inline void smc_sock_set_flag(struct sock *sk, enum sock_flags flag)
-+{
-+	set_bit(flag, &sk->sk_flags);
-+}
-+
- #endif	/* __SMC_H */
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 89105e9..01bdb79 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -385,7 +385,7 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- 		smc->sk.sk_shutdown |= RCV_SHUTDOWN;
- 		if (smc->clcsock && smc->clcsock->sk)
- 			smc->clcsock->sk->sk_shutdown |= RCV_SHUTDOWN;
--		sock_set_flag(&smc->sk, SOCK_DONE);
-+		smc_sock_set_flag(&smc->sk, SOCK_DONE);
- 		sock_hold(&smc->sk); /* sock_put in close_work */
- 		if (!queue_work(smc_close_wq, &conn->close_work))
- 			sock_put(&smc->sk);
 diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
-index dbdf03e..449ef45 100644
+index 449ef45..10219f5 100644
 --- a/net/smc/smc_close.c
 +++ b/net/smc/smc_close.c
-@@ -173,7 +173,7 @@ void smc_close_active_abort(struct smc_sock *smc)
- 		break;
- 	}
+@@ -116,7 +116,8 @@ static void smc_close_cancel_work(struct smc_sock *smc)
+ 	struct sock *sk = &smc->sk;
  
--	sock_set_flag(sk, SOCK_DEAD);
-+	smc_sock_set_flag(sk, SOCK_DEAD);
- 	sk->sk_state_change(sk);
- 
- 	if (release_clcsock) {
+ 	release_sock(sk);
+-	cancel_work_sync(&smc->conn.close_work);
++	if (cancel_work_sync(&smc->conn.close_work))
++		sock_put(sk);
+ 	cancel_delayed_work_sync(&smc->conn.tx_work);
+ 	lock_sock(sk);
+ }
 -- 
 1.8.3.1
 
