@@ -2,57 +2,57 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3459C4332F
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 09:30:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16405C001B0
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 09:30:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347128AbjKCJaG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Nov 2023 05:30:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45158 "EHLO
+        id S1347099AbjKCJaH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Nov 2023 05:30:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347099AbjKCJaD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 05:30:03 -0400
+        with ESMTP id S1347132AbjKCJaE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 05:30:04 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC15DD47;
-        Fri,  3 Nov 2023 02:30:00 -0700 (PDT)
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A38nVos008485;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F0E6D4B;
+        Fri,  3 Nov 2023 02:30:01 -0700 (PDT)
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A39OYDX012824;
         Fri, 3 Nov 2023 09:30:00 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=lr1aJMwtYhv0OXZc066uW45PypTmq3DPT04Ccw5LmZc=;
- b=jdAV6ajqujF9WYOl66hkYNo8h/qO7aDxvKWjqB+vrtrYpQgobzsBvG4UFQAJrFaePXs0
- WeJ5iqkO5yCOiTOjjD9m2qKnu88ziglvn1wDcDTgzwctwMLY2hnitzX1BjFaH9rzivmK
- HK7vJF2E8NtALm8/cp3vugz9vF+mFJz1JjxaQLIJepVONclbo/TXhkma7tTVNzaoBV7T
- QxfGybejrYW/F8O+uMC9XwT+zsoC/1rrz53i0As/jQOAeggzR1eNV8YfdALGVOW5D4vd
- ZYMjZ/E6SjOC43oNuHbDpi6Lxfw9mq8J8VFKfg0eCQEXxeYw4pWag75N4hKXb2ZaCpLH 8w== 
+ bh=rkjta/9FYCQorqFCdZfOewXusplPfNL4DC0joOQSLoI=;
+ b=dmcjJwr1yZnc+znPmyszdjmVk5frlfgoXJjqgB64Pl3SWE38/mKVVUcePF1Qtu7KZgPh
+ sa1Hkrv/FJw+f4uskvgS1sQ0id3DEM9zYu0HYrajUQhw4clMDpHRgwNs1+hM57BluI2E
+ WCk4Nbc+4G6lHXtQ3N+q6N9ZZfCzROV95GoiGbJrijyKXGtgZJ5IgxB0wUILnioVnMCS
+ f9QUKXKfvY4BAqINxi+UW/VPv8aDgPy/XMobLxJMWJjzeIf8T9WG0XP78P/oe0xRZhUU
+ wUiP8BktxxAEMGP+k+fluFt9+ANHqKk0myF19Pt4isSJY1vEQ1o4psKLYFWHRtwFEqyf JA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u4wpf92wt-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u4x6wg44e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Nov 2023 09:29:59 +0000
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A39D7IH014588;
+        Fri, 03 Nov 2023 09:30:00 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A39OXls012702;
         Fri, 3 Nov 2023 09:29:59 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u4wpf92wg-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u4x6wg448-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 03 Nov 2023 09:29:59 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A36hVdc011389;
-        Fri, 3 Nov 2023 09:29:58 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u1eukmjgd-1
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A38QZtL019895;
+        Fri, 3 Nov 2023 09:29:59 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u1d10557k-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Nov 2023 09:29:58 +0000
+        Fri, 03 Nov 2023 09:29:59 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A39Ttmp42271374
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A39TucX17498754
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 3 Nov 2023 09:29:55 GMT
+        Fri, 3 Nov 2023 09:29:56 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 83D0220040;
-        Fri,  3 Nov 2023 09:29:55 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 1A59D20040;
+        Fri,  3 Nov 2023 09:29:56 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6200C2004F;
+        by IMSVA (Postfix) with ESMTP id E33A72004D;
         Fri,  3 Nov 2023 09:29:55 +0000 (GMT)
 Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
         by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -60,116 +60,55 @@ Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
 From:   Nico Boehr <nrb@linux.ibm.com>
 To:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v7 5/8] s390x: lib: sie: don't reenter SIE on pgm int
-Date:   Fri,  3 Nov 2023 10:29:34 +0100
-Message-ID: <20231103092954.238491-6-nrb@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v7 8/8] lib: s390x: interrupt: remove TEID_ASCE defines
+Date:   Fri,  3 Nov 2023 10:29:37 +0100
+Message-ID: <20231103092954.238491-9-nrb@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20231103092954.238491-1-nrb@linux.ibm.com>
 References: <20231103092954.238491-1-nrb@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: w5ZXLS_BGxHRK--0z_fBHbDe3lvsXo9e
-X-Proofpoint-ORIG-GUID: z3xLj_Awr-9dY6vmLDkDpa0Lk2xSx784
+X-Proofpoint-ORIG-GUID: rW22c2iNZ10QmoxkeXCqL31P-ZtVVSid
+X-Proofpoint-GUID: 6lXHZ6gXaY-N4Y3YCb05BKup4XWFPb5P
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-03_09,2023-11-02_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=67 phishscore=0 bulkscore=0
- spamscore=67 suspectscore=0 adultscore=0 clxscore=1015 impostorscore=0
- mlxlogscore=-30 mlxscore=67 malwarescore=0 priorityscore=1501
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
+ lowpriorityscore=0 impostorscore=0 mlxlogscore=765 priorityscore=1501
+ adultscore=0 suspectscore=0 bulkscore=0 malwarescore=0 clxscore=1015
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2310240000 definitions=main-2311030078
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-At the moment, when a PGM int occurs while in SIE, we will just reenter
-SIE after the interrupt handler was called.
-
-This is because sie() has a loop which checks icptcode and re-enters SIE
-if it is zero.
-
-However, this behaviour is quite undesirable for SIE tests, since it
-doesn't give the host the chance to assert on the PGM int. Instead, we
-will just re-enter SIE, on nullifing conditions even causing the
-exception again.
-
-In sie(), check whether a pgm int code is set in lowcore. If it has,
-exit the loop so the test can react to the interrupt. Add a new function
-read_pgm_int_code() to obtain the interrupt code.
-
-Note that this introduces a slight oddity with sie and pgm int in
-certain cases: If a PGM int occurs between a expect_pgm_int() and sie(),
-we will now never enter SIE until the pgm_int_code is cleared by e.g.
-clear_pgm_int().
-
-Also add missing include of facility.h to mem.h.
+These defines were - I can only guess - meant for the asce_id field.
+Since print_decode_teid() used AS_PRIM and friends instead, I see little
+benefit in keeping these around.
 
 Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 Reviewed-by: Thomas Huth <thuth@redhat.com>
 ---
- lib/s390x/asm/interrupt.h | 14 ++++++++++++++
- lib/s390x/asm/mem.h       |  1 +
- lib/s390x/sie.c           |  4 +++-
- 3 files changed, 18 insertions(+), 1 deletion(-)
+ lib/s390x/asm/interrupt.h | 5 -----
+ 1 file changed, 5 deletions(-)
 
 diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
-index d01f8a89641a..7f73d473b346 100644
+index 7f73d473b346..48bd78fa1515 100644
 --- a/lib/s390x/asm/interrupt.h
 +++ b/lib/s390x/asm/interrupt.h
-@@ -97,4 +97,18 @@ static inline void low_prot_disable(void)
- 	ctl_clear_bit(0, CTL0_LOW_ADDR_PROT);
- }
+@@ -13,11 +13,6 @@
+ #define EXT_IRQ_EXTERNAL_CALL	0x1202
+ #define EXT_IRQ_SERVICE_SIG	0x2401
  
-+/**
-+ * read_pgm_int_code - Get the program interruption code of the last pgm int
-+ * on the current CPU.
-+ *
-+ * This is similar to clear_pgm_int(), except that it doesn't clear the
-+ * interruption information from lowcore.
-+ *
-+ * Returns 0 when none occurred.
-+ */
-+static inline uint16_t read_pgm_int_code(void)
-+{
-+	return lowcore.pgm_int_code;
-+}
-+
- #endif
-diff --git a/lib/s390x/asm/mem.h b/lib/s390x/asm/mem.h
-index 64ef59b546a4..94d58c34f53f 100644
---- a/lib/s390x/asm/mem.h
-+++ b/lib/s390x/asm/mem.h
-@@ -8,6 +8,7 @@
- #ifndef _ASMS390X_MEM_H_
- #define _ASMS390X_MEM_H_
- #include <asm/arch_def.h>
-+#include <asm/facility.h>
- 
- /* create pointer while avoiding compiler warnings */
- #define OPAQUE_PTR(x) ((void *)(((uint64_t)&lowcore) + (x)))
-diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
-index 7f4474555ff7..a97096948460 100644
---- a/lib/s390x/sie.c
-+++ b/lib/s390x/sie.c
-@@ -13,6 +13,7 @@
- #include <libcflat.h>
- #include <sie.h>
- #include <asm/page.h>
-+#include <asm/interrupt.h>
- #include <libcflat.h>
- #include <alloc_page.h>
- 
-@@ -79,7 +80,8 @@ void sie(struct vm *vm)
- 	/* also handle all interruptions in home space while in SIE */
- 	irq_set_dat_mode(true, AS_HOME);
- 
--	while (vm->sblk->icptcode == 0) {
-+	/* leave SIE when we have an intercept or an interrupt so the test can react to it */
-+	while (vm->sblk->icptcode == 0 && !read_pgm_int_code()) {
- 		sie64a(vm->sblk, &vm->save_area);
- 		sie_handle_validity(vm);
- 	}
+-#define TEID_ASCE_PRIMARY	0
+-#define TEID_ASCE_AR		1
+-#define TEID_ASCE_SECONDARY	2
+-#define TEID_ASCE_HOME		3
+-
+ union teid {
+ 	unsigned long val;
+ 	union {
 -- 
 2.41.0
 
