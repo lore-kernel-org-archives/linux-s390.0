@@ -2,58 +2,79 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02A37C4332F
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 14:30:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1E42C4167D
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 14:44:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377813AbjKCOah (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Nov 2023 10:30:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44176 "EHLO
+        id S229495AbjKCOov (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Nov 2023 10:44:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377836AbjKCOaf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 10:30:35 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB808D4D;
-        Fri,  3 Nov 2023 07:30:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=TutFGcTUbbtZZeHXA63UR/SNK49qiEmJWb/gtgYEieI=; b=FbyJVXsJzK7XKpDQhQSH2f5bbB
-        EgnQqqd9A9MFrtDCw2kOiVC1DIyBIwkyxlhwtCFXD4kA29mLsIB2wnynfa+ilpkl4TDa+mlRCGUQe
-        bWhB9NrNZ6N8a2BJoYER/YL5yFnOOOynx4Ntax3dLv5EjBGKpDj2bljHRIgrQ+yhvyLmlCKvwtpD5
-        txs3wPs/dADpxkPkUXf9pmOa/WA3wpJwY3mFWqRJarMd6nYaQf+TRGQvYWVUM5qFNc+hNSK3qeSqU
-        Xor8VEwOvcszB2K2Ci/7a62ltupYnMXN6gdoUfddkshXy82ilrp/FDK4sJRxXmk1Fx8uhoQ2e0Yne
-        T6r8e5EA==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1qyvBp-005rhq-Os; Fri, 03 Nov 2023 14:30:25 +0000
-Date:   Fri, 3 Nov 2023 14:30:25 +0000
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        with ESMTP id S1377815AbjKCODz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 10:03:55 -0400
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46012D62;
+        Fri,  3 Nov 2023 07:03:51 -0700 (PDT)
+Received: from dggpemm100001.china.huawei.com (unknown [172.30.72.54])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4SMMpP5g8Gz1P7nl;
+        Fri,  3 Nov 2023 22:00:45 +0800 (CST)
+Received: from localhost.localdomain (10.175.112.125) by
+ dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.31; Fri, 3 Nov 2023 22:03:46 +0800
+From:   Kefeng Wang <wangkefeng.wang@huawei.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+CC:     <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
+        Matthew Wilcox <willy@infradead.org>,
         David Hildenbrand <david@redhat.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH rfc 00/18] mm: convert to use folio mm counter
-Message-ID: <ZUUEAbs6/GlZmV+Q@casper.infradead.org>
+        <linux-s390@vger.kernel.org>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>
+Subject: [PATCH 08/18] mm: khugepaged: use mm_counter_file_folio() in collapse_pte_mapped_thp()
+Date:   Fri, 3 Nov 2023 22:01:09 +0800
+Message-ID: <20231103140119.2306578-9-wangkefeng.wang@huawei.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20231103140119.2306578-1-wangkefeng.wang@huawei.com>
 References: <20231103140119.2306578-1-wangkefeng.wang@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231103140119.2306578-1-wangkefeng.wang@huawei.com>
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.112.125]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ dggpemm100001.china.huawei.com (7.185.36.93)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Nov 03, 2023 at 10:01:01PM +0800, Kefeng Wang wrote:
-> Convert mm counter page functions to folio ones.
-> 
->   mm_counter()       ->	mm_counter_folio()
->   mm_counter_file()  ->	mm_counter_file_folio()
-> 
-> Maybe it's better to rename folio mm counter function back to mm_counter()
-> and mm_counter_file() after all conversion?
+Use mm_counter_file_folio() to save two compound_head() calls in
+mm_counter_file_folio().
 
-I deliberately didn't do this because it's mostly churn.
-Once all callers of mm_counter() and mm_counter_file() have been
-converted to use folios, we can do one big patch to convert all
-callers to pass a folio instead of a page.
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+---
+ mm/khugepaged.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index 064654717843..a6805f4f6dea 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1630,7 +1630,7 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr,
+ 	/* step 3: set proper refcount and mm_counters. */
+ 	if (nr_ptes) {
+ 		folio_ref_sub(folio, nr_ptes);
+-		add_mm_counter(mm, mm_counter_file(&folio->page), -nr_ptes);
++		add_mm_counter(mm, mm_counter_file_folio(folio), -nr_ptes);
+ 	}
+ 
+ 	/* step 4: remove empty page table */
+@@ -1661,7 +1661,7 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr,
+ 	if (nr_ptes) {
+ 		flush_tlb_mm(mm);
+ 		folio_ref_sub(folio, nr_ptes);
+-		add_mm_counter(mm, mm_counter_file(&folio->page), -nr_ptes);
++		add_mm_counter(mm, mm_counter_file_folio(folio), -nr_ptes);
+ 	}
+ 	if (start_pte)
+ 		pte_unmap_unlock(start_pte, ptl);
+-- 
+2.27.0
+
