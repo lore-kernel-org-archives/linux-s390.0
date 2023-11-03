@@ -2,124 +2,177 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 594C7C4332F
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 08:13:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 818C1C4332F
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 09:30:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235561AbjKCIN4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Nov 2023 04:13:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46930 "EHLO
+        id S1347117AbjKCJaD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Nov 2023 05:30:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235490AbjKCINy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 04:13:54 -0400
+        with ESMTP id S1347099AbjKCJaC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 05:30:02 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73F1D131;
-        Fri,  3 Nov 2023 01:13:51 -0700 (PDT)
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A37sfe0014915;
-        Fri, 3 Nov 2023 08:13:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=zMP5Blu3Ei7JyRR3CHb7v8/yp0ZTd6P7rHplart82eg=;
- b=iszAVqIcUgVWLLcg83jES5zs43kk3pTLO2aPWxVFyxfDl885gQzKYTWHStTgS708ZVrN
- rxxzph1EmI2jFEuaO2025hWqSvQp7AvIyq/y3aSc6lY7Ms77YpRbvp/uANWDZjgMyQ0V
- KE4/MAWbdQy/x9nKnmv/6q4tbMYOMPbkudCy1I5f48USKXBN9kEvkhHtIm05rqwLMkxb
- 5MR/vqEVBMPSJ8loj7DuFhPxPL1csNmWaOkSLn/RvvUF0p1Xf/j2/WZNxSIS6CQFWhvR
- itbBmwgxzkaz/FQrAzpbm06x39hWFqX7cbpAurGOwfJyQz11vJ0SYZYT8yymy9iJwC8j Jg== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD2161AD;
+        Fri,  3 Nov 2023 02:29:59 -0700 (PDT)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A39D2YU013866;
+        Fri, 3 Nov 2023 09:29:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=YXYAwnUtHym5osNANq4ZZm1guANxxDAw0GD/oxyBUh8=;
+ b=m4aPXRH6ZBF45YdDTmLWWuSXBcxRU0xiME/oVhR93lj9piD6lPPPmXmCxUt00wLG7yPy
+ oRqn/QHEhB/mY9Pq4Z2MwHu0iOzRUiBuS7ou5rA1SVjZ0CncasCpc4O3bVBQ2bQtMsFH
+ CT74UDpNjRHq4kNBLu58pBmnspa+IHaVJ3V6cJ7mkCg3gcEGzOwLrnw3suqiJIN2thUJ
+ uIqCB3H5TpwYzg0tDUmE1fhe4e2+OQ2O6wVozbjuAkHnlvx0nWyTEj/EXpGgbThERSHT
+ 0n1DnZl2RpFgky3ZSLw76p6ZKbwyZJAO93iMp8s2uZdG70wjvEROioZLsTopP3bw981G gg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u4vvt8dct-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u4wpf92wb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Nov 2023 08:13:46 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A38BCXM002545;
-        Fri, 3 Nov 2023 08:13:46 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u4vvt8dcf-1
+        Fri, 03 Nov 2023 09:29:58 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A39D7IF014588;
+        Fri, 3 Nov 2023 09:29:58 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u4wpf92vu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Nov 2023 08:13:46 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A3815s7031388;
-        Fri, 3 Nov 2023 08:13:45 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u1fb2m2n3-1
+        Fri, 03 Nov 2023 09:29:58 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A37JmGn011268;
+        Fri, 3 Nov 2023 09:29:57 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u1eukmjga-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Nov 2023 08:13:45 +0000
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-        by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A38Disg26673708
+        Fri, 03 Nov 2023 09:29:57 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A39TsqZ20906716
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 3 Nov 2023 08:13:44 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 091815805C;
-        Fri,  3 Nov 2023 08:13:44 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 48A4358054;
-        Fri,  3 Nov 2023 08:13:42 +0000 (GMT)
-Received: from [9.171.80.36] (unknown [9.171.80.36])
-        by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Fri,  3 Nov 2023 08:13:42 +0000 (GMT)
-Message-ID: <d4bf228b-3f58-4c1a-97fb-ae6ceb25f544@linux.ibm.com>
-Date:   Fri, 3 Nov 2023 09:13:41 +0100
+        Fri, 3 Nov 2023 09:29:54 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B11DB20040;
+        Fri,  3 Nov 2023 09:29:54 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8E3562004D;
+        Fri,  3 Nov 2023 09:29:54 +0000 (GMT)
+Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri,  3 Nov 2023 09:29:54 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v7 0/8] s390x: Add support for running guests without MSO/MSL
+Date:   Fri,  3 Nov 2023 10:29:29 +0100
+Message-ID: <20231103092954.238491-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v2 0/3] bugfixs for smc
-Content-Language: en-GB
-To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        jaka@linux.ibm.com, wintera@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1698991660-82957-1-git-send-email-alibuda@linux.alibaba.com>
-From:   Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <1698991660-82957-1-git-send-email-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ZzL5E2iQc1qFo8EX5qy2w19ae3ZhD_pr
-X-Proofpoint-GUID: OCuD6J1ndabIgZe3Er32Q0S3wzBTViCt
+X-Proofpoint-GUID: gHi10CTZm9VWzqOtv2vi5pFm_hUeM13E
+X-Proofpoint-ORIG-GUID: wEso65Wu-vkdQjS0T31rMQcfP1mdlQH3
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-03_07,2023-11-02_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
- malwarescore=0 clxscore=1015 mlxlogscore=999 priorityscore=1501
- phishscore=0 impostorscore=0 mlxscore=0 lowpriorityscore=0 adultscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2310240000 definitions=main-2311030066
+ definitions=2023-11-03_09,2023-11-02_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 bulkscore=0
+ spamscore=0 suspectscore=0 adultscore=0 clxscore=1015 impostorscore=0
+ mlxlogscore=913 mlxscore=0 malwarescore=0 priorityscore=1501
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310240000 definitions=main-2311030078
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+v7:
+---
+* pick up r-bs
+* fixup unneeded linebreak (thanks Janosch)
+* remove outdated comments (thanks Janosch)
+* remove unneeded includes (thanks Janosch)
 
+v6:
+---
+* add commit "s390x: add test source dir to include paths" and share define with number of pages between snippet and test (Thomas)
+* add commit "lib: s390x: interrupt: remove TEID_ASCE defines"
+* rename dat -> use_dat (thanks Thomas)
+* remove IRQ_DAT_ON/_OFF defines (thanks Thomas)
+* add a comment to explain why we switch to home space when entering SIE (thanks Thomas)
+* clarify register_ext_cleanup_func() doesn't touch address space mode when DAT is off (thanks Thomas)
+* convert address space defines to enum (thanks Thomas)
+* switch bitfield member to uint64_t (thanks Claudio)
+* upercase hex number
+* in selftest, set the bitfield value to a define and then assert on the bitfield (thanks Thomas)
 
-On 03.11.23 07:07, D. Wythe wrote:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
-> 
-> This patches includes bugfix following:
-> 
-> 1. hung state
-> 2. sock leak
-> 3. potential panic
-> 
-> We have been testing these patches for some time, but
-> if you have any questions, please let us know.
-> 
-> --
-> v1:
-> Fix spelling errors and incorrect function names in descriptions
-> 
-> v2->v1:
-> Add fix tags for bugfix patch
-> 
-> D. Wythe (3):
->    net/smc: fix dangling sock under state SMC_APPFINCLOSEWAIT
->    net/smc: allow cdc msg send rather than drop it with NULL sndbuf_desc
->    net/smc: put sk reference if close work was canceled
-> 
->   net/smc/af_smc.c    |  4 ++--
->   net/smc/smc.h       |  5 +++++
->   net/smc/smc_cdc.c   | 11 +++++------
->   net/smc/smc_close.c |  5 +++--
->   4 files changed, 15 insertions(+), 10 deletions(-)
-> 
+v5:
+---
+* fix a big oopsie in irq_set_dat_mode() which caused parts of lowcore being
+  overwritten (thanks Claudio)
 
-Thank you for the fixes, LGTM! For all of the 3 pathces:
+v4:
+---
+- add static assert for PSW bitfield (Janosch, Claudio)
+- remove unneeded includes (Janosch)
+- move variable decls to function start (Janosch)
+- remove unneeded imports (Janosch)
+- lowerocase hex (Janosch)
+- remove unneeded attr (Janosch)
+- tyop :-) fixes (Janosch)
 
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+v3:
+---
+* introduce bitfield for the PSW to make handling less clumsy
+* some variable renames (Claudio)
+* remove unneeded barriers (Claudio)
+* remove rebase leftover sie_had_pgm_int (Claudio)
+* move read_pgm_int_code to header (Claudio)
+* squash include fix commit into the one causing the issue (Claudio)
+
+v2:
+---
+* add function to change DAT/AS mode for all irq handlers (Janosch, Claudio)
+* instead of a new flag in PROG0C, check the pgm int code in lowcore (Janosch)
+* fix indents, comments (Nina)
+
+Right now, all SIE tests in kvm-unit-tests (i.e. where kvm-unit-test is the
+hypervisor) run using MSO/MSL.
+
+This is convenient, because it's simple. But it also comes with
+disadvantages, for example some features are unavailabe with MSO/MSL.
+
+This series adds support for running guests without MSO/MSL with dedicated
+guest page tables for the GPA->HPA translation.
+
+Since SIE implicitly uses the primary space mode for the guest, the host
+can't run in the primary space mode, too. To avoid moving all tests to the
+home space mode, only switch to home space mode when it is actually needed.
+
+This series also comes with various bugfixes that were caught while
+develoing this.
+
+Nico Boehr (8):
+  lib: s390x: introduce bitfield for PSW mask
+  s390x: add function to set DAT mode for all interrupts
+  s390x: sie: switch to home space mode before entering SIE
+  s390x: lib: don't forward PSW when handling exception in SIE
+  s390x: lib: sie: don't reenter SIE on pgm int
+  s390x: add test source dir to include paths
+  s390x: add a test for SIE without MSO/MSL
+  lib: s390x: interrupt: remove TEID_ASCE defines
+
+ lib/s390x/asm/arch_def.h   |  36 ++++++++++--
+ lib/s390x/asm/interrupt.h  |  21 +++++--
+ lib/s390x/asm/mem.h        |   1 +
+ lib/s390x/interrupt.c      |  36 ++++++++++++
+ lib/s390x/mmu.c            |   5 +-
+ lib/s390x/sie.c            |  30 +++++++++-
+ s390x/Makefile             |   4 +-
+ s390x/selftest.c           |  34 ++++++++++++
+ s390x/sie-dat.c            | 110 +++++++++++++++++++++++++++++++++++++
+ s390x/snippets/c/sie-dat.c |  52 ++++++++++++++++++
+ s390x/snippets/c/sie-dat.h |   2 +
+ s390x/unittests.cfg        |   3 +
+ 12 files changed, 320 insertions(+), 14 deletions(-)
+ create mode 100644 s390x/sie-dat.c
+ create mode 100644 s390x/snippets/c/sie-dat.c
+ create mode 100644 s390x/snippets/c/sie-dat.h
+
+-- 
+2.41.0
+
