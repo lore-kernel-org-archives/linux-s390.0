@@ -2,136 +2,127 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFC10C0018C
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 06:07:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75D3FC4332F
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 06:41:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229975AbjKCGH5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Nov 2023 02:07:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55638 "EHLO
+        id S231874AbjKCGlm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Nov 2023 02:41:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229907AbjKCGH4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 02:07:56 -0400
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E879E1B4;
-        Thu,  2 Nov 2023 23:07:51 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VvYF2Hu_1698991665;
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VvYF2Hu_1698991665)
-          by smtp.aliyun-inc.com;
-          Fri, 03 Nov 2023 14:07:46 +0800
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        wintera@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: [PATCH net v2 1/3] net/smc: fix dangling sock under state SMC_APPFINCLOSEWAIT
-Date:   Fri,  3 Nov 2023 14:07:38 +0800
-Message-Id: <1698991660-82957-2-git-send-email-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1698991660-82957-1-git-send-email-alibuda@linux.alibaba.com>
-References: <1698991660-82957-1-git-send-email-alibuda@linux.alibaba.com>
+        with ESMTP id S231811AbjKCGll (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 02:41:41 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5919E1BC;
+        Thu,  2 Nov 2023 23:41:38 -0700 (PDT)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A36ewOO021022;
+        Fri, 3 Nov 2023 06:41:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=bGyBTBLXGl8eNkZ76UBpVtkvlNO0ktX/HO4Js5wA1Go=;
+ b=lAMEqRzWeVFERQ74/xcc5P1Ui1QJLaZmT8cpBx4dUT4uDL/NHxovdOkcuDtRdTAmrVtP
+ rLoYNXqrml6FN/GYdQJWMrsBSmckP1yxvJL5m1OTljfOTRxKQImSFMxyfNh+2xB6Hq3q
+ JAbpPMfmhUp6ewX9R/5ixXU1Ky2G/DOrc7i6tPqMAPP0s2jkIZp92l3+d36RSIsQSe3x
+ PgbRTgVqgDOII1R7+KGFzlZeJcV77enU/YYEnRtACrzdSHerrNjoZvYQLynrgGKUHJAg
+ 4bpFqo7crfJDGp/uwf1kBMdG4FQIPq7Q1fjiwig2BKpqlmFqEfTFlEubH7i/tzoCpnEy qw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u4u1ah74t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Nov 2023 06:41:37 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A36fTDW023167;
+        Fri, 3 Nov 2023 06:41:37 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u4u1ah74p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Nov 2023 06:41:37 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A34N6pr031381;
+        Fri, 3 Nov 2023 06:41:36 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u1fb2kmmp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Nov 2023 06:41:36 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A36fX6T16515634
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 3 Nov 2023 06:41:33 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A450420069;
+        Fri,  3 Nov 2023 06:41:33 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6FB942005A;
+        Fri,  3 Nov 2023 06:41:33 +0000 (GMT)
+Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri,  3 Nov 2023 06:41:33 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v1 1/2] s390x: spec_ex-sie: refactor to use snippet API
+Date:   Fri,  3 Nov 2023 07:35:46 +0100
+Message-ID: <20231103064132.11358-2-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.41.0
+In-Reply-To: <20231103064132.11358-1-nrb@linux.ibm.com>
+References: <20231103064132.11358-1-nrb@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: LGcCoNzXvqjxClsGP5ZXhkFeIXHeaoqQ
+X-Proofpoint-GUID: xeImNIR9Ha4N5ETLIj9h6OUa0rZ1-dqq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-03_06,2023-11-02_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 impostorscore=0 lowpriorityscore=0 bulkscore=0 mlxscore=0
+ spamscore=0 mlxlogscore=999 adultscore=0 phishscore=0 suspectscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310240000 definitions=main-2311030053
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: "D. Wythe" <alibuda@linux.alibaba.com>
+spec_ex-sie uses a snippet, but allocated the memory on its own without
+obvious reason to do so.
 
-Considering scenario:
+Refactor the test to use snippet_init().
 
-				smc_cdc_rx_handler
-__smc_release
-				sock_set_flag
-smc_close_active()
-sock_set_flag
-
-__set_bit(DEAD)			__set_bit(DONE)
-
-Dues to __set_bit is not atomic, the DEAD or DONE might be lost.
-if the DEAD flag lost, the state SMC_CLOSED  will be never be reached
-in smc_close_passive_work:
-
-if (sock_flag(sk, SOCK_DEAD) &&
-	smc_close_sent_any_close(conn)) {
-	sk->sk_state = SMC_CLOSED;
-} else {
-	/* just shutdown, but not yet closed locally */
-	sk->sk_state = SMC_APPFINCLOSEWAIT;
-}
-
-Replace sock_set_flags or __set_bit to set_bit will fix this problem.
-Since set_bit is atomic.
-
-Fixes: b38d732477e4 ("smc: socket closing and linkgroup cleanup")
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 ---
- net/smc/af_smc.c    | 4 ++--
- net/smc/smc.h       | 5 +++++
- net/smc/smc_cdc.c   | 2 +-
- net/smc/smc_close.c | 2 +-
- 4 files changed, 9 insertions(+), 4 deletions(-)
+ s390x/spec_ex-sie.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index abd2667..da97f94 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -275,7 +275,7 @@ static int __smc_release(struct smc_sock *smc)
+diff --git a/s390x/spec_ex-sie.c b/s390x/spec_ex-sie.c
+index 5fa135b81c86..fe2f23ee3d84 100644
+--- a/s390x/spec_ex-sie.c
++++ b/s390x/spec_ex-sie.c
+@@ -17,19 +17,18 @@
+ #include <hardware.h>
  
- 	if (!smc->use_fallback) {
- 		rc = smc_close_active(smc);
--		sock_set_flag(sk, SOCK_DEAD);
-+		smc_sock_set_flag(sk, SOCK_DEAD);
- 		sk->sk_shutdown |= SHUTDOWN_MASK;
- 	} else {
- 		if (sk->sk_state != SMC_CLOSED) {
-@@ -1743,7 +1743,7 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
- 		if (new_clcsock)
- 			sock_release(new_clcsock);
- 		new_sk->sk_state = SMC_CLOSED;
--		sock_set_flag(new_sk, SOCK_DEAD);
-+		smc_sock_set_flag(new_sk, SOCK_DEAD);
- 		sock_put(new_sk); /* final */
- 		*new_smc = NULL;
- 		goto out;
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 24745fd..e377980 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -377,4 +377,9 @@ void smc_fill_gid_list(struct smc_link_group *lgr,
- int smc_nl_enable_hs_limitation(struct sk_buff *skb, struct genl_info *info);
- int smc_nl_disable_hs_limitation(struct sk_buff *skb, struct genl_info *info);
+ static struct vm vm;
+-extern const char SNIPPET_NAME_START(c, spec_ex)[];
+-extern const char SNIPPET_NAME_END(c, spec_ex)[];
+ static bool strict;
  
-+static inline void smc_sock_set_flag(struct sock *sk, enum sock_flags flag)
-+{
-+	set_bit(flag, &sk->sk_flags);
-+}
+ static void setup_guest(void)
+ {
+-	char *guest;
+-	int binary_size = SNIPPET_LEN(c, spec_ex);
++	extern const char SNIPPET_NAME_START(c, spec_ex)[];
++	extern const char SNIPPET_NAME_END(c, spec_ex)[];
+ 
+ 	setup_vm();
+-	guest = alloc_pages(8);
+-	memcpy(guest, SNIPPET_NAME_START(c, spec_ex), binary_size);
+-	sie_guest_create(&vm, (uint64_t) guest, HPAGE_SIZE);
 +
- #endif	/* __SMC_H */
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 89105e9..01bdb79 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -385,7 +385,7 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- 		smc->sk.sk_shutdown |= RCV_SHUTDOWN;
- 		if (smc->clcsock && smc->clcsock->sk)
- 			smc->clcsock->sk->sk_shutdown |= RCV_SHUTDOWN;
--		sock_set_flag(&smc->sk, SOCK_DONE);
-+		smc_sock_set_flag(&smc->sk, SOCK_DONE);
- 		sock_hold(&smc->sk); /* sock_put in close_work */
- 		if (!queue_work(smc_close_wq, &conn->close_work))
- 			sock_put(&smc->sk);
-diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
-index dbdf03e..449ef45 100644
---- a/net/smc/smc_close.c
-+++ b/net/smc/smc_close.c
-@@ -173,7 +173,7 @@ void smc_close_active_abort(struct smc_sock *smc)
- 		break;
- 	}
++	snippet_setup_guest(&vm, false);
++	snippet_init(&vm, SNIPPET_NAME_START(c, spec_ex),
++		     SNIPPET_LEN(c, spec_ex), SNIPPET_UNPACK_OFF);
+ }
  
--	sock_set_flag(sk, SOCK_DEAD);
-+	smc_sock_set_flag(sk, SOCK_DEAD);
- 	sk->sk_state_change(sk);
- 
- 	if (release_clcsock) {
+ static void reset_guest(void)
 -- 
-1.8.3.1
+2.41.0
 
