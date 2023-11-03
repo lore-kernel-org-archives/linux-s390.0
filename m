@@ -2,186 +2,199 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DFDBDC4332F
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 14:14:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ECF51C4332F
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 14:14:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230191AbjKCOOX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Nov 2023 10:14:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53372 "EHLO
+        id S230266AbjKCOOb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Nov 2023 10:14:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230052AbjKCOOW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 10:14:22 -0400
+        with ESMTP id S230052AbjKCOOa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 10:14:30 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C25BA1B9;
-        Fri,  3 Nov 2023 07:14:19 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A3EB6LO032055;
-        Fri, 3 Nov 2023 14:14:19 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C753F1B9;
+        Fri,  3 Nov 2023 07:14:27 -0700 (PDT)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A3Dkvlt002012;
+        Fri, 3 Nov 2023 14:14:27 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=PcFcbey4B7DabZl8YWC3SuyKVaKD0jjfqgEgdAgk/94=;
- b=lWf4KAbocSeKH7zwMyP8PtciX+WBmJuiv7bzPJ2f3EMqHEdhuFepSSrizh707K/LpJ47
- xTrxx8SqgNM+JWqg8oDiBwTzvIg1b1z+Da2fRnitJtftG3od7aDNcKuvrHqII9r9Na2c
- RDSx43C67FhsjFUI4v0njAXgEhISQqOewD2hd239CtXUYgMNtG5ZSzQI7H+zyNo8fQrs
- NnoQmmSxCq3cSgLX5gbLE96jDZYCKQTWgqlN7jtjXokKEOKjsCaikxTxtEnJQkYv/iVH
- DvBhl+noA9bTYNSZkfhML8aDzAo2DwKRdq6I9VCjZelO0oxw+FYB1U9Z2zyFVHexH+SY hA== 
+ bh=2dHkwY0ZexrWZfQ46gqbOMiqCKtCgsoqLD7Omyhjzfo=;
+ b=cyNfcVjImx+4VTVWpi1qnjq2Da7Z/auk/dL8tQtT81w074ys+3BYlSZitKEi3gJR1fKi
+ hZVlc2NLAKTr3mIckFQIcEWr+LFqhA4N6T00z4XRMC/Z73jRVNeOSJJ5C6OlNBxtGANO
+ 4EmlAw1OuXrmgb9+FtY+kjQ4GVCGR4eZ8l2QrBeWVrQrNb4VaqKyWz8iOJmjumDUhuYx
+ +OhyCvOnGmb9F2/bJJ8qe+rT3PB9SPS9zBlW2X72lB3PYSXiX8cDeqndOjswV3k10/k2
+ E+Gn+HVQiZ1TUqHaTjG70GeAOehl1oe9738Y+10f9JeKH/g7Is/zNKc4qAR/yMHZbtIo Qg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u52700jks-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u522295wc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Nov 2023 14:14:19 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A3EBbqO004035;
-        Fri, 3 Nov 2023 14:14:18 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u52700jhu-1
+        Fri, 03 Nov 2023 14:14:26 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A3E5ata004124;
+        Fri, 3 Nov 2023 14:14:25 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u522295sn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Nov 2023 14:14:18 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A3DkUEi000614;
-        Fri, 3 Nov 2023 14:14:17 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u1cmtpqrr-1
+        Fri, 03 Nov 2023 14:14:24 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A3Dm2VY011291;
+        Fri, 3 Nov 2023 14:14:16 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u1eukp23y-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Nov 2023 14:14:17 +0000
+        Fri, 03 Nov 2023 14:14:16 +0000
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A3EEF0e17302064
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A3EEDCd16253674
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 3 Nov 2023 14:14:15 GMT
+        Fri, 3 Nov 2023 14:14:13 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1181F20043;
-        Fri,  3 Nov 2023 14:14:15 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id C4AEB20043;
+        Fri,  3 Nov 2023 14:14:13 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E42B420040;
-        Fri,  3 Nov 2023 14:14:14 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id A31B020040;
+        Fri,  3 Nov 2023 14:14:13 +0000 (GMT)
 Received: from p-imbrenda (unknown [9.152.224.66])
         by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri,  3 Nov 2023 14:14:14 +0000 (GMT)
-Date:   Fri, 3 Nov 2023 14:44:24 +0100
+        Fri,  3 Nov 2023 14:14:13 +0000 (GMT)
+Date:   Fri, 3 Nov 2023 14:35:55 +0100
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     Nico Boehr <nrb@linux.ibm.com>
 Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v7 3/8] s390x: sie: switch to home space
- mode before entering SIE
-Message-ID: <20231103144424.139994a5@p-imbrenda>
-In-Reply-To: <20231103092954.238491-4-nrb@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v7 1/8] lib: s390x: introduce bitfield
+ for PSW mask
+Message-ID: <20231103143555.1b6d35ff@p-imbrenda>
+In-Reply-To: <20231103092954.238491-2-nrb@linux.ibm.com>
 References: <20231103092954.238491-1-nrb@linux.ibm.com>
-        <20231103092954.238491-4-nrb@linux.ibm.com>
+        <20231103092954.238491-2-nrb@linux.ibm.com>
 Organization: IBM
 X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 0DMuTPgGRj27A6CowotpCSlZOh-Iv5fe
-X-Proofpoint-ORIG-GUID: 11EG2Oz-Y-aSLDMLMH2u4t1UxLZNr5vy
+X-Proofpoint-GUID: 3IKmUVE54MK5x9qlX9UAMOYKUrYgciJK
+X-Proofpoint-ORIG-GUID: gv8ITapMpfGOdE-_6m1vL8OMXqu8MOAg
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-03_13,2023-11-02_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
- suspectscore=0 mlxlogscore=999 spamscore=0 lowpriorityscore=0
- clxscore=1015 mlxscore=0 phishscore=0 priorityscore=1501 malwarescore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
+ impostorscore=0 malwarescore=0 mlxscore=0 priorityscore=1501
+ lowpriorityscore=0 phishscore=0 bulkscore=0 adultscore=0 clxscore=1015
+ mlxlogscore=855 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2310240000 definitions=main-2311030120
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri,  3 Nov 2023 10:29:32 +0100
+On Fri,  3 Nov 2023 10:29:30 +0100
 Nico Boehr <nrb@linux.ibm.com> wrote:
 
-> This is to prepare for running guests without MSO/MSL, which is
-> currently not possible.
+> Changing the PSW mask is currently little clumsy, since there is only the
+> PSW_MASK_* defines. This makes it hard to change e.g. only the address
+> space in the current PSW without a lot of bit fiddling.
 > 
-> We already have code in sie64a to setup a guest primary ASCE before
-> entering SIE, so we can in theory switch to the page tables which
-> translate gpa to hpa.
-> 
-> But the host is running in primary space mode already, so changing the
-> primary ASCE before entering SIE will also affect the host's code and
-> data.
-> 
-> To make this switch useful, the host should run in a different address
-> space mode. Hence, set up and change to home address space mode before
-> installing the guest ASCE.
-> 
-> The home space ASCE is just copied over from the primary space ASCE, so
-> no functional change is intended, also for tests that want to use
-> MSO/MSL. If a test intends to use a different primary space ASCE, it can
-> now just set the guest.asce in the save_area.
+> Introduce a bitfield for the PSW mask. This makes this kind of
+> modifications much simpler and easier to read.
 > 
 > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 > Reviewed-by: Thomas Huth <thuth@redhat.com>
-
 Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
 > ---
->  lib/s390x/asm/arch_def.h |  1 +
->  lib/s390x/sie.c          | 26 ++++++++++++++++++++++++++
->  2 files changed, 27 insertions(+)
+>  lib/s390x/asm/arch_def.h | 25 ++++++++++++++++++++++++-
+>  s390x/selftest.c         | 34 ++++++++++++++++++++++++++++++++++
+>  2 files changed, 58 insertions(+), 1 deletion(-)
 > 
 > diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index 5beaf15b57e7..745a33878de5 100644
+> index bb26e008cc68..f629b6d0a17f 100644
 > --- a/lib/s390x/asm/arch_def.h
 > +++ b/lib/s390x/asm/arch_def.h
-> @@ -92,6 +92,7 @@ enum address_space {
+> @@ -37,9 +37,32 @@ struct stack_frame_int {
 >  };
 >  
->  #define PSW_MASK_DAT			0x0400000000000000UL
-> +#define PSW_MASK_HOME			0x0000C00000000000UL
->  #define PSW_MASK_IO			0x0200000000000000UL
->  #define PSW_MASK_EXT			0x0100000000000000UL
->  #define PSW_MASK_KEY			0x00F0000000000000UL
-> diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
-> index b44febdeaaac..7f4474555ff7 100644
-> --- a/lib/s390x/sie.c
-> +++ b/lib/s390x/sie.c
-> @@ -52,6 +52,8 @@ void sie_handle_validity(struct vm *vm)
+>  struct psw {
+> -	uint64_t	mask;
+> +	union {
+> +		uint64_t	mask;
+> +		struct {
+> +			uint64_t reserved00:1;
+> +			uint64_t per:1;
+> +			uint64_t reserved02:3;
+> +			uint64_t dat:1;
+> +			uint64_t io:1;
+> +			uint64_t ext:1;
+> +			uint64_t key:4;
+> +			uint64_t reserved12:1;
+> +			uint64_t mchk:1;
+> +			uint64_t wait:1;
+> +			uint64_t pstate:1;
+> +			uint64_t as:2;
+> +			uint64_t cc:2;
+> +			uint64_t prg_mask:4;
+> +			uint64_t reserved24:7;
+> +			uint64_t ea:1;
+> +			uint64_t ba:1;
+> +			uint64_t reserved33:31;
+> +		};
+> +	};
+>  	uint64_t	addr;
+>  };
+> +_Static_assert(sizeof(struct psw) == 16, "PSW size");
 >  
->  void sie(struct vm *vm)
+>  #define PSW(m, a) ((struct psw){ .mask = (m), .addr = (uint64_t)(a) })
+>  
+> diff --git a/s390x/selftest.c b/s390x/selftest.c
+> index 13fd36bc06f8..92ed4e5d35eb 100644
+> --- a/s390x/selftest.c
+> +++ b/s390x/selftest.c
+> @@ -74,6 +74,39 @@ static void test_malloc(void)
+>  	report_prefix_pop();
+>  }
+>  
+> +static void test_psw_mask(void)
+> +{
+> +	uint64_t expected_key = 0xf;
+> +	struct psw test_psw = PSW(0, 0);
+> +
+> +	report_prefix_push("PSW mask");
+> +	test_psw.mask = PSW_MASK_DAT;
+> +	report(test_psw.dat, "DAT matches expected=0x%016lx actual=0x%016lx", PSW_MASK_DAT, test_psw.mask);
+> +
+> +	test_psw.mask = PSW_MASK_IO;
+> +	report(test_psw.io, "IO matches expected=0x%016lx actual=0x%016lx", PSW_MASK_IO, test_psw.mask);
+> +
+> +	test_psw.mask = PSW_MASK_EXT;
+> +	report(test_psw.ext, "EXT matches expected=0x%016lx actual=0x%016lx", PSW_MASK_EXT, test_psw.mask);
+> +
+> +	test_psw.mask = expected_key << (63 - 11);
+> +	report(test_psw.key == expected_key, "PSW Key matches expected=0x%lx actual=0x%x", expected_key, test_psw.key);
+> +
+> +	test_psw.mask = 1UL << (63 - 13);
+> +	report(test_psw.mchk, "MCHK matches");
+> +
+> +	test_psw.mask = PSW_MASK_WAIT;
+> +	report(test_psw.wait, "Wait matches expected=0x%016lx actual=0x%016lx", PSW_MASK_WAIT, test_psw.mask);
+> +
+> +	test_psw.mask = PSW_MASK_PSTATE;
+> +	report(test_psw.pstate, "Pstate matches expected=0x%016lx actual=0x%016lx", PSW_MASK_PSTATE, test_psw.mask);
+> +
+> +	test_psw.mask = PSW_MASK_64;
+> +	report(test_psw.ea && test_psw.ba, "BA/EA matches expected=0x%016lx actual=0x%016lx", PSW_MASK_64, test_psw.mask);
+> +
+> +	report_prefix_pop();
+> +}
+> +
+>  int main(int argc, char**argv)
 >  {
-> +	uint64_t old_cr13;
-> +
->  	if (vm->sblk->sdf == 2)
->  		memcpy(vm->sblk->pv_grregs, vm->save_area.guest.grs,
->  		       sizeof(vm->save_area.guest.grs));
-> @@ -59,6 +61,24 @@ void sie(struct vm *vm)
->  	/* Reset icptcode so we don't trip over it below */
->  	vm->sblk->icptcode = 0;
+>  	report_prefix_push("selftest");
+> @@ -89,6 +122,7 @@ int main(int argc, char**argv)
+>  	test_fp();
+>  	test_pgm_int();
+>  	test_malloc();
+> +	test_psw_mask();
 >  
-> +	/*
-> +	 * Set up home address space to match primary space. Instead of running
-> +	 * in home space all the time, we switch every time in sie() because:
-> +	 * - tests that depend on running in primary space mode don't need to be
-> +	 *   touched
-> +	 * - it avoids regressions in tests
-> +	 * - switching every time makes it easier to extend this in the future,
-> +	 *   for example to allow tests to run in whatever space they want
-> +	 */
-> +	old_cr13 = stctg(13);
-> +	lctlg(13, stctg(1));
-> +
-> +	/* switch to home space so guest tables can be different from host */
-> +	psw_mask_set_bits(PSW_MASK_HOME);
-> +
-> +	/* also handle all interruptions in home space while in SIE */
-> +	irq_set_dat_mode(true, AS_HOME);
-> +
->  	while (vm->sblk->icptcode == 0) {
->  		sie64a(vm->sblk, &vm->save_area);
->  		sie_handle_validity(vm);
-> @@ -66,6 +86,12 @@ void sie(struct vm *vm)
->  	vm->save_area.guest.grs[14] = vm->sblk->gg14;
->  	vm->save_area.guest.grs[15] = vm->sblk->gg15;
->  
-> +	irq_set_dat_mode(true, AS_PRIM);
-> +	psw_mask_clear_bits(PSW_MASK_HOME);
-> +
-> +	/* restore the old CR 13 */
-> +	lctlg(13, old_cr13);
-> +
->  	if (vm->sblk->sdf == 2)
->  		memcpy(vm->save_area.guest.grs, vm->sblk->pv_grregs,
->  		       sizeof(vm->save_area.guest.grs));
+>  	return report_summary();
+>  }
 
