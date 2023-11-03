@@ -2,57 +2,57 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9C3FC4167B
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 09:30:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFF75C41535
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 09:30:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347133AbjKCJaE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Nov 2023 05:30:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45128 "EHLO
+        id S1347126AbjKCJaF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Nov 2023 05:30:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347109AbjKCJaC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 05:30:02 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62035D46;
-        Fri,  3 Nov 2023 02:30:00 -0700 (PDT)
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A39PQlF009746;
-        Fri, 3 Nov 2023 09:29:59 GMT
+        with ESMTP id S1347128AbjKCJaD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 05:30:03 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A819D48;
+        Fri,  3 Nov 2023 02:30:01 -0700 (PDT)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A39HjpR002590;
+        Fri, 3 Nov 2023 09:30:00 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=kx0Lp6uI+pka6ptrQ0fHpiUFPPoqVxQpUFOpZvaHbcQ=;
- b=b88ObreFlmJ/I4GlDfkQhzY5miYbBpglsPkk9wpchG+YQLlh9Nsa8am/811WOwIcIEMT
- vJeTh/+tZhvSsmdEa2OQQjHQ7zDvn/pKG3epxPJkkKrP1SFZDuDxxflo5r3+YOnAzAH4
- FmefchAba0fL1rrb8MK0ZrTg5aybjiLHnyrxd2kUyRYGRk9vNCgaZXkwQg74sEH7QmK0
- RUtd05dtDoQ/jIBxot957kbIO4CJLz3NER4ItBjmFV88MAoJqoah4mwJXIyP4bHpq0KF
- md4pI+MWphP+Nq7zR0F4XOL9LR8HziIZuV865viUwgrzIwyCqoi9hguNdKBIzso+D1Rp UQ== 
+ bh=m7pLc/zgdZT06gLV+Vr/6U/cJwXTLrHNkCa1eaXiIg4=;
+ b=WEZqe4Q+sUsLzH1dadnpWgtHOQtHznbAU5uYjIiG7sTJhuaOR67ZApSurNWgROUGwT3Z
+ s9f55gUDu9KLWjyh+uyiZpMS6ovKNtD/hv0dowZqUDlUtBR9xwaMI8uBweG5pUfp4BCI
+ 8BG0BgqqXp2PWIArLvt/mowX9R5MX+K04BwYgS0s7nFPN/MD7nZANc8Ov6UZ+rzXbK0q
+ uSl/p4SqSFTsvpIYlQoVZEz1g2bTN6xW7aaAhjoKtuqMrWxO8JrjfBKn6RBMev3bQ7YD
+ xtfyrXMcVXPHgzLkxtRyftpg5a7RRcT1DIYGNNujsMXt6t7rXyDfKtmM4JfVtVLqqSl9 YA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u4x7703cg-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u4x3mgcf3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Nov 2023 09:29:59 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A39RRdn015514;
-        Fri, 3 Nov 2023 09:29:59 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u4x7703bx-1
+        Fri, 03 Nov 2023 09:30:00 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A39SQbo014217;
+        Fri, 3 Nov 2023 09:30:00 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u4x3mgcek-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Nov 2023 09:29:59 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A37oNYU000614;
+        Fri, 03 Nov 2023 09:30:00 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A38rj8C007685;
         Fri, 3 Nov 2023 09:29:58 GMT
 Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u1cmtn88h-1
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u1dmp4xrc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 03 Nov 2023 09:29:58 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A39Tth744958376
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A39TtwV42271376
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Fri, 3 Nov 2023 09:29:55 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5C0822004E;
+        by IMSVA (Postfix) with ESMTP id B555F20040;
         Fri,  3 Nov 2023 09:29:55 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3A6EF20040;
+        by IMSVA (Postfix) with ESMTP id 89DB820043;
         Fri,  3 Nov 2023 09:29:55 +0000 (GMT)
 Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
         by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -60,65 +60,55 @@ Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
 From:   Nico Boehr <nrb@linux.ibm.com>
 To:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v7 4/8] s390x: lib: don't forward PSW when handling exception in SIE
-Date:   Fri,  3 Nov 2023 10:29:33 +0100
-Message-ID: <20231103092954.238491-5-nrb@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v7 6/8] s390x: add test source dir to include paths
+Date:   Fri,  3 Nov 2023 10:29:35 +0100
+Message-ID: <20231103092954.238491-7-nrb@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20231103092954.238491-1-nrb@linux.ibm.com>
 References: <20231103092954.238491-1-nrb@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: W7oRrZmo13FsTygyKjSJ_CskNZ8DcrlP
-X-Proofpoint-ORIG-GUID: zOhTKTXFnpAaFpbXm_XgvDuKw5bVwTQj
+X-Proofpoint-GUID: XpIA8eMUMqpKmgmO1zEhSWwn22hKk_Oz
+X-Proofpoint-ORIG-GUID: mD1N6m4Lo3dH_ueIXm-pxA14u9kN1F02
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-03_09,2023-11-02_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 phishscore=0 mlxlogscore=999 impostorscore=0 bulkscore=0
- lowpriorityscore=0 mlxscore=0 clxscore=1015 spamscore=0 malwarescore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ impostorscore=0 lowpriorityscore=0 malwarescore=0 adultscore=0
+ clxscore=1015 priorityscore=1501 mlxlogscore=936 mlxscore=0 spamscore=0
+ phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2310240000 definitions=main-2311030078
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When we're handling a pgm int in SIE, we want to return to the SIE
-cleanup after handling the exception. That's why we set pgm_old_psw to
-the sie_exit label in fixup_pgm_int.
+Sometimes, it is useful to share some defines between a snippet and a
+test. By adding the source directory to include paths, header files can
+be placed in the snippet directory and included from the test (or vice
+versa).
 
-On nullifing pgm ints, fixup_pgm_int will also forward the old PSW such
-that we don't cause an pgm int again.
-
-However, when we want to return to the sie_exit label, this is not
-needed (since we've manually set pgm_old_psw). Instead, forwarding the
-PSW might cause us to skip an instruction or end up in the middle of an
-instruction.
-
-So, let's just skip the rest of the fixup in case we're inside SIE.
-
-Note that we're intentionally not fixing up the PSW in the guest; that's
-best left to the test at hand by registering their own psw fixup.
+This is a prerequisite for "s390x: add a test for SIE without MSO/MSL".
 
 Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 ---
- lib/s390x/interrupt.c | 1 +
- 1 file changed, 1 insertion(+)
+ s390x/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-index e0a1713349f6..f33467957dbf 100644
---- a/lib/s390x/interrupt.c
-+++ b/lib/s390x/interrupt.c
-@@ -145,6 +145,7 @@ static void fixup_pgm_int(struct stack_frame_int *stack)
- 	if (lowcore.pgm_old_psw.addr >= (uint64_t)&sie_entry &&
- 	    lowcore.pgm_old_psw.addr <= (uint64_t)&sie_exit) {
- 		lowcore.pgm_old_psw.addr = (uint64_t)&sie_exit;
-+		return;
- 	}
+diff --git a/s390x/Makefile b/s390x/Makefile
+index 6e967194ae0d..947a4344738f 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -67,7 +67,7 @@ test_cases: $(tests)
+ test_cases_binary: $(tests_binary)
+ test_cases_pv: $(tests_pv_binary)
  
- 	switch (lowcore.pgm_int_code) {
+-INCLUDE_PATHS = $(SRCDIR)/lib $(SRCDIR)/lib/s390x
++INCLUDE_PATHS = $(SRCDIR)/lib $(SRCDIR)/lib/s390x $(SRCDIR)/s390x
+ # Include generated header files (e.g. in case of out-of-source builds)
+ INCLUDE_PATHS += lib
+ CPPFLAGS = $(addprefix -I,$(INCLUDE_PATHS))
 -- 
 2.41.0
 
