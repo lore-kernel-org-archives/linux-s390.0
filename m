@@ -2,73 +2,73 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E10E8C4332F
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 13:44:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7D34C4167D
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 13:53:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230115AbjKCNoK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Nov 2023 09:44:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38852 "EHLO
+        id S230266AbjKCNx0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Nov 2023 09:53:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233088AbjKCNoJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 09:44:09 -0400
+        with ESMTP id S229463AbjKCNxZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 09:53:25 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12337D56;
-        Fri,  3 Nov 2023 06:44:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 317851BC;
+        Fri,  3 Nov 2023 06:53:23 -0700 (PDT)
 Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A3DeZ9a010476;
-        Fri, 3 Nov 2023 13:44:05 GMT
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A3DeZRM010431;
+        Fri, 3 Nov 2023 13:53:22 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=chvAKP7zFMNRnpEobtooiRYFxqoMEYzZcn+4i3GJbY8=;
- b=MolD+pmQPVimF1VFccz64Lvs94kFdugCVC/saBwRKp3ZKxYjPa08t0GiAXpq0AoboEtn
- RSDipKXrBmi7c96fCHjwDYXXKipnEcto1jr41/fqNxodzijLJO9NXv8b4Tlax6FGQR6t
- RiAmKfZP5Asi9qqO0132q1plN9CY1LFKbxgZPK49p91ac9TjUbtnKIATW1qwddYQdzAv
- jX7nzmnVmoZewO6kSIoWMkMcniDZDSPToTTaoOBoidPBIu3euIg1DLSV36f24iYAxPSo
- 4L0L9HENgzn7QZR3E/Gjk/q0x5xJPS06lvGiJ+XEaG4FrAHdUqcFHpADZ1yUPFTCSX6+ aQ== 
+ bh=MMH8ozRwp4kh/XUcdVpIxPzJwLfnq/jGVaKV2ar6qsU=;
+ b=InwBEG5LdWsQdu5eRqaRnhF1KB9qJiXFfpMTLhwZr+luen43R3wpI5KUYMDueuZ7boO+
+ 1Q6j1SZXGqHVtHIKtmfJkUL439TB3vROdHhZgiyP5eujNoDRUOV3yT43+sgPfxy/ctWq
+ 3WbwjnBpOQetKbxbYOiiT6fRsZcuINQNogSRoigKpOP6MapAdNXyBScz0aHy8frL3Vzp
+ qcJXIUMnyAyTq5Ez2c79bNHQtZZBoOHH3t7DzdTIOZNh1jz7Dcbi6NS9BVGiVF/5GRaf
+ FvRMGFy0iivXBRoPiFzCS83FrxcNwdgzkIRL6luyV8DpzQl/Z3l/8gN/4nqTPycAgxBB qA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u51y1g3vt-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u51y1gg4k-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Nov 2023 13:44:04 +0000
+        Fri, 03 Nov 2023 13:53:22 +0000
 Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A3Df9AE012506;
-        Fri, 3 Nov 2023 13:44:02 GMT
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A3DeoxV011289;
+        Fri, 3 Nov 2023 13:53:21 GMT
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u51y1g3k4-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u51y1gg46-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Nov 2023 13:44:02 +0000
+        Fri, 03 Nov 2023 13:53:21 +0000
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A3DbWEF031381;
-        Fri, 3 Nov 2023 13:43:40 GMT
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A3DRARX031403;
+        Fri, 3 Nov 2023 13:53:21 GMT
 Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u1fb2nqs7-1
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u1fb2nsfh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Nov 2023 13:43:39 +0000
+        Fri, 03 Nov 2023 13:53:21 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A3DhbDa45482738
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A3DrIt445482598
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 3 Nov 2023 13:43:37 GMT
+        Fri, 3 Nov 2023 13:53:18 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 24F5F2004B;
-        Fri,  3 Nov 2023 13:43:37 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 0B8C52004B;
+        Fri,  3 Nov 2023 13:53:18 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CE6F820040;
-        Fri,  3 Nov 2023 13:43:36 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id ACFBD20049;
+        Fri,  3 Nov 2023 13:53:17 +0000 (GMT)
 Received: from [9.171.0.100] (unknown [9.171.0.100])
         by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri,  3 Nov 2023 13:43:36 +0000 (GMT)
-Message-ID: <1f4cf453-5ed2-471e-a458-09a6dccfeb92@linux.ibm.com>
-Date:   Fri, 3 Nov 2023 14:43:36 +0100
+        Fri,  3 Nov 2023 13:53:17 +0000 (GMT)
+Message-ID: <908915d7-d782-4358-9937-bcdba8db0450@linux.ibm.com>
+Date:   Fri, 3 Nov 2023 14:53:17 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v7 1/8] lib: s390x: introduce bitfield for
- PSW mask
+Subject: Re: [kvm-unit-tests PATCH v7 5/8] s390x: lib: sie: don't reenter SIE
+ on pgm int
 Content-Language: en-US
 To:     Nico Boehr <nrb@linux.ibm.com>, imbrenda@linux.ibm.com,
         thuth@redhat.com
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
 References: <20231103092954.238491-1-nrb@linux.ibm.com>
- <20231103092954.238491-2-nrb@linux.ibm.com>
+ <20231103092954.238491-6-nrb@linux.ibm.com>
 From:   Janosch Frank <frankja@linux.ibm.com>
 Autocrypt: addr=frankja@linux.ibm.com; keydata=
  xsFNBFubpD4BEADX0uhkRhkj2AVn7kI4IuPY3A8xKat0ihuPDXbynUC77mNox7yvK3X5QBO6
@@ -112,130 +112,44 @@ Autocrypt: addr=frankja@linux.ibm.com; keydata=
  DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
  Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
  phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <20231103092954.238491-2-nrb@linux.ibm.com>
+In-Reply-To: <20231103092954.238491-6-nrb@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ckCrewnUSYl9gy_9tHP0zJKWimS-z7ni
-X-Proofpoint-ORIG-GUID: tN0-tdGhh4TFVTUjMUKQ2I6kV2cu8TvA
+X-Proofpoint-GUID: UCsurSuMnvkj4RWPbgOmhQvncqMF6r09
+X-Proofpoint-ORIG-GUID: k24Q-uYUYubyi6vBvnYS8OYQMheaX7jr
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-03_12,2023-11-02_03,2023-05-22_02
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
- lowpriorityscore=0 mlxlogscore=810 priorityscore=1501 spamscore=0
+ lowpriorityscore=0 mlxlogscore=239 priorityscore=1501 spamscore=0
  impostorscore=0 suspectscore=0 phishscore=0 bulkscore=0 mlxscore=0
  malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2310240000 definitions=main-2311030115
+ engine=8.12.0-2310240000 definitions=main-2311030116
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 11/3/23 10:29, Nico Boehr wrote:
-> Changing the PSW mask is currently little clumsy, since there is only the
-> PSW_MASK_* defines. This makes it hard to change e.g. only the address
-> space in the current PSW without a lot of bit fiddling.
+> At the moment, when a PGM int occurs while in SIE, we will just reenter
+> SIE after the interrupt handler was called.
 > 
-> Introduce a bitfield for the PSW mask. This makes this kind of
-> modifications much simpler and easier to read.
+> This is because sie() has a loop which checks icptcode and re-enters SIE
+> if it is zero.
 > 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> Reviewed-by: Thomas Huth <thuth@redhat.com>
-
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-
-> ---
->   lib/s390x/asm/arch_def.h | 25 ++++++++++++++++++++++++-
->   s390x/selftest.c         | 34 ++++++++++++++++++++++++++++++++++
->   2 files changed, 58 insertions(+), 1 deletion(-)
+> However, this behaviour is quite undesirable for SIE tests, since it
+> doesn't give the host the chance to assert on the PGM int. Instead, we
+> will just re-enter SIE, on nullifing conditions even causing the
+> exception again.
 > 
-> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index bb26e008cc68..f629b6d0a17f 100644
-> --- a/lib/s390x/asm/arch_def.h
-> +++ b/lib/s390x/asm/arch_def.h
-> @@ -37,9 +37,32 @@ struct stack_frame_int {
->   };
->   
->   struct psw {
-> -	uint64_t	mask;
-> +	union {
-> +		uint64_t	mask;
-> +		struct {
-> +			uint64_t reserved00:1;
-> +			uint64_t per:1;
-> +			uint64_t reserved02:3;
-> +			uint64_t dat:1;
-> +			uint64_t io:1;
-> +			uint64_t ext:1;
-> +			uint64_t key:4;
-> +			uint64_t reserved12:1;
-> +			uint64_t mchk:1;
-> +			uint64_t wait:1;
-> +			uint64_t pstate:1;
-> +			uint64_t as:2;
-> +			uint64_t cc:2;
-> +			uint64_t prg_mask:4;
-> +			uint64_t reserved24:7;
-> +			uint64_t ea:1;
-> +			uint64_t ba:1;
-> +			uint64_t reserved33:31;
-> +		};
-> +	};
->   	uint64_t	addr;
->   };
-> +_Static_assert(sizeof(struct psw) == 16, "PSW size");
->   
->   #define PSW(m, a) ((struct psw){ .mask = (m), .addr = (uint64_t)(a) })
->   
-> diff --git a/s390x/selftest.c b/s390x/selftest.c
-> index 13fd36bc06f8..92ed4e5d35eb 100644
-> --- a/s390x/selftest.c
-> +++ b/s390x/selftest.c
-> @@ -74,6 +74,39 @@ static void test_malloc(void)
->   	report_prefix_pop();
->   }
->   
-> +static void test_psw_mask(void)
-> +{
-> +	uint64_t expected_key = 0xf;
-> +	struct psw test_psw = PSW(0, 0);
-> +
-> +	report_prefix_push("PSW mask");
-> +	test_psw.mask = PSW_MASK_DAT;
-> +	report(test_psw.dat, "DAT matches expected=0x%016lx actual=0x%016lx", PSW_MASK_DAT, test_psw.mask);
-> +
-> +	test_psw.mask = PSW_MASK_IO;
-> +	report(test_psw.io, "IO matches expected=0x%016lx actual=0x%016lx", PSW_MASK_IO, test_psw.mask);
-> +
-> +	test_psw.mask = PSW_MASK_EXT;
-> +	report(test_psw.ext, "EXT matches expected=0x%016lx actual=0x%016lx", PSW_MASK_EXT, test_psw.mask);
-> +
-> +	test_psw.mask = expected_key << (63 - 11);
-> +	report(test_psw.key == expected_key, "PSW Key matches expected=0x%lx actual=0x%x", expected_key, test_psw.key);
-> +
-> +	test_psw.mask = 1UL << (63 - 13);
-> +	report(test_psw.mchk, "MCHK matches");
-> +
-> +	test_psw.mask = PSW_MASK_WAIT;
-> +	report(test_psw.wait, "Wait matches expected=0x%016lx actual=0x%016lx", PSW_MASK_WAIT, test_psw.mask);
-> +
-> +	test_psw.mask = PSW_MASK_PSTATE;
-> +	report(test_psw.pstate, "Pstate matches expected=0x%016lx actual=0x%016lx", PSW_MASK_PSTATE, test_psw.mask);
-> +
-> +	test_psw.mask = PSW_MASK_64;
-> +	report(test_psw.ea && test_psw.ba, "BA/EA matches expected=0x%016lx actual=0x%016lx", PSW_MASK_64, test_psw.mask);
-> +
-> +	report_prefix_pop();
-> +}
-> +
->   int main(int argc, char**argv)
->   {
->   	report_prefix_push("selftest");
-> @@ -89,6 +122,7 @@ int main(int argc, char**argv)
->   	test_fp();
->   	test_pgm_int();
->   	test_malloc();
-> +	test_psw_mask();
->   
->   	return report_summary();
->   }
+> In sie(), check whether a pgm int code is set in lowcore. If it has,
+> exit the loop so the test can react to the interrupt. Add a new function
+> read_pgm_int_code() to obtain the interrupt code.
+> 
+> Note that this introduces a slight oddity with sie and pgm int in
+> certain cases: If a PGM int occurs between a expect_pgm_int() and sie(),
+> we will now never enter SIE until the pgm_int_code is cleared by e.g.
+> clear_pgm_int().
 
+Is there any use in NOT having an assert(!read_pgm_int_code()) before 
+entering the loop?
