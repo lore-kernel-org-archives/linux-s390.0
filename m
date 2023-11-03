@@ -2,96 +2,118 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DC54C0018A
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 14:44:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4ADD4C4332F
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 17:30:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229491AbjKCOoz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Nov 2023 10:44:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37256 "EHLO
+        id S230185AbjKCRaU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Nov 2023 13:30:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377817AbjKCODz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 10:03:55 -0400
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45AF9D61;
-        Fri,  3 Nov 2023 07:03:51 -0700 (PDT)
-Received: from dggpemm100001.china.huawei.com (unknown [172.30.72.54])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4SMMpP4lT5z1P7Sl;
-        Fri,  3 Nov 2023 22:00:45 +0800 (CST)
-Received: from localhost.localdomain (10.175.112.125) by
- dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.31; Fri, 3 Nov 2023 22:03:45 +0800
-From:   Kefeng Wang <wangkefeng.wang@huawei.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-CC:     <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
-        Matthew Wilcox <willy@infradead.org>,
+        with ESMTP id S229482AbjKCRaT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 13:30:19 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDDE8136;
+        Fri,  3 Nov 2023 10:30:16 -0700 (PDT)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A3H9QiC002850;
+        Fri, 3 Nov 2023 17:30:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=F/MbwI7I3lpLeDSp5tJGhwWlILsNf2tIxZUSdv1jJW4=;
+ b=kq46efc0g04pDo+g0qI8SQr+byAcAF/1W989ivWJuNW+08Z3RUQvxynp3e9N57q72d4s
+ krV73avZ3rVLEWV4/sK5rCemKeOmzSI1oAgesn2frV8CWLOWuf3WDIM/p/CamDB6yTdS
+ Es+ZcI0aFxTwnR6WShTyjGAjyuuP5tRKWjsuJddEpxXON6YyyFOMZSd0rghp6aonxdM+
+ jHPUZidZpHMDaru8ShIIW6RRJZBwmzBKV+3lpG9m0nRLBjoJoLV2CDaP7s4NBPfrEmTq
+ ERf98zCEy4b4g639mqNpjucpdNK9K9/T0v+33MCyOm2ISPkHFWv3fDGgc2yQP4JA8IV0 hQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u550x0jm6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Nov 2023 17:30:15 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A3HMDbb011979;
+        Fri, 3 Nov 2023 17:30:15 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u550x0jkd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Nov 2023 17:30:15 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A3GOdS7000614;
+        Fri, 3 Nov 2023 17:30:14 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u1cmtqt16-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Nov 2023 17:30:14 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A3HU9Ni13828734
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 3 Nov 2023 17:30:09 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A565620049;
+        Fri,  3 Nov 2023 17:30:09 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5D2DC2004B;
+        Fri,  3 Nov 2023 17:30:09 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri,  3 Nov 2023 17:30:09 +0000 (GMT)
+From:   Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+To:     Vasily Gorbik <gor@linux.ibm.com>,
+        David Hildenbrand <dahi@linux.vnet.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Michael Mueller <mimu@linux.vnet.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        Cornelia Huck <cornelia.huck@de.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         David Hildenbrand <david@redhat.com>,
-        <linux-s390@vger.kernel.org>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: [PATCH 06/18] mm: huge_memory: use a folio in __split_huge_pmd_locked()
-Date:   Fri, 3 Nov 2023 22:01:07 +0800
-Message-ID: <20231103140119.2306578-7-wangkefeng.wang@huawei.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20231103140119.2306578-1-wangkefeng.wang@huawei.com>
-References: <20231103140119.2306578-1-wangkefeng.wang@huawei.com>
+        Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org
+Subject: [PATCH 0/4] KVM: s390: Fix minor bugs in STFLE shadowing
+Date:   Fri,  3 Nov 2023 18:30:04 +0100
+Message-Id: <20231103173008.630217-1-nsg@linux.ibm.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.112.125]
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- dggpemm100001.china.huawei.com (7.185.36.93)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Q_zCaKUp-8IIUHy5yN_UU-IkoDTomx56
+X-Proofpoint-GUID: Q87tJPGnOcREUlAH-YTmxrOv4QvkE00p
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-03_16,2023-11-02_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=617 bulkscore=0
+ clxscore=1011 phishscore=0 spamscore=0 priorityscore=1501 malwarescore=0
+ adultscore=0 suspectscore=0 impostorscore=0 mlxscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2310240000
+ definitions=main-2311030146
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use a folio in __split_huge_pmd_locked() which replaces six
-compound_head() call with two page_folio() calls.
+Fix two bugs in the STFLE vsie implementation.
+The first concerns the identification if the guest is intending
+to use interpretive execution for STFLE for its guest.
+The second fixes too much of the guests memory being accessed when
+shadowing.
 
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
----
- mm/huge_memory.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+Nina Schoetterl-Glausch (4):
+  KVM: s390: vsie: Fix STFLE interpretive execution identification
+  KVM: s390: vsie: Fix length of facility list shadowed
+  KVM: s390: cpu model: Use previously unused constant
+  KVM: s390: Minor refactor of base/ext facility lists
 
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 34001ef9d029..054336ecab0a 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -2117,6 +2117,7 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
- 	count_vm_event(THP_SPLIT_PMD);
- 
- 	if (!vma_is_anonymous(vma)) {
-+		struct folio *folio;
- 		old_pmd = pmdp_huge_clear_flush(vma, haddr, pmd);
- 		/*
- 		 * We are going to unmap this huge page. So
-@@ -2130,17 +2131,17 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
- 			swp_entry_t entry;
- 
- 			entry = pmd_to_swp_entry(old_pmd);
--			page = pfn_swap_entry_to_page(entry);
-+			folio = pfn_swap_entry_to_folio(entry);
- 		} else {
--			page = pmd_page(old_pmd);
--			if (!PageDirty(page) && pmd_dirty(old_pmd))
--				set_page_dirty(page);
--			if (!PageReferenced(page) && pmd_young(old_pmd))
--				SetPageReferenced(page);
--			page_remove_rmap(page, vma, true);
--			put_page(page);
-+			folio = page_folio(pmd_page(old_pmd));
-+			if (!folio_test_dirty(folio) && pmd_dirty(old_pmd))
-+				folio_set_dirty(folio);
-+			if (!folio_test_referenced(folio) && pmd_young(old_pmd))
-+				folio_set_referenced(folio);
-+			page_remove_rmap(&folio->page, vma, true);
-+			folio_put(folio);
- 		}
--		add_mm_counter(mm, mm_counter_file(page), -HPAGE_PMD_NR);
-+		add_mm_counter(mm, mm_counter_file_folio(folio), -HPAGE_PMD_NR);
- 		return;
- 	}
- 
+ arch/s390/include/asm/facility.h |  6 +++++
+ arch/s390/include/asm/kvm_host.h |  2 +-
+ arch/s390/kernel/Makefile        |  2 +-
+ arch/s390/kernel/facility.c      | 18 +++++++++++++
+ arch/s390/kvm/kvm-s390.c         | 44 ++++++++++++++------------------
+ arch/s390/kvm/vsie.c             | 15 +++++++++--
+ 6 files changed, 58 insertions(+), 29 deletions(-)
+ create mode 100644 arch/s390/kernel/facility.c
+
+
+base-commit: 05d3ef8bba77c1b5f98d941d8b2d4aeab8118ef1
 -- 
-2.27.0
+2.39.2
 
