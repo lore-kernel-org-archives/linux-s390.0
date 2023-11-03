@@ -2,176 +2,157 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8892C4332F
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 13:33:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E14CCC4167D
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 13:39:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230115AbjKCNdl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Nov 2023 09:33:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57882 "EHLO
+        id S229486AbjKCNjp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Nov 2023 09:39:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229463AbjKCNdk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 09:33:40 -0400
+        with ESMTP id S229463AbjKCNjp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 09:39:45 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20AB713E;
-        Fri,  3 Nov 2023 06:33:38 -0700 (PDT)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A3DBQhZ015640;
-        Fri, 3 Nov 2023 13:33:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E38D91B2;
+        Fri,  3 Nov 2023 06:39:42 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A3DBCYR018784;
+        Fri, 3 Nov 2023 13:39:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=1GxqP5srCmKGHZWSCieYIFgeXBhh3HwW+uIukvVG/OE=;
- b=KpK0XXta2Sl405n2DbeNYFPjU99p47xTxUHT5yyKrY5JK78zkGUXKik8As+NiZmKU3dp
- 3BZQJdmBDho1GrMRL51TBoqcd5/FG3+m06nEVB+LPIcLMP4qDdh5Qx5qNx5Gyfykbu7w
- reSxt5jFY2wKxuoAEBItKtpdNKFwR0rSyoTddwhCHWMV97PfMbQq5cmb7u3mHfB9BRnM
- ih8ExEbHk3vaDPbU3wUaIdMyXJHRlGszAUqSMu8jfypN2CdDa7r+XQmPCywVvmmM1toM
- 8wy0EIS13xU/Y37Wu9SgAnc64y+/9h68j9fNmPZuWiMPOf0smwZ/GQHJdAIwjUiHpNch kQ== 
+ bh=VRuU66SXOze1LgvMMFxrC5V7m2uGlZkrKtopyEfnZ8Q=;
+ b=FVIloVvWtd2XqAECxwUEqKUx3UPOmjSNKgYFz17SEuShvJWFBZZjS3cb1CrxSVs1RPC8
+ Kf3e4fFEFAsNX0SB8aLdx3ZAgVbbVyevAzUFS/Iaw+dwH5MWx13IoBfrPLcFBeAZvcOB
+ VyUAwmkBJszlDmRDXl0LZsHcqel4lK+ddefc94WdBOkfvj6fI7z2jJ3BacNh18LFmAZw
+ UikyfXgeTu9Tn8Xgc0JxRroJ8GvqRphCGo7BzWFZY9zXjJlKxwQXONG3pK4SFnAInG2P
+ 2Qqx71zkJtuOL+yIm6VxeyzNDBHAeI/LEQyb9dJr80FGmut+0IoMhJ6dBGtjo00abYDq rA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u513r20n6-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u50mkunwh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Nov 2023 13:33:37 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A3DBhHQ018374;
-        Fri, 3 Nov 2023 13:33:37 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u513r20m3-1
+        Fri, 03 Nov 2023 13:39:42 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A3DBEcq019033;
+        Fri, 3 Nov 2023 13:39:41 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u50mkunw2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Nov 2023 13:33:37 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A3CpNfo011536;
-        Fri, 3 Nov 2023 13:33:35 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u1e4me2e4-1
+        Fri, 03 Nov 2023 13:39:41 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A3D8lps011310;
+        Fri, 3 Nov 2023 13:39:40 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u1euknupx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Nov 2023 13:33:35 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A3DXWNY10486500
+        Fri, 03 Nov 2023 13:39:40 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A3DdcRP15401582
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 3 Nov 2023 13:33:32 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 68C5E20043;
-        Fri,  3 Nov 2023 13:33:32 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 35C8820040;
-        Fri,  3 Nov 2023 13:33:32 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri,  3 Nov 2023 13:33:32 +0000 (GMT)
-Date:   Fri, 3 Nov 2023 14:33:24 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v1 2/2] s390x: sie: ensure guests are
- aligned to 2GB
-Message-ID: <20231103143324.6e26e387@p-imbrenda>
-In-Reply-To: <20231103064132.11358-3-nrb@linux.ibm.com>
-References: <20231103064132.11358-1-nrb@linux.ibm.com>
-        <20231103064132.11358-3-nrb@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+        Fri, 3 Nov 2023 13:39:38 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E67CA2004D;
+        Fri,  3 Nov 2023 13:39:37 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9128E20040;
+        Fri,  3 Nov 2023 13:39:37 +0000 (GMT)
+Received: from [9.171.0.100] (unknown [9.171.0.100])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri,  3 Nov 2023 13:39:37 +0000 (GMT)
+Message-ID: <909e4ccc-9f13-4867-b274-601ad78cb1a9@linux.ibm.com>
+Date:   Fri, 3 Nov 2023 14:39:37 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [kvm-unit-tests PATCH v7 3/8] s390x: sie: switch to home space
+ mode before entering SIE
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>, imbrenda@linux.ibm.com,
+        thuth@redhat.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20231103092954.238491-1-nrb@linux.ibm.com>
+ <20231103092954.238491-4-nrb@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20231103092954.238491-4-nrb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: -MLVYhdlTpF9e7AoYOoulSOvc5mYMYXc
-X-Proofpoint-ORIG-GUID: wPVBxem3Cgxnt7apWNCbQFHdi7TC8b3F
+X-Proofpoint-GUID: VBaWhLApimXOIO4D9NrVarlwIHo_XDxV
+X-Proofpoint-ORIG-GUID: DCVG8moCNkiZ8KHka2MKNaYj5qllIdiF
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-03_12,2023-11-02_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 mlxscore=0
- mlxlogscore=999 spamscore=0 lowpriorityscore=0 adultscore=0 phishscore=0
- impostorscore=0 malwarescore=0 clxscore=1015 bulkscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ mlxlogscore=999 clxscore=1015 lowpriorityscore=0 malwarescore=0
+ bulkscore=0 adultscore=0 impostorscore=0 phishscore=0 priorityscore=1501
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2310240000 definitions=main-2311030114
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri,  3 Nov 2023 07:35:47 +0100
-Nico Boehr <nrb@linux.ibm.com> wrote:
+On 11/3/23 10:29, Nico Boehr wrote:
+> This is to prepare for running guests without MSO/MSL, which is
+> currently not possible.
+> 
+> We already have code in sie64a to setup a guest primary ASCE before
+> entering SIE, so we can in theory switch to the page tables which
+> translate gpa to hpa.
+> 
+> But the host is running in primary space mode already, so changing the
+> primary ASCE before entering SIE will also affect the host's code and
+> data.
+> 
+> To make this switch useful, the host should run in a different address
+> space mode. Hence, set up and change to home address space mode before
+> installing the guest ASCE.
+> 
+> The home space ASCE is just copied over from the primary space ASCE, so
+> no functional change is intended, also for tests that want to use
+> MSO/MSL. If a test intends to use a different primary space ASCE, it can
+> now just set the guest.asce in the save_area.
+> 
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
 
-[...]
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
-> diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
-> index b44febdeaaac..bd907a0ffefa 100644
-> --- a/lib/s390x/sie.c
-> +++ b/lib/s390x/sie.c
-> @@ -15,6 +15,8 @@
->  #include <asm/page.h>
->  #include <libcflat.h>
->  #include <alloc_page.h>
-> +#include <vmalloc.h>
-> +#include <sclp.h>
->  
->  void sie_expect_validity(struct vm *vm)
->  {
-> @@ -111,6 +113,46 @@ void sie_guest_create(struct vm *vm, uint64_t guest_mem, uint64_t guest_mem_len)
->  	vm->sblk->crycbd = (uint32_t)(uintptr_t)vm->crycb;
->  }
->  
-> +/*
-
-/**
-  * sie_guest_alloc - Allocate memory [...]
-
-> + * Allocate memory for a guest and map it in virtual address space such that
-> + * it is properly aligned.
-> + * @guest_size the desired size of the guest in bytes.
-
- * @guest_size: the desired [...]
-
-> + */
-
-let's try to use a consistent style for comments. in many places we use
-the kerneldoc style -- let's stick to that
-
-in the future we should pay more attention to the style, there are
-several places where we have __almost__ kerneldoc style.
-
-> +uint8_t *sie_guest_alloc(uint64_t guest_size)
-> +{
-> +	pgd_t *root;
-> +	u8 *guest_phys, *guest_virt;
-> +	static unsigned long guest_counter = 1;
-> +	unsigned long i;
-
-reverse Christmas tree, please
-
-> +
-> +	setup_vm();
-> +	root = (pgd_t *)(stctg(1) & PAGE_MASK);
-> +
-> +	/*
-> +	 * Start of guest memory in host virtual space needs to be aligned to
-> +	 * 2GB for some environments. It also can't be at 2GB since the memory
-> +	 * allocator stores its page_states metadata there.
-> +	 * Thus we use the next multiple of 4GB after the end of physical
-> +	 * mapping. This also leaves space after end of physical memory so the
-> +	 * page immediately after physical memory is guaranteed not to be
-> +	 * present.
-> +	 */
-> +	guest_virt = (uint8_t *)ALIGN(get_ram_size() + guest_counter * 4UL * SZ_1G, SZ_2G);
-> +	guest_counter++;
-> +
-> +	guest_phys = alloc_pages(get_order(guest_size) - 12);
-> +	/*
-> +	 * Establish a new mapping of the guest memory so it can be 2GB aligned
-> +	 * without actually requiring 2GB physical memory.
-> +	 */
-> +	for (i = 0; i <= guest_size; i += PAGE_SIZE) {
-
-i < guest_size ?
-
-> +		install_page(root, __pa(guest_phys + i), guest_virt + i);
-> +	}
-> +	memset(guest_virt, 0, guest_size);
-> +
-> +	return guest_virt;
-> +}
-> +
->  /* Frees the memory that was gathered on initialization */
->  void sie_guest_destroy(struct vm *vm)
->  {
-
-[...]
