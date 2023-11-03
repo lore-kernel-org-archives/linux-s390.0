@@ -2,25 +2,25 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C37FC4167D
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 14:04:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26FC6C04E85
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 14:04:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377867AbjKCOED (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Nov 2023 10:04:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50532 "EHLO
+        id S1377876AbjKCOEG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Nov 2023 10:04:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377779AbjKCOD6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 10:03:58 -0400
+        with ESMTP id S1377806AbjKCOEC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 10:04:02 -0400
 Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61057D4B;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA5E4D50;
         Fri,  3 Nov 2023 07:03:55 -0700 (PDT)
 Received: from dggpemm100001.china.huawei.com (unknown [172.30.72.54])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4SMMpQ1c3mz1P7ph;
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4SMMpQ6QHWz1P7n0;
         Fri,  3 Nov 2023 22:00:46 +0800 (CST)
 Received: from localhost.localdomain (10.175.112.125) by
  dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.31; Fri, 3 Nov 2023 22:03:49 +0800
+ 15.1.2507.31; Fri, 3 Nov 2023 22:03:50 +0800
 From:   Kefeng Wang <wangkefeng.wang@huawei.com>
 To:     Andrew Morton <akpm@linux-foundation.org>
 CC:     <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
@@ -28,9 +28,9 @@ CC:     <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
         David Hildenbrand <david@redhat.com>,
         <linux-s390@vger.kernel.org>,
         Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: [PATCH 15/18] mm: memory: use a folio in copy_nonpresent_pte()
-Date:   Fri, 3 Nov 2023 22:01:16 +0800
-Message-ID: <20231103140119.2306578-16-wangkefeng.wang@huawei.com>
+Subject: [PATCH 18/18] mm: remove mm_counter()
+Date:   Fri, 3 Nov 2023 22:01:19 +0800
+Message-ID: <20231103140119.2306578-19-wangkefeng.wang@huawei.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20231103140119.2306578-1-wangkefeng.wang@huawei.com>
 References: <20231103140119.2306578-1-wangkefeng.wang@huawei.com>
@@ -45,61 +45,29 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use a folio in copy_nonpresent_pte() to save one compound_head() call.
+Since no one call mm_counter(), remove it.
 
 Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 ---
- mm/memory.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ include/linux/mm.h | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/mm/memory.c b/mm/memory.c
-index 584fe9a550b9..fcc04dce8e8a 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -779,7 +779,7 @@ copy_nonpresent_pte(struct mm_struct *dst_mm, struct mm_struct *src_mm,
- 	unsigned long vm_flags = dst_vma->vm_flags;
- 	pte_t orig_pte = ptep_get(src_pte);
- 	pte_t pte = orig_pte;
--	struct page *page;
-+	struct folio *folio;
- 	swp_entry_t entry = pte_to_swp_entry(orig_pte);
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 9353c5709c45..fd1a27bbdb53 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2598,11 +2598,6 @@ static inline int mm_counter_folio(struct folio *folio)
+ 	return mm_counter_file_folio(folio);
+ }
  
- 	if (likely(!non_swap_entry(entry))) {
-@@ -801,9 +801,9 @@ copy_nonpresent_pte(struct mm_struct *dst_mm, struct mm_struct *src_mm,
- 		}
- 		rss[MM_SWAPENTS]++;
- 	} else if (is_migration_entry(entry)) {
--		page = pfn_swap_entry_to_page(entry);
-+		folio = pfn_swap_entry_to_folio(entry);
- 
--		rss[mm_counter(page)]++;
-+		rss[mm_counter_folio(folio)]++;
- 
- 		if (!is_readable_migration_entry(entry) &&
- 				is_cow_mapping(vm_flags)) {
-@@ -822,7 +822,7 @@ copy_nonpresent_pte(struct mm_struct *dst_mm, struct mm_struct *src_mm,
- 			set_pte_at(src_mm, addr, src_pte, pte);
- 		}
- 	} else if (is_device_private_entry(entry)) {
--		page = pfn_swap_entry_to_page(entry);
-+		folio = pfn_swap_entry_to_folio(entry);
- 
- 		/*
- 		 * Update rss count even for unaddressable pages, as
-@@ -833,10 +833,10 @@ copy_nonpresent_pte(struct mm_struct *dst_mm, struct mm_struct *src_mm,
- 		 * for unaddressable pages, at some point. But for now
- 		 * keep things as they are.
- 		 */
--		get_page(page);
--		rss[mm_counter(page)]++;
-+		folio_get(folio);
-+		rss[mm_counter_folio(folio)]++;
- 		/* Cannot fail as these pages cannot get pinned. */
--		BUG_ON(page_try_dup_anon_rmap(page, false, src_vma));
-+		BUG_ON(page_try_dup_anon_rmap(&folio->page, false, src_vma));
- 
- 		/*
- 		 * We do not preserve soft-dirty information, because so
+-static inline int mm_counter(struct page *page)
+-{
+-	return mm_counter_folio(page_folio(page));
+-}
+-
+ static inline unsigned long get_mm_rss(struct mm_struct *mm)
+ {
+ 	return get_mm_counter(mm, MM_FILEPAGES) +
 -- 
 2.27.0
 
