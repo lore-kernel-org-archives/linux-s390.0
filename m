@@ -2,25 +2,25 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A536EC4332F
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 14:03:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53DF2C4167D
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Nov 2023 14:03:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234149AbjKCODt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Nov 2023 10:03:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37116 "EHLO
+        id S1377759AbjKCODu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Nov 2023 10:03:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233674AbjKCODs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 10:03:48 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34209D4D;
+        with ESMTP id S233366AbjKCODt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 10:03:49 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B5D2D4F;
         Fri,  3 Nov 2023 07:03:45 -0700 (PDT)
-Received: from dggpemm100001.china.huawei.com (unknown [172.30.72.56])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4SMMpG1TbrzrSJv;
-        Fri,  3 Nov 2023 22:00:38 +0800 (CST)
+Received: from dggpemm100001.china.huawei.com (unknown [172.30.72.54])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4SMMsk23mLzVkbd;
+        Fri,  3 Nov 2023 22:03:38 +0800 (CST)
 Received: from localhost.localdomain (10.175.112.125) by
  dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.31; Fri, 3 Nov 2023 22:03:42 +0800
+ 15.1.2507.31; Fri, 3 Nov 2023 22:03:43 +0800
 From:   Kefeng Wang <wangkefeng.wang@huawei.com>
 To:     Andrew Morton <akpm@linux-foundation.org>
 CC:     <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
@@ -28,10 +28,12 @@ CC:     <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
         David Hildenbrand <david@redhat.com>,
         <linux-s390@vger.kernel.org>,
         Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: [PATCH rfc 00/18] mm: convert to use folio mm counter
-Date:   Fri, 3 Nov 2023 22:01:01 +0800
-Message-ID: <20231103140119.2306578-1-wangkefeng.wang@huawei.com>
+Subject: [PATCH 01/18] mm: add mm_counter_folio() and mm_counter_file_folio()
+Date:   Fri, 3 Nov 2023 22:01:02 +0800
+Message-ID: <20231103140119.2306578-2-wangkefeng.wang@huawei.com>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20231103140119.2306578-1-wangkefeng.wang@huawei.com>
+References: <20231103140119.2306578-1-wangkefeng.wang@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
@@ -43,46 +45,55 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Convert mm counter page functions to folio ones.
+Introduce two mm counter folio functions mm_counter_folio() and
+mm_counter_file_folio(), will be used folio conversion, and it
+saves a compound_head() in mm_counter().
 
-  mm_counter()       ->	mm_counter_folio()
-  mm_counter_file()  ->	mm_counter_file_folio()
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+---
+ include/linux/mm.h | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
-Maybe it's better to rename folio mm counter function back to mm_counter()
-and mm_counter_file() after all conversion?
-
-Kefeng Wang (18):
-  mm: add mm_counter_folio() and mm_counter_file_folio()
-  uprobes: use mm_counter_file_folio()
-  mm: userfaultfd: use mm_counter_folio()
-  mm: rmap: use mm_counter_[file]_folio()
-  mm: swap: introduce pfn_swap_entry_to_folio()
-  mm: huge_memory: use a folio in __split_huge_pmd_locked()
-  mm: huge_memory: use a folio in zap_huge_pmd()
-  mm: khugepaged: use mm_counter_file_folio() in
-    collapse_pte_mapped_thp()
-  mm: memory: use a folio in do_set_pmd()
-  mm: memory: use mm_counter_file_folio() in copy_present_pte()
-  mm: memory: use mm_counter_file_folio() in wp_page_copy()
-  mm: memory: use mm_counter_file_folio() in set_pte_range()
-  mm: memory: use a folio in insert_page_into_pte_locked()
-  mm: remove mm_counter_file()
-  mm: memory: use a folio in copy_nonpresent_pte()
-  mm: use a folio in zap_pte_range()
-  s390: pgtable: use mm_counter_folio() in ptep_zap_swap_entry()
-  mm: remove mm_counter()
-
- arch/s390/mm/pgtable.c  |  4 +--
- include/linux/mm.h      | 12 +++----
- include/linux/swapops.h | 13 +++++++
- kernel/events/uprobes.c |  2 +-
- mm/huge_memory.c        | 25 +++++++------
- mm/khugepaged.c         |  4 +--
- mm/memory.c             | 77 +++++++++++++++++++++++------------------
- mm/rmap.c               | 10 +++---
- mm/userfaultfd.c        |  4 +--
- 9 files changed, 88 insertions(+), 63 deletions(-)
-
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index caf13e94260e..f5f76504b212 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2583,19 +2583,29 @@ static inline void dec_mm_counter(struct mm_struct *mm, int member)
+ 	mm_trace_rss_stat(mm, member);
+ }
+ 
+-/* Optimized variant when page is already known not to be PageAnon */
+-static inline int mm_counter_file(struct page *page)
++static inline int mm_counter_file_folio(struct folio *folio)
+ {
+-	if (PageSwapBacked(page))
++	if (folio_test_swapbacked(folio))
+ 		return MM_SHMEMPAGES;
+ 	return MM_FILEPAGES;
+ }
+ 
+-static inline int mm_counter(struct page *page)
++/* Optimized variant when page is already known not to be PageAnon */
++static inline int mm_counter_file(struct page *page)
++{
++	return mm_counter_file_folio(page_folio(page));
++}
++
++static inline int mm_counter_folio(struct folio *folio)
+ {
+-	if (PageAnon(page))
++	if (folio_test_anon(folio))
+ 		return MM_ANONPAGES;
+-	return mm_counter_file(page);
++	return mm_counter_file_folio(folio);
++}
++
++static inline int mm_counter(struct page *page)
++{
++	return mm_counter_folio(page_folio(page));
+ }
+ 
+ static inline unsigned long get_mm_rss(struct mm_struct *mm)
 -- 
 2.27.0
 
