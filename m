@@ -2,25 +2,25 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45079C4167B
-	for <linux-s390@archiver.kernel.org>; Sat,  4 Nov 2023 03:55:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23D26C41535
+	for <linux-s390@archiver.kernel.org>; Sat,  4 Nov 2023 03:55:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345840AbjKDDzu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Nov 2023 23:55:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59638 "EHLO
+        id S1345197AbjKDDzt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Nov 2023 23:55:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234308AbjKDDzs (ORCPT
+        with ESMTP id S234316AbjKDDzs (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 23:55:48 -0400
 Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B3CD1A8;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B5141AA;
         Fri,  3 Nov 2023 20:55:44 -0700 (PDT)
-Received: from dggpemm100001.china.huawei.com (unknown [172.30.72.57])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4SMkGD3sw9zrTX9;
-        Sat,  4 Nov 2023 11:52:36 +0800 (CST)
+Received: from dggpemm100001.china.huawei.com (unknown [172.30.72.54])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4SMkKh6BgFzvQ5W;
+        Sat,  4 Nov 2023 11:55:36 +0800 (CST)
 Received: from localhost.localdomain (10.175.112.125) by
  dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.31; Sat, 4 Nov 2023 11:55:41 +0800
+ 15.1.2507.31; Sat, 4 Nov 2023 11:55:40 +0800
 From:   Kefeng Wang <wangkefeng.wang@huawei.com>
 To:     Andrew Morton <akpm@linux-foundation.org>
 CC:     <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
@@ -28,9 +28,9 @@ CC:     <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
         David Hildenbrand <david@redhat.com>,
         <linux-s390@vger.kernel.org>,
         Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: [PATCH v2 03/10] mm: huge_memory: use a folio in __split_huge_pmd_locked()
-Date:   Sat, 4 Nov 2023 11:55:15 +0800
-Message-ID: <20231104035522.2418660-4-wangkefeng.wang@huawei.com>
+Subject: [PATCH v2 01/10] mm: swap: introduce pfn_swap_entry_to_folio()
+Date:   Sat, 4 Nov 2023 11:55:13 +0800
+Message-ID: <20231104035522.2418660-2-wangkefeng.wang@huawei.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20231104035522.2418660-1-wangkefeng.wang@huawei.com>
 References: <20231104035522.2418660-1-wangkefeng.wang@huawei.com>
@@ -45,53 +45,40 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use a folio in __split_huge_pmd_locked() which replaces five
-compound_head() call with two page_folio() calls.
+Introduce a new pfn_swap_entry_to_folio(), it is similar to
+pfn_swap_entry_to_page(), but return a folio, which allow us
+to completely replace the struct page variables with struct
+folio variables.
 
 Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 ---
- mm/huge_memory.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ include/linux/swapops.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index f31f02472396..34dd01970927 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -2117,6 +2117,7 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
- 	count_vm_event(THP_SPLIT_PMD);
+diff --git a/include/linux/swapops.h b/include/linux/swapops.h
+index bff1e8d97de0..85cb84e4be95 100644
+--- a/include/linux/swapops.h
++++ b/include/linux/swapops.h
+@@ -468,6 +468,19 @@ static inline struct page *pfn_swap_entry_to_page(swp_entry_t entry)
+ 	return p;
+ }
  
- 	if (!vma_is_anonymous(vma)) {
-+		struct folio *folio;
- 		old_pmd = pmdp_huge_clear_flush(vma, haddr, pmd);
- 		/*
- 		 * We are going to unmap this huge page. So
-@@ -2130,17 +2131,17 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
- 			swp_entry_t entry;
- 
- 			entry = pmd_to_swp_entry(old_pmd);
--			page = pfn_swap_entry_to_page(entry);
-+			folio = pfn_swap_entry_to_folio(entry);
- 		} else {
--			page = pmd_page(old_pmd);
--			if (!PageDirty(page) && pmd_dirty(old_pmd))
--				set_page_dirty(page);
--			if (!PageReferenced(page) && pmd_young(old_pmd))
--				SetPageReferenced(page);
--			page_remove_rmap(page, vma, true);
--			put_page(page);
-+			folio = page_folio(pmd_page(old_pmd));
-+			if (!folio_test_dirty(folio) && pmd_dirty(old_pmd))
-+				folio_set_dirty(folio);
-+			if (!folio_test_referenced(folio) && pmd_young(old_pmd))
-+				folio_set_referenced(folio);
-+			page_remove_rmap(&folio->page, vma, true);
-+			folio_put(folio);
- 		}
--		add_mm_counter(mm, mm_counter_file(page), -HPAGE_PMD_NR);
-+		add_mm_counter(mm, mm_counter_file(&folio->page), -HPAGE_PMD_NR);
- 		return;
- 	}
- 
++static inline struct folio *pfn_swap_entry_to_folio(swp_entry_t entry)
++{
++	struct folio *folio = pfn_folio(swp_offset_pfn(entry));
++
++	/*
++	 * Any use of migration entries may only occur while the
++	 * corresponding folio is locked
++	 */
++	BUG_ON(is_migration_entry(entry) && !folio_test_locked(folio));
++
++	return folio;
++}
++
+ /*
+  * A pfn swap entry is a special type of swap entry that always has a pfn stored
+  * in the swap offset. They are used to represent unaddressable device memory
 -- 
 2.27.0
 
