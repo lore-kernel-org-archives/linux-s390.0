@@ -2,25 +2,25 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93406C4167D
-	for <linux-s390@archiver.kernel.org>; Sat,  4 Nov 2023 03:56:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85BD1C0018C
+	for <linux-s390@archiver.kernel.org>; Sat,  4 Nov 2023 03:56:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234509AbjKDDzv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Nov 2023 23:55:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59642 "EHLO
+        id S1346239AbjKDD4C (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Nov 2023 23:56:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234297AbjKDDzs (ORCPT
+        with ESMTP id S1343547AbjKDDzs (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Nov 2023 23:55:48 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B5CDD45;
-        Fri,  3 Nov 2023 20:55:44 -0700 (PDT)
-Received: from dggpemm100001.china.huawei.com (unknown [172.30.72.54])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4SMkGD0WzxzrTQX;
-        Sat,  4 Nov 2023 11:52:36 +0800 (CST)
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FB15D51;
+        Fri,  3 Nov 2023 20:55:45 -0700 (PDT)
+Received: from dggpemm100001.china.huawei.com (unknown [172.30.72.57])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4SMkDl5J28zMlhj;
+        Sat,  4 Nov 2023 11:51:19 +0800 (CST)
 Received: from localhost.localdomain (10.175.112.125) by
  dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.31; Sat, 4 Nov 2023 11:55:41 +0800
+ 15.1.2507.31; Sat, 4 Nov 2023 11:55:43 +0800
 From:   Kefeng Wang <wangkefeng.wang@huawei.com>
 To:     Andrew Morton <akpm@linux-foundation.org>
 CC:     <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
@@ -28,9 +28,9 @@ CC:     <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
         David Hildenbrand <david@redhat.com>,
         <linux-s390@vger.kernel.org>,
         Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: [PATCH v2 02/10] s390: pgtable: use a folio in ptep_zap_swap_entry()
-Date:   Sat, 4 Nov 2023 11:55:14 +0800
-Message-ID: <20231104035522.2418660-3-wangkefeng.wang@huawei.com>
+Subject: [PATCH v2 06/10] mm: memory: use a folio in zap_pte_range()
+Date:   Sat, 4 Nov 2023 11:55:18 +0800
+Message-ID: <20231104035522.2418660-7-wangkefeng.wang@huawei.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20231104035522.2418660-1-wangkefeng.wang@huawei.com>
 References: <20231104035522.2418660-1-wangkefeng.wang@huawei.com>
@@ -45,30 +45,130 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use a folio in ptep_zap_swap_entry(), which is preparetion for
-converting mm counter functions to take a folio.
+Make should_zap_page() to take a folio and use a folio in
+zap_pte_range(), which save several compound_head() calls.
 
 Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 ---
- arch/s390/mm/pgtable.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/memory.c | 45 +++++++++++++++++++++++++--------------------
+ 1 file changed, 25 insertions(+), 20 deletions(-)
 
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index 3bd2ab2a9a34..2f946b493fff 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -730,9 +730,9 @@ static void ptep_zap_swap_entry(struct mm_struct *mm, swp_entry_t entry)
- 	if (!non_swap_entry(entry))
- 		dec_mm_counter(mm, MM_SWAPENTS);
- 	else if (is_migration_entry(entry)) {
--		struct page *page = pfn_swap_entry_to_page(entry);
-+		struct folio *folio = pfn_swap_entry_to_folio(entry);
- 
--		dec_mm_counter(mm, mm_counter(page));
-+		dec_mm_counter(mm, mm_counter(&folio->page));
- 	}
- 	free_swap_and_cache(entry);
+diff --git a/mm/memory.c b/mm/memory.c
+index d9314dee355e..806568f9605b 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -1358,19 +1358,19 @@ static inline bool should_zap_cows(struct zap_details *details)
+ 	return details->even_cows;
  }
+ 
+-/* Decides whether we should zap this page with the page pointer specified */
+-static inline bool should_zap_page(struct zap_details *details, struct page *page)
++/* Decides whether we should zap this folio with the folio pointer specified */
++static inline bool should_zap_page(struct zap_details *details, struct folio *folio)
+ {
+-	/* If we can make a decision without *page.. */
++	/* If we can make a decision without *folio.. */
+ 	if (should_zap_cows(details))
+ 		return true;
+ 
+-	/* E.g. the caller passes NULL for the case of a zero page */
+-	if (!page)
++	/* E.g. the caller passes NULL for the case of a zero folio */
++	if (!folio)
+ 		return true;
+ 
+-	/* Otherwise we should only zap non-anon pages */
+-	return !PageAnon(page);
++	/* Otherwise we should only zap non-anon folios */
++	return !folio_test_anon(folio);
+ }
+ 
+ static inline bool zap_drop_file_uffd_wp(struct zap_details *details)
+@@ -1423,7 +1423,7 @@ static unsigned long zap_pte_range(struct mmu_gather *tlb,
+ 	arch_enter_lazy_mmu_mode();
+ 	do {
+ 		pte_t ptent = ptep_get(pte);
+-		struct page *page;
++		struct folio *folio = NULL;
+ 
+ 		if (pte_none(ptent))
+ 			continue;
+@@ -1433,9 +1433,13 @@ static unsigned long zap_pte_range(struct mmu_gather *tlb,
+ 
+ 		if (pte_present(ptent)) {
+ 			unsigned int delay_rmap;
++			struct page *page;
+ 
+ 			page = vm_normal_page(vma, addr, ptent);
+-			if (unlikely(!should_zap_page(details, page)))
++			if (page)
++				folio = page_folio(page);
++
++			if (unlikely(!should_zap_page(details, folio)))
+ 				continue;
+ 			ptent = ptep_get_and_clear_full(mm, addr, pte,
+ 							tlb->fullmm);
+@@ -1449,16 +1453,16 @@ static unsigned long zap_pte_range(struct mmu_gather *tlb,
+ 			}
+ 
+ 			delay_rmap = 0;
+-			if (!PageAnon(page)) {
++			if (!folio_test_anon(folio)) {
+ 				if (pte_dirty(ptent)) {
+-					set_page_dirty(page);
++					folio_set_dirty(folio);
+ 					if (tlb_delay_rmap(tlb)) {
+ 						delay_rmap = 1;
+ 						force_flush = 1;
+ 					}
+ 				}
+ 				if (pte_young(ptent) && likely(vma_has_recency(vma)))
+-					mark_page_accessed(page);
++					folio_mark_accessed(folio);
+ 			}
+ 			rss[mm_counter(page)]--;
+ 			if (!delay_rmap) {
+@@ -1477,9 +1481,10 @@ static unsigned long zap_pte_range(struct mmu_gather *tlb,
+ 		entry = pte_to_swp_entry(ptent);
+ 		if (is_device_private_entry(entry) ||
+ 		    is_device_exclusive_entry(entry)) {
+-			page = pfn_swap_entry_to_page(entry);
+-			if (unlikely(!should_zap_page(details, page)))
++			folio = pfn_swap_entry_to_folio(entry);
++			if (unlikely(!should_zap_page(details, folio)))
+ 				continue;
++
+ 			/*
+ 			 * Both device private/exclusive mappings should only
+ 			 * work with anonymous page so far, so we don't need to
+@@ -1487,10 +1492,10 @@ static unsigned long zap_pte_range(struct mmu_gather *tlb,
+ 			 * see zap_install_uffd_wp_if_needed().
+ 			 */
+ 			WARN_ON_ONCE(!vma_is_anonymous(vma));
+-			rss[mm_counter(page)]--;
++			rss[mm_counter(&folio->page)]--;
+ 			if (is_device_private_entry(entry))
+-				page_remove_rmap(page, vma, false);
+-			put_page(page);
++				page_remove_rmap(&folio->page, vma, false);
++			folio_put(folio);
+ 		} else if (!non_swap_entry(entry)) {
+ 			/* Genuine swap entry, hence a private anon page */
+ 			if (!should_zap_cows(details))
+@@ -1499,10 +1504,10 @@ static unsigned long zap_pte_range(struct mmu_gather *tlb,
+ 			if (unlikely(!free_swap_and_cache(entry)))
+ 				print_bad_pte(vma, addr, ptent, NULL);
+ 		} else if (is_migration_entry(entry)) {
+-			page = pfn_swap_entry_to_page(entry);
+-			if (!should_zap_page(details, page))
++			folio = pfn_swap_entry_to_folio(entry);
++			if (!should_zap_page(details, folio))
+ 				continue;
+-			rss[mm_counter(page)]--;
++			rss[mm_counter(&folio->page)]--;
+ 		} else if (pte_marker_entry_uffd_wp(entry)) {
+ 			/*
+ 			 * For anon: always drop the marker; for file: only
 -- 
 2.27.0
 
