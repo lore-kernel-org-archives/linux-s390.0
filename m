@@ -2,70 +2,87 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32359C4332F
-	for <linux-s390@archiver.kernel.org>; Sat,  4 Nov 2023 17:21:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E904C4332F
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Nov 2023 02:31:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231321AbjKDRVD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 4 Nov 2023 13:21:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43930 "EHLO
+        id S229486AbjKFCbG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 5 Nov 2023 21:31:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230346AbjKDRVD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 4 Nov 2023 13:21:03 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79F5D1BF;
-        Sat,  4 Nov 2023 10:21:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=iZ7+BGlL3zWN+SVM8jQZNXOzKUk6jFAu7ijAJTmB0CI=; b=nfkprV5s7Ii9/+5g7i9kwyvnLm
-        9Gm2ylhNX07Mcj2zN9mgCu9+DxcLZ3UgS3QQxSO4OZZdQy2S7lT4iDB1F+nThKOHHsoZPPe40CYdu
-        3ALSQt7gJ6IHC0+PgArkPOTU5/RnPjM43yamW8uDNR3wwkqVnSTZFGf2ZJ3N5xgNtDcUrSwgnBaGK
-        mDg0kdZxD6h98WEsw1MS8Qa3XiW2yHZvU31Tzfrs9IeM+YMEK2lw7XD+VMzqaD367KAMcuIuo+hTz
-        Jls2hnyGZQVzlcXPoE1VZlhxf3IfGTv4V3PegJNCPA3q7QJfyzidJjZAPfPEPbpJpp2a0s/Nriv6D
-        JAVjTYSg==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1qzKKM-00CZqt-UJ; Sat, 04 Nov 2023 17:20:55 +0000
-Date:   Sat, 4 Nov 2023 17:20:54 +0000
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        David Hildenbrand <david@redhat.com>,
-        linux-s390@vger.kernel.org
+        with ESMTP id S229447AbjKFCbG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 5 Nov 2023 21:31:06 -0500
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F637D6;
+        Sun,  5 Nov 2023 18:31:02 -0800 (PST)
+Received: from dggpemm100001.china.huawei.com (unknown [172.30.72.56])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4SNwM158NmzvQK0;
+        Mon,  6 Nov 2023 10:30:53 +0800 (CST)
+Received: from [10.174.177.243] (10.174.177.243) by
+ dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.31; Mon, 6 Nov 2023 10:30:59 +0800
+Message-ID: <e3c275c3-e09d-4495-8132-9464133db283@huawei.com>
+Date:   Mon, 6 Nov 2023 10:30:59 +0800
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v2 06/10] mm: memory: use a folio in zap_pte_range()
-Message-ID: <ZUZ9dg4YHZdUKDqO@casper.infradead.org>
+To:     Matthew Wilcox <willy@infradead.org>
+CC:     Andrew Morton <akpm@linux-foundation.org>,
+        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
+        David Hildenbrand <david@redhat.com>,
+        <linux-s390@vger.kernel.org>
 References: <20231104035522.2418660-1-wangkefeng.wang@huawei.com>
  <20231104035522.2418660-7-wangkefeng.wang@huawei.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231104035522.2418660-7-wangkefeng.wang@huawei.com>
+ <ZUZ9dg4YHZdUKDqO@casper.infradead.org>
+Content-Language: en-US
+From:   Kefeng Wang <wangkefeng.wang@huawei.com>
+In-Reply-To: <ZUZ9dg4YHZdUKDqO@casper.infradead.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.177.243]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggpemm100001.china.huawei.com (7.185.36.93)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Nov 04, 2023 at 11:55:18AM +0800, Kefeng Wang wrote:
-> -/* Decides whether we should zap this page with the page pointer specified */
-> -static inline bool should_zap_page(struct zap_details *details, struct page *page)
-> +/* Decides whether we should zap this folio with the folio pointer specified */
-> +static inline bool should_zap_page(struct zap_details *details, struct folio *folio)
 
-Surely we should rename this to should_zap_folio()?
 
-> @@ -1487,10 +1492,10 @@ static unsigned long zap_pte_range(struct mmu_gather *tlb,
->  			 * see zap_install_uffd_wp_if_needed().
->  			 */
->  			WARN_ON_ONCE(!vma_is_anonymous(vma));
-> -			rss[mm_counter(page)]--;
-> +			rss[mm_counter(&folio->page)]--;
->  			if (is_device_private_entry(entry))
-> -				page_remove_rmap(page, vma, false);
-> -			put_page(page);
-> +				page_remove_rmap(&folio->page, vma, false);
-> +			folio_put(folio);
+On 2023/11/5 1:20, Matthew Wilcox wrote:
+> On Sat, Nov 04, 2023 at 11:55:18AM +0800, Kefeng Wang wrote:
+>> -/* Decides whether we should zap this page with the page pointer specified */
+>> -static inline bool should_zap_page(struct zap_details *details, struct page *page)
+>> +/* Decides whether we should zap this folio with the folio pointer specified */
+>> +static inline bool should_zap_page(struct zap_details *details, struct folio *folio)
+> 
+> Surely we should rename this to should_zap_folio()?
+Will update.
+> 
+>> @@ -1487,10 +1492,10 @@ static unsigned long zap_pte_range(struct mmu_gather *tlb,
+>>   			 * see zap_install_uffd_wp_if_needed().
+>>   			 */
+>>   			WARN_ON_ONCE(!vma_is_anonymous(vma));
+>> -			rss[mm_counter(page)]--;
+>> +			rss[mm_counter(&folio->page)]--;
+>>   			if (is_device_private_entry(entry))
+>> -				page_remove_rmap(page, vma, false);
+>> -			put_page(page);
+>> +				page_remove_rmap(&folio->page, vma, false);
+>> +			folio_put(folio);
+> 
+> This is wrong.  If we have a PTE-mapped THP, you'll remove the head page
+> N times instead of removing each of N pages.
 
-This is wrong.  If we have a PTE-mapped THP, you'll remove the head page
-N times instead of removing each of N pages.
+This is device private entry, I suppose that it won't be a THP and large 
+folio when check migrate_vma_check_page() and migrate_vma_insert_page(),
+right?
 
-I suspect you're going to collide with Ryan's work by doing this ...
+> 
+> I suspect you're going to collide with Ryan's work by doing this ...
+> 
+Maybe not if the above is true, at least for now.
+
+Thanks.
+
+
