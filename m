@@ -2,255 +2,128 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 810FBC4167D
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Nov 2023 16:56:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E2ADC4332F
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Nov 2023 17:08:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232911AbjKFQ4g (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Nov 2023 11:56:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51650 "EHLO
+        id S232405AbjKFRI7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Nov 2023 12:08:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232908AbjKFQ4g (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Nov 2023 11:56:36 -0500
+        with ESMTP id S232279AbjKFRI6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Nov 2023 12:08:58 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B11ED67;
-        Mon,  6 Nov 2023 08:56:33 -0800 (PST)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6Gp1D2011771;
-        Mon, 6 Nov 2023 16:56:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=lX6Jcfy8O2XVfM+Oo8t7ZrXmiQwWRuN4WQk1QPxbamk=;
- b=iozLqy/hyVGWwYi2ANM4zZWB8UaLx24Rr+csBJLs2QjKu0z4nm4z8S6HQ9RR/Wq9gS29
- JZQBpV5EKqkeBMIxeSxkOy09PeZRCQkouuoVNbVW1AJtXKhhXk+64+/oMdn3eAhzcsjM
- GHYL3NolAoMektgCNq+tq3W3TB2jTaL9aW0Hmp6D/CuOIijTAnHxkE4BW8tzrnnfy3EP
- QkpDPv5bhaxqzrQQVmVfNVms2NsCZnr77Fo08VD2+7t5czjaYPpnZe7/Oa6fsl8OvNb9
- /Z3mkTzi5II0cPAApwzhZ/75ZUQz7JKlgNIwzM5+l3aGD7GI+b9y25NRxsaixway9cCG pA== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D775D4D;
+        Mon,  6 Nov 2023 09:08:55 -0800 (PST)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6GqWFx009758;
+        Mon, 6 Nov 2023 17:08:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=ECHjvgKn7T8h70uC82BKY6deboTIePxxtdBahCWAHa0=;
+ b=oPfR9abO5ReLHDpwymIWB7blNVZieqs6/NpO20jEu3aC1260Lsfqz27mGw4ayGG+Duj0
+ /HXKXLknSdBYQG+/WJxmd3QtPz6AFvKUQ4/yM4NueL1ZEEk/GHHwpx3oFo9oDIaKGmkq
+ OaeJARHZIUNWfbiiucBfmy4hK6RGiRgfnByIO8EV2rgBQnGWncOKfjXiFgolxz+CsHB8
+ szxr8u3US3LVU7sdpBPFEmCr99HBW8GrXpltFNlb3U86jPjVffz+d063bZ9YoiXAFU8H
+ PoQSxMY4djq2KYnlz8uAcPnUFHr/+xJxaSd1oWEmXMmcyFIb2fo1vYWf60djZjbTHFOe JA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u722pm6hu-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u741tgj3c-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Nov 2023 16:56:30 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A6Gp4l9011930;
-        Mon, 6 Nov 2023 16:56:29 GMT
+        Mon, 06 Nov 2023 17:08:54 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A6H2LtX012136;
+        Mon, 6 Nov 2023 17:08:54 GMT
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u722pm6hc-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u741tgj2r-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Nov 2023 16:56:29 +0000
+        Mon, 06 Nov 2023 17:08:54 +0000
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6FXmmm016950;
-        Mon, 6 Nov 2023 16:56:28 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u6301j6as-1
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6FRnqu016958;
+        Mon, 6 Nov 2023 17:08:53 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u6301j9e3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Nov 2023 16:56:28 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A6GuPNQ15663702
+        Mon, 06 Nov 2023 17:08:53 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A6H8o5j12321326
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Nov 2023 16:56:26 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DC04220043;
-        Mon,  6 Nov 2023 16:56:25 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AB89420040;
-        Mon,  6 Nov 2023 16:56:25 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  6 Nov 2023 16:56:25 +0000 (GMT)
-Date:   Mon, 6 Nov 2023 17:54:28 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, david@redhat.com,
-        pbonzini@redhat.com, andrew.jones@linux.dev, lvivier@redhat.com,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v1 04/10] s390x: properly format
- non-kernel-doc comments
-Message-ID: <20231106175428.4fc47141@p-imbrenda>
-In-Reply-To: <20231106125352.859992-5-nrb@linux.ibm.com>
-References: <20231106125352.859992-1-nrb@linux.ibm.com>
-        <20231106125352.859992-5-nrb@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+        Mon, 6 Nov 2023 17:08:50 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CDCFF20040;
+        Mon,  6 Nov 2023 17:08:50 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6235D2004B;
+        Mon,  6 Nov 2023 17:08:50 +0000 (GMT)
+Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  6 Nov 2023 17:08:50 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v2 1/3] s390x: spec_ex-sie: refactor to use snippet API
+Date:   Mon,  6 Nov 2023 18:08:00 +0100
+Message-ID: <20231106170849.1184162-2-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.41.0
+In-Reply-To: <20231106170849.1184162-1-nrb@linux.ibm.com>
+References: <20231106170849.1184162-1-nrb@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: NffoWLxxwYPZ50QnM94SBT351PLDdAy-
-X-Proofpoint-GUID: mytyYav8cx9KZZP95kcmzrMJHLLgxhgc
+X-Proofpoint-ORIG-GUID: tniNvpb7yg9-Bmo_ql48ggQ67NYiOT0k
+X-Proofpoint-GUID: jHVwing4ZadFmE4RZg-J8yLCY4Z07_uq
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-06_12,2023-11-02_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
- lowpriorityscore=0 spamscore=0 phishscore=0 priorityscore=1501 bulkscore=0
- mlxscore=0 impostorscore=0 clxscore=1015 suspectscore=0 mlxlogscore=999
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 impostorscore=0
+ malwarescore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0 bulkscore=0
+ mlxlogscore=999 phishscore=0 adultscore=0 priorityscore=1501 spamscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2310240000
- definitions=main-2311060137
+ definitions=main-2311060139
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon,  6 Nov 2023 13:51:00 +0100
-Nico Boehr <nrb@linux.ibm.com> wrote:
+spec_ex-sie uses a snippet, but allocated the memory on its own without
+obvious reason to do so.
 
-> These comments do not follow the kernel-doc style, hence they should not
-> start with /**.
-> 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> ---
->  s390x/sclp.c | 32 ++++++++++++++++----------------
->  1 file changed, 16 insertions(+), 16 deletions(-)
-> 
-> diff --git a/s390x/sclp.c b/s390x/sclp.c
-> index 1abb9029f984..ccbaa9136fdb 100644
-> --- a/s390x/sclp.c
-> +++ b/s390x/sclp.c
-> @@ -32,7 +32,7 @@ static union {
->  } sccb_template;
->  static uint32_t valid_code;						/* valid command code for READ SCP INFO */
->  
-> -/**
-> +/*
->   * Perform one service call, handling exceptions and interrupts.
->   */
+Refactor the test to use snippet_init().
 
- * sclp_service_call_test() - Perform ... 
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ s390x/spec_ex-sie.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-(same for all the other functions)
-
->  static int sclp_service_call_test(unsigned int command, void *sccb)
-> @@ -51,7 +51,7 @@ static int sclp_service_call_test(unsigned int command, void *sccb)
->  	return cc;
->  }
->  
-> -/**
-> +/*
->   * Perform one test at the given address, optionally using the SCCB template,
->   * checking for the expected program interrupts and return codes.
->   *
-> @@ -96,7 +96,7 @@ static bool test_one_sccb(uint32_t cmd, uint8_t *addr, uint16_t buf_len, uint64_
->  	return true;
->  }
->  
-> -/**
-> +/*
->   * Wrapper for test_one_sccb to be used when the template should not be
->   * copied and the memory address should not be touched.
->   */
-> @@ -105,7 +105,7 @@ static bool test_one_ro(uint32_t cmd, uint8_t *addr, uint64_t exp_pgm, uint16_t
->  	return test_one_sccb(cmd, addr, 0, exp_pgm, exp_rc);
->  }
->  
-> -/**
-> +/*
->   * Wrapper for test_one_sccb to set up a simple SCCB template.
->   *
->   * The parameter sccb_len indicates the value that will be saved in the SCCB
-> @@ -124,7 +124,7 @@ static bool test_one_simple(uint32_t cmd, uint8_t *addr, uint16_t sccb_len,
->  	return test_one_sccb(cmd, addr, buf_len, exp_pgm, exp_rc);
->  }
->  
-> -/**
-> +/*
->   * Test SCCB lengths < 8.
->   */
->  static void test_sccb_too_short(void)
-> @@ -138,7 +138,7 @@ static void test_sccb_too_short(void)
->  	report(len == 8, "SCCB too short");
->  }
->  
-> -/**
-> +/*
->   * Test SCCBs that are not 64-bit aligned.
->   */
->  static void test_sccb_unaligned(void)
-> @@ -151,7 +151,7 @@ static void test_sccb_unaligned(void)
->  	report(offset == 8, "SCCB unaligned");
->  }
->  
-> -/**
-> +/*
->   * Test SCCBs whose address is in the lowcore or prefix area.
->   */
->  static void test_sccb_prefix(void)
-> @@ -202,7 +202,7 @@ static void test_sccb_prefix(void)
->  	set_prefix(prefix);
->  }
->  
-> -/**
-> +/*
->   * Test SCCBs that are above 2GB. If outside of memory, an addressing
->   * exception is also allowed.
->   */
-> @@ -245,7 +245,7 @@ static void test_sccb_high(void)
->  	report(i == len, "SCCB high addresses");
->  }
->  
-> -/**
-> +/*
->   * Test invalid commands, both invalid command detail codes and valid
->   * ones with invalid command class code.
->   */
-> @@ -275,7 +275,7 @@ static void test_inval(void)
->  }
->  
->  
-> -/**
-> +/*
->   * Test short SCCBs (but larger than 8).
->   */
->  static void test_short(void)
-> @@ -294,7 +294,7 @@ static void test_short(void)
->  	report(len == 40, "Insufficient SCCB length (Read CPU info)");
->  }
->  
-> -/**
-> +/*
->   * Test SCCB page boundary violations.
->   */
->  static void test_boundary(void)
-> @@ -318,7 +318,7 @@ out:
->  	report(len > 4096 && offset == 4096, "SCCB page boundary violation");
->  }
->  
-> -/**
-> +/*
->   * Test excessively long SCCBs.
->   */
->  static void test_toolong(void)
-> @@ -338,7 +338,7 @@ static void test_toolong(void)
->  	report(len == 8192, "SCCB bigger than 4k");
->  }
->  
-> -/**
-> +/*
->   * Test privileged operation.
->   */
->  static void test_priv(void)
-> @@ -354,7 +354,7 @@ static void test_priv(void)
->  	report_prefix_pop();
->  }
->  
-> -/**
-> +/*
->   * Test addressing exceptions. We need to test SCCB addresses between the
->   * end of available memory and 2GB, because after 2GB a specification
->   * exception is also allowed.
-> @@ -393,7 +393,7 @@ out:
->  	report(i + maxram >= 0x80000000, "Invalid SCCB address");
->  }
->  
-> -/**
-> +/*
->   * Test some bits in the instruction format that are specified to be ignored.
->   */
->  static void test_instbits(void)
-> @@ -422,7 +422,7 @@ static void test_instbits(void)
->  	report(cc == 0, "Instruction format ignored bits");
->  }
->  
-> -/**
-> +/*
->   * Find a valid READ INFO command code; not all codes are always allowed, and
->   * probing should be performed in the right order.
->   */
+diff --git a/s390x/spec_ex-sie.c b/s390x/spec_ex-sie.c
+index 5fa135b81c86..fe2f23ee3d84 100644
+--- a/s390x/spec_ex-sie.c
++++ b/s390x/spec_ex-sie.c
+@@ -17,19 +17,18 @@
+ #include <hardware.h>
+ 
+ static struct vm vm;
+-extern const char SNIPPET_NAME_START(c, spec_ex)[];
+-extern const char SNIPPET_NAME_END(c, spec_ex)[];
+ static bool strict;
+ 
+ static void setup_guest(void)
+ {
+-	char *guest;
+-	int binary_size = SNIPPET_LEN(c, spec_ex);
++	extern const char SNIPPET_NAME_START(c, spec_ex)[];
++	extern const char SNIPPET_NAME_END(c, spec_ex)[];
+ 
+ 	setup_vm();
+-	guest = alloc_pages(8);
+-	memcpy(guest, SNIPPET_NAME_START(c, spec_ex), binary_size);
+-	sie_guest_create(&vm, (uint64_t) guest, HPAGE_SIZE);
++
++	snippet_setup_guest(&vm, false);
++	snippet_init(&vm, SNIPPET_NAME_START(c, spec_ex),
++		     SNIPPET_LEN(c, spec_ex), SNIPPET_UNPACK_OFF);
+ }
+ 
+ static void reset_guest(void)
+-- 
+2.41.0
 
