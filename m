@@ -2,113 +2,150 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 761CDC4332F
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Nov 2023 06:26:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A060FC4332F
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Nov 2023 10:39:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230413AbjKFG0X (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Nov 2023 01:26:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59892 "EHLO
+        id S230489AbjKFKjW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Nov 2023 05:39:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230408AbjKFG0W (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Nov 2023 01:26:22 -0500
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 005D2B8
-        for <linux-s390@vger.kernel.org>; Sun,  5 Nov 2023 22:26:17 -0800 (PST)
-Received: by mail-pf1-x42c.google.com with SMTP id d2e1a72fcca58-6c34e87b571so2468561b3a.3
-        for <linux-s390@vger.kernel.org>; Sun, 05 Nov 2023 22:26:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fromorbit-com.20230601.gappssmtp.com; s=20230601; t=1699251977; x=1699856777; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Vs8EyB85nlBUE5TSiBTkXaWpXa4Ucxuzf7Wsqr/jcc0=;
-        b=orzdhSeW35jEEcgWH8uiHHKpeQ8XIpHpD4vJgFcg2hBVCPDf2teCM235FFRuZgFD+M
-         gCkuvEew9lbaDWUl9r7NtJNhNwFLIrVaedLKwNzQQi/wKu+d8roUBDUAlkgO3ZH4Yi5m
-         J2aNgbD07FIfcBHB+oPVrgW2TNiTfxVN6qtDBFbs7RF450+iub5UAhrzXGawo7vzNn9A
-         DxJyFInRLkzPs8d7Bmx6FEk3oUuGLje3rH7Ub1B4BPV7PT0N5kQEDteFO/8d0+Hsmh6X
-         x+1dMwZBaMoURPe+uJEfR0WkyfRL3qezy+5/kaUhCjO9DYR3TbP4M5KkbBsjGAgY4z+c
-         g/XQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699251977; x=1699856777;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Vs8EyB85nlBUE5TSiBTkXaWpXa4Ucxuzf7Wsqr/jcc0=;
-        b=U2xG6SSxtCBOXLUR2Kb8bs9pNR5b8L06r9cxKDqkTsl3O5ZUEWBwUz40EWHVujkczC
-         ZyDnxZDJ4n/IQ/OLYonHUBVk+iKJRETAjyXi7T65oRZe9qG1O1S72JED9n2lKcTwsK/b
-         zog3vBnBY2sAEwSowzFBDT+k8XDqhLnt9MlyQweF5SA0DrQoTHDR5963WUPH5qPzIjyW
-         IbtRKK6Ja4UNC6im3RDenTW+PuR//Bu7GGVxnM7J/rSz75gntLRusN4Fryj9L6ZaWqd0
-         PKoypd7J6MwSLnq97fqO5GyZBsvN10Nd7lDenOyo2zM1Bya+2kfL7lxH+wpKxudz4zIB
-         OrzA==
-X-Gm-Message-State: AOJu0Yy+9VNmQKGj8jeVvS4Mr+c2lArPOucB5X9vJJn2WWPycJO9HRoj
-        SRPgzfN9LA5WbJWlV5myBcbT0SlyOAdUtIULDGc=
-X-Google-Smtp-Source: AGHT+IGeUIFQqGN3DiVhdgjAa2fPVCK7a9HtcSSSgdtkKgdvqa2gboNZOgopPu5KhXFAJeenCXuXGQ==
-X-Received: by 2002:a05:6a00:1741:b0:6c3:41fd:3a3e with SMTP id j1-20020a056a00174100b006c341fd3a3emr9208340pfc.27.1699251977419;
-        Sun, 05 Nov 2023 22:26:17 -0800 (PST)
-Received: from dread.disaster.area (pa49-180-20-59.pa.nsw.optusnet.com.au. [49.180.20.59])
-        by smtp.gmail.com with ESMTPSA id fa30-20020a056a002d1e00b006bdd1ce6915sm4889877pfb.193.2023.11.05.22.26.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 05 Nov 2023 22:26:16 -0800 (PST)
-Received: from dave by dread.disaster.area with local (Exim 4.96)
-        (envelope-from <david@fromorbit.com>)
-        id 1qzt3u-008ruE-0r;
-        Mon, 06 Nov 2023 17:26:14 +1100
-Date:   Mon, 6 Nov 2023 17:26:14 +1100
-From:   Dave Chinner <david@fromorbit.com>
-To:     Zorro Lang <zlang@redhat.com>
-Cc:     linux-xfs@vger.kernel.org, linux-s390@vger.kernel.org,
-        fstests@vger.kernel.org
-Subject: Re: [Bug report] More xfs courruption issue found on s390x
-Message-ID: <ZUiHBpJTUr3G4//q@dread.disaster.area>
-References: <20231029043333.v6wkqsorxdk2dbch@dell-per750-06-vm-08.rhts.eng.pek2.redhat.com>
+        with ESMTP id S229921AbjKFKjW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Nov 2023 05:39:22 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9730099;
+        Mon,  6 Nov 2023 02:39:19 -0800 (PST)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6AcUpW006046;
+        Mon, 6 Nov 2023 10:39:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=FyYhnCQX0/mkLRw4SvFMTHId7kp04ekG4wxKT096Q2E=;
+ b=ODc9xKNaqHw+RJtEVKbz9PTlH58MtY8UcmOf/QMO5W7kN5A8RTNt4C1ClQumZfLCIwfw
+ TvZnUdQCGFfxim1buA5/W362dNHSI+g7OIF29/WqkwmlQSofzSwyo48oIFhNJEBx0Cza
+ boIv95jpD/qNHaNExobwEnk8QR8ulOiLAX9CS1bpiHCa+5oV0mCt1m3U7IxxVph2Ra7V
+ jH9u4Q2+Y622MyhnnO6qzkjiOAwqQcylXIKlnNzIXmLaAKElSVzbBMFbd+W1bGN5VmSX
+ X1D9Zn3Fy0gEY3xkMGVKRTU435sc5rQfFdREdxlYljNtZHy+oPazgYAoYQYlL1sCG3zo aA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u6vn5btpc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 06 Nov 2023 10:39:19 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A6A892a021171;
+        Mon, 6 Nov 2023 10:39:18 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u6vn5btnn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 06 Nov 2023 10:39:18 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A67upoP007961;
+        Mon, 6 Nov 2023 10:39:17 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u60ny8rjy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 06 Nov 2023 10:39:17 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A6AdDod45482554
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 6 Nov 2023 10:39:14 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C0FDC20049;
+        Mon,  6 Nov 2023 10:39:13 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5FD4020040;
+        Mon,  6 Nov 2023 10:39:13 +0000 (GMT)
+Received: from osiris (unknown [9.171.27.3])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Mon,  6 Nov 2023 10:39:13 +0000 (GMT)
+Date:   Mon, 6 Nov 2023 11:39:11 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v7 7/8] s390x: add a test for SIE without
+ MSO/MSL
+Message-ID: <20231106103911.12197-A-hca@linux.ibm.com>
+References: <20231103092954.238491-1-nrb@linux.ibm.com>
+ <20231103092954.238491-8-nrb@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20231029043333.v6wkqsorxdk2dbch@dell-per750-06-vm-08.rhts.eng.pek2.redhat.com>
+In-Reply-To: <20231103092954.238491-8-nrb@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: FjYw6_VcYgg_jh7nXij9e0_yJpTmHOsr
+X-Proofpoint-ORIG-GUID: ReELNCscz8NeA84MZ5mdz2ZiwzfkeYMY
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-06_09,2023-11-02_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ priorityscore=1501 adultscore=0 spamscore=0 phishscore=0 mlxlogscore=552
+ malwarescore=0 suspectscore=0 mlxscore=0 bulkscore=0 lowpriorityscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310240000 definitions=main-2311060088
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Oct 29, 2023 at 12:33:33PM +0800, Zorro Lang wrote:
-> Hi xfs folks,
+On Fri, Nov 03, 2023 at 10:29:36AM +0100, Nico Boehr wrote:
+> Since we now have the ability to run guests without MSO/MSL, add a test
+> to make sure this doesn't break.
 > 
-> Besides https://lore.kernel.org/linux-xfs/20231029041122.bx2k7wwm7otebjd5@dell-per750-06-vm-08.rhts.eng.pek2.redhat.com/T/#u ,
-> 
-> I always hit another failure on s390x too, by running generic/039 or generic/065 [1]:
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+> ---
+>  s390x/Makefile             |   2 +
+>  s390x/sie-dat.c            | 110 +++++++++++++++++++++++++++++++++++++
+>  s390x/snippets/c/sie-dat.c |  52 ++++++++++++++++++
+>  s390x/snippets/c/sie-dat.h |   2 +
+>  s390x/unittests.cfg        |   3 +
+>  5 files changed, 169 insertions(+)
+>  create mode 100644 s390x/sie-dat.c
+>  create mode 100644 s390x/snippets/c/sie-dat.c
+>  create mode 100644 s390x/snippets/c/sie-dat.h
+...
+> +static uint8_t test_page[GUEST_TEST_PAGE_COUNT * PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
+> +
+> +static inline void force_exit(void)
+> +{
+> +	asm volatile("diag	0,0,0x44\n");
+> +}
+> +
+> +static inline void force_exit_value(uint64_t val)
+> +{
+> +	asm volatile(
+> +		"diag	%[val],0,0x9c\n"
+> +		: : [val] "d"(val)
+> +	);
+> +}
+> +
+> +int main(void)
+> +{
+> +	uint8_t *invalid_ptr;
+> +
+> +	memset(test_page, 0, sizeof(test_page));
+> +	/* tell the host the page's physical address (we're running DAT off) */
+> +	force_exit_value((uint64_t)test_page);
+> +
+> +	/* write some value to the page so the host can verify it */
+> +	for (size_t i = 0; i < GUEST_TEST_PAGE_COUNT; i++)
+> +		test_page[i * PAGE_SIZE] = 42 + i;
+> +
+> +	/* indicate we've written all pages */
+> +	force_exit();
+> +
+> +	/* the first unmapped address */
+> +	invalid_ptr = (uint8_t *)(GUEST_TOTAL_PAGE_COUNT * PAGE_SIZE);
+> +	*invalid_ptr = 42;
+> +
+> +	/* indicate we've written the non-allowed page (should never get here) */
+> +	force_exit();
+> +
+> +	return 0;
+> +}
 
-g/039 is a sync + fsync + flakey remount+recovery test.
-g/065 is a similar by more complex test.
+The compiler will not necessarily generate the expected code here, since
+there is no data dependency between the used inline assemblies and the
+memory locations that are changed. That is: the compiler may move the
+inline assemblies and/or memory assignments around.
 
-So that's 3 fsync + shutdown/recovery tests on s390 that are now
-failing with ip->i_nblocks not matching the extent tree state after
-fsync-shutdown-recover.
-
-
-> 
->   XFS: Assertion failed: ip->i_nblocks == 0, file: fs/xfs/xfs_inode.c, line: 2359
-> 
-> More details as dmesg output [2] and .full output [3].
-> 
-> And ... more other kind of failure likes [3]:
->   XFS: Assertion failed: error != -ENOENT, file: fs/xfs/xfs_trans.c, line: 1310
-
-ANd that one is from g/509 after a quotacheck is completed and then
-the fs is shutdown, resulting in dquots not being found after the
-journal has been recovered and unlinked list recovery is being run.
-i.e. unlinked list processing is tripping over missing file data
-extents after recovery.
-
-> All these falures are on s390x only... and more xfs corruption failure by running
-> fstests on s390x. I don't know if it's a s390x issue or a xfs issue on big endian
-> machine (s390x), so cc s390x list.
-
-IOWs, all four of these issues are the same problem - journal
-recovery is not resulting in a correct and consistent filesystem
-after the journal has been flushed at runtime, so please discuss and
-consolidate them all in the initial bug report thread....
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-david@fromorbit.com
+In order to prevent that you could simply add a compiler barrier to both
+inline assemblies (add "memory" to the clobber list).
