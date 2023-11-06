@@ -2,122 +2,135 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59ED5C4332F
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Nov 2023 12:50:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B197C4332F
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Nov 2023 12:54:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229874AbjKFMuV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Nov 2023 07:50:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42990 "EHLO
+        id S230514AbjKFMyJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Nov 2023 07:54:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229583AbjKFMuU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Nov 2023 07:50:20 -0500
+        with ESMTP id S229921AbjKFMyJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Nov 2023 07:54:09 -0500
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6A2DBB;
-        Mon,  6 Nov 2023 04:50:17 -0800 (PST)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6CfA1A006204;
-        Mon, 6 Nov 2023 12:50:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=rafE2bUGXUp3AF0mlhurwVQAwbwKCc65LzqP5Sz+UJc=;
- b=azQ137T9Lbgj1hSNi25Cs7hjbZYNUtKIaenoChmC0sbBk8xn05DxEB6PBg09tO1ZV2Fu
- mKA8QrMv/QD7hWBkpkuSUiXXPcDvJ9Zg94Ra6a4bYrJ4I0PkRNEORTVSyPUjn4LesojF
- 4r+k+JmRq6Fk9QjjE27cc9gFefSz3H4YHRwTFQxZaqlj6Axj05EQvYE2AOJMLEbCmYAD
- 2XDITc8svRw0IMvmsJN21V00fttUAl+Civm7H39kUFxvTmaDFzFzOPsoTQi5OG5FOZkJ
- a8QcpFw2A1A7wOAnHFnQHAbPW3cWEqpp5eUchXdlkRXZpBUH9S03WJjIeq4NiVt4p4OD lg== 
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u6yjtsqhg-1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42A19BB;
+        Mon,  6 Nov 2023 04:54:06 -0800 (PST)
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6Cau8b002951;
+        Mon, 6 Nov 2023 12:53:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=gpFvdlFM/zJ2itseIzs88/CrcfONgPAiPey4txj7e+Y=;
+ b=H5RKD3VMqzpq6swFMFqaoL4RIRWga6Q778OrQXwdQyQL+hwZ96G4RMm1LPTQaEVgfuai
+ mY5x68uwttVaVjIBX6kvxOzjQ+xzybHAgPrQRQdv3CSnCU9gPOwO0StbUzm2vnj989ms
+ d3+W9uxF6fz/79HrudHSiVw7DmhUngxO4ODXxCYjLU03EqfW6IKDwg7KjjG9j1bZd+TI
+ fH9vlmJdfraEMpv2tgVKbXFETu+EQPX3HgDaxpoXrJkGTSWS4O3t4qbYeNkkS/FAcR2I
+ KEjRqOsqV/FPC179eQjfH9R0a8pPfmaZZUMymWfntOh2httaojcfIF+iNdqeAw/fyJMa qQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u70a4rm35-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Nov 2023 12:50:16 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6CWD4X028237;
-        Mon, 6 Nov 2023 12:50:16 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u62gjrwge-1
+        Mon, 06 Nov 2023 12:53:57 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A6CbqBG006482;
+        Mon, 6 Nov 2023 12:53:56 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u70a4rm2v-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Nov 2023 12:50:15 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A6CoCmv30998844
+        Mon, 06 Nov 2023 12:53:56 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6Akln6007918;
+        Mon, 6 Nov 2023 12:53:55 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u60ny9eb6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 06 Nov 2023 12:53:55 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A6CrqiS4588172
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Nov 2023 12:50:12 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C65D42004E;
-        Mon,  6 Nov 2023 12:50:12 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AB22E2004B;
-        Mon,  6 Nov 2023 12:50:12 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-        by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  6 Nov 2023 12:50:12 +0000 (GMT)
-Date:   Mon, 6 Nov 2023 13:50:11 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Steffen Eiden <seiden@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [PATCH v1 1/1] s390/uvdevice: Report additional-data length for
- attestation
-Message-ID: <20231106135011.07155487@p-imbrenda>
-In-Reply-To: <20231106124922.3032370-1-seiden@linux.ibm.com>
-References: <20231106124922.3032370-1-seiden@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+        Mon, 6 Nov 2023 12:53:52 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AA0BC20049;
+        Mon,  6 Nov 2023 12:53:52 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 712C320040;
+        Mon,  6 Nov 2023 12:53:52 +0000 (GMT)
+Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  6 Nov 2023 12:53:52 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
+        david@redhat.com, pbonzini@redhat.com, andrew.jones@linux.dev,
+        lvivier@redhat.com
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v1 00/10] RFC: Add clang-format and kerneldoc check
+Date:   Mon,  6 Nov 2023 13:50:56 +0100
+Message-ID: <20231106125352.859992-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Olnqh5kVbHTnyVrgFZPWLyrzOo2ntsg7
-X-Proofpoint-ORIG-GUID: Olnqh5kVbHTnyVrgFZPWLyrzOo2ntsg7
+X-Proofpoint-GUID: b-xWC-AOxzykctBZvqMB9KYtNHBFDf4B
+X-Proofpoint-ORIG-GUID: mZOAGVDH32R0g4BYn_OJyrE8TyPQj6ml
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-06_11,2023-11-02_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- lowpriorityscore=0 priorityscore=1501 mlxscore=0 malwarescore=0
- adultscore=0 spamscore=0 bulkscore=0 mlxlogscore=999 clxscore=1015
- suspectscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2310240000 definitions=main-2311060104
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=908
+ suspectscore=0 priorityscore=1501 adultscore=0 mlxscore=0 bulkscore=0
+ spamscore=0 malwarescore=0 clxscore=1015 phishscore=0 impostorscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310240000 definitions=main-2311060104
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon,  6 Nov 2023 13:49:22 +0100
-Steffen Eiden <seiden@linux.ibm.com> wrote:
+It is important that we have a consistent formatting of our source code and
+comments in kvm-unit-tests.
 
-> Additional data length in the attestation request is an in/out variable.
-> Software provides the capacity of the buffer. Upon successful request,
-> firmware reports the actual bytes written to the additional data in that
-> field. This information is lost, as the length field was not copied back
-> to userspace before. Attestation might fail, if user space did not
-> specify the exact amount of needed bytes required, as this length is
-> part of the attestation measurement.
-> 
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+Yet, it's not always easy since tiny formatting mistakes are hard to spot
+for reviewers. Respinning patches because of these issues can also be
+frustrating for contributors.
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+This series is a RFC suggestion on how the situation could be improved
+for kvm-unit-tests.
 
-> ---
->  drivers/s390/char/uvdevice.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/s390/char/uvdevice.c b/drivers/s390/char/uvdevice.c
-> index 144cd2e03590..42c9f77f8da0 100644
-> --- a/drivers/s390/char/uvdevice.c
-> +++ b/drivers/s390/char/uvdevice.c
-> @@ -109,6 +109,7 @@ static int uvio_copy_attest_result_to_user(struct uv_cb_attest *uvcb_attest,
->  					   struct uvio_attest *uvio_attest)
->  {
->  	struct uvio_attest __user *user_uvio_attest = (void __user *)uv_ioctl->argument_addr;
-> +	u32 __user *user_buf_add_len = (u32 __user *)&user_uvio_attest->add_data_len;
->  	void __user *user_buf_add = (void __user *)uvio_attest->add_data_addr;
->  	void __user *user_buf_meas = (void __user *)uvio_attest->meas_addr;
->  	void __user *user_buf_uid = &user_uvio_attest->config_uid;
-> @@ -117,6 +118,8 @@ static int uvio_copy_attest_result_to_user(struct uv_cb_attest *uvcb_attest,
->  		return -EFAULT;
->  	if (add_data && copy_to_user(user_buf_add, add_data, uvio_attest->add_data_len))
->  		return -EFAULT;
-> +	if (put_user(uvio_attest->add_data_len, user_buf_add_len))
-> +		return -EFAULT;
->  	if (copy_to_user(user_buf_uid, uvcb_attest->config_uid, sizeof(uvcb_attest->config_uid)))
->  		return -EFAULT;
->  	return 0;
+It adds a clang-format file, mostly based on the one already present in the
+kernel. A new "make format" target makes it easy to properly format the
+source. If maintainers want, they could even re-format the source code of
+ther arch to ensure a consistent code formatting, but this is entirely
+optional. I am also happy to move the "make format" into arch-specific code
+if requested.
+
+Additionally, I noticed that there is quite inconsistent use of kernel-doc
+comments in the code. Add a respective check command and fix the existing
+issues.
+
+Nico Boehr (10):
+  make: add target to check kernel-doc comments
+  powerpc: properly format non-kernel-doc comments
+  lib: s390x: cpacf: move kernel-doc comment to correct function
+  s390x: properly format non-kernel-doc comments
+  s390x: ensure kernel-doc parameters are properly formated
+  x86: properly format non-kernel-doc comments
+  s390x: cpumodel: list tcg_fail explicitly
+  s390x: gs: turn off formatter for inline assembly
+  add clang-format configuration file
+  add make format
+
+ .clang-format         |  689 +++++++++++
+ Makefile              |    6 +
+ lib/s390x/asm/cpacf.h |   20 +-
+ lib/s390x/interrupt.c |    6 +-
+ powerpc/emulator.c    |    2 +-
+ powerpc/spapr_hcall.c |    6 +-
+ powerpc/spapr_vpa.c   |    4 +-
+ s390x/cpumodel.c      |   38 +-
+ s390x/gs.c            |   44 +-
+ s390x/sclp.c          |   32 +-
+ scripts/kernel-doc    | 2526 +++++++++++++++++++++++++++++++++++++++++
+ x86/msr.c             |    2 +-
+ 12 files changed, 3299 insertions(+), 76 deletions(-)
+ create mode 100644 .clang-format
+ create mode 100755 scripts/kernel-doc
+
+-- 
+2.41.0
 
