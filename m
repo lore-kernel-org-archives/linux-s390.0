@@ -2,116 +2,129 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC488C4167D
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Nov 2023 17:08:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9321FC4332F
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Nov 2023 17:13:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232279AbjKFRI7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Nov 2023 12:08:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53102 "EHLO
+        id S231669AbjKFRN4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Nov 2023 12:13:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231792AbjKFRI6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Nov 2023 12:08:58 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 161E8D6E;
-        Mon,  6 Nov 2023 09:08:56 -0800 (PST)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6H7QQA019153;
-        Mon, 6 Nov 2023 17:08:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=Guakuy35nl7NCrslAN/gPPw2BMYsCmMaPWXaK5jtM/s=;
- b=DO3j3sS/KzngdFgn2mhNG+cZrxOcWZsTEQvj5SA1rWz48DLkzt3vpjahJHQjdOjuO8WW
- 2IR6WzWnKX/EPXnpe38tZh3tQd2+6IrJaLD8cBxSxTyC0jMLW62GfeVs0DS3KQOjLOht
- BSxwe07E8eN54XTanhAdTMRZXDgy3eXSn0MiX9bWIKAZRlPuzpoLAs0w6By2kdbG+Mqh
- lZPdc2FPoRLoPyTdI/rQBVPGArr5c0fZx9CiZW+h0XpVDKDke7MoS9oKOjCvGrG3VPB5
- Usb0JFByZKmCpONeYebPoc3f7ttWTs/EZHoP8CqAg8OLPwU+CgIqaY19nY337idvu+7m nw== 
+        with ESMTP id S232912AbjKFRNz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Nov 2023 12:13:55 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C93BD47;
+        Mon,  6 Nov 2023 09:13:51 -0800 (PST)
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6HB49V014750;
+        Mon, 6 Nov 2023 17:13:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
+ mime-version : content-transfer-encoding : in-reply-to : references : cc :
+ subject : to : from : message-id : date; s=pp1;
+ bh=bNOLNbdUN9/83zEbvD8nEUpQ2JzjebQTj8dL38bKozQ=;
+ b=RL+mXaaKv6YW9Oljv2GxqrPMR78u3h85Mj7bqS3YsMpQLC/ehJUnmphnX5FnbhyE61kU
+ wUJ6zqSxZN/ch4MmOZ4SaMTTPXBUn4XK/eK6jfiUeGrwFvWmHB/M+lJIcHV+RMUBuFt6
+ vtm1yUYrq3PRyzuNi/DabiQ0t8TbT2k4N4rWU2TC6WgekkfsouRznxejKhxHfk1SKMNB
+ XG4ay6mTakP+qjjHgSR5MS5/y3NcYrVhFxVhEPf9ctLEtgBzfl0GiMoN+t6ZixCHpZ6i
+ jljIwF7EFd4Zrqumvi3WgBEJmeTMJXyAwTG7XlkuHhRBEUwtIO2aWy2wxMjthmLbD2F8 gw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u748vr1ws-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u73gh9u9b-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Nov 2023 17:08:55 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A6H824F021168;
-        Mon, 6 Nov 2023 17:08:54 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u748vr1vn-1
+        Mon, 06 Nov 2023 17:13:43 +0000
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A6GlrI2018799;
+        Mon, 6 Nov 2023 17:13:42 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u73gh9u8p-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Nov 2023 17:08:54 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6GCPMt025666;
-        Mon, 6 Nov 2023 17:08:53 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u619nauf5-1
+        Mon, 06 Nov 2023 17:13:42 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6FXmvF016950;
+        Mon, 6 Nov 2023 17:13:41 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u6301jaaq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Nov 2023 17:08:53 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A6H8oo819333780
+        Mon, 06 Nov 2023 17:13:41 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A6HDcVs31195494
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Nov 2023 17:08:50 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5AD2C20043;
-        Mon,  6 Nov 2023 17:08:50 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2824020040;
-        Mon,  6 Nov 2023 17:08:50 +0000 (GMT)
-Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  6 Nov 2023 17:08:50 +0000 (GMT)
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v2 0/3] s390x: Align SIE tests to 2GB
-Date:   Mon,  6 Nov 2023 18:07:59 +0100
-Message-ID: <20231106170849.1184162-1-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.41.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: TEMpbw-x2qDOyO89EDd8-Epqh-zgjIH2
-X-Proofpoint-ORIG-GUID: H_OGndkktcevbv6XE7kO7Gi-sMZFsVwH
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Mon, 6 Nov 2023 17:13:38 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D220120040;
+        Mon,  6 Nov 2023 17:13:38 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 457A020043;
+        Mon,  6 Nov 2023 17:13:38 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.68.179])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  6 Nov 2023 17:13:38 +0000 (GMT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20231106175316.1f05d090@p-imbrenda>
+References: <20231106125352.859992-1-nrb@linux.ibm.com> <20231106125352.859992-3-nrb@linux.ibm.com> <20231106175316.1f05d090@p-imbrenda>
+Cc:     frankja@linux.ibm.com, thuth@redhat.com, david@redhat.com,
+        pbonzini@redhat.com, andrew.jones@linux.dev, lvivier@redhat.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v1 02/10] powerpc: properly format non-kernel-doc comments
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+From:   Nico Boehr <nrb@linux.ibm.com>
+Message-ID: <169929081714.70850.5803437896270751208@t14-nrb>
+User-Agent: alot/0.8.1
+Date:   Mon, 06 Nov 2023 18:13:37 +0100
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: G5-Eh6ya0ILZl6gDgslXAmXmMIzCsMsh
+X-Proofpoint-GUID: w4JXJtJd6EUf8248tjDRQjzGy1TBvHlQ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-06_12,2023-11-02_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
- lowpriorityscore=0 adultscore=0 malwarescore=0 suspectscore=0 mlxscore=0
- phishscore=0 impostorscore=0 priorityscore=1501 mlxlogscore=999
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
+ impostorscore=0 malwarescore=0 mlxlogscore=999 bulkscore=0 adultscore=0
+ clxscore=1015 lowpriorityscore=0 phishscore=0 mlxscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2310240000 definitions=main-2311060139
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-v2:
----
-* reverse xmas (thanks Claudio)
-* kerneldoc (thanks Claudio)
-* fix a virtual-physical confusion in mvpg-sie
-* pick up Janoschs r-bs
+Quoting Claudio Imbrenda (2023-11-06 17:53:16)
+> On Mon,  6 Nov 2023 13:50:58 +0100
+> Nico Boehr <nrb@linux.ibm.com> wrote:
+>=20
+> > These comments do not follow the kernel-doc style, hence they should not
+> > start with /**.
+> >=20
+> > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> > ---
+> >  powerpc/emulator.c    | 2 +-
+> >  powerpc/spapr_hcall.c | 6 +++---
+> >  powerpc/spapr_vpa.c   | 4 ++--
+> >  3 files changed, 6 insertions(+), 6 deletions(-)
+> >=20
+> > diff --git a/powerpc/emulator.c b/powerpc/emulator.c
+> > index 65ae4b65e655..39dd59645368 100644
+> > --- a/powerpc/emulator.c
+> > +++ b/powerpc/emulator.c
+> > @@ -71,7 +71,7 @@ static void test_64bit(void)
+> >       report_prefix_pop();
+> >  }
+> > =20
+> > -/**
+> > +/*
+> >   * Test 'Load String Word Immediate' instruction
+> >   */
+>=20
+> this should have the name of the function first:=20
+>  * test_lswi() - Test 'Load String ...=20
+>=20
+> (same for all the other functions here)
 
-Some environments on s390x require guests to be aligned to 2GB. This is a
-problem when kvm-unit-tests act as a hypervisor, since guests run with MSO/MSL
-there and guest memory doesn't satisfy this requirement.
+Since none of these comments really follow kerneldoc style and are mostly
+static anyways, the idea was to convert them to non-kerneldoc style, by
+changing the comment from:
+/**
 
-This series ensures kvm-unit-tests fulfills the 2G alignment requirement.
+to:
+/*
 
-Note that these changes make mvpg-sie test case fail under KVM due to a bug in
-prefix handling, a fix is was submitted here:
-https://lore.kernel.org/kvm/20231102153549.53984-1-imbrenda@linux.ibm.com/
-
-Nico Boehr (3):
-  s390x: spec_ex-sie: refactor to use snippet API
-  s390x: sie: ensure guests are aligned to 2GB
-  s390x: mvpg-sie: fix virtual-physical address confusion
-
- lib/s390x/mmu.h     |  2 ++
- lib/s390x/sie.c     | 42 ++++++++++++++++++++++++++++++++++++++++++
- lib/s390x/sie.h     |  2 ++
- lib/s390x/snippet.h |  9 +++------
- s390x/mvpg-sie.c    | 15 +++++++++++----
- s390x/sie.c         |  4 ++--
- s390x/spec_ex-sie.c | 13 ++++++-------
- 7 files changed, 68 insertions(+), 19 deletions(-)
-
--- 
-2.41.0
-
+But I am just as fine to make the comments proper kerneldoc style, if we
+see value in that.
