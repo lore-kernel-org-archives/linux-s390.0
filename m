@@ -2,105 +2,166 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8A16C4332F
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Nov 2023 15:52:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2A0EC4332F
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Nov 2023 16:04:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232230AbjKFPwR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Nov 2023 10:52:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42922 "EHLO
+        id S232032AbjKFQEH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Nov 2023 11:04:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232574AbjKFPwE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Nov 2023 10:52:04 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9B9410CC;
-        Mon,  6 Nov 2023 07:51:30 -0800 (PST)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6Fex1h028635;
-        Mon, 6 Nov 2023 15:51:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : cc :
- subject : from : to : message-id : date; s=pp1;
- bh=gmk6cqmM4Eayik0Z0A8soydrg46f++E8kacPrAmqEX0=;
- b=Pgr4DJorXgnBci6lw04v56GGX/r0rC8s3XTzOApRGbC0Nz6Q/NuCeb/I7FcqP7VKggqS
- WqIibl9hEHMnBPlraurPP6VGzU+nmy4jJJkdTYuj5qGLKA+ftPwGcmhLkz6lN+FA9xog
- j1ideJ7OiixDiPansfs2jKESFcXNkie57aiaQaP4GTHJBMeVRxoLtPW1xTogISqg88hQ
- ehjM6ityY9lPVs/Qge7rUQDmY0k1VCXTKQx15Z5OVcYduLHSMTCyDfLvuX/EPnk57ZsS
- tUVyJxVK2at0Ym7sreanC9S8Ae9TfwDOeJ7HCF66oR7ircquC2ggGlJDpEMZnCew0KWs zA== 
+        with ESMTP id S229518AbjKFQEG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Nov 2023 11:04:06 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F7A613E;
+        Mon,  6 Nov 2023 08:04:03 -0800 (PST)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6FeF2u017483;
+        Mon, 6 Nov 2023 16:04:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : from : to : cc : references : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=MGbbZNP/mdzm3S/5Ztp69aF9Y4qswVAtQclS9ietJKA=;
+ b=BDy1w+uFOknc7t5DYyGqJGcHUTt6dv3FKCK/HR3bGpWQrSCuZ8jKax3vcPrMruTzgHmy
+ acAzgCUG97l4NIjYh9M1Bh+oErIOOL+sA96962qwVqEfEaK9vHFqZ5AfwQxn33dQXl/w
+ 0WkKJLEa0XwSPG9Io+U0x6hN5B+c+9zil1adB8w5dnDTdnu6TBd1ca/2rQuEdP5VaqLT
+ M8rgKTqAEeY/5GapWj9HtEvI6fsfThbauiDb7ttsb/j5xKoFmL8eulBokAaqEHIa3sz/
+ wu5hvlpjRYWrgdkjTxzztOt8RJA776v0cqy6L53LinzHQWIzkPwTO//en9Etyag87oXe dA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u71sgjyv2-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u7302rvg6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Nov 2023 15:51:29 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A6FfNXo032354;
-        Mon, 6 Nov 2023 15:51:29 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u71sgjymq-1
+        Mon, 06 Nov 2023 16:04:00 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A6FeiEY020142;
+        Mon, 6 Nov 2023 16:03:53 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u7302rvax-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Nov 2023 15:51:29 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6FOpv7017004;
-        Mon, 6 Nov 2023 15:51:09 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u6301ht3k-1
+        Mon, 06 Nov 2023 16:03:53 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A6FZvQk012848;
+        Mon, 6 Nov 2023 16:03:41 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u609sjpge-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 06 Nov 2023 15:51:08 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A6Fp6wK43123286
+        Mon, 06 Nov 2023 16:03:41 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+        by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A6G3e2615008032
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Nov 2023 15:51:06 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2571C2004B;
-        Mon,  6 Nov 2023 15:51:06 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 038BC20049;
-        Mon,  6 Nov 2023 15:51:06 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.68.179])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  6 Nov 2023 15:51:05 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 6 Nov 2023 16:03:41 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D48A158063;
+        Mon,  6 Nov 2023 16:03:40 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CB9EC58053;
+        Mon,  6 Nov 2023 16:03:39 +0000 (GMT)
+Received: from [9.61.121.140] (unknown [9.61.121.140])
+        by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  6 Nov 2023 16:03:39 +0000 (GMT)
+Message-ID: <cff6c61d-71a9-4dcc-a12a-5160b67d9ae4@linux.ibm.com>
+Date:   Mon, 6 Nov 2023 11:03:39 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <f774a230-26b4-4742-8557-f504aa9344be@linux.ibm.com>
-References: <20231103092954.238491-1-nrb@linux.ibm.com> <20231103092954.238491-8-nrb@linux.ibm.com> <f774a230-26b4-4742-8557-f504aa9344be@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v7 7/8] s390x: add a test for SIE without MSO/MSL
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>, imbrenda@linux.ibm.com,
-        thuth@redhat.com
-Message-ID: <169928586562.23816.12377210934787398767@t14-nrb>
-User-Agent: alot/0.8.1
-Date:   Mon, 06 Nov 2023 16:51:05 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] s390/vfio-ap: fix sysfs status attribute for AP queue
+ devices
+Content-Language: en-US
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     jjherne@linux.ibm.com, pasic@linux.ibm.com,
+        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com, stable@vger.kernel.org
+References: <20231020204838.409521-1-akrowiak@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <20231020204838.409521-1-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: deOxPGM1Dt9whNGrRgTU0B4m34izI_h5
-X-Proofpoint-GUID: EyFXksrZc-JSb29BWeZPZyvLS8ccOdNK
+X-Proofpoint-ORIG-GUID: dsx9XxmwV9OrZfFiJB7AK9_H2MfZQJl8
+X-Proofpoint-GUID: v-z6IauqZ0fi2RxW9WwV0zFaK3ZLHkdN
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-06_12,2023-11-02_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- lowpriorityscore=0 clxscore=1015 malwarescore=0 spamscore=0
- mlxlogscore=999 suspectscore=0 priorityscore=1501 adultscore=0 bulkscore=0
- impostorscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2310240000 definitions=main-2311060128
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ spamscore=0 impostorscore=0 suspectscore=0 mlxscore=0 bulkscore=0
+ lowpriorityscore=0 adultscore=0 clxscore=1015 mlxlogscore=999 phishscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310240000 definitions=main-2311060129
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Quoting Janosch Frank (2023-11-03 15:16:36)
-[...]
-> > +static void setup_guest(void)
-> > +{
-> > +     extern const char SNIPPET_NAME_START(c, sie_dat)[];
-> > +     extern const char SNIPPET_NAME_END(c, sie_dat)[];
-> > +     uint64_t guest_max_addr;
-> > +
-> > +     setup_vm();
-> > +     snippet_setup_guest(&vm, false);
-> > +
-> > +     /* allocate a region-1 table */
-> > +     guest_root =3D pgd_alloc_one();
-> > +
-> > +     /* map guest memory 1:1 */
->=20
-> 0:guest_max_addr
+PING
+This patch is pretty straight forward, does anyone see a reason why this 
+shouldn't be integrated?
 
-Sorry, I don't get what you mean.
+On 10/20/23 16:48, Tony Krowiak wrote:
+> The 'status' attribute for AP queue devices bound to the vfio_ap device
+> driver displays incorrect status when the mediated device is attached to a
+> guest, but the queue device is not passed through. In the current
+> implementation, the status displayed is 'in_use' which is not correct; it
+> should be 'assigned'. This can happen if one of the queue devices
+> associated with a given adapter is not bound to the vfio_ap device driver.
+> For example:
+> 
+> Queues listed in /sys/bus/ap/drivers/vfio_ap:
+> 14.0005
+> 14.0006
+> 14.000d
+> 16.0006
+> 16.000d
+> 
+> Queues listed in /sys/devices/vfio_ap/matrix/$UUID/matrix
+> 14.0005
+> 14.0006
+> 14.000d
+> 16.0005
+> 16.0006
+> 16.000d
+> 
+> Queues listed in /sys/devices/vfio_ap/matrix/$UUID/guest_matrix
+> 14.0005
+> 14.0006
+> 14.000d
+> 
+> The reason no queues for adapter 0x16 are listed in the guest_matrix is
+> because queue 16.0005 is not bound to the vfio_ap device driver, so no
+> queue associated with the adapter is passed through to the guest;
+> therefore, each queue device for adapter 0x16 should display 'assigned'
+> instead of 'in_use', because those queues are not in use by a guest, but
+> only assigned to the mediated device.
+> 
+> Let's check the AP configuration for the guest to determine whether a
+> queue device is passed through before displaying a status of 'in_use'.
+> 
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> Fixes: f139862b92cf ("s390/vfio-ap: add status attribute to AP queue device's sysfs dir")
+> Cc: stable@vger.kernel.org
+> ---
+>   drivers/s390/crypto/vfio_ap_ops.c | 7 ++++++-
+>   1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index 4db538a55192..871c14a6921f 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -1976,6 +1976,7 @@ static ssize_t status_show(struct device *dev,
+>   {
+>   	ssize_t nchars = 0;
+>   	struct vfio_ap_queue *q;
+> +	unsigned long apid, apqi;
+>   	struct ap_matrix_mdev *matrix_mdev;
+>   	struct ap_device *apdev = to_ap_dev(dev);
+>   
+> @@ -1984,7 +1985,11 @@ static ssize_t status_show(struct device *dev,
+>   	matrix_mdev = vfio_ap_mdev_for_queue(q);
+>   
+>   	if (matrix_mdev) {
+> -		if (matrix_mdev->kvm)
+> +		apid = AP_QID_CARD(q->apqn);
+> +		apqi = AP_QID_QUEUE(q->apqn);
+> +		if (matrix_mdev->kvm &&
+> +		    test_bit_inv(apid, matrix_mdev->shadow_apcb.apm) &&
+> +		    test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
+>   			nchars = scnprintf(buf, PAGE_SIZE, "%s\n",
+>   					   AP_QUEUE_IN_USE);
+>   		else
