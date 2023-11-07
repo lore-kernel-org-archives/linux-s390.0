@@ -2,139 +2,109 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ACCE1C4332F
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Nov 2023 18:42:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04563C4332F
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Nov 2023 21:14:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234207AbjKGSmc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Nov 2023 13:42:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40882 "EHLO
+        id S232753AbjKGVOg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Nov 2023 16:14:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233046AbjKGSmb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Nov 2023 13:42:31 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4555A116;
-        Tue,  7 Nov 2023 10:42:29 -0800 (PST)
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A7IeiIE003031;
-        Tue, 7 Nov 2023 18:42:18 GMT
+        with ESMTP id S231844AbjKGVOf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Nov 2023 16:14:35 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84DF810DB;
+        Tue,  7 Nov 2023 13:14:33 -0800 (PST)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A7KgJ7B007108;
+        Tue, 7 Nov 2023 21:14:33 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=6e9g5TataTjtWaCWdXYn+6nf6rWz4+9eM6ZYPAfwEXI=;
- b=E4sYMxpbQ4SoQwB5gC8w4QA3ZM6Jpi5jGCUFzIGA8YTEC46n8avpmSe2lM8P+NlrIdUf
- V68ZLr7+rP2zMpfC1mqftwz6dNn9icdkqZjznAinzH+AuK9HI+3PCQUKL0u0JtVVGbbQ
- ykexxZuAp0n5HbYNHegzxYBzPnf7NjIFJnHoPY5MCZtd63Nc+3KjM6WGdy5kcV59DIP8
- O2j2BouRJ00YdbzWyJikutBWwI5uSpV68itZIQtdMamiLmbGEDapubLQl+EZtIIT5P99
- HlSZLkTkDP1Vsva2cBfqJ2VFDAXmc25FUFV512t/lU8Mh8HE/hYOcDvY3FeQJvllHI+m 6Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u7tqkr11c-1
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=TMhfvhA0X/u9TXZrMObivgO6mBs5hQRS9QvWQagTBio=;
+ b=h45ry+pUzqbVguAvktWdj2dByrdV6LD7Afkihn+R95au9UE4Fb0lPp+4rILoWdl9lTeN
+ aaCeRMJ0xN1X4uCNCtd5cboPaHsiBCiNJi3raaHjN0bte556t3MAdKo92TkGrRFoFotT
+ A3Jtl9gkHjwyjZrVvbF+crUsH1Udi3Umsj985ehiaADva7z9Px+T2RP9XbIcuXj2viFw
+ ujNsOb55/tkAUWs47hDaAdXI8vS+OYEpK9VbjUV+oEezgtdzn6AzNV7RfBxouB6hCTtk
+ Sjf3R98YDC7cKscjVE/H65IVEct4SW+lVQyNZF3+QLOchESYD78uL9eI4XKaDikiIzK1 wg== 
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u7vgs12s6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Nov 2023 18:42:18 +0000
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A7IewTJ003333;
-        Tue, 7 Nov 2023 18:42:18 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u7tqkr10v-1
+        Tue, 07 Nov 2023 21:14:32 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A7KvbXn007930;
+        Tue, 7 Nov 2023 21:14:31 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u61skkd98-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Nov 2023 18:42:18 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A7HNZeC007918;
-        Tue, 7 Nov 2023 18:42:17 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u60nyjxbq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Nov 2023 18:42:17 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A7IgE3D15270402
+        Tue, 07 Nov 2023 21:14:31 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A7LEScP46400248
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 7 Nov 2023 18:42:14 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E7F5F2004D;
-        Tue,  7 Nov 2023 18:42:13 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9F3E520043;
-        Tue,  7 Nov 2023 18:42:13 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  7 Nov 2023 18:42:13 +0000 (GMT)
-Date:   Tue, 7 Nov 2023 19:42:11 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, david@redhat.com,
-        pbonzini@redhat.com, andrew.jones@linux.dev, lvivier@redhat.com,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v1 02/10] powerpc: properly format
- non-kernel-doc comments
-Message-ID: <20231107194211.337bbc4d@p-imbrenda>
-In-Reply-To: <169929081714.70850.5803437896270751208@t14-nrb>
-References: <20231106125352.859992-1-nrb@linux.ibm.com>
-        <20231106125352.859992-3-nrb@linux.ibm.com>
-        <20231106175316.1f05d090@p-imbrenda>
-        <169929081714.70850.5803437896270751208@t14-nrb>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+        Tue, 7 Nov 2023 21:14:28 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7E47C2004B;
+        Tue,  7 Nov 2023 21:14:28 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CCB4220043;
+        Tue,  7 Nov 2023 21:14:27 +0000 (GMT)
+Received: from localhost (unknown [9.171.71.57])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue,  7 Nov 2023 21:14:27 +0000 (GMT)
+Date:   Tue, 7 Nov 2023 22:14:26 +0100
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Vineeth Vijayan <vneethv@linux.ibm.com>
+Cc:     Halil Pasic <pasic@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: Re: [PATCH 1/1] s390/cio: make sch->lock a spinlock (is a pointer)
+Message-ID: <your-ad-here.call-01699391666-ext-4064@work.hours>
+References: <20231101115751.2308307-1-pasic@linux.ibm.com>
+ <b54e18a9-582d-3619-773e-695dcf19eaad@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <b54e18a9-582d-3619-773e-695dcf19eaad@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: JGbdimfDR6sN7FuOYNAevApGSWYChkZ4
-X-Proofpoint-ORIG-GUID: CGQFV8Wgswp2kZXs32-C2vfUkDjrFd3u
+X-Proofpoint-GUID: G5dCms-vtx56K441SPN4yNgy-HO017vq
+X-Proofpoint-ORIG-GUID: G5dCms-vtx56K441SPN4yNgy-HO017vq
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-07_10,2023-11-07_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 bulkscore=0
- mlxlogscore=999 lowpriorityscore=0 spamscore=0 mlxscore=0 suspectscore=0
- adultscore=0 impostorscore=0 clxscore=1015 priorityscore=1501
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2310240000 definitions=main-2311070154
+ definitions=2023-11-07_13,2023-11-07_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 clxscore=1011
+ impostorscore=0 mlxlogscore=612 phishscore=0 priorityscore=1501
+ bulkscore=0 malwarescore=0 lowpriorityscore=0 mlxscore=0 spamscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310240000 definitions=main-2311070175
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 06 Nov 2023 18:13:37 +0100
-Nico Boehr <nrb@linux.ibm.com> wrote:
-
-> Quoting Claudio Imbrenda (2023-11-06 17:53:16)
-> > On Mon,  6 Nov 2023 13:50:58 +0100
-> > Nico Boehr <nrb@linux.ibm.com> wrote:
-> >   
-> > > These comments do not follow the kernel-doc style, hence they should not
-> > > start with /**.
-> > > 
-> > > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> > > ---
-> > >  powerpc/emulator.c    | 2 +-
-> > >  powerpc/spapr_hcall.c | 6 +++---
-> > >  powerpc/spapr_vpa.c   | 4 ++--
-> > >  3 files changed, 6 insertions(+), 6 deletions(-)
-> > > 
-> > > diff --git a/powerpc/emulator.c b/powerpc/emulator.c
-> > > index 65ae4b65e655..39dd59645368 100644
-> > > --- a/powerpc/emulator.c
-> > > +++ b/powerpc/emulator.c
-> > > @@ -71,7 +71,7 @@ static void test_64bit(void)
-> > >       report_prefix_pop();
-> > >  }
-> > >  
-> > > -/**
-> > > +/*
-> > >   * Test 'Load String Word Immediate' instruction
-> > >   */  
+On Tue, Nov 07, 2023 at 01:39:00PM +0100, Vineeth Vijayan wrote:
+> 
+> 
+> On 11/1/23 12:57, Halil Pasic wrote:
+> > The lock member of struct subchannel used to be a spinlock, but became
+> > a pointer to a spinlock with commit 2ec2298412e1 ("[S390] subchannel
+> > lock conversion."). This might have been justified back then, but with
+> > the current state of affairs, there is no reason to manage a separate
+> > spinlock object.
 > > 
-> > this should have the name of the function first: 
-> >  * test_lswi() - Test 'Load String ... 
+> > Let's simplify things and pull the spinlock back into struct subchannel.
 > > 
-> > (same for all the other functions here)  
+> > Signed-off-by: Halil Pasic<pasic@linux.ibm.com>
+> > ---
+> > I know it is a lot of churn, but I do believe in the end it does make
+> > the code more maintainable.
 > 
-> Since none of these comments really follow kerneldoc style and are mostly
-> static anyways, the idea was to convert them to non-kerneldoc style, by
-> changing the comment from:
-> /**
+> You are right. Makes the code easy to read and a bit less complex.
+> Looks good to me. Thanks
 > 
-> to:
-> /*
-> 
-> But I am just as fine to make the comments proper kerneldoc style, if we
-> see value in that.
+> Reviewed-by: Vineeth Vijayan <vneethv@linux.ibm.com>
 
-oufff yes sorry I had totally misread that
+Applied, thank you.
