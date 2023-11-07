@@ -2,109 +2,72 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04563C4332F
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Nov 2023 21:14:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88971C4332F
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Nov 2023 22:20:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232753AbjKGVOg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Nov 2023 16:14:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41252 "EHLO
+        id S229769AbjKGWU2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Nov 2023 17:20:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231844AbjKGVOf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Nov 2023 16:14:35 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84DF810DB;
-        Tue,  7 Nov 2023 13:14:33 -0800 (PST)
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A7KgJ7B007108;
-        Tue, 7 Nov 2023 21:14:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=TMhfvhA0X/u9TXZrMObivgO6mBs5hQRS9QvWQagTBio=;
- b=h45ry+pUzqbVguAvktWdj2dByrdV6LD7Afkihn+R95au9UE4Fb0lPp+4rILoWdl9lTeN
- aaCeRMJ0xN1X4uCNCtd5cboPaHsiBCiNJi3raaHjN0bte556t3MAdKo92TkGrRFoFotT
- A3Jtl9gkHjwyjZrVvbF+crUsH1Udi3Umsj985ehiaADva7z9Px+T2RP9XbIcuXj2viFw
- ujNsOb55/tkAUWs47hDaAdXI8vS+OYEpK9VbjUV+oEezgtdzn6AzNV7RfBxouB6hCTtk
- Sjf3R98YDC7cKscjVE/H65IVEct4SW+lVQyNZF3+QLOchESYD78uL9eI4XKaDikiIzK1 wg== 
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u7vgs12s6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Nov 2023 21:14:32 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A7KvbXn007930;
-        Tue, 7 Nov 2023 21:14:31 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u61skkd98-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Nov 2023 21:14:31 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A7LEScP46400248
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 7 Nov 2023 21:14:28 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7E47C2004B;
-        Tue,  7 Nov 2023 21:14:28 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CCB4220043;
-        Tue,  7 Nov 2023 21:14:27 +0000 (GMT)
-Received: from localhost (unknown [9.171.71.57])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Tue,  7 Nov 2023 21:14:27 +0000 (GMT)
-Date:   Tue, 7 Nov 2023 22:14:26 +0100
-From:   Vasily Gorbik <gor@linux.ibm.com>
-To:     Vineeth Vijayan <vneethv@linux.ibm.com>
-Cc:     Halil Pasic <pasic@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Subject: Re: [PATCH 1/1] s390/cio: make sch->lock a spinlock (is a pointer)
-Message-ID: <your-ad-here.call-01699391666-ext-4064@work.hours>
-References: <20231101115751.2308307-1-pasic@linux.ibm.com>
- <b54e18a9-582d-3619-773e-695dcf19eaad@linux.ibm.com>
+        with ESMTP id S230015AbjKGWU1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Nov 2023 17:20:27 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A17E3113;
+        Tue,  7 Nov 2023 14:20:25 -0800 (PST)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 14215C433C9;
+        Tue,  7 Nov 2023 22:20:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1699395625;
+        bh=4wMvSE05QgFDXivICuVrwXjDQcxuQYyNZnNsLRe/Wqs=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=U2L84D1m671hY/Ehu5dTh1VYJl6f1UQlQcYxN7mpQb2Av5rwcD1gkONYvtnkP70YR
+         dpI4eFzCx7bKsj6+FKO3TFoMLYNOh7lf3Nn3c3OU02gBS/eKbFOXQ0tbpPzKeg2CwA
+         6aUrVBLPYWytVEZst6c6AwvNYgx/pKQvg/UNq2/EW4Xz88s/agq2Os9QOPsgB0dYyF
+         F/HoaOEODPtQ2jgfseFybgxUTxEJxoh7kNpejGjlXTu5GON9kUfMq5VC78p5X+WdFW
+         p5haWvxw3ZkRYI/JGyFTvGcijiyTfbX+hY7CNSoygc10jAnOcMVgo4c0eR2TFoUfJl
+         eX7hIaASLZ/5w==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id EE8D9E00088;
+        Tue,  7 Nov 2023 22:20:24 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <b54e18a9-582d-3619-773e-695dcf19eaad@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: G5dCms-vtx56K441SPN4yNgy-HO017vq
-X-Proofpoint-ORIG-GUID: G5dCms-vtx56K441SPN4yNgy-HO017vq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-07_13,2023-11-07_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 clxscore=1011
- impostorscore=0 mlxlogscore=612 phishscore=0 priorityscore=1501
- bulkscore=0 malwarescore=0 lowpriorityscore=0 mlxscore=0 spamscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2310240000 definitions=main-2311070175
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH] s390/qeth: Fix typo 'weed' in comment
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <169939562497.24931.15605736956129233304.git-patchwork-notify@kernel.org>
+Date:   Tue, 07 Nov 2023 22:20:24 +0000
+References: <20231106222059.1475375-1-visitorckw@gmail.com>
+In-Reply-To: <20231106222059.1475375-1-visitorckw@gmail.com>
+To:     Kuan-Wei Chiu <visitorckw@gmail.com>
+Cc:     wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Nov 07, 2023 at 01:39:00PM +0100, Vineeth Vijayan wrote:
-> 
-> 
-> On 11/1/23 12:57, Halil Pasic wrote:
-> > The lock member of struct subchannel used to be a spinlock, but became
-> > a pointer to a spinlock with commit 2ec2298412e1 ("[S390] subchannel
-> > lock conversion."). This might have been justified back then, but with
-> > the current state of affairs, there is no reason to manage a separate
-> > spinlock object.
-> > 
-> > Let's simplify things and pull the spinlock back into struct subchannel.
-> > 
-> > Signed-off-by: Halil Pasic<pasic@linux.ibm.com>
-> > ---
-> > I know it is a lot of churn, but I do believe in the end it does make
-> > the code more maintainable.
-> 
-> You are right. Makes the code easy to read and a bit less complex.
-> Looks good to me. Thanks
-> 
-> Reviewed-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Hello:
 
-Applied, thank you.
+This patch was applied to netdev/net.git (main)
+by David S. Miller <davem@davemloft.net>:
+
+On Tue,  7 Nov 2023 06:20:59 +0800 you wrote:
+> Replace 'weed' with 'we' in the comment.
+> 
+> Signed-off-by: Kuan-Wei Chiu <visitorckw@gmail.com>
+> ---
+>  drivers/s390/net/qeth_core_main.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+
+Here is the summary with links:
+  - s390/qeth: Fix typo 'weed' in comment
+    https://git.kernel.org/netdev/net/c/dbc9e341e365
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
