@@ -2,88 +2,106 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16244C4167D
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Nov 2023 22:21:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55670C4167D
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Nov 2023 03:56:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233169AbjKFWVO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Nov 2023 17:21:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56758 "EHLO
+        id S233289AbjKGD4a (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Nov 2023 22:56:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233166AbjKFWVL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Nov 2023 17:21:11 -0500
-Received: from mail-oa1-x2a.google.com (mail-oa1-x2a.google.com [IPv6:2001:4860:4864:20::2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C4E0D6E;
-        Mon,  6 Nov 2023 14:21:09 -0800 (PST)
-Received: by mail-oa1-x2a.google.com with SMTP id 586e51a60fabf-1e9e4636ce6so476546fac.0;
-        Mon, 06 Nov 2023 14:21:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1699309268; x=1699914068; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Bk1iGqzSFhqcLXMUJQBLSwculIJFSVmZJKxDlYOyfpY=;
-        b=WOVjzewsq3/y9eXUAdiAZ2CFK4bHu9BPXC3HKVx/MRSZuJ/r47AtXuos6EbFQLn1ZY
-         t5QxcNLL1q80pL5Zvv6ivZjRpihdkmVGn5tRGDJoaOwLOvQ7oQi4w8MYsGSNnM/hbFaQ
-         bG8kUriiJEX2tuHZMRezDi/v0Oqj1I9+0RyhiDehAhfaFWkRYHmG8PxHbZMSQ3CYpvZB
-         1WFfvgMqH1+xslmtOsjekiDQ8edUfBvvWvgU15kCbYnd7HbatPNI19S6f8lwaqMNKRjX
-         HObUXR+y2snam51owS1ZRGVzoQ5J/5vwrk76FIqkSlLgB4lPzJu9h9DWQs+miQN1RXq6
-         famw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699309268; x=1699914068;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Bk1iGqzSFhqcLXMUJQBLSwculIJFSVmZJKxDlYOyfpY=;
-        b=TfI0ZDaQJL5pLsIqCFLJ3HuuYjO1x/S3i6IOAZBPq0zDmfEDC3CX2vRh35GuLk8ioW
-         TjwFpDnC3V/Gz1HY0L2WS+dU5sQVUxHV34FKmzihhOCrXzFin2kxVxSKf0EGGc5DDxVs
-         pO4EvAHRg6LoBVp+kPkKKyjK02s11paAJpbESMkJS4Ilz/AmgUxKrEAJTp/XyqjxkmWI
-         xRJdIduRzqeGNEtZzPQwbVfVoXIyiFRIQkeWwkB0diH8BRIpZpHhlcrfQEsWcJ+14TLK
-         0jFu4wyGaGtUtdmukumoqHLlploAiQR6PPiF0ZQvj3QkHi/O6sf2lev46beF6LtJ9NaG
-         rGXg==
-X-Gm-Message-State: AOJu0Yy+/mrigYS+NWSq0l0H2T0scxYp7Dpc4Hceo2KJwoOfxvqCCpBT
-        fLhFpW12ylqKlfYGEHfC57A=
-X-Google-Smtp-Source: AGHT+IFrQVI3UuOVAMqIkpO31ev7YOIxC0kgQ+xbMLCn9eC76+pRj/jd6eEkJJQYjVE7MHOWeg1B+g==
-X-Received: by 2002:a05:6358:6f0e:b0:16b:6e91:f7f8 with SMTP id r14-20020a0563586f0e00b0016b6e91f7f8mr2559604rwn.0.1699309268298;
-        Mon, 06 Nov 2023 14:21:08 -0800 (PST)
-Received: from localhost.localdomain ([140.116.154.65])
-        by smtp.gmail.com with ESMTPSA id b7-20020a63cf47000000b00588e8421fa8sm217869pgj.84.2023.11.06.14.21.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Nov 2023 14:21:07 -0800 (PST)
-From:   Kuan-Wei Chiu <visitorckw@gmail.com>
-To:     wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com
-Cc:     borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Kuan-Wei Chiu <visitorckw@gmail.com>
-Subject: [PATCH] s390/qeth: Fix typo 'weed' in comment
-Date:   Tue,  7 Nov 2023 06:20:59 +0800
-Message-Id: <20231106222059.1475375-1-visitorckw@gmail.com>
-X-Mailer: git-send-email 2.25.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S232973AbjKGD43 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Nov 2023 22:56:29 -0500
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6F32D47;
+        Mon,  6 Nov 2023 19:56:25 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0Vvsn0nB_1699329376;
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Vvsn0nB_1699329376)
+          by smtp.aliyun-inc.com;
+          Tue, 07 Nov 2023 11:56:20 +0800
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+        wintera@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH net] net/smc: avoid data corruption caused by decline
+Date:   Tue,  7 Nov 2023 11:56:16 +0800
+Message-Id: <1699329376-17596-1-git-send-email-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Replace 'weed' with 'we' in the comment.
+From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-Signed-off-by: Kuan-Wei Chiu <visitorckw@gmail.com>
+We found a data corruption issue during testing of SMC-R on Redis
+applications.
+
+The benchmark has a low probability of reporting a strange error as
+shown below.
+
+"Error: Protocol error, got "\xe2" as reply type byte"
+
+Finally, we found that the retrieved error data was as follows:
+
+0xE2 0xD4 0xC3 0xD9 0x04 0x00 0x2C 0x20 0xA6 0x56 0x00 0x16 0x3E 0x0C
+0xCB 0x04 0x02 0x01 0x00 0x00 0x20 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xE2
+
+It is quite obvious that this is a SMC DECLINE message, which means that
+the applications received SMC protocol message.
+We found that this was caused by the following situations:
+
+client			server
+	   proposal
+	------------->
+	   accept
+	<-------------
+	   confirm
+	------------->
+wait confirm
+
+	 failed llc confirm
+	    x------
+(after 2s)timeout
+			wait rsp
+
+wait decline
+
+(after 1s) timeout
+			(after 2s) timeout
+	    decline
+	-------------->
+	    decline
+	<--------------
+
+As a result, a decline message was sent in the implementation, and this
+message was read from TCP by the already-fallback connection.
+
+This patch double the client timeout as 2x of the server value,
+With this simple change, the Decline messages should never cross or
+collide (during Confirm link timeout).
+
+This issue requires an immediate solution, since the protocol updates
+involve a more long-term solution.
+
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
 ---
- drivers/s390/net/qeth_core_main.c | 2 +-
+ net/smc/af_smc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 6af2511e070c..cf8506d0f185 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -3675,7 +3675,7 @@ static void qeth_flush_queue(struct qeth_qdio_out_q *queue)
- static void qeth_check_outbound_queue(struct qeth_qdio_out_q *queue)
- {
- 	/*
--	 * check if weed have to switch to non-packing mode or if
-+	 * check if we have to switch to non-packing mode or if
- 	 * we have to get a pci flag out on the queue
- 	 */
- 	if ((atomic_read(&queue->used_buffers) <= QETH_LOW_WATERMARK_PACK) ||
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index abd2667..5b91f55 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -599,7 +599,7 @@ static int smcr_clnt_conf_first_link(struct smc_sock *smc)
+ 	int rc;
+ 
+ 	/* receive CONFIRM LINK request from server over RoCE fabric */
+-	qentry = smc_llc_wait(link->lgr, NULL, SMC_LLC_WAIT_TIME,
++	qentry = smc_llc_wait(link->lgr, NULL, 2 * SMC_LLC_WAIT_TIME,
+ 			      SMC_LLC_CONFIRM_LINK);
+ 	if (!qentry) {
+ 		struct smc_clc_msg_decline dclc;
 -- 
-2.25.1
+1.8.3.1
 
