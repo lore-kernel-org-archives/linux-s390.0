@@ -2,188 +2,172 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FA72C4332F
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Nov 2023 08:07:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09179C4167D
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Nov 2023 08:38:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233689AbjKGIH4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Nov 2023 03:07:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43472 "EHLO
+        id S233761AbjKGIin (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Nov 2023 03:38:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229580AbjKGIHy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Nov 2023 03:07:54 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F461114;
-        Tue,  7 Nov 2023 00:07:51 -0800 (PST)
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A785Jln014630;
-        Tue, 7 Nov 2023 08:07:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=mime-version : date :
- from : to : cc : subject : reply-to : in-reply-to : references :
- message-id : content-type : content-transfer-encoding; s=pp1;
- bh=7gzP5LHnhJ3AXPiMA6NlNzNXHze64ekcT/WiS/MQFXE=;
- b=hUd2Q7HEY75KAFAuyrPOyr6BifhKE73ofZ9lCeqvdmgPXZZ+48bXprEeCWSS9ZwjPmZE
- m28x4tCDW6IpUXvKRqPU3YZ23rv3567eQ1lYCFc4WitUwRibLNnhBtfSL8agxQZ8KNwx
- m9QZ+4mhbrmw6TR7m5/PA2zLZCrHm5X2FxNtwPNXjQTqUDaXF7jlmBlW3Sw4yMOTvRxM
- X/+bI++Z3xZbNabMN6mepJ9Fk69FUcC1w4gvst8CxOf3vzj8I+h9+FrgvTbikUlZOJDk
- iR/P3f0eZU5oPj89xx+MkoUwfiLdk1lhryzxI2cmWgSfEQgRsrkAxZvbkRwfZLU2syTl oQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u7hds02dr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Nov 2023 08:07:49 +0000
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A785bmB015479;
-        Tue, 7 Nov 2023 08:07:49 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u7hds02db-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Nov 2023 08:07:49 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A77o4XI007930;
-        Tue, 7 Nov 2023 08:07:48 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u61skf2y5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Nov 2023 08:07:48 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-        by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A787laY19071708
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 7 Nov 2023 08:07:47 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3206A58056;
-        Tue,  7 Nov 2023 08:07:47 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F2C0258052;
-        Tue,  7 Nov 2023 08:07:45 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  7 Nov 2023 08:07:45 +0000 (GMT)
+        with ESMTP id S231303AbjKGIim (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Nov 2023 03:38:42 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55303184
+        for <linux-s390@vger.kernel.org>; Tue,  7 Nov 2023 00:37:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1699346270;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+        bh=rrf9M0yg1iFKGMAdaP8YMM5yDFIo4Qz87x7Angm1feY=;
+        b=GEWQYkxRU/AsbKlqY4N3xwaF6btKAolZ8Do3G/fu1ZbugvZfUZ1j/W8fEw7CWoQ/2FQhb/
+        wrL/IVFVqPQkagExr3n0zVhrBtc1DbyYPsNC4L4cZhdgcQ/XOAZ2VxOJj3wpRgGvMZfIY+
+        7Ovtw2W0CQ4mV99+ojaP0fbi9nJK/Ss=
+Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
+ [209.85.160.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-436--u62qo7vOQ6UajXXeP_jcA-1; Tue, 07 Nov 2023 03:37:49 -0500
+X-MC-Unique: -u62qo7vOQ6UajXXeP_jcA-1
+Received: by mail-qt1-f200.google.com with SMTP id d75a77b69052e-41cb4d6744bso58626941cf.0
+        for <linux-s390@vger.kernel.org>; Tue, 07 Nov 2023 00:37:49 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1699346268; x=1699951068;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
+         :to:content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=rrf9M0yg1iFKGMAdaP8YMM5yDFIo4Qz87x7Angm1feY=;
+        b=j6gsdnb0pVIfXqs5tWxDlxReagmRJ5v4fXuWHAnV6NDrhcLnRFWFLLoVKBYJB7juGd
+         zdiyP1fuEJ5hwo0gB4DABBDVSebti8LTFRXdsXWWoJNsYHxEIiD8znPxVYhynigEEnsF
+         bzS44gLgo25GKlUtT3cXH+xAS1odu8boUlSpiyAUVkLxaZmXxh2IJHutLb9fRivU1N+P
+         nbResMY2M0o6TXXGMmH++DK4HBgPEjs6qJ9ZGd8CI1R5slROAQ2rXCUAhhjmqrAqn5Ge
+         oadQwQzdlXpknKGeWpFVJ0b7Ap9jvIuFvxKJxT/M7w9AouB9LKjsvD+xvWyJHw7uG0px
+         664A==
+X-Gm-Message-State: AOJu0Yz5cLxj4yAMQzlM5Iy1tGrWBw4+pix18RLHp1iqcSGWgqJaIptF
+        0UsDmJiukznnkjeX8AXTuRZ6l+ffhUFK/FHKTJyP+fdW1Fwj8sqvnT/Uto/xCr1PZoYOO181GDi
+        M0OuA5KDriw8OrSLT/MC9vw==
+X-Received: by 2002:a05:622a:24b:b0:418:1365:9b4e with SMTP id c11-20020a05622a024b00b0041813659b4emr38594942qtx.20.1699346268725;
+        Tue, 07 Nov 2023 00:37:48 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGj96uBnFkczY3xtB+XXEgGhNWzX6io7rIzu4SzpkseDfWVLha9iYywQdIUBiwc7nYLV7BhAw==
+X-Received: by 2002:a05:622a:24b:b0:418:1365:9b4e with SMTP id c11-20020a05622a024b00b0041813659b4emr38594927qtx.20.1699346268388;
+        Tue, 07 Nov 2023 00:37:48 -0800 (PST)
+Received: from [192.168.0.6] (ip-109-43-179-224.web.vodafone.de. [109.43.179.224])
+        by smtp.gmail.com with ESMTPSA id ew3-20020a05622a514300b0041520676966sm4148868qtb.47.2023.11.07.00.37.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Nov 2023 00:37:48 -0800 (PST)
+Message-ID: <2fd73726-5696-4398-9c81-95b5c9fa6713@redhat.com>
+Date:   Tue, 7 Nov 2023 09:37:44 +0100
 MIME-Version: 1.0
-Date:   Tue, 07 Nov 2023 09:07:45 +0100
-From:   Harald Freudenberger <freude@linux.ibm.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, pasic@linux.ibm.com,
-        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com, stable@vger.kernel.org
-Subject: Re: [PATCH] s390/vfio-ap: fix sysfs status attribute for AP queue
- devices
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <cff6c61d-71a9-4dcc-a12a-5160b67d9ae4@linux.ibm.com>
-References: <20231020204838.409521-1-akrowiak@linux.ibm.com>
- <cff6c61d-71a9-4dcc-a12a-5160b67d9ae4@linux.ibm.com>
-Message-ID: <12aef605a2add44afca75cc647674cdb@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
+User-Agent: Mozilla Thunderbird
+Subject: Re: [kvm-unit-tests PATCH v1 02/10] powerpc: properly format
+ non-kernel-doc comments
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     frankja@linux.ibm.com, david@redhat.com, pbonzini@redhat.com,
+        andrew.jones@linux.dev, lvivier@redhat.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20231106125352.859992-1-nrb@linux.ibm.com>
+ <20231106125352.859992-3-nrb@linux.ibm.com>
+ <20231106175316.1f05d090@p-imbrenda>
+ <169929081714.70850.5803437896270751208@t14-nrb>
+From:   Thomas Huth <thuth@redhat.com>
+Autocrypt: addr=thuth@redhat.com; keydata=
+ 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
+In-Reply-To: <169929081714.70850.5803437896270751208@t14-nrb>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: tmWVeew_3h_S2pzJnbsGxvmefs5_KwGX
-X-Proofpoint-ORIG-GUID: BagmgpN2EuyEMsUB9Md3k2Uukfq4HaPt
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-06_15,2023-11-02_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
- phishscore=0 adultscore=0 lowpriorityscore=0 suspectscore=0
- mlxlogscore=999 mlxscore=0 priorityscore=1501 spamscore=0 clxscore=1011
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2310240000 definitions=main-2311070065
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2023-11-06 17:03, Tony Krowiak wrote:
-> PING
-> This patch is pretty straight forward, does anyone see a reason why
-> this shouldn't be integrated?
+On 06/11/2023 18.13, Nico Boehr wrote:
+> Quoting Claudio Imbrenda (2023-11-06 17:53:16)
+>> On Mon,  6 Nov 2023 13:50:58 +0100
+>> Nico Boehr <nrb@linux.ibm.com> wrote:
+>>
+>>> These comments do not follow the kernel-doc style, hence they should not
+>>> start with /**.
+>>>
+>>> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+>>> ---
+>>>   powerpc/emulator.c    | 2 +-
+>>>   powerpc/spapr_hcall.c | 6 +++---
+>>>   powerpc/spapr_vpa.c   | 4 ++--
+>>>   3 files changed, 6 insertions(+), 6 deletions(-)
+>>>
+>>> diff --git a/powerpc/emulator.c b/powerpc/emulator.c
+>>> index 65ae4b65e655..39dd59645368 100644
+>>> --- a/powerpc/emulator.c
+>>> +++ b/powerpc/emulator.c
+>>> @@ -71,7 +71,7 @@ static void test_64bit(void)
+>>>        report_prefix_pop();
+>>>   }
+>>>   
+>>> -/**
+>>> +/*
+>>>    * Test 'Load String Word Immediate' instruction
+>>>    */
+>>
+>> this should have the name of the function first:
+>>   * test_lswi() - Test 'Load String ...
+>>
+>> (same for all the other functions here)
 > 
-> On 10/20/23 16:48, Tony Krowiak wrote:
->> The 'status' attribute for AP queue devices bound to the vfio_ap 
->> device
->> driver displays incorrect status when the mediated device is attached 
->> to a
->> guest, but the queue device is not passed through. In the current
->> implementation, the status displayed is 'in_use' which is not correct; 
->> it
->> should be 'assigned'. This can happen if one of the queue devices
->> associated with a given adapter is not bound to the vfio_ap device 
->> driver.
->> For example:
->> 
->> Queues listed in /sys/bus/ap/drivers/vfio_ap:
->> 14.0005
->> 14.0006
->> 14.000d
->> 16.0006
->> 16.000d
->> 
->> Queues listed in /sys/devices/vfio_ap/matrix/$UUID/matrix
->> 14.0005
->> 14.0006
->> 14.000d
->> 16.0005
->> 16.0006
->> 16.000d
->> 
->> Queues listed in /sys/devices/vfio_ap/matrix/$UUID/guest_matrix
->> 14.0005
->> 14.0006
->> 14.000d
->> 
->> The reason no queues for adapter 0x16 are listed in the guest_matrix 
->> is
->> because queue 16.0005 is not bound to the vfio_ap device driver, so no
->> queue associated with the adapter is passed through to the guest;
->> therefore, each queue device for adapter 0x16 should display 
->> 'assigned'
->> instead of 'in_use', because those queues are not in use by a guest, 
->> but
->> only assigned to the mediated device.
->> 
->> Let's check the AP configuration for the guest to determine whether a
->> queue device is passed through before displaying a status of 'in_use'.
->> 
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
->> Fixes: f139862b92cf ("s390/vfio-ap: add status attribute to AP queue 
->> device's sysfs dir")
->> Cc: stable@vger.kernel.org
->> ---
->>   drivers/s390/crypto/vfio_ap_ops.c | 7 ++++++-
->>   1 file changed, 6 insertions(+), 1 deletion(-)
->> 
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c 
->> b/drivers/s390/crypto/vfio_ap_ops.c
->> index 4db538a55192..871c14a6921f 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->> @@ -1976,6 +1976,7 @@ static ssize_t status_show(struct device *dev,
->>   {
->>   	ssize_t nchars = 0;
->>   	struct vfio_ap_queue *q;
->> +	unsigned long apid, apqi;
->>   	struct ap_matrix_mdev *matrix_mdev;
->>   	struct ap_device *apdev = to_ap_dev(dev);
->>   @@ -1984,7 +1985,11 @@ static ssize_t status_show(struct device 
->> *dev,
->>   	matrix_mdev = vfio_ap_mdev_for_queue(q);
->>     	if (matrix_mdev) {
->> -		if (matrix_mdev->kvm)
->> +		apid = AP_QID_CARD(q->apqn);
->> +		apqi = AP_QID_QUEUE(q->apqn);
->> +		if (matrix_mdev->kvm &&
->> +		    test_bit_inv(apid, matrix_mdev->shadow_apcb.apm) &&
->> +		    test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
->>   			nchars = scnprintf(buf, PAGE_SIZE, "%s\n",
->>   					   AP_QUEUE_IN_USE);
->>   		else
+> Since none of these comments really follow kerneldoc style and are mostly
+> static anyways, the idea was to convert them to non-kerneldoc style, by
+> changing the comment from:
+> /**
+> 
+> to:
+> /*
+> 
+> But I am just as fine to make the comments proper kerneldoc style, if we
+> see value in that.
 
-I can give you an
-Acked-by: Harald Freudenberger <freude@linux.ibm.com>
-for this. Your explanation sounds sane to me and fixes a wrong
-display. However, I am not familiar with the code so, I can't tell
-if that's correct.
-Just a remark: How can it happen that one queue is not bound to the vfio 
-dd?
-Didn't we actively remove the unbind possibility from the sysfs for 
-devices
-assigned to the vfio dd?
+I think it makes sense to do that for the files in the lib/ folder ... for 
+the other ones, I think it is not really necessary (but it wouldn't hurt 
+either).
+
+  Thomas
+
