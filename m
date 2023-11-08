@@ -2,127 +2,160 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E23EC4332F
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Nov 2023 11:24:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 161C2C4167D
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Nov 2023 11:25:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235651AbjKHLYP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Nov 2023 06:24:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32794 "EHLO
+        id S235659AbjKHLZd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Nov 2023 06:25:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344874AbjKHLX6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Nov 2023 06:23:58 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E0FF2599;
-        Wed,  8 Nov 2023 03:23:47 -0800 (PST)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A8BIXjd005362;
-        Wed, 8 Nov 2023 11:23:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=jtWIZGyRTnMfkGH9XQM+li0IZT1L/GHYJT26KII8tH4=;
- b=fXFFj9EvWZDQA6eYDjwMrkByFIwPeB5P/zqke8Fkr5DFqGGOe9G3L4XQqf9KoaZveO+R
- F7/Vonbu8Xff82wxMCFSHtpYW4eMPGrU9WQ7z3t9jEuWqgfAc6tR3l235cCGIH2WwWOe
- uZzXISBJ1tABFZZSGcafFZt6u9EvTMZ8tfpRf9YRuZs1WOo3RUR4KcittkRHynqEVx0N
- 24QaZEIBj0aWeirW1zmjFCfdCMav926ed/WTJVqvHhpo4yBsH3GuIOyW/ocP8X4Vq4SD
- aye+2niyWcjqmvoRkLA7dRuXwsNGaqaCRqaI6X6mUu6JNsAHoXnesVCSaUc98Rr5FsLm KA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u88uqt903-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Nov 2023 11:23:46 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A8BJBFH011564;
-        Wed, 8 Nov 2023 11:23:46 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u88uqt8xg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Nov 2023 11:23:46 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A8BHcaY014372;
-        Wed, 8 Nov 2023 11:23:44 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u7w21vam1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Nov 2023 11:23:43 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A8BNeuR19202686
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 8 Nov 2023 11:23:40 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2812320040;
-        Wed,  8 Nov 2023 11:23:40 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DC47220043;
-        Wed,  8 Nov 2023 11:23:39 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed,  8 Nov 2023 11:23:39 +0000 (GMT)
-Date:   Wed, 8 Nov 2023 12:23:38 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-Cc:     Janosch Frank <frankja@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>
-Subject: Re: [PATCH v2 2/4] KVM: s390: vsie: Fix length of facility list
- shadowed
-Message-ID: <20231108122338.0ff2052e@p-imbrenda>
-In-Reply-To: <20231107123118.778364-3-nsg@linux.ibm.com>
-References: <20231107123118.778364-1-nsg@linux.ibm.com>
-        <20231107123118.778364-3-nsg@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+        with ESMTP id S1344652AbjKHLZR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Nov 2023 06:25:17 -0500
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 214781BE9;
+        Wed,  8 Nov 2023 03:25:13 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R231e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0Vvy6hR._1699442703;
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0Vvy6hR._1699442703)
+          by smtp.aliyun-inc.com;
+          Wed, 08 Nov 2023 19:25:09 +0800
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+        wintera@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [RFC PATCH net-next] net/smc: Introduce IPPROTO_SMC for smc
+Date:   Wed,  8 Nov 2023 19:25:03 +0800
+Message-Id: <1699442703-25015-1-git-send-email-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: GxDAHOQa6n4JoM46DkxvLLCBTAf_3boB
-X-Proofpoint-ORIG-GUID: 1YW4mzqluCbKw_l2-51fxetIjt6yvfcd
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-08_01,2023-11-08_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- lowpriorityscore=0 mlxlogscore=727 clxscore=1015 adultscore=0 mlxscore=0
- spamscore=0 suspectscore=0 bulkscore=0 phishscore=0 malwarescore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311080095
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue,  7 Nov 2023 13:31:16 +0100
-Nina Schoetterl-Glausch <nsg@linux.ibm.com> wrote:
+From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-[...]
+This patch attempts to initiate a discussion on creating smc socket
+via AF_INET, similar to the following code snippet:
 
-> diff --git a/arch/s390/kernel/facility.c b/arch/s390/kernel/facility.c
-> new file mode 100644
-> index 000000000000..5e80a4f65363
-> --- /dev/null
-> +++ b/arch/s390/kernel/facility.c
-> @@ -0,0 +1,21 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Copyright IBM Corp. 2023
-> + */
-> +
-> +#include <asm/facility.h>
-> +
-> +unsigned int stfle_size(void)
-> +{
-> +	static unsigned int size;
-> +	u64 dummy;
-> +	unsigned int r;
+/* create v4 smc sock */
+v4 = socket(AF_INET, SOCK_STREAM, IPPROTO_SMC);
 
-reverse Christmas tree please :)
+/* create v6 smc sock */
+v6 = socket(AF_INET6, SOCK_STREAM, IPPROTO_SMC);
 
+As we all know, the way we currently create an SMC socket as
+follows.
 
-with that fixed:
+/* create v4 smc sock */
+v4 = socket(AF_SMC, SOCK_STREAM, SMCPROTO_SMC);
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+/* create v6 smc sock */
+v6 = socket(AF_SMC, SOCK_STREAM, SMCPROTO_SMC6);
 
-[...]
+Note: This is not to suggest removing the SMC path, but rather to propose
+adding a new path (inet path).
+
+There are several reasons why we believe it is much better than AF_SMC:
+
+Semantics:
+
+SMC extends the TCP protocol and switches it's data path to RDMA path if
+RDMA link is ready. Otherwise, SMC should always try its best to degrade to
+TCP. From this perspective, SMC is a protocol derived from TCP and can also
+fallback to TCP, It should be considered as part of the same protocol
+family as TCP (AF_INET and AF_INET6).
+
+Compatibility & Scalability:
+
+Due to the presence of fallback, we needs to handle it very carefully to
+keep the consistent with the TCP sockets. SMC has done a lot of work to
+ensure that, but still, there are quite a few issues left, such as:
+
+1. The "ss" command cannot display the process name and ID associated with
+the fallback socket.
+
+2. The linger option is ineffective when user try’s to close the fallback
+socket.
+
+3. Some eBPF attach points related to INET_SOCK are ineffective under
+fallback socket, such as BPF_CGROUP_INET_SOCK_RELEASE.
+
+4. SO_PEEK_OFF is a un-supported sock option for fallback sockets, while
+it’s of course supported for tcp sockets.
+
+Of course, we can fix each issue one by one, but it is not a fundamental
+solution. Any changes on the inet path may require re-synchronization,
+including bug fixes, security fixes, tracing, new features and more. For
+example, there is a commit which we think is very valueable:
+
+commit 0dd061a6a115 ("bpf: Add update_socket_protocol hook")
+
+This commit allows users to modify dynamically the protocol before socket
+created through eBPF programs, which provides a more flexible approach
+than smc_run (LP_PRELOAD). It does not require the process restart
+and allows for controlling replacement at the connection level, whereas
+smc_run operates at the process level.
+
+However, to benefit from it under the SMC path requires additional
+code submission while nothing changes requires to do under inet path.
+
+I'm not saying that these issues cannot be fixed under smc path, however,
+the solution for these issues often involves duplicating work that already
+done on inet path. Thats to say, if we can be under the inet path, we can
+easily reuse the existing infrastructure.
+
+Performance:
+
+In order to ensure consistency between fallback sockets and TCP sockets,
+SMC creates an additional TCP socket. This introduces additional overhead
+of approximately 15%-20% for the establishment and destruction of fallback
+sockets. In fact, for the users we have contacted who have shown interest
+in SMC, ensuring consistency in performance between fallback and TCP has
+always been their top priority. Since no one can guarantee the
+availability of RDMA links, support for SMC on both sides, or if the
+user's environment is 100% suitable for SMC. Fallback is the only way to
+address those issues, but the additional performance overhead is
+unacceptable, as fallback cannot provide the benefits of RDMA and only
+brings burden right now.
+
+In inet path, we can embed TCP sock into SMC sock, when fallback occurs,
+the socket behaves exactly like a TCP socket. In our POC, the performance
+of fallback socket under inet path is almost indistinguishable from of
+tcp socket, with less than 1% loss. Additionally, and more importantly,
+it has full feature compatibility with TCP socket.
+
+Of course, it is also possible under smc path, but in that way, it
+would require a significant amount of work to ensure compatibility with
+tcp sockets, which most of them has already been done in inet path.
+And still, any changes in inet path may require re-synchronization.
+
+I also noticed that there have been some discussions on this issue before.
+
+Link: https://lore.kernel.org/stable/4a873ea1-ba83-1506-9172-e955d5f9ae16@redhat.com/
+
+And I saw some supportive opinions here, maybe it is time to continue
+discussing this matter now.
+
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+---
+ include/uapi/linux/in.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/uapi/linux/in.h b/include/uapi/linux/in.h
+index e682ab6..0c6322b 100644
+--- a/include/uapi/linux/in.h
++++ b/include/uapi/linux/in.h
+@@ -83,6 +83,8 @@ enum {
+ #define IPPROTO_RAW		IPPROTO_RAW
+   IPPROTO_MPTCP = 262,		/* Multipath TCP connection		*/
+ #define IPPROTO_MPTCP		IPPROTO_MPTCP
++  IPPROTO_SMC = 263,		/* Shared Memory Communications		*/
++#define IPPROTO_SMC		IPPROTO_SMC
+   IPPROTO_MAX
+ };
+ #endif
+-- 
+1.8.3.1
+
