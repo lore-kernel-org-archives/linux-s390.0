@@ -2,129 +2,184 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7B40C04E88
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Nov 2023 13:04:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 966B2C4167D
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Nov 2023 13:04:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344808AbjKHNEQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Nov 2023 08:04:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45220 "EHLO
+        id S1344769AbjKHNEY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Nov 2023 08:04:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344775AbjKHNEL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Nov 2023 08:04:11 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D73451FE1;
-        Wed,  8 Nov 2023 05:04:08 -0800 (PST)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D51A7C4339A;
-        Wed,  8 Nov 2023 13:03:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1699448648;
-        bh=Nx8Vn2zgScg8dIFdjbuCnuMwcXn8NC4yH/1zIRuXFKU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jM23eUv5FMlKZU6BTGV1ePPaE3RTcAWRXDzcXAcjOqA/ZqCE81ar4bVn2a2r75AKm
-         jflHQH/BYiBETTY3g9IoyJRr+2hYEdyLCZV96oyvyWq2ogp98/QmGboBx7Dt00jY3G
-         T2yyCpZ97F+U44qiklj3/qmthIoQi+rfc2I6iwn29l6Yx1Aa4hEPyXCWRNDvKN7BVm
-         RRHAmCXQIZv6jYLGfTgwkeOX1UsnUHrOOm9LQLQaG/WsU1PiIR54QxRx9rzy3qyX5I
-         LvmxOxUIQrgDSPyInQ9FstpMGLBcD5o3qVnRy4F0RrfTjaf20bD3r98NBPFpzpVdby
-         bdKtp2p5lyJ8Q==
-From:   Arnd Bergmann <arnd@kernel.org>
-To:     Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        linux-kbuild@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Matt Turner <mattst88@gmail.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Guo Ren <guoren@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Geoff Levand <geoff@infradead.org>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
-        Helge Deller <deller@gmx.de>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Timur Tabi <timur@kernel.org>,
-        Kent Overstreet <kent.overstreet@linux.dev>,
-        David Woodhouse <dwmw2@infradead.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nicolas Schier <nicolas@fjasle.eu>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-trace-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        netdev@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-bcachefs@vger.kernel.org,
-        linux-mtd@lists.infradead.org
-Subject: [PATCH 21/22] fbdev/fsl-diu-fb: mark wr_reg_wa() static
-Date:   Wed,  8 Nov 2023 13:58:42 +0100
-Message-Id: <20231108125843.3806765-22-arnd@kernel.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20231108125843.3806765-1-arnd@kernel.org>
-References: <20231108125843.3806765-1-arnd@kernel.org>
+        with ESMTP id S1344771AbjKHNEO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Nov 2023 08:04:14 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5375D1FD7;
+        Wed,  8 Nov 2023 05:04:11 -0800 (PST)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A8Cf27k012360;
+        Wed, 8 Nov 2023 13:04:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=5Nn8m0Am600Bnx9YKqymeN1ILa5QqX61g+i3Sxs3PbY=;
+ b=TlNJ9OUorHAnP+uE2ZimFj1rpcPwCg4ZSLLMi4Yy0BjVUyG0/ATHOQYK8+wrZCTgEtRS
+ szwKVaFBjbETJnQsyabuhnLjbTyX6h6N/tgETMBXVZGECL2tuKSI7KkTerwp7gYyhDzH
+ 5OhPrDCLjJ1sJuA/LqmdF61GfQkkJ54hrDnH8hgnFRlQ4cMr64/joMws7pkCYfc1gnjx
+ akgWmvzWaUlEmJP4pvmqY65UobAT1IFSa24dJJTwKzNBs43pqs1ZPHJwrsT2kJ1gxqaR
+ 4naoU86uBRlLwNLTObmdnrXhfEgHJ37hKh0HAthR2BDyylDmWrBU1jFyUFYlcyy7r62a 9A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u8abph46f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Nov 2023 13:04:07 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A8CfpaT015654;
+        Wed, 8 Nov 2023 13:01:06 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u8abph41e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Nov 2023 13:01:06 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A8BeKYn003435;
+        Wed, 8 Nov 2023 13:01:02 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u7w21vsq3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Nov 2023 13:01:02 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+        by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A8D102Z41877762
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 8 Nov 2023 13:01:01 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DD54558043;
+        Wed,  8 Nov 2023 13:01:00 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3DF6758053;
+        Wed,  8 Nov 2023 13:00:59 +0000 (GMT)
+Received: from [9.155.210.178] (unknown [9.155.210.178])
+        by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Wed,  8 Nov 2023 13:00:59 +0000 (GMT)
+Message-ID: <05c29431-c941-45d1-8e14-0527accc3993@linux.ibm.com>
+Date:   Wed, 8 Nov 2023 14:00:58 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v1] net/smc: avoid data corruption caused by decline
+Content-Language: en-GB
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com, wintera@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1699436909-22767-1-git-send-email-alibuda@linux.alibaba.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <1699436909-22767-1-git-send-email-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: IX57UdHS1tUn_gPYZ3-gU-vI3BQ-VaBu
+X-Proofpoint-GUID: A9BPy8xGtgNW8-vhtwnwMx9Cf7Xa7WtR
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-08_01,2023-11-08_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ impostorscore=0 suspectscore=0 clxscore=1015 adultscore=0
+ priorityscore=1501 mlxscore=0 mlxlogscore=999 spamscore=0 phishscore=0
+ bulkscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311080109
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
 
-wr_reg_wa() is not an appropriate name for a global function, and doesn't need
-to be global anyway, so mark it static and avoid the warning:
 
-drivers/video/fbdev/fsl-diu-fb.c:493:6: error: no previous prototype for 'wr_reg_wa' [-Werror=missing-prototypes]
+On 08.11.23 10:48, D. Wythe wrote:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
+> 
+> We found a data corruption issue during testing of SMC-R on Redis
+> applications.
+> 
+> The benchmark has a low probability of reporting a strange error as
+> shown below.
+> 
+> "Error: Protocol error, got "\xe2" as reply type byte"
+> 
+> Finally, we found that the retrieved error data was as follows:
+> 
+> 0xE2 0xD4 0xC3 0xD9 0x04 0x00 0x2C 0x20 0xA6 0x56 0x00 0x16 0x3E 0x0C
+> 0xCB 0x04 0x02 0x01 0x00 0x00 0x20 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+> 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xE2
+> 
+> It is quite obvious that this is a SMC DECLINE message, which means that
+> the applications received SMC protocol message.
+> We found that this was caused by the following situations:
+> 
+> client			server
+> 	   proposal
+> 	------------->
+> 	   accept
+> 	<-------------
+> 	   confirm
+> 	------------->
+> wait confirm
+> 
+> 	 failed llc confirm
+> 	    x------
+> (after 2s)timeout
+> 			wait rsp
+> 
+> wait decline
+> 
+> (after 1s) timeout
+> 			(after 2s) timeout
+> 	    decline
+> 	-------------->
+> 	    decline
+> 	<--------------
+> 
+> As a result, a decline message was sent in the implementation, and this
+> message was read from TCP by the already-fallback connection.
+> 
+> This patch double the client timeout as 2x of the server value,
+> With this simple change, the Decline messages should never cross or
+> collide (during Confirm link timeout).
+> 
+> This issue requires an immediate solution, since the protocol updates
+> involve a more long-term solution.
+> 
+> Fixes: 0fb0b02bd6fd ("net/smc: adapt SMC client code to use the LLC flow")
+> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+> ---
+>   net/smc/af_smc.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index abd2667..5b91f55 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -599,7 +599,7 @@ static int smcr_clnt_conf_first_link(struct smc_sock *smc)
+>   	int rc;
+>   
+>   	/* receive CONFIRM LINK request from server over RoCE fabric */
+> -	qentry = smc_llc_wait(link->lgr, NULL, SMC_LLC_WAIT_TIME,
+> +	qentry = smc_llc_wait(link->lgr, NULL, 2 * SMC_LLC_WAIT_TIME,
+>   			      SMC_LLC_CONFIRM_LINK);
+>   	if (!qentry) {
+>   		struct smc_clc_msg_decline dclc;
+I'm wondering if the double time (if sufficient) of timeout could be for 
+waiting for CLC_DECLINE on the client's side. i.e.
 
-Fixes: 0d9dab39fbbe ("powerpc/5121: fsl-diu-fb: fix issue with re-enabling DIU area descriptor")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/video/fbdev/fsl-diu-fb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 35ddebae8894..9b1feef1013d 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -605,7 +605,7 @@ static int smcr_clnt_conf_first_link(struct smc_sock 
+*smc)
+                 struct smc_clc_msg_decline dclc;
 
-diff --git a/drivers/video/fbdev/fsl-diu-fb.c b/drivers/video/fbdev/fsl-diu-fb.c
-index 7fbd9f069ac2..0bced82fa494 100644
---- a/drivers/video/fbdev/fsl-diu-fb.c
-+++ b/drivers/video/fbdev/fsl-diu-fb.c
-@@ -490,7 +490,7 @@ static enum fsl_diu_monitor_port fsl_diu_name_to_port(const char *s)
-  * Workaround for failed writing desc register of planes.
-  * Needed with MPC5121 DIU rev 2.0 silicon.
-  */
--void wr_reg_wa(u32 *reg, u32 val)
-+static void wr_reg_wa(u32 *reg, u32 val)
- {
- 	do {
- 		out_be32(reg, val);
--- 
-2.39.2
+                 rc = smc_clc_wait_msg(smc, &dclc, sizeof(dclc),
+-                                     SMC_CLC_DECLINE, CLC_WAIT_TIME_SHORT);
++                                     SMC_CLC_DECLINE, 2 * 
+CLC_WAIT_TIME_SHORT);
+                 return rc == -EAGAIN ? SMC_CLC_DECL_TIMEOUT_CL : rc;
+         }
+         smc_llc_save_peer_uid(qentry);
+
+Because the purpose is to let the server have the control to deline.
 
