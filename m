@@ -2,127 +2,193 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 819FBC04E88
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Nov 2023 14:18:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08819C4332F
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Nov 2023 14:44:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232383AbjKHOSg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Nov 2023 09:18:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51436 "EHLO
+        id S233419AbjKHOoe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Nov 2023 09:44:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231676AbjKHOSe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Nov 2023 09:18:34 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DCD71716;
-        Wed,  8 Nov 2023 06:18:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:Content-Type:
-        In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description;
-        bh=oPbIgwC0BijVgGIquFkJt/4vZ7saVONMlD6xtHIWlpI=; b=Ce8QxVd4WKG0h9ztVM/Vn/nozc
-        8DRtZ9C1JiuIIVlzxZxS+Ui3PxxM3jqb/akrMqXYO3WvQUBJmaQyrGweyeK/v/2+8fZJtis97EdQ/
-        Z2OUj+WkOgKAiPwjdTmxLpAN/0e+qc+yEGVcCGOKaE6IPc3x5sP1qOZYrVD/iYkmeJ7ckobeBHTNA
-        IarXDpeU/s6fQAOkNZdunXkH+NJj5F0m3DXdHv+wbdxzqwV/TXUawSYG3lJPeRoYipVWG2Yq80nQd
-        BOosblKbS23sgiPA/jNunjiRIP4lrtzpk4Tekhmsx6ugm9zT+y/qPe6q2ru9aKlrV+bDPpPIT9NHA
-        JfjaNGoA==;
-Received: from [2001:8a0:6c72:c100:c7fb:dbc0:2c8e:ab9a]
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1r0jNp-001S65-JA; Wed, 08 Nov 2023 14:18:18 +0000
-Message-ID: <1b3ccc4a-41f7-46ad-9c5c-5ef44a96426e@infradead.org>
-Date:   Wed, 8 Nov 2023 14:18:09 +0000
+        with ESMTP id S231262AbjKHOod (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Nov 2023 09:44:33 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F604172E;
+        Wed,  8 Nov 2023 06:44:31 -0800 (PST)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A8EBQtj011401;
+        Wed, 8 Nov 2023 14:44:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=8R4XpmhGAJxp8KL+Oel/9pqBG0NMrAtzm0/+s84mSl8=;
+ b=TT14SmgMSJORVaZrL7929yH/c+0DrYNI2urPpZ8NiAzZYUdTiOONmHhY+XT2MVu4vnp8
+ /+LyebBL9FISliCtOIrs4JO7S3uGp2Sk6vO62d+8Wu0f4H61MgcZLnsZQSYnjCdgBPka
+ Qsu7Lv0HIIF3bIXftoti19f0sjLSn6MXCHhU+WigQ6PuH0CIJUIj1eowE8Vx0KvTHXXu
+ g5HnQSzvc5+J9WrUTLhzxpZEqdqOomqaZNLh/qWKqzzmUOcOE2ruZeIWxlm+iwkU+ofr
+ k/64T30BxABAxCahl9rrs8cwzzjafwTzcADSfaXSjpQIbYQPnBjdjtNHrAju3FJvwp+E eg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u8bewj45x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Nov 2023 14:44:30 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A8EfDEl032403;
+        Wed, 8 Nov 2023 14:44:29 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u8bewj45k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Nov 2023 14:44:29 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A8EEAOw004183;
+        Wed, 8 Nov 2023 14:44:28 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3u7w20wcpn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Nov 2023 14:44:28 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+        by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A8EiR7Y26542616
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 8 Nov 2023 14:44:27 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 90CBF58064;
+        Wed,  8 Nov 2023 14:44:27 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 788C95805D;
+        Wed,  8 Nov 2023 14:44:26 +0000 (GMT)
+Received: from [9.61.74.193] (unknown [9.61.74.193])
+        by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Wed,  8 Nov 2023 14:44:26 +0000 (GMT)
+Message-ID: <b9e7cdb5-30a2-4bba-9642-a2d3d05a9253@linux.ibm.com>
+Date:   Wed, 8 Nov 2023 09:44:25 -0500
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 17/22] powerpc: ps3: move udbg_shutdown_ps3gelic prototype
-To:     Arnd Bergmann <arnd@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        linux-kbuild@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Matt Turner <mattst88@gmail.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Guo Ren <guoren@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
-        Helge Deller <deller@gmx.de>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Timur Tabi <timur@kernel.org>,
-        Kent Overstreet <kent.overstreet@linux.dev>,
-        David Woodhouse <dwmw2@infradead.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nicolas Schier <nicolas@fjasle.eu>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
-        linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-trace-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        netdev@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-bcachefs@vger.kernel.org,
-        linux-mtd@lists.infradead.org
-References: <20231108125843.3806765-1-arnd@kernel.org>
- <20231108125843.3806765-18-arnd@kernel.org>
+Subject: Re: [PATCH] s390/vfio-ap: fix sysfs status attribute for AP queue
+ devices
 Content-Language: en-US
-From:   Geoff Levand <geoff@infradead.org>
-In-Reply-To: <20231108125843.3806765-18-arnd@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+To:     freude@linux.ibm.com
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com, pasic@linux.ibm.com,
+        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com, stable@vger.kernel.org
+References: <20231020204838.409521-1-akrowiak@linux.ibm.com>
+ <cff6c61d-71a9-4dcc-a12a-5160b67d9ae4@linux.ibm.com>
+ <12aef605a2add44afca75cc647674cdb@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <12aef605a2add44afca75cc647674cdb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: kbMuvIapmouIMViq467u_ZlZH7RhLhAz
+X-Proofpoint-ORIG-GUID: Zj3n8L8LjmpDaZa7RpNZMeU-VcaJrHrK
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-08_03,2023-11-08_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 bulkscore=0 suspectscore=0 adultscore=0 phishscore=0
+ impostorscore=0 spamscore=0 mlxscore=0 lowpriorityscore=0 clxscore=1015
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311080121
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Arnd,
 
-On 11/8/23 12:58, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> Allmodconfig kernels produce a missing-prototypes warning:
-> 
-> arch/powerpc/platforms/ps3/gelic_udbg.c:239:6: error: no previous prototype for 'udbg_shutdown_ps3gelic' [-Werror=missing-prototypes]
-> 
-> Move the declaration from a local header to asm/ps3.h where it can be
-> seen from both the caller and the definition.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  arch/powerpc/include/asm/ps3.h               | 6 ++++++
->  arch/powerpc/platforms/ps3/gelic_udbg.c      | 1 +
->  drivers/net/ethernet/toshiba/ps3_gelic_net.h | 6 ------
->  3 files changed, 7 insertions(+), 6 deletions(-)
 
-Seems good to me.  I'll test it next chance I get.
+On 11/7/23 03:07, Harald Freudenberger wrote:
+> On 2023-11-06 17:03, Tony Krowiak wrote:
+>> PING
+>> This patch is pretty straight forward, does anyone see a reason why
+>> this shouldn't be integrated?
+>>
+>> On 10/20/23 16:48, Tony Krowiak wrote:
+>>> The 'status' attribute for AP queue devices bound to the vfio_ap device
+>>> driver displays incorrect status when the mediated device is attached 
+>>> to a
+>>> guest, but the queue device is not passed through. In the current
+>>> implementation, the status displayed is 'in_use' which is not 
+>>> correct; it
+>>> should be 'assigned'. This can happen if one of the queue devices
+>>> associated with a given adapter is not bound to the vfio_ap device 
+>>> driver.
+>>> For example:
+>>>
+>>> Queues listed in /sys/bus/ap/drivers/vfio_ap:
+>>> 14.0005
+>>> 14.0006
+>>> 14.000d
+>>> 16.0006
+>>> 16.000d
+>>>
+>>> Queues listed in /sys/devices/vfio_ap/matrix/$UUID/matrix
+>>> 14.0005
+>>> 14.0006
+>>> 14.000d
+>>> 16.0005
+>>> 16.0006
+>>> 16.000d
+>>>
+>>> Queues listed in /sys/devices/vfio_ap/matrix/$UUID/guest_matrix
+>>> 14.0005
+>>> 14.0006
+>>> 14.000d
+>>>
+>>> The reason no queues for adapter 0x16 are listed in the guest_matrix is
+>>> because queue 16.0005 is not bound to the vfio_ap device driver, so no
+>>> queue associated with the adapter is passed through to the guest;
+>>> therefore, each queue device for adapter 0x16 should display 'assigned'
+>>> instead of 'in_use', because those queues are not in use by a guest, but
+>>> only assigned to the mediated device.
+>>>
+>>> Let's check the AP configuration for the guest to determine whether a
+>>> queue device is passed through before displaying a status of 'in_use'.
+>>>
+>>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>>> Fixes: f139862b92cf ("s390/vfio-ap: add status attribute to AP queue 
+>>> device's sysfs dir")
+>>> Cc: stable@vger.kernel.org
+>>> ---
+>>>   drivers/s390/crypto/vfio_ap_ops.c | 7 ++++++-
+>>>   1 file changed, 6 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c 
+>>> b/drivers/s390/crypto/vfio_ap_ops.c
+>>> index 4db538a55192..871c14a6921f 100644
+>>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>>> @@ -1976,6 +1976,7 @@ static ssize_t status_show(struct device *dev,
+>>>   {
+>>>       ssize_t nchars = 0;
+>>>       struct vfio_ap_queue *q;
+>>> +    unsigned long apid, apqi;
+>>>       struct ap_matrix_mdev *matrix_mdev;
+>>>       struct ap_device *apdev = to_ap_dev(dev);
+>>>   @@ -1984,7 +1985,11 @@ static ssize_t status_show(struct device *dev,
+>>>       matrix_mdev = vfio_ap_mdev_for_queue(q);
+>>>         if (matrix_mdev) {
+>>> -        if (matrix_mdev->kvm)
+>>> +        apid = AP_QID_CARD(q->apqn);
+>>> +        apqi = AP_QID_QUEUE(q->apqn);
+>>> +        if (matrix_mdev->kvm &&
+>>> +            test_bit_inv(apid, matrix_mdev->shadow_apcb.apm) &&
+>>> +            test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
+>>>               nchars = scnprintf(buf, PAGE_SIZE, "%s\n",
+>>>                          AP_QUEUE_IN_USE);
+>>>           else
+> 
+> I can give you an
+> Acked-by: Harald Freudenberger <freude@linux.ibm.com>
+> for this. Your explanation sounds sane to me and fixes a wrong
+> display. However, I am not familiar with the code so, I can't tell
+> if that's correct.
+> Just a remark: How can it happen that one queue is not bound to the vfio 
+> dd?
+> Didn't we actively remove the unbind possibility from the sysfs for devices
+> assigned to the vfio dd?
 
-Signed-off-by: Geoff Levand <geoff@infradead.org>
+A device bound to the vfio_ap device driver can be manually unbound; 
+however, it can not be unbound by the AP bus via a change to the 
+apmask/aqmask attributes if it is assigned to a mediated device.
 
+At one point I wanted to remove the unbind sysfs attribute, but as I 
+recall I was talked out of it.
 
