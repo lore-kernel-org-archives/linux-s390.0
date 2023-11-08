@@ -2,112 +2,115 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 336B7C04E85
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Nov 2023 15:10:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 165C3C4332F
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Nov 2023 15:52:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232642AbjKHPK6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Nov 2023 10:10:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45436 "EHLO
+        id S232440AbjKHPwP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Nov 2023 10:52:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233898AbjKHPKv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Nov 2023 10:10:51 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2419A1FCA;
-        Wed,  8 Nov 2023 07:10:49 -0800 (PST)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E8E3C433CC;
-        Wed,  8 Nov 2023 15:10:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1699456248;
-        bh=ubRWv4gCHYtZyc/7EUxKBrb1M8Jq2gNnH2Iv89hahkg=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=V4wNromlDBNArj+XlVHbk1Tpho83VHKj4KF3u+g8D/gDHOgmbzk9TF5F0k0bfjyJ5
-         QAa+SJ1H1vdt9z6QLXRKqy3OD3OdIvi0IIM6oR9t+f/Qou1n/kmZp3N4Ld5+Em6SUX
-         C152TcjhS6BX54Dd5mExY/uqbFmfwaVKqqV5higpeeV5QYXEeI2g8nKEM8QO7JpfaW
-         oYvzN3/QTGIj+pp0Nd5j3aFNPnFwrr1RCnhA/mv97Odgb/1aJ2xdCVJdaJgtaQHSY0
-         fqhoFzKt0Xnl3SB0XmmHuBK+2Zwe0i1mRrDK0QRCpnefsPz2sjmCZbZODNGq5w3ycl
-         CDBBZ1wKet15w==
-Date:   Wed, 8 Nov 2023 07:10:44 -0800
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Geoff Levand <geoff@infradead.org>
-Cc:     Arnd Bergmann <arnd@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        linux-kbuild@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Matt Turner <mattst88@gmail.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Guo Ren <guoren@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
-        Helge Deller <deller@gmx.de>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Timur Tabi <timur@kernel.org>,
-        Kent Overstreet <kent.overstreet@linux.dev>,
-        David Woodhouse <dwmw2@infradead.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nicolas Schier <nicolas@fjasle.eu>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= 
-        <u.kleine-koenig@pengutronix.de>, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-trace-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        netdev@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-bcachefs@vger.kernel.org,
-        linux-mtd@lists.infradead.org
-Subject: Re: [PATCH 17/22] powerpc: ps3: move udbg_shutdown_ps3gelic
- prototype
-Message-ID: <20231108071044.6abdf09e@kernel.org>
-In-Reply-To: <1b3ccc4a-41f7-46ad-9c5c-5ef44a96426e@infradead.org>
-References: <20231108125843.3806765-1-arnd@kernel.org>
-        <20231108125843.3806765-18-arnd@kernel.org>
-        <1b3ccc4a-41f7-46ad-9c5c-5ef44a96426e@infradead.org>
+        with ESMTP id S232016AbjKHPwO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Nov 2023 10:52:14 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75EE91BC3;
+        Wed,  8 Nov 2023 07:52:12 -0800 (PST)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A8FeaMC011786;
+        Wed, 8 Nov 2023 15:52:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=M2q8vwHaki+jn0C1mY1Z/X+t7bLixbQI5D79jPq2rpc=;
+ b=VFfWVN505WRmgApN3tci+BCEbV5eX+pwNqmKiFuH0Sdoi+KwiNvVyvfdoYeEk0wOFWhP
+ HZ1FykCgTuBXlkT/96eW3x9GtngCbVxBl7/F+s41VelWxfiKazQ6a0bv5Q6W6kTH0FRy
+ gXNxmhPRFNwff7XcVzCuJD2wovC9USXjCgtjIVCu5tvVA5rpoxRdup8gs3p4eI0y3prh
+ OQMOn7tKq6FHyw7sZVG7hjMegt3Hu9wxx68GpY1xJC6QpuFvPu2cePH/CsIe4iqNf61d
+ P3FaSFYa4Q4Hx4wXpfZi1XlEZgz7P/zmBPByF4STyiCHgR0GBYlRejKlejORfk99WFPf qQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u8d65recx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Nov 2023 15:52:11 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A8FegTh012095;
+        Wed, 8 Nov 2023 15:52:10 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u8d65rech-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Nov 2023 15:52:10 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A8EMZFx028371;
+        Wed, 8 Nov 2023 15:52:10 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u7w22dsh8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Nov 2023 15:52:09 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A8Fq6Xu15401508
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 8 Nov 2023 15:52:07 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D95A420043;
+        Wed,  8 Nov 2023 15:52:06 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9D53C20040;
+        Wed,  8 Nov 2023 15:52:06 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.60])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Wed,  8 Nov 2023 15:52:06 +0000 (GMT)
+Date:   Wed, 8 Nov 2023 16:52:04 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Cc:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH v2 2/4] KVM: s390: vsie: Fix length of facility list
+ shadowed
+Message-ID: <20231108155204.7251-C-hca@linux.ibm.com>
+References: <20231107123118.778364-1-nsg@linux.ibm.com>
+ <20231107123118.778364-3-nsg@linux.ibm.com>
+ <20231108122338.0ff2052e@p-imbrenda>
+ <2c15b9a6b97666805491a06deee4bac497ed88cd.camel@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2c15b9a6b97666805491a06deee4bac497ed88cd.camel@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ER2F6Keo-RvyQSYBOB9RtbMA6mh2fDxD
+X-Proofpoint-ORIG-GUID: bl7-Gh1NH-mOcO90T6dNiSyfDdwY_RLL
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-08_04,2023-11-08_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
+ phishscore=0 impostorscore=0 mlxscore=0 malwarescore=0 adultscore=0
+ spamscore=0 priorityscore=1501 mlxlogscore=457 bulkscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311080130
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 8 Nov 2023 14:18:09 +0000 Geoff Levand wrote:
-> Seems good to me.  I'll test it next chance I get.
+On Wed, Nov 08, 2023 at 12:49:21PM +0100, Nina Schoetterl-Glausch wrote:
+> On Wed, 2023-11-08 at 12:23 +0100, Claudio Imbrenda wrote:
+> > On Tue,  7 Nov 2023 13:31:16 +0100
+> > Nina Schoetterl-Glausch <nsg@linux.ibm.com> wrote:
+> > 
+> > [...]
+> > > +unsigned int stfle_size(void)
+> > > +{
+> > > +	static unsigned int size;
+> > > +	u64 dummy;
+> > > +	unsigned int r;
+> > 
+> > reverse Christmas tree please :)
 > 
-> Signed-off-by: Geoff Levand <geoff@infradead.org>
+> Might be an opportunity to clear that up for me.
+> AFAIK reverse christmas tree isn't universally enforced in the kernel.
+> Do we do it in generic s390 code? I know we do for s390 kvm.
+> Personally I don't quite get the rational, but I don't care much either :)
+> Heiko?
 
-Seems like this is best routed via powerpc:
-
-Acked-by: Jakub Kicinski <kuba@kernel.org>
+We do that for _new_ code in s390 code, yes.
