@@ -2,72 +2,52 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88971C4332F
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Nov 2023 22:20:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42541C4332F
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Nov 2023 02:38:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229769AbjKGWU2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Nov 2023 17:20:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38242 "EHLO
+        id S234685AbjKHCiN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Nov 2023 21:38:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230015AbjKGWU1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Nov 2023 17:20:27 -0500
+        with ESMTP id S229503AbjKHCiN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Nov 2023 21:38:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A17E3113;
-        Tue,  7 Nov 2023 14:20:25 -0800 (PST)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 14215C433C9;
-        Tue,  7 Nov 2023 22:20:25 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 042F6184;
+        Tue,  7 Nov 2023 18:38:11 -0800 (PST)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39919C433C7;
+        Wed,  8 Nov 2023 02:38:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1699395625;
-        bh=4wMvSE05QgFDXivICuVrwXjDQcxuQYyNZnNsLRe/Wqs=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=U2L84D1m671hY/Ehu5dTh1VYJl6f1UQlQcYxN7mpQb2Av5rwcD1gkONYvtnkP70YR
-         dpI4eFzCx7bKsj6+FKO3TFoMLYNOh7lf3Nn3c3OU02gBS/eKbFOXQ0tbpPzKeg2CwA
-         6aUrVBLPYWytVEZst6c6AwvNYgx/pKQvg/UNq2/EW4Xz88s/agq2Os9QOPsgB0dYyF
-         F/HoaOEODPtQ2jgfseFybgxUTxEJxoh7kNpejGjlXTu5GON9kUfMq5VC78p5X+WdFW
-         p5haWvxw3ZkRYI/JGyFTvGcijiyTfbX+hY7CNSoygc10jAnOcMVgo4c0eR2TFoUfJl
-         eX7hIaASLZ/5w==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id EE8D9E00088;
-        Tue,  7 Nov 2023 22:20:24 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        s=k20201202; t=1699411090;
+        bh=xQXSHY99tMn6wHTjcb9UdcPhv4XfJAyPz8gPkmjHz4M=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=pSnFHRQ3gU8YMNY+ZGYNhtMIgaveRgUN5jKE5dKs2U6vmW+vcMW8vtLQtn6HdJzGr
+         lrGpX5eZ+vsPp/kfxUNQtGtETLhx7Mo29i9IjWbb4lfo+31ljaDq5+S1TBmg8SbSGK
+         acqrkpGg0HSaPI8y8cuJQUON+CZDqLM+550KFG7C+xQwatwjNp8VrINbaHkgXXlJwY
+         4fuwGmWdblrZL62bdCXLG2Hxf/4YJqSpk/eWwUZ0xrsxCLkyy/Pa83Ol/QcmLhQ6xl
+         OrGyMFJ21424C1ogYhJSGqOb/Zuvd9VuFub/nYXTW2GZonSy9BiT2UhBk9t+CfUSBN
+         AwtHPT2VjymIQ==
+Date:   Tue, 7 Nov 2023 18:38:09 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     "D. Wythe" <alibuda@linux.alibaba.com>
+Cc:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+        wintera@linux.ibm.com, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: Re: [PATCH net] net/smc: avoid data corruption caused by decline
+Message-ID: <20231107183809.58859c8f@kernel.org>
+In-Reply-To: <1699329376-17596-1-git-send-email-alibuda@linux.alibaba.com>
+References: <1699329376-17596-1-git-send-email-alibuda@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH] s390/qeth: Fix typo 'weed' in comment
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <169939562497.24931.15605736956129233304.git-patchwork-notify@kernel.org>
-Date:   Tue, 07 Nov 2023 22:20:24 +0000
-References: <20231106222059.1475375-1-visitorckw@gmail.com>
-In-Reply-To: <20231106222059.1475375-1-visitorckw@gmail.com>
-To:     Kuan-Wei Chiu <visitorckw@gmail.com>
-Cc:     wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+On Tue,  7 Nov 2023 11:56:16 +0800 D. Wythe wrote:
+> This issue requires an immediate solution, since the protocol updates
+> involve a more long-term solution.
 
-This patch was applied to netdev/net.git (main)
-by David S. Miller <davem@davemloft.net>:
-
-On Tue,  7 Nov 2023 06:20:59 +0800 you wrote:
-> Replace 'weed' with 'we' in the comment.
-> 
-> Signed-off-by: Kuan-Wei Chiu <visitorckw@gmail.com>
-> ---
->  drivers/s390/net/qeth_core_main.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-
-Here is the summary with links:
-  - s390/qeth: Fix typo 'weed' in comment
-    https://git.kernel.org/netdev/net/c/dbc9e341e365
-
-You are awesome, thank you!
+Please provide an appropriate Fixes tag.
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+pw-bot: cr
+pv-bot: fixes
