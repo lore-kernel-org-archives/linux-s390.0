@@ -2,170 +2,168 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38CD9C04E88
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Nov 2023 19:37:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B3D4C4332F
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Nov 2023 20:13:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232273AbjKHThk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Nov 2023 14:37:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52658 "EHLO
+        id S229554AbjKHUNu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Nov 2023 15:13:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229558AbjKHThi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Nov 2023 14:37:38 -0500
-Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com [66.111.4.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 886A12110;
-        Wed,  8 Nov 2023 11:37:36 -0800 (PST)
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.nyi.internal (Postfix) with ESMTP id 223605C0161;
-        Wed,  8 Nov 2023 14:37:34 -0500 (EST)
-Received: from imap51 ([10.202.2.101])
-  by compute5.internal (MEProxy); Wed, 08 Nov 2023 14:37:34 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-        :cc:content-transfer-encoding:content-type:content-type:date
-        :date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-        :references:reply-to:sender:subject:subject:to:to; s=fm3; t=
-        1699472254; x=1699558654; bh=TuAUBn+gwTzKKR6XAwbb0F/b3IHOZTvECkt
-        LGe4hx4g=; b=PVJG0o98fC7yGsJH3sLFWLS+9Qx45Aa3k0AGLNvE4iDwkqaceBW
-        XZLRDqMmpCEHXquT1zQYScvNXd4eFiZyAtjoRjC3QWtNZOucnQ3GRTh/zjfYqojg
-        xY9G8VaiSFmuC0QnwASeFW9XRGklNCjRffmsgQPaFkFMWEKnLgXtljAhaoZ+Dp3Z
-        ITLhLCDK3h/nf3EJl7u9IGqdgWJXc3GVv9DhBbb8mikD3+bkYeKCD6jOquE7kGmW
-        gqruVplLrrj8J7p5W9M1WA4plVKElu5x2dneV5gbfKt2ucnxyQLLA1P4r+ShnvgB
-        pEvYx/RT5MzDfvVoP2e6WvM8zleSJv2rjpg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding
-        :content-type:content-type:date:date:feedback-id:feedback-id
-        :from:from:in-reply-to:in-reply-to:message-id:mime-version
-        :references:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
-        1699472254; x=1699558654; bh=TuAUBn+gwTzKKR6XAwbb0F/b3IHOZTvECkt
-        LGe4hx4g=; b=U/JqjTCz/h3IQ++lzZ5k8jtpbeusB266pDr1L3Hft6La3fmnhwr
-        /LJsZrB8F82dw9h7/xG0MAzARGMef1QlMZAgJeel6Im46SEUWRvxhElW5s8faJ4X
-        Ad3/hpEImp3GP89CROhLk4ZG2Qg45+3fjCWJ8EwSQpxMV/Z95IucdLqTGa9GSsIq
-        kztOg7yaGL6ag62mHdQhK6IbmCcq0khjSmD6qrlps6IIPZkMntxbC9FDvwPRQKu0
-        h+TkBA27Vmg6B/3sIN2atWgMB3EeSc8v2GRCWQ7W7nI2bG7uM1xclF5p80XxDhvW
-        5RBFMoZm9PIAFZUndUWzE3dbolhTMRRYf5w==
-X-ME-Sender: <xms:feNLZTUCHLdljQqIP27dqpWV08PT-wDnllyCjEli72YETbK1NbeW0Q>
-    <xme:feNLZbmqumcmLurbnml0CfOzDJyonxkOCRJb4GKn5wAEvv0G8GHTklorI6poq2k6u
-    wJSDH7shmdDr2RMOfc>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrudduledguddvhecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpefofgggkfgjfhffhffvvefutgfgsehtqhertderreejnecuhfhrohhmpedf
-    tehrnhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrf
-    grthhtvghrnhepgeefjeehvdelvdffieejieejiedvvdfhleeivdelveehjeelteegudek
-    tdfgjeevnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
-    eprghrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:feNLZfY-yafopr-sU9ycJya1Opeh2hSa2kufxX29BrL8NULP2COA1w>
-    <xmx:feNLZeU-7OKTvbZY15zn_Yxp5RZSGox92A_EWBzOo_eJs75k-wazww>
-    <xmx:feNLZdlJeKxypZiByBP2nGKTGjpvAdWCUHGVpSjKlpol8pO6mY-4KA>
-    <xmx:fuNLZYqzN9iRsNvbAOHK7jaVDdFmcHcsmlWFbwFXb6X2evL7ax3SyQ>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 421A9B60089; Wed,  8 Nov 2023 14:37:33 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.9.0-alpha0-1108-g3a29173c6d-fm-20231031.005-g3a29173c
+        with ESMTP id S229473AbjKHUNt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Nov 2023 15:13:49 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5FE6D7;
+        Wed,  8 Nov 2023 12:13:47 -0800 (PST)
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A8K1tG3031733;
+        Wed, 8 Nov 2023 20:13:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=aZOnCNe/MOGyD1ea9B1x0UiaTyqSVLrTMWnFnwhgRBY=;
+ b=s/q/FNKne8ZAR8qRwjF2gAaVVa8uZGbznq6l9/7rTD6pwXbFHXw4K4b5toXXL6pvPrlO
+ t9npu0+iTZpBfgUI3e7P50rKywz8192LQr6p8bnvD+WiyQNHLxQm/yRM7eqVa2EMmCKp
+ g+NnPDGxsvqMcVE9deKGkgFZXQyyDaHuXRba/UWzTAFxtIuWQkbBkVk2mtSnyFcq1FnP
+ Ub1jNU/1AwGH/GWcwRxy+lFOrlg1JlUi3LvZ7SiNj5CYy7cTKYmff2zwrT0Dc/NVTDbB
+ /JiP3V5mo8k6NdP0KOnoT/Mqx/nMIBIQe8VOTdnnMN0MjYbvpoJTGalR3RnzuPevtsgc Ow== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u8h0n0868-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Nov 2023 20:13:45 +0000
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A8K2kZN001544;
+        Wed, 8 Nov 2023 20:13:32 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u8h0n07yq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Nov 2023 20:13:32 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A8J85RT028363;
+        Wed, 8 Nov 2023 20:11:37 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u7w22f90y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Nov 2023 20:11:37 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+        by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A8KBa7921627582
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 8 Nov 2023 20:11:37 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CB14558056;
+        Wed,  8 Nov 2023 20:11:36 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0BAA05803F;
+        Wed,  8 Nov 2023 20:11:36 +0000 (GMT)
+Received: from li-2c1e724c-2c76-11b2-a85c-ae42eaf3cb3d.ibm.com.com (unknown [9.61.74.193])
+        by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Wed,  8 Nov 2023 20:11:35 +0000 (GMT)
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     jjherne@linux.ibm.com, pasic@linux.ibm.com,
+        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com,
+        Harald Freudenberger <freude@linux.ibm.com>
+Subject: [PATCH v2] s390/vfio-ap: fix sysfs status attribute for AP queue devices
+Date:   Wed,  8 Nov 2023 15:11:30 -0500
+Message-ID: <20231108201135.351419-1-akrowiak@linux.ibm.com>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
-Message-Id: <d94de5b8-db92-4055-9484-f2666973c02a@app.fastmail.com>
-In-Reply-To: <ecedb0f1-9543-35c6-18bd-723e6bf21173@csgroup.eu>
-References: <20231108125843.3806765-1-arnd@kernel.org>
- <20231108125843.3806765-16-arnd@kernel.org>
- <ecedb0f1-9543-35c6-18bd-723e6bf21173@csgroup.eu>
-Date:   Wed, 08 Nov 2023 20:37:12 +0100
-From:   "Arnd Bergmann" <arnd@arndb.de>
-To:     "Christophe Leroy" <christophe.leroy@csgroup.eu>,
-        "Arnd Bergmann" <arnd@kernel.org>,
-        "Andrew Morton" <akpm@linux-foundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Masahiro Yamada" <masahiroy@kernel.org>,
-        "linux-kbuild@vger.kernel.org" <linux-kbuild@vger.kernel.org>
-Cc:     "Matt Turner" <mattst88@gmail.com>,
-        "Vineet Gupta" <vgupta@kernel.org>,
-        "Russell King" <linux@armlinux.org.uk>,
-        "Catalin Marinas" <catalin.marinas@arm.com>,
-        "Will Deacon" <will@kernel.org>,
-        "Steven Rostedt" <rostedt@goodmis.org>,
-        "Masami Hiramatsu" <mhiramat@kernel.org>,
-        "Mark Rutland" <mark.rutland@arm.com>, guoren <guoren@kernel.org>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        "Ard Biesheuvel" <ardb@kernel.org>,
-        "Huacai Chen" <chenhuacai@kernel.org>,
-        "Greg Ungerer" <gerg@linux-m68k.org>,
-        "Michal Simek" <monstr@monstr.eu>,
-        "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
-        "Dinh Nguyen" <dinguyen@kernel.org>,
-        "Michael Ellerman" <mpe@ellerman.id.au>,
-        "Nicholas Piggin" <npiggin@gmail.com>,
-        "Geoff Levand" <geoff@infradead.org>,
-        "Palmer Dabbelt" <palmer@dabbelt.com>,
-        "Heiko Carstens" <hca@linux.ibm.com>,
-        "John Paul Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        "Andy Lutomirski" <luto@kernel.org>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Ingo Molnar" <mingo@redhat.com>,
-        "x86@kernel.org" <x86@kernel.org>, "Helge Deller" <deller@gmx.de>,
-        "Sudip Mukherjee" <sudipm.mukherjee@gmail.com>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "Timur Tabi" <timur@kernel.org>,
-        "Kent Overstreet" <kent.overstreet@linux.dev>,
-        "David Woodhouse" <dwmw2@infradead.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        "Anil S Keshavamurthy" <anil.s.keshavamurthy@intel.com>,
-        "Kees Cook" <keescook@chromium.org>,
-        "Vincenzo Frascino" <vincenzo.frascino@arm.com>,
-        "Juri Lelli" <juri.lelli@redhat.com>,
-        "Vincent Guittot" <vincent.guittot@linaro.org>,
-        "Nathan Chancellor" <nathan@kernel.org>,
-        "Nick Desaulniers" <ndesaulniers@google.com>,
-        "Nicolas Schier" <nicolas@fjasle.eu>,
-        "Alexander Viro" <viro@zeniv.linux.org.uk>,
-        =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
-        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
-        "linux-snps-arc@lists.infradead.org" 
-        <linux-snps-arc@lists.infradead.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-trace-kernel@vger.kernel.org" 
-        <linux-trace-kernel@vger.kernel.org>,
-        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-        "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
-        "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        "linux-bcachefs@vger.kernel.org" <linux-bcachefs@vger.kernel.org>,
-        "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>
-Subject: Re: [PATCH 15/22] arch: vdso: consolidate gettime prototypes
-Content-Type: text/plain;charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: zBsYuOn8gNwAkXyetzopGQaEtx5Z8XVr
+X-Proofpoint-GUID: Kn2tOCvN-1ImytAvbTpdIpLJljF_Qrcp
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-08_09,2023-11-08_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 suspectscore=0 bulkscore=0 impostorscore=0 malwarescore=0
+ phishscore=0 mlxscore=0 clxscore=1015 mlxlogscore=999 adultscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311080166
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Nov 8, 2023, at 19:31, Christophe Leroy wrote:
-> Le 08/11/2023 =C3=A0 13:58, Arnd Bergmann a =C3=A9crit=C2=A0:
+The 'status' attribute for AP queue devices bound to the vfio_ap device
+driver displays incorrect status when the mediated device is attached to a
+guest, but the queue device is not passed through. In the current
+implementation, the status displayed is 'in_use' which is not correct; it
+should be 'assigned'. This can happen if one of the queue devices
+associated with a given adapter is not bound to the vfio_ap device driver.
+For example:
 
-> powerpc has functions doing more or less the same, they are called=20
-> __c_kernel_clock_gettime() and alike with their prototypes siting in=20
-> arch/powerpc/include/asm/vdso/gettimeofday.h
->
-> Should those prototypes be moved to include/vdso/gettime.h too and=20
-> eventually renamed, or are they considered too powerpc specific ?
+Queues listed in /sys/bus/ap/drivers/vfio_ap:
+14.0005
+14.0006
+14.000d
+16.0006
+16.000d
 
-I don't actually know, my initial interpretation was that
-these function names are part of the user ABI for the vdso,
-but I never looked closely enough at how vdso works to
-be sure what the actual ABI is.
+Queues listed in /sys/devices/vfio_ap/matrix/$UUID/matrix
+14.0005
+14.0006
+14.000d
+16.0005
+16.0006
+16.000d
 
-If __c_kernel_clock_gettime() etc are not part of the user-facing
-ABI, I think renaming them for consistency with the other
-architectures would be best.
+Queues listed in /sys/devices/vfio_ap/matrix/$UUID/guest_matrix
+14.0005
+14.0006
+14.000d
 
-     Arnd
+The reason no queues for adapter 0x16 are listed in the guest_matrix is
+because queue 16.0005 is not bound to the vfio_ap device driver, so no
+queue associated with the adapter is passed through to the guest;
+therefore, each queue device for adapter 0x16 should display 'assigned'
+instead of 'in_use', because those queues are not in use by a guest, but
+only assigned to the mediated device.
+
+Let's check the AP configuration for the guest to determine whether a
+queue device is passed through before displaying a status of 'in_use'.
+
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Acked-by: Halil Pasic <pasic@linux.ibm.com>
+Acked-by: Harald Freudenberger <freude@linux.ibm.com>
+---
+ drivers/s390/crypto/vfio_ap_ops.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 4db538a55192..6e0a79086656 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -1976,6 +1976,7 @@ static ssize_t status_show(struct device *dev,
+ {
+ 	ssize_t nchars = 0;
+ 	struct vfio_ap_queue *q;
++	unsigned long apid, apqi;
+ 	struct ap_matrix_mdev *matrix_mdev;
+ 	struct ap_device *apdev = to_ap_dev(dev);
+ 
+@@ -1983,8 +1984,21 @@ static ssize_t status_show(struct device *dev,
+ 	q = dev_get_drvdata(&apdev->device);
+ 	matrix_mdev = vfio_ap_mdev_for_queue(q);
+ 
++	/* If the queue is assigned to the matrix mediated device, then
++	 * determine whether it is passed through to a guest; otherwise,
++	 * indicate that it is unassigned.
++	 */
+ 	if (matrix_mdev) {
+-		if (matrix_mdev->kvm)
++		apid = AP_QID_CARD(q->apqn);
++		apqi = AP_QID_QUEUE(q->apqn);
++		/*
++		 * If the queue is passed through to the guest, then indicate
++		 * that it is in use; otherwise, indicate that it is
++		 * merely assigned to a matrix mediated device.
++		 */
++		if (matrix_mdev->kvm &&
++		    test_bit_inv(apid, matrix_mdev->shadow_apcb.apm) &&
++		    test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
+ 			nchars = scnprintf(buf, PAGE_SIZE, "%s\n",
+ 					   AP_QUEUE_IN_USE);
+ 		else
+-- 
+2.41.0
+
