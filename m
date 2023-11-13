@@ -2,163 +2,175 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C575C4167B
-	for <linux-s390@archiver.kernel.org>; Sun, 12 Nov 2023 04:22:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FD5CC4332F
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Nov 2023 02:50:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229867AbjKLEWK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 11 Nov 2023 23:22:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43616 "EHLO
+        id S232925AbjKMCuN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 12 Nov 2023 21:50:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229601AbjKLEWK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 11 Nov 2023 23:22:10 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 232AB30D1;
-        Sat, 11 Nov 2023 20:22:07 -0800 (PST)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CF58C433AB;
-        Sun, 12 Nov 2023 04:22:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1699762926;
-        bh=FJL4JNEf9Nr1DoflQgnKi0tfP9lyYuVjCmmad2iv8TA=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=FacYEZCQKy7zh6VsDp47yhkL+9he5Y+BzcuRtc1i6KHlTBkqaeroQJJDPLMRFLWD9
-         QNhskha1onUHVMj2O/qk8mK8c0vJZhiTXumXWS0CGWZks5ZJFrR6dvkAIDGJkCeV/t
-         6amg22+gEIHVdyPSQgk0L9lJZr+X87dXFazyXH2ThFIzgEMWpLCJskz/nC6CtTqsA+
-         Z9NTC9QINWCby1hgnVCHVFMOnhZXaqZYk/4H/uttsH8za+SgromnkZZytr79DMdLq5
-         z6fSwHr0XX/U0fb4cdcZFZDuYKieV7M2bNXh4VB6zTAsNqvA0mOlgafeRuwkTVq4La
-         Yez2M8oVwyWiQ==
-Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-52bd9ddb741so5252690a12.0;
-        Sat, 11 Nov 2023 20:22:06 -0800 (PST)
-X-Gm-Message-State: AOJu0Yw1fRuDc9XcvafNK/1x/b/M4Fh4EyZo0KDm9eGurcS/rIWfQqv0
-        VjXPKVOG7l2f08dG09H3CibhTWMVH9X87+xsUQs=
-X-Google-Smtp-Source: AGHT+IGKtBb4zpepnAgJWTPQf4OFL8Yxg0IypTLD7L38xtqORdph/fQnU2/w9oi/MfemCZAy/+rZ76w/2ug+y+JaBNQ=
-X-Received: by 2002:a05:6402:3d9:b0:53f:731a:e513 with SMTP id
- t25-20020a05640203d900b0053f731ae513mr2174574edw.25.1699762924720; Sat, 11
- Nov 2023 20:22:04 -0800 (PST)
+        with ESMTP id S230053AbjKMCuN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 12 Nov 2023 21:50:13 -0500
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0828610E;
+        Sun, 12 Nov 2023 18:50:08 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VwBTFXs_1699843805;
+Received: from 30.221.147.142(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VwBTFXs_1699843805)
+          by smtp.aliyun-inc.com;
+          Mon, 13 Nov 2023 10:50:06 +0800
+Message-ID: <3f3080e2-cb2c-16f4-02b1-ca17394d2813@linux.alibaba.com>
+Date:   Mon, 13 Nov 2023 10:50:03 +0800
 MIME-Version: 1.0
-References: <20231108125843.3806765-1-arnd@kernel.org> <20231108125843.3806765-13-arnd@kernel.org>
-In-Reply-To: <20231108125843.3806765-13-arnd@kernel.org>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Sat, 11 Nov 2023 23:21:53 -0500
-X-Gmail-Original-Message-ID: <CAJF2gTSEziwKn+f6DfZXRuzW1SXaWraKL2HdXMRkEOGyuHq3MQ@mail.gmail.com>
-Message-ID: <CAJF2gTSEziwKn+f6DfZXRuzW1SXaWraKL2HdXMRkEOGyuHq3MQ@mail.gmail.com>
-Subject: Re: [PATCH 12/22] csky: fix arch_jump_label_transform_static override
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        linux-kbuild@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Matt Turner <mattst88@gmail.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Geoff Levand <geoff@infradead.org>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
-        Helge Deller <deller@gmx.de>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Timur Tabi <timur@kernel.org>,
-        Kent Overstreet <kent.overstreet@linux.dev>,
-        David Woodhouse <dwmw2@infradead.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nicolas Schier <nicolas@fjasle.eu>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-trace-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        netdev@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-bcachefs@vger.kernel.org,
-        linux-mtd@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.1
+Subject: Re: [PATCH net v1] net/smc: avoid data corruption caused by decline
+Content-Language: en-US
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+To:     Wenjia Zhang <wenjia@linux.ibm.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com, wintera@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1699436909-22767-1-git-send-email-alibuda@linux.alibaba.com>
+ <05c29431-c941-45d1-8e14-0527accc3993@linux.ibm.com>
+ <b3ce2dfe-ece9-919b-024d-051cd66609ed@linux.alibaba.com>
+In-Reply-To: <b3ce2dfe-ece9-919b-024d-051cd66609ed@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Nov 8, 2023 at 8:02=E2=80=AFAM Arnd Bergmann <arnd@kernel.org> wrot=
-e:
->
-> From: Arnd Bergmann <arnd@arndb.de>
->
-> The arch_jump_label_transform_static() function in csky was originally me=
-ant to
-> override the generic __weak function, but that got changed to an #ifndef =
-check.
->
-> This showed up as a missing-prototype warning:
-> arch/csky/kernel/jump_label.c:43:6: error: no previous prototype for 'arc=
-h_jump_label_transform_static' [-Werror=3Dmissing-prototypes]
->
-> Change the method to use the new method of having a #define and a prototy=
-pe
-> for the global function.
->
-> Fixes: 7e6b9db27de9 ("jump_label: make initial NOP patching the special c=
-ase")
-> Fixes: 4e8bb4ba5a55 ("csky: Add jump-label implementation")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  arch/csky/include/asm/jump_label.h | 5 +++++
->  1 file changed, 5 insertions(+)
->
-> diff --git a/arch/csky/include/asm/jump_label.h b/arch/csky/include/asm/j=
-ump_label.h
-> index d488ba6084bc..98a3f4b168bd 100644
-> --- a/arch/csky/include/asm/jump_label.h
-> +++ b/arch/csky/include/asm/jump_label.h
-> @@ -43,5 +43,10 @@ static __always_inline bool arch_static_branch_jump(st=
-ruct static_key *key,
->         return true;
->  }
->
-> +enum jump_label_type;
-> +void arch_jump_label_transform_static(struct jump_entry *entry,
-> +                                     enum jump_label_type type);
-> +#define arch_jump_label_transform_static arch_jump_label_transform_stati=
-c
-> +
->  #endif  /* __ASSEMBLY__ */
->  #endif /* __ASM_CSKY_JUMP_LABEL_H */
-> --
-> 2.39.2
->
->
-Thank you!
-Reviewed-by: Guo Ren <guoren@kernel.org>
 
---=20
-Best Regards
- Guo Ren
+
+On 11/10/23 10:51 AM, D. Wythe wrote:
+>
+>
+> On 11/8/23 9:00 PM, Wenjia Zhang wrote:
+>>
+>>
+>> On 08.11.23 10:48, D. Wythe wrote:
+>>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>>
+>>> We found a data corruption issue during testing of SMC-R on Redis
+>>> applications.
+>>>
+>>> The benchmark has a low probability of reporting a strange error as
+>>> shown below.
+>>>
+>>> "Error: Protocol error, got "\xe2" as reply type byte"
+>>>
+>>> Finally, we found that the retrieved error data was as follows:
+>>>
+>>> 0xE2 0xD4 0xC3 0xD9 0x04 0x00 0x2C 0x20 0xA6 0x56 0x00 0x16 0x3E 0x0C
+>>> 0xCB 0x04 0x02 0x01 0x00 0x00 0x20 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+>>> 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xE2
+>>>
+>>> It is quite obvious that this is a SMC DECLINE message, which means 
+>>> that
+>>> the applications received SMC protocol message.
+>>> We found that this was caused by the following situations:
+>>>
+>>> client            server
+>>>        proposal
+>>>     ------------->
+>>>        accept
+>>>     <-------------
+>>>        confirm
+>>>     ------------->
+>>> wait confirm
+>>>
+>>>      failed llc confirm
+>>>         x------
+>>> (after 2s)timeout
+>>>             wait rsp
+>>>
+>>> wait decline
+>>>
+>>> (after 1s) timeout
+>>>             (after 2s) timeout
+>>>         decline
+>>>     -------------->
+>>>         decline
+>>>     <--------------
+>>>
+>>> As a result, a decline message was sent in the implementation, and this
+>>> message was read from TCP by the already-fallback connection.
+>>>
+>>> This patch double the client timeout as 2x of the server value,
+>>> With this simple change, the Decline messages should never cross or
+>>> collide (during Confirm link timeout).
+>>>
+>>> This issue requires an immediate solution, since the protocol updates
+>>> involve a more long-term solution.
+>>>
+>>> Fixes: 0fb0b02bd6fd ("net/smc: adapt SMC client code to use the LLC 
+>>> flow")
+>>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>>> ---
+>>>   net/smc/af_smc.c | 2 +-
+>>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>>> index abd2667..5b91f55 100644
+>>> --- a/net/smc/af_smc.c
+>>> +++ b/net/smc/af_smc.c
+>>> @@ -599,7 +599,7 @@ static int smcr_clnt_conf_first_link(struct 
+>>> smc_sock *smc)
+>>>       int rc;
+>>>         /* receive CONFIRM LINK request from server over RoCE fabric */
+>>> -    qentry = smc_llc_wait(link->lgr, NULL, SMC_LLC_WAIT_TIME,
+>>> +    qentry = smc_llc_wait(link->lgr, NULL, 2 * SMC_LLC_WAIT_TIME,
+>>>                     SMC_LLC_CONFIRM_LINK);
+>>>       if (!qentry) {
+>>>           struct smc_clc_msg_decline dclc;
+>> I'm wondering if the double time (if sufficient) of timeout could be 
+>> for waiting for CLC_DECLINE on the client's side. i.e.
+>>
+>
+> It depends. We can indeed introduce a sysctl to allow server to 
+> manager their Confirm Link timeout,
+> but if there will be protocol updates, this introduction will no 
+> longer be necessary, and we will
+> have to maintain it continuously.
+>
+> I believe the core of the solution is to ensure that decline messages 
+> never cross or collide. Increasing
+> the client's timeout by twice as much as the server's timeout can 
+> temporarily solve this problem.
+> If Jerry's proposed protocol updates are too complex or if there won't 
+> be any future protocol updates,
+> it's still not late to let server manager their Confirm Link timeout then.
+>
+> Best wishes,
+> D. Wythe
+>
+
+FYI:
+
+It seems that my email was not successfully delivered due to some 
+reasons. Sorry
+for that.
+
+D. Wythe
+
+
+>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>> index 35ddebae8894..9b1feef1013d 100644
+>> --- a/net/smc/af_smc.c
+>> +++ b/net/smc/af_smc.c
+>> @@ -605,7 +605,7 @@ static int smcr_clnt_conf_first_link(struct 
+>> smc_sock *smc)
+>>                 struct smc_clc_msg_decline dclc;
+>>
+>>                 rc = smc_clc_wait_msg(smc, &dclc, sizeof(dclc),
+>> -                                     SMC_CLC_DECLINE, 
+>> CLC_WAIT_TIME_SHORT);
+>> +                                     SMC_CLC_DECLINE, 2 * 
+>> CLC_WAIT_TIME_SHORT);
+>>                 return rc == -EAGAIN ? SMC_CLC_DECL_TIMEOUT_CL : rc;
+>>         }
+>>         smc_llc_save_peer_uid(qentry);
+>>
+>> Because the purpose is to let the server have the control to deline.
+>
+
