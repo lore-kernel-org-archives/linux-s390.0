@@ -2,66 +2,66 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5939EC4167B
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Nov 2023 18:27:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6967C4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Nov 2023 18:36:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233818AbjKNS1r (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Nov 2023 13:27:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32900 "EHLO
+        id S229770AbjKNSgb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Nov 2023 13:36:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229507AbjKNS1p (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Nov 2023 13:27:45 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFA50B8
-        for <linux-s390@vger.kernel.org>; Tue, 14 Nov 2023 10:27:42 -0800 (PST)
+        with ESMTP id S230200AbjKNSga (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Nov 2023 13:36:30 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD8E011D
+        for <linux-s390@vger.kernel.org>; Tue, 14 Nov 2023 10:36:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1699986461;
+        s=mimecast20190719; t=1699986987;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=U5juBUKVUX+WdnY78HsqgVZ5QyAPcX7+J7Buvj7Sdls=;
-        b=ABmjuk9jltrmruzkI6axknDIujHlxPs7GYGwX16qHWAiwOy0sHYUQ61Q0wnpmZShEbcFvr
-        JvFigHvDlcxX51Mm1I/6E+wX3sGy+8MmN35VM2u+JP00msG+KOLfHjp8IlmUhe5yAVqCNw
-        hdbaNKl+G3A213wb1o4IM6yIAYO5oIg=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=70jj+kF+5ruNn+g6XU2qEsz1QgBg73S7Eid+Vheoqr0=;
+        b=VtBljMu+x1UKvb/cWOMgHytXZQxSuVjskDwTbASvlyzPYbgRMt4ErHE1hIlgAF0AtXvfW8
+        8h3tPM+MjxlZwYC7WkVvIrJAWUZjcvIIEX4q5RPAbBDRLfX87+QEqmDpK79ps7U3CkGOCb
+        akJfce9b6OAJUeR+Bqa5cpIYilsmvm8=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-197-A-lDCqeGOEadq2Ux-fzyUQ-1; Tue, 14 Nov 2023 13:27:38 -0500
-X-MC-Unique: A-lDCqeGOEadq2Ux-fzyUQ-1
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-32de9f93148so3040422f8f.2
-        for <linux-s390@vger.kernel.org>; Tue, 14 Nov 2023 10:27:38 -0800 (PST)
+ us-mta-218-UFflZPADP6KkJt8jqj4BlA-1; Tue, 14 Nov 2023 13:36:23 -0500
+X-MC-Unique: UFflZPADP6KkJt8jqj4BlA-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-408508aa81cso38622865e9.3
+        for <linux-s390@vger.kernel.org>; Tue, 14 Nov 2023 10:36:23 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699986457; x=1700591257;
+        d=1e100.net; s=20230601; t=1699986982; x=1700591782;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
          :references:cc:to:content-language:subject:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=U5juBUKVUX+WdnY78HsqgVZ5QyAPcX7+J7Buvj7Sdls=;
-        b=PVG1aLbd7dR4G0bzXQBdbHMrC5UvgOYFqRCnkdVN3fG0u6i1+Cu5e9tVWTCNftI3Pm
-         7uxujuYrdkb2yLWlomVBaiWMI4zwcMqMg+0wQ1IsOe3ACx07dwiXB7DdsFl4eWy4QrAI
-         xdaeWDje1rjoTeuZSVZp3FZd7ZYBRPu/B969Wcr42eS2IY+FYAr35nKq0uU1kfhIkmyH
-         l5C8ZJZ7aElPS4JyYuBQOC44ADTdiBwyasqaLgvpi56vOu9gE7Lnu9rA3EyeHO3X6fCS
-         pkcLGo241QEm/OgMk9jDkHwwvjABCdegVTtaTvaQiYmPnzLO33px+VpUulH8JdB5y/aX
-         NQmA==
-X-Gm-Message-State: AOJu0YxFAa/LFgbv2qBSWDKrjOg/c7MRrIVOYefLINIxLD1eM6o8pKsK
-        j9J+D3tKTBBYY8O8w+JaXsMJmT5aci/1U3KQBL01AvC6nbA4xVoxL2H0cWExjGipb56b6ni6JWR
-        TWnczYeRApWLDoFSVeBHjOw==
-X-Received: by 2002:adf:c6c9:0:b0:331:41c2:4f98 with SMTP id c9-20020adfc6c9000000b0033141c24f98mr7464102wrh.53.1699986457574;
-        Tue, 14 Nov 2023 10:27:37 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEFY61LsbNAuT6y46BF3pRKKrrw53mZ4Dy/kFrmcrVFB/EQ8pBeaCzTA9fgAaEoXr66foicSw==
-X-Received: by 2002:adf:c6c9:0:b0:331:41c2:4f98 with SMTP id c9-20020adfc6c9000000b0033141c24f98mr7464087wrh.53.1699986457127;
-        Tue, 14 Nov 2023 10:27:37 -0800 (PST)
+        bh=70jj+kF+5ruNn+g6XU2qEsz1QgBg73S7Eid+Vheoqr0=;
+        b=TAt3mzYih75v/nB8+usP1HiZtylkd60cpAQeb0fB3C9aGqxgTkRMUiNB1An5d+N6Pu
+         rXkG73bDAVUYqbh7R647eYX3M/BF2gv/e0chrjZZ0MSPdR4oeOWilsl6FcduUuCtd2jS
+         cVya3ZscxcSGRVJFhsYaNmhL0lhnz/oklTEGKEQ8NjSTX1TmIIF8O5ANyXivKzCvgwNE
+         3H0tTp2SWiicQyVqiTWocdV58S+RGNY8hB1Izy9ykXqHsAFwzLrOD/NJdav13Wu6oTqV
+         WKWPQo0gOWL4j6RLXGODbRhRXptc2hL7coym4nQ1u/1DwC96MXCF2C0HPzQiTAzgGecf
+         O09Q==
+X-Gm-Message-State: AOJu0YzEkponMaobmmfLLpXI4V+49LG2snIuT9+TscKnryiNfU5T7RRP
+        y3ZTrE0plbulewP/UkcocrdITBMxY31pznrKG6+buD2t9RLNke7ysGeDagNLbVzlmuILps6G6Me
+        cnACsRCuIEvtRtx7Fe+N7cA==
+X-Received: by 2002:a05:600c:2343:b0:405:3d41:5646 with SMTP id 3-20020a05600c234300b004053d415646mr8998550wmq.2.1699986982497;
+        Tue, 14 Nov 2023 10:36:22 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG3dyGRKOJfvGPDCabt07XWx3boGiNXJuEtAeXKmTs1ZfH3/0i5AocPao0QEx+zbJawjvDaoQ==
+X-Received: by 2002:a05:600c:2343:b0:405:3d41:5646 with SMTP id 3-20020a05600c234300b004053d415646mr8998534wmq.2.1699986982136;
+        Tue, 14 Nov 2023 10:36:22 -0800 (PST)
 Received: from ?IPV6:2003:cb:c73e:8900:2d8:c9f0:f3fb:d4fd? (p200300cbc73e890002d8c9f0f3fbd4fd.dip0.t-ipconnect.de. [2003:cb:c73e:8900:2d8:c9f0:f3fb:d4fd])
-        by smtp.gmail.com with ESMTPSA id i5-20020a5d4385000000b0032de6f95fb3sm8446944wrq.40.2023.11.14.10.27.36
+        by smtp.gmail.com with ESMTPSA id n2-20020a05600c4f8200b004090ca6d785sm12263078wmq.2.2023.11.14.10.36.21
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 Nov 2023 10:27:36 -0800 (PST)
-Message-ID: <7c85bd39-8b34-4b09-b503-b0a2f2e58b88@redhat.com>
-Date:   Tue, 14 Nov 2023 19:27:35 +0100
+        Tue, 14 Nov 2023 10:36:21 -0800 (PST)
+Message-ID: <6c545504-e1a7-435b-aad9-b045247d6945@redhat.com>
+Date:   Tue, 14 Nov 2023 19:36:20 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 4/8] mm/memory_hotplug: introduce MEM_PHYS_ONLINE/OFFLINE
- memory notifiers
+Subject: Re: [PATCH 2/8] mm/memory_hotplug: fix error handling in
+ add_memory_resource()
 Content-Language: en-US
 To:     Sumanth Korikkar <sumanthk@linux.ibm.com>,
         linux-mm <linux-mm@kvack.org>,
@@ -74,9 +74,10 @@ Cc:     Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         linux-s390 <linux-s390@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
+        LKML <linux-kernel@vger.kernel.org>,
+        Vishal Verma <vishal.l.verma@intel.com>
 References: <20231114180238.1522782-1-sumanthk@linux.ibm.com>
- <20231114180238.1522782-5-sumanthk@linux.ibm.com>
+ <20231114180238.1522782-3-sumanthk@linux.ibm.com>
 From:   David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -123,7 +124,7 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20231114180238.1522782-5-sumanthk@linux.ibm.com>
+In-Reply-To: <20231114180238.1522782-3-sumanthk@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -131,55 +132,53 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 14.11.23 19:02, Sumanth Korikkar wrote:
-> Add new memory notifiers to mimic the dynamic ACPI event triggered logic
-> for memory hotplug on platforms that do not generate such events. This
-> will be used to implement "memmap on memory" feature for s390 in a later
-> patch.
+> In add_memory_resource(), creation of memory block devices occurs after
+> successful call to arch_add_memory(). However, creation of memory block
+> devices could fail.  In that case, arch_remove_memory() is called to
+> perform necessary cleanup.
 > 
-> Platforms such as x86 can support physical memory hotplug via ACPI. When
-> there is physical memory hotplug, ACPI event leads to the memory
-> addition with the following callchain:
-> acpi_memory_device_add()
->    -> acpi_memory_enable_device()
->       -> __add_memory()
+> Currently with or without altmap support, arch_remove_memory() is always
+> passed with altmap set to NULL during error handling. This leads to
+> freeing of struct pages using free_pages(), eventhough the allocation
+> might have been performed with altmap support via
+> altmap_alloc_block_buf().
 > 
-> After this, the hotplugged memory is physically accessible, and altmap
-> support prepared, before the "memmap on memory" initialization in
-> memory_block_online() is called.
+> Fix the error handling by passing altmap in arch_remove_memory(). This
+> ensures the following:
+> * When altmap is disabled, deallocation of the struct pages array occurs
+>    via free_pages().
+> * When altmap is enabled, deallocation occurs via vmem_altmap_free().
 > 
-> On s390, memory hotplug works in a different way. The available hotplug
-> memory has to be defined upfront in the hypervisor, but it is made
-> physically accessible only when the user sets it online via sysfs,
-> currently in the MEM_GOING_ONLINE notifier. This requires calling
-> add_memory() during early memory detection, in order to get the sysfs
-> representation, but we cannot use "memmap on memory" altmap support at
-> this stage, w/o having it physically accessible.
-> 
-> Since no ACPI or similar events are generated, there is no way to set up
-> altmap support, or even make the memory physically accessible at all,
-> before the "memmap on memory" initialization in memory_block_online().
-> 
-> The new MEM_PHYS_ONLINE notifier allows to work around this, by
-> providing a hook to make the memory physically accessible, and also call
-> __add_pages() with altmap support, early in memory_block_online().
-> Similarly, the MEM_PHYS_OFFLINE notifier allows to make the memory
-> inaccessible and call __remove_pages(), at the end of
-> memory_block_offline().
-> 
-> Calling __add/remove_pages() requires mem_hotplug_lock, so move
-> mem_hotplug_begin/done() to include the new notifiers.
-> 
-> All architectures ignore unknown memory notifiers, so this patch should
-> not introduce any functional changes.
+> Fixes: db051a0dac13 ("mm/memory_hotplug: create memory block devices after arch_add_memory()")
 
-Sorry to say, no. No hacks please, and this is a hack for memory that 
-has already been added to the system.
+That's the wrong commit. We didn't support memmap-on-memory back then.
 
-If you want memory without an altmap to suddenly not have an altmap 
-anymore, then look into removing and readding that memory, or some way 
-to convert offline memory.
+Likely it should be:
 
-But certainly not on the online/offline path triggered by sysfs.
+Fixes: a08a2ae34613 ("mm,memory_hotplug: allocate memmap from the added 
+memory range")
+
+> Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+> ---
+>   mm/memory_hotplug.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+> index c8238fc5edcb..4f476a970e84 100644
+> --- a/mm/memory_hotplug.c
+> +++ b/mm/memory_hotplug.c
+> @@ -1458,7 +1458,7 @@ int __ref add_memory_resource(int nid, struct resource *res, mhp_t mhp_flags)
+>   	/* create memory block devices after memory was added */
+>   	ret = create_memory_block_devices(start, size, params.altmap, group);
+>   	if (ret) {
+> -		arch_remove_memory(start, size, NULL);
+> +		arch_remove_memory(start, size, params.altmap);
+>   		goto error_free;
+>   	}
+>   
+
+Indeed; this will conflict with Vishals patches, ccing him.
 
 -- 
 Cheers,
