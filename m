@@ -2,60 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83538C07524
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Nov 2023 18:03:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93176C4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Nov 2023 18:03:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229607AbjKNSDI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Nov 2023 13:03:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55744 "EHLO
+        id S233845AbjKNSDL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Nov 2023 13:03:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233807AbjKNSDG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Nov 2023 13:03:06 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4174111F;
-        Tue, 14 Nov 2023 10:03:02 -0800 (PST)
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AEHaWkQ020648;
-        Tue, 14 Nov 2023 18:02:51 GMT
+        with ESMTP id S233828AbjKNSDJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Nov 2023 13:03:09 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D779B11F;
+        Tue, 14 Nov 2023 10:03:06 -0800 (PST)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AEHkGQG003707;
+        Tue, 14 Nov 2023 18:02:54 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=b9kbxAnG1pdTsFzVrWyA16FcOHZys5jgBlDNWM5n5cU=;
- b=argcVbC/VuADRxGIwrPjUi92qOLfoUirjTPWz/2XtxkmWK79zhhlPtOIUer81fDqn3P2
- xdNvvh4yF4xZKZbGQ3tZCv7dK2nkSXEU1PNU+vCa5vHxbk1qaIuoxU1NIGxsURfPxOeo
- Qw+i6saXFs2cjC+T+GGBfaWsf2d52IuQJapGTPtLH8O6VAEhSe//Bdyu7UxVtu5fP2R9
- +YDW9pVAi/B6TIGcUEgoxxNOp8aTu+vWOSTo1K/k6HmrqfhuIYK//A1yfCmlIC1XOf9v
- 5927Ify1U51S7HlIUrdOWRBuXmqcIAz6Sjc96TWk1fRLGaDgytJUt7siDWiE8JD3GBwF 9A== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=Om6IJuStr3N58ZwDdeKdV4d8eL5rcFp+Ss4RABMj1ec=;
+ b=lHR196ArFATBZTu4+GGGuI3lD4Lzfwt633x5BGwARX1CgC5lEQ/yTdGK4EVZpugjW2It
+ K1JbP0EV8iqjbaQ/1gnBpyJjYgPpIjMDllSGdf3NGgD/BNQkoEWNgIhptqJ9k0H8C3Qv
+ uH20mPv9d7vo2TtMh/TIeCFhse/Lv0wjAM7Wkssv2tzbcrdL/ccZASxkjMjyu1LCnnQD
+ SbQ6Tdkia/D9DgQhg7tfxnwlrc+o70vFsoYemEFVr6aBMrbTFEgcNMvC8zyBixFH//Jk
+ 9QItNZ1m8VFxYTnnrh9+y86OEzjPpPYsTTLldg4qb6wElvjtRzJhLnkHqzbQbI3AyVFL lA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ucdeg8r8h-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ucce7ak51-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Nov 2023 18:02:50 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AEHan3b021195;
-        Tue, 14 Nov 2023 18:02:49 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ucdeg8r7x-1
+        Tue, 14 Nov 2023 18:02:53 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AEHnX7o017866;
+        Tue, 14 Nov 2023 18:02:52 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ucce7ak3p-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Nov 2023 18:02:49 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AEGY3rk017575;
-        Tue, 14 Nov 2023 18:02:49 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uanekhftm-1
+        Tue, 14 Nov 2023 18:02:52 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AEGXsOU023335;
+        Tue, 14 Nov 2023 18:02:51 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uapn1h4a2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Nov 2023 18:02:48 +0000
+        Tue, 14 Nov 2023 18:02:51 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AEI2jDS787092
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AEI2mrh61866476
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Nov 2023 18:02:45 GMT
+        Tue, 14 Nov 2023 18:02:48 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 794AF2004B;
-        Tue, 14 Nov 2023 18:02:45 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 6B2732004B;
+        Tue, 14 Nov 2023 18:02:48 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1D1532004D;
-        Tue, 14 Nov 2023 18:02:45 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 089A020065;
+        Tue, 14 Nov 2023 18:02:48 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 14 Nov 2023 18:02:45 +0000 (GMT)
+        Tue, 14 Nov 2023 18:02:47 +0000 (GMT)
 From:   Sumanth Korikkar <sumanthk@linux.ibm.com>
 To:     linux-mm <linux-mm@kvack.org>,
         Andrew Morton <akpm@linux-foundation.org>,
@@ -69,93 +70,65 @@ Cc:     Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         linux-s390 <linux-s390@vger.kernel.org>,
         LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 0/8] implement "memmap on memory" feature on s390
-Date:   Tue, 14 Nov 2023 19:02:30 +0100
-Message-Id: <20231114180238.1522782-1-sumanthk@linux.ibm.com>
+Subject: [PATCH 7/8] s390/sclp: remove unhandled memory notifier type
+Date:   Tue, 14 Nov 2023 19:02:37 +0100
+Message-Id: <20231114180238.1522782-8-sumanthk@linux.ibm.com>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20231114180238.1522782-1-sumanthk@linux.ibm.com>
+References: <20231114180238.1522782-1-sumanthk@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 2WT_AHfHlzioBkvzqBUMo-HtrfzDZ5Ov
-X-Proofpoint-GUID: 1m10EwI2GbB1yhTCnXWcG05GeP1uqN1O
+X-Proofpoint-GUID: OpvzgQwUY56uUnXzNSxpR9d6bgqemBfq
+X-Proofpoint-ORIG-GUID: d8nHFaYob11HUE1xU71UucmHtG_iRw1p
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-14_18,2023-11-14_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- phishscore=0 mlxlogscore=414 malwarescore=0 spamscore=0 adultscore=0
- mlxscore=0 impostorscore=0 suspectscore=0 priorityscore=1501 clxscore=1015
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311140136
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ lowpriorityscore=0 suspectscore=0 mlxscore=0 mlxlogscore=758
+ malwarescore=0 bulkscore=0 clxscore=1011 spamscore=0 impostorscore=0
+ priorityscore=1501 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2311060000 definitions=main-2311140137
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi All,
+Remove memory notifier types which are unhandled by s390.  Unhandled
+memory notifier types are covered by default case.
 
-The patch series implements "memmap on memory" feature on s390 and
-provides the necessary fixes for it.
+Suggested-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+---
+ drivers/s390/char/sclp_cmd.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-Patch 1  addresses the locking order in memory hotplug operations,
-ensuring that the mem_hotplug_lock is held during critical operations
-like mhp_init_memmap_on_memory() and mhp_deinit_memmap_on_memory()
-
-Patch 2 deals with error handling in add_memory_resource() and considers
-the possibility of altmap support. This ensures proper deallocation of
-struct pages, aligning with the allocation strategy.
-
-Patch 3 relocates the vmem_altmap code to sparse-vmemmap.c, enabling the
-utilization of vmem_altmap_free() and vmem_altmap_offset() without the
-dependency on CONFIG_ZONE_DEVICE. Note: These functions are also used in
-arm64 architecture. However, ZONE_DEVICE or ARCH_HAS_ZONE_DEVICE doesnt
-seems to be enabled in arm64.
-
-Patch 4 introduces MEM_PHYS_ONLINE/OFFLINE memory notifiers. It
-facilitates the emulation of dynamic ACPI event-triggered logic for
-memory hotplug on platforms lacking such events. This sets the stage for
-implementing the "memmap on memory" feature for s390 in subsequent
-patches. All architecture/codepaths have the default cases handled in
-memory notifiers. Hence, introducing new memory notifiers will have no
-functional impact.
-
-Patches 5 allocates vmemmap pages from self-contained memory range for
-s390. It allocates memory map (struct pages array) from the hotplugged
-memory range, rather than using system memory by passing altmap to
-vmemmap functions.
-
-Patch 6 implements MEM_PHYS_ONLINE and MEM_PHYS_OFFLINE memory notifiers
-on s390. It involves making the memory block physically accessible and
-then calling __add_pages()/__remove_pages() with altmap parameter.
-
-Patch 7 removes unhandled memory notifier types. This is currently
-handled in default case
-
-Patch 8 finally enables MHP_MEMMAP_ON_MEMORY on s390
-
-Thank you
-
-Sumanth Korikkar (8):
-  mm/memory_hotplug: fix memory hotplug locking order
-  mm/memory_hotplug: fix error handling in add_memory_resource()
-  mm: use vmem_altmap code without CONFIG_ZONE_DEVICE
-  mm/memory_hotplug: introduce MEM_PHYS_ONLINE/OFFLINE memory notifiers
-  s390/mm: allocate vmemmap pages from self-contained memory range
-  s390/mm: implement MEM_PHYS_ONLINE MEM_PHYS_OFFLINE memory notifiers
-  s390/sclp: remove unhandled memory notifier type
-  s390: enable MHP_MEMMAP_ON_MEMORY
-
- arch/s390/Kconfig            |  1 +
- arch/s390/mm/init.c          | 19 ++++++++---
- arch/s390/mm/vmem.c          | 62 ++++++++++++++++++++----------------
- drivers/base/memory.c        | 28 ++++++++++++++--
- drivers/s390/char/sclp_cmd.c | 37 +++++++++++++++------
- include/linux/memory.h       |  2 ++
- include/linux/memremap.h     | 12 -------
- include/linux/mm.h           |  2 ++
- mm/memory_hotplug.c          | 15 ++++-----
- mm/memremap.c                | 14 +-------
- mm/sparse-vmemmap.c          | 13 ++++++++
- 11 files changed, 129 insertions(+), 76 deletions(-)
-
+diff --git a/drivers/s390/char/sclp_cmd.c b/drivers/s390/char/sclp_cmd.c
+index 12f3d4af7e4e..428f8a583e8f 100644
+--- a/drivers/s390/char/sclp_cmd.c
++++ b/drivers/s390/char/sclp_cmd.c
+@@ -349,11 +349,6 @@ static int sclp_mem_notifier(struct notifier_block *nb,
+ 		if (contains_standby_increment(start, start + size))
+ 			rc = -EPERM;
+ 		break;
+-	case MEM_ONLINE:
+-	case MEM_CANCEL_OFFLINE:
+-		break;
+-	case MEM_GOING_ONLINE:
+-		break;
+ 	case MEM_PHYS_ONLINE:
+ 		rc = sclp_mem_change_state(start, size, 1);
+ 		if (rc || !memory_block->altmap)
+@@ -369,9 +364,6 @@ static int sclp_mem_notifier(struct notifier_block *nb,
+ 		 */
+ 		__arch_set_page_nodat((void *)start, memory_block->altmap->free);
+ 		break;
+-	case MEM_CANCEL_ONLINE:
+-	case MEM_OFFLINE:
+-		break;
+ 	case MEM_PHYS_OFFLINE:
+ 		if (memory_block->altmap)
+ 			__remove_pages(arg->start_pfn, arg->nr_pages, memory_block->altmap);
 -- 
 2.41.0
 
