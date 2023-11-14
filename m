@@ -2,297 +2,215 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D41D8C4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Nov 2023 09:20:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF78DC4167B
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Nov 2023 09:52:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232449AbjKNJVB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Nov 2023 04:21:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52132 "EHLO
+        id S232625AbjKNJw5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Nov 2023 04:52:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231382AbjKNJVA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Nov 2023 04:21:00 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BE7B132;
-        Tue, 14 Nov 2023 01:20:56 -0800 (PST)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AE8qHCE019234;
-        Tue, 14 Nov 2023 09:20:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=Ks2hsF7gZAH/CA2oPifrySYvXDbnvpyOc24DwlQLRRI=;
- b=bgWiz2oJ6ZZlvNaRfX/eoFNWpxEFkmlmCuh2oAPoECxKyakiM7d2ZaogY37d4da01QWP
- rl+REUqEpwaV+nRZZNgcp0NTQXJI5pb5zo/lJmFFXgWBlDUZxke3Rn0ucNkA0mmctpIC
- X1OVAYkli5k4uD7NhumW4xVoMsSeOlmMoK45VrpM2n1Fmdebtxxn1tXbNtjQvsS16A3U
- J/8MU9kARcnxHPMx7jVB2OzY4ux/sirPFbh56ntNrAXU9qvSsDMPlfDSChp5akA2DspC
- f1U/lhGOEZDstJTMh27uQmtcxs1WirDLqAIAvWw6bXi3wh066ULTHfJkLjTAtM+n/OsY pQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uc5rtgs02-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Nov 2023 09:20:42 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AE99XZ0013503;
-        Tue, 14 Nov 2023 09:20:42 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uc5rtgrx7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Nov 2023 09:20:42 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AE8HBML029383;
-        Tue, 14 Nov 2023 09:17:22 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uakxsq44v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Nov 2023 09:17:22 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AE9HJPo45089462
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Nov 2023 09:17:19 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6BB6C20043;
-        Tue, 14 Nov 2023 09:17:19 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E1ED720040;
-        Tue, 14 Nov 2023 09:17:18 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 14 Nov 2023 09:17:18 +0000 (GMT)
-From:   Gerd Bayer <gbayer@linux.ibm.com>
-To:     Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Simon Horman <horms@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        Randy Dunlap <rdunlap@infradead.org>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, alibuda@linux.alibaba.com,
-        tonylu@linux.alibaba.com, dust.li@linux.alibaba.com,
-        Gerd Bayer <gbayer@linux.ibm.com>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH net] s390/ism: ism driver implies smc protocol
-Date:   Tue, 14 Nov 2023 10:17:18 +0100
-Message-Id: <20231114091718.3482624-1-gbayer@linux.ibm.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <b152ec7c0e690027da1086b777a3ec512001ba1f.camel@linux.ibm.com>
-References: <b152ec7c0e690027da1086b777a3ec512001ba1f.camel@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: p6faRSdtuUaeLj9kgRrzykTDpW0F4nCP
-X-Proofpoint-ORIG-GUID: ApJWhliNsGoyPriNAESks3LX29EEEAZF
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S232616AbjKNJwx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Nov 2023 04:52:53 -0500
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 091B6D42;
+        Tue, 14 Nov 2023 01:52:48 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0VwP4wni_1699955565;
+Received: from 30.221.149.133(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VwP4wni_1699955565)
+          by smtp.aliyun-inc.com;
+          Tue, 14 Nov 2023 17:52:46 +0800
+Message-ID: <4fc4e577-1e1f-1f0b-ca0c-1b525fafcce5@linux.alibaba.com>
+Date:   Tue, 14 Nov 2023 17:52:44 +0800
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-14_08,2023-11-09_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- spamscore=0 impostorscore=0 mlxscore=0 clxscore=1011 bulkscore=0
- suspectscore=0 adultscore=0 phishscore=0 priorityscore=1501
- mlxlogscore=999 malwarescore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2311060000 definitions=main-2311140072
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.1
+Subject: Re: [PATCH net v1] net/smc: avoid data corruption caused by decline
+Content-Language: en-US
+To:     Wenjia Zhang <wenjia@linux.ibm.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com, wintera@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1699436909-22767-1-git-send-email-alibuda@linux.alibaba.com>
+ <05c29431-c941-45d1-8e14-0527accc3993@linux.ibm.com>
+ <b3ce2dfe-ece9-919b-024d-051cd66609ed@linux.alibaba.com>
+ <3f3080e2-cb2c-16f4-02b1-ca17394d2813@linux.alibaba.com>
+ <d099d572-3feb-44a0-8b63-60a18af28943@linux.ibm.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <d099d572-3feb-44a0-8b63-60a18af28943@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Since commit a72178cfe855 ("net/smc: Fix dependency of SMC on ISM")
-you can build the ism code without selecting the SMC network protocol.
-That leaves some ism functions be reported as unused. Move these
-functions under the conditional compile with CONFIG_SMC.
 
-Also codify the suggestion to also configure the SMC protocol in ism's
-Kconfig - but with an "imply" rather than a "select" as SMC depends on
-other config options and allow for a deliberate decision not to build
-SMC. Also, mention that in ISM's help.
 
-Fixes: a72178cfe855 ("net/smc: Fix dependency of SMC on ISM")
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Closes: https://lore.kernel.org/netdev/afd142a2-1fa0-46b9-8b2d-7652d41d3ab8@infradead.org/
-Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
----
+On 11/13/23 6:57 PM, Wenjia Zhang wrote:
+>
+>
+> On 13.11.23 03:50, D. Wythe wrote:
+>>
+>>
+>> On 11/10/23 10:51 AM, D. Wythe wrote:
+>>>
+>>>
+>>> On 11/8/23 9:00 PM, Wenjia Zhang wrote:
+>>>>
+>>>>
+>>>> On 08.11.23 10:48, D. Wythe wrote:
+>>>>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>>>>
+>>>>> We found a data corruption issue during testing of SMC-R on Redis
+>>>>> applications.
+>>>>>
+>>>>> The benchmark has a low probability of reporting a strange error as
+>>>>> shown below.
+>>>>>
+>>>>> "Error: Protocol error, got "\xe2" as reply type byte"
+>>>>>
+>>>>> Finally, we found that the retrieved error data was as follows:
+>>>>>
+>>>>> 0xE2 0xD4 0xC3 0xD9 0x04 0x00 0x2C 0x20 0xA6 0x56 0x00 0x16 0x3E 0x0C
+>>>>> 0xCB 0x04 0x02 0x01 0x00 0x00 0x20 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+>>>>> 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xE2
+>>>>>
+>>>>> It is quite obvious that this is a SMC DECLINE message, which 
+>>>>> means that
+>>>>> the applications received SMC protocol message.
+>>>>> We found that this was caused by the following situations:
+>>>>>
+>>>>> client            server
+>>>>>        proposal
+>>>>>     ------------->
+>>>>>        accept
+>>>>>     <-------------
+>>>>>        confirm
+>>>>>     ------------->
+>>>>> wait confirm
+>>>>>
+>>>>>      failed llc confirm
+>>>>>         x------
+>>>>> (after 2s)timeout
+>>>>>             wait rsp
+>>>>>
+>>>>> wait decline
+>>>>>
+>>>>> (after 1s) timeout
+>>>>>             (after 2s) timeout
+>>>>>         decline
+>>>>>     -------------->
+>>>>>         decline
+>>>>>     <--------------
+>>>>>
+>>>>> As a result, a decline message was sent in the implementation, and 
+>>>>> this
+>>>>> message was read from TCP by the already-fallback connection.
+>>>>>
+>>>>> This patch double the client timeout as 2x of the server value,
+>>>>> With this simple change, the Decline messages should never cross or
+>>>>> collide (during Confirm link timeout).
+>>>>>
+>>>>> This issue requires an immediate solution, since the protocol updates
+>>>>> involve a more long-term solution.
+>>>>>
+>>>>> Fixes: 0fb0b02bd6fd ("net/smc: adapt SMC client code to use the 
+>>>>> LLC flow")
+>>>>> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>>>>> ---
+>>>>>   net/smc/af_smc.c | 2 +-
+>>>>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>>>>
+>>>>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>>>>> index abd2667..5b91f55 100644
+>>>>> --- a/net/smc/af_smc.c
+>>>>> +++ b/net/smc/af_smc.c
+>>>>> @@ -599,7 +599,7 @@ static int smcr_clnt_conf_first_link(struct 
+>>>>> smc_sock *smc)
+>>>>>       int rc;
+>>>>>         /* receive CONFIRM LINK request from server over RoCE 
+>>>>> fabric */
+>>>>> -    qentry = smc_llc_wait(link->lgr, NULL, SMC_LLC_WAIT_TIME,
+>>>>> +    qentry = smc_llc_wait(link->lgr, NULL, 2 * SMC_LLC_WAIT_TIME,
+>>>>>                     SMC_LLC_CONFIRM_LINK);
+>>>>>       if (!qentry) {
+>>>>>           struct smc_clc_msg_decline dclc;
+>>>> I'm wondering if the double time (if sufficient) of timeout could 
+>>>> be for waiting for CLC_DECLINE on the client's side. i.e.
+>>>>
+>>>
+>>> It depends. We can indeed introduce a sysctl to allow server to 
+>>> manager their Confirm Link timeout,
+>>> but if there will be protocol updates, this introduction will no 
+>>> longer be necessary, and we will
+>>> have to maintain it continuously.
+>>>
+> no, I don't think, either, that we need a sysctl for that.
 
-Hi Randy,
+I am okay about that.
 
-sorry for the long wait. We had some internal discussions about how to 
-tackle this and decided to send out the short-term solution first and 
-work on better isolating the ISM device and SMC protocol together 
-with the work to extend ISM,
-e.g. at https://lore.kernel.org/netdev/1695568613-125057-1-git-send-email-guwen@linux.alibaba.com/
+>>> I believe the core of the solution is to ensure that decline 
+>>> messages never cross or collide. Increasing
+>>> the client's timeout by twice as much as the server's timeout can 
+>>> temporarily solve this problem.
+>
+> I have no objection with that, but my question is why you don't 
+> increase the timeout waiting for CLC_DECLINE instead of waiting 
+> LLC_Confirm_Link? Shouldn't they have the same effect?
+>
 
-Cheers, Gerd
+Logically speaking, of course, they have the same effect, but there are 
+two reasons that i choose to increase LLC timeout here:
 
- drivers/s390/net/Kconfig   |  3 +-
- drivers/s390/net/ism_drv.c | 92 +++++++++++++++++++-------------------
- 2 files changed, 48 insertions(+), 47 deletions(-)
+1. to avoid DECLINE  cross or collide, we need a bigger time gap, a 
+simple math is
 
-diff --git a/drivers/s390/net/Kconfig b/drivers/s390/net/Kconfig
-index 4902d45e929c..c61e6427384c 100644
---- a/drivers/s390/net/Kconfig
-+++ b/drivers/s390/net/Kconfig
-@@ -103,10 +103,11 @@ config CCWGROUP
- config ISM
- 	tristate "Support for ISM vPCI Adapter"
- 	depends on PCI
-+	imply SMC
- 	default n
- 	help
- 	  Select this option if you want to use the Internal Shared Memory
--	  vPCI Adapter.
-+	  vPCI Adapter. The adapter can be used with the SMC network protocol.
- 
- 	  To compile as a module choose M. The module name is ism.
- 	  If unsure, choose N.
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index 6df7f377d2f9..ec112a00b135 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -289,22 +289,6 @@ static int ism_read_local_gid(struct ism_dev *ism)
- 	return ret;
- }
- 
--static int ism_query_rgid(struct ism_dev *ism, u64 rgid, u32 vid_valid,
--			  u32 vid)
--{
--	union ism_query_rgid cmd;
--
--	memset(&cmd, 0, sizeof(cmd));
--	cmd.request.hdr.cmd = ISM_QUERY_RGID;
--	cmd.request.hdr.len = sizeof(cmd.request);
--
--	cmd.request.rgid = rgid;
--	cmd.request.vlan_valid = vid_valid;
--	cmd.request.vlan_id = vid;
--
--	return ism_cmd(ism, &cmd);
--}
--
- static void ism_free_dmb(struct ism_dev *ism, struct ism_dmb *dmb)
- {
- 	clear_bit(dmb->sba_idx, ism->sba_bitmap);
-@@ -429,23 +413,6 @@ static int ism_del_vlan_id(struct ism_dev *ism, u64 vlan_id)
- 	return ism_cmd(ism, &cmd);
- }
- 
--static int ism_signal_ieq(struct ism_dev *ism, u64 rgid, u32 trigger_irq,
--			  u32 event_code, u64 info)
--{
--	union ism_sig_ieq cmd;
--
--	memset(&cmd, 0, sizeof(cmd));
--	cmd.request.hdr.cmd = ISM_SIGNAL_IEQ;
--	cmd.request.hdr.len = sizeof(cmd.request);
--
--	cmd.request.rgid = rgid;
--	cmd.request.trigger_irq = trigger_irq;
--	cmd.request.event_code = event_code;
--	cmd.request.info = info;
--
--	return ism_cmd(ism, &cmd);
--}
--
- static unsigned int max_bytes(unsigned int start, unsigned int len,
- 			      unsigned int boundary)
- {
-@@ -503,14 +470,6 @@ u8 *ism_get_seid(void)
- }
- EXPORT_SYMBOL_GPL(ism_get_seid);
- 
--static u16 ism_get_chid(struct ism_dev *ism)
--{
--	if (!ism || !ism->pdev)
--		return 0;
--
--	return to_zpci(ism->pdev)->pchid;
--}
--
- static void ism_handle_event(struct ism_dev *ism)
- {
- 	struct ism_event *entry;
-@@ -569,11 +528,6 @@ static irqreturn_t ism_handle_irq(int irq, void *data)
- 	return IRQ_HANDLED;
- }
- 
--static u64 ism_get_local_gid(struct ism_dev *ism)
--{
--	return ism->local_gid;
--}
--
- static int ism_dev_init(struct ism_dev *ism)
- {
- 	struct pci_dev *pdev = ism->pdev;
-@@ -774,6 +728,22 @@ module_exit(ism_exit);
- /*************************** SMC-D Implementation *****************************/
- 
- #if IS_ENABLED(CONFIG_SMC)
-+static int ism_query_rgid(struct ism_dev *ism, u64 rgid, u32 vid_valid,
-+			  u32 vid)
-+{
-+	union ism_query_rgid cmd;
-+
-+	memset(&cmd, 0, sizeof(cmd));
-+	cmd.request.hdr.cmd = ISM_QUERY_RGID;
-+	cmd.request.hdr.len = sizeof(cmd.request);
-+
-+	cmd.request.rgid = rgid;
-+	cmd.request.vlan_valid = vid_valid;
-+	cmd.request.vlan_id = vid;
-+
-+	return ism_cmd(ism, &cmd);
-+}
-+
- static int smcd_query_rgid(struct smcd_dev *smcd, u64 rgid, u32 vid_valid,
- 			   u32 vid)
- {
-@@ -811,6 +781,23 @@ static int smcd_reset_vlan_required(struct smcd_dev *smcd)
- 	return ism_cmd_simple(smcd->priv, ISM_RESET_VLAN);
- }
- 
-+static int ism_signal_ieq(struct ism_dev *ism, u64 rgid, u32 trigger_irq,
-+			  u32 event_code, u64 info)
-+{
-+	union ism_sig_ieq cmd;
-+
-+	memset(&cmd, 0, sizeof(cmd));
-+	cmd.request.hdr.cmd = ISM_SIGNAL_IEQ;
-+	cmd.request.hdr.len = sizeof(cmd.request);
-+
-+	cmd.request.rgid = rgid;
-+	cmd.request.trigger_irq = trigger_irq;
-+	cmd.request.event_code = event_code;
-+	cmd.request.info = info;
-+
-+	return ism_cmd(ism, &cmd);
-+}
-+
- static int smcd_signal_ieq(struct smcd_dev *smcd, u64 rgid, u32 trigger_irq,
- 			   u32 event_code, u64 info)
- {
-@@ -830,11 +817,24 @@ static int smcd_supports_v2(void)
- 		SYSTEM_EID.type[0] != '0';
- }
- 
-+static u64 ism_get_local_gid(struct ism_dev *ism)
-+{
-+	return ism->local_gid;
-+}
-+
- static u64 smcd_get_local_gid(struct smcd_dev *smcd)
- {
- 	return ism_get_local_gid(smcd->priv);
- }
- 
-+static u16 ism_get_chid(struct ism_dev *ism)
-+{
-+	if (!ism || !ism->pdev)
-+		return 0;
-+
-+	return to_zpci(ism->pdev)->pchid;
-+}
-+
- static u16 smcd_get_chid(struct smcd_dev *smcd)
- {
- 	return ism_get_chid(smcd->priv);
--- 
-2.39.2
+     2 ( LLC_Confirm_Link) + 1 (CLC_DECLINE) = 3
+     2 (LLC_Confirm_Link)  + 1 * 2 (CLC_DECLINE) = 4
+     2 * 2(LLC_Confirm_Link) + 1 (CLC_DECLINE) = 5
+
+Obviously, double the LLC_Confirm_Link will result in more time gaps.
+
+2. increase LLC timeout to allow as many RDMA link as possible to 
+succeed, rather than fallback.
+
+D. Wythe
+
+>>> If Jerry's proposed protocol updates are too complex or if there 
+>>> won't be any future protocol updates,
+>>> it's still not late to let server manager their Confirm Link timeout 
+>>> then.
+>>>
+>>> Best wishes,
+>>> D. Wythe
+>>>
+>>
+>> FYI:
+>>
+>> It seems that my email was not successfully delivered due to some 
+>> reasons. Sorry
+>> for that.
+>>
+>> D. Wythe
+>>
+>>
+>
+>>>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>>>> index 35ddebae8894..9b1feef1013d 100644
+>>>> --- a/net/smc/af_smc.c
+>>>> +++ b/net/smc/af_smc.c
+>>>> @@ -605,7 +605,7 @@ static int smcr_clnt_conf_first_link(struct 
+>>>> smc_sock *smc)
+>>>>                 struct smc_clc_msg_decline dclc;
+>>>>
+>>>>                 rc = smc_clc_wait_msg(smc, &dclc, sizeof(dclc),
+>>>> -                                     SMC_CLC_DECLINE, 
+>>>> CLC_WAIT_TIME_SHORT);
+>>>> +                                     SMC_CLC_DECLINE, 2 * 
+>>>> CLC_WAIT_TIME_SHORT);
+>>>>                 return rc == -EAGAIN ? SMC_CLC_DECL_TIMEOUT_CL : rc;
+>>>>         }
+>>>>         smc_llc_save_peer_uid(qentry);
+>>>>
+>>>> Because the purpose is to let the server have the control to deline.
+>>>
+>>
 
