@@ -2,65 +2,66 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CEE8C4167B
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Nov 2023 18:22:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5939EC4167B
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Nov 2023 18:27:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233815AbjKNSWq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Nov 2023 13:22:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35522 "EHLO
+        id S233818AbjKNS1r (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Nov 2023 13:27:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229770AbjKNSWp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Nov 2023 13:22:45 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72AB8122
-        for <linux-s390@vger.kernel.org>; Tue, 14 Nov 2023 10:22:40 -0800 (PST)
+        with ESMTP id S229507AbjKNS1p (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Nov 2023 13:27:45 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFA50B8
+        for <linux-s390@vger.kernel.org>; Tue, 14 Nov 2023 10:27:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1699986159;
+        s=mimecast20190719; t=1699986461;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=JrgxpS9b6RH/dIRyuh67+QVxOU1qulfPt53kMoouXlk=;
-        b=AebfHWkKDGy2kBK+I/IVZFUTl3HkcRfWd2Z5ZdhZOPh1byJ8nD6EiZBSzmrIGe2pIhboJ5
-        rqqENOJhSWiPF4xkbZxhbvhbJ/Of5b/3hbi9Ly7O1zvBOEv/czmXXsk4vPtfwnd5XUhxv+
-        Xls/uwQAuyt951bNDtnIXn/qbp+x4+U=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=U5juBUKVUX+WdnY78HsqgVZ5QyAPcX7+J7Buvj7Sdls=;
+        b=ABmjuk9jltrmruzkI6axknDIujHlxPs7GYGwX16qHWAiwOy0sHYUQ61Q0wnpmZShEbcFvr
+        JvFigHvDlcxX51Mm1I/6E+wX3sGy+8MmN35VM2u+JP00msG+KOLfHjp8IlmUhe5yAVqCNw
+        hdbaNKl+G3A213wb1o4IM6yIAYO5oIg=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-206-xY4NWYj_NJKIZV8U0SF4Rw-1; Tue, 14 Nov 2023 13:22:36 -0500
-X-MC-Unique: xY4NWYj_NJKIZV8U0SF4Rw-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4094158c899so37619535e9.3
-        for <linux-s390@vger.kernel.org>; Tue, 14 Nov 2023 10:22:36 -0800 (PST)
+ us-mta-197-A-lDCqeGOEadq2Ux-fzyUQ-1; Tue, 14 Nov 2023 13:27:38 -0500
+X-MC-Unique: A-lDCqeGOEadq2Ux-fzyUQ-1
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-32de9f93148so3040422f8f.2
+        for <linux-s390@vger.kernel.org>; Tue, 14 Nov 2023 10:27:38 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699986155; x=1700590955;
+        d=1e100.net; s=20230601; t=1699986457; x=1700591257;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
          :references:cc:to:content-language:subject:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=JrgxpS9b6RH/dIRyuh67+QVxOU1qulfPt53kMoouXlk=;
-        b=CRQ+dFDyoSi14Gx0pcfmcGsAwDgZYFAoQ9wrlNGAqgB3f/oF0ykSzvtf0eyq5lu8yY
-         Jo082sOYz1KQ6SqJ5jQ0xHlXURt2337xsizKkpyzvO6q9RwpRmP/xx5cT/94S2QBu1v9
-         Fs7r2D2J+GC8jp/tCq+iKO0dGyaSosZizAu0pqL8hUciTJMbTlSW6AGWNcTFCY5/ojQM
-         nOEDiDWOiOXQtzMtsjoOedn5ZTnPV/rlumWLplbujtRwBkdM0MxOWvuowSRdheu1hWg6
-         43Pnv+Z42aum41LCZ2X3AqfdPCZjp23e7O+/imPPQKnqf0bHrP7sifyaYX6lKS8SC2Ba
-         8aTQ==
-X-Gm-Message-State: AOJu0Yyze5UTy39Dx1KGluCSAkOj0eJ6sWAJc6BKi5+y6rsE/vGUc2Vk
-        r7kriDoThMdjlc9nYep/CYump25AFKOJMcnPEJBgVNH7hHoxGiY2ptNSpIbA/1utNPrh7wp+sEl
-        mLhS8txCqTQ6YnaCun6lgaw==
-X-Received: by 2002:a05:600c:4715:b0:40a:42dd:c82c with SMTP id v21-20020a05600c471500b0040a42ddc82cmr8263494wmo.27.1699986155154;
-        Tue, 14 Nov 2023 10:22:35 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFn/GeMx7sBAgFV3p8wQXfRgUF2SWBFj/UeA4oLtE0jb5nkAdUsv27yq7SwbP4ZK++6gN0n4w==
-X-Received: by 2002:a05:600c:4715:b0:40a:42dd:c82c with SMTP id v21-20020a05600c471500b0040a42ddc82cmr8263482wmo.27.1699986154681;
-        Tue, 14 Nov 2023 10:22:34 -0800 (PST)
+        bh=U5juBUKVUX+WdnY78HsqgVZ5QyAPcX7+J7Buvj7Sdls=;
+        b=PVG1aLbd7dR4G0bzXQBdbHMrC5UvgOYFqRCnkdVN3fG0u6i1+Cu5e9tVWTCNftI3Pm
+         7uxujuYrdkb2yLWlomVBaiWMI4zwcMqMg+0wQ1IsOe3ACx07dwiXB7DdsFl4eWy4QrAI
+         xdaeWDje1rjoTeuZSVZp3FZd7ZYBRPu/B969Wcr42eS2IY+FYAr35nKq0uU1kfhIkmyH
+         l5C8ZJZ7aElPS4JyYuBQOC44ADTdiBwyasqaLgvpi56vOu9gE7Lnu9rA3EyeHO3X6fCS
+         pkcLGo241QEm/OgMk9jDkHwwvjABCdegVTtaTvaQiYmPnzLO33px+VpUulH8JdB5y/aX
+         NQmA==
+X-Gm-Message-State: AOJu0YxFAa/LFgbv2qBSWDKrjOg/c7MRrIVOYefLINIxLD1eM6o8pKsK
+        j9J+D3tKTBBYY8O8w+JaXsMJmT5aci/1U3KQBL01AvC6nbA4xVoxL2H0cWExjGipb56b6ni6JWR
+        TWnczYeRApWLDoFSVeBHjOw==
+X-Received: by 2002:adf:c6c9:0:b0:331:41c2:4f98 with SMTP id c9-20020adfc6c9000000b0033141c24f98mr7464102wrh.53.1699986457574;
+        Tue, 14 Nov 2023 10:27:37 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEFY61LsbNAuT6y46BF3pRKKrrw53mZ4Dy/kFrmcrVFB/EQ8pBeaCzTA9fgAaEoXr66foicSw==
+X-Received: by 2002:adf:c6c9:0:b0:331:41c2:4f98 with SMTP id c9-20020adfc6c9000000b0033141c24f98mr7464087wrh.53.1699986457127;
+        Tue, 14 Nov 2023 10:27:37 -0800 (PST)
 Received: from ?IPV6:2003:cb:c73e:8900:2d8:c9f0:f3fb:d4fd? (p200300cbc73e890002d8c9f0f3fbd4fd.dip0.t-ipconnect.de. [2003:cb:c73e:8900:2d8:c9f0:f3fb:d4fd])
-        by smtp.gmail.com with ESMTPSA id n40-20020a05600c3ba800b004094c5d929asm12490539wms.10.2023.11.14.10.22.33
+        by smtp.gmail.com with ESMTPSA id i5-20020a5d4385000000b0032de6f95fb3sm8446944wrq.40.2023.11.14.10.27.36
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 Nov 2023 10:22:34 -0800 (PST)
-Message-ID: <cbf8863a-d987-472f-8df3-bc621599f1ee@redhat.com>
-Date:   Tue, 14 Nov 2023 19:22:33 +0100
+        Tue, 14 Nov 2023 10:27:36 -0800 (PST)
+Message-ID: <7c85bd39-8b34-4b09-b503-b0a2f2e58b88@redhat.com>
+Date:   Tue, 14 Nov 2023 19:27:35 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/8] mm/memory_hotplug: fix memory hotplug locking order
+Subject: Re: [PATCH 4/8] mm/memory_hotplug: introduce MEM_PHYS_ONLINE/OFFLINE
+ memory notifiers
 Content-Language: en-US
 To:     Sumanth Korikkar <sumanthk@linux.ibm.com>,
         linux-mm <linux-mm@kvack.org>,
@@ -75,7 +76,7 @@ Cc:     Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>,
         linux-s390 <linux-s390@vger.kernel.org>,
         LKML <linux-kernel@vger.kernel.org>
 References: <20231114180238.1522782-1-sumanthk@linux.ibm.com>
- <20231114180238.1522782-2-sumanthk@linux.ibm.com>
+ <20231114180238.1522782-5-sumanthk@linux.ibm.com>
 From:   David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -122,7 +123,7 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20231114180238.1522782-2-sumanthk@linux.ibm.com>
+In-Reply-To: <20231114180238.1522782-5-sumanthk@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -130,44 +131,55 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 14.11.23 19:02, Sumanth Korikkar wrote:
-
-The patch subject talks about "fixing locking order", but it's actually 
-missing locking, no?
-
->  From Documentation/core-api/memory-hotplug.rst:
-> When adding/removing/onlining/offlining memory or adding/removing
-> heterogeneous/device memory, we should always hold the mem_hotplug_lock
-> in write mode to serialise memory hotplug (e.g. access to global/zone
-> variables).
+> Add new memory notifiers to mimic the dynamic ACPI event triggered logic
+> for memory hotplug on platforms that do not generate such events. This
+> will be used to implement "memmap on memory" feature for s390 in a later
+> patch.
 > 
-> mhp_(de)init_memmap_on_memory() functions can change zone stats and
-> struct page content, but they are currently called w/o the
-> mem_hotplug_lock.
+> Platforms such as x86 can support physical memory hotplug via ACPI. When
+> there is physical memory hotplug, ACPI event leads to the memory
+> addition with the following callchain:
+> acpi_memory_device_add()
+>    -> acpi_memory_enable_device()
+>       -> __add_memory()
 > 
-> When memory block is being offlined and when kmemleak goes through each
-> populated zone, the following theoretical race conditions could occur:
-> CPU 0:					     | CPU 1:
-> memory_offline()			     |
-> -> offline_pages()			     |
-> 	-> mem_hotplug_begin()		     |
-> 	   ...				     |
-> 	-> mem_hotplug_done()		     |
-> 					     | kmemleak_scan()
-> 					     | -> get_online_mems()
-> 					     |    ...
-> -> mhp_deinit_memmap_on_memory()	     |
->    [not protected by mem_hotplug_begin/done()]|
->    Marks memory section as offline,	     |   Retrieves zone_start_pfn
->    poisons vmemmap struct pages and updates   |   and struct page members.
->    the zone related data			     |
->     					     |    ...
->     					     | -> put_online_mems()
+> After this, the hotplugged memory is physically accessible, and altmap
+> support prepared, before the "memmap on memory" initialization in
+> memory_block_online() is called.
 > 
-> Fix this by ensuring mem_hotplug_lock is taken before performing
-> mhp_init_memmap_on_memory(). Also ensure that
-> mhp_deinit_memmap_on_memory() holds the lock.
+> On s390, memory hotplug works in a different way. The available hotplug
+> memory has to be defined upfront in the hypervisor, but it is made
+> physically accessible only when the user sets it online via sysfs,
+> currently in the MEM_GOING_ONLINE notifier. This requires calling
+> add_memory() during early memory detection, in order to get the sysfs
+> representation, but we cannot use "memmap on memory" altmap support at
+> this stage, w/o having it physically accessible.
+> 
+> Since no ACPI or similar events are generated, there is no way to set up
+> altmap support, or even make the memory physically accessible at all,
+> before the "memmap on memory" initialization in memory_block_online().
+> 
+> The new MEM_PHYS_ONLINE notifier allows to work around this, by
+> providing a hook to make the memory physically accessible, and also call
+> __add_pages() with altmap support, early in memory_block_online().
+> Similarly, the MEM_PHYS_OFFLINE notifier allows to make the memory
+> inaccessible and call __remove_pages(), at the end of
+> memory_block_offline().
+> 
+> Calling __add/remove_pages() requires mem_hotplug_lock, so move
+> mem_hotplug_begin/done() to include the new notifiers.
+> 
+> All architectures ignore unknown memory notifiers, so this patch should
+> not introduce any functional changes.
 
-What speaks against grabbing that lock in these functions?
+Sorry to say, no. No hacks please, and this is a hack for memory that 
+has already been added to the system.
+
+If you want memory without an altmap to suddenly not have an altmap 
+anymore, then look into removing and readding that memory, or some way 
+to convert offline memory.
+
+But certainly not on the online/offline path triggered by sysfs.
 
 -- 
 Cheers,
