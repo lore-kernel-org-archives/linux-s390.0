@@ -2,62 +2,113 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCB62C4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Nov 2023 09:11:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 340B8C4167D
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Nov 2023 09:17:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231680AbjKNJLU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Nov 2023 04:11:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48052 "EHLO
+        id S232456AbjKNJRO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Nov 2023 04:17:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232428AbjKNJLS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Nov 2023 04:11:18 -0500
-X-Greylist: delayed 315 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 14 Nov 2023 01:11:13 PST
-Received: from mail.legacybusinessforge.com (mail.legacybusinessforge.com [89.46.196.158])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69329D4D
-        for <linux-s390@vger.kernel.org>; Tue, 14 Nov 2023 01:11:13 -0800 (PST)
-Received: by mail.legacybusinessforge.com (Postfix, from userid 1002)
-        id 129FC82678; Tue, 14 Nov 2023 10:05:54 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-        d=legacybusinessforge.com; s=mail; t=1699952756;
-        bh=LDRuUt9SaRp6b9k4nTsXI26AI/rgPxeHxn63vCi2lvs=;
-        h=Date:From:To:Subject:From;
-        b=aCEr6EI/C6J8tYJQDi6fPrUH/wXz36saMRuHJtJ7hG1ueHITjn3bDNkfy2jg0Elgj
-         ntelkfOZrhLyot3uh2G7JmTUwmnTIiUE5t6l9maIQOtSASOYRVDmu4k/GAo4iZvp5Q
-         5TWheUHkzVvIhPXjEuMXwMCvfE278EdZsfpyh15/UAPIwgxkgZZ9wIY4uICZ8DQn77
-         QSkkEz/HI+6RrnzG8NNkYeWqgHHinmafzX69SV/cFsUJ2w/CYba1PO7UVdeYThkhgf
-         Ub38GyK8TIkIv/0ZllbKgbniZI25afuse+I7uDsEPaTmawXxkpVAu9S6RrJrXB8tBb
-         ofu/kqqSkgPYQ==
-Received: by mail.legacybusinessforge.com for <linux-s390@vger.kernel.org>; Tue, 14 Nov 2023 09:05:54 GMT
-Message-ID: <20231114084500-0.1.1t.3wma.0.kdj62eo1p2@legacybusinessforge.com>
-Date:   Tue, 14 Nov 2023 09:05:54 GMT
-From:   "Krzysztof Groszek" <krzysztof.groszek@legacybusinessforge.com>
-To:     <linux-s390@vger.kernel.org>
-Subject: Fotowoltaika - propozycja instalacji
-X-Mailer: mail.legacybusinessforge.com
+        with ESMTP id S232490AbjKNJRN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Nov 2023 04:17:13 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C83B132
+        for <linux-s390@vger.kernel.org>; Tue, 14 Nov 2023 01:17:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1699953429;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=MtEPkJopop+ROXauEEPPt+ntR5SxkjHn3hndM/5Vkgk=;
+        b=arOlliGGJ2jeu2PQsS0u2wNJnufp6kqnQuuvAiLYQVTmXOovfeQPQq1Bv3CwgmCKOTWGRg
+        p5GKNEQU7QQKevNEDo+zYD6HINQpUjgVY2la1ezGqyjcyNkfhA+kyJtibcHU0LTlMDeGuB
+        syRnM8OkmeVGqUU5WZjWMMMqdqCGS4E=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-536-HXGGcwenPp2Kdq6IOqHFRA-1; Tue, 14 Nov 2023 04:17:06 -0500
+X-MC-Unique: HXGGcwenPp2Kdq6IOqHFRA-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A04CF821C21;
+        Tue, 14 Nov 2023 09:17:05 +0000 (UTC)
+Received: from MiWiFi-R3L-srv.redhat.com (unknown [10.72.112.231])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 615C72166B26;
+        Tue, 14 Nov 2023 09:17:01 +0000 (UTC)
+From:   Baoquan He <bhe@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     kexec@lists.infradead.org, x86@kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        akpm@linux-foundation.org, ebiederm@xmission.com,
+        takahiro.akashi@linaro.org, Baoquan He <bhe@redhat.com>
+Subject: [PATCH 0/2] kexec_file: Load kernel at top of system RAM if required
+Date:   Tue, 14 Nov 2023 17:16:56 +0800
+Message-ID: <20231114091658.228030-1-bhe@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.6
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Dzie=C5=84 dobry,
-=20
-Czy rozwa=C5=BCali Pa=C5=84stwo monta=C5=BC systemu fotowoltaicznego?
-=20
-Instalacja fotowoltaiczna jest najlepszym sposobem na obni=C5=BCenie wyso=
-ko=C5=9Bci rachunk=C3=B3w za pr=C4=85d (pozostaj=C4=85 tylko op=C5=82aty =
-sta=C5=82e) i zabezpieczenie si=C4=99 przed rosn=C4=85cymi cenami energii=
- elektrycznej. Jest to w pe=C5=82ni odnawialne i bezemisyjne =C5=BAr=C3=B3=
-d=C5=82o energii, dzi=C4=99ki czemu przyczyniamy si=C4=99 do ochrony =C5=9B=
-rodowiska naturalnego.
-=20
-Dzia=C5=82amy od wielu lat na rynku energetycznym. Przygotujemy projekt, =
-wycen=C4=99 oraz kompleksowo wykonamy i zg=C5=82osimy realizacj=C4=99 do =
-zak=C5=82adu energetycznego.=20
-=20
-Czy chc=C4=85 Pa=C5=84stwo pozna=C4=87 nasz=C4=85 propozycj=C4=99? =20
+Justification:
+==============
+Kexec_load interface has been doing top down searching and loading
+kernel/initrd/purgtory etc to prepare for kexec reboot. In that way,
+the benefits are that it avoids to consume and fragment limited low
+memory which satisfy DMA buffer allocation and big chunk of continuous
+memory during system init; and avoids to stir with BIOS/FW reserved
+or occupied areas, or corner case handling/work around/quirk occupied
+areas when doing system init. By the way, the top-down searching and
+loading of kexec-ed kernel is done in user space utility code.
 
+For kexec_file loading, even if kexec_buf.top_down is 'true', it's simply
+ignored. It calls walk_system_ram_res() directly to go through all
+resources of System RAM bottom up, to find an available memory region,
+then call locate_mem_hole_callback() to allocate memory in that found
+memory region from top to down. This is not expected and inconsistent
+with kexec_load.
 
-Pozdrawiam
-Krzysztof Groszek
+Implementation
+===============
+In patch 1, introduce a new function walk_system_ram_res_rev() which is
+a variant of walk_system_ram_res(), it walks through a list of all the
+resources of System RAM in reversed order, i.e., from higher to lower.
+
+In patch 2, check if kexec_buf.top_down is 'true' in kexec_walk_resources(),
+if yes, call walk_system_ram_res_rev() to find memory region of system RAM
+from top to down to load kernel/initrd etc.
+
+Background information:
+=======================
+And I ever tried this in the past in a different way, please see below
+link. In the post, I tried to adjust struct sibling linking code,
+replace the the singly linked list with list_head so that
+walk_system_ram_res_rev() can be implemented in a much easier way.
+Finally I failed.
+https://lore.kernel.org/all/20180718024944.577-4-bhe@redhat.com/
+
+This time, I picked up the patch from AKASHI Takahiro's old post and
+made some change to take as the current patch 1:
+https://lists.infradead.org/pipermail/linux-arm-kernel/2017-September/531456.html
+
+Testing:
+========
+Only tried on x86_64
+
+Baoquan He (2):
+  resource: add walk_system_ram_res_rev()
+  kexec_file: Load kernel at top of system RAM if required
+
+ include/linux/ioport.h |  3 +++
+ kernel/kexec_file.c    |  2 ++
+ kernel/resource.c      | 61 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 66 insertions(+)
+
+-- 
+2.41.0
+
