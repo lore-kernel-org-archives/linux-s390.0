@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DFA4C5AD4C
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 20:34:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3434C2BB3F
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 20:34:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344501AbjKOUex (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Nov 2023 15:34:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56978 "EHLO
+        id S1344470AbjKOUez (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Nov 2023 15:34:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235706AbjKOUeu (ORCPT
+        with ESMTP id S235714AbjKOUeu (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Nov 2023 15:34:50 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37A69D42;
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5734CD46;
         Wed, 15 Nov 2023 12:34:43 -0800 (PST)
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKCEbw020024;
-        Wed, 15 Nov 2023 20:34:20 GMT
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKFcUi004338;
+        Wed, 15 Nov 2023 20:34:27 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=/jeu8ikBdkG3zT8cTTXDudBR3p8yyOmYypD5+KnSOCc=;
- b=XJj4gqRKmolO6HaPwamZIPxiW7a94DubZ3Lh4Zo3ERklwMevuk9M6ZdOd0MqGJlJ8zOY
- ILwoxdECXoBgf0MIp+j7SFeO8MAC+ZwSHAuC8bFhucruxiW1t2O8mGBZ7lCS8wvjmNTG
- ZnLMcpG3px8DPkwcMgVnK+gQwRM5b86Q5Z6ho2/jN/xnDebeNFcbE9uYAEvcsuTOjiqC
- TImOzxLm8zqUFIuMYwclvIOrbo25ssWXv0fAvlq9A/bgYXB3BPJVSzZ8TYP1Y38oF8eE
- j1eX7rAEskNY8O7ms8SXmF+6uko9S+a34cqDzepPYk5VYN0DzCU9gUFcA3c+cZhFP2fF YQ== 
+ bh=mBEHNMnK5aXgU11e7B7vZsvrm9vZAb+q2WVIriQE/Yo=;
+ b=JKsnlmqYZGSFrgMSa8GXAbmayKJaXHgH55VLFtapzCOHfq0h+7IRk/iDmFHU//7RGif+
+ g+6XQmmnoxo+roDOupkc/AS6g12wyMWoqzylR8N5CfuZiVRJc++TWKz4O9eoAaFYUdKo
+ e2SIkZN3I0IDOMcOwWPmSAurs/6bfolEy+2fA9FQGCM/9s0cCYoT+65tohInlaRWb6TB
+ kB/EhGm2BDEzfNXGbM1bR6g8OtRAvBz17bCOUJLqO1D6ohxJ7Qb2lOprdH8W6keVQKCB
+ yJYomRUggb3qnHjW9+lNbhkxE6d0GUBSkkooSMIi6/l2rhXRCsPG23vgBKm89fw5n+45 sw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4thgjvk-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4v30cj4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 20:34:20 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AFKCaZt021252;
-        Wed, 15 Nov 2023 20:34:19 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4thgjv4-1
+        Wed, 15 Nov 2023 20:34:27 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AFKQKK8001965;
+        Wed, 15 Nov 2023 20:34:26 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4v30chr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 20:34:19 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKIxFi024837;
-        Wed, 15 Nov 2023 20:34:18 GMT
+        Wed, 15 Nov 2023 20:34:26 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKIuc7014591;
+        Wed, 15 Nov 2023 20:34:25 GMT
 Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uapn1sj4m-1
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uaneksvs6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 20:34:18 +0000
+        Wed, 15 Nov 2023 20:34:25 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AFKYFGK28639744
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AFKYMHI28639758
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 15 Nov 2023 20:34:15 GMT
+        Wed, 15 Nov 2023 20:34:22 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3A8DD20040;
-        Wed, 15 Nov 2023 20:34:15 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 496D420043;
+        Wed, 15 Nov 2023 20:34:22 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E4C8120043;
-        Wed, 15 Nov 2023 20:34:13 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id E63E420040;
+        Wed, 15 Nov 2023 20:34:20 +0000 (GMT)
 Received: from heavy.boeblingen.de.ibm.com (unknown [9.179.9.51])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 15 Nov 2023 20:34:13 +0000 (GMT)
+        Wed, 15 Nov 2023 20:34:20 +0000 (GMT)
 From:   Ilya Leoshkevich <iii@linux.ibm.com>
 To:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -79,56 +79,54 @@ Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         Mark Rutland <mark.rutland@arm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH 04/32] kmsan: Increase the maximum store size to 4096
-Date:   Wed, 15 Nov 2023 21:30:36 +0100
-Message-ID: <20231115203401.2495875-5-iii@linux.ibm.com>
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 08/32] kmsan: Remove an x86-specific #include from kmsan.h
+Date:   Wed, 15 Nov 2023 21:30:40 +0100
+Message-ID: <20231115203401.2495875-9-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20231115203401.2495875-1-iii@linux.ibm.com>
 References: <20231115203401.2495875-1-iii@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: iSRl1qDbw0UxpkQf1oYEu1Z8v5dlxZV_
-X-Proofpoint-ORIG-GUID: 2IYbA0_0cM-XcK8HWULf9sl6eCYS08q2
+X-Proofpoint-GUID: 8cX32G095gCIm8Y6i1Z-p6hF-gO7JK8X
+X-Proofpoint-ORIG-GUID: 6fvVE8Mcwxt4i9yfIY7fICgUPY6nXNrE
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-15_20,2023-11-15_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- impostorscore=0 lowpriorityscore=0 phishscore=0 suspectscore=0
- adultscore=0 priorityscore=1501 mlxscore=0 mlxlogscore=693 clxscore=1015
- spamscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 priorityscore=1501 bulkscore=0 phishscore=0 clxscore=1015
+ malwarescore=0 mlxscore=0 adultscore=0 impostorscore=0 mlxlogscore=999
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311060000 definitions=main-2311150163
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The inline assembly block in s390's chsc() stores that much.
+Replace the x86-specific asm/pgtable_64_types.h #include with the
+linux/pgtable.h one, which all architectures have.
 
+Fixes: f80be4571b19 ("kmsan: add KMSAN runtime core")
+Suggested-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- mm/kmsan/instrumentation.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ mm/kmsan/kmsan.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/kmsan/instrumentation.c b/mm/kmsan/instrumentation.c
-index cc3907a9c33a..470b0b4afcc4 100644
---- a/mm/kmsan/instrumentation.c
-+++ b/mm/kmsan/instrumentation.c
-@@ -110,11 +110,10 @@ void __msan_instrument_asm_store(void *addr, uintptr_t size)
+diff --git a/mm/kmsan/kmsan.h b/mm/kmsan/kmsan.h
+index a14744205435..3c0476d8b765 100644
+--- a/mm/kmsan/kmsan.h
++++ b/mm/kmsan/kmsan.h
+@@ -10,7 +10,7 @@
+ #ifndef __MM_KMSAN_KMSAN_H
+ #define __MM_KMSAN_KMSAN_H
  
- 	ua_flags = user_access_save();
- 	/*
--	 * Most of the accesses are below 32 bytes. The two exceptions so far
--	 * are clwb() (64 bytes) and FPU state (512 bytes).
--	 * It's unlikely that the assembly will touch more than 512 bytes.
-+	 * Most of the accesses are below 32 bytes. The exceptions so far are
-+	 * clwb() (64 bytes), FPU state (512 bytes) and chsc() (4096 bytes).
- 	 */
--	if (size > 512) {
-+	if (size > 4096) {
- 		WARN_ONCE(1, "assembly store size too big: %ld\n", size);
- 		size = 8;
- 	}
+-#include <asm/pgtable_64_types.h>
++#include <linux/pgtable.h>
+ #include <linux/irqflags.h>
+ #include <linux/sched.h>
+ #include <linux/stackdepot.h>
 -- 
 2.41.0
 
