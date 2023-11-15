@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CF5DC072A2
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 20:36:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93511C54FB9
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 20:36:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235728AbjKOUgC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Nov 2023 15:36:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50054 "EHLO
+        id S235736AbjKOUgE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Nov 2023 15:36:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235731AbjKOUf2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Nov 2023 15:35:28 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AC5B19B9;
-        Wed, 15 Nov 2023 12:34:58 -0800 (PST)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKGBf9020343;
-        Wed, 15 Nov 2023 20:34:42 GMT
+        with ESMTP id S235746AbjKOUf3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Nov 2023 15:35:29 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C2A51BC5;
+        Wed, 15 Nov 2023 12:35:00 -0800 (PST)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKXdxP001484;
+        Wed, 15 Nov 2023 20:34:46 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=FBHiR0R3HqDameObtBi5tDwt9B6xgR+xiaoV3r5rhIA=;
- b=Fsbw4u7figkGz1teJMQ8day7onkmLRVQHzQQoQohRyi12JtEc4E+THn9ncooeU1blL95
- BSNrmP6042dwc2gTk3PtIT3ZaPtRz5G3nE8fT130QRaywFogH6cOz+yX7seocVTQ3OEQ
- OLcP8i+gO/6updNe1Wh9Bcm6M3uTRMccbL90MJr6HJbHMQA1tEeaceaprV/0JDzkHyAO
- HHsf9P12TzXM81H/2ksj4UK5laexB6lxpNfnRFikO5/v5KPh3CFSqfC1zUm/LZtmEJDB
- IbsVe3RBRne0bOE+fKv3osgoJD4TfGRisBCHguVl9A33hlBA9duhPIg2UJ++MxrN/Ipw rA== 
+ bh=TskbhcdErPcFfha1b/s0fcuykpiIcbkPzbroc8ZK1SI=;
+ b=MKmcWWarJyHYTi8ujhRAoBImQJlnNvjIW5NXFdOCWwrgCjU4Y6aPXpp48XNsEBhToLDY
+ zddeK/mwzvHQNZdRZ4CEKekbT1YOZnQlG3TLMrEOxb+EiLFLb95VWHA//rSppiFGmndd
+ pIubiWBmWh8CjUH81vDNMpJ9oOtg5T3+WPtlkwC6RFso0Pn+CiHKkQdHwuec3of84LPe
+ QcSOx5x85W9ZwCk4qAfd3WKCCY0STTsEyQBf32Knuai5SIYe0ySKvmlzbepfvPocgYuE
+ SL2Ym5Ij2uDPB3oOy/ADK6OcbOmyAfOElVYsAQCnks2SIk6vbzBjws2rVTmuVUDLI3+Q gg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4ch9bv2-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4v2rb8k-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 20:34:42 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AFKGRQZ022066;
-        Wed, 15 Nov 2023 20:34:41 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4ch9bun-1
+        Wed, 15 Nov 2023 20:34:45 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AFKYj4B005400;
+        Wed, 15 Nov 2023 20:34:45 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4v2rb8e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 20:34:41 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKIvqo021610;
-        Wed, 15 Nov 2023 20:34:40 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uap5k9kay-1
+        Wed, 15 Nov 2023 20:34:45 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKIvQS014607;
+        Wed, 15 Nov 2023 20:34:44 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uaneksvut-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 20:34:40 +0000
+        Wed, 15 Nov 2023 20:34:44 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AFKYbWA23069318
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AFKYfsg31523398
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 15 Nov 2023 20:34:37 GMT
+        Wed, 15 Nov 2023 20:34:41 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9EA3A2004B;
-        Wed, 15 Nov 2023 20:34:37 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 12F612004B;
+        Wed, 15 Nov 2023 20:34:41 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5288420040;
-        Wed, 15 Nov 2023 20:34:36 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id B854A20040;
+        Wed, 15 Nov 2023 20:34:39 +0000 (GMT)
 Received: from heavy.boeblingen.de.ibm.com (unknown [9.179.9.51])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 15 Nov 2023 20:34:36 +0000 (GMT)
+        Wed, 15 Nov 2023 20:34:39 +0000 (GMT)
 From:   Ilya Leoshkevich <iii@linux.ibm.com>
 To:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -80,65 +80,56 @@ Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH 17/32] lib/string: Add KMSAN support to strlcpy() and strlcat()
-Date:   Wed, 15 Nov 2023 21:30:49 +0100
-Message-ID: <20231115203401.2495875-18-iii@linux.ibm.com>
+Subject: [PATCH 19/32] kmsan: Accept ranges starting with 0 on s390
+Date:   Wed, 15 Nov 2023 21:30:51 +0100
+Message-ID: <20231115203401.2495875-20-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20231115203401.2495875-1-iii@linux.ibm.com>
 References: <20231115203401.2495875-1-iii@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: WE4fc2MWwcSfv1ysVLGFiuvMJSpg76OK
-X-Proofpoint-ORIG-GUID: Mee9YG8eX7q6Hn736J-ftydiuuw4ftdn
+X-Proofpoint-ORIG-GUID: NqSGEOhYCvXYjJ2gmAhd8EZAV9lDeRqN
+X-Proofpoint-GUID: fI9InjhahjWpUFvyF7-N6n0DC7cim79b
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-15_20,2023-11-15_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
- mlxscore=0 bulkscore=0 mlxlogscore=999 lowpriorityscore=0 impostorscore=0
- priorityscore=1501 phishscore=0 spamscore=0 suspectscore=0 clxscore=1015
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311060000
- definitions=main-2311150163
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 mlxscore=0 clxscore=1015 adultscore=0 spamscore=0
+ lowpriorityscore=0 bulkscore=0 priorityscore=1501 phishscore=0
+ mlxlogscore=981 suspectscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2311060000 definitions=main-2311150163
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Currently KMSAN does not fully propagate metadata in strlcpy() and
-strlcat(), because they are built with -ffreestanding and call
-memcpy(). In this combination memcpy() calls are not instrumented.
+On s390 the virtual address 0 is valid (current CPU's lowcore is mapped
+there), therefore KMSAN should not complain about it.
 
-Fix by copying the metadata manually. Add the __STDC_HOSTED__ #ifdef in
-case the code is compiled with different flags in the future.
+Disable the respective check on s390. There doesn't seem to be a
+Kconfig option to describe this situation, so explicitly check for
+s390.
 
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- lib/string.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ mm/kmsan/init.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/lib/string.c b/lib/string.c
-index be26623953d2..e83c6dd77ec6 100644
---- a/lib/string.c
-+++ b/lib/string.c
-@@ -111,6 +111,9 @@ size_t strlcpy(char *dest, const char *src, size_t size)
- 	if (size) {
- 		size_t len = (ret >= size) ? size - 1 : ret;
- 		__builtin_memcpy(dest, src, len);
-+#if __STDC_HOSTED__ == 0
-+		kmsan_memmove_metadata(dest, src, len);
-+#endif
- 		dest[len] = '\0';
- 	}
- 	return ret;
-@@ -261,6 +264,9 @@ size_t strlcat(char *dest, const char *src, size_t count)
- 	if (len >= count)
- 		len = count-1;
- 	__builtin_memcpy(dest, src, len);
-+#if __STDC_HOSTED__ == 0
-+	kmsan_memmove_metadata(dest, src, len);
-+#endif
- 	dest[len] = 0;
- 	return res;
- }
+diff --git a/mm/kmsan/init.c b/mm/kmsan/init.c
+index ffedf4dbc49d..14f4a432fddd 100644
+--- a/mm/kmsan/init.c
++++ b/mm/kmsan/init.c
+@@ -33,7 +33,9 @@ static void __init kmsan_record_future_shadow_range(void *start, void *end)
+ 	bool merged = false;
+ 
+ 	KMSAN_WARN_ON(future_index == NUM_FUTURE_RANGES);
+-	KMSAN_WARN_ON((nstart >= nend) || !nstart || !nend);
++	KMSAN_WARN_ON((nstart >= nend) ||
++		      (!IS_ENABLED(CONFIG_S390) && !nstart) ||
++		      !nend);
+ 	nstart = ALIGN_DOWN(nstart, PAGE_SIZE);
+ 	nend = ALIGN(nend, PAGE_SIZE);
+ 
 -- 
 2.41.0
 
