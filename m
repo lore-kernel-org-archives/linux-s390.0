@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADFCEC2BB3F
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 20:38:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C957C2BB3F
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 20:39:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235826AbjKOUjA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Nov 2023 15:39:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56978 "EHLO
+        id S1344522AbjKOUjG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Nov 2023 15:39:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235785AbjKOUir (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Nov 2023 15:38:47 -0500
+        with ESMTP id S235802AbjKOUiv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Nov 2023 15:38:51 -0500
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6CF31FE0;
-        Wed, 15 Nov 2023 12:35:09 -0800 (PST)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKKJKW020415;
-        Wed, 15 Nov 2023 20:34:55 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A285F211D;
+        Wed, 15 Nov 2023 12:35:16 -0800 (PST)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKFbGw004184;
+        Wed, 15 Nov 2023 20:35:01 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=6cPRly3Y0R+ewW/cAplLp4HHPc78tqbgSvA9QXIrbXE=;
- b=tM5UQApw2refpHW+H0do8RKQirmGTqP9fYnuojZ7XQm7M0IncvcAmhUe5V8UKDO1sK2f
- RIK1MrFM+Clr05LXq9XzM1QHKxDTXYWm+uHGeeXHQB1l7TfvlekNBb0mLIumSHIwuNIn
- shTRbnnZcJ33cGr7q7R7KeK5D3biE+VhiUghbSo6S39us/9OAz6BbFbRVYDz7PbDKRVX
- GDSbMjo9fR2XAk+53u7cW5KEzJd46z/BtL1al9Fi316cf+bhCnKJ8Wuwo4UVEUtKsovG
- QB14V3Li+kq0SSwHv+1evsflEHs1bstYubDzStqdxNjasvzqz/y+CD9emucah00Z5oAE FQ== 
+ bh=vyPRs3NEGlrSEI4OyP/kyugJK7kmBP/avTMvzRTf3tE=;
+ b=fX7J+qpYXrsKl0WhCw3SJovIUB8N1Lwj01ujK3viO6O7XZNCFJw0WQ8XfQHzERI33W//
+ j+jUpWNZJKyl+I31c35IJ0yr5UFwG5RsUEAM+E/L8Owhv0s6xavhXhlKW6hxNoW1XDcC
+ u719TVJzYC/LZSNOKorAUUxjzEy/F3Q9uiUG07EDpSEmy8/z/Rf60uv/QY+12KeIhiWq
+ wUSo7MK44DbEJhCuF4GyVtUjkDCcR44drPNwM8tTeJGuokSn8vPowbZyY0QB6l7oOBBW
+ vEVlgEdIPd+FGz6rF78YLaeaA9GlV6cnddAfH70PAM8FhjzF8nJhfR8NX7ovbteHbX6v 2A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4xc8cg2-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4v30d0f-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 20:34:54 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AFKOWKf032664;
-        Wed, 15 Nov 2023 20:34:54 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4xc8cft-1
+        Wed, 15 Nov 2023 20:35:01 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AFKQNNg002471;
+        Wed, 15 Nov 2023 20:35:00 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4v30cyy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 20:34:54 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKJ47T014688;
-        Wed, 15 Nov 2023 20:34:53 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uaneksvwk-1
+        Wed, 15 Nov 2023 20:35:00 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKJ1Fm017525;
+        Wed, 15 Nov 2023 20:34:59 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uamayj7es-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 20:34:53 +0000
+        Wed, 15 Nov 2023 20:34:59 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AFKYo1122151934
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AFKYucL4391432
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 15 Nov 2023 20:34:50 GMT
+        Wed, 15 Nov 2023 20:34:56 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F1E242004B;
-        Wed, 15 Nov 2023 20:34:49 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id A6F6520043;
+        Wed, 15 Nov 2023 20:34:56 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A265920040;
-        Wed, 15 Nov 2023 20:34:48 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 59DB820040;
+        Wed, 15 Nov 2023 20:34:55 +0000 (GMT)
 Received: from heavy.boeblingen.de.ibm.com (unknown [9.179.9.51])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 15 Nov 2023 20:34:48 +0000 (GMT)
+        Wed, 15 Nov 2023 20:34:55 +0000 (GMT)
 From:   Ilya Leoshkevich <iii@linux.ibm.com>
 To:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -80,51 +80,57 @@ Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH 24/32] s390/cpacf: Unpoison the results of cpacf_trng()
-Date:   Wed, 15 Nov 2023 21:30:56 +0100
-Message-ID: <20231115203401.2495875-25-iii@linux.ibm.com>
+Subject: [PATCH 28/32] s390/traps: Unpoison the kernel_stack_overflow()'s pt_regs
+Date:   Wed, 15 Nov 2023 21:31:00 +0100
+Message-ID: <20231115203401.2495875-29-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20231115203401.2495875-1-iii@linux.ibm.com>
 References: <20231115203401.2495875-1-iii@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 2hiXuR6P650rcR9fEXOk8WJoi9cn7Ipv
-X-Proofpoint-GUID: bdGq9jciuCrxPjpJhy4v0KBztKvLqzo8
+X-Proofpoint-GUID: dnaNBt7krqikwNotd3HVlCqxFq8337Jy
+X-Proofpoint-ORIG-GUID: 6zt5GNmg5wfDE8GufZyKD9mMXoFyxLx-
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-15_20,2023-11-15_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 phishscore=0 mlxscore=0 lowpriorityscore=0 adultscore=0
- clxscore=1015 suspectscore=0 mlxlogscore=766 spamscore=0
- priorityscore=1501 bulkscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2311060000 definitions=main-2311150163
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 priorityscore=1501 bulkscore=0 phishscore=0 clxscore=1015
+ malwarescore=0 mlxscore=0 adultscore=0 impostorscore=0 mlxlogscore=999
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311150163
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Prevent KMSAN from complaining about buffers filled by cpacf_trng()
-being uninitialized.
+This is normally done by the generic entry code, but the
+kernel_stack_overflow() flow bypasses it.
 
-Tested-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- arch/s390/include/asm/cpacf.h | 2 ++
+ arch/s390/kernel/traps.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/arch/s390/include/asm/cpacf.h b/arch/s390/include/asm/cpacf.h
-index b378e2b57ad8..a72b92770c4b 100644
---- a/arch/s390/include/asm/cpacf.h
-+++ b/arch/s390/include/asm/cpacf.h
-@@ -473,6 +473,8 @@ static inline void cpacf_trng(u8 *ucbuf, unsigned long ucbuf_len,
- 		: [ucbuf] "+&d" (u.pair), [cbuf] "+&d" (c.pair)
- 		: [fc] "K" (CPACF_PRNO_TRNG), [opc] "i" (CPACF_PRNO)
- 		: "cc", "memory", "0");
-+	kmsan_unpoison_memory(ucbuf, ucbuf_len);
-+	kmsan_unpoison_memory(cbuf, cbuf_len);
- }
+diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
+index 1d2aa448d103..dd7362806dbb 100644
+--- a/arch/s390/kernel/traps.c
++++ b/arch/s390/kernel/traps.c
+@@ -27,6 +27,7 @@
+ #include <linux/uaccess.h>
+ #include <linux/cpu.h>
+ #include <linux/entry-common.h>
++#include <linux/kmsan.h>
+ #include <asm/asm-extable.h>
+ #include <asm/fpu/api.h>
+ #include <asm/vtime.h>
+@@ -260,6 +261,7 @@ static void monitor_event_exception(struct pt_regs *regs)
  
- /**
+ void kernel_stack_overflow(struct pt_regs *regs)
+ {
++	kmsan_unpoison_entry_regs(regs);
+ 	bust_spinlocks(1);
+ 	printk("Kernel stack overflow.\n");
+ 	show_regs(regs);
 -- 
 2.41.0
 
