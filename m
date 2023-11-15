@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEAB8C48BFA
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 14:20:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46B65C48BD7
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 14:23:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344182AbjKOOU7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Nov 2023 09:20:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50520 "EHLO
+        id S1344201AbjKOOXk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Nov 2023 09:23:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344201AbjKOOU6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Nov 2023 09:20:58 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3E68C5;
-        Wed, 15 Nov 2023 06:20:54 -0800 (PST)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFE6L3v024237;
-        Wed, 15 Nov 2023 14:20:44 GMT
+        with ESMTP id S1344191AbjKOOXk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Nov 2023 09:23:40 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AECE109;
+        Wed, 15 Nov 2023 06:23:37 -0800 (PST)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFEB1j9017888;
+        Wed, 15 Nov 2023 14:23:25 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=iIO02IFVTCuL2l+MYSOb9E92ecTVk5MbFe4XymLpvAo=;
- b=QODiOrAZ6D3Lyv74WQXnUq/J6NNNqLZMANwQmO6lp78c7clQ1trsdPrhAkpTzjB7cFpA
- L3q645CFMNtdW338yu1jnwr/H5YettSlzucHWyoJH52H2FWFAyIiU1cWARQVnpvn2Oub
- khP4X25JGEzCfYavdmSt0t+BIu5b/8oOH+JO6Q556mIb6x1caZ2ag1WCcTKgdigKfmgj
- deR2o3TMHGyuPpbQk0t/tuBb4p/QvxxWZCLPPeIAxBDrUukaSPl1irGcXVKQisnluEtp
- sMu3WmxqcUQRNaJiUrEUdIpFe13N13JpJub9B3Tue7PBeCi0i/hcCoPL38oZWWi03Bhz dg== 
+ in-reply-to; s=pp1; bh=eTDY6KXlXr2hiadyHyz3mXgboWDGVlfhNlPxNwFUfNE=;
+ b=mCGZ9e2hFOFICgQyZRXHemtGWxiWpWT/RpyjJZGvf/AGwjMxIehhhozZL1GZeBweAUrO
+ pTpijGXY7ZVgR9N26IczRZScsiXGUtz2C7/LJMM7zwa8sFfsNw6KXAc5ttu9iqZIxzyB
+ O86p/YG+BXfK7i1lsN/yqlOCmnnc4GmBF1idtD+ayQQW7PJV4TyyA9YXl/wKkJtWTzBa
+ J48o4hMRLauJQhHyEKsenLO3DE+p+/gtxBMO4Vd7AwFOYKbf545g23rIKYP/OCyPT0Ye
+ C9Oj+ZChUX++xJYyz7eruvQ4BwNZABS16IQaEm0o8Xto3xJYFi1J3YXKfWd1wOLrnoH7 4g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ucyf4ghhf-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ucyd6rnxn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 14:20:44 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AFE7C3w028788;
-        Wed, 15 Nov 2023 14:20:44 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ucyf4ghgx-1
+        Wed, 15 Nov 2023 14:23:25 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AFEFtD6028859;
+        Wed, 15 Nov 2023 14:23:25 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ucyd6rnx8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 14:20:43 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFDmw03020512;
-        Wed, 15 Nov 2023 14:20:43 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uamxnfmn7-1
+        Wed, 15 Nov 2023 14:23:24 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFDn7ks028120;
+        Wed, 15 Nov 2023 14:23:23 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uap5k78ex-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 14:20:43 +0000
+        Wed, 15 Nov 2023 14:23:23 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AFEKeQi17236508
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AFENKlB39846474
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 15 Nov 2023 14:20:40 GMT
+        Wed, 15 Nov 2023 14:23:20 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EACB22004B;
-        Wed, 15 Nov 2023 14:20:39 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id B15E22004D;
+        Wed, 15 Nov 2023 14:23:20 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2A43C20043;
-        Wed, 15 Nov 2023 14:20:37 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 1A22F20040;
+        Wed, 15 Nov 2023 14:23:20 +0000 (GMT)
 Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.171.69.220])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Wed, 15 Nov 2023 14:20:37 +0000 (GMT)
-Date:   Wed, 15 Nov 2023 15:20:35 +0100
+        Wed, 15 Nov 2023 14:23:20 +0000 (GMT)
+Date:   Wed, 15 Nov 2023 15:23:18 +0100
 From:   Sumanth Korikkar <sumanthk@linux.ibm.com>
 To:     David Hildenbrand <david@redhat.com>
 Cc:     linux-mm <linux-mm@kvack.org>,
@@ -71,104 +71,81 @@ Cc:     linux-mm <linux-mm@kvack.org>,
         Vasily Gorbik <gor@linux.ibm.com>,
         linux-s390 <linux-s390@vger.kernel.org>,
         LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 6/8] s390/mm: implement MEM_PHYS_ONLINE MEM_PHYS_OFFLINE
+Subject: Re: [PATCH 4/8] mm/memory_hotplug: introduce MEM_PHYS_ONLINE/OFFLINE
  memory notifiers
-Message-ID: <ZVTTs2H6DgNGFPkF@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+Message-ID: <ZVTUVuZzSJmQqEvk@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
 References: <20231114180238.1522782-1-sumanthk@linux.ibm.com>
- <20231114180238.1522782-7-sumanthk@linux.ibm.com>
- <458da84d-3838-4c5d-abda-1aebba676186@redhat.com>
+ <20231114180238.1522782-5-sumanthk@linux.ibm.com>
+ <7c85bd39-8b34-4b09-b503-b0a2f2e58b88@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <458da84d-3838-4c5d-abda-1aebba676186@redhat.com>
+In-Reply-To: <7c85bd39-8b34-4b09-b503-b0a2f2e58b88@redhat.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 9b7dDx8KFTNFeVw7B4-xj3v6fwtslpa4
-X-Proofpoint-GUID: OUd9BhB4V8HkjqGLN8EGhtJyl8CYuEGq
+X-Proofpoint-GUID: ST_UVJkxcN1fi4LUEAUh2L93plw6oxrs
+X-Proofpoint-ORIG-GUID: ZqaapDjjgDBpfEcGoHT3CKUTOP-x8wy9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-15_13,2023-11-15_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- suspectscore=0 mlxlogscore=609 spamscore=0 clxscore=1015 adultscore=0
- mlxscore=0 bulkscore=0 impostorscore=0 malwarescore=0 phishscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=1 phishscore=0 bulkscore=0
+ priorityscore=1501 lowpriorityscore=0 mlxscore=1 spamscore=1
+ mlxlogscore=229 clxscore=1015 suspectscore=0 impostorscore=0 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311060000 definitions=main-2311150111
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Nov 14, 2023 at 07:39:40PM +0100, David Hildenbrand wrote:
+On Tue, Nov 14, 2023 at 07:27:35PM +0100, David Hildenbrand wrote:
 > On 14.11.23 19:02, Sumanth Korikkar wrote:
-> > Implement MEM_PHYS_ONLINE and MEM_PHYS_OFFLINE memory notifiers on s390
+> > Add new memory notifiers to mimic the dynamic ACPI event triggered logic
+> > for memory hotplug on platforms that do not generate such events. This
+> > will be used to implement "memmap on memory" feature for s390 in a later
+> > patch.
 > > 
-...
-> >   arch/s390/mm/init.c          | 16 +++++++++++++++-
-> >   drivers/s390/char/sclp_cmd.c | 33 ++++++++++++++++++++++++++++++---
-> >   2 files changed, 45 insertions(+), 4 deletions(-)
+> > Platforms such as x86 can support physical memory hotplug via ACPI. When
+> > there is physical memory hotplug, ACPI event leads to the memory
+> > addition with the following callchain:
+> > acpi_memory_device_add()
+> >    -> acpi_memory_enable_device()
+> >       -> __add_memory()
 > > 
-> > diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-> > index 8d9a60ccb777..db505ed590b2 100644
-> > --- a/arch/s390/mm/init.c
-> > +++ b/arch/s390/mm/init.c
-> > @@ -288,6 +288,12 @@ int arch_add_memory(int nid, u64 start, u64 size,
-> >   	rc = vmem_add_mapping(start, size);
-> >   	if (rc)
-> >   		return rc;
-> > +	/*
-> > +	 * If MHP_MEMMAP_ON_MEMORY is enabled, perform __add_pages() during memory
-> > +	 * onlining phase
-> > +	 */
-> > +	if (params->altmap)
-> > +		return 0;
+> > After this, the hotplugged memory is physically accessible, and altmap
+> > support prepared, before the "memmap on memory" initialization in
+> > memory_block_online() is called.
+> > 
+> > On s390, memory hotplug works in a different way. The available hotplug
+> > memory has to be defined upfront in the hypervisor, but it is made
+> > physically accessible only when the user sets it online via sysfs,
+> > currently in the MEM_GOING_ONLINE notifier. This requires calling
+> > add_memory() during early memory detection, in order to get the sysfs
+> > representation, but we cannot use "memmap on memory" altmap support at
+> > this stage, w/o having it physically accessible.
+> > 
+> > Since no ACPI or similar events are generated, there is no way to set up
+> > altmap support, or even make the memory physically accessible at all,
+> > before the "memmap on memory" initialization in memory_block_online().
+> > 
+> > The new MEM_PHYS_ONLINE notifier allows to work around this, by
+> > providing a hook to make the memory physically accessible, and also call
+> > __add_pages() with altmap support, early in memory_block_online().
+> > Similarly, the MEM_PHYS_OFFLINE notifier allows to make the memory
+> > inaccessible and call __remove_pages(), at the end of
+> > memory_block_offline().
+> > 
+> > Calling __add/remove_pages() requires mem_hotplug_lock, so move
+> > mem_hotplug_begin/done() to include the new notifiers.
+> > 
+> > All architectures ignore unknown memory notifiers, so this patch should
+> > not introduce any functional changes.
 > 
+> Sorry to say, no. No hacks please, and this is a hack for memory that has
+> already been added to the system.
 > 
-> So we'd have added memory blocks without a memmap? Sorry, but this seems to
-> further hack into the s390x direction.
+> If you want memory without an altmap to suddenly not have an altmap anymore,
+> then look into removing and readding that memory, or some way to convert
+> offline memory.
 
-This new approach has the advantage that we do not need to allocate any
-additional memory during online phase, neither for direct mapping page
-tables nor struct pages, so that memory hotplug can never fail.
-
-The old approach (without altmap) is already a hack, because we add
-the memmap / struct pages, but for memory that is not really accessible.
-And with all the disadvantage of pre-allocating struct pages from system
-memory.
-
-The new approach allows to better integrate s390 to the existing
-interface, and also make use of altmap support, which would eliminate
-the major disadvantage of the old behaviour. So from s390 perspective,
-this new mechanism would be preferred, provided that there is no
-functional issue with the "added memory blocks without a memmap"
-approach.
-
-Do you see any functional issues, e.g. conflict with common
-code?
-> 
-> Maybe s390x should just provide a dedicate interface to add these memory
-> blocks instead of adding them during boot and then relying on the old way of
-> using online/offline set them online/offline.
-
-Existing behavior:
-The current 'lsmem -a' command displays both online and standby memory.
-
-interface changes:
-If a new interface is introduced and standby memory is no longer listed,
-the following consequences might occur:
-
-1. Running 'lsmem -a' would only show online memory, potentially leading
-   to user complaints.
-2. standby memory addition would need:
-   * echo "standby memory addr" > /sys/devices/system/memory/probe
-   As far as I understand, this interface is already deprecated.
-
-3. To remove standby memory, a new interface probe_remove is needed
-   * echo "standby memory addr" > /sys/devices/system/memory/probe_remove
-
-4. Users may express a need to identify standby memory addresses,
-resulting in the creation of another interface to list these standby
-memory ranges.
-
-Hence, introducing new physical memory notifiers to platforms lacking
-dynamic ACPI events would be highly advantageous while maintaining
-existing user-friendly interface.
+Sorry, I couldnt get the context. Could you please give me more details?
 
 Thanks
