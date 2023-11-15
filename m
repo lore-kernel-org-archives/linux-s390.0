@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C9F0C54FB9
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 20:35:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 403ECC5AE5B
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 20:35:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344494AbjKOUfb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Nov 2023 15:35:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41340 "EHLO
+        id S1344544AbjKOUfd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Nov 2023 15:35:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235701AbjKOUfI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Nov 2023 15:35:08 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62D7AE5;
+        with ESMTP id S235704AbjKOUfJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Nov 2023 15:35:09 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29808D4F;
         Wed, 15 Nov 2023 12:34:52 -0800 (PST)
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKWmer030721;
-        Wed, 15 Nov 2023 20:34:35 GMT
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKTffZ023085;
+        Wed, 15 Nov 2023 20:34:31 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=7CSL1yly+mfTewmMZpRp6TG2r/w75e0//7iE+NvfE7E=;
- b=axpKf0C/ZK/y3UTVDuOPNB4zkPQc//qb+BANtaAjODsnGHwLBbs2P3W3of5diek/MTsz
- Pnthd+vfpolYybLS/DJpAM4eoztiGrZvjqYPNa5oOc7TW608nW5UbAsxDPf2eFYPCk8p
- JiiOSUs+eNTSVpE7U3Hzt8w8DCtSKI6HnsZgO6KgBkpZbTz3NxAYeP6te1/NnY/Q+9Zf
- MArD2wVJhbErxcE1rnIw8hvLBhIg1D24d6jWWrs53939dw8cpRGsbTNloROSzYX6hOf4
- I4kL6jrqaAYhw23a5uT8MO6y30dLGEUKNUUj0Z/dmXd3VQuG/1INwiewlYLy00npd/y9 8Q== 
+ bh=fibwjw/KiW5HEuIH+IZjTN+t/6WZNSSD23GOexOJS9o=;
+ b=sw+mhheFpO546ZVxaJSKrJFRg8AXd4+11Wrj30ovKNZZ9E/Mu7g1CnCfgyHGLs+NYYle
+ XorFNdTZ9SUMCEU8VpsYR1ey0KKHTaDYTG4SN1VBDulH0VKMS3vWqkIIlXo5HgQIBoc8
+ fOXPZpoe1cy+u+AQSnTgzPXfI9ye9fMcx6rt9RzoVUVVsZ9DfuWabDLTwgs/sBvLXBgh
+ B7/z5ftBKwCTf5kRaAIE/2ZnsRDiiZq20CGcQ4O74RN7x8BzKeesw2LMMuDjMMi5MgAd
+ EcK84wvyaIgl23J/9XJuWY0dVIJwhPZ3HoJrya9pFVQSs4W+JHp19O8QHD2Wl6Sb98w7 Ug== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud543g1aj-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud52r847x-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 20:34:34 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AFKXiCV001884;
-        Wed, 15 Nov 2023 20:34:34 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud543g1a3-1
+        Wed, 15 Nov 2023 20:34:30 +0000
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AFKU8lq025130;
+        Wed, 15 Nov 2023 20:34:30 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud52r847e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 20:34:34 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKJ06d014625;
-        Wed, 15 Nov 2023 20:34:32 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uaneksvsy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 20:34:32 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AFKYTS916253564
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 15 Nov 2023 20:34:30 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKIvA5015481;
         Wed, 15 Nov 2023 20:34:29 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uamxnj0jn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Nov 2023 20:34:28 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AFKYPUT20906506
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 15 Nov 2023 20:34:25 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1DC912004D;
-        Wed, 15 Nov 2023 20:34:29 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id B405D20043;
+        Wed, 15 Nov 2023 20:34:25 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C5CD220040;
-        Wed, 15 Nov 2023 20:34:27 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 6847620040;
+        Wed, 15 Nov 2023 20:34:24 +0000 (GMT)
 Received: from heavy.boeblingen.de.ibm.com (unknown [9.179.9.51])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 15 Nov 2023 20:34:27 +0000 (GMT)
+        Wed, 15 Nov 2023 20:34:24 +0000 (GMT)
 From:   Ilya Leoshkevich <iii@linux.ibm.com>
 To:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -80,176 +80,103 @@ Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH 12/32] kmsan: Allow disabling KMSAN checks for the current task
-Date:   Wed, 15 Nov 2023 21:30:44 +0100
-Message-ID: <20231115203401.2495875-13-iii@linux.ibm.com>
+Subject: [PATCH 10/32] kmsan: Expose kmsan_get_metadata()
+Date:   Wed, 15 Nov 2023 21:30:42 +0100
+Message-ID: <20231115203401.2495875-11-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20231115203401.2495875-1-iii@linux.ibm.com>
 References: <20231115203401.2495875-1-iii@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: _iPe_nLp2MEt0BGzXvKFnSXZBmzon80R
-X-Proofpoint-GUID: zd4VFCqUaPM6hnX8Cj5Ti_7HDBuQLQCb
+X-Proofpoint-GUID: F7flrmLyXJJJAcGqET6C8qzUnTyLkokl
+X-Proofpoint-ORIG-GUID: g1up5JlfCWsuRUJ_ZeEJ6SY9HrOevKDS
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-15_20,2023-11-15_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- spamscore=0 adultscore=0 priorityscore=1501 suspectscore=0 clxscore=1015
- mlxlogscore=999 bulkscore=0 mlxscore=0 lowpriorityscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311060000
- definitions=main-2311150163
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
+ lowpriorityscore=0 adultscore=0 clxscore=1015 priorityscore=1501
+ mlxscore=0 phishscore=0 spamscore=0 mlxlogscore=864 suspectscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311150163
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Like for KASAN, it's useful to temporarily disable KMSAN checks around,
-e.g., redzone accesses. Introduce kmsan_disable_current() and
-kmsan_enable_current(), which are similar to their KASAN counterparts.
+Each s390 CPU has lowcore pages associated with it. Each CPU sees its
+own lowcore at virtual address 0 through a hardware mechanism called
+prefixing. Additionally, all lowcores are mapped to non-0 virtual
+addresses stored in the lowcore_ptr[] array.
 
-Even though it's not strictly necessary, make them reentrant, in order
-to match the KASAN behavior. Repurpose the allow_reporting field for
-this.
+When lowcore is accessed through virtual address 0, one needs to
+resolve metadata for lowcore_ptr[raw_smp_processor_id()].
+
+Expose kmsan_get_metadata() to make it possible to do this from the
+arch code.
 
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- Documentation/dev-tools/kmsan.rst |  4 ++--
- include/linux/kmsan-checks.h      | 12 ++++++++++++
- include/linux/kmsan_types.h       |  2 +-
- mm/kmsan/core.c                   |  2 +-
- mm/kmsan/hooks.c                  | 14 +++++++++++++-
- mm/kmsan/report.c                 |  6 +++---
- 6 files changed, 32 insertions(+), 8 deletions(-)
+ include/linux/kmsan.h      | 14 ++++++++++++++
+ mm/kmsan/instrumentation.c |  1 +
+ mm/kmsan/kmsan.h           |  1 -
+ 3 files changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/dev-tools/kmsan.rst b/Documentation/dev-tools/kmsan.rst
-index 323eedad53cd..022a823f5f1b 100644
---- a/Documentation/dev-tools/kmsan.rst
-+++ b/Documentation/dev-tools/kmsan.rst
-@@ -338,11 +338,11 @@ Per-task KMSAN state
- ~~~~~~~~~~~~~~~~~~~~
- 
- Every task_struct has an associated KMSAN task state that holds the KMSAN
--context (see above) and a per-task flag disallowing KMSAN reports::
-+context (see above) and a per-task counter disallowing KMSAN reports::
- 
-   struct kmsan_context {
-     ...
--    bool allow_reporting;
-+    unsigned int depth;
-     struct kmsan_context_state cstate;
-     ...
-   }
-diff --git a/include/linux/kmsan-checks.h b/include/linux/kmsan-checks.h
-index 5218973f0ad0..bab2603685f7 100644
---- a/include/linux/kmsan-checks.h
-+++ b/include/linux/kmsan-checks.h
-@@ -72,6 +72,10 @@ void kmsan_copy_to_user(void __user *to, const void *from, size_t to_copy,
+diff --git a/include/linux/kmsan.h b/include/linux/kmsan.h
+index e0c23a32cdf0..ff8fd95733fa 100644
+--- a/include/linux/kmsan.h
++++ b/include/linux/kmsan.h
+@@ -230,6 +230,15 @@ void kmsan_handle_urb(const struct urb *urb, bool is_out);
   */
- void kmsan_memmove_metadata(void *dst, const void *src, size_t n);
+ void kmsan_unpoison_entry_regs(const struct pt_regs *regs);
  
-+void kmsan_enable_current(void);
-+
-+void kmsan_disable_current(void);
++/**
++ * kmsan_get_metadata() - Return a pointer to KMSAN shadow or origins.
++ * @addr:      kernel address.
++ * @is_origin: whether to return origins or shadow.
++ *
++ * Return NULL if metadata cannot be found.
++ */
++void *kmsan_get_metadata(void *addr, bool is_origin);
 +
  #else
  
- static inline void kmsan_poison_memory(const void *address, size_t size,
-@@ -92,6 +96,14 @@ static inline void kmsan_memmove_metadata(void *dst, const void *src, size_t n)
+ static inline void kmsan_init_shadow(void)
+@@ -329,6 +338,11 @@ static inline void kmsan_unpoison_entry_regs(const struct pt_regs *regs)
  {
  }
  
-+static inline void kmsan_enable_current(void)
++static inline void *kmsan_get_metadata(void *addr, bool is_origin)
 +{
-+}
-+
-+static inline void kmsan_disable_current(void)
-+{
++	return NULL;
 +}
 +
  #endif
  
- #endif /* _LINUX_KMSAN_CHECKS_H */
-diff --git a/include/linux/kmsan_types.h b/include/linux/kmsan_types.h
-index 8bfa6c98176d..27bb146ece95 100644
---- a/include/linux/kmsan_types.h
-+++ b/include/linux/kmsan_types.h
-@@ -29,7 +29,7 @@ struct kmsan_context_state {
- struct kmsan_ctx {
- 	struct kmsan_context_state cstate;
- 	int kmsan_in_runtime;
--	bool allow_reporting;
-+	unsigned int depth;
- };
+ #endif /* _LINUX_KMSAN_H */
+diff --git a/mm/kmsan/instrumentation.c b/mm/kmsan/instrumentation.c
+index 8a1bbbc723ab..94b49fac9d8b 100644
+--- a/mm/kmsan/instrumentation.c
++++ b/mm/kmsan/instrumentation.c
+@@ -14,6 +14,7 @@
  
- #endif /* _LINUX_KMSAN_TYPES_H */
-diff --git a/mm/kmsan/core.c b/mm/kmsan/core.c
-index c19f47af0424..b8767378cf8a 100644
---- a/mm/kmsan/core.c
-+++ b/mm/kmsan/core.c
-@@ -43,7 +43,7 @@ void kmsan_internal_task_create(struct task_struct *task)
- 	struct thread_info *info = current_thread_info();
+ #include "kmsan.h"
+ #include <linux/gfp.h>
++#include <linux/kmsan.h>
+ #include <linux/kmsan_string.h>
+ #include <linux/mm.h>
+ #include <linux/uaccess.h>
+diff --git a/mm/kmsan/kmsan.h b/mm/kmsan/kmsan.h
+index 3c0476d8b765..2c743911a8c4 100644
+--- a/mm/kmsan/kmsan.h
++++ b/mm/kmsan/kmsan.h
+@@ -66,7 +66,6 @@ struct shadow_origin_ptr {
  
- 	__memset(ctx, 0, sizeof(*ctx));
--	ctx->allow_reporting = true;
-+	ctx->depth = 0;
- 	kmsan_internal_unpoison_memory(info, sizeof(*info), false);
- }
+ struct shadow_origin_ptr kmsan_get_shadow_origin_ptr(void *addr, u64 size,
+ 						     bool store);
+-void *kmsan_get_metadata(void *addr, bool is_origin);
+ void __init kmsan_init_alloc_meta_for_range(void *start, void *end);
  
-diff --git a/mm/kmsan/hooks.c b/mm/kmsan/hooks.c
-index 4d477a0a356c..7b5814412e9f 100644
---- a/mm/kmsan/hooks.c
-+++ b/mm/kmsan/hooks.c
-@@ -44,7 +44,7 @@ void kmsan_task_exit(struct task_struct *task)
- 	if (!kmsan_enabled || kmsan_in_runtime())
- 		return;
- 
--	ctx->allow_reporting = false;
-+	ctx->depth++;
- }
- 
- void kmsan_slab_alloc(struct kmem_cache *s, void *object, gfp_t flags)
-@@ -434,3 +434,15 @@ void kmsan_check_memory(const void *addr, size_t size)
- 					   REASON_ANY);
- }
- EXPORT_SYMBOL(kmsan_check_memory);
-+
-+void kmsan_enable_current(void)
-+{
-+	current->kmsan_ctx.depth--;
-+}
-+EXPORT_SYMBOL(kmsan_enable_current);
-+
-+void kmsan_disable_current(void)
-+{
-+	current->kmsan_ctx.depth++;
-+}
-+EXPORT_SYMBOL(kmsan_disable_current);
-diff --git a/mm/kmsan/report.c b/mm/kmsan/report.c
-index c79d3b0d2d0d..edcf53ca428e 100644
---- a/mm/kmsan/report.c
-+++ b/mm/kmsan/report.c
-@@ -158,12 +158,12 @@ void kmsan_report(depot_stack_handle_t origin, void *address, int size,
- 
- 	if (!kmsan_enabled)
- 		return;
--	if (!current->kmsan_ctx.allow_reporting)
-+	if (current->kmsan_ctx.depth)
- 		return;
- 	if (!origin)
- 		return;
- 
--	current->kmsan_ctx.allow_reporting = false;
-+	current->kmsan_ctx.depth++;
- 	ua_flags = user_access_save();
- 	raw_spin_lock(&kmsan_report_lock);
- 	pr_err("=====================================================\n");
-@@ -216,5 +216,5 @@ void kmsan_report(depot_stack_handle_t origin, void *address, int size,
- 	if (panic_on_kmsan)
- 		panic("kmsan.panic set ...\n");
- 	user_access_restore(ua_flags);
--	current->kmsan_ctx.allow_reporting = true;
-+	current->kmsan_ctx.depth--;
- }
+ enum kmsan_bug_reason {
 -- 
 2.41.0
 
