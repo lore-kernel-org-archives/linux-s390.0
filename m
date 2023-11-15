@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6BC7C2BB3F
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 20:34:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DFA4C5AD4C
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 20:34:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235709AbjKOUeu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Nov 2023 15:34:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56902 "EHLO
+        id S1344501AbjKOUex (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Nov 2023 15:34:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344465AbjKOUen (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Nov 2023 15:34:43 -0500
+        with ESMTP id S235706AbjKOUeu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Nov 2023 15:34:50 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D50CB192;
-        Wed, 15 Nov 2023 12:34:39 -0800 (PST)
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKRRsu004222;
-        Wed, 15 Nov 2023 20:34:22 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37A69D42;
+        Wed, 15 Nov 2023 12:34:43 -0800 (PST)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKCEbw020024;
+        Wed, 15 Nov 2023 20:34:20 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=VZEQ7DLTQn6OqQgSLo67A6SEZnv9L1qroObhIZ1xXOM=;
- b=dg4iR7ASsjMcFxTDwjvCYLnHoVuy1Qfbro7WxLkmXAFPDzrHl4ABKsqJoFUHCQN13fNa
- 4crhrvYNsY5a5gNUgvU3Q80SlojQtneGOttjR9TnyVOn3GW0/RjYP4rSANttgOSDhJN5
- zPM9wHYUrV9roCYmfAa2gHVV+qtuC/UpngdSdmvvL7tYZ42/WH605LRUeEWyTewBxdUh
- 5OZtujcbrRbCp1vp0JJKB86UoMmJPdc03HVO3vQOoIHf+HULGzOSuv7XlykNVMSmEltT
- 4hlHpsaQAbXZOA0NP+ZGG6Aajc4AetjSLwVSxETpQUHNtWWMOaPbQQf0yozllcU4mkys rw== 
+ bh=/jeu8ikBdkG3zT8cTTXDudBR3p8yyOmYypD5+KnSOCc=;
+ b=XJj4gqRKmolO6HaPwamZIPxiW7a94DubZ3Lh4Zo3ERklwMevuk9M6ZdOd0MqGJlJ8zOY
+ ILwoxdECXoBgf0MIp+j7SFeO8MAC+ZwSHAuC8bFhucruxiW1t2O8mGBZ7lCS8wvjmNTG
+ ZnLMcpG3px8DPkwcMgVnK+gQwRM5b86Q5Z6ho2/jN/xnDebeNFcbE9uYAEvcsuTOjiqC
+ TImOzxLm8zqUFIuMYwclvIOrbo25ssWXv0fAvlq9A/bgYXB3BPJVSzZ8TYP1Y38oF8eE
+ j1eX7rAEskNY8O7ms8SXmF+6uko9S+a34cqDzepPYk5VYN0DzCU9gUFcA3c+cZhFP2fF YQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud51q05rc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 20:34:22 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AFKTACg008842;
-        Wed, 15 Nov 2023 20:34:21 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud51q05r1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 20:34:21 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKIuv7014594;
-        Wed, 15 Nov 2023 20:34:20 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uaneksvrn-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4thgjvk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 15 Nov 2023 20:34:20 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AFKCaZt021252;
+        Wed, 15 Nov 2023 20:34:19 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4thgjv4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Nov 2023 20:34:19 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKIxFi024837;
+        Wed, 15 Nov 2023 20:34:18 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uapn1sj4m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Nov 2023 20:34:18 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AFKYHqG45417192
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AFKYFGK28639744
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 15 Nov 2023 20:34:17 GMT
+        Wed, 15 Nov 2023 20:34:15 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 09B5420043;
-        Wed, 15 Nov 2023 20:34:17 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B202D20040;
+        by IMSVA (Postfix) with ESMTP id 3A8DD20040;
         Wed, 15 Nov 2023 20:34:15 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E4C8120043;
+        Wed, 15 Nov 2023 20:34:13 +0000 (GMT)
 Received: from heavy.boeblingen.de.ibm.com (unknown [9.179.9.51])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 15 Nov 2023 20:34:15 +0000 (GMT)
+        Wed, 15 Nov 2023 20:34:13 +0000 (GMT)
 From:   Ilya Leoshkevich <iii@linux.ibm.com>
 To:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -80,51 +80,55 @@ Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH 05/32] kmsan: Fix is_bad_asm_addr() on arches with overlapping address spaces
-Date:   Wed, 15 Nov 2023 21:30:37 +0100
-Message-ID: <20231115203401.2495875-6-iii@linux.ibm.com>
+Subject: [PATCH 04/32] kmsan: Increase the maximum store size to 4096
+Date:   Wed, 15 Nov 2023 21:30:36 +0100
+Message-ID: <20231115203401.2495875-5-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20231115203401.2495875-1-iii@linux.ibm.com>
 References: <20231115203401.2495875-1-iii@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: NSV7ecFnmhdnhXadJujf6HXFiI7hMP7v
-X-Proofpoint-GUID: A_uHNzfE3lkD9p6tFW_ky0Alz8aTnTpa
+X-Proofpoint-GUID: iSRl1qDbw0UxpkQf1oYEu1Z8v5dlxZV_
+X-Proofpoint-ORIG-GUID: 2IYbA0_0cM-XcK8HWULf9sl6eCYS08q2
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-15_20,2023-11-15_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 impostorscore=0
- phishscore=0 suspectscore=0 bulkscore=0 priorityscore=1501 mlxlogscore=922
- mlxscore=0 adultscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1015
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311060000
- definitions=main-2311150163
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ impostorscore=0 lowpriorityscore=0 phishscore=0 suspectscore=0
+ adultscore=0 priorityscore=1501 mlxscore=0 mlxlogscore=693 clxscore=1015
+ spamscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311150163
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Comparing pointers with TASK_SIZE does not make sense when kernel and
-userspace overlap. Skip the comparison when this is the case.
+The inline assembly block in s390's chsc() stores that much.
 
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- mm/kmsan/instrumentation.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/kmsan/instrumentation.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
 diff --git a/mm/kmsan/instrumentation.c b/mm/kmsan/instrumentation.c
-index 470b0b4afcc4..8a1bbbc723ab 100644
+index cc3907a9c33a..470b0b4afcc4 100644
 --- a/mm/kmsan/instrumentation.c
 +++ b/mm/kmsan/instrumentation.c
-@@ -20,7 +20,8 @@
+@@ -110,11 +110,10 @@ void __msan_instrument_asm_store(void *addr, uintptr_t size)
  
- static inline bool is_bad_asm_addr(void *addr, uintptr_t size, bool is_store)
- {
--	if ((u64)addr < TASK_SIZE)
-+	if (IS_ENABLED(CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE) &&
-+	    (u64)addr < TASK_SIZE)
- 		return true;
- 	if (!kmsan_get_metadata(addr, KMSAN_META_SHADOW))
- 		return true;
+ 	ua_flags = user_access_save();
+ 	/*
+-	 * Most of the accesses are below 32 bytes. The two exceptions so far
+-	 * are clwb() (64 bytes) and FPU state (512 bytes).
+-	 * It's unlikely that the assembly will touch more than 512 bytes.
++	 * Most of the accesses are below 32 bytes. The exceptions so far are
++	 * clwb() (64 bytes), FPU state (512 bytes) and chsc() (4096 bytes).
+ 	 */
+-	if (size > 512) {
++	if (size > 4096) {
+ 		WARN_ONCE(1, "assembly store size too big: %ld\n", size);
+ 		size = 8;
+ 	}
 -- 
 2.41.0
 
