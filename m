@@ -2,170 +2,157 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D182DC47072
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 13:00:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DAC4C48BF9
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 13:41:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343850AbjKONAo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Nov 2023 08:00:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45380 "EHLO
+        id S1343879AbjKONmA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Nov 2023 08:42:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343855AbjKONAk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Nov 2023 08:00:40 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0351618A
-        for <linux-s390@vger.kernel.org>; Wed, 15 Nov 2023 05:00:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1700053233;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=MsmoLDm3Vg05W8pfD2SPdYXQ50SnWlB0SUHodkqBzuQ=;
-        b=aKm2do94MX2LRHrw+TpW/YWCknuwYbvqD0J/uv9/6tcfpPvPDfoaGkEkE0tWL6QwE44Ah3
-        Fs2HnqRDM4doO0ESZVhMnT7vmkZnd4wC+EUeFkDLRsTvvOOfBqkmjV+1gPWmCqN2fYAZRI
-        ugOLJTBH2y5wVvO3vuXzqtpNwBDLzK4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-625-1eLEqSY3OeWVW86v4Tny6A-1; Wed, 15 Nov 2023 08:00:32 -0500
-X-MC-Unique: 1eLEqSY3OeWVW86v4Tny6A-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C3AC4810FC1;
-        Wed, 15 Nov 2023 13:00:31 +0000 (UTC)
-Received: from localhost (unknown [10.72.112.9])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id BA6FF492BFD;
-        Wed, 15 Nov 2023 13:00:30 +0000 (UTC)
-Date:   Wed, 15 Nov 2023 21:00:27 +0800
-From:   Baoquan He <bhe@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     kexec@lists.infradead.org, x86@kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        akpm@linux-foundation.org, ebiederm@xmission.com,
-        takahiro.akashi@linaro.org
-Subject: [PATCH v2 1/2] resource: add walk_system_ram_res_rev()
-Message-ID: <ZVTA6z/06cLnWKUz@MiWiFi-R3L-srv>
-References: <20231114091658.228030-1-bhe@redhat.com>
- <20231114091658.228030-2-bhe@redhat.com>
+        with ESMTP id S1343698AbjKONl7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Nov 2023 08:41:59 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43BA7AC;
+        Wed, 15 Nov 2023 05:41:56 -0800 (PST)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFDZMdu017617;
+        Wed, 15 Nov 2023 13:41:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=JpTnhZafrWktJuKVw3AxPIhy13lJv4awBySKdIudrf0=;
+ b=YD5sdu1xUVqeGU0OqKnpeeXmkWVsONKq8iTy7ybEIZdHiJOMZ6uV5tk4jzhVonn0433k
+ fpEkdw31Rseuux2DHJiX0mzb3SvgZFEN0YRtEIjCWp/GHq47ksB1fTb0KhCVi4lYZFrX
+ x8T5UZKUFfCodNq7Sjt9h8558lH9UvjUv2NtbbKme15MO8aJ/P2YO8SB5TJuxRC+YTIM
+ Hoc1YrvxlkGwguPj6Pc05HftKqkLQeOarB1rETAc4P6Qf3HNZulI0hHwZaY255mbqcYd
+ 6ZT0UJ4622fm/yz8SEMu7Ktr2/9DwJ9pLu6BhUGHkreBJ+hzXYFRsZWcehykVsGzFMMK uQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ucy0j0aue-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Nov 2023 13:41:45 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AFDa41V020973;
+        Wed, 15 Nov 2023 13:41:45 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ucy0j0au3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Nov 2023 13:41:45 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFDXpCb011481;
+        Wed, 15 Nov 2023 13:41:44 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uap5k7153-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Nov 2023 13:41:44 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AFDffrm23331524
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 15 Nov 2023 13:41:41 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B6F6B20040;
+        Wed, 15 Nov 2023 13:41:41 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 27E4220043;
+        Wed, 15 Nov 2023 13:41:41 +0000 (GMT)
+Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.171.69.220])
+        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Wed, 15 Nov 2023 13:41:41 +0000 (GMT)
+Date:   Wed, 15 Nov 2023 14:41:39 +0100
+From:   Sumanth Korikkar <sumanthk@linux.ibm.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     linux-mm <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Oscar Salvador <osalvador@suse.de>,
+        Michal Hocko <mhocko@suse.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/8] mm/memory_hotplug: fix memory hotplug locking order
+Message-ID: <ZVTKk7J1AcoBBxhR@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+References: <20231114180238.1522782-1-sumanthk@linux.ibm.com>
+ <20231114180238.1522782-2-sumanthk@linux.ibm.com>
+ <cbf8863a-d987-472f-8df3-bc621599f1ee@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20231114091658.228030-2-bhe@redhat.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.10
+In-Reply-To: <cbf8863a-d987-472f-8df3-bc621599f1ee@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Di5py07534yhG8bWURnJb4HbBOIYUTC7
+X-Proofpoint-GUID: tVEzKg6vzHJuCjuNGvuZcxg7RreBoyP-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-15_12,2023-11-15_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=30 spamscore=30 mlxlogscore=37
+ malwarescore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
+ impostorscore=0 adultscore=0 phishscore=0 bulkscore=0 clxscore=1015
+ mlxscore=30 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311150105
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This function, being a variant of walk_system_ram_res() introduced in
-commit 8c86e70acead ("resource: provide new functions to walk through
-resources"), walks through a list of all the resources of System RAM
-in reversed order, i.e., from higher to lower.
+On Tue, Nov 14, 2023 at 07:22:33PM +0100, David Hildenbrand wrote:
+> On 14.11.23 19:02, Sumanth Korikkar wrote:
+> 
+> The patch subject talks about "fixing locking order", but it's actually
+> missing locking, no?
+> 
+> >  From Documentation/core-api/memory-hotplug.rst:
+> > When adding/removing/onlining/offlining memory or adding/removing
+> > heterogeneous/device memory, we should always hold the mem_hotplug_lock
+> > in write mode to serialise memory hotplug (e.g. access to global/zone
+> > variables).
+> > 
+> > mhp_(de)init_memmap_on_memory() functions can change zone stats and
+> > struct page content, but they are currently called w/o the
+> > mem_hotplug_lock.
+> > 
+> > When memory block is being offlined and when kmemleak goes through each
+> > populated zone, the following theoretical race conditions could occur:
+> > CPU 0:					     | CPU 1:
+> > memory_offline()			     |
+> > -> offline_pages()			     |
+> > 	-> mem_hotplug_begin()		     |
+> > 	   ...				     |
+> > 	-> mem_hotplug_done()		     |
+> > 					     | kmemleak_scan()
+> > 					     | -> get_online_mems()
+> > 					     |    ...
+> > -> mhp_deinit_memmap_on_memory()	     |
+> >    [not protected by mem_hotplug_begin/done()]|
+> >    Marks memory section as offline,	     |   Retrieves zone_start_pfn
+> >    poisons vmemmap struct pages and updates   |   and struct page members.
+> >    the zone related data			     |
+> >     					     |    ...
+> >     					     | -> put_online_mems()
+> > 
+> > Fix this by ensuring mem_hotplug_lock is taken before performing
+> > mhp_init_memmap_on_memory(). Also ensure that
+> > mhp_deinit_memmap_on_memory() holds the lock.
+> 
+> What speaks against grabbing that lock in these functions?
+>
+At present, the functions online_pages() and offline_pages() acquire the
+mem_hotplug_lock right at the start. However, given the necessity of
+locking in mhp_(de)init_memmap_on_memory(), it would be more efficient
+to consolidate the locking process by holding the mem_hotplug_lock once
+in memory_block_online() and memory_block_offline().
 
-It will be used in kexec_file code to load kernel, initrd etc when
-preparing kexec reboot.
+Moreover, the introduction of the 'memmap on memory' feature on s390
+brings a new physical memory notifier, and functions like __add_pages()
+or arch_add_memory() are consistently invoked with the mem_hotplug_lock
+already acquired.
 
-Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Baoquan He <bhe@redhat.com>
----
-v1->v2:
-- Use kvrealloc() to reallocate memory instead of kvcalloc(), this
-  simplifies code. Suggested by Andrew.
+Considering these factors, it seemed more natural to move
+mem_hotplug_lock in memory_block_online() and memory_block_offline(),
+which was described as "fixing locking order" in the subject. 
+I will change the subject to "add missing locking", if it is misleading .
 
- include/linux/ioport.h |  3 +++
- kernel/resource.c      | 57 ++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 60 insertions(+)
+Would you or Oscar agree that there is a need for those
+mhp_(de)init_memmap_on_memory() functions to take lock at all?
 
-diff --git a/include/linux/ioport.h b/include/linux/ioport.h
-index 14f5cfabbbc8..db7fe25f3370 100644
---- a/include/linux/ioport.h
-+++ b/include/linux/ioport.h
-@@ -331,6 +331,9 @@ extern int
- walk_system_ram_res(u64 start, u64 end, void *arg,
- 		    int (*func)(struct resource *, void *));
- extern int
-+walk_system_ram_res_rev(u64 start, u64 end, void *arg,
-+			int (*func)(struct resource *, void *));
-+extern int
- walk_iomem_res_desc(unsigned long desc, unsigned long flags, u64 start, u64 end,
- 		    void *arg, int (*func)(struct resource *, void *));
- 
-diff --git a/kernel/resource.c b/kernel/resource.c
-index 866ef3663a0b..e8a244300e5b 100644
---- a/kernel/resource.c
-+++ b/kernel/resource.c
-@@ -27,6 +27,8 @@
- #include <linux/mount.h>
- #include <linux/resource_ext.h>
- #include <uapi/linux/magic.h>
-+#include <linux/string.h>
-+#include <linux/vmalloc.h>
- #include <asm/io.h>
- 
- 
-@@ -429,6 +431,61 @@ int walk_system_ram_res(u64 start, u64 end, void *arg,
- 				     func);
- }
- 
-+/*
-+ * This function, being a variant of walk_system_ram_res(), calls the @func
-+ * callback against all memory ranges of type System RAM which are marked as
-+ * IORESOURCE_SYSTEM_RAM and IORESOUCE_BUSY in reversed order, i.e., from
-+ * higher to lower.
-+ */
-+int walk_system_ram_res_rev(u64 start, u64 end, void *arg,
-+				int (*func)(struct resource *, void *))
-+{
-+	struct resource res, *rams;
-+	int rams_size = 16, i;
-+	unsigned long flags;
-+	int ret = -1;
-+
-+	/* create a list */
-+	rams = kvcalloc(rams_size, sizeof(struct resource), GFP_KERNEL);
-+	if (!rams)
-+		return ret;
-+
-+	flags = IORESOURCE_SYSTEM_RAM | IORESOURCE_BUSY;
-+	i = 0;
-+	while ((start < end) &&
-+		(!find_next_iomem_res(start, end, flags, IORES_DESC_NONE, &res))) {
-+		if (i >= rams_size) {
-+			/* re-alloc */
-+			struct resource *rams_new;
-+
-+			rams_new = kvrealloc(rams, rams_size * sizeof(struct resource),
-+					     (rams_size + 16) * sizeof(struct resource),
-+					     GFP_KERNEL);
-+			if (!rams_new)
-+				goto out;
-+
-+			rams = rams_new;
-+			rams_size += 16;
-+		}
-+
-+		rams[i].start = res.start;
-+		rams[i++].end = res.end;
-+
-+		start = res.end + 1;
-+	}
-+
-+	/* go reverse */
-+	for (i--; i >= 0; i--) {
-+		ret = (*func)(&rams[i], arg);
-+		if (ret)
-+			break;
-+	}
-+
-+out:
-+	kvfree(rams);
-+	return ret;
-+}
-+
- /*
-  * This function calls the @func callback against all memory ranges, which
-  * are ranges marked as IORESOURCE_MEM and IORESOUCE_BUSY.
--- 
-2.41.0
-
+Thanks
