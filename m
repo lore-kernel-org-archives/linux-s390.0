@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C957C2BB3F
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 20:39:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FAD6C2BB3F
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 20:39:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344522AbjKOUjG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Nov 2023 15:39:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57008 "EHLO
+        id S235803AbjKOUjq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Nov 2023 15:39:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235802AbjKOUiv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Nov 2023 15:38:51 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A285F211D;
-        Wed, 15 Nov 2023 12:35:16 -0800 (PST)
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKFbGw004184;
-        Wed, 15 Nov 2023 20:35:01 GMT
+        with ESMTP id S235814AbjKOUje (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Nov 2023 15:39:34 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A204F26AB;
+        Wed, 15 Nov 2023 12:35:23 -0800 (PST)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKGBg7020350;
+        Wed, 15 Nov 2023 20:35:07 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=vyPRs3NEGlrSEI4OyP/kyugJK7kmBP/avTMvzRTf3tE=;
- b=fX7J+qpYXrsKl0WhCw3SJovIUB8N1Lwj01ujK3viO6O7XZNCFJw0WQ8XfQHzERI33W//
- j+jUpWNZJKyl+I31c35IJ0yr5UFwG5RsUEAM+E/L8Owhv0s6xavhXhlKW6hxNoW1XDcC
- u719TVJzYC/LZSNOKorAUUxjzEy/F3Q9uiUG07EDpSEmy8/z/Rf60uv/QY+12KeIhiWq
- wUSo7MK44DbEJhCuF4GyVtUjkDCcR44drPNwM8tTeJGuokSn8vPowbZyY0QB6l7oOBBW
- vEVlgEdIPd+FGz6rF78YLaeaA9GlV6cnddAfH70PAM8FhjzF8nJhfR8NX7ovbteHbX6v 2A== 
+ bh=Z9QhvajxwNq5SYGaSMflClifwELAA5o+VrikMt43NLQ=;
+ b=Cm7X8/vxvTtxaJWoFkF9jnWecr0V6l8l2xTJG6o7VdsEsU84lWrX/cWSA/PlQPp4PQ2D
+ X9b77e9wnTajqjR6TYS7npJ3ADymLNwW2C5SmJjm8hYNyDRNHnSnxY0Be1vNtLUSQF06
+ h9whX9frOjQXZxlDkt+JDJDmcdVozDYOHEm6hPXgoS7l+Eh9Re02y6JbkHWk2YDUQOMS
+ sutit7Hror9wtMS/nVkO5ajro1E7OX/hdZ1u4e5usYdND84i5ZH93tIfYqtqil6cDNhY
+ z8QKRZ3pZ53n7yLXybIsWVSf5WdBtAzBeBTJlm5pVxPgxVzveUbvBi07sIJTdygcJatO 3A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4v30d0f-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4ch9c3f-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 20:35:01 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AFKQNNg002471;
-        Wed, 15 Nov 2023 20:35:00 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4v30cyy-1
+        Wed, 15 Nov 2023 20:35:07 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AFKGQp8021574;
+        Wed, 15 Nov 2023 20:35:06 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ud4ch9c2w-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 20:35:00 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKJ1Fm017525;
-        Wed, 15 Nov 2023 20:34:59 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uamayj7es-1
+        Wed, 15 Nov 2023 20:35:06 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AFKJ079014625;
+        Wed, 15 Nov 2023 20:35:05 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uaneksvyw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Nov 2023 20:34:59 +0000
+        Wed, 15 Nov 2023 20:35:04 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AFKYucL4391432
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AFKZ20918350786
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 15 Nov 2023 20:34:56 GMT
+        Wed, 15 Nov 2023 20:35:02 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A6F6520043;
-        Wed, 15 Nov 2023 20:34:56 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id DDD232004D;
+        Wed, 15 Nov 2023 20:35:01 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 59DB820040;
-        Wed, 15 Nov 2023 20:34:55 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 9051C20043;
+        Wed, 15 Nov 2023 20:35:00 +0000 (GMT)
 Received: from heavy.boeblingen.de.ibm.com (unknown [9.179.9.51])
         by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 15 Nov 2023 20:34:55 +0000 (GMT)
+        Wed, 15 Nov 2023 20:35:00 +0000 (GMT)
 From:   Ilya Leoshkevich <iii@linux.ibm.com>
 To:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -80,57 +80,82 @@ Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH 28/32] s390/traps: Unpoison the kernel_stack_overflow()'s pt_regs
-Date:   Wed, 15 Nov 2023 21:31:00 +0100
-Message-ID: <20231115203401.2495875-29-iii@linux.ibm.com>
+Subject: [PATCH 31/32] s390: Implement the architecture-specific kmsan functions
+Date:   Wed, 15 Nov 2023 21:31:03 +0100
+Message-ID: <20231115203401.2495875-32-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20231115203401.2495875-1-iii@linux.ibm.com>
 References: <20231115203401.2495875-1-iii@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: dnaNBt7krqikwNotd3HVlCqxFq8337Jy
-X-Proofpoint-ORIG-GUID: 6zt5GNmg5wfDE8GufZyKD9mMXoFyxLx-
+X-Proofpoint-GUID: UhAhQFn0oBvTc1Pv6N3SdNg7x4kktrNk
+X-Proofpoint-ORIG-GUID: LEZ4uk_CRb6VScTTWyecjTAHWTBHOoS1
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-15_20,2023-11-15_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- spamscore=0 priorityscore=1501 bulkscore=0 phishscore=0 clxscore=1015
- malwarescore=0 mlxscore=0 adultscore=0 impostorscore=0 mlxlogscore=999
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311150163
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
+ mlxscore=0 bulkscore=0 mlxlogscore=783 lowpriorityscore=0 impostorscore=0
+ priorityscore=1501 phishscore=0 spamscore=0 suspectscore=0 clxscore=1015
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311060000
+ definitions=main-2311150163
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This is normally done by the generic entry code, but the
-kernel_stack_overflow() flow bypasses it.
+arch_kmsan_get_meta_or_null() finds the lowcore shadow by querying the
+prefix and calling kmsan_get_metadata() again.
+
+kmsan_virt_addr_valid() delegates to virt_addr_valid().
 
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- arch/s390/kernel/traps.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/s390/include/asm/kmsan.h | 36 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
+ create mode 100644 arch/s390/include/asm/kmsan.h
 
-diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
-index 1d2aa448d103..dd7362806dbb 100644
---- a/arch/s390/kernel/traps.c
-+++ b/arch/s390/kernel/traps.c
-@@ -27,6 +27,7 @@
- #include <linux/uaccess.h>
- #include <linux/cpu.h>
- #include <linux/entry-common.h>
+diff --git a/arch/s390/include/asm/kmsan.h b/arch/s390/include/asm/kmsan.h
+new file mode 100644
+index 000000000000..afec71e9e9ac
+--- /dev/null
++++ b/arch/s390/include/asm/kmsan.h
+@@ -0,0 +1,36 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_S390_KMSAN_H
++#define _ASM_S390_KMSAN_H
++
++#include <asm/lowcore.h>
++#include <asm/page.h>
 +#include <linux/kmsan.h>
- #include <asm/asm-extable.h>
- #include <asm/fpu/api.h>
- #include <asm/vtime.h>
-@@ -260,6 +261,7 @@ static void monitor_event_exception(struct pt_regs *regs)
- 
- void kernel_stack_overflow(struct pt_regs *regs)
- {
-+	kmsan_unpoison_entry_regs(regs);
- 	bust_spinlocks(1);
- 	printk("Kernel stack overflow.\n");
- 	show_regs(regs);
++#include <linux/mmzone.h>
++#include <linux/stddef.h>
++
++#ifndef MODULE
++
++static inline void *arch_kmsan_get_meta_or_null(void *addr, bool is_origin)
++{
++	if (addr >= (void *)&S390_lowcore &&
++	    addr < (void *)(&S390_lowcore + 1)) {
++		/*
++		 * Different lowcores accessed via S390_lowcore are described
++		 * by the same struct page. Resolve the prefix manually in
++		 * order to get a distinct struct page.
++		 */
++		addr += (void *)lowcore_ptr[raw_smp_processor_id()] -
++			(void *)&S390_lowcore;
++		return kmsan_get_metadata(addr, is_origin);
++	}
++	return NULL;
++}
++
++static inline bool kmsan_virt_addr_valid(void *addr)
++{
++	return virt_addr_valid(addr);
++}
++
++#endif /* !MODULE */
++
++#endif /* _ASM_S390_KMSAN_H */
 -- 
 2.41.0
 
