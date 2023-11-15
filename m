@@ -2,66 +2,50 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F3ECC2BB3F
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 16:12:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86397C072A2
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Nov 2023 16:40:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232390AbjKOQNB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Nov 2023 11:13:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43298 "EHLO
+        id S229630AbjKOQkt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Nov 2023 11:40:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232265AbjKOQNA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Nov 2023 11:13:00 -0500
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 093AAFA
-        for <linux-s390@vger.kernel.org>; Wed, 15 Nov 2023 08:12:57 -0800 (PST)
-Received: by mail-ej1-x634.google.com with SMTP id a640c23a62f3a-9df8d0c2505so209832666b.0
-        for <linux-s390@vger.kernel.org>; Wed, 15 Nov 2023 08:12:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1700064775; x=1700669575; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=1ab4jnXj8Bjx21zU5WbouPNL4gj/h303kBNvkdQgDmY=;
-        b=Ovbb6ARypE707QeAyh4+0ef02Jamb9Gf8z3idJAnj/+GghTq65rlgndq1grUXzFnrG
-         wGzqhUCvnfl5J8J4J10VvgQgI7AKl73b+xcWA5GvW+iAP70lg1ACscm2vFJbtq+cMi+8
-         H5BM1EtUhIuJvW4dit1d98X9Ml7QMDD6+/d7E=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700064775; x=1700669575;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=1ab4jnXj8Bjx21zU5WbouPNL4gj/h303kBNvkdQgDmY=;
-        b=Zd49ioedwm5L8EdW1gd89sNZYle81gOPByTz9urxSQQyPGHGkhuIoWzGizJclgg4Rf
-         yy3W7UTNuj84+a2o4Z/LqWT1axsUx7byiy61XYFRfqMt/yLuCupmbTNfMwqKJ6PdwAgR
-         IxzV2AqTnuqO5ShfkJ6PyANMjoP51oQ9JqkaJIVxq/NmLza8XneUDwzoOF0Zbrwo7FNU
-         O4OSMNt4WxQNHot4ly5QvpSAwYVlkW39I2g9hdnfqGHlf5m4twj3pQCudS2YYDts/jcX
-         K0aSu0JokCn7TTBRIpngS7KnT9yMjlTQzT9FFUSqRSMcxuITDn8lc9RkecXnZIrLkbzf
-         3wuQ==
-X-Gm-Message-State: AOJu0Yyx1VWzepTM/6N1zWBM4kPkmA230qP+g57H5DKBLfveE8rOjXuB
-        Ii4GG0eBEvil8Agr+tOuiHXYYQMo4/HLbmSHGl3OeH59
-X-Google-Smtp-Source: AGHT+IF6ksenQb0pbzRj7DUlV+1dNjLXh1WzwNwjvPqZvRca5d8o4lQFOBbz6Ik4Oeabn4plgFCjFg==
-X-Received: by 2002:a17:906:5a5b:b0:9a5:9f3c:961e with SMTP id my27-20020a1709065a5b00b009a59f3c961emr5257823ejc.18.1700064775418;
-        Wed, 15 Nov 2023 08:12:55 -0800 (PST)
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com. [209.85.208.47])
-        by smtp.gmail.com with ESMTPSA id ck20-20020a170906c45400b0099ce188be7fsm7216548ejb.3.2023.11.15.08.12.55
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Nov 2023 08:12:55 -0800 (PST)
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-5437269a661so2046371a12.0
-        for <linux-s390@vger.kernel.org>; Wed, 15 Nov 2023 08:12:55 -0800 (PST)
-X-Received: by 2002:aa7:da07:0:b0:542:ff1b:6c7a with SMTP id
- r7-20020aa7da07000000b00542ff1b6c7amr5958727eds.9.1700064753769; Wed, 15 Nov
- 2023 08:12:33 -0800 (PST)
-MIME-Version: 1.0
-References: <20231115154946.3933808-1-dhowells@redhat.com> <20231115154946.3933808-6-dhowells@redhat.com>
-In-Reply-To: <20231115154946.3933808-6-dhowells@redhat.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 15 Nov 2023 11:12:17 -0500
-X-Gmail-Original-Message-ID: <CAHk-=wgHciqm3iaq6hhtP64+Zsca6Y6z5UfzHzjfhUhA=jP0zA@mail.gmail.com>
-Message-ID: <CAHk-=wgHciqm3iaq6hhtP64+Zsca6Y6z5UfzHzjfhUhA=jP0zA@mail.gmail.com>
-Subject: Re: [PATCH v3 05/10] iov_iter: Create a function to prepare userspace
- VM for UBUF/IOVEC tests
-To:     David Howells <dhowells@redhat.com>
-Cc:     Christian Brauner <christian@brauner.io>,
+        with ESMTP id S232807AbjKOQkY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Nov 2023 11:40:24 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CC751FED
+        for <linux-s390@vger.kernel.org>; Wed, 15 Nov 2023 08:39:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1700066396;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=HCpNMTIKyOeROsc7/RWOAvMZhqSI0z3duXfnje8m3KQ=;
+        b=YL+XnhK/zX5yeaOBX/zZ95Z/c7pB1fLKh64GHmJZ7xUDXknJjndVgb78S8MOg48F549mAN
+        0wgM9MWPY6aDGR50ZwBLAxd/iNE0lPQk3M5HXx6ji5ifulEkGsvcjkTi86/GRujlc9jdeB
+        kVlgLd5mIkejXayQx7D6AmXWK4yEI50=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-121-UdDnholkMuG4DRRASuNUrQ-1; Wed, 15 Nov 2023 11:39:50 -0500
+X-MC-Unique: UdDnholkMuG4DRRASuNUrQ-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id E6F20101B04B;
+        Wed, 15 Nov 2023 16:39:46 +0000 (UTC)
+Received: from warthog.procyon.org.uk (unknown [10.42.28.16])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id F0B85492BE8;
+        Wed, 15 Nov 2023 16:39:33 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+        Kingdom.
+        Registered in England and Wales under Company Registration No. 3798903
+From:   David Howells <dhowells@redhat.com>
+In-Reply-To: <CAHk-=wgHciqm3iaq6hhtP64+Zsca6Y6z5UfzHzjfhUhA=jP0zA@mail.gmail.com>
+References: <CAHk-=wgHciqm3iaq6hhtP64+Zsca6Y6z5UfzHzjfhUhA=jP0zA@mail.gmail.com> <20231115154946.3933808-1-dhowells@redhat.com> <20231115154946.3933808-6-dhowells@redhat.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     dhowells@redhat.com, Christian Brauner <christian@brauner.io>,
         Jens Axboe <axboe@kernel.dk>,
         Al Viro <viro@zeniv.linux.org.uk>,
         Christoph Hellwig <hch@lst.de>,
@@ -84,42 +68,30 @@ Cc:     Christian Brauner <christian@brauner.io>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>, loongarch@lists.linux.dev,
         linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH v3 05/10] iov_iter: Create a function to prepare userspace VM for UBUF/IOVEC tests
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <3936725.1700066370.1@warthog.procyon.org.uk>
+Date:   Wed, 15 Nov 2023 16:39:30 +0000
+Message-ID: <3936726.1700066370@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 15 Nov 2023 at 10:50, David Howells <dhowells@redhat.com> wrote:
->
-> This requires access to otherwise unexported core symbols: mm_alloc(),
-> vm_area_alloc(), insert_vm_struct() arch_pick_mmap_layout() and
-> anon_inode_getfile_secure(), which I've exported _GPL.
->
-> [?] Would it be better if this were done in core and not in a module?
+Linus Torvalds <torvalds@linux-foundation.org> wrote:
 
-I'm not going to take this, even if it were to be sent to me through Christian.
+> From a quick look, what you were doing was checking that the patterns
+> you set up in user space came through ok. Dammit, what's wrong with
+> just using read()/write() on a pipe, or splice, or whatever. It will
+> test exactly the same iov_iter thing.
 
-I think the exports really show that this shouldn't be done. And yes,
-doing it in core would avoid the exports, but would be even worse.
+I was trying to make it possible to do these tests before starting userspace
+as there's a good chance that if the UBUF/IOVEC iterators don't work right
+then your system can't be booted.
 
-Those functions exist for setting up user space. You should be doing
-this in user space.
+Anyway, if I drop patches 5, 6, 7 and 10 (ie. the ones doing stuff with UBUF
+and IOVEC-type iterators), would you be okay with the rest?
 
-I'm getting really fed up with the problems that ther KUnit tests
-cause. We have a long history of self-inflicted pain due to "unit
-testing", where it has caused stupid problems like just overflowing
-the kernel stack etc.
+David
 
-This needs to stop. And this is where I'm putting my foot down. No
-more KUnit tests that make up interfaces - or use interfaces - that
-they have absolutely no place using.
-
-From a quick look, what you were doing was checking that the patterns
-you set up in user space came through ok. Dammit, what's wrong with
-just using read()/write() on a pipe, or splice, or whatever. It will
-test exactly the same iov_iter thing.
-
-Kernel code should do things that can *only* be done in the kernel.
-This is not it.
-
-              Linus
