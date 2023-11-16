@@ -2,57 +2,58 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61750C197A0
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 09:55:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 980BDC54FB9
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 10:14:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230136AbjKPJzU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Nov 2023 04:55:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44448 "EHLO
+        id S1344994AbjKPKOW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Nov 2023 05:14:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229749AbjKPJzU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 04:55:20 -0500
-Received: from mail-yb1-xb30.google.com (mail-yb1-xb30.google.com [IPv6:2607:f8b0:4864:20::b30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDCEC19B
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 01:55:16 -0800 (PST)
-Received: by mail-yb1-xb30.google.com with SMTP id 3f1490d57ef6-d865854ef96so540752276.2
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 01:55:16 -0800 (PST)
+        with ESMTP id S235663AbjKPKOU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 05:14:20 -0500
+Received: from mail-yw1-x1136.google.com (mail-yw1-x1136.google.com [IPv6:2607:f8b0:4864:20::1136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18E50D59
+        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 02:14:12 -0800 (PST)
+Received: by mail-yw1-x1136.google.com with SMTP id 00721157ae682-5afabb23900so6795957b3.2
+        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 02:14:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1700128516; x=1700733316; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1700129651; x=1700734451; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=baj28rj0m1kOuDCTG+0KHDcj/t1NS6y3cMo9+0jrJJc=;
-        b=vf0P6XS1GURBv+HM2aCIjFay7hHaXB+l4txiszJOIazULgEYbTpPZ1Up3L1eNW0Ccp
-         6Dxs+ek0YrjL7q41pB6nROmWoaHpFUg/w83yGnlzsjz3m/djJq1Wa2Gc7bztkkYlOWhu
-         esR3Gg5TSkWdQFUEWgm0eN6VyNFHT7zJXSYDFPL/AdP3+JxGc7Uw0A56WveGIZN9yPy/
-         qmcciiVpbUxy1FIUD/UXPFGZLntDYdp76fnv85TvWI+BQ60Fm5sAhFVnWIe5AtsF2bNb
-         FZJ6OUsbI0m4luXUvLPyi40JKDRqn8AowpHgHQn4hyrBq0Bl8dBmSjiecP5PRqphe6Gi
-         cZvA==
+        bh=S5z27wFZQcKESSrI85AK8SZJIpmMB6uhj5fEtkmaII8=;
+        b=gjQ20O/oXiMttAWwKuYqRM8jsItpyrbgUftQOi5nWSPBZNynU2otEfAQ8TbFpi4nYv
+         L2+mS6P5WPvxvBfcqlZXflak3skFOepr6piLa+3rwyHsi3Ndddhv/X+RasJn1W8E9YTn
+         CcaQARRW3sYpKEJ8NwjYfrexPmk+IxEhSyt2Uj6v6k8oSC0xpt9FtPO4uhQfXnacz3Pw
+         TtQevSy1Zitg1U2DBbPBp6TCzpgAnw2fSOk4OVZlBI0YbH9svNI3TddNsMuUF4zrzWrH
+         lNvL1tVYYO4RoTabtVk3DbSNmT+xfAMzRWD5HqmCFqkYWjmWaJ2maieVCvzRMmsjjZKr
+         grcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700128516; x=1700733316;
+        d=1e100.net; s=20230601; t=1700129651; x=1700734451;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=baj28rj0m1kOuDCTG+0KHDcj/t1NS6y3cMo9+0jrJJc=;
-        b=Z8PKOC5VyBZNg5L9J7404ME/7LYKVn0v92sza6TuOEsDz/im9vnyprWwMwg9DpA+W9
-         58tzuuKZaBWT2sxWBOx5wYFatNGFQeh+6+PpXMzTn3sbeFCI1CIKUIBh7OqUvl3pV7Yo
-         asehsZ0OThgGJO9TxVkhKdPTlkDL6xNoNrIojMhBoJLZTlgsY3LZirY118Sb6ZS9WGas
-         Jb5O6xICCb6l/PaBmxhWTjGe6LRUsy9sNsW68bk/F8pdZ8K6L6hD4/sigav1Wd4W4oMc
-         fdbwvwk5GgUTgK0JRYjYp95YQAlru8pS8HR9iH0Xad/e49xmdKSRCfko217SYZFVEJkj
-         t9KA==
-X-Gm-Message-State: AOJu0YxH7OZZS+zPZgWcd7JE4Kj+b/dGvz7WoRP8KjaDFj673KA+u6ca
-        Khsjfkk7ZvuUQcxUSj1kCewVEd9oDqySNoXHCWskYg==
-X-Google-Smtp-Source: AGHT+IGkV65U7kgr5HXaKsUiw7kNWRKCsWMB345P39Pcp5E8uxIJFkGoztPTLYzdOJALjwOludoSGKAWKBy3ss7ZSGU=
-X-Received: by 2002:a25:7a81:0:b0:d91:1296:947 with SMTP id
- v123-20020a257a81000000b00d9112960947mr13819109ybc.40.1700128515815; Thu, 16
- Nov 2023 01:55:15 -0800 (PST)
+        bh=S5z27wFZQcKESSrI85AK8SZJIpmMB6uhj5fEtkmaII8=;
+        b=A2o+O6RKRJcUY48flynW0ShrFeuy63jp7d3FacuXi9fEqeRn2mC332pAoI5+w5lnvs
+         p6hFmS/MG05W/7sFlEFlhNANNnMt5uJeolk2eJVU4dapCgsCFcfLLLopGcMfWOVQ2grk
+         TLfel4Ij9cDluMLnkEMvbH3+TctTvwhbFKvE+25M/+6h34Tn5lzv/Ee2jWgjWhXDawF6
+         Yloogy6TKzcVvfIiiyJ3OoJr2eqErKR04c4EVz/lJc7hP5cQOHEhx759YTjhXd+5WZA4
+         imX9oatqhJI08Ayebk0CJTx3jAnMkR9w9eUmPLOjxfPTRcCUyRCFkHMQxoa7rJBIxS9S
+         bUZQ==
+X-Gm-Message-State: AOJu0YxCc5GxstiCxfFzQZOZWQ0NcIR3AamebF5tcm5G5O3gCl94f7LA
+        ovOZYixY1b25qmdiroN962xfaQJabaVXqa+dmvbowg==
+X-Google-Smtp-Source: AGHT+IF+jaGcS9pPp5H4LI7L0H2rgwwBBSMYs58tIpjDOVz6YSDhqCfvQL1gqRcOfGQbFFqR56bfm3c0DchFbitnYxg=
+X-Received: by 2002:a81:47c3:0:b0:594:f864:8507 with SMTP id
+ u186-20020a8147c3000000b00594f8648507mr15893002ywa.51.1700129651150; Thu, 16
+ Nov 2023 02:14:11 -0800 (PST)
 MIME-Version: 1.0
-References: <20231115203401.2495875-1-iii@linux.ibm.com> <20231115203401.2495875-15-iii@linux.ibm.com>
-In-Reply-To: <20231115203401.2495875-15-iii@linux.ibm.com>
+References: <20231115203401.2495875-1-iii@linux.ibm.com> <20231115203401.2495875-7-iii@linux.ibm.com>
+In-Reply-To: <20231115203401.2495875-7-iii@linux.ibm.com>
 From:   Alexander Potapenko <glider@google.com>
-Date:   Thu, 16 Nov 2023 10:54:39 +0100
-Message-ID: <CAG_fn=WSq_r5ry-0uviR6CUx-6eqXo5tqCtYAL0nE3UYyA4=pg@mail.gmail.com>
-Subject: Re: [PATCH 14/32] kmsan: Use ALIGN_DOWN() in kmsan_get_metadata()
+Date:   Thu, 16 Nov 2023 11:13:30 +0100
+Message-ID: <CAG_fn=Viz99-GHX0rnKWo7Wdhw+BLHqNXY_AV0-pT6d1OiGw3A@mail.gmail.com>
+Subject: Re: [PATCH 06/32] kmsan: Fix kmsan_copy_to_user() on arches with
+ overlapping address spaces
 To:     Ilya Leoshkevich <iii@linux.ibm.com>
 Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
@@ -83,12 +84,10 @@ X-Mailing-List: linux-s390@vger.kernel.org
 On Wed, Nov 15, 2023 at 9:34=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.com=
 > wrote:
 >
-> Improve the readability by replacing the custom aligning logic with
-> ALIGN_DOWN(). Unlike other places where a similar sequence is used,
-> there is no size parameter that needs to be adjusted, so the standard
-> macro fits.
-
-Good catch, thank you!
-
+> Comparing pointers with TASK_SIZE does not make sense when kernel and
+> userspace overlap. Assume that we are handling user memory access in
+> this case.
+>
+> Reported-by: Alexander Gordeev <agordeev@linux.ibm.com>
 > Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 Reviewed-by: Alexander Potapenko <glider@google.com>
