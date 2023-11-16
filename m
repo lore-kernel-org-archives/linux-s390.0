@@ -2,73 +2,70 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3683CC47071
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 19:23:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91F58C197A0
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 19:33:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229513AbjKPTXp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Nov 2023 14:23:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45120 "EHLO
+        id S1345524AbjKPTdy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Nov 2023 14:33:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229487AbjKPTXo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 14:23:44 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E405518D
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 11:23:40 -0800 (PST)
+        with ESMTP id S1345514AbjKPTdx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 14:33:53 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C74521A8
+        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 11:33:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1700162620;
+        s=mimecast20190719; t=1700163230;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=JGaaonn2PlS/Bf+1agE3/lohv/E1v+K4KZ0xTLwaQWA=;
-        b=RmKFbsRwrVexahM49ac5uCfoMfQmvLZV53Apx0b1zW4VevSSLZi757FRHjL04nS0deO6XE
-        ESkI/y5O4AB14A2UAOdNUR3mIVvnDX24otyoSxtMCPbk5RtZhrsDs6TPj9SKUcKh7FG07O
-        IiqlT3ddy79NCGDs4Gld08FkdRNtGPk=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=XtT/04Mt2SBeGB8rvnB6coOHSgpYxWoGLCyJy6xyOF8=;
+        b=X2RMTumebTJzUwJG1Ul1FY/yVrQWaePin5VOr3aVk6xFRr2VTG9cWy+SiUeK8icEd6v8df
+        kDlLEuz0J5ieSCDmt1BsweY6k80fGvl6V+nsRMxEu5ExKslaWiy6HDYeyyBTEvZ9qkC88x
+        IspH43Ys3dBsi0zID7DqYy9HGK/3zic=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-136-jrHtTQ_OPve5J-pzQqbMTQ-1; Thu, 16 Nov 2023 14:23:38 -0500
-X-MC-Unique: jrHtTQ_OPve5J-pzQqbMTQ-1
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-32fd5f7b674so524854f8f.0
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 11:23:38 -0800 (PST)
+ us-mta-103-zmr_z-4LPAG9h7P8_SZKQg-1; Thu, 16 Nov 2023 14:33:47 -0500
+X-MC-Unique: zmr_z-4LPAG9h7P8_SZKQg-1
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4083fec2c30so6834655e9.1
+        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 11:33:47 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700162617; x=1700767417;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :references:cc:to:from:content-language:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=JGaaonn2PlS/Bf+1agE3/lohv/E1v+K4KZ0xTLwaQWA=;
-        b=xGtsExKTlcFwupjw4E1w9JbRUb1AIZOEtutcfd95V7mA5awXvPG+lnSJ+unbRgLY1N
-         OG2/+4acHtZoqxB4DkEjEqK9xsMTehTrf7KUhtwaWk6OMNPnyzZIW22OLFaADy3skCo4
-         w/O+dd94RxhO41svR94ZQJhuba0usKDB/KtBWhyo+Nyc0NF1MKIdYE4sbaZ+vx7zeA/O
-         AwO604IrVGMkL91X1sGcC5NKrbRJSgw+S8Uxzmu7dU3uBzfv4sy92S/Xp2X9J5P8rgR9
-         2VxqlAglsdxUtDa6tuAfz5qgDW7mRm8MbDTsNpHCl1qXJt1bhradDp6Cw9mYGHKKsnyA
-         W+Xg==
-X-Gm-Message-State: AOJu0Yx6TR1Ex7bdgqCZ9pymtowlf97r99AC7oB3xqmR1chKj8s2mAlA
-        SL9KNGXEUBvH1P5D0IAviBV/yURCNumeXiGlBat9L2oWuWCspBP5ckT7AXMMcxElN1v0i9p1ZCK
-        CQslcJf/bKtBkyVA9xrymQkNi1isWUg==
-X-Received: by 2002:a05:6000:1a89:b0:32f:7bee:f300 with SMTP id f9-20020a0560001a8900b0032f7beef300mr13588844wry.4.1700162617361;
-        Thu, 16 Nov 2023 11:23:37 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFqzRdudRp5HRIcihjZfxFtR1oTJNGSDyIV83/QesXbsvLV2zANxxqjuybAlwaxJDVeUztSEg==
-X-Received: by 2002:a05:6000:1a89:b0:32f:7bee:f300 with SMTP id f9-20020a0560001a8900b0032f7beef300mr13588828wry.4.1700162616972;
-        Thu, 16 Nov 2023 11:23:36 -0800 (PST)
+        d=1e100.net; s=20230601; t=1700163227; x=1700768027;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
+         :references:cc:to:content-language:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=XtT/04Mt2SBeGB8rvnB6coOHSgpYxWoGLCyJy6xyOF8=;
+        b=nGe0N7lHoYtBOANnKqipGLYt44Bs2t4VzJK6dSpza83vvP/QxMt0JUA2RAkdEE67v3
+         l/Vr6e9EZachgdQg4wuXtQwBttQ8EfdZSzdMrzDKBLmmdPPjlsM2CykpFbRlX/QG26K2
+         WWWZVB79spYjpHxrnJ/kepZU/uT5jTrp+MMN5GpTmyhGQFh+nmBqQVuSulqQ+W9qcJKP
+         GrfRSWRGsIwoo48MfNnfYsWrfhJYWvDRZr4IikXSn1nkCrbnGBkOcHvkx3I+wdxdE3mU
+         UOBLT7uUuOtGhhKspc9q/C5MdAS+PMhqaiLQ+PUTtj2QWXXl7Qx2FPzKXCbP2uuJbuiL
+         /ZeA==
+X-Gm-Message-State: AOJu0Yxb+19v9jec4/CDmXKvkh7C4HIHYdP6noxMFiij087JFjQn7+Rw
+        GBXK1/IuuM6sVPmmIUdxt9nlAHa+VFqN4VMl2jGmMnIr8cXiGagQfKmTb5OXE4ZZiJpgRNDFtD9
+        a2T4r3adPhnK6+Xm+YTWMNw==
+X-Received: by 2002:a5d:598d:0:b0:32f:96c6:8bb with SMTP id n13-20020a5d598d000000b0032f96c608bbmr11963978wri.7.1700163226794;
+        Thu, 16 Nov 2023 11:33:46 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGM7/WMEq2kbn2t/ayCkVFbY38x80s7vBECCBdESxSCzFAgF1wt4npXU9LQoMtLlnAkNGP38A==
+X-Received: by 2002:a5d:598d:0:b0:32f:96c6:8bb with SMTP id n13-20020a5d598d000000b0032f96c608bbmr11963968wri.7.1700163226308;
+        Thu, 16 Nov 2023 11:33:46 -0800 (PST)
 Received: from ?IPV6:2003:cb:c714:e000:d929:2324:97c7:112c? (p200300cbc714e000d929232497c7112c.dip0.t-ipconnect.de. [2003:cb:c714:e000:d929:2324:97c7:112c])
-        by smtp.gmail.com with ESMTPSA id u30-20020adfa19e000000b0032da022855fsm169709wru.111.2023.11.16.11.23.36
+        by smtp.gmail.com with ESMTPSA id z16-20020a056000111000b00331695db29bsm95149wrw.34.2023.11.16.11.33.45
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 16 Nov 2023 11:23:36 -0800 (PST)
-Message-ID: <a9ca9b75-1410-445f-9e73-2db02acff1ed@redhat.com>
-Date:   Thu, 16 Nov 2023 20:23:35 +0100
+        Thu, 16 Nov 2023 11:33:45 -0800 (PST)
+Message-ID: <cbb77c96-6bcd-458d-81e8-83e435f13b70@redhat.com>
+Date:   Thu, 16 Nov 2023 20:33:45 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 6/8] s390/mm: implement MEM_PHYS_ONLINE MEM_PHYS_OFFLINE
- memory notifiers
+Subject: Re: [PATCH 7/8] s390/sclp: remove unhandled memory notifier type
 Content-Language: en-US
-From:   David Hildenbrand <david@redhat.com>
-To:     Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc:     linux-mm <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Michal Hocko <mhocko@suse.com>,
+To:     Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        linux-mm <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>,
         "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
         Anshuman Khandual <anshuman.khandual@arm.com>,
         Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
@@ -78,10 +75,8 @@ Cc:     linux-mm <linux-mm@kvack.org>,
         linux-s390 <linux-s390@vger.kernel.org>,
         LKML <linux-kernel@vger.kernel.org>
 References: <20231114180238.1522782-1-sumanthk@linux.ibm.com>
- <20231114180238.1522782-7-sumanthk@linux.ibm.com>
- <458da84d-3838-4c5d-abda-1aebba676186@redhat.com>
- <ZVTTs2H6DgNGFPkF@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
- <dfa5eb84-270e-4c6b-b9a1-3bb66beed6a4@redhat.com>
+ <20231114180238.1522782-8-sumanthk@linux.ibm.com>
+From:   David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
  dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
@@ -127,35 +122,54 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <dfa5eb84-270e-4c6b-b9a1-3bb66beed6a4@redhat.com>
+In-Reply-To: <20231114180238.1522782-8-sumanthk@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
->>>
->>> Maybe s390x should just provide a dedicate interface to add these memory
->>> blocks instead of adding them during boot and then relying on the old way of
->>> using online/offline set them online/offline.
->>
->> Existing behavior:
->> The current 'lsmem -a' command displays both online and standby memory.
->>
->> interface changes:
->> If a new interface is introduced and standby memory is no longer listed,
->> the following consequences might occur:
->>
->> 1. Running 'lsmem -a' would only show online memory, potentially leading
->>      to user complaints.
+On 14.11.23 19:02, Sumanth Korikkar wrote:
+> Remove memory notifier types which are unhandled by s390.  Unhandled
+> memory notifier types are covered by default case.
 > 
-> That's why the new, clean way of doing it will require a world switch.
-> If the admin wants the benefits of altmap/memmap allocation, it can be
-> enabled.
+> Suggested-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+> ---
+>   drivers/s390/char/sclp_cmd.c | 8 --------
+>   1 file changed, 8 deletions(-)
+> 
+> diff --git a/drivers/s390/char/sclp_cmd.c b/drivers/s390/char/sclp_cmd.c
+> index 12f3d4af7e4e..428f8a583e8f 100644
+> --- a/drivers/s390/char/sclp_cmd.c
+> +++ b/drivers/s390/char/sclp_cmd.c
+> @@ -349,11 +349,6 @@ static int sclp_mem_notifier(struct notifier_block *nb,
+>   		if (contains_standby_increment(start, start + size))
+>   			rc = -EPERM;
+>   		break;
+> -	case MEM_ONLINE:
+> -	case MEM_CANCEL_OFFLINE:
+> -		break;
+> -	case MEM_GOING_ONLINE:
+> -		break;
+>   	case MEM_PHYS_ONLINE:
+>   		rc = sclp_mem_change_state(start, size, 1);
+>   		if (rc || !memory_block->altmap)
+> @@ -369,9 +364,6 @@ static int sclp_mem_notifier(struct notifier_block *nb,
+>   		 */
+>   		__arch_set_page_nodat((void *)start, memory_block->altmap->free);
+>   		break;
+> -	case MEM_CANCEL_ONLINE:
+> -	case MEM_OFFLINE:
+> -		break;
+>   	case MEM_PHYS_OFFLINE:
+>   		if (memory_block->altmap)
+>   			__remove_pages(arg->start_pfn, arg->nr_pages, memory_block->altmap);
 
-BTW, thinking about it, I guess one could teach lsmem (and maybe chmem) 
-to consult additional interfaces on s390x to show standby memory that's 
-not added to the system yet.
+
+You can remove MEM_ONLINE + MEM_CANCEL_OFFLINE ahead of time and just 
+cleanup the others in the patch where you touch these cases.
 
 -- 
 Cheers,
