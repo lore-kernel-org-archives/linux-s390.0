@@ -2,71 +2,70 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76E20C197A0
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 18:40:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5D6BC197A0
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 18:43:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229530AbjKPSko (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Nov 2023 13:40:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40402 "EHLO
+        id S231300AbjKPSnN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Nov 2023 13:43:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229513AbjKPSko (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 13:40:44 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6D251A8
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 10:40:40 -0800 (PST)
+        with ESMTP id S229513AbjKPSnM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 13:43:12 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF15B194
+        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 10:43:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1700160040;
+        s=mimecast20190719; t=1700160187;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=aOl0JfiK0j7xYYge+U2mw+78Q50UWI5d1WGZpvL5HNw=;
-        b=LaMu/m1YZhEVfc4Kvma1N03gaIQN5jZiUqIYCCeEm0NvOuWVmbAuZzk5WHBiRqBkFUZ4hy
-        PPXM0EeOkSBtlfUewJm2A2CADvA79ClOfrH3+o2vm4OBcEHQMIy0xEsvvCq1nsLxEG8IGx
-        odLjkA0mPjMxF3Y7zdSNycsI9bq1wlg=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=w7cc9zBGwlFUKPBu4vDvYsCpR7Lh6wcMij0IRTUKRu4=;
+        b=Bg4vbpSKagKayxrIthDVt8qoOoDJKhM0ffFtgswvcjmhO/BPAY4VtwEUqBgCdUuOINNSuf
+        hSM1PKE9viGryptG77xHma7NDuwVm3SYScKhrwBiF89Bu3bYgwH5ay/gjfcjVU6ci/c1lw
+        IhP0ref+iIKTRUwdhMvIBRE8g5da4p4=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-388-7UjNPJV4O0ST-qL1cs8AVA-1; Thu, 16 Nov 2023 13:40:38 -0500
-X-MC-Unique: 7UjNPJV4O0ST-qL1cs8AVA-1
-Received: by mail-lj1-f198.google.com with SMTP id 38308e7fff4ca-2c503af866dso9624321fa.2
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 10:40:37 -0800 (PST)
+ us-mta-511-qLYrdxmmP2miZZ90B6T-ag-1; Thu, 16 Nov 2023 13:43:03 -0500
+X-MC-Unique: qLYrdxmmP2miZZ90B6T-ag-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-32d9b520d15so503102f8f.3
+        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 10:43:03 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700160037; x=1700764837;
+        d=1e100.net; s=20230601; t=1700160182; x=1700764982;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
          :references:cc:to:content-language:subject:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=aOl0JfiK0j7xYYge+U2mw+78Q50UWI5d1WGZpvL5HNw=;
-        b=tAiF0HSPrGShkGlOFwY4ud42by+qeJBIXNw6htleSBEU8muwd3otYbkWfAxDpeAdy2
-         XOBPZLFCJGCMcFNy6XUOr7Zd+O7Y65xVJ2l5/tZN+1T5BSFg2fIXE0HqqIIeuniA85IH
-         6jT8OLBXu3gaZNZRpaZ/AYBdHITlcyQcKplRsZfqpoY94S8tqOaKbht0+K9bhAFuGH+K
-         ycsLd1dU9uH11xFSdF+l0Sj8dDl6ioC/kHDZF54/TZQSnviieiUkQFUIxB297TJHRkfR
-         Zv7sY+qldlZ+W22oFO62nsc9Vjlkd5+7+iqLN+O67HqrTJWDhoMv7YUkLHurvTi8xB48
-         1TkA==
-X-Gm-Message-State: AOJu0Yznpf6mWNxe2IB3LpPYioU60fXEQm4ouVhKVKx969PsqdmteSJm
-        9dWBu8RerxtsP6WoivL0tyhZiITs8Ox1/huJ3xBlcvEBW0wVdxzfN/ZasRFFm4PACHqvraFSWRq
-        WyjI+zh1OTPkwq+Btparsqg==
-X-Received: by 2002:a2e:8506:0:b0:2c5:1989:ce1c with SMTP id j6-20020a2e8506000000b002c51989ce1cmr2600436lji.26.1700160036772;
-        Thu, 16 Nov 2023 10:40:36 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFXLhDPWOzTlRkXddnSPhzG+NSVlQALkMLy0Mf5RiyPjzcDIfY56bH5EK6JDDMjc8QIiCvE1g==
-X-Received: by 2002:a2e:8506:0:b0:2c5:1989:ce1c with SMTP id j6-20020a2e8506000000b002c51989ce1cmr2600409lji.26.1700160036368;
-        Thu, 16 Nov 2023 10:40:36 -0800 (PST)
+        bh=w7cc9zBGwlFUKPBu4vDvYsCpR7Lh6wcMij0IRTUKRu4=;
+        b=CRqgXVpcLa96SokIVha+N2WlbetxYi74nKHfJzTyCw5Jdd78LQTaCsiYTs46hauro/
+         5wC5Ars2j0uyaXDs/QKqei/z+aV1KYgQcz7EYAH0yklXiO+ymz8I1s86XF9mHjDCcOxf
+         y6OYe5f79hs35lYWaUR9eZ0gYKofIOhCfAS3V7WR1ysLBkLtQn+DuqQl/rFmxMu60hcR
+         E+Cob12HprbMSET4iJcnSxa3pKB5bN8Z6oz1LqLKvOxo7f/8VnkdgnbCRooXPdLbDyyX
+         byasZk7I3Zf2g/NjlGilfmZd5SiU7CqF+Q3D+5Lsel2X2IMiMRrtiz2Fp28V1YrkCU6O
+         aaZg==
+X-Gm-Message-State: AOJu0YxcUY5rv6drIjFvXG3btpvsyanCcaqR+54EdAuIzVg76zPtHNWS
+        78eJj3cvDec1g75NGtXuLfnBkaEYBpfz9cQqs7xORq7NV+vze4m9nxElWp0RpnQeAfgHSK9ZpTa
+        sFnpQ7PIRWfPZBMp7XndiWg==
+X-Received: by 2002:adf:b31c:0:b0:32f:a5b1:47e8 with SMTP id j28-20020adfb31c000000b0032fa5b147e8mr8912163wrd.27.1700160182525;
+        Thu, 16 Nov 2023 10:43:02 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IF92EXK//VLadedgtpk5ADoAESbyFGsoQFZy3mGPoeHXTxqWhsWkI4/dm+Yt2wtjBVnr66bww==
+X-Received: by 2002:adf:b31c:0:b0:32f:a5b1:47e8 with SMTP id j28-20020adfb31c000000b0032fa5b147e8mr8912141wrd.27.1700160182116;
+        Thu, 16 Nov 2023 10:43:02 -0800 (PST)
 Received: from ?IPV6:2003:cb:c714:e000:d929:2324:97c7:112c? (p200300cbc714e000d929232497c7112c.dip0.t-ipconnect.de. [2003:cb:c714:e000:d929:2324:97c7:112c])
-        by smtp.gmail.com with ESMTPSA id f11-20020a05600c4e8b00b0040535648639sm120094wmq.36.2023.11.16.10.40.35
+        by smtp.gmail.com with ESMTPSA id d5-20020adfef85000000b0032fb46812c2sm130769wro.12.2023.11.16.10.43.00
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 16 Nov 2023 10:40:35 -0800 (PST)
-Message-ID: <c2f616f1-d27e-423c-b259-bb1a6e50d8c0@redhat.com>
-Date:   Thu, 16 Nov 2023 19:40:34 +0100
+        Thu, 16 Nov 2023 10:43:01 -0800 (PST)
+Message-ID: <7245df6e-8947-45f3-aaeb-c690dc1433f6@redhat.com>
+Date:   Thu, 16 Nov 2023 19:43:00 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/8] mm/memory_hotplug: fix memory hotplug locking order
+Subject: Re: [PATCH 3/8] mm: use vmem_altmap code without CONFIG_ZONE_DEVICE
 Content-Language: en-US
-To:     Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc:     linux-mm <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Michal Hocko <mhocko@suse.com>,
+To:     Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        linux-mm <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>,
         "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
         Anshuman Khandual <anshuman.khandual@arm.com>,
         Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
@@ -76,9 +75,7 @@ Cc:     linux-mm <linux-mm@kvack.org>,
         linux-s390 <linux-s390@vger.kernel.org>,
         LKML <linux-kernel@vger.kernel.org>
 References: <20231114180238.1522782-1-sumanthk@linux.ibm.com>
- <20231114180238.1522782-2-sumanthk@linux.ibm.com>
- <cbf8863a-d987-472f-8df3-bc621599f1ee@redhat.com>
- <ZVTKk7J1AcoBBxhR@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+ <20231114180238.1522782-4-sumanthk@linux.ibm.com>
 From:   David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -125,63 +122,23 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <ZVTKk7J1AcoBBxhR@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+In-Reply-To: <20231114180238.1522782-4-sumanthk@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 15.11.23 14:41, Sumanth Korikkar wrote:
-> On Tue, Nov 14, 2023 at 07:22:33PM +0100, David Hildenbrand wrote:
->> On 14.11.23 19:02, Sumanth Korikkar wrote:
->>
->> The patch subject talks about "fixing locking order", but it's actually
->> missing locking, no?
->>
->>>   From Documentation/core-api/memory-hotplug.rst:
->>> When adding/removing/onlining/offlining memory or adding/removing
->>> heterogeneous/device memory, we should always hold the mem_hotplug_lock
->>> in write mode to serialise memory hotplug (e.g. access to global/zone
->>> variables).
->>>
->>> mhp_(de)init_memmap_on_memory() functions can change zone stats and
->>> struct page content, but they are currently called w/o the
->>> mem_hotplug_lock.
->>>
->>> When memory block is being offlined and when kmemleak goes through each
->>> populated zone, the following theoretical race conditions could occur:
->>> CPU 0:					     | CPU 1:
->>> memory_offline()			     |
->>> -> offline_pages()			     |
->>> 	-> mem_hotplug_begin()		     |
->>> 	   ...				     |
->>> 	-> mem_hotplug_done()		     |
->>> 					     | kmemleak_scan()
->>> 					     | -> get_online_mems()
->>> 					     |    ...
->>> -> mhp_deinit_memmap_on_memory()	     |
->>>     [not protected by mem_hotplug_begin/done()]|
->>>     Marks memory section as offline,	     |   Retrieves zone_start_pfn
->>>     poisons vmemmap struct pages and updates   |   and struct page members.
->>>     the zone related data			     |
->>>      					     |    ...
->>>      					     | -> put_online_mems()
->>>
->>> Fix this by ensuring mem_hotplug_lock is taken before performing
->>> mhp_init_memmap_on_memory(). Also ensure that
->>> mhp_deinit_memmap_on_memory() holds the lock.
->>
->> What speaks against grabbing that lock in these functions?
->>
-> At present, the functions online_pages() and offline_pages() acquire the
-> mem_hotplug_lock right at the start. However, given the necessity of
-> locking in mhp_(de)init_memmap_on_memory(), it would be more efficient
-> to consolidate the locking process by holding the mem_hotplug_lock once
-> in memory_block_online() and memory_block_offline().
+On 14.11.23 19:02, Sumanth Korikkar wrote:
+> vmem_altmap_free() and vmem_altmap_offset() could be utlized without
+> CONFIG_ZONE_DEVICE enabled. Hence, move it to sparse-vmemmap.c
 
-Good point; can you similarly add comments to these two functions that 
-they need that lock in write mode?
+Maybe give an example: For example mm/memory_hotplug.c:__add_pages() 
+relies on that.
+
+The altmap is no longer restricted to ZONE_DEVICE handling.
+
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
 -- 
 Cheers,
