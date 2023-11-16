@@ -2,127 +2,127 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EBB8C197A0
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 13:54:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB382C54FB9
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 14:56:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345203AbjKPNy6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Nov 2023 08:54:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40518 "EHLO
+        id S1345239AbjKPO4b (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Nov 2023 09:56:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345194AbjKPNy5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 08:54:57 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B5DEAF;
-        Thu, 16 Nov 2023 05:54:54 -0800 (PST)
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AGDoPsZ012042;
-        Thu, 16 Nov 2023 13:54:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=k4+XzjxisPHaDAbUWdypNQD1W73qMIUcQhfWlrRelXg=;
- b=d7hHsHsZ9BS848uJUmYOfx/wk/1Pq/08h6cJowBK8V/V0Scp79OJRpC+/Ff0E0PbSTDD
- 1u8e5sg0nmzjy5V/Llwx6GIqAgU0MyfNAfLZDXJADiJ/9nmcAkZdqgQWROLfn4+V7l3P
- fNmHK/kN+R4EmGsZsAdCEURe7vvw3O1OvrFwAG4h6T93x3konNn7VmhKdFjQRgEN5Qvl
- F16Hyup3hpFHeEYP8JSKIbX6SULG1/zj6JUlAgp4NF4yX6AXaWxO9iLlnwCemRZd3DRV
- mBhq5HVuF8CecBg2QJj5Rf57HqzETYEtbyISwetqNAFdjjLXyQSris0KVlxximNaWtfQ Mg== 
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3udmamr48u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 16 Nov 2023 13:54:27 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AGBVKOh003493;
-        Thu, 16 Nov 2023 13:54:27 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uamayq67c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 16 Nov 2023 13:54:27 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AGDsNit5112390
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 16 Nov 2023 13:54:23 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C54BC20043;
-        Thu, 16 Nov 2023 13:54:23 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 94D5620040;
-        Thu, 16 Nov 2023 13:54:23 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Thu, 16 Nov 2023 13:54:23 +0000 (GMT)
-Date:   Thu, 16 Nov 2023 14:54:21 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Hou Tao <houtao@huaweicloud.com>
-Cc:     Yonghong Song <yonghong.song@linux.dev>, bpf@vger.kernel.org,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>, kernel-team@fb.com,
-        Martin KaFai Lau <martin.lau@kernel.org>,
-        Marc Hartmayer <mhartmay@linux.ibm.com>,
-        Mikhail Zaslonko <zaslonko@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH bpf-next v3 01/13] bpf: Add support for non-fix-size
- percpu mem allocation
-Message-ID: <20231116135421.22287-A-hca@linux.ibm.com>
-References: <20230827152729.1995219-1-yonghong.song@linux.dev>
- <20230827152734.1995725-1-yonghong.song@linux.dev>
- <20231115153139.29313-A-hca@linux.ibm.com>
- <379ff74e-cad2-919c-4130-adbe80d50a26@huaweicloud.com>
+        with ESMTP id S229785AbjKPO4a (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 09:56:30 -0500
+Received: from mail-qv1-xf2c.google.com (mail-qv1-xf2c.google.com [IPv6:2607:f8b0:4864:20::f2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A2BC1AD
+        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 06:56:27 -0800 (PST)
+Received: by mail-qv1-xf2c.google.com with SMTP id 6a1803df08f44-66d2f3bb312so4772306d6.0
+        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 06:56:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1700146586; x=1700751386; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=tzM0stGZCClmmzmredmePw1BMrI7dq9aY1ehb48KIQU=;
+        b=FNLXCl1JfVrSP3wlr5c1EzCFRf4WU+SKRk5ziIleaUK4O05dpZtUZsJLwVwAI/76ZH
+         JHZGLZRdv6Dbz2lSp9sb3b/cA/o8QkcyXWKsz2kQ2e+6LVd+vobUDAcOd5t0XcuXqIHl
+         Fp1koZU/BZrbsvki7hCSZ7avhZooOTGOl0Nhnm2Xyc5E7K7LiuXZZJ/MyHcv6MNVqN4M
+         Vg/Zsxqm7ou5hRnI8YOos7QUrCpBV/ICrSrICeFbj/+HhCDeNmT7RCqv5+4x7R7MgMUu
+         P+lm3ysD0XGQiXYwq73x+6UR1DFOzQ52uDNhwPNmuXaMi1wY8AmrixwxvRwW7Kur73cP
+         9kOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1700146586; x=1700751386;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=tzM0stGZCClmmzmredmePw1BMrI7dq9aY1ehb48KIQU=;
+        b=Oc/cpvAbdij1/PHoxzI+LoMCdywOTTa6HCPE38BufIT1grr8g7cw9UUTMEaAsCp95i
+         bJz0/mODWx+k1EqzS9faZ2A4tAbDqaO9XdkHxKlyGTMTK34+K3+uihBL8TMJVbIozrjY
+         w1gdKVeuVfKx5ofAs7MeLUn2olnHBL4sXXcLwN48NbeJT+IrYmWGbWM+Emk/YBSdvw+z
+         JqFYfrB57/AtkKWWUx+pgameWbWnNY51JVT4QD8Brd2l9GrMlhTcohWS8FwW32bIgIyO
+         X0kgnaJMXn2qg1tNGTa2U2KZwNTFnkXhI7xq+C/cU+xFK4C81NyuYPl4VZhsQAbPPBPO
+         8yZw==
+X-Gm-Message-State: AOJu0YxQDNQkARKu8+qtgrbMpTQ5386KxHBBQh14o16t21Cn9mqAs4eT
+        lIMnLTKvWQSXjRNdzSp8kFl36EYyELPDyQni14z0AQ==
+X-Google-Smtp-Source: AGHT+IESlLCp03SBdqseDxgs7HGGaCnWUi82EdGIBUyYoFDdg/kV3Wtu7IaPSKUrNV12K+J0pCN37EM86rUdQP7PWi8=
+X-Received: by 2002:a0c:bf02:0:b0:675:5925:7e08 with SMTP id
+ m2-20020a0cbf02000000b0067559257e08mr8062067qvi.32.1700146586474; Thu, 16 Nov
+ 2023 06:56:26 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <379ff74e-cad2-919c-4130-adbe80d50a26@huaweicloud.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: liBaMNIlxU-nrf3Ohmh4w-GHdF05LtXt
-X-Proofpoint-ORIG-GUID: liBaMNIlxU-nrf3Ohmh4w-GHdF05LtXt
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-16_13,2023-11-16_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- impostorscore=0 phishscore=0 mlxscore=0 adultscore=0 spamscore=0
- lowpriorityscore=0 clxscore=1011 bulkscore=0 mlxlogscore=286
- malwarescore=0 priorityscore=1501 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2311060000 definitions=main-2311160108
+References: <20231115203401.2495875-1-iii@linux.ibm.com> <20231115203401.2495875-14-iii@linux.ibm.com>
+In-Reply-To: <20231115203401.2495875-14-iii@linux.ibm.com>
+From:   Alexander Potapenko <glider@google.com>
+Date:   Thu, 16 Nov 2023 15:55:45 +0100
+Message-ID: <CAG_fn=WOfRvDw3r3zcZXWr8aa6MiEuKSa1etQrGVSJP+ic7=mg@mail.gmail.com>
+Subject: Re: [PATCH 13/32] kmsan: Support SLAB_POISON
+To:     Ilya Leoshkevich <iii@linux.ibm.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Christoph Lameter <cl@linux.com>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Marco Elver <elver@google.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Pekka Enberg <penberg@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
+        kasan-dev@googlegroups.com, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        linux-trace-kernel@vger.kernel.org,
+        Mark Rutland <mark.rutland@arm.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Sven Schnelle <svens@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Nov 16, 2023 at 09:15:26AM +0800, Hou Tao wrote:
-> > If we have a machine with 8GB, 6 present CPUs and 512 possible CPUs (yes,
-> > this is a realistic scenario) the memory consumption directly after boot
-> > is:
-> >
-> > $ cat /sys/devices/system/cpu/present
-> > 0-5
-> > $ cat /sys/devices/system/cpu/possible
-> > 0-511
-> 
-> Will the present CPUs be hot-added dynamically and eventually increase
-> to 512 CPUs ? Or will the present CPUs rarely be hot-added ? After all
-> possible CPUs are online, will these CPUs be hot-plugged dynamically ?
-> Because I am considering add CPU hotplug support for bpf mem allocator,
-> so we can allocate memory according to the present CPUs instead of
-> possible CPUs. But if the present CPUs will be increased to all possible
-> CPUs quickly, there will be not too much benefit to support hotplug in
-> bpf mem allocator.
+On Wed, Nov 15, 2023 at 9:34=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.com=
+> wrote:
+>
+> Avoid false KMSAN negatives with SLUB_DEBUG by allowing
+> kmsan_slab_free() to poison the freed memory, and by preventing
+> init_object() from unpoisoning new allocations.
+>
+> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+> ---
+>  mm/kmsan/hooks.c | 2 +-
+>  mm/slub.c        | 3 ++-
+>  2 files changed, 3 insertions(+), 2 deletions(-)
+>
+> diff --git a/mm/kmsan/hooks.c b/mm/kmsan/hooks.c
+> index 7b5814412e9f..7a30274b893c 100644
+> --- a/mm/kmsan/hooks.c
+> +++ b/mm/kmsan/hooks.c
+> @@ -76,7 +76,7 @@ void kmsan_slab_free(struct kmem_cache *s, void *object=
+)
+>                 return;
+>
+>         /* RCU slabs could be legally used after free within the RCU peri=
+od */
+> -       if (unlikely(s->flags & (SLAB_TYPESAFE_BY_RCU | SLAB_POISON)))
+> +       if (unlikely(s->flags & SLAB_TYPESAFE_BY_RCU))
+>                 return;
+>         /*
+>          * If there's a constructor, freed memory must remain in the same=
+ state
+> diff --git a/mm/slub.c b/mm/slub.c
+> index 63d281dfacdb..8d9aa4d7cb7e 100644
+> --- a/mm/slub.c
+> +++ b/mm/slub.c
+> @@ -1024,7 +1024,8 @@ static __printf(3, 4) void slab_err(struct kmem_cac=
+he *s, struct slab *slab,
+>         add_taint(TAINT_BAD_PAGE, LOCKDEP_NOW_UNRELIABLE);
+>  }
+>
+> -static void init_object(struct kmem_cache *s, void *object, u8 val)
+> +__no_sanitize_memory static void
 
-You can assume that the present CPUs would change only very rarely. Even
-though we are only talking about virtual CPUs in this case systems are
-usually setup in a way that they have enough CPUs for their workload. Only
-if that is not the case additional CPUs may be added (and brought online) -
-which is usually much later than boot time.
-
-Obviously the above is even more true for systems where you have to add new
-CPUs in a physical way in order to change present CPUs.
-
-So I guess it is fair to assume that if there is such a large difference
-between present and possible CPUs, that this will also stay that way while
-the system is running in most cases.
-
-Or in other words: it sounds like it is worth to add CPU hotplug support
-for the the bpf mem allocator (without that I would know what that would
-really mean for the bpf code).
-
-Note for the above numbers: I hacked the number of possible CPUs manually
-in the kernel code just to illustrate the high memory consumption for the
-report. On a real system you would see "0-399" CPUs instead.
-But that's just a minor detail.
+__no_sanitize_memory should be used with great care, because it drops
+all instrumentation from the function, and any shadow writes will be
+lost.
+Won't it be better to add kmsan_poison() to init_object() if you want
+it to stay uninitialized?
