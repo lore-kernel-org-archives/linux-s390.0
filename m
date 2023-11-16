@@ -2,58 +2,65 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14EA3C197A0
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 15:03:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39777C197A0
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 15:09:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345377AbjKPPD7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Nov 2023 10:03:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41918 "EHLO
+        id S1345373AbjKPPJq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Nov 2023 10:09:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345349AbjKPPD6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 10:03:58 -0500
-Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C0C3AD
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 07:03:55 -0800 (PST)
-Received: by mail-qk1-x72c.google.com with SMTP id af79cd13be357-7781b176131so46006885a.1
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 07:03:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1700147035; x=1700751835; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BEPBtVIehZENietqQgMRaLfueUPVKPaQSiz0lKmUCO4=;
-        b=tjOM6T73bOgVHYQnAA8nPqN2GtcyJDN9hU/+eWFapfh9qsj6akbzxvTmB7mF5Xsmka
-         hg3XoaWF5IkBAfSxhNko5AFheUYEtsWs4KMJOdbGTZCCleCHpXIeJwERsLSZR9umf9b0
-         3AbtkJkBBZIAzfmAoO44j3SccK+pQzZDNf+e4RSpQ7Yh/ugPtLimqQjubpXdYByVtp89
-         YtQOYiWnQhFPnFX+I0qcl1gzLpLqBWy4NcxihC+r5FJljUtckS4XxsEEx1TCc5qFlXA7
-         KUHnqFXdEN3ELNVt2PzlBEDPoNRZir5EmW9FsKY2eR/1STbflbYrcDJBQYExSyJddJe8
-         O39g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700147035; x=1700751835;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=BEPBtVIehZENietqQgMRaLfueUPVKPaQSiz0lKmUCO4=;
-        b=dyQwCBfiMazW+DvodDkPUvY04ZBoFpQiNvgWCqUEIRe0afmrDQK73Tf4HYPtpAzgGv
-         +fMu5R0/psuSYX10FuhjCFm84hnNxgTJ7geZ+pIScbSZYcZeD4WXELHDfpDOCxpbEX3E
-         wvkLsWzaPIliLiUVLgSF0kSd3+bHzmh8uEmS7E6BpfyDLIu/Aft/mVLEKGP+Csbr9G9v
-         pMyU9EwNUtOIBVZxXHmcQs6CUnknw6OGjDuYi/lnV1FiH/UOLHYlUGcyNgZlQke6Jkzn
-         HeZEQvi9JlJmV8M9DsmHDy57wwYcW8j8Xom/N5lyUTNiQ+q56UbpqqxjYRq4QEthUFh+
-         rdHg==
-X-Gm-Message-State: AOJu0YxR3lhxsUwKiO5YB/v9yXxP/Xfg2aUIIHuGEa9mRmM2hrzUAthf
-        70zVVGVGFHqEPWWIlTWVrcoEdUVJWuOWfNR67dmWoA==
-X-Google-Smtp-Source: AGHT+IGm2krVDnKXXhSMoJn1uvqnmJEHLLH/sx6QaCvlfNlZK+ZHTBQsOV3/QFPtlz0RyiLxE6410dtEDy0WjvMczws=
-X-Received: by 2002:ad4:4b6f:0:b0:66d:55d9:bc7b with SMTP id
- m15-20020ad44b6f000000b0066d55d9bc7bmr8646936qvx.31.1700147034569; Thu, 16
- Nov 2023 07:03:54 -0800 (PST)
-MIME-Version: 1.0
-References: <20231115203401.2495875-1-iii@linux.ibm.com> <20231115203401.2495875-27-iii@linux.ibm.com>
-In-Reply-To: <20231115203401.2495875-27-iii@linux.ibm.com>
-From:   Alexander Potapenko <glider@google.com>
-Date:   Thu, 16 Nov 2023 16:03:13 +0100
-Message-ID: <CAG_fn=XSKh=AmU3mEC7dNmEFk5LaLt+y+TfsVcD0Dn5NsbTBSw@mail.gmail.com>
-Subject: Re: [PATCH 26/32] s390/mm: Define KMSAN metadata for vmalloc and modules
-To:     Ilya Leoshkevich <iii@linux.ibm.com>
+        with ESMTP id S1345330AbjKPPJq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 10:09:46 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B29193;
+        Thu, 16 Nov 2023 07:09:41 -0800 (PST)
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AGF2wT2000665;
+        Thu, 16 Nov 2023 15:09:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=fbR/4LYIfiQo0P1zqKZIOJ71Sdj1oOT4JYZNUwb072M=;
+ b=iC82ZytXIrHyHQGQyplNNWwqzIsTcdT1zPbaIX4NuowOuM5y9z/66cBho7CBRzC9o35B
+ U364uRSYVgu4KvKeuNI20OXoKDLlkHm6QZRYGFrahiaInSr8CPmSGYw/wkW6m9c+kz98
+ RL3emxkJNvUZu56xeHqp4w1dgbk9qnUGgUBeeuxtsJ9qzo/0VaQAq6rCEQkGa5RNH1Lc
+ kQZSCIZxnSzTBu4HqWGk3kbmvHhfhaLWoyz2bifcDs9BTVnNTceZOlSHNZyx0EUWBoIV
+ Ib21JhCVClH1/0Vt6obIWjAtIts+9NGksw7/cZkjU2dZ9xwhCGzo7WoeVVgth5XPKuIQ LQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3udncagdg8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Nov 2023 15:09:09 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AGF2uF1000499;
+        Thu, 16 Nov 2023 15:09:06 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3udncag9q9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Nov 2023 15:09:05 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AGERv2d007963;
+        Thu, 16 Nov 2023 15:08:19 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uapn1xx9m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Nov 2023 15:08:19 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AGF8G1815729200
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 16 Nov 2023 15:08:16 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 426CD20043;
+        Thu, 16 Nov 2023 15:08:16 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8FE9120040;
+        Thu, 16 Nov 2023 15:08:15 +0000 (GMT)
+Received: from [9.155.200.166] (unknown [9.155.200.166])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 16 Nov 2023 15:08:15 +0000 (GMT)
+Message-ID: <50846951de5c3c246c2c6263605a349a04a6ae45.camel@linux.ibm.com>
+Subject: Re: [PATCH 13/32] kmsan: Support SLAB_POISON
+From:   Ilya Leoshkevich <iii@linux.ibm.com>
+To:     Alexander Potapenko <glider@google.com>
 Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Christoph Lameter <cl@linux.com>,
@@ -74,50 +81,95 @@ Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Mark Rutland <mark.rutland@arm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>
+Date:   Thu, 16 Nov 2023 16:08:15 +0100
+In-Reply-To: <CAG_fn=WOfRvDw3r3zcZXWr8aa6MiEuKSa1etQrGVSJP+ic7=mg@mail.gmail.com>
+References: <20231115203401.2495875-1-iii@linux.ibm.com>
+         <20231115203401.2495875-14-iii@linux.ibm.com>
+         <CAG_fn=WOfRvDw3r3zcZXWr8aa6MiEuKSa1etQrGVSJP+ic7=mg@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+MIME-Version: 1.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ytVHJmlpUSeyjqKkMO8KNbDnnh0SJfQg
+X-Proofpoint-ORIG-GUID: GoQTG6AsG7rXNy-iKNMNk95yhUTNkZSq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-16_15,2023-11-16_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ bulkscore=0 priorityscore=1501 phishscore=0 mlxscore=0 spamscore=0
+ clxscore=1015 malwarescore=0 impostorscore=0 adultscore=0 mlxlogscore=953
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311160118
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Nov 15, 2023 at 9:35=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.com=
+On Thu, 2023-11-16 at 15:55 +0100, Alexander Potapenko wrote:
+> On Wed, Nov 15, 2023 at 9:34=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.c=
+om>
 > wrote:
->
-> The pages for the KMSAN metadata associated with most kernel mappings
-> are taken from memblock by the common code. However, vmalloc and module
-> metadata needs to be defined by the architectures.
->
-> Be a little bit more careful than x86: allocate exactly MODULES_LEN
-> for the module shadow and origins, and then take 2/3 of vmalloc for
-> the vmalloc shadow and origins. This ensures that users passing small
-> vmalloc=3D values on the command line do not cause module metadata
-> collisions.
->
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-> ---
->  arch/s390/boot/startup.c        |  8 ++++++++
->  arch/s390/include/asm/pgtable.h | 10 ++++++++++
->  2 files changed, 18 insertions(+)
->
-> diff --git a/arch/s390/boot/startup.c b/arch/s390/boot/startup.c
-> index 8104e0e3d188..297c1062372a 100644
-> --- a/arch/s390/boot/startup.c
-> +++ b/arch/s390/boot/startup.c
-> @@ -253,9 +253,17 @@ static unsigned long setup_kernel_memory_layout(void=
-)
->         MODULES_END =3D round_down(__abs_lowcore, _SEGMENT_SIZE);
->         MODULES_VADDR =3D MODULES_END - MODULES_LEN;
->         VMALLOC_END =3D MODULES_VADDR;
-> +#ifdef CONFIG_KMSAN
-> +       VMALLOC_END -=3D MODULES_LEN * 2;
-> +#endif
->
->         /* allow vmalloc area to occupy up to about 1/2 of the rest virtu=
-al space left */
->         vmalloc_size =3D min(vmalloc_size, round_down(VMALLOC_END / 2, _R=
-EGION3_SIZE));
-> +#ifdef CONFIG_KMSAN
-> +       /* take 2/3 of vmalloc area for KMSAN shadow and origins */
-> +       vmalloc_size =3D round_down(vmalloc_size / 3, PAGE_SIZE);
-Is it okay that vmalloc_size is only aligned on PAGE_SIZE?
-E.g. above the alignment is _REGION3_SIZE.
+> >=20
+> > Avoid false KMSAN negatives with SLUB_DEBUG by allowing
+> > kmsan_slab_free() to poison the freed memory, and by preventing
+> > init_object() from unpoisoning new allocations.
+> >=20
+> > Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+> > ---
+> > =C2=A0mm/kmsan/hooks.c | 2 +-
+> > =C2=A0mm/slub.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 | 3 ++-
+> > =C2=A02 files changed, 3 insertions(+), 2 deletions(-)
+> >=20
+> > diff --git a/mm/kmsan/hooks.c b/mm/kmsan/hooks.c
+> > index 7b5814412e9f..7a30274b893c 100644
+> > --- a/mm/kmsan/hooks.c
+> > +++ b/mm/kmsan/hooks.c
+> > @@ -76,7 +76,7 @@ void kmsan_slab_free(struct kmem_cache *s, void
+> > *object)
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 return;
+> >=20
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /* RCU slabs could be legall=
+y used after free within the
+> > RCU period */
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (unlikely(s->flags & (SLAB_TYP=
+ESAFE_BY_RCU |
+> > SLAB_POISON)))
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (unlikely(s->flags & SLAB_TYPE=
+SAFE_BY_RCU))
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 return;
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /*
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * If there's a constru=
+ctor, freed memory must remain in
+> > the same state
+> > diff --git a/mm/slub.c b/mm/slub.c
+> > index 63d281dfacdb..8d9aa4d7cb7e 100644
+> > --- a/mm/slub.c
+> > +++ b/mm/slub.c
+> > @@ -1024,7 +1024,8 @@ static __printf(3, 4) void slab_err(struct
+> > kmem_cache *s, struct slab *slab,
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 add_taint(TAINT_BAD_PAGE, LO=
+CKDEP_NOW_UNRELIABLE);
+> > =C2=A0}
+> >=20
+> > -static void init_object(struct kmem_cache *s, void *object, u8
+> > val)
+> > +__no_sanitize_memory static void
+>=20
+> __no_sanitize_memory should be used with great care, because it drops
+> all instrumentation from the function, and any shadow writes will be
+> lost.
+> Won't it be better to add kmsan_poison() to init_object() if you want
+> it to stay uninitialized?
+
+I wanted to avoid a ping-pong here, in which we already have properly
+poisoned memory, then memset() incorrectly unpoisons it, and then we
+undo the damage. My first attempt involved using __memset() instead,
+but this resulted in worse assembly code. I wish there were something
+like memset_noinstr().
+
+Right now init_object() doesn't seem to be doing anything besides these
+memset()s, but this can of course change in the future. So I don't mind
+using kmsan_poison() instead of __no_sanitize_memory here too much,
+since it results in better maintainability.
