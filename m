@@ -2,80 +2,84 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5D6BC197A0
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 18:43:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75AF1C47071
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 19:02:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231300AbjKPSnN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Nov 2023 13:43:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36166 "EHLO
+        id S229510AbjKPTCo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Nov 2023 14:02:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229513AbjKPSnM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 13:43:12 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF15B194
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 10:43:08 -0800 (PST)
+        with ESMTP id S231284AbjKPTCn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 14:02:43 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C187182
+        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 11:02:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1700160187;
+        s=mimecast20190719; t=1700161358;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=w7cc9zBGwlFUKPBu4vDvYsCpR7Lh6wcMij0IRTUKRu4=;
-        b=Bg4vbpSKagKayxrIthDVt8qoOoDJKhM0ffFtgswvcjmhO/BPAY4VtwEUqBgCdUuOINNSuf
-        hSM1PKE9viGryptG77xHma7NDuwVm3SYScKhrwBiF89Bu3bYgwH5ay/gjfcjVU6ci/c1lw
-        IhP0ref+iIKTRUwdhMvIBRE8g5da4p4=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=3OC2ADiYU02tF1nm9tqRn9IHNlSGDAKnuIeHEkk+2J4=;
+        b=g+84dBK7rR8+EGXM5PI186pl2vC0RoqbhDd/qaj/l36VoXtRi/ezAM98WMlZX1DWv/XPDZ
+        jt6x6D1aKb/3lPHx140M3BTZ2qaV3EESa3MpL4mmTvoTPY2uNfCn8sX0m0egZs7ZPDO6Xu
+        GZ+gt9irC0fKjYM+FXsJJMQFf8538nU=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-511-qLYrdxmmP2miZZ90B6T-ag-1; Thu, 16 Nov 2023 13:43:03 -0500
-X-MC-Unique: qLYrdxmmP2miZZ90B6T-ag-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-32d9b520d15so503102f8f.3
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 10:43:03 -0800 (PST)
+ us-mta-632-cG_h7f6ENCq_pK96B0eRuQ-1; Thu, 16 Nov 2023 14:02:36 -0500
+X-MC-Unique: cG_h7f6ENCq_pK96B0eRuQ-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-32fa25668acso632886f8f.1
+        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 11:02:36 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700160182; x=1700764982;
+        d=1e100.net; s=20230601; t=1700161355; x=1700766155;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
          :references:cc:to:content-language:subject:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=w7cc9zBGwlFUKPBu4vDvYsCpR7Lh6wcMij0IRTUKRu4=;
-        b=CRqgXVpcLa96SokIVha+N2WlbetxYi74nKHfJzTyCw5Jdd78LQTaCsiYTs46hauro/
-         5wC5Ars2j0uyaXDs/QKqei/z+aV1KYgQcz7EYAH0yklXiO+ymz8I1s86XF9mHjDCcOxf
-         y6OYe5f79hs35lYWaUR9eZ0gYKofIOhCfAS3V7WR1ysLBkLtQn+DuqQl/rFmxMu60hcR
-         E+Cob12HprbMSET4iJcnSxa3pKB5bN8Z6oz1LqLKvOxo7f/8VnkdgnbCRooXPdLbDyyX
-         byasZk7I3Zf2g/NjlGilfmZd5SiU7CqF+Q3D+5Lsel2X2IMiMRrtiz2Fp28V1YrkCU6O
-         aaZg==
-X-Gm-Message-State: AOJu0YxcUY5rv6drIjFvXG3btpvsyanCcaqR+54EdAuIzVg76zPtHNWS
-        78eJj3cvDec1g75NGtXuLfnBkaEYBpfz9cQqs7xORq7NV+vze4m9nxElWp0RpnQeAfgHSK9ZpTa
-        sFnpQ7PIRWfPZBMp7XndiWg==
-X-Received: by 2002:adf:b31c:0:b0:32f:a5b1:47e8 with SMTP id j28-20020adfb31c000000b0032fa5b147e8mr8912163wrd.27.1700160182525;
-        Thu, 16 Nov 2023 10:43:02 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF92EXK//VLadedgtpk5ADoAESbyFGsoQFZy3mGPoeHXTxqWhsWkI4/dm+Yt2wtjBVnr66bww==
-X-Received: by 2002:adf:b31c:0:b0:32f:a5b1:47e8 with SMTP id j28-20020adfb31c000000b0032fa5b147e8mr8912141wrd.27.1700160182116;
-        Thu, 16 Nov 2023 10:43:02 -0800 (PST)
+        bh=3OC2ADiYU02tF1nm9tqRn9IHNlSGDAKnuIeHEkk+2J4=;
+        b=i2pda7hZzFpAHJe2/f0zRiHxGexO1Qk0wu1XtSwn9bIBx4kfCAvJWC7BXyaVqIccJ8
+         y0nCeOoJ5UdPtBXsFJFrY7Bod2U/XwLayefnZNvldeeZ5xSteDXgj4H/9hq+MYWn7yhw
+         AhmMsStlh5pUpliPNd3T91BPp6mzpZNNwD8YjYm0UFH/Kxbb79cKtOG542qadtGlUcky
+         C7oV5RzHLWhVcdD+RkxAOPnW0gjIrOKcD9J3M/gQDZRbtbBTlJsI0KQkoQ29N0FmCvKO
+         FbjisCAmGYvYVg4SNedRgdmwcXYMwAEr4AW5sC1fiNS+73mso1nvC9XyL68ngY8SZD3k
+         aCWA==
+X-Gm-Message-State: AOJu0Yxatd+unuafiIaKgSY6SXO1CkeReGoFG+Hjm9pRitqgEp/fonsx
+        U8Ahvn3BJN59v63o7dm6eEls/2ikWFJkGuxm2roWeSt7LhT/5Dy/SuJW0sHL2nai5v5uMAUjHsz
+        qNhy60C86SPkO/zAs1wtULA==
+X-Received: by 2002:a5d:47af:0:b0:32f:83e4:50e7 with SMTP id 15-20020a5d47af000000b0032f83e450e7mr14055538wrb.12.1700161355370;
+        Thu, 16 Nov 2023 11:02:35 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEJZU5B+uYez9qcnvhBGOUNZ24syk4/bBQhpb99E7lot+IXamjxEmMc6ZazLGreL/SmH0Na2A==
+X-Received: by 2002:a5d:47af:0:b0:32f:83e4:50e7 with SMTP id 15-20020a5d47af000000b0032f83e450e7mr14055513wrb.12.1700161354826;
+        Thu, 16 Nov 2023 11:02:34 -0800 (PST)
 Received: from ?IPV6:2003:cb:c714:e000:d929:2324:97c7:112c? (p200300cbc714e000d929232497c7112c.dip0.t-ipconnect.de. [2003:cb:c714:e000:d929:2324:97c7:112c])
-        by smtp.gmail.com with ESMTPSA id d5-20020adfef85000000b0032fb46812c2sm130769wro.12.2023.11.16.10.43.00
+        by smtp.gmail.com with ESMTPSA id j10-20020adfff8a000000b00326f0ca3566sm162043wrr.50.2023.11.16.11.02.33
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 16 Nov 2023 10:43:01 -0800 (PST)
-Message-ID: <7245df6e-8947-45f3-aaeb-c690dc1433f6@redhat.com>
-Date:   Thu, 16 Nov 2023 19:43:00 +0100
+        Thu, 16 Nov 2023 11:02:34 -0800 (PST)
+Message-ID: <2123c5e8-bba6-4ce8-9050-266a63cc2f14@redhat.com>
+Date:   Thu, 16 Nov 2023 20:02:33 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/8] mm: use vmem_altmap code without CONFIG_ZONE_DEVICE
+Subject: Re: [PATCH 4/8] mm/memory_hotplug: introduce MEM_PHYS_ONLINE/OFFLINE
+ memory notifiers
 Content-Language: en-US
-To:     Sumanth Korikkar <sumanthk@linux.ibm.com>,
+To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc:     Sumanth Korikkar <sumanthk@linux.ibm.com>,
         linux-mm <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Oscar Salvador <osalvador@suse.de>,
+        Michal Hocko <mhocko@suse.com>,
         "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
         Anshuman Khandual <anshuman.khandual@arm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         linux-s390 <linux-s390@vger.kernel.org>,
         LKML <linux-kernel@vger.kernel.org>
 References: <20231114180238.1522782-1-sumanthk@linux.ibm.com>
- <20231114180238.1522782-4-sumanthk@linux.ibm.com>
+ <20231114180238.1522782-5-sumanthk@linux.ibm.com>
+ <7c85bd39-8b34-4b09-b503-b0a2f2e58b88@redhat.com>
+ <20231115160337.5c60f50a@thinkpad-T15>
 From:   David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -122,23 +126,151 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20231114180238.1522782-4-sumanthk@linux.ibm.com>
+In-Reply-To: <20231115160337.5c60f50a@thinkpad-T15>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 14.11.23 19:02, Sumanth Korikkar wrote:
-> vmem_altmap_free() and vmem_altmap_offset() could be utlized without
-> CONFIG_ZONE_DEVICE enabled. Hence, move it to sparse-vmemmap.c
+On 15.11.23 16:03, Gerald Schaefer wrote:
+> On Tue, 14 Nov 2023 19:27:35 +0100
+> David Hildenbrand <david@redhat.com> wrote:
+> 
+>> On 14.11.23 19:02, Sumanth Korikkar wrote:
+>>> Add new memory notifiers to mimic the dynamic ACPI event triggered logic
+>>> for memory hotplug on platforms that do not generate such events. This
+>>> will be used to implement "memmap on memory" feature for s390 in a later
+>>> patch.
+>>>
+>>> Platforms such as x86 can support physical memory hotplug via ACPI. When
+>>> there is physical memory hotplug, ACPI event leads to the memory
+>>> addition with the following callchain:
+>>> acpi_memory_device_add()
+>>>     -> acpi_memory_enable_device()
+>>>        -> __add_memory()
+>>>
+>>> After this, the hotplugged memory is physically accessible, and altmap
+>>> support prepared, before the "memmap on memory" initialization in
+>>> memory_block_online() is called.
+>>>
+>>> On s390, memory hotplug works in a different way. The available hotplug
+>>> memory has to be defined upfront in the hypervisor, but it is made
+>>> physically accessible only when the user sets it online via sysfs,
+>>> currently in the MEM_GOING_ONLINE notifier. This requires calling
+>>> add_memory() during early memory detection, in order to get the sysfs
+>>> representation, but we cannot use "memmap on memory" altmap support at
+>>> this stage, w/o having it physically accessible.
+>>>
+>>> Since no ACPI or similar events are generated, there is no way to set up
+>>> altmap support, or even make the memory physically accessible at all,
+>>> before the "memmap on memory" initialization in memory_block_online().
+>>>
+>>> The new MEM_PHYS_ONLINE notifier allows to work around this, by
+>>> providing a hook to make the memory physically accessible, and also call
+>>> __add_pages() with altmap support, early in memory_block_online().
+>>> Similarly, the MEM_PHYS_OFFLINE notifier allows to make the memory
+>>> inaccessible and call __remove_pages(), at the end of
+>>> memory_block_offline().
+>>>
+>>> Calling __add/remove_pages() requires mem_hotplug_lock, so move
+>>> mem_hotplug_begin/done() to include the new notifiers.
+>>>
+>>> All architectures ignore unknown memory notifiers, so this patch should
+>>> not introduce any functional changes.
+>>
+>> Sorry to say, no. No hacks please, and this is a hack for memory that
+>> has already been added to the system.
+> 
+> IIUC, when we enter memory_block_online(), memory has always already
+> been added to the system, on all architectures. E.g. via ACPI events
+> on x86, or with the existing s390 hack, where we add it at boot time,
+> including memmap allocated from system memory. Without a preceding
+> add_memory() you cannot reach memory_block_online() via sysfs online.
 
-Maybe give an example: For example mm/memory_hotplug.c:__add_pages() 
-relies on that.
+Adding that memory block at boot time is the legacy leftover s390x is 
+carrying along; and now we want to "workaround" that by adding s390x 
+special handling for online/offlining code and having memory blocks 
+without any memmap, or configuring an altmap in the very last minute 
+using a s390x specific memory notifier.
 
-The altmap is no longer restricted to ZONE_DEVICE handling.
+Instead, if you want to support the altmap, the kernel should not add 
+standby memory to the system (if configured for this new feature), but 
+instead only remember the standby memory ranges so it knows what can 
+later be added and what can't.
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+ From there, users should have an interface where they can actually add 
+memory to the system, and either online it manually or just let the 
+kernel online it automatically.
+
+s390x code will call add_memory() and properly prepare an altmap if 
+requested and make that standby memory available. You can then even have 
+an interface to remove that memory again once offline. That will work 
+with an altmap or without an altmap.
+
+This approach is aligned with any other code that hot(un)plugs memory 
+and is compatible with things like variable-sized memory blocks people 
+have been talking about quite a while already, and altmaps that span 
+multiple memory blocks to make gigantic pages in such ranges usable.
+
+Sure, you'll have a new interface and have to enable the new handling 
+for the new kernel, but you're asking for supporting a new feature that 
+cannot be supported cleanly just like any other architecture does. But 
+it's a clean approach and probably should have been done that way right 
+from the start (decades ago).
+
+Note: We do have the same for other architectures without ACPI that add 
+memory via the probe interface. But IIRC we cannot really do any checks 
+there, because these architectures have no way of identifying what
+
+> 
+> The difference is that for s390, the memory is not yet physically
+> accessible, and therefore we cannot use the existing altmap support
+> in memory_block_online(), which requires that the memory is accessible
+> before it calls mhp_init_memmap_on_memory().
+> 
+> Currently, on s390 we make the memory accessible in the GOING_ONLINE
+> notifier, by sclp call to the hypervisor. That is too late for altmap
+> setup code in memory_block_online(), therefore we'd like to introduce
+> the new notifier, to have a hook where we can make it accessible
+> earlier, and after that there is no difference to how it works for
+> other architectures, and we can make use of the existing altmap support.
+> 
+>>
+>> If you want memory without an altmap to suddenly not have an altmap
+>> anymore, then look into removing and readding that memory, or some way
+>> to convert offline memory.
+> 
+> We do not want to have memory suddenly not have an altmap support
+> any more, but simply get a hook so that we can prepare the memory
+> to have altmap support. This means making it physically accessible,
+> and calling __add_pages() for altmap support, which for other
+> architecture has already happened before.
+> 
+> Of course, it is a hack for s390, that we must skip __add_pages()
+> in the initial (arch_)add_memory() during boot time, when we want
+> altmap support, because the memory simply is not accessible at that
+> time. But s390 memory hotplug support has always been a hack, and
+> had to be, because of how it is implemented by the architecture.
+
+I write above paragraph before reading this; and it's fully aligned with 
+what I said above.
+
+> 
+> So we replace one hack with another one, that has the huge advantage
+> that we do not need to allocate struct pages upfront from system
+> memory any more, for the whole possible online memory range.
+> 
+> And the current approach comes without any change to existing
+> interfaces, and minimal change to common code, i.e. these new
+> notifiers, that should not have any impact on other architectures.
+> 
+> What exactly is your concern regarding the new notifiers? Is it
+> useless no-op notifier calls on other archs (not sure if they
+> would get optimized out by compiler)?
+
+That it makes hotplug code more special because of s390x, instead of 
+cleaning up that legacy code.
 
 -- 
 Cheers,
