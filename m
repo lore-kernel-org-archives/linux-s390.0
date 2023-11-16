@@ -2,102 +2,80 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F40A9C197A0
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 06:00:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6050AC54FB9
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 06:18:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229484AbjKPGAi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Nov 2023 01:00:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47268 "EHLO
+        id S229795AbjKPGST (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Nov 2023 01:18:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229446AbjKPGAf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 01:00:35 -0500
-X-Greylist: delayed 447 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 15 Nov 2023 22:00:31 PST
-Received: from out-185.mta1.migadu.com (out-185.mta1.migadu.com [95.215.58.185])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D524F1AB
-        for <linux-s390@vger.kernel.org>; Wed, 15 Nov 2023 22:00:31 -0800 (PST)
-Message-ID: <5ff45ce6-f1bb-462c-9b1e-aadfb881808a@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1700113983;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=jsIP/VS6rGR5s3xC9mmdYDIoDcaS13Pz0T89+vNaTAk=;
-        b=DmWs2odRAbR9UXAs7DJezIyJcKyNZrvfke/ZoWgguDvL3EVnvc9GJAUc/8oKirKTmGzkGb
-        a3lUpNULgGHjyON97B7BTat1mkY+y0/X6crxcTDbTUJILiffsOWt6h2C5JVl9MJL9VeJUN
-        R2cERV9pyH+UfI+kJJyQCXUzDMmTBVw=
-Date:   Thu, 16 Nov 2023 00:52:56 -0500
+        with ESMTP id S229446AbjKPGSS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 01:18:18 -0500
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5108519F;
+        Wed, 15 Nov 2023 22:18:14 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0VwV9lei_1700115491;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0VwV9lei_1700115491)
+          by smtp.aliyun-inc.com;
+          Thu, 16 Nov 2023 14:18:12 +0800
+Date:   Thu, 16 Nov 2023 14:18:11 +0800
+From:   Dust Li <dust.li@linux.alibaba.com>
+To:     Li RongQing <lirongqing@baidu.com>, wenjia@linux.ibm.co,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH][net-next] net/smc: avoid atomic_set and smp_wmb in the
+ tx path when possible
+Message-ID: <20231116061811.GC121324@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20231116022041.51959-1-lirongqing@baidu.com>
 MIME-Version: 1.0
-Subject: Re: [PATCH bpf-next v3 01/13] bpf: Add support for non-fix-size
- percpu mem allocation
-Content-Language: en-GB
-To:     Hou Tao <houtao@huaweicloud.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Cc:     bpf@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>, kernel-team@fb.com,
-        Martin KaFai Lau <martin.lau@kernel.org>,
-        Marc Hartmayer <mhartmay@linux.ibm.com>,
-        Mikhail Zaslonko <zaslonko@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-References: <20230827152729.1995219-1-yonghong.song@linux.dev>
- <20230827152734.1995725-1-yonghong.song@linux.dev>
- <20231115153139.29313-A-hca@linux.ibm.com>
- <379ff74e-cad2-919c-4130-adbe80d50a26@huaweicloud.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   Yonghong Song <yonghong.song@linux.dev>
-In-Reply-To: <379ff74e-cad2-919c-4130-adbe80d50a26@huaweicloud.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231116022041.51959-1-lirongqing@baidu.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-On 11/15/23 8:15 PM, Hou Tao wrote:
-> Hi,
+On Thu, Nov 16, 2023 at 10:20:41AM +0800, Li RongQing wrote:
+>there is rare possibility that conn->tx_pushing is not 1, since
+>tx_pushing is just checked with 1, so move the setting tx_pushing
+>to 1 after atomic_dec_and_test() return false, to avoid atomic_set
+>and smp_wmb in tx path
 >
-> On 11/15/2023 11:31 PM, Heiko Carstens wrote:
->> On Sun, Aug 27, 2023 at 08:27:34AM -0700, Yonghong Song wrote:
->>> This is needed for later percpu mem allocation when the
->>> allocation is done by bpf program. For such cases, a global
->>> bpf_global_percpu_ma is added where a flexible allocation
->>> size is needed.
->>>
->>> Signed-off-by: Yonghong Song <yonghong.song@linux.dev>
->>> ---
->>>   include/linux/bpf.h   |  4 ++--
->>>   kernel/bpf/core.c     |  8 +++++---
->>>   kernel/bpf/memalloc.c | 14 ++++++--------
->>>   3 files changed, 13 insertions(+), 13 deletions(-)
->> Both Marc and Mikhail reported out-of-memory conditions on s390 machines,
->> and bisected it down to this upstream commit 41a5db8d8161 ("bpf: Add
->> support for non-fix-size percpu mem allocation").
->> This seems to eat up a lot of memory only based on the number of possible
->> CPUs.
->>
->> If we have a machine with 8GB, 6 present CPUs and 512 possible CPUs (yes,
->> this is a realistic scenario) the memory consumption directly after boot
->> is:
->>
->> $ cat /sys/devices/system/cpu/present
->> 0-5
->> $ cat /sys/devices/system/cpu/possible
->> 0-511
-> Will the present CPUs be hot-added dynamically and eventually increase
-> to 512 CPUs ? Or will the present CPUs rarely be hot-added ? After all
-> possible CPUs are online, will these CPUs be hot-plugged dynamically ?
-> Because I am considering add CPU hotplug support for bpf mem allocator,
-> so we can allocate memory according to the present CPUs instead of
-> possible CPUs. But if the present CPUs will be increased to all possible
-> CPUs quickly, there will be not too much benefit to support hotplug in
-> bpf mem allocator.
+>Signed-off-by: Li RongQing <lirongqing@baidu.com>
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
 
-Thanks, Hou. In my development machine and also checking
-some internal production machines, no suprisingly, the 'present' number
-cpus is equal to the 'possible' number of cpus. I suspect in most cases,
-'present' and 'possible' are the same. But it would be good that
-other people can share their 'present != possible' configuration
-and explain why.
+>---
+> net/smc/smc_tx.c | 7 ++++---
+> 1 file changed, 4 insertions(+), 3 deletions(-)
+>
+>diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+>index 3b0ff3b..72dbdee 100644
+>--- a/net/smc/smc_tx.c
+>+++ b/net/smc/smc_tx.c
+>@@ -667,8 +667,6 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+> 		return 0;
+> 
+> again:
+>-	atomic_set(&conn->tx_pushing, 1);
+>-	smp_wmb(); /* Make sure tx_pushing is 1 before real send */
+> 	rc = __smc_tx_sndbuf_nonempty(conn);
+> 
+> 	/* We need to check whether someone else have added some data into
+>@@ -677,8 +675,11 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+> 	 * If so, we need to push again to prevent those data hang in the send
+> 	 * queue.
+> 	 */
+>-	if (unlikely(!atomic_dec_and_test(&conn->tx_pushing)))
+>+	if (unlikely(!atomic_dec_and_test(&conn->tx_pushing))) {
+>+		atomic_set(&conn->tx_pushing, 1);
+>+		smp_wmb(); /* Make sure tx_pushing is 1 before real send */
+nit: it would be better if we change the comments to "send again".
 
+Thanks
+> 		goto again;
+>+	}
+> 
+> 	return rc;
+> }
+>-- 
+>2.9.4
