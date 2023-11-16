@@ -2,198 +2,134 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1620BC47071
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 19:04:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 042D4C197A0
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 19:14:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229448AbjKPTED (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Nov 2023 14:04:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48112 "EHLO
+        id S229634AbjKPTOm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Nov 2023 14:14:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229510AbjKPTEC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 14:04:02 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96A8AD4A
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 11:03:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1700161438;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=noFtgqazCBC+/n+W0RzmjdI1W4IMXkcCumNBFAtwhRo=;
-        b=JHjzIxn42SnsT2BarMdERPPzfjSbNGslXXKFqCyM9JE9kRdeW9aetch8g4+jCv+kpTF4Br
-        sW8ZeZ+55/hpCFkzpz85w761l7M80udkjwNZ4rLFrK3u3Kxl5i3j9mYMymJEdpW/DcJgXc
-        wi4RUKSOljg4J9giQvc5xBzlYZiMFs0=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-632-mDKBMHfFN6ypFAAagoyRoA-1; Thu, 16 Nov 2023 14:03:57 -0500
-X-MC-Unique: mDKBMHfFN6ypFAAagoyRoA-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4084e263ec4so7664015e9.2
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 11:03:56 -0800 (PST)
+        with ESMTP id S231362AbjKPTOl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 14:14:41 -0500
+Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01833D56
+        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 11:14:37 -0800 (PST)
+Received: by mail-oi1-x22e.google.com with SMTP id 5614622812f47-3b2ec5ee2e4so721545b6e.3
+        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 11:14:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1700162077; x=1700766877; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=xXMlqUa9U+ONyBzylSfeWWc20gFnP/0YsPE87Yq0BOQ=;
+        b=PRSE2M1ORVm7fO5vG8Ol92WXrkNFp1x4Oy4Ag4nrtHgrOIrnbZ0jg6YTpNCajdevk5
+         97ne8VGKG1rug+OceA7nx3KYfmKYTxue2zaKWIrCE87GBPG4NjQwhhubH3IbCIKga0QH
+         s479EnroSES6n+gmAttCGt3lzQsoWatPNMQns=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700161436; x=1700766236;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :references:cc:to:content-language:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=noFtgqazCBC+/n+W0RzmjdI1W4IMXkcCumNBFAtwhRo=;
-        b=Dzu6IKryd5fiFee4PlIFIrD2ByK1Ne/YyzJJCYgGCUWas36a7SCTb86GSvTOGoVKwo
-         nw0tS41qamlakPK5XLFA5xYNLBOoVEqVHavtJfhym1BmnlFMqrwV6Fo+CJfKIoG9Xp7Q
-         tubYd2cpRW0zSTUfZuMmVuccz8X2Y7doDdCCLQMia2vNYDRmNedjokGygDR3qTM7/bWb
-         izsB7J/fuGAuCBFO2kKyYFklFvjUL2QUktbHUDTtLgBWOUSXxpULSKsmJF3GrnQUShgu
-         LVf0MlaEYFf+H0F3eSKHK2xEpjPGwzQ8ZVI5+fgMFu5WJ9yTSXDvinwAhCB+ZgCpbFx7
-         VplA==
-X-Gm-Message-State: AOJu0YyE3gcX9wqUxTJihs2mUm8+z3HbLqmUlnvbq78mOLf5bPwPBobh
-        aFGeQFnBUh1MUCZ65VO7gOavb/bUVmhj0ayUj7Baf5+gXxEmGb+fXjOs57eV3FD+mInR6A8eaDw
-        jkSGORy2cl6KGI4ogPef8CjsxbH3XNw==
-X-Received: by 2002:adf:f9cf:0:b0:32d:14c5:643d with SMTP id w15-20020adff9cf000000b0032d14c5643dmr11981620wrr.5.1700161435783;
-        Thu, 16 Nov 2023 11:03:55 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGkeF+BhJMVhRUT0hTwF3xsLQX+bV0T7VMFgJrY68XUtb3ZDoOrmg4VK/IBwjz+J3pf8mXkoA==
-X-Received: by 2002:adf:f9cf:0:b0:32d:14c5:643d with SMTP id w15-20020adff9cf000000b0032d14c5643dmr11981594wrr.5.1700161435301;
-        Thu, 16 Nov 2023 11:03:55 -0800 (PST)
-Received: from ?IPV6:2003:cb:c714:e000:d929:2324:97c7:112c? (p200300cbc714e000d929232497c7112c.dip0.t-ipconnect.de. [2003:cb:c714:e000:d929:2324:97c7:112c])
-        by smtp.gmail.com with ESMTPSA id j10-20020adfff8a000000b00326f0ca3566sm162043wrr.50.2023.11.16.11.03.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 16 Nov 2023 11:03:54 -0800 (PST)
-Message-ID: <b744a100-76a4-4735-89b1-08f16cf8b322@redhat.com>
-Date:   Thu, 16 Nov 2023 20:03:54 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 4/8] mm/memory_hotplug: introduce MEM_PHYS_ONLINE/OFFLINE
- memory notifiers
-Content-Language: en-US
-To:     Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc:     linux-mm <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Michal Hocko <mhocko@suse.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        d=1e100.net; s=20230601; t=1700162077; x=1700766877;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=xXMlqUa9U+ONyBzylSfeWWc20gFnP/0YsPE87Yq0BOQ=;
+        b=mbRO61QU/k3k/xLaSZZrRHZcAHPpeiuM20unTknukSXh/l2/Zt9G1/OjoHbuGyKjUF
+         DB/6zzjEVXTWVprDaTWnl/fEZOTnH8TFORF4lrvzvTYLwQpsmgOaWbarXO+ZmRBQYcT1
+         AeEVnCq7oSOWGoVRTQMFHOjsxISk3hu9JbpvVC2oJnwJ4bsbX3luGc4aGU/YcB1bI1Ys
+         gcMF2GdVwJT/PrzKaNP1EK/IN1aFJ0yyVhWR845bfTTS1Ir5XWp86NitS0+9woX0PnN3
+         hETX7881Exuc3hPt+yWcj9qlUf/zzD/qBG4B6NQJI7TJNXKVKds3knDs8H3q17w2FThT
+         810A==
+X-Gm-Message-State: AOJu0YyctfRvkHc3c3qor8Oge9Ek4au7yvjIifPS595ZexEmFm3Iq0sU
+        Qu6exUzfpFSxXMhOOQSxJDd6Ew==
+X-Google-Smtp-Source: AGHT+IHz54MaNBa/FlcHGXRN1pIxZE4ZigsrM1BRWw9tGvly2N+Ep0QSYPAXnBIoJfAHeM0CxPSDnQ==
+X-Received: by 2002:a05:6808:13cc:b0:3b2:e6a4:e177 with SMTP id d12-20020a05680813cc00b003b2e6a4e177mr24284312oiw.51.1700162077185;
+        Thu, 16 Nov 2023 11:14:37 -0800 (PST)
+Received: from www.outflux.net (198-0-35-241-static.hfc.comcastbusiness.net. [198.0.35.241])
+        by smtp.gmail.com with ESMTPSA id y17-20020a63e251000000b005ab7b055573sm47469pgj.79.2023.11.16.11.14.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Nov 2023 11:14:36 -0800 (PST)
+From:   Kees Cook <keescook@chromium.org>
+To:     Steffen Maier <maier@linux.ibm.com>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Benjamin Block <bblock@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-References: <20231114180238.1522782-1-sumanthk@linux.ibm.com>
- <20231114180238.1522782-5-sumanthk@linux.ibm.com>
- <7c85bd39-8b34-4b09-b503-b0a2f2e58b88@redhat.com>
- <ZVTUVuZzSJmQqEvk@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-From:   David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <ZVTUVuZzSJmQqEvk@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Azeem Shaikh <azeemshaikh38@gmail.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-hardening@vger.kernel.org
+Subject: [PATCH] scsi: zfcp: Replace strlcpy() with strscpy()
+Date:   Thu, 16 Nov 2023 11:14:35 -0800
+Message-Id: <20231116191435.work.581-kees@kernel.org>
+X-Mailer: git-send-email 2.34.1
+MIME-Version: 1.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2125; i=keescook@chromium.org;
+ h=from:subject:message-id; bh=n/5QOMTS/PQ87jfirRVAutDJEB7F5Jn3WLO02CU/Zxk=;
+ b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBlVmobOo7x61Ke/67MhKfWOLSNoGNoSj987Uk83
+ vjr19oRi1OJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCZVZqGwAKCRCJcvTf3G3A
+ JnY/D/wJJH1WvSnfcOFsHJ7ya6qtSFf2j4ns7EUFNJSsRvSJTm16bUOEbYBISKfoDSA0nJl9QdC
+ Kq1Kdoo/POkGyIJaVT1ksnnKoo1CaomOCqIXxC0BvUjoUzKGVaRQx3UxVRx1tznTM1srcjzdbDo
+ EL7KzXzBmD2fRaI9tdtxujifs4qF5H8lX7+LlgKiGWD97An4mlPxktKW5vdO0N4n+lNN9pYsC5Y
+ sOr9Lfo9CqR9l0PdxAK+GG7f0orxLMKxpCr/CbjYyR6epEgG430To5caSUabjbcpYum0Eckl4pp
+ AJvL8FPevJbV8mBBh9CGwzuPyUhotxw/mmeq1mMxWqDcCH9WMOwiqOW9exZGun+BT2oba/EjWWM
+ 7doqbdFNhFoCMTx3oBuCpBgzo+grrxYBi8w4gfnqP4ax7K70EnGtmYWbTPkyFWs2L3IEeC2g25j
+ jJmf7RRM9gVipZQG4MEW8qn1RYQR5vxvbDUs8sgKP3QEw6TBzKQ8AdY18O49jUDrsFrYUp8isAn
+ j5DXCRqc8rxHuxrH0RdeEa3/uMOtPNEJUGEOkKQ3/5SZekJBQ0oIUtX5o47qCSUHAzRq6CmNhA+
+ xUaww+US21aOvGxxpOSr72MJoDcCSgyOWR2Y8Tr75noNYgECiTwUxEgA0Gj+rPi9UcOOB4Fer5V
+ PlWWlQh bp1J2Obw==
+X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 15.11.23 15:23, Sumanth Korikkar wrote:
-> On Tue, Nov 14, 2023 at 07:27:35PM +0100, David Hildenbrand wrote:
->> On 14.11.23 19:02, Sumanth Korikkar wrote:
->>> Add new memory notifiers to mimic the dynamic ACPI event triggered logic
->>> for memory hotplug on platforms that do not generate such events. This
->>> will be used to implement "memmap on memory" feature for s390 in a later
->>> patch.
->>>
->>> Platforms such as x86 can support physical memory hotplug via ACPI. When
->>> there is physical memory hotplug, ACPI event leads to the memory
->>> addition with the following callchain:
->>> acpi_memory_device_add()
->>>     -> acpi_memory_enable_device()
->>>        -> __add_memory()
->>>
->>> After this, the hotplugged memory is physically accessible, and altmap
->>> support prepared, before the "memmap on memory" initialization in
->>> memory_block_online() is called.
->>>
->>> On s390, memory hotplug works in a different way. The available hotplug
->>> memory has to be defined upfront in the hypervisor, but it is made
->>> physically accessible only when the user sets it online via sysfs,
->>> currently in the MEM_GOING_ONLINE notifier. This requires calling
->>> add_memory() during early memory detection, in order to get the sysfs
->>> representation, but we cannot use "memmap on memory" altmap support at
->>> this stage, w/o having it physically accessible.
->>>
->>> Since no ACPI or similar events are generated, there is no way to set up
->>> altmap support, or even make the memory physically accessible at all,
->>> before the "memmap on memory" initialization in memory_block_online().
->>>
->>> The new MEM_PHYS_ONLINE notifier allows to work around this, by
->>> providing a hook to make the memory physically accessible, and also call
->>> __add_pages() with altmap support, early in memory_block_online().
->>> Similarly, the MEM_PHYS_OFFLINE notifier allows to make the memory
->>> inaccessible and call __remove_pages(), at the end of
->>> memory_block_offline().
->>>
->>> Calling __add/remove_pages() requires mem_hotplug_lock, so move
->>> mem_hotplug_begin/done() to include the new notifiers.
->>>
->>> All architectures ignore unknown memory notifiers, so this patch should
->>> not introduce any functional changes.
->>
->> Sorry to say, no. No hacks please, and this is a hack for memory that has
->> already been added to the system.
->>
->> If you want memory without an altmap to suddenly not have an altmap anymore,
->> then look into removing and readding that memory, or some way to convert
->> offline memory.
-> 
-> Sorry, I couldnt get the context. Could you please give me more details?
+strlcpy() reads the entire source buffer first. This read may exceed
+the destination size limit. This is both inefficient and can lead
+to linear read overflows if a source string is not NUL-terminated[1].
+Additionally, it returns the size of the source string, not the
+resulting size of the destination string. In an effort to remove strlcpy()
+completely[2], replace strlcpy() here with strscpy().
 
-See my reply to Gerald.
+Be explicitly robust in the face of truncation, which should be an
+impossible state.
 
-In an ideal world, there would not be any new callbacks, we would get 
-rid of them, and just let the architecture properly hotplug memory to 
-the system when requested by the user.
+Link: https://www.kernel.org/doc/html/latest/process/deprecated.html#strlcpy [1]
+Link: https://github.com/KSPP/linux/issues/89 [2]
+Cc: Steffen Maier <maier@linux.ibm.com>
+Cc: Benjamin Block <bblock@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Azeem Shaikh <azeemshaikh38@gmail.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+ drivers/s390/scsi/zfcp_fc.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
+index 4f0d0e55f0d4..1a29f10767fc 100644
+--- a/drivers/s390/scsi/zfcp_fc.c
++++ b/drivers/s390/scsi/zfcp_fc.c
+@@ -900,8 +900,15 @@ static void zfcp_fc_rspn(struct zfcp_adapter *adapter,
+ 	zfcp_fc_ct_ns_init(&rspn_req->ct_hdr, FC_NS_RSPN_ID,
+ 			   FC_SYMBOLIC_NAME_SIZE);
+ 	hton24(rspn_req->rspn.fr_fid.fp_fid, fc_host_port_id(shost));
+-	len = strlcpy(rspn_req->rspn.fr_name, fc_host_symbolic_name(shost),
+-		      FC_SYMBOLIC_NAME_SIZE);
++	len = strscpy(rspn_req->name, fc_host_symbolic_name(shost),
++		      sizeof(rspn_req->name));
++	/*
++	 * It should be impossible for this to truncate, as
++	 * sizeof(rspn_req->name) is equal to max size of
++	 * fc_host_symbolic_name(shost), but check anyway.
++	 */
++	if (len < 0)
++		len = sizeof(rspn_req->name) - 1;
+ 	rspn_req->rspn.fr_name_len = len;
+ 
+ 	sg_init_one(&fc_req->sg_req, rspn_req, sizeof(*rspn_req));
 -- 
-Cheers,
-
-David / dhildenb
+2.34.1
 
