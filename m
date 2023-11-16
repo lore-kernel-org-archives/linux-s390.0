@@ -2,59 +2,65 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 980BDC54FB9
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 10:14:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3BB4C47071
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 10:14:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344994AbjKPKOW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Nov 2023 05:14:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59968 "EHLO
+        id S235663AbjKPKOh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Nov 2023 05:14:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235663AbjKPKOU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 05:14:20 -0500
-Received: from mail-yw1-x1136.google.com (mail-yw1-x1136.google.com [IPv6:2607:f8b0:4864:20::1136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18E50D59
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 02:14:12 -0800 (PST)
-Received: by mail-yw1-x1136.google.com with SMTP id 00721157ae682-5afabb23900so6795957b3.2
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 02:14:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1700129651; x=1700734451; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=S5z27wFZQcKESSrI85AK8SZJIpmMB6uhj5fEtkmaII8=;
-        b=gjQ20O/oXiMttAWwKuYqRM8jsItpyrbgUftQOi5nWSPBZNynU2otEfAQ8TbFpi4nYv
-         L2+mS6P5WPvxvBfcqlZXflak3skFOepr6piLa+3rwyHsi3Ndddhv/X+RasJn1W8E9YTn
-         CcaQARRW3sYpKEJ8NwjYfrexPmk+IxEhSyt2Uj6v6k8oSC0xpt9FtPO4uhQfXnacz3Pw
-         TtQevSy1Zitg1U2DBbPBp6TCzpgAnw2fSOk4OVZlBI0YbH9svNI3TddNsMuUF4zrzWrH
-         lNvL1tVYYO4RoTabtVk3DbSNmT+xfAMzRWD5HqmCFqkYWjmWaJ2maieVCvzRMmsjjZKr
-         grcw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700129651; x=1700734451;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=S5z27wFZQcKESSrI85AK8SZJIpmMB6uhj5fEtkmaII8=;
-        b=A2o+O6RKRJcUY48flynW0ShrFeuy63jp7d3FacuXi9fEqeRn2mC332pAoI5+w5lnvs
-         p6hFmS/MG05W/7sFlEFlhNANNnMt5uJeolk2eJVU4dapCgsCFcfLLLopGcMfWOVQ2grk
-         TLfel4Ij9cDluMLnkEMvbH3+TctTvwhbFKvE+25M/+6h34Tn5lzv/Ee2jWgjWhXDawF6
-         Yloogy6TKzcVvfIiiyJ3OoJr2eqErKR04c4EVz/lJc7hP5cQOHEhx759YTjhXd+5WZA4
-         imX9oatqhJI08Ayebk0CJTx3jAnMkR9w9eUmPLOjxfPTRcCUyRCFkHMQxoa7rJBIxS9S
-         bUZQ==
-X-Gm-Message-State: AOJu0YxCc5GxstiCxfFzQZOZWQ0NcIR3AamebF5tcm5G5O3gCl94f7LA
-        ovOZYixY1b25qmdiroN962xfaQJabaVXqa+dmvbowg==
-X-Google-Smtp-Source: AGHT+IF+jaGcS9pPp5H4LI7L0H2rgwwBBSMYs58tIpjDOVz6YSDhqCfvQL1gqRcOfGQbFFqR56bfm3c0DchFbitnYxg=
-X-Received: by 2002:a81:47c3:0:b0:594:f864:8507 with SMTP id
- u186-20020a8147c3000000b00594f8648507mr15893002ywa.51.1700129651150; Thu, 16
- Nov 2023 02:14:11 -0800 (PST)
-MIME-Version: 1.0
-References: <20231115203401.2495875-1-iii@linux.ibm.com> <20231115203401.2495875-7-iii@linux.ibm.com>
-In-Reply-To: <20231115203401.2495875-7-iii@linux.ibm.com>
-From:   Alexander Potapenko <glider@google.com>
-Date:   Thu, 16 Nov 2023 11:13:30 +0100
-Message-ID: <CAG_fn=Viz99-GHX0rnKWo7Wdhw+BLHqNXY_AV0-pT6d1OiGw3A@mail.gmail.com>
-Subject: Re: [PATCH 06/32] kmsan: Fix kmsan_copy_to_user() on arches with
- overlapping address spaces
-To:     Ilya Leoshkevich <iii@linux.ibm.com>
+        with ESMTP id S1345040AbjKPKOd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 05:14:33 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C1E3D67;
+        Thu, 16 Nov 2023 02:14:28 -0800 (PST)
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AGAAM17023971;
+        Thu, 16 Nov 2023 10:13:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=Ak1+5JgdIAueV3yIEUMqcop5dQmaB4mQXKLM2e0aWDE=;
+ b=NAtPmPLZ4fBwqyAUbx+L2/Vi4ohkA2q3WrfCMYagsiBc+f9SbrJ7m4yNeajpcLW2Hhsq
+ dF2LHUfY0ClCk63KcfpH8Z+JMoACkLh5nkcuV/xakb+/gyZP774FOtzT4CqAi8eHDQHr
+ VTkOnhu3yq5/WIS9b7eDEhX2oUAVLyRfUjZfGnhYixaRwyZbDd6gvCW2RStREB8HdevT
+ pqAA+FJ29k4I0QTIenmUqeTzfPJ79j6F0KEQzUZS/2hot9+kO+aoSMvVHPG2R2zEJWey
+ ZLplbdwmN8kS1RHLv2S7eRlxsn2bc+j7xP9slRkEasX0xmbHAenoUsoQKQfWXH1oAwDp 7A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3udh3b02ns-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Nov 2023 10:13:45 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AGAB0vB024892;
+        Thu, 16 Nov 2023 10:13:45 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3udh3b02n9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Nov 2023 10:13:45 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AG8Xiqe000447;
+        Thu, 16 Nov 2023 10:13:44 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uanekwr7a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Nov 2023 10:13:44 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AGADf5f19333700
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 16 Nov 2023 10:13:41 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 29C552008A;
+        Thu, 16 Nov 2023 10:13:41 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C2E9E2008D;
+        Thu, 16 Nov 2023 10:13:39 +0000 (GMT)
+Received: from [9.179.9.51] (unknown [9.179.9.51])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 16 Nov 2023 10:13:39 +0000 (GMT)
+Message-ID: <7c222eff6c1baaa7647a9aa43a1ef19de9670230.camel@linux.ibm.com>
+Subject: Re: [PATCH 00/32] kmsan: Enable on s390
+From:   Ilya Leoshkevich <iii@linux.ibm.com>
+To:     Alexander Potapenko <glider@google.com>
 Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Christoph Lameter <cl@linux.com>,
@@ -75,19 +81,77 @@ Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Mark Rutland <mark.rutland@arm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>
+Date:   Thu, 16 Nov 2023 11:13:39 +0100
+In-Reply-To: <CAG_fn=U+X=EE9SSb61E=QDReBXn6PGiX4gJnMfNKsTwQ6saKcA@mail.gmail.com>
+References: <20231115203401.2495875-1-iii@linux.ibm.com>
+         <CAG_fn=U+X=EE9SSb61E=QDReBXn6PGiX4gJnMfNKsTwQ6saKcA@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: RSDRhI5h1HCfVYThrCR4RyNJd2bxpB6O
+X-Proofpoint-GUID: JioNNmrH-KbF_Zczl6SxNj_OhO0okpXb
 Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-16_07,2023-11-15_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 malwarescore=0
+ lowpriorityscore=0 phishscore=0 mlxscore=0 spamscore=0 priorityscore=1501
+ impostorscore=0 mlxlogscore=549 adultscore=0 clxscore=1015 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311060000
+ definitions=main-2311160080
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Nov 15, 2023 at 9:34=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.com=
+On Thu, 2023-11-16 at 09:42 +0100, Alexander Potapenko wrote:
+> On Wed, Nov 15, 2023 at 9:34=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.c=
+om>
 > wrote:
->
-> Comparing pointers with TASK_SIZE does not make sense when kernel and
-> userspace overlap. Assume that we are handling user memory access in
-> this case.
->
-> Reported-by: Alexander Gordeev <agordeev@linux.ibm.com>
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Reviewed-by: Alexander Potapenko <glider@google.com>
+> >=20
+> > Hi,
+> >=20
+> > This series provides the minimal support for Kernel Memory
+> > Sanitizer on
+> > s390. Kernel Memory Sanitizer is clang-only instrumentation for
+> > finding
+> > accesses to uninitialized memory. The clang support for s390 has
+> > already
+> > been merged [1].
+> >=20
+> > With this series, I can successfully boot s390 defconfig and
+> > debug_defconfig with kmsan.panic=3D1. The tool found one real
+> > s390-specific bug (fixed in master).
+> >=20
+> > Best regards,
+> > Ilya
+>=20
+> Hi Ilya,
+>=20
+> This is really impressive!
+> Can you please share some instructions on how to run KMSAN in QEMU?
+> I've never touched s390, but I'm assuming it should be possible?
+
+I developed this natively (without cross-compilation or emulation,
+just KVM), but I just gave the following a try on x86_64 and had some
+success:
+
+$ make LLVM=3D1 ARCH=3Ds390 O=3D../linux-build-s390x-cross CC=3Dclang-18
+LD=3Ds390x-linux-gnu-ld OBJCOPY=3Ds390x-linux-gnu-objcopy debug_defconfig
+
+$ make LLVM=3D1 ARCH=3Ds390 O=3D../linux-build-s390x-cross CC=3Dclang-18
+LD=3Ds390x-linux-gnu-ld OBJCOPY=3Ds390x-linux-gnu-objcopy menuconfig
+
+$ make LLVM=3D1 ARCH=3Ds390 O=3D../linux-build-s390x-cross CC=3Dclang-18
+LD=3Ds390x-linux-gnu-ld OBJCOPY=3Ds390x-linux-gnu-objcopy -j24
+
+$ qemu-system-s390x -M accel=3Dtcg -smp 2 -m 4G -kernel ../linux-build-
+s390x-cross/arch/s390/boot/bzImage -nographic -append 'root=3D/dev/vda1
+rw console=3DttyS1 nokaslr earlyprintk cio_ignore=3Dall kmsan.panic=3D1' -
+object rng-random,filename=3D/dev/urandom,id=3Drng0 -device virtio-rng-
+ccw,rng=3Drng0
+
+It's also possible to get a free s390 machine at [1].
+
+[1] https://linuxone.cloud.marist.edu/oss
