@@ -2,58 +2,66 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 677FBC54FB9
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 09:15:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B1BFC197A0
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 09:17:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230274AbjKPJPM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Nov 2023 04:15:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56008 "EHLO
+        id S234879AbjKPJRz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Nov 2023 04:17:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235659AbjKPJPL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 04:15:11 -0500
-Received: from mail-yw1-x112f.google.com (mail-yw1-x112f.google.com [IPv6:2607:f8b0:4864:20::112f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F7CD194
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 01:15:07 -0800 (PST)
-Received: by mail-yw1-x112f.google.com with SMTP id 00721157ae682-5a7d9d357faso6039987b3.0
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 01:15:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1700126106; x=1700730906; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QsOxPTssCXfEjaJKL1FvlaQBMDAuXe1RlMdSNjLvudI=;
-        b=L2w/VYcSN5vXT9bGmTpDrhhO9vGrfZFGNJojaIFwWz8De9Hg0ORb7LEWZJ5Lf7k/35
-         J5kXuSfRX5Ydo0pBPDF1N8FFt1P/XOZdCXKJROrF35us7bDm/TsOfWM8PRfoXSy9IFHp
-         UZqVMWIA03Ntl3+X6UodmYgxmTrhlSBmCGaZBiJU5uVYdk4b5jrydAU6GStptcbtwCUu
-         WJXkKy7ynDx9IeQ7ruX41BbcwOQH/nUf7+25qWdjpZux2R2IayLj4QSnWZtPCu1cqOza
-         kPJGs3lxEcMNv8t3IDM5xCyeHRn+XSWhfOY2iEA4V8OTKp9QCHAsQRz98bAeArBJmWtu
-         R10Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700126106; x=1700730906;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=QsOxPTssCXfEjaJKL1FvlaQBMDAuXe1RlMdSNjLvudI=;
-        b=ewlQZCf2pdippLmH3z5uZEyX9MR+Rhvma1Un1Kb9C9Kc08E8aT+r8ExFZjnk2h3goe
-         fPm1A+drTxMn3z2DoNenLuDQAdcfwJON+M8iXVAvxIlhr2emkbSaMXBgV9tdza+RlKo2
-         xQF+uJOR2EKp1bfTWMKotIkPjEYqY1Kx9J0IU4nOpuqSk3C3n2lXNuqH45xNX9spRKwE
-         HW4m5X7d2Z2ZZWadcUKpwMtErnL8g5BYORQHiSjMF5kpVR+WuZKgdS5EypArYOORV6Bn
-         qGIUqfZ24YqtnNaehu9MQIdIE098ZkxgiMivr3gpDa3Iw8KeBwezP2Rfdwr8UKv0OsEE
-         unsA==
-X-Gm-Message-State: AOJu0Yx1WIhrDD2toK8GvrFvNa6abTuvXznyZr0fQjdLDT1nwXs4Qdeq
-        cFcdnMx6sf7vd1toOf3+9gkD2ZJRdF4NNNYDg/pXIw==
-X-Google-Smtp-Source: AGHT+IEvSuQ2VeLe8nxzm+KAwC3Xu4zj8WHKnveqJO0J+JPLWHM+U1ETIwvgpmkEprYTf00eQ+4e7i073zU5qxwyHM4=
-X-Received: by 2002:a0d:d70d:0:b0:5be:b764:a15f with SMTP id
- z13-20020a0dd70d000000b005beb764a15fmr15877402ywd.24.1700126106526; Thu, 16
- Nov 2023 01:15:06 -0800 (PST)
-MIME-Version: 1.0
-References: <20231115203401.2495875-1-iii@linux.ibm.com> <20231115203401.2495875-12-iii@linux.ibm.com>
-In-Reply-To: <20231115203401.2495875-12-iii@linux.ibm.com>
-From:   Alexander Potapenko <glider@google.com>
-Date:   Thu, 16 Nov 2023 10:14:30 +0100
-Message-ID: <CAG_fn=X6+fgYb8THhb4GyZYz_1mVxAifbBeA+bOqDCmmT6Dovg@mail.gmail.com>
-Subject: Re: [PATCH 11/32] kmsan: Export panic_on_kmsan
-To:     Ilya Leoshkevich <iii@linux.ibm.com>
+        with ESMTP id S230274AbjKPJRy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 04:17:54 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AA2C9C;
+        Thu, 16 Nov 2023 01:17:51 -0800 (PST)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AG8ufRF022742;
+        Thu, 16 Nov 2023 09:17:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=4cXgi5VLXXOtLpoCPr1dWCi1lxs5btqANVR2MmquTPI=;
+ b=rdPuCKlpYMGWIfCGci5iQlDKqnHDj4WqIJroDuCnt/9RNOuJisZAgEerL0JTPCsSAYgU
+ 6dp6M/UJBSNM3v1qJ9V6LbyrQTcIAEfLD+KsX7sGGmcS8gmYYq9huXRfxLS/eK4DweTW
+ oDs3opIRB6AdMYHjzHl4xM5CC11s9WQ7mOnR1+NKsmuLXd3gIJ4uTLQ1BF0VXlpmlKe5
+ AyS4qUq5Q6R8qYcu2nXPXYWR3jJyUPPExk3ciGGXfNHEFEFVtdsjqT33IUM4i/unL88f
+ kKCBDIBapsO4U8Ea9VX4vRZPrAWwug4SDwQ4I9GmAx/LD/nKZxgClYuW6LF1Wrl4DwP7 nQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3udebbkfuf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Nov 2023 09:17:27 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AG8xPbq031471;
+        Thu, 16 Nov 2023 09:17:26 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3udebbkftj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Nov 2023 09:17:26 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AG8XrrI026751;
+        Thu, 16 Nov 2023 09:17:24 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uakxt60at-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Nov 2023 09:17:24 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AG9HLfP18154126
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 16 Nov 2023 09:17:22 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DE39720040;
+        Thu, 16 Nov 2023 09:17:21 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 97C8F20049;
+        Thu, 16 Nov 2023 09:17:20 +0000 (GMT)
+Received: from [9.179.9.51] (unknown [9.179.9.51])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 16 Nov 2023 09:17:20 +0000 (GMT)
+Message-ID: <8fb810e5000dd66334a4a686407c0caeacb79f55.camel@linux.ibm.com>
+Subject: Re: [PATCH 12/32] kmsan: Allow disabling KMSAN checks for the
+ current task
+From:   Ilya Leoshkevich <iii@linux.ibm.com>
+To:     Alexander Potapenko <glider@google.com>
 Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Christoph Lameter <cl@linux.com>,
@@ -74,22 +82,52 @@ Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Mark Rutland <mark.rutland@arm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>
+Date:   Thu, 16 Nov 2023 10:17:20 +0100
+In-Reply-To: <CAG_fn=XVJNZLtHj2n3DP5ETBzgoUZL0jQFX7uw4z9Pj2vGbUPw@mail.gmail.com>
+References: <20231115203401.2495875-1-iii@linux.ibm.com>
+         <20231115203401.2495875-13-iii@linux.ibm.com>
+         <CAG_fn=XVJNZLtHj2n3DP5ETBzgoUZL0jQFX7uw4z9Pj2vGbUPw@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+MIME-Version: 1.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: vSTD9xF44d83VprYex3tMD-37iq0_k9g
+X-Proofpoint-GUID: oH4OOC-OhoTloo5LiN9lT2emIfEOQ-qd
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-16_07,2023-11-15_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 mlxlogscore=999 malwarescore=0 suspectscore=0
+ adultscore=0 priorityscore=1501 mlxscore=0 bulkscore=0 phishscore=0
+ impostorscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2311060000 definitions=main-2311160074
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Nov 15, 2023 at 9:34=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.com=
+On Thu, 2023-11-16 at 09:56 +0100, Alexander Potapenko wrote:
+> On Wed, Nov 15, 2023 at 9:34=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.c=
+om>
 > wrote:
->
-> When building the kmsan test as a module, modpost fails with the
-> following error message:
->
->     ERROR: modpost: "panic_on_kmsan" [mm/kmsan/kmsan_test.ko] undefined!
->
-> Export panic_on_kmsan in order to improve the KMSAN usability for
-> modules.
->
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Reviewed-by: Alexander Potapenko <glider@google.com>
+> >=20
+> > Like for KASAN, it's useful to temporarily disable KMSAN checks
+> > around,
+> > e.g., redzone accesses.
+>=20
+> This example is incorrect, because KMSAN does not have redzones.
+> You are calling these functions from "mm: slub: Let KMSAN access
+> metadata", which mentiones redzones in kfree(), but the description
+> is
+> still somewhat unclear.
+> Can you provide more insight about what is going on? Maybe we can fix
+> those accesses instead of disabling KMSAN?
+
+It's about SLUB redzones, which appear when compiling with
+CONFIG_DEBUG_SLAB.
+
+I think that from KMSAN's point of view they should be considered
+poisoned, but then the question is what to do with functions that check
+them. I noticed that there was special handling for KASAN there
+already, so I figured that the best solution would be to do the same
+thing for KMSAN.
