@@ -2,58 +2,57 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83386C197A0
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 09:42:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6C09C47071
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 09:45:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230254AbjKPJmS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Nov 2023 04:42:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56650 "EHLO
+        id S235663AbjKPJp1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Nov 2023 04:45:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229749AbjKPJmR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 04:42:17 -0500
-Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48A1F187
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 01:42:14 -0800 (PST)
-Received: by mail-yb1-xb36.google.com with SMTP id 3f1490d57ef6-d9cbba16084so512808276.1
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 01:42:14 -0800 (PST)
+        with ESMTP id S230254AbjKPJp1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 04:45:27 -0500
+Received: from mail-qv1-xf34.google.com (mail-qv1-xf34.google.com [IPv6:2607:f8b0:4864:20::f34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77F61196
+        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 01:45:23 -0800 (PST)
+Received: by mail-qv1-xf34.google.com with SMTP id 6a1803df08f44-66d13ac2796so3038416d6.2
+        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 01:45:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1700127733; x=1700732533; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1700127922; x=1700732722; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=HbQBUq6zMPZ7ORs1zmLeLhmCeGDS7R7Qw733eYdaWDY=;
-        b=Gx5PhsvmMsmSQy3ihT4tpPP7j6KuTZToX9EDbr4inLdKRMGz52HovUOZHRAPOP1YHi
-         2ipifisV8I057MGg0156wIzWDSOMSKyNWlVNIy7H5l0WV+YA1gWwNjgJRm4lzJ0g/Zig
-         e3Fq1d9RuFDN/NI5SHzRvYiyRzXfaf2MtyDOuSTIERdpWy4ZH7es6Rdn2nMqM8DDSDOS
-         jm6U3umaLZ8fmfQOyK/Tb5+5tyN4NSc8miBvTTart/pYg2AeDL/o7YwlQxkxXlKEYHjf
-         N2ZLOYF+gK0GMQ7IxMY6QqKEfFos2iFwPNb2o2x3+nYh7CNO9V+whWwNf+mIC34AvU2d
-         rHRw==
+        bh=kuV5LSK+LTxWeRbqVFyqwK6y6J/MVZo38WZUFkMurd4=;
+        b=ie7q4YNNpOmZWVVFQ4eh3GLCWwkUKfB8/4+ZVt+6UczviZrpiElYcAc86/h4dmzgl4
+         4fFjDwB4iNAmEW8MfPJHlX5V7kQWQyPLS+pmd0vYSkXUIrTtxaVIOUO/oEPQbYTx31va
+         8qTqcXetDJNg/rWBsjGku2+rW8cbZCeaLdxMwySx58y5k80Nbltu7jcClKt/qmUfensN
+         L5XWH4KTJ9pJ4KjnHL1nkgjOQlh635gi6neceX/GNyaYCA2Lz32NjDGZYR0KVYmbR/pZ
+         tx+fkh4enMIRp2lfoHjOYlKaEHOH3DuoW4B70kuqMNroWZUJnEdDd95UBp4xmR7trMsZ
+         wcgg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700127733; x=1700732533;
+        d=1e100.net; s=20230601; t=1700127922; x=1700732722;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=HbQBUq6zMPZ7ORs1zmLeLhmCeGDS7R7Qw733eYdaWDY=;
-        b=fUPJIjybPnlPZtbgQKwUqojj+iuqx6LaeWi3GiyfpEQbzsT87fbSZme08ducj4S19H
-         0bxytg7K0W7gyrWI4VO2D7g8M4DDmgjpFu2Jz+jOsqvsiSipyek8f/aOWG5JI3gZD7VZ
-         FY+KxbbvFOhWhT/GdaQSsZRnnIkwayqJx/ZYVYsWZtrtViyMjd8WVosjYnCDRh1pcfyv
-         vkOwrDpjKDu7uxAsz7BmUWMW1010Xje2chYWRyUzHW4fn9nsxG6wE8InxCsD0WaeZ/6Q
-         iY37a5tZDY5rDdLljPXNNkXusyP4piML+FKAdLVfzLJFoBKQjA1C6+kOU8i3N0klae4P
-         8rRA==
-X-Gm-Message-State: AOJu0YxW3ncjbVBGfs+3gmQTPYgSqCGoIu2TbqrvKJTqkPn9MFaLN6M0
-        3X1vAa1tGdEEHnrFZLa3WGYKE3padfPR20Md0iBp8A==
-X-Google-Smtp-Source: AGHT+IFonAyLHLBLw3FFUBVfouzs0zLwD6TTo4Qrxnr7Ueo57CVLxGNAvxlYkAgnfWpgWjxTtGnDhXKHUgixd6B4yVA=
-X-Received: by 2002:a25:c70e:0:b0:da0:411b:ef19 with SMTP id
- w14-20020a25c70e000000b00da0411bef19mr14634881ybe.1.1700127733310; Thu, 16
- Nov 2023 01:42:13 -0800 (PST)
+        bh=kuV5LSK+LTxWeRbqVFyqwK6y6J/MVZo38WZUFkMurd4=;
+        b=Y6r0XRZGPuwgKLkOIcreQQewICN2/hgfX91usOMVUH5rHDnHlzXHm/6BEYG9HI4bFQ
+         9t67yywrY/S/Xae4IX6uE9rPDgXrr39u24R2pMzs+yIIEFUXA65wcVZi7G5hBTGhVbXb
+         7DooV/tUSATqj7BEpZp4WM8EgMRPIP8XAbqSH6CdVglK2x9zop5gWU6mQqujdMCqUewx
+         BFp69gFugQPXxIKeo/4kUbHBsrD7WFoLAl3cKFLYgjuSRO05lpbsN0o3uZOK6VM9Wn1I
+         r4t2MHxyFjsa6dNaEpWb5rsg/BbF7ThVpIvmq6b86GQj2YbK5OuP29JR/RiULf/Szebw
+         HXQQ==
+X-Gm-Message-State: AOJu0Yxuxim5Qk6YAuFYTix5zw8vDud/rCAmocpsnGn4tRgFjmB92Nox
+        W3NJs9ThoTlJLGSZw/pSlARjv0vM0K9NoTXjrHITXQ==
+X-Google-Smtp-Source: AGHT+IEZe2pBqGaIQDwerQVIP7hrHF/NMnZNmo8au4Dfrdlz3uGifZ2pJ0NnPGfwguQfG35pdHrd/w8j19ygDJMsLmM=
+X-Received: by 2002:ad4:4d11:0:b0:672:ab2:d9d9 with SMTP id
+ l17-20020ad44d11000000b006720ab2d9d9mr8242754qvl.29.1700127922512; Thu, 16
+ Nov 2023 01:45:22 -0800 (PST)
 MIME-Version: 1.0
-References: <20231115203401.2495875-1-iii@linux.ibm.com> <20231115203401.2495875-4-iii@linux.ibm.com>
-In-Reply-To: <20231115203401.2495875-4-iii@linux.ibm.com>
+References: <20231115203401.2495875-1-iii@linux.ibm.com> <20231115203401.2495875-9-iii@linux.ibm.com>
+In-Reply-To: <20231115203401.2495875-9-iii@linux.ibm.com>
 From:   Alexander Potapenko <glider@google.com>
-Date:   Thu, 16 Nov 2023 10:41:33 +0100
-Message-ID: <CAG_fn=Vw-kR4QM8jwJYQjv8ma+mh8uyGyP2SP7PhoMvn7UqYwQ@mail.gmail.com>
-Subject: Re: [PATCH 03/32] kmsan: Disable KMSAN when DEFERRED_STRUCT_PAGE_INIT
- is enabled
+Date:   Thu, 16 Nov 2023 10:44:46 +0100
+Message-ID: <CAG_fn=U8r0cZ2ZG5dr-Um9Un=S_go7-PixFXJ-PkXCMyL7VY5g@mail.gmail.com>
+Subject: Re: [PATCH 08/32] kmsan: Remove an x86-specific #include from kmsan.h
 To:     Ilya Leoshkevich <iii@linux.ibm.com>
 Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
@@ -74,7 +73,8 @@ Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         linux-trace-kernel@vger.kernel.org,
         Mark Rutland <mark.rutland@arm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
-        Sven Schnelle <svens@linux.ibm.com>
+        Sven Schnelle <svens@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
@@ -84,17 +84,18 @@ X-Mailing-List: linux-s390@vger.kernel.org
 On Wed, Nov 15, 2023 at 9:34=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.com=
 > wrote:
 >
-> KMSAN relies on memblock returning all available pages to it
-> (see kmsan_memblock_free_pages()). It partitions these pages into 3
-> categories: pages available to the buddy allocator, shadow pages and
-> origin pages. This partitioning is static.
+> Replace the x86-specific asm/pgtable_64_types.h #include with the
+> linux/pgtable.h one, which all architectures have.
 >
-> If new pages appear after kmsan_init_runtime(), it is considered
-> an error. DEFERRED_STRUCT_PAGE_INIT causes this, so mark it as
-> incompatible with KMSAN.
-
-In the future we could probably collect the deferred pages as well,
-but it's okay to disable KMSAN for now.
-
+> Fixes: f80be4571b19 ("kmsan: add KMSAN runtime core")
+> Suggested-by: Heiko Carstens <hca@linux.ibm.com>
 > Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 Reviewed-by: Alexander Potapenko <glider@google.com>
+(see the comment below)
+
+>
+> -#include <asm/pgtable_64_types.h>
+> +#include <linux/pgtable.h>
+
+For the sake of consistency with other KMSAN code, please keep the
+headers sorted alphabetically.
