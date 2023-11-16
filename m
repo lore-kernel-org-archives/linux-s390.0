@@ -2,67 +2,68 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41F4AC5ACB3
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 19:16:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3683CC47071
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Nov 2023 19:23:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345500AbjKPTQN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Nov 2023 14:16:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34148 "EHLO
+        id S229513AbjKPTXp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Nov 2023 14:23:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345492AbjKPTQM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 14:16:12 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57D70D4B
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 11:16:09 -0800 (PST)
+        with ESMTP id S229487AbjKPTXo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 14:23:44 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E405518D
+        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 11:23:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1700162168;
+        s=mimecast20190719; t=1700162620;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=3XbgOo5Tg9Qr2gJXryHG6em+2+fgKmTx7tbF1d+WlDc=;
-        b=HSaJ5lym7QBpv1E+2DRpo6be5ymRez0BeYrG/4ixrXKLWNOutAf+NtmGx15Wzd19HWorzS
-        u/QGuZQ7z7xq1c0WPnlZTNhDXrX1ler8jCAn/rX2BjTNuM/5bKxgGpyPngj26AR3rMAi7P
-        UPKmgg+InuFwmQTMeSfrWvSJxam78Z8=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=JGaaonn2PlS/Bf+1agE3/lohv/E1v+K4KZ0xTLwaQWA=;
+        b=RmKFbsRwrVexahM49ac5uCfoMfQmvLZV53Apx0b1zW4VevSSLZi757FRHjL04nS0deO6XE
+        ESkI/y5O4AB14A2UAOdNUR3mIVvnDX24otyoSxtMCPbk5RtZhrsDs6TPj9SKUcKh7FG07O
+        IiqlT3ddy79NCGDs4Gld08FkdRNtGPk=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-41-YqLbmEVxNMaAweZxCAn7Mw-1; Thu, 16 Nov 2023 14:16:06 -0500
-X-MC-Unique: YqLbmEVxNMaAweZxCAn7Mw-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4092164ed09so6934755e9.2
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 11:16:05 -0800 (PST)
+ us-mta-136-jrHtTQ_OPve5J-pzQqbMTQ-1; Thu, 16 Nov 2023 14:23:38 -0500
+X-MC-Unique: jrHtTQ_OPve5J-pzQqbMTQ-1
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-32fd5f7b674so524854f8f.0
+        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 11:23:38 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700162164; x=1700766964;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :references:cc:to:content-language:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=3XbgOo5Tg9Qr2gJXryHG6em+2+fgKmTx7tbF1d+WlDc=;
-        b=TugRxblIJvamC8VhF1FXGmHjSDTzuuNKI8v7jCnSDP25Sjr0d6iqons3keQeavKf6Q
-         owqtx8VAcPdTmPz3Rv/42KB91+5b/4bbQ1ChTKu1SQJwJ/Fou2GGvancB8g9pgOzAWHH
-         Di4ckoEV2Z5/rovlv5ZVt11ywJWvhZKeb6tQ+3FmSwuLec5yMF+vsHDMN9shV38TEnR5
-         Y8m/rJNdxk5ZdluJ2lqC8UgNsuXAxnE+Zm3FdGCN9r2Acm9FUlyo1IDxobrxj0ui6DDz
-         Il8pMbk3udBuqACWEAccTUsdL/kac9B6u8ApysvFNMXFLcizlg7qHGE/Gch4UrWoK6uw
-         36Qw==
-X-Gm-Message-State: AOJu0Yz42R/Le9/XxqYBfJ5uTDGgQJL+wxVkDjd27uTSl7mL3cgke+OP
-        nKj96uHn1Sako1wv/Rgd8J4SgUf9IfD9BU1hbd/uOY+LssIMhZ1J7zWKgdSd3xxzXTghTh9kJtQ
-        bdHlvhmxfcc1RX/eQPlzLJw==
-X-Received: by 2002:a05:600c:4f4e:b0:405:36d7:4579 with SMTP id m14-20020a05600c4f4e00b0040536d74579mr12604449wmq.28.1700162164266;
-        Thu, 16 Nov 2023 11:16:04 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHVw1SDn+TIj7ALUo4c1g991K4Ptho+xz8USNdYBttvqzdybajenErMvwu3K+NlDWkDybjpDw==
-X-Received: by 2002:a05:600c:4f4e:b0:405:36d7:4579 with SMTP id m14-20020a05600c4f4e00b0040536d74579mr12604436wmq.28.1700162163869;
-        Thu, 16 Nov 2023 11:16:03 -0800 (PST)
+        d=1e100.net; s=20230601; t=1700162617; x=1700767417;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :references:cc:to:from:content-language:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=JGaaonn2PlS/Bf+1agE3/lohv/E1v+K4KZ0xTLwaQWA=;
+        b=xGtsExKTlcFwupjw4E1w9JbRUb1AIZOEtutcfd95V7mA5awXvPG+lnSJ+unbRgLY1N
+         OG2/+4acHtZoqxB4DkEjEqK9xsMTehTrf7KUhtwaWk6OMNPnyzZIW22OLFaADy3skCo4
+         w/O+dd94RxhO41svR94ZQJhuba0usKDB/KtBWhyo+Nyc0NF1MKIdYE4sbaZ+vx7zeA/O
+         AwO604IrVGMkL91X1sGcC5NKrbRJSgw+S8Uxzmu7dU3uBzfv4sy92S/Xp2X9J5P8rgR9
+         2VxqlAglsdxUtDa6tuAfz5qgDW7mRm8MbDTsNpHCl1qXJt1bhradDp6Cw9mYGHKKsnyA
+         W+Xg==
+X-Gm-Message-State: AOJu0Yx6TR1Ex7bdgqCZ9pymtowlf97r99AC7oB3xqmR1chKj8s2mAlA
+        SL9KNGXEUBvH1P5D0IAviBV/yURCNumeXiGlBat9L2oWuWCspBP5ckT7AXMMcxElN1v0i9p1ZCK
+        CQslcJf/bKtBkyVA9xrymQkNi1isWUg==
+X-Received: by 2002:a05:6000:1a89:b0:32f:7bee:f300 with SMTP id f9-20020a0560001a8900b0032f7beef300mr13588844wry.4.1700162617361;
+        Thu, 16 Nov 2023 11:23:37 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFqzRdudRp5HRIcihjZfxFtR1oTJNGSDyIV83/QesXbsvLV2zANxxqjuybAlwaxJDVeUztSEg==
+X-Received: by 2002:a05:6000:1a89:b0:32f:7bee:f300 with SMTP id f9-20020a0560001a8900b0032f7beef300mr13588828wry.4.1700162616972;
+        Thu, 16 Nov 2023 11:23:36 -0800 (PST)
 Received: from ?IPV6:2003:cb:c714:e000:d929:2324:97c7:112c? (p200300cbc714e000d929232497c7112c.dip0.t-ipconnect.de. [2003:cb:c714:e000:d929:2324:97c7:112c])
-        by smtp.gmail.com with ESMTPSA id t14-20020a05600c450e00b003fee567235bsm4742099wmo.1.2023.11.16.11.16.02
+        by smtp.gmail.com with ESMTPSA id u30-20020adfa19e000000b0032da022855fsm169709wru.111.2023.11.16.11.23.36
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 16 Nov 2023 11:16:03 -0800 (PST)
-Message-ID: <dfa5eb84-270e-4c6b-b9a1-3bb66beed6a4@redhat.com>
-Date:   Thu, 16 Nov 2023 20:16:02 +0100
+        Thu, 16 Nov 2023 11:23:36 -0800 (PST)
+Message-ID: <a9ca9b75-1410-445f-9e73-2db02acff1ed@redhat.com>
+Date:   Thu, 16 Nov 2023 20:23:35 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH 6/8] s390/mm: implement MEM_PHYS_ONLINE MEM_PHYS_OFFLINE
  memory notifiers
 Content-Language: en-US
+From:   David Hildenbrand <david@redhat.com>
 To:     Sumanth Korikkar <sumanthk@linux.ibm.com>
 Cc:     linux-mm <linux-mm@kvack.org>,
         Andrew Morton <akpm@linux-foundation.org>,
@@ -80,7 +81,7 @@ References: <20231114180238.1522782-1-sumanthk@linux.ibm.com>
  <20231114180238.1522782-7-sumanthk@linux.ibm.com>
  <458da84d-3838-4c5d-abda-1aebba676186@redhat.com>
  <ZVTTs2H6DgNGFPkF@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-From:   David Hildenbrand <david@redhat.com>
+ <dfa5eb84-270e-4c6b-b9a1-3bb66beed6a4@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
  dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
@@ -126,131 +127,35 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <ZVTTs2H6DgNGFPkF@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+In-Reply-To: <dfa5eb84-270e-4c6b-b9a1-3bb66beed6a4@redhat.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 15.11.23 15:20, Sumanth Korikkar wrote:
-> On Tue, Nov 14, 2023 at 07:39:40PM +0100, David Hildenbrand wrote:
->> On 14.11.23 19:02, Sumanth Korikkar wrote:
->>> Implement MEM_PHYS_ONLINE and MEM_PHYS_OFFLINE memory notifiers on s390
 >>>
-> ...
->>>    arch/s390/mm/init.c          | 16 +++++++++++++++-
->>>    drivers/s390/char/sclp_cmd.c | 33 ++++++++++++++++++++++++++++++---
->>>    2 files changed, 45 insertions(+), 4 deletions(-)
->>>
->>> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
->>> index 8d9a60ccb777..db505ed590b2 100644
->>> --- a/arch/s390/mm/init.c
->>> +++ b/arch/s390/mm/init.c
->>> @@ -288,6 +288,12 @@ int arch_add_memory(int nid, u64 start, u64 size,
->>>    	rc = vmem_add_mapping(start, size);
->>>    	if (rc)
->>>    		return rc;
->>> +	/*
->>> +	 * If MHP_MEMMAP_ON_MEMORY is enabled, perform __add_pages() during memory
->>> +	 * onlining phase
->>> +	 */
->>> +	if (params->altmap)
->>> +		return 0;
+>>> Maybe s390x should just provide a dedicate interface to add these memory
+>>> blocks instead of adding them during boot and then relying on the old way of
+>>> using online/offline set them online/offline.
 >>
+>> Existing behavior:
+>> The current 'lsmem -a' command displays both online and standby memory.
 >>
->> So we'd have added memory blocks without a memmap? Sorry, but this seems to
->> further hack into the s390x direction.
-> 
-> This new approach has the advantage that we do not need to allocate any
-> additional memory during online phase, neither for direct mapping page
-> tables nor struct pages, so that memory hotplug can never fail.
-
-Right, just like any other architecture that (triggered by whatever 
-mechanism) ends up calling add_memory() and friends.
-
-> 
-> The old approach (without altmap) is already a hack, because we add
-> the memmap / struct pages, but for memory that is not really accessible.
-
-Yes, it's disgusting. And you still allocate other things like memory 
-block devices or the identify map.
-
-> And with all the disadvantage of pre-allocating struct pages from system
-> memory.
-
-Jep. It never should have been done like that.
-
-> 
-> The new approach allows to better integrate s390 to the existing
-> interface, and also make use of altmap support, which would eliminate
-> the major disadvantage of the old behaviour. So from s390 perspective,
-> this new mechanism would be preferred, provided that there is no
-> functional issue with the "added memory blocks without a memmap"
-> approach.
-
-It achieves that by s390x specific hacks in common code :) Instead of 
-everybody else that simply uses add_memory() and friends.
-
-> 
-> Do you see any functional issues, e.g. conflict with common
-> code?
-
-I don't see functional issues right now, just the way it is done to 
-implement support for a new feature is a hack IMHO. Replacing hack #1 by 
-hack #2 is not really something reasonable. Let's try to remove hacks.
-
+>> interface changes:
+>> If a new interface is introduced and standby memory is no longer listed,
+>> the following consequences might occur:
 >>
->> Maybe s390x should just provide a dedicate interface to add these memory
->> blocks instead of adding them during boot and then relying on the old way of
->> using online/offline set them online/offline.
+>> 1. Running 'lsmem -a' would only show online memory, potentially leading
+>>      to user complaints.
 > 
-> Existing behavior:
-> The current 'lsmem -a' command displays both online and standby memory.
-> 
-> interface changes:
-> If a new interface is introduced and standby memory is no longer listed,
-> the following consequences might occur:
-> 
-> 1. Running 'lsmem -a' would only show online memory, potentially leading
->     to user complaints.
+> That's why the new, clean way of doing it will require a world switch.
+> If the admin wants the benefits of altmap/memmap allocation, it can be
+> enabled.
 
-That's why the new, clean way of doing it will require a world switch. 
-If the admin wants the benefits of altmap/memmap allocation, it can be 
-enabled.
-
-> 2. standby memory addition would need:
->     * echo "standby memory addr" > /sys/devices/system/memory/probe
->     As far as I understand, this interface is already deprecated.
-
-It should actually be an s390x specific interface where people are able 
-to query the standby ranges, and request to add/remove them. There, 
-s390x can perform checks and setup everything accordingly before calling 
-add_memory() and have the memory onlined.
-
-We do have something comparable with the dax/kmem infrastructure: users 
-configure the available memory to hotplug, and then hotplug it. Tooling 
-onlines that memory automatically.
-
-Ideally they will add ranges, not memory blocks.
-
-> 
-> 3. To remove standby memory, a new interface probe_remove is needed
->     * echo "standby memory addr" > /sys/devices/system/memory/probe_remove
-> 
-
-Similarly, an s390x specific interface that performs checks and properly 
-tears everything s390x-specifc down -- for example, turning system RAM 
-into standby RAM again.
-
-
-> 4. Users may express a need to identify standby memory addresses,
-> resulting in the creation of another interface to list these standby
-> memory ranges.
-
-Exactly. Memory that is not added to the system that does not consume 
-any resources, but can be added on demand using an interface that is not 
-the second stage (onlining/offlining) of memory hot(un)plug.
+BTW, thinking about it, I guess one could teach lsmem (and maybe chmem) 
+to consult additional interfaces on s390x to show standby memory that's 
+not added to the system yet.
 
 -- 
 Cheers,
