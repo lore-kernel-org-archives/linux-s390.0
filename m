@@ -2,151 +2,103 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48E53C5ACB3
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Nov 2023 19:47:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA33EC54FB9
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Nov 2023 21:40:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231201AbjKQTrD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Nov 2023 14:47:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56190 "EHLO
+        id S232450AbjKQVkT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Nov 2023 16:40:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232010AbjKQTrC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Nov 2023 14:47:02 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00C29D5D;
-        Fri, 17 Nov 2023 11:46:58 -0800 (PST)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHJgFVU009656;
-        Fri, 17 Nov 2023 19:46:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=V2het07mxfWMUnHT9sJPdfoPQsc50ihRh3IyKWgcirs=;
- b=VSQGOg2wbO9wdvRfJYoS2RKuOB7FMbmkX9Q87tqMPY5R5dSsW/htEwBIprv5CNlVetIo
- +iaQZ0w39j0Q9tAdbDlrazDQ3BoEEhdzDJgelHuFdSzCT82SzPvb59Qdw+7eWBlYq45z
- qt/5kEjHP3isK+7iIZekQdDUncNqZJWMYMsFs3rScTDtHO71al9elrWPZ4NW/9mNTUtz
- 33vjRY3r/43yPc5Rix1CPzteHtzSS+k9ybct6Yei9I2WKct0miIFLL3NmmjwsIImEhAw
- 7JcTjm/La8IOpZHzPQS5BOctb6LmutAZnyHFOTCYEwA+/GEIf4RCGUbtgHel3r4twtBM Dw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ueejer5fw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Nov 2023 19:46:45 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AHJgCsj009592;
-        Fri, 17 Nov 2023 19:46:45 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ueejer5eg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Nov 2023 19:46:45 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHISDNL009056;
-        Fri, 17 Nov 2023 19:46:43 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uanem88sh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Nov 2023 19:46:43 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AHJkerM22020816
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 17 Nov 2023 19:46:40 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1A6D120043;
-        Fri, 17 Nov 2023 19:46:40 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6776620040;
-        Fri, 17 Nov 2023 19:46:39 +0000 (GMT)
-Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.171.27.169])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Fri, 17 Nov 2023 19:46:39 +0000 (GMT)
-Date:   Fri, 17 Nov 2023 20:46:37 +0100
-From:   Sumanth Korikkar <sumanthk@linux.ibm.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        with ESMTP id S232012AbjKQVkT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Nov 2023 16:40:19 -0500
+Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0D16B4;
+        Fri, 17 Nov 2023 13:40:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1700257215; x=1731793215;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=f5qRy44lUGGRDDEIKWTWdVUa9s0JqfBcvmyjWEdeN+E=;
+  b=JyKCXWQQsIHv4+nieMcdT8SXUudSaM/gRADpKi9gjhYYnAGrItKgmdmQ
+   Suez3m91bvZpbOuy7ROagbEUn698ujnGO5X+8fNY47mXdwyhXbZ1a6neE
+   SbmoRcyObcB+a4vUV3gSjPu9d7zAG4fXxBK54EXm5vdPYRBctMUKhQfDp
+   1Iu+wR3FUrDvZcilvPx20aX/tcf9BxuHRWlMKCT01q7s6GuqhDzWExivz
+   E9MGtjVMTY0P9UKeNKzszjKAYIzYvQykLSu+ao1m2S2x64zBV+7Z+imUL
+   04hRHatLCZVx1xQnZS5Cp0YMI3BJfdVoV1z3s0MeMniSFzkLqfxJZ4Pvg
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10897"; a="376420732"
+X-IronPort-AV: E=Sophos;i="6.04,206,1695711600"; 
+   d="scan'208";a="376420732"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Nov 2023 13:40:15 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.04,206,1695711600"; 
+   d="scan'208";a="6970021"
+Received: from lkp-server02.sh.intel.com (HELO b8de5498638e) ([10.239.97.151])
+  by orviesa002.jf.intel.com with ESMTP; 17 Nov 2023 13:40:12 -0800
+Received: from kbuild by b8de5498638e with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1r46ZN-0003B2-0f;
+        Fri, 17 Nov 2023 21:40:09 +0000
+Date:   Sat, 18 Nov 2023 05:39:08 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Sumanth Korikkar <sumanthk@linux.ibm.com>,
         linux-mm <linux-mm@kvack.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Oscar Salvador <osalvador@suse.de>,
+        David Hildenbrand <david@redhat.com>
+Cc:     oe-kbuild-all@lists.linux.dev, Oscar Salvador <osalvador@suse.de>,
         Michal Hocko <mhocko@suse.com>,
         "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
         Anshuman Khandual <anshuman.khandual@arm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         linux-s390 <linux-s390@vger.kernel.org>,
         LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/8] implement "memmap on memory" feature on s390
-Message-ID: <ZVfDHbeonM0bwLek@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-References: <20231114180238.1522782-1-sumanthk@linux.ibm.com>
- <ec3fcd7d-17a0-4901-9261-a204c2c50c52@redhat.com>
- <20231117140009.5d8a509c@thinkpad-T15>
- <ee492da8-74b4-4a97-8b24-73e07257f01d@redhat.com>
+Subject: Re: [PATCH 3/8] mm: use vmem_altmap code without CONFIG_ZONE_DEVICE
+Message-ID: <202311180545.VeyRXEDq-lkp@intel.com>
+References: <20231114180238.1522782-4-sumanthk@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ee492da8-74b4-4a97-8b24-73e07257f01d@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: i039OZloyrjehCuPpyvMOCtYL7DKo22X
-X-Proofpoint-GUID: fLtOoATvfYaANKAn4lXdlzZ9nheuGiX3
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-17_19,2023-11-17_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=1 phishscore=0 mlxscore=1
- adultscore=0 spamscore=1 mlxlogscore=202 malwarescore=0 impostorscore=0
- bulkscore=0 clxscore=1015 suspectscore=0 lowpriorityscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311170150
+In-Reply-To: <20231114180238.1522782-4-sumanthk@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Nov 17, 2023 at 04:37:29PM +0100, David Hildenbrand wrote:
-> 
-> It might make sense to
-> 
-> 1) Send the first 3 out separately
+Hi Sumanth,
 
-Ok sure, I will first send 3 patches as bug fixes with your feedback
-applied.
+kernel test robot noticed the following build errors:
 
-> 2) Look into a simple variant that leaves __add_pages() calls alone and
->    only adds the new MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE notifiers --
->    well, and deals with an inaccessible altmap, like the
->    page_init_poison() when the altmap might be inaccessible.
+[auto build test ERROR on s390/features]
+[also build test ERROR on kvms390/next linus/master v6.7-rc1]
+[cannot apply to akpm-mm/mm-everything next-20231117]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Thanks for the valuable feedback.
+url:    https://github.com/intel-lab-lkp/linux/commits/Sumanth-Korikkar/mm-memory_hotplug-fix-memory-hotplug-locking-order/20231115-035455
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
+patch link:    https://lore.kernel.org/r/20231114180238.1522782-4-sumanthk%40linux.ibm.com
+patch subject: [PATCH 3/8] mm: use vmem_altmap code without CONFIG_ZONE_DEVICE
+config: x86_64-buildonly-randconfig-002-20231118 (https://download.01.org/0day-ci/archive/20231118/202311180545.VeyRXEDq-lkp@intel.com/config)
+compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231118/202311180545.VeyRXEDq-lkp@intel.com/reproduce)
 
-I just tried out quickly with disabling page_init_poison() and removing
-the hack in arch_add_memory() and arch_remove_memory(). Also used new
-MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE notifiers. The current testing
-result looks promising and seems to work and no issues found so far.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202311180545.VeyRXEDq-lkp@intel.com/
 
-I will also double check if there are any other memmap accesses in
-add_pages() phase.
+All errors (new ones prefixed by >>):
 
-we will try to go for this approach currently, i.e. with the notifiers you
-suggested, and __add_pages() change.
+   ld: arch/x86/mm/init_64.o: in function `remove_pagetable':
+>> init_64.c:(.meminit.text+0xfc7): undefined reference to `vmem_altmap_free'
+   ld: mm/memory_hotplug.o: in function `__add_pages':
+>> memory_hotplug.c:(.ref.text+0xc01): undefined reference to `vmem_altmap_offset'
 
-Do you have any suggestions with how we could check for inaccessible altmap?
-
-> 3) Look into a proper interface to add/remove memory instead of relying
->    on online/offline.
-
-agree for long term.
-> 
-> 2) is certainly an improvement and might be desired in some cases. 3) is
-> more powerful (e.g., where you don't want an altmap because of
-> fragmentation) and future proof.
-> 
-> I suspect there will be installations where an altmap is undesired: it
-> fragments your address space with unmovable (memmap) allocations. Currently,
-> runtime allocations of gigantic pages are affected. Long-term other large
-> allocations (if we ever see very large THP) will be affected.
-> 
-> For that reason, we want to either support variable-sized memory blocks
-> long-term, or simulate that by "grouping" memory blocks that share a same
-> altmap located on the first memory blocks in that group: but onlining one
-> block forces onlining of the whole group.
-> 
-> On s390x that adds all memory ahead of time, it's hard to make a decision
-> what the right granularity will be, and seeing sudden online/offline changed
-> behavior might be quite "surprising" for users. The user can give better
-> hints when adding/removing memory explicitly.
-
-Thanks for providing insights and details.
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
