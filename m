@@ -2,144 +2,153 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C2DDC197A0
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Nov 2023 12:28:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7EACC072A2
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Nov 2023 12:36:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230085AbjKQM2X (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Nov 2023 07:28:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39816 "EHLO
+        id S230379AbjKQMgO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Nov 2023 07:36:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbjKQM2W (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Nov 2023 07:28:22 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C7D0D8;
-        Fri, 17 Nov 2023 04:28:19 -0800 (PST)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHBtQa9021504;
-        Fri, 17 Nov 2023 12:28:03 GMT
+        with ESMTP id S230085AbjKQMgN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Nov 2023 07:36:13 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FA33D4D;
+        Fri, 17 Nov 2023 04:36:08 -0800 (PST)
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHCZqrf025251;
+        Fri, 17 Nov 2023 12:36:06 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : references : from : in-reply-to :
+ mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=79W9Ejnet1jcKo8Z3Q4GAA3i2uZB1gpHYc7xykvLioM=;
- b=Qpe8IdUDR+jMDzvyBLsViXi9i04doi1yaW/uNa7lyIeKU32qBsU2xoG2wcnbLnIzfHzS
- KIaeh33NAkV4Tg3ZW81+/rEDs+nJW67ff59DtYCTRQVb/dLrHdqcNJjt/zOLTbVcDbEi
- fi3HL074ZdfScv6jQ31Jz0PFMAxRtMQZHxaFf9pNVhrKQLZ5uGxh0a0Mk3X8AEZMoDmB
- Kv+gvISOskq8rLCEG4Mee1cNJBnFeW1GpOs+wPYLFB5tUcrOFNXmvokesB99/UlflQvt
- nZXmggIgMLIU5gjvvHR8xopY1c7cAxy74ov/ELoQ0b/EZExvzTT2yhcvQ7Jegtiwq+cX cg== 
+ bh=VFrrJONvLmL4b2eHMwp2aJoejodP1lZ42Ka/u1xyYsI=;
+ b=aKJz0heSn7f6wiuTdoZkYhIL8tQVQOqtsWnwlIc3mUttpx1V0tRpn/glGbW2hsvSLVip
+ RF3kHvuNXY4NCDxVRI+G1Sgap7Ku8U0NNZQ2CeQMSeMuXF0qFfSigtuAqYhO4oyDwn/S
+ 8Fk2z07WGAOx3O4yh5lxrk+/Yz0x+ZYiLfbZ9BIKPMQMbrTSki75SK+RR81kp5jFTPYH
+ gI2VJKcbv1VOVnfj7XQuWBahsO+lZokCGwGegHTlINaTAVWoQdXqPLYvyay4ye+xGGTD
+ UpGuNPWae/sqPswrpT3bTZopaWiqtfpaw4OOD/Yr75O6DBcA2mJVYijinhoTRtA3J/s/ bQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ue7qkh79e-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ue7trrx4d-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Nov 2023 12:28:02 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AHCKW0K009098;
-        Fri, 17 Nov 2023 12:28:01 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ue7qkh78s-1
+        Fri, 17 Nov 2023 12:36:05 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AHCZwWD026197;
+        Fri, 17 Nov 2023 12:36:05 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ue7trrx1r-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Nov 2023 12:28:01 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHAY4lX009953;
-        Fri, 17 Nov 2023 12:28:00 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uapn259yt-1
+        Fri, 17 Nov 2023 12:36:04 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHAYG8M005594;
+        Fri, 17 Nov 2023 12:36:01 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uamayx14a-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Nov 2023 12:28:00 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AHCRwfL18154092
+        Fri, 17 Nov 2023 12:36:00 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+        by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AHCa06p16843452
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 17 Nov 2023 12:27:58 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 01E0920043;
-        Fri, 17 Nov 2023 12:27:58 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6AEFA20040;
-        Fri, 17 Nov 2023 12:27:57 +0000 (GMT)
-Received: from [9.171.55.244] (unknown [9.171.55.244])
-        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 17 Nov 2023 12:27:57 +0000 (GMT)
-Message-ID: <422c5968-8013-4b39-8cdb-07452abbf5fb@linux.ibm.com>
-Date:   Fri, 17 Nov 2023 13:27:57 +0100
+        Fri, 17 Nov 2023 12:36:00 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2094A58058;
+        Fri, 17 Nov 2023 12:36:00 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BEE805805B;
+        Fri, 17 Nov 2023 12:35:57 +0000 (GMT)
+Received: from [9.171.21.89] (unknown [9.171.21.89])
+        by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 17 Nov 2023 12:35:57 +0000 (GMT)
+Message-ID: <7fe3a213-3d2e-42d5-b44b-bbd761a01bba@linux.ibm.com>
+Date:   Fri, 17 Nov 2023 13:35:56 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v3] net/smc: avoid atomic_set and smp_wmb in the
- tx path when possible
-To:     Li RongQing <lirongqing@baidu.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        alibuda@linux.alibaba.com, tonylu@linux.alibaba.co,
-        guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, dust.li@linux.alibaba.com
-References: <20231117111657.16266-1-lirongqing@baidu.com>
-Content-Language: en-US
-From:   Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20231117111657.16266-1-lirongqing@baidu.com>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH net v2] net/smc: avoid data corruption caused by decline
+Content-Language: en-GB
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com, wintera@linux.ibm.com, guwen@linux.alibaba.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        tonylu@linux.alibaba.com, pabeni@redhat.com, edumazet@google.com
+References: <1700197181-83136-1-git-send-email-alibuda@linux.alibaba.com>
+From:   Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <1700197181-83136-1-git-send-email-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: GygiFs7P9L85WPoq4PTgYURZGCSIn7zC
-X-Proofpoint-GUID: HUg1AYg3RxzhFP1_9zVuo1u8vMIcMhxO
+X-Proofpoint-GUID: anPyA8iWLD8gqgkN3Rk6WnFnb1TwYNEH
+X-Proofpoint-ORIG-GUID: zGlS5DiPKERTsYoFDxchQkZyJoe0WWff
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-17_11,2023-11-16_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
- lowpriorityscore=0 impostorscore=0 mlxlogscore=999 priorityscore=1501
- suspectscore=0 spamscore=0 adultscore=0 mlxscore=0 phishscore=0
- bulkscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311170092
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ suspectscore=0 phishscore=0 mlxlogscore=777 malwarescore=0 mlxscore=0
+ lowpriorityscore=0 clxscore=1015 impostorscore=0 adultscore=0 spamscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311170093
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-On 17.11.23 12:16, Li RongQing wrote:
-> There is rare possibility that conn->tx_pushing is not 1, since
-> tx_pushing is just checked with 1, so move the setting tx_pushing
-> to 1 after atomic_dec_and_test() return false, to avoid atomic_set
-> and smp_wmb in tx path
+On 17.11.23 05:59, D. Wythe wrote:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
 > 
-> Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
-> Signed-off-by: Li RongQing <lirongqing@baidu.com>
-> ---
-> diff v3: improvements in the commit body and comments
-> diff v2: fix a typo in commit body and add net-next subject-prefix
->  net/smc/smc_tx.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
+> We found a data corruption issue during testing of SMC-R on Redis
+> applications.
 > 
-> diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-> index 3b0ff3b..2c2933f 100644
-> --- a/net/smc/smc_tx.c
-> +++ b/net/smc/smc_tx.c
-> @@ -667,8 +667,6 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
->  		return 0;
->  
->  again:
-> -	atomic_set(&conn->tx_pushing, 1);
-> -	smp_wmb(); /* Make sure tx_pushing is 1 before real send */
->  	rc = __smc_tx_sndbuf_nonempty(conn);
->  
->  	/* We need to check whether someone else have added some data into
-> @@ -677,8 +675,11 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
->  	 * If so, we need to push again to prevent those data hang in the send
->  	 * queue.
->  	 */
-> -	if (unlikely(!atomic_dec_and_test(&conn->tx_pushing)))
-> +	if (unlikely(!atomic_dec_and_test(&conn->tx_pushing))) {
-> +		atomic_set(&conn->tx_pushing, 1);
-> +		smp_wmb(); /* Make sure tx_pushing is 1 before send again */
->  		goto again;
-> +	}
->  
->  	return rc;
->  }
+> The benchmark has a low probability of reporting a strange error as
+> shown below.
+> 
+> "Error: Protocol error, got "\xe2" as reply type byte"
+> 
+> Finally, we found that the retrieved error data was as follows:
+> 
+> 0xE2 0xD4 0xC3 0xD9 0x04 0x00 0x2C 0x20 0xA6 0x56 0x00 0x16 0x3E 0x0C
+> 0xCB 0x04 0x02 0x01 0x00 0x00 0x20 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+> 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xE2
+> 
+> It is quite obvious that this is a SMC DECLINE message, which means that
+> the applications received SMC protocol message.
+> We found that this was caused by the following situations:
+> 
+> client			server
+> 	   proposal
+> 	------------->
+> 	   accept
+> 	<-------------
+> 	   confirm
+> 	------------->
+> wait confirm
+> 
+> 	 failed llc confirm
+> 	    x------
+> (after 2s)timeout
+> 			wait rsp
+> 
+> wait decline
+> 
+> (after 1s) timeout
+> 			(after 2s) timeout
+> 	    decline
+> 	-------------->
+> 	    decline
+> 	<--------------
+> 
+> As a result, a decline message was sent in the implementation, and this
+> message was read from TCP by the already-fallback connection.
+> 
+> This patch double the client timeout as 2x of the server value,
+> With this simple change, the Decline messages should never cross or
+> collide (during Confirm link timeout).
+> 
+> This issue requires an immediate solution, since the protocol updates
+> involve a more long-term solution.
+> 
 
-It seems to me that the purpose of conn->tx_pushing is
-a) Serve as a mutex, so only one thread per conn will call __smc_tx_sndbuf_nonempty().
-b) Repeat, in case some other thread has added data to sndbuf concurrently.
+Hi D.Wythe,
 
-I agree that this patch does not change the behaviour of this function and removes an
-atomic_set() in the likely path.
+I think you understood me wrong. I mean we don't need sysctl. I like the 
+first version more, where you just need to add some comments in the code.
 
-I wonder however: All callers of smc_tx_sndbuf_nonempty() must hold the socket lock.
-So how can we ever run in a concurrency situation?
-Is this handling of conn->tx_pushing necessary at all?
+Thanks,
+Wenjia
