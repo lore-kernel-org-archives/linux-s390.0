@@ -2,79 +2,82 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53220C072A2
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Nov 2023 15:20:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BA43C197A0
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Nov 2023 15:20:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231469AbjKQPUE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S230379AbjKQPUE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Fri, 17 Nov 2023 10:20:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54480 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230379AbjKQPUD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Nov 2023 10:20:03 -0500
+        with ESMTP id S231497AbjKQPUE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Nov 2023 10:20:04 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F0BFD56;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEEA9D5C;
         Fri, 17 Nov 2023 07:20:00 -0800 (PST)
 Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHFAw2F032727;
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHFAvl4032662;
         Fri, 17 Nov 2023 15:20:00 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=KXauD0E8clPPZRroXgFKohZ76btumq7rs+fcoJOPbSs=;
- b=msU9VZ3meNCghnmXGiT8I7YGBqMZq1KMaSHE/32ee1Yfujo0T5lMV9DVu/zZSc0Q1z43
- cLk+hOH9VawKXrJ+yREGc9BExvNey1WZikuvOzRj2QMltTbjp57HoNa+WkjJ29tmSgB5
- /cLM/e9fMEfYdULtwfhk0gLESr1u+842rYKiDO3OpnJG1MUz6Ippw8HFoTZDdeFz/oQx
- j/BN3PfrTW7OG9SqMiAdFDqbt42f5LUbIFYuZf8hdvK+/KblljAJscIOFUou0QDSGCmw
- pJ77IZwur2+NWTOArCm1IIQarSdQaV0yO3O5YyPZ901auw1Lw/3LSS3zPDSRNZdpOmGg 2w== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=0lRkuHOuG8OsQo03zcyJ7F+nHQdpl1dXNR4OWZxMOek=;
+ b=LJx1DMHPol1hhGzsAc6jhY8z298LV4QxqeagPlo5I7Mtf67JjZaZWpOADP31KU72iI+G
+ /mDU6WjBq7pZnpcOe9GqYtjXXEBAXz7wFosaQM8kNeHyN+poDCNLsGIWRoY4CT5aD8n+
+ /rAcyxZP2sDw8IfiEACwqKhTl/motOL+EEIgrmjrIQWn8hJGvkPc4QX4K3XX9/0hKlYS
+ 1hhOs2C27TtJIw3GMeLZphPYBrSET32jQgRkGg5mV9+jCEYyRrYIGAWJIGwrMejUi6hY
+ CL1RbWjCrOgelDI6ZtM+8sS7ODVnTgAKtgoHQHPOx9nZRARluXXjIotQFW/Pcjny4c4d Gw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ueaah8ynk-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ueaah8ynx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 17 Nov 2023 15:19:59 +0000
 Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AHFBHjM001731;
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AHFBNlN003052;
         Fri, 17 Nov 2023 15:19:59 GMT
 Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ueaah8ykv-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ueaah8ymu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Nov 2023 15:19:59 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHFGx0M005161;
+        Fri, 17 Nov 2023 15:19:58 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uakxtf7vb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 17 Nov 2023 15:19:58 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHD42iS005177;
-        Fri, 17 Nov 2023 15:19:57 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uakxtf7v7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Nov 2023 15:19:57 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AHFJsTi6816266
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AHFJtJG28705296
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Fri, 17 Nov 2023 15:19:55 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CFFD12004E;
-        Fri, 17 Nov 2023 15:19:54 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id C4C382004E;
+        Fri, 17 Nov 2023 15:19:55 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8EE5520043;
-        Fri, 17 Nov 2023 15:19:54 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 84E5F2004B;
+        Fri, 17 Nov 2023 15:19:55 +0000 (GMT)
 Received: from a46lp67.. (unknown [9.152.108.100])
         by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 17 Nov 2023 15:19:54 +0000 (GMT)
+        Fri, 17 Nov 2023 15:19:55 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         thuth@redhat.com, david@redhat.com, nsg@linux.ibm.com,
         nrb@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v3 0/7] s390x: Add base AP support
-Date:   Fri, 17 Nov 2023 15:19:32 +0000
-Message-Id: <20231117151939.971079-1-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v3 3/7] lib: s390x: ap: Add proper ap setup code
+Date:   Fri, 17 Nov 2023 15:19:35 +0000
+Message-Id: <20231117151939.971079-4-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20231117151939.971079-1-frankja@linux.ibm.com>
+References: <20231117151939.971079-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: s6KA7sZPLlEAJucOtSSuB7QDcFAHkjEo
-X-Proofpoint-GUID: cTWw1TFezRx3htvK2NPTF_hnPXd8uQpb
+X-Proofpoint-ORIG-GUID: VvI-LHRcSaP2fCw8E736VPksoOT4y7ra
+X-Proofpoint-GUID: wiRzuTOHUv7XtvkwColG1__ki9ofh8eN
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-17_14,2023-11-17_01,2023-05-22_02
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
- bulkscore=0 suspectscore=0 malwarescore=0 mlxlogscore=987 phishscore=0
+ bulkscore=0 suspectscore=0 malwarescore=0 mlxlogscore=999 phishscore=0
  mlxscore=0 impostorscore=0 priorityscore=1501 adultscore=0
  lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311060000 definitions=main-2311170114
@@ -82,54 +85,181 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-As KVM supports passing Adjunct Processor (AP) crypto devices to
-guests, we should make sure that the interface works as expected.
+For the next tests we need a valid queue which means we need to grab
+the qci info and search the first set bit in the ap and aq masks.
 
-Three instructions provide the interface to the AP devices:
- - nqap: Enqueues a crypto request
- - dqap: Dequeues a crypto request
- - pqap: Provides information and processes support functions
+Let's move from the stfle 12 check to proper setup code that also
+returns arrays for the aps and qns.
 
-nqap & dqap work on crypto requests for which we currently don't want
-to add tests due to their sheer complexity.
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ lib/s390x/ap.c | 90 +++++++++++++++++++++++++++++++++++++++++++++++---
+ lib/s390x/ap.h | 17 +++++++++-
+ s390x/ap.c     |  4 ++-
+ 3 files changed, 105 insertions(+), 6 deletions(-)
 
-Which leaves us with pqap which is partly emulated for a guest 2 and
-hence is a prime target for testing.
-
-v3:
-	- Renamed ap_check() to ap_setup() and added comment
-
-v2:
-	- Re-worked the ap_check() function to test for stfle 12 since
-          we rely on PQAP QCI in the library functions
-	- Re-worked APQN management
-	- Fixed faulty loop variable initializers in ap.c
-	- Fixed report messages
-	- Extended clobber lists
-	- Extended length bit checks for nqap
-	- Now using ARRAY_SIZE where applicabale
-	- NIB is now allocated as IO memory
-
-
-Janosch Frank (7):
-  lib: s390x: Add ap library
-  s390x: Add guest 2 AP test
-  lib: s390x: ap: Add proper ap setup code
-  s390x: ap: Add pqap aqic tests
-  s390x: ap: Add reset tests
-  lib: s390x: ap: Add tapq test facility bit
-  s390x: ap: Add nq/dq len test
-
- lib/s390x/ap.c      | 278 ++++++++++++++++++++++
- lib/s390x/ap.h      | 119 ++++++++++
- s390x/Makefile      |   2 +
- s390x/ap.c          | 564 ++++++++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg |   3 +
- 5 files changed, 966 insertions(+)
- create mode 100644 lib/s390x/ap.c
- create mode 100644 lib/s390x/ap.h
- create mode 100644 s390x/ap.c
-
+diff --git a/lib/s390x/ap.c b/lib/s390x/ap.c
+index 17a32d66..9ba5a037 100644
+--- a/lib/s390x/ap.c
++++ b/lib/s390x/ap.c
+@@ -13,10 +13,18 @@
+ 
+ #include <libcflat.h>
+ #include <interrupt.h>
++#include <alloc.h>
++#include <bitops.h>
+ #include <ap.h>
+ #include <asm/time.h>
+ #include <asm/facility.h>
+ 
++static uint8_t num_ap;
++static uint8_t num_queue;
++static uint8_t *array_ap;
++static uint8_t *array_queue;
++static struct ap_config_info qci;
++
+ int ap_pqap_tapq(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw,
+ 		 struct pqap_r2 *r2)
+ {
+@@ -78,16 +86,90 @@ int ap_pqap_qci(struct ap_config_info *info)
+ 	return cc;
+ }
+ 
+-/* Will later be extended to a proper setup function */
+-bool ap_setup(void)
++static int get_entry(uint8_t *ptr, int i, size_t len)
+ {
++	/* Skip over the last entry */
++	if (i)
++		i++;
++
++	for (; i < 8 * len; i++) {
++		/* Do we even need to check the byte? */
++		if (!ptr[i / 8]) {
++			i += 7;
++			continue;
++		}
++
++		/* Check the bit in big-endian order */
++		if (ptr[i / 8] & BIT(7 - (i % 8)))
++			return i;
++	}
++	return -1;
++}
++
++static void setup_info(void)
++{
++	int i, entry = 0;
++
++	ap_pqap_qci(&qci);
++
++	for (i = 0; i < AP_ARRAY_MAX_NUM; i++) {
++		entry = get_entry((uint8_t *)qci.apm, entry, sizeof(qci.apm));
++		if (entry == -1)
++			break;
++
++		if (!num_ap) {
++			/*
++			 * We have at least one AP, time to
++			 * allocate the queue arrays
++			 */
++			array_ap = malloc(AP_ARRAY_MAX_NUM);
++			array_queue = malloc(AP_ARRAY_MAX_NUM);
++		}
++		array_ap[num_ap] = entry;
++		num_ap += 1;
++	}
++
++	/* Without an AP we don't even need to look at the queues */
++	if (!num_ap)
++		return;
++
++	entry = 0;
++	for (i = 0; i < AP_ARRAY_MAX_NUM; i++) {
++		entry = get_entry((uint8_t *)qci.aqm, entry, sizeof(qci.aqm));
++		if (entry == -1)
++			return;
++
++		array_queue[num_queue] = entry;
++		num_queue += 1;
++	}
++
++}
++
++int ap_setup(uint8_t **ap_array, uint8_t **qn_array, uint8_t *naps, uint8_t *nqns)
++{
++	assert(!num_ap);
++
+ 	/*
+ 	 * Base AP support has no STFLE or SCLP feature bit but the
+ 	 * PQAP QCI support is indicated via stfle bit 12. As this
+ 	 * library relies on QCI we bail out if it's not available.
+ 	 */
+ 	if (!test_facility(12))
+-		return false;
++		return AP_SETUP_NOINSTR;
+ 
+-	return true;
++	/* Setup ap and queue arrays */
++	setup_info();
++
++	if (!num_ap)
++		return AP_SETUP_NOAPQN;
++
++	/* Only provide the data if the caller actually needs it. */
++	if (ap_array && qn_array && naps && nqns) {
++		*ap_array = array_ap;
++		*qn_array = array_queue;
++		*naps = num_ap;
++		*nqns = num_queue;
++	}
++
++	return AP_SETUP_READY;
+ }
+diff --git a/lib/s390x/ap.h b/lib/s390x/ap.h
+index cda1e564..ac9e59d1 100644
+--- a/lib/s390x/ap.h
++++ b/lib/s390x/ap.h
+@@ -81,7 +81,22 @@ struct pqap_r2 {
+ } __attribute__((packed))  __attribute__((aligned(8)));
+ _Static_assert(sizeof(struct pqap_r2) == sizeof(uint64_t), "pqap_r2 size");
+ 
+-bool ap_setup(void);
++/*
++ * Maximum number of APQNs that we keep track of.
++ *
++ * This value is already way larger than the number of APQNs a AP test
++ * is probably going to use.
++ */
++#define AP_ARRAY_MAX_NUM	16
++
++/* Return values of ap_setup() */
++enum {
++	AP_SETUP_NOINSTR,	/* AP instructions not available */
++	AP_SETUP_NOAPQN,	/* Instructions available but no APQNs */
++	AP_SETUP_READY		/* Full setup complete, at least one APQN */
++};
++
++int ap_setup(uint8_t **ap_array, uint8_t **qn_array, uint8_t *naps, uint8_t *nqns);
+ int ap_pqap_tapq(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw,
+ 		 struct pqap_r2 *r2);
+ int ap_pqap_qci(struct ap_config_info *info);
+diff --git a/s390x/ap.c b/s390x/ap.c
+index 94f08783..32feb8db 100644
+--- a/s390x/ap.c
++++ b/s390x/ap.c
+@@ -292,8 +292,10 @@ static void test_priv(void)
+ 
+ int main(void)
+ {
++	int setup_rc = ap_setup(NULL, NULL, NULL, NULL);
++
+ 	report_prefix_push("ap");
+-	if (!ap_check()) {
++	if (setup_rc == AP_SETUP_NOINSTR) {
+ 		report_skip("AP instructions not available");
+ 		goto done;
+ 	}
 -- 
 2.34.1
 
