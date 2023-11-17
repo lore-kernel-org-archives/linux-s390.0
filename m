@@ -2,79 +2,153 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56940C197A0
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Nov 2023 00:40:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14306C197A0
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Nov 2023 04:59:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345613AbjKQAk2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Nov 2023 19:40:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34358 "EHLO
+        id S229931AbjKQE77 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Nov 2023 23:59:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345611AbjKQAk1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 19:40:27 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A29621AD
-        for <linux-s390@vger.kernel.org>; Thu, 16 Nov 2023 16:40:23 -0800 (PST)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 46E9AC433C7;
-        Fri, 17 Nov 2023 00:40:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1700181623;
-        bh=D9mJhKQTheELXxLPtK1TMo1qKHE3Q8g2bys3rN1R6f0=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=C13M6DUW33oCrKlgi/MSolPxf1bvzzbMTY7ZDF1s7dQeiwipAcLYD7fsgLrHipMcY
-         4Kp6XBgNgFe+FqmR4WQADOYMzv6dslZkxIBuvyRk4MvQrhWErQev1cm2MIIcYLP6NV
-         UDbORZYiqnciwtT9dEMHHqKWf05+iIpnLRC4HVjvlhgL8LtCHqh6e6jX6ERjHD+1pa
-         bV7No7347PsDIS+fCU6s/FmOYGkthIVYaUe1E/85UzH6nkEoM7Oc6GtzeQc5lGesqz
-         JDIHeAVTT0A7aOBygHlkWY8q3JZO3wFXb7h5T9mA2cY34JZ2hUsxEwaI6KB32Iir8q
-         Jy7nd22ncPmSA==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 2C111E00090;
-        Fri, 17 Nov 2023 00:40:23 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v2] s390/ism: ism driver implies smc protocol
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <170018162317.17554.15888902026228306856.git-patchwork-notify@kernel.org>
-Date:   Fri, 17 Nov 2023 00:40:23 +0000
-References: <20231115155958.3249645-1-gbayer@linux.ibm.com>
-In-Reply-To: <20231115155958.3249645-1-gbayer@linux.ibm.com>
-To:     Gerd Bayer <gbayer@linux.ibm.com>
-Cc:     wintera@linux.ibm.com, wenjia@linux.ibm.com, horms@kernel.org,
-        pabeni@redhat.com, guwen@linux.alibaba.com, rdunlap@infradead.org,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
-        dust.li@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org
+        with ESMTP id S229874AbjKQE77 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Nov 2023 23:59:59 -0500
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAD8A1A1;
+        Thu, 16 Nov 2023 20:59:54 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VwYSuqo_1700197181;
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VwYSuqo_1700197181)
+          by smtp.aliyun-inc.com;
+          Fri, 17 Nov 2023 12:59:52 +0800
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+        wintera@linux.ibm.com, guwen@linux.alibaba.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        tonylu@linux.alibaba.com, pabeni@redhat.com, edumazet@google.com
+Subject: [PATCH net v2] net/smc: avoid data corruption caused by decline
+Date:   Fri, 17 Nov 2023 12:59:41 +0800
+Message-Id: <1700197181-83136-1-git-send-email-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-This patch was applied to netdev/net.git (main)
-by David S. Miller <davem@davemloft.net>:
+We found a data corruption issue during testing of SMC-R on Redis
+applications.
 
-On Wed, 15 Nov 2023 16:59:58 +0100 you wrote:
-> Since commit a72178cfe855 ("net/smc: Fix dependency of SMC on ISM")
-> you can build the ism code without selecting the SMC network protocol.
-> That leaves some ism functions be reported as unused. Move these
-> functions under the conditional compile with CONFIG_SMC.
-> 
-> Also codify the suggestion to also configure the SMC protocol in ism's
-> Kconfig - but with an "imply" rather than a "select" as SMC depends on
-> other config options and allow for a deliberate decision not to build
-> SMC. Also, mention that in ISM's help.
-> 
-> [...]
+The benchmark has a low probability of reporting a strange error as
+shown below.
 
-Here is the summary with links:
-  - [net,v2] s390/ism: ism driver implies smc protocol
-    https://git.kernel.org/netdev/net/c/d565fa4300d9
+"Error: Protocol error, got "\xe2" as reply type byte"
 
-You are awesome, thank you!
+Finally, we found that the retrieved error data was as follows:
+
+0xE2 0xD4 0xC3 0xD9 0x04 0x00 0x2C 0x20 0xA6 0x56 0x00 0x16 0x3E 0x0C
+0xCB 0x04 0x02 0x01 0x00 0x00 0x20 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xE2
+
+It is quite obvious that this is a SMC DECLINE message, which means that
+the applications received SMC protocol message.
+We found that this was caused by the following situations:
+
+client			server
+	   proposal
+	------------->
+	   accept
+	<-------------
+	   confirm
+	------------->
+wait confirm
+
+	 failed llc confirm
+	    x------
+(after 2s)timeout
+			wait rsp
+
+wait decline
+
+(after 1s) timeout
+			(after 2s) timeout
+	    decline
+	-------------->
+	    decline
+	<--------------
+
+As a result, a decline message was sent in the implementation, and this
+message was read from TCP by the already-fallback connection.
+
+This patch double the client timeout as 2x of the server value,
+With this simple change, the Decline messages should never cross or
+collide (during Confirm link timeout).
+
+This issue requires an immediate solution, since the protocol updates
+involve a more long-term solution.
+
+Fixes: 0fb0b02bd6fd ("net/smc: adapt SMC client code to use the LLC flow")
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+---
+ include/net/netns/smc.h |  2 ++
+ net/smc/af_smc.c        |  3 ++-
+ net/smc/smc_sysctl.c    | 12 ++++++++++++
+ 3 files changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/include/net/netns/smc.h b/include/net/netns/smc.h
+index 582212a..5198896 100644
+--- a/include/net/netns/smc.h
++++ b/include/net/netns/smc.h
+@@ -22,5 +22,7 @@ struct netns_smc {
+ 	int				sysctl_smcr_testlink_time;
+ 	int				sysctl_wmem;
+ 	int				sysctl_rmem;
++	/* server's Confirm Link timeout in seconds */
++	int				sysctl_smcr_srv_confirm_link_timeout;
+ };
+ #endif
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index abd2667..b86ad30 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1870,7 +1870,8 @@ static int smcr_serv_conf_first_link(struct smc_sock *smc)
+ 		return SMC_CLC_DECL_TIMEOUT_CL;
+ 
+ 	/* receive CONFIRM LINK response from client over the RoCE fabric */
+-	qentry = smc_llc_wait(link->lgr, link, SMC_LLC_WAIT_TIME,
++	qentry = smc_llc_wait(link->lgr, link,
++			      sock_net(&smc->sk)->smc.sysctl_smcr_srv_confirm_link_timeout,
+ 			      SMC_LLC_CONFIRM_LINK);
+ 	if (!qentry) {
+ 		struct smc_clc_msg_decline dclc;
+diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
+index 5cbc18c..919f3f7 100644
+--- a/net/smc/smc_sysctl.c
++++ b/net/smc/smc_sysctl.c
+@@ -51,6 +51,13 @@
+ 		.proc_handler	= proc_dointvec_jiffies,
+ 	},
+ 	{
++		.procname	= "smcr_srv_confirm_link_timeout",
++		.data		= &init_net.smc.sysctl_smcr_srv_confirm_link_timeout,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= proc_dointvec_jiffies,
++	},
++	{
+ 		.procname	= "wmem",
+ 		.data		= &init_net.smc.sysctl_wmem,
+ 		.maxlen		= sizeof(int),
+@@ -95,6 +102,11 @@ int __net_init smc_sysctl_net_init(struct net *net)
+ 	net->smc.sysctl_autocorking_size = SMC_AUTOCORKING_DEFAULT_SIZE;
+ 	net->smc.sysctl_smcr_buf_type = SMCR_PHYS_CONT_BUFS;
+ 	net->smc.sysctl_smcr_testlink_time = SMC_LLC_TESTLINK_DEFAULT_TIME;
++	/* Increasing the server's timeout by twice as much as the client's
++	 * timeout by default can temporarily avoid decline messages of
++	 * both side been crossed or collided.
++	 */
++	net->smc.sysctl_smcr_srv_confirm_link_timeout = 2 * SMC_LLC_WAIT_TIME;
+ 	WRITE_ONCE(net->smc.sysctl_wmem, net_smc_wmem_init);
+ 	WRITE_ONCE(net->smc.sysctl_rmem, net_smc_rmem_init);
+ 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+1.8.3.1
 
