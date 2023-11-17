@@ -2,103 +2,128 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA33EC54FB9
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Nov 2023 21:40:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1323C54FB9
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Nov 2023 22:49:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232450AbjKQVkT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Nov 2023 16:40:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38268 "EHLO
+        id S230383AbjKQWtq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Nov 2023 17:49:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232012AbjKQVkT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Nov 2023 16:40:19 -0500
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0D16B4;
-        Fri, 17 Nov 2023 13:40:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1700257215; x=1731793215;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=f5qRy44lUGGRDDEIKWTWdVUa9s0JqfBcvmyjWEdeN+E=;
-  b=JyKCXWQQsIHv4+nieMcdT8SXUudSaM/gRADpKi9gjhYYnAGrItKgmdmQ
-   Suez3m91bvZpbOuy7ROagbEUn698ujnGO5X+8fNY47mXdwyhXbZ1a6neE
-   SbmoRcyObcB+a4vUV3gSjPu9d7zAG4fXxBK54EXm5vdPYRBctMUKhQfDp
-   1Iu+wR3FUrDvZcilvPx20aX/tcf9BxuHRWlMKCT01q7s6GuqhDzWExivz
-   E9MGtjVMTY0P9UKeNKzszjKAYIzYvQykLSu+ao1m2S2x64zBV+7Z+imUL
-   04hRHatLCZVx1xQnZS5Cp0YMI3BJfdVoV1z3s0MeMniSFzkLqfxJZ4Pvg
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10897"; a="376420732"
-X-IronPort-AV: E=Sophos;i="6.04,206,1695711600"; 
-   d="scan'208";a="376420732"
-Received: from orviesa002.jf.intel.com ([10.64.159.142])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Nov 2023 13:40:15 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.04,206,1695711600"; 
-   d="scan'208";a="6970021"
-Received: from lkp-server02.sh.intel.com (HELO b8de5498638e) ([10.239.97.151])
-  by orviesa002.jf.intel.com with ESMTP; 17 Nov 2023 13:40:12 -0800
-Received: from kbuild by b8de5498638e with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1r46ZN-0003B2-0f;
-        Fri, 17 Nov 2023 21:40:09 +0000
-Date:   Sat, 18 Nov 2023 05:39:08 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        linux-mm <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>
-Cc:     oe-kbuild-all@lists.linux.dev, Oscar Salvador <osalvador@suse.de>,
-        Michal Hocko <mhocko@suse.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/8] mm: use vmem_altmap code without CONFIG_ZONE_DEVICE
-Message-ID: <202311180545.VeyRXEDq-lkp@intel.com>
-References: <20231114180238.1522782-4-sumanthk@linux.ibm.com>
+        with ESMTP id S230379AbjKQWtp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Nov 2023 17:49:45 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51BE7D5B;
+        Fri, 17 Nov 2023 14:49:39 -0800 (PST)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHMeRNW008624;
+        Fri, 17 Nov 2023 22:49:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Bzz4F3zy9NB6M3oOX0CI34HMPpk7JdJuCetn/hvE+Ik=;
+ b=SCdeXJlwBbW+LhouPw4jhT3juFMHcbLKOm4KfnmDOJImbC5oQnN0viivqk6v0tzY6zuS
+ 3L5HhOFsA2Ml9gEoxEhWUIoqjQ0mhsIrFkBYyBzRH/Oq1eo20F+cQrNXmcA7HXGQgSDs
+ wgExZCzu+WPxJGv08ohWoyDfQeb8aoAbu/yrSqrCwtuC+/QRCBDmt2pjK5svu/luFYsi
+ UfL8VtV/EHXjtqRid+K0bTGjrjhce0M3FdQ5+3lZC8BHMQ1i3SBCZkx8MXbGUT6sXAlN
+ UpAuMiaQWxOtiLen0ffJJWF+3teP9TwzMkYaDMu0nENxRuZmuEg6N7obsOIm7yCGKIDB hQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uegb21nam-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Nov 2023 22:49:38 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AHMgwCl014923;
+        Fri, 17 Nov 2023 22:49:37 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uegb21nag-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Nov 2023 22:49:37 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHLJD0J012347;
+        Fri, 17 Nov 2023 22:49:37 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uamb01gcn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Nov 2023 22:49:37 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+        by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AHMna2Y9372402
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 17 Nov 2023 22:49:36 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 42E835805A;
+        Fri, 17 Nov 2023 22:49:36 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DEBCF58054;
+        Fri, 17 Nov 2023 22:49:34 +0000 (GMT)
+Received: from [9.61.190.175] (unknown [9.61.190.175])
+        by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 17 Nov 2023 22:49:34 +0000 (GMT)
+Message-ID: <356d1ce0-26e9-474d-8b00-bac4e7421a2b@linux.ibm.com>
+Date:   Fri, 17 Nov 2023 17:49:34 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231114180238.1522782-4-sumanthk@linux.ibm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 0/3] s390/vfio-ap: a couple of corrections to the IRQ
+ enablement function
+Content-Language: en-US
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com, pasic@linux.ibm.com,
+        frankja@linux.ibm.com, imbrenda@linux.ibm.com, david@redhat.com
+References: <20231109164427.460493-1-akrowiak@linux.ibm.com>
+ <ZVTV37wqwu8cDmK7@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <602a4845-726d-e034-bd77-20be1ff1d491@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <602a4845-726d-e034-bd77-20be1ff1d491@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: uK6v9-HETanOPR0zFMmQmhrysxlCbRBS
+X-Proofpoint-ORIG-GUID: M0GNDoB7efXn-yXX5DuWoqbyROgQfVOp
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-17_21,2023-11-17_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 bulkscore=0 clxscore=1015 mlxlogscore=999 spamscore=0
+ adultscore=0 mlxscore=0 phishscore=0 suspectscore=0 malwarescore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311170171
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Sumanth,
 
-kernel test robot noticed the following build errors:
 
-[auto build test ERROR on s390/features]
-[also build test ERROR on kvms390/next linus/master v6.7-rc1]
-[cannot apply to akpm-mm/mm-everything next-20231117]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+On 11/17/23 10:31, Christian Borntraeger wrote:
+> Am 15.11.23 um 15:29 schrieb Alexander Gordeev:
+>> On Thu, Nov 09, 2023 at 11:44:19AM -0500, Tony Krowiak wrote:
+>>> This series corrects two issues related to enablement of interrupts in
+>>> response to interception of the PQAP(AQIC) command:
+>> ...
+>>
+>> Hi Tony!
+>>
+>> Via which tree this series is to be pulled?
+>>
+>> Thanks!
+> 
+> I wanted to create a topic repository/branch for s390-specfic vfio code 
+> when we expect conflicts or touch kvm or vfio base code.
+> I started that but I have not finished my preparations.
+> 
+> Given the diffstat:
+> drivers/s390/crypto/vfio_ap_ops.c | 12 ++++++++----
+>   1 file changed, 8 insertions(+), 4 deletions(-)
+> 
+> This looks pretty much isolated to s390, so unless Paolo or Alex complain,
+> we should simply carry that via the s390 tree.
+> Alexander, can you take those patches?
+> Tony, I assume none if the patches is urgent and can wait for the next 
+> merge window, correct?
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Sumanth-Korikkar/mm-memory_hotplug-fix-memory-hotplug-locking-order/20231115-035455
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
-patch link:    https://lore.kernel.org/r/20231114180238.1522782-4-sumanthk%40linux.ibm.com
-patch subject: [PATCH 3/8] mm: use vmem_altmap code without CONFIG_ZONE_DEVICE
-config: x86_64-buildonly-randconfig-002-20231118 (https://download.01.org/0day-ci/archive/20231118/202311180545.VeyRXEDq-lkp@intel.com/config)
-compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231118/202311180545.VeyRXEDq-lkp@intel.com/reproduce)
+It is not urgent.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202311180545.VeyRXEDq-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   ld: arch/x86/mm/init_64.o: in function `remove_pagetable':
->> init_64.c:(.meminit.text+0xfc7): undefined reference to `vmem_altmap_free'
-   ld: mm/memory_hotplug.o: in function `__add_pages':
->> memory_hotplug.c:(.ref.text+0xc01): undefined reference to `vmem_altmap_offset'
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+> 
+> Christian
