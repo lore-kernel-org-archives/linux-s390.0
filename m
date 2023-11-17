@@ -2,116 +2,134 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65E32C072A2
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Nov 2023 14:39:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53220C072A2
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Nov 2023 15:20:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231358AbjKQOjC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Nov 2023 09:39:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50286 "EHLO
+        id S231469AbjKQPUE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Nov 2023 10:20:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230513AbjKQOjB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Nov 2023 09:39:01 -0500
+        with ESMTP id S230379AbjKQPUD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Nov 2023 10:20:03 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A984B8;
-        Fri, 17 Nov 2023 06:38:58 -0800 (PST)
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHEbLvY016889;
-        Fri, 17 Nov 2023 14:38:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=WM0V+hyIL7XQpkQLI7/vp+KVsKdSoxJq5T+sk4kaJp8=;
- b=byYTbKI2+ALS/X8OP5GE4Oeq4ZDkPwQYCFsPI9xCo1O/TbpHwHgpQBGoqYAceddmZb2Z
- BA2Op40jyAI8w0v4bEyTTihpiUrT2+Hu9Bd+lmq/EecLLymPs+RbOLb/jX81kuDXar+h
- FbdmlEzqY7gPuUVrE0EEQKfI456K5hvzp3/xd27YFE6ayg20wZk/Wbkcj+FwoML/covo
- 81FU0kQRCtvbfaq5H9kI7l1/2At5ttb5O28FN/ac4PdBvdVMc8gDfS1FEFQn61r969mU
- TJF8UzyLtqeTC6rQ/sq4I48KgSoQAMiss2v3T4ceCF9oYCCXRWpooUUeJMZQ1u84nMWR Rw== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F0BFD56;
+        Fri, 17 Nov 2023 07:20:00 -0800 (PST)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHFAw2F032727;
+        Fri, 17 Nov 2023 15:20:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=KXauD0E8clPPZRroXgFKohZ76btumq7rs+fcoJOPbSs=;
+ b=msU9VZ3meNCghnmXGiT8I7YGBqMZq1KMaSHE/32ee1Yfujo0T5lMV9DVu/zZSc0Q1z43
+ cLk+hOH9VawKXrJ+yREGc9BExvNey1WZikuvOzRj2QMltTbjp57HoNa+WkjJ29tmSgB5
+ /cLM/e9fMEfYdULtwfhk0gLESr1u+842rYKiDO3OpnJG1MUz6Ippw8HFoTZDdeFz/oQx
+ j/BN3PfrTW7OG9SqMiAdFDqbt42f5LUbIFYuZf8hdvK+/KblljAJscIOFUou0QDSGCmw
+ pJ77IZwur2+NWTOArCm1IIQarSdQaV0yO3O5YyPZ901auw1Lw/3LSS3zPDSRNZdpOmGg 2w== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uea3h82e3-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ueaah8ynk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Nov 2023 14:38:45 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AHEbqoK019193;
-        Fri, 17 Nov 2023 14:38:42 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uea3h8249-1
+        Fri, 17 Nov 2023 15:19:59 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AHFBHjM001731;
+        Fri, 17 Nov 2023 15:19:59 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ueaah8ykv-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Nov 2023 14:38:42 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHD41sa023047;
-        Fri, 17 Nov 2023 14:38:33 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uapn264wt-1
+        Fri, 17 Nov 2023 15:19:58 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHD42iS005177;
+        Fri, 17 Nov 2023 15:19:57 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+        by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uakxtf7v7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Nov 2023 14:38:33 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AHEcVai22413826
+        Fri, 17 Nov 2023 15:19:57 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AHFJsTi6816266
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 17 Nov 2023 14:38:31 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6462F2004D;
-        Fri, 17 Nov 2023 14:38:31 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 860F720040;
-        Fri, 17 Nov 2023 14:38:30 +0000 (GMT)
-Received: from osiris (unknown [9.179.8.115])
-        by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Fri, 17 Nov 2023 14:38:30 +0000 (GMT)
-Date:   Fri, 17 Nov 2023 15:38:29 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Trace Kernel <linux-trace-kernel@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Ajay Kaher <akaher@vmware.com>, chinglinyu@google.com,
-        lkp@intel.com, namit@vmware.com, oe-lkp@lists.linux.dev,
-        amakhalov@vmware.com, er.ajay.kaher@gmail.com,
-        srivatsa@csail.mit.edu, tkundu@vmware.com, vsirnapalli@vmware.com,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v5] eventfs: Remove eventfs_file and just use
- eventfs_inode
-Message-ID: <20231117143829.9674-B-hca@linux.ibm.com>
-References: <20231004165007.43d79161@gandalf.local.home>
- <20231117142335.9674-A-hca@linux.ibm.com>
+        Fri, 17 Nov 2023 15:19:55 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CFFD12004E;
+        Fri, 17 Nov 2023 15:19:54 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8EE5520043;
+        Fri, 17 Nov 2023 15:19:54 +0000 (GMT)
+Received: from a46lp67.. (unknown [9.152.108.100])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 17 Nov 2023 15:19:54 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        thuth@redhat.com, david@redhat.com, nsg@linux.ibm.com,
+        nrb@linux.ibm.com
+Subject: [kvm-unit-tests PATCH v3 0/7] s390x: Add base AP support
+Date:   Fri, 17 Nov 2023 15:19:32 +0000
+Message-Id: <20231117151939.971079-1-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231117142335.9674-A-hca@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: NvQfGLlneGpQnZcDGAkndaGx_UifV0TY
-X-Proofpoint-ORIG-GUID: 1hU4o4hwC7tmD3FWJvrLhd2SjgCKapbg
+X-Proofpoint-ORIG-GUID: s6KA7sZPLlEAJucOtSSuB7QDcFAHkjEo
+X-Proofpoint-GUID: cTWw1TFezRx3htvK2NPTF_hnPXd8uQpb
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-17_13,2023-11-17_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 suspectscore=0 bulkscore=0 mlxscore=0 priorityscore=1501
- lowpriorityscore=0 adultscore=0 mlxlogscore=555 clxscore=1015 spamscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311170109
+ definitions=2023-11-17_14,2023-11-17_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
+ bulkscore=0 suspectscore=0 malwarescore=0 mlxlogscore=987 phishscore=0
+ mlxscore=0 impostorscore=0 priorityscore=1501 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311170114
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Nov 17, 2023 at 03:23:35PM +0100, Heiko Carstens wrote:
-> I think this patch causes from time to time crashes when running ftrace
-> selftests. In particular I guess there is a bug wrt error handling in this
-> function (see below for call trace):
-> 
-> > +static struct dentry *
-> > +create_file_dentry(struct eventfs_inode *ei, struct dentry **e_dentry,
-> > +		   struct dentry *parent, const char *name, umode_t mode, void *data,
-> > +		   const struct file_operations *fops, bool lookup)
-> > +{
-...
-> Note that the compare and swap instruction within d_invalidate() generates
-> a specification exception because it operates on an invalid address
-> (0xffffffffffffffef), which happens to be -EEXIST. So my assumption is that
-> create_dir_dentry() has incorrect error handling and passes -EEXIST instead
-> of a valid dentry pointer to d_invalidate().
-> 
-> But I leave it up to you to figure this out :)
+As KVM supports passing Adjunct Processor (AP) crypto devices to
+guests, we should make sure that the interface works as expected.
 
-Ok, wrong function quoted of course. But the rest of my statement
-should be correct.
+Three instructions provide the interface to the AP devices:
+ - nqap: Enqueues a crypto request
+ - dqap: Dequeues a crypto request
+ - pqap: Provides information and processes support functions
+
+nqap & dqap work on crypto requests for which we currently don't want
+to add tests due to their sheer complexity.
+
+Which leaves us with pqap which is partly emulated for a guest 2 and
+hence is a prime target for testing.
+
+v3:
+	- Renamed ap_check() to ap_setup() and added comment
+
+v2:
+	- Re-worked the ap_check() function to test for stfle 12 since
+          we rely on PQAP QCI in the library functions
+	- Re-worked APQN management
+	- Fixed faulty loop variable initializers in ap.c
+	- Fixed report messages
+	- Extended clobber lists
+	- Extended length bit checks for nqap
+	- Now using ARRAY_SIZE where applicabale
+	- NIB is now allocated as IO memory
+
+
+Janosch Frank (7):
+  lib: s390x: Add ap library
+  s390x: Add guest 2 AP test
+  lib: s390x: ap: Add proper ap setup code
+  s390x: ap: Add pqap aqic tests
+  s390x: ap: Add reset tests
+  lib: s390x: ap: Add tapq test facility bit
+  s390x: ap: Add nq/dq len test
+
+ lib/s390x/ap.c      | 278 ++++++++++++++++++++++
+ lib/s390x/ap.h      | 119 ++++++++++
+ s390x/Makefile      |   2 +
+ s390x/ap.c          | 564 ++++++++++++++++++++++++++++++++++++++++++++
+ s390x/unittests.cfg |   3 +
+ 5 files changed, 966 insertions(+)
+ create mode 100644 lib/s390x/ap.c
+ create mode 100644 lib/s390x/ap.h
+ create mode 100644 s390x/ap.c
+
+-- 
+2.34.1
+
