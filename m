@@ -2,189 +2,74 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AE0BC072A2
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Nov 2023 06:53:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8C8CC072A2
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Nov 2023 11:17:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229927AbjKQGxM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Nov 2023 01:53:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33936 "EHLO
+        id S230085AbjKQLRK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Nov 2023 06:17:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbjKQGxL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Nov 2023 01:53:11 -0500
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AE04192;
-        Thu, 16 Nov 2023 22:53:07 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VwYgl8u_1700203983;
-Received: from 30.221.148.229(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VwYgl8u_1700203983)
-          by smtp.aliyun-inc.com;
-          Fri, 17 Nov 2023 14:53:05 +0800
-Message-ID: <44551f7f-5890-2141-cf90-9d7095d55502@linux.alibaba.com>
-Date:   Fri, 17 Nov 2023 14:53:02 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.1
-Subject: Re: [PATCH net v2] net/smc: avoid data corruption caused by decline
-Content-Language: en-US
-To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com, wintera@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        tonylu@linux.alibaba.com, pabeni@redhat.com, edumazet@google.com
-References: <1700197181-83136-1-git-send-email-alibuda@linux.alibaba.com>
- <a0c9e8d5-14fc-3eba-f891-ef7c3ee9bd03@linux.alibaba.com>
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <a0c9e8d5-14fc-3eba-f891-ef7c3ee9bd03@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S229436AbjKQLRK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Nov 2023 06:17:10 -0500
+Received: from njjs-sys-mailin01.njjs.baidu.com (mx315.baidu.com [180.101.52.204])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 603C7130;
+        Fri, 17 Nov 2023 03:16:59 -0800 (PST)
+Received: from localhost (bjhw-sys-rpm015653cc5.bjhw.baidu.com [10.227.53.39])
+        by njjs-sys-mailin01.njjs.baidu.com (Postfix) with ESMTP id 882297F00045;
+        Fri, 17 Nov 2023 19:16:57 +0800 (CST)
+From:   Li RongQing <lirongqing@baidu.com>
+To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+        alibuda@linux.alibaba.com, tonylu@linux.alibaba.co,
+        guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, dust.li@linux.alibaba.com
+Subject: [PATCH net-next v3] net/smc: avoid atomic_set and smp_wmb in the tx path when possible
+Date:   Fri, 17 Nov 2023 19:16:57 +0800
+Message-Id: <20231117111657.16266-1-lirongqing@baidu.com>
+X-Mailer: git-send-email 2.9.4
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+There is rare possibility that conn->tx_pushing is not 1, since
+tx_pushing is just checked with 1, so move the setting tx_pushing
+to 1 after atomic_dec_and_test() return false, to avoid atomic_set
+and smp_wmb in tx path
 
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+Signed-off-by: Li RongQing <lirongqing@baidu.com>
+---
+diff v3: improvements in the commit body and comments
+diff v2: fix a typo in commit body and add net-next subject-prefix
+ net/smc/smc_tx.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-On 11/17/23 2:47 PM, Wen Gu wrote:
->
->
-> On 2023/11/17 12:59, D. Wythe wrote:
->
->> From: "D. Wythe" <alibuda@linux.alibaba.com>
->>
->> We found a data corruption issue during testing of SMC-R on Redis
->> applications.
->>
->> The benchmark has a low probability of reporting a strange error as
->> shown below.
->>
->> "Error: Protocol error, got "\xe2" as reply type byte"
->>
->> Finally, we found that the retrieved error data was as follows:
->>
->> 0xE2 0xD4 0xC3 0xD9 0x04 0x00 0x2C 0x20 0xA6 0x56 0x00 0x16 0x3E 0x0C
->> 0xCB 0x04 0x02 0x01 0x00 0x00 0x20 0x00 0x00 0x00 0x00 0x00 0x00 0x00
->> 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xE2
->>
->> It is quite obvious that this is a SMC DECLINE message, which means that
->> the applications received SMC protocol message.
->> We found that this was caused by the following situations:
->>
->> client            server
->>        proposal
->>     ------------->
->>        accept
->>     <-------------
->>        confirm
->>     ------------->
->> wait confirm
->>
->>      failed llc confirm
->>         x------
->> (after 2s)timeout
->>             wait rsp
->>
->> wait decline
->>
->> (after 1s) timeout
->>             (after 2s) timeout
->>         decline
->>     -------------->
->>         decline
->>     <--------------
->>
->> As a result, a decline message was sent in the implementation, and this
->> message was read from TCP by the already-fallback connection.
->>
->> This patch double the client timeout as 2x of the server value,
->
-> Is the client's timeout doubled?
->
-> From the code below, it is server's timeout that has been doubled.
->
-
-Forget to fix description, i'll fix that in next revision.
-
->> With this simple change, the Decline messages should never cross or
->> collide (during Confirm link timeout).
->>
->> This issue requires an immediate solution, since the protocol updates
->> involve a more long-term solution.
->>
->> Fixes: 0fb0b02bd6fd ("net/smc: adapt SMC client code to use the LLC 
->> flow")
->> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
->> ---
->>   include/net/netns/smc.h |  2 ++
->>   net/smc/af_smc.c        |  3 ++-
->>   net/smc/smc_sysctl.c    | 12 ++++++++++++
->>   3 files changed, 16 insertions(+), 1 deletion(-)
->>
->> diff --git a/include/net/netns/smc.h b/include/net/netns/smc.h
->> index 582212a..5198896 100644
->> --- a/include/net/netns/smc.h
->> +++ b/include/net/netns/smc.h
->> @@ -22,5 +22,7 @@ struct netns_smc {
->>       int                sysctl_smcr_testlink_time;
->>       int                sysctl_wmem;
->>       int                sysctl_rmem;
->> +    /* server's Confirm Link timeout in seconds */
->> +    int                sysctl_smcr_srv_confirm_link_timeout;
->>   };
->>   #endif
->> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
->> index abd2667..b86ad30 100644
->> --- a/net/smc/af_smc.c
->> +++ b/net/smc/af_smc.c
->> @@ -1870,7 +1870,8 @@ static int smcr_serv_conf_first_link(struct 
->> smc_sock *smc)
->>           return SMC_CLC_DECL_TIMEOUT_CL;
->>         /* receive CONFIRM LINK response from client over the RoCE 
->> fabric */
->> -    qentry = smc_llc_wait(link->lgr, link, SMC_LLC_WAIT_TIME,
->> +    qentry = smc_llc_wait(link->lgr, link,
->> + sock_net(&smc->sk)->smc.sysctl_smcr_srv_confirm_link_timeout,
->>                     SMC_LLC_CONFIRM_LINK);
->>       if (!qentry) {
->>           struct smc_clc_msg_decline dclc;
->> diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
->> index 5cbc18c..919f3f7 100644
->> --- a/net/smc/smc_sysctl.c
->> +++ b/net/smc/smc_sysctl.c
->> @@ -51,6 +51,13 @@
->>           .proc_handler    = proc_dointvec_jiffies,
->>       },
->>       {
->> +        .procname    = "smcr_srv_confirm_link_timeout",
->> +        .data        = 
->> &init_net.smc.sysctl_smcr_srv_confirm_link_timeout,
->> +        .maxlen        = sizeof(int),
->> +        .mode        = 0644,
->> +        .proc_handler    = proc_dointvec_jiffies,
->> +    },
->> +    {
->>           .procname    = "wmem",
->>           .data        = &init_net.smc.sysctl_wmem,
->>           .maxlen        = sizeof(int),
->> @@ -95,6 +102,11 @@ int __net_init smc_sysctl_net_init(struct net *net)
->>       net->smc.sysctl_autocorking_size = SMC_AUTOCORKING_DEFAULT_SIZE;
->>       net->smc.sysctl_smcr_buf_type = SMCR_PHYS_CONT_BUFS;
->>       net->smc.sysctl_smcr_testlink_time = 
->> SMC_LLC_TESTLINK_DEFAULT_TIME;
->> +    /* Increasing the server's timeout by twice as much as the client's
->> +     * timeout by default can temporarily avoid decline messages of
->> +     * both side been crossed or collided.
->
-> 'both sides' or maybe better for
->
-> '..avoid decline messages of both sides crossing or colliding.'
->
->
-Look nice. I'll adopt that.
->
-> Thanks,
-> Wen Gu
->
->> +     */
->> +    net->smc.sysctl_smcr_srv_confirm_link_timeout = 2 * 
->> SMC_LLC_WAIT_TIME;
->>       WRITE_ONCE(net->smc.sysctl_wmem, net_smc_wmem_init);
->>       WRITE_ONCE(net->smc.sysctl_rmem, net_smc_rmem_init);
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index 3b0ff3b..2c2933f 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -667,8 +667,6 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+ 		return 0;
+ 
+ again:
+-	atomic_set(&conn->tx_pushing, 1);
+-	smp_wmb(); /* Make sure tx_pushing is 1 before real send */
+ 	rc = __smc_tx_sndbuf_nonempty(conn);
+ 
+ 	/* We need to check whether someone else have added some data into
+@@ -677,8 +675,11 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+ 	 * If so, we need to push again to prevent those data hang in the send
+ 	 * queue.
+ 	 */
+-	if (unlikely(!atomic_dec_and_test(&conn->tx_pushing)))
++	if (unlikely(!atomic_dec_and_test(&conn->tx_pushing))) {
++		atomic_set(&conn->tx_pushing, 1);
++		smp_wmb(); /* Make sure tx_pushing is 1 before send again */
+ 		goto again;
++	}
+ 
+ 	return rc;
+ }
+-- 
+2.9.4
 
