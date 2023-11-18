@@ -2,115 +2,146 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2086C2BB3F
-	for <linux-s390@archiver.kernel.org>; Sat, 18 Nov 2023 15:54:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C3FEC5ACB3
+	for <linux-s390@archiver.kernel.org>; Sat, 18 Nov 2023 16:19:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229791AbjKRPyc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 18 Nov 2023 10:54:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37988 "EHLO
+        id S229776AbjKRQTF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 18 Nov 2023 11:19:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231698AbjKRPxf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 18 Nov 2023 10:53:35 -0500
-Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27F821FF3;
-        Sat, 18 Nov 2023 07:51:54 -0800 (PST)
-Received: by mail-yb1-xb34.google.com with SMTP id 3f1490d57ef6-da3b4b7c6bdso2917083276.2;
-        Sat, 18 Nov 2023 07:51:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1700322712; x=1700927512; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=FRJAi9fqLnpZBQBfWveY0fRnarAyBBO44GyImL+GpQw=;
-        b=IT8+IBr/GjwsHiuzp7JbGVGoUMD6y1ZMGmXhJaeFaN9TrOcyttSLuKo4qdu1SmXbcG
-         VgMptIT0UAnXXPkr+htmJdWc8gttbfZJkgEawCYNoL3m1PmHFpTdb/1VYtDUa07e+tWc
-         YjIfSHyIXopdgUYFRwTlxcaaOtQKI762QKvW8zdhLUU+jOHItUV2D9HlB/xKYgi2d27J
-         Tx+DKwf0B/ilLwI6vSXqzgjVkD61+aQRmW9T+9xlfrfdXzy9qxHVkFY/cat075drS2di
-         /foAu1lF96mWe7J41kM2yRloUptbCXY6fjPpShM53bkrQJ+krv3IFOWamSUUxClDXG39
-         4i5g==
+        with ESMTP id S229612AbjKRQTF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 18 Nov 2023 11:19:05 -0500
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 620C9C0;
+        Sat, 18 Nov 2023 08:19:01 -0800 (PST)
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-6cb66fbc63dso146030b3a.0;
+        Sat, 18 Nov 2023 08:19:01 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700322712; x=1700927512;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=FRJAi9fqLnpZBQBfWveY0fRnarAyBBO44GyImL+GpQw=;
-        b=mDBnc/xl3/t16XUHfApkuAktgGMjkyxeKEp9vBN0+hxNFXHTqEHzokNr9YK+VsAsKF
-         FTOEo88in//BEuOU0B3wE8a0L9+6hYJj6TTNznIDk6yy2RaI95MssBIIKBq3Pd0NqI2z
-         wDmH0xpka0HJQ8tgr3kdtTHoi8X0k4U4itbl1aEUWeTU4MKfRPQx3L6BrlEsMVUilQOE
-         aw9m9jzk/Ciy6b3vDILc+FOIFiXzC2zN4SUIe+v+grOfQSWlrcugQQI22Xikx7qyYfVd
-         L+leu3AqRb6r2KsJ0iU0Hv0PYJOwZQ/KjYo7Cnn9/kSZ+yzld/NPLvH/drU8h4DrTGA+
-         KPSQ==
-X-Gm-Message-State: AOJu0Yy+Fkdbs3cozq22sc2AkHohJpbMBiASZs2x7WLhVxu9P0cdIjUm
-        8J08UJJ4YcruDo/4vry5oWqTLuzICP1NQ/lp
-X-Google-Smtp-Source: AGHT+IElJ0U3CjFZG+s3NnFjnzuVmrFeyc2e4WM5oO3xxPOV5mRPbrBHmRloD2DElouQFvaTAENskA==
-X-Received: by 2002:a05:6902:212:b0:d9a:d7a5:e445 with SMTP id j18-20020a056902021200b00d9ad7a5e445mr2342423ybs.49.1700322711961;
-        Sat, 18 Nov 2023 07:51:51 -0800 (PST)
-Received: from localhost ([2601:344:8301:57f0:48a9:bd4c:868d:dc97])
-        by smtp.gmail.com with ESMTPSA id e62-20020a25a3c4000000b00da10d9e96cesm1006690ybi.35.2023.11.18.07.51.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Nov 2023 07:51:51 -0800 (PST)
-From:   Yury Norov <yury.norov@gmail.com>
-To:     linux-kernel@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
+        d=1e100.net; s=20230601; t=1700324341; x=1700929141;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=JpJ9j3Rgf+MmL1x+LnpZ5rIj3NB2ZwiexLJ0+/VPyNs=;
+        b=P6n9omzfO12+8okx3P3bDXbxiVhDTWKX4GGDeFE3W6UixUyNq4IxYXFm65lO/0p3up
+         fMQLJHMPMoJvoGchJN1cj1DTtwp9mJ6Cg4a6KVAPKkIwGsvZQYNshRez39deO5iu1DJE
+         Gj1cSzVdB39fedxcQ4h0bjxjnMXL5maLuciDf0uV2hWW0PFUUYuHHOW6x/sTU4ZzNgw3
+         WN+NmT6RDqx9M8Xmljx5MP/hYNIfqKsJ7REKFUfPk5tl+wSZnz6xcDqkp63SAhuZvm/r
+         VrBsDV/J9Dk0X51Ez5iPq4IgKl9kY/kqsGD7elYhc45thEM4A1nhRxOyrgz+nTMONzGG
+         XWhA==
+X-Gm-Message-State: AOJu0YyaUeMNukiAYy4UIP2R5t53tcvkprlBsRet8zdqVxCkgPQwQSdg
+        D818gJtCelE+SLuJk+O/hXgNu8K6KdnDAg==
+X-Google-Smtp-Source: AGHT+IF6DbzE+IGBVmgkkIXDBMasM05P7fXL7OHqGPwzqI5VVbby0wYg1pwoRaacJDugZHa97idotg==
+X-Received: by 2002:a05:6a20:4326:b0:187:e3a5:b35d with SMTP id h38-20020a056a20432600b00187e3a5b35dmr3138014pzk.13.1700324340672;
+        Sat, 18 Nov 2023 08:19:00 -0800 (PST)
+Received: from ?IPV6:2601:647:4d7e:54f3:667:4981:ffa1:7be1? ([2601:647:4d7e:54f3:667:4981:ffa1:7be1])
+        by smtp.gmail.com with ESMTPSA id b9-20020a056a000a8900b006c7c6ae3755sm3179469pfl.80.2023.11.18.08.18.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 18 Nov 2023 08:19:00 -0800 (PST)
+Message-ID: <792fc3d8-6834-48f8-9737-f1531459d245@acm.org>
+Date:   Sat, 18 Nov 2023 08:18:46 -0800
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 00/34] biops: add atomig find_bit() operations
+Content-Language: en-US
+To:     Yury Norov <yury.norov@gmail.com>, linux-kernel@vger.kernel.org,
         "David S. Miller" <davem@davemloft.net>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Akinobu Mita <akinobu.mita@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christian Brauner <brauner@kernel.org>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        David Disseldorp <ddiss@suse.de>,
+        Edward Cree <ecree.xilinx@gmail.com>,
         Eric Dumazet <edumazet@google.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Gregory Greenman <gregory.greenman@intel.com>,
+        Hans Verkuil <hverkuil@xs4all.nl>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Hugh Dickins <hughd@google.com>,
+        Ingo Molnar <mingo@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org
-Cc:     Yury Norov <yury.norov@gmail.com>, Jan Kara <jack@suse.cz>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
+        Jiri Pirko <jiri@resnulli.us>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Kalle Valo <kvalo@kernel.org>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Karsten Keil <isdn@linux-pingi.de>,
+        Kees Cook <keescook@chromium.org>,
+        Leon Romanovsky <leon@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Martin Habets <habetsm.xilinx@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michal Simek <monstr@monstr.eu>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Rich Felker <dalias@libc.org>, Rob Herring <robh@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Shuai Xue <xueshuai@linux.alibaba.com>,
+        Stanislaw Gruszka <stf_xl@wp.pl>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Valentin Schneider <vschneid@redhat.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Will Deacon <will@kernel.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        GR-QLogic-Storage-Upstream@marvell.com,
+        alsa-devel@alsa-project.org, ath10k@lists.infradead.org,
+        dmaengine@vger.kernel.org, iommu@lists.linux.dev,
+        kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-bluetooth@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-media@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-net-drivers@amd.com,
+        linux-pci@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-serial@vger.kernel.org, linux-sh@vger.kernel.org,
+        linux-sound@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-wireless@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        mpi3mr-linuxdrv.pdl@broadcom.com, netdev@vger.kernel.org,
+        sparclinux@vger.kernel.org, x86@kernel.org
+Cc:     Jan Kara <jack@suse.cz>,
         Mirsad Todorovac <mirsad.todorovac@alu.unizg.hr>,
         Matthew Wilcox <willy@infradead.org>,
         Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Maxim Kuvyrkov <maxim.kuvyrkov@linaro.org>,
         Alexey Klimov <klimov.linux@gmail.com>
-Subject: [PATCH 29/34] net: smc: fix opencoded find_and_set_bit() in smc_wr_tx_get_free_slot_index()
-Date:   Sat, 18 Nov 2023 07:51:00 -0800
-Message-Id: <20231118155105.25678-30-yury.norov@gmail.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20231118155105.25678-1-yury.norov@gmail.com>
 References: <20231118155105.25678-1-yury.norov@gmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   Bart Van Assche <bvanassche@acm.org>
+In-Reply-To: <20231118155105.25678-1-yury.norov@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The function opencodes find_and_set_bit() with a for_each() loop. Fix
-it, and make the whole function a simple almost one-liner.
+On 11/18/23 07:50, Yury Norov wrote:
+> Add helpers around test_and_{set,clear}_bit() that allow to search for
+> clear or set bits and flip them atomically.
 
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
----
- net/smc/smc_wr.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+There is a typo in the subject: shouldn't "atomig" be changed
+into "atomic"?
 
-diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-index 0021065a600a..b6f0cfc52788 100644
---- a/net/smc/smc_wr.c
-+++ b/net/smc/smc_wr.c
-@@ -170,15 +170,11 @@ void smc_wr_tx_cq_handler(struct ib_cq *ib_cq, void *cq_context)
- 
- static inline int smc_wr_tx_get_free_slot_index(struct smc_link *link, u32 *idx)
- {
--	*idx = link->wr_tx_cnt;
- 	if (!smc_link_sendable(link))
- 		return -ENOLINK;
--	for_each_clear_bit(*idx, link->wr_tx_mask, link->wr_tx_cnt) {
--		if (!test_and_set_bit(*idx, link->wr_tx_mask))
--			return 0;
--	}
--	*idx = link->wr_tx_cnt;
--	return -EBUSY;
-+
-+	*idx = find_and_set_bit(link->wr_tx_mask, link->wr_tx_cnt);
-+	return *idx < link->wr_tx_cnt ? 0 : -EBUSY;
- }
- 
- /**
--- 
-2.39.2
+Thanks,
+
+Bart.
 
