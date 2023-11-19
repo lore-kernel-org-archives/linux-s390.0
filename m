@@ -2,117 +2,104 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C808C072A2
-	for <linux-s390@archiver.kernel.org>; Sun, 19 Nov 2023 15:28:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29599C54FB9
+	for <linux-s390@archiver.kernel.org>; Sun, 19 Nov 2023 20:10:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230295AbjKSP2d (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 19 Nov 2023 10:28:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43090 "EHLO
+        id S229665AbjKSUK2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 19 Nov 2023 15:10:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229703AbjKSP2d (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 19 Nov 2023 10:28:33 -0500
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F18E126;
-        Sun, 19 Nov 2023 07:28:26 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R711e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VweoVTA_1700407699;
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VweoVTA_1700407699)
-          by smtp.aliyun-inc.com;
-          Sun, 19 Nov 2023 23:28:23 +0800
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        wintera@linux.ibm.com, guwen@linux.alibaba.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        tonylu@linux.alibaba.com, pabeni@redhat.com, edumazet@google.com
-Subject: [PATCH net v3] net/smc: avoid data corruption caused by decline
-Date:   Sun, 19 Nov 2023 23:28:19 +0800
-Message-Id: <1700407699-97350-1-git-send-email-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        with ESMTP id S229508AbjKSUK1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 19 Nov 2023 15:10:27 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91BDE115;
+        Sun, 19 Nov 2023 12:10:24 -0800 (PST)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 13EC5C433C7;
+        Sun, 19 Nov 2023 20:10:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1700424624;
+        bh=RfcmcSJXbNshmCCmuIQ3OLjalTX/zBZa+mvG0+u9+OQ=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=j45PWymqb1xFb4zs9J1IsJFg8HnooUak2A+BOQquFgMsnDmBkA/r2GHxyRsPbiMwz
+         1tNm/mpxE8jdAzOzOV0JVzh3Jxst2rwdYWekOb0BZS79Q+FAdSbcgfP64yy/KALD48
+         4icnL9dHKIgrw3/g/JXuDxTwdS2H+tl3Mp9JuplIkuE9q4gOnDksLeVWDeEsXUwRhW
+         K5xrICNaBvCnx/1/YmlSa67kSdLhrRcRkVbW2Q+ewBH3dnrW4KVZ2VnUpRWJN+9yAn
+         gWbzAnqavepenz6VDL01VAXVw74N1vt1X0fkZTp//ZFghNrjM3ZXsOR3tnocCGNZXB
+         7r7xXBklox58g==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id ED963C4316B;
+        Sun, 19 Nov 2023 20:10:23 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] net: fill in MODULE_DESCRIPTION()s for SOCK_DIAG modules
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <170042462396.21508.74186037666655435.git-patchwork-notify@kernel.org>
+Date:   Sun, 19 Nov 2023 20:10:23 +0000
+References: <20231119033006.442271-1-kuba@kernel.org>
+In-Reply-To: <20231119033006.442271-1-kuba@kernel.org>
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     davem@davemloft.net, netdev@vger.kernel.org, edumazet@google.com,
+        pabeni@redhat.com, dsahern@kernel.org, matttbe@kernel.org,
+        martineau@kernel.org, marcelo.leitner@gmail.com,
+        lucien.xin@gmail.com, kgraul@linux.ibm.com, wenjia@linux.ibm.com,
+        jaka@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+        jmaloy@redhat.com, ying.xue@windriver.com, sgarzare@redhat.com,
+        bjorn@kernel.org, magnus.karlsson@intel.com,
+        maciej.fijalkowski@intel.com, kuniyu@amazon.com,
+        mptcp@lists.linux.dev, linux-sctp@vger.kernel.org,
+        linux-s390@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
+        virtualization@lists.linux.dev, bpf@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: "D. Wythe" <alibuda@linux.alibaba.com>
+Hello:
 
-We found a data corruption issue during testing of SMC-R on Redis
-applications.
+This patch was applied to netdev/net.git (main)
+by David S. Miller <davem@davemloft.net>:
 
-The benchmark has a low probability of reporting a strange error as
-shown below.
+On Sat, 18 Nov 2023 19:30:06 -0800 you wrote:
+> W=1 builds now warn if module is built without a MODULE_DESCRIPTION().
+> Add descriptions to all the sock diag modules in one fell swoop.
+> 
+> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+> ---
+> CC: dsahern@kernel.org
+> CC: matttbe@kernel.org
+> CC: martineau@kernel.org
+> CC: marcelo.leitner@gmail.com
+> CC: lucien.xin@gmail.com
+> CC: kgraul@linux.ibm.com
+> CC: wenjia@linux.ibm.com
+> CC: jaka@linux.ibm.com
+> CC: alibuda@linux.alibaba.com
+> CC: tonylu@linux.alibaba.com
+> CC: guwen@linux.alibaba.com
+> CC: jmaloy@redhat.com
+> CC: ying.xue@windriver.com
+> CC: sgarzare@redhat.com
+> CC: bjorn@kernel.org
+> CC: magnus.karlsson@intel.com
+> CC: maciej.fijalkowski@intel.com
+> CC: kuniyu@amazon.com
+> CC: mptcp@lists.linux.dev
+> CC: linux-sctp@vger.kernel.org
+> CC: linux-s390@vger.kernel.org
+> CC: tipc-discussion@lists.sourceforge.net
+> CC: virtualization@lists.linux.dev
+> CC: bpf@vger.kernel.org
+> 
+> [...]
 
-"Error: Protocol error, got "\xe2" as reply type byte"
+Here is the summary with links:
+  - [net] net: fill in MODULE_DESCRIPTION()s for SOCK_DIAG modules
+    https://git.kernel.org/netdev/net/c/938dbead34cd
 
-Finally, we found that the retrieved error data was as follows:
-
-0xE2 0xD4 0xC3 0xD9 0x04 0x00 0x2C 0x20 0xA6 0x56 0x00 0x16 0x3E 0x0C
-0xCB 0x04 0x02 0x01 0x00 0x00 0x20 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xE2
-
-It is quite obvious that this is a SMC DECLINE message, which means that
-the applications received SMC protocol message.
-We found that this was caused by the following situations:
-
-client                  server
-        ¦  proposal
-        ------------->
-        ¦  accept
-        <-------------
-        ¦  confirm
-        ------------->
-wait confirm
-
-        ¦failed llc confirm
-        ¦   x------
-(after 2s)timeout
-                        wait rsp
-
-wait decline
-
-(after 1s) timeout
-                        (after 2s) timeout
-        ¦   decline
-        -------------->
-        ¦   decline
-        <--------------
-
-As a result, a decline message was sent in the implementation, and this
-message was read from TCP by the already-fallback connection.
-
-This patch double the client timeout as 2x of the server value,
-With this simple change, the Decline messages should never cross or
-collide (during Confirm link timeout).
-
-This issue requires an immediate solution, since the protocol updates
-involve a more long-term solution.
-
-Fixes: 0fb0b02bd6fd ("net/smc: adapt SMC client code to use the LLC flow")
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
----
- net/smc/af_smc.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index abd2667..8615cc0 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -598,8 +598,12 @@ static int smcr_clnt_conf_first_link(struct smc_sock *smc)
- 	struct smc_llc_qentry *qentry;
- 	int rc;
- 
--	/* receive CONFIRM LINK request from server over RoCE fabric */
--	qentry = smc_llc_wait(link->lgr, NULL, SMC_LLC_WAIT_TIME,
-+	/* Receive CONFIRM LINK request from server over RoCE fabric.
-+	 * Increasing the client's timeout by twice as much as the server's
-+	 * timeout by default can temporarily avoid decline messages of
-+	 * both sides crossing or colliding
-+	 */
-+	qentry = smc_llc_wait(link->lgr, NULL, 2 * SMC_LLC_WAIT_TIME,
- 			      SMC_LLC_CONFIRM_LINK);
- 	if (!qentry) {
- 		struct smc_clc_msg_decline dclc;
+You are awesome, thank you!
 -- 
-1.8.3.1
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
