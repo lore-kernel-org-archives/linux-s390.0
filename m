@@ -2,129 +2,81 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B9B6C072A2
-	for <linux-s390@archiver.kernel.org>; Sun, 19 Nov 2023 12:39:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95FB6C54E76
+	for <linux-s390@archiver.kernel.org>; Sun, 19 Nov 2023 13:58:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229799AbjKSMjN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 19 Nov 2023 07:39:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53132 "EHLO
+        id S229642AbjKSN6H (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 19 Nov 2023 08:58:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229454AbjKSMjM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 19 Nov 2023 07:39:12 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0249C12D;
-        Sun, 19 Nov 2023 04:39:06 -0800 (PST)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AJAFYSJ027516;
-        Sun, 19 Nov 2023 12:39:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=yOrnK/542Zoh3v/mcdS03rZ1TLbYIVoIRt2JO2cQx5s=;
- b=adUOiy626HavItD8J1a2aZZyWPKwNOv63ngUtRyDJTGHs9N4++11Iq0tKW6Z8DvBvQlg
- eM3hrucvled1CXAeXFm+pb0ec+IbkCBnNiWCFWRbI6TeMrMg7TapOTr9TWySDL6WfP4x
- U5ZRnhJ3TFFRwJbWz+5++nopKRA7KIR5UBrdxzyMEJGwOCvo0F2e8ueaU3E0t50f/T/r
- nyoapazQyV96+qbWuffjL6ozB+zUs2QA8DaBqf6HNJV9LAaRjUZSWrK8KD09lqkY/Fbd
- AqyB64HL1nL3fiKMfjVdd3VxJT8PKfpKj3J32NGKAKwuWpc2KJCF8Oikdfq8OWHqbUv3 wQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uf7kh0dyd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 19 Nov 2023 12:39:05 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AJCU5gS010116;
-        Sun, 19 Nov 2023 12:39:05 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uf7kh0dx7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 19 Nov 2023 12:39:04 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AJBJMEn007569;
-        Sun, 19 Nov 2023 12:39:03 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ufaa1jacq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 19 Nov 2023 12:39:03 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AJCd0s514222034
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sun, 19 Nov 2023 12:39:00 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AAB3520043;
-        Sun, 19 Nov 2023 12:39:00 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9A53620040;
-        Sun, 19 Nov 2023 12:38:59 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.64.81])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Sun, 19 Nov 2023 12:38:59 +0000 (GMT)
-Date:   Sun, 19 Nov 2023 13:38:57 +0100
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Steffen Maier <maier@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Azeem Shaikh <azeemshaikh38@gmail.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-hardening@vger.kernel.org
-Subject: Re: [PATCH] scsi: zfcp: Replace strlcpy() with strscpy()
-Message-ID: <ZVoB4b2/X3jCPOdG@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20231116191435.work.581-kees@kernel.org>
- <ZVeuwT1rhMT5UWGB@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZVeuwT1rhMT5UWGB@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: wNX5z6b6QR__cf8Wx-hUwx8zwubhvZl8
-X-Proofpoint-GUID: 4jKpwIDzsMaxjwokS--qpWdF1dfYPime
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-19_11,2023-11-17_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
- lowpriorityscore=0 malwarescore=0 phishscore=0 adultscore=0 mlxscore=0
- priorityscore=1501 clxscore=1015 bulkscore=0 impostorscore=0
- mlxlogscore=684 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311190095
+        with ESMTP id S229441AbjKSN6G (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 19 Nov 2023 08:58:06 -0500
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34DD9D8;
+        Sun, 19 Nov 2023 05:58:02 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R961e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=21;SR=0;TI=SMTPD_---0Vweas-d_1700402277;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Vweas-d_1700402277)
+          by smtp.aliyun-inc.com;
+          Sun, 19 Nov 2023 21:57:59 +0800
+From:   Wen Gu <guwen@linux.alibaba.com>
+To:     wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        kgraul@linux.ibm.com, jaka@linux.ibm.com
+Cc:     borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        guwen@linux.alibaba.com, raspl@linux.ibm.com,
+        schnelle@linux.ibm.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH net-next 0/7] net/smc: implement SMCv2.1 virtual ISM device support
+Date:   Sun, 19 Nov 2023 21:57:50 +0800
+Message-Id: <1700402277-93750-1-git-send-email-guwen@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Nov 17, 2023 at 07:19:48PM +0100, Alexander Gordeev wrote:
-> > @@ -900,8 +900,15 @@ static void zfcp_fc_rspn(struct zfcp_adapter *adapter,
-> >  	zfcp_fc_ct_ns_init(&rspn_req->ct_hdr, FC_NS_RSPN_ID,
-> >  			   FC_SYMBOLIC_NAME_SIZE);
-> >  	hton24(rspn_req->rspn.fr_fid.fp_fid, fc_host_port_id(shost));
-> > -	len = strlcpy(rspn_req->rspn.fr_name, fc_host_symbolic_name(shost),
-> > -		      FC_SYMBOLIC_NAME_SIZE);
-> > +	len = strscpy(rspn_req->name, fc_host_symbolic_name(shost),
-> > +		      sizeof(rspn_req->name));
-> 
-> Could you please explain why do you copy to rspn_req->name instead
-> of rspn_req->rspn.fr_name?
+The fourth edition of SMCv2 adds the SMC version 2.1 feature updates for
+SMC-Dv2 with virtual ISM. Virtual ISM are created and supported mainly by
+OS or hypervisor software, comparable to IBM ISM which is based on platform
+firmware or hardware.
 
-Please, ignore this (stupid Friday evening) quesiton.
+With the introduction of virtual ISM, SMCv2.1 makes some updates:
 
-Although the use of sizeof() is right thing, FC_SYMBOLIC_NAME_SIZE
-is so ubiquotous in this source that it probably makes sense to
-address in a separate cleanup.
+- Introduce feature bitmask to indicate supplemental features.
+- Reserve a range of CHIDs for virtual ISM.
+- Support extended GIDs (128 bits) in CLC handshake.
 
-@Steffen, @Benjamin, could you please comment in this and below?
+So this patch set aims to implement these updates in Linux kernel. And it
+acts as the first part of the new version of [1].
 
-> > +	/*
-> > +	 * It should be impossible for this to truncate, as
-> > +	 * sizeof(rspn_req->name) is equal to max size of
-> > +	 * fc_host_symbolic_name(shost), but check anyway.
-> > +	 */
-> > +	if (len < 0)
-> > +		len = sizeof(rspn_req->name) - 1;
+[1] https://lore.kernel.org/netdev/1695568613-125057-1-git-send-email-guwen@linux.alibaba.com/
 
-Not sure if this check is really needed. It could have been done
-for strlcpy() also, but as you say - should not ever happen.
+Wen Gu (7):
+  net/smc: Rename some variable 'fce' to 'fce_v2x' for clarity
+  net/smc: support SMCv2.x supplemental features negotiation
+  net/smc: introduce virtual ISM device support feature
+  net/smc: define a reserved CHID range for virtual ISM devices
+  net/smc: compatible with 128-bits extend GID of virtual ISM device
+  net/smc: disable SEID on non-s390 archs where virtual ISM may be used
+  net/smc: manage system EID in SMC stack instead of ISM driver
 
-> >  	rspn_req->rspn.fr_name_len = len;
-> >  
-> >  	sg_init_one(&fc_req->sg_req, rspn_req, sizeof(*rspn_req));
+ drivers/s390/net/ism.h     |  6 ---
+ drivers/s390/net/ism_drv.c | 54 +++++++--------------------
+ include/linux/ism.h        |  1 -
+ include/net/smc.h          | 16 +++++---
+ net/smc/af_smc.c           | 68 ++++++++++++++++++++++++++-------
+ net/smc/smc.h              |  7 ++++
+ net/smc/smc_clc.c          | 93 ++++++++++++++++++++++++++++++++--------------
+ net/smc/smc_clc.h          | 22 +++++++----
+ net/smc/smc_core.c         | 30 ++++++++++-----
+ net/smc/smc_core.h         |  8 ++--
+ net/smc/smc_diag.c         |  7 +++-
+ net/smc/smc_ism.c          | 57 ++++++++++++++++++++--------
+ net/smc/smc_ism.h          | 31 +++++++++++++++-
+ net/smc/smc_pnet.c         |  4 +-
+ 14 files changed, 269 insertions(+), 135 deletions(-)
 
-Thanks!
+-- 
+1.8.3.1
+
