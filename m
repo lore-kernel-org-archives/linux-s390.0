@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95FB6C54E76
-	for <linux-s390@archiver.kernel.org>; Sun, 19 Nov 2023 13:58:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3DD3C54E76
+	for <linux-s390@archiver.kernel.org>; Sun, 19 Nov 2023 13:58:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229642AbjKSN6H (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 19 Nov 2023 08:58:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33662 "EHLO
+        id S231282AbjKSN6K (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 19 Nov 2023 08:58:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229441AbjKSN6G (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 19 Nov 2023 08:58:06 -0500
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34DD9D8;
-        Sun, 19 Nov 2023 05:58:02 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R961e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=21;SR=0;TI=SMTPD_---0Vweas-d_1700402277;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Vweas-d_1700402277)
+        with ESMTP id S229441AbjKSN6J (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 19 Nov 2023 08:58:09 -0500
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C7F8E6;
+        Sun, 19 Nov 2023 05:58:05 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R991e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=21;SR=0;TI=SMTPD_---0VwebcEG_1700402280;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VwebcEG_1700402280)
           by smtp.aliyun-inc.com;
-          Sun, 19 Nov 2023 21:57:59 +0800
+          Sun, 19 Nov 2023 21:58:02 +0800
 From:   Wen Gu <guwen@linux.alibaba.com>
 To:     wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
         gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
@@ -28,55 +28,101 @@ Cc:     borntraeger@linux.ibm.com, svens@linux.ibm.com,
         guwen@linux.alibaba.com, raspl@linux.ibm.com,
         schnelle@linux.ibm.com, linux-s390@vger.kernel.org,
         netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH net-next 0/7] net/smc: implement SMCv2.1 virtual ISM device support
-Date:   Sun, 19 Nov 2023 21:57:50 +0800
-Message-Id: <1700402277-93750-1-git-send-email-guwen@linux.alibaba.com>
+Subject: [PATCH net-next 1/7] net/smc: Rename some variable 'fce' to 'fce_v2x' for clarity
+Date:   Sun, 19 Nov 2023 21:57:51 +0800
+Message-Id: <1700402277-93750-2-git-send-email-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1700402277-93750-1-git-send-email-guwen@linux.alibaba.com>
+References: <1700402277-93750-1-git-send-email-guwen@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The fourth edition of SMCv2 adds the SMC version 2.1 feature updates for
-SMC-Dv2 with virtual ISM. Virtual ISM are created and supported mainly by
-OS or hypervisor software, comparable to IBM ISM which is based on platform
-firmware or hardware.
+Rename some smc_clc_first_contact_ext_v2x type variables to 'fce_v2x'
+to distinguish them from smc_clc_first_contact_ext type variables.
 
-With the introduction of virtual ISM, SMCv2.1 makes some updates:
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+---
+ net/smc/smc_clc.c | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
-- Introduce feature bitmask to indicate supplemental features.
-- Reserve a range of CHIDs for virtual ISM.
-- Support extended GIDs (128 bits) in CLC handshake.
-
-So this patch set aims to implement these updates in Linux kernel. And it
-acts as the first part of the new version of [1].
-
-[1] https://lore.kernel.org/netdev/1695568613-125057-1-git-send-email-guwen@linux.alibaba.com/
-
-Wen Gu (7):
-  net/smc: Rename some variable 'fce' to 'fce_v2x' for clarity
-  net/smc: support SMCv2.x supplemental features negotiation
-  net/smc: introduce virtual ISM device support feature
-  net/smc: define a reserved CHID range for virtual ISM devices
-  net/smc: compatible with 128-bits extend GID of virtual ISM device
-  net/smc: disable SEID on non-s390 archs where virtual ISM may be used
-  net/smc: manage system EID in SMC stack instead of ISM driver
-
- drivers/s390/net/ism.h     |  6 ---
- drivers/s390/net/ism_drv.c | 54 +++++++--------------------
- include/linux/ism.h        |  1 -
- include/net/smc.h          | 16 +++++---
- net/smc/af_smc.c           | 68 ++++++++++++++++++++++++++-------
- net/smc/smc.h              |  7 ++++
- net/smc/smc_clc.c          | 93 ++++++++++++++++++++++++++++++++--------------
- net/smc/smc_clc.h          | 22 +++++++----
- net/smc/smc_core.c         | 30 ++++++++++-----
- net/smc/smc_core.h         |  8 ++--
- net/smc/smc_diag.c         |  7 +++-
- net/smc/smc_ism.c          | 57 ++++++++++++++++++++--------
- net/smc/smc_ism.h          | 31 +++++++++++++++-
- net/smc/smc_pnet.c         |  4 +-
- 14 files changed, 269 insertions(+), 135 deletions(-)
-
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index 8deb46c..f2f86c2 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -418,15 +418,15 @@ static bool smc_clc_msg_prop_valid(struct smc_clc_msg_proposal *pclc)
+ 	return true;
+ }
+ 
+-static int smc_clc_fill_fce(struct smc_clc_first_contact_ext_v2x *fce,
++static int smc_clc_fill_fce(struct smc_clc_first_contact_ext_v2x *fce_v2x,
+ 			    struct smc_init_info *ini)
+ {
+-	int ret = sizeof(*fce);
++	int ret = sizeof(*fce_v2x);
+ 
+-	memset(fce, 0, sizeof(*fce));
+-	fce->fce_v2_base.os_type = SMC_CLC_OS_LINUX;
+-	fce->fce_v2_base.release = ini->release_nr;
+-	memcpy(fce->fce_v2_base.hostname, smc_hostname, sizeof(smc_hostname));
++	memset(fce_v2x, 0, sizeof(*fce_v2x));
++	fce_v2x->fce_v2_base.os_type = SMC_CLC_OS_LINUX;
++	fce_v2x->fce_v2_base.release = ini->release_nr;
++	memcpy(fce_v2x->fce_v2_base.hostname, smc_hostname, sizeof(smc_hostname));
+ 	if (ini->is_smcd && ini->release_nr < SMC_RELEASE_1) {
+ 		ret = sizeof(struct smc_clc_first_contact_ext);
+ 		goto out;
+@@ -434,8 +434,8 @@ static int smc_clc_fill_fce(struct smc_clc_first_contact_ext_v2x *fce,
+ 
+ 	if (ini->release_nr >= SMC_RELEASE_1) {
+ 		if (!ini->is_smcd) {
+-			fce->max_conns = ini->max_conns;
+-			fce->max_links = ini->max_links;
++			fce_v2x->max_conns = ini->max_conns;
++			fce_v2x->max_links = ini->max_links;
+ 		}
+ 	}
+ 
+@@ -1002,8 +1002,8 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+ 				       int first_contact, u8 version,
+ 				       u8 *eid, struct smc_init_info *ini)
+ {
++	struct smc_clc_first_contact_ext_v2x fce_v2x;
+ 	struct smc_connection *conn = &smc->conn;
+-	struct smc_clc_first_contact_ext_v2x fce;
+ 	struct smc_clc_msg_accept_confirm *clc;
+ 	struct smc_clc_fce_gid_ext gle;
+ 	struct smc_clc_msg_trail trl;
+@@ -1036,7 +1036,7 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+ 				memcpy(clc_v2->d1.eid, eid, SMC_MAX_EID_LEN);
+ 			len = SMCD_CLC_ACCEPT_CONFIRM_LEN_V2;
+ 			if (first_contact) {
+-				fce_len = smc_clc_fill_fce(&fce, ini);
++				fce_len = smc_clc_fill_fce(&fce_v2x, ini);
+ 				len += fce_len;
+ 			}
+ 			clc_v2->hdr.length = htons(len);
+@@ -1082,9 +1082,9 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+ 				memcpy(clc_v2->r1.eid, eid, SMC_MAX_EID_LEN);
+ 			len = SMCR_CLC_ACCEPT_CONFIRM_LEN_V2;
+ 			if (first_contact) {
+-				fce_len = smc_clc_fill_fce(&fce, ini);
++				fce_len = smc_clc_fill_fce(&fce_v2x, ini);
+ 				len += fce_len;
+-				fce.fce_v2_base.v2_direct = !link->lgr->uses_gateway;
++				fce_v2x.fce_v2_base.v2_direct = !link->lgr->uses_gateway;
+ 				if (clc->hdr.type == SMC_CLC_CONFIRM) {
+ 					memset(&gle, 0, sizeof(gle));
+ 					gle.gid_cnt = ini->smcrv2.gidlist.len;
+@@ -1111,7 +1111,7 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+ 						SMCR_CLC_ACCEPT_CONFIRM_LEN) -
+ 				   sizeof(trl);
+ 	if (version > SMC_V1 && first_contact) {
+-		vec[i].iov_base = &fce;
++		vec[i].iov_base = &fce_v2x;
+ 		vec[i++].iov_len = fce_len;
+ 		if (!conn->lgr->is_smcd) {
+ 			if (clc->hdr.type == SMC_CLC_CONFIRM) {
 -- 
 1.8.3.1
 
