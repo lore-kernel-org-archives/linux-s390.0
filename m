@@ -2,96 +2,64 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5EA2C2BB3F
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Nov 2023 18:51:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04145C2BB3F
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Nov 2023 19:17:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229561AbjKTSvO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Nov 2023 13:51:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50382 "EHLO
+        id S229589AbjKTTRq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Nov 2023 14:17:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229497AbjKTSvO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Nov 2023 13:51:14 -0500
-Received: from mail-il1-x131.google.com (mail-il1-x131.google.com [IPv6:2607:f8b0:4864:20::131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE4E3C8
-        for <linux-s390@vger.kernel.org>; Mon, 20 Nov 2023 10:51:09 -0800 (PST)
-Received: by mail-il1-x131.google.com with SMTP id e9e14a558f8ab-35950819c97so2550935ab.0
-        for <linux-s390@vger.kernel.org>; Mon, 20 Nov 2023 10:51:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1700506269; x=1701111069; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=XgBz+9lOvWgTjuEWFiCpX+jEWBQ0c3FrxgqjHEJ5als=;
-        b=eOR9pe1wfFmK42QQXiY/0JsaUCl+zv+bnyQOLy5aU1l3P+Rb6WtE9pKgM3EveQJPdC
-         bI9x0M8+BjOApuUjqlyek/RIXvJnA6b37Zfo27K1Z92aQj5SBiD0xhoXMLIYU66vOtRt
-         cXq9LdKrz6GHOiHt8BlaOcno7Uda5qOkBv3603m5nKEdk6y4i9HkvRR4MZS3WKHu7cZp
-         WZOubTEPlSl/r7OXdEF2vJtx+E+r58yAzLuAECw++N/PMjNIl1yWndpb48++jfT/ghLa
-         9iHbKTAIt8QJZu2fIfq124i1e2O8OENv18azoj/UvkGACRsXvloGktgT9ffq3vlhvifO
-         BA6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700506269; x=1701111069;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=XgBz+9lOvWgTjuEWFiCpX+jEWBQ0c3FrxgqjHEJ5als=;
-        b=KUnwsMbLN98otEmxHbAQAG0p6X9ZdrGZx3rwgWHl6gpH1Z4SwPCQV3rSkZRAR5Sywn
-         NX/3wa9XGB/jdBKe5lgEAcU3dbQABtci2P1RLTs8/OMvlxOYY+4LC3uw+5+I5D2SbOSO
-         ErfX0qKIQC099nzjWEqnlcFUhcaIzSOeEvMadgqWqCG4E/Bndgq0zlSPVlBM0EdhGopx
-         RE95tgQfzIZ1fqrZSaK6jlMyo+9+mBBnWl/ajauCyFgJaQTiXwikpyhQAca0iIRmyF3K
-         gcXNQ3yWPi7LBanaokwQx//QEkYxTcSaAa1vKmR4i+XVmMny9k34JNgTolhZ7GbzxZVV
-         emUg==
-X-Gm-Message-State: AOJu0YxFtyxYdcNYSyEfYWzeRxuSbqtkBWvkKeNwV/IZsB/s7X6j1usj
-        LlZYRYxAxTSsE6TE2O2ghc6kLrpFjBie0CTF4NmHzA==
-X-Google-Smtp-Source: AGHT+IG8pW4htJu1faPOYKJrWvR3odnVJY2TGdz06DbYUoSRpQPfTO/ZcDTxFcmgIKs45hnVrysQGQ==
-X-Received: by 2002:a05:6e02:3893:b0:34f:a4f0:4fc4 with SMTP id cn19-20020a056e02389300b0034fa4f04fc4mr8626584ilb.2.1700506269194;
-        Mon, 20 Nov 2023 10:51:09 -0800 (PST)
-Received: from [127.0.0.1] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id u7-20020a02b1c7000000b00466522ff5a9sm1145668jah.62.2023.11.20.10.51.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Nov 2023 10:51:08 -0800 (PST)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     Stefan Haberland <sth@linux.ibm.com>
-Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Muhammad Muzammil <m.muzzammilashraf@gmail.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20231025132437.1223363-1-sth@linux.ibm.com>
-References: <20231025132437.1223363-1-sth@linux.ibm.com>
-Subject: Re: [PATCH 0/2] s390/dasd: fix kernel panic with statistics
-Message-Id: <170050626833.126051.9250977201596854566.b4-ty@kernel.dk>
-Date:   Mon, 20 Nov 2023 11:51:08 -0700
+        with ESMTP id S229578AbjKTTRp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Nov 2023 14:17:45 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E51BE9C;
+        Mon, 20 Nov 2023 11:17:41 -0800 (PST)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E71EC433C7;
+        Mon, 20 Nov 2023 19:17:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1700507861;
+        bh=Fv3vr/kjHZEqkRI4ksHx4P5zjJGxHwUUPir/TAi533Q=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=fEBfi4g6aMCmWAdb2Ha0H+ETu17ancDylb3UWYuDj3mP/fVL04ZkTuODpjOY9dmTc
+         qT1vogF3BLKKnIudo4134BmYWC4FP1zh1Mxo63GGhEJhHL4E2WiIteiXTXgWA3jslQ
+         XKUsdycBb6RuEPwN23kvbx6nyLs0tUPTG2qL+AjwbN6jtTG110Ov/Y3AY4V5nCPsdD
+         0KHvp08/K/uPKWBQD64y/vMzRGPA7+SZoF4qzGtZO04gHOYSzz0HEEayHMhxqHmLsY
+         rFkhpGywtisTw6EfmcX3xmjlTbXaEraCIwK9dJh96ZEVrwr95shNKkTwCmxkIp6FM5
+         PoSjEvghxZarA==
+Date:   Mon, 20 Nov 2023 11:17:39 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Wen Gu <guwen@linux.alibaba.com>
+Cc:     wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, pabeni@redhat.com, kgraul@linux.ibm.com,
+        jaka@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        raspl@linux.ibm.com, schnelle@linux.ibm.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next 5/7] net/smc: compatible with 128-bits extend
+ GID of virtual ISM device
+Message-ID: <20231120111739.31baf90a@kernel.org>
+In-Reply-To: <1700402277-93750-6-git-send-email-guwen@linux.alibaba.com>
+References: <1700402277-93750-1-git-send-email-guwen@linux.alibaba.com>
+        <1700402277-93750-6-git-send-email-guwen@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Mailer: b4 0.13-dev-26615
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Sun, 19 Nov 2023 21:57:55 +0800 Wen Gu wrote:
+> According to virtual ISM support feature defined by SMCv2.1, GIDs of
+> virtual ISM device are UUIDs defined by RFC4122, which are 128-bits
+> long. So some adaptation work is required. And note that the GIDs of
+> existing platform firmware ISM devices still remain 64-bits long.
 
-On Wed, 25 Oct 2023 15:24:35 +0200, Stefan Haberland wrote:
-> please apply the following patch for the upcomming merge window that
-> fixes a kernel panic that can be triggered by using dasd statistics.
-> Also there is a typo fix for a comment.
-> 
-> Thanks.
-> 
-> Jan Höppner (1):
->   s390/dasd: protect device queue against concurrent access
-> 
-> [...]
+sparse (C=1 build) complains:
 
-Applied, thanks!
-
-[1/2] s390/dasd: resolve spelling mistake
-      commit: 5029c5e4f20d8d6b41cefbde4b3eeadaec4662c6
-[2/2] s390/dasd: protect device queue against concurrent access
-      commit: db46cd1e0426f52999d50fa72cfa97fa39952885
-
-Best regards,
+net/smc/smc_clc.c:944:73: warning: incorrect type in argument 1 (different base types)
+net/smc/smc_clc.c:944:73:    expected unsigned short [usertype] chid
+net/smc/smc_clc.c:944:73:    got restricted __be16 [usertype] chid
 -- 
-Jens Axboe
-
-
-
+pw-bot: cr
