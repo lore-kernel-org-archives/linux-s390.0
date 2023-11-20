@@ -2,60 +2,60 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79C24C54FB9
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Nov 2023 07:23:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F91EC5AE5B
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Nov 2023 07:23:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232035AbjKTHXq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Nov 2023 02:23:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43350 "EHLO
+        id S232120AbjKTHXs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Nov 2023 02:23:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231997AbjKTHXp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Nov 2023 02:23:45 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8183CAA;
-        Sun, 19 Nov 2023 23:23:41 -0800 (PST)
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AK6ZaNh026332;
-        Mon, 20 Nov 2023 07:23:30 GMT
+        with ESMTP id S229562AbjKTHXr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Nov 2023 02:23:47 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0000DAF;
+        Sun, 19 Nov 2023 23:23:43 -0800 (PST)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AK7Fubv009362;
+        Mon, 20 Nov 2023 07:23:32 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=XXY2K4XRh/H3GltFZ7UvZpHSolyErrI5WrSWhciBmoE=;
- b=eNsG9T4DTWjZh6/Wr2vt0OL2+0kEuZNzKKEahkzKmZyUyJBrzk8EQyCqelimrHpOHSdk
- nruREysthWYwXw+45+XktZ7j8Hdiaor9bIXOh6aqB/u67X+gdi2jmD/4m75Vsw+6sDjh
- VToViTj4lKKnzgfm2BrcISZnaDQ4tJ91byrT0b/UAA5LRl0VfobAqYBMTvdFlwhyeZ73
- XKH3Q/StcR7eFWBurBc6OCqoXC2nHS8F3Gv36AV1ejmUwl23sDesBr9TJTdcKC2Sskkg
- NOxi/Lb1bCH4V1QV6//M3bjH5ow9JGBsiQhgrrQ1vAHOsWBiaRi6DERawceOJPLYG44r ww== 
+ : date : message-id : in-reply-to : references : content-transfer-encoding
+ : mime-version; s=pp1; bh=aDeQRku6qF8MgYKu7kDp5/ujjCadBbyKMfJTF6YyagQ=;
+ b=Uz1eNN67Dn8tXGb2jzNu+Wy7NNjNi4j9HVMtUL8L4hf226TRZqVWbNaq9GG+QjBP7qq3
+ oAKSZRJAXI3XceOTXP7Yad/2hZYkmVhaaypmMJGyZ/bfymb1ZxDgLiNq8kBq6wOgYl8H
+ NEojattdDuOszlWRXbaaPKVG2l7s27VhekE0dm6meMwycJCf38dlgwzZsCwcVrmuSqSm
+ Xa6WU7L71cSFAYW/EIHpzewKGovJnlnRckDL93EKoV65WEfexIS45sorAPqMrRJR9vta
+ RUbts6oTvkemMNMbqUdk0tQPjy34A41A7l0dn+enc7bDndmMvP8CrbdizUnja5LTXh+z Lw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ufrd5488r-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uf1f75jge-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Nov 2023 07:23:30 +0000
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AK7B47w008132;
+        Mon, 20 Nov 2023 07:23:31 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AK7GGeM010484;
+        Mon, 20 Nov 2023 07:23:31 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uf1f75jfs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Nov 2023 07:23:31 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AK7KVQS008740;
         Mon, 20 Nov 2023 07:23:29 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ufrd5488h-1
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf93kfexd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 20 Nov 2023 07:23:29 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AK7KVAq012325;
-        Mon, 20 Nov 2023 07:23:28 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ufaa1q3c5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Nov 2023 07:23:28 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AK7NPZT23855696
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AK7NQl242074554
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 20 Nov 2023 07:23:25 GMT
+        Mon, 20 Nov 2023 07:23:26 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7781C2004E;
-        Mon, 20 Nov 2023 07:23:25 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 82EB12004B;
+        Mon, 20 Nov 2023 07:23:26 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 27D222004B;
-        Mon, 20 Nov 2023 07:23:25 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 3650420043;
+        Mon, 20 Nov 2023 07:23:26 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 20 Nov 2023 07:23:25 +0000 (GMT)
+        Mon, 20 Nov 2023 07:23:26 +0000 (GMT)
 From:   Sumanth Korikkar <sumanthk@linux.ibm.com>
 To:     linux-mm <linux-mm@kvack.org>,
         Andrew Morton <akpm@linux-foundation.org>,
@@ -69,70 +69,167 @@ Cc:     Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         linux-s390 <linux-s390@vger.kernel.org>,
         LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 0/3] mm/memory_hotplug: fixes for memory hotplug altmap support
-Date:   Mon, 20 Nov 2023 08:23:14 +0100
-Message-Id: <20231120072317.3169630-1-sumanthk@linux.ibm.com>
+Subject: [PATCH 3/3] mm: use vmem_altmap code without CONFIG_ZONE_DEVICE
+Date:   Mon, 20 Nov 2023 08:23:17 +0100
+Message-Id: <20231120072317.3169630-4-sumanthk@linux.ibm.com>
 X-Mailer: git-send-email 2.39.2
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20231120072317.3169630-1-sumanthk@linux.ibm.com>
+References: <20231120072317.3169630-1-sumanthk@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: y4E_6cc9mxaWWbLfjayca_OWq7H0T2YK
-X-Proofpoint-GUID: k6Zu0eurcRnHEhVkhRFkwTY6I1Wqqddr
+X-Proofpoint-GUID: fOcwcO2GdxtHgWM1gb_XUVRYNsl-Xv3S
+X-Proofpoint-ORIG-GUID: giaqMMErEImI2rd7aVgq2i-gi426kzpD
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-20_04,2023-11-17_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
- adultscore=0 phishscore=0 lowpriorityscore=0 mlxscore=0 malwarescore=0
- mlxlogscore=759 spamscore=0 suspectscore=0 clxscore=1015
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311200046
+ definitions=2023-11-20_05,2023-11-17_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
+ mlxlogscore=671 priorityscore=1501 lowpriorityscore=0 clxscore=1015
+ phishscore=0 mlxscore=0 spamscore=0 bulkscore=0 suspectscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311200047
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Patch 1  adds  the missing lock  in memory hotplug operations,
-ensuring that the mem_hotplug_lock is held during critical operations
-like mhp_init_memmap_on_memory() and mhp_deinit_memmap_on_memory()
+vmem_altmap_free() and vmem_altmap_offset() could be utlized without
+CONFIG_ZONE_DEVICE enabled. For example,
+mm/memory_hotplug.c:__add_pages() relies on that.  The altmap is no
+longer restricted to ZONE_DEVICE handling, but instead depends on
+CONFIG_SPARSEMEM_VMEMMAP.
 
-Patch 2 deals with error handling in add_memory_resource() and considers
-the possibility of altmap support. This ensures proper deallocation of
-struct pages, aligning with the allocation strategy.
+When CONFIG_SPARSEMEM_VMEMMAP is disabled, these functions are defined
+as inline stubs, ensuring compatibility with configurations that do not
+use sparsemem vmemmap. Without it, lkp reported the following:
 
-Patch 3 relocates the vmem_altmap code to sparse-vmemmap.c, enabling the
-utilization of vmem_altmap_free() and vmem_altmap_offset() without the
-dependency on CONFIG_ZONE_DEVICE.
+ld: arch/x86/mm/init_64.o: in function `remove_pagetable':
+init_64.c:(.meminit.text+0xfc7): undefined reference to
+`vmem_altmap_free'
 
-Changes since patch series "implement "memmap on memory" feature on
-s390":
-Feedback from David:
-Patch 1:
-* Fixed subject for memory hotplug lock.
-* Added locking comments before
-  memory_block_online()/memory_block_offline().
-Patch 2:
-* Fixed Fixes-by commit.
-
-lkp report:
-Patch 3:
-* when CONFIG_SPARSEMEM_VMEMMAP is disabled, resolve
-  undefined reference to `vmem_altmap_offset' error.
-* Request for Reviewed-by once again due to the change in patch3.
-
-Thank you
-
-Sumanth Korikkar (3):
-  mm/memory_hotplug: add missing mem_hotplug_lock
-  mm/memory_hotplug: fix error handling in add_memory_resource()
-  mm: use vmem_altmap code without CONFIG_ZONE_DEVICE
-
- drivers/base/memory.c    | 18 +++++++++++++++---
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202311180545.VeyRXEDq-lkp@intel.com/
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+---
  include/linux/memremap.h | 12 ------------
  include/linux/mm.h       | 15 +++++++++++++++
- mm/memory_hotplug.c      | 15 +++++++--------
  mm/memremap.c            | 14 +-------------
  mm/sparse-vmemmap.c      | 13 +++++++++++++
- 6 files changed, 51 insertions(+), 36 deletions(-)
+ 4 files changed, 29 insertions(+), 25 deletions(-)
 
+diff --git a/include/linux/memremap.h b/include/linux/memremap.h
+index 1314d9c5f05b..744c830f4b13 100644
+--- a/include/linux/memremap.h
++++ b/include/linux/memremap.h
+@@ -196,8 +196,6 @@ struct dev_pagemap *get_dev_pagemap(unsigned long pfn,
+ 		struct dev_pagemap *pgmap);
+ bool pgmap_pfn_valid(struct dev_pagemap *pgmap, unsigned long pfn);
+ 
+-unsigned long vmem_altmap_offset(struct vmem_altmap *altmap);
+-void vmem_altmap_free(struct vmem_altmap *altmap, unsigned long nr_pfns);
+ unsigned long memremap_compat_align(void);
+ #else
+ static inline void *devm_memremap_pages(struct device *dev,
+@@ -228,16 +226,6 @@ static inline bool pgmap_pfn_valid(struct dev_pagemap *pgmap, unsigned long pfn)
+ 	return false;
+ }
+ 
+-static inline unsigned long vmem_altmap_offset(struct vmem_altmap *altmap)
+-{
+-	return 0;
+-}
+-
+-static inline void vmem_altmap_free(struct vmem_altmap *altmap,
+-		unsigned long nr_pfns)
+-{
+-}
+-
+ /* when memremap_pages() is disabled all archs can remap a single page */
+ static inline unsigned long memremap_compat_align(void)
+ {
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index bf5d0b1b16f4..a90f939d5d57 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -3786,6 +3786,21 @@ void vmemmap_free(unsigned long start, unsigned long end,
+ 		struct vmem_altmap *altmap);
+ #endif
+ 
++#ifdef CONFIG_SPARSEMEM_VMEMMAP
++unsigned long vmem_altmap_offset(struct vmem_altmap *altmap);
++void vmem_altmap_free(struct vmem_altmap *altmap, unsigned long nr_pfns);
++#else
++static inline unsigned long vmem_altmap_offset(struct vmem_altmap *altmap)
++{
++	return 0;
++}
++
++static inline void vmem_altmap_free(struct vmem_altmap *altmap,
++				    unsigned long nr_pfns)
++{
++}
++#endif
++
+ #define VMEMMAP_RESERVE_NR	2
+ #ifdef CONFIG_ARCH_WANT_OPTIMIZE_DAX_VMEMMAP
+ static inline bool __vmemmap_can_optimize(struct vmem_altmap *altmap,
+diff --git a/mm/memremap.c b/mm/memremap.c
+index bee85560a243..9531faa92a7c 100644
+--- a/mm/memremap.c
++++ b/mm/memremap.c
+@@ -7,6 +7,7 @@
+ #include <linux/memremap.h>
+ #include <linux/pfn_t.h>
+ #include <linux/swap.h>
++#include <linux/mm.h>
+ #include <linux/mmzone.h>
+ #include <linux/swapops.h>
+ #include <linux/types.h>
+@@ -422,19 +423,6 @@ void devm_memunmap_pages(struct device *dev, struct dev_pagemap *pgmap)
+ }
+ EXPORT_SYMBOL_GPL(devm_memunmap_pages);
+ 
+-unsigned long vmem_altmap_offset(struct vmem_altmap *altmap)
+-{
+-	/* number of pfns from base where pfn_to_page() is valid */
+-	if (altmap)
+-		return altmap->reserve + altmap->free;
+-	return 0;
+-}
+-
+-void vmem_altmap_free(struct vmem_altmap *altmap, unsigned long nr_pfns)
+-{
+-	altmap->alloc -= nr_pfns;
+-}
+-
+ /**
+  * get_dev_pagemap() - take a new live reference on the dev_pagemap for @pfn
+  * @pfn: page frame number to lookup page_map
+diff --git a/mm/sparse-vmemmap.c b/mm/sparse-vmemmap.c
+index a2cbe44c48e1..bd1b9a137f93 100644
+--- a/mm/sparse-vmemmap.c
++++ b/mm/sparse-vmemmap.c
+@@ -46,6 +46,19 @@ static void * __ref __earlyonly_bootmem_alloc(int node,
+ 					       MEMBLOCK_ALLOC_ACCESSIBLE, node);
+ }
+ 
++unsigned long vmem_altmap_offset(struct vmem_altmap *altmap)
++{
++	/* number of pfns from base where pfn_to_page() is valid */
++	if (altmap)
++		return altmap->reserve + altmap->free;
++	return 0;
++}
++
++void vmem_altmap_free(struct vmem_altmap *altmap, unsigned long nr_pfns)
++{
++	altmap->alloc -= nr_pfns;
++}
++
+ void * __meminit vmemmap_alloc_block(unsigned long size, int node)
+ {
+ 	/* If the main allocator is up use that, fallback to bootmem. */
 -- 
 2.41.0
 
