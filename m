@@ -2,105 +2,97 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2CADC197A0
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Nov 2023 09:39:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26C1DC197A0
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Nov 2023 09:50:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232206AbjKTJj6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Nov 2023 04:39:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54468 "EHLO
+        id S232176AbjKTJuE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Nov 2023 04:50:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232138AbjKTJj6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Nov 2023 04:39:58 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A325CD;
-        Mon, 20 Nov 2023 01:39:54 -0800 (PST)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AK9MbmM022686;
-        Mon, 20 Nov 2023 09:39:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=+CHgsTGKnTpbF8MedKWJQOq6ykdOdu6WVq7LnYx1a7Q=;
- b=etwpbxU6zp6AgOTdX8UqfPg8zF7yyYh1SdvY1wMGVkOa3BpOjCMwXSorJSofrxedgpN4
- 3/EBpWJGK34s6UYJNl3k0mqIZhvOiid4ApMu62x5+8h7ddY3DUf7Wa+t7MM3Sn8wsIc6
- xd+4iZPqDe4++tUGqsTuob+VKuhPs4m8KV9twFmzKld29P89yQPmeAMcM3hMcd8qwyDZ
- bSZ0S32Xqkxt2ncCGX94W5RM0WLUd6YlrYEBMLkdCjtB2Wdwg1l/lYG7LGNDFsYWyN5V
- sIY3LzVtoVgDRjGUD+7m4rWdGeW6/y119IKe3QSFZxcKn5EZQoG2FUdWay7JtYyeQj+R GA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ug4rv0g4x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Nov 2023 09:39:44 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AK9OiqB029893;
-        Mon, 20 Nov 2023 09:39:44 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ug4rv0g08-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Nov 2023 09:39:44 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AK7KM1o008909;
-        Mon, 20 Nov 2023 09:39:40 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf7yy8e4g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Nov 2023 09:39:40 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AK9dbaq39846224
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 20 Nov 2023 09:39:37 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0C87D2004B;
-        Mon, 20 Nov 2023 09:39:37 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7E20B20040;
-        Mon, 20 Nov 2023 09:39:36 +0000 (GMT)
-Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.171.34.73])
-        by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-        Mon, 20 Nov 2023 09:39:36 +0000 (GMT)
-Date:   Mon, 20 Nov 2023 10:39:35 +0100
-From:   Sumanth Korikkar <sumanthk@linux.ibm.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-mm <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Michal Hocko <mhocko@suse.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/3] mm: use vmem_altmap code without CONFIG_ZONE_DEVICE
-Message-ID: <ZVspV8zMMFPQxRaG@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-References: <20231120072317.3169630-1-sumanthk@linux.ibm.com>
- <20231120072317.3169630-4-sumanthk@linux.ibm.com>
- <f16a4214-332d-48f1-b825-f39cfbdc0f71@redhat.com>
+        with ESMTP id S232229AbjKTJuD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Nov 2023 04:50:03 -0500
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86078A7;
+        Mon, 20 Nov 2023 01:49:59 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=15;SR=0;TI=SMTPD_---0Vwlwy7d_1700473796;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0Vwlwy7d_1700473796)
+          by smtp.aliyun-inc.com;
+          Mon, 20 Nov 2023 17:49:57 +0800
+Date:   Mon, 20 Nov 2023 17:49:52 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     Li RongQing <lirongqing@baidu.com>
+Cc:     dust.li@linux.alibaba.com,
+        Alexandra Winter <wintera@linux.ibm.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com,
+        alibuda@linux.alibaba.com, guwen@linux.alibaba.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: Re: [PATCH net-next v3] net/smc: avoid atomic_set and smp_wmb in the
+ tx path when possible
+Message-ID: <ZVsrwM0U7XUTgXAo@TONYMAC-ALIBABA.local>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <20231117111657.16266-1-lirongqing@baidu.com>
+ <422c5968-8013-4b39-8cdb-07452abbf5fb@linux.ibm.com>
+ <20231120032029.GA3323@linux.alibaba.com>
+ <22394c7b-0470-472d-9474-4de5fc86c5ea@linux.ibm.com>
+ <f648fe4f-c911-43c5-be52-1a6324f063a6@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f16a4214-332d-48f1-b825-f39cfbdc0f71@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Vcg2raKPY6RueXma9dVQd7y2O_sVaTn3
-X-Proofpoint-ORIG-GUID: 9GXehSnBmUTDmVh2u1Uvqyx1pa7sbyHS
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-20_07,2023-11-17_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
- mlxlogscore=333 malwarescore=0 impostorscore=0 priorityscore=1501
- suspectscore=0 spamscore=0 bulkscore=0 clxscore=1015 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311200064
+In-Reply-To: <f648fe4f-c911-43c5-be52-1a6324f063a6@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Nov 20, 2023 at 10:01:13AM +0100, David Hildenbrand wrote:
+On Mon, Nov 20, 2023 at 10:17:15AM +0100, Alexandra Winter wrote:
 > 
-> What speaks against just moving them to the header instead? They surely are
-> tiny ...
->
-I followed the previous convention. Sure, will make it inline and put
-those definitions in header file.
+> 
+> On 20.11.23 10:11, Alexandra Winter wrote:
+> > 
+> > 
+> > On 20.11.23 04:20, Dust Li wrote:
+> >>> It seems to me that the purpose of conn->tx_pushing is
+> >>> a) Serve as a mutex, so only one thread per conn will call __smc_tx_sndbuf_nonempty().
+> >>> b) Repeat, in case some other thread has added data to sndbuf concurrently.
+> >>>
+> >>> I agree that this patch does not change the behaviour of this function and removes an
+> >>> atomic_set() in the likely path.
+> >>>
+> >>> I wonder however: All callers of smc_tx_sndbuf_nonempty() must hold the socket lock.
+> >>> So how can we ever run in a concurrency situation?
+> >>> Is this handling of conn->tx_pushing necessary at all?
+> >> Hi Sandy,
+> >>
+> >> Overall, I think you are right. But there is something we need to take care.
+> >>
+> >> Before commit 6b88af839d20 ("net/smc: don't send in the BH context if
+> >> sock_owned_by_user"), we used to call smc_tx_pending() in the soft IRQ,
+> >> without checking sock_owned_by_user(), which would caused a race condition
+> >> because bh_lock_sock() did not honor sock_lock(). To address this issue,
+> >> I have added the tx_pushing mechanism. However, with commit 6b88af839d20,
+> >> we now defer the transmission if sock_lock() is held by the user.
+> >> Therefore, there should no longer be a race condition. Nevertheless, if
+> >> we remove the tx_pending mechanism, we must always remember not to call
+> >> smc_tx_sndbuf_nonempty() in the soft IRQ when the user holds the sock lock.
+> >>
+> >> Thanks
+> >> Dust
+> > 
+> > 
+> > ok, I understand.
+> > So whoever is willing to give it a try and simplify smc_tx_sndbuf_nonempty(),
+> > should remember to document that requirement/precondition.
+> > Maybe in a Function context section of a kernel-doc function decription?
+> > (as described in https://docs.kernel.org/doc-guide/kernel-doc.html)
+> > Although smc_tx_sndbuf_nonempty() is not exported, this format is helpful.
+> > 
+> 
+> 
+> Tony Lu <tonylu@linux.alibaba.com> ' mail address has been corrupted in this whole thread.
+> Please reply to this message (corrected address) or take care, if replying to
+> other messages in this thread.
 
-Thanks
+Yes, that's true. Thanks Alexandra.
+
+Please use my correct address, RongQing: Tony Lu <tonylu@linux.alibaba.com>.
