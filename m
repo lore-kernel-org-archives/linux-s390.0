@@ -2,113 +2,128 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8E25C5ACB3
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Nov 2023 03:20:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C0A2C5ACB3
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Nov 2023 03:37:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231917AbjKTDUs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 19 Nov 2023 22:20:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38032 "EHLO
+        id S231629AbjKTDhb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 19 Nov 2023 22:37:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231867AbjKTDUr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 19 Nov 2023 22:20:47 -0500
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3598BD5D;
-        Sun, 19 Nov 2023 19:20:33 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R661e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0Vwg4HNF_1700450429;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0Vwg4HNF_1700450429)
+        with ESMTP id S230033AbjKTDha (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 19 Nov 2023 22:37:30 -0500
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9621FF2;
+        Sun, 19 Nov 2023 19:37:26 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VwfuPRO_1700451442;
+Received: from 30.221.129.74(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VwfuPRO_1700451442)
           by smtp.aliyun-inc.com;
-          Mon, 20 Nov 2023 11:20:30 +0800
-Date:   Mon, 20 Nov 2023 11:20:29 +0800
-From:   Dust Li <dust.li@linux.alibaba.com>
-To:     Alexandra Winter <wintera@linux.ibm.com>,
-        Li RongQing <lirongqing@baidu.com>, kgraul@linux.ibm.com,
-        wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        alibuda@linux.alibaba.com, tonylu@linux.alibaba.co,
-        guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: Re: [PATCH net-next v3] net/smc: avoid atomic_set and smp_wmb in the
- tx path when possible
-Message-ID: <20231120032029.GA3323@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20231117111657.16266-1-lirongqing@baidu.com>
- <422c5968-8013-4b39-8cdb-07452abbf5fb@linux.ibm.com>
+          Mon, 20 Nov 2023 11:37:24 +0800
+Message-ID: <2322494c-15c1-8f08-7856-5c965daa12ae@linux.alibaba.com>
+Date:   Mon, 20 Nov 2023 11:37:20 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <422c5968-8013-4b39-8cdb-07452abbf5fb@linux.ibm.com>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.1
+Subject: Re: [PATCH net v3] net/smc: avoid data corruption caused by decline
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com, wintera@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        tonylu@linux.alibaba.com, pabeni@redhat.com, edumazet@google.com
+References: <1700407699-97350-1-git-send-email-alibuda@linux.alibaba.com>
+From:   Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <1700407699-97350-1-git-send-email-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Nov 17, 2023 at 01:27:57PM +0100, Alexandra Winter wrote:
->
->
->On 17.11.23 12:16, Li RongQing wrote:
->> There is rare possibility that conn->tx_pushing is not 1, since
->> tx_pushing is just checked with 1, so move the setting tx_pushing
->> to 1 after atomic_dec_and_test() return false, to avoid atomic_set
->> and smp_wmb in tx path
->> 
->> Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
->> Signed-off-by: Li RongQing <lirongqing@baidu.com>
->> ---
->> diff v3: improvements in the commit body and comments
->> diff v2: fix a typo in commit body and add net-next subject-prefix
->>  net/smc/smc_tx.c | 7 ++++---
->>  1 file changed, 4 insertions(+), 3 deletions(-)
->> 
->> diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
->> index 3b0ff3b..2c2933f 100644
->> --- a/net/smc/smc_tx.c
->> +++ b/net/smc/smc_tx.c
->> @@ -667,8 +667,6 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
->>  		return 0;
->>  
->>  again:
->> -	atomic_set(&conn->tx_pushing, 1);
->> -	smp_wmb(); /* Make sure tx_pushing is 1 before real send */
->>  	rc = __smc_tx_sndbuf_nonempty(conn);
->>  
->>  	/* We need to check whether someone else have added some data into
->> @@ -677,8 +675,11 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
->>  	 * If so, we need to push again to prevent those data hang in the send
->>  	 * queue.
->>  	 */
->> -	if (unlikely(!atomic_dec_and_test(&conn->tx_pushing)))
->> +	if (unlikely(!atomic_dec_and_test(&conn->tx_pushing))) {
->> +		atomic_set(&conn->tx_pushing, 1);
->> +		smp_wmb(); /* Make sure tx_pushing is 1 before send again */
->>  		goto again;
->> +	}
->>  
->>  	return rc;
->>  }
->
->It seems to me that the purpose of conn->tx_pushing is
->a) Serve as a mutex, so only one thread per conn will call __smc_tx_sndbuf_nonempty().
->b) Repeat, in case some other thread has added data to sndbuf concurrently.
->
->I agree that this patch does not change the behaviour of this function and removes an
->atomic_set() in the likely path.
->
->I wonder however: All callers of smc_tx_sndbuf_nonempty() must hold the socket lock.
->So how can we ever run in a concurrency situation?
->Is this handling of conn->tx_pushing necessary at all?
 
-Hi Sandy,
 
-Overall, I think you are right. But there is something we need to take care.
+On 2023/11/19 23:28, D. Wythe wrote:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
+> 
+> We found a data corruption issue during testing of SMC-R on Redis
+> applications.
+> 
+> The benchmark has a low probability of reporting a strange error as
+> shown below.
+> 
+> "Error: Protocol error, got "\xe2" as reply type byte"
+> 
+> Finally, we found that the retrieved error data was as follows:
+> 
+> 0xE2 0xD4 0xC3 0xD9 0x04 0x00 0x2C 0x20 0xA6 0x56 0x00 0x16 0x3E 0x0C
+> 0xCB 0x04 0x02 0x01 0x00 0x00 0x20 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+> 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xE2
+> 
+> It is quite obvious that this is a SMC DECLINE message, which means that
+> the applications received SMC protocol message.
+> We found that this was caused by the following situations:
+> 
+> client                  server
+>          ¦  proposal
+>          ------------->
+>          ¦  accept
+>          <-------------
+>          ¦  confirm
+>          ------------->
+> wait confirm
 
-Before commit 6b88af839d20 ("net/smc: don't send in the BH context if
-sock_owned_by_user"), we used to call smc_tx_pending() in the soft IRQ,
-without checking sock_owned_by_user(), which would caused a race condition
-because bh_lock_sock() did not honor sock_lock(). To address this issue,
-I have added the tx_pushing mechanism. However, with commit 6b88af839d20,
-we now defer the transmission if sock_lock() is held by the user.
-Therefore, there should no longer be a race condition. Nevertheless, if
-we remove the tx_pending mechanism, we must always remember not to call
-smc_tx_sndbuf_nonempty() in the soft IRQ when the user holds the sock lock.
+I think there may be an ambiguity here, better for 'wait for llc confirm link'.
+Could you please add 'clc' and 'llc' prefix to distinguish flows on the diagram?
 
-Thanks
-Dust
+Thanks.
+
+> 
+>          ¦failed llc confirm
+>          ¦   x------
+> (after 2s)timeout
+>                          wait rsp
+> 
+> wait decline
+> 
+> (after 1s) timeout
+>                          (after 2s) timeout
+>          ¦   decline
+>          -------------->
+>          ¦   decline
+>          <--------------
+> 
+> As a result, a decline message was sent in the implementation, and this
+> message was read from TCP by the already-fallback connection.
+> 
+> This patch double the client timeout as 2x of the server value,
+> With this simple change, the Decline messages should never cross or
+> collide (during Confirm link timeout).
+> 
+> This issue requires an immediate solution, since the protocol updates
+> involve a more long-term solution.
+> 
+> Fixes: 0fb0b02bd6fd ("net/smc: adapt SMC client code to use the LLC flow")
+> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+
+
+> ---
+>   net/smc/af_smc.c | 8 ++++++--
+>   1 file changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index abd2667..8615cc0 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -598,8 +598,12 @@ static int smcr_clnt_conf_first_link(struct smc_sock *smc)
+>   	struct smc_llc_qentry *qentry;
+>   	int rc;
+>   
+> -	/* receive CONFIRM LINK request from server over RoCE fabric */
+> -	qentry = smc_llc_wait(link->lgr, NULL, SMC_LLC_WAIT_TIME,
+> +	/* Receive CONFIRM LINK request from server over RoCE fabric.
+> +	 * Increasing the client's timeout by twice as much as the server's
+> +	 * timeout by default can temporarily avoid decline messages of
+> +	 * both sides crossing or colliding
+> +	 */
+> +	qentry = smc_llc_wait(link->lgr, NULL, 2 * SMC_LLC_WAIT_TIME,
+>   			      SMC_LLC_CONFIRM_LINK);
+>   	if (!qentry) {
+>   		struct smc_clc_msg_decline dclc;
