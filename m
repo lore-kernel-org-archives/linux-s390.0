@@ -2,150 +2,179 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3197C54E76
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Nov 2023 08:44:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F2F5C197A0
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Nov 2023 08:56:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232338AbjKTIok (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Nov 2023 03:44:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48442 "EHLO
+        id S232065AbjKTI4d (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Nov 2023 03:56:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232332AbjKTIoj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Nov 2023 03:44:39 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48F61A4;
-        Mon, 20 Nov 2023 00:44:36 -0800 (PST)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AK8MOLC000933;
-        Mon, 20 Nov 2023 08:44:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=TxJZRF8ZNaeh/lNriJCrTeKh8nkctlArLTJQkMSpmIo=;
- b=NgIMl6ot6UQjjRkuNTnJmksTKF/Dud179qfkaDAlLGfjvh2JemOIsovpXeiSEwoehEyf
- wT1PyJWlwo2DD36Re9H3niH7T0vkc/ZePkePlkICKQuz1kPvtRQe+DDb9rNc+1zKgGLS
- aLlRKBDfH3gKgolXo/qCK/bjl+1zdFmVtdGO/euB/AQZqvrFD2XoJ5B4+zsIb1LGde9H
- NR8ircjeezb7mlnUAlIS+5ikvKBh8KL3nAjMMIC6Ai7gObWnE3b7LUzZSsaV+L74aj9f
- +2GBk5Y6Gnx+j4Vu97A5tuco8CJbXeNnCYCvMfCzqhCzVm/fHQjfL73SHfSz+gh5rnmw MQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ug3vprm48-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Nov 2023 08:44:09 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AK8NrQe004350;
-        Mon, 20 Nov 2023 08:44:08 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ug3vprkst-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Nov 2023 08:44:08 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AK7KTi6008982;
-        Mon, 20 Nov 2023 08:43:59 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf7yy853w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Nov 2023 08:43:59 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AK8huwi42664686
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 20 Nov 2023 08:43:56 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 261032004E;
-        Mon, 20 Nov 2023 08:43:56 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EA39320075;
-        Mon, 20 Nov 2023 08:43:54 +0000 (GMT)
-Received: from [9.171.73.39] (unknown [9.171.73.39])
-        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 20 Nov 2023 08:43:54 +0000 (GMT)
-Message-ID: <04ff08d1-5892-44e8-bf74-802a225eeeda@linux.ibm.com>
-Date:   Mon, 20 Nov 2023 09:43:54 +0100
+        with ESMTP id S232155AbjKTI4c (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Nov 2023 03:56:32 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A992C126
+        for <linux-s390@vger.kernel.org>; Mon, 20 Nov 2023 00:56:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1700470583;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+        bh=WZmfD0upzaveFHgX3d8jsjFtFQEgU/zO1aK5XX0bmuI=;
+        b=aAS9chbrz1nY7WLdiI4NRvgSxo+KXK4AZW/YLxJCNvpQ0kS5/ju2xx+QkdyJW1fojhFAgv
+        0JS4lpCoX/As4zl8ncfZrvKqC85QZHGxO/yZ5M3K8KvgOG+Am/p23ScPMco+BOZgeZYm2j
+        MqNjRez5ZMc57tTl1achJ2Cr54bZq3U=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-638-xYYy58AXP1axB0b6s3FxVg-1; Mon, 20 Nov 2023 03:56:22 -0500
+X-MC-Unique: xYYy58AXP1axB0b6s3FxVg-1
+Received: by mail-lf1-f71.google.com with SMTP id 2adb3069b0e04-50aa9997747so1357450e87.0
+        for <linux-s390@vger.kernel.org>; Mon, 20 Nov 2023 00:56:21 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1700470580; x=1701075380;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
+         :references:cc:to:content-language:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WZmfD0upzaveFHgX3d8jsjFtFQEgU/zO1aK5XX0bmuI=;
+        b=lck5+1sbsFyxmOy34oIOnC3QyS1NvSMqFToszlikSXtTLBlHV/Br6BoYEv1OFzIf86
+         kkfGUNyhYM/je29EVNXvT43w7LLXW7Bjf/dKBQDAVku1GmlgS9TM3HO9CLWLe8Lnfrd6
+         7GLnvTjzJYc8moubRPa5hsaU1sT/u6fmQjapWQpxz+/D3mBj2KY0tvbfThyONAUBg+ui
+         MO9STOw8NN+mbd5pGmDE+e5PL7/fENAFBKkCpkOGH4hyFr2xYrDu09/ox1DNosDRNvKE
+         aFer4yn4dNVmO/YfXpRX2ORjZTpuv9/pxaHTtLtShSjBg/MQxA+PiUP3Cc64VwXOQtMg
+         1szw==
+X-Gm-Message-State: AOJu0YzsQuwSzV9Kkd+3c+mgDEicQ+OAcpp9zR82Ceza+vqbAN7gb3OE
+        6xLYIsicCn+qVNO0jfE4Df+4Les91B6bY6ICw0/qxcxLR3WReHAQkV3BTZN5jaPlRmXxVu534Q7
+        384DNHf1N4Eonlwrqq5J83Q==
+X-Received: by 2002:ac2:53b0:0:b0:500:7c51:4684 with SMTP id j16-20020ac253b0000000b005007c514684mr4681208lfh.56.1700470580648;
+        Mon, 20 Nov 2023 00:56:20 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGWoGYOOs9MwODxOuy1pZebpv+fRMOkVI6/gimXAc2GQZ876tf2WR3OKpXU7T9hk2rsrXuKQA==
+X-Received: by 2002:ac2:53b0:0:b0:500:7c51:4684 with SMTP id j16-20020ac253b0000000b005007c514684mr4681197lfh.56.1700470580196;
+        Mon, 20 Nov 2023 00:56:20 -0800 (PST)
+Received: from ?IPV6:2003:cb:c746:7700:9885:6589:b1e3:f74c? (p200300cbc746770098856589b1e3f74c.dip0.t-ipconnect.de. [2003:cb:c746:7700:9885:6589:b1e3:f74c])
+        by smtp.gmail.com with ESMTPSA id b11-20020a05600010cb00b00332c0d256c5sm5558804wrx.80.2023.11.20.00.56.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 20 Nov 2023 00:56:19 -0800 (PST)
+Message-ID: <20e6c1dd-a195-4b49-8723-7c94f7562b4c@redhat.com>
+Date:   Mon, 20 Nov 2023 09:56:18 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 29/34] net: smc: fix opencoded find_and_set_bit() in
- smc_wr_tx_get_free_slot_index()
+Subject: Re: [PATCH 1/3] mm/memory_hotplug: add missing mem_hotplug_lock
 Content-Language: en-US
-To:     Yury Norov <yury.norov@gmail.com>, linux-kernel@vger.kernel.org,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>,
-        Mirsad Todorovac <mirsad.todorovac@alu.unizg.hr>,
-        Matthew Wilcox <willy@infradead.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Maxim Kuvyrkov <maxim.kuvyrkov@linaro.org>,
-        Alexey Klimov <klimov.linux@gmail.com>
-References: <20231118155105.25678-1-yury.norov@gmail.com>
- <20231118155105.25678-30-yury.norov@gmail.com>
-From:   Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20231118155105.25678-30-yury.norov@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+To:     Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        linux-mm <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+References: <20231120072317.3169630-1-sumanthk@linux.ibm.com>
+ <20231120072317.3169630-2-sumanthk@linux.ibm.com>
+From:   David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20231120072317.3169630-2-sumanthk@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: RCGHS0U65x8_e0nDUsvDqhplocMS6oNa
-X-Proofpoint-GUID: sLbkG6D89j2LFxlDlB5wgMhttmCPU6Pq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-20_06,2023-11-17_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 impostorscore=0
- mlxscore=0 malwarescore=0 adultscore=0 priorityscore=1501
- lowpriorityscore=0 mlxlogscore=933 suspectscore=0 bulkscore=0 phishscore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311200057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 18.11.23 16:51, Yury Norov wrote:
-> The function opencodes find_and_set_bit() with a for_each() loop. Fix
-> it, and make the whole function a simple almost one-liner.
+On 20.11.23 08:23, Sumanth Korikkar wrote:
+>  From Documentation/core-api/memory-hotplug.rst:
+> When adding/removing/onlining/offlining memory or adding/removing
+> heterogeneous/device memory, we should always hold the mem_hotplug_lock
+> in write mode to serialise memory hotplug (e.g. access to global/zone
+> variables).
 > 
-> Signed-off-by: Yury Norov <yury.norov@gmail.com>
+> mhp_(de)init_memmap_on_memory() functions can change zone stats and
+> struct page content, but they are currently called w/o the
+> mem_hotplug_lock.
+> 
+> When memory block is being offlined and when kmemleak goes through each
+> populated zone, the following theoretical race conditions could occur:
+> CPU 0:					     | CPU 1:
+> memory_offline()			     |
+> -> offline_pages()			     |
+> 	-> mem_hotplug_begin()		     |
+> 	   ...				     |
+> 	-> mem_hotplug_done()		     |
+> 					     | kmemleak_scan()
+> 					     | -> get_online_mems()
+> 					     |    ...
+> -> mhp_deinit_memmap_on_memory()	     |
+>    [not protected by mem_hotplug_begin/done()]|
+>    Marks memory section as offline,	     |   Retrieves zone_start_pfn
+>    poisons vmemmap struct pages and updates   |   and struct page members.
+>    the zone related data			     |
+>     					     |    ...
+>     					     | -> put_online_mems()
+> 
+> Fix this by ensuring mem_hotplug_lock is taken before performing
+> mhp_init_memmap_on_memory(). Also ensure that
+> mhp_deinit_memmap_on_memory() holds the lock.
+> 
+> online/offline_pages() are currently only called from
+> memory_block_online/offline(), so it is safe to move the locking there.
+> 
+> Fixes: a08a2ae34613 ("mm,memory_hotplug: allocate memmap from the added memory range")
+> Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
 > ---
->  net/smc/smc_wr.c | 10 +++-------
->  1 file changed, 3 insertions(+), 7 deletions(-)
-> 
-> diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-> index 0021065a600a..b6f0cfc52788 100644
-> --- a/net/smc/smc_wr.c
-> +++ b/net/smc/smc_wr.c
-> @@ -170,15 +170,11 @@ void smc_wr_tx_cq_handler(struct ib_cq *ib_cq, void *cq_context)
->  
->  static inline int smc_wr_tx_get_free_slot_index(struct smc_link *link, u32 *idx)
->  {
-> -	*idx = link->wr_tx_cnt;
->  	if (!smc_link_sendable(link))
->  		return -ENOLINK;
-> -	for_each_clear_bit(*idx, link->wr_tx_mask, link->wr_tx_cnt) {
-> -		if (!test_and_set_bit(*idx, link->wr_tx_mask))
-> -			return 0;
-> -	}
-> -	*idx = link->wr_tx_cnt;
-> -	return -EBUSY;
-> +
-> +	*idx = find_and_set_bit(link->wr_tx_mask, link->wr_tx_cnt);
-> +	return *idx < link->wr_tx_cnt ? 0 : -EBUSY;
->  }
->  
->  /**
 
+Acked-by: David Hildenbrand <david@redhat.com>
 
-My understanding is that you can omit the lines with
-> -	*idx = link->wr_tx_cnt;
-because they only apply to the error paths and you checked that the calling function
-does not use the idx variable in the error cases. Do I understand this correct?
+-- 
+Cheers,
 
-If so the removal of these 2 lines is not related to your change of using find_and_set_bit(),
-do I understand that correctly?
+David / dhildenb
 
-If so, it may be worth mentioning that in the commit message.
