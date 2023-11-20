@@ -2,57 +2,56 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14922C197A0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79C24C54FB9
 	for <linux-s390@archiver.kernel.org>; Mon, 20 Nov 2023 07:23:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232016AbjKTHXp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Nov 2023 02:23:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43354 "EHLO
+        id S232035AbjKTHXq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Nov 2023 02:23:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229562AbjKTHXp (ORCPT
+        with ESMTP id S231997AbjKTHXp (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Nov 2023 02:23:45 -0500
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C810AF;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8183CAA;
         Sun, 19 Nov 2023 23:23:41 -0800 (PST)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AK5gOLv027826;
-        Mon, 20 Nov 2023 07:23:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=BwjqaOg3dzwZ6bAKcYCLKvjoYag2ay5CRFizDGiN3hA=;
- b=kF1+pCmPaClbQLuxSRDULLXpJZO9ItqZjz0B15kaOcXODbXqN4xga7zAj5VWnKoEDmaU
- DeUiU6iVJGJy4uuAHaFZIfXo3GQf0aPXUKcyI4jHiZfTCnN9lrvL/oTFvN2xpZdqzbsh
- qQpaLU8wOW+GyXNvc0YFTA6D0kHuQ502Y6MfLB/nqpJJyqpD1/4Zqj3Z5Oj2RZoHfwTA
- O6FoBSofX6dn/OZW+g7JORUEPfp37K8FbajuCli2nOgILvN1ZEVFNvmsJxQhzSHTTQSa
- 1nt/McVZ/m9lhUF+Fed9UVxJsLsU12YEE/05WO2ZSh22lvRp2QXU7/h4SxCvgbh9PSXx Fg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ufuws05pv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Nov 2023 07:23:30 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AK7GIkh018207;
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AK6ZaNh026332;
         Mon, 20 Nov 2023 07:23:30 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ufuws05pj-1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=XXY2K4XRh/H3GltFZ7UvZpHSolyErrI5WrSWhciBmoE=;
+ b=eNsG9T4DTWjZh6/Wr2vt0OL2+0kEuZNzKKEahkzKmZyUyJBrzk8EQyCqelimrHpOHSdk
+ nruREysthWYwXw+45+XktZ7j8Hdiaor9bIXOh6aqB/u67X+gdi2jmD/4m75Vsw+6sDjh
+ VToViTj4lKKnzgfm2BrcISZnaDQ4tJ91byrT0b/UAA5LRl0VfobAqYBMTvdFlwhyeZ73
+ XKH3Q/StcR7eFWBurBc6OCqoXC2nHS8F3Gv36AV1ejmUwl23sDesBr9TJTdcKC2Sskkg
+ NOxi/Lb1bCH4V1QV6//M3bjH5ow9JGBsiQhgrrQ1vAHOsWBiaRi6DERawceOJPLYG44r ww== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ufrd5488r-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 20 Nov 2023 07:23:30 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AK7KRBM008955;
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AK7B47w008132;
         Mon, 20 Nov 2023 07:23:29 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf7yy7rxr-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ufrd5488h-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 20 Nov 2023 07:23:29 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AK7KVAq012325;
+        Mon, 20 Nov 2023 07:23:28 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ufaa1q3c5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Nov 2023 07:23:28 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AK7NQWs42074552
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AK7NPZT23855696
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 20 Nov 2023 07:23:26 GMT
+        Mon, 20 Nov 2023 07:23:25 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2F34F20040;
-        Mon, 20 Nov 2023 07:23:26 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 7781C2004E;
+        Mon, 20 Nov 2023 07:23:25 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D47E22004B;
+        by IMSVA (Postfix) with ESMTP id 27D222004B;
         Mon, 20 Nov 2023 07:23:25 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -70,66 +69,70 @@ Cc:     Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         linux-s390 <linux-s390@vger.kernel.org>,
         LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/3] mm/memory_hotplug: fix error handling in add_memory_resource()
-Date:   Mon, 20 Nov 2023 08:23:16 +0100
-Message-Id: <20231120072317.3169630-3-sumanthk@linux.ibm.com>
+Subject: [PATCH 0/3] mm/memory_hotplug: fixes for memory hotplug altmap support
+Date:   Mon, 20 Nov 2023 08:23:14 +0100
+Message-Id: <20231120072317.3169630-1-sumanthk@linux.ibm.com>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20231120072317.3169630-1-sumanthk@linux.ibm.com>
-References: <20231120072317.3169630-1-sumanthk@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3d9mbPpTPABzcun9Q-w9vYzYUwpx0Bcp
-X-Proofpoint-GUID: 0DiWSAupzY9cHbCzU3NqtR37jHtZ8Ly8
+X-Proofpoint-ORIG-GUID: y4E_6cc9mxaWWbLfjayca_OWq7H0T2YK
+X-Proofpoint-GUID: k6Zu0eurcRnHEhVkhRFkwTY6I1Wqqddr
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-20_04,2023-11-17_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- adultscore=0 priorityscore=1501 lowpriorityscore=0 mlxlogscore=570
- spamscore=0 clxscore=1015 suspectscore=0 mlxscore=0 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
+ adultscore=0 phishscore=0 lowpriorityscore=0 mlxscore=0 malwarescore=0
+ mlxlogscore=759 spamscore=0 suspectscore=0 clxscore=1015
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311060000 definitions=main-2311200046
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-In add_memory_resource(), creation of memory block devices occurs after
-successful call to arch_add_memory(). However, creation of memory block
-devices could fail.  In that case, arch_remove_memory() is called to
-perform necessary cleanup.
+Patch 1  adds  the missing lock  in memory hotplug operations,
+ensuring that the mem_hotplug_lock is held during critical operations
+like mhp_init_memmap_on_memory() and mhp_deinit_memmap_on_memory()
 
-Currently with or without altmap support, arch_remove_memory() is always
-passed with altmap set to NULL during error handling. This leads to
-freeing of struct pages using free_pages(), eventhough the allocation
-might have been performed with altmap support via
-altmap_alloc_block_buf().
+Patch 2 deals with error handling in add_memory_resource() and considers
+the possibility of altmap support. This ensures proper deallocation of
+struct pages, aligning with the allocation strategy.
 
-Fix the error handling by passing altmap in arch_remove_memory(). This
-ensures the following:
-* When altmap is disabled, deallocation of the struct pages array occurs
-  via free_pages().
-* When altmap is enabled, deallocation occurs via vmem_altmap_free().
+Patch 3 relocates the vmem_altmap code to sparse-vmemmap.c, enabling the
+utilization of vmem_altmap_free() and vmem_altmap_offset() without the
+dependency on CONFIG_ZONE_DEVICE.
 
-Fixes: a08a2ae34613 ("mm,memory_hotplug: allocate memmap from the added memory range")
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
----
- mm/memory_hotplug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Changes since patch series "implement "memmap on memory" feature on
+s390":
+Feedback from David:
+Patch 1:
+* Fixed subject for memory hotplug lock.
+* Added locking comments before
+  memory_block_online()/memory_block_offline().
+Patch 2:
+* Fixed Fixes-by commit.
 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index c8238fc5edcb..4f476a970e84 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1458,7 +1458,7 @@ int __ref add_memory_resource(int nid, struct resource *res, mhp_t mhp_flags)
- 	/* create memory block devices after memory was added */
- 	ret = create_memory_block_devices(start, size, params.altmap, group);
- 	if (ret) {
--		arch_remove_memory(start, size, NULL);
-+		arch_remove_memory(start, size, params.altmap);
- 		goto error_free;
- 	}
- 
+lkp report:
+Patch 3:
+* when CONFIG_SPARSEMEM_VMEMMAP is disabled, resolve
+  undefined reference to `vmem_altmap_offset' error.
+* Request for Reviewed-by once again due to the change in patch3.
+
+Thank you
+
+Sumanth Korikkar (3):
+  mm/memory_hotplug: add missing mem_hotplug_lock
+  mm/memory_hotplug: fix error handling in add_memory_resource()
+  mm: use vmem_altmap code without CONFIG_ZONE_DEVICE
+
+ drivers/base/memory.c    | 18 +++++++++++++++---
+ include/linux/memremap.h | 12 ------------
+ include/linux/mm.h       | 15 +++++++++++++++
+ mm/memory_hotplug.c      | 15 +++++++--------
+ mm/memremap.c            | 14 +-------------
+ mm/sparse-vmemmap.c      | 13 +++++++++++++
+ 6 files changed, 51 insertions(+), 36 deletions(-)
+
 -- 
 2.41.0
 
