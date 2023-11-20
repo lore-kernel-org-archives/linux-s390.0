@@ -2,66 +2,65 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C95CC54E76
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Nov 2023 08:57:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 594B2C197A0
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Nov 2023 09:01:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232154AbjKTI5U (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Nov 2023 03:57:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47238 "EHLO
+        id S232155AbjKTJBZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Nov 2023 04:01:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232128AbjKTI5Q (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Nov 2023 03:57:16 -0500
+        with ESMTP id S232139AbjKTJBY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Nov 2023 04:01:24 -0500
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95E2FD4B
-        for <linux-s390@vger.kernel.org>; Mon, 20 Nov 2023 00:57:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 790BAA2
+        for <linux-s390@vger.kernel.org>; Mon, 20 Nov 2023 01:01:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1700470631;
+        s=mimecast20190719; t=1700470879;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=5Qf+s++PJXkoIaJ5ZWtjbotl2CQD5cU4WwKuFq4lyG8=;
-        b=JzaYKYaiaf61ZmhWidhW5OUSJFk45dxHz+f/GRj9TAPx6fmuibzL2ZAD7X/RP7U0OWloee
-        dNEPOmNpWRW6qkFzNO9P48v3EYFGzqDuJRW5SCbymIzUrCM4NScE2tp00sHA4rrGI3duAj
-        3ohm5T8Rki5x/ItvzaHncF8mznEvfqA=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=FnXwU5m0p6Ftud+xRiwQTUEL2pTwLGnEaQSgZsquc0s=;
+        b=O7cPEVISLZelPuGSZb7k6EuhEx7aSrncVLUk4NpOg0M17jpkMB/d4PrPl83zG9W45i+v+r
+        OSNDtIXkDxHEIs/9WnTqJcg5hQmIsa+rIu+q8erqnsvZe5yryXQq5tiUgCPZLrI12ijoLp
+        ycL5t0f2UhX1vgioO1lwu91jgSqZkDU=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-404-w2b73wY0MMGG6BJ-AXe4nw-1; Mon, 20 Nov 2023 03:57:09 -0500
-X-MC-Unique: w2b73wY0MMGG6BJ-AXe4nw-1
-Received: by mail-lf1-f72.google.com with SMTP id 2adb3069b0e04-5082705f6dfso3792368e87.2
-        for <linux-s390@vger.kernel.org>; Mon, 20 Nov 2023 00:57:08 -0800 (PST)
+ us-mta-678-gBpraCSNMP2RoAURvJyrEA-1; Mon, 20 Nov 2023 04:01:17 -0500
+X-MC-Unique: gBpraCSNMP2RoAURvJyrEA-1
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-332c9c2df90so224153f8f.1
+        for <linux-s390@vger.kernel.org>; Mon, 20 Nov 2023 01:01:17 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700470628; x=1701075428;
+        d=1e100.net; s=20230601; t=1700470876; x=1701075676;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
          :references:cc:to:content-language:subject:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5Qf+s++PJXkoIaJ5ZWtjbotl2CQD5cU4WwKuFq4lyG8=;
-        b=s55zlyuzFgzIgckqRNAQOs2huUzAqeUXEkvhyNxh3o7u9k1emoMfhDeueo/yJkHKf6
-         cOmxjwAzklKZQMWjH0fET1h7hL3H7dsZAMJyb/cnMu6eJ0FEEX6y9sWNZsdtvrtKoXKP
-         iUNbu6Nxoghw3gE5x6siojDCqGLNKnHI2B3K81n3T66LUNSVD7US2zn3P6AKwA7HpU67
-         XX8QF8brJWje45aLC48kKAIMX5PxMHvli3NM4jgoOmNTnMM4HlSJHwc0j9zIVR4PFU/y
-         E63EISuTP/BW/bmkuITxj4D4C60gWF4Je6/i0EAwpRwKdBxOJxA7ceBGJKlCV3rEfO2y
-         A+1A==
-X-Gm-Message-State: AOJu0Yz0/q4oj1TvuVStNq8MkFMtxiyYYilnb68XUn0BHHsKMWZdbCgP
-        DR/TlMeaw+zGxRsYt+PxrsCs6YxoNiFAx3JmX8hojbIa0tqbWXQmJzhFLLPxpOyzf5+XbzV76Fb
-        ITpMP8Afmkuo5ZD+Y8S12Pg==
-X-Received: by 2002:ac2:59c9:0:b0:509:f45c:fae6 with SMTP id x9-20020ac259c9000000b00509f45cfae6mr5988309lfn.10.1700470627735;
-        Mon, 20 Nov 2023 00:57:07 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFh06/r0MKuhiwR+4tIcg/KWZFHDnajsuICyBAflJOTfSWVJxA+J4knkZKoVK/fbctMYH8BoQ==
-X-Received: by 2002:ac2:59c9:0:b0:509:f45c:fae6 with SMTP id x9-20020ac259c9000000b00509f45cfae6mr5988284lfn.10.1700470627351;
-        Mon, 20 Nov 2023 00:57:07 -0800 (PST)
+        bh=FnXwU5m0p6Ftud+xRiwQTUEL2pTwLGnEaQSgZsquc0s=;
+        b=mzrNql9fGhqqXfudpGr3++G3iVhWBtujSKTaqcVdH257Bx2Hh2EKFl6V+y9JaTQk21
+         6ZGLVvWStYhzaDeRype7wODW4Ueq+zjppab6y2CyfrLl8liMsKQvmGYWxad2sWd5sgpO
+         gAZ6BhWo5Xd8JCsJ1HRUpsD8Mg7TiA5dkGx+sCLzGftWTkq2sKMkCSTlTra/UiW9nxHt
+         jkqgqmMdyLFSokJDtAyI5rDwljo4ouuS/vaHfofUbKJ+ZI9pj+ZoidL7WELK0o6tFmP9
+         4D5/JCP++OYGWokdcPX3oan2VxkxWbbNbzahKoYQLyGmtDWxqFcIMM5K9zSmp94sVByj
+         +23A==
+X-Gm-Message-State: AOJu0Yxj4YsPqqtblm807rjh7WTI6cbfMkzt4Lokea9Ole89y9XWLb+1
+        iAgocf5iU+xRcS+mj633+QokNgV2Qy0pPmQXoA90zH/O3xZgJESE98tClBx3tOxJuB39qvxFsv5
+        wtAzl83xYFamERIJBBH2hl10ko9cHiA==
+X-Received: by 2002:a5d:4047:0:b0:331:6cb3:f443 with SMTP id w7-20020a5d4047000000b003316cb3f443mr5679550wrp.9.1700470876461;
+        Mon, 20 Nov 2023 01:01:16 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHqVxFQ1Af/W6eGfZ69NI/irue3EXfgYWKh6qIVBrFB0K4dIeWobYRVzJvPpEXhnDx1fOZPBA==
+X-Received: by 2002:a5d:4047:0:b0:331:6cb3:f443 with SMTP id w7-20020a5d4047000000b003316cb3f443mr5679526wrp.9.1700470876068;
+        Mon, 20 Nov 2023 01:01:16 -0800 (PST)
 Received: from ?IPV6:2003:cb:c746:7700:9885:6589:b1e3:f74c? (p200300cbc746770098856589b1e3f74c.dip0.t-ipconnect.de. [2003:cb:c746:7700:9885:6589:b1e3:f74c])
-        by smtp.gmail.com with ESMTPSA id b11-20020a05600010cb00b00332c0d256c5sm5558804wrx.80.2023.11.20.00.57.06
+        by smtp.gmail.com with ESMTPSA id x11-20020adff0cb000000b00332cb4697ebsm525790wro.55.2023.11.20.01.01.14
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Nov 2023 00:57:07 -0800 (PST)
-Message-ID: <1d8908d6-8084-4539-8ec0-178815e1c9e7@redhat.com>
-Date:   Mon, 20 Nov 2023 09:57:06 +0100
+        Mon, 20 Nov 2023 01:01:15 -0800 (PST)
+Message-ID: <f16a4214-332d-48f1-b825-f39cfbdc0f71@redhat.com>
+Date:   Mon, 20 Nov 2023 10:01:13 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/3] mm/memory_hotplug: fix error handling in
- add_memory_resource()
+Subject: Re: [PATCH 3/3] mm: use vmem_altmap code without CONFIG_ZONE_DEVICE
 Content-Language: en-US
 To:     Sumanth Korikkar <sumanthk@linux.ibm.com>,
         linux-mm <linux-mm@kvack.org>,
@@ -76,7 +75,7 @@ Cc:     Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>,
         linux-s390 <linux-s390@vger.kernel.org>,
         LKML <linux-kernel@vger.kernel.org>
 References: <20231120072317.3169630-1-sumanthk@linux.ibm.com>
- <20231120072317.3169630-3-sumanthk@linux.ibm.com>
+ <20231120072317.3169630-4-sumanthk@linux.ibm.com>
 From:   David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -123,7 +122,7 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20231120072317.3169630-3-sumanthk@linux.ibm.com>
+In-Reply-To: <20231120072317.3169630-4-sumanthk@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -131,47 +130,45 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 20.11.23 08:23, Sumanth Korikkar wrote:
-> In add_memory_resource(), creation of memory block devices occurs after
-> successful call to arch_add_memory(). However, creation of memory block
-> devices could fail.  In that case, arch_remove_memory() is called to
-> perform necessary cleanup.
+> vmem_altmap_free() and vmem_altmap_offset() could be utlized without
+> CONFIG_ZONE_DEVICE enabled. For example,
+> mm/memory_hotplug.c:__add_pages() relies on that.  The altmap is no
+> longer restricted to ZONE_DEVICE handling, but instead depends on
+> CONFIG_SPARSEMEM_VMEMMAP.
 > 
-> Currently with or without altmap support, arch_remove_memory() is always
-> passed with altmap set to NULL during error handling. This leads to
-> freeing of struct pages using free_pages(), eventhough the allocation
-> might have been performed with altmap support via
-> altmap_alloc_block_buf().
+> When CONFIG_SPARSEMEM_VMEMMAP is disabled, these functions are defined
+> as inline stubs, ensuring compatibility with configurations that do not
+> use sparsemem vmemmap. Without it, lkp reported the following:
 > 
-> Fix the error handling by passing altmap in arch_remove_memory(). This
-> ensures the following:
-> * When altmap is disabled, deallocation of the struct pages array occurs
->    via free_pages().
-> * When altmap is enabled, deallocation occurs via vmem_altmap_free().
+> ld: arch/x86/mm/init_64.o: in function `remove_pagetable':
+> init_64.c:(.meminit.text+0xfc7): undefined reference to
+> `vmem_altmap_free'
 > 
-> Fixes: a08a2ae34613 ("mm,memory_hotplug: allocate memmap from the added memory range")
+> Reported-by: kernel test robot <lkp@intel.com>
+> Closes: https://lore.kernel.org/oe-kbuild-all/202311180545.VeyRXEDq-lkp@intel.com/
 > Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 > Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
 > ---
->   mm/memory_hotplug.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-> index c8238fc5edcb..4f476a970e84 100644
-> --- a/mm/memory_hotplug.c
-> +++ b/mm/memory_hotplug.c
-> @@ -1458,7 +1458,7 @@ int __ref add_memory_resource(int nid, struct resource *res, mhp_t mhp_flags)
->   	/* create memory block devices after memory was added */
->   	ret = create_memory_block_devices(start, size, params.altmap, group);
->   	if (ret) {
-> -		arch_remove_memory(start, size, NULL);
-> +		arch_remove_memory(start, size, params.altmap);
->   		goto error_free;
->   	}
+
+
+[...]
+
 >   
+> +unsigned long vmem_altmap_offset(struct vmem_altmap *altmap)
+> +{
+> +	/* number of pfns from base where pfn_to_page() is valid */
+> +	if (altmap)
+> +		return altmap->reserve + altmap->free;
+> +	return 0;
+> +}
+> +
+> +void vmem_altmap_free(struct vmem_altmap *altmap, unsigned long nr_pfns)
+> +{
+> +	altmap->alloc -= nr_pfns;
+> +}
 
-We should likely CC stable on this one
-
-Acked-by: David Hildenbrand <david@redhat.com>
+What speaks against just moving them to the header instead? They surely 
+are tiny ...
 
 -- 
 Cheers,
