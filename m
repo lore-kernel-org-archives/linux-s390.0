@@ -2,176 +2,131 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 594B2C197A0
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Nov 2023 09:01:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02CDFC54E76
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Nov 2023 09:11:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232155AbjKTJBZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Nov 2023 04:01:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60598 "EHLO
+        id S232461AbjKTJLm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Nov 2023 04:11:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232139AbjKTJBY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Nov 2023 04:01:24 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 790BAA2
-        for <linux-s390@vger.kernel.org>; Mon, 20 Nov 2023 01:01:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1700470879;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=FnXwU5m0p6Ftud+xRiwQTUEL2pTwLGnEaQSgZsquc0s=;
-        b=O7cPEVISLZelPuGSZb7k6EuhEx7aSrncVLUk4NpOg0M17jpkMB/d4PrPl83zG9W45i+v+r
-        OSNDtIXkDxHEIs/9WnTqJcg5hQmIsa+rIu+q8erqnsvZe5yryXQq5tiUgCPZLrI12ijoLp
-        ycL5t0f2UhX1vgioO1lwu91jgSqZkDU=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-678-gBpraCSNMP2RoAURvJyrEA-1; Mon, 20 Nov 2023 04:01:17 -0500
-X-MC-Unique: gBpraCSNMP2RoAURvJyrEA-1
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-332c9c2df90so224153f8f.1
-        for <linux-s390@vger.kernel.org>; Mon, 20 Nov 2023 01:01:17 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700470876; x=1701075676;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :references:cc:to:content-language:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=FnXwU5m0p6Ftud+xRiwQTUEL2pTwLGnEaQSgZsquc0s=;
-        b=mzrNql9fGhqqXfudpGr3++G3iVhWBtujSKTaqcVdH257Bx2Hh2EKFl6V+y9JaTQk21
-         6ZGLVvWStYhzaDeRype7wODW4Ueq+zjppab6y2CyfrLl8liMsKQvmGYWxad2sWd5sgpO
-         gAZ6BhWo5Xd8JCsJ1HRUpsD8Mg7TiA5dkGx+sCLzGftWTkq2sKMkCSTlTra/UiW9nxHt
-         jkqgqmMdyLFSokJDtAyI5rDwljo4ouuS/vaHfofUbKJ+ZI9pj+ZoidL7WELK0o6tFmP9
-         4D5/JCP++OYGWokdcPX3oan2VxkxWbbNbzahKoYQLyGmtDWxqFcIMM5K9zSmp94sVByj
-         +23A==
-X-Gm-Message-State: AOJu0Yxj4YsPqqtblm807rjh7WTI6cbfMkzt4Lokea9Ole89y9XWLb+1
-        iAgocf5iU+xRcS+mj633+QokNgV2Qy0pPmQXoA90zH/O3xZgJESE98tClBx3tOxJuB39qvxFsv5
-        wtAzl83xYFamERIJBBH2hl10ko9cHiA==
-X-Received: by 2002:a5d:4047:0:b0:331:6cb3:f443 with SMTP id w7-20020a5d4047000000b003316cb3f443mr5679550wrp.9.1700470876461;
-        Mon, 20 Nov 2023 01:01:16 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHqVxFQ1Af/W6eGfZ69NI/irue3EXfgYWKh6qIVBrFB0K4dIeWobYRVzJvPpEXhnDx1fOZPBA==
-X-Received: by 2002:a5d:4047:0:b0:331:6cb3:f443 with SMTP id w7-20020a5d4047000000b003316cb3f443mr5679526wrp.9.1700470876068;
-        Mon, 20 Nov 2023 01:01:16 -0800 (PST)
-Received: from ?IPV6:2003:cb:c746:7700:9885:6589:b1e3:f74c? (p200300cbc746770098856589b1e3f74c.dip0.t-ipconnect.de. [2003:cb:c746:7700:9885:6589:b1e3:f74c])
-        by smtp.gmail.com with ESMTPSA id x11-20020adff0cb000000b00332cb4697ebsm525790wro.55.2023.11.20.01.01.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Nov 2023 01:01:15 -0800 (PST)
-Message-ID: <f16a4214-332d-48f1-b825-f39cfbdc0f71@redhat.com>
-Date:   Mon, 20 Nov 2023 10:01:13 +0100
-MIME-Version: 1.0
+        with ESMTP id S232424AbjKTJLj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Nov 2023 04:11:39 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD996B8;
+        Mon, 20 Nov 2023 01:11:35 -0800 (PST)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AK8cIEE023567;
+        Mon, 20 Nov 2023 09:11:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=2jdHnpx6mgSC4QZnlzzc1n6bb3Xg9JCcs3d0KBlV+Lg=;
+ b=ndxwOge7rEeBiR8U73VZEFeQSHJf5ijiC6XXwzyyF+nENrwtVk6ONSVTwpm3nlwVS0I9
+ NPFeY0L4d20CQOShkFsrF/gogL/0IQshh78P3Vfnn4yZscGNl9OeEQOgtE73IUnovivX
+ IeddW4lH0uQ0KL42c++bpv8FD3hyUnPWe9/3z7DPYkoUz+JRscqET/x4ehpaOxtzekso
+ 55IK5+36sNu4k6Migjxpk1ttou/NQZen/HJNnm+WtiPq7rEyLVggYnoxvGSPAtfr3dk9
+ KH2vrRCpMP+JysP6JpHlpoHub9Z90JFwfA3bUjn2YEHGN7QTzOBCKtB0TJo0ZN7EEdih iQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ug3u19dee-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Nov 2023 09:11:23 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AK8JoiZ020066;
+        Mon, 20 Nov 2023 09:11:23 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ug3u19de1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Nov 2023 09:11:23 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AK7KMUK008904;
+        Mon, 20 Nov 2023 09:11:22 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf7yy89um-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 20 Nov 2023 09:11:22 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AK9BJws17433176
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 20 Nov 2023 09:11:19 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3AE2E20043;
+        Mon, 20 Nov 2023 09:11:19 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 42C8020040;
+        Mon, 20 Nov 2023 09:11:18 +0000 (GMT)
+Received: from [9.171.73.39] (unknown [9.171.73.39])
+        by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 20 Nov 2023 09:11:18 +0000 (GMT)
+Message-ID: <22394c7b-0470-472d-9474-4de5fc86c5ea@linux.ibm.com>
+Date:   Mon, 20 Nov 2023 10:11:17 +0100
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/3] mm: use vmem_altmap code without CONFIG_ZONE_DEVICE
+Subject: Re: [PATCH net-next v3] net/smc: avoid atomic_set and smp_wmb in the
+ tx path when possible
 Content-Language: en-US
-To:     Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        linux-mm <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-References: <20231120072317.3169630-1-sumanthk@linux.ibm.com>
- <20231120072317.3169630-4-sumanthk@linux.ibm.com>
-From:   David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <20231120072317.3169630-4-sumanthk@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To:     dust.li@linux.alibaba.com, Li RongQing <lirongqing@baidu.com>,
+        kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+        alibuda@linux.alibaba.com, tonylu@linux.alibaba.co,
+        guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org
+References: <20231117111657.16266-1-lirongqing@baidu.com>
+ <422c5968-8013-4b39-8cdb-07452abbf5fb@linux.ibm.com>
+ <20231120032029.GA3323@linux.alibaba.com>
+From:   Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20231120032029.GA3323@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: jN5Amf-NvPCU-WS66WFFzeXaSk9g3GrM
+X-Proofpoint-GUID: JMfWIMqilLN5oGGFL3DeUEgQLcBL9Gbk
 Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-20_06,2023-11-17_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
+ malwarescore=0 phishscore=0 mlxscore=0 mlxlogscore=834 bulkscore=0
+ impostorscore=0 priorityscore=1501 spamscore=0 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311200060
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 20.11.23 08:23, Sumanth Korikkar wrote:
-> vmem_altmap_free() and vmem_altmap_offset() could be utlized without
-> CONFIG_ZONE_DEVICE enabled. For example,
-> mm/memory_hotplug.c:__add_pages() relies on that.  The altmap is no
-> longer restricted to ZONE_DEVICE handling, but instead depends on
-> CONFIG_SPARSEMEM_VMEMMAP.
+
+
+On 20.11.23 04:20, Dust Li wrote:
+>> It seems to me that the purpose of conn->tx_pushing is
+>> a) Serve as a mutex, so only one thread per conn will call __smc_tx_sndbuf_nonempty().
+>> b) Repeat, in case some other thread has added data to sndbuf concurrently.
+>>
+>> I agree that this patch does not change the behaviour of this function and removes an
+>> atomic_set() in the likely path.
+>>
+>> I wonder however: All callers of smc_tx_sndbuf_nonempty() must hold the socket lock.
+>> So how can we ever run in a concurrency situation?
+>> Is this handling of conn->tx_pushing necessary at all?
+> Hi Sandy,
 > 
-> When CONFIG_SPARSEMEM_VMEMMAP is disabled, these functions are defined
-> as inline stubs, ensuring compatibility with configurations that do not
-> use sparsemem vmemmap. Without it, lkp reported the following:
+> Overall, I think you are right. But there is something we need to take care.
 > 
-> ld: arch/x86/mm/init_64.o: in function `remove_pagetable':
-> init_64.c:(.meminit.text+0xfc7): undefined reference to
-> `vmem_altmap_free'
+> Before commit 6b88af839d20 ("net/smc: don't send in the BH context if
+> sock_owned_by_user"), we used to call smc_tx_pending() in the soft IRQ,
+> without checking sock_owned_by_user(), which would caused a race condition
+> because bh_lock_sock() did not honor sock_lock(). To address this issue,
+> I have added the tx_pushing mechanism. However, with commit 6b88af839d20,
+> we now defer the transmission if sock_lock() is held by the user.
+> Therefore, there should no longer be a race condition. Nevertheless, if
+> we remove the tx_pending mechanism, we must always remember not to call
+> smc_tx_sndbuf_nonempty() in the soft IRQ when the user holds the sock lock.
 > 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Closes: https://lore.kernel.org/oe-kbuild-all/202311180545.VeyRXEDq-lkp@intel.com/
-> Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
-> ---
+> Thanks
+> Dust
 
 
-[...]
-
->   
-> +unsigned long vmem_altmap_offset(struct vmem_altmap *altmap)
-> +{
-> +	/* number of pfns from base where pfn_to_page() is valid */
-> +	if (altmap)
-> +		return altmap->reserve + altmap->free;
-> +	return 0;
-> +}
-> +
-> +void vmem_altmap_free(struct vmem_altmap *altmap, unsigned long nr_pfns)
-> +{
-> +	altmap->alloc -= nr_pfns;
-> +}
-
-What speaks against just moving them to the header instead? They surely 
-are tiny ...
-
--- 
-Cheers,
-
-David / dhildenb
-
+ok, I understand.
+So whoever is willing to give it a try and simplify smc_tx_sndbuf_nonempty(),
+should remember to document that requirement/precondition.
+Maybe in a Function context section of a kernel-doc function decription?
+(as described in https://docs.kernel.org/doc-guide/kernel-doc.html)
+Although smc_tx_sndbuf_nonempty() is not exported, this format is helpful.
