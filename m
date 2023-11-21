@@ -1,39 +1,62 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5523B46535;
-	Tue, 21 Nov 2023 10:36:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eqM9ioDn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1583C43391;
-	Tue, 21 Nov 2023 10:36:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1700562993;
-	bh=Br1SkmNs2wmxWtCfzlRvkihDMx+ev4HQgVz58LlvuJg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=eqM9ioDnWDYdrf47n7Fr+BtuSZC4Gg/CsWiMHkyqPmowW5WVa/Ramv6XL7VXoQvjd
-	 2Vv8xGBifzOwiM2JapDt2wMFF6AarpQtr9G5AAuDYM1zsbaRo7tUhRtpbMrDtfprMG
-	 dKEkkfct6vdxIhhrZ8m/3fm72yeTiAqEtPsTgQdKQif6cEnhh6CRrIsm6mLjqZaRjq
-	 3bK4LCrSBYOauRyZSTZLAUoAD6HUrRzradOR604vaD+TZOCmtLzMuoJ2mzJlhoxBq+
-	 n/y9/z0YPsAuhrKn+o/wGZFe1FoCMEGwKjux/V3uNQXhTpa1eU31k/4U9IdckLiqt5
-	 RVCYBp9a68BLw==
-From: "Jiri Slaby (SUSE)" <jirislaby@kernel.org>
-To: gregkh@linuxfoundation.org
-Cc: linux-serial@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	"Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	linux-s390@vger.kernel.org
-Subject: [PATCH 1/6] tty: con3215: drop raw3215_info::ubuffer
-Date: Tue, 21 Nov 2023 11:36:21 +0100
-Message-ID: <20231121103626.17772-2-jirislaby@kernel.org>
-X-Mailer: git-send-email 2.42.1
-In-Reply-To: <20231121103626.17772-1-jirislaby@kernel.org>
-References: <20231121103626.17772-1-jirislaby@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="a3e0xRg0"
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 634609C;
+	Tue, 21 Nov 2023 04:03:19 -0800 (PST)
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALBc2v1023436;
+	Tue, 21 Nov 2023 12:03:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=UbI3gRx2z11WJvUL9FqBRaWO2/YxaKCV9eYngKPduqY=;
+ b=a3e0xRg0LtYV+rUXxM0fFf/nmsd9WAnKkD6Z/1WZ2zPez5g2YH1K9LXFkBJ/d1SQbkpI
+ gNzZ3MirvbMIJoBdWcUdJLJrypKmosyJJSKIEyNY6u+yQGIBy1LRSUW2E5WOe0n2/0H0
+ +FJ2LXtgHK9daJgcCFDl0Rd3COC5hKNpmoiohyiDhqnUTlFIE+fiBYPomkN5+Irk8z3t
+ lJXk/utmJolm19/gIQ0QljqjekAcHXg3UVlBBNkt65as+0MLUb2tgQwgl8ZUQfSdzquT
+ 76BC3BkqrLyeXBmSxJ+zHr7zPiIdklEKhQ2+VhJI/LQJ8SSvWhyTHWOx6jF2O555Vmko lw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uguuj0ns6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 21 Nov 2023 12:03:15 +0000
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ALBugM3015000;
+	Tue, 21 Nov 2023 12:03:14 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uguuj0nrq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 21 Nov 2023 12:03:14 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALBnHvF015865;
+	Tue, 21 Nov 2023 12:03:14 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf8knrd03-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 21 Nov 2023 12:03:13 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALC3AA217564168
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 21 Nov 2023 12:03:10 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B050E200CC;
+	Tue, 21 Nov 2023 12:03:10 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A0C2E200CB;
+	Tue, 21 Nov 2023 12:03:10 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 21 Nov 2023 12:03:10 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
+	id 65D3DE0320; Tue, 21 Nov 2023 13:03:10 +0100 (CET)
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Vishal Moola <vishal.moola@gmail.com>
+Cc: linux-mm@kvack.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH] pgtable: do not expose _refcount field via ptdesc
+Date: Tue, 21 Nov 2023 13:03:10 +0100
+Message-Id: <20231121120310.696335-1-agordeev@linux.ibm.com>
+X-Mailer: git-send-email 2.39.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -41,36 +64,62 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: YznpofG2GbqLlI3z4KWXDiYITvyETh0y
+X-Proofpoint-ORIG-GUID: hT0Li9jmuNkQcOhBZADPauH-OGkCMEb_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-21_05,2023-11-21_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 mlxlogscore=994 clxscore=1015 adultscore=0
+ spamscore=0 lowpriorityscore=0 impostorscore=0 phishscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311060000
+ definitions=main-2311210094
 
-clang-struct [1] found raw3215_info::ubuffer unused.
+Since commit d08d4e7cd6bf ("s390/mm: use full 4KB page for 2KB PTE")
+_refcount field is not used for fragmented page tracking on s390 and
+there is no other code left that accesses this field explicitly.
 
-It's actually not used since 2004 when we switched to kernel buffers.
-
-[1] https://github.com/jirislaby/clang-struct
-
-Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
+Suggested-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 ---
- drivers/s390/char/con3215.c | 1 -
- 1 file changed, 1 deletion(-)
+ include/linux/mm_types.h | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
-index 99361618c31f..34bc343dcfcc 100644
---- a/drivers/s390/char/con3215.c
-+++ b/drivers/s390/char/con3215.c
-@@ -89,7 +89,6 @@ struct raw3215_info {
- 	wait_queue_head_t empty_wait; /* wait queue for flushing */
- 	struct timer_list timer;      /* timer for delayed output */
- 	int line_pos;		      /* position on the line (for tabs) */
--	char ubuffer[80];	      /* copy_from_user buffer */
- };
- 
- /* array of 3215 devices structures */
+diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+index 957ce38768b2..0330e0ddca11 100644
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -401,11 +401,10 @@ FOLIO_MATCH(compound_head, _head_2a);
+  * @pmd_huge_pte:     Protected by ptdesc->ptl, used for THPs.
+  * @__page_mapping:   Aliases with page->mapping. Unused for page tables.
+  * @pt_mm:            Used for x86 pgds.
+- * @pt_frag_refcount: For fragmented page table tracking. Powerpc and s390 only.
++ * @pt_frag_refcount: For fragmented page table tracking. Powerpc only.
+  * @_pt_pad_2:        Padding to ensure proper alignment.
+  * @ptl:              Lock for the page table.
+  * @__page_type:      Same as page->page_type. Unused for page tables.
+- * @_refcount:        Same as page refcount. Used for s390 page tables.
+  * @pt_memcg_data:    Memcg data. Tracked for page tables here.
+  *
+  * This struct overlays struct page for now. Do not modify without a good
+@@ -438,7 +437,7 @@ struct ptdesc {
+ #endif
+ 	};
+ 	unsigned int __page_type;
+-	atomic_t _refcount;
++	unsigned int _pt_pad_3;
+ #ifdef CONFIG_MEMCG
+ 	unsigned long pt_memcg_data;
+ #endif
+@@ -452,7 +451,6 @@ TABLE_MATCH(compound_head, _pt_pad_1);
+ TABLE_MATCH(mapping, __page_mapping);
+ TABLE_MATCH(rcu_head, pt_rcu_head);
+ TABLE_MATCH(page_type, __page_type);
+-TABLE_MATCH(_refcount, _refcount);
+ #ifdef CONFIG_MEMCG
+ TABLE_MATCH(memcg_data, pt_memcg_data);
+ #endif
 -- 
-2.42.1
+2.39.2
 
