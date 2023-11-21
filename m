@@ -1,51 +1,51 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="R7uyF5QN"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KOLMzVoP"
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A98610EC;
-	Tue, 21 Nov 2023 14:03:00 -0800 (PST)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLv9hG004965;
-	Tue, 21 Nov 2023 22:02:43 GMT
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F48E10F7;
+	Tue, 21 Nov 2023 14:03:01 -0800 (PST)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALL79FR001860;
+	Tue, 21 Nov 2023 22:02:37 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=FBHiR0R3HqDameObtBi5tDwt9B6xgR+xiaoV3r5rhIA=;
- b=R7uyF5QNom6pN6IBd3nildZSrtcZliHChhJ/GeIJvUNF+EipxafiIvS97SB8gwPwhdi7
- wfnA8CtypmGthqq3L4NW+88Q0PBQJ1mSVw32lPxW57ZZMBbP3zvKmuAtrOO7+5xn/a4D
- iLWQRKyodtiCZVlMfIRIUjy/YfQgvps/nI80Hl1LKR81OLAVhccTQCKdWdTudtf2y1AH
- vchLVJfuB9tEyQLgC/9nOPrdId99eWWSwwnqyvg2mkZ2bSDCei0H1jFDCgTm/3W0poQq
- 6Ntf+KEnufdnj23SLQqIe85hUUrUaPw1XGde+Jm3PnGl4gaZ0cNYvPHhrVUF90ZPX9Wb 1A== 
+ bh=QnHpD2/5G8nBf7RYxex7ZCPkjJMh3IfDIUDgzy28hLk=;
+ b=KOLMzVoPdxMpKE/B5PsK8VLy9LhPrARqMDSbblL3jQMXMy2j/yM7yZ9rFSsPwE+IJ0oS
+ joYURlN4eIuAVEThUDhbChMbf4/5JLTL5kCghwaFOyI8b49qr8288xWLh8NGmqPPj9Sm
+ D52A7r0KRp1xBs+YmABGPOjLHcBbXTiKbjlsFuhl3XXozpMvTVY2KYEs5tKl906dSbhk
+ rlcgp2RQBtCEvtIr4wJQfTCeGy/kZadzn7cKtTLZKhCfoeHxFHn6WEpQ2laeIGvXAt6c
+ gZckQOQZdSzwZ10tFvtw3DQOm6VVGSS4QBMIfVo9yO4qKba59zv5uvJXIq2vvhIDYP7P yw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh4wn85ar-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh46a1a4y-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:02:42 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ALLwvpK009496;
-	Tue, 21 Nov 2023 22:02:41 GMT
+	Tue, 21 Nov 2023 22:02:36 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ALLgHKi029220;
+	Tue, 21 Nov 2023 22:02:36 GMT
 Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh4wn85aa-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh46a1a42-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:02:41 +0000
+	Tue, 21 Nov 2023 22:02:36 +0000
 Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLnWGn004713;
-	Tue, 21 Nov 2023 22:02:40 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf7yykvj4-1
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLnSZD004663;
+	Tue, 21 Nov 2023 22:02:34 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf7yykvh6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:02:40 +0000
+	Tue, 21 Nov 2023 22:02:34 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALM2bBa15597856
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALM2V2l14942770
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Nov 2023 22:02:37 GMT
+	Tue, 21 Nov 2023 22:02:31 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 31E082005A;
-	Tue, 21 Nov 2023 22:02:37 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8906F20065;
+	Tue, 21 Nov 2023 22:02:31 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BA2DB20063;
-	Tue, 21 Nov 2023 22:02:35 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 21D2C2005A;
+	Tue, 21 Nov 2023 22:02:30 +0000 (GMT)
 Received: from heavy.boeblingen.de.ibm.com (unknown [9.179.23.98])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 21 Nov 2023 22:02:35 +0000 (GMT)
+	Tue, 21 Nov 2023 22:02:30 +0000 (GMT)
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -66,9 +66,9 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v2 18/33] lib/string: Add KMSAN support to strlcpy() and strlcat()
-Date: Tue, 21 Nov 2023 23:01:12 +0100
-Message-ID: <20231121220155.1217090-19-iii@linux.ibm.com>
+Subject: [PATCH v2 15/33] kmsan: Use ALIGN_DOWN() in kmsan_get_metadata()
+Date: Tue, 21 Nov 2023 23:01:09 +0100
+Message-ID: <20231121220155.1217090-16-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20231121220155.1217090-1-iii@linux.ibm.com>
 References: <20231121220155.1217090-1-iii@linux.ibm.com>
@@ -80,53 +80,50 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: b6FO-wjNpOLbu-pXCF5KwWPZydmy0FRF
-X-Proofpoint-ORIG-GUID: BYbwoAtxv4M2QJEIoKEhTF2ta84U2GAL
+X-Proofpoint-ORIG-GUID: 2TCo5LFGLjvBe_FNuSOp8ISqSS6rfXb4
+X-Proofpoint-GUID: PizVCBmrtyUfaXPpBjtJCvjSHdm3Jo8r
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-21_12,2023-11-21_01,2023-05-22_02
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 suspectscore=0 adultscore=0 malwarescore=0
- impostorscore=0 mlxscore=0 bulkscore=0 phishscore=0 clxscore=1015
- spamscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2311060000 definitions=main-2311210172
+ suspectscore=0 impostorscore=0 phishscore=0 priorityscore=1501 bulkscore=0
+ adultscore=0 mlxscore=0 spamscore=0 mlxlogscore=999 malwarescore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311210172
 
-Currently KMSAN does not fully propagate metadata in strlcpy() and
-strlcat(), because they are built with -ffreestanding and call
-memcpy(). In this combination memcpy() calls are not instrumented.
+Improve the readability by replacing the custom aligning logic with
+ALIGN_DOWN(). Unlike other places where a similar sequence is used,
+there is no size parameter that needs to be adjusted, so the standard
+macro fits.
 
-Fix by copying the metadata manually. Add the __STDC_HOSTED__ #ifdef in
-case the code is compiled with different flags in the future.
-
+Reviewed-by: Alexander Potapenko <glider@google.com>
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- lib/string.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ mm/kmsan/shadow.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/lib/string.c b/lib/string.c
-index be26623953d2..e83c6dd77ec6 100644
---- a/lib/string.c
-+++ b/lib/string.c
-@@ -111,6 +111,9 @@ size_t strlcpy(char *dest, const char *src, size_t size)
- 	if (size) {
- 		size_t len = (ret >= size) ? size - 1 : ret;
- 		__builtin_memcpy(dest, src, len);
-+#if __STDC_HOSTED__ == 0
-+		kmsan_memmove_metadata(dest, src, len);
-+#endif
- 		dest[len] = '\0';
- 	}
- 	return ret;
-@@ -261,6 +264,9 @@ size_t strlcat(char *dest, const char *src, size_t count)
- 	if (len >= count)
- 		len = count-1;
- 	__builtin_memcpy(dest, src, len);
-+#if __STDC_HOSTED__ == 0
-+	kmsan_memmove_metadata(dest, src, len);
-+#endif
- 	dest[len] = 0;
- 	return res;
- }
+diff --git a/mm/kmsan/shadow.c b/mm/kmsan/shadow.c
+index 2d57408c78ae..9c58f081d84f 100644
+--- a/mm/kmsan/shadow.c
++++ b/mm/kmsan/shadow.c
+@@ -123,14 +123,12 @@ struct shadow_origin_ptr kmsan_get_shadow_origin_ptr(void *address, u64 size,
+  */
+ void *kmsan_get_metadata(void *address, bool is_origin)
+ {
+-	u64 addr = (u64)address, pad, off;
++	u64 addr = (u64)address, off;
+ 	struct page *page;
+ 	void *ret;
+ 
+-	if (is_origin && !IS_ALIGNED(addr, KMSAN_ORIGIN_SIZE)) {
+-		pad = addr % KMSAN_ORIGIN_SIZE;
+-		addr -= pad;
+-	}
++	if (is_origin)
++		addr = ALIGN_DOWN(addr, KMSAN_ORIGIN_SIZE);
+ 	address = (void *)addr;
+ 	if (kmsan_internal_is_vmalloc_addr(address) ||
+ 	    kmsan_internal_is_module_addr(address))
 -- 
 2.41.0
 
