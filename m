@@ -1,106 +1,122 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dI1JuA/s"
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CF241A2;
-	Tue, 21 Nov 2023 08:39:22 -0800 (PST)
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALFcRdU004331;
-	Tue, 21 Nov 2023 16:39:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=KmKbwEJplODev9WCG+a3bZzneO7c5WCbVoBpxNQbPFg=;
- b=dI1JuA/s5eXZsBHO4ylYEOoViGAfRVKTvm7ZDwjI00DytALhK27B+jygls9RjLxHLlUE
- TqcD8GIAEA9DDqPfq/WQzZ0u8VxBFx+kzD/KtE7lLfNxNfg4j0+I1NiCW4hhV5+5KT7C
- W6P7GKUw2ZpXsfwoHUUmtuR9i9QdaB/tXY1ZRrHJNhpmlB0ouU1GjLWMGmcvu6oBZdln
- MN1PKna2HZ6ZMXf6PxuaeUYhhuB8fGe8+a0S6uNQj4UndhKVk4PWNQLVmjDp3LK+/ClT
- RxwL3NNd8hiBvFn49Zpo5Rgpbv4r9Fudh1gBJkhBDGkKISVfmK46zuK1+DOCUJQ43udC tw== 
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ugy44kpnq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 16:39:18 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALGIu0O007851;
-	Tue, 21 Nov 2023 16:39:17 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ufaa21d5s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 16:39:17 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALGdEaK20775492
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Nov 2023 16:39:14 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8881620040;
-	Tue, 21 Nov 2023 16:39:14 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4B8982004D;
-	Tue, 21 Nov 2023 16:39:14 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 21 Nov 2023 16:39:14 +0000 (GMT)
-Date: Tue, 21 Nov 2023 17:39:13 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: "Jiri Slaby (SUSE)" <jirislaby@kernel.org>
-Cc: gregkh@linuxfoundation.org, linux-serial@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 1/6] tty: con3215: drop raw3215_info::ubuffer
-Message-ID: <ZVzdMWawUScUTUM3@tuxmaker.boeblingen.de.ibm.com>
-References: <20231121103626.17772-1-jirislaby@kernel.org>
- <20231121103626.17772-2-jirislaby@kernel.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231121103626.17772-2-jirislaby@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: edxa4Ci-Wph6lN6y2f6gym2vAPhCG9Jj
-X-Proofpoint-ORIG-GUID: edxa4Ci-Wph6lN6y2f6gym2vAPhCG9Jj
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mrg/ZMCM"
+Received: from mail-yw1-x1135.google.com (mail-yw1-x1135.google.com [IPv6:2607:f8b0:4864:20::1135])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D08E6191;
+	Tue, 21 Nov 2023 08:46:12 -0800 (PST)
+Received: by mail-yw1-x1135.google.com with SMTP id 00721157ae682-5ca164bc0bbso27352847b3.3;
+        Tue, 21 Nov 2023 08:46:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1700585172; x=1701189972; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=cTjTeR6ZPalJseQYqmfsMOl0WKPRmFx/E/5HJrg4U0M=;
+        b=mrg/ZMCMeXJNVNlh9IlQetoOcopWNl/6mFzYN6FW2slMwCLmG5sz3jv9MS1PZs1XTu
+         6F3Ej1P5Zb774sBwijxMhy8ZYPCjI/RKQQb8v8fxg19upJdtXBt2ZRzvgQXiy0Ihf1GA
+         D4O+BA4LbvN4u4w/40vEGRKUHmUEutDAAX0USvRpAgKP3u7DpxXjJxy0cy/W1COZM8SG
+         MM7EPFGV2Yjza/ZwVUO70M4GzOdbUu0yHN4+aq/YmpRbKMuS77a+Ol3/QKIBr9ZgEN22
+         CMVs69SaKJAvl6G9MIe53DhEG+Uo/Q3tBN6zJTULUnvgBDq+IQqf1jwBgMDezRvqbLXe
+         9i3g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1700585172; x=1701189972;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=cTjTeR6ZPalJseQYqmfsMOl0WKPRmFx/E/5HJrg4U0M=;
+        b=lzIHhpje9Dd0CXlbvx6d+d36vZsbdkSYNNxsoZJMhcWiYx0GCg1qRpeCkPFwDcjuIK
+         9Q5aDDDHFmPimVfvJRr76cJ0ux3GNCZZxoD68j+Bunp4MoQIXLVpFI6ZYEQrayhdmf+R
+         yt7krfCBUCZz1eHOLZeRuTZZmfb6M8s9bubKjHtWmuFLLhJtG3EnvANOozMHBlQBN1PG
+         FAbL5tEn+/awvCAyfnqxE/Io93lZRHitv8sYIsl+ZbpM0koVfncjJWE0P71u61dmTN2q
+         TwzrBeLoJ46Y4uloOFdZAQ/ooZ/Ir0JOkWskcfgOirLS73+tQEWisRaQU5lQisWszRKD
+         Qhpg==
+X-Gm-Message-State: AOJu0YzMMGKzUBCBuIkca0I9rcd04bzubx2MsE917sQ5PTxu50MCre7h
+	+puL1zfa9iCozLsr10yZD9qsATwieXU=
+X-Google-Smtp-Source: AGHT+IFg+2OBmlB8+ldAAybnLE+vIEKH5SHD4vI3ZcF3/RJqXNwgitLYiDXbYw+qOTpp3uN3Me+SUA==
+X-Received: by 2002:a0d:e2c6:0:b0:58f:a19f:2b79 with SMTP id l189-20020a0de2c6000000b0058fa19f2b79mr11495216ywe.9.1700585171782;
+        Tue, 21 Nov 2023 08:46:11 -0800 (PST)
+Received: from unknowna0e70b2ca394.attlocal.net ([2600:1700:2f7d:1800::16])
+        by smtp.gmail.com with ESMTPSA id i133-20020a81548b000000b005a206896d62sm3143442ywb.111.2023.11.21.08.46.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Nov 2023 08:46:11 -0800 (PST)
+Date: Tue, 21 Nov 2023 08:46:08 -0800
+From: Vishal Moola <vishal.moola@gmail.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Subject: Re: [PATCH v2] pgtable: do not expose _refcount field via ptdesc
+Message-ID: <ZVze0PgnDqnsmiCM@unknowna0e70b2ca394.attlocal.net>
+References: <20231121120310.696335-1-agordeev@linux.ibm.com>
+ <20231121144717.6318-A-hca@linux.ibm.com>
+ <ZVzQkTueDRSJ76me@tuxmaker.boeblingen.de.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-21_09,2023-11-21_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 spamscore=0 bulkscore=0 clxscore=1011 phishscore=0
- mlxscore=0 mlxlogscore=572 suspectscore=0 adultscore=0 lowpriorityscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311210129
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZVzQkTueDRSJ76me@tuxmaker.boeblingen.de.ibm.com>
 
-On Tue, Nov 21, 2023 at 11:36:21AM +0100, Jiri Slaby (SUSE) wrote:
-> clang-struct [1] found raw3215_info::ubuffer unused.
+On Tue, Nov 21, 2023 at 04:45:21PM +0100, Alexander Gordeev wrote:
+> Since commit d08d4e7cd6bf ("s390/mm: use full 4KB page for 2KB PTE")
+> _refcount field is not used for fragmented page tracking on s390 and
+> there is no other code left that accesses this field explicitly.
 > 
-> It's actually not used since 2004 when we switched to kernel buffers.
-> 
-> [1] https://github.com/jirislaby/clang-struct
-> 
-> Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: linux-s390@vger.kernel.org
+> Suggested-by: Heiko Carstens <hca@linux.ibm.com>
+> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 > ---
->  drivers/s390/char/con3215.c | 1 -
->  1 file changed, 1 deletion(-)
+>  include/linux/mm_types.h | 7 +++----
+>  1 file changed, 3 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
-> index 99361618c31f..34bc343dcfcc 100644
-> --- a/drivers/s390/char/con3215.c
-> +++ b/drivers/s390/char/con3215.c
-> @@ -89,7 +89,6 @@ struct raw3215_info {
->  	wait_queue_head_t empty_wait; /* wait queue for flushing */
->  	struct timer_list timer;      /* timer for delayed output */
->  	int line_pos;		      /* position on the line (for tabs) */
-> -	char ubuffer[80];	      /* copy_from_user buffer */
->  };
->  
->  /* array of 3215 devices structures */
+> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+> index 957ce38768b2..ce0cfc6e4d94 100644
+> --- a/include/linux/mm_types.h
+> +++ b/include/linux/mm_types.h
+> @@ -401,11 +401,11 @@ FOLIO_MATCH(compound_head, _head_2a);
+>   * @pmd_huge_pte:     Protected by ptdesc->ptl, used for THPs.
+>   * @__page_mapping:   Aliases with page->mapping. Unused for page tables.
+>   * @pt_mm:            Used for x86 pgds.
+> - * @pt_frag_refcount: For fragmented page table tracking. Powerpc and s390 only.
+> + * @pt_frag_refcount: For fragmented page table tracking. Powerpc only.
+>   * @_pt_pad_2:        Padding to ensure proper alignment.
+>   * @ptl:              Lock for the page table.
+>   * @__page_type:      Same as page->page_type. Unused for page tables.
+> - * @_refcount:        Same as page refcount. Used for s390 page tables.
+> + * @_pt_pad_3:        Padding that aliases with page's refcount.
 
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+I like updating the documentation, but I'd rather see _refcount renamed
+to __page_refcount similar to the other unused page fields. _pt_pad_*
+is used for variables that aren't present in struct page (and are
+required for padding).
+
+>   * @pt_memcg_data:    Memcg data. Tracked for page tables here.
+>   *
+>   * This struct overlays struct page for now. Do not modify without a good
+> @@ -438,7 +438,7 @@ struct ptdesc {
+>  #endif
+>  	};
+>  	unsigned int __page_type;
+> -	atomic_t _refcount;
+> +	unsigned int _pt_pad_3;
+>  #ifdef CONFIG_MEMCG
+>  	unsigned long pt_memcg_data;
+>  #endif
+> @@ -452,7 +452,6 @@ TABLE_MATCH(compound_head, _pt_pad_1);
+>  TABLE_MATCH(mapping, __page_mapping);
+>  TABLE_MATCH(rcu_head, pt_rcu_head);
+>  TABLE_MATCH(page_type, __page_type);
+> -TABLE_MATCH(_refcount, _refcount);
+
+Its still a good idea to keep this check. In the case of !CONFIG_MEMCG,
+_refcount is the last variable of ptdesc and if some change were to happen
+that caused it to be misaligned we will want to know.
+
+>  #ifdef CONFIG_MEMCG
+>  TABLE_MATCH(memcg_data, pt_memcg_data);
+>  #endif
+> -- 
+> 2.39.2
+> 
+> 
