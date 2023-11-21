@@ -1,43 +1,43 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AsI6Y/xq"
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFBD6D66;
-	Tue, 21 Nov 2023 14:57:04 -0800 (PST)
-Received: by mail-pl1-x630.google.com with SMTP id d9443c01a7336-1cf61eed213so21970015ad.2;
-        Tue, 21 Nov 2023 14:57:04 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FE5odhD+"
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CD4910D5;
+	Tue, 21 Nov 2023 14:57:09 -0800 (PST)
+Received: by mail-pl1-x62d.google.com with SMTP id d9443c01a7336-1cc5b705769so54214585ad.0;
+        Tue, 21 Nov 2023 14:57:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1700607424; x=1701212224; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1700607428; x=1701212228; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:sender:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=I57gFn6zue+8kkqtl3RkaJdXFKQmQ2JzNCRbeVy0Nms=;
-        b=AsI6Y/xq1hApC5U573N785n6W1i92im6qE3TjL7pSEH1H5Df2psoWQk/D5LWLZV09M
-         vSkDA51P06XneK4V3eUOlkDW/I8cVBdVQKdD/f6en8Po73y6z4ZdhP6uKrlaTq00VqGn
-         i8rCqJX9GnWhW7o9OuRlr50LClbGr+SFWg/q04rtch+XWRCVUg+pwIODX7yJmpNerIwx
-         YMFS9cKjetyg9IAx+zLnSKd3uQx9zgLVL0fgfTn6jwyl+7ncZmoVLCJsqBV5IcF6CvYM
-         LkZfH9x7mD+K5hE/4wpte4oZ9tAYyQKvp8yPPzRC7Xx7KP4aJceMTWShirTt7NaM9EzD
-         lEAQ==
+        bh=imksGNoTkLOSWGxbTUx5c7bQ0SJEukVr1ISidEGWUC0=;
+        b=FE5odhD+YNeYH/tP0IYFCDdRpF2jypuO8HoXkzP+quD4/FffvX3jLVcrTcnEorvRgL
+         08ikyRUV8E+LOtooi7raES817D2PuhKgLP+aP0AfC70rD+AFI4k4+EOdiJzYLOhfChiv
+         ld9DYKKiWW577wGI9pW9T+aqgLzZAumo2PevwfzJISd+yHxCOrWGFe186fWHC68pvHYi
+         MricszYYXc6pwRT+KecHe5nk2AjZQrK1OPGzZj9EgWJCnuMmIPW8E9groxuB5IH1Nmg3
+         9kS950i7BSWzr0ON9C4Cel1ORNonVO6cy86jUSuAbaLHaJulZ+6oSg1IVzTS1z4CGP/u
+         96vA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700607424; x=1701212224;
+        d=1e100.net; s=20230601; t=1700607428; x=1701212228;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:sender:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=I57gFn6zue+8kkqtl3RkaJdXFKQmQ2JzNCRbeVy0Nms=;
-        b=TXwL9tL33RYRU/l8tDhvQ8mQpEzFQbZG5gL6gxe0Qdld0u7dseWzLvYa1hnoMRsgbs
-         tGH2mCp7s+5Fnl/c1A084E2HEfD1eUW3m/tUkpZLBYS/MhMUZsg//luOovBMqn+dPzSZ
-         f2hVTTVO4EBtvbL5Iy13SbAWb3+58EARurd7eiqWt+z8yJ+1QZNWMuZdlienmb22jR3Z
-         o6dbhZ2PFf/vs6NyI8/Jd2EHD2F/Vp4nvDok7T/d412NEwc6gvmIJq2AjxjJpvLY+JwN
-         ybUpR/DcDj4+arvCWNIDYq/QUh/lXmT8tfgJVbXb+sncyYw4f7tHzGK3rvwyzCCxK/MS
-         5ZzQ==
-X-Gm-Message-State: AOJu0YwOh4yxa/QnxNeLEwrTNOXCdOgYTYcgdyYoYcyW4r51TASSkUTR
-	orRXEiXvf2E/k8Cb4n/8a9NSXXgmUSo=
-X-Google-Smtp-Source: AGHT+IH8fB1cs3ffiEd9JK8XO3sS19JX7Y5A1zj+bnxNqxT0mMcQ3vG4M/obcmtxOIfilUzz6S4poA==
-X-Received: by 2002:a17:902:dac1:b0:1cc:4e46:3e45 with SMTP id q1-20020a170902dac100b001cc4e463e45mr708746plx.49.1700607424390;
-        Tue, 21 Nov 2023 14:57:04 -0800 (PST)
+        bh=imksGNoTkLOSWGxbTUx5c7bQ0SJEukVr1ISidEGWUC0=;
+        b=Yybu0d0SSCgFemFWy3wO1KxdfMknJy5J0KU4xiAnzJ2+IyDMXtMQnsD7v3EBO5oUP8
+         kzb6d/W+6cezBmiQv64J1hec6xkSBjcqOb2EJ3CSikSAVGVhiJRzEdICvMNszJaNpjM1
+         Btlxyq8oFzS6krKsFIybR/KuKK548UNcmrH2pZqtCsiGJ5vZqJWXOugHuuZnFPc1hdo1
+         h7QU6gc/14gcX6SQAEX1HvUFJ0jsw8JmwfVXx+xW6U+AxdybfNSeNwk7XTmkHzcM4oxa
+         bCMNN8ZM/EKiFjdiucB7TyahfPRfsRNC9cnW6u0QvzqZ60EEGSwLvshpP9GIByaN9zy4
+         zuLg==
+X-Gm-Message-State: AOJu0YzhvXFgTQEC2evHNOCujbAjUnDa5X79WvumFLmj98e2NTaB6UGF
+	3BoAgq77jXoQEIXT2o/HQqM=
+X-Google-Smtp-Source: AGHT+IF6nev15Wx1IU9Cm0JjON37lYLTr4XgdpZk/wISk+wgJmlSjDJ8Zf5yXSWHwpHpfWi5VvJQxw==
+X-Received: by 2002:a17:902:e546:b0:1cc:5db8:7eb1 with SMTP id n6-20020a170902e54600b001cc5db87eb1mr686024plf.51.1700607428389;
+        Tue, 21 Nov 2023 14:57:08 -0800 (PST)
 Received: from bangji.hsd1.ca.comcast.net ([2601:647:6780:42e0:7377:923f:1ff3:266d])
-        by smtp.gmail.com with ESMTPSA id m12-20020a1709026bcc00b001cc47c1c29csm8413189plt.84.2023.11.21.14.57.03
+        by smtp.gmail.com with ESMTPSA id m12-20020a1709026bcc00b001cc47c1c29csm8413189plt.84.2023.11.21.14.57.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Nov 2023 14:57:03 -0800 (PST)
+        Tue, 21 Nov 2023 14:57:08 -0800 (PST)
 Sender: Namhyung Kim <namhyung@gmail.com>
 From: Namhyung Kim <namhyung@kernel.org>
 To: Arnaldo Carvalho de Melo <acme@kernel.org>,
@@ -54,9 +54,9 @@ Cc: Ian Rogers <irogers@google.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>,
 	linux-s390@vger.kernel.org
-Subject: [PATCH 10/14] tools headers: Update tools's copy of s390/asm headers
-Date: Tue, 21 Nov 2023 14:56:45 -0800
-Message-ID: <20231121225650.390246-10-namhyung@kernel.org>
+Subject: [PATCH 13/14] tools/perf: Update tools's copy of s390 syscall table
+Date: Tue, 21 Nov 2023 14:56:48 -0800
+Message-ID: <20231121225650.390246-13-namhyung@kernel.org>
 X-Mailer: git-send-email 2.43.0.rc1.413.gea7ed67945-goog
 In-Reply-To: <20231121225650.390246-1-namhyung@kernel.org>
 References: <20231121225650.390246-1-namhyung@kernel.org>
@@ -119,36 +119,21 @@ Cc: Sven Schnelle <svens@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org
 Signed-off-by: Namhyung Kim <namhyung@kernel.org>
 ---
- tools/arch/s390/include/uapi/asm/kvm.h | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ tools/perf/arch/s390/entry/syscalls/syscall.tbl | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/tools/arch/s390/include/uapi/asm/kvm.h b/tools/arch/s390/include/uapi/asm/kvm.h
-index a73cf01a1606..abe926d43cbe 100644
---- a/tools/arch/s390/include/uapi/asm/kvm.h
-+++ b/tools/arch/s390/include/uapi/asm/kvm.h
-@@ -159,6 +159,22 @@ struct kvm_s390_vm_cpu_subfunc {
- 	__u8 reserved[1728];
- };
- 
-+#define KVM_S390_VM_CPU_PROCESSOR_UV_FEAT_GUEST	6
-+#define KVM_S390_VM_CPU_MACHINE_UV_FEAT_GUEST	7
-+
-+#define KVM_S390_VM_CPU_UV_FEAT_NR_BITS	64
-+struct kvm_s390_vm_cpu_uv_feat {
-+	union {
-+		struct {
-+			__u64 : 4;
-+			__u64 ap : 1;		/* bit 4 */
-+			__u64 ap_intr : 1;	/* bit 5 */
-+			__u64 : 58;
-+		};
-+		__u64 feat;
-+	};
-+};
-+
- /* kvm attributes for crypto */
- #define KVM_S390_VM_CRYPTO_ENABLE_AES_KW	0
- #define KVM_S390_VM_CRYPTO_ENABLE_DEA_KW	1
+diff --git a/tools/perf/arch/s390/entry/syscalls/syscall.tbl b/tools/perf/arch/s390/entry/syscalls/syscall.tbl
+index cc0bc144b661..86fec9b080f6 100644
+--- a/tools/perf/arch/s390/entry/syscalls/syscall.tbl
++++ b/tools/perf/arch/s390/entry/syscalls/syscall.tbl
+@@ -455,3 +455,7 @@
+ 450  common	set_mempolicy_home_node	sys_set_mempolicy_home_node	sys_set_mempolicy_home_node
+ 451  common	cachestat		sys_cachestat			sys_cachestat
+ 452  common	fchmodat2		sys_fchmodat2			sys_fchmodat2
++453  common	map_shadow_stack	sys_map_shadow_stack		sys_map_shadow_stack
++454  common	futex_wake		sys_futex_wake			sys_futex_wake
++455  common	futex_wait		sys_futex_wait			sys_futex_wait
++456  common	futex_requeue		sys_futex_requeue		sys_futex_requeue
 -- 
 2.43.0.rc1.413.gea7ed67945-goog
 
