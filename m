@@ -1,51 +1,51 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="USgb/cGu"
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC1411987;
-	Tue, 21 Nov 2023 14:03:19 -0800 (PST)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALJ7UrE028514;
-	Tue, 21 Nov 2023 22:03:04 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="h2hOgRWf"
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F258F1992;
+	Tue, 21 Nov 2023 14:03:21 -0800 (PST)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLlOsS020122;
+	Tue, 21 Nov 2023 22:03:08 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=6pHSy6ITOBZodEIKnOLq18weO5ojGJDLtwC8jf5C8h0=;
- b=USgb/cGuAYXlSRHXjlniCTFqTRDpG/6LxyoXsnjT6kSKGAOqLJDfYVRTU6kirfaa3Xer
- BohHnPP4IpfAJ3i8PWweDsXA5HjX6CAhGfEqho07b2BCi6q/FyYx8WfxQrLSaa1OxQTc
- HZKPzkpzUbTWvFE6iuzOk5CngwwgtlfdVQlo9HnisAkxECkD/dHkVaqbzs9pGDqKNnSd
- yFxRInAUXNoHZraTEuDchS/IpRdPtvxVlmtolNa7HJZx/vdKmW6JVmZOXAPakDIK1zC8
- hpyUYqMOWTqLy69G71O+Yl2lhoVvqNPtXJrvmGZqTcqv19vr6BknoDmQv2/xJrWfBN2u SA== 
+ bh=EE06ddWkGjUoLWQv6bK2fGVp2A6oQUBHyPN+VxPRzzo=;
+ b=h2hOgRWfPECwKwBcNQrjLD+PvLStASPkSovv9rh/O/pqJS+chgrrJ93CoPUS2VZe8fP0
+ k0UNr5mfboaxo743fH6elrh0qujQyNv/58YWKB7XiP7brbBMKRfkuINNMqHp815hU/Gv
+ ZdS2SvR/TOTflDVvfXBTsQuQxG/UbOqNpTqeZB10qYXDyNNXASfmyfSq6B4sTXnA2jwv
+ RtaN68mVvuY3uPSFZjJ2di9OKD9shuf5RzQc5axKmTFZ9qgMubUP17/tiDQ0Wo2JYqvW
+ eQM983a+BZ671YZ310QUTA7YeASsGFDDpQOap9LInqVQkYsuAu1PMLOjlrZBUWJ8geVC Ig== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh11we7cn-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh4s68ca4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:03:03 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ALLeZah017347;
-	Tue, 21 Nov 2023 22:03:03 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh11we7cd-1
+	Tue, 21 Nov 2023 22:03:08 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ALLmWB5023308;
+	Tue, 21 Nov 2023 22:03:07 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh4s68c8d-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:03:03 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLnVaJ010626;
-	Tue, 21 Nov 2023 22:03:02 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf93kujvn-1
+	Tue, 21 Nov 2023 22:03:07 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLnSj4004674;
+	Tue, 21 Nov 2023 22:03:06 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf7yykvpq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:03:02 +0000
+	Tue, 21 Nov 2023 22:03:06 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALM2xbE50331948
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALM32Jm18416340
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Nov 2023 22:02:59 GMT
+	Tue, 21 Nov 2023 22:03:03 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0D40F20063;
-	Tue, 21 Nov 2023 22:02:59 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id DEEFE20067;
+	Tue, 21 Nov 2023 22:03:02 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 96C3220067;
-	Tue, 21 Nov 2023 22:02:57 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 72A0F20063;
+	Tue, 21 Nov 2023 22:03:01 +0000 (GMT)
 Received: from heavy.boeblingen.de.ibm.com (unknown [9.179.23.98])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 21 Nov 2023 22:02:57 +0000 (GMT)
+	Tue, 21 Nov 2023 22:03:01 +0000 (GMT)
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -66,9 +66,9 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v2 29/33] s390/traps: Unpoison the kernel_stack_overflow()'s pt_regs
-Date: Tue, 21 Nov 2023 23:01:23 +0100
-Message-ID: <20231121220155.1217090-30-iii@linux.ibm.com>
+Subject: [PATCH v2 31/33] s390/unwind: Disable KMSAN checks
+Date: Tue, 21 Nov 2023 23:01:25 +0100
+Message-ID: <20231121220155.1217090-32-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20231121220155.1217090-1-iii@linux.ibm.com>
 References: <20231121220155.1217090-1-iii@linux.ibm.com>
@@ -80,50 +80,49 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: urf4wyq_YMj9bTfGVt1cQOZ1POJmOTf-
-X-Proofpoint-ORIG-GUID: 3zsdaRQNzKCdIMz7-it2_V5FFdGTniq-
+X-Proofpoint-ORIG-GUID: t0hiZOuilBS-pse6Lg4l-pzI0i9JU7L2
+X-Proofpoint-GUID: bHxC-ytlmBvIktmBU67IBrMaMN8bDPe8
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-21_12,2023-11-21_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- lowpriorityscore=0 bulkscore=0 impostorscore=0 suspectscore=0 adultscore=0
- malwarescore=0 priorityscore=1501 phishscore=0 clxscore=1015
- mlxlogscore=999 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 spamscore=0 impostorscore=0 mlxlogscore=865 bulkscore=0
+ mlxscore=0 malwarescore=0 adultscore=0 phishscore=0 lowpriorityscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311060000 definitions=main-2311210172
 
-This is normally done by the generic entry code, but the
-kernel_stack_overflow() flow bypasses it.
+The unwind code can read uninitialized frames. Furthermore, even in
+the good case, KMSAN does not emit shadow for backchains. Therefore
+disable it for the unwinding functions.
 
 Reviewed-by: Alexander Potapenko <glider@google.com>
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- arch/s390/kernel/traps.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/s390/kernel/unwind_bc.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
-index 1d2aa448d103..f299b1203a20 100644
---- a/arch/s390/kernel/traps.c
-+++ b/arch/s390/kernel/traps.c
-@@ -27,6 +27,7 @@
- #include <linux/uaccess.h>
- #include <linux/cpu.h>
- #include <linux/entry-common.h>
-+#include <linux/kmsan.h>
- #include <asm/asm-extable.h>
- #include <asm/fpu/api.h>
- #include <asm/vtime.h>
-@@ -260,6 +261,11 @@ static void monitor_event_exception(struct pt_regs *regs)
+diff --git a/arch/s390/kernel/unwind_bc.c b/arch/s390/kernel/unwind_bc.c
+index 0ece156fdd7c..cd44be2b6ce8 100644
+--- a/arch/s390/kernel/unwind_bc.c
++++ b/arch/s390/kernel/unwind_bc.c
+@@ -49,6 +49,8 @@ static inline bool is_final_pt_regs(struct unwind_state *state,
+ 	       READ_ONCE_NOCHECK(regs->psw.mask) & PSW_MASK_PSTATE;
+ }
  
- void kernel_stack_overflow(struct pt_regs *regs)
++/* Avoid KMSAN false positives from touching uninitialized frames. */
++__no_kmsan_checks
+ bool unwind_next_frame(struct unwind_state *state)
  {
-+	/*
-+	 * Normally regs are unpoisoned by the generic entry code, but
-+	 * kernel_stack_overflow() is a rare case that is called bypassing it.
-+	 */
-+	kmsan_unpoison_entry_regs(regs);
- 	bust_spinlocks(1);
- 	printk("Kernel stack overflow.\n");
- 	show_regs(regs);
+ 	struct stack_info *info = &state->stack_info;
+@@ -118,6 +120,8 @@ bool unwind_next_frame(struct unwind_state *state)
+ }
+ EXPORT_SYMBOL_GPL(unwind_next_frame);
+ 
++/* Avoid KMSAN false positives from touching uninitialized frames. */
++__no_kmsan_checks
+ void __unwind_start(struct unwind_state *state, struct task_struct *task,
+ 		    struct pt_regs *regs, unsigned long first_frame)
+ {
 -- 
 2.41.0
 
