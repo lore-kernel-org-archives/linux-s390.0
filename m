@@ -1,102 +1,132 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hTk39W0X"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="R7uyF5QN"
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98346D4B;
-	Tue, 21 Nov 2023 14:02:49 -0800 (PST)
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A98610EC;
+	Tue, 21 Nov 2023 14:03:00 -0800 (PST)
 Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLv8nj004956;
-	Tue, 21 Nov 2023 22:02:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=e9gLnnnQBY16GXpEz0eYBqi+hifeX2GNwOnaQeYWbLQ=;
- b=hTk39W0Xl7NHgxTVX7tD9lawsGud5qMRX9Z4a0/J7LMAVRR5MFGCvge9n9H/FZMhoB+y
- Sp5Y/07cPx2+85jxgM1Gi4VKFz71RP4ZacMNMMYWCLyC4W6PBQ/8izF3LZuHNZlxW3t9
- Ax7p7Lb27v2hHhSWBhsdOsuoE5TgRNY8WbyeTSwnGFzDWNy7gBBmvIc3pBc+MNeNxsf8
- P8O55fB1Rl7zC3jPbmR5NjIQ7HehUnXcPOrPCSTX7dBVgtnrs63d846vdMAX2jUlpw0V
- 637ZymvPcRN8reNh6fVWTlbGpVvSx6x8MkrdT8HyvLK5Y6uWXzZ91i25mMj88+6RBVTW rw== 
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLv9hG004965;
+	Tue, 21 Nov 2023 22:02:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=FBHiR0R3HqDameObtBi5tDwt9B6xgR+xiaoV3r5rhIA=;
+ b=R7uyF5QNom6pN6IBd3nildZSrtcZliHChhJ/GeIJvUNF+EipxafiIvS97SB8gwPwhdi7
+ wfnA8CtypmGthqq3L4NW+88Q0PBQJ1mSVw32lPxW57ZZMBbP3zvKmuAtrOO7+5xn/a4D
+ iLWQRKyodtiCZVlMfIRIUjy/YfQgvps/nI80Hl1LKR81OLAVhccTQCKdWdTudtf2y1AH
+ vchLVJfuB9tEyQLgC/9nOPrdId99eWWSwwnqyvg2mkZ2bSDCei0H1jFDCgTm/3W0poQq
+ 6Ntf+KEnufdnj23SLQqIe85hUUrUaPw1XGde+Jm3PnGl4gaZ0cNYvPHhrVUF90ZPX9Wb 1A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh4wn85eg-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh4wn85ar-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:02:48 +0000
+	Tue, 21 Nov 2023 22:02:42 +0000
 Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ALLwnBX008939;
-	Tue, 21 Nov 2023 22:02:48 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh4wn85e2-1
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ALLwvpK009496;
+	Tue, 21 Nov 2023 22:02:41 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh4wn85aa-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:02:48 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLnRIV022911;
-	Tue, 21 Nov 2023 22:02:47 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uf7kt403n-1
+	Tue, 21 Nov 2023 22:02:41 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLnWGn004713;
+	Tue, 21 Nov 2023 22:02:40 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf7yykvj4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:02:47 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALM2kWi66257178
+	Tue, 21 Nov 2023 22:02:40 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALM2bBa15597856
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Nov 2023 22:02:46 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5F6405805F;
-	Tue, 21 Nov 2023 22:02:46 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 12B7758043;
-	Tue, 21 Nov 2023 22:02:45 +0000 (GMT)
-Received: from [9.61.106.42] (unknown [9.61.106.42])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 21 Nov 2023 22:02:44 +0000 (GMT)
-Message-ID: <0891a316-1a62-4236-bfae-6fbb4f5341cf@linux.ibm.com>
-Date: Tue, 21 Nov 2023 17:02:44 -0500
+	Tue, 21 Nov 2023 22:02:37 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 31E082005A;
+	Tue, 21 Nov 2023 22:02:37 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BA2DB20063;
+	Tue, 21 Nov 2023 22:02:35 +0000 (GMT)
+Received: from heavy.boeblingen.de.ibm.com (unknown [9.179.23.98])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 21 Nov 2023 22:02:35 +0000 (GMT)
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alexander Potapenko <glider@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Pekka Enberg <penberg@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Vasily Gorbik <gor@linux.ibm.com>, Vlastimil Babka <vbabka@suse.cz>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        Mark Rutland <mark.rutland@arm.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>
+Subject: [PATCH v2 18/33] lib/string: Add KMSAN support to strlcpy() and strlcat()
+Date: Tue, 21 Nov 2023 23:01:12 +0100
+Message-ID: <20231121220155.1217090-19-iii@linux.ibm.com>
+X-Mailer: git-send-email 2.41.0
+In-Reply-To: <20231121220155.1217090-1-iii@linux.ibm.com>
+References: <20231121220155.1217090-1-iii@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] s390/vfio-ap: fix sysfs status attribute for AP queue
- devices
-To: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, jjherne@linux.ibm.com,
-        pasic@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
-        david@redhat.com, Harald Freudenberger <freude@linux.ibm.com>
-References: <20231108201135.351419-1-akrowiak@linux.ibm.com>
- <17ef8d76-5dec-46a3-84e1-1b92fadd27b0@linux.ibm.com>
- <f18f6993-17e8-cab4-6a7f-059f669fc890@linux.ibm.com>
- <ZVzAWPzAFR5JV2jZ@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-Content-Language: en-US
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Organization: IBM
-In-Reply-To: <ZVzAWPzAFR5JV2jZ@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: lle0B6Izk6B8x0dFi1_AddrBebUpjZDZ
-X-Proofpoint-ORIG-GUID: xy0tjfvqK7p_2QmQV8_hMnR0c0A0vMLi
+X-Proofpoint-GUID: b6FO-wjNpOLbu-pXCF5KwWPZydmy0FRF
+X-Proofpoint-ORIG-GUID: BYbwoAtxv4M2QJEIoKEhTF2ta84U2GAL
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-21_12,2023-11-21_01,2023-05-22_02
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
  priorityscore=1501 suspectscore=0 adultscore=0 malwarescore=0
- impostorscore=0 mlxscore=0 bulkscore=0 phishscore=0 clxscore=1011
- spamscore=0 mlxlogscore=966 classifier=spam adjust=0 reason=mlx
+ impostorscore=0 mlxscore=0 bulkscore=0 phishscore=0 clxscore=1015
+ spamscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
  scancount=1 engine=8.12.0-2311060000 definitions=main-2311210172
 
+Currently KMSAN does not fully propagate metadata in strlcpy() and
+strlcat(), because they are built with -ffreestanding and call
+memcpy(). In this combination memcpy() calls are not instrumented.
 
+Fix by copying the metadata manually. Add the __STDC_HOSTED__ #ifdef in
+case the code is compiled with different flags in the future.
 
-On 11/21/23 09:36, Alexander Gordeev wrote:
-> On Mon, Nov 20, 2023 at 10:16:10AM +0100, Christian Borntraeger wrote:
->> I think this can go via the s390 tree as well. Alexander do you want to take it?
-> 
-> Applied, thanks!
-> 
-> I assume, it does not need to wait until the merge window?
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+---
+ lib/string.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-I can't answer that question, but this is not a critical fix as it 
-simply fixes an erroneous display of a queue's status via it's sysfs 
-status attribute which is reflected in the lszcrypt -V output. The error 
-only occurs in a specific instance which is likely rare.
+diff --git a/lib/string.c b/lib/string.c
+index be26623953d2..e83c6dd77ec6 100644
+--- a/lib/string.c
++++ b/lib/string.c
+@@ -111,6 +111,9 @@ size_t strlcpy(char *dest, const char *src, size_t size)
+ 	if (size) {
+ 		size_t len = (ret >= size) ? size - 1 : ret;
+ 		__builtin_memcpy(dest, src, len);
++#if __STDC_HOSTED__ == 0
++		kmsan_memmove_metadata(dest, src, len);
++#endif
+ 		dest[len] = '\0';
+ 	}
+ 	return ret;
+@@ -261,6 +264,9 @@ size_t strlcat(char *dest, const char *src, size_t count)
+ 	if (len >= count)
+ 		len = count-1;
+ 	__builtin_memcpy(dest, src, len);
++#if __STDC_HOSTED__ == 0
++	kmsan_memmove_metadata(dest, src, len);
++#endif
+ 	dest[len] = 0;
+ 	return res;
+ }
+-- 
+2.41.0
+
