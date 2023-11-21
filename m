@@ -1,51 +1,51 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QRMz0sVJ"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mgSXs3ED"
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 955C4113;
-	Tue, 21 Nov 2023 14:02:42 -0800 (PST)
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A4621A1;
+	Tue, 21 Nov 2023 14:02:46 -0800 (PST)
 Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLfHvm025430;
-	Tue, 21 Nov 2023 22:02:24 GMT
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLfG9l025275;
+	Tue, 21 Nov 2023 22:02:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=ezUWgZJfISejb8VTgAwaTpQHvkooR/+F6bZ5vCX0j5Y=;
- b=QRMz0sVJ3AjFsRhvrlnEZy+NkJKnPHxiWl+Vrzr4+5ISkIuUViY5BQhHw7ZzTgnHwNg4
- oL8bxll7cAlQGoFzhz1Bw2IiCMK8QeEeyw0yM67C4TzGpJUt2hYsfGNbQQnuayDylV3f
- r+gh2z+WRcOMMg1bcS5thGXQEoIjtwtH4M0utZi45aWCVd9sAdrYuovOhneO1Fd1dnS9
- Ysl7CNgRcg5ALuHP1OF+m57iuEebt2TXkEDdHcJZ6oNpsKgnlLVEtVAPVrXgnfqKOm/o
- EJYyV0FTtHL39nriAOF2o1kXXjlSRmziOqEksriGN1cS96rQvyhY8hE4T0t3nilKuMau qw== 
+ bh=f3AHgxo7CJkEcMIYOZw3Qvaw0LNtelk9GucjvrirN9U=;
+ b=mgSXs3EDQ53NFWeIKL9xoviWtmmRqIK/VXWymBv1kzbHFJ1HJoU52kiGk4EiNhWkQA/w
+ f/5ZyM6JBUXCSC31LQe6b0yqrkSUmdMJ/jWTWp3a6D6mgb3eWtQ8z+XklUe0Bi9Shc4V
+ VQPBi4DeU/1QJ5o1R+qVAFmm0sQUSnP+qdCCOXqfwca+IJybBU+f/veWfJNslF22vsWl
+ yjl02m/TDvHXKdajEZdgEM/wMmGj3BgB2cXXAtuJsuHV0bD+xTb+xe9ijst/QnqNrMFk
+ AmQaL29EmN+A7OMqV4k8JAHHQz1i//U8XWoH6p+Kq3Lqbek5PaC23iOBjFz4SbOS7a1i YQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh46a19w4-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh46a1a0f-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:02:24 +0000
+	Tue, 21 Nov 2023 22:02:29 +0000
 Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ALLgCHI028952;
-	Tue, 21 Nov 2023 22:02:23 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh46a19vf-1
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ALLfvNH028432;
+	Tue, 21 Nov 2023 22:02:29 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh46a19y5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:02:23 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLnTm4010601;
-	Tue, 21 Nov 2023 22:02:21 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf93kujpk-1
+	Tue, 21 Nov 2023 22:02:28 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLnKcO007619;
+	Tue, 21 Nov 2023 22:02:27 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf8knuq22-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:02:21 +0000
+	Tue, 21 Nov 2023 22:02:27 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALM2IPS8389024
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALM2OkV10814012
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Nov 2023 22:02:18 GMT
+	Tue, 21 Nov 2023 22:02:24 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 735D120065;
-	Tue, 21 Nov 2023 22:02:18 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 19F112005A;
+	Tue, 21 Nov 2023 22:02:24 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0600F20063;
-	Tue, 21 Nov 2023 22:02:17 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id A203320063;
+	Tue, 21 Nov 2023 22:02:22 +0000 (GMT)
 Received: from heavy.boeblingen.de.ibm.com (unknown [9.179.23.98])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 21 Nov 2023 22:02:16 +0000 (GMT)
+	Tue, 21 Nov 2023 22:02:22 +0000 (GMT)
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -66,9 +66,9 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v2 08/33] kmsan: Remove an x86-specific #include from kmsan.h
-Date: Tue, 21 Nov 2023 23:01:02 +0100
-Message-ID: <20231121220155.1217090-9-iii@linux.ibm.com>
+Subject: [PATCH v2 11/33] kmsan: Export panic_on_kmsan
+Date: Tue, 21 Nov 2023 23:01:05 +0100
+Message-ID: <20231121220155.1217090-12-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20231121220155.1217090-1-iii@linux.ibm.com>
 References: <20231121220155.1217090-1-iii@linux.ibm.com>
@@ -80,8 +80,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: dRc6yZvR5PaQdqGrvXEotBg-Og-UeQav
-X-Proofpoint-GUID: 08q-yHVFGIS-b7rFJUsykSG5dMEIHHJf
+X-Proofpoint-ORIG-GUID: xUScG0AM4UlYqELexcF37HUScvwlgRBd
+X-Proofpoint-GUID: 8PySRi5MwXxotbKPHBjzYmkONm1nC8Mc
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-21_12,2023-11-21_01,2023-05-22_02
@@ -91,43 +91,32 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowprio
  clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311060000 definitions=main-2311210172
 
-Replace the x86-specific asm/pgtable_64_types.h #include with the
-linux/pgtable.h one, which all architectures have.
+When building the kmsan test as a module, modpost fails with the
+following error message:
 
-While at it, sort the headers alphabetically for the sake of
-consistency with other KMSAN code.
+    ERROR: modpost: "panic_on_kmsan" [mm/kmsan/kmsan_test.ko] undefined!
 
-Fixes: f80be4571b19 ("kmsan: add KMSAN runtime core")
-Suggested-by: Heiko Carstens <hca@linux.ibm.com>
+Export panic_on_kmsan in order to improve the KMSAN usability for
+modules.
+
 Reviewed-by: Alexander Potapenko <glider@google.com>
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- mm/kmsan/kmsan.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ mm/kmsan/report.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/mm/kmsan/kmsan.h b/mm/kmsan/kmsan.h
-index a14744205435..adf443bcffe8 100644
---- a/mm/kmsan/kmsan.h
-+++ b/mm/kmsan/kmsan.h
-@@ -10,14 +10,14 @@
- #ifndef __MM_KMSAN_KMSAN_H
- #define __MM_KMSAN_KMSAN_H
+diff --git a/mm/kmsan/report.c b/mm/kmsan/report.c
+index 02736ec757f2..c79d3b0d2d0d 100644
+--- a/mm/kmsan/report.c
++++ b/mm/kmsan/report.c
+@@ -20,6 +20,7 @@ static DEFINE_RAW_SPINLOCK(kmsan_report_lock);
+ /* Protected by kmsan_report_lock */
+ static char report_local_descr[DESCR_SIZE];
+ int panic_on_kmsan __read_mostly;
++EXPORT_SYMBOL_GPL(panic_on_kmsan);
  
--#include <asm/pgtable_64_types.h>
- #include <linux/irqflags.h>
-+#include <linux/mm.h>
-+#include <linux/nmi.h>
-+#include <linux/pgtable.h>
-+#include <linux/printk.h>
- #include <linux/sched.h>
- #include <linux/stackdepot.h>
- #include <linux/stacktrace.h>
--#include <linux/nmi.h>
--#include <linux/mm.h>
--#include <linux/printk.h>
- 
- #define KMSAN_ALLOCA_MAGIC_ORIGIN 0xabcd0100
- #define KMSAN_CHAIN_MAGIC_ORIGIN 0xabcd0200
+ #ifdef MODULE_PARAM_PREFIX
+ #undef MODULE_PARAM_PREFIX
 -- 
 2.41.0
 
