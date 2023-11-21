@@ -1,122 +1,149 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mrg/ZMCM"
-Received: from mail-yw1-x1135.google.com (mail-yw1-x1135.google.com [IPv6:2607:f8b0:4864:20::1135])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D08E6191;
-	Tue, 21 Nov 2023 08:46:12 -0800 (PST)
-Received: by mail-yw1-x1135.google.com with SMTP id 00721157ae682-5ca164bc0bbso27352847b3.3;
-        Tue, 21 Nov 2023 08:46:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1700585172; x=1701189972; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=cTjTeR6ZPalJseQYqmfsMOl0WKPRmFx/E/5HJrg4U0M=;
-        b=mrg/ZMCMeXJNVNlh9IlQetoOcopWNl/6mFzYN6FW2slMwCLmG5sz3jv9MS1PZs1XTu
-         6F3Ej1P5Zb774sBwijxMhy8ZYPCjI/RKQQb8v8fxg19upJdtXBt2ZRzvgQXiy0Ihf1GA
-         D4O+BA4LbvN4u4w/40vEGRKUHmUEutDAAX0USvRpAgKP3u7DpxXjJxy0cy/W1COZM8SG
-         MM7EPFGV2Yjza/ZwVUO70M4GzOdbUu0yHN4+aq/YmpRbKMuS77a+Ol3/QKIBr9ZgEN22
-         CMVs69SaKJAvl6G9MIe53DhEG+Uo/Q3tBN6zJTULUnvgBDq+IQqf1jwBgMDezRvqbLXe
-         9i3g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700585172; x=1701189972;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cTjTeR6ZPalJseQYqmfsMOl0WKPRmFx/E/5HJrg4U0M=;
-        b=lzIHhpje9Dd0CXlbvx6d+d36vZsbdkSYNNxsoZJMhcWiYx0GCg1qRpeCkPFwDcjuIK
-         9Q5aDDDHFmPimVfvJRr76cJ0ux3GNCZZxoD68j+Bunp4MoQIXLVpFI6ZYEQrayhdmf+R
-         yt7krfCBUCZz1eHOLZeRuTZZmfb6M8s9bubKjHtWmuFLLhJtG3EnvANOozMHBlQBN1PG
-         FAbL5tEn+/awvCAyfnqxE/Io93lZRHitv8sYIsl+ZbpM0koVfncjJWE0P71u61dmTN2q
-         TwzrBeLoJ46Y4uloOFdZAQ/ooZ/Ir0JOkWskcfgOirLS73+tQEWisRaQU5lQisWszRKD
-         Qhpg==
-X-Gm-Message-State: AOJu0YzMMGKzUBCBuIkca0I9rcd04bzubx2MsE917sQ5PTxu50MCre7h
-	+puL1zfa9iCozLsr10yZD9qsATwieXU=
-X-Google-Smtp-Source: AGHT+IFg+2OBmlB8+ldAAybnLE+vIEKH5SHD4vI3ZcF3/RJqXNwgitLYiDXbYw+qOTpp3uN3Me+SUA==
-X-Received: by 2002:a0d:e2c6:0:b0:58f:a19f:2b79 with SMTP id l189-20020a0de2c6000000b0058fa19f2b79mr11495216ywe.9.1700585171782;
-        Tue, 21 Nov 2023 08:46:11 -0800 (PST)
-Received: from unknowna0e70b2ca394.attlocal.net ([2600:1700:2f7d:1800::16])
-        by smtp.gmail.com with ESMTPSA id i133-20020a81548b000000b005a206896d62sm3143442ywb.111.2023.11.21.08.46.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Nov 2023 08:46:11 -0800 (PST)
-Date: Tue, 21 Nov 2023 08:46:08 -0800
-From: Vishal Moola <vishal.moola@gmail.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>,
-	Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Subject: Re: [PATCH v2] pgtable: do not expose _refcount field via ptdesc
-Message-ID: <ZVze0PgnDqnsmiCM@unknowna0e70b2ca394.attlocal.net>
-References: <20231121120310.696335-1-agordeev@linux.ibm.com>
- <20231121144717.6318-A-hca@linux.ibm.com>
- <ZVzQkTueDRSJ76me@tuxmaker.boeblingen.de.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="X//pW6dA"
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4512E113;
+	Tue, 21 Nov 2023 09:23:53 -0800 (PST)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALHC5bp025351;
+	Tue, 21 Nov 2023 17:23:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=li09p8rzNlRBgPpKrO6Q07ekfcAX/GJk2GVXZNp2bvg=;
+ b=X//pW6dAP5z2TZGTwn8+a+54lzJdFdJkHeyRRbzoHO0o1ppjUDr+uSuX4GDQ4/oUTECb
+ FTkvUBXDIO7/Eq4vRCYCosHBvAzHWQhqCoLbwP62igu4E7JJ2tqNTT8Y0SwOOfXtJUKP
+ ty68L5OID7lH/iVxIXd10z3NnBqQd9LU3yEsHXHd3B0VcofMRykzDe0TNmTa0bxNkeBD
+ BhBFiYrjc51Yjv66hc65K3/bXfn8i7WqH4c/5PZuIju0cs5kDs/ILg4NMqQhgNCtUMP7
+ 1YGDRF4Ve4heLdb/ysQXtRQ8shvH4GSd83yIJ425dc5nzn9+614wVz2DBvprlsM6x/cE Iw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ugyt9jns1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 21 Nov 2023 17:23:52 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ALHF3tN000562;
+	Tue, 21 Nov 2023 17:23:51 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ugyt9jnrw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 21 Nov 2023 17:23:51 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALGIpmu010190;
+	Tue, 21 Nov 2023 17:23:51 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uf9tk9ub6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 21 Nov 2023 17:23:50 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALHNmOC10814098
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 21 Nov 2023 17:23:48 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 132B320040;
+	Tue, 21 Nov 2023 17:23:48 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9294320049;
+	Tue, 21 Nov 2023 17:23:47 +0000 (GMT)
+Received: from li-1de7cd4c-3205-11b2-a85c-d27f97db1fe1.fritz.box (unknown [9.171.34.247])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 21 Nov 2023 17:23:47 +0000 (GMT)
+From: Marc Hartmayer <mhartmay@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>, Thomas Huth <thuth@redhat.com>
+Cc: <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>
+Subject: [kvm-unit-tests PATCH v1] s390x/Makefile: simplify Secure Execution boot image generation
+Date: Tue, 21 Nov 2023 18:23:38 +0100
+Message-ID: <20231121172338.146006-1-mhartmay@linux.ibm.com>
+X-Mailer: git-send-email 2.42.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZVzQkTueDRSJ76me@tuxmaker.boeblingen.de.ibm.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: wl-V9LjRhyblu4ujNkokO1WOsD71ia7B
+X-Proofpoint-ORIG-GUID: BkYO8YkwPh6C1k-jsWa9jvxi2fG7T6VR
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-21_10,2023-11-21_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ phishscore=0 mlxscore=0 impostorscore=0 spamscore=0 lowpriorityscore=0
+ mlxlogscore=999 bulkscore=0 suspectscore=0 adultscore=0 clxscore=1011
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311210136
 
-On Tue, Nov 21, 2023 at 04:45:21PM +0100, Alexander Gordeev wrote:
-> Since commit d08d4e7cd6bf ("s390/mm: use full 4KB page for 2KB PTE")
-> _refcount field is not used for fragmented page tracking on s390 and
-> there is no other code left that accesses this field explicitly.
-> 
-> Suggested-by: Heiko Carstens <hca@linux.ibm.com>
-> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-> ---
->  include/linux/mm_types.h | 7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
-> 
-> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-> index 957ce38768b2..ce0cfc6e4d94 100644
-> --- a/include/linux/mm_types.h
-> +++ b/include/linux/mm_types.h
-> @@ -401,11 +401,11 @@ FOLIO_MATCH(compound_head, _head_2a);
->   * @pmd_huge_pte:     Protected by ptdesc->ptl, used for THPs.
->   * @__page_mapping:   Aliases with page->mapping. Unused for page tables.
->   * @pt_mm:            Used for x86 pgds.
-> - * @pt_frag_refcount: For fragmented page table tracking. Powerpc and s390 only.
-> + * @pt_frag_refcount: For fragmented page table tracking. Powerpc only.
->   * @_pt_pad_2:        Padding to ensure proper alignment.
->   * @ptl:              Lock for the page table.
->   * @__page_type:      Same as page->page_type. Unused for page tables.
-> - * @_refcount:        Same as page refcount. Used for s390 page tables.
-> + * @_pt_pad_3:        Padding that aliases with page's refcount.
+Changes:
++ merge Makefile rules for the generation of the Secure Execution boot
+  image
++ fix `parmfile` dependency for the `selftest.pv.bin` target
++ rename `genprotimg_pcf` to `GENPROTIMG_PCF` to match the coding style
+  in the file
++ always provide a customer communication key - not only for the
+  confidential dump case. Makes the code little easier and doesn't hurt.
 
-I like updating the documentation, but I'd rather see _refcount renamed
-to __page_refcount similar to the other unused page fields. _pt_pad_*
-is used for variables that aren't present in struct page (and are
-required for padding).
+Signed-off-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+---
+ s390x/Makefile | 40 +++++++++++++++++-----------------------
+ 1 file changed, 17 insertions(+), 23 deletions(-)
 
->   * @pt_memcg_data:    Memcg data. Tracked for page tables here.
->   *
->   * This struct overlays struct page for now. Do not modify without a good
-> @@ -438,7 +438,7 @@ struct ptdesc {
->  #endif
->  	};
->  	unsigned int __page_type;
-> -	atomic_t _refcount;
-> +	unsigned int _pt_pad_3;
->  #ifdef CONFIG_MEMCG
->  	unsigned long pt_memcg_data;
->  #endif
-> @@ -452,7 +452,6 @@ TABLE_MATCH(compound_head, _pt_pad_1);
->  TABLE_MATCH(mapping, __page_mapping);
->  TABLE_MATCH(rcu_head, pt_rcu_head);
->  TABLE_MATCH(page_type, __page_type);
-> -TABLE_MATCH(_refcount, _refcount);
+diff --git a/s390x/Makefile b/s390x/Makefile
+index f79fd0098312..be89d8de1cba 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -194,33 +194,27 @@ $(comm-key):
+ %.bin: %.elf
+ 	$(OBJCOPY) -O binary  $< $@
+ 
+-# Will only be filled when dump has been enabled
+-GENPROTIMG_COMM_KEY =
+-# allow PCKMO
+-genprotimg_pcf = 0x000000e0
+-
+-ifeq ($(CONFIG_DUMP),yes)
+-	# The genprotimg arguments for the cck changed over time so we need to
+-	# figure out which argument to use in order to set the cck
+-	GENPROTIMG_HAS_COMM_KEY = $(shell $(GENPROTIMG) --help | grep -q -- --comm-key && echo yes)
+-	ifeq ($(GENPROTIMG_HAS_COMM_KEY),yes)
+-		GENPROTIMG_COMM_KEY = --comm-key $(comm-key)
+-	else
+-		GENPROTIMG_COMM_KEY = --x-comm-key $(comm-key)
+-	endif
+-
+-	# allow dumping + PCKMO
+-	genprotimg_pcf = 0x200000e0
++# The genprotimg arguments for the cck changed over time so we need to
++# figure out which argument to use in order to set the cck
++GENPROTIMG_HAS_COMM_KEY = $(shell $(GENPROTIMG) --help | grep -q -- --comm-key && echo yes)
++ifeq ($(GENPROTIMG_HAS_COMM_KEY),yes)
++	GENPROTIMG_COMM_OPTION := --comm-key
++else
++	GENPROTIMG_COMM_OPTION := --x-comm-key
+ endif
+ 
+-# use x-pcf to be compatible with old genprotimg versions
+-genprotimg_args = --host-key-document $(HOST_KEY_DOCUMENT) --no-verify $(GENPROTIMG_COMM_KEY) --x-pcf $(genprotimg_pcf)
+-
+-%selftest.pv.bin: %selftest.bin $(HOST_KEY_DOCUMENT) $(patsubst %.pv.bin,%.parmfile,$@) $(comm-key)
+-	$(GENPROTIMG) $(genprotimg_args) --parmfile $(patsubst %.pv.bin,%.parmfile,$@) --image $< -o $@
++ifeq ($(CONFIG_DUMP),yes)
++	# allow dumping + PCKMO
++	GENPROTIMG_PCF := 0x200000e0
++else
++	# allow PCKMO
++	GENPROTIMG_PCF := 0x000000e0
++endif
+ 
++$(patsubst %.parmfile,%.pv.bin,$(wildcard s390x/*.parmfile)): %.pv.bin: %.parmfile
+ %.pv.bin: %.bin $(HOST_KEY_DOCUMENT) $(comm-key)
+-	$(GENPROTIMG) $(genprotimg_args) --image $< -o $@
++	$(eval parmfile_args = $(if $(filter %.parmfile,$^),--parmfile $(filter %.parmfile,$^),))
++	$(GENPROTIMG) --host-key-document $(HOST_KEY_DOCUMENT) --no-verify $(GENPROTIMG_COMM_OPTION) $(comm-key) --x-pcf $(GENPROTIMG_PCF) $(parmfile_args) --image $(filter %.bin,$^) -o $@
+ 
+ $(snippet_asmlib): $$(patsubst %.o,%.S,$$@) $(asm-offsets)
+ 	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
 
-Its still a good idea to keep this check. In the case of !CONFIG_MEMCG,
-_refcount is the last variable of ptdesc and if some change were to happen
-that caused it to be misaligned we will want to know.
+base-commit: d0891021d5ad244c99290b4515152a1f997a9404
+-- 
+2.34.1
 
->  #ifdef CONFIG_MEMCG
->  TABLE_MATCH(memcg_data, pt_memcg_data);
->  #endif
-> -- 
-> 2.39.2
-> 
-> 
