@@ -1,59 +1,80 @@
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D197136C;
+	Tue, 21 Nov 2023 14:52:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WcLAhtgR"
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D53610C;
-	Tue, 21 Nov 2023 06:47:28 -0800 (PST)
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALEk3tm014458;
-	Tue, 21 Nov 2023 14:47:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=Il+3Zk9hp5HPXXvA6SgYAW5XlRe/3nnrw4Xtqs9gj+s=;
- b=WcLAhtgRSqWuIUjUe6hNEbSxxML1cgZRGZ9SlhP9+p1EpwIP2wvAgJm9DDUTEuragW2o
- /8hm2vq9iEqx77qFYqA+A1HVdog+2V2Kg8761iLqayTfzz5DtpxM/gX+oixh76thfewy
- kloOCZ5InDfPvKgdlaE5vbT/R7Ok6lrzV6mgX69KbvwU1uqMj0g6g9RJ1qOfQIq4TYqZ
- 8lFBJciMhFv/t3X8pNBaMUNJnDZbL2iflj6C3SA6oRKdTf2fp6QalFrinVTYKGVIaXLj
- NJpD/HJryPYqGsi2oJ9bFshLF9RaPX9QZ6sheFx0FFFUsedGeQwnYd932PvqQWdHYN9M Pg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ugxkn013y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 14:47:23 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ALEl31K017203;
-	Tue, 21 Nov 2023 14:47:22 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ugxkn013g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 14:47:22 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALDnIUM024887;
-	Tue, 21 Nov 2023 14:47:21 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uf9tk8vw9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 14:47:21 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALElIiG29032798
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Nov 2023 14:47:19 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D677E2004D;
-	Tue, 21 Nov 2023 14:47:18 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B4D9A2004F;
-	Tue, 21 Nov 2023 14:47:18 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 21 Nov 2023 14:47:18 +0000 (GMT)
-Date: Tue, 21 Nov 2023 15:47:17 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Vishal Moola <vishal.moola@gmail.com>, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Subject: Re: [PATCH] pgtable: do not expose _refcount field via ptdesc
-Message-ID: <20231121144717.6318-A-hca@linux.ibm.com>
-References: <20231121120310.696335-1-agordeev@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="poue5VPW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 580D7C433C7;
+	Tue, 21 Nov 2023 14:52:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1700578360;
+	bh=dGYz6IxNOUY4NpvhlMLeIB3Xxc/hARJYIHJyki7wDHE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=poue5VPWyYd+HrTAPC2kL1JwV02FvsHlUJ1z3W9FXk/U2czUqklkcawHdmmtSEsoY
+	 IlPddu/gpJsZ1UpOPQIgrM7BkkvyXf2F3hIfHrb2U18/fsMMvTR4wCzYJDyNBuBtzP
+	 SpQfWPT1cgV1qEShQyzt0KdJxLEsOUDx610rqzSQ=
+Date: Tue, 21 Nov 2023 15:12:23 +0100
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org,
+	Masahiro Yamada <masahiroy@kernel.org>,
+	linux-kbuild@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>, Guo Ren <guoren@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Greg Ungerer <gerg@linux-m68k.org>, Michal Simek <monstr@monstr.eu>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Geoff Levand <geoff@infradead.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andy Lutomirski <luto@kernel.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
+	Helge Deller <deller@gmx.de>,
+	Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+	Timur Tabi <timur@kernel.org>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	David Woodhouse <dwmw2@infradead.org>,
+	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+	Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+	Kees Cook <keescook@chromium.org>,
+	Vincenzo Frascino <vincenzo.frascino@arm.com>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Nick Desaulniers <ndesaulniers@google.com>,
+	Nicolas Schier <nicolas@fjasle.eu>,
+	Al Viro <viro@zeniv.linux.org.uk>,
+	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>,
+	linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-trace-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
+	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+	netdev@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, linux-bcachefs@vger.kernel.org,
+	linux-mtd@lists.infradead.org
+Subject: Re: [PATCH 20/22] usb: fsl-mph-dr-of: mark fsl_usb2_mpc5121_init()
+ static
+Message-ID: <2023112114-cried-ramble-b3f9@gregkh>
+References: <20231108125843.3806765-1-arnd@kernel.org>
+ <20231108125843.3806765-21-arnd@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,47 +83,16 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20231121120310.696335-1-agordeev@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: RTfch-c1H22NI79LYQCs1Wnt6Z8SobN_
-X-Proofpoint-GUID: fiBSlMlH0We5yBP55yGtCmvKv_vNJ-za
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-21_07,2023-11-21_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
- lowpriorityscore=0 suspectscore=0 impostorscore=0 mlxscore=0
- priorityscore=1501 mlxlogscore=811 adultscore=0 malwarescore=0 spamscore=0
- phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311210115
+In-Reply-To: <20231108125843.3806765-21-arnd@kernel.org>
 
-On Tue, Nov 21, 2023 at 01:03:10PM +0100, Alexander Gordeev wrote:
-> Since commit d08d4e7cd6bf ("s390/mm: use full 4KB page for 2KB PTE")
-> _refcount field is not used for fragmented page tracking on s390 and
-> there is no other code left that accesses this field explicitly.
+On Wed, Nov 08, 2023 at 01:58:41PM +0100, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
 > 
-> Suggested-by: Heiko Carstens <hca@linux.ibm.com>
-> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-> ---
->  include/linux/mm_types.h | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
+> This function is only called locally and should always have been static:
 > 
-> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-> index 957ce38768b2..0330e0ddca11 100644
-> --- a/include/linux/mm_types.h
-> +++ b/include/linux/mm_types.h
-> @@ -401,11 +401,10 @@ FOLIO_MATCH(compound_head, _head_2a);
->   * @pmd_huge_pte:     Protected by ptdesc->ptl, used for THPs.
->   * @__page_mapping:   Aliases with page->mapping. Unused for page tables.
->   * @pt_mm:            Used for x86 pgds.
-> - * @pt_frag_refcount: For fragmented page table tracking. Powerpc and s390 only.
-> + * @pt_frag_refcount: For fragmented page table tracking. Powerpc only.
->   * @_pt_pad_2:        Padding to ensure proper alignment.
->   * @ptl:              Lock for the page table.
->   * @__page_type:      Same as page->page_type. Unused for page tables.
-> - * @_refcount:        Same as page refcount. Used for s390 page tables.
+> drivers/usb/host/fsl-mph-dr-of.c:291:5: error: no previous prototype for 'fsl_usb2_mpc5121_init' [-Werror=missing-prototypes]
+> 
+> Fixes: 230f7ede6c2f ("USB: add USB EHCI support for MPC5121 SoC")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-I would guess that you need to describe _pt_pad_3 instead here, just
-like it is done for the other two pad members.
-
-And most likely you need to add Andrew to "To:" so he doesn't miss
-this :)
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
