@@ -1,50 +1,51 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fjfJvzVH"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ezLj3E15"
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 906D5171A;
-	Tue, 21 Nov 2023 14:07:52 -0800 (PST)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLgdjh032016;
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90785D40;
+	Tue, 21 Nov 2023 14:07:51 -0800 (PST)
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLv7vA004924;
 	Tue, 21 Nov 2023 22:07:36 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=JR4hU8usmRDdin50s82nkAgu6ZMVd3+rhBewhZJH1Ks=;
- b=fjfJvzVHIMBI8eVfnfCg6cOekF4f4bLVPhyjRXTpF0k95mtX2DsfbS8ZNhLAtDKuul1K
- rfJ4aAO1m+svQaxSTgy9829fo8UM/vEBtnfvUBOgl8fOTncZ0HzAQYq6J6bzB4pjUMLV
- r7BYANU4pw6uUhOGm/LYGIftOU/Az+M3oXX11N0kNhYwxiMWhooCla0ZS1uiDTygfchQ
- V6yBg3u0VvrpzaGXd9w5GIzY4gIApeywHtcKjQGk8KKsI6nuIznPD6ZklIevPJenHzjF
- dtHUkiCh0lPdSQUBgm+M4PkMqVHzbH1WFEcTRF4CEnHhcpZuWvK5P8mYL4lNj5Z0vy3w ag== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=4RaOA/Sg5LiWRu5GILmoDX/dU/kL5d44emuuC2WIH+4=;
+ b=ezLj3E1531aCoaLE8HnCZ0/F2vEk9oFc+LITitJO5QE8MtoLC+5le9S90yUi9PtQHFXm
+ Dar7byBJxch2ogLsiykcvsY4044zmhvDbTQAqN0sBrm9W3CPqX3ldFGx0BZ2IIAHF/uV
+ TrOVWXZ3QMBlHM9Wg13+976DsO902f4isvq6NtRoVEJvfqOht05bJl7Kg7lXM8MwEK+s
+ uCAfjf5gsw421uDMFWjpqDp+8OWYI6Q1SROge7+azS3Fe0MqvRPBWIeioAYGBQa8JeU/
+ HSaWeRAWcF9iY9aNe+2YOqidoPPL3db6zOz/0muIsVLne77+Py6wqhGxrh15Eu/RfYh8 8g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh4pw8n01-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:07:36 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ALLrw9W029168;
-	Tue, 21 Nov 2023 22:07:35 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh4pw8mwk-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh4wn8b0r-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 21 Nov 2023 22:07:35 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLnQTH022903;
-	Tue, 21 Nov 2023 22:02:42 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uf7kt402m-1
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ALM0GER015220;
+	Tue, 21 Nov 2023 22:07:35 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh4wn8axk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:02:42 +0000
+	Tue, 21 Nov 2023 22:07:35 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLnbtg011094;
+	Tue, 21 Nov 2023 22:02:58 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uf9tkbbnq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 21 Nov 2023 22:02:58 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALM2dYD27197992
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALM2tvA17629900
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Nov 2023 22:02:39 GMT
+	Tue, 21 Nov 2023 22:02:55 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2955320067;
-	Tue, 21 Nov 2023 22:02:39 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 1BA7020065;
+	Tue, 21 Nov 2023 22:02:55 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AB05F20063;
-	Tue, 21 Nov 2023 22:02:37 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id A76DA2005A;
+	Tue, 21 Nov 2023 22:02:53 +0000 (GMT)
 Received: from heavy.boeblingen.de.ibm.com (unknown [9.179.23.98])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 21 Nov 2023 22:02:37 +0000 (GMT)
+	Tue, 21 Nov 2023 22:02:53 +0000 (GMT)
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -65,115 +66,90 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v2 19/33] lib/zlib: Unpoison DFLTCC output buffers
-Date: Tue, 21 Nov 2023 23:01:13 +0100
-Message-ID: <20231121220155.1217090-20-iii@linux.ibm.com>
+Subject: [PATCH v2 27/33] s390/mm: Define KMSAN metadata for vmalloc and modules
+Date: Tue, 21 Nov 2023 23:01:21 +0100
+Message-ID: <20231121220155.1217090-28-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20231121220155.1217090-1-iii@linux.ibm.com>
 References: <20231121220155.1217090-1-iii@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ruTC5AuaPKwZQpHq948qdO8nDc1ULPad
-X-Proofpoint-ORIG-GUID: JcaizAaJdkvAFfBmibrb_MXa3cUIbOnh
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: jEnlnvjW__i_LbTWx-W7S62a6qYl7uUJ
+X-Proofpoint-ORIG-GUID: HljdlJiOL-60qRArOlIXIwpUORUdqkXz
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-21_12,2023-11-21_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
- impostorscore=0 mlxlogscore=999 phishscore=0 mlxscore=0 adultscore=0
- bulkscore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311210172
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ priorityscore=1501 suspectscore=0 adultscore=0 malwarescore=0
+ impostorscore=0 mlxscore=0 bulkscore=0 phishscore=0 clxscore=1015
+ spamscore=0 mlxlogscore=840 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2311060000 definitions=main-2311210172
 
-The constraints of the DFLTCC inline assembly are not precise: they
-do not communicate the size of the output buffers to the compiler, so
-it cannot automatically instrument it.
+The pages for the KMSAN metadata associated with most kernel mappings
+are taken from memblock by the common code. However, vmalloc and module
+metadata needs to be defined by the architectures.
 
-Add the manual kmsan_unpoison_memory() calls for the output buffers.
-The logic is the same as in [1].
+Be a little bit more careful than x86: allocate exactly MODULES_LEN
+for the module shadow and origins, and then take 2/3 of vmalloc for
+the vmalloc shadow and origins. This ensures that users passing small
+vmalloc= values on the command line do not cause module metadata
+collisions.
 
-[1] https://github.com/zlib-ng/zlib-ng/commit/1f5ddcc009ac3511e99fc88736a9e1a6381168c5
-
-Reported-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- lib/zlib_dfltcc/dfltcc.h      |  1 +
- lib/zlib_dfltcc/dfltcc_util.h | 23 +++++++++++++++++++++++
- 2 files changed, 24 insertions(+)
+ arch/s390/boot/startup.c        |  8 ++++++++
+ arch/s390/include/asm/pgtable.h | 10 ++++++++++
+ 2 files changed, 18 insertions(+)
 
-diff --git a/lib/zlib_dfltcc/dfltcc.h b/lib/zlib_dfltcc/dfltcc.h
-index b96232bdd44d..0f2a16d7a48a 100644
---- a/lib/zlib_dfltcc/dfltcc.h
-+++ b/lib/zlib_dfltcc/dfltcc.h
-@@ -80,6 +80,7 @@ struct dfltcc_param_v0 {
-     uint8_t csb[1152];
- };
+diff --git a/arch/s390/boot/startup.c b/arch/s390/boot/startup.c
+index 8104e0e3d188..e37e7ffda430 100644
+--- a/arch/s390/boot/startup.c
++++ b/arch/s390/boot/startup.c
+@@ -253,9 +253,17 @@ static unsigned long setup_kernel_memory_layout(void)
+ 	MODULES_END = round_down(__abs_lowcore, _SEGMENT_SIZE);
+ 	MODULES_VADDR = MODULES_END - MODULES_LEN;
+ 	VMALLOC_END = MODULES_VADDR;
++#ifdef CONFIG_KMSAN
++	VMALLOC_END -= MODULES_LEN * 2;
++#endif
  
-+static_assert(offsetof(struct dfltcc_param_v0, csb) == 384);
- static_assert(sizeof(struct dfltcc_param_v0) == 1536);
+ 	/* allow vmalloc area to occupy up to about 1/2 of the rest virtual space left */
+ 	vmalloc_size = min(vmalloc_size, round_down(VMALLOC_END / 2, _REGION3_SIZE));
++#ifdef CONFIG_KMSAN
++	/* take 2/3 of vmalloc area for KMSAN shadow and origins */
++	vmalloc_size = round_down(vmalloc_size / 3, _REGION3_SIZE);
++	VMALLOC_END -= vmalloc_size * 2;
++#endif
+ 	VMALLOC_START = VMALLOC_END - vmalloc_size;
  
- #define CVT_CRC32 0
-diff --git a/lib/zlib_dfltcc/dfltcc_util.h b/lib/zlib_dfltcc/dfltcc_util.h
-index 4a46b5009f0d..ce2e039a55b5 100644
---- a/lib/zlib_dfltcc/dfltcc_util.h
-+++ b/lib/zlib_dfltcc/dfltcc_util.h
-@@ -2,6 +2,7 @@
- #ifndef DFLTCC_UTIL_H
- #define DFLTCC_UTIL_H
+ 	/* split remaining virtual space between 1:1 mapping & vmemmap array */
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 601e87fa8a9a..d764abeb9e6d 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -107,6 +107,16 @@ static inline int is_module_addr(void *addr)
+ 	return 1;
+ }
  
-+#include "dfltcc.h"
- #include <linux/zutil.h>
- 
- /*
-@@ -20,6 +21,7 @@ typedef enum {
- #define DFLTCC_CMPR 2
- #define DFLTCC_XPND 4
- #define HBT_CIRCULAR (1 << 7)
-+#define DFLTCC_FN_MASK ((1 << 7) - 1)
- #define HB_BITS 15
- #define HB_SIZE (1 << HB_BITS)
- 
-@@ -34,6 +36,7 @@ static inline dfltcc_cc dfltcc(
- )
- {
-     Byte *t2 = op1 ? *op1 : NULL;
-+    unsigned char *orig_t2 = t2;
-     size_t t3 = len1 ? *len1 : 0;
-     const Byte *t4 = op2 ? *op2 : NULL;
-     size_t t5 = len2 ? *len2 : 0;
-@@ -59,6 +62,26 @@ static inline dfltcc_cc dfltcc(
-                      : "cc", "memory");
-     t2 = r2; t3 = r3; t4 = r4; t5 = r5;
- 
-+    switch (fn & DFLTCC_FN_MASK) {
-+    case DFLTCC_QAF:
-+        kmsan_unpoison_memory(param, sizeof(struct dfltcc_qaf_param));
-+        break;
-+    case DFLTCC_GDHT:
-+        kmsan_unpoison_memory(param, offsetof(struct dfltcc_param_v0, csb));
-+        break;
-+    case DFLTCC_CMPR:
-+        kmsan_unpoison_memory(param, sizeof(struct dfltcc_param_v0));
-+        kmsan_unpoison_memory(
-+                orig_t2,
-+                t2 - orig_t2 +
-+                    (((struct dfltcc_param_v0 *)param)->sbb == 0 ? 0 : 1));
-+        break;
-+    case DFLTCC_XPND:
-+        kmsan_unpoison_memory(param, sizeof(struct dfltcc_param_v0));
-+        kmsan_unpoison_memory(orig_t2, t2 - orig_t2);
-+        break;
-+    }
++#ifdef CONFIG_KMSAN
++#define KMSAN_VMALLOC_SIZE (VMALLOC_END - VMALLOC_START)
++#define KMSAN_VMALLOC_SHADOW_START VMALLOC_END
++#define KMSAN_VMALLOC_ORIGIN_START (KMSAN_VMALLOC_SHADOW_START + \
++				    KMSAN_VMALLOC_SIZE)
++#define KMSAN_MODULES_SHADOW_START (KMSAN_VMALLOC_ORIGIN_START + \
++				    KMSAN_VMALLOC_SIZE)
++#define KMSAN_MODULES_ORIGIN_START (KMSAN_MODULES_SHADOW_START + MODULES_LEN)
++#endif
 +
-     if (op1)
-         *op1 = t2;
-     if (len1)
+ /*
+  * A 64 bit pagetable entry of S390 has following format:
+  * |			 PFRA			      |0IPC|  OS  |
 -- 
 2.41.0
 
