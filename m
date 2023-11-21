@@ -1,51 +1,51 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FfBMOJW7"
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C4CD10FC;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="E0uJNgWO"
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4288B10FD;
 	Tue, 21 Nov 2023 14:03:02 -0800 (PST)
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLNq8L004940;
-	Tue, 21 Nov 2023 22:02:34 GMT
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLlNiq020065;
+	Tue, 21 Nov 2023 22:02:39 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=vIzYVZGtWn4qEhgFBaUJQVUNFd8KsI1vjZZcF37K7Yk=;
- b=FfBMOJW7jjg5diNuGHumVUn9EsMFQB30h2R1kSTdqbfEBJE9aif579NHnwPK/9WwovQ/
- 8Y6Y4T8teK5O90Ux0UTlFIIldWY6lnNA7PA9O98Ped/kJFKOlMNtImExzn5ZFY7SkEn2
- 0N12IBLHCChw0fAkAYNZ3Qow4578RrNMR0Dl1NO3Y2HvWvk9UoHGtixLiheWq3DJ7XOB
- yIwSyNHuQmDFZXmfBnl4BcI4xG8yncikV41XXYWKEugyGThuh1cxjexROM5Z1Px/dvx2
- QtNqy1H4MMIhk3VfrHxzm6i/HK+yjuuH982FA74YYk61QqAIl4EaLodVBYusCjMXsRdY gg== 
+ bh=ll1jVWIn1WYeqe7oeR3JXJSFtnz9SYnx4hK39Q+YxwE=;
+ b=E0uJNgWOSXQIqo86SlEdFe4HBO5qzUFPA0Wgq851WLA03vPxPYLpbPyQTwWe/7RrOKHG
+ wLR+5iip0zovT+j+YxXN+3K3BmQ06jK5cGjSHsLdL/oBf0yMr5rtU/pd5MH0eb8EAImV
+ PZADGYt7m5mEqqgIPTE4Hl/vrXWH4agqCkztnQ2mo9BjqGzuTkkVlWLqoK6a/StjHckd
+ ZzlrzTKzNUaDU1COAHwxPdoSdQXEYpQ8b6rmg6S9DRoC/CdIOP0vCig/9BdLglsAv+B0
+ zNWhJePUOoFjFR605i/SAzEXvYfUuVsY59hfPXLaX8nx45bjYfX8OLW9D3hiuHzjnfeJ HA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh4dw0vp3-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh4s68bs8-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:02:34 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ALLNd0h004794;
-	Tue, 21 Nov 2023 22:02:33 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh4dw0ve2-1
+	Tue, 21 Nov 2023 22:02:39 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ALLo524026845;
+	Tue, 21 Nov 2023 22:02:38 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh4s68br7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:02:33 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLnbrD007085;
-	Tue, 21 Nov 2023 22:02:09 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ufaa236dt-1
+	Tue, 21 Nov 2023 22:02:38 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLnYv6010672;
+	Tue, 21 Nov 2023 22:02:36 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf93kujr7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:02:09 +0000
+	Tue, 21 Nov 2023 22:02:36 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALM26xB17629824
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALM2Xf814877208
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Nov 2023 22:02:06 GMT
+	Tue, 21 Nov 2023 22:02:33 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 670C12005A;
-	Tue, 21 Nov 2023 22:02:06 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 71D6720067;
+	Tue, 21 Nov 2023 22:02:33 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EB7C820063;
-	Tue, 21 Nov 2023 22:02:04 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 0A6F220063;
+	Tue, 21 Nov 2023 22:02:32 +0000 (GMT)
 Received: from heavy.boeblingen.de.ibm.com (unknown [9.179.23.98])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 21 Nov 2023 22:02:04 +0000 (GMT)
+	Tue, 21 Nov 2023 22:02:31 +0000 (GMT)
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -66,9 +66,9 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v2 02/33] kmsan: Make the tests compatible with kmsan.panic=1
-Date: Tue, 21 Nov 2023 23:00:56 +0100
-Message-ID: <20231121220155.1217090-3-iii@linux.ibm.com>
+Subject: [PATCH v2 16/33] mm: slub: Let KMSAN access metadata
+Date: Tue, 21 Nov 2023 23:01:10 +0100
+Message-ID: <20231121220155.1217090-17-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20231121220155.1217090-1-iii@linux.ibm.com>
 References: <20231121220155.1217090-1-iii@linux.ibm.com>
@@ -80,55 +80,45 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: F0Gr-ImZBuLQsqLgWKYFAuGuX6uvUEWS
-X-Proofpoint-ORIG-GUID: unXBtwpdlIVx4NpqCio10Xz4H4TSmNdm
+X-Proofpoint-ORIG-GUID: Kr3chWIa4VLpaiM7it2xt72zkEIATI76
+X-Proofpoint-GUID: o0Elbdg3uNB8jhs-NEltJ60ebAxZlMmP
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-21_12,2023-11-21_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
- spamscore=0 suspectscore=0 phishscore=0 priorityscore=1501 malwarescore=0
- clxscore=1015 impostorscore=0 adultscore=0 bulkscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311060000
- definitions=main-2311210172
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 spamscore=0 impostorscore=0 mlxlogscore=999 bulkscore=0
+ mlxscore=0 malwarescore=0 adultscore=0 phishscore=0 lowpriorityscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311210172
 
-It's useful to have both tests and kmsan.panic=1 during development,
-but right now the warnings, that the tests cause, lead to kernel
-panics.
+Building the kernel with CONFIG_SLUB_DEBUG and CONFIG_KMSAN causes
+KMSAN to complain about touching redzones in kfree().
 
-Temporarily set kmsan.panic=0 for the duration of the KMSAN testing.
+Fix by extending the existing KASAN-related metadata_access_enable()
+and metadata_access_disable() functions to KMSAN.
 
-Reviewed-by: Alexander Potapenko <glider@google.com>
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- mm/kmsan/kmsan_test.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ mm/slub.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/mm/kmsan/kmsan_test.c b/mm/kmsan/kmsan_test.c
-index 07d3a3a5a9c5..9bfd11674fe3 100644
---- a/mm/kmsan/kmsan_test.c
-+++ b/mm/kmsan/kmsan_test.c
-@@ -659,9 +659,13 @@ static void test_exit(struct kunit *test)
+diff --git a/mm/slub.c b/mm/slub.c
+index 169e5f645ea8..6e61c27951a4 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -700,10 +700,12 @@ static int disable_higher_order_debug;
+ static inline void metadata_access_enable(void)
  {
+ 	kasan_disable_current();
++	kmsan_disable_current();
  }
  
-+static int orig_panic_on_kmsan;
-+
- static int kmsan_suite_init(struct kunit_suite *suite)
+ static inline void metadata_access_disable(void)
  {
- 	register_trace_console(probe_console, NULL);
-+	orig_panic_on_kmsan = panic_on_kmsan;
-+	panic_on_kmsan = 0;
- 	return 0;
++	kmsan_enable_current();
+ 	kasan_enable_current();
  }
  
-@@ -669,6 +673,7 @@ static void kmsan_suite_exit(struct kunit_suite *suite)
- {
- 	unregister_trace_console(probe_console, NULL);
- 	tracepoint_synchronize_unregister();
-+	panic_on_kmsan = orig_panic_on_kmsan;
- }
- 
- static struct kunit_suite kmsan_test_suite = {
 -- 
 2.41.0
 
