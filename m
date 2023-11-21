@@ -1,51 +1,51 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mgOxiBg4"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="W/CF/I1E"
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37AFAD77;
-	Tue, 21 Nov 2023 14:03:03 -0800 (PST)
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A16B31711;
+	Tue, 21 Nov 2023 14:03:04 -0800 (PST)
 Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALJ7T9P028372;
-	Tue, 21 Nov 2023 22:02:36 GMT
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALKekZm011151;
+	Tue, 21 Nov 2023 22:02:40 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=VZEQ7DLTQn6OqQgSLo67A6SEZnv9L1qroObhIZ1xXOM=;
- b=mgOxiBg4YQz5R/dVa2UBOrxvIwaMV8gKaOSpP0nUGRkAfy8E2smngYYBkApy1Txj7klW
- w0u13EF6RKbN36fMUJN1lj3GsGNr4s5np+a9B8SIIMK5GjEm+XxWQL8kIz0rkGZVxazl
- 0D6rORF698IZcZDvAAztrAt/s9DZr3ZhZL2o3G9xwTw6SuyFRn/jz1ukEsYCIKmutRc5
- 2s+svlOInKpxadqUns6viTOHy9npVdnDYWDFF0ATufYBghBMBCKsBz9CoHyJa/Q1OaPn
- HAt4AuqpEqzznpoDgPVAzisghk75pPtb0sfd8uE3842O5CoqRRtzE2vFSpH9dvwHJ0m8 6w== 
+ bh=CK3CSFhKHiUxb3M2GZk8QRFPFYlA6+i6yOOL0Bh28Bg=;
+ b=W/CF/I1EX6biMLOKc9PUQRAalGor/8oSut7ySySGNTNa4a8x5PNV8FSF8CLRDVNBlTmi
+ GlgJnHfMnpbju7kaInn0IqkNAVnTxKM7MMVtdp8k/WIxdFRwDzzO/NvjxKFanK2xG9JH
+ mpXBB8439wXZB8FdsKiF2ow/OWEG3WChBUlEb0M+9T7QUqnULSegINy6SBVQro6jQsnL
+ M5GLuxl6Vqtve/OvqaneWOUQmwK+EoV624y/S2M1uyxbaD6CB39T+3soEVeaFGRG75YB
+ XCJB1PdWYuUVgvYnDf2wOQO8bW/FaMalWhMZCsU1oSprj1j0jyDdE6Wsi6l9Pn1Y+I8F tw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh11we6y4-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh11we714-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:02:35 +0000
+	Tue, 21 Nov 2023 22:02:39 +0000
 Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ALLuF5n031183;
-	Tue, 21 Nov 2023 22:02:34 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh11we6s7-1
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ALL31Hj002005;
+	Tue, 21 Nov 2023 22:02:39 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uh11we70q-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:02:34 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLnGnm007559;
-	Tue, 21 Nov 2023 22:02:15 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf8knuq1f-1
+	Tue, 21 Nov 2023 22:02:38 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ALLnbrP007085;
+	Tue, 21 Nov 2023 22:02:38 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ufaa236g9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Nov 2023 22:02:15 +0000
+	Tue, 21 Nov 2023 22:02:38 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALM2C8u22545102
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ALM2ZH943909796
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Nov 2023 22:02:12 GMT
+	Tue, 21 Nov 2023 22:02:35 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7D8DA20063;
-	Tue, 21 Nov 2023 22:02:12 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 490F82005A;
+	Tue, 21 Nov 2023 22:02:35 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0EC9520065;
-	Tue, 21 Nov 2023 22:02:11 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id CFA4420063;
+	Tue, 21 Nov 2023 22:02:33 +0000 (GMT)
 Received: from heavy.boeblingen.de.ibm.com (unknown [9.179.23.98])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 21 Nov 2023 22:02:10 +0000 (GMT)
+	Tue, 21 Nov 2023 22:02:33 +0000 (GMT)
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -66,9 +66,9 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v2 05/33] kmsan: Fix is_bad_asm_addr() on arches with overlapping address spaces
-Date: Tue, 21 Nov 2023 23:00:59 +0100
-Message-ID: <20231121220155.1217090-6-iii@linux.ibm.com>
+Subject: [PATCH v2 17/33] mm: kfence: Disable KMSAN when checking the canary
+Date: Tue, 21 Nov 2023 23:01:11 +0100
+Message-ID: <20231121220155.1217090-18-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20231121220155.1217090-1-iii@linux.ibm.com>
 References: <20231121220155.1217090-1-iii@linux.ibm.com>
@@ -80,39 +80,55 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: pQxE31YLEFvKPgXf6AYghjpxqouNt4v2
-X-Proofpoint-ORIG-GUID: BV6bqdLe0fSLFh1pyvZJn_aJSFvjCpVt
+X-Proofpoint-GUID: iUsqkWYyrhNADZGpwnA5Io58eqlH7Hnh
+X-Proofpoint-ORIG-GUID: CgIeml__PbROJN7brRp4YdQnBlj9DIyx
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-21_12,2023-11-21_01,2023-05-22_02
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
  lowpriorityscore=0 bulkscore=0 impostorscore=0 suspectscore=0 adultscore=0
  malwarescore=0 priorityscore=1501 phishscore=0 clxscore=1015
- mlxlogscore=912 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ mlxlogscore=999 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311060000 definitions=main-2311210172
 
-Comparing pointers with TASK_SIZE does not make sense when kernel and
-userspace overlap. Skip the comparison when this is the case.
+KMSAN warns about check_canary() accessing the canary.
+
+The reason is that, even though set_canary() is properly instrumented
+and sets shadow, slub explicitly poisons the canary's address range
+afterwards.
+
+Unpoisoning the canary is not the right thing to do: only
+check_canary() is supposed to ever touch it. Instead, disable KMSAN
+checks around canary read accesses.
 
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- mm/kmsan/instrumentation.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/kfence/core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/mm/kmsan/instrumentation.c b/mm/kmsan/instrumentation.c
-index 470b0b4afcc4..8a1bbbc723ab 100644
---- a/mm/kmsan/instrumentation.c
-+++ b/mm/kmsan/instrumentation.c
-@@ -20,7 +20,8 @@
+diff --git a/mm/kfence/core.c b/mm/kfence/core.c
+index 3872528d0963..a2ea8e5a1ad9 100644
+--- a/mm/kfence/core.c
++++ b/mm/kfence/core.c
+@@ -306,7 +306,7 @@ metadata_update_state(struct kfence_metadata *meta, enum kfence_object_state nex
+ }
  
- static inline bool is_bad_asm_addr(void *addr, uintptr_t size, bool is_store)
+ /* Check canary byte at @addr. */
+-static inline bool check_canary_byte(u8 *addr)
++__no_kmsan_checks static inline bool check_canary_byte(u8 *addr)
  {
--	if ((u64)addr < TASK_SIZE)
-+	if (IS_ENABLED(CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE) &&
-+	    (u64)addr < TASK_SIZE)
- 		return true;
- 	if (!kmsan_get_metadata(addr, KMSAN_META_SHADOW))
- 		return true;
+ 	struct kfence_metadata *meta;
+ 	unsigned long flags;
+@@ -341,7 +341,8 @@ static inline void set_canary(const struct kfence_metadata *meta)
+ 		*((u64 *)addr) = KFENCE_CANARY_PATTERN_U64;
+ }
+ 
+-static inline void check_canary(const struct kfence_metadata *meta)
++__no_kmsan_checks static inline void
++check_canary(const struct kfence_metadata *meta)
+ {
+ 	const unsigned long pageaddr = ALIGN_DOWN(meta->addr, PAGE_SIZE);
+ 	unsigned long addr = pageaddr;
 -- 
 2.41.0
 
