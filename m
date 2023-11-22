@@ -1,139 +1,116 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FE5odhD+"
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CD4910D5;
-	Tue, 21 Nov 2023 14:57:09 -0800 (PST)
-Received: by mail-pl1-x62d.google.com with SMTP id d9443c01a7336-1cc5b705769so54214585ad.0;
-        Tue, 21 Nov 2023 14:57:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1700607428; x=1701212228; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:sender:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=imksGNoTkLOSWGxbTUx5c7bQ0SJEukVr1ISidEGWUC0=;
-        b=FE5odhD+YNeYH/tP0IYFCDdRpF2jypuO8HoXkzP+quD4/FffvX3jLVcrTcnEorvRgL
-         08ikyRUV8E+LOtooi7raES817D2PuhKgLP+aP0AfC70rD+AFI4k4+EOdiJzYLOhfChiv
-         ld9DYKKiWW577wGI9pW9T+aqgLzZAumo2PevwfzJISd+yHxCOrWGFe186fWHC68pvHYi
-         MricszYYXc6pwRT+KecHe5nk2AjZQrK1OPGzZj9EgWJCnuMmIPW8E9groxuB5IH1Nmg3
-         9kS950i7BSWzr0ON9C4Cel1ORNonVO6cy86jUSuAbaLHaJulZ+6oSg1IVzTS1z4CGP/u
-         96vA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700607428; x=1701212228;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:sender:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=imksGNoTkLOSWGxbTUx5c7bQ0SJEukVr1ISidEGWUC0=;
-        b=Yybu0d0SSCgFemFWy3wO1KxdfMknJy5J0KU4xiAnzJ2+IyDMXtMQnsD7v3EBO5oUP8
-         kzb6d/W+6cezBmiQv64J1hec6xkSBjcqOb2EJ3CSikSAVGVhiJRzEdICvMNszJaNpjM1
-         Btlxyq8oFzS6krKsFIybR/KuKK548UNcmrH2pZqtCsiGJ5vZqJWXOugHuuZnFPc1hdo1
-         h7QU6gc/14gcX6SQAEX1HvUFJ0jsw8JmwfVXx+xW6U+AxdybfNSeNwk7XTmkHzcM4oxa
-         bCMNN8ZM/EKiFjdiucB7TyahfPRfsRNC9cnW6u0QvzqZ60EEGSwLvshpP9GIByaN9zy4
-         zuLg==
-X-Gm-Message-State: AOJu0YzhvXFgTQEC2evHNOCujbAjUnDa5X79WvumFLmj98e2NTaB6UGF
-	3BoAgq77jXoQEIXT2o/HQqM=
-X-Google-Smtp-Source: AGHT+IF6nev15Wx1IU9Cm0JjON37lYLTr4XgdpZk/wISk+wgJmlSjDJ8Zf5yXSWHwpHpfWi5VvJQxw==
-X-Received: by 2002:a17:902:e546:b0:1cc:5db8:7eb1 with SMTP id n6-20020a170902e54600b001cc5db87eb1mr686024plf.51.1700607428389;
-        Tue, 21 Nov 2023 14:57:08 -0800 (PST)
-Received: from bangji.hsd1.ca.comcast.net ([2601:647:6780:42e0:7377:923f:1ff3:266d])
-        by smtp.gmail.com with ESMTPSA id m12-20020a1709026bcc00b001cc47c1c29csm8413189plt.84.2023.11.21.14.57.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Nov 2023 14:57:08 -0800 (PST)
-Sender: Namhyung Kim <namhyung@gmail.com>
-From: Namhyung Kim <namhyung@kernel.org>
-To: Arnaldo Carvalho de Melo <acme@kernel.org>,
-	Jiri Olsa <jolsa@kernel.org>
-Cc: Ian Rogers <irogers@google.com>,
-	Adrian Hunter <adrian.hunter@intel.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Ingo Molnar <mingo@kernel.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	linux-perf-users@vger.kernel.org,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	linux-s390@vger.kernel.org
-Subject: [PATCH 13/14] tools/perf: Update tools's copy of s390 syscall table
-Date: Tue, 21 Nov 2023 14:56:48 -0800
-Message-ID: <20231121225650.390246-13-namhyung@kernel.org>
-X-Mailer: git-send-email 2.43.0.rc1.413.gea7ed67945-goog
-In-Reply-To: <20231121225650.390246-1-namhyung@kernel.org>
-References: <20231121225650.390246-1-namhyung@kernel.org>
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 292EE9F;
+	Tue, 21 Nov 2023 18:37:13 -0800 (PST)
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VwuQUOu_1700620625;
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VwuQUOu_1700620625)
+          by smtp.aliyun-inc.com;
+          Wed, 22 Nov 2023 10:37:10 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com>
+To: kgraul@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	wintera@linux.ibm.com,
+	guwen@linux.alibaba.com
+Cc: kuba@kernel.org,
+	davem@davemloft.net,
+	netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	tonylu@linux.alibaba.com,
+	pabeni@redhat.com,
+	edumazet@google.com
+Subject: [PATCH net v4] net/smc: avoid data corruption caused by decline
+Date: Wed, 22 Nov 2023 10:37:05 +0800
+Message-Id: <1700620625-70866-1-git-send-email-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-tldr; Just FYI, I'm carrying this on the perf tools tree.
+From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-Full explanation:
+We found a data corruption issue during testing of SMC-R on Redis
+applications.
 
-There used to be no copies, with tools/ code using kernel headers
-directly. From time to time tools/perf/ broke due to legitimate kernel
-hacking. At some point Linus complained about such direct usage. Then we
-adopted the current model.
+The benchmark has a low probability of reporting a strange error as
+shown below.
 
-The way these headers are used in perf are not restricted to just
-including them to compile something.
+"Error: Protocol error, got "\xe2" as reply type byte"
 
-There are sometimes used in scripts that convert defines into string
-tables, etc, so some change may break one of these scripts, or new MSRs
-may use some different #define pattern, etc.
+Finally, we found that the retrieved error data was as follows:
 
-E.g.:
+0xE2 0xD4 0xC3 0xD9 0x04 0x00 0x2C 0x20 0xA6 0x56 0x00 0x16 0x3E 0x0C
+0xCB 0x04 0x02 0x01 0x00 0x00 0x20 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xE2
 
-  $ ls -1 tools/perf/trace/beauty/*.sh | head -5
-  tools/perf/trace/beauty/arch_errno_names.sh
-  tools/perf/trace/beauty/drm_ioctl.sh
-  tools/perf/trace/beauty/fadvise.sh
-  tools/perf/trace/beauty/fsconfig.sh
-  tools/perf/trace/beauty/fsmount.sh
-  $
-  $ tools/perf/trace/beauty/fadvise.sh
-  static const char *fadvise_advices[] = {
-        [0] = "NORMAL",
-        [1] = "RANDOM",
-        [2] = "SEQUENTIAL",
-        [3] = "WILLNEED",
-        [4] = "DONTNEED",
-        [5] = "NOREUSE",
-  };
-  $
+It is quite obvious that this is a SMC DECLINE message, which means that
+the applications received SMC protocol message.
+We found that this was caused by the following situations:
 
-The tools/perf/check-headers.sh script, part of the tools/ build
-process, points out changes in the original files.
+client                  server
+        ¦  clc proposal
+        ------------->
+        ¦  clc accept
+        <-------------
+        ¦  clc confirm
+        ------------->
+wait llc confirm
+			send llc confirm
+        ¦failed llc confirm
+        ¦   x------
+(after 2s)timeout
+                        wait llc confirm rsp
 
-So its important not to touch the copies in tools/ when doing changes in
-the original kernel headers, that will be done later, when
-check-headers.sh inform about the change to the perf tools hackers.
+wait decline
 
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+(after 1s) timeout
+                        (after 2s) timeout
+        ¦   decline
+        -------------->
+        ¦   decline
+        <--------------
+
+As a result, a decline message was sent in the implementation, and this
+message was read from TCP by the already-fallback connection.
+
+This patch double the client timeout as 2x of the server value,
+With this simple change, the Decline messages should never cross or
+collide (during Confirm link timeout).
+
+This issue requires an immediate solution, since the protocol updates
+involve a more long-term solution.
+
+Fixes: 0fb0b02bd6fd ("net/smc: adapt SMC client code to use the LLC flow")
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
 ---
- tools/perf/arch/s390/entry/syscalls/syscall.tbl | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/smc/af_smc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/arch/s390/entry/syscalls/syscall.tbl b/tools/perf/arch/s390/entry/syscalls/syscall.tbl
-index cc0bc144b661..86fec9b080f6 100644
---- a/tools/perf/arch/s390/entry/syscalls/syscall.tbl
-+++ b/tools/perf/arch/s390/entry/syscalls/syscall.tbl
-@@ -455,3 +455,7 @@
- 450  common	set_mempolicy_home_node	sys_set_mempolicy_home_node	sys_set_mempolicy_home_node
- 451  common	cachestat		sys_cachestat			sys_cachestat
- 452  common	fchmodat2		sys_fchmodat2			sys_fchmodat2
-+453  common	map_shadow_stack	sys_map_shadow_stack		sys_map_shadow_stack
-+454  common	futex_wake		sys_futex_wake			sys_futex_wake
-+455  common	futex_wait		sys_futex_wait			sys_futex_wait
-+456  common	futex_requeue		sys_futex_requeue		sys_futex_requeue
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index abd2667..8615cc0 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -598,8 +598,12 @@ static int smcr_clnt_conf_first_link(struct smc_sock *smc)
+ 	struct smc_llc_qentry *qentry;
+ 	int rc;
+ 
+-	/* receive CONFIRM LINK request from server over RoCE fabric */
+-	qentry = smc_llc_wait(link->lgr, NULL, SMC_LLC_WAIT_TIME,
++	/* Receive CONFIRM LINK request from server over RoCE fabric.
++	 * Increasing the client's timeout by twice as much as the server's
++	 * timeout by default can temporarily avoid decline messages of
++	 * both sides crossing or colliding
++	 */
++	qentry = smc_llc_wait(link->lgr, NULL, 2 * SMC_LLC_WAIT_TIME,
+ 			      SMC_LLC_CONFIRM_LINK);
+ 	if (!qentry) {
+ 		struct smc_clc_msg_decline dclc;
 -- 
-2.43.0.rc1.413.gea7ed67945-goog
+1.8.3.1
 
