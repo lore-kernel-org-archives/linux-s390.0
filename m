@@ -1,136 +1,184 @@
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44ACF43ABE;
+	Wed, 22 Nov 2023 12:49:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f5NZzk70"
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2A851A8
-	for <linux-s390@vger.kernel.org>; Wed, 22 Nov 2023 04:49:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1700657374;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=eLnO7RKe/dgR2RJiPGezTaNLqYA/hbIF0TWqF/UBAZM=;
-	b=f5NZzk703gmQ6z6UWZ920oT2Onej9umK7QFGYaPt9tru4Iu+H3ojnCVo3tp+JklI6+NxKm
-	gStqANAY2gpSA1TlxjsqKgu8Wed7KkQRQy82f1vSYmvqgTlyAYDSn8LFDiV6LLmSnx1Vr+
-	8AVch7TvqEuHNSN+t3ydwWxHYTWNWlY=
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
- [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-343-qo9gvEpkP-OPsZwQtluikQ-1; Wed, 22 Nov 2023 07:49:33 -0500
-X-MC-Unique: qo9gvEpkP-OPsZwQtluikQ-1
-Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-778ac2308e6so982693385a.3
-        for <linux-s390@vger.kernel.org>; Wed, 22 Nov 2023 04:49:33 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700657373; x=1701262173;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
-         :to:content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=eLnO7RKe/dgR2RJiPGezTaNLqYA/hbIF0TWqF/UBAZM=;
-        b=Tj7Zq3II0ftTxVjgwMvPtuqexU4q0XybQEQsor7Ze7lTXTSzIJXgXoYbS+v3YApNt1
-         +Xy6oXXYejP9L4iVAyClWJkiHb65FpogIkybm2Hw1Fbx49bw1jK6VXWJ0QMr9PsGice0
-         +ruW/Pdz08LteO0DSLTvVf1Dt/MEGc/h6DgR7qsOdWis/pAK2yjhifmsCSai719edZ3I
-         q4Y4raebiHQGW3M8C5nFG38Ghafq7HiuRNQ9NgfnSw3z3GqcINcCOObpS83XJ+0qdgBT
-         HTI5kNwcCLE4BkJRl8/tzI3XgowNpyGQJtVtkbSO1peNjOGRgK4Ge1kxCBj2kgQwFKk6
-         ZaXA==
-X-Gm-Message-State: AOJu0Yw25MiFj0j2AREG07IYqlMC0lW620QB7GsVX6r/+BDLoUSVYuju
-	SwH7W94dffdcQiTFqj2hF4z+FlVK5ysgXMcMj5dkY+BFI6xyxJ9P8AbhLs/8a26m3pT3N1l1Ve4
-	aVg+hZ1XzjuL5jA0srmwBPQ==
-X-Received: by 2002:a05:620a:1909:b0:778:9341:6707 with SMTP id bj9-20020a05620a190900b0077893416707mr2449300qkb.22.1700657373125;
-        Wed, 22 Nov 2023 04:49:33 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFqE9WUUVjzKnUDoYW1tbJtHkXEYrka+T+dUeGyXw/Hp+3dl1QOtcseNDkcc/8svMM//ShLBg==
-X-Received: by 2002:a05:620a:1909:b0:778:9341:6707 with SMTP id bj9-20020a05620a190900b0077893416707mr2449289qkb.22.1700657372922;
-        Wed, 22 Nov 2023 04:49:32 -0800 (PST)
-Received: from [192.168.0.6] (ip-109-43-176-233.web.vodafone.de. [109.43.176.233])
-        by smtp.gmail.com with ESMTPSA id v3-20020ae9e303000000b0076ceb5eb309sm4380010qkf.74.2023.11.22.04.49.31
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 22 Nov 2023 04:49:32 -0800 (PST)
-Message-ID: <55ec5b50-50fa-4fed-b9b7-095c86436c08@redhat.com>
-Date: Wed, 22 Nov 2023 13:49:31 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sH8Tm1wP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 917EAC433D9;
+	Wed, 22 Nov 2023 12:49:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1700657391;
+	bh=hkU4HuuqkNDsQyioSQIrRKs3Tgv1T8STkBb7WyDQZe8=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
+	b=sH8Tm1wP4EJijR7jWPvNmVl3mBtGkN3wNNGbSdSvEFuMdvkY1E+QcVQvJITT2RIsW
+	 PEZ3zcrNhYwSEpVPHfg4a4zhavH8mDv02NXVgiIbz8f69fdg4BB2d9Zli1lRzYSb6z
+	 EhsClQyaa8F9yvudTBUtM4my+Rx0dMR0LAc+gsTxCigYWjUsjR3qlZZqilJVkyWppo
+	 yGn3YPu1G4hIzrWGGgQSL4WErzUbY4QLyvvdHlzbxEk04+A1PVD2meTrRkiqNGZrYf
+	 zKCJTM3AbkjVz3eM9Q0Xi3c64W42/3N1VaWB+hvIpTkCgb37ZYi4HaREDHPLbxjZgc
+	 W9uhC2VfgcM3w==
+From: Christian Brauner <brauner@kernel.org>
+Date: Wed, 22 Nov 2023 13:48:24 +0100
+Subject: [PATCH v2 3/4] eventfd: simplify eventfd_signal_mask()
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v1 06/10] x86: properly format
- non-kernel-doc comments
-Content-Language: en-US
-To: Nico Boehr <nrb@linux.ibm.com>, frankja@linux.ibm.com,
- imbrenda@linux.ibm.com, david@redhat.com, pbonzini@redhat.com,
- andrew.jones@linux.dev, lvivier@redhat.com
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20231106125352.859992-1-nrb@linux.ibm.com>
- <20231106125352.859992-7-nrb@linux.ibm.com>
-From: Thomas Huth <thuth@redhat.com>
-Autocrypt: addr=thuth@redhat.com; keydata=
- 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
-In-Reply-To: <20231106125352.859992-7-nrb@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20231122-vfs-eventfd-signal-v2-3-bd549b14ce0c@kernel.org>
+References: <20231122-vfs-eventfd-signal-v2-0-bd549b14ce0c@kernel.org>
+In-Reply-To: <20231122-vfs-eventfd-signal-v2-0-bd549b14ce0c@kernel.org>
+To: linux-fsdevel@vger.kernel.org
+Cc: Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>, 
+ Vitaly Kuznetsov <vkuznets@redhat.com>, 
+ Sean Christopherson <seanjc@google.com>, 
+ Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, 
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+ David Woodhouse <dwmw2@infradead.org>, Paul Durrant <paul@xen.org>, 
+ Oded Gabbay <ogabbay@kernel.org>, Wu Hao <hao.wu@intel.com>, 
+ Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>, 
+ Xu Yilun <yilun.xu@intel.com>, Zhenyu Wang <zhenyuw@linux.intel.com>, 
+ Zhi Wang <zhi.a.wang@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, 
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, 
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, 
+ Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, 
+ David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, 
+ Leon Romanovsky <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>, 
+ Frederic Barrat <fbarrat@linux.ibm.com>, 
+ Andrew Donnellan <ajd@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Eric Farman <farman@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>, 
+ Halil Pasic <pasic@linux.ibm.com>, Vineeth Vijayan <vneethv@linux.ibm.com>, 
+ Peter Oberparleiter <oberpar@linux.ibm.com>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>, 
+ Jason Herne <jjherne@linux.ibm.com>, 
+ Harald Freudenberger <freude@linux.ibm.com>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ Diana Craciun <diana.craciun@oss.nxp.com>, 
+ Alex Williamson <alex.williamson@redhat.com>, 
+ Eric Auger <eric.auger@redhat.com>, Fei Li <fei1.li@intel.com>, 
+ Benjamin LaHaise <bcrl@kvack.org>, Christian Brauner <brauner@kernel.org>, 
+ Johannes Weiner <hannes@cmpxchg.org>, Michal Hocko <mhocko@kernel.org>, 
+ Roman Gushchin <roman.gushchin@linux.dev>, 
+ Shakeel Butt <shakeelb@google.com>, Muchun Song <muchun.song@linux.dev>, 
+ Kirti Wankhede <kwankhede@nvidia.com>, kvm@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+ linux-fpga@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org, 
+ intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org, 
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+ linux-usb@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+ netdev@vger.kernel.org, linux-aio@kvack.org, cgroups@vger.kernel.org, 
+ linux-mm@kvack.org, Jens Axboe <axboe@kernel.dk>, 
+ Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+X-Mailer: b4 0.13-dev-26615
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3315; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=hkU4HuuqkNDsQyioSQIrRKs3Tgv1T8STkBb7WyDQZe8=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMaTG/liTnx+1a0vsCaGMN23r18xIsnV/pBwn1ZPp37Mqs
+ 7FRsi+uo5SFQYyLQVZMkcWh3SRcbjlPxWajTA2YOaxMIEMYuDgFYCLd4YwMmxu+PXlzuflnQNcx
+ jdSWzQFP5u+/ce54mkHTWs4J/1MYfRgZVub+qv3K3/m32t58z12JNyZxGoI5uyT1mLNNT0rt0T7
+ KCQA=
+X-Developer-Key: i=brauner@kernel.org; a=openpgp;
+ fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-On 06/11/2023 13.51, Nico Boehr wrote:
-> These comments do not follow the kernel-doc style, hence they should not
-> start with /**.
-> 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> ---
->   x86/msr.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/x86/msr.c b/x86/msr.c
-> index 789f23f8de78..3a041fab160a 100644
-> --- a/x86/msr.c
-> +++ b/x86/msr.c
-> @@ -6,7 +6,7 @@
->   #include "msr.h"
->   #include <stdlib.h>
->   
-> -/**
-> +/*
->    * This test allows two modes:
->    * 1. Default: the `msr_info' array contains the default test configurations
->    * 2. Custom: by providing command line arguments it is possible to test any MSR and value
+The eventfd_signal_mask() helper was introduced for io_uring and similar
+to eventfd_signal() it always passed 1 for @n. So don't bother with that
+argument at all.
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Signed-off-by: Christian Brauner <brauner@kernel.org>
+---
+ fs/eventfd.c            | 7 ++++---
+ include/linux/eventfd.h | 5 ++---
+ io_uring/io_uring.c     | 4 ++--
+ 3 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/fs/eventfd.c b/fs/eventfd.c
+index dc9e01053235..a9a6de920fb4 100644
+--- a/fs/eventfd.c
++++ b/fs/eventfd.c
+@@ -43,9 +43,10 @@ struct eventfd_ctx {
+ 	int id;
+ };
+ 
+-__u64 eventfd_signal_mask(struct eventfd_ctx *ctx, __u64 n, __poll_t mask)
++__u64 eventfd_signal_mask(struct eventfd_ctx *ctx, __poll_t mask)
+ {
+ 	unsigned long flags;
++	__u64 n = 1;
+ 
+ 	/*
+ 	 * Deadlock or stack overflow issues can happen if we recurse here
+@@ -68,7 +69,7 @@ __u64 eventfd_signal_mask(struct eventfd_ctx *ctx, __u64 n, __poll_t mask)
+ 	current->in_eventfd = 0;
+ 	spin_unlock_irqrestore(&ctx->wqh.lock, flags);
+ 
+-	return n;
++	return n == 1;
+ }
+ 
+ /**
+@@ -84,7 +85,7 @@ __u64 eventfd_signal_mask(struct eventfd_ctx *ctx, __u64 n, __poll_t mask)
+  */
+ __u64 eventfd_signal(struct eventfd_ctx *ctx)
+ {
+-	return eventfd_signal_mask(ctx, 1, 0);
++	return eventfd_signal_mask(ctx, 0);
+ }
+ EXPORT_SYMBOL_GPL(eventfd_signal);
+ 
+diff --git a/include/linux/eventfd.h b/include/linux/eventfd.h
+index 562089431551..4f8aac7eb62a 100644
+--- a/include/linux/eventfd.h
++++ b/include/linux/eventfd.h
+@@ -36,7 +36,7 @@ struct file *eventfd_fget(int fd);
+ struct eventfd_ctx *eventfd_ctx_fdget(int fd);
+ struct eventfd_ctx *eventfd_ctx_fileget(struct file *file);
+ __u64 eventfd_signal(struct eventfd_ctx *ctx);
+-__u64 eventfd_signal_mask(struct eventfd_ctx *ctx, __u64 n, __poll_t mask);
++__u64 eventfd_signal_mask(struct eventfd_ctx *ctx, __poll_t mask);
+ int eventfd_ctx_remove_wait_queue(struct eventfd_ctx *ctx, wait_queue_entry_t *wait,
+ 				  __u64 *cnt);
+ void eventfd_ctx_do_read(struct eventfd_ctx *ctx, __u64 *cnt);
+@@ -63,8 +63,7 @@ static inline int eventfd_signal(struct eventfd_ctx *ctx)
+ 	return -ENOSYS;
+ }
+ 
+-static inline int eventfd_signal_mask(struct eventfd_ctx *ctx, __u64 n,
+-				      unsigned mask)
++static inline int eventfd_signal_mask(struct eventfd_ctx *ctx, unsigned mask)
+ {
+ 	return -ENOSYS;
+ }
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index ed254076c723..70170a41eac4 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -558,7 +558,7 @@ static void io_eventfd_ops(struct rcu_head *rcu)
+ 	int ops = atomic_xchg(&ev_fd->ops, 0);
+ 
+ 	if (ops & BIT(IO_EVENTFD_OP_SIGNAL_BIT))
+-		eventfd_signal_mask(ev_fd->cq_ev_fd, 1, EPOLL_URING_WAKE);
++		eventfd_signal_mask(ev_fd->cq_ev_fd, EPOLL_URING_WAKE);
+ 
+ 	/* IO_EVENTFD_OP_FREE_BIT may not be set here depending on callback
+ 	 * ordering in a race but if references are 0 we know we have to free
+@@ -594,7 +594,7 @@ static void io_eventfd_signal(struct io_ring_ctx *ctx)
+ 		goto out;
+ 
+ 	if (likely(eventfd_signal_allowed())) {
+-		eventfd_signal_mask(ev_fd->cq_ev_fd, 1, EPOLL_URING_WAKE);
++		eventfd_signal_mask(ev_fd->cq_ev_fd, EPOLL_URING_WAKE);
+ 	} else {
+ 		atomic_inc(&ev_fd->refs);
+ 		if (!atomic_fetch_or(BIT(IO_EVENTFD_OP_SIGNAL_BIT), &ev_fd->ops))
+
+-- 
+2.42.0
 
