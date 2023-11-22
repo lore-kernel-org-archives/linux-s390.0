@@ -1,51 +1,51 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MPmZpH9E"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZWQWz36Z"
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07F8710C
-	for <linux-s390@vger.kernel.org>; Wed, 22 Nov 2023 04:47:11 -0800 (PST)
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EA2612C
+	for <linux-s390@vger.kernel.org>; Wed, 22 Nov 2023 04:47:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1700657231;
+	s=mimecast20190719; t=1700657278;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=Re+jmLky7sU3bWIwlmbv3FnEkJMHQDD1DeB1J3pCp7o=;
-	b=MPmZpH9E+AgW8KD6+7RwfTu///+ZNr4hS/gpWj85ZCSgWHqNX0Ek7tAngdi1/Sf0KQR61c
-	4XNBsrK6YWCguB2qGbIlzIjWCrTa7byEBq3bOHzS+aWMBxi8OF+UN0a7jUAINTT7cy7UfW
-	nI0Mdx/vY/pBclrwuIQymb+cfZy7Zbk=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=8S23SYyf56ffzBVgddd24/9kY1CksEvsA4wuFrUJ+bg=;
+	b=ZWQWz36Z1FIgrJLpYTKegkyk/b3D6PRvTBELKZFnerMcQ3dz/MndNqD4hWHE1LtQxDYfhb
+	z2hLsqm2tDu76hk2XvjnMJsvqxI2PIWnlKe8bfYax2+m2q/OTH3gSM6OL9iVNyVlh5qiXW
+	7RMV9saxq0/FTlQBVIb172f5FrAcM1E=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-96-hEC598NuO4ezKlo-AcaAVQ-1; Wed, 22 Nov 2023 07:47:10 -0500
-X-MC-Unique: hEC598NuO4ezKlo-AcaAVQ-1
-Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-670237ba89aso15037256d6.0
-        for <linux-s390@vger.kernel.org>; Wed, 22 Nov 2023 04:47:10 -0800 (PST)
+ us-mta-184-VTuaqj36MEW76VLrr3Eirw-1; Wed, 22 Nov 2023 07:47:56 -0500
+X-MC-Unique: VTuaqj36MEW76VLrr3Eirw-1
+Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-77893b0a2cdso812046485a.2
+        for <linux-s390@vger.kernel.org>; Wed, 22 Nov 2023 04:47:56 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700657229; x=1701262029;
+        d=1e100.net; s=20230601; t=1700657276; x=1701262076;
         h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
          :to:content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Re+jmLky7sU3bWIwlmbv3FnEkJMHQDD1DeB1J3pCp7o=;
-        b=L0iodDsgGywAXNJWRP5QORe9lhmgdX251WVlfii/ihFV7qd8PrtnleIiDCgsX/Z4Mk
-         rDXUqhCv9n6mhonG42tLqHOQGwVi4pN4paU+Vd09nbBarghz9BOIBl6uvIuasFRKDWy0
-         BTlguzUeCv+HuV4HptIpsHCwHTHKnqjLAeU+ulKx8GII13ykp71p3HpYIuLEGA3kGnUa
-         4vfdiluWQ/ldiDYFzGGMP9QRr4VvAwjdnobQAFvcoWp/+ccbrpxucitrOrtsA+K+/9pT
-         P1b9K4LEv+R3x6t3DIS1x2mKaCAIzaJlErD/Rb7ttL1jhHomCpHH6ENeauemK7fnieCK
-         EANw==
-X-Gm-Message-State: AOJu0YyLg03ZPfHBn19JjzUm4g67VSNlMo8dIodRgYQopqvdmkHlLxL5
-	ur2vFAyJkd43BH9VBZ+EQfgdqoym5av6gKuPsGCSRWULitWs9k+QBKrCAHHkUwV+OoJfRriEQT0
-	YepdLbsgKZbTRErloLmhZ9A==
-X-Received: by 2002:a05:6214:5d1:b0:677:fb26:5543 with SMTP id t17-20020a05621405d100b00677fb265543mr8893214qvz.3.1700657229663;
-        Wed, 22 Nov 2023 04:47:09 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHitrO1gHZNaG/9XWdlQ/l534p15Bo08nHJkK0Q3ttMP2jVaReF19O9VA0YkSqVUVK3fOJmpQ==
-X-Received: by 2002:a05:6214:5d1:b0:677:fb26:5543 with SMTP id t17-20020a05621405d100b00677fb265543mr8893194qvz.3.1700657229446;
-        Wed, 22 Nov 2023 04:47:09 -0800 (PST)
+        bh=8S23SYyf56ffzBVgddd24/9kY1CksEvsA4wuFrUJ+bg=;
+        b=T76zqNQiS8/cJWuzTi3Nis+f0m46/ayRBJpZ0iFxW4eHNht/rbc0EoOEClNB7TXh1A
+         4Sv9iddq48rQ4G9L6WNE3QPSiJAlRE6k2+4VPhHR/lIk1B3dSBAJEmleb53Obs7htWVQ
+         jyQ9XOVJixDTt81/2jkNHLLLGNtMhx/BDgH968MvjGxUXCMoxpVwiKpS2Jn5SATfhrxF
+         Lihj+MYpfyLQ8ol7wFJ5uuFZFHG9J9MyMHG8TAhUnngED62k0qvgX/Zclo2mQoA307Jr
+         6LOTtPy/aNE0/IwnLRPo59w9E5h0sa5RNwuxgvfIlGo68kaSYBuTsr3E36m2KShg9h4L
+         ZJkA==
+X-Gm-Message-State: AOJu0Yylesj4vnuLo+gLntPKnEMJtcubdP2Fqf3aMmkdHw8vZQirZZJO
+	yIQzKTTC3oIz1WxF5ielvJL28mWYLkBTo8n1ZmK5+kKDDsqHrr++NRY/8RA4mhIgOSfo/qR2W43
+	yR/stapROmh12JUoiBNt5eA==
+X-Received: by 2002:a05:620a:258e:b0:774:2c35:3796 with SMTP id x14-20020a05620a258e00b007742c353796mr2365357qko.34.1700657275722;
+        Wed, 22 Nov 2023 04:47:55 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHNTCJDbb1+jXyTY19RBNMSz5y3V0UVqYhZK935RSW+uhCcQ/EapcYk14xYDMAVMxijFJFBWA==
+X-Received: by 2002:a05:620a:258e:b0:774:2c35:3796 with SMTP id x14-20020a05620a258e00b007742c353796mr2365339qko.34.1700657275485;
+        Wed, 22 Nov 2023 04:47:55 -0800 (PST)
 Received: from [192.168.0.6] (ip-109-43-176-233.web.vodafone.de. [109.43.176.233])
-        by smtp.gmail.com with ESMTPSA id v3-20020ae9e303000000b0076ceb5eb309sm4380010qkf.74.2023.11.22.04.47.06
+        by smtp.gmail.com with ESMTPSA id v3-20020ae9e303000000b0076ceb5eb309sm4380010qkf.74.2023.11.22.04.47.52
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 22 Nov 2023 04:47:09 -0800 (PST)
-Message-ID: <bff857fa-6aa6-4f77-9a7d-a7e96346b13f@redhat.com>
-Date: Wed, 22 Nov 2023 13:47:05 +0100
+        Wed, 22 Nov 2023 04:47:54 -0800 (PST)
+Message-ID: <49e161f5-a078-43f0-beee-acc49ebb36d8@redhat.com>
+Date: Wed, 22 Nov 2023 13:47:52 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -53,15 +53,15 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v1 03/10] lib: s390x: cpacf: move
- kernel-doc comment to correct function
+Subject: Re: [kvm-unit-tests PATCH v1 04/10] s390x: properly format
+ non-kernel-doc comments
 Content-Language: en-US
 To: Nico Boehr <nrb@linux.ibm.com>, frankja@linux.ibm.com,
  imbrenda@linux.ibm.com, david@redhat.com, pbonzini@redhat.com,
  andrew.jones@linux.dev, lvivier@redhat.com
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
 References: <20231106125352.859992-1-nrb@linux.ibm.com>
- <20231106125352.859992-4-nrb@linux.ibm.com>
+ <20231106125352.859992-5-nrb@linux.ibm.com>
 From: Thomas Huth <thuth@redhat.com>
 Autocrypt: addr=thuth@redhat.com; keydata=
  xsFNBFH7eUwBEACzyOXKU+5Pcs6wNpKzrlJwzRl3VGZt95VCdb+FgoU9g11m7FWcOafrVRwU
@@ -105,19 +105,19 @@ Autocrypt: addr=thuth@redhat.com; keydata=
  oiT+z+/E59qj/EKfyce3sbC9XLjXv3mHMrq1tKX4G7IJGnS989E/fg6crv6NHae9Ckm7+lSs
  IQu4bBP2GxiRQ+NV3iV/KU3ebMRzqIC//DCOxzQNFNJAKldPe/bKZMCxEqtVoRkuJtNdp/5a
  yXFZ6TfE1hGKrDBYAm4vrnZ4CXFSBDllL59cFFOJCkn4Xboj/aVxxJxF30bn
-In-Reply-To: <20231106125352.859992-4-nrb@linux.ibm.com>
+In-Reply-To: <20231106125352.859992-5-nrb@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 06/11/2023 13.50, Nico Boehr wrote:
-> The kernel-doc comment seems to describe a different function further at
-> the bottom of the file; move the comment there and adjust the comment
-> accordingly.
+On 06/11/2023 13.51, Nico Boehr wrote:
+> These comments do not follow the kernel-doc style, hence they should not
+> start with /**.
 > 
 > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 > ---
->   lib/s390x/asm/cpacf.h | 20 ++++++++++----------
->   1 file changed, 10 insertions(+), 10 deletions(-)
+>   s390x/sclp.c | 32 ++++++++++++++++----------------
+>   1 file changed, 16 insertions(+), 16 deletions(-)
 
 Reviewed-by: Thomas Huth <thuth@redhat.com>
+
 
