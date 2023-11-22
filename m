@@ -1,218 +1,90 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=cloudflare.com header.i=@cloudflare.com header.b="DrqPc3I8"
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 216FD1FF7
-	for <linux-s390@vger.kernel.org>; Wed, 22 Nov 2023 01:47:47 -0800 (PST)
-Received: by mail-pl1-x630.google.com with SMTP id d9443c01a7336-1cf69f1163aso21728745ad.3
-        for <linux-s390@vger.kernel.org>; Wed, 22 Nov 2023 01:47:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloudflare.com; s=google09082023; t=1700646466; x=1701251266; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NnfP4RJbON+lj35IXs9J/yXXOpNJWed6Pm5g2c+cjNg=;
-        b=DrqPc3I8KAANsz2ZPzGvIzvvxPmpaOa5yJyZkEaA4qz9m26rjLAaecr6zZPQrqnzkE
-         ikmaeVyhPG3Jm8EtOjttEshmOWd4T+x/XiZ3uzvvh6RziWCNDWT2WE/HFzJee0a6A+28
-         LrBpbdvGCHVIcY3EbK+bonNNYhFr6g/hq6unMCbCe8ovZlrY+C+lIFHOEyy5WZw0DqZ6
-         prv/5EOs0WZiAXxf9MV6hvKBendGDOYooz0HuZ49yQv6I9RgbmlezN1DF8PRB+Y032SE
-         3Tq4U+9e0Jjc4bX5Urr71zJxW2o90qLWueit7zlRtMHVZWVn24YoKFe2pxOxh0JGYCN1
-         LjUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700646466; x=1701251266;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=NnfP4RJbON+lj35IXs9J/yXXOpNJWed6Pm5g2c+cjNg=;
-        b=Fyl8ijD9dTtN2jnYxUQuihDYmdy3xS5u2VaqWU87Etbv5ho+VAJw6vb8FyPmlwTiZW
-         QlLIMbTIRNkFCKLL4Wk+YYHLX85ZEfzrq++THZHI/cmTW6dOXCAZ29K63LCNqzag1NxT
-         Cf63JGpcw7cEzMp15JxfXyDCy/RsTS2IF5txjSs48TIr8jh8SQqxs32TtXBMgeZxeiJL
-         MALl27epbBOYjBEr0BxMYcFKDxALlJq7rJAkDNovVUPoR2TPiX+HIa0uMB3pPERVphtl
-         xkjleU/k40c4Pe7T5d9N0bgvQ+MM1GzfeC9SCboGWDguHnwPGRXQ4TIay/8SLHO5XTAG
-         s79w==
-X-Gm-Message-State: AOJu0YzvISR/ehASL6U4Oy3iBHi2zQH0ntnMCRkobNa2781/6eI9e49O
-	WOfZyEUgU52V6iQSloVmQQggeLyGDTbD1qg6Y30EVA==
-X-Google-Smtp-Source: AGHT+IEoe5dhUWpYOgp49hInJ/tXkDzht17Dpr4KVAZ7DyJBSpmejqoRh7l88C3hHutZlPs8wlq5Gnw1rhenR1f8+40=
-X-Received: by 2002:a17:90b:1d04:b0:27d:5946:5e2c with SMTP id
- on4-20020a17090b1d0400b0027d59465e2cmr1934810pjb.12.1700646466036; Wed, 22
- Nov 2023 01:47:46 -0800 (PST)
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCB0A93;
+	Wed, 22 Nov 2023 01:53:44 -0800 (PST)
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VwvWZ-S_1700646821;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0VwvWZ-S_1700646821)
+          by smtp.aliyun-inc.com;
+          Wed, 22 Nov 2023 17:53:42 +0800
+Date: Wed, 22 Nov 2023 17:53:41 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: Alexandra Winter <wintera@linux.ibm.com>,
+	Li RongQing <lirongqing@baidu.com>, kgraul@linux.ibm.com,
+	wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org
+Subject: Re: [PATCH net-next v3] net/smc: avoid atomic_set and smp_wmb in the
+ tx path when possible
+Message-ID: <20231122095341.GG3323@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20231117111657.16266-1-lirongqing@baidu.com>
+ <422c5968-8013-4b39-8cdb-07452abbf5fb@linux.ibm.com>
+ <20231120032029.GA3323@linux.alibaba.com>
+ <22394c7b-0470-472d-9474-4de5fc86c5ea@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CALrw=nHpRQQaQTP_jZfREgrQEMpS8jBF8JQCv4ygqXycE-StaA@mail.gmail.com>
- <ZVwMzXxWkgonIAfc@MiWiFi-R3L-srv> <CALrw=nG8xsYw7XKyL_VMHtKiaBcQCKvC8UVp-C9-BdeN4A1Daw@mail.gmail.com>
- <CALrw=nH-vcROja2W23rUKEEZMZhxsQiNB4P_ZZQ-XhPHAJGxrg@mail.gmail.com> <ZV3LKVOokpx2WvKp@MiWiFi-R3L-srv>
-In-Reply-To: <ZV3LKVOokpx2WvKp@MiWiFi-R3L-srv>
-From: Ignat Korchagin <ignat@cloudflare.com>
-Date: Wed, 22 Nov 2023 09:47:34 +0000
-Message-ID: <CALrw=nGadgbwuNAFacatz-agpGn9NvtgaCUXu73MzAzZq07k-g@mail.gmail.com>
-Subject: Re: Potential config regression after 89cde455 ("kexec: consolidate
- kexec and crash options into kernel/Kconfig.kexec")
-To: Baoquan He <bhe@redhat.com>
-Cc: eric_devolder@yahoo.com, linux@armlinux.org.uk, catalin.marinas@arm.com, 
-	will@kernel.org, chenhuacai@kernel.org, geert@linux-m68k.org, 
-	tsbogend@alpha.franken.de, 
-	James Bottomley <James.Bottomley@hansenpartnership.com>, deller@gmx.de, 
-	ysato@users.sourceforge.jp, dalias@libc.org, glaubitz@physik.fu-berlin.de, 
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	dave.hansen@linux.intel.com, x86@kernel.org, 
-	linux-kernel <linux-kernel@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, 
-	linux-ia64@vger.kernel.org, loongarch@lists.linux.dev, 
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, kernel@xen0n.name, mpe@ellerman.id.au, 
-	npiggin@gmail.com, christophe.leroy@csgroup.eu, paul.walmsley@sifive.com, 
-	palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com, 
-	gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com, 
-	svens@linux.ibm.com, hpa@zytor.com, keescook@chromium.org, paulmck@kernel.org, 
-	Peter Zijlstra <peterz@infradead.org>, frederic@kernel.org, 
-	Andrew Morton <akpm@linux-foundation.org>, Ard Biesheuvel <ardb@kernel.org>, samitolvanen@google.com, 
-	juerg.haefliger@canonical.com, arnd@arndb.de, rmk+kernel@armlinux.org.uk, 
-	linus.walleij@linaro.org, sebastian.reichel@collabora.com, rppt@kernel.org, 
-	kirill.shutemov@linux.intel.com, anshuman.khandual@arm.com, ziy@nvidia.com, 
-	masahiroy@kernel.org, ndesaulniers@google.com, mhiramat@kernel.org, 
-	ojeda@kernel.org, thunder.leizhen@huawei.com, xin3.li@intel.com, 
-	tj@kernel.org, Greg KH <gregkh@linuxfoundation.org>, tsi@tuyoix.net, 
-	hbathini@linux.ibm.com, sourabhjain@linux.ibm.com, boris.ostrovsky@oracle.com, 
-	konrad.wilk@oracle.com, kernel-team <kernel-team@cloudflare.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <22394c7b-0470-472d-9474-4de5fc86c5ea@linux.ibm.com>
 
-On Wed, Nov 22, 2023 at 9:34=E2=80=AFAM Baoquan He <bhe@redhat.com> wrote:
+On Mon, Nov 20, 2023 at 10:11:17AM +0100, Alexandra Winter wrote:
 >
-> On 11/21/23 at 09:43am, Ignat Korchagin wrote:
-> > On Tue, Nov 21, 2023 at 7:53=E2=80=AFAM Ignat Korchagin <ignat@cloudfla=
-re.com> wrote:
-> > >
-> > > On Tue, Nov 21, 2023 at 1:50=E2=80=AFAM Baoquan He <bhe@redhat.com> w=
-rote:
-> > > >
-> > > > Eric DeVolder's Oracle mail address is not available anymore, add h=
-is
-> > > > current mail address he told me.
-> > >
-> > > Thank you!
-> > >
-> > > > On 11/20/23 at 10:52pm, Ignat Korchagin wrote:
-> > > > > Good day!
-> > > > >
-> > > > > We have recently started to evaluate Linux 6.6 and noticed that w=
-e
-> > > > > cannot disable CONFIG_KEXEC anymore, but keep CONFIG_CRASH_DUMP
-> > > > > enabled. It seems to be related to commit 89cde455 ("kexec:
-> > > > > consolidate kexec and crash options into kernel/Kconfig.kexec"), =
-where
-> > > > > a CONFIG_KEXEC dependency was added to CONFIG_CRASH_DUMP.
-> > > > >
-> > > > > In our current kernel (Linux 6.1) we only enable CONFIG_KEXEC_FIL=
-E
-> > > > > with enforced signature check to support the kernel crash dumping
-> > > > > functionality and would like to keep CONFIG_KEXEC disabled for
-> > > > > security reasons [1].
-> > > > >
-> > > > > I was reading the long commit message, but the reason for adding
-> > > > > CONFIG_KEXEC as a dependency for CONFIG_CRASH_DUMP evaded me. And=
- I
-> > > > > believe from the implementation perspective CONFIG_KEXEC_FILE sho=
-uld
-> > > > > suffice here (as we successfully used it for crashdumps on Linux =
-6.1).
-> > > > >
-> > > > > Is there a reason for adding this dependency or is it just an
-> > > > > oversight? Would some solution of requiring either CONFIG_KEXEC o=
-r
-> > > > > CONFIG_KEXEC_FILE work here?
-> > > >
-> > > > I searched the patch history, found Eric didn't add the dependency =
-on
-> > > > CONFIG_KEXEC at the beginning. Later a linux-next building failure =
-with
-> > > > randconfig was reported, in there CONFIG_CRASH_DUMP enabled, while
-> > > > CONFIG_KEXEC is disabled. Finally Eric added the KEXEC dependency f=
-or
-> > > > CRASH_DUMP. Please see below link for more details:
-> > > >
-> > > > https://lore.kernel.org/all/3e8eecd1-a277-2cfb-690e-5de2eb7b988e@or=
-acle.com/T/#u
-> > >
-> > > Thank you for digging this up. However I'm still confused, because
-> > > this is exactly how we configure Linux 6.1 (although we do have
-> > > CONFIG_KEXEC_FILE enabled) and we don't have any problems. I believe
-> > > we did not investigate this issue properly.
-> >
-> > I did some preliminary investigation for this. If I patch out the
-> > dependency on CONFIG_KEXEC the kernel builds just fine for x86
-> > (without CONFIG_CRASH_HOTPLUG - which is probably another issue) - so
-> > this was the previous behaviour. I can see that the reported error is
-> > for arm architecture and was able to reproduce it with a simple cross
-> > compiler in Debian. However, I think it is still somehow related to
-> > this patchset as the previous kernels (up to 6.5) build fine with just
-> > CONFIG_CRASH_DUMP and without CONFIG_KEXEC for arm as well. So even
-> > for arm it was introduced in 6.6.
 >
-> Thanks for the information.
+>On 20.11.23 04:20, Dust Li wrote:
+>>> It seems to me that the purpose of conn->tx_pushing is
+>>> a) Serve as a mutex, so only one thread per conn will call __smc_tx_sndbuf_nonempty().
+>>> b) Repeat, in case some other thread has added data to sndbuf concurrently.
+>>>
+>>> I agree that this patch does not change the behaviour of this function and removes an
+>>> atomic_set() in the likely path.
+>>>
+>>> I wonder however: All callers of smc_tx_sndbuf_nonempty() must hold the socket lock.
+>>> So how can we ever run in a concurrency situation?
+>>> Is this handling of conn->tx_pushing necessary at all?
+>> Hi Sandy,
+>> 
+>> Overall, I think you are right. But there is something we need to take care.
+>> 
+>> Before commit 6b88af839d20 ("net/smc: don't send in the BH context if
+>> sock_owned_by_user"), we used to call smc_tx_pending() in the soft IRQ,
+>> without checking sock_owned_by_user(), which would caused a race condition
+>> because bh_lock_sock() did not honor sock_lock(). To address this issue,
+>> I have added the tx_pushing mechanism. However, with commit 6b88af839d20,
+>> we now defer the transmission if sock_lock() is held by the user.
+>> Therefore, there should no longer be a race condition. Nevertheless, if
+>> we remove the tx_pending mechanism, we must always remember not to call
+>> smc_tx_sndbuf_nonempty() in the soft IRQ when the user holds the sock lock.
+>> 
+>> Thanks
+>> Dust
 >
-> I haven't run the reproducer of issue reported on Eric's old patchset,
-> while checkout to kernel 6.1, only s390 selected KEXEC for CRASH_DUMP
-> already. And with the ARM building breakage, the simplest idea is
-> to select KEXEC only for ARM or S390 CRASH_DUMP. I plan to try the
-> reproducer later. If you have any idea or draft patch, please feel free
-> to post.
+>
+>ok, I understand.
+>So whoever is willing to give it a try and simplify smc_tx_sndbuf_nonempty(),
+>should remember to document that requirement/precondition.
+>Maybe in a Function context section of a kernel-doc function decription?
+>(as described in https://docs.kernel.org/doc-guide/kernel-doc.html)
+>Although smc_tx_sndbuf_nonempty() is not exported, this format is helpful.
 
-The thing is - before 6.6 even ARM did not require KEXEC for
-CRASH_DUMP (at least to successfully compile), so I think we should
-understand what changed first before adding a dependency for ARM. I'll
-try to investigate more, if I have time.
+I double checked this and realized that I may have missed something
+previously. The original goal of introducing tx_push was to maximize the
+amount of data that could be corked in order to achieve the best
+performance.
 
-> diff --git a/kernel/Kconfig.kexec b/kernel/Kconfig.kexec
-> index 7aff28ded2f4..382dcd8d7a9d 100644
-> --- a/kernel/Kconfig.kexec
-> +++ b/kernel/Kconfig.kexec
-> @@ -97,7 +97,7 @@ config CRASH_DUMP
->         depends on ARCH_SUPPORTS_KEXEC
->         select CRASH_CORE
->         select KEXEC_CORE
-> -       select KEXEC
-> +       select KEXEC if (ARM || S390)
->
->
-> arch/s390/Kconfig in kernel 6.1:
-> config CRASH_DUMP
->         bool "kernel crash dumps"
->         select KEXEC
->         help
->           Generate crash dump after being started by kexec.
->           Crash dump kernels are loaded in the main kernel with kexec-too=
-ls
->           into a specially reserved region and then later executed after
->           a crash by kdump/kexec.
->           Refer to <file:Documentation/s390/zfcpdump.rst> for more detail=
-s on this.
->           This option also enables s390 zfcpdump.
->           See also <file:Documentation/s390/zfcpdump.rst>
->
-> >
-> > > > And besides, the newly added CONFIG_CRASH_HOTPLUG also needs
-> > > > CONFIG_KEXEC if the elfcorehdr is allowed to be manipulated when
-> > > > cpu/memory hotplug hapened.
-> > >
-> > > This still feels like a regression to me: any crash dump support
-> > > should be independent of KEXEC syscalls being present. While probably
-> > > the common case (including us) that the crashing kernel and recovery
-> > > kernel are the same, they don't have to be. We need kexec syscall in
-> > > the crashing kernel, but crashdump support in the recovery kernel (bu=
-t
-> > > the recovery kernel not having the kexec syscalls should be totally
-> > > fine). If we do require some code definitions from kexec - at most we
-> > > should put them under CONFIG_KEXEC_CORE.
-> > >
-> > > > Thanks
-> > > > Baoquan
-> > > >
-> >
-> > Ignat
-> >
->
+__smc_tx_sndbuf_nonempty() is thread and context safe, meaning that
+it can be called simultaneously in both user context and softirq without
+causing any bugs, just some CPU waste. Although I think we should remove
+all the atomics & locks in the data path and only use sock_lock in the
+long-term.
+
+I will collaborate with Li RongQing on a new version that eliminates the
+tx_pushing.
+
+Best regards,
+Dust
