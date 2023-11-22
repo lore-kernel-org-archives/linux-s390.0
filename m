@@ -1,144 +1,196 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KQyeSd/j"
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17D9BF4;
-	Wed, 22 Nov 2023 00:54:31 -0800 (PST)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AM8LmgL031365;
-	Wed, 22 Nov 2023 08:54:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=877iJJuaqy6d5DdnBmA+1thsRNdXvwnrxIkU2lx7raA=;
- b=KQyeSd/jJL6GM/23XX+GanU/k8MhfZbLLsUj3UBnHDMAGunl72IxqtTgdkcAwSnUrUAV
- g3WXGco0O1v0XIa9Ce1DWXt8IYOQibVs+BhVZb5f2pJsWfnx2HZd7oZiMI0+aTffBOrm
- cjjKi5/EvVdmzpS4YVOEwkPWibCQjUlHXmJm+uMeRrNugITUw8SvkNhMCaiIgscaEMXa
- 0Rjx4E8db5wDaQ+pImgxxpGhONmYRvqqbyMwh44L2/v4SwGlgaQ8AAhuJiub1vFqOosZ
- +KFt9B1iOtwO+9PgyH/ImQmaMGFgGf9B1vVwZ7N2xTv1rE4TvauiPxIJJE3O+Vz+dPW+ eQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uhdbrapcf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Nov 2023 08:54:25 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AM8qpVw003838;
-	Wed, 22 Nov 2023 08:54:25 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uhdbrapc1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Nov 2023 08:54:25 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AM7JKXc002677;
-	Wed, 22 Nov 2023 08:54:24 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf93kxk29-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Nov 2023 08:54:24 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AM8sNjB20251388
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 22 Nov 2023 08:54:23 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 614B758058;
-	Wed, 22 Nov 2023 08:54:23 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4FE4358057;
-	Wed, 22 Nov 2023 08:54:21 +0000 (GMT)
-Received: from [9.171.44.206] (unknown [9.171.44.206])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 22 Nov 2023 08:54:21 +0000 (GMT)
-Message-ID: <c0c35105-0c3a-4de0-bbdc-6cc1572a1322@linux.ibm.com>
-Date: Wed, 22 Nov 2023 09:54:20 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BwWuuSDS"
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DE6010C
+	for <linux-s390@vger.kernel.org>; Wed, 22 Nov 2023 01:34:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1700645683;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=+OTgZltwB2ZS+YZyn6PYgFPXeR3pdRlWkz0aWS8O4HE=;
+	b=BwWuuSDSvBZX8Mo7G/uzuxwxVixnrmmdqUnkZx0OtwE1DVMH27AH4c6jJvXbP/BVBm2pnd
+	77sZlTm5mtm89rkaBPL3o9nnd+bXlfVH6dL/cYz2vincEezSthdFNVSkUO8hR+dnyun2so
+	bzfx4LydAh4Vj2wfqlYfnQ+tbldTuWc=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-591-_biuZLCONCOAsgDXiclx4A-1; Wed,
+ 22 Nov 2023 04:34:40 -0500
+X-MC-Unique: _biuZLCONCOAsgDXiclx4A-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8960E3C0FCA6;
+	Wed, 22 Nov 2023 09:34:39 +0000 (UTC)
+Received: from localhost (unknown [10.72.112.97])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 2A80F1C060AE;
+	Wed, 22 Nov 2023 09:34:36 +0000 (UTC)
+Date: Wed, 22 Nov 2023 17:34:33 +0800
+From: Baoquan He <bhe@redhat.com>
+To: Ignat Korchagin <ignat@cloudflare.com>
+Cc: eric_devolder@yahoo.com, linux@armlinux.org.uk, catalin.marinas@arm.com,
+	will@kernel.org, chenhuacai@kernel.org, geert@linux-m68k.org,
+	tsbogend@alpha.franken.de,
+	James Bottomley <James.Bottomley@hansenpartnership.com>,
+	deller@gmx.de, ysato@users.sourceforge.jp, dalias@libc.org,
+	glaubitz@physik.fu-berlin.de, Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	dave.hansen@linux.intel.com, x86@kernel.org,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	kernel@xen0n.name, mpe@ellerman.id.au, npiggin@gmail.com,
+	christophe.leroy@csgroup.eu, paul.walmsley@sifive.com,
+	palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
+	gor@linux.ibm.com, agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com, svens@linux.ibm.com, hpa@zytor.com,
+	keescook@chromium.org, paulmck@kernel.org,
+	Peter Zijlstra <peterz@infradead.org>, frederic@kernel.org,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Ard Biesheuvel <ardb@kernel.org>, samitolvanen@google.com,
+	juerg.haefliger@canonical.com, arnd@arndb.de,
+	rmk+kernel@armlinux.org.uk, linus.walleij@linaro.org,
+	sebastian.reichel@collabora.com, rppt@kernel.org,
+	kirill.shutemov@linux.intel.com, anshuman.khandual@arm.com,
+	ziy@nvidia.com, masahiroy@kernel.org, ndesaulniers@google.com,
+	mhiramat@kernel.org, ojeda@kernel.org, thunder.leizhen@huawei.com,
+	xin3.li@intel.com, tj@kernel.org,
+	Greg KH <gregkh@linuxfoundation.org>, tsi@tuyoix.net,
+	hbathini@linux.ibm.com, sourabhjain@linux.ibm.com,
+	boris.ostrovsky@oracle.com, konrad.wilk@oracle.com,
+	kernel-team <kernel-team@cloudflare.com>
+Subject: Re: Potential config regression after 89cde455 ("kexec: consolidate
+ kexec and crash options into kernel/Kconfig.kexec")
+Message-ID: <ZV3LKVOokpx2WvKp@MiWiFi-R3L-srv>
+References: <CALrw=nHpRQQaQTP_jZfREgrQEMpS8jBF8JQCv4ygqXycE-StaA@mail.gmail.com>
+ <ZVwMzXxWkgonIAfc@MiWiFi-R3L-srv>
+ <CALrw=nG8xsYw7XKyL_VMHtKiaBcQCKvC8UVp-C9-BdeN4A1Daw@mail.gmail.com>
+ <CALrw=nH-vcROja2W23rUKEEZMZhxsQiNB4P_ZZQ-XhPHAJGxrg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v4] net/smc: avoid data corruption caused by decline
-To: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-        jaka@linux.ibm.com, wintera@linux.ibm.com, guwen@linux.alibaba.com
-Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        tonylu@linux.alibaba.com, pabeni@redhat.com, edumazet@google.com
-References: <1700620625-70866-1-git-send-email-alibuda@linux.alibaba.com>
-Content-Language: en-GB
-From: Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <1700620625-70866-1-git-send-email-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ZXRB9K_AHtOUPz3KvotwGYd0Oa-gMmK3
-X-Proofpoint-ORIG-GUID: f8tDnVv0TftXJQ0xWBdA749xJQMRcJjA
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-22_06,2023-11-21_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 clxscore=1015 impostorscore=0 mlxlogscore=774 spamscore=0
- adultscore=0 mlxscore=0 phishscore=0 malwarescore=0 lowpriorityscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311220061
+In-Reply-To: <CALrw=nH-vcROja2W23rUKEEZMZhxsQiNB4P_ZZQ-XhPHAJGxrg@mail.gmail.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
+
+On 11/21/23 at 09:43am, Ignat Korchagin wrote:
+> On Tue, Nov 21, 2023 at 7:53 AM Ignat Korchagin <ignat@cloudflare.com> wrote:
+> >
+> > On Tue, Nov 21, 2023 at 1:50 AM Baoquan He <bhe@redhat.com> wrote:
+> > >
+> > > Eric DeVolder's Oracle mail address is not available anymore, add his
+> > > current mail address he told me.
+> >
+> > Thank you!
+> >
+> > > On 11/20/23 at 10:52pm, Ignat Korchagin wrote:
+> > > > Good day!
+> > > >
+> > > > We have recently started to evaluate Linux 6.6 and noticed that we
+> > > > cannot disable CONFIG_KEXEC anymore, but keep CONFIG_CRASH_DUMP
+> > > > enabled. It seems to be related to commit 89cde455 ("kexec:
+> > > > consolidate kexec and crash options into kernel/Kconfig.kexec"), where
+> > > > a CONFIG_KEXEC dependency was added to CONFIG_CRASH_DUMP.
+> > > >
+> > > > In our current kernel (Linux 6.1) we only enable CONFIG_KEXEC_FILE
+> > > > with enforced signature check to support the kernel crash dumping
+> > > > functionality and would like to keep CONFIG_KEXEC disabled for
+> > > > security reasons [1].
+> > > >
+> > > > I was reading the long commit message, but the reason for adding
+> > > > CONFIG_KEXEC as a dependency for CONFIG_CRASH_DUMP evaded me. And I
+> > > > believe from the implementation perspective CONFIG_KEXEC_FILE should
+> > > > suffice here (as we successfully used it for crashdumps on Linux 6.1).
+> > > >
+> > > > Is there a reason for adding this dependency or is it just an
+> > > > oversight? Would some solution of requiring either CONFIG_KEXEC or
+> > > > CONFIG_KEXEC_FILE work here?
+> > >
+> > > I searched the patch history, found Eric didn't add the dependency on
+> > > CONFIG_KEXEC at the beginning. Later a linux-next building failure with
+> > > randconfig was reported, in there CONFIG_CRASH_DUMP enabled, while
+> > > CONFIG_KEXEC is disabled. Finally Eric added the KEXEC dependency for
+> > > CRASH_DUMP. Please see below link for more details:
+> > >
+> > > https://lore.kernel.org/all/3e8eecd1-a277-2cfb-690e-5de2eb7b988e@oracle.com/T/#u
+> >
+> > Thank you for digging this up. However I'm still confused, because
+> > this is exactly how we configure Linux 6.1 (although we do have
+> > CONFIG_KEXEC_FILE enabled) and we don't have any problems. I believe
+> > we did not investigate this issue properly.
+> 
+> I did some preliminary investigation for this. If I patch out the
+> dependency on CONFIG_KEXEC the kernel builds just fine for x86
+> (without CONFIG_CRASH_HOTPLUG - which is probably another issue) - so
+> this was the previous behaviour. I can see that the reported error is
+> for arm architecture and was able to reproduce it with a simple cross
+> compiler in Debian. However, I think it is still somehow related to
+> this patchset as the previous kernels (up to 6.5) build fine with just
+> CONFIG_CRASH_DUMP and without CONFIG_KEXEC for arm as well. So even
+> for arm it was introduced in 6.6.
+
+Thanks for the information.
+
+I haven't run the reproducer of issue reported on Eric's old patchset,
+while checkout to kernel 6.1, only s390 selected KEXEC for CRASH_DUMP
+already. And with the ARM building breakage, the simplest idea is 
+to select KEXEC only for ARM or S390 CRASH_DUMP. I plan to try the
+reproducer later. If you have any idea or draft patch, please feel free
+to post.
+
+diff --git a/kernel/Kconfig.kexec b/kernel/Kconfig.kexec
+index 7aff28ded2f4..382dcd8d7a9d 100644
+--- a/kernel/Kconfig.kexec
++++ b/kernel/Kconfig.kexec
+@@ -97,7 +97,7 @@ config CRASH_DUMP
+        depends on ARCH_SUPPORTS_KEXEC
+        select CRASH_CORE
+        select KEXEC_CORE
+-       select KEXEC
++       select KEXEC if (ARM || S390)
 
 
+arch/s390/Kconfig in kernel 6.1:
+config CRASH_DUMP
+        bool "kernel crash dumps"
+        select KEXEC
+        help
+          Generate crash dump after being started by kexec.
+          Crash dump kernels are loaded in the main kernel with kexec-tools
+          into a specially reserved region and then later executed after
+          a crash by kdump/kexec.
+          Refer to <file:Documentation/s390/zfcpdump.rst> for more details on this.
+          This option also enables s390 zfcpdump.
+          See also <file:Documentation/s390/zfcpdump.rst>
 
-On 22.11.23 03:37, D. Wythe wrote:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
 > 
-> We found a data corruption issue during testing of SMC-R on Redis
-> applications.
+> > > And besides, the newly added CONFIG_CRASH_HOTPLUG also needs
+> > > CONFIG_KEXEC if the elfcorehdr is allowed to be manipulated when
+> > > cpu/memory hotplug hapened.
+> >
+> > This still feels like a regression to me: any crash dump support
+> > should be independent of KEXEC syscalls being present. While probably
+> > the common case (including us) that the crashing kernel and recovery
+> > kernel are the same, they don't have to be. We need kexec syscall in
+> > the crashing kernel, but crashdump support in the recovery kernel (but
+> > the recovery kernel not having the kexec syscalls should be totally
+> > fine). If we do require some code definitions from kexec - at most we
+> > should put them under CONFIG_KEXEC_CORE.
+> >
+> > > Thanks
+> > > Baoquan
+> > >
 > 
-> The benchmark has a low probability of reporting a strange error as
-> shown below.
+> Ignat
 > 
-> "Error: Protocol error, got "\xe2" as reply type byte"
-> 
-> Finally, we found that the retrieved error data was as follows:
-> 
-> 0xE2 0xD4 0xC3 0xD9 0x04 0x00 0x2C 0x20 0xA6 0x56 0x00 0x16 0x3E 0x0C
-> 0xCB 0x04 0x02 0x01 0x00 0x00 0x20 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-> 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xE2
-> 
-> It is quite obvious that this is a SMC DECLINE message, which means that
-> the applications received SMC protocol message.
-> We found that this was caused by the following situations:
-> 
-> client                  server
->          ¦  clc proposal
->          ------------->
->          ¦  clc accept
->          <-------------
->          ¦  clc confirm
->          ------------->
-> wait llc confirm
-> 			send llc confirm
->          ¦failed llc confirm
->          ¦   x------
-> (after 2s)timeout
->                          wait llc confirm rsp
-> 
-> wait decline
-> 
-> (after 1s) timeout
->                          (after 2s) timeout
->          ¦   decline
->          -------------->
->          ¦   decline
->          <--------------
-> 
-> As a result, a decline message was sent in the implementation, and this
-> message was read from TCP by the already-fallback connection.
-> 
-> This patch double the client timeout as 2x of the server value,
-> With this simple change, the Decline messages should never cross or
-> collide (during Confirm link timeout).
-> 
-> This issue requires an immediate solution, since the protocol updates
-> involve a more long-term solution.
-> 
-> Fixes: 0fb0b02bd6fd ("net/smc: adapt SMC client code to use the LLC flow")
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> ---
-
-Looks good to me! Thank you, D.Wythe!
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
 
