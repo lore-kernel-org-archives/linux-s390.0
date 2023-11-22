@@ -1,82 +1,77 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC6875C8F5;
-	Wed, 22 Nov 2023 19:07:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qzgTnDuK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 517C8C433C7;
-	Wed, 22 Nov 2023 19:07:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1700680052;
-	bh=uVl7nTlOM0+msqDAdm3xWe+pC9hYDXS7ELazxBmwybM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=qzgTnDuKDNNI2dRTWMKvM5zYKH+Hpi+NupYJ34h4+8zUd1hf6idxMdSswFWMqeKfU
-	 48rcSLdxqrCZZIL9AP39WVkFTub17R8lcUv2l7mDetSSotS6IooqzdjIkMxuTN9FZ6
-	 olz7dYNj7+jdqCIbOvOhmlo1r3Uhepy1nsPgrLnpdUHME2+WdM5mKP5tVu0oEeZ2t9
-	 uhWw8IXHpVujmXqiytKyBY0V569vdYww4ToNiLHMz6T5Bi+Gnrg9hR8DDqpfUIrdhv
-	 30/uvy/m/YYen77xPm0Ey3ZlsswsI+qLuGwurfs4LvvnBWOaUKgKsajKeECn5WNvMs
-	 1xzHjSWZwIFRg==
-Date: Wed, 22 Nov 2023 19:07:25 +0000
-From: Simon Horman <horms@kernel.org>
-To: Wen Gu <guwen@linux.alibaba.com>
-Cc: wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
-	gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	kgraul@linux.ibm.com, jaka@linux.ibm.com, borntraeger@linux.ibm.com,
-	svens@linux.ibm.com, alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com, raspl@linux.ibm.com,
-	schnelle@linux.ibm.com, linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next 5/7] net/smc: compatible with 128-bits extend
- GID of virtual ISM device
-Message-ID: <20231122190725.GB6731@kernel.org>
-References: <1700402277-93750-1-git-send-email-guwen@linux.alibaba.com>
- <1700402277-93750-6-git-send-email-guwen@linux.alibaba.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4446222F0D;
+	Wed, 22 Nov 2023 23:31:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 264D8C433C8;
+	Wed, 22 Nov 2023 23:31:44 +0000 (UTC)
+Date: Wed, 22 Nov 2023 18:32:00 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Alexander Potapenko
+ <glider@google.com>, Andrew Morton <akpm@linux-foundation.org>, Christoph
+ Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko
+ Carstens <hca@linux.ibm.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco
+ Elver <elver@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Pekka
+ Enberg <penberg@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Vlastimil
+ Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>,
+ kasan-dev@googlegroups.com, linux-kernel@vger.kernel.org,
+ linux-mm@kvack.org, linux-s390@vger.kernel.org,
+ linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+ Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle
+ <svens@linux.ibm.com>
+Subject: Re: [PATCH v2 01/33] ftrace: Unpoison ftrace_regs in
+ ftrace_ops_list_func()
+Message-ID: <20231122183200.409e982b@gandalf.local.home>
+In-Reply-To: <20231121220155.1217090-2-iii@linux.ibm.com>
+References: <20231121220155.1217090-1-iii@linux.ibm.com>
+	<20231121220155.1217090-2-iii@linux.ibm.com>
+X-Mailer: Claws Mail 3.19.1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1700402277-93750-6-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Sun, Nov 19, 2023 at 09:57:55PM +0800, Wen Gu wrote:
-> According to virtual ISM support feature defined by SMCv2.1, GIDs of
-> virtual ISM device are UUIDs defined by RFC4122, which are 128-bits
-> long. So some adaptation work is required. And note that the GIDs of
-> existing platform firmware ISM devices still remain 64-bits long.
+On Tue, 21 Nov 2023 23:00:55 +0100
+Ilya Leoshkevich <iii@linux.ibm.com> wrote:
+
+> Architectures use assembly code to initialize ftrace_regs and call
+> ftrace_ops_list_func(). Therefore, from the KMSAN's point of view,
+> ftrace_regs is poisoned on ftrace_ops_list_func entry(). This causes
+> KMSAN warnings when running the ftrace testsuite.
 > 
-> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> Fix by trusting the architecture-specific assembly code and always
+> unpoisoning ftrace_regs in ftrace_ops_list_func.
 
-...
+You must be very trusting to trust architecture-specific assembly code ;-)
 
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-...
+-- Steve
 
-> @@ -1522,7 +1527,10 @@ void smc_smcd_terminate(struct smcd_dev *dev, u64 peer_gid, unsigned short vlan)
->  	/* run common cleanup function and build free list */
->  	spin_lock_bh(&dev->lgr_lock);
->  	list_for_each_entry_safe(lgr, l, &dev->lgr_list, list) {
-> -		if ((!peer_gid || lgr->peer_gid == peer_gid) &&
-> +		if ((!peer_gid->gid ||
 
-Hi Wen Gu,
+> 
+> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+> ---
+>  kernel/trace/ftrace.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+> index 8de8bec5f366..dfb8b26966aa 100644
+> --- a/kernel/trace/ftrace.c
+> +++ b/kernel/trace/ftrace.c
+> @@ -7399,6 +7399,7 @@ __ftrace_ops_list_func(unsigned long ip, unsigned long parent_ip,
+>  void arch_ftrace_ops_list_func(unsigned long ip, unsigned long parent_ip,
+>  			       struct ftrace_ops *op, struct ftrace_regs *fregs)
+>  {
+> +	kmsan_unpoison_memory(fregs, sizeof(*fregs));
+>  	__ftrace_ops_list_func(ip, parent_ip, NULL, fregs);
+>  }
+>  #else
 
-Previously this condition assumed that peer could be NULL,
-and that is still the case in the next condition, a few lines down.
-But with this patch peer is unconditionally dereferenced here.
-
-As flagged by Smatch.
-
-> +		     (lgr->peer_gid.gid == peer_gid->gid &&
-> +		      !smc_ism_is_virtual(dev) ? 1 :
-> +		      lgr->peer_gid.gid_ext == peer_gid->gid_ext)) &&
->  		    (vlan == VLAN_VID_MASK || lgr->vlan_id == vlan)) {
->  			if (peer_gid) /* peer triggered termination */
->  				lgr->peer_shutdown = 1;
-
-...
