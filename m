@@ -1,98 +1,175 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A51C24B3F;
-	Thu, 23 Nov 2023 13:18:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="r42g7gVE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FFAAC433C9;
-	Thu, 23 Nov 2023 13:18:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1700745532;
-	bh=BJOuctG/jOXVT0hO6qxyVXBeYyH4TG/ylT0dyLa92yI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=r42g7gVEtjBJ5WfLPAfCypJTdeIZa9tza+98XErRLkZuJq42IHSNqt9TjDoS1u/dO
-	 mqRTO6hyOgRcqG5Vqi98sspSbfx6Ne64w0KZSaAUUdSmCRm0SeW9B8r2AffO7bhDq0
-	 voQrIzDl2Rys7kYNdpWCPkldE19sNixdWiKMUoa9j34EYG62L/DgZtbbaspmEPmu14
-	 PuPzBMdYXfPSBprGxxIV2rleVHq+xRFaQ7/X8REU4C8BYG2H4sP4+OADV7Tg2Ri8NY
-	 w8CXZUWWNJUaMlJH5PPc15vZ4ox/kvWZIeet2zBszz9qi15zBW/WlVu+mFthIg8ovM
-	 qoF7yc2VytIMg==
-Date: Thu, 23 Nov 2023 14:18:33 +0100
-From: Christian Brauner <brauner@kernel.org>
-To: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: linux-fsdevel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-	Jan Kara <jack@suse.cz>, Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Sean Christopherson <seanjc@google.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	David Woodhouse <dwmw2@infradead.org>, Paul Durrant <paul@xen.org>,
-	Oded Gabbay <ogabbay@kernel.org>, Wu Hao <hao.wu@intel.com>,
-	Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>,
-	Xu Yilun <yilun.xu@intel.com>,
-	Zhenyu Wang <zhenyuw@linux.intel.com>,
-	Zhi Wang <zhi.a.wang@intel.com>,
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-	David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
-	Leon Romanovsky <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Frederic Barrat <fbarrat@linux.ibm.com>,
-	Andrew Donnellan <ajd@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Eric Farman <farman@linux.ibm.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Tony Krowiak <akrowiak@linux.ibm.com>,
-	Jason Herne <jjherne@linux.ibm.com>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Diana Craciun <diana.craciun@oss.nxp.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Eric Auger <eric.auger@redhat.com>, Fei Li <fei1.li@intel.com>,
-	Benjamin LaHaise <bcrl@kvack.org>,
-	Johannes Weiner <hannes@cmpxchg.org>,
-	Michal Hocko <mhocko@kernel.org>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Shakeel Butt <shakeelb@google.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Kirti Wankhede <kwankhede@nvidia.com>, kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linux-fpga@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
-	intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	linux-usb@vger.kernel.org,
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-	linux-aio@kvack.org, cgroups@vger.kernel.org, linux-mm@kvack.org,
-	Jens Axboe <axboe@kernel.dk>,
-	Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-Subject: Re: [PATCH v2 2/4] eventfd: simplify eventfd_signal()
-Message-ID: <20231123-portwein-geeignet-787b940c7d2d@brauner>
-References: <20231122-vfs-eventfd-signal-v2-0-bd549b14ce0c@kernel.org>
- <20231122-vfs-eventfd-signal-v2-2-bd549b14ce0c@kernel.org>
- <877cm9n7dh.fsf@intel.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PZFzrydq"
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA18E1B3
+	for <linux-s390@vger.kernel.org>; Thu, 23 Nov 2023 05:27:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1700746063;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XlCNcFS7+nGLr8i/szhMFxjsyTieH5TNHlOyuSvsHHk=;
+	b=PZFzrydqZjS3A9XlaeRAJRz1j8ZlE3V7H4VFf3rMIsLhSbZ8Fk+h4vfi2IYZ6H5qw3vs/s
+	MgnSsGmFNGVb8larRVrs0OelaRojawCEzl3j2Uyo9M7a+FKJXKUulGupHa2BLChbDM/+BV
+	Rti0IvreMgkiNHijaM2rM1Fx+k/bOS4=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-313-LNixVYSgNR6zfKelwTaWZg-1; Thu,
+ 23 Nov 2023 08:27:38 -0500
+X-MC-Unique: LNixVYSgNR6zfKelwTaWZg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 368F43C027B1;
+	Thu, 23 Nov 2023 13:27:38 +0000 (UTC)
+Received: from localhost (unknown [10.72.112.97])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id AB1BD36E2;
+	Thu, 23 Nov 2023 13:27:29 +0000 (UTC)
+Date: Thu, 23 Nov 2023 21:27:25 +0800
+From: Baoquan He <bhe@redhat.com>
+To: akpm@linux-foundation.org
+Cc: kexec@lists.infradead.org, x86@kernel.org, linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+	ebiederm@xmission.com, takahiro.akashi@linaro.org
+Subject: Re: [PATCH v2 1/2] resource: add walk_system_ram_res_rev()
+Message-ID: <ZV9TPRw65TiCeXyS@MiWiFi-R3L-srv>
+References: <20231114091658.228030-1-bhe@redhat.com>
+ <20231114091658.228030-2-bhe@redhat.com>
+ <ZVTA6z/06cLnWKUz@MiWiFi-R3L-srv>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <877cm9n7dh.fsf@intel.com>
+In-Reply-To: <ZVTA6z/06cLnWKUz@MiWiFi-R3L-srv>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.1
 
-> >   * eventfd_signal - Adds @n to the eventfd counter.
+Hi Andrew,
+
+On 11/15/23 at 09:00pm, Baoquan He wrote:
+> This function, being a variant of walk_system_ram_res() introduced in
+> commit 8c86e70acead ("resource: provide new functions to walk through
+> resources"), walks through a list of all the resources of System RAM
+> in reversed order, i.e., from higher to lower.
 > 
-> This still refers to @n here, and in patch 4.
+> It will be used in kexec_file code to load kernel, initrd etc when
+> preparing kexec reboot.
+> 
+> Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+> Signed-off-by: Baoquan He <bhe@redhat.com>
+> ---
+> v1->v2:
+> - Use kvrealloc() to reallocate memory instead of kvcalloc(), this
+>   simplifies code. Suggested by Andrew.
+> 
+>  include/linux/ioport.h |  3 +++
+>  kernel/resource.c      | 57 ++++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 60 insertions(+)
 
-Fixed and folded. Thanks!
+Gentle ping.
+
+Could you pick this patchset into next tree so that it can be run on
+testing robots?
+
+Thanks
+Baoquan
+
+> 
+> diff --git a/include/linux/ioport.h b/include/linux/ioport.h
+> index 14f5cfabbbc8..db7fe25f3370 100644
+> --- a/include/linux/ioport.h
+> +++ b/include/linux/ioport.h
+> @@ -331,6 +331,9 @@ extern int
+>  walk_system_ram_res(u64 start, u64 end, void *arg,
+>  		    int (*func)(struct resource *, void *));
+>  extern int
+> +walk_system_ram_res_rev(u64 start, u64 end, void *arg,
+> +			int (*func)(struct resource *, void *));
+> +extern int
+>  walk_iomem_res_desc(unsigned long desc, unsigned long flags, u64 start, u64 end,
+>  		    void *arg, int (*func)(struct resource *, void *));
+>  
+> diff --git a/kernel/resource.c b/kernel/resource.c
+> index 866ef3663a0b..e8a244300e5b 100644
+> --- a/kernel/resource.c
+> +++ b/kernel/resource.c
+> @@ -27,6 +27,8 @@
+>  #include <linux/mount.h>
+>  #include <linux/resource_ext.h>
+>  #include <uapi/linux/magic.h>
+> +#include <linux/string.h>
+> +#include <linux/vmalloc.h>
+>  #include <asm/io.h>
+>  
+>  
+> @@ -429,6 +431,61 @@ int walk_system_ram_res(u64 start, u64 end, void *arg,
+>  				     func);
+>  }
+>  
+> +/*
+> + * This function, being a variant of walk_system_ram_res(), calls the @func
+> + * callback against all memory ranges of type System RAM which are marked as
+> + * IORESOURCE_SYSTEM_RAM and IORESOUCE_BUSY in reversed order, i.e., from
+> + * higher to lower.
+> + */
+> +int walk_system_ram_res_rev(u64 start, u64 end, void *arg,
+> +				int (*func)(struct resource *, void *))
+> +{
+> +	struct resource res, *rams;
+> +	int rams_size = 16, i;
+> +	unsigned long flags;
+> +	int ret = -1;
+> +
+> +	/* create a list */
+> +	rams = kvcalloc(rams_size, sizeof(struct resource), GFP_KERNEL);
+> +	if (!rams)
+> +		return ret;
+> +
+> +	flags = IORESOURCE_SYSTEM_RAM | IORESOURCE_BUSY;
+> +	i = 0;
+> +	while ((start < end) &&
+> +		(!find_next_iomem_res(start, end, flags, IORES_DESC_NONE, &res))) {
+> +		if (i >= rams_size) {
+> +			/* re-alloc */
+> +			struct resource *rams_new;
+> +
+> +			rams_new = kvrealloc(rams, rams_size * sizeof(struct resource),
+> +					     (rams_size + 16) * sizeof(struct resource),
+> +					     GFP_KERNEL);
+> +			if (!rams_new)
+> +				goto out;
+> +
+> +			rams = rams_new;
+> +			rams_size += 16;
+> +		}
+> +
+> +		rams[i].start = res.start;
+> +		rams[i++].end = res.end;
+> +
+> +		start = res.end + 1;
+> +	}
+> +
+> +	/* go reverse */
+> +	for (i--; i >= 0; i--) {
+> +		ret = (*func)(&rams[i], arg);
+> +		if (ret)
+> +			break;
+> +	}
+> +
+> +out:
+> +	kvfree(rams);
+> +	return ret;
+> +}
+> +
+>  /*
+>   * This function calls the @func callback against all memory ranges, which
+>   * are ranges marked as IORESOURCE_MEM and IORESOUCE_BUSY.
+> -- 
+> 2.41.0
+> 
+
