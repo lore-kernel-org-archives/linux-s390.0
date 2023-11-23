@@ -1,192 +1,114 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="a0RMRtdr"
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.93])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AAFA1B3;
-	Wed, 22 Nov 2023 16:26:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1700699164; x=1732235164;
-  h=date:from:to:cc:subject:message-id:reply-to:references:
-   mime-version:in-reply-to;
-  bh=kMJqNQrPFkouBUmP1tIxtozSsYheDkR/LnL4F11wiis=;
-  b=a0RMRtdr45SnsHLYk3kiLIfZs2Z292eQtCjDOGkSajq4kJgqoPyPz1Z8
-   xhWoNH51ino8oe9+Nmimsn7SFdTQgw8cA/qSM06asNrV9XlVmhWFA6efE
-   bx/KJxGEkz9CgKaAcRip2AVvQj244oSCMbQ2SV3R4DIR0CTNKXPPkI00S
-   8UPzwDbKGWrNEIvyOLU2GF23JoceIic+G88FMkrhNsWS/7MACg0sIjNMf
-   ijDW0ytrIcjGYvd6MSyu2liYjeaUIruC6bgfya5Y7v4Nc28NcFQbnBBQQ
-   f0zW1UCdi/Sb7g9NYp8o9b8iKurHqbTYEdk8doLf35VPgtN8OmhSA3u25
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10902"; a="389323011"
-X-IronPort-AV: E=Sophos;i="6.04,220,1695711600"; 
-   d="asc'?scan'208";a="389323011"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Nov 2023 16:26:03 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10902"; a="716903060"
-X-IronPort-AV: E=Sophos;i="6.04,220,1695711600"; 
-   d="asc'?scan'208";a="716903060"
-Received: from debian-skl.sh.intel.com (HELO debian-skl) ([10.239.160.45])
-  by orsmga003.jf.intel.com with ESMTP; 22 Nov 2023 16:25:45 -0800
-Date: Thu, 23 Nov 2023 08:24:24 +0800
-From: Zhenyu Wang <zhenyuw@linux.intel.com>
-To: Christian Brauner <brauner@kernel.org>
-Cc: linux-fsdevel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-	Jan Kara <jack@suse.cz>, Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Sean Christopherson <seanjc@google.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	David Woodhouse <dwmw2@infradead.org>, Paul Durrant <paul@xen.org>,
-	Oded Gabbay <ogabbay@kernel.org>, Wu Hao <hao.wu@intel.com>,
-	Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>,
-	Xu Yilun <yilun.xu@intel.com>,
-	Zhenyu Wang <zhenyuw@linux.intel.com>,
-	Zhi Wang <zhi.a.wang@intel.com>,
-	Jani Nikula <jani.nikula@linux.intel.com>,
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-	David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
-	Leon Romanovsky <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Frederic Barrat <fbarrat@linux.ibm.com>,
-	Andrew Donnellan <ajd@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Eric Farman <farman@linux.ibm.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Tony Krowiak <akrowiak@linux.ibm.com>,
-	Jason Herne <jjherne@linux.ibm.com>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Diana Craciun <diana.craciun@oss.nxp.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Eric Auger <eric.auger@redhat.com>, Fei Li <fei1.li@intel.com>,
-	Benjamin LaHaise <bcrl@kvack.org>,
-	Johannes Weiner <hannes@cmpxchg.org>,
-	Michal Hocko <mhocko@kernel.org>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Shakeel Butt <shakeelb@google.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Kirti Wankhede <kwankhede@nvidia.com>, kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linux-fpga@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
-	intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	linux-usb@vger.kernel.org,
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-	linux-aio@kvack.org, cgroups@vger.kernel.org, linux-mm@kvack.org,
-	Jens Axboe <axboe@kernel.dk>,
-	Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-Subject: Re: [PATCH v2 1/4] i915: make inject_virtual_interrupt() void
-Message-ID: <ZV6buHrQy2+CJ7xX@debian-scheme>
-Reply-To: Zhenyu Wang <zhenyuw@linux.intel.com>
-References: <20231122-vfs-eventfd-signal-v2-0-bd549b14ce0c@kernel.org>
- <20231122-vfs-eventfd-signal-v2-1-bd549b14ce0c@kernel.org>
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
+Received: from njjs-sys-mailin01.njjs.baidu.com (mx310.baidu.com [180.101.52.44])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3109812A;
+	Wed, 22 Nov 2023 17:45:39 -0800 (PST)
+Received: from localhost (bjhw-sys-rpm015653cc5.bjhw.baidu.com [10.227.53.39])
+	by njjs-sys-mailin01.njjs.baidu.com (Postfix) with ESMTP id E01AB7F000A9;
+	Thu, 23 Nov 2023 09:45:37 +0800 (CST)
+From: Li RongQing <lirongqing@baidu.com>
+To: linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	wintera@linux.ibm.com,
+	dust.li@linux.alibaba.com
+Subject: [PATCH net-next v4] net/smc: remove unneeded atomic operations in smc_tx_sndbuf_nonempty
+Date: Thu, 23 Nov 2023 09:45:37 +0800
+Message-Id: <20231123014537.9786-1-lirongqing@baidu.com>
+X-Mailer: git-send-email 2.9.4
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ehCOKC0wDaVXxQlM"
-Content-Disposition: inline
-In-Reply-To: <20231122-vfs-eventfd-signal-v2-1-bd549b14ce0c@kernel.org>
 
+The commit dcd2cf5f2fc0 ("net/smc: add autocorking support") adds an
+atomic variable tx_pushing in smc_connection to make sure only one can
+send to let it cork more and save CDC slot. since smc_tx_pending can be
+called in the soft IRQ without checking sock_owned_by_user() at that
+time, which would cause a race condition because bh_lock_sock() did
+not honor sock_lock()
 
---ehCOKC0wDaVXxQlM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+After commit 6b88af839d20 ("net/smc: don't send in the BH context if
+sock_owned_by_user"), the transmission is deferred to when sock_lock()
+is held by the user. Therefore, we no longer need tx_pending to hold
+message.
 
-On 2023.11.22 13:48:22 +0100, Christian Brauner wrote:
-> The single caller of inject_virtual_interrupt() ignores the return value
-> anyway. This allows us to simplify eventfd_signal() in follow-up
-> patches.
->=20
-> Signed-off-by: Christian Brauner <brauner@kernel.org>
-> ---
->  drivers/gpu/drm/i915/gvt/interrupt.c | 14 +++++++-------
->  1 file changed, 7 insertions(+), 7 deletions(-)
->=20
-> diff --git a/drivers/gpu/drm/i915/gvt/interrupt.c b/drivers/gpu/drm/i915/=
-gvt/interrupt.c
-> index de3f5903d1a7..9665876b4b13 100644
-> --- a/drivers/gpu/drm/i915/gvt/interrupt.c
-> +++ b/drivers/gpu/drm/i915/gvt/interrupt.c
-> @@ -422,7 +422,7 @@ static void init_irq_map(struct intel_gvt_irq *irq)
->  #define MSI_CAP_DATA(offset) (offset + 8)
->  #define MSI_CAP_EN 0x1
-> =20
-> -static int inject_virtual_interrupt(struct intel_vgpu *vgpu)
-> +static void inject_virtual_interrupt(struct intel_vgpu *vgpu)
->  {
->  	unsigned long offset =3D vgpu->gvt->device_info.msi_cap_offset;
->  	u16 control, data;
-> @@ -434,10 +434,10 @@ static int inject_virtual_interrupt(struct intel_vg=
-pu *vgpu)
-> =20
->  	/* Do not generate MSI if MSIEN is disabled */
->  	if (!(control & MSI_CAP_EN))
-> -		return 0;
-> +		return;
-> =20
->  	if (WARN(control & GENMASK(15, 1), "only support one MSI format\n"))
-> -		return -EINVAL;
-> +		return;
-> =20
->  	trace_inject_msi(vgpu->id, addr, data);
-> =20
-> @@ -451,10 +451,10 @@ static int inject_virtual_interrupt(struct intel_vg=
-pu *vgpu)
->  	 * returned and don't inject interrupt into guest.
->  	 */
->  	if (!test_bit(INTEL_VGPU_STATUS_ATTACHED, vgpu->status))
-> -		return -ESRCH;
-> -	if (vgpu->msi_trigger && eventfd_signal(vgpu->msi_trigger, 1) !=3D 1)
-> -		return -EFAULT;
-> -	return 0;
-> +		return;
-> +	if (!vgpu->msi_trigger)
-> +		return;
-> +	eventfd_signal(vgpu->msi_trigger, 1);
->  }
+So remove atomic variable tx_pushing and its operation, and
+smc_tx_sndbuf_nonempty becomes a wrapper of __smc_tx_sndbuf_nonempty,
+so rename __smc_tx_sndbuf_nonempty back to smc_tx_sndbuf_nonempty
 
-I think it's a little simpler to write as
-    if (vgpu->msi_trigger)
-            eventfd_signal(vgpu->msi_trigger, 1);
+Suggested-by: Alexandra Winter <wintera@linux.ibm.com>
+Co-developed-by: Dust Li <dust.li@linux.alibaba.com>
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+Signed-off-by: Li RongQing <lirongqing@baidu.com>
+---
+diff v4: remove atomic variable tx_pushing
+diff v3: improvements in the commit body and comments
+diff v2: fix a typo in commit body and add net-next subject-prefix
 
-Looks fine with me.
+ net/smc/smc.h    |  1 -
+ net/smc/smc_tx.c | 30 +-----------------------------
+ 2 files changed, 1 insertion(+), 30 deletions(-)
 
-Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index e377980..cd51261 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -196,7 +196,6 @@ struct smc_connection {
+ 						 * - dec on polled tx cqe
+ 						 */
+ 	wait_queue_head_t	cdc_pend_tx_wq; /* wakeup on no cdc_pend_tx_wr*/
+-	atomic_t		tx_pushing;     /* nr_threads trying tx push */
+ 	struct delayed_work	tx_work;	/* retry of smc_cdc_msg_send */
+ 	u32			tx_off;		/* base offset in peer rmb */
+ 
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index 3b0ff3b..214ac3c 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -621,7 +621,7 @@ static int smcd_tx_sndbuf_nonempty(struct smc_connection *conn)
+ 	return rc;
+ }
+ 
+-static int __smc_tx_sndbuf_nonempty(struct smc_connection *conn)
++int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+ {
+ 	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
+ 	int rc = 0;
+@@ -655,34 +655,6 @@ static int __smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+ 	return rc;
+ }
+ 
+-int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+-{
+-	int rc;
+-
+-	/* This make sure only one can send simultaneously to prevent wasting
+-	 * of CPU and CDC slot.
+-	 * Record whether someone has tried to push while we are pushing.
+-	 */
+-	if (atomic_inc_return(&conn->tx_pushing) > 1)
+-		return 0;
+-
+-again:
+-	atomic_set(&conn->tx_pushing, 1);
+-	smp_wmb(); /* Make sure tx_pushing is 1 before real send */
+-	rc = __smc_tx_sndbuf_nonempty(conn);
+-
+-	/* We need to check whether someone else have added some data into
+-	 * the send queue and tried to push but failed after the atomic_set()
+-	 * when we are pushing.
+-	 * If so, we need to push again to prevent those data hang in the send
+-	 * queue.
+-	 */
+-	if (unlikely(!atomic_dec_and_test(&conn->tx_pushing)))
+-		goto again;
+-
+-	return rc;
+-}
+-
+ /* Wakeup sndbuf consumers from process context
+  * since there is more data to transmit. The caller
+  * must hold sock lock.
+-- 
+2.9.4
 
-Thanks!
-
-> =20
->  static void propagate_event(struct intel_gvt_irq *irq,
->=20
-> --=20
-> 2.42.0
->=20
-
---ehCOKC0wDaVXxQlM
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EARECAB0WIQTXuabgHDW6LPt9CICxBBozTXgYJwUCZV6bswAKCRCxBBozTXgY
-JySHAJ4qE2jv0i0ZauQv+Bv/bGwHt0ZrbACeJadIIL6gQC6kmoICLhyqplCwOeo=
-=1+t0
------END PGP SIGNATURE-----
-
---ehCOKC0wDaVXxQlM--
