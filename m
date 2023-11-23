@@ -1,77 +1,192 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4446222F0D;
-	Wed, 22 Nov 2023 23:31:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 264D8C433C8;
-	Wed, 22 Nov 2023 23:31:44 +0000 (UTC)
-Date: Wed, 22 Nov 2023 18:32:00 -0500
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Alexander Potapenko
- <glider@google.com>, Andrew Morton <akpm@linux-foundation.org>, Christoph
- Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko
- Carstens <hca@linux.ibm.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco
- Elver <elver@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Pekka
- Enberg <penberg@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Vlastimil
- Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>,
- kasan-dev@googlegroups.com, linux-kernel@vger.kernel.org,
- linux-mm@kvack.org, linux-s390@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
- Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle
- <svens@linux.ibm.com>
-Subject: Re: [PATCH v2 01/33] ftrace: Unpoison ftrace_regs in
- ftrace_ops_list_func()
-Message-ID: <20231122183200.409e982b@gandalf.local.home>
-In-Reply-To: <20231121220155.1217090-2-iii@linux.ibm.com>
-References: <20231121220155.1217090-1-iii@linux.ibm.com>
-	<20231121220155.1217090-2-iii@linux.ibm.com>
-X-Mailer: Claws Mail 3.19.1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="a0RMRtdr"
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.93])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AAFA1B3;
+	Wed, 22 Nov 2023 16:26:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1700699164; x=1732235164;
+  h=date:from:to:cc:subject:message-id:reply-to:references:
+   mime-version:in-reply-to;
+  bh=kMJqNQrPFkouBUmP1tIxtozSsYheDkR/LnL4F11wiis=;
+  b=a0RMRtdr45SnsHLYk3kiLIfZs2Z292eQtCjDOGkSajq4kJgqoPyPz1Z8
+   xhWoNH51ino8oe9+Nmimsn7SFdTQgw8cA/qSM06asNrV9XlVmhWFA6efE
+   bx/KJxGEkz9CgKaAcRip2AVvQj244oSCMbQ2SV3R4DIR0CTNKXPPkI00S
+   8UPzwDbKGWrNEIvyOLU2GF23JoceIic+G88FMkrhNsWS/7MACg0sIjNMf
+   ijDW0ytrIcjGYvd6MSyu2liYjeaUIruC6bgfya5Y7v4Nc28NcFQbnBBQQ
+   f0zW1UCdi/Sb7g9NYp8o9b8iKurHqbTYEdk8doLf35VPgtN8OmhSA3u25
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10902"; a="389323011"
+X-IronPort-AV: E=Sophos;i="6.04,220,1695711600"; 
+   d="asc'?scan'208";a="389323011"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Nov 2023 16:26:03 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10902"; a="716903060"
+X-IronPort-AV: E=Sophos;i="6.04,220,1695711600"; 
+   d="asc'?scan'208";a="716903060"
+Received: from debian-skl.sh.intel.com (HELO debian-skl) ([10.239.160.45])
+  by orsmga003.jf.intel.com with ESMTP; 22 Nov 2023 16:25:45 -0800
+Date: Thu, 23 Nov 2023 08:24:24 +0800
+From: Zhenyu Wang <zhenyuw@linux.intel.com>
+To: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+	Jan Kara <jack@suse.cz>, Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	David Woodhouse <dwmw2@infradead.org>, Paul Durrant <paul@xen.org>,
+	Oded Gabbay <ogabbay@kernel.org>, Wu Hao <hao.wu@intel.com>,
+	Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>,
+	Xu Yilun <yilun.xu@intel.com>,
+	Zhenyu Wang <zhenyuw@linux.intel.com>,
+	Zhi Wang <zhi.a.wang@intel.com>,
+	Jani Nikula <jani.nikula@linux.intel.com>,
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+	David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+	Leon Romanovsky <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>,
+	Frederic Barrat <fbarrat@linux.ibm.com>,
+	Andrew Donnellan <ajd@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Eric Farman <farman@linux.ibm.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Tony Krowiak <akrowiak@linux.ibm.com>,
+	Jason Herne <jjherne@linux.ibm.com>,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Diana Craciun <diana.craciun@oss.nxp.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Eric Auger <eric.auger@redhat.com>, Fei Li <fei1.li@intel.com>,
+	Benjamin LaHaise <bcrl@kvack.org>,
+	Johannes Weiner <hannes@cmpxchg.org>,
+	Michal Hocko <mhocko@kernel.org>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Shakeel Butt <shakeelb@google.com>,
+	Muchun Song <muchun.song@linux.dev>,
+	Kirti Wankhede <kwankhede@nvidia.com>, kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+	linux-fpga@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
+	intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+	linux-aio@kvack.org, cgroups@vger.kernel.org, linux-mm@kvack.org,
+	Jens Axboe <axboe@kernel.dk>,
+	Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+Subject: Re: [PATCH v2 1/4] i915: make inject_virtual_interrupt() void
+Message-ID: <ZV6buHrQy2+CJ7xX@debian-scheme>
+Reply-To: Zhenyu Wang <zhenyuw@linux.intel.com>
+References: <20231122-vfs-eventfd-signal-v2-0-bd549b14ce0c@kernel.org>
+ <20231122-vfs-eventfd-signal-v2-1-bd549b14ce0c@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-
-On Tue, 21 Nov 2023 23:00:55 +0100
-Ilya Leoshkevich <iii@linux.ibm.com> wrote:
-
-> Architectures use assembly code to initialize ftrace_regs and call
-> ftrace_ops_list_func(). Therefore, from the KMSAN's point of view,
-> ftrace_regs is poisoned on ftrace_ops_list_func entry(). This causes
-> KMSAN warnings when running the ftrace testsuite.
-> 
-> Fix by trusting the architecture-specific assembly code and always
-> unpoisoning ftrace_regs in ftrace_ops_list_func.
-
-You must be very trusting to trust architecture-specific assembly code ;-)
-
-Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-
--- Steve
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ehCOKC0wDaVXxQlM"
+Content-Disposition: inline
+In-Reply-To: <20231122-vfs-eventfd-signal-v2-1-bd549b14ce0c@kernel.org>
 
 
-> 
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+--ehCOKC0wDaVXxQlM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On 2023.11.22 13:48:22 +0100, Christian Brauner wrote:
+> The single caller of inject_virtual_interrupt() ignores the return value
+> anyway. This allows us to simplify eventfd_signal() in follow-up
+> patches.
+>=20
+> Signed-off-by: Christian Brauner <brauner@kernel.org>
 > ---
->  kernel/trace/ftrace.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-> index 8de8bec5f366..dfb8b26966aa 100644
-> --- a/kernel/trace/ftrace.c
-> +++ b/kernel/trace/ftrace.c
-> @@ -7399,6 +7399,7 @@ __ftrace_ops_list_func(unsigned long ip, unsigned long parent_ip,
->  void arch_ftrace_ops_list_func(unsigned long ip, unsigned long parent_ip,
->  			       struct ftrace_ops *op, struct ftrace_regs *fregs)
+>  drivers/gpu/drm/i915/gvt/interrupt.c | 14 +++++++-------
+>  1 file changed, 7 insertions(+), 7 deletions(-)
+>=20
+> diff --git a/drivers/gpu/drm/i915/gvt/interrupt.c b/drivers/gpu/drm/i915/=
+gvt/interrupt.c
+> index de3f5903d1a7..9665876b4b13 100644
+> --- a/drivers/gpu/drm/i915/gvt/interrupt.c
+> +++ b/drivers/gpu/drm/i915/gvt/interrupt.c
+> @@ -422,7 +422,7 @@ static void init_irq_map(struct intel_gvt_irq *irq)
+>  #define MSI_CAP_DATA(offset) (offset + 8)
+>  #define MSI_CAP_EN 0x1
+> =20
+> -static int inject_virtual_interrupt(struct intel_vgpu *vgpu)
+> +static void inject_virtual_interrupt(struct intel_vgpu *vgpu)
 >  {
-> +	kmsan_unpoison_memory(fregs, sizeof(*fregs));
->  	__ftrace_ops_list_func(ip, parent_ip, NULL, fregs);
+>  	unsigned long offset =3D vgpu->gvt->device_info.msi_cap_offset;
+>  	u16 control, data;
+> @@ -434,10 +434,10 @@ static int inject_virtual_interrupt(struct intel_vg=
+pu *vgpu)
+> =20
+>  	/* Do not generate MSI if MSIEN is disabled */
+>  	if (!(control & MSI_CAP_EN))
+> -		return 0;
+> +		return;
+> =20
+>  	if (WARN(control & GENMASK(15, 1), "only support one MSI format\n"))
+> -		return -EINVAL;
+> +		return;
+> =20
+>  	trace_inject_msi(vgpu->id, addr, data);
+> =20
+> @@ -451,10 +451,10 @@ static int inject_virtual_interrupt(struct intel_vg=
+pu *vgpu)
+>  	 * returned and don't inject interrupt into guest.
+>  	 */
+>  	if (!test_bit(INTEL_VGPU_STATUS_ATTACHED, vgpu->status))
+> -		return -ESRCH;
+> -	if (vgpu->msi_trigger && eventfd_signal(vgpu->msi_trigger, 1) !=3D 1)
+> -		return -EFAULT;
+> -	return 0;
+> +		return;
+> +	if (!vgpu->msi_trigger)
+> +		return;
+> +	eventfd_signal(vgpu->msi_trigger, 1);
 >  }
->  #else
 
+I think it's a little simpler to write as
+    if (vgpu->msi_trigger)
+            eventfd_signal(vgpu->msi_trigger, 1);
+
+Looks fine with me.
+
+Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+
+Thanks!
+
+> =20
+>  static void propagate_event(struct intel_gvt_irq *irq,
+>=20
+> --=20
+> 2.42.0
+>=20
+
+--ehCOKC0wDaVXxQlM
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EARECAB0WIQTXuabgHDW6LPt9CICxBBozTXgYJwUCZV6bswAKCRCxBBozTXgY
+JySHAJ4qE2jv0i0ZauQv+Bv/bGwHt0ZrbACeJadIIL6gQC6kmoICLhyqplCwOeo=
+=1+t0
+-----END PGP SIGNATURE-----
+
+--ehCOKC0wDaVXxQlM--
