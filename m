@@ -1,118 +1,71 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TQI+bMu/"
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DD471A8
-	for <linux-s390@vger.kernel.org>; Thu, 23 Nov 2023 06:32:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1700749926;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7yzx9qOvDK5HqVyciE7l1diyIFw6Eysuxf8uBBLbzRo=;
-	b=TQI+bMu/E8altjBqMoA2MxLAL7z4d9P8u4lA/Mp6yBFrSFB2CsAai8XLyCgjJkGlQ7JMlb
-	4PpbfePnDc/yJPGNgDOlMnX2bzORbjWSiTqvyqNbahrtpYRvoNqx/Z1qLrYyVq5eS5KJNS
-	QrUjvyd7ukIKGMuNRjOf6T4oWL/bIh8=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-223-_SGWWHWgMVObeNhXt_Ynzw-1; Thu,
- 23 Nov 2023 09:32:03 -0500
-X-MC-Unique: _SGWWHWgMVObeNhXt_Ynzw-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B69673C0BE39;
-	Thu, 23 Nov 2023 14:32:02 +0000 (UTC)
-Received: from localhost (unknown [10.72.112.97])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 14ACC5028;
-	Thu, 23 Nov 2023 14:32:01 +0000 (UTC)
-Date: Thu, 23 Nov 2023 22:31:59 +0800
-From: Baoquan He <bhe@redhat.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, kexec@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
-	akpm@linux-foundation.org, ignat@cloudflare.com,
-	eric_devolder@yahoo.com
-Subject: Re: [PATCH 3/3] s390/Kconfig: drop select of KEXEC
-Message-ID: <ZV9iX5HNftPjNr3S@MiWiFi-R3L-srv>
-References: <20231123073652.507034-1-bhe@redhat.com>
- <20231123073652.507034-4-bhe@redhat.com>
- <ZV9W5AmmYhCFmN9e@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95F1F35EF4;
+	Thu, 23 Nov 2023 15:23:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BA4CC433C9;
+	Thu, 23 Nov 2023 15:23:33 +0000 (UTC)
+Date: Thu, 23 Nov 2023 10:23:49 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux Trace Kernel
+ <linux-trace-kernel@vger.kernel.org>, Masami Hiramatsu
+ <mhiramat@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Morton
+ <akpm@linux-foundation.org>, Ajay Kaher <akaher@vmware.com>,
+ chinglinyu@google.com, lkp@intel.com, namit@vmware.com,
+ oe-lkp@lists.linux.dev, amakhalov@vmware.com, er.ajay.kaher@gmail.com,
+ srivatsa@csail.mit.edu, tkundu@vmware.com, vsirnapalli@vmware.com,
+ linux-s390@vger.kernel.org
+Subject: Re: [PATCH v5] eventfs: Remove eventfs_file and just use
+ eventfs_inode
+Message-ID: <20231123102349.110e4525@gandalf.local.home>
+In-Reply-To: <20231123112548.9603-A-hca@linux.ibm.com>
+References: <20231004165007.43d79161@gandalf.local.home>
+	<20231117142335.9674-A-hca@linux.ibm.com>
+	<20231117143829.9674-B-hca@linux.ibm.com>
+	<20231123112548.9603-A-hca@linux.ibm.com>
+X-Mailer: Claws Mail 3.19.1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZV9W5AmmYhCFmN9e@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On 11/23/23 at 02:43pm, Alexander Gordeev wrote:
-> On Thu, Nov 23, 2023 at 03:36:52PM +0800, Baoquan He wrote:
-> 
-> Hi Baoquan,
-> 
-> > No proof is found to require that S390 architecture has to select
-> > KEXEC. At least from my testing at below, dropping select of KEXEC won't
-> > impact anything.
-> 
-> It does impact the outcome of defconfigs.
-> Namely, CONFIG_KEXEC is not set with this patch.
+On Thu, 23 Nov 2023 12:25:48 +0100
+Heiko Carstens <hca@linux.ibm.com> wrote:
 
-Right, CONFIG_KEXEC won't be set defaultly with this patch applied.
-
+> So, if it helps (this still happens with Linus' master branch):
 > 
-> > ===testing 1===
-> > CONFIG_CRASH_CORE=y
-> > CONFIG_KEXEC_CORE=y
-> > CONFIG_CRASH_DUMP=y
-> > ===
-> > 
-> > ===testing 2===
-> > CONFIG_CRASH_CORE=y
-> > CONFIG_KEXEC_CORE=y
-> > CONFIG_KEXEC_FILE=y
-> > CONFIG_CRASH_DUMP=y
-> > ===
-> 
-> Unfortunately, I do not quite realize what these testings were
-> and what is the difference between the two.
+> create_dir_dentry() is called with a "struct eventfs_inode *ei" (second
+> parameter), which points to a data structure where "is_freed" is 1. Then it
+> looks like create_dir() returned "-EEXIST". And looking at the code this
+> combination then must lead to d_invalidate() incorrectly being called with
+> "-EEXIST" as dentry pointer.
 
-Both these two testings have CONFIG_KEXEC=n, and building all passed.
-I wound't present their difference, but two cases where no CONFIG_KEXEC
-is set and no dependency on CONFIG_KEXEC is seen.
+I haven't looked too much at the error codes, let me do that on Monday
+(it's currently Turkey weekend here in the US).
+
+But could you test this branch:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/trace/linux-trace.git  trace/core
+
+I have a bunch of fixes in that branch that may fix your issue. I just
+finished testing it and plan on pushing it to Linus before the next rc
+release.
+
+Thanks!
+
+-- Steve
+
 
 > 
-> > So drop the select of KEXEC now.
+> Now, I have no idea how the code should work, but it is quite obvious that
+> something is broken :)
 > 
-> I suggest dropping this patch. Once the previous two are upstream
-> we would remove 'select KEXEC' from Kconfig together with defconfig
-> updates.
-
-I see your concern, will drop this one in v2. Thanks for checking these.
-
-> 
-> > Signed-off-by: Baoquan He <bhe@redhat.com>
-> > ---
-> >  arch/s390/Kconfig | 1 -
-> >  1 file changed, 1 deletion(-)
-> > 
-> > diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> > index 3bec98d20283..1aec2e692dca 100644
-> > --- a/arch/s390/Kconfig
-> > +++ b/arch/s390/Kconfig
-> > @@ -217,7 +217,6 @@ config S390
-> >  	select HAVE_VIRT_CPU_ACCOUNTING_IDLE
-> >  	select IOMMU_HELPER		if PCI
-> >  	select IOMMU_SUPPORT		if PCI
-> > -	select KEXEC
-> >  	select MMU_GATHER_MERGE_VMAS
-> >  	select MMU_GATHER_NO_GATHER
-> >  	select MMU_GATHER_RCU_TABLE_FREE
-> > -- 
-> 
-> Thanks!
-> 
+> Here the dump of the struct eventfs_inode that was passed to
+> create_file_dentry() when the crash happened:
 
