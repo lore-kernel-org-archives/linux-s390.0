@@ -1,132 +1,109 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CWH0WcI5"
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6DB7199B;
-	Thu, 23 Nov 2023 05:43:12 -0800 (PST)
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ANCqhr1021827;
-	Thu, 23 Nov 2023 13:43:06 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JfXIJVS+"
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D0D0D40;
+	Thu, 23 Nov 2023 06:13:41 -0800 (PST)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ANDod0w013391;
+	Thu, 23 Nov 2023 14:13:35 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=KRR7/FLcHHfVYwLFqhd7C1q8EsSoikY6fbR7WzttxZ0=;
- b=CWH0WcI541sXHITD98nZFLJRSHvY/2sZviXkWIExTTJkEDFE6RyYbe2Fn28iSJkwDHOx
- bp+4nuH6IfU2T+PmhoHoZyCTaLcu5UVqTScD17TmhAai1hod4sMQze9TRP9Y1Ig/3xcl
- vG8MWUOCxQV3vLgRqDAplyQtocFuHZnVHyqS5V4uGb+dQF/As8Yqx9AsUpbWRGy2ueEV
- BhIHh0gi/UOdZ4QDwomCxJkc49TLQ1IH3Nq87gzfk/LVudCq4mTIpYF0tuAQaPI9e/0f
- OPlRLB2ADxfbnpDimwPXJd/LAt/Tqxse+z/lxeKZ+B4clUbYX4ZGivGV6QcY0ep8gEnJ jw== 
+ content-transfer-encoding : in-reply-to; s=pp1;
+ bh=Q04AXgHuRqcJadhMlb2LUeTbuaDdTSUNd6AIPrTaYzs=;
+ b=JfXIJVS+F5prnqDH5sAiQ9lg5miS4D82vC5tSM6gib0Y98dn3HrL9O1y/TGEqOSx/Bq1
+ VXrNP9rDZaFClNNyF/qqdE9CzPQ7WAc3sTHgOoowVKb6qQ6E6v17vgSA3i1pl6dpGlo6
+ nJfgnUx53i6tUPKFyXa7Bhs6ARh06vWKPCOIGelxuG31lh1gNGvSnMVK5gZaWPpVtBzk
+ f3UagDvuCcO7Zkb4XeGEcWVO/QojqyFtnMaHjrOk/nKHHA29JA1j3IyhVUU7bQagRrkR
+ RsSlatuUx+CdWWn/bBPO2TRR4r6YF8n3jfeUBODSLWuS7GPPUI69BrSzoPuZTZ3lxP+b lg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uj74k15td-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uj7dpsh8q-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Nov 2023 13:43:05 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ANDh5Id032355;
-	Thu, 23 Nov 2023 13:43:05 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uj74k15t2-1
+	Thu, 23 Nov 2023 14:13:34 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ANDomMR014492;
+	Thu, 23 Nov 2023 14:13:34 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uj7dpsh87-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Nov 2023 13:43:05 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ANBIg1p003481;
-	Thu, 23 Nov 2023 13:43:04 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uf7ktfp4h-1
+	Thu, 23 Nov 2023 14:13:34 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ANBIqBa024672;
+	Thu, 23 Nov 2023 14:13:33 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf8kp7jkj-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Nov 2023 13:43:04 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ANDh2jE8913568
+	Thu, 23 Nov 2023 14:13:32 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ANEDVjF45548276
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 23 Nov 2023 13:43:02 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8C4F120040;
-	Thu, 23 Nov 2023 13:43:02 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DCBDE20043;
-	Thu, 23 Nov 2023 13:43:01 +0000 (GMT)
+	Thu, 23 Nov 2023 14:13:31 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EB5E62004B;
+	Thu, 23 Nov 2023 14:13:30 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2B37820040;
+	Thu, 23 Nov 2023 14:13:30 +0000 (GMT)
 Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.80.84])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 23 Nov 2023 13:43:01 +0000 (GMT)
-Date: Thu, 23 Nov 2023 14:43:00 +0100
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 23 Nov 2023 14:13:30 +0000 (GMT)
+Date: Thu, 23 Nov 2023 15:13:28 +0100
 From: Alexander Gordeev <agordeev@linux.ibm.com>
 To: Baoquan He <bhe@redhat.com>
 Cc: linux-kernel@vger.kernel.org, kexec@lists.infradead.org,
         linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
         akpm@linux-foundation.org, ignat@cloudflare.com,
         eric_devolder@yahoo.com
-Subject: Re: [PATCH 3/3] s390/Kconfig: drop select of KEXEC
-Message-ID: <ZV9W5AmmYhCFmN9e@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+Subject: Re: [PATCH 2/3] drivers/base/cpu: crash data showing should depends
+ on KEXEC_CORE
+Message-ID: <ZV9eCBm5uy7/VgOX@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
 References: <20231123073652.507034-1-bhe@redhat.com>
- <20231123073652.507034-4-bhe@redhat.com>
+ <20231123073652.507034-3-bhe@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20231123073652.507034-4-bhe@redhat.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20231123073652.507034-3-bhe@redhat.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: p97UOpER7j1y6xI193PSMYOEsM0_ReRh
-X-Proofpoint-ORIG-GUID: Q8_fDX5_sC5i010zY_FRtWNuycP5JyR9
+X-Proofpoint-GUID: 2VLVSyf8Y0jVaqlYYFYjpVvyoOJkyXHF
+X-Proofpoint-ORIG-GUID: FbY8vbpibFUL3rG1mgZJQiwJNhj6l0VL
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-23_12,2023-11-22_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
- adultscore=0 mlxscore=0 spamscore=0 malwarescore=0 impostorscore=0
- priorityscore=1501 lowpriorityscore=0 clxscore=1011 mlxlogscore=357
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311230098
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ bulkscore=0 priorityscore=1501 impostorscore=0 spamscore=0 mlxscore=0
+ adultscore=0 malwarescore=0 phishscore=0 clxscore=1015 mlxlogscore=642
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311230102
 
-On Thu, Nov 23, 2023 at 03:36:52PM +0800, Baoquan He wrote:
-
-Hi Baoquan,
-
-> No proof is found to require that S390 architecture has to select
-> KEXEC. At least from my testing at below, dropping select of KEXEC won't
-> impact anything.
-
-It does impact the outcome of defconfigs.
-Namely, CONFIG_KEXEC is not set with this patch.
-
-> ===testing 1===
-> CONFIG_CRASH_CORE=y
-> CONFIG_KEXEC_CORE=y
-> CONFIG_CRASH_DUMP=y
-> ===
+On Thu, Nov 23, 2023 at 03:36:51PM +0800, Baoquan He wrote:
+> When below kernel config items are set, compiling error are triggered.
 > 
-> ===testing 2===
 > CONFIG_CRASH_CORE=y
 > CONFIG_KEXEC_CORE=y
-> CONFIG_KEXEC_FILE=y
 > CONFIG_CRASH_DUMP=y
-> ===
+> CONFIG_CRASH_HOTPLUG=y
+> 
+> ------------------------------------------------------
+> drivers/base/cpu.c: In function ‘crash_hotplug_show’:
+> drivers/base/cpu.c:309:40: error: implicit declaration of function ‘crash_hotplug_cpu_support’; did you mean ‘crash_hotplug_show’? [-Werror=implicit-function-declaration]
+>   309 |         return sysfs_emit(buf, "%d\n", crash_hotplug_cpu_support());
+>       |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~
+>       |                                        crash_hotplug_show
+> cc1: some warnings being treated as errors
+> ------------------------------------------------------
+> 
+> CONFIG_KEXEC is used to enable kexec_load interface, the
+> crash_notes/crash_notes_size/crash_hotplug showing depends on
+> CONFIG_KEXEC is incorrect. It should depend on KEXEC_CORE instead.
+> 
+> Fix it now.
 
-Unfortunately, I do not quite realize what these testings were
-and what is the difference between the two.
-
-> So drop the select of KEXEC now.
-
-I suggest dropping this patch. Once the previous two are upstream
-we would remove 'select KEXEC' from Kconfig together with defconfig
-updates.
+If this error introduced with the prevous patch?
+If so, the patches need to be swapped I guess.
 
 > Signed-off-by: Baoquan He <bhe@redhat.com>
-> ---
->  arch/s390/Kconfig | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index 3bec98d20283..1aec2e692dca 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -217,7 +217,6 @@ config S390
->  	select HAVE_VIRT_CPU_ACCOUNTING_IDLE
->  	select IOMMU_HELPER		if PCI
->  	select IOMMU_SUPPORT		if PCI
-> -	select KEXEC
->  	select MMU_GATHER_MERGE_VMAS
->  	select MMU_GATHER_NO_GATHER
->  	select MMU_GATHER_RCU_TABLE_FREE
-> -- 
-
-Thanks!
