@@ -1,114 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
-Received: from njjs-sys-mailin01.njjs.baidu.com (mx310.baidu.com [180.101.52.44])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3109812A;
-	Wed, 22 Nov 2023 17:45:39 -0800 (PST)
-Received: from localhost (bjhw-sys-rpm015653cc5.bjhw.baidu.com [10.227.53.39])
-	by njjs-sys-mailin01.njjs.baidu.com (Postfix) with ESMTP id E01AB7F000A9;
-	Thu, 23 Nov 2023 09:45:37 +0800 (CST)
-From: Li RongQing <lirongqing@baidu.com>
-To: linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	wintera@linux.ibm.com,
-	dust.li@linux.alibaba.com
-Subject: [PATCH net-next v4] net/smc: remove unneeded atomic operations in smc_tx_sndbuf_nonempty
-Date: Thu, 23 Nov 2023 09:45:37 +0800
-Message-Id: <20231123014537.9786-1-lirongqing@baidu.com>
-X-Mailer: git-send-email 2.9.4
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Pi562C6i"
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED063E7
+	for <linux-s390@vger.kernel.org>; Wed, 22 Nov 2023 23:37:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1700725023;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=hZIGK99oC3oMtW4db/aQjrmivwq8vYdu48PqdNRtXGY=;
+	b=Pi562C6isv9kll0lBz4afPqHDIOvdVztw58j5DmmeT5bn//g3UFag63PunfW2HBC1HBsmp
+	UJ7juusprWPSE+YvnkvBrVCNGvHjBEGhTjhxuvehH4bIxzcUy1HkztdHjgMNbvj15NHn9M
+	zrwN3oJhK8UR21l/vrBlpwMnYm6sIBY=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-115-F6EtF1WONh674lmkSKKmXA-1; Thu, 23 Nov 2023 02:36:59 -0500
+X-MC-Unique: F6EtF1WONh674lmkSKKmXA-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id E7F8485A58A;
+	Thu, 23 Nov 2023 07:36:58 +0000 (UTC)
+Received: from MiWiFi-R3L-srv.redhat.com (unknown [10.72.112.97])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id C8052492BFA;
+	Thu, 23 Nov 2023 07:36:55 +0000 (UTC)
+From: Baoquan He <bhe@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: kexec@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	akpm@linux-foundation.org,
+	ignat@cloudflare.com,
+	eric_devolder@yahoo.com,
+	Baoquan He <bhe@redhat.com>
+Subject: [PATCH 0/3] kernel/Kconfig.kexec: drop select of KEXEC for CRASH_DUMP
+Date: Thu, 23 Nov 2023 15:36:49 +0800
+Message-ID: <20231123073652.507034-1-bhe@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.10
 
-The commit dcd2cf5f2fc0 ("net/smc: add autocorking support") adds an
-atomic variable tx_pushing in smc_connection to make sure only one can
-send to let it cork more and save CDC slot. since smc_tx_pending can be
-called in the soft IRQ without checking sock_owned_by_user() at that
-time, which would cause a race condition because bh_lock_sock() did
-not honor sock_lock()
+Ignat reported a potential config regression was introduced by
+commit 89cde455915f ("kexec: consolidate kexec and crash options
+into kernel/Kconfig.kexec"). Please click below link for more details:
 
-After commit 6b88af839d20 ("net/smc: don't send in the BH context if
-sock_owned_by_user"), the transmission is deferred to when sock_lock()
-is held by the user. Therefore, we no longer need tx_pending to hold
-message.
+https://lore.kernel.org/all/CALrw=nHpRQQaQTP_jZfREgrQEMpS8jBF8JQCv4ygqXycE-StaA@mail.gmail.com/T/#u
 
-So remove atomic variable tx_pushing and its operation, and
-smc_tx_sndbuf_nonempty becomes a wrapper of __smc_tx_sndbuf_nonempty,
-so rename __smc_tx_sndbuf_nonempty back to smc_tx_sndbuf_nonempty
+The patch 1 fix the regression by removing incorrect CONFIG_KEXEC
+ifdeffery scope adding in arm's <asm/kexec.h>, then dropping the
+select of KEXEC for CRASH_DUMP. This is tested and passed a cross
+comiping of arm.
 
-Suggested-by: Alexandra Winter <wintera@linux.ibm.com>
-Co-developed-by: Dust Li <dust.li@linux.alibaba.com>
-Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
----
-diff v4: remove atomic variable tx_pushing
-diff v3: improvements in the commit body and comments
-diff v2: fix a typo in commit body and add net-next subject-prefix
+Patch 2 is to fix a build failure when I tested patch 1 on x86_64, the
+wrong CONFIG_KEXEC iddeffery is replaced with CONFIG_KEXEC_CORE. Test
+passed on x86_64.
 
- net/smc/smc.h    |  1 -
- net/smc/smc_tx.c | 30 +-----------------------------
- 2 files changed, 1 insertion(+), 30 deletions(-)
+Patch 3 is to fix an unnecessary 'select KEXEC' in s390 ARCH. Removing
+the select won't impact anything. Test passed on a ibm-z system.
 
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index e377980..cd51261 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -196,7 +196,6 @@ struct smc_connection {
- 						 * - dec on polled tx cqe
- 						 */
- 	wait_queue_head_t	cdc_pend_tx_wq; /* wakeup on no cdc_pend_tx_wr*/
--	atomic_t		tx_pushing;     /* nr_threads trying tx push */
- 	struct delayed_work	tx_work;	/* retry of smc_cdc_msg_send */
- 	u32			tx_off;		/* base offset in peer rmb */
- 
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index 3b0ff3b..214ac3c 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -621,7 +621,7 @@ static int smcd_tx_sndbuf_nonempty(struct smc_connection *conn)
- 	return rc;
- }
- 
--static int __smc_tx_sndbuf_nonempty(struct smc_connection *conn)
-+int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
- {
- 	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
- 	int rc = 0;
-@@ -655,34 +655,6 @@ static int __smc_tx_sndbuf_nonempty(struct smc_connection *conn)
- 	return rc;
- }
- 
--int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
--{
--	int rc;
--
--	/* This make sure only one can send simultaneously to prevent wasting
--	 * of CPU and CDC slot.
--	 * Record whether someone has tried to push while we are pushing.
--	 */
--	if (atomic_inc_return(&conn->tx_pushing) > 1)
--		return 0;
--
--again:
--	atomic_set(&conn->tx_pushing, 1);
--	smp_wmb(); /* Make sure tx_pushing is 1 before real send */
--	rc = __smc_tx_sndbuf_nonempty(conn);
--
--	/* We need to check whether someone else have added some data into
--	 * the send queue and tried to push but failed after the atomic_set()
--	 * when we are pushing.
--	 * If so, we need to push again to prevent those data hang in the send
--	 * queue.
--	 */
--	if (unlikely(!atomic_dec_and_test(&conn->tx_pushing)))
--		goto again;
--
--	return rc;
--}
--
- /* Wakeup sndbuf consumers from process context
-  * since there is more data to transmit. The caller
-  * must hold sock lock.
+Baoquan He (3):
+  kernel/Kconfig.kexec: drop select of KEXEC for CRASH_DUMP
+  drivers/base/cpu: crash data showing should depends on KEXEC_CORE
+  s390/Kconfig: drop select of KEXEC
+
+ arch/arm/include/asm/kexec.h | 4 ----
+ arch/s390/Kconfig            | 1 -
+ drivers/base/cpu.c           | 6 +++---
+ kernel/Kconfig.kexec         | 1 -
+ 4 files changed, 3 insertions(+), 9 deletions(-)
+
 -- 
-2.9.4
+2.41.0
 
