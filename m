@@ -1,151 +1,257 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=cloudflare.com header.i=@cloudflare.com header.b="YwNiy1T7"
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 489BFD41
-	for <linux-s390@vger.kernel.org>; Thu, 23 Nov 2023 00:23:46 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id 98e67ed59e1d1-2802c41b716so546894a91.1
-        for <linux-s390@vger.kernel.org>; Thu, 23 Nov 2023 00:23:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloudflare.com; s=google09082023; t=1700727826; x=1701332626; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=gxyQvllrMD+S9nUR2i6XqgEe1Uz/MXq2oi0l9PmN/sI=;
-        b=YwNiy1T7grxEyt7Xng/CF/khp7hKSiJOPq8+ISS7jrggHEkeVI4+U5yXPVbKODTCUY
-         GHAGIpA8eqVFeCLBwiwAem5PgAbEA79j6sMpL+6LciKiV/WbFK7TNY8DEqECZpuS4EsP
-         EPwK3plzbk/yRQD/Uccbcb0SAVyBorQnpYoadIkVQse6tGjH0SEPt/BcIUGM0OEGyyIZ
-         4FInmJ3ey/z9SE8npeQ8PXBSxxAlceFLup/3RlUNc4w8+lgcgrqufy2HP0lFrqX8VQp1
-         c5RBN9NyCDYm0v4oDLnJfMcD6jHFtb/9VZlPQk4Z3/4mbHDyY7YTcU1oj57wPOchy8GM
-         uRjQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700727826; x=1701332626;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=gxyQvllrMD+S9nUR2i6XqgEe1Uz/MXq2oi0l9PmN/sI=;
-        b=Vajk+834mZ7ZJPeurz8DWYP/XrxvHDSbglk9slLueB7XYJgUEecu28eW/KTMK7pJcQ
-         tNWzxfLboZnwmyQSa7L5bOv6zGoODaEIQFwo8rIqJLUL7vbia4o51uBJ6NykMjLdmT6d
-         DNI2rlLWwHQAFMlML+JYWMQPanKYgNWdnIWdiXiZn7q5SsZ+ms9HsjYQO6nFZRg4OY9z
-         5cG5YWEMzxzHVHk5oeaSMBJlN1O5c3RQN43NAUG2Z9nEABgn4THrHxr2VzQFDjZ5uclH
-         49iKRjAlcOMfb1IsALRBBXi0UzUgmvU8894rPaTL/jSe6fwt1DHON9RTLezKZ8DRGfZb
-         KwkQ==
-X-Gm-Message-State: AOJu0YyIN8aepZsncN/hsYXZZYybGX8vVZszXCPb+s9CUoH9F81BALC+
-	X+t5ZqkRhTyuqbrNzBUUHtIJoHqhUExDUVMLjSJNdw==
-X-Google-Smtp-Source: AGHT+IFi7qsrLCSSOcApqa1ERtzIeHUoDbf3aFgi2HK5T0smIgc+93Gp6aWh+OLekkrorVduK4kKcUAuqv35kcpbqDE=
-X-Received: by 2002:a17:90b:3803:b0:27d:882f:e6c5 with SMTP id
- mq3-20020a17090b380300b0027d882fe6c5mr4440955pjb.9.1700727825600; Thu, 23 Nov
- 2023 00:23:45 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iBRXrpzQ"
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89AA0B9
+	for <linux-s390@vger.kernel.org>; Thu, 23 Nov 2023 00:27:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1700728039;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=clHFl9DyukhU/KNoZLAq0QP1VqRYJXancPu2G75tCi0=;
+	b=iBRXrpzQD5DZ2Wuy7qKTsKaqmE4qg4lBPqWjO+7In0bl3sIABYYEdrOAx9CoKLcDqMQkYQ
+	45TjybMMqBwTJQyA2rkApR3M/u6utEd4uhkW7DSd95noiPBYNglipKJCBHkyIK/PMik8h0
+	AZExSFgzeXMEXbL3ZEswbXNMbVExuzI=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-141-xbU-EiHFNt2UCn3fOV12Bg-1; Thu, 23 Nov 2023 03:27:17 -0500
+X-MC-Unique: xbU-EiHFNt2UCn3fOV12Bg-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 574DB101A53B;
+	Thu, 23 Nov 2023 08:27:16 +0000 (UTC)
+Received: from localhost (unknown [10.72.112.97])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 2C8B82026D4C;
+	Thu, 23 Nov 2023 08:27:12 +0000 (UTC)
+Date: Thu, 23 Nov 2023 16:27:09 +0800
+From: Baoquan He <bhe@redhat.com>
+To: Ignat Korchagin <ignat@cloudflare.com>
+Cc: eric_devolder@yahoo.com, linux@armlinux.org.uk, catalin.marinas@arm.com,
+	will@kernel.org, chenhuacai@kernel.org, geert@linux-m68k.org,
+	tsbogend@alpha.franken.de,
+	James Bottomley <James.Bottomley@hansenpartnership.com>,
+	deller@gmx.de, ysato@users.sourceforge.jp, dalias@libc.org,
+	glaubitz@physik.fu-berlin.de, Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	dave.hansen@linux.intel.com, x86@kernel.org,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	kernel@xen0n.name, mpe@ellerman.id.au, npiggin@gmail.com,
+	christophe.leroy@csgroup.eu, paul.walmsley@sifive.com,
+	palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
+	gor@linux.ibm.com, agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com, svens@linux.ibm.com, hpa@zytor.com,
+	keescook@chromium.org, paulmck@kernel.org,
+	Peter Zijlstra <peterz@infradead.org>, frederic@kernel.org,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Ard Biesheuvel <ardb@kernel.org>, samitolvanen@google.com,
+	juerg.haefliger@canonical.com, arnd@arndb.de,
+	rmk+kernel@armlinux.org.uk, linus.walleij@linaro.org,
+	sebastian.reichel@collabora.com, rppt@kernel.org,
+	kirill.shutemov@linux.intel.com, anshuman.khandual@arm.com,
+	ziy@nvidia.com, masahiroy@kernel.org, ndesaulniers@google.com,
+	mhiramat@kernel.org, ojeda@kernel.org, thunder.leizhen@huawei.com,
+	xin3.li@intel.com, tj@kernel.org,
+	Greg KH <gregkh@linuxfoundation.org>, tsi@tuyoix.net,
+	hbathini@linux.ibm.com, sourabhjain@linux.ibm.com,
+	boris.ostrovsky@oracle.com, konrad.wilk@oracle.com,
+	kernel-team <kernel-team@cloudflare.com>
+Subject: Re: Potential config regression after 89cde455 ("kexec: consolidate
+ kexec and crash options into kernel/Kconfig.kexec")
+Message-ID: <ZV8M3aUTdt2BWaAP@MiWiFi-R3L-srv>
+References: <CALrw=nHpRQQaQTP_jZfREgrQEMpS8jBF8JQCv4ygqXycE-StaA@mail.gmail.com>
+ <ZVwMzXxWkgonIAfc@MiWiFi-R3L-srv>
+ <CALrw=nG8xsYw7XKyL_VMHtKiaBcQCKvC8UVp-C9-BdeN4A1Daw@mail.gmail.com>
+ <CALrw=nH-vcROja2W23rUKEEZMZhxsQiNB4P_ZZQ-XhPHAJGxrg@mail.gmail.com>
+ <ZV3LKVOokpx2WvKp@MiWiFi-R3L-srv>
+ <CALrw=nGadgbwuNAFacatz-agpGn9NvtgaCUXu73MzAzZq07k-g@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231123073652.507034-1-bhe@redhat.com> <20231123073652.507034-2-bhe@redhat.com>
-In-Reply-To: <20231123073652.507034-2-bhe@redhat.com>
-From: Ignat Korchagin <ignat@cloudflare.com>
-Date: Thu, 23 Nov 2023 08:23:34 +0000
-Message-ID: <CALrw=nEO3A2MPeSXhO3=cPdrAFB07sQcnjNN5V5jj2YcqAZ+bQ@mail.gmail.com>
-Subject: Re: [PATCH 1/3] kernel/Kconfig.kexec: drop select of KEXEC for CRASH_DUMP
-To: Baoquan He <bhe@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kexec@lists.infradead.org, 
-	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, 
-	akpm@linux-foundation.org, eric_devolder@yahoo.com, 
-	kernel-team <kernel-team@cloudflare.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CALrw=nGadgbwuNAFacatz-agpGn9NvtgaCUXu73MzAzZq07k-g@mail.gmail.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.4
 
-On Thu, Nov 23, 2023 at 7:37=E2=80=AFAM Baoquan He <bhe@redhat.com> wrote:
->
-> Ignat Korchagin complained that a potential config regression was
-> introduced by commit 89cde455915f ("kexec: consolidate kexec and
-> crash options into kernel/Kconfig.kexec"). Before the commit,
-> CONFIG_CRASH_DUMP has no dependency on CONFIG_KEXEC. After the commit,
-> CRASH_DUMP selects KEXEC. That enforces system to have CONFIG_KEXEC=3Dy
-> as long as CONFIG_CRASH_DUMP=3DY which people may not want.
->
-> In Ignat's case, he sets CONFIG_CRASH_DUMP=3Dy, CONFIG_KEXEC_FILE=3Dy and
-> CONFIG_KEXEC=3Dn because kexec_load interface could have security issue i=
-f
-> kernel/initrd has no chance to be signed and verified.
->
-> CRASH_DUMP has select of KEXEC because Eric, author of above commit,
-> met a LKP report of build failure when posting patch of earlier version.
-> Please see below link to get detail of the LKP report:
->
->     https://lore.kernel.org/all/3e8eecd1-a277-2cfb-690e-5de2eb7b988e@orac=
-le.com/T/#u
->
-> In fact, that LKP report is triggered because arm's <asm/kexec.h> is
-> wrapped in CONFIG_KEXEC ifdeffery scope. That is wrong. CONFIG_KEXEC
-> controls the enabling/disabling of kexec_load interface, but not kexec
-> feature. Removing the wrongly added CONFIG_KEXEC ifdeffery scope in
-> <asm/kexec.h> of arm allows us to drop the select KEXEC for CRASH_DUMP.
+On 11/22/23 at 09:47am, Ignat Korchagin wrote:
+> On Wed, Nov 22, 2023 at 9:34 AM Baoquan He <bhe@redhat.com> wrote:
+> >
+> > On 11/21/23 at 09:43am, Ignat Korchagin wrote:
+> > > On Tue, Nov 21, 2023 at 7:53 AM Ignat Korchagin <ignat@cloudflare.com> wrote:
+> > > >
+> > > > On Tue, Nov 21, 2023 at 1:50 AM Baoquan He <bhe@redhat.com> wrote:
+> > > > >
+> > > > > Eric DeVolder's Oracle mail address is not available anymore, add his
+> > > > > current mail address he told me.
+> > > >
+> > > > Thank you!
+> > > >
+> > > > > On 11/20/23 at 10:52pm, Ignat Korchagin wrote:
+> > > > > > Good day!
+> > > > > >
+> > > > > > We have recently started to evaluate Linux 6.6 and noticed that we
+> > > > > > cannot disable CONFIG_KEXEC anymore, but keep CONFIG_CRASH_DUMP
+> > > > > > enabled. It seems to be related to commit 89cde455 ("kexec:
+> > > > > > consolidate kexec and crash options into kernel/Kconfig.kexec"), where
+> > > > > > a CONFIG_KEXEC dependency was added to CONFIG_CRASH_DUMP.
+> > > > > >
+> > > > > > In our current kernel (Linux 6.1) we only enable CONFIG_KEXEC_FILE
+> > > > > > with enforced signature check to support the kernel crash dumping
+> > > > > > functionality and would like to keep CONFIG_KEXEC disabled for
+> > > > > > security reasons [1].
+> > > > > >
+> > > > > > I was reading the long commit message, but the reason for adding
+> > > > > > CONFIG_KEXEC as a dependency for CONFIG_CRASH_DUMP evaded me. And I
+> > > > > > believe from the implementation perspective CONFIG_KEXEC_FILE should
+> > > > > > suffice here (as we successfully used it for crashdumps on Linux 6.1).
+> > > > > >
+> > > > > > Is there a reason for adding this dependency or is it just an
+> > > > > > oversight? Would some solution of requiring either CONFIG_KEXEC or
+> > > > > > CONFIG_KEXEC_FILE work here?
+> > > > >
+> > > > > I searched the patch history, found Eric didn't add the dependency on
+> > > > > CONFIG_KEXEC at the beginning. Later a linux-next building failure with
+> > > > > randconfig was reported, in there CONFIG_CRASH_DUMP enabled, while
+> > > > > CONFIG_KEXEC is disabled. Finally Eric added the KEXEC dependency for
+> > > > > CRASH_DUMP. Please see below link for more details:
+> > > > >
+> > > > > https://lore.kernel.org/all/3e8eecd1-a277-2cfb-690e-5de2eb7b988e@oracle.com/T/#u
+> > > >
+> > > > Thank you for digging this up. However I'm still confused, because
+> > > > this is exactly how we configure Linux 6.1 (although we do have
+> > > > CONFIG_KEXEC_FILE enabled) and we don't have any problems. I believe
+> > > > we did not investigate this issue properly.
+> > >
+> > > I did some preliminary investigation for this. If I patch out the
+> > > dependency on CONFIG_KEXEC the kernel builds just fine for x86
+> > > (without CONFIG_CRASH_HOTPLUG - which is probably another issue) - so
+> > > this was the previous behaviour. I can see that the reported error is
+> > > for arm architecture and was able to reproduce it with a simple cross
+> > > compiler in Debian. However, I think it is still somehow related to
+> > > this patchset as the previous kernels (up to 6.5) build fine with just
+> > > CONFIG_CRASH_DUMP and without CONFIG_KEXEC for arm as well. So even
+> > > for arm it was introduced in 6.6.
+> >
+> > Thanks for the information.
+> >
+> > I haven't run the reproducer of issue reported on Eric's old patchset,
+> > while checkout to kernel 6.1, only s390 selected KEXEC for CRASH_DUMP
+> > already. And with the ARM building breakage, the simplest idea is
+> > to select KEXEC only for ARM or S390 CRASH_DUMP. I plan to try the
+> > reproducer later. If you have any idea or draft patch, please feel free
+> > to post.
+> 
+> The thing is - before 6.6 even ARM did not require KEXEC for
+> CRASH_DUMP (at least to successfully compile), so I think we should
+> understand what changed first before adding a dependency for ARM. I'll
+> try to investigate more, if I have time.
 
-Hm... With the patch, when cross compiling for arm and
-CONFIG_KEXEC_CORE=3Dy
+I did a cross compiling of arm on x86_64, it clearly requires KEXEC for
+CRASH_DUMP if the select of KEXEC for CRASH_DUMP is removed and
+CONFIG_KEXEC=n is set.
+
+1) building error, only copy the first one:
+==========================================
+In file included from ../include/linux/ima.h:13,
+                 from ../security/keys/key.c:16:
+../include/linux/kexec.h:38:2: error: #error KEXEC_SOURCE_MEMORY_LIMIT not defined
+   38 | #error KEXEC_SOURCE_MEMORY_LIMIT not defined
+      |  ^~~~~
+../include/linux/kexec.h:42:2: error: #error KEXEC_DESTINATION_MEMORY_LIMIT not defined
+   42 | #error KEXEC_DESTINATION_MEMORY_LIMIT not defined
+      |  ^~~~~
+../include/linux/kexec.h:46:2: error: #error KEXEC_CONTROL_MEMORY_LIMIT not defined
+   46 | #error KEXEC_CONTROL_MEMORY_LIMIT not defined
+      |  ^~~~~
+../include/linux/kexec.h:54:2: error: #error KEXEC_CONTROL_PAGE_SIZE not defined
+   54 | #error KEXEC_CONTROL_PAGE_SIZE not defined
+      |  ^~~~~
+../include/linux/kexec.h:58:2: error: #error KEXEC_ARCH not defined
+   58 | #error KEXEC_ARCH not defined
+      |  ^~~~~
+In file included from ../drivers/misc/pvpanic/pvpanic.c:13:
+
+2) Kconfig items I enabled:
+====
+CONFIG_CRASH_CORE=y
+CONFIG_KEXEC_CORE=y
 # CONFIG_KEXEC is not set
-CONFIG_CRASH_DUMP=3Dy
+CONFIG_CRASH_DUMP=y
 
-I get the following linker error at the end:
 
-  CALL    scripts/checksyscalls.sh
-  UPD     include/generated/utsversion.h
-  CC      init/version-timestamp.o
-  LD      .tmp_vmlinux.kallsyms1
-arm-linux-gnueabi-ld: kernel/kexec_core.o: in function `kimage_free':
-kexec_core.c:(.text+0xf5c): undefined reference to `machine_kexec_cleanup'
-arm-linux-gnueabi-ld: kernel/kexec_core.o: in function `__crash_kexec':
-kexec_core.c:(.text+0x15bc): undefined reference to `machine_crash_shutdown=
-'
-arm-linux-gnueabi-ld: kexec_core.c:(.text+0x15c4): undefined reference
-to `machine_kexec'
-arm-linux-gnueabi-ld: kernel/kexec_core.o: in function `kernel_kexec':
-kexec_core.c:(.text+0x1a04): undefined reference to `machine_kexec'
-make[2]: *** [scripts/Makefile.vmlinux:37: vmlinux] Error 1
-make[1]: *** [/home/ignat/git/linux-upstream/Makefile:1154: vmlinux] Error =
-2
-make: *** [Makefile:234: __sub-make] Error 2
 
-> Signed-off-by: Baoquan He <bhe@redhat.com>
-> ---
->  arch/arm/include/asm/kexec.h | 4 ----
->  kernel/Kconfig.kexec         | 1 -
->  2 files changed, 5 deletions(-)
->
-> diff --git a/arch/arm/include/asm/kexec.h b/arch/arm/include/asm/kexec.h
-> index e62832dcba76..a8287e7ab9d4 100644
-> --- a/arch/arm/include/asm/kexec.h
-> +++ b/arch/arm/include/asm/kexec.h
-> @@ -2,8 +2,6 @@
->  #ifndef _ARM_KEXEC_H
->  #define _ARM_KEXEC_H
->
-> -#ifdef CONFIG_KEXEC
-> -
->  /* Maximum physical address we can use pages from */
->  #define KEXEC_SOURCE_MEMORY_LIMIT (-1UL)
->  /* Maximum address we can reach in physical address mode */
-> @@ -82,6 +80,4 @@ static inline struct page *boot_pfn_to_page(unsigned lo=
-ng boot_pfn)
->
->  #endif /* __ASSEMBLY__ */
->
-> -#endif /* CONFIG_KEXEC */
-> -
->  #endif /* _ARM_KEXEC_H */
-> diff --git a/kernel/Kconfig.kexec b/kernel/Kconfig.kexec
-> index 7aff28ded2f4..1cc3b1c595d7 100644
-> --- a/kernel/Kconfig.kexec
-> +++ b/kernel/Kconfig.kexec
-> @@ -97,7 +97,6 @@ config CRASH_DUMP
->         depends on ARCH_SUPPORTS_KEXEC
->         select CRASH_CORE
->         select KEXEC_CORE
-> -       select KEXEC
->         help
->           Generate crash dump after being started by kexec.
->           This should be normally only set in special crash dump kernels
-> --
-> 2.41.0
->
+3) KEXEC select is dropped so as not to enable KEXEC automatically:
+=====
+diff --git a/kernel/Kconfig.kexec b/kernel/Kconfig.kexec
+index 7aff28ded2f4..1cc3b1c595d7 100644
+--- a/kernel/Kconfig.kexec
++++ b/kernel/Kconfig.kexec
+@@ -97,7 +97,6 @@ config CRASH_DUMP
+        depends on ARCH_SUPPORTS_KEXEC
+        select CRASH_CORE
+        select KEXEC_CORE
+-       select KEXEC
+        help
+          Generate crash dump after being started by kexec.
+          This should be normally only set in special crash dump kernels
+> 
+> > diff --git a/kernel/Kconfig.kexec b/kernel/Kconfig.kexec
+> > index 7aff28ded2f4..382dcd8d7a9d 100644
+> > --- a/kernel/Kconfig.kexec
+> > +++ b/kernel/Kconfig.kexec
+> > @@ -97,7 +97,7 @@ config CRASH_DUMP
+> >         depends on ARCH_SUPPORTS_KEXEC
+> >         select CRASH_CORE
+> >         select KEXEC_CORE
+> > -       select KEXEC
+> > +       select KEXEC if (ARM || S390)
+> >
+> >
+> > arch/s390/Kconfig in kernel 6.1:
+> > config CRASH_DUMP
+> >         bool "kernel crash dumps"
+> >         select KEXEC
+> >         help
+> >           Generate crash dump after being started by kexec.
+> >           Crash dump kernels are loaded in the main kernel with kexec-tools
+> >           into a specially reserved region and then later executed after
+> >           a crash by kdump/kexec.
+> >           Refer to <file:Documentation/s390/zfcpdump.rst> for more details on this.
+> >           This option also enables s390 zfcpdump.
+> >           See also <file:Documentation/s390/zfcpdump.rst>
+> >
+> > >
+> > > > > And besides, the newly added CONFIG_CRASH_HOTPLUG also needs
+> > > > > CONFIG_KEXEC if the elfcorehdr is allowed to be manipulated when
+> > > > > cpu/memory hotplug hapened.
+> > > >
+> > > > This still feels like a regression to me: any crash dump support
+> > > > should be independent of KEXEC syscalls being present. While probably
+> > > > the common case (including us) that the crashing kernel and recovery
+> > > > kernel are the same, they don't have to be. We need kexec syscall in
+> > > > the crashing kernel, but crashdump support in the recovery kernel (but
+> > > > the recovery kernel not having the kexec syscalls should be totally
+> > > > fine). If we do require some code definitions from kexec - at most we
+> > > > should put them under CONFIG_KEXEC_CORE.
+> > > >
+> > > > > Thanks
+> > > > > Baoquan
+> > > > >
+> > >
+> > > Ignat
+> > >
+> >
+> 
+
