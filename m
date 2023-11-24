@@ -1,167 +1,206 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ECGZCL00"
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23998D72;
-	Thu, 23 Nov 2023 18:02:45 -0800 (PST)
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AO1jNiO015266;
-	Fri, 24 Nov 2023 02:02:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=0Ng7PzLWRUN5PalkUI/r7oq/iQlhZgewM1sHhRV/b/k=;
- b=ECGZCL00vygNh+PUV5gvGed1LpVpCU7AdG7pzF9Z8KI3aSTOrYALRwYA9iMrun3VFWzS
- Cxhnp4ju5bJ41wqtCaH/lg7Wfikym+5857Jz4RkwtHSi2nA99Up9BuAFwb/8fYIx/KNA
- HftBjFo5Bpbiw0XS5MNMcB7sGBhg7fd+foZx49RJNRTc4+s120bDWEU0j1NiZ7i8qNbK
- l8STevmDmrn8thyn0PpsZPYsu9Z85uQ689/XPgwp6z254ghbikGvf3qX4FWrYG6G9S4j
- QIlqy6X/Mf8hfmbRCiEsMfwjSZ9Jo7HVzzZUjUNvYLb3keI5NbExPrh0Zl9NoxjqUNZw BA== 
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ujjes89q9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Nov 2023 02:02:42 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ANMn0lC010802;
-	Fri, 24 Nov 2023 02:02:41 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf80030uu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Nov 2023 02:02:41 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AO22dBc3539676
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 24 Nov 2023 02:02:39 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5F86320049;
-	Fri, 24 Nov 2023 02:02:39 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7A2CD20040;
-	Fri, 24 Nov 2023 02:02:38 +0000 (GMT)
-Received: from ozlabs.au.ibm.com (unknown [9.192.253.14])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 24 Nov 2023 02:02:38 +0000 (GMT)
-Received: from jarvis.ozlabs.ibm.com (haven.au.ibm.com [9.192.254.114])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by ozlabs.au.ibm.com (Postfix) with ESMTPSA id C622F60234;
-	Fri, 24 Nov 2023 13:02:35 +1100 (AEDT)
-Message-ID: <ef939be36737bba5d91aa6d5c8af19683aebd92c.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 2/4] eventfd: simplify eventfd_signal()
-From: Andrew Donnellan <ajd@linux.ibm.com>
-To: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
-Cc: Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>,
-        Vitaly
- Kuznetsov <vkuznets@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen
- <dave.hansen@linux.intel.com>, x86@kernel.org,
-        David Woodhouse
- <dwmw2@infradead.org>, Paul Durrant <paul@xen.org>,
-        Oded Gabbay
- <ogabbay@kernel.org>, Wu Hao <hao.wu@intel.com>,
-        Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>,
-        Xu Yilun <yilun.xu@intel.com>, Zhenyu
- Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Jani
- Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen
- <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie
- <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
-        Leon Romanovsky
- <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Frederic Barrat
- <fbarrat@linux.ibm.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman
- <gregkh@linuxfoundation.org>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew
- Rosato <mjrosato@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth
- Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter
- <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
- <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian
- Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Jason Herne
- <jjherne@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Diana Craciun
- <diana.craciun@oss.nxp.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Eric Auger <eric.auger@redhat.com>, Fei Li <fei1.li@intel.com>,
-        Benjamin
- LaHaise <bcrl@kvack.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal
- Hocko <mhocko@kernel.org>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Shakeel Butt <shakeelb@google.com>,
-        Muchun Song <muchun.song@linux.dev>,
-        Kirti Wankhede <kwankhede@nvidia.com>, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-fpga@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-usb@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org, linux-aio@kvack.org, cgroups@vger.kernel.org,
-        linux-mm@kvack.org, Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov
- <asml.silence@gmail.com>, io-uring@vger.kernel.org
-Date: Fri, 24 Nov 2023 13:02:25 +1100
-In-Reply-To: <20231122-vfs-eventfd-signal-v2-2-bd549b14ce0c@kernel.org>
-References: <20231122-vfs-eventfd-signal-v2-0-bd549b14ce0c@kernel.org>
-	 <20231122-vfs-eventfd-signal-v2-2-bd549b14ce0c@kernel.org>
-Autocrypt: addr=ajd@linux.ibm.com; prefer-encrypt=mutual;
- keydata=mDMEZPaWfhYJKwYBBAHaRw8BAQdAAuMUoxVRwqphnsFua1W+WBz6I2cIn0+Ox4YypJSdBJ+0MEFuZHJldyBEb25uZWxsYW4gKElCTSBzdHVmZikgPGFqZEBsaW51eC5pYm0uY29tPoiTBBMWCgA7FiEE01kE3s9shZVYLX1Aj1Qx8QRYRqAFAmT2ln4CGwMFCwkIBwICIgIGFQoJCAsCBBYCAwECHgcCF4AACgkQj1Qx8QRYRqAdswD8DhIh4trRQYiPe+7LaM7q+0+Thz+CwUJCW3UFOf0SEO0BAPNdsi7aVV+4Oah6nYzqzH5Zbs4Tz5RY+Vsf+DD/EzUKuDgEZPaWfhIKKwYBBAGXVQEFAQEHQLN9moJRqN8Zop/kcyIjga+2qzLoVaNAL6+4diGnlr1xAwEIB4h4BBgWCgAgFiEE01kE3s9shZVYLX1Aj1Qx8QRYRqAFAmT2ln4CGwwACgkQj1Qx8QRYRqCYkwD/W+gIP9kITfU4wnLtueFUThxA0T/LF49M7k31Qb8rPCwBALeEYAlX648lzjSA07pJB68Jt39FuUno444dSVmhYtoH
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.1 (3.50.1-1.fc39) 
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 287F2D6F;
+	Thu, 23 Nov 2023 21:50:51 -0800 (PST)
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=16;SR=0;TI=SMTPD_---0Vx0Q5lf_1700805048;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0Vx0Q5lf_1700805048)
+          by smtp.aliyun-inc.com;
+          Fri, 24 Nov 2023 13:50:49 +0800
+Date: Fri, 24 Nov 2023 13:50:47 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: Guangguan Wang <guangguan.wang@linux.alibaba.com>, wenjia@linux.ibm.com,
+	jaka@linux.ibm.com, kgraul@linux.ibm.com, corbet@lwn.net,
+	davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+	edumazet@google.com
+Cc: tonylu@linux.alibaba.com, alibuda@linux.alibaba.com,
+	guwen@linux.alibaba.com, netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next 1/2] net/smc: add sysctl for max links per lgr
+ for SMC-R v2.1
+Message-ID: <20231124055047.GJ3323@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20231122135258.38746-1-guangguan.wang@linux.alibaba.com>
+ <20231122135258.38746-2-guangguan.wang@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 31fTWNmCyikAMfyiNj-46ApM598Jj2fJ
-X-Proofpoint-ORIG-GUID: 31fTWNmCyikAMfyiNj-46ApM598Jj2fJ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-23_15,2023-11-22_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=513
- lowpriorityscore=0 suspectscore=0 spamscore=0 adultscore=0 phishscore=0
- priorityscore=1501 bulkscore=0 malwarescore=0 impostorscore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311240014
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231122135258.38746-2-guangguan.wang@linux.alibaba.com>
 
-On Wed, 2023-11-22 at 13:48 +0100, Christian Brauner wrote:
-> Ever since the evenfd type was introduced back in 2007 in commit
-> e1ad7468c77d ("signal/timer/event: eventfd core") the
-> eventfd_signal()
-> function only ever passed 1 as a value for @n. There's no point in
-> keeping that additional argument.
->=20
-> Signed-off-by: Christian Brauner <brauner@kernel.org>
+On Wed, Nov 22, 2023 at 09:52:57PM +0800, Guangguan Wang wrote:
+>Add a new sysctl: net.smc.smcr_max_links_per_lgr, which is
+>used to control the preferred max links per lgr for SMC-R
+>v2.1. The default value of this sysctl is 2, and the acceptable
+>value ranges from 1 to 2.
+>
+>Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
 
-Acked-by: Andrew Donnellan <ajd@linux.ibm.com> # ocxl
+LGTM
 
---=20
-Andrew Donnellan    OzLabs, ADL Canberra
-ajd@linux.ibm.com   IBM Australia Limited
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+
+>---
+> Documentation/networking/smc-sysctl.rst |  8 ++++++++
+> include/net/netns/smc.h                 |  1 +
+> net/smc/af_smc.c                        |  2 +-
+> net/smc/smc_clc.c                       | 10 +++++++---
+> net/smc/smc_clc.h                       |  3 ++-
+> net/smc/smc_sysctl.c                    | 12 ++++++++++++
+> net/smc/smc_sysctl.h                    |  1 +
+> 7 files changed, 32 insertions(+), 5 deletions(-)
+>
+>diff --git a/Documentation/networking/smc-sysctl.rst b/Documentation/networking/smc-sysctl.rst
+>index 769149d98773..c6ef86ef4c4f 100644
+>--- a/Documentation/networking/smc-sysctl.rst
+>+++ b/Documentation/networking/smc-sysctl.rst
+>@@ -57,3 +57,11 @@ rmem - INTEGER
+> 	only allowed 512KiB for SMC-R and 1MiB for SMC-D.
+> 
+> 	Default: 64KiB
+>+
+>+smcr_max_links_per_lgr - INTEGER
+>+	Controls the max number of links can be added to a SMC-R link group. Notice that
+>+	the actual number of the links added to a SMC-R link group depends on the number
+>+	of RDMA devices exist in the system. The acceptable value ranges from 1 to 2. Only
+>+	for SMC-R v2.1 and later.
+>+
+>+	Default: 2
+>diff --git a/include/net/netns/smc.h b/include/net/netns/smc.h
+>index 582212ada3ba..da7023587824 100644
+>--- a/include/net/netns/smc.h
+>+++ b/include/net/netns/smc.h
+>@@ -22,5 +22,6 @@ struct netns_smc {
+> 	int				sysctl_smcr_testlink_time;
+> 	int				sysctl_wmem;
+> 	int				sysctl_rmem;
+>+	int				sysctl_max_links_per_lgr;
+> };
+> #endif
+>diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>index da97f946b79b..f8da484efe90 100644
+>--- a/net/smc/af_smc.c
+>+++ b/net/smc/af_smc.c
+>@@ -2457,7 +2457,7 @@ static void smc_listen_work(struct work_struct *work)
+> 	if (rc)
+> 		goto out_decl;
+> 
+>-	rc = smc_clc_srv_v2x_features_validate(pclc, ini);
+>+	rc = smc_clc_srv_v2x_features_validate(new_smc, pclc, ini);
+> 	if (rc)
+> 		goto out_decl;
+> 
+>diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+>index 8deb46c28f1d..1f87c8895a27 100644
+>--- a/net/smc/smc_clc.c
+>+++ b/net/smc/smc_clc.c
+>@@ -824,6 +824,7 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
+> 	struct smc_clc_smcd_gid_chid *gidchids;
+> 	struct smc_clc_msg_proposal_area *pclc;
+> 	struct smc_clc_ipv6_prefix *ipv6_prfx;
+>+	struct net *net = sock_net(&smc->sk);
+> 	struct smc_clc_v2_extension *v2_ext;
+> 	struct smc_clc_msg_smcd *pclc_smcd;
+> 	struct smc_clc_msg_trail *trl;
+>@@ -944,7 +945,7 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
+> 	if (smcr_indicated(ini->smc_type_v2)) {
+> 		memcpy(v2_ext->roce, ini->smcrv2.ib_gid_v2, SMC_GID_SIZE);
+> 		v2_ext->max_conns = SMC_CONN_PER_LGR_PREFER;
+>-		v2_ext->max_links = SMC_LINKS_PER_LGR_MAX_PREFER;
+>+		v2_ext->max_links = net->smc.sysctl_max_links_per_lgr;
+> 	}
+> 
+> 	pclc_base->hdr.length = htons(plen);
+>@@ -1171,10 +1172,12 @@ int smc_clc_send_accept(struct smc_sock *new_smc, bool srv_first_contact,
+> 	return len > 0 ? 0 : len;
+> }
+> 
+>-int smc_clc_srv_v2x_features_validate(struct smc_clc_msg_proposal *pclc,
+>+int smc_clc_srv_v2x_features_validate(struct smc_sock *smc,
+>+				      struct smc_clc_msg_proposal *pclc,
+> 				      struct smc_init_info *ini)
+> {
+> 	struct smc_clc_v2_extension *pclc_v2_ext;
+>+	struct net *net = sock_net(&smc->sk);
+> 
+> 	ini->max_conns = SMC_CONN_PER_LGR_MAX;
+> 	ini->max_links = SMC_LINKS_ADD_LNK_MAX;
+>@@ -1192,7 +1195,8 @@ int smc_clc_srv_v2x_features_validate(struct smc_clc_msg_proposal *pclc,
+> 		if (ini->max_conns < SMC_CONN_PER_LGR_MIN)
+> 			return SMC_CLC_DECL_MAXCONNERR;
+> 
+>-		ini->max_links = min_t(u8, pclc_v2_ext->max_links, SMC_LINKS_PER_LGR_MAX_PREFER);
+>+		ini->max_links = min_t(u8, pclc_v2_ext->max_links,
+>+				       net->smc.sysctl_max_links_per_lgr);
+> 		if (ini->max_links < SMC_LINKS_ADD_LNK_MIN)
+> 			return SMC_CLC_DECL_MAXLINKERR;
+> 	}
+>diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+>index c5c8e7db775a..89b258cedffe 100644
+>--- a/net/smc/smc_clc.h
+>+++ b/net/smc/smc_clc.h
+>@@ -422,7 +422,8 @@ int smc_clc_send_confirm(struct smc_sock *smc, bool clnt_first_contact,
+> 			 u8 version, u8 *eid, struct smc_init_info *ini);
+> int smc_clc_send_accept(struct smc_sock *smc, bool srv_first_contact,
+> 			u8 version, u8 *negotiated_eid, struct smc_init_info *ini);
+>-int smc_clc_srv_v2x_features_validate(struct smc_clc_msg_proposal *pclc,
+>+int smc_clc_srv_v2x_features_validate(struct smc_sock *smc,
+>+				      struct smc_clc_msg_proposal *pclc,
+> 				      struct smc_init_info *ini);
+> int smc_clc_clnt_v2x_features_validate(struct smc_clc_first_contact_ext *fce,
+> 				       struct smc_init_info *ini);
+>diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
+>index 5cbc18c6e62b..3e9bb921e40a 100644
+>--- a/net/smc/smc_sysctl.c
+>+++ b/net/smc/smc_sysctl.c
+>@@ -25,6 +25,8 @@ static int max_sndbuf = INT_MAX / 2;
+> static int max_rcvbuf = INT_MAX / 2;
+> static const int net_smc_wmem_init = (64 * 1024);
+> static const int net_smc_rmem_init = (64 * 1024);
+>+static int links_per_lgr_min = SMC_LINKS_ADD_LNK_MIN;
+>+static int links_per_lgr_max = SMC_LINKS_ADD_LNK_MAX;
+> 
+> static struct ctl_table smc_table[] = {
+> 	{
+>@@ -68,6 +70,15 @@ static struct ctl_table smc_table[] = {
+> 		.extra1		= &min_rcvbuf,
+> 		.extra2		= &max_rcvbuf,
+> 	},
+>+	{
+>+		.procname	= "smcr_max_links_per_lgr",
+>+		.data		= &init_net.smc.sysctl_max_links_per_lgr,
+>+		.maxlen		= sizeof(int),
+>+		.mode		= 0644,
+>+		.proc_handler	= proc_dointvec_minmax,
+>+		.extra1		= &links_per_lgr_min,
+>+		.extra2		= &links_per_lgr_max,
+>+	},
+> 	{  }
+> };
+> 
+>@@ -97,6 +108,7 @@ int __net_init smc_sysctl_net_init(struct net *net)
+> 	net->smc.sysctl_smcr_testlink_time = SMC_LLC_TESTLINK_DEFAULT_TIME;
+> 	WRITE_ONCE(net->smc.sysctl_wmem, net_smc_wmem_init);
+> 	WRITE_ONCE(net->smc.sysctl_rmem, net_smc_rmem_init);
+>+	net->smc.sysctl_max_links_per_lgr = SMC_LINKS_PER_LGR_MAX_PREFER;
+> 
+> 	return 0;
+> 
+>diff --git a/net/smc/smc_sysctl.h b/net/smc/smc_sysctl.h
+>index 0becc11bd2f4..5783dd7575dd 100644
+>--- a/net/smc/smc_sysctl.h
+>+++ b/net/smc/smc_sysctl.h
+>@@ -23,6 +23,7 @@ void __net_exit smc_sysctl_net_exit(struct net *net);
+> static inline int smc_sysctl_net_init(struct net *net)
+> {
+> 	net->smc.sysctl_autocorking_size = SMC_AUTOCORKING_DEFAULT_SIZE;
+>+	net->smc.sysctl_max_links_per_lgr = SMC_LINKS_PER_LGR_MAX_PREFER;
+> 	return 0;
+> }
+> 
+>-- 
+>2.24.3 (Apple Git-128)
