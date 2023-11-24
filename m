@@ -1,158 +1,112 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10C7B1EB42;
-	Fri, 24 Nov 2023 12:04:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ASSOqFUT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C12FAC433C7;
-	Fri, 24 Nov 2023 12:04:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1700827484;
-	bh=iYS7ANsuZ6vwOLgQk5XN795HJ5oXfHcHZNUjCJ6SXCw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ASSOqFUTTJHCjKWaYnDmAWOsdJx6xpTr/qPcu1HB+Fm5a/QclWrV0vncK2Q3Q7xX2
-	 aCCX9KBbw2Az9X58fZvG86NOH/nrOeX7BVzsNXr5gajrQU9ziayJ62atPHT8DwDcCc
-	 ahgZtb/ixwvuzDrehPu48aUVx6G2ccUCRb+KcZHUWGGyWnosZcOgffotJMEG6Q3zmg
-	 BKh8HHr1sjhFvHUZ1Iby4sERa66rD1silvF54u1GkmzyyDomzoGyssBaqUowuIrSEm
-	 G36HFkUDw4hjv0/b3iAj4rjrfH4/y0Ks3nDD/1Xr+xB/Qamv83b+9r9W6Jyz43KFdu
-	 6MPuY/CW+rmPA==
-Date: Fri, 24 Nov 2023 12:04:40 +0000
-From: Mark Brown <broonie@kernel.org>
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org,
-	Masahiro Yamada <masahiroy@kernel.org>,
-	linux-kbuild@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>, Guo Ren <guoren@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Greg Ungerer <gerg@linux-m68k.org>, Michal Simek <monstr@monstr.eu>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Geoff Levand <geoff@infradead.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andy Lutomirski <luto@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
-	Helge Deller <deller@gmx.de>,
-	Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Timur Tabi <timur@kernel.org>,
-	Kent Overstreet <kent.overstreet@linux.dev>,
-	David Woodhouse <dwmw2@infradead.org>,
-	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-	Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-	Kees Cook <keescook@chromium.org>,
-	Vincenzo Frascino <vincenzo.frascino@arm.com>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nick Desaulniers <ndesaulniers@google.com>,
-	Nicolas Schier <nicolas@fjasle.eu>,
-	Al Viro <viro@zeniv.linux.org.uk>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>,
-	linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-trace-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
-	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-	netdev@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
-	dri-devel@lists.freedesktop.org, linux-bcachefs@vger.kernel.org,
-	linux-mtd@lists.infradead.org,
-	Aishwarya TCV <aishwarya.tcv@arm.com>
-Subject: Re: [PATCH 15/22] arch: vdso: consolidate gettime prototypes
-Message-ID: <ZWCRWArzbTYUjvon@finisterre.sirena.org.uk>
-References: <20231108125843.3806765-1-arnd@kernel.org>
- <20231108125843.3806765-16-arnd@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WTgvnMJv"
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C47ED43;
+	Fri, 24 Nov 2023 04:16:50 -0800 (PST)
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AOBGhDj029458;
+	Fri, 24 Nov 2023 12:16:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=x0wjk3MKmZ8cJhls3+GqwgXkgqe2DTRqgyUmRe/fqfg=;
+ b=WTgvnMJvgX5GlG0X7GxqOlexpp8UnJ/t53dGprcuMTba3iXwk7yqDHGDndP90DiPAT19
+ 4kcOOy/pitFejCxPTgZEEMXMp4k+dIEipuEso5MC+C08c6oabe7UcfwKel3oJMUwOzZr
+ 46YjkgzSH4ZCBdzGYKYWUryShHYGxkn2fAAKB8O+ET8fMPkh6zN5CTDBxMtVXFhnhDEl
+ bL/gsaw6mt0v8R/Cl/q12l27TvixFf0aQx8c+9rKeKiSHLXH4gYO1A8n4siPge5nshcX
+ E/46g9ApUYi0gF8tGIvMYmfbMjw69gsjdSDT1v1RfUh3jbN7CnqO1YPgGlw3wV2edXTy Qg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ujtm11ktd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 24 Nov 2023 12:16:38 +0000
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AOBGkYo030326;
+	Fri, 24 Nov 2023 12:16:38 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ujtm11kt3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 24 Nov 2023 12:16:38 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AOC4Kv2031812;
+	Fri, 24 Nov 2023 12:16:37 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf8kpdfy1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 24 Nov 2023 12:16:37 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AOCGZv128508704
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 24 Nov 2023 12:16:35 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6A43920043;
+	Fri, 24 Nov 2023 12:16:35 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2C11020040;
+	Fri, 24 Nov 2023 12:16:35 +0000 (GMT)
+Received: from [9.171.54.2] (unknown [9.171.54.2])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 24 Nov 2023 12:16:35 +0000 (GMT)
+Message-ID: <7aca0393-0369-4d03-bbb7-074c9e5ec1d3@linux.ibm.com>
+Date: Fri, 24 Nov 2023 13:16:34 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v4] net/smc: remove unneeded atomic operations in
+ smc_tx_sndbuf_nonempty
+To: Li RongQing <lirongqing@baidu.com>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, dust.li@linux.alibaba.com
+References: <20231123014537.9786-1-lirongqing@baidu.com>
+Content-Language: en-US
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20231123014537.9786-1-lirongqing@baidu.com>
+Content-Type: text/plain; charset=UTF-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: BJ85FzkyB7560sVriFkrtmgNf1InTYIf
+X-Proofpoint-ORIG-GUID: CEDOgAARI7unDWRci_6GSWJnGBpHGNn1
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="woSdJmrFfLwaS8m2"
-Content-Disposition: inline
-In-Reply-To: <20231108125843.3806765-16-arnd@kernel.org>
-X-Cookie: Am I in GRADUATE SCHOOL yet?
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-23_15,2023-11-22_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ lowpriorityscore=0 bulkscore=0 malwarescore=0 mlxlogscore=912
+ priorityscore=1501 adultscore=0 clxscore=1015 phishscore=0 suspectscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311240095
 
 
---woSdJmrFfLwaS8m2
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 08, 2023 at 01:58:36PM +0100, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
->=20
-> The VDSO functions are defined as globals in the kernel sources but inten=
-ded
-> to be called from userspace, so there is no need to declare them in a ker=
-nel
-> side header.
+On 23.11.23 02:45, Li RongQing wrote:
+> The commit dcd2cf5f2fc0 ("net/smc: add autocorking support") adds an
+> atomic variable tx_pushing in smc_connection to make sure only one can
+> send to let it cork more and save CDC slot. since smc_tx_pending can be
+> called in the soft IRQ without checking sock_owned_by_user() at that
+> time, which would cause a race condition because bh_lock_sock() did
+> not honor sock_lock()
+> 
+> After commit 6b88af839d20 ("net/smc: don't send in the BH context if
+> sock_owned_by_user"), the transmission is deferred to when sock_lock()
+> is held by the user. Therefore, we no longer need tx_pending to hold
+> message.
+> 
+> So remove atomic variable tx_pushing and its operation, and
+> smc_tx_sndbuf_nonempty becomes a wrapper of __smc_tx_sndbuf_nonempty,
+> so rename __smc_tx_sndbuf_nonempty back to smc_tx_sndbuf_nonempty
+> 
+> Suggested-by: Alexandra Winter <wintera@linux.ibm.com>
+> Co-developed-by: Dust Li <dust.li@linux.alibaba.com>
+> Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+> Signed-off-by: Li RongQing <lirongqing@baidu.com>
+> ---
 
-This is in -next as commit 42874e4eb35bdfc54f8514685e50434098ba4f6c and
-breaks an arm64 defconfig build, the 32 bit vDSO build is broken:
+Looks good to me.
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
 
-/build/stage/linux/arch/arm64/kernel/vdso32/vgettimeofday.c:10:5: error: co=
-nflic
-ting types for =E2=80=98__vdso_clock_gettime=E2=80=99; have =E2=80=98int(cl=
-ockid_t,  struct old_timespec
-32 *)=E2=80=99 {aka =E2=80=98int(int,  struct old_timespec32 *)=E2=80=99}
-   10 | int __vdso_clock_gettime(clockid_t clock,
-      |     ^~~~~~~~~~~~~~~~~~~~
-In file included from /build/stage/linux/arch/arm64/kernel/vdso32/vgettimeo=
-fday.
-c:8:
-/build/stage/linux/include/vdso/gettime.h:16:5: note: previous declaration =
-of =E2=80=98__vdso_clock_gettime=E2=80=99 with type =E2=80=98int(clockid_t,=
-  struct __kernel_timespec *)=E2=80=99 {aka =E2=80=98int(int,  struct __ker=
-nel_timespec *)=E2=80=99}
-   16 | int __vdso_clock_gettime(clockid_t clock, struct __kernel_timespec =
-*ts);
-      |     ^~~~~~~~~~~~~~~~~~~~
-/build/stage/linux/arch/arm64/kernel/vdso32/vgettimeofday.c:28:5: error: co=
-nflicting types for =E2=80=98__vdso_clock_getres=E2=80=99; have =E2=80=98in=
-t(clockid_t,  struct old_timespec32 *)=E2=80=99 {aka =E2=80=98int(int,  str=
-uct old_timespec32 *)=E2=80=99}
-   28 | int __vdso_clock_getres(clockid_t clock_id,
-      |     ^~~~~~~~~~~~~~~~~~~
-/build/stage/linux/include/vdso/gettime.h:15:5: note: previous declaration =
-of =E2=80=98__vdso_clock_getres=E2=80=99 with type =E2=80=98int(clockid_t, =
- struct __kernel_timespec *)=E2=80=99 {aka =E2=80=98int(int,  struct __kern=
-el_timespec *)=E2=80=99}
-   15 | int __vdso_clock_getres(clockid_t clock, struct __kernel_timespec *=
-res);
-      |     ^~~~~~~~~~~~~~~~~~~
+However I think this time you did not use scripts/get_maintainer.pl [1]
+to determine the correct recipient list for this email.
 
---woSdJmrFfLwaS8m2
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmVgkVgACgkQJNaLcl1U
-h9Dz9gf/VMa1PvhU/bO1IxdTJVCJWAk44qPipqzqyUg2pLaBosU5v8Dx8eAPyIg0
-DgxKA9Cycd3l3JSSqWIwJ1xEztqi2CvdmV5Ljrml8UqOvqHNPtg16JgCCOZ+Ssww
-82B8fl93C3CmUtTLFx3u3lZRKd7FjyeOiiemekfHvdbZSOn+K6Dk9zvPAE63gI0I
-5m6xp+q1eJ7Uyq7o4kCOnJOo/y9eDGX3lGqOsVQ7bnQAH6Id5y32aplMkStvzLKI
-TrSlxBsnU/wry1msxEbcgmhN2YebA1wWGNC0j6fT4xg0MzuHevZwPTSm/2sK5Exc
-fOQ/QL09MCXtNwNJ3QpItc8VaAFrVQ==
-=sHT7
------END PGP SIGNATURE-----
-
---woSdJmrFfLwaS8m2--
+[1] https://www.kernel.org/doc/html/v6.3/process/submitting-patches.html#submittingpatches
