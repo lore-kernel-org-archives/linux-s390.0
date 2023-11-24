@@ -1,109 +1,139 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hM/SY68f"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IKtdipP5"
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD6F710EB;
-	Fri, 24 Nov 2023 04:55:31 -0800 (PST)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AOAgIle000557;
-	Fri, 24 Nov 2023 12:55:10 GMT
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF39C10F3;
+	Fri, 24 Nov 2023 05:11:44 -0800 (PST)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AOCIFKS008542;
+	Fri, 24 Nov 2023 13:11:40 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=rC6RkU15cboR+USOp/CKVp8YuHT+GrmeG1v80PFwaZo=;
- b=hM/SY68f4L4q4ppTo8gtfYUz2Uc8EldmZu+2pWxz73SHGDEtaLhxnmFk9LPTqO3AADU3
- L+3LbNDrmqSYlnPK4CBHpFylJlfBkKFGxW51DFFpNoiAsu1gsfEvgkCmvdT47jn62wJh
- AzgWAifXHGrmExq1mlMJzN3rUCEbdZsqFFZe/mAnTnkAKn4hlP6rgvpAE/elaaBuW/O2
- yW5XjRasxv7d7Aa/lpTYgUEbaYtjKEoIfytqe0Zsq2WEO3kxlXU2GT4WJsRATyvfn/Rv
- 9/845kSeP6YPpotb2UTlEZ4PqGfptdjkdTUhNCbFcYfBcim70eRKdcetM1D8IxtiwIGz Pg== 
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=5IoTUiCxTRIPqYPCKOzSb0u5MJow0CO3WitoRploFwA=;
+ b=IKtdipP5X5umVD/CtAI9EQfZH28Z+pie6OzdKras9+AfBwe0YWU2Zec1PBQHWr/3DX7n
+ NJamVke+dOJFIrTwpbcPAgvzvHQNw8ry3m4gULxphdwPyIoFzQqRuo1y8rHVquWuOJO9
+ WiKSEQXNTZCNE5ECLazgAQcPT2Ep4doQsOK4QWT0MgmAFYmkhxA+i7+82qISZJI2OCm9
+ FBWQVVCWj49xbJu7/pMpla8dVzZZ5qZIMPu3Yx9yl36I6mbXRXWQk7eI0Nyr7+Rd+Q5a
+ b2GDdOXwrek7uQgvuuqZyCPpWPSE434DjdDeBJWZxaG0iutjSh5DKmKTqfOcmMrVS9Oj Iw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ujtaek5tt-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ujuq6s43x-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Nov 2023 12:55:09 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AOCAvVG024735;
-	Fri, 24 Nov 2023 12:55:09 GMT
+	Fri, 24 Nov 2023 13:11:40 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AODB5ul006198;
+	Fri, 24 Nov 2023 13:11:39 GMT
 Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ujtaek5th-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ujuq6s43b-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Nov 2023 12:55:09 +0000
+	Fri, 24 Nov 2023 13:11:39 +0000
 Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AOCIoMg019001;
-	Fri, 24 Nov 2023 12:55:08 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf93mdfw8-1
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AOCIoCE018998;
+	Fri, 24 Nov 2023 13:11:38 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uf93mdk6r-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Nov 2023 12:55:08 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AOCt7Z210420830
+	Fri, 24 Nov 2023 13:11:38 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AODBbaT19726940
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 24 Nov 2023 12:55:07 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6FB5058052;
-	Fri, 24 Nov 2023 12:55:07 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6173458045;
-	Fri, 24 Nov 2023 12:55:06 +0000 (GMT)
+	Fri, 24 Nov 2023 13:11:38 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 96D9E58060;
+	Fri, 24 Nov 2023 13:11:37 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 055A958056;
+	Fri, 24 Nov 2023 13:11:34 +0000 (GMT)
 Received: from [9.171.44.206] (unknown [9.171.44.206])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 24 Nov 2023 12:55:06 +0000 (GMT)
-Message-ID: <0c9fe1fd-affb-4f01-bad7-3d41b98280f5@linux.ibm.com>
-Date: Fri, 24 Nov 2023 13:55:05 +0100
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 24 Nov 2023 13:11:33 +0000 (GMT)
+Message-ID: <30b53b21-40ad-407a-bef7-ddc28f8978e2@linux.ibm.com>
+Date: Fri, 24 Nov 2023 14:11:33 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 0/7] net/smc: implement SMCv2.1 virtual ISM
+ device support
+Content-Language: en-GB
+To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        kgraul@linux.ibm.com, jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, raspl@linux.ibm.com, schnelle@linux.ibm.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1700402277-93750-1-git-send-email-guwen@linux.alibaba.com>
+From: Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <1700402277-93750-1-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 5XEJB9UbR5achhgrO0-9qVQrsNZgbc6A
+X-Proofpoint-GUID: SXTFhSlAIzL3ucdUb8ZCp0gQhMjXWwoW
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v4] net/smc: remove unneeded atomic operations in
- smc_tx_sndbuf_nonempty
-To: Li RongQing <lirongqing@baidu.com>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, wintera@linux.ibm.com,
-        dust.li@linux.alibaba.com
-References: <20231123014537.9786-1-lirongqing@baidu.com>
-Content-Language: en-GB
-From: Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <20231123014537.9786-1-lirongqing@baidu.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Ksx1VGtMpFwm5NjXN6K_Grplgwv-nnYX
-X-Proofpoint-GUID: 3XOh5lgSG_XQ0EMChBzEW3LKOuGKU82q
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-23_15,2023-11-22_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 mlxscore=0 mlxlogscore=906 malwarescore=0 bulkscore=0
- adultscore=0 suspectscore=0 phishscore=0 impostorscore=0
- lowpriorityscore=0 clxscore=1011 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2311060000 definitions=main-2311240100
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ mlxlogscore=999 bulkscore=0 priorityscore=1501 adultscore=0
+ impostorscore=0 spamscore=0 clxscore=1011 malwarescore=0 mlxscore=0
+ phishscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2311060000 definitions=main-2311240102
 
 
 
-On 23.11.23 02:45, Li RongQing wrote:
-> The commit dcd2cf5f2fc0 ("net/smc: add autocorking support") adds an
-> atomic variable tx_pushing in smc_connection to make sure only one can
-> send to let it cork more and save CDC slot. since smc_tx_pending can be
-> called in the soft IRQ without checking sock_owned_by_user() at that
-> time, which would cause a race condition because bh_lock_sock() did
-> not honor sock_lock()
+On 19.11.23 14:57, Wen Gu wrote:
+> The fourth edition of SMCv2 adds the SMC version 2.1 feature updates for
+> SMC-Dv2 with virtual ISM. Virtual ISM are created and supported mainly by
+> OS or hypervisor software, comparable to IBM ISM which is based on platform
+> firmware or hardware.
 > 
-> After commit 6b88af839d20 ("net/smc: don't send in the BH context if
-> sock_owned_by_user"), the transmission is deferred to when sock_lock()
-> is held by the user. Therefore, we no longer need tx_pending to hold
-> message.
+> With the introduction of virtual ISM, SMCv2.1 makes some updates:
 > 
-> So remove atomic variable tx_pushing and its operation, and
-> smc_tx_sndbuf_nonempty becomes a wrapper of __smc_tx_sndbuf_nonempty,
-> so rename __smc_tx_sndbuf_nonempty back to smc_tx_sndbuf_nonempty
+> - Introduce feature bitmask to indicate supplemental features.
+> - Reserve a range of CHIDs for virtual ISM.
+> - Support extended GIDs (128 bits) in CLC handshake.
 > 
-> Suggested-by: Alexandra Winter <wintera@linux.ibm.com>
-> Co-developed-by: Dust Li <dust.li@linux.alibaba.com>
-> Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
-> Signed-off-by: Li RongQing <lirongqing@baidu.com>
-> ---
+> So this patch set aims to implement these updates in Linux kernel. And it
+> acts as the first part of the new version of [1].
+> 
+> [1] https://lore.kernel.org/netdev/1695568613-125057-1-git-send-email-guwen@linux.alibaba.com/
+> 
+> Wen Gu (7):
+>    net/smc: Rename some variable 'fce' to 'fce_v2x' for clarity
+>    net/smc: support SMCv2.x supplemental features negotiation
+>    net/smc: introduce virtual ISM device support feature
+>    net/smc: define a reserved CHID range for virtual ISM devices
+>    net/smc: compatible with 128-bits extend GID of virtual ISM device
+>    net/smc: disable SEID on non-s390 archs where virtual ISM may be used
+>    net/smc: manage system EID in SMC stack instead of ISM driver
+> 
+>   drivers/s390/net/ism.h     |  6 ---
+>   drivers/s390/net/ism_drv.c | 54 +++++++--------------------
+>   include/linux/ism.h        |  1 -
+>   include/net/smc.h          | 16 +++++---
+>   net/smc/af_smc.c           | 68 ++++++++++++++++++++++++++-------
+>   net/smc/smc.h              |  7 ++++
+>   net/smc/smc_clc.c          | 93 ++++++++++++++++++++++++++++++++--------------
+>   net/smc/smc_clc.h          | 22 +++++++----
+>   net/smc/smc_core.c         | 30 ++++++++++-----
+>   net/smc/smc_core.h         |  8 ++--
+>   net/smc/smc_diag.c         |  7 +++-
+>   net/smc/smc_ism.c          | 57 ++++++++++++++++++++--------
+>   net/smc/smc_ism.h          | 31 +++++++++++++++-
+>   net/smc/smc_pnet.c         |  4 +-
+>   14 files changed, 269 insertions(+), 135 deletions(-)
+> 
 
-To the patch, LGTM! Again, please copy the related subsystem maintainers 
-explicitly!
+Hi Wen Gu,
 
-Reviewed-and-tested-by: Wenjia Zhang <wenjia@linux.ibm.com>
+Just FYI, the review is still on going and some tests on our plateform 
+still need to do. I'll give you my comments as soon as the testing is 
+done. I think it would be at the beginning of next week.
+
+Thanks,
+Wenjia
