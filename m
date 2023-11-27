@@ -1,52 +1,52 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IKrhKFi0"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fMU7IBS4"
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1BA1BB
-	for <linux-s390@vger.kernel.org>; Mon, 27 Nov 2023 07:16:23 -0800 (PST)
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85B37BE
+	for <linux-s390@vger.kernel.org>; Mon, 27 Nov 2023 07:51:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701098182;
+	s=mimecast20190719; t=1701100264;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=o1OXRXgH1rWrRktsR3slBjqAkr3OAo4k1a/STq0C0Qs=;
-	b=IKrhKFi0lXFA274vcPAAZDGT2NX529jW6M50mvOio4cnrb/hJQWfUl3WY6ILspZwTzd2HT
-	+rYRODFr66g+tJHo6zNMuT5+XWU2hNQUq3QfE8+83ZPEA3OJdoPdue7cbakfunGEMo8y+2
-	oi1FCmSgSvPz5XXpkgMM+cA+Mx1IwRo=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=/MW6fXJWJVxOzUmBSa6MQ4ghqr1tOYYSz5WWxvHituE=;
+	b=fMU7IBS4LCDhIuAPbF9AlRZKuIC8WwzAIRkK70t4KhzlgAXhIpDXWzZZ9UkMfvkwqXodMX
+	tJ2Y5wOLVJnrtZFXClJvoWw8gRU7A9A79Y/tFIUi/di9SZ++t/nYLu+mBSXXLjyD/bT9rR
+	2PQtweuXS08D5s0YduKBdL7PtrcA9lU=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-166-YP7Y9cIrP5yT64h5zRSaSg-1; Mon, 27 Nov 2023 10:16:21 -0500
-X-MC-Unique: YP7Y9cIrP5yT64h5zRSaSg-1
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-332e2e0b98bso3155559f8f.1
-        for <linux-s390@vger.kernel.org>; Mon, 27 Nov 2023 07:16:21 -0800 (PST)
+ us-mta-354-e8T84GHSMxqsmcdcz07cuA-1; Mon, 27 Nov 2023 10:51:03 -0500
+X-MC-Unique: e8T84GHSMxqsmcdcz07cuA-1
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-332f5ff511aso1681968f8f.2
+        for <linux-s390@vger.kernel.org>; Mon, 27 Nov 2023 07:51:02 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701098180; x=1701702980;
+        d=1e100.net; s=20230601; t=1701100261; x=1701705061;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
          :references:cc:to:content-language:subject:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=o1OXRXgH1rWrRktsR3slBjqAkr3OAo4k1a/STq0C0Qs=;
-        b=ZAJWV8nVUiIR9UQnNgEftIxUK9kiS/xNNsC876p34fsXRXgIbq7MmzLpXmHeVKcM4V
-         TyeVPYpPCDDnVz73SlY1Rsioba+/xy3DSALOIRdg10j4IVzVv/jSGBuucK4Z2P8kdXTJ
-         bTSFLCjh7xJRvIUy7j/RZflSBN4JWMdeCH3vlIR4ZaD764tBuumVgI+Fg7/UdATGXBph
-         /EpPWz7G/2TbDL6160wB9lu3niahSiX96Ir+K0/B8wQQ8+lMUz5nlorc+vM2wOpiighC
-         Wc6PBX0m+XmE4jFozxi0HGYQSwhtyPvmF4lZVUHLIGJnW8RkVZmIN7v3DpecIl90nFi8
-         CF/A==
-X-Gm-Message-State: AOJu0YxlxQ7bxrTkNASZbavHkC/1mz3qsAf4QhjiC+VwBSVI/HEwVJkj
-	TxijPNohQ1jsKkQgOFqBQ9UeN8SO5YXeQQxQ5GLpMINyKzaDz4jFmFEB3pFqVmaubgdrCwu8hQy
-	toXiIG1evVUgmMSCiXB0Tcw==
-X-Received: by 2002:a5d:4c44:0:b0:332:eb19:9520 with SMTP id n4-20020a5d4c44000000b00332eb199520mr7667135wrt.20.1701098180027;
-        Mon, 27 Nov 2023 07:16:20 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGzQsFhBN5+Rm7TrL4q2+K20IuTilKu8zrGTb/WG4m6sixc1+hiVZv4o7JOJ3sxL3PitYzrAA==
-X-Received: by 2002:a5d:4c44:0:b0:332:eb19:9520 with SMTP id n4-20020a5d4c44000000b00332eb199520mr7667094wrt.20.1701098179584;
-        Mon, 27 Nov 2023 07:16:19 -0800 (PST)
+        bh=/MW6fXJWJVxOzUmBSa6MQ4ghqr1tOYYSz5WWxvHituE=;
+        b=Oryla7+3stII4RGuznISLomq2sSYmwuWKCDWmqMWwqd9/k2WClJw3PE+h13e4c5Xde
+         Ap6Ps3yccivFTCHL0nWbh2F+j0zL1EjE9DlHyEyEVsvqgpejwTeDMQuiIWsYbDin9UTJ
+         QzDcRwViX5E3cAlEUCd4bKtg9G1L585ATY0Xv0rk87vhRHSsc2j8pgMrENt0kSQ3T6zc
+         942fz6mEonNsdlnQRMDXR76dWsuS3Pm7ZXYaqLQLfVgJxwMHslcRO5mgnhGBSM8o5m4p
+         FvKEjMoDQTlM/+ZZMdFlL8E0bccWLDbaaomC/e57sZT0wihBOxJVISRT6Kz0VM89+b/G
+         XGAA==
+X-Gm-Message-State: AOJu0YxyYu2p6RONXRzQdIl7g9wSnLeDbM7+wT6AWZ+2QqMGQ4b9ZJfi
+	cxAWLkTt03sj5iFlY0dU8VLQ2I85FSCeQ7bp7+8KLizcKqKebx7QQLLry1Frh4XSvNwYzleYIe4
+	i7njh18blr4x/OgggpuGRmw==
+X-Received: by 2002:a5d:42c6:0:b0:32f:8248:e00 with SMTP id t6-20020a5d42c6000000b0032f82480e00mr7904610wrr.51.1701100260863;
+        Mon, 27 Nov 2023 07:51:00 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IH5k3ZLyNQccZYzbu69giOSq0M2cyfy1n30nyrdFyJPfJRDUajhMqkhfxcoHUzqMx+PKELWtQ==
+X-Received: by 2002:a5d:42c6:0:b0:32f:8248:e00 with SMTP id t6-20020a5d42c6000000b0032f82480e00mr7904593wrr.51.1701100260472;
+        Mon, 27 Nov 2023 07:51:00 -0800 (PST)
 Received: from ?IPV6:2003:cb:c745:2a00:d74a:a8c5:20b6:3ec3? (p200300cbc7452a00d74aa8c520b63ec3.dip0.t-ipconnect.de. [2003:cb:c745:2a00:d74a:a8c5:20b6:3ec3])
-        by smtp.gmail.com with ESMTPSA id h4-20020adfa4c4000000b0032d8eecf901sm12397781wrb.3.2023.11.27.07.16.18
+        by smtp.gmail.com with ESMTPSA id e15-20020a5d594f000000b00332fda15055sm4434889wri.111.2023.11.27.07.50.59
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 27 Nov 2023 07:16:19 -0800 (PST)
-Message-ID: <c7512dd7-5009-4230-a29e-ea13c2e3be3e@redhat.com>
-Date: Mon, 27 Nov 2023 16:16:18 +0100
+        Mon, 27 Nov 2023 07:51:00 -0800 (PST)
+Message-ID: <afb4a0ca-3f5d-4fd2-9bde-3c8dbc16d2a5@redhat.com>
+Date: Mon, 27 Nov 2023 16:50:59 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -167,65 +167,46 @@ On 27.11.23 09:20, Sumanth Korikkar wrote:
 > Suggested-by: David Hildenbrand <david@redhat.com>
 > Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
 > ---
-
-[...]
-
->   };
+>   drivers/base/memory.c          | 21 +++++++++++++++++++--
+>   include/linux/memory.h         |  2 ++
+>   include/linux/memory_hotplug.h | 18 +++++++++++++++++-
+>   include/linux/memremap.h       |  1 +
+>   mm/memory_hotplug.c            | 30 ++++++++++++++++++++++++++++--
+>   mm/sparse.c                    |  3 ++-
+>   6 files changed, 69 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+> index 8a13babd826c..5c6b2af75db4 100644
+> --- a/drivers/base/memory.c
+> +++ b/drivers/base/memory.c
+> @@ -188,6 +188,7 @@ static int memory_block_online(struct memory_block *mem)
+>   	unsigned long start_pfn = section_nr_to_pfn(mem->start_section_nr);
+>   	unsigned long nr_pages = PAGES_PER_SECTION * sections_per_block;
+>   	unsigned long nr_vmemmap_pages = 0;
+> +	struct memory_notify arg;
+>   	struct zone *zone;
+>   	int ret;
 >   
->   /*
-> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-> index 7a5fc89a8652..ac7cfc09502d 100644
-> --- a/mm/memory_hotplug.c
-> +++ b/mm/memory_hotplug.c
-> @@ -1083,8 +1083,25 @@ void adjust_present_page_count(struct page *page, struct memory_group *group,
->   		group->present_kernel_pages += nr_pages;
->   }
+> @@ -197,6 +198,14 @@ static int memory_block_online(struct memory_block *mem)
+>   	zone = zone_for_pfn_range(mem->online_type, mem->nid, mem->group,
+>   				  start_pfn, nr_pages);
 >   
-> +static void page_init_poison_with_resched(unsigned long start_pfn, unsigned long nr_pages)
-> +{
-> +	const unsigned long end_pfn = start_pfn + nr_pages;
-> +	unsigned long pfn, cur_nr_pages;
-> +
-> +	/* Poison struct pages because they are now uninitialized again. */
-> +	for (pfn = start_pfn; pfn < end_pfn; pfn += cur_nr_pages) {
-> +		cond_resched();
-> +
-> +		/* Select all remaining pages up to the next section boundary */
-> +		cur_nr_pages =
-> +			min(end_pfn - pfn, SECTION_ALIGN_UP(pfn + 1) - pfn);
-> +		page_init_poison(pfn_to_page(pfn),
-> +				 sizeof(struct page) * cur_nr_pages);
-> +	}
-> +}
-> +
->   int mhp_init_memmap_on_memory(unsigned long pfn, unsigned long nr_pages,
-> -			      struct zone *zone)
-> +			      struct zone *zone, bool mhp_off_inaccessible)
->   {
->   	unsigned long end_pfn = pfn + nr_pages;
->   	int ret, i;
-> @@ -1092,7 +1109,14 @@ int mhp_init_memmap_on_memory(unsigned long pfn, unsigned long nr_pages,
->   	ret = kasan_add_zero_shadow(__va(PFN_PHYS(pfn)), PFN_PHYS(nr_pages));
->   	if (ret)
->   		return ret;
-> -
-> +	/*
-> +	 * Memory block is accessible at this stage and hence poison the struct
-> +	 * pages now.  If the memory block is accessible during memory hotplug
-> +	 * addition phase, then page poisining is already performed in
-> +	 * sparse_add_section().
-> +	 */
-> +	if (mhp_off_inaccessible)
-> +		page_init_poison_with_resched(pfn, nr_pages);
+> +	arg.start_pfn = start_pfn;
+> +	arg.nr_pages = nr_pages;
 
-Can you elaborate why a simple page_init_poison() as for 
-sparse_add_section() is insufficient?
 
-Apart from that looks good.
+Thinking about it, it's possibly cleanest to send the altmap range along 
+here.
 
-Ideally, we'd be updating altmap->inaccessible as we online/offline 
-memory. But then, we'd have to remember MHP_OFFLINE_INACCESSIBLE somehow 
-differently.
+Later memory onlining notifiers will only be notified about the actual 
+!altmap part.
+
+arg.altmap_start_pfn = start_pfn;
+arg.altmap_nr_pages = nr_vmemmap_pages;
+arg.start_pfn = start_pfn + nr_vmemmap_pages;
+arg.nr_pages = nr_pages - nr_vmemmap_pages;
+
+Use that for the two new notifiers only and document it. Thoughts?
 
 -- 
 Cheers,
