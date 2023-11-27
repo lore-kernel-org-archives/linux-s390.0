@@ -1,115 +1,158 @@
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
-Received: from dggsgout12.his.huawei.com (dggsgout12.his.huawei.com [45.249.212.56])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD163CE;
-	Sun, 26 Nov 2023 23:52:47 -0800 (PST)
-Received: from mail.maildlp.com (unknown [172.19.93.142])
-	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4SdyVf2qkVz4f3l7L;
-	Mon, 27 Nov 2023 15:52:42 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 31CB71A0AEF;
-	Mon, 27 Nov 2023 15:52:44 +0800 (CST)
-Received: from [10.174.176.73] (unknown [10.174.176.73])
-	by APP1 (Coremail) with SMTP id cCh0CgBXWhDISmRl1qdCCA--.65049S3;
-	Mon, 27 Nov 2023 15:52:43 +0800 (CST)
-Subject: Re: [PATCH block/for-next v2 07/16] bcachefs: use new helper to get
- inode from block_device
-To: Kent Overstreet <kent.overstreet@linux.dev>,
- Damien Le Moal <dlemoal@kernel.org>
-Cc: Yu Kuai <yukuai1@huaweicloud.com>, hch@infradead.org,
- ming.lei@redhat.com, axboe@kernel.dk, roger.pau@citrix.com, colyli@suse.de,
- kent.overstreet@gmail.com, joern@lazybastard.org, miquel.raynal@bootlin.com,
- richard@nod.at, vigneshr@ti.com, sth@linux.ibm.com, hoeppner@linux.ibm.com,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- jejb@linux.ibm.com, martin.petersen@oracle.com, clm@fb.com,
- josef@toxicpanda.com, dsterba@suse.com, viro@zeniv.linux.org.uk,
- brauner@kernel.org, nico@fluxnic.net, xiang@kernel.org, chao@kernel.org,
- tytso@mit.edu, adilger.kernel@dilger.ca, agruenba@redhat.com, jack@suse.com,
- konishi.ryusuke@gmail.com, dchinner@redhat.com, linux@weissschuh.net,
- min15.li@samsung.com, willy@infradead.org, akpm@linux-foundation.org,
- hare@suse.de, p.raghav@samsung.com, linux-block@vger.kernel.org,
- linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org,
- linux-bcache@vger.kernel.org, linux-mtd@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
- linux-bcachefs@vger.kernel.org, linux-btrfs@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org,
- linux-ext4@vger.kernel.org, gfs2@lists.linux.dev,
- linux-nilfs@vger.kernel.org, yi.zhang@huawei.com, yangerkun@huawei.com,
- "yukuai (C)" <yukuai3@huawei.com>
-References: <20231127062116.2355129-1-yukuai1@huaweicloud.com>
- <20231127062116.2355129-8-yukuai1@huaweicloud.com>
- <d3b87b87-2ca7-43ca-9fb4-ee3696561eb5@kernel.org>
- <20231127072409.y22jkynrchm4tkd2@moria.home.lan>
-From: Yu Kuai <yukuai1@huaweicloud.com>
-Message-ID: <58ced33e-0a8c-7bd3-beb8-d75119cab60b@huaweicloud.com>
-Date: Mon, 27 Nov 2023 15:52:39 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TxFgPzCD"
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2A3C13D;
+	Mon, 27 Nov 2023 00:20:39 -0800 (PST)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AR814s9002447;
+	Mon, 27 Nov 2023 08:20:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=uF4hMmPu1tXjkVZJ+uKsx8mNtonIST1XxO8s9m//hfs=;
+ b=TxFgPzCDOmNTBlo0mMhwodytTrlHubBzCeOjlt31bTzLdihSl4VfYF/vo30a0c2F9fNd
+ PorW58FJCj+woxkc5nsGhVDhVmFIX9IiBu/FE5XgxmBjXDAO/pvLogyC0Pcr6DtqwZ1x
+ xJflLHUoElor9iPYmX+2S5FN7I0hAq7b13ozdkp77Nig0CYvf0z9W1WaYWm0AvRLij49
+ 5dHnwGTpSO9zr4xaa5zKUx234zvJl7ZzaiI52WwGxqUXp7ksYyUAT0ukr0CBcpdYL99D
+ 915BubV56EYHvP59bKRSwqnAnt7q6AX+g+u5RmLiEKbSM4yRixQIoS+tHJGrZRXulKPv HQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3umj76ew6v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 27 Nov 2023 08:20:29 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AR8G0Sh017041;
+	Mon, 27 Nov 2023 08:20:29 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3umj76ew6d-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 27 Nov 2023 08:20:29 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AR8JKUV010951;
+	Mon, 27 Nov 2023 08:20:28 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ukwy1esjy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 27 Nov 2023 08:20:28 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AR8KPf039584186
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 27 Nov 2023 08:20:25 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AC35520043;
+	Mon, 27 Nov 2023 08:20:25 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4EF7120040;
+	Mon, 27 Nov 2023 08:20:25 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 27 Nov 2023 08:20:25 +0000 (GMT)
+From: Sumanth Korikkar <sumanthk@linux.ibm.com>
+To: linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>,
+        David Hildenbrand <david@redhat.com>
+Cc: Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH v3 0/5] implement "memmap on memory" feature on s390
+Date: Mon, 27 Nov 2023 09:20:18 +0100
+Message-Id: <20231127082023.2079810-1-sumanthk@linux.ibm.com>
+X-Mailer: git-send-email 2.39.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20231127072409.y22jkynrchm4tkd2@moria.home.lan>
-Content-Type: text/plain; charset=gbk; format=flowed
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:cCh0CgBXWhDISmRl1qdCCA--.65049S3
-X-Coremail-Antispam: 1UD129KBjvdXoW7Gw1kGw4ktFy5uF47KryUKFg_yoWkArX_XF
-	17ur47Zw4fJF1vq3ZYqFsYqrZF9rWrXrWaqFn5JF1UWa4kJFZ5ZFZ5Kr93ZrsxJr4DGF12
-	vrZ5XFW3CrySkjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUIcSsGvfJTRUUUba8FF20E14v26rWj6s0DM7CY07I20VC2zVCF04k26cxKx2IYs7xG
-	6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
-	A2z4x0Y4vE2Ix0cI8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j
-	6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
-	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
-	I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
-	4UM4x0Y48IcVAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kI
-	c2xKxwCYjI0SjxkI62AI1cAE67vIY487MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4
-	AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE
-	17CEb7AF67AKxVWrXVW8Jr1lIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCw
-	CI42IY6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UMIIF0xvE42xK8VAvwI8IcIk0rVWrZr1j
-	6s0DMIIF0xvEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_GcCE3sUvcS
-	sGvfC2KfnxnUUI43ZEXa7VUbJ73DUUUUU==
-X-CM-SenderInfo: 51xn3trlr6x35dzhxuhorxvhhfrp/
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Tv0ls7kE_i3UAa44_HeKoUx5BaeuQuPW
+X-Proofpoint-GUID: sIvF8QSusNakFDxIC41Wib62yVXgCH-P
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-27_06,2023-11-22_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
+ priorityscore=1501 spamscore=0 impostorscore=0 adultscore=0 bulkscore=0
+ malwarescore=0 mlxlogscore=332 phishscore=0 mlxscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311060000
+ definitions=main-2311270057
 
-Hi,
+Hi All,
 
-ÔÚ 2023/11/27 15:24, Kent Overstreet Ð´µÀ:
-> On Mon, Nov 27, 2023 at 04:09:47PM +0900, Damien Le Moal wrote:
->> On 11/27/23 15:21, Yu Kuai wrote:
->>> From: Yu Kuai <yukuai3@huawei.com>
->>>
->>> Which is more efficiency, and also prepare to remove the field
->>> 'bd_inode' from block_device.
->>>
->>> Signed-off-by: Yu Kuai <yukuai3@huawei.com>
->>> ---
->>>   fs/bcachefs/util.h | 2 +-
->>>   1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/fs/bcachefs/util.h b/fs/bcachefs/util.h
->>> index 2984b57b2958..fe7ccb3a3517 100644
->>> --- a/fs/bcachefs/util.h
->>> +++ b/fs/bcachefs/util.h
->>> @@ -518,7 +518,7 @@ int bch2_bio_alloc_pages(struct bio *, size_t, gfp_t);
->>>   
->>>   static inline sector_t bdev_sectors(struct block_device *bdev)
->>>   {
->>> -	return bdev->bd_inode->i_size >> 9;
->>> +	return bdev_inode(bdev)->i_size >> 9;
->>
->> shouldn't this use i_size_read() ?
->>
->> I missed the history with this but why not use bdev_nr_sectors() and delete this
->> helper ?
-> 
-> Actually, this helper seems to be dead code.
+The patch series implements "memmap on memory" feature on s390.
 
-Yes, there is no caller of this helper, I'll remove this helper.
+Patch 1 introduces  MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE memory
+notifiers to prepare the transition of memory to and from a physically
+accessible state. New mhp_flag MHP_OFFLINE_INACCESSIBLE is introduced to
+ensure altmap cannot be written when addidng memory - before it is set
+online. This enhancement is crucial for implementing the "memmap on
+memory" feature for s390 in a subsequent patch.
 
-Thanks,
-Kuai
+Patches 2 allocates vmemmap pages from self-contained memory range for
+s390. It allocates memory map (struct pages array) from the hotplugged
+memory range, rather than using system memory by passing altmap to
+vmemmap functions.
 
-> .
-> 
+Patch 3 removes unhandled memory notifier types on s390.
+
+Patch 4 implements MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE memory
+notifiers on s390. MEM_PREPARE_ONLINE memory notifier makes memory block
+physical accessible via sclp assign command. The notifier ensures
+self-contained memory maps are accessible and hence enabling the "memmap
+on memory" on s390. MEM_FINISH_OFFLINE memory notifier shifts the memory
+block to an inaccessible state via sclp unassign command
+
+Patch 5 finally enables MHP_MEMMAP_ON_MEMORY on s390
+
+Note:
+These patches are rebased on top of three fixes:
+mm: use vmem_altmap code without CONFIG_ZONE_DEVICE
+mm/memory_hotplug: fix error handling in add_memory_resource()
+mm/memory_hotplug: add missing mem_hotplug_lock
+
+v3:
+* added comments to MHP_OFFLINE_ACCESSIBLE as suggested by David.
+* Squashed three commits related to new memory notifier.
+
+v2:
+* Fixes are integrated and hence removed from this patch series
+Suggestions from David:
+* Add new flag MHP_OFFLINE_INACCESSIBLE to avoid accessing memory
+  during memory hotplug addition phase.
+* Avoid page_init_poison() on memmap during mhp addition phase, when
+  MHP_OFFLINE_INACCESSIBLE mhp_flag is passed in add_memory().
+* Do not skip add_pages() in arch_add_memory(). Similarly, remove
+  similar hacks in arch_remove_memory(). 
+* Use MHP_PREPARE_ONLINE/MHP_FINISH_OFFLINE naming convention for
+  new memory notifiers.
+* Rearrange removal of unused s390 memory notifier.
+* Necessary commit messages changes.
+
+Thank you
+
+Sumanth Korikkar (5):
+  mm/memory_hotplug: introduce MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE
+    notifiers
+  s390/mm: allocate vmemmap pages from self-contained memory range
+  s390/sclp: remove unhandled memory notifier type
+  s390/mm: implement MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE notifiers
+  s390: enable MHP_MEMMAP_ON_MEMORY
+
+ arch/s390/Kconfig              |  1 +
+ arch/s390/mm/init.c            |  3 --
+ arch/s390/mm/vmem.c            | 62 +++++++++++++++++++---------------
+ drivers/base/memory.c          | 21 ++++++++++--
+ drivers/s390/char/sclp_cmd.c   | 31 ++++++++++++-----
+ include/linux/memory.h         |  2 ++
+ include/linux/memory_hotplug.h | 18 +++++++++-
+ include/linux/memremap.h       |  1 +
+ mm/memory_hotplug.c            | 30 ++++++++++++++--
+ mm/sparse.c                    |  3 +-
+ 10 files changed, 127 insertions(+), 45 deletions(-)
+
+-- 
+2.41.0
 
