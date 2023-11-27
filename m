@@ -1,52 +1,52 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Tb6xf7qB"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IKrhKFi0"
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2D39BB
-	for <linux-s390@vger.kernel.org>; Mon, 27 Nov 2023 07:11:10 -0800 (PST)
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1BA1BB
+	for <linux-s390@vger.kernel.org>; Mon, 27 Nov 2023 07:16:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701097870;
+	s=mimecast20190719; t=1701098182;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=wiS/QSHyrQLt30DtgLQ/3a1/rZ4tdJUecrIYLVt9a50=;
-	b=Tb6xf7qBfg9k6v6Blgef2fjGgkqffdFUZWH8ZAEoZ01lIgSTB7WxHNeDMkrQaxPu5hb9T7
-	l1vn8qAZ2aFWmUkZXP/+mmsG14uuPyufc4zXbXEOK15g2HRJxpN/OsDh0Pwx3C8IL1zGUV
-	SXS4K9m4u9c9SaA2M8hFHRyws7Fa4U0=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=o1OXRXgH1rWrRktsR3slBjqAkr3OAo4k1a/STq0C0Qs=;
+	b=IKrhKFi0lXFA274vcPAAZDGT2NX529jW6M50mvOio4cnrb/hJQWfUl3WY6ILspZwTzd2HT
+	+rYRODFr66g+tJHo6zNMuT5+XWU2hNQUq3QfE8+83ZPEA3OJdoPdue7cbakfunGEMo8y+2
+	oi1FCmSgSvPz5XXpkgMM+cA+Mx1IwRo=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-140-QOpiwV7ENcuOtvy1eafgOw-1; Mon, 27 Nov 2023 10:11:08 -0500
-X-MC-Unique: QOpiwV7ENcuOtvy1eafgOw-1
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-332e2e0b98bso3150416f8f.1
-        for <linux-s390@vger.kernel.org>; Mon, 27 Nov 2023 07:11:08 -0800 (PST)
+ us-mta-166-YP7Y9cIrP5yT64h5zRSaSg-1; Mon, 27 Nov 2023 10:16:21 -0500
+X-MC-Unique: YP7Y9cIrP5yT64h5zRSaSg-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-332e2e0b98bso3155559f8f.1
+        for <linux-s390@vger.kernel.org>; Mon, 27 Nov 2023 07:16:21 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701097867; x=1701702667;
+        d=1e100.net; s=20230601; t=1701098180; x=1701702980;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
          :references:cc:to:content-language:subject:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=wiS/QSHyrQLt30DtgLQ/3a1/rZ4tdJUecrIYLVt9a50=;
-        b=ildpaaeY+tJIn/QmYF5H9aWWvZNAfCBkzP+eUW8aQ3jAMNObkNgKKVYkdZ0C+iRBxU
-         YOZGhhsE2pCSW5u7GHgPNRqY+R6ie+UwTa7r9r61wAezwyKInvcH++17Jdjy/Fe3hml8
-         EWY8dvvXsUxuZYC9GBHnXy9FH7JP1jkGpfN5qCtZonST/67YAzyjHOvIA2uNEn3UI3vS
-         8Y3PBYnKWzIw0oK7twpmxiXgr/M4ipbmSIWLy1wYXuUcEAEyQvbqDWoey/7xMkjlP/vE
-         0cEf+Iac3RV/fN9bw6rj9yEJMNbo1dZ14rOGGct6W+lAtO3JmqPV5hCqIgZAiz1a7coW
-         xAeg==
-X-Gm-Message-State: AOJu0Yzz5hCYGatlvgFEs7nV+OQ6t+C2xSQ+uN1Nm+xWUrQ7Hh8JZc7+
-	6o4iBfwLTAvUz09cv0tOipSUmPSRynzaDQM554rSk2kp+yROesIW35YwXzFxKMp10bWODeXQU90
-	GqebnrzMM8f01ZvYrLKcl7g==
-X-Received: by 2002:a5d:4843:0:b0:332:fa75:a8ed with SMTP id n3-20020a5d4843000000b00332fa75a8edmr3467276wrs.24.1701097867283;
-        Mon, 27 Nov 2023 07:11:07 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG8pSZb/HQRWFQziCuTdC0qDXsah32JbJGmIDFW/3g6eHxXGGPPndHyglepnJOARh/1WN0Nww==
-X-Received: by 2002:a5d:4843:0:b0:332:fa75:a8ed with SMTP id n3-20020a5d4843000000b00332fa75a8edmr3467240wrs.24.1701097866715;
-        Mon, 27 Nov 2023 07:11:06 -0800 (PST)
+        bh=o1OXRXgH1rWrRktsR3slBjqAkr3OAo4k1a/STq0C0Qs=;
+        b=ZAJWV8nVUiIR9UQnNgEftIxUK9kiS/xNNsC876p34fsXRXgIbq7MmzLpXmHeVKcM4V
+         TyeVPYpPCDDnVz73SlY1Rsioba+/xy3DSALOIRdg10j4IVzVv/jSGBuucK4Z2P8kdXTJ
+         bTSFLCjh7xJRvIUy7j/RZflSBN4JWMdeCH3vlIR4ZaD764tBuumVgI+Fg7/UdATGXBph
+         /EpPWz7G/2TbDL6160wB9lu3niahSiX96Ir+K0/B8wQQ8+lMUz5nlorc+vM2wOpiighC
+         Wc6PBX0m+XmE4jFozxi0HGYQSwhtyPvmF4lZVUHLIGJnW8RkVZmIN7v3DpecIl90nFi8
+         CF/A==
+X-Gm-Message-State: AOJu0YxlxQ7bxrTkNASZbavHkC/1mz3qsAf4QhjiC+VwBSVI/HEwVJkj
+	TxijPNohQ1jsKkQgOFqBQ9UeN8SO5YXeQQxQ5GLpMINyKzaDz4jFmFEB3pFqVmaubgdrCwu8hQy
+	toXiIG1evVUgmMSCiXB0Tcw==
+X-Received: by 2002:a5d:4c44:0:b0:332:eb19:9520 with SMTP id n4-20020a5d4c44000000b00332eb199520mr7667135wrt.20.1701098180027;
+        Mon, 27 Nov 2023 07:16:20 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGzQsFhBN5+Rm7TrL4q2+K20IuTilKu8zrGTb/WG4m6sixc1+hiVZv4o7JOJ3sxL3PitYzrAA==
+X-Received: by 2002:a5d:4c44:0:b0:332:eb19:9520 with SMTP id n4-20020a5d4c44000000b00332eb199520mr7667094wrt.20.1701098179584;
+        Mon, 27 Nov 2023 07:16:19 -0800 (PST)
 Received: from ?IPV6:2003:cb:c745:2a00:d74a:a8c5:20b6:3ec3? (p200300cbc7452a00d74aa8c520b63ec3.dip0.t-ipconnect.de. [2003:cb:c745:2a00:d74a:a8c5:20b6:3ec3])
-        by smtp.gmail.com with ESMTPSA id v10-20020adff68a000000b00332c0e934aasm12144905wrp.44.2023.11.27.07.11.05
+        by smtp.gmail.com with ESMTPSA id h4-20020adfa4c4000000b0032d8eecf901sm12397781wrb.3.2023.11.27.07.16.18
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 27 Nov 2023 07:11:06 -0800 (PST)
-Message-ID: <abbe4d53-e944-46cc-90fc-a0a65e50b2fe@redhat.com>
-Date: Mon, 27 Nov 2023 16:11:05 +0100
+        Mon, 27 Nov 2023 07:16:19 -0800 (PST)
+Message-ID: <c7512dd7-5009-4230-a29e-ea13c2e3be3e@redhat.com>
+Date: Mon, 27 Nov 2023 16:16:18 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -54,7 +54,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 4/5] s390/mm: implement
+Subject: Re: [PATCH v3 1/5] mm/memory_hotplug: introduce
  MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE notifiers
 Content-Language: en-US
 To: Sumanth Korikkar <sumanthk@linux.ibm.com>, linux-mm <linux-mm@kvack.org>,
@@ -67,7 +67,7 @@ Cc: Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>,
  Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
  linux-s390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 References: <20231127082023.2079810-1-sumanthk@linux.ibm.com>
- <20231127082023.2079810-5-sumanthk@linux.ibm.com>
+ <20231127082023.2079810-2-sumanthk@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -114,94 +114,118 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20231127082023.2079810-5-sumanthk@linux.ibm.com>
+In-Reply-To: <20231127082023.2079810-2-sumanthk@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 27.11.23 09:20, Sumanth Korikkar wrote:
-> MEM_PREPARE_ONLINE memory notifier makes memory block physical
-> accessible via sclp assign command. The notifier ensures self-contained
-> memory maps are accessible and hence enabling the "memmap on memory" on
-> s390.
+> Introduce  MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE memory notifiers to
+> prepare the transition of memory to and from a physically accessible
+> state. This enhancement is crucial for implementing the "memmap on
+> memory" feature for s390 in a subsequent patch.
 > 
-> MEM_FINISH_OFFLINE memory notifier shifts the memory block to an
-> inaccessible state via sclp unassign command.
+> Platforms such as x86 can support physical memory hotplug via ACPI. When
+> there is physical memory hotplug, ACPI event leads to the memory
+> addition with the following callchain:
+> acpi_memory_device_add()
+>    -> acpi_memory_enable_device()
+>       -> __add_memory()
 > 
-> Implementation considerations:
-> * When MHP_MEMMAP_ON_MEMORY is disabled, the system retains the old
->    behavior. This means the memory map is allocated from default memory.
-> * If MACHINE_HAS_EDAT1 is unavailable, MHP_MEMMAP_ON_MEMORY is
->    automatically disabled. This ensures that vmemmap pagetables do not
->    consume additional memory from the default memory allocator.
-> * The MEM_GOING_ONLINE notifier has been modified to perform no
->    operation, as MEM_PREPARE_ONLINE already executes the sclp assign
->    command.
-> * The MEM_CANCEL_ONLINE/MEM_OFFLINE notifier now performs no operation, as
->    MEM_FINISH_OFFLINE already executes the sclp unassign command.
+> After this, the hotplugged memory is physically accessible, and altmap
+> support prepared, before the "memmap on memory" initialization in
+> memory_block_online() is called.
 > 
-> Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> On s390, memory hotplug works in a different way. The available hotplug
+> memory has to be defined upfront in the hypervisor, but it is made
+> physically accessible only when the user sets it online via sysfs,
+> currently in the MEM_GOING_ONLINE notifier. This is too late and "memmap
+> on memory" initialization is performed before calling MEM_GOING_ONLINE
+> notifier.
+> 
+> During the memory hotplug addition phase, altmap support is prepared and
+> during the memory onlining phase s390 requires memory to be physically
+> accessible and then subsequently initiate the "memmap on memory"
+> initialization process.
+> 
+> The memory provider will handle new MEM_PREPARE_ONLINE /
+> MEM_FINISH_OFFLINE notifications and make the memory accessible.
+> 
+> The mhp_flag MHP_OFFLINE_INACCESSIBLE is introduced and is relevant when
+> used along with MHP_MEMMAP_ON_MEMORY, because the altmap cannot be
+> written (e.g., poisoned) when adding memory -- before it is set online.
+> This allows for adding memory with an altmap that is not currently made
+> available by a hypervisor. When onlining that memory, the hypervisor can
+> be instructed to make that memory accessible via the new notifiers and
+> the onlining phase will not require any memory allocations, which is
+> helpful in low-memory situations.
+> 
+> All architectures ignore unknown memory notifiers.  Therefore, the
+> introduction of these new notifiers does not result in any functional
+> modifications across architectures.
+> 
+> Suggested-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> Suggested-by: David Hildenbrand <david@redhat.com>
 > Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
 > ---
->   drivers/s390/char/sclp_cmd.c | 28 ++++++++++++++++++++++------
->   1 file changed, 22 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/s390/char/sclp_cmd.c b/drivers/s390/char/sclp_cmd.c
-> index 355e63e44e95..30b829e4c052 100644
-> --- a/drivers/s390/char/sclp_cmd.c
-> +++ b/drivers/s390/char/sclp_cmd.c
-> @@ -18,6 +18,7 @@
->   #include <linux/mm.h>
->   #include <linux/mmzone.h>
->   #include <linux/memory.h>
-> +#include <linux/memory_hotplug.h>
->   #include <linux/module.h>
->   #include <asm/ctlreg.h>
->   #include <asm/chpid.h>
-> @@ -26,6 +27,7 @@
->   #include <asm/sclp.h>
->   #include <asm/numa.h>
->   #include <asm/facility.h>
-> +#include <asm/page-states.h>
+
+[...]
+
+>   };
 >   
->   #include "sclp.h"
+>   /*
+> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+> index 7a5fc89a8652..ac7cfc09502d 100644
+> --- a/mm/memory_hotplug.c
+> +++ b/mm/memory_hotplug.c
+> @@ -1083,8 +1083,25 @@ void adjust_present_page_count(struct page *page, struct memory_group *group,
+>   		group->present_kernel_pages += nr_pages;
+>   }
 >   
-> @@ -319,6 +321,7 @@ static bool contains_standby_increment(unsigned long start, unsigned long end)
->   static int sclp_mem_notifier(struct notifier_block *nb,
->   			     unsigned long action, void *data)
+> +static void page_init_poison_with_resched(unsigned long start_pfn, unsigned long nr_pages)
+> +{
+> +	const unsigned long end_pfn = start_pfn + nr_pages;
+> +	unsigned long pfn, cur_nr_pages;
+> +
+> +	/* Poison struct pages because they are now uninitialized again. */
+> +	for (pfn = start_pfn; pfn < end_pfn; pfn += cur_nr_pages) {
+> +		cond_resched();
+> +
+> +		/* Select all remaining pages up to the next section boundary */
+> +		cur_nr_pages =
+> +			min(end_pfn - pfn, SECTION_ALIGN_UP(pfn + 1) - pfn);
+> +		page_init_poison(pfn_to_page(pfn),
+> +				 sizeof(struct page) * cur_nr_pages);
+> +	}
+> +}
+> +
+>   int mhp_init_memmap_on_memory(unsigned long pfn, unsigned long nr_pages,
+> -			      struct zone *zone)
+> +			      struct zone *zone, bool mhp_off_inaccessible)
 >   {
-> +	struct memory_block *memory_block;
->   	unsigned long start, size;
->   	struct memory_notify *arg;
->   	unsigned char id;
-> @@ -340,18 +343,29 @@ static int sclp_mem_notifier(struct notifier_block *nb,
->   		if (contains_standby_increment(start, start + size))
->   			rc = -EPERM;
->   		break;
-> -	case MEM_GOING_ONLINE:
-> +	case MEM_PREPARE_ONLINE:
-> +		memory_block = find_memory_block(pfn_to_section_nr(arg->start_pfn));
-> +		if (!memory_block) {
-> +			rc = -EINVAL;
-> +			goto out;
-> +		}
->   		rc = sclp_mem_change_state(start, size, 1);
-> +		if (rc || !memory_block->altmap)
-> +			goto out;
-> +		/*
-> +		 * Set CMMA state to nodat here, since the struct page memory
-> +		 * at the beginning of the memory block will not go through the
-> +		 * buddy allocator later.
-> +		 */
-> +		__arch_set_page_nodat((void *)__va(start), memory_block->altmap->free);
+>   	unsigned long end_pfn = pfn + nr_pages;
+>   	int ret, i;
+> @@ -1092,7 +1109,14 @@ int mhp_init_memmap_on_memory(unsigned long pfn, unsigned long nr_pages,
+>   	ret = kasan_add_zero_shadow(__va(PFN_PHYS(pfn)), PFN_PHYS(nr_pages));
+>   	if (ret)
+>   		return ret;
+> -
+> +	/*
+> +	 * Memory block is accessible at this stage and hence poison the struct
+> +	 * pages now.  If the memory block is accessible during memory hotplug
+> +	 * addition phase, then page poisining is already performed in
+> +	 * sparse_add_section().
+> +	 */
+> +	if (mhp_off_inaccessible)
+> +		page_init_poison_with_resched(pfn, nr_pages);
 
-Looking up the memory block and grabbing the altmap from there is a bit 
-unfortunate.
+Can you elaborate why a simple page_init_poison() as for 
+sparse_add_section() is insufficient?
 
-Why can't we do that when adding the altmap? Will the hypervisor scream 
-at us?
+Apart from that looks good.
 
-... would we want to communicate any altmap start+size via the memory 
-notifier instead?
+Ideally, we'd be updating altmap->inaccessible as we online/offline 
+memory. But then, we'd have to remember MHP_OFFLINE_INACCESSIBLE somehow 
+differently.
 
 -- 
 Cheers,
