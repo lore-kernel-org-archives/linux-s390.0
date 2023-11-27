@@ -1,52 +1,52 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FsyN+bmp"
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68C2AC2
-	for <linux-s390@vger.kernel.org>; Mon, 27 Nov 2023 07:02:31 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Tb6xf7qB"
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2D39BB
+	for <linux-s390@vger.kernel.org>; Mon, 27 Nov 2023 07:11:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701097350;
+	s=mimecast20190719; t=1701097870;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=R95DCPK9+KWZPQM31hq3EowWmZW8RMrnN107/dZLFeg=;
-	b=FsyN+bmpn9Lh0zu4Qa1rXUMZOtO6GR3QU3kZIR+ya7+Hzj52FHmuZTT+V1rHOmyP7bBCAK
-	fOSRRSaDJSUnfjwAQ8PL50xjtYCBt1k5uyV4K4Hc3qxR2gvoqictN/Gpi5VmwaSaYKcVVQ
-	yamMvKvyFIy49jVdLpRr3vjREN7FBiM=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=wiS/QSHyrQLt30DtgLQ/3a1/rZ4tdJUecrIYLVt9a50=;
+	b=Tb6xf7qBfg9k6v6Blgef2fjGgkqffdFUZWH8ZAEoZ01lIgSTB7WxHNeDMkrQaxPu5hb9T7
+	l1vn8qAZ2aFWmUkZXP/+mmsG14uuPyufc4zXbXEOK15g2HRJxpN/OsDh0Pwx3C8IL1zGUV
+	SXS4K9m4u9c9SaA2M8hFHRyws7Fa4U0=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-117-83CNO1LLPwmU3R05th_BtQ-1; Mon, 27 Nov 2023 10:02:29 -0500
-X-MC-Unique: 83CNO1LLPwmU3R05th_BtQ-1
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3330881541eso177042f8f.1
-        for <linux-s390@vger.kernel.org>; Mon, 27 Nov 2023 07:02:28 -0800 (PST)
+ us-mta-140-QOpiwV7ENcuOtvy1eafgOw-1; Mon, 27 Nov 2023 10:11:08 -0500
+X-MC-Unique: QOpiwV7ENcuOtvy1eafgOw-1
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-332e2e0b98bso3150416f8f.1
+        for <linux-s390@vger.kernel.org>; Mon, 27 Nov 2023 07:11:08 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701097348; x=1701702148;
+        d=1e100.net; s=20230601; t=1701097867; x=1701702667;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
          :references:cc:to:content-language:subject:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=R95DCPK9+KWZPQM31hq3EowWmZW8RMrnN107/dZLFeg=;
-        b=m4F7eK9LzaHRo+5TqIBgxz+X8+jzbqcPKwTWFe/Lw6BOoY6cgvXRl3vmvjrqKMWPkU
-         Sks/SeW8CGO5Pg3ldk7EG+AZ9eHKfXiq8GcH+DIQYfgv6KLsvS7f7L8bOl93y+ahLIlo
-         1pO7JfI0MNYEG9JNC4ouksSYwMsOeJL2pQ1u5mpoY2+opcUAvm0hlX8mOX7UlpCK7b67
-         5dNAyDE7ISy6W+zn1k0ZB9heZBAbf00kSw88ONA0aTVY55itLmv1XDqC1RNxl2OdTAJr
-         B/QL6QKCJ7SQF1jd8geUCsZs4OPwWn7a4ye3UPhX9j0HwnKXaReKCIbtjomrlUEuRqa3
-         +1Kw==
-X-Gm-Message-State: AOJu0Yz4fLMGLYj8Lu+t5+n9O4JsHH4DvxomcXgSxCg95FBHku1dWw6F
-	tiI0YHuSWEIxpWExPKYYhbD3DmuWrSdHgiKApTBVFKTE8Go0COdaiw0oVOr67U1NuMz1Lv/hVou
-	NgtXKJAFbGxEY8KT9HImIDA==
-X-Received: by 2002:adf:eecc:0:b0:333:f1:2d99 with SMTP id a12-20020adfeecc000000b0033300f12d99mr2338966wrp.9.1701097347742;
-        Mon, 27 Nov 2023 07:02:27 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEHq/s07bIneWd+xrXjmBBXFNDkXYdKirknACATH5CbO0JXxISeEWm1RQaBumUaC6PDmOYybQ==
-X-Received: by 2002:adf:eecc:0:b0:333:f1:2d99 with SMTP id a12-20020adfeecc000000b0033300f12d99mr2338888wrp.9.1701097346734;
-        Mon, 27 Nov 2023 07:02:26 -0800 (PST)
+        bh=wiS/QSHyrQLt30DtgLQ/3a1/rZ4tdJUecrIYLVt9a50=;
+        b=ildpaaeY+tJIn/QmYF5H9aWWvZNAfCBkzP+eUW8aQ3jAMNObkNgKKVYkdZ0C+iRBxU
+         YOZGhhsE2pCSW5u7GHgPNRqY+R6ie+UwTa7r9r61wAezwyKInvcH++17Jdjy/Fe3hml8
+         EWY8dvvXsUxuZYC9GBHnXy9FH7JP1jkGpfN5qCtZonST/67YAzyjHOvIA2uNEn3UI3vS
+         8Y3PBYnKWzIw0oK7twpmxiXgr/M4ipbmSIWLy1wYXuUcEAEyQvbqDWoey/7xMkjlP/vE
+         0cEf+Iac3RV/fN9bw6rj9yEJMNbo1dZ14rOGGct6W+lAtO3JmqPV5hCqIgZAiz1a7coW
+         xAeg==
+X-Gm-Message-State: AOJu0Yzz5hCYGatlvgFEs7nV+OQ6t+C2xSQ+uN1Nm+xWUrQ7Hh8JZc7+
+	6o4iBfwLTAvUz09cv0tOipSUmPSRynzaDQM554rSk2kp+yROesIW35YwXzFxKMp10bWODeXQU90
+	GqebnrzMM8f01ZvYrLKcl7g==
+X-Received: by 2002:a5d:4843:0:b0:332:fa75:a8ed with SMTP id n3-20020a5d4843000000b00332fa75a8edmr3467276wrs.24.1701097867283;
+        Mon, 27 Nov 2023 07:11:07 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG8pSZb/HQRWFQziCuTdC0qDXsah32JbJGmIDFW/3g6eHxXGGPPndHyglepnJOARh/1WN0Nww==
+X-Received: by 2002:a5d:4843:0:b0:332:fa75:a8ed with SMTP id n3-20020a5d4843000000b00332fa75a8edmr3467240wrs.24.1701097866715;
+        Mon, 27 Nov 2023 07:11:06 -0800 (PST)
 Received: from ?IPV6:2003:cb:c745:2a00:d74a:a8c5:20b6:3ec3? (p200300cbc7452a00d74aa8c520b63ec3.dip0.t-ipconnect.de. [2003:cb:c745:2a00:d74a:a8c5:20b6:3ec3])
-        by smtp.gmail.com with ESMTPSA id c14-20020a056000104e00b00332f95ab44esm5625976wrx.57.2023.11.27.07.02.25
+        by smtp.gmail.com with ESMTPSA id v10-20020adff68a000000b00332c0e934aasm12144905wrp.44.2023.11.27.07.11.05
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 27 Nov 2023 07:02:26 -0800 (PST)
-Message-ID: <ed815627-ac07-4a98-809b-22fee001ca98@redhat.com>
-Date: Mon, 27 Nov 2023 16:02:25 +0100
+        Mon, 27 Nov 2023 07:11:06 -0800 (PST)
+Message-ID: <abbe4d53-e944-46cc-90fc-a0a65e50b2fe@redhat.com>
+Date: Mon, 27 Nov 2023 16:11:05 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -54,7 +54,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/5] s390/sclp: remove unhandled memory notifier type
+Subject: Re: [PATCH v3 4/5] s390/mm: implement
+ MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE notifiers
 Content-Language: en-US
 To: Sumanth Korikkar <sumanthk@linux.ibm.com>, linux-mm <linux-mm@kvack.org>,
  Andrew Morton <akpm@linux-foundation.org>
@@ -66,7 +67,7 @@ Cc: Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>,
  Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
  linux-s390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 References: <20231127082023.2079810-1-sumanthk@linux.ibm.com>
- <20231127082023.2079810-4-sumanthk@linux.ibm.com>
+ <20231127082023.2079810-5-sumanthk@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -113,18 +114,94 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20231127082023.2079810-4-sumanthk@linux.ibm.com>
+In-Reply-To: <20231127082023.2079810-5-sumanthk@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 27.11.23 09:20, Sumanth Korikkar wrote:
-> Remove memory notifier types which are unhandled by s390.  Unhandled
-> memory notifier types are covered by default case.
+> MEM_PREPARE_ONLINE memory notifier makes memory block physical
+> accessible via sclp assign command. The notifier ensures self-contained
+> memory maps are accessible and hence enabling the "memmap on memory" on
+> s390.
 > 
-> Suggested-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> MEM_FINISH_OFFLINE memory notifier shifts the memory block to an
+> inaccessible state via sclp unassign command.
+> 
+> Implementation considerations:
+> * When MHP_MEMMAP_ON_MEMORY is disabled, the system retains the old
+>    behavior. This means the memory map is allocated from default memory.
+> * If MACHINE_HAS_EDAT1 is unavailable, MHP_MEMMAP_ON_MEMORY is
+>    automatically disabled. This ensures that vmemmap pagetables do not
+>    consume additional memory from the default memory allocator.
+> * The MEM_GOING_ONLINE notifier has been modified to perform no
+>    operation, as MEM_PREPARE_ONLINE already executes the sclp assign
+>    command.
+> * The MEM_CANCEL_ONLINE/MEM_OFFLINE notifier now performs no operation, as
+>    MEM_FINISH_OFFLINE already executes the sclp unassign command.
+> 
+> Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 > Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+> ---
+>   drivers/s390/char/sclp_cmd.c | 28 ++++++++++++++++++++++------
+>   1 file changed, 22 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/s390/char/sclp_cmd.c b/drivers/s390/char/sclp_cmd.c
+> index 355e63e44e95..30b829e4c052 100644
+> --- a/drivers/s390/char/sclp_cmd.c
+> +++ b/drivers/s390/char/sclp_cmd.c
+> @@ -18,6 +18,7 @@
+>   #include <linux/mm.h>
+>   #include <linux/mmzone.h>
+>   #include <linux/memory.h>
+> +#include <linux/memory_hotplug.h>
+>   #include <linux/module.h>
+>   #include <asm/ctlreg.h>
+>   #include <asm/chpid.h>
+> @@ -26,6 +27,7 @@
+>   #include <asm/sclp.h>
+>   #include <asm/numa.h>
+>   #include <asm/facility.h>
+> +#include <asm/page-states.h>
+>   
+>   #include "sclp.h"
+>   
+> @@ -319,6 +321,7 @@ static bool contains_standby_increment(unsigned long start, unsigned long end)
+>   static int sclp_mem_notifier(struct notifier_block *nb,
+>   			     unsigned long action, void *data)
+>   {
+> +	struct memory_block *memory_block;
+>   	unsigned long start, size;
+>   	struct memory_notify *arg;
+>   	unsigned char id;
+> @@ -340,18 +343,29 @@ static int sclp_mem_notifier(struct notifier_block *nb,
+>   		if (contains_standby_increment(start, start + size))
+>   			rc = -EPERM;
+>   		break;
+> -	case MEM_GOING_ONLINE:
+> +	case MEM_PREPARE_ONLINE:
+> +		memory_block = find_memory_block(pfn_to_section_nr(arg->start_pfn));
+> +		if (!memory_block) {
+> +			rc = -EINVAL;
+> +			goto out;
+> +		}
+>   		rc = sclp_mem_change_state(start, size, 1);
+> +		if (rc || !memory_block->altmap)
+> +			goto out;
+> +		/*
+> +		 * Set CMMA state to nodat here, since the struct page memory
+> +		 * at the beginning of the memory block will not go through the
+> +		 * buddy allocator later.
+> +		 */
+> +		__arch_set_page_nodat((void *)__va(start), memory_block->altmap->free);
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+Looking up the memory block and grabbing the altmap from there is a bit 
+unfortunate.
+
+Why can't we do that when adding the altmap? Will the hypervisor scream 
+at us?
+
+... would we want to communicate any altmap start+size via the memory 
+notifier instead?
 
 -- 
 Cheers,
