@@ -1,171 +1,112 @@
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
-Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D424AE8;
-	Sun, 26 Nov 2023 17:13:52 -0800 (PST)
-Received: from mail.maildlp.com (unknown [172.19.163.216])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4SdnfL40kBz4f3k6S;
-	Mon, 27 Nov 2023 09:13:46 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 54F621A0C6B;
-	Mon, 27 Nov 2023 09:13:49 +0800 (CST)
-Received: from [10.174.176.73] (unknown [10.174.176.73])
-	by APP1 (Coremail) with SMTP id cCh0CgDX2hBD7WNlrI8oCA--.40143S3;
-	Mon, 27 Nov 2023 09:13:42 +0800 (CST)
-Subject: Re: [PATCH -next] block: remove field 'bd_inode' from block_device
-To: Greg KH <gregkh@linuxfoundation.org>, Yu Kuai <yukuai1@huaweicloud.com>
-Cc: hch@infradead.org, ming.lei@redhat.com, axboe@kernel.dk,
- roger.pau@citrix.com, colyli@suse.de, kent.overstreet@gmail.com,
- joern@lazybastard.org, miquel.raynal@bootlin.com, richard@nod.at,
- vigneshr@ti.com, sth@linux.ibm.com, hoeppner@linux.ibm.com,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- jejb@linux.ibm.com, martin.petersen@oracle.com, clm@fb.com,
- josef@toxicpanda.com, dsterba@suse.com, viro@zeniv.linux.org.uk,
- brauner@kernel.org, nico@fluxnic.net, xiang@kernel.org, chao@kernel.org,
- tytso@mit.edu, adilger.kernel@dilger.ca, agruenba@redhat.com, jack@suse.com,
- konishi.ryusuke@gmail.com, dchinner@redhat.com, linux@weissschuh.net,
- min15.li@samsung.com, dlemoal@kernel.org, willy@infradead.org,
- akpm@linux-foundation.org, p.raghav@samsung.com, hare@suse.de,
- linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
- xen-devel@lists.xenproject.org, linux-bcache@vger.kernel.org,
- linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, linux-bcachefs@vger.kernel.org,
- linux-btrfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
- gfs2@lists.linux.dev, linux-nilfs@vger.kernel.org, yi.zhang@huawei.com,
- yangerkun@huawei.com, "yukuai (C)" <yukuai3@huawei.com>
-References: <20231125093912.141486-1-yukuai1@huaweicloud.com>
- <2023112544-subpanel-national-58e5@gregkh>
-From: Yu Kuai <yukuai1@huaweicloud.com>
-Message-ID: <6ef798a6-8c0c-16b0-9991-b461258eb7d4@huaweicloud.com>
-Date: Mon, 27 Nov 2023 09:13:39 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EXp33dBE"
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FD78EB
+	for <linux-s390@vger.kernel.org>; Sun, 26 Nov 2023 19:29:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1701055758;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=PnTrWVmf8fnOo5Xt1U1MdbL+1iOZnlvT18JnDKebNVY=;
+	b=EXp33dBEsG04CjJUFMi20gRz8P9INblYyrb4lemhmoZDno6b/lyTQI0E+TzkEjhMXIAUib
+	FH+UXXqqLuZnOO3jdRSTfoqqHOlxbLB1tQjVxTZ/xHfkKhQCI9URZwBlhrw1zcCt7sYp43
+	amVp7dLrARODQ+Ntaj5NVD3z0Ykz41Y=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-665-l4JqyT8yPdyOLUMGAlVFQg-1; Sun, 26 Nov 2023 22:29:14 -0500
+X-MC-Unique: l4JqyT8yPdyOLUMGAlVFQg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2977A185A780;
+	Mon, 27 Nov 2023 03:29:14 +0000 (UTC)
+Received: from localhost (unknown [10.72.112.39])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id C8BD336E2;
+	Mon, 27 Nov 2023 03:29:07 +0000 (UTC)
+Date: Mon, 27 Nov 2023 11:29:04 +0800
+From: Baoquan He <bhe@redhat.com>
+To: Eric DeVolder <eric_devolder@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, kexec@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
+	akpm@linux-foundation.org, ignat@cloudflare.com
+Subject: Re: [PATCH 0/3] kernel/Kconfig.kexec: drop select of KEXEC for
+ CRASH_DUMP
+Message-ID: <ZWQNACdS12xDXL7A@MiWiFi-R3L-srv>
+References: <20231123073652.507034-1-bhe@redhat.com>
+ <5ab45f48-9ec2-4611-81a2-4dc2f1854c4f@yahoo.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <2023112544-subpanel-national-58e5@gregkh>
-Content-Type: text/plain; charset=gbk; format=flowed
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:cCh0CgDX2hBD7WNlrI8oCA--.40143S3
-X-Coremail-Antispam: 1UD129KBjvJXoWxCw48Jw4DZF43tw18tFWrKrg_yoW5ZFW8pr
-	W3GFZ5AFyq9ry7uF4IqF1xXryrJ3Wku3y3JrySyw10vrWYvF12gryvyr93uFy8ZrZ7tr4j
-	qF1aq34vkr18CrJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUU9214x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4U
-	JVW0owA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
-	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
-	I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
-	4UM4x0Y48IcVAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kI
-	c2xKxwCYjI0SjxkI62AI1cAE67vIY487MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4
-	AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE
-	17CEb7AF67AKxVWrXVW8Jr1lIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCw
-	CI42IY6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UMIIF0xvE42xK8VAvwI8IcIk0rVWrZr1j
-	6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYx
-	BIdaVFxhVjvjDU0xZFpf9x0JUd8n5UUUUU=
-X-CM-SenderInfo: 51xn3trlr6x35dzhxuhorxvhhfrp/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5ab45f48-9ec2-4611-81a2-4dc2f1854c4f@yahoo.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.1
 
-Hi,
-
-ÔÚ 2023/11/25 22:32, Greg KH Ð´µÀ:
-> On Sat, Nov 25, 2023 at 05:39:12PM +0800, Yu Kuai wrote:
->> From: Yu Kuai <yukuai3@huawei.com>
->>
->> block_devcie is allocated from bdev_alloc() by bdev_alloc_inode(), and
->> currently block_device contains a pointer that point to the address of
->> inode, while such inode is allocated together:
->>
->> bdev_alloc
->>   inode = new_inode()
->>    // inode is &bdev_inode->vfs_inode
->>   bdev = I_BDEV(inode)
->>    // bdev is &bdev_inode->bdev
->>   bdev->inode = inode
->>
->> Add a new helper to get address of inode from bdev by add operation
->> instead of memory access, which is more efficiency. Also prepare to
->> add a new field 'bd_flags' in the first cacheline(64 bytes).
->>
->> Signed-off-by: Yu Kuai <yukuai3@huawei.com>
->> ---
->>   block/bdev.c                       | 39 +++++++++++++++++-------------
->>   block/blk-zoned.c                  |  4 +--
->>   block/fops.c                       |  4 +--
->>   block/genhd.c                      |  8 +++---
->>   block/ioctl.c                      |  8 +++---
->>   block/partitions/core.c            |  9 ++++---
->>   drivers/block/xen-blkback/xenbus.c |  2 +-
->>   drivers/md/bcache/super.c          |  2 +-
->>   drivers/mtd/devices/block2mtd.c    | 12 ++++-----
->>   drivers/s390/block/dasd_ioctl.c    |  2 +-
->>   drivers/scsi/scsicam.c             |  2 +-
->>   fs/bcachefs/util.h                 |  2 +-
->>   fs/btrfs/disk-io.c                 |  6 ++---
->>   fs/btrfs/volumes.c                 |  4 +--
->>   fs/btrfs/zoned.c                   |  2 +-
->>   fs/buffer.c                        |  8 +++---
->>   fs/cramfs/inode.c                  |  2 +-
->>   fs/erofs/data.c                    |  2 +-
->>   fs/ext4/dir.c                      |  2 +-
->>   fs/ext4/ext4_jbd2.c                |  2 +-
->>   fs/ext4/super.c                    |  8 +++---
->>   fs/gfs2/glock.c                    |  2 +-
->>   fs/gfs2/ops_fstype.c               |  2 +-
->>   fs/jbd2/journal.c                  |  3 ++-
->>   fs/jbd2/recovery.c                 |  2 +-
->>   fs/nilfs2/segment.c                |  2 +-
->>   include/linux/blk_types.h          | 10 ++++++--
->>   include/linux/blkdev.h             |  4 +--
->>   include/linux/buffer_head.h        |  4 +--
->>   29 files changed, 86 insertions(+), 73 deletions(-)
+On 11/25/23 at 06:07pm, Eric DeVolder wrote:
 > 
-> You should do this as a patch series, add the helper function that does
-> nothing, convert all the different portions of the kernel as different
-> patches, and _then_ change the implementation of the block layer to
-> handle the change in the structure.
+> On 11/23/23 01:36, Baoquan He wrote:
+> > Ignat reported a potential config regression was introduced by
+> > commit 89cde455915f ("kexec: consolidate kexec and crash options
+> > into kernel/Kconfig.kexec"). Please click below link for more details:
+> > 
+> > https://lore.kernel.org/all/CALrw=nHpRQQaQTP_jZfREgrQEMpS8jBF8JQCv4ygqXycE-StaA@mail.gmail.com/T/#u
+> > 
+> > The patch 1 fix the regression by removing incorrect CONFIG_KEXEC
+> > ifdeffery scope adding in arm's <asm/kexec.h>, then dropping the
+> > select of KEXEC for CRASH_DUMP. This is tested and passed a cross
+> > comiping of arm.
+> > 
+> > Patch 2 is to fix a build failure when I tested patch 1 on x86_64, the
+> > wrong CONFIG_KEXEC iddeffery is replaced with CONFIG_KEXEC_CORE. Test
+> > passed on x86_64.
+> > 
+> > Patch 3 is to fix an unnecessary 'select KEXEC' in s390 ARCH. Removing
+> > the select won't impact anything. Test passed on a ibm-z system.
 > 
-> Otherwise this is going to be hard to get accepted.
-
-Okay, thanks for the adivce, I'll do that in v2.
-
-By the way, I was thinking that this patch is quite simple, and doesn't
-worth spliting into 10+ patches,
+> I apologize for my delay in responding, I did not have a computer with me
+> during my holiday travel.
 > 
-> Also, one note:
+> I was able to re-run my Kconfig test script with this patch series (now that
+> I'm running this on private resources, it takes half a day 8( ). The script
+> only performs comparisons of the .config before (LHSB) and after (RHSB) the
+> patch series; it does NOT do any building. At any rate, what that revealed
+> was only differences in s390. That means that all other arches do not have
+> any unintended side effects. The differences with patch3 applied look like:
 > 
->> @@ -85,6 +84,13 @@ struct block_device {
->>   #define bdev_kobj(_bdev) \
->>   	(&((_bdev)->bd_device.kobj))
->>   
->> +static inline struct inode *bdev_inode(struct block_device *bdev)
->> +{
->> +	void *inode = bdev + 1;
+> FAIL: allnoconfig arch/s390/configs/kasan.config
+> LHSB {'CONFIG_CRASH_CORE': 'y', 'CONFIG_KEXEC_CORE': 'y', 'CONFIG_KEXEC':
+> 'y'}
+> RHSB {'CONFIG_KEXEC': 'n'}
 > 
-> That's crazy, if something changes, this will keep working yet the
-> kernel will break and no one will know why.
+> The 'allnoconfig' and 'olddefconfig' targets failed for all s390 defconfigs.
+> The LHSB is the pre-patch values, and the RHSB is the post-patch values. So
+> this states that CRASH_CORE and KEXEC_CORE were set previously, but now they
+> are not. KEXEC obviously is being turned off intentionally.
 > 
-> Please use container_of(), that's what it is there for, this exact type
-> of thing.  Or if not, are you just assuming that the memory location
-> right after bdev is the inode?  That's a tough assumption, how are you
-> going to assure it really stays there?
+> Hope this helps some.
 
-Struct bdev_inode never changes since commit 8fbd544cbca5 ("[PATCH]
-bdev: add I_BDEV()") from 2004, and I think it won't change unless
-there is a different way to manage lifetime of block_device.
-
-And the 'bdev + 1' is copied from blk_mq_rq_to_pdu(), however, I aggre
-that use container_of() is better and I will use it in v2.
-
-Thanks,
-Kuai
+Thanks, Eric. Alexander has pointed out this in patch 3 reviewing
+comment. I misunderstood the select KEXEC in s390 arch where they
+intend to do. As I replied to Alexander, I will drop patch 3. 
 
 > 
-> thanks,
 > 
-> greg k-h
-> .
+> > Baoquan He (3):
+> >    kernel/Kconfig.kexec: drop select of KEXEC for CRASH_DUMP
+> >    drivers/base/cpu: crash data showing should depends on KEXEC_CORE
+> >    s390/Kconfig: drop select of KEXEC
+> > 
+> >   arch/arm/include/asm/kexec.h | 4 ----
+> >   arch/s390/Kconfig            | 1 -
+> >   drivers/base/cpu.c           | 6 +++---
+> >   kernel/Kconfig.kexec         | 1 -
+> >   4 files changed, 3 insertions(+), 9 deletions(-)
+> > 
 > 
 
