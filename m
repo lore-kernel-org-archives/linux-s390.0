@@ -1,131 +1,201 @@
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
-Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DD1C10F;
-	Mon, 27 Nov 2023 05:07:30 -0800 (PST)
-Received: from mail.maildlp.com (unknown [172.19.163.235])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4Sf5Tl4wF0z4f3jJ0;
-	Mon, 27 Nov 2023 21:07:23 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 75CE61A0C58;
-	Mon, 27 Nov 2023 21:07:26 +0800 (CST)
-Received: from [10.174.176.73] (unknown [10.174.176.73])
-	by APP1 (Coremail) with SMTP id cCh0CgDX2hCKlGRldTJXCA--.14854S3;
-	Mon, 27 Nov 2023 21:07:25 +0800 (CST)
-Subject: Re: [PATCH block/for-next v2 01/16] block: add a new helper to get
- inode from block_device
-To: Christoph Hellwig <hch@infradead.org>, Yu Kuai <yukuai1@huaweicloud.com>
-Cc: ming.lei@redhat.com, axboe@kernel.dk, roger.pau@citrix.com,
- colyli@suse.de, kent.overstreet@gmail.com, joern@lazybastard.org,
- miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
- sth@linux.ibm.com, hoeppner@linux.ibm.com, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, jejb@linux.ibm.com,
- martin.petersen@oracle.com, clm@fb.com, josef@toxicpanda.com,
- dsterba@suse.com, viro@zeniv.linux.org.uk, brauner@kernel.org,
- nico@fluxnic.net, xiang@kernel.org, chao@kernel.org, tytso@mit.edu,
- adilger.kernel@dilger.ca, agruenba@redhat.com, jack@suse.com,
- konishi.ryusuke@gmail.com, dchinner@redhat.com, linux@weissschuh.net,
- min15.li@samsung.com, dlemoal@kernel.org, willy@infradead.org,
- akpm@linux-foundation.org, hare@suse.de, p.raghav@samsung.com,
- linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
- xen-devel@lists.xenproject.org, linux-bcache@vger.kernel.org,
- linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, linux-bcachefs@vger.kernel.org,
- linux-btrfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
- gfs2@lists.linux.dev, linux-nilfs@vger.kernel.org, yi.zhang@huawei.com,
- yangerkun@huawei.com, "yukuai (C)" <yukuai3@huawei.com>
-References: <20231127062116.2355129-1-yukuai1@huaweicloud.com>
- <20231127062116.2355129-2-yukuai1@huaweicloud.com>
- <ZWRDeQ4K8BiYnV+X@infradead.org>
-From: Yu Kuai <yukuai1@huaweicloud.com>
-Message-ID: <6acdeece-7163-3219-95e2-827e54eadd0c@huaweicloud.com>
-Date: Mon, 27 Nov 2023 21:07:22 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lhPJ4hUJ"
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1575C49F5;
+	Mon, 27 Nov 2023 06:04:14 -0800 (PST)
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ARDfPeC020065;
+	Mon, 27 Nov 2023 14:04:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=S4Tp0kxCaMHnRHT1GJrDl8TCv/MjeeTlTcvoJVFJlTg=;
+ b=lhPJ4hUJfOwm6emHKlTuqa489O+uqe4KES7BUQ4oWgfqEL75fEJ+BR05JS9iXr3or6CZ
+ NNQhiixgwxyMp5K07gCJNhpjk70DruJE/Ny2Y+6g/5ejwkschP8Fkz1vSFXkZYNmj9cO
+ adj3lqpFpc14hyQF+T4YnnvD8pQ7xYLejRq+PP4HZnIcH/LUuaBKGMiMdGAM8W+cU4je
+ lww4EZn7jaX7u1OF0YkcZCSvtzJRnjn7vhYOQVHS+IObfnpvVy0j61NKYEQr6OC127+9
+ VC7KzEAshC7F9DNyWpeKd4uHejlfaloIao/M16Ul6F1xDDt3jmg/DkrtAmt9V3RhQH9H pQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3umufpa6kt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 27 Nov 2023 14:04:11 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ARDfhbQ022126;
+	Mon, 27 Nov 2023 14:04:11 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3umufpa6k0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 27 Nov 2023 14:04:10 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ARBYTRv025052;
+	Mon, 27 Nov 2023 14:04:10 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ukwfjrp4j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 27 Nov 2023 14:04:09 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ARE479211403924
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 27 Nov 2023 14:04:07 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 11A8220040;
+	Mon, 27 Nov 2023 14:04:07 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 47DFC2004E;
+	Mon, 27 Nov 2023 14:04:06 +0000 (GMT)
+Received: from [9.171.23.51] (unknown [9.171.23.51])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 27 Nov 2023 14:04:06 +0000 (GMT)
+Message-ID: <48732f15-64bf-4bb7-8b88-95263a99cf6a@linux.ibm.com>
+Date: Mon, 27 Nov 2023 15:04:05 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <ZWRDeQ4K8BiYnV+X@infradead.org>
-Content-Type: text/plain; charset=gbk; format=flowed
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:cCh0CgDX2hCKlGRldTJXCA--.14854S3
-X-Coremail-Antispam: 1UD129KBjvJXoW7KF1fWFWkJw1kuFy8XF43KFg_yoW8KrWDp3
-	y7KFn8tw1DJryFgan7tw1jqrn0g3W7GrWUZ34rZrsxurZ8WFy2qF10krsrXFyIyr48Jw4I
-	qF45AF43Xry2grJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUU9214x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4U
-	JVWxJr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gc
-	CE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E
-	2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJV
-	W8JwACjcxG0xvEwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2Y2ka
-	0xkIwI1lc7I2V7IY0VAS07AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7x
-	kEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E
-	67AF67kF1VAFwI0_Wrv_Gr1UMIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF
-	4lIxAIcVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwCI42IY6xAIw20EY4v20xvaj40_WFyU
-	JVCq3wCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv6xkF7I0E14v26rxl6s0DYx
-	BIdaVFxhVjvjDU0xZFpf9x0JUd8n5UUUUU=
-X-CM-SenderInfo: 51xn3trlr6x35dzhxuhorxvhhfrp/
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v2 7/7] net/smc: manage system EID in SMC stack
+ instead of ISM driver
+Content-Language: en-US
+To: Wen Gu <guwen@linux.alibaba.com>, wenjia@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        kgraul@linux.ibm.com, jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, raspl@linux.ibm.com, schnelle@linux.ibm.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1700836935-23819-1-git-send-email-guwen@linux.alibaba.com>
+ <1700836935-23819-8-git-send-email-guwen@linux.alibaba.com>
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <1700836935-23819-8-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: fJDrBNokjRlIYL3rtNsZN4dw69qn_1ni
+X-Proofpoint-ORIG-GUID: xSbd2aPQt7CNLtD5NBNNiINtRVyy21Is
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-27_11,2023-11-27_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 suspectscore=0
+ bulkscore=0 phishscore=0 mlxlogscore=999 lowpriorityscore=0
+ priorityscore=1501 impostorscore=0 mlxscore=0 adultscore=0 clxscore=1015
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311270096
 
-Hi,
 
-ÔÚ 2023/11/27 15:21, Christoph Hellwig Ð´µÀ:
-> On Mon, Nov 27, 2023 at 02:21:01PM +0800, Yu Kuai wrote:
->> From: Yu Kuai <yukuai3@huawei.com>
->>
->> block_devcie is allocated from bdev_alloc() by bdev_alloc_inode(), and
->> currently block_device contains a pointer that point to the address of
->> inode, while such inode is allocated together:
+
+On 24.11.23 15:42, Wen Gu wrote:
+> The System EID (SEID) is an internal EID that is used by the SMCv2
+> software stack that has a predefined and constant value representing
+> the s390 physical machine that the OS is executing on. So it should
+> be managed by SMC stack instead of ISM driver and be consistent for
+> all ISMv2 device (including virtual ISM devices) on s390 architecture.
 > 
-> This is going the wrong way.  Nothing outside of core block layer code
-> should ever directly use the bdev inode.  We've been rather sloppy
-> and added a lot of direct reference to it, but they really need to
-> go away and be replaced with well defined high level operation on
-> struct block_device.  Once that is done we can remove the bd_inode
-> pointer, but replacing it with something that pokes even more deeply
-> into bdev internals is a bad idea.
+> Suggested-by: Alexandra Winter <wintera@linux.ibm.com>
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> ---
 
-Thanks for the advice, however, after collecting how other modules are
-using bdev inode, I got two main questions:
+Yes, this is what I had in mind. Thank you Wen Gu.
+[...]
 
-1) Is't okay to add a new helper to pass in bdev for following apis?
-If so, then almost all the fs and driver can avoid to access bd_inode
-dirctly.
-
-errseq_check(&bdev->bd_inode->i_mapping->wb_err, wb_err);
-errseq_check_and_advance(&bdev->bd_inode->i_mapping->wb_err, &wb_err);
-mapping_gfp_constraint(bdev->bd_inode->i_mapping, gfp);
-i_size_read(bdev->bd_inode)
-find_get_page(bdev->bd_inode->i_mapping, offset);
-find_or_create_page(bdev->bd_inode->i_mapping, index, gfp);
-read_cache_page_gfp(bdev->bd_inode->i_mapping, index, gfp);
-invalidate_inode_pages2(bdev->bd_inode->i_mapping);
-invalidate_inode_pages2_range(bdev->bd_inode->i_mapping, start, end);
-read_mapping_folio(bdev->bd_inode->i_mapping, index, file);
-read_mapping_page(bdev->bd_inode->i_mapping, index, file);
-balance_dirty_pages_ratelimited(bdev->bd_inode->i_mapping)
-file_ra_state_init(ra, bdev->bd_inode->i_mapping);
-page_cache_sync_readahead(bdev->bd_inode->i_mapping, ra, file, index, 
-req_count);
-inode_to_bdi(bdev->bd_inode)
-
-2) For the file fs/buffer.c, there are some special usage like
-following that I don't think it's good to add a helper:
-
-spin_lock(&bd_inode->i_mapping->private_lock);
-
-Is't okay to move following apis from fs/buffer.c directly to
-block/bdev.c?
-
-__find_get_block
-bdev_getblk
-
-Thanks,
-Kuai
-
-> .
 > 
+> diff --git a/drivers/s390/net/ism.h b/drivers/s390/net/ism.h
+> index 70c5bbd..49ccbd68 100644
+> --- a/drivers/s390/net/ism.h
+> +++ b/drivers/s390/net/ism.h
 
+Please remove ISM_IDENT_MASK from drivers/s390/net/ism.h
+[...]
+
+> --- a/drivers/s390/net/ism_drv.c
+> +++ b/drivers/s390/net/ism_drv.c
+> @@ -36,6 +36,7 @@
+[...]
+> -static void ism_create_system_eid(void)
+> -{
+> -	struct cpuid id;
+> -	u16 ident_tail;
+> -	char tmp[5];
+> -
+> -	get_cpu_id(&id);
+> -	ident_tail = (u16)(id.ident & ISM_IDENT_MASK);
+> -	snprintf(tmp, 5, "%04X", ident_tail);
+> -	memcpy(&SYSTEM_EID.serial_number, tmp, 4);
+> -	snprintf(tmp, 5, "%04X", id.machine);
+> -	memcpy(&SYSTEM_EID.type, tmp, 4);
+> -}
+> -
+[...]
+> @@ -560,7 +535,7 @@ static int ism_dev_init(struct ism_dev *ism)
+>  
+>  	if (!ism_add_vlan_id(ism, ISM_RESERVED_VLANID))
+>  		/* hardware is V2 capable */
+> -		ism_create_system_eid();
+> +		ism_v2_capable = true;
+>  
+
+Please assign 'false' in the else path.
+This is required here for backwards compatibility. Hardware that only supports v1,
+will reject ISM_RESERVED_VLANID.
+
+[...]
+
+
+> --- a/net/smc/smc_ism.c
+> +++ b/net/smc/smc_ism.c
+[...]
+> @@ -70,6 +91,11 @@ bool smc_ism_is_v2_capable(void)
+>  	return smc_ism_v2_capable;
+>  }
+>  
+> +void smc_ism_set_v2_capable(void)
+> +{
+> +	smc_ism_v2_capable = true;
+> +}
+> +
+>  /* Set a connection using this DMBE. */
+>  void smc_ism_set_conn(struct smc_connection *conn)
+>  {
+> @@ -431,14 +457,8 @@ static void smcd_register_dev(struct ism_dev *ism)
+>  
+>  	mutex_lock(&smcd_dev_list.mutex);
+>  	if (list_empty(&smcd_dev_list.list)) {
+> -		u8 *system_eid = NULL;
+> -
+> -		system_eid = smcd->ops->get_system_eid();
+> -		if (smcd->ops->supports_v2()) {
+> -			smc_ism_v2_capable = true;
+> -			memcpy(smc_ism_v2_system_eid, system_eid,
+> -			       SMC_MAX_EID_LEN);
+> -		}
+> +		if (smcd->ops->supports_v2())
+> +			smc_ism_set_v2_capable();
+
+I don't see the benefit in declaring smc_ism_set_v2_capable() and exporting it in smc_ism.h,
+when it is used only once and only here. 
+Why don't you just set 
+	smc_ism_v2_capable = true;
+here?
+
+[...]
+> diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
+> index 0e5e563..6903cd5 100644
+> --- a/net/smc/smc_ism.h
+> +++ b/net/smc/smc_ism.h
+> @@ -16,6 +16,7 @@
+>  #include "smc.h"
+>  
+>  #define SMC_VIRTUAL_ISM_CHID_MASK	0xFF00
+> +#define SMC_ISM_IDENT_MASK		0x00FFFF
+>  
+[...]
+> @@ -45,6 +52,7 @@ int smc_ism_register_dmb(struct smc_link_group *lgr, int buf_size,
+>  void smc_ism_get_system_eid(u8 **eid);
+>  u16 smc_ism_get_chid(struct smcd_dev *dev);
+>  bool smc_ism_is_v2_capable(void);
+> +void smc_ism_set_v2_capable(void);
+>  int smc_ism_init(void);
+>  void smc_ism_exit(void);
+>  int smcd_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
