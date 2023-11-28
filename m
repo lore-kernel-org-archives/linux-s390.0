@@ -1,129 +1,174 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oTDdJ2fG"
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECB7E18F;
-	Tue, 28 Nov 2023 05:18:07 -0800 (PST)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ASCqSYK024414;
-	Tue, 28 Nov 2023 13:18:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=mime-version : date :
- from : to : cc : subject : reply-to : in-reply-to : references :
- message-id : content-type : content-transfer-encoding; s=pp1;
- bh=RXpfz7Llk5CCG02ZWuvVU6iCecbBmpRM0GOJZafVqcM=;
- b=oTDdJ2fGA22fJbi21xS52NAqrpz2nL3i1i9CYOJA1IXCIIBqqmuHYdrmyL88GkoRv1FP
- 5Pdp02AxcXJVYWH5l5Rpckduq81u7ci/BV5VE5NkB7tKUkdC6Kv2PgNKMEpOrYMK8TaP
- swwFkS/y5JPcL+tA2Pe1lqjvVvuWlI4JoUnm7qMp5uEQPWxGi5CTzjiVsxLIXMSqjEn3
- CigYarfA3UbIo0Jndlb8Dmu8x5myMJ40XgIq8w8AHF9hD+TLtEz7XfAXhXrcRd0+NySK
- U0zO7256epasjy4zIf3FJHUYdL8Qf73gjQOCt4bTEJMucvxhEC0H7BVFMznKS84cCM3U Zw== 
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ungkarq03-1
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OtwMCGKf"
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B2F1BC;
+	Tue, 28 Nov 2023 07:52:49 -0800 (PST)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ASFiPf2031336;
+	Tue, 28 Nov 2023 15:52:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=A7bnXLY1jS/KppZEb/vgHlOoHBrkurLir9tElyqGFKw=;
+ b=OtwMCGKfvcQ4C15jV4pV6ZwvknPxaAD+8LtTuzZHxWQBZPcSspCjhUES5le306Nc5eLZ
+ LFLERtrYlinwhQVliNeIzeQbwSh7YEXbJwWxiteiHPgK/WIYrvAzfKn1FJNRJxN5o9Ve
+ Bw4Iev/e3pY8C8Ho+ZdAYK8Et8Cah3TnQtSb9YgZxrwnAjqDKp8f7U3o2DW4NYfbuPcM
+ Wa8g3jpWUMdpwHl22tozHr9Z+IVltlRPankXksajNvubixO9wTm0UQptYgyZ5GtBpItz
+ IpOHF3NYumdwhD//+Rg3hUkDa36pM6j9//o9JiDO9taIWSOnj+HSRQI/hlBsz62Fx2Gq Iw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3unk3vrag3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Nov 2023 13:18:04 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ASAWfYP031072;
-	Tue, 28 Nov 2023 13:18:03 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uku8t02y7-1
+	Tue, 28 Nov 2023 15:52:39 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ASFimnw032172;
+	Tue, 28 Nov 2023 15:52:38 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3unk3vraf3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Nov 2023 13:18:03 +0000
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ASDI2ON23593640
+	Tue, 28 Nov 2023 15:52:38 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ASDT3Ph012226;
+	Tue, 28 Nov 2023 15:52:37 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ukvrkgjkc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 Nov 2023 15:52:37 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ASFqYs918809460
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 28 Nov 2023 13:18:03 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CC49558065;
-	Tue, 28 Nov 2023 13:18:02 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 953305805A;
-	Tue, 28 Nov 2023 13:18:02 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 28 Nov 2023 13:18:02 +0000 (GMT)
+	Tue, 28 Nov 2023 15:52:34 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4677A2004B;
+	Tue, 28 Nov 2023 15:52:34 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DE06520040;
+	Tue, 28 Nov 2023 15:52:33 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 28 Nov 2023 15:52:33 +0000 (GMT)
+From: Sumanth Korikkar <sumanthk@linux.ibm.com>
+To: linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>,
+        David Hildenbrand <david@redhat.com>
+Cc: Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH v5 0/5] implement "memmap on memory" feature on s390
+Date: Tue, 28 Nov 2023 16:52:22 +0100
+Message-Id: <20231128155227.1315063-1-sumanthk@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Tue, 28 Nov 2023 14:18:02 +0100
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        linux-s390@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@de.ibm.com>,
-        Jan Glauber <jang@linux.vnet.ibm.com>
-Subject: Re: crypto: s390/aes - Fix buffer overread in CTR mode
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <ZWWHFeOPcW30OYo1@gondor.apana.org.au>
-References: <ZWWHFeOPcW30OYo1@gondor.apana.org.au>
-Message-ID: <ce50a198e3c59f30376cf54e52d5e749@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: RMqiNfl3fKm5MENOJAyGCAVHljmBHnku
-X-Proofpoint-ORIG-GUID: RMqiNfl3fKm5MENOJAyGCAVHljmBHnku
+X-Proofpoint-ORIG-GUID: QhMbNXPxFeYCtmmLuA1d_MSrS7SfwvUD
+X-Proofpoint-GUID: dx6s_Kh1lOhRkXMcPr4LudEHWL98RGJz
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-28_14,2023-11-27_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=719
- clxscore=1015 phishscore=0 impostorscore=0 priorityscore=1501 spamscore=0
- suspectscore=0 adultscore=0 lowpriorityscore=0 malwarescore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311060000
- definitions=main-2311280106
+ definitions=2023-11-28_17,2023-11-27_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ priorityscore=1501 malwarescore=0 bulkscore=0 phishscore=0 mlxscore=0
+ suspectscore=0 clxscore=1015 lowpriorityscore=0 spamscore=0
+ mlxlogscore=367 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2311060000 definitions=main-2311280126
 
-On 2023-11-28 07:22, Herbert Xu wrote:
-> When processing the last block, the s390 ctr code will always read
-> a whole block, even if there isn't a whole block of data left.  Fix
-> this by using the actual length left and copy it into a buffer first
-> for processing.
-> 
-> Fixes: 0200f3ecc196 ("crypto: s390 - add System z hardware support for
-> CTR mode")
-> Cc: <stable@vger.kernel.org>
-> Reported-by: Guangwu Zhang <guazhang@redhat.com>
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-> 
-> diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
-> index c773820e4af9..c6fe5405de4a 100644
-> --- a/arch/s390/crypto/aes_s390.c
-> +++ b/arch/s390/crypto/aes_s390.c
-> @@ -597,7 +597,9 @@ static int ctr_aes_crypt(struct skcipher_request 
-> *req)
->  	 * final block may be < AES_BLOCK_SIZE, copy only nbytes
->  	 */
->  	if (nbytes) {
-> -		cpacf_kmctr(sctx->fc, sctx->key, buf, walk.src.virt.addr,
-> +		memset(buf, 0, AES_BLOCK_SIZE);
-> +		memcpy(buf, walk.src.virt.addr, nbytes);
-> +		cpacf_kmctr(sctx->fc, sctx->key, buf, buf,
->  			    AES_BLOCK_SIZE, walk.iv);
->  		memcpy(walk.dst.virt.addr, buf, nbytes);
->  		crypto_inc(walk.iv, AES_BLOCK_SIZE);
+Hi All,
 
-Here is a similar fix for the s390 paes ctr cipher. Compiles and is
-tested. You may merge this with your patch for the s390 aes cipher.
+The patch series implements "memmap on memory" feature on s390.
 
---------------------------------------------------------------------------------
+Patch 1 introduces  MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE memory
+notifiers to prepare the transition of memory to and from a physically
+accessible state. New mhp_flag MHP_OFFLINE_INACCESSIBLE is introduced to
+ensure altmap cannot be written when addidng memory - before it is set
+online. This enhancement is crucial for implementing the "memmap on
+memory" feature for s390 in a subsequent patch.
 
-diff --git a/arch/s390/crypto/paes_s390.c b/arch/s390/crypto/paes_s390.c
-index 8b541e44151d..55ee5567a5ea 100644
---- a/arch/s390/crypto/paes_s390.c
-+++ b/arch/s390/crypto/paes_s390.c
-@@ -693,9 +693,11 @@ static int ctr_paes_crypt(struct skcipher_request 
-*req)
-          * final block may be < AES_BLOCK_SIZE, copy only nbytes
-          */
-         if (nbytes) {
-+               memset(buf, 0, AES_BLOCK_SIZE);
-+               memcpy(buf, walk.src.virt.addr, nbytes);
-                 while (1) {
-                         if (cpacf_kmctr(ctx->fc, &param, buf,
--                                       walk.src.virt.addr, 
-AES_BLOCK_SIZE,
-+                                       buf, AES_BLOCK_SIZE,
-                                         walk.iv) == AES_BLOCK_SIZE)
-                                 break;
-                         if (__paes_convert_key(ctx))
+Patches 2 allocates vmemmap pages from self-contained memory range for
+s390. It allocates memory map (struct pages array) from the hotplugged
+memory range, rather than using system memory by passing altmap to
+vmemmap functions.
+
+Patch 3 removes unhandled memory notifier types on s390.
+
+Patch 4 implements MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE memory
+notifiers on s390. MEM_PREPARE_ONLINE memory notifier makes memory block
+physical accessible via sclp assign command. The notifier ensures
+self-contained memory maps are accessible and hence enabling the "memmap
+on memory" on s390. MEM_FINISH_OFFLINE memory notifier shifts the memory
+block to an inaccessible state via sclp unassign command
+
+Patch 5 finally enables MHP_MEMMAP_ON_MEMORY on s390
+
+Note:
+These patches are rebased on top of three fixes:
+mm: use vmem_altmap code without CONFIG_ZONE_DEVICE
+mm/memory_hotplug: fix error handling in add_memory_resource()
+mm/memory_hotplug: add missing mem_hotplug_lock
+
+v5:
+* Added reviewed-by
+* Removed  variables altmap_start, altmap_size in sclp_cmd.c
+* Used PFN_PHYS macro.
+
+Thanks for the valualble feedback.
+
+v4:
+* Introduced two new fields, altmap_start_pfn and altmap_nr_pages, in
+  the memory_notify structure and document it that it is used only in 
+  MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE callbacks.
+* Incorporated the newly added fields into s390's
+  MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE notifier callbacks.
+* Prevent access to memblock->altmap->free in the s390 notifier callback.
+* page_init_poison() could be performed similar to when adding new
+  memory in sparse_add_section(). Perform it without cond_resched().
+
+v3:
+* added comments to MHP_OFFLINE_ACCESSIBLE as suggested by David.
+* Squashed three commits related to new memory notifier.
+
+v2:
+* Fixes are integrated and hence removed from this patch series
+Suggestions from David:
+* Add new flag MHP_OFFLINE_INACCESSIBLE to avoid accessing memory
+  during memory hotplug addition phase.
+* Avoid page_init_poison() on memmap during mhp addition phase, when
+  MHP_OFFLINE_INACCESSIBLE mhp_flag is passed in add_memory().
+* Do not skip add_pages() in arch_add_memory(). Similarly, remove
+  similar hacks in arch_remove_memory(). 
+* Use MHP_PREPARE_ONLINE/MHP_FINISH_OFFLINE naming convention for
+  new memory notifiers.
+* Rearrange removal of unused s390 memory notifier.
+* Necessary commit messages changes.
+
+Thank you
+
+Sumanth Korikkar (5):
+  mm/memory_hotplug: introduce MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE
+    notifiers
+  s390/mm: allocate vmemmap pages from self-contained memory range
+  s390/sclp: remove unhandled memory notifier type
+  s390/mm: implement MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE notifiers
+  s390: enable MHP_MEMMAP_ON_MEMORY
+
+ arch/s390/Kconfig              |  1 +
+ arch/s390/mm/init.c            |  3 --
+ arch/s390/mm/vmem.c            | 62 +++++++++++++++++++---------------
+ drivers/base/memory.c          | 23 ++++++++++++-
+ drivers/s390/char/sclp_cmd.c   | 44 +++++++++++++++++++-----
+ include/linux/memory.h         |  9 +++++
+ include/linux/memory_hotplug.h | 18 +++++++++-
+ include/linux/memremap.h       |  1 +
+ mm/memory_hotplug.c            | 13 ++++++-
+ mm/sparse.c                    |  3 +-
+ 10 files changed, 134 insertions(+), 43 deletions(-)
+
+-- 
+2.40.1
+
