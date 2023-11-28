@@ -1,171 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 133881A5;
-	Mon, 27 Nov 2023 19:13:48 -0800 (PST)
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R851e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=20;SR=0;TI=SMTPD_---0VxJ3ovR_1701141224;
-Received: from 30.221.128.219(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VxJ3ovR_1701141224)
-          by smtp.aliyun-inc.com;
-          Tue, 28 Nov 2023 11:13:46 +0800
-Message-ID: <b7caa2cc-4615-6f0e-c296-6142b3724e01@linux.alibaba.com>
-Date: Tue, 28 Nov 2023 11:13:39 +0800
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="zxF6+s0S"
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D249C4;
+	Mon, 27 Nov 2023 21:48:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=piX6sU8uUfRdM3HI4C5o5RtKyEk7LebUsWmX5nAnS9s=; b=zxF6+s0SCn2mTM1F5sDGatwdiD
+	r+J5EdNg/JbVc8/TEwBGrSiUOrPltOv0SB5DHqEzye3x5UYQ3y43F+9CYP+YH9zZju4MAnIxN7jLr
+	52H6aTiRg9m6ogsTbJ455qxXjn6rKf3EheShZA+8TlQ0nbft+l3Lre4a0bU7FkEs+H18O/xb4HfZ2
+	DcIkdp3IB1Vc74yjq/SGmA7ZBc/H0ChYb2skCnNlw+1loprwzCvOOZXqJXWMJW983aVx/FvifwWE8
+	GXy6mVkavESjy4cQk0Ees741WqX1/u5t1i6oo5VnA69qG8fgQUNZnB/k4V2ZDGbJGb/SxQnB+AlVf
+	iSo+n9HA==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
+	id 1r7qxI-004BPZ-2N;
+	Tue, 28 Nov 2023 05:48:20 +0000
+Date: Mon, 27 Nov 2023 21:48:20 -0800
+From: Christoph Hellwig <hch@infradead.org>
+To: Yu Kuai <yukuai1@huaweicloud.com>
+Cc: Christoph Hellwig <hch@infradead.org>, ming.lei@redhat.com,
+	axboe@kernel.dk, roger.pau@citrix.com, colyli@suse.de,
+	kent.overstreet@gmail.com, joern@lazybastard.org,
+	miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
+	sth@linux.ibm.com, hoeppner@linux.ibm.com, hca@linux.ibm.com,
+	gor@linux.ibm.com, agordeev@linux.ibm.com, jejb@linux.ibm.com,
+	martin.petersen@oracle.com, clm@fb.com, josef@toxicpanda.com,
+	dsterba@suse.com, viro@zeniv.linux.org.uk, brauner@kernel.org,
+	nico@fluxnic.net, xiang@kernel.org, chao@kernel.org, tytso@mit.edu,
+	adilger.kernel@dilger.ca, agruenba@redhat.com, jack@suse.com,
+	konishi.ryusuke@gmail.com, dchinner@redhat.com,
+	linux@weissschuh.net, min15.li@samsung.com, dlemoal@kernel.org,
+	willy@infradead.org, akpm@linux-foundation.org, hare@suse.de,
+	p.raghav@samsung.com, linux-block@vger.kernel.org,
+	linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org,
+	linux-bcache@vger.kernel.org, linux-mtd@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+	linux-bcachefs@vger.kernel.org, linux-btrfs@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+	linux-ext4@vger.kernel.org, gfs2@lists.linux.dev,
+	linux-nilfs@vger.kernel.org, yi.zhang@huawei.com,
+	yangerkun@huawei.com, "yukuai (C)" <yukuai3@huawei.com>
+Subject: Re: [PATCH block/for-next v2 01/16] block: add a new helper to get
+ inode from block_device
+Message-ID: <ZWV/JBxrrGXzY0gr@infradead.org>
+References: <20231127062116.2355129-1-yukuai1@huaweicloud.com>
+ <20231127062116.2355129-2-yukuai1@huaweicloud.com>
+ <ZWRDeQ4K8BiYnV+X@infradead.org>
+ <6acdeece-7163-3219-95e2-827e54eadd0c@huaweicloud.com>
+ <ZWTErvnMf7HiO1Wj@infradead.org>
+ <bc64da80-e9bd-84cb-f173-876623303131@huaweicloud.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.1
-Subject: Re: [PATCH net-next v2 7/7] net/smc: manage system EID in SMC stack
- instead of ISM driver
-To: Alexandra Winter <wintera@linux.ibm.com>, wenjia@linux.ibm.com,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, kgraul@linux.ibm.com, jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, raspl@linux.ibm.com,
- schnelle@linux.ibm.com, linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <1700836935-23819-1-git-send-email-guwen@linux.alibaba.com>
- <1700836935-23819-8-git-send-email-guwen@linux.alibaba.com>
- <48732f15-64bf-4bb7-8b88-95263a99cf6a@linux.ibm.com>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <48732f15-64bf-4bb7-8b88-95263a99cf6a@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bc64da80-e9bd-84cb-f173-876623303131@huaweicloud.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
+On Tue, Nov 28, 2023 at 09:35:56AM +0800, Yu Kuai wrote:
+> Thanks for the advice! In case I'm understanding correctly, do you mean
+> that all other fs/drivers that is using pages versions can safely switch
+> to folio versions now?
 
+If you never allocate a high-order folio pages are identical to folios.
+So yes, we can do folio based interfaces only, and also use that as
+an opportunity to convert over the callers.
 
-On 2023/11/27 22:04, Alexandra Winter wrote:
-> 
-> 
-> On 24.11.23 15:42, Wen Gu wrote:
->> The System EID (SEID) is an internal EID that is used by the SMCv2
->> software stack that has a predefined and constant value representing
->> the s390 physical machine that the OS is executing on. So it should
->> be managed by SMC stack instead of ISM driver and be consistent for
->> all ISMv2 device (including virtual ISM devices) on s390 architecture.
->>
->> Suggested-by: Alexandra Winter <wintera@linux.ibm.com>
->> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
->> ---
-> 
-> Yes, this is what I had in mind. Thank you Wen Gu.
+> By the way, my orginal idea was trying to add a new field 'bd_flags'
+> in block_devcie, and then add a new bit so that bio_check_ro() will
+> only warn once for each partition. Now that this patchset will be quite
+> complex, I'll add a new bool field 'bd_ro_warned' to fix the above
+> problem first, and then add 'bd_flags' once this patchset is done.
 
-:)
-> [...]
-> 
->>
->> diff --git a/drivers/s390/net/ism.h b/drivers/s390/net/ism.h
->> index 70c5bbd..49ccbd68 100644
->> --- a/drivers/s390/net/ism.h
->> +++ b/drivers/s390/net/ism.h
-> 
-> Please remove ISM_IDENT_MASK from drivers/s390/net/ism.h
-> [...]
-> 
+Yes, please do a minimal version if you can find space where the
+rmw cycles don't cause damage to neighbouring fields.  Or just leave
+the current set of warnings in if it's too hard.
 
-Thanks for reminding. I will remove it.
-
->> --- a/drivers/s390/net/ism_drv.c
->> +++ b/drivers/s390/net/ism_drv.c
->> @@ -36,6 +36,7 @@
-> [...]
->> -static void ism_create_system_eid(void)
->> -{
->> -	struct cpuid id;
->> -	u16 ident_tail;
->> -	char tmp[5];
->> -
->> -	get_cpu_id(&id);
->> -	ident_tail = (u16)(id.ident & ISM_IDENT_MASK);
->> -	snprintf(tmp, 5, "%04X", ident_tail);
->> -	memcpy(&SYSTEM_EID.serial_number, tmp, 4);
->> -	snprintf(tmp, 5, "%04X", id.machine);
->> -	memcpy(&SYSTEM_EID.type, tmp, 4);
->> -}
->> -
-> [...]
->> @@ -560,7 +535,7 @@ static int ism_dev_init(struct ism_dev *ism)
->>   
->>   	if (!ism_add_vlan_id(ism, ISM_RESERVED_VLANID))
->>   		/* hardware is V2 capable */
->> -		ism_create_system_eid();
->> +		ism_v2_capable = true;
->>   
-> 
-> Please assign 'false' in the else path.
-> This is required here for backwards compatibility. Hardware that only supports v1,
-> will reject ISM_RESERVED_VLANID.
-> 
-
-OK. I will assign false in the else path to explicitly express the meaning. Thank you.
-
-> [...]
-> 
-> 
->> --- a/net/smc/smc_ism.c
->> +++ b/net/smc/smc_ism.c
-> [...]
->> @@ -70,6 +91,11 @@ bool smc_ism_is_v2_capable(void)
->>   	return smc_ism_v2_capable;
->>   }
->>   
->> +void smc_ism_set_v2_capable(void)
->> +{
->> +	smc_ism_v2_capable = true;
->> +}
->> +
->>   /* Set a connection using this DMBE. */
->>   void smc_ism_set_conn(struct smc_connection *conn)
->>   {
->> @@ -431,14 +457,8 @@ static void smcd_register_dev(struct ism_dev *ism)
->>   
->>   	mutex_lock(&smcd_dev_list.mutex);
->>   	if (list_empty(&smcd_dev_list.list)) {
->> -		u8 *system_eid = NULL;
->> -
->> -		system_eid = smcd->ops->get_system_eid();
->> -		if (smcd->ops->supports_v2()) {
->> -			smc_ism_v2_capable = true;
->> -			memcpy(smc_ism_v2_system_eid, system_eid,
->> -			       SMC_MAX_EID_LEN);
->> -		}
->> +		if (smcd->ops->supports_v2())
->> +			smc_ism_set_v2_capable();
-> 
-> I don't see the benefit in declaring smc_ism_set_v2_capable() and exporting it in smc_ism.h,
-> when it is used only once and only here.
-> Why don't you just set
-> 	smc_ism_v2_capable = true;
-> here?
-> 
-
-Yes.. it may be confusing if readers only look at this patch set.
-
-It is because loopback-ism (or other kinds of ISMv2.1) will also use this helper in such
-as smc_loopback.c to set smc_ism_v2_capable (defined in smc_ism.c) as true. So I think it
-may be better to introduce a helper here instead of exposing smc_ism_v2_capable variable.
-
-Thanks.
-
-> [...]
->> diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
->> index 0e5e563..6903cd5 100644
->> --- a/net/smc/smc_ism.h
->> +++ b/net/smc/smc_ism.h
->> @@ -16,6 +16,7 @@
->>   #include "smc.h"
->>   
->>   #define SMC_VIRTUAL_ISM_CHID_MASK	0xFF00
->> +#define SMC_ISM_IDENT_MASK		0x00FFFF
->>   
-> [...]
->> @@ -45,6 +52,7 @@ int smc_ism_register_dmb(struct smc_link_group *lgr, int buf_size,
->>   void smc_ism_get_system_eid(u8 **eid);
->>   u16 smc_ism_get_chid(struct smcd_dev *dev);
->>   bool smc_ism_is_v2_capable(void);
->> +void smc_ism_set_v2_capable(void);
->>   int smc_ism_init(void);
->>   void smc_ism_exit(void);
->>   int smcd_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
