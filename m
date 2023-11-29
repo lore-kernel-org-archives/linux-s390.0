@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nUXwUblM"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="P6Ckzu5Q"
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADDFD19A;
-	Wed, 29 Nov 2023 06:35:35 -0800 (PST)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ATEX1M4007854;
-	Wed, 29 Nov 2023 14:35:33 GMT
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B718BE;
+	Wed, 29 Nov 2023 06:54:12 -0800 (PST)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ATEqWgm005551;
+	Wed, 29 Nov 2023 14:54:10 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=84dgAyyjWyetZQdS5ITnDLJAcSc79AlusTv7kFI15mM=;
- b=nUXwUblM1WYfj7+b8+vyi4NgclDC522CYawTZvmpBQ3jEGYKiXbhur8GrRMRDJF6Mj2s
- /RWFr/XoN35c4w2kJmgKkcMHBC9LSLNSqyCWDnLsyY+HX2izduQ6jc4EplXL4SnyI79d
- 1GG1L1YQR5/JaEREne5pRRZ3wM7RWcMkAO0SyxPj8om8NYkGPoqlpHd7XhGt40KWU5w8
- /KZ6RYmzm0+eyxJ/YzNDpyQSB9M4vK5AKv34Oa3h0rFhRYZDzXobpbd1q19UF3OoO2xY
- 4vYA9Awbb0354S7M9+RaXtSQSO+bJHBq4W5LJ5Xds28v8VjtW4VlzqbXcTxQgfR4U9ek wQ== 
+ bh=NFnJQ8+sq6PRxzcrimNnl85UtYHLZzoEj5SNJF7xbtM=;
+ b=P6Ckzu5Qe88kz5EsgxGATJSaYLAQRun7VyPkNRQm6Deno5jeHNjqcJPrrTs0epqP/tcs
+ n1hSblp9viMBhga7ixwp1kXkkSPgbZk+0fATY7vjC7RtFy+v2cnTUdUH7s1b+pLBOgCp
+ iUsCIwbbdYjUezikEHWM7Gu+cS4QLtEcOS2JXCzR5JAI5pr0T9Yt80R72n5nRHhrH2u2
+ rK+SJABcQM8/Q1cXLhrW+Tu4TKRX2xEuDIHjjGKmOUcqumfXH26PKE4fsERDz8vgCcnS
+ dAirCFtONY+zyuAULcV6Et/b+trj/VAbVwvTd8bzAZkVNulhIi1dpTzA28IvrnVgPhWa 9A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3up75k03tk-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3up7eq02tb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Nov 2023 14:35:33 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ATEXOvf009646;
-	Wed, 29 Nov 2023 14:35:32 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3up75k03t0-1
+	Wed, 29 Nov 2023 14:54:09 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ATEs9pm014243;
+	Wed, 29 Nov 2023 14:54:09 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3up7eq02sb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Nov 2023 14:35:32 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ATE6Qe0004403;
-	Wed, 29 Nov 2023 14:35:31 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ukwy1y71q-1
+	Wed, 29 Nov 2023 14:54:08 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ATEBj4u001569;
+	Wed, 29 Nov 2023 14:54:07 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ukvrkqpsm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Nov 2023 14:35:31 +0000
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ATEZV1523397088
+	Wed, 29 Nov 2023 14:54:07 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ATEs7KA17957448
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Nov 2023 14:35:31 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0B48C5805F;
-	Wed, 29 Nov 2023 14:35:31 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3971558051;
-	Wed, 29 Nov 2023 14:35:30 +0000 (GMT)
+	Wed, 29 Nov 2023 14:54:07 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EC7555805B;
+	Wed, 29 Nov 2023 14:54:06 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A155E58058;
+	Wed, 29 Nov 2023 14:54:05 +0000 (GMT)
 Received: from li-2c1e724c-2c76-11b2-a85c-ae42eaf3cb3d.ibm.com.com (unknown [9.61.149.198])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 29 Nov 2023 14:35:30 +0000 (GMT)
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 29 Nov 2023 14:54:05 +0000 (GMT)
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org
 Cc: jjherne@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com,
         borntraeger@linux.ibm.com, kwankhede@nvidia.com, frankja@linux.ibm.com,
         imbrenda@linux.ibm.com, david@redhat.com
-Subject: [PATCH] s390/vfio-ap: handle response code 01 on queue reset
-Date: Wed, 29 Nov 2023 09:35:24 -0500
-Message-ID: <20231129143529.260264-1-akrowiak@linux.ibm.com>
+Subject: [PATCH v4 0/3]  a couple of corrections to the IRQ enablement function
+Date: Wed, 29 Nov 2023 09:53:58 -0500
+Message-ID: <20231129145404.263764-1-akrowiak@linux.ibm.com>
 X-Mailer: git-send-email 2.41.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -63,81 +63,43 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Wh_sxyqNi8eoxitQQ6JunvZBuky1cP6p
-X-Proofpoint-GUID: 47QYZ6reoqUfJKHJWdjE3qAOhmpsEUSD
+X-Proofpoint-GUID: sErvNc10n8rah2A1GkeU4qV13aqPq4ip
+X-Proofpoint-ORIG-GUID: NYi10FMRkaQzbifJO5GqCxxDNtZignW-
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-11-29_12,2023-11-29_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
- priorityscore=1501 malwarescore=0 mlxscore=0 phishscore=0 mlxlogscore=999
- adultscore=0 bulkscore=0 spamscore=0 suspectscore=0 impostorscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311290110
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ lowpriorityscore=0 adultscore=0 phishscore=0 priorityscore=1501
+ malwarescore=0 mlxlogscore=999 bulkscore=0 clxscore=1015 spamscore=0
+ mlxscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311290113
 
-In the current implementation, response code 01 (AP queue number not valid)
-is handled as a default case along with other response codes returned from
-a queue reset operation that are not handled specifically. Barring a bug,
-response code 01 will occur only when a queue has been externally removed
-from the host's AP configuration; nn this case, the queue must
-be reset by the machine in order to avoid leaking crypto data if/when the
-queue is returned to the host's configuration. The response code 01 case
-will be handled specifically by logging a WARN message followed by cleaning
-up the IRQ resources.
+This series corrects two issues related to enablement of interrupts in 
+response to interception of the PQAP(AQIC) command:
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 31 +++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
+1. Returning a status response code 06 (Invalid address of AP-queue 
+   notification byte) when the call to register a guest ISC fails makes no
+   sense.
+   
+2. The pages containing the interrupt notification-indicator byte are not
+   freed after a failure to register the guest ISC fails.
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 4db538a55192..91d6334574d8 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1652,6 +1652,21 @@ static int apq_status_check(int apqn, struct ap_queue_status *status)
- 		 * a value indicating a reset needs to be performed again.
- 		 */
- 		return -EAGAIN;
-+	case AP_RESPONSE_Q_NOT_AVAIL:
-+		/*
-+		 * This response code indicates the queue is not available.
-+		 * Barring a bug, response code 01 will occur only when a queue
-+		 * has been externally removed from the host's AP configuration;
-+		 * in which case, the queue must be reset by the machine in
-+		 * order to avoid leaking crypto data if/when the queue is
-+		 * returned to the host's configuration. In this case, let's go
-+		 * ahead and log a warning message and return 0 so the AQIC
-+		 * resources get cleaned up by the caller.
-+		 */
-+		WARN(true,
-+		     "Unable to reset queue %02x.%04x: not in host AP configuration\n",
-+		     AP_QID_CARD(apqn), AP_QID_QUEUE(apqn));
-+			return 0;
- 	default:
- 		WARN(true,
- 		     "failed to verify reset of queue %02x.%04x: TAPQ rc=%u\n",
-@@ -1736,6 +1751,22 @@ static void vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q)
- 		q->reset_status.response_code = 0;
- 		vfio_ap_free_aqic_resources(q);
- 		break;
-+	case AP_RESPONSE_Q_NOT_AVAIL:
-+		/*
-+		 * This response code indicates the queue is not available.
-+		 * Barring a bug, response code 01 will occur only when a queue
-+		 * has been externally removed from the host's AP configuration;
-+		 * in which case, the queue must be reset by the machine in
-+		 * order to avoid leaking crypto data if/when the queue is
-+		 * returned to the host's configuration. In this case, let's go
-+		 * ahead and log a warning message then clean up the AQIC
-+		 * resources.
-+		 */
-+		WARN(true,
-+		     "Unable to reset queue %02x.%04x: not in host AP configuration\n",
-+		     AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn));
-+		vfio_ap_free_aqic_resources(q);
-+		break;
- 	default:
- 		WARN(true,
- 		     "PQAP/ZAPQ for %02x.%04x failed with invalid rc=%u\n",
+Change log v3 ==> v4:
+--------------------
+* Improved commit message in patch 2/3 (Halil)
+
+Anthony Krowiak (2):
+  s390/vfio-ap: unpin pages on gisc registration failure
+  s390/vfio-ap: set status response code to 06 on gisc registration
+    failure
+
+Tony Krowiak (1):
+  s390/vfio-ap: improve reaction to response code 07 from PQAP(AQIC)
+    command
+
+ drivers/s390/crypto/vfio_ap_ops.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
 -- 
 2.41.0
 
