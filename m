@@ -1,128 +1,68 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="M95ovZ7T"
-Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 546A11735
-	for <linux-s390@vger.kernel.org>; Tue, 28 Nov 2023 18:21:45 -0800 (PST)
-Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-5cb92becbf6so92867877b3.2
-        for <linux-s390@vger.kernel.org>; Tue, 28 Nov 2023 18:21:45 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="XToJ42kY"
+Received: from mail-qv1-xf34.google.com (mail-qv1-xf34.google.com [IPv6:2607:f8b0:4864:20::f34])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BF54120
+	for <linux-s390@vger.kernel.org>; Wed, 29 Nov 2023 01:20:09 -0800 (PST)
+Received: by mail-qv1-xf34.google.com with SMTP id 6a1803df08f44-67a44ee7ab3so19657556d6.0
+        for <linux-s390@vger.kernel.org>; Wed, 29 Nov 2023 01:20:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1701224504; x=1701829304; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=mJUgPg47d4/pgx8Qlc5dU8QTKw0KSk/PtK3yQegaG7g=;
-        b=M95ovZ7TNLzmq+j5+IX1g1ZfHxFQKjk+ewHZaDL1W5UFtAYOvqRozjKJwR1/lbE7cH
-         /WsodU+DtntTZUjSlxODDW1U9Yd/UuaGhJuIeYv3uSj1g6vlBao9kPqOuglriCwBokWA
-         e3fat/T/JnqmxevNvygyBZ+Opd7JjnE7KWmKhDpRdtxDTzP4b3q5Zf1MhHUgMr3ka+8o
-         vgLKhQ23JKbx6pnrvylqW8cVBdIafqJgC0e5ZFoFMgcIuruyKbnjyLiplxH6CitnCi/H
-         DbrEuCy4xSbkLrVm1NUT1cuBifLfJ5K4laDHd+i8qHkO4M0Hl+gdUoNuGrg/PwggEB8E
-         nteg==
+        d=google.com; s=20230601; t=1701249608; x=1701854408; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=q6jgX+fdtw/9pVukVvzlC00W/od07a5izGjIu/hs4qE=;
+        b=XToJ42kYKxo9SJQeysuJw7T93iaB5H7pjuRFx9qFaPChG//ulhnvlopmgkdORtWyk/
+         diiXCKJ/nzMHh1ljQTTbGx1aSf1T9kJNNANOgNeHhpEpbqQAdTHWFskLMv/OtBKwfWb/
+         IffMjHq4RLsr1rnkBk9p6reCiukLr/wZKWAfcIyZmjHPg2BJZhvEf7Jim58/w291dLaR
+         jSFhOz82tdRL3h5Ne7W1xrM/MwBT5erbBKZwpK9aTHzmW1X1DWS7urZROV2gnWeqnnhq
+         m3aPOG214rsMR3wknEqtO3/qPloB4WtPkJgD7AyqlnkK0HpeamFlE9GWqizF8oBjeUb4
+         Jb8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701224504; x=1701829304;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=mJUgPg47d4/pgx8Qlc5dU8QTKw0KSk/PtK3yQegaG7g=;
-        b=fZ44eHkmkqlHBUrYWK1iowmeoQ7eH5ODaqShsNOLYNmD5kJrD0cGggE5zuGCo9SzXC
-         zLRBzS6HTMnzd36to80OAonc8qtXTtHr3AiIVZCW8HC2eBOH9SrOiAv+bvzQZZU3rti6
-         BI8fJWSVnPbQ0VMR1uKkqzh0V6jvg4OAA2sfMKlUDsii+BNjeYk7qrWvSwqfkd42Mg+V
-         +GwgPABOGrDR1ewBOSWDhOaowclT+yvm2z0fnZh407ADrLdU4kaIc3tKV2yO62Dl4NGq
-         672vTuxPNr00MFX7Lzkxw9yGGlIOv9uMOnv45vyKtBO3k0NHDWowdHCB8Kuoitc6l6Me
-         tYZA==
-X-Gm-Message-State: AOJu0YyAu40JQH9wKx92UFW0Mc4pAsr5uT51lic4lUH1s1dQtEMS0kP9
-	scM54peK2t0IJNTIuOQGisBVOIRum1E=
-X-Google-Smtp-Source: AGHT+IEzvdnB4YF3ag5ypaUivwQ+a/1gSiOiue26Vf+Kzl2dkVc1+0BYVi7jXds4GjyyxEfKmNI6Cd+a9DA=
-X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a81:ff05:0:b0:5cd:c47d:d89a with SMTP id
- k5-20020a81ff05000000b005cdc47dd89amr593254ywn.2.1701224504362; Tue, 28 Nov
- 2023 18:21:44 -0800 (PST)
-Date: Tue, 28 Nov 2023 18:21:42 -0800
-In-Reply-To: <87edgy87ig.fsf@mail.lhotse>
+        d=1e100.net; s=20230601; t=1701249608; x=1701854408;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=q6jgX+fdtw/9pVukVvzlC00W/od07a5izGjIu/hs4qE=;
+        b=HK84cjaoPXUde8LG7UBqJasbfjLErx4Bj0nz9F9TEX59IS+2K1PPFh+HY9n2VBcS4g
+         MBgzRkJGV2X5NHPYzbhseAa+jp+v392oKokUhoGPrGTvHd8iPUylhz0412CjsgGBgoAy
+         vw78AdeAkWOL1pqXYr4RCFsqX68eQZDV0bOpaW87HB1UuRBHhB3kkiU2qok72aKhwEEF
+         tVFeYr/xCLWA80Z6eRZOevpWcmj+8GMcC8/CFbet11nkG14/pq3SpXFN3SK7l+6SIqVo
+         9CAM5EYhb/XNcTRLwFeRggqJGZ1y1rvyN+T6xxYQeu7XPVPOYrRApsWEuxjofD1+JfBS
+         bMUQ==
+X-Gm-Message-State: AOJu0Yw0dpsplEUqsSp8DmO6GlYOPAei17Ju/EOSd5nCSvfl10DstjHg
+	uSbbF3qHpggGKDrrbipMI/XacLk2Ktwyk6vnCaD9xg==
+X-Google-Smtp-Source: AGHT+IHqiXE0zJisfc2kGLRsSrhk09nD6kqfJtIYT5sewkmbb0V0LnYF/lh61UmHuguBtkr3GCLsTIMLQyCS24iqQho=
+X-Received: by 2002:a0c:fccc:0:b0:67a:492b:6cbd with SMTP id
+ i12-20020a0cfccc000000b0067a492b6cbdmr8165414qvq.6.1701249608288; Wed, 29 Nov
+ 2023 01:20:08 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <0-v1-08396538817d+13c5-vfio_kvm_kconfig_jgg@nvidia.com> <87edgy87ig.fsf@mail.lhotse>
-Message-ID: <ZWagNsu1XQIqk5z9@google.com>
-Subject: Re: Ping? Re: [PATCH rc] kvm: Prevent compiling virt/kvm/vfio.c
- unless VFIO is selected
-From: Sean Christopherson <seanjc@google.com>
-To: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Jason Gunthorpe <jgg@nvidia.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Christophe Leroy <christophe.leroy@csgroup.eu>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, James Morse <james.morse@arm.com>, kvm@vger.kernel.org, 
-	kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	Marc Zyngier <maz@kernel.org>, Ingo Molnar <mingo@redhat.com>, Nicholas Piggin <npiggin@gmail.com>, 
-	Oliver Upton <oliver.upton@linux.dev>, Suzuki K Poulose <suzuki.poulose@arm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, 
-	x86@kernel.org, Zenghui Yu <yuzenghui@huawei.com>
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+References: <20231121220155.1217090-1-iii@linux.ibm.com> <20231121220155.1217090-34-iii@linux.ibm.com>
+In-Reply-To: <20231121220155.1217090-34-iii@linux.ibm.com>
+From: Alexander Potapenko <glider@google.com>
+Date: Wed, 29 Nov 2023 10:19:29 +0100
+Message-ID: <CAG_fn=XCeE7JF5hbpzXu2A0Cae3R16_hnDwF0==oJMX320wBHQ@mail.gmail.com>
+Subject: Re: [PATCH v2 33/33] kmsan: Enable on s390
+To: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
+	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>, 
+	Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Vlastimil Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com, 
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
+	linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, 
+	Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle <svens@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On Fri, Nov 10, 2023, Michael Ellerman wrote:
-> Jason Gunthorpe <jgg@nvidia.com> writes:
-> > There are a bunch of reported randconfig failures now because of this,
-> > something like:
-> >
-> >>> arch/powerpc/kvm/../../../virt/kvm/vfio.c:89:7: warning: attribute declaration must precede definition [-Wignored-attributes]
-> >            fn = symbol_get(vfio_file_iommu_group);
-> >                 ^
-> >    include/linux/module.h:805:60: note: expanded from macro 'symbol_get'
-> >    #define symbol_get(x) ({ extern typeof(x) x __attribute__((weak,visibility("hidden"))); &(x); })
-> >
-> > It happens because the arch forces KVM_VFIO without knowing if VFIO is
-> > even enabled.
-> 
-> This is still breaking some builds. Can we get this fix in please?
-> 
-> cheers
-> 
-> > Split the kconfig so the arch selects the usual HAVE_KVM_ARCH_VFIO and
-> > then KVM_VFIO is only enabled if the arch wants it and VFIO is turned on.
+Hi Ilya,
 
-Heh, so I was trying to figure out why things like vfio_file_set_kvm() aren't
-problematic, i.e. why the existing mess didn't cause failures.  I can't repro the
-warning (requires clang-16?), but IIUC the reason only the group code is problematic
-is that vfio.h creates a stub for vfio_file_iommu_group() and thus there's no symbol,
-whereas vfio.h declares vfio_file_set_kvm() unconditionally.
-
-Because KVM is doing symbol_get() and not taking a direct dependency, the lack of
-an exported symbol doesn't cause problems, i.e. simply declaring the symbol makes
-the compiler happy.
-
-Given that the vfio_file_iommu_group() stub shouldn't exist (KVM is the only user,
-and so if I'm correct the stub is worthless), what about this as a temporary "fix"?
-
-I'm 100% on-board with fixing KVM properly, my motivation is purely to minimize
-the total amount of churn.  E.g. if this works, then the only extra churn is to
-move the declaration of vfio_file_iommu_group() back under the #if, versus having
-to churn all of the KVM Kconfigs twice (once now, and again for the full cleanup).
-
-diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-index 454e9295970c..a65b2513f8cd 100644
---- a/include/linux/vfio.h
-+++ b/include/linux/vfio.h
-@@ -289,16 +289,12 @@ void vfio_combine_iova_ranges(struct rb_root_cached *root, u32 cur_nodes,
- /*
-  * External user API
-  */
--#if IS_ENABLED(CONFIG_VFIO_GROUP)
- struct iommu_group *vfio_file_iommu_group(struct file *file);
-+
-+#if IS_ENABLED(CONFIG_VFIO_GROUP)
- bool vfio_file_is_group(struct file *file);
- bool vfio_file_has_dev(struct file *file, struct vfio_device *device);
- #else
--static inline struct iommu_group *vfio_file_iommu_group(struct file *file)
--{
--       return NULL;
--}
--
- static inline bool vfio_file_is_group(struct file *file)
- {
-        return false;
-
+Sorry for this taking so long, I'll probably take a closer look next week.
+Overall, the s390 part looks good to me, but I wanted to check the x86
+behavior once again (and perhaps figure out how to avoid introducing
+another way to disable KMSAN).
+Do you happen to have a Git repo with your patches somewhere?
