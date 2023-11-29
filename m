@@ -1,154 +1,103 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="l0EVZnTS"
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEB8CBC;
-	Wed, 29 Nov 2023 09:13:08 -0800 (PST)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3ATH70Ur005040;
-	Wed, 29 Nov 2023 17:13:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=azPyXhZAO1/LTSGf53Txxbl0DE8jhzL3YiN2cyuqFac=;
- b=l0EVZnTSphWZ1qGZL+Sqz4tnQM9yZR09wdUK+E/dG2wKs9vTkJooo71/xSntJIGEswgw
- xkD04Q1WWcWns82lyQ6G0XHQVkmqf2QyVJ8mrk/nAUu1uufgXFrXpC3Evnz6LVHquNVt
- Ajlbd+JzBPw5rFF6L1ypJdHRG2vbeydfcI1O5ryMvfa47Vkl0fJIFNDYg9ZzK7XWqLiY
- zCd4jqnpRd4GZ9NO1dPSHQe2f0EMRIlRp1JDhLC4daFIew7PpMZpYpddahkvHgd+32H4
- zfawTDpKw666S9YilKWp9jqVI3j2NrSNiPKNqVCoRDrY5nLBwCXYwIkedVP188nL532p xg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3up9ds07hj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Nov 2023 17:13:04 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3ATH75Ha005199;
-	Wed, 29 Nov 2023 17:12:50 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3up9ds06hv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Nov 2023 17:12:50 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ATGnLc7011187;
-	Wed, 29 Nov 2023 17:12:38 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ukwy2041w-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Nov 2023 17:12:38 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3ATHCZdT12845702
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Nov 2023 17:12:35 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1673020043;
-	Wed, 29 Nov 2023 17:12:35 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8178420040;
-	Wed, 29 Nov 2023 17:12:34 +0000 (GMT)
-Received: from [9.179.21.219] (unknown [9.179.21.219])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 29 Nov 2023 17:12:34 +0000 (GMT)
-Message-ID: <b43414ef-7aa4-9e5c-a706-41861f0d346c@linux.ibm.com>
-Date: Wed, 29 Nov 2023 18:12:34 +0100
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="aZjQIFaA"
+Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AB0610F
+	for <linux-s390@vger.kernel.org>; Wed, 29 Nov 2023 10:31:05 -0800 (PST)
+Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-5d1b431fa7bso1079547b3.1
+        for <linux-s390@vger.kernel.org>; Wed, 29 Nov 2023 10:31:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1701282665; x=1701887465; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=c1rLIdwfJP37garEzWHrWFHBXDQvp3tQ1Ff7Pa+0bvQ=;
+        b=aZjQIFaAz+hL1UECI9sA960h4RGvBRpm7txjmGuxFqlLTwg78W0ITMv5GDXYR0NHIl
+         1NTgmovmjliqaJdwmiwqB+xIU7Ucs8VGir/rMvbZIoBMZMVNIBDOTOBh40qFzlid6QA6
+         TzVGDnjVnIHUVNKwnLb5JVODBA3MakyGifaEYMRbsXLtTU94xCUroLbhieBeb5gwsg9f
+         BL2JLzZwf62ib7XRezkypErwhfoDY9DHpzyxtf+v+R4HH0p+On8dBn1F3NuKGHRvTyiM
+         sxpNxTjSLposoh7llk9ylW4+KTGJg2/Yrf8rsaNRDGgukzQqx5wfzsQkbGsnYiw9dpqy
+         4lOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701282665; x=1701887465;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=c1rLIdwfJP37garEzWHrWFHBXDQvp3tQ1Ff7Pa+0bvQ=;
+        b=l24s+oRhlAH7AyJuJqblpfxZOUg+4YKcMGh361fx0rYfW5Avsk4iGmOX4yT49HYJDT
+         hsQKa7ALpKT/gs5RBOkn4gcaObS5G1vC1bgcnmEYjQF8kye8cIxx4iSoZ0+nsYhr7Xw7
+         eLOOo+D0RvjUgY9Zu5decO52/W5iUCraxDc198Yao9LB82H7F+0Hx1z+7JvnBxHJRE48
+         YC5hPE44t+ZCLAGI6ahgTlmoXQcUxbPoXt4X9T+JVCGiNiX8ga2+5MWA98Yu9N7F3FL2
+         Hv8PAoV5gy59RNsmL2ySVTZ/+DVyv1TjlwWjURjm7Dj7y61YYUBnVNNpVFRmj339huSL
+         kV9g==
+X-Gm-Message-State: AOJu0Yxql4V4+V9lDP8Iwr2e9bqegFyPT1jTLjlW0fXdAd8RYSqVfBv/
+	wsvqec9ppp2X4QsJ1YjA3m6FIYo1JCM=
+X-Google-Smtp-Source: AGHT+IHxpKv+Onni3jsljSwKzH8uXIhuxnoTBESUxuFhb+PRCSSwYQqIrFh/Htrp8TEW9pXbXT6mJDicqaY=
+X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
+ (user=seanjc job=sendgmr) by 2002:a05:690c:480d:b0:5ce:a88:8436 with SMTP id
+ hc13-20020a05690c480d00b005ce0a888436mr522497ywb.10.1701282664859; Wed, 29
+ Nov 2023 10:31:04 -0800 (PST)
+Date: Wed, 29 Nov 2023 10:31:03 -0800
+In-Reply-To: <20231129124821.GU436702@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.15.1
-Subject: Re: [PATCH] s390/vfio-ap: handle response code 01 on queue reset
-Content-Language: en-US
-To: Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
-        david@redhat.com
-References: <20231129143529.260264-1-akrowiak@linux.ibm.com>
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20231129143529.260264-1-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: c0zicIJzmU0dgoEO2gJEoy8knN0XQPTy
-X-Proofpoint-GUID: MlZMYa1VOAevDuZn0VXzPwp02-1s7FQk
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-29_15,2023-11-29_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 mlxscore=0
- malwarescore=0 impostorscore=0 spamscore=0 mlxlogscore=999 suspectscore=0
- priorityscore=1501 lowpriorityscore=0 bulkscore=0 adultscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311290131
+Mime-Version: 1.0
+References: <0-v1-08396538817d+13c5-vfio_kvm_kconfig_jgg@nvidia.com>
+ <87edgy87ig.fsf@mail.lhotse> <ZWagNsu1XQIqk5z9@google.com> <20231129124821.GU436702@nvidia.com>
+Message-ID: <ZWeDZ76VkRMbHEGl@google.com>
+Subject: Re: Ping? Re: [PATCH rc] kvm: Prevent compiling virt/kvm/vfio.c
+ unless VFIO is selected
+From: Sean Christopherson <seanjc@google.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>, Paolo Bonzini <pbonzini@redhat.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, James Morse <james.morse@arm.com>, kvm@vger.kernel.org, 
+	kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	Marc Zyngier <maz@kernel.org>, Ingo Molnar <mingo@redhat.com>, Nicholas Piggin <npiggin@gmail.com>, 
+	Oliver Upton <oliver.upton@linux.dev>, Suzuki K Poulose <suzuki.poulose@arm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, 
+	x86@kernel.org, Zenghui Yu <yuzenghui@huawei.com>
+Content-Type: text/plain; charset="us-ascii"
 
-Am 29.11.23 um 15:35 schrieb Tony Krowiak:
-> In the current implementation, response code 01 (AP queue number not valid)
-> is handled as a default case along with other response codes returned from
-> a queue reset operation that are not handled specifically. Barring a bug,
-> response code 01 will occur only when a queue has been externally removed
-> from the host's AP configuration; nn this case, the queue must
-> be reset by the machine in order to avoid leaking crypto data if/when the
-> queue is returned to the host's configuration. The response code 01 case
-> will be handled specifically by logging a WARN message followed by cleaning
-> up the IRQ resources.
+On Wed, Nov 29, 2023, Jason Gunthorpe wrote:
+> On Tue, Nov 28, 2023 at 06:21:42PM -0800, Sean Christopherson wrote:
+> > diff --git a/include/linux/vfio.h b/include/linux/vfio.h
+> > index 454e9295970c..a65b2513f8cd 100644
+> > --- a/include/linux/vfio.h
+> > +++ b/include/linux/vfio.h
+> > @@ -289,16 +289,12 @@ void vfio_combine_iova_ranges(struct rb_root_cached *root, u32 cur_nodes,
+> >  /*
+> >   * External user API
+> >   */
+> > -#if IS_ENABLED(CONFIG_VFIO_GROUP)
+> >  struct iommu_group *vfio_file_iommu_group(struct file *file);
+> > +
+> > +#if IS_ENABLED(CONFIG_VFIO_GROUP)
+> >  bool vfio_file_is_group(struct file *file);
+> >  bool vfio_file_has_dev(struct file *file, struct vfio_device *device);
+> >  #else
+> > -static inline struct iommu_group *vfio_file_iommu_group(struct file *file)
+> > -{
+> > -       return NULL;
+> > -}
+> > -
+> >  static inline bool vfio_file_is_group(struct file *file)
+> >  {
+> >         return false;
+> > 
 > 
+> So you symbol get on a symbol that can never be defined? Still says to
+> me the kconfig needs fixing :|
 
-To me it looks like this can be triggered by the LPAR admin, correct? So it
-is not desireable but possible.
-In that case I prefer to not use WARN, maybe use dev_warn or dev_err instead.
-WARN can be a disruptive event if panic_on_warn is set.
+Yeah, I completely agree, and if KVM didn't already rely on this horrific
+behavior and there wasn't a more complete overhaul in-flight, I wouldn't suggest
+this.
 
-
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> ---
->   drivers/s390/crypto/vfio_ap_ops.c | 31 +++++++++++++++++++++++++++++++
->   1 file changed, 31 insertions(+)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 4db538a55192..91d6334574d8 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -1652,6 +1652,21 @@ static int apq_status_check(int apqn, struct ap_queue_status *status)
->   		 * a value indicating a reset needs to be performed again.
->   		 */
->   		return -EAGAIN;
-> +	case AP_RESPONSE_Q_NOT_AVAIL:
-> +		/*
-> +		 * This response code indicates the queue is not available.
-> +		 * Barring a bug, response code 01 will occur only when a queue
-> +		 * has been externally removed from the host's AP configuration;
-> +		 * in which case, the queue must be reset by the machine in
-> +		 * order to avoid leaking crypto data if/when the queue is
-> +		 * returned to the host's configuration. In this case, let's go
-> +		 * ahead and log a warning message and return 0 so the AQIC
-> +		 * resources get cleaned up by the caller.
-> +		 */
-> +		WARN(true,
-> +		     "Unable to reset queue %02x.%04x: not in host AP configuration\n",
-> +		     AP_QID_CARD(apqn), AP_QID_QUEUE(apqn));
-> +			return 0;
->   	default:
->   		WARN(true,
->   		     "failed to verify reset of queue %02x.%04x: TAPQ rc=%u\n",
-> @@ -1736,6 +1751,22 @@ static void vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q)
->   		q->reset_status.response_code = 0;
->   		vfio_ap_free_aqic_resources(q);
->   		break;
-> +	case AP_RESPONSE_Q_NOT_AVAIL:
-> +		/*
-> +		 * This response code indicates the queue is not available.
-> +		 * Barring a bug, response code 01 will occur only when a queue
-> +		 * has been externally removed from the host's AP configuration;
-> +		 * in which case, the queue must be reset by the machine in
-> +		 * order to avoid leaking crypto data if/when the queue is
-> +		 * returned to the host's configuration. In this case, let's go
-> +		 * ahead and log a warning message then clean up the AQIC
-> +		 * resources.
-> +		 */
-> +		WARN(true,
-> +		     "Unable to reset queue %02x.%04x: not in host AP configuration\n",
-> +		     AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn));
-> +		vfio_ap_free_aqic_resources(q);
-> +		break;
->   	default:
->   		WARN(true,
->   		     "PQAP/ZAPQ for %02x.%04x failed with invalid rc=%u\n",
+I'll send the KVM Kconfig/Makefile cleanups from my "Hide KVM internals from others"
+series separately (which is still the bulk of the series) so as to prioritize
+getting the cleanups landed.
