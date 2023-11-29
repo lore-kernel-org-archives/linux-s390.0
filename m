@@ -1,140 +1,118 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b="myoOwtYn"
-Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DB971BD4;
-	Wed, 29 Nov 2023 01:39:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-	s=201909; t=1701250743;
-	bh=vsrPdG817FSeXCk8MleL83TvHrXPh57pIp04z21H6/U=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=myoOwtYnCMYNkSic9zkY8PttdYTgpbf4PL7ltVmiCcjFDDHamvpvFsbPNb5ijDUmL
-	 /TpbvQtdmVfVWR+njBWEGRP92NjOV5+MZQaX+tT89yOGy8xnklIfEunWGvAO7qhC8O
-	 gT3a7LpOh5roXxVSpgc34BoYlbs1qN2ZqeqB+tkQi/cq/vRGIdQ6gtBxxE68+B6k4i
-	 bYNiLeavOIdFfO73cqyMi9+84hbh5vDQJZlxxEqHgEVKoICfhApON15kYD+5UgsOr+
-	 89EIItQ+H6NgAGLE4Ijuygow0sOrow+YyHqye6OErP4sEbng//26tIroIU1W0W/3dG
-	 Dt/Jm7l9QS0Ow==
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mail.ozlabs.org (Postfix) with ESMTPSA id 4SgDmP5ZxZz4xSy;
-	Wed, 29 Nov 2023 20:39:01 +1100 (AEDT)
-From: Michael Ellerman <mpe@ellerman.id.au>
-To: Sean Christopherson <seanjc@google.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Jason Gunthorpe <jgg@nvidia.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, Catalin
- Marinas <catalin.marinas@arm.com>, Christophe Leroy
- <christophe.leroy@csgroup.eu>, Dave Hansen <dave.hansen@linux.intel.com>,
- David Hildenbrand <david@redhat.com>, Janosch Frank
- <frankja@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens
- <hca@linux.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Claudio Imbrenda
- <imbrenda@linux.ibm.com>, James Morse <james.morse@arm.com>,
- kvm@vger.kernel.org, kvmarm@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, Marc Zyngier <maz@kernel.org>, Ingo Molnar
- <mingo@redhat.com>, Nicholas Piggin <npiggin@gmail.com>, Oliver Upton
- <oliver.upton@linux.dev>, Suzuki K Poulose <suzuki.poulose@arm.com>, Sven
- Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Will
- Deacon <will@kernel.org>, x86@kernel.org, Zenghui Yu
- <yuzenghui@huawei.com>
-Subject: Re: Ping? Re: [PATCH rc] kvm: Prevent compiling virt/kvm/vfio.c
- unless VFIO is selected
-In-Reply-To: <ZWagNsu1XQIqk5z9@google.com>
-References: <0-v1-08396538817d+13c5-vfio_kvm_kconfig_jgg@nvidia.com>
- <87edgy87ig.fsf@mail.lhotse> <ZWagNsu1XQIqk5z9@google.com>
-Date: Wed, 29 Nov 2023 20:38:54 +1100
-Message-ID: <875y1k3nm9.fsf@mail.lhotse>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RYnmXqyq"
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8206419A6;
+	Wed, 29 Nov 2023 01:59:14 -0800 (PST)
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AT8lip4006099;
+	Wed, 29 Nov 2023 09:58:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=Hv358qHkkkSpvNupSHYh3b+P8ZW0/9o2ISigxsZiDRc=;
+ b=RYnmXqyqNjkB3uPhASHqAqrdeBHCZVBTxp4yZ1GDyirYoq5bC5pBhSa++iFQeyh0as9s
+ BM4domMZ6U2OkVj7juZTPWO+mwaRVwfeDNQWEZhxb9/dsC7YsQVPSCEs8aaHrSw2gSFq
+ wE94DR9pxWA9RoQA06NyL0WvwBuwpuN4YLn735gp/NBHE5y8oSgj0Yx4sFfu1dnihdeX
+ d40OOZHROD0R3ypUCpJRh6r+UPlCkzc4FoFYaEbpHm4JdJYCtZPkTPVk2zQ/P5+ElFLW
+ YDR2jmwA3SiO3MWDFCWY7tAwn2mKybltZq+SUcjruM5urKbfrRicmqFu2Iby1OnGFX7J Fw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3up23phqtg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 Nov 2023 09:58:52 +0000
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AT9hwi3002169;
+	Wed, 29 Nov 2023 09:58:51 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3up23phqsh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 Nov 2023 09:58:51 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AT8VHNw012197;
+	Wed, 29 Nov 2023 09:58:49 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ukvrkp9tm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 Nov 2023 09:58:49 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AT9wkHg16057068
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 29 Nov 2023 09:58:46 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9F79A20043;
+	Wed, 29 Nov 2023 09:58:46 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 646F820040;
+	Wed, 29 Nov 2023 09:58:45 +0000 (GMT)
+Received: from [9.171.93.155] (unknown [9.171.93.155])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 29 Nov 2023 09:58:45 +0000 (GMT)
+Message-ID: <edd48d556f3951384f9ac72462f16ee9309a739e.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 33/33] kmsan: Enable on s390
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+To: Alexander Potapenko <glider@google.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrew Morton
+ <akpm@linux-foundation.org>,
+        Christoph Lameter <cl@linux.com>,
+        David
+ Rientjes <rientjes@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Joonsoo
+ Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>,
+        Masami
+ Hiramatsu <mhiramat@kernel.org>,
+        Pekka Enberg <penberg@kernel.org>,
+        Steven
+ Rostedt <rostedt@goodmis.org>,
+        Vasily Gorbik <gor@linux.ibm.com>, Vlastimil
+ Babka <vbabka@suse.cz>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        Mark Rutland <mark.rutland@arm.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Sven Schnelle
+ <svens@linux.ibm.com>
+Date: Wed, 29 Nov 2023 10:58:45 +0100
+In-Reply-To: <CAG_fn=XCeE7JF5hbpzXu2A0Cae3R16_hnDwF0==oJMX320wBHQ@mail.gmail.com>
+References: <20231121220155.1217090-1-iii@linux.ibm.com>
+	 <20231121220155.1217090-34-iii@linux.ibm.com>
+	 <CAG_fn=XCeE7JF5hbpzXu2A0Cae3R16_hnDwF0==oJMX320wBHQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: bHuUrUxcKhPwsCQNukrG6dt9RnefPY2L
+X-Proofpoint-ORIG-GUID: XkNrh_4ciRiXY49x-H9GVRo1-JXJIiVh
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-29_07,2023-11-27_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ clxscore=1015 suspectscore=0 mlxscore=0 malwarescore=0 adultscore=0
+ phishscore=0 mlxlogscore=832 priorityscore=1501 spamscore=0 bulkscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311290073
 
-Sean Christopherson <seanjc@google.com> writes:
-> On Fri, Nov 10, 2023, Michael Ellerman wrote:
->> Jason Gunthorpe <jgg@nvidia.com> writes:
->> > There are a bunch of reported randconfig failures now because of this,
->> > something like:
->> >
->> >>> arch/powerpc/kvm/../../../virt/kvm/vfio.c:89:7: warning: attribute declaration must precede definition [-Wignored-attributes]
->> >            fn = symbol_get(vfio_file_iommu_group);
->> >                 ^
->> >    include/linux/module.h:805:60: note: expanded from macro 'symbol_get'
->> >    #define symbol_get(x) ({ extern typeof(x) x __attribute__((weak,visibility("hidden"))); &(x); })
->> >
->> > It happens because the arch forces KVM_VFIO without knowing if VFIO is
->> > even enabled.
->> 
->> This is still breaking some builds. Can we get this fix in please?
->> 
->> cheers
->> 
->> > Split the kconfig so the arch selects the usual HAVE_KVM_ARCH_VFIO and
->> > then KVM_VFIO is only enabled if the arch wants it and VFIO is turned on.
->
-> Heh, so I was trying to figure out why things like vfio_file_set_kvm() aren't
-> problematic, i.e. why the existing mess didn't cause failures.  I can't repro the
-> warning (requires clang-16?), but IIUC the reason only the group code is problematic
-> is that vfio.h creates a stub for vfio_file_iommu_group() and thus there's no symbol,
-> whereas vfio.h declares vfio_file_set_kvm() unconditionally.
+On Wed, 2023-11-29 at 10:19 +0100, Alexander Potapenko wrote:
+> Hi Ilya,
+>=20
+> Sorry for this taking so long, I'll probably take a closer look next
+> week.
+> Overall, the s390 part looks good to me, but I wanted to check the
+> x86
+> behavior once again (and perhaps figure out how to avoid introducing
+> another way to disable KMSAN).
+> Do you happen to have a Git repo with your patches somewhere?
 
-That warning I'm unsure about.
+Hi, yes, the latest version of the patches is available at [1].
 
-But the final report linked in Jason's mail shows a different one:
-
-   In file included from arch/powerpc/kvm/../../../virt/kvm/vfio.c:17:
-   include/linux/vfio.h: In function 'kvm_vfio_file_iommu_group':
-   include/linux/vfio.h:294:35: error: weak declaration of 'vfio_file_iommu_group' being applied to a already existing, static definition
-     294 | static inline struct iommu_group *vfio_file_iommu_group(struct file *file)
-         |                                   ^~~~~~~~~~~~~~~~~~~~~
-
-Which is simple to reproduce, just build ppc64le_defconfig and then turn
-off CONFIG_MODULES (I'm using GCC 13, the report is for GCC 12).
-
-> Because KVM is doing symbol_get() and not taking a direct dependency, the lack of
-> an exported symbol doesn't cause problems, i.e. simply declaring the symbol makes
-> the compiler happy.
->
-> Given that the vfio_file_iommu_group() stub shouldn't exist (KVM is the only user,
-> and so if I'm correct the stub is worthless), what about this as a temporary "fix"?
->
-> I'm 100% on-board with fixing KVM properly, my motivation is purely to minimize
-> the total amount of churn.  E.g. if this works, then the only extra churn is to
-> move the declaration of vfio_file_iommu_group() back under the #if, versus having
-> to churn all of the KVM Kconfigs twice (once now, and again for the full cleanup).
-
-Fine by me.
-
-> diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-> index 454e9295970c..a65b2513f8cd 100644
-> --- a/include/linux/vfio.h
-> +++ b/include/linux/vfio.h
-> @@ -289,16 +289,12 @@ void vfio_combine_iova_ranges(struct rb_root_cached *root, u32 cur_nodes,
->  /*
->   * External user API
->   */
-> -#if IS_ENABLED(CONFIG_VFIO_GROUP)
->  struct iommu_group *vfio_file_iommu_group(struct file *file);
-> +
-> +#if IS_ENABLED(CONFIG_VFIO_GROUP)
->  bool vfio_file_is_group(struct file *file);
->  bool vfio_file_has_dev(struct file *file, struct vfio_device *device);
->  #else
-> -static inline struct iommu_group *vfio_file_iommu_group(struct file *file)
-> -{
-> -       return NULL;
-> -}
-> -
->  static inline bool vfio_file_is_group(struct file *file)
->  {
->         return false;
-
-That fixes the build for me.
-
-Tested-by: Michael Ellerman <mpe@ellerman.id.au>
-
-
-cheers
+[1] https://github.com/iii-i/linux/tree/kmsan
