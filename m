@@ -1,127 +1,64 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b="rOr5qxeA"
-Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1F6810D4;
-	Wed, 29 Nov 2023 22:38:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-	s=201909; t=1701326330;
-	bh=scy1etpzFyR1jZIjJ7/tF1TmQ4Wr4ZPAn1YidjcB+F0=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=rOr5qxeAp7+hwSCT9su1OJ57aJsQ7ggH9hU8d+p4CPkIHvFtYa8VDMQB3aJSsQb9x
-	 7KnwcbuuavH9TzQFqPQ8saFsfUnd/CUwi1aH82O7OZCKp9c2bNDVx1/Ej+L1puiA9T
-	 giyTyN5MW7HA52VJWCV0K0RgS6V9liqDJhHujqnVprWA5JMydiETZgA0m/mzz+BFZZ
-	 f0N5fEszptc/Dt1zIijywxUjRhlR4ocAB6HhjB/7jY9SUx2tXcLAHOwcfZoSLu6dhy
-	 vq6qJFI38c7f1IYdQT8Zh8HrWTsEQ/gdV9KMGmEyoAaS9NkZGtkUNvNtJJH5nFk/Rk
-	 PqeKz/k0JOiew==
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mail.ozlabs.org (Postfix) with ESMTPSA id 4Sgmjz2zZwz4xWj;
-	Thu, 30 Nov 2023 17:38:47 +1100 (AEDT)
-From: Michael Ellerman <mpe@ellerman.id.au>
-To: Sean Christopherson <seanjc@google.com>, Jason Gunthorpe <jgg@nvidia.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, Catalin
- Marinas <catalin.marinas@arm.com>, Christophe Leroy
- <christophe.leroy@csgroup.eu>, Dave Hansen <dave.hansen@linux.intel.com>,
- David Hildenbrand <david@redhat.com>, Janosch Frank
- <frankja@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens
- <hca@linux.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Claudio Imbrenda
- <imbrenda@linux.ibm.com>, James Morse <james.morse@arm.com>,
- kvm@vger.kernel.org, kvmarm@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, Marc Zyngier <maz@kernel.org>, Ingo Molnar
- <mingo@redhat.com>, Nicholas Piggin <npiggin@gmail.com>, Oliver Upton
- <oliver.upton@linux.dev>, Suzuki K Poulose <suzuki.poulose@arm.com>, Sven
- Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Will
- Deacon <will@kernel.org>, x86@kernel.org, Zenghui Yu
- <yuzenghui@huawei.com>
-Subject: Re: Ping? Re: [PATCH rc] kvm: Prevent compiling virt/kvm/vfio.c
- unless VFIO is selected
-In-Reply-To: <ZWftIIEpbLP2xF5H@google.com>
-References: <0-v1-08396538817d+13c5-vfio_kvm_kconfig_jgg@nvidia.com>
- <87edgy87ig.fsf@mail.lhotse> <ZWagNsu1XQIqk5z9@google.com>
- <875y1k3nm9.fsf@mail.lhotse> <ZWfgYdSoJAZqL2Gx@google.com>
- <20231130011650.GD1389974@nvidia.com> <ZWftIIEpbLP2xF5H@google.com>
-Date: Thu, 30 Nov 2023 17:38:43 +1100
-Message-ID: <87y1ef21ak.fsf@mail.lhotse>
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A053FD50;
+	Thu, 30 Nov 2023 03:02:10 -0800 (PST)
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R241e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=20;SR=0;TI=SMTPD_---0VxRQVSY_1701342127;
+Received: from 30.221.130.31(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VxRQVSY_1701342127)
+          by smtp.aliyun-inc.com;
+          Thu, 30 Nov 2023 19:02:08 +0800
+Message-ID: <319ca57a-c89b-ba37-c5ca-e1eafc73392f@linux.alibaba.com>
+Date: Thu, 30 Nov 2023 19:02:06 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.1
+Subject: Re: [PATCH net-next v2 1/7] net/smc: Rename some variable 'fce' to
+ 'fce_v2x' for clarity
+To: Wenjia Zhang <wenjia@linux.ibm.com>, wintera@linux.ibm.com,
+ hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, kgraul@linux.ibm.com, jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, raspl@linux.ibm.com,
+ schnelle@linux.ibm.com, linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <1700836935-23819-1-git-send-email-guwen@linux.alibaba.com>
+ <1700836935-23819-2-git-send-email-guwen@linux.alibaba.com>
+ <298442c7-40f0-42ab-b5cb-07603d8689f5@linux.ibm.com>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <298442c7-40f0-42ab-b5cb-07603d8689f5@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Sean Christopherson <seanjc@google.com> writes:
-> On Wed, Nov 29, 2023, Jason Gunthorpe wrote:
->> On Wed, Nov 29, 2023 at 05:07:45PM -0800, Sean Christopherson wrote:
->> > On Wed, Nov 29, 2023, Michael Ellerman wrote:
->> > > Sean Christopherson <seanjc@google.com> writes:
->> > > > On Fri, Nov 10, 2023, Michael Ellerman wrote:
->> > > >> Jason Gunthorpe <jgg@nvidia.com> writes:
->> > > >> > There are a bunch of reported randconfig failures now because of this,
->> > > >> > something like:
->> > > >> >
->> > > >> >>> arch/powerpc/kvm/../../../virt/kvm/vfio.c:89:7: warning: attribute declaration must precede definition [-Wignored-attributes]
->> > > >> >            fn = symbol_get(vfio_file_iommu_group);
->> > > >> >                 ^
->> > > >> >    include/linux/module.h:805:60: note: expanded from macro 'symbol_get'
->> > > >> >    #define symbol_get(x) ({ extern typeof(x) x __attribute__((weak,visibility("hidden"))); &(x); })
->> > > >> >
->> > > >> > It happens because the arch forces KVM_VFIO without knowing if VFIO is
->> > > >> > even enabled.
->> > > >> 
->> > > >> This is still breaking some builds. Can we get this fix in please?
->> > > >> 
->> > > >> cheers
->> > > >> 
->> > > >> > Split the kconfig so the arch selects the usual HAVE_KVM_ARCH_VFIO and
->> > > >> > then KVM_VFIO is only enabled if the arch wants it and VFIO is turned on.
->> > > >
->> > > > Heh, so I was trying to figure out why things like vfio_file_set_kvm() aren't
->> > > > problematic, i.e. why the existing mess didn't cause failures.  I can't repro the
->> > > > warning (requires clang-16?), but IIUC the reason only the group code is problematic
->> > > > is that vfio.h creates a stub for vfio_file_iommu_group() and thus there's no symbol,
->> > > > whereas vfio.h declares vfio_file_set_kvm() unconditionally.
->> > > 
->> > > That warning I'm unsure about.
->> > 
->> > Ah, it's the same warning, I just missed the CONFIG_MODULES=n requirement.
->> 
->> Oh, wait, doesn't that mean the approach won't work? IIRC doesn't
->> symbol_get turn into just &fn when non-modular turning this into a
->> link failure without the kconfig part?
 
-It does build.
 
-I haven't boot tested it, but TBH I don't really care as long as the
-build is green, I don't think anyone's actually using this weird
-combination of config options.
+On 2023/11/29 20:50, Wenjia Zhang wrote:
+> 
+> 
+> On 24.11.23 15:42, Wen Gu wrote:
+>> Rename some smc_clc_first_contact_ext_v2x type variables to 'fce_v2x'
+>> to distinguish them from smc_clc_first_contact_ext type variables.
+>>
+>> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+>> ---
+>>   net/smc/smc_clc.c | 26 +++++++++++++-------------
+>>   1 file changed, 13 insertions(+), 13 deletions(-)
+>>
+>> diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+>> index 0fda515..c41a249 100644
+>> --- a/net/smc/smc_clc.c
+>> +++ b/net/smc/smc_clc.c
+>> @@ -418,15 +418,15 @@ static bool smc_clc_msg_prop_valid(struct smc_clc_msg_proposal *pclc)
+>>       return true;
+>>   }
+>> -static int smc_clc_fill_fce(struct smc_clc_first_contact_ext_v2x *fce,
+>> +static int smc_clc_fill_fce(struct smc_clc_first_contact_ext_v2x *fce_v2x,
+>>                   struct smc_init_info *ini)
+> 
+> Since this function is only used by v2.x, IMO, this function name could also be changed to e.g. smc_clc_fill_fce_v2x.
 
-> Yes, but it doesn't cause linker errors.  IIUC, because the extern declaration
-> is tagged "weak", a dummy default is used.  E.g. on x86, this is what is generated
-> with VFIO=y
->
->                 fn = symbol_get(vfio_file_is_valid);
->                 if (!fn)
->    0xffffffff810396c5 <+5>:	mov    $0xffffffff81829230,%rax
->    0xffffffff810396cc <+12>:	test   %rax,%rax
->
-> whereas VFIO=n gets
->
->                 fn = symbol_get(vfio_file_is_valid);
->                 if (!fn)
->    0xffffffff810396c5 <+5>:	mov    $0x0,%rax
->    0xffffffff810396cc <+12>:	test   %rax,%rax
->
-> I have no idea if the fact that symbol_get() generates '0', i.e. the !NULL checks
-> work as expected, is intentional or if KVM works by sheer dumb luck.
-
-I think it's intentional:
-
-  https://lore.kernel.org/all/20030117045054.9A2F72C073@lists.samba.org/
-
-cheers
+Thank you, Wenjia. The function name will also be changed.
