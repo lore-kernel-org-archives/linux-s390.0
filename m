@@ -1,281 +1,145 @@
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6029198C;
-	Thu, 30 Nov 2023 03:28:42 -0800 (PST)
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R701e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=21;SR=0;TI=SMTPD_---0VxRPuBr_1701343717;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VxRPuBr_1701343717)
-          by smtp.aliyun-inc.com;
-          Thu, 30 Nov 2023 19:28:39 +0800
-From: Wen Gu <guwen@linux.alibaba.com>
-To: wintera@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	agordeev@linux.ibm.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	kgraul@linux.ibm.com,
-	jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com,
-	svens@linux.ibm.com,
-	alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
-	raspl@linux.ibm.com,
-	schnelle@linux.ibm.com,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net-next v3 7/7] net/smc: manage system EID in SMC stack instead of ISM driver
-Date: Thu, 30 Nov 2023 19:28:15 +0800
-Message-Id: <1701343695-122657-8-git-send-email-guwen@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1701343695-122657-1-git-send-email-guwen@linux.alibaba.com>
-References: <1701343695-122657-1-git-send-email-guwen@linux.alibaba.com>
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="tkK3iflv"
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2076.outbound.protection.outlook.com [40.107.243.76])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E65E84;
+	Thu, 30 Nov 2023 04:08:14 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=H0ierRWbva/yzhJKTbXUcqPPrcbU5R5lqSgDF2Mg6pI5keTqdQcV5UazIPBAB5VVd9lWR/rSky3rCrvherxRcuTpWgC7ra811Yby8peB977coaVExRnjcggTG5QTrUulgCrkox7I8/+Vow8Tp0/kPA+Ec8Ar2IOYf2rwyWo0QYv0JBRp/Fs3KdxqOGOY+4zQMqwN1aqRzsZHiqy1kM35KcrRBHWviMTsatKJ9qbXhx0N4hLGRg3kJ8YP41tcSnIUS8TNWHtY+c8Kdqttb3LcBMIENl9O9BModoTZ8W3YdKGQW2eiWKqPV94eQNTUS715QFSDbDIyhtXG5TbED2qwrw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=/bf+Eog8H80/LYq0vgSrbt5YRK9tITMPAvNJQ+r7N8s=;
+ b=WzKYwgV0ZuHhVwTUjf4rP1gpCczVOF3XBgDoFbCeAcPYgOkl2MLEhbXj15DOrTbWGP0lz7fbyLOjMEcLQ2v564x9XR6L94wRdNJpLpGV/dE4QKb4cv4eSDqAyfbYk3OQ+P+xK5UpcAwYzSg1iAQO1d4/qdxV99QZN+IhINQ7dPf4FDG66zCgrdS8A3haErD38jsjeXYg7rMehJ2hzP0i+wT9KE+s1VVltHc02mPR+4kWEzN8+/YlmF7vF7aKtfbnM9fnMxMhvXZJX5tavSJZ934q+5b0xZgSwAwZfnaZzTVsK2uMyVI8BPdLDu2ON6+TNTo5YWnJXTgmC2dDlRAYqw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=/bf+Eog8H80/LYq0vgSrbt5YRK9tITMPAvNJQ+r7N8s=;
+ b=tkK3iflvhmd4W0N5upR95GRWyEeukoKi4ZKpIAEeD6CVdI3bKl0q9XAU/uxv3mwi9+GrQr0ZPt3bTjviWp1YqzSL+xrJWXl8AT94IGTpljuQn5kAfxWf90+WSVOvDXPesXRe9+Q31m/SFWWppH16nYTsqR2tPtp7pJIS8fcJhe6Nsge6x/z1q9dQBc0sr22mELndUDhSqjpfSx2yqVY2xrAKwgzJqgT8UaNVD+6erlKWz7j9V5jquEkICteNiCNwiM7G+CuC4oDEE4mB9clbW0MECsDiw0rU2CGyZ2eJxFSHJ1HT35t2SwITetkt+n1rcJmiF6iQGmxx/11vCGw6Ag==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by DS0PR12MB8413.namprd12.prod.outlook.com (2603:10b6:8:f9::7) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7046.24; Thu, 30 Nov 2023 12:07:45 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::60d4:c1e3:e1aa:8f93]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::60d4:c1e3:e1aa:8f93%4]) with mapi id 15.20.7046.015; Thu, 30 Nov 2023
+ 12:07:44 +0000
+Date: Thu, 30 Nov 2023 08:07:43 -0400
+From: Jason Gunthorpe <jgg@nvidia.com>
+To: Sean Christopherson <seanjc@google.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	David Hildenbrand <david@redhat.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	James Morse <james.morse@arm.com>, kvm@vger.kernel.org,
+	kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	Marc Zyngier <maz@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Oliver Upton <oliver.upton@linux.dev>,
+	Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
+	x86@kernel.org, Zenghui Yu <yuzenghui@huawei.com>
+Subject: Re: Ping? Re: [PATCH rc] kvm: Prevent compiling virt/kvm/vfio.c
+ unless VFIO is selected
+Message-ID: <20231130120743.GF1389974@nvidia.com>
+References: <0-v1-08396538817d+13c5-vfio_kvm_kconfig_jgg@nvidia.com>
+ <87edgy87ig.fsf@mail.lhotse>
+ <ZWagNsu1XQIqk5z9@google.com>
+ <875y1k3nm9.fsf@mail.lhotse>
+ <ZWfgYdSoJAZqL2Gx@google.com>
+ <20231130011650.GD1389974@nvidia.com>
+ <ZWftIIEpbLP2xF5H@google.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZWftIIEpbLP2xF5H@google.com>
+X-ClientProxiedBy: SA0PR13CA0023.namprd13.prod.outlook.com
+ (2603:10b6:806:130::28) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|DS0PR12MB8413:EE_
+X-MS-Office365-Filtering-Correlation-Id: b2b859a9-1fbc-4b8c-842f-08dbf19cf613
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	SdZP8p2k8IxR1wCTPNTV01yFiZNR9CKGkVWtvnUpLdFwzd8KSypB83JEcAyoLgvnLlUuet5zj4R+K9ar7QrHRXecoq/BHKyFrSdyqNBbKXWSAT5xfB39qqCyZOF9hndEGw8dxM59QuuJUc2uLyMErKw9PfbO/+qDf4ip8T2z+rAZZm3Gut3URzwD0lFmMjDOEGsM/FmN5d6LNx8FhOuF1xTgqAgr7G7rSOYUhpZBGNXIn5icn2kzN2fMbngLiafXNp60Mp6+vsb/D/5uVJhDYGvZkCCop4JP/cQ1uFZtf97jvyUc45T72tJPpkNkQNIFpvmpFwIzEehbrpiZBBGYQYWkAozg339NGPwrG49fgOO1lVLihbVEpoVt7UOjX+7xiltA8VAq8HcqoKhjT/jLMiKw37xBF7uZ/ZKI6Wk/LUzp5CQ8U/FmhVGP5qVXsWX079+1XQJ9uqhZnTggkqcP5vSZ6c1RWqz4u7usNgznQkyA5Q11kIcJ0Muc2Og43sDt6ISQxeGDbxqW4DECvCVGi3TQuYKtVgoQ6ajFsCPNHdFvoeyQNYSyVRCk8TcthHh4WJAU6s82UUUVvKK9ECL7kE5hhiHkN/1QD7z2T/wG3OZYpGT1XOTz9Tg7fo7rmaVq89zTXXMjYxyyJlzlysvC1V3QX0r6s9Ev1yfGNNMLJxI=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366004)(39860400002)(136003)(346002)(376002)(396003)(230273577357003)(230922051799003)(230173577357003)(1800799012)(186009)(64100799003)(451199024)(1076003)(26005)(6506007)(83380400001)(2616005)(6512007)(6486002)(7406005)(5660300002)(4326008)(8676002)(8936002)(41300700001)(4744005)(7416002)(2906002)(478600001)(316002)(6916009)(54906003)(66476007)(66556008)(66946007)(202311291699003)(86362001)(33656002)(36756003)(38100700002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?j1DuB+h7uY/Ghdp9YIiRQs8QKO5GQjBXN0LGO7WQaLVm+NdJzl22btnkhyvg?=
+ =?us-ascii?Q?ygJnG+q2WBq1Y9tNoZPRERVrFeC1uBBnSP3ORasb/mg/B+Y23dw1DH8G+pJQ?=
+ =?us-ascii?Q?7Lp1XAMtPfFUuOsC+/FaA+ojnUbb5jrYaQ3nbFN9+kSbCl/4TiLgKfQ6XVlA?=
+ =?us-ascii?Q?lQoUYCzyApBz227BS+hLMgrh199BRdzqMTxHURd5TARYBDxQuSUZ3CZ5hcTX?=
+ =?us-ascii?Q?zbl093zqyrXUGYdstUvwT2Ez0cdaEgUmCsUGblettnLREDypxbrnRGnpBuva?=
+ =?us-ascii?Q?qAxuxY2LE01hl5atmJ3Twktp+5sNMqBNiQEqOnyRJv5NIDL6mFxbPRrRltDi?=
+ =?us-ascii?Q?xm5wjLdvz8zpsEoQl9Ml/zpSYtMvYu2MU2RGbAHmocLq9Z+afyQzB91uCvcL?=
+ =?us-ascii?Q?MUtEaILJd3wAxNTz7BgxHugU04rZykp0A0srfFda0ZNsM1gf0y8Hol99VKNk?=
+ =?us-ascii?Q?82MAS6CGWhyoqUiShDtKibUmVOvPk5Nyo1zKueqQQg4VXJUFCpmTHoXRy+Xe?=
+ =?us-ascii?Q?Y6jriHuEt2dumScKiBt6rWpW86o1IaeJ5TlFnZzBpi2NAe9niiNFkc8RC9rk?=
+ =?us-ascii?Q?Yd7EwDeQfpBIRLxBbegIhfy4XG5iBvRTwXzdfb0G3P+QIfpr+QLX2Vj2SBNY?=
+ =?us-ascii?Q?K9Orud9xElSgCbQ5ECIYx26/B1jkphxeoHje3hk5MWstXfrb1s9pNtVqTSE3?=
+ =?us-ascii?Q?En25V2nWD5U/A0tRLoQkazKU/W701pWzTTpPXwP2NIIhIk/VCzrMnyk691V1?=
+ =?us-ascii?Q?/nSMof+9M4YM9Ey393wVvmjG8BEuK5fwfw4TGNVhzmTFQIA+jkb4hDp69RLn?=
+ =?us-ascii?Q?OLWwrRl/oBxCm9rz4OcY9szyCxesdFe2dI4xhXCy4J3XyIpyLQdychb13ArI?=
+ =?us-ascii?Q?xZ7vbX87y0V1D2/88rWo4pWrGdBfHWojzk82BO2dRMu5Zrs88xPRoLXzDY+l?=
+ =?us-ascii?Q?owA5tAlIsQ1nXgq/S2NPVelpvHzfJbIoBkOm9IyB3+3OnE3X4TCxhYEUyV+w?=
+ =?us-ascii?Q?NBKHVHpGQsjP4xq0pwvTqJnv1/HNwle653GsGBSR51j/qbqxsW+mrGAKNgJZ?=
+ =?us-ascii?Q?W+CNRKStAe3B1ZdNhDYZVITK6W95RAMnnrv2Gr658nb2uEU6HlQTldvRURoc?=
+ =?us-ascii?Q?HwWIk8mjH7wSFJqhPeB6YEFc6zD+G5krkLhUlORMxHibL2T7SHv37qHcZw+Z?=
+ =?us-ascii?Q?ZIG3jQEPWESu7P8eJfRBnSaLgDATB96MnLo9DNeC8RXV9XICNvhnCrpHx10g?=
+ =?us-ascii?Q?W6JvqauW0QWUPooN7YVkuRQvOJW0K5ktjM+oHNTqXrxNlRERygFovs85wo4S?=
+ =?us-ascii?Q?n+i5L/9sKv1pDHOuEuY/pf7EKVQcTEE4M0Gys4hIE8GwaK0CH4pCgf4pWRkl?=
+ =?us-ascii?Q?F/hng9j3mJ6AxEL6f7WWflQx/Kqw1LlzS3gwFHqlK+3rqGbGFSSEr7AxO0DR?=
+ =?us-ascii?Q?ME0Vm+5kZTCGqSS1KF2nfqlQQKn307HeoAAdyn7rBYfyRN8DAbDvsWc3ihZN?=
+ =?us-ascii?Q?FPkxZiB39vWFzlT67VpkN0MpCztdC45n0l6bc/l72s3zxXrp+I6hkcmonIKJ?=
+ =?us-ascii?Q?vK1FJ46+2rlLPq4gjC2OsJB3dXlv+KISvFbFpUuZ?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b2b859a9-1fbc-4b8c-842f-08dbf19cf613
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Nov 2023 12:07:44.9575
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: E1qqUaKUshzXuz+Ed62sZnrDyvhVpLdaXEknGQG3/tGqYPAM1+ZIMT0aMl+yve1/
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB8413
 
-The System EID (SEID) is an internal EID that is used by the SMCv2
-software stack that has a predefined and constant value representing
-the s390 physical machine that the OS is executing on. So it should
-be managed by SMC stack instead of ISM driver and be consistent for
-all ISMv2 device (including virtual ISM devices) on s390 architecture.
+On Wed, Nov 29, 2023 at 06:02:08PM -0800, Sean Christopherson wrote:
 
-Suggested-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
----
- drivers/s390/net/ism.h     |  7 -------
- drivers/s390/net/ism_drv.c | 38 ++++++--------------------------------
- include/linux/ism.h        |  1 -
- include/net/smc.h          |  1 -
- net/smc/smc_ism.c          | 33 ++++++++++++++++++++++++---------
- net/smc/smc_ism.h          |  7 +++++++
- 6 files changed, 37 insertions(+), 50 deletions(-)
+> > > Ah, it's the same warning, I just missed the CONFIG_MODULES=n requirement.
+> > 
+> > Oh, wait, doesn't that mean the approach won't work? IIRC doesn't
+> > symbol_get turn into just &fn when non-modular turning this into a
+> > link failure without the kconfig part?
+> 
+> Yes, but it doesn't cause linker errors.  IIUC, because the extern declaration
+> is tagged "weak", a dummy default is used.  E.g. on x86, this is what is generated
+> with VFIO=y
 
-diff --git a/drivers/s390/net/ism.h b/drivers/s390/net/ism.h
-index 70c5bbd..047fa610 100644
---- a/drivers/s390/net/ism.h
-+++ b/drivers/s390/net/ism.h
-@@ -16,7 +16,6 @@
-  */
- #define ISM_DMB_WORD_OFFSET	1
- #define ISM_DMB_BIT_OFFSET	(ISM_DMB_WORD_OFFSET * 32)
--#define ISM_IDENT_MASK		0x00FFFF
- 
- #define ISM_REG_SBA	0x1
- #define ISM_REG_IEQ	0x2
-@@ -192,12 +191,6 @@ struct ism_sba {
- #define ISM_CREATE_REQ(dmb, idx, sf, offset)		\
- 	((dmb) | (idx) << 24 | (sf) << 23 | (offset))
- 
--struct ism_systemeid {
--	u8	seid_string[24];
--	u8	serial_number[4];
--	u8	type[4];
--};
--
- static inline void __ism_read_cmd(struct ism_dev *ism, void *data,
- 				  unsigned long offset, unsigned long len)
- {
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index 250248b..0590027 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -36,6 +36,7 @@
- 						/* a list for fast mapping  */
- static u8 max_client;
- static DEFINE_MUTEX(clients_lock);
-+static bool ism_v2_capable;
- struct ism_dev_list {
- 	struct list_head list;
- 	struct mutex mutex; /* protects ism device list */
-@@ -443,32 +444,6 @@ int ism_move(struct ism_dev *ism, u64 dmb_tok, unsigned int idx, bool sf,
- }
- EXPORT_SYMBOL_GPL(ism_move);
- 
--static struct ism_systemeid SYSTEM_EID = {
--	.seid_string = "IBM-SYSZ-ISMSEID00000000",
--	.serial_number = "0000",
--	.type = "0000",
--};
--
--static void ism_create_system_eid(void)
--{
--	struct cpuid id;
--	u16 ident_tail;
--	char tmp[5];
--
--	get_cpu_id(&id);
--	ident_tail = (u16)(id.ident & ISM_IDENT_MASK);
--	snprintf(tmp, 5, "%04X", ident_tail);
--	memcpy(&SYSTEM_EID.serial_number, tmp, 4);
--	snprintf(tmp, 5, "%04X", id.machine);
--	memcpy(&SYSTEM_EID.type, tmp, 4);
--}
--
--u8 *ism_get_seid(void)
--{
--	return SYSTEM_EID.seid_string;
--}
--EXPORT_SYMBOL_GPL(ism_get_seid);
--
- static void ism_handle_event(struct ism_dev *ism)
- {
- 	struct ism_event *entry;
-@@ -560,7 +535,9 @@ static int ism_dev_init(struct ism_dev *ism)
- 
- 	if (!ism_add_vlan_id(ism, ISM_RESERVED_VLANID))
- 		/* hardware is V2 capable */
--		ism_create_system_eid();
-+		ism_v2_capable = true;
-+	else
-+		ism_v2_capable = false;
- 
- 	mutex_lock(&ism_dev_list.mutex);
- 	mutex_lock(&clients_lock);
-@@ -665,8 +642,7 @@ static void ism_dev_exit(struct ism_dev *ism)
- 	}
- 	mutex_unlock(&clients_lock);
- 
--	if (SYSTEM_EID.serial_number[0] != '0' ||
--	    SYSTEM_EID.type[0] != '0')
-+	if (ism_v2_capable)
- 		ism_del_vlan_id(ism, ISM_RESERVED_VLANID);
- 	unregister_ieq(ism);
- 	unregister_sba(ism);
-@@ -812,8 +788,7 @@ static int smcd_move(struct smcd_dev *smcd, u64 dmb_tok, unsigned int idx,
- 
- static int smcd_supports_v2(void)
- {
--	return SYSTEM_EID.serial_number[0] != '0' ||
--		SYSTEM_EID.type[0] != '0';
-+	return ism_v2_capable;
- }
- 
- static u64 ism_get_local_gid(struct ism_dev *ism)
-@@ -859,7 +834,6 @@ static inline struct device *smcd_get_dev(struct smcd_dev *dev)
- 	.signal_event = smcd_signal_ieq,
- 	.move_data = smcd_move,
- 	.supports_v2 = smcd_supports_v2,
--	.get_system_eid = ism_get_seid,
- 	.get_local_gid = smcd_get_local_gid,
- 	.get_chid = smcd_get_chid,
- 	.get_dev = smcd_get_dev,
-diff --git a/include/linux/ism.h b/include/linux/ism.h
-index 9a4c204..5428edd 100644
---- a/include/linux/ism.h
-+++ b/include/linux/ism.h
-@@ -86,7 +86,6 @@ int  ism_register_dmb(struct ism_dev *dev, struct ism_dmb *dmb,
- int  ism_unregister_dmb(struct ism_dev *dev, struct ism_dmb *dmb);
- int  ism_move(struct ism_dev *dev, u64 dmb_tok, unsigned int idx, bool sf,
- 	      unsigned int offset, void *data, unsigned int size);
--u8  *ism_get_seid(void);
- 
- const struct smcd_ops *ism_get_smcd_ops(void);
- 
-diff --git a/include/net/smc.h b/include/net/smc.h
-index a0dc1187e..c9dcb30 100644
---- a/include/net/smc.h
-+++ b/include/net/smc.h
-@@ -73,7 +73,6 @@ struct smcd_ops {
- 			 bool sf, unsigned int offset, void *data,
- 			 unsigned int size);
- 	int (*supports_v2)(void);
--	u8* (*get_system_eid)(void);
- 	void (*get_local_gid)(struct smcd_dev *dev, struct smcd_gid *gid);
- 	u16 (*get_chid)(struct smcd_dev *dev);
- 	struct device* (*get_dev)(struct smcd_dev *dev);
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index a33f861..ac88de2 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -43,6 +43,27 @@ static void smcd_handle_irq(struct ism_dev *ism, unsigned int dmbno,
- };
- #endif
- 
-+static void smc_ism_create_system_eid(void)
-+{
-+	struct smc_ism_seid *seid =
-+		(struct smc_ism_seid *)smc_ism_v2_system_eid;
-+#if IS_ENABLED(CONFIG_S390)
-+	struct cpuid id;
-+	u16 ident_tail;
-+	char tmp[5];
-+
-+	memcpy(seid->seid_string, "IBM-SYSZ-ISMSEID00000000", 24);
-+	get_cpu_id(&id);
-+	ident_tail = (u16)(id.ident & SMC_ISM_IDENT_MASK);
-+	snprintf(tmp, 5, "%04X", ident_tail);
-+	memcpy(seid->serial_number, tmp, 4);
-+	snprintf(tmp, 5, "%04X", id.machine);
-+	memcpy(seid->type, tmp, 4);
-+#else
-+	memset(seid, 0, SMC_MAX_EID_LEN);
-+#endif
-+}
-+
- /* Test if an ISM communication is possible - same CPC */
- int smc_ism_cantalk(struct smcd_gid *peer_gid, unsigned short vlan_id,
- 		    struct smcd_dev *smcd)
-@@ -431,14 +452,8 @@ static void smcd_register_dev(struct ism_dev *ism)
- 
- 	mutex_lock(&smcd_dev_list.mutex);
- 	if (list_empty(&smcd_dev_list.list)) {
--		u8 *system_eid = NULL;
--
--		system_eid = smcd->ops->get_system_eid();
--		if (smcd->ops->supports_v2()) {
-+		if (smcd->ops->supports_v2())
- 			smc_ism_v2_capable = true;
--			memcpy(smc_ism_v2_system_eid, system_eid,
--			       SMC_MAX_EID_LEN);
--		}
- 	}
- 	/* sort list: devices without pnetid before devices with pnetid */
- 	if (smcd->pnetid[0])
-@@ -542,10 +557,10 @@ int smc_ism_init(void)
- {
- 	int rc = 0;
- 
--#if IS_ENABLED(CONFIG_ISM)
- 	smc_ism_v2_capable = false;
--	memset(smc_ism_v2_system_eid, 0, SMC_MAX_EID_LEN);
-+	smc_ism_create_system_eid();
- 
-+#if IS_ENABLED(CONFIG_ISM)
- 	rc = ism_register_client(&smc_ism_client);
- #endif
- 	return rc;
-diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
-index 0e5e563..ffff40c 100644
---- a/net/smc/smc_ism.h
-+++ b/net/smc/smc_ism.h
-@@ -16,6 +16,7 @@
- #include "smc.h"
- 
- #define SMC_VIRTUAL_ISM_CHID_MASK	0xFF00
-+#define SMC_ISM_IDENT_MASK		0x00FFFF
- 
- struct smcd_dev_list {	/* List of SMCD devices */
- 	struct list_head list;
-@@ -30,6 +31,12 @@ struct smc_ism_vlanid {			/* VLAN id set on ISM device */
- 	refcount_t refcnt;		/* Reference count */
- };
- 
-+struct smc_ism_seid {
-+	u8 seid_string[24];
-+	u8 serial_number[4];
-+	u8 type[4];
-+};
-+
- struct smcd_dev;
- 
- int smc_ism_cantalk(struct smcd_gid *peer_gid, unsigned short vlan_id,
--- 
-1.8.3.1
+Oh wow that is some pretty dark magic there :|
 
+Jason
