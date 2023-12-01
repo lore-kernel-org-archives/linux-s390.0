@@ -1,137 +1,118 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kAQsN+K3"
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C73910DF;
-	Fri,  1 Dec 2023 03:18:56 -0800 (PST)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B1B8FZv018133;
-	Fri, 1 Dec 2023 11:18:49 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tHnqyxfO"
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BC7110DF;
+	Fri,  1 Dec 2023 03:25:29 -0800 (PST)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B1BLs6x025771;
+	Fri, 1 Dec 2023 11:25:03 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=SQeMsnkSmvQHWc9TP1DATsAWIlnBwjDXrz6OTIEeqsQ=;
- b=kAQsN+K3EGsgSamBNfuGLzBbEgW0jSGh5sp+407hkH+878d1dKL/Z2jB3xqC4Q0XLr9i
- sLYq1+Glf+acycicHlvSzXz4XV9GLCL78miJUaycDbi7bMp1+ACUnvlxlTI9bdK9Uw7P
- JIOVsG6AVJn4SS8o3FZrUIRTCH5Vf29PqBNFiqukw91BRkn2bX/va62bGnTnvcEvZued
- uSJ+9euorxY57lTe0x8mHxTsygEvPCFVGuENo+om+BoTw+3XBK2b/32Lq/fI9gADlUXB
- TigdGzpRXl02uypV1pK6jyCaUUHjzIYknEXWpJ8wcSDMpraGjJ3TiNs7bkTVbgt8BEXL kw== 
+ bh=JDUzZoo0usIHW1bL2X7anyVGvbWqKUEA7tIrv8v05tw=;
+ b=tHnqyxfOpKCyJQS9Q2t6T+YBArVIO9T+BksB7CPM23mv787TWNE400l6B35o4efxzIgZ
+ dTVPk64R5ES/U8fIEFZdkk6XmOqPOItJQeGIYkr4RTjVnoTUvos/sgpjBL7sHtasGumI
+ IqsBtbExaSGm0U/D4mKfTxabVmwieN8VVL/Od1F4AAzYpQRMafuh25W1NVF4eyWsmDBm
+ ow/7ypoop/jr4CS5zEI0eV/IiVMIlFaheuK9Vg9wHgXceJScHgJ+9UaKFFEIdZmnYJ8P
+ zPqO1SZOKKYj14HDlUigQ0HYnNwAhJNBvJJHU7VgJ8EWBSVbpJ9T2dUxnzRq6IcGfA2X xA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uqebmrab6-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uqej203cs-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 01 Dec 2023 11:18:49 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B1B8vZ4021075;
-	Fri, 1 Dec 2023 11:18:48 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uqebmraas-1
+	Fri, 01 Dec 2023 11:25:03 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B1BMput029715;
+	Fri, 1 Dec 2023 11:25:02 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uqej203bx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 01 Dec 2023 11:18:48 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B1AY0SY020438;
-	Fri, 1 Dec 2023 11:18:47 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ukvrm4gy0-1
+	Fri, 01 Dec 2023 11:25:02 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B1AXt1j002633;
+	Fri, 1 Dec 2023 11:25:01 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ukv8p4nxt-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 01 Dec 2023 11:18:47 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B1BIiUu20906498
+	Fri, 01 Dec 2023 11:25:01 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B1BOveo11600416
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 1 Dec 2023 11:18:44 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 88C4420043;
-	Fri,  1 Dec 2023 11:18:44 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4FFC420040;
-	Fri,  1 Dec 2023 11:18:43 +0000 (GMT)
-Received: from [9.179.28.5] (unknown [9.179.28.5])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  1 Dec 2023 11:18:43 +0000 (GMT)
-Message-ID: <aab0905a-b77f-4504-a510-83c98f79b2b7@linux.ibm.com>
-Date: Fri, 1 Dec 2023 12:18:42 +0100
+	Fri, 1 Dec 2023 11:24:58 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D182D20049;
+	Fri,  1 Dec 2023 11:24:57 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7747820040;
+	Fri,  1 Dec 2023 11:24:57 +0000 (GMT)
+Received: from [9.152.224.222] (unknown [9.152.224.222])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  1 Dec 2023 11:24:57 +0000 (GMT)
+Message-ID: <fc436fea-b9af-5649-0b4e-ef6c0ef37ce9@linux.ibm.com>
+Date: Fri, 1 Dec 2023 12:24:56 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v3 7/7] net/smc: manage system EID in SMC stack
- instead of ISM driver
-To: Wen Gu <guwen@linux.alibaba.com>, wenjia@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        kgraul@linux.ibm.com, jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
-        tonylu@linux.alibaba.com, raspl@linux.ibm.com, schnelle@linux.ibm.com,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1701343695-122657-1-git-send-email-guwen@linux.alibaba.com>
- <1701343695-122657-8-git-send-email-guwen@linux.alibaba.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.1
+Subject: Re: [PATCH 0/3] Use new wrappers to copy userspace arrays
+To: Sean Christopherson <seanjc@google.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Philipp Stanner <pstanner@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, x86@kernel.org
+References: <20231102181526.43279-1-pstanner@redhat.com>
+ <170137909771.669092.7450781639631347445.b4-ty@google.com>
 Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <1701343695-122657-8-git-send-email-guwen@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <170137909771.669092.7450781639631347445.b4-ty@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: FhuwSygUbyqQmJDW3VqesCgWrJ_W82Es
-X-Proofpoint-GUID: J4vhBy5WdwyS8I8f6ghFE4d9QqdS_khM
+X-Proofpoint-ORIG-GUID: LrfhoqbS-eviJ5_jMuCu1wAkL1ISHKbx
+X-Proofpoint-GUID: Xqwf_ASsKyrNP6BsfZQM4xXPHZMO1cS5
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-12-01_09,2023-11-30_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 impostorscore=0
- lowpriorityscore=0 clxscore=1015 mlxscore=0 bulkscore=0 phishscore=0
- mlxlogscore=999 adultscore=0 malwarescore=0 suspectscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2312010074
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
+ priorityscore=1501 lowpriorityscore=0 mlxlogscore=744 adultscore=0
+ phishscore=0 impostorscore=0 mlxscore=0 suspectscore=0 malwarescore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2312010075
 
 
 
-On 30.11.23 12:28, Wen Gu wrote:
-> The System EID (SEID) is an internal EID that is used by the SMCv2
-> software stack that has a predefined and constant value representing
-> the s390 physical machine that the OS is executing on. So it should
-> be managed by SMC stack instead of ISM driver and be consistent for
-> all ISMv2 device (including virtual ISM devices) on s390 architecture.
+Am 01.12.23 um 02:52 schrieb Sean Christopherson:
+> On Thu, 02 Nov 2023 19:15:23 +0100, Philipp Stanner wrote:
+>> Linus recently merged [1] the wrapper functions memdup_array_user() and
+>> vmemdup_array_user() in include/linux/string.h for Kernel v6.7
+>>
+>> I am currently adding them to all places where (v)memdup_user() had been
+>> used to copy arrays.
+>>
+>> The wrapper is different to the wrapped functions only in that it might
+>> return -EOVERFLOW. So this new error code might get pushed up to
+>> userspace. I hope this is fine.
+>>
+>> [...]
 > 
-> Suggested-by: Alexandra Winter <wintera@linux.ibm.com>
-> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-> ---
+> Applied to kvm-x86 generic.  Claudio (or anyone else from s390), holler if
+> you want to take the s390 patch through the s390 tree.
 
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+I think this is fine via your tree.
 
-
-[...]
-> diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-> index a33f861..ac88de2 100644
-> --- a/net/smc/smc_ism.c
-> +++ b/net/smc/smc_ism.c
-[...]
-> @@ -431,14 +452,8 @@ static void smcd_register_dev(struct ism_dev *ism)
->  
->  	mutex_lock(&smcd_dev_list.mutex);
->  	if (list_empty(&smcd_dev_list.list)) {
-> -		u8 *system_eid = NULL;
-> -
-> -		system_eid = smcd->ops->get_system_eid();
-> -		if (smcd->ops->supports_v2()) {
-> +		if (smcd->ops->supports_v2())
->  			smc_ism_v2_capable = true;
-> -			memcpy(smc_ism_v2_system_eid, system_eid,
-> -			       SMC_MAX_EID_LEN);
-> -		}
->  	}
-
-Just a comment:
-Here we only check the first smcd device to determine whether we support v2.
-Which is ok, for today's platform firmware ISM devices, as they are always the same version.
-
-When you add virtual ISM devices (loopback-ism, virtio-ism) then this needs to be changed.
-IMO the logic then needs to be "if all smcd devices support v2,
-then smc_ism_v2_capable = true;
-else smc_ism_v2_capable = false;"
-
-I don't know if you would like to change that now in this patch, or later when
-you add when you add the support for loopback.
-
-
-
+Feel free to add
+Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+to patch 2 if the commit id is not yet final.
