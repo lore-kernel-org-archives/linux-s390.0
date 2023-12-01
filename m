@@ -1,91 +1,121 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="boT7pveg"
-Received: from mail-pj1-x1049.google.com (mail-pj1-x1049.google.com [IPv6:2607:f8b0:4864:20::1049])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9994CA0
-	for <linux-s390@vger.kernel.org>; Thu, 30 Nov 2023 17:52:40 -0800 (PST)
-Received: by mail-pj1-x1049.google.com with SMTP id 98e67ed59e1d1-2859052aed9so1826297a91.3
-        for <linux-s390@vger.kernel.org>; Thu, 30 Nov 2023 17:52:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1701395560; x=1702000360; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=jDAo7xcaTB61zqktCfZGe7MT3u57tuHVzlhp9HQUcu0=;
-        b=boT7pvegiLKGSOyot5VpydIoDnTrvslBe3SilXkVSDVar4Z6FRP+Qi0VNOzkjTQhEf
-         ZOQ8/HniHu7QLU4RRsPT4bF09fhZOD1F/yvwUWHuBpR/lqFJu0X1irXsBxIhrpchZX7i
-         hOooRFkOBjt8sIMGSeVLBrY33HKp4jY2wTl9tfq1VWsnFIh31h4uVKLIFeGMa5z41S1g
-         7o7Cswl8pP/MlnaPX9ipx8c1Rhy1Hp8C0Fg8+xPdMHimQbuekEqDySOiIcEceAHe16UT
-         1aB43CsT03I25QewZaxBAdI3t05hXJklt57jT2Q89OZ6I4zGxFUbcVT1wouPu6f5hhB9
-         /qTw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701395560; x=1702000360;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=jDAo7xcaTB61zqktCfZGe7MT3u57tuHVzlhp9HQUcu0=;
-        b=LCIvofQ0befo+SiKV1VFOhkdmeutspcHRsWdeqOj626cle0HeVAfvqH6MSGabqbmUc
-         ZfAlaCPD6YYn8W0JYE/HZjOeH6gQ1M40H8bLtIMjUFx2XsxjmxSUG3GO8Ap8u9UllzlY
-         lnuYkXQs20sS32WpDyeJPhECI3bT+2ptcsOLRsGoiGTlQNI3EEOU+k9gbE545L1w25zo
-         1s9OWczKqHzReS8RmGEEmDm6ePtb8CfGgGAEihPeGLp6Wej1ouRhASX3u3nuJQo6dcP6
-         5qODi59sIswVJkhW2yYGez2BwmJCnL+YtIO63gHH6sFARxcrGa5aZU2O7+IbnkEsn3RU
-         vAAw==
-X-Gm-Message-State: AOJu0Yyu4DViwtcAan1W8z6Wb9o8+kVb0AHVj7AhzKzIR/2Km1XIIotj
-	iLZ154PMqg5EgTR64+tJ87tTkttgfOA=
-X-Google-Smtp-Source: AGHT+IEFnK9rSPjSkAn46Nn/t6rQBkPoX0sBJ20OTRSbHUu03F9XcWeU9PActP7gt9A8pR2PCANU8Fv1ej4=
-X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a17:90b:143:b0:281:37ae:df69 with SMTP id
- em3-20020a17090b014300b0028137aedf69mr4741858pjb.4.1701395560050; Thu, 30 Nov
- 2023 17:52:40 -0800 (PST)
-Date: Thu, 30 Nov 2023 17:52:06 -0800
-In-Reply-To: <20231102181526.43279-1-pstanner@redhat.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="T41uadYX"
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46C771711;
+	Fri,  1 Dec 2023 00:33:55 -0800 (PST)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B18X2ON032381;
+	Fri, 1 Dec 2023 08:33:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=xbEY5pbdgrGRStC1B+zZTqRATZzBHAwFSvid2XQ9imc=;
+ b=T41uadYXrRzikO+r4lFQPN1A8GUAmkP67Z8GtKz7oArGPKClf0kwxXQO+3DyIu+WomNl
+ 4QllESAITN2ECOqaTbRqdFRG2ko8PCkWH1pvj1il+7vt5IrFjao5SR9rGICq8Gbq6MbV
+ VkPAUvaDpKQSxnS6GHac7/t6nD+mG1C88h8m3pzc0acknsTT0k4uThBEEngdokbRPENz
+ rgaVxdiB0NO9jBTZIdAP9lYe4tX7JnwRwyKk0LhGIyYJG3DaSBHXvU6p7LSoLyB8vgRB
+ nzpgg0BUP44Tj6dKVoaKx7zOcWEnUqE/ctUFBXl5z/SVsEtrlkHz3sudVmv48wTyeyzC Rg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uqc2q80w4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 01 Dec 2023 08:33:50 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B18XEOn000649;
+	Fri, 1 Dec 2023 08:33:49 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uqc2q80vj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 01 Dec 2023 08:33:49 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B16YVMN015317;
+	Fri, 1 Dec 2023 08:33:49 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ukvrm3rcc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 01 Dec 2023 08:33:48 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B18XmE750135454
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 1 Dec 2023 08:33:48 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EA50B58056;
+	Fri,  1 Dec 2023 08:33:47 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9E0EC58052;
+	Fri,  1 Dec 2023 08:33:44 +0000 (GMT)
+Received: from [9.171.36.63] (unknown [9.171.36.63])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  1 Dec 2023 08:33:44 +0000 (GMT)
+Message-ID: <b50c8e41-9787-4281-81fa-e2cfe8fe3146@linux.ibm.com>
+Date: Fri, 1 Dec 2023 09:33:43 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v3 0/7] net/smc: implement SMCv2.1 virtual ISM
+ device support
+Content-Language: en-GB
+To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        kgraul@linux.ibm.com, jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, raspl@linux.ibm.com, schnelle@linux.ibm.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1701343695-122657-1-git-send-email-guwen@linux.alibaba.com>
+From: Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <1701343695-122657-1-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: nIx74hUPJEgNw7KqTmMHnG8qTVAak0aU
+X-Proofpoint-GUID: FB8tw4bcZt64nqadfbFNZoW0C6Z2OWBN
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20231102181526.43279-1-pstanner@redhat.com>
-X-Mailer: git-send-email 2.43.0.rc2.451.g8631bc7472-goog
-Message-ID: <170137909771.669092.7450781639631347445.b4-ty@google.com>
-Subject: Re: [PATCH 0/3] Use new wrappers to copy userspace arrays
-From: Sean Christopherson <seanjc@google.com>
-To: Sean Christopherson <seanjc@google.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, 
-	David Hildenbrand <david@redhat.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	"H. Peter Anvin" <hpa@zytor.com>, Philipp Stanner <pstanner@redhat.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, x86@kernel.org
-Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-01_06,2023-11-30_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
+ mlxlogscore=999 clxscore=1015 spamscore=0 suspectscore=0 phishscore=0
+ priorityscore=1501 lowpriorityscore=0 bulkscore=0 malwarescore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2312010055
 
-On Thu, 02 Nov 2023 19:15:23 +0100, Philipp Stanner wrote:
-> Linus recently merged [1] the wrapper functions memdup_array_user() and
-> vmemdup_array_user() in include/linux/string.h for Kernel v6.7
+
+
+On 30.11.23 12:28, Wen Gu wrote:
+> The fourth edition of SMCv2 adds the SMC version 2.1 feature updates for
+> SMC-Dv2 with virtual ISM. Virtual ISM are created and supported mainly by
+> OS or hypervisor software, comparable to IBM ISM which is based on platform
+> firmware or hardware.
 > 
-> I am currently adding them to all places where (v)memdup_user() had been
-> used to copy arrays.
+> With the introduction of virtual ISM, SMCv2.1 makes some updates:
 > 
-> The wrapper is different to the wrapped functions only in that it might
-> return -EOVERFLOW. So this new error code might get pushed up to
-> userspace. I hope this is fine.
+> - Introduce feature bitmask to indicate supplemental features.
+> - Reserve a range of CHIDs for virtual ISM.
+> - Support extended GIDs (128 bits) in CLC handshake.
 > 
-> [...]
+> So this patch set aims to implement these updates in Linux kernel. And it
+> acts as the first part of SMC-D virtual ISM extension & loopback-ism [1].
+> 
+> [1] https://lore.kernel.org/netdev/1695568613-125057-1-git-send-email-guwen@linux.alibaba.com/
+> 
+> v3->v2:
+> - Rename smc_clc_fill_fce as smc_clc_fill_fce_v2x;
+> - Remove ISM_IDENT_MASK from drivers/s390/net/ism.h;
+> - Add explicitly assigning 'false' to ism_v2_capable in ism_dev_init();
+> - Remove smc_ism_set_v2_capable() helper for now, and introduce it in
+>    later loopback-ism implementation;
+> 
+> v2->v1:
+> - Fix sparse complaint;
+> - Rebase to the latest net-next;
+> 
+Hi Wen Gu,
 
-Applied to kvm-x86 generic.  Claudio (or anyone else from s390), holler if
-you want to take the s390 patch through the s390 tree.
+LGTM, Thank you!
 
-I massaged the shortlogs to use KVM's standard scopes, and to make it clear
-that these are hardening patches, i.e. that there is no unsafe/buggy behavior
-that is being fixed.  I also added a note at the end of each changelog to call
-out that KVM pre-checks the sizes before copying, again to make it clear that
-using the safer helper isn't expected to actually change KVM's behavior.
-
-[1/3] KVM: x86: Harden copying of userspace-array against overflow
-      https://github.com/kvm-x86/linux/commit/573cc0e5cf14
-[2/3] KVM: s390: Harden copying of userspace-array against overflow
-      https://github.com/kvm-x86/linux/commit/8b81a8d7c6b7
-[3/3] KVM: Harden copying of userspace-array against overflow
-      https://github.com/kvm-x86/linux/commit/bc2cad56094c
-
---
-https://github.com/kvm-x86/linux/tree/next
+Reviewed-and-tested-by: Wenjia Zhang <wenjia@linux.ibm.com>
