@@ -1,86 +1,111 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="eCPvVuKU"
-Received: from mail-io1-xd2e.google.com (mail-io1-xd2e.google.com [IPv6:2607:f8b0:4864:20::d2e])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F61A1707
-	for <linux-s390@vger.kernel.org>; Fri,  1 Dec 2023 08:38:26 -0800 (PST)
-Received: by mail-io1-xd2e.google.com with SMTP id ca18e2360f4ac-7b05e65e784so15042339f.1
-        for <linux-s390@vger.kernel.org>; Fri, 01 Dec 2023 08:38:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google; t=1701448706; x=1702053506; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=F4bReDtBqdZ7CQBg8UmEdVvEuIGOtXfeTpzV766B0GQ=;
-        b=eCPvVuKUtcUML6PCcMRbRoVs9nIim4eBXq2DOUW6ltIoOSMN0LBgO83FAf+eQdrBDq
-         A/PmkuhmUd7P/48s+UEf27F2Mcv2+uZTPpLM6X1n6JWoCdpMkNuT4GtaZDIrhfzxjz/p
-         M4x1KAD0TWPjWfqQjKrbI4r6eByvIohNQ8quo=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701448706; x=1702053506;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=F4bReDtBqdZ7CQBg8UmEdVvEuIGOtXfeTpzV766B0GQ=;
-        b=pqlig8ruDFzct6y20tEwfFHOBmKAeLFJuNXwzOxBK6xxWRizNioVPdt9zJREoQmrmy
-         DMYBGrIo95eIft0mbvQDIUwZUJ/GZn5wYbKdW1hhDvrGVlxBnu6Z/YRW9zBC5Vvumczo
-         88FaW0NCxGmczAJiC1drH1czRYeFPm0ApMsD53zOatEueoQSAeybs5cH0lRKXCIqbMZ2
-         YxE4jsseYbE7lLBRZVWSjESFhAkYr+rEwlz4Ahe9kiY12wOh/W2l2CT4YicY6b77rcDf
-         ezLIWGTC7t0eh63e2xff81GmJkddA0hx33MCcoX4/3MaRzSwTW1/L+d5RujSsxospn1U
-         9neg==
-X-Gm-Message-State: AOJu0YytuZZ/2/MenplS2tLraNA3EZ/QfXV2pcNaEwKXR5xBbViCCF/l
-	4HhHSCswCatDz/C3oIKAPDylbg==
-X-Google-Smtp-Source: AGHT+IHG40EFSnt4Yz6Knhpd28geD95aKAGL4h+gRV294CYt5W7hXqom/+d8jZtbFp7xj3MCvp4Ghw==
-X-Received: by 2002:a05:6602:489a:b0:7b3:95a4:de9c with SMTP id ee26-20020a056602489a00b007b395a4de9cmr22727490iob.1.1701448706259;
-        Fri, 01 Dec 2023 08:38:26 -0800 (PST)
-Received: from [192.168.1.128] ([38.175.170.29])
-        by smtp.gmail.com with ESMTPSA id u1-20020a6be901000000b007b3e503d59csm1046219iof.47.2023.12.01.08.38.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 01 Dec 2023 08:38:25 -0800 (PST)
-Message-ID: <8b95b96c-6aeb-4bf0-8ee9-2ba62330c672@linuxfoundation.org>
-Date: Fri, 1 Dec 2023 09:38:24 -0700
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="n7f7Tn1m"
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84247F9;
+	Fri,  1 Dec 2023 10:17:10 -0800 (PST)
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B1HvSXM015657;
+	Fri, 1 Dec 2023 18:17:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=lfaGoSXvKE+GcZp9Tsg0uRDhD6slPSCvGZW8A+NNAIA=;
+ b=n7f7Tn1mrSI7JXNVJe2OkRVtjPwqyOLn2I6qgBwO2jItRxKkvKA6wFu8eww3PddrhTFS
+ WsD8SmcvcZABYoyb9QIj6c0gdRGASgOC0YdlXhEO2Kkt7Ch4mMeo0/AekzN4qnU0gqj/
+ ig3uaVxH+HH4c+Pf8KGybyczbLDtJXwD1X4awfaJqzjmrLZ2VVuDWJ6Y87IXR9rJmL5l
+ z/H7ERuraIOoxDov4wQZlooJrUo7ljcyDVedtMNTvmsWpYMMbnErPYd3yjkBOWY8bnW9
+ gs4UrgvkGslgzyDDp2t47jo4rEjzCYQPZ0tGw3tZ1bkaTrfG1KmmoWisV9ZKXwPMs+pA hg== 
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uqmb8rh45-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 01 Dec 2023 18:17:09 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B1GVdRQ000708;
+	Fri, 1 Dec 2023 18:17:08 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uku8tq5dv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 01 Dec 2023 18:17:08 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B1IH5aM19006034
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 1 Dec 2023 18:17:05 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8B2EF2004B;
+	Fri,  1 Dec 2023 18:17:05 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7A28020043;
+	Fri,  1 Dec 2023 18:17:05 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri,  1 Dec 2023 18:17:05 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
+	id 2A18FE01D3; Fri,  1 Dec 2023 19:17:05 +0100 (CET)
+From: Eric Farman <farman@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
+Subject: [PATCH] KVM: s390: fix cc for successful PQAP
+Date: Fri,  1 Dec 2023 19:16:57 +0100
+Message-Id: <20231201181657.1614645-1-farman@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/3] selftests: livepatch: Test livepatching a heavily
- called syscall
-Content-Language: en-US
-To: Marcos Paulo de Souza <mpdesouza@suse.de>
-Cc: Marcos Paulo de Souza <mpdesouza@suse.com>, Shuah Khan
- <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Josh Poimboeuf <jpoimboe@kernel.org>,
- Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>,
- Petr Mladek <pmladek@suse.com>, Joe Lawrence <joe.lawrence@redhat.com>,
- linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- live-patching@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
-References: <20231031-send-lp-kselftests-v3-0-2b1655c2605f@suse.com>
- <20231031-send-lp-kselftests-v3-3-2b1655c2605f@suse.com>
- <f9d82fa6-08d7-4ab6-badc-691987b37a82@linuxfoundation.org>
- <unpg4z7eig6qbudgulnr6sog65fq7s2dy4u2vp2dgkdrq5csdw@dltnxuw6kw5b>
-From: Shuah Khan <skhan@linuxfoundation.org>
-In-Reply-To: <unpg4z7eig6qbudgulnr6sog65fq7s2dy4u2vp2dgkdrq5csdw@dltnxuw6kw5b>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: UmUeKNMSx_S45Y6R-I2cZedo_50epEKY
+X-Proofpoint-ORIG-GUID: UmUeKNMSx_S45Y6R-I2cZedo_50epEKY
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-01_16,2023-11-30_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 phishscore=0 clxscore=1015 adultscore=0 impostorscore=0
+ lowpriorityscore=0 suspectscore=0 spamscore=0 mlxlogscore=964
+ malwarescore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2312010120
 
-On 12/1/23 06:13, Marcos Paulo de Souza wrote:
-> On Thu, Nov 30, 2023 at 04:24:26PM -0700, Shuah Khan wrote:
+The various errors that are possible when processing a PQAP
+instruction (the absence of a driver hook, an error FROM that
+hook), all correctly set the PSW condition code to 3. But if
+that processing works successfully, CC0 needs to be set to
+convey that everything was fine.
 
->>
->> Missing module name? Is there a reason to not name this module?
-> 
-> Can you please elaborate? This new module use the same MODULE_ macros used by
-> the current livepatch selftests. What do you mean by module name?
-> 
+Fix the check so that the guest can examine the condition code
+to determine whether GPR1 has meaningful data.
 
-Pre-commit checpatch script spdx check complained about the module name.
-Please run it to see the message.
+Fixes: e5282de93105 ("s390: ap: kvm: add PQAP interception for AQIC")
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+---
+ arch/s390/kvm/priv.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-thanks,
--- Shuah
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 621a17fd1a1b..f875a404a0a0 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -676,8 +676,12 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
+ 	if (vcpu->kvm->arch.crypto.pqap_hook) {
+ 		pqap_hook = *vcpu->kvm->arch.crypto.pqap_hook;
+ 		ret = pqap_hook(vcpu);
+-		if (!ret && vcpu->run->s.regs.gprs[1] & 0x00ff0000)
+-			kvm_s390_set_psw_cc(vcpu, 3);
++		if (!ret) {
++			if (vcpu->run->s.regs.gprs[1] & 0x00ff0000)
++				kvm_s390_set_psw_cc(vcpu, 3);
++			else
++				kvm_s390_set_psw_cc(vcpu, 0);
++		}
+ 		up_read(&vcpu->kvm->arch.crypto.pqap_hook_rwsem);
+ 		return ret;
+ 	}
+-- 
+2.40.1
 
