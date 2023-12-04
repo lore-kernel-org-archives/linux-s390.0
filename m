@@ -1,131 +1,153 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fzLLvkQb"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Y77okf/t"
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1BEDBB;
-	Mon,  4 Dec 2023 09:05:30 -0800 (PST)
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E866383;
+	Mon,  4 Dec 2023 09:22:26 -0800 (PST)
 Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B4GlQeQ027506;
-	Mon, 4 Dec 2023 17:05:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=2llLb1kIui/MWBK5f5v9qS/SbcOOe6s6AriAs60t8Ug=;
- b=fzLLvkQb1DM2gdh/LTi4hceHSy7WHxg/kahmGee1PjA4qUbbTB55PtXtrnNEXf/vFYE7
- 7p6cmnTVpEvtd18li++iH/lCJltYEvh0EOdcMjVH0emYOkYei84mtqqCI/fbhRlXsP7a
- Ya6CcvP7cL41Sd8VUMz+Q5ww8hFkhgX8ttGaBml8cjVGOsaI6ATtqCkLDSD7j984j6wa
- her+WZZm+hBox1T8CUvDHBtpv0YJJiqRELYPntWzWI627Wrq9ictmEuPf6UflSCOxIra
- UuIjPruLRF9x9Q/FrfIUQveElaXueB8git7XZrbTwUh8mxQ6LQl/wl9qJ3HE4mXYL2rZ uQ== 
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B4HCIHI028303;
+	Mon, 4 Dec 2023 17:22:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to : sender :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=NxIy4VEpMCawUCxTglyUaxp9xTHr90CdtW3JJB/GfzE=;
+ b=Y77okf/tKDf5sPcasv0lCc7iELDhoQrdfJPwCzGhygCudVz+dbRVhNmjmfGNsFz0Hfex
+ bmjYBLvp1r7dnCfWrOcHORHKHS9j9VXJTHNH4JGAyYtdQ9By1egu4vN4aPB0Fv48nHrq
+ 0LpqIF3gmq7L/NipaO8+pRLLenbF/MBunknZX5qOPsDv7hsrlPo1FYiTQsHY23DnTw8C
+ gTQkXUjzDZpaEh+NYMBn0Ml+h8Zq0XlMe9FJ505wj7bkeG8jv7jKAiDpwY3s+nYCbaG0
+ vTAIrk6fCQoJj2kwszjNpBmLk2nGeDLB2v2UPc5pLkITLvZfGe1K5zo0c2Ets1cQwJrI iQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3usjkm0xfw-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3usjy5gdb2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 04 Dec 2023 17:05:28 +0000
+	Mon, 04 Dec 2023 17:22:22 +0000
 Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B4Glf3s029337;
-	Mon, 4 Dec 2023 17:05:28 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3usjkm0x63-1
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B4HDb6Q032342;
+	Mon, 4 Dec 2023 17:22:16 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3usjy5gd7e-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 04 Dec 2023 17:05:27 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B4GwtZ1030022;
-	Mon, 4 Dec 2023 17:05:23 GMT
-Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3urgdksdkr-1
+	Mon, 04 Dec 2023 17:22:16 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B4H1crv031932;
+	Mon, 4 Dec 2023 17:17:34 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3urh4k95wx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 04 Dec 2023 17:05:23 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B4H5LjY17957484
+	Mon, 04 Dec 2023 17:17:34 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B4HHVs819202716
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 4 Dec 2023 17:05:21 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E659C58061;
-	Mon,  4 Dec 2023 17:05:20 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B071358043;
-	Mon,  4 Dec 2023 17:05:19 +0000 (GMT)
-Received: from [9.61.175.104] (unknown [9.61.175.104])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  4 Dec 2023 17:05:19 +0000 (GMT)
-Message-ID: <a4b9079e-2175-44dc-b59f-13644b9ea6c3@linux.ibm.com>
-Date: Mon, 4 Dec 2023 12:05:19 -0500
+	Mon, 4 Dec 2023 17:17:31 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9E2FA20043;
+	Mon,  4 Dec 2023 17:17:31 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 84E3F20040;
+	Mon,  4 Dec 2023 17:17:31 +0000 (GMT)
+Received: from p1gen4-pw042f0m (unknown [9.171.89.46])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon,  4 Dec 2023 17:17:31 +0000 (GMT)
+Received: from bblock by p1gen4-pw042f0m with local (Exim 4.96.2)
+	(envelope-from <bblock@linux.ibm.com>)
+	id 1rACZX-000HVZ-04;
+	Mon, 04 Dec 2023 18:17:31 +0100
+Date: Mon, 4 Dec 2023 18:17:31 +0100
+From: Benjamin Block <bblock@linux.ibm.com>
+To: Kees Cook <keescook@chromium.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>
+Cc: Steffen Maier <maier@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Azeem Shaikh <azeemshaikh38@gmail.com>, linux-s390@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-hardening@vger.kernel.org
+Subject: Re: [PATCH v2] scsi: zfcp: Replace strlcpy() with strscpy()
+Message-ID: <20231204171731.GA62399@p1gen4-pw042f0m.fritz.box>
+References: <20231130204056.it.978-kees@kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20231130204056.it.978-kees@kernel.org>
+Sender: Benjamin Block <bblock@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 00mXfE6W_NeckrXu1gZw5l6qKRxrB-Jn
+X-Proofpoint-GUID: 4rodcN7COY9Dr5pZ2wBHwlKUIUiEnPBI
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] s390/vfio-ap: handle response code 01 on queue reset
-Content-Language: en-US
-To: Halil Pasic <pasic@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
-        david@redhat.com, Reinhard Buendgen <BUENDGEN@de.ibm.com>
-References: <20231129143529.260264-1-akrowiak@linux.ibm.com>
- <b43414ef-7aa4-9e5c-a706-41861f0d346c@linux.ibm.com>
- <1f4720d7-93f1-4e38-a3ad-abaf99596e7c@linux.ibm.com>
- <05cfc382-d01d-4370-b8bb-d3805e957f2e@linux.ibm.com>
- <20231204171506.42aa687f.pasic@linux.ibm.com>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Organization: IBM
-In-Reply-To: <20231204171506.42aa687f.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: SXw2yfieEr_ilkyrdHoK7SZ5XNph7GGM
-X-Proofpoint-ORIG-GUID: VHLfMhw46t83gHS96TO14pddBVkFGPeI
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-12-04_16,2023-12-04_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 phishscore=0 spamscore=0 adultscore=0 malwarescore=0
- impostorscore=0 lowpriorityscore=0 mlxlogscore=999 bulkscore=0
- suspectscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2312040130
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
+ mlxlogscore=999 malwarescore=0 phishscore=0 bulkscore=0 adultscore=0
+ clxscore=1015 impostorscore=0 spamscore=0 suspectscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2312040133
 
+Hello Kees, Martin, James,
 
-
-On 12/4/23 11:15, Halil Pasic wrote:
-> On Mon, 4 Dec 2023 16:16:31 +0100
-> Christian Borntraeger <borntraeger@linux.ibm.com> wrote:
+On Thu, Nov 30, 2023 at 12:41:00PM -0800, Kees Cook wrote:
+> strlcpy() reads the entire source buffer first. This read may exceed
+> the destination size limit. This is both inefficient and can lead
+> to linear read overflows if a source string is not NUL-terminated[1].
+> Additionally, it returns the size of the source string, not the
+> resulting size of the destination string. In an effort to remove strlcpy()
+> completely[2], replace strlcpy() here with strscpy().
 > 
->> Am 04.12.23 um 15:53 schrieb Tony Krowiak:
->>>
->>>
->>> On 11/29/23 12:12, Christian Borntraeger wrote:
->>>> Am 29.11.23 um 15:35 schrieb Tony Krowiak:
->>>>> In the current implementation, response code 01 (AP queue number not valid)
->>>>> is handled as a default case along with other response codes returned from
->>>>> a queue reset operation that are not handled specifically. Barring a bug,
->>>>> response code 01 will occur only when a queue has been externally removed
->>>>> from the host's AP configuration; nn this case, the queue must
->>>>> be reset by the machine in order to avoid leaking crypto data if/when the
->>>>> queue is returned to the host's configuration. The response code 01 case
->>>>> will be handled specifically by logging a WARN message followed by cleaning
->>>>> up the IRQ resources.
->>>>>   
->>>>
->>>> To me it looks like this can be triggered by the LPAR admin, correct? So it
->>>> is not desireable but possible.
->>>> In that case I prefer to not use WARN, maybe use dev_warn or dev_err instead.
->>>> WARN can be a disruptive event if panic_on_warn is set.
->>>
->>> Yes, it can be triggered by the LPAR admin. I can't use dev_warn here because we don't have a reference to any device, but I can use pr_warn if that suffices.
->>
->> Ok, please use pr_warn then.
+> Overflow should be impossible here, but actually check for buffer sizes
+> being identical with BUILD_BUG_ON(), and include a run-time check as
+> well.
 > 
-> Shouldn't we rather make this an 'info'. I mean we probably do not want
-> people complaining about this condition. Yes it should be a best practice
-> to coordinate such things with the guest, and ideally remove the resource
-> from the guest first. But AFAIU our stack is supposed to be able to
-> handle something like this. IMHO issuing a warning is excessive measure.
-> I know Reinhard and Tony probably disagree with the last sentence
-> though.
+> Link: https://www.kernel.org/doc/html/latest/process/deprecated.html#strlcpy [1]
+> Link: https://github.com/KSPP/linux/issues/89 [2]
 
-I don't feel strongly one way or the other. Anybody else?
-
+> ---
+>  drivers/s390/scsi/zfcp_fc.c | 15 +++++++++++++--
+>  1 file changed, 13 insertions(+), 2 deletions(-)
 > 
-> Regards,
-> Halil
+> diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
+> index 4f0d0e55f0d4..d6516ab00437 100644
+> --- a/drivers/s390/scsi/zfcp_fc.c
+> +++ b/drivers/s390/scsi/zfcp_fc.c
+> @@ -900,8 +900,19 @@ static void zfcp_fc_rspn(struct zfcp_adapter *adapter,
+>  	zfcp_fc_ct_ns_init(&rspn_req->ct_hdr, FC_NS_RSPN_ID,
+>  			   FC_SYMBOLIC_NAME_SIZE);
+>  	hton24(rspn_req->rspn.fr_fid.fp_fid, fc_host_port_id(shost));
+> -	len = strlcpy(rspn_req->rspn.fr_name, fc_host_symbolic_name(shost),
+> -		      FC_SYMBOLIC_NAME_SIZE);
+> +
+> +	BUILD_BUG_ON(sizeof(rspn_req->name) !=
+> +			sizeof(fc_host_symbolic_name(shost)));
+> +	BUILD_BUG_ON(sizeof(rspn_req->name) !=
+> +			type_max(typeof(rspn_req->rspn.fr_name_len)) + 1);
+> +	len = strscpy(rspn_req->name, fc_host_symbolic_name(shost),
+> +		      sizeof(rspn_req->name));
+> +	/*
+> +	 * It should be impossible for this to truncate (see BUILD_BUG_ON()
+> +	 * above), but be robust anyway.
+> +	 */
+> +	if (WARN_ON(len < 0))
+> +		len = sizeof(rspn_req->name) - 1;
+
+Looks good to me.
+
+
+Acked-by: Benjamin Block <bblock@linux.ibm.com>
+
+
+>  	rspn_req->rspn.fr_name_len = len;
+
+Martin, James, can you please pick this up for the v6.8 queue?
+
+
+-- 
+Best Regards, Benjamin Block        /        Linux on IBM Z Kernel Development
+IBM Deutschland Research & Development GmbH    /   https://www.ibm.com/privacy
+Vors. Aufs.-R.: Gregor Pillen         /         Geschäftsführung: David Faller
+Sitz der Ges.: Böblingen     /    Registergericht: AmtsG Stuttgart, HRB 243294
