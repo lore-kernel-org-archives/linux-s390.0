@@ -1,89 +1,112 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A12E7FE;
-	Sun,  3 Dec 2023 18:01:17 -0800 (PST)
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=20;SR=0;TI=SMTPD_---0Vxh9rK-_1701655273;
-Received: from 30.221.130.147(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Vxh9rK-_1701655273)
-          by smtp.aliyun-inc.com;
-          Mon, 04 Dec 2023 10:01:15 +0800
-Message-ID: <e6dc8b40-367c-ad29-1fc0-344f8d65d1db@linux.alibaba.com>
-Date: Mon, 4 Dec 2023 10:01:09 +0800
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QR/L91lg"
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62CADB9
+	for <linux-s390@vger.kernel.org>; Sun,  3 Dec 2023 23:41:30 -0800 (PST)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B46B9j8025641;
+	Mon, 4 Dec 2023 07:41:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=Uo21rvt4cQgbZvGhouib08nq7YJwxlmOuS+5+jLckCs=;
+ b=QR/L91lgmwCs/dh1lnJ92sCsiIE5pvRYtHqgVrKxdXmxsJup9HikXWopfcZeB2Qvv/uK
+ xdaeQGtqpqW3j+wo1diu8xMkQQ+XPkNHorSCndhj53643QVYvgxx9b4FrFqFZ2mbWJng
+ EsSebV6HiLsRZeRWRUH2p/pM/G+laynbjrV87EQKT6fWeDTJqtSAonSz02Io+LflEOD4
+ mZ2cOHiTXYdQKvn48yZ/m6XxIp4Q0yK/nga6mzQydIPPAVIJcvUDtjPmmdn1aFiv1Fgu
+ bDmWUPjggDEkwW47OU5JOrxUNwmbiekSgrReiNbCnnhcK1/f9hOrF8by/wqp3vdAUwyw 1Q== 
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3urm95g9q6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 04 Dec 2023 07:41:18 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B474VAr022531;
+	Mon, 4 Dec 2023 07:41:17 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3urhm1x88g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 04 Dec 2023 07:41:17 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B47fEPa56099072
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 4 Dec 2023 07:41:14 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 55B392006C;
+	Mon,  4 Dec 2023 07:41:14 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B683F2005A;
+	Mon,  4 Dec 2023 07:41:13 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.82.153])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon,  4 Dec 2023 07:41:13 +0000 (GMT)
+Date: Mon, 4 Dec 2023 08:41:12 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Nathan Chancellor <nathan@kernel.org>
+Cc: akpm@linux-foundation.org, hca@linux.ibm.com, gor@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        linux-s390@vger.kernel.org, patches@lists.linux.dev, sth@linux.ibm.com,
+        hoeppner@linux.ibm.com
+Subject: Re: [PATCH 1/2] s390/dasd: Remove dasd_stats_generic_show()
+Message-ID: <ZW2CmCzTRZjmjwxp@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20231130-s390-missing-prototypes-v1-0-799d3cf07fb7@kernel.org>
+ <20231130-s390-missing-prototypes-v1-1-799d3cf07fb7@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.1
-Subject: Re: [PATCH net-next v3 0/7] net/smc: implement SMCv2.1 virtual ISM
- device support
-To: Alexandra Winter <wintera@linux.ibm.com>, wenjia@linux.ibm.com,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, kgraul@linux.ibm.com, jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, raspl@linux.ibm.com,
- schnelle@linux.ibm.com, linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <1701343695-122657-1-git-send-email-guwen@linux.alibaba.com>
- <c1a7b672-4a43-4494-acd1-500026566f69@linux.ibm.com>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <c1a7b672-4a43-4494-acd1-500026566f69@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231130-s390-missing-prototypes-v1-1-799d3cf07fb7@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: U6TS2uNeQJp60F_QINHGt7XdGrQBub0f
+X-Proofpoint-GUID: U6TS2uNeQJp60F_QINHGt7XdGrQBub0f
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-04_05,2023-11-30_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ impostorscore=0 mlxscore=0 clxscore=1011 phishscore=0 spamscore=0
+ priorityscore=1501 mlxlogscore=943 bulkscore=0 adultscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2312040056
 
+On Thu, Nov 30, 2023 at 05:22:32PM -0700, Nathan Chancellor wrote:
+> With CONFIG_DASD_PROFILE=n, there is a warning that
+> dasd_stats_generic_show() is missing a prototype:
+> 
+>   drivers/s390/block/dasd.c:1109:5: warning: no previous prototype for 'dasd_stats_generic_show' [-Wmissing-prototypes]
+>    1109 | int dasd_stats_generic_show(struct seq_file *m, void *v)
+>         |     ^~~~~~~~~~~~~~~~~~~~~~~
+> 
+> This function has been unused since its introduction in
+> commit 4fa52aa7a82f ("[S390] dasd: add enhanced DASD statistics
+> interface"), remove it to clear up the warning.
+> 
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+> ---
+> Cc: sth@linux.ibm.com
+> Cc: hoeppner@linux.ibm.com
+> ---
+>  drivers/s390/block/dasd.c | 6 ------
+>  1 file changed, 6 deletions(-)
+> 
+> diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+> index 833cfab7d877..7327e81352e9 100644
+> --- a/drivers/s390/block/dasd.c
+> +++ b/drivers/s390/block/dasd.c
+> @@ -1106,12 +1106,6 @@ static void dasd_statistics_removeroot(void)
+>  	return;
+>  }
+>  
+> -int dasd_stats_generic_show(struct seq_file *m, void *v)
+> -{
+> -	seq_puts(m, "Statistics are not activated in this kernel\n");
+> -	return 0;
+> -}
+> -
+>  static void dasd_profile_init(struct dasd_profile *profile,
+>  			      struct dentry *base_dentry)
+>  {
+> 
 
-
-On 2023/12/2 00:32, Alexandra Winter wrote:
-> 
-> 
-> On 30.11.23 12:28, Wen Gu wrote:
->> The fourth edition of SMCv2 adds the SMC version 2.1 feature updates for
->> SMC-Dv2 with virtual ISM. Virtual ISM are created and supported mainly by
->> OS or hypervisor software, comparable to IBM ISM which is based on platform
->> firmware or hardware.
->>
->> With the introduction of virtual ISM, SMCv2.1 makes some updates:
->>
->> - Introduce feature bitmask to indicate supplemental features.
->> - Reserve a range of CHIDs for virtual ISM.
->> - Support extended GIDs (128 bits) in CLC handshake.
->>
->> So this patch set aims to implement these updates in Linux kernel. And it
->> acts as the first part of SMC-D virtual ISM extension & loopback-ism [1].
->>
->> [1] https://lore.kernel.org/netdev/1695568613-125057-1-git-send-email-guwen@linux.alibaba.com/
->>
->> v3->v2:
->> - Rename smc_clc_fill_fce as smc_clc_fill_fce_v2x;
->> - Remove ISM_IDENT_MASK from drivers/s390/net/ism.h;
->> - Add explicitly assigning 'false' to ism_v2_capable in ism_dev_init();
->> - Remove smc_ism_set_v2_capable() helper for now, and introduce it in
->>    later loopback-ism implementation;
->>
->> v2->v1:
->> - Fix sparse complaint;
->> - Rebase to the latest net-next;
->>
->> Wen Gu (7):
->>    net/smc: Rename some variable 'fce' to 'fce_v2x' for clarity
->>    net/smc: support SMCv2.x supplemental features negotiation
->>    net/smc: introduce virtual ISM device support feature
->>    net/smc: define a reserved CHID range for virtual ISM devices
->>    net/smc: compatible with 128-bits extend GID of virtual ISM device
->>    net/smc: disable SEID on non-s390 archs where virtual ISM may be used
->>    net/smc: manage system EID in SMC stack instead of ISM driver
->>
-> 
-> Wen Gu,
-> as you can see in [1] your patches 5/7 and 1/7 still have formatting issues.
-> In this case they need to pass
-> 
-> scripts/checkpatch.pl --strict --max-line-length=80
-> 
-> (see linux/Documentation/process/coding-style.rst)
-> 
-> [1] https://patchwork.kernel.org/project/netdevbpf/list/?series=&submitter=&state=&q=net%2Fsmc&archive=&delegate=
-
-Thanks. They will be fixed and I will check the patches with tests provided by
-https://github.com/kuba-moo/nipa/tree/master/tests/patch
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
