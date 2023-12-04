@@ -1,120 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="S8FjXbL+"
-Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F5552116;
-	Sun,  3 Dec 2023 11:34:05 -0800 (PST)
-Received: by mail-yb1-xb34.google.com with SMTP id 3f1490d57ef6-db8892a5f96so778827276.2;
-        Sun, 03 Dec 2023 11:34:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1701632044; x=1702236844; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=tow+85T+lc+N5QthCRRY7+xksWqAIO8q8vX1kWlFmwA=;
-        b=S8FjXbL+Om07tTWypyRabwgvKQMEr/uxqw3jaqPqfXxvRJasTDSmpGGHFPSbFMiH7V
-         fQBZphDsUWDU+5IQ+a3DtQZcV/UoXX3rXrwSX8HK7A9Dw3nI3VSzBFWivQnH+IzJ3bCn
-         G1CNIAO5gsQ18SvVo34/e1L8lumlzYAS9IlobGLPi2LyRKl21lGv/GrpxiOxNSyNfZVA
-         uJ/7ec2UYYzfA63vLqDjcmqw2+j7Rj2ZKH/JiwCjExh+QYnEZTV6Wx6//6qA6tmjxS5K
-         A8y10wN1cHbYX4fH+IUMPMylobCEZN9swQ6tnKTf70i0d6tNaIS3y1mAJPFv/X5z5euj
-         W25w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701632044; x=1702236844;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=tow+85T+lc+N5QthCRRY7+xksWqAIO8q8vX1kWlFmwA=;
-        b=lpyO5K6jHutrCWknsNUU2o3mO1Qh5WInAUtBlxFo+BQPcPJVKRqGgA6FYvBnaaOcaK
-         FJN2FDUzN/TgcUr6U4864xmSV7b+ablM2J1XqNeaRWgpp2HCkkNHxeN7dZPZdqMWUzSz
-         MtkTMKdMKRZfvwkt7ESQJj3op7Fw+aRkh62lF1nlvoZyngMfy+GlBni2IYfY3iQJpXzy
-         4IYXHM3VWmF6N7a6f81o9UmKPLhLPJPbteswMtsdi5xiqsLelTsXYv569gOe5hlh7DC7
-         C22vDXomC9ZwdudOtUkI53Ubw0MbqfL2UDDdhHkM9noo5xdi5WFGFtn3VS0+VuJ33x6W
-         B2zQ==
-X-Gm-Message-State: AOJu0Yy1Y/q/wyLQb+Mte8EoOI8GQlh9194IAqoww4XDtOYiZioNuayx
-	/fzQAr15VTjx50Nr77cDLOrlKBnchBt+9A==
-X-Google-Smtp-Source: AGHT+IFdVY+nDvHApuybbKRgPwqo30yRyljr/trWB68rXRo3Ez+hOUZ7Bb+kBQ88sAzhLkZwEbNRpQ==
-X-Received: by 2002:a25:457:0:b0:db7:dacf:6205 with SMTP id 84-20020a250457000000b00db7dacf6205mr1739115ybe.87.1701632044112;
-        Sun, 03 Dec 2023 11:34:04 -0800 (PST)
-Received: from localhost ([2601:344:8301:57f0:cb98:c3e:57c:8191])
-        by smtp.gmail.com with ESMTPSA id bt13-20020a056902136d00b00d72176bdc5csm1759016ybb.40.2023.12.03.11.34.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 03 Dec 2023 11:34:03 -0800 (PST)
-From: Yury Norov <yury.norov@gmail.com>
-To: linux-kernel@vger.kernel.org,
-	Karsten Graul <kgraul@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org
-Cc: Yury Norov <yury.norov@gmail.com>,
-	Jan Kara <jack@suse.cz>,
-	Mirsad Todorovac <mirsad.todorovac@alu.unizg.hr>,
-	Matthew Wilcox <willy@infradead.org>,
-	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Maxim Kuvyrkov <maxim.kuvyrkov@linaro.org>,
-	Alexey Klimov <klimov.linux@gmail.com>,
-	Bart Van Assche <bvanassche@acm.org>,
-	Sergey Shtylyov <s.shtylyov@omp.ru>,
-	Alexandra Winter <wintera@linux.ibm.com>
-Subject: [PATCH v2 31/35] net: smc: use find_and_set_bit() in smc_wr_tx_get_free_slot_index()
-Date: Sun,  3 Dec 2023 11:33:03 -0800
-Message-Id: <20231203193307.542794-30-yury.norov@gmail.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20231203193307.542794-1-yury.norov@gmail.com>
-References: <20231203192422.539300-1-yury.norov@gmail.com>
- <20231203193307.542794-1-yury.norov@gmail.com>
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A12E7FE;
+	Sun,  3 Dec 2023 18:01:17 -0800 (PST)
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=20;SR=0;TI=SMTPD_---0Vxh9rK-_1701655273;
+Received: from 30.221.130.147(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Vxh9rK-_1701655273)
+          by smtp.aliyun-inc.com;
+          Mon, 04 Dec 2023 10:01:15 +0800
+Message-ID: <e6dc8b40-367c-ad29-1fc0-344f8d65d1db@linux.alibaba.com>
+Date: Mon, 4 Dec 2023 10:01:09 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.1
+Subject: Re: [PATCH net-next v3 0/7] net/smc: implement SMCv2.1 virtual ISM
+ device support
+To: Alexandra Winter <wintera@linux.ibm.com>, wenjia@linux.ibm.com,
+ hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, kgraul@linux.ibm.com, jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, raspl@linux.ibm.com,
+ schnelle@linux.ibm.com, linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <1701343695-122657-1-git-send-email-guwen@linux.alibaba.com>
+ <c1a7b672-4a43-4494-acd1-500026566f69@linux.ibm.com>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <c1a7b672-4a43-4494-acd1-500026566f69@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The function opencodes find_and_set_bit() with a for_each() loop. Use
-it, and make the whole function a simple almost one-liner.
 
-While here, drop explicit initialization of *idx, because it's already
-initialized by the caller in case of ENOLINK, or set properly with
-->wr_tx_mask, if nothing is found, in case of EBUSY.
 
-CC: Tony Lu <tonylu@linux.alibaba.com>
-CC: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
----
- net/smc/smc_wr.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+On 2023/12/2 00:32, Alexandra Winter wrote:
+> 
+> 
+> On 30.11.23 12:28, Wen Gu wrote:
+>> The fourth edition of SMCv2 adds the SMC version 2.1 feature updates for
+>> SMC-Dv2 with virtual ISM. Virtual ISM are created and supported mainly by
+>> OS or hypervisor software, comparable to IBM ISM which is based on platform
+>> firmware or hardware.
+>>
+>> With the introduction of virtual ISM, SMCv2.1 makes some updates:
+>>
+>> - Introduce feature bitmask to indicate supplemental features.
+>> - Reserve a range of CHIDs for virtual ISM.
+>> - Support extended GIDs (128 bits) in CLC handshake.
+>>
+>> So this patch set aims to implement these updates in Linux kernel. And it
+>> acts as the first part of SMC-D virtual ISM extension & loopback-ism [1].
+>>
+>> [1] https://lore.kernel.org/netdev/1695568613-125057-1-git-send-email-guwen@linux.alibaba.com/
+>>
+>> v3->v2:
+>> - Rename smc_clc_fill_fce as smc_clc_fill_fce_v2x;
+>> - Remove ISM_IDENT_MASK from drivers/s390/net/ism.h;
+>> - Add explicitly assigning 'false' to ism_v2_capable in ism_dev_init();
+>> - Remove smc_ism_set_v2_capable() helper for now, and introduce it in
+>>    later loopback-ism implementation;
+>>
+>> v2->v1:
+>> - Fix sparse complaint;
+>> - Rebase to the latest net-next;
+>>
+>> Wen Gu (7):
+>>    net/smc: Rename some variable 'fce' to 'fce_v2x' for clarity
+>>    net/smc: support SMCv2.x supplemental features negotiation
+>>    net/smc: introduce virtual ISM device support feature
+>>    net/smc: define a reserved CHID range for virtual ISM devices
+>>    net/smc: compatible with 128-bits extend GID of virtual ISM device
+>>    net/smc: disable SEID on non-s390 archs where virtual ISM may be used
+>>    net/smc: manage system EID in SMC stack instead of ISM driver
+>>
+> 
+> Wen Gu,
+> as you can see in [1] your patches 5/7 and 1/7 still have formatting issues.
+> In this case they need to pass
+> 
+> scripts/checkpatch.pl --strict --max-line-length=80
+> 
+> (see linux/Documentation/process/coding-style.rst)
+> 
+> [1] https://patchwork.kernel.org/project/netdevbpf/list/?series=&submitter=&state=&q=net%2Fsmc&archive=&delegate=
 
-diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-index 0021065a600a..b6f0cfc52788 100644
---- a/net/smc/smc_wr.c
-+++ b/net/smc/smc_wr.c
-@@ -170,15 +170,11 @@ void smc_wr_tx_cq_handler(struct ib_cq *ib_cq, void *cq_context)
- 
- static inline int smc_wr_tx_get_free_slot_index(struct smc_link *link, u32 *idx)
- {
--	*idx = link->wr_tx_cnt;
- 	if (!smc_link_sendable(link))
- 		return -ENOLINK;
--	for_each_clear_bit(*idx, link->wr_tx_mask, link->wr_tx_cnt) {
--		if (!test_and_set_bit(*idx, link->wr_tx_mask))
--			return 0;
--	}
--	*idx = link->wr_tx_cnt;
--	return -EBUSY;
-+
-+	*idx = find_and_set_bit(link->wr_tx_mask, link->wr_tx_cnt);
-+	return *idx < link->wr_tx_cnt ? 0 : -EBUSY;
- }
- 
- /**
--- 
-2.40.1
-
+Thanks. They will be fixed and I will check the patches with tests provided by
+https://github.com/kuba-moo/nipa/tree/master/tests/patch
