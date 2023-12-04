@@ -1,53 +1,53 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="A/X9JBNV"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jUgGw6kQ"
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F5A6F2;
-	Mon,  4 Dec 2023 07:24:18 -0800 (PST)
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B4EbZQb007601;
-	Mon, 4 Dec 2023 15:24:18 GMT
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02F30A4;
+	Mon,  4 Dec 2023 07:51:21 -0800 (PST)
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B4FlNeM018501;
+	Mon, 4 Dec 2023 15:51:20 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=ZuqAcRap9l4H6jfhTTzla4A5dTeyjLnP0suzYhzd4vU=;
- b=A/X9JBNVYnz3d2UHVRDGUJW0xNpBM1nq3CMry8KTR6lBUrDOOwi4SgsH4jyT0Fmbd17X
- ulPnFTo/UKGxO5hW5LAKTvrJ0M3Oma61yEb80gjB0jn9MzjCI0HzuVfRoXaqxsg5my3W
- 2EnoY4buOrC8b5ipx36LDNqhnpZ582kRBwXXgBQW5ZDxYDp8aPOzlVjgcSBwkvoM9516
- MTjJMdcNlkdxU7ib1HMS0RoedYKthfI00YlHgTcTMJaFjiZiX3ZcQoWYBEf2amOxrwQi
- PfXNVJmtwooyAFWDdxSxZwcPplWqkggeBX2Gc1oB0dwbuuzfcJ8PKFSXatc8umOT21P5 4w== 
+ bh=iTbnsVnSKru5gD68uY8KZ7ZAV54k4ioCBOWcq0YapWU=;
+ b=jUgGw6kQI4LPzo4RCB0fRgm0cCil+LWcoIt+ed89AzF8ocXRMbh8R9bnGpZ1nRavEb5t
+ AD+9DYb6mbLc2/Q1RlbsTpHnIV/XADVZ+tZ4FQ3wLIlPuzE3XUA2ZObddfPgAmZagNWJ
+ UtxR5HzhtbHT0dKw4u+9btfLC9DJEjQotiptUBxBdEksagyxqvBNd85JHVZqavK9seTe
+ pqiIuzMPZoDZMrQKBS4ZDtvzwxpQtNP5+KpC926MmmAgUmt4+u6Yl+PTnShSTDLCdna6
+ Ui4T2VK1v+SiNPMmVBczhOKKE0aeO9BIXvGZCbM90DHc6v20z2IPbJIwzAB36F4zuTVQ Yg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3usgpj9ee3-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ushqer46n-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 04 Dec 2023 15:24:17 +0000
-Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B4Etbjn025387;
-	Mon, 4 Dec 2023 15:24:17 GMT
+	Mon, 04 Dec 2023 15:51:20 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B4FlNhX018519;
+	Mon, 4 Dec 2023 15:51:19 GMT
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3usgpj9eda-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ushqer45t-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 04 Dec 2023 15:24:17 +0000
+	Mon, 04 Dec 2023 15:51:19 +0000
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B4EJb1K013454;
-	Mon, 4 Dec 2023 15:24:16 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3urhm20c6e-1
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B4EJZPl013389;
+	Mon, 4 Dec 2023 15:51:18 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3urhm20gpa-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 04 Dec 2023 15:24:16 +0000
+	Mon, 04 Dec 2023 15:51:18 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B4FODsV3605204
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B4FpEBM3342850
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 4 Dec 2023 15:24:13 GMT
+	Mon, 4 Dec 2023 15:51:14 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A69262004E;
-	Mon,  4 Dec 2023 15:24:13 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id BAD8F2004D;
+	Mon,  4 Dec 2023 15:51:14 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 29AA420049;
-	Mon,  4 Dec 2023 15:24:13 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 2C9C220049;
+	Mon,  4 Dec 2023 15:51:14 +0000 (GMT)
 Received: from [9.171.80.190] (unknown [9.171.80.190])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  4 Dec 2023 15:24:13 +0000 (GMT)
-Message-ID: <b31db584-89bf-4c42-bff9-b6388dcd9edc@linux.ibm.com>
-Date: Mon, 4 Dec 2023 16:24:12 +0100
+	Mon,  4 Dec 2023 15:51:14 +0000 (GMT)
+Message-ID: <2c6b56f4-03ea-4669-a6a3-76200fe50b77@linux.ibm.com>
+Date: Mon, 4 Dec 2023 16:51:13 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -55,20 +55,21 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/4] KVM: s390: vsie: Fix STFLE interpretive execution
- identification
+Subject: Re: [PATCH v3 2/4] KVM: s390: vsie: Fix length of facility list
+ shadowed
 Content-Language: en-US
 To: Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik
+ <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        kvm@vger.kernel.org
+        Heiko Carstens <hca@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
 References: <20231108171229.3404476-1-nsg@linux.ibm.com>
- <20231108171229.3404476-2-nsg@linux.ibm.com>
+ <20231108171229.3404476-3-nsg@linux.ibm.com>
 From: Janosch Frank <frankja@linux.ibm.com>
 Autocrypt: addr=frankja@linux.ibm.com; keydata=
  xsFNBFubpD4BEADX0uhkRhkj2AVn7kI4IuPY3A8xKat0ihuPDXbynUC77mNox7yvK3X5QBO6
@@ -112,59 +113,35 @@ Autocrypt: addr=frankja@linux.ibm.com; keydata=
  DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
  Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
  phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <20231108171229.3404476-2-nsg@linux.ibm.com>
+In-Reply-To: <20231108171229.3404476-3-nsg@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 8c8wcITBf27--0EPFF8LokeEc-ANuiU5
-X-Proofpoint-ORIG-GUID: Nb25759RPdJVGbzbIy3P1wSSum_CcujK
+X-Proofpoint-ORIG-GUID: enKXztkcQtbEeqyW8jjH3vsMUMvGcyM1
+X-Proofpoint-GUID: obeMe1c14q6hIR0C0n9qFcBZ5UoOdhYu
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-04_14,2023-12-04_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1011
- priorityscore=1501 mlxscore=0 lowpriorityscore=0 phishscore=0
- suspectscore=0 bulkscore=0 spamscore=0 adultscore=0 mlxlogscore=999
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2312040116
+ definitions=2023-12-04_15,2023-12-04_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 mlxscore=0 suspectscore=0 clxscore=1015 phishscore=0
+ adultscore=0 lowpriorityscore=0 impostorscore=0 spamscore=0
+ mlxlogscore=890 bulkscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2311060000 definitions=main-2312040120
 
 On 11/8/23 18:12, Nina Schoetterl-Glausch wrote:
-> STFLE can be interpretively executed.
-> This occurs when the facility list designation is unequal to zero.
-> Perform the check before applying the address mask instead of after.
+> The length of the facility list accessed when interpretively executing
+> STFLE is the same as the hosts facility list (in case of format-0)
+> When shadowing, copy only those bytes.
+> The memory following the facility list need not be accessible, in which
+
+...doesn't need to be accessible but the current implementation is 
+possibly checking for it to be accessible.
+
+Let's fix that by checking the length that stfle returns to KVM instead 
+of a fixed value.
+
 > 
-> Fixes: 66b630d5b7f2 ("KVM: s390: vsie: support STFLE interpretation")
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 > Acked-by: David Hildenbrand <david@redhat.com>
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 > Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> ---
->   arch/s390/kvm/vsie.c | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index 61499293c2ac..d989772fe211 100644
-> --- a/arch/s390/kvm/vsie.c
-> +++ b/arch/s390/kvm/vsie.c
-> @@ -988,9 +988,10 @@ static void retry_vsie_icpt(struct vsie_page *vsie_page)
->   static int handle_stfle(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->   {
->   	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
-> -	__u32 fac = READ_ONCE(vsie_page->scb_o->fac) & 0x7ffffff8U;
-> +	__u32 fac = READ_ONCE(vsie_page->scb_o->fac);
->   
->   	if (fac && test_kvm_facility(vcpu->kvm, 7)) {
-> +		fac = fac & 0x7ffffff8U;
-
-Switch the retry and the facility assignment.
-Add the following comment:
-
-Facility list origin (FLO) is in bits 1 - 28 of the FLD so we need to 
-mask here before reading.
-
-
-Apart from that this looks fine to me.
-
-
->   		retry_vsie_icpt(vsie_page);
->   		if (read_guest_real(vcpu, fac, &vsie_page->fac,
->   				    sizeof(vsie_page->fac)))
-
+[...]
