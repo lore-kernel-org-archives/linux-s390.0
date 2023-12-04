@@ -1,118 +1,129 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lnGn8ljX"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SJb8ovpu"
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBE01D4E;
-	Mon,  4 Dec 2023 01:40:59 -0800 (PST)
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B48h1r0000668;
-	Mon, 4 Dec 2023 09:40:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E10EEB6;
+	Mon,  4 Dec 2023 03:48:46 -0800 (PST)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B4AqB6R007962;
+	Mon, 4 Dec 2023 11:48:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=3VDOrhhpZyHwMsETPwhmSxEMw1K/gH1++xxfU+EXW1A=;
- b=lnGn8ljX7gazFX7P7FvYTxxOH0QhcWnSdeJqWR5e0w6abBTSPr9OxhfFwvMhEYl2Xc4z
- 6aOtoLDzGohrrZPLzsP2TP8t7IlXy+f8Zg9d6YTlMgUoSxus8KxgBWSkgRrYkzH9mpNx
- 8nGm07vSgEWJEQddYPQpRcMQoHzYuktpWaGpOFsvSQ7735VLj7n+iqN8DhOUDbZ5ykio
- hVmtvz1RSYrM6NSVAY6B1P8FZhJobp+GYAih/EPRAjPsjJF+Ntk8/LGtGIsnREzb9uyy
- 6oZWeSj/1TT4N2AFjcJ47YAlnPJ0sn4q+KXjuU3wBuE4TimhXeCgNWQDJclrNfeUTAcQ 3A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3usbgf1t94-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 04 Dec 2023 09:40:27 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B49dt2u009497;
-	Mon, 4 Dec 2023 09:40:27 GMT
+ bh=jvnzeAMxLSa3R3RUGFBSlGOHPyXrSHn1fnjBGRZkCa0=;
+ b=SJb8ovpuwaH7ArxbbWtmUKsBnntbSViSL5kEMuUUCpVx96+Qlu2WCrQOU1il0VQ1Qv3r
+ ttEZMAQzmWezIwrRKtPqxlupO2bXBEQeDgMwe+0kwf3xHBka9juYw2o0kvRRLYDp8xMb
+ gBOHnzdJUy+HV9ynEQ5Mw2GxCQ4dTHNhUBNY8kalk12y9lN/4Hg0tmHu26+kAN1T+f8y
+ zfyOEPbTnUzBHggUYu6YOi7CFIPd7Eyvcp62b7wzqvSlaHAIAM8vyvyTCZ4+J90nkckd
+ NlHeEP9BxAosFdbV4Nq26P8NCom8QTEW1SsNpUjPHw4BO/fDJlBNo8oibuxhkze5eZB3 Ug== 
 Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3usbgf1t81-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3usb6s7bju-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 04 Dec 2023 09:40:26 +0000
+	Mon, 04 Dec 2023 11:48:46 +0000
 Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B474PvC007667;
-	Mon, 4 Dec 2023 09:40:25 GMT
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B4An2Tb022857;
+	Mon, 4 Dec 2023 11:48:45 GMT
 Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3urgdkq7j9-1
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3urgdkqs25-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 04 Dec 2023 09:40:25 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B49eM2V13697734
+	Mon, 04 Dec 2023 11:48:44 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B4Bmfbw15991386
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 4 Dec 2023 09:40:22 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 216222004E;
-	Mon,  4 Dec 2023 09:40:22 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F3ACA20040;
-	Mon,  4 Dec 2023 09:40:20 +0000 (GMT)
-Received: from [9.179.21.199] (unknown [9.179.21.199])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  4 Dec 2023 09:40:20 +0000 (GMT)
-Message-ID: <b344c321-b481-48b0-8165-c3ab604fc397@linux.ibm.com>
-Date: Mon, 4 Dec 2023 10:40:20 +0100
+	Mon, 4 Dec 2023 11:48:41 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D049120043;
+	Mon,  4 Dec 2023 11:48:41 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 12B2120040;
+	Mon,  4 Dec 2023 11:48:41 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.171.42.250])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Mon,  4 Dec 2023 11:48:40 +0000 (GMT)
+Date: Mon, 4 Dec 2023 12:48:39 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Eric Farman <farman@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank
+ <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Tony
+ Krowiak <akrowiak@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Sven
+ Schnelle <svens@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily
+ Gorbik <gor@linux.ibm.com>,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH] KVM: s390: fix cc for successful PQAP
+Message-ID: <20231204124839.093f4f76.pasic@linux.ibm.com>
+In-Reply-To: <20231201181657.1614645-1-farman@linux.ibm.com>
+References: <20231201181657.1614645-1-farman@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 31/35] net: smc: use find_and_set_bit() in
- smc_wr_tx_get_free_slot_index()
-To: Yury Norov <yury.norov@gmail.com>, linux-kernel@vger.kernel.org,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org
-Cc: Jan Kara <jack@suse.cz>, Mirsad Todorovac
- <mirsad.todorovac@alu.unizg.hr>,
-        Matthew Wilcox <willy@infradead.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Maxim Kuvyrkov <maxim.kuvyrkov@linaro.org>,
-        Alexey Klimov <klimov.linux@gmail.com>,
-        Bart Van Assche
- <bvanassche@acm.org>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>
-References: <20231203192422.539300-1-yury.norov@gmail.com>
- <20231203193307.542794-1-yury.norov@gmail.com>
- <20231203193307.542794-30-yury.norov@gmail.com>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20231203193307.542794-30-yury.norov@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: uDGvSNUw8E8DooRP5CCwhJb8Fm9JXTzZ
-X-Proofpoint-GUID: CljkFlSZokllTUzPLp-H0mqHW8RlSY7-
+X-Proofpoint-ORIG-GUID: cyD-Ub5VnEHi1APb4RmHCrtXYas5DJZ5
+X-Proofpoint-GUID: cyD-Ub5VnEHi1APb4RmHCrtXYas5DJZ5
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-04_06,2023-11-30_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- spamscore=0 impostorscore=0 phishscore=0 adultscore=0 mlxlogscore=812
- priorityscore=1501 mlxscore=0 malwarescore=0 bulkscore=0 clxscore=1011
+ definitions=2023-12-04_10,2023-11-30_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
+ mlxscore=0 lowpriorityscore=0 clxscore=1015 priorityscore=1501
+ phishscore=0 impostorscore=0 mlxlogscore=999 bulkscore=0 adultscore=0
  suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2312040072
+ engine=8.12.0-2311060000 definitions=main-2312040089
 
+On Fri,  1 Dec 2023 19:16:57 +0100
+Eric Farman <farman@linux.ibm.com> wrote:
 
-
-On 03.12.23 20:33, Yury Norov wrote:
-> The function opencodes find_and_set_bit() with a for_each() loop. Use
-> it, and make the whole function a simple almost one-liner.
+> The various errors that are possible when processing a PQAP
+> instruction (the absence of a driver hook, an error FROM that
+> hook), all correctly set the PSW condition code to 3. But if
+> that processing works successfully, CC0 needs to be set to
+> convey that everything was fine.
 > 
-> While here, drop explicit initialization of *idx, because it's already
-> initialized by the caller in case of ENOLINK, or set properly with
-> ->wr_tx_mask, if nothing is found, in case of EBUSY.
+> Fix the check so that the guest can examine the condition code
+> to determine whether GPR1 has meaningful data.
 > 
-> CC: Tony Lu <tonylu@linux.alibaba.com>
-> CC: Alexandra Winter <wintera@linux.ibm.com>
-> Signed-off-by: Yury Norov <yury.norov@gmail.com>
+> Fixes: e5282de93105 ("s390: ap: kvm: add PQAP interception for AQIC")
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+
 > ---
+>  arch/s390/kvm/priv.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+> index 621a17fd1a1b..f875a404a0a0 100644
+> --- a/arch/s390/kvm/priv.c
+> +++ b/arch/s390/kvm/priv.c
+> @@ -676,8 +676,12 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
+>  	if (vcpu->kvm->arch.crypto.pqap_hook) {
+>  		pqap_hook = *vcpu->kvm->arch.crypto.pqap_hook;
+>  		ret = pqap_hook(vcpu);
+> -		if (!ret && vcpu->run->s.regs.gprs[1] & 0x00ff0000)
+> -			kvm_s390_set_psw_cc(vcpu, 3);
 
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Maybe a comment that tells pqap_hook() returns 0 or -EOPNOTSUPP
+that singnals this should be handled by QEMU. But that can certainly
+be done on top, and it is not a part of a minimal fix.
 
+> +		if (!ret) {
+> +			if (vcpu->run->s.regs.gprs[1] & 0x00ff0000)
+> +				kvm_s390_set_psw_cc(vcpu, 3);
+> +			else
+> +				kvm_s390_set_psw_cc(vcpu, 0);
+> +		}
+>  		up_read(&vcpu->kvm->arch.crypto.pqap_hook_rwsem);
+>  		return ret;
+>  	}
 
-Thanks a lot for the great helper function!
-I guess the top-level maintainers will figure out, how this series best finds its way upstream.
