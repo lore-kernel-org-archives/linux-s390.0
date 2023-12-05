@@ -1,108 +1,101 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VPy1aWz2"
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5515185
-	for <linux-s390@vger.kernel.org>; Tue,  5 Dec 2023 04:59:15 -0800 (PST)
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B5CTxAS011691;
-	Tue, 5 Dec 2023 12:59:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=oTkHANlYxjRrDeXCYit/DiQRJaRR2NK4A3Lk1cRXeII=;
- b=VPy1aWz2h7j1eE0gRo5pUOETRyElkMlzJTArTesRs0O93js+iiQzio0sEVrT4/ew0u6s
- trNy5iYTytMGVPA0I51GGZgA7C0jz9fGEHmCK2q4twDWC7qyxthhgwQZSUNyxB6h/tW8
- uSRtJj0C3GH1W07sLrzAwVdOsV+Chp694qi2Z6DW4yL39U3LqnnCS1T3/Tsw1NzfNh8m
- EFxES+WygCYc25Hgvyun2re+rmklD31P8Il+z59GTQOvunkAJIZ6DZUwowktwSMpUPQA
- N9lYiCQZft77N+hefUnGHLdtVrQIE0TR9LLplq8wl8QX0Db3YDACNt91os8g3+M6tuyf Tg== 
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ut3wsrrkb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 05 Dec 2023 12:59:07 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B5AsEK3009911;
-	Tue, 5 Dec 2023 12:59:07 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3urh4ke9ej-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 05 Dec 2023 12:59:07 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B5Cx4d014221860
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 5 Dec 2023 12:59:04 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 622D32004F;
-	Tue,  5 Dec 2023 12:59:04 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B64A220040;
-	Tue,  5 Dec 2023 12:59:03 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.82.153])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  5 Dec 2023 12:59:03 +0000 (GMT)
-Date: Tue, 5 Dec 2023 13:59:02 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Nathan Chancellor <nathan@kernel.org>
-Cc: akpm@linux-foundation.org, hca@linux.ibm.com, gor@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        linux-s390@vger.kernel.org, patches@lists.linux.dev
-Subject: Re: [PATCH 2/2] s390/traps: Only define is_valid_bugaddr() under
- CONFIG_GENERIC_BUG
-Message-ID: <ZW8elkUWKlEBezWl@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20231130-s390-missing-prototypes-v1-0-799d3cf07fb7@kernel.org>
- <20231130-s390-missing-prototypes-v1-2-799d3cf07fb7@kernel.org>
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="PPdXiABo"
+Received: from mail-il1-x133.google.com (mail-il1-x133.google.com [IPv6:2607:f8b0:4864:20::133])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27CAC1B1
+	for <linux-s390@vger.kernel.org>; Tue,  5 Dec 2023 07:39:26 -0800 (PST)
+Received: by mail-il1-x133.google.com with SMTP id e9e14a558f8ab-35d4dea7c1eso5410505ab.0
+        for <linux-s390@vger.kernel.org>; Tue, 05 Dec 2023 07:39:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google; t=1701790765; x=1702395565; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=aV5Z40IgGgSyP4gennpB4QDX5F9cf6j/NtRFHTtIS+E=;
+        b=PPdXiABoSCmPznzGiuGd2+AE4Rkjx+GyykgPV9ZyODUzUMGQkJGo62DwHmxPgJkmhW
+         PG8QuErsveafm1zOndTBKN5dnqyeGvku0CQZtLJZv75w+Lr2xzTOv0JW3LqmLY/Y6cuf
+         g5JFguds1QuhjhmbYmjdBBtc3xzb1sRg6a1Ps=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701790765; x=1702395565;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=aV5Z40IgGgSyP4gennpB4QDX5F9cf6j/NtRFHTtIS+E=;
+        b=mhSiQC/PX1ZCw3eB6egu2FKV1VpViITAvapVo/rII3IqwVMAtHoQzvMvrj4GYXD9Hl
+         xLpr8xoij/zJhdED9q81G4CB5DfLUGXQGf6tsP7m16upRTGVsIlwaxY0tG3cwTjQdBeW
+         nU3vf6ABuLu86X9Jo2vhm+hZ6JRtAWePac9VRMDWveUivNi6H/wjuIXbtui2dCYI0/HO
+         ijAlZzYNUgFEuvyzkVn+91pJNRIZwK9ptjdOKxEhKnZsjDzLama8KYXqg/viSCzW2BJZ
+         av4d5hS11UO27g903QREHh89g+RV1Qkfq4A0gq7KFxSkn/rPIwD+/V2CFE6CUCzSiX4h
+         iMZw==
+X-Gm-Message-State: AOJu0YyhKyAuBmmlmyhfUT7j20y33YIt4ZQSI/noBTd9yaKvT5VtV3hL
+	EyNvyxvd4nzAMvf7mSHtkDFp4g==
+X-Google-Smtp-Source: AGHT+IGGIK7VmkmKbUZWPfpCs9Qu0YmShDMC4ewlN8DMCRGgedjCEC4PT7fS1c1otbxjLibq6uZaDg==
+X-Received: by 2002:a05:6e02:170f:b0:35d:6600:fceb with SMTP id u15-20020a056e02170f00b0035d6600fcebmr10728184ill.0.1701790765411;
+        Tue, 05 Dec 2023 07:39:25 -0800 (PST)
+Received: from [192.168.1.128] ([38.175.170.29])
+        by smtp.gmail.com with ESMTPSA id t6-20020a92dc06000000b0035ae9f62692sm639954iln.88.2023.12.05.07.39.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 05 Dec 2023 07:39:25 -0800 (PST)
+Message-ID: <76c4b967-1cb6-4f77-9402-f835b15adb10@linuxfoundation.org>
+Date: Tue, 5 Dec 2023 08:39:23 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231130-s390-missing-prototypes-v1-2-799d3cf07fb7@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Ckp2e_xzcBMq0ibexAIaB7qlmwHi6IsM
-X-Proofpoint-GUID: Ckp2e_xzcBMq0ibexAIaB7qlmwHi6IsM
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-05_07,2023-12-05_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 mlxscore=0 bulkscore=0 lowpriorityscore=0
- spamscore=0 clxscore=1015 mlxlogscore=694 adultscore=0 phishscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2312050101
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 3/3] selftests: livepatch: Test livepatching a heavily
+ called syscall
+To: mpdesouza@suse.com, Marcos Paulo de Souza <mpdesouza@suse.de>
+Cc: Shuah Khan <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Josh Poimboeuf <jpoimboe@kernel.org>,
+ Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>,
+ Petr Mladek <pmladek@suse.com>, Joe Lawrence <joe.lawrence@redhat.com>,
+ linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ live-patching@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
+References: <20231031-send-lp-kselftests-v3-0-2b1655c2605f@suse.com>
+ <20231031-send-lp-kselftests-v3-3-2b1655c2605f@suse.com>
+ <f9d82fa6-08d7-4ab6-badc-691987b37a82@linuxfoundation.org>
+ <unpg4z7eig6qbudgulnr6sog65fq7s2dy4u2vp2dgkdrq5csdw@dltnxuw6kw5b>
+ <8b95b96c-6aeb-4bf0-8ee9-2ba62330c672@linuxfoundation.org>
+ <12a9ec1bc84dc6d4b461e5c780ba7d3c3aa91740.camel@suse.com>
+Content-Language: en-US
+From: Shuah Khan <skhan@linuxfoundation.org>
+In-Reply-To: <12a9ec1bc84dc6d4b461e5c780ba7d3c3aa91740.camel@suse.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, Nov 30, 2023 at 05:22:33PM -0700, Nathan Chancellor wrote:
-> When building with -Wmissing-prototypes without CONFIG_GENERIC_BUG,
-> there is a warning about a missing prototype for is_valid_bugaddr():
-> 
->   arch/s390/kernel/traps.c:46:5: warning: no previous prototype for 'is_valid_bugaddr' [-Wmissing-prototypes]
->      46 | int is_valid_bugaddr(unsigned long addr)
->         |     ^~~~~~~~~~~~~~~~
-> 
-> The prototype is only declared with CONFIG_GENERIC_BUG, so only define
-> the function under the same condition to clear up the warning, which
-> matches other architectures.
-> 
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-> ---
->  arch/s390/kernel/traps.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
-> index 1d2aa448d103..cc3e3a01dfa5 100644
-> --- a/arch/s390/kernel/traps.c
-> +++ b/arch/s390/kernel/traps.c
-> @@ -43,10 +43,12 @@ static inline void __user *get_trap_ip(struct pt_regs *regs)
->  	return (void __user *) (address - (regs->int_code >> 16));
->  }
->  
-> +#ifdef CONFIG_GENERIC_BUG
->  int is_valid_bugaddr(unsigned long addr)
->  {
->  	return 1;
->  }
-> +#endif
->  
->  void do_report_trap(struct pt_regs *regs, int si_signo, int si_code, char *str)
->  {
+On 12/5/23 05:52, mpdesouza@suse.com wrote:
+> On Fri, 2023-12-01 at 16:38 +0000, Shuah Khan wrote:
 
-Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> 0003-selftests-livepatch-Test-livepatching-a-heavily-call.patch has
+> style problems, please review.
+> 
+> NOTE: If any of the errors are false positives, please report
+>        them to the maintainer, see CHECKPATCH in MAINTAINERS.
+> 
+> I couldn't find any mention about "missing module name". Is your script
+> showing more warnings than these ones? Can you please share your
+> output?
+> 
+> I'll fix MAINTAINERS file but I'll wait until I understand what's
+> missing in your checkpatch script to resend the patchset.
+> 
+
+Looks like it is coming a script - still my question stands on
+whether or not you would need a module name for this module?
+
+I am not too concerned about MAINTAINERS file warns.
+
+I am assuming you will be sending a new version to address
+Joe Lawrence's comments?
+
+thanks,
+-- Shuah
+
+
+
