@@ -1,168 +1,149 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lRfNWdXG"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QGed3lmI"
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF526127;
-	Tue,  5 Dec 2023 00:04:32 -0800 (PST)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B582q8c024915;
-	Tue, 5 Dec 2023 08:04:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=mime-version : date :
- from : to : cc : subject : reply-to : in-reply-to : references :
- message-id : content-type : content-transfer-encoding; s=pp1;
- bh=/aAESai4uDl4/7s45na8z6I4tJIt9dFN0EddPTE9jS8=;
- b=lRfNWdXG3nedK6jjI5linSKB/HEK9fYxuy2HsogQNs0GTQ0J0S23QhP3cp9aUxsI8POi
- RIFZQLp3UrnfuZcK237mb9qecDhPR3gyAmnRd2d+k+/IY9QnapZHsPUOoZsOmfIsHm2T
- BVgcDKw5YLJALD6zeJ44CI3aLv1fzOtPY/85Z23v4XLTZfSmE7jf2p3AYCow6b7eIX3/
- Kns+okcSwjlg54BK5xsIWIwyzoR/ywtb4+Dq2doVGG4fUfiIK55R6v0IOpZ2nMxFoLwL
- +n7iX4y9hzwXGQkYw45SAwxuA0+j2KLyrw19T+XphalpceID3v0U9Hq0yTG9keo1yvu2 MQ== 
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE6B2127;
+	Tue,  5 Dec 2023 01:51:59 -0800 (PST)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B59mKrM026723;
+	Tue, 5 Dec 2023 09:51:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=K2INagPhm0bbOH+kwrPAF2/wkzUBLPFqq8LrsNbIESs=;
+ b=QGed3lmIyH630QqeJ2GgHhwulUAl89oSD0o7j4QjBPxYNkdmZ4DwnMqYqZAIAkjokcN/
+ uqc2s71LSDMZC2k4vrUalT6VFx5tgtTogPNxu7ZKNPqQgxxgwCA06fnHHy+opgXczloV
+ n2/KN7TLFehbLmTqqcO6VN0hX1EUOYaWbMzGTTFUmBAq0qoST5Ni8/0ofTemjGdTsGY3
+ cm0i1d+1Wh+NZkETgPkOauvvR5LcmojEUJhwhIoRb9aR6h2IUWLbC0hzU+6yghw6OjFs
+ u3KoO/r/WTx012q/dSiUufgdYyQH3CFKwh8sqMCD5D+R1B/aiHKAEMBNwzU5mUJR4PxJ 3A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ut00m01fe-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ut1j182ju-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 05 Dec 2023 08:04:29 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B584TrX030361;
-	Tue, 5 Dec 2023 08:04:29 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ut00m01ey-1
+	Tue, 05 Dec 2023 09:51:54 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B59nr8B030135;
+	Tue, 5 Dec 2023 09:51:53 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ut1j182cd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 05 Dec 2023 08:04:29 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B57YE5c009137;
-	Tue, 5 Dec 2023 08:04:28 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3urgdkw8nn-1
+	Tue, 05 Dec 2023 09:51:53 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B57YLVt022637;
+	Tue, 5 Dec 2023 09:51:32 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3urhm258sp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 05 Dec 2023 08:04:28 +0000
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B584OCh3932848
+	Tue, 05 Dec 2023 09:51:32 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B59pTHI18940560
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 5 Dec 2023 08:04:25 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 94E105803F;
-	Tue,  5 Dec 2023 08:04:24 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2864B58061;
-	Tue,  5 Dec 2023 08:04:24 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  5 Dec 2023 08:04:24 +0000 (GMT)
+	Tue, 5 Dec 2023 09:51:29 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6A2322004B;
+	Tue,  5 Dec 2023 09:51:29 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 08CC620043;
+	Tue,  5 Dec 2023 09:51:29 +0000 (GMT)
+Received: from [9.152.224.24] (unknown [9.152.224.24])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  5 Dec 2023 09:51:28 +0000 (GMT)
+Message-ID: <edb7dc54-a7f9-4356-a2a4-905b5f48b1f0@linux.ibm.com>
+Date: Tue, 5 Dec 2023 10:51:28 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Tue, 05 Dec 2023 09:04:23 +0100
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Tony Krowiak
- <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        jjherne@linux.ibm.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
-        david@redhat.com, Reinhard Buendgen
- <BUENDGEN@de.ibm.com>
-Subject: Re: [PATCH] s390/vfio-ap: handle response code 01 on queue reset
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <20231204171506.42aa687f.pasic@linux.ibm.com>
-References: <20231129143529.260264-1-akrowiak@linux.ibm.com>
- <b43414ef-7aa4-9e5c-a706-41861f0d346c@linux.ibm.com>
- <1f4720d7-93f1-4e38-a3ad-abaf99596e7c@linux.ibm.com>
- <05cfc382-d01d-4370-b8bb-d3805e957f2e@linux.ibm.com>
- <20231204171506.42aa687f.pasic@linux.ibm.com>
-Message-ID: <d780a15a7c073e7d437f8120a72e8d29@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v3 5/7] net/smc: compatible with 128-bits extend
+ GID of virtual ISM device
+Content-Language: en-US
+To: Wen Gu <guwen@linux.alibaba.com>, wenjia@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        kgraul@linux.ibm.com, jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, raspl@linux.ibm.com, schnelle@linux.ibm.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1701343695-122657-1-git-send-email-guwen@linux.alibaba.com>
+ <1701343695-122657-6-git-send-email-guwen@linux.alibaba.com>
+ <19b288d3-5434-40b1-93fa-7db47e417f60@linux.ibm.com>
+ <3f8dfc86-c27a-f1df-0a58-35fb4948e526@linux.alibaba.com>
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <3f8dfc86-c27a-f1df-0a58-35fb4948e526@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: M3DHbSEQEfuZvzieLvJTu5EieaUC3_58
-X-Proofpoint-ORIG-GUID: ZEg1yn10AEgYly7F7nAwdI3-FSYkzfvN
+X-Proofpoint-ORIG-GUID: PdGQx-BgP_YwVmrJsDRplK-pFvZB-WNK
+X-Proofpoint-GUID: 3DIC8H6iwyLrtbQK9147eyq813_uomKt
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-05_03,2023-12-04_01,2023-05-22_02
+ definitions=2023-12-05_04,2023-12-04_01,2023-05-22_02
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 lowpriorityscore=0 malwarescore=0 mlxscore=0 bulkscore=0
- adultscore=0 clxscore=1011 mlxlogscore=999 spamscore=0 phishscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2312050064
+ mlxlogscore=999 lowpriorityscore=0 bulkscore=0 suspectscore=0 spamscore=0
+ malwarescore=0 phishscore=0 clxscore=1015 mlxscore=0 adultscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2312050080
 
-On 2023-12-04 17:15, Halil Pasic wrote:
-> On Mon, 4 Dec 2023 16:16:31 +0100
-> Christian Borntraeger <borntraeger@linux.ibm.com> wrote:
-> 
->> Am 04.12.23 um 15:53 schrieb Tony Krowiak:
->> >
->> >
->> > On 11/29/23 12:12, Christian Borntraeger wrote:
->> >> Am 29.11.23 um 15:35 schrieb Tony Krowiak:
->> >>> In the current implementation, response code 01 (AP queue number not valid)
->> >>> is handled as a default case along with other response codes returned from
->> >>> a queue reset operation that are not handled specifically. Barring a bug,
->> >>> response code 01 will occur only when a queue has been externally removed
->> >>> from the host's AP configuration; nn this case, the queue must
->> >>> be reset by the machine in order to avoid leaking crypto data if/when the
->> >>> queue is returned to the host's configuration. The response code 01 case
->> >>> will be handled specifically by logging a WARN message followed by cleaning
->> >>> up the IRQ resources.
->> >>>
->> >>
->> >> To me it looks like this can be triggered by the LPAR admin, correct? So it
->> >> is not desireable but possible.
->> >> In that case I prefer to not use WARN, maybe use dev_warn or dev_err instead.
->> >> WARN can be a disruptive event if panic_on_warn is set.
->> >
->> > Yes, it can be triggered by the LPAR admin. I can't use dev_warn here because we don't have a reference to any device, but I can use pr_warn if that suffices.
->> 
->> Ok, please use pr_warn then.
-> 
-> Shouldn't we rather make this an 'info'. I mean we probably do not want
-> people complaining about this condition. Yes it should be a best 
-> practice
-> to coordinate such things with the guest, and ideally remove the 
-> resource
-> from the guest first. But AFAIU our stack is supposed to be able to
-> handle something like this. IMHO issuing a warning is excessive 
-> measure.
-> I know Reinhard and Tony probably disagree with the last sentence
-> though.
 
-Halil, Tony, the thing about about info versus warning versus error is 
-our
-own stuff. Keep in mind that these messages end up in the "debug 
-feature"
-as FFDC data. So it comes to the point which FFDC data do you/Tony want 
-to
-see there ? It should be enough to explain to a customer what happened
-without the need to "recreate with higher debug level" if something 
-serious
-happened. So my private decision table is:
-1) is it something serious, something exceptional, something which may 
-not
-    come up again if tried to recreate ? Yes -> make it visible on the 
-first
-    occurrence as error msg.
-2) is it something you want to read when a customer hits it and you tell 
-him
-    to extract and examine the debug feature data ? Yes -> make it a 
-warning
-    and make sure your debug feature by default records warnings.
-3) still serious, but may flood the debug feature. Good enough and high
-    probability to reappear on a recreate ? Yes -> make it an info 
-message
-    and live with the risk that you may not be able to explain to a 
-customer
-    what happened without a recreate and higher debug level.
-4) not 1-3, -> maybe a debug msg but still think about what happens when 
-a
-    customer enables "debug feature" with highest level. Does it squeeze 
-out
-    more important stuff ? Maybe make it dynamic debug with pr_debug() 
-(see
-    kernel docu admin-guide/dynamic-debug-howto.rst).
 
+On 04.12.23 13:24, Wen Gu wrote:
+> Thank you very much for review. See below.
 > 
-> Regards,
-> Halil
+> On 2023/12/2 00:30, Alexandra Winter wrote:
+>>
+>>
+>> On 30.11.23 12:28, Wen Gu wrote:
+>> [...]
+>>> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>>> index 766a1f1..d1e18bf 100644
+>>> --- a/net/smc/af_smc.c
+>>> +++ b/net/smc/af_smc.c
+>> [...]
+>>> @@ -1048,7 +1048,8 @@ static int smc_find_ism_v2_device_clnt(struct smc_sock *smc,
+>>>   {
+>>>       int rc = SMC_CLC_DECL_NOSMCDDEV;
+>>>       struct smcd_dev *smcd;
+>>> -    int i = 1;
+>>> +    int i = 1, entry = 1;
+>>> +    bool is_virtual;
+>>>       u16 chid;
+>>>         if (smcd_indicated(ini->smc_type_v1))
+>>> @@ -1060,14 +1061,23 @@ static int smc_find_ism_v2_device_clnt(struct smc_sock *smc,
+>>>           chid = smc_ism_get_chid(smcd);
+>>>           if (!smc_find_ism_v2_is_unique_chid(chid, ini, i))
+>>>               continue;
+>>> +        is_virtual = __smc_ism_is_virtual(chid);
+>>>           if (!smc_pnet_is_pnetid_set(smcd->pnetid) ||
+>>>               smc_pnet_is_ndev_pnetid(sock_net(&smc->sk), smcd->pnetid)) {
+>>> +            if (is_virtual && entry == SMC_MAX_ISM_DEVS)
+>>> +                /* only one GID-CHID entry left in CLC Proposal SMC-Dv2
+>>> +                 * extension. but a virtual ISM device's GID takes two
+>>> +                 * entries. So give up it and try the next potential ISM
+>>> +                 * device.
+>>> +                 */
+>>
+>> It is really importatnt to note that virtual ISMs take 2 entries.
+>> But it is still hard to understand this piece of code. e.g. I was wondering for a while,
+>> why you mention CLC here...
+>> Maybe it would be easier to understand this, if you rename SMC_MAX_ISM_DEVS to something else?
+>> Something like SMCD_MAX_V2_GID_ENTRIES?
+>>
+> 
+> I agree.
+> 
+> But I perfer to define a new macro to represent the max ISMv2 entries in CLC proposal message,
+> e.g. SMCD_CLC_MAX_V2_GID_ENTRIES, and keep using SMC_MAX_ISM_DEVS to represent the max devices
+> that can be proposed. Both semantics are required in the code, such as:
+> 
+> ini->ism_dev[SMC_MAX_ISM_DEVS]        | smcd_v2_ext->gidchid[SMCD_CLC_MAX_V2_GID_ENTRIES]
+> -------------------------------------------------------------------------------------------
+> [1:virtual_ISM_1]                     | [1:virtual_ISM_1 GID]
+>                                       | [2:virtual_ISM_1 extension GID]
+> [2:ISM_2]                             | [3:ISM_2 GID/CHID]
+> [3:ISM_3]                             | [4:ISM_3 GID/CHID]
+> 
+> And SMC_MAX_ISM_DEVS is required no more than SMCD_CLC_MAX_V2_GID_ENTRIES.
+
+I agree, this is even better.
