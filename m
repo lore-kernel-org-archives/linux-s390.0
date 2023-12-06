@@ -1,76 +1,137 @@
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38E5316429;
+	Wed,  6 Dec 2023 07:37:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="hhRbaenX"
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4AF69E;
-	Tue,  5 Dec 2023 23:22:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=qmCAsGLsB31X5J4lJ2nHtJS8+MwGW1F5WEYO0jIziI0=; b=hhRbaenXZsjRyFtp5oCl7ZLapp
-	PGbBHBMazopo9x7zLycOLomgyozjMFDmXz0mBlHcwPG5BI6SfQiEYs2RFIxTkHszoMBIB5fp7RvF5
-	vaqpcOeQKcUjsuqauqy5BsIY31xjg/0sVfUccDbi5kKXOZc7fS1d0vbSOWjK1ECcJERDPQIM6Icyq
-	pZ82Y80XxVZAy+fiqCF56whvlLXWz/53NURq30p1NEOux+n0cJVqd1itpsG6+3wl1H+zQ95RNHzGZ
-	8Wbn2E17f06JWnxiq2s6y4vOb2NT9ha36DJvWW/HkrWz3MeH9YEasxDh/aL/9GmJ56G3rYqKjOoGL
-	m/NxJEIQ==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
-	id 1rAmDz-009HyE-2v;
-	Wed, 06 Dec 2023 07:21:39 +0000
-Date: Tue, 5 Dec 2023 23:21:39 -0800
-From: Christoph Hellwig <hch@infradead.org>
-To: Yu Kuai <yukuai1@huaweicloud.com>
-Cc: Christoph Hellwig <hch@infradead.org>, axboe@kernel.dk,
-	roger.pau@citrix.com, colyli@suse.de, kent.overstreet@gmail.com,
-	joern@lazybastard.org, miquel.raynal@bootlin.com, richard@nod.at,
-	vigneshr@ti.com, sth@linux.ibm.com, hoeppner@linux.ibm.com,
-	hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-	jejb@linux.ibm.com, martin.petersen@oracle.com, clm@fb.com,
-	josef@toxicpanda.com, dsterba@suse.com, nico@fluxnic.net,
-	xiang@kernel.org, chao@kernel.org, tytso@mit.edu,
-	adilger.kernel@dilger.ca, agruenba@redhat.com, jack@suse.com,
-	konishi.ryusuke@gmail.com, willy@infradead.org,
-	akpm@linux-foundation.org, hare@suse.de, p.raghav@samsung.com,
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-	xen-devel@lists.xenproject.org, linux-bcache@vger.kernel.org,
-	linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org, linux-bcachefs@vger.kernel.org,
-	linux-btrfs@vger.kernel.org, linux-erofs@lists.ozlabs.org,
-	linux-ext4@vger.kernel.org, gfs2@lists.linux.dev,
-	linux-nilfs@vger.kernel.org, yi.zhang@huawei.com,
-	yangerkun@huawei.com, "yukuai (C)" <yukuai3@huawei.com>
-Subject: Re: [PATCH -next RFC 02/14] xen/blkback: use bdev api in
- xen_update_blkif_status()
-Message-ID: <ZXAhA0WUXoF5YEq4@infradead.org>
-References: <20231205123728.1866699-1-yukuai1@huaweicloud.com>
- <20231205123728.1866699-3-yukuai1@huaweicloud.com>
- <ZXAMwBD8pd48qwX/@infradead.org>
- <783b5515-db42-c77f-62ab-050f7cc8ef5e@huaweicloud.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VUvsjQdz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5433C433C7;
+	Wed,  6 Dec 2023 07:37:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1701848257;
+	bh=dQFCDmEpt5P6ThPydBMGELVuIhzHjl7/FVwjhyy0yRg=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=VUvsjQdzGwCfUKDjkBnh/6sqrgysLBucHf9QNxpTCbCY4llLHwlLyUSb2wcYenaUb
+	 jG87KYRBZojYzewsCBheiyxTR4VpE8G0gBw/uY6yifqJq5i3AkCl3tbe4Noj0V0QIM
+	 vqoXgTa/35sZnCChMUIhYLIRHWIrwbdl5uUR+MPnem7KSgL26UxJXAKIwOsFuchwnI
+	 lboLuLBNTSCNJ/UPslvXHh2gX+97CnffjXIQ2IBaaNUwTDlWtbO16MH97vG1trDxcu
+	 RPXaPiTEwD5YOckTLLLuCcqmG9uCgVJIOOatRfjCJJ5kncQnjMvAXkhr+5z3fX0ZPA
+	 1oOsp61cFOkRg==
+From: "Jiri Slaby (SUSE)" <jirislaby@kernel.org>
+To: gregkh@linuxfoundation.org
+Cc: linux-serial@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	"Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	linux-s390@vger.kernel.org
+Subject: [PATCH 08/27] tty: con3215: convert to u8 and size_t
+Date: Wed,  6 Dec 2023 08:36:53 +0100
+Message-ID: <20231206073712.17776-9-jirislaby@kernel.org>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20231206073712.17776-1-jirislaby@kernel.org>
+References: <20231206073712.17776-1-jirislaby@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <783b5515-db42-c77f-62ab-050f7cc8ef5e@huaweicloud.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 8bit
 
-On Wed, Dec 06, 2023 at 02:56:05PM +0800, Yu Kuai wrote:
-> > > -	invalidate_inode_pages2(
-> > > -			blkif->vbd.bdev_handle->bdev->bd_inode->i_mapping);
-> > > +	invalidate_bdev(blkif->vbd.bdev_handle->bdev);
-> > 
-> > blkbak is a bdev exported.   I don't think it should ever call
-> > invalidate_inode_pages2, through a wrapper or not.
-> 
-> I'm not sure about this. I'm not familiar with xen/blkback, but I saw
-> that xen-blkback will open a bdev from xen_vbd_create(), hence this
-> looks like a dm/md for me, hence it sounds reasonable to sync +
-> invalidate the opened bdev while initialization. Please kindly correct
-> me if I'm wrong.
+Switch character types to u8 and sizes to size_t. To conform to
+characters/sizes in the rest of the tty layer.
 
-I guess we have enough precedence for this, so the switchover here
-isn't wrong.  But all this invalidating of the bdev cache seems to
-be asking for trouble.
+Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+---
+ drivers/s390/char/con3215.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
+index 34bc343dcfcc..0b0324fe4aff 100644
+--- a/drivers/s390/char/con3215.c
++++ b/drivers/s390/char/con3215.c
+@@ -79,8 +79,8 @@ struct raw3215_info {
+ 	struct ccw_device *cdev;      /* device for tty driver */
+ 	spinlock_t *lock;	      /* pointer to irq lock */
+ 	int flags;		      /* state flags */
+-	char *buffer;		      /* pointer to output buffer */
+-	char *inbuf;		      /* pointer to input buffer */
++	u8 *buffer;		      /* pointer to output buffer */
++	u8 *inbuf;		      /* pointer to input buffer */
+ 	int head;		      /* first free byte in output buffer */
+ 	int count;		      /* number of bytes in output buffer */
+ 	int written;		      /* number of bytes in write requests */
+@@ -522,12 +522,14 @@ static unsigned int raw3215_make_room(struct raw3215_info *raw,
+  *	string	without blocking.
+  *	Return value is the number of bytes copied.
+  */
+-static unsigned int raw3215_addtext(const char *str, unsigned int length,
++static unsigned int raw3215_addtext(const u8 *str, size_t length,
+ 				    struct raw3215_info *raw, int opmode,
+ 				    unsigned int todrop)
+ {
+-	unsigned int c, ch, i, blanks, expanded_size = 0;
++	unsigned int i, blanks, expanded_size = 0;
+ 	unsigned int column = raw->line_pos;
++	size_t c;
++	u8 ch;
+ 
+ 	if (opmode == RAW3215_COUNT)
+ 		todrop = 0;
+@@ -558,7 +560,7 @@ static unsigned int raw3215_addtext(const char *str, unsigned int length,
+ 		if (todrop && expanded_size < todrop)	/* Drop head data */
+ 			continue;
+ 		for (i = 0; i < blanks; i++) {
+-			raw->buffer[raw->head] = (char)_ascebc[(int)ch];
++			raw->buffer[raw->head] = _ascebc[ch];
+ 			raw->head = (raw->head + 1) & (RAW3215_BUFFER_SIZE - 1);
+ 			raw->count++;
+ 		}
+@@ -570,8 +572,8 @@ static unsigned int raw3215_addtext(const char *str, unsigned int length,
+ /*
+  * String write routine for 3215 devices
+  */
+-static void raw3215_write(struct raw3215_info *raw, const char *str,
+-			  unsigned int length)
++static void raw3215_write(struct raw3215_info *raw, const u8 *str,
++			  size_t length)
+ {
+ 	unsigned int count, avail;
+ 	unsigned long flags;
+@@ -596,7 +598,7 @@ static void raw3215_write(struct raw3215_info *raw, const char *str,
+ /*
+  * Put character routine for 3215 devices
+  */
+-static void raw3215_putchar(struct raw3215_info *raw, unsigned char ch)
++static void raw3215_putchar(struct raw3215_info *raw, u8 ch)
+ {
+ 	raw3215_write(raw, &ch, 1);
+ }
+@@ -823,12 +825,10 @@ static struct ccw_driver raw3215_ccw_driver = {
+ 	.int_class	= IRQIO_C15,
+ };
+ 
+-static void handle_write(struct raw3215_info *raw, const char *str, int count)
++static void handle_write(struct raw3215_info *raw, const u8 *str, size_t count)
+ {
+-	int i;
+-
+ 	while (count > 0) {
+-		i = min_t(int, count, RAW3215_BUFFER_SIZE - 1);
++		size_t i = min_t(size_t, count, RAW3215_BUFFER_SIZE - 1);
+ 		raw3215_write(raw, str, i);
+ 		count -= i;
+ 		str += i;
+-- 
+2.43.0
 
