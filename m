@@ -1,166 +1,231 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="kQ+i3KlE";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="Kp1ZudE+"
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A8DD1BC;
-	Tue,  5 Dec 2023 17:54:00 -0800 (PST)
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B61aBCU014937;
-	Wed, 6 Dec 2023 01:53:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
- from : message-id : references : date : in-reply-to : content-type :
- mime-version; s=corp-2023-11-20;
- bh=23hKHmbbALm+t8Psdu5EM4lKkNtNMEctJJNYUfuNo70=;
- b=kQ+i3KlEujnkD8Xzday87jUjAWXQL+2pv0fWK1BcffRzsu6mGMM4eGxrmyHO+sp8J/sY
- AVnfspOdIDh1AYQS+0zgBCgwdPeOijT0qpSmpskxeBigPtvNGhpBjsnKDJzPBEfmNOT6
- 3fm1tESv7nVoDbbuaTob7QY4SK6z6oWmhWi5TXI0vVoR3HlmDe6G02JecadQ14wLBgHZ
- iipQdxoYEwYUCc/AQM145Eq+yfIuuP56hgAF1J6ATyP3NpvvHVgoMJ9BtjoriQ1TbVib
- 2wfA0USANqklihTGvysj7GRoQP7jPEgY+In59aeBvFdFydmeS2jfRqP6gQRQ6/eBoowG KQ== 
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3utdmbg4aj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 06 Dec 2023 01:53:52 +0000
-Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 3B608wCa032249;
-	Wed, 6 Dec 2023 01:53:52 GMT
-Received: from nam12-dm6-obe.outbound.protection.outlook.com (mail-dm6nam12lp2168.outbound.protection.outlook.com [104.47.59.168])
-	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3utan8buxw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 06 Dec 2023 01:53:52 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=dtjU8JfXx4WCxsUCKeYIBWuoDaiCninOeVNi5gPcv4mvnOAdWHAb3dvXs/0F25WWhxehMfAZ2G9fDuUlRoXO2yp5eF8AbK73VpAGYYp/owBkqr/4fR634IoB9w/BhD/XhuG5KA1wAiVGAtQjWM6MWTyOjZ42/goi3AEihFdDVhbkyMxKHI2eGdcMNmShyAlLr0DhrTnAKP+qPDuyXKVEgl9juqT+S+XEjUC848bMK4q3WwmPIpYQuyoV1af8Gd1U/N2p5+lKAkRFjcRkSlblgHKn2NNgZnyGvf7IUP2BFO9beyuuwdTliRjESyQcbmgcG2nRyV8hBKj0ymiA4hYlHQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=23hKHmbbALm+t8Psdu5EM4lKkNtNMEctJJNYUfuNo70=;
- b=YtP5VGQpYWCrWazRP/H+plzTTOteZN6ekifsrnnM2lC81BxYUizUjhHcR3XB1IexHLFd7zV9GkcvqPykCK2L4d6ddwDPjInubgQ4y1udpqwuiTeF6tQdhjmhvECRNdcY2BmU3FkAEhpH8Rp0BWjCFrP3otv6Y0ffOrnDzwbHENeeVo4Cvvfay8n3nv4bzeE6Akq3znHWw/jxGVEJMPu0bhBi6x9YNf0ZLwPqjinwiaB7Iv/miGSFyWUgY+bZQsU5nt6juM3UQNb6eK1jmEUPB2/T8KllvR/PgCzsbMJAByXVG7dtb8Bn/mzpmOPVI4FSZ1OgqRwNeBue/W+aWgQZuA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QGidZ4iR"
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06F7618F;
+	Tue,  5 Dec 2023 21:25:16 -0800 (PST)
+Received: by mail-pf1-x42b.google.com with SMTP id d2e1a72fcca58-6ce6dd83945so1359304b3a.3;
+        Tue, 05 Dec 2023 21:25:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=23hKHmbbALm+t8Psdu5EM4lKkNtNMEctJJNYUfuNo70=;
- b=Kp1ZudE+SUIxV+kfaXg9Ek+402sf3HWrx+B5I4E6HfvO8N+ir706vbkyfXw94FDXlNfJUGnYpLOPbKC0btlnc30OvYvslD/T+jIbdrusYshpwYcLMbZj5dvceKBwoip7EhDRy58frIzkEJfl1FBZ35gcF/P4JiZJFtXGXD46L30=
-Received: from PH0PR10MB4759.namprd10.prod.outlook.com (2603:10b6:510:3d::12)
- by CY5PR10MB6096.namprd10.prod.outlook.com (2603:10b6:930:37::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7046.27; Wed, 6 Dec
- 2023 01:53:50 +0000
-Received: from PH0PR10MB4759.namprd10.prod.outlook.com
- ([fe80::2b0c:62b3:f9a9:5972]) by PH0PR10MB4759.namprd10.prod.outlook.com
- ([fe80::2b0c:62b3:f9a9:5972%3]) with mapi id 15.20.7046.034; Wed, 6 Dec 2023
- 01:53:50 +0000
-To: Kees Cook <keescook@chromium.org>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>,
-        "James E.J.
- Bottomley" <jejb@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander
- Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Azeem
- Shaikh <azeemshaikh38@gmail.com>, linux-s390@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-hardening@vger.kernel.org
-Subject: Re: [PATCH v2] scsi: zfcp: Replace strlcpy() with strscpy()
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-Organization: Oracle Corporation
-Message-ID: <yq11qc0p04d.fsf@ca-mkp.ca.oracle.com>
-References: <20231130204056.it.978-kees@kernel.org>
-Date: Tue, 05 Dec 2023 20:53:48 -0500
-In-Reply-To: <20231130204056.it.978-kees@kernel.org> (Kees Cook's message of
-	"Thu, 30 Nov 2023 12:41:00 -0800")
-Content-Type: text/plain
-X-ClientProxiedBy: BY3PR10CA0017.namprd10.prod.outlook.com
- (2603:10b6:a03:255::22) To PH0PR10MB4759.namprd10.prod.outlook.com
- (2603:10b6:510:3d::12)
+        d=gmail.com; s=20230601; t=1701840315; x=1702445115; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=6huBbZbAII0X6eZV6S+b7knvK6KuHJo8Bh0bkLgUxxE=;
+        b=QGidZ4iRu5/YncLQwNVlWgTHz7jez7T2YHYyySJDAUl1LybKELv67VrH6KN+e8TxRh
+         /s5VSFFVvQRiwkXNmKLJi/wEnIBiOGQwnngb6oYZMoG6eQc0QbJ/T0Ec0db6vzr1k+Dx
+         srQWLLbmQFs5EhWEp5zC/IaHKoTJiY8bXU5IS602EgbG9LYXq+G5ffcY+0jnsGCyRyAk
+         7+ZWoAymYRZSRJgPK/kil/e23SdlpEsI7jueZ//dM4yB7IHleHRJ+/PQQLHSiUNJ84tI
+         tOtIp+BHegPALNw4/RtwVHj2rBou199ZGUBCDO3mLTFwdzB+80PTnm4Fc0QdTZHYALAf
+         NEJQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701840315; x=1702445115;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6huBbZbAII0X6eZV6S+b7knvK6KuHJo8Bh0bkLgUxxE=;
+        b=J2b0FKDZyCK+e5YG3hPYVqsm96iXFc1DuCjGft3nU29htWngmgXURBAKy6LSskvXsc
+         OlwaUaL+5EN/6u7FgAONCyt94/N94DvXh3D4HeMkqLpjiugMkbh9I8T/h8ecFBGT6oo+
+         bBF7PUATUXLdMVYFO7IvwjBNP0iu5NE6arIG4eYzZ8D+aFktqrYfj6JhEcs9DQMBWBDf
+         kbBFrkua9jujvMMFVH6lL8lpzV+nmnybr/z6ilzjRywIN/dJlnLy2pCqZ+YCTKLfpKDl
+         b87csaO4/TXV8CcKaJT3HFSgWjWds5g9kbrD67w6oNhQhjh5fZK0GbncA1Te8IJg3p16
+         SAoQ==
+X-Gm-Message-State: AOJu0YyH7TAIz+i+HfbrAQNnJb8M6GbmVheSEHS7vLvZsf7l4/8SFM7S
+	B7EPEUC20m7UnlvO5u56YqE=
+X-Google-Smtp-Source: AGHT+IFMxfqg8FxPkhbWeYw87iiXO3hRoVhFhH1xtCbWG3FZaVDEj9UfTpo1oYq4IqfLZ3ft2t7YHQ==
+X-Received: by 2002:a05:6a00:98e:b0:6ce:6420:e174 with SMTP id u14-20020a056a00098e00b006ce6420e174mr407397pfg.36.1701840315262;
+        Tue, 05 Dec 2023 21:25:15 -0800 (PST)
+Received: from localhost ([216.228.127.130])
+        by smtp.gmail.com with ESMTPSA id ka32-20020a056a0093a000b006ce455a7faasm5350125pfb.150.2023.12.05.21.25.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 05 Dec 2023 21:25:14 -0800 (PST)
+Date: Tue, 5 Dec 2023 21:22:59 -0800
+From: Yury Norov <yury.norov@gmail.com>
+To: Jan Kara <jack@suse.cz>
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	"James E.J. Bottomley" <jejb@linux.ibm.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	"Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+	Akinobu Mita <akinobu.mita@gmail.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Borislav Petkov <bp@alien8.de>, Chaitanya Kulkarni <kch@nvidia.com>,
+	Christian Brauner <brauner@kernel.org>,
+	Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	David Disseldorp <ddiss@suse.de>,
+	Edward Cree <ecree.xilinx@gmail.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Fenghua Yu <fenghua.yu@intel.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Gregory Greenman <gregory.greenman@intel.com>,
+	Hans Verkuil <hverkuil@xs4all.nl>,
+	Hans de Goede <hdegoede@redhat.com>,
+	Hugh Dickins <hughd@google.com>, Ingo Molnar <mingo@redhat.com>,
+	Jakub Kicinski <kuba@kernel.org>, Jaroslav Kysela <perex@perex.cz>,
+	Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
+	Jiri Pirko <jiri@resnulli.us>, Jiri Slaby <jirislaby@kernel.org>,
+	Kalle Valo <kvalo@kernel.org>, Karsten Graul <kgraul@linux.ibm.com>,
+	Karsten Keil <isdn@linux-pingi.de>,
+	Kees Cook <keescook@chromium.org>,
+	Leon Romanovsky <leon@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Martin Habets <habetsm.xilinx@gmail.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Michal Simek <monstr@monstr.eu>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Oliver Neukum <oneukum@suse.com>, Paolo Abeni <pabeni@redhat.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Ping-Ke Shih <pkshih@realtek.com>, Rich Felker <dalias@libc.org>,
+	Rob Herring <robh@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Shuai Xue <xueshuai@linux.alibaba.com>,
+	Stanislaw Gruszka <stf_xl@wp.pl>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Valentin Schneider <vschneid@redhat.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>, Will Deacon <will@kernel.org>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	GR-QLogic-Storage-Upstream@marvell.com, alsa-devel@alsa-project.org,
+	ath10k@lists.infradead.org, dmaengine@vger.kernel.org,
+	iommu@lists.linux.dev, kvm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+	linux-block@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+	linux-hyperv@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+	linux-media@vger.kernel.org, linux-mips@vger.kernel.org,
+	linux-net-drivers@amd.com, linux-pci@vger.kernel.org,
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-serial@vger.kernel.org,
+	linux-sh@vger.kernel.org, linux-sound@vger.kernel.org,
+	linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, mpi3mr-linuxdrv.pdl@broadcom.com,
+	netdev@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org,
+	Mirsad Todorovac <mirsad.todorovac@alu.unizg.hr>,
+	Matthew Wilcox <willy@infradead.org>,
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Maxim Kuvyrkov <maxim.kuvyrkov@linaro.org>,
+	Alexey Klimov <klimov.linux@gmail.com>,
+	Bart Van Assche <bvanassche@acm.org>,
+	Sergey Shtylyov <s.shtylyov@omp.ru>
+Subject: Re: [PATCH v2 00/35] bitops: add atomic find_bit() operations
+Message-ID: <ZXAFM2VZugdhM3oE@yury-ThinkPad>
+References: <20231203192422.539300-1-yury.norov@gmail.com>
+ <20231204185101.ddmkvsr2xxsmoh2u@quack3>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH0PR10MB4759:EE_|CY5PR10MB6096:EE_
-X-MS-Office365-Filtering-Correlation-Id: 34df966b-6130-475a-d718-08dbf5fe3156
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 
-	zPMdVMG41y7KlDgIWNXahi6qsEgeb6oCJkzsKDiIssDnHRjoCv1IfyOiwT/5M2YNQuHRky/qWw3Y9lPB3+USS/2SPqvSDbxlfzfFEe596UP4dFW6jvdrOLbsF+kPe9RQpgkG5GWLoTkIHglSM+Nncs48pqrP8Q2aDqsljkc+QeIKDdD4bRQGhjnnoDzEMx6hRTNaF94Cjpqrfyphx+aJ/oqzPfcCc09XYmelhz5yPS8uEY+4XBwmEJXK26WLFT8PyMgJZwbiq3M44eYXbOesO7hAD0rch01g36RiqYClGBMZxRO3XbNKNpXO/mJgRhOMbEIXhSRfLgOEiOB8Kz5EbfAF6P84DOgXKfw0+llEp0GhBO8ZGwWlHlwb/Z39fbyrp1pMMrwseIfH/DrcjCEwakOWvjXmzOYjirAX1Ce2i8BdLggGuld9LQoaaQ7F/6x5M+w4CS4tdjzI67vk9dTerAwlqz4PF/gzDk3bejtgeJdw/3wdvcTu3ODjW2fH8U14GK8jcoG7CBbEFCLH6Qp+YOV9XlRChaiojMFcWasKaWFOfkogH2pf9ly9h1N+f29L
-X-Forefront-Antispam-Report: 
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB4759.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376002)(396003)(346002)(136003)(39860400002)(366004)(230922051799003)(64100799003)(451199024)(1800799012)(186009)(6486002)(8936002)(6916009)(4326008)(66556008)(54906003)(66476007)(316002)(66946007)(8676002)(478600001)(7416002)(41300700001)(86362001)(4744005)(2906002)(5660300002)(6506007)(26005)(38100700002)(83380400001)(36916002)(6512007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: 
-	=?us-ascii?Q?8b8LPoksWDVJ7ckCiOhBVJk5FPCXZXgf92+qV/TCNowrB+B7oAbRDjzuGQn0?=
- =?us-ascii?Q?MqK6SvYPxe5Um4Up6pDD2RzoflrG3/w8/ZPP/+SWpoRzM6vQHsAbgVld9sys?=
- =?us-ascii?Q?c1DI/4FLFtNrWpwdiQvq/XrkmVVXNQD5L7fnY8aYE4Qg/4zoYtC3GyJFhGc3?=
- =?us-ascii?Q?z+oxL5v2EGB7JuoZkEj4okmay/4xOUh/JFB1wMEtLqaap6PsBHE4K4o6yu9j?=
- =?us-ascii?Q?M3YieuTZEbCbkruMxk3NSmLObDNxlAqHbu9IlatPmMjlz83Ka4Sp6IJDN0Md?=
- =?us-ascii?Q?zuijSDqbQL7it8SYaWyeJB9YNPR2Z6HJM8G2VzRrk/OPwuUWEHEXslvM8NE9?=
- =?us-ascii?Q?EkzAMvTDbY6mbT9WqhQQJ79oOoY8heFhCvZQDdKgTbQyTQ6+7LXm4wSMIMrc?=
- =?us-ascii?Q?zhfDHB0xu9WHtSxcwYYRvSUS4t3FGzGS+a9K4dYRC6u0bGXkDZLEGkof+hkQ?=
- =?us-ascii?Q?lYXYAtChLfpeVYzXMJmN7DSyRTD/7/yae6rnlooKCjlfyvk0wEtIie5zommB?=
- =?us-ascii?Q?w544xOwronqjvfH+Skmd1I0PFYu9hv8c8Eo7f89RW6o8NSx7q2YjUQyxf0xm?=
- =?us-ascii?Q?PSktHepYcafsg2CYvOS8wJ7T1WZaezOBJwh8ypB87xXaFeaTADwvkKhKTX2d?=
- =?us-ascii?Q?am3LSWFr6CP2r1veqz0RBier1F4sEl32wz1eowp2xNicjhnrrGcQlPMYaVI8?=
- =?us-ascii?Q?Chu4BKIVD20whMZjRLUpfwtrBCag8p9dmAdWSG5z0wJNH2oKgK3bp4UPq0Wq?=
- =?us-ascii?Q?WnWyFpT4IG+EYVEsP4pxmmKDEXke0+x8gYsVdGoHOJ4cERjRAv+ITa6u/tKe?=
- =?us-ascii?Q?rjlL/wnEbyt1UJz0rFoUaia6GNzzJY4HYaSCetdLJJzyEJ1puxJDiWhJaVT5?=
- =?us-ascii?Q?kQ/COjBApBpE8aRoHj6AJP7s9Fz6bxR/gae9HlElR6cCWEvMbKPGQD9raipN?=
- =?us-ascii?Q?igBvSaYLvqWFH42KbtkS9Uj0SL05SxTYGdM6djsJiSi9VAE1idDUUE+FnaW2?=
- =?us-ascii?Q?hKZSRNBeV1fiUEX/Tg7CnvyPnVZEtmiTuSzFmf0RwvQVl4urbbXUKIaKvOvG?=
- =?us-ascii?Q?9nhdy6VfkaHHdqhmiLYO+DHV6HQoEqVWCgXHFaVo9XSkJQ3sNWfvux9bm2pj?=
- =?us-ascii?Q?uv33A4BB8kMpWxeX+8774LkZQZ/RDK+0Rwa7cZUCDl1tqiLGt87ZGb5UHWtn?=
- =?us-ascii?Q?1H+cEphaHFu1pP/A/iMFyYAl2Y4ar5SXRhV+3Q3GyoEYxMCePKA5f9V42xJW?=
- =?us-ascii?Q?7E7ekbaxbQWfFJL3r5GCrxrR8qkibbGj2rQ7X0faPY2Lq0GUYXvXQUF2ApMs?=
- =?us-ascii?Q?CHGqrEUd0aWP4FqPp6LUosknHxFUJ0mOWMdfz/mRIEP1d4cYYC0VV6TG9wCF?=
- =?us-ascii?Q?a5ci8rM+WdpttEOtLAM8dRcQjl+gBjGF0FXqh7iN3f1ZeaR8G24yATzTj4hh?=
- =?us-ascii?Q?sS1Aaf3q1h6q0T2QAXuTxSEQHnG2UzbYUDq5nGwRsvL/cvm9glyXWKzz1cEe?=
- =?us-ascii?Q?vlkdfSasJoan91CysOAuR0pucObLntcTuVB1bEcSPKbc97cECUD42ffInMuH?=
- =?us-ascii?Q?7oplahcSbGGsKickGLdUGczQcmThk/wGg0WN3Rzw09M03STxe/3yGiZ8cBem?=
- =?us-ascii?Q?iA=3D=3D?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
-	i0CFhaEYNBztQd1CRTNaCQIeuPI337G7OetcP39wWwMxEEUMILpaF+X5ozAxj5fjx9Jo2XaQpvovJhEyYt0oJly/GCb7nT7gwdzy0BhmQ/gWXDczX6Myw1yLbz3DaM3bcUKT91RTV6frzqLOLoCYec3rrifLLcWfyB7I4WeXnjtAsOttNpslYpFXUmPXu33py9h56XaUhVrC/42CZ4OT4XLb6DEFpqYVUYhUL68jGc2t0/RkU2aNgX5Yw/TGsRNSvyp5yID3XcelBiu3vIcvhUj647VDIAdGyQ1WYa1m+y1omseXqOgMRnpIknyweLvcFF9Yp3WVhCP+E+2hRSAtRaEkGvZTch1BxgP3pmZXp7fVoDUmJfrIEoxsSNgHKSO+8QJt9/Uva+/mhwe6A5eEUKd4j8Iu6gohc8ZWJRQNsccQkWql8Bh8pHzAemcFcA1zZVB81DXPbSWO2Y0vFySSnF02tOdqEV0wdk1Zfttc8vxHm9cluSsni5P1/Z3AsPH2VvkcUoHKP374SPLEYvIlH4xKd7BZyLb0NjtlMWMoSh23uI3LRuj2TrN+XkHMAmrGpELrUesZEXDZZrtHSdSchVpMS3xHRthugGB3at0bpQjFEt4nqA6eHzHKcw7dq9Lo7FqmWrlKqzdCKOvaycfAKCQM++SMClp016dkv1fEScgdAGqzFRkFpnH7kbvV0HIExh99EL51VnB5pPBCiJHkr4P8Z259QDQU3vMLfU067uxIC8ZsmyVtzE8CSRIbgnhJ9jH6WTl8KXTTUWm7sAydWBfcy4gabzdVXPSQ6R76zjonj3zT8IjXJmwOCeOvGRK051I8LtSD703+oh4T7UgIRja/0cJAW9IsD9K2eP5BWUc=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 34df966b-6130-475a-d718-08dbf5fe3156
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB4759.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Dec 2023 01:53:50.2647
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: B+8/BiShufQ4AjWPhZV4MUGS+8yefqxQgJB0VzGa0enwaxyp1k7MrTOgD1//sTSvS66/eoMKjj0kFXTf3AL6PPLH+Ak3fAhNlPjd0M0oUlo=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR10MB6096
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-06_01,2023-12-05_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 phishscore=0 suspectscore=0
- mlxscore=0 bulkscore=0 mlxlogscore=999 adultscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2312060014
-X-Proofpoint-ORIG-GUID: auxKadd7K4NR7815_xHwW4hVXKyH4BIu
-X-Proofpoint-GUID: auxKadd7K4NR7815_xHwW4hVXKyH4BIu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231204185101.ddmkvsr2xxsmoh2u@quack3>
 
+On Mon, Dec 04, 2023 at 07:51:01PM +0100, Jan Kara wrote:
+> Hello Yury!
+> 
+> On Sun 03-12-23 11:23:47, Yury Norov wrote:
+> > Add helpers around test_and_{set,clear}_bit() that allow to search for
+> > clear or set bits and flip them atomically.
+> > 
+> > The target patterns may look like this:
+> > 
+> > 	for (idx = 0; idx < nbits; idx++)
+> > 		if (test_and_clear_bit(idx, bitmap))
+> > 			do_something(idx);
+> > 
+> > Or like this:
+> > 
+> > 	do {
+> > 		bit = find_first_bit(bitmap, nbits);
+> > 		if (bit >= nbits)
+> > 			return nbits;
+> > 	} while (!test_and_clear_bit(bit, bitmap));
+> > 	return bit;
+> > 
+> > In both cases, the opencoded loop may be converted to a single function
+> > or iterator call. Correspondingly:
+> > 
+> > 	for_each_test_and_clear_bit(idx, bitmap, nbits)
+> > 		do_something(idx);
+> > 
+> > Or:
+> > 	return find_and_clear_bit(bitmap, nbits);
+> 
+> These are fine cleanups but they actually don't address the case that has
+> triggered all these changes - namely the xarray use of find_next_bit() in
+> xas_find_chunk().
+> 
+> ...
+> > This series is a result of discussion [1]. All find_bit() functions imply
+> > exclusive access to the bitmaps. However, KCSAN reports quite a number
+> > of warnings related to find_bit() API. Some of them are not pointing
+> > to real bugs because in many situations people intentionally allow
+> > concurrent bitmap operations.
+> > 
+> > If so, find_bit() can be annotated such that KCSAN will ignore it:
+> > 
+> >         bit = data_race(find_first_bit(bitmap, nbits));
+> 
+> No, this is not a correct thing to do. If concurrent bitmap changes can
+> happen, find_first_bit() as it is currently implemented isn't ever a safe
+> choice because it can call __ffs(0) which is dangerous as you properly note
+> above. I proposed adding READ_ONCE() into find_first_bit() / find_next_bit()
+> implementation to fix this issue but you disliked that. So other option we
+> have is adding find_first_bit() and find_next_bit() variants that take
+> volatile 'addr' and we have to use these in code like xas_find_chunk()
+> which cannot be converted to your new helpers.
 
-Kees,
+Here is some examples when concurrent operations with plain find_bit()
+are acceptable:
 
-> strlcpy() reads the entire source buffer first. This read may exceed
-> the destination size limit. This is both inefficient and can lead to
-> linear read overflows if a source string is not NUL-terminated[1].
-> Additionally, it returns the size of the source string, not the
-> resulting size of the destination string. In an effort to remove
-> strlcpy() completely[2], replace strlcpy() here with strscpy().
+ - two threads running find_*_bit(): safe wrt ffs(0) and returns correct
+   value, because underlying bitmap is unchanged;
+ - find_next_bit() in parallel with set or clear_bit(), when modifying
+   a bit prior to the start bit to search: safe and correct;
+ - find_first_bit() in parallel with set_bit(): safe, but may return wrong
+   bit number;
+ - find_first_zero_bit() in parallel with clear_bit(): same as above.
 
-Applied to 6.8/scsi-staging, thanks!
+In last 2 cases find_bit() may not return a correct bit number, but
+it may be OK if caller requires any (not exactly first) set or clear
+bit, correspondingly.
 
--- 
-Martin K. Petersen	Oracle Linux Engineering
+In such cases, KCSAN may be safely silenced.
+ 
+> > This series addresses the other important case where people really need
+> > atomic find ops. As the following patches show, the resulting code
+> > looks safer and more verbose comparing to opencoded loops followed by
+> > atomic bit flips.
+> > 
+> > In [1] Mirsad reported 2% slowdown in a single-thread search test when
+> > switching find_bit() function to treat bitmaps as volatile arrays. On
+> > the other hand, kernel robot in the same thread reported +3.7% to the
+> > performance of will-it-scale.per_thread_ops test.
+> 
+> It was actually me who reported the regression here [2] but whatever :)
+> 
+> [2] https://lore.kernel.org/all/20231011150252.32737-1-jack@suse.cz
+
+My apologize.
+
+> > Assuming that our compilers are sane and generate better code against
+> > properly annotated data, the above discrepancy doesn't look weird. When
+> > running on non-volatile bitmaps, plain find_bit() outperforms atomic
+> > find_and_bit(), and vice-versa.
+> > 
+> > So, all users of find_bit() API, where heavy concurrency is expected,
+> > are encouraged to switch to atomic find_and_bit() as appropriate.
+> 
+> Well, all users where any concurrency can happen should switch. Otherwise
+> they are prone to the (admittedly mostly theoretical) data race issue.
+> 
+> 								Honza
+> -- 
+> Jan Kara <jack@suse.com>
+> SUSE Labs, CR
