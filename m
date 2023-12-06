@@ -1,102 +1,110 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="1a41P6Jl";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="MYtymdGE"
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2a07:de40:b251:101:10:150:64:1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECAE4D4E;
-	Wed,  6 Dec 2023 06:39:20 -0800 (PST)
-Received: from pobox.suse.cz (unknown [10.100.2.14])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 64DE321E31;
-	Wed,  6 Dec 2023 14:39:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1701873559; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SdOMADw0BR1XqWadq+PaincC9VC4XbaVwQa4xbhyWuQ=;
-	b=1a41P6JlV3rycQG+nmBWl05YMvb4fqKf0htEORvmGxjO4t+DMZxLAjMktZ5o6aIO+jOd0h
-	MIvifQohAdt/4HfUVSbYtlyR7dLhxtGi18Uqap17Xh64QbIuSd34IgH0kffMFtQvTATRH0
-	lRLyGmFBPCaIO8yKuednDW0p8dg3IfQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1701873559;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SdOMADw0BR1XqWadq+PaincC9VC4XbaVwQa4xbhyWuQ=;
-	b=MYtymdGEPw/m/rPTvOE5RaiuasTRE8wksAgx6TeI/mTsVK2UWwQecDzT6gcmtIubEKaYtg
-	pR3erBzCHAqeceCw==
-Date: Wed, 6 Dec 2023 15:39:20 +0100 (CET)
-From: Miroslav Benes <mbenes@suse.cz>
-To: Shuah Khan <skhan@linuxfoundation.org>
-cc: mpdesouza@suse.com, Marcos Paulo de Souza <mpdesouza@suse.de>, 
-    Shuah Khan <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>, 
-    Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-    Alexander Gordeev <agordeev@linux.ibm.com>, 
-    Christian Borntraeger <borntraeger@linux.ibm.com>, 
-    Sven Schnelle <svens@linux.ibm.com>, Josh Poimboeuf <jpoimboe@kernel.org>, 
-    Jiri Kosina <jikos@kernel.org>, Petr Mladek <pmladek@suse.com>, 
-    Joe Lawrence <joe.lawrence@redhat.com>, linux-kselftest@vger.kernel.org, 
-    linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-    linux-s390@vger.kernel.org, live-patching@vger.kernel.org
-Subject: Re: [PATCH v3 3/3] selftests: livepatch: Test livepatching a heavily
- called syscall
-In-Reply-To: <76c4b967-1cb6-4f77-9402-f835b15adb10@linuxfoundation.org>
-Message-ID: <alpine.LSU.2.21.2312061530470.13051@pobox.suse.cz>
-References: <20231031-send-lp-kselftests-v3-0-2b1655c2605f@suse.com> <20231031-send-lp-kselftests-v3-3-2b1655c2605f@suse.com> <f9d82fa6-08d7-4ab6-badc-691987b37a82@linuxfoundation.org> <unpg4z7eig6qbudgulnr6sog65fq7s2dy4u2vp2dgkdrq5csdw@dltnxuw6kw5b>
- <8b95b96c-6aeb-4bf0-8ee9-2ba62330c672@linuxfoundation.org> <12a9ec1bc84dc6d4b461e5c780ba7d3c3aa91740.camel@suse.com> <76c4b967-1cb6-4f77-9402-f835b15adb10@linuxfoundation.org>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ojDk7+bv"
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6017B5;
+	Wed,  6 Dec 2023 06:59:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=s+7kV2NOaPEBmhFkJpDv/pC5Llv4VXEE9i8fdKbvmjw=; b=ojDk7+bvhmkVaj86d9uPvOhQaz
+	kbAJJlz3eiFA7yxHtxf02BCaqsNM5pS9C8k5lXRoPly3/N/e0u5QADIgtZKFOwGOJtwsI5ZzSsYPS
+	PKyktYqelsFB3E+G8W+4/yQSFmaQ2jHSWEigX57CwcwQszQ0bDoxOOqdU2sc0+ZoE3Ff1wwcpqslV
+	VWLgXJnu2MrDZGBo0sVLqXRdAvGI+d1WdlsXWEVkM0crARzZz5+nD3AR2Avd8/g6eRde0hkW/FoXX
+	agEz57imZpOlmdW73T5pzua0TfxBEP/xRZ/WXwPlD7/tpJRN5cqF7OvXJrtIdGRYW6omWvwYwBXvA
+	OJr6nVaw==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+	id 1rAtMN-002zkJ-Nc; Wed, 06 Dec 2023 14:58:47 +0000
+Date: Wed, 6 Dec 2023 14:58:47 +0000
+From: Matthew Wilcox <willy@infradead.org>
+To: Yu Kuai <yukuai1@huaweicloud.com>
+Cc: axboe@kernel.dk, roger.pau@citrix.com, colyli@suse.de,
+	kent.overstreet@gmail.com, joern@lazybastard.org,
+	miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
+	sth@linux.ibm.com, hoeppner@linux.ibm.com, hca@linux.ibm.com,
+	gor@linux.ibm.com, agordeev@linux.ibm.com, jejb@linux.ibm.com,
+	martin.petersen@oracle.com, clm@fb.com, josef@toxicpanda.com,
+	dsterba@suse.com, nico@fluxnic.net, xiang@kernel.org,
+	chao@kernel.org, tytso@mit.edu, adilger.kernel@dilger.ca,
+	agruenba@redhat.com, jack@suse.com, konishi.ryusuke@gmail.com,
+	akpm@linux-foundation.org, hare@suse.de, p.raghav@samsung.com,
+	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+	xen-devel@lists.xenproject.org, linux-bcache@vger.kernel.org,
+	linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-bcachefs@vger.kernel.org,
+	linux-btrfs@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+	linux-ext4@vger.kernel.org, gfs2@lists.linux.dev,
+	linux-nilfs@vger.kernel.org, yukuai3@huawei.com,
+	yi.zhang@huawei.com, yangerkun@huawei.com
+Subject: Re: [PATCH -next RFC 01/14] block: add some bdev apis
+Message-ID: <ZXCMJ9skAAgPm4z3@casper.infradead.org>
+References: <20231205123728.1866699-1-yukuai1@huaweicloud.com>
+ <20231205123728.1866699-2-yukuai1@huaweicloud.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Spam-Level: 
-Authentication-Results: smtp-out1.suse.de;
-	none
-X-Spam-Score: -0.10
-X-Spamd-Result: default: False [-0.10 / 50.00];
-	 ARC_NA(0.00)[];
-	 FROM_HAS_DN(0.00)[];
-	 TO_DN_SOME(0.00)[];
-	 TO_MATCH_ENVRCPT_ALL(0.00)[];
-	 MIME_GOOD(-0.10)[text/plain];
-	 MID_RHS_MATCH_FROMTLD(0.00)[];
-	 DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	 RCPT_COUNT_TWELVE(0.00)[19];
-	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email];
-	 FUZZY_BLOCKED(0.00)[rspamd.com];
-	 RCVD_COUNT_ZERO(0.00)[0];
-	 FROM_EQ_ENVFROM(0.00)[];
-	 MIME_TRACE(0.00)[0:+]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231205123728.1866699-2-yukuai1@huaweicloud.com>
 
-Hi,
+On Tue, Dec 05, 2023 at 08:37:15PM +0800, Yu Kuai wrote:
+> +struct folio *bdev_read_folio(struct block_device *bdev, pgoff_t index)
+> +{
+> +	return read_mapping_folio(bdev->bd_inode->i_mapping, index, NULL);
+> +}
+> +EXPORT_SYMBOL_GPL(bdev_read_folio);
 
-On Tue, 5 Dec 2023, Shuah Khan wrote:
+I'm coming to the opinion that 'index' is the wrong parameter here.
+Looking through all the callers of bdev_read_folio() in this patchset,
+they all have a position in bytes, and they all convert it to
+index for this call.  The API should probably be:
 
-> On 12/5/23 05:52, mpdesouza@suse.com wrote:
-> > On Fri, 2023-12-01 at 16:38 +0000, Shuah Khan wrote:
-> 
-> > 0003-selftests-livepatch-Test-livepatching-a-heavily-call.patch has
-> > style problems, please review.
-> > 
-> > NOTE: If any of the errors are false positives, please report
-> >        them to the maintainer, see CHECKPATCH in MAINTAINERS.
-> > 
-> > I couldn't find any mention about "missing module name". Is your script
-> > showing more warnings than these ones? Can you please share your
-> > output?
-> > 
-> > I'll fix MAINTAINERS file but I'll wait until I understand what's
-> > missing in your checkpatch script to resend the patchset.
-> > 
-> 
-> Looks like it is coming a script - still my question stands on
-> whether or not you would need a module name for this module?
+struct folio *bdev_read_folio(struct block_device *bdev, loff_t pos)
+{
+	return read_mapping_folio(bdev->bd_inode->i_mapping,
+			pos / PAGE_SIZE, NULL);
+}
 
-I admit I am also clueless here. The module name is given in Makefile. In 
-this case in test_modules/Makefile. I do not know of anything else. There 
-is no MODULE_NAME macro. Could you elaborate, please?
+... and at some point, we'll get round to converting read_mapping_folio()
+to take its argument in loff_t.
 
-Miroslav
+Similiarly for these two APIs:
+
+> +struct folio *bdev_read_folio_gfp(struct block_device *bdev, pgoff_t index,
+> +				  gfp_t gfp)
+> +struct folio *bdev_get_folio(struct block_device *bdev, pgoff_t index)
+
+> +struct folio *bdev_find_or_create_folio(struct block_device *bdev,
+> +					pgoff_t index, gfp_t gfp)
+> +{
+> +	return __filemap_get_folio(bdev->bd_inode->i_mapping, index,
+> +				   FGP_LOCK | FGP_ACCESSED | FGP_CREAT, gfp);
+> +}
+> +EXPORT_SYMBOL_GPL(bdev_find_or_create_folio);
+
+This one probably shouldn't exist.  I've been converting callers of
+find_or_create_page() to call __filemap_get_folio; I suspect we
+should expose a __bdev_get_folio and have the callers use the FGP
+arguments directly, but I'm open to other opinions here.
+
+> +void bdev_sync_readahead(struct block_device *bdev, struct file_ra_state *ra,
+> +			 struct file *file, pgoff_t index,
+> +			 unsigned long req_count)
+> +{
+> +	struct file_ra_state tmp_ra = {};
+> +
+> +	if (!ra) {
+> +		ra = &tmp_ra;
+> +		file_ra_state_init(ra, bdev->bd_inode->i_mapping);
+> +	}
+> +	page_cache_sync_readahead(bdev->bd_inode->i_mapping, ra, file, index,
+> +				  req_count);
+> +}
+
+I think the caller should always be passing in a valid file_ra_state.
+It's only cramfs that doesn't have one, and it really should!
+Not entirely sure about the arguments here; part of me says "bytes",
+but this is weird enough to maybe take arguments in pages.
