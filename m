@@ -1,185 +1,91 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="h8+jvW9f"
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2BDBD3;
-	Wed,  6 Dec 2023 09:17:38 -0800 (PST)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B6Gobej005795;
-	Wed, 6 Dec 2023 17:17:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=TuD823XscZsfxPwMTeL+xSPd2hR3A8VvEP1hgp+thd4=;
- b=h8+jvW9f48LtM2Gj6lRnIT775QRpHYk0V+JeE1s6Cn4WPAdKWARNLcjPfLbDNF0Xzz3E
- VMJGe4s/XNfi10l5JSIDOldz72qEBcIfZeaXrHu/iBVEiX25rHXct54SWgF1SFR/ZI6N
- nMxUqx37ySBTVRH6NNcY1+V4o7vcnhHqzQU1NUnYJ0jKONclTARy8ljKZlz+e9Oz2vaf
- 1h9WVQjVtKPoiHEVNmwnYIElON0gSwJcIGb7yVmNHHjQ8t2SajD0RcrbCWMs8Nvcd4Tf
- OTmrNi1JbiKQSSI//PissqA4x+S5XW/gyE5Qamy/ewS9UaqQ4Yh2la7jYJhQGnNJebl9 sg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3utv6r1umw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Dec 2023 17:17:36 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B6HBZuP018160;
-	Wed, 6 Dec 2023 17:17:35 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3utv6r1uma-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Dec 2023 17:17:35 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B6G7guN027096;
-	Wed, 6 Dec 2023 17:17:34 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3utav2wtxr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Dec 2023 17:17:34 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B6HHTm79896632
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 6 Dec 2023 17:17:29 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5781120043;
-	Wed,  6 Dec 2023 17:17:29 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E1E7A20040;
-	Wed,  6 Dec 2023 17:17:28 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.155.209.75])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  6 Dec 2023 17:17:28 +0000 (GMT)
-Date: Wed, 6 Dec 2023 18:17:27 +0100
-From: Halil Pasic <pasic@linux.ibm.com>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Tony Krowiak
- <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        jjherne@linux.ibm.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
-        david@redhat.com, Reinhard Buendgen
- <BUENDGEN@de.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH] s390/vfio-ap: handle response code 01 on queue reset
-Message-ID: <20231206181727.376c3d67.pasic@linux.ibm.com>
-In-Reply-To: <d780a15a7c073e7d437f8120a72e8d29@linux.ibm.com>
-References: <20231129143529.260264-1-akrowiak@linux.ibm.com>
-	<b43414ef-7aa4-9e5c-a706-41861f0d346c@linux.ibm.com>
-	<1f4720d7-93f1-4e38-a3ad-abaf99596e7c@linux.ibm.com>
-	<05cfc382-d01d-4370-b8bb-d3805e957f2e@linux.ibm.com>
-	<20231204171506.42aa687f.pasic@linux.ibm.com>
-	<d780a15a7c073e7d437f8120a72e8d29@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=mit.edu header.i=@mit.edu header.b="BH8TRkxS"
+Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DD39122
+	for <linux-s390@vger.kernel.org>; Wed,  6 Dec 2023 09:53:20 -0800 (PST)
+Received: from cwcc.thunk.org (pool-173-48-122-214.bstnma.fios.verizon.net [173.48.122.214])
+	(authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+	by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 3B6Hodj2022646
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 6 Dec 2023 12:50:40 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
+	t=1701885052; bh=VZDVHdtsTza1iBjsN4e9taxM8QQIzumJOYNTH51fhro=;
+	h=Date:From:Subject:Message-ID:MIME-Version:Content-Type;
+	b=BH8TRkxS2KVaitLmv0fUh5MfTnRi8kxhm2QxRnobVHqRnCkm5tdQJ4YU7KzmgN2o9
+	 OrT5ijrdbqD+8Tpl+UWv5WlzoZ4FfBRwcoZtXGHipfp3BKDuVw8Wb3OV8JHdDL++WR
+	 fchowN0SphtUdvT2S+alJWDJDljYoM4HhCP8Oe9wGQPXflEuR9UupnRUlKWI1Qe2kg
+	 kWiBMGCDi9IQPUcNW0bRqxHb1k7h5ks+vYGOrOHkVBn6CgZz1YTgrm04q9GDpzs5AE
+	 AW77xm7xSTCpwyFB4QBf7egNa0Hpu3J4Iea+sXKNE2nV9yZ8sAlE3vS7vnXmXBUfDj
+	 Vli7wjfFyI1og==
+Received: by cwcc.thunk.org (Postfix, from userid 15806)
+	id F04EC15C057B; Wed,  6 Dec 2023 12:50:38 -0500 (EST)
+Date: Wed, 6 Dec 2023 12:50:38 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Yu Kuai <yukuai1@huaweicloud.com>, axboe@kernel.dk, roger.pau@citrix.com,
+        colyli@suse.de, kent.overstreet@gmail.com, joern@lazybastard.org,
+        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
+        sth@linux.ibm.com, hoeppner@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, jejb@linux.ibm.com,
+        martin.petersen@oracle.com, clm@fb.com, josef@toxicpanda.com,
+        dsterba@suse.com, nico@fluxnic.net, xiang@kernel.org, chao@kernel.org,
+        adilger.kernel@dilger.ca, agruenba@redhat.com, jack@suse.com,
+        konishi.ryusuke@gmail.com, willy@infradead.org,
+        akpm@linux-foundation.org, hare@suse.de, p.raghav@samsung.com,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        xen-devel@lists.xenproject.org, linux-bcache@vger.kernel.org,
+        linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-bcachefs@vger.kernel.org,
+        linux-btrfs@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+        linux-ext4@vger.kernel.org, gfs2@lists.linux.dev,
+        linux-nilfs@vger.kernel.org, yukuai3@huawei.com, yi.zhang@huawei.com,
+        yangerkun@huawei.com
+Subject: Re: [PATCH -next RFC 01/14] block: add some bdev apis
+Message-ID: <20231206175038.GJ509422@mit.edu>
+References: <20231205123728.1866699-1-yukuai1@huaweicloud.com>
+ <20231205123728.1866699-2-yukuai1@huaweicloud.com>
+ <ZXARKD0OmjLrvHmU@infradead.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: yXcsIFIvJEknM7sR-QqjBu7T3tpcRrZK
-X-Proofpoint-GUID: usnzt_QVGwn7s8AFfRzXlXJotrMoU-sF
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-06_15,2023-12-06_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- lowpriorityscore=0 mlxscore=0 malwarescore=0 impostorscore=0
- suspectscore=0 priorityscore=1501 bulkscore=0 spamscore=0 mlxlogscore=999
- adultscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2312060140
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZXARKD0OmjLrvHmU@infradead.org>
 
-On Tue, 05 Dec 2023 09:04:23 +0100
-Harald Freudenberger <freude@linux.ibm.com> wrote:
-
-> On 2023-12-04 17:15, Halil Pasic wrote:
-> > On Mon, 4 Dec 2023 16:16:31 +0100
-> > Christian Borntraeger <borntraeger@linux.ibm.com> wrote:
-> >   
-> >> Am 04.12.23 um 15:53 schrieb Tony Krowiak:  
-> >> >
-> >> >
-> >> > On 11/29/23 12:12, Christian Borntraeger wrote:  
-> >> >> Am 29.11.23 um 15:35 schrieb Tony Krowiak:  
-> >> >>> In the current implementation, response code 01 (AP queue number not valid)
-> >> >>> is handled as a default case along with other response codes returned from
-> >> >>> a queue reset operation that are not handled specifically. Barring a bug,
-> >> >>> response code 01 will occur only when a queue has been externally removed
-> >> >>> from the host's AP configuration; nn this case, the queue must
-> >> >>> be reset by the machine in order to avoid leaking crypto data if/when the
-> >> >>> queue is returned to the host's configuration. The response code 01 case
-> >> >>> will be handled specifically by logging a WARN message followed by cleaning
-> >> >>> up the IRQ resources.
-> >> >>>  
-> >> >>
-> >> >> To me it looks like this can be triggered by the LPAR admin, correct? So it
-> >> >> is not desireable but possible.
-> >> >> In that case I prefer to not use WARN, maybe use dev_warn or dev_err instead.
-> >> >> WARN can be a disruptive event if panic_on_warn is set.  
-> >> >
-> >> > Yes, it can be triggered by the LPAR admin. I can't use dev_warn here because we don't have a reference to any device, but I can use pr_warn if that suffices.  
-> >> 
-> >> Ok, please use pr_warn then.  
-> > 
-> > Shouldn't we rather make this an 'info'. I mean we probably do not want
-> > people complaining about this condition. Yes it should be a best 
-> > practice
-> > to coordinate such things with the guest, and ideally remove the 
-> > resource
-> > from the guest first. But AFAIU our stack is supposed to be able to
-> > handle something like this. IMHO issuing a warning is excessive 
-> > measure.
-> > I know Reinhard and Tony probably disagree with the last sentence
-> > though.  
+On Tue, Dec 05, 2023 at 10:14:00PM -0800, Christoph Hellwig wrote:
+> > +/*
+> > + * The del_gendisk() function uninitializes the disk-specific data
+> > + * structures, including the bdi structure, without telling anyone
+> > + * else.  Once this happens, any attempt to call mark_buffer_dirty()
+> > + * (for example, by ext4_commit_super), will cause a kernel OOPS.
+> > + * This is a kludge to prevent these oops until we can put in a proper
+> > + * hook in del_gendisk() to inform the VFS and file system layers.
+> > + */
+> > +int bdev_ejected(struct block_device *bdev)
+> > +{
+> > +	struct backing_dev_info *bdi = inode_to_bdi(bdev->bd_inode);
+> > +
+> > +	return bdi->dev == NULL;
+> > +}
+> > +EXPORT_SYMBOL_GPL(bdev_ejected);
 > 
-> Halil, Tony, the thing about about info versus warning versus error is 
-> our
-> own stuff. Keep in mind that these messages end up in the "debug 
-> feature"
-> as FFDC data. So it comes to the point which FFDC data do you/Tony want 
-> to
-> see there ? It should be enough to explain to a customer what happened
-> without the need to "recreate with higher debug level" if something 
-> serious
-> happened. So my private decision table is:
-> 1) is it something serious, something exceptional, something which may 
-> not
->     come up again if tried to recreate ? Yes -> make it visible on the 
-> first
->     occurrence as error msg.
-> 2) is it something you want to read when a customer hits it and you tell 
-> him
->     to extract and examine the debug feature data ? Yes -> make it a 
-> warning
->     and make sure your debug feature by default records warnings.
-> 3) still serious, but may flood the debug feature. Good enough and high
->     probability to reappear on a recreate ? Yes -> make it an info 
-> message
->     and live with the risk that you may not be able to explain to a 
-> customer
->     what happened without a recreate and higher debug level.
-> 4) not 1-3, -> maybe a debug msg but still think about what happens when 
-> a
->     customer enables "debug feature" with highest level. Does it squeeze 
-> out
->     more important stuff ? Maybe make it dynamic debug with pr_debug() 
-> (see
->     kernel docu admin-guide/dynamic-debug-howto.rst).
+> And this code in ext4 should just go away entirely.  The bdi should
+> always be valid for a live bdev for years.
 
-AFAIU the default log level of the S390 Debug Feature is 3 that is
-error. So warnings do not help us there by default. And if we are 
-already asking the reporter to crank up the loglevel of the debug
-feature, we can as the reporter to crank it up to 5, assumed there
-is not too much stuff that log level 5 in that area... How much
-info stuff do we have for the 'ap' debug facility (I hope
-that is the facility used by vfio_ap)? 
+This was added because pulling a mounted a USB thumb drive (or a HDD
+drops off the SATA bus) while the file system is mounted and actively
+in use, would result in a kernel OOPS.  If that's no longer true,
+that's great, but it would be good to test to make sure this is the
+case....
 
-I think log levels are supposed to be primarily about severity, and
-and I'm not sure that a queue becoming unavailable in G1 without
-fist re-configuring the G2 so that it no more has access to the
-given queue is not really a warning severity thing. IMHO if we
-really do want people complaining about this should they ever see it,
-yes it should be a warning. If not then probably not.
+If we really want to remove it, I'd suggest doing this as a separate
+commit, so that after we see syzbot reports, or users complaining
+about kernel crashes, we can revert the removal if necessary.
 
-Regards,
-Halil
+Cheers,
+
+					- Ted
