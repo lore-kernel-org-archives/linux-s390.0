@@ -1,115 +1,185 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A47D10D1;
-	Wed,  6 Dec 2023 09:02:48 -0800 (PST)
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VxyoiNz_1701882157;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VxyoiNz_1701882157)
-          by smtp.aliyun-inc.com;
-          Thu, 07 Dec 2023 01:02:46 +0800
-From: Wen Gu <guwen@linux.alibaba.com>
-To: kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	jaka@linux.ibm.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com
-Cc: alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com,
-	ubraun@linux.ibm.com,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net] net/smc: fix missing byte order conversion in CLC handshake
-Date: Thu,  7 Dec 2023 01:02:37 +0800
-Message-Id: <1701882157-87956-1-git-send-email-guwen@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="h8+jvW9f"
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2BDBD3;
+	Wed,  6 Dec 2023 09:17:38 -0800 (PST)
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B6Gobej005795;
+	Wed, 6 Dec 2023 17:17:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=TuD823XscZsfxPwMTeL+xSPd2hR3A8VvEP1hgp+thd4=;
+ b=h8+jvW9f48LtM2Gj6lRnIT775QRpHYk0V+JeE1s6Cn4WPAdKWARNLcjPfLbDNF0Xzz3E
+ VMJGe4s/XNfi10l5JSIDOldz72qEBcIfZeaXrHu/iBVEiX25rHXct54SWgF1SFR/ZI6N
+ nMxUqx37ySBTVRH6NNcY1+V4o7vcnhHqzQU1NUnYJ0jKONclTARy8ljKZlz+e9Oz2vaf
+ 1h9WVQjVtKPoiHEVNmwnYIElON0gSwJcIGb7yVmNHHjQ8t2SajD0RcrbCWMs8Nvcd4Tf
+ OTmrNi1JbiKQSSI//PissqA4x+S5XW/gyE5Qamy/ewS9UaqQ4Yh2la7jYJhQGnNJebl9 sg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3utv6r1umw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 06 Dec 2023 17:17:36 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B6HBZuP018160;
+	Wed, 6 Dec 2023 17:17:35 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3utv6r1uma-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 06 Dec 2023 17:17:35 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B6G7guN027096;
+	Wed, 6 Dec 2023 17:17:34 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3utav2wtxr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 06 Dec 2023 17:17:34 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B6HHTm79896632
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 6 Dec 2023 17:17:29 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5781120043;
+	Wed,  6 Dec 2023 17:17:29 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E1E7A20040;
+	Wed,  6 Dec 2023 17:17:28 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.155.209.75])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  6 Dec 2023 17:17:28 +0000 (GMT)
+Date: Wed, 6 Dec 2023 18:17:27 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Tony Krowiak
+ <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        jjherne@linux.ibm.com, alex.williamson@redhat.com,
+        kwankhede@nvidia.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
+        david@redhat.com, Reinhard Buendgen
+ <BUENDGEN@de.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH] s390/vfio-ap: handle response code 01 on queue reset
+Message-ID: <20231206181727.376c3d67.pasic@linux.ibm.com>
+In-Reply-To: <d780a15a7c073e7d437f8120a72e8d29@linux.ibm.com>
+References: <20231129143529.260264-1-akrowiak@linux.ibm.com>
+	<b43414ef-7aa4-9e5c-a706-41861f0d346c@linux.ibm.com>
+	<1f4720d7-93f1-4e38-a3ad-abaf99596e7c@linux.ibm.com>
+	<05cfc382-d01d-4370-b8bb-d3805e957f2e@linux.ibm.com>
+	<20231204171506.42aa687f.pasic@linux.ibm.com>
+	<d780a15a7c073e7d437f8120a72e8d29@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: yXcsIFIvJEknM7sR-QqjBu7T3tpcRrZK
+X-Proofpoint-GUID: usnzt_QVGwn7s8AFfRzXlXJotrMoU-sF
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-06_15,2023-12-06_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ lowpriorityscore=0 mlxscore=0 malwarescore=0 impostorscore=0
+ suspectscore=0 priorityscore=1501 bulkscore=0 spamscore=0 mlxlogscore=999
+ adultscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2312060140
 
-The byte order conversions of ISM GID and DMB token are missing in
-process of CLC accept and confirm. So fix it.
+On Tue, 05 Dec 2023 09:04:23 +0100
+Harald Freudenberger <freude@linux.ibm.com> wrote:
 
-Fixes: 3d9725a6a133 ("net/smc: common routine for CLC accept and confirm")
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
----
- net/smc/af_smc.c  | 4 ++--
- net/smc/smc_clc.c | 9 ++++-----
- net/smc/smc_clc.h | 4 ++--
- 3 files changed, 8 insertions(+), 9 deletions(-)
+> On 2023-12-04 17:15, Halil Pasic wrote:
+> > On Mon, 4 Dec 2023 16:16:31 +0100
+> > Christian Borntraeger <borntraeger@linux.ibm.com> wrote:
+> >   
+> >> Am 04.12.23 um 15:53 schrieb Tony Krowiak:  
+> >> >
+> >> >
+> >> > On 11/29/23 12:12, Christian Borntraeger wrote:  
+> >> >> Am 29.11.23 um 15:35 schrieb Tony Krowiak:  
+> >> >>> In the current implementation, response code 01 (AP queue number not valid)
+> >> >>> is handled as a default case along with other response codes returned from
+> >> >>> a queue reset operation that are not handled specifically. Barring a bug,
+> >> >>> response code 01 will occur only when a queue has been externally removed
+> >> >>> from the host's AP configuration; nn this case, the queue must
+> >> >>> be reset by the machine in order to avoid leaking crypto data if/when the
+> >> >>> queue is returned to the host's configuration. The response code 01 case
+> >> >>> will be handled specifically by logging a WARN message followed by cleaning
+> >> >>> up the IRQ resources.
+> >> >>>  
+> >> >>
+> >> >> To me it looks like this can be triggered by the LPAR admin, correct? So it
+> >> >> is not desireable but possible.
+> >> >> In that case I prefer to not use WARN, maybe use dev_warn or dev_err instead.
+> >> >> WARN can be a disruptive event if panic_on_warn is set.  
+> >> >
+> >> > Yes, it can be triggered by the LPAR admin. I can't use dev_warn here because we don't have a reference to any device, but I can use pr_warn if that suffices.  
+> >> 
+> >> Ok, please use pr_warn then.  
+> > 
+> > Shouldn't we rather make this an 'info'. I mean we probably do not want
+> > people complaining about this condition. Yes it should be a best 
+> > practice
+> > to coordinate such things with the guest, and ideally remove the 
+> > resource
+> > from the guest first. But AFAIU our stack is supposed to be able to
+> > handle something like this. IMHO issuing a warning is excessive 
+> > measure.
+> > I know Reinhard and Tony probably disagree with the last sentence
+> > though.  
+> 
+> Halil, Tony, the thing about about info versus warning versus error is 
+> our
+> own stuff. Keep in mind that these messages end up in the "debug 
+> feature"
+> as FFDC data. So it comes to the point which FFDC data do you/Tony want 
+> to
+> see there ? It should be enough to explain to a customer what happened
+> without the need to "recreate with higher debug level" if something 
+> serious
+> happened. So my private decision table is:
+> 1) is it something serious, something exceptional, something which may 
+> not
+>     come up again if tried to recreate ? Yes -> make it visible on the 
+> first
+>     occurrence as error msg.
+> 2) is it something you want to read when a customer hits it and you tell 
+> him
+>     to extract and examine the debug feature data ? Yes -> make it a 
+> warning
+>     and make sure your debug feature by default records warnings.
+> 3) still serious, but may flood the debug feature. Good enough and high
+>     probability to reappear on a recreate ? Yes -> make it an info 
+> message
+>     and live with the risk that you may not be able to explain to a 
+> customer
+>     what happened without a recreate and higher debug level.
+> 4) not 1-3, -> maybe a debug msg but still think about what happens when 
+> a
+>     customer enables "debug feature" with highest level. Does it squeeze 
+> out
+>     more important stuff ? Maybe make it dynamic debug with pr_debug() 
+> (see
+>     kernel docu admin-guide/dynamic-debug-howto.rst).
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index c61666e..7fc2f3c 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -723,7 +723,7 @@ static void smcd_conn_save_peer_info(struct smc_sock *smc,
- 	int bufsize = smc_uncompress_bufsize(clc->d0.dmbe_size);
- 
- 	smc->conn.peer_rmbe_idx = clc->d0.dmbe_idx;
--	smc->conn.peer_token = clc->d0.token;
-+	smc->conn.peer_token = ntohll(clc->d0.token);
- 	/* msg header takes up space in the buffer */
- 	smc->conn.peer_rmbe_size = bufsize - sizeof(struct smcd_cdc_msg);
- 	atomic_set(&smc->conn.peer_rmbe_space, smc->conn.peer_rmbe_size);
-@@ -1415,7 +1415,7 @@ static int smc_connect_ism(struct smc_sock *smc,
- 		if (rc)
- 			return rc;
- 	}
--	ini->ism_peer_gid[ini->ism_selected] = aclc->d0.gid;
-+	ini->ism_peer_gid[ini->ism_selected] = ntohll(aclc->d0.gid);
- 
- 	/* there is only one lgr role for SMC-D; use server lock */
- 	mutex_lock(&smc_server_lgr_pending);
-diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-index 0fda515..95e19aa 100644
---- a/net/smc/smc_clc.c
-+++ b/net/smc/smc_clc.c
-@@ -1005,6 +1005,7 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
- {
- 	struct smc_connection *conn = &smc->conn;
- 	struct smc_clc_first_contact_ext_v2x fce;
-+	struct smcd_dev *smcd = conn->lgr->smcd;
- 	struct smc_clc_msg_accept_confirm *clc;
- 	struct smc_clc_fce_gid_ext gle;
- 	struct smc_clc_msg_trail trl;
-@@ -1022,17 +1023,15 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
- 		memcpy(clc->hdr.eyecatcher, SMCD_EYECATCHER,
- 		       sizeof(SMCD_EYECATCHER));
- 		clc->hdr.typev1 = SMC_TYPE_D;
--		clc->d0.gid =
--			conn->lgr->smcd->ops->get_local_gid(conn->lgr->smcd);
--		clc->d0.token = conn->rmb_desc->token;
-+		clc->d0.gid = htonll(smcd->ops->get_local_gid(smcd));
-+		clc->d0.token = htonll(conn->rmb_desc->token);
- 		clc->d0.dmbe_size = conn->rmbe_size_comp;
- 		clc->d0.dmbe_idx = 0;
- 		memcpy(&clc->d0.linkid, conn->lgr->id, SMC_LGR_ID_SIZE);
- 		if (version == SMC_V1) {
- 			clc->hdr.length = htons(SMCD_CLC_ACCEPT_CONFIRM_LEN);
- 		} else {
--			clc_v2->d1.chid =
--				htons(smc_ism_get_chid(conn->lgr->smcd));
-+			clc_v2->d1.chid = htons(smc_ism_get_chid(smcd));
- 			if (eid && eid[0])
- 				memcpy(clc_v2->d1.eid, eid, SMC_MAX_EID_LEN);
- 			len = SMCD_CLC_ACCEPT_CONFIRM_LEN_V2;
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index 89b258c..1697b84 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -204,8 +204,8 @@ struct smcr_clc_msg_accept_confirm {	/* SMCR accept/confirm */
- } __packed;
- 
- struct smcd_clc_msg_accept_confirm_common {	/* SMCD accept/confirm */
--	u64 gid;		/* Sender GID */
--	u64 token;		/* DMB token */
-+	__be64 gid;		/* Sender GID */
-+	__be64 token;		/* DMB token */
- 	u8 dmbe_idx;		/* DMBE index */
- #if defined(__BIG_ENDIAN_BITFIELD)
- 	u8 dmbe_size : 4,	/* buf size (compressed) */
--- 
-1.8.3.1
+AFAIU the default log level of the S390 Debug Feature is 3 that is
+error. So warnings do not help us there by default. And if we are 
+already asking the reporter to crank up the loglevel of the debug
+feature, we can as the reporter to crank it up to 5, assumed there
+is not too much stuff that log level 5 in that area... How much
+info stuff do we have for the 'ap' debug facility (I hope
+that is the facility used by vfio_ap)? 
 
+I think log levels are supposed to be primarily about severity, and
+and I'm not sure that a queue becoming unavailable in G1 without
+fist re-configuring the G2 so that it no more has access to the
+given queue is not really a warning severity thing. IMHO if we
+really do want people complaining about this should they ever see it,
+yes it should be a warning. If not then probably not.
+
+Regards,
+Halil
