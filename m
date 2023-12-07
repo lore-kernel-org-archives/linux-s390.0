@@ -1,186 +1,110 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="QcfKhdrk"
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA50312E
-	for <linux-s390@vger.kernel.org>; Thu,  7 Dec 2023 11:19:49 -0800 (PST)
-Received: by mail-ej1-x62e.google.com with SMTP id a640c23a62f3a-a1db99cd1b2so174933466b.2
-        for <linux-s390@vger.kernel.org>; Thu, 07 Dec 2023 11:19:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1701976788; x=1702581588; darn=vger.kernel.org;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=GqNljMeu10jeQo935R54vZ6RNgIIhYo8bGwZuNpxXu4=;
-        b=QcfKhdrknHq8e6jK6RVLpxIGMtEh7bCRxkfJFFg5kjvaeiXjFg+WIT6EzbRai7Eq7q
-         r2bDCOZsmmu+/wr+kcgK1uRu/bKZESakMzqjTyV7Io12elmmJZjpzowz/LwYzfp5KNEW
-         Cp7cDjL7P2xTkK8clrdEpOQcPqcKaI/rrU0DDSZzsw+iGJeM32N5Vgs37jE4EU3Uh27k
-         AtV9bi56iRbpf4ly/ptViDC9Eb+CYLZoFugkqG76oemY7EwcqKbfOPs5NJ8HdxKd7v9g
-         N7Wu/HEZmRKwueGf7mj4Q5rFbrRWnfVqb7ui7JAkq/Wk/v1lfIm0EvBQeVEOzxNMopX+
-         Folg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701976788; x=1702581588;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=GqNljMeu10jeQo935R54vZ6RNgIIhYo8bGwZuNpxXu4=;
-        b=pk1AQRS+ceNq1/gpaXajFrSAmk9tRojAo3m6U+2oTvicso2+EGmqaGFDnjRJtSrtfF
-         tiurw+nwrSp46nXa6pWRbmztvtYBKrIOJ407oElGFAUr72cE5Vkk063gj8VBQtVIil57
-         wZ1mFC6hNaelSZjFCRU7bWKbyI6MBELBZH1O0bZm+6unDV87wBTQRG8cI6vcBwalLfcU
-         O11qWCInhvrcaN97Exli8Y2xylkJ5UgjW/4VWpbDuku5o8Sbg77znvjTEhfISjhbmSdM
-         CDMQH+crNRGQRAjRN3b9EF92ssm/pyPKnZp6fgm8QTbmDotz2s3C8M0/TDxZOZAFtN0z
-         i5ew==
-X-Gm-Message-State: AOJu0YwLWG5yrxk8AZjFFIwW7BGBInpgLAaZZaDKPbqjlq/CVxAiQWhK
-	Owb5G++rNYIVna1OpjSN2uh7Ug==
-X-Google-Smtp-Source: AGHT+IFBIOm0w6M5xLYQMgu5ASfsSFBsRFtnFH6mDk0C8McQSxHcLqmHPgbqxDhYSlhlK7QDsnXq4Q==
-X-Received: by 2002:a17:906:a84d:b0:a19:a19b:4268 with SMTP id dx13-20020a170906a84d00b00a19a19b4268mr1051351ejb.211.1701976788270;
-        Thu, 07 Dec 2023 11:19:48 -0800 (PST)
-Received: from ?IPv6:2804:30c:915:cb00:89a8:6d94:ec55:e0a3? ([2804:30c:915:cb00:89a8:6d94:ec55:e0a3])
-        by smtp.gmail.com with ESMTPSA id sa25-20020a1709076d1900b00a1d8626d650sm97674ejc.208.2023.12.07.11.19.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Dec 2023 11:19:48 -0800 (PST)
-Message-ID: <57fb9f30afbaddb09def96aac11c45296a59a277.camel@suse.com>
-Subject: Re: [PATCH v3 2/3] livepatch: Move tests from lib/livepatch to
- selftests/livepatch
-From: mpdesouza@suse.com
-To: Joe Lawrence <joe.lawrence@redhat.com>, Miroslav Benes <mbenes@suse.cz>
-Cc: Shuah Khan <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Heiko
- Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
- Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>,  Sven Schnelle <svens@linux.ibm.com>, Josh
- Poimboeuf <jpoimboe@kernel.org>, Jiri Kosina <jikos@kernel.org>,  Petr
- Mladek <pmladek@suse.com>, linux-kselftest@vger.kernel.org,
- linux-doc@vger.kernel.org,  linux-kernel@vger.kernel.org,
- linux-s390@vger.kernel.org,  live-patching@vger.kernel.org
-Date: Thu, 07 Dec 2023 16:19:32 -0300
-In-Reply-To: <273a86d6-d220-fdcf-3c2f-70516c519ff9@redhat.com>
-References: <20231031-send-lp-kselftests-v3-0-2b1655c2605f@suse.com>
-	 <20231031-send-lp-kselftests-v3-2-2b1655c2605f@suse.com>
-	 <ZWn7dEzVWoKxycmy@redhat.com>
-	 <alpine.LSU.2.21.2312061543280.13051@pobox.suse.cz>
-	 <273a86d6-d220-fdcf-3c2f-70516c519ff9@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.1 
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HkeXNFRK"
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78BE21715;
+	Thu,  7 Dec 2023 12:24:16 -0800 (PST)
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B7J17Pj001079;
+	Thu, 7 Dec 2023 20:24:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=WSu8+CooPg2Ovx5eQ7X0nUx4jDjHPKdceAqnwSTf7hs=;
+ b=HkeXNFRKsX0mNWlWO8Xu/o4t0E++toU4XYVLKH6sbjhuS3JUEWi87M1AilCGJYY62ec6
+ vF8A6roVIJTcG55h7UGmLS+2ivqJ79k5GPq7671q/At5MnegtQDrP31CLfaicnHXhrTj
+ dl4+F9oOT+EW6cZxuibTKpU8HMk1p98SYdM52OB9jwxJgGEOpOwQvwzp36Mg2WKKT/zu
+ wMDg7uAraEorsKzFZ8+cusLBHymI7ReaEzhN/zuluU/vTe+ihDXUEraVI9V0ruebUHF+
+ tDZ3w2EvXMFtONjW2BTkpY+7VE8Yv6u3LSv2m62VI5QDxrWstaV9MebQZrGxN5iHGGMd Lg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uukmnhwej-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 07 Dec 2023 20:24:07 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B7KHoE3009435;
+	Thu, 7 Dec 2023 20:24:07 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uukmnhwdn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 07 Dec 2023 20:24:07 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B7JWQ6J015423;
+	Thu, 7 Dec 2023 20:24:06 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3utavknh42-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 07 Dec 2023 20:24:05 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B7KO27443909826
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 7 Dec 2023 20:24:03 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CF0CD20043;
+	Thu,  7 Dec 2023 20:24:02 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A4E5E20040;
+	Thu,  7 Dec 2023 20:24:01 +0000 (GMT)
+Received: from MBP-von-Wenjia.fritz.box.com (unknown [9.171.68.143])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  7 Dec 2023 20:24:01 +0000 (GMT)
+From: Wenjia Zhang <wenjia@linux.ibm.com>
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Stefan Raspl <raspl@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>, Nils Hoppmann <niho@linux.ibm.com>,
+        Niklas Schnell <schnelle@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>
+Subject: [PATCH net] MAINTAINERS: remove myself as maintainer of SMC
+Date: Thu,  7 Dec 2023 21:23:58 +0100
+Message-Id: <20231207202358.53502-1-wenjia@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 079KmwIGMNJwqicRGCh5T8PA9sDLYTiO
+X-Proofpoint-ORIG-GUID: rerRKfLyGkEP9FuAtAHeGLQp1YcUEJfW
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-07_17,2023-12-07_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 mlxscore=0 suspectscore=0 adultscore=0 clxscore=1015
+ mlxlogscore=660 spamscore=0 phishscore=0 bulkscore=0 impostorscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2312070171
 
-On Thu, 2023-12-07 at 10:20 -0500, Joe Lawrence wrote:
-> On 12/6/23 10:05, Miroslav Benes wrote:
-> > On Fri, 1 Dec 2023, Joe Lawrence wrote:
-> >=20
-> > > On Tue, Oct 31, 2023 at 06:10:52PM -0300, Marcos Paulo de Souza
-> > > wrote:
-> > > > The modules are being moved from lib/livepatch to
-> > > > tools/testing/selftests/livepatch/test_modules.
-> > > >=20
-> > > > This code moving will allow writing more complex tests, like
-> > > > for example an
-> > > > userspace C code that will call a livepatched kernel function.
-> > > >=20
-> > > > The modules are now built as out-of-tree
-> > > > modules, but being part of the kernel source means they will be
-> > > > maintained.
-> > > >=20
-> > > > Another advantage of the code moving is to be able to easily
-> > > > change,
-> > > > debug and rebuild the tests by running make on the
-> > > > selftests/livepatch directory,
-> > > > which is not currently possible since the modules on
-> > > > lib/livepatch are
-> > > > build and installed using the "modules" target.
-> > > >=20
-> > > > The current approach also keeps the ability to execute the
-> > > > tests manually by
-> > > > executing the scripts inside selftests/livepatch directory, as
-> > > > it's currently
-> > > > supported. If the modules are modified, they needed to be
-> > > > rebuilt before running
-> > > > the scripts though.
-> > > >=20
-> > > > The modules are built before running the selftests when using
-> > > > the
-> > > > kselftest invocations:
-> > > >=20
-> > > > 	make kselftest TARGETS=3Dlivepatch
-> > > > or
-> > > > 	make -C tools/testing/selftests/livepatch run_tests
-> > > >=20
-> > >=20
-> > > Quick question:
-> > >=20
-> > > - We have been building with CONFIG_LIVEPATCH_TEST=3Dm to generate
-> > > the
-> > > =C2=A0 test modules at kernel build time
-> > >=20
-> > > - Our packaging filters out the selftest scripts and supporting
-> > > modules
-> > > =C2=A0 from the general kernel RPM package into their subpackages
-> > >=20
-> > > - Tests are run as part of CKI or other manual tests by
-> > > installing the
-> > > =C2=A0 pre-built packages from the previous step
-> > >=20
-> > >=20
-> > > After this patch, we would need to add something like the
-> > > following to
-> > > our kernel build, before packaging:
-> > >=20
-> > > =C2=A0 $ make KDIR=3D$(pwd) -C tools/testing/selftests/livepatch/
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ^^^^
-> > >=20
-> > > If this is the correct way to build the test modules for *this*
-> > > tree and
-> > > /lib/modules/$(shell uname -r)/build... it might be useful to
-> > > document
-> > > in the commit message as an alternative use case.
+From: Karsten Graul <kgraul@linux.ibm.com>
 
-That's right:
+I changed responsibilities some time ago, its time
+to remove myself as maintainer of the SMC component.
 
-$ make -C tools/testing/selftests/livepatch/
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
+---
+ MAINTAINERS | 1 -
+ 1 file changed, 1 deletion(-)
 
-is indeed the way to build the tests without running them. KDIR will be
-set to  /lib/modules/$(shell uname -r)/build is empty.
-
-Yes, I can definitely add documentation about it inside the
-tools/testing/selftests/livepatch/README.
-
-> >=20
-> > So if I understand it correctly, you would like to stick to pre-
-> > building=20
-> > the modules (not in-tree but now after the kernel is build using
-> > the=20
-> > proposed way), package them and then install everything on a system
-> > running the respective kernel. A valid use case in my opinion.
-> >=20
->=20
-> That would accurate.=C2=A0 If this use case can be supported, it wouldn't
-> require changes to our CKI / testing scripts, only the post-build
-> packaging bits.
->=20
-> > My idea is to abandon this way completely, take the selftests and
-> > build=20
-> > and run them on the system right away.
-> >=20
-> > Both should be doable, hopefully, if we wire it all correctly...
-> > and=20
-> > document it.
-> >=20
-> I can't think of why it shouldn't continue to work, even in a future
-> where newer livepatching selftests support older kernels.=C2=A0 (We would
-> just have newer selftests sources backported to test older kernel
-> sources.)
->=20
-> Are there any test cases which truly need to be build on-the-fly?=C2=A0
-> Aside
-> from testing different toolchain pieces?
-
-We would like to use the same selftests to trigger testing on different
-kernels (adjusting it when necessary as you stated), without having to
-rebuild the kernel. Miroslav may have other ideias about it too, IIRC.
-
->=20
+diff --git a/MAINTAINERS b/MAINTAINERS
+index e6109201e8b4..ddb858576d8b 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -19638,7 +19638,6 @@ S:	Maintained
+ F:	drivers/misc/sgi-xp/
+ 
+ SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS
+-M:	Karsten Graul <kgraul@linux.ibm.com>
+ M:	Wenjia Zhang <wenjia@linux.ibm.com>
+ M:	Jan Karcher <jaka@linux.ibm.com>
+ R:	D. Wythe <alibuda@linux.alibaba.com>
+-- 
+2.40.1
 
