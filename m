@@ -1,158 +1,191 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F18O/3DR"
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 067A6D59
-	for <linux-s390@vger.kernel.org>; Thu,  7 Dec 2023 07:20:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701962418;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=aBGTHGwalkoi/mJWuDTNACB5Q2kodLYGhoMiNDutoGI=;
-	b=F18O/3DRl0vukjnBJEKVTkGiRQfsDfYAIgo+wewrUbDGXoMWHP1ixICxc3GI4MDViTs/Up
-	3e5yuj57loXyEC0xe9ZIBdrtJJUDEgchydv8/M8SnTpDmjXk4vFZYoSf3Ps5xS+D0QgxTp
-	3d/CIp4TheqrcBiOr/Lu6gBIMOy5GP4=
-Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
- [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-343-lKIa9A6UPI-z-sqjSzOOWA-1; Thu, 07 Dec 2023 10:20:16 -0500
-X-MC-Unique: lKIa9A6UPI-z-sqjSzOOWA-1
-Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-4258d02fbdaso9033351cf.2
-        for <linux-s390@vger.kernel.org>; Thu, 07 Dec 2023 07:20:16 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701962416; x=1702567216;
-        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
-         :content-language:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=aBGTHGwalkoi/mJWuDTNACB5Q2kodLYGhoMiNDutoGI=;
-        b=rIiuVer18HqvxUk5/yeNuGRDCFf5cHpI7qlLY9J5tNXHJYrv3X2qf9JqvM6qxqg4iU
-         75777+YG15ND8U9viULLhomXnTwfAvrQx51E2MRU9Rtv7JfjOCSAqx3L31C1PJbKrrz5
-         npPpYegzCf7PyQZieWRaDFquzL3YkAoYgUvCw18+H9+AvCLtTRtErKx2VHHRZEdyGCga
-         +m/n2G7XJxxFcbiyFRvU1y2iPgidLfZkyX8C1DM8MLdR9mi9XvtS1w12Adfj4MlATHVh
-         inb3PmrxMr3CBNhzUHwV/Cl1yFqa0+FixDUHk9ldcFtgHvqQsgr9eSmDg0ziMl/eMvCe
-         aAcg==
-X-Gm-Message-State: AOJu0YwYW5qt90mGL/XvNyzPaKl8t1EOwUeRrMZ19fP4ztoi3SpS8B8H
-	F43ubk7F25/AjQZkeLc0Oag1AbI7mX3RFwrep/tUMxAHXCNmZqWw2SeRSXq2qLUTy7ISPXD8j9Z
-	IFOGoxWIXoxxqaBsn2kKmew==
-X-Received: by 2002:ac8:5cc5:0:b0:423:7766:a6f4 with SMTP id s5-20020ac85cc5000000b004237766a6f4mr2772217qta.15.1701962416055;
-        Thu, 07 Dec 2023 07:20:16 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEQW6FZgS48niLt79yNrj+zSCpythqw85QeE+yCUszBntFb7RV7q5lP63f7i9ydCptw5RyYRw==
-X-Received: by 2002:ac8:5cc5:0:b0:423:7766:a6f4 with SMTP id s5-20020ac85cc5000000b004237766a6f4mr2772195qta.15.1701962415800;
-        Thu, 07 Dec 2023 07:20:15 -0800 (PST)
-Received: from [192.168.1.9] (pool-68-160-135-240.bstnma.fios.verizon.net. [68.160.135.240])
-        by smtp.gmail.com with ESMTPSA id f21-20020ac84995000000b00423890096afsm3610qtq.2.2023.12.07.07.20.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 07 Dec 2023 07:20:15 -0800 (PST)
-Message-ID: <273a86d6-d220-fdcf-3c2f-70516c519ff9@redhat.com>
-Date: Thu, 7 Dec 2023 10:20:13 -0500
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ge2qPERJ"
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D806C10E3;
+	Thu,  7 Dec 2023 07:31:24 -0800 (PST)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B7FHPRG022631;
+	Thu, 7 Dec 2023 15:31:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=HuWvFvcr/mC74jZHPiQaVgBRkwEivXlwrOK4769QA2g=;
+ b=Ge2qPERJ5N1H7ECiEQrCz3ppigtIoT2Uy8M5P7mNXoZO0/dttZEQ6DtvJKUoM/1T9vH0
+ ih+hjZUYl2OsmbX3OJrP4R7dr0peY0TKmrnYSYHQkTBmZTFF9QGXgphxhJOoGkjrnznp
+ 5iH/cZwWrFA+FO+0pTodAIR3o1FJ3Z6W34J4lruEUyr7nly1tuEpsZOywV/Bfk2d6XaQ
+ bjZHgOfLy7R7qFGBMZlFxQZ8GS+boieV0WPMrsvL93RjPIlTyye7PH6bkmevj7Hskl65
+ uersXD2+qJ9c7a/Gd+Jwtq4g301JudpErjGf7BgeL+wru8Jpwf/rEBbJ1enONyOaAbhr bQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uud24fs1r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 07 Dec 2023 15:31:22 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B7FI1XM027872;
+	Thu, 7 Dec 2023 15:31:22 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uud24fs10-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 07 Dec 2023 15:31:21 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B7EMebO013743;
+	Thu, 7 Dec 2023 15:31:21 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3utau4by09-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 07 Dec 2023 15:31:21 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B7FVIqI18809512
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 7 Dec 2023 15:31:18 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7BEC65804B;
+	Thu,  7 Dec 2023 15:31:18 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 04BDC58059;
+	Thu,  7 Dec 2023 15:31:10 +0000 (GMT)
+Received: from [9.61.158.74] (unknown [9.61.158.74])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  7 Dec 2023 15:31:09 +0000 (GMT)
+Message-ID: <483f23b2-0c88-49e2-8b40-7b17cd2b46cc@linux.ibm.com>
+Date: Thu, 7 Dec 2023 10:31:06 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.15.1
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] s390/vfio-ap: handle response code 01 on queue reset
 Content-Language: en-US
-To: Miroslav Benes <mbenes@suse.cz>
-Cc: Marcos Paulo de Souza <mpdesouza@suse.com>, Shuah Khan
- <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Josh Poimboeuf <jpoimboe@kernel.org>,
- Jiri Kosina <jikos@kernel.org>, Petr Mladek <pmladek@suse.com>,
- linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- live-patching@vger.kernel.org
-References: <20231031-send-lp-kselftests-v3-0-2b1655c2605f@suse.com>
- <20231031-send-lp-kselftests-v3-2-2b1655c2605f@suse.com>
- <ZWn7dEzVWoKxycmy@redhat.com>
- <alpine.LSU.2.21.2312061543280.13051@pobox.suse.cz>
-From: Joe Lawrence <joe.lawrence@redhat.com>
-Subject: Re: [PATCH v3 2/3] livepatch: Move tests from lib/livepatch to
- selftests/livepatch
-In-Reply-To: <alpine.LSU.2.21.2312061543280.13051@pobox.suse.cz>
-Content-Type: text/plain; charset=UTF-8
+To: Halil Pasic <pasic@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com, alex.williamson@redhat.com,
+        kwankhede@nvidia.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
+        david@redhat.com, Reinhard Buendgen <BUENDGEN@de.ibm.com>
+References: <20231129143529.260264-1-akrowiak@linux.ibm.com>
+ <b43414ef-7aa4-9e5c-a706-41861f0d346c@linux.ibm.com>
+ <1f4720d7-93f1-4e38-a3ad-abaf99596e7c@linux.ibm.com>
+ <05cfc382-d01d-4370-b8bb-d3805e957f2e@linux.ibm.com>
+ <20231204171506.42aa687f.pasic@linux.ibm.com>
+ <d780a15a7c073e7d437f8120a72e8d29@linux.ibm.com>
+ <20231206181727.376c3d67.pasic@linux.ibm.com>
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <20231206181727.376c3d67.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 4oqZgj2SjW_75L3EIb6kXMmDRx2r6Pmz
+X-Proofpoint-ORIG-GUID: JPsT5elpzc5Bh6d_VWDloAtXMc3U1eRX
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-07_12,2023-12-07_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ priorityscore=1501 bulkscore=0 clxscore=1015 mlxscore=0 impostorscore=0
+ lowpriorityscore=0 spamscore=0 phishscore=0 suspectscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2312070127
 
-On 12/6/23 10:05, Miroslav Benes wrote:
-> On Fri, 1 Dec 2023, Joe Lawrence wrote:
-> 
->> On Tue, Oct 31, 2023 at 06:10:52PM -0300, Marcos Paulo de Souza wrote:
->>> The modules are being moved from lib/livepatch to
->>> tools/testing/selftests/livepatch/test_modules.
->>>
->>> This code moving will allow writing more complex tests, like for example an
->>> userspace C code that will call a livepatched kernel function.
->>>
->>> The modules are now built as out-of-tree
->>> modules, but being part of the kernel source means they will be maintained.
->>>
->>> Another advantage of the code moving is to be able to easily change,
->>> debug and rebuild the tests by running make on the selftests/livepatch directory,
->>> which is not currently possible since the modules on lib/livepatch are
->>> build and installed using the "modules" target.
->>>
->>> The current approach also keeps the ability to execute the tests manually by
->>> executing the scripts inside selftests/livepatch directory, as it's currently
->>> supported. If the modules are modified, they needed to be rebuilt before running
->>> the scripts though.
->>>
->>> The modules are built before running the selftests when using the
->>> kselftest invocations:
->>>
->>> 	make kselftest TARGETS=livepatch
->>> or
->>> 	make -C tools/testing/selftests/livepatch run_tests
->>>
->>
->> Quick question:
->>
->> - We have been building with CONFIG_LIVEPATCH_TEST=m to generate the
->>   test modules at kernel build time
->>
->> - Our packaging filters out the selftest scripts and supporting modules
->>   from the general kernel RPM package into their subpackages
->>
->> - Tests are run as part of CKI or other manual tests by installing the
->>   pre-built packages from the previous step
->>
->>
->> After this patch, we would need to add something like the following to
->> our kernel build, before packaging:
->>
->>   $ make KDIR=$(pwd) -C tools/testing/selftests/livepatch/
->>          ^^^^
->>
->> If this is the correct way to build the test modules for *this* tree and
->> /lib/modules/$(shell uname -r)/build... it might be useful to document
->> in the commit message as an alternative use case.
-> 
-> So if I understand it correctly, you would like to stick to pre-building 
-> the modules (not in-tree but now after the kernel is build using the 
-> proposed way), package them and then install everything on a system 
-> running the respective kernel. A valid use case in my opinion.
-> 
 
-That would accurate.  If this use case can be supported, it wouldn't
-require changes to our CKI / testing scripts, only the post-build
-packaging bits.
+On 12/6/23 12:17 PM, Halil Pasic wrote:
+> On Tue, 05 Dec 2023 09:04:23 +0100
+> Harald Freudenberger <freude@linux.ibm.com> wrote:
+>
+>> On 2023-12-04 17:15, Halil Pasic wrote:
+>>> On Mon, 4 Dec 2023 16:16:31 +0100
+>>> Christian Borntraeger <borntraeger@linux.ibm.com> wrote:
+>>>    
+>>>> Am 04.12.23 um 15:53 schrieb Tony Krowiak:
+>>>>>
+>>>>> On 11/29/23 12:12, Christian Borntraeger wrote:
+>>>>>> Am 29.11.23 um 15:35 schrieb Tony Krowiak:
+>>>>>>> In the current implementation, response code 01 (AP queue number not valid)
+>>>>>>> is handled as a default case along with other response codes returned from
+>>>>>>> a queue reset operation that are not handled specifically. Barring a bug,
+>>>>>>> response code 01 will occur only when a queue has been externally removed
+>>>>>>> from the host's AP configuration; nn this case, the queue must
+>>>>>>> be reset by the machine in order to avoid leaking crypto data if/when the
+>>>>>>> queue is returned to the host's configuration. The response code 01 case
+>>>>>>> will be handled specifically by logging a WARN message followed by cleaning
+>>>>>>> up the IRQ resources.
+>>>>>>>   
+>>>>>> To me it looks like this can be triggered by the LPAR admin, correct? So it
+>>>>>> is not desireable but possible.
+>>>>>> In that case I prefer to not use WARN, maybe use dev_warn or dev_err instead.
+>>>>>> WARN can be a disruptive event if panic_on_warn is set.
+>>>>> Yes, it can be triggered by the LPAR admin. I can't use dev_warn here because we don't have a reference to any device, but I can use pr_warn if that suffices.
+>>>> Ok, please use pr_warn then.
+>>> Shouldn't we rather make this an 'info'. I mean we probably do not want
+>>> people complaining about this condition. Yes it should be a besNo info logging is done via the S390 Debug Feature in vfio_ap.
+>>>        There are a few warning messages logged solely in the handle_pqap
+>>>        and vfio_ap_irq_enable functions. The question is, why are we
+>>>        talking about the S390 Debug Feature? We are talking about using
+>>>        pr_warn verses pr_info. What am I missing here?t
+>>> practice
+>>> to coordinate such things with the guest, and ideally remove the
+>>> resource
+>>> from the guest first. But AFAIU our stack is supposed to be able to
+>>> handle something like this. IMHO issuing a warning is excessive
+>>> measure.
+>>> I know Reinhard and Tony probably disagree with the last sentence
+>>> though.
+>> Halil, Tony, the thing about about info versus warning versus error is
+>> our
+>> own stuff. Keep in mind that these messages end up in the "debug
+>> feature"
+>> as FFDC data. So it comes to the point which FFDC data do you/Tony want
+>> to
+>> see there ? It should be enough to explain to a customer what happened
+>> without the need to "recreate with higher debug level" if something
+>> serious
+>> happened. So my private decision table is:
+>> 1) is it something serious, something exceptional, something which may
+>> not
+>>      come up again if tried to recreate ? Yes -> make it visible on the
+>> first
+>>      occurrence as error msg.
+>> 2) is it something you want to read when a customer hits it and you tell
+>> him
+>>      to extract and examine the debug feature data ? Yes -> make it a
+>> warning
+>>      and make sure your debug feature by default records warnings.
+>> 3) still serious, but may flood the debug feature. Good enough and high
+>>      probability to reappear on a recreate ? Yes -> make it an info
+>> message
+>>      and live with the risk that you may not be able to explain to a
+>> customer
+>>      what happened without a recreate and higher debug level.
+>> 4) not 1-3, -> maybe a debug msg but still think about what happens when
+>> a
+>>      customer enables "debug feature" with highest level. Does it squeeze
+>> out
+>>      more important stuff ? Maybe make it dynamic debug with pr_debug()
+>> (see
+>>      kernel docu admin-guide/dynamic-debug-howto.rst).
+> AFAIU the default log level of the S390 Debug Feature is 3 that is
+> error. So warnings do not help us there by default. And if we are
+> already asking the reporter to crank up the loglevel of the debug
+> feature, we can as the reporter to crank it up to 5, assumed there
+> is not too much stuff that log level 5 in that area... How much
+> info stuff do we have for the 'ap' debug facility (I hope
+> that is the facility used by vfio_ap)?
 
-> My idea is to abandon this way completely, take the selftests and build 
-> and run them on the system right away.
-> 
-> Both should be doable, hopefully, if we wire it all correctly... and 
-> document it.
-> 
-I can't think of why it shouldn't continue to work, even in a future
-where newer livepatching selftests support older kernels.  (We would
-just have newer selftests sources backported to test older kernel sources.)
 
-Are there any test cases which truly need to be build on-the-fly?  Aside
-from testing different toolchain pieces?
+No info logging is done via the S390 Debug Feature in vfio_ap. There are 
+a few warning messages logged solely in the handle_pqap and 
+vfio_ap_irq_enable functions. The question is, why are we talking about 
+the S390 Debug Feature given the discussion is about using pr_warn 
+verses pr_info. What am I missing here?
 
--- 
-Joe
 
+>
+> I think log levels are supposed to be primarily about severity, and
+> and I'm not sure that a queue becoming unavailable in G1 without
+> fist re-configuring the G2 so that it no more has access to the
+> given queue is not really a warning severity thing. IMHO if we
+> really do want people complaining about this should they ever see it,
+> yes it should be a warning. If not then probably not.
+>
+> Regards,
+> Halil
