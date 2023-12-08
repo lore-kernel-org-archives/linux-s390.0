@@ -1,52 +1,52 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="HWYga+h6"
-Received: from mail-oo1-xc32.google.com (mail-oo1-xc32.google.com [IPv6:2607:f8b0:4864:20::c32])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD845171F
-	for <linux-s390@vger.kernel.org>; Fri,  8 Dec 2023 05:32:55 -0800 (PST)
-Received: by mail-oo1-xc32.google.com with SMTP id 006d021491bc7-59063f8455eso1026004eaf.3
-        for <linux-s390@vger.kernel.org>; Fri, 08 Dec 2023 05:32:55 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="hGy5kX1t"
+Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32DAD172B
+	for <linux-s390@vger.kernel.org>; Fri,  8 Dec 2023 05:39:13 -0800 (PST)
+Received: by mail-ot1-x336.google.com with SMTP id 46e09a7af769-6d9dadc3dc0so1186773a34.1
+        for <linux-s390@vger.kernel.org>; Fri, 08 Dec 2023 05:39:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1702042375; x=1702647175; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1702042752; x=1702647552; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=pL1EkEt0qsAoRDwtVA7bs3ZuCI4ZBobSjrqprT3lLqo=;
-        b=HWYga+h6Y/OrNxvsQNQKV44owCXJEFQh8Oo+zcKO/Yz5Z2g7+WWdW2pLwpzJBChGNf
-         aRo5/KZ22AwHqxKwlgV44Di8H8U8JXRVulqYZoZJeLb0lZ13UIk8fw8EQsbSyuK/nSZR
-         m2gOwrhezjVrbOpMIz9OxWmW+N7pwmY833k3k5AnJPVGCe4X6HRPppqO5UZc7nmtm71D
-         zvpFAKhlm555YrRxvSLJvmUk5u30knz9WYSMI2Udxzs56aun/AjF1H14Z8epTobcOArf
-         odKTPT2UVsIjInvxPytFfJqhzzbUWkP0bYmOCAZUH+5K3ZatN3aOr1w+UQ+eU72SoI22
-         QZqg==
+        bh=rN8Rat4FZlrJAhphwUeTKAqkkJCDvqW2t49f375msAs=;
+        b=hGy5kX1toSBypw4ZLPXDuL9hcokhSZB2g+qGSsSOf0cso9ZsPKp9DCbbuaU7XDMaiE
+         j31rp1vUW1TiO8kY2Xh716R+RcsHZ+OSUkysX7VF/n7vMx6Q4cgE76oh/ELomjdCVmSF
+         E4NDDaPAddfLOioRDkzq3nwqtl8odhWAjBQhTP+NAI70bgxmEJT+P6UbleA5W3Cgwqu8
+         aDR1oKJlEMw2CdN0OQTOdoLW9UHcR0Gll/nrl1JvDrh3Ta17n7tV0JJMq7E7BQvUGuyN
+         VJl2Q7bCfAIKY1xUmCrmJzvsA/jEyeZUfW2k1QI45d8nvIrdN45LFSfPNddfHdZaDADD
+         3zyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702042375; x=1702647175;
+        d=1e100.net; s=20230601; t=1702042752; x=1702647552;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=pL1EkEt0qsAoRDwtVA7bs3ZuCI4ZBobSjrqprT3lLqo=;
-        b=xUQtYAh1XFHZ3OO6bFOVf1nzfjocAosU4W2hl5EFPTT84KxoGrKSa3wbKG3uvANr7t
-         mz1zBnZvS/P41tsIY3pkW/IPcaFm33CPFSIA848mAQlrpyBTVjkjcwtcjqso1szNDl9q
-         ZU0nNXwa/MCUpzTQ4w5+6OvZTA2zp/BIe+5Sib1PkMp+QvSiRr4HUWosugocuFYz7+cX
-         nmchOBuOePQWImmV9EXHfSSSUmBHDaOvQd8Y4R1K5vWmy2+NauoC3OCAHM2XOlivVNqH
-         KunLkeSWRG+xLQRF/objzmkGGkA2KG5rARGat6bWb1Fjv83PlYgrm5iezTEE4FiUqcL7
-         DfUA==
-X-Gm-Message-State: AOJu0Yw0aQt9EvoqCaczoe4wEs4+LizMhUGYNcQNY4Tk22BPJdqRLgMX
-	EzOYJuokmgzhrGNiBVP1DjFnyufoDpMe2PO1Itivrg==
-X-Google-Smtp-Source: AGHT+IGRSBnBoc2BG0FsV541PbbYtbMc1RoW0fnIT845DKwurdtswNYXWxoNJcxnqfNgHmHrHSrHprdH/0NINlfzFLY=
-X-Received: by 2002:a05:6359:6196:b0:170:22f1:d0a2 with SMTP id
- sb22-20020a056359619600b0017022f1d0a2mr3474879rwb.56.1702042374871; Fri, 08
- Dec 2023 05:32:54 -0800 (PST)
+        bh=rN8Rat4FZlrJAhphwUeTKAqkkJCDvqW2t49f375msAs=;
+        b=OhzFEaVJIcceDRtwFBMrR3jtw4UaMe0sXSq3LldtgwDAoa20JAAQATyn4mlnBKAeAx
+         ti+2ExvNfD7zXhyDzzbCHmjzy/X6srghu3S6cEhG63mOJI3+rq8RYT5SnxocJ1lTnniz
+         sfw2PiOVlxNPUu1vkBqTMU3xo9d45b5blNpUoiFq1J0+PEfdu//4CXgwtzEoLupDX/9Q
+         JcwmgZfKCqShpNq2JJzNnJpGY2SCd+ALDQZOBPbDgk0yPLzLVz7Pf/KNyVBJEl0RNckl
+         c59v5mrIzBMkX2ALekoor72iJdzhlWEcaUKMykMmQ6bT/ysRy9mQBt0AYzW8d21llJjW
+         DlRg==
+X-Gm-Message-State: AOJu0Yw1LpX7xPVzDjtdokEZkKREa1sLafvpW1dccSMB/wAjuF2p/CpL
+	nKq0myUTOh1gj9qrNC1R7d1DNLOCnrszhOgYtIUGLQ==
+X-Google-Smtp-Source: AGHT+IEJXKzONP7C4cAEoOMzT6ZeTkshs4DU290kKfRkkOzICnszoAWUTV1A4DlsnRvXpiN/Sz4G5aKQQ3r+jLf2v2c=
+X-Received: by 2002:a05:6830:1a:b0:6d7:f363:eb0 with SMTP id
+ c26-20020a056830001a00b006d7f3630eb0mr39559otp.35.1702042752413; Fri, 08 Dec
+ 2023 05:39:12 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231121220155.1217090-1-iii@linux.ibm.com> <20231121220155.1217090-20-iii@linux.ibm.com>
-In-Reply-To: <20231121220155.1217090-20-iii@linux.ibm.com>
+References: <20231121220155.1217090-1-iii@linux.ibm.com> <20231121220155.1217090-25-iii@linux.ibm.com>
+In-Reply-To: <20231121220155.1217090-25-iii@linux.ibm.com>
 From: Alexander Potapenko <glider@google.com>
-Date: Fri, 8 Dec 2023 14:32:15 +0100
-Message-ID: <CAG_fn=WiT7C2QMCwq_nBg9FXZrJ2-mSyJuM1uVz_3Mag8xBHJg@mail.gmail.com>
-Subject: Re: [PATCH v2 19/33] lib/zlib: Unpoison DFLTCC output buffers
+Date: Fri, 8 Dec 2023 14:38:36 +0100
+Message-ID: <CAG_fn=U8kGUCHQb7580bfVgh9=E1zjch3vB0tV5ooFxWsGNQkg@mail.gmail.com>
+Subject: Re: [PATCH v2 24/33] s390/checksum: Add a KMSAN check
 To: Ilya Leoshkevich <iii@linux.ibm.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
 	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
@@ -61,13 +61,13 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-founda
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 21, 2023 at 11:07=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.co=
+On Tue, Nov 21, 2023 at 11:02=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.co=
 m> wrote:
 >
-> The constraints of the DFLTCC inline assembly are not precise: they
-> do not communicate the size of the output buffers to the compiler, so
-> it cannot automatically instrument it.
-
-KMSAN usually does a poor job instrumenting inline assembly.
-Wouldn't be it better to switch to pure C ZLIB implementation, making
-ZLIB_DFLTCC depend on !KMSAN?
+> Add a KMSAN check to the CKSM inline assembly, similar to how it was
+> done for ASAN in commit e42ac7789df6 ("s390/checksum: always use cksm
+> instruction").
+>
+> Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Reviewed-by: Alexander Potapenko <glider@google.com>
