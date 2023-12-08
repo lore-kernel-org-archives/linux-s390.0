@@ -1,130 +1,70 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NUqQj5qW"
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EBC919A5;
-	Fri,  8 Dec 2023 08:23:13 -0800 (PST)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B8GGJhe026619;
-	Fri, 8 Dec 2023 16:23:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=b9PbWo8DylIxhxCDnRW3UOS2F40QnBD4MsO2TE9Uw4E=;
- b=NUqQj5qWwPnYOYgNiAviF8YWfo92J/M6hWZIDT8CMLCvA/akRpWRC4E2Ir+Bvvo8aC9h
- yEa7tR1L4TphizZJQVkeqvskItWStRS9JVTrRIintKwo1HN72qqme192cayCxfsAe0hn
- SXfn08h+YOEOyPk7QqoHVLM31zt5RjqO5bb4CCT5kLlvPnevmdSmKrjSL8jfcExehNZb
- ik3V7LM1UBO7b+Ho+z2cDdqtpyJSAwfDihWIt9aQgUhcy7k7bj1vxHECwwZM9q67b+iL
- DYXSpN0fLTTcQY0Ktgz2bXRIo6DdnoZDi7APLHErm/gnnYQwucY+M7yY8xf8z7wMJs+4 /w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uv67wgnwh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Dec 2023 16:23:11 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B8GIvnD005454;
-	Fri, 8 Dec 2023 16:23:11 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uv67wgnv7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Dec 2023 16:23:10 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B8Dbm0m013754;
-	Fri, 8 Dec 2023 16:23:09 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3utau4jhxa-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Dec 2023 16:23:09 +0000
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B8GN8Ls7733940
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 8 Dec 2023 16:23:08 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DEBB958054;
-	Fri,  8 Dec 2023 16:23:07 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A13135803F;
-	Fri,  8 Dec 2023 16:23:06 +0000 (GMT)
-Received: from li-2c1e724c-2c76-11b2-a85c-ae42eaf3cb3d.ibm.com.com (unknown [9.61.47.9])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  8 Dec 2023 16:23:06 +0000 (GMT)
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, pasic@linux.ibm.com,
-        pbonzini@redhat.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        stable@vger.kernel.org
-Subject: [PATCH v1 6/6] s390/vfio-ap: do not reset queue removed from host config
-Date: Fri,  8 Dec 2023 11:22:51 -0500
-Message-ID: <20231208162256.10633-7-akrowiak@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20231208162256.10633-1-akrowiak@linux.ibm.com>
-References: <20231208162256.10633-1-akrowiak@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="iqle0iK7"
+Received: from mail-oo1-xc2b.google.com (mail-oo1-xc2b.google.com [IPv6:2607:f8b0:4864:20::c2b])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71F151987
+	for <linux-s390@vger.kernel.org>; Fri,  8 Dec 2023 08:32:03 -0800 (PST)
+Received: by mail-oo1-xc2b.google.com with SMTP id 006d021491bc7-58d06bfadf8so1133019eaf.1
+        for <linux-s390@vger.kernel.org>; Fri, 08 Dec 2023 08:32:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1702053122; x=1702657922; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8sqOsISr4A6CIOB02HqyYbsWnQIUDQQ0cX4xtpbDCng=;
+        b=iqle0iK70r7pqT5OYWAQCgwCHN3//A3JOwSyNlG6jMe6rI7p7VsXp6tnD0okNWhfyG
+         GDS5nDkyqmttX2Y1P5eH5DJ9LTF97mgtFYvt/KAYfRF79WfHg0XeiRxoe6gGf63VSmb9
+         4+cvdtKhHAJC9m7q/XPZg0wwm8Y0UztbglhhKDmw2PwpS34X1rYGbdudSS+daobv0NGH
+         xM7ToxrbRZQMJW3eb3XpITf03W/WJezZM6BpNLuxDZEb7oOSPcREQ2o9wkAJ0ka08NB4
+         XcPpgMf0//yJHvlPRbLykhHmDKQhaqBRJK784pv5t2DqharXMSmttOlR03Bp79h6XX4J
+         wz8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702053122; x=1702657922;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=8sqOsISr4A6CIOB02HqyYbsWnQIUDQQ0cX4xtpbDCng=;
+        b=KlltiDsnFn+np3XQGip6tUHkoBBf4KlO3OhMwyqDN0xRqRZLixn5RkXBkwb9f7hk0i
+         PTTptdYW+DqQ4jl9K6xuavMVkfpdTxObJqekEFN/I5GBxbJNvBPcTHAQidMMrBjhkaAc
+         NMUbWM29yYGUEYD9Ny+zah9w/kUrQGq6XqI5YxjOv7LLfxwAfqtF4ikAKMiS470d9/vc
+         bEXanCKu6YP60yBH1sMmgn0K8LZB8TQYeqYlNXlrlSVCywwd1hKDeOUo7jhFv7t5xYR+
+         BnuilUjvm3RtTPB+69lpr10yBV6K/KImJ/kc5PAM1DL/NJZrPn8mh43VtUziFDRhN8f5
+         eUMQ==
+X-Gm-Message-State: AOJu0Yw1glmCqOZWAshN2K3NUaLwSfbdj6UIHbEM647nAqoY9D/5bOsv
+	5TYiEYcFbBHKUd1Hamw9vNFubAbxrPhbH5cm1X/8GQ==
+X-Google-Smtp-Source: AGHT+IH04K90iuM9X1mkjifO4TvAKhiYyXmU1LNL55T1W04MJ1jjc5+Vy90i3bYg2jhfMs/BJZ+7n8AlC4vX1LbSMS4=
+X-Received: by 2002:a05:6358:7f13:b0:170:2c2d:9d8f with SMTP id
+ p19-20020a0563587f1300b001702c2d9d8fmr209508rwn.1.1702053122541; Fri, 08 Dec
+ 2023 08:32:02 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: bBHm19mEtVDUXcYmoOk2A2qq1IT_dd4d
-X-Proofpoint-ORIG-GUID: NT69NQ8d2mM1-ij1PZLybtAr5XQfc_mo
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-08_11,2023-12-07_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 suspectscore=0 bulkscore=0 spamscore=0 adultscore=0
- impostorscore=0 priorityscore=1501 clxscore=1015 mlxlogscore=999
- mlxscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2312080135
+References: <20231121220155.1217090-1-iii@linux.ibm.com> <20231121220155.1217090-5-iii@linux.ibm.com>
+In-Reply-To: <20231121220155.1217090-5-iii@linux.ibm.com>
+From: Alexander Potapenko <glider@google.com>
+Date: Fri, 8 Dec 2023 17:31:26 +0100
+Message-ID: <CAG_fn=W_aH5a5grk63Uwx0Dq-dvdafAriBc3v5YtYA4cXiuJ7Q@mail.gmail.com>
+Subject: Re: [PATCH v2 04/33] kmsan: Increase the maximum store size to 4096
+To: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
+	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>, 
+	Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Vlastimil Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com, 
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
+	linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, 
+	Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle <svens@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-When a queue is unbound from the vfio_ap device driver, it is reset to
-ensure its crypto data is not leaked when it is bound to another device
-driver. If the queue is unbound due to the fact that the adapter or domain
-was removed from the host's AP configuration, then attempting to reset it
-will fail with response code 01 (APID not valid) getting returned from the
-reset command. Let's ensure that the queue is assigned to the host's
-configuration before resetting it.
-
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Fixes: eeb386aeb5b7 ("s390/vfio-ap: handle config changed and scan complete notification")
-Cc: <stable@vger.kernel.org>
----
- drivers/s390/crypto/vfio_ap_ops.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 5db11d50b4b0..b6928fc3b395 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -2214,6 +2214,8 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
- 	q = dev_get_drvdata(&apdev->device);
- 	get_update_locks_for_queue(q);
- 	matrix_mdev = q->matrix_mdev;
-+	apid = AP_QID_CARD(q->apqn);
-+	apqi = AP_QID_QUEUE(q->apqn);
- 
- 	if (matrix_mdev) {
- 		/* If the queue is assigned to the guest's AP configuration */
-@@ -2231,8 +2233,16 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
- 		}
- 	}
- 
--	vfio_ap_mdev_reset_queue(q);
--	flush_work(&q->reset_work);
-+	/*
-+	 * If the queue is not in the host's AP configuration, then resetting
-+	 * it will fail with response code 01, (APQN not valid); so, let's make
-+	 * sure it is in the host's config.
-+	 */
-+	if (test_bit_inv(apid, (unsigned long *)matrix_dev->info.apm) &&
-+	    test_bit_inv(apqi, (unsigned long *)matrix_dev->info.aqm)) {
-+		vfio_ap_mdev_reset_queue(q);
-+		flush_work(&q->reset_work);
-+	}
- 
- done:
- 	if (matrix_mdev)
--- 
-2.43.0
-
+On Tue, Nov 21, 2023 at 11:07=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.co=
+m> wrote:
+>
+> The inline assembly block in s390's chsc() stores that much.
+>
+> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Reviewed-by: Alexander Potapenko <glider@google.com>
