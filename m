@@ -1,148 +1,73 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rlXBLWSJ"
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55EEB1724;
-	Fri,  8 Dec 2023 05:23:07 -0800 (PST)
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B8DMwuB025638;
-	Fri, 8 Dec 2023 13:23:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=VpMyP+5lKWc2TeAM094ZGRRxASyLksi3vhPSZU1DasA=;
- b=rlXBLWSJS+/d+xR2I9SYpFby6+Ate/Ae1f+9SSmdlV1OndjfK7ffpuP6Etfc7yBozs//
- B5DBdogp4eu5460C8rAofDIQXJ+AMMooan4SnpKBURXONfLTnJ3EdKBoZIBHtlKlo30/
- 4yaoKm6qRoD7aaZkgWTBnDoypNgMkiicCU1j3Uxz6jh3kwxQoZXgi/0/g2BRQJ5DWrL7
- 0w91SZoBSc1kaKD6GmzIfQ3Y/i63FWJv67deQFVkuEW2zciI6+YUHOvtPvcviheilf1E
- M+PX9Zaa82lls8+ZMr0DXmU3USu6dKlHWIxgGdU2QUFu4SyT9/bM8z0AjVJIApXKavoY Mg== 
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uv3191ubx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Dec 2023 13:22:57 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B8A38fU027003;
-	Fri, 8 Dec 2023 13:19:54 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3utav39nu4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Dec 2023 13:19:54 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B8DJpEv5571210
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 8 Dec 2023 13:19:51 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 67FA52004B;
-	Fri,  8 Dec 2023 13:19:51 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6D5BD20043;
-	Fri,  8 Dec 2023 13:19:50 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.66.245])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri,  8 Dec 2023 13:19:50 +0000 (GMT)
-Date: Fri, 8 Dec 2023 14:19:48 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: "Jiri Slaby (SUSE)" <jirislaby@kernel.org>
-Cc: gregkh@linuxfoundation.org, linux-serial@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 09/27] tty: con3270: convert to u8 and size_t
-Message-ID: <ZXMX9AmWwR6hPSMr@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20231206073712.17776-1-jirislaby@kernel.org>
- <20231206073712.17776-10-jirislaby@kernel.org>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="HWYga+h6"
+Received: from mail-oo1-xc32.google.com (mail-oo1-xc32.google.com [IPv6:2607:f8b0:4864:20::c32])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD845171F
+	for <linux-s390@vger.kernel.org>; Fri,  8 Dec 2023 05:32:55 -0800 (PST)
+Received: by mail-oo1-xc32.google.com with SMTP id 006d021491bc7-59063f8455eso1026004eaf.3
+        for <linux-s390@vger.kernel.org>; Fri, 08 Dec 2023 05:32:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1702042375; x=1702647175; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=pL1EkEt0qsAoRDwtVA7bs3ZuCI4ZBobSjrqprT3lLqo=;
+        b=HWYga+h6Y/OrNxvsQNQKV44owCXJEFQh8Oo+zcKO/Yz5Z2g7+WWdW2pLwpzJBChGNf
+         aRo5/KZ22AwHqxKwlgV44Di8H8U8JXRVulqYZoZJeLb0lZ13UIk8fw8EQsbSyuK/nSZR
+         m2gOwrhezjVrbOpMIz9OxWmW+N7pwmY833k3k5AnJPVGCe4X6HRPppqO5UZc7nmtm71D
+         zvpFAKhlm555YrRxvSLJvmUk5u30knz9WYSMI2Udxzs56aun/AjF1H14Z8epTobcOArf
+         odKTPT2UVsIjInvxPytFfJqhzzbUWkP0bYmOCAZUH+5K3ZatN3aOr1w+UQ+eU72SoI22
+         QZqg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702042375; x=1702647175;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=pL1EkEt0qsAoRDwtVA7bs3ZuCI4ZBobSjrqprT3lLqo=;
+        b=xUQtYAh1XFHZ3OO6bFOVf1nzfjocAosU4W2hl5EFPTT84KxoGrKSa3wbKG3uvANr7t
+         mz1zBnZvS/P41tsIY3pkW/IPcaFm33CPFSIA848mAQlrpyBTVjkjcwtcjqso1szNDl9q
+         ZU0nNXwa/MCUpzTQ4w5+6OvZTA2zp/BIe+5Sib1PkMp+QvSiRr4HUWosugocuFYz7+cX
+         nmchOBuOePQWImmV9EXHfSSSUmBHDaOvQd8Y4R1K5vWmy2+NauoC3OCAHM2XOlivVNqH
+         KunLkeSWRG+xLQRF/objzmkGGkA2KG5rARGat6bWb1Fjv83PlYgrm5iezTEE4FiUqcL7
+         DfUA==
+X-Gm-Message-State: AOJu0Yw0aQt9EvoqCaczoe4wEs4+LizMhUGYNcQNY4Tk22BPJdqRLgMX
+	EzOYJuokmgzhrGNiBVP1DjFnyufoDpMe2PO1Itivrg==
+X-Google-Smtp-Source: AGHT+IGRSBnBoc2BG0FsV541PbbYtbMc1RoW0fnIT845DKwurdtswNYXWxoNJcxnqfNgHmHrHSrHprdH/0NINlfzFLY=
+X-Received: by 2002:a05:6359:6196:b0:170:22f1:d0a2 with SMTP id
+ sb22-20020a056359619600b0017022f1d0a2mr3474879rwb.56.1702042374871; Fri, 08
+ Dec 2023 05:32:54 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231206073712.17776-10-jirislaby@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: v-Y6C-375jqxig-9iiMhvuQKEK9RLMiX
-X-Proofpoint-ORIG-GUID: v-Y6C-375jqxig-9iiMhvuQKEK9RLMiX
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-08_08,2023-12-07_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
- adultscore=0 bulkscore=0 clxscore=1015 lowpriorityscore=0 malwarescore=0
- spamscore=0 mlxlogscore=999 impostorscore=0 priorityscore=1501
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2312080111
+References: <20231121220155.1217090-1-iii@linux.ibm.com> <20231121220155.1217090-20-iii@linux.ibm.com>
+In-Reply-To: <20231121220155.1217090-20-iii@linux.ibm.com>
+From: Alexander Potapenko <glider@google.com>
+Date: Fri, 8 Dec 2023 14:32:15 +0100
+Message-ID: <CAG_fn=WiT7C2QMCwq_nBg9FXZrJ2-mSyJuM1uVz_3Mag8xBHJg@mail.gmail.com>
+Subject: Re: [PATCH v2 19/33] lib/zlib: Unpoison DFLTCC output buffers
+To: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
+	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>, 
+	Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Vlastimil Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com, 
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
+	linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, 
+	Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle <svens@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 06, 2023 at 08:36:54AM +0100, Jiri Slaby (SUSE) wrote:
-> Switch character types to u8 and sizes to size_t. To conform to
-> characters/sizes in the rest of the tty layer.
-> 
-> Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> ---
->  drivers/s390/char/con3270.c | 12 ++++++------
->  1 file changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/s390/char/con3270.c b/drivers/s390/char/con3270.c
-> index 363315fa1666..251d2a1c3eef 100644
-> --- a/drivers/s390/char/con3270.c
-> +++ b/drivers/s390/char/con3270.c
-> @@ -54,7 +54,7 @@ struct tty3270_attribute {
->  };
->  
->  struct tty3270_cell {
-> -	unsigned char character;
-> +	u8 character;
->  	struct tty3270_attribute attributes;
->  };
->  
-> @@ -123,7 +123,7 @@ struct tty3270 {
->  
->  	/* Character array for put_char/flush_chars. */
->  	unsigned int char_count;
-> -	char char_buf[TTY3270_CHAR_BUF_SIZE];
-> +	u8 char_buf[TTY3270_CHAR_BUF_SIZE];
->  };
->  
->  /* tty3270->update_flags. See tty3270_update for details. */
-> @@ -1255,7 +1255,7 @@ static unsigned int tty3270_write_room(struct tty_struct *tty)
->   * Insert character into the screen at the current position with the
->   * current color and highlight. This function does NOT do cursor movement.
->   */
-> -static void tty3270_put_character(struct tty3270 *tp, char ch)
-> +static void tty3270_put_character(struct tty3270 *tp, u8 ch)
->  {
->  	struct tty3270_line *line;
->  	struct tty3270_cell *cell;
-> @@ -1561,7 +1561,7 @@ static void tty3270_goto_xy(struct tty3270 *tp, int cx, int cy)
->   *  Pn is a numeric parameter, a string of zero or more decimal digits.
->   *  Ps is a selective parameter.
->   */
-> -static void tty3270_escape_sequence(struct tty3270 *tp, char ch)
-> +static void tty3270_escape_sequence(struct tty3270 *tp, u8 ch)
->  {
->  	enum { ES_NORMAL, ES_ESC, ES_SQUARE, ES_PAREN, ES_GETPARS };
->  
-> @@ -1726,7 +1726,7 @@ static void tty3270_escape_sequence(struct tty3270 *tp, char ch)
->   * String write routine for 3270 ttys
->   */
->  static void tty3270_do_write(struct tty3270 *tp, struct tty_struct *tty,
-> -			     const unsigned char *buf, int count)
-> +			     const u8 *buf, size_t count)
->  {
->  	int i_msg, i;
->  
-> @@ -2052,7 +2052,7 @@ con3270_write(struct console *co, const char *str, unsigned int count)
->  {
->  	struct tty3270 *tp = co->data;
->  	unsigned long flags;
-> -	char c;
-> +	u8 c;
->  
->  	spin_lock_irqsave(&tp->view.lock, flags);
->  	while (count--) {
+On Tue, Nov 21, 2023 at 11:07=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.co=
+m> wrote:
+>
+> The constraints of the DFLTCC inline assembly are not precise: they
+> do not communicate the size of the output buffers to the compiler, so
+> it cannot automatically instrument it.
 
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+KMSAN usually does a poor job instrumenting inline assembly.
+Wouldn't be it better to switch to pure C ZLIB implementation, making
+ZLIB_DFLTCC depend on !KMSAN?
