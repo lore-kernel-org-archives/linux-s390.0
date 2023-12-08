@@ -1,86 +1,147 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="H2O+yaqN"
-Received: from mail-qv1-xf2c.google.com (mail-qv1-xf2c.google.com [IPv6:2607:f8b0:4864:20::f2c])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5849E1706
-	for <linux-s390@vger.kernel.org>; Fri,  8 Dec 2023 05:56:33 -0800 (PST)
-Received: by mail-qv1-xf2c.google.com with SMTP id 6a1803df08f44-67a91a373edso11883896d6.1
-        for <linux-s390@vger.kernel.org>; Fri, 08 Dec 2023 05:56:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1702043792; x=1702648592; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SlUqBCSJE7b+NOWHxQNrRwEhp2gTAvY03mAPrdADOdo=;
-        b=H2O+yaqNA/Ire4cgW0btDC0qdoE8ugqwlXmk/CYzER8bM8kWjsS5c9gg+INrHUH5cn
-         nB6V3BVZijge9perTdtiFse/qsI142jfCN3L/JG3PCG+0nEpM+pE5rBtbYMHRG/P/P3I
-         m1RhsF8rEtVR2/k9WDDU+EYEpLNwZp6ejIqz/wpVoMTv8GfvlWGbWocbheokZP46/L3Z
-         RSMuL8C4kNBxUInWgM1wnV1m+MfncrUKyrH7gQXYrMFNos+z7syaA17HyoHcqPXUk6eA
-         Kxo46Cvmh6T2vr7s7D7CJu+IC+y+ow+nz8YZxTViB83+8eU+wpo04jKShu/JSufgeZ5g
-         a/iQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702043792; x=1702648592;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=SlUqBCSJE7b+NOWHxQNrRwEhp2gTAvY03mAPrdADOdo=;
-        b=pJgqtnZ9bYZfxADcBCHuZSpLhv4pNSPDNyFf6DgxXTb+tzfHqgE5PCnRfw+gvF+rTY
-         N4U2+ROh8abBiErtZoc9NMbNQoM0Ci2Wv515JLnX8gC8fT4255SSer3x7vYF6Fj/6Pnw
-         sRzaN47heupuqU0NkunisVPIJEXDtp9LyQ3zygYtw03fLlYwaJlhDlyisdPRVbbaxfOW
-         CyNkoFmF21F+VkvWiMpUnZtGxe8Q89AV8eED4ETpt2fd/8S+fY5lPHRI9E2m+H2diaSX
-         98CugA6k3SWgApcID1tR4PGoz77IFoAGLYDGKSNAEImKF3p97uuvJKxgKv2gJ20DldAI
-         88iQ==
-X-Gm-Message-State: AOJu0YzwwgpDxXi3s0X90u7hzytsGE2U5KYes3DzrqIcDYYRtoIIZWv8
-	jtkCQRH1UG+OxUqK1aLqj0V5qWcTUNOl1A5bWWlIdg==
-X-Google-Smtp-Source: AGHT+IH23iVUpBsOBONYMPHwppBBTzpfL3Q8/bvfC4kzRpEJUfOAA07YjvKi0Z4sAx0eXzRBOWPNA1eAjy4CZz3bJdM=
-X-Received: by 2002:a05:6214:5802:b0:67a:a951:7fc2 with SMTP id
- mk2-20020a056214580200b0067aa9517fc2mr4258051qvb.119.1702043792410; Fri, 08
- Dec 2023 05:56:32 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eGWDd3WI"
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C97410F1;
+	Fri,  8 Dec 2023 06:12:26 -0800 (PST)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B8DKRqj015375;
+	Fri, 8 Dec 2023 14:11:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=pjb+6VN84nea2uIjeiseJx3tuY2waiFgw1F0aqU0WUc=;
+ b=eGWDd3WI351P7umaXgcIL+KPI+l1eeb3m8E/DSIPbCllByEtG4jSrlve1AhQz+8bduCt
+ rOFaIfmt2Iam4b+pb48PZbVChPJpwqSprFPjzJE4HLxsnKeqAXVJ8nHCvi903W6jq+6N
+ 6kjehPRKhJuwWQSulQ04yfEw8gXVgcyLFwq0Gf07jXZKJJgSYUrPcL5FJVKcZooRO/0E
+ vyvzNQwh7dM2m9nA2FZk63/mx/QkYlhVpK5cAfVkooPuxiZef9rMaw1OPzhhUn/zCg2Z
+ ZNJvauT4oEwwc9wj1/f6b/+GKew0YNJsa4PYFZ6RQ3CcVyUKzmoGriyT1zJ3iRI8qGI5 Gg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uv0cu81a5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 Dec 2023 14:11:58 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B8EBvMb024578;
+	Fri, 8 Dec 2023 14:11:57 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uv0cu80cj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 Dec 2023 14:11:57 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B8DNTP9027021;
+	Fri, 8 Dec 2023 14:07:12 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3utav39vds-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 Dec 2023 14:07:12 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B8E79bX35062116
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 8 Dec 2023 14:07:09 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 851C020040;
+	Fri,  8 Dec 2023 14:07:09 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 94BE320043;
+	Fri,  8 Dec 2023 14:07:08 +0000 (GMT)
+Received: from [9.171.76.38] (unknown [9.171.76.38])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  8 Dec 2023 14:07:08 +0000 (GMT)
+Message-ID: <69e7bc8e8c8a38c429a793e991e0509cb97a53e1.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 13/33] kmsan: Introduce memset_no_sanitize_memory()
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+To: Alexander Potapenko <glider@google.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrew Morton
+ <akpm@linux-foundation.org>,
+        Christoph Lameter <cl@linux.com>,
+        David
+ Rientjes <rientjes@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Joonsoo
+ Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>,
+        Masami
+ Hiramatsu <mhiramat@kernel.org>,
+        Pekka Enberg <penberg@kernel.org>,
+        Steven
+ Rostedt <rostedt@goodmis.org>,
+        Vasily Gorbik <gor@linux.ibm.com>, Vlastimil
+ Babka <vbabka@suse.cz>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        Mark Rutland <mark.rutland@arm.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Sven Schnelle
+ <svens@linux.ibm.com>
+Date: Fri, 08 Dec 2023 15:07:08 +0100
+In-Reply-To: <CAG_fn=Vaj3hTRAMxUwofpSMPhFBOizDOWR_An-V9qLNQv-suYw@mail.gmail.com>
+References: <20231121220155.1217090-1-iii@linux.ibm.com>
+	 <20231121220155.1217090-14-iii@linux.ibm.com>
+	 <CAG_fn=Vaj3hTRAMxUwofpSMPhFBOizDOWR_An-V9qLNQv-suYw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231121220155.1217090-1-iii@linux.ibm.com> <20231121220155.1217090-18-iii@linux.ibm.com>
- <CAG_fn=Ug6MFyoj=J_yabfd-V+3vGYNS3-CS+fhW9Tsc847xMtw@mail.gmail.com>
-In-Reply-To: <CAG_fn=Ug6MFyoj=J_yabfd-V+3vGYNS3-CS+fhW9Tsc847xMtw@mail.gmail.com>
-From: Alexander Potapenko <glider@google.com>
-Date: Fri, 8 Dec 2023 14:55:56 +0100
-Message-ID: <CAG_fn=XbDFa_7BWMzR5cVEVp-GuHxK2fyFAZJgXqXb8qL1ZhAA@mail.gmail.com>
-Subject: Re: [PATCH v2 17/33] mm: kfence: Disable KMSAN when checking the canary
-To: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>, 
-	Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Vlastimil Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com, 
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, 
-	Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle <svens@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: mSCq_lYucee2O1CVB9SBy2svcmxdcZAg
+X-Proofpoint-ORIG-GUID: WlHzW7-H3uATOo0XFfgqaql_BSNz1z1A
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-08_09,2023-12-07_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ mlxlogscore=999 spamscore=0 clxscore=1015 phishscore=0 suspectscore=0
+ impostorscore=0 bulkscore=0 lowpriorityscore=0 adultscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2312080117
 
-On Fri, Dec 8, 2023 at 1:53=E2=80=AFPM Alexander Potapenko <glider@google.c=
-om> wrote:
->
-> On Tue, Nov 21, 2023 at 11:02=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.=
-com> wrote:
-> >
-> > KMSAN warns about check_canary() accessing the canary.
-> >
-> > The reason is that, even though set_canary() is properly instrumented
-> > and sets shadow, slub explicitly poisons the canary's address range
-> > afterwards.
-> >
-> > Unpoisoning the canary is not the right thing to do: only
-> > check_canary() is supposed to ever touch it. Instead, disable KMSAN
-> > checks around canary read accesses.
-> >
-> > Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-> Reviewed-by: Alexander Potapenko <glider@google.com>
+On Fri, 2023-12-08 at 14:48 +0100, Alexander Potapenko wrote:
+> On Tue, Nov 21, 2023 at 11:06=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.=
+com>
+> wrote:
+> >=20
+> > Add a wrapper for memset() that prevents unpoisoning.
+>=20
+> We have __memset() already, won't it work for this case?
 
-and even
+A problem with __memset() is that, at least for me, it always ends
+up being a call. There is a use case where we need to write only 1
+byte, so I thought that introducing a call there (when compiling
+without KMSAN) would be unacceptable.
 
-Tested-by: Alexander Potapenko <glider@google.com>
+> On the other hand, I am not sure you want to preserve the redzone in
+> its previous state (unless it's known to be poisoned).
+
+That's exactly the problem with unpoisoning: it removes the distinction
+between a new allocation and a UAF.
+
+> You might consider explicitly unpoisoning the redzone instead.
+
+That was my first attempt, but it resulted in test failures due to the
+above.
+
+> ...
+>=20
+> > +__no_sanitize_memory
+> > +static inline void *memset_no_sanitize_memory(void *s, int c,
+> > size_t n)
+> > +{
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return memset(s, c, n);
+> > +}
+>=20
+> I think depending on the compiler optimizations this might end up
+> being a call to normal memset, that would still change the shadow
+> bytes.
+
+Interesting, do you have some specific scenario in mind? I vaguely
+remember that in the past there were cases when sanitizer annotations
+were lost after inlining, but I thought they were sorted out?
+
+And, in any case, if this were to happen, would not it be considered a
+compiler bug that needs fixing there, and not in the kernel?
