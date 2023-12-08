@@ -1,87 +1,108 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="PmK2XbxC"
-Received: from mail-qv1-xf35.google.com (mail-qv1-xf35.google.com [IPv6:2607:f8b0:4864:20::f35])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE808122
-	for <linux-s390@vger.kernel.org>; Fri,  8 Dec 2023 08:57:05 -0800 (PST)
-Received: by mail-qv1-xf35.google.com with SMTP id 6a1803df08f44-67ac8e5566cso14264226d6.3
-        for <linux-s390@vger.kernel.org>; Fri, 08 Dec 2023 08:57:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1702054625; x=1702659425; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=p7eBdMYz2oO1gCYv2gO3b03vyzDyBixdRfjwy6xmbYk=;
-        b=PmK2XbxCIv3dIWNCXiX6whjWumGAUc6xF5Vo/I/DNguZMP6/AsTyAAF33DgKQjsU69
-         Hy+a+8Vsqf1eFR+dvvO4N0R8iA3lHLf2z2xLk2ioso4X+JVX7PvxpNZk9aA861nTMOGC
-         ozE1gdUK5vTQESIwfQS8jZHFUp8l9inF7ABOzL1Q06E/iNKqmcDt80fC495/+NtimrBa
-         PkeRnJKPT8ws4rzxnaIZVHfwnvDf0NtKq+CoACtgp7v+RMfUSdJv4tCLgrf46MJ4eATg
-         oiopZPdry7Iuxvi2BJFBMxINisVddJ4Ue5X1R7GgwP/WJppiEA2XEMD7yYx8/KMD50y0
-         XnBw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IJlS8vYp"
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B922D73
+	for <linux-s390@vger.kernel.org>; Fri,  8 Dec 2023 10:13:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1702059214;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=thkLXVvi4ESeehaUbk7FHcY7MvVf7sRDiGhqTuUD1bw=;
+	b=IJlS8vYpxtvx9lMjD17SnflauDwiG/V/XgrfwB8TSRHkfrpXqpdOnJzwx7AW4FsERM9xui
+	hxJovqYCpLix/bDSozbcRKbSAHmMqLbYBuFZpJvmjJIEMktflMA+/YfR7bofnNaml6GMH3
+	6/rSMmoPPL7Tzlj9dDURmBL6CXGG/Hw=
+Received: from mail-oo1-f70.google.com (mail-oo1-f70.google.com
+ [209.85.161.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-161-DQylUjy1NfSUcOVmHlyK5g-1; Fri, 08 Dec 2023 13:13:33 -0500
+X-MC-Unique: DQylUjy1NfSUcOVmHlyK5g-1
+Received: by mail-oo1-f70.google.com with SMTP id 006d021491bc7-589f2897a46so2657621eaf.2
+        for <linux-s390@vger.kernel.org>; Fri, 08 Dec 2023 10:13:32 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702054625; x=1702659425;
+        d=1e100.net; s=20230601; t=1702059212; x=1702664012;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=p7eBdMYz2oO1gCYv2gO3b03vyzDyBixdRfjwy6xmbYk=;
-        b=ZD8DBBORx7Hdq/NIZId0VJ3pyqz3znbMvYSRwT0uhq6P0m5OCnESb2aSMIeb28unqZ
-         +lvge2gvDGXsj3VLENkVcNTu6bCuN/frJ+af2+vsbSM+dozjYFpx6zbfaShVEVTEn1Xv
-         H6OggofArvMYZdTIYdcL/q2siaQUwJBoVwhKT9fCrN/h8IEVMmRmQFysPuGWSTSdNNmh
-         uMZf6B6iNT26vDoaJOwnAKNr2Y49tEDT+ACy7zLaSeVLsIjKZu3eFx/tl6Osd+QMNdzJ
-         MmLBTfFRzeqOb8SaJTQcM5glg3RNjSa6A1FmA9x/av6oOUnYlpJ3DsyDAt6qk0B1ImH/
-         LPJQ==
-X-Gm-Message-State: AOJu0YxqwonEGZKO2096fYCg7noTZR0rjrv2hhowVkH9H+ENzowuqh/x
-	x6K5meQkF7ao3NXrwWuk784ARbgiu+7Uh4wt3iUS4Q==
-X-Google-Smtp-Source: AGHT+IFqYgMXAGDwUGZm2GmXNNwAMogbqw1hEfBIGvEGXG3bN5nU/GorXmHvariAzFFNL09Kz1paH2mUu+0Ssar9SoY=
-X-Received: by 2002:a05:6214:d0:b0:67a:49c5:8cc3 with SMTP id
- f16-20020a05621400d000b0067a49c58cc3mr269853qvs.32.1702054625028; Fri, 08 Dec
- 2023 08:57:05 -0800 (PST)
+        bh=thkLXVvi4ESeehaUbk7FHcY7MvVf7sRDiGhqTuUD1bw=;
+        b=DCZbsrBdn4LQxoW4mUwSxM1mgEtb+8fAt51M1B34C8lCb+0WzUOiYj8gAeVhkSiGCK
+         ZzVFqJfSltFTmBeXSTgsdbuXq3Uw2ZaUHc2khLmC7xoCr56UREiwCVXzvnrFRFqfr05y
+         tOH3H0W3JWUMIIpXQ4tCTmR6abXSlIRKRUMYSfiN2eSPS3hv+EXyxKe3XQQCz27rrdZl
+         ANqUm/5KHxo+7jvpx2ahh79G6/47O8gV6H73DfFWRHtuhVIAEdHhfa8DsGtYq+3Gh0eT
+         +X9idObXXm/NjScxMLnzmzNV8ly9YC1hC9pOaTzbcnv+LgkiX9gMHOP45sykA6PYtQIo
+         iFgg==
+X-Gm-Message-State: AOJu0YyZV+2kaJ8ZZ+UdOZVj1vjo242TtZqUM8XcDXKWB2MbBvZT2WsC
+	uzmqYWzy7MSvdGAtUg4Hu+XEC1DUaEyOtghLU5YcToyr/rUD2y/Dl78n2yy66eq0kNoryDgQG+z
+	/rVrJN4vH8KhG7l75GSeyvodxaJVRSDnKrbsPjuWO5oJs8w==
+X-Received: by 2002:a05:6870:9d0e:b0:1fb:75a:6d3a with SMTP id pp14-20020a0568709d0e00b001fb075a6d3amr514102oab.97.1702059211861;
+        Fri, 08 Dec 2023 10:13:31 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFm4qEiQ8h/zEqW68UsgEFDDQ1CGBXnQu7hSfvylqpZk9GjGB2KlkuB5RxbvYYtZ8eZbfTt4oXKVMMdArXHtU0=
+X-Received: by 2002:a05:6870:9d0e:b0:1fb:75a:6d3a with SMTP id
+ pp14-20020a0568709d0e00b001fb075a6d3amr514096oab.97.1702059211668; Fri, 08
+ Dec 2023 10:13:31 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231121220155.1217090-1-iii@linux.ibm.com> <20231121220155.1217090-24-iii@linux.ibm.com>
-In-Reply-To: <20231121220155.1217090-24-iii@linux.ibm.com>
-From: Alexander Potapenko <glider@google.com>
-Date: Fri, 8 Dec 2023 17:56:29 +0100
-Message-ID: <CAG_fn=UBt2A75bOgZmh7q_dS08d0PD8wJRHpoJyUDXRPRk_exA@mail.gmail.com>
-Subject: Re: [PATCH v2 23/33] s390/boot: Add the KMSAN runtime stub
-To: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>, 
-	Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Vlastimil Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com, 
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, 
-	Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle <svens@linux.ibm.com>
+References: <20231115125111.28217-1-imbrenda@linux.ibm.com>
+In-Reply-To: <20231115125111.28217-1-imbrenda@linux.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 8 Dec 2023 19:13:19 +0100
+Message-ID: <CABgObfYt3VH-zPwT1whA0N7uE2ioq9GznTt-QhnES8B5tX76jQ@mail.gmail.com>
+Subject: Re: [GIT PULL v1 0/2] KVM: s390: two small but important fixes
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+	linux-s390@vger.kernel.org, frankja@linux.ibm.com, borntraeger@de.ibm.com, 
+	hca@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 21, 2023 at 11:02=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.co=
-m> wrote:
+On Wed, Nov 15, 2023 at 1:51=E2=80=AFPM Claudio Imbrenda <imbrenda@linux.ib=
+m.com> wrote:
 >
-> It should be possible to have inline functions in the s390 header
-> files, which call kmsan_unpoison_memory(). The problem is that these
-> header files might be included by the decompressor, which does not
-> contain KMSAN runtime, causing linker errors.
+> Hi Paolo,
 >
-> Not compiling these calls if __SANITIZE_MEMORY__ is not defined -
-> either by changing kmsan-checks.h or at the call sites - may cause
-> unintended side effects, since calling these functions from an
-> uninstrumented code that is linked into the kernel is valid use case.
+> two small but important fixes, please pull :)
+
+Done, thanks.
+
+Paolo
+
 >
-> One might want to explicitly distinguish between the kernel and the
-> decompressor. Checking for a decompressor-specific #define is quite
-> heavy-handed, and will have to be done at all call sites.
+> Claudio
 >
-> A more generic approach is to provide a dummy kmsan_unpoison_memory()
-> definition. This produces some runtime overhead, but only when building
-> with CONFIG_KMSAN. The benefit is that it does not disturb the existing
-> KMSAN build logic and call sites don't need to be changed.
 >
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Reviewed-by: Alexander Potapenko <glider@google.com>
+>
+> The following changes since commit b85ea95d086471afb4ad062012a4d73cd328fa=
+86:
+>
+>   Linux 6.7-rc1 (2023-11-12 16:19:07 -0800)
+>
+> are available in the Git repository at:
+>
+>   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/=
+kvm-s390-master-6.7-1
+>
+> for you to fetch changes up to 27072b8e18a73ffeffb1c140939023915a35134b:
+>
+>   KVM: s390/mm: Properly reset no-dat (2023-11-14 18:56:46 +0100)
+>
+> ----------------------------------------------------------------
+> Two small but important bugfixes.
+>
+> ----------------------------------------------------------------
+> Claudio Imbrenda (2):
+>       KVM: s390: vsie: fix wrong VIR 37 when MSO is used
+>       KVM: s390/mm: Properly reset no-dat
+>
+>  arch/s390/kvm/vsie.c   | 4 ----
+>  arch/s390/mm/pgtable.c | 2 +-
+>  2 files changed, 1 insertion(+), 5 deletions(-)
+>
+> --
+> 2.41.0
+>
+
