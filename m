@@ -1,281 +1,106 @@
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2F4D1728;
-	Thu,  7 Dec 2023 23:41:24 -0800 (PST)
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R511e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=22;SR=0;TI=SMTPD_---0Vy2PAoc_1702021280;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Vy2PAoc_1702021280)
-          by smtp.aliyun-inc.com;
-          Fri, 08 Dec 2023 15:41:22 +0800
-From: Wen Gu <guwen@linux.alibaba.com>
-To: wintera@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	agordeev@linux.ibm.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	kgraul@linux.ibm.com,
-	jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com,
-	svens@linux.ibm.com,
-	alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
-	raspl@linux.ibm.com,
-	schnelle@linux.ibm.com,
-	guangguan.wang@linux.alibaba.com,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net-next v5 9/9] net/smc: manage system EID in SMC stack instead of ISM driver
-Date: Fri,  8 Dec 2023 15:40:59 +0800
-Message-Id: <1702021259-41504-10-git-send-email-guwen@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1702021259-41504-1-git-send-email-guwen@linux.alibaba.com>
-References: <1702021259-41504-1-git-send-email-guwen@linux.alibaba.com>
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="OgAwToEi";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="9ejqWHIh"
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 924501720;
+	Fri,  8 Dec 2023 00:06:31 -0800 (PST)
+Received: from pobox.suse.cz (unknown [10.100.2.14])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id DD49322132;
+	Fri,  8 Dec 2023 08:06:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1702022789; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ALVNWxPwFjvkc8k9VJ00CfPBD03Zhd6OwJyUcqfFfZw=;
+	b=OgAwToEi9qRQ81Nbr+dUaE3OssJkOCDpsl8aNgKYzgPU05VA2spDsKu+1vrnNGRcDSODxj
+	CV5C86Xn6+WlykbM4fQXiS8uJP4EhLHgjcLO7hLWwppflcG8ZZPxjM8WmW/Ovd6QC/u4Z2
+	5ieeupze36HMj7INPypy2aQ0jv3itYI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1702022789;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ALVNWxPwFjvkc8k9VJ00CfPBD03Zhd6OwJyUcqfFfZw=;
+	b=9ejqWHIhjdcWNavQ0rt86JqlNtnwaAFa7Vx+QSAj50MRpGTEl8tK2iUi5J6ulZhSxD+9VN
+	ALOnvXz698heDRAQ==
+Date: Fri, 8 Dec 2023 09:06:30 +0100 (CET)
+From: Miroslav Benes <mbenes@suse.cz>
+To: Joe Lawrence <joe.lawrence@redhat.com>
+cc: Marcos Paulo de Souza <mpdesouza@suse.com>, Shuah Khan <shuah@kernel.org>, 
+    Jonathan Corbet <corbet@lwn.net>, Heiko Carstens <hca@linux.ibm.com>, 
+    Vasily Gorbik <gor@linux.ibm.com>, 
+    Alexander Gordeev <agordeev@linux.ibm.com>, 
+    Christian Borntraeger <borntraeger@linux.ibm.com>, 
+    Sven Schnelle <svens@linux.ibm.com>, Josh Poimboeuf <jpoimboe@kernel.org>, 
+    Jiri Kosina <jikos@kernel.org>, Petr Mladek <pmladek@suse.com>, 
+    linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+    live-patching@vger.kernel.org
+Subject: Re: [PATCH v3 2/3] livepatch: Move tests from lib/livepatch to
+ selftests/livepatch
+In-Reply-To: <273a86d6-d220-fdcf-3c2f-70516c519ff9@redhat.com>
+Message-ID: <alpine.LSU.2.21.2312080854100.14729@pobox.suse.cz>
+References: <20231031-send-lp-kselftests-v3-0-2b1655c2605f@suse.com> <20231031-send-lp-kselftests-v3-2-2b1655c2605f@suse.com> <ZWn7dEzVWoKxycmy@redhat.com> <alpine.LSU.2.21.2312061543280.13051@pobox.suse.cz>
+ <273a86d6-d220-fdcf-3c2f-70516c519ff9@redhat.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Authentication-Results: smtp-out1.suse.de;
+	none
+X-Spam-Level: 
+X-Spam-Score: 0.58
+X-Spamd-Result: default: False [0.58 / 50.00];
+	 ARC_NA(0.00)[];
+	 FROM_HAS_DN(0.00)[];
+	 TO_DN_SOME(0.00)[];
+	 TO_MATCH_ENVRCPT_ALL(0.00)[];
+	 NEURAL_HAM_LONG(-1.00)[-1.000];
+	 MIME_GOOD(-0.10)[text/plain];
+	 NEURAL_SPAM_SHORT(1.68)[0.559];
+	 MID_RHS_MATCH_FROMTLD(0.00)[];
+	 DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	 RCPT_COUNT_TWELVE(0.00)[17];
+	 FUZZY_BLOCKED(0.00)[rspamd.com];
+	 RCVD_COUNT_ZERO(0.00)[0];
+	 FROM_EQ_ENVFROM(0.00)[];
+	 MIME_TRACE(0.00)[0:+];
+	 BAYES_HAM(-0.00)[16.41%]
 
-The System EID (SEID) is an internal EID that is used by the SMCv2
-software stack that has a predefined and constant value representing
-the s390 physical machine that the OS is executing on. So it should
-be managed by SMC stack instead of ISM driver and be consistent for
-all ISMv2 device (including virtual ISM devices) on s390 architecture.
+> > My idea is to abandon this way completely, take the selftests and build 
+> > and run them on the system right away.
+> > 
+> > Both should be doable, hopefully, if we wire it all correctly... and 
+> > document it.
+> > 
+> I can't think of why it shouldn't continue to work, even in a future
+> where newer livepatching selftests support older kernels.  (We would
+> just have newer selftests sources backported to test older kernel sources.)
+> 
+> Are there any test cases which truly need to be build on-the-fly?  Aside
+> from testing different toolchain pieces?
 
-Suggested-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
----
- drivers/s390/net/ism.h     |  7 -------
- drivers/s390/net/ism_drv.c | 38 ++++++--------------------------------
- include/linux/ism.h        |  1 -
- include/net/smc.h          |  1 -
- net/smc/smc_ism.c          | 33 ++++++++++++++++++++++++---------
- net/smc/smc_ism.h          |  7 +++++++
- 6 files changed, 37 insertions(+), 50 deletions(-)
+https://github.com/SUSE/qa_test_klp is what we would like to migrate to 
+selftests to have just one place for all tests.
 
-diff --git a/drivers/s390/net/ism.h b/drivers/s390/net/ism.h
-index 70c5bbd..047fa610 100644
---- a/drivers/s390/net/ism.h
-+++ b/drivers/s390/net/ism.h
-@@ -16,7 +16,6 @@
-  */
- #define ISM_DMB_WORD_OFFSET	1
- #define ISM_DMB_BIT_OFFSET	(ISM_DMB_WORD_OFFSET * 32)
--#define ISM_IDENT_MASK		0x00FFFF
- 
- #define ISM_REG_SBA	0x1
- #define ISM_REG_IEQ	0x2
-@@ -192,12 +191,6 @@ struct ism_sba {
- #define ISM_CREATE_REQ(dmb, idx, sf, offset)		\
- 	((dmb) | (idx) << 24 | (sf) << 23 | (offset))
- 
--struct ism_systemeid {
--	u8	seid_string[24];
--	u8	serial_number[4];
--	u8	type[4];
--};
--
- static inline void __ism_read_cmd(struct ism_dev *ism, void *data,
- 				  unsigned long offset, unsigned long len)
- {
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index 34dd063..2c8e964 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -36,6 +36,7 @@
- 						/* a list for fast mapping  */
- static u8 max_client;
- static DEFINE_MUTEX(clients_lock);
-+static bool ism_v2_capable;
- struct ism_dev_list {
- 	struct list_head list;
- 	struct mutex mutex; /* protects ism device list */
-@@ -443,32 +444,6 @@ int ism_move(struct ism_dev *ism, u64 dmb_tok, unsigned int idx, bool sf,
- }
- EXPORT_SYMBOL_GPL(ism_move);
- 
--static struct ism_systemeid SYSTEM_EID = {
--	.seid_string = "IBM-SYSZ-ISMSEID00000000",
--	.serial_number = "0000",
--	.type = "0000",
--};
--
--static void ism_create_system_eid(void)
--{
--	struct cpuid id;
--	u16 ident_tail;
--	char tmp[5];
--
--	get_cpu_id(&id);
--	ident_tail = (u16)(id.ident & ISM_IDENT_MASK);
--	snprintf(tmp, 5, "%04X", ident_tail);
--	memcpy(&SYSTEM_EID.serial_number, tmp, 4);
--	snprintf(tmp, 5, "%04X", id.machine);
--	memcpy(&SYSTEM_EID.type, tmp, 4);
--}
--
--u8 *ism_get_seid(void)
--{
--	return SYSTEM_EID.seid_string;
--}
--EXPORT_SYMBOL_GPL(ism_get_seid);
--
- static void ism_handle_event(struct ism_dev *ism)
- {
- 	struct ism_event *entry;
-@@ -560,7 +535,9 @@ static int ism_dev_init(struct ism_dev *ism)
- 
- 	if (!ism_add_vlan_id(ism, ISM_RESERVED_VLANID))
- 		/* hardware is V2 capable */
--		ism_create_system_eid();
-+		ism_v2_capable = true;
-+	else
-+		ism_v2_capable = false;
- 
- 	mutex_lock(&ism_dev_list.mutex);
- 	mutex_lock(&clients_lock);
-@@ -665,8 +642,7 @@ static void ism_dev_exit(struct ism_dev *ism)
- 	}
- 	mutex_unlock(&clients_lock);
- 
--	if (SYSTEM_EID.serial_number[0] != '0' ||
--	    SYSTEM_EID.type[0] != '0')
-+	if (ism_v2_capable)
- 		ism_del_vlan_id(ism, ISM_RESERVED_VLANID);
- 	unregister_ieq(ism);
- 	unregister_sba(ism);
-@@ -813,8 +789,7 @@ static int smcd_move(struct smcd_dev *smcd, u64 dmb_tok, unsigned int idx,
- 
- static int smcd_supports_v2(void)
- {
--	return SYSTEM_EID.serial_number[0] != '0' ||
--		SYSTEM_EID.type[0] != '0';
-+	return ism_v2_capable;
- }
- 
- static u64 ism_get_local_gid(struct ism_dev *ism)
-@@ -860,7 +835,6 @@ static inline struct device *smcd_get_dev(struct smcd_dev *dev)
- 	.signal_event = smcd_signal_ieq,
- 	.move_data = smcd_move,
- 	.supports_v2 = smcd_supports_v2,
--	.get_system_eid = ism_get_seid,
- 	.get_local_gid = smcd_get_local_gid,
- 	.get_chid = smcd_get_chid,
- 	.get_dev = smcd_get_dev,
-diff --git a/include/linux/ism.h b/include/linux/ism.h
-index 9a4c204..5428edd 100644
---- a/include/linux/ism.h
-+++ b/include/linux/ism.h
-@@ -86,7 +86,6 @@ int  ism_register_dmb(struct ism_dev *dev, struct ism_dmb *dmb,
- int  ism_unregister_dmb(struct ism_dev *dev, struct ism_dmb *dmb);
- int  ism_move(struct ism_dev *dev, u64 dmb_tok, unsigned int idx, bool sf,
- 	      unsigned int offset, void *data, unsigned int size);
--u8  *ism_get_seid(void);
- 
- const struct smcd_ops *ism_get_smcd_ops(void);
- 
-diff --git a/include/net/smc.h b/include/net/smc.h
-index a0dc1187e..c9dcb30 100644
---- a/include/net/smc.h
-+++ b/include/net/smc.h
-@@ -73,7 +73,6 @@ struct smcd_ops {
- 			 bool sf, unsigned int offset, void *data,
- 			 unsigned int size);
- 	int (*supports_v2)(void);
--	u8* (*get_system_eid)(void);
- 	void (*get_local_gid)(struct smcd_dev *dev, struct smcd_gid *gid);
- 	u16 (*get_chid)(struct smcd_dev *dev);
- 	struct device* (*get_dev)(struct smcd_dev *dev);
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index a33f861..ac88de2 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -43,6 +43,27 @@ static void smcd_handle_irq(struct ism_dev *ism, unsigned int dmbno,
- };
- #endif
- 
-+static void smc_ism_create_system_eid(void)
-+{
-+	struct smc_ism_seid *seid =
-+		(struct smc_ism_seid *)smc_ism_v2_system_eid;
-+#if IS_ENABLED(CONFIG_S390)
-+	struct cpuid id;
-+	u16 ident_tail;
-+	char tmp[5];
-+
-+	memcpy(seid->seid_string, "IBM-SYSZ-ISMSEID00000000", 24);
-+	get_cpu_id(&id);
-+	ident_tail = (u16)(id.ident & SMC_ISM_IDENT_MASK);
-+	snprintf(tmp, 5, "%04X", ident_tail);
-+	memcpy(seid->serial_number, tmp, 4);
-+	snprintf(tmp, 5, "%04X", id.machine);
-+	memcpy(seid->type, tmp, 4);
-+#else
-+	memset(seid, 0, SMC_MAX_EID_LEN);
-+#endif
-+}
-+
- /* Test if an ISM communication is possible - same CPC */
- int smc_ism_cantalk(struct smcd_gid *peer_gid, unsigned short vlan_id,
- 		    struct smcd_dev *smcd)
-@@ -431,14 +452,8 @@ static void smcd_register_dev(struct ism_dev *ism)
- 
- 	mutex_lock(&smcd_dev_list.mutex);
- 	if (list_empty(&smcd_dev_list.list)) {
--		u8 *system_eid = NULL;
--
--		system_eid = smcd->ops->get_system_eid();
--		if (smcd->ops->supports_v2()) {
-+		if (smcd->ops->supports_v2())
- 			smc_ism_v2_capable = true;
--			memcpy(smc_ism_v2_system_eid, system_eid,
--			       SMC_MAX_EID_LEN);
--		}
- 	}
- 	/* sort list: devices without pnetid before devices with pnetid */
- 	if (smcd->pnetid[0])
-@@ -542,10 +557,10 @@ int smc_ism_init(void)
- {
- 	int rc = 0;
- 
--#if IS_ENABLED(CONFIG_ISM)
- 	smc_ism_v2_capable = false;
--	memset(smc_ism_v2_system_eid, 0, SMC_MAX_EID_LEN);
-+	smc_ism_create_system_eid();
- 
-+#if IS_ENABLED(CONFIG_ISM)
- 	rc = ism_register_client(&smc_ism_client);
- #endif
- 	return rc;
-diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
-index 0e5e563..ffff40c 100644
---- a/net/smc/smc_ism.h
-+++ b/net/smc/smc_ism.h
-@@ -16,6 +16,7 @@
- #include "smc.h"
- 
- #define SMC_VIRTUAL_ISM_CHID_MASK	0xFF00
-+#define SMC_ISM_IDENT_MASK		0x00FFFF
- 
- struct smcd_dev_list {	/* List of SMCD devices */
- 	struct list_head list;
-@@ -30,6 +31,12 @@ struct smc_ism_vlanid {			/* VLAN id set on ISM device */
- 	refcount_t refcnt;		/* Reference count */
- };
- 
-+struct smc_ism_seid {
-+	u8 seid_string[24];
-+	u8 serial_number[4];
-+	u8 type[4];
-+};
-+
- struct smcd_dev;
- 
- int smc_ism_cantalk(struct smcd_gid *peer_gid, unsigned short vlan_id,
--- 
-1.8.3.1
+There is basically just one live patch template and one supporting kernel 
+module template which is livepatched. The final result is driven by a set 
+of macros and function parameters. In some cases more modules are compiled 
+as parts of a test in a loop.
 
+However, I do not think there is anything which truly needs to be built 
+on-the-fly in the end. Everything can be worked around. Templates may be 
+abandoned and we would have a live patch and a module(s) per test. Some 
+tests are probably not worth it and may be removed. So it is a question of 
+convenience and maintainability. When we, for example, simplified API and 
+klp_register_patch() was removed, only one place needed to be amended. 
+Also, the current state in lib/livepatch/ could be simplified with the 
+proposed infrastructure as some files could be merged together.
+
+Miroslav
