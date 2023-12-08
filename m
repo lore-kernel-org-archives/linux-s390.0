@@ -1,52 +1,52 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="hGy5kX1t"
-Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32DAD172B
-	for <linux-s390@vger.kernel.org>; Fri,  8 Dec 2023 05:39:13 -0800 (PST)
-Received: by mail-ot1-x336.google.com with SMTP id 46e09a7af769-6d9dadc3dc0so1186773a34.1
-        for <linux-s390@vger.kernel.org>; Fri, 08 Dec 2023 05:39:13 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="HzGZGL40"
+Received: from mail-qv1-xf32.google.com (mail-qv1-xf32.google.com [IPv6:2607:f8b0:4864:20::f32])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21EC31732
+	for <linux-s390@vger.kernel.org>; Fri,  8 Dec 2023 05:49:32 -0800 (PST)
+Received: by mail-qv1-xf32.google.com with SMTP id 6a1803df08f44-67a959e3afaso11650246d6.2
+        for <linux-s390@vger.kernel.org>; Fri, 08 Dec 2023 05:49:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1702042752; x=1702647552; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1702043371; x=1702648171; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=rN8Rat4FZlrJAhphwUeTKAqkkJCDvqW2t49f375msAs=;
-        b=hGy5kX1toSBypw4ZLPXDuL9hcokhSZB2g+qGSsSOf0cso9ZsPKp9DCbbuaU7XDMaiE
-         j31rp1vUW1TiO8kY2Xh716R+RcsHZ+OSUkysX7VF/n7vMx6Q4cgE76oh/ELomjdCVmSF
-         E4NDDaPAddfLOioRDkzq3nwqtl8odhWAjBQhTP+NAI70bgxmEJT+P6UbleA5W3Cgwqu8
-         aDR1oKJlEMw2CdN0OQTOdoLW9UHcR0Gll/nrl1JvDrh3Ta17n7tV0JJMq7E7BQvUGuyN
-         VJl2Q7bCfAIKY1xUmCrmJzvsA/jEyeZUfW2k1QI45d8nvIrdN45LFSfPNddfHdZaDADD
-         3zyg==
+        bh=pyp/ZFyiUOjenQgn6G8kYMLVmsBPMd5m8mXyGEY1Mx8=;
+        b=HzGZGL40VCq48hRUv4ni/hFjp8bYozGF/tTJeOdjnidmwhiHA7c/5xRV5VmDuzdIAO
+         nKXClPDibILMmg7YfybvldwgIRps0nw/vntbReb+zPihNUhm/90sSGnZbeN1oOvh9Lqb
+         8baKHliajyRWOu4i0/v4vnqkMUnaJdBHugn45qz7kDw6C4UKboMz5+yDNagxa1xhbSYA
+         LVGbFg4LUi6yekPeRD5NFta3HXo4G+ZI3XSb4bCekE9ocyFl/2cHtpYbsUBGmgv1QvUa
+         A8r5ZEntXCy+T4mYu5sdOH+pa9DR7a/bGsj6QsNM++0u5wtlHfYxD8B33Ubto4HDCuIW
+         PX2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702042752; x=1702647552;
+        d=1e100.net; s=20230601; t=1702043371; x=1702648171;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=rN8Rat4FZlrJAhphwUeTKAqkkJCDvqW2t49f375msAs=;
-        b=OhzFEaVJIcceDRtwFBMrR3jtw4UaMe0sXSq3LldtgwDAoa20JAAQATyn4mlnBKAeAx
-         ti+2ExvNfD7zXhyDzzbCHmjzy/X6srghu3S6cEhG63mOJI3+rq8RYT5SnxocJ1lTnniz
-         sfw2PiOVlxNPUu1vkBqTMU3xo9d45b5blNpUoiFq1J0+PEfdu//4CXgwtzEoLupDX/9Q
-         JcwmgZfKCqShpNq2JJzNnJpGY2SCd+ALDQZOBPbDgk0yPLzLVz7Pf/KNyVBJEl0RNckl
-         c59v5mrIzBMkX2ALekoor72iJdzhlWEcaUKMykMmQ6bT/ysRy9mQBt0AYzW8d21llJjW
-         DlRg==
-X-Gm-Message-State: AOJu0Yw1LpX7xPVzDjtdokEZkKREa1sLafvpW1dccSMB/wAjuF2p/CpL
-	nKq0myUTOh1gj9qrNC1R7d1DNLOCnrszhOgYtIUGLQ==
-X-Google-Smtp-Source: AGHT+IEJXKzONP7C4cAEoOMzT6ZeTkshs4DU290kKfRkkOzICnszoAWUTV1A4DlsnRvXpiN/Sz4G5aKQQ3r+jLf2v2c=
-X-Received: by 2002:a05:6830:1a:b0:6d7:f363:eb0 with SMTP id
- c26-20020a056830001a00b006d7f3630eb0mr39559otp.35.1702042752413; Fri, 08 Dec
- 2023 05:39:12 -0800 (PST)
+        bh=pyp/ZFyiUOjenQgn6G8kYMLVmsBPMd5m8mXyGEY1Mx8=;
+        b=Bq2WA+WLSfN0eV4Ur48A/KnnNQdgf02rSDXk6rruHqrxbu1BLLx+tNkdZylB1gbUnF
+         KFjth1K+06sNb1TH+7zSlmB8gVbQ6aCyNciZRZO7atw1+2T7Xt54IrnmF4VAuA5Xno5k
+         CZxXd7r1GPOIlAzKraN7bd/imY3JO5Z6QKQKm/UNhSCjs5DzrcHpsG5lp+wYao82z3GW
+         61CzraOvlsx5kZITry0d0bFudh1HNojLb2YcAXOJj7SU0c4EoR0ExjaEfRM01YrtGLmQ
+         4d+Z0od3IfUENQ3GmTnWEbsW6Doz2cM/komaM+JDhqB9lxkYphK5yDDgKSYSA/oWSJTE
+         MXYg==
+X-Gm-Message-State: AOJu0Yx9pCTHd3btgBHgag/tOj42I8L6gEOuroBd7CCwEZka8OFjDWLy
+	9LXn/sAFAcVhqHMKcs8wPsZ7DOVOlO2Coq6IFW6GEA==
+X-Google-Smtp-Source: AGHT+IEr68RmSA5aYBUgmYtuiSsf9rYsZogw9kLYvnY2zqG64Y2/8MrVDe8thwflyfC3jwZMQ9WgLXTtXopCNqK1OqA=
+X-Received: by 2002:ad4:5de2:0:b0:67a:c8ff:1641 with SMTP id
+ jn2-20020ad45de2000000b0067ac8ff1641mr5787725qvb.79.1702043371101; Fri, 08
+ Dec 2023 05:49:31 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231121220155.1217090-1-iii@linux.ibm.com> <20231121220155.1217090-25-iii@linux.ibm.com>
-In-Reply-To: <20231121220155.1217090-25-iii@linux.ibm.com>
+References: <20231121220155.1217090-1-iii@linux.ibm.com> <20231121220155.1217090-14-iii@linux.ibm.com>
+In-Reply-To: <20231121220155.1217090-14-iii@linux.ibm.com>
 From: Alexander Potapenko <glider@google.com>
-Date: Fri, 8 Dec 2023 14:38:36 +0100
-Message-ID: <CAG_fn=U8kGUCHQb7580bfVgh9=E1zjch3vB0tV5ooFxWsGNQkg@mail.gmail.com>
-Subject: Re: [PATCH v2 24/33] s390/checksum: Add a KMSAN check
+Date: Fri, 8 Dec 2023 14:48:55 +0100
+Message-ID: <CAG_fn=Vaj3hTRAMxUwofpSMPhFBOizDOWR_An-V9qLNQv-suYw@mail.gmail.com>
+Subject: Re: [PATCH v2 13/33] kmsan: Introduce memset_no_sanitize_memory()
 To: Ilya Leoshkevich <iii@linux.ibm.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
 	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
@@ -61,13 +61,24 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-founda
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 21, 2023 at 11:02=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.co=
+On Tue, Nov 21, 2023 at 11:06=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.co=
 m> wrote:
 >
-> Add a KMSAN check to the CKSM inline assembly, similar to how it was
-> done for ASAN in commit e42ac7789df6 ("s390/checksum: always use cksm
-> instruction").
->
-> Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Reviewed-by: Alexander Potapenko <glider@google.com>
+> Add a wrapper for memset() that prevents unpoisoning.
+
+We have __memset() already, won't it work for this case?
+On the other hand, I am not sure you want to preserve the redzone in
+its previous state (unless it's known to be poisoned).
+You might consider explicitly unpoisoning the redzone instead.
+
+...
+
+> +__no_sanitize_memory
+> +static inline void *memset_no_sanitize_memory(void *s, int c, size_t n)
+> +{
+> +       return memset(s, c, n);
+> +}
+
+I think depending on the compiler optimizations this might end up
+being a call to normal memset, that would still change the shadow
+bytes.
