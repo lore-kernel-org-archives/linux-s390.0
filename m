@@ -1,76 +1,114 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="sosVTcFy"
-Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E262B171D
-	for <linux-s390@vger.kernel.org>; Fri,  8 Dec 2023 06:18:53 -0800 (PST)
-Received: by mail-qk1-x735.google.com with SMTP id af79cd13be357-77f3b4394fdso89472385a.0
-        for <linux-s390@vger.kernel.org>; Fri, 08 Dec 2023 06:18:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1702045133; x=1702649933; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=b4aUU7dNjS/w6j2yOU1hBuNM/NL6fqAI1SOBM3IICMA=;
-        b=sosVTcFyu2GzDo3ZpJ9JYMr9x8cL+nfMjaYe5l6NX8B6UjAvCK8scD//SXdLHsQqws
-         8jver1uwXhTGs3Brw/1qWLHLetD5hgsBf5HaZTlga6jQWFov3IlLaBKBU+g/++aPAvka
-         IkhhPdieQJvvQduKvns0CaQ6/T1tVGY7TVWPzKdgWurcQ+bqI3XAVicUoqyyXYeES7Yr
-         sy7h2SbV5iGg5IC/090vF8bmTMkF1ByDo0Qhtgg3TcDBqOqm7apNDxsla22HOA4c7fl0
-         W03DqmLDlqNMuXrHeiy14+TMGkKSbv9dfog+IzqfpOO/JlXiLVEPPaxhI94SW8xe9ml5
-         lB2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702045133; x=1702649933;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=b4aUU7dNjS/w6j2yOU1hBuNM/NL6fqAI1SOBM3IICMA=;
-        b=AIrUG8BuSNQpqY1ZFbVPUVio8XTiuwFryMi8zjWy2tq/9XFYAitAkXhnb1lun5deGR
-         xYP/lnZj+5Q+2BOYjlu78Y4jUtLQSmNfsrlGGpQe+1fia4D/De4Qf6uLIIo2FoG2SEsf
-         rnp+TrcY5MAWjhgO/rUbFcvbTIlZzxGIzCCthJCeIrk5oHaG22FA6ODegTThNPyq27YT
-         FmzN4qAbAP2oN74QizM98zc8/62+L1Td10YnZ2HFXYLydQixoHQxsoovaShzSvsW3wI0
-         uSCzcJmKOjD0Abqa2xA2BqQH+pGZDuV9syAQlcfeC8KYIQr8CXutiR3zbrp4wL22+Zy6
-         kFag==
-X-Gm-Message-State: AOJu0Yw72mF+pTFYOqaNV8BMQofWMmHWDQIVcB35u3oCmuR1gd7k9N58
-	0Zhu7I+YhZS8JF78Myao5lGpNJEE0JnVRgskwSkwog==
-X-Google-Smtp-Source: AGHT+IH8EMqb7H0OjwmlXGKXc/KMyqDWbzvWyGHpM5I7Qm/vaxWs0Al1SPzWhhi4fZH80FWJcx2+zkplz4DLr+7aWfs=
-X-Received: by 2002:a05:6214:1023:b0:67a:be9a:e9df with SMTP id
- k3-20020a056214102300b0067abe9ae9dfmr23702qvr.17.1702045132939; Fri, 08 Dec
- 2023 06:18:52 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="F8ob1n3G"
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71F48171D;
+	Fri,  8 Dec 2023 06:21:17 -0800 (PST)
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B8DKQxG015335;
+	Fri, 8 Dec 2023 14:21:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=7prP1ZPaFrX9dJQHxUFlI0YQ9pGd5ZixGsXP58BtELA=;
+ b=F8ob1n3GgqTFPaA7dDYP25bjGodNYQAwLs7dkjVByLv5+FpiL6mIeQaHNrubgGoC3fG3
+ xpcEiK9AGSOtmmIU6ALVJNP/mkEywHH3DgHJGUN96FEwQHTh1Pge3htTJls52RDjWLIa
+ JPWb0ZpFeYfKIYyjIEaPkLZrTCbgh1NMGc/D1Bvxp6e3JX+93i8Rv0J+gdrS+cxgd1Xy
+ 5s8qTJGl2OS1SadcZlj2sRJsXcF8cs/1RYPcxgtcfRC9T0Z/+hdxmig/VbGndSEj7K+W
+ 8eQMCapnoFLMBQ0WKgypqDdW+/ulmiEitrZrCX21UkkmQ9FQtZT5YcEGo3OabPAnxpZG /Q== 
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uv0cu8asg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 Dec 2023 14:21:15 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B8D537i004735;
+	Fri, 8 Dec 2023 14:21:13 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3utav4t0w2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 Dec 2023 14:21:13 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B8ELCm952888136
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 8 Dec 2023 14:21:13 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B98ED58054;
+	Fri,  8 Dec 2023 14:21:12 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A9E365805A;
+	Fri,  8 Dec 2023 14:21:11 +0000 (GMT)
+Received: from [9.61.43.82] (unknown [9.61.43.82])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  8 Dec 2023 14:21:11 +0000 (GMT)
+Message-ID: <918b6276-f423-49c8-8719-4517e9d23bad@linux.ibm.com>
+Date: Fri, 8 Dec 2023 09:21:11 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231121220155.1217090-1-iii@linux.ibm.com> <20231121220155.1217090-27-iii@linux.ibm.com>
-In-Reply-To: <20231121220155.1217090-27-iii@linux.ibm.com>
-From: Alexander Potapenko <glider@google.com>
-Date: Fri, 8 Dec 2023 15:18:16 +0100
-Message-ID: <CAG_fn=UBaF8SnvJ4t4wbBZKbNEBWRyGBY=FA+CTB+k2+pa2qEw@mail.gmail.com>
-Subject: Re: [PATCH v2 26/33] s390/ftrace: Unpoison ftrace_regs in kprobe_ftrace_handler()
-To: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>, 
-	Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Vlastimil Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com, 
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, 
-	Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle <svens@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] KVM: s390: fix cc for successful PQAP
+Content-Language: en-US
+To: Eric Farman <farman@linux.ibm.com>, Janosch Frank
+ <frankja@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Halil Pasic
+ <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+References: <20231201181657.1614645-1-farman@linux.ibm.com>
+ <fe3082f7-70fd-479f-b6a2-d753d271d6d5@linux.ibm.com>
+ <0fe89d1a4ef539bef4bdf2302faf23f6d5848bf2.camel@linux.ibm.com>
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <0fe89d1a4ef539bef4bdf2302faf23f6d5848bf2.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: XVvNz0tTnDGwb4mHg4tUVcQyXhZeIeSd
+X-Proofpoint-ORIG-GUID: XVvNz0tTnDGwb4mHg4tUVcQyXhZeIeSd
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-08_09,2023-12-07_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ mlxlogscore=815 spamscore=0 clxscore=1015 phishscore=0 suspectscore=0
+ impostorscore=0 bulkscore=0 lowpriorityscore=0 adultscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2312080118
 
-On Tue, Nov 21, 2023 at 11:02=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.co=
-m> wrote:
+
+On 12/8/23 6:24 AM, Eric Farman wrote:
+> On Fri, 2023-12-08 at 11:31 +0100, Janosch Frank wrote:
+>> On 12/1/23 19:16, Eric Farman wrote:
+>>> The various errors that are possible when processing a PQAP
+>>> instruction (the absence of a driver hook, an error FROM that
+>>> hook), all correctly set the PSW condition code to 3. But if
+>>> that processing works successfully, CC0 needs to be set to
+>>> convey that everything was fine.
+>>>
+>>> Fix the check so that the guest can examine the condition code
+>>> to determine whether GPR1 has meaningful data.
+>>>
+>> Hey Eric, I have yet to see this produce a fail in my AP KVM unit
+>> tests.
+>> If you find some spare time I'd like to discuss how I can extend my
+>> test
+>> so that I can see the fail before it's fixed.
+>>
+> Hi Janosch, absolutely. I had poked around kvm-unit-tests before I sent
+> this up to see if I could adapt something to show this scenario, but
+> came up empty and didn't want to go too far down that rabbit hole
+> creating something from scratch. I'll ping you offline to find a time
+> to talk.
+
+
+If this is recreateable, I'd like to know how. I don't see any code path 
+that would cause this result.
+
+
 >
-> s390 uses assembly code to initialize ftrace_regs and call
-> kprobe_ftrace_handler(). Therefore, from the KMSAN's point of view,
-> ftrace_regs is poisoned on kprobe_ftrace_handler() entry. This causes
-> KMSAN warnings when running the ftrace testsuite.
+> Eric
 >
-> Fix by trusting the assembly code and always unpoisoning ftrace_regs in
-> kprobe_ftrace_handler().
->
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Reviewed-by: Alexander Potapenko <glider@google.com>
