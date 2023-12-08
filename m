@@ -1,51 +1,65 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BE9D366;
-	Fri,  8 Dec 2023 00:49:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kMEcxC3d"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5458BC433C7;
-	Fri,  8 Dec 2023 00:49:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1701996589;
-	bh=EHTPFrjAnUcFE5n/Ico6Xo6PnZAf3NpCXQrBkMkxcMk=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=kMEcxC3dD1bhKGVlnyXeOfTfo+bK1YjU002o2xhG1LsBfyb1ltPY/P6nwVmJQHkZU
-	 qEjCUyH/nF5AWxndYQ6P6YNFWakU2OGuilMxx3Qd3sNFI7vkTfKRgjNHRD8Ob01wE3
-	 tttm3p4HHJddq4BSUO5UowJcPEl1/CQqO/of4I9sUlQ0q1tpkl1+zikOSa7WEUZ6fB
-	 LuKbp8GZjunBpU12rwo5UDft4ffydgpyGvF4Pf0IyzJGNMVoNrhx1tbdvd9U6PUjVa
-	 PXyvIJAjZoaL1feVgcym8RghbASu2HyuCi+WuvjrATDJG2pvcw6jK8Rr9RnhcRfrJR
-	 FZgFEA6LbRvNQ==
-Date: Thu, 7 Dec 2023 16:49:47 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-To: Wen Gu <guwen@linux.alibaba.com>
-Cc: wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
- edumazet@google.com, pabeni@redhat.com, kgraul@linux.ibm.com,
- jaka@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, raspl@linux.ibm.com,
- schnelle@linux.ibm.com, guangguan.wang@linux.alibaba.com,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next v4 0/9] net/smc: implement SMCv2.1 virtual ISM
- device support
-Message-ID: <20231207164947.3b338de4@kernel.org>
-In-Reply-To: <1701920994-73705-1-git-send-email-guwen@linux.alibaba.com>
-References: <1701920994-73705-1-git-send-email-guwen@linux.alibaba.com>
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F7BD1734;
+	Thu,  7 Dec 2023 17:45:09 -0800 (PST)
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0Vy1KmNN_1701999905;
+Received: from 30.221.129.118(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Vy1KmNN_1701999905)
+          by smtp.aliyun-inc.com;
+          Fri, 08 Dec 2023 09:45:06 +0800
+Message-ID: <f86b04c6-a9ff-2ae7-f131-6dd870d454b1@linux.alibaba.com>
+Date: Fri, 8 Dec 2023 09:45:05 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.1
+Subject: Re: [PATCH net] MAINTAINERS: remove myself as maintainer of SMC
+To: Karsten Graul <kgraul@linux.ibm.com>, Wenjia Zhang
+ <wenjia@linux.ibm.com>, David Miller <davem@davemloft.net>,
+ Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>,
+ Paolo Abeni <pabeni@redhat.com>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+ Heiko Carstens <hca@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
+ Alexandra Winter <wintera@linux.ibm.com>, Stefan Raspl
+ <raspl@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
+ Thorsten Winkler <twinkler@linux.ibm.com>, Halil Pasic
+ <pasic@linux.ibm.com>, Nils Hoppmann <niho@linux.ibm.com>,
+ Niklas Schnell <schnelle@linux.ibm.com>, Tony Lu <tonylu@linux.alibaba.com>,
+ "D. Wythe" <alibuda@linux.alibaba.com>
+References: <20231207202358.53502-1-wenjia@linux.ibm.com>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <20231207202358.53502-1-wenjia@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On Thu,  7 Dec 2023 11:49:45 +0800 Wen Gu wrote:
-> (Note that this patch set depends on an under-reviewing bugfix patch:
-> Link: https://lore.kernel.org/netdev/1701882157-87956-1-git-send-email-guwen@linux.alibaba.com/)
 
-Post as an RFC, please, until the dependencies have converged.
--- 
-pw-bot: cr
+
+On 2023/12/8 04:23, Wenjia Zhang wrote:
+> From: Karsten Graul <kgraul@linux.ibm.com>
+> 
+> I changed responsibilities some time ago, its time
+> to remove myself as maintainer of the SMC component.
+> 
+
+Thank you Karsten for your contributions and efforts to SMC component. :)
+
+> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+> Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
+> ---
+>   MAINTAINERS | 1 -
+>   1 file changed, 1 deletion(-)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index e6109201e8b4..ddb858576d8b 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -19638,7 +19638,6 @@ S:	Maintained
+>   F:	drivers/misc/sgi-xp/
+>   
+>   SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS
+> -M:	Karsten Graul <kgraul@linux.ibm.com>
+>   M:	Wenjia Zhang <wenjia@linux.ibm.com>
+>   M:	Jan Karcher <jaka@linux.ibm.com>
+>   R:	D. Wythe <alibuda@linux.alibaba.com>
