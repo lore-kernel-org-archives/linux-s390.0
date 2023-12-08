@@ -1,149 +1,107 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="aMIRCreY"
-Received: from mail-qv1-xf2b.google.com (mail-qv1-xf2b.google.com [IPv6:2607:f8b0:4864:20::f2b])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27185FB
-	for <linux-s390@vger.kernel.org>; Fri,  8 Dec 2023 07:26:23 -0800 (PST)
-Received: by mail-qv1-xf2b.google.com with SMTP id 6a1803df08f44-67aa00ea853so12397106d6.2
-        for <linux-s390@vger.kernel.org>; Fri, 08 Dec 2023 07:26:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1702049182; x=1702653982; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=fmveRht4WTP9VCfRGY2TlBDNiNt4nqiRyGovDc1Drhw=;
-        b=aMIRCreY4ebtSeY0kuQfq/myxA8NG1/q9ulVo+sy+stLhCK+0g21pM/oW+mXxiyaPH
-         euIZ89cc/WUx5YyxRBoawfCZ860qQ08RYlBZytEYMUudTBY4FNW2/Ju3JUc3/8LybZFX
-         PrBUC3ee9CwFbQ78QNKWmeVcA0rt8APAt26Y7oj+IypxMD5yPtAp5+FIQyfCX8Fh2oLq
-         f39dD6e1sDbB0g9oaz7QP2jI4f9k6bxEZ8qKLDMRO02qzGJwzlDVTkKvzZoHIFPIKP7m
-         mqgl3JrQJ35e3zR9peAkFumSVix0iZepCWZAgcTzrj6zm41jv6cQAZbJVUs6Ct9DhbpY
-         JtEQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702049182; x=1702653982;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=fmveRht4WTP9VCfRGY2TlBDNiNt4nqiRyGovDc1Drhw=;
-        b=chqTF1jnwUZHRXa5S2nHVUOPZj02O3EiUPY6ySjcqSQzCYlNl6rnGiw3q6cC/3rJEl
-         WjaVLQz2WDw995bF0M1P8Zst+G12QIG0jvwkxhEz81BqxUm6d7r0vBuSpPODpQ/V072A
-         AcJgUUgcOHV+x3eu/0FqWbx//lt1iP452dcFKvoe9o/+uj1lqDC96LDmpz49Ij5M1HI6
-         Mu7F4tAfKiH5ihKDnZ4NfH+xByHgRIyCCmb/toDdXKbqP5TXR/TPtEraoCv6fjXiXkYC
-         fq3JEt3KSRMn1uXyNCD/e0fkxFZKZOr4MJszHagy3NR9D01NLEGa//qck+Zz9lhBrxIG
-         IgeQ==
-X-Gm-Message-State: AOJu0YwoCIWozr2YkNOl3L+6YoMOC1aDeA+UTtzACUd0dUJJjaReRm9J
-	qwfqSYElcCk+ULf5HUOz4q/Edci6JVnfWmyw6WtgsQ==
-X-Google-Smtp-Source: AGHT+IFQWMwRSduRWrugzZXzhW4SP5JgRv6bQmddI9L+WLPciJYPF9LKHJS1ct3eyxJlLmbNonEC+PpCF/NYvyZxUy8=
-X-Received: by 2002:ad4:52eb:0:b0:67a:a721:82f8 with SMTP id
- p11-20020ad452eb000000b0067aa72182f8mr105489qvu.82.1702049182002; Fri, 08 Dec
- 2023 07:26:22 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CGBwdKWo"
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 061921987;
+	Fri,  8 Dec 2023 08:23:03 -0800 (PST)
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B8GMA9t014613;
+	Fri, 8 Dec 2023 16:23:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=8zqF0vS6DlIKW4qExiCeBWG7s7HEW48Qv8M1MPl9Deo=;
+ b=CGBwdKWoH1o/FmOy0GU7uh3lazHU9SKaUl4tU7ku81jmcE8NyLLmZ2QkMEYCQo/zAsmR
+ OPRZSlR6VL+Vbkj/nlLeWmBDlvNMomI4D1t9oKENXW86b+CWQRFp9UL9FwajFocQgOx4
+ ReFd6cHuytfOAUKqXOrdVJlDkp7qfbIbn/Dkk0BakZZjLNkSQXCBr2T4rqPq13pHcE1b
+ GkFNvCZuYZWi3U5102hYa5SuxcCMAoThwhtO6dp2jD03N4QBTC24o2nj1a+TkRFE5Q6E
+ /tolTT6PtUTDpQSn2/C+A7PL4dUyM3JdJdF2yhHLOAdoI7xT9y4fsWtevmv+BhYLNBR3 zg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uv6kng0q9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 Dec 2023 16:23:02 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B8GN1xV018841;
+	Fri, 8 Dec 2023 16:23:01 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uv6kng0pk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 Dec 2023 16:23:01 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B8GLjU0001561;
+	Fri, 8 Dec 2023 16:23:00 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3utav2tjet-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 Dec 2023 16:23:00 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B8GMxlL9634412
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 8 Dec 2023 16:22:59 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E7E615804E;
+	Fri,  8 Dec 2023 16:22:58 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 525BF5803F;
+	Fri,  8 Dec 2023 16:22:57 +0000 (GMT)
+Received: from li-2c1e724c-2c76-11b2-a85c-ae42eaf3cb3d.ibm.com.com (unknown [9.61.47.9])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  8 Dec 2023 16:22:57 +0000 (GMT)
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, pasic@linux.ibm.com,
+        pbonzini@redhat.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com
+Subject: [PATCH v1 0/6] s390/vfio-ap: reset queues removed from guest's AP configuration
+Date: Fri,  8 Dec 2023 11:22:45 -0500
+Message-ID: <20231208162256.10633-1-akrowiak@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231121220155.1217090-1-iii@linux.ibm.com> <20231121220155.1217090-14-iii@linux.ibm.com>
- <CAG_fn=Vaj3hTRAMxUwofpSMPhFBOizDOWR_An-V9qLNQv-suYw@mail.gmail.com> <69e7bc8e8c8a38c429a793e991e0509cb97a53e1.camel@linux.ibm.com>
-In-Reply-To: <69e7bc8e8c8a38c429a793e991e0509cb97a53e1.camel@linux.ibm.com>
-From: Alexander Potapenko <glider@google.com>
-Date: Fri, 8 Dec 2023 16:25:41 +0100
-Message-ID: <CAG_fn=UbJ+z8Gmfjodu-jBQz75HApXADw8Abj38BCLHmY_ZW9w@mail.gmail.com>
-Subject: Re: [PATCH v2 13/33] kmsan: Introduce memset_no_sanitize_memory()
-To: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>, 
-	Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Vlastimil Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com, 
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, 
-	Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle <svens@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 7H1pX6VpibOUxrBhHmuQZDahddTwufv7
+X-Proofpoint-GUID: yEJcYP9YvaqkQnoHn8QrjSW1RFBpJ84n
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-08_11,2023-12-07_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=922
+ priorityscore=1501 suspectscore=0 adultscore=0 phishscore=0 spamscore=0
+ malwarescore=0 impostorscore=0 mlxscore=0 bulkscore=0 lowpriorityscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2312080135
 
-> A problem with __memset() is that, at least for me, it always ends
-> up being a call. There is a use case where we need to write only 1
-> byte, so I thought that introducing a call there (when compiling
-> without KMSAN) would be unacceptable.
+All queues removed from a guest's AP configuration must be reset so when
+they are subsequently made available again to a guest, they re-appear in a
+reset state. There are some scenarios where this is not the case. For 
+example, if a queue device that is passed through to a guest is unbound 
+from the vfio_ap device driver, the adapter to which the queue is attached
+will be removed from the guest's AP configuration. Doing so implicitly
+removes all queues associated with that adapter because the AP architecture
+precludes removing a single queue. Those queues also need to be reset.
 
-Wonder what happens with that use case if we e.g. build with fortify-source.
-Calling memset() for a single byte might be indicating the code is not hot.
+This patch series ensures that all queues removed from a guest's AP
+configuration are reset for all possible scenarios.
 
-> > ...
-> >
-> > > +__no_sanitize_memory
-> > > +static inline void *memset_no_sanitize_memory(void *s, int c,
-> > > size_t n)
-> > > +{
-> > > +       return memset(s, c, n);
-> > > +}
-> >
-> > I think depending on the compiler optimizations this might end up
-> > being a call to normal memset, that would still change the shadow
-> > bytes.
->
-> Interesting, do you have some specific scenario in mind? I vaguely
-> remember that in the past there were cases when sanitizer annotations
-> were lost after inlining, but I thought they were sorted out?
 
-Sanitizer annotations are indeed lost after inlining, and we cannot do
-much about that.
-They are implemented using function attributes, and if a function
-dissolves after inlining, we cannot possibly know which instructions
-belonged to it.
+Tony Krowiak (6):
+  s390/vfio-ap: always filter entire AP matrix
+  s390/vfio-ap: loop over the shadow APCB when filtering guest's AP
+    configuration
+  s390/vfio-ap: let 'on_scan_complete' callback filter matrix and update
+    guest's APCB
+  s390/vfio-ap: reset queues filtered from the guest's AP config
+  s390/vfio-ap: reset queues associated with adapter for queue unbound
+    from driver
+  s390/vfio-ap: do not reset queue removed from host config
 
-Consider the following example (also available at
-https://godbolt.org/z/5r7817G8e):
+ drivers/s390/crypto/vfio_ap_ops.c     | 271 ++++++++++++++++++--------
+ drivers/s390/crypto/vfio_ap_private.h |  11 +-
+ 2 files changed, 194 insertions(+), 88 deletions(-)
 
-==================================
-void *kmalloc(int size);
+-- 
+2.43.0
 
-__attribute__((no_sanitize("kernel-memory")))
-__attribute__((always_inline))
-static void *memset_nosanitize(void *s, int c, int n) {
-  return __builtin_memset(s, c, n);
-}
-
-void *do_something_nosanitize(int size) {
-  void *ptr = kmalloc(size);
-  memset_nosanitize(ptr, 0, size);
-  return ptr;
-}
-
-void *do_something_sanitize(int size) {
-  void *ptr = kmalloc(size);
-  __builtin_memset(ptr, 0, size);
-  return ptr;
-}
-==================================
-
-If memset_nosanitize() has __attribute__((always_inline)), the
-compiler generates the same LLVM IR calling __msan_memset() for both
-do_something_nosanitize() and do_something_sanitize().
-If we comment out this attribute, do_something_nosanitize() calls
-memset_nosanitize(), which doesn't have the sanitize_memory attribute.
-
-But even now __builtin_memset() is still calling __msan_memset(),
-because __attribute__((no_sanitize("kernel-memory"))) somewhat
-counterintuitively still preserves some instrumentation (see
-include/linux/compiler-clang.h for details).
-Replacing __attribute__((no_sanitize("kernel-memory"))) with
-__attribute__((disable_sanitizer_instrumentation)) fixes this
-situation:
-
-define internal fastcc noundef ptr @memset_nosanitize(void*, int,
-int)(ptr noundef returned writeonly %s, i32 noundef %n) unnamed_addr
-#2 {
-entry:
-%conv = sext i32 %n to i64
-tail call void @llvm.memset.p0.i64(ptr align 1 %s, i8 0, i64 %conv, i1 false)
-ret ptr %s
-}
-
->
-> And, in any case, if this were to happen, would not it be considered a
-> compiler bug that needs fixing there, and not in the kernel?
-
-As stated above, I don't think this is more or less working as intended.
-If we really want the ability to inline __memset(), we could transform
-it into memset() in non-sanitizer builds, but perhaps having a call is
-also acceptable?
