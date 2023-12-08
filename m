@@ -1,104 +1,181 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DAiz5YT8"
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73CAB10CA;
-	Fri,  8 Dec 2023 03:24:05 -0800 (PST)
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B8BHvdN023292;
-	Fri, 8 Dec 2023 11:24:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=JRLtADp3bCNbFs+ji25sdAY6QNr59LedRAYMmwGEKxc=;
- b=DAiz5YT8oSOhfyJOSy5quUapwLFWhJIl8JIYgGSSBuCB2b39DM2vKFzVlZ6PyOnehenY
- mkSikqnmexO5S6X2Aj8CYbJ/b88GyRqLrO5ZwSw5pvXL8PHNbdOmkag6vYPwmXojmT3j
- OaZ4Uuz+vbzjb12eT83bag+Y9coVbvJ603ZvOGfpXdkEF984eiiitKb73qpgxuhPndGD
- qVodV2pcO5MG9NT3olc0EQtsBeSkZt/SfWRPn5BQC2dpqVxQEIJXDViwmstZjfZpG6VW
- EURYyvOS7Nvr1hnCkUIQGu8JO2qRuOMI+SSlHbEtTe730h/hRIps+jtyiLhRrmoDIRDq 4Q== 
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uv254g4hy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Dec 2023 11:24:04 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B89bAsN004681;
-	Fri, 8 Dec 2023 11:24:03 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3utav4s9dv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Dec 2023 11:24:03 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B8BO2wl50790804
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 8 Dec 2023 11:24:02 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2176B58057;
-	Fri,  8 Dec 2023 11:24:02 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4501658059;
-	Fri,  8 Dec 2023 11:24:01 +0000 (GMT)
-Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.97.239])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  8 Dec 2023 11:24:01 +0000 (GMT)
-Message-ID: <0fe89d1a4ef539bef4bdf2302faf23f6d5848bf2.camel@linux.ibm.com>
-Subject: Re: [PATCH] KVM: s390: fix cc for successful PQAP
-From: Eric Farman <farman@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Date: Fri, 08 Dec 2023 06:24:00 -0500
-In-Reply-To: <fe3082f7-70fd-479f-b6a2-d753d271d6d5@linux.ibm.com>
-References: <20231201181657.1614645-1-farman@linux.ibm.com>
-	 <fe3082f7-70fd-479f-b6a2-d753d271d6d5@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="eS9gYmn5"
+Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2798A1997
+	for <linux-s390@vger.kernel.org>; Fri,  8 Dec 2023 04:43:28 -0800 (PST)
+Received: by mail-lj1-x22c.google.com with SMTP id 38308e7fff4ca-2cb20b965dbso9429851fa.1
+        for <linux-s390@vger.kernel.org>; Fri, 08 Dec 2023 04:43:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1702039406; x=1702644206; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=M4jRq8coAm6Zi8gGKP+BNqEZe9vdeBRNYUjT809qI8k=;
+        b=eS9gYmn5WmiONKtxW1pUrNsiHvsUa8Bak0Cw08bWY+D+a4TVi05QHvNOyNS1UKgsQP
+         XLAMSBLK99Bx5bk55gh3dnocWnl9OmJOy2/s9awqWVW/hPMySHxjjk+UNmLWCEZq3b7d
+         bPVXC+w/9NSfIm3YxSXfJO50/RzsB7hLaxAbfWBcnTRyHfP/NbwMqjk+s0eumO2Vdlpq
+         GBat9vfuhklrDpgBo/doNWtE0UidlEHxyQdF6h+5KfuBnuZQaPY/5l1IWNWmxKpNu/BU
+         FYEtXZsK/CaaoWoj1yGw+y2lSZNAnLIDoJ53EIJ33JrwiYXXrS317U7Q2n16Gb3R6lUD
+         KvmA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702039406; x=1702644206;
+        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=M4jRq8coAm6Zi8gGKP+BNqEZe9vdeBRNYUjT809qI8k=;
+        b=aLWS5EueUGS9Esue2VCacgO134oy1H5xyO/9Krrzjo/p2QpyE5FevE2WAJTPOydbdk
+         ncJIeSdSJ5Yj8ud5AJbnkMrCKYrZlUqNoTdBQpKrh5vVG3Fv6I7gm8+D/ALxCUVNW+UM
+         FyIfvKxF6ZGu+Pe0CT7QiobmkiBPDd+RYKFULU7axcGHIAmv0uQkuytVQ8r1oMQjlpMU
+         bRAlhJPikIDtaImAxU9d33+WUKN01ZjxhuX6ReXLc9Rd5CTn6nVfQM2G7Ku9khKGU/CE
+         8sTJcqxjQFiAUckvE6yu9rBHoFVqnH9y7e7X3Z9qIijkTs4ig3uTealc6fhgwqvs7TBZ
+         mhlA==
+X-Gm-Message-State: AOJu0Yx6pNea5blI/c8sTXZGOlUC/aJm5YaDacZpjjSAlsqc3BoGbZLz
+	mQ2kjLEv/o+23yrAzUIPdW3MCA==
+X-Google-Smtp-Source: AGHT+IHRFOAuPIdICwCcvqg1kT1FUQi84zSfoyRSVJAtC+mFNnvreKg04Zjw+t+pELN5DB8vfxXdEQ==
+X-Received: by 2002:a05:6512:3b0f:b0:50b:f3cc:13b0 with SMTP id f15-20020a0565123b0f00b0050bf3cc13b0mr1610669lfv.62.1702039406308;
+        Fri, 08 Dec 2023 04:43:26 -0800 (PST)
+Received: from alley ([176.114.240.50])
+        by smtp.gmail.com with ESMTPSA id ec44-20020a0564020d6c00b0054dc00457e3sm770302edb.5.2023.12.08.04.43.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 08 Dec 2023 04:43:25 -0800 (PST)
+Date: Fri, 8 Dec 2023 13:43:24 +0100
+From: Petr Mladek <pmladek@suse.com>
+To: Miroslav Benes <mbenes@suse.cz>
+Cc: Joe Lawrence <joe.lawrence@redhat.com>,
+	Marcos Paulo de Souza <mpdesouza@suse.com>,
+	Shuah Khan <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Jiri Kosina <jikos@kernel.org>, linux-kselftest@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org, live-patching@vger.kernel.org
+Subject: Re: [PATCH v3 2/3] livepatch: Move tests from lib/livepatch to
+ selftests/livepatch
+Message-ID: <ZXL_Lmx9J8U25fq-@alley>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 9rsho7wf6X6PBVh4jmEc8GxpS8TfXr9U
-X-Proofpoint-ORIG-GUID: 9rsho7wf6X6PBVh4jmEc8GxpS8TfXr9U
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-08_06,2023-12-07_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- bulkscore=0 suspectscore=0 mlxscore=0 phishscore=0 adultscore=0
- mlxlogscore=762 malwarescore=0 priorityscore=1501 clxscore=1015
- impostorscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2311290000 definitions=main-2312080095
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.LSU.2.21.2312080854100.14729@pobox.suse.cz>
 
-On Fri, 2023-12-08 at 11:31 +0100, Janosch Frank wrote:
-> On 12/1/23 19:16, Eric Farman wrote:
-> > The various errors that are possible when processing a PQAP
-> > instruction (the absence of a driver hook, an error FROM that
-> > hook), all correctly set the PSW condition code to 3. But if
-> > that processing works successfully, CC0 needs to be set to
-> > convey that everything was fine.
-> >=20
-> > Fix the check so that the guest can examine the condition code
-> > to determine whether GPR1 has meaningful data.
-> >=20
->=20
-> Hey Eric, I have yet to see this produce a fail in my AP KVM unit
-> tests.
-> If you find some spare time I'd like to discuss how I can extend my
-> test=20
-> so that I can see the fail before it's fixed.
->=20
+On Fri 2023-12-08 09:06:30, Miroslav Benes wrote:
+> > > My idea is to abandon this way completely, take the selftests and build 
+> > > and run them on the system right away.
+> > > 
+> > > Both should be doable, hopefully, if we wire it all correctly... and 
+> > > document it.
+> > > 
+> > I can't think of why it shouldn't continue to work, even in a future
+> > where newer livepatching selftests support older kernels.  (We would
+> > just have newer selftests sources backported to test older kernel sources.)
+> > 
+> > Are there any test cases which truly need to be build on-the-fly?  Aside
+> > from testing different toolchain pieces?
+> 
+> https://github.com/SUSE/qa_test_klp is what we would like to migrate to 
+> selftests to have just one place for all tests.
+> 
+> There is basically just one live patch template and one supporting kernel 
+> module template which is livepatched. The final result is driven by a set 
+> of macros and function parameters. In some cases more modules are compiled 
+> as parts of a test in a loop.
+>
+> However, I do not think there is anything which truly needs to be built 
+> on-the-fly in the end. Everything can be worked around. Templates may be 
+> abandoned and we would have a live patch and a module(s) per test. Some 
+> tests are probably not worth it and may be removed. So it is a question of 
+> convenience and maintainability. When we, for example, simplified API and 
+> klp_register_patch() was removed, only one place needed to be amended. 
+> Also, the current state in lib/livepatch/ could be simplified with the 
+> proposed infrastructure as some files could be merged together.
 
-Hi Janosch, absolutely. I had poked around kvm-unit-tests before I sent
-this up to see if I could adapt something to show this scenario, but
-came up empty and didn't want to go too far down that rabbit hole
-creating something from scratch. I'll ping you offline to find a time
-to talk.
+In the patchset reworking livepatch states, I solved this problem
+by including the same sources in another module source, like:
 
-Eric
+$> cat lib/livepatch/test_klp_speaker_livepatch2.c
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (C) 2023 SUSE
+
+/* Same livepatch with the same features. */
+#include "test_klp_speaker_livepatch.c"
+
+=========
+
+$> cat lib/livepatch/test_klp_speaker2.c
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (C) 2023 SUSE
+
+/* Use versioned function name for livepatched functions */
+#define _VER_NAME(name) name ## 2
+
+/* Same module with the same features. */
+#include "test_klp_speaker.c"
+
+==========
+
+And the behavior was changed by module parameters. The test
+lookes like:
+
+$> cat tools/testing/selftests/livepatch/test-modules.sh
+[...]
+start_test "multiple target modules"
+
+load_mod $MOD_TARGET
+read_module_param $MOD_TARGET welcome
+
+load_lp $MOD_LIVEPATCH add_applause=1
+read_module_param $MOD_TARGET welcome
+
+load_mod $MOD_TARGET2
+read_module_param $MOD_TARGET2 welcome
+
+unload_mod $MOD_TARGET2
+disable_lp $MOD_LIVEPATCH
+read_module_param $MOD_TARGET welcome
+
+unload_lp $MOD_LIVEPATCH
+unload_mod $MOD_TARGET
+
+===========
+
+It is a kind of hack. But it would allow to build and package the
+test modules. It has several advantages:
+
+   + Less modules are needed. The behavior is modified by
+     the parameters.
+
+   + The separate parameters are easier to parse in compare
+     with embedding the behavior into the module name.
+
+   + Build problems would be solved before the packages
+     reach QA department
+
+   + The package would have lightweight dependencies.
+
+   + Running the tests would be faster.
+
+
+
+Regarding disadvantages:
+
+   + The source included in all the other variants would be more
+     complex.
+
+     But the same would happen when building the modules during
+     the tests. It would also require a more complicated template
+     and an extra script generating the particular module sources.
+
+
+I personally prefer the solution with "#include" because it has
+all the mentioned advantages. The "#include" is a hack but it is
+needed only when we need more modules with all the features.
+
+Best Regards,
+Petr
