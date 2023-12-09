@@ -1,71 +1,72 @@
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4484373;
+	Sat,  9 Dec 2023 00:20:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Aec1e1ok"
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D9CE1738
-	for <linux-s390@vger.kernel.org>; Fri,  8 Dec 2023 13:02:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702069378;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wnR71ERwB0xpUeMudALkEkT2aBnLdTFV83wSZKWUuyk=;
-	b=Aec1e1okdM02CCFdcdf/QXgi2L86Y+BK4EBoitm+xghQ6wj0hjqR40CCOunqmrshQ9VNJ9
-	K7YLYwz7+NlbpbZ4p4a8BKp2n3/ubjpig6kO8T/jvsiIM6RH/TukpIe/nupy5IJSK5fqHF
-	VRyX0xW3F7943bwbmYHVQ+zxzU6pmnM=
-Received: from mail-oa1-f72.google.com (mail-oa1-f72.google.com
- [209.85.160.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-612-QVGDSe_9MlmaVvRAzDlIoA-1; Fri, 08 Dec 2023 16:02:56 -0500
-X-MC-Unique: QVGDSe_9MlmaVvRAzDlIoA-1
-Received: by mail-oa1-f72.google.com with SMTP id 586e51a60fabf-1fb2132b0edso4384221fac.2
-        for <linux-s390@vger.kernel.org>; Fri, 08 Dec 2023 13:02:56 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702069375; x=1702674175;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=wnR71ERwB0xpUeMudALkEkT2aBnLdTFV83wSZKWUuyk=;
-        b=rTZ6QNQjulGFbhh2aazIctveSWFn5yRKMXEY7xEvFw0sTaxKvcQb6V+RxoQYJnus+N
-         Nu6JoEWLbvccNKNv3+N5FLNoVmRJ4v3MwN7ls33uQErtqGeY7kjfM6C3d2/glykNSj1k
-         qe4V1ne1yQA57HTZWioCDy+AuqxtoeEpzl4fGKhya9aPNRanYNoORLr/Da145tDV5O0o
-         wa62OQ7OMAC+la/ZFsVAinbPqHAC8Z7qgsHWndCnK9IZxXOmwQbS8o55QFsKHX7kS8Mv
-         oFKw5iR5u55gBujNsOA/Bb7HxfbLL2ZF1eozq970RmGoWqL36gjUM+Fuo4ALaN7RL4pN
-         htRQ==
-X-Gm-Message-State: AOJu0YwP2L5TNzIWdPrBN5gJsGu+hV4Ycqg9ibZIOyWo8H5og3V5VoGf
-	UGUiaIGzzzcey/dQtMAL4FGg+Nqi+1Dm5tjkH/2WrGOD3vmT6Wk3HuN9rqa69EkQQUvaie2sMKz
-	llMQ0Z8/WhgrIj7l0smLOV87WqgkCEVvNHy0dsA==
-X-Received: by 2002:a05:6871:5812:b0:1fa:6f5:7b11 with SMTP id oj18-20020a056871581200b001fa06f57b11mr831745oac.36.1702069375681;
-        Fri, 08 Dec 2023 13:02:55 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG70CYCSZWB6DKvr4hrnjBebC5sVpU0c4XwqZCNGpXXRnlou5CpzlriTsL34en/4bO5Edgmdws7P7mWyGAfy2s=
-X-Received: by 2002:a05:6871:5812:b0:1fa:6f5:7b11 with SMTP id
- oj18-20020a056871581200b001fa06f57b11mr831732oac.36.1702069375461; Fri, 08
- Dec 2023 13:02:55 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EH+gHye7"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 51315C433CB;
+	Sat,  9 Dec 2023 00:20:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1702081229;
+	bh=aM88ROu9oL88auUmLTsCQpwQxZMkwdmXBiQMpTTqQSQ=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=EH+gHye7xYb8y3BphwLd0UBFG9LNPfZMuF9s8jX/29WeT3UEwoXEpkFxvC0luhwGO
+	 Z/XRv0iKrW1ulErGVEWdm+i/hKiytgTX/WvKB96iDUsMxidioJP/WhFbTE+MTa7Q4c
+	 O2AmMOrOktlIfMSD0U30VbNHfP5xj94BBsVj366w6/UUpfPpPt3EBzZepqGJCVYwsL
+	 WbT1AGnpzR4+JGYPOItjCYLXlXrQvjBeA/sRLX+g6B39wm8y8u8Pvh1O+6rHeYJy/M
+	 zltrn7O2xYfbErzS7HZwmps/rb6EkiT3h4kD7y2EF03rZECBntSj1DGLi1CFHqAz4G
+	 piDMcXlJvJgjw==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 33D1CDD4F1E;
+	Sat,  9 Dec 2023 00:20:29 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231115125111.28217-1-imbrenda@linux.ibm.com> <CABgObfYt3VH-zPwT1whA0N7uE2ioq9GznTt-QhnES8B5tX76jQ@mail.gmail.com>
-In-Reply-To: <CABgObfYt3VH-zPwT1whA0N7uE2ioq9GznTt-QhnES8B5tX76jQ@mail.gmail.com>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Fri, 8 Dec 2023 22:02:43 +0100
-Message-ID: <CABgObfYVfNsfjy36iBeq7qiV_m3smRKCyOSWQRV2E0OMH1bqAA@mail.gmail.com>
-Subject: Re: [GIT PULL v1 0/2] KVM: s390: two small but important fixes
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
-	linux-s390@vger.kernel.org, frankja@linux.ibm.com, borntraeger@de.ibm.com, 
-	hca@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] MAINTAINERS: remove myself as maintainer of SMC
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <170208122920.21357.7598975348992101022.git-patchwork-notify@kernel.org>
+Date: Sat, 09 Dec 2023 00:20:29 +0000
+References: <20231207202358.53502-1-wenjia@linux.ibm.com>
+In-Reply-To: <20231207202358.53502-1-wenjia@linux.ibm.com>
+To: Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: davem@davemloft.net, kuba@kernel.org, edumazet@google.com,
+ pabeni@redhat.com, netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+ hca@linux.ibm.com, jaka@linux.ibm.com, wintera@linux.ibm.com,
+ kgraul@linux.ibm.com, raspl@linux.ibm.com, gbayer@linux.ibm.com,
+ twinkler@linux.ibm.com, pasic@linux.ibm.com, niho@linux.ibm.com,
+ schnelle@linux.ibm.com, tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+ alibuda@linux.alibaba.com
 
-On Fri, Dec 8, 2023 at 7:13=E2=80=AFPM Paolo Bonzini <pbonzini@redhat.com> =
-wrote:
-> >       KVM: s390/mm: Properly reset no-dat
+Hello:
 
-A small question on this one, would it make sense to clear _all_
-gmap-related bits, including _PGSTE_GPS_ZERO?
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-Paolo
+On Thu,  7 Dec 2023 21:23:58 +0100 you wrote:
+> From: Karsten Graul <kgraul@linux.ibm.com>
+> 
+> I changed responsibilities some time ago, its time
+> to remove myself as maintainer of the SMC component.
+> 
+> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+> Signed-off-by: Wenjia Zhang <wenjia@linux.ibm.com>
+> 
+> [...]
+
+Here is the summary with links:
+  - [net] MAINTAINERS: remove myself as maintainer of SMC
+    https://git.kernel.org/netdev/net/c/a45f1e462742
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
