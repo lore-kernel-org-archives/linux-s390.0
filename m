@@ -1,10 +1,10 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D71910D;
-	Sun, 10 Dec 2023 05:24:21 -0800 (PST)
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R601e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0Vy8H5GJ_1702214657;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Vy8H5GJ_1702214657)
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 264DF115;
+	Sun, 10 Dec 2023 05:24:23 -0800 (PST)
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R581e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0Vy8BEjY_1702214659;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Vy8BEjY_1702214659)
           by smtp.aliyun-inc.com;
-          Sun, 10 Dec 2023 21:24:19 +0800
+          Sun, 10 Dec 2023 21:24:21 +0800
 From: Wen Gu <guwen@linux.alibaba.com>
 To: wintera@linux.ibm.com,
 	wenjia@linux.ibm.com,
@@ -25,9 +25,9 @@ Cc: borntraeger@linux.ibm.com,
 	linux-s390@vger.kernel.org,
 	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [RFC PATCH net-next 01/13] net/smc: improve SMC-D device dump for virtual ISM
-Date: Sun, 10 Dec 2023 21:24:02 +0800
-Message-Id: <1702214654-32069-2-git-send-email-guwen@linux.alibaba.com>
+Subject: [RFC PATCH net-next 02/13] net/smc: decouple specialized struct from SMC-D DMB registration
+Date: Sun, 10 Dec 2023 21:24:03 +0800
+Message-Id: <1702214654-32069-3-git-send-email-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1702214654-32069-1-git-send-email-guwen@linux.alibaba.com>
 References: <1702214654-32069-1-git-send-email-guwen@linux.alibaba.com>
@@ -37,51 +37,98 @@ List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-The introduction of virtual ISM requires improvement of SMC-D device
-dump. Software implemented non-PCI device (loopback-ism) should be
-handled correctly and the CHID reserved for virtual ISM should be got
-from smcd_ops interface instead of PCI information.
+The struct 'ism_client' is specialized for s390 platform firmware ISM.
+So replace it with 'void' to make SMCD DMB registration helper generic
+for both virtual ISM and existing ISM.
 
 Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 ---
- net/smc/smc_ism.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/s390/net/ism_drv.c | 2 +-
+ include/net/smc.h          | 4 ++--
+ net/smc/smc_ism.c          | 7 ++-----
+ 3 files changed, 5 insertions(+), 8 deletions(-)
 
+diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+index 2c8e964..9b2a529 100644
+--- a/drivers/s390/net/ism_drv.c
++++ b/drivers/s390/net/ism_drv.c
+@@ -726,7 +726,7 @@ static int smcd_query_rgid(struct smcd_dev *smcd, struct smcd_gid *rgid,
+ }
+ 
+ static int smcd_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
+-			     struct ism_client *client)
++			     void *client)
+ {
+ 	return ism_register_dmb(smcd->priv, (struct ism_dmb *)dmb, client);
+ }
+diff --git a/include/net/smc.h b/include/net/smc.h
+index c9dcb30..6273c3a 100644
+--- a/include/net/smc.h
++++ b/include/net/smc.h
+@@ -50,7 +50,6 @@ struct smcd_dmb {
+ #define ISM_ERROR	0xFFFF
+ 
+ struct smcd_dev;
+-struct ism_client;
+ 
+ struct smcd_gid {
+ 	u64	gid;
+@@ -61,7 +60,7 @@ struct smcd_ops {
+ 	int (*query_remote_gid)(struct smcd_dev *dev, struct smcd_gid *rgid,
+ 				u32 vid_valid, u32 vid);
+ 	int (*register_dmb)(struct smcd_dev *dev, struct smcd_dmb *dmb,
+-			    struct ism_client *client);
++			    void *client);
+ 	int (*unregister_dmb)(struct smcd_dev *dev, struct smcd_dmb *dmb);
+ 	int (*add_vlan_id)(struct smcd_dev *dev, u64 vlan_id);
+ 	int (*del_vlan_id)(struct smcd_dev *dev, u64 vlan_id);
+@@ -81,6 +80,7 @@ struct smcd_ops {
+ struct smcd_dev {
+ 	const struct smcd_ops *ops;
+ 	void *priv;
++	void *client;
+ 	struct list_head list;
+ 	spinlock_t lock;
+ 	struct smc_connection **conn;
 diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index ac88de2..66bcfdd 100644
+index 66bcfdd..fb1837d 100644
 --- a/net/smc/smc_ism.c
 +++ b/net/smc/smc_ism.c
-@@ -252,12 +252,11 @@ static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
- 	char smc_pnet[SMC_MAX_PNETID_LEN + 1];
- 	struct smc_pci_dev smc_pci_dev;
- 	struct nlattr *port_attrs;
-+	struct device *device;
- 	struct nlattr *attrs;
--	struct ism_dev *ism;
- 	int use_cnt = 0;
- 	void *nlh;
+@@ -222,7 +222,6 @@ int smc_ism_unregister_dmb(struct smcd_dev *smcd, struct smc_buf_desc *dmb_desc)
+ int smc_ism_register_dmb(struct smc_link_group *lgr, int dmb_len,
+ 			 struct smc_buf_desc *dmb_desc)
+ {
+-#if IS_ENABLED(CONFIG_ISM)
+ 	struct smcd_dmb dmb;
+ 	int rc;
  
--	ism = smcd->priv;
- 	nlh = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
- 			  &smc_gen_nl_family, NLM_F_MULTI,
- 			  SMC_NETLINK_GET_DEV_SMCD);
-@@ -272,7 +271,15 @@ static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
- 	if (nla_put_u8(skb, SMC_NLA_DEV_IS_CRIT, use_cnt > 0))
- 		goto errattr;
- 	memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
--	smc_set_pci_values(to_pci_dev(ism->dev.parent), &smc_pci_dev);
-+	device = smcd->ops->get_dev(smcd);
-+	if (device->parent)
-+		smc_set_pci_values(to_pci_dev(device->parent), &smc_pci_dev);
-+	if (smc_ism_is_virtual(smcd)) {
-+		smc_pci_dev.pci_pchid = smc_ism_get_chid(smcd);
-+		if (!device->parent)
-+			snprintf(smc_pci_dev.pci_id, sizeof(smc_pci_dev.pci_id),
-+				 "%s", dev_name(device));
-+	}
- 	if (nla_put_u32(skb, SMC_NLA_DEV_PCI_FID, smc_pci_dev.pci_fid))
- 		goto errattr;
- 	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_CHID, smc_pci_dev.pci_pchid))
+@@ -231,7 +230,7 @@ int smc_ism_register_dmb(struct smc_link_group *lgr, int dmb_len,
+ 	dmb.sba_idx = dmb_desc->sba_idx;
+ 	dmb.vlan_id = lgr->vlan_id;
+ 	dmb.rgid = lgr->peer_gid.gid;
+-	rc = lgr->smcd->ops->register_dmb(lgr->smcd, &dmb, &smc_ism_client);
++	rc = lgr->smcd->ops->register_dmb(lgr->smcd, &dmb, lgr->smcd->client);
+ 	if (!rc) {
+ 		dmb_desc->sba_idx = dmb.sba_idx;
+ 		dmb_desc->token = dmb.dmb_tok;
+@@ -240,9 +239,6 @@ int smc_ism_register_dmb(struct smc_link_group *lgr, int dmb_len,
+ 		dmb_desc->len = dmb.dmb_len;
+ 	}
+ 	return rc;
+-#else
+-	return 0;
+-#endif
+ }
+ 
+ static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
+@@ -453,6 +449,7 @@ static void smcd_register_dev(struct ism_dev *ism)
+ 	if (!smcd)
+ 		return;
+ 	smcd->priv = ism;
++	smcd->client = &smc_ism_client;
+ 	ism_set_priv(ism, &smc_ism_client, smcd);
+ 	if (smc_pnetid_by_dev_port(&ism->pdev->dev, 0, smcd->pnetid))
+ 		smc_pnetid_by_table_smcd(smcd);
 -- 
 1.8.3.1
 
