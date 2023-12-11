@@ -1,70 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="3oPM32MW"
-Received: from mail-qt1-x834.google.com (mail-qt1-x834.google.com [IPv6:2607:f8b0:4864:20::834])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17D70F1
-	for <linux-s390@vger.kernel.org>; Mon, 11 Dec 2023 02:07:50 -0800 (PST)
-Received: by mail-qt1-x834.google.com with SMTP id d75a77b69052e-425a76bb53fso18981841cf.1
-        for <linux-s390@vger.kernel.org>; Mon, 11 Dec 2023 02:07:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1702289269; x=1702894069; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=iQbib7KuYZwXSs7TOXR8fysQbrU5Bbc58V4j1zKqFv0=;
-        b=3oPM32MWcY8r3m5sBp4v1VNAomGU5lj7AxiNK+O0xMiSzwfAKUPlxDcrC+x4vbKYAO
-         l+9pCqXKq6sYAqeISnCZbUM4m+Uri3nTRbYWK4WQZde9bOze32l/RvDvTo7isRHBj2/O
-         qB+hUTqacDqDX9ZzpI37vdz/0kEQQMRq1FHHwNwD/3vOuNGG/yJ5mWfAIKhtZrCZtDLu
-         yenJ+mFitN/m4aQa5b7eHtBO8CG9/lHSOuS0wGV30J0s44Ugwkzw482n9PzRd9ZJqS9r
-         rSnnUIn2rtyZXDfLdZtQGsO23nSg315limxo8LprB6eNTM9s0KKcaagGr6IVXzyz34Fs
-         GNLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702289269; x=1702894069;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=iQbib7KuYZwXSs7TOXR8fysQbrU5Bbc58V4j1zKqFv0=;
-        b=vTVZS0ajq/dDbbCVa+aU0frJWsHm5JPf6n096AXsSXmyq4WVITCh2feNxqhLRfB1mx
-         NGYQ+T9PgrPvUFTI5cyu5OqcdJIhdMdQaPTTm1A065lqp2yu0ktxrgHeofMeeEYbJnPY
-         MP4vS1cX1C+kQA85mcg7r7IONgtIae1gH4u1a2ClJLYplezUqpdBbFhRBH7TI5uHzBy9
-         +kk9zE0H2VVQrCw8XS9JlGzr3I63QPVrsh/560VgC5ah80MF1Rrg/O/rmnOAoX1QfEpa
-         fMzsxPBCxAdNePKnz3YaJzmWKH2Gb8GgYfJkeYUQJK/siZNQn+gSo4sRcUjf5NvchAUa
-         JtLQ==
-X-Gm-Message-State: AOJu0YwucuyP57ysrV9nF/e4CPCBevuG0DIHbyZzQkCN/D+JynYgrjbu
-	wnG2DKqUxG/tYs6FRcglA2qf72uwtBjY3ErCKYYVEw==
-X-Google-Smtp-Source: AGHT+IEy7sdK9NHIsRzMOTl1p7qUMH4EfMKrMOKxVRFyC96ArAp5QDcDdvRP7e3vCBuus6OXQDRK9VpDPAJXYCPOaGo=
-X-Received: by 2002:a0c:cdce:0:b0:67a:9440:2b26 with SMTP id
- a14-20020a0ccdce000000b0067a94402b26mr7123627qvn.20.1702289269049; Mon, 11
- Dec 2023 02:07:49 -0800 (PST)
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B855107;
+	Mon, 11 Dec 2023 02:09:51 -0800 (PST)
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=21;SR=0;TI=SMTPD_---0VyFRZUV_1702289387;
+Received: from 30.221.130.53(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VyFRZUV_1702289387)
+          by smtp.aliyun-inc.com;
+          Mon, 11 Dec 2023 18:09:49 +0800
+Message-ID: <1c14f769-8da2-fdac-cec2-a59ab69284ad@linux.alibaba.com>
+Date: Mon, 11 Dec 2023 18:09:45 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231121220155.1217090-1-iii@linux.ibm.com> <20231121220155.1217090-11-iii@linux.ibm.com>
-In-Reply-To: <20231121220155.1217090-11-iii@linux.ibm.com>
-From: Alexander Potapenko <glider@google.com>
-Date: Mon, 11 Dec 2023 11:07:13 +0100
-Message-ID: <CAG_fn=WVfh_E+5uFs1GXfQCVMj3EBvNGFTrJ6_DxVb4t3WnVPA@mail.gmail.com>
-Subject: Re: [PATCH v2 10/33] kmsan: Expose kmsan_get_metadata()
-To: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>, 
-	Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Vlastimil Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com, 
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, 
-	Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle <svens@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.1
+Subject: Re: [PATCH net-next v5 7/9] net/smc: support extended GID in SMC-D
+ lgr netlink attribute
+To: Alexandra Winter <wintera@linux.ibm.com>, wenjia@linux.ibm.com,
+ hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, kgraul@linux.ibm.com, jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, raspl@linux.ibm.com,
+ schnelle@linux.ibm.com, guangguan.wang@linux.alibaba.com,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <1702021259-41504-1-git-send-email-guwen@linux.alibaba.com>
+ <1702021259-41504-8-git-send-email-guwen@linux.alibaba.com>
+ <8b651c68-c51d-49a9-9df0-58e9110fa47d@linux.ibm.com>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <8b651c68-c51d-49a9-9df0-58e9110fa47d@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> +static inline void *kmsan_get_metadata(void *addr, bool is_origin)
-> +{
-> +       return NULL;
-> +}
-> +
->  #endif
 
-We shouldn't need this part, as kmsan_get_metadata() should never be
-called in non-KMSAN builds.
+
+On 2023/12/11 17:39, Alexandra Winter wrote:
+> 
+> 
+> On 08.12.23 08:40, Wen Gu wrote:
+>> Virtual ISM devices introduced in SMCv2.1 requires a 128 bit extended
+>> GID vs. the existing ISM 64bit GID. So the 2nd 64 bit of extended GID
+>> should be included in SMC-D linkgroup netlink attribute as well.
+>>
+>> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+>> ---
+> 
+> This patch did not apply cleanly.
+> Please always base patches on the current net-next
+
+Strange.. I can apply them cleanly with the latest net-next
+(6e944cc68633 ("Merge branch 'rswitch-jumbo-frames'")).
+
+Could you please try again? Thanks.
