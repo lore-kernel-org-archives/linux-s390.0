@@ -1,72 +1,128 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="QBIfDKvL"
-Received: from mail-qv1-xf35.google.com (mail-qv1-xf35.google.com [IPv6:2607:f8b0:4864:20::f35])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FB0591
-	for <linux-s390@vger.kernel.org>; Mon, 11 Dec 2023 02:37:04 -0800 (PST)
-Received: by mail-qv1-xf35.google.com with SMTP id 6a1803df08f44-67ab19339b4so29808136d6.0
-        for <linux-s390@vger.kernel.org>; Mon, 11 Dec 2023 02:37:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1702291023; x=1702895823; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9xZZSpag6K2BrrxUB+HXexjy0tvgok7Hn3gQdazxamw=;
-        b=QBIfDKvLL5uUNay6AxyqufLxo9IouB1IBJb06qeRDlxx6PfaEOlVQnVnaG4ZHQLZSA
-         2JeeAvRN3w8FZ0Xc/8L8fqtsiCpUNRtyusCfYeV8FTBOevAuI5O7c/e6IhFp+IOKDTtH
-         u9KTF7iRydG0e7Xd6caQIQkMoze+rH/2E3M/Dny3LWnh0nxZzc5Tuo/kE2YkbVIPgi6m
-         wZVNZtAeBZ5I6e/E//O7SHk/wjKRgwRfefrA36RRCej1YbMUQd7rj5OiY1YRXz084fbY
-         G947zyxToqma0CuyasEq6o3dI/WLGwgpVGllUKXfNmHCeAd+SCQWU2GJc5yKTUwJqeu8
-         wyeg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702291023; x=1702895823;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=9xZZSpag6K2BrrxUB+HXexjy0tvgok7Hn3gQdazxamw=;
-        b=pUaYtla5Zzs2nYWCSR1LXix9plO9oWIidfLbgcvKNX12kBVLykLxqnid9P8MNxcUO7
-         1B+39XJTjvZz1VLIUFlkSNtTv1pGdCslS5ZVbHQY5MtJ/UUNKZAUGkZQC3UYkbXKHZug
-         1CZq14jogPsFNKr8oDAQuD4hpf56fdHBZfLKw/jPsuiSMc3bVujqgrDldpJF3T7quFZu
-         c6v/a0oKMqSQSowZPgnXjYnGLJaezi2sPfo/RQL9enkAjkJMM85sXYpKWkCKhI17/KdA
-         4tTcZBZn2DjEb9Pi2IpxZUFI6UAuhJOqFmaIh1zUQR49WndhvWSnqtwnW1fHvS2Qg7j3
-         IwqQ==
-X-Gm-Message-State: AOJu0Yx2EERDIm1hM9ryBKfN0Zqe030tJgdPflGEaa7Ob55QSYFUJizn
-	v9ZHIU6u+WWosrnjMSnNqe0cR4y8SgHgkNLLZMDtIA==
-X-Google-Smtp-Source: AGHT+IG2hreF5WUvCkeK9/1PTdi6XuXHKd5OzzWIV9TutEPZLQcFZOECLixwnYp9kHhdQ4NW9Hm2iZIo6eRfJV7Vqu8=
-X-Received: by 2002:a05:6214:5cc:b0:67a:97a4:1f73 with SMTP id
- t12-20020a05621405cc00b0067a97a41f73mr5565614qvz.40.1702291023543; Mon, 11
- Dec 2023 02:37:03 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cKZ/RnKA"
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 804E6CF;
+	Mon, 11 Dec 2023 02:40:14 -0800 (PST)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BBAMu3T015214;
+	Mon, 11 Dec 2023 10:39:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=yVHr17YdvQe0ydCo0BKzg0tAiF/vmW+T/J/qFqM2G7w=;
+ b=cKZ/RnKAy3o4w3XegTJc86TXCDMOE4PLt1DpaWH5gq8tHmTZgSsaHoh59iTzYlkc0vUw
+ eSUgGLPwCvULtBJFQEwEbbfIkxknIyH5Xc6EOgCVtITB0EaF7twSEjllUgDWn95Y110i
+ wGh7kbzHHmUlvi4D+CezKwxCQZ+GVEvglJpT8SC/tGMCn5Uc7XLbPQ85bcpOZMpBCiph
+ kRG6nPmnEFc8eu97S4/liAEvztAv/tQwHI3ifSIL+nWOoXJQq07GazUEqnUbuK67P47P
+ tFFRM4t8ZpW7WV/cI+elUwPsnN1IJYDH6RP0EpUcbbersGvUMyAWPl3r8eY2wo0Pm2Dd VQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ux0m50d6n-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 11 Dec 2023 10:39:54 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BBAMv4L015310;
+	Mon, 11 Dec 2023 10:39:53 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ux0m50d68-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 11 Dec 2023 10:39:53 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BB9FbH0004701;
+	Mon, 11 Dec 2023 10:39:52 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uw4sk0cg3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 11 Dec 2023 10:39:52 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BBAdnC017236688
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 11 Dec 2023 10:39:49 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 621BD20043;
+	Mon, 11 Dec 2023 10:39:49 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4276B20040;
+	Mon, 11 Dec 2023 10:39:48 +0000 (GMT)
+Received: from [9.171.76.38] (unknown [9.171.76.38])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 11 Dec 2023 10:39:48 +0000 (GMT)
+Message-ID: <13e3e073f6ed6aa48b39ec16add85baa677d17b4.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 32/33] s390: Implement the architecture-specific
+ kmsan functions
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+To: Alexander Potapenko <glider@google.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrew Morton
+ <akpm@linux-foundation.org>,
+        Christoph Lameter <cl@linux.com>,
+        David
+ Rientjes <rientjes@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Joonsoo
+ Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>,
+        Masami
+ Hiramatsu <mhiramat@kernel.org>,
+        Pekka Enberg <penberg@kernel.org>,
+        Steven
+ Rostedt <rostedt@goodmis.org>,
+        Vasily Gorbik <gor@linux.ibm.com>, Vlastimil
+ Babka <vbabka@suse.cz>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        Mark Rutland <mark.rutland@arm.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Sven Schnelle
+ <svens@linux.ibm.com>
+Date: Mon, 11 Dec 2023 11:39:47 +0100
+In-Reply-To: <CAG_fn=V5zMxGUQ=KmJh-ghTUHa-AZYn1CPTQNbf3x7Lu0w=HvA@mail.gmail.com>
+References: <20231121220155.1217090-1-iii@linux.ibm.com>
+	 <20231121220155.1217090-33-iii@linux.ibm.com>
+	 <CAG_fn=V5zMxGUQ=KmJh-ghTUHa-AZYn1CPTQNbf3x7Lu0w=HvA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231121220155.1217090-1-iii@linux.ibm.com> <20231121220155.1217090-26-iii@linux.ibm.com>
-In-Reply-To: <20231121220155.1217090-26-iii@linux.ibm.com>
-From: Alexander Potapenko <glider@google.com>
-Date: Mon, 11 Dec 2023 11:36:27 +0100
-Message-ID: <CAG_fn=W7EQph__sbiBvNdaaSFG3-vweA396Oa81QoXAE8+b9yA@mail.gmail.com>
-Subject: Re: [PATCH v2 25/33] s390/cpacf: Unpoison the results of cpacf_trng()
-To: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>, 
-	Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Vlastimil Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com, 
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, 
-	Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle <svens@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 1ivu9TPpbV33bJspuyHdGPksD1bDTXIu
+X-Proofpoint-GUID: NVWxg9UEFQWh9310drT6RwvUw1xWNTKv
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-11_04,2023-12-07_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ mlxlogscore=313 spamscore=0 impostorscore=0 bulkscore=0 priorityscore=1501
+ lowpriorityscore=0 adultscore=0 mlxscore=0 phishscore=0 malwarescore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2312110086
 
-On Tue, Nov 21, 2023 at 11:02=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.co=
-m> wrote:
->
-> Prevent KMSAN from complaining about buffers filled by cpacf_trng()
-> being uninitialized.
->
-> Tested-by: Alexander Gordeev <agordeev@linux.ibm.com>
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Reviewed-by: Alexander Potapenko <glider@google.com>
+T24gTW9uLCAyMDIzLTEyLTExIGF0IDExOjI2ICswMTAwLCBBbGV4YW5kZXIgUG90YXBlbmtvIHdy
+b3RlOgo+ID4gK3N0YXRpYyBpbmxpbmUgdm9pZCAqYXJjaF9rbXNhbl9nZXRfbWV0YV9vcl9udWxs
+KHZvaWQgKmFkZHIsIGJvb2wKPiA+IGlzX29yaWdpbikKPiA+ICt7Cj4gPiArwqDCoMKgwqDCoMKg
+IGlmIChhZGRyID49ICh2b2lkICopJlMzOTBfbG93Y29yZSAmJgo+ID4gK8KgwqDCoMKgwqDCoMKg
+wqDCoMKgIGFkZHIgPCAodm9pZCAqKSgmUzM5MF9sb3djb3JlICsgMSkpIHsKPiA+ICvCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgIC8qCj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgICogRGlmZmVyZW50IGxvd2NvcmVzIGFjY2Vzc2VkIHZpYSBTMzkwX2xvd2NvcmUgYXJlCj4g
+PiBkZXNjcmliZWQKPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgKiBieSB0aGUg
+c2FtZSBzdHJ1Y3QgcGFnZS4gUmVzb2x2ZSB0aGUgcHJlZml4Cj4gPiBtYW51YWxseSBpbgo+ID4g
+K8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAqIG9yZGVyIHRvIGdldCBhIGRpc3RpbmN0
+IHN0cnVjdCBwYWdlLgo+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAqLwo+ID4g
+K8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgYWRkciArPSAodm9pZCAqKWxvd2NvcmVfcHRy
+W3Jhd19zbXBfcHJvY2Vzc29yX2lkKCldCj4gPiAtCj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgKHZvaWQgKikmUzM5MF9sb3djb3JlOwo+ID4gK8KgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0dXJuIGttc2FuX2dldF9tZXRhZGF0YShhZGRyLCBp
+c19vcmlnaW4pOwo+ID4gK8KgwqDCoMKgwqDCoCB9Cj4gPiArwqDCoMKgwqDCoMKgIHJldHVybiBO
+VUxMOwo+ID4gK30KPiAKPiBJcyB0aGVyZSBhIHBvc3NpYmlsaXR5IGZvciBpbmZpbml0ZSByZWN1
+cnNpb24gaGVyZT8gRS5nLiBjYW4KPiBgbG93Y29yZV9wdHJbcmF3X3NtcF9wcm9jZXNzb3JfaWQo
+KV1gIHBvaW50IHNvbWV3aGVyZSBpbiBiZXR3ZWVuCj4gYCh2b2lkICopJlMzOTBfbG93Y29yZWAg
+YW5kIGAodm9pZCAqKSgmUzM5MF9sb3djb3JlICsgMSkpYD8KCk5vLCBpdCdzIGFsbG9jYXRlZCB3
+aXRoIF9fZ2V0X2ZyZWVfcGFnZXMoKSBvciBtZW1ibG9ja19hbGxvY19sb3coKS4KQnV0IHNpbmNl
+IHRoaXMgcXVlc3Rpb24gY2FtZSB1cCwgSSBzaG91bGQgcHJvYmFibHkgYWRkIGEgY2hlY2sgYW5k
+CmEgV0FSTl9PTl9PTkNFKCkgaGVyZS4K
+
