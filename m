@@ -1,56 +1,80 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B855107;
-	Mon, 11 Dec 2023 02:09:51 -0800 (PST)
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=21;SR=0;TI=SMTPD_---0VyFRZUV_1702289387;
-Received: from 30.221.130.53(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VyFRZUV_1702289387)
-          by smtp.aliyun-inc.com;
-          Mon, 11 Dec 2023 18:09:49 +0800
-Message-ID: <1c14f769-8da2-fdac-cec2-a59ab69284ad@linux.alibaba.com>
-Date: Mon, 11 Dec 2023 18:09:45 +0800
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="NCSFYlSx"
+Received: from mail-yw1-x1129.google.com (mail-yw1-x1129.google.com [IPv6:2607:f8b0:4864:20::1129])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5D3ED7
+	for <linux-s390@vger.kernel.org>; Mon, 11 Dec 2023 02:14:03 -0800 (PST)
+Received: by mail-yw1-x1129.google.com with SMTP id 00721157ae682-5cfc3a48ab2so35490327b3.0
+        for <linux-s390@vger.kernel.org>; Mon, 11 Dec 2023 02:14:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1702289643; x=1702894443; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5Z6zY4c0Tb5+ieU4d3Nz6Jn4MLK8nHKOQpLlbBpEjKg=;
+        b=NCSFYlSxaMBXjGEeo9r58onG6AqzMDuUvTpfYB7xy1IT+ia+GZbt7Y3b7ivuFErQis
+         qGzAtEYfMDOI0O+bMzCTklMFkQI8m36CqZHD9qClzyaVvPFR0XU6tXeYei0SfuIohZA3
+         g5YRmTWwUZx8vZdTGOcw5Aknqj2f6oh1Nsbyo5OKXYMcUoc0nDYv91KoSDBJyZ3rnZlm
+         Ntiku1i/R5DHBday/ia+Nj31jiwNxr6l3QT3rpYE2y2TbVRrO6dKcB9cbtSLUehEUlLV
+         oGEkH7ngxQqx14u/IaWe1SuX9yJ73+lXUab+jhwxMg+yDau9RZUnmzqfRBTmJbGubwyb
+         XETw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702289643; x=1702894443;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=5Z6zY4c0Tb5+ieU4d3Nz6Jn4MLK8nHKOQpLlbBpEjKg=;
+        b=XA1tiLHOnKNJ0ATBERW/lMoMEnlsk1B5UbP31C5h1likuEIF5Lq7Z5lsnI5qfYqL08
+         d+P3Xu5J7x6in6Ab9JkD1nRAchQ2FaJT8y12s+XocNj8wIyfCYeREMJ7m0zgUC/jU+C0
+         tvxxg82XTG42sLrQfGdQIW0uEB0rVakpal0sAaEGayJE5CCXlHssYsTr5mBJkwS6spRA
+         CKAgKAZCskJf3Q7TgQiRUpAe5d7crejKbhRC15vLPQsQNb1gYqueLKstLkTcS3YTRXdU
+         WEa1M3UmvnBuo8SSoNQo691AhhZEqR2SP8yBskG4FYrrooqNF8lHbwk7WoENepgmEqQg
+         XnYg==
+X-Gm-Message-State: AOJu0Yz1BYsuVPijF8DYl6UyDO7YUdyZ6d0uNr+9MCgixR+LKFa6GyLl
+	7xazfAaDHa3cHtlcHMjTgYu+x/vktNpP+cjO2mCyeA==
+X-Google-Smtp-Source: AGHT+IEk5OVTZiB661DV5dZOhAvgOHAleqdnumLHRqN/Lk2fp+rcFjIzeAHjQGdOci45RI7ZRYsN0u4klnWKa7xixF4=
+X-Received: by 2002:a05:690c:3249:b0:5df:4992:9f90 with SMTP id
+ fg9-20020a05690c324900b005df49929f90mr2222920ywb.34.1702289642775; Mon, 11
+ Dec 2023 02:14:02 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.1
-Subject: Re: [PATCH net-next v5 7/9] net/smc: support extended GID in SMC-D
- lgr netlink attribute
-To: Alexandra Winter <wintera@linux.ibm.com>, wenjia@linux.ibm.com,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, kgraul@linux.ibm.com, jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, raspl@linux.ibm.com,
- schnelle@linux.ibm.com, guangguan.wang@linux.alibaba.com,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <1702021259-41504-1-git-send-email-guwen@linux.alibaba.com>
- <1702021259-41504-8-git-send-email-guwen@linux.alibaba.com>
- <8b651c68-c51d-49a9-9df0-58e9110fa47d@linux.ibm.com>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <8b651c68-c51d-49a9-9df0-58e9110fa47d@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20231121220155.1217090-1-iii@linux.ibm.com> <20231121220155.1217090-28-iii@linux.ibm.com>
+In-Reply-To: <20231121220155.1217090-28-iii@linux.ibm.com>
+From: Alexander Potapenko <glider@google.com>
+Date: Mon, 11 Dec 2023 11:13:26 +0100
+Message-ID: <CAG_fn=VE7M590AqPceT1qjtf7qS1QGBfvnprz9s=0U2WgRmK6w@mail.gmail.com>
+Subject: Re: [PATCH v2 27/33] s390/mm: Define KMSAN metadata for vmalloc and modules
+To: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
+	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>, 
+	Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Vlastimil Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com, 
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
+	linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, 
+	Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle <svens@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Tue, Nov 21, 2023 at 11:07=E2=80=AFPM Ilya Leoshkevich <iii@linux.ibm.co=
+m> wrote:
+>
+> The pages for the KMSAN metadata associated with most kernel mappings
+> are taken from memblock by the common code. However, vmalloc and module
+> metadata needs to be defined by the architectures.
+>
+> Be a little bit more careful than x86: allocate exactly MODULES_LEN
+> for the module shadow and origins, and then take 2/3 of vmalloc for
+> the vmalloc shadow and origins. This ensures that users passing small
+> vmalloc=3D values on the command line do not cause module metadata
+> collisions.
+>
+> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Reviewed-by: Alexander Potapenko <glider@google.com>
 
-
-On 2023/12/11 17:39, Alexandra Winter wrote:
-> 
-> 
-> On 08.12.23 08:40, Wen Gu wrote:
->> Virtual ISM devices introduced in SMCv2.1 requires a 128 bit extended
->> GID vs. the existing ISM 64bit GID. So the 2nd 64 bit of extended GID
->> should be included in SMC-D linkgroup netlink attribute as well.
->>
->> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
->> ---
-> 
-> This patch did not apply cleanly.
-> Please always base patches on the current net-next
-
-Strange.. I can apply them cleanly with the latest net-next
-(6e944cc68633 ("Merge branch 'rswitch-jumbo-frames'")).
-
-Could you please try again? Thanks.
+(hope some s390 maintainer acks this as well)
