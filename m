@@ -1,128 +1,344 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cKZ/RnKA"
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 804E6CF;
-	Mon, 11 Dec 2023 02:40:14 -0800 (PST)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BBAMu3T015214;
-	Mon, 11 Dec 2023 10:39:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=yVHr17YdvQe0ydCo0BKzg0tAiF/vmW+T/J/qFqM2G7w=;
- b=cKZ/RnKAy3o4w3XegTJc86TXCDMOE4PLt1DpaWH5gq8tHmTZgSsaHoh59iTzYlkc0vUw
- eSUgGLPwCvULtBJFQEwEbbfIkxknIyH5Xc6EOgCVtITB0EaF7twSEjllUgDWn95Y110i
- wGh7kbzHHmUlvi4D+CezKwxCQZ+GVEvglJpT8SC/tGMCn5Uc7XLbPQ85bcpOZMpBCiph
- kRG6nPmnEFc8eu97S4/liAEvztAv/tQwHI3ifSIL+nWOoXJQq07GazUEqnUbuK67P47P
- tFFRM4t8ZpW7WV/cI+elUwPsnN1IJYDH6RP0EpUcbbersGvUMyAWPl3r8eY2wo0Pm2Dd VQ== 
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qZUBgF5C"
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80DFDA9;
+	Mon, 11 Dec 2023 02:43:33 -0800 (PST)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BB9OrO0008438;
+	Mon, 11 Dec 2023 10:43:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=fMguoUzvTcEvxr+tvOI6ihG+SpskXOW7J635HmFcAgE=;
+ b=qZUBgF5CYRE8R1ONMFpsBs/wFErh32zpFNt0bvO6S3UoTzXgYXgeWHUBFoQoC+3/Hhkc
+ rD4BxV4bqX+0BsoemFsCOYacLlVfZBy3cCcLIV5Dmt371QFOFswGeCDgoewLf1JNex9D
+ RuAWClfpHiVkzl2o8EHdb62uyUuajUepMEn7yeoZxuIVho2LZNtyn0Ltiu9r6Dq81rA0
+ X9uCmfGsiZydsiV5wqm9qJk/Ry7IeeIA3jx64OrbzNJD2WMRPsFYthvniiNoOMUDWQ9+
+ aVQG7NuLM1N2AOkSuTKVgxUTyCi19vq1bHYfBO6LJ2bsZTdD3MpaYydPMappIlHZas1F xA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ux0m50d6n-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uwys51xbm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 11 Dec 2023 10:39:54 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BBAMv4L015310;
-	Mon, 11 Dec 2023 10:39:53 GMT
+	Mon, 11 Dec 2023 10:43:28 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BB9wuKp021767;
+	Mon, 11 Dec 2023 10:43:28 GMT
 Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ux0m50d68-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uwys51xax-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 11 Dec 2023 10:39:53 +0000
+	Mon, 11 Dec 2023 10:43:28 +0000
 Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BB9FbH0004701;
-	Mon, 11 Dec 2023 10:39:52 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uw4sk0cg3-1
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BB8ukdU005049;
+	Mon, 11 Dec 2023 10:43:27 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uw4sk0d03-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 11 Dec 2023 10:39:52 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BBAdnC017236688
+	Mon, 11 Dec 2023 10:43:27 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BBAhN2544892788
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 11 Dec 2023 10:39:49 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 621BD20043;
-	Mon, 11 Dec 2023 10:39:49 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4276B20040;
-	Mon, 11 Dec 2023 10:39:48 +0000 (GMT)
-Received: from [9.171.76.38] (unknown [9.171.76.38])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 11 Dec 2023 10:39:48 +0000 (GMT)
-Message-ID: <13e3e073f6ed6aa48b39ec16add85baa677d17b4.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 32/33] s390: Implement the architecture-specific
- kmsan functions
-From: Ilya Leoshkevich <iii@linux.ibm.com>
-To: Alexander Potapenko <glider@google.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andrew Morton
- <akpm@linux-foundation.org>,
-        Christoph Lameter <cl@linux.com>,
-        David
- Rientjes <rientjes@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Joonsoo
- Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>,
-        Masami
- Hiramatsu <mhiramat@kernel.org>,
-        Pekka Enberg <penberg@kernel.org>,
-        Steven
- Rostedt <rostedt@goodmis.org>,
-        Vasily Gorbik <gor@linux.ibm.com>, Vlastimil
- Babka <vbabka@suse.cz>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        Mark Rutland <mark.rutland@arm.com>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Sven Schnelle
- <svens@linux.ibm.com>
-Date: Mon, 11 Dec 2023 11:39:47 +0100
-In-Reply-To: <CAG_fn=V5zMxGUQ=KmJh-ghTUHa-AZYn1CPTQNbf3x7Lu0w=HvA@mail.gmail.com>
-References: <20231121220155.1217090-1-iii@linux.ibm.com>
-	 <20231121220155.1217090-33-iii@linux.ibm.com>
-	 <CAG_fn=V5zMxGUQ=KmJh-ghTUHa-AZYn1CPTQNbf3x7Lu0w=HvA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+	Mon, 11 Dec 2023 10:43:23 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C0AF52004B;
+	Mon, 11 Dec 2023 10:43:23 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D85FF20040;
+	Mon, 11 Dec 2023 10:43:22 +0000 (GMT)
+Received: from [9.171.1.164] (unknown [9.171.1.164])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 11 Dec 2023 10:43:22 +0000 (GMT)
+Message-ID: <ac3c0823-8705-4225-96c8-ed7bc55d1bfc@linux.ibm.com>
+Date: Mon, 11 Dec 2023 11:43:22 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v5 2/9] net/smc: introduce sub-functions for
+ smc_clc_send_confirm_accept()
+Content-Language: en-US
+To: Wen Gu <guwen@linux.alibaba.com>, wenjia@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        kgraul@linux.ibm.com, jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, raspl@linux.ibm.com, schnelle@linux.ibm.com,
+        guangguan.wang@linux.alibaba.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1702021259-41504-1-git-send-email-guwen@linux.alibaba.com>
+ <1702021259-41504-3-git-send-email-guwen@linux.alibaba.com>
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <1702021259-41504-3-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 1ivu9TPpbV33bJspuyHdGPksD1bDTXIu
-X-Proofpoint-GUID: NVWxg9UEFQWh9310drT6RwvUw1xWNTKv
+X-Proofpoint-ORIG-GUID: fgs5CcZVvQ3Wemd5GYk8mQe5xRiN88yU
+X-Proofpoint-GUID: _MAECKM_MDhrtEM-jOVAKF9Dsz9vbOjj
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-12-11_04,2023-12-07_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- mlxlogscore=313 spamscore=0 impostorscore=0 bulkscore=0 priorityscore=1501
- lowpriorityscore=0 adultscore=0 mlxscore=0 phishscore=0 malwarescore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ mlxscore=0 impostorscore=0 clxscore=1015 adultscore=0 phishscore=0
+ spamscore=0 malwarescore=0 mlxlogscore=999 priorityscore=1501
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311290000 definitions=main-2312110086
 
-T24gTW9uLCAyMDIzLTEyLTExIGF0IDExOjI2ICswMTAwLCBBbGV4YW5kZXIgUG90YXBlbmtvIHdy
-b3RlOgo+ID4gK3N0YXRpYyBpbmxpbmUgdm9pZCAqYXJjaF9rbXNhbl9nZXRfbWV0YV9vcl9udWxs
-KHZvaWQgKmFkZHIsIGJvb2wKPiA+IGlzX29yaWdpbikKPiA+ICt7Cj4gPiArwqDCoMKgwqDCoMKg
-IGlmIChhZGRyID49ICh2b2lkICopJlMzOTBfbG93Y29yZSAmJgo+ID4gK8KgwqDCoMKgwqDCoMKg
-wqDCoMKgIGFkZHIgPCAodm9pZCAqKSgmUzM5MF9sb3djb3JlICsgMSkpIHsKPiA+ICvCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgIC8qCj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgICogRGlmZmVyZW50IGxvd2NvcmVzIGFjY2Vzc2VkIHZpYSBTMzkwX2xvd2NvcmUgYXJlCj4g
-PiBkZXNjcmliZWQKPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgKiBieSB0aGUg
-c2FtZSBzdHJ1Y3QgcGFnZS4gUmVzb2x2ZSB0aGUgcHJlZml4Cj4gPiBtYW51YWxseSBpbgo+ID4g
-K8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAqIG9yZGVyIHRvIGdldCBhIGRpc3RpbmN0
-IHN0cnVjdCBwYWdlLgo+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAqLwo+ID4g
-K8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgYWRkciArPSAodm9pZCAqKWxvd2NvcmVfcHRy
-W3Jhd19zbXBfcHJvY2Vzc29yX2lkKCldCj4gPiAtCj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgKHZvaWQgKikmUzM5MF9sb3djb3JlOwo+ID4gK8KgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0dXJuIGttc2FuX2dldF9tZXRhZGF0YShhZGRyLCBp
-c19vcmlnaW4pOwo+ID4gK8KgwqDCoMKgwqDCoCB9Cj4gPiArwqDCoMKgwqDCoMKgIHJldHVybiBO
-VUxMOwo+ID4gK30KPiAKPiBJcyB0aGVyZSBhIHBvc3NpYmlsaXR5IGZvciBpbmZpbml0ZSByZWN1
-cnNpb24gaGVyZT8gRS5nLiBjYW4KPiBgbG93Y29yZV9wdHJbcmF3X3NtcF9wcm9jZXNzb3JfaWQo
-KV1gIHBvaW50IHNvbWV3aGVyZSBpbiBiZXR3ZWVuCj4gYCh2b2lkICopJlMzOTBfbG93Y29yZWAg
-YW5kIGAodm9pZCAqKSgmUzM5MF9sb3djb3JlICsgMSkpYD8KCk5vLCBpdCdzIGFsbG9jYXRlZCB3
-aXRoIF9fZ2V0X2ZyZWVfcGFnZXMoKSBvciBtZW1ibG9ja19hbGxvY19sb3coKS4KQnV0IHNpbmNl
-IHRoaXMgcXVlc3Rpb24gY2FtZSB1cCwgSSBzaG91bGQgcHJvYmFibHkgYWRkIGEgY2hlY2sgYW5k
-CmEgV0FSTl9PTl9PTkNFKCkgaGVyZS4K
 
+
+On 08.12.23 08:40, Wen Gu wrote:
+> There is a large if-else block in smc_clc_send_confirm_accept() and it
+> is better to split it into two sub-functions.
+> 
+> Suggested-by: Alexandra Winter <wintera@linux.ibm.com>
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> ---
+
+Thank you very much Wen Gu for improving the codebase.
+
+
+>  net/smc/smc_clc.c | 196 +++++++++++++++++++++++++++++++-----------------------
+>  1 file changed, 114 insertions(+), 82 deletions(-)
+> 
+> diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+> index 0fcb035..52b4ea9 100644
+> --- a/net/smc/smc_clc.c
+> +++ b/net/smc/smc_clc.c
+> @@ -998,6 +998,111 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
+>  	return reason_code;
+>  }
+>  
+> +static void smcd_clc_prep_confirm_accept(struct smc_connection *conn,
+> +				struct smc_clc_msg_accept_confirm_v2 *clc_v2,
+> +				int first_contact, u8 version,
+> +				u8 *eid, struct smc_init_info *ini,
+> +				int *fce_len,
+> +				struct smc_clc_first_contact_ext_v2x *fce_v2x,
+> +				struct smc_clc_msg_trail *trl)
+> +{
+> +	struct smcd_dev *smcd = conn->lgr->smcd;
+> +	struct smc_clc_msg_accept_confirm *clc;
+> +	int len;
+> +
+> +	/* SMC-D specific settings */
+> +	clc = (struct smc_clc_msg_accept_confirm *)clc_v2;
+
+Why is this cast neccessary? (Here as well as in smcr_clc_prep_confirm_accept
+and in smc_clc_send_confirm_accept)
+smc_clc_msg_accept_confirm_v2 has hdr and d0 as well.
+
+IMO, it would be a nice seperate patch to get rid of the 2 type defs for
+smc_clc_msg_accept_confirm and smc_clc_msg_accept_confirm_v2
+and all the related casting anyhow.
+
+
+
+> +	memcpy(clc->hdr.eyecatcher, SMCD_EYECATCHER,
+> +	       sizeof(SMCD_EYECATCHER));
+> +	clc->hdr.typev1 = SMC_TYPE_D;
+> +	clc->d0.gid = htonll(smcd->ops->get_local_gid(smcd));
+> +	clc->d0.token = htonll(conn->rmb_desc->token);
+> +	clc->d0.dmbe_size = conn->rmbe_size_comp;
+> +	clc->d0.dmbe_idx = 0;
+> +	memcpy(&clc->d0.linkid, conn->lgr->id, SMC_LGR_ID_SIZE);
+> +	if (version == SMC_V1) {
+> +		clc->hdr.length = htons(SMCD_CLC_ACCEPT_CONFIRM_LEN);
+> +	} else {
+> +		clc_v2->d1.chid = htons(smc_ism_get_chid(smcd));
+> +		if (eid && eid[0])
+> +			memcpy(clc_v2->d1.eid, eid, SMC_MAX_EID_LEN);
+> +		len = SMCD_CLC_ACCEPT_CONFIRM_LEN_V2;
+> +		if (first_contact) {
+> +			*fce_len = smc_clc_fill_fce_v2x(fce_v2x, ini);
+> +			len += *fce_len;
+> +		}
+> +		clc_v2->hdr.length = htons(len);
+> +	}
+> +	memcpy(trl->eyecatcher, SMCD_EYECATCHER,
+> +	       sizeof(SMCD_EYECATCHER));
+> +}
+> +
+> +static void smcr_clc_prep_confirm_accept(struct smc_connection *conn,
+> +				struct smc_clc_msg_accept_confirm_v2 *clc_v2,
+> +				int first_contact, u8 version,
+> +				u8 *eid, struct smc_init_info *ini,
+> +				int *fce_len,
+> +				struct smc_clc_first_contact_ext_v2x *fce_v2x,
+> +				struct smc_clc_fce_gid_ext *gle,
+> +				struct smc_clc_msg_trail *trl)
+> +{
+> +	struct smc_clc_msg_accept_confirm *clc;
+> +	struct smc_link *link = conn->lnk;
+> +	int len;
+> +
+> +	/* SMC-R specific settings */
+> +	clc = (struct smc_clc_msg_accept_confirm *)clc_v2;
+
+Why is this cast neccessary? 
+smc_clc_msg_accept_confirm_v2 has hdr and r0 as well.
+
+> +	memcpy(clc->hdr.eyecatcher, SMC_EYECATCHER,
+> +	       sizeof(SMC_EYECATCHER));
+> +	clc->hdr.typev1 = SMC_TYPE_R;
+> +	clc->hdr.length = htons(SMCR_CLC_ACCEPT_CONFIRM_LEN);
+
+^^ this is overwritten below, so no need to set it here.
+
+> +	memcpy(clc->r0.lcl.id_for_peer, local_systemid,
+> +	       sizeof(local_systemid));
+> +	memcpy(&clc->r0.lcl.gid, link->gid, SMC_GID_SIZE);
+> +	memcpy(&clc->r0.lcl.mac, &link->smcibdev->mac[link->ibport - 1],
+> +	       ETH_ALEN);
+> +	hton24(clc->r0.qpn, link->roce_qp->qp_num);
+> +	clc->r0.rmb_rkey =
+> +		htonl(conn->rmb_desc->mr[link->link_idx]->rkey);
+> +	clc->r0.rmbe_idx = 1; /* for now: 1 RMB = 1 RMBE */
+> +	clc->r0.rmbe_alert_token = htonl(conn->alert_token_local);
+> +	switch (clc->hdr.type) {
+> +	case SMC_CLC_ACCEPT:
+> +		clc->r0.qp_mtu = link->path_mtu;
+> +		break;
+> +	case SMC_CLC_CONFIRM:
+> +		clc->r0.qp_mtu = min(link->path_mtu, link->peer_mtu);
+> +		break;
+> +	}
+> +	clc->r0.rmbe_size = conn->rmbe_size_comp;
+> +	clc->r0.rmb_dma_addr = conn->rmb_desc->is_vm ?
+> +		cpu_to_be64((uintptr_t)conn->rmb_desc->cpu_addr) :
+> +		cpu_to_be64((u64)sg_dma_address
+> +			    (conn->rmb_desc->sgt[link->link_idx].sgl));
+> +	hton24(clc->r0.psn, link->psn_initial);
+> +	if (version == SMC_V1) {
+> +		clc->hdr.length = htons(SMCR_CLC_ACCEPT_CONFIRM_LEN);
+> +	} else {
+> +		if (eid && eid[0])
+> +			memcpy(clc_v2->r1.eid, eid, SMC_MAX_EID_LEN);
+> +		len = SMCR_CLC_ACCEPT_CONFIRM_LEN_V2;
+> +		if (first_contact) {
+> +			*fce_len = smc_clc_fill_fce_v2x(fce_v2x, ini);
+> +			len += *fce_len;
+> +			fce_v2x->fce_v2_base.v2_direct =
+> +				!link->lgr->uses_gateway;
+> +			if (clc->hdr.type == SMC_CLC_CONFIRM) {
+> +				memset(gle, 0, sizeof(*gle));
+> +				gle->gid_cnt = ini->smcrv2.gidlist.len;
+> +				len += sizeof(*gle);
+> +				len += gle->gid_cnt * sizeof(gle->gid[0]);
+> +			}
+> +		}
+> +		clc_v2->hdr.length = htons(len);
+> +	}
+> +	memcpy(trl->eyecatcher, SMC_EYECATCHER, sizeof(SMC_EYECATCHER));
+> +}
+> +
+>  /* build and send CLC CONFIRM / ACCEPT message */
+>  static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+>  				       struct smc_clc_msg_accept_confirm_v2 *clc_v2,
+> @@ -1006,11 +1111,10 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+>  {
+>  	struct smc_clc_first_contact_ext_v2x fce_v2x;
+>  	struct smc_connection *conn = &smc->conn;
+> -	struct smcd_dev *smcd = conn->lgr->smcd;
+>  	struct smc_clc_msg_accept_confirm *clc;
+>  	struct smc_clc_fce_gid_ext gle;
+>  	struct smc_clc_msg_trail trl;
+> -	int i, len, fce_len;
+> +	int i, fce_len;
+>  	struct kvec vec[5];
+>  	struct msghdr msg;
+>  
+> @@ -1019,86 +1123,14 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+>  	clc->hdr.version = version;	/* SMC version */
+>  	if (first_contact)
+>  		clc->hdr.typev2 |= SMC_FIRST_CONTACT_MASK;
+> -	if (conn->lgr->is_smcd) {
+> -		/* SMC-D specific settings */
+> -		memcpy(clc->hdr.eyecatcher, SMCD_EYECATCHER,
+> -		       sizeof(SMCD_EYECATCHER));
+> -		clc->hdr.typev1 = SMC_TYPE_D;
+> -		clc->d0.gid = htonll(smcd->ops->get_local_gid(smcd));
+> -		clc->d0.token = htonll(conn->rmb_desc->token);
+> -		clc->d0.dmbe_size = conn->rmbe_size_comp;
+> -		clc->d0.dmbe_idx = 0;
+> -		memcpy(&clc->d0.linkid, conn->lgr->id, SMC_LGR_ID_SIZE);
+> -		if (version == SMC_V1) {
+> -			clc->hdr.length = htons(SMCD_CLC_ACCEPT_CONFIRM_LEN);
+> -		} else {
+> -			clc_v2->d1.chid = htons(smc_ism_get_chid(smcd));
+> -			if (eid && eid[0])
+> -				memcpy(clc_v2->d1.eid, eid, SMC_MAX_EID_LEN);
+> -			len = SMCD_CLC_ACCEPT_CONFIRM_LEN_V2;
+> -			if (first_contact) {
+> -				fce_len = smc_clc_fill_fce_v2x(&fce_v2x, ini);
+> -				len += fce_len;
+> -			}
+> -			clc_v2->hdr.length = htons(len);
+> -		}
+> -		memcpy(trl.eyecatcher, SMCD_EYECATCHER,
+> -		       sizeof(SMCD_EYECATCHER));
+> -	} else {
+> -		struct smc_link *link = conn->lnk;
+> -
+> -		/* SMC-R specific settings */
+> -		memcpy(clc->hdr.eyecatcher, SMC_EYECATCHER,
+> -		       sizeof(SMC_EYECATCHER));
+> -		clc->hdr.typev1 = SMC_TYPE_R;
+> -		clc->hdr.length = htons(SMCR_CLC_ACCEPT_CONFIRM_LEN);
+> -		memcpy(clc->r0.lcl.id_for_peer, local_systemid,
+> -		       sizeof(local_systemid));
+> -		memcpy(&clc->r0.lcl.gid, link->gid, SMC_GID_SIZE);
+> -		memcpy(&clc->r0.lcl.mac, &link->smcibdev->mac[link->ibport - 1],
+> -		       ETH_ALEN);
+> -		hton24(clc->r0.qpn, link->roce_qp->qp_num);
+> -		clc->r0.rmb_rkey =
+> -			htonl(conn->rmb_desc->mr[link->link_idx]->rkey);
+> -		clc->r0.rmbe_idx = 1; /* for now: 1 RMB = 1 RMBE */
+> -		clc->r0.rmbe_alert_token = htonl(conn->alert_token_local);
+> -		switch (clc->hdr.type) {
+> -		case SMC_CLC_ACCEPT:
+> -			clc->r0.qp_mtu = link->path_mtu;
+> -			break;
+> -		case SMC_CLC_CONFIRM:
+> -			clc->r0.qp_mtu = min(link->path_mtu, link->peer_mtu);
+> -			break;
+> -		}
+> -		clc->r0.rmbe_size = conn->rmbe_size_comp;
+> -		clc->r0.rmb_dma_addr = conn->rmb_desc->is_vm ?
+> -			cpu_to_be64((uintptr_t)conn->rmb_desc->cpu_addr) :
+> -			cpu_to_be64((u64)sg_dma_address
+> -				    (conn->rmb_desc->sgt[link->link_idx].sgl));
+> -		hton24(clc->r0.psn, link->psn_initial);
+> -		if (version == SMC_V1) {
+> -			clc->hdr.length = htons(SMCR_CLC_ACCEPT_CONFIRM_LEN);
+> -		} else {
+> -			if (eid && eid[0])
+> -				memcpy(clc_v2->r1.eid, eid, SMC_MAX_EID_LEN);
+> -			len = SMCR_CLC_ACCEPT_CONFIRM_LEN_V2;
+> -			if (first_contact) {
+> -				fce_len = smc_clc_fill_fce_v2x(&fce_v2x, ini);
+> -				len += fce_len;
+> -				fce_v2x.fce_v2_base.v2_direct =
+> -					!link->lgr->uses_gateway;
+> -				if (clc->hdr.type == SMC_CLC_CONFIRM) {
+> -					memset(&gle, 0, sizeof(gle));
+> -					gle.gid_cnt = ini->smcrv2.gidlist.len;
+> -					len += sizeof(gle);
+> -					len += gle.gid_cnt * sizeof(gle.gid[0]);
+> -				}
+> -			}
+> -			clc_v2->hdr.length = htons(len);
+> -		}
+> -		memcpy(trl.eyecatcher, SMC_EYECATCHER, sizeof(SMC_EYECATCHER));
+> -	}
+> -
+> +	if (conn->lgr->is_smcd)
+> +		smcd_clc_prep_confirm_accept(conn, clc_v2, first_contact,
+> +					     version, eid, ini, &fce_len,
+> +					     &fce_v2x, &trl);
+> +	else
+> +		smcr_clc_prep_confirm_accept(conn, clc_v2, first_contact,
+> +					     version, eid, ini, &fce_len,
+> +					     &fce_v2x, &gle, &trl);
+>  	memset(&msg, 0, sizeof(msg));
+>  	i = 0;
+>  	vec[i].iov_base = clc_v2;
