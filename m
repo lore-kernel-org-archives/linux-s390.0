@@ -1,160 +1,108 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="Bfd6HASy"
-Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3737CC3
-	for <linux-s390@vger.kernel.org>; Mon, 11 Dec 2023 13:56:17 -0800 (PST)
-Received: by mail-io1-xd36.google.com with SMTP id ca18e2360f4ac-7b37a2e6314so44010339f.1
-        for <linux-s390@vger.kernel.org>; Mon, 11 Dec 2023 13:56:17 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Pl79AuKH"
+Received: from mail-yw1-x112f.google.com (mail-yw1-x112f.google.com [IPv6:2607:f8b0:4864:20::112f])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69ED5AD;
+	Mon, 11 Dec 2023 14:34:35 -0800 (PST)
+Received: by mail-yw1-x112f.google.com with SMTP id 00721157ae682-5d7346442d4so48469777b3.2;
+        Mon, 11 Dec 2023 14:34:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google; t=1702331776; x=1702936576; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=QWln+CTTERyZ6ImQ/92s4pzeNQeDoALVr1bp+5tWi4A=;
-        b=Bfd6HASyVBFKiddbCav9xD13UkpAkC/+RDM0FWcUg5sLMJgju+dAC/5uW9DMlzRKEx
-         IaRADmo3PI4CvyVjdmdkkGI+lnl1kWBBSh5LrhQEmwqSDt6WKVO5EWaBl3Jha6Cd957U
-         opexMuPQFSO+OJP28mwWqnKoTBD65sMshOW9k=
+        d=gmail.com; s=20230601; t=1702334074; x=1702938874; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=weETpER/W9eWKpDs0aTzW8/kqujO5Ns20F+TiP+lNxc=;
+        b=Pl79AuKHMkBMVGDU1JhLlZWOW82hDx+5kpah8WvIfmhdo3NFuiBWyiTL4jHiJ+vw3Y
+         FD+a5CS0d/gsGgkN/H85162od3MZJM9TjNwgNiOFxN817dCnCtm4IrCcxIWcDYAtbbo4
+         1446I//YBfT6gMBKLfZXnLtY33YDdLUg1vrKoUXr3E7OtpOpkCu25VlVO9ZzgQ2vNrpB
+         R+4cnnTMzwEFLdOzgH2Zvr8fJBN7gtXPaPoAeklKOt3s4iKdw0fkU4WjOKA562qk5MHx
+         UrGZZWbGE1Hpta5GDVnoav1GSnRKn8yvdUhiggFBgeeEWE+Lv4W9tM6nhn6G3vYydW7/
+         ZH7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702331776; x=1702936576;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=QWln+CTTERyZ6ImQ/92s4pzeNQeDoALVr1bp+5tWi4A=;
-        b=wCs0DRa3wBCSvHb5IwfgDeuW8QurWoqk+pMRLS5MhPXB6h9VXxJILAiUIQS/LbnmWt
-         bBTMg1jhvrrn9sM4vIGpV+ngg+tcSP1UlkIQs4rW655k8wxbzWN1JXei3WKedFI5xWrB
-         a9pGRM5gO+EdLA0YcbdDyqKloqAI5DlYK1FaxNup7uRRrE5i9Sqd1ftRt7wBC1Bx4jS5
-         fThiMZI6oUafw0UD9K1co6xjdqdW9cT44YQYvu2iSb8xjk9c+lYqkpSgJNA8s2BhX44G
-         yaQgSVLb7ltp5Xg17PQAb+0FM9jOwMqjeVYKP5g5Uzj5fWgqvrp10raYEAv2wB7aFh2X
-         AKCg==
-X-Gm-Message-State: AOJu0Yy4zBSrS8+u3xpEK8et4Xa8jH00so9Y9gFtw44klmjL3bIuTw1+
-	CSLuMK8+bET/kvldnXkaWSTGsg==
-X-Google-Smtp-Source: AGHT+IF6u9PBe1663T7e/DMZyJ7Y1Ma1Qz6eO0no0u2sL4WErWGwXoWSypjjC6bPS2hdgwcAG+zcOw==
-X-Received: by 2002:a6b:a0d:0:b0:7b6:f0b4:92aa with SMTP id z13-20020a6b0a0d000000b007b6f0b492aamr8560958ioi.0.1702331776554;
-        Mon, 11 Dec 2023 13:56:16 -0800 (PST)
-Received: from [192.168.1.128] ([38.175.170.29])
-        by smtp.gmail.com with ESMTPSA id l27-20020a02cd9b000000b0046938c12608sm2097774jap.122.2023.12.11.13.56.15
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 11 Dec 2023 13:56:16 -0800 (PST)
-Message-ID: <2c4f2771-0557-4b44-9c98-6bd2e6930d2f@linuxfoundation.org>
-Date: Mon, 11 Dec 2023 14:56:15 -0700
+        d=1e100.net; s=20230601; t=1702334074; x=1702938874;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=weETpER/W9eWKpDs0aTzW8/kqujO5Ns20F+TiP+lNxc=;
+        b=J6vcHbs2TcXDlP88yz0kttxNPvJEYz581ya0CxBzw/9XBol4i2Db6XqLAGg6tnqBYS
+         7k9r2B7QFiI2yl4ydw/t1CYnkycDpf/H0X1QsdW9dc0nfyfU3LvWXybiffL5GUg7Sm3R
+         wP0oJfQnoffWQHZI9WtysE927RjBiqyz/wATIM73I9dbnLXn3H59h11JSUOtQy2npjIK
+         Ye9SECjAeqXrkDAu1BRqw9Dj6vOglrXkuW8XZBXFxt6jlzrQC4e+NcgdTKPGyccz9EvV
+         7rzv7PXh8q+57GHKxO51YGgNiubnN7Vn+hAdGy5BcTAiWpQZDhHt71KfsTh8A6da5ULP
+         tFHw==
+X-Gm-Message-State: AOJu0Yx1PQJgu6sqGdNkJgnUL0JnZ0p56IEEu76A3jNCsm0MoiI2FiBu
+	cRCmZFYesBogcbybC6u/aDs=
+X-Google-Smtp-Source: AGHT+IFimdgWnRBEGiupflIWc8T6D9ybHk5AtdinAtNWHe5eWoKDkGhnHAT7dqZcZW2Yc4O6uagmwQ==
+X-Received: by 2002:a0d:d994:0:b0:5d7:1941:3576 with SMTP id b142-20020a0dd994000000b005d719413576mr3132315ywe.93.1702334074480;
+        Mon, 11 Dec 2023 14:34:34 -0800 (PST)
+Received: from localhost ([2601:344:8301:57f0:38aa:1c88:df05:9b73])
+        by smtp.gmail.com with ESMTPSA id e3-20020a0dc203000000b005c5a08c5c15sm3297708ywd.136.2023.12.11.14.34.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 Dec 2023 14:34:33 -0800 (PST)
+Date: Mon, 11 Dec 2023 14:34:33 -0800
+From: Yury Norov <yury.norov@gmail.com>
+To: Alexandra Winter <wintera@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Jan Karcher <jaka@linux.ibm.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+	Jan Kara <jack@suse.cz>,
+	Mirsad Todorovac <mirsad.todorovac@alu.unizg.hr>,
+	Matthew Wilcox <willy@infradead.org>,
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Maxim Kuvyrkov <maxim.kuvyrkov@linaro.org>,
+	Alexey Klimov <klimov.linux@gmail.com>,
+	Bart Van Assche <bvanassche@acm.org>,
+	Sergey Shtylyov <s.shtylyov@omp.ru>
+Subject: Re: [PATCH v2 31/35] net: smc: use find_and_set_bit() in
+ smc_wr_tx_get_free_slot_index()
+Message-ID: <ZXeOef/60Crhrm2Y@yury-ThinkPad>
+References: <20231203192422.539300-1-yury.norov@gmail.com>
+ <20231203193307.542794-1-yury.norov@gmail.com>
+ <20231203193307.542794-30-yury.norov@gmail.com>
+ <b344c321-b481-48b0-8165-c3ab604fc397@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/3] livepatch: Move tests from lib/livepatch to
- selftests/livepatch
-Content-Language: en-US
-To: mpdesouza@suse.com, Joe Lawrence <joe.lawrence@redhat.com>,
- Miroslav Benes <mbenes@suse.cz>
-Cc: Shuah Khan <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Josh Poimboeuf <jpoimboe@kernel.org>,
- Jiri Kosina <jikos@kernel.org>, Petr Mladek <pmladek@suse.com>,
- linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- live-patching@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
-References: <20231031-send-lp-kselftests-v3-0-2b1655c2605f@suse.com>
- <20231031-send-lp-kselftests-v3-2-2b1655c2605f@suse.com>
- <ZWn7dEzVWoKxycmy@redhat.com>
- <alpine.LSU.2.21.2312061543280.13051@pobox.suse.cz>
- <273a86d6-d220-fdcf-3c2f-70516c519ff9@redhat.com>
- <57fb9f30afbaddb09def96aac11c45296a59a277.camel@suse.com>
-From: Shuah Khan <skhan@linuxfoundation.org>
-In-Reply-To: <57fb9f30afbaddb09def96aac11c45296a59a277.camel@suse.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b344c321-b481-48b0-8165-c3ab604fc397@linux.ibm.com>
 
-On 12/7/23 12:19, mpdesouza@suse.com wrote:
-> On Thu, 2023-12-07 at 10:20 -0500, Joe Lawrence wrote:
->> On 12/6/23 10:05, Miroslav Benes wrote:
->>> On Fri, 1 Dec 2023, Joe Lawrence wrote:
->>>
->>>> On Tue, Oct 31, 2023 at 06:10:52PM -0300, Marcos Paulo de Souza
->>>> wrote:
->>>>> The modules are being moved from lib/livepatch to
->>>>> tools/testing/selftests/livepatch/test_modules.
->>>>>
->>>>> This code moving will allow writing more complex tests, like
->>>>> for example an
->>>>> userspace C code that will call a livepatched kernel function.
->>>>>
->>>>> The modules are now built as out-of-tree
->>>>> modules, but being part of the kernel source means they will be
->>>>> maintained.
->>>>>
->>>>> Another advantage of the code moving is to be able to easily
->>>>> change,
->>>>> debug and rebuild the tests by running make on the
->>>>> selftests/livepatch directory,
->>>>> which is not currently possible since the modules on
->>>>> lib/livepatch are
->>>>> build and installed using the "modules" target.
->>>>>
->>>>> The current approach also keeps the ability to execute the
->>>>> tests manually by
->>>>> executing the scripts inside selftests/livepatch directory, as
->>>>> it's currently
->>>>> supported. If the modules are modified, they needed to be
->>>>> rebuilt before running
->>>>> the scripts though.
->>>>>
->>>>> The modules are built before running the selftests when using
->>>>> the
->>>>> kselftest invocations:
->>>>>
->>>>> 	make kselftest TARGETS=livepatch
->>>>> or
->>>>> 	make -C tools/testing/selftests/livepatch run_tests
->>>>>
->>>>
->>>> Quick question:
->>>>
->>>> - We have been building with CONFIG_LIVEPATCH_TEST=m to generate
->>>> the
->>>>    test modules at kernel build time
->>>>
->>>> - Our packaging filters out the selftest scripts and supporting
->>>> modules
->>>>    from the general kernel RPM package into their subpackages
->>>>
->>>> - Tests are run as part of CKI or other manual tests by
->>>> installing the
->>>>    pre-built packages from the previous step
->>>>
->>>>
->>>> After this patch, we would need to add something like the
->>>> following to
->>>> our kernel build, before packaging:
->>>>
->>>>    $ make KDIR=$(pwd) -C tools/testing/selftests/livepatch/
->>>>           ^^^^
->>>>
->>>> If this is the correct way to build the test modules for *this*
->>>> tree and
->>>> /lib/modules/$(shell uname -r)/build... it might be useful to
->>>> document
->>>> in the commit message as an alternative use case.
+On Mon, Dec 04, 2023 at 10:40:20AM +0100, Alexandra Winter wrote:
 > 
-> That's right:
 > 
-> $ make -C tools/testing/selftests/livepatch/
+> On 03.12.23 20:33, Yury Norov wrote:
+> > The function opencodes find_and_set_bit() with a for_each() loop. Use
+> > it, and make the whole function a simple almost one-liner.
+> > 
+> > While here, drop explicit initialization of *idx, because it's already
+> > initialized by the caller in case of ENOLINK, or set properly with
+> > ->wr_tx_mask, if nothing is found, in case of EBUSY.
+> > 
+> > CC: Tony Lu <tonylu@linux.alibaba.com>
+> > CC: Alexandra Winter <wintera@linux.ibm.com>
+> > Signed-off-by: Yury Norov <yury.norov@gmail.com>
+> > ---
 > 
-> is indeed the way to build the tests without running them. KDIR will be
-> set to  /lib/modules/$(shell uname -r)/build is empty.
+> Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
 > 
-> Yes, I can definitely add documentation about it inside the
-> tools/testing/selftests/livepatch/README.
 > 
+> Thanks a lot for the great helper function!
+> I guess the top-level maintainers will figure out, how this series best finds its way upstream.
 
-How does the default kselftest run work with these changes?
+Thanks, Alexandra. :)
 
-make ksefltest - does this still work as it did before this change?
+People in this thread say just pick their subsystem patch together
+with #1. So, I'm going to send v3 with some minor tweaks, and if
+everything is OK, will pull all this in my bitmap-for-next branch.
 
-thanks,
--- Shuah
-
+Thanks,
+Yury
