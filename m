@@ -1,188 +1,200 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="PmP012Ha"
-Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 611C9D2
-	for <linux-s390@vger.kernel.org>; Mon, 11 Dec 2023 18:01:14 -0800 (PST)
-Received: by mail-lf1-x129.google.com with SMTP id 2adb3069b0e04-50e04354de0so1094066e87.1
-        for <linux-s390@vger.kernel.org>; Mon, 11 Dec 2023 18:01:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1702346472; x=1702951272; darn=vger.kernel.org;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=7KWKhvYJwvM4Jhue2eRdgbRjWAjIqUdVY1eAlzHMEbo=;
-        b=PmP012HaRjZW7W0k3QyntP4F8B8RexAxaIJvVx+6Mx+Z+ZjWhO3Bof9h0sBE4idEVC
-         fyRaqEf6NZTgZ8VRh/X1Soo4vClm+KGVcPmYsptWHqQ0/rf3gOwEKIeoEnj2u3r62aPA
-         F3wFHBEwmIhpUKuBQUMVqoHOiuxLUQpqD01o8ZYiXDWlc/jnxMU5VG+dZmSsDT0j2EOm
-         1O2sGw9psMXUoZK2QoU2GezghdeEm1LPPPx1E600CV1yKHWGXM1xlyaMGlfrZINCdUKZ
-         Z+kpqKefO8xTkmNCWxqmMUCbDYdcVMhL2O5r9KiMb2U3ZD1Bk8rByRHglvy6SOivfTkh
-         uSrg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702346472; x=1702951272;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=7KWKhvYJwvM4Jhue2eRdgbRjWAjIqUdVY1eAlzHMEbo=;
-        b=Tr8alHcyrcs6Hc3OaLd0rqz7nVT0CgjmrNZku0DYLzlEf/ErHWvNZGWGgzkEaoCfDO
-         yGCSFCRceeeBH+Xs0wtKjXnXp2YXX7K40uDS4ZeEmLIzN8UqWSOvw9xBUq7XSMZZc06j
-         5jRt0bwdnEeqQZqhPRpBgsQdeWGDJnZ0pN9paPIIsGHA4iJoljOYL4+oYuvY5D5PfpfC
-         P/3OORgLbeU8FvwJaqNxQ/eNZFN9Ot+1rNAH0Ry9yKx5PGIvnP2ziIjnaAzwQPp7N+IS
-         Ri9o3jS/AVBNiWbIfjbxZhtMXTZXOGXzXONoNJK6Z3bIjaQdTnvS7pn67pM6WYDanArq
-         qE7w==
-X-Gm-Message-State: AOJu0YxwKkq1EAsALrxFPYtWk4AmRAPsW2dLkaDwBnpJW2ZZZwkPVeok
-	t8mvUJzGrNL8ZKb8FztGSiY3kQ==
-X-Google-Smtp-Source: AGHT+IHLzGUzER1PQtCvbxvQ9OvEFB7C9qq206eKNePTtcEO3I3JMvlhyJvuiG/Ox/5VE5XRq8Dr1w==
-X-Received: by 2002:a05:6512:2349:b0:50c:cdc1:b57 with SMTP id p9-20020a056512234900b0050ccdc10b57mr3057725lfu.3.1702346472558;
-        Mon, 11 Dec 2023 18:01:12 -0800 (PST)
-Received: from ?IPv6:2804:30c:915:cb00:89a8:6d94:ec55:e0a3? ([2804:30c:915:cb00:89a8:6d94:ec55:e0a3])
-        by smtp.gmail.com with ESMTPSA id tj3-20020a170907c24300b00a1b6cba8d20sm5467208ejc.122.2023.12.11.18.01.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Dec 2023 18:01:12 -0800 (PST)
-Message-ID: <e2817181598490e0455e33add1a61021b2535f78.camel@suse.com>
-Subject: Re: [PATCH v3 2/3] livepatch: Move tests from lib/livepatch to
- selftests/livepatch
-From: Marcos Paulo de Souza <mpdesouza@suse.com>
-To: Shuah Khan <skhan@linuxfoundation.org>, Joe Lawrence
-	 <joe.lawrence@redhat.com>, Miroslav Benes <mbenes@suse.cz>
-Cc: Shuah Khan <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Heiko
- Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
- Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>,  Sven Schnelle <svens@linux.ibm.com>, Josh
- Poimboeuf <jpoimboe@kernel.org>, Jiri Kosina <jikos@kernel.org>,  Petr
- Mladek <pmladek@suse.com>, linux-kselftest@vger.kernel.org,
- linux-doc@vger.kernel.org,  linux-kernel@vger.kernel.org,
- linux-s390@vger.kernel.org,  live-patching@vger.kernel.org
-Date: Mon, 11 Dec 2023 23:01:02 -0300
-In-Reply-To: <2c4f2771-0557-4b44-9c98-6bd2e6930d2f@linuxfoundation.org>
-References: <20231031-send-lp-kselftests-v3-0-2b1655c2605f@suse.com>
-	 <20231031-send-lp-kselftests-v3-2-2b1655c2605f@suse.com>
-	 <ZWn7dEzVWoKxycmy@redhat.com>
-	 <alpine.LSU.2.21.2312061543280.13051@pobox.suse.cz>
-	 <273a86d6-d220-fdcf-3c2f-70516c519ff9@redhat.com>
-	 <57fb9f30afbaddb09def96aac11c45296a59a277.camel@suse.com>
-	 <2c4f2771-0557-4b44-9c98-6bd2e6930d2f@linuxfoundation.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jA6Nr7J6"
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4B29D1;
+	Mon, 11 Dec 2023 18:05:50 -0800 (PST)
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BBNMuXi032321;
+	Tue, 12 Dec 2023 02:05:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=Ot8KKoxIBjGSb3I4fQ0uzOZ3rMDzR3TKxD9TleX3+9A=;
+ b=jA6Nr7J6zehZADQRYlcgUNAParhcaZLMCIynCWSG4T1CCxcihjha9ijlOh55MCgJCiHb
+ YbmTeSWM7nuRUvzi/PVuH/z+crlzjAITEIJ6jP1R1yPOk8mBrpQTpdDE2uL30sFUbNmQ
+ dStZsKVeOTKgII52Uolt5PA0MRPxnmPgh9v2NQV+uowdrwavs33HEC7MMrwKh8k0zSuw
+ TPd5UToK+7GiHDFZhsifwqyE86lRogocOZ8d8tw2qboBlgSjOdNLXtPGyrHdYXd1gOEW
+ ZUkA4EFrqGmCQcxhpe1SjlVZ38QF50SdTjUlCkNvSX6xr0zYg7KxY0C2o8usxqI+K44Y yg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uxc1tjy2r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 12 Dec 2023 02:05:32 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BC1oHKZ006324;
+	Tue, 12 Dec 2023 02:05:31 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uxc1tjy27-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 12 Dec 2023 02:05:31 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BBN2wVU013869;
+	Tue, 12 Dec 2023 02:05:30 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uw591w85a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 12 Dec 2023 02:05:30 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BC25RGr46989760
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 12 Dec 2023 02:05:27 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 601A520043;
+	Tue, 12 Dec 2023 02:05:27 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0EA7920040;
+	Tue, 12 Dec 2023 02:05:26 +0000 (GMT)
+Received: from [9.171.76.38] (unknown [9.171.76.38])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 12 Dec 2023 02:05:25 +0000 (GMT)
+Message-ID: <3897a38ef97742f7f51fb4c84c5ddeb4e36dae79.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 01/33] ftrace: Unpoison ftrace_regs in
+ ftrace_ops_list_func()
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+To: Steven Rostedt <rostedt@goodmis.org>,
+        Alexander Potapenko
+	 <glider@google.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrew Morton
+ <akpm@linux-foundation.org>,
+        Christoph Lameter <cl@linux.com>,
+        David
+ Rientjes <rientjes@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Joonsoo
+ Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>,
+        Masami
+ Hiramatsu <mhiramat@kernel.org>,
+        Pekka Enberg <penberg@kernel.org>, Vasily
+ Gorbik <gor@linux.ibm.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Christian
+ Borntraeger <borntraeger@linux.ibm.com>,
+        Dmitry Vyukov
+ <dvyukov@google.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        Mark Rutland <mark.rutland@arm.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Sven Schnelle
+ <svens@linux.ibm.com>
+Date: Tue, 12 Dec 2023 03:05:25 +0100
+In-Reply-To: <20231208093133.62aae274@gandalf.local.home>
+References: <20231121220155.1217090-1-iii@linux.ibm.com>
+	 <20231121220155.1217090-2-iii@linux.ibm.com>
+	 <CAG_fn=WHf0t=-OJL0031D+X7cX_D25G7TG0TqROsT34QcEnqsw@mail.gmail.com>
+	 <20231208093133.62aae274@gandalf.local.home>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.1 
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: LdRjikzPVMkLwO_P5tClkpAJCESuoSPy
+X-Proofpoint-GUID: LtJfjO66RfKFUX7oxZBtF4AB6-D3cx5W
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-11_11,2023-12-07_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=884
+ lowpriorityscore=0 adultscore=0 priorityscore=1501 mlxscore=0 bulkscore=0
+ impostorscore=0 malwarescore=0 clxscore=1015 phishscore=0 spamscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2312120015
 
-On Mon, 2023-12-11 at 14:56 -0700, Shuah Khan wrote:
-> On 12/7/23 12:19, mpdesouza@suse.com=C2=A0wrote:
-> > On Thu, 2023-12-07 at 10:20 -0500, Joe Lawrence wrote:
-> > > On 12/6/23 10:05, Miroslav Benes wrote:
-> > > > On Fri, 1 Dec 2023, Joe Lawrence wrote:
-> > > >=20
-> > > > > On Tue, Oct 31, 2023 at 06:10:52PM -0300, Marcos Paulo de
-> > > > > Souza
-> > > > > wrote:
-> > > > > > The modules are being moved from lib/livepatch to
-> > > > > > tools/testing/selftests/livepatch/test_modules.
-> > > > > >=20
-> > > > > > This code moving will allow writing more complex tests,
-> > > > > > like
-> > > > > > for example an
-> > > > > > userspace C code that will call a livepatched kernel
-> > > > > > function.
-> > > > > >=20
-> > > > > > The modules are now built as out-of-tree
-> > > > > > modules, but being part of the kernel source means they
-> > > > > > will be
-> > > > > > maintained.
-> > > > > >=20
-> > > > > > Another advantage of the code moving is to be able to
-> > > > > > easily
-> > > > > > change,
-> > > > > > debug and rebuild the tests by running make on the
-> > > > > > selftests/livepatch directory,
-> > > > > > which is not currently possible since the modules on
-> > > > > > lib/livepatch are
-> > > > > > build and installed using the "modules" target.
-> > > > > >=20
-> > > > > > The current approach also keeps the ability to execute the
-> > > > > > tests manually by
-> > > > > > executing the scripts inside selftests/livepatch directory,
-> > > > > > as
-> > > > > > it's currently
-> > > > > > supported. If the modules are modified, they needed to be
-> > > > > > rebuilt before running
-> > > > > > the scripts though.
-> > > > > >=20
-> > > > > > The modules are built before running the selftests when
-> > > > > > using
-> > > > > > the
-> > > > > > kselftest invocations:
-> > > > > >=20
-> > > > > > 	make kselftest TARGETS=3Dlivepatch
-> > > > > > or
-> > > > > > 	make -C tools/testing/selftests/livepatch
-> > > > > > run_tests
-> > > > > >=20
-> > > > >=20
-> > > > > Quick question:
-> > > > >=20
-> > > > > - We have been building with CONFIG_LIVEPATCH_TEST=3Dm to
-> > > > > generate
-> > > > > the
-> > > > > =C2=A0=C2=A0 test modules at kernel build time
-> > > > >=20
-> > > > > - Our packaging filters out the selftest scripts and
-> > > > > supporting
-> > > > > modules
-> > > > > =C2=A0=C2=A0 from the general kernel RPM package into their subpa=
-ckages
-> > > > >=20
-> > > > > - Tests are run as part of CKI or other manual tests by
-> > > > > installing the
-> > > > > =C2=A0=C2=A0 pre-built packages from the previous step
-> > > > >=20
-> > > > >=20
-> > > > > After this patch, we would need to add something like the
-> > > > > following to
-> > > > > our kernel build, before packaging:
-> > > > >=20
-> > > > > =C2=A0=C2=A0 $ make KDIR=3D$(pwd) -C tools/testing/selftests/live=
-patch/
-> > > > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ^^^^
-> > > > >=20
-> > > > > If this is the correct way to build the test modules for
-> > > > > *this*
-> > > > > tree and
-> > > > > /lib/modules/$(shell uname -r)/build... it might be useful to
-> > > > > document
-> > > > > in the commit message as an alternative use case.
-> >=20
-> > That's right:
-> >=20
-> > $ make -C tools/testing/selftests/livepatch/
-> >=20
-> > is indeed the way to build the tests without running them. KDIR
-> > will be
-> > set to=C2=A0 /lib/modules/$(shell uname -r)/build is empty.
-> >=20
-> > Yes, I can definitely add documentation about it inside the
-> > tools/testing/selftests/livepatch/README.
-> >=20
+On Fri, 2023-12-08 at 09:31 -0500, Steven Rostedt wrote:
+> On Fri, 8 Dec 2023 15:16:10 +0100
+> Alexander Potapenko <glider@google.com> wrote:
 >=20
-> How does the default kselftest run work with these changes?
->=20
-> make ksefltest - does this still work as it did before this change?
+> > On Tue, Nov 21, 2023 at 11:02=E2=80=AFPM Ilya Leoshkevich
+> > <iii@linux.ibm.com> wrote:
+> > >=20
+> > > Architectures use assembly code to initialize ftrace_regs and
+> > > call
+> > > ftrace_ops_list_func(). Therefore, from the KMSAN's point of
+> > > view,
+> > > ftrace_regs is poisoned on ftrace_ops_list_func entry(). This
+> > > causes
+> > > KMSAN warnings when running the ftrace testsuite.=C2=A0=20
+> >=20
+> > I couldn't reproduce these warnings on x86, hope you really need
+> > this
+> > change on s390 :)
 
-Yes,
+I just double-checked, and it's still needed. Without it, I get:
 
-make kselftest TARGETS=3Dlivepatch
+[    4.140184] =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D =20
+[    4.140416] BUG: KMSAN: uninit-value in
+arch_ftrace_ops_list_func+0x8e6/0x14b0           =20
+[    4.140484]  arch_ftrace_ops_list_func+0x8e6/0x14b0               =20
+[    4.140546]  ftrace_graph_caller+0x0/0x34                         =20
+[    4.140614]  read_tod_clock+0x6/0x1e0                             =20
+[    4.140671]  ktime_get+0x3a4/0x670                                =20
+[    4.140727]  clockevents_program_event+0x1c8/0xb10                =20
+[    4.140785]  tick_program_event+0x11e/0x230                       =20
+[    4.140842]  hrtimer_interrupt+0x118a/0x1d10                      =20
+[    4.140898]  do_IRQ+0x108/0x150                                   =20
+[    4.140959]  do_irq_async+0xfc/0x270                              =20
+[    4.141021]  do_ext_irq+0x98/0x120                                =20
+[    4.141080]  ext_int_handler+0xc4/0xf0                            =20
+[    4.141141]  _raw_spin_unlock_irqrestore+0xfa/0x190               =20
+[    4.141207]  _raw_spin_unlock_irqrestore+0xf6/0x190               =20
+[    4.141271]  s390_kernel_write+0x218/0x250                        =20
+[    4.141328]  ftrace_make_call+0x362/0x4a0                         =20
+[    4.141386]  __ftrace_replace_code+0xb44/0xbd0                    =20
+[    4.141442]  ftrace_replace_code+0x1d8/0x440                      =20
+[    4.141497]  ftrace_modify_all_code+0xfe/0x510                    =20
+[    4.141555]  ftrace_startup+0x4f0/0xcf0                           =20
+[    4.141609]  register_ftrace_function+0x1316/0x1440               =20
+[    4.141670]  function_trace_init+0x2c0/0x3d0                      =20
+[    4.141732]  tracer_init+0x282/0x370                              =20
+[    4.141789]  trace_selftest_startup_function+0x104/0x19d0         =20
+[    4.141857]  run_tracer_selftest+0x7c8/0xab0                      =20
+[    4.141918]  init_trace_selftests+0x200/0x820
+[    4.141977]  do_one_initcall+0x35e/0x1090
+[    4.142032]  do_initcall_level+0x276/0x660
+[    4.142095]  do_initcalls+0x16a/0x2d0
+[    4.142153]  kernel_init_freeable+0x632/0x960
+[    4.142216]  kernel_init+0x36/0x1810
+[    4.142277]  __ret_from_fork+0xc0/0x180
+[    4.142333]  ret_from_fork+0xa/0x30
+[    4.142431] Local variable agg.tmp.i.i created at:                =20
+02:06:55 [30/1836]
+[    4.142476]  timekeeping_advance+0x79a/0x2870
+[    4.142394]=20
+[    4.142431] Local variable agg.tmp.i.i created at:
+[    4.142476]  timekeeping_advance+0x79a/0x2870
+[    4.142534]=20
+[    4.142573] CPU: 0 PID: 1 Comm: swapper/0 Tainted: G        W     =20
+6.7.0-rc4-g7657d31dc545 #4
+[    4.142638] Hardware name: IBM 3931 A01 704 (KVM/Linux)
+[    4.142686] =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D
+[    4.142734] Kernel panic - not syncing: kmsan.panic set ...
+[    4.142734] =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D
 
-works the same as before. As well the
+> On x86, ftrace_regs sits on the stack. And IIUC, s390 doesn't have
+> the same
+> concept of a "stack" as other architectures. Perhaps that's the
+> reason s390
+> needs this?
 
-make -C tools/testing/selftests/livepatch run_tests
+It's not that different on s390x. There is indeed no architecture-
+mandated stack pointer and no push/pop, but other than that it's fairly
+normal. Linux uses %r15 as a stack pointer.
 
-Both ways work as before.
->=20
-> thanks,
-> -- Shuah
->=20
+On s390x ftrace_regs is allocated on stack by mcount.S. From what I can
+see, Intel's ftrace_64.S does the same thing, so I don't immediately
+see why uninit-value is not detected on Intel, even though I think it
+should.
+
+> -- Steve
 
