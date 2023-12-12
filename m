@@ -1,79 +1,73 @@
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 521B0A0;
-	Tue, 12 Dec 2023 02:54:54 -0800 (PST)
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=20;SR=0;TI=SMTPD_---0VyMBMsm_1702378490;
-Received: from 30.221.129.163(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VyMBMsm_1702378490)
-          by smtp.aliyun-inc.com;
-          Tue, 12 Dec 2023 18:54:52 +0800
-Message-ID: <d9e55a9e-c956-544b-74d5-a7f95774f2a8@linux.alibaba.com>
-Date: Tue, 12 Dec 2023 18:54:49 +0800
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="dT7hUcTd"
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A045A7;
+	Tue, 12 Dec 2023 05:15:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=d9GOM1CReQqHO2Eq5TSJ+QFrtD+BDx0i0I5iG3RHOkc=; b=dT7hUcTdggq68z9eTLTpZvkowz
+	o0hzxFtGP/1A5CdpXLfKR7IAabXtd6tscvW4EWJ7bqf73me/qP/EdG2B4FI3typytMvICOqncBaZB
+	juLPQegmxMqcDjRUgDWRxj7eyVDzzLp60SQCJEDdgc0OscK42Z3kENibYVgGF0I1l4mcAYgv7Nega
+	dtBKSq2W5Eht1hqZUznEkZjKNtAWvDjb82DMtqFruzGL7aQEKgH38NdlFfSSWk5+OxXcyVtpRNqmc
+	NPwFb5zSyEEcKZJQSk14/2oMDYGzCgMBHQVgCHGvkAUHl3vAl4PoAud1hrwXpknFsKsviOKDCWU7T
+	JzSMOq4g==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
+	id 1rD2ae-00BldE-0K;
+	Tue, 12 Dec 2023 13:14:24 +0000
+Date: Tue, 12 Dec 2023 05:14:24 -0800
+From: Christoph Hellwig <hch@infradead.org>
+To: Jan Kara <jack@suse.cz>
+Cc: Yu Kuai <yukuai1@huaweicloud.com>, axboe@kernel.dk,
+	roger.pau@citrix.com, colyli@suse.de, kent.overstreet@gmail.com,
+	joern@lazybastard.org, miquel.raynal@bootlin.com, richard@nod.at,
+	vigneshr@ti.com, sth@linux.ibm.com, hoeppner@linux.ibm.com,
+	hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+	jejb@linux.ibm.com, martin.petersen@oracle.com, clm@fb.com,
+	josef@toxicpanda.com, dsterba@suse.com, viro@zeniv.linux.org.uk,
+	brauner@kernel.org, nico@fluxnic.net, xiang@kernel.org,
+	chao@kernel.org, tytso@mit.edu, adilger.kernel@dilger.ca,
+	agruenba@redhat.com, jack@suse.com, konishi.ryusuke@gmail.com,
+	willy@infradead.org, akpm@linux-foundation.org,
+	p.raghav@samsung.com, hare@suse.de, linux-block@vger.kernel.org,
+	linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org,
+	linux-bcache@vger.kernel.org, linux-mtd@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+	linux-bcachefs@vger.kernel.org, linux-btrfs@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+	linux-ext4@vger.kernel.org, gfs2@lists.linux.dev,
+	linux-nilfs@vger.kernel.org, yukuai3@huawei.com,
+	yi.zhang@huawei.com, yangerkun@huawei.com
+Subject: Re: [PATCH RFC v2 for-6.8/block 01/18] block: add some bdev apis
+Message-ID: <ZXhcsNbvzbArtBUj@infradead.org>
+References: <20231211140552.973290-1-yukuai1@huaweicloud.com>
+ <20231211140552.973290-2-yukuai1@huaweicloud.com>
+ <20231211165217.fil437byq7w2vcp7@quack3>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.1
-From: Wen Gu <guwen@linux.alibaba.com>
-Subject: Re: [PATCH net-next v6 00/10] net/smc: implement SMCv2.1 virtual ISM
- device support
-To: wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- kgraul@linux.ibm.com, jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, raspl@linux.ibm.com,
- schnelle@linux.ibm.com, guangguan.wang@linux.alibaba.com,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org
-References: <1702371151-125258-1-git-send-email-guwen@linux.alibaba.com>
-In-Reply-To: <1702371151-125258-1-git-send-email-guwen@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231211165217.fil437byq7w2vcp7@quack3>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-
-
-On 2023/12/12 16:52, Wen Gu wrote:
-
-> The fourth edition of SMCv2 adds the SMC version 2.1 feature updates for
-> SMC-Dv2 with virtual ISM. Virtual ISM are created and supported mainly by
-> OS or hypervisor software, comparable to IBM ISM which is based on platform
-> firmware or hardware.
+On Mon, Dec 11, 2023 at 05:52:17PM +0100, Jan Kara wrote:
+> > +void bdev_associated_mapping(struct block_device *bdev,
+> > +			     struct address_space *mapping)
+> > +{
+> > +	mapping->host = bdev->bd_inode;
+> > +}
 > 
-> With the introduction of virtual ISM, SMCv2.1 makes some updates:
-> 
-> - Introduce feature bitmask to indicate supplemental features.
-> - Reserve a range of CHIDs for virtual ISM.
-> - Support extended GIDs (128 bits) in CLC handshake.
-> 
-> So this patch set aims to implement these updates in Linux kernel. And it
-> acts as the first part of SMC-D virtual ISM extension & loopback-ism [1].
-> 
-> [1] https://lore.kernel.org/netdev/1695568613-125057-1-git-send-email-guwen@linux.alibaba.com/
-> 
-> v6->v5:
-> - Add 'Reviewed-by' label given in the previous versions:
->    * Patch #4, #6, #9, #10 have nothing changed since v3;
-> - Patch #2:
->    * fix the format issue (Alignment should match open parenthesis) compared to v5;
->    * remove useless clc->hdr.length assignment in smcr_clc_prep_confirm_accept()
->      compared to v5;
-> - Patch #3: new added compared to v5.
-> - Patch #7: some minor changes like aclc_v2->aclc or clc_v2->clc compared to v5
->    due to the introduction of Patch #3. Since there were no major changes, I kept
->    the 'Reviewed-by' label.
-> 
-> Other changes in previous versions but not yet acked:
-> - Patch #1: Some minor changes in subject and fix the format issue
->    (length exceeds 80 columns) compared to v3.
-> - Patch #5: removes useless ini->feature_mask assignment in __smc_connect()
->    and smc_listen_v2_check() compared to v4.
-> - Patch #8: new added, compared to v3.
-> 
+> Here I'm not sure - is the helper really a win? It seems a bit obscure to
+> me. This initialization of another mapping for a bdev looks really special.
 
-Looks like I accidentally modified my send-email script..
+If we want to hide bd_inode we'll something like this helper even if
+I don't particularly like it either.
 
-There is a typo in the CC-ed mail address list:
-lzinux-kernel@vger.kernel.org -> linux-kernel@vger.kernel.org
-
-
+But it might be a good idea to move out of this series and into the
+follow on removing bd_inode, as it's rather pointless without that
+context.
