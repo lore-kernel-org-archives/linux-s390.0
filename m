@@ -1,119 +1,188 @@
-Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 706BACE;
-	Mon, 11 Dec 2023 17:32:21 -0800 (PST)
-Received: from mail.maildlp.com (unknown [172.19.163.235])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4Sq1Lj3Z6Rz4f3lDc;
-	Tue, 12 Dec 2023 09:32:13 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 5C7FC1A0D83;
-	Tue, 12 Dec 2023 09:32:18 +0800 (CST)
-Received: from [10.174.176.73] (unknown [10.174.176.73])
-	by APP1 (Coremail) with SMTP id cCh0CgCn9gwauHdlugyeDQ--.45656S3;
-	Tue, 12 Dec 2023 09:32:13 +0800 (CST)
-Subject: Re: [PATCH RFC v2 for-6.8/block 15/18] buffer: add a new helper to
- read sb block
-To: Jan Kara <jack@suse.cz>, Yu Kuai <yukuai1@huaweicloud.com>
-Cc: axboe@kernel.dk, roger.pau@citrix.com, colyli@suse.de,
- kent.overstreet@gmail.com, joern@lazybastard.org, miquel.raynal@bootlin.com,
- richard@nod.at, vigneshr@ti.com, sth@linux.ibm.com, hoeppner@linux.ibm.com,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- jejb@linux.ibm.com, martin.petersen@oracle.com, clm@fb.com,
- josef@toxicpanda.com, dsterba@suse.com, viro@zeniv.linux.org.uk,
- brauner@kernel.org, nico@fluxnic.net, xiang@kernel.org, chao@kernel.org,
- tytso@mit.edu, adilger.kernel@dilger.ca, agruenba@redhat.com, jack@suse.com,
- konishi.ryusuke@gmail.com, willy@infradead.org, akpm@linux-foundation.org,
- p.raghav@samsung.com, hare@suse.de, linux-block@vger.kernel.org,
- linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org,
- linux-bcache@vger.kernel.org, linux-mtd@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
- linux-bcachefs@vger.kernel.org, linux-btrfs@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org,
- linux-ext4@vger.kernel.org, gfs2@lists.linux.dev,
- linux-nilfs@vger.kernel.org, yi.zhang@huawei.com,
- "yangerkun@huawei.com" <yangerkun@huawei.com>,
- "yukuai (C)" <yukuai3@huawei.com>
-References: <20231211140552.973290-1-yukuai1@huaweicloud.com>
- <20231211140753.975297-1-yukuai1@huaweicloud.com>
- <20231211172708.qpuk4rkwq4u2zbmj@quack3>
-From: Yu Kuai <yukuai1@huaweicloud.com>
-Message-ID: <be459c50-5179-2748-2636-7965b9e1cb7a@huaweicloud.com>
-Date: Tue, 12 Dec 2023 09:32:10 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="PmP012Ha"
+Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 611C9D2
+	for <linux-s390@vger.kernel.org>; Mon, 11 Dec 2023 18:01:14 -0800 (PST)
+Received: by mail-lf1-x129.google.com with SMTP id 2adb3069b0e04-50e04354de0so1094066e87.1
+        for <linux-s390@vger.kernel.org>; Mon, 11 Dec 2023 18:01:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1702346472; x=1702951272; darn=vger.kernel.org;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=7KWKhvYJwvM4Jhue2eRdgbRjWAjIqUdVY1eAlzHMEbo=;
+        b=PmP012HaRjZW7W0k3QyntP4F8B8RexAxaIJvVx+6Mx+Z+ZjWhO3Bof9h0sBE4idEVC
+         fyRaqEf6NZTgZ8VRh/X1Soo4vClm+KGVcPmYsptWHqQ0/rf3gOwEKIeoEnj2u3r62aPA
+         F3wFHBEwmIhpUKuBQUMVqoHOiuxLUQpqD01o8ZYiXDWlc/jnxMU5VG+dZmSsDT0j2EOm
+         1O2sGw9psMXUoZK2QoU2GezghdeEm1LPPPx1E600CV1yKHWGXM1xlyaMGlfrZINCdUKZ
+         Z+kpqKefO8xTkmNCWxqmMUCbDYdcVMhL2O5r9KiMb2U3ZD1Bk8rByRHglvy6SOivfTkh
+         uSrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702346472; x=1702951272;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=7KWKhvYJwvM4Jhue2eRdgbRjWAjIqUdVY1eAlzHMEbo=;
+        b=Tr8alHcyrcs6Hc3OaLd0rqz7nVT0CgjmrNZku0DYLzlEf/ErHWvNZGWGgzkEaoCfDO
+         yGCSFCRceeeBH+Xs0wtKjXnXp2YXX7K40uDS4ZeEmLIzN8UqWSOvw9xBUq7XSMZZc06j
+         5jRt0bwdnEeqQZqhPRpBgsQdeWGDJnZ0pN9paPIIsGHA4iJoljOYL4+oYuvY5D5PfpfC
+         P/3OORgLbeU8FvwJaqNxQ/eNZFN9Ot+1rNAH0Ry9yKx5PGIvnP2ziIjnaAzwQPp7N+IS
+         Ri9o3jS/AVBNiWbIfjbxZhtMXTZXOGXzXONoNJK6Z3bIjaQdTnvS7pn67pM6WYDanArq
+         qE7w==
+X-Gm-Message-State: AOJu0YxwKkq1EAsALrxFPYtWk4AmRAPsW2dLkaDwBnpJW2ZZZwkPVeok
+	t8mvUJzGrNL8ZKb8FztGSiY3kQ==
+X-Google-Smtp-Source: AGHT+IHLzGUzER1PQtCvbxvQ9OvEFB7C9qq206eKNePTtcEO3I3JMvlhyJvuiG/Ox/5VE5XRq8Dr1w==
+X-Received: by 2002:a05:6512:2349:b0:50c:cdc1:b57 with SMTP id p9-20020a056512234900b0050ccdc10b57mr3057725lfu.3.1702346472558;
+        Mon, 11 Dec 2023 18:01:12 -0800 (PST)
+Received: from ?IPv6:2804:30c:915:cb00:89a8:6d94:ec55:e0a3? ([2804:30c:915:cb00:89a8:6d94:ec55:e0a3])
+        by smtp.gmail.com with ESMTPSA id tj3-20020a170907c24300b00a1b6cba8d20sm5467208ejc.122.2023.12.11.18.01.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 Dec 2023 18:01:12 -0800 (PST)
+Message-ID: <e2817181598490e0455e33add1a61021b2535f78.camel@suse.com>
+Subject: Re: [PATCH v3 2/3] livepatch: Move tests from lib/livepatch to
+ selftests/livepatch
+From: Marcos Paulo de Souza <mpdesouza@suse.com>
+To: Shuah Khan <skhan@linuxfoundation.org>, Joe Lawrence
+	 <joe.lawrence@redhat.com>, Miroslav Benes <mbenes@suse.cz>
+Cc: Shuah Khan <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Heiko
+ Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
+ Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>,  Sven Schnelle <svens@linux.ibm.com>, Josh
+ Poimboeuf <jpoimboe@kernel.org>, Jiri Kosina <jikos@kernel.org>,  Petr
+ Mladek <pmladek@suse.com>, linux-kselftest@vger.kernel.org,
+ linux-doc@vger.kernel.org,  linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org,  live-patching@vger.kernel.org
+Date: Mon, 11 Dec 2023 23:01:02 -0300
+In-Reply-To: <2c4f2771-0557-4b44-9c98-6bd2e6930d2f@linuxfoundation.org>
+References: <20231031-send-lp-kselftests-v3-0-2b1655c2605f@suse.com>
+	 <20231031-send-lp-kselftests-v3-2-2b1655c2605f@suse.com>
+	 <ZWn7dEzVWoKxycmy@redhat.com>
+	 <alpine.LSU.2.21.2312061543280.13051@pobox.suse.cz>
+	 <273a86d6-d220-fdcf-3c2f-70516c519ff9@redhat.com>
+	 <57fb9f30afbaddb09def96aac11c45296a59a277.camel@suse.com>
+	 <2c4f2771-0557-4b44-9c98-6bd2e6930d2f@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.1 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20231211172708.qpuk4rkwq4u2zbmj@quack3>
-Content-Type: text/plain; charset=gbk; format=flowed
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:cCh0CgCn9gwauHdlugyeDQ--.45656S3
-X-Coremail-Antispam: 1UD129KBjvJXoW7trWDZF4Dur4DWFWktF1xGrg_yoW8WF48pr
-	ySkayakrZrAr1a9F12qw1rXFyrKa13G3WrCFyfJa4UAryagr13XrWxGF4UGFW3ZrnrAws8
-	Xa1FkayrZw15KFDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUU9q14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4U
-	JVWxJr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gc
-	CE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E
-	2Ix0cI8IcVAFwI0_JrI_JrylYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJV
-	W8JwACjcxG0xvEwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2Y2ka
-	0xkIwI1lc7I2V7IY0VAS07AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7x
-	kEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E
-	67AF67kF1VAFwI0_Wrv_Gr1UMIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF
-	4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4UJVWxJr1lIxAIcVCF04k26cxKx2IYs7xG6rWU
-	JVWrZr1UMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F
-	4UJbIYCTnIWIevJa73UjIFyTuYvjfUFfHUDUUUU
-X-CM-SenderInfo: 51xn3trlr6x35dzhxuhorxvhhfrp/
 
-Hi,
+On Mon, 2023-12-11 at 14:56 -0700, Shuah Khan wrote:
+> On 12/7/23 12:19, mpdesouza@suse.com=C2=A0wrote:
+> > On Thu, 2023-12-07 at 10:20 -0500, Joe Lawrence wrote:
+> > > On 12/6/23 10:05, Miroslav Benes wrote:
+> > > > On Fri, 1 Dec 2023, Joe Lawrence wrote:
+> > > >=20
+> > > > > On Tue, Oct 31, 2023 at 06:10:52PM -0300, Marcos Paulo de
+> > > > > Souza
+> > > > > wrote:
+> > > > > > The modules are being moved from lib/livepatch to
+> > > > > > tools/testing/selftests/livepatch/test_modules.
+> > > > > >=20
+> > > > > > This code moving will allow writing more complex tests,
+> > > > > > like
+> > > > > > for example an
+> > > > > > userspace C code that will call a livepatched kernel
+> > > > > > function.
+> > > > > >=20
+> > > > > > The modules are now built as out-of-tree
+> > > > > > modules, but being part of the kernel source means they
+> > > > > > will be
+> > > > > > maintained.
+> > > > > >=20
+> > > > > > Another advantage of the code moving is to be able to
+> > > > > > easily
+> > > > > > change,
+> > > > > > debug and rebuild the tests by running make on the
+> > > > > > selftests/livepatch directory,
+> > > > > > which is not currently possible since the modules on
+> > > > > > lib/livepatch are
+> > > > > > build and installed using the "modules" target.
+> > > > > >=20
+> > > > > > The current approach also keeps the ability to execute the
+> > > > > > tests manually by
+> > > > > > executing the scripts inside selftests/livepatch directory,
+> > > > > > as
+> > > > > > it's currently
+> > > > > > supported. If the modules are modified, they needed to be
+> > > > > > rebuilt before running
+> > > > > > the scripts though.
+> > > > > >=20
+> > > > > > The modules are built before running the selftests when
+> > > > > > using
+> > > > > > the
+> > > > > > kselftest invocations:
+> > > > > >=20
+> > > > > > 	make kselftest TARGETS=3Dlivepatch
+> > > > > > or
+> > > > > > 	make -C tools/testing/selftests/livepatch
+> > > > > > run_tests
+> > > > > >=20
+> > > > >=20
+> > > > > Quick question:
+> > > > >=20
+> > > > > - We have been building with CONFIG_LIVEPATCH_TEST=3Dm to
+> > > > > generate
+> > > > > the
+> > > > > =C2=A0=C2=A0 test modules at kernel build time
+> > > > >=20
+> > > > > - Our packaging filters out the selftest scripts and
+> > > > > supporting
+> > > > > modules
+> > > > > =C2=A0=C2=A0 from the general kernel RPM package into their subpa=
+ckages
+> > > > >=20
+> > > > > - Tests are run as part of CKI or other manual tests by
+> > > > > installing the
+> > > > > =C2=A0=C2=A0 pre-built packages from the previous step
+> > > > >=20
+> > > > >=20
+> > > > > After this patch, we would need to add something like the
+> > > > > following to
+> > > > > our kernel build, before packaging:
+> > > > >=20
+> > > > > =C2=A0=C2=A0 $ make KDIR=3D$(pwd) -C tools/testing/selftests/live=
+patch/
+> > > > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ^^^^
+> > > > >=20
+> > > > > If this is the correct way to build the test modules for
+> > > > > *this*
+> > > > > tree and
+> > > > > /lib/modules/$(shell uname -r)/build... it might be useful to
+> > > > > document
+> > > > > in the commit message as an alternative use case.
+> >=20
+> > That's right:
+> >=20
+> > $ make -C tools/testing/selftests/livepatch/
+> >=20
+> > is indeed the way to build the tests without running them. KDIR
+> > will be
+> > set to=C2=A0 /lib/modules/$(shell uname -r)/build is empty.
+> >=20
+> > Yes, I can definitely add documentation about it inside the
+> > tools/testing/selftests/livepatch/README.
+> >=20
+>=20
+> How does the default kselftest run work with these changes?
+>=20
+> make ksefltest - does this still work as it did before this change?
 
-ÔÚ 2023/12/12 1:27, Jan Kara Ð´µÀ:
-> On Mon 11-12-23 22:07:53, Yu Kuai wrote:
->> From: Yu Kuai <yukuai3@huawei.com>
->>
->> Unlike __bread_gfp(), ext4 has special handing while reading sb block:
->>
->> 1) __GFP_NOFAIL is not set, and memory allocation can fail;
->> 2) If buffer write failed before, set buffer uptodate and don't read
->>     block from disk;
->> 3) REQ_META is set for all IO, and REQ_PRIO is set for reading xattr;
->> 4) If failed, return error ptr instead of NULL;
->>
->> This patch add a new helper __bread_gfp2() that will match above 2 and 3(
->> 1 will be used, and 4 will still be encapsulated by ext4), and prepare to
->> prevent calling mapping_gfp_constraint() directly on bd_inode->i_mapping
->> in ext4.
->>
->> Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-> ...
->> +/*
->> + * This works like __bread_gfp() except:
->> + * 1) If buffer write failed before, set buffer uptodate and don't read
->> + * block from disk;
->> + * 2) Caller can pass in additional op_flags like REQ_META;
->> + */
->> +struct buffer_head *
->> +__bread_gfp2(struct block_device *bdev, sector_t block, unsigned int size,
->> +	     blk_opf_t op_flags, gfp_t gfp)
->> +{
->> +	return bread_gfp(bdev, block, size, op_flags, gfp, true);
->> +}
->> +EXPORT_SYMBOL(__bread_gfp2);
-> 
-> __bread_gfp2() is not a great name, why not just using bread_gfp()
-> directly? I'm not a huge fan of boolean arguments but three different flags
-> arguments would be too much for my taste ;) so I guess I can live with
-> that.
+Yes,
 
-I agree that __bread_gfp2 is not a greate name, if possible, I'll try to
-figure out a better name for v3.
+make kselftest TARGETS=3Dlivepatch
 
-Thanks for reviewing this patchset!
-Kuai
-> 
-> 								Honza
-> 
+works the same as before. As well the
+
+make -C tools/testing/selftests/livepatch run_tests
+
+Both ways work as before.
+>=20
+> thanks,
+> -- Shuah
+>=20
 
