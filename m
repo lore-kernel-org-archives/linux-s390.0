@@ -1,10 +1,10 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D54F3D5;
-	Tue, 12 Dec 2023 00:52:51 -0800 (PST)
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=22;SR=0;TI=SMTPD_---0VyLoYGx_1702371165;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VyLoYGx_1702371165)
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30B3AD0;
+	Tue, 12 Dec 2023 00:52:49 -0800 (PST)
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R771e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=22;SR=0;TI=SMTPD_---0VyLmjaC_1702371163;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VyLmjaC_1702371163)
           by smtp.aliyun-inc.com;
-          Tue, 12 Dec 2023 16:52:47 +0800
+          Tue, 12 Dec 2023 16:52:45 +0800
 From: Wen Gu <guwen@linux.alibaba.com>
 To: wintera@linux.ibm.com,
 	wenjia@linux.ibm.com,
@@ -28,9 +28,9 @@ Cc: borntraeger@linux.ibm.com,
 	linux-s390@vger.kernel.org,
 	netdev@vger.kernel.org,
 	lzinux-kernel@vger.kernel.org
-Subject: [PATCH net-next v6 06/10] net/smc: define a reserved CHID range for virtual ISM devices
-Date: Tue, 12 Dec 2023 16:52:27 +0800
-Message-Id: <1702371151-125258-7-git-send-email-guwen@linux.alibaba.com>
+Subject: [PATCH net-next v6 05/10] net/smc: introduce virtual ISM device support feature
+Date: Tue, 12 Dec 2023 16:52:26 +0800
+Message-Id: <1702371151-125258-6-git-send-email-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1702371151-125258-1-git-send-email-guwen@linux.alibaba.com>
 References: <1702371151-125258-1-git-send-email-guwen@linux.alibaba.com>
@@ -40,55 +40,34 @@ List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-According to virtual ISM support feature defined by SMCv2.1, CHIDs in
-the range 0xFF00 to 0xFFFF are reserved for use by virtual ISM devices.
-
-And two helpers are introduced to distinguish virtual ISM devices from
-the existing platform firmware ISM devices.
+This introduces virtual ISM device support feature to SMCv2.1 as the
+first supplemental feature.
 
 Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-Reviewed-and-tested-by: Wenjia Zhang <wenjia@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
 ---
- net/smc/smc_ism.h | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ net/smc/smc.h | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
-index 832b2f4..d1228a6 100644
---- a/net/smc/smc_ism.h
-+++ b/net/smc/smc_ism.h
-@@ -15,6 +15,8 @@
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index 95f56c7..0dc722b 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -58,9 +58,12 @@ enum smc_state {		/* possible states of an SMC socket */
+ 	SMC_PROCESSABORT	= 27,
+ };
  
- #include "smc.h"
+-#define SMC_FEATURE_MASK	0	/* bitmask of
+-					 * supported supplemental features
+-					 */
++enum smc_supplemental_features {
++	SMC_SPF_VIRT_ISM_DEV	= 0,
++};
++
++#define SMC_FEATURE_MASK \
++	(BIT(SMC_SPF_VIRT_ISM_DEV))
  
-+#define SMC_VIRTUAL_ISM_CHID_MASK	0xFF00
-+
- struct smcd_dev_list {	/* List of SMCD devices */
- 	struct list_head list;
- 	struct mutex mutex;	/* Protects list of devices */
-@@ -56,4 +58,22 @@ static inline int smc_ism_write(struct smcd_dev *smcd, u64 dmb_tok,
- 	return rc < 0 ? rc : 0;
- }
+ struct smc_link_group;
  
-+static inline bool __smc_ism_is_virtual(u16 chid)
-+{
-+	/* CHIDs in range of 0xFF00 to 0xFFFF are reserved
-+	 * for virtual ISM device.
-+	 *
-+	 * loopback-ism:	0xFFFF
-+	 * virtio-ism:		0xFF00 ~ 0xFFFE
-+	 */
-+	return ((chid & 0xFF00) == 0xFF00);
-+}
-+
-+static inline bool smc_ism_is_virtual(struct smcd_dev *smcd)
-+{
-+	u16 chid = smcd->ops->get_chid(smcd);
-+
-+	return __smc_ism_is_virtual(chid);
-+}
-+
- #endif
 -- 
 1.8.3.1
 
