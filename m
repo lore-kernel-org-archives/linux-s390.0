@@ -1,108 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Pl79AuKH"
-Received: from mail-yw1-x112f.google.com (mail-yw1-x112f.google.com [IPv6:2607:f8b0:4864:20::112f])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69ED5AD;
-	Mon, 11 Dec 2023 14:34:35 -0800 (PST)
-Received: by mail-yw1-x112f.google.com with SMTP id 00721157ae682-5d7346442d4so48469777b3.2;
-        Mon, 11 Dec 2023 14:34:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1702334074; x=1702938874; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=weETpER/W9eWKpDs0aTzW8/kqujO5Ns20F+TiP+lNxc=;
-        b=Pl79AuKHMkBMVGDU1JhLlZWOW82hDx+5kpah8WvIfmhdo3NFuiBWyiTL4jHiJ+vw3Y
-         FD+a5CS0d/gsGgkN/H85162od3MZJM9TjNwgNiOFxN817dCnCtm4IrCcxIWcDYAtbbo4
-         1446I//YBfT6gMBKLfZXnLtY33YDdLUg1vrKoUXr3E7OtpOpkCu25VlVO9ZzgQ2vNrpB
-         R+4cnnTMzwEFLdOzgH2Zvr8fJBN7gtXPaPoAeklKOt3s4iKdw0fkU4WjOKA562qk5MHx
-         UrGZZWbGE1Hpta5GDVnoav1GSnRKn8yvdUhiggFBgeeEWE+Lv4W9tM6nhn6G3vYydW7/
-         ZH7w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702334074; x=1702938874;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=weETpER/W9eWKpDs0aTzW8/kqujO5Ns20F+TiP+lNxc=;
-        b=J6vcHbs2TcXDlP88yz0kttxNPvJEYz581ya0CxBzw/9XBol4i2Db6XqLAGg6tnqBYS
-         7k9r2B7QFiI2yl4ydw/t1CYnkycDpf/H0X1QsdW9dc0nfyfU3LvWXybiffL5GUg7Sm3R
-         wP0oJfQnoffWQHZI9WtysE927RjBiqyz/wATIM73I9dbnLXn3H59h11JSUOtQy2npjIK
-         Ye9SECjAeqXrkDAu1BRqw9Dj6vOglrXkuW8XZBXFxt6jlzrQC4e+NcgdTKPGyccz9EvV
-         7rzv7PXh8q+57GHKxO51YGgNiubnN7Vn+hAdGy5BcTAiWpQZDhHt71KfsTh8A6da5ULP
-         tFHw==
-X-Gm-Message-State: AOJu0Yx1PQJgu6sqGdNkJgnUL0JnZ0p56IEEu76A3jNCsm0MoiI2FiBu
-	cRCmZFYesBogcbybC6u/aDs=
-X-Google-Smtp-Source: AGHT+IFimdgWnRBEGiupflIWc8T6D9ybHk5AtdinAtNWHe5eWoKDkGhnHAT7dqZcZW2Yc4O6uagmwQ==
-X-Received: by 2002:a0d:d994:0:b0:5d7:1941:3576 with SMTP id b142-20020a0dd994000000b005d719413576mr3132315ywe.93.1702334074480;
-        Mon, 11 Dec 2023 14:34:34 -0800 (PST)
-Received: from localhost ([2601:344:8301:57f0:38aa:1c88:df05:9b73])
-        by smtp.gmail.com with ESMTPSA id e3-20020a0dc203000000b005c5a08c5c15sm3297708ywd.136.2023.12.11.14.34.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Dec 2023 14:34:33 -0800 (PST)
-Date: Mon, 11 Dec 2023 14:34:33 -0800
-From: Yury Norov <yury.norov@gmail.com>
-To: Alexandra Winter <wintera@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	Jan Kara <jack@suse.cz>,
-	Mirsad Todorovac <mirsad.todorovac@alu.unizg.hr>,
-	Matthew Wilcox <willy@infradead.org>,
-	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Maxim Kuvyrkov <maxim.kuvyrkov@linaro.org>,
-	Alexey Klimov <klimov.linux@gmail.com>,
-	Bart Van Assche <bvanassche@acm.org>,
-	Sergey Shtylyov <s.shtylyov@omp.ru>
-Subject: Re: [PATCH v2 31/35] net: smc: use find_and_set_bit() in
- smc_wr_tx_get_free_slot_index()
-Message-ID: <ZXeOef/60Crhrm2Y@yury-ThinkPad>
-References: <20231203192422.539300-1-yury.norov@gmail.com>
- <20231203193307.542794-1-yury.norov@gmail.com>
- <20231203193307.542794-30-yury.norov@gmail.com>
- <b344c321-b481-48b0-8165-c3ab604fc397@linux.ibm.com>
+Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65C39D0;
+	Mon, 11 Dec 2023 17:25:31 -0800 (PST)
+Received: from mail.maildlp.com (unknown [172.19.163.216])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4Sq1Bq47PJz4f3lDH;
+	Tue, 12 Dec 2023 09:25:23 +0800 (CST)
+Received: from mail02.huawei.com (unknown [10.116.40.112])
+	by mail.maildlp.com (Postfix) with ESMTP id 6A3D51A049A;
+	Tue, 12 Dec 2023 09:25:28 +0800 (CST)
+Received: from [10.174.176.73] (unknown [10.174.176.73])
+	by APP1 (Coremail) with SMTP id cCh0CgDn6hCEtndlu5ydDQ--.58697S3;
+	Tue, 12 Dec 2023 09:25:27 +0800 (CST)
+Subject: Re: [PATCH RFC v2 for-6.8/block 01/18] block: add some bdev apis
+To: Jan Kara <jack@suse.cz>, Yu Kuai <yukuai1@huaweicloud.com>
+Cc: axboe@kernel.dk, roger.pau@citrix.com, colyli@suse.de,
+ kent.overstreet@gmail.com, joern@lazybastard.org, miquel.raynal@bootlin.com,
+ richard@nod.at, vigneshr@ti.com, sth@linux.ibm.com, hoeppner@linux.ibm.com,
+ hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+ jejb@linux.ibm.com, martin.petersen@oracle.com, clm@fb.com,
+ josef@toxicpanda.com, dsterba@suse.com, viro@zeniv.linux.org.uk,
+ brauner@kernel.org, nico@fluxnic.net, xiang@kernel.org, chao@kernel.org,
+ tytso@mit.edu, adilger.kernel@dilger.ca, agruenba@redhat.com, jack@suse.com,
+ konishi.ryusuke@gmail.com, willy@infradead.org, akpm@linux-foundation.org,
+ p.raghav@samsung.com, hare@suse.de, linux-block@vger.kernel.org,
+ linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org,
+ linux-bcache@vger.kernel.org, linux-mtd@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+ linux-bcachefs@vger.kernel.org, linux-btrfs@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-ext4@vger.kernel.org, gfs2@lists.linux.dev,
+ linux-nilfs@vger.kernel.org, yi.zhang@huawei.com, yangerkun@huawei.com,
+ "yukuai (C)" <yukuai3@huawei.com>
+References: <20231211140552.973290-1-yukuai1@huaweicloud.com>
+ <20231211140552.973290-2-yukuai1@huaweicloud.com>
+ <20231211165217.fil437byq7w2vcp7@quack3>
+From: Yu Kuai <yukuai1@huaweicloud.com>
+Message-ID: <7d2bfa29-f93d-def2-80a3-72af063b36b3@huaweicloud.com>
+Date: Tue, 12 Dec 2023 09:25:24 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b344c321-b481-48b0-8165-c3ab604fc397@linux.ibm.com>
+In-Reply-To: <20231211165217.fil437byq7w2vcp7@quack3>
+Content-Type: text/plain; charset=gbk; format=flowed
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:cCh0CgDn6hCEtndlu5ydDQ--.58697S3
+X-Coremail-Antispam: 1UD129KBjvdXoW7JF4fJw47CF1rCry7Ww4DJwb_yoWfGrc_ZF
+	nakrWkWw1fJa18Kr4qyFs0vr1kWayrWr42vry8tanrX3yrXa92kFsrKr1Fkr45G3yqkrnx
+	uFn2gFyxJr10qjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUIcSsGvfJTRUUUbaxFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k26cxKx2IYs7xG
+	6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
+	A2z4x0Y4vE2Ix0cI8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j
+	6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
+	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
+	I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
+	4UM4x0Y48IcVAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kI
+	c2xKxwCYjI0SjxkI62AI1cAE67vIY487MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4
+	AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE
+	17CEb7AF67AKxVWrXVW8Jr1lIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCw
+	CI42IY6xIIjxv20xvEc7CjxVAFwI0_Cr0_Gr1UMIIF0xvE42xK8VAvwI8IcIk0rVWrZr1j
+	6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYx
+	BIdaVFxhVjvjDU0xZFpf9x0JUd8n5UUUUU=
+X-CM-SenderInfo: 51xn3trlr6x35dzhxuhorxvhhfrp/
 
-On Mon, Dec 04, 2023 at 10:40:20AM +0100, Alexandra Winter wrote:
-> 
-> 
-> On 03.12.23 20:33, Yury Norov wrote:
-> > The function opencodes find_and_set_bit() with a for_each() loop. Use
-> > it, and make the whole function a simple almost one-liner.
-> > 
-> > While here, drop explicit initialization of *idx, because it's already
-> > initialized by the caller in case of ENOLINK, or set properly with
-> > ->wr_tx_mask, if nothing is found, in case of EBUSY.
-> > 
-> > CC: Tony Lu <tonylu@linux.alibaba.com>
-> > CC: Alexandra Winter <wintera@linux.ibm.com>
-> > Signed-off-by: Yury Norov <yury.norov@gmail.com>
-> > ---
-> 
-> Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-> 
-> 
-> Thanks a lot for the great helper function!
-> I guess the top-level maintainers will figure out, how this series best finds its way upstream.
+Hi,
 
-Thanks, Alexandra. :)
+ÔÚ 2023/12/12 0:52, Jan Kara Ð´µÀ:
+> On Mon 11-12-23 22:05:35, Yu Kuai wrote:
+>> From: Yu Kuai <yukuai3@huawei.com>
+>>
+>> Those apis will be used for other modules, so that bd_inode won't be
+>> accessed directly from other modules.
+>>
+>> Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+> 
+> ...
+> 
+>> +void bdev_associated_mapping(struct block_device *bdev,
+>> +			     struct address_space *mapping)
+>> +{
+>> +	mapping->host = bdev->bd_inode;
+>> +}
+> 
+> Here I'm not sure - is the helper really a win? It seems a bit obscure to
+> me. This initialization of another mapping for a bdev looks really special.
 
-People in this thread say just pick their subsystem patch together
-with #1. So, I'm going to send v3 with some minor tweaks, and if
-everything is OK, will pull all this in my bitmap-for-next branch.
+Yes, I don't like this helper at all, but gfs2 is used this way, and I
+need this helper to remove 'bd_inode' from block_devcie later. I'm not
+familiar with gfs2 at all but perhaps it worth to dig deeper and figure
+out a proper way for gfs2.
 
 Thanks,
-Yury
+Kuai
+> 
+> 								Honza
+> 
+
