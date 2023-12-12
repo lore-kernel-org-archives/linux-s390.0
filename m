@@ -1,103 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nabijaczleweli.xyz header.i=@nabijaczleweli.xyz header.b="pcF+kuj6"
-Received: from tarta.nabijaczleweli.xyz (tarta.nabijaczleweli.xyz [139.28.40.42])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7FF7AB;
-	Tue, 12 Dec 2023 02:12:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nabijaczleweli.xyz;
-	s=202305; t=1702375968;
-	bh=096hm9ZbRaIMymoQ+0IpHZlm7YvNfwIQuC+ov8MZpxI=;
-	h=Date:From:To:Subject:References:In-Reply-To:From;
-	b=pcF+kuj6twjNBVCUPQGeJb7my9K+1VvzXPI0J25y/Gn90LiGBj+vWoJl83uX6lb1c
-	 drs17TVTFCzPFW61iLjrHsYql3GXgVOGa4GS59KD5CTSYTil8N04Ji6qfiBkifNl95
-	 WVcAqudZmxTivJ/eyROH+eHu7ayTS9fiWEN5RTS7VzNdVfNC35s7HvYaUvPSEW6IMo
-	 +HHE69xVjML13mdXERyD1TWOOO692oiH7EH/R7AB/nR5ZuNbnFeSHkgPH+E35j5e2D
-	 TWjapYdDV//LfS0lZyRU53O3zVjVDdfJc9a6ooJK4P4coQCGrLVRr03uNRRkH8fjHV
-	 Uz+qHlhE3q4Cg==
-Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
-	by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id 0A9AA12BEC;
-	Tue, 12 Dec 2023 11:12:48 +0100 (CET)
-Date: Tue, 12 Dec 2023 11:12:47 +0100
-From: 
-	Ahelenia =?utf-8?Q?Ziemia=C5=84ska?= <nabijaczleweli@nabijaczleweli.xyz>
-To: Karsten Graul <kgraul@linux.ibm.com>, 
-	Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>, 
-	"D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>, 
-	Wen Gu <guwen@linux.alibaba.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, linux-s390@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: [PATCH RESEND 06/11] net/smc: smc_splice_read: always request
- MSG_DONTWAIT
-Message-ID: <145da5ab094bcc7d3331385e8813074922c2a13c6.1697486714.git.nabijaczleweli@nabijaczleweli.xyz>
-User-Agent: NeoMutt/20231103
-References: <cover.1697486714.git.nabijaczleweli@nabijaczleweli.xyz>
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 521B0A0;
+	Tue, 12 Dec 2023 02:54:54 -0800 (PST)
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=20;SR=0;TI=SMTPD_---0VyMBMsm_1702378490;
+Received: from 30.221.129.163(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VyMBMsm_1702378490)
+          by smtp.aliyun-inc.com;
+          Tue, 12 Dec 2023 18:54:52 +0800
+Message-ID: <d9e55a9e-c956-544b-74d5-a7f95774f2a8@linux.alibaba.com>
+Date: Tue, 12 Dec 2023 18:54:49 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="suvmg3e3tuoppov4"
-Content-Disposition: inline
-In-Reply-To: <1cover.1697486714.git.nabijaczleweli@nabijaczleweli.xyz>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.15.1
+From: Wen Gu <guwen@linux.alibaba.com>
+Subject: Re: [PATCH net-next v6 00/10] net/smc: implement SMCv2.1 virtual ISM
+ device support
+To: wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
+ gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ kgraul@linux.ibm.com, jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, raspl@linux.ibm.com,
+ schnelle@linux.ibm.com, guangguan.wang@linux.alibaba.com,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org
+References: <1702371151-125258-1-git-send-email-guwen@linux.alibaba.com>
+In-Reply-To: <1702371151-125258-1-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
---suvmg3e3tuoppov4
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Otherwise we risk sleeping with the pipe locked for indeterminate
-lengths of time.
+On 2023/12/12 16:52, Wen Gu wrote:
 
-Link: https://lore.kernel.org/linux-fsdevel/qk6hjuam54khlaikf2ssom6custxf5i=
-s2ekkaequf4hvode3ls@zgf7j5j4ubvw/t/#u
-Signed-off-by: Ahelenia Ziemia=C5=84ska <nabijaczleweli@nabijaczleweli.xyz>
----
- net/smc/af_smc.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+> The fourth edition of SMCv2 adds the SMC version 2.1 feature updates for
+> SMC-Dv2 with virtual ISM. Virtual ISM are created and supported mainly by
+> OS or hypervisor software, comparable to IBM ISM which is based on platform
+> firmware or hardware.
+> 
+> With the introduction of virtual ISM, SMCv2.1 makes some updates:
+> 
+> - Introduce feature bitmask to indicate supplemental features.
+> - Reserve a range of CHIDs for virtual ISM.
+> - Support extended GIDs (128 bits) in CLC handshake.
+> 
+> So this patch set aims to implement these updates in Linux kernel. And it
+> acts as the first part of SMC-D virtual ISM extension & loopback-ism [1].
+> 
+> [1] https://lore.kernel.org/netdev/1695568613-125057-1-git-send-email-guwen@linux.alibaba.com/
+> 
+> v6->v5:
+> - Add 'Reviewed-by' label given in the previous versions:
+>    * Patch #4, #6, #9, #10 have nothing changed since v3;
+> - Patch #2:
+>    * fix the format issue (Alignment should match open parenthesis) compared to v5;
+>    * remove useless clc->hdr.length assignment in smcr_clc_prep_confirm_accept()
+>      compared to v5;
+> - Patch #3: new added compared to v5.
+> - Patch #7: some minor changes like aclc_v2->aclc or clc_v2->clc compared to v5
+>    due to the introduction of Patch #3. Since there were no major changes, I kept
+>    the 'Reviewed-by' label.
+> 
+> Other changes in previous versions but not yet acked:
+> - Patch #1: Some minor changes in subject and fix the format issue
+>    (length exceeds 80 columns) compared to v3.
+> - Patch #5: removes useless ini->feature_mask assignment in __smc_connect()
+>    and smc_listen_v2_check() compared to v4.
+> - Patch #8: new added, compared to v3.
+> 
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index bacdd971615e..89473305f629 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -3243,12 +3243,8 @@ static ssize_t smc_splice_read(struct socket *sock, =
-loff_t *ppos,
- 			rc =3D -ESPIPE;
- 			goto out;
- 		}
--		if (flags & SPLICE_F_NONBLOCK)
--			flags =3D MSG_DONTWAIT;
--		else
--			flags =3D 0;
- 		SMC_STAT_INC(smc, splice_cnt);
--		rc =3D smc_rx_recvmsg(smc, NULL, pipe, len, flags);
-+		rc =3D smc_rx_recvmsg(smc, NULL, pipe, len, MSG_DONTWAIT);
- 	}
- out:
- 	release_sock(sk);
---=20
-2.39.2
+Looks like I accidentally modified my send-email script..
 
---suvmg3e3tuoppov4
-Content-Type: application/pgp-signature; name="signature.asc"
+There is a typo in the CC-ed mail address list:
+lzinux-kernel@vger.kernel.org -> linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmV4Mh8ACgkQvP0LAY0m
-WPEQiQ//dJd64ifmFYk4J0yAhFO+b2YgYYJagGNw6cO4Vvw9R2UjEuuQ/iGnT63B
-wTWs58hM8XQjOPjioddYrd8J01pUQQr+L02G7dNKPQErsuCb25aczKMQvZFRCr8c
-7ibhOBBZgCpzPMR7bVa8fcvRHDQTLKjMXMJ+HUtNZKT7Kw5g0aaCm6Lh+i/pEk6q
-v9nVojhxqOL0OSu+6HQA4Fdn4jfb/vfIXMAnoPb+u3J5Bs7qOM3dUNAPvlbBzYBe
-lHtk6rfIbmfSl+X/Knlo3y8CQegd/Tn5zJAMFBeyeBJPRk4cqcZWhz1d3w5acJ7+
-1RBznOQ7c7OKAaNJfJtXFT1mln6wjGubsjJ0ATJslr3w1LbDxvAQ7XJwK8QUuNZ0
-hRNAxHwXVPOPY41kUU9kxKFmPDjohv+esstreKuYtBaL8EwkKtdhem4wFi4f3dWe
-vUpz0lep0VmBjadC44/i2mr79JMNUIQvSHdinBPTB8I/GRjtQeFDNEMn4EEoJQpA
-EaMhI9dzoMTc9ofQ2R1L2LPfjO3f5vw/pVtAp6QdAJFX62OlGv/k8z3EhmbPe77A
-BQ9WFoq7bYE5Vs61rNeNGaYz/68IWM0VLp0NJ29aaVcLGzUUxBG4eVeDzUZGyizw
-1SoMkPuma/i8C8YhuYERKyIpv/K/AU00p/GgctM4uYZwCs8dIDg=
-=Q2lp
------END PGP SIGNATURE-----
-
---suvmg3e3tuoppov4--
