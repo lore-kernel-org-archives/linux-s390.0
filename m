@@ -1,119 +1,126 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hHYMCV1F"
-Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7736EA;
-	Mon, 11 Dec 2023 18:28:40 -0800 (PST)
-Received: by mail-ot1-x32e.google.com with SMTP id 46e09a7af769-6d7fa93afe9so3750358a34.2;
-        Mon, 11 Dec 2023 18:28:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1702348119; x=1702952919; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=uEOzzCmNkZ5d9Lsb5EU/wd0mwIpfakhGSYCXk0VOfrE=;
-        b=hHYMCV1FcUGDHrfWKkeQiwL5Fab7+g5uLY651+dYZbJi70sHmQJ91SOk7DSESnuIoa
-         vQV3L0YxxT2OT3MyOXFzLR3ah5SGAjxmJSc2oa3HRXnQAfriOL3pCZtXQAaZO7b+7sV5
-         WJXX26C+RwdjAevT9mmt9Go8DDJGziIA8xvK8jCCR6xbh7KaDxhKUn5e4HcwH1YlwKtH
-         m+j9G/y10HvWOAZJdNoitlsRGjGXjCOmhVBDbTCR6ensUvaEGO6tD2hdxyJSEETZOwBh
-         RFozTAbJ++dqRyKdbEnZGhArJhLERH9ntK6d3aPdzFXAO5mCqg62ms7TQdlGYUOjmObb
-         E0Tg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702348119; x=1702952919;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=uEOzzCmNkZ5d9Lsb5EU/wd0mwIpfakhGSYCXk0VOfrE=;
-        b=Y3BpQfskiIfVTej0K63BDCU8GcIQm+wCcgl5lSkA3UZUZItuqT/c9K7Tn59KJ9vNY9
-         1LwKSEhg/rrppBSPrAp7abYv4p0cofR2oCfH4/na2vcv9hyFGuUxDJIkQSxF3dyYW3yA
-         +C2Nlhpu7dXMFdtcdVS2hPup8U5+LLgcxs1cV0N6rSKgfY05XoApPjHy+cHIKvbT2zag
-         63jItXwwDb/5HmLghPHkEtrPdIP5UXjHGfYPIbXnNO4LeLeU6BLV6Oe8V35gVQUUx6BR
-         MNkXgss3nsNuPCdgYTPxiJlExuauSdIS1hgeNuBl28f1wuDLISnG8Zus81zl6+snhSJy
-         Q3cw==
-X-Gm-Message-State: AOJu0Yxh40xz415i7fdwj3zpeNxS4xBKRfxKW+75NxM7WJeWxN4LBGHG
-	8dBLTlGaeWznMWR5J+4dbQfTWJSSGzcrCQ==
-X-Google-Smtp-Source: AGHT+IGS1JDKxXZkdy+V57D9INseET5dn8eBZ7VIB4tOZj8XSJDFgApPFNydqZo+uLxUbeCSlTo6IA==
-X-Received: by 2002:a9d:7a57:0:b0:6d9:d6f9:359f with SMTP id z23-20020a9d7a57000000b006d9d6f9359fmr4288975otm.53.1702348119498;
-        Mon, 11 Dec 2023 18:28:39 -0800 (PST)
-Received: from localhost ([2601:344:8301:57f0:38aa:1c88:df05:9b73])
-        by smtp.gmail.com with ESMTPSA id d64-20020a0df443000000b0059f766f9750sm3434546ywf.124.2023.12.11.18.28.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Dec 2023 18:28:39 -0800 (PST)
-From: Yury Norov <yury.norov@gmail.com>
-To: linux-kernel@vger.kernel.org,
-	Karsten Graul <kgraul@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org
-Cc: Yury Norov <yury.norov@gmail.com>,
-	Jan Kara <jack@suse.cz>,
-	Mirsad Todorovac <mirsad.todorovac@alu.unizg.hr>,
-	Matthew Wilcox <willy@infradead.org>,
-	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Maxim Kuvyrkov <maxim.kuvyrkov@linaro.org>,
-	Alexey Klimov <klimov.linux@gmail.com>,
-	Bart Van Assche <bvanassche@acm.org>,
-	Sergey Shtylyov <s.shtylyov@omp.ru>,
-	Alexandra Winter <wintera@linux.ibm.com>
-Subject: [PATCH v3 31/35] net: smc: optimize smc_wr_tx_get_free_slot_index()
-Date: Mon, 11 Dec 2023 18:27:45 -0800
-Message-Id: <20231212022749.625238-32-yury.norov@gmail.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20231212022749.625238-1-yury.norov@gmail.com>
-References: <20231212022749.625238-1-yury.norov@gmail.com>
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EF8BC7;
+	Mon, 11 Dec 2023 22:35:59 -0800 (PST)
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=50;SR=0;TI=SMTPD_---0VyLR3Ee_1702362952;
+Received: from 30.97.49.22(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VyLR3Ee_1702362952)
+          by smtp.aliyun-inc.com;
+          Tue, 12 Dec 2023 14:35:54 +0800
+Message-ID: <1812c1bf-08b5-46a5-a633-12470e2c8f18@linux.alibaba.com>
+Date: Tue, 12 Dec 2023 14:35:51 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC v2 for-6.8/block 11/18] erofs: use bdev api
+To: Yu Kuai <yukuai1@huaweicloud.com>, axboe@kernel.dk, roger.pau@citrix.com,
+ colyli@suse.de, kent.overstreet@gmail.com, joern@lazybastard.org,
+ miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
+ sth@linux.ibm.com, hoeppner@linux.ibm.com, hca@linux.ibm.com,
+ gor@linux.ibm.com, agordeev@linux.ibm.com, jejb@linux.ibm.com,
+ martin.petersen@oracle.com, clm@fb.com, josef@toxicpanda.com,
+ dsterba@suse.com, viro@zeniv.linux.org.uk, brauner@kernel.org,
+ nico@fluxnic.net, xiang@kernel.org, chao@kernel.org, tytso@mit.edu,
+ adilger.kernel@dilger.ca, agruenba@redhat.com, jack@suse.com,
+ konishi.ryusuke@gmail.com, willy@infradead.org, akpm@linux-foundation.org,
+ p.raghav@samsung.com, hare@suse.de
+Cc: linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+ xen-devel@lists.xenproject.org, linux-bcache@vger.kernel.org,
+ linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, linux-bcachefs@vger.kernel.org,
+ linux-btrfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+ gfs2@lists.linux.dev, linux-nilfs@vger.kernel.org, yukuai3@huawei.com,
+ yi.zhang@huawei.com, yangerkun@huawei.com
+References: <20231211140552.973290-1-yukuai1@huaweicloud.com>
+ <20231211140722.974745-1-yukuai1@huaweicloud.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <20231211140722.974745-1-yukuai1@huaweicloud.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Simplify the function by using find_and_set_bit() and make it a simple
-almost one-liner.
 
-While here, drop explicit initialization of *idx, because it's already
-initialized by the caller in case of ENOLINK, or set properly with
-->wr_tx_mask, if nothing is found, in case of EBUSY.
 
-CC: Tony Lu <tonylu@linux.alibaba.com>
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
----
- net/smc/smc_wr.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+On 2023/12/11 22:07, Yu Kuai wrote:
+> From: Yu Kuai <yukuai3@huawei.com>
+> 
+> Avoid to access bd_inode directly, prepare to remove bd_inode from
+> block_devcie.
+> 
+> Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+> ---
+>   fs/erofs/data.c     | 18 ++++++++++++------
+>   fs/erofs/internal.h |  2 ++
+>   2 files changed, 14 insertions(+), 6 deletions(-)
+> 
+> diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+> index c98aeda8abb2..8cf3618190ab 100644
+> --- a/fs/erofs/data.c
+> +++ b/fs/erofs/data.c
+> @@ -32,8 +32,7 @@ void erofs_put_metabuf(struct erofs_buf *buf)
+>   void *erofs_bread(struct erofs_buf *buf, erofs_blk_t blkaddr,
+>   		  enum erofs_kmap_type type)
+>   {
+> -	struct inode *inode = buf->inode;
+> -	erofs_off_t offset = (erofs_off_t)blkaddr << inode->i_blkbits;
+> +	erofs_off_t offset = (erofs_off_t)blkaddr << buf->blkszbits;
+I'd suggest that use `buf->blkszbits` only for bdev_read_folio() since
+erofs_init_metabuf() is not always called before erofs_bread() is used.
 
-diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-index 0021065a600a..b6f0cfc52788 100644
---- a/net/smc/smc_wr.c
-+++ b/net/smc/smc_wr.c
-@@ -170,15 +170,11 @@ void smc_wr_tx_cq_handler(struct ib_cq *ib_cq, void *cq_context)
- 
- static inline int smc_wr_tx_get_free_slot_index(struct smc_link *link, u32 *idx)
- {
--	*idx = link->wr_tx_cnt;
- 	if (!smc_link_sendable(link))
- 		return -ENOLINK;
--	for_each_clear_bit(*idx, link->wr_tx_mask, link->wr_tx_cnt) {
--		if (!test_and_set_bit(*idx, link->wr_tx_mask))
--			return 0;
--	}
--	*idx = link->wr_tx_cnt;
--	return -EBUSY;
-+
-+	*idx = find_and_set_bit(link->wr_tx_mask, link->wr_tx_cnt);
-+	return *idx < link->wr_tx_cnt ? 0 : -EBUSY;
- }
- 
- /**
--- 
-2.40.1
+For example, buf->inode can be one of directory inodes other than
+initialized by erofs_init_metabuf().
 
+Thanks,
+Gao Xiang
+
+
+>   	pgoff_t index = offset >> PAGE_SHIFT;
+>   	struct page *page = buf->page;
+>   	struct folio *folio;
+> @@ -43,7 +42,9 @@ void *erofs_bread(struct erofs_buf *buf, erofs_blk_t blkaddr,
+>   		erofs_put_metabuf(buf);
+>   
+>   		nofs_flag = memalloc_nofs_save();
+> -		folio = read_cache_folio(inode->i_mapping, index, NULL, NULL);
+> +		folio = buf->inode ?
+> +			read_mapping_folio(buf->inode->i_mapping, index, NULL) :
+> +			bdev_read_folio(buf->bdev, offset);
+>   		memalloc_nofs_restore(nofs_flag);
+>   		if (IS_ERR(folio))
+>   			return folio;
+> @@ -67,10 +68,15 @@ void *erofs_bread(struct erofs_buf *buf, erofs_blk_t blkaddr,
+>   
+>   void erofs_init_metabuf(struct erofs_buf *buf, struct super_block *sb)
+>   {
+> -	if (erofs_is_fscache_mode(sb))
+> +	if (erofs_is_fscache_mode(sb)) {
+>   		buf->inode = EROFS_SB(sb)->s_fscache->inode;
+> -	else
+> -		buf->inode = sb->s_bdev->bd_inode;
+> +		buf->bdev = NULL;
+> +		buf->blkszbits = buf->inode->i_blkbits;
+> +	} else {
+> +		buf->inode = NULL;
+> +		buf->bdev = sb->s_bdev;
+> +		buf->blkszbits = EROFS_SB(sb)->blkszbits;
+> +	}
+>   }
+>   
+>   void *erofs_read_metabuf(struct erofs_buf *buf, struct super_block *sb,
+> diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+> index b0409badb017..c9206351b485 100644
+> --- a/fs/erofs/internal.h
+> +++ b/fs/erofs/internal.h
+> @@ -224,8 +224,10 @@ enum erofs_kmap_type {
+>   
+>   struct erofs_buf {
+>   	struct inode *inode;
+> +	struct block_device *bdev;
+>   	struct page *page;
+>   	void *base;
+> +	u8 blkszbits;
+>   	enum erofs_kmap_type kmap_type;
+>   };
+>   #define __EROFS_BUF_INITIALIZER	((struct erofs_buf){ .page = NULL })
