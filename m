@@ -1,61 +1,61 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="egWi7QZj"
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04C83CF;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HTB+cimB"
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 902FD106;
 	Wed, 13 Dec 2023 04:49:54 -0800 (PST)
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDBg7w1012627;
-	Wed, 13 Dec 2023 12:49:51 GMT
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDCluQb011965;
+	Wed, 13 Dec 2023 12:49:49 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=ohNkST7v9P/jw2vaqTn4Kx8aR9QUP7uMxD/EhkxjZ/I=;
- b=egWi7QZj/S9UqrYSJpVfAHAav0vsXuN94ukm6UYGjCl6p8QnIe3lXr8O5JnazDqMzSdw
- gctP9ZuaxBMQRcJ7Qx6CoBQ38Nl71gfB8Al2+2f8WdsVlvyWO1EzupklEEwTeC5W8PN+
- 7jfbgOi2wIPFLvtrHGQIPZDCM7MouKg/NOYpcjPTqWIQoTqLk5z19QFTZ88q3pfQWp52
- AtypcA9s0v621MRiK7lA5cF4c2qrGAB9xCgskqlCdziQqI0t5dBzi/C/TNAWWVVcXSLw
- ZlIMJdnkmwI4GMRAznzdv0x9qC06yxGt3deKfxtN2XRy8DU8LeP0Er+PKx3nCz4BQ5Aq 4Q== 
+ bh=4YbvUWxAmQdfoGDiwSA3Zht0pnxEdFXb9M3y8UeUUZw=;
+ b=HTB+cimBZocrWvBhp4QKwVOI7gDFCWPzfHbnjgGUYE8Z5uFGT1LG2rOS2QwwDco6Ee+3
+ RSZB4cDkN6tZkUWk6RQLKKmIX62/AqUPRLijU+9fg+EkIp0uAgen8dWbt3sgbbLxbvXX
+ Onluzn9FJlL8f5ly8D5X/PPXhiBStzphKO/yytrvKY7hlHDXFCvxl9gkYK7PgbI8JWu+
+ fD4YsBW4ivlxtS0DM8GiiO91jjmTrPP4wcXPAvfERs8DYIK6gS/JSYnxXHvDidpXfmbz
+ wj5Rob+Wa5z9OvNrI+X0cCYrYrMY8Q3jKfCAxUUMNdUJQJrK+P0J9hTMd2SUcNfWgTHu Gg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uybyj9wa7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 12:49:51 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BDCSmX5029544;
-	Wed, 13 Dec 2023 12:49:50 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uybyj9w9t-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 12:49:50 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDArZX0004139;
-	Wed, 13 Dec 2023 12:49:49 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uw4skgdxn-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uycxag0w1-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 13 Dec 2023 12:49:49 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BDCnmqA016137;
+	Wed, 13 Dec 2023 12:49:48 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uycxag0vt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Dec 2023 12:49:48 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BD7MHav014819;
+	Wed, 13 Dec 2023 12:49:47 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uw42keshv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Dec 2023 12:49:47 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BDCnjPO17302216
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BDCni8A44696020
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 13 Dec 2023 12:49:45 GMT
+	Wed, 13 Dec 2023 12:49:44 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 482C720040;
-	Wed, 13 Dec 2023 12:49:45 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id ABC1220040;
+	Wed, 13 Dec 2023 12:49:44 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 16F4D2004D;
-	Wed, 13 Dec 2023 12:49:45 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 713E920043;
+	Wed, 13 Dec 2023 12:49:44 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 13 Dec 2023 12:49:45 +0000 (GMT)
+	Wed, 13 Dec 2023 12:49:44 +0000 (GMT)
 From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To: =?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Andrew Jones <andrew.jones@linux.dev>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
-Subject: [kvm-unit-tests PATCH 4/5] s390x: Use library functions for snippet exit
-Date: Wed, 13 Dec 2023 13:49:41 +0100
-Message-Id: <20231213124942.604109-5-nsg@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>,
+        =?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: Nina Schoetterl-Glausch <nsg@linux.ibm.com>, kvm@vger.kernel.org,
+        Andrew Jones <andrew.jones@linux.dev>, Thomas Huth <thuth@redhat.com>,
+        David Hildenbrand <david@redhat.com>, linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH 2/5] s390x: lib: Remove double include
+Date: Wed, 13 Dec 2023 13:49:39 +0100
+Message-Id: <20231213124942.604109-3-nsg@linux.ibm.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20231213124942.604109-1-nsg@linux.ibm.com>
 References: <20231213124942.604109-1-nsg@linux.ibm.com>
@@ -67,92 +67,36 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 9VbWiMtbsb5W4N--mjhcbFI-EkzxryuP
-X-Proofpoint-ORIG-GUID: iMHelifZZqLFyKF2zrZKJs5MTtfUFmzr
+X-Proofpoint-GUID: M8Y1JNzewUn4Xx7PxjsVzZJ4AHNUAG1K
+X-Proofpoint-ORIG-GUID: W6gxDDc6ktizdoyl45OTnITNTPZdJxCC
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-12-13_05,2023-12-13_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- phishscore=0 spamscore=0 mlxlogscore=999 clxscore=1015 suspectscore=0
- bulkscore=0 lowpriorityscore=0 mlxscore=0 malwarescore=0 impostorscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2312130093
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
+ mlxscore=0 clxscore=1015 impostorscore=0 spamscore=0 lowpriorityscore=0
+ adultscore=0 priorityscore=1501 mlxlogscore=784 bulkscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2312130093
 
-Replace the existing code for exiting from snippets with the newly
-introduced library functionality.
-This causes additional report()s, otherwise no change in functionality
-intended.
+libcflat.h was included twice.
 
 Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 ---
- s390x/sie-dat.c            | 10 ++--------
- s390x/snippets/c/sie-dat.c | 19 +------------------
- 2 files changed, 3 insertions(+), 26 deletions(-)
+ lib/s390x/sie.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/s390x/sie-dat.c b/s390x/sie-dat.c
-index 9e60f26e..6b6e6868 100644
---- a/s390x/sie-dat.c
-+++ b/s390x/sie-dat.c
-@@ -27,23 +27,17 @@ static void test_sie_dat(void)
- 	uint64_t test_page_gpa, test_page_hpa;
- 	uint8_t *test_page_hva, expected_val;
- 	bool contents_match;
--	uint8_t r1;
- 
- 	/* guest will tell us the guest physical address of the test buffer */
- 	sie(&vm);
--	assert(vm.sblk->icptcode == ICPT_INST &&
--	       (vm.sblk->ipa & 0xff00) == 0x8300 && vm.sblk->ipb == 0x9c0000);
--
--	r1 = (vm.sblk->ipa & 0xf0) >> 4;
--	test_page_gpa = vm.save_area.guest.grs[r1];
-+	assert(snippet_get_force_exit_value(&vm, &test_page_gpa));
- 	test_page_hpa = virt_to_pte_phys(guest_root, (void*)test_page_gpa);
- 	test_page_hva = __va(test_page_hpa);
- 	report_info("test buffer gpa=0x%lx hva=%p", test_page_gpa, test_page_hva);
- 
- 	/* guest will now write to the test buffer and we verify the contents */
- 	sie(&vm);
--	assert(vm.sblk->icptcode == ICPT_INST &&
--	       vm.sblk->ipa == 0x8300 && vm.sblk->ipb == 0x440000);
-+	assert(snippet_check_force_exit(&vm));
- 
- 	contents_match = true;
- 	for (unsigned int i = 0; i < GUEST_TEST_PAGE_COUNT; i++) {
-diff --git a/s390x/snippets/c/sie-dat.c b/s390x/snippets/c/sie-dat.c
-index ecfcb60e..414afd42 100644
---- a/s390x/snippets/c/sie-dat.c
-+++ b/s390x/snippets/c/sie-dat.c
-@@ -9,28 +9,11 @@
-  */
- #include <libcflat.h>
- #include <asm-generic/page.h>
-+#include <snippet-guest.h>
- #include "sie-dat.h"
- 
- static uint8_t test_pages[GUEST_TEST_PAGE_COUNT * PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
- 
--static inline void force_exit(void)
--{
--	asm volatile("diag	0,0,0x44\n"
--		     :
--		     :
--		     : "memory"
--	);
--}
--
--static inline void force_exit_value(uint64_t val)
--{
--	asm volatile("diag	%[val],0,0x9c\n"
--		     :
--		     : [val] "d"(val)
--		     : "memory"
--	);
--}
--
- int main(void)
- {
- 	uint8_t *invalid_ptr;
+diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
+index 28fbf146..40936bd2 100644
+--- a/lib/s390x/sie.c
++++ b/lib/s390x/sie.c
+@@ -14,7 +14,6 @@
+ #include <sie.h>
+ #include <asm/page.h>
+ #include <asm/interrupt.h>
+-#include <libcflat.h>
+ #include <alloc_page.h>
+ #include <vmalloc.h>
+ #include <sclp.h>
 -- 
 2.41.0
 
