@@ -1,104 +1,135 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="JgIXZoDt"
-Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A2A3189
-	for <linux-s390@vger.kernel.org>; Tue, 12 Dec 2023 18:22:02 -0800 (PST)
-Received: by mail-pj1-x104a.google.com with SMTP id 98e67ed59e1d1-28ab26363dbso1074863a91.3
-        for <linux-s390@vger.kernel.org>; Tue, 12 Dec 2023 18:22:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1702434121; x=1703038921; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=H3dbLwG3pwrVNc+flPqWL0ROEahdeYkxOItBObS2igQ=;
-        b=JgIXZoDtL3tsFLv7qXcdYmyIY4JX6Us/RJNjjPcsYQgoVqqPtWXuTdGM9ZM9epPRzL
-         JCF0opJNtwOo9BeYMrPCVpoqRclCy0FykrgMtLYWTLnC0vAy7WAqSkqYF3O5Tg2Kqusi
-         O/7Vsng5r+NqZ2Yi0yT3nnOnRWRUXV9P7P2qtPvOKmkgB0r2mik7SMgBkA7wFkvq4w1G
-         h4EvY4rkTAzycB9gODo5QcqoH3NBJXYU/Kq0orHH9ATUmJFQoJOeg1H4zO3r32R1vVxM
-         deZJfzg/fgVegdjMrBmw3nfKcNZOZ+UXuq81MVLAWMM0wVyCl94UDcWbT0lC4dcX+OtN
-         98Eg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702434121; x=1703038921;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=H3dbLwG3pwrVNc+flPqWL0ROEahdeYkxOItBObS2igQ=;
-        b=Tq1+jMIDXrhfzI9BPEP/atcVSa4pFoIn+rPsJ84cCzHjJIZ7xy+DeOC/q1QlmmE5jO
-         iRQ2HgvQx/7GkNW/r98y+8QI0GjO1tpXaZxg6L3m2iynX7TPCdhyUTcNUaGcjFieLlpW
-         8/nQbLBn7f66QWXhqzWuTPSgaVN71BGi0xfnwjRWd8U5k7Ssm2+suFoBk4F5Vy2Li9ga
-         8smKQQmicGXP1uEAGkP+ifbIYdqbzN+SUam9jOLUzHmHRSEByMvk7i33JtWYDlZbHr6H
-         l7tiSM9m95XAfNWUOsvjvpvYEiwKmuKt0U1oxYttPnxrsjtD/BptwO5BTdq2GK39c41w
-         +8rg==
-X-Gm-Message-State: AOJu0Yz85hdXpfW/gzIH+NkU7h5+Yc2eFi9L/WAJ269FiCHAJteDdaGi
-	5lP1OKIUPlsllB5tXHs1L+fW1xQlzVM=
-X-Google-Smtp-Source: AGHT+IEMdNbXZWy9ISUMeWXjYiRzXRSqXuBEtLtB2quA6rPLGk41btEuk2vriof3H/B+MEphfzV6B3hdgbQ=
-X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a17:903:41c9:b0:1d0:cd87:64dd with SMTP id
- u9-20020a17090341c900b001d0cd8764ddmr52067ple.3.1702434121579; Tue, 12 Dec
- 2023 18:22:01 -0800 (PST)
-Date: Tue, 12 Dec 2023 18:22:00 -0800
-In-Reply-To: <20231203140756.GI1489931@ziepe.ca>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sXinkoKf"
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 537DF138;
+	Wed, 13 Dec 2023 03:33:30 -0800 (PST)
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDAvp0Z009198;
+	Wed, 13 Dec 2023 11:33:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=ikSRKh6y4aKglI7xPKlgKug+5Qtzfc2XgYxtrc2kCH0=;
+ b=sXinkoKfYE9Ey1mVhkffB6FjSEBfy5cNHk6u4TMzWljvUBDZejTGHV0Yw9Yj5/MiIyKy
+ TCHk7fslcoSlZNqu/mCNa2u8mJ+HWQTSiJFt4x/BYuLJSSpsYA/cbprOGnqBkPG4KsHW
+ qp6FKMieYrXVkGOkegzl7Rk0sdT89wjWY56zo+SioKxfb9gvHW21iGiScCzlU67Kffob
+ fl0/7WHCJ2A9nh3oZ572FJpnt6RnTGsWhiBe8OLTcqBg3asTgFIdZMt7fEeI4/K6AXYF
+ Thnl27nUONUKI53FCOUVXurGbhxW5Rk19SxArNcgg5vIHMNTbC/lgI+IB+ENVqMwrz6u tw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uybam8y8r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Dec 2023 11:33:06 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BDBKp9W013582;
+	Wed, 13 Dec 2023 11:33:05 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uybam8y88-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Dec 2023 11:33:05 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDAcu8Q004701;
+	Wed, 13 Dec 2023 11:33:04 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uw4skg1kj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Dec 2023 11:33:04 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BDBX18E17891860
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 13 Dec 2023 11:33:01 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8E83E2004B;
+	Wed, 13 Dec 2023 11:33:01 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2C74C20040;
+	Wed, 13 Dec 2023 11:33:00 +0000 (GMT)
+Received: from [9.171.70.156] (unknown [9.171.70.156])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 13 Dec 2023 11:33:00 +0000 (GMT)
+Message-ID: <46ede95a4c1d0a9d05d6cc11de1a8d39ce6c0e85.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 13/33] kmsan: Introduce memset_no_sanitize_memory()
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+To: Alexander Potapenko <glider@google.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrew Morton
+ <akpm@linux-foundation.org>,
+        Christoph Lameter <cl@linux.com>,
+        David
+ Rientjes <rientjes@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Joonsoo
+ Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>,
+        Masami
+ Hiramatsu <mhiramat@kernel.org>,
+        Pekka Enberg <penberg@kernel.org>,
+        Steven
+ Rostedt <rostedt@goodmis.org>,
+        Vasily Gorbik <gor@linux.ibm.com>, Vlastimil
+ Babka <vbabka@suse.cz>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        Mark Rutland <mark.rutland@arm.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Sven Schnelle
+ <svens@linux.ibm.com>
+Date: Wed, 13 Dec 2023 12:32:59 +0100
+In-Reply-To: <626be6deb066627a77470bf80bb76c27222a5e3e.camel@linux.ibm.com>
+References: <20231121220155.1217090-1-iii@linux.ibm.com>
+	 <20231121220155.1217090-14-iii@linux.ibm.com>
+	 <CAG_fn=Vaj3hTRAMxUwofpSMPhFBOizDOWR_An-V9qLNQv-suYw@mail.gmail.com>
+	 <69e7bc8e8c8a38c429a793e991e0509cb97a53e1.camel@linux.ibm.com>
+	 <CAG_fn=UbJ+z8Gmfjodu-jBQz75HApXADw8Abj38BCLHmY_ZW9w@mail.gmail.com>
+	 <626be6deb066627a77470bf80bb76c27222a5e3e.camel@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20230916003118.2540661-1-seanjc@google.com> <20230916003118.2540661-6-seanjc@google.com>
- <20230918152110.GI13795@ziepe.ca> <ZQhxpesyXeG+qbS6@google.com>
- <20230918160258.GL13795@ziepe.ca> <ZWp_q1w01NCZi8KX@google.com> <20231203140756.GI1489931@ziepe.ca>
-Message-ID: <ZXkVSKULLivrMkBl@google.com>
-Subject: Re: [PATCH 05/26] vfio: KVM: Pass get/put helpers from KVM to VFIO,
- don't do circular lookup
-From: Sean Christopherson <seanjc@google.com>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Marc Zyngier <maz@kernel.org>, Oliver Upton <oliver.upton@linux.dev>, 
-	Huacai Chen <chenhuacai@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Anup Patel <anup@brainfault.org>, Paul Walmsley <paul.walmsley@sifive.com>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, 
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	Peter Zijlstra <peterz@infradead.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Tony Krowiak <akrowiak@linux.ibm.com>, 
-	Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, 
-	Harald Freudenberger <freude@linux.ibm.com>, Alex Williamson <alex.williamson@redhat.com>, 
-	Andy Lutomirski <luto@kernel.org>, linux-arm-kernel@lists.infradead.org, 
-	kvmarm@lists.linux.dev, linux-mips@vger.kernel.org, kvm@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
-	Anish Ghulati <aghulati@google.com>, Venkatesh Srinivas <venkateshs@chromium.org>, 
-	Andrew Thornton <andrewth@google.com>
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: uhw5klWQb4Ew4DGEdGMVbEtWPetNaOqp
+X-Proofpoint-ORIG-GUID: 48mwCSMvhaKch1ti_YtF_MIEY-bAV7Sf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-13_03,2023-12-13_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=766 clxscore=1015
+ lowpriorityscore=0 bulkscore=0 priorityscore=1501 phishscore=0
+ malwarescore=0 suspectscore=0 spamscore=0 mlxscore=0 adultscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2312130084
 
-On Sun, Dec 03, 2023, Jason Gunthorpe wrote:
-> On Fri, Dec 01, 2023 at 04:51:55PM -0800, Sean Christopherson wrote:
-> 
-> > There's one more wrinkle: this patch is buggy in that it doesn't ensure the liveliness
-> > of KVM-the-module, i.e. nothing prevents userspace from unloading kvm.ko while VFIO
-> > still holds a reference to a kvm structure, and so invoking ->put_kvm() could jump
-> > into freed code.  To fix that, KVM would also need to pass along a module pointer :-(
-> 
-> Maybe we should be refcounting the struct file not the struct kvm?
-> 
-> Then we don't need special helpers and it keeps the module alive correctly.
+On Wed, 2023-12-13 at 02:31 +0100, Ilya Leoshkevich wrote:
+> On Fri, 2023-12-08 at 16:25 +0100, Alexander Potapenko wrote:
+> > > A problem with __memset() is that, at least for me, it always
+> > > ends
+> > > up being a call. There is a use case where we need to write only
+> > > 1
+> > > byte, so I thought that introducing a call there (when compiling
+> > > without KMSAN) would be unacceptable.
 
-Huh.  It took my brain a while to catch up, but this seems comically obvious in
-hindsight.  I *love* this approach, both conceptually and from a code perspective.
+[...]
 
-Handing VFIO (and any other external entities) a file makes it so that KVM effectively
-interacts with users via files, regardless of whether the user lives in userspace
-or the kernel.  That makes it easier to reason about the safety of operations,
-e.g. in addition to ensuring KVM-the-module is pinned, having a file pointer allows
-KVM to verify that the incoming pointer does indeed represent a VM.  Which isn't
-necessary by any means, but it's a nice sanity check.
+> > As stated above, I don't think this is more or less working as
+> > intended.
+> > If we really want the ability to inline __memset(), we could
+> > transform
+> > it into memset() in non-sanitizer builds, but perhaps having a call
+> > is
+> > also acceptable?
+>=20
+> Thanks for the detailed explanation and analysis. I will post
+> a version with a __memset() and let the slab maintainers decide if
+> the additional overhead is acceptable.
 
-From a code perspective, it's far cleaner than manually grabbing module references,
-and having only a file pointers makes it a wee bit harder for non-KVM code to
-poke into KVM, e.g. keeps us honest.
+I noticed I had the same problem in the get_user()/put_user() and
+check_canary() patches.
 
-Assuming nothing blows up in testing, I'll go this route for v2.
-
-Thanks!
+The annotation being silently ignored is never what a programmer
+intends, so what do you think about adding noinline to
+__no_kmsan_checks and __no_sanitize_memory?
