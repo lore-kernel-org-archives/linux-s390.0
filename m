@@ -1,50 +1,51 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="N6W1XFpH"
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEC7EE3;
-	Wed, 13 Dec 2023 15:36:40 -0800 (PST)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDKbIKL023765;
-	Wed, 13 Dec 2023 23:36:17 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nk4LEosy"
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CF7AE4;
+	Wed, 13 Dec 2023 15:36:41 -0800 (PST)
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDMe3s0026112;
+	Wed, 13 Dec 2023 23:36:21 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=1sqwURtrRmpH1GSUKQpPj5IkE7uQ5w4CTeMN57eEciQ=;
- b=N6W1XFpH1CdMGB1QqczvQWaiuOzf0K1xcXrMTUQhbmDFrG0OIOEd5On5BgA2XHHMVyXz
- Fx9haEPF8ilkkZqHxCT1oUA60HBLbn1NK3h9n4fJGskw2qvQPE9AKLekaLdcNZi4q43Z
- EXeXYHnHeRp6NH2zYoVVLrA06wRGkjecTdk79FxuWbeBRG27Lf1/pAZCKp5vEHyf0iyi
- /r1yaXtZSunv4c9mNqtkJwVTnXDgYkPSVuSt+KJn6WLS9NGaYszoynajhy/EIoL1s8og
- RJFpyE7iLndQ3uSeorzNp2b8j2g8DXymaJIjlyJFcYLwdZHkZzYwehayR6tbl3ww2Omu uw== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=9jHmYIifCA/Cv8voPtUGM+O+6hs7C/6AvtqFmBPgBfQ=;
+ b=nk4LEosyKDF8M0Rv4Used2uCQP8k1gW4DFKfGA2ilecGuwMSn1rioe7n5sB419QfL8U7
+ 0DG0/DboiUJOEWfHb1WonGNmrXV/wOM6jGiThurcNAtirKLKmUDWnOtuTz+qBhIE/59F
+ itcb/4DhzkJiGxCFzSnkUhchA8xXL9lRjJ6KQQ/VGOFMQ90BFIYVlFTUobg/iDxV25m9
+ 3rgEG7usORAM18bcrvqMW26OI/Wmb4TdAKgAeH+zjHOGWt9SjGyUUEzWtrN/PkkfTFZs
+ fzlWAxbOoilh5lGziXcOB7jyGbK1tF0Lhk/X0+tEZnDPraYCd12z361sYlUHvkMg23q6 NA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uyktbv0q0-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uymwuj57y-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 23:36:17 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BDNCtRu028993;
-	Wed, 13 Dec 2023 23:36:16 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uyktbv0pc-1
+	Wed, 13 Dec 2023 23:36:21 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BDNU3AN002417;
+	Wed, 13 Dec 2023 23:36:20 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uymwuj57f-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 23:36:16 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDGkI3H014819;
-	Wed, 13 Dec 2023 23:36:13 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uw42kg1x2-1
+	Wed, 13 Dec 2023 23:36:20 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDL4sC8028206;
+	Wed, 13 Dec 2023 23:36:19 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uw2xyvrne-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 23:36:13 +0000
+	Wed, 13 Dec 2023 23:36:19 +0000
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BDNaAMr44237472
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BDNaGLO18743980
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 13 Dec 2023 23:36:10 GMT
+	Wed, 13 Dec 2023 23:36:16 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 18DFE2004B;
-	Wed, 13 Dec 2023 23:36:10 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 39C452004B;
+	Wed, 13 Dec 2023 23:36:16 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A01C320040;
-	Wed, 13 Dec 2023 23:36:08 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id C831E20040;
+	Wed, 13 Dec 2023 23:36:14 +0000 (GMT)
 Received: from heavy.boeblingen.de.ibm.com (unknown [9.171.70.156])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 13 Dec 2023 23:36:08 +0000 (GMT)
+	Wed, 13 Dec 2023 23:36:14 +0000 (GMT)
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -65,159 +66,58 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v3 00/34] kmsan: Enable on s390
-Date: Thu, 14 Dec 2023 00:24:20 +0100
-Message-ID: <20231213233605.661251-1-iii@linux.ibm.com>
+Subject: [PATCH v3 04/34] kmsan: Increase the maximum store size to 4096
+Date: Thu, 14 Dec 2023 00:24:24 +0100
+Message-ID: <20231213233605.661251-5-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.43.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 561mDTmsINwMN72Ah6BOtZlL15AzLfxe
-X-Proofpoint-ORIG-GUID: Ogx47gAVtFngw5Il2WLfvhq0DJQYKCB0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+In-Reply-To: <20231213233605.661251-1-iii@linux.ibm.com>
+References: <20231213233605.661251-1-iii@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: aeR8VIeI6zpfSNpYU8qb_ET1PqEGqPrH
+X-Proofpoint-ORIG-GUID: BZJZfRMG0A4xrbOt-5TYJWqmvO4PPHL4
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-12-13_14,2023-12-13_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 impostorscore=0 clxscore=1015 adultscore=0 phishscore=0
- mlxscore=0 bulkscore=0 suspectscore=0 spamscore=0 mlxlogscore=999
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2312130167
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
+ spamscore=0 malwarescore=0 mlxlogscore=673 priorityscore=1501
+ impostorscore=0 adultscore=0 clxscore=1015 lowpriorityscore=0 mlxscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2312130166
 
-v2: https://lore.kernel.org/lkml/20231121220155.1217090-1-iii@linux.ibm.com/
-v2 -> v3: Drop kmsan_memmove_metadata() and strlcpy() patches;
-          Remove kmsan_get_metadata() stub;
-          Move kmsan_enable_current() and kmsan_disable_current() to
-          include/linux/kmsan.h, explain why a counter is needed;
-          Drop the memset_no_sanitize_memory() patch;
-          Use __memset() in the SLAB_POISON patch;
-          Add kmsan-checks.h to the DFLTCC patch;
-          Add recursion check to the arch_kmsan_get_meta_or_null()
-          patch (Alexander P.).
+The inline assembly block in s390's chsc() stores that much.
 
-          Fix inline + __no_kmsan_checks issues.
-          New patch for s390/irqflags, that resolves a lockdep warning.
-          New patch for s390/diag, that resolves a false positive when
-          running on an LPAR.
-          New patch for STCCTM, same as above.
-          New patch for check_bytes_and_report() that resolves a false
-          positive that occurs even on Intel.
+Reviewed-by: Alexander Potapenko <glider@google.com>
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+---
+ mm/kmsan/instrumentation.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-v1: https://lore.kernel.org/lkml/20231115203401.2495875-1-iii@linux.ibm.com/
-v1 -> v2: Add comments, sort #includes, introduce
-          memset_no_sanitize_memory() and use it to avoid unpoisoning
-          of redzones, change vmalloc alignment to _REGION3_SIZE, add
-          R-bs (Alexander P.).
-
-          Fix building
-          [PATCH 28/33] s390/string: Add KMSAN support
-          with FORTIFY_SOURCE.
-          Reported-by: kernel test robot <lkp@intel.com>
-          Closes: https://lore.kernel.org/oe-kbuild-all/202311170550.bSBo44ix-lkp@intel.com/
-
-Hi,
-
-This series provides the minimal support for Kernel Memory Sanitizer on
-s390. Kernel Memory Sanitizer is clang-only instrumentation for finding
-accesses to uninitialized memory. The clang support for s390 has already
-been merged [1].
-
-With this series, I can successfully boot s390 defconfig and
-debug_defconfig with kmsan.panic=1. The tool found one real
-s390-specific bug (fixed in master).
-
-Best regards,
-Ilya
-
-[1] https://reviews.llvm.org/D148596
-
-Ilya Leoshkevich (34):
-  ftrace: Unpoison ftrace_regs in ftrace_ops_list_func()
-  kmsan: Make the tests compatible with kmsan.panic=1
-  kmsan: Disable KMSAN when DEFERRED_STRUCT_PAGE_INIT is enabled
-  kmsan: Increase the maximum store size to 4096
-  kmsan: Fix is_bad_asm_addr() on arches with overlapping address spaces
-  kmsan: Fix kmsan_copy_to_user() on arches with overlapping address
-    spaces
-  kmsan: Remove a useless assignment from
-    kmsan_vmap_pages_range_noflush()
-  kmsan: Remove an x86-specific #include from kmsan.h
-  kmsan: Expose kmsan_get_metadata()
-  kmsan: Export panic_on_kmsan
-  kmsan: Allow disabling KMSAN checks for the current task
-  kmsan: Support SLAB_POISON
-  kmsan: Use ALIGN_DOWN() in kmsan_get_metadata()
-  mm: slub: Let KMSAN access metadata
-  mm: slub: Unpoison the memchr_inv() return value
-  mm: kfence: Disable KMSAN when checking the canary
-  lib/zlib: Unpoison DFLTCC output buffers
-  kmsan: Accept ranges starting with 0 on s390
-  s390: Turn off KMSAN for boot, vdso and purgatory
-  s390: Use a larger stack for KMSAN
-  s390/boot: Add the KMSAN runtime stub
-  s390/checksum: Add a KMSAN check
-  s390/cpacf: Unpoison the results of cpacf_trng()
-  s390/cpumf: Unpoison STCCTM output buffer
-  s390/diag: Unpoison diag224() output buffer
-  s390/ftrace: Unpoison ftrace_regs in kprobe_ftrace_handler()
-  s390/irqflags: Do not instrument arch_local_irq_*() with KMSAN
-  s390/mm: Define KMSAN metadata for vmalloc and modules
-  s390/string: Add KMSAN support
-  s390/traps: Unpoison the kernel_stack_overflow()'s pt_regs
-  s390/uaccess: Add KMSAN support to put_user() and get_user()
-  s390/unwind: Disable KMSAN checks
-  s390: Implement the architecture-specific kmsan functions
-  kmsan: Enable on s390
-
- Documentation/dev-tools/kmsan.rst   |   4 +-
- arch/s390/Kconfig                   |   1 +
- arch/s390/Makefile                  |   2 +-
- arch/s390/boot/Makefile             |   3 +
- arch/s390/boot/kmsan.c              |   6 ++
- arch/s390/boot/startup.c            |   8 ++
- arch/s390/boot/string.c             |  16 ++++
- arch/s390/include/asm/checksum.h    |   2 +
- arch/s390/include/asm/cpacf.h       |   3 +
- arch/s390/include/asm/cpu_mf.h      |   6 ++
- arch/s390/include/asm/irqflags.h    |  18 ++++-
- arch/s390/include/asm/kmsan.h       |  43 +++++++++++
- arch/s390/include/asm/pgtable.h     |  10 +++
- arch/s390/include/asm/string.h      |  20 +++--
- arch/s390/include/asm/thread_info.h |   2 +-
- arch/s390/include/asm/uaccess.h     | 111 ++++++++++++++++++++--------
- arch/s390/kernel/diag.c             |   2 +
- arch/s390/kernel/ftrace.c           |   2 +
- arch/s390/kernel/traps.c            |   6 ++
- arch/s390/kernel/unwind_bc.c        |   4 +
- arch/s390/kernel/vdso32/Makefile    |   3 +-
- arch/s390/kernel/vdso64/Makefile    |   3 +-
- arch/s390/purgatory/Makefile        |   2 +
- drivers/s390/char/sclp.c            |   2 +-
- include/linux/kmsan.h               |  33 +++++++++
- include/linux/kmsan_types.h         |   2 +-
- kernel/trace/ftrace.c               |   1 +
- lib/zlib_dfltcc/dfltcc.h            |   1 +
- lib/zlib_dfltcc/dfltcc_util.h       |  24 ++++++
- mm/Kconfig                          |   1 +
- mm/kfence/core.c                    |  11 ++-
- mm/kmsan/core.c                     |   1 -
- mm/kmsan/hooks.c                    |  23 ++++--
- mm/kmsan/init.c                     |   5 +-
- mm/kmsan/instrumentation.c          |  11 +--
- mm/kmsan/kmsan.h                    |   9 +--
- mm/kmsan/kmsan_test.c               |   5 ++
- mm/kmsan/report.c                   |   8 +-
- mm/kmsan/shadow.c                   |   9 +--
- mm/slub.c                           |  17 ++++-
- 40 files changed, 360 insertions(+), 80 deletions(-)
- create mode 100644 arch/s390/boot/kmsan.c
- create mode 100644 arch/s390/include/asm/kmsan.h
-
+diff --git a/mm/kmsan/instrumentation.c b/mm/kmsan/instrumentation.c
+index cc3907a9c33a..470b0b4afcc4 100644
+--- a/mm/kmsan/instrumentation.c
++++ b/mm/kmsan/instrumentation.c
+@@ -110,11 +110,10 @@ void __msan_instrument_asm_store(void *addr, uintptr_t size)
+ 
+ 	ua_flags = user_access_save();
+ 	/*
+-	 * Most of the accesses are below 32 bytes. The two exceptions so far
+-	 * are clwb() (64 bytes) and FPU state (512 bytes).
+-	 * It's unlikely that the assembly will touch more than 512 bytes.
++	 * Most of the accesses are below 32 bytes. The exceptions so far are
++	 * clwb() (64 bytes), FPU state (512 bytes) and chsc() (4096 bytes).
+ 	 */
+-	if (size > 512) {
++	if (size > 4096) {
+ 		WARN_ONCE(1, "assembly store size too big: %ld\n", size);
+ 		size = 8;
+ 	}
 -- 
 2.43.0
 
