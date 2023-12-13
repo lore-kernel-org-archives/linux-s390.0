@@ -1,51 +1,51 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rti6Izmv"
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F306910A;
-	Wed, 13 Dec 2023 15:36:56 -0800 (PST)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDNWpG0008639;
-	Wed, 13 Dec 2023 23:36:37 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Py1mP98b"
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA02E11A;
+	Wed, 13 Dec 2023 15:36:59 -0800 (PST)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDKbIKV023765;
+	Wed, 13 Dec 2023 23:36:44 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=kALH6Y40PszMAinDNJqUOT92xkYCLa2PA86QJ0JSv5E=;
- b=rti6IzmvgbsZRjEVeEO1xXvE5pE073L2SYCZ3ZV01QYSF42RcR7ebu8vD2jRYzkQtXw5
- +O6U2ydu4p1TuIwsNLP+vZyVYfYFfgQWDJo7R6dJpYlC7lircnWjz0CfJO5mjBKVkWjK
- BPxWsgF37h1WKIzZzVZxQAUv8LCOqN5aD3SIpA4NtXXEIXPfJTFrVdb0jXXvRjjx66aa
- EtPawQFf1/kgV1dsNJJNtOotYqGFxBf7IhPnzxzLnxgYq5RSP0qaZNtfpVRJIzoxa/CT
- wNP/icCT57ZYwxne1b6oPTUEHe35U6bvvZdKEn16MZ+ZA4bHiztVwAuLRyC6nm3sgCmW KA== 
+ bh=rlCQsZ3FaFOShLden0tv6ATBRD4EWRplBBAXRzxDZSY=;
+ b=Py1mP98bNE+rkK4FeO0lOzFOxIoYCYnBNv9tyFj2n8PkchrQeCbBrIK4XSZghTrbb4zD
+ cHXIEZzcm/THTRDgGYj1etk5EIn57OE0V2C9jm9bmePIXJctS/Q211Zb9APT8S7fAGJu
+ Tu+6iarnxt1Xf/POlag9jTyDQpUcs8JMpbL7uWmHpzR9NGvJUQeLkmkOnaO3odVSD7jK
+ sTFRu7uS63MnYa4JOMbxUpRoJS3EnXxs7sozLocGF3Ng5JId3VvOlO9i0KoO5QevHRaU
+ fa/vXJWV6hteSWrOd1LZcWXaCinjunicxrYxatDVShm+UUzRzPmcj9lELfx8cVM8gRIO 6g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uypce81tm-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uyktbv0wj-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 23:36:37 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BDNaaPI017559;
-	Wed, 13 Dec 2023 23:36:36 GMT
+	Wed, 13 Dec 2023 23:36:44 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BDN1IcT028789;
+	Wed, 13 Dec 2023 23:36:43 GMT
 Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uypce81sp-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uyktbv0w9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 23:36:36 +0000
+	Wed, 13 Dec 2023 23:36:43 +0000
 Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDKwk1X008585;
-	Wed, 13 Dec 2023 23:36:29 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uw2jtmvkk-1
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDKnidh008455;
+	Wed, 13 Dec 2023 23:36:42 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uw2jtmvm9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 23:36:29 +0000
+	Wed, 13 Dec 2023 23:36:42 +0000
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BDNaR9V20906592
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BDNadSt45220118
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 13 Dec 2023 23:36:27 GMT
+	Wed, 13 Dec 2023 23:36:39 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E149B2004B;
-	Wed, 13 Dec 2023 23:36:26 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8151520040;
+	Wed, 13 Dec 2023 23:36:39 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7B4F320040;
-	Wed, 13 Dec 2023 23:36:25 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 111A120043;
+	Wed, 13 Dec 2023 23:36:38 +0000 (GMT)
 Received: from heavy.boeblingen.de.ibm.com (unknown [9.171.70.156])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 13 Dec 2023 23:36:25 +0000 (GMT)
+	Wed, 13 Dec 2023 23:36:37 +0000 (GMT)
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -66,9 +66,9 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v3 11/34] kmsan: Allow disabling KMSAN checks for the current task
-Date: Thu, 14 Dec 2023 00:24:31 +0100
-Message-ID: <20231213233605.661251-12-iii@linux.ibm.com>
+Subject: [PATCH v3 19/34] s390: Turn off KMSAN for boot, vdso and purgatory
+Date: Thu, 14 Dec 2023 00:24:39 +0100
+Message-ID: <20231213233605.661251-20-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20231213233605.661251-1-iii@linux.ibm.com>
 References: <20231213233605.661251-1-iii@linux.ibm.com>
@@ -80,189 +80,102 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: jBznlbH2FEtEOu-Pu04xnJahDcCOZLZZ
-X-Proofpoint-ORIG-GUID: is7ZIVg49ekM5OZcy2r9v7nHMXQ7PWe1
+X-Proofpoint-GUID: PLExDOrLrxMWM3bk6s7GZrTHSzR8vYyL
+X-Proofpoint-ORIG-GUID: Fk9-MI15mlYrzZBW50f87CcP6jmktpZ6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-12-13_14,2023-12-13_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=999
- lowpriorityscore=0 adultscore=0 phishscore=0 mlxscore=0 suspectscore=0
- priorityscore=1501 clxscore=1015 spamscore=0 impostorscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 impostorscore=0 clxscore=1015 adultscore=0 phishscore=0
+ mlxscore=0 bulkscore=0 suspectscore=0 spamscore=0 mlxlogscore=736
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311290000 definitions=main-2312130167
 
-Like for KASAN, it's useful to temporarily disable KMSAN checks around,
-e.g., redzone accesses. Introduce kmsan_disable_current() and
-kmsan_enable_current(), which are similar to their KASAN counterparts.
+All other sanitizers are disabled for these components as well.
+While at it, add a comment to boot and purgatory.
 
-Make them reentrant in order to handle memory allocations in interrupt
-context. Repurpose the allow_reporting field for this.
-
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Alexander Potapenko <glider@google.com>
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- Documentation/dev-tools/kmsan.rst |  4 ++--
- include/linux/kmsan.h             | 24 ++++++++++++++++++++++++
- include/linux/kmsan_types.h       |  2 +-
- mm/kmsan/core.c                   |  1 -
- mm/kmsan/hooks.c                  | 18 +++++++++++++++---
- mm/kmsan/report.c                 |  7 ++++---
- 6 files changed, 46 insertions(+), 10 deletions(-)
+ arch/s390/boot/Makefile          | 2 ++
+ arch/s390/kernel/vdso32/Makefile | 3 ++-
+ arch/s390/kernel/vdso64/Makefile | 3 ++-
+ arch/s390/purgatory/Makefile     | 2 ++
+ 4 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/dev-tools/kmsan.rst b/Documentation/dev-tools/kmsan.rst
-index 323eedad53cd..022a823f5f1b 100644
---- a/Documentation/dev-tools/kmsan.rst
-+++ b/Documentation/dev-tools/kmsan.rst
-@@ -338,11 +338,11 @@ Per-task KMSAN state
- ~~~~~~~~~~~~~~~~~~~~
+diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
+index c7c81e5f9218..fb10fcd21221 100644
+--- a/arch/s390/boot/Makefile
++++ b/arch/s390/boot/Makefile
+@@ -3,11 +3,13 @@
+ # Makefile for the linux s390-specific parts of the memory manager.
+ #
  
- Every task_struct has an associated KMSAN task state that holds the KMSAN
--context (see above) and a per-task flag disallowing KMSAN reports::
-+context (see above) and a per-task counter disallowing KMSAN reports::
++# Tooling runtimes are unavailable and cannot be linked for early boot code
+ KCOV_INSTRUMENT := n
+ GCOV_PROFILE := n
+ UBSAN_SANITIZE := n
+ KASAN_SANITIZE := n
+ KCSAN_SANITIZE := n
++KMSAN_SANITIZE := n
  
-   struct kmsan_context {
-     ...
--    bool allow_reporting;
-+    unsigned int depth;
-     struct kmsan_context_state cstate;
-     ...
-   }
-diff --git a/include/linux/kmsan.h b/include/linux/kmsan.h
-index fe6c2212bdb1..23de1b3d6aee 100644
---- a/include/linux/kmsan.h
-+++ b/include/linux/kmsan.h
-@@ -239,6 +239,22 @@ void kmsan_unpoison_entry_regs(const struct pt_regs *regs);
-  */
- void *kmsan_get_metadata(void *addr, bool is_origin);
+ KBUILD_AFLAGS := $(KBUILD_AFLAGS_DECOMPRESSOR)
+ KBUILD_CFLAGS := $(KBUILD_CFLAGS_DECOMPRESSOR)
+diff --git a/arch/s390/kernel/vdso32/Makefile b/arch/s390/kernel/vdso32/Makefile
+index caec7db6f966..7cbec6b0b11f 100644
+--- a/arch/s390/kernel/vdso32/Makefile
++++ b/arch/s390/kernel/vdso32/Makefile
+@@ -32,11 +32,12 @@ obj-y += vdso32_wrapper.o
+ targets += vdso32.lds
+ CPPFLAGS_vdso32.lds += -P -C -U$(ARCH)
  
-+/*
-+ * kmsan_enable_current(): Enable KMSAN for the current task.
-+ *
-+ * Each kmsan_enable_current() current call must be preceded by a
-+ * kmsan_disable_current() call. These call pairs may be nested.
-+ */
-+void kmsan_enable_current(void);
-+
-+/*
-+ * kmsan_disable_current(): Disable KMSAN for the current task.
-+ *
-+ * Each kmsan_disable_current() current call must be followed by a
-+ * kmsan_enable_current() call. These call pairs may be nested.
-+ */
-+void kmsan_disable_current(void);
-+
- #else
+-# Disable gcov profiling, ubsan and kasan for VDSO code
++# Disable gcov profiling, ubsan, kasan and kmsan for VDSO code
+ GCOV_PROFILE := n
+ UBSAN_SANITIZE := n
+ KASAN_SANITIZE := n
+ KCSAN_SANITIZE := n
++KMSAN_SANITIZE := n
  
- static inline void kmsan_init_shadow(void)
-@@ -338,6 +354,14 @@ static inline void kmsan_unpoison_entry_regs(const struct pt_regs *regs)
- {
- }
+ # Force dependency (incbin is bad)
+ $(obj)/vdso32_wrapper.o : $(obj)/vdso32.so
+diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
+index e3c9085f8fa7..6f3252712f64 100644
+--- a/arch/s390/kernel/vdso64/Makefile
++++ b/arch/s390/kernel/vdso64/Makefile
+@@ -36,11 +36,12 @@ obj-y += vdso64_wrapper.o
+ targets += vdso64.lds
+ CPPFLAGS_vdso64.lds += -P -C -U$(ARCH)
  
-+static inline void kmsan_enable_current(void)
-+{
-+}
-+
-+static inline void kmsan_disable_current(void)
-+{
-+}
-+
- #endif
+-# Disable gcov profiling, ubsan and kasan for VDSO code
++# Disable gcov profiling, ubsan, kasan and kmsan for VDSO code
+ GCOV_PROFILE := n
+ UBSAN_SANITIZE := n
+ KASAN_SANITIZE := n
+ KCSAN_SANITIZE := n
++KMSAN_SANITIZE := n
  
- #endif /* _LINUX_KMSAN_H */
-diff --git a/include/linux/kmsan_types.h b/include/linux/kmsan_types.h
-index 8bfa6c98176d..27bb146ece95 100644
---- a/include/linux/kmsan_types.h
-+++ b/include/linux/kmsan_types.h
-@@ -29,7 +29,7 @@ struct kmsan_context_state {
- struct kmsan_ctx {
- 	struct kmsan_context_state cstate;
- 	int kmsan_in_runtime;
--	bool allow_reporting;
-+	unsigned int depth;
- };
+ # Force dependency (incbin is bad)
+ $(obj)/vdso64_wrapper.o : $(obj)/vdso64.so
+diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
+index 4e930f566878..4e421914e50f 100644
+--- a/arch/s390/purgatory/Makefile
++++ b/arch/s390/purgatory/Makefile
+@@ -15,11 +15,13 @@ CFLAGS_sha256.o := -D__DISABLE_EXPORTS -D__NO_FORTIFY
+ $(obj)/mem.o: $(srctree)/arch/s390/lib/mem.S FORCE
+ 	$(call if_changed_rule,as_o_S)
  
- #endif /* _LINUX_KMSAN_TYPES_H */
-diff --git a/mm/kmsan/core.c b/mm/kmsan/core.c
-index c19f47af0424..68c68b30441d 100644
---- a/mm/kmsan/core.c
-+++ b/mm/kmsan/core.c
-@@ -43,7 +43,6 @@ void kmsan_internal_task_create(struct task_struct *task)
- 	struct thread_info *info = current_thread_info();
++# Tooling runtimes are unavailable and cannot be linked for purgatory code
+ KCOV_INSTRUMENT := n
+ GCOV_PROFILE := n
+ UBSAN_SANITIZE := n
+ KASAN_SANITIZE := n
+ KCSAN_SANITIZE := n
++KMSAN_SANITIZE := n
  
- 	__memset(ctx, 0, sizeof(*ctx));
--	ctx->allow_reporting = true;
- 	kmsan_internal_unpoison_memory(info, sizeof(*info), false);
- }
- 
-diff --git a/mm/kmsan/hooks.c b/mm/kmsan/hooks.c
-index eafc45f937eb..3acf010c9814 100644
---- a/mm/kmsan/hooks.c
-+++ b/mm/kmsan/hooks.c
-@@ -39,12 +39,10 @@ void kmsan_task_create(struct task_struct *task)
- 
- void kmsan_task_exit(struct task_struct *task)
- {
--	struct kmsan_ctx *ctx = &task->kmsan_ctx;
--
- 	if (!kmsan_enabled || kmsan_in_runtime())
- 		return;
- 
--	ctx->allow_reporting = false;
-+	kmsan_disable_current();
- }
- 
- void kmsan_slab_alloc(struct kmem_cache *s, void *object, gfp_t flags)
-@@ -423,3 +421,17 @@ void kmsan_check_memory(const void *addr, size_t size)
- 					   REASON_ANY);
- }
- EXPORT_SYMBOL(kmsan_check_memory);
-+
-+void kmsan_enable_current(void)
-+{
-+	KMSAN_WARN_ON(current->kmsan_ctx.depth == 0);
-+	current->kmsan_ctx.depth--;
-+}
-+EXPORT_SYMBOL(kmsan_enable_current);
-+
-+void kmsan_disable_current(void)
-+{
-+	current->kmsan_ctx.depth++;
-+	KMSAN_WARN_ON(current->kmsan_ctx.depth == 0);
-+}
-+EXPORT_SYMBOL(kmsan_disable_current);
-diff --git a/mm/kmsan/report.c b/mm/kmsan/report.c
-index c79d3b0d2d0d..92e73ec61435 100644
---- a/mm/kmsan/report.c
-+++ b/mm/kmsan/report.c
-@@ -8,6 +8,7 @@
-  */
- 
- #include <linux/console.h>
-+#include <linux/kmsan.h>
- #include <linux/moduleparam.h>
- #include <linux/stackdepot.h>
- #include <linux/stacktrace.h>
-@@ -158,12 +159,12 @@ void kmsan_report(depot_stack_handle_t origin, void *address, int size,
- 
- 	if (!kmsan_enabled)
- 		return;
--	if (!current->kmsan_ctx.allow_reporting)
-+	if (current->kmsan_ctx.depth)
- 		return;
- 	if (!origin)
- 		return;
- 
--	current->kmsan_ctx.allow_reporting = false;
-+	kmsan_disable_current();
- 	ua_flags = user_access_save();
- 	raw_spin_lock(&kmsan_report_lock);
- 	pr_err("=====================================================\n");
-@@ -216,5 +217,5 @@ void kmsan_report(depot_stack_handle_t origin, void *address, int size,
- 	if (panic_on_kmsan)
- 		panic("kmsan.panic set ...\n");
- 	user_access_restore(ua_flags);
--	current->kmsan_ctx.allow_reporting = true;
-+	kmsan_enable_current();
- }
+ KBUILD_CFLAGS := -fno-strict-aliasing -Wall -Wstrict-prototypes
+ KBUILD_CFLAGS += -Wno-pointer-sign -Wno-sign-compare
 -- 
 2.43.0
 
