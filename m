@@ -1,51 +1,51 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rug7CVLV"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="h3Ohq2Bo"
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AAF72728;
-	Wed, 13 Dec 2023 15:40:58 -0800 (PST)
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 942661BDC;
+	Wed, 13 Dec 2023 15:40:57 -0800 (PST)
 Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDMe3sQ026112;
-	Wed, 13 Dec 2023 23:40:30 GMT
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDMe3sK026112;
+	Wed, 13 Dec 2023 23:40:24 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=f61PT7g/vuAibsjDOy6DAIgpeWx3be7RgbReYtda3cA=;
- b=rug7CVLVL28INcXomNp/6g4B/kdBN1k9Nog7MxaAWmwtJkcbANo3L8cxc70uspTQNYEh
- 8S2b+AJ53AuE9nAE9elA2H0d4nfcN7xeQjpOoaKLstVQ5KlgEs+5HgW8E8uAwlK3UIUo
- D32gzHjXfjHONXy8Zu09kgOh36c/tJUkmCzDDj8jf/8W7DUFdNO5Pkqx0tNyeemxG7fb
- JjS2CiNP/diYCkxf3+12GKpop7pTuyHaP+JCtq5fi8rjBjs9G6935ARRHVeLOnM0mA3s
- o9ziUx1TRxeyc+5hCEVGLWspNl2TkfHeYFLqN4cfeL8xrfNM+MGFrCQsgDgyUW8KznV1 fA== 
+ bh=RNAEdf6yu7dcjX2jOn112T18heV7subpebJzqiDTVHU=;
+ b=h3Ohq2BoyYrV9ysMvVTwG1yC/SXJpU8oKVRlehn/wazgckl0UWxkXl1XO8C8uVC1WS+8
+ YUGZREXylkmApnzow/KMhN0IP1LHHAhIO5AJYJ97Lxf+MwVMI/LTGVWRpw/kHTXONOhF
+ nv8rn3h4yud8DLUMBfDzXZrkLVeVmxKQDX+I31EcMbq8gxOQrKySuuIPDIhsfNYOWpqw
+ ChJFNztbP1Qy/gBh10TXgIcM/48+O7eGAy+XmGZWp0DwJv/rNtaZAngmvnZ4g68TvdMp
+ Mmp11/PyrYe8pa6QXcH19pDsd3UirZNCcKW6jOL9jl0GgqAkMgtQd7WDT7uHC/Ww4SYW 7w== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uymwuj5xe-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uymwuj5vt-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 23:40:30 +0000
+	Wed, 13 Dec 2023 23:40:24 +0000
 Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BDNLwT7018904;
-	Wed, 13 Dec 2023 23:40:29 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uymwuj5bb-1
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BDNWTIR009723;
+	Wed, 13 Dec 2023 23:40:23 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uymwuj5ff-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 23:40:28 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDMvT5Y004899;
-	Wed, 13 Dec 2023 23:36:33 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uw4skm9wb-1
+	Wed, 13 Dec 2023 23:40:23 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDGkI3J014819;
+	Wed, 13 Dec 2023 23:36:56 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uw42kg1xx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 23:36:32 +0000
+	Wed, 13 Dec 2023 23:36:56 +0000
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BDNaUlL11600636
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BDNarHZ45220132
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 13 Dec 2023 23:36:30 GMT
+	Wed, 13 Dec 2023 23:36:53 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4060820043;
-	Wed, 13 Dec 2023 23:36:30 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 46F5E20040;
+	Wed, 13 Dec 2023 23:36:53 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CF4E820040;
-	Wed, 13 Dec 2023 23:36:28 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id D4A2120043;
+	Wed, 13 Dec 2023 23:36:51 +0000 (GMT)
 Received: from heavy.boeblingen.de.ibm.com (unknown [9.171.70.156])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 13 Dec 2023 23:36:28 +0000 (GMT)
+	Wed, 13 Dec 2023 23:36:51 +0000 (GMT)
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -66,9 +66,9 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v3 13/34] kmsan: Use ALIGN_DOWN() in kmsan_get_metadata()
-Date: Thu, 14 Dec 2023 00:24:33 +0100
-Message-ID: <20231213233605.661251-14-iii@linux.ibm.com>
+Subject: [PATCH v3 28/34] s390/mm: Define KMSAN metadata for vmalloc and modules
+Date: Thu, 14 Dec 2023 00:24:48 +0100
+Message-ID: <20231213233605.661251-29-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20231213233605.661251-1-iii@linux.ibm.com>
 References: <20231213233605.661251-1-iii@linux.ibm.com>
@@ -80,50 +80,77 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ZnvMsRQHFj5YzlpSvFIojYHFjtCw1G-g
-X-Proofpoint-ORIG-GUID: 9YWJfdp_hxIenSUs6PPpY0jtFMAnoXZX
+X-Proofpoint-GUID: vfBS-CdzCAtBe0eAONYSdh2uF2-ntzde
+X-Proofpoint-ORIG-GUID: gLjFNC89khIf6pZ9lL-ibBIu5mfuKJCk
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-12-13_14,2023-12-13_01,2023-05-22_02
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
- spamscore=0 malwarescore=0 mlxlogscore=999 priorityscore=1501
+ spamscore=0 malwarescore=0 mlxlogscore=816 priorityscore=1501
  impostorscore=0 adultscore=0 clxscore=1015 lowpriorityscore=0 mlxscore=0
  bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311290000 definitions=main-2312130167
 
-Improve the readability by replacing the custom aligning logic with
-ALIGN_DOWN(). Unlike other places where a similar sequence is used,
-there is no size parameter that needs to be adjusted, so the standard
-macro fits.
+The pages for the KMSAN metadata associated with most kernel mappings
+are taken from memblock by the common code. However, vmalloc and module
+metadata needs to be defined by the architectures.
+
+Be a little bit more careful than x86: allocate exactly MODULES_LEN
+for the module shadow and origins, and then take 2/3 of vmalloc for
+the vmalloc shadow and origins. This ensures that users passing small
+vmalloc= values on the command line do not cause module metadata
+collisions.
 
 Reviewed-by: Alexander Potapenko <glider@google.com>
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- mm/kmsan/shadow.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ arch/s390/boot/startup.c        |  8 ++++++++
+ arch/s390/include/asm/pgtable.h | 10 ++++++++++
+ 2 files changed, 18 insertions(+)
 
-diff --git a/mm/kmsan/shadow.c b/mm/kmsan/shadow.c
-index 2d57408c78ae..9c58f081d84f 100644
---- a/mm/kmsan/shadow.c
-+++ b/mm/kmsan/shadow.c
-@@ -123,14 +123,12 @@ struct shadow_origin_ptr kmsan_get_shadow_origin_ptr(void *address, u64 size,
-  */
- void *kmsan_get_metadata(void *address, bool is_origin)
- {
--	u64 addr = (u64)address, pad, off;
-+	u64 addr = (u64)address, off;
- 	struct page *page;
- 	void *ret;
+diff --git a/arch/s390/boot/startup.c b/arch/s390/boot/startup.c
+index 8104e0e3d188..e37e7ffda430 100644
+--- a/arch/s390/boot/startup.c
++++ b/arch/s390/boot/startup.c
+@@ -253,9 +253,17 @@ static unsigned long setup_kernel_memory_layout(void)
+ 	MODULES_END = round_down(__abs_lowcore, _SEGMENT_SIZE);
+ 	MODULES_VADDR = MODULES_END - MODULES_LEN;
+ 	VMALLOC_END = MODULES_VADDR;
++#ifdef CONFIG_KMSAN
++	VMALLOC_END -= MODULES_LEN * 2;
++#endif
  
--	if (is_origin && !IS_ALIGNED(addr, KMSAN_ORIGIN_SIZE)) {
--		pad = addr % KMSAN_ORIGIN_SIZE;
--		addr -= pad;
--	}
-+	if (is_origin)
-+		addr = ALIGN_DOWN(addr, KMSAN_ORIGIN_SIZE);
- 	address = (void *)addr;
- 	if (kmsan_internal_is_vmalloc_addr(address) ||
- 	    kmsan_internal_is_module_addr(address))
+ 	/* allow vmalloc area to occupy up to about 1/2 of the rest virtual space left */
+ 	vmalloc_size = min(vmalloc_size, round_down(VMALLOC_END / 2, _REGION3_SIZE));
++#ifdef CONFIG_KMSAN
++	/* take 2/3 of vmalloc area for KMSAN shadow and origins */
++	vmalloc_size = round_down(vmalloc_size / 3, _REGION3_SIZE);
++	VMALLOC_END -= vmalloc_size * 2;
++#endif
+ 	VMALLOC_START = VMALLOC_END - vmalloc_size;
+ 
+ 	/* split remaining virtual space between 1:1 mapping & vmemmap array */
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 601e87fa8a9a..d764abeb9e6d 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -107,6 +107,16 @@ static inline int is_module_addr(void *addr)
+ 	return 1;
+ }
+ 
++#ifdef CONFIG_KMSAN
++#define KMSAN_VMALLOC_SIZE (VMALLOC_END - VMALLOC_START)
++#define KMSAN_VMALLOC_SHADOW_START VMALLOC_END
++#define KMSAN_VMALLOC_ORIGIN_START (KMSAN_VMALLOC_SHADOW_START + \
++				    KMSAN_VMALLOC_SIZE)
++#define KMSAN_MODULES_SHADOW_START (KMSAN_VMALLOC_ORIGIN_START + \
++				    KMSAN_VMALLOC_SIZE)
++#define KMSAN_MODULES_ORIGIN_START (KMSAN_MODULES_SHADOW_START + MODULES_LEN)
++#endif
++
+ /*
+  * A 64 bit pagetable entry of S390 has following format:
+  * |			 PFRA			      |0IPC|  OS  |
 -- 
 2.43.0
 
