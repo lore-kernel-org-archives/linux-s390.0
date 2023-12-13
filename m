@@ -1,97 +1,141 @@
-Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92935CD;
-	Tue, 12 Dec 2023 17:10:11 -0800 (PST)
-Received: from mail.maildlp.com (unknown [172.19.93.142])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4Sqcpl4009z4f3jps;
-	Wed, 13 Dec 2023 09:10:07 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id B49591A0952;
-	Wed, 13 Dec 2023 09:10:08 +0800 (CST)
-Received: from [10.174.176.73] (unknown [10.174.176.73])
-	by APP1 (Coremail) with SMTP id cCh0CgDX2xFuBHlllVr5DQ--.61515S3;
-	Wed, 13 Dec 2023 09:10:07 +0800 (CST)
-Subject: Re: [PATCH RFC v2 for-6.8/block 01/18] block: add some bdev apis
-To: Christoph Hellwig <hch@infradead.org>, Jan Kara <jack@suse.cz>
-Cc: Yu Kuai <yukuai1@huaweicloud.com>, axboe@kernel.dk, roger.pau@citrix.com,
- colyli@suse.de, kent.overstreet@gmail.com, joern@lazybastard.org,
- miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
- sth@linux.ibm.com, hoeppner@linux.ibm.com, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, jejb@linux.ibm.com,
- martin.petersen@oracle.com, clm@fb.com, josef@toxicpanda.com,
- dsterba@suse.com, viro@zeniv.linux.org.uk, brauner@kernel.org,
- nico@fluxnic.net, xiang@kernel.org, chao@kernel.org, tytso@mit.edu,
- adilger.kernel@dilger.ca, agruenba@redhat.com, jack@suse.com,
- konishi.ryusuke@gmail.com, willy@infradead.org, akpm@linux-foundation.org,
- p.raghav@samsung.com, hare@suse.de, linux-block@vger.kernel.org,
- linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org,
- linux-bcache@vger.kernel.org, linux-mtd@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
- linux-bcachefs@vger.kernel.org, linux-btrfs@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org,
- linux-ext4@vger.kernel.org, gfs2@lists.linux.dev,
- linux-nilfs@vger.kernel.org, yi.zhang@huawei.com, yangerkun@huawei.com,
- "yukuai (C)" <yukuai3@huawei.com>
-References: <20231211140552.973290-1-yukuai1@huaweicloud.com>
- <20231211140552.973290-2-yukuai1@huaweicloud.com>
- <20231211165217.fil437byq7w2vcp7@quack3> <ZXhcsNbvzbArtBUj@infradead.org>
-From: Yu Kuai <yukuai1@huaweicloud.com>
-Message-ID: <718c424e-2514-8a14-b461-7e20b6355d16@huaweicloud.com>
-Date: Wed, 13 Dec 2023 09:10:05 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Fnt0wkfy"
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCBB3B2;
+	Tue, 12 Dec 2023 17:32:34 -0800 (PST)
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BD0pBG0012640;
+	Wed, 13 Dec 2023 01:32:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=KMCbxYyj6q/VXSfTdo3NzbZtbBOQtb6Yz6XeblWpLIY=;
+ b=Fnt0wkfyFieKdF3BGCpAe9eOVN3w6kqCa+XnTateb0CBsl9vHY4Ed7RLw8Ehy/iWt9pt
+ 3FoOz0fnaJ3WMqwSIBwSLuomeAcpEMnsrPxJJCHpVFIxdWvoFUI6svDcc2AA+9CiqcDb
+ ILz9iNmsMYLcxE2+MtNt2GvdlEig+h21gCdjgp9QARG89M2T2sm226TOniD6YS6FOERU
+ y+/qSjf0FmpIy+ooCJGhannVqNe3FMHXtr5saUEXEk0QpO9Z9FjSRw9VeVy2+9puzKNr
+ Y1JgZBvvvlLxwoOwh4X74m3X7JX3eD+lFD33Uq2czTmtl0AlN8oTGIjrm8GQMw1uVrDl nA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uy2361d6q-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Dec 2023 01:32:06 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BD0pIkx013397;
+	Wed, 13 Dec 2023 01:32:05 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uy2361d65-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Dec 2023 01:32:05 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BD1SnXL005066;
+	Wed, 13 Dec 2023 01:32:04 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uw4skd26c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Dec 2023 01:32:04 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BD1W1q015074038
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 13 Dec 2023 01:32:01 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 75E0220043;
+	Wed, 13 Dec 2023 01:32:01 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2758620040;
+	Wed, 13 Dec 2023 01:32:00 +0000 (GMT)
+Received: from [9.171.70.156] (unknown [9.171.70.156])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 13 Dec 2023 01:32:00 +0000 (GMT)
+Message-ID: <626be6deb066627a77470bf80bb76c27222a5e3e.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 13/33] kmsan: Introduce memset_no_sanitize_memory()
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+To: Alexander Potapenko <glider@google.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrew Morton
+ <akpm@linux-foundation.org>,
+        Christoph Lameter <cl@linux.com>,
+        David
+ Rientjes <rientjes@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Joonsoo
+ Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>,
+        Masami
+ Hiramatsu <mhiramat@kernel.org>,
+        Pekka Enberg <penberg@kernel.org>,
+        Steven
+ Rostedt <rostedt@goodmis.org>,
+        Vasily Gorbik <gor@linux.ibm.com>, Vlastimil
+ Babka <vbabka@suse.cz>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        Mark Rutland <mark.rutland@arm.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Sven Schnelle
+ <svens@linux.ibm.com>
+Date: Wed, 13 Dec 2023 02:31:59 +0100
+In-Reply-To: <CAG_fn=UbJ+z8Gmfjodu-jBQz75HApXADw8Abj38BCLHmY_ZW9w@mail.gmail.com>
+References: <20231121220155.1217090-1-iii@linux.ibm.com>
+	 <20231121220155.1217090-14-iii@linux.ibm.com>
+	 <CAG_fn=Vaj3hTRAMxUwofpSMPhFBOizDOWR_An-V9qLNQv-suYw@mail.gmail.com>
+	 <69e7bc8e8c8a38c429a793e991e0509cb97a53e1.camel@linux.ibm.com>
+	 <CAG_fn=UbJ+z8Gmfjodu-jBQz75HApXADw8Abj38BCLHmY_ZW9w@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <ZXhcsNbvzbArtBUj@infradead.org>
-Content-Type: text/plain; charset=gbk; format=flowed
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:cCh0CgDX2xFuBHlllVr5DQ--.61515S3
-X-Coremail-Antispam: 1UD129KBjvdXoW7XF1DtryfCryDXw4DAry7Wrg_yoW3GFg_Xr
-	909FW8K3W8A3ykJr43trs8Kr9YyFs2gr1UZrWrJ3W7X34kXFs8GFWvyr98WryfGw48CrnI
-	kF9F934fJr92qjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUIcSsGvfJTRUUUbaxFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k26cxKx2IYs7xG
-	6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
-	A2z4x0Y4vE2Ix0cI8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j
-	6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
-	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
-	I7IYx2IY67AKxVWUGVWUXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
-	4UM4x0Y48IcVAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kI
-	c2xKxwCYjI0SjxkI62AI1cAE67vIY487MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4
-	AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE
-	17CEb7AF67AKxVWrXVW8Jr1lIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCw
-	CI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJwCI42IY6xAIw20EY4v20xvaj40_Gr0_
-	Zr1lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UYx
-	BIdaVFxhVjvjDU0xZFpf9x0JUCXdbUUUUU=
-X-CM-SenderInfo: 51xn3trlr6x35dzhxuhorxvhhfrp/
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: uqRL-_gQFksj6cXf_VfQabVl2MwU5Zww
+X-Proofpoint-ORIG-GUID: MvszSTT3P12rTHdpiLBCqdmC1cvhFx41
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-12_14,2023-12-12_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=802
+ malwarescore=0 spamscore=0 clxscore=1015 impostorscore=0 suspectscore=0
+ phishscore=0 adultscore=0 lowpriorityscore=0 mlxscore=0 priorityscore=1501
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2312130009
 
-Hi,
+On Fri, 2023-12-08 at 16:25 +0100, Alexander Potapenko wrote:
+> > A problem with __memset() is that, at least for me, it always ends
+> > up being a call. There is a use case where we need to write only 1
+> > byte, so I thought that introducing a call there (when compiling
+> > without KMSAN) would be unacceptable.
+>=20
+> Wonder what happens with that use case if we e.g. build with fortify-
+> source.
+> Calling memset() for a single byte might be indicating the code is
+> not hot.
 
-ÔÚ 2023/12/12 21:14, Christoph Hellwig Ð´µÀ:
-> On Mon, Dec 11, 2023 at 05:52:17PM +0100, Jan Kara wrote:
->>> +void bdev_associated_mapping(struct block_device *bdev,
->>> +			     struct address_space *mapping)
->>> +{
->>> +	mapping->host = bdev->bd_inode;
->>> +}
->>
->> Here I'm not sure - is the helper really a win? It seems a bit obscure to
->> me. This initialization of another mapping for a bdev looks really special.
-> 
-> If we want to hide bd_inode we'll something like this helper even if
-> I don't particularly like it either.
-> 
-> But it might be a good idea to move out of this series and into the
-> follow on removing bd_inode, as it's rather pointless without that
-> context.
+The original code has a simple assignment. Here is the relevant diff:
 
-Yes, this sounds good, I'll remove this from v3.
+        if (s->flags & __OBJECT_POISON) {
+-               memset(p, POISON_FREE, poison_size - 1);
+-               p[poison_size - 1] =3D POISON_END;
++               memset_no_sanitize_memory(p, POISON_FREE, poison_size -
+1);
++               memset_no_sanitize_memory(p + poison_size - 1,
+POISON_END, 1);
+        }
 
-Thanks,
-Kuai
+[...]
 
-> .
-> 
 
+> As stated above, I don't think this is more or less working as
+> intended.
+> If we really want the ability to inline __memset(), we could
+> transform
+> it into memset() in non-sanitizer builds, but perhaps having a call
+> is
+> also acceptable?
+
+Thanks for the detailed explanation and analysis. I will post
+a version with a __memset() and let the slab maintainers decide if
+the additional overhead is acceptable.
