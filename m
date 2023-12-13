@@ -1,141 +1,74 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Fnt0wkfy"
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCBB3B2;
-	Tue, 12 Dec 2023 17:32:34 -0800 (PST)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BD0pBG0012640;
-	Wed, 13 Dec 2023 01:32:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=KMCbxYyj6q/VXSfTdo3NzbZtbBOQtb6Yz6XeblWpLIY=;
- b=Fnt0wkfyFieKdF3BGCpAe9eOVN3w6kqCa+XnTateb0CBsl9vHY4Ed7RLw8Ehy/iWt9pt
- 3FoOz0fnaJ3WMqwSIBwSLuomeAcpEMnsrPxJJCHpVFIxdWvoFUI6svDcc2AA+9CiqcDb
- ILz9iNmsMYLcxE2+MtNt2GvdlEig+h21gCdjgp9QARG89M2T2sm226TOniD6YS6FOERU
- y+/qSjf0FmpIy+ooCJGhannVqNe3FMHXtr5saUEXEk0QpO9Z9FjSRw9VeVy2+9puzKNr
- Y1JgZBvvvlLxwoOwh4X74m3X7JX3eD+lFD33Uq2czTmtl0AlN8oTGIjrm8GQMw1uVrDl nA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uy2361d6q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 01:32:06 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BD0pIkx013397;
-	Wed, 13 Dec 2023 01:32:05 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uy2361d65-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 01:32:05 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BD1SnXL005066;
-	Wed, 13 Dec 2023 01:32:04 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uw4skd26c-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 01:32:04 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BD1W1q015074038
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 13 Dec 2023 01:32:01 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 75E0220043;
-	Wed, 13 Dec 2023 01:32:01 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2758620040;
-	Wed, 13 Dec 2023 01:32:00 +0000 (GMT)
-Received: from [9.171.70.156] (unknown [9.171.70.156])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 13 Dec 2023 01:32:00 +0000 (GMT)
-Message-ID: <626be6deb066627a77470bf80bb76c27222a5e3e.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 13/33] kmsan: Introduce memset_no_sanitize_memory()
-From: Ilya Leoshkevich <iii@linux.ibm.com>
-To: Alexander Potapenko <glider@google.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andrew Morton
- <akpm@linux-foundation.org>,
-        Christoph Lameter <cl@linux.com>,
-        David
- Rientjes <rientjes@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Joonsoo
- Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>,
-        Masami
- Hiramatsu <mhiramat@kernel.org>,
-        Pekka Enberg <penberg@kernel.org>,
-        Steven
- Rostedt <rostedt@goodmis.org>,
-        Vasily Gorbik <gor@linux.ibm.com>, Vlastimil
- Babka <vbabka@suse.cz>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        Mark Rutland <mark.rutland@arm.com>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Sven Schnelle
- <svens@linux.ibm.com>
-Date: Wed, 13 Dec 2023 02:31:59 +0100
-In-Reply-To: <CAG_fn=UbJ+z8Gmfjodu-jBQz75HApXADw8Abj38BCLHmY_ZW9w@mail.gmail.com>
-References: <20231121220155.1217090-1-iii@linux.ibm.com>
-	 <20231121220155.1217090-14-iii@linux.ibm.com>
-	 <CAG_fn=Vaj3hTRAMxUwofpSMPhFBOizDOWR_An-V9qLNQv-suYw@mail.gmail.com>
-	 <69e7bc8e8c8a38c429a793e991e0509cb97a53e1.camel@linux.ibm.com>
-	 <CAG_fn=UbJ+z8Gmfjodu-jBQz75HApXADw8Abj38BCLHmY_ZW9w@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B984CAD;
+	Tue, 12 Dec 2023 17:48:53 -0800 (PST)
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VyO3miM_1702432130;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0VyO3miM_1702432130)
+          by smtp.aliyun-inc.com;
+          Wed, 13 Dec 2023 09:48:51 +0800
+Date: Wed, 13 Dec 2023 09:48:47 +0800
+From: Tony Lu <tonylu@linux.alibaba.com>
+To: Ahelenia =?us-ascii?Q?Ziemia'nska?= <nabijaczleweli@nabijaczleweli.xyz>
+Cc: Karsten Graul <kgraul@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Jan Karcher <jaka@linux.ibm.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RESEND 06/11] net/smc: smc_splice_read: always request
+ MSG_DONTWAIT
+Message-ID: <ZXkNf9vvtzR7oqoE@TONYMAC-ALIBABA.local>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <cover.1697486714.git.nabijaczleweli@nabijaczleweli.xyz>
+ <145da5ab094bcc7d3331385e8813074922c2a13c6.1697486714.git.nabijaczleweli@nabijaczleweli.xyz>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: uqRL-_gQFksj6cXf_VfQabVl2MwU5Zww
-X-Proofpoint-ORIG-GUID: MvszSTT3P12rTHdpiLBCqdmC1cvhFx41
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-12_14,2023-12-12_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=802
- malwarescore=0 spamscore=0 clxscore=1015 impostorscore=0 suspectscore=0
- phishscore=0 adultscore=0 lowpriorityscore=0 mlxscore=0 priorityscore=1501
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2312130009
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <145da5ab094bcc7d3331385e8813074922c2a13c6.1697486714.git.nabijaczleweli@nabijaczleweli.xyz>
 
-On Fri, 2023-12-08 at 16:25 +0100, Alexander Potapenko wrote:
-> > A problem with __memset() is that, at least for me, it always ends
-> > up being a call. There is a use case where we need to write only 1
-> > byte, so I thought that introducing a call there (when compiling
-> > without KMSAN) would be unacceptable.
->=20
-> Wonder what happens with that use case if we e.g. build with fortify-
-> source.
-> Calling memset() for a single byte might be indicating the code is
-> not hot.
+Please add correct tag, for this patch, IIUC, it should be a fix, and
+you need add [PATCH net].
 
-The original code has a simple assignment. Here is the relevant diff:
+On Tue, Dec 12, 2023 at 11:12:47AM +0100, Ahelenia Ziemia'nska wrote:
+> Otherwise we risk sleeping with the pipe locked for indeterminate
+> lengths of time.
+> 
+> Link: https://lore.kernel.org/linux-fsdevel/qk6hjuam54khlaikf2ssom6custxf5is2ekkaequf4hvode3ls@zgf7j5j4ubvw/t/#u
 
-        if (s->flags & __OBJECT_POISON) {
--               memset(p, POISON_FREE, poison_size - 1);
--               p[poison_size - 1] =3D POISON_END;
-+               memset_no_sanitize_memory(p, POISON_FREE, poison_size -
-1);
-+               memset_no_sanitize_memory(p + poison_size - 1,
-POISON_END, 1);
-        }
+Fixes line is needed.
 
-[...]
+> Signed-off-by: Ahelenia Ziemia'nska <nabijaczleweli@nabijaczleweli.xyz>
+> ---
+>  net/smc/af_smc.c | 6 +-----
+>  1 file changed, 1 insertion(+), 5 deletions(-)
+> 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index bacdd971615e..89473305f629 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -3243,12 +3243,8 @@ static ssize_t smc_splice_read(struct socket *sock, loff_t *ppos,
+>  			rc = -ESPIPE;
+>  			goto out;
+>  		}
+> -		if (flags & SPLICE_F_NONBLOCK)
+> -			flags = MSG_DONTWAIT;
+> -		else
+> -			flags = 0;
+>  		SMC_STAT_INC(smc, splice_cnt);
+> -		rc = smc_rx_recvmsg(smc, NULL, pipe, len, flags);
+> +		rc = smc_rx_recvmsg(smc, NULL, pipe, len, MSG_DONTWAIT);
+>  	}
+>  out:
+>  	release_sock(sk);
+> -- 
+> 2.39.2
 
 
-> As stated above, I don't think this is more or less working as
-> intended.
-> If we really want the ability to inline __memset(), we could
-> transform
-> it into memset() in non-sanitizer builds, but perhaps having a call
-> is
-> also acceptable?
-
-Thanks for the detailed explanation and analysis. I will post
-a version with a __memset() and let the slab maintainers decide if
-the additional overhead is acceptable.
