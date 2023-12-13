@@ -1,51 +1,51 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ORxq1rDQ"
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE331F4;
-	Wed, 13 Dec 2023 15:37:12 -0800 (PST)
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDN5vPK008487;
-	Wed, 13 Dec 2023 23:36:59 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KRFjrsCA"
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34D2111B;
+	Wed, 13 Dec 2023 15:37:15 -0800 (PST)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDL8I7u012863;
+	Wed, 13 Dec 2023 23:37:01 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=I5ENfpcuS8SJJyzq1oQ81hBdZSUgSzt986R8mOGLRSU=;
- b=ORxq1rDQ1+Qv578s5a7o+rwl80jhA+aJ8wMQoGwv0DRfts3dspmgA8hU7SL18bAVO9/t
- /UlKXc/ndHnJDWtD1V++0cklOeY/g4+hAU1WcKGoqu0mQiw0BUbTlPxAaX/hf8RCuU8F
- v2hNrUqQiRPNtIYUPu1xxK2AiQ1BhrB22VomwI666jUVV7Z3yDMOyPZL+Ck5bN1p6bba
- kNuACZ0iaJ3t3uf9jfHarQXScCGARKcA06rX4U1Y0atXdxqJ0qJrgqwHH+IcIPBxuXqM
- ZT33RfKcGi2TMxsNv9/6nSZq4yhbyo1kmnvSDecST8LgwgLj2KrkbRUmT3U1usdcrBZL YQ== 
+ bh=ADVPDi6c9Y3U5XGJnmiIfqmOgMPyPThXfiimsaS0ZCE=;
+ b=KRFjrsCA4SZpJueFACDEkkYIK4dYF8AzJRfEgxQ1XBZtPRvxzEdz8VQgdK3zBFLFQoNR
+ wjCIpbpoHvRiDknYFk6Q2NBx/FTQk278rSEdBN/qjFA4IdQm0dcV25Fv25mZFNe2NYW2
+ PnFXHzjYEeeV8Up5UYBaG4jr9scWMSCaSFy85tEOEDSv2SDF5MDdtCdEJy9EEwWaaake
+ LH28n4iN/kvpQWl+YqrmLq+YiHJs1jKuEQKf7S66szxjycuzlsitVA9ZjOFFY3zEVLwZ
+ 9yHORuvAymPyWz+oTjxDz9VoBTO2efOq8FTLb/iucSG25rrE+Yo19vR0cPaTTor4azDS Qw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uyne61654-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uyjg35xv4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 23:36:58 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BDN8eel015721;
-	Wed, 13 Dec 2023 23:36:57 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uyne615yp-1
+	Wed, 13 Dec 2023 23:37:01 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BDNSfUs015104;
+	Wed, 13 Dec 2023 23:37:00 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uyjg35xug-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 23:36:57 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDNVQIw014813;
-	Wed, 13 Dec 2023 23:36:28 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uw42kg1xh-1
+	Wed, 13 Dec 2023 23:37:00 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDNFEmR013937;
+	Wed, 13 Dec 2023 23:36:59 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uw592c4ku-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 23:36:28 +0000
+	Wed, 13 Dec 2023 23:36:59 +0000
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BDNaPsN13042400
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BDNauMb45220346
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 13 Dec 2023 23:36:25 GMT
+	Wed, 13 Dec 2023 23:36:56 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 60DDD20043;
-	Wed, 13 Dec 2023 23:36:25 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 5792320040;
+	Wed, 13 Dec 2023 23:36:56 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EF7D320040;
-	Wed, 13 Dec 2023 23:36:23 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id E389920043;
+	Wed, 13 Dec 2023 23:36:54 +0000 (GMT)
 Received: from heavy.boeblingen.de.ibm.com (unknown [9.171.70.156])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 13 Dec 2023 23:36:23 +0000 (GMT)
+	Wed, 13 Dec 2023 23:36:54 +0000 (GMT)
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -66,9 +66,9 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v3 10/34] kmsan: Export panic_on_kmsan
-Date: Thu, 14 Dec 2023 00:24:30 +0100
-Message-ID: <20231213233605.661251-11-iii@linux.ibm.com>
+Subject: [PATCH v3 30/34] s390/traps: Unpoison the kernel_stack_overflow()'s pt_regs
+Date: Thu, 14 Dec 2023 00:24:50 +0100
+Message-ID: <20231213233605.661251-31-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20231213233605.661251-1-iii@linux.ibm.com>
 References: <20231213233605.661251-1-iii@linux.ibm.com>
@@ -80,43 +80,50 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: EwR19qvGJvvQNtGfAc5QYrovTRDCMqim
-X-Proofpoint-ORIG-GUID: Anx1E9rKy2HSndM7YPLropkZzAYNqtaW
+X-Proofpoint-ORIG-GUID: J2H2Zg9Syo-ddfgReflDerX2XK4HaCUE
+X-Proofpoint-GUID: jAIqILNw1A-DNGzWSjXXASmKCgL7b7sm
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-12-13_14,2023-12-13_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- clxscore=1015 malwarescore=0 mlxscore=0 spamscore=0 bulkscore=0
- mlxlogscore=999 lowpriorityscore=0 suspectscore=0 priorityscore=1501
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2312130167
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ priorityscore=1501 suspectscore=0 spamscore=0 phishscore=0 bulkscore=0
+ lowpriorityscore=0 mlxscore=0 mlxlogscore=999 adultscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2312130167
 
-When building the kmsan test as a module, modpost fails with the
-following error message:
-
-    ERROR: modpost: "panic_on_kmsan" [mm/kmsan/kmsan_test.ko] undefined!
-
-Export panic_on_kmsan in order to improve the KMSAN usability for
-modules.
+This is normally done by the generic entry code, but the
+kernel_stack_overflow() flow bypasses it.
 
 Reviewed-by: Alexander Potapenko <glider@google.com>
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- mm/kmsan/report.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/kernel/traps.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/mm/kmsan/report.c b/mm/kmsan/report.c
-index 02736ec757f2..c79d3b0d2d0d 100644
---- a/mm/kmsan/report.c
-+++ b/mm/kmsan/report.c
-@@ -20,6 +20,7 @@ static DEFINE_RAW_SPINLOCK(kmsan_report_lock);
- /* Protected by kmsan_report_lock */
- static char report_local_descr[DESCR_SIZE];
- int panic_on_kmsan __read_mostly;
-+EXPORT_SYMBOL_GPL(panic_on_kmsan);
+diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
+index 1d2aa448d103..f299b1203a20 100644
+--- a/arch/s390/kernel/traps.c
++++ b/arch/s390/kernel/traps.c
+@@ -27,6 +27,7 @@
+ #include <linux/uaccess.h>
+ #include <linux/cpu.h>
+ #include <linux/entry-common.h>
++#include <linux/kmsan.h>
+ #include <asm/asm-extable.h>
+ #include <asm/fpu/api.h>
+ #include <asm/vtime.h>
+@@ -260,6 +261,11 @@ static void monitor_event_exception(struct pt_regs *regs)
  
- #ifdef MODULE_PARAM_PREFIX
- #undef MODULE_PARAM_PREFIX
+ void kernel_stack_overflow(struct pt_regs *regs)
+ {
++	/*
++	 * Normally regs are unpoisoned by the generic entry code, but
++	 * kernel_stack_overflow() is a rare case that is called bypassing it.
++	 */
++	kmsan_unpoison_entry_regs(regs);
+ 	bust_spinlocks(1);
+ 	printk("Kernel stack overflow.\n");
+ 	show_regs(regs);
 -- 
 2.43.0
 
