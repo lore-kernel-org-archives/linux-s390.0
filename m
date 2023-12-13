@@ -1,51 +1,50 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Py1mP98b"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sgnQGgAp"
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA02E11A;
-	Wed, 13 Dec 2023 15:36:59 -0800 (PST)
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDKbIKV023765;
-	Wed, 13 Dec 2023 23:36:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=rlCQsZ3FaFOShLden0tv6ATBRD4EWRplBBAXRzxDZSY=;
- b=Py1mP98bNE+rkK4FeO0lOzFOxIoYCYnBNv9tyFj2n8PkchrQeCbBrIK4XSZghTrbb4zD
- cHXIEZzcm/THTRDgGYj1etk5EIn57OE0V2C9jm9bmePIXJctS/Q211Zb9APT8S7fAGJu
- Tu+6iarnxt1Xf/POlag9jTyDQpUcs8JMpbL7uWmHpzR9NGvJUQeLkmkOnaO3odVSD7jK
- sTFRu7uS63MnYa4JOMbxUpRoJS3EnXxs7sozLocGF3Ng5JId3VvOlO9i0KoO5QevHRaU
- fa/vXJWV6hteSWrOd1LZcWXaCinjunicxrYxatDVShm+UUzRzPmcj9lELfx8cVM8gRIO 6g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uyktbv0wj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 23:36:44 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BDN1IcT028789;
-	Wed, 13 Dec 2023 23:36:43 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uyktbv0w9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 23:36:43 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDKnidh008455;
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D0C412F;
+	Wed, 13 Dec 2023 15:37:02 -0800 (PST)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDMlp9u024703;
 	Wed, 13 Dec 2023 23:36:42 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uw2jtmvm9-1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : content-transfer-encoding
+ : mime-version; s=pp1; bh=MKNXtq5ajkWvcQiOoGs4LcPUtQ+3TCO4ZqWbvkFUWVs=;
+ b=sgnQGgApwtpuxroTLwvxXQZCGez45er18f69eK67E6zjzOgsH5Fag99SunGpcf/5lwEi
+ UZM19s6GsKdADKM9JtOLgo3JStz97isn7/2MJclSec3mxdJIOydW2AqcfcGWgfLOHzpp
+ /2rAq5oLUQt/1NepZJdXkhEm1+eT9QZEsKYqRB3L92iPuFjJUm/0pvMw4EwlVVEwq2Gn
+ R3yNVusaek+/RLSvNIiy6z/EdZUBm0z7ypJ1ifoxd6FJKYEm6EyHRVjaLdgRb3prF7+w
+ fjDaYkn7cOxrY3T2Vt4i3As+hydwiM7KOyM6j9cHNOVNLNNs4JzQSEK9K5zOAx1Vwv+2 3g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uybw52s1h-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 23:36:42 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BDNadSt45220118
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 13 Dec 2023 23:36:41 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BDNQLK4030990;
+	Wed, 13 Dec 2023 23:36:40 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uybw52s19-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Dec 2023 23:36:40 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDNQTB3013878;
 	Wed, 13 Dec 2023 23:36:39 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uw592c4gf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Dec 2023 23:36:39 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BDNaaJH11797080
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 13 Dec 2023 23:36:36 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8151520040;
-	Wed, 13 Dec 2023 23:36:39 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 5FA3720040;
+	Wed, 13 Dec 2023 23:36:36 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 111A120043;
-	Wed, 13 Dec 2023 23:36:38 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id EF0802004E;
+	Wed, 13 Dec 2023 23:36:34 +0000 (GMT)
 Received: from heavy.boeblingen.de.ibm.com (unknown [9.171.70.156])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 13 Dec 2023 23:36:37 +0000 (GMT)
+	Wed, 13 Dec 2023 23:36:34 +0000 (GMT)
 From: Ilya Leoshkevich <iii@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Alexander Potapenko <glider@google.com>,
@@ -66,116 +65,116 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v3 19/34] s390: Turn off KMSAN for boot, vdso and purgatory
-Date: Thu, 14 Dec 2023 00:24:39 +0100
-Message-ID: <20231213233605.661251-20-iii@linux.ibm.com>
+Subject: [PATCH v3 17/34] lib/zlib: Unpoison DFLTCC output buffers
+Date: Thu, 14 Dec 2023 00:24:37 +0100
+Message-ID: <20231213233605.661251-18-iii@linux.ibm.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20231213233605.661251-1-iii@linux.ibm.com>
 References: <20231213233605.661251-1-iii@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Um-xt4YHootM37dHUG8hwEcF0DUJln-L
+X-Proofpoint-ORIG-GUID: -b8YHe7U_CbwRAQmSuApxveyqawrdKVk
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: PLExDOrLrxMWM3bk6s7GZrTHSzR8vYyL
-X-Proofpoint-ORIG-GUID: Fk9-MI15mlYrzZBW50f87CcP6jmktpZ6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-12-13_14,2023-12-13_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 impostorscore=0 clxscore=1015 adultscore=0 phishscore=0
- mlxscore=0 bulkscore=0 suspectscore=0 spamscore=0 mlxlogscore=736
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2312130167
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
+ phishscore=0 spamscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0
+ impostorscore=0 priorityscore=1501 mlxscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2312130167
 
-All other sanitizers are disabled for these components as well.
-While at it, add a comment to boot and purgatory.
+The constraints of the DFLTCC inline assembly are not precise: they
+do not communicate the size of the output buffers to the compiler, so
+it cannot automatically instrument it.
 
-Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Reviewed-by: Alexander Potapenko <glider@google.com>
+Add the manual kmsan_unpoison_memory() calls for the output buffers.
+The logic is the same as in [1].
+
+[1] https://github.com/zlib-ng/zlib-ng/commit/1f5ddcc009ac3511e99fc88736a9e1a6381168c5
+
+Reported-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 ---
- arch/s390/boot/Makefile          | 2 ++
- arch/s390/kernel/vdso32/Makefile | 3 ++-
- arch/s390/kernel/vdso64/Makefile | 3 ++-
- arch/s390/purgatory/Makefile     | 2 ++
- 4 files changed, 8 insertions(+), 2 deletions(-)
+ lib/zlib_dfltcc/dfltcc.h      |  1 +
+ lib/zlib_dfltcc/dfltcc_util.h | 24 ++++++++++++++++++++++++
+ 2 files changed, 25 insertions(+)
 
-diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
-index c7c81e5f9218..fb10fcd21221 100644
---- a/arch/s390/boot/Makefile
-+++ b/arch/s390/boot/Makefile
-@@ -3,11 +3,13 @@
- # Makefile for the linux s390-specific parts of the memory manager.
- #
+diff --git a/lib/zlib_dfltcc/dfltcc.h b/lib/zlib_dfltcc/dfltcc.h
+index b96232bdd44d..0f2a16d7a48a 100644
+--- a/lib/zlib_dfltcc/dfltcc.h
++++ b/lib/zlib_dfltcc/dfltcc.h
+@@ -80,6 +80,7 @@ struct dfltcc_param_v0 {
+     uint8_t csb[1152];
+ };
  
-+# Tooling runtimes are unavailable and cannot be linked for early boot code
- KCOV_INSTRUMENT := n
- GCOV_PROFILE := n
- UBSAN_SANITIZE := n
- KASAN_SANITIZE := n
- KCSAN_SANITIZE := n
-+KMSAN_SANITIZE := n
++static_assert(offsetof(struct dfltcc_param_v0, csb) == 384);
+ static_assert(sizeof(struct dfltcc_param_v0) == 1536);
  
- KBUILD_AFLAGS := $(KBUILD_AFLAGS_DECOMPRESSOR)
- KBUILD_CFLAGS := $(KBUILD_CFLAGS_DECOMPRESSOR)
-diff --git a/arch/s390/kernel/vdso32/Makefile b/arch/s390/kernel/vdso32/Makefile
-index caec7db6f966..7cbec6b0b11f 100644
---- a/arch/s390/kernel/vdso32/Makefile
-+++ b/arch/s390/kernel/vdso32/Makefile
-@@ -32,11 +32,12 @@ obj-y += vdso32_wrapper.o
- targets += vdso32.lds
- CPPFLAGS_vdso32.lds += -P -C -U$(ARCH)
+ #define CVT_CRC32 0
+diff --git a/lib/zlib_dfltcc/dfltcc_util.h b/lib/zlib_dfltcc/dfltcc_util.h
+index 4a46b5009f0d..e481c6ea09b5 100644
+--- a/lib/zlib_dfltcc/dfltcc_util.h
++++ b/lib/zlib_dfltcc/dfltcc_util.h
+@@ -2,6 +2,8 @@
+ #ifndef DFLTCC_UTIL_H
+ #define DFLTCC_UTIL_H
  
--# Disable gcov profiling, ubsan and kasan for VDSO code
-+# Disable gcov profiling, ubsan, kasan and kmsan for VDSO code
- GCOV_PROFILE := n
- UBSAN_SANITIZE := n
- KASAN_SANITIZE := n
- KCSAN_SANITIZE := n
-+KMSAN_SANITIZE := n
++#include "dfltcc.h"
++#include <linux/kmsan-checks.h>
+ #include <linux/zutil.h>
  
- # Force dependency (incbin is bad)
- $(obj)/vdso32_wrapper.o : $(obj)/vdso32.so
-diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
-index e3c9085f8fa7..6f3252712f64 100644
---- a/arch/s390/kernel/vdso64/Makefile
-+++ b/arch/s390/kernel/vdso64/Makefile
-@@ -36,11 +36,12 @@ obj-y += vdso64_wrapper.o
- targets += vdso64.lds
- CPPFLAGS_vdso64.lds += -P -C -U$(ARCH)
+ /*
+@@ -20,6 +22,7 @@ typedef enum {
+ #define DFLTCC_CMPR 2
+ #define DFLTCC_XPND 4
+ #define HBT_CIRCULAR (1 << 7)
++#define DFLTCC_FN_MASK ((1 << 7) - 1)
+ #define HB_BITS 15
+ #define HB_SIZE (1 << HB_BITS)
  
--# Disable gcov profiling, ubsan and kasan for VDSO code
-+# Disable gcov profiling, ubsan, kasan and kmsan for VDSO code
- GCOV_PROFILE := n
- UBSAN_SANITIZE := n
- KASAN_SANITIZE := n
- KCSAN_SANITIZE := n
-+KMSAN_SANITIZE := n
+@@ -34,6 +37,7 @@ static inline dfltcc_cc dfltcc(
+ )
+ {
+     Byte *t2 = op1 ? *op1 : NULL;
++    unsigned char *orig_t2 = t2;
+     size_t t3 = len1 ? *len1 : 0;
+     const Byte *t4 = op2 ? *op2 : NULL;
+     size_t t5 = len2 ? *len2 : 0;
+@@ -59,6 +63,26 @@ static inline dfltcc_cc dfltcc(
+                      : "cc", "memory");
+     t2 = r2; t3 = r3; t4 = r4; t5 = r5;
  
- # Force dependency (incbin is bad)
- $(obj)/vdso64_wrapper.o : $(obj)/vdso64.so
-diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
-index 4e930f566878..4e421914e50f 100644
---- a/arch/s390/purgatory/Makefile
-+++ b/arch/s390/purgatory/Makefile
-@@ -15,11 +15,13 @@ CFLAGS_sha256.o := -D__DISABLE_EXPORTS -D__NO_FORTIFY
- $(obj)/mem.o: $(srctree)/arch/s390/lib/mem.S FORCE
- 	$(call if_changed_rule,as_o_S)
- 
-+# Tooling runtimes are unavailable and cannot be linked for purgatory code
- KCOV_INSTRUMENT := n
- GCOV_PROFILE := n
- UBSAN_SANITIZE := n
- KASAN_SANITIZE := n
- KCSAN_SANITIZE := n
-+KMSAN_SANITIZE := n
- 
- KBUILD_CFLAGS := -fno-strict-aliasing -Wall -Wstrict-prototypes
- KBUILD_CFLAGS += -Wno-pointer-sign -Wno-sign-compare
++    switch (fn & DFLTCC_FN_MASK) {
++    case DFLTCC_QAF:
++        kmsan_unpoison_memory(param, sizeof(struct dfltcc_qaf_param));
++        break;
++    case DFLTCC_GDHT:
++        kmsan_unpoison_memory(param, offsetof(struct dfltcc_param_v0, csb));
++        break;
++    case DFLTCC_CMPR:
++        kmsan_unpoison_memory(param, sizeof(struct dfltcc_param_v0));
++        kmsan_unpoison_memory(
++                orig_t2,
++                t2 - orig_t2 +
++                    (((struct dfltcc_param_v0 *)param)->sbb == 0 ? 0 : 1));
++        break;
++    case DFLTCC_XPND:
++        kmsan_unpoison_memory(param, sizeof(struct dfltcc_param_v0));
++        kmsan_unpoison_memory(orig_t2, t2 - orig_t2);
++        break;
++    }
++
+     if (op1)
+         *op1 = t2;
+     if (len1)
 -- 
 2.43.0
 
