@@ -1,53 +1,53 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UmN/vA+M"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FVJB3kLw"
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94F34116;
-	Wed, 13 Dec 2023 08:14:07 -0800 (PST)
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDFNDZf027077;
-	Wed, 13 Dec 2023 16:13:57 GMT
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06D49CF;
+	Wed, 13 Dec 2023 08:18:16 -0800 (PST)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDF985q020589;
+	Wed, 13 Dec 2023 16:18:10 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  subject : to : cc : references : from : in-reply-to : content-type :
  content-transfer-encoding : mime-version; s=pp1;
- bh=NQjuEkFf7a8W/rWN1ejAa3l7PgiYJl/ycpBcrDEw/hM=;
- b=UmN/vA+M1Fz2JktBdSmF3h2qYe+4xyEUeJtnMG4EkvUplKxVgcQsuj8tOkNwYEGJOF1O
- IGBXpZxR8/E7p3KRteLCZ5MLMPd2nG0kt+/pqRRaxt8fGvDg62hlcpAHCmnXaSEgFdaU
- JJKueaqxovf1sVKSXi3dxhwzY+CedyI28Q+Zl0eBN61E8MfeOX1JlkLESKDToUorj2g1
- TIAZ7fWq7mO4X4noqkFmDDxBXSagvkH0HP/jD93+OUd4lW3xqA77vN5CSSQT4DK/uJAp
- mAHylKp2E2wkw5Pg+JBLC2ns9Y9xC9BPFqBg3pKCar4m6pLEIBSnED4zMPLWuItsFlc4 mQ== 
+ bh=nMpqpToUbMmOflSDpK5xEseDBmZu9/9GMS4KnazN6rs=;
+ b=FVJB3kLwE5DdqqyuYdxuqeuU1cHR2+WcAKSjz3y79g6ra29IZYxc1uW9PZEA6lOLwJVT
+ f6I2krPvAnLrJIucxj8oyXh+g7mCcp922l1K3E6dOQxlscHRvs2TSNR/SVkjWBK32rcg
+ vdH0zWhE8/2VAAoWMPRLNAngzYdgsDWynvFxro8jw3yvJRPyqgQTb/gBfyPHvGfxushj
+ xP6WzLKTGPLc0whGjOYKPRmwGi/2y4X7pn+5qqn1eBcMhXrlrSscplkM2wbj3BDlTHgw
+ IECD21rAUVDUGQIjWM5TF0M6O2mMlq4imTnqjZmZPPW4MuA+Kib60PKK5KT56Zb1CSPa ww== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uyf729msr-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uycuq5y18-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 16:13:56 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BDFOPKQ029752;
-	Wed, 13 Dec 2023 16:13:56 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uyf729mrh-1
+	Wed, 13 Dec 2023 16:18:10 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BDGG2QM022733;
+	Wed, 13 Dec 2023 16:18:09 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uycuq5y0n-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 16:13:56 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BDG0Dw2004139;
-	Wed, 13 Dec 2023 16:13:55 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uw4skhn2q-1
+	Wed, 13 Dec 2023 16:18:09 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BD7EGIa014833;
+	Wed, 13 Dec 2023 16:18:08 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uw42kf534-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 13 Dec 2023 16:13:55 +0000
+	Wed, 13 Dec 2023 16:18:08 +0000
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BDGDqfq14156408
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BDGI5HL46334612
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 13 Dec 2023 16:13:52 GMT
+	Wed, 13 Dec 2023 16:18:05 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5CFF220043;
-	Wed, 13 Dec 2023 16:13:52 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8927E20043;
+	Wed, 13 Dec 2023 16:18:05 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B2BE920040;
-	Wed, 13 Dec 2023 16:13:50 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 1702E20040;
+	Wed, 13 Dec 2023 16:18:04 +0000 (GMT)
 Received: from [9.179.18.31] (unknown [9.179.18.31])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 13 Dec 2023 16:13:50 +0000 (GMT)
-Message-ID: <8d118a94-945f-466f-9d34-e0b8a6d8a9e7@linux.ibm.com>
-Date: Wed, 13 Dec 2023 17:13:49 +0100
+	Wed, 13 Dec 2023 16:18:04 +0000 (GMT)
+Message-ID: <0851ca19-ef4d-4fef-a182-6b9e0b6b483b@linux.ibm.com>
+Date: Wed, 13 Dec 2023 17:18:03 +0100
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH net-next v6 00/10] net/smc: implement SMCv2.1 virtual ISM
  device support
@@ -58,15 +58,15 @@ To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com,
 Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
         tonylu@linux.alibaba.com, raspl@linux.ibm.com, schnelle@linux.ibm.com,
         guangguan.wang@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, lzinux-kernel@vger.kernel.org
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 References: <1702371151-125258-1-git-send-email-guwen@linux.alibaba.com>
 From: Jan Karcher <jaka@linux.ibm.com>
 Organization: IBM - Network Linux on Z
 In-Reply-To: <1702371151-125258-1-git-send-email-guwen@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: sfgcn5VdaNpRykmdy9c6ml3Q82cr4Dn8
-X-Proofpoint-GUID: _KM_dhMcIQMKhVZajh5D5uS_n7bAlfV5
+X-Proofpoint-ORIG-GUID: svdNPIDk_S9t0FJY5S1FgEnpwQiFSXCH
+X-Proofpoint-GUID: -L85_3GBpl2bPU3eTul0kKzYE0isnf3Q
 Content-Transfer-Encoding: 7bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
@@ -78,11 +78,11 @@ MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-12-13_09,2023-12-13_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- priorityscore=1501 phishscore=0 adultscore=0 mlxscore=0 malwarescore=0
- mlxlogscore=999 lowpriorityscore=0 impostorscore=0 spamscore=0
- clxscore=1011 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2312130115
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
+ malwarescore=0 clxscore=1011 adultscore=0 mlxlogscore=999 bulkscore=0
+ impostorscore=0 suspectscore=0 phishscore=0 priorityscore=1501 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2312130115
 
 
 
@@ -103,12 +103,10 @@ On 12/12/2023 09:52, Wen Gu wrote:
 > 
 > [1] https://lore.kernel.org/netdev/1695568613-125057-1-git-send-email-guwen@linux.alibaba.com/
 
-FYI I'm currently reviewing this version of the series.
-Hope to give you feedback by the end of tomorrow.
-
-Thanks for your effort
-- Jan
-
+Also there was a typo in the
+linux-kernel@vger.kernel.org
+Fixed it on this Mail.
+Sorry for the noise.
 
 > 
 > v6->v5:
