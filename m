@@ -1,143 +1,268 @@
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAF92697B9;
+	Thu, 14 Dec 2023 20:03:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="bL4awJd2"
-Received: from mail-io1-xd35.google.com (mail-io1-xd35.google.com [IPv6:2607:f8b0:4864:20::d35])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1991D116
-	for <linux-s390@vger.kernel.org>; Thu, 14 Dec 2023 11:07:01 -0800 (PST)
-Received: by mail-io1-xd35.google.com with SMTP id ca18e2360f4ac-7b709f8ba01so74421839f.1
-        for <linux-s390@vger.kernel.org>; Thu, 14 Dec 2023 11:07:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1702580820; x=1703185620; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=qqOs0PUF8MGjM25NmW96fbAjdjE87kFFPmbKKuRqHvQ=;
-        b=bL4awJd2dj3qHosM8eBvoUaKpIe1R+kn55itYPM3IVqAvSHqJw9d+91EGPeS7RKeYU
-         vnx4DZHxVDHCcdHZPVLk0qcpmPAVpr3HMed/irDPnw3qZxQi9/NJXpDjJziweXtuh9Qu
-         qtb9fTusD/I0ygf18zlLDFKT62D6vnx1cuk+RAfudjbnjNrskRZzfq/IznpAOvI4ZVJd
-         1Ygx6KHrmApvRgvJ/bSriDn8uQgLjfMFCVafQNsuzInCI2e2GtYNRhhq2UcoJMGtsuRl
-         l+yCW/FxdjKwCN28crOix8XijxZpGk4dlgjofVDxXRP7w4SEKD546srkx3WCeB7UJ2hD
-         xriA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702580820; x=1703185620;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=qqOs0PUF8MGjM25NmW96fbAjdjE87kFFPmbKKuRqHvQ=;
-        b=Z6TEung7v2GEXMEdc2r2HfEkxbaeKzbptcql8vsq7cdpuoiYZVVZhMx8a8FhhV4n51
-         c4M56w1bcuthiMqRKMeIbIWXfMq77HJSIJT1bPMNjQoBJCrQOYS3yNOYzPDnlMA02x9Z
-         Ohftjk6GJDVdvrplTgmLUfIc9Cx3BAb8TmsD76ILO2WVv18BkwuslRtKDtkrRk1Iy+JE
-         eQJCNUTfTsb2Sy8aYVcrZKT2zD/zTUkvXy4I4mhUYkbQDOfTdAO0EmZQqh+r2Bc8warx
-         L/2+0RymfFzJQlnakpd7g31aJXhe6Lo+9dCjdRhidzgavT2NNsLOECCz5NRqFBYCnauk
-         JLwA==
-X-Gm-Message-State: AOJu0YwD17wM8Nmbjqq/TbK2urPLHXv1Qxm/LFHNap2f9Q/fdZI/dhmu
-	dglhbcdS4Za5YcJT4P3C0MALuQ==
-X-Google-Smtp-Source: AGHT+IE3qnRY0GPW/oTuXUJK/CBtuYMJpexJ/Mxt7AcR4ZY9+DxMzO/BMx+55mB/jlMVfnrfp5mTbA==
-X-Received: by 2002:a05:6e02:1c05:b0:35f:847c:1e5c with SMTP id l5-20020a056e021c0500b0035f847c1e5cmr1655231ilh.0.1702580820321;
-        Thu, 14 Dec 2023 11:07:00 -0800 (PST)
-Received: from [192.168.1.116] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id e6-20020a028606000000b00469010b6cc7sm3588131jai.114.2023.12.14.11.06.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 14 Dec 2023 11:06:59 -0800 (PST)
-Message-ID: <500557ed-3967-455e-8a79-d64711045b70@kernel.dk>
-Date: Thu, 14 Dec 2023 12:06:57 -0700
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CxDxm+FC"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BEIqAnu014262;
+	Thu, 14 Dec 2023 20:03:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=x8XoeypXWZ9sNEFHxUhrm0suPboCMN4kuoiSzfdehZs=;
+ b=CxDxm+FCfIoqcouqCoYS75SpQk/xrcx9EAzIVeEEbgwOH5zQny9cX9GLP1lWs3nnYl3m
+ y9f6tdf2sHCGIHF5DNT352mx50yf6H8y/yU2jb9dKO7hFOVgUQMGB4vsjLDqn/vmztiM
+ c6q8IolZEbMUiXe7Vo14x55djWogdtC+YdrdezD97E5/gHSBRPHsg0NMO5Nq2N4Mnktd
+ 4o1CQGDwfgQyABnwa+ulH8cEsN/sry6EoCitJQOYYD78ZuqHFHLAk5jx0znTxurHkwKB
+ hiST3QY06ZW6cLa3Bhf0sKrRWEpAjngefXvF8sGNsZlzomh7tZ/cRkgmURrF75cBfKp9 Ow== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v07c39sde-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 14 Dec 2023 20:02:59 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BEJKSdC015537;
+	Thu, 14 Dec 2023 20:02:59 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v07c39sch-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 14 Dec 2023 20:02:59 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BEJX3B0014819;
+	Thu, 14 Dec 2023 20:02:58 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uw42khyfu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 14 Dec 2023 20:02:58 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BEK2tsj10420826
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 14 Dec 2023 20:02:55 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E8B372004B;
+	Thu, 14 Dec 2023 20:02:54 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B2D3720043;
+	Thu, 14 Dec 2023 20:02:54 +0000 (GMT)
+Received: from li-978a334c-2cba-11b2-a85c-a0743a31b510.ibm.com (unknown [9.152.224.238])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 14 Dec 2023 20:02:54 +0000 (GMT)
+Message-ID: <b61da0ed88a86d0823ac26d72f9914a7c392b415.camel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH 3/5] s390x: Add library functions for
+ exiting from snippet
+From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: Nico =?ISO-8859-1?Q?B=F6hr?= <nrb@linux.ibm.com>,
+        Thomas Huth
+ <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Andrew Jones
+ <andrew.jones@linux.dev>,
+        David Hildenbrand <david@redhat.com>
+Date: Thu, 14 Dec 2023 21:02:53 +0100
+In-Reply-To: <20231213174222.542e11c6@p-imbrenda>
+References: <20231213124942.604109-1-nsg@linux.ibm.com>
+	 <20231213124942.604109-4-nsg@linux.ibm.com>
+	 <20231213174222.542e11c6@p-imbrenda>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RERESEND 00/11] splice(file<>pipe) I/O on file as-if
- O_NONBLOCK
-Content-Language: en-US
-To: =?UTF-8?Q?Ahelenia_Ziemia=C5=84ska?= <nabijaczleweli@nabijaczleweli.xyz>
-Cc: Christian Brauner <brauner@kernel.org>,
- Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org,
- "D. Wythe" <alibuda@linux.alibaba.com>, "David S. Miller"
- <davem@davemloft.net>, "Liam R. Howlett" <Liam.Howlett@oracle.com>,
- Alexander Mikhalitsyn <alexander@mihalicyn.com>,
- Andrew Morton <akpm@linux-foundation.org>, Boris Pismenny
- <borisp@nvidia.com>, Cong Wang <cong.wang@bytedance.com>,
- David Ahern <dsahern@kernel.org>, David Howells <dhowells@redhat.com>,
- Eric Dumazet <edumazet@google.com>, Gavrilov Ilia
- <Ilia.Gavrilov@infotecs.ru>, Hyeonggon Yoo <42.hyeyoo@gmail.com>,
- Jakub Kicinski <kuba@kernel.org>, Jan Karcher <jaka@linux.ibm.com>,
- John Fastabend <john.fastabend@gmail.com>,
- Karsten Graul <kgraul@linux.ibm.com>, Kirill Tkhai <tkhai@ya.ru>,
- Kuniyuki Iwashima <kuniyu@amazon.com>, Li kunyu <kunyu@nfschina.com>,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- Masami Hiramatsu <mhiramat@kernel.org>, Miklos Szeredi <miklos@szeredi.hu>,
- Paolo Abeni <pabeni@redhat.com>, Pengcheng Yang <yangpc@wangsu.com>,
- Shigeru Yoshida <syoshida@redhat.com>, Steven Rostedt <rostedt@goodmis.org>,
- Suren Baghdasaryan <surenb@google.com>, Tony Lu <tonylu@linux.alibaba.com>,
- Wen Gu <guwen@linux.alibaba.com>, Wenjia Zhang <wenjia@linux.ibm.com>,
- Xu Panda <xu.panda@zte.com.cn>, Zhang Zhengming <zhang.zhengming@h3c.com>
-References: <2cover.1697486714.git.nabijaczleweli@nabijaczleweli.xyz>
-From: Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <2cover.1697486714.git.nabijaczleweli@nabijaczleweli.xyz>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: BEgDQ_ICxsHzdmvnWFzV6Tu-p3pG7yDz
+X-Proofpoint-GUID: nrXwyXTR7dzykkA7dZ9jVI4yy-H1u5Nh
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-14_13,2023-12-14_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 lowpriorityscore=0 suspectscore=0 mlxlogscore=999 mlxscore=0
+ spamscore=0 impostorscore=0 phishscore=0 malwarescore=0 adultscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2312140143
 
-On 12/14/23 11:44 AM, Ahelenia Ziemia?ska wrote:
-> First:  https://lore.kernel.org/lkml/cover.1697486714.git.nabijaczleweli@nabijaczleweli.xyz/t/#u
-> Resend: https://lore.kernel.org/lkml/1cover.1697486714.git.nabijaczleweli@nabijaczleweli.xyz/t/#u
-> Resending again per https://lore.kernel.org/lkml/20231214093859.01f6e2cd@kernel.org/t/#u
-> 
-> Hi!
-> 
-> As it stands, splice(file -> pipe):
-> 1. locks the pipe,
-> 2. does a read from the file,
-> 3. unlocks the pipe.
-> 
-> For reading from regular files and blcokdevs this makes no difference.
-> But if the file is a tty or a socket, for example, this means that until
-> data appears, which it may never do, every process trying to read from
-> or open the pipe enters an uninterruptible sleep,
-> and will only exit it if the splicing process is killed.
-> 
-> This trivially denies service to:
-> * any hypothetical pipe-based log collexion system
-> * all nullmailer installations
-> * me, personally, when I'm pasting stuff into qemu -serial chardev:pipe
-> 
-> This follows:
-> 1. https://lore.kernel.org/linux-fsdevel/qk6hjuam54khlaikf2ssom6custxf5is2ekkaequf4hvode3ls@zgf7j5j4ubvw/t/#u
-> 2. a security@ thread rooted in
->    <irrrblivicfc7o3lfq7yjm2lrxq35iyya4gyozlohw24gdzyg7@azmluufpdfvu>
-> 3. https://nabijaczleweli.xyz/content/blogn_t/011-linux-splice-exclusion.html
-> 
-> Patches were posted and then discarded on principle or funxionality,
-> all in all terminating in Linus posting
->> But it is possible that we need to just bite the bullet and say
->> "copy_splice_read() needs to use a non-blocking kiocb for the IO".
-> 
-> This does that, effectively making splice(file -> pipe)
-> request (and require) O_NONBLOCK on reads fron the file:
-> this doesn't affect splicing from regular files and blockdevs,
-> since they're always non-blocking
-> (and requesting the stronger "no kernel sleep" IOCB_NOWAIT is non-sensical),
+On Wed, 2023-12-13 at 17:42 +0100, Claudio Imbrenda wrote:
+> On Wed, 13 Dec 2023 13:49:40 +0100
+> Nina Schoetterl-Glausch <nsg@linux.ibm.com> wrote:
+>=20
+> > It is useful to be able to force an exit to the host from the snippet,
+> > as well as do so while returning a value.
+> > Add this functionality, also add helper functions for the host to check
+> > for an exit and get or check the value.
+> > Use diag 0x44 and 0x9c for this.
+> > Add a guest specific snippet header file and rename the host's.
+>=20
+> you should also mention here that you are splitting snippet.h into a
+> host-only part and a guest-only part
 
-Not sure how you got the idea that regular files or block devices is
-always non-blocking, this is certainly not true without IOCB_NOWAIT.
-Without IOCB_NOWAIT, you can certainly be waiting for previous IO to
-complete.
+Well, I'm not splitting anything. Is it not clear that "the host's"
+refers to snippet.h?
 
-> but always returns -EINVAL for ttys.
-> Sockets behave as expected from O_NONBLOCK reads:
-> splice if there's data available else -EAGAIN.
-> 
-> This should all pretty much behave as-expected.
+How about:
+Add a guest specific snippet header file and rename snippet.h to reflect
+that it is host specific.
+>=20
+> >=20
+> > Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+> > ---
+> >  s390x/Makefile                          |  1 +
+> >  lib/s390x/asm/arch_def.h                | 13 ++++++++
+> >  lib/s390x/sie.h                         |  1 +
+> >  lib/s390x/snippet-guest.h               | 26 ++++++++++++++++
+> >  lib/s390x/{snippet.h =3D> snippet-host.h} |  9 ++++--
+> >  lib/s390x/sie.c                         | 28 +++++++++++++++++
+> >  lib/s390x/snippet-host.c                | 40 +++++++++++++++++++++++++
+> >  lib/s390x/uv.c                          |  2 +-
+> >  s390x/mvpg-sie.c                        |  2 +-
+> >  s390x/pv-diags.c                        |  2 +-
+> >  s390x/pv-icptcode.c                     |  2 +-
+> >  s390x/pv-ipl.c                          |  2 +-
+> >  s390x/sie-dat.c                         |  2 +-
+> >  s390x/spec_ex-sie.c                     |  2 +-
+> >  s390x/uv-host.c                         |  2 +-
+> >  15 files changed, 123 insertions(+), 11 deletions(-)
+> >  create mode 100644 lib/s390x/snippet-guest.h
+> >  rename lib/s390x/{snippet.h =3D> snippet-host.h} (93%)
+> >  create mode 100644 lib/s390x/snippet-host.c
+>=20
+> [...]
+>=20
+> > diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
+> > index 40936bd2..908b0130 100644
+> > --- a/lib/s390x/sie.c
+> > +++ b/lib/s390x/sie.c
+> > @@ -42,6 +42,34 @@ void sie_check_validity(struct vm *vm, uint16_t vir_=
+exp)
+> >  	report(vir_exp =3D=3D vir, "VALIDITY: %x", vir);
+> >  }
+> > =20
+> > +bool sie_is_diag_icpt(struct vm *vm, unsigned int diag)
+> > +{
+> > +	uint32_t ipb =3D vm->sblk->ipb;
+> > +	uint64_t code;
+>=20
+> uint64_t code =3D 0;
+>=20
+> > +	uint16_t displace;
+> > +	uint8_t base;
+> > +	bool ret =3D true;
+>=20
+> bool ret;
+>=20
+> > +
+> > +	ret =3D ret && vm->sblk->icptcode =3D=3D ICPT_INST;
+> > +	ret =3D ret && (vm->sblk->ipa & 0xff00) =3D=3D 0x8300;
+>=20
+> ret =3D vm->sblk->icptcode =3D=3D ICPT_INST && (vm->sblk->ipa & 0xff00) =
+=3D=3D
+> 0x8300;
 
-Should it? Seems like there's a very high risk of breaking existing use
-cases here.
+(*) see below
+>=20
+> > +	switch (diag) {
+> > +	case 0x44:
+> > +	case 0x9c:
+> > +		ret =3D ret && !(ipb & 0xffff);
+> > +		ipb >>=3D 16;
+> > +		displace =3D ipb & 0xfff;
+>=20
+> maybe it's more readable to avoid shifting thigs around all the time:
 
-Have you at all looked into the approach of enabling splice to/from
-_without_ holding the pipe lock? That, to me, would seem like a much
-saner approach, with the caveat that I have not looked into that at all
-so there may indeed be reasons why this is not feasible.
+I don't know, now I gotta be able to do rudimentary arithmetic :D
+I don't really have a preference.
+I wonder if defining a bit field would be worth it.
+>=20
+> displace =3D (ipb >> 16) & 0xfff;
+> base =3D (ipb >> 28) & 0xf;
+> if (base)
+> 	code =3D vm->....[base];
+> code =3D (code + displace) & 0xffff;
+> if (ipb & 0xffff || code !=3D diag)
+> 	return false;
+>=20
+> > +		ipb >>=3D 12;
+> > +		base =3D ipb & 0xf;
+> > +		code =3D base ? vm->save_area.guest.grs[base] + displace : displace;
+> > +		code &=3D 0xffff;
+> > +		ret =3D ret && (code =3D=3D diag);
+> > +		break;
+> > +	default:
+> > +		abort(); /* not implemented */
+> > +	}
+> > +	return ret;
+>=20
+> although I have the feeling that this would be more readable if you
+> would check diag immediately, and avoid using ret
 
--- 
-Jens Axboe
+Not sure what you mean, do you want an early return at (*)?
+>=20
+> > +}
+> > +
+> >  void sie_handle_validity(struct vm *vm)
+> >  {
+> >  	if (vm->sblk->icptcode !=3D ICPT_VALIDITY)
+> > diff --git a/lib/s390x/snippet-host.c b/lib/s390x/snippet-host.c
+> > new file mode 100644
+> > index 00000000..a829c1d5
+> > --- /dev/null
+> > +++ b/lib/s390x/snippet-host.c
+> > @@ -0,0 +1,40 @@
+> > +/* SPDX-License-Identifier: GPL-2.0-only */
+> > +/*
+> > + * Snippet functionality for the host.
+> > + *
+> > + * Copyright IBM Corp. 2023
+> > + */
+> > +
+> > +#include <libcflat.h>
+> > +#include <snippet-host.h>
+> > +#include <sie.h>
+> > +
+> > +bool snippet_check_force_exit(struct vm *vm)
+> > +{
+> > +	bool r;
+> > +
+> > +	r =3D sie_is_diag_icpt(vm, 0x44);
+> > +	report(r, "guest forced exit");
+> > +	return r;
+> > +}
+> > +
+> > +bool snippet_get_force_exit_value(struct vm *vm, uint64_t *value)
+> > +{
+> > +	struct kvm_s390_sie_block *sblk =3D vm->sblk;
+> > +
+> > +	if (sie_is_diag_icpt(vm, 0x9c)) {
+> > +		*value =3D vm->save_area.guest.grs[(sblk->ipa & 0xf0) >> 4];
+> > +		report_pass("guest forced exit with value: 0x%lx", *value);
+> > +		return true;
+> > +	}
+> > +	report_fail("guest forced exit with value");
+> > +	return false;
+> > +}
+> > +
+> > +void snippet_check_force_exit_value(struct vm *vm, uint64_t value_exp)
+> > +{
+> > +	uint64_t value;
+> > +
+> > +	if (snippet_get_force_exit_value(vm, &value))
+> > +		report(value =3D=3D value_exp, "guest exit value matches 0x%lx", val=
+ue_exp);
+> > +}
+>=20
+> from a readability and a consistency perspective, it would be better if
+> the functions would only check stuff and return a bool or a value, and
+> do the report() in the body of the testcase
+
+Hmm, I chose to do the report in order to be consistent with check_pgm_int_=
+code.
+>=20
+>=20
+> [...]
 
