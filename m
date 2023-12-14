@@ -1,178 +1,56 @@
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 778643C494;
+	Thu, 14 Dec 2023 10:50:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="s21e8J/F"
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6D4A106;
-	Thu, 14 Dec 2023 02:18:49 -0800 (PST)
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BEA8i5l029803;
-	Thu, 14 Dec 2023 10:18:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=7sbqsZI/dIh7/sQIt7TDuIeiF4sOnSbRyAmeSQz0zu0=;
- b=s21e8J/FoK7QGJ+5lb9TPT6gNh/B9HeNspwnolY4mt0qkVZzUBzKmrtLPhFTOSB4nrCk
- wILfVEPVB/u+k7GQsU04wkIbwRx2+Y93xM6TsPoT73e+4rojLM5bkYmSZgsnUEg3a8G8
- Si0rkxfNIU7XwDzq1U+C36Y2WTbLPmjwVIdsds3SDyRrOpvzi+W4gxBCLt4gB2I65lNN
- rFVEiq9SUi/hHHcEkJYCZgdv1kCCgeoOUNbOBimoNcxLVvhzoCFsRcxd2fdx2JToWpHI
- h/K+GH0LKpytSo4+0IDIOYqiO4O9d20IcmLB2IdSvpj+pk7/LVVgJUCmSepALzOT7F3E VQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uyxbvj91x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 14 Dec 2023 10:18:46 +0000
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BE9CvqM020754;
-	Thu, 14 Dec 2023 10:18:46 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uyxbvj91j-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 14 Dec 2023 10:18:46 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BE9T3Ld028201;
-	Thu, 14 Dec 2023 10:18:45 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uw2xyyupd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 14 Dec 2023 10:18:45 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BEAIfgm65863960
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 14 Dec 2023 10:18:41 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A569820070;
-	Thu, 14 Dec 2023 10:18:41 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7EB582006E;
-	Thu, 14 Dec 2023 10:18:41 +0000 (GMT)
-Received: from li-978a334c-2cba-11b2-a85c-a0743a31b510.ibm.com (unknown [9.152.224.238])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 14 Dec 2023 10:18:41 +0000 (GMT)
-Message-ID: <05d13c9ffc4876602044311d737e3074dd81894a.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH 5/5] s390x: Add test for STFLE
- interpretive execution (format-0)
-From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: Nico =?ISO-8859-1?Q?B=F6hr?= <nrb@linux.ibm.com>,
-        Janosch Frank
-	 <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, linux-s390@vger.kernel.org,
-        Andrew Jones <andrew.jones@linux.dev>, kvm@vger.kernel.org,
-        Thomas Huth <thuth@redhat.com>
-Date: Thu, 14 Dec 2023 11:18:41 +0100
-In-Reply-To: <2096291747c433d02cac794a9c85118b85199370.camel@linux.ibm.com>
-References: <20231213124942.604109-1-nsg@linux.ibm.com>
-	 <20231213124942.604109-6-nsg@linux.ibm.com>
-	 <20231213180033.54516bdd@p-imbrenda>
-	 <2096291747c433d02cac794a9c85118b85199370.camel@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cjW7wdE0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13C00C433C8;
+	Thu, 14 Dec 2023 10:50:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1702551052;
+	bh=B3Uzhdrf3xm+8hmipnGveC7xOj8Hsd8r5ig/mSxdums=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=cjW7wdE0wJKpOB85/uTrRUZDMYAzvL5sJeBifjJFoP9i7NGE5Oi7a+4FO7v2ai+l4
+	 nVbRAw9ZKZd5dfjc2HHHRBrOLhKc+W2RUxZ4nkoftoeW/uaTBN4SDGKYEV1zvjHXBL
+	 vdM9RbsYQqhNyz+LHodwpS4E7AsD7curbtBCxaF6IrSytdaPiViHD+B+tuyNslANj6
+	 TMEXUovKVZxIZF0dnS+NXydDH/xos7XtdhqYb+NOMcJcVui3XOw9SHU7I0wbxG1AQx
+	 Nom7GRyNXKt/X6L98kcxe2/PAfWM98PoFAJW4gkP3+9ecSqwycW81aSFJb0dYjmvS5
+	 3/1ugywDFRH4Q==
+Date: Thu, 14 Dec 2023 11:50:45 +0100
+From: Christian Brauner <brauner@kernel.org>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: Tony Lu <tonylu@linux.alibaba.com>,
+	Ahelenia Ziemia'nska <nabijaczleweli@nabijaczleweli.xyz>,
+	Karsten Graul <kgraul@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Jan Karcher <jaka@linux.ibm.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH RESEND 06/11] net/smc: smc_splice_read: always request
+ MSG_DONTWAIT
+Message-ID: <20231214-glimmen-abspielen-12b68e7cb3a7@brauner>
+References: <cover.1697486714.git.nabijaczleweli@nabijaczleweli.xyz>
+ <145da5ab094bcc7d3331385e8813074922c2a13c6.1697486714.git.nabijaczleweli@nabijaczleweli.xyz>
+ <ZXkNf9vvtzR7oqoE@TONYMAC-ALIBABA.local>
+ <20231213162854.4acfbd9f@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rfPjk788Q4mJJvFJxBx86wL4WJ2hffLM
-X-Proofpoint-ORIG-GUID: wonD1QMixsCob4D44TNf64cQUuJBwMBU
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-14_06,2023-12-13_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
- mlxscore=0 mlxlogscore=999 priorityscore=1501 adultscore=0 phishscore=0
- clxscore=1015 malwarescore=0 suspectscore=0 lowpriorityscore=0 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2312140067
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20231213162854.4acfbd9f@kernel.org>
 
-On Wed, 2023-12-13 at 18:31 +0100, Nina Schoetterl-Glausch wrote:
-> On Wed, 2023-12-13 at 18:00 +0100, Claudio Imbrenda wrote:
-> > On Wed, 13 Dec 2023 13:49:42 +0100
-> > Nina Schoetterl-Glausch <nsg@linux.ibm.com> wrote:
-> >=20
-> > > The STFLE instruction indicates installed facilities.
-> > > SIE can interpretively execute STFLE.
-> > > Use a snippet guest executing STFLE to get the result of
-> > > interpretive execution and check the result.
-> > >=20
-> > > Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> >=20
-> > [...]
-> >=20
-> > >  static inline void setup_facilities(void)
-> > > diff --git a/s390x/snippets/c/stfle.c b/s390x/snippets/c/stfle.c
-> > > new file mode 100644
-> > > index 00000000..eb024a6a
-> > > --- /dev/null
-> > > +++ b/s390x/snippets/c/stfle.c
-> > > @@ -0,0 +1,26 @@
-> > > +/* SPDX-License-Identifier: GPL-2.0-only */
-> > > +/*
-> > > + * Copyright IBM Corp. 2023
-> > > + *
-> > > + * Snippet used by the STLFE interpretive execution facilities test.
-> > > + */
-> > > +#include <libcflat.h>
-> > > +#include <snippet-guest.h>
-> > > +
-> > > +int main(void)
-> > > +{
-> > > +	const unsigned int max_fac_len =3D 8;
-> >=20
-> > why 8?
->=20
-> 8 is a somewhat arbitrary, large number :)
-> I suppose I could choose an even larger one, maybe even PAGE_SIZE/8.
-> That would guarantee that max_fac_len >=3D stfle_size() (8 is enough for =
-that today)
-> It's not necessary for max_fac_len >=3D stfle_size(), but probably good f=
-or
-> test coverage.
-> >=20
-> > > +	uint64_t res[max_fac_len + 1];
-> > > +
-> > > +	res[0] =3D max_fac_len - 1;
-> > > +	asm volatile ( "lg	0,%[len]\n"
-> > > +		"	stfle	%[fac]\n"
-> > > +		"	stg	0,%[len]\n"
-> > > +		: [fac] "=3DQS"(*(uint64_t(*)[max_fac_len])&res[1]),
-> > > +		  [len] "+RT"(res[0])
-> > > +		:
-> > > +		: "%r0", "cc"
-> > > +	);
-> > > +	force_exit_value((uint64_t)&res);
-> > > +	return 0;
-> > > +}
-> > > diff --git a/s390x/stfle-sie.c b/s390x/stfle-sie.c
-> > > new file mode 100644
-> > > index 00000000..574319ed
-> > > --- /dev/null
-> > > +++ b/s390x/stfle-sie.c
-> > > @@ -0,0 +1,132 @@
+> Let's figure that out before we get another repost.
 
-[...]
-
-> > > +	vm.sblk->fac =3D (uint32_t)(uint64_t)fac;
-> > > +	res =3D run_guest();
-> > > +	report(res.len =3D=3D stfle_size(), "stfle len correct");
-
-You're right, disregard everything below.
->=20
-> ^ should be
->=20
-> +	report(res.len =3D=3D min(stfle_size(), 8), "stfle len correct");
->=20
-> For the case that the guest buffer was shorter.
->=20
-> > > +	report(!memcmp(*fac, res.mem, res.len * sizeof(uint64_t)),
-> > > +	       "Guest facility list as specified");
-> >=20
-> > it seems like you are comparing the full facility list (stfle_size
-> > doublewords long) with the result of STFLE in the guest, but the guest
-> > is limited to 8 double words?
->=20
-> Their prefixes must be the same. res.len is the guest length, so max 8 ri=
-ght now.
-> >=20
-> > > +	report_prefix_pop();
-> > > +}
-
+I'm just waiting for Jens to review it as he had comments on this
+before.
