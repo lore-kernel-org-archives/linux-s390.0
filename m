@@ -1,59 +1,59 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEC0C36AE0;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEC4436AE3;
 	Fri, 15 Dec 2023 15:28:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TEC5M20K"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="atKKrzHf"
 Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BFEVdbm028160;
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BFEVhd9028305;
 	Fri, 15 Dec 2023 15:28:16 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=KDRM1YIH/JHR08EauKRUfvNfcs6qbcrMuJjYaVdOxrI=;
- b=TEC5M20Kfdvxl0Xw8p6OLRUvJzqWcvWOeyRjqG/W5CHGdW2HwmoxDiXfMyojr69/j2p6
- pPOxWVuu2LLCvczioEKhbxVIkraJ0T1IfsMritXfwLRm6NdgEB7PxMSZLDZNL272IH3N
- Mj42q1dmyvuKG0PRiprNRrxMcIib1idl5rPguMsjRHRjN2tkZXmRt4SlISgB4n4C2KKS
- GMgrNtj6UTzNF+tzJ3N+5vyQf+vwKpCxkzgokkMKQG38jlwiA3X7WlBQ8GUHqPlZPZUK
- XXhi0VQdFotT3+1ARfWZBj2uSJZpY1uVGXE6H9ecemvG3UyBRG+1+ksHVdlJ8Kgu1xFC Uw== 
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v0pymm637-1
+ bh=HG9gg23yhBilE2sXuIaL4SgGDriy2ZpP2zl4tLDC+hs=;
+ b=atKKrzHfghf0STSSvdtQmWbtnW8lLJnp58diaKeI0s75NLCocgXU5/Xjsuu6Y7kfyM59
+ 3rlGHbceDlhhf+67SvyjgZUz0b0xRus1S/EYiVaU2lZcGqn2nGkg/1rQXpFqwmtAozf+
+ YItDVUaUDjaJdtaQDsghic4yfnvGQ6PX0IV2od3gogDg3Rn61cvezFU1AM4oKeG5SfL3
+ bzO6SHvFm2yUz85xeHiK7pLGyLlPrJILfOgumCWDD5VoEogHCfaJ6sl7kjSzLAscc454
+ i7iyrRyr+XLBf9zlHORtD9KbpcOEryNxr27gmEBqeRMCskdE9HXZtBU002/6Q03idaNi 4g== 
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v0pymm63c-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Fri, 15 Dec 2023 15:28:15 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BFD5aQo013869;
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BF6jJO4014824;
 	Fri, 15 Dec 2023 15:28:15 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uw592rcfh-1
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3uw42kkges-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 15 Dec 2023 15:28:14 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BFFSAkl11272758
+	Fri, 15 Dec 2023 15:28:15 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BFFS9J627656778
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Fri, 15 Dec 2023 15:28:10 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 05B7220040;
-	Fri, 15 Dec 2023 15:28:10 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E77512004B;
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E272620049;
+	Fri, 15 Dec 2023 15:28:09 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D125620040;
 	Fri, 15 Dec 2023 15:28:09 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
 	Fri, 15 Dec 2023 15:28:09 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 20191)
-	id 9147DE05DE; Fri, 15 Dec 2023 16:28:09 +0100 (CET)
+	id 939FDE11F7; Fri, 15 Dec 2023 16:28:09 +0100 (CET)
 From: Stefan Haberland <sth@linux.ibm.com>
 To: Jens Axboe <axboe@kernel.dk>
 Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
         linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 01/10] s390/dasd: Simplify uid string generation
-Date: Fri, 15 Dec 2023 16:28:01 +0100
-Message-Id: <20231215152809.882602-2-sth@linux.ibm.com>
+Subject: [PATCH 02/10] s390/dasd: Use sysfs_emit() over sprintf()
+Date: Fri, 15 Dec 2023 16:28:02 +0100
+Message-Id: <20231215152809.882602-3-sth@linux.ibm.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20231215152809.882602-1-sth@linux.ibm.com>
 References: <20231215152809.882602-1-sth@linux.ibm.com>
@@ -66,8 +66,8 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: HKd9eQ1QQYaSXLi3KzsEvHebewQIchl9
-X-Proofpoint-GUID: HKd9eQ1QQYaSXLi3KzsEvHebewQIchl9
+X-Proofpoint-ORIG-GUID: aCysuI4A0PL2V2A4nxHm0fTfnH0YHeI0
+X-Proofpoint-GUID: aCysuI4A0PL2V2A4nxHm0fTfnH0YHeI0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-12-15_09,2023-12-14_01,2023-05-22_02
@@ -79,76 +79,92 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorit
 
 From: Jan Höppner <hoeppner@linux.ibm.com>
 
-There are two variants of the device uid string. One containing the
-virtual device unit information table (vduit) identifying the device as
-a virtual device located on a real device in a z/VM environment. The
-other variant does not contain those additional information.
-
-Simplify the string generation with a shorter check of an existing vduit
-embedded in the snprintf() calls.
+sysfs_emit() should be used in show() functions. There are still a
+couple of functions that use sprintf().
+Replace outstanding occurrences of sprintf() in all show() functions
+with sysfs_emit().
 
 Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
 Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
 Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 ---
- drivers/s390/block/dasd_devmap.c | 12 +++---------
- drivers/s390/block/dasd_eckd.c   | 16 ++++------------
- 2 files changed, 7 insertions(+), 21 deletions(-)
+ drivers/s390/block/dasd_devmap.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_devmap.c
-index c4e36650c426..6297dfe6bc67 100644
+index 6297dfe6bc67..8a01afb5e3ce 100644
 --- a/drivers/s390/block/dasd_devmap.c
 +++ b/drivers/s390/block/dasd_devmap.c
-@@ -1412,15 +1412,9 @@ dasd_uid_show(struct device *dev, struct device_attribute *attr, char *buf)
- 			break;
- 		}
+@@ -1114,7 +1114,7 @@ dasd_use_diag_show(struct device *dev, struct device_attribute *attr, char *buf)
+ 		use_diag = (devmap->features & DASD_FEATURE_USEDIAG) != 0;
+ 	else
+ 		use_diag = (DASD_FEATURE_DEFAULT & DASD_FEATURE_USEDIAG) != 0;
+-	return sprintf(buf, use_diag ? "1\n" : "0\n");
++	return sysfs_emit(buf, use_diag ? "1\n" : "0\n");
+ }
  
--		if (strlen(uid.vduit) > 0)
--			snprintf(uid_string, sizeof(uid_string),
--				 "%s.%s.%04x.%s.%s",
--				 uid.vendor, uid.serial, uid.ssid, ua_string,
--				 uid.vduit);
--		else
--			snprintf(uid_string, sizeof(uid_string),
--				 "%s.%s.%04x.%s",
--				 uid.vendor, uid.serial, uid.ssid, ua_string);
-+		snprintf(uid_string, sizeof(uid_string), "%s.%s.%04x.%s%s%s",
-+			 uid.vendor, uid.serial, uid.ssid, ua_string,
-+			 uid.vduit[0] ? "." : "", uid.vduit);
+ static ssize_t
+@@ -1163,7 +1163,7 @@ dasd_use_raw_show(struct device *dev, struct device_attribute *attr, char *buf)
+ 		use_raw = (devmap->features & DASD_FEATURE_USERAW) != 0;
+ 	else
+ 		use_raw = (DASD_FEATURE_DEFAULT & DASD_FEATURE_USERAW) != 0;
+-	return sprintf(buf, use_raw ? "1\n" : "0\n");
++	return sysfs_emit(buf, use_raw ? "1\n" : "0\n");
+ }
+ 
+ static ssize_t
+@@ -1259,7 +1259,7 @@ dasd_access_show(struct device *dev, struct device_attribute *attr,
+ 	if (count < 0)
+ 		return count;
+ 
+-	return sprintf(buf, "%d\n", count);
++	return sysfs_emit(buf, "%d\n", count);
+ }
+ 
+ static DEVICE_ATTR(host_access_count, 0444, dasd_access_show, NULL);
+@@ -1338,19 +1338,19 @@ static ssize_t dasd_alias_show(struct device *dev,
+ 
+ 	device = dasd_device_from_cdev(to_ccwdev(dev));
+ 	if (IS_ERR(device))
+-		return sprintf(buf, "0\n");
++		return sysfs_emit(buf, "0\n");
+ 
+ 	if (device->discipline && device->discipline->get_uid &&
+ 	    !device->discipline->get_uid(device, &uid)) {
+ 		if (uid.type == UA_BASE_PAV_ALIAS ||
+ 		    uid.type == UA_HYPER_PAV_ALIAS) {
+ 			dasd_put_device(device);
+-			return sprintf(buf, "1\n");
++			return sysfs_emit(buf, "1\n");
+ 		}
  	}
  	dasd_put_device(device);
  
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index bd89b032968a..229f23a30c5b 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -1072,22 +1072,14 @@ static void dasd_eckd_read_fc_security(struct dasd_device *device)
- 	}
+-	return sprintf(buf, "0\n");
++	return sysfs_emit(buf, "0\n");
  }
  
--static void dasd_eckd_get_uid_string(struct dasd_conf *conf,
--				     char *print_uid)
-+static void dasd_eckd_get_uid_string(struct dasd_conf *conf, char *print_uid)
- {
- 	struct dasd_uid uid;
+ static DEVICE_ATTR(alias, 0444, dasd_alias_show, NULL);
+@@ -1856,7 +1856,7 @@ static ssize_t dasd_pm_show(struct device *dev,
  
- 	create_uid(conf, &uid);
--	if (strlen(uid.vduit) > 0)
--		snprintf(print_uid, DASD_UID_STRLEN,
--			 "%s.%s.%04x.%02x.%s",
--			 uid.vendor, uid.serial, uid.ssid,
--			 uid.real_unit_addr, uid.vduit);
--	else
--		snprintf(print_uid, DASD_UID_STRLEN,
--			 "%s.%s.%04x.%02x",
--			 uid.vendor, uid.serial, uid.ssid,
--			 uid.real_unit_addr);
-+	snprintf(print_uid, DASD_UID_STRLEN, "%s.%s.%04x.%02x%s%s",
-+		 uid.vendor, uid.serial, uid.ssid, uid.real_unit_addr,
-+		 uid.vduit[0] ? "." : "", uid.vduit);
+ 	device = dasd_device_from_cdev(to_ccwdev(dev));
+ 	if (IS_ERR(device))
+-		return sprintf(buf, "0\n");
++		return sysfs_emit(buf, "0\n");
+ 
+ 	opm = dasd_path_get_opm(device);
+ 	nppm = dasd_path_get_nppm(device);
+@@ -1866,8 +1866,8 @@ static ssize_t dasd_pm_show(struct device *dev,
+ 	ifccpm = dasd_path_get_ifccpm(device);
+ 	dasd_put_device(device);
+ 
+-	return sprintf(buf, "%02x %02x %02x %02x %02x %02x\n", opm, nppm,
+-		       cablepm, cuirpm, hpfpm, ifccpm);
++	return sysfs_emit(buf, "%02x %02x %02x %02x %02x %02x\n", opm, nppm,
++			  cablepm, cuirpm, hpfpm, ifccpm);
  }
  
- static int dasd_eckd_check_cabling(struct dasd_device *device,
+ static DEVICE_ATTR(path_masks, 0444, dasd_pm_show, NULL);
 -- 
 2.40.1
 
