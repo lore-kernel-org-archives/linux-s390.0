@@ -1,71 +1,41 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44F801CAAA;
-	Tue, 19 Dec 2023 14:09:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sxG0rnW+"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BJDbmOP029449;
-	Tue, 19 Dec 2023 14:09:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=/rA6KuIMbnwvBHiCJMnnQuvyFEbGKrgyMU8eNVuA9L0=;
- b=sxG0rnW+QnXULIO+Kjf6rW4s8AKfpOYkbX2mzuewgpcnQVIapBdW9jD4VvgurSJBquVn
- MhAp5lDmsD+1UO9sS9fqRcKAqxPYLbS6Pe98Wtozh5gU/ACnD1018xPvlYbwuhwhwi1X
- 2bTSH+aDLGA0gCWx0TlXhwS5nVWlrvjz3+jU/3ptRs6WVJekXxs0+9m3AEgxyZ1D/PgF
- BUWJn4hmbiDkD7XTCuRAX7NDEGoDvOUsgotEJ8w6QihlrOzxkfuTk9QKGMpphAScu/ta
- Z6grHxOxviob6few5PobE+oZPGUJy8EtHYCemjWeYHEWOnrf+jbYpd5+Cp2QBTptzKcx fg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v3c7f8w0t-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 19 Dec 2023 14:09:01 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BJDeUVK005251;
-	Tue, 19 Dec 2023 14:09:01 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v3c7f8vyt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 19 Dec 2023 14:09:00 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BJD0rUF010870;
-	Tue, 19 Dec 2023 14:08:59 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3v1q7ng38r-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 19 Dec 2023 14:08:59 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BJE8uAC59113968
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 19 Dec 2023 14:08:56 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 72E7920043;
-	Tue, 19 Dec 2023 14:08:56 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2D11D20040;
-	Tue, 19 Dec 2023 14:08:56 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 19 Dec 2023 14:08:56 +0000 (GMT)
-From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Cc: Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        Sven Schnelle <svens@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH v4 3/4] KVM: s390: cpu model: Use proper define for facility mask size
-Date: Tue, 19 Dec 2023 15:08:52 +0100
-Message-Id: <20231219140854.1042599-4-nsg@linux.ibm.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20231219140854.1042599-1-nsg@linux.ibm.com>
-References: <20231219140854.1042599-1-nsg@linux.ibm.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C4411B27B;
+	Tue, 19 Dec 2023 14:26:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R741e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=22;SR=0;TI=SMTPD_---0Vyr6180_1702995977;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Vyr6180_1702995977)
+          by smtp.aliyun-inc.com;
+          Tue, 19 Dec 2023 22:26:22 +0800
+From: Wen Gu <guwen@linux.alibaba.com>
+To: wintera@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	kgraul@linux.ibm.com,
+	jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	raspl@linux.ibm.com,
+	schnelle@linux.ibm.com,
+	guangguan.wang@linux.alibaba.com,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net-next v8 00/10] net/smc: implement SMCv2.1 virtual ISM device support
+Date: Tue, 19 Dec 2023 22:26:06 +0800
+Message-ID: <20231219142616.80697-1-guwen@linux.alibaba.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -73,43 +43,123 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: pj1t9v2j0cm7xRv_-YL57kTK-tKjIplb
-X-Proofpoint-GUID: 6FAPzjWxODlrbnslCcSS83fk0WnXyWTW
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-19_08,2023-12-14_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- adultscore=0 mlxscore=0 malwarescore=0 mlxlogscore=866 priorityscore=1501
- lowpriorityscore=0 phishscore=0 impostorscore=0 spamscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2312190105
 
-Use the previously unused S390_ARCH_FAC_MASK_SIZE_U64 instead of
-S390_ARCH_FAC_LIST_SIZE_U64 for defining the fac_mask array.
-Note that both values are the same, there is no functional change.
+The fourth edition of SMCv2 adds the SMC version 2.1 feature updates for
+SMC-Dv2 with virtual ISM. Virtual ISM are created and supported mainly by
+OS or hypervisor software, comparable to IBM ISM which is based on platform
+firmware or hardware.
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
----
- arch/s390/include/asm/kvm_host.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+With the introduction of virtual ISM, SMCv2.1 makes some updates:
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 67a298b6cf6e..52664105a473 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -818,7 +818,7 @@ struct s390_io_adapter {
- 
- struct kvm_s390_cpu_model {
- 	/* facility mask supported by kvm & hosting machine */
--	__u64 fac_mask[S390_ARCH_FAC_LIST_SIZE_U64];
-+	__u64 fac_mask[S390_ARCH_FAC_MASK_SIZE_U64];
- 	struct kvm_s390_vm_cpu_subfunc subfuncs;
- 	/* facility list requested by guest (in dma page) */
- 	__u64 *fac_list;
+- Introduce feature bitmask to indicate supplemental features.
+- Reserve a range of CHIDs for virtual ISM.
+- Support extended GIDs (128 bits) in CLC handshake.
+
+So this patch set aims to implement these updates in Linux kernel. And it
+acts as the first part of SMC-D virtual ISM extension & loopback-ism [1].
+
+[1] https://lore.kernel.org/netdev/1695568613-125057-1-git-send-email-guwen@linux.alibaba.com/
+
+v8->v7:
+- Patch #7: v7 mistakenly changed the type of gid_ext in
+  smc_clc_msg_accept_confirm to u64 instead of __be64 as previous versions
+  when fixing the rebase conflicts. So fix this mistake.
+
+v7->v6:
+Link: https://lore.kernel.org/netdev/20231219084536.8158-1-guwen@linux.alibaba.com/
+- Collect the Reviewed-by tag in v6;
+- Patch #3: redefine the struct smc_clc_msg_accept_confirm;
+- Patch #7: Because that the Patch #3 already adds '__packed' to
+  smc_clc_msg_accept_confirm, so Patch #7 doesn't need to do the same thing.
+  But this is a minor change, so I kept the 'Reviewed-by' tag.
+
+Other changes in previous versions but not yet acked:
+- Patch #1: Some minor changes in subject and fix the format issue
+  (length exceeds 80 columns) compared to v3.
+- Patch #5: removes useless ini->feature_mask assignment in __smc_connect()
+  and smc_listen_v2_check() compared to v4.
+- Patch #8: new added, compared to v3.
+
+v6->v5:
+Link: https://lore.kernel.org/netdev/1702371151-125258-1-git-send-email-guwen@linux.alibaba.com/
+- Add 'Reviewed-by' label given in the previous versions:
+  * Patch #4, #6, #9, #10 have nothing changed since v3;
+- Patch #2:
+  * fix the format issue (Alignment should match open parenthesis) compared to v5;
+  * remove useless clc->hdr.length assignment in smcr_clc_prep_confirm_accept()
+    compared to v5;
+- Patch #3: new added compared to v5.
+- Patch #7: some minor changes like aclc_v2->aclc or clc_v2->clc compared to v5
+  due to the introduction of Patch #3. Since there were no major changes, I kept
+  the 'Reviewed-by' label.
+
+Other changes in previous versions but not yet acked:
+- Patch #1: Some minor changes in subject and fix the format issue
+  (length exceeds 80 columns) compared to v3.
+- Patch #5: removes useless ini->feature_mask assignment in __smc_connect()
+  and smc_listen_v2_check() compared to v4.
+- Patch #8: new added, compared to v3.
+
+v5->v4:
+Link: https://lore.kernel.org/netdev/1702021259-41504-1-git-send-email-guwen@linux.alibaba.com/
+- Patch #6: improve the comment of SMCD_CLC_MAX_V2_GID_ENTRIES;
+- Patch #4: remove useless ini->feature_mask assignment;
+
+v4->v3:
+https://lore.kernel.org/netdev/1701920994-73705-1-git-send-email-guwen@linux.alibaba.com/
+- Patch #6: use SMCD_CLC_MAX_V2_GID_ENTRIES to indicate the max gid
+  entries in CLC proposal and using SMC_MAX_V2_ISM_DEVS to indicate the
+  max devices to propose;
+- Patch #6: use i and i+1 in smc_find_ism_v2_device_serv();
+- Patch #2: replace the large if-else block in smc_clc_send_confirm_accept()
+  with 2 subfunctions;
+- Fix missing byte order conversion of GID and token in CLC handshake,
+  which is in a separate patch sending to net:
+  https://lore.kernel.org/netdev/1701882157-87956-1-git-send-email-guwen@linux.alibaba.com/
+- Patch #7: add extended GID in SMC-D lgr netlink attribute;
+
+v3->v2:
+https://lore.kernel.org/netdev/1701343695-122657-1-git-send-email-guwen@linux.alibaba.com/
+- Rename smc_clc_fill_fce as smc_clc_fill_fce_v2x;
+- Remove ISM_IDENT_MASK from drivers/s390/net/ism.h;
+- Add explicitly assigning 'false' to ism_v2_capable in ism_dev_init();
+- Remove smc_ism_set_v2_capable() helper for now, and introduce it in
+  later loopback-ism implementation;
+
+v2->v1:
+- Fix sparse complaint;
+- Rebase to the latest net-next;
+
+Wen Gu (10):
+  net/smc: rename some 'fce' to 'fce_v2x' for clarity
+  net/smc: introduce sub-functions for smc_clc_send_confirm_accept()
+  net/smc: unify the structs of accept or confirm message for v1 and v2
+  net/smc: support SMCv2.x supplemental features negotiation
+  net/smc: introduce virtual ISM device support feature
+  net/smc: define a reserved CHID range for virtual ISM devices
+  net/smc: compatible with 128-bits extended GID of virtual ISM device
+  net/smc: support extended GID in SMC-D lgr netlink attribute
+  net/smc: disable SEID on non-s390 archs where virtual ISM may be used
+  net/smc: manage system EID in SMC stack instead of ISM driver
+
+ drivers/s390/net/ism.h        |   7 -
+ drivers/s390/net/ism_drv.c    |  57 ++----
+ include/linux/ism.h           |   1 -
+ include/net/smc.h             |  16 +-
+ include/uapi/linux/smc.h      |   2 +
+ include/uapi/linux/smc_diag.h |   2 +
+ net/smc/af_smc.c              | 118 ++++++++-----
+ net/smc/smc.h                 |  10 +-
+ net/smc/smc_clc.c             | 318 +++++++++++++++++++++-------------
+ net/smc/smc_clc.h             |  64 +++----
+ net/smc/smc_core.c            |  37 ++--
+ net/smc/smc_core.h            |  18 +-
+ net/smc/smc_diag.c            |   9 +-
+ net/smc/smc_ism.c             |  50 ++++--
+ net/smc/smc_ism.h             |  30 +++-
+ net/smc/smc_pnet.c            |   4 +-
+ 16 files changed, 448 insertions(+), 295 deletions(-)
+
 -- 
-2.40.1
+2.43.0
 
