@@ -1,69 +1,68 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47C731CA8E;
-	Tue, 19 Dec 2023 14:09:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B16901CAAE;
+	Tue, 19 Dec 2023 14:09:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="V+PJZxFB"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BJDhXx2025287;
-	Tue, 19 Dec 2023 14:09:00 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kKJeB3Ht"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BJCRSSp028082;
+	Tue, 19 Dec 2023 14:09:02 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=pJmENGeUiyvalQ6V1XUfovjGn96yhwRUFO3LLN+THKY=;
- b=V+PJZxFB2gyaTkLGIyu/a3waW+0Rd5Z93I/4HmL0JlpFvWgq6iS1c1OW6BbJqDYGYfyS
- w/dTLKFpr0D8qef36SRgOiA6Yb8ftz03pXA7PDVradLEVT32gDJhY+mEP1tkloemkcnK
- 3wkDhXlKwkf1a665x+LhCu+JL9FESF7TKKqGvdmVUu4BqVlelnIGlYAYUb1quTeMTThA
- CxdORFhkc0hk7DadxEgkIFoRh7HBCd8h2vTtCMaNlIMWZF6GTmbKvv6KoCtCWAx0UAYK
- /lzmoYIfF+tXtsPap9uNJVi4bsF4hXtVOtGa7ef1jDO6FZ/2Zl73M76yS+WuN8YfSXtC 8A== 
+ bh=6QFhjOxADw8oxhqs1NGsWposBeC0e3ZC1JVOPpN+qPY=;
+ b=kKJeB3Ht3GW7UJ+U+kAq+GhXuDAymWJDzpxf0ARjA1EbjfPRIB/a2qpgDLLzTZf6LBo5
+ e5gK/HHlmodsXWxxe8wKatOkkBZCZMMHf0dqEvAlG6PZSZSTN4/AmDyw2M2SJxZjxCOz
+ pYPEdCGEEe2nV7r3L8BTFx+B6XMxFZZUItMSjq1zlClZNySFVRXtw4DmsEOtcEFJFi+4
+ waOz/a+GDUgjPEIaPSbxe/Rk8XI79vcs+yI5T9y8vtXsMhj183KRucJRhCeybOQPyfzR
+ 772RZXVI6Xa7rjnv8FQSS6+gfqM6STvA4O1vkU8U0Xug1/vQdZeDtkI6re5HsC9SldF+ 8g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v39nedfpk-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v3b6r2kvg-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 19 Dec 2023 14:09:00 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BJDheiV026103;
-	Tue, 19 Dec 2023 14:08:59 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v39nedfp6-1
+	Tue, 19 Dec 2023 14:09:01 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BJDqGdj019960;
+	Tue, 19 Dec 2023 14:09:01 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v3b6r2kuv-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 19 Dec 2023 14:08:59 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BJCZ4uK029801;
+	Tue, 19 Dec 2023 14:09:01 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BJCtZYx004797;
 	Tue, 19 Dec 2023 14:08:59 GMT
 Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3v1p7sgbm4-1
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3v1pkyr9cx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 19 Dec 2023 14:08:58 +0000
+	Tue, 19 Dec 2023 14:08:59 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BJE8u6N59113964
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BJE8uim59113970
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Tue, 19 Dec 2023 14:08:56 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1A30B2004B;
+	by IMSVA (Postfix) with ESMTP id C14512004B;
 	Tue, 19 Dec 2023 14:08:56 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D234A20040;
-	Tue, 19 Dec 2023 14:08:55 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8600720040;
+	Tue, 19 Dec 2023 14:08:56 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 19 Dec 2023 14:08:55 +0000 (GMT)
+	Tue, 19 Dec 2023 14:08:56 +0000 (GMT)
 From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: [PATCH v4 2/4] KVM: s390: vsie: Fix length of facility list shadowed
-Date: Tue, 19 Dec 2023 15:08:51 +0100
-Message-Id: <20231219140854.1042599-3-nsg@linux.ibm.com>
+        Janosch Frank <frankja@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Nina Schoetterl-Glausch <nsg@linux.ibm.com>, linux-s390@vger.kernel.org,
+        David Hildenbrand <david@redhat.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: [PATCH v4 4/4] KVM: s390: Minor refactor of base/ext facility lists
+Date: Tue, 19 Dec 2023 15:08:53 +0100
+Message-Id: <20231219140854.1042599-5-nsg@linux.ibm.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20231219140854.1042599-1-nsg@linux.ibm.com>
 References: <20231219140854.1042599-1-nsg@linux.ibm.com>
@@ -75,131 +74,115 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: k3NxG5exGY-QHJBmmsaBFMMUyRLvoGI0
-X-Proofpoint-ORIG-GUID: PXF319mIOfLVzeQpQDNIWMejMcj9jRC5
+X-Proofpoint-GUID: Y94m9_wMZ9ZeChafezNsbSD1z0tpkSGM
+X-Proofpoint-ORIG-GUID: yiqJi11fctYRkMgNX-CyM_AVhav685l9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-12-19_08,2023-12-14_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- adultscore=0 spamscore=0 mlxlogscore=999 lowpriorityscore=0
- impostorscore=0 suspectscore=0 malwarescore=0 phishscore=0
- priorityscore=1501 bulkscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2311290000 definitions=main-2312190105
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
+ suspectscore=0 bulkscore=0 spamscore=0 clxscore=1015 malwarescore=0
+ adultscore=0 impostorscore=0 lowpriorityscore=0 priorityscore=1501
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2312190105
 
-The length of the facility list accessed when interpretively executing
-STFLE is the same as the hosts facility list (in case of format-0)
-The memory following the facility list doesn't need to be accessible.
-The current VSIE implementation accesses a fixed length that exceeds the
-guest/host facility list length and can therefore wrongly inject a
-validity intercept.
-Instead, find out the host facility list length by running STFLE and
-copy only as much as necessary when shadowing.
+Directly use the size of the arrays instead of going through the
+indirection of kvm_s390_fac_size().
+Don't use magic number for the number of entries in the non hypervisor
+managed facility bit mask list.
+Make the constraint of that number on kvm_s390_fac_base obvious.
+Get rid of implicit double anding of stfle_fac_list.
 
-Acked-by: David Hildenbrand <david@redhat.com>
 Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 ---
- arch/s390/include/asm/facility.h |  6 ++++++
- arch/s390/kernel/Makefile        |  2 +-
- arch/s390/kernel/facility.c      | 21 +++++++++++++++++++++
- arch/s390/kvm/vsie.c             | 12 +++++++++++-
- 4 files changed, 39 insertions(+), 2 deletions(-)
- create mode 100644 arch/s390/kernel/facility.c
 
-diff --git a/arch/s390/include/asm/facility.h b/arch/s390/include/asm/facility.h
-index 94b6919026df..796007125dff 100644
---- a/arch/s390/include/asm/facility.h
-+++ b/arch/s390/include/asm/facility.h
-@@ -111,4 +111,10 @@ static inline void stfle(u64 *stfle_fac_list, int size)
- 	preempt_enable();
- }
+Notes:
+    I think it's nicer this way but it might be needless churn.
+
+ arch/s390/kvm/kvm-s390.c | 44 +++++++++++++++++-----------------------
+ 1 file changed, 19 insertions(+), 25 deletions(-)
+
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 7aa0e668488f..ac8d551f8b32 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -224,33 +224,25 @@ static int async_destroy = 1;
+ module_param(async_destroy, int, 0444);
+ MODULE_PARM_DESC(async_destroy, "Asynchronous destroy for protected guests");
  
-+/**
-+ * stfle_size - Actual size of the facility list as specified by stfle
-+ * (number of double words)
-+ */
-+unsigned int stfle_size(void);
+-/*
+- * For now we handle at most 16 double words as this is what the s390 base
+- * kernel handles and stores in the prefix page. If we ever need to go beyond
+- * this, this requires changes to code, but the external uapi can stay.
+- */
+-#define SIZE_INTERNAL 16
+-
++#define HMFAI_DWORDS 16
+ /*
+  * Base feature mask that defines default mask for facilities. Consists of the
+  * defines in FACILITIES_KVM and the non-hypervisor managed bits.
+  */
+-static unsigned long kvm_s390_fac_base[SIZE_INTERNAL] = { FACILITIES_KVM };
++static unsigned long kvm_s390_fac_base[HMFAI_DWORDS] = { FACILITIES_KVM };
++static_assert(ARRAY_SIZE(((long[]){ FACILITIES_KVM })) <= HMFAI_DWORDS);
++static_assert(ARRAY_SIZE(kvm_s390_fac_base) <= S390_ARCH_FAC_MASK_SIZE_U64);
++static_assert(ARRAY_SIZE(kvm_s390_fac_base) <= S390_ARCH_FAC_LIST_SIZE_U64);
++static_assert(ARRAY_SIZE(kvm_s390_fac_base) <= ARRAY_SIZE(stfle_fac_list));
 +
- #endif /* __ASM_FACILITY_H */
-diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
-index 353def93973b..7a562b4199c8 100644
---- a/arch/s390/kernel/Makefile
-+++ b/arch/s390/kernel/Makefile
-@@ -41,7 +41,7 @@ obj-y	+= sysinfo.o lgr.o os_info.o ctlreg.o
- obj-y	+= runtime_instr.o cache.o fpu.o dumpstack.o guarded_storage.o sthyi.o
- obj-y	+= entry.o reipl.o kdebugfs.o alternative.o
- obj-y	+= nospec-branch.o ipl_vmparm.o machine_kexec_reloc.o unwind_bc.o
--obj-y	+= smp.o text_amode31.o stacktrace.o abs_lowcore.o
-+obj-y	+= smp.o text_amode31.o stacktrace.o abs_lowcore.o facility.o
+ /*
+  * Extended feature mask. Consists of the defines in FACILITIES_KVM_CPUMODEL
+  * and defines the facilities that can be enabled via a cpu model.
+  */
+-static unsigned long kvm_s390_fac_ext[SIZE_INTERNAL] = { FACILITIES_KVM_CPUMODEL };
+-
+-static unsigned long kvm_s390_fac_size(void)
+-{
+-	BUILD_BUG_ON(SIZE_INTERNAL > S390_ARCH_FAC_MASK_SIZE_U64);
+-	BUILD_BUG_ON(SIZE_INTERNAL > S390_ARCH_FAC_LIST_SIZE_U64);
+-	BUILD_BUG_ON(SIZE_INTERNAL * sizeof(unsigned long) >
+-		sizeof(stfle_fac_list));
+-
+-	return SIZE_INTERNAL;
+-}
++static const unsigned long kvm_s390_fac_ext[] = { FACILITIES_KVM_CPUMODEL };
++static_assert(ARRAY_SIZE(kvm_s390_fac_ext) <= S390_ARCH_FAC_MASK_SIZE_U64);
++static_assert(ARRAY_SIZE(kvm_s390_fac_ext) <= S390_ARCH_FAC_LIST_SIZE_U64);
++static_assert(ARRAY_SIZE(kvm_s390_fac_ext) <= ARRAY_SIZE(stfle_fac_list));
  
- extra-y				+= vmlinux.lds
+ /* available cpu features supported by kvm */
+ static DECLARE_BITMAP(kvm_s390_available_cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
+@@ -3348,13 +3340,16 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ 	kvm->arch.sie_page2->kvm = kvm;
+ 	kvm->arch.model.fac_list = kvm->arch.sie_page2->fac_list;
  
-diff --git a/arch/s390/kernel/facility.c b/arch/s390/kernel/facility.c
-new file mode 100644
-index 000000000000..f02127219a27
---- /dev/null
-+++ b/arch/s390/kernel/facility.c
-@@ -0,0 +1,21 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright IBM Corp. 2023
-+ */
-+
-+#include <asm/facility.h>
-+
-+unsigned int stfle_size(void)
-+{
-+	static unsigned int size;
-+	unsigned int r;
-+	u64 dummy;
-+
-+	r = READ_ONCE(size);
-+	if (!r) {
-+		r = __stfle_asm(&dummy, 1) + 1;
-+		WRITE_ONCE(size, r);
-+	}
-+	return r;
-+}
-+EXPORT_SYMBOL(stfle_size);
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 35937911724e..fef42e2a80a2 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -19,6 +19,7 @@
- #include <asm/nmi.h>
- #include <asm/dis.h>
- #include <asm/fpu/api.h>
-+#include <asm/facility.h>
- #include "kvm-s390.h"
- #include "gaccess.h"
- 
-@@ -986,6 +987,10 @@ static int handle_stfle(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
- 	__u32 fac = READ_ONCE(vsie_page->scb_o->fac);
- 
-+	/*
-+	 * Alternate-STFLE-Interpretive-Execution facilities are not supported
-+	 * -> format-0 flcb
-+	 */
- 	if (fac && test_kvm_facility(vcpu->kvm, 7)) {
- 		retry_vsie_icpt(vsie_page);
- 		/*
-@@ -993,8 +998,13 @@ static int handle_stfle(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 		 * so we need to mask here before reading.
- 		 */
- 		fac = fac & 0x7ffffff8U;
-+		/*
-+		 * format-0 -> size of nested guest's facility list == guest's size
-+		 * guest's size == host's size, since STFLE is interpretatively executed
-+		 * using a format-0 for the guest, too.
-+		 */
- 		if (read_guest_real(vcpu, fac, &vsie_page->fac,
--				    sizeof(vsie_page->fac)))
-+				    stfle_size() * sizeof(u64)))
- 			return set_validity_icpt(scb_s, 0x1090U);
- 		scb_s->fac = (__u32)(__u64) &vsie_page->fac;
+-	for (i = 0; i < kvm_s390_fac_size(); i++) {
++	for (i = 0; i < ARRAY_SIZE(kvm_s390_fac_base); i++) {
+ 		kvm->arch.model.fac_mask[i] = stfle_fac_list[i] &
+-					      (kvm_s390_fac_base[i] |
+-					       kvm_s390_fac_ext[i]);
++					      kvm_s390_fac_base[i];
+ 		kvm->arch.model.fac_list[i] = stfle_fac_list[i] &
+ 					      kvm_s390_fac_base[i];
  	}
++	for (i = 0; i < ARRAY_SIZE(kvm_s390_fac_ext); i++) {
++		kvm->arch.model.fac_mask[i] |= stfle_fac_list[i] &
++					       kvm_s390_fac_ext[i];
++	}
+ 	kvm->arch.model.subfuncs = kvm_s390_available_subfunc;
+ 
+ 	/* we are always in czam mode - even on pre z14 machines */
+@@ -5868,9 +5863,8 @@ static int __init kvm_s390_init(void)
+ 		return -EINVAL;
+ 	}
+ 
+-	for (i = 0; i < 16; i++)
+-		kvm_s390_fac_base[i] |=
+-			stfle_fac_list[i] & nonhyp_mask(i);
++	for (i = 0; i < HMFAI_DWORDS; i++)
++		kvm_s390_fac_base[i] |= nonhyp_mask(i);
+ 
+ 	r = __kvm_s390_init();
+ 	if (r)
 -- 
 2.40.1
 
