@@ -1,56 +1,56 @@
-Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F11C210E9
-	for <linux-s390@vger.kernel.org>; Wed, 20 Dec 2023 11:05:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99E222135A
+	for <linux-s390@vger.kernel.org>; Wed, 20 Dec 2023 11:28:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ZLsOLMp6"
-Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-77f8308616eso461157085a.2
-        for <linux-s390@vger.kernel.org>; Wed, 20 Dec 2023 03:05:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="AiCGQbDj"
+Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-67ad5b37147so40051386d6.2
+        for <linux-s390@vger.kernel.org>; Wed, 20 Dec 2023 03:28:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1703070308; x=1703675108; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1703071714; x=1703676514; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=aRuOb3thPKxS5ftTwWuPZVBwpG9dfs4GXpoJ1hD7vC0=;
-        b=ZLsOLMp6hN5xMThNv+as6Ms91ht4Hg8idXzILP4u9tIFPo+5rHRXxllusclBYIXajE
-         Taub7AAXqVnoQI3f+fLXz1Gp0AxFveNNF0bNkr8eTL/zMqrVufk8w5ZNjCo+t1tZ8qv8
-         t8z5nthKMJW+gMkBUyv+fkxw3IDtvvaXbfvz6qO0TtjPZ/NLkiMZzcomXP3VmwV5CiRQ
-         UTKG35J2uNwTtYgyXGpycBAz1Ubbiix2cIl1KNmNuETV61LRgb3U//dbRzVATravzLY2
-         7cwjvRQh5zkoshl6AuNy4Yj/qGDO3V1Z+x9I8CvRuIbJouB2zBFCjxFaSRojVcxHE5UK
-         ufRw==
+        bh=hcGG20SZ9UCuGoY4ieTF40E4xDyL6a01++66TUtS6is=;
+        b=AiCGQbDjMKLPwp3JI32A2goxcjSZC6vo3Od7l0atkWxkYOB004BZYmRD6zyzipStoO
+         syCA/UtfNw4vxP1tLVbi1nP/fe4nk+S1XnVXImT7qo6masL48IP3TzQ61YvDSK2/odie
+         ra5EcTlNzMHwDmpLePUIcrstCVlzPxeVARrStffztx2Od14SjXslAdOQfPkXg3nhb4sH
+         cMsw6Kja8Hpmu1nJBin7iQDq+iUS8avTPTtdEWFQw10neM38QVwVKPixbS0gbmXYgA3+
+         j28Jrj6xtkd1jG/O5XISxAZTxF+obbVRA1dQQu7ADfAsVOCvhjwKd9CjRPCr1prnOZbl
+         SHBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703070308; x=1703675108;
+        d=1e100.net; s=20230601; t=1703071714; x=1703676514;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=aRuOb3thPKxS5ftTwWuPZVBwpG9dfs4GXpoJ1hD7vC0=;
-        b=cXZh+BW/PV14MWSMlllKjaccI09oEsu+I/2mIIfhCqIvNBrZLCSe3rUagX4VgyPpaW
-         vh0p9YDYZYfHKF1zsyWNz1lQTxN+A74vl1+q6tqHZJdTYbMYSt6HnROGJMk/Gax7Pmq2
-         IEBqcE6SsAD52ESLJEUnb4vDlg4DuEE9OV/7LTbIP+78sVv5ylt0R0R2430Lgkiwn7L1
-         8R740c//kQeM/is/ZvtatvC5mzztEbJxHl4qx7R4ZujeN2wS8uR/jrAMIuCl40fCLbMB
-         BATPFiZdMldvRCnvMGFiqm94V+Cva31bigwq22UKZvZTsEZS6wDf6zbuv1ceTTx2E/mL
-         GNCA==
-X-Gm-Message-State: AOJu0YzrJ3NABVs4TXkSBd4hVOIGg70AACHMGU8uzljWo2BmBkDSydnn
-	o9G8VDYW3RZKu5wTI0pe7A7fZp48yOBepC11m8kAqg==
-X-Google-Smtp-Source: AGHT+IGM1DvhNsHIpLRzl7TLlRhf+sSCR6McpSC15tKPCcbFJwj7U8mFeDmNKOAesBXFyLQOLaIWCh6aAZXNFJ7pswI=
-X-Received: by 2002:ad4:5dca:0:b0:67f:143d:b8ca with SMTP id
- m10-20020ad45dca000000b0067f143db8camr12635720qvh.44.1703070308403; Wed, 20
- Dec 2023 03:05:08 -0800 (PST)
+        bh=hcGG20SZ9UCuGoY4ieTF40E4xDyL6a01++66TUtS6is=;
+        b=l/kcoJpCy8akbzicsglDYprxHqLwwriemFxCMDcN8ByaWt8MeVvcOoA/STGFXuzkNP
+         rKIk/53/LL/Qr6p3BYNTGZX/8Kn5M+A4473nppwrObMZ9PWsc6Hh1Gjdv2Lraw4vXr/m
+         2LRTKtMxImwVESWyHodtSEGYbquOBGJJDvxFKsoqSepSaXrf431AZA0i3uXSv/+2Aur4
+         c/MHzSmc822D9J27S3NIAafXgWnP/wTIMHa4EeIgnz7tcpH0zsTWB7W36YsbvzpXra6K
+         rR+EB8yzM3WDyCMFj4sYnRlqqQD6e8CMCQLskahrGsCzATywIB/sAlQWH9XHOs6Xd5kE
+         h9qg==
+X-Gm-Message-State: AOJu0Yxq6I02I1ZN9iXrTHOPYLX5D+HO0uIiwoKNqdakY+lNw2P6j40B
+	tTx9z8VIxBWjEblaNOLIYphfRA+MZBq053WAvRzEOg==
+X-Google-Smtp-Source: AGHT+IFZWUI/3ZtmtxtNhXDaQSExCQzZlj9wAWUtGTpscIeUIj5afAcZSYxSN1IUBLYASdnV3PlG1ATqJd4ohbhERr4=
+X-Received: by 2002:a05:6214:d47:b0:67f:3d14:4b6e with SMTP id
+ 7-20020a0562140d4700b0067f3d144b6emr7374255qvr.130.1703071714268; Wed, 20 Dec
+ 2023 03:28:34 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231213233605.661251-1-iii@linux.ibm.com> <20231213233605.661251-25-iii@linux.ibm.com>
-In-Reply-To: <20231213233605.661251-25-iii@linux.ibm.com>
+References: <20231213233605.661251-1-iii@linux.ibm.com> <20231213233605.661251-34-iii@linux.ibm.com>
+In-Reply-To: <20231213233605.661251-34-iii@linux.ibm.com>
 From: Alexander Potapenko <glider@google.com>
-Date: Wed, 20 Dec 2023 12:04:28 +0100
-Message-ID: <CAG_fn=X_MejbvJRG7qYih+qrL6D0hrJW7czfAJbOdY5ES4JyiA@mail.gmail.com>
-Subject: Re: [PATCH v3 24/34] s390/cpumf: Unpoison STCCTM output buffer
+Date: Wed, 20 Dec 2023 12:27:53 +0100
+Message-ID: <CAG_fn=WP2ZPdptOoEnCen3BuYs3EgB1nNfmoxDnC9LZK9r4CrQ@mail.gmail.com>
+Subject: Re: [PATCH v3 33/34] s390: Implement the architecture-specific kmsan functions
 To: Ilya Leoshkevich <iii@linux.ibm.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
 	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
@@ -68,12 +68,10 @@ Content-Transfer-Encoding: quoted-printable
 On Thu, Dec 14, 2023 at 12:37=E2=80=AFAM Ilya Leoshkevich <iii@linux.ibm.co=
 m> wrote:
 >
-> stcctm() uses the "Q" constraint for dest, therefore KMSAN does not
-> understand that it fills multiple doublewords pointed to by dest, not
-> just one. This results in false positives.
+> arch_kmsan_get_meta_or_null() finds the lowcore shadow by querying the
+> prefix and calling kmsan_get_metadata() again.
 >
-> Unpoison the whole dest manually with kmsan_unpoison_memory().
+> kmsan_virt_addr_valid() delegates to virt_addr_valid().
 >
-> Reported-by: Alexander Gordeev <agordeev@linux.ibm.com>
 > Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 Reviewed-by: Alexander Potapenko <glider@google.com>
