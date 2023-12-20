@@ -1,110 +1,100 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DCED125AC;
-	Wed, 20 Dec 2023 07:35:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07606168CF;
+	Wed, 20 Dec 2023 07:41:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="raHb1KUo"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BK7WIF7031560;
-	Wed, 20 Dec 2023 07:35:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=oYPBkCBjlmpHSuNqoC0zp/hfOAioMcs5rJex2qOXC9I=;
- b=raHb1KUo2GfGgsirIBAhhTcUQ140tN2MyqUciakGCQiWV+QoEaJ9vmRA0RAogi3A7rpj
- f3i2omIs/Dcxuu2RSljc3In5UUhgof550Qnj24iY/By44BrTPqiTkIkRyX3tJBdh0RgY
- hz3pXG5C3khJjt6uSobYUNT2sJKZfqVNiLQ9JWK9SPCJINYc4NwKU2AdTcdNqS/FBFZy
- ZSSJgvgkCj9ktE7dAM/EeZpr+mFeJ4UrCnnQOGo2TiXljdDawkzS8RDulEeWKK4UwCAF
- zsbhKKCn+OV0vzxYHvNf0nOkU3bTHzy99f+iAhyOt3mY3WRx5mvobjhKb+HUf1aaAEE+ Jg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v3uya01yc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 20 Dec 2023 07:35:34 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BK7X4G8000581;
-	Wed, 20 Dec 2023 07:35:33 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v3uya01xe-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 20 Dec 2023 07:35:33 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BK5AHRh013898;
-	Wed, 20 Dec 2023 07:35:32 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3v1qqkcwt6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 20 Dec 2023 07:35:32 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BK7ZPOP15270566
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 20 Dec 2023 07:35:25 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A18D92004B;
-	Wed, 20 Dec 2023 07:35:25 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1D64020043;
-	Wed, 20 Dec 2023 07:35:25 +0000 (GMT)
-Received: from [9.171.71.20] (unknown [9.171.71.20])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 20 Dec 2023 07:35:24 +0000 (GMT)
-Message-ID: <ee6d43e3-5b3a-4256-82be-a5b1a6761ba5@linux.ibm.com>
-Date: Wed, 20 Dec 2023 08:35:24 +0100
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="C1PRSMih"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BBE5C433C9;
+	Wed, 20 Dec 2023 07:41:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1703058083;
+	bh=eicNkkHSvbTuvKDaD0uy33eDZQ21rFcTjG+07eDtb24=;
+	h=From:To:Cc:Subject:Date:From;
+	b=C1PRSMihdU16ZQCKm3Os+pG4tQUmTaCzgOgApklcMglhb2QBLv1qzrSihzFFlLRFD
+	 Z0sJtaxJQHMHTLrHFvVEvm72DtefS/fO8R1Xdrk07PRQ9fCcGfYMpZ4P1PoBEpvF0P
+	 x/uUI8jCks/Cs1g/lwsznRtF/OL0Ev7qKbGFBXA8=
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: wintera@linux.ibm.com,
+	wenjia@linux.ibm.com
+Cc: linux-kernel@vger.kernel.org,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org
+Subject: [PATCH v2] iucv: make iucv_bus const
+Date: Wed, 20 Dec 2023 08:41:18 +0100
+Message-ID: <2023122017-shelf-cadet-309c@gregkh>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] KVM: s390: vsie: fix race during shadow creation
-To: KVM <kvm@vger.kernel.org>
-Cc: Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        linux-s390
- <linux-s390@vger.kernel.org>,
-        Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-References: <20231220073400.257813-1-borntraeger@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20231220073400.257813-1-borntraeger@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: HHt36ecWzbGGbXcH1BFkoPyqpO3MI94p
-X-Proofpoint-ORIG-GUID: JdSqhi_s6e9HcBbnf4_QpToPe6wJxYji
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-20_02,2023-12-14_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1015
- mlxlogscore=701 suspectscore=0 lowpriorityscore=0 spamscore=0
- malwarescore=0 adultscore=0 mlxscore=0 bulkscore=0 priorityscore=1501
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2312200050
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1878; i=gregkh@linuxfoundation.org; h=from:subject:message-id; bh=eicNkkHSvbTuvKDaD0uy33eDZQ21rFcTjG+07eDtb24=; b=owGbwMvMwCRo6H6F97bub03G02pJDKlNs+YKRC5Sdahf1nZgq3vOe3uvU7ne7ksnn4/Zers4T K/f9PrljlgWBkEmBlkxRZYv23iO7q84pOhlaHsaZg4rE8gQBi5OAZjIgy0M88Nidga+3sl0acWR dx6zhDbH3xaz9mRYcOpe7JuZy3encuQxL3voL83qdvrrXgA=
+X-Developer-Key: i=gregkh@linuxfoundation.org; a=openpgp; fpr=F4B60CC5BF78C2214A313DCB3147D40DDB2DFB29
+Content-Transfer-Encoding: 8bit
 
-Am 20.12.23 um 08:34 schrieb Christian Borntraeger:
-> Right now it is possible to see gmap->private being zero in
-> kvm_s390_vsie_gmap_notifier resulting in a crash.  This is due to the
-> fact that we add gmap->private == kvm after creation:
-> 
-> static int acquire_gmap_shadow(struct kvm_vcpu *vcpu,
->                                 struct vsie_page *vsie_page)
-> {
-> [...]
->          gmap = gmap_shadow(vcpu->arch.gmap, asce, edat);
->          if (IS_ERR(gmap))
->                  return PTR_ERR(gmap);
->          gmap->private = vcpu->kvm;
-> 
-> Instead of tracking kvm in the shadow gmap, simply use the parent one.
-> 
-> Cc: David Hildenbrand <david@redhat.com>
+Now that the driver core can properly handle constant struct bus_type,
+move the iucv_bus variable to be a constant structure as well, placing
+it into read-only memory which can not be modified at runtime.
 
-I forgot to add
-Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+Cc: Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: linux-s390@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Acked-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+v2: add Alexandra ack
+    fix typo in subject line as pointed out by Niklas
+
+ include/net/iucv/iucv.h | 4 ++--
+ net/iucv/iucv.c         | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/include/net/iucv/iucv.h b/include/net/iucv/iucv.h
+index f9e88401d7da..8b2055d64a6b 100644
+--- a/include/net/iucv/iucv.h
++++ b/include/net/iucv/iucv.h
+@@ -80,7 +80,7 @@ struct iucv_array {
+ 	u32 length;
+ } __attribute__ ((aligned (8)));
+ 
+-extern struct bus_type iucv_bus;
++extern const struct bus_type iucv_bus;
+ extern struct device *iucv_root;
+ 
+ /*
+@@ -489,7 +489,7 @@ struct iucv_interface {
+ 	int (*path_sever)(struct iucv_path *path, u8 userdata[16]);
+ 	int (*iucv_register)(struct iucv_handler *handler, int smp);
+ 	void (*iucv_unregister)(struct iucv_handler *handler, int smp);
+-	struct bus_type *bus;
++	const struct bus_type *bus;
+ 	struct device *root;
+ };
+ 
+diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
+index 0ed6e34d6edd..6334f64f04d5 100644
+--- a/net/iucv/iucv.c
++++ b/net/iucv/iucv.c
+@@ -67,7 +67,7 @@ static int iucv_bus_match(struct device *dev, struct device_driver *drv)
+ 	return 0;
+ }
+ 
+-struct bus_type iucv_bus = {
++const struct bus_type iucv_bus = {
+ 	.name = "iucv",
+ 	.match = iucv_bus_match,
+ };
+-- 
+2.43.0
+
