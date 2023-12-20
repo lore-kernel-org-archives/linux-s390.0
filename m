@@ -1,100 +1,131 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07606168CF;
-	Wed, 20 Dec 2023 07:41:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 779C21F616;
+	Wed, 20 Dec 2023 09:56:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="C1PRSMih"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BBE5C433C9;
-	Wed, 20 Dec 2023 07:41:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1703058083;
-	bh=eicNkkHSvbTuvKDaD0uy33eDZQ21rFcTjG+07eDtb24=;
-	h=From:To:Cc:Subject:Date:From;
-	b=C1PRSMihdU16ZQCKm3Os+pG4tQUmTaCzgOgApklcMglhb2QBLv1qzrSihzFFlLRFD
-	 Z0sJtaxJQHMHTLrHFvVEvm72DtefS/fO8R1Xdrk07PRQ9fCcGfYMpZ4P1PoBEpvF0P
-	 x/uUI8jCks/Cs1g/lwsznRtF/OL0Ev7qKbGFBXA8=
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: wintera@linux.ibm.com,
-	wenjia@linux.ibm.com
-Cc: linux-kernel@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org
-Subject: [PATCH v2] iucv: make iucv_bus const
-Date: Wed, 20 Dec 2023 08:41:18 +0100
-Message-ID: <2023122017-shelf-cadet-309c@gregkh>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="B1/WCZSa"
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BK8Cf66014296;
+	Wed, 20 Dec 2023 09:56:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=C17ZtDNNWsK1aq9JjnwX7tEGI6cd5ViNpeHPvoDQj3E=;
+ b=B1/WCZSacF45dCa32wdOiKQrR4UThxEkjiqR9tcXOcOqi9VmlOfH7Opjii8YYbprY5BK
+ RYFduNvKXd1DRedLmeTPULP+ZkJZzdnBIuRp63KUvsLkISwJqbxVLwG9sKEXVvABgqYI
+ 0jDR+gqconn+L13vRnysscQItvSGYv88XGe8lgph5I+rqPkoUK3qMI4l6dCpSObJzA7V
+ zYPE3Ydq37eJkz/zORECCXka+KvUxTKMzVtvoh7uBD6pwVRNbcuMiRrorIJy2ef9FUh5
+ cPHB2Dp9gCtPpp3SvkpZr+OyyMwlNX+PqwhUd2barrVG5ddIbmyo9XxUiDrZbRFHnqaA 0A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v3vjctdh7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 20 Dec 2023 09:56:22 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BK9YNk9015619;
+	Wed, 20 Dec 2023 09:56:22 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v3vjctdgt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 20 Dec 2023 09:56:22 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BK6rS39029726;
+	Wed, 20 Dec 2023 09:56:21 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3v1p7snurb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 20 Dec 2023 09:56:21 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BK9uIE137749338
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 20 Dec 2023 09:56:18 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 85D6C2004B;
+	Wed, 20 Dec 2023 09:56:18 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D9A2920043;
+	Wed, 20 Dec 2023 09:56:17 +0000 (GMT)
+Received: from [9.171.71.20] (unknown [9.171.71.20])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 20 Dec 2023 09:56:17 +0000 (GMT)
+Message-ID: <adaa7efe-b5f7-450b-8dd9-312cefa8fce3@linux.ibm.com>
+Date: Wed, 20 Dec 2023 10:56:17 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1878; i=gregkh@linuxfoundation.org; h=from:subject:message-id; bh=eicNkkHSvbTuvKDaD0uy33eDZQ21rFcTjG+07eDtb24=; b=owGbwMvMwCRo6H6F97bub03G02pJDKlNs+YKRC5Sdahf1nZgq3vOe3uvU7ne7ksnn4/Zers4T K/f9PrljlgWBkEmBlkxRZYv23iO7q84pOhlaHsaZg4rE8gQBi5OAZjIgy0M88Nidga+3sl0acWR dx6zhDbH3xaz9mRYcOpe7JuZy3encuQxL3voL83qdvrrXgA=
-X-Developer-Key: i=gregkh@linuxfoundation.org; a=openpgp; fpr=F4B60CC5BF78C2214A313DCB3147D40DDB2DFB29
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 1/4] KVM: s390: vsie: Fix STFLE interpretive execution
+ identification
+To: Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+References: <20231219140854.1042599-1-nsg@linux.ibm.com>
+ <20231219140854.1042599-2-nsg@linux.ibm.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20231219140854.1042599-2-nsg@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Zjz3AkNrnVzkl0TyS2yhk3SH93jduN7v
+X-Proofpoint-ORIG-GUID: g-UQ3RHgLfFT7g9FHACBy5bS1Ms86Kbn
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-20_02,2023-12-14_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ mlxlogscore=999 spamscore=0 mlxscore=0 impostorscore=0 phishscore=0
+ malwarescore=0 clxscore=1015 suspectscore=0 priorityscore=1501
+ adultscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2312200069
 
-Now that the driver core can properly handle constant struct bus_type,
-move the iucv_bus variable to be a constant structure as well, placing
-it into read-only memory which can not be modified at runtime.
+Am 19.12.23 um 15:08 schrieb Nina Schoetterl-Glausch:
+> STFLE can be interpretively executed.
+> This occurs when the facility list designation is unequal to zero.
+> Perform the check before applying the address mask instead of after.
+> 
+> Fixes: 66b630d5b7f2 ("KVM: s390: vsie: support STFLE interpretation")
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Acked-by: David Hildenbrand <david@redhat.com>
+> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 
-Cc: Wenjia Zhang <wenjia@linux.ibm.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: linux-s390@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Acked-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
-v2: add Alexandra ack
-    fix typo in subject line as pointed out by Niklas
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 
- include/net/iucv/iucv.h | 4 ++--
- net/iucv/iucv.c         | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+this should not matter in reality but maybe some weird guests puts this at address 0.
+Do we want a unit test for that case?
 
-diff --git a/include/net/iucv/iucv.h b/include/net/iucv/iucv.h
-index f9e88401d7da..8b2055d64a6b 100644
---- a/include/net/iucv/iucv.h
-+++ b/include/net/iucv/iucv.h
-@@ -80,7 +80,7 @@ struct iucv_array {
- 	u32 length;
- } __attribute__ ((aligned (8)));
- 
--extern struct bus_type iucv_bus;
-+extern const struct bus_type iucv_bus;
- extern struct device *iucv_root;
- 
- /*
-@@ -489,7 +489,7 @@ struct iucv_interface {
- 	int (*path_sever)(struct iucv_path *path, u8 userdata[16]);
- 	int (*iucv_register)(struct iucv_handler *handler, int smp);
- 	void (*iucv_unregister)(struct iucv_handler *handler, int smp);
--	struct bus_type *bus;
-+	const struct bus_type *bus;
- 	struct device *root;
- };
- 
-diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
-index 0ed6e34d6edd..6334f64f04d5 100644
---- a/net/iucv/iucv.c
-+++ b/net/iucv/iucv.c
-@@ -67,7 +67,7 @@ static int iucv_bus_match(struct device *dev, struct device_driver *drv)
- 	return 0;
- }
- 
--struct bus_type iucv_bus = {
-+const struct bus_type iucv_bus = {
- 	.name = "iucv",
- 	.match = iucv_bus_match,
- };
--- 
-2.43.0
-
+> ---
+>   arch/s390/kvm/vsie.c | 7 ++++++-
+>   1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+> index 8207a892bbe2..35937911724e 100644
+> --- a/arch/s390/kvm/vsie.c
+> +++ b/arch/s390/kvm/vsie.c
+> @@ -984,10 +984,15 @@ static void retry_vsie_icpt(struct vsie_page *vsie_page)
+>   static int handle_stfle(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>   {
+>   	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
+> -	__u32 fac = READ_ONCE(vsie_page->scb_o->fac) & 0x7ffffff8U;
+> +	__u32 fac = READ_ONCE(vsie_page->scb_o->fac);
+>   
+>   	if (fac && test_kvm_facility(vcpu->kvm, 7)) {
+>   		retry_vsie_icpt(vsie_page);
+> +		/*
+> +		 * The facility list origin (FLO) is in bits 1 - 28 of the FLD
+> +		 * so we need to mask here before reading.
+> +		 */
+> +		fac = fac & 0x7ffffff8U;
+>   		if (read_guest_real(vcpu, fac, &vsie_page->fac,
+>   				    sizeof(vsie_page->fac)))
+>   			return set_validity_icpt(scb_s, 0x1090U);
