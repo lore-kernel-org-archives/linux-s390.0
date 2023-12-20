@@ -1,235 +1,170 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45AD7225D6;
-	Wed, 20 Dec 2023 12:17:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R371e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=21;SR=0;TI=SMTPD_---0VyuTIO4_1703074615;
-Received: from 30.221.130.111(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VyuTIO4_1703074615)
-          by smtp.aliyun-inc.com;
-          Wed, 20 Dec 2023 20:16:56 +0800
-Message-ID: <38f06cfb-2d68-2b10-f82b-62a44c25b8f8@linux.alibaba.com>
-Date: Wed, 20 Dec 2023 20:16:50 +0800
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 276262230D;
+	Wed, 20 Dec 2023 12:26:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Vh0x0fRT"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BKCMV9Y032700;
+	Wed, 20 Dec 2023 12:26:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=HQJJr1nge/MUXct9ZqOu2Vh12ig3RbcL0dlOr5B0cdk=;
+ b=Vh0x0fRTfirBAHWaagIvDdPccIfd3GAoiVnkJUmVku17rugPJ4ZHXDhQQezxOL2GuBO7
+ zc4rPSe+UcZOuV1Kt54idyTb3jbHwY90vlI7xbOFj+7/yssrDSCmBvfMHXTkm33x3u5k
+ KzCDUDWJUNh+Vp0ycWG98DTkmR97i1RbZ7UkVC1HlV1enoxphApFwFvQlBB8hC3uBHwb
+ erVwsDWs/9Vg332SmRjSk7peKSwGVu86bIbKtE6Kem5HNovGjK00v22k+NrU93V+IcBU
+ NpWF6sk1rKDmNUMy5gzhL+rxdhLJvZGvr+4KUZpUXro3HalhuOlHXVncBgqxURTbBmwB cQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v4077r2s4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 20 Dec 2023 12:26:43 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BKCMrpe000626;
+	Wed, 20 Dec 2023 12:26:42 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v4077r2ru-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 20 Dec 2023 12:26:42 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BKCMU0J027822;
+	Wed, 20 Dec 2023 12:26:41 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3v1rek5xqy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 20 Dec 2023 12:26:41 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BKCQcke20316858
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 20 Dec 2023 12:26:39 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E004D2004B;
+	Wed, 20 Dec 2023 12:26:38 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7528920043;
+	Wed, 20 Dec 2023 12:26:38 +0000 (GMT)
+Received: from [9.171.71.20] (unknown [9.171.71.20])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 20 Dec 2023 12:26:38 +0000 (GMT)
+Message-ID: <5a035ab2-f704-470a-8b98-f8e5813ef08c@linux.ibm.com>
+Date: Wed, 20 Dec 2023 13:26:38 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.1
-Subject: Re: [PATCH net-next v8 03/10] net/smc: unify the structs of accept or
- confirm message for v1 and v2
-To: Alexandra Winter <wintera@linux.ibm.com>, wenjia@linux.ibm.com,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, kgraul@linux.ibm.com, jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, raspl@linux.ibm.com,
- schnelle@linux.ibm.com, guangguan.wang@linux.alibaba.com,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20231219142616.80697-1-guwen@linux.alibaba.com>
- <20231219142616.80697-4-guwen@linux.alibaba.com>
- <ab835e29-ad4a-4377-b80a-8ef6bb35ef7b@linux.ibm.com>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <ab835e29-ad4a-4377-b80a-8ef6bb35ef7b@linux.ibm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] KVM: s390: vsie: fix race during shadow creation
+To: David Hildenbrand <david@redhat.com>, KVM <kvm@vger.kernel.org>
+Cc: Janosch Frank <frankja@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+References: <20231220073400.257813-1-borntraeger@linux.ibm.com>
+ <00f45b68-00cc-4cf1-a492-47d3bfce7e9f@redhat.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <00f45b68-00cc-4cf1-a492-47d3bfce7e9f@redhat.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: TmzQNdmZXgtVplwbAtb6LtFH5WoMRHTt
+X-Proofpoint-GUID: oe4-H9RC5LAixCjf3qGRBfRwE7WSyoJ6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-20_02,2023-12-14_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 mlxlogscore=999 phishscore=0 mlxscore=0 lowpriorityscore=0
+ suspectscore=0 adultscore=0 clxscore=1015 spamscore=0 priorityscore=1501
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2312200088
 
 
 
-On 2023/12/20 19:37, Alexandra Winter wrote:
+Am 20.12.23 um 11:39 schrieb David Hildenbrand:
+> On 20.12.23 08:34, Christian Borntraeger wrote:
+>> Right now it is possible to see gmap->private being zero in
+>> kvm_s390_vsie_gmap_notifier resulting in a crash.  This is due to the
+>> fact that we add gmap->private == kvm after creation:
+>>
+>> static int acquire_gmap_shadow(struct kvm_vcpu *vcpu,
+>>                                 struct vsie_page *vsie_page)
+>> {
+>> [...]
+>>          gmap = gmap_shadow(vcpu->arch.gmap, asce, edat);
+>>          if (IS_ERR(gmap))
+>>                  return PTR_ERR(gmap);
+>>          gmap->private = vcpu->kvm;
+>>
+>> Instead of tracking kvm in the shadow gmap, simply use the parent one.
+>>
+>> Cc: David Hildenbrand <david@redhat.com>
+>> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+>> ---
+>>   arch/s390/kvm/vsie.c | 6 ++++--
+>>   1 file changed, 4 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+>> index 8207a892bbe2..6b06d8ec41b5 100644
+>> --- a/arch/s390/kvm/vsie.c
+>> +++ b/arch/s390/kvm/vsie.c
+>> @@ -579,14 +579,17 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>>   void kvm_s390_vsie_gmap_notifier(struct gmap *gmap, unsigned long start,
+>>                    unsigned long end)
+>>   {
+>> -    struct kvm *kvm = gmap->private;
+>>       struct vsie_page *cur;
+>>       unsigned long prefix;
+>>       struct page *page;
+>> +    struct kvm *kvm;
+>>       int i;
+>>       if (!gmap_is_shadow(gmap))
+>>           return;
+>> +
+>> +    kvm = gmap->parent->private;
+>> +
+>>       /*
+>>        * Only new shadow blocks are added to the list during runtime,
+>>        * therefore we can safely reference them all the time.
+>> @@ -1220,7 +1223,6 @@ static int acquire_gmap_shadow(struct kvm_vcpu *vcpu,
+>>       gmap = gmap_shadow(vcpu->arch.gmap, asce, edat);
+>>       if (IS_ERR(gmap))
+>>           return PTR_ERR(gmap);
+>> -    gmap->private = vcpu->kvm;
+>>       vcpu->kvm->stat.gmap_shadow_create++;
+>>       WRITE_ONCE(vsie_page->gmap, gmap);
+>>       return 0;
 > 
+> Why not let gmap_shadow handle it? Simply clone the parent private field.
 > 
-> On 19.12.23 15:26, Wen Gu wrote:
->>   struct smc_clc_msg_accept_confirm {	/* clc accept / confirm message */
->> -	struct smc_clc_msg_hdr hdr;
->> -	union {
->> -		struct smcr_clc_msg_accept_confirm r0; /* SMC-R */
->> -		struct { /* SMC-D */
->> -			struct smcd_clc_msg_accept_confirm_common d0;
->> -			u32 reserved5[3];
->> -		};
->> -	};
->> -} __packed;			/* format defined in RFC7609 */
->> -
->> -struct smc_clc_msg_accept_confirm_v2 {	/* clc accept / confirm message */
->>   	struct smc_clc_msg_hdr hdr;
->>   	union {
->>   		struct { /* SMC-R */
->>   			struct smcr_clc_msg_accept_confirm r0;
->> -			u8 eid[SMC_MAX_EID_LEN];
->> -			u8 reserved6[8];
->> -		} r1;
->> +			struct { /* v2 only */
->> +				u8 eid[SMC_MAX_EID_LEN];
->> +				u8 reserved6[8];
->> +			} __packed r1;
->> +		};
->>   		struct { /* SMC-D */
->>   			struct smcd_clc_msg_accept_confirm_common d0;
->> -			__be16 chid;
->> -			u8 eid[SMC_MAX_EID_LEN];
->> -			u8 reserved5[8];
->> -		} d1;
->> +			struct { /* v2 only, but 12 bytes reserved in v1 */
->> +				__be16 chid;
->> +				u8 eid[SMC_MAX_EID_LEN];
->> +				u8 reserved5[8];
->> +			} __packed d1;
->> +		};
->>   	};
->>   };
+> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+> index 6f96b5a71c63..e083fade7a5d 100644
+> --- a/arch/s390/mm/gmap.c
+> +++ b/arch/s390/mm/gmap.c
+> @@ -1691,6 +1691,7 @@ struct gmap *gmap_shadow(struct gmap *parent, unsigned long asce,
+>                  return ERR_PTR(-ENOMEM);
+>          new->mm = parent->mm;
+>          new->parent = gmap_get(parent);
+> +       new->private = patent->private;
+>          new->orig_asce = asce;
+>          new->edat_level = edat_level;
+>          new->initialized = false;
 > 
-> 
-> I still think the __packed at the outmost level is the safest place.
-> Like you have it now the compiler could place unused memory between
-> ro and r1 or between d0 and d1.
-> Afaik compilers don't do that, if the blocks are word-aligned, but
-> there is no guarantee.
-> 
-> Up to you. My R-b still applies.
-> Sandy
+> Or am I missing something?
 
-Thank you, Sandy.
+That would work as well. I discussed several alternatives with Janosch.
+The only thing that bothers me is that the owner should define private. So an
+alternative would be to have a parameter for gmap_shadow. On the other hand I
+like the simplicity of this patch. (we need to get rid of the 2nd assignment
+in acquire_gmap_shadow to make it complete.
 
-IIUC, if only outmost level has __packed, it won't work for the inner block.
+So I can spin a v2 with this variant if Janosch is ok with it as well.
 
-e.g.
-
-If __packed is added at d1 and r1:
-
-struct smc_clc_msg_accept_confirm {     /* clc accept / confirm message */
-         struct smc_clc_msg_hdr hdr;
-         union {
-                 struct { /* SMC-R */
-                         struct smcr_clc_msg_accept_confirm r0;
-                         struct { /* v2 only */
-                                 u8 eid[SMC_MAX_EID_LEN];
-                                 u8 reserved6[8];
-                         } __packed r1;
-                 };
-                 struct { /* SMC-D */
-                         struct smcd_clc_msg_accept_confirm_common d0;
-                         struct { /* v2 only, but 12 bytes reserved in v1 */
-                                 __be16 chid;
-                                 u8 eid[SMC_MAX_EID_LEN];
-                                 u64 gid_ext;
-                         } __packed d1;
-                 };
-         };
-};
-
-According to pahole, it will be:
-
-struct smc_clc_msg_accept_confirm {
-         struct smc_clc_msg_hdr     hdr;                  /*     0     8 */
-         union {
-                 struct {
-                         struct smcr_clc_msg_accept_confirm r0; /*     8    56 */
-                         /* --- cacheline 1 boundary (64 bytes) --- */
-                         struct {
-                                 u8 eid[32];              /*    64    32 */
-                                 u8 reserved6[8];         /*    96     8 */
-                         } r1;                            /*    64    40 */
-                 };                                       /*     8    96 */
-                 struct {
-                         struct smcd_clc_msg_accept_confirm_common d0; /*     8    24 */
-                         struct {
-                                 __be16 chid;             /*    32     2 */
-                                 u8 eid[32];              /*    34    32 */
-                                 /* --- cacheline 1 boundary (64 bytes) was 2 bytes ago --- */
-                                 u64 gid_ext;             /*    66     8 */
-                         } __attribute__((__packed__)) d1; /*    32    42 */
-                 } __attribute__((__packed__));           /*     8    66 */
-         };                                               /*     8    96 */
-
-         /* size: 104, cachelines: 2, members: 2 */
-         /* last cacheline: 40 bytes */
-};
-
-
-If __packed is added at outmost level:
-
-struct smc_clc_msg_accept_confirm {     /* clc accept / confirm message */
-         struct smc_clc_msg_hdr hdr;
-         union {
-                 struct { /* SMC-R */
-                         struct smcr_clc_msg_accept_confirm r0;
-                         struct { /* v2 only */
-                                 u8 eid[SMC_MAX_EID_LEN];
-                                 u8 reserved6[8];
-                         } r1;
-                 };
-                 struct { /* SMC-D */
-                         struct smcd_clc_msg_accept_confirm_common d0;
-                         struct { /* v2 only, but 12 bytes reserved in v1 */
-                                 __be16 chid;
-                                 u8 eid[SMC_MAX_EID_LEN];
-                                 u64 gid_ext;
-                         } d1;
-                 };
-         };
-} __packed;
-
-According to pahole, it will be:
-
-struct smc_clc_msg_accept_confirm {
-         struct smc_clc_msg_hdr     hdr;                  /*     0     8 */
-         union {
-                 struct {
-                         struct smcr_clc_msg_accept_confirm r0; /*     8    56 */
-                         /* --- cacheline 1 boundary (64 bytes) --- */
-                         struct {
-                                 u8 eid[32];              /*    64    32 */
-                                 u8 reserved6[8];         /*    96     8 */
-                         } r1;                            /*    64    40 */
-                 };                                       /*     8    96 */
-                 struct {
-                         struct smcd_clc_msg_accept_confirm_common d0; /*     8    24 */
-                         struct {
-                                 __be16 chid;             /*    32     2 */
-                                 u8 eid[32];              /*    34    32 */
-
-                                 /* XXX 6 bytes hole, try to pack */
-
-                                 /* --- cacheline 1 boundary (64 bytes) was 8 bytes ago --- */
-                                 u64 gid_ext;             /*    72     8 */
-                         } d1;                            /*    32    48 */   <- doesn't work for inner d1.
-                 };                                       /*     8    72 */
-         };                                               /*     8    96 */
-
-         /* size: 104, cachelines: 2, members: 2 */
-         /* last cacheline: 40 bytes */
-};
-
-
-I also considered add them all:
-
-struct smc_clc_msg_accept_confirm {     /* clc accept / confirm message */
-         struct smc_clc_msg_hdr hdr;
-         union {
-                 struct { /* SMC-R */
-                         struct smcr_clc_msg_accept_confirm r0;
-                         struct { /* v2 only */
-                                 u8 eid[SMC_MAX_EID_LEN];
-                                 u8 reserved6[8];
-                         } __packed r1;
-                 } __packed;
-                 struct { /* SMC-D */
-                         struct smcd_clc_msg_accept_confirm_common d0;
-                         struct { /* v2 only, but 12 bytes reserved in v1 */
-                                 __be16 chid;
-                                 u8 eid[SMC_MAX_EID_LEN];
-                                 u64 gid_ext;
-                         } __packed d1;
-                 } __packed;
-         };
-} __packed;
-
-but a little bit strange since for only d1 needs to packed, so I kept it as it is now.
-
-Thanks,
-Wen Gu
