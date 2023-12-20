@@ -1,56 +1,56 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99F4625754
-	for <linux-s390@vger.kernel.org>; Wed, 20 Dec 2023 13:12:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DA1225556
+	for <linux-s390@vger.kernel.org>; Wed, 20 Dec 2023 13:12:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ah0Mg7E3"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hRCBzfl/"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703077919;
+	s=mimecast20190719; t=1703077927;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=CJ7ahpzwRIJAw0Q3ffnJIxb51dpLYSDvSOS0JNQhsbY=;
-	b=Ah0Mg7E3HapgfNV83T6/Qsx/JBeYeVBCF1WlSRjw+XiMTaDtHjB0/ZYeH71FsQvMlbavBQ
-	17lIhqdUA2Qr87WrNLh1ybLUhXJNioZ7ElpbIQgBjOsCnEg3diFzi5jWK2XDpJPTbf/v47
-	cX5v8RgIbf56Z4f66yzsdCIEuLTQvRI=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=t/d1PhhfUiOwU2jFYF6eX64E4vWjyFN+zr+pqt12eAU=;
+	b=hRCBzfl/SiV5msMqnYuujQ1NRsNsD7cE1IVpiT+akRwa2ytbxqg+wNjH0v5YdclhvRKnvy
+	LV+iJVde2/SukAEXj7UaOopWLPqaieWGd/b5CCqfipvW5MA1m6RV3I9vf9mgOx3xsJmaYq
+	+W7qhIHWCzWJgdWE18d67UaxHVIoBYQ=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-503-XsApgyARNxm0JQm1oD-pvA-1; Wed, 20 Dec 2023 08:11:58 -0500
-X-MC-Unique: XsApgyARNxm0JQm1oD-pvA-1
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-33664cd4057so346461f8f.1
-        for <linux-s390@vger.kernel.org>; Wed, 20 Dec 2023 05:11:57 -0800 (PST)
+ us-mta-264-mlO-i988P_S1HOzje0Q7pg-1; Wed, 20 Dec 2023 08:12:05 -0500
+X-MC-Unique: mlO-i988P_S1HOzje0Q7pg-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3335df64539so4061192f8f.3
+        for <linux-s390@vger.kernel.org>; Wed, 20 Dec 2023 05:12:05 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703077917; x=1703682717;
+        d=1e100.net; s=20230601; t=1703077924; x=1703682724;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
          :references:cc:to:content-language:subject:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=CJ7ahpzwRIJAw0Q3ffnJIxb51dpLYSDvSOS0JNQhsbY=;
-        b=xP0PaCRRW3bdQfOozYBFxhmzbBcPWk7ZoNCjnzxpZnUu0rXN5/iiJ+HuhWpPrfJYD7
-         Uzlf8IV8McAZDiSYmBhD3H7Vk71ig3NoeY/jeksCnBZtCvjYOEniidsGmD8EpR+vtXUP
-         2B+cx88+xAoT/oCx46mALygcO+XHkzEyPTljgCkZccEnUCPuiKvVOlrDBOoyL0YKxp44
-         5+iyiM4uKYvftoRguiJfFoDwLdSdU0z+9x98zVdKBY011VjIP2yzF9BXCcZiXlJYYtUl
-         rjB+ukHYOuhnB0m26I58TRmm/10RQ2yOzVHoZSCdx91ll9p6MQHQvDuS5nmOGzr7SBrI
-         2SQQ==
-X-Gm-Message-State: AOJu0Ywb3pH5EduqzWj7gWMzzFLUjGvHtnXK5xEQuDuIkVHFZEHYfDR/
-	1Zz0VKZu+bUxoexMqX746RBL8p2izA7CZTW8d7tiIYgQk3GzczfHcOLRqbFe/ff8oKMaK3sJBsr
-	A3Zrg8r8uPrzG5isk2Vt4PWunz/AVhw==
-X-Received: by 2002:a05:600c:a04:b0:40c:3db4:70f2 with SMTP id z4-20020a05600c0a0400b0040c3db470f2mr1698364wmp.142.1703077916872;
-        Wed, 20 Dec 2023 05:11:56 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGhiNjSRbezWfzwfp5soiz/fB9zcBCtyxcFl8EY/cMLmbsR+sJmk59eAyvGW46BSpWdLilDZw==
-X-Received: by 2002:a05:600c:a04:b0:40c:3db4:70f2 with SMTP id z4-20020a05600c0a0400b0040c3db470f2mr1698354wmp.142.1703077916444;
-        Wed, 20 Dec 2023 05:11:56 -0800 (PST)
+        bh=t/d1PhhfUiOwU2jFYF6eX64E4vWjyFN+zr+pqt12eAU=;
+        b=dVh+JE8HzSbbvrDYH3o++DEBCae6SpoEWsYbtiDoA99xZI+POM8TfC8/DMX2Pm+rYZ
+         AbzJjavc3OHSs51frU3k4KU3ShTzCALOPM7fz7Yjd84zKmFwRs+m0xNezU7wOXcMT3nX
+         AH1BpxpgTWbKvLWggPT4+1x96R1OL8sHv0bDEhgACbBgUVwEckZWwstQ2HnYiNJ+bvmm
+         wSU6E7mcV7ultjcaQq5E6EGf3G4IbqjNaIX293wFm30zJ7Y65rjU+EWyXfemeEf/Qy8V
+         l7FoPA6DkPPE16y+DBTEpFwYnEp3bAV48c6tYkaZHz9u9TBC+B/2HJRaUEXvsEAQzCAw
+         BViA==
+X-Gm-Message-State: AOJu0YyLoxRvDCX0XwGMWpHDvuOO39SGMhJFrj1kVtJJfXnYNvEUMITb
+	ZVq7BLv8YM4ObcAM3h4xu2VvoWgGelkwqY1fjpWSM5QFfI8BXSidhNy38dmmu0p2epkxIfDbT8I
+	gbUtefvpff5yIVpr7ro+fKQ==
+X-Received: by 2002:a5d:458d:0:b0:336:6058:8fd3 with SMTP id p13-20020a5d458d000000b0033660588fd3mr2648445wrq.211.1703077924178;
+        Wed, 20 Dec 2023 05:12:04 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHsgnLSOkt1MuNdTVKwoWGSq3c2ZXQI5anLDQYSSpyvyFaUl61ItUocPoI+np7VesL+NZ7Gjg==
+X-Received: by 2002:a5d:458d:0:b0:336:6058:8fd3 with SMTP id p13-20020a5d458d000000b0033660588fd3mr2648430wrq.211.1703077923765;
+        Wed, 20 Dec 2023 05:12:03 -0800 (PST)
 Received: from ?IPV6:2003:cb:c73b:eb00:8e25:6953:927:1802? (p200300cbc73beb008e25695309271802.dip0.t-ipconnect.de. [2003:cb:c73b:eb00:8e25:6953:927:1802])
-        by smtp.gmail.com with ESMTPSA id x12-20020a5d650c000000b003366c058509sm2194735wru.23.2023.12.20.05.11.55
+        by smtp.gmail.com with ESMTPSA id x12-20020a5d650c000000b003366c058509sm2194735wru.23.2023.12.20.05.12.02
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 20 Dec 2023 05:11:56 -0800 (PST)
-Message-ID: <6c92d19d-536a-45e8-95b1-576f407ce727@redhat.com>
-Date: Wed, 20 Dec 2023 14:11:55 +0100
+        Wed, 20 Dec 2023 05:12:03 -0800 (PST)
+Message-ID: <230f8678-5955-4ff9-ae45-cc289e01910b@redhat.com>
+Date: Wed, 20 Dec 2023 14:12:02 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -58,7 +58,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] KVM: s390: vsie: fix race during shadow creation
+Subject: Re: [PATCH v2] KVM: s390: vsie: fix race during shadow creation
 Content-Language: en-US
 To: Christian Borntraeger <borntraeger@linux.ibm.com>,
  KVM <kvm@vger.kernel.org>
@@ -66,10 +66,9 @@ Cc: Janosch Frank <frankja@linux.ibm.com>,
  linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>,
  Claudio Imbrenda <imbrenda@linux.ibm.com>, Heiko Carstens
  <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>
-References: <20231220073400.257813-1-borntraeger@linux.ibm.com>
- <00f45b68-00cc-4cf1-a492-47d3bfce7e9f@redhat.com>
- <5a035ab2-f704-470a-8b98-f8e5813ef08c@linux.ibm.com>
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Marc Hartmayer <mhartmay@linux.ibm.com>
+References: <20231220125317.4258-1-borntraeger@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -116,34 +115,34 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <5a035ab2-f704-470a-8b98-f8e5813ef08c@linux.ibm.com>
+In-Reply-To: <20231220125317.4258-1-borntraeger@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
->> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
->> index 6f96b5a71c63..e083fade7a5d 100644
->> --- a/arch/s390/mm/gmap.c
->> +++ b/arch/s390/mm/gmap.c
->> @@ -1691,6 +1691,7 @@ struct gmap *gmap_shadow(struct gmap *parent, unsigned long asce,
->>                   return ERR_PTR(-ENOMEM);
->>           new->mm = parent->mm;
->>           new->parent = gmap_get(parent);
->> +       new->private = patent->private;
->>           new->orig_asce = asce;
->>           new->edat_level = edat_level;
->>           new->initialized = false;
->>
->> Or am I missing something?
+On 20.12.23 13:53, Christian Borntraeger wrote:
+> Right now it is possible to see gmap->private being zero in
+> kvm_s390_vsie_gmap_notifier resulting in a crash.  This is due to the
+> fact that we add gmap->private == kvm after creation:
 > 
-> That would work as well. I discussed several alternatives with Janosch.
-> The only thing that bothers me is that the owner should define private. So an
-> alternative would be to have a parameter for gmap_shadow. On the other hand I
-> like the simplicity of this patch. (we need to get rid of the 2nd assignment
-> in acquire_gmap_shadow to make it complete.
+> static int acquire_gmap_shadow(struct kvm_vcpu *vcpu,
+>                                 struct vsie_page *vsie_page)
+> {
+> [...]
+>          gmap = gmap_shadow(vcpu->arch.gmap, asce, edat);
+>          if (IS_ERR(gmap))
+>                  return PTR_ERR(gmap);
+>          gmap->private = vcpu->kvm;
+> 
+> Let children inherit the private field of the parent.
+> 
+> Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+> Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtualization")
+> Cc: <stable@vger.kernel.org>
+> Cc: David Hildenbrand <david@redhat.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> ---
 
-Right. Conceptually, the owner setup parent->private and the owner 
-requests to create a shadow. So inheriting the ->private setting does 
-not sound completely wrong.
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
 -- 
 Cheers,
