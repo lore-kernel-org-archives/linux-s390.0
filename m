@@ -1,77 +1,155 @@
-Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99E222135A
-	for <linux-s390@vger.kernel.org>; Wed, 20 Dec 2023 11:28:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BD6122305
+	for <linux-s390@vger.kernel.org>; Wed, 20 Dec 2023 11:33:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="AiCGQbDj"
-Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-67ad5b37147so40051386d6.2
-        for <linux-s390@vger.kernel.org>; Wed, 20 Dec 2023 03:28:35 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="Jm2+T7Tw"
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-40c2308faedso65088335e9.1
+        for <linux-s390@vger.kernel.org>; Wed, 20 Dec 2023 03:33:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1703071714; x=1703676514; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=hcGG20SZ9UCuGoY4ieTF40E4xDyL6a01++66TUtS6is=;
-        b=AiCGQbDjMKLPwp3JI32A2goxcjSZC6vo3Od7l0atkWxkYOB004BZYmRD6zyzipStoO
-         syCA/UtfNw4vxP1tLVbi1nP/fe4nk+S1XnVXImT7qo6masL48IP3TzQ61YvDSK2/odie
-         ra5EcTlNzMHwDmpLePUIcrstCVlzPxeVARrStffztx2Od14SjXslAdOQfPkXg3nhb4sH
-         cMsw6Kja8Hpmu1nJBin7iQDq+iUS8avTPTtdEWFQw10neM38QVwVKPixbS0gbmXYgA3+
-         j28Jrj6xtkd1jG/O5XISxAZTxF+obbVRA1dQQu7ADfAsVOCvhjwKd9CjRPCr1prnOZbl
-         SHBw==
+        d=suse.com; s=google; t=1703072032; x=1703676832; darn=vger.kernel.org;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=+7iPHZO8utdOONNk8gsepNLSyHF62keDFSmQzSfEvPI=;
+        b=Jm2+T7TwoBlgWlYHROVohJeiE9ZpCWfYvQo93Jitq40u4z7yKY8Ai0cbSUbxb15d+0
+         a8lWFFEVOUviNN7njLF9ZGulOfwUN/P0edZUWEloaAbcGN9D77p7/Bc48ffUXdE/abre
+         NTyF8ncuK/gwFpkX/5+Pi1lejZDBI61UEiXA3+f+ae/J5EcHwsFzot7lQeU+iG6ahBVe
+         xIAc0Mdbmua2hTMmq3MRZu4wx4CsojGfbuIQiZR9xynyUtxiOuvqcF+zWLiK2gAdDN5x
+         BILxygMhqFqhl6bBzqQvQkBtOxUSbsVF1wxuPhc7kWCXHNduuSAjOHXD4ZPaoUwQFh1Z
+         tq7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703071714; x=1703676514;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=hcGG20SZ9UCuGoY4ieTF40E4xDyL6a01++66TUtS6is=;
-        b=l/kcoJpCy8akbzicsglDYprxHqLwwriemFxCMDcN8ByaWt8MeVvcOoA/STGFXuzkNP
-         rKIk/53/LL/Qr6p3BYNTGZX/8Kn5M+A4473nppwrObMZ9PWsc6Hh1Gjdv2Lraw4vXr/m
-         2LRTKtMxImwVESWyHodtSEGYbquOBGJJDvxFKsoqSepSaXrf431AZA0i3uXSv/+2Aur4
-         c/MHzSmc822D9J27S3NIAafXgWnP/wTIMHa4EeIgnz7tcpH0zsTWB7W36YsbvzpXra6K
-         rR+EB8yzM3WDyCMFj4sYnRlqqQD6e8CMCQLskahrGsCzATywIB/sAlQWH9XHOs6Xd5kE
-         h9qg==
-X-Gm-Message-State: AOJu0Yxq6I02I1ZN9iXrTHOPYLX5D+HO0uIiwoKNqdakY+lNw2P6j40B
-	tTx9z8VIxBWjEblaNOLIYphfRA+MZBq053WAvRzEOg==
-X-Google-Smtp-Source: AGHT+IFZWUI/3ZtmtxtNhXDaQSExCQzZlj9wAWUtGTpscIeUIj5afAcZSYxSN1IUBLYASdnV3PlG1ATqJd4ohbhERr4=
-X-Received: by 2002:a05:6214:d47:b0:67f:3d14:4b6e with SMTP id
- 7-20020a0562140d4700b0067f3d144b6emr7374255qvr.130.1703071714268; Wed, 20 Dec
- 2023 03:28:34 -0800 (PST)
+        d=1e100.net; s=20230601; t=1703072032; x=1703676832;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=+7iPHZO8utdOONNk8gsepNLSyHF62keDFSmQzSfEvPI=;
+        b=XFaYYgOFLSNk5IleyPzcQd4yCDdsMsmranBGoJ83Pd+gOgrliUsFihlSCQZrQol1nf
+         9ap5Ze4zFBx+Tit0RkSOhl4DCKi+88iAGoZnxnLt6rhf7PcMH0MaZi48/E85jmmGiX/z
+         Yir5/pZT1jwjTMtpZ4Co64T0vZP03+3Eb00Yo5C+aa9gToRbJ5Q3qLFBEb3T69L2g6CT
+         g2E7lxh3NOcpdqXOba/bteTyicNDHrvzWKFQ6tCNVf2vWKPOsl4Dcst8lJ70KfssrLY4
+         n2F9g/kyV+sS38PPO1nL0UutB3rTPpsbabXJDx5tJC8omquzXrTC9rgXdO+AWvHm6vFq
+         4ZAw==
+X-Gm-Message-State: AOJu0Yxh2QTbW5HmipF/RKqSELjiMKXQ9K+6iQj61pbV98P0qW2mvh+T
+	0lQ7RgMstG+BK+bhCyJAwlDMCA==
+X-Google-Smtp-Source: AGHT+IGw13TjtuVjDpPTpYOKlsIVc3wODh81gNBr2XlzTKvZ3Uvxx0htJXcVGb5MR+89ggd2DRtKmA==
+X-Received: by 2002:a05:600c:1ca7:b0:40c:3548:1ee9 with SMTP id k39-20020a05600c1ca700b0040c35481ee9mr9794787wms.164.1703072031651;
+        Wed, 20 Dec 2023 03:33:51 -0800 (PST)
+Received: from ?IPv6:2804:30c:1668:b300:8fcd:588d:fb77:ed04? ([2804:30c:1668:b300:8fcd:588d:fb77:ed04])
+        by smtp.gmail.com with ESMTPSA id l2-20020a05600c1d0200b004063c9f68f2sm7160277wms.26.2023.12.20.03.33.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 Dec 2023 03:33:51 -0800 (PST)
+Message-ID: <5a7cdb47541e357629437e0b482a1ca506c3b9f7.camel@suse.com>
+Subject: Re: [PATCH v3 3/3] selftests: livepatch: Test livepatching a
+ heavily called syscall
+From: Marcos Paulo de Souza <mpdesouza@suse.com>
+To: Shuah Khan <skhan@linuxfoundation.org>, Joe Lawrence
+	 <joe.lawrence@redhat.com>
+Cc: Marcos Paulo de Souza <mpdesouza@suse.de>, Shuah Khan
+ <shuah@kernel.org>,  Jonathan Corbet <corbet@lwn.net>, Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Josh
+ Poimboeuf <jpoimboe@kernel.org>, Jiri Kosina <jikos@kernel.org>, Petr
+ Mladek <pmladek@suse.com>, linux-kselftest@vger.kernel.org,
+ linux-doc@vger.kernel.org,  linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org,  live-patching@vger.kernel.org, Miroslav Benes
+ <mbenes@suse.cz>
+Date: Wed, 20 Dec 2023 08:33:42 -0300
+In-Reply-To: <3a6b1886-c133-4893-8113-73f290b97390@linuxfoundation.org>
+References: <20231031-send-lp-kselftests-v3-0-2b1655c2605f@suse.com>
+	 <20231031-send-lp-kselftests-v3-3-2b1655c2605f@suse.com>
+	 <f9d82fa6-08d7-4ab6-badc-691987b37a82@linuxfoundation.org>
+	 <unpg4z7eig6qbudgulnr6sog65fq7s2dy4u2vp2dgkdrq5csdw@dltnxuw6kw5b>
+	 <8b95b96c-6aeb-4bf0-8ee9-2ba62330c672@linuxfoundation.org>
+	 <12a9ec1bc84dc6d4b461e5c780ba7d3c3aa91740.camel@suse.com>
+	 <76c4b967-1cb6-4f77-9402-f835b15adb10@linuxfoundation.org>
+	 <alpine.LSU.2.21.2312061530470.13051@pobox.suse.cz>
+	 <2498bf91-8057-43e8-98f2-4ed93c53ce9f@linuxfoundation.org>
+	 <8a433f12-b930-6095-9a49-db5f1d2836b5@redhat.com>
+	 <3a6b1886-c133-4893-8113-73f290b97390@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.1 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231213233605.661251-1-iii@linux.ibm.com> <20231213233605.661251-34-iii@linux.ibm.com>
-In-Reply-To: <20231213233605.661251-34-iii@linux.ibm.com>
-From: Alexander Potapenko <glider@google.com>
-Date: Wed, 20 Dec 2023 12:27:53 +0100
-Message-ID: <CAG_fn=WP2ZPdptOoEnCen3BuYs3EgB1nNfmoxDnC9LZK9r4CrQ@mail.gmail.com>
-Subject: Re: [PATCH v3 33/34] s390: Implement the architecture-specific kmsan functions
-To: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>, 
-	Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Vlastimil Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com, 
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, 
-	Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle <svens@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 14, 2023 at 12:37=E2=80=AFAM Ilya Leoshkevich <iii@linux.ibm.co=
-m> wrote:
->
-> arch_kmsan_get_meta_or_null() finds the lowcore shadow by querying the
-> prefix and calling kmsan_get_metadata() again.
->
-> kmsan_virt_addr_valid() delegates to virt_addr_valid().
->
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Reviewed-by: Alexander Potapenko <glider@google.com>
+On Mon, 2023-12-18 at 13:47 -0700, Shuah Khan wrote:
+> On 12/15/23 13:36, Joe Lawrence wrote:
+> > On 12/11/23 16:53, Shuah Khan wrote:
+> > > On 12/6/23 07:39, Miroslav Benes wrote:
+> > > > Hi,
+> > > >=20
+> > > > On Tue, 5 Dec 2023, Shuah Khan wrote:
+> > > >=20
+> > > > > On 12/5/23 05:52, mpdesouza@suse.com=C2=A0wrote:
+> > > > > > On Fri, 2023-12-01 at 16:38 +0000, Shuah Khan wrote:
+> > > > >=20
+> > > > > > 0003-selftests-livepatch-Test-livepatching-a-heavily-
+> > > > > > call.patch has
+> > > > > > style problems, please review.
+> > > > > >=20
+> > > > > > NOTE: If any of the errors are false positives, please
+> > > > > > report
+> > > > > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 them to the ma=
+intainer, see CHECKPATCH in
+> > > > > > MAINTAINERS.
+> > > > > >=20
+> > > > > > I couldn't find any mention about "missing module name". Is
+> > > > > > your script
+> > > > > > showing more warnings than these ones? Can you please share
+> > > > > > your
+> > > > > > output?
+> > > > > >=20
+> > > > > > I'll fix MAINTAINERS file but I'll wait until I understand
+> > > > > > what's
+> > > > > > missing in your checkpatch script to resend the patchset.
+> > > > > >=20
+> > > > >=20
+> > > > > Looks like it is coming a script - still my question stands
+> > > > > on
+> > > > > whether or not you would need a module name for this module?
+> > > >=20
+> > > > I admit I am also clueless here. The module name is given in
+> > > > Makefile. In
+> > > > this case in test_modules/Makefile. I do not know of anything
+> > > > else. There
+> > > > is no MODULE_NAME macro. Could you elaborate, please?
+> > > >=20
+> > >=20
+> > > I see that now.
+> > >=20
+> >=20
+> > Hi Shuah,
+> >=20
+> > In the other replies to this thread, Marcos noted that he would add
+> > some
+> > text to the commit / documentation on running and building the
+> > selftests
+> > directly in the kernel tree (that would get my Ack) ... is there
+> > anything else to be updated for a hopefully final v4 (for your
+> > Ack)?
+> >=20
+>=20
+>=20
+> I am waiting for v4 with your comments are addressed. I can take
+> this through kselftest tree.
+
+Ok. I'm already preparing the v4. The plan is to send in the next few
+days.
+
+Thanks,
+  Marcos
+
+>=20
+> thanks,
+> -- Shuah
+>=20
+
