@@ -1,108 +1,100 @@
-Received: from mail-vs1-f42.google.com (mail-vs1-f42.google.com [209.85.217.42])
+Received: from mail-il1-f179.google.com (mail-il1-f179.google.com [209.85.166.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68FA36D6D7;
-	Thu, 21 Dec 2023 14:54:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BF047318F
+	for <linux-s390@vger.kernel.org>; Thu, 21 Dec 2023 20:10:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fr/DFr0B"
-Received: by mail-vs1-f42.google.com with SMTP id ada2fe7eead31-4669068a20bso188487137.1;
-        Thu, 21 Dec 2023 06:54:48 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="htjTw8g8"
+Received: by mail-il1-f179.google.com with SMTP id e9e14a558f8ab-35fd4856abbso104685ab.0
+        for <linux-s390@vger.kernel.org>; Thu, 21 Dec 2023 12:10:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1703170487; x=1703775287; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pURYtu0NLCnQlpjaLQBb3A9CXAcN65Ivjf7L8viYZIQ=;
-        b=fr/DFr0B2e2D5pVAdRa8efpUmsqmuL2g3QPZBhjlG3AKquL6JIi+P/pwiOurUM+Krp
-         E8jOaHtXIoPU+ASnXxD/WU+K/VNMfFPqrfUx6VQ0rRmT8Mr0p+L2bMgQ33KT1YBpanT5
-         7LW+1EkG89UMJ78nqCi0fjvxIugayr3H6l25dY2AWUI32pOCJnGtRXNP8lRmto9u4Cqs
-         aciB5LcgZsEoAN9oMA78JVOUCDvrhJIDbtKIQMEHh50OdbB0R7f2UVJMOOy5PqhCQzsS
-         xE2krxIQmkhbo+7kOqMqYuqO3ztnTdxpCUnTfodfTsslG18eVAluCR+r1lIebDLR/j+b
-         B7PA==
+        d=linuxfoundation.org; s=google; t=1703189418; x=1703794218; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=KuNcu+xSyjheqKIJeQgDsNTkefgj8XV+ZlyaXQLWUtQ=;
+        b=htjTw8g8ZMl5/1bCZWg7QJZ0R2bBW3H0bSln7Nk2PsHatqe4pZT9je6JGPKugqgeMB
+         1p2YJvrhC+ApTKUGcYyREZFb0dq3iVhJFoyCUcYItKd2rxxcfBSJXiUoqSdtgjLYjcnK
+         sadUeqkJ55d8+Dw/4ctRnY7fGXNQr4J59/yeA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703170487; x=1703775287;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=pURYtu0NLCnQlpjaLQBb3A9CXAcN65Ivjf7L8viYZIQ=;
-        b=lMJq6webPomHaUSuC44KN+Y6mKw9tcqg9I7AXceK4Vfz31mvR/pofNbotUqLArlpJe
-         WSu45gjs9Apoy+Wrnz6g7k5yX93fLOjeAn8ZltZzmHsUG74N+l/q1z7IFVETso8YouHt
-         6Pg45PvHga0trHcwR6fb40c/uPoS/z5VNKUofjaUG8doHHYxriNCqtX+w6eISyhEk4qC
-         6HGl/PYDWD5jvLKUs9nLHf9hJVwTLv1OpJ05StG5XIzt0biLqlDGAtaRFQOmebLWnXS3
-         IpvGlxPQaHgZFNWK0SoJyCuGEFX50Lr44sSIqOph7QLFFytxw910U/L5DjX/Yoq47NuF
-         1Pog==
-X-Gm-Message-State: AOJu0YycRWFzlvy6n8Q6oniyXgpBkR93BXMRVhZsEh/zJqYpttIKdbKn
-	J6XmrZk/cIVA96ISUxyt1zxfHzcAuwXdM2XyVDc=
-X-Google-Smtp-Source: AGHT+IFN1NuYgs8WiPh35+AiECRKwSlqz0ZEDe3FqBLZ5rzeC9cKopqWDVql1xxie4BTiSGNKZ2Qkn8RU8vM8AW8lKI=
-X-Received: by 2002:a05:6102:2c19:b0:466:a0dd:4b2 with SMTP id
- ie25-20020a0561022c1900b00466a0dd04b2mr1276429vsb.51.1703170487175; Thu, 21
- Dec 2023 06:54:47 -0800 (PST)
+        d=1e100.net; s=20230601; t=1703189418; x=1703794218;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=KuNcu+xSyjheqKIJeQgDsNTkefgj8XV+ZlyaXQLWUtQ=;
+        b=IqLGKYqJMsLxBkI6HU5CImDgPmuvVRcEryuWr3J8VZfVhhAD2wBRwFqoCaTlB1H/X4
+         vuWOdh0Ce41Kr8MMqknDD6luxYBhnozhFhKQHL9vFwXRhi2m3YvJgxkVehfPkng70AHv
+         JiSivFvfMd9ESyiOE9pSvyrq8cPsqXXBNz0NK2TfeIa44Ld+f3chkhKySaOUBauYaOb9
+         gPCMJilOrC9I8/OMHDPIad8gnTtju2x+dVPZCOh7+tAYo0rflCzFzj+8p3UK8ffQOC1f
+         R2mASHoMlCYWdWndwR2C7ZOdf/siv/et8KN75d1inE9Yyb0fMDRZiK1fWeuD+jYDL5iK
+         9v4A==
+X-Gm-Message-State: AOJu0YyB459Pi731qX0g48wD7eO0oOsFjnXriw7Vc1yrZqGNC32BGipg
+	J79qJJvNdnHB7ZrFqa9PA6EYghNSAbE7fg==
+X-Google-Smtp-Source: AGHT+IF1UnXSpqilXx5/i0ZEyW2V9x9IQmgHrp0PwIlsARHqqwSbXr2zVL9aQML5DMWwebj2OtVrKg==
+X-Received: by 2002:a05:6e02:1cab:b0:35f:d862:e451 with SMTP id x11-20020a056e021cab00b0035fd862e451mr384657ill.2.1703189418192;
+        Thu, 21 Dec 2023 12:10:18 -0800 (PST)
+Received: from [192.168.1.128] ([38.175.170.29])
+        by smtp.gmail.com with ESMTPSA id f8-20020a056e020b4800b0035fc47d9014sm694293ilu.13.2023.12.21.12.10.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 21 Dec 2023 12:10:17 -0800 (PST)
+Message-ID: <4fb5fac7-fa3a-4988-b5f4-8025864c4d37@linuxfoundation.org>
+Date: Thu, 21 Dec 2023 13:10:16 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231221085712.1766333-1-yukuai1@huaweicloud.com> <20231221085839.1768763-1-yukuai1@huaweicloud.com>
-In-Reply-To: <20231221085839.1768763-1-yukuai1@huaweicloud.com>
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Date: Thu, 21 Dec 2023 23:54:30 +0900
-Message-ID: <CAKFNMo=TuhzyEs_NEOdYgJz+UVizU6Ojx4ZKXowDaux3kKddUQ@mail.gmail.com>
-Subject: Re: [PATCH RFC v3 for-6.8/block 12/17] nilfs2: use bdev api in nilfs_attach_log_writer()
-To: Yu Kuai <yukuai1@huaweicloud.com>
-Cc: axboe@kernel.dk, roger.pau@citrix.com, colyli@suse.de, 
-	kent.overstreet@gmail.com, joern@lazybastard.org, miquel.raynal@bootlin.com, 
-	richard@nod.at, vigneshr@ti.com, sth@linux.ibm.com, hoeppner@linux.ibm.com, 
-	hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com, 
-	jejb@linux.ibm.com, martin.petersen@oracle.com, clm@fb.com, 
-	josef@toxicpanda.com, dsterba@suse.com, viro@zeniv.linux.org.uk, 
-	brauner@kernel.org, nico@fluxnic.net, xiang@kernel.org, chao@kernel.org, 
-	tytso@mit.edu, adilger.kernel@dilger.ca, jack@suse.com, willy@infradead.org, 
-	akpm@linux-foundation.org, hare@suse.de, p.raghav@samsung.com, 
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	xen-devel@lists.xenproject.org, linux-bcache@vger.kernel.org, 
-	linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-scsi@vger.kernel.org, linux-bcachefs@vger.kernel.org, 
-	linux-btrfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org, 
-	linux-nilfs@vger.kernel.org, yukuai3@huawei.com, yi.zhang@huawei.com, 
-	yangerkun@huawei.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RESEND v4 0/3] livepatch: Move modules to selftests and
+ add a new test
+Content-Language: en-US
+To: Marcos Paulo de Souza <mpdesouza@suse.com>, Shuah Khan
+ <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Josh Poimboeuf <jpoimboe@kernel.org>,
+ Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>,
+ Petr Mladek <pmladek@suse.com>, Joe Lawrence <joe.lawrence@redhat.com>
+Cc: linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ live-patching@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
+References: <20231220-send-lp-kselftests-v4-0-3458ec1b1a38@suse.com>
+ <55b717dba239f3bedf0da7e25925e390a63459f5.camel@suse.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
+In-Reply-To: <55b717dba239f3bedf0da7e25925e390a63459f5.camel@suse.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Thu, Dec 21, 2023 at 6:00=E2=80=AFPM Yu Kuai wrote:
->
-> From: Yu Kuai <yukuai3@huawei.com>
->
-> Avoid to access bd_inode directly, prepare to remove bd_inode from
-> block_device.
->
-> Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-> ---
->  fs/nilfs2/segment.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/fs/nilfs2/segment.c b/fs/nilfs2/segment.c
-> index 55e31cc903d1..a1130e384937 100644
-> --- a/fs/nilfs2/segment.c
-> +++ b/fs/nilfs2/segment.c
-> @@ -2823,7 +2823,7 @@ int nilfs_attach_log_writer(struct super_block *sb,=
- struct nilfs_root *root)
->         if (!nilfs->ns_writer)
->                 return -ENOMEM;
->
-> -       inode_attach_wb(nilfs->ns_bdev->bd_inode, NULL);
-> +       bdev_attach_wb(nilfs->ns_bdev);
->
->         err =3D nilfs_segctor_start_thread(nilfs->ns_writer);
->         if (unlikely(err))
-> --
-> 2.39.2
->
+On 12/21/23 05:17, Marcos Paulo de Souza wrote:
+> On Wed, 2023-12-20 at 13:53 -0300, Marcos Paulo de Souza wrote:
+>> Changes in v4:
+>> * Documented how to compile the livepatch selftests without running
+>> the
+>>    tests (Joe)
+>> * Removed the mention to lib/livepatch on MAINTAINERS file, reported
+>> by
+>>    checkpatch.
+>>
+> 
+> To clarify: this is not a resend, this is the v4 that people were
+> waiting for. I made a mistake with b4 tool, that first I sent the email
+> just to myself, for testing, and it bumped the version to v5, but I
+> asked it to "resend" the v4, but it ended up adding the "RESEND" to the
+> series.
+> 
+> Please review this patchset and ignore the RESEND word.
+> 
+> Thanks to Petr Mladek for spotting my mistake.
+> 
 
-Acked-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Thank for the clarification. I was wondering why this is a RESEND :)
+I will wait for reviewers to comment on this before pulling them in
+for Linux 6.8-rc1.
 
-Thanks,
-Ryusuke Konishi
+thanks,
+-- Shuah
+
