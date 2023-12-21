@@ -1,109 +1,55 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 532314879E;
-	Wed, 20 Dec 2023 20:19:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5685E1FA0;
+	Thu, 21 Dec 2023 00:25:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kXUecUJV"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BKKCuIK014269;
-	Wed, 20 Dec 2023 20:19:56 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=qU+MmoOX8bO6nzDTOb/mKbnzAX/Sq7DnJWv7dLgpGaY=;
- b=kXUecUJVgYEUNaW1d8vLNcQO2Pna20YqDykgHn6Z9eSQAhpe/JmlQy0PUwiLoUMl8Fle
- R3s8jQOif597n65+8VdZ19udFUNaVK1BjsAcUC9pEq3z9pV5SOtltLKdFTR4ObdnsnTG
- 13gQ5lq/syI2tmZJNv9HUJRpq4PiWtZ9N3T8QLoprq0OsY3AMAs3aM1GW45pzVdfpKm/
- Wyl/Jrefc2fODSCLC6pDcKlWQkf1kqLS3n3uuZ9P9iyo3AcFsES2qzGZdkK//HhErhpA
- NuwoL+WAvqreP7f0ct8uuhC2bKOHgUPg4LrIYlKGNtBF36utkKRYa1E3BhwMt9VFhneF UQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v42q70n8e-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 20 Dec 2023 20:19:55 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BKK9kpe000803;
-	Wed, 20 Dec 2023 20:19:55 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v42q70n81-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 20 Dec 2023 20:19:55 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BKJiRxe013882;
-	Wed, 20 Dec 2023 20:19:54 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3v1qqkgm6m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 20 Dec 2023 20:19:54 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BKKJqOO17695398
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 20 Dec 2023 20:19:52 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8312120043;
-	Wed, 20 Dec 2023 20:19:52 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EF81D20040;
-	Wed, 20 Dec 2023 20:19:51 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.57.36])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 20 Dec 2023 20:19:51 +0000 (GMT)
-Date: Wed, 20 Dec 2023 21:19:50 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Joe Lawrence <joe.lawrence@redhat.com>
-Cc: live-patching@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        linux-s390@vger.kernel.org, Petr Mladek <pmladek@suse.com>
-Subject: Re: [PATCH] selftests/livepatch: fix and refactor new dmesg message
- code
-Message-ID: <ZYNMZnRAgAXcvbqq@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20231220151151.267985-1-joe.lawrence@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231220151151.267985-1-joe.lawrence@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _D7p9tLr9mXAASAv28qoXDGD7WPj5Jgq
-X-Proofpoint-ORIG-GUID: TybPbBRBiIUrE3Zde0ssiufcO2-qzrid
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W+Sdo3qa"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 2AE7AC433C8;
+	Thu, 21 Dec 2023 00:25:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1703118316;
+	bh=ncbofAzRvDw94woQGwkqjgBNi+bXSPsNjIqYtrBxqqk=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+	b=W+Sdo3qaaqdDDMm3LrS7ghuXtT18SCFwoS9wB2fZkUI65qpC8Z+a/u9kT/a/XgHU8
+	 naOybd06AXMUFw9775It1r3QtDMcJKQNP+EdDWVlSRaZQMTQcRDKboGNek+soeWVg+
+	 a/xor9WXShRkNC0ShFukZeagdvTQURKGZhjUANdmYa/2iIm9hdIDMUsc+OHUK5WSH7
+	 pQBxodAVNvyqezD/VfPEb55Phv8xVBJ8zU3/eSfsel0jEpegsvAa3oZxI93DdwjVA3
+	 nasHnbwBo6/EcneMaLiO6IZPBh2yPCRYQ0+Zxo5ol4+ArFMs0xvrqEFO7fBWSodjYU
+	 37wxD5BZz+l5Q==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 1891BC561EE;
+	Thu, 21 Dec 2023 00:25:16 +0000 (UTC)
+Subject: Re: [GIT PULL] s390 fixes for 6.7-rc7
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <ZYMP6OClkOMkey9l@tuxmaker.boeblingen.de.ibm.com>
+References: <ZYMP6OClkOMkey9l@tuxmaker.boeblingen.de.ibm.com>
+X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
+X-PR-Tracked-Message-Id: <ZYMP6OClkOMkey9l@tuxmaker.boeblingen.de.ibm.com>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.7-4
+X-PR-Tracked-Commit-Id: 3d940bb1818325142e6764bff788cbf95b9afb54
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 1bf5c8925609425fe0ff7270fe8fb14246c01694
+Message-Id: <170311831609.17908.136507635514667718.pr-tracker-bot@kernel.org>
+Date: Thu, 21 Dec 2023 00:25:16 +0000
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-20_13,2023-12-20_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- lowpriorityscore=0 suspectscore=0 mlxlogscore=999 bulkscore=0
- malwarescore=0 clxscore=1015 adultscore=0 mlxscore=0 priorityscore=1501
- spamscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2312200143
 
-On Wed, Dec 20, 2023 at 10:11:51AM -0500, Joe Lawrence wrote:
-> The livepatching kselftests rely on comparing expected vs. observed
-> dmesg output.  After each test, new dmesg entries are determined by the
-> 'comm' utility comparing a saved, pre-test copy of dmesg to post-test
-> dmesg output.
-> 
-> Alexander reports that the 'comm --nocheck-order -13' invocation used by
-> the tests can be confused when dmesg entry timestamps vary in magnitude
-> (ie, "[   98.820331]" vs. "[  100.031067]"), in which case, additional
-> messages are reported as new.  The unexpected entries then spoil the
-> test results.
-> 
-> Instead of relying on 'comm' or 'diff' to determine new testing dmesg
-> entries, refactor the code:
-> 
->   - pre-test  : log a unique canary dmesg entry
->   - test      : run tests, log messages
->   - post-test : filter dmesg starting from pre-test message
-> 
-> Reported-by: Alexander Gordeev <agordeev@linux.ibm.com>
-> Closes: https://lore.kernel.org/live-patching/ZYAimyPYhxVA9wKg@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com/
-> Signed-off-by: Joe Lawrence <joe.lawrence@redhat.com>
-> ---
->  .../testing/selftests/livepatch/functions.sh  | 37 +++++++++----------
->  1 file changed, 17 insertions(+), 20 deletions(-)
+The pull request you sent on Wed, 20 Dec 2023 17:01:44 +0100:
 
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.7-4
+
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/1bf5c8925609425fe0ff7270fe8fb14246c01694
+
+Thank you!
+
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
