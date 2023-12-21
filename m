@@ -1,169 +1,148 @@
-Received: from dggsgout12.his.huawei.com (unknown [45.249.212.56])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5ECA652F8F;
-	Thu, 21 Dec 2023 09:01:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.19.93.142])
-	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4SwktZ3FrTz4f3kG7;
-	Thu, 21 Dec 2023 17:01:10 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 34EB21A0920;
-	Thu, 21 Dec 2023 17:01:13 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.175.104.67])
-	by APP1 (Coremail) with SMTP id cCh0CgCXmhDW_oNlyCPvEA--.34448S4;
-	Thu, 21 Dec 2023 17:01:12 +0800 (CST)
-From: Yu Kuai <yukuai1@huaweicloud.com>
-To: axboe@kernel.dk,
-	roger.pau@citrix.com,
-	colyli@suse.de,
-	kent.overstreet@gmail.com,
-	joern@lazybastard.org,
-	miquel.raynal@bootlin.com,
-	richard@nod.at,
-	vigneshr@ti.com,
-	sth@linux.ibm.com,
-	hoeppner@linux.ibm.com,
-	hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	agordeev@linux.ibm.com,
-	jejb@linux.ibm.com,
-	martin.petersen@oracle.com,
-	clm@fb.com,
-	josef@toxicpanda.com,
-	dsterba@suse.com,
-	viro@zeniv.linux.org.uk,
-	brauner@kernel.org,
-	nico@fluxnic.net,
-	xiang@kernel.org,
-	chao@kernel.org,
-	tytso@mit.edu,
-	adilger.kernel@dilger.ca,
-	jack@suse.com,
-	konishi.ryusuke@gmail.com,
-	willy@infradead.org,
-	akpm@linux-foundation.org,
-	hare@suse.de,
-	p.raghav@samsung.com
-Cc: linux-block@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	xen-devel@lists.xenproject.org,
-	linux-bcache@vger.kernel.org,
-	linux-mtd@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	linux-bcachefs@vger.kernel.org,
-	linux-btrfs@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-erofs@lists.ozlabs.org,
-	linux-ext4@vger.kernel.org,
-	linux-nilfs@vger.kernel.org,
-	yukuai3@huawei.com,
-	yukuai1@huaweicloud.com,
-	yi.zhang@huawei.com,
-	yangerkun@huawei.com
-Subject: [PATCH RFC v3 for-6.8/block 17/17] ext4: use bdev apis
-Date: Thu, 21 Dec 2023 16:59:14 +0800
-Message-Id: <20231221085914.1772988-1-yukuai1@huaweicloud.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20231221085712.1766333-1-yukuai1@huaweicloud.com>
-References: <20231221085712.1766333-1-yukuai1@huaweicloud.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27571219F2;
+	Thu, 21 Dec 2023 10:14:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cwcTYooc"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3BLACaxq011023;
+	Thu, 21 Dec 2023 10:14:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=jqbsORu1MQpIwN5rbeBu1mQI0jvudEl3p6HR4G0NeSM=;
+ b=cwcTYoocIrc+eAtRIHVA+hnbM2vv6pB8HevEDJySAmukw1o73n72ivrebDHyHEni55WO
+ nHTcHHJIERiGH0D3vyvzcjPfzBU0M3TsDQI10q8kjHVj2mIZc67+zGMMgZ4vNJcvEk89
+ cTdUalATK0JSUAnAMGUGWx/IBbqg8IHQWW3KIBuJHPnWd79ma5wHAk6qjTEO3Mv5F5FI
+ 6CIQqNWYIK3iXjrADP/wzB/lnHj6zEfqv1V44iQaE14Z9BjjNh2TY1e6aUiSA6MHsLb1
+ hRIq4ONVh5o6uURAvOI673BWSrWjLVBgG/FVVZby+IoIljXz6kHotb64OtlezCtnbIf0 Bw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v4kdag0xc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 21 Dec 2023 10:14:02 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3BLADDas012373;
+	Thu, 21 Dec 2023 10:14:01 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3v4kdag0wp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 21 Dec 2023 10:14:01 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3BL7fBlG027076;
+	Thu, 21 Dec 2023 10:14:00 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3v1rekbww4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 21 Dec 2023 10:14:00 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3BLADvJR21365302
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 21 Dec 2023 10:13:57 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7517920063;
+	Thu, 21 Dec 2023 10:13:57 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C6B1D2004F;
+	Thu, 21 Dec 2023 10:13:56 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.171.48.80])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Thu, 21 Dec 2023 10:13:56 +0000 (GMT)
+Date: Thu, 21 Dec 2023 11:13:54 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
+        David
+ Hildenbrand <david@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Thomas Huth <thuth@redhat.com>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily
+ Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Marc Hartmayer <mhartmay@linux.ibm.com>
+Subject: Re: [PATCH v2] KVM: s390: vsie: fix race during shadow creation
+Message-ID: <20231221111354.7ebdac53@p-imbrenda>
+In-Reply-To: <20231220125317.4258-1-borntraeger@linux.ibm.com>
+References: <20231220125317.4258-1-borntraeger@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.2.0 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:cCh0CgCXmhDW_oNlyCPvEA--.34448S4
-X-Coremail-Antispam: 1UD129KBjvJXoWxAF47JryfCw48Xw1Duw48JFb_yoW5Xw4Upa
-	43GFyDGr4DZry09anrGFsrZa40kw18Ga43GryfZ3W2qrWaq34SkF95KF1xZF4UXay8Xw18
-	XFyjkryxAr45CrDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUv014x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4U
-	JVW0owA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
-	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
-	I7IYx2IY67AKxVWUAVWUtwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r
-	4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628v
-	n2kIc2xKxwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F4
-	0E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Wrv_Gr1U
-	MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Gr0_Xr1lIxAIcVC0I7IYx2IY6xkF7I
-	0E14v26F4UJVW0owCI42IY6xAIw20EY4v20xvaj40_JFI_Gr1lIxAIcVC2z280aVAFwI0_
-	Gr0_Cr1lIxAIcVC2z280aVCY1x0267AKxVWxJr0_GcJvcSsGvfC2KfnxnUUI43ZEXa7VUb
-	YLvtUUUUU==
-X-CM-SenderInfo: 51xn3trlr6x35dzhxuhorxvhhfrp/
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ip1O-onPBRSoqMHNUrl7HRMas4LI-d6F
+X-Proofpoint-ORIG-GUID: UJX4soE44QQAUkiQ5ULpOxbd3V5sb6-u
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-21_04,2023-12-20_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
+ spamscore=0 priorityscore=1501 mlxscore=0 bulkscore=0 malwarescore=0
+ suspectscore=0 clxscore=1015 mlxlogscore=978 lowpriorityscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2312210075
 
-From: Yu Kuai <yukuai3@huawei.com>
+On Wed, 20 Dec 2023 13:53:17 +0100
+Christian Borntraeger <borntraeger@linux.ibm.com> wrote:
 
-Avoid to access bd_inode directly, prepare to remove bd_inode from
-block_device.
+> Right now it is possible to see gmap->private being zero in
+> kvm_s390_vsie_gmap_notifier resulting in a crash.  This is due to the
+> fact that we add gmap->private == kvm after creation:
+> 
+> static int acquire_gmap_shadow(struct kvm_vcpu *vcpu,
+>                                struct vsie_page *vsie_page)
+> {
+> [...]
+>         gmap = gmap_shadow(vcpu->arch.gmap, asce, edat);
+>         if (IS_ERR(gmap))
+>                 return PTR_ERR(gmap);
+>         gmap->private = vcpu->kvm;
+> 
+> Let children inherit the private field of the parent.
+> 
+> Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+> Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtualization")
+> Cc: <stable@vger.kernel.org>
+> Cc: David Hildenbrand <david@redhat.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
----
- fs/ext4/dir.c       | 6 ++----
- fs/ext4/ext4_jbd2.c | 6 +++---
- fs/ext4/super.c     | 3 +--
- 3 files changed, 6 insertions(+), 9 deletions(-)
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-diff --git a/fs/ext4/dir.c b/fs/ext4/dir.c
-index 3985f8c33f95..64e35eb6a324 100644
---- a/fs/ext4/dir.c
-+++ b/fs/ext4/dir.c
-@@ -191,10 +191,8 @@ static int ext4_readdir(struct file *file, struct dir_context *ctx)
- 			pgoff_t index = map.m_pblk >>
- 					(PAGE_SHIFT - inode->i_blkbits);
- 			if (!ra_has_index(&file->f_ra, index))
--				page_cache_sync_readahead(
--					sb->s_bdev->bd_inode->i_mapping,
--					&file->f_ra, file,
--					index, 1);
-+				bdev_sync_readahead(sb->s_bdev, &file->f_ra,
-+						    file, index, 1);
- 			file->f_ra.prev_pos = (loff_t)index << PAGE_SHIFT;
- 			bh = ext4_bread(NULL, inode, map.m_lblk, 0);
- 			if (IS_ERR(bh)) {
-diff --git a/fs/ext4/ext4_jbd2.c b/fs/ext4/ext4_jbd2.c
-index d1a2e6624401..c1bf3a00fad9 100644
---- a/fs/ext4/ext4_jbd2.c
-+++ b/fs/ext4/ext4_jbd2.c
-@@ -206,7 +206,6 @@ static void ext4_journal_abort_handle(const char *caller, unsigned int line,
- 
- static void ext4_check_bdev_write_error(struct super_block *sb)
- {
--	struct address_space *mapping = sb->s_bdev->bd_inode->i_mapping;
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	int err;
- 
-@@ -216,9 +215,10 @@ static void ext4_check_bdev_write_error(struct super_block *sb)
- 	 * we could read old data from disk and write it out again, which
- 	 * may lead to on-disk filesystem inconsistency.
- 	 */
--	if (errseq_check(&mapping->wb_err, READ_ONCE(sbi->s_bdev_wb_err))) {
-+	if (bdev_wb_err_check(sb->s_bdev, READ_ONCE(sbi->s_bdev_wb_err))) {
- 		spin_lock(&sbi->s_bdev_wb_lock);
--		err = errseq_check_and_advance(&mapping->wb_err, &sbi->s_bdev_wb_err);
-+		err = bdev_wb_err_check_and_advance(sb->s_bdev,
-+						    &sbi->s_bdev_wb_err);
- 		spin_unlock(&sbi->s_bdev_wb_lock);
- 		if (err)
- 			ext4_error_err(sb, -err,
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index a7935edbd7b1..25c3d2ac8559 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5544,8 +5544,7 @@ static int __ext4_fill_super(struct fs_context *fc, struct super_block *sb)
- 	 * used to detect the metadata async write error.
- 	 */
- 	spin_lock_init(&sbi->s_bdev_wb_lock);
--	errseq_check_and_advance(&sb->s_bdev->bd_inode->i_mapping->wb_err,
--				 &sbi->s_bdev_wb_err);
-+	bdev_wb_err_check_and_advance(sb->s_bdev, &sbi->s_bdev_wb_err);
- 	EXT4_SB(sb)->s_mount_state |= EXT4_ORPHAN_FS;
- 	ext4_orphan_cleanup(sb, es);
- 	EXT4_SB(sb)->s_mount_state &= ~EXT4_ORPHAN_FS;
--- 
-2.39.2
+> ---
+> v1->v2: let the child inherit private from parent instead of accessing
+>         the parent in the notifier
+>  arch/s390/kvm/vsie.c | 1 -
+>  arch/s390/mm/gmap.c  | 1 +
+>  2 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+> index 8207a892bbe2..db9a180de65f 100644
+> --- a/arch/s390/kvm/vsie.c
+> +++ b/arch/s390/kvm/vsie.c
+> @@ -1220,7 +1220,6 @@ static int acquire_gmap_shadow(struct kvm_vcpu *vcpu,
+>  	gmap = gmap_shadow(vcpu->arch.gmap, asce, edat);
+>  	if (IS_ERR(gmap))
+>  		return PTR_ERR(gmap);
+> -	gmap->private = vcpu->kvm;
+>  	vcpu->kvm->stat.gmap_shadow_create++;
+>  	WRITE_ONCE(vsie_page->gmap, gmap);
+>  	return 0;
+> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+> index 6f96b5a71c63..8da39deb56ca 100644
+> --- a/arch/s390/mm/gmap.c
+> +++ b/arch/s390/mm/gmap.c
+> @@ -1691,6 +1691,7 @@ struct gmap *gmap_shadow(struct gmap *parent, unsigned long asce,
+>  		return ERR_PTR(-ENOMEM);
+>  	new->mm = parent->mm;
+>  	new->parent = gmap_get(parent);
+> +	new->private = parent->private;
+>  	new->orig_asce = asce;
+>  	new->edat_level = edat_level;
+>  	new->initialized = false;
 
