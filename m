@@ -1,102 +1,206 @@
-Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
+Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64B1A17745
-	for <linux-s390@vger.kernel.org>; Fri, 22 Dec 2023 11:36:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 010621803A
+	for <linux-s390@vger.kernel.org>; Fri, 22 Dec 2023 12:27:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="fUPKGv+m"
-Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-67a338dfca7so10480716d6.2
-        for <linux-s390@vger.kernel.org>; Fri, 22 Dec 2023 03:36:05 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="WTmV8/F9"
+Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-3369ccb539aso24798f8f.3
+        for <linux-s390@vger.kernel.org>; Fri, 22 Dec 2023 04:27:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1703244964; x=1703849764; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=suse.com; s=google; t=1703248033; x=1703852833; darn=vger.kernel.org;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:to:from:subject:message-id:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=HlozJj1f2kvO8UJMaafcew1dPPV20AWiBo6Zcv/BbcM=;
-        b=fUPKGv+mO/JOOqFVoNjDreAj3vs5NpjWNV8ifBS29VPiYmaWbZLLkCH4r1VDeBzKB5
-         TxhWJlRqZJjXweR0tKkO5IMmGuHMlZ51jabxFTPilbrxljKQarcO3ijDl1X9BOe8VkF5
-         xBFFfr/JXGlDUSuq5HjBKjuXcOnxl3rn4ZYBo1Y/RRboapCWm6kogyjwsGRQdIPndaIx
-         scYF2KJSPAM/fWWcitTjvL+iksY4JRIuST7T+HyFqWfosQBF6+yrg1ubBqoq7ViSE3r4
-         SJPbsHMs10W3nm+NQCEL8NTuYjOcGY3aC1hywIAKyKpmNgqgYt7+9sV1cabT04F9jPd0
-         /ZMg==
+        bh=x3DIgQDPNUxa7RZs2ySWTeSV2mkBPOsrUg4r0CjPEpY=;
+        b=WTmV8/F9lalJWwcB4nYTai/r3KpxegPUTatsZ4wAWIE39b4WtiYJ9YWH2BW+DGoxec
+         2yOClsW3+nUNYNCW8g4DpnY3XnQxq2v2spW8oqag2P1AhFu3EDPbXPaL5hsjYVaiwcdi
+         xmhu8M4X4ZIbDMLIwYe7rut50+nxHGuH1ChUPIR78jVmLzu/geQAC/jzUb0mdFVyqOBf
+         BhjrMpnox5LNgFjYu4liJl3rrLaFLAB+/Uz8xMWhmXGQ128oSDHOqit3XlP+FfXA1zfG
+         B/M2JMVpXSQIsn2jYjxEVNPo5F+TL2/6cVKYmt7tKzZjbr6EpkexEIKs+M9vxO2gPQi1
+         TxPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703244964; x=1703849764;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=HlozJj1f2kvO8UJMaafcew1dPPV20AWiBo6Zcv/BbcM=;
-        b=nlf0bXC4q1JAAfRWnxHmhACPOkbeBvFBQUyhu6+ISeFNx+F+oPlJWdD0ew35euAb3T
-         8OaLuL5ca/miSdJ106YX03elMb9QXydNR3A2Y61XYF0aAOWSWf+gposliKrluLWquVZ6
-         86KlFXl8Bz99pYIV88rvA4J4ehDRlO/R7B422HP6vd50ZZm/5JjL9R81R7DZG+98B6BH
-         9jlsQh1XNQmBZQy8DwGED+Y8udjYjJFyNkjvf9s5ayR/xVm3ZxpkJKvSo8SQGddmmUph
-         xplpEjScORZQO4Wf9kq57OZH/3lu4TUdU3ej1yIiAORfydn4bO9te58Z5C+CB+2kgPRa
-         urRw==
-X-Gm-Message-State: AOJu0YzPQqycGVoFzZJ7AH8W0lIvdMC1Cip4bMGkhqXmoQg45eAmMar8
-	a5k7nCcuDmIcak8jcyxJbsDNTshzg+zhlH9GHPLMO9iPjvmw
-X-Google-Smtp-Source: AGHT+IFf/0l5PchUxoTTmnO+q1QqqQ0MLqXkv/Hk63Z/jliSYncZKvMaBddebIKgg5o5CVXYz4PTSIXPpaGQtUDONNs=
-X-Received: by 2002:a05:6214:b62:b0:67a:c46c:64e1 with SMTP id
- ey2-20020a0562140b6200b0067ac46c64e1mr1305854qvb.8.1703244964059; Fri, 22 Dec
- 2023 03:36:04 -0800 (PST)
+        d=1e100.net; s=20230601; t=1703248033; x=1703852833;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:to:from:subject:message-id:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=x3DIgQDPNUxa7RZs2ySWTeSV2mkBPOsrUg4r0CjPEpY=;
+        b=MCan/fwZCvDLIsBx95w0kUYTPQCl1Ltg3ICHGO7wfsz4WyrwyGW4EdBu6s7bScfxKT
+         D82Z03PgFwec1G2ylRoVBchI+F/ZPicZQkyJ/+NigjuIjbdY/XXvuGSh+Btm3RZPwxVS
+         GFqhe8f2GUvoNVltjoPTeJW1mlnbb5p/fewkoboGiu4LlccD8/Z6rcAhoZdrxSs+XeLg
+         imOTFxugDrqUAbxk/e/epAco4cmz76rzqNGtcT1BfNXvhxHXvtHHSVedTDwV/AwOa6XB
+         o8nlpEhXne244Xtuae3PUtpvL4WUmV4dm3pPKL9TIrXJrRqXTmfDzbCX6MwckcUBfrCx
+         rGIA==
+X-Gm-Message-State: AOJu0YzyfdbS02LMAejsCqH61aO4cohn3GS4ux2I28KxF7l7UeY0o7LR
+	Isdb27fHDJCfC45fro7tkBo9qc5atP+YLA==
+X-Google-Smtp-Source: AGHT+IGFZG9RzTslIKByE8OsIbeGFMIcfeNY7ZzEx0oFHv/jTEByRHQmOvc283cFjKRR6SZqmF123Q==
+X-Received: by 2002:a05:600c:2986:b0:40b:5e21:e27a with SMTP id r6-20020a05600c298600b0040b5e21e27amr638243wmd.103.1703248033203;
+        Fri, 22 Dec 2023 04:27:13 -0800 (PST)
+Received: from ?IPv6:2804:30c:1668:b300:8fcd:588d:fb77:ed04? ([2804:30c:1668:b300:8fcd:588d:fb77:ed04])
+        by smtp.gmail.com with ESMTPSA id fj8-20020a05600c0c8800b004094e565e71sm6801715wmb.23.2023.12.22.04.27.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 Dec 2023 04:27:13 -0800 (PST)
+Message-ID: <5d7989b6a5ecc483b63397c838edb7133c1620d3.camel@suse.com>
+Subject: Re: [PATCH] selftests/livepatch: fix and refactor new dmesg message
+ code
+From: Marcos Paulo de Souza <mpdesouza@suse.com>
+To: Joe Lawrence <joe.lawrence@redhat.com>, live-patching@vger.kernel.org, 
+ linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org, Alexander
+ Gordeev <agordeev@linux.ibm.com>, Petr Mladek <pmladek@suse.com>
+Date: Fri, 22 Dec 2023 09:27:06 -0300
+In-Reply-To: <20231220151151.267985-1-joe.lawrence@redhat.com>
+References: <20231220151151.267985-1-joe.lawrence@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.1 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231213233605.661251-1-iii@linux.ibm.com> <20231213233605.661251-18-iii@linux.ibm.com>
-In-Reply-To: <20231213233605.661251-18-iii@linux.ibm.com>
-From: Alexander Potapenko <glider@google.com>
-Date: Fri, 22 Dec 2023 12:35:27 +0100
-Message-ID: <CAG_fn=UNdruNOkyQ8c5mdWQGC1-xP+86GX9Zsdg3VSc=5itNaA@mail.gmail.com>
-Subject: Re: [PATCH v3 17/34] lib/zlib: Unpoison DFLTCC output buffers
-To: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Pekka Enberg <penberg@kernel.org>, 
-	Steven Rostedt <rostedt@goodmis.org>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Vlastimil Babka <vbabka@suse.cz>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com, 
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, 
-	Roman Gushchin <roman.gushchin@linux.dev>, Sven Schnelle <svens@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 14, 2023 at 12:36=E2=80=AFAM Ilya Leoshkevich <iii@linux.ibm.co=
-m> wrote:
->
-> The constraints of the DFLTCC inline assembly are not precise: they
-> do not communicate the size of the output buffers to the compiler, so
-> it cannot automatically instrument it.
->
-> Add the manual kmsan_unpoison_memory() calls for the output buffers.
-> The logic is the same as in [1].
->
-> [1] https://github.com/zlib-ng/zlib-ng/commit/1f5ddcc009ac3511e99fc88736a=
-9e1a6381168c5
->
+On Wed, 2023-12-20 at 10:11 -0500, Joe Lawrence wrote:
+> The livepatching kselftests rely on comparing expected vs. observed
+> dmesg output.=C2=A0 After each test, new dmesg entries are determined by
+> the
+> 'comm' utility comparing a saved, pre-test copy of dmesg to post-test
+> dmesg output.
+>=20
+> Alexander reports that the 'comm --nocheck-order -13' invocation used
+> by
+> the tests can be confused when dmesg entry timestamps vary in
+> magnitude
+> (ie, "[=C2=A0=C2=A0 98.820331]" vs. "[=C2=A0 100.031067]"), in which case=
+,
+> additional
+> messages are reported as new.=C2=A0 The unexpected entries then spoil the
+> test results.
+>=20
+> Instead of relying on 'comm' or 'diff' to determine new testing dmesg
+> entries, refactor the code:
+>=20
+> =C2=A0 - pre-test=C2=A0 : log a unique canary dmesg entry
+> =C2=A0 - test=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 : run tests, log messages
+> =C2=A0 - post-test : filter dmesg starting from pre-test message
+>=20
 > Reported-by: Alexander Gordeev <agordeev@linux.ibm.com>
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Reviewed-by: Alexander Potapenko <glider@google.com>
+> Closes:
+> https://lore.kernel.org/live-patching/ZYAimyPYhxVA9wKg@li-008a6a4c-3549-1=
+1b2-a85c-c5cc2836eea2.ibm.com/
+> Signed-off-by: Joe Lawrence <joe.lawrence@redhat.com>
 
+I liked the solution. As I don't speak awk I had to do some manual
+testing to understand that the syntax you used "prints everything after
+the $last_dmesg_msg message on dmesg". Either way, it's better then
+using 'comm' utility. I tested on my x86_64 VM, and the tests passed as
+expected.
 
-> @@ -34,6 +37,7 @@ static inline dfltcc_cc dfltcc(
->  )
->  {
->      Byte *t2 =3D op1 ? *op1 : NULL;
-> +    unsigned char *orig_t2 =3D t2;
->      size_t t3 =3D len1 ? *len1 : 0;
->      const Byte *t4 =3D op2 ? *op2 : NULL;
->      size_t t5 =3D len2 ? *len2 : 0;
-> @@ -59,6 +63,26 @@ static inline dfltcc_cc dfltcc(
->                       : "cc", "memory");
->      t2 =3D r2; t3 =3D r3; t4 =3D r4; t5 =3D r5;
->
-> +    switch (fn & DFLTCC_FN_MASK) {
+LGTM, so
 
-It might be a good idea to add a comment explaining what this block of
-code does.
-(And that it is no-op in non-KMSAN builds)
+Tested-by: Marcos Paulo de Souza <mpdesouza@suse.com>
+Reviewed-by: Marcos Paulo de Souza <mpdesouza@suse.com>=20
+
+> ---
+> =C2=A0.../testing/selftests/livepatch/functions.sh=C2=A0 | 37 +++++++++--=
+------
+> --
+> =C2=A01 file changed, 17 insertions(+), 20 deletions(-)
+>=20
+> diff --git a/tools/testing/selftests/livepatch/functions.sh
+> b/tools/testing/selftests/livepatch/functions.sh
+> index c8416c54b463..b1fd7362c2fe 100644
+> --- a/tools/testing/selftests/livepatch/functions.sh
+> +++ b/tools/testing/selftests/livepatch/functions.sh
+> @@ -42,17 +42,6 @@ function die() {
+> =C2=A0	exit 1
+> =C2=A0}
+> =C2=A0
+> -# save existing dmesg so we can detect new content
+> -function save_dmesg() {
+> -	SAVED_DMESG=3D$(mktemp --tmpdir -t klp-dmesg-XXXXXX)
+> -	dmesg > "$SAVED_DMESG"
+> -}
+> -
+> -# cleanup temporary dmesg file from save_dmesg()
+> -function cleanup_dmesg_file() {
+> -	rm -f "$SAVED_DMESG"
+> -}
+> -
+> =C2=A0function push_config() {
+> =C2=A0	DYNAMIC_DEBUG=3D$(grep '^kernel/livepatch'
+> /sys/kernel/debug/dynamic_debug/control | \
+> =C2=A0			awk -F'[: ]' '{print "file " $1 " line " $2
+> " " $4}')
+> @@ -99,7 +88,6 @@ function set_ftrace_enabled() {
+> =C2=A0
+> =C2=A0function cleanup() {
+> =C2=A0	pop_config
+> -	cleanup_dmesg_file
+> =C2=A0}
+> =C2=A0
+> =C2=A0# setup_config - save the current config and set a script exit trap
+> that
+> @@ -280,7 +268,15 @@ function set_pre_patch_ret {
+> =C2=A0function start_test {
+> =C2=A0	local test=3D"$1"
+> =C2=A0
+> -	save_dmesg
+> +	# Dump something unique into the dmesg log, then stash the
+> entry
+> +	# in LAST_DMESG.=C2=A0 The check_result() function will use it to
+> +	# find new kernel messages since the test started.
+> +	local last_dmesg_msg=3D"livepatch kselftest timestamp: $(date
+> --rfc-3339=3Dns)"
+> +	log "$last_dmesg_msg"
+> +	loop_until 'dmesg | grep -q "$last_dmesg_msg"' ||
+> +		die "buffer busy? can't find canary dmesg message:
+> $last_dmesg_msg"
+> +	LAST_DMESG=3D$(dmesg | grep "$last_dmesg_msg")
+> +
+> =C2=A0	echo -n "TEST: $test ... "
+> =C2=A0	log "=3D=3D=3D=3D=3D TEST: $test =3D=3D=3D=3D=3D"
+> =C2=A0}
+> @@ -291,23 +287,24 @@ function check_result {
+> =C2=A0	local expect=3D"$*"
+> =C2=A0	local result
+> =C2=A0
+> -	# Note: when comparing dmesg output, the kernel log
+> timestamps
+> -	# help differentiate repeated testing runs.=C2=A0 Remove them
+> with a
+> -	# post-comparison sed filter.
+> -
+> -	result=3D$(dmesg | comm --nocheck-order -13 "$SAVED_DMESG" - |
+> \
+> +	# Test results include any new dmesg entry since LAST_DMESG,
+> then:
+> +	# - include lines matching keywords
+> +	# - exclude lines matching keywords
+> +	# - filter out dmesg timestamp prefixes
+> +	result=3D$(dmesg | awk -v last_dmesg=3D"$LAST_DMESG" 'p; $0 =3D=3D
+> last_dmesg { p=3D1 }' | \
+> =C2=A0		 grep -e 'livepatch:' -e 'test_klp' | \
+> =C2=A0		 grep -v '\(tainting\|taints\) kernel' | \
+> =C2=A0		 sed 's/^\[[ 0-9.]*\] //')
+> =C2=A0
+> =C2=A0	if [[ "$expect" =3D=3D "$result" ]] ; then
+> =C2=A0		echo "ok"
+> +	elif [[ "$result" =3D=3D "" ]] ; then
+> +		echo -e "not ok\n\nbuffer overrun? can't find canary
+> dmesg entry: $LAST_DMESG\n"
+> +		die "livepatch kselftest(s) failed"
+> =C2=A0	else
+> =C2=A0		echo -e "not ok\n\n$(diff -upr --label expected --
+> label result <(echo "$expect") <(echo "$result"))\n"
+> =C2=A0		die "livepatch kselftest(s) failed"
+> =C2=A0	fi
+> -
+> -	cleanup_dmesg_file
+> =C2=A0}
+> =C2=A0
+> =C2=A0# check_sysfs_rights(modname, rel_path, expected_rights) - check
+> sysfs
+
