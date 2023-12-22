@@ -1,206 +1,125 @@
-Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 010621803A
-	for <linux-s390@vger.kernel.org>; Fri, 22 Dec 2023 12:27:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A1501A598;
+	Fri, 22 Dec 2023 13:51:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="WTmV8/F9"
-Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-3369ccb539aso24798f8f.3
-        for <linux-s390@vger.kernel.org>; Fri, 22 Dec 2023 04:27:14 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HBzFuEoH"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-28beb1d946fso1536500a91.0;
+        Fri, 22 Dec 2023 05:51:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1703248033; x=1703852833; darn=vger.kernel.org;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:to:from:subject:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=x3DIgQDPNUxa7RZs2ySWTeSV2mkBPOsrUg4r0CjPEpY=;
-        b=WTmV8/F9lalJWwcB4nYTai/r3KpxegPUTatsZ4wAWIE39b4WtiYJ9YWH2BW+DGoxec
-         2yOClsW3+nUNYNCW8g4DpnY3XnQxq2v2spW8oqag2P1AhFu3EDPbXPaL5hsjYVaiwcdi
-         xmhu8M4X4ZIbDMLIwYe7rut50+nxHGuH1ChUPIR78jVmLzu/geQAC/jzUb0mdFVyqOBf
-         BhjrMpnox5LNgFjYu4liJl3rrLaFLAB+/Uz8xMWhmXGQ128oSDHOqit3XlP+FfXA1zfG
-         B/M2JMVpXSQIsn2jYjxEVNPo5F+TL2/6cVKYmt7tKzZjbr6EpkexEIKs+M9vxO2gPQi1
-         TxPA==
+        d=gmail.com; s=20230601; t=1703253065; x=1703857865; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=5zqMKf7KXgOHRYALYfO/qvFwWZkjocCEqNPPk9MJnuw=;
+        b=HBzFuEoH5Rs0wTyHaNm45GCaneVutaSRiYFOa8NtaOjnyAjL9pxTjnA/FJ6CDdJTfs
+         6GsWEl3R1f8MrQnjRu7CL1PDyfyiNk5MbOZ9ISXR+qxPJVROlGo3Jnp8p3WzQlI5AAns
+         gc/RQQWpDapdN5C33YXL1bQvPLHsz5U8OOs1e4He8xrXmahGmer2mM6Y7fPwQC7zMspO
+         cL4jCEsCtx6mADrmPKPeoEGa8cJbmk9XjWJkX8qZjijOmL/pO8YV52W4V/dkFJQnHLnh
+         bfyO7vl4B50Zm0+HiTqVs7orpWbu49UOGJ1EtmB6QQjs6SHt+Kziw2xplCskNclKtzOM
+         41Uw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703248033; x=1703852833;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:to:from:subject:message-id:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=x3DIgQDPNUxa7RZs2ySWTeSV2mkBPOsrUg4r0CjPEpY=;
-        b=MCan/fwZCvDLIsBx95w0kUYTPQCl1Ltg3ICHGO7wfsz4WyrwyGW4EdBu6s7bScfxKT
-         D82Z03PgFwec1G2ylRoVBchI+F/ZPicZQkyJ/+NigjuIjbdY/XXvuGSh+Btm3RZPwxVS
-         GFqhe8f2GUvoNVltjoPTeJW1mlnbb5p/fewkoboGiu4LlccD8/Z6rcAhoZdrxSs+XeLg
-         imOTFxugDrqUAbxk/e/epAco4cmz76rzqNGtcT1BfNXvhxHXvtHHSVedTDwV/AwOa6XB
-         o8nlpEhXne244Xtuae3PUtpvL4WUmV4dm3pPKL9TIrXJrRqXTmfDzbCX6MwckcUBfrCx
-         rGIA==
-X-Gm-Message-State: AOJu0YzyfdbS02LMAejsCqH61aO4cohn3GS4ux2I28KxF7l7UeY0o7LR
-	Isdb27fHDJCfC45fro7tkBo9qc5atP+YLA==
-X-Google-Smtp-Source: AGHT+IGFZG9RzTslIKByE8OsIbeGFMIcfeNY7ZzEx0oFHv/jTEByRHQmOvc283cFjKRR6SZqmF123Q==
-X-Received: by 2002:a05:600c:2986:b0:40b:5e21:e27a with SMTP id r6-20020a05600c298600b0040b5e21e27amr638243wmd.103.1703248033203;
-        Fri, 22 Dec 2023 04:27:13 -0800 (PST)
-Received: from ?IPv6:2804:30c:1668:b300:8fcd:588d:fb77:ed04? ([2804:30c:1668:b300:8fcd:588d:fb77:ed04])
-        by smtp.gmail.com with ESMTPSA id fj8-20020a05600c0c8800b004094e565e71sm6801715wmb.23.2023.12.22.04.27.11
+        d=1e100.net; s=20230601; t=1703253065; x=1703857865;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=5zqMKf7KXgOHRYALYfO/qvFwWZkjocCEqNPPk9MJnuw=;
+        b=vIleMJ68tCxn3mKo6pgr4BCmUURYOt+ASo/xMd7ieXoklc5ZA9pbHdFQRerOSN5mX8
+         0HBpVKiOWEP/mhyMNXyfryEEvEuzHka9bu2aItN1GXZyHge02oRRCvzyMDrjnRvuNach
+         TuDMYXbIfkFWd7cOyY8WxURz0M1+o646NZ+bWp6QbjApz/6Ky6tTBILu6k3aIWFVti05
+         owOpaa3VyCNknIUtonxCe2UWDLCRTdkzDOorrREOhA2zxry5P+XgO9JJT5NWwBttJ/5g
+         Qt3clrjUCGyPqkIPLRCxuw0sl45DqcGU2Cjey10irgVO5mBZzbD6OigCM7SQv+0eq2gd
+         qCuw==
+X-Gm-Message-State: AOJu0YyCZJOoSIGUwfrs++qf+VJjCqsmNfCMYxbgqA23PrgehQ7oQS/R
+	njQPEcfzJXYQH6eOJjjpCyo=
+X-Google-Smtp-Source: AGHT+IFTvL7baOi+WA9A1CiGd4kDHO1A0hMH2POOXsGm8LsAosUoUwCP2mO+R1FoLFAExQXoGS9h7A==
+X-Received: by 2002:a17:90a:ad84:b0:286:6cc1:3f03 with SMTP id s4-20020a17090aad8400b002866cc13f03mr1086130pjq.58.1703253065442;
+        Fri, 22 Dec 2023 05:51:05 -0800 (PST)
+Received: from wheely.local0.net ([203.220.145.68])
+        by smtp.gmail.com with ESMTPSA id n12-20020a17090ac68c00b0028ae54d988esm3629280pjt.48.2023.12.22.05.50.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Dec 2023 04:27:13 -0800 (PST)
-Message-ID: <5d7989b6a5ecc483b63397c838edb7133c1620d3.camel@suse.com>
-Subject: Re: [PATCH] selftests/livepatch: fix and refactor new dmesg message
- code
-From: Marcos Paulo de Souza <mpdesouza@suse.com>
-To: Joe Lawrence <joe.lawrence@redhat.com>, live-patching@vger.kernel.org, 
- linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org, Alexander
- Gordeev <agordeev@linux.ibm.com>, Petr Mladek <pmladek@suse.com>
-Date: Fri, 22 Dec 2023 09:27:06 -0300
-In-Reply-To: <20231220151151.267985-1-joe.lawrence@redhat.com>
-References: <20231220151151.267985-1-joe.lawrence@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.1 
+        Fri, 22 Dec 2023 05:51:04 -0800 (PST)
+From: Nicholas Piggin <npiggin@gmail.com>
+To: Thomas Huth <thuth@redhat.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>,
+	kvm@vger.kernel.org,
+	Laurent Vivier <lvivier@redhat.com>,
+	"Shaoqin Huang" <shahuang@redhat.com>,
+	Andrew Jones <andrew.jones@linux.dev>,
+	Nico Boehr <nrb@linux.ibm.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Alexandru Elisei <alexandru.elisei@arm.com>,
+	Eric Auger <eric.auger@redhat.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	David Hildenbrand <david@redhat.com>,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	kvmarm@lists.linux.dev
+Subject: [kvm-unit-tests PATCH 0/9] Multi-migration support
+Date: Fri, 22 Dec 2023 23:50:39 +1000
+Message-ID: <20231222135048.1924672-1-npiggin@gmail.com>
+X-Mailer: git-send-email 2.42.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Wed, 2023-12-20 at 10:11 -0500, Joe Lawrence wrote:
-> The livepatching kselftests rely on comparing expected vs. observed
-> dmesg output.=C2=A0 After each test, new dmesg entries are determined by
-> the
-> 'comm' utility comparing a saved, pre-test copy of dmesg to post-test
-> dmesg output.
->=20
-> Alexander reports that the 'comm --nocheck-order -13' invocation used
-> by
-> the tests can be confused when dmesg entry timestamps vary in
-> magnitude
-> (ie, "[=C2=A0=C2=A0 98.820331]" vs. "[=C2=A0 100.031067]"), in which case=
-,
-> additional
-> messages are reported as new.=C2=A0 The unexpected entries then spoil the
-> test results.
->=20
-> Instead of relying on 'comm' or 'diff' to determine new testing dmesg
-> entries, refactor the code:
->=20
-> =C2=A0 - pre-test=C2=A0 : log a unique canary dmesg entry
-> =C2=A0 - test=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 : run tests, log messages
-> =C2=A0 - post-test : filter dmesg starting from pre-test message
->=20
-> Reported-by: Alexander Gordeev <agordeev@linux.ibm.com>
-> Closes:
-> https://lore.kernel.org/live-patching/ZYAimyPYhxVA9wKg@li-008a6a4c-3549-1=
-1b2-a85c-c5cc2836eea2.ibm.com/
-> Signed-off-by: Joe Lawrence <joe.lawrence@redhat.com>
+Thomas suggested I should split this out of the powerpc series
+because it is applicable to other archs as well and it's easier
+for others to review like this.
 
-I liked the solution. As I don't speak awk I had to do some manual
-testing to understand that the syntax you used "prints everything after
-the $last_dmesg_msg message on dmesg". Either way, it's better then
-using 'comm' utility. I tested on my x86_64 VM, and the tests passed as
-expected.
+Since the v5 series:
+- Split out from powerpc changes
+- Fixed another small race found when running migration tests
+  on aarch64 (wait for destination machine to have qmp socket
+  set up before issuing qmp commands to it).
+- Added a directory for common tests, added the migration
+  selftest to it, build it on arm and s390x as well.
+- Add "quiet" migration support, use it in migration selftest.
+- Cut down runtime for migration selftest so it is suitable for
+  unit tests. Add it to unit tests.
+- Fix a s390x make clean omission that bit me when testing
+  it. This does not depend on the other patches.
 
-LGTM, so
+Thanks,
+Nick
 
-Tested-by: Marcos Paulo de Souza <mpdesouza@suse.com>
-Reviewed-by: Marcos Paulo de Souza <mpdesouza@suse.com>=20
+Nicholas Piggin (9):
+  s390x: clean lib/auxinfo.o
+  arch-run: Clean up temporary files properly
+  arch-run: Clean up initrd cleanup
+  migration: use a more robust way to wait for background job
+  migration: Support multiple migrations
+  arch-run: rename migration variables
+  migration: Add quiet migration support
+  Add common/ directory for architecture-independent tests
+  migration: add a migration selftest
 
-> ---
-> =C2=A0.../testing/selftests/livepatch/functions.sh=C2=A0 | 37 +++++++++--=
-------
-> --
-> =C2=A01 file changed, 17 insertions(+), 20 deletions(-)
->=20
-> diff --git a/tools/testing/selftests/livepatch/functions.sh
-> b/tools/testing/selftests/livepatch/functions.sh
-> index c8416c54b463..b1fd7362c2fe 100644
-> --- a/tools/testing/selftests/livepatch/functions.sh
-> +++ b/tools/testing/selftests/livepatch/functions.sh
-> @@ -42,17 +42,6 @@ function die() {
-> =C2=A0	exit 1
-> =C2=A0}
-> =C2=A0
-> -# save existing dmesg so we can detect new content
-> -function save_dmesg() {
-> -	SAVED_DMESG=3D$(mktemp --tmpdir -t klp-dmesg-XXXXXX)
-> -	dmesg > "$SAVED_DMESG"
-> -}
-> -
-> -# cleanup temporary dmesg file from save_dmesg()
-> -function cleanup_dmesg_file() {
-> -	rm -f "$SAVED_DMESG"
-> -}
-> -
-> =C2=A0function push_config() {
-> =C2=A0	DYNAMIC_DEBUG=3D$(grep '^kernel/livepatch'
-> /sys/kernel/debug/dynamic_debug/control | \
-> =C2=A0			awk -F'[: ]' '{print "file " $1 " line " $2
-> " " $4}')
-> @@ -99,7 +88,6 @@ function set_ftrace_enabled() {
-> =C2=A0
-> =C2=A0function cleanup() {
-> =C2=A0	pop_config
-> -	cleanup_dmesg_file
-> =C2=A0}
-> =C2=A0
-> =C2=A0# setup_config - save the current config and set a script exit trap
-> that
-> @@ -280,7 +268,15 @@ function set_pre_patch_ret {
-> =C2=A0function start_test {
-> =C2=A0	local test=3D"$1"
-> =C2=A0
-> -	save_dmesg
-> +	# Dump something unique into the dmesg log, then stash the
-> entry
-> +	# in LAST_DMESG.=C2=A0 The check_result() function will use it to
-> +	# find new kernel messages since the test started.
-> +	local last_dmesg_msg=3D"livepatch kselftest timestamp: $(date
-> --rfc-3339=3Dns)"
-> +	log "$last_dmesg_msg"
-> +	loop_until 'dmesg | grep -q "$last_dmesg_msg"' ||
-> +		die "buffer busy? can't find canary dmesg message:
-> $last_dmesg_msg"
-> +	LAST_DMESG=3D$(dmesg | grep "$last_dmesg_msg")
-> +
-> =C2=A0	echo -n "TEST: $test ... "
-> =C2=A0	log "=3D=3D=3D=3D=3D TEST: $test =3D=3D=3D=3D=3D"
-> =C2=A0}
-> @@ -291,23 +287,24 @@ function check_result {
-> =C2=A0	local expect=3D"$*"
-> =C2=A0	local result
-> =C2=A0
-> -	# Note: when comparing dmesg output, the kernel log
-> timestamps
-> -	# help differentiate repeated testing runs.=C2=A0 Remove them
-> with a
-> -	# post-comparison sed filter.
-> -
-> -	result=3D$(dmesg | comm --nocheck-order -13 "$SAVED_DMESG" - |
-> \
-> +	# Test results include any new dmesg entry since LAST_DMESG,
-> then:
-> +	# - include lines matching keywords
-> +	# - exclude lines matching keywords
-> +	# - filter out dmesg timestamp prefixes
-> +	result=3D$(dmesg | awk -v last_dmesg=3D"$LAST_DMESG" 'p; $0 =3D=3D
-> last_dmesg { p=3D1 }' | \
-> =C2=A0		 grep -e 'livepatch:' -e 'test_klp' | \
-> =C2=A0		 grep -v '\(tainting\|taints\) kernel' | \
-> =C2=A0		 sed 's/^\[[ 0-9.]*\] //')
-> =C2=A0
-> =C2=A0	if [[ "$expect" =3D=3D "$result" ]] ; then
-> =C2=A0		echo "ok"
-> +	elif [[ "$result" =3D=3D "" ]] ; then
-> +		echo -e "not ok\n\nbuffer overrun? can't find canary
-> dmesg entry: $LAST_DMESG\n"
-> +		die "livepatch kselftest(s) failed"
-> =C2=A0	else
-> =C2=A0		echo -e "not ok\n\n$(diff -upr --label expected --
-> label result <(echo "$expect") <(echo "$result"))\n"
-> =C2=A0		die "livepatch kselftest(s) failed"
-> =C2=A0	fi
-> -
-> -	cleanup_dmesg_file
-> =C2=A0}
-> =C2=A0
-> =C2=A0# check_sysfs_rights(modname, rel_path, expected_rights) - check
-> sysfs
+ arm/Makefile.common         |   1 +
+ arm/sieve.c                 |   2 +-
+ arm/unittests.cfg           |   6 ++
+ common/selftest-migration.c |  34 +++++++
+ common/sieve.c              |  51 ++++++++++
+ lib/migrate.c               |  20 +++-
+ lib/migrate.h               |   2 +
+ powerpc/Makefile.common     |   1 +
+ powerpc/unittests.cfg       |   4 +
+ s390x/Makefile              |   3 +-
+ s390x/sieve.c               |   2 +-
+ s390x/unittests.cfg         |   4 +
+ scripts/arch-run.bash       | 181 ++++++++++++++++++++++++++----------
+ x86/sieve.c                 |  52 +----------
+ 14 files changed, 258 insertions(+), 105 deletions(-)
+ create mode 100644 common/selftest-migration.c
+ create mode 100644 common/sieve.c
+ mode change 100644 => 120000 x86/sieve.c
+
+-- 
+2.42.0
 
