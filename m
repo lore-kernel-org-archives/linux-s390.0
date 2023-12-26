@@ -1,112 +1,100 @@
-Received: from tarta.nabijaczleweli.xyz (tarta.nabijaczleweli.xyz [139.28.40.42])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E586A53E19;
-	Mon, 25 Dec 2023 21:50:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nabijaczleweli.xyz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabijaczleweli.xyz
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F0C232187;
+	Tue, 26 Dec 2023 00:20:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nabijaczleweli.xyz header.i=@nabijaczleweli.xyz header.b="CzCyLweo"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nabijaczleweli.xyz;
-	s=202305; t=1703541017;
-	bh=MA+tfrS1lXeibluol1bguEI4A96X8uMrK02NpuUsP+E=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=CzCyLweo2a3NR4pzHahCYYWw7UfrdovuCPf4zjosK0ao6fagU2ueJw9nsRfi7DaoG
-	 RCREWnmAQyEZaoj/W1eN/riX2/3BEMnp5MkSmiU410v0bIRW/Au+qs1dIVg/xnp+XJ
-	 XH4tL3Zb1VyYJ8R+/8TJv6ilmH7t0QQiz4soCSgvzL9HTjThl2P243dFFtWASvdXqw
-	 5QJ10w3tI4l2HnJ0PAWk5BTtl8DewuG7EgvdcMuF9mpdeXUl86AY5HiLEZk8Gl5uvJ
-	 7MNyzLycO6+r9owOb5dSZAEAldx7/zZImFzht6WadGe1KlZR8UwdjysO9Ur7NApyuA
-	 3NrmwuRVEJonQ==
-Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
-	by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id A83961448C;
-	Mon, 25 Dec 2023 22:50:17 +0100 (CET)
-Date: Mon, 25 Dec 2023 22:50:17 +0100
-From: 
-	Ahelenia =?utf-8?Q?Ziemia=C5=84ska?= <nabijaczleweli@nabijaczleweli.xyz>
-To: Askar Safin <safinaskar@gmail.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-man <linux-man@vger.kernel.org>, linux-s390@vger.kernel.org, linux-serial@vger.kernel.org, 
-	netdev@vger.kernel.org, virtualization@lists.linux.dev
-Subject: Re: Avoid unprivileged splice(file->)/(->socket) pipe exclusion
-Message-ID: <d4ocnyfwlwqfdthubds6yshbn2xk67rsjh32glhkjtzcvq4x6k@tarta.nabijaczleweli.xyz>
-References: <CAPnZJGCdr7pw80Pq38UacmxsbQAowmasPtFxQVCP+tm6Cj9pUg@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mEg12p98"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F8D0C433C8;
+	Tue, 26 Dec 2023 00:20:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1703550050;
+	bh=W/zu7zDF7ZsKYxYpsW6mqEgwy2aRxetCO66vH4avYjk=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=mEg12p98PxlIh5UbxjphiKFm/nAjwUIwAbapVWNEeWfCQ5iKKtOy08z34nw8c/vXo
+	 zmIM4HTDi5NRojo6kGXHKfPtKY6o4zpYzf+raEoe1iB61MjjTClA9K2oTQZ6U/9JGg
+	 /zcXetzyOTDY6gCjnDFskIp1B2AQupD2NONkePxWZ3/bJHtCrnvIJ0dGmTC07kXoxl
+	 IPpKi9UW6poT8FGWjB3+Idf4Zrd99v4X5MeZHhYTEct9rWdEceXmXxOozUwJ/p7f3f
+	 HUaW6i1tCM3ph+ua8aWt369LrdhgpVqVRLG7Snr853iMHxqArEKwANRVR1/xkwREXL
+	 9VNx9sUQOPOeQ==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Cc: Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Sasha Levin <sashal@kernel.org>,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.6 11/39] s390/scm: fix virtual vs physical address confusion
+Date: Mon, 25 Dec 2023 19:19:01 -0500
+Message-ID: <20231226002021.4776-11-sashal@kernel.org>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20231226002021.4776-1-sashal@kernel.org>
+References: <20231226002021.4776-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="elcjl7by3l7zvqng"
-Content-Disposition: inline
-In-Reply-To: <CAPnZJGCdr7pw80Pq38UacmxsbQAowmasPtFxQVCP+tm6Cj9pUg@mail.gmail.com>
-User-Agent: NeoMutt/20231221-2-4202cf-dirty
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.6.8
+Content-Transfer-Encoding: 8bit
 
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
 
---elcjl7by3l7zvqng
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[ Upstream commit b1a6a1a77f0666a5a6dc0893ab6ec8fcae46f24c ]
 
-On Tue, Dec 26, 2023 at 12:34:44AM +0300, Askar Safin wrote:
-> In https://lore.kernel.org/lkml/CAHk-=3DwgG_2cmHgZwKjydi7=3DiimyHyN8aessn=
-bM9XQ9ufbaUz9g@mail.gmail.com/
-> Linus said:
-> > I have grown to pretty much hate
-> > splice() over the years, just because it's been a constant source of
-> > sorrow in so many ways.
->=20
-> > It's just that it was never as lovely and as useful as it promised to
-> > be. So I'd actually be more than happy to just say "let's decommission
-> > splice entirely, just keeping the interfaces alive for backwards
-> > compatibility"
-> So probably we should do this as Linus suggested? I. e. fully remove
-> splice by replacing it with trivial read-write?
-I am doing just like he suggested downthread of my original report, in
-  https://lore.kernel.org/linux-fsdevel/CAHk-=3DwimmqG_wvSRtMiKPeGGDL816n65=
-u=3DMq2+H3-=3DuM2U6FmA@mail.gmail.com/
-> But it is possible that we need to just bite the bullet and say
-> "copy_splice_read() needs to use a non-blocking kiocb for the IO".
+Fix virtual vs physical address confusion (which currently are the same).
 
-I see it post-dates the thing you cited,
-which naturally makes it more valid,
-and it directly references this particular issue,
-instead of an annoying data corruption one.
+Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/s390/block/scm_blk.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-This whole series effectively amounts to three patches
-(delete splice_* form ttys,
- make IPC splice_read  nonblocking when lock is held,
- make IPC splice_write nonblocking when lock is held)
-just the latter two to thirty implementations of the same funxion.
+diff --git a/drivers/s390/block/scm_blk.c b/drivers/s390/block/scm_blk.c
+index 3a9cc8a4a2302..ade95e91b3c8d 100644
+--- a/drivers/s390/block/scm_blk.c
++++ b/drivers/s390/block/scm_blk.c
+@@ -17,6 +17,7 @@
+ #include <linux/blk-mq.h>
+ #include <linux/slab.h>
+ #include <linux/list.h>
++#include <linux/io.h>
+ #include <asm/eadm.h>
+ #include "scm_blk.h"
+ 
+@@ -130,7 +131,7 @@ static void scm_request_done(struct scm_request *scmrq)
+ 
+ 	for (i = 0; i < nr_requests_per_io && scmrq->request[i]; i++) {
+ 		msb = &scmrq->aob->msb[i];
+-		aidaw = msb->data_addr;
++		aidaw = (u64)phys_to_virt(msb->data_addr);
+ 
+ 		if ((msb->flags & MSB_FLAG_IDA) && aidaw &&
+ 		    IS_ALIGNED(aidaw, PAGE_SIZE))
+@@ -195,12 +196,12 @@ static int scm_request_prepare(struct scm_request *scmrq)
+ 	msb->scm_addr = scmdev->address + ((u64) blk_rq_pos(req) << 9);
+ 	msb->oc = (rq_data_dir(req) == READ) ? MSB_OC_READ : MSB_OC_WRITE;
+ 	msb->flags |= MSB_FLAG_IDA;
+-	msb->data_addr = (u64) aidaw;
++	msb->data_addr = (u64)virt_to_phys(aidaw);
+ 
+ 	rq_for_each_segment(bv, req, iter) {
+ 		WARN_ON(bv.bv_offset);
+ 		msb->blk_count += bv.bv_len >> 12;
+-		aidaw->data_addr = (u64) page_address(bv.bv_page);
++		aidaw->data_addr = virt_to_phys(page_address(bv.bv_page));
+ 		aidaw++;
+ 	}
+ 
+-- 
+2.43.0
 
-This is hardly reason to kill an interface that doubles the performance
-of a very common operation IMO.
-
-Honestly, no-one would probably run into this in another decade
-if just the splice_* deletion from ttys was implemented;
-this is just thoroughness to a fault since you can spin this as a
-security issue, really.
-
-Best,
-
---elcjl7by3l7zvqng
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmWJ+RcACgkQvP0LAY0m
-WPEPHBAAprjcx1jdgNBsSoj62jLD0KLv+GkwIAVu1KVkI4xzk4wswel3/5uGs/KK
-iyqj+OIxNaJsNUgc3Ro5fYFoK5R+zdLLBXMUujf8xa86XjWGYWYy3PnqpsuR00bJ
-JrJ4ZHygilZU5WwVaz3S9HMV5tjBDLlLuHwkvaoBGuMQRdmfaI09hrrwB3ORbmEX
-NAa0Al21p2raW/YN7SRsOiR49b6zNyK7t7tz3hNaDJiAI9x1rHhcUpoNi/0hyn0C
-5LfBH+0J5hXlPgivvmHGeKggq9H1Y8610WUW9TVSlvxmOMxfOThoVGjV3c6JSzrB
-4sgiqs5KVtB8Q0b7N157551R63FSnYHSmxObXixgQcuwew+e3gJ8HDt76YDm/ujc
-TK/kzSmGrqwpENtSuO9OaBh0UjvI39EArPWQCiDhcHr70ICgxsHV0QWcUkRfWf9c
-p3kNJorU0Lrf04dyS89p6pkA4rDFUj9eColK1CvFNgOLxG2IEyd2LFGqN5S58ZF6
-Z0+6GY/qkJ+i/7qbCVEb0KGpPW9XEmPU0UFwA0PeaAhiAs9yAc+NbUyoIixQWFsu
-HHFBnp4xcAwlLWrBWPgDSxv8nR1vhP0ti90/6FiHQhUtlK1T85YUHVkPJTn02iHD
-1Q3ibe4SIWcc4GScMo9Ypz8i0j3Vc1qWvGM8p/PuxJlOIBCz3k4=
-=y6v1
------END PGP SIGNATURE-----
-
---elcjl7by3l7zvqng--
