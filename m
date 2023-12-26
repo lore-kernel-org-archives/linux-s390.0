@@ -1,22 +1,22 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82F155EE95;
-	Tue, 26 Dec 2023 00:27:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 949A460B9C;
+	Tue, 26 Dec 2023 00:27:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RFR0uRu9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69FB9C433C8;
-	Tue, 26 Dec 2023 00:27:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mBoX+W2v"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21E30C433C7;
+	Tue, 26 Dec 2023 00:27:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1703550426;
-	bh=pUI+BkAkFtp05WdgjDZvtYYBdmXmtT6NR+Yefnz7D/M=;
+	s=k20201202; t=1703550455;
+	bh=wQlW7aWIp+uH5LfbWjwIRlxGv6oqoVC4weI3SbsKPhI=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=RFR0uRu9sdkgwtOVy3AYWxj6fIiRu8ufQutTkuMCOFcDIqixMxE3MqTuojfj2kAWk
-	 tdMUxhEl0VGn2RDgRASgQg2PG/Z9tc5WC7G6hOjqgg4SoHXWDiphZHW3UnE3osXIu0
-	 Zig+khU5Uxd3NwFdOCgyjnlwH5zhRSbDDAdJ8UWWtHKWZtFgXkyk+/IGlFt4WgFF4h
-	 CAGKJ9wayQ65y2IJ0oXneRFiNBeWCyEiMbt4oR+FcdQI0FtL52WBmqsufjOAn1KNc5
-	 wo0Z55EoHt/CTaF7Qs7HpBcsvwtP0+U4JfvG4nfuQupcAqq7CBTaQ+sKEquq8fwlz+
-	 MXtm184vEwRBA==
+	b=mBoX+W2vQ4S4UlxIZDO+xBSkrGHzUpGxb5VnugQCZxskA8XVlwfsDG/cstQ3kR/yo
+	 uKyhyUPxeA+XpYX0+s5bWwATQDY8lZTduQ9THG1SXstBtZDrzTUxQOhC2kOFlIdPbM
+	 +1isHximVrplqRIrvzb8twAmYVWlAap3F/p27E85q7t6nYqpljBfi2lbyWASzyZxRf
+	 BUCXCoNikdoCrm1LQgIios07BiW1nHiO8Y9NndJwztApa/cgZAQeoYDfeC58ntWuz4
+	 qEt0k8Q0FmuKHe4yl9DEaWPTvFkeIz9o15otrgfAjb6a/eGjailEUIZ7O3Fwq1OKMJ
+	 eaPVzNr2cJRPQ==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -27,12 +27,12 @@ Cc: Vineeth Vijayan <vneethv@linux.ibm.com>,
 	hca@linux.ibm.com,
 	gor@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 5/7] s390/scm: fix virtual vs physical address confusion
-Date: Mon, 25 Dec 2023 19:26:29 -0500
-Message-ID: <20231226002649.7290-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 4/6] s390/scm: fix virtual vs physical address confusion
+Date: Mon, 25 Dec 2023 19:27:11 -0500
+Message-ID: <20231226002725.7471-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20231226002649.7290-1-sashal@kernel.org>
-References: <20231226002649.7290-1-sashal@kernel.org>
+In-Reply-To: <20231226002725.7471-1-sashal@kernel.org>
+References: <20231226002725.7471-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 4.19.303
+X-stable-base: Linux 4.14.334
 Content-Transfer-Encoding: 8bit
 
 From: Vineeth Vijayan <vneethv@linux.ibm.com>
@@ -60,10 +60,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/s390/block/scm_blk.c b/drivers/s390/block/scm_blk.c
-index e01889394c841..d3133023a5574 100644
+index 5c944ee76ec14..a37fd27258bd5 100644
 --- a/drivers/s390/block/scm_blk.c
 +++ b/drivers/s390/block/scm_blk.c
-@@ -18,6 +18,7 @@
+@@ -17,6 +17,7 @@
  #include <linux/genhd.h>
  #include <linux/slab.h>
  #include <linux/list.h>
@@ -71,7 +71,7 @@ index e01889394c841..d3133023a5574 100644
  #include <asm/eadm.h>
  #include "scm_blk.h"
  
-@@ -131,7 +132,7 @@ static void scm_request_done(struct scm_request *scmrq)
+@@ -130,7 +131,7 @@ static void scm_request_done(struct scm_request *scmrq)
  
  	for (i = 0; i < nr_requests_per_io && scmrq->request[i]; i++) {
  		msb = &scmrq->aob->msb[i];
@@ -80,7 +80,7 @@ index e01889394c841..d3133023a5574 100644
  
  		if ((msb->flags & MSB_FLAG_IDA) && aidaw &&
  		    IS_ALIGNED(aidaw, PAGE_SIZE))
-@@ -196,12 +197,12 @@ static int scm_request_prepare(struct scm_request *scmrq)
+@@ -195,12 +196,12 @@ static int scm_request_prepare(struct scm_request *scmrq)
  	msb->scm_addr = scmdev->address + ((u64) blk_rq_pos(req) << 9);
  	msb->oc = (rq_data_dir(req) == READ) ? MSB_OC_READ : MSB_OC_WRITE;
  	msb->flags |= MSB_FLAG_IDA;
