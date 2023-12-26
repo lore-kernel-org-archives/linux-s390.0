@@ -1,22 +1,22 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C77446420;
-	Tue, 26 Dec 2023 00:25:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FDBD5DF06;
+	Tue, 26 Dec 2023 00:26:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RE7xuwVU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 738B5C433C9;
-	Tue, 26 Dec 2023 00:25:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IyFSy4bs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 919A9C433C9;
+	Tue, 26 Dec 2023 00:26:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1703550341;
-	bh=8iIbIF7h7TBS+p/2yypaxqrpDeJoh+tiqXNhYIA/jVY=;
+	s=k20201202; t=1703550383;
+	bh=pUI+BkAkFtp05WdgjDZvtYYBdmXmtT6NR+Yefnz7D/M=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=RE7xuwVUWPlj36VXHYJ8jlHsIjmExQn7ssyFxC6WGT0XPBwZN4YaE+OVam8juoPgZ
-	 yJKSZpYu2POoYsRFhZ0OIxhpCOJ816KEOH6HbiiiKFnRQpLMQ0D5R1uNs8cmLCk3cr
-	 TmOQsJ8AuDbKFZkcS/dkC58JpmG5jjBrPjpSqiDA0RNCpFsN9QlZtFQlTcEGxlIunz
-	 YE/JlMpE7Zi6/qcbOrPvKHIc2fXB8wGSVxcZynxT7tXtI7Zxb4LAwoKv3srOBZKPn+
-	 +FEK3oDK0o07jvtbGUGw1/LQUUr8+pzPzaBv3friq4zPM9Zeap25KlqrEhV9Plfije
-	 iFSetmVRuzfvQ==
+	b=IyFSy4bsR5KMbDGcaXsHrj3ylnttErmXvQsinPO8csQmcpeBJOkXQbbTCv/Zq3Bc7
+	 rkgRHE21Pn+eGGREhULdpHqfuVab8O1zGY6TlpfUR50+y8Aa7MiyBqVdSa9VXYSekQ
+	 vCLDO+NJXRvEWResG8o/LNy7SZER+1X+o/0JzslrWuXQU51PGAY71F6cx+7Zn1W+HZ
+	 sOfc3/hcG7iwBY/4Y4pUmNgSSJtolsxv1bn3qV6nkGVTZ9V8Gk9f9erNTHx3eq6U7Q
+	 sxQ+2Dxwm3HdS0klUva/u5GhbhdhB0FcM605RLsJuyy+Iy1Wwt6bRT6BurDXgUs1KG
+	 7DE7OUrTG0AEQ==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -27,12 +27,12 @@ Cc: Vineeth Vijayan <vneethv@linux.ibm.com>,
 	hca@linux.ibm.com,
 	gor@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 5/9] s390/scm: fix virtual vs physical address confusion
-Date: Mon, 25 Dec 2023 19:24:49 -0500
-Message-ID: <20231226002526.6605-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 5/8] s390/scm: fix virtual vs physical address confusion
+Date: Mon, 25 Dec 2023 19:25:48 -0500
+Message-ID: <20231226002608.7089-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20231226002526.6605-1-sashal@kernel.org>
-References: <20231226002526.6605-1-sashal@kernel.org>
+In-Reply-To: <20231226002608.7089-1-sashal@kernel.org>
+References: <20231226002608.7089-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.10.205
+X-stable-base: Linux 5.4.265
 Content-Transfer-Encoding: 8bit
 
 From: Vineeth Vijayan <vneethv@linux.ibm.com>
@@ -60,7 +60,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/s390/block/scm_blk.c b/drivers/s390/block/scm_blk.c
-index a4f6f2e62b1dc..b5b36217b15eb 100644
+index e01889394c841..d3133023a5574 100644
 --- a/drivers/s390/block/scm_blk.c
 +++ b/drivers/s390/block/scm_blk.c
 @@ -18,6 +18,7 @@
