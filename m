@@ -1,91 +1,162 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f202.google.com (mail-yw1-f202.google.com [209.85.128.202])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B2D85684;
-	Tue, 26 Dec 2023 20:30:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12A464C90
+	for <linux-s390@vger.kernel.org>; Tue, 26 Dec 2023 21:46:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--surenb.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="If10gHst"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id B44D6C43391;
-	Tue, 26 Dec 2023 20:30:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1703622628;
-	bh=ZBfFp/kOlQVvVXx7c1vaWsW1JqMtoH+X4lSKs07mt5I=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=If10gHstX2yhMq8WqYN72j+cgWwx54S29WvXmIQG75OKnRJkwYVi5WDBf34p1ia5Y
-	 z6DxpVZKF4DWH2mfKA1PG0bTCwQk1XDCKepp0YVp3zC8MVVVXDAkxAnalhuuUPKVAh
-	 UPrewjCDi25QrB/jnZb5kI9+IKf4dcvlaS2xPl1hWUc6uRbHSuGa/ai105On1A+LuT
-	 UJtNVf2rmNJu8QLLN593NK06RgO83N8kI9cCpZVh04mQ5ehEvI2fxGUO0ob7crzpaq
-	 A9xVX/7Ro/eioEW3xpT+yFqQAhFOwbC5yTWb9dh9h4Wat307QVNrCQl47t04OvwXq8
-	 81HPUCEzEJ9hg==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id A0959E333D7;
-	Tue, 26 Dec 2023 20:30:28 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="qYR6ENIW"
+Received: by mail-yw1-f202.google.com with SMTP id 00721157ae682-5eb3d4aa9fdso24751587b3.2
+        for <linux-s390@vger.kernel.org>; Tue, 26 Dec 2023 13:46:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1703627174; x=1704231974; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=mMjOi6FiRyRmKbg6dFlezaHitoPpTFUdgOKhuK4Mldc=;
+        b=qYR6ENIWSEGn9jbr+rAJ0kKjhy7hHgfmVmsCdeIfdSzGtFcg3D5d8zVoG0nI2/buJt
+         6oZu4QLQoKcGQWiPPUGOQEjSXtfOGXj2PEEicDsR0BrnWpa1gPbnpfLfS0TrcXUFs9kK
+         QRCd/xS2aJu3QRrajYL2wkIM934BpDC1A7VgHuD58pYnvv5p463TZr2O3StxGiitGuMa
+         xKEqy88wP+3R6uvpzogYjkSTds9kL0ryB8xpgwwfmGnqDuR0OBVUD4OCRG1hgc5iy5nQ
+         HILqM2bWsdMQnsg/+50vvsEgFX2VvEuxxDvA2veR0oN5ccFfnOe55lW6Om6IMVMASoke
+         Q6dQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1703627174; x=1704231974;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=mMjOi6FiRyRmKbg6dFlezaHitoPpTFUdgOKhuK4Mldc=;
+        b=mZ8evQ/7CDdMSvDarBiVCAoqIZiSsbC/wzp4Z6enIkznOXh5tVWJTFMyt24RtXSTw7
+         lhsjOD3wKPkkGuMaS+sebSZ1u6wakovceA/6ijxTV/qHaGF8ZIHkqCcDF1EgvmbQgvCO
+         WCZfvJct+sEbtaBinEQLdaNsibtkIaoYyiEF23PG4+QdqVeGfcJSqbnPgbpKYqA37Out
+         zBxFVTSpL3xAArxNn+P+79luMqKcsMUkwoqdqPrONbBfInPFs/uEN1aoC3qRtzHpMvri
+         dcN6DdEfMCoAgsnDUE6Lnbk1zOG8roolRnP9EaYcHSvxsyzGGPvPZ6LEGX/QlOFRDOD5
+         KLvw==
+X-Gm-Message-State: AOJu0YxZ39BoGe6sDRxezVHYN+bH88lhCbTaEq5Ow6n7VibDegICF56S
+	G1Vqc/R8PWkHOY8E8+k8PUP2seSqujpcHfIL8g==
+X-Google-Smtp-Source: AGHT+IEwN5ZopzHJIGGQGpit5mUuOLFU32rRNfgvV8zD7G1zJhrTDdVwgrA0i89ppBRhVWOedmhks73ZIg4=
+X-Received: from surenb-desktop.mtv.corp.google.com ([2620:15c:211:201:158e:a76f:5745:9194])
+ (user=surenb job=sendgmr) by 2002:a05:690c:d1e:b0:5e7:12cc:a60f with SMTP id
+ cn30-20020a05690c0d1e00b005e712cca60fmr3151383ywb.6.1703627174107; Tue, 26
+ Dec 2023 13:46:14 -0800 (PST)
+Date: Tue, 26 Dec 2023 13:46:10 -0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v8 00/10] net/smc: implement SMCv2.1 virtual ISM
- device support
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <170362262865.14680.2644729580463835169.git-patchwork-notify@kernel.org>
-Date: Tue, 26 Dec 2023 20:30:28 +0000
-References: <20231219142616.80697-1-guwen@linux.alibaba.com>
-In-Reply-To: <20231219142616.80697-1-guwen@linux.alibaba.com>
-To: Wen Gu <guwen@linux.alibaba.com>
-Cc: wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- kgraul@linux.ibm.com, jaka@linux.ibm.com, borntraeger@linux.ibm.com,
- svens@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- raspl@linux.ibm.com, schnelle@linux.ibm.com,
- guangguan.wang@linux.alibaba.com, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.43.0.472.g3155946c3a-goog
+Message-ID: <20231226214610.109282-1-surenb@google.com>
+Subject: [PATCH 1/1] arch/mm/fault: fix major fault accounting when retrying
+ under per-VMA lock
+From: Suren Baghdasaryan <surenb@google.com>
+To: akpm@linux-foundation.org
+Cc: willy@infradead.org, will@kernel.org, catalin.marinas@arm.com, 
+	palmer@dabbelt.com, mpe@ellerman.id.au, christophe.leroy@csgroup.eu, 
+	agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com, 
+	dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, 
+	surenb@google.com, x86@kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Hello:
+A test [1] in Android test suite started failing after [2] was merged.
+It turns out that after handling a major fault under per-VMA lock, the
+process major fault counter does not register that fault as major.
+Before [2] read faults would be done under mmap_lock, in which case
+FAULT_FLAG_TRIED flag is set before retrying. That in turn causes
+mm_account_fault() to account the fault as major once retry completes.
+With per-VMA locks we often retry because a fault can't be handled
+without locking the whole mm using mmap_lock. Therefore such retries
+do not set FAULT_FLAG_TRIED flag. This logic does not work after [2]
+because we can now handle read major faults under per-VMA lock and
+upon retry the fact there was a major fault gets lost. Fix this by
+setting FAULT_FLAG_TRIED after retrying under per-VMA lock if
+VM_FAULT_MAJOR was returned. Ideally we would use an additional
+VM_FAULT bit to indicate the reason for the retry (could not handle
+under per-VMA lock vs other reason) but this simpler solution seems
+to work, so keeping it simple.
 
-This series was applied to netdev/net-next.git (main)
-by David S. Miller <davem@davemloft.net>:
+[1] https://cs.android.com/android/platform/superproject/+/master:test/vts-testcase/kernel/api/drop_caches_prop/drop_caches_test.cpp
+[2] https://lore.kernel.org/all/20231006195318.4087158-6-willy@infradead.org/
 
-On Tue, 19 Dec 2023 22:26:06 +0800 you wrote:
-> The fourth edition of SMCv2 adds the SMC version 2.1 feature updates for
-> SMC-Dv2 with virtual ISM. Virtual ISM are created and supported mainly by
-> OS or hypervisor software, comparable to IBM ISM which is based on platform
-> firmware or hardware.
-> 
-> With the introduction of virtual ISM, SMCv2.1 makes some updates:
-> 
-> [...]
+Fixes: 12214eba1992 ("mm: handle read faults under the VMA lock")
+Cc: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+---
+ arch/arm64/mm/fault.c   | 2 ++
+ arch/powerpc/mm/fault.c | 2 ++
+ arch/riscv/mm/fault.c   | 2 ++
+ arch/s390/mm/fault.c    | 3 +++
+ arch/x86/mm/fault.c     | 2 ++
+ 5 files changed, 11 insertions(+)
 
-Here is the summary with links:
-  - [net-next,v8,01/10] net/smc: rename some 'fce' to 'fce_v2x' for clarity
-    https://git.kernel.org/netdev/net-next/c/ac053a169c71
-  - [net-next,v8,02/10] net/smc: introduce sub-functions for smc_clc_send_confirm_accept()
-    https://git.kernel.org/netdev/net-next/c/5205ac4483b6
-  - [net-next,v8,03/10] net/smc: unify the structs of accept or confirm message for v1 and v2
-    https://git.kernel.org/netdev/net-next/c/9505450d55b0
-  - [net-next,v8,04/10] net/smc: support SMCv2.x supplemental features negotiation
-    https://git.kernel.org/netdev/net-next/c/ece60db3a4ce
-  - [net-next,v8,05/10] net/smc: introduce virtual ISM device support feature
-    https://git.kernel.org/netdev/net-next/c/00e006a25718
-  - [net-next,v8,06/10] net/smc: define a reserved CHID range for virtual ISM devices
-    https://git.kernel.org/netdev/net-next/c/8dd512df3c98
-  - [net-next,v8,07/10] net/smc: compatible with 128-bits extended GID of virtual ISM device
-    https://git.kernel.org/netdev/net-next/c/b40584d14570
-  - [net-next,v8,08/10] net/smc: support extended GID in SMC-D lgr netlink attribute
-    https://git.kernel.org/netdev/net-next/c/01fd1617dbc6
-  - [net-next,v8,09/10] net/smc: disable SEID on non-s390 archs where virtual ISM may be used
-    https://git.kernel.org/netdev/net-next/c/c6b8b8eb4990
-  - [net-next,v8,10/10] net/smc: manage system EID in SMC stack instead of ISM driver
-    https://git.kernel.org/netdev/net-next/c/b3bf76024f64
-
-You are awesome, thank you!
+diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
+index 460d799e1296..55f6455a8284 100644
+--- a/arch/arm64/mm/fault.c
++++ b/arch/arm64/mm/fault.c
+@@ -607,6 +607,8 @@ static int __kprobes do_page_fault(unsigned long far, unsigned long esr,
+ 		goto done;
+ 	}
+ 	count_vm_vma_lock_event(VMA_LOCK_RETRY);
++	if (fault & VM_FAULT_MAJOR)
++		mm_flags |= FAULT_FLAG_TRIED;
+ 
+ 	/* Quick path to respond to signals */
+ 	if (fault_signal_pending(fault, regs)) {
+diff --git a/arch/powerpc/mm/fault.c b/arch/powerpc/mm/fault.c
+index 9e49ede2bc1c..53335ae21a40 100644
+--- a/arch/powerpc/mm/fault.c
++++ b/arch/powerpc/mm/fault.c
+@@ -497,6 +497,8 @@ static int ___do_page_fault(struct pt_regs *regs, unsigned long address,
+ 		goto done;
+ 	}
+ 	count_vm_vma_lock_event(VMA_LOCK_RETRY);
++	if (fault & VM_FAULT_MAJOR)
++		flags |= FAULT_FLAG_TRIED;
+ 
+ 	if (fault_signal_pending(fault, regs))
+ 		return user_mode(regs) ? 0 : SIGBUS;
+diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
+index 90d4ba36d1d0..081339ddf47e 100644
+--- a/arch/riscv/mm/fault.c
++++ b/arch/riscv/mm/fault.c
+@@ -304,6 +304,8 @@ void handle_page_fault(struct pt_regs *regs)
+ 		goto done;
+ 	}
+ 	count_vm_vma_lock_event(VMA_LOCK_RETRY);
++	if (fault & VM_FAULT_MAJOR)
++		flags |= FAULT_FLAG_TRIED;
+ 
+ 	if (fault_signal_pending(fault, regs)) {
+ 		if (!user_mode(regs))
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index 249aefcf7c4e..ab4098886e56 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -337,6 +337,9 @@ static void do_exception(struct pt_regs *regs, int access)
+ 		return;
+ 	}
+ 	count_vm_vma_lock_event(VMA_LOCK_RETRY);
++	if (fault & VM_FAULT_MAJOR)
++		flags |= FAULT_FLAG_TRIED;
++
+ 	/* Quick path to respond to signals */
+ 	if (fault_signal_pending(fault, regs)) {
+ 		if (!user_mode(regs))
+diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
+index ab778eac1952..679b09cfe241 100644
+--- a/arch/x86/mm/fault.c
++++ b/arch/x86/mm/fault.c
+@@ -1370,6 +1370,8 @@ void do_user_addr_fault(struct pt_regs *regs,
+ 		goto done;
+ 	}
+ 	count_vm_vma_lock_event(VMA_LOCK_RETRY);
++	if (fault & VM_FAULT_MAJOR)
++		flags |= FAULT_FLAG_TRIED;
+ 
+ 	/* Quick path to respond to signals */
+ 	if (fault_signal_pending(fault, regs)) {
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.43.0.472.g3155946c3a-goog
 
