@@ -1,100 +1,91 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 949A460B9C;
-	Tue, 26 Dec 2023 00:27:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B2D85684;
+	Tue, 26 Dec 2023 20:30:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mBoX+W2v"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21E30C433C7;
-	Tue, 26 Dec 2023 00:27:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="If10gHst"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id B44D6C43391;
+	Tue, 26 Dec 2023 20:30:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1703550455;
-	bh=wQlW7aWIp+uH5LfbWjwIRlxGv6oqoVC4weI3SbsKPhI=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=mBoX+W2vQ4S4UlxIZDO+xBSkrGHzUpGxb5VnugQCZxskA8XVlwfsDG/cstQ3kR/yo
-	 uKyhyUPxeA+XpYX0+s5bWwATQDY8lZTduQ9THG1SXstBtZDrzTUxQOhC2kOFlIdPbM
-	 +1isHximVrplqRIrvzb8twAmYVWlAap3F/p27E85q7t6nYqpljBfi2lbyWASzyZxRf
-	 BUCXCoNikdoCrm1LQgIios07BiW1nHiO8Y9NndJwztApa/cgZAQeoYDfeC58ntWuz4
-	 qEt0k8Q0FmuKHe4yl9DEaWPTvFkeIz9o15otrgfAjb6a/eGjailEUIZ7O3Fwq1OKMJ
-	 eaPVzNr2cJRPQ==
-From: Sasha Levin <sashal@kernel.org>
-To: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Cc: Vineeth Vijayan <vneethv@linux.ibm.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Sasha Levin <sashal@kernel.org>,
-	hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 4/6] s390/scm: fix virtual vs physical address confusion
-Date: Mon, 25 Dec 2023 19:27:11 -0500
-Message-ID: <20231226002725.7471-4-sashal@kernel.org>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20231226002725.7471-1-sashal@kernel.org>
-References: <20231226002725.7471-1-sashal@kernel.org>
+	s=k20201202; t=1703622628;
+	bh=ZBfFp/kOlQVvVXx7c1vaWsW1JqMtoH+X4lSKs07mt5I=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=If10gHstX2yhMq8WqYN72j+cgWwx54S29WvXmIQG75OKnRJkwYVi5WDBf34p1ia5Y
+	 z6DxpVZKF4DWH2mfKA1PG0bTCwQk1XDCKepp0YVp3zC8MVVVXDAkxAnalhuuUPKVAh
+	 UPrewjCDi25QrB/jnZb5kI9+IKf4dcvlaS2xPl1hWUc6uRbHSuGa/ai105On1A+LuT
+	 UJtNVf2rmNJu8QLLN593NK06RgO83N8kI9cCpZVh04mQ5ehEvI2fxGUO0ob7crzpaq
+	 A9xVX/7Ro/eioEW3xpT+yFqQAhFOwbC5yTWb9dh9h4Wat307QVNrCQl47t04OvwXq8
+	 81HPUCEzEJ9hg==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id A0959E333D7;
+	Tue, 26 Dec 2023 20:30:28 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 4.14.334
 Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next v8 00/10] net/smc: implement SMCv2.1 virtual ISM
+ device support
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <170362262865.14680.2644729580463835169.git-patchwork-notify@kernel.org>
+Date: Tue, 26 Dec 2023 20:30:28 +0000
+References: <20231219142616.80697-1-guwen@linux.alibaba.com>
+In-Reply-To: <20231219142616.80697-1-guwen@linux.alibaba.com>
+To: Wen Gu <guwen@linux.alibaba.com>
+Cc: wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
+ gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ kgraul@linux.ibm.com, jaka@linux.ibm.com, borntraeger@linux.ibm.com,
+ svens@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ raspl@linux.ibm.com, schnelle@linux.ibm.com,
+ guangguan.wang@linux.alibaba.com, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Vineeth Vijayan <vneethv@linux.ibm.com>
+Hello:
 
-[ Upstream commit b1a6a1a77f0666a5a6dc0893ab6ec8fcae46f24c ]
+This series was applied to netdev/net-next.git (main)
+by David S. Miller <davem@davemloft.net>:
 
-Fix virtual vs physical address confusion (which currently are the same).
+On Tue, 19 Dec 2023 22:26:06 +0800 you wrote:
+> The fourth edition of SMCv2 adds the SMC version 2.1 feature updates for
+> SMC-Dv2 with virtual ISM. Virtual ISM are created and supported mainly by
+> OS or hypervisor software, comparable to IBM ISM which is based on platform
+> firmware or hardware.
+> 
+> With the introduction of virtual ISM, SMCv2.1 makes some updates:
+> 
+> [...]
 
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/block/scm_blk.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+Here is the summary with links:
+  - [net-next,v8,01/10] net/smc: rename some 'fce' to 'fce_v2x' for clarity
+    https://git.kernel.org/netdev/net-next/c/ac053a169c71
+  - [net-next,v8,02/10] net/smc: introduce sub-functions for smc_clc_send_confirm_accept()
+    https://git.kernel.org/netdev/net-next/c/5205ac4483b6
+  - [net-next,v8,03/10] net/smc: unify the structs of accept or confirm message for v1 and v2
+    https://git.kernel.org/netdev/net-next/c/9505450d55b0
+  - [net-next,v8,04/10] net/smc: support SMCv2.x supplemental features negotiation
+    https://git.kernel.org/netdev/net-next/c/ece60db3a4ce
+  - [net-next,v8,05/10] net/smc: introduce virtual ISM device support feature
+    https://git.kernel.org/netdev/net-next/c/00e006a25718
+  - [net-next,v8,06/10] net/smc: define a reserved CHID range for virtual ISM devices
+    https://git.kernel.org/netdev/net-next/c/8dd512df3c98
+  - [net-next,v8,07/10] net/smc: compatible with 128-bits extended GID of virtual ISM device
+    https://git.kernel.org/netdev/net-next/c/b40584d14570
+  - [net-next,v8,08/10] net/smc: support extended GID in SMC-D lgr netlink attribute
+    https://git.kernel.org/netdev/net-next/c/01fd1617dbc6
+  - [net-next,v8,09/10] net/smc: disable SEID on non-s390 archs where virtual ISM may be used
+    https://git.kernel.org/netdev/net-next/c/c6b8b8eb4990
+  - [net-next,v8,10/10] net/smc: manage system EID in SMC stack instead of ISM driver
+    https://git.kernel.org/netdev/net-next/c/b3bf76024f64
 
-diff --git a/drivers/s390/block/scm_blk.c b/drivers/s390/block/scm_blk.c
-index 5c944ee76ec14..a37fd27258bd5 100644
---- a/drivers/s390/block/scm_blk.c
-+++ b/drivers/s390/block/scm_blk.c
-@@ -17,6 +17,7 @@
- #include <linux/genhd.h>
- #include <linux/slab.h>
- #include <linux/list.h>
-+#include <linux/io.h>
- #include <asm/eadm.h>
- #include "scm_blk.h"
- 
-@@ -130,7 +131,7 @@ static void scm_request_done(struct scm_request *scmrq)
- 
- 	for (i = 0; i < nr_requests_per_io && scmrq->request[i]; i++) {
- 		msb = &scmrq->aob->msb[i];
--		aidaw = msb->data_addr;
-+		aidaw = (u64)phys_to_virt(msb->data_addr);
- 
- 		if ((msb->flags & MSB_FLAG_IDA) && aidaw &&
- 		    IS_ALIGNED(aidaw, PAGE_SIZE))
-@@ -195,12 +196,12 @@ static int scm_request_prepare(struct scm_request *scmrq)
- 	msb->scm_addr = scmdev->address + ((u64) blk_rq_pos(req) << 9);
- 	msb->oc = (rq_data_dir(req) == READ) ? MSB_OC_READ : MSB_OC_WRITE;
- 	msb->flags |= MSB_FLAG_IDA;
--	msb->data_addr = (u64) aidaw;
-+	msb->data_addr = (u64)virt_to_phys(aidaw);
- 
- 	rq_for_each_segment(bv, req, iter) {
- 		WARN_ON(bv.bv_offset);
- 		msb->blk_count += bv.bv_len >> 12;
--		aidaw->data_addr = (u64) page_address(bv.bv_page);
-+		aidaw->data_addr = virt_to_phys(page_address(bv.bv_page));
- 		aidaw++;
- 	}
- 
+You are awesome, thank you!
 -- 
-2.43.0
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
