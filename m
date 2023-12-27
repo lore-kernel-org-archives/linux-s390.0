@@ -1,162 +1,113 @@
-Received: from mail-yw1-f202.google.com (mail-yw1-f202.google.com [209.85.128.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12A464C90
-	for <linux-s390@vger.kernel.org>; Tue, 26 Dec 2023 21:46:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--surenb.bounces.google.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="qYR6ENIW"
-Received: by mail-yw1-f202.google.com with SMTP id 00721157ae682-5eb3d4aa9fdso24751587b3.2
-        for <linux-s390@vger.kernel.org>; Tue, 26 Dec 2023 13:46:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1703627174; x=1704231974; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=mMjOi6FiRyRmKbg6dFlezaHitoPpTFUdgOKhuK4Mldc=;
-        b=qYR6ENIWSEGn9jbr+rAJ0kKjhy7hHgfmVmsCdeIfdSzGtFcg3D5d8zVoG0nI2/buJt
-         6oZu4QLQoKcGQWiPPUGOQEjSXtfOGXj2PEEicDsR0BrnWpa1gPbnpfLfS0TrcXUFs9kK
-         QRCd/xS2aJu3QRrajYL2wkIM934BpDC1A7VgHuD58pYnvv5p463TZr2O3StxGiitGuMa
-         xKEqy88wP+3R6uvpzogYjkSTds9kL0ryB8xpgwwfmGnqDuR0OBVUD4OCRG1hgc5iy5nQ
-         HILqM2bWsdMQnsg/+50vvsEgFX2VvEuxxDvA2veR0oN5ccFfnOe55lW6Om6IMVMASoke
-         Q6dQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703627174; x=1704231974;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=mMjOi6FiRyRmKbg6dFlezaHitoPpTFUdgOKhuK4Mldc=;
-        b=mZ8evQ/7CDdMSvDarBiVCAoqIZiSsbC/wzp4Z6enIkznOXh5tVWJTFMyt24RtXSTw7
-         lhsjOD3wKPkkGuMaS+sebSZ1u6wakovceA/6ijxTV/qHaGF8ZIHkqCcDF1EgvmbQgvCO
-         WCZfvJct+sEbtaBinEQLdaNsibtkIaoYyiEF23PG4+QdqVeGfcJSqbnPgbpKYqA37Out
-         zBxFVTSpL3xAArxNn+P+79luMqKcsMUkwoqdqPrONbBfInPFs/uEN1aoC3qRtzHpMvri
-         dcN6DdEfMCoAgsnDUE6Lnbk1zOG8roolRnP9EaYcHSvxsyzGGPvPZ6LEGX/QlOFRDOD5
-         KLvw==
-X-Gm-Message-State: AOJu0YxZ39BoGe6sDRxezVHYN+bH88lhCbTaEq5Ow6n7VibDegICF56S
-	G1Vqc/R8PWkHOY8E8+k8PUP2seSqujpcHfIL8g==
-X-Google-Smtp-Source: AGHT+IEwN5ZopzHJIGGQGpit5mUuOLFU32rRNfgvV8zD7G1zJhrTDdVwgrA0i89ppBRhVWOedmhks73ZIg4=
-X-Received: from surenb-desktop.mtv.corp.google.com ([2620:15c:211:201:158e:a76f:5745:9194])
- (user=surenb job=sendgmr) by 2002:a05:690c:d1e:b0:5e7:12cc:a60f with SMTP id
- cn30-20020a05690c0d1e00b005e712cca60fmr3151383ywb.6.1703627174107; Tue, 26
- Dec 2023 13:46:14 -0800 (PST)
-Date: Tue, 26 Dec 2023 13:46:10 -0800
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 031075666;
+	Wed, 27 Dec 2023 07:40:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VzKLjDe_1703662835;
+Received: from h68b04305.sqa.eu95.tbsite.net(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VzKLjDe_1703662835)
+          by smtp.aliyun-inc.com;
+          Wed, 27 Dec 2023 15:40:51 +0800
+From: Wen Gu <guwen@linux.alibaba.com>
+To: wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com
+Cc: alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	ubraun@linux.vnet.ibm.com,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net] net/smc: fix invalid link access in dumping SMC-R connections
+Date: Wed, 27 Dec 2023 15:40:35 +0800
+Message-Id: <1703662835-53416-1-git-send-email-guwen@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.43.0.472.g3155946c3a-goog
-Message-ID: <20231226214610.109282-1-surenb@google.com>
-Subject: [PATCH 1/1] arch/mm/fault: fix major fault accounting when retrying
- under per-VMA lock
-From: Suren Baghdasaryan <surenb@google.com>
-To: akpm@linux-foundation.org
-Cc: willy@infradead.org, will@kernel.org, catalin.marinas@arm.com, 
-	palmer@dabbelt.com, mpe@ellerman.id.au, christophe.leroy@csgroup.eu, 
-	agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com, 
-	dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, 
-	surenb@google.com, x86@kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 
-A test [1] in Android test suite started failing after [2] was merged.
-It turns out that after handling a major fault under per-VMA lock, the
-process major fault counter does not register that fault as major.
-Before [2] read faults would be done under mmap_lock, in which case
-FAULT_FLAG_TRIED flag is set before retrying. That in turn causes
-mm_account_fault() to account the fault as major once retry completes.
-With per-VMA locks we often retry because a fault can't be handled
-without locking the whole mm using mmap_lock. Therefore such retries
-do not set FAULT_FLAG_TRIED flag. This logic does not work after [2]
-because we can now handle read major faults under per-VMA lock and
-upon retry the fact there was a major fault gets lost. Fix this by
-setting FAULT_FLAG_TRIED after retrying under per-VMA lock if
-VM_FAULT_MAJOR was returned. Ideally we would use an additional
-VM_FAULT bit to indicate the reason for the retry (could not handle
-under per-VMA lock vs other reason) but this simpler solution seems
-to work, so keeping it simple.
+A crash was found when dumping SMC-R connections. It can be reproduced
+by following steps:
 
-[1] https://cs.android.com/android/platform/superproject/+/master:test/vts-testcase/kernel/api/drop_caches_prop/drop_caches_test.cpp
-[2] https://lore.kernel.org/all/20231006195318.4087158-6-willy@infradead.org/
+- environment: two RNICs on both sides.
+- run SMC-R between two sides, now a SMC_LGR_SYMMETRIC type link group
+  will be created.
+- set the first RNIC down on either side and link group will turn to
+  SMC_LGR_ASYMMETRIC_LOCAL then.
+- run 'smcss -R' and the crash will be triggered.
 
-Fixes: 12214eba1992 ("mm: handle read faults under the VMA lock")
-Cc: Matthew Wilcox <willy@infradead.org>
-Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+ BUG: kernel NULL pointer dereference, address: 0000000000000010
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 8000000101fdd067 P4D 8000000101fdd067 PUD 10ce46067 PMD 0
+ Oops: 0000 [#1] PREEMPT SMP PTI
+ CPU: 3 PID: 1810 Comm: smcss Kdump: loaded Tainted: G W   E      6.7.0-rc6+ #51
+ RIP: 0010:__smc_diag_dump.constprop.0+0x36e/0x620 [smc_diag]
+ Call Trace:
+  <TASK>
+  ? __die+0x24/0x70
+  ? page_fault_oops+0x66/0x150
+  ? exc_page_fault+0x69/0x140
+  ? asm_exc_page_fault+0x26/0x30
+  ? __smc_diag_dump.constprop.0+0x36e/0x620 [smc_diag]
+  smc_diag_dump_proto+0xd0/0xf0 [smc_diag]
+  smc_diag_dump+0x26/0x60 [smc_diag]
+  netlink_dump+0x19f/0x320
+  __netlink_dump_start+0x1dc/0x300
+  smc_diag_handler_dump+0x6a/0x80 [smc_diag]
+  ? __pfx_smc_diag_dump+0x10/0x10 [smc_diag]
+  sock_diag_rcv_msg+0x121/0x140
+  ? __pfx_sock_diag_rcv_msg+0x10/0x10
+  netlink_rcv_skb+0x5a/0x110
+  sock_diag_rcv+0x28/0x40
+  netlink_unicast+0x22a/0x330
+  netlink_sendmsg+0x240/0x4a0
+  __sock_sendmsg+0xb0/0xc0
+  ____sys_sendmsg+0x24e/0x300
+  ? copy_msghdr_from_user+0x62/0x80
+  ___sys_sendmsg+0x7c/0xd0
+  ? __do_fault+0x34/0x1a0
+  ? do_read_fault+0x5f/0x100
+  ? do_fault+0xb0/0x110
+  __sys_sendmsg+0x4d/0x80
+  do_syscall_64+0x45/0xf0
+  entry_SYSCALL_64_after_hwframe+0x6e/0x76
+
+When the first RNIC is set down, the lgr->lnk[0] will be cleared and an
+asymmetric link will be allocated in lgr->link[SMC_LINKS_PER_LGR_MAX - 1]
+by smc_llc_alloc_alt_link(). Then when we try to dump SMC-R connections
+in __smc_diag_dump(), the invalid lgr->lnk[0] will be accessed, resulting
+in this issue. So fix it by accessing the right link.
+
+Fixes: f16a7dd5cf27 ("smc: netlink interface for SMC sockets")
+Reported-by: henaumars <henaumars@sina.com>
+Closes: https://bugzilla.openanolis.cn/show_bug.cgi?id=7616
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 ---
- arch/arm64/mm/fault.c   | 2 ++
- arch/powerpc/mm/fault.c | 2 ++
- arch/riscv/mm/fault.c   | 2 ++
- arch/s390/mm/fault.c    | 3 +++
- arch/x86/mm/fault.c     | 2 ++
- 5 files changed, 11 insertions(+)
+ net/smc/smc_diag.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
-index 460d799e1296..55f6455a8284 100644
---- a/arch/arm64/mm/fault.c
-+++ b/arch/arm64/mm/fault.c
-@@ -607,6 +607,8 @@ static int __kprobes do_page_fault(unsigned long far, unsigned long esr,
- 		goto done;
- 	}
- 	count_vm_vma_lock_event(VMA_LOCK_RETRY);
-+	if (fault & VM_FAULT_MAJOR)
-+		mm_flags |= FAULT_FLAG_TRIED;
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index a584613aca12..5cc376834c57 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -153,8 +153,7 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
+ 			.lnk[0].link_id = link->link_id,
+ 		};
  
- 	/* Quick path to respond to signals */
- 	if (fault_signal_pending(fault, regs)) {
-diff --git a/arch/powerpc/mm/fault.c b/arch/powerpc/mm/fault.c
-index 9e49ede2bc1c..53335ae21a40 100644
---- a/arch/powerpc/mm/fault.c
-+++ b/arch/powerpc/mm/fault.c
-@@ -497,6 +497,8 @@ static int ___do_page_fault(struct pt_regs *regs, unsigned long address,
- 		goto done;
- 	}
- 	count_vm_vma_lock_event(VMA_LOCK_RETRY);
-+	if (fault & VM_FAULT_MAJOR)
-+		flags |= FAULT_FLAG_TRIED;
- 
- 	if (fault_signal_pending(fault, regs))
- 		return user_mode(regs) ? 0 : SIGBUS;
-diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
-index 90d4ba36d1d0..081339ddf47e 100644
---- a/arch/riscv/mm/fault.c
-+++ b/arch/riscv/mm/fault.c
-@@ -304,6 +304,8 @@ void handle_page_fault(struct pt_regs *regs)
- 		goto done;
- 	}
- 	count_vm_vma_lock_event(VMA_LOCK_RETRY);
-+	if (fault & VM_FAULT_MAJOR)
-+		flags |= FAULT_FLAG_TRIED;
- 
- 	if (fault_signal_pending(fault, regs)) {
- 		if (!user_mode(regs))
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 249aefcf7c4e..ab4098886e56 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -337,6 +337,9 @@ static void do_exception(struct pt_regs *regs, int access)
- 		return;
- 	}
- 	count_vm_vma_lock_event(VMA_LOCK_RETRY);
-+	if (fault & VM_FAULT_MAJOR)
-+		flags |= FAULT_FLAG_TRIED;
-+
- 	/* Quick path to respond to signals */
- 	if (fault_signal_pending(fault, regs)) {
- 		if (!user_mode(regs))
-diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
-index ab778eac1952..679b09cfe241 100644
---- a/arch/x86/mm/fault.c
-+++ b/arch/x86/mm/fault.c
-@@ -1370,6 +1370,8 @@ void do_user_addr_fault(struct pt_regs *regs,
- 		goto done;
- 	}
- 	count_vm_vma_lock_event(VMA_LOCK_RETRY);
-+	if (fault & VM_FAULT_MAJOR)
-+		flags |= FAULT_FLAG_TRIED;
- 
- 	/* Quick path to respond to signals */
- 	if (fault_signal_pending(fault, regs)) {
+-		memcpy(linfo.lnk[0].ibname,
+-		       smc->conn.lgr->lnk[0].smcibdev->ibdev->name,
++		memcpy(linfo.lnk[0].ibname, link->smcibdev->ibdev->name,
+ 		       sizeof(link->smcibdev->ibdev->name));
+ 		smc_gid_be16_convert(linfo.lnk[0].gid, link->gid);
+ 		smc_gid_be16_convert(linfo.lnk[0].peer_gid, link->peer_gid);
 -- 
-2.43.0.472.g3155946c3a-goog
+2.43.0
 
