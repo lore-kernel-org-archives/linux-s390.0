@@ -1,74 +1,102 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mout.web.de (mout.web.de [212.227.15.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56AEB8BE7;
-	Fri, 29 Dec 2023 07:50:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D709567E;
+	Sun, 31 Dec 2023 14:58:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ocIYDa/h"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id D6D32C433C9;
-	Fri, 29 Dec 2023 07:50:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1703836224;
-	bh=7WRDhJLqdxyHqOVFPGYBQG8Dbk0NPlm/BecV7spU7So=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=ocIYDa/hQZjLoo3wwtSCk8ZpvRsCvev6ND+np6FKh4ouuxI8ojV3EOee9xh2GNzb8
-	 sVnI1El79AX8raMdrClF/RniAX9n5HUUwDl0hDuMrrXfvXsmzSVA+ovG/684+Nds0q
-	 WJivs60l49Sq2s3qYLrhRG5q+NZprYxHlZV88pRsPQQajy4/tmUwVeZtcmhVLhJYkI
-	 HjWCBnp3ocgarRn9Q2AVaN2n3XVJxWG1wQANO0AY7idfCw9rVhuaTbQ2TBhwwMuc3N
-	 X1Mp93EMWuxq+ZEx/kEfpI07Mub1lvY7wdhDXJVIsvvn3yRyC8on50aEtxisdLG5zc
-	 joTq7Fm5eyvGw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id BD66FE333D8;
-	Fri, 29 Dec 2023 07:50:24 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="qoRmw7rL"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de; s=s29768273;
+	t=1704034696; x=1704639496; i=markus.elfring@web.de;
+	bh=gPeNin7ZI68tdFqinqaBy+vemPELROI0zDhtVnj5Qdk=;
+	h=X-UI-Sender-Class:Date:Subject:From:To:References:Cc:
+	 In-Reply-To;
+	b=qoRmw7rLE3imcfRlnd7KwXnQQLZHBOwEuL6y2JV6TC0NvTcSKswMNa+IrSjil+wK
+	 +vp/dzbL9DzPTevbILfI3Dbgj2oV0t3fSN/GF/fTn8psAFVA5v/Yfk5VYE3MBwLAW
+	 FZWWC7zJRhRLZalVb4rZ3r7+ULFH5ua1tsF96QysMbk1/cc4chNxITWGnhKAg5a9G
+	 7aVyHVZJhp2zxDw/adgNjcdUBPkzZ6Jyo7DtPVvCXO48VezS3D8c5mLsyFVeNUDij
+	 aseSKK1+ibexNYRINIWJAQPrlvbrSxgvK2cx/H5MXiVoV7WT11kti7nAQgr3mTJyc
+	 FWu+mF8WDOH1dLKXHg==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from [192.168.178.21] ([94.31.90.95]) by smtp.web.de (mrweb005
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 1Mt8kX-1r4DfF172v-00t0YO; Sun, 31
+ Dec 2023 15:58:16 +0100
+Message-ID: <f02303c3-5968-48c3-990b-be0be8a66521@web.de>
+Date: Sun, 31 Dec 2023 15:58:15 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v2] iucv: make iucv_bus const
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <170383622477.2430.3049394181290219600.git-patchwork-notify@kernel.org>
-Date: Fri, 29 Dec 2023 07:50:24 +0000
-References: <2023122017-shelf-cadet-309c@gregkh>
-In-Reply-To: <2023122017-shelf-cadet-309c@gregkh>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: wintera@linux.ibm.com, wenjia@linux.ibm.com, linux-kernel@vger.kernel.org,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org
+User-Agent: Mozilla Thunderbird
+Subject: [PATCH 1/2] net/smc: Return directly after a failed kzalloc() in
+ smc_fill_gid_list()
+Content-Language: en-GB
+From: Markus Elfring <Markus.Elfring@web.de>
+To: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ kernel-janitors@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+ "D. Wythe" <alibuda@linux.alibaba.com>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Jan Karcher <jaka@linux.ibm.com>,
+ Paolo Abeni <pabeni@redhat.com>, Tony Lu <tonylu@linux.alibaba.com>,
+ Wen Gu <guwen@linux.alibaba.com>, Wenjia Zhang <wenjia@linux.ibm.com>
+References: <8ba404fd-7f41-44a9-9869-84f3af18fb46@web.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <8ba404fd-7f41-44a9-9869-84f3af18fb46@web.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:NFasV8DHiXAdOQ2Yt1SU4XelxafXt3W/2zfsYc0p4Q+GDO3yPiS
+ LLrJI+PyVtxxsmJ3RJ7FweRyjQdttD5guFeI4nnRM6rd6vkxykjF8fQnNrNZfhOFdU+WsV1
+ 5UvfAQLdQuqOtuE1v/BBq8c8c/A+V3qWWyjk/ugt9++mU+cDIslgqdco1vrtXyRXVDImZqd
+ BIEcmNDCu+rK45VXeY4Eg==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:NRWMyYBZErQ=;lSeCc59AM4dR0tqYtgjUHNs80j1
+ y7ia6cpPN1KXri4Ec9dhPWjXB3aJPVh8N2DtbVrRXmE5YaZMwDkoWz3J2PcYJHeekvWqQfAFg
+ hwsyjaDxXbxRVQJk6oPvid5YDPLAwCSD49URlz2wFt7Rb8XSj66uicguPLQBnQBtoJeytf76z
+ nGrV6V7jGB4k9IuBT9h43N3lfVXoo374ROHtfNmoN2L7kYTrKRYIAr/1Gr0vxYZy1xMMqn+k3
+ qWGBS0zLMwzG+Wj8u2Jbm6k06BL4qvGeicsTG8zF/hx2qnvruQS5B8/CjrnBojLpfRzmKn7Y9
+ WOvm9Uqs6vJphiUTL3Z0/FPlsL3rx2x6rrVLeFHTdLMHrzbfkuGHWsExj6HPgYu6rj1HzAIgy
+ +vyGIAN8J9tDr+K7ureshkwoZ6xHeqmiJcnw0Hg+k8nf0OHTqDGrtxV1G/dyizPT1AEIv56L5
+ QPSBd7tT6g2f3LQwvTIDBPKelYL/0lAFb94UvN7keSdJaij3G6UikDlFydv1x7cwe4MFWiwGW
+ TGm/1xPgkB+GnWN96F6B/FlxfFojXPnRBmUMs2AzAw1oM20Y4qrvpqM0ikkF8IKCqcF4IpOns
+ a0DvWrA2Vm/NUV7ITDU3lAxl4SDHYcR1bBfx12xN2p9iG7LFH0NtdYn8rQW+RqL+syBv+vHjB
+ ABnYRNYOoEVxT9jCRm8Y0tY9Ac7DJN2GN4muEyEVQaBRTznbJjuFrsmAS7S0W85UIhU3oGhFo
+ k+vEhBsRrWaG3fN/s4ZuU7yP29D25u41TyiQMb5CtrfO93S4ASfLFxP2qYLEFg+C5BBd7zwjn
+ xUPzokc+tRP+UXjSNOlHJOTtXlSZWcHMZqh10/TO/nC3aHrIXu2ROFl07qyluolK9b0u7y+zF
+ r1Ek+JkDuLQ0PlHtsr0BRbcZk5c5QIFEZiz5gVxSjW3NazmdksmG72JJIi0RvCpw4rkPcZyex
+ DnoTC1eiyCeeTYwUdOPJgdSB6Ds=
 
-Hello:
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Sun, 31 Dec 2023 15:15:19 +0100
 
-This patch was applied to netdev/net-next.git (main)
-by David S. Miller <davem@davemloft.net>:
+The kfree() function was called in one case by
+the smc_fill_gid_list() function during error handling
+even if the passed variable contained a null pointer.
+This issue was detected by using the Coccinelle software.
 
-On Wed, 20 Dec 2023 08:41:18 +0100 you wrote:
-> Now that the driver core can properly handle constant struct bus_type,
-> move the iucv_bus variable to be a constant structure as well, placing
-> it into read-only memory which can not be modified at runtime.
-> 
-> Cc: Wenjia Zhang <wenjia@linux.ibm.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Eric Dumazet <edumazet@google.com>
-> Cc: Jakub Kicinski <kuba@kernel.org>
-> Cc: Paolo Abeni <pabeni@redhat.com>
-> Cc: linux-s390@vger.kernel.org
-> Cc: netdev@vger.kernel.org
-> Acked-by: Alexandra Winter <wintera@linux.ibm.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> 
-> [...]
+Thus return directly after a call of the function =E2=80=9Ckzalloc=E2=80=
+=9D failed
+at the beginning.
 
-Here is the summary with links:
-  - [v2] iucv: make iucv_bus const
-    https://git.kernel.org/netdev/net-next/c/f732ba4ac9f3
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+=2D--
+ net/smc/af_smc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 7fc2f3c6d248..a396a9977ba9 100644
+=2D-- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1180,7 +1180,7 @@ void smc_fill_gid_list(struct smc_link_group *lgr,
 
+ 	alt_ini =3D kzalloc(sizeof(*alt_ini), GFP_KERNEL);
+ 	if (!alt_ini)
+-		goto out;
++		return;
+
+ 	alt_ini->vlan_id =3D lgr->vlan_id;
+ 	alt_ini->check_smcrv2 =3D true;
+=2D-
+2.43.0
 
