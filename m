@@ -1,136 +1,143 @@
-Received: from mout.web.de (mout.web.de [212.227.15.4])
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.120])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3BCC8F49;
-	Sun, 31 Dec 2023 15:00:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A72BBE48;
+	Sun, 31 Dec 2023 22:09:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="lAjUuHKK"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de; s=s29768273;
-	t=1704034824; x=1704639624; i=markus.elfring@web.de;
-	bh=/EkgIbiDfFiW79s9a4Ba4KIcoGQRr5fomhIzMuL4pkQ=;
-	h=X-UI-Sender-Class:Date:Subject:From:To:References:Cc:
-	 In-Reply-To;
-	b=lAjUuHKKLLMTacaMrIMsZ/OOnph36OFk831BnfBHFvGXMU6lzBhtImXYS3zv606E
-	 c8NGymPNhvF51C0QZkIpcN0a5BfUPz5m/2kF9n1yIc3pDj2+HgYt/OZUl044Gc22t
-	 9V/Q+VVFcz76aP7wn7ZttOaOHEvrgSqQC1e3CiDP3paFIIizR2PecBv5iOks3sAw6
-	 awakye2XLnopEWguxPSGEkpDETMIWsOpT+LRRO73RMuPtXgx65mj+hkKKRVywEmAI
-	 nyE57tCLrAi204EQagySrf+hJ4fu3xxaXhPbQRFHYj2V9QZro4RuDEiERQGC/680K
-	 699MZbZnBVYLTEh+Fg==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.178.21] ([94.31.90.95]) by smtp.web.de (mrweb006
- [213.165.67.108]) with ESMTPSA (Nemesis) id 1MwA1A-1r3OQ81xBs-00sG9F; Sun, 31
- Dec 2023 16:00:24 +0100
-Message-ID: <5253e660-6b66-4775-ae2f-06f5a1d40be5@web.de>
-Date: Sun, 31 Dec 2023 16:00:22 +0100
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="cAs6avvz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1704060560; x=1735596560;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=8d1J15Mon+CMCpSQt5t6iUCErEXV8Fkc4EcOwdHGg+c=;
+  b=cAs6avvzwstDeVpo1UznLzHp1Bl5ttVRCDXQA8cMNm+QWHQD+Kqk7zHZ
+   RvgzlXnkB1HQl9DiIOVMmNEbr3Ps8iGy51WEVz3IlXG3Y1Fq07royI2pH
+   02TVlTWYr1ebMdu/pybjgV8368+HN5Y4zA8wpIgPhaxi3P5Q1G6qzOH5H
+   exa0eKZEeXjp1Y3EjlhoTbRB2l5GFeyZHhB5/iS5aO6BHYGkFTts/Tv3m
+   +UYbU1RVJFYRQR3a494V7ADfUYDeQW9h8TQLWPgBSAP+RUXMXxn9uZTmc
+   d1t13YCRc3xzszxZ4w+LafGd1qvQCjpWgY74FNKLGVGlZbdQXMz53PHsX
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10940"; a="395645655"
+X-IronPort-AV: E=Sophos;i="6.04,320,1695711600"; 
+   d="scan'208";a="395645655"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Dec 2023 14:09:18 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10940"; a="1026390035"
+X-IronPort-AV: E=Sophos;i="6.04,320,1695711600"; 
+   d="scan'208";a="1026390035"
+Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
+  by fmsmga006.fm.intel.com with ESMTP; 31 Dec 2023 14:09:14 -0800
+Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1rK3zc-000Jlw-1V;
+	Sun, 31 Dec 2023 22:09:12 +0000
+Date: Mon, 1 Jan 2024 06:09:07 +0800
+From: kernel test robot <lkp@intel.com>
+To: Markus Elfring <Markus.Elfring@web.de>, linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org, kernel-janitors@vger.kernel.org,
+	"David S. Miller" <davem@davemloft.net>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Jan Karcher <jaka@linux.ibm.com>,
+	Paolo Abeni <pabeni@redhat.com>, Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/2] net/smc: Improve exception handling in
+ smc_llc_cli_add_link_invite()
+Message-ID: <202401010536.XhzcWDPH-lkp@intel.com>
+References: <5253e660-6b66-4775-ae2f-06f5a1d40be5@web.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: [PATCH 2/2] net/smc: Improve exception handling in
- smc_llc_cli_add_link_invite()
-Content-Language: en-GB
-From: Markus Elfring <Markus.Elfring@web.de>
-To: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- kernel-janitors@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
- "D. Wythe" <alibuda@linux.alibaba.com>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Jan Karcher <jaka@linux.ibm.com>,
- Paolo Abeni <pabeni@redhat.com>, Tony Lu <tonylu@linux.alibaba.com>,
- Wen Gu <guwen@linux.alibaba.com>, Wenjia Zhang <wenjia@linux.ibm.com>
-References: <8ba404fd-7f41-44a9-9869-84f3af18fb46@web.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <8ba404fd-7f41-44a9-9869-84f3af18fb46@web.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:oG3OmE7p+Zndch/Dj/BnQFbZ4YKWANLuDuOJVlDnyB2QnqSTIfO
- FN4K3UkD8+tYea+OsaPrlTrg2oWgGiEcCvW11H69MqsCeSl7thehurwIksrf1kwil0QGIDw
- ufE7jsBAHe0kQLj0of+zeF/MIm/8bxPktR6HnHU5qMM6gz2p/WIF3q7arKIq2QB6FVjKZHe
- oNKjkRrfxbvdfzZcUSciA==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:6M1bFLtV6zc=;k7xX0Go5mPnhUg1AtvOiS4tVGyu
- sES+x3UIFXs/aJtn6JOx64gVuddsXky1mfoDSyu1RGPsHVSaUK5cHvPypQzcxp3Q0TooNHPWt
- 7Gfk8dPEHSEk4Nb+055lRygnhv+Wo5qa0TeG8fvp+YuXPnrj8Pyz0aSQGC92NUV0QdDKLF1Dp
- qSiRVjsUL/30IXQQn5TQC+VJq2SgYtZJVQ53DecR0EBGJlT09c4Z1BsNQmH8c0VJVfL8Oq0gA
- /sD9kamMNuOAUhRONYRMxnzz6jOBKF7P8tvR8liB5pUHftM29nCxnpA1tsD5fq58OofoD4DI1
- gYo/PXdvoGvtW3BQVrIfJo7/Tn8JYA4Nu9/Y5c2tCtASy1b296nO17gAQJEgoeinyQuHLBg6a
- bOO31at2WB6IJ7Z4JOqE/MKW6zsNDTGabnpFQwHxKyLf9boybLk7WRBV7jF2UdG9iyNjiby3g
- k2RdesvHAdzxKnLVyKAudjVkDqtc320aXXL6x2YdDQ0RbBBONQY740+Md1Q9evT50IAP/gn8h
- 41NKKrF+hDKHqIH8yNZ2U9vWPACVE3M2g2DrkjHCysWxApje9nugAgcqViFF410qNfa2gzEDz
- gKM9vCJ3bGP02sQZy6vuOClXKQL+2VoJCggqyLlUdmhN4oRgjn8i3iP75bTF3uOrgqWS+3Rw1
- qoXn/TC3Erf0hqJl0l0uCHoP8gT6lqTFgIWKzwKfQgZ7mT3sT3LIWjU1keydEt0ukfK/gJznK
- 5q4QLYxq9qUN4xgBU+FBLCnCweA3trW13AjRSP+cD/XSlI+OWMPGEmh8TyGZaN1XKANeab43f
- yj3Ieb18vyXBf1QDY47mXGDlt6TNm4DpsE+hnAlsfjyqt2tE+0amYXV8WY36zew6vnsfndb6X
- 9FSVQPPSNKPx6PzJu4aTUggy+B8/8WQfPD+b5ZmW6Que1IHm8LVKKFkpNxCau6Vp0imQX+Cup
- rgELGg==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5253e660-6b66-4775-ae2f-06f5a1d40be5@web.de>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sun, 31 Dec 2023 15:42:07 +0100
+Hi Markus,
 
-The kfree() function was called in some cases by
-the smc_llc_cli_add_link_invite() function during error handling
-even if the passed variable contained a null pointer.
-This issue was detected by using the Coccinelle software.
+kernel test robot noticed the following build warnings:
 
-* Thus use another label.
+[auto build test WARNING on net/main]
+[also build test WARNING on net-next/main linus/master v6.7-rc7 next-20231222]
+[cannot apply to horms-ipvs/master]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-* Merge two if statements.
+url:    https://github.com/intel-lab-lkp/linux/commits/Markus-Elfring/net-smc-Return-directly-after-a-failed-kzalloc-in-smc_fill_gid_list/20231231-231406
+base:   net/main
+patch link:    https://lore.kernel.org/r/5253e660-6b66-4775-ae2f-06f5a1d40be5%40web.de
+patch subject: [PATCH 2/2] net/smc: Improve exception handling in smc_llc_cli_add_link_invite()
+config: x86_64-randconfig-002-20231231 (https://download.01.org/0day-ci/archive/20240101/202401010536.XhzcWDPH-lkp@intel.com/config)
+compiler: ClangBuiltLinux clang version 17.0.6 (https://github.com/llvm/llvm-project 6009708b4367171ccdbf4b5905cb6a803753fe18)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240101/202401010536.XhzcWDPH-lkp@intel.com/reproduce)
 
-* Omit an initialisation (for the variable =E2=80=9Cini=E2=80=9D)
-  which became unnecessary with this refactoring.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202401010536.XhzcWDPH-lkp@intel.com/
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
-=2D--
- net/smc/smc_llc.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+All warnings (new ones prefixed by >>):
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 018ce8133b02..2ff24a7feb26 100644
-=2D-- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -1163,23 +1163,21 @@ static void smc_llc_cli_add_link_invite(struct smc=
-_link *link,
- 					struct smc_llc_qentry *qentry)
- {
- 	struct smc_link_group *lgr =3D smc_get_lgr(link);
--	struct smc_init_info *ini =3D NULL;
-+	struct smc_init_info *ini;
+>> net/smc/smc_llc.c:1175:34: warning: '&&' within '||' [-Wlogical-op-parentheses]
+    1174 |             lgr->type == SMC_LGR_ASYMMETRIC_PEER ||
+         |                                                  ~~
+    1175 |             lgr->type == SMC_LGR_SINGLE && lgr->max_links <= 1)
+         |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+   net/smc/smc_llc.c:1175:34: note: place parentheses around the '&&' expression to silence this warning
+    1175 |             lgr->type == SMC_LGR_SINGLE && lgr->max_links <= 1)
+         |                                         ^                     
+         |             (                                                 )
+   1 warning generated.
 
- 	if (lgr->smc_version =3D=3D SMC_V2) {
- 		smc_llc_send_request_add_link(link);
--		goto out;
-+		goto free_qentry;
- 	}
 
- 	if (lgr->type =3D=3D SMC_LGR_SYMMETRIC ||
--	    lgr->type =3D=3D SMC_LGR_ASYMMETRIC_PEER)
--		goto out;
--
--	if (lgr->type =3D=3D SMC_LGR_SINGLE && lgr->max_links <=3D 1)
--		goto out;
-+	    lgr->type =3D=3D SMC_LGR_ASYMMETRIC_PEER ||
-+	    lgr->type =3D=3D SMC_LGR_SINGLE && lgr->max_links <=3D 1)
-+		goto free_qentry;
+vim +1175 net/smc/smc_llc.c
 
- 	ini =3D kzalloc(sizeof(*ini), GFP_KERNEL);
- 	if (!ini)
--		goto out;
-+		goto free_qentry;
+  1160	
+  1161	/* as an SMC client, invite server to start the add_link processing */
+  1162	static void smc_llc_cli_add_link_invite(struct smc_link *link,
+  1163						struct smc_llc_qentry *qentry)
+  1164	{
+  1165		struct smc_link_group *lgr = smc_get_lgr(link);
+  1166		struct smc_init_info *ini;
+  1167	
+  1168		if (lgr->smc_version == SMC_V2) {
+  1169			smc_llc_send_request_add_link(link);
+  1170			goto free_qentry;
+  1171		}
+  1172	
+  1173		if (lgr->type == SMC_LGR_SYMMETRIC ||
+  1174		    lgr->type == SMC_LGR_ASYMMETRIC_PEER ||
+> 1175		    lgr->type == SMC_LGR_SINGLE && lgr->max_links <= 1)
+  1176			goto free_qentry;
+  1177	
+  1178		ini = kzalloc(sizeof(*ini), GFP_KERNEL);
+  1179		if (!ini)
+  1180			goto free_qentry;
+  1181	
+  1182		ini->vlan_id = lgr->vlan_id;
+  1183		smc_pnet_find_alt_roce(lgr, ini, link->smcibdev);
+  1184		if (!ini->ib_dev)
+  1185			goto out;
+  1186	
+  1187		smc_llc_send_add_link(link, ini->ib_dev->mac[ini->ib_port - 1],
+  1188				      ini->ib_gid, NULL, SMC_LLC_REQ);
+  1189	out:
+  1190		kfree(ini);
+  1191	free_qentry:
+  1192		kfree(qentry);
+  1193	}
+  1194	
 
- 	ini->vlan_id =3D lgr->vlan_id;
- 	smc_pnet_find_alt_roce(lgr, ini, link->smcibdev);
-@@ -1190,6 +1188,7 @@ static void smc_llc_cli_add_link_invite(struct smc_l=
-ink *link,
- 			      ini->ib_gid, NULL, SMC_LLC_REQ);
- out:
- 	kfree(ini);
-+free_qentry:
- 	kfree(qentry);
- }
-
-=2D-
-2.43.0
-
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
