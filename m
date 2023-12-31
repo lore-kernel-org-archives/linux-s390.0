@@ -1,41 +1,41 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.120])
+Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A72BBE48;
-	Sun, 31 Dec 2023 22:09:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 926A2C147;
+	Sun, 31 Dec 2023 22:41:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="cAs6avvz"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="DvJWXKHS"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1704060560; x=1735596560;
+  t=1704062483; x=1735598483;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=8d1J15Mon+CMCpSQt5t6iUCErEXV8Fkc4EcOwdHGg+c=;
-  b=cAs6avvzwstDeVpo1UznLzHp1Bl5ttVRCDXQA8cMNm+QWHQD+Kqk7zHZ
-   RvgzlXnkB1HQl9DiIOVMmNEbr3Ps8iGy51WEVz3IlXG3Y1Fq07royI2pH
-   02TVlTWYr1ebMdu/pybjgV8368+HN5Y4zA8wpIgPhaxi3P5Q1G6qzOH5H
-   exa0eKZEeXjp1Y3EjlhoTbRB2l5GFeyZHhB5/iS5aO6BHYGkFTts/Tv3m
-   +UYbU1RVJFYRQR3a494V7ADfUYDeQW9h8TQLWPgBSAP+RUXMXxn9uZTmc
-   d1t13YCRc3xzszxZ4w+LafGd1qvQCjpWgY74FNKLGVGlZbdQXMz53PHsX
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10940"; a="395645655"
-X-IronPort-AV: E=Sophos;i="6.04,320,1695711600"; 
-   d="scan'208";a="395645655"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Dec 2023 14:09:18 -0800
+  bh=CNbHn5JZhY17vzo7hwS/CKhb0QyVaposJD+CErl8kwo=;
+  b=DvJWXKHSVSL0BeZjhHjB2lBdOpm2Grbi7kFrELoVm3UzF0lZf1fUHj+8
+   RI+X+JdbVf4DXKmdOYZKqQcsss964euTa+lwe9+upwxwoNK+UVtFxoSet
+   5vwgInPVNTJlchhb7mla0qKSfisH7ppgcvVAOi9siqZp6n3SHv4ewB0fu
+   sgSEOc+o0DMody7UULjvRYr4JUR0aEH+hn6uQ5V0iuacIhNQ4TQKdjMt7
+   pqpzj9n2J9NpKe9f2+Z+x4epNRBxIwQTEp1xwwcvvnf9moBilwq3xsEI5
+   S7wU/aX7p/h5br4AsiRjBokRPTspXRsXtYhQlxe295fLTgDX80Hoyvn4m
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10940"; a="463172294"
+X-IronPort-AV: E=Sophos;i="6.04,321,1695711600"; 
+   d="scan'208";a="463172294"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Dec 2023 14:41:22 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10940"; a="1026390035"
-X-IronPort-AV: E=Sophos;i="6.04,320,1695711600"; 
-   d="scan'208";a="1026390035"
+X-IronPort-AV: E=McAfee;i="6600,9927,10940"; a="849735592"
+X-IronPort-AV: E=Sophos;i="6.04,321,1695711600"; 
+   d="scan'208";a="849735592"
 Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
-  by fmsmga006.fm.intel.com with ESMTP; 31 Dec 2023 14:09:14 -0800
+  by fmsmga004.fm.intel.com with ESMTP; 31 Dec 2023 14:41:19 -0800
 Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
 	(envelope-from <lkp@intel.com>)
-	id 1rK3zc-000Jlw-1V;
-	Sun, 31 Dec 2023 22:09:12 +0000
-Date: Mon, 1 Jan 2024 06:09:07 +0800
+	id 1rK4Ue-000JnI-26;
+	Sun, 31 Dec 2023 22:41:16 +0000
+Date: Mon, 1 Jan 2024 06:40:49 +0800
 From: kernel test robot <lkp@intel.com>
 To: Markus Elfring <Markus.Elfring@web.de>, linux-s390@vger.kernel.org,
 	netdev@vger.kernel.org, kernel-janitors@vger.kernel.org,
@@ -46,11 +46,10 @@ To: Markus Elfring <Markus.Elfring@web.de>, linux-s390@vger.kernel.org,
 	Paolo Abeni <pabeni@redhat.com>, Tony Lu <tonylu@linux.alibaba.com>,
 	Wen Gu <guwen@linux.alibaba.com>,
 	Wenjia Zhang <wenjia@linux.ibm.com>
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	LKML <linux-kernel@vger.kernel.org>
+Cc: oe-kbuild-all@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH 2/2] net/smc: Improve exception handling in
  smc_llc_cli_add_link_invite()
-Message-ID: <202401010536.XhzcWDPH-lkp@intel.com>
+Message-ID: <202401010657.eexbMD1F-lkp@intel.com>
 References: <5253e660-6b66-4775-ae2f-06f5a1d40be5@web.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -77,27 +76,21 @@ url:    https://github.com/intel-lab-lkp/linux/commits/Markus-Elfring/net-smc-Re
 base:   net/main
 patch link:    https://lore.kernel.org/r/5253e660-6b66-4775-ae2f-06f5a1d40be5%40web.de
 patch subject: [PATCH 2/2] net/smc: Improve exception handling in smc_llc_cli_add_link_invite()
-config: x86_64-randconfig-002-20231231 (https://download.01.org/0day-ci/archive/20240101/202401010536.XhzcWDPH-lkp@intel.com/config)
-compiler: ClangBuiltLinux clang version 17.0.6 (https://github.com/llvm/llvm-project 6009708b4367171ccdbf4b5905cb6a803753fe18)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240101/202401010536.XhzcWDPH-lkp@intel.com/reproduce)
+config: m68k-allyesconfig (https://download.01.org/0day-ci/archive/20240101/202401010657.eexbMD1F-lkp@intel.com/config)
+compiler: m68k-linux-gcc (GCC) 13.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240101/202401010657.eexbMD1F-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202401010536.XhzcWDPH-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202401010657.eexbMD1F-lkp@intel.com/
 
 All warnings (new ones prefixed by >>):
 
->> net/smc/smc_llc.c:1175:34: warning: '&&' within '||' [-Wlogical-op-parentheses]
-    1174 |             lgr->type == SMC_LGR_ASYMMETRIC_PEER ||
-         |                                                  ~~
+   net/smc/smc_llc.c: In function 'smc_llc_cli_add_link_invite':
+>> net/smc/smc_llc.c:1175:41: warning: suggest parentheses around '&&' within '||' [-Wparentheses]
     1175 |             lgr->type == SMC_LGR_SINGLE && lgr->max_links <= 1)
          |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
-   net/smc/smc_llc.c:1175:34: note: place parentheses around the '&&' expression to silence this warning
-    1175 |             lgr->type == SMC_LGR_SINGLE && lgr->max_links <= 1)
-         |                                         ^                     
-         |             (                                                 )
-   1 warning generated.
 
 
 vim +1175 net/smc/smc_llc.c
