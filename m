@@ -1,29 +1,29 @@
-Received: from mout.web.de (mout.web.de [217.72.192.78])
+Received: from mout.web.de (mout.web.de [212.227.17.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20572DF4E;
-	Mon,  1 Jan 2024 20:58:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A792FBF2;
+	Mon,  1 Jan 2024 21:00:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="d92POTct"
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="KGkfDBAa"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de; s=s29768273;
-	t=1704142695; x=1704747495; i=markus.elfring@web.de;
-	bh=sA32SvjB/NKMDJYtNtuhacTnJuVL4TMScfX+6yDDU+M=;
+	t=1704142817; x=1704747617; i=markus.elfring@web.de;
+	bh=soggXHKwlX5H4i278ffY+sla9st1cZwXGpXQmiuTWMQ=;
 	h=X-UI-Sender-Class:Date:Subject:From:To:Cc:References:
 	 In-Reply-To;
-	b=d92POTctyyYL/EQXpfT9TAVwxetY4izRtKWNPX4YRsBWWElaxNGi2B3hQ3pBZLBv
-	 /vC70M4I5H1yxCHjW2eRme8Jpa6/uqDnqRPP0yXlKZMwM08TtwaypJqi8pfUkvXJp
-	 CLLhxkSCv8KGJHsQiBVvYn8+KVbDR/sSIa+f7xrLlrhhVaAmGDgXVgqB4XEWjSyka
-	 UnKh1zMv4iC0REM0sftcC9xnwxXsvi0BB0RrNYiu+d/nQE6WKWFoYJF7xeSINb8oj
-	 ZFJLcJ4cBZS6fvKz0MUPr2SNh20tVxX/Pd8AbbI9Qc5f5ir22/SPr7sadPAgpbtRc
-	 LLfBkuhkCcc+f6f4+Q==
+	b=KGkfDBAaAr7ik0/EV0cN7LvvDwwKPJ7GJ1RSfcV1LPp0ejo+ogtGEnl4CPieSlEU
+	 cpNjl9tMVwoGHreF6BQZ28ptv8uWHcOWyajQe9IyqBXIfThzW6k6rv/4Xw1hh0Is2
+	 HLRwaGFrI6L9PuQLZGPWMYNMYBtpXPhS6tppItX1AhtCcEjl7bOZczxD+vqlSn6cq
+	 QaQ6+GGfBYhoFv1MC18BZgl4n0u1Cx9DU4TNfRRQfMcXpYSXixDUEEqc/q9mAVKXv
+	 a4Qo3dMyhI6Z+S2lwWfnYN7qr6LMIAFC69QGQzIB1e9ezcbBCf8uMvfsvVToVMa1w
+	 /nKLHO49ieakCVWSGQ==
 X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
 Received: from [192.168.178.21] ([94.31.86.95]) by smtp.web.de (mrweb106
- [213.165.67.124]) with ESMTPSA (Nemesis) id 1MbkWK-1qo6HZ1gKM-00dS9R; Mon, 01
- Jan 2024 21:58:15 +0100
-Message-ID: <81f7db31-a258-4dc8-b6e1-c1ef1844a9d2@web.de>
-Date: Mon, 1 Jan 2024 21:58:14 +0100
+ [213.165.67.124]) with ESMTPSA (Nemesis) id 1MHEbq-1rOn6f0GC8-00DgW5; Mon, 01
+ Jan 2024 22:00:17 +0100
+Message-ID: <d4b65eeb-0ded-4a04-a58e-496a7609edb3@web.de>
+Date: Mon, 1 Jan 2024 22:00:16 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -31,7 +31,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: [PATCH 1/2] net/iucv: Improve unlocking in iucv_enable()
+Subject: [PATCH 2/2] net/iucv: Improve error handling in iucv_enable()
 Content-Language: en-GB
 From: Markus Elfring <Markus.Elfring@web.de>
 To: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
@@ -44,65 +44,74 @@ References: <cde82080-c715-473c-97ac-6ef66bba6d64@web.de>
 In-Reply-To: <cde82080-c715-473c-97ac-6ef66bba6d64@web.de>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:+IjDA4UC/RVeZxJ6sYxiZtXJDjVa+jXZ9pTwjWz9OI5Ww9FtraV
- ePEmmC62gasC9V4/8/hDEKrHDSqO/6oBSvi8X5dXWZ+rGxULRF9USDaTROSAh6+C6b6Lp0p
- SRiozFoUfmrIVJKJvLdH9kEsXUIgYHuN7qcFDPs/eh3L6OKML0f3jnn2PSyC8wz9rSHo8OG
- fa9GRsgjq+MokAvsHOdKw==
+X-Provags-ID: V03:K1:3sLFUxO0MRy26dd/7tWyoDkY1R9BrJbPkUg+db930Ay14GrrrhG
+ AMYI8XZD3UfWYRnl4l8ozmGKCgJyllAecW77Ts5AIxVPtW9WbhpEXrs2+tolQGvpR1OAFfO
+ 52POuTCOBqOKo/+uesr5uOG3c71HTnhF97Yo9ar0CVYuIPlXg2RYrYcIl3YpyeBg7fswIYv
+ IyIXgwrW3XkB7WeD8PMXA==
 X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:240G1l8Yb/A=;hxnMEr1FcOxImCKrWxAcoqNns+T
- IDWiLLC3ze9lC7+sNDGIHWAmUBoK+J3Zmr95nbfw0XOA1+XabOZXbZy3IMjNc5dQMdKl6gr69
- W5v6dAl8eAnaCRXxtjUU7nc3pbKV2t2h75MuzGmabRCkQp/+L2NmLdd5R+XaZHcfQc+mhxNG6
- XSWe6BFEzudr2z6xjX/SQ9w/8G6NBi16TBx5umvrf5My9rflFWBvMTcomSc0O44BpvFqlmf3b
- jmiSfSRbQLMqOXW61d2jHB4i4Z+NJ2xPL49QFByP2MQFiQPl6cNnn93/7v/s44CezPCvEsXq9
- buphS+MbpomWvQQxXFcEVkn/Z6W9KHc3JzWpDqSzp89exU1mSS5KcVTHmGylM95LHuOXBD/OX
- FZTbKGynyjJ+UEPFPsqGbwew6eawXBLPTU7rpEYU2qqfqoxc8Dq04vrnaPUgKdPFJidJXzSv2
- vmgehAX3ck7EkWho1KdhZCPDTLsH2xAGtIPf09/zg6MvXoIOuxxakWiSlUsJTxI9xJ4SNb3Em
- zkPeiSGDTPq6IpalL+KVkbL/faMVKAxQysMDUtnZPJC1B13exRcMvyg7DgF1v0KGcEiM0/Ert
- BHqmKacg24lRxxwjJemFG+KbuiP8HIv5SihrHfCPQkmKOa1zsfiT5XW8yZJa/G9fuA2Umzm3+
- 9obl4t7srPR6mxiErlsFN0FSyPdT5zASt9orIGzw6YtlMJMCN6NGbOGXXGPrOLR09YxuzDWWg
- znkVn8ocAQTBkp51Bj9LlurzkpJoPGdteuXXUt3a2ip2C0V8gP881v6uu/KoydaBgk+hkLzs/
- PmzJzOOF+l/jn+Li2dycMh6x8I9/Wd6wBcx2CSFAns3GFuJaqLQO4ZnEUA2fI5PoonBI4oIEI
- XwTKGE+rsPQytrbBAvDKm4RYB5+YkrBY4h11gnsE07Oss17dGoO1Hegy5pRzSjxGQI5Eho3yL
- K3jAfA==
+UI-OutboundReport: notjunk:1;M01:P0:u5JaqyafKKw=;Yfgd+RdWhfCOMl/7gO9DZVrO0X1
+ mRZq2XL+r7fweRFANlHZxbVSUILJrff9u/NEGrzEBVLmYv+5qo+FDlIEtvK+fuVT611eqRNB0
+ wxSBMp2X8vVcV1fWRycf/2B3kjJUd7K+L0gGb2snu3Klpb3l6VWXYyI7gzDUV7G6rrDhaj5hg
+ Os3HGDWVunkUFgJ1EVCdrkPUlcqKRwupBE5hgZizYjRSNO84gc8+CtVRBHV49Qd9/5qO//k2R
+ 7Yf1SmQD3B1NBUL0oGy/hdH44Cu/K25pwKA69lrt2VqZPpUiwsasHwkOSXgbJas5z68Xy/YuG
+ dnjWKZvhZ+yGd0BSaeL91K9PGwTnQPYg4a3NlvdbMvJyAdZe+0dYkqwPMsVZc+Fac4CJ2/Y/m
+ XpcVAgWBAjonKSXAOzctntIjzZdE/C5LLrS4bC3/cx8Y3KNQSuwoScJ5BNlUWqZTTmnaFZ7ST
+ ikOIgk+VuEvml1itpJoz/il5BwiGlH4gPUmzF78zzrjW4oNKKHdoxhxzPLBQhYjnf4n4O5D6s
+ wT/0opadKEuZl3sr/PpTCKNApk2SAWQJ9i9dlxrmeL410Pmbr21UuiLaRaDgLmGbzQE6rlBey
+ 9GwwKLvC1gxcY8iJgSSwJmqbvB/v8QrGAbN7IuH+GEfALxN4pib7PEC1n5iOLo9SMktd2UJ4O
+ wzeOW7Te5V9CAlh7S6uOUCIbn4jV3imHtl6ShXU7iTtphJSRT7JGJHsAQxBJny1semAElTK6N
+ 3d77+BZJHbvhlPjvhtHQLhFBA/tQAoJgars5pbEKg0OpUWs/mgwJdDnGcDGZI8rMwhuwHDvNY
+ gSoo38wBbVU+LGJnKudvMBQeYfDtDfqz1sNZ5TJYm0iT/TJQd0QG2qUe8aNBqEZYXZkbdHMeq
+ ul6yvzvU9DWguFXgcS51+UkxbfJenfQ2Ce6UoFo9gKpcCrubD1se9nCQUMi0L9Gxqi1GRqKoK
+ zaH8Kw==
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Mon, 1 Jan 2024 21:15:11 +0100
+Date: Mon, 1 Jan 2024 21:44:46 +0100
 
-* Add a label so that a call of the function =E2=80=9Ccpus_read_unlock=E2=
-=80=9D
-  is stored only once in this function implementation.
+The kfree() function was called in one case during error handling
+even if the passed variable contained a null pointer.
+This issue was detected by using the Coccinelle software.
 
-* Replace one call at the end by a goto statement.
+* Thus achieve an unlock operation by using the corresponding label.
+
+* Move two error code assignments to other places.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 =2D--
- net/iucv/iucv.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/iucv/iucv.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
-index 0ed6e34d6edd..71ba309e05ee 100644
+index 71ba309e05ee..09e78a57bab8 100644
 =2D-- a/net/iucv/iucv.c
 +++ b/net/iucv/iucv.c
-@@ -555,13 +555,16 @@ static int iucv_enable(void)
+@@ -543,13 +543,14 @@ static int iucv_enable(void)
+ 	int cpu, rc;
+
+ 	cpus_read_lock();
+-	rc =3D -ENOMEM;
+ 	alloc_size =3D iucv_max_pathid * sizeof(struct iucv_path);
+ 	iucv_path_table =3D kzalloc(alloc_size, GFP_KERNEL);
+-	if (!iucv_path_table)
+-		goto out;
++	if (!iucv_path_table) {
++		rc =3D -ENOMEM;
++		goto unlock;
++	}
++
+ 	/* Declare per cpu buffers. */
+-	rc =3D -EIO;
+ 	for_each_online_cpu(cpu)
+ 		smp_call_function_single(cpu, iucv_declare_cpu, NULL, 1);
  	if (cpumask_empty(&iucv_buffer_cpumask))
- 		/* No cpu could declare an iucv buffer. */
- 		goto out;
-+
-+	rc =3D 0;
-+unlock:
- 	cpus_read_unlock();
--	return 0;
-+	return rc;
-+
+@@ -564,6 +565,7 @@ static int iucv_enable(void)
  out:
  	kfree(iucv_path_table);
  	iucv_path_table =3D NULL;
--	cpus_read_unlock();
--	return rc;
-+	goto unlock;
++	rc =3D -EIO;
+ 	goto unlock;
  }
 
- /*
 =2D-
 2.43.0
 
