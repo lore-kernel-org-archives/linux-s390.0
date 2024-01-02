@@ -1,109 +1,248 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A516A15AC0
-	for <linux-s390@vger.kernel.org>; Tue,  2 Jan 2024 18:19:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 548BF17729
+	for <linux-s390@vger.kernel.org>; Tue,  2 Jan 2024 22:31:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eCxXarr+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TM9Jwa1p"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704219562;
+	s=mimecast20190719; t=1704234685;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/nCI2XqcgtmfKoc7R6akxQ8EGO852Fcbw810Pl2QliE=;
-	b=eCxXarr+kuEZqh/VU3cd26IJyjQQ4WEHNcWGw3VjgPf5c4WX7MWr+GFH5Q5CqRosmdcEnd
-	5fY49JaUKo/JwFYSVhGXuta4OR+Vh+lzNnftb3P+ZrWtYWX/pkyXJAHoRkVMYBiI79nVxZ
-	uEI3TxrvmsRTRlPNudO1R/eG/+I7f+E=
-Received: from mail-vs1-f71.google.com (mail-vs1-f71.google.com
- [209.85.217.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=WxX/DwYRiytQqrsyv6xPbUj6O86YcsayJdMC1Rh079w=;
+	b=TM9Jwa1psXALhsjwGR1vRVu0TzU07A3kPdV1UKoGZI81ae/VkbBs44unakvJ3W3Dgnv+QR
+	vWH52G6l40d/stVWjVB4DO9IWOXdx6NRhg+HEUcptKlxRgf6ksQrjnEbLCqqmTeRZinLtv
+	FKYZCHDutwoRmU/t0PMmD24ZTCEJBIc=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-363-2WW7b865MvK6LqdKwIC-XA-1; Tue, 02 Jan 2024 13:19:21 -0500
-X-MC-Unique: 2WW7b865MvK6LqdKwIC-XA-1
-Received: by mail-vs1-f71.google.com with SMTP id ada2fe7eead31-467356bf734so1058900137.3
-        for <linux-s390@vger.kernel.org>; Tue, 02 Jan 2024 10:19:21 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704219561; x=1704824361;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/nCI2XqcgtmfKoc7R6akxQ8EGO852Fcbw810Pl2QliE=;
-        b=IIMDX2TQKgGn7pdfsLpKLAFR5jAkPegwAhWAanE/IZjE1eslT1xsFJG8bFnc9zEMwB
-         LlwXQOW1guMUBp3iwoTcxkdSSM85lP6dFmogF5nR2lzc4Jri5jhkd57HcT+eb4Y6021o
-         FxaozRvzc+SCvZ47n62iCDfszBZMRDusDACzcS87dPv8Vo73z4na8FaXjO599eLPPX2h
-         O7tZVRkOyfM1dTLFG/Evfzc0uWT7p84tS5ZmqcIkeSPdYkgi32OOxo62u9NPXPR95niX
-         OrOp02r6nX6pCqkIl9dexDJrvELS4uJVXyxhQfCoOtpbbWuXh4gLFCe/rDn5JJwXf/fA
-         vqwg==
-X-Gm-Message-State: AOJu0YwiMY0Vnqw2E4u4Y7kXiUrq3yClE9XnR5cqsv4446x9Ps+EgVUS
-	Syj5ztcQ/MosrQeLwFEyxidf/1oU7zOaH4AoPzETdE3CP+wzMVvHpZ1GcoJG75LdtbWUlE1t9JE
-	/VEVdFbOamp1hCAwmPVVGuBoE6ueE5+yy/3MvGzX0kEcoHg==
-X-Received: by 2002:a05:6102:f9a:b0:467:6ca:b4ea with SMTP id e26-20020a0561020f9a00b0046706cab4eamr7415144vsv.27.1704219560840;
-        Tue, 02 Jan 2024 10:19:20 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFPp0hG5WfkeH0LzbjHWajPiAB+9qxqxdd6BihIJP6uy3Mm09c3D7x8kSQRjFEc/rxbGbMilzXbl6vnT7O0UpU=
-X-Received: by 2002:a05:6102:f9a:b0:467:6ca:b4ea with SMTP id
- e26-20020a0561020f9a00b0046706cab4eamr7415124vsv.27.1704219560266; Tue, 02
- Jan 2024 10:19:20 -0800 (PST)
+ us-mta-102-41CIv6mVMvuFpQ2fC74M9w-1; Tue, 02 Jan 2024 17:31:21 -0500
+X-MC-Unique: 41CIv6mVMvuFpQ2fC74M9w-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id E456D848A64;
+	Tue,  2 Jan 2024 22:31:20 +0000 (UTC)
+Received: from redhat.com (unknown [10.22.9.153])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 3ED1040C6EB9;
+	Tue,  2 Jan 2024 22:31:20 +0000 (UTC)
+Date: Tue, 2 Jan 2024 17:31:18 -0500
+From: Joe Lawrence <joe.lawrence@redhat.com>
+To: Marcos Paulo de Souza <mpdesouza@suse.com>
+Cc: Shuah Khan <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>,
+	Petr Mladek <pmladek@suse.com>, linux-kselftest@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org, live-patching@vger.kernel.org
+Subject: Re: [PATCH RESEND v4 1/3] kselftests: lib.mk: Add TEST_GEN_MODS_DIR
+ variable
+Message-ID: <ZZSOtsbzpy2mvmUC@redhat.com>
+References: <20231220-send-lp-kselftests-v4-0-3458ec1b1a38@suse.com>
+ <20231220-send-lp-kselftests-v4-1-3458ec1b1a38@suse.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240102133629.108405-1-frankja@linux.ibm.com>
-In-Reply-To: <20240102133629.108405-1-frankja@linux.ibm.com>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Tue, 2 Jan 2024 19:19:09 +0100
-Message-ID: <CABgObfZYzBgtLVhqH+ADXM0kEkK9F_MK0jcjjhOPooSU1YQFHw@mail.gmail.com>
-Subject: Re: [GIT PULL 0/4] KVM: s390: Changes for 6.8
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, david@redhat.com, borntraeger@linux.ibm.com, 
-	cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, 
-	seiden@linux.ibm.com, nsg@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20231220-send-lp-kselftests-v4-1-3458ec1b1a38@suse.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.2
 
-On Tue, Jan 2, 2024 at 2:37=E2=80=AFPM Janosch Frank <frankja@linux.ibm.com=
-> wrote:
->
-> Dear Paolo,
->
-> please pull the following changes for 6.8.
->
-> The changes are fixes/cleanups that didn't require a fix pull and
-> hence landed in next.
->
-> -The uvdevice didn't return a firmware return value to
->  userspace. This didn't matter since that value was unused but might
->  be used in the future.
->
-> -The stfle vsie code was not 100% spec compliant because it checked
->  for readability of an area that was larger than the one accessed by
->  firmware. Additionally there was an issue with a mask being applied
->  to early.
->
-> The following changes since commit 98b1cc82c4affc16f5598d4fa14b1858671b22=
-63:
->
->   Linux 6.7-rc2 (2023-11-19 15:02:14 -0800)
->
-> are available in the Git repository at:
->
->   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/=
-kvm-s390-next-6.8-1
->
-> for you to fetch changes up to 10f7b1dcdfe05efcd26e90e337daf1bfd8f4a6da:
->
->   KVM: s390: cpu model: Use proper define for facility mask size (2023-12=
--23 10:41:09 +0100)
->
-> ----------------------------------------------------------------
-> - uvdevice fixed additional data return length (Steffen)
-> - stfle (feature indication) vsie fixes and minor cleanup (Nina)
-> ----------------------------------------------------------------
+On Wed, Dec 20, 2023 at 01:53:12PM -0300, Marcos Paulo de Souza wrote:
+> Add TEST_GEN_MODS_DIR variable for kselftests. It can point to
+> a directory containing kernel modules that will be used by
+> selftest scripts.
+> 
+> The modules are built as external modules for the running kernel.
+> As a result they are always binary compatible and the same tests
+> can be used for older or newer kernels.
+> 
+> The build requires "kernel-devel" package to be installed.
+> For example, in the upstream sources, the rpm devel package
+> is produced by "make rpm-pkg"
+> 
+> The modules can be built independently by
+> 
+>   make -C tools/testing/selftests/livepatch/
+> 
+> or they will be automatically built before running the tests via
+> 
+>   make -C tools/testing/selftests/livepatch/ run_tests
+> 
+> Note that they are _not_ built when running the standalone
+> tests by calling, for example, ./test-state.sh.
+> 
+> Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
+> ---
+>  Documentation/dev-tools/kselftest.rst |  4 ++++
+>  tools/testing/selftests/lib.mk        | 20 +++++++++++++++-----
+>  2 files changed, 19 insertions(+), 5 deletions(-)
+> 
+> diff --git a/Documentation/dev-tools/kselftest.rst b/Documentation/dev-tools/kselftest.rst
+> index ab376b316c36..7f3582a67318 100644
+> --- a/Documentation/dev-tools/kselftest.rst
+> +++ b/Documentation/dev-tools/kselftest.rst
+> @@ -245,6 +245,10 @@ Contributing new tests (details)
+>     TEST_PROGS, TEST_GEN_PROGS mean it is the executable tested by
+>     default.
+>  
+> +   TEST_GEN_MODS_DIR should be used by tests that require modules to be built
+> +   before the test starts. The variable will contain the name of the directory
+> +   containing the modules.
+> +
+>     TEST_CUSTOM_PROGS should be used by tests that require custom build
+>     rules and prevent common build rule use.
+>  
+> diff --git a/tools/testing/selftests/lib.mk b/tools/testing/selftests/lib.mk
+> index 118e0964bda9..6c7c5a0112cf 100644
+> --- a/tools/testing/selftests/lib.mk
+> +++ b/tools/testing/selftests/lib.mk
+> @@ -70,12 +70,15 @@ KHDR_INCLUDES := -isystem $(KHDR_DIR)
+>  # TEST_PROGS are for test shell scripts.
+>  # TEST_CUSTOM_PROGS and TEST_PROGS will be run by common run_tests
+>  # and install targets. Common clean doesn't touch them.
+> +# TEST_GEN_MODS_DIR is used to specify a directory with modules to be built
+> +# before the test executes. These modules are cleaned on the clean target as well.
+>  TEST_GEN_PROGS := $(patsubst %,$(OUTPUT)/%,$(TEST_GEN_PROGS))
+>  TEST_GEN_PROGS_EXTENDED := $(patsubst %,$(OUTPUT)/%,$(TEST_GEN_PROGS_EXTENDED))
+>  TEST_GEN_FILES := $(patsubst %,$(OUTPUT)/%,$(TEST_GEN_FILES))
+> +TEST_GEN_MODS_DIR := $(patsubst %,$(OUTPUT)/%,$(TEST_GEN_MODS_DIR))
+>  
+>  all: kernel_header_files $(TEST_GEN_PROGS) $(TEST_GEN_PROGS_EXTENDED) \
+> -     $(TEST_GEN_FILES)
+> +     $(TEST_GEN_FILES) $(if $(TEST_GEN_MODS_DIR),gen_mods_dir)
+>  
+>  kernel_header_files:
+>  	@ls $(KHDR_DIR)/linux/*.h >/dev/null 2>/dev/null;                      \
+> @@ -105,8 +108,8 @@ endef
+>  
+>  run_tests: all
+>  ifdef building_out_of_srctree
+> -	@if [ "X$(TEST_PROGS)$(TEST_PROGS_EXTENDED)$(TEST_FILES)" != "X" ]; then \
+> -		rsync -aq --copy-unsafe-links $(TEST_PROGS) $(TEST_PROGS_EXTENDED) $(TEST_FILES) $(OUTPUT); \
+> +	@if [ "X$(TEST_PROGS)$(TEST_PROGS_EXTENDED)$(TEST_FILES)$(TEST_GEN_MODS_DIR)" != "X" ]; then \
+> +		rsync -aq --copy-unsafe-links $(TEST_PROGS) $(TEST_PROGS_EXTENDED) $(TEST_FILES) $(TEST_GEN_MODS_DIR) $(OUTPUT); \
+>  	fi
+>  	@if [ "X$(TEST_PROGS)" != "X" ]; then \
+>  		$(call RUN_TESTS, $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) \
+> @@ -118,6 +121,12 @@ else
+>  	@$(call RUN_TESTS, $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) $(TEST_PROGS))
+>  endif
+>  
+> +gen_mods_dir:
+> +	$(Q)$(MAKE) -C $(TEST_GEN_MODS_DIR)
+> +
+> +clean_mods_dir:
+> +	$(Q)$(MAKE) -C $(TEST_GEN_MODS_DIR) clean
+> +
+>  define INSTALL_SINGLE_RULE
+>  	$(if $(INSTALL_LIST),@mkdir -p $(INSTALL_PATH))
+>  	$(if $(INSTALL_LIST),rsync -a --copy-unsafe-links $(INSTALL_LIST) $(INSTALL_PATH)/)
+> @@ -131,6 +140,7 @@ define INSTALL_RULE
+>  	$(eval INSTALL_LIST = $(TEST_CUSTOM_PROGS)) $(INSTALL_SINGLE_RULE)
+>  	$(eval INSTALL_LIST = $(TEST_GEN_PROGS_EXTENDED)) $(INSTALL_SINGLE_RULE)
+>  	$(eval INSTALL_LIST = $(TEST_GEN_FILES)) $(INSTALL_SINGLE_RULE)
+> +	$(eval INSTALL_LIST = $(TEST_GEN_MODS_DIR)) $(INSTALL_SINGLE_RULE)
 
-Pulled, thanks.
+Hi Marcos,
 
-Paolo
+Sorry for the late reply on this, but I'm reviewing this version by
+trying to retrofit it into our selftest packaging (pre-build the test
+module .ko's and stash those into an rpm rather than building on the
+test host).
+
+Since $TEST_GEN_MODS_DIR is treated as a directory, I found that the
+selftest install target copies a bunch of intermediate object and kbuild
+files:
+
+  $ mkdir /tmp/test-install
+  $ make KDIR=$(pwd) INSTALL_PATH=/tmp/test-install TARGETS=livepatch \
+       -C tools/testing/selftests/ install
+
+  [ ... builds livepatch selftests ... ]
+
+the rsync in question:
+
+  rsync -a --copy-unsafe-links /home/jolawren/src/kernel/tools/testing/selftests/livepatch/test_modules /tmp/test-install/livepatch/
+  ...
+
+and then looking at the destination:
+
+  $ tree -a /tmp/test-install/
+  /tmp/test-install/
+  ├── kselftest
+  │   ├── module.sh
+  │   ├── prefix.pl
+  │   └── runner.sh
+  ├── kselftest-list.txt
+  ├── livepatch
+  │   ├── config
+  │   ├── functions.sh
+  │   ├── settings
+  │   ├── test-callbacks.sh
+  │   ├── test-ftrace.sh
+  │   ├── test_klp-call_getpid
+  │   ├── test-livepatch.sh
+  │   ├── test_modules
+  │   │   ├── Makefile
+  │   │   ├── modules.order
+  │   │   ├── .modules.order.cmd
+  │   │   ├── Module.symvers
+  │   │   ├── .Module.symvers.cmd
+  │   │   ├── test_klp_atomic_replace.c
+  │   │   ├── test_klp_atomic_replace.ko
+  │   │   ├── .test_klp_atomic_replace.ko.cmd
+  │   │   ├── test_klp_atomic_replace.mod
+  │   │   ├── test_klp_atomic_replace.mod.c
+  │   │   ├── .test_klp_atomic_replace.mod.cmd
+  │   │   ├── test_klp_atomic_replace.mod.o
+  │   │   ├── .test_klp_atomic_replace.mod.o.cmd
+  │   │   ├── test_klp_atomic_replace.o
+  │   │   ├── .test_klp_atomic_replace.o.cmd
+  ...
+
+On the other hand, variables like $TEST_GEN_FILES specify individual
+files, so only final binaries like test_klp-call_getpid (and not
+test_klp-call_getpid.c) are copied to $INSTALL_PATH.
+
+Since the selftest module builds appear to ignore
+CONFIG_MODULE_COMPRESS_* the smallest tweak I can think of to avoid the
+above scenario is:
+
+  --- a/tools/testing/selftests/lib.mk
+  +++ b/tools/testing/selftests/lib.mk
+  @@ -106,7 +106,7 @@ define INSTALL_RULE
+          $(eval INSTALL_LIST = $(TEST_CUSTOM_PROGS)) $(INSTALL_SINGLE_RULE)
+          $(eval INSTALL_LIST = $(TEST_GEN_PROGS_EXTENDED)) $(INSTALL_SINGLE_RULE)
+          $(eval INSTALL_LIST = $(TEST_GEN_FILES)) $(INSTALL_SINGLE_RULE)
+  -       $(eval INSTALL_LIST = $(TEST_GEN_MODS_DIR)) $(INSTALL_SINGLE_RULE)
+  +       $(eval INSTALL_LIST = $(shell sed 's/.o$$/.ko/' $(TEST_GEN_MODS_DIR)/modules.order)) $(INSTALL_SINGLE_RULE)
+          $(eval INSTALL_LIST = $(wildcard config settings)) $(INSTALL_SINGLE_RULE)
+   endef
+
+However, that will copy .ko's directly into $INSTALL_PATH and out of the
+$TEST_GEN_MODS_DIR subdirectory(s), so maybe not a great solution after
+all.
+
+Anyway, I thought I might mention this in case it runs against the
+spirit of the selftest install target.  I only tripped over it while
+digging into the bowels of our kernel specfile and discovered that it
+invoked this target.
+
+--
+Joe
 
