@@ -1,55 +1,55 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87C2E15AD3;
-	Tue,  2 Jan 2024 15:09:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12E4312E7E;
+	Tue,  2 Jan 2024 15:14:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="svD4su6l"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 402CRVvJ007618;
-	Tue, 2 Jan 2024 15:09:35 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Zq3EYYWP"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 402CiIn7000998;
+	Tue, 2 Jan 2024 15:14:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=Z16gIvE6o/oyg7pKiGRgBezqdCKIKpf4AGEXuLsxRFw=;
- b=svD4su6l/twu+Zu2qoE0Qtzc2tJbxOj/21Pxy3greVvKpkioWAWCsLUbw1JSvcpIJ1AG
- 2PLbkB/D1Hcmp2UAVq3HHtelivWEgMRk9MOi5EcqcNupuCD7mH6rfg4VcMmig0ox5L8e
- z4funDZikQnB/ApbXAUzG5HHAmGxM5qn8nu7yIM7g4jdJc1UAqIpAmdpZrm8y4VB6qjc
- C0sAis8oUvaictM8VH3r4w3cQXUkVusrr/1G9FiB+zWhysS3SOTvXFyKvQSq9EKmB/SA
- h72VMSwYOdaVKPHcGpvajT1xHoQ952aP5IkHkFT7JDByszskj5K2OsgJbHFJl/30qSaN Ug== 
+ in-reply-to; s=pp1; bh=1BKcmG2jscOIY6lh3Br6/Mb1pJ/Vi1UOVkNOh1YtQSc=;
+ b=Zq3EYYWPNc4UgN7L+mRwnUV4SVWsszAF6dhEQYLvxmpIJwvy3wjO9Pf0JusBYQMzETqE
+ /SlYWFZe/4i7GdnfgUnvggZuf98pdyX7RXdAnS4HsFn4UYY+4gbokrI14Huh4mSXnBZE
+ GfcBAn5EgZxpmOyi7WBNmh+5GDrCm8lJuDDyrcVIUq/3J24YPTGjmGKu6s5k604jbfyA
+ Zms5o23hAHx6RuD9goA19feUczcbAsbyPJEuWfRhVFXGdVe6a+Zlb7WvoT381+Ag5lw+
+ 1VyuCpobO8MxyocJ3gySwJAVpJqX3+Wk81nTIqX6/+aL06t7+j+71UzM79CtQnnqPM15 UQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcjghkfsn-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcf2j7wws-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 15:09:34 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 402EKo8H022188;
-	Tue, 2 Jan 2024 15:09:34 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcjghkfs7-1
+	Tue, 02 Jan 2024 15:14:42 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 402F7f8f024070;
+	Tue, 2 Jan 2024 15:14:41 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcf2j7w1d-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 15:09:34 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 402Ds1wG017834;
-	Tue, 2 Jan 2024 15:09:32 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vawwynnak-1
+	Tue, 02 Jan 2024 15:14:41 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 402F193C019167;
+	Tue, 2 Jan 2024 15:06:02 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vayrkd7h1-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 15:09:32 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 402F9TLH19726960
+	Tue, 02 Jan 2024 15:06:02 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 402F5xup42336898
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 2 Jan 2024 15:09:29 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5DA132004E;
-	Tue,  2 Jan 2024 15:09:29 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1E7A720040;
-	Tue,  2 Jan 2024 15:09:28 +0000 (GMT)
+	Tue, 2 Jan 2024 15:05:59 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 733B920040;
+	Tue,  2 Jan 2024 15:05:59 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6701720043;
+	Tue,  2 Jan 2024 15:05:58 +0000 (GMT)
 Received: from osiris (unknown [9.171.22.30])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  2 Jan 2024 15:09:28 +0000 (GMT)
-Date: Tue, 2 Jan 2024 16:09:26 +0100
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue,  2 Jan 2024 15:05:58 +0000 (GMT)
+Date: Tue, 2 Jan 2024 16:05:57 +0100
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Ilya Leoshkevich <iii@linux.ibm.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -69,10 +69,10 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Mark Rutland <mark.rutland@arm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>
-Subject: Re: [PATCH v3 32/34] s390/unwind: Disable KMSAN checks
-Message-ID: <20240102150926.6306-I-hca@linux.ibm.com>
+Subject: Re: [PATCH v3 29/34] s390/string: Add KMSAN support
+Message-ID: <20240102150557.6306-G-hca@linux.ibm.com>
 References: <20231213233605.661251-1-iii@linux.ibm.com>
- <20231213233605.661251-33-iii@linux.ibm.com>
+ <20231213233605.661251-30-iii@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -81,28 +81,38 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20231213233605.661251-33-iii@linux.ibm.com>
+In-Reply-To: <20231213233605.661251-30-iii@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: exHf4oBJB85XIi_IDJ_Zx4a73A6HiVoO
-X-Proofpoint-ORIG-GUID: 2sCBYVkslnYpbOQdpV7tqP0ZF1S161uX
+X-Proofpoint-GUID: O5QiWeQIJAvGTp7EVYQbU-a0u6juWUh_
+X-Proofpoint-ORIG-GUID: aPmHxOhkMHaWwlCr-kgZMDd0ueILkEpz
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-01-02_04,2024-01-02_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- mlxlogscore=425 lowpriorityscore=0 spamscore=0 mlxscore=0 impostorscore=0
- phishscore=0 adultscore=0 clxscore=1015 suspectscore=0 bulkscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401020116
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ adultscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0 mlxscore=0
+ malwarescore=0 spamscore=0 mlxlogscore=910 clxscore=1015 suspectscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2401020117
 
-On Thu, Dec 14, 2023 at 12:24:52AM +0100, Ilya Leoshkevich wrote:
-> The unwind code can read uninitialized frames. Furthermore, even in
-> the good case, KMSAN does not emit shadow for backchains. Therefore
-> disable it for the unwinding functions.
+On Thu, Dec 14, 2023 at 12:24:49AM +0100, Ilya Leoshkevich wrote:
+> Add KMSAN support for the s390 implementations of the string functions.
+> Do this similar to how it's already done for KASAN, except that the
+> optimized memset{16,32,64}() functions need to be disabled: it's
+> important for KMSAN to know that they initialized something.
+> 
+> The way boot code is built with regard to string functions is
+> problematic, since most files think it's configured with sanitizers,
+> but boot/string.c doesn't. This creates various problems with the
+> memset64() definitions, depending on whether the code is built with
+> sanitizers or fortify. This should probably be streamlined, but in the
+> meantime resolve the issues by introducing the IN_BOOT_STRING_C macro,
+> similar to the existing IN_ARCH_STRING_C macro.
 > 
 > Reviewed-by: Alexander Potapenko <glider@google.com>
 > Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 > ---
->  arch/s390/kernel/unwind_bc.c | 4 ++++
->  1 file changed, 4 insertions(+)
+>  arch/s390/boot/string.c        | 16 ++++++++++++++++
+>  arch/s390/include/asm/string.h | 20 +++++++++++++++-----
+>  2 files changed, 31 insertions(+), 5 deletions(-)
 
 Acked-by: Heiko Carstens <hca@linux.ibm.com>
