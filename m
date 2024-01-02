@@ -1,57 +1,29 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mout.web.de (mout.web.de [212.227.15.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7099AD2F0;
-	Tue,  2 Jan 2024 09:53:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAB6FDDAD;
+	Tue,  2 Jan 2024 10:31:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="A4p/GRB8"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 4029CRcE032503;
-	Tue, 2 Jan 2024 09:53:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=AYCtOkc+9831jYDs1FcN1a+YAqrskx92og3tUg087YU=;
- b=A4p/GRB8tYMsaukAXGbxqDfxjEzDvMEliKa8hYQmNs7BFfB6R65lKIZlu1ZUP6dFOAwL
- Xxby3Udype6QMnCQuDTf3KHkKxrEAj+/DDduq3C6UaPMRgq0ugPng8y33PySPOxcgZEn
- LomZMsH8RuEXqG8OMwVi0ul8ctQ6DWcU+1cFNKNZ31OmXhO3kQdfkOPBpGlCkoNGC9U3
- BwfiRx5CO47Bup0tjf3gtD4dGiqSkPOgi1RX2GU669QC+BF8TjSoCY2rIWpTQ1RgT3px
- lJ1TeRMssl4RX6wNf6Y5T++zZ1VV7N7bwLgOauzY8ahN7CAJBo5/COEe1W9W5so4wv1l wg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcfn6rnnh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 09:53:20 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 4029Khff019456;
-	Tue, 2 Jan 2024 09:53:19 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcfn6rnmx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 09:53:19 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4029PIKJ024559;
-	Tue, 2 Jan 2024 09:53:18 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vb0823kb7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 09:53:18 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4029rGAI4915940
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 2 Jan 2024 09:53:16 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D25BB20040;
-	Tue,  2 Jan 2024 09:53:16 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 483AE20043;
-	Tue,  2 Jan 2024 09:53:16 +0000 (GMT)
-Received: from [9.171.21.141] (unknown [9.171.21.141])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  2 Jan 2024 09:53:16 +0000 (GMT)
-Message-ID: <2bf1b0cb-86af-4e00-a0aa-23e3944617a2@linux.ibm.com>
-Date: Tue, 2 Jan 2024 10:53:15 +0100
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="UvbnHLHE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de; s=s29768273;
+	t=1704191496; x=1704796296; i=markus.elfring@web.de;
+	bh=byLjICH9kZFXAhhR7l1uz0KXqLkgIwDGVOFiUikXwjw=;
+	h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:
+	 In-Reply-To;
+	b=UvbnHLHE18UZfNoQinmJ5WClJpEmsnAxcznti26bUEb4k/E/6paOYmFB8aSKz/xG
+	 GIcohZH93ewA8ql7aafpXZG+/Q9As8dU558NPrg+Nj5Ub/Pv/EfQxF7rM43r1+pmp
+	 CaVX7o18hFfmmtuugXiXfUE8hNzYfc+pUOo5uFRmtlADn3JVqlU26PLVDuCYrb95U
+	 vDaHh2gjjc0U76o70y2YRE0Fynd6B8eFwtQMB+rCVXuW3JF1Mg2Mj1Z12aWrF6Lis
+	 +a0gyJ3xkxoKj4e7nTuln7FyT4lyLFzVApgfGhWMhzT0rRiu4ZRIcrGieY0h50IkL
+	 D/GkH1p1YzwEULNr4w==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from [192.168.178.21] ([94.31.91.95]) by smtp.web.de (mrweb005
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 1N3ouq-1rBZdI2IAy-00zyNb; Tue, 02
+ Jan 2024 11:31:36 +0100
+Message-ID: <d2e5c263-c0aa-4297-b446-f013af7eb80f@web.de>
+Date: Tue, 2 Jan 2024 11:31:35 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -59,94 +31,110 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [EXT] Re: [PATCH 1/2] net/iucv: Improve unlocking in
- iucv_enable()
-Content-Language: en-US
-To: Suman Ghosh <sumang@marvell.com>, Markus Elfring <Markus.Elfring@web.de>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Wenjia Zhang <wenjia@linux.ibm.com>
+Subject: Re: [PATCH 1/2] net/iucv: Improve unlocking in iucv_enable()
+Content-Language: en-GB
+To: Alexandra Winter <wintera@linux.ibm.com>, Suman Ghosh
+ <sumang@marvell.com>, "linux-s390@vger.kernel.org"
+ <linux-s390@vger.kernel.org>, "netdev@vger.kernel.org"
+ <netdev@vger.kernel.org>,
+ "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Wenjia Zhang <wenjia@linux.ibm.com>
 Cc: LKML <linux-kernel@vger.kernel.org>
 References: <cde82080-c715-473c-97ac-6ef66bba6d64@web.de>
  <81f7db31-a258-4dc8-b6e1-c1ef1844a9d2@web.de>
  <SJ0PR18MB5216C27127E46490951A1E5DDB61A@SJ0PR18MB5216.namprd18.prod.outlook.com>
  <8123a895-c7dd-4a75-94bc-6f61639621eb@web.de>
  <SJ0PR18MB52168AC4B874C0B99BD37039DB61A@SJ0PR18MB5216.namprd18.prod.outlook.com>
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <SJ0PR18MB52168AC4B874C0B99BD37039DB61A@SJ0PR18MB5216.namprd18.prod.outlook.com>
+ <2bf1b0cb-86af-4e00-a0aa-23e3944617a2@linux.ibm.com>
+From: Markus Elfring <Markus.Elfring@web.de>
+In-Reply-To: <2bf1b0cb-86af-4e00-a0aa-23e3944617a2@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: C8uidfJ9Rbzq5X89ajyI9gGmOvlv4ngY
-X-Proofpoint-ORIG-GUID: F-_IGs_ztXSTS1-qI-16oqhFy018xpAq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-02_02,2024-01-01_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- lowpriorityscore=0 bulkscore=0 malwarescore=0 spamscore=0 impostorscore=0
- priorityscore=1501 mlxscore=0 suspectscore=0 mlxlogscore=833 clxscore=1011
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401020075
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:vwvz92Bt8HT7eNV3Wmw65q6wPiFzhtMoY5oZu8ovAx9ruR5aR/u
+ +tP5/8TYnDV6TukFkGVK5FHlNA22DelulzoEZ4HDvAoIbdgX2BdHUXHnILdX1b5ZXqgqglj
+ 2752rA2H4yNc8SQFEC8O7e6onYHBLEmIgsIptaG8+Vx2PzcLuv3KyBsmJPeRPDYWH5FIRAd
+ 9TnVWIvwtsxF7m2J4alNw==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:N+sZX2iAzmM=;yViQHahgU4NVsBOTP6sDp3nZcfO
+ 5oYUrWBM77Aet6jAwMVrgn81lJyL1DXbUrttOuRcVw359powYsbjEk8O1jZ+c8sfi961W2PZ8
+ x9xQ+iaYA3KjEPYrvbdGmUnz1X5ffXGFVY1p9NptMTtwfCFg4Qsfmhvr1DSYLpgxXsv+jQQnz
+ 2Wqi3TLx+ZszNN37nuK7ChIPOpUDYpiTUn2/j3lEifMBKjygFkCQRMde6vY6+8tdzaijEY6OR
+ zcbAQYOi8YEQNUNvJEr9G5kdtoQv+3tAA3enqPjdQebe3RunU3nGwWT3slutmeI0+nQAHNIdi
+ oropFxKVTPI38zpaQdofHwTFa2wtsE3nXIElxTcyZl7Lv/ZCC1vrc31lHTdmyAPNG2Gjq7cOe
+ 3rj7sUQDGE9pUYc5mSczL81A2jCmI5hxeGAPqKk16aTZBCviJX1bKqQeXXKCvbLTZSNuD8GTA
+ EyRwcn9GI0Z0v1PqcdMB5ZuAt+3FABNMIfhfrw/qvVqG0a4D90b2zXEhJ8k6ExtgLV80IDFUx
+ vGIvEfaBSWilCrXirD+PT9kjn+J12MrSqpsVvppW93oGcw0E3ZtLQfhJPhvH5VDYSp+B5hYWi
+ F9oKQ4spKIuiRKEejNNWUxEtp+e9TQXRvE5WrGa7tUOZA/7JcM9TPRVEVTviB1XB2zT1upa6Z
+ jLHQlrJlzwXQH3RlFyiqpGkA06aKeYGNp0DPJK7h6ipbQl+HQjPDnDHT2uXgD2E600tS6DljB
+ wDrpHoJ2p9uA1vs62VGjP0qJ3PIKl0uyytsNLNxtPnkmdoi2PhfGz3T1EOg45QIbFe8BcowOg
+ KP5SEtlRrrQZKbycwwiHbGAenCBfiowz7LgFx57cBOeAceeTrJEDIXlV+G1H/icMMwMmnkXSg
+ JArFpi8UAIeCs/Vtab7nAJObPhw16zi3467zLOB1/aLen15nyZpXdGqxqgf6rzrGm64bSoTUj
+ ITVFcw==
+
+> I share Suman's concern that jumping backwards goto is confusing.
+> But I think the Coccinelle finding of freeing a null-pointer should be a=
+ddressed (see patch 2/2)
+> Thank you Markus for reporting it.
+>
+> The allocation does require holding the cpus_read_lock.
+
+How does this information fit to your following suggestion to adjust the l=
+ock scope?
 
 
+> For some reason Markus wants to reduce the number of cpus_read_unlock() =
+calls (why?),
 
-On 02.01.24 09:27, Suman Ghosh wrote:
->>> [Suman] This looks confusing. What is the issue with retaining the
->> original change?
->>
->> I propose to reduce the number of cpus_read_unlock() calls (in the
->> source code).
->>
->> Regards,
->> Markus
-> [Suman] Then I think we should do something like this. Changing the code flow back-and-forth using "goto" does not seem correct.
+One cpus_read_unlock() call is required here.
+Would you like to benefit more from a smaller executable code size?
 
-I share Suman's concern that jumping backwards goto is confusing.
-But I think the Coccinelle finding of freeing a null-pointer should be addressed (see patch 2/2)
-Thank you Markus for reporting it.
 
-The allocation does require holding the cpus_read_lock. 
-For some reason Markus wants to reduce the number of cpus_read_unlock() calls (why?),
-so what about something like this for both issues:
+> so what about something like this for both issues:
+>
+> diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
+> index 0ed6e34d6edd..1030403b826b 100644
+> --- a/net/iucv/iucv.c
+> +++ b/net/iucv/iucv.c
+> @@ -542,24 +542,22 @@ static int iucv_enable(void)
+>         size_t alloc_size;
+>         int cpu, rc;
+>
+> -       cpus_read_lock();
+> -       rc =3D -ENOMEM;
+>         alloc_size =3D iucv_max_pathid * sizeof(struct iucv_path);
+>         iucv_path_table =3D kzalloc(alloc_size, GFP_KERNEL);
+>         if (!iucv_path_table)
+> -               goto out;
+> +               return -ENOMEM;
+>         /* Declare per cpu buffers. */
+> -       rc =3D -EIO;
+> +       cpus_read_lock();
+>         for_each_online_cpu(cpu)
+>                 smp_call_function_single(cpu, iucv_declare_cpu, NULL, 1)=
+;
+> -       if (cpumask_empty(&iucv_buffer_cpumask))
+> +       if (cpumask_empty(&iucv_buffer_cpumask)) {
+>                 /* No cpu could declare an iucv buffer. */
+> -               goto out;
+> -       cpus_read_unlock();
+> -       return 0;
+> -out:
+> -       kfree(iucv_path_table);
+> -       iucv_path_table =3D NULL;
+> +               kfree(iucv_path_table);
+> +               iucv_path_table =3D NULL;
+> +               rc =3D -EIO;
+> +       } else {
+> +               rc =3D 0;
+> +       }
+>         cpus_read_unlock();
+>         return rc;
+>  }
 
-diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
-index 0ed6e34d6edd..1030403b826b 100644
---- a/net/iucv/iucv.c
-+++ b/net/iucv/iucv.c
-@@ -542,24 +542,22 @@ static int iucv_enable(void)
-        size_t alloc_size;
-        int cpu, rc;
 
--       cpus_read_lock();
--       rc = -ENOMEM;
-        alloc_size = iucv_max_pathid * sizeof(struct iucv_path);
-        iucv_path_table = kzalloc(alloc_size, GFP_KERNEL);
-        if (!iucv_path_table)
--               goto out;
-+               return -ENOMEM;
-        /* Declare per cpu buffers. */
--       rc = -EIO;
-+       cpus_read_lock();
-        for_each_online_cpu(cpu)
-                smp_call_function_single(cpu, iucv_declare_cpu, NULL, 1);
--       if (cpumask_empty(&iucv_buffer_cpumask))
-+       if (cpumask_empty(&iucv_buffer_cpumask)) {
-                /* No cpu could declare an iucv buffer. */
--               goto out;
--       cpus_read_unlock();
--       return 0;
--out:
--       kfree(iucv_path_table);
--       iucv_path_table = NULL;
-+               kfree(iucv_path_table);
-+               iucv_path_table = NULL;
-+               rc = -EIO;
-+       } else {
-+               rc = 0;
-+       }
-        cpus_read_unlock();
-        return rc;
- }
+I suggest to reconsider patch squashing a bit more.
+
+Regards,
+Markus
