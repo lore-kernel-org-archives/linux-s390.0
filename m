@@ -1,55 +1,55 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12E4312E7E;
-	Tue,  2 Jan 2024 15:14:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5563712E6A;
+	Tue,  2 Jan 2024 15:15:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Zq3EYYWP"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GyyDIVkE"
 Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 402CiIn7000998;
-	Tue, 2 Jan 2024 15:14:43 GMT
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 402CiInD000998;
+	Tue, 2 Jan 2024 15:15:03 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=1BKcmG2jscOIY6lh3Br6/Mb1pJ/Vi1UOVkNOh1YtQSc=;
- b=Zq3EYYWPNc4UgN7L+mRwnUV4SVWsszAF6dhEQYLvxmpIJwvy3wjO9Pf0JusBYQMzETqE
- /SlYWFZe/4i7GdnfgUnvggZuf98pdyX7RXdAnS4HsFn4UYY+4gbokrI14Huh4mSXnBZE
- GfcBAn5EgZxpmOyi7WBNmh+5GDrCm8lJuDDyrcVIUq/3J24YPTGjmGKu6s5k604jbfyA
- Zms5o23hAHx6RuD9goA19feUczcbAsbyPJEuWfRhVFXGdVe6a+Zlb7WvoT381+Ag5lw+
- 1VyuCpobO8MxyocJ3gySwJAVpJqX3+Wk81nTIqX6/+aL06t7+j+71UzM79CtQnnqPM15 UQ== 
+ in-reply-to; s=pp1; bh=5R/MUyPZKXiGnRfyDR7/fa1BTIb9z0ZZv7WNzsdcXEY=;
+ b=GyyDIVkEGv2s4ldmdCYBlJ1ixw+A4EcspTZxZW0AWcKglqttjuRcZOWfltt8P0EgKSeP
+ 32ZelRBFwf9bSXBXHfmAh5JbmCFQIAv4393784ZT8VXB3+PXBLUymwLH9he/rt0+tvQH
+ sOzZvIDs0VjmkMv3gM2oqavZg0wYCte/C2ObBbe3TD5lm1d5fTRV9l+P7RVM/OQgNKCQ
+ faqqnaMqvgMJTgS9Yck5u0waPXffoX9xKmzLwTnUTa8d+1AU3AePtPmp1diwbKlsQ8fa
+ oZAarMEIhaM+Q+iIE0gl/Ik4fRc3k0DmnRkuoPP6pfmYlMydi8ucrXFFTyQl4VPLXYQM sg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcf2j7wws-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcf2j7x4t-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 15:14:42 +0000
+	Tue, 02 Jan 2024 15:15:03 +0000
 Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 402F7f8f024070;
-	Tue, 2 Jan 2024 15:14:41 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcf2j7w1d-1
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 402FEmSn008974;
+	Tue, 2 Jan 2024 15:15:02 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcf2j7x47-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 15:14:41 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 402F193C019167;
-	Tue, 2 Jan 2024 15:06:02 GMT
+	Tue, 02 Jan 2024 15:15:02 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 402DmnDH027299;
+	Tue, 2 Jan 2024 15:15:01 GMT
 Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vayrkd7h1-1
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vawht5u20-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 15:06:02 +0000
+	Tue, 02 Jan 2024 15:15:01 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 402F5xup42336898
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 402FEwtx42009224
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 2 Jan 2024 15:05:59 GMT
+	Tue, 2 Jan 2024 15:14:58 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 733B920040;
-	Tue,  2 Jan 2024 15:05:59 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 7EBA920043;
+	Tue,  2 Jan 2024 15:14:58 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6701720043;
-	Tue,  2 Jan 2024 15:05:58 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 6486C20040;
+	Tue,  2 Jan 2024 15:14:57 +0000 (GMT)
 Received: from osiris (unknown [9.171.22.30])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  2 Jan 2024 15:05:58 +0000 (GMT)
-Date: Tue, 2 Jan 2024 16:05:57 +0100
+	Tue,  2 Jan 2024 15:14:57 +0000 (GMT)
+Date: Tue, 2 Jan 2024 16:14:56 +0100
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Ilya Leoshkevich <iii@linux.ibm.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -69,10 +69,11 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Mark Rutland <mark.rutland@arm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>
-Subject: Re: [PATCH v3 29/34] s390/string: Add KMSAN support
-Message-ID: <20240102150557.6306-G-hca@linux.ibm.com>
+Subject: Re: [PATCH v3 33/34] s390: Implement the architecture-specific kmsan
+ functions
+Message-ID: <20240102151456.6306-J-hca@linux.ibm.com>
 References: <20231213233605.661251-1-iii@linux.ibm.com>
- <20231213233605.661251-30-iii@linux.ibm.com>
+ <20231213233605.661251-34-iii@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -81,38 +82,28 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20231213233605.661251-30-iii@linux.ibm.com>
+In-Reply-To: <20231213233605.661251-34-iii@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: O5QiWeQIJAvGTp7EVYQbU-a0u6juWUh_
-X-Proofpoint-ORIG-GUID: aPmHxOhkMHaWwlCr-kgZMDd0ueILkEpz
+X-Proofpoint-GUID: x9nKpR2aC7bRml8eajt4FMkQlPs2Gq8M
+X-Proofpoint-ORIG-GUID: vr5hM93MX5JzVTHczD6LZ9lrx9kC2RZi
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-01-02_04,2024-01-02_01,2023-05-22_02
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
  adultscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0 mlxscore=0
- malwarescore=0 spamscore=0 mlxlogscore=910 clxscore=1015 suspectscore=0
+ malwarescore=0 spamscore=0 mlxlogscore=460 clxscore=1015 suspectscore=0
  bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311290000 definitions=main-2401020117
 
-On Thu, Dec 14, 2023 at 12:24:49AM +0100, Ilya Leoshkevich wrote:
-> Add KMSAN support for the s390 implementations of the string functions.
-> Do this similar to how it's already done for KASAN, except that the
-> optimized memset{16,32,64}() functions need to be disabled: it's
-> important for KMSAN to know that they initialized something.
+On Thu, Dec 14, 2023 at 12:24:53AM +0100, Ilya Leoshkevich wrote:
+> arch_kmsan_get_meta_or_null() finds the lowcore shadow by querying the
+> prefix and calling kmsan_get_metadata() again.
 > 
-> The way boot code is built with regard to string functions is
-> problematic, since most files think it's configured with sanitizers,
-> but boot/string.c doesn't. This creates various problems with the
-> memset64() definitions, depending on whether the code is built with
-> sanitizers or fortify. This should probably be streamlined, but in the
-> meantime resolve the issues by introducing the IN_BOOT_STRING_C macro,
-> similar to the existing IN_ARCH_STRING_C macro.
+> kmsan_virt_addr_valid() delegates to virt_addr_valid().
 > 
-> Reviewed-by: Alexander Potapenko <glider@google.com>
 > Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 > ---
->  arch/s390/boot/string.c        | 16 ++++++++++++++++
->  arch/s390/include/asm/string.h | 20 +++++++++++++++-----
->  2 files changed, 31 insertions(+), 5 deletions(-)
+>  arch/s390/include/asm/kmsan.h | 43 +++++++++++++++++++++++++++++++++++
+>  1 file changed, 43 insertions(+)
 
 Acked-by: Heiko Carstens <hca@linux.ibm.com>
