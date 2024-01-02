@@ -1,55 +1,55 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F00312E60;
-	Tue,  2 Jan 2024 15:02:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1C5912E6B;
+	Tue,  2 Jan 2024 15:06:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="llleeLZ1"
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 402Em3pb016145;
-	Tue, 2 Jan 2024 15:01:49 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ieo1go8j"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 402EQJ9x007842;
+	Tue, 2 Jan 2024 15:05:39 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=5DfTXPVd/eM6V5PQwyJZ3YoyiYCR8XXYxNPU2tae1Gc=;
- b=llleeLZ1ol24GiW0XrAG7Le+6pmHGHMQalKuApVuZL2WIy3jo7ljmy4hSE5e6tp+tZCI
- K7vlZFeuiv/E2XmsdfxAtzSKVINYWDfieCmkYkctRCNpabzr8+KUB2nXusJwdly7neN5
- DNcOW+UTBpzWVsNnqIEaKs6c+2ubgK1P6dhBA8MeGloaMYN1rkRDWjy7SiLytVhZg7dr
- kiohKNQcV/E2v2ncOXMdqzzU/jcx3YS7/IL4HqvoW719XvhLL4njoj2FH+7frvcgGe8w
- aqSd5B4bEN+IyyWlW9shHwpg5pYi8PvXItMzqx1RVihM7lXWpI0URdLT+YWSkEX0GMUz XA== 
+ in-reply-to; s=pp1; bh=yAUmslGfmAn/v408/JnMAl0laE6kfhNSkhNgHmtKlnU=;
+ b=ieo1go8j8kWEwJEEg5WO5vqKGg10aSk8+UtbSP/lq+gTsFu7bhHsL8dk9O0Pyb0xCOka
+ lPLOwNHlS9mVhlub+fQfuNPYrAWqE8+/bDNkHm5Q9D7TzRwMTeu5kykgM+1BePfhuD1d
+ bug+utmcst7Ol4gcDORK8Ef0cc3TKi8JQRta/VDfWlwG3ew14GeKqaAua9l1mZ0PA1hQ
+ mUIi1/Jzr+5ZsiOa0DzBH6/YlbWvNkGhPSOtOISnyCmuxhS6/kasesUkVii/tMHZo41/
+ z1Vqzjuhvyg+bSK0KKIf+g5RQmO0VCUI9bJlbs+7wqXcWnTPgM3XZ4MPDebT/fHaG7et GA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcmjmgd3s-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcf2j7s58-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 15:01:48 +0000
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 402EnT7r021329;
-	Tue, 2 Jan 2024 15:01:46 GMT
+	Tue, 02 Jan 2024 15:05:38 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 402EurZf010225;
+	Tue, 2 Jan 2024 15:05:38 GMT
 Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcmjmgd2v-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcf2j7s4t-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 15:01:45 +0000
+	Tue, 02 Jan 2024 15:05:38 +0000
 Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 402F0adP017991;
-	Tue, 2 Jan 2024 15:01:44 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vayrkd6r0-1
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 402CNLmp017971;
+	Tue, 2 Jan 2024 15:05:36 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vayrkd7fk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 15:01:44 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 402F1f3350790732
+	Tue, 02 Jan 2024 15:05:36 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 402F5Xi514680808
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 2 Jan 2024 15:01:41 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 889F62004D;
-	Tue,  2 Jan 2024 15:01:41 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3725820043;
-	Tue,  2 Jan 2024 15:01:40 +0000 (GMT)
+	Tue, 2 Jan 2024 15:05:33 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A82E120043;
+	Tue,  2 Jan 2024 15:05:33 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8E97820040;
+	Tue,  2 Jan 2024 15:05:32 +0000 (GMT)
 Received: from osiris (unknown [9.171.22.30])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  2 Jan 2024 15:01:40 +0000 (GMT)
-Date: Tue, 2 Jan 2024 16:01:38 +0100
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue,  2 Jan 2024 15:05:32 +0000 (GMT)
+Date: Tue, 2 Jan 2024 16:05:31 +0100
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Ilya Leoshkevich <iii@linux.ibm.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -69,11 +69,11 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Mark Rutland <mark.rutland@arm.com>,
         Roman Gushchin <roman.gushchin@linux.dev>,
         Sven Schnelle <svens@linux.ibm.com>
-Subject: Re: [PATCH v3 27/34] s390/irqflags: Do not instrument
- arch_local_irq_*() with KMSAN
-Message-ID: <20240102150138.6306-E-hca@linux.ibm.com>
+Subject: Re: [PATCH v3 28/34] s390/mm: Define KMSAN metadata for vmalloc and
+ modules
+Message-ID: <20240102150531.6306-F-hca@linux.ibm.com>
 References: <20231213233605.661251-1-iii@linux.ibm.com>
- <20231213233605.661251-28-iii@linux.ibm.com>
+ <20231213233605.661251-29-iii@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -82,78 +82,72 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20231213233605.661251-28-iii@linux.ibm.com>
+In-Reply-To: <20231213233605.661251-29-iii@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: fwlCQf0fqngEyUEwz2n1oINtNGsURlEU
-X-Proofpoint-ORIG-GUID: 0BosCkKzyYZnSHJAxdZslg6QZCVj4M3P
+X-Proofpoint-GUID: Ha6_F5y1dtYwlryom_EL-MOezepsJYos
+X-Proofpoint-ORIG-GUID: YUgncFyGNiUc-bIEjUnn1fILOqO8p_p-
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-01-02_04,2024-01-02_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 malwarescore=0 mlxscore=0 impostorscore=0
- mlxlogscore=968 suspectscore=0 spamscore=0 bulkscore=0 lowpriorityscore=0
- adultscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ adultscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0 mlxscore=0
+ malwarescore=0 spamscore=0 mlxlogscore=925 clxscore=1015 suspectscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311290000 definitions=main-2401020115
 
-On Thu, Dec 14, 2023 at 12:24:47AM +0100, Ilya Leoshkevich wrote:
-> KMSAN generates the following false positives on s390x:
+On Thu, Dec 14, 2023 at 12:24:48AM +0100, Ilya Leoshkevich wrote:
+> The pages for the KMSAN metadata associated with most kernel mappings
+> are taken from memblock by the common code. However, vmalloc and module
+> metadata needs to be defined by the architectures.
 > 
-> [    6.063666] DEBUG_LOCKS_WARN_ON(lockdep_hardirqs_enabled())
-> [         ...]
-> [    6.577050] Call Trace:
-> [    6.619637]  [<000000000690d2de>] check_flags+0x1fe/0x210
-> [    6.665411] ([<000000000690d2da>] check_flags+0x1fa/0x210)
-> [    6.707478]  [<00000000006cec1a>] lock_acquire+0x2ca/0xce0
-> [    6.749959]  [<00000000069820ea>] _raw_spin_lock_irqsave+0xea/0x190
-> [    6.794912]  [<00000000041fc988>] __stack_depot_save+0x218/0x5b0
-> [    6.838420]  [<000000000197affe>] __msan_poison_alloca+0xfe/0x1a0
-> [    6.882985]  [<0000000007c5827c>] start_kernel+0x70c/0xd50
-> [    6.927454]  [<0000000000100036>] startup_continue+0x36/0x40
+> Be a little bit more careful than x86: allocate exactly MODULES_LEN
+> for the module shadow and origins, and then take 2/3 of vmalloc for
+> the vmalloc shadow and origins. This ensures that users passing small
+> vmalloc= values on the command line do not cause module metadata
+> collisions.
 > 
-> Between trace_hardirqs_on() and `stosm __mask, 3` lockdep thinks that
-> interrupts are on, but on the CPU they are still off. KMSAN
-> instrumentation takes spinlocks, giving lockdep a chance to see and
-> complain about this discrepancy.
-> 
-> KMSAN instrumentation is inserted in order to poison the __mask
-> variable. Disable instrumentation in the respective functions. They are
-> very small and it's easy to see that no important metadata updates are
-> lost because of this.
-> 
+> Reviewed-by: Alexander Potapenko <glider@google.com>
 > Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 > ---
->  arch/s390/include/asm/irqflags.h | 18 +++++++++++++++---
->  drivers/s390/char/sclp.c         |  2 +-
->  2 files changed, 16 insertions(+), 4 deletions(-)
+>  arch/s390/boot/startup.c        |  8 ++++++++
+>  arch/s390/include/asm/pgtable.h | 10 ++++++++++
+>  2 files changed, 18 insertions(+)
 > 
-> diff --git a/arch/s390/include/asm/irqflags.h b/arch/s390/include/asm/irqflags.h
-> index 02427b205c11..7353a88b2ae2 100644
-> --- a/arch/s390/include/asm/irqflags.h
-> +++ b/arch/s390/include/asm/irqflags.h
-> @@ -37,12 +37,19 @@ static __always_inline void __arch_local_irq_ssm(unsigned long flags)
->  	asm volatile("ssm   %0" : : "Q" (flags) : "memory");
->  }
->  
-> -static __always_inline unsigned long arch_local_save_flags(void)
+> diff --git a/arch/s390/boot/startup.c b/arch/s390/boot/startup.c
+> index 8104e0e3d188..e37e7ffda430 100644
+> --- a/arch/s390/boot/startup.c
+> +++ b/arch/s390/boot/startup.c
+> @@ -253,9 +253,17 @@ static unsigned long setup_kernel_memory_layout(void)
+>  	MODULES_END = round_down(__abs_lowcore, _SEGMENT_SIZE);
+>  	MODULES_VADDR = MODULES_END - MODULES_LEN;
+>  	VMALLOC_END = MODULES_VADDR;
 > +#ifdef CONFIG_KMSAN
-> +#define ARCH_LOCAL_IRQ_ATTRIBUTES \
-> +	noinline notrace __no_sanitize_memory __maybe_unused
-> +#else
-> +#define ARCH_LOCAL_IRQ_ATTRIBUTES __always_inline
+> +	VMALLOC_END -= MODULES_LEN * 2;
 > +#endif
-> +
-> +static ARCH_LOCAL_IRQ_ATTRIBUTES unsigned long arch_local_save_flags(void)
->  {
+>  
+>  	/* allow vmalloc area to occupy up to about 1/2 of the rest virtual space left */
+>  	vmalloc_size = min(vmalloc_size, round_down(VMALLOC_END / 2, _REGION3_SIZE));
+> +#ifdef CONFIG_KMSAN
+> +	/* take 2/3 of vmalloc area for KMSAN shadow and origins */
+> +	vmalloc_size = round_down(vmalloc_size / 3, _REGION3_SIZE);
+> +	VMALLOC_END -= vmalloc_size * 2;
+> +#endif
 
-Please change this to lower case and long single lines, so it matches the
-more common patterns:
+Please use
 
-#ifdef CONFIG_KMSAN
-#define __arch_local_irq_attributes noinline notrace __no_sanitize_memory __maybe_unused
-#else
-#define __arch_local_irq_attributes __always_inline
-#endif
+	if (IS_ENABLED(CONFIG_KMSAN))
 
-static __arch_local_irq_attributes unsigned long arch_local_save_flags(void)
+above, since this way we get more compile time checks.
 
-...
+> +#ifdef CONFIG_KMSAN
+> +#define KMSAN_VMALLOC_SIZE (VMALLOC_END - VMALLOC_START)
+> +#define KMSAN_VMALLOC_SHADOW_START VMALLOC_END
+> +#define KMSAN_VMALLOC_ORIGIN_START (KMSAN_VMALLOC_SHADOW_START + \
+> +				    KMSAN_VMALLOC_SIZE)
+> +#define KMSAN_MODULES_SHADOW_START (KMSAN_VMALLOC_ORIGIN_START + \
+> +				    KMSAN_VMALLOC_SIZE)
+
+Long single lines for these, please :)
+
+With that, and Alexander Gordeev's comments addressed:
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
