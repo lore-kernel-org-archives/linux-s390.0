@@ -1,116 +1,108 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F478125CC;
-	Tue,  2 Jan 2024 13:37:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB88110955;
+	Tue,  2 Jan 2024 14:35:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QEcCie1T"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 402DIKJS003711;
-	Tue, 2 Jan 2024 13:37:41 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=su8xJH3GAXr+TyGu76gP/5JoIxQSR2OimYeCDIVN2Ig=;
- b=QEcCie1TUqOpTd+beFHnXdxe+Czxi8H4BQZmsOO7wGqcSh5h6NWWOE10R/zuc2Lhqbkr
- +qmEqRRnXAwbZGIa04ow/PE0wGM9jLi2OTWE52LBU85x00sxKGVLn3D9ARrE9cj9pK6h
- kfEU8XpbKaU91n3YK7wIByrPhS0YVi467K77u8xX4ejH+dwtjKK8qflDDHAPLte7jKu/
- pgnRKW9S9ow7QNTgbU+Us0US+TxrbTsv7HA9AqQEXgoaNSU/b0hbxLEeaVyVqEkkWavD
- sPr4EpwYaXHywbRNp4JQWV96xINYzzNHslsexUmk7VHpAS0cKpALlBCKupbdsI4jV0TQ Eg== 
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="j98rMTP6"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 402DiZWY028458;
+	Tue, 2 Jan 2024 14:34:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=Zy1qZMqGOpyHSQ3Wj0sp9M6cSL2hJ07Te9b4OYnhiyU=;
+ b=j98rMTP644v3QpH4PtJtDsxKIjMDKID9A6Qqd4yaFJ66XKUgaFlk5kgcWssGXdDm/6rl
+ Bb4R7mwIXa/vI63pZ6CQWm1avWqfjvknl03wbeoY3a863UzFnFu2rx+HJyJNN5Sv8/X1
+ r/1Fb9E2tdsHPgc3mTNnt931cm8h4Csm7nFbCC+04QfghGz7L8MDcCFZSUg8mA7ya5BJ
+ RNLl7XMIRRgvyXrtuzAW00PMka2C4yTxjD3y7k0xZznqfc7wXiNnlhQpFFzJkZ35K+OS
+ 2Dh/LKHLkbMqsrAo6x/cQxqHnZybQE2v66533GBTYrsUks6foRQAckD0eMZA5msTc5od Zg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vck8drcpx-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcjqutbc9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 13:37:41 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 402DK58V009429;
-	Tue, 2 Jan 2024 13:37:41 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vck8drcpw-1
+	Tue, 02 Jan 2024 14:34:38 +0000
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 402DilXq030037;
+	Tue, 2 Jan 2024 14:34:37 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcjqutbbb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 13:37:41 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 402Ah4b4017893;
-	Tue, 2 Jan 2024 13:37:40 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vawwyn438-1
+	Tue, 02 Jan 2024 14:34:37 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 402Bv3NY017981;
+	Tue, 2 Jan 2024 14:34:36 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vayrkcyv4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 13:37:40 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 402DbbwV11534856
+	Tue, 02 Jan 2024 14:34:36 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 402EYXeW24904366
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 2 Jan 2024 13:37:37 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3137F20040;
-	Tue,  2 Jan 2024 13:37:37 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9D75D20043;
-	Tue,  2 Jan 2024 13:37:36 +0000 (GMT)
-Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com.com (unknown [9.171.18.26])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  2 Jan 2024 13:37:36 +0000 (GMT)
-From: Janosch Frank <frankja@linux.ibm.com>
-To: pbonzini@redhat.com
-Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
-        borntraeger@linux.ibm.com, cohuck@redhat.com,
-        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        seiden@linux.ibm.com, nsg@linux.ibm.com
-Subject: [GIT PULL 4/4] KVM: s390: cpu model: Use proper define for facility mask size
-Date: Tue,  2 Jan 2024 14:34:55 +0100
-Message-ID: <20240102133629.108405-5-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240102133629.108405-1-frankja@linux.ibm.com>
-References: <20240102133629.108405-1-frankja@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: wzsWAgRDYMASLkidLgBGcTiw5FYQ7lUE
-X-Proofpoint-ORIG-GUID: fJxcOIJfj_yf0Kfdl8S2lrnMHdQZ4Jcm
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	Tue, 2 Jan 2024 14:34:33 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 53F3E2004B;
+	Tue,  2 Jan 2024 14:34:33 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 102A520043;
+	Tue,  2 Jan 2024 14:34:32 +0000 (GMT)
+Received: from osiris (unknown [9.171.22.30])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue,  2 Jan 2024 14:34:31 +0000 (GMT)
+Date: Tue, 2 Jan 2024 15:34:30 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alexander Potapenko <glider@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Christoph Lameter <cl@linux.com>, David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>, Marco Elver <elver@google.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Pekka Enberg <penberg@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Vasily Gorbik <gor@linux.ibm.com>, Vlastimil Babka <vbabka@suse.cz>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>, kasan-dev@googlegroups.com,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        Mark Rutland <mark.rutland@arm.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH v3 23/34] s390/cpacf: Unpoison the results of cpacf_trng()
+Message-ID: <20240102143430.6306-A-hca@linux.ibm.com>
+References: <20231213233605.661251-1-iii@linux.ibm.com>
+ <20231213233605.661251-24-iii@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231213233605.661251-24-iii@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: kTqZ1PRN-hTiLoJIQyYlJCXg5MKH4SKE
+X-Proofpoint-ORIG-GUID: z1yxLgfbHQruE14JYN0FnEq3ruYg6F5g
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-02_03,2024-01-02_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- priorityscore=1501 mlxscore=0 mlxlogscore=719 impostorscore=0 adultscore=0
- phishscore=0 lowpriorityscore=0 spamscore=0 clxscore=1015 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401020103
+ definitions=2024-01-02_04,2024-01-02_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 phishscore=0
+ mlxlogscore=483 suspectscore=0 adultscore=0 priorityscore=1501
+ impostorscore=0 spamscore=0 bulkscore=0 mlxscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2401020111
 
-From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+On Thu, Dec 14, 2023 at 12:24:43AM +0100, Ilya Leoshkevich wrote:
+> Prevent KMSAN from complaining about buffers filled by cpacf_trng()
+> being uninitialized.
+> 
+> Tested-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> Reviewed-by: Alexander Potapenko <glider@google.com>
+> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/cpacf.h | 3 +++
+>  1 file changed, 3 insertions(+)
 
-Use the previously unused S390_ARCH_FAC_MASK_SIZE_U64 instead of
-S390_ARCH_FAC_LIST_SIZE_U64 for defining the fac_mask array.
-Note that both values are the same, there is no functional change.
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-Link: https://lore.kernel.org/r/20231219140854.1042599-4-nsg@linux.ibm.com
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Message-ID: <20231219140854.1042599-4-nsg@linux.ibm.com>
----
- arch/s390/include/asm/kvm_host.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 67a298b6cf6e..52664105a473 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -818,7 +818,7 @@ struct s390_io_adapter {
- 
- struct kvm_s390_cpu_model {
- 	/* facility mask supported by kvm & hosting machine */
--	__u64 fac_mask[S390_ARCH_FAC_LIST_SIZE_U64];
-+	__u64 fac_mask[S390_ARCH_FAC_MASK_SIZE_U64];
- 	struct kvm_s390_vm_cpu_subfunc subfuncs;
- 	/* facility list requested by guest (in dma page) */
- 	__u64 *fac_list;
--- 
-2.43.0
-
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
