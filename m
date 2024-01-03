@@ -1,57 +1,29 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mout.web.de (mout.web.de [212.227.17.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D46EA1A27A;
-	Wed,  3 Jan 2024 13:44:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5CFD1A72E;
+	Wed,  3 Jan 2024 14:16:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PsCnd4aA"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 403CiQQd031902;
-	Wed, 3 Jan 2024 13:44:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=hKmecFs/RRWrYz5D0rc4h+ZPupe+tSSdvSexvGo8rVQ=;
- b=PsCnd4aAWryjg/pd9M9E+qI8qrOywZjVtmRTXR2SP9sKBclhjfL4iW/INwpJ7aUYlIj5
- oI05OXgAZu0VJA2eoHlUONHqJy0PJuqSIC8O+Q+Hfw8dgPgtiw19xpxUwvN10R/nMIv8
- M25CXClc6sWXI5W1WB6/on75Ep85OAPrfNMbNHX3zgb7vIaUBbpXL74VY88SWjHT5H3g
- Ebh5S2oVucSKaWSiAoadaz5hLZ4z63hvraOchSnaj6Rrb8gP080UyWT39jKPsdFd8xh3
- LM25/u5IQksHqfJ9TWQZI1Ee0sGdEAfcAbRmDvPPM92LKCfEogsN9hZsfDJiZn/ZDsHM UA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vd5pqy9v1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Jan 2024 13:44:55 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 403DgdMY024960;
-	Wed, 3 Jan 2024 13:44:55 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vd5pqy9uf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Jan 2024 13:44:54 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 403Bdvrn018008;
-	Wed, 3 Jan 2024 13:44:53 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vayrkjvfd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Jan 2024 13:44:53 +0000
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 403DiqmU48628006
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 3 Jan 2024 13:44:52 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8367958054;
-	Wed,  3 Jan 2024 13:44:52 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4EFE35803F;
-	Wed,  3 Jan 2024 13:44:50 +0000 (GMT)
-Received: from [9.171.87.115] (unknown [9.171.87.115])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  3 Jan 2024 13:44:50 +0000 (GMT)
-Message-ID: <41536899-3ca2-4413-b483-3d27ffe0d7f4@linux.ibm.com>
-Date: Wed, 3 Jan 2024 14:44:49 +0100
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="Qe8NoxK+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de; s=s29768273;
+	t=1704291373; x=1704896173; i=markus.elfring@web.de;
+	bh=Zn3zvLXLmFb7bnZCSQaHOVJmsR2R8N7zxi5Wct5XHCk=;
+	h=X-UI-Sender-Class:Date:Subject:To:References:Cc:From:
+	 In-Reply-To;
+	b=Qe8NoxK+zIec3T5OKtK+EAj8ioPDL9qEL31kzDY2OvD9eK1/drW5oG9TP3w4y7SA
+	 e6s4XY6d9ujpVDAx62rfjS/BmGJPh5HO3Bo6rGSnByLP1DqBTe0AN01rGVh5SXMm8
+	 8ZvqdChzQvdaHSJbq85TtfGoUhPBaoMGHGeE/gZN42joQV0adsiiRVv12GGRxjCty
+	 wqRyb1Fp986hOcjfHLEJ/KmMelSqvn3wbe5lMyWqmlXyIsF5m4F/CUGKp1jzdJub2
+	 eons6mKpRzR62fTbH0C38j5/+lXtiwkGLQ2EUFVO2/4A0EI931alKWYwfGmtJzcLz
+	 1O4vZMfoqZMQa9Q3Uw==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from [192.168.178.21] ([94.31.88.95]) by smtp.web.de (mrweb106
+ [213.165.67.124]) with ESMTPSA (Nemesis) id 1N2BM4-1rDuGx0ggQ-013kOF; Wed, 03
+ Jan 2024 15:16:13 +0100
+Message-ID: <3d62b430-030a-4e85-9d4d-0468d237d371@web.de>
+Date: Wed, 3 Jan 2024 15:16:11 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -59,66 +31,91 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/2] net/smc: Adjustments for two function implementations
+Subject: Re: [0/2] net/smc: Adjustments for two function implementations
 Content-Language: en-GB
-To: Markus Elfring <Markus.Elfring@web.de>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, kernel-janitors@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>,
-        "D. Wythe"
- <alibuda@linux.alibaba.com>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Jan Karcher <jaka@linux.ibm.com>, Paolo Abeni <pabeni@redhat.com>,
-        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>
+To: Wenjia Zhang <wenjia@linux.ibm.com>, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, kernel-janitors@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>, "D. Wythe"
+ <alibuda@linux.alibaba.com>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Jan Karcher <jaka@linux.ibm.com>,
+ Paolo Abeni <pabeni@redhat.com>, Tony Lu <tonylu@linux.alibaba.com>,
+ Wen Gu <guwen@linux.alibaba.com>
 References: <8ba404fd-7f41-44a9-9869-84f3af18fb46@web.de>
-From: Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <8ba404fd-7f41-44a9-9869-84f3af18fb46@web.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: UlqhGpdTe-RW-1HmA-S8Li9qtSf2T8ro
-X-Proofpoint-GUID: Gs5N1HN_0NQFOW1laXhCwmV3ruGPYWlr
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-03_06,2024-01-03_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1011
- adultscore=0 lowpriorityscore=0 phishscore=0 mlxlogscore=769
- impostorscore=0 mlxscore=0 priorityscore=1501 suspectscore=0
- malwarescore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401030113
+ <41536899-3ca2-4413-b483-3d27ffe0d7f4@linux.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+From: Markus Elfring <Markus.Elfring@web.de>
+In-Reply-To: <41536899-3ca2-4413-b483-3d27ffe0d7f4@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:qzcILoEqWzmESYCmwI5ev40sBfETqja0zwynn1iVHYwe9Lm8Tuc
+ LRezkZejbT771VWPc+nQ9Dl9LV8zYkcS70XEX9PeMs73aMszk9D7ULy+og/biWIZrWAEIol
+ 0YXp6icHLC6LD7nFOXi9Tpqt4in4MDl+L4oj9Egz6RzccB0wylG8CqdroYhKxUl8HsC59Fj
+ A4dzZkKFxru0LoN9+qZBw==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:q/blSR/UhsE=;br9DybMm/k674NvLS5wxXx+po5+
+ aVwj+BcI4b0vFYlfB8FkrOPxJ7p1gxmI4O+pLWpKAbrCWF7MFso6QkUY/eLR1DZW4lwbCfvou
+ R6YVtuKq8UmT4RSvzhAnrQ0FPhcDAbwcMD5wgZNqV7Soc6TEsyOIPL+xnuDvdvyadvabb+f3m
+ +bzf6EycstiWdpnK2Aiz+8pzUH6tnUoaBCR1qpNwxneWPYg9T7C0HAa1bacU9Balnswch3loA
+ vZo/KzEweUvIw/XfILVRG/mnB53VYow1CNqk9T54u98NHYDVe114dlvAfWFCpZroZ+Ig/4wLA
+ wysBNjFnAcb4vLIUjYjfTiumiNjvbIfVLp6wc0gMB4DkfOM+vX/X59iLe/iD1J51yefC4WkRT
+ vAT25qjVzqLaBw98A/0ZWPxWUkEgC/Wt/7KPfOGfsbL7RJJYi71GtSqYtiJ3S2FiK2rO6brjj
+ tpb6u3Z7SVga+U2kpUjCnrO6Jp+M3R/XX2gRBsT1542aufOiPRNkbDxepv7GfGA6WQSQ8ULFT
+ SSsZqSQ4ailE60sd7A7Mtbd8PvXTbRYnB/2wdI9VICTk+9gT3rZ9pv9Zm7mJNDAcTvpxSDuKf
+ Y1/cbhcs4HC7S7yNPtJQdLtRVxI5Im4sAucTVQLhrsO/SsaFKZxUw5iG0g9fnkyt9sYzcA2JJ
+ R5XwRoB81ec+XkmlWbzjsDs+/2Ff3wnYTHUa25zow7QooJMLxItQoHd2Ic/xKZuDaHLVaSrCV
+ wvC/ggjmWbM4BewAHpNVZUSjxd9T1p6PFRF9h87YgmoOgJeniVSkgHAhcUmd1EN36CN+CkMIn
+ LuoEUnUCsww/9rsRO1ZjRtQKQDGh8vt6DjEXYZCrn5AocqQV7htUIyclGEw5NysX9/tEpkoWH
+ L3k1Y9r4dF45g/BAZ7isvCQU/SjRgsDh8e5QkY2o7aEFUm8gyjbqrBi4XfKdf61QGkD1ueAjE
+ JIa2/CLrJFzAWUTFXLceVatJKGQ=
+
+=E2=80=A6
+>> =C2=A0=C2=A0 Return directly after a failed kzalloc() in smc_fill_gid_l=
+ist()
+>> =C2=A0=C2=A0 Improve exception handling in smc_llc_cli_add_link_invite(=
+)
+>>
+>> =C2=A0 net/smc/af_smc.c=C2=A0 |=C2=A0 2 +-
+>> =C2=A0 net/smc/smc_llc.c | 15 +++++++--------
+>> =C2=A0 2 files changed, 8 insertions(+), 9 deletions(-)
+=E2=80=A6
+> However, I'm on the same page with Wen Gu. I could not see the necessity=
+ of the patches.
+> BTW, if you want to send fix patches,
+
+I obviously propose to adjust specific implementation details.
 
 
+> please provide the error messages you met,
 
-On 31.12.23 15:55, Markus Elfring wrote:
-> From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Sun, 31 Dec 2023 15:48:45 +0100
-> 
-> A few update suggestions were taken into account
-> from static source code analysis.
-> 
-> Markus Elfring (2):
->    Return directly after a failed kzalloc() in smc_fill_gid_list()
->    Improve exception handling in smc_llc_cli_add_link_invite()
-> 
->   net/smc/af_smc.c  |  2 +-
->   net/smc/smc_llc.c | 15 +++++++--------
->   2 files changed, 8 insertions(+), 9 deletions(-)
-> 
-> --
-> 2.43.0
-> 
+This development concern does not apply here.
 
-Hi Markus,
 
-Thank you for trying to improve our code!
-However, I'm on the same page with Wen Gu. I could not see the necessity 
-of the patches.
-BTW, if you want to send fix patches, please provide the error messages 
-you met, the procedure of reproducing the issue and the correspoinding 
-commit messages. If you want to send feature patches, I'd like to see a 
-well thought-out patch or patch series. E.g. In our component, the 
-kfree(NULL) issue doesn't only occur in the positions where you 
-mentioned in the patch series, also somewhere else. I would be grateful 
-if all of them would be cleaned up, not just some pieces.
+> the procedure of reproducing the issue and the correspoinding commit mes=
+sages.
 
-Thanks,
-Wenjia
+Would you like to extend the usage of source code analysis tools?
+
+
+> If you want to send feature patches, I'd like to see a well thought-out =
+patch or patch series.
+
+I presented some thoughts for special transformation patterns
+on several software components.
+
+
+> E.g. In our component, the kfree(NULL) issue doesn't only occur in the p=
+ositions where you mentioned in the patch series, also somewhere else.
+
+Does your feedback indicate that you would support the avoidance of such a=
+ special function call
+at more places?
+
+
+> I would be grateful if all of them would be cleaned up, not just some pi=
+eces.
+
+Do you find my patch series too small for the mentioned Linux module at th=
+e moment?
+
+Regards,
+Markus
