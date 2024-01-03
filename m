@@ -1,248 +1,152 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 548BF17729
-	for <linux-s390@vger.kernel.org>; Tue,  2 Jan 2024 22:31:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7045118623;
+	Wed,  3 Jan 2024 09:33:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TM9Jwa1p"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704234685;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=WxX/DwYRiytQqrsyv6xPbUj6O86YcsayJdMC1Rh079w=;
-	b=TM9Jwa1psXALhsjwGR1vRVu0TzU07A3kPdV1UKoGZI81ae/VkbBs44unakvJ3W3Dgnv+QR
-	vWH52G6l40d/stVWjVB4DO9IWOXdx6NRhg+HEUcptKlxRgf6ksQrjnEbLCqqmTeRZinLtv
-	FKYZCHDutwoRmU/t0PMmD24ZTCEJBIc=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-102-41CIv6mVMvuFpQ2fC74M9w-1; Tue, 02 Jan 2024 17:31:21 -0500
-X-MC-Unique: 41CIv6mVMvuFpQ2fC74M9w-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id E456D848A64;
-	Tue,  2 Jan 2024 22:31:20 +0000 (UTC)
-Received: from redhat.com (unknown [10.22.9.153])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 3ED1040C6EB9;
-	Tue,  2 Jan 2024 22:31:20 +0000 (UTC)
-Date: Tue, 2 Jan 2024 17:31:18 -0500
-From: Joe Lawrence <joe.lawrence@redhat.com>
-To: Marcos Paulo de Souza <mpdesouza@suse.com>
-Cc: Shuah Khan <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Josh Poimboeuf <jpoimboe@kernel.org>,
-	Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>,
-	Petr Mladek <pmladek@suse.com>, linux-kselftest@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org, live-patching@vger.kernel.org
-Subject: Re: [PATCH RESEND v4 1/3] kselftests: lib.mk: Add TEST_GEN_MODS_DIR
- variable
-Message-ID: <ZZSOtsbzpy2mvmUC@redhat.com>
-References: <20231220-send-lp-kselftests-v4-0-3458ec1b1a38@suse.com>
- <20231220-send-lp-kselftests-v4-1-3458ec1b1a38@suse.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WIo7r1gT"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 4038tSe4011438;
+	Wed, 3 Jan 2024 09:33:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=u7vbuh9S5hS2XPx/rfCPO3a+vWqn15NPQT6wBmi/7FQ=;
+ b=WIo7r1gTRRIMFeD2rt75K88j+11PYNW4c46Cd7XOHPEgBoBTR5v7PceCxYVRiV6iQ5Qr
+ nvVqYWTi/yBcdkVSj+I6UqJ01pKT5IGJrPGHbkzhttPtucPVMCZCrarX+kYL7LeePWL7
+ npzunjYIUGsZ6LecCBqV01PBEQ2PXb1gBzrYZW7gOxUe0hcbig7Ykpw0SFybnTujFpsf
+ tNilEaKlQsj0RJzX9PslsFOI3aoKvxa1WEU0VkNOAji5Nw0K4R4rl3my/IvSzo7L8JpI
+ cVZjfwMrFeZVXlysNH5TFop7E7w2Fb8V7kM/4DZDeEgu5NKOfz5ZtyV06EvBcjBGONOk ug== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vd4821xdm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 03 Jan 2024 09:33:31 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 4038tWmc011861;
+	Wed, 3 Jan 2024 09:33:31 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vd4821xce-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 03 Jan 2024 09:33:30 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4036xkKh019345;
+	Wed, 3 Jan 2024 09:33:29 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vc30sha9m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 03 Jan 2024 09:33:29 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4039XT9N31326524
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 3 Jan 2024 09:33:29 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0D0D45803F;
+	Wed,  3 Jan 2024 09:33:29 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8759A58060;
+	Wed,  3 Jan 2024 09:33:26 +0000 (GMT)
+Received: from [9.171.87.115] (unknown [9.171.87.115])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  3 Jan 2024 09:33:26 +0000 (GMT)
+Message-ID: <0a501939-3361-428e-97c4-6f041a9ec1f9@linux.ibm.com>
+Date: Wed, 3 Jan 2024 10:33:25 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net/smc: fix invalid link access in dumping SMC-R
+ connections
+To: Wen Gu <guwen@linux.alibaba.com>, jaka@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc: alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        ubraun@linux.vnet.ibm.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1703662835-53416-1-git-send-email-guwen@linux.alibaba.com>
+Content-Language: en-GB
+From: Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <1703662835-53416-1-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: KJYL8MCvw3wW-NrXsAMilm66u5tPB0Tw
+X-Proofpoint-ORIG-GUID: fus5OwQNizTGTLMwpikTYmnAsFDHQrKn
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20231220-send-lp-kselftests-v4-1-3458ec1b1a38@suse.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.2
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-01-03_04,2024-01-02_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
+ lowpriorityscore=0 clxscore=1011 mlxlogscore=784 malwarescore=0
+ bulkscore=0 priorityscore=1501 impostorscore=0 spamscore=0 mlxscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2401030078
 
-On Wed, Dec 20, 2023 at 01:53:12PM -0300, Marcos Paulo de Souza wrote:
-> Add TEST_GEN_MODS_DIR variable for kselftests. It can point to
-> a directory containing kernel modules that will be used by
-> selftest scripts.
+
+
+On 27.12.23 08:40, Wen Gu wrote:
+> A crash was found when dumping SMC-R connections. It can be reproduced
+> by following steps:
 > 
-> The modules are built as external modules for the running kernel.
-> As a result they are always binary compatible and the same tests
-> can be used for older or newer kernels.
+> - environment: two RNICs on both sides.
+> - run SMC-R between two sides, now a SMC_LGR_SYMMETRIC type link group
+>    will be created.
+> - set the first RNIC down on either side and link group will turn to
+>    SMC_LGR_ASYMMETRIC_LOCAL then.
+> - run 'smcss -R' and the crash will be triggered.
 > 
-> The build requires "kernel-devel" package to be installed.
-> For example, in the upstream sources, the rpm devel package
-> is produced by "make rpm-pkg"
+>   BUG: kernel NULL pointer dereference, address: 0000000000000010
+>   #PF: supervisor read access in kernel mode
+>   #PF: error_code(0x0000) - not-present page
+>   PGD 8000000101fdd067 P4D 8000000101fdd067 PUD 10ce46067 PMD 0
+>   Oops: 0000 [#1] PREEMPT SMP PTI
+>   CPU: 3 PID: 1810 Comm: smcss Kdump: loaded Tainted: G W   E      6.7.0-rc6+ #51
+>   RIP: 0010:__smc_diag_dump.constprop.0+0x36e/0x620 [smc_diag]
+>   Call Trace:
+>    <TASK>
+>    ? __die+0x24/0x70
+>    ? page_fault_oops+0x66/0x150
+>    ? exc_page_fault+0x69/0x140
+>    ? asm_exc_page_fault+0x26/0x30
+>    ? __smc_diag_dump.constprop.0+0x36e/0x620 [smc_diag]
+>    smc_diag_dump_proto+0xd0/0xf0 [smc_diag]
+>    smc_diag_dump+0x26/0x60 [smc_diag]
+>    netlink_dump+0x19f/0x320
+>    __netlink_dump_start+0x1dc/0x300
+>    smc_diag_handler_dump+0x6a/0x80 [smc_diag]
+>    ? __pfx_smc_diag_dump+0x10/0x10 [smc_diag]
+>    sock_diag_rcv_msg+0x121/0x140
+>    ? __pfx_sock_diag_rcv_msg+0x10/0x10
+>    netlink_rcv_skb+0x5a/0x110
+>    sock_diag_rcv+0x28/0x40
+>    netlink_unicast+0x22a/0x330
+>    netlink_sendmsg+0x240/0x4a0
+>    __sock_sendmsg+0xb0/0xc0
+>    ____sys_sendmsg+0x24e/0x300
+>    ? copy_msghdr_from_user+0x62/0x80
+>    ___sys_sendmsg+0x7c/0xd0
+>    ? __do_fault+0x34/0x1a0
+>    ? do_read_fault+0x5f/0x100
+>    ? do_fault+0xb0/0x110
+>    __sys_sendmsg+0x4d/0x80
+>    do_syscall_64+0x45/0xf0
+>    entry_SYSCALL_64_after_hwframe+0x6e/0x76
 > 
-> The modules can be built independently by
+> When the first RNIC is set down, the lgr->lnk[0] will be cleared and an
+> asymmetric link will be allocated in lgr->link[SMC_LINKS_PER_LGR_MAX - 1]
+> by smc_llc_alloc_alt_link(). Then when we try to dump SMC-R connections
+> in __smc_diag_dump(), the invalid lgr->lnk[0] will be accessed, resulting
+> in this issue. So fix it by accessing the right link.
 > 
->   make -C tools/testing/selftests/livepatch/
-> 
-> or they will be automatically built before running the tests via
-> 
->   make -C tools/testing/selftests/livepatch/ run_tests
-> 
-> Note that they are _not_ built when running the standalone
-> tests by calling, for example, ./test-state.sh.
-> 
-> Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
-> ---
->  Documentation/dev-tools/kselftest.rst |  4 ++++
->  tools/testing/selftests/lib.mk        | 20 +++++++++++++++-----
->  2 files changed, 19 insertions(+), 5 deletions(-)
-> 
-> diff --git a/Documentation/dev-tools/kselftest.rst b/Documentation/dev-tools/kselftest.rst
-> index ab376b316c36..7f3582a67318 100644
-> --- a/Documentation/dev-tools/kselftest.rst
-> +++ b/Documentation/dev-tools/kselftest.rst
-> @@ -245,6 +245,10 @@ Contributing new tests (details)
->     TEST_PROGS, TEST_GEN_PROGS mean it is the executable tested by
->     default.
->  
-> +   TEST_GEN_MODS_DIR should be used by tests that require modules to be built
-> +   before the test starts. The variable will contain the name of the directory
-> +   containing the modules.
-> +
->     TEST_CUSTOM_PROGS should be used by tests that require custom build
->     rules and prevent common build rule use.
->  
-> diff --git a/tools/testing/selftests/lib.mk b/tools/testing/selftests/lib.mk
-> index 118e0964bda9..6c7c5a0112cf 100644
-> --- a/tools/testing/selftests/lib.mk
-> +++ b/tools/testing/selftests/lib.mk
-> @@ -70,12 +70,15 @@ KHDR_INCLUDES := -isystem $(KHDR_DIR)
->  # TEST_PROGS are for test shell scripts.
->  # TEST_CUSTOM_PROGS and TEST_PROGS will be run by common run_tests
->  # and install targets. Common clean doesn't touch them.
-> +# TEST_GEN_MODS_DIR is used to specify a directory with modules to be built
-> +# before the test executes. These modules are cleaned on the clean target as well.
->  TEST_GEN_PROGS := $(patsubst %,$(OUTPUT)/%,$(TEST_GEN_PROGS))
->  TEST_GEN_PROGS_EXTENDED := $(patsubst %,$(OUTPUT)/%,$(TEST_GEN_PROGS_EXTENDED))
->  TEST_GEN_FILES := $(patsubst %,$(OUTPUT)/%,$(TEST_GEN_FILES))
-> +TEST_GEN_MODS_DIR := $(patsubst %,$(OUTPUT)/%,$(TEST_GEN_MODS_DIR))
->  
->  all: kernel_header_files $(TEST_GEN_PROGS) $(TEST_GEN_PROGS_EXTENDED) \
-> -     $(TEST_GEN_FILES)
-> +     $(TEST_GEN_FILES) $(if $(TEST_GEN_MODS_DIR),gen_mods_dir)
->  
->  kernel_header_files:
->  	@ls $(KHDR_DIR)/linux/*.h >/dev/null 2>/dev/null;                      \
-> @@ -105,8 +108,8 @@ endef
->  
->  run_tests: all
->  ifdef building_out_of_srctree
-> -	@if [ "X$(TEST_PROGS)$(TEST_PROGS_EXTENDED)$(TEST_FILES)" != "X" ]; then \
-> -		rsync -aq --copy-unsafe-links $(TEST_PROGS) $(TEST_PROGS_EXTENDED) $(TEST_FILES) $(OUTPUT); \
-> +	@if [ "X$(TEST_PROGS)$(TEST_PROGS_EXTENDED)$(TEST_FILES)$(TEST_GEN_MODS_DIR)" != "X" ]; then \
-> +		rsync -aq --copy-unsafe-links $(TEST_PROGS) $(TEST_PROGS_EXTENDED) $(TEST_FILES) $(TEST_GEN_MODS_DIR) $(OUTPUT); \
->  	fi
->  	@if [ "X$(TEST_PROGS)" != "X" ]; then \
->  		$(call RUN_TESTS, $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) \
-> @@ -118,6 +121,12 @@ else
->  	@$(call RUN_TESTS, $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) $(TEST_PROGS))
->  endif
->  
-> +gen_mods_dir:
-> +	$(Q)$(MAKE) -C $(TEST_GEN_MODS_DIR)
-> +
-> +clean_mods_dir:
-> +	$(Q)$(MAKE) -C $(TEST_GEN_MODS_DIR) clean
-> +
->  define INSTALL_SINGLE_RULE
->  	$(if $(INSTALL_LIST),@mkdir -p $(INSTALL_PATH))
->  	$(if $(INSTALL_LIST),rsync -a --copy-unsafe-links $(INSTALL_LIST) $(INSTALL_PATH)/)
-> @@ -131,6 +140,7 @@ define INSTALL_RULE
->  	$(eval INSTALL_LIST = $(TEST_CUSTOM_PROGS)) $(INSTALL_SINGLE_RULE)
->  	$(eval INSTALL_LIST = $(TEST_GEN_PROGS_EXTENDED)) $(INSTALL_SINGLE_RULE)
->  	$(eval INSTALL_LIST = $(TEST_GEN_FILES)) $(INSTALL_SINGLE_RULE)
-> +	$(eval INSTALL_LIST = $(TEST_GEN_MODS_DIR)) $(INSTALL_SINGLE_RULE)
+> Fixes: f16a7dd5cf27 ("smc: netlink interface for SMC sockets")
+> Reported-by: henaumars <henaumars@sina.com>
+> Closes: https://bugzilla.openanolis.cn/show_bug.cgi?id=7616
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 
-Hi Marcos,
+That is really good catch and good description! Thank you, Wen Gu, for 
+fixing it!
 
-Sorry for the late reply on this, but I'm reviewing this version by
-trying to retrofit it into our selftest packaging (pre-build the test
-module .ko's and stash those into an rpm rather than building on the
-test host).
-
-Since $TEST_GEN_MODS_DIR is treated as a directory, I found that the
-selftest install target copies a bunch of intermediate object and kbuild
-files:
-
-  $ mkdir /tmp/test-install
-  $ make KDIR=$(pwd) INSTALL_PATH=/tmp/test-install TARGETS=livepatch \
-       -C tools/testing/selftests/ install
-
-  [ ... builds livepatch selftests ... ]
-
-the rsync in question:
-
-  rsync -a --copy-unsafe-links /home/jolawren/src/kernel/tools/testing/selftests/livepatch/test_modules /tmp/test-install/livepatch/
-  ...
-
-and then looking at the destination:
-
-  $ tree -a /tmp/test-install/
-  /tmp/test-install/
-  ├── kselftest
-  │   ├── module.sh
-  │   ├── prefix.pl
-  │   └── runner.sh
-  ├── kselftest-list.txt
-  ├── livepatch
-  │   ├── config
-  │   ├── functions.sh
-  │   ├── settings
-  │   ├── test-callbacks.sh
-  │   ├── test-ftrace.sh
-  │   ├── test_klp-call_getpid
-  │   ├── test-livepatch.sh
-  │   ├── test_modules
-  │   │   ├── Makefile
-  │   │   ├── modules.order
-  │   │   ├── .modules.order.cmd
-  │   │   ├── Module.symvers
-  │   │   ├── .Module.symvers.cmd
-  │   │   ├── test_klp_atomic_replace.c
-  │   │   ├── test_klp_atomic_replace.ko
-  │   │   ├── .test_klp_atomic_replace.ko.cmd
-  │   │   ├── test_klp_atomic_replace.mod
-  │   │   ├── test_klp_atomic_replace.mod.c
-  │   │   ├── .test_klp_atomic_replace.mod.cmd
-  │   │   ├── test_klp_atomic_replace.mod.o
-  │   │   ├── .test_klp_atomic_replace.mod.o.cmd
-  │   │   ├── test_klp_atomic_replace.o
-  │   │   ├── .test_klp_atomic_replace.o.cmd
-  ...
-
-On the other hand, variables like $TEST_GEN_FILES specify individual
-files, so only final binaries like test_klp-call_getpid (and not
-test_klp-call_getpid.c) are copied to $INSTALL_PATH.
-
-Since the selftest module builds appear to ignore
-CONFIG_MODULE_COMPRESS_* the smallest tweak I can think of to avoid the
-above scenario is:
-
-  --- a/tools/testing/selftests/lib.mk
-  +++ b/tools/testing/selftests/lib.mk
-  @@ -106,7 +106,7 @@ define INSTALL_RULE
-          $(eval INSTALL_LIST = $(TEST_CUSTOM_PROGS)) $(INSTALL_SINGLE_RULE)
-          $(eval INSTALL_LIST = $(TEST_GEN_PROGS_EXTENDED)) $(INSTALL_SINGLE_RULE)
-          $(eval INSTALL_LIST = $(TEST_GEN_FILES)) $(INSTALL_SINGLE_RULE)
-  -       $(eval INSTALL_LIST = $(TEST_GEN_MODS_DIR)) $(INSTALL_SINGLE_RULE)
-  +       $(eval INSTALL_LIST = $(shell sed 's/.o$$/.ko/' $(TEST_GEN_MODS_DIR)/modules.order)) $(INSTALL_SINGLE_RULE)
-          $(eval INSTALL_LIST = $(wildcard config settings)) $(INSTALL_SINGLE_RULE)
-   endef
-
-However, that will copy .ko's directly into $INSTALL_PATH and out of the
-$TEST_GEN_MODS_DIR subdirectory(s), so maybe not a great solution after
-all.
-
-Anyway, I thought I might mention this in case it runs against the
-spirit of the selftest install target.  I only tripped over it while
-digging into the bowels of our kernel specfile and discovered that it
-invoked this target.
-
---
-Joe
-
+Reviewed-and-tested-by: Wenjia Zhang <wenjia@linux.ibm.com>
