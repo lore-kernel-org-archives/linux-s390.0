@@ -1,97 +1,160 @@
-Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27C35250EB;
-	Fri,  5 Jan 2024 10:32:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.19.93.142])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4T60BJ2M2vz4f3lWH;
-	Fri,  5 Jan 2024 18:31:52 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 063191A0817;
-	Fri,  5 Jan 2024 18:31:58 +0800 (CST)
-Received: from [10.174.176.73] (unknown [10.174.176.73])
-	by APP1 (Coremail) with SMTP id cCh0CgDX2xGZ2pdlGeddFg--.44050S3;
-	Fri, 05 Jan 2024 18:31:56 +0800 (CST)
-Subject: Re: [PATCH RFC v3 for-6.8/block 04/17] mtd: block2mtd: use bdev apis
-To: Christoph Hellwig <hch@infradead.org>, Jan Kara <jack@suse.cz>
-Cc: Yu Kuai <yukuai1@huaweicloud.com>, axboe@kernel.dk, roger.pau@citrix.com,
- colyli@suse.de, kent.overstreet@gmail.com, joern@lazybastard.org,
- miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
- sth@linux.ibm.com, hoeppner@linux.ibm.com, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, jejb@linux.ibm.com,
- martin.petersen@oracle.com, clm@fb.com, josef@toxicpanda.com,
- dsterba@suse.com, viro@zeniv.linux.org.uk, brauner@kernel.org,
- nico@fluxnic.net, xiang@kernel.org, chao@kernel.org, tytso@mit.edu,
- adilger.kernel@dilger.ca, jack@suse.com, konishi.ryusuke@gmail.com,
- willy@infradead.org, akpm@linux-foundation.org, hare@suse.de,
- p.raghav@samsung.com, linux-block@vger.kernel.org,
- linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org,
- linux-bcache@vger.kernel.org, linux-mtd@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
- linux-bcachefs@vger.kernel.org, linux-btrfs@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org,
- linux-ext4@vger.kernel.org, linux-nilfs@vger.kernel.org,
- yi.zhang@huawei.com, yangerkun@huawei.com, "yukuai (C)" <yukuai3@huawei.com>
-References: <20231221085712.1766333-1-yukuai1@huaweicloud.com>
- <20231221085712.1766333-5-yukuai1@huaweicloud.com>
- <20240104112855.uci45hhqaiitmsir@quack3> <ZZedSYAedA05Oex2@infradead.org>
-From: Yu Kuai <yukuai1@huaweicloud.com>
-Message-ID: <28237ec3-c3c1-1f0c-5250-04a88845d4a6@huaweicloud.com>
-Date: Fri, 5 Jan 2024 18:31:53 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 016BE36094;
+	Fri,  5 Jan 2024 22:54:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rAE8JeIu"
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 405LEd8x011374;
+	Fri, 5 Jan 2024 22:54:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=jL9WuhB2I9klluRSf1v59LBWX2ZrrXN58UHByaLNpo0=;
+ b=rAE8JeIulLgB4wc3EHZftj3UKUE9dYHAf+lhJJ1PQvDkn7rlRyY74rSceWXqw6WDeLtN
+ vdzAndJHY2JUCXCfdT58CbH5D//REiZ9nEezb4Pk6QnTt/0azxxIaZtwIDPIYwQiiZKm
+ Do/OaUVd4DX9QL7pR8x59hT4MiHo11TIua4dOB6BoNe+wRQqZI+r/vkCUOs0QciAdqes
+ WXBdhWRWuUzi/4iY4UtA4heahS3/j71XN4akYZ0cARQDkFW5ICQbxgAXJdFhU8QlxYWt
+ Y4UfM6OaUObbq/DkIzoMMalUN9Kynq6m9cj4ZIkAfvoAEzS6cGxvcnEMMWcPObUvE316 8w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3verf3twwb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 05 Jan 2024 22:54:28 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 405Mq3sA022409;
+	Fri, 5 Jan 2024 22:54:27 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3verf3twvw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 05 Jan 2024 22:54:27 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 405KRmxA024643;
+	Fri, 5 Jan 2024 22:54:26 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vb082sumc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 05 Jan 2024 22:54:26 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 405MsOS928377712
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 5 Jan 2024 22:54:24 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E103120043;
+	Fri,  5 Jan 2024 22:54:23 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A160620040;
+	Fri,  5 Jan 2024 22:54:23 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  5 Jan 2024 22:54:23 +0000 (GMT)
+From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, Nico Boehr <nrb@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Cc: Andrew Jones <andrew.jones@linux.dev>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>
+Subject: [kvm-unit-tests PATCH v2 4/5] s390x: Use library functions for snippet exit
+Date: Fri,  5 Jan 2024 23:54:18 +0100
+Message-Id: <20240105225419.2841310-5-nsg@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20240105225419.2841310-1-nsg@linux.ibm.com>
+References: <20240105225419.2841310-1-nsg@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <ZZedSYAedA05Oex2@infradead.org>
-Content-Type: text/plain; charset=gbk; format=flowed
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:cCh0CgDX2xGZ2pdlGeddFg--.44050S3
-X-Coremail-Antispam: 1UD129KBjvdXoW7XryUXFWDtw1fXr4DKF17Jrb_yoWxuFgEgF
-	yvkFZrKa13JrZ2vFsxKw15tFZ2ya47Zry8JrW0qay7W3s5Xa9rG3WkGr13XF1qqan7WFnI
-	9r9FqayrKay2qjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUIcSsGvfJTRUUUbaxFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k26cxKx2IYs7xG
-	6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
-	A2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j
-	6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
-	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
-	I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
-	4UM4x0Y48IcVAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kI
-	c2xKxwCYjI0SjxkI62AI1cAE67vIY487MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4
-	AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE
-	17CEb7AF67AKxVWrXVW8Jr1lIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCw
-	CI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6rWUJVWr
-	Zr1UMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYx
-	BIdaVFxhVjvjDU0xZFpf9x0JUd8n5UUUUU=
-X-CM-SenderInfo: 51xn3trlr6x35dzhxuhorxvhhfrp/
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: fLc0S04-2nOv7NHMO-Z90UnBKRVfxYpA
+X-Proofpoint-ORIG-GUID: 8YnYsq3TgjgVPbV2YaneIPBBL_Zz_dPo
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-01-05_08,2024-01-05_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ lowpriorityscore=0 phishscore=0 impostorscore=0 malwarescore=0
+ adultscore=0 spamscore=0 mlxlogscore=989 clxscore=1015 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2401050176
 
-Hi,
+Replace the existing code for exiting from snippets with the newly
+introduced library functionality.
 
-ÔÚ 2024/01/05 14:10, Christoph Hellwig Ð´µÀ:
-> On Thu, Jan 04, 2024 at 12:28:55PM +0100, Jan Kara wrote:
->> What do you think? Because when we are working with the folios it is rather
->> natural to use their mapping for dirty balancing?
-> 
-> The real problem is that block2mtd pokes way to deep into block
-> internals.
-> 
-> I think the saviour here is Christians series to replace the bdev handle
-> with a struct file, which will allow to use the normal file write path
-> here and get rid of the entire layering volation.
+Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+---
+ s390x/sie-dat.c            | 11 +++--------
+ s390x/snippets/c/sie-dat.c | 19 +------------------
+ 2 files changed, 4 insertions(+), 26 deletions(-)
 
-Yes, looks like lots of patches from this set is not needed anymore.
-I'll stop sending v4 and just send some patches that is not related to
-'bd_inode' separately.
-
-Thanks,
-Kuai
-
-> 
-> .
-> 
+diff --git a/s390x/sie-dat.c b/s390x/sie-dat.c
+index 9e60f26e..c8f38220 100644
+--- a/s390x/sie-dat.c
++++ b/s390x/sie-dat.c
+@@ -27,23 +27,18 @@ static void test_sie_dat(void)
+ 	uint64_t test_page_gpa, test_page_hpa;
+ 	uint8_t *test_page_hva, expected_val;
+ 	bool contents_match;
+-	uint8_t r1;
+ 
+ 	/* guest will tell us the guest physical address of the test buffer */
+ 	sie(&vm);
+-	assert(vm.sblk->icptcode == ICPT_INST &&
+-	       (vm.sblk->ipa & 0xff00) == 0x8300 && vm.sblk->ipb == 0x9c0000);
+-
+-	r1 = (vm.sblk->ipa & 0xf0) >> 4;
+-	test_page_gpa = vm.save_area.guest.grs[r1];
++	assert(snippet_is_force_exit_value(&vm));
++	test_page_gpa = snippet_get_force_exit_value(&vm);
+ 	test_page_hpa = virt_to_pte_phys(guest_root, (void*)test_page_gpa);
+ 	test_page_hva = __va(test_page_hpa);
+ 	report_info("test buffer gpa=0x%lx hva=%p", test_page_gpa, test_page_hva);
+ 
+ 	/* guest will now write to the test buffer and we verify the contents */
+ 	sie(&vm);
+-	assert(vm.sblk->icptcode == ICPT_INST &&
+-	       vm.sblk->ipa == 0x8300 && vm.sblk->ipb == 0x440000);
++	assert(snippet_is_force_exit(&vm));
+ 
+ 	contents_match = true;
+ 	for (unsigned int i = 0; i < GUEST_TEST_PAGE_COUNT; i++) {
+diff --git a/s390x/snippets/c/sie-dat.c b/s390x/snippets/c/sie-dat.c
+index ecfcb60e..414afd42 100644
+--- a/s390x/snippets/c/sie-dat.c
++++ b/s390x/snippets/c/sie-dat.c
+@@ -9,28 +9,11 @@
+  */
+ #include <libcflat.h>
+ #include <asm-generic/page.h>
++#include <snippet-guest.h>
+ #include "sie-dat.h"
+ 
+ static uint8_t test_pages[GUEST_TEST_PAGE_COUNT * PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
+ 
+-static inline void force_exit(void)
+-{
+-	asm volatile("diag	0,0,0x44\n"
+-		     :
+-		     :
+-		     : "memory"
+-	);
+-}
+-
+-static inline void force_exit_value(uint64_t val)
+-{
+-	asm volatile("diag	%[val],0,0x9c\n"
+-		     :
+-		     : [val] "d"(val)
+-		     : "memory"
+-	);
+-}
+-
+ int main(void)
+ {
+ 	uint8_t *invalid_ptr;
+-- 
+2.43.0
 
