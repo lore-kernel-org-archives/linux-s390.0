@@ -1,95 +1,84 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A65631E503;
-	Thu,  4 Jan 2024 20:40:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="serrNK0u"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 068EAC433C7;
-	Thu,  4 Jan 2024 20:40:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1704400838;
-	bh=wfKfnH7YLdSwjVnqaoKaRKpcS4tFflrKLF1bSoIVlwM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=serrNK0urNmROd5qJ+kO4+UwWgxa+6ka/RPhkgLxXQHzVriygEOQXFv9sbdvtk+fX
-	 rgNw2YV7FFrfwqtYZLOoMvdVWODN/LvnnZtnu2jZ7smKDicT02FhqMHxr/fmEeAZYv
-	 V5TBQacG6XFc1uDnzuY9g66djqTTOLwXoU7fpzT3ZzKP2bpmXWW04ba8bMTG5plsIM
-	 XBPoAdJVkr1VVR99DSpzkPLvK3V6ASHOze3gAgZpxoIArFYZyoGGDYCgEhrl9UdPLm
-	 jtXA38azvMaZaPJn8u9dSLq2K59Yv+OE+PLBS1lDl313YI9QFIG8Tbrkn92idNehYn
-	 hfUiryATznPNg==
-Date: Thu, 4 Jan 2024 20:40:32 +0000
-From: Simon Horman <horms@kernel.org>
-To: Wen Gu <guwen@linux.alibaba.com>
-Cc: Markus Elfring <Markus.Elfring@web.de>, linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org, kernel-janitors@vger.kernel.org,
-	"David S. Miller" <davem@davemloft.net>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Jan Karcher <jaka@linux.ibm.com>,
-	Paolo Abeni <pabeni@redhat.com>, Tony Lu <tonylu@linux.alibaba.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [0/2] net/smc: Adjustments for two function implementations
-Message-ID: <20240104204032.GN31813@kernel.org>
-References: <8ba404fd-7f41-44a9-9869-84f3af18fb46@web.de>
- <93033352-4b9c-bf52-1920-6ccf07926a21@linux.alibaba.com>
- <46fe66f7-dc3b-4863-96e8-7a855316e8bd@web.de>
- <b2ee4680-72e9-56a1-e0dd-9cbbe64a7dac@linux.alibaba.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21CAE5228;
+	Fri,  5 Jan 2024 04:44:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R881e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=49;SR=0;TI=SMTPD_---0VzzUQHt_1704429833;
+Received: from 30.222.33.160(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0VzzUQHt_1704429833)
+          by smtp.aliyun-inc.com;
+          Fri, 05 Jan 2024 12:43:56 +0800
+Message-ID: <a2c7910c-4c2f-4290-a895-1c4255b2ee62@linux.alibaba.com>
+Date: Fri, 5 Jan 2024 12:43:52 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC v3 for-6.8/block 11/17] erofs: use bdev api
+To: Yu Kuai <yukuai1@huaweicloud.com>, Jan Kara <jack@suse.cz>
+Cc: axboe@kernel.dk, roger.pau@citrix.com, colyli@suse.de,
+ kent.overstreet@gmail.com, joern@lazybastard.org, miquel.raynal@bootlin.com,
+ richard@nod.at, vigneshr@ti.com, sth@linux.ibm.com, hoeppner@linux.ibm.com,
+ hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+ jejb@linux.ibm.com, martin.petersen@oracle.com, clm@fb.com,
+ josef@toxicpanda.com, dsterba@suse.com, viro@zeniv.linux.org.uk,
+ brauner@kernel.org, nico@fluxnic.net, xiang@kernel.org, chao@kernel.org,
+ tytso@mit.edu, adilger.kernel@dilger.ca, jack@suse.com,
+ konishi.ryusuke@gmail.com, willy@infradead.org, akpm@linux-foundation.org,
+ hare@suse.de, p.raghav@samsung.com, linux-block@vger.kernel.org,
+ linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org,
+ linux-bcache@vger.kernel.org, linux-mtd@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+ linux-bcachefs@vger.kernel.org, linux-btrfs@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-ext4@vger.kernel.org, linux-nilfs@vger.kernel.org,
+ yi.zhang@huawei.com, yangerkun@huawei.com, "yukuai (C)" <yukuai3@huawei.com>
+References: <20231221085712.1766333-1-yukuai1@huaweicloud.com>
+ <20231221085826.1768395-1-yukuai1@huaweicloud.com>
+ <20240104120207.ig7tfc3mgckwkp2n@quack3>
+ <7f868579-f993-aaa1-b7d7-eccbe0b0173c@huaweicloud.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <7f868579-f993-aaa1-b7d7-eccbe0b0173c@huaweicloud.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <b2ee4680-72e9-56a1-e0dd-9cbbe64a7dac@linux.alibaba.com>
 
-On Tue, Jan 02, 2024 at 07:33:18PM +0800, Wen Gu wrote:
-> 
-> 
-> On 2024/1/2 16:51, Markus Elfring wrote:
-> > …
-> > > > A few update suggestions were taken into account
-> > > > from static source code analysis.
-> > …
-> > > >     Return directly after a failed kzalloc() in smc_fill_gid_list()
-> > > >     Improve exception handling in smc_llc_cli_add_link_invite()
-> > > > 
-> > > >    net/smc/af_smc.c  |  2 +-
-> > > >    net/smc/smc_llc.c | 15 +++++++--------
-> > > >    2 files changed, 8 insertions(+), 9 deletions(-)
-> > …
-> > > I see you want to fix the kfree(NULL) issues in these two patches.
-> > 
-> > I propose to avoid redundant function calls at various source code places.
-> > 
-> > 
-> > > But I am wondering if this is necessary, since kfree() can handle NULL correctly.
-> > 
-> > Would you prefer only required data processing in affected function implementations?
-> > 
-> 
-> Thank you Markus. I understood that you want to avoid redundant function calls.
-> 
-> But it is not very attractive to me since the calls occur on low-frequency paths
-> or unlikely condition, resulting in limited performance loss and the current
-> kfree() usage is fine and common. So what is the benfit?
-> 
-> I noticed that some other discussions are on-going. It seems like you are trying
-> to change other similiar places. Let's collect more opinions.
-> 
-> https://lore.kernel.org/netdev/828bb442-29d0-4bb8-b90d-f200bdd4faf6@web.de/
-> https://lore.kernel.org/netdev/90679f69-951c-47b3-b86f-75fd9fde3da3@web.de/
-> https://lore.kernel.org/netdev/dc0a1c9d-ceca-473d-9ad5-89b59e6af2e7@web.de/
-> https://lore.kernel.org/netdev/cde82080-c715-473c-97ac-6ef66bba6d64@web.de/
 
-As as been explained to Markus many times recently,
-calling kfree(NULL) is not only perfectly fine,
-it is the preferred way of handling things.
 
-Markus, please stop posting patches of this nature to Netdev.
+On 2024/1/4 20:32, Yu Kuai wrote:
+> Hi, Jan!
+> 
+> 在 2024/01/04 20:02, Jan Kara 写道:
+>> On Thu 21-12-23 16:58:26, Yu Kuai wrote:
+>>> From: Yu Kuai <yukuai3@huawei.com>
+>>>
+>>> Avoid to access bd_inode directly, prepare to remove bd_inode from
+>>> block_device.
+>>>
+>>> Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+>>
+>> I'm not erofs maintainer but IMO this is quite ugly and grows erofs_buf
+>> unnecessarily. I'd rather store 'sb' pointer in erofs_buf and then do the
+>> right thing in erofs_bread() which is the only place that seems to care
+>> about the erofs_is_fscache_mode() distinction... Also blkszbits is then
+>> trivially sb->s_blocksize_bits so it would all seem much more
+>> straightforward.
+> 
+> Thanks for your suggestion, I'll follow this unless Gao Xiang has other
+> suggestions.
 
--- 
-pw-bot: rejected
+Yes, that would be better, I'm fine with that.  Yet in the future we
+may support a seperate large dirblocksize more than block size, but
+we could revisit later.
+
+Thanks,
+Gao Xiang
+
+> 
+> Kuai
+>>
+>>                                 Honza
+>>
