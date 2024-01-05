@@ -1,65 +1,66 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EA8936091;
-	Fri,  5 Jan 2024 22:54:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7BF13609E;
+	Fri,  5 Jan 2024 22:54:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gW8RtWGa"
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 405Mocsw016553;
-	Fri, 5 Jan 2024 22:54:28 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="R6O0+BOc"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 405LCx9D004501;
+	Fri, 5 Jan 2024 22:54:27 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=4mD4K6/ZEfsYcFJZ3vk36ZAlJn9QyKmj6VZHAlPNFJY=;
- b=gW8RtWGazVcmAVr8O5OY1A44bpZ1uRsAicAXi4Gt5VmzXXhrtB98jdaCEzoJMpQAjpC/
- NE2S9xBYiQ1EzKxnwZVzrFwNenECUqCQJC7Ia+LCZ05WH02xdHKUuOeWx2nqGP1qMwng
- Nuroy8EAJVYfh/I/vtdAOPJJdbVbYmuBNRiECfTtQQNmNK9T8rjgsghoblh6ZZbq/6mO
- FLyzDKjoH1Arh0yGiLCeKau85FqzdA8YWKVxuQMMqmwAgUBSAHO8yVItKTLdsiOE2maw
- k0bszxW4JhqT4NzILrGcGmBdZ12lL81ATxYM4QnH4aVMQDvF0qKFMImTxCJF8gA+czHc wA== 
+ bh=IzvG62ZXgi2k4ctg88isRUO7MfuE0UH9lS0JrJvD+Z4=;
+ b=R6O0+BOcJQPjWJBi/PY4VU9DbTkmtDfy9PF+Q9XWgYa1jaqIHAtqPdNDZ6KKiJ1LgnzL
+ IjbsIv2csMB2dgywtytHNele4lDrbiQdZCRrtnAchcQ3XAF5dEpQTiVIHqg7FK1DOfNv
+ Olri7u9JhDCFxhn/p7kTnCHN5k32n3FKrSF5W+q8S3aT1TPNpgmeoYlKsUMXS6hHft3q
+ zSpXuFTLHmGOEbfw7AsfMklZt3J0mNOzxM7mZpKSoQjkDksn5QIkcCGmJbTH4pikZZMj
+ FL2t68p87FQ+trqdauo55G9qVjFRSTKr4YQTAazEBDGnkPwEr1bjqiDdZ3itBu0c6Uwr 0A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3veqgvmfsy-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ves8kt9fe-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 05 Jan 2024 22:54:28 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 405MrItN022459;
-	Fri, 5 Jan 2024 22:54:27 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3veqgvmfsp-1
+	Fri, 05 Jan 2024 22:54:26 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 405Mra7f014274;
+	Fri, 5 Jan 2024 22:54:26 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ves8kt9f4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 05 Jan 2024 22:54:27 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 405KCZNp017991;
-	Fri, 5 Jan 2024 22:54:27 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vayrm21hf-1
+	Fri, 05 Jan 2024 22:54:26 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 405LT7lG027261;
+	Fri, 5 Jan 2024 22:54:25 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vawhttjv7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 05 Jan 2024 22:54:27 +0000
+	Fri, 05 Jan 2024 22:54:25 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 405MsOUb13894312
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 405MsMUO15794750
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 5 Jan 2024 22:54:24 GMT
+	Fri, 5 Jan 2024 22:54:22 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 430F220043;
-	Fri,  5 Jan 2024 22:54:24 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id C24AA20043;
+	Fri,  5 Jan 2024 22:54:22 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0368520040;
-	Fri,  5 Jan 2024 22:54:24 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 7BF4D20040;
+	Fri,  5 Jan 2024 22:54:22 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  5 Jan 2024 22:54:23 +0000 (GMT)
+	Fri,  5 Jan 2024 22:54:22 +0000 (GMT)
 From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>, Nico Boehr <nrb@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+To: Andrew Jones <andrew.jones@linux.dev>, Thomas Huth <thuth@redhat.com>,
+        Nico Boehr <nrb@linux.ibm.com>,
         Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 Cc: David Hildenbrand <david@redhat.com>,
-        Andrew Jones <andrew.jones@linux.dev>, kvm@vger.kernel.org,
-        Thomas Huth <thuth@redhat.com>, linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v2 5/5] s390x: Add test for STFLE interpretive execution (format-0)
-Date: Fri,  5 Jan 2024 23:54:19 +0100
-Message-Id: <20240105225419.2841310-6-nsg@linux.ibm.com>
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v2 1/5] lib: Add pseudo random functions
+Date: Fri,  5 Jan 2024 23:54:15 +0100
+Message-Id: <20240105225419.2841310-2-nsg@linux.ibm.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20240105225419.2841310-1-nsg@linux.ibm.com>
 References: <20240105225419.2841310-1-nsg@linux.ibm.com>
@@ -71,262 +72,310 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: eXLLXSUNIj0SLdHmHt8TzuX5JwIacJ8Q
-X-Proofpoint-ORIG-GUID: p59mMyEPj-sTS9QvnNznLH8N8-rJrfxu
+X-Proofpoint-GUID: 5BjZlOGpXipCPPChWkxzFZN_n7GrbeQZ
+X-Proofpoint-ORIG-GUID: R1qgSvXbYZ8iKmAO4sBsYz0UIGiEd7U1
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-01-05_08,2024-01-05_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=999
- spamscore=0 suspectscore=0 lowpriorityscore=0 priorityscore=1501
- malwarescore=0 mlxscore=0 bulkscore=0 phishscore=0 impostorscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ lowpriorityscore=0 phishscore=0 adultscore=0 mlxscore=0 suspectscore=0
+ clxscore=1015 priorityscore=1501 malwarescore=0 bulkscore=0 spamscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311290000 definitions=main-2401050176
 
-The STFLE instruction indicates installed facilities.
-SIE can interpretively execute STFLE.
-Use a snippet guest executing STFLE to get the result of
-interpretive execution and check the result.
+Add functions for generating pseudo random 32 and 64 bit values.
+The implementation uses SHA-256 and so the randomness should have good
+quality.
+Implement the necessary subset of SHA-256.
+The PRNG algorithm is equivalent to the following python snippet:
+
+def prng32(seed):
+    from hashlib import sha256
+    state = seed.to_bytes(8, byteorder="big")
+    while True:
+        state = sha256(state).digest()
+        for i in range(8):
+            yield int.from_bytes(state[i*4:(i+1)*4], byteorder="big")
 
 Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 ---
- s390x/Makefile           |   2 +
- lib/s390x/asm/facility.h |  10 ++-
- s390x/snippets/c/stfle.c |  26 ++++++++
- s390x/stfle-sie.c        | 134 +++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg      |   3 +
- 5 files changed, 174 insertions(+), 1 deletion(-)
- create mode 100644 s390x/snippets/c/stfle.c
- create mode 100644 s390x/stfle-sie.c
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index a10695a2..12eb3053 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -42,6 +42,7 @@ tests += $(TEST_DIR)/exittime.elf
- tests += $(TEST_DIR)/ex.elf
- tests += $(TEST_DIR)/topology.elf
- tests += $(TEST_DIR)/sie-dat.elf
-+tests += $(TEST_DIR)/stfle-sie.elf
+Notes:
+    Since a PRNG with better quality was asked for I decided to use SHA-256
+    because:
+     * it is a standard, commonly used algorithm
+     * high quality randomness is assured
+     * the implementation can be checked against the spec
+     * the implementation can be easily checked via comparison
+    
+    I tested the implementation in the following way:
+    
+    cat <<'EOF' > rand.py
+    #!/usr/bin/python3
+    
+    def prng32(seed):
+        from hashlib import sha256
+        state = seed.to_bytes(8, byteorder="big")
+        while True:
+            state = sha256(state).digest()
+            for i in range(8):
+                yield int.from_bytes(state[i*4:(i+1)*4], byteorder="big")
+    
+    r = prng32(0)
+    for i in range(100):
+        print(f"{next(r):08x}")
+    
+    EOF
+    
+    cat <<'EOF' > rand.c
+    #include <stdio.h>
+    #include "rand.h"
+    
+    void main(void)
+    {
+    	prng_state state = prng_init(0);
+    	for (int i = 0; i < 100; i++) {
+    		printf("%08x\n", prng32(&state));
+    	}
+    }
+    EOF
+    cat <<'EOF' > libcflat.h
+    #define ARRAY_SIZE(_a) (sizeof(_a)/sizeof((_a)[0]))
+    EOF
+    chmod +x rand.py
+    ln -s lib/rand.c librand.c
+    gcc -Ilib librand.c rand.c
+    diff <(./a.out) <(./rand.py)
+
+ Makefile   |   1 +
+ lib/rand.h |  21 +++++++
+ lib/rand.c | 177 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 199 insertions(+)
+ create mode 100644 lib/rand.h
+ create mode 100644 lib/rand.c
+
+diff --git a/Makefile b/Makefile
+index 602910dd..7997e035 100644
+--- a/Makefile
++++ b/Makefile
+@@ -28,6 +28,7 @@ cflatobjs := \
+ 	lib/printf.o \
+ 	lib/string.o \
+ 	lib/abort.o \
++	lib/rand.o \
+ 	lib/report.o \
+ 	lib/stack.o
  
- pv-tests += $(TEST_DIR)/pv-diags.elf
- pv-tests += $(TEST_DIR)/pv-icptcode.elf
-@@ -127,6 +128,7 @@ snippet_lib = $(snippet_asmlib) lib/auxinfo.o
- $(TEST_DIR)/mvpg-sie.elf: snippets = $(SNIPPET_DIR)/c/mvpg-snippet.gbin
- $(TEST_DIR)/sie-dat.elf: snippets = $(SNIPPET_DIR)/c/sie-dat.gbin
- $(TEST_DIR)/spec_ex-sie.elf: snippets = $(SNIPPET_DIR)/c/spec_ex.gbin
-+$(TEST_DIR)/stfle-sie.elf: snippets = $(SNIPPET_DIR)/c/stfle.gbin
- 
- $(TEST_DIR)/pv-diags.elf: pv-snippets += $(SNIPPET_DIR)/asm/pv-diag-yield.gbin
- $(TEST_DIR)/pv-diags.elf: pv-snippets += $(SNIPPET_DIR)/asm/pv-diag-288.gbin
-diff --git a/lib/s390x/asm/facility.h b/lib/s390x/asm/facility.h
-index a66fe56a..2bad05c5 100644
---- a/lib/s390x/asm/facility.h
-+++ b/lib/s390x/asm/facility.h
-@@ -27,12 +27,20 @@ static inline void stfl(void)
- 	asm volatile("	stfl	0(0)\n" : : : "memory");
- }
- 
--static inline void stfle(uint64_t *fac, unsigned int nb_doublewords)
-+static inline unsigned int stfle(uint64_t *fac, unsigned int nb_doublewords)
- {
- 	register unsigned long r0 asm("0") = nb_doublewords - 1;
- 
- 	asm volatile("	.insn	s,0xb2b00000,0(%1)\n"
- 		     : "+d" (r0) : "a" (fac) : "memory", "cc");
-+	return r0 + 1;
-+}
-+
-+static inline unsigned long stfle_size(void)
-+{
-+	uint64_t dummy;
-+
-+	return stfle(&dummy, 1);
- }
- 
- static inline void setup_facilities(void)
-diff --git a/s390x/snippets/c/stfle.c b/s390x/snippets/c/stfle.c
+diff --git a/lib/rand.h b/lib/rand.h
 new file mode 100644
-index 00000000..eb024a6a
+index 00000000..cdce8bd7
 --- /dev/null
-+++ b/s390x/snippets/c/stfle.c
-@@ -0,0 +1,26 @@
++++ b/lib/rand.h
+@@ -0,0 +1,21 @@
 +/* SPDX-License-Identifier: GPL-2.0-only */
 +/*
-+ * Copyright IBM Corp. 2023
++ * (pseudo) random functions
 + *
-+ * Snippet used by the STLFE interpretive execution facilities test.
++ * Copyright IBM Corp. 2024
 + */
-+#include <libcflat.h>
-+#include <snippet-guest.h>
++#ifndef _RAND_H_
++#define _RAND_H_
 +
-+int main(void)
-+{
-+	const unsigned int max_fac_len = 8;
-+	uint64_t res[max_fac_len + 1];
++#include <stdint.h>
 +
-+	res[0] = max_fac_len - 1;
-+	asm volatile ( "lg	0,%[len]\n"
-+		"	stfle	%[fac]\n"
-+		"	stg	0,%[len]\n"
-+		: [fac] "=QS"(*(uint64_t(*)[max_fac_len])&res[1]),
-+		  [len] "+RT"(res[0])
-+		:
-+		: "%r0", "cc"
-+	);
-+	force_exit_value((uint64_t)&res);
-+	return 0;
-+}
-diff --git a/s390x/stfle-sie.c b/s390x/stfle-sie.c
++/* Non cryptographically secure PRNG */
++typedef struct {
++	uint32_t hash[8];
++	uint8_t next_word;
++} prng_state;
++prng_state prng_init(uint64_t seed);
++uint32_t prng32(prng_state *state);
++uint64_t prng64(prng_state *state);
++
++#endif /* _RAND_H_ */
+diff --git a/lib/rand.c b/lib/rand.c
 new file mode 100644
-index 00000000..a3e7f1c9
+index 00000000..c5b3d53c
 --- /dev/null
-+++ b/s390x/stfle-sie.c
-@@ -0,0 +1,134 @@
++++ b/lib/rand.c
+@@ -0,0 +1,177 @@
 +/* SPDX-License-Identifier: GPL-2.0-only */
 +/*
-+ * Copyright IBM Corp. 2023
++ * (pseudo) random functions
++ * Currently uses SHA-256 to scramble the PRNG state.
 + *
-+ * SIE with STLFE interpretive execution facilities test.
++ * Copyright IBM Corp. 2024
 + */
-+#include <libcflat.h>
-+#include <stdlib.h>
-+#include <asm/facility.h>
-+#include <asm/time.h>
-+#include <snippet-host.h>
-+#include <alloc_page.h>
-+#include <sclp.h>
-+#include <rand.h>
 +
-+static struct vm vm;
-+static uint64_t (*fac)[PAGE_SIZE / sizeof(uint64_t)];
-+static prng_state prng_s;
++#include "libcflat.h"
++#include "rand.h"
++#include <string.h>
 +
-+static void setup_guest(void)
-+{
-+	extern const char SNIPPET_NAME_START(c, stfle)[];
-+	extern const char SNIPPET_NAME_END(c, stfle)[];
++/* Begin SHA-256 related definitions */
 +
-+	setup_vm();
-+	fac = alloc_pages_flags(0, AREA_DMA31);
-+
-+	snippet_setup_guest(&vm, false);
-+	snippet_init(&vm, SNIPPET_NAME_START(c, stfle),
-+		     SNIPPET_LEN(c, stfle), SNIPPET_UNPACK_OFF);
++#define INITAL_HASH { \
++	0x6a09e667, \
++	0xbb67ae85, \
++	0x3c6ef372, \
++	0xa54ff53a, \
++	0x510e527f, \
++	0x9b05688c, \
++	0x1f83d9ab, \
++	0x5be0cd19, \
 +}
 +
-+struct guest_stfle_res {
-+	uint16_t len;
-+	uint64_t reg;
-+	unsigned char *mem;
++static const uint32_t K[] = {
++	0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
++	0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
++	0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
++	0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
++	0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
++	0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
++	0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
++	0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
 +};
 +
-+static struct guest_stfle_res run_guest(void)
++static inline uint32_t ch(uint32_t x, uint32_t y, uint32_t z)
 +{
-+	struct guest_stfle_res res;
-+	uint64_t guest_stfle_addr;
-+
-+	sie(&vm);
-+	assert(snippet_is_force_exit_value(&vm));
-+	guest_stfle_addr = snippet_get_force_exit_value(&vm);
-+	res.mem = &vm.guest_mem[guest_stfle_addr];
-+	memcpy(&res.reg, res.mem, sizeof(res.reg));
-+	res.len = (res.reg & 0xff) + 1;
-+	res.mem += sizeof(res.reg);
-+	return res;
++	return (x & y) ^ ((~x) & z);
 +}
 +
-+static void test_stfle_format_0(void)
++static inline uint32_t maj(uint32_t x, uint32_t y, uint32_t z)
 +{
-+	struct guest_stfle_res res;
-+
-+	report_prefix_push("format-0");
-+	for (int j = 0; j < stfle_size(); j++)
-+		WRITE_ONCE((*fac)[j], prng64(&prng_s));
-+	vm.sblk->fac = (uint32_t)(uint64_t)fac;
-+	res = run_guest();
-+	report(res.len == stfle_size(), "stfle len correct");
-+	report(!memcmp(*fac, res.mem, res.len * sizeof(uint64_t)),
-+	       "Guest facility list as specified");
-+	report_prefix_pop();
++	return (x & y) ^ (x & z) ^ (y & z);
 +}
 +
-+struct args {
-+	uint64_t seed;
-+};
-+
-+static bool parse_uint64_t(const char *arg, uint64_t *out)
++static inline uint32_t rot(uint32_t value, unsigned int count)
 +{
-+	char *end;
-+	uint64_t num;
-+
-+	if (arg[0] == '\0')
-+		return false;
-+	num = strtoul(arg, &end, 0);
-+	if (end[0] != '\0')
-+		return false;
-+	*out = num;
-+	return true;
++	return value >> count | value << (32 - count);
 +}
 +
-+static struct args parse_args(int argc, char **argv)
++static inline uint32_t upper_sig0(uint32_t x)
 +{
-+	struct args args;
-+	const char *flag;
-+	unsigned int i;
-+	uint64_t arg;
-+	bool has_arg;
++	return rot(x, 2) ^ rot(x, 13) ^ rot(x, 22);
++}
 +
-+	stck(&args.seed);
++static inline uint32_t upper_sig1(uint32_t x)
++{
++	return rot(x, 6) ^ rot(x, 11) ^ rot(x, 25);
++}
 +
-+	for (i = 1; i < argc; i++) {
-+		if (i + 1 < argc)
-+			has_arg = parse_uint64_t(argv[i + 1], &arg);
-+		else
-+			has_arg = false;
++static inline uint32_t lower_sig0(uint32_t x)
++{
++	return rot(x, 7) ^ rot(x, 18) ^ (x >> 3);
++}
 +
-+		flag = "--seed";
-+		if (!strcmp(flag, argv[i])) {
-+			if (!has_arg)
-+				report_abort("%s needs an uint64_t parameter", flag);
-+			args.seed = arg;
-+			++i;
-+			continue;
-+		}
-+		report_abort("Unsupported parameter '%s'",
-+			     argv[i]);
++static inline uint32_t lower_sig1(uint32_t x)
++{
++	return rot(x, 17) ^ rot(x, 19) ^ (x >> 10);
++}
++
++enum alphabet { a, b, c, d, e, f, g, h, };
++
++static void sha256_chunk(const uint32_t (*chunk)[16], uint32_t (*hash)[8])
++{
++	uint32_t w[64];
++	uint32_t w_hash[8];
++
++	memcpy(w, chunk, sizeof(*chunk));
++
++	for (int i = 16; i < 64; i++)
++		w[i] = lower_sig1(w[i - 2]) + w[i - 7] + lower_sig0(w[i - 15]) + w[i - 16];
++
++	memcpy(w_hash, hash, sizeof(*hash));
++
++	for (int i = 0; i < 64; i++) {
++		uint32_t t1, t2;
++
++		t1 = w_hash[h] +
++		     upper_sig1(w_hash[e]) +
++		     ch(w_hash[e], w_hash[f], w_hash[g]) +
++		     K[i] +
++		     w[i];
++
++		t2 = upper_sig0(w_hash[a]) + maj(w_hash[a], w_hash[b], w_hash[c]);
++
++		w_hash[h] = w_hash[g];
++		w_hash[g] = w_hash[f];
++		w_hash[f] = w_hash[e];
++		w_hash[e] = w_hash[d] + t1;
++		w_hash[d] = w_hash[c];
++		w_hash[c] = w_hash[b];
++		w_hash[b] = w_hash[a];
++		w_hash[a] = t1 + t2;
 +	}
 +
-+	return args;
++	for (int i = 0; i < 8; i++)
++		(*hash)[i] += w_hash[i];
 +}
 +
-+int main(int argc, char **argv)
++/**
++ * sha256_hash - Calculate SHA-256 of input. Only a limited subset of inputs supported.
++ * @n: Number of words to hash, must be <= 13
++ * @input: Input data to hash
++ * @hash: Output hash as a word array, ordered such that the first word contains
++ *        the first/leftmost bits of the 256 bit hash
++ *
++ * Calculate the SHA-256 hash of the input where the input must be a multiple of
++ * 4 bytes and at most 52 long. The input is used without any adjustment, so,
++ * should the caller want to hash bytes it needs to interpret the bytes in the
++ * ordering as defined by the specification, that is big endian.
++ * The same applies to interpreting the output array as bytes.
++ * The function computes the same as: printf "%08x" ${input[@]} | xxd -r -p | sha256sum .
++ */
++static void sha256_hash(unsigned int n, const uint32_t (*input)[n], uint32_t (*hash)[8])
 +{
-+	struct args args = parse_args(argc, argv);
++	/*
++	 * Pad according to SHA-2 specification.
++	 * First set up length in bits.
++	 */
++	uint32_t chunk[16] = {
++		[15] = sizeof(*input) * 8,
++	};
 +
-+	if (!sclp_facilities.has_sief2) {
-+		report_skip("SIEF2 facility unavailable");
-+		goto out;
-+	}
-+
-+	report_info("PRNG seed: 0x%lx", args.seed);
-+	prng_s = prng_init(args.seed);
-+	setup_guest();
-+	if (test_facility(7))
-+		test_stfle_format_0();
-+out:
-+	return report_summary();
++	memcpy(chunk, input, sizeof(*input));
++	/* Then add separator */
++	chunk[n] = 1 << 31;
++	memcpy(hash, (uint32_t[])INITAL_HASH, sizeof(*hash));
++	sha256_chunk(&chunk, hash);
 +}
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index f5024b6e..118ffa3c 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -383,3 +383,6 @@ extra_params = """-cpu max,ctop=on -smp cpus=1,drawers=2,books=2,sockets=2,cores
- 
- [sie-dat]
- file = sie-dat.elf
 +
-+[stfle-sie]
-+file = stfle-sie.elf
++/* End SHA-256 related definitions */
++
++prng_state prng_init(uint64_t seed)
++{
++	prng_state state = { .next_word = 0 };
++	uint32_t seed_arr[2] = { seed >> 32, seed };
++
++	sha256_hash(ARRAY_SIZE(seed_arr), &seed_arr, &state.hash);
++	return state;
++}
++
++static void prng_scramble(prng_state *state)
++{
++	uint32_t input[8];
++
++	memcpy(input, state->hash, sizeof(state->hash));
++	sha256_hash(ARRAY_SIZE(input), &input, &state->hash);
++	state->next_word = 0;
++}
++
++uint32_t prng32(prng_state *state)
++{
++	if (state->next_word < ARRAY_SIZE(state->hash))
++		return state->hash[state->next_word++];
++
++	prng_scramble(state);
++	return prng32(state);
++}
++
++uint64_t prng64(prng_state *state)
++{
++	/* explicitly evaluate the high word first */
++	uint64_t high = prng32(state);
++
++	return high << 32 | prng32(state);
++}
 -- 
 2.43.0
 
