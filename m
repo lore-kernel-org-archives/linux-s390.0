@@ -1,421 +1,344 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from out-186.mta0.migadu.com (out-186.mta0.migadu.com [91.218.175.186])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F17FA364A3;
-	Fri,  5 Jan 2024 22:54:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8C92DDBB
+	for <linux-s390@vger.kernel.org>; Mon,  8 Jan 2024 09:02:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NcCTYKcJ"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 405LMZiC027055;
-	Fri, 5 Jan 2024 22:54:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=4DYS/nkWTa3TlYWZmu+ClvWFwSWsfv/CLELH7mGCz7I=;
- b=NcCTYKcJfgMJbP5PyOa0+xaMdemBK0X6/bAzwVmlclDVxUsr4149GgHyYP+kM5HV9C3S
- M2uqFYVYhrSGE8qdEB4CTo6kWhIzzAHPwuxJJHrrAEkIhSIPC9vp1ugQpeXJNnh09vwS
- L8IPD1CinP852y6mYPhVjEu5983/SIRhVW4WmE6PbLab9fC5Lhd1mBh7ED8u0n1RBrn3
- DAke9wyLw6EGV1eibIxLn3am8s1FoBS0QQy4XAG7kq3CyAWR2URE/s7yzRH5oYpYyBdH
- dZy0P5TBGcE84YxFo8mi5bzOq89vvUjKn8HC9/f1Aj2EAXO2/XApAd+PS120L7yKkb5j 3w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ves8kt9ft-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 05 Jan 2024 22:54:28 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 405MUnYD029878;
-	Fri, 5 Jan 2024 22:54:28 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ves8kt9fg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 05 Jan 2024 22:54:27 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 405MHjkF007335;
-	Fri, 5 Jan 2024 22:54:26 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vaxhpjc5c-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 05 Jan 2024 22:54:26 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 405MsNJm28377710
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 5 Jan 2024 22:54:23 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 89DAD20043;
-	Fri,  5 Jan 2024 22:54:23 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4498B20040;
-	Fri,  5 Jan 2024 22:54:23 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  5 Jan 2024 22:54:23 +0000 (GMT)
-From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
-Cc: Andrew Jones <andrew.jones@linux.dev>, linux-s390@vger.kernel.org,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v2 3/5] s390x: Add library functions for exiting from snippet
-Date: Fri,  5 Jan 2024 23:54:17 +0100
-Message-Id: <20240105225419.2841310-4-nsg@linux.ibm.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20240105225419.2841310-1-nsg@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="LRqu0Bde"
+Date: Mon, 8 Jan 2024 10:02:09 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1704704533;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=IRugJM0GRV//PjdRdHm8SZSE3x5dyDsNJ0Pv76IThdY=;
+	b=LRqu0Bde0zPtpgKeGRJ7D3eG7zw85dcwymBFeKGo9oj0YXQ+PNGJUBgGbbo74al3fcLioW
+	0kAwGRb++TQO6uwzcOufFqr9nW6fljzsHb8tZDDuhIbVMmWI324CMkQqpsQKRoP6LLnwcF
+	IeTsGBBIqrGntN1GLwZDgvG3UbYV84g=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Andrew Jones <andrew.jones@linux.dev>
+To: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Cc: Thomas Huth <thuth@redhat.com>, Nico Boehr <nrb@linux.ibm.com>, 
+	David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH v2 1/5] lib: Add pseudo random functions
+Message-ID: <20240108-c38dbfc426dcfa7f59ac825f@orel>
 References: <20240105225419.2841310-1-nsg@linux.ibm.com>
+ <20240105225419.2841310-2-nsg@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ay2sOXapFEylXwImCg2M8tkXZkNn22pI
-X-Proofpoint-ORIG-GUID: wum636TjbmQg0iI7cuQJBa29lq0ZGwK6
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-05_08,2024-01-05_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- lowpriorityscore=0 phishscore=0 adultscore=0 mlxscore=0 suspectscore=0
- clxscore=1015 priorityscore=1501 malwarescore=0 bulkscore=0 spamscore=0
- mlxlogscore=838 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401050176
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240105225419.2841310-2-nsg@linux.ibm.com>
+X-Migadu-Flow: FLOW_OUT
 
-It is useful to be able to force an exit to the host from the snippet,
-as well as do so while returning a value.
-Add this functionality, also add helper functions for the host to check
-for an exit and get or check the value.
-Use diag 0x44 and 0x9c for this.
-Add a guest specific snippet header file and rename snippet.h to reflect
-that it is host specific.
+On Fri, Jan 05, 2024 at 11:54:15PM +0100, Nina Schoetterl-Glausch wrote:
+> Add functions for generating pseudo random 32 and 64 bit values.
+> The implementation uses SHA-256 and so the randomness should have good
+> quality.
+> Implement the necessary subset of SHA-256.
+> The PRNG algorithm is equivalent to the following python snippet:
+> 
+> def prng32(seed):
+>     from hashlib import sha256
+>     state = seed.to_bytes(8, byteorder="big")
+>     while True:
+>         state = sha256(state).digest()
+>         for i in range(8):
+>             yield int.from_bytes(state[i*4:(i+1)*4], byteorder="big")
+> 
+> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+> ---
+> 
+> Notes:
+>     Since a PRNG with better quality was asked for I decided to use SHA-256
+>     because:
+>      * it is a standard, commonly used algorithm
+>      * high quality randomness is assured
+>      * the implementation can be checked against the spec
+>      * the implementation can be easily checked via comparison
+>     
+>     I tested the implementation in the following way:
+>     
+>     cat <<'EOF' > rand.py
+>     #!/usr/bin/python3
+>     
+>     def prng32(seed):
+>         from hashlib import sha256
+>         state = seed.to_bytes(8, byteorder="big")
+>         while True:
+>             state = sha256(state).digest()
+>             for i in range(8):
+>                 yield int.from_bytes(state[i*4:(i+1)*4], byteorder="big")
+>     
+>     r = prng32(0)
+>     for i in range(100):
+>         print(f"{next(r):08x}")
+>     
+>     EOF
+>     
+>     cat <<'EOF' > rand.c
+>     #include <stdio.h>
+>     #include "rand.h"
+>     
+>     void main(void)
+>     {
+>     	prng_state state = prng_init(0);
+>     	for (int i = 0; i < 100; i++) {
+>     		printf("%08x\n", prng32(&state));
+>     	}
+>     }
+>     EOF
+>     cat <<'EOF' > libcflat.h
+>     #define ARRAY_SIZE(_a) (sizeof(_a)/sizeof((_a)[0]))
+>     EOF
+>     chmod +x rand.py
+>     ln -s lib/rand.c librand.c
+>     gcc -Ilib librand.c rand.c
+>     diff <(./a.out) <(./rand.py)
+> 
+>  Makefile   |   1 +
+>  lib/rand.h |  21 +++++++
+>  lib/rand.c | 177 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 199 insertions(+)
+>  create mode 100644 lib/rand.h
+>  create mode 100644 lib/rand.c
+> 
+> diff --git a/Makefile b/Makefile
+> index 602910dd..7997e035 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -28,6 +28,7 @@ cflatobjs := \
+>  	lib/printf.o \
+>  	lib/string.o \
+>  	lib/abort.o \
+> +	lib/rand.o \
+>  	lib/report.o \
+>  	lib/stack.o
+>  
+> diff --git a/lib/rand.h b/lib/rand.h
+> new file mode 100644
+> index 00000000..cdce8bd7
+> --- /dev/null
+> +++ b/lib/rand.h
+> @@ -0,0 +1,21 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * (pseudo) random functions
+> + *
+> + * Copyright IBM Corp. 2024
+> + */
+> +#ifndef _RAND_H_
+> +#define _RAND_H_
+> +
+> +#include <stdint.h>
+> +
+> +/* Non cryptographically secure PRNG */
+> +typedef struct {
+> +	uint32_t hash[8];
+> +	uint8_t next_word;
+> +} prng_state;
+> +prng_state prng_init(uint64_t seed);
+> +uint32_t prng32(prng_state *state);
+> +uint64_t prng64(prng_state *state);
+> +
+> +#endif /* _RAND_H_ */
+> diff --git a/lib/rand.c b/lib/rand.c
+> new file mode 100644
+> index 00000000..c5b3d53c
+> --- /dev/null
+> +++ b/lib/rand.c
+> @@ -0,0 +1,177 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * (pseudo) random functions
+> + * Currently uses SHA-256 to scramble the PRNG state.
+> + *
+> + * Copyright IBM Corp. 2024
+> + */
+> +
+> +#include "libcflat.h"
+> +#include "rand.h"
+> +#include <string.h>
+> +
+> +/* Begin SHA-256 related definitions */
+> +
+> +#define INITAL_HASH { \
+> +	0x6a09e667, \
+> +	0xbb67ae85, \
+> +	0x3c6ef372, \
+> +	0xa54ff53a, \
+> +	0x510e527f, \
+> +	0x9b05688c, \
+> +	0x1f83d9ab, \
+> +	0x5be0cd19, \
+> +}
+> +
+> +static const uint32_t K[] = {
+> +	0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+> +	0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+> +	0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+> +	0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+> +	0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+> +	0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+> +	0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+> +	0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+> +};
+> +
+> +static inline uint32_t ch(uint32_t x, uint32_t y, uint32_t z)
+> +{
+> +	return (x & y) ^ ((~x) & z);
+> +}
+> +
+> +static inline uint32_t maj(uint32_t x, uint32_t y, uint32_t z)
+> +{
+> +	return (x & y) ^ (x & z) ^ (y & z);
+> +}
+> +
+> +static inline uint32_t rot(uint32_t value, unsigned int count)
+> +{
+> +	return value >> count | value << (32 - count);
+> +}
+> +
+> +static inline uint32_t upper_sig0(uint32_t x)
+> +{
+> +	return rot(x, 2) ^ rot(x, 13) ^ rot(x, 22);
+> +}
+> +
+> +static inline uint32_t upper_sig1(uint32_t x)
+> +{
+> +	return rot(x, 6) ^ rot(x, 11) ^ rot(x, 25);
+> +}
+> +
+> +static inline uint32_t lower_sig0(uint32_t x)
+> +{
+> +	return rot(x, 7) ^ rot(x, 18) ^ (x >> 3);
+> +}
+> +
+> +static inline uint32_t lower_sig1(uint32_t x)
+> +{
+> +	return rot(x, 17) ^ rot(x, 19) ^ (x >> 10);
+> +}
+> +
+> +enum alphabet { a, b, c, d, e, f, g, h, };
+> +
+> +static void sha256_chunk(const uint32_t (*chunk)[16], uint32_t (*hash)[8])
+> +{
+> +	uint32_t w[64];
+> +	uint32_t w_hash[8];
+> +
+> +	memcpy(w, chunk, sizeof(*chunk));
+> +
+> +	for (int i = 16; i < 64; i++)
+> +		w[i] = lower_sig1(w[i - 2]) + w[i - 7] + lower_sig0(w[i - 15]) + w[i - 16];
+> +
+> +	memcpy(w_hash, hash, sizeof(*hash));
+> +
+> +	for (int i = 0; i < 64; i++) {
+> +		uint32_t t1, t2;
+> +
+> +		t1 = w_hash[h] +
+> +		     upper_sig1(w_hash[e]) +
+> +		     ch(w_hash[e], w_hash[f], w_hash[g]) +
+> +		     K[i] +
+> +		     w[i];
+> +
+> +		t2 = upper_sig0(w_hash[a]) + maj(w_hash[a], w_hash[b], w_hash[c]);
+> +
+> +		w_hash[h] = w_hash[g];
+> +		w_hash[g] = w_hash[f];
+> +		w_hash[f] = w_hash[e];
+> +		w_hash[e] = w_hash[d] + t1;
+> +		w_hash[d] = w_hash[c];
+> +		w_hash[c] = w_hash[b];
+> +		w_hash[b] = w_hash[a];
+> +		w_hash[a] = t1 + t2;
+> +	}
+> +
+> +	for (int i = 0; i < 8; i++)
+> +		(*hash)[i] += w_hash[i];
+> +}
+> +
+> +/**
+> + * sha256_hash - Calculate SHA-256 of input. Only a limited subset of inputs supported.
+> + * @n: Number of words to hash, must be <= 13
+> + * @input: Input data to hash
+> + * @hash: Output hash as a word array, ordered such that the first word contains
+> + *        the first/leftmost bits of the 256 bit hash
+> + *
+> + * Calculate the SHA-256 hash of the input where the input must be a multiple of
+> + * 4 bytes and at most 52 long. The input is used without any adjustment, so,
+> + * should the caller want to hash bytes it needs to interpret the bytes in the
+> + * ordering as defined by the specification, that is big endian.
+> + * The same applies to interpreting the output array as bytes.
+> + * The function computes the same as: printf "%08x" ${input[@]} | xxd -r -p | sha256sum .
+> + */
+> +static void sha256_hash(unsigned int n, const uint32_t (*input)[n], uint32_t (*hash)[8])
+> +{
+> +	/*
+> +	 * Pad according to SHA-2 specification.
+> +	 * First set up length in bits.
+> +	 */
+> +	uint32_t chunk[16] = {
+> +		[15] = sizeof(*input) * 8,
+> +	};
+> +
+> +	memcpy(chunk, input, sizeof(*input));
+> +	/* Then add separator */
+> +	chunk[n] = 1 << 31;
+> +	memcpy(hash, (uint32_t[])INITAL_HASH, sizeof(*hash));
+> +	sha256_chunk(&chunk, hash);
+> +}
+> +
+> +/* End SHA-256 related definitions */
+> +
+> +prng_state prng_init(uint64_t seed)
+> +{
+> +	prng_state state = { .next_word = 0 };
+> +	uint32_t seed_arr[2] = { seed >> 32, seed };
+> +
+> +	sha256_hash(ARRAY_SIZE(seed_arr), &seed_arr, &state.hash);
+> +	return state;
+> +}
+> +
+> +static void prng_scramble(prng_state *state)
+> +{
+> +	uint32_t input[8];
+> +
+> +	memcpy(input, state->hash, sizeof(state->hash));
+> +	sha256_hash(ARRAY_SIZE(input), &input, &state->hash);
+> +	state->next_word = 0;
+> +}
+> +
+> +uint32_t prng32(prng_state *state)
+> +{
+> +	if (state->next_word < ARRAY_SIZE(state->hash))
+> +		return state->hash[state->next_word++];
+> +
+> +	prng_scramble(state);
+> +	return prng32(state);
+> +}
+> +
+> +uint64_t prng64(prng_state *state)
+> +{
+> +	/* explicitly evaluate the high word first */
+> +	uint64_t high = prng32(state);
+> +
+> +	return high << 32 | prng32(state);
+> +}
+> -- 
+> 2.43.0
+>
 
-Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
----
- s390x/Makefile                          |  1 +
- lib/s390x/asm/arch_def.h                | 13 ++++++++
- lib/s390x/sie.h                         |  1 +
- lib/s390x/snippet-guest.h               | 26 +++++++++++++++
- lib/s390x/{snippet.h => snippet-host.h} | 10 ++++--
- lib/s390x/sie.c                         | 31 ++++++++++++++++++
- lib/s390x/snippet-host.c                | 42 +++++++++++++++++++++++++
- lib/s390x/uv.c                          |  2 +-
- s390x/mvpg-sie.c                        |  2 +-
- s390x/pv-diags.c                        |  2 +-
- s390x/pv-icptcode.c                     |  2 +-
- s390x/pv-ipl.c                          |  2 +-
- s390x/sie-dat.c                         |  2 +-
- s390x/spec_ex-sie.c                     |  2 +-
- s390x/uv-host.c                         |  2 +-
- 15 files changed, 129 insertions(+), 11 deletions(-)
- create mode 100644 lib/s390x/snippet-guest.h
- rename lib/s390x/{snippet.h => snippet-host.h} (92%)
- create mode 100644 lib/s390x/snippet-host.c
+LGTM,
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index f79fd009..a10695a2 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -109,6 +109,7 @@ cflatobjs += lib/s390x/css_lib.o
- cflatobjs += lib/s390x/malloc_io.o
- cflatobjs += lib/s390x/uv.o
- cflatobjs += lib/s390x/sie.o
-+cflatobjs += lib/s390x/snippet-host.o
- cflatobjs += lib/s390x/fault.o
- 
- OBJDIRS += lib/s390x
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index 745a3387..db04deca 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -504,4 +504,17 @@ static inline uint32_t get_prefix(void)
- 	return current_prefix;
- }
- 
-+static inline void diag44(void)
-+{
-+	asm volatile("diag	0,0,0x44\n");
-+}
-+
-+static inline void diag9c(uint64_t val)
-+{
-+	asm volatile("diag	%[val],0,0x9c\n"
-+		:
-+		: [val] "d"(val)
-+	);
-+}
-+
- #endif
-diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
-index c1724cf2..18fdd72e 100644
---- a/lib/s390x/sie.h
-+++ b/lib/s390x/sie.h
-@@ -281,6 +281,7 @@ void sie_expect_validity(struct vm *vm);
- uint16_t sie_get_validity(struct vm *vm);
- void sie_check_validity(struct vm *vm, uint16_t vir_exp);
- void sie_handle_validity(struct vm *vm);
-+bool sie_is_diag_icpt(struct vm *vm, unsigned int diag);
- void sie_guest_sca_create(struct vm *vm);
- void sie_guest_create(struct vm *vm, uint64_t guest_mem, uint64_t guest_mem_len);
- void sie_guest_destroy(struct vm *vm);
-diff --git a/lib/s390x/snippet-guest.h b/lib/s390x/snippet-guest.h
-new file mode 100644
-index 00000000..e82e8e29
---- /dev/null
-+++ b/lib/s390x/snippet-guest.h
-@@ -0,0 +1,26 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Snippet functionality for the guest.
-+ *
-+ * Copyright IBM Corp. 2023
-+ */
-+
-+#ifndef _S390X_SNIPPET_GUEST_H_
-+#define _S390X_SNIPPET_GUEST_H_
-+
-+#include <asm/arch_def.h>
-+#include <asm/barrier.h>
-+
-+static inline void force_exit(void)
-+{
-+	diag44();
-+	mb(); /* allow host to modify guest memory */
-+}
-+
-+static inline void force_exit_value(uint64_t val)
-+{
-+	diag9c(val);
-+	mb(); /* allow host to modify guest memory */
-+}
-+
-+#endif
-diff --git a/lib/s390x/snippet.h b/lib/s390x/snippet-host.h
-similarity index 92%
-rename from lib/s390x/snippet.h
-rename to lib/s390x/snippet-host.h
-index 910849aa..230b25b0 100644
---- a/lib/s390x/snippet.h
-+++ b/lib/s390x/snippet-host.h
-@@ -1,13 +1,13 @@
- /* SPDX-License-Identifier: GPL-2.0-only */
- /*
-- * Snippet definitions
-+ * Snippet functionality for the host.
-  *
-  * Copyright IBM Corp. 2021
-  * Author: Janosch Frank <frankja@linux.ibm.com>
-  */
- 
--#ifndef _S390X_SNIPPET_H_
--#define _S390X_SNIPPET_H_
-+#ifndef _S390X_SNIPPET_HOST_H_
-+#define _S390X_SNIPPET_HOST_H_
- 
- #include <sie.h>
- #include <uv.h>
-@@ -144,4 +144,8 @@ static inline void snippet_setup_guest(struct vm *vm, bool is_pv)
- 	}
- }
- 
-+bool snippet_is_force_exit(struct vm *vm);
-+bool snippet_is_force_exit_value(struct vm *vm);
-+uint64_t snippet_get_force_exit_value(struct vm *vm);
-+void snippet_check_force_exit_value(struct vm *vm, uint64_t exit_exp);
- #endif
-diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
-index 40936bd2..6bda493d 100644
---- a/lib/s390x/sie.c
-+++ b/lib/s390x/sie.c
-@@ -42,6 +42,37 @@ void sie_check_validity(struct vm *vm, uint16_t vir_exp)
- 	report(vir_exp == vir, "VALIDITY: %x", vir);
- }
- 
-+bool sie_is_diag_icpt(struct vm *vm, unsigned int diag)
-+{
-+	union {
-+		struct {
-+			uint64_t     : 16;
-+			uint64_t ipa : 16;
-+			uint64_t ipb : 32;
-+		};
-+		struct {
-+			uint64_t          : 16;
-+			uint64_t opcode   :  8;
-+			uint64_t r_1      :  4;
-+			uint64_t r_2      :  4;
-+			uint64_t r_base   :  4;
-+			uint64_t displace : 12;
-+			uint64_t zero     : 16;
-+		};
-+	} instr = { .ipa = vm->sblk->ipa, .ipb = vm->sblk->ipb };
-+	uint64_t code;
-+
-+	assert(diag == 0x44 || diag == 0x9c);
-+
-+	if (vm->sblk->icptcode != ICPT_INST)
-+		return false;
-+	if (instr.opcode != 0x83 || instr.zero)
-+		return false;
-+	code = instr.r_base ? vm->save_area.guest.grs[instr.r_base] : 0;
-+	code = (code + instr.displace) & 0xffff;
-+	return code == diag;
-+}
-+
- void sie_handle_validity(struct vm *vm)
- {
- 	if (vm->sblk->icptcode != ICPT_VALIDITY)
-diff --git a/lib/s390x/snippet-host.c b/lib/s390x/snippet-host.c
-new file mode 100644
-index 00000000..44a60bb9
---- /dev/null
-+++ b/lib/s390x/snippet-host.c
-@@ -0,0 +1,42 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Snippet functionality for the host.
-+ *
-+ * Copyright IBM Corp. 2023
-+ */
-+
-+#include <libcflat.h>
-+#include <snippet-host.h>
-+#include <sie.h>
-+
-+bool snippet_is_force_exit(struct vm *vm)
-+{
-+	return sie_is_diag_icpt(vm, 0x44);
-+}
-+
-+bool snippet_is_force_exit_value(struct vm *vm)
-+{
-+	return sie_is_diag_icpt(vm, 0x9c);
-+}
-+
-+uint64_t snippet_get_force_exit_value(struct vm *vm)
-+{
-+	struct kvm_s390_sie_block *sblk = vm->sblk;
-+
-+	assert(snippet_is_force_exit_value(vm));
-+
-+	return vm->save_area.guest.grs[(sblk->ipa & 0xf0) >> 4];
-+}
-+
-+void snippet_check_force_exit_value(struct vm *vm, uint64_t value_exp)
-+{
-+	uint64_t value;
-+
-+	if (snippet_is_force_exit_value(vm)) {
-+		value = snippet_get_force_exit_value(vm);
-+		report(value == value_exp, "guest forced exit with value (0x%lx == 0x%lx)",
-+		       value, value_exp);
-+	} else {
-+		report_fail("guest forced exit with value");
-+	}
-+}
-diff --git a/lib/s390x/uv.c b/lib/s390x/uv.c
-index 23a86179..81e9a71e 100644
---- a/lib/s390x/uv.c
-+++ b/lib/s390x/uv.c
-@@ -18,7 +18,7 @@
- #include <asm/uv.h>
- #include <uv.h>
- #include <sie.h>
--#include <snippet.h>
-+#include <snippet-host.h>
- 
- static struct uv_cb_qui uvcb_qui = {
- 	.header.cmd = UVC_CMD_QUI,
-diff --git a/s390x/mvpg-sie.c b/s390x/mvpg-sie.c
-index d182b49a..3aec9d71 100644
---- a/s390x/mvpg-sie.c
-+++ b/s390x/mvpg-sie.c
-@@ -19,7 +19,7 @@
- #include <alloc_page.h>
- #include <sclp.h>
- #include <sie.h>
--#include <snippet.h>
-+#include <snippet-host.h>
- 
- static struct vm vm;
- 
-diff --git a/s390x/pv-diags.c b/s390x/pv-diags.c
-index 3193ad99..7fb7f091 100644
---- a/s390x/pv-diags.c
-+++ b/s390x/pv-diags.c
-@@ -8,7 +8,7 @@
-  *  Janosch Frank <frankja@linux.ibm.com>
-  */
- #include <libcflat.h>
--#include <snippet.h>
-+#include <snippet-host.h>
- #include <pv_icptdata.h>
- #include <sie.h>
- #include <sclp.h>
-diff --git a/s390x/pv-icptcode.c b/s390x/pv-icptcode.c
-index d7c47d6f..9a9c7357 100644
---- a/s390x/pv-icptcode.c
-+++ b/s390x/pv-icptcode.c
-@@ -12,7 +12,7 @@
- #include <sie.h>
- #include <smp.h>
- #include <sclp.h>
--#include <snippet.h>
-+#include <snippet-host.h>
- #include <pv_icptdata.h>
- #include <asm/facility.h>
- #include <asm/barrier.h>
-diff --git a/s390x/pv-ipl.c b/s390x/pv-ipl.c
-index cc46e7f7..7d654b84 100644
---- a/s390x/pv-ipl.c
-+++ b/s390x/pv-ipl.c
-@@ -10,7 +10,7 @@
- #include <libcflat.h>
- #include <sie.h>
- #include <sclp.h>
--#include <snippet.h>
-+#include <snippet-host.h>
- #include <pv_icptdata.h>
- #include <asm/facility.h>
- #include <asm/uv.h>
-diff --git a/s390x/sie-dat.c b/s390x/sie-dat.c
-index f0257770..9e60f26e 100644
---- a/s390x/sie-dat.c
-+++ b/s390x/sie-dat.c
-@@ -16,7 +16,7 @@
- #include <alloc_page.h>
- #include <sclp.h>
- #include <sie.h>
--#include <snippet.h>
-+#include <snippet-host.h>
- #include "snippets/c/sie-dat.h"
- 
- static struct vm vm;
-diff --git a/s390x/spec_ex-sie.c b/s390x/spec_ex-sie.c
-index fe2f23ee..0ad7ec08 100644
---- a/s390x/spec_ex-sie.c
-+++ b/s390x/spec_ex-sie.c
-@@ -13,7 +13,7 @@
- #include <asm/arch_def.h>
- #include <alloc_page.h>
- #include <sie.h>
--#include <snippet.h>
-+#include <snippet-host.h>
- #include <hardware.h>
- 
- static struct vm vm;
-diff --git a/s390x/uv-host.c b/s390x/uv-host.c
-index 55b46446..87d108b6 100644
---- a/s390x/uv-host.c
-+++ b/s390x/uv-host.c
-@@ -15,7 +15,7 @@
- #include <sclp.h>
- #include <smp.h>
- #include <uv.h>
--#include <snippet.h>
-+#include <snippet-host.h>
- #include <mmu.h>
- #include <asm/page.h>
- #include <asm/pgtable.h>
--- 
-2.43.0
+Acked-by: Andrew Jones <andrew.jones@linux.dev>
 
+Thanks,
+drew
