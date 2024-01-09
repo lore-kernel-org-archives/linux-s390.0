@@ -1,362 +1,134 @@
-Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E59E54662
-	for <linux-s390@vger.kernel.org>; Mon,  8 Jan 2024 17:13:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2760A24B58;
+	Tue,  9 Jan 2024 08:28:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="OYb1jAD4"
-Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-a277339dcf4so214031466b.2
-        for <linux-s390@vger.kernel.org>; Mon, 08 Jan 2024 09:13:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1704734024; x=1705338824; darn=vger.kernel.org;
-        h=mime-version:user-agent:references:in-reply-to:date:cc:to:from
-         :subject:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=72yIapf26W3MTkOxkgeYpNT24vmOx9hCDSp11cnRh3s=;
-        b=OYb1jAD4fm4WbmGYD+hTMiaFLJfHqjWk0jy0NJbejKwfOui6rN7Qc/GbhdDYo8hCir
-         8Yu5ygaUADiWDNqTiIExrtu5pzGD6+t+DdpJ0XZDEjW7JlQRuy8KHQH3W+zciFiWRjeT
-         jYC1g18HnpBZ95uYoi+L4TUpKkpOMeRwynqhlAajxlxuWZvl3cHroRhyHdDIXB+Yor4/
-         RiU3sAwG+ct8IFqCHEQYmZX0UiW8FavhNsjjB7B5gSIifVab/2x5LSJPkZ+gDfSQAXBG
-         a3Bkek3ty2pLdo2KTTIGKc7/p6f0EJVd8clSLHxfEhByCd7Kh30hJ0RBwGQeSc7gSY6A
-         SV/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704734024; x=1705338824;
-        h=mime-version:user-agent:references:in-reply-to:date:cc:to:from
-         :subject:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=72yIapf26W3MTkOxkgeYpNT24vmOx9hCDSp11cnRh3s=;
-        b=mWAEMrUTIL5rtDswiUWrioMPU0MW4CgE+GbhYhvzPNP5UIlfNLtI+cwHkyMEqM/VGb
-         gI8eO4bbNR21k+mckoS+I4juwQ51mzdMTeWB7WkkEkX0zTmreEWq6NEm0YSsWpuwMPJe
-         JtDU+VkCfrhjuHJnbdCvhebnrw+9G8m4Bb0DbQkBI+zuukgUPToLw03ZbzRPnPRD1DVE
-         AKxAH8B4YnDMUpK+Hpe63ab81t7dBrJvPz1hkra8tO48nusqtOR7TTVAVNHGj7v5a/TE
-         K0EeY+htwqMEvupWLZ3XpFGlPLeT74qwZx7b7mT8aX5dG16xgiTzisLiPinM9ULnIBiC
-         72Qw==
-X-Gm-Message-State: AOJu0YwcqYsuIRwPvd+vbYajXz+hmYQykcMdC1zvLmSQc9FrpRVxDgAZ
-	3Qq/L7hpNxHewBHKi9YWfdtUKvuiF9GlaQ==
-X-Google-Smtp-Source: AGHT+IH3cJA9S6q1KPJzco1BqKJ4kBMUC//wsZrUlu+DcpJtcQRDkqowbqPMEs8Y0NjueYWPNrObiQ==
-X-Received: by 2002:a17:906:158f:b0:a23:482:ee74 with SMTP id k15-20020a170906158f00b00a230482ee74mr2177935ejd.28.1704734024389;
-        Mon, 08 Jan 2024 09:13:44 -0800 (PST)
-Received: from ?IPv6:2804:30c:1668:b300:8fcd:588d:fb77:ed04? ([2804:30c:1668:b300:8fcd:588d:fb77:ed04])
-        by smtp.gmail.com with ESMTPSA id t7-20020a02ab87000000b00466754ca2fesm70249jan.68.2024.01.08.09.13.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jan 2024 09:13:43 -0800 (PST)
-Message-ID: <11c112df801008f6bc4b7813645d505388894e29.camel@suse.com>
-Subject: Re: [PATCH RESEND v4 1/3] kselftests: lib.mk: Add TEST_GEN_MODS_DIR
- variable
-From: Marcos Paulo de Souza <mpdesouza@suse.com>
-To: Shuah Khan <skhan@linuxfoundation.org>, Joe Lawrence
-	 <joe.lawrence@redhat.com>
-Cc: Shuah Khan <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Heiko
- Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
- Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>,  Sven Schnelle <svens@linux.ibm.com>, Josh
- Poimboeuf <jpoimboe@kernel.org>, Jiri Kosina <jikos@kernel.org>,  Miroslav
- Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, 
- linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
- live-patching@vger.kernel.org
-Date: Mon, 08 Jan 2024 14:13:37 -0300
-In-Reply-To: <4fb169fd-393c-441e-b0f7-32a3777c1d11@linuxfoundation.org>
-References: <20231220-send-lp-kselftests-v4-0-3458ec1b1a38@suse.com>
-	 <20231220-send-lp-kselftests-v4-1-3458ec1b1a38@suse.com>
-	 <ZZSOtsbzpy2mvmUC@redhat.com>
-	 <4fb169fd-393c-441e-b0f7-32a3777c1d11@linuxfoundation.org>
-Content-Type: multipart/mixed; boundary="=-Q9sYUJ/r34p0y6Es/xCH"
-User-Agent: Evolution 3.50.1 
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="L/j5WFUq"
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 4098HbKT023141;
+	Tue, 9 Jan 2024 08:27:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=tmQVfu8T5g6r8ZBSS0dsgBYtzWye/vB2luydVgb+9DM=;
+ b=L/j5WFUqBVicQU+3D0zeyhp/9/ERM4u2/xPoUmgbzEWfMDsmb29zsCaMH8+rEt9F5WA1
+ LT0lX3cMZAAGWO9U7cd00UgGZTnDAdxYvRt6rW2TMBI0GcrPJ0bjh+QVGB05O1bcPfAA
+ IEZc2bFMkhHJYckI7qHC+5vlikuqWoYEZ15YOWwCLgozuqJWC6NvT0a9oLkHj7Pcb2e2
+ zGFVICOqwgfiMZDXjxnH/FQcHKePz4VTaWRT1M7SeLTh16PeQD6dqCsUAXb8sAaEhFsw
+ fLu57zBjS9kHixafPTAPhjiD3nZJieMBTpxxg63c6qsMicqyWV0B3Wr0HC658kYtv69D 1A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vh2gf08hb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 09 Jan 2024 08:27:53 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 4098JI4F028404;
+	Tue, 9 Jan 2024 08:27:52 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vh2gf08gv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 09 Jan 2024 08:27:52 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4095WLWj000926;
+	Tue, 9 Jan 2024 08:27:52 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vfkdk52m3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 09 Jan 2024 08:27:52 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4098RlQb25756350
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 9 Jan 2024 08:27:47 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0B9DB20043;
+	Tue,  9 Jan 2024 08:27:47 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6413C20040;
+	Tue,  9 Jan 2024 08:27:46 +0000 (GMT)
+Received: from [9.171.15.166] (unknown [9.171.15.166])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  9 Jan 2024 08:27:46 +0000 (GMT)
+Message-ID: <d5c3d69e-3405-4cf2-a2e7-0dad7d941e0c@linux.ibm.com>
+Date: Tue, 9 Jan 2024 09:27:46 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 0/6] s390/vfio-ap: reset queues removed from guest's AP
+ configuration
+To: Anthony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, pasic@linux.ibm.com,
+        pbonzini@redhat.com, imbrenda@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com
+References: <20231212212522.307893-1-akrowiak@linux.ibm.com>
+ <11ac008c-9bea-4b34-bc4b-e0d7e7ed9bef@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ xsFNBFubpD4BEADX0uhkRhkj2AVn7kI4IuPY3A8xKat0ihuPDXbynUC77mNox7yvK3X5QBO6
+ qLqYr+qrG3buymJJRD9xkp4mqgasHdB5WR9MhXWKH08EvtvAMkEJLnqxgbqf8td3pCQ2cEpv
+ 15mH49iKSmlTcJ+PvJpGZcq/jE42u9/0YFHhozm8GfQdb9SOI/wBSsOqcXcLTUeAvbdqSBZe
+ zuMRBivJQQI1esD9HuADmxdE7c4AeMlap9MvxvUtWk4ZJ/1Z3swMVCGzZb2Xg/9jZpLsyQzb
+ lDbbTlEeyBACeED7DYLZI3d0SFKeJZ1SUyMmSOcr9zeSh4S4h4w8xgDDGmeDVygBQZa1HaoL
+ Esb8Y4avOYIgYDhgkCh0nol7XQ5i/yKLtnNThubAcxNyryw1xSstnKlxPRoxtqTsxMAiSekk
+ 0m3WJwvwd1s878HrQNK0orWd8BzzlSswzjNfQYLF466JOjHPWFOok9pzRs+ucrs6MUwDJj0S
+ cITWU9Rxb04XyigY4XmZ8dywaxwi2ZVTEg+MD+sPmRrTw+5F+sU83cUstuymF3w1GmyofgsU
+ Z+/ldjToHnq21MNa1wx0lCEipCCyE/8K9B9bg9pUwy5lfx7yORP3JuAUfCYb8DVSHWBPHKNj
+ HTOLb2g2UT65AjZEQE95U2AY9iYm5usMqaWD39pAHfhC09/7NQARAQABzSVKYW5vc2NoIEZy
+ YW5rIDxmcmFua2phQGxpbnV4LmlibS5jb20+wsF3BBMBCAAhBQJbm6Q+AhsjBQsJCAcCBhUI
+ CQoLAgQWAgMBAh4BAheAAAoJEONU5rjiOLn4p9gQALjkdj5euJVI2nNT3/IAxAhQSmRhPEt0
+ AmnCYnuTcHRWPujNr5kqgtyER9+EMQ0ZkX44JU2q7OWxTdSNSAN/5Z7qmOR9JySvDOf4d3mS
+ bMB5zxL9d8SbnSs1uW96H9ZBTlTQnmLfsiM9TetAjSrR8nUmjGhe2YUhJLR1v1LguME+YseT
+ eXnLzIzqqpu311/eYiiIGcmaOjPCE+vFjcXL5oLnGUE73qSYiujwhfPCCUK0850o1fUAYq5p
+ CNBCoKT4OddZR+0itKc/cT6NwEDwdokeg0+rAhxb4Rv5oFO70lziBplEjOxu3dqgIKbHbjza
+ EXTb+mr7VI9O4tTdqrwJo2q9zLqqOfDBi7NDvZFLzaCewhbdEpDYVu6/WxprAY94hY3F4trT
+ rQMHJKQENtF6ZTQc9fcT5I3gAmP+OEvDE5hcTALpWm6Z6SzxO7gEYCnF+qGXqp8sJVrweMub
+ UscyLqHoqdZC2UG4LQ1OJ97nzDpIRe0g6oJ9ZIYHKmfw5jjwH6rASTld5MFWajWdNsqK15k/
+ RZnHAGICKVIBOBsq26m4EsBlfCdt3b/6emuBjUXR1pyjHMz2awWzCq6/6OWs5eANZ0sdosNq
+ dq2v0ULYTazJz2rlCXV89qRa7ukkNwdBSZNEwsD4eEMicj1LSrqWDZMAALw50L4jxaMD7lPL
+ jJbazsFNBFubpD4BEADAcUTRqXF/aY53OSH7IwIK9lFKxIm0IoFkOEh7LMfp7FGzaP7ANrZd
+ cIzhZi38xyOkcaFY+npGEWvko7rlIAn0JpBO4x3hfhmhBD/WSY8LQIFQNNjEm3vzrMo7b9Jb
+ JAqQxfbURY3Dql3GUzeWTG9uaJ00u+EEPlY8zcVShDltIl5PLih20e8xgTnNzx5c110lQSu0
+ iZv2lAE6DM+2bJQTsMSYiwKlwTuv9LI9Chnoo6+tsN55NqyMxYqJgElk3VzlTXSr3+rtSCwf
+ tq2cinETbzxc1XuhIX6pu/aCGnNfuEkM34b7G1D6CPzDMqokNFbyoO6DQ1+fW6c5gctXg/lZ
+ 602iEl4C4rgcr3+EpfoPUWzKeM8JXv5Kpq4YDxhvbitr8Dm8gr38+UKFZKlWLlwhQ56r/zAU
+ v6LIsm11GmFs2/cmgD1bqBTNHHcTWwWtRTLgmnqJbVisMJuYJt4KNPqphTWsPY8SEtbufIlY
+ HXOJ2lqUzOReTrie2u0qcSvGAbSfec9apTFl2Xko/ddqPcZMpKhBiXmY8tJzSPk3+G4tqur4
+ 6TYAm5ouitJsgAR61Cu7s+PNuq/pTLDhK+6/Njmc94NGBcRA4qTuysEGE79vYWP2oIAU4Fv6
+ gqaWHZ4MEI2XTqH8wiwzPdCQPYsSE0fXWiYu7ObeErT6iLSTZGx4rQARAQABwsFfBBgBCAAJ
+ BQJbm6Q+AhsMAAoJEONU5rjiOLn4DDEP/RuyckW65SZcPG4cMfNgWxZF8rVjeVl/9PBfy01K
+ 8R0hajU40bWtXSMiby7j0/dMjz99jN6L+AJHJvrLz4qYRzn2Ys843W+RfXj62Zde4YNBE5SL
+ jJweRCbMWKaJLj6499fctxTyeb9+AMLQS4yRSwHuAZLmAb5AyCW1gBcTWZb8ON5BmWnRqeGm
+ IgC1EvCnHy++aBnHTn0m+zV89BhTLTUal35tcjUFwluBY39R2ux/HNlBO1GY3Z+WYXhBvq7q
+ katThLjaQSmnOrMhzqYmdShP1leFTVbzXUUIYv/GbynO/YrL2gaQpaP1bEUEi8lUAfXJbEWG
+ dnHFkciryi092E8/9j89DJg4mmZqOau7TtUxjRMlBcIliXkzSLUk+QvD4LK1kWievJse4mte
+ FBdkWHfP4BH/+8DxapRcG1UAheSnSRQ5LiO50annOB7oXF+vgKIaie2TBfZxQNGAs3RQ+bga
+ DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
+ Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
+ phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
+In-Reply-To: <11ac008c-9bea-4b34-bc4b-e0d7e7ed9bef@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: fG1fh5tD5JHuOemtKglaevYVIVKCNvTD
+X-Proofpoint-GUID: i6e-3WEvesPxlczIFYvaLbSxmyp2gXwS
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-01-09_03,2024-01-08_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ priorityscore=1501 clxscore=1011 mlxlogscore=470 spamscore=0
+ impostorscore=0 suspectscore=0 adultscore=0 phishscore=0 bulkscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2401090065
 
---=-Q9sYUJ/r34p0y6Es/xCH
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+On 1/8/24 17:52, Anthony Krowiak wrote:
+> PING!
+> 
+You're waiting for review of the last patch, right?
 
-On Wed, 2024-01-03 at 15:09 -0700, Shuah Khan wrote:
-> On 1/2/24 15:31, Joe Lawrence wrote:
-> > On Wed, Dec 20, 2023 at 01:53:12PM -0300, Marcos Paulo de Souza
-> > wrote:
-> > > Add TEST_GEN_MODS_DIR variable for kselftests. It can point to
-> > > a directory containing kernel modules that will be used by
-> > > selftest scripts.
-> > >=20
-> > > The modules are built as external modules for the running kernel.
-> > > As a result they are always binary compatible and the same tests
-> > > can be used for older or newer kernels.
-> > >=20
-> > > The build requires "kernel-devel" package to be installed.
-> > > For example, in the upstream sources, the rpm devel package
-> > > is produced by "make rpm-pkg"
-> > >=20
-> > > The modules can be built independently by
-> > >=20
-> > > =C2=A0=C2=A0 make -C tools/testing/selftests/livepatch/
-> > >=20
-> > > or they will be automatically built before running the tests via
-> > >=20
-> > > =C2=A0=C2=A0 make -C tools/testing/selftests/livepatch/ run_tests
-> > >=20
-> > > Note that they are _not_ built when running the standalone
-> > > tests by calling, for example, ./test-state.sh.
-> > >=20
-> > > Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
-> > > ---
-> > > =C2=A0 Documentation/dev-tools/kselftest.rst |=C2=A0 4 ++++
-> > > =C2=A0 tools/testing/selftests/lib.mk=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 | 20 +++++++++++++++-----
-> > > =C2=A0 2 files changed, 19 insertions(+), 5 deletions(-)
-> > >=20
-> > > diff --git a/Documentation/dev-tools/kselftest.rst
-> > > b/Documentation/dev-tools/kselftest.rst
-> > > index ab376b316c36..7f3582a67318 100644
-> > > --- a/Documentation/dev-tools/kselftest.rst
-> > > +++ b/Documentation/dev-tools/kselftest.rst
-> > > @@ -245,6 +245,10 @@ Contributing new tests (details)
-> > > =C2=A0=C2=A0=C2=A0=C2=A0 TEST_PROGS, TEST_GEN_PROGS mean it is the ex=
-ecutable tested
-> > > by
-> > > =C2=A0=C2=A0=C2=A0=C2=A0 default.
-> > > =C2=A0=20
-> > > +=C2=A0=C2=A0 TEST_GEN_MODS_DIR should be used by tests that require
-> > > modules to be built
-> > > +=C2=A0=C2=A0 before the test starts. The variable will contain the n=
-ame of
-> > > the directory
-> > > +=C2=A0=C2=A0 containing the modules.
-> > > +
-> > > =C2=A0=C2=A0=C2=A0=C2=A0 TEST_CUSTOM_PROGS should be used by tests th=
-at require
-> > > custom build
-> > > =C2=A0=C2=A0=C2=A0=C2=A0 rules and prevent common build rule use.
-> > > =C2=A0=20
-> > > diff --git a/tools/testing/selftests/lib.mk
-> > > b/tools/testing/selftests/lib.mk
-> > > index 118e0964bda9..6c7c5a0112cf 100644
-> > > --- a/tools/testing/selftests/lib.mk
-> > > +++ b/tools/testing/selftests/lib.mk
-> > > @@ -70,12 +70,15 @@ KHDR_INCLUDES :=3D -isystem $(KHDR_DIR)
-> > > =C2=A0 # TEST_PROGS are for test shell scripts.
-> > > =C2=A0 # TEST_CUSTOM_PROGS and TEST_PROGS will be run by common
-> > > run_tests
-> > > =C2=A0 # and install targets. Common clean doesn't touch them.
-> > > +# TEST_GEN_MODS_DIR is used to specify a directory with modules
-> > > to be built
-> > > +# before the test executes. These modules are cleaned on the
-> > > clean target as well.
-> > > =C2=A0 TEST_GEN_PROGS :=3D $(patsubst %,$(OUTPUT)/%,$(TEST_GEN_PROGS)=
-)
-> > > =C2=A0 TEST_GEN_PROGS_EXTENDED :=3D $(patsubst
-> > > %,$(OUTPUT)/%,$(TEST_GEN_PROGS_EXTENDED))
-> > > =C2=A0 TEST_GEN_FILES :=3D $(patsubst %,$(OUTPUT)/%,$(TEST_GEN_FILES)=
-)
-> > > +TEST_GEN_MODS_DIR :=3D $(patsubst
-> > > %,$(OUTPUT)/%,$(TEST_GEN_MODS_DIR))
-> > > =C2=A0=20
-> > > =C2=A0 all: kernel_header_files $(TEST_GEN_PROGS)
-> > > $(TEST_GEN_PROGS_EXTENDED) \
-> > > -=C2=A0=C2=A0=C2=A0=C2=A0 $(TEST_GEN_FILES)
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0 $(TEST_GEN_FILES) $(if $(TEST_GEN_MODS_DIR)=
-,gen_mods_dir)
-> > > =C2=A0=20
-> > > =C2=A0 kernel_header_files:
-> > > =C2=A0=C2=A0	@ls $(KHDR_DIR)/linux/*.h >/dev/null
-> > > 2>/dev/null;=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 \
-> > > @@ -105,8 +108,8 @@ endef
-> > > =C2=A0=20
-> > > =C2=A0 run_tests: all
-> > > =C2=A0 ifdef building_out_of_srctree
-> > > -	@if [
-> > > "X$(TEST_PROGS)$(TEST_PROGS_EXTENDED)$(TEST_FILES)" !=3D "X" ];
-> > > then \
-> > > -		rsync -aq --copy-unsafe-links $(TEST_PROGS)
-> > > $(TEST_PROGS_EXTENDED) $(TEST_FILES) $(OUTPUT); \
-> > > +	@if [
-> > > "X$(TEST_PROGS)$(TEST_PROGS_EXTENDED)$(TEST_FILES)$(TEST_GEN_MODS
-> > > _DIR)" !=3D "X" ]; then \
-> > > +		rsync -aq --copy-unsafe-links $(TEST_PROGS)
-> > > $(TEST_PROGS_EXTENDED) $(TEST_FILES) $(TEST_GEN_MODS_DIR)
-> > > $(OUTPUT); \
-> > > =C2=A0=C2=A0	fi
-> > > =C2=A0=C2=A0	@if [ "X$(TEST_PROGS)" !=3D "X" ]; then \
-> > > =C2=A0=C2=A0		$(call RUN_TESTS, $(TEST_GEN_PROGS)
-> > > $(TEST_CUSTOM_PROGS) \
-> > > @@ -118,6 +121,12 @@ else
-> > > =C2=A0=C2=A0	@$(call RUN_TESTS, $(TEST_GEN_PROGS)
-> > > $(TEST_CUSTOM_PROGS) $(TEST_PROGS))
-> > > =C2=A0 endif
-> > > =C2=A0=20
-> > > +gen_mods_dir:
-> > > +	$(Q)$(MAKE) -C $(TEST_GEN_MODS_DIR)
-> > > +
-> > > +clean_mods_dir:
-> > > +	$(Q)$(MAKE) -C $(TEST_GEN_MODS_DIR) clean
-> > > +
-> > > =C2=A0 define INSTALL_SINGLE_RULE
-> > > =C2=A0=C2=A0	$(if $(INSTALL_LIST),@mkdir -p $(INSTALL_PATH))
-> > > =C2=A0=C2=A0	$(if $(INSTALL_LIST),rsync -a --copy-unsafe-links
-> > > $(INSTALL_LIST) $(INSTALL_PATH)/)
-> > > @@ -131,6 +140,7 @@ define INSTALL_RULE
-> > > =C2=A0=C2=A0	$(eval INSTALL_LIST =3D $(TEST_CUSTOM_PROGS))
-> > > $(INSTALL_SINGLE_RULE)
-> > > =C2=A0=C2=A0	$(eval INSTALL_LIST =3D $(TEST_GEN_PROGS_EXTENDED))
-> > > $(INSTALL_SINGLE_RULE)
-> > > =C2=A0=C2=A0	$(eval INSTALL_LIST =3D $(TEST_GEN_FILES))
-> > > $(INSTALL_SINGLE_RULE)
-> > > +	$(eval INSTALL_LIST =3D $(TEST_GEN_MODS_DIR))
-> > > $(INSTALL_SINGLE_RULE)
-> >=20
-> > Hi Marcos,
-> >=20
-> > Sorry for the late reply on this, but I'm reviewing this version by
-> > trying to retrofit it into our selftest packaging (pre-build the
-> > test
-> > module .ko's and stash those into an rpm rather than building on
-> > the
-> > test host).
-> >=20
-> > Since $TEST_GEN_MODS_DIR is treated as a directory, I found that
-> > the
-> > selftest install target copies a bunch of intermediate object and
-> > kbuild
-> > files:
-> >=20
-> > =C2=A0=C2=A0 $ mkdir /tmp/test-install
-> > =C2=A0=C2=A0 $ make KDIR=3D$(pwd) INSTALL_PATH=3D/tmp/test-install
-> > TARGETS=3Dlivepatch \
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 -C tools/testing/selftests/ =
-install
-> >=20
-> > =C2=A0=C2=A0 [ ... builds livepatch selftests ... ]
-> >=20
-> > the rsync in question:
-> >=20
-> > =C2=A0=C2=A0 rsync -a --copy-unsafe-links
-> > /home/jolawren/src/kernel/tools/testing/selftests/livepatch/test_mo
-> > dules /tmp/test-install/livepatch/
-> > =C2=A0=C2=A0 ...
-> >=20
-> > and then looking at the destination:
-> >=20
-> > =C2=A0=C2=A0 $ tree -a /tmp/test-install/
-> > =C2=A0=C2=A0 /tmp/test-install/
-> > =C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 kselftest
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 module.s=
-h
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 prefix.p=
-l
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=94=E2=94=80=E2=94=80 runner.s=
-h
-> > =C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 kselftest-list.txt
-> > =C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 livepatch
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 config
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 function=
-s.sh
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 settings
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 test-cal=
-lbacks.sh
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 test-ftr=
-ace.sh
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 test_klp=
--call_getpid
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 test-liv=
-epatch.sh
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=94=80=E2=94=80 test_mod=
-ules
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=
-=94=80=E2=94=80 Makefile
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=
-=94=80=E2=94=80 modules.order
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=
-=94=80=E2=94=80 .modules.order.cmd
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=
-=94=80=E2=94=80 Module.symvers
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=
-=94=80=E2=94=80 .Module.symvers.cmd
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=
-=94=80=E2=94=80 test_klp_atomic_replace.c
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=
-=94=80=E2=94=80 test_klp_atomic_replace.ko
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=
-=94=80=E2=94=80 .test_klp_atomic_replace.ko.cmd
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=
-=94=80=E2=94=80 test_klp_atomic_replace.mod
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=
-=94=80=E2=94=80 test_klp_atomic_replace.mod.c
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=
-=94=80=E2=94=80 .test_klp_atomic_replace.mod.cmd
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=
-=94=80=E2=94=80 test_klp_atomic_replace.mod.o
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=
-=94=80=E2=94=80 .test_klp_atomic_replace.mod.o.cmd
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=
-=94=80=E2=94=80 test_klp_atomic_replace.o
-> > =C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=82=C2=A0=C2=A0 =E2=94=9C=E2=
-=94=80=E2=94=80 .test_klp_atomic_replace.o.cmd
-> > =C2=A0=C2=A0 ...
-> >=20
-> > On the other hand, variables like $TEST_GEN_FILES specify
-> > individual
-> > files, so only final binaries like test_klp-call_getpid (and not
-> > test_klp-call_getpid.c) are copied to $INSTALL_PATH.
-
-Hi Joe,
-
-thanks for catching this issue. I crafted the attached patch and it
-fixes the issue for me, copying only the resulting .ko objects as
-expected. Can you please check if this fixes the issue for you?
-
->=20
->=20
-> Thank you Joe for finding this problem.
->=20
-> Copying source files and object files doesn't sound right. This isn't
-> how the ksleftest installs work. Let's fix this.
-
-Hi Shuah,
-
-what do you think about the proposed solution? Could you please amend
-the fix into the first patch if you think it's the right approach?
-
-Thanks in advance!
-  Marcos
-
->=20
-> thanks,
-> --Shuah
->=20
-
-
---=-Q9sYUJ/r34p0y6Es/xCH
-Content-Type: text/x-patch; name="fix.patch"; charset="UTF-8"
-Content-Description: 
-Content-Disposition: inline; filename="fix.patch"
-Content-Transfer-Encoding: base64
-
-ZGlmZiAtLWdpdCBhL3Rvb2xzL3Rlc3Rpbmcvc2VsZnRlc3RzL2xpYi5tayBiL3Rvb2xzL3Rlc3Rp
-bmcvc2VsZnRlc3RzL2xpYi5tawppbmRleCA2YzdjNWEwMTEyY2YuLmQ3N2RkYTU5ZjZhMiAxMDA2
-NDQKLS0tIGEvdG9vbHMvdGVzdGluZy9zZWxmdGVzdHMvbGliLm1rCisrKyBiL3Rvb2xzL3Rlc3Rp
-bmcvc2VsZnRlc3RzL2xpYi5tawpAQCAtMTMyLDYgKzEzMiwxMSBAQCBkZWZpbmUgSU5TVEFMTF9T
-SU5HTEVfUlVMRQogCSQoaWYgJChJTlNUQUxMX0xJU1QpLHJzeW5jIC1hIC0tY29weS11bnNhZmUt
-bGlua3MgJChJTlNUQUxMX0xJU1QpICQoSU5TVEFMTF9QQVRIKS8pCiBlbmRlZgogCitkZWZpbmUg
-SU5TVEFMTF9NT0RTX1JVTEUKKwkkKGlmICQoSU5TVEFMTF9MSVNUKSxAbWtkaXIgLXAgJChJTlNU
-QUxMX1BBVEgpLyQoSU5TVEFMTF9MSVNUKSkKKwkkKGlmICQoSU5TVEFMTF9MSVNUKSxyc3luYyAt
-YSAtLWNvcHktdW5zYWZlLWxpbmtzICQoSU5TVEFMTF9MSVNUKS8qLmtvICQoSU5TVEFMTF9QQVRI
-KS8kKElOU1RBTExfTElTVCkpCitlbmRlZgorCiBkZWZpbmUgSU5TVEFMTF9SVUxFCiAJJChldmFs
-IElOU1RBTExfTElTVCA9ICQoVEVTVF9QUk9HUykpICQoSU5TVEFMTF9TSU5HTEVfUlVMRSkKIAkk
-KGV2YWwgSU5TVEFMTF9MSVNUID0gJChURVNUX1BST0dTX0VYVEVOREVEKSkgJChJTlNUQUxMX1NJ
-TkdMRV9SVUxFKQpAQCAtMTQwLDcgKzE0NSw3IEBAIGRlZmluZSBJTlNUQUxMX1JVTEUKIAkkKGV2
-YWwgSU5TVEFMTF9MSVNUID0gJChURVNUX0NVU1RPTV9QUk9HUykpICQoSU5TVEFMTF9TSU5HTEVf
-UlVMRSkKIAkkKGV2YWwgSU5TVEFMTF9MSVNUID0gJChURVNUX0dFTl9QUk9HU19FWFRFTkRFRCkp
-ICQoSU5TVEFMTF9TSU5HTEVfUlVMRSkKIAkkKGV2YWwgSU5TVEFMTF9MSVNUID0gJChURVNUX0dF
-Tl9GSUxFUykpICQoSU5TVEFMTF9TSU5HTEVfUlVMRSkKLQkkKGV2YWwgSU5TVEFMTF9MSVNUID0g
-JChURVNUX0dFTl9NT0RTX0RJUikpICQoSU5TVEFMTF9TSU5HTEVfUlVMRSkKKwkkKGV2YWwgSU5T
-VEFMTF9MSVNUID0gJChub3RkaXIgJChURVNUX0dFTl9NT0RTX0RJUikpKSAkKElOU1RBTExfTU9E
-U19SVUxFKQogCSQoZXZhbCBJTlNUQUxMX0xJU1QgPSAkKHdpbGRjYXJkIGNvbmZpZyBzZXR0aW5n
-cykpICQoSU5TVEFMTF9TSU5HTEVfUlVMRSkKIGVuZGVmCiAK
-
-
---=-Q9sYUJ/r34p0y6Es/xCH--
