@@ -1,57 +1,49 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1FB63A1C2;
-	Tue,  9 Jan 2024 17:02:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BEB53B185;
+	Tue,  9 Jan 2024 17:09:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="O1ANif+B"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 409Gs88L013291;
-	Tue, 9 Jan 2024 17:02:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=GL00We/Hj++zFV7T+/pO2MmICizRy/fFVj5pNPe+LG0=;
- b=O1ANif+BpBMG6dJ5AkY6O5NAAbwd8rMxFxrmCA30NWznd6Eqfts9MvxwnrBeiuI0mXf5
- Dk63jYwwnIZJRd8zWibDsUBEWVsD4PcefKTlt54a3HghlQOji6tV+GxZ5cEtb80qaQNd
- hJgLLCoVf4C7b5A6Pb5ChGbZMTeQN15Zxf5cVRF4F2cyGNPRDu7rfY+u0aNmjojSekLy
- UWcJqBXjl9IE132WKvpiNxhUvzechX68EJY0ay+s61XeYhiINjEEitExhPtmkQiCNjzW
- dVNhP8daT9tKyviJq0rK7ufKmh3Jy6bUacu4UvUzV/4+0mO24oiWF3+aLqrkSrRlea6q 0g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vh9f11d25-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jan 2024 17:02:28 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 409Gbv77028529;
-	Tue, 9 Jan 2024 17:02:28 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vh9f11d1k-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jan 2024 17:02:28 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 409GhI2N022952;
-	Tue, 9 Jan 2024 17:02:27 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vfj6nfvvk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jan 2024 17:02:27 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 409H2PfU41026230
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 9 Jan 2024 17:02:26 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BC56A5805D;
-	Tue,  9 Jan 2024 17:02:25 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9157B58053;
-	Tue,  9 Jan 2024 17:02:24 +0000 (GMT)
-Received: from [9.61.76.57] (unknown [9.61.76.57])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  9 Jan 2024 17:02:24 +0000 (GMT)
-Message-ID: <24039c50-9079-4ca5-b7b0-867c64d70630@linux.ibm.com>
-Date: Tue, 9 Jan 2024 12:02:23 -0500
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j99ANECe"
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-6d9bd63ec7fso1583377b3a.2;
+        Tue, 09 Jan 2024 09:09:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1704820150; x=1705424950; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=6I/UzxeeSAED7iM7HDuJTONIJ2KKw54eiBxBJsUAF1c=;
+        b=j99ANECehDGuuocIYMlunulYX+Vl6XBPhix7rb+nd9hp/7xCQqvq+hbrFxVyLHyPkX
+         nXCRiHqAiTq1+RbxWuraVjrChCv32HafQKqhWWYxQyF2P7Pf9ONtK4eVAQr32dsRZ2LT
+         +YXPrqweonyHxGWWK+rh3VfvC+iQY8zOX3VpYfaCXZ2sfzvv+T5WRyLU5cH/8kAkJA7y
+         7T6Oegj98jkQfPW5PdBCvLxQlpCWm4vdhBexUo9+ZFHxHWnnn6sLN+ooysadTWf9Ltz5
+         4o4ch/WI2U0kwEydux2yymGKe/TEa/SINNHQLYj6e3Cs66GAm0fzOicBjy142xloFscS
+         soBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1704820150; x=1705424950;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=6I/UzxeeSAED7iM7HDuJTONIJ2KKw54eiBxBJsUAF1c=;
+        b=esJVhO8atwYwjci0nH20sXcEMkVvST3ZWuqMX9tDHIoz0rYVxAKTaqTBVqFEdnKFca
+         3LdvrJ59vtfTBwBMAfDjz7IJMa5ggsnLEJj1Tcu1PqP/qkulGddaaPBaEe3IWbI1YE8t
+         ODwETJXu1TbfUhsQKeLcogxYcBWUeLkvSLgns9cA8tQj9twFWp6B6YGW55h4BqCbeTij
+         m5kvTqUiIV3VSOS6FGMIz1jPhytWgcmFCs+GLfKl1dVIQIj9NLRqSTDj4Erfxctir45W
+         4Y4n3JCt9mOW1Dy466hQBr1ECXlx6jRNwXIFHn+R2OphUvxXITMNsp2RcaJ/oWhwFz/h
+         N1Hg==
+X-Gm-Message-State: AOJu0YwhHFma3Xs/M6UR8I+gKrc0vjwMGw6D50X+p4ikElFpfPLDZR1n
+	7dXsrdbjaVaGo5qpsiJYRyU=
+X-Google-Smtp-Source: AGHT+IGbHBY87b9+cLnBphbm2WrEUcTqTZw78s+6rmXGcCu4D5i3IsBr6slXU6F3gt+g15APEjnJqQ==
+X-Received: by 2002:a05:6a20:a104:b0:19a:13f0:d739 with SMTP id q4-20020a056a20a10400b0019a13f0d739mr166549pzk.38.1704820150114;
+        Tue, 09 Jan 2024 09:09:10 -0800 (PST)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id p30-20020a056a0026de00b006d99c6c0f1fsm1904760pfw.100.2024.01.09.09.09.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 09 Jan 2024 09:09:09 -0800 (PST)
+Message-ID: <9e1bb616-35b9-492c-be9a-011943b59d0c@gmail.com>
+Date: Tue, 9 Jan 2024 09:09:00 -0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -59,55 +51,51 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] s390/vfio-ap: handle response code 01 on queue reset
+Subject: Re: [PATCH 1/4] arm: ptdump: Rename CONFIG_DEBUG_WX to
+ CONFIG_ARM_DEBUG_WX
 Content-Language: en-US
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, alex.williamson@redhat.com,
-        borntraeger@linux.ibm.com, kwankhede@nvidia.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, david@redhat.com
-References: <20231129143529.260264-1-akrowiak@linux.ibm.com>
- <20231204131045.217586a3.pasic@linux.ibm.com>
- <7c0d0ad2-b814-47b1-80e9-28ad62af6476@linux.ibm.com>
- <20231204230529.07bf7b79.pasic@linux.ibm.com>
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20231204230529.07bf7b79.pasic@linux.ibm.com>
+To: Christophe Leroy <christophe.leroy@csgroup.eu>,
+ linux-hardening@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+ "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+ Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
+ <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+ Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-mm@kvack.org, steven.price@arm.com,
+ Phong Tran <tranmanphong@gmail.com>, mark.rutland@arm.com,
+ Greg KH <greg@kroah.com>
+References: <cover.1704800524.git.christophe.leroy@csgroup.eu>
+ <d651269a681150f9bdca8103434fb3f4b509f784.1704800524.git.christophe.leroy@csgroup.eu>
+From: Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <d651269a681150f9bdca8103434fb3f4b509f784.1704800524.git.christophe.leroy@csgroup.eu>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: EKTpzFenP7RQVItR8gAewm7M5tGDlGK2
-X-Proofpoint-ORIG-GUID: FLQqTuYp54GV8gCG2C8IuFn5uHNLUNjs
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-09_08,2024-01-09_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
- mlxlogscore=786 adultscore=0 malwarescore=0 mlxscore=0 phishscore=0
- lowpriorityscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2311290000 definitions=main-2401090138
 
+On 1/9/24 04:14, Christophe Leroy wrote:
+> CONFIG_DEBUG_WX is a core option defined in mm/Kconfig.debug
+> 
+> To avoid any future conflict, rename ARM version
+> into CONFIG_ARM_DEBUG_WX.
+> 
+> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-On 12/4/23 5:05 PM, Halil Pasic wrote:
-> On Mon, 4 Dec 2023 12:51:49 -0500
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->
->>> s/if\/when/at latest before/
->>>
->>> I would argue that some of the cleanups need to happen before even 01 is
->>> reflected...
->> To what cleanups are you referring?
-> Event notification and interruption disablement for starters. Otherwise
-> OS has no way to figure out when is GISA and NIB safe to deallocate.
-> Those actions are part of the reset process. I.e. some of the reset stuff
-> can be deferred at most until the queue is made accessible again, some
-> not so much.
+Looks fine, you might also want to 
+s/CONFIG_DEBUG_WX/CONFIG_ARM_DEBUG_WX/ in 
+arch/arm/configs/aspeed_g{4,5}_defconfig so there are no surprises when 
+people pull in those changes.
+-- 
+Florian
 
-
-How do you propose we disable interrupts if the PQAP(AQIC) will likely 
-fail with response code 01 which is the subject of this patch? Do you 
-think we should not free up the AQIC resources as we do in this patch?
-
-
->   
->
-> Regards,
-> Halil
