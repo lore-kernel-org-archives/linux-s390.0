@@ -1,30 +1,30 @@
 Received: from pegase1.c-s.fr (pegase1.c-s.fr [93.17.236.30])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46B2738F8A;
-	Tue,  9 Jan 2024 12:15:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D8F5364AE;
+	Tue,  9 Jan 2024 12:50:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
 Received: from localhost (mailhub3.si.c-s.fr [192.168.12.233])
-	by localhost (Postfix) with ESMTP id 4T8VHY0sNRz9v7N;
-	Tue,  9 Jan 2024 13:15:05 +0100 (CET)
+	by localhost (Postfix) with ESMTP id 4T8VHN1DB7z9v5M;
+	Tue,  9 Jan 2024 13:14:56 +0100 (CET)
 X-Virus-Scanned: amavisd-new at c-s.fr
 Received: from pegase1.c-s.fr ([192.168.12.234])
 	by localhost (pegase1.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0ozAHoRKaJAh; Tue,  9 Jan 2024 13:15:05 +0100 (CET)
+	with ESMTP id 3UZY3QTji_ou; Tue,  9 Jan 2024 13:14:56 +0100 (CET)
 Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-	by pegase1.c-s.fr (Postfix) with ESMTP id 4T8VHY02Bvz9v2V;
-	Tue,  9 Jan 2024 13:15:05 +0100 (CET)
+	by pegase1.c-s.fr (Postfix) with ESMTP id 4T8VHN0Hfvz9v2V;
+	Tue,  9 Jan 2024 13:14:56 +0100 (CET)
 Received: from localhost (localhost [127.0.0.1])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id ECE6E8B774;
-	Tue,  9 Jan 2024 13:15:04 +0100 (CET)
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id 003308B77D;
+	Tue,  9 Jan 2024 13:14:55 +0100 (CET)
 X-Virus-Scanned: amavisd-new at c-s.fr
 Received: from messagerie.si.c-s.fr ([127.0.0.1])
 	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-	with ESMTP id FZoHIGzf4vrQ; Tue,  9 Jan 2024 13:15:04 +0100 (CET)
+	with ESMTP id HBR04NexVvw3; Tue,  9 Jan 2024 13:14:55 +0100 (CET)
 Received: from PO20335.idsi0.si.c-s.fr (unknown [192.168.233.126])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id 313958B77D;
-	Tue,  9 Jan 2024 13:15:03 +0100 (CET)
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id 6EFF18B774;
+	Tue,  9 Jan 2024 13:14:54 +0100 (CET)
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
 To: linux-hardening@vger.kernel.org,
 	Russell King <linux@armlinux.org.uk>,
@@ -64,69 +64,68 @@ Cc: Christophe Leroy <christophe.leroy@csgroup.eu>,
 	Phong Tran <tranmanphong@gmail.com>,
 	mark.rutland@arm.com,
 	Greg KH <greg@kroah.com>
-Subject: [PATCH 4/4] ptdump: add check_wx_pages debugfs attribute
-Date: Tue,  9 Jan 2024 13:14:38 +0100
-Message-ID: <2e8806da45a4b00249d5c449130b5f9ce78b3403.1704800524.git.christophe.leroy@csgroup.eu>
+Subject: [PATCH 0/4] Refactor CONFIG_DEBUG_WX and check_wx_pages debugfs attribute
+Date: Tue,  9 Jan 2024 13:14:34 +0100
+Message-ID: <cover.1704800524.git.christophe.leroy@csgroup.eu>
 X-Mailer: git-send-email 2.41.0
-In-Reply-To: <cover.1704800524.git.christophe.leroy@csgroup.eu>
-References: <cover.1704800524.git.christophe.leroy@csgroup.eu>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1704802474; l=1205; i=christophe.leroy@csgroup.eu; s=20211009; h=from:subject:message-id; bh=GHXEAlv0k5WPsTIzSlwSomj0miEDu7ks2lV9a6+wMCY=; b=ibzm/cyPs51Q7IIlWinvVhCDJTVa2O93PdiVEWCD+bsWH/ncfG8IK1blTnxut+3ypcbloBgn2 fQjuoG4nNpPArnos+jqQxEly3FXt6Jg7j8Ye6GzOwyRghOCV7gDmUAh
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1704802473; l=2144; i=christophe.leroy@csgroup.eu; s=20211009; h=from:subject:message-id; bh=Rosrc8SJ5lP3rVnXrjZMc3fjClOukQO/LV2fzgZVpQs=; b=s3Okt6I7tVLtHH9cIsW0wOp8leAGxF9lRsidic0YqOYcxb/GPUWk/wsLaGOrOrDVlBeQJRl4d A3TZyNi11uFDTOsNtgCv9Dd/0t2LrUpaUdzKjfrAy93UgJ/oTqyg9E5
 X-Developer-Key: i=christophe.leroy@csgroup.eu; a=ed25519; pk=HIzTzUj91asvincQGOFx6+ZF5AoUuP9GdOtQChs7Mm0=
 Content-Transfer-Encoding: 8bit
 
-Add a writable attribute in debugfs to trigger a
-W^X pages check at any time.
+Refer old discussion at https://lore.kernel.org/lkml/20200422152656.GF676@willie-the-truck/T/#m802eaf33efd6f8d575939d157301b35ac0d4a64f
+And https://github.com/KSPP/linux/issues/35
 
-To trigger the test, just echo any numeric value into
-/sys/kernel/debug/check_wx_pages
+This series refactors CONFIG_DEBUG_WX for the 5 architectures
+implementing CONFIG_GENERIC_PTDUMP
 
-The result is provided into dmesg.
+First rename stuff in ARM which uses similar names while not
+implementing CONFIG_GENERIC_PTDUMP.
 
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
----
- mm/ptdump.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+Then define a generic version of debug_checkwx() that calls
+ptdump_check_wx() when CONFIG_DEBUG_WX is set. Call it immediately
+after calling mark_rodata_ro() instead of calling it at the end of
+every mark_rodata_ro().
 
-diff --git a/mm/ptdump.c b/mm/ptdump.c
-index 03c1bdae4a43..e154099c2584 100644
---- a/mm/ptdump.c
-+++ b/mm/ptdump.c
-@@ -1,6 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
- 
- #include <linux/pagewalk.h>
-+#include <linux/debugfs.h>
- #include <linux/ptdump.h>
- #include <linux/kasan.h>
- 
-@@ -163,3 +164,21 @@ void ptdump_walk_pgd(struct ptdump_state *st, struct mm_struct *mm, pgd_t *pgd)
- 	/* Flush out the last page */
- 	st->note_page(st, 0, -1, 0);
- }
-+
-+static int check_wx_debugfs_set(void *data, u64 val)
-+{
-+	ptdump_check_wx();
-+
-+	return 0;
-+}
-+
-+DEFINE_SIMPLE_ATTRIBUTE(check_wx_fops, NULL, check_wx_debugfs_set, "%llu\n");
-+
-+static int ptdump_debugfs_init(void)
-+{
-+	debugfs_create_file("check_wx_pages", 0200, NULL, NULL, &check_wx_fops);
-+
-+	return 0;
-+}
-+
-+device_initcall(ptdump_debugfs_init);
+Then implement a debugfs attribute that can be used to trigger
+a W^X test at anytime and regardless of CONFIG_DEBUG_WX
+
+Christophe Leroy (4):
+  arm: ptdump: Rename CONFIG_DEBUG_WX to CONFIG_ARM_DEBUG_WX
+  arm64, powerpc, riscv, s390, x86: Refactor CONFIG_DEBUG_WX
+  powerpc,s390: Define ptdump_check_wx() regardless of CONFIG_DEBUG_WX
+  ptdump: add check_wx_pages debugfs attribute
+
+ arch/arm/Kconfig.debug          |  2 +-
+ arch/arm/include/asm/ptdump.h   |  6 +++---
+ arch/arm64/include/asm/ptdump.h |  7 -------
+ arch/arm64/mm/mmu.c             |  2 --
+ arch/powerpc/mm/mmu_decl.h      |  6 ------
+ arch/powerpc/mm/pgtable_32.c    |  4 ----
+ arch/powerpc/mm/pgtable_64.c    |  3 ---
+ arch/powerpc/mm/ptdump/ptdump.c | 10 ++++++----
+ arch/riscv/include/asm/ptdump.h | 22 ----------------------
+ arch/riscv/mm/init.c            |  3 ---
+ arch/riscv/mm/ptdump.c          |  1 -
+ arch/s390/include/asm/ptdump.h  | 14 --------------
+ arch/s390/mm/dump_pagetables.c  |  8 ++------
+ arch/s390/mm/init.c             |  2 --
+ arch/x86/include/asm/pgtable.h  |  3 +--
+ arch/x86/mm/dump_pagetables.c   |  3 +++
+ arch/x86/mm/init_32.c           |  2 --
+ arch/x86/mm/init_64.c           |  2 --
+ include/linux/ptdump.h          |  7 +++++++
+ init/main.c                     |  2 ++
+ mm/ptdump.c                     | 19 +++++++++++++++++++
+ 21 files changed, 44 insertions(+), 84 deletions(-)
+ delete mode 100644 arch/riscv/include/asm/ptdump.h
+ delete mode 100644 arch/s390/include/asm/ptdump.h
+
 -- 
 2.41.0
 
