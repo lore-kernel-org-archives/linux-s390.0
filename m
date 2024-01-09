@@ -1,57 +1,57 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDD643A26E;
-	Tue,  9 Jan 2024 16:41:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1FB63A1C2;
+	Tue,  9 Jan 2024 17:02:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GO3ICfKv"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 409GbbS0020661;
-	Tue, 9 Jan 2024 16:41:26 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="O1ANif+B"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 409Gs88L013291;
+	Tue, 9 Jan 2024 17:02:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=rdy7cRVvDz1ivprbP/Jb3r7TRUspqYk3N6p4pQ6+aSg=;
- b=GO3ICfKv9N9aAtOuM6b0gI0895ZJm4XW/JIOjrPnEoEs4gFYni3OwiAdCSEMoSdwM5uJ
- JgzDeb8PvrwjpE4tzY784+bEAEE2O+q056ilDI6nNU7j3mYKx6jNOZNkT8bP+Nln1KGU
- EqOGWjou4ZK/we/Sm7+Oe0U9rhDsx5d4/Mg5ns+RHrGW72af3vf5Me1g+eQPKZDWsY1a
- XCSuTtpWhI+tntHCtpf+wMqZ2B7OR4RvgSyBDZOOgbvf6CZvyqYux6ew2Pt9JWwL5DB7
- 4gbUeg/Lh9em6f7msNAsQl8WdRyJa76ffzPxQJIH3zhK5v9UjZ3dRn/HjuZ6P9QkkYqa Xg== 
+ bh=GL00We/Hj++zFV7T+/pO2MmICizRy/fFVj5pNPe+LG0=;
+ b=O1ANif+BpBMG6dJ5AkY6O5NAAbwd8rMxFxrmCA30NWznd6Eqfts9MvxwnrBeiuI0mXf5
+ Dk63jYwwnIZJRd8zWibDsUBEWVsD4PcefKTlt54a3HghlQOji6tV+GxZ5cEtb80qaQNd
+ hJgLLCoVf4C7b5A6Pb5ChGbZMTeQN15Zxf5cVRF4F2cyGNPRDu7rfY+u0aNmjojSekLy
+ UWcJqBXjl9IE132WKvpiNxhUvzechX68EJY0ay+s61XeYhiINjEEitExhPtmkQiCNjzW
+ dVNhP8daT9tKyviJq0rK7ufKmh3Jy6bUacu4UvUzV/4+0mO24oiWF3+aLqrkSrRlea6q 0g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vh9tt04bm-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vh9f11d25-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jan 2024 16:41:25 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 409GdnWE029564;
-	Tue, 9 Jan 2024 16:41:24 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vh9tt043v-1
+	Tue, 09 Jan 2024 17:02:28 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 409Gbv77028529;
+	Tue, 9 Jan 2024 17:02:28 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vh9f11d1k-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jan 2024 16:41:24 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 409Fsu9E028027;
-	Tue, 9 Jan 2024 16:41:06 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vgwfsks99-1
+	Tue, 09 Jan 2024 17:02:28 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 409GhI2N022952;
+	Tue, 9 Jan 2024 17:02:27 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vfj6nfvvk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Jan 2024 16:41:06 +0000
+	Tue, 09 Jan 2024 17:02:27 +0000
 Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 409Gf5wB27132596
+	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 409H2PfU41026230
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 9 Jan 2024 16:41:05 GMT
+	Tue, 9 Jan 2024 17:02:26 GMT
 Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0372658053;
-	Tue,  9 Jan 2024 16:41:05 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id BC56A5805D;
+	Tue,  9 Jan 2024 17:02:25 +0000 (GMT)
 Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D82485805D;
-	Tue,  9 Jan 2024 16:41:03 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 9157B58053;
+	Tue,  9 Jan 2024 17:02:24 +0000 (GMT)
 Received: from [9.61.76.57] (unknown [9.61.76.57])
 	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  9 Jan 2024 16:41:03 +0000 (GMT)
-Message-ID: <bc5d11db-fb7a-4975-8896-d1cf271a8f95@linux.ibm.com>
-Date: Tue, 9 Jan 2024 11:41:03 -0500
+	Tue,  9 Jan 2024 17:02:24 +0000 (GMT)
+Message-ID: <24039c50-9079-4ca5-b7b0-867c64d70630@linux.ibm.com>
+Date: Tue, 9 Jan 2024 12:02:23 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -59,48 +59,55 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/6] s390/vfio-ap: reset queues removed from guest's AP
- configuration
-To: Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, pasic@linux.ibm.com,
-        pbonzini@redhat.com, imbrenda@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com
-References: <20231212212522.307893-1-akrowiak@linux.ibm.com>
- <11ac008c-9bea-4b34-bc4b-e0d7e7ed9bef@linux.ibm.com>
- <d5c3d69e-3405-4cf2-a2e7-0dad7d941e0c@linux.ibm.com>
+Subject: Re: [PATCH] s390/vfio-ap: handle response code 01 on queue reset
 Content-Language: en-US
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com, alex.williamson@redhat.com,
+        borntraeger@linux.ibm.com, kwankhede@nvidia.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com
+References: <20231129143529.260264-1-akrowiak@linux.ibm.com>
+ <20231204131045.217586a3.pasic@linux.ibm.com>
+ <7c0d0ad2-b814-47b1-80e9-28ad62af6476@linux.ibm.com>
+ <20231204230529.07bf7b79.pasic@linux.ibm.com>
 From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <d5c3d69e-3405-4cf2-a2e7-0dad7d941e0c@linux.ibm.com>
+In-Reply-To: <20231204230529.07bf7b79.pasic@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: gjl9uLGpBX2_lzvNfSlBZCnF4fWKIFNm
-X-Proofpoint-GUID: YBIf8ZPezp6etBNrnQaKK32bBIIS1DOX
+X-Proofpoint-GUID: EKTpzFenP7RQVItR8gAewm7M5tGDlGK2
+X-Proofpoint-ORIG-GUID: FLQqTuYp54GV8gCG2C8IuFn5uHNLUNjs
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-01-09_08,2024-01-09_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 priorityscore=1501 lowpriorityscore=0 spamscore=0
- adultscore=0 phishscore=0 mlxlogscore=756 clxscore=1015 bulkscore=0
- mlxscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401090136
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
+ mlxlogscore=786 adultscore=0 malwarescore=0 mlxscore=0 phishscore=0
+ lowpriorityscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2311290000 definitions=main-2401090138
 
 
-On 1/9/24 3:27 AM, Janosch Frank wrote:
-> On 1/8/24 17:52, Anthony Krowiak wrote:
->> PING!
->>
-> You're waiting for review of the last patch, right?
+On 12/4/23 5:05 PM, Halil Pasic wrote:
+> On Mon, 4 Dec 2023 12:51:49 -0500
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>>> s/if\/when/at latest before/
+>>>
+>>> I would argue that some of the cleanups need to happen before even 01 is
+>>> reflected...
+>> To what cleanups are you referring?
+> Event notification and interruption disablement for starters. Otherwise
+> OS has no way to figure out when is GISA and NIB safe to deallocate.
+> Those actions are part of the reset process. I.e. some of the reset stuff
+> can be deferred at most until the queue is made accessible again, some
+> not so much.
 
 
-Patch 6/6 does not have an r-b, so yes, that is one thing. The other's 
-have been reviewed internally with some receiving only an acked-by, so I 
-guess I'm looking for a final blessing so they can be merged. If I'm not 
-mistaken, the primary problem for which theses patches were created - 
-i.e., not resetting all queues when an adapter is removed from the guest 
-- will cause unique problems for SE guests that are bound/associated. 
-That being the case, I think these patches need to be merged sooner 
-rather than later.
+How do you propose we disable interrupts if the PQAP(AQIC) will likely 
+fail with response code 01 which is the subject of this patch? Do you 
+think we should not free up the AQIC resources as we do in this patch?
 
 
+>   
+>
+> Regards,
+> Halil
