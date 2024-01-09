@@ -1,49 +1,46 @@
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+Received: from mail-io1-f48.google.com (mail-io1-f48.google.com [209.85.166.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BEB53B185;
-	Tue,  9 Jan 2024 17:09:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 938673D3BA
+	for <linux-s390@vger.kernel.org>; Tue,  9 Jan 2024 19:31:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j99ANECe"
-Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-6d9bd63ec7fso1583377b3a.2;
-        Tue, 09 Jan 2024 09:09:10 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="cQOLlmca"
+Received: by mail-io1-f48.google.com with SMTP id ca18e2360f4ac-7bee9f626caso7750839f.0
+        for <linux-s390@vger.kernel.org>; Tue, 09 Jan 2024 11:31:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1704820150; x=1705424950; darn=vger.kernel.org;
+        d=linuxfoundation.org; s=google; t=1704828716; x=1705433516; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=6I/UzxeeSAED7iM7HDuJTONIJ2KKw54eiBxBJsUAF1c=;
-        b=j99ANECehDGuuocIYMlunulYX+Vl6XBPhix7rb+nd9hp/7xCQqvq+hbrFxVyLHyPkX
-         nXCRiHqAiTq1+RbxWuraVjrChCv32HafQKqhWWYxQyF2P7Pf9ONtK4eVAQr32dsRZ2LT
-         +YXPrqweonyHxGWWK+rh3VfvC+iQY8zOX3VpYfaCXZ2sfzvv+T5WRyLU5cH/8kAkJA7y
-         7T6Oegj98jkQfPW5PdBCvLxQlpCWm4vdhBexUo9+ZFHxHWnnn6sLN+ooysadTWf9Ltz5
-         4o4ch/WI2U0kwEydux2yymGKe/TEa/SINNHQLYj6e3Cs66GAm0fzOicBjy142xloFscS
-         soBQ==
+        bh=BX6WX/X3x+sI97fYVnBXml21yMAcf1vyq5kAEe0Em5I=;
+        b=cQOLlmcaqUhwLAlPb+YoK3cpqG/tM8PhBonRBnB5rSFHDbv9gltx+ferLiG2ju6r9G
+         iMPRslGBbDavGiQMV8dbOmz3cYbsLyFAhy/ICM4Y6nmP4tZmKAxZ8lRnwQQypWQ8XnlM
+         7d3Mi6ANWHBF7ByciB6j+Aeu8Lig//xPys6BE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704820150; x=1705424950;
+        d=1e100.net; s=20230601; t=1704828716; x=1705433516;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=6I/UzxeeSAED7iM7HDuJTONIJ2KKw54eiBxBJsUAF1c=;
-        b=esJVhO8atwYwjci0nH20sXcEMkVvST3ZWuqMX9tDHIoz0rYVxAKTaqTBVqFEdnKFca
-         3LdvrJ59vtfTBwBMAfDjz7IJMa5ggsnLEJj1Tcu1PqP/qkulGddaaPBaEe3IWbI1YE8t
-         ODwETJXu1TbfUhsQKeLcogxYcBWUeLkvSLgns9cA8tQj9twFWp6B6YGW55h4BqCbeTij
-         m5kvTqUiIV3VSOS6FGMIz1jPhytWgcmFCs+GLfKl1dVIQIj9NLRqSTDj4Erfxctir45W
-         4Y4n3JCt9mOW1Dy466hQBr1ECXlx6jRNwXIFHn+R2OphUvxXITMNsp2RcaJ/oWhwFz/h
-         N1Hg==
-X-Gm-Message-State: AOJu0YwhHFma3Xs/M6UR8I+gKrc0vjwMGw6D50X+p4ikElFpfPLDZR1n
-	7dXsrdbjaVaGo5qpsiJYRyU=
-X-Google-Smtp-Source: AGHT+IGbHBY87b9+cLnBphbm2WrEUcTqTZw78s+6rmXGcCu4D5i3IsBr6slXU6F3gt+g15APEjnJqQ==
-X-Received: by 2002:a05:6a20:a104:b0:19a:13f0:d739 with SMTP id q4-20020a056a20a10400b0019a13f0d739mr166549pzk.38.1704820150114;
-        Tue, 09 Jan 2024 09:09:10 -0800 (PST)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id p30-20020a056a0026de00b006d99c6c0f1fsm1904760pfw.100.2024.01.09.09.09.07
+        bh=BX6WX/X3x+sI97fYVnBXml21yMAcf1vyq5kAEe0Em5I=;
+        b=R8D4QesS6FygNxPvVvKfzUhgkhQhzd58N/eJJu1j7p1hTzjxJu9VeF1wSH+wqVqBwV
+         0UEq+nNPyXMxbpBsMGYCxLJFf+qGxyJiJghA+coNJZYio9ZIuhnUpY04tNU1PAo2/sKZ
+         heT+GTM5HBzxtPHfbclummE+m3WkHblod1Jnz2W0Y/93kXwPnjyXq0hp9jOGcTrqVO5q
+         1yxFU39vKXAkq82xsmbKKXC5G8LojALDjM1dMy1YdW7EW/Potm98KSx7cxK91gHQ4r0d
+         Q8faJlgpOeZ7/oFluHhNvma+IDhjf8XeoGdkq3Z/Fel8D53EBQVrBeywHZdWkjYtIjQf
+         xEKg==
+X-Gm-Message-State: AOJu0Yxk8TP9+70Xc7VNLPfRGBX9ntcKcM2/aIrbDbGp4frPOhJ94AwA
+	U6zzGRg/+YPP3TSLvGBV0DCfXlYtHMK44w==
+X-Google-Smtp-Source: AGHT+IF17YouLb8dLiAWKBE/dIFNs+76nEgViYUyT37MYA3oOcuaMwflJbAwRKNo9bXNPVTnggdieA==
+X-Received: by 2002:a5d:804a:0:b0:7bc:207d:5178 with SMTP id b10-20020a5d804a000000b007bc207d5178mr10285797ior.2.1704828715769;
+        Tue, 09 Jan 2024 11:31:55 -0800 (PST)
+Received: from [192.168.1.128] ([38.175.170.29])
+        by smtp.gmail.com with ESMTPSA id dq33-20020a0566384d2100b0046dd0db4a14sm800066jab.99.2024.01.09.11.31.54
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Jan 2024 09:09:09 -0800 (PST)
-Message-ID: <9e1bb616-35b9-492c-be9a-011943b59d0c@gmail.com>
-Date: Tue, 9 Jan 2024 09:09:00 -0800
+        Tue, 09 Jan 2024 11:31:55 -0800 (PST)
+Message-ID: <87b55a25-4288-4add-b2b3-0038ed41b08e@linuxfoundation.org>
+Date: Tue, 9 Jan 2024 12:31:53 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -51,51 +48,54 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/4] arm: ptdump: Rename CONFIG_DEBUG_WX to
- CONFIG_ARM_DEBUG_WX
+Subject: Re: [PATCH RESEND v4 1/3] kselftests: lib.mk: Add TEST_GEN_MODS_DIR
+ variable
 Content-Language: en-US
-To: Christophe Leroy <christophe.leroy@csgroup.eu>,
- linux-hardening@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
- "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
- Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
- <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+To: Marcos Paulo de Souza <mpdesouza@suse.com>,
+ Joe Lawrence <joe.lawrence@redhat.com>
+Cc: Shuah Khan <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
  Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
  Alexander Gordeev <agordeev@linux.ibm.com>,
  Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
- Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
- Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-mm@kvack.org, steven.price@arm.com,
- Phong Tran <tranmanphong@gmail.com>, mark.rutland@arm.com,
- Greg KH <greg@kroah.com>
-References: <cover.1704800524.git.christophe.leroy@csgroup.eu>
- <d651269a681150f9bdca8103434fb3f4b509f784.1704800524.git.christophe.leroy@csgroup.eu>
-From: Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <d651269a681150f9bdca8103434fb3f4b509f784.1704800524.git.christophe.leroy@csgroup.eu>
+ Sven Schnelle <svens@linux.ibm.com>, Josh Poimboeuf <jpoimboe@kernel.org>,
+ Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>,
+ Petr Mladek <pmladek@suse.com>, linux-kselftest@vger.kernel.org,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, live-patching@vger.kernel.org,
+ Shuah Khan <skhan@linuxfoundation.org>
+References: <20231220-send-lp-kselftests-v4-0-3458ec1b1a38@suse.com>
+ <20231220-send-lp-kselftests-v4-1-3458ec1b1a38@suse.com>
+ <ZZSOtsbzpy2mvmUC@redhat.com>
+ <4fb169fd-393c-441e-b0f7-32a3777c1d11@linuxfoundation.org>
+ <11c112df801008f6bc4b7813645d505388894e29.camel@suse.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
+In-Reply-To: <11c112df801008f6bc4b7813645d505388894e29.camel@suse.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 1/9/24 04:14, Christophe Leroy wrote:
-> CONFIG_DEBUG_WX is a core option defined in mm/Kconfig.debug
-> 
-> To avoid any future conflict, rename ARM version
-> into CONFIG_ARM_DEBUG_WX.
-> 
-> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+On 1/8/24 10:13, Marcos Paulo de Souza wrote:
+> On Wed, 2024-01-03 at 15:09 -0700, Shuah Khan wrote:
 
-Looks fine, you might also want to 
-s/CONFIG_DEBUG_WX/CONFIG_ARM_DEBUG_WX/ in 
-arch/arm/configs/aspeed_g{4,5}_defconfig so there are no surprises when 
-people pull in those changes.
--- 
-Florian
+>>
+>> Copying source files and object files doesn't sound right. This isn't
+>> how the ksleftest installs work. Let's fix this.
+> 
+> Hi Shuah,
+> 
+> what do you think about the proposed solution? Could you please amend
+> the fix into the first patch if you think it's the right approach?
+> 
+
+I would like to see a new revision of the patch series with the fix to
+the problem. I will pull this into a separate test branch for us all
+to test different scenarios. I would like to make sure the repo will
+stay clean after install in the case of when out of tree builds.
+
+Sorry I can't amend the patch as this isn't a trivial merge change.
+This change requires more testing.
+
+thanks,
+-- Shuah
+
+
 
