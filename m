@@ -1,124 +1,141 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36063495CD;
-	Wed, 10 Jan 2024 14:02:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 652B74CB21;
+	Wed, 10 Jan 2024 15:44:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aXPEbR+h"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Y3uEX2GT"
 Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40AD7Crh007939;
-	Wed, 10 Jan 2024 14:01:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=PfxT8EmwmFjjW5GAzJtI4xhYCxTVYs+9fiE3LzkKW0M=;
- b=aXPEbR+h7x2iTM4dXrKhvGGx9DczTf6raefRo5ojFWj+EhKTZkYnD+Bjn6p9a5Ndxoge
- N5VW28QlZBoH/Zl1C5WIzcjpwdcGjpY/LLMIRnhNMUj5HiwJaSMnS76hS9wHyebEmGJm
- WWowBOs4NJAIIWJ1v0BJ4OCJhSpLzUbMfKPxxxd9Byrz6ZJ6mQjQ+edXPfMW1vaDi2Af
- SCLvdPNi6yQ+BSNMMlbosNcmsb6h/5wB6NhehsqNYDv4o3Lw2x7uHong9dQFqLWN50FQ
- mzqnrz+SSbHG1OvrpxUv0F7fNrlTiSdQtOuD8LAgcE3N4c8iASnkn+5XOQBehaZtr6Ot tw== 
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40AEtT60007939;
+	Wed, 10 Jan 2024 15:44:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=46davaovqwEtnCcydpQdJJqyzVaiWwhAxC2+wADQOeE=;
+ b=Y3uEX2GTc+BOW/lGynTiqOoi9fhgxYA8FLKgyRVh+7WQC1SBfScL0862Hlsj3ZlMdQO9
+ ZiW6y8KxAOnc+XJcIOKDcs52X7+N+CFvYIZnfwUQVtEHSoOeux2VVOaWgZis6EY5mh1r
+ Xu7bScke2Bz5ex3AEUxhKuOzNiGU+Wm1dxuBf8/C07ng0crWo4F/a9wOrqCmFhe6Ug16
+ Am1LQ8vRQfJgflDi69AbteF6tB3bC/qwXTkrD6jfOi5twDwL5abAUGStNUCU/O4jW/MI
+ bvgTNCYUXxE/PnLcHzEsZIeCcR42fhRwqU3PBuXYJhpja007OG4kbhl6v0Ctlacx83UE yw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vhuu9h7fd-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vhuu9m3yb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 10 Jan 2024 14:01:42 +0000
+	Wed, 10 Jan 2024 15:44:46 +0000
 Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40ADjlMe004079;
-	Wed, 10 Jan 2024 14:01:42 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vhuu9h7ed-1
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40AFfrYZ016567;
+	Wed, 10 Jan 2024 15:44:45 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vhuu9m3xp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 10 Jan 2024 14:01:41 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40ACSXXI004395;
-	Wed, 10 Jan 2024 14:01:40 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vfjpkwcmp-1
+	Wed, 10 Jan 2024 15:44:45 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40AEc1JD028030;
+	Wed, 10 Jan 2024 15:44:44 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vgwfst3bu-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 10 Jan 2024 14:01:40 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40AE1bIF18350642
+	Wed, 10 Jan 2024 15:44:44 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40AFiguL11993778
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 10 Jan 2024 14:01:37 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 53D7A2004D;
-	Wed, 10 Jan 2024 14:01:37 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2BA7B20043;
-	Wed, 10 Jan 2024 14:01:37 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 10 Jan 2024 14:01:37 +0000 (GMT)
-From: Sumanth Korikkar <sumanthk@linux.ibm.com>
-To: linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>
-Cc: Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] mm/memory_hotplug: fix memmap_on_memory sysfs value retrieval
-Date: Wed, 10 Jan 2024 15:01:27 +0100
-Message-Id: <20240110140127.241451-1-sumanthk@linux.ibm.com>
-X-Mailer: git-send-email 2.40.1
+	Wed, 10 Jan 2024 15:44:43 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D94FC5805B;
+	Wed, 10 Jan 2024 15:44:42 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4B4C458058;
+	Wed, 10 Jan 2024 15:44:41 +0000 (GMT)
+Received: from [9.61.170.131] (unknown [9.61.170.131])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 10 Jan 2024 15:44:41 +0000 (GMT)
+Message-ID: <41baa1b2-4afd-9adb-2121-b14c8943d9b1@linux.ibm.com>
+Date: Wed, 10 Jan 2024 10:44:40 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.1
+Subject: Re: [PATCH v2 6/6] s390/vfio-ap: do not reset queue removed from host
+ config
+To: Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: borntraeger@de.ibm.com, pasic@linux.ibm.com, pbonzini@redhat.com,
+        frankja@linux.ibm.com, imbrenda@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        stable@vger.kernel.org
+References: <20231212212522.307893-1-akrowiak@linux.ibm.com>
+ <20231212212522.307893-7-akrowiak@linux.ibm.com>
+Content-Language: en-US
+From: "Jason J. Herne" <jjherne@linux.ibm.com>
+In-Reply-To: <20231212212522.307893-7-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: akujshpMwAbrdtpK1D1VWpnTYq87mmYm
-X-Proofpoint-ORIG-GUID: 1ES3chf0hnl4bulp882nvtBk7J5ErQgx
+X-Proofpoint-GUID: IsjIOTzPVQKvr0QmfztB0n_OxtMcN7ET
+X-Proofpoint-ORIG-GUID: 17mlDLuzrl3HOz48TJCLJGVBUouciBuT
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-10_06,2024-01-10_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
- bulkscore=0 phishscore=0 mlxscore=0 mlxlogscore=913 lowpriorityscore=0
- suspectscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401100115
+ definitions=2024-01-10_07,2024-01-10_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 malwarescore=0
+ adultscore=0 bulkscore=0 impostorscore=0 priorityscore=1501 phishscore=0
+ mlxscore=0 mlxlogscore=999 lowpriorityscore=0 suspectscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2401100128
 
-The set_memmap_mode() function stores the kernel parameter memmap mode
-as an integer. However, the get_memmap_mode() function utilizes
-param_get_bool() to fetch the value as a boolean, leading to potential
-endianness issue. On Big-endian architectures, the memmap_on_memory is
-consistently displayed as 'N' regardless of its actual status.
 
-To address this endianness problem, the solution involves obtaining the
-mode as an integer. This adjustment ensures the proper display of the
-memmap_on_memory parameter, presenting it as one of the following
-options: Force, Y, or N.
 
-Fixes: 2d1f649c7c08 ("mm/memory_hotplug: support memmap_on_memory when memmap is not aligned to pageblocks")
-Suggested-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc: <stable@vger.kernel.org> # v6.6+
-Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
----
- mm/memory_hotplug.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+On 12/12/23 4:25 PM, Tony Krowiak wrote:
+> When a queue is unbound from the vfio_ap device driver, it is reset to
+> ensure its crypto data is not leaked when it is bound to another device
+> driver. If the queue is unbound due to the fact that the adapter or domain
+> was removed from the host's AP configuration, then attempting to reset it
+> will fail with response code 01 (APID not valid) getting returned from the
+> reset command. Let's ensure that the queue is assigned to the host's
+> configuration before resetting it.
+> 
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> Fixes: eeb386aeb5b7 ("s390/vfio-ap: handle config changed and scan complete notification")
+> Cc: <stable@vger.kernel.org>
+> ---
+>   drivers/s390/crypto/vfio_ap_ops.c | 14 ++++++++++++--
+>   1 file changed, 12 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index e014108067dc..84decb0d5c97 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -2197,6 +2197,8 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
+>   	q = dev_get_drvdata(&apdev->device);
+>   	get_update_locks_for_queue(q);
+>   	matrix_mdev = q->matrix_mdev;
+> +	apid = AP_QID_CARD(q->apqn);
+> +	apqi = AP_QID_QUEUE(q->apqn);
+>   
+>   	if (matrix_mdev) {
+>   		/* If the queue is assigned to the guest's AP configuration */
+> @@ -2214,8 +2216,16 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
+>   		}
+>   	}
+>   
+> -	vfio_ap_mdev_reset_queue(q);
+> -	flush_work(&q->reset_work);
+> +	/*
+> +	 * If the queue is not in the host's AP configuration, then resetting
+> +	 * it will fail with response code 01, (APQN not valid); so, let's make
+> +	 * sure it is in the host's config.
+> +	 */
+> +	if (test_bit_inv(apid, (unsigned long *)matrix_dev->info.apm) &&
+> +	    test_bit_inv(apqi, (unsigned long *)matrix_dev->info.aqm)) {
+> +		vfio_ap_mdev_reset_queue(q);
+> +		flush_work(&q->reset_work);
+> +	}
+>   
+>   done:
+>   	if (matrix_mdev)
 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index b944e8bf1911..707027f69150 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -101,9 +101,11 @@ static int set_memmap_mode(const char *val, const struct kernel_param *kp)
- 
- static int get_memmap_mode(char *buffer, const struct kernel_param *kp)
- {
--	if (*((int *)kp->arg) == MEMMAP_ON_MEMORY_FORCE)
--		return sprintf(buffer,  "force\n");
--	return param_get_bool(buffer, kp);
-+	int mode = *((int *)kp->arg);
-+
-+	if (mode == MEMMAP_ON_MEMORY_FORCE)
-+		return sprintf(buffer, "force\n");
-+	return sprintf(buffer, "%c\n", mode ? 'Y' : 'N');
- }
- 
- static const struct kernel_param_ops memmap_mode_ops = {
--- 
-2.40.1
-
+Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
