@@ -1,118 +1,124 @@
-Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com [209.85.208.175])
+Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECDADEC2
-	for <linux-s390@vger.kernel.org>; Wed, 10 Jan 2024 00:27:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="I27gy5NA"
-Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-2cd65f803b7so15333211fa.1
-        for <linux-s390@vger.kernel.org>; Tue, 09 Jan 2024 16:27:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1704846462; x=1705451262; darn=vger.kernel.org;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=dyyk71hEnUH8o+yU27Ica0B5hnuq4HgZWd0sqVp36iI=;
-        b=I27gy5NAkrwS27o+UFWt4GiitEODjtHGgLvpf5U4To5GiFyiag8m/bFDjvClWkwzUq
-         tkbpI//Z2DDD0YMaktuC8E6fzZ2ibJ2XIcNqui5IU9DuQkR74seal/wjXaSEyUiVfCHR
-         PZCVydIffLiZGP3je/p+l9UhBSSIBcN+3MfwBydtCIk3NlPcF+WPu5sEBkkgT8PNJ6Pi
-         mkmTjxCEPZSzAkMZjO4LMktJpeYcZSor5h6QW3WAlYlnA+rCPBm6X8Q4uP/Ata0M1wFE
-         wAIhfaizSzyrkWEjfmLqUvg/6LlSuDQeiD3bsxYIlTpr4Ra3J/AEysl9Ms9V05takTqQ
-         ravg==
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 094D03BB43;
+	Wed, 10 Jan 2024 09:09:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-4299a70d0a7so14917521cf.3;
+        Wed, 10 Jan 2024 01:09:06 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704846462; x=1705451262;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=dyyk71hEnUH8o+yU27Ica0B5hnuq4HgZWd0sqVp36iI=;
-        b=km+H5pe6DP8lKufW3YseWUOloPmEK9CyYaJDjqPlmf95jFSfrR3krJVe+APolg/1WP
-         U/YHLtn6z+WDSldwhaK+kqJY9vHT0Srv5unkSfsV6C+QbM5PhpmU3ERwSKHPLXPimY8i
-         nDnIfd1X2k/lE6Dk9ShWimooSGvaSLgALT8WNgEr0GLfBCTy1JmROdsu4lR5CEdRv/Qu
-         BC7/Z/PLl9v1EBw760tdx1fNfLwBwDJwQjFtLSUwRFX4ZxkYBILpcqKP16Urr2OXm57l
-         k9zrudtdpy/jmiwgWuEmXu8WbnWClgYIeNUpExNtn+XRLzzkNHOrS6R+wQSOW/ue+xcq
-         ASDQ==
-X-Gm-Message-State: AOJu0YyGqizirIPG9lAUyM6aIB1bIpSo7asp8oGk6HfFjTcmIq3H/NJU
-	VFtCRkRQPGlWtt+uollEYjo26w88E6NOlw==
-X-Google-Smtp-Source: AGHT+IHrPfMyoRcp9SJQJNfwgTAOMS35Hg1hTDLX2tyHfdnWr4LZ1cgREPzxpiaVrsGwmdO64/AgPA==
-X-Received: by 2002:a2e:98d3:0:b0:2cd:433:bdfc with SMTP id s19-20020a2e98d3000000b002cd0433bdfcmr88914ljj.5.1704846461991;
-        Tue, 09 Jan 2024 16:27:41 -0800 (PST)
-Received: from ?IPv6:2804:30c:1668:b300:8fcd:588d:fb77:ed04? ([2804:30c:1668:b300:8fcd:588d:fb77:ed04])
-        by smtp.gmail.com with ESMTPSA id bw10-20020a056638460a00b0046e33773c09sm940129jab.36.2024.01.09.16.27.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jan 2024 16:27:41 -0800 (PST)
-Message-ID: <79e4f9c604a8e2a9165a84473a7c5354dd11c2db.camel@suse.com>
-Subject: Re: [PATCH RESEND v4 1/3] kselftests: lib.mk: Add TEST_GEN_MODS_DIR
- variable
-From: Marcos Paulo de Souza <mpdesouza@suse.com>
-To: Shuah Khan <skhan@linuxfoundation.org>, Joe Lawrence
-	 <joe.lawrence@redhat.com>
-Cc: Shuah Khan <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Heiko
- Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
- Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>,  Sven Schnelle <svens@linux.ibm.com>, Josh
- Poimboeuf <jpoimboe@kernel.org>, Jiri Kosina <jikos@kernel.org>,  Miroslav
- Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, 
- linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
- live-patching@vger.kernel.org
-Date: Tue, 09 Jan 2024 21:27:34 -0300
-In-Reply-To: <87b55a25-4288-4add-b2b3-0038ed41b08e@linuxfoundation.org>
-References: <20231220-send-lp-kselftests-v4-0-3458ec1b1a38@suse.com>
-	 <20231220-send-lp-kselftests-v4-1-3458ec1b1a38@suse.com>
-	 <ZZSOtsbzpy2mvmUC@redhat.com>
-	 <4fb169fd-393c-441e-b0f7-32a3777c1d11@linuxfoundation.org>
-	 <11c112df801008f6bc4b7813645d505388894e29.camel@suse.com>
-	 <87b55a25-4288-4add-b2b3-0038ed41b08e@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.1 
+        d=1e100.net; s=20230601; t=1704877745; x=1705482545;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=v2Qk0JS/X/M+iSFJkteLpcJbyzGhmpZqpSZNg5QY+TE=;
+        b=MXQacc1/SeAtAhpQ6GZYl4WNkxHzGOuKesQTqOTq2D0wG13B9sCgP/EMI6216nr3zZ
+         ZSZas4PvdF55ML8/anUphpB6ZaWfSIY4h80PIF+6UutnNd+boHBuXsz/4q9Zu9p1FZxc
+         xWSptQcPLCBJDAqzP9SLatdKWTnwvxeip3GInn4c4JJFJ0nhVNdY/gxTcI6xPxI3g+ui
+         VGMbqTYwl4JKvXZsZ9xT7UE1ilAM1deda5wMWYVUYcz6P97iwS3v7d8aslxLK4lSg5wE
+         jMQTMp0pklRYeh2yLo/T3ntCf996cSQfTPDwYkOweF+xZ9CLRQhj51DgPkrPNCNxQWrt
+         8+ZA==
+X-Gm-Message-State: AOJu0Yx/i3HoCadj8e3xLNVXhxLBl0G7hvnNIgZAKCb9nDSkD7WUKiir
+	hKZQoi4Jep9GArltCKL4ekP2udPp/aBF3Ii6
+X-Google-Smtp-Source: AGHT+IEUsCKPkoPS/e8/7saFk4TAecb9vR4YBKqRPFns5V18kVBjAPaIMgszLlEUrW0ooK7L0pQYDA==
+X-Received: by 2002:ac8:4e49:0:b0:429:b266:c9a7 with SMTP id e9-20020ac84e49000000b00429b266c9a7mr1095985qtw.124.1704877745657;
+        Wed, 10 Jan 2024 01:09:05 -0800 (PST)
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com. [209.85.160.169])
+        by smtp.gmail.com with ESMTPSA id bv10-20020a05622a0a0a00b00429a0688f8fsm1615777qtb.68.2024.01.10.01.09.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 10 Jan 2024 01:09:05 -0800 (PST)
+Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-42989016014so23231471cf.0;
+        Wed, 10 Jan 2024 01:09:05 -0800 (PST)
+X-Received: by 2002:a81:9843:0:b0:5fa:7e0a:b133 with SMTP id
+ p64-20020a819843000000b005fa7e0ab133mr127729ywg.79.1704877413506; Wed, 10 Jan
+ 2024 01:03:33 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+References: <20231108125843.3806765-1-arnd@kernel.org> <20231108125843.3806765-9-arnd@kernel.org>
+In-Reply-To: <20231108125843.3806765-9-arnd@kernel.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 10 Jan 2024 10:03:20 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdV8uFKntiMfwwmnFpd4Dcx8vJDwS6r1iBLtkh40N71dbw@mail.gmail.com>
+Message-ID: <CAMuHMdV8uFKntiMfwwmnFpd4Dcx8vJDwS6r1iBLtkh40N71dbw@mail.gmail.com>
+Subject: Re: [PATCH 08/22] [v2] arch: consolidate arch_irq_work_raise prototypes
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, 
+	Masahiro Yamada <masahiroy@kernel.org>, linux-kbuild@vger.kernel.org, 
+	Arnd Bergmann <arnd@arndb.de>, Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>, 
+	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Will Deacon <will@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Guo Ren <guoren@kernel.org>, 
+	Peter Zijlstra <peterz@infradead.org>, Ard Biesheuvel <ardb@kernel.org>, 
+	Huacai Chen <chenhuacai@kernel.org>, Greg Ungerer <gerg@linux-m68k.org>, 
+	Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	Dinh Nguyen <dinguyen@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
+	Geoff Levand <geoff@infradead.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S. Miller" <davem@davemloft.net>, 
+	Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
+	x86@kernel.org, Helge Deller <deller@gmx.de>, 
+	Sudip Mukherjee <sudipm.mukherjee@gmail.com>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Timur Tabi <timur@kernel.org>, 
+	Kent Overstreet <kent.overstreet@linux.dev>, David Woodhouse <dwmw2@infradead.org>, 
+	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>, 
+	Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>, Kees Cook <keescook@chromium.org>, 
+	Vincenzo Frascino <vincenzo.frascino@arm.com>, Juri Lelli <juri.lelli@redhat.com>, 
+	Vincent Guittot <vincent.guittot@linaro.org>, Nathan Chancellor <nathan@kernel.org>, 
+	Nick Desaulniers <ndesaulniers@google.com>, Nicolas Schier <nicolas@fjasle.eu>, 
+	Al Viro <viro@zeniv.linux.org.uk>, 
+	=?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, 
+	linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, 
+	linux-arm-kernel@lists.infradead.org, linux-trace-kernel@vger.kernel.org, 
+	linux-csky@vger.kernel.org, loongarch@lists.linux.dev, 
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
+	sparclinux@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linux-usb@vger.kernel.org, 
+	linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+	linux-bcachefs@vger.kernel.org, linux-mtd@lists.infradead.org, 
+	Palmer Dabbelt <palmer@rivosinc.com>, Alexander Gordeev <agordeev@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2024-01-09 at 12:31 -0700, Shuah Khan wrote:
-> On 1/8/24 10:13, Marcos Paulo de Souza wrote:
-> > On Wed, 2024-01-03 at 15:09 -0700, Shuah Khan wrote:
->=20
-> > >=20
-> > > Copying source files and object files doesn't sound right. This
-> > > isn't
-> > > how the ksleftest installs work. Let's fix this.
-> >=20
-> > Hi Shuah,
-> >=20
-> > what do you think about the proposed solution? Could you please
-> > amend
-> > the fix into the first patch if you think it's the right approach?
-> >=20
->=20
-> I would like to see a new revision of the patch series with the fix
-> to
-> the problem. I will pull this into a separate test branch for us all
-> to test different scenarios. I would like to make sure the repo will
-> stay clean after install in the case of when out of tree builds.
->=20
-> Sorry I can't amend the patch as this isn't a trivial merge change.
-> This change requires more testing.
+On Wed, Nov 8, 2023 at 2:01=E2=80=AFPM Arnd Bergmann <arnd@kernel.org> wrot=
+e:
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> The prototype was hidden in an #ifdef on x86, which causes a warning:
+>
+> kernel/irq_work.c:72:13: error: no previous prototype for 'arch_irq_work_=
+raise' [-Werror=3Dmissing-prototypes]
 
-I sent a v5 of the patches. This new version has that diff that I sent
-earlier to avoid copying the Kbuild files. It worked on make install
-and with gen_tar.
+This issue is now present upstream.
 
-Feel free to use this version in your test branch then.
+> Some architectures have a working prototype, while others don't.
+> Fix this by providing it in only one place that is always visible.
+>
+> Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+> Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+> Acked-by: Guo Ren <guoren@kernel.org>
+> Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Thanks in advance,
-  Marcos
+Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
->=20
-> thanks,
-> -- Shuah
->=20
->=20
->=20
+Gr{oetje,eeting}s,
 
+                        Geert
+
+--=20
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
