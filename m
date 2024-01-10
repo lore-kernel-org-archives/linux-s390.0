@@ -1,141 +1,120 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 652B74CB21;
-	Wed, 10 Jan 2024 15:44:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 748284B5DE
+	for <linux-s390@vger.kernel.org>; Wed, 10 Jan 2024 16:02:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Y3uEX2GT"
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40AEtT60007939;
-	Wed, 10 Jan 2024 15:44:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=46davaovqwEtnCcydpQdJJqyzVaiWwhAxC2+wADQOeE=;
- b=Y3uEX2GTc+BOW/lGynTiqOoi9fhgxYA8FLKgyRVh+7WQC1SBfScL0862Hlsj3ZlMdQO9
- ZiW6y8KxAOnc+XJcIOKDcs52X7+N+CFvYIZnfwUQVtEHSoOeux2VVOaWgZis6EY5mh1r
- Xu7bScke2Bz5ex3AEUxhKuOzNiGU+Wm1dxuBf8/C07ng0crWo4F/a9wOrqCmFhe6Ug16
- Am1LQ8vRQfJgflDi69AbteF6tB3bC/qwXTkrD6jfOi5twDwL5abAUGStNUCU/O4jW/MI
- bvgTNCYUXxE/PnLcHzEsZIeCcR42fhRwqU3PBuXYJhpja007OG4kbhl6v0Ctlacx83UE yw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vhuu9m3yb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 10 Jan 2024 15:44:46 +0000
-Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40AFfrYZ016567;
-	Wed, 10 Jan 2024 15:44:45 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vhuu9m3xp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 10 Jan 2024 15:44:45 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40AEc1JD028030;
-	Wed, 10 Jan 2024 15:44:44 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vgwfst3bu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 10 Jan 2024 15:44:44 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40AFiguL11993778
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 10 Jan 2024 15:44:43 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D94FC5805B;
-	Wed, 10 Jan 2024 15:44:42 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4B4C458058;
-	Wed, 10 Jan 2024 15:44:41 +0000 (GMT)
-Received: from [9.61.170.131] (unknown [9.61.170.131])
-	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 10 Jan 2024 15:44:41 +0000 (GMT)
-Message-ID: <41baa1b2-4afd-9adb-2121-b14c8943d9b1@linux.ibm.com>
-Date: Wed, 10 Jan 2024 10:44:40 -0500
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="gJtRfrUC";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="eXZCKpc2";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="crNIgwTp";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="FoKY6K8e"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id AF5EA21E1B;
+	Wed, 10 Jan 2024 16:02:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1704902523; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type;
+	bh=s4995F0AdHJpcW/yRHg0Sjz3xkX+EArRev5JR72wjEk=;
+	b=gJtRfrUCX3oSWfeSTOyhIjNWcYJNNFT84a0o3/BlAgZkOrTPGAXytrEmfJnkxAiKNgBDdF
+	9cGhRxOdWBYT9ovSFZwVerSQgtdxbVVkp2v0cfg1C0zFhGN4POCftklnCkfdniHI+muY76
+	XpADuCh4YHzcwOmKdbT1/hcoDIZw99U=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1704902523;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type;
+	bh=s4995F0AdHJpcW/yRHg0Sjz3xkX+EArRev5JR72wjEk=;
+	b=eXZCKpc2+2h1WCH/MXnSDbD1Y3XqRddUxJYhp3Xev++d4G400Mb6Ynq4ZzyCOkG233RNZI
+	2BCNvcjP3IloFKDg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1704902521; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type;
+	bh=s4995F0AdHJpcW/yRHg0Sjz3xkX+EArRev5JR72wjEk=;
+	b=crNIgwTpOWjvc4ln6tn8kzE0i7pnLYMJaiO0E3RinEEa9NyfcRMdXGYUPqBMyGE7nyo5cm
+	r8RODEQcmK7vCLOqc+w0NQth1fhOjB8zv7oRENmmsSK0MwRIVlsLNVc7csmnRxuPQ9wtFW
+	dO5FgYZ6QYt5lpmlmW649tGMs+NpEOo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1704902521;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type;
+	bh=s4995F0AdHJpcW/yRHg0Sjz3xkX+EArRev5JR72wjEk=;
+	b=FoKY6K8egnSUBl4w6BsQxu+k39/eY5/YVUfeXQKTG1Rd4oFv7+rF43SztwDe/1s2Ulgqf2
+	h0GhkFb6DI8DhdBw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id A60631398A;
+	Wed, 10 Jan 2024 16:02:01 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id D2dGKHm/nmW0KAAAD6G6ig
+	(envelope-from <mfranc@suse.cz>); Wed, 10 Jan 2024 16:02:01 +0000
+From: Miroslav Franc <mfranc@suse.cz>
+To: linux-s390@vger.kernel.org
+Cc: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>
+Subject: [PATCH] s390/dasd: fix double module refcount decrement
+Date: Wed, 10 Jan 2024 17:01:57 +0100
+Message-ID: <871qap9nyi.fsf@>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.15.1
-Subject: Re: [PATCH v2 6/6] s390/vfio-ap: do not reset queue removed from host
- config
-To: Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: borntraeger@de.ibm.com, pasic@linux.ibm.com, pbonzini@redhat.com,
-        frankja@linux.ibm.com, imbrenda@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        stable@vger.kernel.org
-References: <20231212212522.307893-1-akrowiak@linux.ibm.com>
- <20231212212522.307893-7-akrowiak@linux.ibm.com>
-Content-Language: en-US
-From: "Jason J. Herne" <jjherne@linux.ibm.com>
-In-Reply-To: <20231212212522.307893-7-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: IsjIOTzPVQKvr0QmfztB0n_OxtMcN7ET
-X-Proofpoint-ORIG-GUID: 17mlDLuzrl3HOz48TJCLJGVBUouciBuT
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-10_07,2024-01-10_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 malwarescore=0
- adultscore=0 bulkscore=0 impostorscore=0 priorityscore=1501 phishscore=0
- mlxscore=0 mlxlogscore=999 lowpriorityscore=0 suspectscore=0 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2401100128
+Content-Type: text/plain
+Authentication-Results: smtp-out1.suse.de;
+	none
+X-Spam-Level: 
+X-Spam-Score: 0.90
+X-Spamd-Result: default: False [0.90 / 50.00];
+	 ARC_NA(0.00)[];
+	 RCVD_VIA_SMTP_AUTH(0.00)[];
+	 FROM_HAS_DN(0.00)[];
+	 RCPT_COUNT_THREE(0.00)[3];
+	 TO_DN_SOME(0.00)[];
+	 TO_MATCH_ENVRCPT_ALL(0.00)[];
+	 MIME_GOOD(-0.10)[text/plain];
+	 NEURAL_HAM_LONG(-1.00)[-1.000];
+	 RCVD_COUNT_THREE(0.00)[3];
+	 DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	 NEURAL_HAM_SHORT(-0.20)[-1.000];
+	 INVALID_MSGID(1.70)[];
+	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.cz:email];
+	 FUZZY_BLOCKED(0.00)[rspamd.com];
+	 FROM_EQ_ENVFROM(0.00)[];
+	 MIME_TRACE(0.00)[0:+];
+	 MID_RHS_NOT_FQDN(0.50)[];
+	 RCVD_TLS_ALL(0.00)[];
+	 BAYES_HAM(-0.00)[23.67%]
+X-Spam-Flag: NO
 
+Once the discipline is associated with the device, deleting the device
+takes care of decrementing the module's refcount.  Doing it manually on
+this error path causes refcount to artificially decrease on each error
+while it should just stay the same.
 
+Fixes: c020d722b110 ("s390/dasd: fix panic during offline processing")
+Signed-off-by: Miroslav Franc <mfranc@suse.cz>
+---
+ drivers/s390/block/dasd.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-On 12/12/23 4:25 PM, Tony Krowiak wrote:
-> When a queue is unbound from the vfio_ap device driver, it is reset to
-> ensure its crypto data is not leaked when it is bound to another device
-> driver. If the queue is unbound due to the fact that the adapter or domain
-> was removed from the host's AP configuration, then attempting to reset it
-> will fail with response code 01 (APID not valid) getting returned from the
-> reset command. Let's ensure that the queue is assigned to the host's
-> configuration before resetting it.
-> 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> Fixes: eeb386aeb5b7 ("s390/vfio-ap: handle config changed and scan complete notification")
-> Cc: <stable@vger.kernel.org>
-> ---
->   drivers/s390/crypto/vfio_ap_ops.c | 14 ++++++++++++--
->   1 file changed, 12 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index e014108067dc..84decb0d5c97 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -2197,6 +2197,8 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
->   	q = dev_get_drvdata(&apdev->device);
->   	get_update_locks_for_queue(q);
->   	matrix_mdev = q->matrix_mdev;
-> +	apid = AP_QID_CARD(q->apqn);
-> +	apqi = AP_QID_QUEUE(q->apqn);
->   
->   	if (matrix_mdev) {
->   		/* If the queue is assigned to the guest's AP configuration */
-> @@ -2214,8 +2216,16 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
->   		}
->   	}
->   
-> -	vfio_ap_mdev_reset_queue(q);
-> -	flush_work(&q->reset_work);
-> +	/*
-> +	 * If the queue is not in the host's AP configuration, then resetting
-> +	 * it will fail with response code 01, (APQN not valid); so, let's make
-> +	 * sure it is in the host's config.
-> +	 */
-> +	if (test_bit_inv(apid, (unsigned long *)matrix_dev->info.apm) &&
-> +	    test_bit_inv(apqi, (unsigned long *)matrix_dev->info.aqm)) {
-> +		vfio_ap_mdev_reset_queue(q);
-> +		flush_work(&q->reset_work);
-> +	}
->   
->   done:
->   	if (matrix_mdev)
-
-Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
+diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+index 833cfab7d877..739da1c2b71f 100644
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -3546,8 +3546,6 @@ int dasd_generic_set_online(struct ccw_device *cdev,
+ 	if (rc) {
+ 		pr_warn("%s Setting the DASD online with discipline %s failed with rc=%i\n",
+ 			dev_name(&cdev->dev), discipline->name, rc);
+-		module_put(discipline->owner);
+-		module_put(base_discipline->owner);
+ 		dasd_delete_device(device);
+ 		return rc;
+ 	}
