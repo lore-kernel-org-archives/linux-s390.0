@@ -1,14 +1,14 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8F5015AC3;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A33F18ED6;
 	Thu, 11 Jan 2024 12:01:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R741e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W-Pewec_1704974493;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W-Pewec_1704974493)
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R911e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W-PgnAv_1704974487;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W-PgnAv_1704974487)
           by smtp.aliyun-inc.com;
-          Thu, 11 Jan 2024 20:01:35 +0800
+          Thu, 11 Jan 2024 20:01:29 +0800
 From: Wen Gu <guwen@linux.alibaba.com>
 To: wintera@linux.ibm.com,
 	wenjia@linux.ibm.com,
@@ -28,9 +28,9 @@ Cc: borntraeger@linux.ibm.com,
 	linux-s390@vger.kernel.org,
 	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH net-next 14/15] net/smc: introduce loopback-ism DMB data copy control
-Date: Thu, 11 Jan 2024 20:00:35 +0800
-Message-Id: <20240111120036.109903-15-guwen@linux.alibaba.com>
+Subject: [PATCH net-next 11/15] net/smc: attach or detach ghost sndbuf to peer DMB
+Date: Thu, 11 Jan 2024 20:00:32 +0800
+Message-Id: <20240111120036.109903-12-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240111120036.109903-1-guwen@linux.alibaba.com>
 References: <20240111120036.109903-1-guwen@linux.alibaba.com>
@@ -42,142 +42,168 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This provides a way to {get|set} whether loopback-ism device supports
-merging sndbuf with peer DMB to eliminate data copies between them.
+The ghost sndbuf descriptor will be created and attached to peer DMB
+once peer token is obtained and it will be detach and freed when the
+connection is freed.
 
-echo 0 > /sys/devices/virtual/smc/loopback-ism/dmb_copy # support
-echo 1 > /sys/devices/virtual/smc/loopback-ism/dmb_copy # not support
-
-The settings take effect after re-activating loopback-ism by:
-
-echo 0 > /sys/devices/virtual/smc/loopback-ism/active
-echo 1 > /sys/devices/virtual/smc/loopback-ism/active
-
-After this, the link group related to loopback-ism will be flushed and
-the sndbufs of subsequent connections will be merged or not merged with
-peer DMB.
-
-The motivation of this control is that the bandwidth will be highly
-improved when sndbuf and DMB are merged, but when virtually contiguous
-DMB is provided and merged with sndbuf, it will be concurrently accessed
-on Tx and Rx, then there will be a bottleneck caused by lock contention
-of find_vmap_area when there are many CPUs and CONFIG_HARDENED_USERCOPY
-is set (see link below). So an option is provided.
-
-Link: https://lore.kernel.org/all/238e63cd-e0e8-4fbf-852f-bc4d5bc35d5a@linux.alibaba.com/
 Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 ---
- net/smc/smc_loopback.c | 46 ++++++++++++++++++++++++++++++++++++++++++
- net/smc/smc_loopback.h |  8 +++++++-
- 2 files changed, 53 insertions(+), 1 deletion(-)
+ net/smc/af_smc.c   | 16 ++++++++++++
+ net/smc/smc_core.c | 61 +++++++++++++++++++++++++++++++++++++++++++++-
+ net/smc/smc_core.h |  1 +
+ 3 files changed, 77 insertions(+), 1 deletion(-)
 
-diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
-index 2e734f8e08f5..bfbb346ef01a 100644
---- a/net/smc/smc_loopback.c
-+++ b/net/smc/smc_loopback.c
-@@ -26,6 +26,7 @@
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 189aea09b66e..96a6e5f13351 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1437,6 +1437,14 @@ static int smc_connect_ism(struct smc_sock *smc,
+ 	}
  
- static const char smc_lo_dev_name[] = "loopback-ism";
- static unsigned int smc_lo_dmb_type = SMC_LO_DMB_PHYS;
-+static unsigned int smc_lo_dmb_copy = SMC_LO_DMB_NOCOPY;
- static struct smc_lo_dev *lo_dev;
- static struct class *smc_class;
- 
-@@ -167,9 +168,52 @@ static ssize_t dmb_type_store(struct device *dev,
- 	return count;
- }
- static DEVICE_ATTR_RW(dmb_type);
+ 	smc_conn_save_peer_info(smc, aclc);
 +
-+static ssize_t dmb_copy_show(struct device *dev,
-+			     struct device_attribute *attr, char *buf)
-+{
-+	struct smc_lo_dev *ldev =
-+		container_of(dev, struct smc_lo_dev, dev);
-+	const char *copy;
++	if (smc_ism_support_dmb_nocopy(smc->conn.lgr->smcd)) {
++		rc = smcd_buf_attach(smc);
++		if (rc) {
++			rc = SMC_CLC_DECL_MEM;	/* try to fallback */
++			goto connect_abort;
++		}
++	}
+ 	smc_close_init(smc);
+ 	smc_rx_init(smc);
+ 	smc_tx_init(smc);
+@@ -2541,6 +2549,14 @@ static void smc_listen_work(struct work_struct *work)
+ 		mutex_unlock(&smc_server_lgr_pending);
+ 	}
+ 	smc_conn_save_peer_info(new_smc, cclc);
 +
-+	switch (ldev->dmb_copy) {
-+	case SMC_LO_DMB_NOCOPY:
-+		copy = "sndbuf and DMB merged and no data copied";
-+		break;
-+	case SMC_LO_DMB_COPY:
-+		copy = "sndbuf and DMB separated and data copied";
-+		break;
-+	default:
-+		copy = "Unknown setting";
++	if (ini->is_smcd &&
++	    smc_ism_support_dmb_nocopy(new_smc->conn.lgr->smcd)) {
++		rc = smcd_buf_attach(new_smc);
++		if (rc)
++			goto out_decl;
 +	}
 +
-+	return sysfs_emit(buf, "%d: %s\n", ldev->dmb_copy, copy);
-+}
-+
-+static ssize_t dmb_copy_store(struct device *dev,
-+			      struct device_attribute *attr,
-+			      const char *buf, size_t count)
-+{
-+	unsigned int dmb_copy;
-+	int ret;
-+
-+	ret = kstrtouint(buf, 0, &dmb_copy);
-+	if (ret)
-+		return ret;
-+
-+	if (dmb_copy != SMC_LO_DMB_NOCOPY &&
-+	    dmb_copy != SMC_LO_DMB_COPY)
-+		return -EINVAL;
-+
-+	smc_lo_dmb_copy = dmb_copy; /* re-activate to take effect */
-+	return count;
-+}
-+static DEVICE_ATTR_RW(dmb_copy);
-+
- static struct attribute *smc_lo_attrs[] = {
- 	&dev_attr_active.attr,
- 	&dev_attr_dmb_type.attr,
-+	&dev_attr_dmb_copy.attr,
- 	&dev_attr_xfer_bytes.attr,
- 	&dev_attr_dmbs_cnt.attr,
- 	NULL,
-@@ -451,6 +495,7 @@ static int smcd_lo_register_dev(struct smc_lo_dev *ldev)
- 	smcd->priv = ldev;
- 	smc_ism_set_v2_capable();
- 	ldev->dmb_type = smc_lo_dmb_type;
-+	ldev->dmb_copy = smc_lo_dmb_copy;
- 	mutex_lock(&smcd_dev_list.mutex);
- 	list_add(&smcd->list, &smcd_dev_list.list);
- 	mutex_unlock(&smcd_dev_list.mutex);
-@@ -475,6 +520,7 @@ static void smcd_lo_unregister_dev(struct smc_lo_dev *ldev)
- 	kfree(smcd->conn);
- 	kfree(smcd);
- 	ldev->dmb_type = smc_lo_dmb_type;
-+	ldev->dmb_copy = smc_lo_dmb_copy;
- 	smc_lo_clear_stats(ldev);
+ 	smc_listen_out_connected(new_smc);
+ 	SMC_STAT_SERV_SUCC_INC(sock_net(newclcsock->sk), ini);
+ 	goto out_free;
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 95cc95458e2d..da6a8d9c81ea 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1149,6 +1149,20 @@ static void smcr_buf_unuse(struct smc_buf_desc *buf_desc, bool is_rmb,
+ 	}
  }
  
-diff --git a/net/smc/smc_loopback.h b/net/smc/smc_loopback.h
-index 8ee5c6805fc4..7ecb4a35eb36 100644
---- a/net/smc/smc_loopback.h
-+++ b/net/smc/smc_loopback.h
-@@ -28,6 +28,11 @@ enum {
- 	SMC_LO_DMB_VIRT,
- };
- 
-+enum {
-+	SMC_LO_DMB_NOCOPY,
-+	SMC_LO_DMB_COPY,
-+};
++static void smcd_buf_detach(struct smc_connection *conn)
++{
++	struct smcd_dev *smcd = conn->lgr->smcd;
++	u64 peer_token = conn->peer_token;
 +
- struct smc_lo_dmb_node {
- 	struct hlist_node list;
- 	u64 token;
-@@ -45,7 +50,8 @@ struct smc_lo_dev_stats64 {
- struct smc_lo_dev {
- 	struct smcd_dev *smcd;
- 	struct device dev;
--	u8 active;
-+	u8 active : 1;
-+	u8 dmb_copy : 1;
- 	u8 dmb_type;
- 	u16 chid;
- 	struct smcd_gid local_gid;
++	if (!conn->sndbuf_desc)
++		return;
++
++	smc_ism_detach_dmb(smcd, peer_token);
++
++	kfree(conn->sndbuf_desc);
++	conn->sndbuf_desc = NULL;
++}
++
+ static void smc_buf_unuse(struct smc_connection *conn,
+ 			  struct smc_link_group *lgr)
+ {
+@@ -1192,6 +1206,8 @@ void smc_conn_free(struct smc_connection *conn)
+ 	if (lgr->is_smcd) {
+ 		if (!list_empty(&lgr->list))
+ 			smc_ism_unset_conn(conn);
++		if (smc_ism_support_dmb_nocopy(lgr->smcd))
++			smcd_buf_detach(conn);
+ 		tasklet_kill(&conn->rx_tsklet);
+ 	} else {
+ 		smc_cdc_wait_pend_tx_wr(conn);
+@@ -1445,6 +1461,8 @@ static void smc_conn_kill(struct smc_connection *conn, bool soft)
+ 	smc_sk_wake_ups(smc);
+ 	if (conn->lgr->is_smcd) {
+ 		smc_ism_unset_conn(conn);
++		if (smc_ism_support_dmb_nocopy(conn->lgr->smcd))
++			smcd_buf_detach(conn);
+ 		if (soft)
+ 			tasklet_kill(&conn->rx_tsklet);
+ 		else
+@@ -2458,12 +2476,18 @@ int smc_buf_create(struct smc_sock *smc, bool is_smcd)
+ 	int rc;
+ 
+ 	/* create send buffer */
++	if (is_smcd &&
++	    smc_ism_support_dmb_nocopy(smc->conn.lgr->smcd))
++		goto create_rmb;
++
+ 	rc = __smc_buf_create(smc, is_smcd, false);
+ 	if (rc)
+ 		return rc;
++
++create_rmb:
+ 	/* create rmb */
+ 	rc = __smc_buf_create(smc, is_smcd, true);
+-	if (rc) {
++	if (rc && smc->conn.sndbuf_desc) {
+ 		down_write(&smc->conn.lgr->sndbufs_lock);
+ 		list_del(&smc->conn.sndbuf_desc->list);
+ 		up_write(&smc->conn.lgr->sndbufs_lock);
+@@ -2473,6 +2497,41 @@ int smc_buf_create(struct smc_sock *smc, bool is_smcd)
+ 	return rc;
+ }
+ 
++int smcd_buf_attach(struct smc_sock *smc)
++{
++	struct smc_connection *conn = &smc->conn;
++	struct smcd_dev *smcd = conn->lgr->smcd;
++	u64 peer_token = conn->peer_token;
++	struct smc_buf_desc *buf_desc;
++	int rc;
++
++	buf_desc = kzalloc(sizeof(*buf_desc), GFP_KERNEL);
++	if (!buf_desc)
++		return -ENOMEM;
++
++	/* The ghost sndbuf_desc describes the same memory region as
++	 * peer RMB. Its lifecycle is consistent with the connection's
++	 * and it will be freed with the connections instead of the
++	 * link group.
++	 */
++	rc = smc_ism_attach_dmb(smcd, peer_token, buf_desc);
++	if (rc)
++		goto free;
++
++	smc->sk.sk_sndbuf = buf_desc->len;
++	buf_desc->cpu_addr =
++		(u8 *)buf_desc->cpu_addr + sizeof(struct smcd_cdc_msg);
++	buf_desc->len -= sizeof(struct smcd_cdc_msg);
++	conn->sndbuf_desc = buf_desc;
++	conn->sndbuf_desc->used = 1;
++	atomic_set(&conn->sndbuf_space, conn->sndbuf_desc->len);
++	return 0;
++
++free:
++	kfree(buf_desc);
++	return rc;
++}
++
+ static inline int smc_rmb_reserve_rtoken_idx(struct smc_link_group *lgr)
+ {
+ 	int i;
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 1f175376037b..d93cf51dbd7c 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -557,6 +557,7 @@ void smc_smcd_terminate(struct smcd_dev *dev, struct smcd_gid *peer_gid,
+ void smc_smcd_terminate_all(struct smcd_dev *dev);
+ void smc_smcr_terminate_all(struct smc_ib_device *smcibdev);
+ int smc_buf_create(struct smc_sock *smc, bool is_smcd);
++int smcd_buf_attach(struct smc_sock *smc);
+ int smc_uncompress_bufsize(u8 compressed);
+ int smc_rmb_rtoken_handling(struct smc_connection *conn, struct smc_link *link,
+ 			    struct smc_clc_msg_accept_confirm *clc);
 -- 
 2.32.0.3.g01195cf9f
 
