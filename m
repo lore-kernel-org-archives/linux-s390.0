@@ -1,14 +1,14 @@
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF7AC171A0;
-	Thu, 11 Jan 2024 12:01:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 343A0171A3;
+	Thu, 11 Jan 2024 12:01:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W-Pgn8A_1704974477;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W-Pgn8A_1704974477)
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W-PfIj6_1704974483;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W-PfIj6_1704974483)
           by smtp.aliyun-inc.com;
-          Thu, 11 Jan 2024 20:01:19 +0800
+          Thu, 11 Jan 2024 20:01:25 +0800
 From: Wen Gu <guwen@linux.alibaba.com>
 To: wintera@linux.ibm.com,
 	wenjia@linux.ibm.com,
@@ -28,9 +28,9 @@ Cc: borntraeger@linux.ibm.com,
 	linux-s390@vger.kernel.org,
 	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH net-next 06/15] net/smc: implement DMB-related operations of loopback-ism
-Date: Thu, 11 Jan 2024 20:00:27 +0800
-Message-Id: <20240111120036.109903-7-guwen@linux.alibaba.com>
+Subject: [PATCH net-next 09/15] net/smc: introduce loopback-ism statistics attributes
+Date: Thu, 11 Jan 2024 20:00:30 +0800
+Message-Id: <20240111120036.109903-10-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240111120036.109903-1-guwen@linux.alibaba.com>
 References: <20240111120036.109903-1-guwen@linux.alibaba.com>
@@ -42,258 +42,192 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This implements DMB (un)registration and data move operations of
-loopback-ism device.
+This introduces some statistics attributes of loopback-ism. They can be
+read from /sys/devices/virtual/smc/loopback-ism/{xfer_tytes|dmbs_cnt}.
 
 Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 ---
- net/smc/smc_cdc.c      |   6 ++
- net/smc/smc_cdc.h      |   1 +
- net/smc/smc_loopback.c | 133 ++++++++++++++++++++++++++++++++++++++++-
- net/smc/smc_loopback.h |  13 ++++
- 4 files changed, 150 insertions(+), 3 deletions(-)
+ net/smc/smc_loopback.c | 74 ++++++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_loopback.h | 22 +++++++++++++
+ 2 files changed, 96 insertions(+)
 
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 3c06625ceb20..c820ef197610 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -410,6 +410,12 @@ static void smc_cdc_msg_recv(struct smc_sock *smc, struct smc_cdc_msg *cdc)
- static void smcd_cdc_rx_tsklet(struct tasklet_struct *t)
- {
- 	struct smc_connection *conn = from_tasklet(conn, t, rx_tsklet);
-+
-+	smcd_cdc_rx_handler(conn);
-+}
-+
-+void smcd_cdc_rx_handler(struct smc_connection *conn)
-+{
- 	struct smcd_cdc_msg *data_cdc;
- 	struct smcd_cdc_msg cdc;
- 	struct smc_sock *smc;
-diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
-index 696cc11f2303..11559d4ebf2b 100644
---- a/net/smc/smc_cdc.h
-+++ b/net/smc/smc_cdc.h
-@@ -301,5 +301,6 @@ int smcr_cdc_msg_send_validation(struct smc_connection *conn,
- 				 struct smc_wr_buf *wr_buf);
- int smc_cdc_init(void) __init;
- void smcd_cdc_rx_init(struct smc_connection *conn);
-+void smcd_cdc_rx_handler(struct smc_connection *conn);
- 
- #endif /* SMC_CDC_H */
 diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
-index 353d4a2d69a1..f72e7b24fc1a 100644
+index 3bf7bf5e8c96..a89dbf84aea5 100644
 --- a/net/smc/smc_loopback.c
 +++ b/net/smc/smc_loopback.c
-@@ -15,11 +15,13 @@
- #include <linux/types.h>
- #include <net/smc.h>
+@@ -30,6 +30,65 @@ static struct class *smc_class;
+ static int smcd_lo_register_dev(struct smc_lo_dev *ldev);
+ static void smcd_lo_unregister_dev(struct smc_lo_dev *ldev);
  
-+#include "smc_cdc.h"
- #include "smc_ism.h"
- #include "smc_loopback.h"
++static void smc_lo_clear_stats(struct smc_lo_dev *ldev)
++{
++	struct smc_lo_dev_stats64 *tmp;
++	int cpu;
++
++	for_each_possible_cpu(cpu) {
++		tmp = per_cpu_ptr(ldev->stats, cpu);
++		tmp->xfer_bytes = 0;
++	}
++}
++
++static void smc_lo_get_stats(struct smc_lo_dev *ldev,
++			     struct smc_lo_dev_stats64 *stats)
++{
++	int size, cpu, i;
++	u64 *src, *sum;
++
++	memset(stats, 0, sizeof(*stats));
++	size = sizeof(*stats) / sizeof(u64);
++	for_each_possible_cpu(cpu) {
++		src = (u64 *)per_cpu_ptr(ldev->stats, cpu);
++		sum = (u64 *)stats;
++		for (i = 0; i < size; i++)
++			*(sum++) += *(src++);
++	}
++}
++
++static ssize_t smc_lo_show_stats(struct device *dev,
++				 struct device_attribute *attr,
++				 char *buf, unsigned long offset)
++{
++	struct smc_lo_dev *ldev =
++		container_of(dev, struct smc_lo_dev, dev);
++	struct smc_lo_dev_stats64 stats;
++	ssize_t ret = -EINVAL;
++
++	if (WARN_ON(offset > sizeof(struct smc_lo_dev_stats64) ||
++		    offset % sizeof(u64) != 0))
++		goto out;
++
++	smc_lo_get_stats(ldev, &stats);
++	ret = sysfs_emit(buf, "%llu\n", *(u64 *)(((u8 *)&stats) + offset));
++out:
++	return ret;
++}
++
++/* generate a read-only statistics attribute */
++#define SMC_LO_DEVICE_ATTR_RO(name) \
++static ssize_t name##_show(struct device *dev, \
++			   struct device_attribute *attr, char *buf) \
++{ \
++	return smc_lo_show_stats(dev, attr, buf, \
++				 offsetof(struct smc_lo_dev_stats64, name)); \
++} \
++static DEVICE_ATTR_RO(name)
++
++SMC_LO_DEVICE_ATTR_RO(xfer_bytes);
++SMC_LO_DEVICE_ATTR_RO(dmbs_cnt);
++
+ static ssize_t active_show(struct device *dev,
+ 			   struct device_attribute *attr, char *buf)
+ {
+@@ -67,6 +126,8 @@ static ssize_t active_store(struct device *dev,
+ static DEVICE_ATTR_RW(active);
+ static struct attribute *smc_lo_attrs[] = {
+ 	&dev_attr_active.attr,
++	&dev_attr_xfer_bytes.attr,
++	&dev_attr_dmbs_cnt.attr,
+ 	NULL,
+ };
  
- #if IS_ENABLED(CONFIG_SMC_LO)
- #define SMC_LO_V2_CAPABLE	0x1 /* loopback-ism acts as ISMv2 */
-+#define SMC_DMA_ADDR_INVALID	(~(dma_addr_t)0)
+@@ -152,6 +213,7 @@ static int smc_lo_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
+ 	}
+ 	hash_add(ldev->dmb_ht, &dmb_node->list, dmb_node->token);
+ 	write_unlock(&ldev->dmb_ht_lock);
++	SMC_LO_STAT_DMBS_INC(ldev);
  
- static const char smc_lo_dev_name[] = "loopback-ism";
- static struct smc_lo_dev *lo_dev;
-@@ -50,6 +52,97 @@ static int smc_lo_query_rgid(struct smcd_dev *smcd, struct smcd_gid *rgid,
+ 	dmb->sba_idx = dmb_node->sba_idx;
+ 	dmb->dmb_tok = dmb_node->token;
+@@ -191,6 +253,7 @@ static int smc_lo_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
+ 	clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
+ 	kfree(dmb_node->cpu_addr);
+ 	kfree(dmb_node);
++	SMC_LO_STAT_DMBS_DEC(ldev);
+ 
  	return 0;
  }
+@@ -249,6 +312,8 @@ static int smc_lo_move_data(struct smcd_dev *smcd, u64 dmb_tok,
  
-+static int smc_lo_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
-+			       void *client_priv)
-+{
-+	struct smc_lo_dmb_node *dmb_node, *tmp_node;
-+	struct smc_lo_dev *ldev = smcd->priv;
-+	int sba_idx, order, rc;
-+	struct page *pages;
-+
-+	/* check space for new dmb */
-+	for_each_clear_bit(sba_idx, ldev->sba_idx_mask, SMC_LO_MAX_DMBS) {
-+		if (!test_and_set_bit(sba_idx, ldev->sba_idx_mask))
-+			break;
-+	}
-+	if (sba_idx == SMC_LO_MAX_DMBS)
-+		return -ENOSPC;
-+
-+	dmb_node = kzalloc(sizeof(*dmb_node), GFP_KERNEL);
-+	if (!dmb_node) {
-+		rc = -ENOMEM;
-+		goto err_bit;
-+	}
-+
-+	dmb_node->sba_idx = sba_idx;
-+	order = get_order(dmb->dmb_len);
-+	pages = alloc_pages(GFP_KERNEL | __GFP_NOWARN |
-+			    __GFP_NOMEMALLOC | __GFP_COMP |
-+			    __GFP_NORETRY | __GFP_ZERO,
-+			    order);
-+	if (!pages) {
-+		rc = -ENOMEM;
-+		goto err_node;
-+	}
-+	dmb_node->cpu_addr = (void *)page_address(pages);
-+	dmb_node->len = dmb->dmb_len;
-+	dmb_node->dma_addr = SMC_DMA_ADDR_INVALID;
-+
-+again:
-+	/* add new dmb into hash table */
-+	get_random_bytes(&dmb_node->token, sizeof(dmb_node->token));
-+	write_lock(&ldev->dmb_ht_lock);
-+	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_node->token) {
-+		if (tmp_node->token == dmb_node->token) {
-+			write_unlock(&ldev->dmb_ht_lock);
-+			goto again;
-+		}
-+	}
-+	hash_add(ldev->dmb_ht, &dmb_node->list, dmb_node->token);
-+	write_unlock(&ldev->dmb_ht_lock);
-+
-+	dmb->sba_idx = dmb_node->sba_idx;
-+	dmb->dmb_tok = dmb_node->token;
-+	dmb->cpu_addr = dmb_node->cpu_addr;
-+	dmb->dma_addr = dmb_node->dma_addr;
-+	dmb->dmb_len = dmb_node->len;
-+
-+	return 0;
-+
-+err_node:
-+	kfree(dmb_node);
-+err_bit:
-+	clear_bit(sba_idx, ldev->sba_idx_mask);
-+	return rc;
-+}
-+
-+static int smc_lo_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
-+{
-+	struct smc_lo_dmb_node *dmb_node = NULL, *tmp_node;
-+	struct smc_lo_dev *ldev = smcd->priv;
-+
-+	/* remove dmb from hash table */
-+	write_lock(&ldev->dmb_ht_lock);
-+	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb->dmb_tok) {
-+		if (tmp_node->token == dmb->dmb_tok) {
-+			dmb_node = tmp_node;
-+			break;
-+		}
-+	}
-+	if (!dmb_node) {
-+		write_unlock(&ldev->dmb_ht_lock);
-+		return -EINVAL;
-+	}
-+	hash_del(&dmb_node->list);
-+	write_unlock(&ldev->dmb_ht_lock);
-+
-+	clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
-+	kfree(dmb_node->cpu_addr);
-+	kfree(dmb_node);
-+
-+	return 0;
-+}
-+
- static int smc_lo_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
- {
- 	return -EOPNOTSUPP;
-@@ -76,6 +169,38 @@ static int smc_lo_signal_event(struct smcd_dev *dev, struct smcd_gid *rgid,
+ 		if (conn && !conn->killed)
+ 			smcd_cdc_rx_handler(conn);
++	} else {
++		SMC_LO_STAT_XFER_BYTES(ldev, size);
+ 	}
  	return 0;
  }
+@@ -354,6 +419,7 @@ static void smcd_lo_unregister_dev(struct smc_lo_dev *ldev)
+ 	mutex_unlock(&smcd_dev_list.mutex);
+ 	kfree(smcd->conn);
+ 	kfree(smcd);
++	smc_lo_clear_stats(ldev);
+ }
  
-+static int smc_lo_move_data(struct smcd_dev *smcd, u64 dmb_tok,
-+			    unsigned int idx, bool sf, unsigned int offset,
-+			    void *data, unsigned int size)
-+{
-+	struct smc_lo_dmb_node *rmb_node = NULL, *tmp_node;
-+	struct smc_lo_dev *ldev = smcd->priv;
-+
-+	read_lock(&ldev->dmb_ht_lock);
-+	hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_tok) {
-+		if (tmp_node->token == dmb_tok) {
-+			rmb_node = tmp_node;
-+			break;
-+		}
-+	}
-+	if (!rmb_node) {
-+		read_unlock(&ldev->dmb_ht_lock);
-+		return -EINVAL;
-+	}
-+	read_unlock(&ldev->dmb_ht_lock);
-+
-+	memcpy((char *)rmb_node->cpu_addr + offset, data, size);
-+
-+	if (sf) {
-+		struct smc_connection *conn =
-+			smcd->conn[rmb_node->sba_idx];
-+
-+		if (conn && !conn->killed)
-+			smcd_cdc_rx_handler(conn);
-+	}
-+	return 0;
-+}
-+
- static int smc_lo_supports_v2(void)
- {
- 	return SMC_LO_V2_CAPABLE;
-@@ -102,14 +227,14 @@ static struct device *smc_lo_get_dev(struct smcd_dev *smcd)
- 
- static const struct smcd_ops lo_ops = {
- 	.query_remote_gid = smc_lo_query_rgid,
--	.register_dmb		= NULL,
--	.unregister_dmb		= NULL,
-+	.register_dmb = smc_lo_register_dmb,
-+	.unregister_dmb = smc_lo_unregister_dmb,
- 	.add_vlan_id = smc_lo_add_vlan_id,
- 	.del_vlan_id = smc_lo_del_vlan_id,
- 	.set_vlan_required = smc_lo_set_vlan_required,
- 	.reset_vlan_required = smc_lo_reset_vlan_required,
- 	.signal_event = smc_lo_signal_event,
--	.move_data		= NULL,
-+	.move_data = smc_lo_move_data,
- 	.supports_v2 = smc_lo_supports_v2,
- 	.get_local_gid = smc_lo_get_local_gid,
- 	.get_chid = smc_lo_get_chid,
-@@ -174,6 +299,8 @@ static void smcd_lo_unregister_dev(struct smc_lo_dev *ldev)
  static int smc_lo_dev_init(struct smc_lo_dev *ldev)
- {
- 	smc_lo_generate_id(ldev);
-+	rwlock_init(&ldev->dmb_ht_lock);
-+	hash_init(ldev->dmb_ht);
- 	return smcd_lo_register_dev(ldev);
+@@ -374,6 +440,7 @@ static void smc_lo_dev_release(struct device *dev)
+ 	struct smc_lo_dev *ldev =
+ 		container_of(dev, struct smc_lo_dev, dev);
+ 
++	free_percpu(ldev->stats);
+ 	kfree(ldev);
  }
  
+@@ -392,6 +459,13 @@ static int smc_lo_dev_probe(void)
+ 		goto destroy_class;
+ 	}
+ 
++	ldev->stats = alloc_percpu(struct smc_lo_dev_stats64);
++	if (!ldev->stats) {
++		ret = -ENOMEM;
++		kfree(ldev);
++		goto destroy_class;
++	}
++
+ 	ldev->dev.parent = NULL;
+ 	ldev->dev.class = smc_class;
+ 	ldev->dev.groups = smc_lo_attr_groups;
 diff --git a/net/smc/smc_loopback.h b/net/smc/smc_loopback.h
-index 55b41133a97f..24ab9d747613 100644
+index 02a522e322b4..d4572ca42f08 100644
 --- a/net/smc/smc_loopback.h
 +++ b/net/smc/smc_loopback.h
-@@ -20,13 +20,26 @@
+@@ -32,16 +32,38 @@ struct smc_lo_dmb_node {
+ 	dma_addr_t dma_addr;
+ };
  
- #if IS_ENABLED(CONFIG_SMC_LO)
- #define SMC_LO_MAX_DMBS		5000
-+#define SMC_LO_DMBS_HASH_BITS	12
- #define SMC_LO_CHID		0xFFFF
- 
-+struct smc_lo_dmb_node {
-+	struct hlist_node list;
-+	u64 token;
-+	u32 len;
-+	u32 sba_idx;
-+	void *cpu_addr;
-+	dma_addr_t dma_addr;
++struct smc_lo_dev_stats64 {
++	__u64	xfer_bytes;
++	__u64	dmbs_cnt;
 +};
 +
  struct smc_lo_dev {
  	struct smcd_dev *smcd;
  	struct device dev;
+ 	u8 active;
  	u16 chid;
  	struct smcd_gid local_gid;
-+	rwlock_t dmb_ht_lock;
-+	DECLARE_BITMAP(sba_idx_mask, SMC_LO_MAX_DMBS);
-+	DECLARE_HASHTABLE(dmb_ht, SMC_LO_DMBS_HASH_BITS);
++	struct smc_lo_dev_stats64 __percpu *stats;
+ 	rwlock_t dmb_ht_lock;
+ 	DECLARE_BITMAP(sba_idx_mask, SMC_LO_MAX_DMBS);
+ 	DECLARE_HASHTABLE(dmb_ht, SMC_LO_DMBS_HASH_BITS);
  };
++
++#define SMC_LO_STAT_SUB(ldev, key, val) \
++do { \
++	struct smc_lo_dev_stats64 *_stats = (ldev)->stats; \
++	this_cpu_add((*(_stats)).key, val); \
++} \
++while (0)
++
++#define SMC_LO_STAT_XFER_BYTES(ldev, val) \
++	SMC_LO_STAT_SUB(ldev, xfer_bytes, val)
++
++#define SMC_LO_STAT_DMBS_INC(ldev) \
++	SMC_LO_STAT_SUB(ldev, dmbs_cnt, 1)
++
++#define SMC_LO_STAT_DMBS_DEC(ldev) \
++	SMC_LO_STAT_SUB(ldev, dmbs_cnt, -1)
  #endif
  
+ int smc_loopback_init(void);
 -- 
 2.32.0.3.g01195cf9f
 
