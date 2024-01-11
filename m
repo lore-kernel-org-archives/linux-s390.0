@@ -1,137 +1,114 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6708F15ACF;
-	Thu, 11 Jan 2024 12:06:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W-PgOta_1704974479;
-Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W-PgOta_1704974479)
-          by smtp.aliyun-inc.com;
-          Thu, 11 Jan 2024 20:01:21 +0800
-From: Wen Gu <guwen@linux.alibaba.com>
-To: wintera@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	agordeev@linux.ibm.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com,
-	svens@linux.ibm.com,
-	alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net-next 07/15] net/smc: register loopback-ism into SMC-D device list
-Date: Thu, 11 Jan 2024 20:00:28 +0800
-Message-Id: <20240111120036.109903-8-guwen@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240111120036.109903-1-guwen@linux.alibaba.com>
-References: <20240111120036.109903-1-guwen@linux.alibaba.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C07E115AC8
+	for <linux-s390@vger.kernel.org>; Thu, 11 Jan 2024 12:59:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="U1ZBYLx8"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40BBCI76012684;
+	Thu, 11 Jan 2024 12:59:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=yTiXG/Y0RGIbpe92y47RHfw4qcw/AcKNBq7ZybsR5nM=;
+ b=U1ZBYLx8/3FEvGEdcKBWrp3Xamm0mzjEBr9FMXjDrhYimesLqAv2J/GoXx6R8Utmo2Yw
+ 8Y8NNo6ludCrtIuSNYmhmph2E+E/ymzWl9XiOyipdCy3TAsZzbySQrOnUQlNxiw4YBvu
+ W0ljXDmahA5ZSwOWuQpdYpKp/670DAOv4HoSMgk/Tbhw9OCgUdlx7NBrljv/Qm/JUSsz
+ xot9Xf93QL2TYY6c6GsEhQGK3sdCsbFZIIkFytw2S3tRYVrP50M5niKWG5HNDVGewYTd
+ YbVeu93A1L6iOpi5Uz1Mj7hUUkvkt6d3DNPtclKs6f6xJSpJyiUcPgZUrpKf1WTtxIFM 0Q== 
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vjf8etmww-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Jan 2024 12:59:04 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40BAPBpZ028052;
+	Thu, 11 Jan 2024 12:56:04 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vgwfsyf25-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Jan 2024 12:56:04 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40BCu17918416292
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 11 Jan 2024 12:56:01 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 984F32004E;
+	Thu, 11 Jan 2024 12:56:01 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6222A2004B;
+	Thu, 11 Jan 2024 12:56:01 +0000 (GMT)
+Received: from [9.171.5.135] (unknown [9.171.5.135])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 11 Jan 2024 12:56:01 +0000 (GMT)
+Message-ID: <a69fb463-384b-4bf1-8cc7-0d442ec72b2c@linux.ibm.com>
+Date: Thu, 11 Jan 2024 13:56:01 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] s390/dasd: fix double module refcount decrement
+To: Miroslav Franc <mfranc@suse.cz>, linux-s390@vger.kernel.org
+Cc: Stefan Haberland <sth@linux.ibm.com>
+References: <871qap9nyi.fsf@>
+Content-Language: en-US, de-DE
+From: =?UTF-8?Q?Jan_H=C3=B6ppner?= <hoeppner@linux.ibm.com>
+In-Reply-To: <871qap9nyi.fsf@>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: O1PiBprBRYK3yv2nHZs37PLSgjD3BovV
+X-Proofpoint-GUID: O1PiBprBRYK3yv2nHZs37PLSgjD3BovV
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-01-11_07,2024-01-11_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ mlxlogscore=571 bulkscore=0 phishscore=0 suspectscore=0 adultscore=0
+ impostorscore=0 malwarescore=0 priorityscore=1501 clxscore=1011 mlxscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2401110103
 
-After loopback-ism device gets ready, add it to the SMC-D device list as
-an ISMv2 device.
+On 10/01/2024 17:01, Miroslav Franc wrote:
+> Once the discipline is associated with the device, deleting the device
+> takes care of decrementing the module's refcount.  Doing it manually on
+> this error path causes refcount to artificially decrease on each error
+> while it should just stay the same.
+> 
+> Fixes: c020d722b110 ("s390/dasd: fix panic during offline processing")
+> Signed-off-by: Miroslav Franc <mfranc@suse.cz>
+> ---
+>  drivers/s390/block/dasd.c | 2 --
+>  1 file changed, 2 deletions(-)
+> 
+> diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+> index 833cfab7d877..739da1c2b71f 100644
+> --- a/drivers/s390/block/dasd.c
+> +++ b/drivers/s390/block/dasd.c
+> @@ -3546,8 +3546,6 @@ int dasd_generic_set_online(struct ccw_device *cdev,
+>  	if (rc) {
+>  		pr_warn("%s Setting the DASD online with discipline %s failed with rc=%i\n",
+>  			dev_name(&cdev->dev), discipline->name, rc);
+> -		module_put(discipline->owner);
+> -		module_put(base_discipline->owner);
 
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
----
- net/smc/smc_ism.c      | 11 +++++++----
- net/smc/smc_ism.h      |  1 +
- net/smc/smc_loopback.c | 20 +++++++++++++-------
- 3 files changed, 21 insertions(+), 11 deletions(-)
+Good catch. I think there is one more line above this part that should
+also be removed:
 
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index fb1837d0a861..4065ebd2e43d 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -91,6 +91,11 @@ bool smc_ism_is_v2_capable(void)
- 	return smc_ism_v2_capable;
- }
- 
-+void smc_ism_set_v2_capable(void)
-+{
-+	smc_ism_v2_capable = true;
-+}
-+
- /* Set a connection using this DMBE. */
- void smc_ism_set_conn(struct smc_connection *conn)
- {
-@@ -454,11 +459,9 @@ static void smcd_register_dev(struct ism_dev *ism)
- 	if (smc_pnetid_by_dev_port(&ism->pdev->dev, 0, smcd->pnetid))
- 		smc_pnetid_by_table_smcd(smcd);
- 
-+	if (smcd->ops->supports_v2())
-+		smc_ism_set_v2_capable();
- 	mutex_lock(&smcd_dev_list.mutex);
--	if (list_empty(&smcd_dev_list.list)) {
--		if (smcd->ops->supports_v2())
--			smc_ism_v2_capable = true;
--	}
- 	/* sort list: devices without pnetid before devices with pnetid */
- 	if (smcd->pnetid[0])
- 		list_add_tail(&smcd->list, &smcd_dev_list.list);
-diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
-index ffff40c30a06..6903cd5d4d4d 100644
---- a/net/smc/smc_ism.h
-+++ b/net/smc/smc_ism.h
-@@ -52,6 +52,7 @@ int smc_ism_signal_shutdown(struct smc_link_group *lgr);
- void smc_ism_get_system_eid(u8 **eid);
- u16 smc_ism_get_chid(struct smcd_dev *dev);
- bool smc_ism_is_v2_capable(void);
-+void smc_ism_set_v2_capable(void);
- int smc_ism_init(void);
- void smc_ism_exit(void);
- int smcd_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
-diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
-index f72e7b24fc1a..db0b45f8560c 100644
---- a/net/smc/smc_loopback.c
-+++ b/net/smc/smc_loopback.c
-@@ -278,10 +278,12 @@ static int smcd_lo_register_dev(struct smc_lo_dev *ldev)
- 		return -ENOMEM;
- 	ldev->smcd = smcd;
- 	smcd->priv = ldev;
--
--	/* TODO:
--	 * register loopback-ism to smcd_dev list.
--	 */
-+	smc_ism_set_v2_capable();
-+	mutex_lock(&smcd_dev_list.mutex);
-+	list_add(&smcd->list, &smcd_dev_list.list);
-+	mutex_unlock(&smcd_dev_list.mutex);
-+	pr_warn_ratelimited("smc: adding smcd device %s\n",
-+			    smc_lo_dev_name);
- 	return 0;
- }
- 
-@@ -289,9 +291,13 @@ static void smcd_lo_unregister_dev(struct smc_lo_dev *ldev)
- {
- 	struct smcd_dev *smcd = ldev->smcd;
- 
--	/* TODO:
--	 * unregister loopback-ism from smcd_dev list.
--	 */
-+	pr_warn_ratelimited("smc: removing smcd device %s\n",
-+			    smc_lo_dev_name);
-+	smcd->going_away = 1;
-+	smc_smcd_terminate_all(smcd);
-+	mutex_lock(&smcd_dev_list.mutex);
-+	list_del_init(&smcd->list);
-+	mutex_unlock(&smcd_dev_list.mutex);
- 	kfree(smcd->conn);
- 	kfree(smcd);
- }
--- 
-2.32.0.3.g01195cf9f
+if (!try_module_get(discipline->owner)) {
+        module_put(base_discipline->owner); <---
+        dasd_delete_device(device);
+        return -EINVAL;
+}
+
+Can you add it to the patch? Thanks!
+
+>  		dasd_delete_device(device);
+>  		return rc;
+>  	}
+> 
 
