@@ -1,16 +1,22 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A9A113AE9;
-	Fri, 12 Jan 2024 02:54:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W-RM2W3_1705028095;
-Received: from 30.221.130.160(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W-RM2W3_1705028095)
-          by smtp.aliyun-inc.com;
-          Fri, 12 Jan 2024 10:54:56 +0800
-Message-ID: <44bda499-8bd7-4382-913e-6948d722bcd1@linux.alibaba.com>
-Date: Fri, 12 Jan 2024 10:54:54 +0800
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00BA82574F;
+	Fri, 12 Jan 2024 04:17:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.163])
+	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4TB7WH5Qbhz29k9x;
+	Fri, 12 Jan 2024 12:15:55 +0800 (CST)
+Received: from dggpemm100001.china.huawei.com (unknown [7.185.36.93])
+	by mail.maildlp.com (Postfix) with ESMTPS id 412421800D3;
+	Fri, 12 Jan 2024 12:17:29 +0800 (CST)
+Received: from [10.174.177.243] (10.174.177.243) by
+ dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Fri, 12 Jan 2024 12:17:28 +0800
+Message-ID: <7da39683-9b33-4f4e-baa5-69e63962943b@huawei.com>
+Date: Fri, 12 Jan 2024 12:17:28 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -18,50 +24,48 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 00/15] net/smc: implement loopback-ism used by
- SMC-D
-To: Simon Horman <horms@kernel.org>
-Cc: wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, jaka@linux.ibm.com,
- borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
- tonylu@linux.alibaba.com, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20240111120036.109903-1-guwen@linux.alibaba.com>
- <20240111133609.GC45291@kernel.org>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <20240111133609.GC45291@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: Re: [PATCH v2 1/8] mm: swap: introduce pfn_swap_entry_to_folio()
+Content-Language: en-US
+To: Matthew Wilcox <willy@infradead.org>
+CC: Andrew Morton <akpm@linux-foundation.org>, <linux-mm@kvack.org>,
+	<david@redhat.com>, <linux-s390@vger.kernel.org>,
+	<linux-perf-users@vger.kernel.org>
+References: <20240111111239.2453282-1-wangkefeng.wang@huawei.com>
+ <20240111111239.2453282-2-wangkefeng.wang@huawei.com>
+ <ZZ/9NZKf3X3TGDsa@casper.infradead.org>
+ <ZZ/9n3gitoBnq8na@casper.infradead.org>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
+In-Reply-To: <ZZ/9n3gitoBnq8na@casper.infradead.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggpemm100001.china.huawei.com (7.185.36.93)
 
 
 
-On 2024/1/11 21:36, Simon Horman wrote:
-> On Thu, Jan 11, 2024 at 08:00:21PM +0800, Wen Gu wrote:
->> This patch set acts as the second part of the new version of [1] (The
->> first part can be referred from [2]), the updated things of this version
->> are listed at the end.
+On 2024/1/11 22:39, Matthew Wilcox wrote:
+> On Thu, Jan 11, 2024 at 02:37:41PM +0000, Matthew Wilcox wrote:
+>> On Thu, Jan 11, 2024 at 07:12:32PM +0800, Kefeng Wang wrote:
+>>> Introduce a new pfn_swap_entry_to_folio(), it is similar to
+>>> pfn_swap_entry_to_page(), but return a folio, which allow us
+>>> to completely replace the struct page variables with struct
+>>> folio variables.
+>>
+>> I have the exact same patch in my tree except I called it
+>> pfn_swap_entry_folio().  I also noted:
+>>
+>>      Thanks to the compound_head() hidden inside PageLocked(), this saves a
+>>      call to compound_head() over calling page_folio(pfn_swap_entry_to_page())
+>>
+>>> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+>>
+>> Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 > 
-> ...
+> Oh, and I converted a couple of callers ...
+> migration_entry_wait_on_locked and change_huge_pmd.  Those should
+> probably be added to this patch.
 > 
-> Hi Wen Gu,
-> 
-> unfortunately net-next is currently closed.
-> 
-> [adapted from text by Jakub]
-> 
-> ## Form letter - net-next-closed
-> 
-> The merge window for v6.8 has begun and therefore net-next is closed
-> for new drivers, features, code refactoring and optimizations.
-> We are currently accepting bug fixes only.
-> 
-> Please repost when net-next reopens on or after 21st January.
-> 
-> RFC patches sent for review only are obviously welcome at any time.
-> 
-> See: https://www.kernel.org/doc/html/next/process/maintainer-netdev.html#development-cycle
-> --
-> pw-bot: defer
 
-Thank you for notifying, Simon. I will follow the development-cycle. Thanks again.
+Thanks for your update, and all above conversion in your v3, and I check
+more callers,  eg, hugetlb_change_protection,break_ksm_pmd_entry could
+be converted too, but we could send separate patch.
