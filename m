@@ -1,257 +1,340 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 019815B5B3
-	for <linux-s390@vger.kernel.org>; Fri, 12 Jan 2024 05:03:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="VeCGgIpn"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1705035801; x=1736571801;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=BEnMykRj0gfQ2uvwNbjSOsgkj/yi+JkdtVey25I3rHo=;
-  b=VeCGgIpnn5yFqRmCNkGV8IZUOQxkDiTF43kNLhGUdTMWqpxmBaCQSRw8
-   MWD79Ua0XN9XVp8aB5CGmUHo5pNJ4iGaolMo5RtjSaAMESJx3DeBDlRqr
-   8i/fAI1w58RMVO3qUJuUnEcxYosd1bfNhyqCBg/O6WIz2AnIeKBR5xIas
-   ukEPi7l+ej2uwXKQHT/Kgwq4KnoNW54/Xe00mz3I3eTWnYj+G21/bhCE1
-   r8NLUt1HMy5Vzhk69ZkmonPeEvdWZ2jxS/Z5U1uVPP3CDjPr8U0PUTBJg
-   UVlP+xANfrfX5/6P+uWa0T5t00yerYHuEM7+/DVvBeE4t4HnxgM13EFLx
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10950"; a="5846060"
-X-IronPort-AV: E=Sophos;i="6.04,188,1695711600"; 
-   d="scan'208";a="5846060"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2024 21:03:20 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10950"; a="926274324"
-X-IronPort-AV: E=Sophos;i="6.04,188,1695711600"; 
-   d="scan'208";a="926274324"
-Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
-  by fmsmga001.fm.intel.com with ESMTP; 11 Jan 2024 21:03:17 -0800
-Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rO9hL-000954-29;
-	Fri, 12 Jan 2024 05:03:15 +0000
-Date: Fri, 12 Jan 2024 13:03:00 +0800
-From: kernel test robot <lkp@intel.com>
-To: "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-	Andrew Morton <akpm@linux-foundation.org>
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	Linux Memory Management List <linux-mm@kvack.org>,
-	Kefeng Wang <wangkefeng.wang@huawei.com>, david@redhat.com,
-	linux-s390@vger.kernel.org, Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH v3 08/10] mm: Convert to should_zap_page() to
- should_zap_folio()
-Message-ID: <202401121250.A221BL2D-lkp@intel.com>
-References: <20240111152429.3374566-9-willy@infradead.org>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1981C5D8E7;
+	Fri, 12 Jan 2024 08:29:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R811e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W-SL9pO_1705048176;
+Received: from 30.221.130.160(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W-SL9pO_1705048176)
+          by smtp.aliyun-inc.com;
+          Fri, 12 Jan 2024 16:29:37 +0800
+Message-ID: <2d8e7aeb-06da-434c-b7fe-6c1bd2e0674a@linux.alibaba.com>
+Date: Fri, 12 Jan 2024 16:29:35 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240111152429.3374566-9-willy@infradead.org>
-
-Hi Matthew,
-
-kernel test robot noticed the following build warnings:
-
-[auto build test WARNING on akpm-mm/mm-everything]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Matthew-Wilcox-Oracle/mm-Add-pfn_swap_entry_folio/20240111-232757
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git mm-everything
-patch link:    https://lore.kernel.org/r/20240111152429.3374566-9-willy%40infradead.org
-patch subject: [PATCH v3 08/10] mm: Convert to should_zap_page() to should_zap_folio()
-config: arm-milbeaut_m10v_defconfig (https://download.01.org/0day-ci/archive/20240112/202401121250.A221BL2D-lkp@intel.com/config)
-compiler: clang version 16.0.4 (https://github.com/llvm/llvm-project.git ae42196bc493ffe877a7e3dff8be32035dea4d07)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240112/202401121250.A221BL2D-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202401121250.A221BL2D-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> mm/memory.c:1451:8: warning: variable 'folio' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
-                           if (page)
-                               ^~~~
-   mm/memory.c:1454:44: note: uninitialized use occurs here
-                           if (unlikely(!should_zap_folio(details, folio)))
-                                                                   ^~~~~
-   include/linux/compiler.h:77:42: note: expanded from macro 'unlikely'
-   # define unlikely(x)    __builtin_expect(!!(x), 0)
-                                               ^
-   mm/memory.c:1451:4: note: remove the 'if' if its condition is always true
-                           if (page)
-                           ^~~~~~~~~
-   mm/memory.c:1438:22: note: initialize the variable 'folio' to silence this warning
-                   struct folio *folio;
-                                      ^
-                                       = NULL
-   1 warning generated.
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 00/15] net/smc: implement loopback-ism used by
+ SMC-D
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
+ gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, jaka@linux.ibm.com,
+ borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+ tonylu@linux.alibaba.com, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20240111120036.109903-1-guwen@linux.alibaba.com>
+ <ZaAAJDiQ3bPGGRFK@nanopsycho>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <ZaAAJDiQ3bPGGRFK@nanopsycho>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
 
-vim +1451 mm/memory.c
 
-  1414	
-  1415	static unsigned long zap_pte_range(struct mmu_gather *tlb,
-  1416					struct vm_area_struct *vma, pmd_t *pmd,
-  1417					unsigned long addr, unsigned long end,
-  1418					struct zap_details *details)
-  1419	{
-  1420		struct mm_struct *mm = tlb->mm;
-  1421		int force_flush = 0;
-  1422		int rss[NR_MM_COUNTERS];
-  1423		spinlock_t *ptl;
-  1424		pte_t *start_pte;
-  1425		pte_t *pte;
-  1426		swp_entry_t entry;
-  1427	
-  1428		tlb_change_page_size(tlb, PAGE_SIZE);
-  1429		init_rss_vec(rss);
-  1430		start_pte = pte = pte_offset_map_lock(mm, pmd, addr, &ptl);
-  1431		if (!pte)
-  1432			return addr;
-  1433	
-  1434		flush_tlb_batched_pending(mm);
-  1435		arch_enter_lazy_mmu_mode();
-  1436		do {
-  1437			pte_t ptent = ptep_get(pte);
-  1438			struct folio *folio;
-  1439			struct page *page;
-  1440	
-  1441			if (pte_none(ptent))
-  1442				continue;
-  1443	
-  1444			if (need_resched())
-  1445				break;
-  1446	
-  1447			if (pte_present(ptent)) {
-  1448				unsigned int delay_rmap;
-  1449	
-  1450				page = vm_normal_page(vma, addr, ptent);
-> 1451				if (page)
-  1452					folio = page_folio(page);
-  1453	
-  1454				if (unlikely(!should_zap_folio(details, folio)))
-  1455					continue;
-  1456				ptent = ptep_get_and_clear_full(mm, addr, pte,
-  1457								tlb->fullmm);
-  1458				arch_check_zapped_pte(vma, ptent);
-  1459				tlb_remove_tlb_entry(tlb, pte, addr);
-  1460				zap_install_uffd_wp_if_needed(vma, addr, pte, details,
-  1461							      ptent);
-  1462				if (unlikely(!page)) {
-  1463					ksm_might_unmap_zero_page(mm, ptent);
-  1464					continue;
-  1465				}
-  1466	
-  1467				delay_rmap = 0;
-  1468				if (!folio_test_anon(folio)) {
-  1469					if (pte_dirty(ptent)) {
-  1470						folio_set_dirty(folio);
-  1471						if (tlb_delay_rmap(tlb)) {
-  1472							delay_rmap = 1;
-  1473							force_flush = 1;
-  1474						}
-  1475					}
-  1476					if (pte_young(ptent) && likely(vma_has_recency(vma)))
-  1477						folio_mark_accessed(folio);
-  1478				}
-  1479				rss[mm_counter(page)]--;
-  1480				if (!delay_rmap) {
-  1481					folio_remove_rmap_pte(folio, page, vma);
-  1482					if (unlikely(page_mapcount(page) < 0))
-  1483						print_bad_pte(vma, addr, ptent, page);
-  1484				}
-  1485				if (unlikely(__tlb_remove_page(tlb, page, delay_rmap))) {
-  1486					force_flush = 1;
-  1487					addr += PAGE_SIZE;
-  1488					break;
-  1489				}
-  1490				continue;
-  1491			}
-  1492	
-  1493			entry = pte_to_swp_entry(ptent);
-  1494			if (is_device_private_entry(entry) ||
-  1495			    is_device_exclusive_entry(entry)) {
-  1496				page = pfn_swap_entry_to_page(entry);
-  1497				folio = page_folio(page);
-  1498				if (unlikely(!should_zap_folio(details, folio)))
-  1499					continue;
-  1500				/*
-  1501				 * Both device private/exclusive mappings should only
-  1502				 * work with anonymous page so far, so we don't need to
-  1503				 * consider uffd-wp bit when zap. For more information,
-  1504				 * see zap_install_uffd_wp_if_needed().
-  1505				 */
-  1506				WARN_ON_ONCE(!vma_is_anonymous(vma));
-  1507				rss[mm_counter(page)]--;
-  1508				if (is_device_private_entry(entry))
-  1509					folio_remove_rmap_pte(folio, page, vma);
-  1510				folio_put(folio);
-  1511			} else if (!non_swap_entry(entry)) {
-  1512				/* Genuine swap entry, hence a private anon page */
-  1513				if (!should_zap_cows(details))
-  1514					continue;
-  1515				rss[MM_SWAPENTS]--;
-  1516				if (unlikely(!free_swap_and_cache(entry)))
-  1517					print_bad_pte(vma, addr, ptent, NULL);
-  1518			} else if (is_migration_entry(entry)) {
-  1519				folio = pfn_swap_entry_folio(entry);
-  1520				if (!should_zap_folio(details, folio))
-  1521					continue;
-  1522				rss[mm_counter(&folio->page)]--;
-  1523			} else if (pte_marker_entry_uffd_wp(entry)) {
-  1524				/*
-  1525				 * For anon: always drop the marker; for file: only
-  1526				 * drop the marker if explicitly requested.
-  1527				 */
-  1528				if (!vma_is_anonymous(vma) &&
-  1529				    !zap_drop_file_uffd_wp(details))
-  1530					continue;
-  1531			} else if (is_hwpoison_entry(entry) ||
-  1532				   is_poisoned_swp_entry(entry)) {
-  1533				if (!should_zap_cows(details))
-  1534					continue;
-  1535			} else {
-  1536				/* We should have covered all the swap entry types */
-  1537				pr_alert("unrecognized swap entry 0x%lx\n", entry.val);
-  1538				WARN_ON_ONCE(1);
-  1539			}
-  1540			pte_clear_not_present_full(mm, addr, pte, tlb->fullmm);
-  1541			zap_install_uffd_wp_if_needed(vma, addr, pte, details, ptent);
-  1542		} while (pte++, addr += PAGE_SIZE, addr != end);
-  1543	
-  1544		add_mm_rss_vec(mm, rss);
-  1545		arch_leave_lazy_mmu_mode();
-  1546	
-  1547		/* Do the actual TLB flush before dropping ptl */
-  1548		if (force_flush) {
-  1549			tlb_flush_mmu_tlbonly(tlb);
-  1550			tlb_flush_rmaps(tlb, vma);
-  1551		}
-  1552		pte_unmap_unlock(start_pte, ptl);
-  1553	
-  1554		/*
-  1555		 * If we forced a TLB flush (either due to running out of
-  1556		 * batch buffers or because we needed to flush dirty TLB
-  1557		 * entries before releasing the ptl), free the batched
-  1558		 * memory too. Come back again if we didn't do everything.
-  1559		 */
-  1560		if (force_flush)
-  1561			tlb_flush_mmu(tlb);
-  1562	
-  1563		return addr;
-  1564	}
-  1565	
+On 2024/1/11 22:50, Jiri Pirko wrote:
+> Thu, Jan 11, 2024 at 01:00:21PM CET, guwen@linux.alibaba.com wrote:
+>> This patch set acts as the second part of the new version of [1] (The first
+>> part can be referred from [2]), the updated things of this version are listed
+>> at the end.
+>>
+>> # Background
+>>
+>> SMC-D is now used in IBM z with ISM function to optimize network interconnect
+>> for intra-CPC communications. Inspired by this, we try to make SMC-D available
+> 
+> Care to provide more details about what ISM and intra-CPC is and what it
+> it good for?
+> 
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Hi Jiri,
+
+Sure,
+
+ISM (IBM System Z Internal Shared Memory) is a technology that provides the
+internal communications capability required for SMC-D. It is a virtual PCI
+network adapter that enables direct access to shared virtual memory providing
+a highly optimized network interconnect for IBM Z intra-CPC communications.
+(It can be found in https://www.ibm.com/docs/en/zos/3.1.0?topic=communications-shared-memory-reference-information
+and https://www.ibm.com/docs/en/zos/3.1.0?topic=dv2-ismv2)
+
+CPC (Central processor complex) is an IBM mainframe term to refer to the physical
+collection of hardware that includes main storage, one or more central processors,
+timers, and channels.
+(It can be found in https://www.ibm.com/docs/en/zos-basic-skills?topic=concepts-mainframe-hardware-terminology
+and https://www.ibm.com/docs/en/ztpf/2023?topic=support-central-processor-complex-cpc)
+
+SMC (Shared Memory Communications) is a network protocol that allows two SMC
+capable peers to communicate using memory that each peer allocates and manages
+for their partner’s use. It has two forms:
+
+- SMC over Remote Direct Memory Access (SMC-R)
+
+   It is an open protocol that was initially introduced in z/OS V2R1 on the IBM zEC12.
+   SMC-R is defined in an informational RFC entitled IBM’s Shared Memory Communications
+   over RDMA (https://tools.ietf.org/html/rfc7609).
+
+- SMC - Direct Memory Access (SMC-D)
+
+   It is a variation of SMC-R. SMC-D is closely related to SMC-R but is based on the
+   Internal Shared Memory (ISM) capabilities introduced with the IBM z13™ (z13) hardware
+   model.
+
+(SMC protocol can be found in 
+https://www.ibm.com/support/pages/system/files/inline-files/IBM%20Shared%20Memory%20Communications%20Version%202.1_0.pdf)
+
+So with ISM function, SMC-D can be used to improves throughput, lowers latency and cost,
+and maintains existing functions of communications within CPC.
+
+> 
+>> on the non-s390 architecture through a software-implemented virtual ISM device,
+>> that is the loopback-ism device here, to accelerate inter-process or
+> 
+> I see no such device. Is it a netdevice?
+
+Currently, SMC-D depends on ISM and is only available on IBM Z systems. Now we try
+to make SMC-D available on other system architectures other than s390 and Z system.
+So 'virtual ISM' is proposed and acts as original firmware ISM on Z system.
+(The virtual ISM supports can be found in https://lore.kernel.org/netdev/20231219142616.80697-1-guwen@linux.alibaba.com/)
+
+The loopback-ism is the first virtual ISM. It does not rely on a specific architecture
+or hardware, and provides functions that ISM should have (like a dummy device). It is
+designed to be used by SMC-D when communication occurs within OS instance.
+
+It is not a typical network device, since it primarily provides exact functions
+defined by SMC-D device operations(struct smcd_ops), e.g. provides and manages the
+shared memory (term used is DMB in SMC, Direct Memory Buffer).
+
+It can't be found now since it is introduced by this patchset.
+
+> 
+> If it is "software-implemented", why is it part of smc driver and not
+> separate soft-device driver? If there is some smc specific code, I guess
+> there should be some level of separation. Can't this be implemented by
+> other devices too?
+> 
+
+loopback-ism is designed to specifically used by SMC-D (like s390 ISM), to
+serves as a easy-available ISM for community to test SMC-D and to accelerate
+intra-OS communication (see benchmark test). So the code is under net/smc.
+
+> 
+> 
+>> inter-containers communication within the same OS instance.
+>>
+>> # Design
+>>
+>> This patch set includes 3 parts:
+>>
+>> - Patch #1-#2: some prepare work for loopback-ism.
+>> - Patch #3-#9: implement loopback-ism device.
+>> - Patch #10-#15: memory copy optimization for loopback scenario.
+>>
+>> The loopback-ism device is designed as a ISMv2 device and not be limited to
+>> a specific net namespace, ends of both inter-process connection (1/1' in diagram
+>> below) or inter-container connection (2/2' in diagram below) can find the same
+>> available loopback-ism and choose it during the CLC handshake.
+>>
+>> Container 1 (ns1)                              Container 2 (ns2)
+>> +-----------------------------------------+    +-------------------------+
+>> | +-------+      +-------+      +-------+ |    |        +-------+        |
+>> | | App A |      | App B |      | App C | |    |        | App D |<-+     |
+>> | +-------+      +---^---+      +-------+ |    |        +-------+  |(2') |
+>> |     |127.0.0.1 (1')|             |192.168.0.11       192.168.0.12|     |
+>> |  (1)|   +--------+ | +--------+  |(2)   |    | +--------+   +--------+ |
+>> |     `-->|   lo   |-` |  eth0  |<-`      |    | |   lo   |   |  eth0  | |
+>> +---------+--|---^-+---+-----|--+---------+    +-+--------+---+-^------+-+
+>>               |   |           |                                  |
+>> Kernel       |   |           |                                  |
+>> +----+-------v---+-----------v----------------------------------+---+----+
+>> |    |                            TCP                               |    |
+>> |    |                                                              |    |
+>> |    +--------------------------------------------------------------+    |
+>> |                                                                        |
+>> |                           +--------------+                             |
+>> |                           | smc loopback |                             |
+>> +---------------------------+--------------+-----------------------------+
+>>
+>> loopback-ism device creates DMBs (shared memory) for each connection peer.
+>> Since data transfer occurs within the same kernel, the sndbuf of each peer
+>> is only a descriptor and point to the same memory region as peer DMB, so that
+>> the data copy from sndbuf to peer DMB can be avoided in loopback-ism case.
+>>
+>> Container 1 (ns1)                              Container 2 (ns2)
+>> +-----------------------------------------+    +-------------------------+
+>> | +-------+                               |    |        +-------+        |
+>> | | App C |-----+                         |    |        | App D |        |
+>> | +-------+     |                         |    |        +-^-----+        |
+>> |               |                         |    |          |              |
+>> |           (2) |                         |    |     (2') |              |
+>> |               |                         |    |          |              |
+>> +---------------|-------------------------+    +----------|--------------+
+>>                  |                                         |
+>> Kernel          |                                         |
+>> +---------------|-----------------------------------------|--------------+
+>> | +--------+ +--v-----+                           +--------+ +--------+  |
+>> | |dmb_desc| |snd_desc|                           |dmb_desc| |snd_desc|  |
+>> | +-----|--+ +--|-----+                           +-----|--+ +--------+  |
+>> | +-----|--+    |                                 +-----|--+             |
+>> | | DMB C  |    +---------------------------------| DMB D  |             |
+>> | +--------+                                      +--------+             |
+>> |                                                                        |
+>> |                           +--------------+                             |
+>> |                           | smc loopback |                             |
+>> +---------------------------+--------------+-----------------------------+
+>>
+>> # Benchmark Test
+>>
+>> * Test environments:
+>>       - VM with Intel Xeon Platinum 8 core 2.50GHz, 16 GiB mem.
+>>       - SMC sndbuf/DMB size 1MB.
+>>       - /sys/devices/virtual/smc/loopback-ism/dmb_copy is set to default 0,
+>>         which means sndbuf and DMB are merged and no data copied between them.
+>>       - /sys/devices/virtual/smc/loopback-ism/dmb_type is set to default 0,
+> 
+> Exposing any configuration knobs and statistics over sysfs for
+> softdevices does not look correct at all :/ Could you please avoid
+> sysfs?
+> 
+
+In previous reviews and calls, we think loopback-ism needs to be more
+like a device and be visible under /sys/devices.
+
+Would you mind explaining why using sysfs for loopback-ism is not correct?
+since I saw some other configurations or statistics exists under /sys/devices,
+e.g. /sys/devices/virtual/net/lo. Thank you!
+
+
+
+Thanks again,
+Wen Gu
+
+> 
+>>         which means DMB is physically contiguous buffer.
+>>
+>> * Test object:
+>>       - TCP: run on TCP loopback.
+>>       - SMC lo: run on SMC loopback device.
+>>
+>> 1. ipc-benchmark (see [3])
+>>
+>> - ./<foo> -c 1000000 -s 100
+>>
+>>                             TCP                  SMC-lo
+>> Message
+>> rate (msg/s)              80636                  149515(+85.42%)
+>>
+>> 2. sockperf
+>>
+>> - serv: <smc_run> taskset -c <cpu> sockperf sr --tcp
+>> - clnt: <smc_run> taskset -c <cpu> sockperf { tp | pp } --tcp --msg-size={ 64000 for tp | 14 for pp } -i 127.0.0.1 -t 30
+>>
+>>                             TCP                  SMC-lo
+>> Bandwidth(MBps)         4909.36                 8197.57(+66.98%)
+>> Latency(us)               6.098                   3.383(-44.52%)
+>>
+>> 3. nginx/wrk
+>>
+>> - serv: <smc_run> nginx
+>> - clnt: <smc_run> wrk -t 8 -c 1000 -d 30 http://127.0.0.1:80
+>>
+>>                            TCP                   SMC-lo
+>> Requests/s           181685.74                246447.77(+35.65%)
+>>
+>> 4. redis-benchmark
+>>
+>> - serv: <smc_run> redis-server
+>> - clnt: <smc_run> redis-benchmark -h 127.0.0.1 -q -t set,get -n 400000 -c 200 -d 1024
+>>
+>>                            TCP                   SMC-lo
+>> GET(Requests/s)       85855.34                118553.64(+38.09%)
+>> SET(Requests/s)       86824.40                125944.58(+45.06%)
+>>
+>>
+>> Change log:
+>>
+>> v1->RFC:
+>> - Patch #9: merge rx_bytes and tx_bytes as xfer_bytes statistics:
+>>   /sys/devices/virtual/smc/loopback-ism/xfer_bytes
+>> - Patch #10: add support_dmb_nocopy operation to check if SMC-D device supports
+>>   merging sndbuf with peer DMB.
+>> - Patch #13 & #14: introduce loopback-ism device control of DMB memory type and
+>>   control of whether to merge sndbuf and DMB. They can be respectively set by:
+>>   /sys/devices/virtual/smc/loopback-ism/dmb_type
+>>   /sys/devices/virtual/smc/loopback-ism/dmb_copy
+>>   The motivation for these two control is that a performance bottleneck was
+>>   found when using vzalloced DMB and sndbuf is merged with DMB, and there are
+>>   many CPUs and CONFIG_HARDENED_USERCOPY is set [4]. The bottleneck is caused
+>>   by the lock contention in vmap_area_lock [5] which is involved in memcpy_from_msg()
+>>   or memcpy_to_msg(). Currently, Uladzislau Rezki is working on mitigating the
+>>   vmap lock contention [6]. It has significant effects, but using virtual memory
+>>   still has additional overhead compared to using physical memory.
+>>   So this new version provides controls of dmb_type and dmb_copy to suit
+>>   different scenarios.
+>> - Some minor changes and comments improvements.
+>>
+>> RFC->old version([1]):
+>> Link: https://lore.kernel.org/netdev/1702214654-32069-1-git-send-email-guwen@linux.alibaba.com/
+>> - Patch #1: improve the loopback-ism dump, it shows as follows now:
+>>   # smcd d
+>>   FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
+>>   0000 0     loopback-ism  ffff   No        0
+>> - Patch #3: introduce the smc_ism_set_v2_capable() helper and set
+>>   smc_ism_v2_capable when ISMv2 or virtual ISM is registered,
+>>   regardless of whether there is already a device in smcd device list.
+>> - Patch #3: loopback-ism will be added into /sys/devices/virtual/smc/loopback-ism/.
+>> - Patch #8: introduce the runtime switch /sys/devices/virtual/smc/loopback-ism/active
+>>   to activate or deactivate the loopback-ism.
+>> - Patch #9: introduce the statistics of loopback-ism by
+>>   /sys/devices/virtual/smc/loopback-ism/{{tx|rx}_tytes|dmbs_cnt}.
+>> - Some minor changes and comments improvements.
+>>
+>> [1] https://lore.kernel.org/netdev/1695568613-125057-1-git-send-email-guwen@linux.alibaba.com/
+>> [2] https://lore.kernel.org/netdev/20231219142616.80697-1-guwen@linux.alibaba.com/
+>> [3] https://github.com/goldsborough/ipc-bench
+>> [4] https://lore.kernel.org/all/3189e342-c38f-6076-b730-19a6efd732a5@linux.alibaba.com/
+>> [5] https://lore.kernel.org/all/238e63cd-e0e8-4fbf-852f-bc4d5bc35d5a@linux.alibaba.com/
+>> [6] https://lore.kernel.org/all/20240102184633.748113-1-urezki@gmail.com/
+>>
+>> Wen Gu (15):
+>>   net/smc: improve SMC-D device dump for virtual ISM
+>>   net/smc: decouple specialized struct from SMC-D DMB registration
+>>   net/smc: introduce virtual ISM device loopback-ism
+>>   net/smc: implement ID-related operations of loopback-ism
+>>   net/smc: implement some unsupported operations of loopback-ism
+>>   net/smc: implement DMB-related operations of loopback-ism
+>>   net/smc: register loopback-ism into SMC-D device list
+>>   net/smc: introduce loopback-ism runtime switch
+>>   net/smc: introduce loopback-ism statistics attributes
+>>   net/smc: add operations to merge sndbuf with peer DMB
+>>   net/smc: attach or detach ghost sndbuf to peer DMB
+>>   net/smc: adapt cursor update when sndbuf and peer DMB are merged
+>>   net/smc: introduce loopback-ism DMB type control
+>>   net/smc: introduce loopback-ism DMB data copy control
+>>   net/smc: implement DMB-merged operations of loopback-ism
+>>
+>> drivers/s390/net/ism_drv.c |   2 +-
+>> include/net/smc.h          |   7 +-
+>> net/smc/Kconfig            |  13 +
+>> net/smc/Makefile           |   2 +-
+>> net/smc/af_smc.c           |  28 +-
+>> net/smc/smc_cdc.c          |  58 ++-
+>> net/smc/smc_cdc.h          |   1 +
+>> net/smc/smc_core.c         |  61 +++-
+>> net/smc/smc_core.h         |   1 +
+>> net/smc/smc_ism.c          |  71 +++-
+>> net/smc/smc_ism.h          |   5 +
+>> net/smc/smc_loopback.c     | 718 +++++++++++++++++++++++++++++++++++++
+>> net/smc/smc_loopback.h     |  88 +++++
+>> 13 files changed, 1026 insertions(+), 29 deletions(-)
+>> create mode 100644 net/smc/smc_loopback.c
+>> create mode 100644 net/smc/smc_loopback.h
+>>
+>> -- 
+>> 2.32.0.3.g01195cf9f
+>>
+>>
