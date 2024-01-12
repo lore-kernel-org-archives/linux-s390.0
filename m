@@ -1,132 +1,221 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2B5E59B48;
-	Fri, 12 Jan 2024 16:24:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 135C117BB8;
+	Fri, 12 Jan 2024 17:43:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Kk2Kjk9g"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40CG3EA8027416;
-	Fri, 12 Jan 2024 16:24:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=RxEHIg7DGFXOca2Mhz4kWUVWHKWrwumAGtar5WT3MDU=;
- b=Kk2Kjk9gzpHbMA2WzV9Yx6AcX5bk2xa3ukx95groP4+f/v+b56+A6UE0pzl91pZAtvxi
- wz2HxjYh2ITubGypU0iQNRVBg3Yz037S2yPFWWgTDrwNev1zn8dR2W+kEZOnFVBB7vik
- 9gRwDpKFUzfh2+UsQeaEEf7tFM6oOrSgCu7zmYhkgD4sBxML2fr+PhstHpjrWYqwV64n
- 1bAYP8grh8S+uf5sSZIjfxoUKGcQjDlCPNpHIAaMVHA9IhfuDdzz2HYOe1ByBZQ/gTJ8
- /9x7A2XDxb9GbnunGbYYCFT+NgJmPyQEVcsRDaD9lb+xImse7IG8Aobu8x/8+Al2bfN3 Bg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vk8kp8kyg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 12 Jan 2024 16:24:25 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40CG3YhY028319;
-	Fri, 12 Jan 2024 16:24:25 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vk8kp8ky8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 12 Jan 2024 16:24:25 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40CDU8UE022933;
-	Fri, 12 Jan 2024 16:24:24 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vfj6p31eq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 12 Jan 2024 16:24:24 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40CGOLW548300446
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 12 Jan 2024 16:24:21 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2846520040;
-	Fri, 12 Jan 2024 16:24:21 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2884D20043;
-	Fri, 12 Jan 2024 16:24:20 +0000 (GMT)
-Received: from [9.171.30.215] (unknown [9.171.30.215])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 12 Jan 2024 16:24:20 +0000 (GMT)
-Message-ID: <e0b80a1680ccc693de3f29bfaa9fa654c3b7b4fa.camel@linux.ibm.com>
-Subject: Re: [PATCH net-next 14/15] net/smc: introduce loopback-ism DMB data
- copy control
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com,
-        wenjia@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
-        tonylu@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Date: Fri, 12 Jan 2024 17:24:19 +0100
-In-Reply-To: <20240111120036.109903-15-guwen@linux.alibaba.com>
-References: <20240111120036.109903-1-guwen@linux.alibaba.com>
-	 <20240111120036.109903-15-guwen@linux.alibaba.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.50.2 (3.50.2-1.fc39) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: yeP6eOhNQFbRSTF1gAsJbOO60ws2pGzz
-X-Proofpoint-ORIG-GUID: 9pUyUCtWd7FbuQRSnCoprbnp1IrvFBTv
-Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="Fo5wse9h";
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="Fo5wse9h"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 240F31FCE1;
+	Fri, 12 Jan 2024 17:43:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1705081436; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=dfYWGR1tBHj4DNq4HxQTR05QZzyb9i60J+dSqVxCRZ4=;
+	b=Fo5wse9hgSHMplYDW+7nsrDGhLul7ene7XbJHvbKY1BRCiYCqn/ffzglQ/Phr2lXxTs/dA
+	3rvlPYqiXKj6YpEqVoDHRoGoECkTOypp0Jbg+pL4PqY3CqIPUb5JIZ+S7NWkxWBvjdC7rU
+	FqHG02pCk+3wF1M2g1DHPtECjj5c8KU=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1705081436; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=dfYWGR1tBHj4DNq4HxQTR05QZzyb9i60J+dSqVxCRZ4=;
+	b=Fo5wse9hgSHMplYDW+7nsrDGhLul7ene7XbJHvbKY1BRCiYCqn/ffzglQ/Phr2lXxTs/dA
+	3rvlPYqiXKj6YpEqVoDHRoGoECkTOypp0Jbg+pL4PqY3CqIPUb5JIZ+S7NWkxWBvjdC7rU
+	FqHG02pCk+3wF1M2g1DHPtECjj5c8KU=
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9A009136A4;
+	Fri, 12 Jan 2024 17:43:55 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id SHDNF1t6oWX/PQAAD6G6ig
+	(envelope-from <mpdesouza@suse.com>); Fri, 12 Jan 2024 17:43:55 +0000
+From: Marcos Paulo de Souza <mpdesouza@suse.com>
+Subject: [PATCH v6 0/3] livepatch: Move modules to selftests and add a new
+ test
+Date: Fri, 12 Jan 2024 14:43:49 -0300
+Message-Id: <20240112-send-lp-kselftests-v6-0-79f3e9a46717@suse.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-12_08,2024-01-12_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- bulkscore=0 mlxlogscore=999 impostorscore=0 phishscore=0 spamscore=0
- clxscore=1011 malwarescore=0 suspectscore=0 adultscore=0 mlxscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401120128
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAFV6oWUC/32P3W6DMAxGX6XK9YIc5wfo1d5j2kVIzIjWAsIUb
+ at494VKVauq2+Vn+ZzPPgumKRGL/e4sJloSp6HPwb3sROh8/0EyxZwFAmoFWkmmPsrDKD+ZDu1
+ MPLM0oVZlDNFYZ0UGG88km8n3odvQZmzvtxfcdsaJ2vR1KX57z7lLPA/T9+WORW3TrRLB5U6j0
+ WBRlSCVPI6ReDj9+Fc+MRVhOIoNz9IbokEZhegKrAD/YfSV+fOzRUuQ2ChnbUAHtn0wmJshFz8
+ 1mGwwEaCsyNaNf7zBXg0GFNRPDTYbtDPR1t7VrcI7w7quvwgouL7CAQAA
+To: Shuah Khan <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, Josh Poimboeuf <jpoimboe@kernel.org>, 
+ Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, 
+ Petr Mladek <pmladek@suse.com>, Joe Lawrence <joe.lawrence@redhat.com>
+Cc: linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+ live-patching@vger.kernel.org, Marcos Paulo de Souza <mpdesouza@suse.com>
+X-Mailer: b4 0.12.4
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1705081432; l=6073;
+ i=mpdesouza@suse.com; s=20231031; h=from:subject:message-id;
+ bh=Db0T1Mq+alE4Mw064gEzKEj1s/yqlCXRfv91dO8/7sk=;
+ b=iy9svV7iVWtl5onmz0yzTkWGl8ndRuRKPoFYVQLfOQpL+pP+axxbXkC/yRM/2h6PmWJnSRHJl
+ 0GlMZwzKM16Bur9DARRh8HDDeglSS51XPyFjGgJv2r1UsMi+FMXQJM8
+X-Developer-Key: i=mpdesouza@suse.com; a=ed25519;
+ pk=/Ni/TsKkr69EOmdZXkp1Q/BlzDonbOBRsfPa18ySIwU=
+Authentication-Results: smtp-out2.suse.de;
+	none
+X-Spamd-Result: default: False [-3.10 / 50.00];
+	 ARC_NA(0.00)[];
+	 RCVD_VIA_SMTP_AUTH(0.00)[];
+	 BAYES_HAM(-3.00)[100.00%];
+	 FROM_HAS_DN(0.00)[];
+	 TO_DN_SOME(0.00)[];
+	 TO_MATCH_ENVRCPT_ALL(0.00)[];
+	 MIME_GOOD(-0.10)[text/plain];
+	 RCVD_COUNT_THREE(0.00)[3];
+	 DKIM_SIGNED(0.00)[suse.com:s=susede1];
+	 RCPT_COUNT_TWELVE(0.00)[18];
+	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email];
+	 FUZZY_BLOCKED(0.00)[rspamd.com];
+	 FROM_EQ_ENVFROM(0.00)[];
+	 MIME_TRACE(0.00)[0:+];
+	 RCVD_TLS_ALL(0.00)[];
+	 MID_RHS_MATCH_FROM(0.00)[]
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Spam-Score: -3.10
 
-On Thu, 2024-01-11 at 20:00 +0800, Wen Gu wrote:
-> This provides a way to {get|set} whether loopback-ism device supports
-> merging sndbuf with peer DMB to eliminate data copies between them.
->=20
-> echo 0 > /sys/devices/virtual/smc/loopback-ism/dmb_copy # support
-> echo 1 > /sys/devices/virtual/smc/loopback-ism/dmb_copy # not support
+Changes in v6:
+- Rebased on top of 70d201a40823 (thanks Alexander Gordeev!)
+- Resolved a conflict because of 43e8832fed08 being reverted
+- Resolved a missing static declaration for lp_sys_getpid, since
+  -Wmissing-prototypes warning was enabled.
+- Retested everything, from running the livepatch selftests from kernel
+  source, running from a directory here the testes were installed (Joe's
+  usecase), and running from a gen_tar'ed directory. All of them
+  executed correctly.
+- Added Petr review tags (Thanks!)
+- Link to v5: https://lore.kernel.org/r/20240109-send-lp-kselftests-v5-0-364d59a69f12@suse.com
 
-The two support/no support remarks are a bit confusing because support
-here seems to mean "support no-copy mode" while the attribute is more
-like "force copy mode". How about:
+Changes in v5:
+* Fixed an issue found by Joe that copied Kbuild files along with the
+  test modules to the installation directory.
+* Added Joe Lawrense review tags.
 
-echo 0 > /sys/devices/virtual/smc/loopback-ism/dmb_copy # one DMB mode
-echo 1 > /sys/devices/virtual/smc/loopback-ism/dmb_copy # copy mode
+Changes in v4:
+* Documented how to compile the livepatch selftests without running the
+  tests (Joe)
+* Removed the mention to lib/livepatch on MAINTAINERS file, reported by
+  checkpatch.
 
->=20
-> The settings take effect after re-activating loopback-ism by:
->=20
-> echo 0 > /sys/devices/virtual/smc/loopback-ism/active
-> echo 1 > /sys/devices/virtual/smc/loopback-ism/active
->=20
-> After this, the link group related to loopback-ism will be flushed and
-> the sndbufs of subsequent connections will be merged or not merged with
-> peer DMB.
->=20
-> The motivation of this control is that the bandwidth will be highly
-> improved when sndbuf and DMB are merged, but when virtually contiguous
-> DMB is provided and merged with sndbuf, it will be concurrently accessed
-> on Tx and Rx, then there will be a bottleneck caused by lock contention
-> of find_vmap_area when there are many CPUs and CONFIG_HARDENED_USERCOPY
-> is set (see link below). So an option is provided.
->=20
-> Link: https://lore.kernel.org/all/238e63cd-e0e8-4fbf-852f-bc4d5bc35d5a@li=
-nux.alibaba.com/
-> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
----8<---
+Changes in v3:
+* Rebased on top of v6.6-rc5
+* The commits messages were improved (Thanks Petr!)
+* Created TEST_GEN_MODS_DIR variable to point to a directly that contains kernel
+  modules, and adapt selftests to build it before running the test.
+* Moved test_klp-call_getpid out of test_programs, since the gen_tar
+  would just copy the generated test programs to the livepatches dir,
+  and so scripts relying on test_programs/test_klp-call_getpid will fail.
+* Added a module_param for klp_pids, describing it's usage.
+* Simplified the call_getpid program to ignore the return of getpid syscall,
+  since we only want to make sure the process transitions correctly to the
+  patched stated
+* The test-syscall.sh not prints a log message showing the number of remaining
+  processes to transition into to livepatched state, and check_output expects it
+  to be 0.
+* Added MODULE_AUTHOR and MODULE_DESCRIPTION to test_klp_syscall.c
+
+- Link to v3: https://lore.kernel.org/r/20231031-send-lp-kselftests-v3-0-2b1655c2605f@suse.com
+- Link to v2: https://lore.kernel.org/linux-kselftest/20220630141226.2802-1-mpdesouza@suse.com/
+
+This patchset moves the current kernel testing livepatch modules from
+lib/livepatches to tools/testing/selftest/livepatch/test_modules, and compiles
+them as out-of-tree modules before testing.
+
+There is also a new test being added. This new test exercises multiple processes
+calling a syscall, while a livepatch patched the syscall.
+
+Why this move is an improvement:
+* The modules are now compiled as out-of-tree modules against the current
+  running kernel, making them capable of being tested on different systems with
+  newer or older kernels.
+* Such approach now needs kernel-devel package to be installed, since they are
+  out-of-tree modules. These can be generated by running "make rpm-pkg" in the
+  kernel source.
+
+What needs to be solved:
+* Currently gen_tar only packages the resulting binaries of the tests, and not
+  the sources. For the current approach, the newly added modules would be
+  compiled and then packaged. It works when testing on a system with the same
+  kernel version. But it will fail when running on a machine with different kernel
+  version, since module was compiled against the kernel currently running.
+
+  This is not a new problem, just aligning the expectations. For the current
+  approach to be truly system agnostic gen_tar would need to include the module
+  and program sources to be compiled in the target systems.
+
+Thanks in advance!
+  Marcos
+
+Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
+---
+Marcos Paulo de Souza (3):
+      kselftests: lib.mk: Add TEST_GEN_MODS_DIR variable
+      livepatch: Move tests from lib/livepatch to selftests/livepatch
+      selftests: livepatch: Test livepatching a heavily called syscall
+
+ Documentation/dev-tools/kselftest.rst              |   4 +
+ MAINTAINERS                                        |   1 -
+ arch/s390/configs/debug_defconfig                  |   1 -
+ arch/s390/configs/defconfig                        |   1 -
+ lib/Kconfig.debug                                  |  22 ----
+ lib/Makefile                                       |   2 -
+ lib/livepatch/Makefile                             |  14 ---
+ tools/testing/selftests/lib.mk                     |  26 ++++-
+ tools/testing/selftests/livepatch/Makefile         |   5 +-
+ tools/testing/selftests/livepatch/README           |  25 +++--
+ tools/testing/selftests/livepatch/config           |   1 -
+ tools/testing/selftests/livepatch/functions.sh     |  34 +++---
+ .../testing/selftests/livepatch/test-callbacks.sh  |  50 ++++-----
+ tools/testing/selftests/livepatch/test-ftrace.sh   |   6 +-
+ .../testing/selftests/livepatch/test-livepatch.sh  |  10 +-
+ .../selftests/livepatch/test-shadow-vars.sh        |   2 +-
+ tools/testing/selftests/livepatch/test-state.sh    |  18 ++--
+ tools/testing/selftests/livepatch/test-syscall.sh  |  53 ++++++++++
+ tools/testing/selftests/livepatch/test-sysfs.sh    |   6 +-
+ .../selftests/livepatch/test_klp-call_getpid.c     |  44 ++++++++
+ .../selftests/livepatch/test_modules/Makefile      |  20 ++++
+ .../test_modules}/test_klp_atomic_replace.c        |   0
+ .../test_modules}/test_klp_callbacks_busy.c        |   0
+ .../test_modules}/test_klp_callbacks_demo.c        |   0
+ .../test_modules}/test_klp_callbacks_demo2.c       |   0
+ .../test_modules}/test_klp_callbacks_mod.c         |   0
+ .../livepatch/test_modules}/test_klp_livepatch.c   |   0
+ .../livepatch/test_modules}/test_klp_shadow_vars.c |   0
+ .../livepatch/test_modules}/test_klp_state.c       |   0
+ .../livepatch/test_modules}/test_klp_state2.c      |   0
+ .../livepatch/test_modules}/test_klp_state3.c      |   0
+ .../livepatch/test_modules/test_klp_syscall.c      | 116 +++++++++++++++++++++
+ 32 files changed, 340 insertions(+), 121 deletions(-)
+---
+base-commit: 70d201a40823acba23899342d62bc2644051ad2e
+change-id: 20231031-send-lp-kselftests-4c917dcd4565
+
+Best regards,
+-- 
+Marcos Paulo de Souza <mpdesouza@suse.com>
+
