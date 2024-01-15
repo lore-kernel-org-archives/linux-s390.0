@@ -1,335 +1,158 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0264517587
-	for <linux-s390@vger.kernel.org>; Mon, 15 Jan 2024 14:11:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2226C17C62;
+	Mon, 15 Jan 2024 16:36:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="TjWB3v79"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-40d6b4e2945so100864885e9.0
-        for <linux-s390@vger.kernel.org>; Mon, 15 Jan 2024 06:11:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1705327879; x=1705932679; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=nEW8TVJOCkMKaJNej4PCDNmTXZ9hZKRmiCLW8yVU9wQ=;
-        b=TjWB3v79d0iF2khZv3pGateoaF8pV7aV+wk7Txx3g5r8um9oSyPx2nizdac0lB7xPT
-         hlrQznkjFaqmpBHAFkPVtk55S8ojcXtsEsmSOL+6Cp1SVEdTzeDIWuse36Cv3HCPDIoe
-         119Uw+lYGrkhL+oXzq+F5JSbhBG0ABjC2uml8+bnHFmLGXnCdRbVpRW8LIwlKGH/Mjne
-         nXCqYqeEDpxvSTuKPjBwvleiU71NW0YjomqunoBNLIGuyzQseQC3TLr5pLsTj78zYrAZ
-         dlpNYGr7UUKAatBgKClP0cjqdbMnSFMt5AGSIa4xORmCzP0FOBylBGeO9hkcm2Mkq28b
-         NW+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705327879; x=1705932679;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=nEW8TVJOCkMKaJNej4PCDNmTXZ9hZKRmiCLW8yVU9wQ=;
-        b=QsfHFAGRiW7I8GS8S2zWKwoGRepxVknyr6EQBtdVP0HhH5sn1e10hqlBeeRqm8rrqV
-         nqHQQaTVCc7G8RcwRc/8zQqTnuZpMeUnU8iq8RhpfOxdnUiBlXOpKi4sSJ3Ianc3AGDI
-         744tjKj335YoWfPJeLkb2FiFNbiBRFZP444Yw6sv1FmFvEwtYuw2apy5Qsl5RsII5tti
-         5c4g+H8KTVyg0lxTvLR7uexcOxUp38ds1OVMdAwU0v6L65WSHCMa020fXH5tUmD3/A2n
-         p5VHJxf/gLU4F/icsqR5cYsNbPC6XS1ubX7+UhTQZch6cq9pdTk9eFcxRzVb0Z9fRWKJ
-         rNQw==
-X-Gm-Message-State: AOJu0YzxJN4cuCNr1p7b7uPG8rNAerrXpDaXxy37xHcuw71z8nPorcW6
-	xIU4b46fEn2hk+0jLO8GDIywwvj2L6wOrQ==
-X-Google-Smtp-Source: AGHT+IHgdm+FEizkBQyJf93SSgm63m+1k23E4qHyHe8hQeyjeC56JHw3VGDeceYoycaLqSb/oFji9Q==
-X-Received: by 2002:a7b:cd85:0:b0:40e:5b2d:cd5d with SMTP id y5-20020a7bcd85000000b0040e5b2dcd5dmr2018793wmj.35.1705327878797;
-        Mon, 15 Jan 2024 06:11:18 -0800 (PST)
-Received: from localhost (host-213-179-129-39.customer.m-online.net. [213.179.129.39])
-        by smtp.gmail.com with ESMTPSA id ay12-20020a05600c1e0c00b0040d802a7619sm20287679wmb.38.2024.01.15.06.11.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Jan 2024 06:11:18 -0800 (PST)
-Date: Mon, 15 Jan 2024 15:11:16 +0100
-From: Jiri Pirko <jiri@resnulli.us>
-To: Wen Gu <guwen@linux.alibaba.com>
-Cc: wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
-	gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	jaka@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
-	alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next 00/15] net/smc: implement loopback-ism used by
- SMC-D
-Message-ID: <ZaU9BGuVo6ru38sy@nanopsycho>
-References: <20240111120036.109903-1-guwen@linux.alibaba.com>
- <ZaAAJDiQ3bPGGRFK@nanopsycho>
- <2d8e7aeb-06da-434c-b7fe-6c1bd2e0674a@linux.alibaba.com>
- <ZaEB-b-W9Jt77T98@nanopsycho>
- <d7f9684e-4115-4b04-9e92-dbb841a52935@linux.alibaba.com>
- <ZaFfqZbgpVtVt4XM@nanopsycho>
- <895a0da3-bf6c-4e76-a672-d73481b4e58b@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RDvJyARC"
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40FG8vvV015508;
+	Mon, 15 Jan 2024 16:36:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=y5b7VDC1MpzD+mbQeLFZyvUOTMfYONCDmzQW1BLfcrI=;
+ b=RDvJyARCFo/fknPN1hVN6+7+iAokklfadUXrYuHmMvdbf7e9i9wgDnc9a+2mPmF06wxT
+ 2Zwmm+IO9YguFAIo/8KKeczcwm9XuRHCVdTCI5ZmU+5fOiZN36Yzls0llp7C8D+uqUW7
+ c5Sx84ZfirAs08lbsGvhISiz/h7jyNfS+fOWmi+nKYDcKcj+EFl+b2upzBvRl5tG5I+f
+ SIwytnXG8OJaKYmu7gYNsm6jaJfG2v4/mvA3Je74ul1+jG32MTWa/GOyYsk7MRSraBFj
+ AvILXJ2lKuLFwHPxlH3wBel9+k8N+6ty69Bly1ENMa8kcVbsaZWQ0ygaiJmgX0HlE9IB 0w== 
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vmtse2get-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 15 Jan 2024 16:35:59 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40FEQkEv008786;
+	Mon, 15 Jan 2024 16:35:58 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vm57y9g14-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 15 Jan 2024 16:35:58 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40FGZtxH59900316
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 15 Jan 2024 16:35:55 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9FBC120049;
+	Mon, 15 Jan 2024 16:35:55 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7496520040;
+	Mon, 15 Jan 2024 16:35:55 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 15 Jan 2024 16:35:55 +0000 (GMT)
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Frederic Weisbecker <frederic@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH] tick-sched: fix idle and iowait sleeptime accounting vs CPU hotplug
+Date: Mon, 15 Jan 2024 17:35:55 +0100
+Message-Id: <20240115163555.1004144-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <895a0da3-bf6c-4e76-a672-d73481b4e58b@linux.alibaba.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: TT_Hpje2XlpQ_t7KYwgCSDPqmj3eccdr
+X-Proofpoint-GUID: TT_Hpje2XlpQ_t7KYwgCSDPqmj3eccdr
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-01-15_11,2024-01-15_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 bulkscore=0 adultscore=0 impostorscore=0 mlxscore=0
+ phishscore=0 suspectscore=0 spamscore=0 mlxlogscore=999 clxscore=1011
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2401150121
 
-Sat, Jan 13, 2024 at 10:22:15AM CET, guwen@linux.alibaba.com wrote:
->
->
->On 2024/1/12 23:50, Jiri Pirko wrote:
->> Fri, Jan 12, 2024 at 01:32:14PM CET, guwen@linux.alibaba.com wrote:
->> > 
->> > 
->> > On 2024/1/12 17:10, Jiri Pirko wrote:
->> > > Fri, Jan 12, 2024 at 09:29:35AM CET, guwen@linux.alibaba.com wrote:
->> > > > 
->
-><...>
->
->> > > > > > # Benchmark Test
->> > > > > > 
->> > > > > > * Test environments:
->> > > > > >         - VM with Intel Xeon Platinum 8 core 2.50GHz, 16 GiB mem.
->> > > > > >         - SMC sndbuf/DMB size 1MB.
->> > > > > >         - /sys/devices/virtual/smc/loopback-ism/dmb_copy is set to default 0,
->> > > > > >           which means sndbuf and DMB are merged and no data copied between them.
->> > > > > >         - /sys/devices/virtual/smc/loopback-ism/dmb_type is set to default 0,
->> > > > > 
->> > > > > Exposing any configuration knobs and statistics over sysfs for
->> > > > > softdevices does not look correct at all :/ Could you please avoid
->> > > > > sysfs?
->> > > > > 
->> > > > 
->> > > > In previous reviews and calls, we think loopback-ism needs to be more
->> > > > like a device and be visible under /sys/devices.
->> > > > 
->> > > > Would you mind explaining why using sysfs for loopback-ism is not correct?
->> > > > since I saw some other configurations or statistics exists under /sys/devices,
->> > > > e.g. /sys/devices/virtual/net/lo. Thank you!
->> > > 
->> > > You have smc_netlink.c exposing clear netlink api for the subsystem.
->> > > Can't you extend it to contain the configuration knobs and expose stats
->> > > instead of sysfs?
->> > > 
->> > 
->> > Thank you for the suggestion. I've also considered this approach.
->> > 
->> > But I didn't choose to extend the smc netlink because for now smc netlink
->> > are used for SMC protocol related attributes, for example:
->> > 
->> > SMC_NETLINK_GET_SYS_INFO:     SMC version, release, v2-capable..
->> > SMC_NETLINK_GET_LGR_SMC{R|D}: SMC-{R|D} link group inform (lgr id, lgr conn num, lgr role..)
->> > SMC_NETLINK_GET_LINK_SMCR:    SMC-R link inform (link id, link state, conn cnt..)
->> > SMC_NETLINK_GET_DEV_SMCD:     SMC-D device generic inform (user cnt, pci_fid, pci_chid, pci_vendor..)
->> > SMC_NETLINK_GET_DEV_SMCR:     SMC-R device generic inform (dev name, port pnet_id, port valid, port state..)
->> > SMC_NETLINK_GET_STATS:        SMC generic stats (RMB cnt, Tx size, Rx size, RMB size...)
->> > 
->> > And the knobs and stats in this patchset are loopback-ism device specific
->> > attributes, for example:
->> > 
->> > active:        loopback-ism runtime switch
->> > dmb_type:      type of DMB provided by loopback-ism
->> > dmb_copy:      support for DMB merge of loopback-ism
->> > xfer_bytes:    data transferred by loopback-ism
->> > dmbs_cnt:      DMB num provided by loopback-ism
->> > 
->> > The layer will be:
->> > 
->> >                +--------------------------------------+
->> >                |                                      |
->> >                |             SMC protocol             |
->> >                |  (attrs by netlink in smc_netlink.c) |
->> >                |                                      |
->> >                +--------------------------------------+
->> >              ------------------smcd_ops------------------
->> >      +---------------+  +---------------------+  +--------------+
->> >      | loopback-ism  |  |  s390 firmware ISM  |  | Possible     |
->> >      +---------------+  |                     |  | other        |
->> >      (attrs by sysfs    |                     |  | virtual ISM  |
->> >     in smc_loopback.c)  |                     |  |              |
->> >                         |                     |  |              |
->> >                         +---------------------+  +--------------+
->> 
->> So nest it:
->> SMC_NETLINK_BACKEND_GET_INFO
->> SMC_NETLINK_BACKEND_GET_STATS
->> ?
->> I mean, isn't it better to have the backend knobs and stats in one place
->> under same netlink commands and attributes than random sysfs path ?
->> 
->Thank you for suggestion.
->
->I think it is not about nesting or gathering knobs and stats. It is
->about not coupling underlying device details to upper layer SMC stack.
->
->From SMC perspective, it cares about the abstract operations defined
->by smcd_ops, regardless of which underlying devices provide these
->functions and how they provide. So IMO the details or configurations
->of underlying devices shouldn't be involved in SMC.
+When offlining and onlining CPUs the overall reported idle and iowait
+times as reported by /proc/stat jump backward and forward:
 
-So you rather keep the device configuration and info exposed over random
-sysfs files? Sorry, that makes not sense to me.
+> cat /proc/stat
+cpu  132 0 176 225249 47 6 6 21 0 0
+cpu0 80 0 115 112575 33 3 4 18 0 0
+cpu1 52 0 60 112673 13 3 1 2 0 0
 
+> chcpu -d 1
+> cat /proc/stat
+cpu  133 0 177 226681 47 6 6 21 0 0
+cpu0 80 0 116 113387 33 3 4 18 0 0
 
->
->Besides, the knobs and stats here are specific for loopback-ism device,
->they include runtime switch, buffer type choice and mode choice of
->loopback-ism (basically they won't change after being set once). The
->other kinds of devices used by SMC-D, e.g. s390 firmware ISM or other
->virtual ISMs have no similar things.
+> chcpu -e 1
+> cat /proc/stat
+cpu  133 0 178 114431 33 6 6 21 0 0 <---- jump backward
+cpu0 80 0 116 114247 33 3 4 18 0 0
+cpu1 52 0 61 183 0 3 1 2 0 0        <---- idle + iowait start with 0
 
-Okay, it is normal that different drivers implement different parts of
-UAPI. No problem.
+> chcpu -d 1
+> cat /proc/stat
+cpu  133 0 178 228956 47 6 6 21 0 0 <---- jump forward
+cpu0 81 0 117 114929 33 3 4 18 0 0
 
+Reason for this is that get_idle_time() in fs/proc/stat.c has different
+sources for both values depending on if a CPU is online or offline:
 
->
->So I prefer to keep the current solution instead of expanding upper
->layer SMC netlink.
+- if a CPU is online the values may be taken from its per cpu
+  tick_cpu_sched structure
 
-Makes no sense to me. This is UAPI from 20 years ago. Is this a time
-machine?
+- if a CPU is offline the values are taken from its per cpu cpustat
+  structure
 
+The problem is that the per cpu tick_cpu_sched structure is set to zero on
+CPU offline. See tick_cancel_sched_timer() in kernel/time/tick-sched.c.
 
->
->Thanks,
->Wen Gu
->
->> 
->> 
->> > 
->> > So I choose to use current way to provide this lower layer loopback-ism
->> > device's attributes, restrict loopback-ism specific code to smc_loopback.c
->> > and try to make a clear layer architecture.
->> > 
->> > Thanks,
->> > Wen Gu
->> > > 
->> > > > 
->> > > > 
->> > > > 
->> > > > Thanks again,
->> > > > Wen Gu
->> > > > 
->> > > > > 
->> > > > > >           which means DMB is physically contiguous buffer.
->> > > > > > 
->> > > > > > * Test object:
->> > > > > >         - TCP: run on TCP loopback.
->> > > > > >         - SMC lo: run on SMC loopback device.
->> > > > > > 
->> > > > > > 1. ipc-benchmark (see [3])
->> > > > > > 
->> > > > > > - ./<foo> -c 1000000 -s 100
->> > > > > > 
->> > > > > >                               TCP                  SMC-lo
->> > > > > > Message
->> > > > > > rate (msg/s)              80636                  149515(+85.42%)
->> > > > > > 
->> > > > > > 2. sockperf
->> > > > > > 
->> > > > > > - serv: <smc_run> taskset -c <cpu> sockperf sr --tcp
->> > > > > > - clnt: <smc_run> taskset -c <cpu> sockperf { tp | pp } --tcp --msg-size={ 64000 for tp | 14 for pp } -i 127.0.0.1 -t 30
->> > > > > > 
->> > > > > >                               TCP                  SMC-lo
->> > > > > > Bandwidth(MBps)         4909.36                 8197.57(+66.98%)
->> > > > > > Latency(us)               6.098                   3.383(-44.52%)
->> > > > > > 
->> > > > > > 3. nginx/wrk
->> > > > > > 
->> > > > > > - serv: <smc_run> nginx
->> > > > > > - clnt: <smc_run> wrk -t 8 -c 1000 -d 30 http://127.0.0.1:80
->> > > > > > 
->> > > > > >                              TCP                   SMC-lo
->> > > > > > Requests/s           181685.74                246447.77(+35.65%)
->> > > > > > 
->> > > > > > 4. redis-benchmark
->> > > > > > 
->> > > > > > - serv: <smc_run> redis-server
->> > > > > > - clnt: <smc_run> redis-benchmark -h 127.0.0.1 -q -t set,get -n 400000 -c 200 -d 1024
->> > > > > > 
->> > > > > >                              TCP                   SMC-lo
->> > > > > > GET(Requests/s)       85855.34                118553.64(+38.09%)
->> > > > > > SET(Requests/s)       86824.40                125944.58(+45.06%)
->> > > > > > 
->> > > > > > 
->> > > > > > Change log:
->> > > > > > 
->> > > > > > v1->RFC:
->> > > > > > - Patch #9: merge rx_bytes and tx_bytes as xfer_bytes statistics:
->> > > > > >     /sys/devices/virtual/smc/loopback-ism/xfer_bytes
->> > > > > > - Patch #10: add support_dmb_nocopy operation to check if SMC-D device supports
->> > > > > >     merging sndbuf with peer DMB.
->> > > > > > - Patch #13 & #14: introduce loopback-ism device control of DMB memory type and
->> > > > > >     control of whether to merge sndbuf and DMB. They can be respectively set by:
->> > > > > >     /sys/devices/virtual/smc/loopback-ism/dmb_type
->> > > > > >     /sys/devices/virtual/smc/loopback-ism/dmb_copy
->> > > > > >     The motivation for these two control is that a performance bottleneck was
->> > > > > >     found when using vzalloced DMB and sndbuf is merged with DMB, and there are
->> > > > > >     many CPUs and CONFIG_HARDENED_USERCOPY is set [4]. The bottleneck is caused
->> > > > > >     by the lock contention in vmap_area_lock [5] which is involved in memcpy_from_msg()
->> > > > > >     or memcpy_to_msg(). Currently, Uladzislau Rezki is working on mitigating the
->> > > > > >     vmap lock contention [6]. It has significant effects, but using virtual memory
->> > > > > >     still has additional overhead compared to using physical memory.
->> > > > > >     So this new version provides controls of dmb_type and dmb_copy to suit
->> > > > > >     different scenarios.
->> > > > > > - Some minor changes and comments improvements.
->> > > > > > 
->> > > > > > RFC->old version([1]):
->> > > > > > Link: https://lore.kernel.org/netdev/1702214654-32069-1-git-send-email-guwen@linux.alibaba.com/
->> > > > > > - Patch #1: improve the loopback-ism dump, it shows as follows now:
->> > > > > >     # smcd d
->> > > > > >     FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
->> > > > > >     0000 0     loopback-ism  ffff   No        0
->> > > > > > - Patch #3: introduce the smc_ism_set_v2_capable() helper and set
->> > > > > >     smc_ism_v2_capable when ISMv2 or virtual ISM is registered,
->> > > > > >     regardless of whether there is already a device in smcd device list.
->> > > > > > - Patch #3: loopback-ism will be added into /sys/devices/virtual/smc/loopback-ism/.
->> > > > > > - Patch #8: introduce the runtime switch /sys/devices/virtual/smc/loopback-ism/active
->> > > > > >     to activate or deactivate the loopback-ism.
->> > > > > > - Patch #9: introduce the statistics of loopback-ism by
->> > > > > >     /sys/devices/virtual/smc/loopback-ism/{{tx|rx}_tytes|dmbs_cnt}.
->> > > > > > - Some minor changes and comments improvements.
->> > > > > > 
->> > > > > > [1] https://lore.kernel.org/netdev/1695568613-125057-1-git-send-email-guwen@linux.alibaba.com/
->> > > > > > [2] https://lore.kernel.org/netdev/20231219142616.80697-1-guwen@linux.alibaba.com/
->> > > > > > [3] https://github.com/goldsborough/ipc-bench
->> > > > > > [4] https://lore.kernel.org/all/3189e342-c38f-6076-b730-19a6efd732a5@linux.alibaba.com/
->> > > > > > [5] https://lore.kernel.org/all/238e63cd-e0e8-4fbf-852f-bc4d5bc35d5a@linux.alibaba.com/
->> > > > > > [6] https://lore.kernel.org/all/20240102184633.748113-1-urezki@gmail.com/
->> > > > > > 
->> > > > > > Wen Gu (15):
->> > > > > >     net/smc: improve SMC-D device dump for virtual ISM
->> > > > > >     net/smc: decouple specialized struct from SMC-D DMB registration
->> > > > > >     net/smc: introduce virtual ISM device loopback-ism
->> > > > > >     net/smc: implement ID-related operations of loopback-ism
->> > > > > >     net/smc: implement some unsupported operations of loopback-ism
->> > > > > >     net/smc: implement DMB-related operations of loopback-ism
->> > > > > >     net/smc: register loopback-ism into SMC-D device list
->> > > > > >     net/smc: introduce loopback-ism runtime switch
->> > > > > >     net/smc: introduce loopback-ism statistics attributes
->> > > > > >     net/smc: add operations to merge sndbuf with peer DMB
->> > > > > >     net/smc: attach or detach ghost sndbuf to peer DMB
->> > > > > >     net/smc: adapt cursor update when sndbuf and peer DMB are merged
->> > > > > >     net/smc: introduce loopback-ism DMB type control
->> > > > > >     net/smc: introduce loopback-ism DMB data copy control
->> > > > > >     net/smc: implement DMB-merged operations of loopback-ism
->> > > > > > 
->> > > > > > drivers/s390/net/ism_drv.c |   2 +-
->> > > > > > include/net/smc.h          |   7 +-
->> > > > > > net/smc/Kconfig            |  13 +
->> > > > > > net/smc/Makefile           |   2 +-
->> > > > > > net/smc/af_smc.c           |  28 +-
->> > > > > > net/smc/smc_cdc.c          |  58 ++-
->> > > > > > net/smc/smc_cdc.h          |   1 +
->> > > > > > net/smc/smc_core.c         |  61 +++-
->> > > > > > net/smc/smc_core.h         |   1 +
->> > > > > > net/smc/smc_ism.c          |  71 +++-
->> > > > > > net/smc/smc_ism.h          |   5 +
->> > > > > > net/smc/smc_loopback.c     | 718 +++++++++++++++++++++++++++++++++++++
->> > > > > > net/smc/smc_loopback.h     |  88 +++++
->> > > > > > 13 files changed, 1026 insertions(+), 29 deletions(-)
->> > > > > > create mode 100644 net/smc/smc_loopback.c
->> > > > > > create mode 100644 net/smc/smc_loopback.h
->> > > > > > 
->> > > > > > -- 
->> > > > > > 2.32.0.3.g01195cf9f
->> > > > > > 
->> > > > > > 
+Therefore when a CPU is brought offline and online afterwards both its idle
+and iowait sleeptime will be zero, causing a jump backward in total system
+idle and iowait sleeptime. In a similar way if a CPU is then brought
+offline again the total idle and iowait sleeptimes will jump forward.
+
+It looks like this behavior was introduced with commit 4b0c0f294f60
+("tick: Cleanup NOHZ per cpu data on cpu down").
+
+This was only noticed now on s390, since we switched to generic idle time
+reporting with commit be76ea614460 ("s390/idle: remove arch_cpu_idle_time()
+and corresponding code").
+
+Fix this by preserving the values of idle_sleeptime and iowait_sleeptime
+members of the per-cpu tick_sched structure on CPU hotplug.
+
+Fixes: 4b0c0f294f60 ("tick: Cleanup NOHZ per cpu data on cpu down")
+Reported-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ kernel/time/tick-sched.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/kernel/time/tick-sched.c b/kernel/time/tick-sched.c
+index a17d26002831..d2501673028d 100644
+--- a/kernel/time/tick-sched.c
++++ b/kernel/time/tick-sched.c
+@@ -1576,13 +1576,18 @@ void tick_setup_sched_timer(void)
+ void tick_cancel_sched_timer(int cpu)
+ {
+ 	struct tick_sched *ts = &per_cpu(tick_cpu_sched, cpu);
++	ktime_t idle_sleeptime, iowait_sleeptime;
+ 
+ # ifdef CONFIG_HIGH_RES_TIMERS
+ 	if (ts->sched_timer.base)
+ 		hrtimer_cancel(&ts->sched_timer);
+ # endif
+ 
++	idle_sleeptime = ts->idle_sleeptime;
++	iowait_sleeptime = ts->iowait_sleeptime;
+ 	memset(ts, 0, sizeof(*ts));
++	ts->idle_sleeptime = idle_sleeptime;
++	ts->iowait_sleeptime = iowait_sleeptime;
+ }
+ #endif
+ 
+-- 
+2.40.1
+
