@@ -1,94 +1,114 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AC8711C83;
-	Tue, 16 Jan 2024 08:34:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3CEF1BC30;
+	Tue, 16 Jan 2024 13:02:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="d44X7WCb"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40G7w0lc000737;
-	Tue, 16 Jan 2024 08:34:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=2QthArlBLZq6aeSqRFl9tCpSTmPf13Utla69eVdn+G4=;
- b=d44X7WCbEmktfd055Y/6MkcyBX4EzoIm5/dVVtPiPEGJmKk+ivl9esnI9eBtA7KshRak
- BhhYASBpEd2Bw4m1Hk9fYgecJgLSn7yz3VO29PXxLGdsKc03j0LhKWiUp3xqOM4sMP8e
- izAJFADFgOdk8xlEAjDuBGYw5pHH/2/FgheAD98MDphGBECLVTHU6LI/8CK7BklOg9B/
- 4PQckxHIufiLqmiernQXQcP8gzmxXpyCSgA6yDu2UeN7kQwTnwUy16sCGr6EmcUTgBQz
- Y1n06xTxPUaaoDKj+4wSkfJ0ZUuPO6qqjkXcNDVHRkXlv2LzTV3f25jb/w6mcaK2OpRS Ng== 
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZGueLNcz"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40GCMc4E019240;
+	Tue, 16 Jan 2024 13:02:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=EfWGAM8cHh2fyhjlFktI+Y9aDiXLWY6nklK/vYn+FVk=;
+ b=ZGueLNczu+0aRTbQxrJLPEZyuzhRwjlXNznMUfL8NgTMbBojssoqH5cKIBSic12jRjp8
+ pRT53n6+lfNBkC0BXxEYpKgJgHK7+ICi0wnfWY3/CZGHbV8J7grBfTRDEZhdGcLqo5a1
+ KbE2GJ1yClCnhjOT4hTcpMTKeX+HCAQmJ2NnibAhKZloMOABqLaOTEV6F/CW5Z9VciuD
+ Cw+4NZ9Q05o3ct14vVFkeK+TK72e8D4WAN+o8jZvVdr21QVHhxbT8dMlZnzfaOo2hPr1
+ alWYz1Wg85nFSIBBLf4e/61MUddHSmX05KP6Gs0eVYcobZYLP0zzHCT7hxoLbQIZFeWx oA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vnnvd0wpb-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vnsras5pu-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Jan 2024 08:34:13 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40G7wiDu003371;
-	Tue, 16 Jan 2024 08:34:13 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vnnvd0wne-1
+	Tue, 16 Jan 2024 13:02:39 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40GCtdHu004061;
+	Tue, 16 Jan 2024 13:02:39 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vnsras5pf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Jan 2024 08:34:13 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40G75leT008785;
-	Tue, 16 Jan 2024 08:34:12 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vm57ydknv-1
+	Tue, 16 Jan 2024 13:02:39 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40GAFbGp014845;
+	Tue, 16 Jan 2024 13:02:38 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vm4uspvwh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Jan 2024 08:34:12 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40G8Y6nb18678426
+	Tue, 16 Jan 2024 13:02:38 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40GD2Zc732244038
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 16 Jan 2024 08:34:06 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A454620040;
-	Tue, 16 Jan 2024 08:34:06 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C8DE320043;
-	Tue, 16 Jan 2024 08:34:05 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.82.162])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 16 Jan 2024 08:34:05 +0000 (GMT)
-Date: Tue, 16 Jan 2024 09:34:04 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Tony Krowiak <akrowiak@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, borntraeger@de.ibm.com,
-        pasic@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, gor@linux.ibm.com
-Subject: Re: [PATCH v4 3/6] s390/vfio-ap: let 'on_scan_complete' callback
- filter matrix and update guest's APCB
-Message-ID: <ZaY/fGxUMx2z4OQH@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20240115185441.31526-1-akrowiak@linux.ibm.com>
- <20240115185441.31526-4-akrowiak@linux.ibm.com>
+	Tue, 16 Jan 2024 13:02:35 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 64A1720040;
+	Tue, 16 Jan 2024 13:02:35 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E4F1820049;
+	Tue, 16 Jan 2024 13:02:34 +0000 (GMT)
+Received: from li-978a334c-2cba-11b2-a85c-a0743a31b510.ibm.com (unknown [9.171.59.12])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 16 Jan 2024 13:02:34 +0000 (GMT)
+Message-ID: <186d63da6c58181cc355ea41f70b4cbe75fed338.camel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH 0/5] s390x: Dirty cc before executing
+ tested instructions
+From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, thuth@redhat.com,
+        david@redhat.com, nrb@linux.ibm.com
+Date: Tue, 16 Jan 2024 14:02:34 +0100
+In-Reply-To: <20240108132921.255769-1-frankja@linux.ibm.com>
+References: <20240108132921.255769-1-frankja@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: GTSbMtx1bQhonKwbPJhREIwlaseGoUyl
+X-Proofpoint-GUID: rJzm6JxJnHNnfAu5c-QEY5lReHro10mO
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240115185441.31526-4-akrowiak@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: F-SuVrMPFcULgGLnlAYeUzH-KTeEzO3a
-X-Proofpoint-ORIG-GUID: sPodZ57JKvrcl3Z3PKuYRtq9lqq8UU18
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-16_04,2024-01-15_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=695
- lowpriorityscore=0 bulkscore=0 malwarescore=0 spamscore=0 mlxscore=0
- adultscore=0 clxscore=1011 phishscore=0 impostorscore=0 priorityscore=1501
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401160067
+ definitions=2024-01-16_06,2024-01-16_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ adultscore=0 clxscore=1015 mlxlogscore=455 malwarescore=0
+ priorityscore=1501 phishscore=0 suspectscore=0 lowpriorityscore=0
+ spamscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2401160102
 
-On Mon, Jan 15, 2024 at 01:54:33PM -0500, Tony Krowiak wrote:
-Hi Tony,
+On Mon, 2024-01-08 at 13:29 +0000, Janosch Frank wrote:
+> A recent s390 KVM fixpatch [1] showed us that checking the cc is not
+> enough when emulation code forgets to set the cc. There might just be
+> the correct cc in the PSW which would make the cc check succeed.
+>=20
+> This series intentionally dirties the cc for sigp, uvc, some io
+> instructions and sclp to make cc setting errors more apparent. I had a
+> cursory look through the tested instructions and those are the most
+> prominent ones with defined cc values.
+>=20
+> Since the issue appeared in PQAP my AP test series is now dependent on
+> this series.
+>=20
+> [1] https://lore.kernel.org/kvm/20231201181657.1614645-1-farman@linux.ibm=
+.com/
 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Using SET PROGRAM MASK the way you're doing in this series will also set the
+program mask to 0, right?
 
-No Fixes tag for this patch?
+In case you have some non zero register %[reg] and you want to set CC to 1 =
+you
+could do:
 
-Thanks!
+or	%[reg],%[reg] /* set CC to 1 */
+
+In general, if I understand TEST UNDER MASK right, you could do:
+
+tmll	%[set_cc],3
+
+to set the CC to the value in %[set_cc] (without any shifting).=20
