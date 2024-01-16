@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 995F413D510;
-	Tue, 16 Jan 2024 19:53:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAE3914D437;
+	Tue, 16 Jan 2024 19:57:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705434828; cv=none; b=PQajbYUZInNJALh/lzZfKaEylK8vXgE/wJ3sbcxjPP8xV2RbkXfo3ez4d595qwqYxT0f9xYHp4gzKArwtCr5EAYTEJj+Mi0k6Y3M90Tt8vTA8hSuY2rkGy+rl5wXAnFZ44krVmzKvHxdq3dllgSIAGmRewrcWZx+JqIQoSISlPo=
+	t=1705435058; cv=none; b=IIJoqy9gklivyyhDHVkKBs6S1txdPUYVeyoyN1V5iY+oGGKEAvnfJRH6jRoAF+C1qqjf0UPkzZk7XFbhkyt/sNlKJ9UmUU6Y9+8Ugr1INNljIWyVpBKgitjIUNuY57W7khSogaAV9fPz/LtnqMWUZSvbh/JGhurO1BHk3mDZ+10=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705434828; c=relaxed/simple;
-	bh=mcZomUmBofZwrv5P/gxQDWjBxvcbEOUulhgq96eGZ9o=;
+	s=arc-20240116; t=1705435058; c=relaxed/simple;
+	bh=/gMVPpshVnXDT4Hl9MxjYdPCX+HMzCF4YpZaxjvFO2k=;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
 	 X-Mailer:In-Reply-To:References:MIME-Version:X-stable:
-	 X-Patchwork-Hint:X-stable-base:Content-Transfer-Encoding; b=tJDCnsTWMDdw8fWbrKcDn5X7SmJ2ARHcsG5YIkV3O7kzfV8ExNS5AeEBzQFcRuUZmW35rXFBoPjpDMNWUX9OA/n5x+OF4KziKzzrsldlvVL/q2MsiiOSGo3+97dssyoZQG1iyaGDzjULaUKuMIMxrcYI3CJemEJxXs3aTk7CJv0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PLxoNuvH; arc=none smtp.client-ip=10.30.226.201
+	 X-Patchwork-Hint:X-stable-base:Content-Transfer-Encoding; b=qrNQNj6wP1PW3lpO0S7i6/iy+rIszq4dckA22XMb4NPRt2dGmYaznfMt5bns+HWZ1AYSUGv5HRXm8H1q4ZxLkHayX2nIcc2y5ThRigpba2zBj5rXWW77CQUzXmx67yqVPmnOrtYtAF9/o6fYBYVuZgEOqj/eobWDsFbE9hUdF1M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VdF+agkc; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PLxoNuvH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C055DC43394;
-	Tue, 16 Jan 2024 19:53:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VdF+agkc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13C06C433F1;
+	Tue, 16 Jan 2024 19:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1705434828;
-	bh=mcZomUmBofZwrv5P/gxQDWjBxvcbEOUulhgq96eGZ9o=;
+	s=k20201202; t=1705435058;
+	bh=/gMVPpshVnXDT4Hl9MxjYdPCX+HMzCF4YpZaxjvFO2k=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=PLxoNuvHFZLVaPYkWHRLGhhPSY8hWPuGBrurANWrqwvLE3j6FHi511G7yFnZhhxwD
-	 J5kSmcFvEnXaNOzhRYEH6Oqe1jEqQrGQ3t8mRJI2+SjaX2sJ28TyaAdDrVGGA04Kg5
-	 6zh65AsQrltRVXZqe4RB5Wppb/UhSFcNPDWtx3oU7+IXAi8aXvGjmJSnTcLOn+XdRs
-	 hP9IW99zrKmCJiW5mboD7H67ldusCKDZtdrEKDTqt/XZ/2sw8IMgWF0ZvlYCQVmOxD
-	 Gv5Zb6kKuE3EUeIbRlLv8q8+/zyCFYwNmRB7H1HKf4MbEOCwRZ4vEwnAnW5DtYzBjL
-	 x0EaLiqF/8i/w==
+	b=VdF+agkcqACT9Zx4NUXbDCNQrMIZ2/iKYUzNIzuXZ/DX9aPeF7XVkwAv+DC/RiIwx
+	 EbI0EIIP92jTL5h+WiyPwNyeZaVTz9jEYeuXSKpepuOAFl/2yPwrr4uM1BAnWkFJyG
+	 S/ONdYN/oJqj+vRhoPyTr3vYIYsGU0npDSwJCjyE635YY5Iv8J+3z/PB+8IBaxel6W
+	 G/RHGud/v3dpYOWdKlY4RpiiCcGIUTJElF3tgJx4isd0enYORZZHugS9IUJRh09/q8
+	 xWkuVjd3Qfvem+x8/auF+CXuiSwtv7ZFRmfoj5FN5S82pBIqe9kzrgzziIQ54vI3KT
+	 cvFgocGkF6oVQ==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -40,12 +40,12 @@ Cc: Wen Gu <guwen@linux.alibaba.com>,
 	pabeni@redhat.com,
 	linux-s390@vger.kernel.org,
 	netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.6 097/104] net/smc: disable SEID on non-s390 archs where virtual ISM may be used
-Date: Tue, 16 Jan 2024 14:47:03 -0500
-Message-ID: <20240116194908.253437-97-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 64/68] net/smc: disable SEID on non-s390 archs where virtual ISM may be used
+Date: Tue, 16 Jan 2024 14:54:03 -0500
+Message-ID: <20240116195511.255854-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240116194908.253437-1-sashal@kernel.org>
-References: <20240116194908.253437-1-sashal@kernel.org>
+In-Reply-To: <20240116195511.255854-1-sashal@kernel.org>
+References: <20240116195511.255854-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -54,7 +54,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.6.12
+X-stable-base: Linux 6.1.73
 Content-Transfer-Encoding: 8bit
 
 From: Wen Gu <guwen@linux.alibaba.com>
@@ -81,7 +81,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 14 insertions(+)
 
 diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-index 72f4d81a3f41..1489a8421d78 100644
+index 9b8999e2afca..867df4522815 100644
 --- a/net/smc/smc_clc.c
 +++ b/net/smc/smc_clc.c
 @@ -155,10 +155,12 @@ static int smc_clc_ueid_remove(char *ueid)
@@ -128,7 +128,7 @@ index 72f4d81a3f41..1489a8421d78 100644
  	return rc;
  }
  
-@@ -1269,7 +1279,11 @@ void __init smc_clc_init(void)
+@@ -1168,7 +1178,11 @@ void __init smc_clc_init(void)
  	INIT_LIST_HEAD(&smc_clc_eid_table.list);
  	rwlock_init(&smc_clc_eid_table.lock);
  	smc_clc_eid_table.ueid_cnt = 0;
