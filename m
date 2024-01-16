@@ -1,105 +1,145 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC8C51D521;
-	Tue, 16 Jan 2024 19:34:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C33D64CE9;
+	Tue, 16 Jan 2024 19:46:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705433659; cv=none; b=DnoDJ9qOs3aYv0gp+cFCwP2AUrp2X/0DWGxC8nz6PpzKgtBBq8dJBMAvbqM/pnfFWPgYwsMAStnx6VpEQJ5XeZU55SsEyT2S3Em5CcF/TpdPhzAFwqsktRIwJPj9dk1Xqy/LkWufy1VqUZ7z1u/Zoo4gM6vrA7QO66aC0FuWpMs=
+	t=1705434410; cv=none; b=YgUR0EqHApf3aBqBIxLMkOYHWLhzlZDN7xiDPB0mkC2cU1J247cMfE2HTzpN74w7FX0wlpKEPOuwGbQRWY7by0dVrz0ecwM5v9WQkgAthQyhSlwL+nESxlg+W28mPoKmirbFTYCVc3q4zn5ecPQzFs0+s+ER1lalymo99q1ss00=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705433659; c=relaxed/simple;
-	bh=Mcd1b64Vm+CHXiONNdtt+LcCzFybfKPnMfbrChadFrU=;
-	h=Received:DKIM-Signature:Received:Received:Received:Received:
-	 Received:Received:Received:Received:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:X-TM-AS-GCONF:X-Proofpoint-GUID:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details; b=UD8uk/J/d0TB2DRG8fjmXe/oY4Z6mNOmB39YC3uJhF+6ZYMmscM2gufU7F8gDjMPdKV8Flwbk+0/+A/+hqODFWkJXU6/PHohGf9e5jQlaZjzC7cpe0zOjKzjfZBDzIA6rz+JvwcKfww6L0fr1hAsaYflqZoB6av+F4GVBXk8rvc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nQ2He1Hg; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1705434410; c=relaxed/simple;
+	bh=mcZomUmBofZwrv5P/gxQDWjBxvcbEOUulhgq96eGZ9o=;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
+	 X-Mailer:In-Reply-To:References:MIME-Version:X-stable:
+	 X-Patchwork-Hint:X-stable-base:Content-Transfer-Encoding; b=g40EinJP8zJ9PDONatv6PV++OFbwZP1rDEiuvUMxnARArTtDxC1b+ZAx0qtrLWsTuR46D9v6FcLbClqdy98SzMIDqwhP17KD7AyPcTh2O3Gn308VDFup5oDOsr9sxV3damYibQOUbvad6/6vvgMhG20oqtKkk6ZNituOiHhthVM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V/wnZgZR; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nQ2He1Hg"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40GJS1au017967;
-	Tue, 16 Jan 2024 19:34:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=Mcd1b64Vm+CHXiONNdtt+LcCzFybfKPnMfbrChadFrU=;
- b=nQ2He1Hge2Lmt1cSCZiK+88s/vslBaKgm9xjvKEUOkRKDK6M/aBFl0Ny+oHxurdqW5ET
- AphaptcgjC5Y+37zzs5YoHu2l4Az99qr9RKloqbAu87gW44EBp/EzVkUdl3+/GugpNsB
- +FiNLR2/BrGiGqRjUTvca+ccev0M3ZwPQ100Tj+7eww+hpG9jsIh/d75tNt0kzih0fX6
- ST54HSVnVNwWG/mr5Ula3WxvHyHeuzvyFQquvpA68N8qqZhD9vvuerdOl7i6oCt5DtuO
- F899gKEO1qtv9B9YFtkZANiQgs3IILdC7e37fEQMJYEWi11vd0YuNIhu0EM+dMEd+v9k wA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vnykn8x95-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Jan 2024 19:34:13 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40GJ3CBo019046;
-	Tue, 16 Jan 2024 19:34:13 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vnykn8x86-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Jan 2024 19:34:13 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40GJ1fRt010969;
-	Tue, 16 Jan 2024 19:34:11 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vm57ygu86-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Jan 2024 19:34:11 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40GJY61423134924
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 16 Jan 2024 19:34:06 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 84BF82005A;
-	Tue, 16 Jan 2024 19:34:06 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 357CC2004B;
-	Tue, 16 Jan 2024 19:34:05 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.88.12])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 16 Jan 2024 19:34:05 +0000 (GMT)
-Date: Tue, 16 Jan 2024 20:34:03 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Anthony Krowiak <akrowiak@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, borntraeger@de.ibm.com,
-        pasic@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, gor@linux.ibm.com, stable@vger.kernel.org
-Subject: Re: [PATCH v4 4/6] s390/vfio-ap: reset queues filtered from the
- guest's AP config
-Message-ID: <ZabaK3DxABHiGh8V@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20240115185441.31526-1-akrowiak@linux.ibm.com>
- <20240115185441.31526-5-akrowiak@linux.ibm.com>
- <ZabGAx5BpIiYW+b3@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
- <a54e223c-8965-480c-9361-b483b47502d0@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V/wnZgZR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65CEFC433B1;
+	Tue, 16 Jan 2024 19:46:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1705434409;
+	bh=mcZomUmBofZwrv5P/gxQDWjBxvcbEOUulhgq96eGZ9o=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=V/wnZgZRrdGTto6tjy2MfQBZDEgM/68W/eiVHplWoMyvV8knP42I4joLHnGJMXBY9
+	 rJ7d418oCUDTf0djlkKMnaOTlDIz9/5qD/mnT4mslrsPdE5iz10pTKdzea83Ywts7S
+	 NlA4VNDL4pSYPWWBBWiw5atxK1sJheCOK5965aBdztSwDacNjRCX5hIGLvGiUCkk+K
+	 yjlt2ShLLnHTmD3hg363J+dBU9+0i3gRQzs7fFNdQ1MrXLBOwP61I1rndz0uXIEwee
+	 M0Rot3o0D/goHtrXZT7K1fijy3n6aIWjudSDD3YZ93LvQYxkR8DEFmpwyAYSnX/kkG
+	 WwbgKp1n7SjQw==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Cc: Wen Gu <guwen@linux.alibaba.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	"David S . Miller" <davem@davemloft.net>,
+	Sasha Levin <sashal@kernel.org>,
+	jaka@linux.ibm.com,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.7 100/108] net/smc: disable SEID on non-s390 archs where virtual ISM may be used
+Date: Tue, 16 Jan 2024 14:40:06 -0500
+Message-ID: <20240116194225.250921-100-sashal@kernel.org>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240116194225.250921-1-sashal@kernel.org>
+References: <20240116194225.250921-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a54e223c-8965-480c-9361-b483b47502d0@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: t7leTYHrFA54YdoXPwKrZjRvj_CSCmXn
-X-Proofpoint-ORIG-GUID: -It2vX2kJvngxepizgDOPQRFRmwQwVXm
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-16_12,2024-01-16_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
- phishscore=0 priorityscore=1501 mlxscore=0 clxscore=1015 bulkscore=0
- spamscore=0 lowpriorityscore=0 mlxlogscore=550 suspectscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401160154
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.7
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jan 16, 2024 at 02:21:23PM -0500, Anthony Krowiak wrote:
-> > If this change is intended?
-> Shall I fix this and submit a v5?
+From: Wen Gu <guwen@linux.alibaba.com>
 
-No, I will handle it.
+[ Upstream commit c6b8b8eb49904018e22e4e4b1fa502e57dc747d9 ]
+
+The system EID (SEID) is an internal EID used by SMC-D to represent the
+s390 physical machine that OS is executing on. On s390 architecture, it
+predefined by fixed string and part of cpuid and is enabled regardless
+of whether underlay device is virtual ISM or platform firmware ISM.
+
+However on non-s390 architectures where SMC-D can be used with virtual
+ISM devices, there is no similar information to identify physical
+machines, especially in virtualization scenarios. So in such cases, SEID
+is forcibly disabled and the user-defined UEID will be used to represent
+the communicable space.
+
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+Reviewed-and-tested-by: Wenjia Zhang <wenjia@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/smc/smc_clc.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index 72f4d81a3f41..1489a8421d78 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -155,10 +155,12 @@ static int smc_clc_ueid_remove(char *ueid)
+ 			rc = 0;
+ 		}
+ 	}
++#if IS_ENABLED(CONFIG_S390)
+ 	if (!rc && !smc_clc_eid_table.ueid_cnt) {
+ 		smc_clc_eid_table.seid_enabled = 1;
+ 		rc = -EAGAIN;	/* indicate success and enabling of seid */
+ 	}
++#endif
+ 	write_unlock(&smc_clc_eid_table.lock);
+ 	return rc;
+ }
+@@ -273,22 +275,30 @@ int smc_nl_dump_seid(struct sk_buff *skb, struct netlink_callback *cb)
+ 
+ int smc_nl_enable_seid(struct sk_buff *skb, struct genl_info *info)
+ {
++#if IS_ENABLED(CONFIG_S390)
+ 	write_lock(&smc_clc_eid_table.lock);
+ 	smc_clc_eid_table.seid_enabled = 1;
+ 	write_unlock(&smc_clc_eid_table.lock);
+ 	return 0;
++#else
++	return -EOPNOTSUPP;
++#endif
+ }
+ 
+ int smc_nl_disable_seid(struct sk_buff *skb, struct genl_info *info)
+ {
+ 	int rc = 0;
+ 
++#if IS_ENABLED(CONFIG_S390)
+ 	write_lock(&smc_clc_eid_table.lock);
+ 	if (!smc_clc_eid_table.ueid_cnt)
+ 		rc = -ENOENT;
+ 	else
+ 		smc_clc_eid_table.seid_enabled = 0;
+ 	write_unlock(&smc_clc_eid_table.lock);
++#else
++	rc = -EOPNOTSUPP;
++#endif
+ 	return rc;
+ }
+ 
+@@ -1269,7 +1279,11 @@ void __init smc_clc_init(void)
+ 	INIT_LIST_HEAD(&smc_clc_eid_table.list);
+ 	rwlock_init(&smc_clc_eid_table.lock);
+ 	smc_clc_eid_table.ueid_cnt = 0;
++#if IS_ENABLED(CONFIG_S390)
+ 	smc_clc_eid_table.seid_enabled = 1;
++#else
++	smc_clc_eid_table.seid_enabled = 0;
++#endif
+ }
+ 
+ void smc_clc_exit(void)
+-- 
+2.43.0
+
