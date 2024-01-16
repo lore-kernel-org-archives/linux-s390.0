@@ -1,113 +1,94 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD9D845033;
-	Tue, 16 Jan 2024 01:08:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AC8711C83;
+	Tue, 16 Jan 2024 08:34:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k12VwZU7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8811C43141;
-	Tue, 16 Jan 2024 01:08:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1705367329;
-	bh=3iYdslzpkXnRHuYnBqf0hdYgFBmOQwoJSadwT1oJERA=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=k12VwZU7Qcpes4QQfnzooOgkWs7kP3Iirws4uXjzRqD/Cbr7It7NGHlHSbCsCx8bD
-	 lzh1uwJ8dokhd4EoXVxIUNNWq0nn8NrBh+GqUo2yqTiI7tXTE/woXj5zQhMFHTUH5w
-	 Arc0ZwpIOCO28zhpqX8kVChR5S6S+G2dOwfSjvk8yUJQT/A7B5FkECD0i1By4gj3dx
-	 BkZt4JqGyuCCduTJFRER+5lv1+mQGmrb/HLgvsZrWcJAS/JYJNvn+h91eVfAQizQNi
-	 HwYeNJOvqJMzaknfOgejdIkXvVKNLtcU3dHf9LQADXRnALeUsRcNoXW94Sm+N7aeUM
-	 8e5bdc9XlfnFw==
-From: Sasha Levin <sashal@kernel.org>
-To: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Cc: Heiko Carstens <hca@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Sasha Levin <sashal@kernel.org>,
-	frankja@linux.ibm.com,
-	gor@linux.ibm.com,
-	kvm@vger.kernel.org,
-	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 3/8] KVM: s390: fix setting of fpc register
-Date: Mon, 15 Jan 2024 20:08:33 -0500
-Message-ID: <20240116010842.219925-3-sashal@kernel.org>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240116010842.219925-1-sashal@kernel.org>
-References: <20240116010842.219925-1-sashal@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="d44X7WCb"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40G7w0lc000737;
+	Tue, 16 Jan 2024 08:34:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=2QthArlBLZq6aeSqRFl9tCpSTmPf13Utla69eVdn+G4=;
+ b=d44X7WCbEmktfd055Y/6MkcyBX4EzoIm5/dVVtPiPEGJmKk+ivl9esnI9eBtA7KshRak
+ BhhYASBpEd2Bw4m1Hk9fYgecJgLSn7yz3VO29PXxLGdsKc03j0LhKWiUp3xqOM4sMP8e
+ izAJFADFgOdk8xlEAjDuBGYw5pHH/2/FgheAD98MDphGBECLVTHU6LI/8CK7BklOg9B/
+ 4PQckxHIufiLqmiernQXQcP8gzmxXpyCSgA6yDu2UeN7kQwTnwUy16sCGr6EmcUTgBQz
+ Y1n06xTxPUaaoDKj+4wSkfJ0ZUuPO6qqjkXcNDVHRkXlv2LzTV3f25jb/w6mcaK2OpRS Ng== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vnnvd0wpb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Jan 2024 08:34:13 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40G7wiDu003371;
+	Tue, 16 Jan 2024 08:34:13 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vnnvd0wne-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Jan 2024 08:34:13 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40G75leT008785;
+	Tue, 16 Jan 2024 08:34:12 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vm57ydknv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Jan 2024 08:34:12 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40G8Y6nb18678426
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 16 Jan 2024 08:34:06 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A454620040;
+	Tue, 16 Jan 2024 08:34:06 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C8DE320043;
+	Tue, 16 Jan 2024 08:34:05 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.82.162])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 16 Jan 2024 08:34:05 +0000 (GMT)
+Date: Tue, 16 Jan 2024 09:34:04 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com, borntraeger@de.ibm.com,
+        pasic@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, alex.williamson@redhat.com,
+        kwankhede@nvidia.com, gor@linux.ibm.com
+Subject: Re: [PATCH v4 3/6] s390/vfio-ap: let 'on_scan_complete' callback
+ filter matrix and update guest's APCB
+Message-ID: <ZaY/fGxUMx2z4OQH@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20240115185441.31526-1-akrowiak@linux.ibm.com>
+ <20240115185441.31526-4-akrowiak@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 4.19.305
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240115185441.31526-4-akrowiak@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: F-SuVrMPFcULgGLnlAYeUzH-KTeEzO3a
+X-Proofpoint-ORIG-GUID: sPodZ57JKvrcl3Z3PKuYRtq9lqq8UU18
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-01-16_04,2024-01-15_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=695
+ lowpriorityscore=0 bulkscore=0 malwarescore=0 spamscore=0 mlxscore=0
+ adultscore=0 clxscore=1011 phishscore=0 impostorscore=0 priorityscore=1501
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2401160067
 
-From: Heiko Carstens <hca@linux.ibm.com>
+On Mon, Jan 15, 2024 at 01:54:33PM -0500, Tony Krowiak wrote:
+Hi Tony,
 
-[ Upstream commit b988b1bb0053c0dcd26187d29ef07566a565cf55 ]
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 
-kvm_arch_vcpu_ioctl_set_fpu() allows to set the floating point control
-(fpc) register of a guest cpu. The new value is tested for validity by
-temporarily loading it into the fpc register.
+No Fixes tag for this patch?
 
-This may lead to corruption of the fpc register of the host process:
-if an interrupt happens while the value is temporarily loaded into the fpc
-register, and within interrupt context floating point or vector registers
-are used, the current fp/vx registers are saved with save_fpu_regs()
-assuming they belong to user space and will be loaded into fp/vx registers
-when returning to user space.
-
-test_fp_ctl() restores the original user space / host process fpc register
-value, however it will be discarded, when returning to user space.
-
-In result the host process will incorrectly continue to run with the value
-that was supposed to be used for a guest cpu.
-
-Fix this by simply removing the test. There is another test right before
-the SIE context is entered which will handles invalid values.
-
-This results in a change of behaviour: invalid values will now be accepted
-instead of that the ioctl fails with -EINVAL. This seems to be acceptable,
-given that this interface is most likely not used anymore, and this is in
-addition the same behaviour implemented with the memory mapped interface
-(replace invalid values with zero) - see sync_regs() in kvm-s390.c.
-
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kvm/kvm-s390.c | 5 -----
- 1 file changed, 5 deletions(-)
-
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 92041d442d2e..bc700cb9fc53 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2995,10 +2995,6 @@ int kvm_arch_vcpu_ioctl_set_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
- 
- 	vcpu_load(vcpu);
- 
--	if (test_fp_ctl(fpu->fpc)) {
--		ret = -EINVAL;
--		goto out;
--	}
- 	vcpu->run->s.regs.fpc = fpu->fpc;
- 	if (MACHINE_HAS_VX)
- 		convert_fp_to_vx((__vector128 *) vcpu->run->s.regs.vrs,
-@@ -3006,7 +3002,6 @@ int kvm_arch_vcpu_ioctl_set_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
- 	else
- 		memcpy(vcpu->run->s.regs.fprs, &fpu->fprs, sizeof(fpu->fprs));
- 
--out:
- 	vcpu_put(vcpu);
- 	return ret;
- }
--- 
-2.43.0
-
+Thanks!
