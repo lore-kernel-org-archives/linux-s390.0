@@ -1,52 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C86C20B1E;
-	Tue, 16 Jan 2024 01:07:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B23328DA2;
+	Tue, 16 Jan 2024 01:07:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W+mNVQ2q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D77D5C433C7;
-	Tue, 16 Jan 2024 01:07:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gLEQpHqO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 458C9C43390;
+	Tue, 16 Jan 2024 01:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1705367254;
-	bh=TfDrsInvUzA+wma/7RiDh79sAMkHkv8eHX1xyaL6l1Q=;
-	h=From:To:Cc:Subject:Date:From;
-	b=W+mNVQ2q/+GOj4ZrOXC4r0iMcYozdtKWlyHO3V3z6XBtnhOlHHxJiRdfLgpG+2UrC
-	 ehpIBNLiH2Eid+XXR+zeKO6TXtfBst/rL4TxRD7pRh8cn4vqZw6HNVoYPUhsQFXPfJ
-	 7YLW0KCUvp4B0c9JbUj0H1X8fzgWHZN2k/eF7nDAvYi9IrX+zPg5p5p6eOU+Jwpbhv
-	 ybNXDWudNJ5HQPHPTEszaiOS0pRxWa+hmp1eKQf7mdr1+JQg1iRtSfPGxqOmUdyTUL
-	 k4bEXMRfxwYk2IzHlTmjXQGC9vbODqc91TgvZ/M0PsG1tevs9/j0QQ7ZiOB+A+W+Rx
-	 wb+YP1UsgSeaA==
+	s=k20201202; t=1705367258;
+	bh=H86OGZVlVypoDtrLJGZVb7QDXw1YkJEtH4tuEHm+7CA=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=gLEQpHqOlohEgc5sV1Mh7a9KGfB1K6MkwJ5iZCUVzV4o3Y8kRESGh5c77aGjiQUM9
+	 HCR+XPdoz7nE3VEQp/z288Kio2Vjnd3eZ6/m87+5ujl43b7im+KYDt+x4/0WJGwyFs
+	 2Lk4oGXopNX5/m/+HbXMZI7nJ5xvwGUlALvcS3AaHFICx8uLvFWKsBHj+sVkFyQ/fv
+	 rczwcuUgyaDMnnsARs6EBaMWH2HergtlIGvQcpAbvXcSWdRlWMzef09iUYFL72mxvw
+	 V0gc0o/yTaY03hlbZIxHSHf4+upf04VB861Q0ojCNfOnYQXGlBCIJTOPe+7rzpXjQB
+	 Nu60j5XbpPrLQ==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>,
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Palmer Dabbelt <palmer@rivosinc.com>,
-	Guo Ren <guoren@kernel.org>,
 	Sasha Levin <sashal@kernel.org>,
-	will@kernel.org,
-	mpe@ellerman.id.au,
-	paul.walmsley@sifive.com,
-	palmer@dabbelt.com,
-	aou@eecs.berkeley.edu,
-	hca@linux.ibm.com,
+	oleg@redhat.com,
 	gor@linux.ibm.com,
-	tglx@linutronix.de,
-	mingo@redhat.com,
-	bp@alien8.de,
-	dave.hansen@linux.intel.com,
-	x86@kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-csky@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 01/11] arch: consolidate arch_irq_work_raise prototypes
-Date: Mon, 15 Jan 2024 20:07:01 -0500
-Message-ID: <20240116010729.219219-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 03/11] s390/ptrace: handle setting of fpc register correctly
+Date: Mon, 15 Jan 2024 20:07:03 -0500
+Message-ID: <20240116010729.219219-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240116010729.219219-1-sashal@kernel.org>
+References: <20240116010729.219219-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -58,116 +44,69 @@ X-Patchwork-Hint: Ignore
 X-stable-base: Linux 5.15.147
 Content-Transfer-Encoding: 8bit
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 64bac5ea17d527872121adddfee869c7a0618f8f ]
+[ Upstream commit 8b13601d19c541158a6e18b278c00ba69ae37829 ]
 
-The prototype was hidden in an #ifdef on x86, which causes a warning:
+If the content of the floating point control (fpc) register of a traced
+process is modified with the ptrace interface the new value is tested for
+validity by temporarily loading it into the fpc register.
 
-kernel/irq_work.c:72:13: error: no previous prototype for 'arch_irq_work_raise' [-Werror=missing-prototypes]
+This may lead to corruption of the fpc register of the tracing process:
+if an interrupt happens while the value is temporarily loaded into the
+fpc register, and within interrupt context floating point or vector
+registers are used, the current fp/vx registers are saved with
+save_fpu_regs() assuming they belong to user space and will be loaded into
+fp/vx registers when returning to user space.
 
-Some architectures have a working prototype, while others don't.
-Fix this by providing it in only one place that is always visible.
+test_fp_ctl() restores the original user space fpc register value, however
+it will be discarded, when returning to user space.
 
-Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
-Acked-by: Guo Ren <guoren@kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+In result the tracer will incorrectly continue to run with the value that
+was supposed to be used for the traced process.
+
+Fix this by saving fpu register contents with save_fpu_regs() before using
+test_fp_ctl().
+
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/irq_work.h   | 2 --
- arch/csky/include/asm/irq_work.h    | 2 +-
- arch/powerpc/include/asm/irq_work.h | 1 -
- arch/riscv/include/asm/irq_work.h   | 2 +-
- arch/s390/include/asm/irq_work.h    | 2 --
- arch/x86/include/asm/irq_work.h     | 1 -
- include/linux/irq_work.h            | 3 +++
- 7 files changed, 5 insertions(+), 8 deletions(-)
+ arch/s390/kernel/ptrace.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/include/asm/irq_work.h b/arch/arm64/include/asm/irq_work.h
-index 81bbfa3a035b..a1020285ea75 100644
---- a/arch/arm64/include/asm/irq_work.h
-+++ b/arch/arm64/include/asm/irq_work.h
-@@ -2,8 +2,6 @@
- #ifndef __ASM_IRQ_WORK_H
- #define __ASM_IRQ_WORK_H
+diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
+index 516c21baf3ad..014ed5b27027 100644
+--- a/arch/s390/kernel/ptrace.c
++++ b/arch/s390/kernel/ptrace.c
+@@ -392,6 +392,7 @@ static int __poke_user(struct task_struct *child, addr_t addr, addr_t data)
+ 		/*
+ 		 * floating point control reg. is in the thread structure
+ 		 */
++		save_fpu_regs();
+ 		if ((unsigned int) data != 0 ||
+ 		    test_fp_ctl(data >> (BITS_PER_LONG - 32)))
+ 			return -EINVAL;
+@@ -754,6 +755,7 @@ static int __poke_user_compat(struct task_struct *child,
+ 		/*
+ 		 * floating point control reg. is in the thread structure
+ 		 */
++		save_fpu_regs();
+ 		if (test_fp_ctl(tmp))
+ 			return -EINVAL;
+ 		child->thread.fpu.fpc = data;
+@@ -917,9 +919,7 @@ static int s390_fpregs_set(struct task_struct *target,
+ 	int rc = 0;
+ 	freg_t fprs[__NUM_FPRS];
  
--extern void arch_irq_work_raise(void);
+-	if (target == current)
+-		save_fpu_regs();
 -
- static inline bool arch_irq_work_has_interrupt(void)
- {
- 	return true;
-diff --git a/arch/csky/include/asm/irq_work.h b/arch/csky/include/asm/irq_work.h
-index 33aaf39d6f94..d39fcc1f5395 100644
---- a/arch/csky/include/asm/irq_work.h
-+++ b/arch/csky/include/asm/irq_work.h
-@@ -7,5 +7,5 @@ static inline bool arch_irq_work_has_interrupt(void)
- {
- 	return true;
- }
--extern void arch_irq_work_raise(void);
-+
- #endif /* __ASM_CSKY_IRQ_WORK_H */
-diff --git a/arch/powerpc/include/asm/irq_work.h b/arch/powerpc/include/asm/irq_work.h
-index b8b0be8f1a07..c6d3078bd8c3 100644
---- a/arch/powerpc/include/asm/irq_work.h
-+++ b/arch/powerpc/include/asm/irq_work.h
-@@ -6,6 +6,5 @@ static inline bool arch_irq_work_has_interrupt(void)
- {
- 	return true;
- }
--extern void arch_irq_work_raise(void);
- 
- #endif /* _ASM_POWERPC_IRQ_WORK_H */
-diff --git a/arch/riscv/include/asm/irq_work.h b/arch/riscv/include/asm/irq_work.h
-index b53891964ae0..b27a4d64fc6a 100644
---- a/arch/riscv/include/asm/irq_work.h
-+++ b/arch/riscv/include/asm/irq_work.h
-@@ -6,5 +6,5 @@ static inline bool arch_irq_work_has_interrupt(void)
- {
- 	return IS_ENABLED(CONFIG_SMP);
- }
--extern void arch_irq_work_raise(void);
-+
- #endif /* _ASM_RISCV_IRQ_WORK_H */
-diff --git a/arch/s390/include/asm/irq_work.h b/arch/s390/include/asm/irq_work.h
-index 603783766d0a..f00c9f610d5a 100644
---- a/arch/s390/include/asm/irq_work.h
-+++ b/arch/s390/include/asm/irq_work.h
-@@ -7,6 +7,4 @@ static inline bool arch_irq_work_has_interrupt(void)
- 	return true;
- }
- 
--void arch_irq_work_raise(void);
--
- #endif /* _ASM_S390_IRQ_WORK_H */
-diff --git a/arch/x86/include/asm/irq_work.h b/arch/x86/include/asm/irq_work.h
-index 800ffce0db29..6b4d36c95165 100644
---- a/arch/x86/include/asm/irq_work.h
-+++ b/arch/x86/include/asm/irq_work.h
-@@ -9,7 +9,6 @@ static inline bool arch_irq_work_has_interrupt(void)
- {
- 	return boot_cpu_has(X86_FEATURE_APIC);
- }
--extern void arch_irq_work_raise(void);
- #else
- static inline bool arch_irq_work_has_interrupt(void)
- {
-diff --git a/include/linux/irq_work.h b/include/linux/irq_work.h
-index ec2a47a81e42..ee5f9120c4d7 100644
---- a/include/linux/irq_work.h
-+++ b/include/linux/irq_work.h
-@@ -58,6 +58,9 @@ void irq_work_sync(struct irq_work *work);
- void irq_work_run(void);
- bool irq_work_needs_cpu(void);
- void irq_work_single(void *arg);
-+
-+void arch_irq_work_raise(void);
-+
- #else
- static inline bool irq_work_needs_cpu(void) { return false; }
- static inline void irq_work_run(void) { }
++	save_fpu_regs();
+ 	if (MACHINE_HAS_VX)
+ 		convert_vx_to_fp(fprs, target->thread.fpu.vxrs);
+ 	else
 -- 
 2.43.0
 
