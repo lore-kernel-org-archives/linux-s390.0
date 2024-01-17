@@ -1,106 +1,121 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68E021D550;
-	Wed, 17 Jan 2024 10:41:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 164121DFF8;
+	Wed, 17 Jan 2024 12:28:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705488088; cv=none; b=btklVCe+vzHOKQ4cNpEoikk6h0cFd1K808wYu7czRIA8CRNTpqt1BWIeKN/u9WN6uA3FoJPXONoj5B3uPf7wTYFEGOE5UuF96azodaOtF0jnovkXqTYrPgMoQuxG6srOQbzKzpDQ8diMOT/DKrDw3Nkf7k+ti3A2rWYDrUu1Jss=
+	t=1705494502; cv=none; b=pWLRfvIHBEz9pqIb7xSDigqBZFr10HRah+GZB7s22hIYHYwYtkk3TmRx1f5a/F5OjivlNediKq3iXmmPYnQ//B2ql2b7VbqzlJ4HZ05QCrPS0WZ6aLCsmX/6UN/P3Nfecy82V0DiYEXudDoJvn/f8FkSsOMxuMgiz4fLbI0gjaY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705488088; c=relaxed/simple;
-	bh=E3rwFhaOl2j+zeAfDeJ2luuN6OVjKJV3WlO+QINndKM=;
-	h=Received:DKIM-Signature:Received:Received:Received:Received:
-	 Received:Received:Received:Received:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:X-TM-AS-GCONF:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details; b=PleJi30lWxtijR04BntWI50NeYLiTebvWtC3yxisKm1Tc02odk03zNix/1SiustUiZm/eWRwMJLEZStb9ywA3Cif1qUylYk+0DRWoEfF30Y7kRt3OtSjvv9XWZb+2rj7QeRyID9ZyGQdrZLkscwj9pAqndpTT+zBrqR12QS9TJs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=W8njSpKI; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="W8njSpKI"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40HA7DHs015455;
-	Wed, 17 Jan 2024 10:41:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=YHdck/Ra38gjgZwkdUhVLlxKWwPrh4c3UuG1hGT5OpQ=;
- b=W8njSpKIL/nBQLJyZtQ1x8Iy982B3uxg+9t8ay4kxBeQZj4wUnrmHcgSkevlS6NcCMyy
- mp5BuWGZ131/NSCbcxFALgv788yKAT6dPcvgpFsqMstLxoulqeOlCqYUIXaVA87D5y9U
- n+wGl/H7oHF34TaF9VvJ2+YHsYAQiSAh3/aFNbZzSlcce+T9FhAnVA6gZWxFfSYnQetS
- myK3WWROwmuiE/gvgJ2ttF3zVX8qGG67DL8NJCeznz+3HghfonbSjZclX3fw37lYRPDl
- ROzwMmhgLrXO1IOxLr6co/gEPv/eIbQfKVTKFqGN1uv9VrMnhLh3VBPVpiAFitCIQrhQ 5w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vpcuy913d-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 17 Jan 2024 10:41:20 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40HA86NG018155;
-	Wed, 17 Jan 2024 10:41:19 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vpcuy912p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 17 Jan 2024 10:41:19 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40H8a3sP004908;
-	Wed, 17 Jan 2024 10:41:18 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vm7j1v74m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 17 Jan 2024 10:41:18 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40HAfDIv27787934
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 17 Jan 2024 10:41:13 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8287020043;
-	Wed, 17 Jan 2024 10:41:13 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BBD612004B;
-	Wed, 17 Jan 2024 10:41:12 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.88.12])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 17 Jan 2024 10:41:12 +0000 (GMT)
-Date: Wed, 17 Jan 2024 11:41:11 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Tony Krowiak <akrowiak@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, borntraeger@de.ibm.com,
-        pasic@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, gor@linux.ibm.com
-Subject: Re: [PATCH v4 0/6] s390/vfio-ap: reset queues removed from guest's
- AP configuration
-Message-ID: <Zaeuxz6+3eqg84+H@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20240115185441.31526-1-akrowiak@linux.ibm.com>
+	s=arc-20240116; t=1705494502; c=relaxed/simple;
+	bh=IAZtHNeINjkNdxYoN1+J/qhcbxursZX0lY55FYaAUuw=;
+	h=X-Alimail-AntiSpam:Received:From:To:Cc:Subject:Date:Message-Id:
+	 X-Mailer:MIME-Version:Content-Transfer-Encoding; b=E6oz9mX13JD4kHLxXpbM005zPve2Q+VXeA6wq4m60LHN2FJBpDJl1b9Fv7Dqs0x7YRim7HtdtZwO3bWhs8v+c61TstXgYX8eMMUcX6ydywL4yazJFmLYCHFyEjIbSIhdj2WuygmT3RQLg3AsmzsPi5n2FJSi5VbrjKrXEwBSZos=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; arc=none smtp.client-ip=115.124.30.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R391e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W-pO-Ke_1705494469;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W-pO-Ke_1705494469)
+          by smtp.aliyun-inc.com;
+          Wed, 17 Jan 2024 20:28:16 +0800
+From: Wen Gu <guwen@linux.alibaba.com>
+To: wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com
+Cc: alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	yepeilin.cs@gmail.com,
+	ubraun@linux.ibm.com,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net] net/smc: fix illegal rmb_desc access in SMC-D connection dump
+Date: Wed, 17 Jan 2024 20:27:49 +0800
+Message-Id: <20240117122749.63785-1-guwen@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240115185441.31526-1-akrowiak@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Q-VG3TmEKG8OUGkj0jJx4uRmquyQhxs9
-X-Proofpoint-GUID: KmINsdUnpHFeaTKRaqBd64el_x2kS-X-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-17_05,2024-01-17_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
- priorityscore=1501 clxscore=1015 bulkscore=0 phishscore=0 suspectscore=0
- mlxlogscore=728 adultscore=0 lowpriorityscore=0 impostorscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401170075
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jan 15, 2024 at 01:54:30PM -0500, Tony Krowiak wrote:
-...
->  drivers/s390/crypto/vfio_ap_ops.c     | 268 +++++++++++++++++---------
->  drivers/s390/crypto/vfio_ap_private.h |  11 +-
->  2 files changed, 184 insertions(+), 95 deletions(-)
+A crash was found when dumping SMC-D connections. It can be reproduced
+by following steps:
 
-Applied with fixups to patches 4 and 5.
+- run nginx/wrk test:
+  smc_run nginx
+  smc_run wrk -t 16 -c 1000 -d <duration> -H 'Connection: Close' <URL>
 
-Thanks!
+- continuously dump SMC-D connections in parallel:
+  watch -n 1 'smcss -D'
+
+ BUG: kernel NULL pointer dereference, address: 0000000000000030
+ CPU: 2 PID: 7204 Comm: smcss Kdump: loaded Tainted: G	E      6.7.0+ #55
+ RIP: 0010:__smc_diag_dump.constprop.0+0x5e5/0x620 [smc_diag]
+ Call Trace:
+  <TASK>
+  ? __die+0x24/0x70
+  ? page_fault_oops+0x66/0x150
+  ? exc_page_fault+0x69/0x140
+  ? asm_exc_page_fault+0x26/0x30
+  ? __smc_diag_dump.constprop.0+0x5e5/0x620 [smc_diag]
+  ? __kmalloc_node_track_caller+0x35d/0x430
+  ? __alloc_skb+0x77/0x170
+  smc_diag_dump_proto+0xd0/0xf0 [smc_diag]
+  smc_diag_dump+0x26/0x60 [smc_diag]
+  netlink_dump+0x19f/0x320
+  __netlink_dump_start+0x1dc/0x300
+  smc_diag_handler_dump+0x6a/0x80 [smc_diag]
+  ? __pfx_smc_diag_dump+0x10/0x10 [smc_diag]
+  sock_diag_rcv_msg+0x121/0x140
+  ? __pfx_sock_diag_rcv_msg+0x10/0x10
+  netlink_rcv_skb+0x5a/0x110
+  sock_diag_rcv+0x28/0x40
+  netlink_unicast+0x22a/0x330
+  netlink_sendmsg+0x1f8/0x420
+  __sock_sendmsg+0xb0/0xc0
+  ____sys_sendmsg+0x24e/0x300
+  ? copy_msghdr_from_user+0x62/0x80
+  ___sys_sendmsg+0x7c/0xd0
+  ? __do_fault+0x34/0x160
+  ? do_read_fault+0x5f/0x100
+  ? do_fault+0xb0/0x110
+  ? __handle_mm_fault+0x2b0/0x6c0
+  __sys_sendmsg+0x4d/0x80
+  do_syscall_64+0x69/0x180
+  entry_SYSCALL_64_after_hwframe+0x6e/0x76
+
+It is possible that the connection is in process of being established
+when we dump it. Assumed that the connection has been registered in a
+link group by smc_conn_create() but the rmb_desc has not yet been
+initialized by smc_buf_create(), thus causing the illegal access to
+conn->rmb_desc. So fix it by checking before dump.
+
+Fixes: ce51f63e63c5 ("net/smc: Prevent kernel-infoleak in __smc_diag_dump()")
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+---
+ net/smc/smc_diag.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index 52f7c4f1e767..5a33908015f3 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -164,7 +164,7 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
+ 	}
+ 	if (smc_conn_lgr_valid(&smc->conn) && smc->conn.lgr->is_smcd &&
+ 	    (req->diag_ext & (1 << (SMC_DIAG_DMBINFO - 1))) &&
+-	    !list_empty(&smc->conn.lgr->list)) {
++	    !list_empty(&smc->conn.lgr->list) && smc->conn.rmb_desc) {
+ 		struct smc_connection *conn = &smc->conn;
+ 		struct smcd_diag_dmbinfo dinfo;
+ 		struct smcd_dev *smcd = conn->lgr->smcd;
+-- 
+2.43.0
+
