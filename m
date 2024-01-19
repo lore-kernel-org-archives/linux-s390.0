@@ -1,76 +1,79 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06DBB1C30;
-	Fri, 19 Jan 2024 01:46:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DDD74C3D2;
+	Fri, 19 Jan 2024 12:10:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705628822; cv=none; b=T+pAS5dAJD4zRpzpJPIwdxXRp7mKZL3KTL/WGAbKLwlx/ONKHw/h+6M5wom8YGjiNL0xnDSAelNsEBw0xYIJ4zq9MCWZnVGad58EJBs6Y9F1xcFUeG+4ic7ZFDXtSR0f02I1H30+EQruot5mn+MlHsLkfhA+4aF9VOWoHDKc5Us=
+	t=1705666227; cv=none; b=ubG25/DEmYQFwXhRZSBPazU+AVP9CzE83hfRB/9Y1V8H047jRL2o761yaVZpUsUI3x92z4KnKZUr9FfsI5cfzyPMY8ldE7EoaGb4F6i6bb//GbAI5zSJ8+qBYqE0f+/6qorjOkkovV7nKzSXka2pkIlEJzS8sbjQERavuLUx8WI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705628822; c=relaxed/simple;
-	bh=oc+EVWt5c6vefMU4eC9AG7b2I59Qa+MJy8/Oj+jNVaU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cRrSo2lLa5shi0iGIXqQOVJ+G0BaWAr8TqGmrzKLJTsrG8cQn/9hdpRvjNyixkQg6883z8rPnPBhNk/VdEsEfcSOJEmfrzARxRpsxOr2DU+R5f5cGWBabRqd2zGHtZqFe6zdtfaQQJzZ6Zi+AKfqZcFd0ZlOGLxU+TUNpMKxtAc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; arc=none smtp.client-ip=115.124.30.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0W-u9l7M_1705628794;
-Received: from 30.221.129.170(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W-u9l7M_1705628794)
-          by smtp.aliyun-inc.com;
-          Fri, 19 Jan 2024 09:46:52 +0800
-Message-ID: <1860588f-2246-4dcd-9db5-4ccd7add0f4a@linux.alibaba.com>
-Date: Fri, 19 Jan 2024 09:46:34 +0800
+	s=arc-20240116; t=1705666227; c=relaxed/simple;
+	bh=tbhDZNX8Hu0WJoh+0t2czyv5HCop/pdxeoCqFNMqCwQ=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=R8dEIW8raGYPDbah3MMBRgvjZEYcSlYh5GAPgtJHf6vRDNWY6/bFpPhGFc68cFngEkTO/IheXr0aGwtn2GsVG1Cl7JMwNc7gMjHRLiaxEqCq0DTu9YPaVhqNsKDOTD5kS8wZ/7gMGA7Jn/aaBEoCbyAAqK4VmBXbTeEtZGpkx2U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FWIQWMhh; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FWIQWMhh"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id E4800C43390;
+	Fri, 19 Jan 2024 12:10:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1705666227;
+	bh=tbhDZNX8Hu0WJoh+0t2czyv5HCop/pdxeoCqFNMqCwQ=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=FWIQWMhh3Was0aFykIiOLzL663VX+xXSRyIyKRA93uUkTwbLktgFH1v38bw2ZTExs
+	 DGnm74ONTTmnj25Oqw4FoFXZm6vi5FNrEWtL3jZ22xUA5ygnDAzzd9pwEEp1j98SaV
+	 WU7UvpKb1XQVtLvak7sltm1est4s0p3UT/+SRU58YchAXiXiOL/LDqwyjOXlUcQFRr
+	 BtTDBfCmI8wNRTZd8aRSNpe0c8BwsqT1VER8rFSTGngGvRYlxX/rkN0UmdNg155YM/
+	 21D4gbvH1fnlAQ37ZhHe8LPT7RZS9tOJ9fxJ0iAO0x7UFn1c5oLrdcX0p2dzgchAU3
+	 kAegBWMyMVg4A==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id CC8BFD8C96C;
+	Fri, 19 Jan 2024 12:10:26 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 00/15] net/smc: implement loopback-ism used by
- SMC-D
-To: Wenjia Zhang <wenjia@linux.ibm.com>, wintera@linux.ibm.com,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v2] net/smc: fix illegal rmb_desc access in SMC-D
+ connection dump
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <170566622683.9014.7556475376411939888.git-patchwork-notify@kernel.org>
+Date: Fri, 19 Jan 2024 12:10:26 +0000
+References: <20240118043210.47618-1-guwen@linux.alibaba.com>
+In-Reply-To: <20240118043210.47618-1-guwen@linux.alibaba.com>
+To: Wen Gu <guwen@linux.alibaba.com>
+Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, ubraun@linux.ibm.com,
  linux-s390@vger.kernel.org, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org
-References: <20240111120036.109903-1-guwen@linux.alibaba.com>
- <f98849a7-41e9-421b-97b7-36d720cc43ee@linux.alibaba.com>
- <20a1a1f3-789a-4d91-9a94-dca16161afd7@linux.ibm.com>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <20a1a1f3-789a-4d91-9a94-dca16161afd7@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
+Hello:
 
+This patch was applied to netdev/net.git (main)
+by David S. Miller <davem@davemloft.net>:
 
-On 2024/1/18 21:59, Wenjia Zhang wrote:
+On Thu, 18 Jan 2024 12:32:10 +0800 you wrote:
+> A crash was found when dumping SMC-D connections. It can be reproduced
+> by following steps:
 > 
+> - run nginx/wrk test:
+>   smc_run nginx
+>   smc_run wrk -t 16 -c 1000 -d <duration> -H 'Connection: Close' <URL>
 > 
-> On 18.01.24 09:27, Wen Gu wrote:
->>
->>
->> On 2024/1/11 20:00, Wen Gu wrote:
->>> This patch set acts as the second part of the new version of [1] (The first
->>> part can be referred from [2]), the updated things of this version are listed
->>> at the end.
->>>
->>
->> Hi Wenjia and Jan, I would appreciate any thoughts or comments you might have
->> on this series. Thank you very much!
->>
-> Hi Wen,
-> 
-> I'm still in the middle of the proto type on IPPROTO_SMC and other issues, so that I need more time to review this patch 
-> series.
-> 
-> Thank you for your patience!
-> Wenjia
+> [...]
 
-Understood. Thank you! Wenjia.
+Here is the summary with links:
+  - [net,v2] net/smc: fix illegal rmb_desc access in SMC-D connection dump
+    https://git.kernel.org/netdev/net/c/dbc153fd3c14
 
-Best regards,
-Wen Gu
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
