@@ -1,45 +1,45 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14A5354746
-	for <linux-s390@vger.kernel.org>; Fri, 19 Jan 2024 14:54:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F79155E70
+	for <linux-s390@vger.kernel.org>; Fri, 19 Jan 2024 14:54:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705676057; cv=none; b=mBHNOV47mP2iQ+BdlQzZBrdE+7fHV66g0gz4EAnhZcNVTOZgx9Hl6Zl9Ddc+fvvcTsJXvtKQX3OiVUC9RiiTdQzEm7Z8APiCuNbioIZ1Zbj9iYogtW6zJ6Qv7ERc8A8Qffc/2aF1QBcAdJM2KLWpnw2iOYtUMZ40XZkrrfJk54s=
+	t=1705676066; cv=none; b=nuHy5F2fHb8ip/czCuyrzeG07518p8DIy2D6DCv7DSEsGR2/x0SEw1qTXyG7DfG9arD0yVsFVHEp1wtKdIA+WXsq6JcE/1+v/XTFqIXWY4Apa8Fne6fGAiCt2fBwW05yKGCdF+JUys74yzVm5v9jThH7hY0hXkvkqiTS7JnLFHk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705676057; c=relaxed/simple;
-	bh=NVnBdGZA7tQM0SMzzy9C+0Stne+AfN1tEQ8W4aNz72Q=;
+	s=arc-20240116; t=1705676066; c=relaxed/simple;
+	bh=+kOO43E85ahYtBRdDODzuq4Xc6WUCJmQ0tsIgZHp7Tg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-type; b=krRbiWDxb7rghnQNcf0DcNVYVbBhAsxEfWAd5j4o8b9nWx/j0y0AuDDYt4K7hlea/xluW6wN3+a22HlFDaH5Yup61Xv2WIAC9m911rKf++mFFAUIgrXuEtv/9G5KaFMTf9MHMWDq3l6QvtLsn3G5Ux306B52JhkzGH0B676+vYA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZG8kYmV9; arc=none smtp.client-ip=170.10.129.124
+	 MIME-Version:Content-type; b=pF6l6kGdPPKMETc2FD6hmbzaBPH6CTp6vNKfpjvsBLgg3kbh58x1dUZ3IJM8vn5x5rTDsshl7gyJRZ0bvyaMckD6ZBxhWev1YDuZO6pFQJd5/kCnu/7ewdFDZoXRwJ0CskYyTSouXk2RUXi26PrMLxVRtf2ws8EmA+q1S2Oky3g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MNMx427E; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZG8kYmV9"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MNMx427E"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1705676055;
+	s=mimecast20190719; t=1705676063;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=o/8hCUVuTDtixWcZu0Bhjq+7RevB6bL41WaDVirnLF4=;
-	b=ZG8kYmV9c0UI3iU0shmY5yyfjFt1GuIkMm84RzfPmbIuhEkOmA6Pvu4dg1n6wBcZb5kdBq
-	P99Sk80KookpmM0Uwc1XyFUVzzhcxnit9AUVVroVf3eSSKbHKarM9vKpcidD0TcCEljX+/
-	uVgIgnS24UnHsnv6uptvZwi5iRgp5L4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-505-D60y9ktTMdCt2oSU5Zg3Og-1; Fri, 19 Jan 2024 09:54:10 -0500
-X-MC-Unique: D60y9ktTMdCt2oSU5Zg3Og-1
+	bh=rvI+qIRXvnkRa99jMtk0WlMp94Xm6ORI7SgED7Qv6WY=;
+	b=MNMx427E1F2EvsVlrcG6s1TREXlQ3tUm3DaI1h0EPkPCINnuX76IlTiCMyuZDaUeApEWW2
+	12WV1VcQQkLCThT+WLrIroxnJ+2YAG9CdQiwqn4/qqYelgEZMY+0+RSB/TDjxSUu0LU4es
+	5orQQGAQ5eqC/KebS+gszNn37mPdPfQ=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-682-5WFyMg4UNWmcGndjb4K8hw-1; Fri,
+ 19 Jan 2024 09:54:16 -0500
+X-MC-Unique: 5WFyMg4UNWmcGndjb4K8hw-1
 Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 46A7484FA82;
-	Fri, 19 Jan 2024 14:54:09 +0000 (UTC)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 159183C025B8;
+	Fri, 19 Jan 2024 14:54:16 +0000 (UTC)
 Received: from MiWiFi-R3L-srv.redhat.com (unknown [10.72.116.4])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 4A02E51D5;
-	Fri, 19 Jan 2024 14:54:02 +0000 (UTC)
+	by smtp.corp.redhat.com (Postfix) with ESMTP id EA96351D5;
+	Fri, 19 Jan 2024 14:54:09 +0000 (UTC)
 From: Baoquan He <bhe@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: kexec@lists.infradead.org,
@@ -57,9 +57,9 @@ Cc: kexec@lists.infradead.org,
 	piliu@redhat.com,
 	viro@zeniv.linux.org.uk,
 	Baoquan He <bhe@redhat.com>
-Subject: [PATCH v2 10/14] sh, crash: wrap crash dumping code into crash related ifdefs
-Date: Fri, 19 Jan 2024 22:52:37 +0800
-Message-ID: <20240119145241.769622-11-bhe@redhat.com>
+Subject: [PATCH v2 11/14] arm, crash: wrap crash dumping code into crash related ifdefs
+Date: Fri, 19 Jan 2024 22:52:38 +0800
+Message-ID: <20240119145241.769622-12-bhe@redhat.com>
 In-Reply-To: <20240119145241.769622-1-bhe@redhat.com>
 References: <20240119145241.769622-1-bhe@redhat.com>
 Precedence: bulk
@@ -74,44 +74,48 @@ X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
 
 Now crash codes under kernel/ folder has been split out from kexec
 code, crash dumping can be separated from kexec reboot in config
-items on SuperH with some adjustments.
+items on arm with some adjustments.
 
-Here wrap up crashkernel reservation code inside CONFIG_CRASH_RESERVE
-ifdeffery scope.
+Here use IS_ENABLED(CONFIG_CRASH_RESERVE) check to decide if compiling
+in the crashkernel reservation code.
 
 Signed-off-by: Baoquan He <bhe@redhat.com>
 ---
- arch/sh/kernel/machine_kexec.c | 3 +++
- arch/sh/kernel/setup.c         | 2 +-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ arch/arm/kernel/setup.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/arch/sh/kernel/machine_kexec.c b/arch/sh/kernel/machine_kexec.c
-index fa3a7b36190a..8daa8a6e6fa6 100644
---- a/arch/sh/kernel/machine_kexec.c
-+++ b/arch/sh/kernel/machine_kexec.c
-@@ -153,6 +153,9 @@ void __init reserve_crashkernel(void)
- 	unsigned long long crash_size, crash_base;
+diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
+index ff2299ce1ad7..cf0b3798179f 100644
+--- a/arch/arm/kernel/setup.c
++++ b/arch/arm/kernel/setup.c
+@@ -979,7 +979,6 @@ static int __init init_machine_late(void)
+ }
+ late_initcall(init_machine_late);
+ 
+-#ifdef CONFIG_KEXEC
+ /*
+  * The crash region must be aligned to 128MB to avoid
+  * zImage relocating below the reserved region.
+@@ -1007,6 +1006,9 @@ static void __init reserve_crashkernel(void)
+ 	unsigned long long total_mem;
  	int ret;
  
 +	if (!IS_ENABLED(CONFIG_CRASH_RESERVE))
 +		return;
 +
- 	ret = parse_crashkernel(boot_command_line, memblock_phys_mem_size(),
- 			&crash_size, &crash_base, NULL, NULL);
- 	if (ret == 0 && crash_size > 0) {
-diff --git a/arch/sh/kernel/setup.c b/arch/sh/kernel/setup.c
-index d3175f09b3aa..620e5cf8ae1e 100644
---- a/arch/sh/kernel/setup.c
-+++ b/arch/sh/kernel/setup.c
-@@ -220,7 +220,7 @@ void __init __add_active_range(unsigned int nid, unsigned long start_pfn,
- 	request_resource(res, &code_resource);
- 	request_resource(res, &data_resource);
- 	request_resource(res, &bss_resource);
--#ifdef CONFIG_KEXEC_CORE
-+#ifdef CONFIG_CRASH_RESERVE
- 	request_resource(res, &crashk_res);
- #endif
+ 	total_mem = get_total_mem();
+ 	ret = parse_crashkernel(boot_command_line, total_mem,
+ 				&crash_size, &crash_base,
+@@ -1064,9 +1066,6 @@ static void __init reserve_crashkernel(void)
+ 		insert_resource(&iomem_resource, &crashk_boot_res);
+ 	}
+ }
+-#else
+-static inline void reserve_crashkernel(void) {}
+-#endif /* CONFIG_KEXEC */
  
+ void __init hyp_mode_check(void)
+ {
 -- 
 2.41.0
 
