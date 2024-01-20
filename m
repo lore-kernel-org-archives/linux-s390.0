@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC19B39F;
-	Sat, 20 Jan 2024 21:09:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C62415AEB;
+	Sat, 20 Jan 2024 21:09:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705784988; cv=none; b=cYNnPlb2+G1G/fPsWI/QF/P9guzXaWGViFQrl1xrEDg9yy4LuqvcUXtxitZ7zbbwQed7SCg3/KEtWYu1T8K+7pO1APvSQkqrzokbR24ZKhJRzNTUc8lsXggnuPBqugDmHy3OEbB/S3LiQtvgCfICT+8EojPStgBKs4qkJger6Gk=
+	t=1705784998; cv=none; b=HDxt/eLqA7PqpvJUHHBB/V6tHjL1FK310dF89WDC9oX2FpnILMt+NE+cKv9B+ztEeZR5k8/+CwqxIndh8mG9mmhUsD7SWRJ1Fgrv9+krTRLdQJLW33aQVDMl43i+X1n5r6nX71amNB/RDm8f5ICMN7wfO6rZivQrOQgWyXXeyIU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705784988; c=relaxed/simple;
-	bh=eTLr4dy/uLuhEZDSb8RfdP2ShpbC5ub3YzsOlB3z738=;
+	s=arc-20240116; t=1705784998; c=relaxed/simple;
+	bh=fjX1QcNSUSDtg3zN9eJIvh1kheAnttohq2CojBDtXqM=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=W01eqRY6cvqw83RJD6xwFvifMhqsAX2lCBQqJtTzt1taVsBCFWPaBY0ou67BFrbUL+oVm+dBCyAJcwJ7HUxG7eRYVCFy1ma4M4BwBBxLjc6RF4P3TzAqKvG1yp42nP6ngIiwDSy2tb21riZGQeCs9KgOCxruGDTb/BOdm7ZRUpY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=L2rcdUCV; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=d2Jd4VvKUbyKiMTlmJpqRH5eABqynw5vcrOQVWCEQpI6uOrgXxOuph23o0XpIkxa8LNfilhEmKhz/YA4dTf3LLXCoI5pZ3NXE5HUjfqhnFYGDl0zivWl3DbvEyzeBzxJ1KnjHMCsOdltvMNIbzfXa0D+Iayev4DMWuTi3HTRMas=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f5fgAd8l; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="L2rcdUCV"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 9DCC9C43390;
-	Sat, 20 Jan 2024 21:09:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f5fgAd8l"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 8EF1CC433F1;
+	Sat, 20 Jan 2024 21:09:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1705784987;
-	bh=eTLr4dy/uLuhEZDSb8RfdP2ShpbC5ub3YzsOlB3z738=;
+	s=k20201202; t=1705784997;
+	bh=fjX1QcNSUSDtg3zN9eJIvh1kheAnttohq2CojBDtXqM=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=L2rcdUCVcDzOWn4Bg5S9EC1E2ulioUxc9CfH4ixgBvNXMr43iVg8K2rDLBlXN6hgN
-	 vfNqwW5kWUqsXpVgY+wcBKjzzLbfJ/wHXLvIYXeBmg7t8/6EvA4QYoak48KaE+j/x8
-	 lmnoqo+r1LcL7vqDDaPszC3IC5d48QHizq0iBOklFmos6nie6hg/3rQbfXQzXRSIsC
-	 4wSPQrJB/JODPKeDz2+Hsy3ynf1vnoIH+JS71tJlB4/lUhQTXbfCY4KWD91DHL08Ub
-	 6NnxzmBVBW+i1Svnfg58mBoUe+uYY3tov4jL6JVC8GrErk7qDYXH44wX+Jx14G668P
-	 xaQOEg/YnDowQ==
+	b=f5fgAd8lGmVqY/67XbUSO4Qk0dRCUMvtUJD6k/fd5iG2uct6gv2xMQ3OHM1WYZ8U2
+	 ngc78M3hIIoMXED9Rhlsx50MT1WXbiTtNG6ah5EKBwBMud8j+kcgE1H0x+0FnmqSGT
+	 BBTDD9MuDisjsB7prVtq2FzT7FYcqsURHqxqgW0uE6WwNcJg/7ykZhWW1w3xibUlyP
+	 wX703TQTb8qu6a0/EiiGati/ykJT0BM8pyB94IT1As1Rm6DeIeWHsSDdmfkdUHpJ+M
+	 Y4G5OILFVDaAC74ogXv0ePOSln8yYvcsMgVHnWJJUfV+xzzSdGzo674sw/Es00ID6Y
+	 cufuVhFU3QLqg==
 Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 874E3D8C96C;
-	Sat, 20 Jan 2024 21:09:47 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 7D333D8C970;
+	Sat, 20 Jan 2024 21:09:57 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -37,52 +37,43 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH 1/1] arch/mm/fault: fix major fault accounting when retrying
- under per-VMA lock
+Subject: Re: [PATCH 0/2] kexec_file: Load kernel at top of system RAM if required
 From: patchwork-bot+linux-riscv@kernel.org
 Message-Id: 
- <170578498755.24348.16166096320323933297.git-patchwork-notify@kernel.org>
-Date: Sat, 20 Jan 2024 21:09:47 +0000
-References: <20231226214610.109282-1-surenb@google.com>
-In-Reply-To: <20231226214610.109282-1-surenb@google.com>
-To: Suren Baghdasaryan <surenb@google.com>
-Cc: linux-riscv@lists.infradead.org, akpm@linux-foundation.org,
- willy@infradead.org, will@kernel.org, catalin.marinas@arm.com,
- palmer@dabbelt.com, mpe@ellerman.id.au, christophe.leroy@csgroup.eu,
- agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com,
- dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org,
- x86@kernel.org, linux-arm-kernel@lists.infradead.org,
+ <170578499750.24348.2518240009884006018.git-patchwork-notify@kernel.org>
+Date: Sat, 20 Jan 2024 21:09:57 +0000
+References: <20231114091658.228030-1-bhe@redhat.com>
+In-Reply-To: <20231114091658.228030-1-bhe@redhat.com>
+To: Baoquan He <bhe@redhat.com>
+Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
+ kexec@lists.infradead.org, x86@kernel.org, linux-parisc@vger.kernel.org,
  linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org
+ akpm@linux-foundation.org, ebiederm@xmission.com, takahiro.akashi@linaro.org
 
 Hello:
 
-This patch was applied to riscv/linux.git (fixes)
+This series was applied to riscv/linux.git (fixes)
 by Andrew Morton <akpm@linux-foundation.org>:
 
-On Tue, 26 Dec 2023 13:46:10 -0800 you wrote:
-> A test [1] in Android test suite started failing after [2] was merged.
-> It turns out that after handling a major fault under per-VMA lock, the
-> process major fault counter does not register that fault as major.
-> Before [2] read faults would be done under mmap_lock, in which case
-> FAULT_FLAG_TRIED flag is set before retrying. That in turn causes
-> mm_account_fault() to account the fault as major once retry completes.
-> With per-VMA locks we often retry because a fault can't be handled
-> without locking the whole mm using mmap_lock. Therefore such retries
-> do not set FAULT_FLAG_TRIED flag. This logic does not work after [2]
-> because we can now handle read major faults under per-VMA lock and
-> upon retry the fact there was a major fault gets lost. Fix this by
-> setting FAULT_FLAG_TRIED after retrying under per-VMA lock if
-> VM_FAULT_MAJOR was returned. Ideally we would use an additional
-> VM_FAULT bit to indicate the reason for the retry (could not handle
-> under per-VMA lock vs other reason) but this simpler solution seems
-> to work, so keeping it simple.
+On Tue, 14 Nov 2023 17:16:56 +0800 you wrote:
+> Justification:
+> ==============
+> Kexec_load interface has been doing top down searching and loading
+> kernel/initrd/purgtory etc to prepare for kexec reboot. In that way,
+> the benefits are that it avoids to consume and fragment limited low
+> memory which satisfy DMA buffer allocation and big chunk of continuous
+> memory during system init; and avoids to stir with BIOS/FW reserved
+> or occupied areas, or corner case handling/work around/quirk occupied
+> areas when doing system init. By the way, the top-down searching and
+> loading of kexec-ed kernel is done in user space utility code.
 > 
 > [...]
 
 Here is the summary with links:
-  - [1/1] arch/mm/fault: fix major fault accounting when retrying under per-VMA lock
-    https://git.kernel.org/riscv/c/46e714c729c8
+  - [1/2] resource: add walk_system_ram_res_rev()
+    (no matching commit)
+  - [2/2] kexec_file: Load kernel at top of system RAM if required
+    https://git.kernel.org/riscv/c/b3ba234171cd
 
 You are awesome, thank you!
 -- 
