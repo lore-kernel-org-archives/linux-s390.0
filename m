@@ -1,78 +1,104 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [78.32.30.218])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4B70168B3;
-	Sat, 20 Jan 2024 21:09:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3B2011727;
+	Sat, 20 Jan 2024 21:15:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.32.30.218
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705784998; cv=none; b=h8UTB/o/FtnmnT3GAHIdrz4G5Hec1ClfDVp8vvqOr9T11RD71CVrTljdsi2boLIOUo0DuOwMw5tm8CLChAwBmudnW9STtj2ip0CJuFeoaVC7ydSBc9BtAzQSLdvvtvNHhU2VJ+PsmyhlrLhB/kSyl4IAsyiAxsEafAXfkX06ih4=
+	t=1705785357; cv=none; b=oIVw+UWZJBWP7GYm1BECPsOcY4MCtLiKT1idrN2Icg1Kj0vqPQVTNzYf7VsnrjJashWpNUgR/6ojh0qG6aKQDGF2So5ChzbizIcxb0AHSaUPUamtKkGUOOvAllqLwZVDc79ywXK4sxiqOlHabU6YhUd45bS0dm0Js33Ad4SYR5Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705784998; c=relaxed/simple;
-	bh=Mh4+2rjEl/tfirk6ZrJJo/+D3Z21pmSdnoQgsLi3+Hc=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=Llq61J9ZrtCELNC323InzjSJbQ+G0whDvJ/0/9nmPKTQ7c90PD4W+q8LfWFGrlL2u+YC+bBA5geZ2zacOt7F8k4PivLRZWGVOTwhcxGYy+H6zUPZP0l2vBZuvD8Z/wSK6TF6Iq27ARcEBaHs32XKDYI0wwlLxnPTDn+OgNWaCPM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gBabWffU; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1705785357; c=relaxed/simple;
+	bh=1g9bksCDLYBlnBEy5X9csgQBfOXwcWCj0kAH011US04=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=QkhCMr2oiJ8gjr3qtCIT9z3PBKkfESR+Z0Owo63NlE0XaJRxjo2wKSIuBgsUvcKCFSnXTk5lTgHLNxWfEbsnTwotCW7ymc/dOjZk6YjnuCKGb8k/NPBzQwADf5REA5qkB4gyDgaWv+foglacvY2J/aPKwkhbRsqVWrWu9nKnmmw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk; spf=none smtp.mailfrom=armlinux.org.uk; dkim=pass (2048-bit key) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.b=NchmfWpK; arc=none smtp.client-ip=78.32.30.218
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=armlinux.org.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gBabWffU"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 3417AC43330;
-	Sat, 20 Jan 2024 21:09:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1705784998;
-	bh=Mh4+2rjEl/tfirk6ZrJJo/+D3Z21pmSdnoQgsLi3+Hc=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=gBabWffUhXIzoKs5sudLgHP01fwVoOZ8G8XJppwrSIIqTXd2XYdNBCXywvJDVmaR0
-	 VQwuvGapishRyDTmmjTM7bUqzXJpyjK1h9SC1IaTrGptzQuCxjz7cLGSVqLdkBWQRC
-	 u+x7wG5sj4K1RWc1aYbazrFCRwmJWgCgVz0cT4BIYB4v4S9b6GrU/rO9S/reHa6wof
-	 N4QLgOaSg5v+YyptWT1v0cTgFIuK8vPMo5HUtXA80XG+dGvgSS6WLvRIwqNAUwD8ZI
-	 dyzIoechWjSaFhyqfCz2xhvbCtFX2PGS9rCj03lLMuj84C855CJQHmfdu7ymB7dMmg
-	 9WOYs+ahTvD2Q==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 23795D8C970;
-	Sat, 20 Jan 2024 21:09:58 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.b="NchmfWpK"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=1aBK0Gktyu8z+XAOtZwM9ibKmLTWPXmi9JXFn46Moag=; b=NchmfWpKV8qW4oGh0F1Qvj2C/6
+	/9LiX34B1wlpHtipYkfPNQ+3G4sxN+nN75vc36dqQqjNMWNyQa5wFbXiDuuJCw81FAOfCSys3cLbS
+	IooU5FuZdHsgy/cCTasUw23eGZLHi8rqM87NA8xNGA8TZZ5t8ap1so2ig5rH24oATjRzXeNBH9G8b
+	ES6a95oRMX+OMy2zD9vQRKPlkHHSsMPeqUmu5H/RRAiTRt7YRBqjFrwcrblJ1oMA3AphMu0iwndBx
+	qYPvgpL249fguGP08RS7rSdcLn8m1HFKMQRGIg7MzbGLKydZ2bOvJvLHRY4wKgtirPXoSsCPXUNrl
+	VswDM4wg==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:40226)
+	by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <linux@armlinux.org.uk>)
+	id 1rRIgD-0007pB-1l;
+	Sat, 20 Jan 2024 21:15:05 +0000
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
+	(envelope-from <linux@shell.armlinux.org.uk>)
+	id 1rRIg9-0007ya-3x; Sat, 20 Jan 2024 21:15:01 +0000
+Date: Sat, 20 Jan 2024 21:15:01 +0000
+From: "Russell King (Oracle)" <linux@armlinux.org.uk>
+To: patchwork-bot+linux-riscv@kernel.org
+Cc: Suren Baghdasaryan <surenb@google.com>, linux-riscv@lists.infradead.org,
+	akpm@linux-foundation.org, willy@infradead.org, will@kernel.org,
+	catalin.marinas@arm.com, palmer@dabbelt.com, mpe@ellerman.id.au,
+	christophe.leroy@csgroup.eu, agordeev@linux.ibm.com,
+	gerald.schaefer@linux.ibm.com, dave.hansen@linux.intel.com,
+	luto@kernel.org, peterz@infradead.org, x86@kernel.org,
+	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] arch/mm/fault: fix major fault accounting when
+ retrying under per-VMA lock
+Message-ID: <Zaw31DVa9q3JZASo@shell.armlinux.org.uk>
+References: <20231226214610.109282-1-surenb@google.com>
+ <170578498755.24348.16166096320323933297.git-patchwork-notify@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v2 1/2] resource: add walk_system_ram_res_rev()
-From: patchwork-bot+linux-riscv@kernel.org
-Message-Id: 
- <170578499814.24348.4213715182572913470.git-patchwork-notify@kernel.org>
-Date: Sat, 20 Jan 2024 21:09:58 +0000
-References: <ZVTA6z/06cLnWKUz@MiWiFi-R3L-srv>
-In-Reply-To: <ZVTA6z/06cLnWKUz@MiWiFi-R3L-srv>
-To: Baoquan He <bhe@redhat.com>
-Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
- kexec@lists.infradead.org, x86@kernel.org, linux-parisc@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
- akpm@linux-foundation.org, ebiederm@xmission.com, takahiro.akashi@linaro.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <170578498755.24348.16166096320323933297.git-patchwork-notify@kernel.org>
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
 
-Hello:
-
-This patch was applied to riscv/linux.git (fixes)
-by Andrew Morton <akpm@linux-foundation.org>:
-
-On Wed, 15 Nov 2023 21:00:27 +0800 you wrote:
-> This function, being a variant of walk_system_ram_res() introduced in
-> commit 8c86e70acead ("resource: provide new functions to walk through
-> resources"), walks through a list of all the resources of System RAM
-> in reversed order, i.e., from higher to lower.
+On Sat, Jan 20, 2024 at 09:09:47PM +0000, patchwork-bot+linux-riscv@kernel.org wrote:
+> Hello:
 > 
-> It will be used in kexec_file code to load kernel, initrd etc when
-> preparing kexec reboot.
+> This patch was applied to riscv/linux.git (fixes)
+> by Andrew Morton <akpm@linux-foundation.org>:
 > 
-> [...]
+> On Tue, 26 Dec 2023 13:46:10 -0800 you wrote:
+> > A test [1] in Android test suite started failing after [2] was merged.
+> > It turns out that after handling a major fault under per-VMA lock, the
+> > process major fault counter does not register that fault as major.
+> > Before [2] read faults would be done under mmap_lock, in which case
+> > FAULT_FLAG_TRIED flag is set before retrying. That in turn causes
+> > mm_account_fault() to account the fault as major once retry completes.
+> > With per-VMA locks we often retry because a fault can't be handled
+> > without locking the whole mm using mmap_lock. Therefore such retries
+> > do not set FAULT_FLAG_TRIED flag. This logic does not work after [2]
+> > because we can now handle read major faults under per-VMA lock and
+> > upon retry the fact there was a major fault gets lost. Fix this by
+> > setting FAULT_FLAG_TRIED after retrying under per-VMA lock if
+> > VM_FAULT_MAJOR was returned. Ideally we would use an additional
+> > VM_FAULT bit to indicate the reason for the retry (could not handle
+> > under per-VMA lock vs other reason) but this simpler solution seems
+> > to work, so keeping it simple.
+> > 
+> > [...]
+> 
+> Here is the summary with links:
+>   - [1/1] arch/mm/fault: fix major fault accounting when retrying under per-VMA lock
+>     https://git.kernel.org/riscv/c/46e714c729c8
+> 
+> You are awesome, thank you!
 
-Here is the summary with links:
-  - [v2,1/2] resource: add walk_system_ram_res_rev()
-    https://git.kernel.org/riscv/c/7acf164b259d
+Now that 32-bit ARM has support for the per-VMA lock, does that also
+need to be patched?
 
-You are awesome, thank you!
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 80Mbps down 10Mbps up. Decent connectivity at last!
