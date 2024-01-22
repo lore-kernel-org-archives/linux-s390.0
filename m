@@ -1,129 +1,102 @@
-Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
+Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7DCA1B26D
-	for <linux-s390@vger.kernel.org>; Mon, 22 Jan 2024 07:38:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A9E43A1CF
+	for <linux-s390@vger.kernel.org>; Mon, 22 Jan 2024 12:55:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705909133; cv=none; b=ntgqVMG3nPveA5ZOHdVzVUNpOH4N0tNRSKfacTTVv7fe101kVTWYJooHYW0c5id+9I8r48Qegc1jHt1h5gAJisqhSA/nkpwrBW4rTr+D1HFJHqOjZee1w/ovpnzH6s1nC42FSArxsBy17t4AyUrN78lIMKuon+lrG2GVFsuSiYQ=
+	t=1705928117; cv=none; b=KnWHffdLmiCniJYNv3/kVa/zWcXGXh4tr3UTQBa/+baRo7zQSDXo/mD+Fa3cjlS3mtdNvz5/WZ/4FgrHREWvrKGe8tWYuCgLEMihexaEleNfR+/T7uJHwLXJjClZ+yCZk93A2jH+LRUBOvj8PbHK7uEiFBnsp2xeMb3aJ870kOo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705909133; c=relaxed/simple;
-	bh=I0bxZ9OPqrT/uDMzN7yVqtIrwXlVywHoghPHYVi+0rQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HXWDZ8S0JHD0Yg6X7JrJJpqbzQDWPrS5r0vJDc3eiFMUoxBtBpbeIcA36o/Es2+K8RwKEX5Ydry9py4plvUZ6ig3rvmb6tU1trJ4CqnF116Cl6w0mkUA44KhrpMe/8ywrAvCulFSFBUZKoRzE7dPNxr96TEwf7DhqSPCd8oXYmY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=I9xDBETY; arc=none smtp.client-ip=209.85.128.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1705928117; c=relaxed/simple;
+	bh=v+L7PVTpZDw0rKx6LNXPOAvhzXFGb5VQm0BCqFUAkRQ=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=IW991bS+yoFNxkqL0BdO6If2ZTGg50LYj21io9t4DRBCr4DazZJHvY8G5ierLRDos/h6ZJaX1lAiUS/MLST8jxtJ+9lJizIbWBTjHzjAk5jIx2zqzC+9hdMFlCqR8NPv845mPkcPidRvac6a5gjcRlaj5dUGImblEFDM6A1J9bM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=SQl/V1bc; arc=none smtp.client-ip=209.85.208.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="I9xDBETY"
-Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-5ff847429d4so23646217b3.1
-        for <linux-s390@vger.kernel.org>; Sun, 21 Jan 2024 23:38:51 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="SQl/V1bc"
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-55c6bc3dd54so62820a12.1
+        for <linux-s390@vger.kernel.org>; Mon, 22 Jan 2024 04:55:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1705909131; x=1706513931; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=btEptr2pD3e12BZE7dkiwHzMFQh/dHJsUOjIgsxvBmo=;
-        b=I9xDBETYrGYSKN7adIm3FYpMvxquRGJxf8xozySOS+sJdL8x4SuV8Pe3ZXRmEyAAu7
-         2cxDsVTBJ21LkCycrjEdaA5+LkVpYpqjXkTvJN41uDvhWj1pJf9yLWH6/dl8RP1Y21XJ
-         zo4rdd/lnOan9S0qt7NahQ8M7YSggOEC04Z8+AZ5Kv0xTcLxlyoVmNa1d+P1qqNmDahY
-         D+BMkQUdtwSRejXlscnoO8CBuDmp7HAvj3eCl9jPzD8Hn3YmV2A+tG/92a7CxAXjMP+9
-         1Cy7Ly9YHy3LTMUkOgLDbMU4eBeYs47HslYbsxzhF3MbeK0zdCVaOMSxeQn+jwtaxWlt
-         eXXQ==
+        d=suse.com; s=google; t=1705928112; x=1706532912; darn=vger.kernel.org;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=IuUKVWtvvYIXVeVdCt3DqjuZg1hGyra7osExMMOSS2E=;
+        b=SQl/V1bcIuhJ5oVnf9KbTKasKw/Xc9CFzbh4SxN5CjzJDNDyaaY7llm9PPRgzR6u9F
+         OHV9I+5WhAMPolI5Ks8oBWlKTDa8gjb7M9JjQ2GD5/j8+Q02z0QUpLTae3EtL0rR60Ni
+         uRxndjWKzk+5iv8yzMlciuJ7hLrbKp3P8Mn2Eif7I1Dok5xbHJ4YDIywdyWj87n1TKJb
+         EqiGacj03JUOdgJlBgTbfxnH2qNueapOZqAM1eEL60M8r250R94FwiwsdvrTqr9XPJiI
+         pHTO8Nz8MvAl2F+2jxO4C2VJW0A7tQ/Hm/2hZOoXgkmrkw0Uu8xpRCbbT+uVHSKx7xyq
+         szVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705909131; x=1706513931;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=btEptr2pD3e12BZE7dkiwHzMFQh/dHJsUOjIgsxvBmo=;
-        b=vbKvCZI67HRkMleVh8fajOe7Ze1mgxoPVda8OWX7rUgP0VdRTAaQC80Yywdh/TSb+T
-         jXDPa8U8W/bqllHiXMNSl6bKk22VEauDMnyNQkIs6BUi8s0vY+vtwjRzYBZdq+h4jjrS
-         WtF9RvyvIVD5ADy7FHt1ldkhNamRRrl93ktlvnhccVVJcyN4b+vhtTND+qipYdyZCeEv
-         KOcDmiPYKpus1b2z/2i1hLy8NUu9z9TW4FHd1oUYCE4oMdwFylAFKedTGM+pqMtWADkX
-         wfQMc16mPQMsViscCgGYsudXecwhrmv2IfLQptXZIRhr5/adArsy5uId5VE/9kf8qwly
-         Mwqw==
-X-Gm-Message-State: AOJu0Yy9oBWCRhvK/ZB6qwe97DRc/MXo4XuV3l9CIkXBad0ip5EgVeWr
-	gw1iBXJl9jThERYRj4mjvvDbxsA3KWYRhSFAlYJatTnJ+BmSCS6Jjl1+WNoNAi1V3ZOvF1s50xb
-	6vNuBvbjM9HDrXCYjv5kY1+nDGWfFETk2V83EsDn2s71GW2/riQ==
-X-Google-Smtp-Source: AGHT+IGjEOIHrmfM7ezfh27Xzea24O4bRYWpgPSlKnEmn5Ffc3QES0sPWXdEsTBBAXnmQNHKy//6OSpslLEBp2dKAfc=
-X-Received: by 2002:a81:7202:0:b0:5ff:b07b:99f0 with SMTP id
- n2-20020a817202000000b005ffb07b99f0mr1289150ywc.93.1705909130740; Sun, 21 Jan
- 2024 23:38:50 -0800 (PST)
+        d=1e100.net; s=20230601; t=1705928112; x=1706532912;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=IuUKVWtvvYIXVeVdCt3DqjuZg1hGyra7osExMMOSS2E=;
+        b=EXj3GNm6BG0f7mc8PzocXqAc3zKEWOwSGiJbB9Qrw6El3Hed6ApibwR3/A7RS91FKM
+         OViyeWhx+6EoCc749qFLUzfYYyMRRf4d+KaecvmITfhAki8zAt/Vpwzf0RyVGh3xJjkp
+         L0hpyYVrId/VeZas5fsAcaxY6SK8qp4LfdaBZAOEHawKPi2UrphV5IxRhR/PJ1ahFS5p
+         KavTB0Dw8eRF2UKdZbc3I91BI4zlqUAUSbqtY3iQDnuXEraB1pvHx2NPvTlzga/P7LCx
+         JlHXqc6rRQiqNRWekPAz4qi4B+eICSww1rJj/7X7GuTiS8dJOB7lGq1H3j8ZiZnk9Q9d
+         a3RA==
+X-Gm-Message-State: AOJu0Ywdh3MQqPDKzqfSQQ4MvCH2z6RXIARAul3QnTAAn/OQR8EFjVhD
+	rMUkkWvN3fpVewbk3vuPIYDnb1Wpj1AgQsNVxwC9015LEckeYbxI4yGckaNTcjs=
+X-Google-Smtp-Source: AGHT+IFMwp2rvA2TkeKR8EEYT9ihnqdp0q0BkNQSHFUaT5nh8UK+VHg2raGKecMA0Ym1+fdVY83xQA==
+X-Received: by 2002:a17:907:778c:b0:a2f:6053:2ab7 with SMTP id ky12-20020a170907778c00b00a2f60532ab7mr5368477ejc.11.1705928112494;
+        Mon, 22 Jan 2024 04:55:12 -0800 (PST)
+Received: from ?IPv6:2804:30c:974:ac00:1b02:e2fd:23be:79bc? ([2804:30c:974:ac00:1b02:e2fd:23be:79bc])
+        by smtp.gmail.com with ESMTPSA id g10-20020a92cdaa000000b00361b87d1645sm1526721ild.54.2024.01.22.04.55.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 22 Jan 2024 04:55:12 -0800 (PST)
+Message-ID: <53cf93b2efadc0f42712eb92436bd575b5622664.camel@suse.com>
+Subject: Re: [PATCH v6 2/3] livepatch: Move tests from lib/livepatch to
+ selftests/livepatch
+From: Marcos Paulo de Souza <mpdesouza@suse.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Shuah Khan <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Heiko
+ Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian
+ Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
+ <svens@linux.ibm.com>, Josh Poimboeuf <jpoimboe@kernel.org>, Jiri Kosina
+ <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>,  Petr Mladek
+ <pmladek@suse.com>, Joe Lawrence <joe.lawrence@redhat.com>,
+ linux-kselftest@vger.kernel.org,  linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org,  linux-s390@vger.kernel.org,
+ live-patching@vger.kernel.org
+Date: Mon, 22 Jan 2024 09:55:06 -0300
+In-Reply-To: <Zap26MINbbxREt4c@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20240112-send-lp-kselftests-v6-0-79f3e9a46717@suse.com>
+	 <20240112-send-lp-kselftests-v6-2-79f3e9a46717@suse.com>
+	 <Zap04ddls7ZvbL/U@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+	 <Zap26MINbbxREt4c@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.1 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231226214610.109282-1-surenb@google.com> <170578498755.24348.16166096320323933297.git-patchwork-notify@kernel.org>
- <Zaw31DVa9q3JZASo@shell.armlinux.org.uk>
-In-Reply-To: <Zaw31DVa9q3JZASo@shell.armlinux.org.uk>
-From: Suren Baghdasaryan <surenb@google.com>
-Date: Sun, 21 Jan 2024 23:38:38 -0800
-Message-ID: <CAJuCfpGV_CwQm+PuiqRz3L1x7QnpgE9LQb4PPChqFv0mzbYeBw@mail.gmail.com>
-Subject: Re: [PATCH 1/1] arch/mm/fault: fix major fault accounting when
- retrying under per-VMA lock
-To: "Russell King (Oracle)" <linux@armlinux.org.uk>
-Cc: patchwork-bot+linux-riscv@kernel.org, linux-riscv@lists.infradead.org, 
-	akpm@linux-foundation.org, willy@infradead.org, will@kernel.org, 
-	catalin.marinas@arm.com, palmer@dabbelt.com, mpe@ellerman.id.au, 
-	christophe.leroy@csgroup.eu, agordeev@linux.ibm.com, 
-	gerald.schaefer@linux.ibm.com, dave.hansen@linux.intel.com, luto@kernel.org, 
-	peterz@infradead.org, x86@kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jan 20, 2024 at 1:15=E2=80=AFPM Russell King (Oracle)
-<linux@armlinux.org.uk> wrote:
->
-> On Sat, Jan 20, 2024 at 09:09:47PM +0000, patchwork-bot+linux-riscv@kerne=
-l.org wrote:
-> > Hello:
-> >
-> > This patch was applied to riscv/linux.git (fixes)
-> > by Andrew Morton <akpm@linux-foundation.org>:
-> >
-> > On Tue, 26 Dec 2023 13:46:10 -0800 you wrote:
-> > > A test [1] in Android test suite started failing after [2] was merged=
-.
-> > > It turns out that after handling a major fault under per-VMA lock, th=
-e
-> > > process major fault counter does not register that fault as major.
-> > > Before [2] read faults would be done under mmap_lock, in which case
-> > > FAULT_FLAG_TRIED flag is set before retrying. That in turn causes
-> > > mm_account_fault() to account the fault as major once retry completes=
-.
-> > > With per-VMA locks we often retry because a fault can't be handled
-> > > without locking the whole mm using mmap_lock. Therefore such retries
-> > > do not set FAULT_FLAG_TRIED flag. This logic does not work after [2]
-> > > because we can now handle read major faults under per-VMA lock and
-> > > upon retry the fact there was a major fault gets lost. Fix this by
-> > > setting FAULT_FLAG_TRIED after retrying under per-VMA lock if
-> > > VM_FAULT_MAJOR was returned. Ideally we would use an additional
-> > > VM_FAULT bit to indicate the reason for the retry (could not handle
-> > > under per-VMA lock vs other reason) but this simpler solution seems
-> > > to work, so keeping it simple.
-> > >
-> > > [...]
-> >
-> > Here is the summary with links:
-> >   - [1/1] arch/mm/fault: fix major fault accounting when retrying under=
- per-VMA lock
-> >     https://git.kernel.org/riscv/c/46e714c729c8
-> >
-> > You are awesome, thank you!
->
-> Now that 32-bit ARM has support for the per-VMA lock, does that also
-> need to be patched?
+On Fri, 2024-01-19 at 14:19 +0100, Alexander Gordeev wrote:
+> On Fri, Jan 19, 2024 at 02:11:01PM +0100, Alexander Gordeev wrote:
+> > FWIW, for s390 part:
+> >=20
+> > Alexander Gordeev <agordeev@linux.ibm.com>
+>=20
+> Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
 
-Yes, I think so. I missed the ARM32 change that added support for
-per-VMA locks. Will post a similar patch for it tomorrow.
+Thanks Alexandre and Joe for testing and supporting the change.
+
+Shuah, now that the issue found by that Joe was fixed, do you think the
+change is ready to be merged? The patches were reviewed by three
+different people already, and I don't know what else can be missing at
+this point.
+
 Thanks,
-Suren.
+  Marcos
 
->
-> --
-> RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-> FTTP is here! 80Mbps down 10Mbps up. Decent connectivity at last!
+
