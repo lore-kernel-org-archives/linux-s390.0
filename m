@@ -1,136 +1,126 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C08E254663;
-	Mon, 22 Jan 2024 16:25:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC6825DF30
+	for <linux-s390@vger.kernel.org>; Mon, 22 Jan 2024 17:16:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705940739; cv=none; b=auynNEIuiZ5ttqdiIz+aK1WMDNmN24X0wyv5HuEh5Pbj3CCz7cUaoEpwaLfQkki9d12UliCEq6Ys7DflajqpiXzwwkp2Wu4wy8jUlK8JQH5h6LzY70Y0YxgQx2Ykr0yh6spg95jMzQdB0ycZ21NBok74zGQPBxiAMA9DSN8ZOYI=
+	t=1705943762; cv=none; b=kHpfayRzFsmnapUVLne0NT7Af6wqiidURGA0T4fp9eC7scaIa+HFHG4M3EOETThO+qyr0wZr63gnSQdKaSQtfUKZu2VlKke59D4IX1VtM4z7g++SWY74qI3xyyCuThYxRCMKv1WjHAF5k8bv2XOma6SyRstBqp1xatvrx+mbq30=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705940739; c=relaxed/simple;
-	bh=GXfpiZy75DQjR//caZM/AN4ckEsyL2pXpAfiknNV99w=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hxFuyWvywDeG4Lu+TO63ekKxPYhBy9G0bUmydz/IXtKEvnuakXHGZwy2NY0iSHxopbT2InBTmuUNHRTeEiqDHC7Y51CK0U1ro97N71iB2QMYrPTYk4wdZyAmUX+9ly1yR7SXYG7PA0V8zdHk7FVgyanuv4JW77CGYlvwjMvzJbg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bi+v3KXA; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1705943762; c=relaxed/simple;
+	bh=qi4d0pu7u814/CypIFC9w8MjeTjXsELC8s/V0OQyCwE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=so6acGvVVxsSJpx5gm5WqWlFkxcmSLxmcaK9qQmXxNyMjGnhuvQoJZBNqoYdHg8IB7HIO+6cpW2NhBiFRiisn8pYL4kn/odWl/06ibdHcrbP2fDWWGci0wrWN+JXDq6042H4gd9ktR95vKzHMKR4VM0tRZjD7RQgShSwpXjvSYU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=a++aXjck; arc=none smtp.client-ip=209.85.210.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bi+v3KXA"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40MGOUFT014744;
-	Mon, 22 Jan 2024 16:25:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=pcbyBJfYRoPozlsdcR2+q6C9REjLiGGGvZ0jXXJvEEs=;
- b=bi+v3KXAmAMPuas+Hg0S6KycquuGy/nAmFZilBAKjJWJPRAiDJSD+yZSPMgz3rX24S2A
- RxCWmLHgkpemdu/1VaNQgAYyoKjjBZ/OmNcV+foBVehb1bCbFswZRnLJlTd4Nrputmrq
- jkZ0C6jFFn2Ia8mbsxd319p3+EdM9QCKggaMOOE5mVSorWpSRa0A7IQwqXSawO2smvhh
- HIhCqkFuNvTg7UoeLPfgJ7b/1uCuKGbHgjlrVXxhxJoNkpXpitqPBDdJ5zXTX0OlGUlK
- GkoyTtMnkZ6CF6GBaIiaI1uqSyfhoue5AZa8dyRhfMjTO1dioxpqqKQkRD5RJrpVx9Xh uw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vstjtu1ax-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Jan 2024 16:25:36 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40MGP2nJ018511;
-	Mon, 22 Jan 2024 16:25:36 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vstjtu19p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Jan 2024 16:25:36 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40MG3Cxu025892;
-	Mon, 22 Jan 2024 16:25:34 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vrsgnsshu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 22 Jan 2024 16:25:34 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40MGPV2Q41812592
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 22 Jan 2024 16:25:31 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0A7B320043;
-	Mon, 22 Jan 2024 16:25:31 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8F9A320040;
-	Mon, 22 Jan 2024 16:25:30 +0000 (GMT)
-Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com.com (unknown [9.171.78.16])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 22 Jan 2024 16:25:30 +0000 (GMT)
-From: Janosch Frank <frankja@linux.ibm.com>
-To: pbonzini@redhat.com
-Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
-        borntraeger@linux.ibm.com, cohuck@redhat.com,
-        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
-Subject: [GIT PULL 2/2] KVM: s390: fix cc for successful PQAP
-Date: Mon, 22 Jan 2024 17:22:31 +0100
-Message-ID: <20240122162445.107260-3-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240122162445.107260-1-frankja@linux.ibm.com>
-References: <20240122162445.107260-1-frankja@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 4S5hFnxMaOQHeUumhKdyUDKXYw65E6Zt
-X-Proofpoint-GUID: g2u_ia_O3cBsUcaxWIjknEjjbr-p_J4V
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="a++aXjck"
+Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-6d9ac0521c6so829171b3a.0
+        for <linux-s390@vger.kernel.org>; Mon, 22 Jan 2024 09:16:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google; t=1705943760; x=1706548560; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ZykbXfSEvyPN8az3PbYAztD8rQi+GVKbnMIYIbl6l/g=;
+        b=a++aXjck1L2wXtrtA/TvdmT7FflZE2yfaTCL2sLW2+I1jNvqyu/vPsR1ZP3tBGRGLj
+         yS4n75zdvUAxBQXpk90UxlFxU9/tkMNu7/kUI++ahkmJr1O6nVdFz3B1X4AVeBhnt3QE
+         7OQWTMV7B0A3sRb0mYSGL1xPKDeP5GuwUfbqI=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1705943760; x=1706548560;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZykbXfSEvyPN8az3PbYAztD8rQi+GVKbnMIYIbl6l/g=;
+        b=RP4x9VfuaBd8GUnnnia+bazrk5yZyMgNKhL/RrfQjOdgKOiv1I/+zcGd991pZeUajl
+         bv1xAXnxYnXz4GT7f2xjndYQqF/fzrdwWpqaD7h0or4FUlfTNhLYMTYqYt3WiTsFiQL6
+         KpR3yP05nsZEZNHHOF2qBEy+MVrj0m3LKL9Q908b1j90il/54ec/rnw3V0Dvz39i5Je9
+         vgxcIfkZpll+ftB6DxUg7CCQjhS1ljzXa1Icy1EgMqrYO6y9XMWGEZE2ay8wj7SYYNnG
+         4bcsP3Od69oJS2l4e1/f2c8jUZwLxMVuG5uMSQ1/vkq78GiZWh/5oldxzkHHVlsVyqr3
+         D5og==
+X-Gm-Message-State: AOJu0Yyj/mTvJNsAMbLds/DxVJzFsmMIIlmdpeeKc8jIdwUy4ZynFCtg
+	3uYI1g5jwWFHIEJ7HZj2xCY4d60WF1ZYznF9kuDQobXdkRK6ay93eJm8ZPpJ1/5Htc+DozUbjuS
+	t
+X-Google-Smtp-Source: AGHT+IF9qblypine1FnCuwH9nIKKzYWA4/9vvuB6JdzWcXCZe3+11yStM3b9Pm3XvyMdKtnaxdg5Yg==
+X-Received: by 2002:a62:6204:0:b0:6d9:383b:d91a with SMTP id w4-20020a626204000000b006d9383bd91amr8877907pfb.1.1705943759942;
+        Mon, 22 Jan 2024 09:15:59 -0800 (PST)
+Received: from [128.240.1.152] ([206.170.126.10])
+        by smtp.gmail.com with ESMTPSA id it22-20020a056a00459600b006dbcabc31c5sm4766765pfb.209.2024.01.22.09.15.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 22 Jan 2024 09:15:59 -0800 (PST)
+Message-ID: <5aceb855-2862-4d53-b27b-50e2956e099b@linuxfoundation.org>
+Date: Mon, 22 Jan 2024 10:15:57 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-22_07,2024-01-22_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=859
- impostorscore=0 phishscore=0 adultscore=0 lowpriorityscore=0 spamscore=0
- mlxscore=0 bulkscore=0 suspectscore=0 clxscore=1015 malwarescore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401220112
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 1/3] kselftests: lib.mk: Add TEST_GEN_MODS_DIR variable
+Content-Language: en-US
+To: Marcos Paulo de Souza <mpdesouza@suse.com>, Shuah Khan
+ <shuah@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Josh Poimboeuf <jpoimboe@kernel.org>,
+ Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>,
+ Petr Mladek <pmladek@suse.com>, Joe Lawrence <joe.lawrence@redhat.com>,
+ Shuah Khan <skhan@linuxfoundation.org>
+Cc: linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ live-patching@vger.kernel.org
+References: <20240112-send-lp-kselftests-v6-0-79f3e9a46717@suse.com>
+ <20240112-send-lp-kselftests-v6-1-79f3e9a46717@suse.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
+In-Reply-To: <20240112-send-lp-kselftests-v6-1-79f3e9a46717@suse.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-From: Eric Farman <farman@linux.ibm.com>
+On 1/12/24 10:43, Marcos Paulo de Souza wrote:
+> Add TEST_GEN_MODS_DIR variable for kselftests. It can point to
+> a directory containing kernel modules that will be used by
+> selftest scripts.
+> 
+> The modules are built as external modules for the running kernel.
+> As a result they are always binary compatible and the same tests
+> can be used for older or newer kernels.
+> 
+> The build requires "kernel-devel" package to be installed.
+> For example, in the upstream sources, the rpm devel package
+> is produced by "make rpm-pkg"
+> 
+> The modules can be built independently by
+> 
+>    make -C tools/testing/selftests/livepatch/
+> 
+> or they will be automatically built before running the tests via
+> 
+>    make -C tools/testing/selftests/livepatch/ run_tests
+> 
+> Note that they are _not_ built when running the standalone
+> tests by calling, for example, ./test-state.sh.
+> 
+> Along with TEST_GEN_MODS_DIR, it was necessary to create a new install
+> rule. INSTALL_MODS_RULE is needed because INSTALL_SINGLE_RULE would
+> copy the entire TEST_GEN_MODS_DIR directory to the destination, even
+> the files created by Kbuild to compile the modules. The new install
+> rule copies only the .ko files, as we would expect the gen_tar to work.
+> 
+> Reviewed-by: Joe Lawrence <joe.lawrence@redhat.com>
+> Reviewed-by: Petr Mladek <pmladek@suse.com>
+> Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
+> ---
+>   Documentation/dev-tools/kselftest.rst |  4 ++++
+>   tools/testing/selftests/lib.mk        | 26 +++++++++++++++++++++-----
 
-The various errors that are possible when processing a PQAP
-instruction (the absence of a driver hook, an error FROM that
-hook), all correctly set the PSW condition code to 3. But if
-that processing works successfully, CC0 needs to be set to
-convey that everything was fine.
 
-Fix the check so that the guest can examine the condition code
-to determine whether GPR1 has meaningful data.
+Hi Marcos,
 
-Fixes: e5282de93105 ("s390: ap: kvm: add PQAP interception for AQIC")
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-Link: https://lore.kernel.org/r/20231201181657.1614645-1-farman@linux.ibm.com
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Message-Id: <20231201181657.1614645-1-farman@linux.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
----
- arch/s390/kvm/priv.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+I would like the doc patch and lib.mk patch separate. If lib.mk needs changes
+we don't have to touch the doc patch.
 
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 621a17fd1a1b..f875a404a0a0 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -676,8 +676,12 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
- 	if (vcpu->kvm->arch.crypto.pqap_hook) {
- 		pqap_hook = *vcpu->kvm->arch.crypto.pqap_hook;
- 		ret = pqap_hook(vcpu);
--		if (!ret && vcpu->run->s.regs.gprs[1] & 0x00ff0000)
--			kvm_s390_set_psw_cc(vcpu, 3);
-+		if (!ret) {
-+			if (vcpu->run->s.regs.gprs[1] & 0x00ff0000)
-+				kvm_s390_set_psw_cc(vcpu, 3);
-+			else
-+				kvm_s390_set_psw_cc(vcpu, 0);
-+		}
- 		up_read(&vcpu->kvm->arch.crypto.pqap_hook_rwsem);
- 		return ret;
- 	}
--- 
-2.43.0
-
+thanks,
+-- Shuah
