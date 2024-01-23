@@ -1,25 +1,25 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 7E6075D725;
-	Tue, 23 Jan 2024 10:45:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4CDA55C8F3;
+	Tue, 23 Jan 2024 10:47:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706006726; cv=none; b=OOEhna3Th67aKTWyX++KE9gE26W8wdUNjEGVzf178DOASYRsDCSS4KAeNzQ6eBdyKmzXrKGvS+GbKvenRZgo9RSEpPqokfzWG3GDpAkBAfcVndYKUMZn6OFN4tF9WhYnE/oPR/boHXEaGTFXqt3E+qaLY6K+rIkCAW99RNuq/gQ=
+	t=1706006865; cv=none; b=kkhKIPT+1dJZ4hb055kXbGJMwIWzb4EKVWtloGmuaq2Sx6YkjTWVRp+nNzhMLpd8KgTf+TAG1ZGsNkewTm5NqEcFPHDtWiH8ZpMP4NIYX0s1FUz6XkdyS4kqlIuRQjcH+UZvQAEKiZzBPvsIrSTUpr2rudhJecnfJ1f/6koLCkw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706006726; c=relaxed/simple;
-	bh=Bv9tpEfskUzoIjJvF99P42BdqqUjJxhrXzxON1qU9Y0=;
+	s=arc-20240116; t=1706006865; c=relaxed/simple;
+	bh=XdCg3Fl5iCQH7oD4ZD7hlyaOXUB+y8vwYJ2Nw8dx7B4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=iZK2JyGIIpnRmfrwT66PCzyCUb60d2s8X3gbMFQueN9FvC89Kldl3nnyEvBwdESPZmmLBy4BIBZb/qy7SMIm1bAz0IZEMU66Ds1dvel/vDD1/I0eXuPhjnvB+ZxnRfjQ6U1Bi/MKCMX7zlxOYf+hzUNsKCG6vV+jt3QE3o9wjuE=
+	 In-Reply-To:Content-Type; b=DAQ8uI+WHY4t0b7Hm64oqnWBXn759xXkYKnYbj2fkpo8ZfJFxYbYioNtuBkE9zyjYZZtnFmTjXhhtwKNU7TFAijQkgI4y/AR/aSacKl3f6WJOQlalI1fRJEJ7iCgKYcPVkq+NbZdkhSPv59Zu5TdsfZBDDmXxDjFzNFIwK3omA4=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 689251FB;
-	Tue, 23 Jan 2024 02:46:08 -0800 (PST)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1A3EA1FB;
+	Tue, 23 Jan 2024 02:48:28 -0800 (PST)
 Received: from [10.57.77.165] (unknown [10.57.77.165])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4FFE73F5A1;
-	Tue, 23 Jan 2024 02:45:19 -0800 (PST)
-Message-ID: <3d6a5076-48d3-4790-a507-d3b1584e8587@arm.com>
-Date: Tue, 23 Jan 2024 10:45:17 +0000
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id F16A33F5A1;
+	Tue, 23 Jan 2024 02:47:37 -0800 (PST)
+Message-ID: <26286ea5-2781-4e70-b52b-f8a44a1b1407@arm.com>
+Date: Tue, 23 Jan 2024 10:47:36 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -27,8 +27,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 07/11] mm/memory: factor out copying the actual PTE in
- copy_present_pte()
+Subject: Re: [PATCH v1 08/11] mm/memory: pass PTE to copy_present_pte()
 Content-Language: en-GB
 To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
@@ -50,116 +49,49 @@ Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
  linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
  linux-s390@vger.kernel.org, sparclinux@vger.kernel.org
 References: <20240122194200.381241-1-david@redhat.com>
- <20240122194200.381241-8-david@redhat.com>
+ <20240122194200.381241-9-david@redhat.com>
 From: Ryan Roberts <ryan.roberts@arm.com>
-In-Reply-To: <20240122194200.381241-8-david@redhat.com>
+In-Reply-To: <20240122194200.381241-9-david@redhat.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 22/01/2024 19:41, David Hildenbrand wrote:
-> Let's prepare for further changes.
+> We already read it, let's just forward it.
+> 
+> This patch is based on work by Ryan Roberts.
 > 
 > Signed-off-by: David Hildenbrand <david@redhat.com>
 
 Reviewed-by: Ryan Roberts <ryan.roberts@arm.com>
 
 > ---
->  mm/memory.c | 60 ++++++++++++++++++++++++++++-------------------------
->  1 file changed, 32 insertions(+), 28 deletions(-)
+>  mm/memory.c | 7 +++----
+>  1 file changed, 3 insertions(+), 4 deletions(-)
 > 
 > diff --git a/mm/memory.c b/mm/memory.c
-> index 7e1f4849463aa..2aa2051ee51d3 100644
+> index 2aa2051ee51d3..185b4aff13d62 100644
 > --- a/mm/memory.c
 > +++ b/mm/memory.c
-> @@ -930,6 +930,29 @@ copy_present_page(struct vm_area_struct *dst_vma, struct vm_area_struct *src_vma
->  	return 0;
->  }
->  
-> +static inline void __copy_present_pte(struct vm_area_struct *dst_vma,
-> +		struct vm_area_struct *src_vma, pte_t *dst_pte, pte_t *src_pte,
-> +		pte_t pte, unsigned long addr)
-> +{
-> +	struct mm_struct *src_mm = src_vma->vm_mm;
-> +
-> +	/* If it's a COW mapping, write protect it both processes. */
-> +	if (is_cow_mapping(src_vma->vm_flags) && pte_write(pte)) {
-> +		ptep_set_wrprotect(src_mm, addr, src_pte);
-> +		pte = pte_wrprotect(pte);
-> +	}
-> +
-> +	/* If it's a shared mapping, mark it clean in the child. */
-> +	if (src_vma->vm_flags & VM_SHARED)
-> +		pte = pte_mkclean(pte);
-> +	pte = pte_mkold(pte);
-> +
-> +	if (!userfaultfd_wp(dst_vma))
-> +		pte = pte_clear_uffd_wp(pte);
-> +
-> +	set_pte_at(dst_vma->vm_mm, addr, dst_pte, pte);
-> +}
-> +
->  /*
->   * Copy one pte.  Returns 0 if succeeded, or -EAGAIN if one preallocated page
->   * is required to copy this pte.
-> @@ -939,16 +962,16 @@ copy_present_pte(struct vm_area_struct *dst_vma, struct vm_area_struct *src_vma,
->  		 pte_t *dst_pte, pte_t *src_pte, unsigned long addr, int *rss,
->  		 struct folio **prealloc)
+> @@ -959,10 +959,9 @@ static inline void __copy_present_pte(struct vm_area_struct *dst_vma,
+>   */
+>  static inline int
+>  copy_present_pte(struct vm_area_struct *dst_vma, struct vm_area_struct *src_vma,
+> -		 pte_t *dst_pte, pte_t *src_pte, unsigned long addr, int *rss,
+> -		 struct folio **prealloc)
+> +		 pte_t *dst_pte, pte_t *src_pte, pte_t pte, unsigned long addr,
+> +		 int *rss, struct folio **prealloc)
 >  {
-> -	struct mm_struct *src_mm = src_vma->vm_mm;
-> -	unsigned long vm_flags = src_vma->vm_flags;
->  	pte_t pte = ptep_get(src_pte);
+> -	pte_t pte = ptep_get(src_pte);
 >  	struct page *page;
 >  	struct folio *folio;
 >  
->  	page = vm_normal_page(src_vma, addr, pte);
-> -	if (page)
-> -		folio = page_folio(page);
-> -	if (page && folio_test_anon(folio)) {
-> +	if (unlikely(!page))
-> +		goto copy_pte;
-> +
-> +	folio = page_folio(page);
-> +	if (folio_test_anon(folio)) {
->  		/*
->  		 * If this page may have been pinned by the parent process,
->  		 * copy the page immediately for the child so that we'll always
-> @@ -963,34 +986,15 @@ copy_present_pte(struct vm_area_struct *dst_vma, struct vm_area_struct *src_vma,
->  						 addr, rss, prealloc, page);
+> @@ -1104,7 +1103,7 @@ copy_pte_range(struct vm_area_struct *dst_vma, struct vm_area_struct *src_vma,
 >  		}
->  		rss[MM_ANONPAGES]++;
-> -	} else if (page) {
-> +		VM_WARN_ON_FOLIO(PageAnonExclusive(page), folio);
-> +	} else {
->  		folio_get(folio);
->  		folio_dup_file_rmap_pte(folio, page);
->  		rss[mm_counter_file(page)]++;
->  	}
->  
-> -	/*
-> -	 * If it's a COW mapping, write protect it both
-> -	 * in the parent and the child
-> -	 */
-> -	if (is_cow_mapping(vm_flags) && pte_write(pte)) {
-> -		ptep_set_wrprotect(src_mm, addr, src_pte);
-> -		pte = pte_wrprotect(pte);
-> -	}
-> -	VM_BUG_ON(page && folio_test_anon(folio) && PageAnonExclusive(page));
-> -
-> -	/*
-> -	 * If it's a shared mapping, mark it clean in
-> -	 * the child
-> -	 */
-> -	if (vm_flags & VM_SHARED)
-> -		pte = pte_mkclean(pte);
-> -	pte = pte_mkold(pte);
-> -
-> -	if (!userfaultfd_wp(dst_vma))
-> -		pte = pte_clear_uffd_wp(pte);
-> -
-> -	set_pte_at(dst_vma->vm_mm, addr, dst_pte, pte);
-> +copy_pte:
-> +	__copy_present_pte(dst_vma, src_vma, dst_pte, src_pte, pte, addr);
->  	return 0;
->  }
->  
+>  		/* copy_present_pte() will clear `*prealloc' if consumed */
+>  		ret = copy_present_pte(dst_vma, src_vma, dst_pte, src_pte,
+> -				       addr, rss, &prealloc);
+> +				       ptent, addr, rss, &prealloc);
+>  		/*
+>  		 * If we need a pre-allocated page for this pte, drop the
+>  		 * locks, allocate, and try again.
 
