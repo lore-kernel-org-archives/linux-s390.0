@@ -1,25 +1,25 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id D5D4F5DF2D;
-	Tue, 23 Jan 2024 12:25:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 395035DF00;
+	Tue, 23 Jan 2024 12:28:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706012714; cv=none; b=c/EqlYFPO55eLPYoq5Mot0m/uTa4XS2a2qk/1o99YZ4kPCZP1296RmsS3Kq/ZozekIQ4F6SwaVsx9fiomtgsBicRy++2/jVVtoOKbk+5PaI5ZjiG3K1IpA2DY7D95NNv4Z0BU61lgd1VssvNSDejRFrztJGhSJXU91OfPn7+eX8=
+	t=1706012913; cv=none; b=oROpqbZ6X1L24CEYgKnfGYp5TM03EBy/TvdJH1+fX+8ZAJQA8vXqxlQI7cVvEjkrAE38FQxQTGwnGK51Pcls4GdBeiEqwRVhi3CAhkGRixg7+w6KL5jDF0Yu2mE+ueeTtBw+LfVqk3ZQqCnRA7qGdxDOYvqTGEB+aF20HGua2b8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706012714; c=relaxed/simple;
-	bh=gDuBiOjwlxA//+QgJwW0i0xvy0XhKfsDkSnLAVR8E8A=;
+	s=arc-20240116; t=1706012913; c=relaxed/simple;
+	bh=U1Wm9oAyEK9SoZyY9g3iPj8Ybyi1tRDJeV2UVkh7Wvo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fOVxxfPLCEnDqfiYJj+1PbC3xDQGgFyEg+BI9zCU6RwBkiVmnFuYNaZZ5j2wIa7uWoOdlATtPSCPY4eedHC19o8FUkocbzAI+D1AGROaEEzz6rw/0OjN0JIDSY+yg/3UL+45iNsMWGD0DIdAMYs6KY532tWQnObAosiJ7jfVBcA=
+	 In-Reply-To:Content-Type; b=k4+yHgJ9xwtqFBQ1i1v6YgZhuTSlfMAoo0qWkgbLuaqWjQt44lvhwX6CPdunqmAbiZ6cqlfEZ42+zhU7nr2fpFPPhs/D1eBiNA6mMfGyM19X4IA4TWAJJ/qkJA7Hs45j0MIwxBr2z84A2u7iykEdm4HLclY4hn/Ifzmd4T2tkT4=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 69D231FB;
-	Tue, 23 Jan 2024 04:25:56 -0800 (PST)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 7B0011FB;
+	Tue, 23 Jan 2024 04:29:15 -0800 (PST)
 Received: from [10.57.77.165] (unknown [10.57.77.165])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C6A213F762;
-	Tue, 23 Jan 2024 04:25:05 -0800 (PST)
-Message-ID: <59592b50-fe89-4b32-8490-2e6c296f972f@arm.com>
-Date: Tue, 23 Jan 2024 12:25:04 +0000
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6882C3F762;
+	Tue, 23 Jan 2024 04:28:26 -0800 (PST)
+Message-ID: <40112a27-eddb-4c1a-a859-a34e202e6564@arm.com>
+Date: Tue, 23 Jan 2024 12:28:25 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -27,8 +27,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 10/11] mm/memory: ignore dirty/accessed/soft-dirty bits
- in folio_pte_batch()
+Subject: Re: [PATCH v1 09/11] mm/memory: optimize fork() with PTE-mapped THP
 Content-Language: en-GB
 To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
@@ -50,75 +49,90 @@ Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
  linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
  linux-s390@vger.kernel.org, sparclinux@vger.kernel.org
 References: <20240122194200.381241-1-david@redhat.com>
- <20240122194200.381241-11-david@redhat.com>
+ <20240122194200.381241-10-david@redhat.com>
+ <63be0c3c-bf34-4cbb-b47b-7c9be0e65058@arm.com>
+ <31a0661e-fa69-419c-9936-98bfe168d5a7@redhat.com>
 From: Ryan Roberts <ryan.roberts@arm.com>
-In-Reply-To: <20240122194200.381241-11-david@redhat.com>
+In-Reply-To: <31a0661e-fa69-419c-9936-98bfe168d5a7@redhat.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 22/01/2024 19:41, David Hildenbrand wrote:
-> Let's ignore these bits: they are irrelevant for fork, and will likely
-> be irrelevant for upcoming users such as page unmapping.
+On 23/01/2024 12:19, David Hildenbrand wrote:
+> [...]
 > 
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->  mm/memory.c | 10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
+>>
+>> I wrote some documentation for this (based on Matthew's docs for set_ptes() in
+>> my version. Perhaps it makes sense to add it here, given this is overridable by
+>> the arch.
+>>
+>> /**
+>>   * wrprotect_ptes - Write protect a consecutive set of pages.
+>>   * @mm: Address space that the pages are mapped into.
+>>   * @addr: Address of first page to write protect.
+>>   * @ptep: Page table pointer for the first entry.
+>>   * @nr: Number of pages to write protect.
+>>   *
+>>   * May be overridden by the architecture, else implemented as a loop over
+>>   * ptep_set_wrprotect().
+>>   *
+>>   * Context: The caller holds the page table lock. The PTEs are all in the same
+>>   * PMD.
+>>   */
+>>
 > 
-> diff --git a/mm/memory.c b/mm/memory.c
-> index f563aec85b2a8..341b2be845b6e 100644
-> --- a/mm/memory.c
-> +++ b/mm/memory.c
-> @@ -953,24 +953,30 @@ static __always_inline void __copy_present_ptes(struct vm_area_struct *dst_vma,
->  	set_ptes(dst_vma->vm_mm, addr, dst_pte, pte, nr);
->  }
->  
-> +static inline pte_t __pte_batch_clear_ignored(pte_t pte)
-> +{
-> +	return pte_clear_soft_dirty(pte_mkclean(pte_mkold(pte)));
-> +}
-> +
->  /*
->   * Detect a PTE batch: consecutive (present) PTEs that map consecutive
->   * pages of the same folio.
->   *
->   * All PTEs inside a PTE batch have the same PTE bits set, excluding the PFN.
+> I could have sworn I had a documentation at some point. Let me add some, thanks.
+> 
+> [...]
+> 
+>>> +
+>>> +    /*
+>>> +     * If we likely have to copy, just don't bother with batching. Make
+>>> +     * sure that the common "small folio" case stays as fast as possible
+>>> +     * by keeping the batching logic separate.
+>>> +     */
+>>> +    if (unlikely(!*prealloc && folio_test_large(folio) && max_nr != 1)) {
+>>> +        nr = folio_pte_batch(folio, addr, src_pte, pte, max_nr);
+>>> +        if (folio_test_anon(folio)) {
+>>> +            folio_ref_add(folio, nr);
+>>> +            if (unlikely(folio_try_dup_anon_rmap_ptes(folio, page,
+>>> +                                  nr, src_vma))) {
+>>
+>> What happens if its not the first page of the batch that fails here? Aren't you
+>> signalling that you need a prealloc'ed page for the wrong pte? Shouldn't you
+>> still batch copy all the way up to the failing page first? Perhaps it all comes
+>> out in the wash and these events are so infrequent that we don't care about the
+>> lost batching opportunity?
+> 
+> I assume you mean the weird corner case that some folio pages in the range have
+> PAE set, others don't -- and the folio maybe pinned.
+> 
+> In that case, we fallback to individual pages, and might have preallocated a
+> page although we wouldn't have to preallocate one for processing the next page
+> (that doesn't have PAE set).
+> 
+> It should all work, although not optimized to the extreme, and as it's a corner
+> case, we don't particularly care. Hopefully, in the future we'll only have a
+> single PAE flag per folio.
+> 
+> Or am I missing something?
 
-nit: last char should be a comma (,) not a full stop (.)
+No, your explanation makes sense. Just wanted to check this all definitely
+worked, because the flow is slightly different to my previous version that was
+doing try_dup_rmap page-by-page.
 
-> + * the accessed bit, dirty bit and soft-dirty bit.
->   */
->  static inline int folio_pte_batch(struct folio *folio, unsigned long addr,
->  		pte_t *start_ptep, pte_t pte, int max_nr)
->  {
->  	unsigned long folio_end_pfn = folio_pfn(folio) + folio_nr_pages(folio);
->  	const pte_t *end_ptep = start_ptep + max_nr;
-> -	pte_t expected_pte = pte_next_pfn(pte);
-> +	pte_t expected_pte = __pte_batch_clear_ignored(pte_next_pfn(pte));
->  	pte_t *ptep = start_ptep + 1;
->  
->  	VM_WARN_ON_FOLIO(!pte_present(pte), folio);
->  
->  	while (ptep != end_ptep) {
-> -		pte = ptep_get(ptep);
-> +		pte = __pte_batch_clear_ignored(ptep_get(ptep));
->  
->  		if (!pte_same(pte, expected_pte))
->  			break;
-
-I think you'll lose dirty information in the child for private mappings? If the
-first pte in a batch is clean, but a subsequent page is dirty, you will end up
-setting all the pages in the batch as clean in the child. Previous behavior
-would preserve dirty bit for private mappings.
-
-In my version (v3) that did arbitrary batching, I had some fun and games
-tracking dirty, write and uffd_wp:
-https://lore.kernel.org/linux-arm-kernel/20231204105440.61448-2-ryan.roberts@arm.com/
-
-Also, I think you will currently either set soft dirty on all or none of the
-pages in the batch, depending on the value of the first. I previously convinced
-myself that the state was unimportant so always cleared it in the child to
-provide consistency.
-
-
+> 
+>>
+>>> +                folio_ref_sub(folio, nr);
+>>> +                return -EAGAIN;
+>>> +            }
+>>> +            rss[MM_ANONPAGES] += nr;
+>>> +            VM_WARN_ON_FOLIO(PageAnonExclusive(page), folio);
+>>> +        } else {
+>>> +            folio_ref_add(folio, nr);
+>>
+>> Perhaps hoist this out to immediately after folio_pte_batch() since you're
+>> calling it on both branches?
+> 
+> Makes sense, thanks.
+> 
 
