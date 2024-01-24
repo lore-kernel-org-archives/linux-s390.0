@@ -1,129 +1,135 @@
-Received: from xavier.telenet-ops.be (xavier.telenet-ops.be [195.130.132.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45ED77CF26
-	for <linux-s390@vger.kernel.org>; Wed, 24 Jan 2024 14:27:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.130.132.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A12177C08D;
+	Wed, 24 Jan 2024 14:29:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706106469; cv=none; b=V7zz8OYJhnd4CbHKha/t5qMUO9VGDU63weunLltrDlWbPCMqP/RX/2nZSslOw96oS4ld5h5vrRfG4WAwCvBIL+kTbeOJ/SqfuC0ZWrvztC2nRZFq+Om0nhwUiudsojg0X195lEEUgr+eHVp6bBVjznWD+Ib3JDKFL2gFfs8lB4w=
+	t=1706106593; cv=none; b=GhzQ6Fctnw2UT9C08hNj+792E7hyUw0LVqu7pZcCGF9DUYqiJ26I/urqosigR3a2aTx+3Q8IZ6KPmhit+x6AalEScZKPglDa1WwQejqe+H6xyHFdWpzC4sU6GfY8y/k9QKIH1TIlvquvCtSDYuUs69PU9V388sPhHJxHmG49lBg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706106469; c=relaxed/simple;
-	bh=CfszxU16lZncejKjedsKD1lxYOGoDUS8ZJocL2mNhvk=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=PkiJAYq2Ft3Cd5BgwMpnb/XS22eS0ZUEJNK05taZM0eFGM7PHNmK0rxTF1hPK/yhrVAynzRfBELhjjFJ0hsZEJn1Kpyv5UNC2chbCjr6+5m1ogopwUNqZEWoAzvNsTZneK9Fd8pmmQSZwgDDp8QGlTdA0RAVEzvqKkPsAGkU+tg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=none smtp.mailfrom=linux-m68k.org; arc=none smtp.client-ip=195.130.132.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux-m68k.org
-Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed40:bc9e:fcb8:8aa3:5dc0])
-	by xavier.telenet-ops.be with bizsmtp
-	id eeTd2B00o58agq201eTdz7; Wed, 24 Jan 2024 15:27:38 +0100
-Received: from rox.of.borg ([192.168.97.57])
-	by ramsan.of.borg with esmtp (Exim 4.95)
-	(envelope-from <geert@linux-m68k.org>)
-	id 1rSeDH-00GQnc-Hq;
-	Wed, 24 Jan 2024 15:27:37 +0100
-Received: from geert by rox.of.borg with local (Exim 4.95)
-	(envelope-from <geert@linux-m68k.org>)
-	id 1rSeE5-00FCwG-E2;
-	Wed, 24 Jan 2024 15:27:37 +0100
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Arnd Bergmann <arnd@arndb.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Ilya Leoshkevich <iii@linux.ibm.com>,
-	Josh Poimboeuf <jpoimboe@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>
-Cc: linux-s390@vger.kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH] init: Remove obsolete arch_call_rest_init() wrapper
-Date: Wed, 24 Jan 2024 15:27:35 +0100
-Message-Id: <aa10868bfb176eef4abb8bb4a710b85330792694.1706106183.git.geert@linux-m68k.org>
-X-Mailer: git-send-email 2.34.1
+	s=arc-20240116; t=1706106593; c=relaxed/simple;
+	bh=KkWbxEOL9fYn082VaDJyA7NHt5SNW51VNBbBhRcci8U=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=XfYUCbNQL0xOMsbdQFW4/IzssoRIZXxG+PU/UiU9LoYaW/dC/d/yJtR5DcqKTzvfB9eBgr9rwmsQzmDvwymrvKawtSS4xDFCNzkfy9gzgyGWoQ7V/5qKX5Hn9Q4zcM7XE4k/HP/y7hSJHnmzE9oEPW4s2R9AhSqWAQnx49NiPrU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PvU/KE12; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PvU/KE12"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40OEMd1L019770;
+	Wed, 24 Jan 2024 14:29:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=id03GCOMuuz9E+q8wpa1mZrFPdzbBKrJ0mBS2dIBSSo=;
+ b=PvU/KE12Bt4bH/E2Y0YdSC27EbEBMgwG+Le0UEm5f63nDQAHXobz1vIi1+KvIMnEMYOU
+ o9xF9xPsqnJ+pRfUTcfiZI2qnBHYntVVD9a3YFz3oiR/TqeHY8cJ5Y9al+7NKhIkD2i/
+ ehW3KlOxOJsLD4C49+CbYXINTml14eB3AZfcr3XFXzOKZkKyhOg/RKeX1JC7VD+++568
+ OD2BW/SE8lJmzSYojQp1uafpKixTd5dg2NNF92BENSkftFbCEHkJgGg70iEb10GCjwRe
+ i6eIGF8L3c8k53sMi9lxvzoKhni92l7ZNv+Olm9Ygd4pr9LNg9e7dJ7n/4+dJzg6u2TD cQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vu0ta5tfx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 24 Jan 2024 14:29:41 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40OETCh7001571;
+	Wed, 24 Jan 2024 14:29:38 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vu0ta5tce-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 24 Jan 2024 14:29:38 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40OBuS8a025268;
+	Wed, 24 Jan 2024 14:29:30 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vrtqkdxdg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 24 Jan 2024 14:29:30 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40OETRKM44565084
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 24 Jan 2024 14:29:27 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3372F20043;
+	Wed, 24 Jan 2024 14:29:27 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D249420040;
+	Wed, 24 Jan 2024 14:29:26 +0000 (GMT)
+Received: from [9.152.224.38] (unknown [9.152.224.38])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 24 Jan 2024 14:29:26 +0000 (GMT)
+Message-ID: <13579588-eb9d-4626-a063-c0b77ed80f11@linux.ibm.com>
+Date: Wed, 24 Jan 2024 15:29:26 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: [REGRESSION] v6.8 SMC-D issues
+To: Wen Gu <guwen@linux.alibaba.com>, wenjia@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        jaka@linux.ibm.com, Matthew Rosato <mjrosato@linux.ibm.com>
+Cc: Linux regressions mailing list <regressions@lists.linux.dev>,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        raspl@linux.ibm.com, schnelle@linux.ibm.com,
+        guangguan.wang@linux.alibaba.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Halil Pasic <pasic@linux.ibm.com>
+References: <20231219142616.80697-1-guwen@linux.alibaba.com>
+ <20231219142616.80697-8-guwen@linux.alibaba.com>
+Content-Language: en-US
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20231219142616.80697-8-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Qt1EOrmfVf_sdqbTImWI7_I6a3wI5IV9
+X-Proofpoint-GUID: Q2MCPmrpkI3XR9Uka3rzJtqmHUwMkJkA
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-01-24_06,2024-01-24_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
+ adultscore=0 priorityscore=1501 mlxscore=0 clxscore=1011 mlxlogscore=911
+ impostorscore=0 malwarescore=0 lowpriorityscore=0 spamscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2401240105
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+Hello Wen Gu,
 
-Since commit 3570ee046c46b5dc ("s390/smp: keep the original lowcore for
-CPU 0"), there is no longer any architecture that needs to override
-arch_call_rest_init().
+our colleague Matthew reported that SMC-D is failing in certain scenarios on
+kernel v6.8 (thx Matt!). He bisected it to 
+b40584d ("net/smc: compatible with 128-bits extended GID of virtual ISM device")
+I think the root cause could also be somewhere else in the SMC-Dv2.1 patchset.
 
-Remove the weak wrapper around rest_init(), call rest_init() directly,
-and make rest_init() static.
+I was able to reproduce the issue on a 6.8.0-rc1 kernel.
+I tested iperf over smc-d with:
+smc_run iperf3 -s
+smc_run iperf3 -c <IP@>
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
-Perhaps rest_init() should lose its noinline tag, or should even be
-inlined manually?
----
- include/linux/start_kernel.h | 2 --
- init/main.c                  | 9 ++-------
- tools/objtool/noreturns.h    | 1 -
- 3 files changed, 2 insertions(+), 10 deletions(-)
+1) Doing an iperf in a single system using 127.0.0.1 as IP@
+(System A=iperf client=iperf server)
+2) Doing iperf to a remote system (System A=client; System B=iperf server)
 
-diff --git a/include/linux/start_kernel.h b/include/linux/start_kernel.h
-index a9806a44a605c7d7..09f994ac87df44f1 100644
---- a/include/linux/start_kernel.h
-+++ b/include/linux/start_kernel.h
-@@ -9,7 +9,5 @@
-    up something else. */
- 
- extern asmlinkage void __init __noreturn start_kernel(void);
--extern void __init __noreturn arch_call_rest_init(void);
--extern void __ref __noreturn rest_init(void);
- 
- #endif /* _LINUX_START_KERNEL_H */
-diff --git a/init/main.c b/init/main.c
-index e24b0780fdff7a80..521f40770e67dd27 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -681,7 +681,7 @@ static void __init setup_command_line(char *command_line)
- 
- static __initdata DECLARE_COMPLETION(kthreadd_done);
- 
--noinline void __ref __noreturn rest_init(void)
-+static noinline void __ref __noreturn rest_init(void)
- {
- 	struct task_struct *tsk;
- 	int pid;
-@@ -822,11 +822,6 @@ static int __init early_randomize_kstack_offset(char *buf)
- early_param("randomize_kstack_offset", early_randomize_kstack_offset);
- #endif
- 
--void __init __weak __noreturn arch_call_rest_init(void)
--{
--	rest_init();
--}
--
- static void __init print_unknown_bootoptions(void)
- {
- 	char *unknown_options;
-@@ -1069,7 +1064,7 @@ void start_kernel(void)
- 	kcsan_init();
- 
- 	/* Do the rest non-__init'ed, we're now alive */
--	arch_call_rest_init();
-+	rest_init();
- 
- 	/*
- 	 * Avoid stack canaries in callers of boot_init_stack_canary for gcc-10
-diff --git a/tools/objtool/noreturns.h b/tools/objtool/noreturns.h
-index 1685d7ea6a9f7002..7cda577da897cac5 100644
---- a/tools/objtool/noreturns.h
-+++ b/tools/objtool/noreturns.h
-@@ -12,7 +12,6 @@ NORETURN(__reiserfs_panic)
- NORETURN(__stack_chk_fail)
- NORETURN(__tdx_hypercall_failed)
- NORETURN(__ubsan_handle_builtin_unreachable)
--NORETURN(arch_call_rest_init)
- NORETURN(arch_cpu_idle_dead)
- NORETURN(bch2_trans_in_restart_error)
- NORETURN(bch2_trans_restart_error)
--- 
-2.34.1
+The second iperf fails with an error message like:
+"iperf3: error - unable to receive cookie at server: Bad file descriptor" on the server"
+
+If I do first 2) (iperf to remote) and then 1) (iperf to local), then the
+iperf to local fails.
+
+I can do multiple iperf to the first server without problems.
+
+I ran it on a debug server with KASAN, but got no reports in the Logfile.
+
+I will try to debug further, but wanted to let you all know.
+
+Kind regards
+Alexandra
+
+Reported-by: Matthew Rosato <mjrosato@linux.ibm.com>
+
 
