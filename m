@@ -1,106 +1,148 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 033DE168B7
-	for <linux-s390@vger.kernel.org>; Wed, 24 Jan 2024 05:14:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0F35E55E;
+	Wed, 24 Jan 2024 05:45:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706073286; cv=none; b=HvWxAAuglou/BuIV0gqh1sMwREG56hlo9Zn4ziNrbOkqG9SCQytqicOXHORrSWC4s+odbakDbm6WMWwFBqhz1dJI9lHbhCWSVlJng9Fi43LyJmUI81Ur/MtxvaC6lr/mKgAfpRLl83/ky0E+0PM+X0+t1PXX72SVfZ7PcnA+tyM=
+	t=1706075117; cv=none; b=KbDoc9VohrdGnJ3EPORde5xbZDWrobDGInxYsXZb5HnMbS12RG/0k6wGPE3H0HoXVpswHZm7ekOJiSNnF25Ix4JIUJkPBzgkbDWpSHMMGO2kVAXkV/8Gv05b0AYO8m5OUHWlkHk5JGpAR5k7BwKzrgg2W7CjdGMyFPuA07wcUHQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706073286; c=relaxed/simple;
-	bh=KSKWN/Vehd1GrrJ7gOl5RQ9IDdLq92owDJctm0QgXaQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-type; b=f4i0ZEsS032WFcFpdQo8qgVhuddA7z6KY6mVnH24HAGz24AWyByzWP4nWN8zk1fm2DDiQ+XSAcJY8tnozYgNpnkiRS4UdMxYTsop1qCAylapImJnPKzZnubji9L4lUuGI2Mlvg6LiqLVRM6q0XoL8fmJUSaezxUxSUCuainmv4I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XCHJcyRe; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1706075117; c=relaxed/simple;
+	bh=5dLOTB19eqgu6rIiWX9LXiC2Xe6lJz1n50JwsYBoJ6w=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=tVrfSvUmAfwL7xnoy5tbOH2cswnQGC/fpww91hH/NaHNq2RhvK5I6IdTH5vWfM9qHn+ZaozxJiEG+yD9TQt3Hfk2l6r2O9NQI3a0Xanx9EMCwbhpw6Q9lEXVSJVCoBA/FLbR39kIpEyDmELXsSIvD4J6wO0nERI+yf4aWaC/rPs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O1skpl4y; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XCHJcyRe"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706073284;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=3L4u54LHfqMXosGMqcQJnrhKT6dGGjewV9v1qvLObEY=;
-	b=XCHJcyRex+4WnYKTvzCbWt6ixL565WCeNh0GsMxsM/sQBi+nOSKGNR1CiEy70THwii1luk
-	PVnfJ9qczDo9WzcPCKbkgn1rOFcyakpOvwzvrF1pPtsO5rTRjhrDc7XMwxAvU+JYnXdJNZ
-	GczfwoULrlVTmumrcQ7k3ynVLi4NZX0=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-472-aRLOfTZSNhm4Axm7wlbsBA-1; Wed, 24 Jan 2024 00:14:40 -0500
-X-MC-Unique: aRLOfTZSNhm4Axm7wlbsBA-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A2B7F85A58C;
-	Wed, 24 Jan 2024 05:14:39 +0000 (UTC)
-Received: from MiWiFi-R3L-srv.redhat.com (unknown [10.72.116.117])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 21D6B1C060AF;
-	Wed, 24 Jan 2024 05:14:33 +0000 (UTC)
-From: Baoquan He <bhe@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: kexec@lists.infradead.org,
-	x86@kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	linux-sh@vger.kernel.org,
-	linux-mips@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	loongarch@lists.linux.dev,
-	akpm@linux-foundation.org,
-	ebiederm@xmission.com,
-	hbathini@linux.ibm.com,
-	piliu@redhat.com,
-	viro@zeniv.linux.org.uk,
-	Baoquan He <bhe@redhat.com>
-Subject: [PATCH linux-next v3 14/14] loongarch, crash: wrap crash dumping code into crash related ifdefs
-Date: Wed, 24 Jan 2024 13:12:54 +0800
-Message-ID: <20240124051254.67105-15-bhe@redhat.com>
-In-Reply-To: <20240124051254.67105-1-bhe@redhat.com>
-References: <20240124051254.67105-1-bhe@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O1skpl4y"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAA06C433F1;
+	Wed, 24 Jan 2024 05:45:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1706075117;
+	bh=5dLOTB19eqgu6rIiWX9LXiC2Xe6lJz1n50JwsYBoJ6w=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=O1skpl4y2xjw6BP+gzZ5mPe0LKyiUIrkGJSxeRvOjofb/gZvo6wl7nFZdgUFQ8p8g
+	 mKeTO4ObwcUC2+OyxrBUFcF6ovICMunK8lCIQIgR+AqdvzCkI0GjG8X1Rp61fv1x0O
+	 sXYkIvLLfqVyEudSZNXUQ7C6skbTv82wU+p9IkYysxMfhaPHouWfsN/hk5ltc2+h0S
+	 XzFm2ohqjonzRS2gKeLXiMhGX5iu1V+ZgCwo5e1vYgDR7B50640MCgmUl3IJbLWDcS
+	 qOgK2IzFJaPYHpWQn+N9JUVQLiSVJ/DJXQoM6urufjCoLD8pjAm5mcQutss0xfdEOG
+	 C2zeUU0iz2qHw==
+X-Mailer: emacs 29.1 (via feedmail 11-beta-1 I)
+From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
+To: David Hildenbrand <david@redhat.com>,
+	Ryan Roberts <ryan.roberts@arm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "linux-mm@kvack.org" <linux-mm@kvack.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Matthew Wilcox <willy@infradead.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Dinh Nguyen <dinguyen@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+	"linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+	"sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>
+Subject: Re: [PATCH v1 01/11] arm/pgtable: define PFN_PTE_SHIFT on arm and
+ arm64
+In-Reply-To: <794c1dc3-520c-4030-b0fe-e24782576347@redhat.com>
+References: <20240122194200.381241-1-david@redhat.com>
+ <20240122194200.381241-2-david@redhat.com>
+ <fdaeb9a5-d890-499a-92c8-d171df43ad01@arm.com>
+ <46080ac1-7789-499b-b7f3-0231d7bd6de7@redhat.com>
+ <6703b648-10ab-4fea-b7f1-75421319465b@arm.com>
+ <ae3d826f-758f-4738-b72a-e99f098bb2b3@csgroup.eu>
+ <3a970289-a72f-418e-b43c-89f67f0d5283@redhat.com>
+ <e0d9caab-39c7-446a-aeef-5d914d321c72@arm.com>
+ <794c1dc3-520c-4030-b0fe-e24782576347@redhat.com>
+Date: Wed, 24 Jan 2024 11:15:03 +0530
+Message-ID: <8734unqo80.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Now crash codes under kernel/ folder has been split out from kexec
-code, crash dumping can be separated from kexec reboot in config
-items on loongarch with some adjustments.
+David Hildenbrand <david@redhat.com> writes:
 
-Here use IS_ENABLED(CONFIG_CRASH_RESERVE) check to decide if compiling
-in the crashkernel reservation code.
+> On 23.01.24 12:38, Ryan Roberts wrote:
+>> On 23/01/2024 11:31, David Hildenbrand wrote:
+>>>>>
+>>>>>> If high bits are used for
+>>>>>> something else, then we might produce a garbage PTE on overflow, but=
+ that
+>>>>>> shouldn't really matter I concluded for folio_pte_batch() purposes, =
+we'd not
+>>>>>> detect "belongs to this folio batch" either way.
+>>>>>
+>>>>> Exactly.
+>>>>>
+>>>>>>
+>>>>>> Maybe it's likely cleaner to also have a custom pte_next_pfn() on pp=
+c, I just
+>>>>>> hope that we don't lose any other arbitrary PTE bits by doing the pt=
+e_pgprot().
+>>>>>
+>>>>> I don't see the need for ppc to implement pte_next_pfn().
+>>>>
+>>>> Agreed.
+>>>
+>>> So likely we should then do on top for powerpc (whitespace damage):
+>>>
+>>> diff --git a/arch/powerpc/mm/pgtable.c b/arch/powerpc/mm/pgtable.c
+>>> index a04ae4449a025..549a440ed7f65 100644
+>>> --- a/arch/powerpc/mm/pgtable.c
+>>> +++ b/arch/powerpc/mm/pgtable.c
+>>> @@ -220,10 +220,7 @@ void set_ptes(struct mm_struct *mm, unsigned long =
+addr,
+>>> pte_t *ptep,
+>>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 break;
+>>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 ptep++;
+>>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 addr +=3D PAGE_SIZE;
+>>> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0 /*
+>>> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 * increment the pfn.
+>>> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 */
+>>> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0 pte =3D pfn_pte(pte_pfn(pte) + 1, pte_pgprot((pte)));
+>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0 pte =3D pte_next_pfn(pte);
+>>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
+>>>  =C2=A0}
+>>=20
+>> Looks like commit 47b8def9358c ("powerpc/mm: Avoid calling
+>> arch_enter/leave_lazy_mmu() in set_ptes") changed from doing the simple
+>> increment to this more complex approach, but the log doesn't say why.
+>
+> @Aneesh, was that change on purpose?
+>
 
-Signed-off-by: Baoquan He <bhe@redhat.com>
----
-v2->v3:
-- Update code change regarding below commit: 
-  commit 78de91b45860 ("LoongArch: Use generic interface to support crashkernel=X,[high,low]")
+Because we had a bug with the patch that introduced the change and that
+line was confusing. The right thing should have been to add
+pte_pfn_next() to make it clear. It was confusing because not all pte
+format had pfn at PAGE_SHIFT offset (even though we did use the correct
+PTE_RPN_SHIFT in this specific case). To make it simpler I ended up
+switching that line to pte_pfn(pte) + 1 .
 
- arch/loongarch/kernel/setup.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/loongarch/kernel/setup.c b/arch/loongarch/kernel/setup.c
-index edf2bba80130..57d37dd9f964 100644
---- a/arch/loongarch/kernel/setup.c
-+++ b/arch/loongarch/kernel/setup.c
-@@ -260,7 +260,7 @@ static void __init arch_reserve_crashkernel(void)
- 	char *cmdline = boot_command_line;
- 	bool high = false;
- 
--	if (!IS_ENABLED(CONFIG_KEXEC_CORE))
-+	if (!IS_ENABLED(CONFIG_CRASH_RESERVE))
- 		return;
- 
- 	ret = parse_crashkernel(cmdline, memblock_phys_mem_size(),
--- 
-2.41.0
-
+-aneesh
