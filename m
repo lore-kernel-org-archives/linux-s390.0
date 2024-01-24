@@ -1,45 +1,45 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B747F1774A
-	for <linux-s390@vger.kernel.org>; Wed, 24 Jan 2024 05:14:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E847F1640B
+	for <linux-s390@vger.kernel.org>; Wed, 24 Jan 2024 05:14:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706073275; cv=none; b=dlXzMu+UqJdfjDT0sZltLN/UfLDdKEI+R5bJFRpL+HbH2zxCObLvtAbtkU2yOwSqVlxTTqkuRtgfF57I+y3TtZDT3o0U6QwFpocSP+KKDotDiDgf9UxleTrd4/S/wP9B08panhPzU1/gOc/hJy+QCuIroAPudNVLg7HrsVkPsGY=
+	t=1706073278; cv=none; b=VvmRTDMJWSUuTI/SXaG7xGHsfJ6ARueASnpYQa01b2fGN8qQn//rC38ovvGeNJ6aEfjyBb+trI5gqVX7DVdy0IV3EAQFXD5BU2NZ22zbxHkyuCPOx8OWTbwDn2EMtD++gV8wbgmNL85EVgWyRA2og3d66vsZAinc2ZzrCeH91xc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706073275; c=relaxed/simple;
-	bh=UWz6nsjgxGRxgu+va0C9HP2D4ukQyRLbGzFnsopCMv4=;
+	s=arc-20240116; t=1706073278; c=relaxed/simple;
+	bh=k6IRigT5ShOUPzBco13SjuMG/jHBS6L0oyGW6iX8LiM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-type; b=c4rPnydaBpX+ADq5KUJMxWnqNwQY52H1msO0bCFEsxtNuKCwCsxztIfJV1lBmJX1yhUch3pHn4w9hbiR4EcoZffM0sSAv569JpyTha8l9bHBKm7odaw8A6OKGynJ60SsBiCPs8aP5JsAMarF7WNbvPxd1EyqZFIQeI52rf6wS8M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JP3syQtw; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:Content-type; b=lWjvmgyWeQr9U6csu+Z35pCl/Y4xjK/954A6k/2jcqM08CiMndDXdcRML61quYuFFUEG4Tft0lRdoFV5I3Ixf+GvLqYA6Q6wlhw6AgAMWTfnFuFrnwLj0SaSpwrsGx/GEtFwOF5rZGunqVMIju+evkNr0E9AwzVZxGTHQzWoMT0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ARJUO+hu; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JP3syQtw"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ARJUO+hu"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706073271;
+	s=mimecast20190719; t=1706073276;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=NaWsezpiSi0g7GnmvcBjUWnIT5KvaNjJV46jtxgyD8g=;
-	b=JP3syQtwN8qDlZAkyQHHJC9ozzo1IE3/lVih8L9dg7g05QQyl1UyrhKy0lGxItfGQ8PdL+
-	6q4ybLisd8ICeAQ2fo++NWdY/ImY++R4DAziwhMikAlgQAWRbgzhnbGK6PeH/tmP7VXYUM
-	bPYvO7Har1nlruvdu+GqSMEn2O6hijc=
+	bh=DIZYlTsptXiAI7dlXg4SxNVNXFZexCcZy74a3rSLM5Q=;
+	b=ARJUO+huJd3mliwI7bs1XrEGuC7NGqMAJCBONKKTT/GaBIUmACqAmRlnUOYjS2qojXVbql
+	9p6K6fd81nNmXvdX7HOti3J56vEUxi1i4nw6/cFu3qQo1ciF2MywedV1b9bvuKgw4GiyEM
+	UI8uffhRE/aspLvnCXco9nDuDb43pGU=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-194-6MSAjmHBNja5UCvfdGGVYQ-1; Wed, 24 Jan 2024 00:14:28 -0500
-X-MC-Unique: 6MSAjmHBNja5UCvfdGGVYQ-1
+ us-mta-460-vrDbGUhWNFqeQwQpMZG3Sw-1; Wed, 24 Jan 2024 00:14:34 -0500
+X-MC-Unique: vrDbGUhWNFqeQwQpMZG3Sw-1
 Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 561ED810BB0;
-	Wed, 24 Jan 2024 05:14:27 +0000 (UTC)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 83719837224;
+	Wed, 24 Jan 2024 05:14:33 +0000 (UTC)
 Received: from MiWiFi-R3L-srv.redhat.com (unknown [10.72.116.117])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id CBD0D1C060AF;
-	Wed, 24 Jan 2024 05:14:20 +0000 (UTC)
+	by smtp.corp.redhat.com (Postfix) with ESMTP id EEA7C1C060AF;
+	Wed, 24 Jan 2024 05:14:27 +0000 (UTC)
 From: Baoquan He <bhe@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: kexec@lists.infradead.org,
@@ -57,9 +57,9 @@ Cc: kexec@lists.infradead.org,
 	piliu@redhat.com,
 	viro@zeniv.linux.org.uk,
 	Baoquan He <bhe@redhat.com>
-Subject: [PATCH linux-next v3 12/14] riscv, crash: wrap crash dumping code into crash related ifdefs
-Date: Wed, 24 Jan 2024 13:12:52 +0800
-Message-ID: <20240124051254.67105-13-bhe@redhat.com>
+Subject: [PATCH linux-next v3 13/14] arm, crash: wrap crash dumping code into crash related ifdefs
+Date: Wed, 24 Jan 2024 13:12:53 +0800
+Message-ID: <20240124051254.67105-14-bhe@redhat.com>
 In-Reply-To: <20240124051254.67105-1-bhe@redhat.com>
 References: <20240124051254.67105-1-bhe@redhat.com>
 Precedence: bulk
@@ -74,85 +74,42 @@ X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
 
 Now crash codes under kernel/ folder has been split out from kexec
 code, crash dumping can be separated from kexec reboot in config
-items on risc-v with some adjustments.
+items on arm with some adjustments.
 
-Here wrap up crash dumping codes with CONFIG_CRASH_DUMP ifdeffery, and
-use IS_ENABLED(CONFIG_CRASH_RESERVE) check to decide if compiling
-in the crashkernel reservation code.
+Here use CONFIG_CRASH_RESERVE ifdef to replace CONFIG_KEXEC ifdef.
 
 Signed-off-by: Baoquan He <bhe@redhat.com>
 ---
- arch/riscv/kernel/elf_kexec.c | 9 +++++++--
- arch/riscv/mm/init.c          | 2 +-
- 2 files changed, 8 insertions(+), 3 deletions(-)
+v2->v3:
+- Fix the lkp reported issue by using CONFIG_CRASH_RESERVE ifdef,
+  giving up the earlier IS_ENABLED(CONFIG_CRASH_RESERVE) checking 
+  in v2.
 
-diff --git a/arch/riscv/kernel/elf_kexec.c b/arch/riscv/kernel/elf_kexec.c
-index 5bd1ec3341fe..54260c16f991 100644
---- a/arch/riscv/kernel/elf_kexec.c
-+++ b/arch/riscv/kernel/elf_kexec.c
-@@ -117,6 +117,7 @@ static int elf_find_pbase(struct kimage *image, unsigned long kernel_len,
- 	return ret;
+ arch/arm/kernel/setup.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
+index ff2299ce1ad7..7b33b157fca0 100644
+--- a/arch/arm/kernel/setup.c
++++ b/arch/arm/kernel/setup.c
+@@ -979,7 +979,7 @@ static int __init init_machine_late(void)
  }
+ late_initcall(init_machine_late);
  
-+#ifdef CONFIG_CRASH_DUMP
- static int get_nr_ram_ranges_callback(struct resource *res, void *arg)
- {
- 	unsigned int *nr_ranges = arg;
-@@ -189,6 +190,7 @@ static char *setup_kdump_cmdline(struct kimage *image, char *cmdline,
- 	cmdline_ptr[COMMAND_LINE_SIZE - 1] = '\0';
- 	return cmdline_ptr;
+-#ifdef CONFIG_KEXEC
++#ifdef CONFIG_CRASH_RESERVE
+ /*
+  * The crash region must be aligned to 128MB to avoid
+  * zImage relocating below the reserved region.
+@@ -1066,7 +1066,7 @@ static void __init reserve_crashkernel(void)
  }
-+#endif
+ #else
+ static inline void reserve_crashkernel(void) {}
+-#endif /* CONFIG_KEXEC */
++#endif /* CONFIG_CRASH_RESERVE*/
  
- static void *elf_kexec_load(struct kimage *image, char *kernel_buf,
- 			    unsigned long kernel_len, char *initrd,
-@@ -196,12 +198,11 @@ static void *elf_kexec_load(struct kimage *image, char *kernel_buf,
- 			    unsigned long cmdline_len)
+ void __init hyp_mode_check(void)
  {
- 	int ret;
-+	void *fdt;
- 	unsigned long old_kernel_pbase = ULONG_MAX;
- 	unsigned long new_kernel_pbase = 0UL;
- 	unsigned long initrd_pbase = 0UL;
--	unsigned long headers_sz;
- 	unsigned long kernel_start;
--	void *fdt, *headers;
- 	struct elfhdr ehdr;
- 	struct kexec_buf kbuf;
- 	struct kexec_elf_info elf_info;
-@@ -227,8 +228,11 @@ static void *elf_kexec_load(struct kimage *image, char *kernel_buf,
- 	kbuf.buf_min = new_kernel_pbase + kernel_len;
- 	kbuf.buf_max = ULONG_MAX;
- 
-+#ifdef CONFIG_CRASH_DUMP
- 	/* Add elfcorehdr */
- 	if (image->type == KEXEC_TYPE_CRASH) {
-+		void *headers;
-+		unsigned long headers_sz;
- 		ret = prepare_elf_headers(&headers, &headers_sz);
- 		if (ret) {
- 			pr_err("Preparing elf core header failed\n");
-@@ -264,6 +268,7 @@ static void *elf_kexec_load(struct kimage *image, char *kernel_buf,
- 		}
- 		cmdline = modified_cmdline;
- 	}
-+#endif
- 
- #ifdef CONFIG_ARCH_SUPPORTS_KEXEC_PURGATORY
- 	/* Add purgatory to the image */
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 32cad6a65ccd..245919dda910 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -1358,7 +1358,7 @@ static void __init arch_reserve_crashkernel(void)
- 	bool high = false;
- 	int ret;
- 
--	if (!IS_ENABLED(CONFIG_KEXEC_CORE))
-+	if (!IS_ENABLED(CONFIG_CRASH_RESERVE))
- 		return;
- 
- 	ret = parse_crashkernel(cmdline, memblock_phys_mem_size(),
 -- 
 2.41.0
 
