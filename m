@@ -1,86 +1,190 @@
-Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A57E17553;
-	Wed, 24 Jan 2024 08:13:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.133.4.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BFF21AAB1;
+	Wed, 24 Jan 2024 11:16:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706084006; cv=none; b=q8xE40kgLyiRaQGWC7YF/ScdyMF4FxttCxoM+3bzACZoE1n2pChgbGXkz6cx8glfdsKc7Nmq1jOZYdF+hoWXKr/ga0jvYPYRaAxK5KjxhpnHrLaFmzCBO7rPZsSRLmNKuow3NeJTF3l87HLLD81de2TV0gg33WFKhx4dq65Zg4o=
+	t=1706095004; cv=none; b=h3BsnpTbbn6r8pGfSWNG6WKKQ+j93Tm1HzQ4tZ9o3RkgIDxgRIiw4GDPWEFj39Gjds52/LGRbQTq9/zikiGLOSvTTJJ6nO/nhyhoX5kLKUjNXWhOR/tqirLQYwFLm253X0yNXfphHstXFCKLNOyVGWNzRCDA672ZuDN8uYG5kEs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706084006; c=relaxed/simple;
-	bh=+VWU9gvOYllDetonwQ3Vc5ydJNlpyebx9obGUuN+jFM=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=H54WBY1L6MM4CXi+srME0HxvpUlhysUt9JeyXpfD/2TMKAtDS5ZdkRFEw03qLtLqOCuMk+pClX0LeDA1B+fzg9JQGsasQV8gMvVlAWM5PmbUGUuEetGlYVT3QFMtwmpqYWv8ZPCAP5WerurZF15JLDzGgjZRkWow40UfuyBk6HQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=physik.fu-berlin.de; spf=pass smtp.mailfrom=zedat.fu-berlin.de; arc=none smtp.client-ip=130.133.4.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=physik.fu-berlin.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zedat.fu-berlin.de
-Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
-          by outpost.zedat.fu-berlin.de (Exim 4.95)
-          with esmtps (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@zedat.fu-berlin.de>)
-          id 1rSYNi-003r3e-Vx; Wed, 24 Jan 2024 09:13:11 +0100
-Received: from p5dc556fd.dip0.t-ipconnect.de ([93.197.86.253] helo=suse-laptop.fritz.box)
-          by inpost2.zedat.fu-berlin.de (Exim 4.95)
-          with esmtpsa (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id 1rSYNi-002qcl-ND; Wed, 24 Jan 2024 09:13:10 +0100
-Message-ID: <27d8aa3a9e604a7e45c87b7fbc5b1ec2a63f03e3.camel@physik.fu-berlin.de>
-Subject: Re: [PATCH linux-next v3 10/14] sh, crash: wrap crash dumping code
- into crash related ifdefs
-From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-To: Baoquan He <bhe@redhat.com>, linux-kernel@vger.kernel.org
-Cc: kexec@lists.infradead.org, x86@kernel.org, 
- linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-mips@vger.kernel.org,  linux-riscv@lists.infradead.org,
- loongarch@lists.linux.dev,  akpm@linux-foundation.org,
- ebiederm@xmission.com, hbathini@linux.ibm.com,  piliu@redhat.com,
- viro@zeniv.linux.org.uk
-Date: Wed, 24 Jan 2024 09:13:09 +0100
-In-Reply-To: <20240124051254.67105-11-bhe@redhat.com>
-References: <20240124051254.67105-1-bhe@redhat.com>
-	 <20240124051254.67105-11-bhe@redhat.com>
-Autocrypt: addr=glaubitz@physik.fu-berlin.de; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.3 
+	s=arc-20240116; t=1706095004; c=relaxed/simple;
+	bh=+urhngMzgJ0quyKjYQ0ggpLPBFKqVLr5OUEYXqueFAk=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 Content-Type:MIME-Version; b=uApDUjvKUptdftK0D5NE5YJWeRLdE5OrHX23ZxwEeWXFvgOiAY/aLjoYYMNuDH9IllGPTzp+4Pq1Ho/M7VFpXjWSElmk2U94sVuoObj5Rhr/KA/BeFMU3uQdH7zniotlNtzVmmaVJfY5b3ZgDz9hwNyJdgioiyJkk0qWrGUtKiw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ne4fHdrW; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ne4fHdrW"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40OAxnfX001738;
+	Wed, 24 Jan 2024 11:15:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : in-reply-to : references : date : message-id : content-type :
+ mime-version; s=pp1; bh=XwsDcvUycr6MZCgZkrrnEzPidiDuzn7kT9+I19kmcFE=;
+ b=Ne4fHdrWAnrGW7oMca75rLonV+7RFF6zoUNURr291Vn6+pArfcOMDqKs5pO2jvuO/0iS
+ VW1ciO41rpA6r3TAdhYdpaosgMf4kgTORsurdBnBQPk+ZPMHoZnxabyAGSMKmka96Zv7
+ KjHZkL9qxoXZvRbGN4erCJFe1T5Vn/4XUt8Nyr1oHoggD9ckNGdnrR/Fm3zKDp7QbYAB
+ DHPFe83/d6Rt98vweOVSVZpXfXSqmA2VfxGwb4FahUsLbG4KTisTLulOF1PUugUywwTm
+ VcKAxUnY2RTYOw2HCWXLIw/CTC+cW2+QUjHyZwMreHB5gYExluP2U22Q8+zJlSwTfcd0 8w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vu0cd1umv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 24 Jan 2024 11:15:58 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40OAxuxV002552;
+	Wed, 24 Jan 2024 11:15:57 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vu0cd1ukj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 24 Jan 2024 11:15:56 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40O8UAAB025268;
+	Wed, 24 Jan 2024 11:15:55 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vrtqkd269-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 24 Jan 2024 11:15:55 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40OBFrUK39125384
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 24 Jan 2024 11:15:53 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 44CAA20043;
+	Wed, 24 Jan 2024 11:15:53 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 76A8C20040;
+	Wed, 24 Jan 2024 11:15:52 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 24 Jan 2024 11:15:52 +0000 (GMT)
+From: Sven Schnelle <svens@linux.ibm.com>
+To: Ryan Roberts <ryan.roberts@arm.com>
+Cc: Jiri Olsa <olsajiri@gmail.com>, David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox
+ <willy@infradead.org>,
+        Yin Fengwei <fengwei.yin@intel.com>, Yu Zhao
+ <yuzhao@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Anshuman
+ Khandual <anshuman.khandual@arm.com>,
+        Yang Shi <shy828301@gmail.com>, "Huang, Ying" <ying.huang@intel.com>,
+        Zi Yan <ziy@nvidia.com>, Luis
+ Chamberlain <mcgrof@kernel.org>,
+        Itaru Kitayama
+ <itaru.kitayama@gmail.com>,
+        "Kirill A. Shutemov"
+ <kirill.shutemov@linux.intel.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        David Rientjes <rientjes@google.com>, Vlastimil Babka <vbabka@suse.cz>,
+        Hugh Dickins <hughd@google.com>,
+        Kefeng Wang
+ <wangkefeng.wang@huawei.com>,
+        Barry Song <21cnbao@gmail.com>, Alistair
+ Popple <apopple@nvidia.com>,
+        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, Barry Song <v-songbaohua@oppo.com>,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v9 02/10] mm: Non-pmd-mappable, large folios for
+ folio_add_new_anon_rmap()
+In-Reply-To: <1188e67e-5c04-4bb5-b242-78d92c3fc85c@arm.com> (Ryan Roberts's
+	message of "Mon, 15 Jan 2024 08:50:19 +0000")
+References: <20231207161211.2374093-1-ryan.roberts@arm.com>
+	<20231207161211.2374093-3-ryan.roberts@arm.com>
+	<ZaMR2EWN-HvlCfUl@krava>
+	<41dc7dff-1ea8-4894-a487-88d46ec2b2d8@redhat.com>
+	<ZaRKMwKJIBmh8-lD@krava>
+	<1188e67e-5c04-4bb5-b242-78d92c3fc85c@arm.com>
+Date: Wed, 24 Jan 2024 12:15:52 +0100
+Message-ID: <yt9d1qa7x9qv.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13)
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 5VToK-l8Q8W53Es6vhZ8EvF7HGfvts8A
+X-Proofpoint-ORIG-GUID: K9bgcSWDgXer_hJD1KufHgSOFVoGI3i6
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Original-Sender: glaubitz@physik.fu-berlin.de
-X-ZEDAT-Hint: PO
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-01-24_05,2024-01-24_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 bulkscore=0 mlxlogscore=999 malwarescore=0 suspectscore=0
+ phishscore=0 mlxscore=0 impostorscore=0 spamscore=0 priorityscore=1501
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2401240080
 
-Hello Baoquan,
+Ryan Roberts <ryan.roberts@arm.com> writes:
 
-On Wed, 2024-01-24 at 13:12 +0800, Baoquan He wrote:
-> Now crash codes under kernel/ folder has been split out from kexec
-> code, crash dumping can be separated from kexec reboot in config
-> items on SuperH with some adjustments.
->=20
-> wrap up crash dumping codes with CONFIG_CRASH_DUMP ifdeffery, and
-> use IS_ENABLED(CONFIG_CRASH_RESERVE) check to decide if compiling
-> in the crashkernel reservation code.
+> On 14/01/2024 20:55, Jiri Olsa wrote:
+>> On Sun, Jan 14, 2024 at 06:33:56PM +0100, David Hildenbrand wrote:
+>>> On 13.01.24 23:42, Jiri Olsa wrote:
+>>>> On Thu, Dec 07, 2023 at 04:12:03PM +0000, Ryan Roberts wrote:
+>>>>> In preparation for supporting anonymous multi-size THP, improve
+>>>>> folio_add_new_anon_rmap() to allow a non-pmd-mappable, large folio to be
+>>>>> passed to it. In this case, all contained pages are accounted using the
+>>>>> order-0 folio (or base page) scheme.
+>>>>>
+>>>>> Reviewed-by: Yu Zhao <yuzhao@google.com>
+>>>>> Reviewed-by: Yin Fengwei <fengwei.yin@intel.com>
+>>>>> Reviewed-by: David Hildenbrand <david@redhat.com>
+>>>>> Reviewed-by: Barry Song <v-songbaohua@oppo.com>
+>>>>> Tested-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+>>>>> Tested-by: John Hubbard <jhubbard@nvidia.com>
+>>>>> Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
+>>>>> ---
+>>>>>   mm/rmap.c | 28 ++++++++++++++++++++--------
+>>>>>   1 file changed, 20 insertions(+), 8 deletions(-)
+>>>>>
+>>>>> diff --git a/mm/rmap.c b/mm/rmap.c
+>>>>> index 2a1e45e6419f..846fc79f3ca9 100644
+>>>>> --- a/mm/rmap.c
+>>>>> +++ b/mm/rmap.c
+>>>>> @@ -1335,32 +1335,44 @@ void page_add_anon_rmap(struct page *page, struct vm_area_struct *vma,
+>>>>>    * This means the inc-and-test can be bypassed.
+>>>>>    * The folio does not have to be locked.
+>>>>>    *
+>>>>> - * If the folio is large, it is accounted as a THP.  As the folio
+>>>>> + * If the folio is pmd-mappable, it is accounted as a THP.  As the folio
+>>>>>    * is new, it's assumed to be mapped exclusively by a single process.
+>>>>>    */
+>>>>>   void folio_add_new_anon_rmap(struct folio *folio, struct vm_area_struct *vma,
+>>>>>   		unsigned long address)
+>>>>>   {
+>>>>> -	int nr;
+>>>>> +	int nr = folio_nr_pages(folio);
+>>>>> -	VM_BUG_ON_VMA(address < vma->vm_start || address >= vma->vm_end, vma);
+>>>>> +	VM_BUG_ON_VMA(address < vma->vm_start ||
+>>>>> +			address + (nr << PAGE_SHIFT) > vma->vm_end, vma);
+>>>>
+>>>> hi,
+>>>> I'm hitting this bug (console output below) with adding uprobe
+>>>> on simple program like:
+>>>>
+>>>>    $ cat up.c
+>>>>    int main(void)
+>>>>    {
+>>>>       return 0;
+>>>>    }
+>>>>
+>>>>    # bpftrace -e 'uprobe:/home/jolsa/up:_start {}'
+>>>>
+>>>>    $ ./up
+>>>>
+>>>> it's on top of current linus tree master:
+>>>>    052d534373b7 Merge tag 'exfat-for-6.8-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/linkinjeon/exfat
+>>>>
+>>>> before this patch it seems to work, I can send my .config if needed
+>
+> Thanks for the bug report!
 
-Comparing this to the patches, it seems you missed the first word
-"Here". Either amend that or write the word "wrap" capitalized.
+I just hit the same bug in our CI, but can't find the fix in -next. Is
+this in the queue somewhere?
 
-I would omit "Here" as it's not necessary and just start the
-sentence with "Wrap".
-
-Adrian
-
---=20
- .''`.  John Paul Adrian Glaubitz
-: :' :  Debian Developer
-`. `'   Physicist
-  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
+Thanks
+Sven
