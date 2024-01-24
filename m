@@ -1,109 +1,129 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 925C117543;
-	Wed, 24 Jan 2024 12:42:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from xavier.telenet-ops.be (xavier.telenet-ops.be [195.130.132.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45ED77CF26
+	for <linux-s390@vger.kernel.org>; Wed, 24 Jan 2024 14:27:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.130.132.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706100132; cv=none; b=lmBE6lq1YJMbD2Wu6iDMES+KAAozKP3dJydfXYl1ZCgoQ4ge18XN3XiPi0YMxtRdvj4wu55fo/Tqj+t/+6hXaC3h3Y7CrePcVJaNXs8bm7ctVPDHsCFd3LcDGJF34ro5RwSKfas8NUJadsANfsYib2l4RJRadJwKI3dtIZnr2iA=
+	t=1706106469; cv=none; b=V7zz8OYJhnd4CbHKha/t5qMUO9VGDU63weunLltrDlWbPCMqP/RX/2nZSslOw96oS4ld5h5vrRfG4WAwCvBIL+kTbeOJ/SqfuC0ZWrvztC2nRZFq+Om0nhwUiudsojg0X195lEEUgr+eHVp6bBVjznWD+Ib3JDKFL2gFfs8lB4w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706100132; c=relaxed/simple;
-	bh=EcGrZYA6tDcbHMaVmklIwEpXVmyzro/cspPYoe6ROiM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=f4PJ4S+taMcDOGwks0ilobVwYTyK7y3LKwfWnRRckk/Tb9nk+WVfvCn7SRfHHrno3M/+xN6ehA64Q51w7LDPNj9G6pEn6L4+dnqZtTlVzNl0cys2jcXdEOq1NkY8A2OhB51yK5qNSRrhQMATD56U/k9vaojcX7omL11R8h4esT4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id AD1361FB;
-	Wed, 24 Jan 2024 04:42:54 -0800 (PST)
-Received: from [10.57.77.165] (unknown [10.57.77.165])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3654A3F5A1;
-	Wed, 24 Jan 2024 04:42:06 -0800 (PST)
-Message-ID: <e7a21ef8-6b72-46da-9a59-7e33394465f3@arm.com>
-Date: Wed, 24 Jan 2024 12:42:04 +0000
+	s=arc-20240116; t=1706106469; c=relaxed/simple;
+	bh=CfszxU16lZncejKjedsKD1lxYOGoDUS8ZJocL2mNhvk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=PkiJAYq2Ft3Cd5BgwMpnb/XS22eS0ZUEJNK05taZM0eFGM7PHNmK0rxTF1hPK/yhrVAynzRfBELhjjFJ0hsZEJn1Kpyv5UNC2chbCjr6+5m1ogopwUNqZEWoAzvNsTZneK9Fd8pmmQSZwgDDp8QGlTdA0RAVEzvqKkPsAGkU+tg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=none smtp.mailfrom=linux-m68k.org; arc=none smtp.client-ip=195.130.132.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux-m68k.org
+Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed40:bc9e:fcb8:8aa3:5dc0])
+	by xavier.telenet-ops.be with bizsmtp
+	id eeTd2B00o58agq201eTdz7; Wed, 24 Jan 2024 15:27:38 +0100
+Received: from rox.of.borg ([192.168.97.57])
+	by ramsan.of.borg with esmtp (Exim 4.95)
+	(envelope-from <geert@linux-m68k.org>)
+	id 1rSeDH-00GQnc-Hq;
+	Wed, 24 Jan 2024 15:27:37 +0100
+Received: from geert by rox.of.borg with local (Exim 4.95)
+	(envelope-from <geert@linux-m68k.org>)
+	id 1rSeE5-00FCwG-E2;
+	Wed, 24 Jan 2024 15:27:37 +0100
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Arnd Bergmann <arnd@arndb.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Ilya Leoshkevich <iii@linux.ibm.com>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>
+Cc: linux-s390@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH] init: Remove obsolete arch_call_rest_init() wrapper
+Date: Wed, 24 Jan 2024 15:27:35 +0100
+Message-Id: <aa10868bfb176eef4abb8bb4a710b85330792694.1706106183.git.geert@linux-m68k.org>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v9 02/10] mm: Non-pmd-mappable, large folios for
- folio_add_new_anon_rmap()
-Content-Language: en-GB
-To: Sven Schnelle <svens@linux.ibm.com>
-Cc: Jiri Olsa <olsajiri@gmail.com>, David Hildenbrand <david@redhat.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Matthew Wilcox <willy@infradead.org>, Yin Fengwei <fengwei.yin@intel.com>,
- Yu Zhao <yuzhao@google.com>, Catalin Marinas <catalin.marinas@arm.com>,
- Anshuman Khandual <anshuman.khandual@arm.com>, Yang Shi
- <shy828301@gmail.com>, "Huang, Ying" <ying.huang@intel.com>,
- Zi Yan <ziy@nvidia.com>, Luis Chamberlain <mcgrof@kernel.org>,
- Itaru Kitayama <itaru.kitayama@gmail.com>,
- "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
- John Hubbard <jhubbard@nvidia.com>, David Rientjes <rientjes@google.com>,
- Vlastimil Babka <vbabka@suse.cz>, Hugh Dickins <hughd@google.com>,
- Kefeng Wang <wangkefeng.wang@huawei.com>, Barry Song <21cnbao@gmail.com>,
- Alistair Popple <apopple@nvidia.com>, linux-mm@kvack.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- Barry Song <v-songbaohua@oppo.com>, linux-s390@vger.kernel.org
-References: <20231207161211.2374093-1-ryan.roberts@arm.com>
- <20231207161211.2374093-3-ryan.roberts@arm.com> <ZaMR2EWN-HvlCfUl@krava>
- <41dc7dff-1ea8-4894-a487-88d46ec2b2d8@redhat.com> <ZaRKMwKJIBmh8-lD@krava>
- <1188e67e-5c04-4bb5-b242-78d92c3fc85c@arm.com>
- <yt9d1qa7x9qv.fsf@linux.ibm.com> <ZbDyLzoIm0GdQzZA@krava>
- <6caaced7-a9d7-4fe4-823a-11b96be83e46@arm.com> <ZbD9YdCmZ3_uTj_k@krava>
- <edfade67-269e-4a49-8db6-40617131e283@arm.com>
- <yt9dcytqx6dv.fsf@linux.ibm.com>
-From: Ryan Roberts <ryan.roberts@arm.com>
-In-Reply-To: <yt9dcytqx6dv.fsf@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 24/01/2024 12:28, Sven Schnelle wrote:
-> Hi Ryan,
-> 
-> Ryan Roberts <ryan.roberts@arm.com> writes:
-> 
->>>>>>>>>> I'm hitting this bug (console output below) with adding uprobe
->>>>>>>>>> on simple program like:
->>>>>>>>>>
->>>>>>>>>>    $ cat up.c
->>>>>>>>>>    int main(void)
->>>>>>>>>>    {
->>>>>>>>>>       return 0;
->>>>>>>>>>    }
->>>>>>>>>>
->>>>>>>>>>    # bpftrace -e 'uprobe:/home/jolsa/up:_start {}'
->>>>>>>>>>
->>>>>>>>>>    $ ./up
->>>>>>>>>>
->>>>>>>>>> it's on top of current linus tree master:
->>>>>>>>>>    052d534373b7 Merge tag 'exfat-for-6.8-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/linkinjeon/exfat
->>>>>>>>>>
->>>>>>>>>> before this patch it seems to work, I can send my .config if needed
->>>>>>>
->>>>>>> Thanks for the bug report!
->>>>>>
->>>>>> I just hit the same bug in our CI, but can't find the fix in -next. Is
->>>>>> this in the queue somewhere?
->>>>>
->>>>> we hit it as well, but I can see the fix in linux-next/master
->>>>>
->>>>>   4c137bc28064 uprobes: use pagesize-aligned virtual address when replacing pages
->>>>
->>>> Yes that's the one. Just to confirm: you are still hitting the VM_BUG_ON despite
->>>> having this change in your kernel? Could you please send over the full bug log?
->>>
->>> ah sorry.. I meant the change fixes the problem for us, it just did not
->>> yet propagate through the merge cycle into bpf trees.. but I can see it
->>> in linux-next tree, so it's probably just matter of time
->>
->> OK great! How about you, Sven? Do you have this change in your kernel? Hopefully
->> it should fix your problem.
-> 
-> Same here - the fix makes uprobes work again, i just didn't see it in
-> torvalds-master and neither in todays linux-next. But Jiri is right,
-> it's in linux-next/master. I just missed to find it there. So everything
-> should be ok.
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-Great!
+Since commit 3570ee046c46b5dc ("s390/smp: keep the original lowcore for
+CPU 0"), there is no longer any architecture that needs to override
+arch_call_rest_init().
+
+Remove the weak wrapper around rest_init(), call rest_init() directly,
+and make rest_init() static.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+Perhaps rest_init() should lose its noinline tag, or should even be
+inlined manually?
+---
+ include/linux/start_kernel.h | 2 --
+ init/main.c                  | 9 ++-------
+ tools/objtool/noreturns.h    | 1 -
+ 3 files changed, 2 insertions(+), 10 deletions(-)
+
+diff --git a/include/linux/start_kernel.h b/include/linux/start_kernel.h
+index a9806a44a605c7d7..09f994ac87df44f1 100644
+--- a/include/linux/start_kernel.h
++++ b/include/linux/start_kernel.h
+@@ -9,7 +9,5 @@
+    up something else. */
+ 
+ extern asmlinkage void __init __noreturn start_kernel(void);
+-extern void __init __noreturn arch_call_rest_init(void);
+-extern void __ref __noreturn rest_init(void);
+ 
+ #endif /* _LINUX_START_KERNEL_H */
+diff --git a/init/main.c b/init/main.c
+index e24b0780fdff7a80..521f40770e67dd27 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -681,7 +681,7 @@ static void __init setup_command_line(char *command_line)
+ 
+ static __initdata DECLARE_COMPLETION(kthreadd_done);
+ 
+-noinline void __ref __noreturn rest_init(void)
++static noinline void __ref __noreturn rest_init(void)
+ {
+ 	struct task_struct *tsk;
+ 	int pid;
+@@ -822,11 +822,6 @@ static int __init early_randomize_kstack_offset(char *buf)
+ early_param("randomize_kstack_offset", early_randomize_kstack_offset);
+ #endif
+ 
+-void __init __weak __noreturn arch_call_rest_init(void)
+-{
+-	rest_init();
+-}
+-
+ static void __init print_unknown_bootoptions(void)
+ {
+ 	char *unknown_options;
+@@ -1069,7 +1064,7 @@ void start_kernel(void)
+ 	kcsan_init();
+ 
+ 	/* Do the rest non-__init'ed, we're now alive */
+-	arch_call_rest_init();
++	rest_init();
+ 
+ 	/*
+ 	 * Avoid stack canaries in callers of boot_init_stack_canary for gcc-10
+diff --git a/tools/objtool/noreturns.h b/tools/objtool/noreturns.h
+index 1685d7ea6a9f7002..7cda577da897cac5 100644
+--- a/tools/objtool/noreturns.h
++++ b/tools/objtool/noreturns.h
+@@ -12,7 +12,6 @@ NORETURN(__reiserfs_panic)
+ NORETURN(__stack_chk_fail)
+ NORETURN(__tdx_hypercall_failed)
+ NORETURN(__ubsan_handle_builtin_unreachable)
+-NORETURN(arch_call_rest_init)
+ NORETURN(arch_cpu_idle_dead)
+ NORETURN(bch2_trans_in_restart_error)
+ NORETURN(bch2_trans_restart_error)
+-- 
+2.34.1
+
