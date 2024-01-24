@@ -1,117 +1,68 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4253AE541;
-	Wed, 24 Jan 2024 05:46:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2549628;
+	Wed, 24 Jan 2024 06:33:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706075196; cv=none; b=nVb1TsBRXtOrClXGGgQ7sxRuxP5Icy/c24//KJFRt7kvjmvlYb4h0cZnogWW22wwxUp9IN5r6QSl9+sn6qBS6iHDerpNXpHXaiestEsCWAPk3ftYs5ulfqRf7JWeqciqqehjjpPJXxXr50GMZDTJ60sHjp6zwkqxztRpBv228g4=
+	t=1706078020; cv=none; b=QszPeBNY/PPHSbVd7Fc4K9TAHLEZz5equ3QgKNXmYgqjwJagn9ty0uqeXMJtshMtqhq6NL2WqLqcAZUKHcpBfQJYF9fxt7cjBhDyY8mU2ON+4rVfcYLgdihOLm3JERRYtCq0rp3DiVoS4yx3yWe9ZBz3rKTPnVfeoGBPz/JhMfo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706075196; c=relaxed/simple;
-	bh=LhesHwoZXRdX5jfbi0laKsTDlPHkqd2QNDhd5PA0n64=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=iJJISIS9oqk5MjaHfBm/s39voVfmMo35oSGarl05+nF6wwa00TUekmsaCp9+7p635HNdhg7vd/A+p7ZJ8DkYlVxjL4Qp40Gf4TQdYdaRIs5DXW1cNDRmS8yix/Bo3hrwz4bs1eKU3DbH+Gk1QVKE8WLQ4yLOfljTZ51FG5Uju6s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SgqZYUET; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SgqZYUET"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75644C433F1;
-	Wed, 24 Jan 2024 05:46:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1706075195;
-	bh=LhesHwoZXRdX5jfbi0laKsTDlPHkqd2QNDhd5PA0n64=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=SgqZYUETYp0U/lExF64JKpfQ4QQzjrtotn/ONStmemo8UuEWx22RNGcCPysz/GGdH
-	 wF4/0iVnvQm3wM0s4Ag4Pkguroe5zo7K7nKVaDa3YhK1ow6WyrrQ0jGg/jh0nlfdU+
-	 f9jiSYnPlhA+oQTs1xwIrXNokUtNwZ94UcVY9oqXd8lQQbttaFJlpF0H4Hptl0pH0W
-	 L6Si/Ez2ZPcSiKG/jTqZNA1RfHBeGdDrwVDOodIiOjh9BxNSAwCbUb8UnpBbsGqMmX
-	 Fry6owvnHK5HB/4QPvBt/16sEl5jOidoL18vHxJm0dea3fi94NjlvWmuxijOXq/zBL
-	 NkyRrt3sGxNQg==
-X-Mailer: emacs 29.1 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: David Hildenbrand <david@redhat.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Ryan Roberts <ryan.roberts@arm.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "linux-mm@kvack.org" <linux-mm@kvack.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Matthew Wilcox <willy@infradead.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Dinh Nguyen <dinguyen@kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-	"linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-	"sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>
-Subject: Re: [PATCH v1 01/11] arm/pgtable: define PFN_PTE_SHIFT on arm and
- arm64
-In-Reply-To: <3a970289-a72f-418e-b43c-89f67f0d5283@redhat.com>
-References: <20240122194200.381241-1-david@redhat.com>
- <20240122194200.381241-2-david@redhat.com>
- <fdaeb9a5-d890-499a-92c8-d171df43ad01@arm.com>
- <46080ac1-7789-499b-b7f3-0231d7bd6de7@redhat.com>
- <6703b648-10ab-4fea-b7f1-75421319465b@arm.com>
- <ae3d826f-758f-4738-b72a-e99f098bb2b3@csgroup.eu>
- <3a970289-a72f-418e-b43c-89f67f0d5283@redhat.com>
-Date: Wed, 24 Jan 2024 11:16:23 +0530
-Message-ID: <87zfwvp9lc.fsf@kernel.org>
+	s=arc-20240116; t=1706078020; c=relaxed/simple;
+	bh=SAJHujprC1bLB15iQXfqasMZEBQT8JXQnCKvkhWg3b4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=sJaBOwdyzGpeZ/9//NJ9W4SQYmtHZ4Gvw4itD1FgTmP9CEywViLV208uX69UR5ScBcN2jUxNru7GdA3C0qzO17nyGa+xnEzVSYb2j1JEVr5CMvm2bgNMXLaJ25dAEkspNzWI99ImoAkjhpA6o+sv1Xxhx2YkDC3jbssj3jpgXPY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0W.F6BhX_1706078002;
+Received: from 30.221.129.141(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W.F6BhX_1706078002)
+          by smtp.aliyun-inc.com;
+          Wed, 24 Jan 2024 14:33:33 +0800
+Message-ID: <47c1b777-6d4e-40ac-9297-61240c126d6a@linux.alibaba.com>
+Date: Wed, 24 Jan 2024 14:33:21 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 00/15] net/smc: implement loopback-ism used by
+ SMC-D
+To: Alexandra Winter <wintera@linux.ibm.com>,
+ Wenjia Zhang <wenjia@linux.ibm.com>, hca@linux.ibm.com, gor@linux.ibm.com,
+ agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20240111120036.109903-1-guwen@linux.alibaba.com>
+ <f98849a7-41e9-421b-97b7-36d720cc43ee@linux.alibaba.com>
+ <20a1a1f3-789a-4d91-9a94-dca16161afd7@linux.ibm.com>
+ <1860588f-2246-4dcd-9db5-4ccd7add0f4a@linux.alibaba.com>
+ <3c51c969-3884-4104-b38d-570c61525214@linux.ibm.com>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <3c51c969-3884-4104-b38d-570c61525214@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-David Hildenbrand <david@redhat.com> writes:
 
->>>
->>>> If high bits are used for
->>>> something else, then we might produce a garbage PTE on overflow, but that
->>>> shouldn't really matter I concluded for folio_pte_batch() purposes, we'd not
->>>> detect "belongs to this folio batch" either way.
->>>
->>> Exactly.
->>>
->>>>
->>>> Maybe it's likely cleaner to also have a custom pte_next_pfn() on ppc, I just
->>>> hope that we don't lose any other arbitrary PTE bits by doing the pte_pgprot().
->>>
->>> I don't see the need for ppc to implement pte_next_pfn().
->> 
->> Agreed.
->
-> So likely we should then do on top for powerpc (whitespace damage):
->
-> diff --git a/arch/powerpc/mm/pgtable.c b/arch/powerpc/mm/pgtable.c
-> index a04ae4449a025..549a440ed7f65 100644
-> --- a/arch/powerpc/mm/pgtable.c
-> +++ b/arch/powerpc/mm/pgtable.c
-> @@ -220,10 +220,7 @@ void set_ptes(struct mm_struct *mm, unsigned long addr, pte_t *ptep,
->                          break;
->                  ptep++;
->                  addr += PAGE_SIZE;
-> -               /*
-> -                * increment the pfn.
-> -                */
-> -               pte = pfn_pte(pte_pfn(pte) + 1, pte_pgprot((pte)));
-> +               pte = pte_next_pfn(pte);
->          }
->   }
 
-Agreed.
+On 2024/1/23 22:03, Alexandra Winter wrote:
+> Hello Wen Gu and others,
+> 
+> I just wanted to let you know that unfortunately both Wenjia and Jan have called in sick and we don't know
+> when they will be back at work.
+> So I'm sorry but there may be mroe delays in the review of this patchset.
+> 
+> Kind regards
+> Alexandra Winter
 
--aneesh
+Hi Alexandra,
+
+Thank you for the update. Health comes first. Wishing Wenjia and Jan
+both make a swift recovery.
+
+Best regards,
+Wen Gu
