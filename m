@@ -1,189 +1,321 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 16D9946B3;
-	Tue, 23 Jan 2024 20:43:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A0AFE541
+	for <linux-s390@vger.kernel.org>; Wed, 24 Jan 2024 05:13:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706042642; cv=none; b=TRFt8N4Au2f5ZnIuzKEd8L5srjwMWnGRCHOSQn1lrFlJc3Y+1FQNTxtTfP3eITqXPKvAFWUcmz8AfxVuydcT95HmSIg7MBqFIGoSxGxaBPf3JH/F5CBt+W5aNZVG+rYMmVDYhKuakzAQBmry6ZKKTvgIuss7MBXUbbtM4QLVuN8=
+	t=1706073191; cv=none; b=nVerOppUmRkV1uUEgwJHJon6HQY2zZ+XjpSFHob49eSmL15L+NQjw+V911TogF+uv4BYB7JaiKVJxaUE//+93E9PWkFwRZdeY4v7n1XSmeh40pHTpKW3dLajrWn6RrGZ8I+IOGqKt4U2cFJGw3d97qKvV1gwyUkHDXockM67UhQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706042642; c=relaxed/simple;
-	bh=BkiYqmjcGER75gNfr+z1v1ylvtolmFYCztKOkeGymvM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=opDIbc92DzS3TYEJ7DjwhgpvnO7mdlk1mc5PvSuh1qp/Kwr/hdj5r1NyYtNAMNxybN8RVZjyDHAPs+V0620qXqDTTPpsY+zsOpv4wqySoRT0RkkB5MkGmWXV1rj68HeCrEysthgVOsWTiWTRKbBLMMdidErv1mxt40J0Q0bbbwY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4F4471FB;
-	Tue, 23 Jan 2024 12:44:44 -0800 (PST)
-Received: from [10.57.77.165] (unknown [10.57.77.165])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 526623F73F;
-	Tue, 23 Jan 2024 12:43:55 -0800 (PST)
-Message-ID: <f9eb630a-f0f8-4219-b74f-109c51f31eb4@arm.com>
-Date: Tue, 23 Jan 2024 20:43:53 +0000
+	s=arc-20240116; t=1706073191; c=relaxed/simple;
+	bh=8IRILIHbZzm7JiU2AP+iQrJP86mAIlHIlBV5y0BJ124=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-type; b=plo2LetBD1MxTxztLWI+d6gy6cdx9ywgtoPKzrAluSQgtTgsuwrZP0uR/S2KvXJQkQ0eN/QrpEQTyyZOjHEl/B+aqUHdykRp0z8qPdrHQBRgjnXNnzllmrgZtU/jzC//4Sy0WjIoYZPFs1Mn52lF8qHTsqJ65M9Tor5tuV+hBi0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PDjLuT2v; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PDjLuT2v"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1706073188;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=hMrXo75T+RiZg6Ni6slGNp8f5iS89iUB0hhC0nnqkcg=;
+	b=PDjLuT2vw/zqJnieaK5oOWHXW0NYE/QnGc/zDBcyh+JbB9zsOn9BcpXi7MT4bQG5rHerGF
+	qGBtQmPOgI/pFun1Bnvw6TjMjowQNsveqw6EqwqvUYsv/5gIAoBq1NlGdbbKjEpo2iDnbL
+	M27PaIt/BqJ2wojJvGVxIbV4v4AMOZ8=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-272-wtN1dBuqPpKMsbqqxC-a1w-1; Wed,
+ 24 Jan 2024 00:13:05 -0500
+X-MC-Unique: wtN1dBuqPpKMsbqqxC-a1w-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2B2E81C04348;
+	Wed, 24 Jan 2024 05:13:05 +0000 (UTC)
+Received: from MiWiFi-R3L-srv.redhat.com (unknown [10.72.116.117])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 417FF1C060AF;
+	Wed, 24 Jan 2024 05:12:57 +0000 (UTC)
+From: Baoquan He <bhe@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: kexec@lists.infradead.org,
+	x86@kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	linux-mips@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	loongarch@lists.linux.dev,
+	akpm@linux-foundation.org,
+	ebiederm@xmission.com,
+	hbathini@linux.ibm.com,
+	piliu@redhat.com,
+	viro@zeniv.linux.org.uk,
+	Baoquan He <bhe@redhat.com>
+Subject: [PATCH linux-next v3 00/14] Split crash out from kexec and clean up related config items
+Date: Wed, 24 Jan 2024 13:12:40 +0800
+Message-ID: <20240124051254.67105-1-bhe@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 00/11] mm/memory: optimize fork() with PTE-mapped THP
-Content-Language: en-GB
-To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
- Matthew Wilcox <willy@infradead.org>, Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Dinh Nguyen <dinguyen@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
- "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
- Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
- <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "David S. Miller"
- <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org
-References: <20240122194200.381241-1-david@redhat.com>
- <56bee384-461e-4167-b7e9-4dd60666dd66@arm.com>
- <fa9425e8-f489-48d0-9bf5-98d1b46b6d1a@redhat.com>
- <7d92d27a-44f6-47d0-8eab-3f80bd7bd75d@arm.com>
- <33cf54a9-b855-4d2d-9926-a4936fc9068b@redhat.com>
-From: Ryan Roberts <ryan.roberts@arm.com>
-In-Reply-To: <33cf54a9-b855-4d2d-9926-a4936fc9068b@redhat.com>
-Content-Type: text/plain; charset=UTF-8
+Content-type: text/plain
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
 
-On 23/01/2024 20:14, David Hildenbrand wrote:
-> On 23.01.24 20:43, Ryan Roberts wrote:
->> On 23/01/2024 19:33, David Hildenbrand wrote:
->>> On 23.01.24 20:15, Ryan Roberts wrote:
->>>> On 22/01/2024 19:41, David Hildenbrand wrote:
->>>>> Now that the rmap overhaul[1] is upstream that provides a clean interface
->>>>> for rmap batching, let's implement PTE batching during fork when processing
->>>>> PTE-mapped THPs.
->>>>>
->>>>> This series is partially based on Ryan's previous work[2] to implement
->>>>> cont-pte support on arm64, but its a complete rewrite based on [1] to
->>>>> optimize all architectures independent of any such PTE bits, and to
->>>>> use the new rmap batching functions that simplify the code and prepare
->>>>> for further rmap accounting changes.
->>>>>
->>>>> We collect consecutive PTEs that map consecutive pages of the same large
->>>>> folio, making sure that the other PTE bits are compatible, and (a) adjust
->>>>> the refcount only once per batch, (b) call rmap handling functions only
->>>>> once per batch and (c) perform batch PTE setting/updates.
->>>>>
->>>>> While this series should be beneficial for adding cont-pte support on
->>>>> ARM64[2], it's one of the requirements for maintaining a total mapcount[3]
->>>>> for large folios with minimal added overhead and further changes[4] that
->>>>> build up on top of the total mapcount.
->>>>
->>>> I'm currently rebasing my contpte work onto this series, and have hit a
->>>> problem.
->>>> I need to expose the "size" of a pte (pte_size()) and skip forward to the start
->>>> of the next (cont)pte every time through the folio_pte_batch() loop. But
->>>> pte_next_pfn() only allows advancing by 1 pfn; I need to advance by nr pfns:
->>>>
->>>>
->>>> static inline int folio_pte_batch(struct folio *folio, unsigned long addr,
->>>>          pte_t *start_ptep, pte_t pte, int max_nr, bool *any_writable)
->>>> {
->>>>      unsigned long folio_end_pfn = folio_pfn(folio) + folio_nr_pages(folio);
->>>>      const pte_t *end_ptep = start_ptep + max_nr;
->>>>      pte_t expected_pte = __pte_batch_clear_ignored(pte_next_pfn(pte));
->>>> -    pte_t *ptep = start_ptep + 1;
->>>> +    pte_t *ptep = start_ptep;
->>>> +    int vfn, nr, i;
->>>>      bool writable;
->>>>
->>>>      if (any_writable)
->>>>          *any_writable = false;
->>>>
->>>>      VM_WARN_ON_FOLIO(!pte_present(pte), folio);
->>>>
->>>> +    vfn = addr >> PAGE_SIZE;
->>>> +    nr = pte_size(pte);
->>>> +    nr = ALIGN_DOWN(vfn + nr, nr) - vfn;
->>>> +    ptep += nr;
->>>> +
->>>>      while (ptep != end_ptep) {
->>>> +        pte = ptep_get(ptep);
->>>>          nr = pte_size(pte);
->>>>          if (any_writable)
->>>>              writable = !!pte_write(pte);
->>>>          pte = __pte_batch_clear_ignored(pte);
->>>>
->>>>          if (!pte_same(pte, expected_pte))
->>>>              break;
->>>>
->>>>          /*
->>>>           * Stop immediately once we reached the end of the folio. In
->>>>           * corner cases the next PFN might fall into a different
->>>>           * folio.
->>>>           */
->>>> -        if (pte_pfn(pte) == folio_end_pfn)
->>>> +        if (pte_pfn(pte) >= folio_end_pfn)
->>>>              break;
->>>>
->>>>          if (any_writable)
->>>>              *any_writable |= writable;
->>>>
->>>> -        expected_pte = pte_next_pfn(expected_pte);
->>>> -        ptep++;
->>>> +        for (i = 0; i < nr; i++)
->>>> +            expected_pte = pte_next_pfn(expected_pte);
->>>> +        ptep += nr;
->>>>      }
->>>>
->>>>      return ptep - start_ptep;
->>>> }
->>>>
->>>>
->>>> So I'm wondering if instead of enabling pte_next_pfn() for all the arches,
->>>> perhaps its actually better to expose pte_pgprot() for all the arches. Then we
->>>> can be much more flexible about generating ptes with pfn_pte(pfn, pgprot).
->>>>
->>>> What do you think?
->>>
->>> The pte_pgprot() stuff is just nasty IMHO.
->>
->> I dunno; we have pfn_pte() which takes a pfn and a pgprot. It seems reasonable
->> that we should be able to do the reverse.
-> 
-> But pte_pgprot() is only available on a handful of architectures, no? It would
-> be nice to have a completely generic pte_next_pfn() / pte_advance_pfns(), though.
-> 
-> Anyhow, this is all "easy" to rework later. Unless I am missing something, the
-> low hanging fruit is simply using PFN_PTE_SHIFT for now that exists on most
-> archs already.
-> 
->>
->>>
->>> Likely it's best to simply convert pte_next_pfn() to something like
->>> pte_advance_pfns(). The we could just have
->>>
->>> #define pte_next_pfn(pte) pte_advance_pfns(pte, 1)
->>>
->>> That should be fairly easy to do on top (based on PFN_PTE_SHIFT). And only 3
->>> archs (x86-64, arm64, and powerpc) need slight care to replace a hardcoded "1"
->>> by an integer we pass in.
->>
->> I thought we agreed powerpc was safe to just define PFN_PTE_SHIFT? But, yeah,
->> the principle works I guess. I guess I can do this change along with my series.
-> 
-> It is, if nobody insists on that micro-optimization on powerpc.
-> 
-> If there is good reason to invest more time and effort right now on the
-> pte_pgprot approach, then please let me know :)
-> 
+Motivation:
+=============
+Previously, LKP reported a building error. When investigating, it can't
+be resolved reasonablly with the present messy kdump config items.
 
-No I think you're right. I thought pte_pgprot() was implemented by more arches,
-but there are 13 without it, so clearly a lot of effort to plug that gap. I'll
-take the approach you suggest with pte_advance_pfns(). It'll just require mods
-to x86 and arm64, +/- ppc.
+ https://lore.kernel.org/oe-kbuild-all/202312182200.Ka7MzifQ-lkp@intel.com/
+
+The kdump (crash dumping) related config items could causes confusions:
+
+Firstly,
+---
+CRASH_CORE enables codes including
+ - crashkernel reservation;
+ - elfcorehdr updating;
+ - vmcoreinfo exporting;
+ - crash hotplug handling;
+
+Now fadump of powerpc, kcore dynamic debugging and kdump all selects
+CRASH_CORE, while fadump
+ - fadump needs crashkernel parsing, vmcoreinfo exporting, and accessing
+   global variable 'elfcorehdr_addr';
+ - kcore only needs vmcoreinfo exporting;
+ - kdump needs all of the current kernel/crash_core.c.
+
+So only enabling PROC_CORE or FA_DUMP will enable CRASH_CORE, this
+mislead people that we enable crash dumping, actual it's not.
+
+Secondly,
+---
+It's not reasonable to allow KEXEC_CORE select CRASH_CORE.
+
+Because KEXEC_CORE enables codes which allocate control pages, copy
+kexec/kdump segments, and prepare for switching. These codes are
+shared by both kexec reboot and kdump. We could want kexec reboot,
+but disable kdump. In that case, CRASH_CORE should not be selected.
+
+ --------------------
+ CONFIG_CRASH_CORE=y
+ CONFIG_KEXEC_CORE=y
+ CONFIG_KEXEC=y
+ CONFIG_KEXEC_FILE=y
+ ---------------------
+
+Thirdly,
+---
+It's not reasonable to allow CRASH_DUMP select KEXEC_CORE.
+
+That could make KEXEC_CORE, CRASH_DUMP are enabled independently from
+KEXEC or KEXEC_FILE. However, w/o KEXEC or KEXEC_FILE, the KEXEC_CORE
+code built in doesn't make any sense because no kernel loading or
+switching will happen to utilize the KEXEC_CORE code.
+ ---------------------
+ CONFIG_CRASH_CORE=y
+ CONFIG_KEXEC_CORE=y
+ CONFIG_CRASH_DUMP=y
+ ---------------------
+
+In this case, what is worse, on arch sh and arm, KEXEC relies on MMU,
+while CRASH_DUMP can still be enabled when !MMU, then compiling error is
+seen as the lkp test robot reported in above link.
+
+ ------arch/sh/Kconfig------
+ config ARCH_SUPPORTS_KEXEC
+         def_bool MMU
+
+ config ARCH_SUPPORTS_CRASH_DUMP
+         def_bool BROKEN_ON_SMP
+ ---------------------------
+
+Changes:
+===========
+1, split out crash_reserve.c from crash_core.c;
+2, split out vmcore_infoc. from crash_core.c;
+3, move crash related codes in kexec_core.c into crash_core.c;
+4, remove dependency of FA_DUMP on CRASH_DUMP;
+5, clean up kdump related config items;
+6, wrap up crash codes in crash related ifdefs on all 8 arch-es
+   which support crash dumping, except of ppc;
+
+Achievement:
+===========
+With above changes, I can rearrange the config item logic as below (the right
+item depends on or is selected by the left item):
+
+    PROC_KCORE -----------> VMCORE_INFO
+
+               |----------> VMCORE_INFO
+    FA_DUMP----|
+               |----------> CRASH_RESERVE
+
+                                                    ---->VMCORE_INFO
+                                                   /
+                                                   |---->CRASH_RESERVE
+    KEXEC      --|                                /|
+                 |--> KEXEC_CORE--> CRASH_DUMP-->/-|---->PROC_VMCORE
+    KEXEC_FILE --|                               \ |
+                                                   \---->CRASH_HOTPLUG
+
+
+    KEXEC      --|
+                 |--> KEXEC_CORE (for kexec reboot only)
+    KEXEC_FILE --|
+
+Test
+========
+On all 8 architectures, including x86_64, arm64, s390x, sh, arm, mips,
+riscv, loongarch, I did below three cases of config item setting and
+building all passed. Take configs on x86_64 as exampmle here:
+
+(1) Both CONFIG_KEXEC and KEXEC_FILE is unset, then all kexec/kdump
+items are unset automatically:
+# Kexec and crash features
+# CONFIG_KEXEC is not set
+# CONFIG_KEXEC_FILE is not set
+# end of Kexec and crash features
+
+(2) set CONFIG_KEXEC_FILE and 'make olddefconfig':
+---------------
+# Kexec and crash features
+CONFIG_CRASH_RESERVE=y
+CONFIG_VMCORE_INFO=y
+CONFIG_KEXEC_CORE=y
+CONFIG_KEXEC_FILE=y
+CONFIG_CRASH_DUMP=y
+CONFIG_CRASH_HOTPLUG=y
+CONFIG_CRASH_MAX_MEMORY_RANGES=8192
+# end of Kexec and crash features
+---------------
+
+(3) unset CONFIG_CRASH_DUMP in case 2 and execute 'make olddefconfig':
+------------------------
+# Kexec and crash features
+CONFIG_KEXEC_CORE=y
+CONFIG_KEXEC_FILE=y
+# end of Kexec and crash features
+------------------------
+
+Note:
+For ppc, it needs investigation to make clear how to split out crash
+code in arch folder. Hope Hari and Pingfan can help have a look, see if
+it's doable. Now, I make it either have both kexec and crash enabled, or
+disable both of them altogether.
+
+Changelog
+==========
+v2->v3:
+- In patch 2, there's conflict when rebasing to linux-next in
+  kernel/crash_core.c because of below commits from Uladzislau:
+  - commit 699d9351822e ("mm: vmalloc: Fix a warning in the crash_save_vmcoreinfo_init()")
+  - commit 5f4c0c1e2a51 (:mm/vmalloc: remove vmap_area_list")
+- In patch 13, fix the lkp reported issue by using CONFIG_CRASH_RESERVE
+  ifdef, giving up the earlier IS_ENABLED(CONFIG_CRASH_RESERVE) checking in v2. 
+- In patch 14, update code change after below commit merged into
+  mainline:
+  - commit 78de91b45860 ("LoongArch: Use generic interface to support crashkernel=X,[high,low]")
+
+Baoquan He (14):
+  kexec: split crashkernel reservation code out from crash_core.c
+  crash: split vmcoreinfo exporting code out from crash_core.c
+  crash: remove dependency of FA_DUMP on CRASH_DUMP
+  crash: split crash dumping code out from kexec_core.c
+  crash: clean up kdump related config items
+  x86, crash: wrap crash dumping code into crash related ifdefs
+  arm64, crash: wrap crash dumping code into crash related ifdefs
+  ppc, crash: enforce KEXEC and KEXEC_FILE to select CRASH_DUMP
+  s390, crash: wrap crash dumping code into crash related ifdefs
+  sh, crash: wrap crash dumping code into crash related ifdefs
+  mips, crash: wrap crash dumping code into crash related ifdefs
+  riscv, crash: wrap crash dumping code into crash related ifdefs
+  arm, crash: wrap crash dumping code into crash related ifdefs
+  loongarch, crash: wrap crash dumping code into crash related ifdefs
+
+ arch/arm/kernel/setup.c                       |   4 +-
+ arch/arm64/Kconfig                            |   2 +-
+ .../asm/{crash_core.h => crash_reserve.h}     |   4 +-
+ arch/arm64/include/asm/kexec.h                |   2 +-
+ arch/arm64/kernel/Makefile                    |   2 +-
+ arch/arm64/kernel/machine_kexec.c             |   2 +-
+ arch/arm64/kernel/machine_kexec_file.c        |  10 +-
+ .../kernel/{crash_core.c => vmcore_info.c}    |   2 +-
+ arch/arm64/mm/init.c                          |   2 +-
+ arch/loongarch/kernel/setup.c                 |   2 +-
+ arch/mips/kernel/setup.c                      |  17 +-
+ arch/powerpc/Kconfig                          |   9 +-
+ arch/powerpc/kernel/setup-common.c            |   2 +-
+ arch/powerpc/mm/nohash/kaslr_booke.c          |   4 +-
+ arch/powerpc/platforms/powernv/opal-core.c    |   2 +-
+ arch/riscv/Kconfig                            |   2 +-
+ .../asm/{crash_core.h => crash_reserve.h}     |   4 +-
+ arch/riscv/kernel/Makefile                    |   2 +-
+ arch/riscv/kernel/elf_kexec.c                 |   9 +-
+ .../kernel/{crash_core.c => vmcore_info.c}    |   2 +-
+ arch/riscv/mm/init.c                          |   2 +-
+ arch/s390/kernel/kexec_elf.c                  |   2 +
+ arch/s390/kernel/kexec_image.c                |   2 +
+ arch/s390/kernel/machine_kexec_file.c         |  10 +
+ arch/sh/kernel/machine_kexec.c                |   3 +
+ arch/sh/kernel/setup.c                        |   2 +-
+ arch/x86/Kconfig                              |   2 +-
+ .../asm/{crash_core.h => crash_reserve.h}     |   6 +-
+ arch/x86/kernel/Makefile                      |   6 +-
+ arch/x86/kernel/cpu/mshyperv.c                |   4 +
+ arch/x86/kernel/kexec-bzimage64.c             |   4 +
+ arch/x86/kernel/kvm.c                         |   4 +-
+ arch/x86/kernel/machine_kexec_64.c            |   3 +
+ arch/x86/kernel/reboot.c                      |   2 +-
+ arch/x86/kernel/setup.c                       |   2 +-
+ arch/x86/kernel/smp.c                         |   2 +-
+ .../{crash_core_32.c => vmcore_info_32.c}     |   2 +-
+ .../{crash_core_64.c => vmcore_info_64.c}     |   2 +-
+ arch/x86/xen/enlighten_hvm.c                  |   4 +
+ drivers/base/cpu.c                            |   6 +-
+ drivers/firmware/qemu_fw_cfg.c                |  14 +-
+ fs/proc/Kconfig                               |   2 +-
+ fs/proc/kcore.c                               |   2 +-
+ include/linux/buildid.h                       |   2 +-
+ include/linux/crash_core.h                    | 152 ++--
+ include/linux/crash_reserve.h                 |  48 ++
+ include/linux/kexec.h                         |  47 +-
+ include/linux/vmcore_info.h                   |  81 ++
+ init/initramfs.c                              |   2 +-
+ kernel/Kconfig.kexec                          |  12 +-
+ kernel/Makefile                               |   5 +-
+ kernel/crash_core.c                           | 762 +++++-------------
+ kernel/crash_reserve.c                        | 464 +++++++++++
+ kernel/{crash_dump.c => elfcorehdr.c}         |   0
+ kernel/kexec.c                                |  11 +-
+ kernel/kexec_core.c                           | 250 +-----
+ kernel/kexec_file.c                           |  13 +-
+ kernel/kexec_internal.h                       |   2 +
+ kernel/ksysfs.c                               |  10 +-
+ kernel/printk/printk.c                        |   4 +-
+ kernel/vmcore_info.c                          | 231 ++++++
+ lib/buildid.c                                 |   2 +-
+ 62 files changed, 1228 insertions(+), 1043 deletions(-)
+ rename arch/arm64/include/asm/{crash_core.h => crash_reserve.h} (81%)
+ rename arch/arm64/kernel/{crash_core.c => vmcore_info.c} (97%)
+ rename arch/riscv/include/asm/{crash_core.h => crash_reserve.h} (78%)
+ rename arch/riscv/kernel/{crash_core.c => vmcore_info.c} (96%)
+ rename arch/x86/include/asm/{crash_core.h => crash_reserve.h} (92%)
+ rename arch/x86/kernel/{crash_core_32.c => vmcore_info_32.c} (90%)
+ rename arch/x86/kernel/{crash_core_64.c => vmcore_info_64.c} (94%)
+ create mode 100644 include/linux/crash_reserve.h
+ create mode 100644 include/linux/vmcore_info.h
+ create mode 100644 kernel/crash_reserve.c
+ rename kernel/{crash_dump.c => elfcorehdr.c} (100%)
+ create mode 100644 kernel/vmcore_info.c
+
+-- 
+2.41.0
 
