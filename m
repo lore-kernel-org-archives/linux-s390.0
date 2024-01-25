@@ -1,197 +1,145 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34D21633E4;
-	Thu, 25 Jan 2024 15:11:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D9FD4F5EC;
+	Thu, 25 Jan 2024 15:26:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706195506; cv=none; b=lCHqtMjpgsRhsNA/k7CV8LExAFOtSUxZlsNitrNasEs8EZ1Hd4B2nVp5hUoqJaTK63f+TOCGriOmtcR/frl6+0vZvHwgz/Txh1L8T+Bf448F53He2dS+VH/7UIhCr3I98ZUF4B0YfRYKSc+9UlgTHUTP6RcTp4c/YlgneFoMI70=
+	t=1706196391; cv=none; b=UYECDZm0KJEG+d/iKittjZGeFkzFldnjna8WvDx4HWn5MBr612lLU9leFzfjmOPkAp1vc5aE4EMhM22NHNnbR7/+2S6eQ5IgZiaMHZ+kcKVKnhucE3+ABxVczUpoxQ3oECJeWRkQltQ8Pkgr9HnBnEivpFfYJ4wBf36DnaD+lGo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706195506; c=relaxed/simple;
-	bh=uz0ReOHmbzxEPeQAVl6vzCxgqVr3JzDwVr3EN+unCL4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ODKNK/3StvT+UnoX2m/X+NLD3J8dE6RD4AI1QMBLVP628XVPhO2OcBQTeY89J0WqrkB7EPKgp4p/WPE7hP11zwt2jwewTA2wNmqm9/N4WMct6HF3l/4wKmARqMLWINe0zPz7FKEmlGcnN1eeMBzxiFhisORgwYJqcPVsR5nDkXM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OEjfLpr6; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1706196391; c=relaxed/simple;
+	bh=kKJHwTZjVPIvLUahnyXdGBA6zUdviPYDck1gqUnhDCk=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=Wd1UEenaHl5Jdl3YMRrjDG1N4TLUJ3DYIMWLTJRjjhTc2qQcS4JCF+Jg4YpGxdjhyaZx8r94UHOKtdsOdprvUDcDyoMWjTM5ssaC9kFrkUvsV49zsQSgU97L3jBhRlXjuWCBEuM0dSDFETQ/+2kcx/llhuZwfVxBq1e98wag6a4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BiskYp0Q; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OEjfLpr6"
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40PFAAuo011247;
-	Thu, 25 Jan 2024 15:11:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=+EUdUzi1B+IxwX0tD04oKVdYdtfPhu4vJmoyrDJFBvA=;
- b=OEjfLpr6tWwfz8AhDx7wdttlAZLO5Ym8ELseU0OtJE/dbWMzjj73BUiQHFW1Gj2M58oJ
- lhJ9EcNRQYp8NGTsGgk8IblUd4tTW7lNx+nMlO33zUUrYNEGqmmgyP2+EpKGwrYtJzPE
- IHSxyVOeSai5Tf4f1m/2yPED7XIhqQUNYRz0VU1edYM/PNne6/lcP8vUAVTMg3ryhbfE
- 05Y1OZf9yMXrxXqEkLhWsJKog/GjSVgVkQshXCHcwPOjVg45ESbN9zSZlenHTX8Fc01j
- s7Ao4VmsFh822Hm9WKnA8jd1Mn9R1intnU5GF9gtWlbYz/c76dSQor27GeOICVMC+b68 Kw== 
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BiskYp0Q"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40PFOlYr007361;
+	Thu, 25 Jan 2024 15:26:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=WHSc3yPwnhvCd0JqWDdGNTNdMiGjojp3CArrvdSDsSM=;
+ b=BiskYp0Qglr+vooCK0aiSnkfWUmO5LKsc6E9tEiELGPRaXv0BzAjIN7aWm+JSoAj7yQO
+ px+mbcak8jLVUGj+1AVc4NYRaiZLLnfSIWF+9Puu6dHuX8TGwX9KcKMZsorTBvSiGueu
+ UwrEqglUn4mux307p7NpYyn1/0+Q5a2ViGg3fsY/BZxkF6IXaTNsnnXL7MJoW3UDbNNg
+ Z93mZLYs5F+0kaIKhm9imfKYDh4cTsqgG2Ns8fl7p27y4TZ2c5hsn+muISSugAMQmmbV
+ jLuIqjxP4v/BjvPi9IPyHzVTv7W8KTtUKYbISCXK4lU7X/atoLMbNLJ29LpNhAzonVD3 kA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vusxs0ajw-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vukuujc99-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 25 Jan 2024 15:11:42 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40PF3dPw013057;
-	Thu, 25 Jan 2024 15:11:41 GMT
+	Thu, 25 Jan 2024 15:26:27 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40PFQQ2u013544;
+	Thu, 25 Jan 2024 15:26:26 GMT
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vusxs0ajp-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vukuujc8r-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 25 Jan 2024 15:11:41 +0000
+	Thu, 25 Jan 2024 15:26:26 +0000
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40PE7NjT028254;
-	Thu, 25 Jan 2024 15:11:41 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vru72vkcu-1
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40PE7NoD028254;
+	Thu, 25 Jan 2024 15:26:25 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vru72vng2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 25 Jan 2024 15:11:40 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40PFBcbg39191080
+	Thu, 25 Jan 2024 15:26:25 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40PFQNi019530410
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 25 Jan 2024 15:11:38 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2C35720040;
-	Thu, 25 Jan 2024 15:11:38 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CCF3120049;
-	Thu, 25 Jan 2024 15:11:37 +0000 (GMT)
-Received: from li-1de7cd4c-3205-11b2-a85c-d27f97db1fe1.fritz.box (unknown [9.171.4.43])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 25 Jan 2024 15:11:37 +0000 (GMT)
-From: Marc Hartmayer <mhartmay@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
-        Eric Auger <eric.auger@redhat.com>
-Cc: <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>
-Subject: [kvm-unit-tests PATCH] (arm|powerpc|s390x): Makefile: add `%.aux.o` target
-Date: Thu, 25 Jan 2024 16:11:27 +0100
-Message-ID: <20240125151127.94798-1-mhartmay@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
+	Thu, 25 Jan 2024 15:26:23 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DF1002004E;
+	Thu, 25 Jan 2024 15:26:22 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9C77720043;
+	Thu, 25 Jan 2024 15:26:22 +0000 (GMT)
+Received: from [9.152.224.38] (unknown [9.152.224.38])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 25 Jan 2024 15:26:22 +0000 (GMT)
+Message-ID: <54f9622f-7e62-4089-91dc-df541f8f37f8@linux.ibm.com>
+Date: Thu, 25 Jan 2024 16:26:22 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net/smc: fix incorrect SMC-D link group matching
+ logic
+Content-Language: en-US
+To: Wen Gu <guwen@linux.alibaba.com>, mjrosato@linux.ibm.com,
+        wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc: alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20240125123916.77928-1-guwen@linux.alibaba.com>
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20240125123916.77928-1-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: P-NaMQmv7l-_SX-N2BAOssk_iWlxmhBo
+X-Proofpoint-GUID: KeDWvOgbQQhBo5Sfj83dArfJiAIclZhO
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Rm6oKP2C-o_zB6U6QhQ1v7jEUWkLcuHw
-X-Proofpoint-GUID: ICIc8QU-0AwRQlIybdK_CFNrsz1UXXP2
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-25_08,2024-01-25_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- spamscore=0 malwarescore=0 bulkscore=0 phishscore=0 mlxlogscore=999
- mlxscore=0 clxscore=1011 impostorscore=0 priorityscore=1501 adultscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401250106
+ definitions=2024-01-25_09,2024-01-25_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 mlxscore=0
+ mlxlogscore=999 impostorscore=0 malwarescore=0 adultscore=0 phishscore=0
+ bulkscore=0 spamscore=0 lowpriorityscore=0 priorityscore=1501
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2401250108
 
-It's unusual to create multiple files in one target rule, therefore create an
-extra target for `%.aux.o` and list it as prerequisite. As a side effect, this
-change fixes the dependency tracking of the prerequisites of
-`.aux.o` (`lib/auxinfo.c` was missing).
 
-Signed-off-by: Marc Hartmayer <mhartmay@linux.ibm.com>
----
- arm/Makefile.common     | 23 ++++++++++++-----------
- powerpc/Makefile.common | 10 +++++-----
- s390x/Makefile          |  9 +++++----
- 3 files changed, 22 insertions(+), 20 deletions(-)
 
-diff --git a/arm/Makefile.common b/arm/Makefile.common
-index 5214c8acdab3..54cb4a63ab64 100644
---- a/arm/Makefile.common
-+++ b/arm/Makefile.common
-@@ -70,14 +70,14 @@ eabiobjs = lib/arm/eabi_compat.o
- FLATLIBS = $(libcflat) $(LIBFDT_archive) $(libeabi)
- 
- ifeq ($(CONFIG_EFI),y)
-+%.aux.o: $(SRCDIR)/lib/auxinfo.c
-+	$(CC) $(CFLAGS) -c -o $@ $^ \
-+		-DPROGNAME=\"$(@:.aux.o=.efi)\" -DAUXFLAGS=$(AUXFLAGS)
-+
- %.so: EFI_LDFLAGS += -defsym=EFI_SUBSYSTEM=0xa --no-undefined
--%.so: %.o $(FLATLIBS) $(SRCDIR)/arm/efi/elf_aarch64_efi.lds $(cstart.o)
--	$(CC) $(CFLAGS) -c -o $(@:.so=.aux.o) $(SRCDIR)/lib/auxinfo.c \
--		-DPROGNAME=\"$(@:.so=.efi)\" -DAUXFLAGS=$(AUXFLAGS)
-+%.so: %.o $(FLATLIBS) $(SRCDIR)/arm/efi/elf_aarch64_efi.lds $(cstart.o) %.aux.o
- 	$(LD) $(EFI_LDFLAGS) -o $@ -T $(SRCDIR)/arm/efi/elf_aarch64_efi.lds \
--		$(filter %.o, $^) $(FLATLIBS) $(@:.so=.aux.o) \
--		$(EFI_LIBS)
--	$(RM) $(@:.so=.aux.o)
-+		$(filter %.o, $^) $(FLATLIBS) $(EFI_LIBS)
- 
- %.efi: %.so
- 	$(call arch_elf_check, $^)
-@@ -90,13 +90,14 @@ ifeq ($(CONFIG_EFI),y)
- 		-j .reloc \
- 		-O binary $^ $@
- else
-+%.aux.o: $(SRCDIR)/lib/auxinfo.c
-+	$(CC) $(CFLAGS) -c -o $@ $^ \
-+		-DPROGNAME=\"$(@:.aux.o=.flat)\" -DAUXFLAGS=$(AUXFLAGS)
-+
- %.elf: LDFLAGS += $(arch_LDFLAGS)
--%.elf: %.o $(FLATLIBS) $(SRCDIR)/arm/flat.lds $(cstart.o)
--	$(CC) $(CFLAGS) -c -o $(@:.elf=.aux.o) $(SRCDIR)/lib/auxinfo.c \
--		-DPROGNAME=\"$(@:.elf=.flat)\" -DAUXFLAGS=$(AUXFLAGS)
-+%.elf: %.o $(FLATLIBS) $(SRCDIR)/arm/flat.lds $(cstart.o) %.aux.o
- 	$(LD) $(LDFLAGS) -o $@ -T $(SRCDIR)/arm/flat.lds \
--		$(filter %.o, $^) $(FLATLIBS) $(@:.elf=.aux.o)
--	$(RM) $(@:.elf=.aux.o)
-+		$(filter %.o, $^) $(FLATLIBS)
- 	@chmod a-x $@
- 
- %.flat: %.elf
-diff --git a/powerpc/Makefile.common b/powerpc/Makefile.common
-index f8f474908b06..483ff64829a7 100644
---- a/powerpc/Makefile.common
-+++ b/powerpc/Makefile.common
-@@ -47,16 +47,16 @@ cflatobjs += lib/powerpc/smp.o
- 
- OBJDIRS += lib/powerpc
- 
-+%.aux.o: $(SRCDIR)/lib/auxinfo.c
-+	$(CC) $(CFLAGS) -c -o $@ $^ -DPROGNAME=\"$(@:.aux.o=.elf)\"
-+
- FLATLIBS = $(libcflat) $(LIBFDT_archive)
- %.elf: CFLAGS += $(arch_CFLAGS)
- %.elf: LDFLAGS += $(arch_LDFLAGS) -pie -n
--%.elf: %.o $(FLATLIBS) $(SRCDIR)/powerpc/flat.lds $(cstart.o) $(reloc.o)
--	$(CC) $(CFLAGS) -c -o $(@:.elf=.aux.o) $(SRCDIR)/lib/auxinfo.c \
--		-DPROGNAME=\"$@\"
-+%.elf: %.o $(FLATLIBS) $(SRCDIR)/powerpc/flat.lds $(cstart.o) $(reloc.o) %.aux.o
- 	$(LD) $(LDFLAGS) -o $@ \
- 		-T $(SRCDIR)/powerpc/flat.lds --build-id=none \
--		$(filter %.o, $^) $(FLATLIBS) $(@:.elf=.aux.o)
--	$(RM) $(@:.elf=.aux.o)
-+		$(filter %.o, $^) $(FLATLIBS)
- 	@chmod a-x $@
- 	@echo -n Checking $@ for unsupported reloc types...
- 	@if $(OBJDUMP) -R $@ | grep R_ | grep -v R_PPC64_RELATIVE; then	\
-diff --git a/s390x/Makefile b/s390x/Makefile
-index f79fd0098312..e64521e002ce 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -176,13 +176,14 @@ lds-autodepend-flags = -MMD -MF $(dir $*).$(notdir $*).d -MT $@
- %.lds: %.lds.S $(asm-offsets)
- 	$(CPP) $(lds-autodepend-flags) $(CPPFLAGS) -P -C -o $@ $<
- 
-+%.aux.o: $(SRCDIR)/lib/auxinfo.c
-+	$(CC) $(CFLAGS) -c -o $@ $^ -DPROGNAME=\"$(@:.aux.o=.elf)\"
-+
- .SECONDEXPANSION:
--%.elf: $(FLATLIBS) $(asmlib) $(SRCDIR)/s390x/flat.lds $$(snippets-obj) $$(snippet-hdr-obj) %.o
--	$(CC) $(CFLAGS) -c -o $(@:.elf=.aux.o) $(SRCDIR)/lib/auxinfo.c -DPROGNAME=\"$@\"
-+%.elf: $(FLATLIBS) $(asmlib) $(SRCDIR)/s390x/flat.lds $$(snippets-obj) $$(snippet-hdr-obj) %.o %.aux.o
- 	@$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/flat.lds \
--		$(filter %.o, $^) $(FLATLIBS) $(snippets-obj) $(snippet-hdr-obj) $(@:.elf=.aux.o) || \
-+		$(filter %.o, $^) $(FLATLIBS) $(snippets-obj) $(snippet-hdr-obj) || \
- 		{ echo "Failure probably caused by missing definition of gen-se-header executable"; exit 1; }
--	$(RM) $(@:.elf=.aux.o)
- 	@chmod a-x $@
- 
- # Secure Execution Customer Communication Key file
--- 
-2.34.1
+On 25.01.24 13:39, Wen Gu wrote:
+> The logic to determine if SMC-D link group matches is incorrect. The
+> correct logic should be that it only returns true when the GID is the
+> same, and the SMC-D device is the same and the extended GID is the same
+> (in the case of virtual ISM).
+> 
+> It can be fixed by adding brackets around the conditional (or ternary)
+> operator expression. But for better readability and maintainability, it
+> has been changed to an if-else statement.
+> 
+> Reported-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> Closes: https://lore.kernel.org/r/13579588-eb9d-4626-a063-c0b77ed80f11@linux.ibm.com
+> Fixes: b40584d14570 ("net/smc: compatible with 128-bits extended GID of virtual ISM device")
+> Link: https://lore.kernel.org/r/13579588-eb9d-4626-a063-c0b77ed80f11@linux.ibm.com
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> ---
+>  net/smc/smc_core.c | 12 +++++++++---
+>  1 file changed, 9 insertions(+), 3 deletions(-)
+> 
+> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> index 95cc95458e2d..e4c858411207 100644
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
+> @@ -1877,9 +1877,15 @@ static bool smcd_lgr_match(struct smc_link_group *lgr,
+>  			   struct smcd_dev *smcismdev,
+>  			   struct smcd_gid *peer_gid)
+>  {
+> -	return lgr->peer_gid.gid == peer_gid->gid && lgr->smcd == smcismdev &&
+> -		smc_ism_is_virtual(smcismdev) ?
+> -		(lgr->peer_gid.gid_ext == peer_gid->gid_ext) : 1;
+> +	if (lgr->peer_gid.gid != peer_gid->gid ||
+> +	    lgr->smcd != smcismdev)
+> +		return false;
+> +
+> +	if (smc_ism_is_virtual(smcismdev) &&
+> +	    lgr->peer_gid.gid_ext != peer_gid->gid_ext)
+> +		return false;
+> +
+> +	return true;
+>  }
+>  
+>  /* create a new SMC connection (and a new link group if necessary) */
 
+Thank you Wen Gu
+
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
