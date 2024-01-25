@@ -1,161 +1,75 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A051717753;
-	Thu, 25 Jan 2024 08:30:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AB691B94B;
+	Thu, 25 Jan 2024 08:45:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706171415; cv=none; b=eVCZlTVO3cGg4hxpktIdrGqygsw8xQLj9zWCB8dRkmBMc2FMyCWdAPesS8ZZ78fmrc/V2MEA2aGwNOdo3J7xXv7yOcsulCa2eYoh78tz3uT3aO0B7gJztzEQz6ju38BcllYQGvWxZ62xoa0/YbVutiZaHBbGj9FjwLQIt3nEqNo=
+	t=1706172318; cv=none; b=RAriFCyHrPp8tF7Xy5phOCRFwp0WNFRGOhzPDgVO/6b+IwP8MNttclmXyPVTOgr9/RGiemBTAw5criUfKm8auK4IXQcq1cWliyWP0WMhXVZRs96c1syusB+C/mlSs+G9u5XAxel4C+pj4d5m+7vvxrJMCkQn0JnSNhZFoq3mlDw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706171415; c=relaxed/simple;
-	bh=3XBWo2N7vPeYYFH5hJHHJ4R4cDBYgvyARsugBQmHXL4=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=ak7Ag7TCsVNgioU/Q7C3smx3VIn3Ab3rOgE2k+CzFchRHuMohEmf6fhv3jw4LyBaIzToK8rTETZGLGbl+wEVwVLOzVGN/lPBnJZ5JWF3ZLADWoP5A+tCsAs4yfBNuLalIrs1ltsNExnR8AtqlXjEK7qR8LWf4LZLxG1oJKkKtKc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dSXT5p3h; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1706172318; c=relaxed/simple;
+	bh=8/N8nHgaQvKTBhfxwCmzbJX3QzXCprpMyk/c3leHg08=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=g7eHy4Vf7oRZlVpJ26P4QBLxov/Qhq8w2IOdc4agdmbM/Z1p5vtg0TqTTt+o1AeMTH0bU3ikXESB0rdv86qyf0q+s1OY3eAhR9QsuTn/fFL+Pggexe8BOkEe6YTAyZx7Be+tLR/foLH9awfPuv9Pk3GFvp+ayyYR+4Ng4Q96ixU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=RTux1+pR; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Pt+4Up3Z; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dSXT5p3h"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40P7Ws7f020363;
-	Thu, 25 Jan 2024 08:30:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=jSTDG7pZUdM5R9gkBMPp9G3Ps4anJqutG/WR/2lOnuY=;
- b=dSXT5p3hpWogxlGVlcqhXejmTsB0A8TpuQr7Sc3QwCyPtqesJcJJe9ssK0KkYR1JwyA2
- l4MqVV9WxUYB/Lc0Yu6NU/njqocM9+XwRWg7kkrHl9IZ5MpaV4Uh/YAN6XM+5csSfKUz
- vnf3jJUEkoTBPAxHyEfPugyuAWYy8GHnpSYLqiF3uugJoZoQU/YqUVNKRmmYTESQXnuU
- 85LZnHcPtes4vCicYTM/EXRLMFOkuNik/AUPqGR9xzAXnfg4bBbi6cIMl4LXof+i0FA3
- DBsm0UPnU2c5Xja7UCIy0L1YHkTr5p4wPzDvo22HDuD1fNBqj63/boaFSZgRCl3Dh4Im DA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vukbj18ef-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 25 Jan 2024 08:30:07 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40P85cuv022522;
-	Thu, 25 Jan 2024 08:30:06 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vukbj183q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 25 Jan 2024 08:30:06 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40P527pn010854;
-	Thu, 25 Jan 2024 08:27:03 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vrrw03c88-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 25 Jan 2024 08:27:03 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40P8R0G556754506
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 25 Jan 2024 08:27:00 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8897220043;
-	Thu, 25 Jan 2024 08:27:00 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0F95F20040;
-	Thu, 25 Jan 2024 08:27:00 +0000 (GMT)
-Received: from [9.152.224.38] (unknown [9.152.224.38])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 25 Jan 2024 08:27:00 +0000 (GMT)
-Message-ID: <8090bb34-1b70-43ea-ae13-df5d9a5eb761@linux.ibm.com>
-Date: Thu, 25 Jan 2024 09:26:59 +0100
-User-Agent: Mozilla Thunderbird
-Subject: Re: [REGRESSION] v6.8 SMC-D issues
-To: Wen Gu <guwen@linux.alibaba.com>, wenjia@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        jaka@linux.ibm.com, Matthew Rosato <mjrosato@linux.ibm.com>
-Cc: Linux regressions mailing list <regressions@lists.linux.dev>,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
-        raspl@linux.ibm.com, schnelle@linux.ibm.com,
-        guangguan.wang@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Halil Pasic <pasic@linux.ibm.com>
-References: <20231219142616.80697-1-guwen@linux.alibaba.com>
- <20231219142616.80697-8-guwen@linux.alibaba.com>
- <13579588-eb9d-4626-a063-c0b77ed80f11@linux.ibm.com>
- <530afe45-ba6b-4970-a71c-1f1255f5fca9@linux.alibaba.com>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <530afe45-ba6b-4970-a71c-1f1255f5fca9@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: hL-eyvXh5IfeJnQxS3WvRFG4GCoUuQvl
-X-Proofpoint-GUID: d9-pXlaTopAnnCB5pTPeUJJRJKxMjHfa
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="RTux1+pR";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Pt+4Up3Z"
+From: Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1706172309;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=8/N8nHgaQvKTBhfxwCmzbJX3QzXCprpMyk/c3leHg08=;
+	b=RTux1+pRR18Wian+HDI6adTZ/YAeMMLdG1s7PChn0t52OXX4/qt1+s6W+rlN5lGv8l1mAm
+	uDImkHQhEwoMUSu27Qysj0N35xLmWQnLiminAaNU+kFEJYGBYkGERzGS8keWE2sIdnnhGL
+	ReSi69T5FCAck/QCeHqxcqRVqPBTJ+Ux0ZYOh6zw4q7L2J0gnFRg7lq+4ZQBLOWReboZ6T
+	Fhr2dClqzHYA1P28jSMsbKJ7gVOntd5+GRm1fM0KvmNsMB3Be69/s0XNhIIy2r9Lv8nhS1
+	K1IBGeJjkL/2y3s9NDfUupCpnv4CD1RPMvwhccE6mGIZ8mQ4/MAyUpVYf5tv9Q==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1706172309;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=8/N8nHgaQvKTBhfxwCmzbJX3QzXCprpMyk/c3leHg08=;
+	b=Pt+4Up3ZcUmLAxp2euhrRzuCu/V0OYU0xtyo6emPV1pORKWrqQqO7cbfKlPUiwy7H4DMKK
+	UGaqX01fpuOb+RCQ==
+To: Frederic Weisbecker <frederic@kernel.org>
+Cc: Tim Chen <tim.c.chen@linux.intel.com>, Heiko Carstens
+ <hca@linux.ibm.com>, Ingo Molnar <mingo@kernel.org>, Gerald Schaefer
+ <gerald.schaefer@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH] tick-sched: Preserve number of idle sleeps across CPU
+ hotplug events
+In-Reply-To: <ZbFvDbFm1_EfajFf@pavilion.home>
+References: <20240122233534.3094238-1-tim.c.chen@linux.intel.com>
+ <87v87ijzqj.ffs@tglx> <ZbFvDbFm1_EfajFf@pavilion.home>
+Date: Thu, 25 Jan 2024 09:45:09 +0100
+Message-ID: <87jznxkdii.ffs@tglx>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-25_04,2024-01-24_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
- spamscore=0 lowpriorityscore=0 mlxscore=0 malwarescore=0 phishscore=0
- impostorscore=0 clxscore=1015 priorityscore=1501 mlxlogscore=999
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401250057
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
+On Wed, Jan 24 2024 at 21:11, Frederic Weisbecker wrote:
 
+> Le Wed, Jan 24, 2024 at 08:30:28PM +0100, Thomas Gleixner a =C3=A9crit :
+>> On Mon, Jan 22 2024 at 15:35, Tim Chen wrote:
+>>=20
+>> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commi=
+t/?id=3D71fee48fb772ac4f6cfa63dbebc5629de8b4cc09
+>>=20
+>
+> It's a different patch :-)
 
-On 25.01.24 05:59, Wen Gu wrote:
-> After a while debug I found an elementary mistake of mine in
-> b40584d ("net/smc: compatible with 128-bits extended GID of virtual ISM device")..
-> 
-> The operator order in smcd_lgr_match() is not as expected. It will always return
-> 'true' in remote-system case.
-> 
->  static bool smcd_lgr_match(struct smc_link_group *lgr,
-> -                          struct smcd_dev *smcismdev, u64 peer_gid)
-> +                          struct smcd_dev *smcismdev,
-> +                          struct smcd_gid *peer_gid)
->  {
-> -       return lgr->peer_gid == peer_gid && lgr->smcd == smcismdev;
-> +       return lgr->peer_gid.gid == peer_gid->gid && lgr->smcd == smcismdev &&
-> +               smc_ism_is_virtual(smcismdev) ?
-> +               (lgr->peer_gid.gid_ext == peer_gid->gid_ext) : 1;
->  }
-> 
-> Could you please try again with this patch? to see if this is the root cause.
-> Really sorry for the inconvenience.
-> 
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index da6a8d9c81ea..c6a6ba56c9e3 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -1896,8 +1896,8 @@ static bool smcd_lgr_match(struct smc_link_group *lgr,
->                            struct smcd_gid *peer_gid)
->  {
->         return lgr->peer_gid.gid == peer_gid->gid && lgr->smcd == smcismdev &&
-> -               smc_ism_is_virtual(smcismdev) ?
-> -               (lgr->peer_gid.gid_ext == peer_gid->gid_ext) : 1;
-> +               (smc_ism_is_virtual(smcismdev) ?
-> +                (lgr->peer_gid.gid_ext == peer_gid->gid_ext) : 1);
->  }
-> 
-> 
-> Thanks,
-> Wen Gu
-
-Hello Wen Gu,
-
-thank you for the quick resposne and for finding this nasty bug.
-I can confirm that with your patch I do not see the issue anymore.
-Please send a fix to the mailing lists. See
-https://docs.kernel.org/process/handling-regressions.html
-for some tips.
-
-May I propose that instead of adding the brackets, you change this function 
-to an if-then-else sequence for readability and maintainability?
-I would still mention the missing brackets in the commit message, so
-readers can quickly understand the issue.
-
-Thanks again for the quick response.
-Sandy
-
+I clearly can't read ....
