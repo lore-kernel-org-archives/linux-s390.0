@@ -1,211 +1,144 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2676B1BC2F
-	for <linux-s390@vger.kernel.org>; Thu, 25 Jan 2024 09:17:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 262B31BF27;
+	Thu, 25 Jan 2024 09:28:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706174253; cv=none; b=R7wD29JygWKw3eM0ARow7htIaNv80rce8OzIFARhHRPiKWvR45KwARlyntfcY21uX0AVZsCSlOr9zsYolm3D7Ty/8ZU1HySp+ZUrLrexZYvwTXdPcICLwYLOHTRc811uxuAobJh7LTxJb7AutqeyydKt3yXWEMG/IMoaJ9xXmMM=
+	t=1706174936; cv=none; b=Zf1Akv7mbTTGODF5U1IdeCRtP0qqVDWoVWvnRTJBI4EuI/I2rcuIjiERYfQqq6f70JOh6LRuFIBg0pASGeMfuJE3kNDpuCaFLXdmGo4w0A0HX/VROcGoUkRVc/iuZwmxJftYgIEFr6vaUVJ7edn3kkx7wqftjZ6uDqtO9tSmYqA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706174253; c=relaxed/simple;
-	bh=xBev3JryyN47Pl/Pc20cbKv5U3bSF+BrsMyO8ggWTp4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DgpUWnc1c2f4kJ4nIUIlI8MeKGzUOS+KhuAjIEDUxpVKybH1t2qNxEBPq5ZaI8w6pwmkYv3iGDODXHaytivGk6dDJ0SXGgIGrfxES+4zUxzG0Bm6LQJlAIUXsym6R3Y6Oj4fUZw8NZZkUaHoDmFuHvJJaEU9y0CX0ZU0g87O0Q4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=h2HZOhfq; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="h2HZOhfq"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706174251;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SDoUkylaVEDmZz6nqfW3ZjNKRZGYGdls3feFdR//5ps=;
-	b=h2HZOhfq/WmpqmE2ShsSUG/3Ss8WNbF2/emJOtZHUZjP94vAyaeDrgRixKF8zO9gDpQUKB
-	YWIgJXVKB0K6hLZmaUTdzOmpGm0qXLnkl7gN+f12ff02p9xqcWZdty4l7CjF4tUKPOJxP4
-	NA+E3xXPzeh10CrQGj5Cg1p7yZvpKpo=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-636-iCprDXE0NJaMkShWq3Qs8Q-1; Thu, 25 Jan 2024 04:17:26 -0500
-X-MC-Unique: iCprDXE0NJaMkShWq3Qs8Q-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 701931013682;
-	Thu, 25 Jan 2024 09:17:25 +0000 (UTC)
-Received: from localhost (unknown [10.72.116.117])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 8814F1C060AF;
-	Thu, 25 Jan 2024 09:17:24 +0000 (UTC)
-Date: Thu, 25 Jan 2024 17:17:21 +0800
-From: Baoquan He <bhe@redhat.com>
-To: Michael Kelley <mhklinux@outlook.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"kexec@lists.infradead.org" <kexec@lists.infradead.org>,
-	"x86@kernel.org" <x86@kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-	"linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
-	"linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-	"linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
-	"akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-	"ebiederm@xmission.com" <ebiederm@xmission.com>,
-	"hbathini@linux.ibm.com" <hbathini@linux.ibm.com>,
-	"piliu@redhat.com" <piliu@redhat.com>,
-	"viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>
-Subject: Re: [PATCH linux-next v3 06/14] x86, crash: wrap crash dumping code
- into crash related ifdefs
-Message-ID: <ZbInIQeIoPj6R0kY@MiWiFi-R3L-srv>
-References: <20240124051254.67105-1-bhe@redhat.com>
- <20240124051254.67105-7-bhe@redhat.com>
- <SN6PR02MB4157931105FA68D72E3D3DB8D47B2@SN6PR02MB4157.namprd02.prod.outlook.com>
- <ZbHfACpwqi2U9vmK@MiWiFi-R3L-srv>
- <SN6PR02MB4157E138C7EE4A281AB49C10D47A2@SN6PR02MB4157.namprd02.prod.outlook.com>
+	s=arc-20240116; t=1706174936; c=relaxed/simple;
+	bh=4oi/mDvJ66W3EHJcJkd6l/BObOrE9wC8bVqVRycPZXw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Vd0aQ9L3dDL95q88bABdBJfvQp6407F3UedP2glwDYuwTQkYPG51WOmkMI+2pQOp6a9ulvOHB6IsTY7okbeaHUuiCpC8NuPI5wGfDFpcqZ2AP9FHWcc+w/LHqwzqCe21RFnalBDzLp+55HwEZdZ/lgg+Rg5HXSWd28p2ZnXx7AY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; arc=none smtp.client-ip=115.124.30.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=23;SR=0;TI=SMTPD_---0W.JurKr_1706174923;
+Received: from 30.221.129.223(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W.JurKr_1706174923)
+          by smtp.aliyun-inc.com;
+          Thu, 25 Jan 2024 17:28:44 +0800
+Message-ID: <d93bdf89-d724-4f2a-a3fc-f3a46e54202c@linux.alibaba.com>
+Date: Thu, 25 Jan 2024 17:28:43 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <SN6PR02MB4157E138C7EE4A281AB49C10D47A2@SN6PR02MB4157.namprd02.prod.outlook.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
+User-Agent: Mozilla Thunderbird
+Subject: Re: [REGRESSION] v6.8 SMC-D issues
+To: Alexandra Winter <wintera@linux.ibm.com>, wenjia@linux.ibm.com,
+ hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, jaka@linux.ibm.com,
+ Matthew Rosato <mjrosato@linux.ibm.com>
+Cc: Linux regressions mailing list <regressions@lists.linux.dev>,
+ borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+ tonylu@linux.alibaba.com, raspl@linux.ibm.com, schnelle@linux.ibm.com,
+ guangguan.wang@linux.alibaba.com, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Halil Pasic <pasic@linux.ibm.com>
+References: <20231219142616.80697-1-guwen@linux.alibaba.com>
+ <20231219142616.80697-8-guwen@linux.alibaba.com>
+ <13579588-eb9d-4626-a063-c0b77ed80f11@linux.ibm.com>
+ <530afe45-ba6b-4970-a71c-1f1255f5fca9@linux.alibaba.com>
+ <8090bb34-1b70-43ea-ae13-df5d9a5eb761@linux.ibm.com>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <8090bb34-1b70-43ea-ae13-df5d9a5eb761@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On 01/25/24 at 05:12am, Michael Kelley wrote:
-> From: Baoquan He <bhe@redhat.com> Sent: Wednesday, January 24, 2024 8:10 PM
-> > 
-> > On 01/24/24 at 11:02pm, Michael Kelley wrote:
-> > > > diff --git a/arch/x86/kernel/cpu/mshyperv.c
-> > > > b/arch/x86/kernel/cpu/mshyperv.c
-> > > > index 01fa06dd06b6..f8163a59026b 100644
-> > > > --- a/arch/x86/kernel/cpu/mshyperv.c
-> > > > +++ b/arch/x86/kernel/cpu/mshyperv.c
-> > > > @@ -210,6 +210,7 @@ static void hv_machine_shutdown(void)
-> > > >  		hyperv_cleanup();
-> > > >  }
-> > > >
-> > > > +#ifdef CONFIG_CRASH_DUMP
-> > > >  static void hv_machine_crash_shutdown(struct pt_regs *regs)
-> > > >  {
-> > > >  	if (hv_crash_handler)
-> > > > @@ -221,6 +222,7 @@ static void hv_machine_crash_shutdown(struct pt_regs *regs)
-> > > >  	/* Disable the hypercall page when there is only 1 active CPU. */
-> > > >  	hyperv_cleanup();
-> > > >  }
-> > > > +#endif
-> > > >  #endif /* CONFIG_KEXEC_CORE */
-> > >
-> > > Note that the #ifdef CONFIG_CRASH_DUMP is nested inside
-> > > #ifdef CONFIG_KEXEC_CODE here, and in the other Hyper-V code
-> > > just below.   It's also nested in xen_hvm_guest_init() at the bottom
-> > > of this patch.  But the KVM case of setting crash_shutdown is
-> > > not nested -- you changed #ifdef CONFIG_KEXEC_CORE to #ifdef
-> > > CONFIG_CRASH_DUMP.
-> > >
-> > > I think both approaches work because CONFIG_CRASH_DUMP implies
-> > > CONFIG_KEXEC_CORE, but I wonder if it would be better to *not* nest
-> > > in all cases.  I'd like to see the cases be consistent so in the future
-> > > someone doesn't wonder why there's a difference (unless there's
-> > > a reason for the difference that I missed).
-> > 
-> > I agree with you, it's a great suggestion. Thanks.
-> > 
-> > Do you think below draft patch includes all changes you are concerned
-> > about?
+
+
+On 2024/1/25 16:26, Alexandra Winter wrote:
 > 
-> Yes, these changes look good as a delta to your original patch.
 > 
-> But also look at xen_hvm_guest_init().  It looks like your original patch
-> does nesting there as well, and it could probably be "un-nested".
+> On 25.01.24 05:59, Wen Gu wrote:
+>> After a while debug I found an elementary mistake of mine in
+>> b40584d ("net/smc: compatible with 128-bits extended GID of virtual ISM device")..
+>>
+>> The operator order in smcd_lgr_match() is not as expected. It will always return
+>> 'true' in remote-system case.
+>>
+>>   static bool smcd_lgr_match(struct smc_link_group *lgr,
+>> -                          struct smcd_dev *smcismdev, u64 peer_gid)
+>> +                          struct smcd_dev *smcismdev,
+>> +                          struct smcd_gid *peer_gid)
+>>   {
+>> -       return lgr->peer_gid == peer_gid && lgr->smcd == smcismdev;
+>> +       return lgr->peer_gid.gid == peer_gid->gid && lgr->smcd == smcismdev &&
+>> +               smc_ism_is_virtual(smcismdev) ?
+>> +               (lgr->peer_gid.gid_ext == peer_gid->gid_ext) : 1;
+>>   }
+>>
+>> Could you please try again with this patch? to see if this is the root cause.
+>> Really sorry for the inconvenience.
+>>
+>> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+>> index da6a8d9c81ea..c6a6ba56c9e3 100644
+>> --- a/net/smc/smc_core.c
+>> +++ b/net/smc/smc_core.c
+>> @@ -1896,8 +1896,8 @@ static bool smcd_lgr_match(struct smc_link_group *lgr,
+>>                             struct smcd_gid *peer_gid)
+>>   {
+>>          return lgr->peer_gid.gid == peer_gid->gid && lgr->smcd == smcismdev &&
+>> -               smc_ism_is_virtual(smcismdev) ?
+>> -               (lgr->peer_gid.gid_ext == peer_gid->gid_ext) : 1;
+>> +               (smc_ism_is_virtual(smcismdev) ?
+>> +                (lgr->peer_gid.gid_ext == peer_gid->gid_ext) : 1);
+>>   }
+>>
+>>
+>> Thanks,
+>> Wen Gu
+> 
+> Hello Wen Gu,
+> 
+> thank you for the quick resposne and for finding this nasty bug.
+> I can confirm that with your patch I do not see the issue anymore.
 
-Right. I checked them all in arch/x86 this time, hope nothing is missed
-again. I can post a v4 to update this x86 patch later if no other
-concern. Thanks.
+Thank you very much for your confirmation, Alexandra.
 
-diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
-index f8163a59026b..2e8cd5a4ae85 100644
---- a/arch/x86/kernel/cpu/mshyperv.c
-+++ b/arch/x86/kernel/cpu/mshyperv.c
-@@ -209,6 +209,7 @@ static void hv_machine_shutdown(void)
- 	if (kexec_in_progress)
- 		hyperv_cleanup();
- }
-+#endif /* CONFIG_KEXEC_CORE */
- 
- #ifdef CONFIG_CRASH_DUMP
- static void hv_machine_crash_shutdown(struct pt_regs *regs)
-@@ -222,8 +223,7 @@ static void hv_machine_crash_shutdown(struct pt_regs *regs)
- 	/* Disable the hypercall page when there is only 1 active CPU. */
- 	hyperv_cleanup();
- }
--#endif
--#endif /* CONFIG_KEXEC_CORE */
-+#endif /* CONFIG_CRASH_DUMP */
- #endif /* CONFIG_HYPERV */
- 
- static uint32_t  __init ms_hyperv_platform(void)
-@@ -497,9 +497,11 @@ static void __init ms_hyperv_init_platform(void)
- 	no_timer_check = 1;
- #endif
- 
--#if IS_ENABLED(CONFIG_HYPERV) && defined(CONFIG_KEXEC_CORE)
-+#if IS_ENABLED(CONFIG_HYPERV)
-+#if defined(CONFIG_KEXEC_CORE)
- 	machine_ops.shutdown = hv_machine_shutdown;
--#ifdef CONFIG_CRASH_DUMP
-+#endif
-+#if defined(CONFIG_CRASH_DUMP)
- 	machine_ops.crash_shutdown = hv_machine_crash_shutdown;
- #endif
- #endif
-diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
-index 1287b0d5962f..f3130f762784 100644
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -826,7 +826,7 @@ void machine_halt(void)
- 	machine_ops.halt();
- }
- 
--#ifdef CONFIG_KEXEC_CORE
-+#ifdef CONFIG_CRASH_DUMP
- void machine_crash_shutdown(struct pt_regs *regs)
- {
- 	machine_ops.crash_shutdown(regs);
-diff --git a/arch/x86/xen/enlighten_hvm.c b/arch/x86/xen/enlighten_hvm.c
-index 09e3db7ff990..0b367c1e086d 100644
---- a/arch/x86/xen/enlighten_hvm.c
-+++ b/arch/x86/xen/enlighten_hvm.c
-@@ -148,6 +148,7 @@ static void xen_hvm_shutdown(void)
- 	if (kexec_in_progress)
- 		xen_reboot(SHUTDOWN_soft_reset);
- }
-+#endif
- 
- #ifdef CONFIG_CRASH_DUMP
- static void xen_hvm_crash_shutdown(struct pt_regs *regs)
-@@ -156,7 +157,6 @@ static void xen_hvm_crash_shutdown(struct pt_regs *regs)
- 	xen_reboot(SHUTDOWN_soft_reset);
- }
- #endif
--#endif
- 
- static int xen_cpu_up_prepare_hvm(unsigned int cpu)
- {
-@@ -238,10 +238,10 @@ static void __init xen_hvm_guest_init(void)
- 
- #ifdef CONFIG_KEXEC_CORE
- 	machine_ops.shutdown = xen_hvm_shutdown;
-+#endif
- #ifdef CONFIG_CRASH_DUMP
- 	machine_ops.crash_shutdown = xen_hvm_crash_shutdown;
- #endif
--#endif
- }
- 
- static __init int xen_parse_nopv(char *arg)
+> Please send a fix to the mailing lists. See
+> https://docs.kernel.org/process/handling-regressions.html
+> for some tips.
+> 
 
+Thank you. Will do.
+
+> May I propose that instead of adding the brackets, you change this function
+> to an if-then-else sequence for readability and maintainability?
+> I would still mention the missing brackets in the commit message, so
+> readers can quickly understand the issue.
+
+I agree. if-then-else will make it clearer. I will fix it like this:
+
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index da6a8d9c81ea..1d5bce82d4d8 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1895,9 +1895,15 @@ static bool smcd_lgr_match(struct smc_link_group *lgr,
+                            struct smcd_dev *smcismdev,
+                            struct smcd_gid *peer_gid)
+  {
+-       return lgr->peer_gid.gid == peer_gid->gid && lgr->smcd == smcismdev &&
+-               smc_ism_is_virtual(smcismdev) ?
+-               (lgr->peer_gid.gid_ext == peer_gid->gid_ext) : 1;
++       if (lgr->peer_gid.gid != peer_gid->gid ||
++           lgr->smcd != smcismdev)
++               return false;
++
++       if (smc_ism_is_virtual(smcismdev) &&
++           lgr->peer_gid.gid_ext != peer_gid->gid_ext)
++               return false;
++
++       return true;
+  }
+
+Thanks again,
+Wen Gu
+
+> 
+> Thanks again for the quick response.
+> Sandy
