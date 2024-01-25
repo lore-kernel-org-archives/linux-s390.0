@@ -1,274 +1,228 @@
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11olkn2010.outbound.protection.outlook.com [40.92.20.10])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58D287316F;
-	Thu, 25 Jan 2024 15:30:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.92.20.10
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706196651; cv=fail; b=crYNtBggKN/bItq8MJHdKuND6vBs8rmIgThpQp3fb+noJbCOIsNzzNtI2NNzs4o7Lf84wxrhKf2QR6OyLF/MDQDl8nBKQR74bhX23IUtDY3SK+pJTuF9syHYwt+z+D32V7AAWUB+6tV133XxBPdycglVRZ64S+c/bQ40yoPLQEs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706196651; c=relaxed/simple;
-	bh=49iPpjqiwCxzkmJGVwQFZBZ54dZrh+vA2b1sHXn+RQE=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=YVpL74NJVZJe0FzvXwqEYc7cvIHaGiJgKpJUylnuHCi+Y9pCL2mqubQQRV0OHq6nszmHxkEgKFjWexBUZZVIIHYa+dLLV6jkSxCbY3N+pzY1w6d7HvPQVNPEZgqTrv18l4JY9tzTYOgwUdBGNc5H2gp5lFTdaFU6c54Le6FdXfk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=IsB3UrNz; arc=fail smtp.client-ip=40.92.20.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B3EB130E25
+	for <linux-s390@vger.kernel.org>; Thu, 25 Jan 2024 19:32:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1706211164; cv=none; b=DA7v9miJZRqI8+8/ALNAnfpG6Fw0pQ/UiRK67vkkQOAfPl0JAn8Tl+nojgw50ZEqJAfL/hJ4h3NlsRRb1zEnJBYOagX70+qvtX6pcP/zcC7FNsHrkH5JLm53E0kioO9iTbwY3M4RFI6RHGQKSr9AyS2lwfDAzPWAbphjkNcoU5o=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1706211164; c=relaxed/simple;
+	bh=RP+0dkPwaPyMiQq2gYWHTpUXD8f5oi4PQGPh1wob9XA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Pl8rSstqOH40uJ7UoGLXbKI9A0YW6G76d4WnP27QCZpxmT/TA04igvv16Ml/k/MQwsCQPkhmcO35eulxAdMSfQuu3phsc3SxhbZx2r4q/sb88ICioLhbr7/Tbkbdyo96W9QDPlTC/nBMPU91BjteMH4NdbR49YX8QBGBTm/oA9U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jAVrtWBY; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="IsB3UrNz"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Wi2W5EnWM5ImiRa0u3ZgYBv3psB5MjmVL7e8z7LXvboMv5qA9rV3ohntOcVM+0cpqbhjsYovoDDhqO8TEKuJ4uB+OSNa9qc2FFo80qPdpI4vm5FrYrdMRAbvlPet36rcyqe1OJjpoWzDkR2iyORDJ6iieHxmg54QUKnr8be15dAtSbxZh9WC5AD1tA0b/QM/BP1pMkQnOKpKOlrou7hno44gjFk3GKZSEZ3oeVZIHw3LswBSIoMqQLLkEHzDY5cuhpLzScYTtZ0kZ4ZBQEQP8V7Fdqvz6jKGTjG2euum7pUbcKo7ES4oYeFbPaByWFnffyY97aZ+/yzzWshoGhlfvg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=eW2alejqAOYT8WAjMai/jwWkVOYlVlzir8+fWHfLoG4=;
- b=KZduFnFM4kmyDwEwvMI1M8eJgwyGOExC/11Jx+u6UjbeQNotC6IVwL3CK4/nR4SojUtIuhpSlFpSf0LV1/C5RDSlZEmXPX5ip+07VwHVSXyH9aQzHkBP/O3dGu+X72kKuiatorFDtxeVvf2C/zegsssnE3ttw4V6y/3RR09hSnFa+YsD//WNjIvun3UsXgD5haUSuqznZq4Yd4D0sEiO780dJw+wzLOjEiWZS2q6+OFGCT+KMGdvBuKGtTwrvNbZrYNtiB9bGT92K/UwfWzfBKk9+3xQFzblFHU9R9WbmZWica6+Z0WG5JX32ohM9U+SsDnT+Egbi/Wtn2Ip1hq83g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=eW2alejqAOYT8WAjMai/jwWkVOYlVlzir8+fWHfLoG4=;
- b=IsB3UrNzu5Xn0UgYLY+hFfk9v7sdqDOpsfIpP1TB01DdZalsNRyvOSFwBuhU/OhlKKKSMj8AZYhE/YopziPalbqobev+gp6ALcF+EKAAU/MR//7VPs4kDUCHdh1u6mxmcOEPo0l5iJ5l4d7ioFfDt+31Yd7fMRGNvcnxD+0DmsfWtStaxEFeVE2wNmlye6Ic7A1Z56DiwbIyBuUxjEcfGAuK6760BuZtv1UsYxIDFrSWYg0E8CIIxOWrEkIm1fEm2AqnUYyTsJXpDlCtzQA8Mp+7FLSuAq6QFxwj1IJ8pV332UiwNKR/9Bvu22OETDLykJNNx7zaMO2bPInd/LGijA==
-Received: from SN6PR02MB4157.namprd02.prod.outlook.com (2603:10b6:805:33::23)
- by PH7PR02MB8980.namprd02.prod.outlook.com (2603:10b6:510:1f8::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7228.26; Thu, 25 Jan
- 2024 15:30:46 +0000
-Received: from SN6PR02MB4157.namprd02.prod.outlook.com
- ([fe80::67a9:f3c0:f57b:86dd]) by SN6PR02MB4157.namprd02.prod.outlook.com
- ([fe80::67a9:f3c0:f57b:86dd%5]) with mapi id 15.20.7228.022; Thu, 25 Jan 2024
- 15:30:46 +0000
-From: Michael Kelley <mhklinux@outlook.com>
-To: Baoquan He <bhe@redhat.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"kexec@lists.infradead.org" <kexec@lists.infradead.org>, "x86@kernel.org"
-	<x86@kernel.org>, "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "linuxppc-dev@lists.ozlabs.org"
-	<linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org"
-	<linux-s390@vger.kernel.org>, "linux-sh@vger.kernel.org"
-	<linux-sh@vger.kernel.org>, "linux-mips@vger.kernel.org"
-	<linux-mips@vger.kernel.org>, "linux-riscv@lists.infradead.org"
-	<linux-riscv@lists.infradead.org>, "loongarch@lists.linux.dev"
-	<loongarch@lists.linux.dev>, "akpm@linux-foundation.org"
-	<akpm@linux-foundation.org>, "ebiederm@xmission.com" <ebiederm@xmission.com>,
-	"hbathini@linux.ibm.com" <hbathini@linux.ibm.com>, "piliu@redhat.com"
-	<piliu@redhat.com>, "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>
-Subject: RE: [PATCH linux-next v3 06/14] x86, crash: wrap crash dumping code
- into crash related ifdefs
-Thread-Topic: [PATCH linux-next v3 06/14] x86, crash: wrap crash dumping code
- into crash related ifdefs
-Thread-Index: AQHaToRG7EZBXaVit0yb4RXbyvoNjrDpkK1ggABa6ACAAA/3oIAARgWAgABnw3A=
-Date: Thu, 25 Jan 2024 15:30:45 +0000
-Message-ID:
- <SN6PR02MB41572FDAE703FC8A91974DFFD47A2@SN6PR02MB4157.namprd02.prod.outlook.com>
-References: <20240124051254.67105-1-bhe@redhat.com>
- <20240124051254.67105-7-bhe@redhat.com>
- <SN6PR02MB4157931105FA68D72E3D3DB8D47B2@SN6PR02MB4157.namprd02.prod.outlook.com>
- <ZbHfACpwqi2U9vmK@MiWiFi-R3L-srv>
- <SN6PR02MB4157E138C7EE4A281AB49C10D47A2@SN6PR02MB4157.namprd02.prod.outlook.com>
- <ZbInIQeIoPj6R0kY@MiWiFi-R3L-srv>
-In-Reply-To: <ZbInIQeIoPj6R0kY@MiWiFi-R3L-srv>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-tmn: [kBPvbuH5eMbnBowZglgoIczCWf/e+Xu7]
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: SN6PR02MB4157:EE_|PH7PR02MB8980:EE_
-x-ms-office365-filtering-correlation-id: 1dd18b5f-0428-4c59-dec9-08dc1dba99ba
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info:
- /aH4jkmyv0ty76k9LAS6MR4nv2cgpKsOzP6GwHd+HQssdpDIfaJhh/vVCXR5kQsb2qLVdNOmHcA5A7cc3WeT/SgMcCPlMmhwYjkRKD4tHIHtGgseWm+MC7WitVnT0aUobih0TORAKdGV+vqg/MO5y3tIcKCGDSGgPKNxUmKtPJ3GAWl4/tFlLqiCTSaxsRdzLm1sKNVavQWi7KEoyAfEnw65Znm499uxsLJx2yJIla2Tu1HKJBDlhpZ1EqRFABkCrxz8RuGHmF/PjYwZpWzC1OuQ8cD+CxLJo0jD9tQC6ieY2984Tb4kTRt61JHprgz97soQWkbDSkOJAxZX6iNK7tcV85Dyjfyzptjsn6I65hFK5OPc0ax5aIsl3IEV0LvMIWdPbPP0aepx8DWPcZjpnDiYK++kS0uYGGFLS2NYNOqMa9SiJ2gLdb/2GuxHUldXbRgK2bexasJt+VsH5ay2gPBnT+OzSikbsY8Dp87eDbumkyM4IpzryLc6ioDtc18yaHOH451Lt6sII2q9gw5/kEiziqNxO7EcLKrAG/Pznz0GoepHww6mbTx1sTPc0uoF
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?rDZlZD2CA0+HKZCv3KEDs5f1ygEjqFw7Le+0at86EcWCnClczxvKx2gWWXZh?=
- =?us-ascii?Q?JbXZBoacRbvSz0S9fsJbOF1HQ5pt1Ib5AwYgjpzrDMCmvHK/2UiPCnghx398?=
- =?us-ascii?Q?g/qp60CEmCbZclWstEjir0GGZus9cVAYEa0RiV84MiBKR85t0Pc0TgC3HRAf?=
- =?us-ascii?Q?PFUfGtzh3MXNZLZ8D719F5z5HVhgusVKAnDX9H14uGl8BgYbfRS5sZ4Y8/ww?=
- =?us-ascii?Q?0DkFC8qalh1O5XFdGj7hrJllMzk8CFLlUqjnRM8VHGGUwHCfNF3vqh0aSNAG?=
- =?us-ascii?Q?lLtAIRELT4IsacaRW0GOHFQZHDbl+dM0NmWA5lCv4ZZxtS76IBhxe55s55q1?=
- =?us-ascii?Q?2YdIvaxuvTjCgWkZ6TPIKFTKBxaxyAkSQE5IyWsmRGMoadyyDmpc9OYzYmRj?=
- =?us-ascii?Q?faZfO9KKf5xvzBBoy4UgjqNc8ncDfK8cA8exewsaH+GnwM8Omqq/av5h/v7n?=
- =?us-ascii?Q?9fBGovW5O0iSx5dbmmR3LpuiRbXsa3ZJin8+0KEPYaE29nLpFq8wYtTVKLmd?=
- =?us-ascii?Q?sRxm0Hn6GXn+CkqbRa3hz1vWu4TFvOZEtwv0yXZXnx5bXnUdGGBhC/0BR+bK?=
- =?us-ascii?Q?UFnxsvs1His8sEVC+92IQA2QXHh/idK9Ig+PAzA8RJe4NqDuU+B5FYnzZB3a?=
- =?us-ascii?Q?62kbTpJL0zZHePhkEtjTGrQVE8EPfjmpeBzHTrGULLJPlGOWvQmIYkgcnUOS?=
- =?us-ascii?Q?z/Lro/YRiqVPdu2AyO3S+BkrakpN8qf3oxkwXGeNPlDfquw3gvm6gITjm67Q?=
- =?us-ascii?Q?pxKl8IieqDV9/I0r4OC/18pFAauC/ka5PuZdzAm/xfYt4nQQxosh4iJ3FASs?=
- =?us-ascii?Q?3bFMn/VpX/hnEJ70ue5gQDmmy1vCT1k1/DIcqlJNNhkX0XsALsbEp1kNwU1H?=
- =?us-ascii?Q?kZcMKb88y4y18TWtb/4xo1XzDyOelY3iLVI4WE4u3o7wGA8QonVCPju9iEXG?=
- =?us-ascii?Q?QHdxH3p4bwS94RK0v4l34kQZI2TPsTy2Ce6sX/UzGgxFyaVCdBEzUqKY/8cE?=
- =?us-ascii?Q?zsISGi7fqdRCczg2ucuKHrAogLjBwq+/n3Cy1/YB2BHy7e7eyjGLJdCx8OQu?=
- =?us-ascii?Q?oubPCrqiLbaB0K5Me0Ev65m3brFPi+BrNKb2gqodosLxPnVymUrG64ceVvIu?=
- =?us-ascii?Q?of4og4ldjWPK70sCfx8Z8ky3MM1W5+40ir5tnA4unxxiJSXzirA/roTarfiP?=
- =?us-ascii?Q?6Ye4JHUgUp+GufrhQnN5JU+26xNBlYQ7tRYSaA=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jAVrtWBY"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1706211161;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=hqBJXd3KYbSqBlyTsnJ+flUsuxWAbzNO3FAUVqkspqs=;
+	b=jAVrtWBYCAiI9ueXQujfQMSc4y9xb1Iyx8dwm6JHqL3YYyLuQGs94Yok/iB+vf0oRz8Xym
+	MkpOIFFV1FFqufnaLV5YkOiKQAErJiO+6thm142Z4ipzUBtnOIQ2uikJHX1aUI97V3viLv
+	4SZMXIL6Xi4e4jsz0aqH0wuGfoTVDec=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-633-3eXNfPC0PWK9Jn6kjBn6xQ-1; Thu,
+ 25 Jan 2024 14:32:37 -0500
+X-MC-Unique: 3eXNfPC0PWK9Jn6kjBn6xQ-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 23E903C1E9D4;
+	Thu, 25 Jan 2024 19:32:35 +0000 (UTC)
+Received: from t14s.redhat.com (unknown [10.39.193.154])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 24466492BC6;
+	Thu, 25 Jan 2024 19:32:27 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org,
+	David Hildenbrand <david@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Matthew Wilcox <willy@infradead.org>,
+	Ryan Roberts <ryan.roberts@arm.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	linux-arm-kernel@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org
+Subject: [PATCH v2 00/15] mm/memory: optimize fork() with PTE-mapped THP
+Date: Thu, 25 Jan 2024 20:32:12 +0100
+Message-ID: <20240125193227.444072-1-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SN6PR02MB4157.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1dd18b5f-0428-4c59-dec9-08dc1dba99ba
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Jan 2024 15:30:45.9873
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR02MB8980
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
 
-From: Baoquan He <bhe@redhat.com> Sent: Thursday, January 25, 2024 1:17 AM
->=20
-> On 01/25/24 at 05:12am, Michael Kelley wrote:
-> > From: Baoquan He <bhe@redhat.com> Sent: Wednesday, January 24, 2024
-> 8:10 PM
-> > >
-> > > On 01/24/24 at 11:02pm, Michael Kelley wrote:
-> > > > > diff --git a/arch/x86/kernel/cpu/mshyperv.c
-> > > > > b/arch/x86/kernel/cpu/mshyperv.c
-> > > > > index 01fa06dd06b6..f8163a59026b 100644
-> > > > > --- a/arch/x86/kernel/cpu/mshyperv.c
-> > > > > +++ b/arch/x86/kernel/cpu/mshyperv.c
-> > > > > @@ -210,6 +210,7 @@ static void hv_machine_shutdown(void)
-> > > > >  		hyperv_cleanup();
-> > > > >  }
-> > > > >
-> > > > > +#ifdef CONFIG_CRASH_DUMP
-> > > > >  static void hv_machine_crash_shutdown(struct pt_regs *regs)
-> > > > >  {
-> > > > >  	if (hv_crash_handler)
-> > > > > @@ -221,6 +222,7 @@ static void hv_machine_crash_shutdown(struct =
-pt_regs *regs)
-> > > > >  	/* Disable the hypercall page when there is only 1 active CPU. =
-*/
-> > > > >  	hyperv_cleanup();
-> > > > >  }
-> > > > > +#endif
-> > > > >  #endif /* CONFIG_KEXEC_CORE */
-> > > >
-> > > > Note that the #ifdef CONFIG_CRASH_DUMP is nested inside
-> > > > #ifdef CONFIG_KEXEC_CODE here, and in the other Hyper-V code
-> > > > just below.   It's also nested in xen_hvm_guest_init() at the botto=
-m
-> > > > of this patch.  But the KVM case of setting crash_shutdown is
-> > > > not nested -- you changed #ifdef CONFIG_KEXEC_CORE to #ifdef
-> > > > CONFIG_CRASH_DUMP.
-> > > >
-> > > > I think both approaches work because CONFIG_CRASH_DUMP implies
-> > > > CONFIG_KEXEC_CORE, but I wonder if it would be better to *not* nest
-> > > > in all cases.  I'd like to see the cases be consistent so in the fu=
-ture
-> > > > someone doesn't wonder why there's a difference (unless there's
-> > > > a reason for the difference that I missed).
-> > >
-> > > I agree with you, it's a great suggestion. Thanks.
-> > >
-> > > Do you think below draft patch includes all changes you are concerned
-> > > about?
-> >
-> > Yes, these changes look good as a delta to your original patch.
-> >
-> > But also look at xen_hvm_guest_init().  It looks like your original pat=
-ch
-> > does nesting there as well, and it could probably be "un-nested".
->=20
-> Right. I checked them all in arch/x86 this time, hope nothing is missed
-> again. I can post a v4 to update this x86 patch later if no other
-> concern. Thanks.
+Now that the rmap overhaul[1] is upstream that provides a clean interface
+for rmap batching, let's implement PTE batching during fork when processing
+PTE-mapped THPs.
 
-Yes -- everything looks good to me now.
+This series is partially based on Ryan's previous work[2] to implement
+cont-pte support on arm64, but its a complete rewrite based on [1] to
+optimize all architectures independent of any such PTE bits, and to
+use the new rmap batching functions that simplify the code and prepare
+for further rmap accounting changes.
 
-Michael
+We collect consecutive PTEs that map consecutive pages of the same large
+folio, making sure that the other PTE bits are compatible, and (a) adjust
+the refcount only once per batch, (b) call rmap handling functions only
+once per batch and (c) perform batch PTE setting/updates.
 
->=20
-> diff --git a/arch/x86/kernel/cpu/mshyperv.c
-> b/arch/x86/kernel/cpu/mshyperv.c
-> index f8163a59026b..2e8cd5a4ae85 100644
-> --- a/arch/x86/kernel/cpu/mshyperv.c
-> +++ b/arch/x86/kernel/cpu/mshyperv.c
-> @@ -209,6 +209,7 @@ static void hv_machine_shutdown(void)
->  	if (kexec_in_progress)
->  		hyperv_cleanup();
->  }
-> +#endif /* CONFIG_KEXEC_CORE */
->=20
->  #ifdef CONFIG_CRASH_DUMP
->  static void hv_machine_crash_shutdown(struct pt_regs *regs)
-> @@ -222,8 +223,7 @@ static void hv_machine_crash_shutdown(struct
-> pt_regs *regs)
->  	/* Disable the hypercall page when there is only 1 active CPU. */
->  	hyperv_cleanup();
->  }
-> -#endif
-> -#endif /* CONFIG_KEXEC_CORE */
-> +#endif /* CONFIG_CRASH_DUMP */
->  #endif /* CONFIG_HYPERV */
->=20
->  static uint32_t  __init ms_hyperv_platform(void)
-> @@ -497,9 +497,11 @@ static void __init ms_hyperv_init_platform(void)
->  	no_timer_check =3D 1;
->  #endif
->=20
-> -#if IS_ENABLED(CONFIG_HYPERV) && defined(CONFIG_KEXEC_CORE)
-> +#if IS_ENABLED(CONFIG_HYPERV)
-> +#if defined(CONFIG_KEXEC_CORE)
->  	machine_ops.shutdown =3D hv_machine_shutdown;
-> -#ifdef CONFIG_CRASH_DUMP
-> +#endif
-> +#if defined(CONFIG_CRASH_DUMP)
->  	machine_ops.crash_shutdown =3D hv_machine_crash_shutdown;
->  #endif
->  #endif
-> diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
-> index 1287b0d5962f..f3130f762784 100644
-> --- a/arch/x86/kernel/reboot.c
-> +++ b/arch/x86/kernel/reboot.c
-> @@ -826,7 +826,7 @@ void machine_halt(void)
->  	machine_ops.halt();
->  }
->=20
-> -#ifdef CONFIG_KEXEC_CORE
-> +#ifdef CONFIG_CRASH_DUMP
->  void machine_crash_shutdown(struct pt_regs *regs)
->  {
->  	machine_ops.crash_shutdown(regs);
-> diff --git a/arch/x86/xen/enlighten_hvm.c b/arch/x86/xen/enlighten_hvm.c
-> index 09e3db7ff990..0b367c1e086d 100644
-> --- a/arch/x86/xen/enlighten_hvm.c
-> +++ b/arch/x86/xen/enlighten_hvm.c
-> @@ -148,6 +148,7 @@ static void xen_hvm_shutdown(void)
->  	if (kexec_in_progress)
->  		xen_reboot(SHUTDOWN_soft_reset);
->  }
-> +#endif
->=20
->  #ifdef CONFIG_CRASH_DUMP
->  static void xen_hvm_crash_shutdown(struct pt_regs *regs)
-> @@ -156,7 +157,6 @@ static void xen_hvm_crash_shutdown(struct pt_regs
-> *regs)
->  	xen_reboot(SHUTDOWN_soft_reset);
->  }
->  #endif
-> -#endif
->=20
->  static int xen_cpu_up_prepare_hvm(unsigned int cpu)
->  {
-> @@ -238,10 +238,10 @@ static void __init xen_hvm_guest_init(void)
->=20
->  #ifdef CONFIG_KEXEC_CORE
->  	machine_ops.shutdown =3D xen_hvm_shutdown;
-> +#endif
->  #ifdef CONFIG_CRASH_DUMP
->  	machine_ops.crash_shutdown =3D xen_hvm_crash_shutdown;
->  #endif
-> -#endif
->  }
->=20
->  static __init int xen_parse_nopv(char *arg)
+While this series should be beneficial for adding cont-pte support on
+ARM64[2], it's one of the requirements for maintaining a total mapcount[3]
+for large folios with minimal added overhead and further changes[4] that
+build up on top of the total mapcount.
+
+Independent of all that, this series results in a speedup during fork with
+PTE-mapped THP, which is the default with THPs that are smaller than a PMD
+(for example, 16KiB to 1024KiB mTHPs for anonymous memory[5]).
+
+On an Intel Xeon Silver 4210R CPU, fork'ing with 1GiB of PTE-mapped folios
+of the same size (stddev < 1%) results in the following runtimes
+for fork() (shorter is better):
+
+Folio Size | v6.8-rc1 |      New | Change
+------------------------------------------
+      4KiB | 0.014328 | 0.014035 |   - 2%
+     16KiB | 0.014263 | 0.01196  |   -16%
+     32KiB | 0.014334 | 0.01094  |   -24%
+     64KiB | 0.014046 | 0.010444 |   -26%
+    128KiB | 0.014011 | 0.010063 |   -28%
+    256KiB | 0.013993 | 0.009938 |   -29%
+    512KiB | 0.013983 | 0.00985  |   -30%
+   1024KiB | 0.013986 | 0.00982  |   -30%
+   2048KiB | 0.014305 | 0.010076 |   -30%
+
+Note that these numbers are even better than the ones from v1 (verified
+over multiple reboots), even though there were only minimal code changes.
+Well, I removed a pte_mclean() call for anon folios, maybe that also
+plays a role. Alternatively, either v1 or v2 is seriously buggy ;)
+
+But my experience is that fork() is extremely sensitive to code size,
+inlining, ... so I suspect we'll see on other architectures rather a change
+of -20% instead of -30%, and it will be easy to "lose" some of that speedup
+in the future by subtle code changes.
+
+Next up is PTE batching when unmapping, that I'll send out next week.
+
+Only tested on x86-64. Compile-tested on most other architectures.
+
+v1 -> v2:
+ * "arm64/mm: Make set_ptes() robust when OAs cross 48-bit boundary"
+  -> Added patch from Ryan
+ * "arm/pgtable: define PFN_PTE_SHIFT"
+  -> Removed the arm64 bits
+ * "mm/pgtable: make pte_next_pfn() independent of set_ptes()"
+ * "arm/mm: use pte_next_pfn() in set_ptes()"
+ * "powerpc/mm: use pte_next_pfn() in set_ptes()"
+  -> Added to use pte_next_pfn() in some arch set_ptes() implementations
+     I tried to make use of pte_next_pfn() also in the others, but it's
+     not trivial because the other archs implement set_ptes() in their
+     asm/pgtable.h. Future work.
+ * "mm/memory: factor out copying the actual PTE in copy_present_pte()"
+  -> Move common folio_get() out of if/else
+ * "mm/memory: optimize fork() with PTE-mapped THP"
+  -> Add doc for wrprotect_ptes
+  -> Extend description to mention handling of pinned folios
+  -> Move common folio_ref_add() out of if/else
+ * "mm/memory: ignore dirty/accessed/soft-dirty bits in folio_pte_batch()"
+  -> Be more conservative with dirt/soft-dirty, let the caller specify
+     using flags
+
+[1] https://lkml.kernel.org/r/20231220224504.646757-1-david@redhat.com
+[2] https://lkml.kernel.org/r/20231218105100.172635-1-ryan.roberts@arm.com
+[3] https://lkml.kernel.org/r/20230809083256.699513-1-david@redhat.com
+[4] https://lkml.kernel.org/r/20231124132626.235350-1-david@redhat.com
+[5] https://lkml.kernel.org/r/20231207161211.2374093-1-ryan.roberts@arm.com
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Ryan Roberts <ryan.roberts@arm.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Dinh Nguyen <dinguyen@kernel.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
+Cc: "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
+
+David Hildenbrand (14):
+  arm/pgtable: define PFN_PTE_SHIFT
+  nios2/pgtable: define PFN_PTE_SHIFT
+  powerpc/pgtable: define PFN_PTE_SHIFT
+  riscv/pgtable: define PFN_PTE_SHIFT
+  s390/pgtable: define PFN_PTE_SHIFT
+  sparc/pgtable: define PFN_PTE_SHIFT
+  mm/pgtable: make pte_next_pfn() independent of set_ptes()
+  arm/mm: use pte_next_pfn() in set_ptes()
+  powerpc/mm: use pte_next_pfn() in set_ptes()
+  mm/memory: factor out copying the actual PTE in copy_present_pte()
+  mm/memory: pass PTE to copy_present_pte()
+  mm/memory: optimize fork() with PTE-mapped THP
+  mm/memory: ignore dirty/accessed/soft-dirty bits in folio_pte_batch()
+  mm/memory: ignore writable bit in folio_pte_batch()
+
+Ryan Roberts (1):
+  arm64/mm: Make set_ptes() robust when OAs cross 48-bit boundary
+
+ arch/arm/include/asm/pgtable.h      |   2 +
+ arch/arm/mm/mmu.c                   |   2 +-
+ arch/arm64/include/asm/pgtable.h    |  28 ++--
+ arch/nios2/include/asm/pgtable.h    |   2 +
+ arch/powerpc/include/asm/pgtable.h  |   2 +
+ arch/powerpc/mm/pgtable.c           |   5 +-
+ arch/riscv/include/asm/pgtable.h    |   2 +
+ arch/s390/include/asm/pgtable.h     |   2 +
+ arch/sparc/include/asm/pgtable_64.h |   2 +
+ include/linux/pgtable.h             |  33 ++++-
+ mm/memory.c                         | 212 ++++++++++++++++++++++------
+ 11 files changed, 229 insertions(+), 63 deletions(-)
+
+-- 
+2.43.0
 
