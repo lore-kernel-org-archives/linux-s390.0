@@ -1,75 +1,211 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AB691B94B;
-	Thu, 25 Jan 2024 08:45:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2676B1BC2F
+	for <linux-s390@vger.kernel.org>; Thu, 25 Jan 2024 09:17:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706172318; cv=none; b=RAriFCyHrPp8tF7Xy5phOCRFwp0WNFRGOhzPDgVO/6b+IwP8MNttclmXyPVTOgr9/RGiemBTAw5criUfKm8auK4IXQcq1cWliyWP0WMhXVZRs96c1syusB+C/mlSs+G9u5XAxel4C+pj4d5m+7vvxrJMCkQn0JnSNhZFoq3mlDw=
+	t=1706174253; cv=none; b=R7wD29JygWKw3eM0ARow7htIaNv80rce8OzIFARhHRPiKWvR45KwARlyntfcY21uX0AVZsCSlOr9zsYolm3D7Ty/8ZU1HySp+ZUrLrexZYvwTXdPcICLwYLOHTRc811uxuAobJh7LTxJb7AutqeyydKt3yXWEMG/IMoaJ9xXmMM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706172318; c=relaxed/simple;
-	bh=8/N8nHgaQvKTBhfxwCmzbJX3QzXCprpMyk/c3leHg08=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=g7eHy4Vf7oRZlVpJ26P4QBLxov/Qhq8w2IOdc4agdmbM/Z1p5vtg0TqTTt+o1AeMTH0bU3ikXESB0rdv86qyf0q+s1OY3eAhR9QsuTn/fFL+Pggexe8BOkEe6YTAyZx7Be+tLR/foLH9awfPuv9Pk3GFvp+ayyYR+4Ng4Q96ixU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=RTux1+pR; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Pt+4Up3Z; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1706174253; c=relaxed/simple;
+	bh=xBev3JryyN47Pl/Pc20cbKv5U3bSF+BrsMyO8ggWTp4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DgpUWnc1c2f4kJ4nIUIlI8MeKGzUOS+KhuAjIEDUxpVKybH1t2qNxEBPq5ZaI8w6pwmkYv3iGDODXHaytivGk6dDJ0SXGgIGrfxES+4zUxzG0Bm6LQJlAIUXsym6R3Y6Oj4fUZw8NZZkUaHoDmFuHvJJaEU9y0CX0ZU0g87O0Q4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=h2HZOhfq; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="RTux1+pR";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Pt+4Up3Z"
-From: Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1706172309;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="h2HZOhfq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1706174251;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8/N8nHgaQvKTBhfxwCmzbJX3QzXCprpMyk/c3leHg08=;
-	b=RTux1+pRR18Wian+HDI6adTZ/YAeMMLdG1s7PChn0t52OXX4/qt1+s6W+rlN5lGv8l1mAm
-	uDImkHQhEwoMUSu27Qysj0N35xLmWQnLiminAaNU+kFEJYGBYkGERzGS8keWE2sIdnnhGL
-	ReSi69T5FCAck/QCeHqxcqRVqPBTJ+Ux0ZYOh6zw4q7L2J0gnFRg7lq+4ZQBLOWReboZ6T
-	Fhr2dClqzHYA1P28jSMsbKJ7gVOntd5+GRm1fM0KvmNsMB3Be69/s0XNhIIy2r9Lv8nhS1
-	K1IBGeJjkL/2y3s9NDfUupCpnv4CD1RPMvwhccE6mGIZ8mQ4/MAyUpVYf5tv9Q==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1706172309;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8/N8nHgaQvKTBhfxwCmzbJX3QzXCprpMyk/c3leHg08=;
-	b=Pt+4Up3ZcUmLAxp2euhrRzuCu/V0OYU0xtyo6emPV1pORKWrqQqO7cbfKlPUiwy7H4DMKK
-	UGaqX01fpuOb+RCQ==
-To: Frederic Weisbecker <frederic@kernel.org>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>, Heiko Carstens
- <hca@linux.ibm.com>, Ingo Molnar <mingo@kernel.org>, Gerald Schaefer
- <gerald.schaefer@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH] tick-sched: Preserve number of idle sleeps across CPU
- hotplug events
-In-Reply-To: <ZbFvDbFm1_EfajFf@pavilion.home>
-References: <20240122233534.3094238-1-tim.c.chen@linux.intel.com>
- <87v87ijzqj.ffs@tglx> <ZbFvDbFm1_EfajFf@pavilion.home>
-Date: Thu, 25 Jan 2024 09:45:09 +0100
-Message-ID: <87jznxkdii.ffs@tglx>
+	bh=SDoUkylaVEDmZz6nqfW3ZjNKRZGYGdls3feFdR//5ps=;
+	b=h2HZOhfq/WmpqmE2ShsSUG/3Ss8WNbF2/emJOtZHUZjP94vAyaeDrgRixKF8zO9gDpQUKB
+	YWIgJXVKB0K6hLZmaUTdzOmpGm0qXLnkl7gN+f12ff02p9xqcWZdty4l7CjF4tUKPOJxP4
+	NA+E3xXPzeh10CrQGj5Cg1p7yZvpKpo=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-636-iCprDXE0NJaMkShWq3Qs8Q-1; Thu, 25 Jan 2024 04:17:26 -0500
+X-MC-Unique: iCprDXE0NJaMkShWq3Qs8Q-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 701931013682;
+	Thu, 25 Jan 2024 09:17:25 +0000 (UTC)
+Received: from localhost (unknown [10.72.116.117])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 8814F1C060AF;
+	Thu, 25 Jan 2024 09:17:24 +0000 (UTC)
+Date: Thu, 25 Jan 2024 17:17:21 +0800
+From: Baoquan He <bhe@redhat.com>
+To: Michael Kelley <mhklinux@outlook.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"kexec@lists.infradead.org" <kexec@lists.infradead.org>,
+	"x86@kernel.org" <x86@kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+	"linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
+	"linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+	"linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
+	"akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+	"ebiederm@xmission.com" <ebiederm@xmission.com>,
+	"hbathini@linux.ibm.com" <hbathini@linux.ibm.com>,
+	"piliu@redhat.com" <piliu@redhat.com>,
+	"viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>
+Subject: Re: [PATCH linux-next v3 06/14] x86, crash: wrap crash dumping code
+ into crash related ifdefs
+Message-ID: <ZbInIQeIoPj6R0kY@MiWiFi-R3L-srv>
+References: <20240124051254.67105-1-bhe@redhat.com>
+ <20240124051254.67105-7-bhe@redhat.com>
+ <SN6PR02MB4157931105FA68D72E3D3DB8D47B2@SN6PR02MB4157.namprd02.prod.outlook.com>
+ <ZbHfACpwqi2U9vmK@MiWiFi-R3L-srv>
+ <SN6PR02MB4157E138C7EE4A281AB49C10D47A2@SN6PR02MB4157.namprd02.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <SN6PR02MB4157E138C7EE4A281AB49C10D47A2@SN6PR02MB4157.namprd02.prod.outlook.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
 
-On Wed, Jan 24 2024 at 21:11, Frederic Weisbecker wrote:
+On 01/25/24 at 05:12am, Michael Kelley wrote:
+> From: Baoquan He <bhe@redhat.com> Sent: Wednesday, January 24, 2024 8:10 PM
+> > 
+> > On 01/24/24 at 11:02pm, Michael Kelley wrote:
+> > > > diff --git a/arch/x86/kernel/cpu/mshyperv.c
+> > > > b/arch/x86/kernel/cpu/mshyperv.c
+> > > > index 01fa06dd06b6..f8163a59026b 100644
+> > > > --- a/arch/x86/kernel/cpu/mshyperv.c
+> > > > +++ b/arch/x86/kernel/cpu/mshyperv.c
+> > > > @@ -210,6 +210,7 @@ static void hv_machine_shutdown(void)
+> > > >  		hyperv_cleanup();
+> > > >  }
+> > > >
+> > > > +#ifdef CONFIG_CRASH_DUMP
+> > > >  static void hv_machine_crash_shutdown(struct pt_regs *regs)
+> > > >  {
+> > > >  	if (hv_crash_handler)
+> > > > @@ -221,6 +222,7 @@ static void hv_machine_crash_shutdown(struct pt_regs *regs)
+> > > >  	/* Disable the hypercall page when there is only 1 active CPU. */
+> > > >  	hyperv_cleanup();
+> > > >  }
+> > > > +#endif
+> > > >  #endif /* CONFIG_KEXEC_CORE */
+> > >
+> > > Note that the #ifdef CONFIG_CRASH_DUMP is nested inside
+> > > #ifdef CONFIG_KEXEC_CODE here, and in the other Hyper-V code
+> > > just below.   It's also nested in xen_hvm_guest_init() at the bottom
+> > > of this patch.  But the KVM case of setting crash_shutdown is
+> > > not nested -- you changed #ifdef CONFIG_KEXEC_CORE to #ifdef
+> > > CONFIG_CRASH_DUMP.
+> > >
+> > > I think both approaches work because CONFIG_CRASH_DUMP implies
+> > > CONFIG_KEXEC_CORE, but I wonder if it would be better to *not* nest
+> > > in all cases.  I'd like to see the cases be consistent so in the future
+> > > someone doesn't wonder why there's a difference (unless there's
+> > > a reason for the difference that I missed).
+> > 
+> > I agree with you, it's a great suggestion. Thanks.
+> > 
+> > Do you think below draft patch includes all changes you are concerned
+> > about?
+> 
+> Yes, these changes look good as a delta to your original patch.
+> 
+> But also look at xen_hvm_guest_init().  It looks like your original patch
+> does nesting there as well, and it could probably be "un-nested".
 
-> Le Wed, Jan 24, 2024 at 08:30:28PM +0100, Thomas Gleixner a =C3=A9crit :
->> On Mon, Jan 22 2024 at 15:35, Tim Chen wrote:
->>=20
->> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commi=
-t/?id=3D71fee48fb772ac4f6cfa63dbebc5629de8b4cc09
->>=20
->
-> It's a different patch :-)
+Right. I checked them all in arch/x86 this time, hope nothing is missed
+again. I can post a v4 to update this x86 patch later if no other
+concern. Thanks.
 
-I clearly can't read ....
+diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
+index f8163a59026b..2e8cd5a4ae85 100644
+--- a/arch/x86/kernel/cpu/mshyperv.c
++++ b/arch/x86/kernel/cpu/mshyperv.c
+@@ -209,6 +209,7 @@ static void hv_machine_shutdown(void)
+ 	if (kexec_in_progress)
+ 		hyperv_cleanup();
+ }
++#endif /* CONFIG_KEXEC_CORE */
+ 
+ #ifdef CONFIG_CRASH_DUMP
+ static void hv_machine_crash_shutdown(struct pt_regs *regs)
+@@ -222,8 +223,7 @@ static void hv_machine_crash_shutdown(struct pt_regs *regs)
+ 	/* Disable the hypercall page when there is only 1 active CPU. */
+ 	hyperv_cleanup();
+ }
+-#endif
+-#endif /* CONFIG_KEXEC_CORE */
++#endif /* CONFIG_CRASH_DUMP */
+ #endif /* CONFIG_HYPERV */
+ 
+ static uint32_t  __init ms_hyperv_platform(void)
+@@ -497,9 +497,11 @@ static void __init ms_hyperv_init_platform(void)
+ 	no_timer_check = 1;
+ #endif
+ 
+-#if IS_ENABLED(CONFIG_HYPERV) && defined(CONFIG_KEXEC_CORE)
++#if IS_ENABLED(CONFIG_HYPERV)
++#if defined(CONFIG_KEXEC_CORE)
+ 	machine_ops.shutdown = hv_machine_shutdown;
+-#ifdef CONFIG_CRASH_DUMP
++#endif
++#if defined(CONFIG_CRASH_DUMP)
+ 	machine_ops.crash_shutdown = hv_machine_crash_shutdown;
+ #endif
+ #endif
+diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
+index 1287b0d5962f..f3130f762784 100644
+--- a/arch/x86/kernel/reboot.c
++++ b/arch/x86/kernel/reboot.c
+@@ -826,7 +826,7 @@ void machine_halt(void)
+ 	machine_ops.halt();
+ }
+ 
+-#ifdef CONFIG_KEXEC_CORE
++#ifdef CONFIG_CRASH_DUMP
+ void machine_crash_shutdown(struct pt_regs *regs)
+ {
+ 	machine_ops.crash_shutdown(regs);
+diff --git a/arch/x86/xen/enlighten_hvm.c b/arch/x86/xen/enlighten_hvm.c
+index 09e3db7ff990..0b367c1e086d 100644
+--- a/arch/x86/xen/enlighten_hvm.c
++++ b/arch/x86/xen/enlighten_hvm.c
+@@ -148,6 +148,7 @@ static void xen_hvm_shutdown(void)
+ 	if (kexec_in_progress)
+ 		xen_reboot(SHUTDOWN_soft_reset);
+ }
++#endif
+ 
+ #ifdef CONFIG_CRASH_DUMP
+ static void xen_hvm_crash_shutdown(struct pt_regs *regs)
+@@ -156,7 +157,6 @@ static void xen_hvm_crash_shutdown(struct pt_regs *regs)
+ 	xen_reboot(SHUTDOWN_soft_reset);
+ }
+ #endif
+-#endif
+ 
+ static int xen_cpu_up_prepare_hvm(unsigned int cpu)
+ {
+@@ -238,10 +238,10 @@ static void __init xen_hvm_guest_init(void)
+ 
+ #ifdef CONFIG_KEXEC_CORE
+ 	machine_ops.shutdown = xen_hvm_shutdown;
++#endif
+ #ifdef CONFIG_CRASH_DUMP
+ 	machine_ops.crash_shutdown = xen_hvm_crash_shutdown;
+ #endif
+-#endif
+ }
+ 
+ static __init int xen_parse_nopv(char *arg)
+
