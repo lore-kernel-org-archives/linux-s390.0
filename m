@@ -1,144 +1,97 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 262B31BF27;
-	Thu, 25 Jan 2024 09:28:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A74145BF4;
+	Thu, 25 Jan 2024 12:40:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706174936; cv=none; b=Zf1Akv7mbTTGODF5U1IdeCRtP0qqVDWoVWvnRTJBI4EuI/I2rcuIjiERYfQqq6f70JOh6LRuFIBg0pASGeMfuJE3kNDpuCaFLXdmGo4w0A0HX/VROcGoUkRVc/iuZwmxJftYgIEFr6vaUVJ7edn3kkx7wqftjZ6uDqtO9tSmYqA=
+	t=1706186441; cv=none; b=PiDCjurGl88dJyv904MusFzZiM95gECmfjWrXoSZkxYNU1WX9Pw9rcDxF9dBaWohpvhyhWf5EJP7aHNfD/DYYK/S37MgL+61lrrg5mz9VMWyYpHszJak7n9BWOyJzIRm4nFGjYIXLp6Wjmui+2fo6N03nKLxu+fgJjWwfvqVCdA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706174936; c=relaxed/simple;
-	bh=4oi/mDvJ66W3EHJcJkd6l/BObOrE9wC8bVqVRycPZXw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Vd0aQ9L3dDL95q88bABdBJfvQp6407F3UedP2glwDYuwTQkYPG51WOmkMI+2pQOp6a9ulvOHB6IsTY7okbeaHUuiCpC8NuPI5wGfDFpcqZ2AP9FHWcc+w/LHqwzqCe21RFnalBDzLp+55HwEZdZ/lgg+Rg5HXSWd28p2ZnXx7AY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; arc=none smtp.client-ip=115.124.30.101
+	s=arc-20240116; t=1706186441; c=relaxed/simple;
+	bh=EdkMDFFWUiyjvHdtXKbhibX6ICrroCB3+YkEYJGcC3A=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=TpSOsyiFS9AGiLrMFd2RNvAZ/awmrVgnQafpkWD6todr9AYRq23+FZ/7WQktcwHlrzbUhsWD1qKWPM/LokuplYqP+jO+V6zxz9TqauLGTM6cHcx6m6uYJFi6eWGtosN7IcTkaX3RMHu/yfsTzzsknLfeYWDnvdrtXlku8AhEMA4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=EY5cKp1/; arc=none smtp.client-ip=115.124.30.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=23;SR=0;TI=SMTPD_---0W.JurKr_1706174923;
-Received: from 30.221.129.223(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W.JurKr_1706174923)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="EY5cKp1/"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1706186434; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=Fst97h1pLSmFiX0qcjI14XwdvbW5bSFhMUKZrfvSZcQ=;
+	b=EY5cKp1/o5QGE/e2eePOnD5fPpDRFwjX2NrlTz+MmwzYn6Pkt6sfCCeKd6qkLw2unFfdYGhrrwls08aC3Y/60AkICpwbiM8C7+xFZit71TYHv7CIsRwtapnJV4q2/uQ9ChPv259JpUt2dcAY52mlTdDlphkHrE0BH3343XgJfE8=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W.KUl5s_1706186356;
+Received: from localhost(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W.KUl5s_1706186356)
           by smtp.aliyun-inc.com;
-          Thu, 25 Jan 2024 17:28:44 +0800
-Message-ID: <d93bdf89-d724-4f2a-a3fc-f3a46e54202c@linux.alibaba.com>
-Date: Thu, 25 Jan 2024 17:28:43 +0800
+          Thu, 25 Jan 2024 20:40:34 +0800
+From: Wen Gu <guwen@linux.alibaba.com>
+To: wintera@linux.ibm.com,
+	mjrosato@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com
+Cc: alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net] net/smc: fix incorrect SMC-D link group matching logic
+Date: Thu, 25 Jan 2024 20:39:16 +0800
+Message-Id: <20240125123916.77928-1-guwen@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [REGRESSION] v6.8 SMC-D issues
-To: Alexandra Winter <wintera@linux.ibm.com>, wenjia@linux.ibm.com,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, jaka@linux.ibm.com,
- Matthew Rosato <mjrosato@linux.ibm.com>
-Cc: Linux regressions mailing list <regressions@lists.linux.dev>,
- borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
- tonylu@linux.alibaba.com, raspl@linux.ibm.com, schnelle@linux.ibm.com,
- guangguan.wang@linux.alibaba.com, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- Halil Pasic <pasic@linux.ibm.com>
-References: <20231219142616.80697-1-guwen@linux.alibaba.com>
- <20231219142616.80697-8-guwen@linux.alibaba.com>
- <13579588-eb9d-4626-a063-c0b77ed80f11@linux.ibm.com>
- <530afe45-ba6b-4970-a71c-1f1255f5fca9@linux.alibaba.com>
- <8090bb34-1b70-43ea-ae13-df5d9a5eb761@linux.ibm.com>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <8090bb34-1b70-43ea-ae13-df5d9a5eb761@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
+The logic to determine if SMC-D link group matches is incorrect. The
+correct logic should be that it only returns true when the GID is the
+same, and the SMC-D device is the same and the extended GID is the same
+(in the case of virtual ISM).
 
+It can be fixed by adding brackets around the conditional (or ternary)
+operator expression. But for better readability and maintainability, it
+has been changed to an if-else statement.
 
-On 2024/1/25 16:26, Alexandra Winter wrote:
-> 
-> 
-> On 25.01.24 05:59, Wen Gu wrote:
->> After a while debug I found an elementary mistake of mine in
->> b40584d ("net/smc: compatible with 128-bits extended GID of virtual ISM device")..
->>
->> The operator order in smcd_lgr_match() is not as expected. It will always return
->> 'true' in remote-system case.
->>
->>   static bool smcd_lgr_match(struct smc_link_group *lgr,
->> -                          struct smcd_dev *smcismdev, u64 peer_gid)
->> +                          struct smcd_dev *smcismdev,
->> +                          struct smcd_gid *peer_gid)
->>   {
->> -       return lgr->peer_gid == peer_gid && lgr->smcd == smcismdev;
->> +       return lgr->peer_gid.gid == peer_gid->gid && lgr->smcd == smcismdev &&
->> +               smc_ism_is_virtual(smcismdev) ?
->> +               (lgr->peer_gid.gid_ext == peer_gid->gid_ext) : 1;
->>   }
->>
->> Could you please try again with this patch? to see if this is the root cause.
->> Really sorry for the inconvenience.
->>
->> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
->> index da6a8d9c81ea..c6a6ba56c9e3 100644
->> --- a/net/smc/smc_core.c
->> +++ b/net/smc/smc_core.c
->> @@ -1896,8 +1896,8 @@ static bool smcd_lgr_match(struct smc_link_group *lgr,
->>                             struct smcd_gid *peer_gid)
->>   {
->>          return lgr->peer_gid.gid == peer_gid->gid && lgr->smcd == smcismdev &&
->> -               smc_ism_is_virtual(smcismdev) ?
->> -               (lgr->peer_gid.gid_ext == peer_gid->gid_ext) : 1;
->> +               (smc_ism_is_virtual(smcismdev) ?
->> +                (lgr->peer_gid.gid_ext == peer_gid->gid_ext) : 1);
->>   }
->>
->>
->> Thanks,
->> Wen Gu
-> 
-> Hello Wen Gu,
-> 
-> thank you for the quick resposne and for finding this nasty bug.
-> I can confirm that with your patch I do not see the issue anymore.
-
-Thank you very much for your confirmation, Alexandra.
-
-> Please send a fix to the mailing lists. See
-> https://docs.kernel.org/process/handling-regressions.html
-> for some tips.
-> 
-
-Thank you. Will do.
-
-> May I propose that instead of adding the brackets, you change this function
-> to an if-then-else sequence for readability and maintainability?
-> I would still mention the missing brackets in the commit message, so
-> readers can quickly understand the issue.
-
-I agree. if-then-else will make it clearer. I will fix it like this:
+Reported-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Closes: https://lore.kernel.org/r/13579588-eb9d-4626-a063-c0b77ed80f11@linux.ibm.com
+Fixes: b40584d14570 ("net/smc: compatible with 128-bits extended GID of virtual ISM device")
+Link: https://lore.kernel.org/r/13579588-eb9d-4626-a063-c0b77ed80f11@linux.ibm.com
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+---
+ net/smc/smc_core.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
 diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index da6a8d9c81ea..1d5bce82d4d8 100644
+index 95cc95458e2d..e4c858411207 100644
 --- a/net/smc/smc_core.c
 +++ b/net/smc/smc_core.c
-@@ -1895,9 +1895,15 @@ static bool smcd_lgr_match(struct smc_link_group *lgr,
-                            struct smcd_dev *smcismdev,
-                            struct smcd_gid *peer_gid)
-  {
--       return lgr->peer_gid.gid == peer_gid->gid && lgr->smcd == smcismdev &&
--               smc_ism_is_virtual(smcismdev) ?
--               (lgr->peer_gid.gid_ext == peer_gid->gid_ext) : 1;
-+       if (lgr->peer_gid.gid != peer_gid->gid ||
-+           lgr->smcd != smcismdev)
-+               return false;
+@@ -1877,9 +1877,15 @@ static bool smcd_lgr_match(struct smc_link_group *lgr,
+ 			   struct smcd_dev *smcismdev,
+ 			   struct smcd_gid *peer_gid)
+ {
+-	return lgr->peer_gid.gid == peer_gid->gid && lgr->smcd == smcismdev &&
+-		smc_ism_is_virtual(smcismdev) ?
+-		(lgr->peer_gid.gid_ext == peer_gid->gid_ext) : 1;
++	if (lgr->peer_gid.gid != peer_gid->gid ||
++	    lgr->smcd != smcismdev)
++		return false;
 +
-+       if (smc_ism_is_virtual(smcismdev) &&
-+           lgr->peer_gid.gid_ext != peer_gid->gid_ext)
-+               return false;
++	if (smc_ism_is_virtual(smcismdev) &&
++	    lgr->peer_gid.gid_ext != peer_gid->gid_ext)
++		return false;
 +
-+       return true;
-  }
++	return true;
+ }
+ 
+ /* create a new SMC connection (and a new link group if necessary) */
+-- 
+2.32.0.3.g01195cf9f
 
-Thanks again,
-Wen Gu
-
-> 
-> Thanks again for the quick response.
-> Sandy
