@@ -1,426 +1,128 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E7B81C291;
-	Fri, 26 Jan 2024 14:36:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B93C208B0
+	for <linux-s390@vger.kernel.org>; Fri, 26 Jan 2024 17:57:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706279771; cv=none; b=u+z13hEUttcblMJ1Hx8f4cr9L7mQ9xsFSq16fk/ZgLK5bYjfEiPbNtBwWtI3+pIJyVL7smO3R4Bc6SxjuJ8REmbhwQJ+JzK0xA3ELVLAJQ4KRU4xq5AQr+Fu6mkTGgN0K+SKfUBbfz70kI0MTJmtKm+oigEWPDEdTiEdybTTXKk=
+	t=1706291865; cv=none; b=HUx6GZCPujxWuVMMjiQx4DAc+YxgFI1mL5dDxtgRHIZ4L1Z/JB7GPRdsVBGuMKXbpZEVZuZz8lfz7Gml5TOo43HlstaOqw/Lo0lTTKwJY2DirRSQmVB2RGfWxt8E3Nca5XuUgaps/cPwyr6ADi1pxdRNqTJuvcRcraQGJT52oX4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706279771; c=relaxed/simple;
-	bh=JfmPStXRRuk+e/C6LsDVMx3sKK3BV8TqGCQNeAqR3rg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=TjP3S5t8uz8QwADCzfspyJ/CdUGppbEou7kdK4zFhE9YowaANltO6oJoUZgW53yyCUWOxkBDgUkcQ7aOT8T6UYa0uz6N//vL68eAW47oqm2evi0LxDDFhQ5RonVS/O5MhtMqIel6QrY3AmMHWTSG7XQ+PtYrIo8g19MheoA6on4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IMAcA0KE; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1706291865; c=relaxed/simple;
+	bh=Q7oZu/1YHI4BPg81Y1ep2zij9N2PEYAo66F5LlRnWfk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=uUlhrSXX0axUI9Vp4O/gRYgha7fCeF98Svs4NI4HP02DwyvaQ8UPG3LmoySmFGMM0qJpiz6BWuonyGN/j/tB3XC1kcztNd4at+Z8HLbtGT5CKZS7vvUWniq3ZET4UFKg1C2+LR+xUxXZuTyjfffs7CB+kcH5Q/WbeU79D3fJpqQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=i2pjUe+D; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IMAcA0KE"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40QDNiXp009094;
-	Fri, 26 Jan 2024 14:36:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=8KQwGGE1OoEUuwhYZNpCz1AaEgoGOn7O9IUjthmazM0=;
- b=IMAcA0KEPhXc7qTBqVTMmjDOC+hGaEKRRLbHQMCP98wqgeOjn2rewyM4Rb7oMO+ECtHM
- m9rUWarhdtlLLS6AVYlEtAxC95keHirSX0vDbY9pYQy+V6gux+4mA6kvXJio4DWX+n4p
- ES4pYQ/nbyK9IeY0BVZpslXRV34PTppab4gEOEQg7NWuDnsHCAB6Ydl5yDzV7KsGxyFC
- 4ppSj6aVpoD2f22EfeahWx6WkfeRG8I22bT2GxR2ClBAhs6YdX7worCSJdAZme5log9D
- QHRUsdJPMz8VmbsSlCyifSL/qrk2tLbQI7mAK39aeP+/N3s+sbn0+gnijEoKxxx28YNm NQ== 
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vvbxumcua-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 26 Jan 2024 14:36:07 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40QDJKRt028225;
-	Fri, 26 Jan 2024 14:35:37 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vru732ssc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 26 Jan 2024 14:35:37 +0000
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40QEZZac32375476
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 26 Jan 2024 14:35:35 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5FDAC58063;
-	Fri, 26 Jan 2024 14:35:35 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0797F58062;
-	Fri, 26 Jan 2024 14:35:35 +0000 (GMT)
-Received: from li-4795344c-3451-11b2-a85c-ab40c30bcc43.ibm.com (unknown [9.61.37.129])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 26 Jan 2024 14:35:34 +0000 (GMT)
-From: "Jason J. Herne" <jjherne@linux.ibm.com>
-To: linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, akrowiak@linux.ibm.com
-Subject: [PATCH 3/3] s390/vfio-ap: Add write support to sysfs attr ap_config
-Date: Fri, 26 Jan 2024 09:35:33 -0500
-Message-ID: <20240126143533.14043-4-jjherne@linux.ibm.com>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20240126143533.14043-1-jjherne@linux.ibm.com>
-References: <20240126143533.14043-1-jjherne@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="i2pjUe+D"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1706291862;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=zdliqqq6y8vi1zExRryLtToJDjJljYRysBrFuRmBXOE=;
+	b=i2pjUe+D6v4ZotlXzZTx8cOix6ZOcUKNKFeBLTTSS08RU8edVChbcPvR14DY+qvdiKZmIj
+	LE1de5naPAcHdauSoq7sljQ0ammzA5QJwVAOYppJ4exC209FXggOcCKBKXuf2wSZZ+TC7S
+	XDiDmhwbE3KmQqWEUBFPO6qxvcMSNUA=
+Received: from mail-vs1-f71.google.com (mail-vs1-f71.google.com
+ [209.85.217.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-219-euteW51yM1mcmDPhR5FNWg-1; Fri, 26 Jan 2024 12:57:40 -0500
+X-MC-Unique: euteW51yM1mcmDPhR5FNWg-1
+Received: by mail-vs1-f71.google.com with SMTP id ada2fe7eead31-46b32362dbbso71794137.2
+        for <linux-s390@vger.kernel.org>; Fri, 26 Jan 2024 09:57:40 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706291860; x=1706896660;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zdliqqq6y8vi1zExRryLtToJDjJljYRysBrFuRmBXOE=;
+        b=qWgrWbG5b/FKT4DJ+UBAuyuCLim0xCWBNt5Ui9fDk1MJONZYAtHXNSwlj0NTWG8JEH
+         85UIp9TgrUWeV/gFUE3nBSrcMqSdSNLsicwZupabuQ0sCgNYVM4PF1CbXSjNzEKVFNEG
+         VBQ2SH+yEKiy/Eiwsk87B3Lr+/w83SNvddf1/nlEd/kbAMNqnq/U12w90AJq8dp1koNO
+         haxy9kb172ojDvTXHzvLonWQb+WrtePEiVOLf40IUvHPtQhsbjgkmDjyKpD69HJaZ2dc
+         tDGCRgrXy0bDivu+1u6vguhm6YvjavNTDpC5kRKr+NbHvNs+4EomRBW5FDLSEQN1vcTk
+         Pmvg==
+X-Gm-Message-State: AOJu0YxiVFDbF8+zU5xFFIAREfy2Ki8oxU2+G05agNNfIyoQQsOJuhoq
+	cZHnul3Aye/XCsDRH7gfAQOW7YA7xtywVbTHGq1CES0gYQyWQILAPbuPaQN9Udx9DBGGAR01vI3
+	r4i+NacdP4pinbOwKXM12fIzsnlj2KDDAOYK/JGGOtrlOFGiIGdh3WmWQ+ijuMsPnSVVeMsiNeo
+	K4saza+9uv9HPdic+udh+/mIWHpAI9WBp/Sw==
+X-Received: by 2002:a67:ed8e:0:b0:469:a7f6:7e14 with SMTP id d14-20020a67ed8e000000b00469a7f67e14mr105507vsp.24.1706291860315;
+        Fri, 26 Jan 2024 09:57:40 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IF4U69LLHM9eQG2kEV3etn1B4gahOwPpnU+IMnWvmuFC5o+U20i9fIcxh4YhMQSs8aBMR8LXo3uuszuWRJ15Xo=
+X-Received: by 2002:a67:ed8e:0:b0:469:a7f6:7e14 with SMTP id
+ d14-20020a67ed8e000000b00469a7f67e14mr105504vsp.24.1706291860078; Fri, 26 Jan
+ 2024 09:57:40 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: hj_KC82IzEPCJTd51iI75CP7Zfb9NZRD
-X-Proofpoint-ORIG-GUID: hj_KC82IzEPCJTd51iI75CP7Zfb9NZRD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-25_14,2024-01-25_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- lowpriorityscore=0 priorityscore=1501 bulkscore=0 adultscore=0
- mlxlogscore=999 impostorscore=0 mlxscore=0 suspectscore=0 clxscore=1015
- malwarescore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401260107
+References: <20240122162445.107260-1-frankja@linux.ibm.com>
+In-Reply-To: <20240122162445.107260-1-frankja@linux.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 26 Jan 2024 18:57:28 +0100
+Message-ID: <CABgObfZjJ5sADB0+aq4LTtKsmV0fBKCi-umOqQppC0=mgUMegw@mail.gmail.com>
+Subject: Re: [GIT PULL 0/2] KVM: s390: Fixes for 6.8
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, david@redhat.com, borntraeger@linux.ibm.com, 
+	cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Allow writing a complete set of masks to ap_config. Doing so will
-cause the vfio-ap driver to replace the vfio-ap mediated device's entire
-state with the given set of masks. If the given state cannot be set, then
-no changes are made to the vfio-ap mediated device.
+On Mon, Jan 22, 2024 at 5:25=E2=80=AFPM Janosch Frank <frankja@linux.ibm.co=
+m> wrote:
+>
+> Paolo,
+>
+> please pull the fixes for the following two problems:
+>  - The PQAP instruction did not set the CC in all occasions
+>  - We observed crashes with nested guests because a pointer to struct
+>    kvm was accessed before being valid (resulting in NULL pointers).
+>
+> You'll see that the fixes are still based on 6.7-rc4 since they've
+> lived on our master for quite a while. But I've re-based them on
+> Linus' master and your queue and next branches without an issue.
+>
+> The following changes since commit 4cdf351d3630a640ab6a05721ef055b9df6227=
+7f:
+>
+>   KVM: SVM: Update EFER software model on CR0 trap for SEV-ES (2023-12-08=
+ 13:37:05 -0500)
+>
+> are available in the Git repository at:
+>
+>   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/=
+kvm-s390-master-6.8-1
+>
+> for you to fetch changes up to 83303a4c776ce1032d88df59e811183479acea77:
+>
+>   KVM: s390: fix cc for successful PQAP (2024-01-08 18:05:44 +0100)
 
-The format of the data written to ap_config is as follows:
-{amask},{dmask},{cmask}\n
+Pulled, thanks.
 
-\n is a newline character.
+Paolo
 
-amask, dmask, and cmask are masks identifying which adapters, domains,
-and control domains should be assigned to the mediated device.
-
-The format of a mask is	as follows:
-0xNN..NN
-
-Where NN..NN is 64 hexadecimal characters representing a 256-bit value.
-The leftmost (highest order) bit represents adapter/domain 0.
-
-For an example set of masks that represent your mdev's current
-configuration, simply cat ap_config.
-
-This attribute is intended to be used by an mdevctl callout script
-supporting the mdev type vfio_ap-passthrough to atomically update a
-vfio-ap mediated device's state.
-
-Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
----
- Documentation/arch/s390/vfio-ap.rst   |  27 ++++
- drivers/s390/crypto/vfio_ap_ops.c     | 188 +++++++++++++++++++++++---
- drivers/s390/crypto/vfio_ap_private.h |   6 +-
- 3 files changed, 197 insertions(+), 24 deletions(-)
-
-diff --git a/Documentation/arch/s390/vfio-ap.rst b/Documentation/arch/s390/vfio-ap.rst
-index 929ee1c1c940..a94f13916dea 100644
---- a/Documentation/arch/s390/vfio-ap.rst
-+++ b/Documentation/arch/s390/vfio-ap.rst
-@@ -380,6 +380,33 @@ matrix device.
-     control_domains:
-       A read-only file for displaying the control domain numbers assigned to the
-       vfio_ap mediated device.
-+    ap_config:
-+      A read/write file that, when written to, allows the entire vfio_ap mediated
-+      device's ap configuration to be replaced in one shot. Three masks are given,
-+      one for adapters, one for domains, and one for control domains. If the
-+      given state cannot be set, then no changes are made to the vfio-ap
-+      mediated device.
-+
-+      The format of the data written to ap_config is as follows:
-+      {amask},{dmask},{cmask}\n
-+
-+      \n is a newline character.
-+
-+      amask, dmask, and cmask are masks identifying which adapters, domains,
-+      and control domains should be assigned to the mediated device.
-+
-+      The format of a mask is as follows:
-+      0xNN..NN
-+
-+      Where NN..NN is 64 hexadecimal characters representing a 256-bit value.
-+      The leftmost (highest order) bit represents adapter/domain 0.
-+
-+      For an example set of masks that represent your mdev's current
-+      configuration, simply cat ap_config.
-+
-+      This attribute is intended to be used by automation. End users would be
-+      better served using the respective assign/unassign attributes for adapters
-+      and domains.
- 
- * functions:
- 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 96293683b939..5ad134c1d5e6 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -764,10 +764,11 @@ static int vfio_ap_mdev_probe(struct mdev_device *mdev)
- static void vfio_ap_mdev_link_queue(struct ap_matrix_mdev *matrix_mdev,
- 				    struct vfio_ap_queue *q)
- {
--	if (q) {
--		q->matrix_mdev = matrix_mdev;
--		hash_add(matrix_mdev->qtable.queues, &q->mdev_qnode, q->apqn);
--	}
-+	if (!q || vfio_ap_mdev_get_queue(matrix_mdev, q->apqn))
-+		return;
-+
-+	q->matrix_mdev = matrix_mdev;
-+	hash_add(matrix_mdev->qtable.queues, &q->mdev_qnode, q->apqn);
- }
- 
- static void vfio_ap_mdev_link_apqn(struct ap_matrix_mdev *matrix_mdev, int apqn)
-@@ -1048,21 +1049,25 @@ static void vfio_ap_mdev_unlink_adapter(struct ap_matrix_mdev *matrix_mdev,
- 	}
- }
- 
--static void vfio_ap_mdev_hot_unplug_adapter(struct ap_matrix_mdev *matrix_mdev,
--					    unsigned long apid)
-+static void vfio_ap_mdev_hot_unplug_adapters(struct ap_matrix_mdev *matrix_mdev,
-+					    unsigned long *apids)
- {
--	int loop_cursor;
--	struct vfio_ap_queue *q;
- 	struct ap_queue_table *qtable = kzalloc(sizeof(*qtable), GFP_KERNEL);
-+	struct vfio_ap_queue *q;
-+	unsigned long apid;
-+	int loop_cursor;
- 
- 	hash_init(qtable->queues);
--	vfio_ap_mdev_unlink_adapter(matrix_mdev, apid, qtable);
- 
--	if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm)) {
--		clear_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
--		vfio_ap_mdev_update_guest_apcb(matrix_mdev);
-+	for_each_set_bit_inv(apid, apids, AP_DEVICES) {
-+		vfio_ap_mdev_unlink_adapter(matrix_mdev, apid, qtable);
-+
-+		if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm))
-+			clear_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
- 	}
- 
-+	vfio_ap_mdev_update_guest_apcb(matrix_mdev);
-+
- 	vfio_ap_mdev_reset_queues(qtable);
- 
- 	hash_for_each(qtable->queues, loop_cursor, q, mdev_qnode) {
-@@ -1073,6 +1078,15 @@ static void vfio_ap_mdev_hot_unplug_adapter(struct ap_matrix_mdev *matrix_mdev,
- 	kfree(qtable);
- }
- 
-+static void vfio_ap_mdev_hot_unplug_adapter(struct ap_matrix_mdev *matrix_mdev,
-+					    unsigned long apid)
-+{
-+	DECLARE_BITMAP(apids, AP_DEVICES);
-+
-+	set_bit_inv(apid, apids);
-+	vfio_ap_mdev_hot_unplug_adapters(matrix_mdev, apids);
-+}
-+
- /**
-  * unassign_adapter_store - parses the APID from @buf and clears the
-  * corresponding bit in the mediated matrix device's APM
-@@ -1235,21 +1249,24 @@ static void vfio_ap_mdev_unlink_domain(struct ap_matrix_mdev *matrix_mdev,
- 	}
- }
- 
--static void vfio_ap_mdev_hot_unplug_domain(struct ap_matrix_mdev *matrix_mdev,
--					   unsigned long apqi)
-+static void vfio_ap_mdev_hot_unplug_domains(struct ap_matrix_mdev *matrix_mdev,
-+					   unsigned long *apqis)
- {
--	int loop_cursor;
--	struct vfio_ap_queue *q;
- 	struct ap_queue_table *qtable = kzalloc(sizeof(*qtable), GFP_KERNEL);
-+	struct vfio_ap_queue *q;
-+	unsigned long apqi;
-+	int loop_cursor;
- 
- 	hash_init(qtable->queues);
--	vfio_ap_mdev_unlink_domain(matrix_mdev, apqi, qtable);
- 
--	if (test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm)) {
--		clear_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm);
--		vfio_ap_mdev_update_guest_apcb(matrix_mdev);
-+	for_each_set_bit_inv(apqi, apqis, AP_DOMAINS) {
-+		vfio_ap_mdev_unlink_domain(matrix_mdev, apqi, qtable);
-+
-+		if (test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
-+			clear_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm);
- 	}
- 
-+	vfio_ap_mdev_update_guest_apcb(matrix_mdev);
- 	vfio_ap_mdev_reset_queues(qtable);
- 
- 	hash_for_each(qtable->queues, loop_cursor, q, mdev_qnode) {
-@@ -1260,6 +1277,15 @@ static void vfio_ap_mdev_hot_unplug_domain(struct ap_matrix_mdev *matrix_mdev,
- 	kfree(qtable);
- }
- 
-+static void vfio_ap_mdev_hot_unplug_domain(struct ap_matrix_mdev *matrix_mdev,
-+					   unsigned long apqi)
-+{
-+	DECLARE_BITMAP(apqis, AP_DOMAINS);
-+
-+	set_bit_inv(apqi, apqis);
-+	vfio_ap_mdev_hot_unplug_domains(matrix_mdev, apqis);
-+}
-+
- /**
-  * unassign_domain_store - parses the APQI from @buf and clears the
-  * corresponding bit in the mediated matrix device's AQM
-@@ -1527,10 +1553,130 @@ static ssize_t ap_config_show(struct device *dev, struct device_attribute *attr,
- 	return idx;
- }
- 
-+/* Number of characters needed for a complete hex mask representing the bits in ..  */
-+#define AP_DEVICES_STRLEN	(AP_DEVICES/4 + 3)
-+#define AP_DOMAINS_STRLEN	(AP_DOMAINS/4 + 3)
-+#define AP_CONFIG_STRLEN	(AP_DEVICES_STRLEN + 2 * AP_DOMAINS_STRLEN)
-+
-+static int parse_bitmap(char **strbufptr, unsigned long *bitmap, int nbits)
-+{
-+	char *curmask;
-+
-+	curmask = strsep(strbufptr, ",\n");
-+	if (!curmask)
-+		return -EINVAL;
-+
-+	bitmap_clear(bitmap, 0, nbits);
-+	return ap_hex2bitmap(curmask, bitmap, nbits);
-+}
-+
-+static int ap_matrix_length_check(struct ap_matrix_mdev *matrix_mdev)
-+{
-+	unsigned long bit;
-+
-+	for_each_set_bit_inv(bit, matrix_mdev->matrix.apm, AP_DEVICES) {
-+		if (bit > matrix_mdev->matrix.apm_max)
-+			return -ENODEV;
-+	}
-+
-+	for_each_set_bit_inv(bit, matrix_mdev->matrix.aqm, AP_DOMAINS) {
-+		if (bit > matrix_mdev->matrix.aqm_max)
-+			return -ENODEV;
-+	}
-+
-+	for_each_set_bit_inv(bit, matrix_mdev->matrix.adm, AP_DOMAINS) {
-+		if (bit > matrix_mdev->matrix.adm_max)
-+			return -ENODEV;
-+	}
-+
-+	return 0;
-+}
-+
-+static void ap_matrix_copy(struct ap_matrix *dst, struct ap_matrix *src)
-+{
-+	bitmap_copy(dst->apm, src->apm, AP_DEVICES);
-+	bitmap_copy(dst->aqm, src->aqm, AP_DOMAINS);
-+	bitmap_copy(dst->adm, src->adm, AP_DOMAINS);
-+}
-+
- static ssize_t ap_config_store(struct device *dev, struct device_attribute *attr,
- 			       const char *buf, size_t count)
- {
--	return count;
-+	struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(dev);
-+	struct ap_matrix m_new, m_old, m_added, m_removed;
-+	unsigned long newbit;
-+	char *newbuf, *rest;
-+	int rc = count;
-+	bool do_update;
-+
-+	newbuf = rest = kstrndup(buf, AP_CONFIG_STRLEN, GFP_KERNEL);
-+	if (!newbuf)
-+		return -ENOMEM;
-+
-+	mutex_lock(&ap_perms_mutex);
-+	get_update_locks_for_mdev(matrix_mdev);
-+
-+	/* Save old state */
-+	ap_matrix_copy(&m_old, &matrix_mdev->matrix);
-+
-+	if (parse_bitmap(&rest, m_new.apm, AP_DEVICES) ||
-+	    parse_bitmap(&rest, m_new.aqm, AP_DOMAINS) ||
-+		parse_bitmap(&rest, m_new.adm, AP_DOMAINS)) {
-+		rc = -EINVAL;
-+		goto out;
-+	}
-+
-+	bitmap_andnot(m_removed.apm, m_old.apm, m_new.apm, AP_DEVICES);
-+	bitmap_andnot(m_removed.aqm, m_old.aqm, m_new.aqm, AP_DOMAINS);
-+	bitmap_andnot(m_added.apm, m_new.apm, m_old.apm, AP_DEVICES);
-+	bitmap_andnot(m_added.aqm, m_new.aqm, m_old.aqm, AP_DOMAINS);
-+
-+	/* Need new bitmaps in matrix_mdev for validation */
-+	ap_matrix_copy(&matrix_mdev->matrix, &m_new);
-+
-+	/* Ensure new state is valid, else undo new state */
-+	rc = vfio_ap_mdev_validate_masks(matrix_mdev);
-+	if (rc) {
-+		ap_matrix_copy(&matrix_mdev->matrix, &m_old);
-+		goto out;
-+	}
-+	rc = ap_matrix_length_check(matrix_mdev);
-+	if (rc) {
-+		ap_matrix_copy(&matrix_mdev->matrix, &m_old);
-+		goto out;
-+	}
-+	rc = count;
-+
-+	/* Need old bitmaps in matrix_mdev for unplug/unlink */
-+	ap_matrix_copy(&matrix_mdev->matrix, &m_old);
-+
-+	/* Unlink removed adapters/domains */
-+	vfio_ap_mdev_hot_unplug_adapters(matrix_mdev, m_removed.apm);
-+	vfio_ap_mdev_hot_unplug_domains(matrix_mdev, m_removed.aqm);
-+
-+	/* Need new bitmaps in matrix_mdev for linking new adapters/domains */
-+	ap_matrix_copy(&matrix_mdev->matrix, &m_new);
-+
-+	/* Link newly added adapters */
-+	for_each_set_bit_inv(newbit, m_added.apm, AP_DEVICES)
-+		vfio_ap_mdev_link_adapter(matrix_mdev, newbit);
-+
-+	for_each_set_bit_inv(newbit, m_added.aqm, AP_DOMAINS)
-+		vfio_ap_mdev_link_domain(matrix_mdev, newbit);
-+
-+	/* filter resources not bound to vfio-ap */
-+	do_update = vfio_ap_mdev_filter_matrix(matrix_mdev->matrix.apm,
-+				matrix_mdev->matrix.aqm, matrix_mdev);
-+	do_update |= vfio_ap_mdev_filter_cdoms(matrix_mdev);
-+
-+	/* Apply changes to shadow apbc if things changed */
-+	if (do_update)
-+		vfio_ap_mdev_update_guest_apcb(matrix_mdev);
-+out:
-+	release_update_locks_for_mdev(matrix_mdev);
-+	mutex_unlock(&ap_perms_mutex);
-+	kfree(newbuf);
-+	return rc;
- }
- static DEVICE_ATTR_RW(ap_config);
- 
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 88aff8b81f2f..e2cf07c184bf 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -75,11 +75,11 @@ extern struct ap_matrix_dev *matrix_dev;
-  */
- struct ap_matrix {
- 	unsigned long apm_max;
--	DECLARE_BITMAP(apm, 256);
-+	DECLARE_BITMAP(apm, AP_DEVICES);
- 	unsigned long aqm_max;
--	DECLARE_BITMAP(aqm, 256);
-+	DECLARE_BITMAP(aqm, AP_DOMAINS);
- 	unsigned long adm_max;
--	DECLARE_BITMAP(adm, 256);
-+	DECLARE_BITMAP(adm, AP_DOMAINS);
- };
- 
- /**
--- 
-2.41.0
+> ----------------------------------------------------------------
+> pqap instruction missing cc fix
+> vsie shadow creation race fix
+> ----------------------------------------------------------------
+>
+> Christian Borntraeger (1):
+>   KVM: s390: vsie: fix race during shadow creation
+>
+> Eric Farman (1):
+>   KVM: s390: fix cc for successful PQAP
+>
+>  arch/s390/kvm/priv.c | 8 ++++++--
+>  arch/s390/kvm/vsie.c | 1 -
+>  arch/s390/mm/gmap.c  | 1 +
+>  3 files changed, 7 insertions(+), 3 deletions(-)
+>
+> --
+> 2.43.0
+>
 
