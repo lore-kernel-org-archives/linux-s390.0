@@ -1,118 +1,168 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 982C611711
-	for <linux-s390@vger.kernel.org>; Fri, 26 Jan 2024 06:07:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF2A31C2A6;
+	Fri, 26 Jan 2024 14:35:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706249259; cv=none; b=A1pAW2D24LdHbDKn02cZJ7z4kADz+Sxg05ofZzuFsomJk+YhQQl4TmsngOeKHGa6lZa3FOw2m+SCHH3Plt+Wl40BZWRJpv1r2Fckq0QCL6MFhH74Z/+EhuU54yAQVWdxsD8NtUQsv/sXcuxD+rdcV5se0OM8FVw3RmQBywLd4XY=
+	t=1706279738; cv=none; b=FtyDcvJzgBsU1wQFCnLywcl85ro1MahRxHPdbSk0Z8QoV+iPZ3BynO/CHljHBKy/RSW8G2IdcHrg9ma9RX9ROQvybW9tOoOFglh3I44EHnAXKmOf+FaKIuzcUL+2xRZbeMsPBspDkyjxqFOjgmWeXHI4g+KWjt7CH/Ho/OWtv8I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706249259; c=relaxed/simple;
-	bh=DAbJ/11kkWV3NfOW/ZZ47OvYR00ddrGOrBip2EkiS9w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qxXGADP/KvdlyTJDuRnBqxT2SaWbsifVHI8Xy60AcUDcO1iKChKkEGdL1PxmU3v/UKBbjP/zDseA5zcjK5zmcqZ3pLFMAx58KdVpI45Bf8vLR0okYMP2PxXIMIlA6Y3Nmg7N0ufe+exyWqcUwWfApbxzOkfZg3Qo6buC9KNASkc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DU0CFc04; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1706279738; c=relaxed/simple;
+	bh=VS1AQhdQTxNirNpomKjqTD6WT1P/vvqx1Hx55sOh2ko=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=aIzRByltL6l+WPR3xOo/QIwK634sHCIm0TZyeReS7np/IY1QHwbh4TTKZjIC5qJIw2Tgoo4sPIrTP9t3cE/sBRZoxy7SOH8mQ3MNhN/yuAnLan3jtMBZWt0H+7WgSzhVIy/i3eOPzsiRQgSekokloAA341kLl24M6NQRj3aq1zY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lV+hW9D2; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DU0CFc04"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706249256;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=z72p/1NCFMOucyopgj4TN6714b15v6kjfWKT6hd64FE=;
-	b=DU0CFc04VHmtu8ZLll/iRJhhcriw3TXzpgiHxUwNFZXgkEa/mfy5OAChi7EKfUUi+w95KP
-	ikpU+H8JLdMAelFyRmPNPXx41hFnFywhnkJkxSb1u8lmdVsBWJZfC7JSPl5JEaXu1pOC9t
-	lh7KL7c6hbYjIVfvjybBUjFre5sqaew=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-551-Dvx_BaF4N36KKDvV0yy-Nw-1; Fri, 26 Jan 2024 01:07:33 -0500
-X-MC-Unique: Dvx_BaF4N36KKDvV0yy-Nw-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 19D621013664;
-	Fri, 26 Jan 2024 06:07:32 +0000 (UTC)
-Received: from localhost (unknown [10.72.116.117])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 925AD492BC6;
-	Fri, 26 Jan 2024 06:07:30 +0000 (UTC)
-Date: Fri, 26 Jan 2024 14:07:27 +0800
-From: Baoquan He <bhe@redhat.com>
-To: Nathan Chancellor <nathan@kernel.org>
-Cc: linux-kernel@vger.kernel.org, kexec@lists.infradead.org, x86@kernel.org,
-	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	linux-mips@vger.kernel.org, linux-riscv@lists.infradead.org,
-	loongarch@lists.linux.dev, akpm@linux-foundation.org,
-	ebiederm@xmission.com, hbathini@linux.ibm.com, piliu@redhat.com,
-	viro@zeniv.linux.org.uk
-Subject: Re: [PATCH linux-next v3 00/14] Split crash out from kexec and clean
- up related config items
-Message-ID: <ZbNMHwVhWxMyvKH/@MiWiFi-R3L-srv>
-References: <20240124051254.67105-1-bhe@redhat.com>
- <20240126045551.GA126645@dev-arch.thelio-3990X>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lV+hW9D2"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40QEWUh0016460;
+	Fri, 26 Jan 2024 14:35:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=f5V34d+v+9WtCrL/6crwi8C/ZZrO1PefzMKrgvPQbDI=;
+ b=lV+hW9D2sT2PV1vy+tIwi1buXeF0+41mezYTYKf31qZIRars5uk8cHcHA5pdMOPPqUWm
+ kHhCziMs7Dt4zK0Md452cZN+G98NZnkmRIPoYZRT35vsGSlVMXb0t9JI3TGQ4s0bnfxe
+ tRRE3tswzXsJdUi8uD0Gt941G7wz8m7b5TdSgNQP53IL7YjM4XA3iKcH00b6kYEw5mGn
+ 1IjcbDgrVN3rmFXyWhgRCbWhHZSbYtTxadvxOd4HAfoVUPQcTsHG3WUiYJh6n+6D/TtG
+ ShaUgs6CE1ZJ7ZmF3xcsiIx8ZFctKK3WpDgVwM+oac32tjgPCsFyrANT4quVqFZSzhC9 xQ== 
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vvek903e0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 26 Jan 2024 14:35:36 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40QDQGlY028254;
+	Fri, 26 Jan 2024 14:35:35 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vru732ss7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 26 Jan 2024 14:35:35 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40QEZYEG2098156
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 26 Jan 2024 14:35:34 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6DBDC58062;
+	Fri, 26 Jan 2024 14:35:34 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 14E2B58056;
+	Fri, 26 Jan 2024 14:35:34 +0000 (GMT)
+Received: from li-4795344c-3451-11b2-a85c-ab40c30bcc43.ibm.com (unknown [9.61.37.129])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 26 Jan 2024 14:35:33 +0000 (GMT)
+From: "Jason J. Herne" <jjherne@linux.ibm.com>
+To: linux-s390@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, akrowiak@linux.ibm.com
+Subject: [PATCH 1/3] s390/ap: Externalize AP bus specific bitmap reading function
+Date: Fri, 26 Jan 2024 09:35:31 -0500
+Message-ID: <20240126143533.14043-2-jjherne@linux.ibm.com>
+X-Mailer: git-send-email 2.41.0
+In-Reply-To: <20240126143533.14043-1-jjherne@linux.ibm.com>
+References: <20240126143533.14043-1-jjherne@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240126045551.GA126645@dev-arch.thelio-3990X>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: lt6NTaDY5pmxB3G-vShctZj47sUMv0hI
+X-Proofpoint-ORIG-GUID: lt6NTaDY5pmxB3G-vShctZj47sUMv0hI
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-01-25_14,2024-01-25_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 bulkscore=0
+ clxscore=1011 lowpriorityscore=0 malwarescore=0 phishscore=0 adultscore=0
+ priorityscore=1501 mlxlogscore=999 mlxscore=0 suspectscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2401260106
 
-On 01/25/24 at 09:55pm, Nathan Chancellor wrote:
-...... 
-> I am seeing a few build failures in my test matrix on next-20240125 that
-> appear to be caused by this series although I have not bisected. Some
-> reproduction steps:
+Rename hex2bitmap() to ap_hex2bitmap() and export it for external
+use. This function will be used by the implementation of the vfio-ap
+queue_configuration sysfs attribute.
 
-Thanks for trying this, I have reproduced the linking failure on arm,
-will work out a way to fix it.
+Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
+Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+---
+ drivers/s390/crypto/ap_bus.c | 13 +++----------
+ drivers/s390/crypto/ap_bus.h | 22 ++++++++++++++++++++++
+ 2 files changed, 25 insertions(+), 10 deletions(-)
 
-It's weird, I remember I have built these and passed.
-
-> 
-> $ curl -LSso .config https://git.alpinelinux.org/aports/plain/community/linux-edge/config-edge.armv7
-> $ make -skj"$(nproc)" ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- olddefconfig all
-> ...
-> arm-linux-gnueabi-ld: arch/arm/kernel/machine_kexec.o: in function `arch_crash_save_vmcoreinfo':
-> machine_kexec.c:(.text+0x488): undefined reference to `vmcoreinfo_append_str'
-> ...
-> 
-> $ curl -LSso .config https://github.com/archlinuxarm/PKGBUILDs/raw/master/core/linux-aarch64/config
-> $ make -skj"$(nproc)" ARCH=arm64 CROSS_COMPILE=aarch64-linux- olddefconfig all
-> ...
-> aarch64-linux-ld: kernel/kexec_file.o: in function `kexec_walk_memblock.constprop.0':
-> kexec_file.c:(.text+0x314): undefined reference to `crashk_res'
-> aarch64-linux-ld: kernel/kexec_file.o: relocation R_AARCH64_ADR_PREL_PG_HI21 against symbol `crashk_res' which may bind externally can not be used when making a shared object; recompile with -fPIC
-> kexec_file.c:(.text+0x314): dangerous relocation: unsupported relocation
-> aarch64-linux-ld: kexec_file.c:(.text+0x318): undefined reference to `crashk_res'
-> aarch64-linux-ld: drivers/of/kexec.o: in function `of_kexec_alloc_and_setup_fdt':
-> kexec.c:(.text+0x580): undefined reference to `crashk_res'
-> aarch64-linux-ld: drivers/of/kexec.o: relocation R_AARCH64_ADR_PREL_PG_HI21 against symbol `crashk_res' which may bind externally can not be used when making a shared object; recompile with -fPIC
-> kexec.c:(.text+0x580): dangerous relocation: unsupported relocation
-> aarch64-linux-ld: kexec.c:(.text+0x584): undefined reference to `crashk_res'
-> aarch64-linux-ld: kexec.c:(.text+0x590): undefined reference to `crashk_res'
-> aarch64-linux-ld: kexec.c:(.text+0x5b0): undefined reference to `crashk_low_res'
-> aarch64-linux-ld: drivers/of/kexec.o: relocation R_AARCH64_ADR_PREL_PG_HI21 against symbol `crashk_low_res' which may bind externally can not be used when making a shared object; recompile with -fPIC
-> kexec.c:(.text+0x5b0): dangerous relocation: unsupported relocation
-> aarch64-linux-ld: kexec.c:(.text+0x5b4): undefined reference to `crashk_low_res'
-> aarch64-linux-ld: kexec.c:(.text+0x5c0): undefined reference to `crashk_low_res'
-> ...
-> 
-> $ curl -LSso .config https://git.alpinelinux.org/aports/plain/community/linux-edge/config-edge.x86_64
-> $ make -skj"$(nproc)" ARCH=x86_64 CROSS_COMPILE=x86_64-linux- olddefconfig all
-> ...
-> x86_64-linux-ld: arch/x86/xen/mmu_pv.o: in function `paddr_vmcoreinfo_note':
-> mmu_pv.c:(.text+0x3af3): undefined reference to `vmcoreinfo_note'
-> ...
-> 
-> Cheers,
-> Nathan
-> 
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index f46dd6abacd7..5d8e379eff44 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -1035,15 +1035,7 @@ void ap_bus_cfg_chg(void)
+ 	ap_bus_force_rescan();
+ }
+ 
+-/*
+- * hex2bitmap() - parse hex mask string and set bitmap.
+- * Valid strings are "0x012345678" with at least one valid hex number.
+- * Rest of the bitmap to the right is padded with 0. No spaces allowed
+- * within the string, the leading 0x may be omitted.
+- * Returns the bitmask with exactly the bits set as given by the hex
+- * string (both in big endian order).
+- */
+-static int hex2bitmap(const char *str, unsigned long *bitmap, int bits)
++int ap_hex2bitmap(const char *str, unsigned long *bitmap, int bits)
+ {
+ 	int i, n, b;
+ 
+@@ -1070,6 +1062,7 @@ static int hex2bitmap(const char *str, unsigned long *bitmap, int bits)
+ 		return -EINVAL;
+ 	return 0;
+ }
++EXPORT_SYMBOL(ap_hex2bitmap);
+ 
+ /*
+  * modify_bitmap() - parse bitmask argument and modify an existing
+@@ -1135,7 +1128,7 @@ static int ap_parse_bitmap_str(const char *str, unsigned long *bitmap, int bits,
+ 		rc = modify_bitmap(str, newmap, bits);
+ 	} else {
+ 		memset(newmap, 0, size);
+-		rc = hex2bitmap(str, newmap, bits);
++		rc = ap_hex2bitmap(str, newmap, bits);
+ 	}
+ 	return rc;
+ }
+diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
+index 98814839ef30..954f8d36c2d9 100644
+--- a/drivers/s390/crypto/ap_bus.h
++++ b/drivers/s390/crypto/ap_bus.h
+@@ -343,6 +343,28 @@ int ap_parse_mask_str(const char *str,
+ 		      unsigned long *bitmap, int bits,
+ 		      struct mutex *lock);
+ 
++/*
++ * ap_hex2bitmap() - Convert a string containing a hexadecimal number (str)
++ * into a bitmap (bitmap) with bits set that correspond to the bits represented
++ * by the hex string. Input and output data is in big endian order.
++ *
++ * str - Input hex string of format "0x1234abcd". The leading "0x" is optional.
++ * At least one digit is required. Must be large enough to hold the number of
++ * bits represented by the bits parameter.
++ *
++ * bitmap - Pointer to a bitmap. Upon successful completion of this function,
++ * this bitmap will have bits set to match the value of str. If bitmap is longer
++ * than str, then the rightmost bits of bitmap are padded with zeros. Must be
++ * large enough to hold the number of bits represented by the bits parameter.
++ *
++ * bits - Length, in bits, of the bitmap represented by str. Must be a multiple
++ * of 8.
++ *
++ * Returns: 0           on success
++ *          -EINVAL     If str format is invalid or bits is not a multiple of 8.
++ */
++int ap_hex2bitmap(const char *str, unsigned long *bitmap, int bits);
++
+ /*
+  * Interface to wait for the AP bus to have done one initial ap bus
+  * scan and all detected APQNs have been bound to device drivers.
+-- 
+2.41.0
 
