@@ -1,144 +1,110 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BA4023748;
-	Sun, 28 Jan 2024 14:03:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C841533CD6;
+	Sun, 28 Jan 2024 19:59:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706450614; cv=none; b=K/C5SQAFD2X0J5laumq9lZjVLD9kqOrOLzKQevme8hpKZdco76MApe996qiVfVRNcQvYCcMSnF78NcP/LVwvxBC02CHRqryRotKDYoIz6BPXULXqO2AHQtQ5wwYSBz1osVHxuBjjRE+hneJ1h/0Ar6UmWvSBF0ds2WsPtiedXd4=
+	t=1706471951; cv=none; b=D+dAZJK5ymgn/3ROsdDi1+LaHwxGRN0tthpbVYEu3t98Dg4DSfVjDHpXqsb7Mg560CczCYnEW3Znh7DurpqO4CUOW+w69IuJgSr85ZrEuK+K5eLB4bLpvMMiqq8y51cgmRCeOxH2FuY7w9A+knMhxLwVVoeYAclT6zA1pnr2/lU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706450614; c=relaxed/simple;
-	bh=QPKARJhphJTFFYHrEyYFlYgl8/7ZAhez9TimfUCJ8Ek=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=No/UhxktnpgnpKvc1OaMvnEEuDH9zdmzj6PFWgwAvEr5wvDSkmrvop59iCxzvY7XHB/Hf+eYfvmiJjZDBVkm++psOjpUIDW8yY9+iYpQzIfsyiBiOTyJ2vpbABTuBU+dzD6EMCRJWk1f/sol/20UpB1KaLpNfjB0LTgX9AFSXok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hw+rL0Au; arc=none smtp.client-ip=192.198.163.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1706471951; c=relaxed/simple;
+	bh=AvzOX+YLvgoEfFY+O1q34caaqKaHWvjS5dkviD8ygF0=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=oELiCO+Pllu1lJVqIHltsJ7bcspszcrX6pYd9PoDKo2g0BQyncSz/NkyCSr/5jQs1SGoEH4DLnRpwBnJmukzKCP/i9Epr6kAV7m/5vh2lMs2KBbVmm4wt5OA2wl2tnzTKtjmVOMwWD/WXRecpKokKhsT9pMAN5Ava78QMUwvXbo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Rt5FgHJf; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hw+rL0Au"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1706450612; x=1737986612;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=QPKARJhphJTFFYHrEyYFlYgl8/7ZAhez9TimfUCJ8Ek=;
-  b=hw+rL0AueG+Bemx188kmIITPFk46DT58rY9fvqvbRYAD9Ri/ZWan0gB8
-   fNAZf6oQT0VTyanLltOKilpOd0JMC+9Oy753IuCKAXRpvOkTNK3eFkobR
-   SS1fEKv6ksOLX1vYgkqgK/mS+ahb9EK9H1YL1wHpZX6Hu+IKWtD2ZfnRs
-   DqxtWmnbK2CLjwvU5Z42VIwQvy7f48YPPfmDIGWy01DXKvmfG2w2EiVsT
-   ZXOhNHz4I5LfyEit1ZGiaPnaq7SPdMo1ngF+ccctYkbGfCVFm1nbkoJtH
-   vvRIObqnm5gpPYrNyXeFxCmpZ9s6t/Cp+n8HQbwt0S42h4QC2aA1bIiBb
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10966"; a="2604464"
-X-IronPort-AV: E=Sophos;i="6.05,220,1701158400"; 
-   d="scan'208";a="2604464"
-Received: from orviesa002.jf.intel.com ([10.64.159.142])
-  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2024 06:03:31 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.05,220,1701158400"; 
-   d="scan'208";a="29273411"
-Received: from lkp-server01.sh.intel.com (HELO 370188f8dc87) ([10.239.97.150])
-  by orviesa002.jf.intel.com with ESMTP; 28 Jan 2024 06:03:29 -0800
-Received: from kbuild by 370188f8dc87 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rU5ks-0003RI-1M;
-	Sun, 28 Jan 2024 14:03:26 +0000
-Date: Sun, 28 Jan 2024 22:02:31 +0800
-From: kernel test robot <lkp@intel.com>
-To: "Jason J. Herne" <jjherne@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, linux-kernel@vger.kernel.org,
-	pasic@linux.ibm.com, akrowiak@linux.ibm.com
-Subject: Re: [PATCH 3/3] s390/vfio-ap: Add write support to sysfs attr
- ap_config
-Message-ID: <202401282141.A8V47yFI-lkp@intel.com>
-References: <20240126143533.14043-4-jjherne@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Rt5FgHJf"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40SHskIM017315;
+	Sun, 28 Jan 2024 19:58:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=HqWJnNirYD2mZc4aShg2yzFvukCr30wCusQwz3eGeQw=;
+ b=Rt5FgHJf79Sz6qvHnfL0WMT6E1GZVRsEFUcwgKXZHENG1yTjO82kFu7NysqUYTL07P+4
+ D6GzR8AB6//RCtCGhQfbnIbS9toGUxEczyBRVsAw1db7AOREBy95tXGi3j6EOkOBzJ0D
+ KdUMP+O7PbDAoX3hL8loG4W1T+uwIoxld6h4k/XDrxFk0jBR/yqoAvJkkEajULvXdm7i
+ VkhAiHS26g1XWTkdOWTjGz+E8jKoS5gWnZ1mU1afWWGQHOeml+kFiL5wYFoqXG4wki9n
+ j7D37piEa7ZxK6Q2gNBW+t6TZNrZUnS74OVL8v1LLwDXyd8GB+IQ6428ZA1JoP34r322 gw== 
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vwr6m4a94-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sun, 28 Jan 2024 19:58:59 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40SHKPFI008234;
+	Sun, 28 Jan 2024 19:58:58 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vwdnkm49g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sun, 28 Jan 2024 19:58:58 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40SJwtkx13042222
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sun, 28 Jan 2024 19:58:55 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0CCFA2004D;
+	Sun, 28 Jan 2024 19:58:55 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EEF9B20043;
+	Sun, 28 Jan 2024 19:58:54 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Sun, 28 Jan 2024 19:58:54 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
+	id AE3A5E079D; Sun, 28 Jan 2024 20:58:54 +0100 (CET)
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mingo@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH 3/5] s390/vtime: remove unused __ARCH_HAS_VTIME_TASK_SWITCH leftover
+Date: Sun, 28 Jan 2024 20:58:52 +0100
+Message-Id: <b3623605ba5c1d386d8f59e17c930ca2c3cca07c.1706470223.git.agordeev@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
+In-Reply-To: <cover.1706470223.git.agordeev@linux.ibm.com>
+References: <cover.1706470223.git.agordeev@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240126143533.14043-4-jjherne@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Xt6cwiIK9tVwUe-fhmMhvVLPErmDmlky
+X-Proofpoint-ORIG-GUID: Xt6cwiIK9tVwUe-fhmMhvVLPErmDmlky
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-01-25_14,2024-01-25_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
+ priorityscore=1501 impostorscore=0 lowpriorityscore=0 spamscore=0
+ mlxlogscore=656 phishscore=0 malwarescore=0 adultscore=0 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2401280151
 
-Hi Jason,
+__ARCH_HAS_VTIME_TASK_SWITCH macro is not used anymore.
 
-kernel test robot noticed the following build warnings:
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+---
+ arch/s390/include/asm/vtime.h | 2 --
+ 1 file changed, 2 deletions(-)
 
-[auto build test WARNING on kvms390/next]
-[cannot apply to s390/features linus/master v6.8-rc1 next-20240125]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Jason-J-Herne/s390-ap-Externalize-AP-bus-specific-bitmap-reading-function/20240126-223952
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git next
-patch link:    https://lore.kernel.org/r/20240126143533.14043-4-jjherne%40linux.ibm.com
-patch subject: [PATCH 3/3] s390/vfio-ap: Add write support to sysfs attr ap_config
-config: s390-defconfig (https://download.01.org/0day-ci/archive/20240128/202401282141.A8V47yFI-lkp@intel.com/config)
-compiler: s390-linux-gcc (GCC) 13.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240128/202401282141.A8V47yFI-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202401282141.A8V47yFI-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
-   In file included from include/linux/cpumask.h:12,
-                    from include/linux/smp.h:13,
-                    from include/linux/lockdep.h:14,
-                    from include/linux/spinlock.h:63,
-                    from include/linux/mmzone.h:8,
-                    from include/linux/gfp.h:7,
-                    from include/linux/mm.h:7,
-                    from include/linux/scatterlist.h:8,
-                    from include/linux/iommu.h:10,
-                    from include/linux/vfio.h:12,
-                    from drivers/s390/crypto/vfio_ap_ops.c:12:
-   In function 'bitmap_copy',
-       inlined from 'ap_matrix_copy' at drivers/s390/crypto/vfio_ap_ops.c:1593:2,
-       inlined from 'ap_config_store' at drivers/s390/crypto/vfio_ap_ops.c:1616:2:
->> include/linux/bitmap.h:245:17: warning: 'memcpy' reading 32 bytes from a region of size 0 [-Wstringop-overread]
-     245 |                 memcpy(dst, src, len);
-         |                 ^~~~~~~~~~~~~~~~~~~~~
-   In function 'ap_config_store':
-   cc1: note: source object is likely at address zero
-   In function 'bitmap_copy',
-       inlined from 'ap_matrix_copy' at drivers/s390/crypto/vfio_ap_ops.c:1594:2,
-       inlined from 'ap_config_store' at drivers/s390/crypto/vfio_ap_ops.c:1616:2:
->> include/linux/bitmap.h:245:17: warning: 'memcpy' reading 32 bytes from a region of size 0 [-Wstringop-overread]
-     245 |                 memcpy(dst, src, len);
-         |                 ^~~~~~~~~~~~~~~~~~~~~
-   In function 'ap_config_store':
-   cc1: note: source object is likely at address zero
-   In function 'bitmap_copy',
-       inlined from 'ap_matrix_copy' at drivers/s390/crypto/vfio_ap_ops.c:1595:2,
-       inlined from 'ap_config_store' at drivers/s390/crypto/vfio_ap_ops.c:1616:2:
->> include/linux/bitmap.h:245:17: warning: 'memcpy' reading 32 bytes from a region of size 0 [-Wstringop-overread]
-     245 |                 memcpy(dst, src, len);
-         |                 ^~~~~~~~~~~~~~~~~~~~~
-   In function 'ap_config_store':
-   cc1: note: source object is likely at address zero
-
-
-vim +/memcpy +245 include/linux/bitmap.h
-
-^1da177e4c3f41 Linus Torvalds    2005-04-16  236  
-^1da177e4c3f41 Linus Torvalds    2005-04-16  237  static inline void bitmap_copy(unsigned long *dst, const unsigned long *src,
-8b4daad52fee77 Rasmus Villemoes  2015-02-12  238  			unsigned int nbits)
-^1da177e4c3f41 Linus Torvalds    2005-04-16  239  {
-8b4daad52fee77 Rasmus Villemoes  2015-02-12  240  	unsigned int len = BITS_TO_LONGS(nbits) * sizeof(unsigned long);
-3e7e5baaaba780 Alexander Lobakin 2022-06-24  241  
-3e7e5baaaba780 Alexander Lobakin 2022-06-24  242  	if (small_const_nbits(nbits))
-3e7e5baaaba780 Alexander Lobakin 2022-06-24  243  		*dst = *src;
-3e7e5baaaba780 Alexander Lobakin 2022-06-24  244  	else
-^1da177e4c3f41 Linus Torvalds    2005-04-16 @245  		memcpy(dst, src, len);
-^1da177e4c3f41 Linus Torvalds    2005-04-16  246  }
-^1da177e4c3f41 Linus Torvalds    2005-04-16  247  
-
+diff --git a/arch/s390/include/asm/vtime.h b/arch/s390/include/asm/vtime.h
+index fe17e448c0c5..561c91c1a87c 100644
+--- a/arch/s390/include/asm/vtime.h
++++ b/arch/s390/include/asm/vtime.h
+@@ -2,8 +2,6 @@
+ #ifndef _S390_VTIME_H
+ #define _S390_VTIME_H
+ 
+-#define __ARCH_HAS_VTIME_TASK_SWITCH
+-
+ static inline void update_timer_sys(void)
+ {
+ 	S390_lowcore.system_timer += S390_lowcore.last_update_timer - S390_lowcore.exit_timer;
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.40.1
+
