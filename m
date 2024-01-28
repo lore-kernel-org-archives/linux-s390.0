@@ -1,80 +1,109 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2414C24B22;
-	Fri, 26 Jan 2024 22:10:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BC541113;
+	Sun, 28 Jan 2024 01:28:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706307025; cv=none; b=bEvJa5DM7kodxuOMcuMMfthMgtxEdvaXdBbHEtHa0C4W/U58ngBfFgGhtyi5piQmfvCqtFR32hwF0y1Z72pnxtPiBD/sy+X7K9oc5EiCc/6nMwxE4S0/DmHASuTwO5AFN8HBFJVFlHW4uydcbJxA6pAo+gz4DoRMKkMcAQWYpgc=
+	t=1706405314; cv=none; b=Qwt8xtXah76J5rS5bxF3dQeUEzJ12zmagObSJmyPF2e1AQYG90UOxjPrlQp2LaL5oY98BfLw4VAh2dX85CzYdi26fageoStOcjUs5GB3Q0q7cNGs6M07ED9TN21mhoXsztaewgxZSqZ8ZD6Tg4bFc7yatLFrgDuwtRjCDODJ2i8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706307025; c=relaxed/simple;
-	bh=vXuMp87s4mUMjGR7JS9qQioqQWRujjmW8WiM3f1UTIc=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=m/V0JWZD8fE4uxuUFC7ybswBTmFB3Jr43OhcAXC8CJZwJP7mtR8l7cRYTOOMLwRuqu5KA7VG4WOWZ2vYbJXw1aljPjbqt5MPpPI/7nZ3Zcb/6g5hlYggROXMyrWLz7AkuVnQNyI61uIVF6VMDcCejslcXzsfoQzdnFwjln08cFU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iYHsRXGg; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1706405314; c=relaxed/simple;
+	bh=+4n89C+gEBtsQDw1jUm0K1mb6NFfpf8Q6IFymcXODF4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=BD7z5VTrQGkGADBhcms8mLrH38xzj+VJXarU8unfKhl491nSTJVz7SiYFV26dKH/XKaZC/b8s4gEMhncFDuadBSoqNsQIh6qqCgyiCFthoZi+fHcAw3dmauq3L7YKJVJfg9Co6EGx0P+t6hQDVE86iKGiljl9zUgEjfZ/JLnSVA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R9KKIBt6; arc=none smtp.client-ip=209.85.128.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iYHsRXGg"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id C2C3AC433C7;
-	Fri, 26 Jan 2024 22:10:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1706307024;
-	bh=vXuMp87s4mUMjGR7JS9qQioqQWRujjmW8WiM3f1UTIc=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=iYHsRXGgQh5ZvI2+TILjldF1LIikWHILRt85ozEl1c8al1F5Ce71oFrW+PkB19UbC
-	 aqIcARXm/rO0Gk/X6pg4Qwm1o5oOpfqGXnKzst64tutNkopuRzOIVFLY9U4NMEk8BE
-	 OdUGxj7WbqW3UTbbhtqta3g7pG3EkfYGtdQ/9Qs41+I9JSah4XZXIZsfe9p9VyIW7f
-	 fPesQBp7wfYPNT46JinHao15BggDbdkUy/wCxRaW4BmpQjOKq3AtT6m35s1NXq/wx0
-	 M3Yv/eMiE8qqfhKSYsN4k0UtgoArEFQ5NbGy4QzRWuXme+DC3MwuzVtn43lXwkjf41
-	 UxGbATp1d23yA==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id A9DE1D8C966;
-	Fri, 26 Jan 2024 22:10:24 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R9KKIBt6"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-40ef5316e01so440655e9.3;
+        Sat, 27 Jan 2024 17:28:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1706405311; x=1707010111; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=oUXUIxIBKb7yXVS8ERVW4fwa4sKRyx0T69mWwoqQkWg=;
+        b=R9KKIBt68sXTqDQdUnwHKECV9ZMWozyiVb7XXW5420kXxWdIzYkMOJXOAf33tRzpnY
+         2nxRsPCAXY4Us2zG9F1Y0Gv+8DyOYU3vJrm5sLUK7zwZEgF32Pb84HZ6Wno+QZBbfZEX
+         ORCIQ+AXkbrlHJUU7uRdeW3skVzO884z8tPGWBdG9AZ235fcldjkFg+Y1ZCeQ+29dh5O
+         HYCzYvVhZrKFMqjuCyOCoFKtY1HZfFp3Q1TmFUd8uhi9GrFak+2eIxwmWjU4M3ssOoHm
+         i3JQxc041y+srtxPxAm1Ta8EKVWwnJ6thMHB9Q0aCkqJKWmFTnuUCp7J46ELEvxOHXeo
+         REQA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706405311; x=1707010111;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=oUXUIxIBKb7yXVS8ERVW4fwa4sKRyx0T69mWwoqQkWg=;
+        b=os7HCsgWA1WRker45HgFcyo+icXLZ8rghjM2giGfN/ZmxI1VuVClVIX2qhTokPYPBK
+         RGEm0Slpm2+KL3s5qeDYMotOeExsz3WaTmYbJnip7CJ51AW/OzI2RMyruWOgYE9mJpXP
+         bPTTo00Csm0Wxf3HBTfF8AsidqDcc8KjW9JR/Ie3OmWQaeWSaXvFpsYrG9OGvPEThgxh
+         opoqLfXF4wPeHwojdAZaJcKeALenw0QjoiDg4iP1vO0GPnJt+1U/pzRjHus667AeKlGm
+         xznQ6BVtem7M1gbi4NqfkYmGos6JFycABCzzVDxJgzuBWPEzni4TrxQWCooQ0ja76mxN
+         ATEA==
+X-Gm-Message-State: AOJu0YxMfFLdQY4v/Ui3/I0odvaqKUyDIHTDR/7CE22buAAaETuNYhUI
+	4iUxEmSB3Cpmk3bNUyihhwW7TmpYY4+FLgljzHx7/dAEo5/YDjs6P3EUTfHjaHMBkw==
+X-Google-Smtp-Source: AGHT+IHept3nMUj4LCYzYJiT9LNHHbS9INXuvww5u4glPmCjjXCtKxmvIBnhSwXHbRZoEWgm1HAkmA==
+X-Received: by 2002:a05:600c:1396:b0:40e:a569:3555 with SMTP id u22-20020a05600c139600b0040ea5693555mr2037091wmf.35.1706405310998;
+        Sat, 27 Jan 2024 17:28:30 -0800 (PST)
+Received: from ?IPV6:2001:678:a5c:1204:db7b:6df3:1a86:f66a? (soda.int.kasm.eu. [2001:678:a5c:1204:db7b:6df3:1a86:f66a])
+        by smtp.gmail.com with ESMTPSA id p6-20020a05600c1d8600b0040ee76ae773sm4537228wms.19.2024.01.27.17.28.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 27 Jan 2024 17:28:30 -0800 (PST)
+Message-ID: <0b14826b-9373-4458-919d-1da2a62d4226@gmail.com>
+Date: Sun, 28 Jan 2024 02:28:28 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] net/smc: fix incorrect SMC-D link group matching logic
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <170630702469.26145.8407281649456707093.git-patchwork-notify@kernel.org>
-Date: Fri, 26 Jan 2024 22:10:24 +0000
-References: <20240125123916.77928-1-guwen@linux.alibaba.com>
-In-Reply-To: <20240125123916.77928-1-guwen@linux.alibaba.com>
-To: Wen Gu <guwen@linux.alibaba.com>
-Cc: wintera@linux.ibm.com, mjrosato@linux.ibm.com, wenjia@linux.ibm.com,
- jaka@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
- tonylu@linux.alibaba.com, linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH linux-next v3 01/14] kexec: split crashkernel reservation
+ code out from crash_core.c
+Content-Language: en-US, sv-SE
+To: Baoquan He <bhe@redhat.com>, linux-kernel@vger.kernel.org
+Cc: kexec@lists.infradead.org, x86@kernel.org,
+ linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-riscv@lists.infradead.org,
+ loongarch@lists.linux.dev, akpm@linux-foundation.org, ebiederm@xmission.com,
+ hbathini@linux.ibm.com, piliu@redhat.com, viro@zeniv.linux.org.uk
+References: <20240124051254.67105-1-bhe@redhat.com>
+ <20240124051254.67105-2-bhe@redhat.com>
+From: Klara Modin <klarasmodin@gmail.com>
+In-Reply-To: <20240124051254.67105-2-bhe@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hello:
+Hi,
 
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Thu, 25 Jan 2024 20:39:16 +0800 you wrote:
-> The logic to determine if SMC-D link group matches is incorrect. The
-> correct logic should be that it only returns true when the GID is the
-> same, and the SMC-D device is the same and the extended GID is the same
-> (in the case of virtual ISM).
+On 2024-01-24 06:12, Baoquan He wrote:
+> And also add config item CRASH_RESERVE to control its enabling of the
+> codes. And update config items which has relationship with crashkernel
+> reservation.
 > 
-> It can be fixed by adding brackets around the conditional (or ternary)
-> operator expression. But for better readability and maintainability, it
-> has been changed to an if-else statement.
-> 
-> [...]
+> And also change ifdeffery from CONFIG_CRASH_CORE to CONFIG_CRASH_RESERVE
+> when those scopes are only crashkernel reservation related.
 
-Here is the summary with links:
-  - [net] net/smc: fix incorrect SMC-D link group matching logic
-    https://git.kernel.org/netdev/net/c/c3dfcdb65ec1
+> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+> index 502986237cb6..a9243e0948a3 100644
+> --- a/arch/x86/Kconfig
+> +++ b/arch/x86/Kconfig
+> @@ -2106,7 +2106,7 @@ config ARCH_SUPPORTS_CRASH_HOTPLUG
+>   	def_bool y
+>   
+>   config ARCH_HAS_GENERIC_CRASHKERNEL_RESERVATION
+> -	def_bool CRASH_CORE
+> +	def_bool CRASH_RESEERVE
+>   
+>   config PHYSICAL_START
+>   	hex "Physical address where the kernel is loaded" if (EXPERT || CRASH_DUMP)
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+CRASH_RESEERVE is probably a typo and should be CRASH_RESERVE (with the 
+former ARCH_HAS_GENERIC_CRASHKERNEL_RESERVATION isn't defined in my 
+.config and `crashkernel=...` parameter has no effect).
 
-
+Kind regards,
+Klara Modin
