@@ -1,71 +1,67 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FED13C48F;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAF7A3C68C;
 	Sun, 28 Jan 2024 19:59:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706471954; cv=none; b=bUUYSwGlFonzkbZCWow95RN8mmbrfYNHcuYmjjGbTePoAKDji3F44MC3+e5le959Lk//2rIHRZ5sTCrZs8l1snrjoLwwZGjl5nUxDaV/z0vungQ+5zQNnhSYC2ORX8xbTWgTPICbD036AwszBNqETqr1MeY/DG7C5q2emMTSDF0=
+	t=1706471955; cv=none; b=YU/XKuAPhZJNmjxxg6egJcUFYowu/eLFsSvmQoXYacXgrAz8qhp9Y402tr9z+FeRHewFbZmW6P3q2O3BaQbxixidxJU5EgIPq2BN6/iMrzWMtY4atFkZLPtMtPb+t+9Z6KBpccUjNFGOIZt4YH8zvFycy+2x9ktcNZ38odYyhjU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706471954; c=relaxed/simple;
-	bh=nRcNqmBon+kQBI7q2Pqwiddl5KFQ2+3C0N2v7bv9oIs=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=ADgcOgyAreIOAN+h4eT87tGGZGsCj1M3cqCFF3zN1o0H4o1YMUYPi+7rSeXnkzBUQHyrZl+HKIOb3SYxvcotbK86353wIYUSlk5PYzgsgb2K5RE4TLbaa/Ag4cfQB22gw+vMLQYHZALKVUM21IZu7o0syNw/3uEHtCaOiCcjhF8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=L5FiS1Fm; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1706471955; c=relaxed/simple;
+	bh=2SUnMmASJH8Zosdufbfuq/QquqLnb55c0ttzhxwGzF0=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=YzGB6RfhVNtHNQ0nPJeJcp/3G5WYanXXlor/H+BWZsBLMOiHrWgG2hu2RQ8a8UqI3mjSnN3hdRVWLTl5CSbvhlbzc9TbOyg+BNZHaU6/+mzWeAqHood4g/h1XNqcRUEz+AYVjw1/7GD8gd7udmK+p3S+yHenlWIhUt84cSPNK34=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BJMKk/A8; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="L5FiS1Fm"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40SFWAuW018738;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BJMKk/A8"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40SHDW0Q002736;
 	Sun, 28 Jan 2024 19:59:00 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=aAvGPWexv33Ic6RaT+kurh2+S+cJ+Jft7H9B2hhNlZ0=;
- b=L5FiS1Fmcud1c7xM8cmIjS1UnK4glAIUshlWJwQYqhFE6I4z7Zg1iQPXbnLVOrBxbGZc
- M/MeZ7EW4sM83GY3TdBtzjWVem0AKC1ijW5lMH6HZzRDKvVjpowpuTlLQLhdDpjv9K4X
- HtYWRW9dM78EcE5tg/cQlDGk9VDPcd3ZG3609B5CK/2+pQ+1LhdY6lNjHpmbk1ncMmHJ
- 4BPAsFKOnCO9WzT0+NGhussuvACqHo+wFz1ultb6+ZiJMIpRRvFW15L65dyTMFOXxJMo
- c8w7jVOWAJMteSi1VU2MKoAkol3XEHGlHYJILX7a36oUr9mpv7ajQABaO6SIrA/pgH2W IA== 
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vwsnb37je-1
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=+dcdQLiT/nfsDiyjwPQCWNxl4S7aRhJdMu+54Asw0Gc=;
+ b=BJMKk/A8CiaUcu2xRCvYs6nwy0MRd2ZgGOovF4CcM/uAV3SMBdFmV/ggT4BtiQzBjUjv
+ AYKWMzP+wWfrMx/egfqJkEWCmT2BKrr8yYp3vgU5IKCk00IvHGdWnWVxeNlWWfD0iuvE
+ tn4ve/aDDYuiwx59ZctnYoFc9Xn5S61d6wTehpLDmgNeTZ8/8+ORNNyjaR3vtrRKCkgm
+ VI4kRgCxxHy9/AbbSA5kUj/JocwfO4z6sgTGYduGCkVMDctw0DzJVrhbDE0zTxJ42Ymu
+ 3XH5U7RfJR/RbV+6Tt85RwUTbbw+NrdkjuqDKTJ81tz+yALIrLjGTmaGHjlO6ApujeWR uQ== 
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vw209y73w-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Sun, 28 Jan 2024 19:58:59 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40SJfuWp017772;
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40SH0MxN010511;
 	Sun, 28 Jan 2024 19:58:58 GMT
 Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vwchycdj7-1
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vwd5nc6x9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Sun, 28 Jan 2024 19:58:58 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40SJwtLH197250
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40SJwtsc57868730
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Sun, 28 Jan 2024 19:58:55 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 053AC2004F;
-	Sun, 28 Jan 2024 19:58:55 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id EDE8C2004E;
+	Sun, 28 Jan 2024 19:58:54 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E5F032004D;
+	by IMSVA (Postfix) with ESMTP id DD7F22004B;
 	Sun, 28 Jan 2024 19:58:54 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
 	Sun, 28 Jan 2024 19:58:54 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
-	id AC026E0788; Sun, 28 Jan 2024 20:58:54 +0100 (CET)
+	id A8968E0499; Sun, 28 Jan 2024 20:58:54 +0100 (CET)
 From: Alexander Gordeev <agordeev@linux.ibm.com>
 To: Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mingo@kernel.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH 2/5] sched/vtime: get rid of generic vtime_task_switch() implementation
-Date: Sun, 28 Jan 2024 20:58:51 +0100
-Message-Id: <1f519a8c86cf13bc4acd18ed5d8d1705d1554083.1706470223.git.agordeev@linux.ibm.com>
+Subject: [PATCH 0/5] sched/vtime: vtime.h headers cleanup
+Date: Sun, 28 Jan 2024 20:58:49 +0100
+Message-Id: <cover.1706470223.git.agordeev@linux.ibm.com>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <cover.1706470223.git.agordeev@linux.ibm.com>
-References: <cover.1706470223.git.agordeev@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,121 +70,49 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: jVsGMArMDf6g_jru9SgAUNE_2wp0z2K0
-X-Proofpoint-GUID: jVsGMArMDf6g_jru9SgAUNE_2wp0z2K0
+X-Proofpoint-GUID: 3t3W68bBEGZdHty-p09wI73TlhqoZ5Bl
+X-Proofpoint-ORIG-GUID: 3t3W68bBEGZdHty-p09wI73TlhqoZ5Bl
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-01-25_14,2024-01-25_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- bulkscore=0 adultscore=0 suspectscore=0 spamscore=0 malwarescore=0
- mlxlogscore=649 clxscore=1015 mlxscore=0 phishscore=0 lowpriorityscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ bulkscore=0 adultscore=0 clxscore=1015 spamscore=0 mlxlogscore=713
+ phishscore=0 suspectscore=0 impostorscore=0 priorityscore=1501 mlxscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311290000 definitions=main-2401280151
 
-The generic vtime_task_switch() implementation gets built only
-if __ARCH_HAS_VTIME_TASK_SWITCH is not defined, but requires an
-architecture to implement arch_vtime_task_switch() callback at
-the same time, which is confusing.
+Hi all,
 
-Further, arch_vtime_task_switch() is implemented for 32-bit PowerPC
-architecture only and vtime_task_switch() generic variant is rather
-superfluous.
+Please find a small cleanup to vtime_task_switch() wiring.
+I split it into smaller patches to allow separate PowerPC
+vs s390 reviews. Otherwise patches 2+3 and 4+5 could have
+been merged.
 
-Simplify the whole vtime_task_switch() wiring by moving the existing
-generic implementation to PowerPC.
+I tested it on s390 and compile-tested it on 32- and 64-bit
+PowerPC and few other major architectures only, but it is
+only of concern for CONFIG_VIRT_CPU_ACCOUNTING_NATIVE-capable
+ones (AFAICT).
 
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
----
+Thanks!
+
+Alexander Gordeev (5):
+  sched/vtime: remove confusing arch_vtime_task_switch() declaration
+  sched/vtime: get rid of generic vtime_task_switch() implementation
+  s390/vtime: remove unused __ARCH_HAS_VTIME_TASK_SWITCH leftover
+  s390/irq,nmi: do not include <linux/vtime.h> header
+  sched/vtime: do not include <asm/vtime.h> header
+
  arch/powerpc/include/asm/cputime.h | 13 -------------
  arch/powerpc/kernel/time.c         | 22 ++++++++++++++++++++++
+ arch/s390/include/asm/vtime.h      |  2 --
+ arch/s390/kernel/irq.c             |  1 +
+ arch/s390/kernel/nmi.c             |  1 +
+ include/asm-generic/vtime.h        |  1 -
+ include/linux/vtime.h              |  5 -----
  kernel/sched/cputime.c             | 13 -------------
- 3 files changed, 22 insertions(+), 26 deletions(-)
+ 8 files changed, 24 insertions(+), 34 deletions(-)
+ delete mode 100644 include/asm-generic/vtime.h
 
-diff --git a/arch/powerpc/include/asm/cputime.h b/arch/powerpc/include/asm/cputime.h
-index 4961fb38e438..aff858ca99c0 100644
---- a/arch/powerpc/include/asm/cputime.h
-+++ b/arch/powerpc/include/asm/cputime.h
-@@ -32,23 +32,10 @@
- #ifdef CONFIG_PPC64
- #define get_accounting(tsk)	(&get_paca()->accounting)
- #define raw_get_accounting(tsk)	(&local_paca->accounting)
--static inline void arch_vtime_task_switch(struct task_struct *tsk) { }
- 
- #else
- #define get_accounting(tsk)	(&task_thread_info(tsk)->accounting)
- #define raw_get_accounting(tsk)	get_accounting(tsk)
--/*
-- * Called from the context switch with interrupts disabled, to charge all
-- * accumulated times to the current process, and to prepare accounting on
-- * the next process.
-- */
--static inline void arch_vtime_task_switch(struct task_struct *prev)
--{
--	struct cpu_accounting_data *acct = get_accounting(current);
--	struct cpu_accounting_data *acct0 = get_accounting(prev);
--
--	acct->starttime = acct0->starttime;
--}
- #endif
- 
- /*
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index df20cf201f74..c0fdc6d94fee 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -354,6 +354,28 @@ void vtime_flush(struct task_struct *tsk)
- 	acct->hardirq_time = 0;
- 	acct->softirq_time = 0;
- }
-+
-+/*
-+ * Called from the context switch with interrupts disabled, to charge all
-+ * accumulated times to the current process, and to prepare accounting on
-+ * the next process.
-+ */
-+void vtime_task_switch(struct task_struct *prev)
-+{
-+	if (is_idle_task(prev))
-+		vtime_account_idle(prev);
-+	else
-+		vtime_account_kernel(prev);
-+
-+	vtime_flush(prev);
-+
-+	if (!IS_ENABLED(CONFIG_PPC64)) {
-+		struct cpu_accounting_data *acct = get_accounting(current);
-+		struct cpu_accounting_data *acct0 = get_accounting(prev);
-+
-+		acct->starttime = acct0->starttime;
-+	}
-+}
- #endif /* CONFIG_VIRT_CPU_ACCOUNTING_NATIVE */
- 
- void __no_kcsan __delay(unsigned long loops)
-diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
-index af7952f12e6c..aa48b2ec879d 100644
---- a/kernel/sched/cputime.c
-+++ b/kernel/sched/cputime.c
-@@ -424,19 +424,6 @@ static inline void irqtime_account_process_tick(struct task_struct *p, int user_
-  */
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING_NATIVE
- 
--# ifndef __ARCH_HAS_VTIME_TASK_SWITCH
--void vtime_task_switch(struct task_struct *prev)
--{
--	if (is_idle_task(prev))
--		vtime_account_idle(prev);
--	else
--		vtime_account_kernel(prev);
--
--	vtime_flush(prev);
--	arch_vtime_task_switch(prev);
--}
--# endif
--
- void vtime_account_irq(struct task_struct *tsk, unsigned int offset)
- {
- 	unsigned int pc = irq_count() - offset;
 -- 
 2.40.1
 
