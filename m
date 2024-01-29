@@ -1,107 +1,271 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12olkn2025.outbound.protection.outlook.com [40.92.23.25])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83248154BF0;
-	Mon, 29 Jan 2024 16:53:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706547193; cv=none; b=fI8k+rMxcl0rZ/yBbdV6ey6Yki5XQXejzigQ8qPXGN/+Emsoe7y81JhsJrwxf0Bi6GST+087jZ9o2RQwhrhf837zytOu/ScP9ix1oo4br6frwsQzcjZxaFQ02eEzngjpWEJ1xmio+TY/Mv1lWx6Ffe9QBNU8/kl0diVSByb/vb0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706547193; c=relaxed/simple;
-	bh=7IF3NRzkq7YYR37XIex5QmrIK/n0fB3HatMOIeK/cRI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LQ0wTYeszUUyp0AyT8NuXfkaBXGXALwPbjs4orB/+LY5WKucwOM85NhqkhlgVfZ1Ixsc+97LvvPXfDWi+xU3XE89d08L8ILrZDb31Ohp2iZTyOFXYn3N1G2jlpafqOs4heT/k8qjWHAiKKycqn0qdPHv6dc/FpalvHuxX1sKRFs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XFH4jAma; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFB731D682;
+	Mon, 29 Jan 2024 18:27:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.92.23.25
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1706552868; cv=fail; b=RhxRTixZfRmfCO5ayJeoF/dPudZcWQb8/FP6q9DlwQFuOonv+bwwt7C0Pv8cNHFxksUo7B+caJ5WfdDu/Vs5fcXWWA1iNJlwUll2To5sj2yHs1PKbF9Nr042icY281qKexOOVKlfU+WBob0aWjv/qyPpGvsSz6ef+G140s0TcK4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1706552868; c=relaxed/simple;
+	bh=LdMxtZm+7GExLPUdJ5k6CktKcUaZXm38Z6wlrVmmFQ8=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=C1jNEAA6De55HQgYyEwQt2ujXXWpkZJXHa0wuWYAdYFSSTyfCrqDMoGEzfK6Ahr72FMh6UWWTkpP1UZCObJmSel0D2gqDEqCFE0jgidX19EF1oceeXI4ummKMf1gO3jcKGIG4Eiuv/mbaUdXp8URWVtOcZgQim73p/bLNQPovTU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=hlS3WfGN; arc=fail smtp.client-ip=40.92.23.25
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XFH4jAma"
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40TGhM0Q013516;
-	Mon, 29 Jan 2024 16:53:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=uBbid1amquyLIJr4bv4Vc6+0vlJFqIwuorIR4rfEizY=;
- b=XFH4jAma6yKsf+fdSqmODgkKkygoAmxgpJiWmUtQA8b7GaQfs0Cb9uORzmvR1C5LaRmM
- 0F7oQrvIkSPifBeh8lp5AZ+aVP2k4asZE61i8gL1sO3desMR22F59fO/46600kjBPFmx
- Kg23VVSg083gdhWfr5zAcVWB7QR3xLq50WIT8vQI9OuBZ8uxzatg5lP/avJQdS7oyjJ6
- QEXz/2O4lsNX6J39K57caKV3VpfBssBZO210P1ywneoufcAFP5d8h/Fwtp8jVcFaizK3
- QK66cko0z08h9c+FzJSTA816WAehdkD9P7p0G9oxWtWZsP0GiJH5qvo/46ISoAadv/NX TQ== 
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vxfsp89m7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 29 Jan 2024 16:53:10 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40TG8d7E011266;
-	Mon, 29 Jan 2024 16:53:09 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vweck92gd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 29 Jan 2024 16:53:09 +0000
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40TGr8Gr57606618
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 29 Jan 2024 16:53:08 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 132F958056;
-	Mon, 29 Jan 2024 16:53:08 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AB4425803F;
-	Mon, 29 Jan 2024 16:53:07 +0000 (GMT)
-Received: from [9.61.175.71] (unknown [9.61.175.71])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 29 Jan 2024 16:53:07 +0000 (GMT)
-Message-ID: <324d5277-8272-458f-b7fc-f0a21a50af64@linux.ibm.com>
-Date: Mon, 29 Jan 2024 11:53:07 -0500
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="hlS3WfGN"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=jlNT64FGOOyOBoszz9N5Ac93N4hKdLp8ezxw4nxu+anvMKOaLvvExZauuaBc47zAjMcOtHZBKiykEEnVIKHaz6WNK61AKLeYZxINqXnSr5KRhTjTuEK9bHdXghN59G/DfgWjx39YO0a3u6IZ+Ih/N0sRo/Z+sVdQGWQoF7N+fhPtvHG6NCzG0vzjkb77cymtc+PZQ+RVsiN+ZDVESQvEtHOh4SNIh1gEz/6U1ClD9MgxpkcHg2v3afQJPfp5txfEhl+nzqiD0oCVuItlzFKSyqYuj1QXZtyFimf/LYJXYHadnA6X4yYimySeZseFe9vBMx/fcY5P93DUKU8I1xzh1w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=LjMxWwuPQtMm7C9T4IqjJnUlv/VPPfxAPRGeKmPQz9s=;
+ b=ggf6TzH9vXrbpybsDKAmvWd4BKQ8QwCgbiBcv27OYDrjGmgbnS8kp1rWC3fsmWpc6imRDggE93TpivcU5lVnly8JiyMm5ug2dk8hI9Mtpt7XMc9a9jHqIjSIR15UOssM128V0ZlmK5KPXITYZwobNnk0KictkdT93WBHkOjK4RlBaiewIvhwR2ZB8qBDH3CgNNJduEBN87zfrbz8L0Iy6Y1Twn5nSAMh+pOZdU5swTpzAz8SDqWb24qzdt+7t7yC59eaMJdovC0PP/yjWGZz2VQ0c9i5kAh+EkKOuST98xTknYE6tn367L8jhrkG7DUEEqr/fkcuq8La2FDVChetag==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=LjMxWwuPQtMm7C9T4IqjJnUlv/VPPfxAPRGeKmPQz9s=;
+ b=hlS3WfGN88q3XUjwUXn1ymDbF/O/kyjexWKP8fdzBo80MEGekqC78rJYKys3mlXwoS8cdJ4Q6VH2H6VmKyCvNbSu1eT3VxPnqH2XDVXrY9wZYWr7sz4ZOnpr6LBEcAgqJA8H/sPLyWdj6smmQoDq2UxN6PFAnSnWKxdMHiY5SNJ7tNV2Pxd6eObM+g6gbc50g64LlHQGmDy8sDNht6Xfhg8Z9A94GZAxX2mjBSBqFbPJXRyUvhquts5K4EYAsJPEoSnjTZv6gmcQcFSJx066IHGq3ZC9mOowp3BVAz8my4bblT0i8IDCzImUC3ipUtw5K88Rjb4ML/M6HhIn+BAGvg==
+Received: from SN6PR02MB4157.namprd02.prod.outlook.com (2603:10b6:805:33::23)
+ by SJ2PR02MB9341.namprd02.prod.outlook.com (2603:10b6:a03:4cb::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7202.24; Mon, 29 Jan
+ 2024 18:27:44 +0000
+Received: from SN6PR02MB4157.namprd02.prod.outlook.com
+ ([fe80::67a9:f3c0:f57b:86dd]) by SN6PR02MB4157.namprd02.prod.outlook.com
+ ([fe80::67a9:f3c0:f57b:86dd%5]) with mapi id 15.20.7228.029; Mon, 29 Jan 2024
+ 18:27:44 +0000
+From: Michael Kelley <mhklinux@outlook.com>
+To: Baoquan He <bhe@redhat.com>, "kexec@lists.infradead.org"
+	<kexec@lists.infradead.org>, "akpm@linux-foundation.org"
+	<akpm@linux-foundation.org>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"x86@kernel.org" <x86@kernel.org>, "linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "linuxppc-dev@lists.ozlabs.org"
+	<linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org"
+	<linux-s390@vger.kernel.org>, "nathan@kernel.org" <nathan@kernel.org>
+Subject: RE: [PATCH linux-next 1/3] x86, crash: don't nest CONFIG_CRASH_DUMP
+ ifdef inside CONFIG_KEXEC_CODE ifdef scope
+Thread-Topic: [PATCH linux-next 1/3] x86, crash: don't nest CONFIG_CRASH_DUMP
+ ifdef inside CONFIG_KEXEC_CODE ifdef scope
+Thread-Index: AQHaUronjJlmGLvjNUqyTXz++ApJcbDxGaMg
+Date: Mon, 29 Jan 2024 18:27:43 +0000
+Message-ID:
+ <SN6PR02MB41571397201804BD486C6148D47E2@SN6PR02MB4157.namprd02.prod.outlook.com>
+References: <20240129135033.157195-1-bhe@redhat.com>
+In-Reply-To: <20240129135033.157195-1-bhe@redhat.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-tmn: [CPkbIpZavqPDb2Hf7oilxwsHApVfhc0K]
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SN6PR02MB4157:EE_|SJ2PR02MB9341:EE_
+x-ms-office365-filtering-correlation-id: 1f0f8b42-44a2-4e82-cc0f-08dc20f7fc2e
+x-ms-exchange-slblob-mailprops:
+ yzXCV5TiOCq5Z3EDOs7Daa/bauyyHrFwBpmHh+e35t913RSS8m4pszjD/We3Xl80buzZlM1XcoLMLCX3Bl2QOOQNNNHXyYztpg78Jlo0qMAvBzbQbS8wZ1wMGx8y+pxWGbyZH+FNTg/msqnNzqSZODReTRBvLFENeq5NTglyo0AEg7oECUo0wVJuF3173QNHV/fJ8JyHCdP6Xm+6YeyFVTVtHmjOZi2zEAGhZyAuGLI7BA+dR9bIEq0UWSsq/SykMa3MeQ26hcymR2+9F+gK3ARkJMZ1oO/VirbnPuoRtEuMUXG7nv0l1wySTKDwPmZyf0w+VHJln++2wb5W0NVPG8ptDZtXLn/KBfVLZPV6ZbYpYwI1e8X+69mkuPoOceAKh62yquRS2gaU0gBQ507RbCYM0/WHYECsh7SskRpW8RHgc63pHGPoHt6/IkHIdJTQZEDisEb+JmU9R0vJp4C1q736q1v6Q4jl2biEhHfxp073ZKAAoZYeNKatmJ27S+C2cBJfXIN49TGa7Iaov+IkYMs7U6XW2Vjixjuh4jqKDcG6AupYDqJJ7BJ593dbXTOilwjEuxZVKM03qRTt5tOH7eapcN/e1Fwp5UoLK+xCoStTr+ymsQ8k3QSEFIvRv6ULWSq8BfLGpcNy7i5HxRCVJ6OKr4pDtpV6+RmznDUWsYfEi/gBnlNqn0CTx58FRDzOyuU7rgI7Jzl7cw35JUQkXosOyzdlt4NutBP//GNEoif6n8c6UOGoc6sFr5ZtC44i2F8OkFtuqt61y9ZndnqwFlK3jpyip+rCndEKahOBK74cu0CGo4YeSSdgW4b6OXKjxQh450Xug2OBY+h71Xrdc4CJXUXuRzCOjram8HS3lbj3yvqK5CXD5XZN2M/o+Rsvqm09Sv2FrJg=
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info:
+ fBu7hcaA+NdMNh6mjBwwyqyHB6KoOv6BoPv+JLvJ/PQqkojVF3vVwCTk9s90ubcVhYA1m/0l6hHtyKRroE0ESDTpqkvvrlL2wWZJrKJh+lRDym5nS94n6rX+7NpPM9HXXLSCRlywPherMoIyOY/vGRO/6ZaJtpEilmmgY6bkYPelxZVRZMbDIiCckN8Ie0K735yTO69e6sci/HjM0/CwrbXnKDAP+pCDTtrDarlmAwLmZIkEknoPfWlLoY3FVqQFXVMRgZSnnzOYJdLQFtmcmykAkPnbTdUsbkPrcDBZOAeILumWoxwQaNFLBY9SpO6h46RQRk4m/43Marv2mmGaxNRWav5m5Wx7+7LBe9+9JLrtCgKntv+BB4nymcQ90ihvySzMGnMN6IKh3pn0ztiuN0TD9mvIaHd9Ys1EQnlUCtO751RHx6qZtBTHLQKtcOBxsmJnFWkhvqYwwkh25YCxDkB/0+cYFQ/4CKKTnv8qKxoH2zLiq3/IKh+wSmoJrJmziOlRB60b27nu0DAi8413R0skbVuDBCeCth8SJTdPBsSWqO8/3yjLi/4/eJJEL/20QnNMFyMo45yHrKPhg8Sdc9dFC83BUj/VNmU+NbIIMGMqn9N8sJYhy0hNKgeSi5CLxHBn9IKnyDRN/xdd52arVw==
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?dIeZuifxIMxxVG54PLpVHugirvrswqLMSCv44bBBUL5Bv2JgEs3id+qJdS1G?=
+ =?us-ascii?Q?hzEkkrrRtz3/8JOA9huQMet/glgQYx8bXH3HB/59xBlTmZcotMGCMd4vo1MA?=
+ =?us-ascii?Q?ypgGtCkuoJPRWM8BiE3iYQocw9HfGEYQ6T5BOlr54y0/7cpSxmwL/eBL/DHS?=
+ =?us-ascii?Q?5XE9Nw8v/Azl7hNNQn6eyN79DBnR097mmtt/sf2lS9S1diQXtwSH7DxN3o6R?=
+ =?us-ascii?Q?a5wKHM/ArpeFpyB63FOP2Iw+kqhA6OaJxZQUBvtCumrkAIsu0hwp2LgyCi9m?=
+ =?us-ascii?Q?0+W/Vw3ZaVngbNHOOyibUuR2n98Wzq2pfBoPMk/1RXBNVUBFW9E5x7mJDsPO?=
+ =?us-ascii?Q?f9oJcGdYenfj1JtkGPe5h5AkM8Og50OjS90LEN+OhiRjLxzgANfbcyzHzqu0?=
+ =?us-ascii?Q?IbCSwrAtDCrdEYDTh41ruLvsTWhwudVn/qKiTlzlxpke3ewDb+Fso7m4At0h?=
+ =?us-ascii?Q?B+m8Ztac8FZz9TBiMKQI5jycKY1jjlEI00IQ7AT1GD2TjCAqmPLPwAmWSfzT?=
+ =?us-ascii?Q?NLKWwJe1t9FkRKktqr52qwgTrR3VwiXcJ288eV5kOKgvGRJX/SviMLTci3S5?=
+ =?us-ascii?Q?E9+8vAXtN/f8xpbJU42qcx4KLq/GINHUMmRmmzIZBLY45Or0Gl7+iohIKKmL?=
+ =?us-ascii?Q?JNRqDT5zINF77PhqD5RUfgVJsMwLQ2n4DMyE5ToPj04rqrvfaqksC2sj2LSn?=
+ =?us-ascii?Q?/2pRg7LbU7rWgmC3BVdgqUnOh9+Ce8ojjkqfLdDhGznLPxZS/LjrJQi3koZB?=
+ =?us-ascii?Q?UPUKH6lZyxi8tXbUcCzx7TmqsD46cBJOJyMJeOT+QVo5X2TrkYD5fnC9mfJL?=
+ =?us-ascii?Q?/3EL7PIeefCBgERkpunJp3+uQbiYP89GhE+7q0kTcd81NMQmPMjwBXi1Fd4s?=
+ =?us-ascii?Q?2s19Df3rYibJoQZBp9IkzwVOQkyQlgzCXtyGaBpieVf+osBTjE9vzmPvzmJk?=
+ =?us-ascii?Q?YemM+PWjoDARs0F4yRDzyBeS4EFqXy7IJoQ6BdcnwOJCW8ry9m1tP1SOJHRC?=
+ =?us-ascii?Q?Q+nuprDkqSA1VtGHttooALZioTmlDHcEQkh0BhrO35e4Np60P38XXUJuABnA?=
+ =?us-ascii?Q?ytkK2QycQRYBIcbxWYjFc9l8fX+a7XWxpRWS4EouCLlXz4YgBVeFhauGRctq?=
+ =?us-ascii?Q?8YZphCQOciv4E8nupslPpDnUUcu96DjPMY2Nfd5BCxReCTBD5kLNcpD4T2Xm?=
+ =?us-ascii?Q?vVJWpdfyCFnCxH4KpbetqvF3AYgt1/b+xaoRAQ=3D=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/3] s390/vfio-ap: queue_configuration sysfs attribute for
- mdevctl automation
-Content-Language: en-US
-To: "Jason J. Herne" <jjherne@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com
-References: <20240126143533.14043-1-jjherne@linux.ibm.com>
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20240126143533.14043-1-jjherne@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: assim4J50zwtlhPGROSHkPBsBlbFeqSs
-X-Proofpoint-GUID: assim4J50zwtlhPGROSHkPBsBlbFeqSs
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-29_10,2024-01-29_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
- priorityscore=1501 lowpriorityscore=0 bulkscore=0 impostorscore=0
- mlxlogscore=644 suspectscore=0 phishscore=0 mlxscore=0 malwarescore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401290124
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SN6PR02MB4157.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1f0f8b42-44a2-4e82-cc0f-08dc20f7fc2e
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Jan 2024 18:27:43.9438
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR02MB9341
 
-Isn't this v4 of this series?
+From: Baoquan He <bhe@redhat.com> Sent: Monday, January 29, 2024 5:51 AM
+>=20
+> Michael pointed out that the #ifdef CONFIG_CRASH_DUMP is nested inside
+> arch/x86/xen/enlighten_hvm.c.
 
-On 1/26/24 9:35 AM, Jason J. Herne wrote:
-> Mdevctl requires a way to atomically query and atomically update a vfio-ap
-> mdev's current state. This patch set creates the queue_configuration sysfs
-> attribute.  This new attribute allows reading and writing an mdev's entire
-> state in one go. If a newly written state is invalid for any reason the entire
-> state is rejected and the target mdev remains unchanged.
->
-> Jason J. Herne (3):
->    s390/ap: Externalize AP bus specific bitmap reading function
->    s390/vfio-ap: Add sysfs attr, queue_configuration, to export mdev
->      state
->    s390/vfio-ap: Add write support to sysfs attr ap_config
->
->   Documentation/arch/s390/vfio-ap.rst   |  27 ++++
->   drivers/s390/crypto/ap_bus.c          |  13 +-
->   drivers/s390/crypto/ap_bus.h          |  22 +++
->   drivers/s390/crypto/vfio_ap_ops.c     | 213 +++++++++++++++++++++++---
->   drivers/s390/crypto/vfio_ap_private.h |   6 +-
->   5 files changed, 248 insertions(+), 33 deletions(-)
->
+Did some words get left out in the above sentence?  It mentions the Xen
+case, but not the Hyper-V case.  I'm not sure what you intended.
+
+>=20
+> Although the nesting works well too since CONFIG_CRASH_DUMP has
+> dependency on CONFIG_KEXEC_CORE, it may cause confuse because there
+
+s/confusion/confuse/
+
+> are places where it's not nested, and people may think it need be nested
+
+s/need be/needs to be/
+
+> even though it doesn't have to.
+>=20
+> Fix that by moving  CONFIG_CRASH_DUMP ifdeffery of codes out of
+> CONFIG_KEXEC_CODE ifdeffery scope.
+>=20
+> And also fix a building error Nathan reported as below by replacing
+> CONFIG_KEXEC_CORE ifdef with CONFIG_VMCORE_INFO ifdef.
+>=20
+> =3D=3D=3D=3D
+> $ curl -LSso .config https://git.alpinelinux.org/aports/plain/community/l=
+inux-edge/config-edge.x86_64=20
+> $ make -skj"$(nproc)" ARCH=3Dx86_64 CROSS_COMPILE=3Dx86_64-linux-
+> olddefconfig all
+> ...
+> x86_64-linux-ld: arch/x86/xen/mmu_pv.o: in function
+> `paddr_vmcoreinfo_note':
+> mmu_pv.c:(.text+0x3af3): undefined reference to `vmcoreinfo_note'
+> =3D=3D=3D=3D
+>=20
+> Link: https://lore.kernel.org/all/SN6PR02MB4157931105FA68D72E3D3DB8D47B2@=
+SN6PR02MB4157.namprd02.prod.outlook.com/T/#u
+> Link: https://lore.kernel.org/all/20240126045551.GA126645@dev-arch.thelio=
+-3990X/T/#u
+> Signed-off-by: Baoquan He <bhe@redhat.com>
+
+Modulo the commit message nits, LGTM.
+
+Reviewed-by: Michael Kelley <mhklinux@outlook.com>
+
+> ---
+>  arch/x86/kernel/cpu/mshyperv.c | 10 ++++++----
+>  arch/x86/kernel/reboot.c       |  2 +-
+>  arch/x86/xen/enlighten_hvm.c   |  4 ++--
+>  arch/x86/xen/mmu_pv.c          |  2 +-
+>  4 files changed, 10 insertions(+), 8 deletions(-)
+>=20
+> diff --git a/arch/x86/kernel/cpu/mshyperv.c
+> b/arch/x86/kernel/cpu/mshyperv.c
+> index f8163a59026b..2e8cd5a4ae85 100644
+> --- a/arch/x86/kernel/cpu/mshyperv.c
+> +++ b/arch/x86/kernel/cpu/mshyperv.c
+> @@ -209,6 +209,7 @@ static void hv_machine_shutdown(void)
+>  	if (kexec_in_progress)
+>  		hyperv_cleanup();
+>  }
+> +#endif /* CONFIG_KEXEC_CORE */
+>=20
+>  #ifdef CONFIG_CRASH_DUMP
+>  static void hv_machine_crash_shutdown(struct pt_regs *regs)
+> @@ -222,8 +223,7 @@ static void hv_machine_crash_shutdown(struct
+> pt_regs *regs)
+>  	/* Disable the hypercall page when there is only 1 active CPU. */
+>  	hyperv_cleanup();
+>  }
+> -#endif
+> -#endif /* CONFIG_KEXEC_CORE */
+> +#endif /* CONFIG_CRASH_DUMP */
+>  #endif /* CONFIG_HYPERV */
+>=20
+>  static uint32_t  __init ms_hyperv_platform(void)
+> @@ -497,9 +497,11 @@ static void __init ms_hyperv_init_platform(void)
+>  	no_timer_check =3D 1;
+>  #endif
+>=20
+> -#if IS_ENABLED(CONFIG_HYPERV) && defined(CONFIG_KEXEC_CORE)
+> +#if IS_ENABLED(CONFIG_HYPERV)
+> +#if defined(CONFIG_KEXEC_CORE)
+>  	machine_ops.shutdown =3D hv_machine_shutdown;
+> -#ifdef CONFIG_CRASH_DUMP
+> +#endif
+> +#if defined(CONFIG_CRASH_DUMP)
+>  	machine_ops.crash_shutdown =3D hv_machine_crash_shutdown;
+>  #endif
+>  #endif
+> diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
+> index 1287b0d5962f..f3130f762784 100644
+> --- a/arch/x86/kernel/reboot.c
+> +++ b/arch/x86/kernel/reboot.c
+> @@ -826,7 +826,7 @@ void machine_halt(void)
+>  	machine_ops.halt();
+>  }
+>=20
+> -#ifdef CONFIG_KEXEC_CORE
+> +#ifdef CONFIG_CRASH_DUMP
+>  void machine_crash_shutdown(struct pt_regs *regs)
+>  {
+>  	machine_ops.crash_shutdown(regs);
+> diff --git a/arch/x86/xen/enlighten_hvm.c b/arch/x86/xen/enlighten_hvm.c
+> index 09e3db7ff990..0b367c1e086d 100644
+> --- a/arch/x86/xen/enlighten_hvm.c
+> +++ b/arch/x86/xen/enlighten_hvm.c
+> @@ -148,6 +148,7 @@ static void xen_hvm_shutdown(void)
+>  	if (kexec_in_progress)
+>  		xen_reboot(SHUTDOWN_soft_reset);
+>  }
+> +#endif
+>=20
+>  #ifdef CONFIG_CRASH_DUMP
+>  static void xen_hvm_crash_shutdown(struct pt_regs *regs)
+> @@ -156,7 +157,6 @@ static void xen_hvm_crash_shutdown(struct pt_regs
+> *regs)
+>  	xen_reboot(SHUTDOWN_soft_reset);
+>  }
+>  #endif
+> -#endif
+>=20
+>  static int xen_cpu_up_prepare_hvm(unsigned int cpu)
+>  {
+> @@ -238,10 +238,10 @@ static void __init xen_hvm_guest_init(void)
+>=20
+>  #ifdef CONFIG_KEXEC_CORE
+>  	machine_ops.shutdown =3D xen_hvm_shutdown;
+> +#endif
+>  #ifdef CONFIG_CRASH_DUMP
+>  	machine_ops.crash_shutdown =3D xen_hvm_crash_shutdown;
+>  #endif
+> -#endif
+>  }
+>=20
+>  static __init int xen_parse_nopv(char *arg)
+> diff --git a/arch/x86/xen/mmu_pv.c b/arch/x86/xen/mmu_pv.c
+> index 218773cfb009..e21974f2cf2d 100644
+> --- a/arch/x86/xen/mmu_pv.c
+> +++ b/arch/x86/xen/mmu_pv.c
+> @@ -2520,7 +2520,7 @@ int xen_remap_pfn(struct vm_area_struct *vma,
+> unsigned long addr,
+>  }
+>  EXPORT_SYMBOL_GPL(xen_remap_pfn);
+>=20
+> -#ifdef CONFIG_KEXEC_CORE
+> +#ifdef CONFIG_VMCORE_INFO
+>  phys_addr_t paddr_vmcoreinfo_note(void)
+>  {
+>  	if (xen_pv_domain())
+> --
+> 2.41.0
+
