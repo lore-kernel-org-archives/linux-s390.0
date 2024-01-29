@@ -1,376 +1,284 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mout.web.de (mout.web.de [217.72.192.78])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1A9F65BA7
-	for <linux-s390@vger.kernel.org>; Mon, 29 Jan 2024 13:50:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2B216BB20;
+	Mon, 29 Jan 2024 14:19:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.72.192.78
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706536257; cv=none; b=G2lGGGnQhEmQMjvMLFgYL/zJX80cwB9p6tqweQEtXgkUeoCp31Wi7Gpabh/CqBUOXtG9y/sgIqtEFHBgX9Q/GI+L0ryK2PXBWFw3lIAu8ILbrOwn/FEpol3HTUUT19tPtLihrQuheaCQBcIIxoaesM33S3emiQf8UfFpbdIUAOA=
+	t=1706537970; cv=none; b=E+aN9OAVa6KbOQgqK5GR8/fSEISmMqoABnS8BbBnN6kVnFYgp6oUtJKkZtYh3C2UmvMJJP5NFuQ/FE8EcCdgU1AgcLsQOHNl6FGOTm8UCtiBW1/LvtIGAAVLFNOa4GvUQh8vyGIkEZGe+BSuX3Y6sgrAInjs7hMn65uiVIbCkn4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706536257; c=relaxed/simple;
-	bh=tQTvvRl9OvzN6zpSdpQcBzQhreh8MyO/2Wtk4J7nQpo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-type; b=sTcFDhPUBu1cBRjTwG4W/qOhkUfJnVtck6utI4h82MTeTl/JVurAMilHkyxmsrMcqljuMSkXZZOrvMyl9Buxf8s4B/lKNjdCheU/53F8TzEenvaVPbtUxCUk7h4zrYFOyxDnhyA39E2Peobpy0eMutLi/4CxyuzlQkhxzFMFYX0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=L1mSpROY; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1706537970; c=relaxed/simple;
+	bh=eYivng0WaDFd0Vu2WyMIJTEbBIN3RYQKrUhlxi/DlWc=;
+	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=lRn6s396wIauSjQ/J7qTgpRLWlR5dMBphh3sA1u0NJMb+lLYA4waiIxUPWZkTt0jXA0wE7hQwMfJEZOmDIC+U35qporYyiOwoJCb1gHgiYHLE65v0VHrEh6szC8UKhbiwrBMVhZTuA9vKeS5Ujww6IVFWOqC8i8TQrJmJHb1Jqs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=lbPOLPYR; arc=none smtp.client-ip=217.72.192.78
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L1mSpROY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706536254;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=75S7nZ64UnAF9qceiwWx9BHlJYFt/uNOyQt1Jso/DHk=;
-	b=L1mSpROY6uvqZTc0wQead6oH9c/d8uB3Bku2r82jieH5CwQH4LrxtFXbVmZl4eQCnggGD8
-	ItksG4vkn6cTDuqdo1hW589U19tlIM8iurGfUeg/qPKBoXS/do6R0Le5Cjs6cUlCw2Hp5E
-	vsxG5CfYfBaW+m+5ed0sRazsTT/wMFQ=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-662-d5dO4PAtO-Calcv1XMdhbg-1; Mon,
- 29 Jan 2024 08:50:50 -0500
-X-MC-Unique: d5dO4PAtO-Calcv1XMdhbg-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5C60D3C2A1CC;
-	Mon, 29 Jan 2024 13:50:49 +0000 (UTC)
-Received: from MiWiFi-R3L-srv.redhat.com (unknown [10.72.116.15])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 77CD6488;
-	Mon, 29 Jan 2024 13:50:45 +0000 (UTC)
-From: Baoquan He <bhe@redhat.com>
-To: kexec@lists.infradead.org,
-	akpm@linux-foundation.org
-Cc: linux-kernel@vger.kernel.org,
-	x86@kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	nathan@kernel.org,
-	mhklinux@outlook.com,
-	Baoquan He <bhe@redhat.com>
-Subject: [PATCH linux-next 3/3] arch, crash: move arch_crash_save_vmcoreinfo() out to file vmcore_info.c
-Date: Mon, 29 Jan 2024 21:50:33 +0800
-Message-ID: <20240129135033.157195-3-bhe@redhat.com>
-In-Reply-To: <20240129135033.157195-1-bhe@redhat.com>
-References: <20240129135033.157195-1-bhe@redhat.com>
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="lbPOLPYR"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de; s=s29768273;
+	t=1706537956; x=1707142756; i=markus.elfring@web.de;
+	bh=eYivng0WaDFd0Vu2WyMIJTEbBIN3RYQKrUhlxi/DlWc=;
+	h=X-UI-Sender-Class:Date:To:Cc:From:Subject;
+	b=lbPOLPYR5P74yNuMHrnShtN2rw25ilrv68L1jycG17b6Q5guJzSCGXEgP75Ceftp
+	 SGW5F9+VKYzO7Rgj9C8OZHWoM9D+ICdyAq45373sVbqFsk40QWpIoG7lXjgo7PcRE
+	 FrU7XegcDhV3mpimY+LnCN7NGf+lRBiFRrrpPBKy7fQJlfX24AgUYI1EGSh5ErBWP
+	 gMoOgHZvVt9fFNOszBBq8TE/bK92zaxX/6qJpCe7TGkpl0tqQFPqRv3wSB3Nccuq6
+	 76sBzLrFCx0B6rHFnRAmVRPR1oyKq6Nlwgkhaj/+bXal9tqZPzyPywPK0O9L3srZG
+	 uStkOBY4oNc2dVxCkg==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from [192.168.178.21] ([94.31.81.95]) by smtp.web.de (mrweb106
+ [213.165.67.124]) with ESMTPSA (Nemesis) id 1Ma0Tu-1rXmNM0ne0-00W6xA; Mon, 29
+ Jan 2024 15:19:16 +0100
+Message-ID: <e8939703-b9a4-4ed0-ae7e-ad9a08ae96d4@web.de>
+Date: Mon, 29 Jan 2024 15:19:00 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.1
+User-Agent: Mozilla Thunderbird
+To: linux-s390@vger.kernel.org, kernel-janitors@vger.kernel.org,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ =?UTF-8?Q?Christian_Borntr=C3=A4ger?= <borntraeger@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Peter Oberparleiter <oberpar@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Vineeth Vijayan <vneethv@linux.ibm.com>
+Content-Language: en-GB
+Cc: LKML <linux-kernel@vger.kernel.org>
+From: Markus Elfring <Markus.Elfring@web.de>
+Subject: [PATCH] s390/cio: Use memdup_user() rather than duplicating its
+ implementation
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:hQ7s/Dgj1zmFsnvUTN1JnmecsVLnRztFvRlxs9buzoqOIiVuJH5
+ U+GScZF2QktLf+RSf9cPS6U5x6XpFh6Y20e01pAAxd7cdt0qVZW30fUp/HgMnA5bY+ySUc8
+ XGwlUmAwpJFIyUldglOcZtk/mzElUiec5k3QxZgTaC+MwtzRl9IUDND9X999jhAeZu0ZKEj
+ nrd55iK/b6fSgJSAy/J6A==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:dZEMqn4WVQo=;sZnBrghKsL9L1lgCA/ryW/JqZhW
+ F3VRJb5+N2692biWwI2AvMtGiLalgXPjPy4QBwbZiuBOSareIMPcI7O3CfehwMM4TdyB3Moue
+ l6YjQzqZVuS8NJKlFVLY4kGe89Bop6x+9sxcGJturlGYvfpeD/ZFeFlybd9+wSsEmuirW5DiH
+ X/18u07gCADOY8QEs/w2HY/71pq4g23WeP3Gsxs1EJHaLR0yEK0+roXBLyYgF99XmQKEW02QU
+ HPN8e2jsLjCDbHMLbO9YR3KV/z+2CWG1aRilDmdDuMK9gsVl2HQmzlpcefVo9Xu8B7uIA7Jas
+ hPvcPqNDYdNzFYRNTbtUz4MSmJ1RDyjXNdEu8M8uJISTd9kOtgl26NGntgNwDm4XbmpnvLjJg
+ o2fypzj2wZhtv9tM8xXb0lXbxu/uCdj+xluHx0gL9rBiZEoI0diU/+8gYh1JHe1oOqeh/0ygP
+ xkNvmZS5WgUaO/5VhKlVYlCT2do1Rea2myLEZ1gyQeXSpq8BA2gOktyRaZy4vOu3xZha66cZj
+ a+uu1N2A8fJLFMTkw9jbQ/zIdfV67rE/chNRyLJ6zvqlsYxtsvTsqWPZkSa0PaRU2DZ+8cwB+
+ N2bVgxq/HEVoqTOSUVO5Mn1YXjFOqAb2PuJxdPyV93VdQpPxq87qnHLD9EXJm6hEX/Q+MTQW8
+ RQzd9O/4EtcwgI8WkfziKz2VlArTTb4RLriIDeIr0/0RVN3mOHAVtKixwAxr1tFGL0mWs7wWC
+ iOCoz+6aBh/7GQPCvCN2p1svTt0r7bvsN3dL0h9i5rlG0YAiLvnQ2Ysc349apK8uTcF3NRFah
+ hCiZo5GFESK12eM+MfDLqIGvdHqbE2LNVrRxKcIYIs0NGMtns7q9pImb3VZUAHzpXgcMddzqB
+ S2vPqtV7zU6m69YjxZqrdGSojnK5nArkeTzgoOXrNgJmxzYja9W1wsK3LVR6ky8j+ACAApjYL
+ Y3qih0BAxSq58M5K5fSOESoSm58=
 
-Nathan reported below building error:
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Mon, 29 Jan 2024 15:00:36 +0100
 
-=====
-$ curl -LSso .config https://git.alpinelinux.org/aports/plain/community/linux-edge/config-edge.armv7
-$ make -skj"$(nproc)" ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- olddefconfig all
-...
-arm-linux-gnueabi-ld: arch/arm/kernel/machine_kexec.o: in function `arch_crash_save_vmcoreinfo':
-machine_kexec.c:(.text+0x488): undefined reference to `vmcoreinfo_append_str'
-====
+* Reuse existing functionality from memdup_user() instead of keeping
+  duplicate source code.
 
-On architecutres, like arm, s390, ppc, sh, function
-arch_crash_save_vmcoreinfo() is located in machine_kexec.c and it can
-only be compiled in when CONFIG_KEXEC_CORE=y.
+  Generated by: scripts/coccinelle/api/memdup_user.cocci
 
-That's not right because arch_crash_save_vmcoreinfo() is used to export
-arch specific vmcoreinfo. CONFIG_VMCORE_INFO is supposed to control its
-compiling in. However, CONFIG_VMVCORE_INFO could be independent of
-CONFIG_KEXEC_CORE, e.g CONFIG_PROC_KCORE=y will select CONFIG_VMVCORE_INFO.
-Or CONFIG_KEXEC/CONFIG_KEXEC_FILE is set while CONFIG_CRASH_DUMP is
-not set, it will report linking error.
+* Use another label in six function implementations.
 
-So, on arm, s390, ppc and sh, move arch_crash_save_vmcoreinfo out to
-a new file vmcore_info.c. Let CONFIG_VMCORE_INFO decide if compiling in
-arch_crash_save_vmcoreinfo().
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+=2D--
+ drivers/s390/cio/chsc_sch.c | 90 +++++++++++++++++--------------------
+ 1 file changed, 42 insertions(+), 48 deletions(-)
 
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Closes: https://lore.kernel.org/all/20240126045551.GA126645@dev-arch.thelio-3990X/T/#u
-Signed-off-by: Baoquan He <bhe@redhat.com>
----
- arch/arm/kernel/Makefile         |  1 +
- arch/arm/kernel/machine_kexec.c  |  7 -------
- arch/arm/kernel/vmcore_info.c    | 10 ++++++++++
- arch/powerpc/kexec/Makefile      |  1 +
- arch/powerpc/kexec/core.c        | 28 --------------------------
- arch/powerpc/kexec/vmcore_info.c | 34 ++++++++++++++++++++++++++++++++
- arch/s390/kernel/Makefile        |  1 +
- arch/s390/kernel/machine_kexec.c | 15 --------------
- arch/s390/kernel/vmcore_info.c   | 23 +++++++++++++++++++++
- arch/sh/kernel/Makefile          |  1 +
- arch/sh/kernel/machine_kexec.c   | 11 -----------
- arch/sh/kernel/vmcore_info.c     | 17 ++++++++++++++++
- 12 files changed, 88 insertions(+), 61 deletions(-)
- create mode 100644 arch/arm/kernel/vmcore_info.c
- create mode 100644 arch/powerpc/kexec/vmcore_info.c
- create mode 100644 arch/s390/kernel/vmcore_info.c
- create mode 100644 arch/sh/kernel/vmcore_info.c
-
-diff --git a/arch/arm/kernel/Makefile b/arch/arm/kernel/Makefile
-index 771264d4726a..6a9de826ffd3 100644
---- a/arch/arm/kernel/Makefile
-+++ b/arch/arm/kernel/Makefile
-@@ -60,6 +60,7 @@ obj-$(CONFIG_DYNAMIC_FTRACE)	+= ftrace.o insn.o patch.o
- obj-$(CONFIG_FUNCTION_GRAPH_TRACER)	+= ftrace.o insn.o patch.o
- obj-$(CONFIG_JUMP_LABEL)	+= jump_label.o insn.o patch.o
- obj-$(CONFIG_KEXEC_CORE)	+= machine_kexec.o relocate_kernel.o
-+obj-$(CONFIG_VMCORE_INFO)	+= vmcore_info.o
- # Main staffs in KPROBES are in arch/arm/probes/ .
- obj-$(CONFIG_KPROBES)		+= patch.o insn.o
- obj-$(CONFIG_OABI_COMPAT)	+= sys_oabi-compat.o
-diff --git a/arch/arm/kernel/machine_kexec.c b/arch/arm/kernel/machine_kexec.c
-index 5d07cf9e0044..80ceb5bd2680 100644
---- a/arch/arm/kernel/machine_kexec.c
-+++ b/arch/arm/kernel/machine_kexec.c
-@@ -198,10 +198,3 @@ void machine_kexec(struct kimage *image)
- 
- 	soft_restart(reboot_entry_phys);
+diff --git a/drivers/s390/cio/chsc_sch.c b/drivers/s390/cio/chsc_sch.c
+index 902237d0baef..2ad4264589d9 100644
+=2D-- a/drivers/s390/cio/chsc_sch.c
++++ b/drivers/s390/cio/chsc_sch.c
+@@ -442,15 +442,13 @@ static int chsc_ioctl_info_channel_path(void __user =
+*user_cd)
+ 	scpcd_area =3D (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
+ 	if (!scpcd_area)
+ 		return -ENOMEM;
+-	cd =3D kzalloc(sizeof(*cd), GFP_KERNEL);
+-	if (!cd) {
+-		ret =3D -ENOMEM;
+-		goto out_free;
+-	}
+-	if (copy_from_user(cd, user_cd, sizeof(*cd))) {
+-		ret =3D -EFAULT;
+-		goto out_free;
++
++	cd =3D memdup_user(user_cd, sizeof(*cd));
++	if (IS_ERR(cd)) {
++		ret =3D PTR_ERR(cd);
++		goto out_free_page;
+ 	}
++
+ 	scpcd_area->request.length =3D 0x0010;
+ 	scpcd_area->request.code =3D 0x0028;
+ 	scpcd_area->m =3D cd->m;
+@@ -477,6 +475,7 @@ static int chsc_ioctl_info_channel_path(void __user *u=
+ser_cd)
+ 		ret =3D 0;
+ out_free:
+ 	kfree(cd);
++out_free_page:
+ 	free_page((unsigned long)scpcd_area);
+ 	return ret;
  }
--
--void arch_crash_save_vmcoreinfo(void)
--{
--#ifdef CONFIG_ARM_LPAE
--	VMCOREINFO_CONFIG(ARM_LPAE);
--#endif
--}
-diff --git a/arch/arm/kernel/vmcore_info.c b/arch/arm/kernel/vmcore_info.c
-new file mode 100644
-index 000000000000..1437aba47787
---- /dev/null
-+++ b/arch/arm/kernel/vmcore_info.c
-@@ -0,0 +1,10 @@
-+// SPDX-License-Identifier: GPL-2.0-only
+@@ -504,15 +503,13 @@ static int chsc_ioctl_info_cu(void __user *user_cd)
+ 	scucd_area =3D (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
+ 	if (!scucd_area)
+ 		return -ENOMEM;
+-	cd =3D kzalloc(sizeof(*cd), GFP_KERNEL);
+-	if (!cd) {
+-		ret =3D -ENOMEM;
+-		goto out_free;
+-	}
+-	if (copy_from_user(cd, user_cd, sizeof(*cd))) {
+-		ret =3D -EFAULT;
+-		goto out_free;
 +
-+#include <linux/vmcore_info.h>
++	cd =3D memdup_user(user_cd, sizeof(*cd));
++	if (IS_ERR(cd)) {
++		ret =3D PTR_ERR(cd);
++		goto out_free_page;
+ 	}
 +
-+void arch_crash_save_vmcoreinfo(void)
-+{
-+#ifdef CONFIG_ARM_LPAE
-+	VMCOREINFO_CONFIG(ARM_LPAE);
-+#endif
-+}
-diff --git a/arch/powerpc/kexec/Makefile b/arch/powerpc/kexec/Makefile
-index 0c2abe7f9908..91e96f5168b7 100644
---- a/arch/powerpc/kexec/Makefile
-+++ b/arch/powerpc/kexec/Makefile
-@@ -8,6 +8,7 @@ obj-y				+= core.o crash.o core_$(BITS).o
- obj-$(CONFIG_PPC32)		+= relocate_32.o
- 
- obj-$(CONFIG_KEXEC_FILE)	+= file_load.o ranges.o file_load_$(BITS).o elf_$(BITS).o
-+obj-$(CONFIG_VMCORE_INFO)	+= vmcore_info.o
- 
- # Disable GCOV, KCOV & sanitizers in odd or sensitive code
- GCOV_PROFILE_core_$(BITS).o := n
-diff --git a/arch/powerpc/kexec/core.c b/arch/powerpc/kexec/core.c
-index 27fa9098a5b7..3ff4411ed496 100644
---- a/arch/powerpc/kexec/core.c
-+++ b/arch/powerpc/kexec/core.c
-@@ -53,34 +53,6 @@ void machine_kexec_cleanup(struct kimage *image)
- {
+ 	scucd_area->request.length =3D 0x0010;
+ 	scucd_area->request.code =3D 0x0026;
+ 	scucd_area->m =3D cd->m;
+@@ -539,6 +536,7 @@ static int chsc_ioctl_info_cu(void __user *user_cd)
+ 		ret =3D 0;
+ out_free:
+ 	kfree(cd);
++out_free_page:
+ 	free_page((unsigned long)scucd_area);
+ 	return ret;
  }
- 
--void arch_crash_save_vmcoreinfo(void)
--{
--
--#ifdef CONFIG_NUMA
--	VMCOREINFO_SYMBOL(node_data);
--	VMCOREINFO_LENGTH(node_data, MAX_NUMNODES);
--#endif
--#ifndef CONFIG_NUMA
--	VMCOREINFO_SYMBOL(contig_page_data);
--#endif
--#if defined(CONFIG_PPC64) && defined(CONFIG_SPARSEMEM_VMEMMAP)
--	VMCOREINFO_SYMBOL(vmemmap_list);
--	VMCOREINFO_SYMBOL(mmu_vmemmap_psize);
--	VMCOREINFO_SYMBOL(mmu_psize_defs);
--	VMCOREINFO_STRUCT_SIZE(vmemmap_backing);
--	VMCOREINFO_OFFSET(vmemmap_backing, list);
--	VMCOREINFO_OFFSET(vmemmap_backing, phys);
--	VMCOREINFO_OFFSET(vmemmap_backing, virt_addr);
--	VMCOREINFO_STRUCT_SIZE(mmu_psize_def);
--	VMCOREINFO_OFFSET(mmu_psize_def, shift);
--#endif
--	VMCOREINFO_SYMBOL(cur_cpu_spec);
--	VMCOREINFO_OFFSET(cpu_spec, cpu_features);
--	VMCOREINFO_OFFSET(cpu_spec, mmu_features);
--	vmcoreinfo_append_str("NUMBER(RADIX_MMU)=%d\n", early_radix_enabled());
--	vmcoreinfo_append_str("KERNELOFFSET=%lx\n", kaslr_offset());
--}
--
- /*
-  * Do not allocate memory (or fail in any way) in machine_kexec().
-  * We are past the point of no return, committed to rebooting now.
-diff --git a/arch/powerpc/kexec/vmcore_info.c b/arch/powerpc/kexec/vmcore_info.c
-new file mode 100644
-index 000000000000..c15f0adaaab5
---- /dev/null
-+++ b/arch/powerpc/kexec/vmcore_info.c
-@@ -0,0 +1,34 @@
-+// SPDX-License-Identifier: GPL-2.0-only
+@@ -567,15 +565,13 @@ static int chsc_ioctl_info_sch_cu(void __user *user_=
+cud)
+ 	sscud_area =3D (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
+ 	if (!sscud_area)
+ 		return -ENOMEM;
+-	cud =3D kzalloc(sizeof(*cud), GFP_KERNEL);
+-	if (!cud) {
+-		ret =3D -ENOMEM;
+-		goto out_free;
+-	}
+-	if (copy_from_user(cud, user_cud, sizeof(*cud))) {
+-		ret =3D -EFAULT;
+-		goto out_free;
 +
-+#include <linux/vmcore_info.h>
-+#include <asm/pgalloc.h>
++	cud =3D memdup_user(user_cud, sizeof(*cud));
++	if (IS_ERR(cud)) {
++		ret =3D PTR_ERR(cud);
++		goto out_free_page;
+ 	}
 +
-+void arch_crash_save_vmcoreinfo(void)
-+{
-+
-+#ifdef CONFIG_NUMA
-+	VMCOREINFO_SYMBOL(node_data);
-+	VMCOREINFO_LENGTH(node_data, MAX_NUMNODES);
-+#endif
-+#ifndef CONFIG_NUMA
-+	VMCOREINFO_SYMBOL(contig_page_data);
-+#endif
-+#if defined(CONFIG_PPC64) && defined(CONFIG_SPARSEMEM_VMEMMAP)
-+	VMCOREINFO_SYMBOL(vmemmap_list);
-+	VMCOREINFO_SYMBOL(mmu_vmemmap_psize);
-+	VMCOREINFO_SYMBOL(mmu_psize_defs);
-+	VMCOREINFO_STRUCT_SIZE(vmemmap_backing);
-+	VMCOREINFO_OFFSET(vmemmap_backing, list);
-+	VMCOREINFO_OFFSET(vmemmap_backing, phys);
-+	VMCOREINFO_OFFSET(vmemmap_backing, virt_addr);
-+	VMCOREINFO_STRUCT_SIZE(mmu_psize_def);
-+	VMCOREINFO_OFFSET(mmu_psize_def, shift);
-+#endif
-+	VMCOREINFO_SYMBOL(cur_cpu_spec);
-+	VMCOREINFO_OFFSET(cpu_spec, cpu_features);
-+	VMCOREINFO_OFFSET(cpu_spec, mmu_features);
-+	vmcoreinfo_append_str("NUMBER(RADIX_MMU)=%d\n", early_radix_enabled());
-+	vmcoreinfo_append_str("KERNELOFFSET=%lx\n", kaslr_offset());
-+}
-+
-+
-diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
-index 7a562b4199c8..fa029d0dc28f 100644
---- a/arch/s390/kernel/Makefile
-+++ b/arch/s390/kernel/Makefile
-@@ -64,6 +64,7 @@ obj-$(CONFIG_FUNCTION_TRACER)	+= ftrace.o
- obj-$(CONFIG_FUNCTION_TRACER)	+= mcount.o
- obj-$(CONFIG_CRASH_DUMP)	+= crash_dump.o
- obj-$(CONFIG_KEXEC_CORE)	+= machine_kexec.o relocate_kernel.o
-+obj-$(CONFIG_VMCORE_INFO)	+= vmcore_info.o
- obj-$(CONFIG_UPROBES)		+= uprobes.o
- obj-$(CONFIG_JUMP_LABEL)	+= jump_label.o
- 
-diff --git a/arch/s390/kernel/machine_kexec.c b/arch/s390/kernel/machine_kexec.c
-index aa22ffc16bcd..10277a460204 100644
---- a/arch/s390/kernel/machine_kexec.c
-+++ b/arch/s390/kernel/machine_kexec.c
-@@ -209,21 +209,6 @@ void machine_kexec_cleanup(struct kimage *image)
- {
+ 	sscud_area->request.length =3D 0x0010;
+ 	sscud_area->request.code =3D 0x0006;
+ 	sscud_area->m =3D cud->schid.m;
+@@ -603,6 +599,7 @@ static int chsc_ioctl_info_sch_cu(void __user *user_cu=
+d)
+ 		ret =3D 0;
+ out_free:
+ 	kfree(cud);
++out_free_page:
+ 	free_page((unsigned long)sscud_area);
+ 	return ret;
  }
- 
--void arch_crash_save_vmcoreinfo(void)
--{
--	struct lowcore *abs_lc;
--
--	VMCOREINFO_SYMBOL(lowcore_ptr);
--	VMCOREINFO_SYMBOL(high_memory);
--	VMCOREINFO_LENGTH(lowcore_ptr, NR_CPUS);
--	vmcoreinfo_append_str("SAMODE31=%lx\n", (unsigned long)__samode31);
--	vmcoreinfo_append_str("EAMODE31=%lx\n", (unsigned long)__eamode31);
--	vmcoreinfo_append_str("KERNELOFFSET=%lx\n", kaslr_offset());
--	abs_lc = get_abs_lowcore();
--	abs_lc->vmcore_info = paddr_vmcoreinfo_note();
--	put_abs_lowcore(abs_lc);
--}
--
- void machine_shutdown(void)
- {
+@@ -629,15 +626,13 @@ static int chsc_ioctl_conf_info(void __user *user_ci=
+)
+ 	sci_area =3D (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
+ 	if (!sci_area)
+ 		return -ENOMEM;
+-	ci =3D kzalloc(sizeof(*ci), GFP_KERNEL);
+-	if (!ci) {
+-		ret =3D -ENOMEM;
+-		goto out_free;
+-	}
+-	if (copy_from_user(ci, user_ci, sizeof(*ci))) {
+-		ret =3D -EFAULT;
+-		goto out_free;
++
++	ci =3D memdup_user(user_ci, sizeof(*ci));
++	if (IS_ERR(ci)) {
++		ret =3D PTR_ERR(ci);
++		goto out_free_page;
+ 	}
++
+ 	sci_area->request.length =3D 0x0010;
+ 	sci_area->request.code =3D 0x0012;
+ 	sci_area->m =3D ci->id.m;
+@@ -663,6 +658,7 @@ static int chsc_ioctl_conf_info(void __user *user_ci)
+ 		ret =3D 0;
+ out_free:
+ 	kfree(ci);
++out_free_page:
+ 	free_page((unsigned long)sci_area);
+ 	return ret;
  }
-diff --git a/arch/s390/kernel/vmcore_info.c b/arch/s390/kernel/vmcore_info.c
-new file mode 100644
-index 000000000000..eccb6b20b505
---- /dev/null
-+++ b/arch/s390/kernel/vmcore_info.c
-@@ -0,0 +1,23 @@
-+// SPDX-License-Identifier: GPL-2.0-only
+@@ -700,15 +696,13 @@ static int chsc_ioctl_conf_comp_list(void __user *us=
+er_ccl)
+ 	sccl_area =3D (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
+ 	if (!sccl_area)
+ 		return -ENOMEM;
+-	ccl =3D kzalloc(sizeof(*ccl), GFP_KERNEL);
+-	if (!ccl) {
+-		ret =3D -ENOMEM;
+-		goto out_free;
+-	}
+-	if (copy_from_user(ccl, user_ccl, sizeof(*ccl))) {
+-		ret =3D -EFAULT;
+-		goto out_free;
 +
-+#include <linux/vmcore_info.h>
-+#include <asm/abs_lowcore.h>
-+#include <linux/mm.h>
-+#include <asm/setup.h>
++	ccl =3D memdup_user(user_ccl, sizeof(*ccl));
++	if (IS_ERR(ccl)) {
++		ret =3D PTR_ERR(ccl);
++		goto out_free_page;
+ 	}
 +
-+void arch_crash_save_vmcoreinfo(void)
-+{
-+	struct lowcore *abs_lc;
-+
-+	VMCOREINFO_SYMBOL(lowcore_ptr);
-+	VMCOREINFO_SYMBOL(high_memory);
-+	VMCOREINFO_LENGTH(lowcore_ptr, NR_CPUS);
-+	vmcoreinfo_append_str("SAMODE31=%lx\n", (unsigned long)__samode31);
-+	vmcoreinfo_append_str("EAMODE31=%lx\n", (unsigned long)__eamode31);
-+	vmcoreinfo_append_str("KERNELOFFSET=%lx\n", kaslr_offset());
-+	abs_lc = get_abs_lowcore();
-+	abs_lc->vmcore_info = paddr_vmcoreinfo_note();
-+	put_abs_lowcore(abs_lc);
-+}
-+
-+
-diff --git a/arch/sh/kernel/Makefile b/arch/sh/kernel/Makefile
-index 2d7e70537de0..ba917008d63e 100644
---- a/arch/sh/kernel/Makefile
-+++ b/arch/sh/kernel/Makefile
-@@ -34,6 +34,7 @@ obj-$(CONFIG_SH_STANDARD_BIOS)	+= sh_bios.o
- obj-$(CONFIG_KGDB)		+= kgdb.o
- obj-$(CONFIG_MODULES)		+= sh_ksyms_32.o module.o
- obj-$(CONFIG_KEXEC_CORE)	+= machine_kexec.o relocate_kernel.o
-+obj-$(CONFIG_VMCORE_INFO)	+= vmcore_info.o
- obj-$(CONFIG_CRASH_DUMP)	+= crash_dump.o
- obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
- obj-$(CONFIG_IO_TRAPPED)	+= io_trapped.o
-diff --git a/arch/sh/kernel/machine_kexec.c b/arch/sh/kernel/machine_kexec.c
-index 8daa8a6e6fa6..8321b31d2e19 100644
---- a/arch/sh/kernel/machine_kexec.c
-+++ b/arch/sh/kernel/machine_kexec.c
-@@ -137,17 +137,6 @@ void machine_kexec(struct kimage *image)
- 	__ftrace_enabled_restore(save_ftrace_enabled);
+ 	sccl_area->request.length =3D 0x0020;
+ 	sccl_area->request.code =3D 0x0030;
+ 	sccl_area->fmt =3D ccl->req.fmt;
+@@ -746,6 +740,7 @@ static int chsc_ioctl_conf_comp_list(void __user *user=
+_ccl)
+ 		ret =3D 0;
+ out_free:
+ 	kfree(ccl);
++out_free_page:
+ 	free_page((unsigned long)sccl_area);
+ 	return ret;
  }
- 
--void arch_crash_save_vmcoreinfo(void)
--{
--#ifdef CONFIG_NUMA
--	VMCOREINFO_SYMBOL(node_data);
--	VMCOREINFO_LENGTH(node_data, MAX_NUMNODES);
--#endif
--#ifdef CONFIG_X2TLB
--	VMCOREINFO_CONFIG(X2TLB);
--#endif
--}
--
- void __init reserve_crashkernel(void)
- {
- 	unsigned long long crash_size, crash_base;
-diff --git a/arch/sh/kernel/vmcore_info.c b/arch/sh/kernel/vmcore_info.c
-new file mode 100644
-index 000000000000..04c4387e6315
---- /dev/null
-+++ b/arch/sh/kernel/vmcore_info.c
-@@ -0,0 +1,17 @@
-+// SPDX-License-Identifier: GPL-2.0-only
+@@ -800,15 +795,13 @@ static int chsc_ioctl_dcal(void __user *user_dcal)
+ 	sdcal_area =3D (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
+ 	if (!sdcal_area)
+ 		return -ENOMEM;
+-	dcal =3D kzalloc(sizeof(*dcal), GFP_KERNEL);
+-	if (!dcal) {
+-		ret =3D -ENOMEM;
+-		goto out_free;
+-	}
+-	if (copy_from_user(dcal, user_dcal, sizeof(*dcal))) {
+-		ret =3D -EFAULT;
+-		goto out_free;
 +
-+#include <linux/vmcore_info.h>
-+#include <linux/mm.h>
++	dcal =3D memdup_user(user_dcal, sizeof(*dcal));
++	if (IS_ERR(dcal)) {
++		ret =3D PTR_ERR(dcal);
++		goto out_free_page;
+ 	}
 +
-+void arch_crash_save_vmcoreinfo(void)
-+{
-+#ifdef CONFIG_NUMA
-+	VMCOREINFO_SYMBOL(node_data);
-+	VMCOREINFO_LENGTH(node_data, MAX_NUMNODES);
-+#endif
-+#ifdef CONFIG_X2TLB
-+	VMCOREINFO_CONFIG(X2TLB);
-+#endif
-+}
-+
-+
--- 
-2.41.0
+ 	sdcal_area->request.length =3D 0x0020;
+ 	sdcal_area->request.code =3D 0x0034;
+ 	sdcal_area->atype =3D dcal->req.atype;
+@@ -835,6 +828,7 @@ static int chsc_ioctl_dcal(void __user *user_dcal)
+ 		ret =3D 0;
+ out_free:
+ 	kfree(dcal);
++out_free_page:
+ 	free_page((unsigned long)sdcal_area);
+ 	return ret;
+ }
+=2D-
+2.43.0
 
