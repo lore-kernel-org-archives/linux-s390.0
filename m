@@ -1,284 +1,184 @@
-Received: from mout.web.de (mout.web.de [217.72.192.78])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2B216BB20;
-	Mon, 29 Jan 2024 14:19:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.72.192.78
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DE0A151CDA
+	for <linux-s390@vger.kernel.org>; Mon, 29 Jan 2024 14:32:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706537970; cv=none; b=E+aN9OAVa6KbOQgqK5GR8/fSEISmMqoABnS8BbBnN6kVnFYgp6oUtJKkZtYh3C2UmvMJJP5NFuQ/FE8EcCdgU1AgcLsQOHNl6FGOTm8UCtiBW1/LvtIGAAVLFNOa4GvUQh8vyGIkEZGe+BSuX3Y6sgrAInjs7hMn65uiVIbCkn4=
+	t=1706538756; cv=none; b=CuptZqOAxgETIdRsOeWG6crMnLx6PpV3w4IDYa21ZqNwxZpLqP1WjBBCGCc/bjqqrwbFvKpUtBzxGBfdwtcmMTJKeXuT/Ga7T/+LMJwBOC2Vv296CW4OJu0NHpZiLVwQF0jYeYgxVnhimDJqstWtw9WrL2zI4JG9XAEzQORGA8U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706537970; c=relaxed/simple;
-	bh=eYivng0WaDFd0Vu2WyMIJTEbBIN3RYQKrUhlxi/DlWc=;
-	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=lRn6s396wIauSjQ/J7qTgpRLWlR5dMBphh3sA1u0NJMb+lLYA4waiIxUPWZkTt0jXA0wE7hQwMfJEZOmDIC+U35qporYyiOwoJCb1gHgiYHLE65v0VHrEh6szC8UKhbiwrBMVhZTuA9vKeS5Ujww6IVFWOqC8i8TQrJmJHb1Jqs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=lbPOLPYR; arc=none smtp.client-ip=217.72.192.78
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+	s=arc-20240116; t=1706538756; c=relaxed/simple;
+	bh=4KscbxAYCjj2PD8V1wCvHcnFXsKmpE5jCNYRuVMCyW4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JZBttUGVbhHJSneNK0SUOMFPCWO5+n4GMf5NNcUdMDBjGSB2bx639ZpXkqW1h+oRIsvG3tfP1euMlwRtm4NvcBQmKnc7UeSWHnlIQv3CPpRtZPnBMgYDCw7kHuTLNNw0fNMStgbB6hc/P3S7HbCnfW3YajsBKOwDeWfyW3t18Rg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Iqvpnmy6; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="lbPOLPYR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de; s=s29768273;
-	t=1706537956; x=1707142756; i=markus.elfring@web.de;
-	bh=eYivng0WaDFd0Vu2WyMIJTEbBIN3RYQKrUhlxi/DlWc=;
-	h=X-UI-Sender-Class:Date:To:Cc:From:Subject;
-	b=lbPOLPYR5P74yNuMHrnShtN2rw25ilrv68L1jycG17b6Q5guJzSCGXEgP75Ceftp
-	 SGW5F9+VKYzO7Rgj9C8OZHWoM9D+ICdyAq45373sVbqFsk40QWpIoG7lXjgo7PcRE
-	 FrU7XegcDhV3mpimY+LnCN7NGf+lRBiFRrrpPBKy7fQJlfX24AgUYI1EGSh5ErBWP
-	 gMoOgHZvVt9fFNOszBBq8TE/bK92zaxX/6qJpCe7TGkpl0tqQFPqRv3wSB3Nccuq6
-	 76sBzLrFCx0B6rHFnRAmVRPR1oyKq6Nlwgkhaj/+bXal9tqZPzyPywPK0O9L3srZG
-	 uStkOBY4oNc2dVxCkg==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.178.21] ([94.31.81.95]) by smtp.web.de (mrweb106
- [213.165.67.124]) with ESMTPSA (Nemesis) id 1Ma0Tu-1rXmNM0ne0-00W6xA; Mon, 29
- Jan 2024 15:19:16 +0100
-Message-ID: <e8939703-b9a4-4ed0-ae7e-ad9a08ae96d4@web.de>
-Date: Mon, 29 Jan 2024 15:19:00 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Iqvpnmy6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1706538753;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=UhBdOI+JB6L0dCFGLAOqO2pJABjn3Znd2yV65wClG/w=;
+	b=Iqvpnmy6mMOPZYG3tx6bZyM1BBxCV+4385uaRT74evBaBlOh3R6HgGA6282djlwpn0ZbeE
+	xpmrbEGCe8wFspedK7kQ1URAAT4MbKHIiT6zUZxjDHa8AWqylfV9qr3YdfR1y99pJlWW/N
+	8v0S5RIQtE24HcSrrIXkIm0/j7+r6rE=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-478-Kz5-1HWrO6SlttN34_aWHQ-1; Mon,
+ 29 Jan 2024 09:32:29 -0500
+X-MC-Unique: Kz5-1HWrO6SlttN34_aWHQ-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 979933C13A90;
+	Mon, 29 Jan 2024 14:32:27 +0000 (UTC)
+Received: from t14s.fritz.box (unknown [10.39.194.46])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 75D74C3F;
+	Mon, 29 Jan 2024 14:32:22 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org,
+	David Hildenbrand <david@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Matthew Wilcox <willy@infradead.org>,
+	Ryan Roberts <ryan.roberts@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	"Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+	Nick Piggin <npiggin@gmail.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	linux-arch@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org
+Subject: [PATCH v1 0/9] mm/memory: optimize unmap/zap with PTE-mapped THP
+Date: Mon, 29 Jan 2024 15:32:12 +0100
+Message-ID: <20240129143221.263763-1-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-To: linux-s390@vger.kernel.org, kernel-janitors@vger.kernel.org,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- =?UTF-8?Q?Christian_Borntr=C3=A4ger?= <borntraeger@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Peter Oberparleiter <oberpar@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Vineeth Vijayan <vneethv@linux.ibm.com>
-Content-Language: en-GB
-Cc: LKML <linux-kernel@vger.kernel.org>
-From: Markus Elfring <Markus.Elfring@web.de>
-Subject: [PATCH] s390/cio: Use memdup_user() rather than duplicating its
- implementation
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:hQ7s/Dgj1zmFsnvUTN1JnmecsVLnRztFvRlxs9buzoqOIiVuJH5
- U+GScZF2QktLf+RSf9cPS6U5x6XpFh6Y20e01pAAxd7cdt0qVZW30fUp/HgMnA5bY+ySUc8
- XGwlUmAwpJFIyUldglOcZtk/mzElUiec5k3QxZgTaC+MwtzRl9IUDND9X999jhAeZu0ZKEj
- nrd55iK/b6fSgJSAy/J6A==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:dZEMqn4WVQo=;sZnBrghKsL9L1lgCA/ryW/JqZhW
- F3VRJb5+N2692biWwI2AvMtGiLalgXPjPy4QBwbZiuBOSareIMPcI7O3CfehwMM4TdyB3Moue
- l6YjQzqZVuS8NJKlFVLY4kGe89Bop6x+9sxcGJturlGYvfpeD/ZFeFlybd9+wSsEmuirW5DiH
- X/18u07gCADOY8QEs/w2HY/71pq4g23WeP3Gsxs1EJHaLR0yEK0+roXBLyYgF99XmQKEW02QU
- HPN8e2jsLjCDbHMLbO9YR3KV/z+2CWG1aRilDmdDuMK9gsVl2HQmzlpcefVo9Xu8B7uIA7Jas
- hPvcPqNDYdNzFYRNTbtUz4MSmJ1RDyjXNdEu8M8uJISTd9kOtgl26NGntgNwDm4XbmpnvLjJg
- o2fypzj2wZhtv9tM8xXb0lXbxu/uCdj+xluHx0gL9rBiZEoI0diU/+8gYh1JHe1oOqeh/0ygP
- xkNvmZS5WgUaO/5VhKlVYlCT2do1Rea2myLEZ1gyQeXSpq8BA2gOktyRaZy4vOu3xZha66cZj
- a+uu1N2A8fJLFMTkw9jbQ/zIdfV67rE/chNRyLJ6zvqlsYxtsvTsqWPZkSa0PaRU2DZ+8cwB+
- N2bVgxq/HEVoqTOSUVO5Mn1YXjFOqAb2PuJxdPyV93VdQpPxq87qnHLD9EXJm6hEX/Q+MTQW8
- RQzd9O/4EtcwgI8WkfziKz2VlArTTb4RLriIDeIr0/0RVN3mOHAVtKixwAxr1tFGL0mWs7wWC
- iOCoz+6aBh/7GQPCvCN2p1svTt0r7bvsN3dL0h9i5rlG0YAiLvnQ2Ysc349apK8uTcF3NRFah
- hCiZo5GFESK12eM+MfDLqIGvdHqbE2LNVrRxKcIYIs0NGMtns7q9pImb3VZUAHzpXgcMddzqB
- S2vPqtV7zU6m69YjxZqrdGSojnK5nArkeTzgoOXrNgJmxzYja9W1wsK3LVR6ky8j+ACAApjYL
- Y3qih0BAxSq58M5K5fSOESoSm58=
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.1
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Mon, 29 Jan 2024 15:00:36 +0100
+This series is based on [1] and must be applied on top of it.
+Similar to what we did with fork(), let's implement PTE batching
+during unmap/zap when processing PTE-mapped THPs.
 
-* Reuse existing functionality from memdup_user() instead of keeping
-  duplicate source code.
+We collect consecutive PTEs that map consecutive pages of the same large
+folio, making sure that the other PTE bits are compatible, and (a) adjust
+the refcount only once per batch, (b) call rmap handling functions only
+once per batch, (c) perform batch PTE setting/updates and (d) perform TLB
+entry removal once per batch.
 
-  Generated by: scripts/coccinelle/api/memdup_user.cocci
+Ryan was previously working on this in the context of cont-pte for
+arm64, int latest iteration [2] with a focus on arm6 with cont-pte only.
+This series implements the optimization for all architectures, independent
+of such PTE bits, teaches MMU gather/TLB code to be fully aware of such
+large-folio-pages batches as well, and amkes use of our new rmap batching
+function when removing the rmap.
 
-* Use another label in six function implementations.
+To achieve that, we have to enlighten MMU gather / page freeing code
+(i.e., everything that consumes encoded_page) to process unmapping
+of consecutive pages that all belong to the same large folio. I'm being
+very careful to not degrade order-0 performance, and it looks like I
+managed to achieve that.
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
-=2D--
- drivers/s390/cio/chsc_sch.c | 90 +++++++++++++++++--------------------
- 1 file changed, 42 insertions(+), 48 deletions(-)
+While this series should -- similar to [1] -- be beneficial for adding
+cont-pte support on arm64[2], it's one of the requirements for maintaining
+a total mapcount[3] for large folios with minimal added overhead and
+further changes[4] that build up on top of the total mapcount.
 
-diff --git a/drivers/s390/cio/chsc_sch.c b/drivers/s390/cio/chsc_sch.c
-index 902237d0baef..2ad4264589d9 100644
-=2D-- a/drivers/s390/cio/chsc_sch.c
-+++ b/drivers/s390/cio/chsc_sch.c
-@@ -442,15 +442,13 @@ static int chsc_ioctl_info_channel_path(void __user =
-*user_cd)
- 	scpcd_area =3D (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
- 	if (!scpcd_area)
- 		return -ENOMEM;
--	cd =3D kzalloc(sizeof(*cd), GFP_KERNEL);
--	if (!cd) {
--		ret =3D -ENOMEM;
--		goto out_free;
--	}
--	if (copy_from_user(cd, user_cd, sizeof(*cd))) {
--		ret =3D -EFAULT;
--		goto out_free;
-+
-+	cd =3D memdup_user(user_cd, sizeof(*cd));
-+	if (IS_ERR(cd)) {
-+		ret =3D PTR_ERR(cd);
-+		goto out_free_page;
- 	}
-+
- 	scpcd_area->request.length =3D 0x0010;
- 	scpcd_area->request.code =3D 0x0028;
- 	scpcd_area->m =3D cd->m;
-@@ -477,6 +475,7 @@ static int chsc_ioctl_info_channel_path(void __user *u=
-ser_cd)
- 		ret =3D 0;
- out_free:
- 	kfree(cd);
-+out_free_page:
- 	free_page((unsigned long)scpcd_area);
- 	return ret;
- }
-@@ -504,15 +503,13 @@ static int chsc_ioctl_info_cu(void __user *user_cd)
- 	scucd_area =3D (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
- 	if (!scucd_area)
- 		return -ENOMEM;
--	cd =3D kzalloc(sizeof(*cd), GFP_KERNEL);
--	if (!cd) {
--		ret =3D -ENOMEM;
--		goto out_free;
--	}
--	if (copy_from_user(cd, user_cd, sizeof(*cd))) {
--		ret =3D -EFAULT;
--		goto out_free;
-+
-+	cd =3D memdup_user(user_cd, sizeof(*cd));
-+	if (IS_ERR(cd)) {
-+		ret =3D PTR_ERR(cd);
-+		goto out_free_page;
- 	}
-+
- 	scucd_area->request.length =3D 0x0010;
- 	scucd_area->request.code =3D 0x0026;
- 	scucd_area->m =3D cd->m;
-@@ -539,6 +536,7 @@ static int chsc_ioctl_info_cu(void __user *user_cd)
- 		ret =3D 0;
- out_free:
- 	kfree(cd);
-+out_free_page:
- 	free_page((unsigned long)scucd_area);
- 	return ret;
- }
-@@ -567,15 +565,13 @@ static int chsc_ioctl_info_sch_cu(void __user *user_=
-cud)
- 	sscud_area =3D (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
- 	if (!sscud_area)
- 		return -ENOMEM;
--	cud =3D kzalloc(sizeof(*cud), GFP_KERNEL);
--	if (!cud) {
--		ret =3D -ENOMEM;
--		goto out_free;
--	}
--	if (copy_from_user(cud, user_cud, sizeof(*cud))) {
--		ret =3D -EFAULT;
--		goto out_free;
-+
-+	cud =3D memdup_user(user_cud, sizeof(*cud));
-+	if (IS_ERR(cud)) {
-+		ret =3D PTR_ERR(cud);
-+		goto out_free_page;
- 	}
-+
- 	sscud_area->request.length =3D 0x0010;
- 	sscud_area->request.code =3D 0x0006;
- 	sscud_area->m =3D cud->schid.m;
-@@ -603,6 +599,7 @@ static int chsc_ioctl_info_sch_cu(void __user *user_cu=
-d)
- 		ret =3D 0;
- out_free:
- 	kfree(cud);
-+out_free_page:
- 	free_page((unsigned long)sscud_area);
- 	return ret;
- }
-@@ -629,15 +626,13 @@ static int chsc_ioctl_conf_info(void __user *user_ci=
-)
- 	sci_area =3D (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
- 	if (!sci_area)
- 		return -ENOMEM;
--	ci =3D kzalloc(sizeof(*ci), GFP_KERNEL);
--	if (!ci) {
--		ret =3D -ENOMEM;
--		goto out_free;
--	}
--	if (copy_from_user(ci, user_ci, sizeof(*ci))) {
--		ret =3D -EFAULT;
--		goto out_free;
-+
-+	ci =3D memdup_user(user_ci, sizeof(*ci));
-+	if (IS_ERR(ci)) {
-+		ret =3D PTR_ERR(ci);
-+		goto out_free_page;
- 	}
-+
- 	sci_area->request.length =3D 0x0010;
- 	sci_area->request.code =3D 0x0012;
- 	sci_area->m =3D ci->id.m;
-@@ -663,6 +658,7 @@ static int chsc_ioctl_conf_info(void __user *user_ci)
- 		ret =3D 0;
- out_free:
- 	kfree(ci);
-+out_free_page:
- 	free_page((unsigned long)sci_area);
- 	return ret;
- }
-@@ -700,15 +696,13 @@ static int chsc_ioctl_conf_comp_list(void __user *us=
-er_ccl)
- 	sccl_area =3D (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
- 	if (!sccl_area)
- 		return -ENOMEM;
--	ccl =3D kzalloc(sizeof(*ccl), GFP_KERNEL);
--	if (!ccl) {
--		ret =3D -ENOMEM;
--		goto out_free;
--	}
--	if (copy_from_user(ccl, user_ccl, sizeof(*ccl))) {
--		ret =3D -EFAULT;
--		goto out_free;
-+
-+	ccl =3D memdup_user(user_ccl, sizeof(*ccl));
-+	if (IS_ERR(ccl)) {
-+		ret =3D PTR_ERR(ccl);
-+		goto out_free_page;
- 	}
-+
- 	sccl_area->request.length =3D 0x0020;
- 	sccl_area->request.code =3D 0x0030;
- 	sccl_area->fmt =3D ccl->req.fmt;
-@@ -746,6 +740,7 @@ static int chsc_ioctl_conf_comp_list(void __user *user=
-_ccl)
- 		ret =3D 0;
- out_free:
- 	kfree(ccl);
-+out_free_page:
- 	free_page((unsigned long)sccl_area);
- 	return ret;
- }
-@@ -800,15 +795,13 @@ static int chsc_ioctl_dcal(void __user *user_dcal)
- 	sdcal_area =3D (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
- 	if (!sdcal_area)
- 		return -ENOMEM;
--	dcal =3D kzalloc(sizeof(*dcal), GFP_KERNEL);
--	if (!dcal) {
--		ret =3D -ENOMEM;
--		goto out_free;
--	}
--	if (copy_from_user(dcal, user_dcal, sizeof(*dcal))) {
--		ret =3D -EFAULT;
--		goto out_free;
-+
-+	dcal =3D memdup_user(user_dcal, sizeof(*dcal));
-+	if (IS_ERR(dcal)) {
-+		ret =3D PTR_ERR(dcal);
-+		goto out_free_page;
- 	}
-+
- 	sdcal_area->request.length =3D 0x0020;
- 	sdcal_area->request.code =3D 0x0034;
- 	sdcal_area->atype =3D dcal->req.atype;
-@@ -835,6 +828,7 @@ static int chsc_ioctl_dcal(void __user *user_dcal)
- 		ret =3D 0;
- out_free:
- 	kfree(dcal);
-+out_free_page:
- 	free_page((unsigned long)sdcal_area);
- 	return ret;
- }
-=2D-
+Independent of all that, this series results in a speedup during munmap()
+and similar unmapping (process teardown, MADV_DONTNEED on larger ranges)
+with PTE-mapped THP, which is the default with THPs that are smaller than
+a PMD (for example, 16KiB to 1024KiB mTHPs for anonymous memory[5]).
+
+On an Intel Xeon Silver 4210R CPU, munmap'ing a 1GiB VMA backed by
+PTE-mapped folios of the same size (stddev < 1%) results in the following
+runtimes for munmap() in seconds (shorter is better):
+
+Folio Size | mm-unstable |      New | Change
+---------------------------------------------
+      4KiB |    0.058110 | 0.057715 |   - 1%
+     16KiB |    0.044198 | 0.035469 |   -20%
+     32KiB |    0.034216 | 0.023522 |   -31%
+     64KiB |    0.029207 | 0.018434 |   -37%
+    128KiB |    0.026579 | 0.014026 |   -47%
+    256KiB |    0.025130 | 0.011756 |   -53%
+    512KiB |    0.024292 | 0.010703 |   -56%
+   1024KiB |    0.023812 | 0.010294 |   -57%
+   2048KiB |    0.023785 | 0.009910 |   -58%
+
+CCing especially s390x folks, because they have a tlb freeing hooks that
+needs adjustment. Only tested on x86-64 for now, will have to do some more
+stress testing. Compile-tested on most other architectures. The PPC
+change is negleglible and makes my cross-compiler happy.
+
+[1] https://lkml.kernel.org/r/20240129124649.189745-1-david@redhat.com
+[2] https://lkml.kernel.org/r/20231218105100.172635-1-ryan.roberts@arm.com
+[3] https://lkml.kernel.org/r/20230809083256.699513-1-david@redhat.com
+[4] https://lkml.kernel.org/r/20231124132626.235350-1-david@redhat.com
+[5] https://lkml.kernel.org/r/20231207161211.2374093-1-ryan.roberts@arm.com
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Ryan Roberts <ryan.roberts@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc: Nick Piggin <npiggin@gmail.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arch@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+
+David Hildenbrand (9):
+  mm/memory: factor out zapping of present pte into zap_present_pte()
+  mm/memory: handle !page case in zap_present_pte() separately
+  mm/memory: further separate anon and pagecache folio handling in
+    zap_present_pte()
+  mm/memory: factor out zapping folio pte into zap_present_folio_pte()
+  mm/mmu_gather: pass "delay_rmap" instead of encoded page to
+    __tlb_remove_page_size()
+  mm/mmu_gather: define ENCODED_PAGE_FLAG_DELAY_RMAP
+  mm/mmu_gather: add __tlb_remove_folio_pages()
+  mm/mmu_gather: add tlb_remove_tlb_entries()
+  mm/memory: optimize unmap/zap with PTE-mapped THP
+
+ arch/powerpc/include/asm/tlb.h |   2 +
+ arch/s390/include/asm/tlb.h    |  30 ++++--
+ include/asm-generic/tlb.h      |  40 ++++++--
+ include/linux/mm_types.h       |  37 ++++++--
+ include/linux/pgtable.h        |  66 +++++++++++++
+ mm/memory.c                    | 167 +++++++++++++++++++++++----------
+ mm/mmu_gather.c                |  63 +++++++++++--
+ mm/swap.c                      |  12 ++-
+ mm/swap_state.c                |  12 ++-
+ 9 files changed, 347 insertions(+), 82 deletions(-)
+
+-- 
 2.43.0
 
