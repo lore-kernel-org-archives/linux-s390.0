@@ -1,65 +1,65 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C6E85645F
-	for <linux-s390@vger.kernel.org>; Tue, 30 Jan 2024 08:37:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5362A54670
+	for <linux-s390@vger.kernel.org>; Tue, 30 Jan 2024 08:41:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706603840; cv=none; b=P9t3Scewkwk02yDTlzCeH0vtX6AvHSOxKOZrNXlKWgUEJMBC57YMewXjCZ6NdAEmGgTOJczFLdt36t0dX78VWT+ymGfKpqfm5lkG+va7TF8njRDMOnPwmvKopgJLUF3VnijaUxlmNBuORJSn50JMbbYSG1o1/HbX5pwq+qWG/6Y=
+	t=1706604077; cv=none; b=OlTabjW2FD8K6bd+cKSGyAuQvS6FM/Gpxmmh8wbDOi3KSi1S7Hf1x6MCNricAeTNVZXB7crYiWolrCuvuiiwQa29b7n/Lwn5amkCVyf6HtkFZSSIU+MLarNy7VnnjcmcTJyRFhWlBpnGS65C9XoN6bxAdeuPEdCJsycdabKooRA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706603840; c=relaxed/simple;
-	bh=rRCDx8F5nmgLM5cjCxTr9xnfQAB0YxXlchlGAA6H5XY=;
+	s=arc-20240116; t=1706604077; c=relaxed/simple;
+	bh=4rh0Q2Hx4gVs1GnupnIzsQ6wwoJNXFCaVER32ep7Twg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nULMOCnbR4zWXsAb4u7sKJKcTex0BtfSuMDoNvPqCL9pvLZbeW2/2raD50HvYh3yd9wOI8lqJR0s5rJXhmWGEshiLYNGa/klP80ZvQXQ4bSb/mGJBv/yIOesesvF1hObfrfLlPlZtKqGtHUXiCkouxrS7uGyfnFrx5m29pzyuJA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BtwQkysi; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=M9Su0bnBX6HIKuBBkT3vTrxfrALUDfUV1ney5kvBLMNSljbJ5DHw7bM4ZT8dqSljC+oMizYlFLysYXWY8IGJ78YxLQmEsbCsmAmPSycJTx8BlL115rFdsAqT9O30QWdE2C1TYdHaz2YbHSUhgyv3wymwtMxDFvfyb3wZx1TfnZA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Yo6QRJPq; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BtwQkysi"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Yo6QRJPq"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706603837;
+	s=mimecast20190719; t=1706604075;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=U45Fxm/MtG50A3gtC61QWpZLcXQoY54GjgFxR/yi5IE=;
-	b=BtwQkysiV73coCUuVJmS2sut9C47L8Idk+Ks8CJsU8mgrhP4Ppmi1AzrhQvR5qLKC9jFrb
-	mhNA4y8HlWBqCWvB+cThfucF1LRGN2/Jvp78ELr+ZESnDMTSNAu+EggSsnKHRgn9OERBZ5
-	qX6G+e9b7WoTzzBV3qM6+tqrmRT+WQM=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=WTLnFRdfrnxQwRE7F4TUEf4XESOHlEYGkt2XMSp/gnM=;
+	b=Yo6QRJPqEymZmxuwVQ98Kqs4tzazip/aK2Ft3SiUcKwZmoSfpaLMIMj3TnBxuZWtwO+lW8
+	tqYQCFESKW943saBVgUpm+9uwOwQNm+88PRn/sxcwjNePh/aQIdGt7IlkHH7+VYruT76xE
+	VMph32cNJXAhd2C8l8ktKOZ12v5a1/4=
+Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
+ [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-74-ilFGBeZwNMKNY0MYa7V5Gg-1; Tue, 30 Jan 2024 03:37:15 -0500
-X-MC-Unique: ilFGBeZwNMKNY0MYa7V5Gg-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-40e40126031so32047065e9.0
-        for <linux-s390@vger.kernel.org>; Tue, 30 Jan 2024 00:37:15 -0800 (PST)
+ us-mta-335-_26eIuULNsaI3HcW71MPzQ-1; Tue, 30 Jan 2024 03:41:11 -0500
+X-MC-Unique: _26eIuULNsaI3HcW71MPzQ-1
+Received: by mail-lf1-f69.google.com with SMTP id 2adb3069b0e04-5110bf1635eso1609810e87.0
+        for <linux-s390@vger.kernel.org>; Tue, 30 Jan 2024 00:41:11 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706603834; x=1707208634;
+        d=1e100.net; s=20230601; t=1706604070; x=1707208870;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
+         :references:cc:to:content-language:subject:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=U45Fxm/MtG50A3gtC61QWpZLcXQoY54GjgFxR/yi5IE=;
-        b=ZdXoDpVfYVaQMj4kkHfVVibaKqOsVv5a5GEunGErjQq9cX6eIx8ryoQBf//97lOL6n
-         D/lNIfUr7tcctiDklCSNmSXvZ/1qez3VCZbpHAfLeSp1TXFqXtD59w+QlRmM+Ei89SCw
-         TBflrdpwb7d+I+th++K7o1aWVkPYzS2M/W4P8ac2AaPbjYDqwKC70z63EURtZmfCGq2q
-         tVg4XMo74IFczTYzZ6UU6KDw9ejhpBWuQKdl7JPIjwMez33PrX3MdBLyk0VEVaFszFG+
-         nhGHa/VJaFVTeumrmqMEZU4VIYEA8Vt0F1ziSSfM3F3uRY40nUkTQ6QFOmJs2hlzuOtY
-         UGnw==
-X-Gm-Message-State: AOJu0YxIxxcHLWx34WZHaUxjNV/HHY0TlSbZI00msRZZyNgqGoFxap+x
-	uo1y4e9Uti+WsB8ILUpDd6udjPH3mIHdD/HIY6VtwzFX5+OY5EoLsmGuaYLSUq9ID0fPOwTXC10
-	B9nnATaV1dlyGIz9fKJp9Xg02qtLBLwxKcdA96xew7eOSbVX2fXYVadb06OQ=
-X-Received: by 2002:a05:600c:190f:b0:40e:b93e:4a0f with SMTP id j15-20020a05600c190f00b0040eb93e4a0fmr7482821wmq.19.1706603834525;
-        Tue, 30 Jan 2024 00:37:14 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFwkrtXtDO2gDcswLvVnF7XXvZ9DZQ0hnWmecx9yh3ExpmlwLhlL6D50z4cHWyxah3UEzsYlQ==
-X-Received: by 2002:a05:600c:190f:b0:40e:b93e:4a0f with SMTP id j15-20020a05600c190f00b0040eb93e4a0fmr7482804wmq.19.1706603834118;
-        Tue, 30 Jan 2024 00:37:14 -0800 (PST)
+        bh=WTLnFRdfrnxQwRE7F4TUEf4XESOHlEYGkt2XMSp/gnM=;
+        b=pLH2u+suvFSXYfqjose6dqcganTtZbtzz3K4vgVE8rygu9rVeUuXXmMEEFO35//Myw
+         Z/y39IjPggNZ5qhotZ7L/sBlZ28YekK5LxiCFhgRCVZqNqWV4QFaWdGmfmuAk3hCPspk
+         vN4SPSi9TbS0YXFn/5+gHhTTFlukFW5/zEwpqUPmBxQLGeh+mvdMHZskhaZwRpE3Uiue
+         AUXSrhb5nhCl/KHSjen1lQCgG34ilXPYmVmreZcVqf+cHidRPx7zkw1sCn3JRUGV4u44
+         EhqrXXgGyxV+87hncjRSwGJgXwvidSUaGqC1AXRUVEiYFMC4QVw/7kizQblEGAIBCD4l
+         gVhw==
+X-Gm-Message-State: AOJu0Yz9fslRWafnCqDY8I3P3rfsgcOwcE3a6Bc+4dqgI2obE/NP/Rsz
+	hJswZQGHZ7cbkrgi1MOwY7u29Mc967sYV4v+0hALG8aZJb68VOpvjI7llX62QYBZ690bdyGVMos
+	d9sHk5qYA3kwMwyvWYVFav8sny/QTF/5+x/qxGvZPE/1nxl11sM2Iyc+GpGU=
+X-Received: by 2002:a05:6512:e9b:b0:510:ee2d:c185 with SMTP id bi27-20020a0565120e9b00b00510ee2dc185mr5566833lfb.13.1706604070377;
+        Tue, 30 Jan 2024 00:41:10 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFcI8ngN1g9WgPokS7RyiEf1XgLiCDm+dXR+CkC1Oa7Yg/aFBEbTGjE1f71utFB2RtdPFKXlQ==
+X-Received: by 2002:a05:6512:e9b:b0:510:ee2d:c185 with SMTP id bi27-20020a0565120e9b00b00510ee2dc185mr5566802lfb.13.1706604069964;
+        Tue, 30 Jan 2024 00:41:09 -0800 (PST)
 Received: from ?IPV6:2003:cb:c708:2700:bdf6:739b:9f9d:862f? (p200300cbc7082700bdf6739b9f9d862f.dip0.t-ipconnect.de. [2003:cb:c708:2700:bdf6:739b:9f9d:862f])
-        by smtp.gmail.com with ESMTPSA id h9-20020a05600c350900b0040fa661ee82sm262267wmq.44.2024.01.30.00.37.12
+        by smtp.gmail.com with ESMTPSA id p34-20020a05600c1da200b0040f22171921sm838440wms.3.2024.01.30.00.41.08
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 30 Jan 2024 00:37:13 -0800 (PST)
-Message-ID: <c783e71c-2fc0-4752-be6b-7ea316758243@redhat.com>
-Date: Tue, 30 Jan 2024 09:37:12 +0100
+        Tue, 30 Jan 2024 00:41:09 -0800 (PST)
+Message-ID: <8d19d635-2f55-4c0d-958b-0640f99ff0ce@redhat.com>
+Date: Tue, 30 Jan 2024 09:41:08 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,8 +67,9 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 3/9] mm/memory: further separate anon and pagecache
- folio handling in zap_present_pte()
+Subject: Re: [PATCH v1 1/9] mm/memory: factor out zapping of present pte into
+ zap_present_pte()
+Content-Language: en-US
 To: Ryan Roberts <ryan.roberts@arm.com>, linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
  Matthew Wilcox <willy@infradead.org>,
@@ -85,9 +86,8 @@ Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
  linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
  linux-s390@vger.kernel.org
 References: <20240129143221.263763-1-david@redhat.com>
- <20240129143221.263763-4-david@redhat.com>
- <40cfb242-ceb0-44c6-afe7-c1744825dc62@arm.com>
-Content-Language: en-US
+ <20240129143221.263763-2-david@redhat.com>
+ <40e87333-4da9-4497-a117-9885986e376a@arm.com>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -134,69 +134,45 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <40cfb242-ceb0-44c6-afe7-c1744825dc62@arm.com>
+In-Reply-To: <40e87333-4da9-4497-a117-9885986e376a@arm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 30.01.24 09:31, Ryan Roberts wrote:
+On 30.01.24 09:13, Ryan Roberts wrote:
 > On 29/01/2024 14:32, David Hildenbrand wrote:
->> We don't need up-to-date accessed-dirty information for anon folios and can
->> simply work with the ptent we already have. Also, we know the RSS counter
->> we want to update.
->>
->> We can safely move arch_check_zapped_pte() + tlb_remove_tlb_entry() +
->> zap_install_uffd_wp_if_needed() after updating the folio and RSS.
->>
->> While at it, only call zap_install_uffd_wp_if_needed() if there is even
->> any chance that pte_install_uffd_wp_if_needed() would do *something*.
->> That is, just don't bother if uffd-wp does not apply.
+>> Let's prepare for further changes by factoring out processing of present
+>> PTEs.
 >>
 >> Signed-off-by: David Hildenbrand <david@redhat.com>
 >> ---
->>   mm/memory.c | 16 +++++++++++-----
->>   1 file changed, 11 insertions(+), 5 deletions(-)
+>>   mm/memory.c | 92 ++++++++++++++++++++++++++++++-----------------------
+>>   1 file changed, 52 insertions(+), 40 deletions(-)
 >>
 >> diff --git a/mm/memory.c b/mm/memory.c
->> index 69502cdc0a7d..20bc13ab8db2 100644
+>> index b05fd28dbce1..50a6c79c78fc 100644
 >> --- a/mm/memory.c
 >> +++ b/mm/memory.c
->> @@ -1552,12 +1552,9 @@ static inline void zap_present_pte(struct mmu_gather *tlb,
->>   	folio = page_folio(page);
->>   	if (unlikely(!should_zap_folio(details, folio)))
->>   		return;
->> -	ptent = ptep_get_and_clear_full(mm, addr, pte, tlb->fullmm);
->> -	arch_check_zapped_pte(vma, ptent);
->> -	tlb_remove_tlb_entry(tlb, pte, addr);
->> -	zap_install_uffd_wp_if_needed(vma, addr, pte, details, ptent);
+>> @@ -1532,13 +1532,61 @@ zap_install_uffd_wp_if_needed(struct vm_area_struct *vma,
+>>   	pte_install_uffd_wp_if_needed(vma, addr, pte, pteval);
+>>   }
 >>   
->>   	if (!folio_test_anon(folio)) {
->> +		ptent = ptep_get_and_clear_full(mm, addr, pte, tlb->fullmm);
->>   		if (pte_dirty(ptent)) {
->>   			folio_mark_dirty(folio);
->>   			if (tlb_delay_rmap(tlb)) {
->> @@ -1567,8 +1564,17 @@ static inline void zap_present_pte(struct mmu_gather *tlb,
->>   		}
->>   		if (pte_young(ptent) && likely(vma_has_recency(vma)))
->>   			folio_mark_accessed(folio);
->> +		rss[mm_counter(folio)]--;
->> +	} else {
->> +		/* We don't need up-to-date accessed/dirty bits. */
->> +		ptep_get_and_clear_full(mm, addr, pte, tlb->fullmm);
->> +		rss[MM_ANONPAGES]--;
->>   	}
->> -	rss[mm_counter(folio)]--;
->> +	arch_check_zapped_pte(vma, ptent);
+>> +static inline void zap_present_pte(struct mmu_gather *tlb,
+>> +		struct vm_area_struct *vma, pte_t *pte, pte_t ptent,
+>> +		unsigned long addr, struct zap_details *details,
+>> +		int *rss, bool *force_flush, bool *force_break)
+>> +{
+>> +	struct mm_struct *mm = tlb->mm;
+>> +	bool delay_rmap = false;
+>> +	struct folio *folio;
 > 
-> Isn't the x86 (only) implementation of this relying on the dirty bit? So doesn't
-> that imply you still need get_and_clear for anon? (And in hindsight I think that
-> logic would apply to the previous patch too?)
+> You need to init this to NULL otherwise its a random value when calling
+> should_zap_folio() if vm_normal_page() returns NULL.
 
-x86 uses the encoding !writable && dirty to indicate special shadow 
-stacks. That is, the hw dirty bit is set by software (to create that 
-combination), not by hardware.
+Right, and we can stop setting it to NULL in the original function. 
+Patch #2 changes these checks, which is why it's only a problem in this 
+patch.
 
-So you don't have to sync against any hw changes of the hw dirty bit. 
-What you had in the original PTE you read is sufficient.
+Will fix, thanks!
 
 -- 
 Cheers,
