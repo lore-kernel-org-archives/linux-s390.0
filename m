@@ -1,167 +1,194 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC323762DD;
-	Wed, 31 Jan 2024 14:22:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD99F82D9C
+	for <linux-s390@vger.kernel.org>; Wed, 31 Jan 2024 14:29:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706710968; cv=none; b=r0jSBpZpsiwfMfpff686S/MfHRJEjU3Vosmw4uD6Yk+ZmNbqIlzi2JFosNIUZcg6N/cdZ9B85OcWMSiw5gN0PIG9dxAPX5sK2QRp7tCBwJXWmA/Nxvf05ug3o3UzJZLJ32ODCf5y+T4jAB+EnrKrXtpGt4TadpbCF73TrIikuO8=
+	t=1706711394; cv=none; b=RZWzgQj2RfTW3F31XCClK4wVs9mcPBt7cF7+Frvz1YdxXSmCvdZ6q8OH2XAlZJKRrwLQ51/WmHXEOvoeX1f+FTZePM6SLJfmmQ0yL1hHxMI4wGVoGPZ2QPyGd2Op+nQlO4lhajdyQQOxly8s6syvsFyyUUovAdmp6S2iLb6FljI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706710968; c=relaxed/simple;
-	bh=6chJSECzyBok9hP+9kH8w9JfX3+F3jiudYuJ0Ny9Qek=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PU+0n2D94clgb9vkGbip7gavPOv7HuqDqeP7zi6pZmhpfZ1uwe0MfDwDWm4K2/SaC+grc0yu0lWflg7BO07mtUiFNwxtz+FWH8bz2zw0YYr+H5jtCsNCxpDN8oMfP9jHt1WDLQkQDESWqOP0cViJ46QOnxJE0JStUEuFW77Ry3s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IPuPXHmy; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1706711394; c=relaxed/simple;
+	bh=S2cw7vXihaf756j59IBh7Mh2bmapWP1zWnAzfiuIaUw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=UUELeZXWJ2nXQAMFrxNGidBwLVPKxSdqdTJHiRB6+YYStsbeh5ySuAyh3bxGyUUS4XNy891cKYj//GXgX486FnCd4h0mXrk0obn3LfXtEPbGkk3Ig3zPtbjDNQtAd1SJgsJV2aVG5UXUjOslQcuYeosdfZU7hKpqEbBQnngj/Fc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MO4S90h8; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IPuPXHmy"
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40VDe2d5019083;
-	Wed, 31 Jan 2024 14:22:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=NURNavrQCbE1M4DE6lDNv9GMg0m1c/OPkCD3hDPJjKI=;
- b=IPuPXHmy2fWaXEk2FX2iBAM4ocaRnFE0bkd4Nal4ZznVgYNQQlcpj5Achynw9Qpg1eER
- 6ExuUFv35kRum16fH10BExWjOCDlhNLGLpON5IIdjlSEMbZk8rdf/0CFg4iO1rXp18xE
- 1p7jsIQRaZEseBh06G8zkWf+KD6s5X+Mp+lqc+g7tT3Ah1+7UDXZBD4+GprNt7OOmck5
- o74fxGgzUFII6ZyuBZMbvNsAzoOTTneO33Ov193AzO8afTPBewY+5HxuKYZPBb+NCckt
- GEvNYApg4JbX1aIGbb2HzWNmVi461ZFNK3uoDd5+ZGB+YGQ6JHJAeLeNa305rMZLuoN5 wA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vyq9jsa4r-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 31 Jan 2024 14:22:35 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40VDnxkn011863;
-	Wed, 31 Jan 2024 14:22:35 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vyq9js9rq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 31 Jan 2024 14:22:34 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40VBAvxl002199;
-	Wed, 31 Jan 2024 14:22:06 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vwc5te4sx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 31 Jan 2024 14:22:06 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40VEM38J66584886
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 31 Jan 2024 14:22:03 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 53C2F20043;
-	Wed, 31 Jan 2024 14:22:03 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 05D5E20040;
-	Wed, 31 Jan 2024 14:22:03 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 31 Jan 2024 14:22:02 +0000 (GMT)
-Date: Wed, 31 Jan 2024 15:22:01 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Kees Cook <keescook@chromium.org>, Sven Schnelle <svens@linux.ibm.com>
-Cc: linux-hardening@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>, Philipp Rudo <prudo@redhat.com>,
-        Baoquan He <bhe@redhat.com>, Tao Liu <ltao@redhat.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        linux-s390@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Bill Wendling <morbo@google.com>,
-        Justin Stitt <justinstitt@google.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 30/82] s390/kexec_file: Refactor intentional wrap-around
- calculation
-Message-ID: <ZbpXieRZz3BQ6jBH@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20240122235208.work.748-kees@kernel.org>
- <20240123002814.1396804-30-keescook@chromium.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MO4S90h8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1706711391;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=ZZ8b65xFaoLyifj6soTcCK4V3mFrLiPMpU7F9cu2+Zw=;
+	b=MO4S90h8v/5n1JdOQ22szy4MYjo0Y7z+wsOiSBG60+LlR/BIm7H2VsrcqFXStZAlFdsTjj
+	VQDsNY0VHzy/lxTTu3wTN/0I1CHQrbPiM4xd0lr/33sFPoURac1CqEa7dyl/LVUW2X0ZhX
+	HmApiAynI0W8NlmA9767Ul+1FJZtEFg=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-41-8-5yXWwdMpmNonvbsRQw9Q-1; Wed, 31 Jan 2024 09:29:50 -0500
+X-MC-Unique: 8-5yXWwdMpmNonvbsRQw9Q-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-33af105d951so1319213f8f.2
+        for <linux-s390@vger.kernel.org>; Wed, 31 Jan 2024 06:29:49 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706711389; x=1707316189;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
+         :references:cc:to:content-language:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ZZ8b65xFaoLyifj6soTcCK4V3mFrLiPMpU7F9cu2+Zw=;
+        b=qQBvdQDlE19/lyDZZBhTTO0vunNJHq+tajGrDd762W1KxcQlWS7vfQs46O6oMYlXSi
+         xGYaOdFSsvU2Bg2/0Le+3bhaqBFY3I5/Z7C/uEcZCG+her9O6POj004l9j+vxPVriHR7
+         fXb1O8VgUp/TnrneYFAO+FoTCiRaT0+nYnO2JtLurHkU7QO6lbDggOyEcJyeWdScRt+3
+         sUILzIfPaPROuFS7p5vnax0yHkfTMykdq534LwRrqwrwkpc/ULAbcOuqDgNym0kG3jek
+         AmxA81xnYjGDhkyKSE/em8Rtm4fRAT0KbX+0W/QXOFE17Fy9algEvfcHAdh/EbyWXtf7
+         34Yw==
+X-Gm-Message-State: AOJu0YwtaiCdQoNw17hcJsxxFWVvFqC5IcVf1BLecjUf5/Z//OWQeoNy
+	/xCLXu7FCgxgwQEpIndu64xZwsyxdyKOtnx3l0sZMljS4//1lq/b2PrYJIavTQzntMiVXbo3DnL
+	RiCPYwGLyamFKJigMzlJYZNO6Msdv97oZZTm6P4H/orHpcOCJYIZVHZjAQhs=
+X-Received: by 2002:a5d:598b:0:b0:33a:ff6f:608e with SMTP id n11-20020a5d598b000000b0033aff6f608emr1538719wri.39.1706711388923;
+        Wed, 31 Jan 2024 06:29:48 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFPGskpVirI8XyVxfxlAH1i9dBAoHA8YDWcFOsNNMi2vRqQHUZE1EbK6vou26NNGCX4WuJG6g==
+X-Received: by 2002:a5d:598b:0:b0:33a:ff6f:608e with SMTP id n11-20020a5d598b000000b0033aff6f608emr1538682wri.39.1706711388493;
+        Wed, 31 Jan 2024 06:29:48 -0800 (PST)
+Received: from [10.32.64.237] (nat-pool-muc-t.redhat.com. [149.14.88.26])
+        by smtp.gmail.com with ESMTPSA id 18-20020a05600c025200b0040d4e1393dcsm1765374wmj.20.2024.01.31.06.29.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 31 Jan 2024 06:29:48 -0800 (PST)
+Message-ID: <74333154-a99b-4bad-81f4-bee02ba05e91@redhat.com>
+Date: Wed, 31 Jan 2024 15:29:46 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240123002814.1396804-30-keescook@chromium.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: XKrjlcZMqfTd1Gq83J4rhjVO3nie3sDL
-X-Proofpoint-ORIG-GUID: bEVkfbCxjQ-zHyL5jTJ7NNsbOLh1Xldw
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-31_08,2024-01-30_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- clxscore=1011 spamscore=0 malwarescore=0 bulkscore=0 mlxscore=0
- priorityscore=1501 phishscore=0 adultscore=0 impostorscore=0
- suspectscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2311290000 definitions=main-2401310110
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 00/15] mm/memory: optimize fork() with PTE-mapped THP
+Content-Language: en-US
+To: Ryan Roberts <ryan.roberts@arm.com>, linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+ Matthew Wilcox <willy@infradead.org>, Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Dinh Nguyen <dinguyen@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>,
+ Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+ "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+ Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
+ <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, "David S. Miller"
+ <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, sparclinux@vger.kernel.org
+References: <20240129124649.189745-1-david@redhat.com>
+ <a335a9d2-9b8f-4eb8-ba22-23a223b59b06@arm.com>
+ <a1a0e9b3-dae2-418f-bd63-50e65f471728@redhat.com>
+ <57eb82c7-4816-42a2-b5ab-cc221e289b21@arm.com>
+ <e6eaba5b-f290-4d1f-990b-a47d89f56ee4@redhat.com>
+ <714d0930-2202-48b6-9728-d248f820325e@arm.com>
+ <dcaa20c4-bd1f-4f15-bb0a-3a790808937d@arm.com>
+ <30718fc8-15cf-41e4-922c-5cdbf00a0840@redhat.com>
+ <de975655-8f8f-40dc-b281-75c40dd1e2c1@arm.com>
+ <c63870b0-690a-4051-b4f5-296cf3b73be2@redhat.com>
+ <a0cdeb7c-dec8-4971-8b54-e6f65ea48ade@arm.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <a0cdeb7c-dec8-4971-8b54-e6f65ea48ade@arm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, Jan 22, 2024 at 04:27:05PM -0800, Kees Cook wrote:
-
-Hi Kees,
-
-...
->  arch/s390/include/asm/stacktrace.h    | 6 ++++--
->  arch/s390/kernel/machine_kexec_file.c | 5 +++--
-
-Subject does not match. These need to be two separate commits.
-
->  2 files changed, 7 insertions(+), 4 deletions(-)
+>> Note that regarding NUMA effects, I mean when some memory access within the same
+>> socket is faster/slower even with only a single node. On AMD EPYC that's
+>> possible, depending on which core you are running and on which memory controller
+>> the memory you want to access is located. If both are in different quadrants
+>> IIUC, the access latency will be different.
 > 
-> diff --git a/arch/s390/include/asm/stacktrace.h b/arch/s390/include/asm/stacktrace.h
-> index 31ec4f545e03..3ce08d32a8ad 100644
-> --- a/arch/s390/include/asm/stacktrace.h
-> +++ b/arch/s390/include/asm/stacktrace.h
-> @@ -34,11 +34,13 @@ int get_stack_info(unsigned long sp, struct task_struct *task,
->  static inline bool on_stack(struct stack_info *info,
->  			    unsigned long addr, size_t len)
->  {
-> +	unsigned long sum;
-> +
->  	if (info->type == STACK_TYPE_UNKNOWN)
->  		return false;
-> -	if (addr + len < addr)
-> +	if (check_add_overflow(addr, len, &sum))
+> I've configured the NUMA to only bring the RAM and CPUs for a single socket
+> online, so I shouldn't be seeing any of these effects. Anyway, I've been using
+> the Altra as a secondary because its so much slower than the M2. Let me move
+> over to it and see if everything looks more straightforward there.
 
-Why not add_would_overflow()?
+Better use a system where people will actually run Linux production 
+workloads on, even if it is slower :)
 
->  		return false;
-> -	return addr >= info->begin && addr + len <= info->end;
-> +	return addr >= info->begin && sum <= info->end;
->  }
->  
->  /*
-> diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
-> index 8d207b82d9fe..e5e925423061 100644
-> --- a/arch/s390/kernel/machine_kexec_file.c
-> +++ b/arch/s390/kernel/machine_kexec_file.c
-> @@ -238,6 +238,7 @@ void *kexec_file_add_components(struct kimage *image,
->  	unsigned long max_command_line_size = LEGACY_COMMAND_LINE_SIZE;
->  	struct s390_load_data data = {0};
->  	unsigned long minsize;
-> +	unsigned long sum;
+[...]
 
-Please, use min_kernel_buf_len instead of sum.
+>>>
+>>> I'll continue to mess around with it until the end of the day. But I'm not
+>>> making any headway, then I'll change tack; I'll just measure the performance of
+>>> my contpte changes using your fork/zap stuff as the baseline and post based on
+>>> that.
+>>
+>> You should likely not focus on M2 results. Just pick a representative bare metal
+>> machine where you get consistent, explainable results.
+>>
+>> Nothing in the code is fine-tuned for a particular architecture so far, only
+>> order-0 handling is kept separate.
+>>
+>> BTW: I see the exact same speedups for dontneed that I see for munmap. For
+>> example, for order-9, it goes from 0.023412s -> 0.009785, so -58%. So I'm
+>> curious why you see a speedup for munmap but not for dontneed.
+> 
+> Ugh... ok, coming up.
 
-@Sven, could you please correct me if (minsize + max_command_line_size)
-means something else.
+Hopefully you were just staring at the wrong numbers (e.g., only with 
+fork patches). Because both (munmap/pte-dontneed) are using the exact 
+same code path.
 
->  	int ret;
->  
->  	data.report = ipl_report_init(&ipl_block);
-> @@ -256,10 +257,10 @@ void *kexec_file_add_components(struct kimage *image,
->  	if (data.parm->max_command_line_size)
->  		max_command_line_size = data.parm->max_command_line_size;
->  
-> -	if (minsize + max_command_line_size < minsize)
-> +	if (check_add_overflow(minsize, max_command_line_size, &sum))
->  		goto out;
->  
-> -	if (image->kernel_buf_len < minsize + max_command_line_size)
-> +	if (image->kernel_buf_len < sum)
->  		goto out;
->  
->  	if (image->cmdline_buf_len >= max_command_line_size)
+-- 
+Cheers,
 
-Thanks!
+David / dhildenb
+
