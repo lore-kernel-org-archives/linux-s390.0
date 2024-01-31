@@ -1,126 +1,110 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EE048288D;
-	Wed, 31 Jan 2024 14:40:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id C19B28288F;
+	Wed, 31 Jan 2024 15:03:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706712041; cv=none; b=BY+qbsrdWteNoDJoNd+UAL9f05BeA1YMOMOYwwKr2iRjCN0Q+FzNBkSv4monQOKHPugOxzjEQR07a8TRfrGA4/vwVnvG01OeiVmRJTi4uQI7PlSLeaUShUEt+OiXRS0EBBEZ72v4KGmgQcOCpD6KH7p3CdFyNaEvks8V3Fw1Dmk=
+	t=1706713384; cv=none; b=eV11bIKGnAEHHcZdLAlPa23QaDMf0akECOgEkLG1idquX8BQmWDVrkT+u2cG9sgquvINyl6rGXmZq5r73mcYgj8KR45D7ztcayyxW5ZWsKeSg8zzfCP61B6+8v1wrWWcgQbvZscC1t6B3ylXne61Qu/ULHIXwCS9/gjnm1v4cQc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706712041; c=relaxed/simple;
-	bh=cf0o7pUczT+SwyHF1r0Vl8rD7xbhYCtgfD5FzmAA0zY=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=YxF3FXmicsq6NM7G+rbcCxsIhZdyDAGDINUa34wgvWzZUCts+RZO/ng/YfK7BwIR67x3OqefV6j2AVk9XaloSLee/bJEjz5bu5wCsPLFnBIAdFY2bnAR/2y1cB4HsZbInc5zG+HXB17+Uw0tPIVDZu+Kje0eeh6WcPPwjH2TtPo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bdT6UCsp; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bdT6UCsp"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40VE03pQ004366;
-	Wed, 31 Jan 2024 14:40:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : in-reply-to : references : date : message-id : mime-version :
- content-type; s=pp1; bh=CAbY6nnqiJsCB4h73B1JxMOVqr/ABqqEHndIpIGtNWg=;
- b=bdT6UCspzxb9Mkz6mMk0ZRpO/455IgBHJ3YjoaAylVTbLnsfvonqCqN3AZKwFE6Vq0hL
- mvR8Mb47xxHDKdoV/9I0jOTk6eObXEp+/3DTvsploZ025CrJvJ+LwsLrIjBpS+7SwXbg
- VB9dLmySOfrFJ4qAmppcT893z38Y04Qwue1K0k/nWv5jXn6Ceqo6NUqaHdIuzJfhWhDY
- rmRELF0Q84z4nk67p5Q1ET6LXtCgC0quWJogvIBjh2d1WNidY97DXMr37xfP4fUXfqBj
- bNYxVuOUOq+jKm29vBvkwqr0rmQsKIq/0JYpJrxdeUmg8v/Mfa0/7C3VRJhCWtl2t8aA /Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vyp9y30ck-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 31 Jan 2024 14:40:37 +0000
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40VEP4Yg020970;
-	Wed, 31 Jan 2024 14:40:36 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vyp9y30bn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 31 Jan 2024 14:40:36 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40VDXUsC007200;
-	Wed, 31 Jan 2024 14:40:35 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vwev2dh10-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 31 Jan 2024 14:40:35 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40VEeWkX13042418
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 31 Jan 2024 14:40:32 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 98D722004B;
-	Wed, 31 Jan 2024 14:40:32 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1BEF22004D;
-	Wed, 31 Jan 2024 14:40:32 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 31 Jan 2024 14:40:32 +0000 (GMT)
-From: Sven Schnelle <svens@linux.ibm.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Kees Cook <keescook@chromium.org>, linux-hardening@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Nico Boehr
- <nrb@linux.ibm.com>, Philipp Rudo <prudo@redhat.com>,
-        Baoquan He
- <bhe@redhat.com>, Tao Liu <ltao@redhat.com>,
-        Alexander Egorenkov
- <egorenar@linux.ibm.com>,
-        linux-s390@vger.kernel.org,
-        "Gustavo A. R.
- Silva" <gustavoars@kernel.org>,
-        Bill Wendling <morbo@google.com>,
-        Justin
- Stitt <justinstitt@google.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 30/82] s390/kexec_file: Refactor intentional wrap-around
- calculation
-In-Reply-To: <ZbpXieRZz3BQ6jBH@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-	(Alexander Gordeev's message of "Wed, 31 Jan 2024 15:22:01 +0100")
-References: <20240122235208.work.748-kees@kernel.org>
-	<20240123002814.1396804-30-keescook@chromium.org>
-	<ZbpXieRZz3BQ6jBH@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-Date: Wed, 31 Jan 2024 15:40:31 +0100
-Message-ID: <yt9d4jetmuqo.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	s=arc-20240116; t=1706713384; c=relaxed/simple;
+	bh=kv8zjaYoSk9dJcDJ0wHeUe8lSIZbo2bgiPkiGFxD39g=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=IcUejHPwvuyag7NoR8nwcZ1HrLRrS4FVbt5RX/HYxkwhUta61gC9iQnK3tSKZTWHYxGVkYPJVPoWmDXDcetyZMWeDD4JaQA/QpNtRKSqSBDC8OhG8v+497J2MuG19o+IYDPymttEcOtMxDGVszlmJYDRUx+3kY7Brp7uhifNY2s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 50D6ADA7;
+	Wed, 31 Jan 2024 07:03:45 -0800 (PST)
+Received: from [10.57.79.60] (unknown [10.57.79.60])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4E47B3F762;
+	Wed, 31 Jan 2024 07:02:57 -0800 (PST)
+Message-ID: <a34eee7e-3970-4cdd-8c09-bca51132db50@arm.com>
+Date: Wed, 31 Jan 2024 15:02:56 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: hi5JB6CrT1YccCS8U5iW7QtK_X6slFsm
-X-Proofpoint-ORIG-GUID: ZPRMgtNbIfwvBkgv-v1cJY0vDW_eM9Fd
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-31_08,2024-01-31_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- mlxlogscore=848 adultscore=0 impostorscore=0 suspectscore=0
- priorityscore=1501 malwarescore=0 mlxscore=0 phishscore=0 spamscore=0
- clxscore=1011 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401310112
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 00/15] mm/memory: optimize fork() with PTE-mapped THP
+Content-Language: en-GB
+To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+ Matthew Wilcox <willy@infradead.org>, Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Dinh Nguyen <dinguyen@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>,
+ Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+ "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+ Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
+ <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, "David S. Miller"
+ <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, sparclinux@vger.kernel.org
+References: <20240129124649.189745-1-david@redhat.com>
+ <a335a9d2-9b8f-4eb8-ba22-23a223b59b06@arm.com>
+ <a1a0e9b3-dae2-418f-bd63-50e65f471728@redhat.com>
+ <57eb82c7-4816-42a2-b5ab-cc221e289b21@arm.com>
+ <e6eaba5b-f290-4d1f-990b-a47d89f56ee4@redhat.com>
+ <714d0930-2202-48b6-9728-d248f820325e@arm.com>
+ <dcaa20c4-bd1f-4f15-bb0a-3a790808937d@arm.com>
+ <30718fc8-15cf-41e4-922c-5cdbf00a0840@redhat.com>
+ <de975655-8f8f-40dc-b281-75c40dd1e2c1@arm.com>
+ <c63870b0-690a-4051-b4f5-296cf3b73be2@redhat.com>
+ <a0cdeb7c-dec8-4971-8b54-e6f65ea48ade@arm.com>
+ <74333154-a99b-4bad-81f4-bee02ba05e91@redhat.com>
+From: Ryan Roberts <ryan.roberts@arm.com>
+In-Reply-To: <74333154-a99b-4bad-81f4-bee02ba05e91@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Alexander Gordeev <agordeev@linux.ibm.com> writes:
+On 31/01/2024 14:29, David Hildenbrand wrote:
+>>> Note that regarding NUMA effects, I mean when some memory access within the same
+>>> socket is faster/slower even with only a single node. On AMD EPYC that's
+>>> possible, depending on which core you are running and on which memory controller
+>>> the memory you want to access is located. If both are in different quadrants
+>>> IIUC, the access latency will be different.
+>>
+>> I've configured the NUMA to only bring the RAM and CPUs for a single socket
+>> online, so I shouldn't be seeing any of these effects. Anyway, I've been using
+>> the Altra as a secondary because its so much slower than the M2. Let me move
+>> over to it and see if everything looks more straightforward there.
+> 
+> Better use a system where people will actually run Linux production workloads
+> on, even if it is slower :)
+> 
+> [...]
+> 
+>>>>
+>>>> I'll continue to mess around with it until the end of the day. But I'm not
+>>>> making any headway, then I'll change tack; I'll just measure the performance of
+>>>> my contpte changes using your fork/zap stuff as the baseline and post based on
+>>>> that.
+>>>
+>>> You should likely not focus on M2 results. Just pick a representative bare metal
+>>> machine where you get consistent, explainable results.
+>>>
+>>> Nothing in the code is fine-tuned for a particular architecture so far, only
+>>> order-0 handling is kept separate.
+>>>
+>>> BTW: I see the exact same speedups for dontneed that I see for munmap. For
+>>> example, for order-9, it goes from 0.023412s -> 0.009785, so -58%. So I'm
+>>> curious why you see a speedup for munmap but not for dontneed.
+>>
+>> Ugh... ok, coming up.
+> 
+> Hopefully you were just staring at the wrong numbers (e.g., only with fork
+> patches). Because both (munmap/pte-dontneed) are using the exact same code path.
+> 
 
-> On Mon, Jan 22, 2024 at 04:27:05PM -0800, Kees Cook wrote:
->> diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
->> index 8d207b82d9fe..e5e925423061 100644
->> --- a/arch/s390/kernel/machine_kexec_file.c
->> +++ b/arch/s390/kernel/machine_kexec_file.c
->> @@ -238,6 +238,7 @@ void *kexec_file_add_components(struct kimage *image,
->>  	unsigned long max_command_line_size = LEGACY_COMMAND_LINE_SIZE;
->>  	struct s390_load_data data = {0};
->>  	unsigned long minsize;
->> +	unsigned long sum;
->
-> Please, use min_kernel_buf_len instead of sum.
->
-> @Sven, could you please correct me if (minsize + max_command_line_size)
-> means something else.
-
-Your understanding is correct, minsize + max_command_line_size is the
-minimum required size of the kernel image.
+Ahh... I'm doing pte-dontneed, which is the only option in your original
+benchmark - it does MADV_DONTNEED one page at a time. It looks like your new
+benchmark has an additional "dontneed" option that does it in one shot. Which
+option are you running? Assuming the latter, I think that explains it.
