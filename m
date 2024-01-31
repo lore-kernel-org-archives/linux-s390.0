@@ -1,260 +1,256 @@
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF58469D03;
-	Wed, 31 Jan 2024 10:01:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0717B6996C
+	for <linux-s390@vger.kernel.org>; Wed, 31 Jan 2024 10:16:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706695285; cv=none; b=s3bLZ2piCyAaOBLI7LmN/q5nR0D5QymVKk4YcJQ07OGHqk8QuzDNIDol6DA9uozB8V9gZFvZRFJ1Rc8Rh6QfIFWHjvogq4q1w0OouqWWR3XErcIdsmvc5IJUSFmriCcPMFrafdzN8XqDXE2f1Qn0OmsClNBXRPE39LcbRqvpJ2A=
+	t=1706696169; cv=none; b=KKhXl7/npNbkyQnKombjcRoIDCk7GamhUHA0uetmzcvtdSGUecfQkkkXrQjh7lXghOqWtYutdTbrEpOPZ9YYo1QRuDF1Ur6Mx+bq+1vIhQ1NXcqMHF1A1e6sNWGKF+sVZ0u+2Dm1EfW3WMw/rhG8Ju7c5qh0icQ9PV8nH04EKnU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706695285; c=relaxed/simple;
-	bh=5GPX+NAbxn+D9MTBLeCfhGrK6GLGqIjJb9fk23SfNg8=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=XQ2h41ijn1NJalRRObaj/khsFb/4bROnzlR9UVou1rbi9u7BW2a+nwCByBOJpBtYYn4zGD72JLcixYK5ZADYSJSt0Es9ALMpPST9ZGR/KhOpE2FCYv7LioW47GjYhnCi3mUO7G6cUX9TQj/lPP4oZupgHVaT0AqSWL9VVDL8QIg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=dPIX2M37; arc=none smtp.client-ip=115.124.30.98
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1706696169; c=relaxed/simple;
+	bh=+fUuFbI+H/SuBr2rM99Lw5pc13uDCdDY1YWEmbLISaM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FznVhvIStxrtAdpz69ZvHDNIE259Sl2tt7TG2PFE3XMdo/oQk9LdIUJ6FXxOWzQw6RPmTN69CiPgP1grcRyoApV2tpJiDAysSTv9RIlwcQ87wFdISwtMjhPow77rPRT77ZotI3KuktpxWDvfZG9c186BHhhyTOBwn/BjbqFFvgQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DL24DkFC; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="dPIX2M37"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1706695273; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=hNzHtzVpBU2+0miP3b1vKMXJO0IZm/151kGzW+L2WI0=;
-	b=dPIX2M37FXzeuLvu/e7vAhw16m76USR7dwEXKk+PZrc9aEf2ot/6S6xUjYvDN8i9LLAQHAygyTsPkNWxAjyNkTUxy2YMzd+WpprVJeHLhBBXTtGa8aC3CClZl41W2CoZHoAb3Oih0ZsNq6T+b2V6+q4cqERNCPoRnkYhzWbOBXQ=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R501e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0W.j9ASw_1706695270;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W.j9ASw_1706695270)
-          by smtp.aliyun-inc.com;
-          Wed, 31 Jan 2024 18:01:11 +0800
-Message-ID: <1706695212.333408-3-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost 03/17] virtio_ring: packed: structure the indirect desc table
-Date: Wed, 31 Jan 2024 18:00:12 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux.dev,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Hans de Goede <hdegoede@redhat.com>,
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- Benjamin Berg <benjamin.berg@intel.com>,
- Yang Li <yang.lee@linux.alibaba.com>,
- linux-um@lists.infradead.org,
- netdev@vger.kernel.org,
- platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- kvm@vger.kernel.org,
- bpf@vger.kernel.org
-References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
- <20240130114224.86536-4-xuanzhuo@linux.alibaba.com>
- <CACGkMEvz55WO+TN2KCv+KLvdT-ZxLike81maahBeVanrCk_Lrg@mail.gmail.com>
-In-Reply-To: <CACGkMEvz55WO+TN2KCv+KLvdT-ZxLike81maahBeVanrCk_Lrg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DL24DkFC"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1706696167;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=olrIksRwu/OB7Bur4QOxK7MpIEfH+wiCW8yB+1Kffm8=;
+	b=DL24DkFC+E4rAg+yCpBneDpaqh9nXzNGfSxPjj/MYrDS4uP7xClGSMC6jX2fp3idB9/OxU
+	2YwKknY8vFy3szK58mLU9qJyt4w8YzgM1fDXxNLgEOTcDVWhiYmQ5LXhC0kV6v3P32+gYL
+	o+vjxFPbLn164jcxD1qJGupu9N7MJ3E=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-554-lPxwbPLnM6CfzhxK1OsMtQ-1; Wed, 31 Jan 2024 05:16:04 -0500
+X-MC-Unique: lPxwbPLnM6CfzhxK1OsMtQ-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-40ef75bea80so16452715e9.1
+        for <linux-s390@vger.kernel.org>; Wed, 31 Jan 2024 02:16:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706696163; x=1707300963;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
+         :references:cc:to:content-language:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=olrIksRwu/OB7Bur4QOxK7MpIEfH+wiCW8yB+1Kffm8=;
+        b=gfytvW6vQ/KyM5kzDMXNo4/jd5wVEqfdJZ2Zm9JuTeOdAi+rwtIMvMyYOrJxKcKoPm
+         qrRBNaXXG8UiGGoXkKdBx292EYnIJbabqnPzWaRSUESRd25ChFU5u1t5WW/yiEs9VLQV
+         v6xLV+lqeu28UbGmMM9QCKEF4UJLc/QMDgJbVAF2qFJcJJznAj1K9gvyg1wVuFRmbJ6C
+         +xRoe5YeYtKwl8/Cwj1TY89DfVKOyNGlRaMlV+JVBeNIobUjmbDsgp7ahTHeHCrC79GP
+         Jnx2oQooi5eVvk7rFTXYjLoLklUVJsehCFcjZPj/Nbu7Z4tr46hlbQaHG7QSE5Y/Ckt9
+         NvCQ==
+X-Gm-Message-State: AOJu0YwfBekgL/DDUMFy+PJw7T2pundMXUeeXeIN+KoqLPtApESQdel6
+	s1JYtAd/wvZwOpVnRVJNWJYZFeeOVjEzMegHwNn9HmK7FOqIgzPRdfd6x1ARNDdwx217V+bzyk0
+	R++wbeoJcsI9Z60eVYWDGEB3KSOF+3LPFx7r8eHIdVpy6TDCUvlBt7KGwYE0=
+X-Received: by 2002:a05:600c:5487:b0:40e:6193:b1a5 with SMTP id iv7-20020a05600c548700b0040e6193b1a5mr854944wmb.39.1706696163438;
+        Wed, 31 Jan 2024 02:16:03 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEMAZswSvjgpfCfiIPLAZDAiPRc1TvD563CidrApjODUDhmgy6rYEXfqKL7+SBpHT/WE+OIlQ==
+X-Received: by 2002:a05:600c:5487:b0:40e:6193:b1a5 with SMTP id iv7-20020a05600c548700b0040e6193b1a5mr854918wmb.39.1706696162974;
+        Wed, 31 Jan 2024 02:16:02 -0800 (PST)
+Received: from [10.32.64.237] (nat-pool-muc-t.redhat.com. [149.14.88.26])
+        by smtp.gmail.com with ESMTPSA id o7-20020a05600c4fc700b0040efb20fa6csm1144646wmq.47.2024.01.31.02.16.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 31 Jan 2024 02:16:02 -0800 (PST)
+Message-ID: <ee94b8ca-9723-44c0-aa17-75c9678015c6@redhat.com>
+Date: Wed, 31 Jan 2024 11:16:01 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 0/9] mm/memory: optimize unmap/zap with PTE-mapped THP
+Content-Language: en-US
+To: Yin Fengwei <fengwei.yin@intel.com>, linux-kernel@vger.kernel.org,
+ Linus Torvalds <torvalds@linux-foundation.org>,
+ Michal Hocko <mhocko@kernel.org>
+Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+ Matthew Wilcox <willy@infradead.org>, Ryan Roberts <ryan.roberts@arm.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+ Nick Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>,
+ Michael Ellerman <mpe@ellerman.id.au>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
+ linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, "Huang, Ying" <ying.huang@intel.com>
+References: <20240129143221.263763-1-david@redhat.com>
+ <4ef64fd1-f605-4ddf-82e6-74b5e2c43892@intel.com>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <4ef64fd1-f605-4ddf-82e6-74b5e2c43892@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed, 31 Jan 2024 17:12:10 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Tue, Jan 30, 2024 at 7:42=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
-.com> wrote:
-> >
-> > This commit structure the indirect desc table.
-> > Then we can get the desc num directly when doing unmap.
-> >
-> > And save the dma info to the struct, then the indirect
-> > will not use the dma fields of the desc_extra. The subsequent
-> > commits will make the dma fields are optional. But for
-> > the indirect case, we must record the dma info.
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  drivers/virtio/virtio_ring.c | 63 ++++++++++++++++++++----------------
-> >  1 file changed, 35 insertions(+), 28 deletions(-)
-> >
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index 7280a1706cca..dd03bc5a81fe 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -72,9 +72,16 @@ struct vring_desc_state_split {
-> >         struct vring_desc *indir_desc;  /* Indirect descriptor, if any.=
- */
-> >  };
-> >
-> > +struct vring_packed_desc_indir {
-> > +       dma_addr_t addr;                /* Descriptor Array DMA addr. */
-> > +       u32 len;                        /* Descriptor Array length. */
-> > +       u32 num;
-> > +       struct vring_packed_desc desc[];
-> > +};
-> > +
-> >  struct vring_desc_state_packed {
-> >         void *data;                     /* Data for callback. */
-> > -       struct vring_packed_desc *indir_desc; /* Indirect descriptor, i=
-f any. */
-> > +       struct vring_packed_desc_indir *indir_desc; /* Indirect descrip=
-tor, if any. */
-> >         u16 num;                        /* Descriptor list length. */
-> >         u16 last;                       /* The last desc state in a lis=
-t. */
-> >  };
-> > @@ -1249,10 +1256,13 @@ static void vring_unmap_desc_packed(const struc=
-t vring_virtqueue *vq,
-> >                        DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> >  }
-> >
-> > -static struct vring_packed_desc *alloc_indirect_packed(unsigned int to=
-tal_sg,
-> > +static struct vring_packed_desc_indir *alloc_indirect_packed(unsigned =
-int total_sg,
-> >                                                        gfp_t gfp)
-> >  {
-> > -       struct vring_packed_desc *desc;
-> > +       struct vring_packed_desc_indir *in_desc;
-> > +       u32 size;
-> > +
-> > +       size =3D struct_size(in_desc, desc, total_sg);
-> >
-> >         /*
-> >          * We require lowmem mappings for the descriptors because
-> > @@ -1261,9 +1271,10 @@ static struct vring_packed_desc *alloc_indirect_=
-packed(unsigned int total_sg,
-> >          */
-> >         gfp &=3D ~__GFP_HIGHMEM;
-> >
-> > -       desc =3D kmalloc_array(total_sg, sizeof(struct vring_packed_des=
-c), gfp);
-> >
-> > -       return desc;
-> > +       in_desc =3D kmalloc(size, gfp);
-> > +
-> > +       return in_desc;
-> >  }
-> >
-> >  static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
-> > @@ -1274,6 +1285,7 @@ static int virtqueue_add_indirect_packed(struct v=
-ring_virtqueue *vq,
-> >                                          void *data,
-> >                                          gfp_t gfp)
-> >  {
-> > +       struct vring_packed_desc_indir *in_desc;
-> >         struct vring_packed_desc *desc;
-> >         struct scatterlist *sg;
-> >         unsigned int i, n, err_idx;
-> > @@ -1281,10 +1293,12 @@ static int virtqueue_add_indirect_packed(struct=
- vring_virtqueue *vq,
-> >         dma_addr_t addr;
-> >
-> >         head =3D vq->packed.next_avail_idx;
-> > -       desc =3D alloc_indirect_packed(total_sg, gfp);
-> > -       if (!desc)
-> > +       in_desc =3D alloc_indirect_packed(total_sg, gfp);
-> > +       if (!in_desc)
-> >                 return -ENOMEM;
-> >
-> > +       desc =3D in_desc->desc;
-> > +
-> >         if (unlikely(vq->vq.num_free < 1)) {
-> >                 pr_debug("Can't add buf len 1 - avail =3D 0\n");
-> >                 kfree(desc);
-> > @@ -1321,17 +1335,15 @@ static int virtqueue_add_indirect_packed(struct=
- vring_virtqueue *vq,
-> >                 goto unmap_release;
-> >         }
-> >
-> > +       in_desc->num =3D i;
-> > +       in_desc->addr =3D addr;
-> > +       in_desc->len =3D total_sg * sizeof(struct vring_packed_desc);
->
-> It looks to me if we don't use dma_api we don't even need these steps?
+On 31.01.24 03:20, Yin Fengwei wrote:
+> On 1/29/24 22:32, David Hildenbrand wrote:
+>> This series is based on [1] and must be applied on top of it.
+>> Similar to what we did with fork(), let's implement PTE batching
+>> during unmap/zap when processing PTE-mapped THPs.
+>>
+>> We collect consecutive PTEs that map consecutive pages of the same large
+>> folio, making sure that the other PTE bits are compatible, and (a) adjust
+>> the refcount only once per batch, (b) call rmap handling functions only
+>> once per batch, (c) perform batch PTE setting/updates and (d) perform TLB
+>> entry removal once per batch.
+>>
+>> Ryan was previously working on this in the context of cont-pte for
+>> arm64, int latest iteration [2] with a focus on arm6 with cont-pte only.
+>> This series implements the optimization for all architectures, independent
+>> of such PTE bits, teaches MMU gather/TLB code to be fully aware of such
+>> large-folio-pages batches as well, and amkes use of our new rmap batching
+>> function when removing the rmap.
+>>
+>> To achieve that, we have to enlighten MMU gather / page freeing code
+>> (i.e., everything that consumes encoded_page) to process unmapping
+>> of consecutive pages that all belong to the same large folio. I'm being
+>> very careful to not degrade order-0 performance, and it looks like I
+>> managed to achieve that.
+> 
 
-YES
+Let's CC Linus and Michal to make sure I'm not daydreaming.
+
+Relevant patch:
+   https://lkml.kernel.org/r/20240129143221.263763-8-david@redhat.com
+
+Context: I'm adjusting MMU gather code to support batching of 
+consecutive pages that belong to the same large folio, when 
+unmapping/zapping PTEs.
+
+For small folios, there is no (relevant) change.
+
+Imagine we have a PTE-mapped THP (2M folio -> 512 pages) and zap all 512 
+PTEs: Instead of adding 512 individual encoded_page entries, we add a 
+combined entry that expresses "page+nr_pages". That allows for "easily" 
+adding various other per-folio batching (refcount, rmap, swap freeing).
+
+The implication is, that we can now batch effective more pages with 
+large folios, exceeding the old 10000 limit. The number of involved 
+*folios* does not increase, though.
+
+> One possible scenario:
+> If all the folio is 2M size folio, then one full batch could hold 510M memory.
+> Is it too much regarding one full batch before just can hold (2M - 4096 * 2)
+> memory?
+
+Excellent point, I think there are three parts to it:
+
+(1) Batch pages / folio fragments per batch page
+
+Before this change (and with 4k folios) we have exactly one page (4k) 
+per encoded_page entry in the batch. Now, we can have (with 2M folios), 
+512 pages for every two encoded_page entries (page+nr_pages) in a batch 
+page. So an average ~256 pages per encoded_page entry.
+
+So one batch page can now store in the worst case ~256 times the number 
+of pages, but the number of folio fragments ("pages+nr_pages") would not 
+increase.
+
+The time it takes to perform the actual page freeing of a batch will not 
+be 256 times higher -- the time is expected to be much closer to the old 
+time (i.e., not freeing more folios).
+
+(2) Delayed rmap handling
+
+We limit batching early (see tlb_next_batch()) when we have delayed rmap 
+pending. Reason being, that we don't want to check for many entries if 
+they require delayed rmap handling, while still holding the page table 
+lock (see tlb_flush_rmaps()), because we have to remove the rmap before 
+dropping the PTL.
+
+Note that we perform the check whether we need delayed rmap handling per 
+page+nr_pages entry, not per page. So we won't perform more such checks.
+
+Once we set tlb->delayed_rmap (because we add one entry that requires 
+it), we already force a flush before dropping the PT lock. So once we 
+get a single delayed rmap entry in there, we will not batch more than we 
+could have in the same page table: so not more than 512 entries (x86-64) 
+in the worst case. So it will still be bounded, and not significantly 
+more than what we had before.
+
+So regarding delayed rmap handling I think this should be fine.
+
+(3) Total patched pages
+
+MAX_GATHER_BATCH_COUNT effectively limits the number of pages we 
+allocate (full batches), and thereby limits the number of pages we were 
+able to batch.
+
+The old limit was ~10000 pages, now we could batch ~5000 folio fragments 
+(page+nr_pages), resulting int the "times 256" increase in the worst 
+case on x86-64 as you point out.
+
+This 10000 pages limit was introduced in 53a59fc67f97 ("mm: limit 
+mmu_gather batching to fix soft lockups on !CONFIG_PREEMPT") where we 
+wanted to handle soft-lockups.
+
+As the number of effective folios we are freeing does not increase, I 
+*think* this should be fine.
 
 
->
-> > +
-> >         vq->packed.vring.desc[head].addr =3D cpu_to_le64(addr);
-> >         vq->packed.vring.desc[head].len =3D cpu_to_le32(total_sg *
-> >                                 sizeof(struct vring_packed_desc));
-> >         vq->packed.vring.desc[head].id =3D cpu_to_le16(id);
-> >
-> > -       if (vring_need_unmap_buffer(vq)) {
-> > -               vq->packed.desc_extra[id].addr =3D addr;
-> > -               vq->packed.desc_extra[id].len =3D total_sg *
-> > -                               sizeof(struct vring_packed_desc);
-> > -       }
-> > -
-> >         vq->packed.desc_extra[id].flags =3D VRING_DESC_F_INDIRECT |
-> >                 vq->packed.avail_used_flags;
-> >
-> > @@ -1362,7 +1374,7 @@ static int virtqueue_add_indirect_packed(struct v=
-ring_virtqueue *vq,
-> >         /* Store token and indirect buffer state. */
-> >         vq->packed.desc_state[id].num =3D 1;
-> >         vq->packed.desc_state[id].data =3D data;
-> > -       vq->packed.desc_state[id].indir_desc =3D desc;
-> > +       vq->packed.desc_state[id].indir_desc =3D in_desc;
-> >         vq->packed.desc_state[id].last =3D id;
-> >
-> >         vq->num_added +=3D 1;
-> > @@ -1381,7 +1393,7 @@ static int virtqueue_add_indirect_packed(struct v=
-ring_virtqueue *vq,
-> >                 vring_unmap_desc_packed(vq, &desc[i]);
-> >
-> >  free_desc:
-> > -       kfree(desc);
-> > +       kfree(in_desc);
-> >
-> >         END_USE(vq);
-> >         return -ENOMEM;
-> > @@ -1595,7 +1607,6 @@ static void detach_buf_packed(struct vring_virtqu=
-eue *vq,
-> >                               unsigned int id, void **ctx)
-> >  {
-> >         struct vring_desc_state_packed *state =3D NULL;
-> > -       struct vring_packed_desc *desc;
-> >         unsigned int i, curr;
-> >         u16 flags;
-> >
-> > @@ -1621,28 +1632,24 @@ static void detach_buf_packed(struct vring_virt=
-queue *vq,
-> >
-> >                 if (ctx)
-> >                         *ctx =3D state->indir_desc;
-> > +
->
-> Unnecessary changes.
+If any of that is a problem, we would have to keep track of the total 
+number of pages in our batch, and stop as soon as we hit our 10000 limit 
+-- independent of page vs. folio fragment. Something I would like to 
+avoid of possible.
 
+-- 
+Cheers,
 
-Could you say more?
-You do not like this patch?
+David / dhildenb
 
-Thanks.
-
-
-
->
-> Thanks
->
