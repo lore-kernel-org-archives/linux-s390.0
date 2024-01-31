@@ -1,65 +1,65 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D643173177
-	for <linux-s390@vger.kernel.org>; Wed, 31 Jan 2024 11:07:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C8F269DF9
+	for <linux-s390@vger.kernel.org>; Wed, 31 Jan 2024 11:13:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706699227; cv=none; b=FrrbsQzL3vUlLiQ6loHeTATBslNM986QD1hUgmXUQImvio1p5aNpqb1dHNBgdv1OnFVedf9MroDqKtClh/N1w0RhJh6ulCJ9wFbO3nDwalYj4Q40MI8w1Vn+OH7P06W4ol8Y9s8HkCKY6WLNdy7dyDF+1dAKPBIHxY0CnQIjUT0=
+	t=1706699592; cv=none; b=G91qXswTK/cKBk+0qT/L+FfEV2Ih1yomJ19hOGknClUZ8Nsv/Wy1QwuDpHPJcp9Cru60S+k3NAs43cExGcNYjdImmmC4pzCkyE+8lsCQq/u95NumdgA5Y3cWIPG+z8oOcqVeW00cwMDgkCLNLJgbJel/WN7lH1qhmiycnu2GXgk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706699227; c=relaxed/simple;
-	bh=y1aOz6OUiR7wW0QMb1injJoBMWIH2KVJ2c55hImj2Lg=;
+	s=arc-20240116; t=1706699592; c=relaxed/simple;
+	bh=Mce+eEpIDdFmJH+2I/iAep3MNohyZGT7W5JKBIXadvE=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=K9mtl7sZxRMYSiJ9Dxms1zBdeVk57msVfnkezKtzpkdeMHBDA3hH3//KuwRd77pltYPOVVbeNq/Sz6MTG54taAGkrdStvywM4QGj9vVZsLeWGJ8YHJb4HShBmU4+xPB9vw5/ZznaDHbTLDaOP5hr8DucPCz9V7A82Sqz7pNwDQE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CtC/33LC; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=a91HzgX/Bnc5f1IO1q4cPmlowNllHjfGyKpcSiOLt+H2cOlwAcU2di51XRHyxjMm74RuglYuCkXC0bceT+UXfZVuFKWZjDIeTpgKoRtfd7xZ6ZgdrQkQpwyglNxpWuPraPhAMLJlTpGoyH9PHPCVq1sBrqhGU5Ldmk3K6/V8qQQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bLX8t9qM; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CtC/33LC"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bLX8t9qM"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706699224;
+	s=mimecast20190719; t=1706699589;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=EPrRA4G16rNph0HwrpyFZd0WmfVM9XjFuWwPmxCMxPs=;
-	b=CtC/33LCoqJBJwl7TsH4fmL12fP25ZzjySKiXds81roVhXV8dXQCqJkUyg2hwYs5cm24Jt
-	3HUN3npN61lVsPIdV/ACwP+fy2AL9otjEpmMovVg3r3sPuJ9+oyhgU+9QbBio6igXhmV/G
-	OlzyrWmpch7cFIDZPPEI41nFgc3kslg=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=d4ma9zbE8mjb8i+FauSpNHy+FN/rZ5fB2oL3RLjV6rs=;
+	b=bLX8t9qM4WUR8REWg+0XkfWUSQK09h+hi9UWdax3f5UNM9Qc1Tj8CrjzSs/VkA/AKyJYL2
+	IDZOuaEl1tczJltgyUs5jAa+ciqy9UIb/YYCBCwPsN9nBIPPyjrljmhGGpKr6C4SOycd/D
+	IrOS1PCi+JUkz41Y0r8mDvT9ynhc9pI=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-586-LDE5cqv8PeuKC_GxSfhfKw-1; Wed, 31 Jan 2024 06:07:02 -0500
-X-MC-Unique: LDE5cqv8PeuKC_GxSfhfKw-1
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-33ae7482b2dso1581977f8f.0
-        for <linux-s390@vger.kernel.org>; Wed, 31 Jan 2024 03:07:02 -0800 (PST)
+ us-mta-696-1WTF5nZeORqTi9XxPmj9Pw-1; Wed, 31 Jan 2024 06:13:08 -0500
+X-MC-Unique: 1WTF5nZeORqTi9XxPmj9Pw-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-40ef9dea0d1so15788285e9.1
+        for <linux-s390@vger.kernel.org>; Wed, 31 Jan 2024 03:13:07 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706699221; x=1707304021;
+        d=1e100.net; s=20230601; t=1706699587; x=1707304387;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
          :references:cc:to:content-language:subject:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=EPrRA4G16rNph0HwrpyFZd0WmfVM9XjFuWwPmxCMxPs=;
-        b=KlAlsSLM8tN2LmIMifTP3Ad/D4l0AXgbKpcSx2sxUtfDUjmss0G5VxRtnV79hAlhw1
-         KClbuxXxd7cOYo/M+CKpe4onN7AJSshbgnb9PdY8NoLx63nLDlQhB31JOh1PUZpmx/zE
-         cU6tEZ4xOhO4AMwhgz/NBxUEvk/m1JE02BEkrl/+vvWEqp2lErqozb/jDQzbb2nO6Rys
-         KCtQjddINUWYTqV/tI2DoNbRu/LYpeA+6dq8OjVpZWC/tKTU//emMZ+frpeSGfwzhH9B
-         L/ocdxdmvGXEV7Hnt/8otEnY/vf4dwqlLfewhJ+/mHiA30J9N6dP3RUiRpr5ZYIkma5O
-         2+qg==
-X-Gm-Message-State: AOJu0YzhI+l0d3CcGAhAe56R1BB/dGBIX0yDoSSAonCMJ6RO7+e5R0FF
-	F1kO2ZO5Nzm24aYP1skbYYxp8QgSO/5hiCo+HnUzvAdd10/61oaXVco7Uz4tAx0osSUl2jtF2M7
-	smcWUXudFpK/iRDAjpp5FyX8sdbkU2iksbaCI6su0Utk78q/5b9V8MZnbNzE=
-X-Received: by 2002:adf:cd0b:0:b0:336:6377:6e3d with SMTP id w11-20020adfcd0b000000b0033663776e3dmr731891wrm.66.1706699221617;
-        Wed, 31 Jan 2024 03:07:01 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFA/lbkXBUTF2Q1hwLU6vcNIzd8zfJwdZPFVoQqQvBcWoL3J9lF0IZkIJXh4wwNAzmG9wj1/Q==
-X-Received: by 2002:adf:cd0b:0:b0:336:6377:6e3d with SMTP id w11-20020adfcd0b000000b0033663776e3dmr731857wrm.66.1706699221183;
-        Wed, 31 Jan 2024 03:07:01 -0800 (PST)
+        bh=d4ma9zbE8mjb8i+FauSpNHy+FN/rZ5fB2oL3RLjV6rs=;
+        b=gPGsPMecXz9Djhga1BFiDxXnDqpCKaEtDeQE3ULtTNCilArwF3DllbItZy7kkF3eZs
+         J3W8ydE+XIP7S+NMehBym7XOYrZ5+5AWkzpROp8bmTwypKxDkNeE1ARMH535YRc+mpVq
+         lFs8q2ZUCWwJ4RuwI6gRs2KKIerljld4F1gJFIfJMFtfgzyI672ovhjxB8AgEh70SuHZ
+         zRJj8fyHSV9v5walrpBnxr+P46MtjDN6MJS5Bo2U5HvZwzv7N6rGqHJ+SYKIRHhJ3Ngz
+         D3E6udQf05kmfqnaw1XPBU9/Xm8pd7t7AYzgORvtgeIHP47uT/AszNbbRlhf93KubwcP
+         JcHA==
+X-Gm-Message-State: AOJu0Yz73kFu+moZPbX1RpcV3vvLRU//QjYwqUXyJl9UZiuIOGf2lK0/
+	Aw9VQLV5lEzzAyMQkDaTemljGeCpUhFhdgdEnv/6lZb6FysbUKUIXpmDOhG5bZsPiz1E7T5p24R
+	n5G9I185HnW94FggKNJLnrGjWEcZmFaZXE5rht7nCHTsdCc0WBI46VRKnNQQ=
+X-Received: by 2002:a05:600c:470d:b0:40e:f656:39f with SMTP id v13-20020a05600c470d00b0040ef656039fmr1018335wmo.6.1706699586973;
+        Wed, 31 Jan 2024 03:13:06 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFqBwS6p6bJR9z+v39DGZKJ94gGFj7YXuQe4rd8sPOmEQeUSMAmCXotFvLHcNalUBQDlimQJQ==
+X-Received: by 2002:a05:600c:470d:b0:40e:f656:39f with SMTP id v13-20020a05600c470d00b0040ef656039fmr1018321wmo.6.1706699586591;
+        Wed, 31 Jan 2024 03:13:06 -0800 (PST)
 Received: from [10.32.64.237] (nat-pool-muc-t.redhat.com. [149.14.88.26])
-        by smtp.gmail.com with ESMTPSA id fo4-20020a056000290400b0033af3294417sm6643931wrb.21.2024.01.31.03.06.59
+        by smtp.gmail.com with ESMTPSA id cl3-20020a5d5f03000000b0033afd49cac7sm3390196wrb.43.2024.01.31.03.13.05
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 31 Jan 2024 03:07:00 -0800 (PST)
-Message-ID: <a1a0e9b3-dae2-418f-bd63-50e65f471728@redhat.com>
-Date: Wed, 31 Jan 2024 12:06:59 +0100
+        Wed, 31 Jan 2024 03:13:06 -0800 (PST)
+Message-ID: <fbf08467-fbca-4b97-a1aa-046e0f17fdb8@redhat.com>
+Date: Wed, 31 Jan 2024 12:13:05 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,29 +67,28 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 00/15] mm/memory: optimize fork() with PTE-mapped THP
+Subject: Re: [PATCH v1 9/9] mm/memory: optimize unmap/zap with PTE-mapped THP
 Content-Language: en-US
 To: Ryan Roberts <ryan.roberts@arm.com>, linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
- Matthew Wilcox <willy@infradead.org>, Russell King <linux@armlinux.org.uk>,
+ Matthew Wilcox <willy@infradead.org>,
  Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Dinh Nguyen <dinguyen@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>,
+ "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+ Nick Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>,
+ Michael Ellerman <mpe@ellerman.id.au>,
  Christophe Leroy <christophe.leroy@csgroup.eu>,
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
  "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
- Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
- <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
  Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
  Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "David S. Miller"
- <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org
-References: <20240129124649.189745-1-david@redhat.com>
- <a335a9d2-9b8f-4eb8-ba22-23a223b59b06@arm.com>
+ Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
+ linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org
+References: <20240129143221.263763-1-david@redhat.com>
+ <20240129143221.263763-10-david@redhat.com>
+ <bec84017-b1c9-48e7-a206-c4c8a651ee83@arm.com>
+ <cf9adefc-8508-49a4-a7f0-784e345c5d80@redhat.com>
+ <424115a2-a924-4c28-8027-32db6ab9278d@arm.com>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -136,100 +135,39 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <a335a9d2-9b8f-4eb8-ba22-23a223b59b06@arm.com>
+In-Reply-To: <424115a2-a924-4c28-8027-32db6ab9278d@arm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 31.01.24 11:43, Ryan Roberts wrote:
-> On 29/01/2024 12:46, David Hildenbrand wrote:
->> Now that the rmap overhaul[1] is upstream that provides a clean interface
->> for rmap batching, let's implement PTE batching during fork when processing
->> PTE-mapped THPs.
+>>>> -        folio_remove_rmap_pte(folio, page, vma);
+>>>> +        folio_remove_rmap_ptes(folio, page, nr, vma);
+>>>> +
+>>>> +        /* Only sanity-check the first page in a batch. */
+>>>>            if (unlikely(page_mapcount(page) < 0))
+>>>>                print_bad_pte(vma, addr, ptent, page);
+>>>
+>>> Is there a case for either removing this all together or moving it into
+>>> folio_remove_rmap_ptes()? It seems odd to only check some pages.
+>>>
 >>
->> This series is partially based on Ryan's previous work[2] to implement
->> cont-pte support on arm64, but its a complete rewrite based on [1] to
->> optimize all architectures independent of any such PTE bits, and to
->> use the new rmap batching functions that simplify the code and prepare
->> for further rmap accounting changes.
+>> I really wanted to avoid another nasty loop here.
 >>
->> We collect consecutive PTEs that map consecutive pages of the same large
->> folio, making sure that the other PTE bits are compatible, and (a) adjust
->> the refcount only once per batch, (b) call rmap handling functions only
->> once per batch and (c) perform batch PTE setting/updates.
+>> In my thinking, for 4k folios, or when zapping subpages of large folios, we
+>> still perform the exact same checks. Only when batching we don't. So if there is
+>> some problem, there are ways to get it triggered. And these problems are barely
+>> ever seen.
 >>
->> While this series should be beneficial for adding cont-pte support on
->> ARM64[2], it's one of the requirements for maintaining a total mapcount[3]
->> for large folios with minimal added overhead and further changes[4] that
->> build up on top of the total mapcount.
+>> folio_remove_rmap_ptes() feels like the better place -- especially because the
+>> delayed-rmap handling is effectively unchecked. But in there, we cannot
+>> "print_bad_pte()".
 >>
->> Independent of all that, this series results in a speedup during fork with
->> PTE-mapped THP, which is the default with THPs that are smaller than a PMD
->> (for example, 16KiB to 1024KiB mTHPs for anonymous memory[5]).
->>
->> On an Intel Xeon Silver 4210R CPU, fork'ing with 1GiB of PTE-mapped folios
->> of the same size (stddev < 1%) results in the following runtimes
->> for fork() (shorter is better):
->>
->> Folio Size | v6.8-rc1 |      New | Change
->> ------------------------------------------
->>        4KiB | 0.014328 | 0.014035 |   - 2%
->>       16KiB | 0.014263 | 0.01196  |   -16%
->>       32KiB | 0.014334 | 0.01094  |   -24%
->>       64KiB | 0.014046 | 0.010444 |   -26%
->>      128KiB | 0.014011 | 0.010063 |   -28%
->>      256KiB | 0.013993 | 0.009938 |   -29%
->>      512KiB | 0.013983 | 0.00985  |   -30%
->>     1024KiB | 0.013986 | 0.00982  |   -30%
->>     2048KiB | 0.014305 | 0.010076 |   -30%
+>> [background: if we had a total mapcount -- iow cheap folio_mapcount(), I'd check
+>> here that the total mapcount does not underflow, instead of checking per-subpage]
 > 
-> Just a heads up that I'm seeing some strange results on Apple M2. Fork for
-> order-0 is seemingly costing ~17% more. I'm using GCC 13.2 and was pretty sure I
-> didn't see this problem with version 1; although that was on a different
-> baseline and I've thrown the numbers away so will rerun and try to debug this.
-> 
+> All good points... perhaps extend the comment to describe how this could be
+> solved in future with cheap total_mapcount()? Or in the commit log if you prefer?
 
-So far, on my x86 tests (Intel, AMD EPYC), I was not able to observe 
-this. fork() for order-0 was consistently effectively unchanged. Do you 
-observe that on other ARM systems as well?
-
-
-> | kernel      |   mean_rel |   std_rel |
-> |:------------|-----------:|----------:|
-> | mm-unstable |       0.0% |      1.1% |
-> | patch 1     |      -2.3% |      1.3% |
-> | patch 10    |      -2.9% |      2.7% |
-> | patch 11    |      13.5% |      0.5% |
-> | patch 12    |      15.2% |      1.2% |
-> | patch 13    |      18.2% |      0.7% |
-> | patch 14    |      20.5% |      1.0% |
-> | patch 15    |      17.1% |      1.6% |
-> | patch 15    |      16.7% |      0.8% |
-> 
-> fork for order-9 is looking good (-20%), and for the zap series, munmap is
-> looking good, but dontneed is looking poor for both order-0 and 9. But one thing
-> at a time... let's concentrate on fork order-0 first.
-
-munmap and dontneed end up calling the exact same call paths. So a big 
-performance difference is rather surprising and might indicate something 
-else.
-
-(I think I told you that I was running in some kind of VMA merging 
-problem where one would suddenly get with my benchmark 1 VMA per page. 
-The new benchmark below works around that, but I am not sure if that was 
-fixed in the meantime)
-
-VMA merging can of course explain a big difference in fork and munmap 
-vs. dontneed times, especially when comparing different code base where 
-that VMA merging behavior was different.
-
-> 
-> Note that I'm still using the "old" benchmark code. Could you resend me the link
-> to the new code? Although I don't think there should be any effect for order-0
-> anyway, if I understood your changes correctly?
-
-This is the combined one (small and large PTEs):
-
-https://gitlab.com/davidhildenbrand/scratchspace/-/raw/main/pte-mapped-folio-benchmarks.c?inline=false
+I'll add more meat to the cover letter, thanks!
 
 -- 
 Cheers,
