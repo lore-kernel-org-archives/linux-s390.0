@@ -1,121 +1,176 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 419775FBA3;
-	Wed, 31 Jan 2024 07:44:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECE555FB90;
+	Wed, 31 Jan 2024 07:44:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706687100; cv=none; b=gNEhHyLEpyc0w3m4Y/LzvrOWc//dNbrw58N2f+D0RSlegrW876XO3ubXswkzRmXIy7w6KHKA44ZZyfaiqro/uByB5ZqaXyEO4Maw6WGgiNbHEY9knbWUQWDshEqVclBKtmJ/XVhbfeFV6J4H1iZIldI1CyTyYW6Mo0zOPxdlkV8=
+	t=1706687101; cv=none; b=eC1Cj2ZHtExb886CNKxvh0im+a52JcyuoPX/ESISL0RXUvFDed0vo3yPd+GExNI8WxoJcUlgr4saFrjCmgkB5p4B5/u7yPDVWlscsDtsPXJ8f/a1/2wOzrfLLJJhFkoRZetTY6S+g2beQOrSWdU+evNmdwAo0vZu+ShOACgWF38=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706687100; c=relaxed/simple;
-	bh=UM6/zkdoNiwVS+WydWJVd2C2Pgo9XyKLremQp9WsTOg=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=O10cqj6WMjRCZLTwxHWrlQbsRRVMyT8gitsjPso6i1oSMHOxPMzr3hRhUSeZK/6i2AHUWPtBfsG7FcIMsENLlD5dQoiHMqdoWM0k6QcRSKPDaJyHgvDLWttgfABY+c3hMojMMpmAXz6RzMGfW+IMnlHnGdqBG+1wTvXxvP8ks+0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OI7iAzO7; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1706687101; c=relaxed/simple;
+	bh=lPkZc41+EqSA4oRDkOG9zD4xHnVZTIvgE/pVaIfK+V8=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=IzGoNF2vDuTBr5eXjEm3++QZHCdCi0RDK47wpd3haMHTKEPkozpV4qHsbjv+BZrmI435tKH3vILA74SHMjuddJ6vaVmM7shyADqxGILKz8l9G6iGhRw4M6VcxDcRWc8RU0XdxUpsSpI5L/hvbUeu/Tmpg8VmwWnLUrBxHUNM/BE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Naam4uWY; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OI7iAzO7"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40V6Huis032268;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Naam4uWY"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40V7OUq1016510;
 	Wed, 31 Jan 2024 07:44:57 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=Ix/2K9UVc6Dr0BIQ8Qu2PAODInqVRDkg8E05rwWw8HY=;
- b=OI7iAzO728/7YacXt56AL44jmWmf4hld0kBufir3zmgDk0iWO6y7bmLGyOQ91MHQoOhT
- gbxdsDowqhHy57oPAVPq5HOxxivilkQNoe9CBexkEnrVIZaiRBxs/QFhS5AYgrVkiYqq
- Cm3RIo9BL45kyfbY3hDOqpmLnd0T/tcaZ0pfdH5jIns2OQnfoCL1s+QUOMI2ToSyxW68
- HeNBMrHjwquEk+XQWMyjv6MfDd0vlSw7hAnoDY6Hu1vxH5eUY7iWc9brtkD11ku0VTuY
- Bzx8PGZh4aKFGfSZvLUHAW9IhThCZyO0nVljnDOnxwdqTyZPDRlk5ZKCrd70VmeO7IZM zg== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=62GkKZDkIZgZRa8YKhzPvS/DSiK8NJ7qDFLJB3Fsdo4=;
+ b=Naam4uWYikCclYVPTYxpPPs+3wkNHqkqkSBhsDUptiCHyUlBhAGn+YnCD6vQKdLgKeDE
+ Iu6TZofe8H0/tlhkJeglC3xsRbcVAIvea0eSiOEs1R0MzGGXjHf5yllPsMop0aAJyjP1
+ M/5oJ2hqJnH7GrhQtwY3GgDDLSFUoZXN8OonZ2ogt2N8oRSU04jdqTGzECJG6aO+xZy7
+ TZm4pMRPYw1soRVdu4C4nn4zNiK0ONpSLFGECTb44utCUpHM91+63i3iDPJkOhiMAya0
+ EbAFgfSDbzjiZPgflkm4eNvMTE7sS4oNDOHGI0aQPgBDK3jDqNt0+GjwUwyn1yfDRYII TA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vyac9a3dn-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vyhhtgxc3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 31 Jan 2024 07:44:56 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40V6rSVI020853;
+	Wed, 31 Jan 2024 07:44:57 +0000
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40V78frj030352;
+	Wed, 31 Jan 2024 07:44:57 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vyhhtgxbq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 31 Jan 2024 07:44:57 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40V5gvcA010833;
 	Wed, 31 Jan 2024 07:44:56 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vyac9a3dd-1
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vwd5nv0eq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 31 Jan 2024 07:44:56 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40V6kQb2010858;
-	Wed, 31 Jan 2024 07:44:55 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vweckkpsn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 31 Jan 2024 07:44:55 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40V7iq0W27591192
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40V7iruX45023806
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 31 Jan 2024 07:44:52 GMT
+	Wed, 31 Jan 2024 07:44:53 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 85E602004D;
-	Wed, 31 Jan 2024 07:44:52 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 4E42F20040;
+	Wed, 31 Jan 2024 07:44:53 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4B27820040;
-	Wed, 31 Jan 2024 07:44:52 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 1E7E52004B;
+	Wed, 31 Jan 2024 07:44:53 +0000 (GMT)
 Received: from a46lp67.lnxne.boe (unknown [9.152.108.100])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 31 Jan 2024 07:44:52 +0000 (GMT)
+	Wed, 31 Jan 2024 07:44:53 +0000 (GMT)
 From: Janosch Frank <frankja@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, thuth@redhat.com,
         david@redhat.com, nsg@linux.ibm.com, nrb@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v2 0/5] s390x: Dirty cc before executing tested instructions
-Date: Wed, 31 Jan 2024 07:44:22 +0000
-Message-Id: <20240131074427.70871-1-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 3/5] lib: s390x: css: Dirty CC before css instructions
+Date: Wed, 31 Jan 2024 07:44:25 +0000
+Message-Id: <20240131074427.70871-4-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.40.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: rWsJPSOdS9R1ePVcG9Al8bTFbaVNXIdE
-X-Proofpoint-GUID: HOd9ZHUpiQ_BrxbwQSmbQZpiLgPCKLEQ
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+In-Reply-To: <20240131074427.70871-1-frankja@linux.ibm.com>
+References: <20240131074427.70871-1-frankja@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: y_5DKETqarA85ScbQfPnYjPGMPfsVxdd
+X-Proofpoint-ORIG-GUID: jYlJkkGnICm3rCdkSf9pM_jnhuNalvZ5
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-01-31_02,2024-01-30_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=2 mlxlogscore=164 bulkscore=0
- phishscore=0 lowpriorityscore=0 clxscore=1015 adultscore=0 spamscore=2
- impostorscore=0 malwarescore=0 priorityscore=1501 suspectscore=0
- mlxscore=2 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ impostorscore=0 spamscore=0 lowpriorityscore=0 mlxlogscore=510
+ priorityscore=1501 clxscore=1015 adultscore=0 bulkscore=0 phishscore=0
+ mlxscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311290000 definitions=main-2401310057
 
-A recent s390 KVM fixpatch [1] showed us that checking the cc is not
-enough when emulation code forgets to set the cc. There might just be
-the correct cc in the PSW which would make the cc check succeed.
+Dirtying the CC allows us to find missing CC changes when css
+instructions are emulated.
 
-This series intentionally dirties the cc for sigp, uvc, some io
-instructions and sclp to make cc setting errors more apparent. I had a
-cursory look through the tested instructions and those are the most
-prominent ones with defined cc values.
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ lib/s390x/css.h | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-Since the issue appeared in PQAP my AP test series is now dependent on
-this series.
-
-[1] https://lore.kernel.org/kvm/20231201181657.1614645-1-farman@linux.ibm.com/
-
-v2:
-	* Moved from spm to tmll (thanks Nina)
-
-Janosch Frank (5):
-  lib: s390x: sigp: Dirty CC before sigp execution
-  lib: s390x: uv: Dirty CC before uvc execution
-  lib: s390x: css: Dirty CC before css instructions
-  s390x: mvpg: Dirty CC before mvpg execution
-  s390x: sclp: Dirty CC before sclp execution
-
- lib/s390x/asm/sigp.h |  6 +++++-
- lib/s390x/asm/uv.h   |  4 +++-
- lib/s390x/css.h      | 16 ++++++++++++----
- s390x/mvpg.c         |  6 ++++--
- s390x/sclp.c         |  5 ++++-
- 5 files changed, 28 insertions(+), 9 deletions(-)
-
+diff --git a/lib/s390x/css.h b/lib/s390x/css.h
+index 0a19324b..504b3f14 100644
+--- a/lib/s390x/css.h
++++ b/lib/s390x/css.h
+@@ -147,14 +147,16 @@ static inline int ssch(unsigned long schid, struct orb *addr)
+ static inline int stsch(unsigned long schid, struct schib *addr)
+ {
+ 	register unsigned long reg1 asm ("1") = schid;
++	uint64_t bogus_cc = 1;
+ 	int cc;
+ 
+ 	asm volatile(
++		"       tmll    %[bogus_cc],3\n"
+ 		"	stsch	0(%3)\n"
+ 		"	ipm	%0\n"
+ 		"	srl	%0,28"
+ 		: "=d" (cc), "=m" (*addr)
+-		: "d" (reg1), "a" (addr)
++		: "d" (reg1), "a" (addr), [bogus_cc] "d" (bogus_cc)
+ 		: "cc");
+ 	return cc;
+ }
+@@ -177,14 +179,16 @@ static inline int msch(unsigned long schid, struct schib *addr)
+ static inline int tsch(unsigned long schid, struct irb *addr)
+ {
+ 	register unsigned long reg1 asm ("1") = schid;
++	uint64_t bogus_cc = 2;
+ 	int cc;
+ 
+ 	asm volatile(
++		"       tmll    %[bogus_cc],3\n"
+ 		"	tsch	0(%3)\n"
+ 		"	ipm	%0\n"
+ 		"	srl	%0,28"
+ 		: "=d" (cc), "=m" (*addr)
+-		: "d" (reg1), "a" (addr)
++		: "d" (reg1), "a" (addr), [bogus_cc] "d" (bogus_cc)
+ 		: "cc");
+ 	return cc;
+ }
+@@ -252,28 +256,32 @@ static inline int rsch(unsigned long schid)
+ static inline int rchp(unsigned long chpid)
+ {
+ 	register unsigned long reg1 asm("1") = chpid;
++	uint64_t bogus_cc = 1;
+ 	int cc;
+ 
+ 	asm volatile(
++		"       tmll    %[bogus_cc],3\n"
+ 		"	rchp\n"
+ 		"	ipm	%0\n"
+ 		"	srl	%0,28"
+ 		: "=d" (cc)
+-		: "d" (reg1)
++		: "d" (reg1), [bogus_cc] "d" (bogus_cc)
+ 		: "cc");
+ 	return cc;
+ }
+ 
+ static inline int stcrw(uint32_t *crw)
+ {
++	uint64_t bogus_cc = 1;
+ 	int cc;
+ 
+ 	asm volatile(
++		"       tmll    %[bogus_cc],3\n"
+ 		"	stcrw	%[crw]\n"
+ 		"	ipm	%[cc]\n"
+ 		"	srl	%[cc],28"
+ 		: [cc] "=d" (cc)
+-		: [crw] "Q" (*crw)
++		: [crw] "Q" (*crw), [bogus_cc] "d" (bogus_cc)
+ 		: "cc", "memory");
+ 	return cc;
+ }
 -- 
 2.40.1
 
