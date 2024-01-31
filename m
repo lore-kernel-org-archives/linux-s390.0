@@ -1,102 +1,116 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81E8C79DC4
-	for <linux-s390@vger.kernel.org>; Wed, 31 Jan 2024 09:13:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92CD16996B
+	for <linux-s390@vger.kernel.org>; Wed, 31 Jan 2024 09:43:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706692400; cv=none; b=koboInCjD6pl4Tlmijy8Qpc55qoeb2OHeurge/kGMrHnz/GBqoKTKy7AlSuudhfG3uBGD9jFRkxsVZk7t9AHpP6ZpYP5AVPps8IQlbAc+JA1suBLK5/GIp1gAJdbHK0Kya9szVPyG7qofTLMwwgESHIEHZBA9UgKwev4RJYjsyM=
+	t=1706694200; cv=none; b=srcbhKkO8YjBjgDsBiTcfzVQd3+AYagEkQNhVOMM7DJroZwi6Mivn7DqdCZjjlyGNH/DA4jcjJLuWxCwdOtA9CYzlbq2xXi78BofpxVmtcXfaNxUY3+Gvr3K5Og4uhPD8FMLpAmwFGTRs7Wyn6nl/HyGZDnUPxfv7Sb4vnALtqA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706692400; c=relaxed/simple;
-	bh=ONLOpdhFVTK1PKOUo0h7113+HYlDSSoXMBK7/7cDZ1Q=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=h7v7uJ7xTOUbjJCj0tFBfTasMwBbl2ziB+RZ34pcaRu+w5XJYHlCmUXOH1pfGvTl97YIEnihB98OPNdHmvujPM+qn6+5UGobQhigJkJg6jQVUAnyGHuutudklm/XTPMChNsmFHAIlkTnHWwz5Oo/Ix8oZ24r2d7TGNmothTd5Ck=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dNhod43E; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1706694200; c=relaxed/simple;
+	bh=gkIae8l+H2+F/jXvpvISUQcIXBcbsucEp1aonIBdbjs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rdcAl+XJ+bOn5VkGqTA39W2pNOVTgmUEvCUQnjNmBkvQ8zNgDO/dBUPRHatXzMxJgkr2D+XhuHTNiDf8nXHLEi6bUWku9jy9L08TyunVGq4DFtTUtqX4jcSyeVDq0cKW91zsAZ77g7h9jTdraKIRPXxe58E3EhQ6AFt/TykE108=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Mfbg61qF; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dNhod43E"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Mfbg61qF"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706692398;
+	s=mimecast20190719; t=1706694197;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ONLOpdhFVTK1PKOUo0h7113+HYlDSSoXMBK7/7cDZ1Q=;
-	b=dNhod43Ejz9Mb8oXENtKKNS0jt7CSQqdFDFasc0HOjXWZOV9KgUnEFoV9f4iTdAoQrRl85
-	k1rlszfDhi/oHPry2wTGI0W24A3mEZlwTXXAOtzOZ+Bklfsq7sSXb9OWSvRsFihiwsSqt3
-	upwQgaofncC5BMMuKJu91OwoDoMHQIA=
-Received: from mail-vs1-f70.google.com (mail-vs1-f70.google.com
- [209.85.217.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Oza1LRHp/M5RIj8Nm47urKrF572FUv22z3v7KOgdQu8=;
+	b=Mfbg61qFWt1VvUY2F/LVrmcHt8zQYr+DTEY1z680RMKT/LNN8jrepdCIKKAEofLA/3xKDZ
+	iVjbrfRzbLngJBhJuECc5iQvfXS6D/rG/NwtKnF6ktMC92njsyLAT5j4miNv1AszNFlAJ6
+	KOgeHkRKR0RspE7qcgzbkj1Ub8aLJHU=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-353-LGGwBhUCN-eGWTtGptL65w-1; Wed, 31 Jan 2024 04:13:16 -0500
-X-MC-Unique: LGGwBhUCN-eGWTtGptL65w-1
-Received: by mail-vs1-f70.google.com with SMTP id ada2fe7eead31-46b51ba4f38so1056310137.0
-        for <linux-s390@vger.kernel.org>; Wed, 31 Jan 2024 01:13:16 -0800 (PST)
+ us-mta-543-0NaPCoGqOoifqBav-7OvqQ-1; Wed, 31 Jan 2024 04:43:14 -0500
+X-MC-Unique: 0NaPCoGqOoifqBav-7OvqQ-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-33ae385775fso1822944f8f.1
+        for <linux-s390@vger.kernel.org>; Wed, 31 Jan 2024 01:43:14 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706692396; x=1707297196;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ONLOpdhFVTK1PKOUo0h7113+HYlDSSoXMBK7/7cDZ1Q=;
-        b=XuxNRioxmn1hJEgPbk2fFxBRWFDKUo3g3+SmgCVb6hEqHRbzlBuzNpsOEO6gNoS2KD
-         9MUjqHDAJDnnzAJgP5JdjgvKBmfQgxOYSVwYtZzYd4K5dpBGjOQ/McP3XfkK5NQtYuBT
-         7Hmwj6CNV0lvEChZ73K1OS1reU6U/TyoLpziSl3i6KUsSxlHv4q9sbfUYZ0d736M/YEo
-         EcP1XM6+JSMWZfMkLphaQ2bQxHiz345hGbtrfcbtuzLuLfBhQM5GLZAPv/JBfKmhsK9X
-         3dwR0Ts54bydmnyhcDSEjO3+yVMFPsBLM9LvszexfLdhKJFckBEVlndtDSthqM9n/ZdX
-         qZqw==
-X-Gm-Message-State: AOJu0Yz0MFELCFACnvjoAe951QatUbiATHt1ip8EXrTreVSvuBf39t4d
-	+M4yQTK81UBmmTPvwMAziRYEkEKB4OZNiN2HCb40Tm2XrhNfEccFHBCUKhMZ+688+Zaiuu6x70D
-	3WJlV0Cpfu2pE3oJnetT1jtu0Ow7JCp3D7OHyAqL0svwsj+D6zARfaP2JXkpQOeWDlVOBbAx6eo
-	z9ho7gvejj9ZPE9fsdiH0uVF5lIT3wn/3r2g==
-X-Received: by 2002:a05:6102:2753:b0:468:90e:2c88 with SMTP id p19-20020a056102275300b00468090e2c88mr691971vsu.35.1706692395773;
-        Wed, 31 Jan 2024 01:13:15 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGlqIGzGC6WJa2cNQxkOvPsG3lWuLc6yY/NsL+Ul0eahHSt+TTWHH5K0CdWrrzXTYNRodEQ2LjsVmuQ6Q+WlRc=
-X-Received: by 2002:a05:6102:2753:b0:468:90e:2c88 with SMTP id
- p19-20020a056102275300b00468090e2c88mr691962vsu.35.1706692395533; Wed, 31 Jan
- 2024 01:13:15 -0800 (PST)
+        d=1e100.net; s=20230601; t=1706694193; x=1707298993;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Oza1LRHp/M5RIj8Nm47urKrF572FUv22z3v7KOgdQu8=;
+        b=GHwZPkZaCevkXwzE+L+lw/nni81hvauBXPwYiUo4/rKEuEHewExVanNS40WKFb8oMJ
+         A9lfLw4awukI5FrrzXxxa4hm5hekqjC31S5Us46JEfZZLn+TSHQqkPKLeFoYNyZVgiJk
+         LI0yoWd9uoeGFTpQPjtqZW/VsKNX7/uWiRpDlRPnssAG7vzLd7x1grA00ScXe2UfhPHf
+         ehOZE5UJWa9v3cZ0l+4SA0ZtaLFFfU/rgIkViuQqW/1snjU1ErKdqHFcaE7Q/KIS2MHs
+         GH8+bHFD7YbPsLtiWA4mUnoUeIkRqbSh83L0li5PYsiOwvYaYWLOoiSBcgzI/qk3cTfE
+         6Q/w==
+X-Gm-Message-State: AOJu0YyiFvG7vhwvRUo5euztCjPzH6rmwWakYS+lB0vn9Ytpu93H6tDK
+	8Vszk0C3E/mnJ+6Kzm8D0ltqb1EZcwpSKd4UQSXOItIGqMVpRLxJl3+EHqR2Pc1wVpx1sMvKbMK
+	Db0PRW4nCPZUpAdggKOMpzAWUbHinSCM2oQLNWwwJJODUM5zwuEW8p1+cm3U=
+X-Received: by 2002:adf:fa05:0:b0:33a:e919:f406 with SMTP id m5-20020adffa05000000b0033ae919f406mr679873wrr.52.1706694193228;
+        Wed, 31 Jan 2024 01:43:13 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IE3NLeG1aMawKGEQVu/0aqBjSNNGqzZmjOJyBzgiQ4QC6+fT4S4tC5TcuNgzowV5ynPiQEAwQ==
+X-Received: by 2002:adf:fa05:0:b0:33a:e919:f406 with SMTP id m5-20020adffa05000000b0033ae919f406mr679860wrr.52.1706694192871;
+        Wed, 31 Jan 2024 01:43:12 -0800 (PST)
+Received: from redhat.com ([2a02:14f:1fb:b2de:3c63:2a5e:5605:4150])
+        by smtp.gmail.com with ESMTPSA id cx18-20020a056000093200b0033935779a23sm12937651wrb.89.2024.01.31.01.43.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 31 Jan 2024 01:43:12 -0800 (PST)
+Date: Wed, 31 Jan 2024 04:43:03 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Hans de Goede <hdegoede@redhat.com>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Vadim Pasternak <vadimp@nvidia.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Benjamin Berg <benjamin.berg@intel.com>,
+	Yang Li <yang.lee@linux.alibaba.com>, linux-um@lists.infradead.org,
+	netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org, bpf@vger.kernel.org
+Subject: Re: [PATCH vhost 04/17] virtio_ring: split: remove double check of
+ the unmap ops
+Message-ID: <20240131044244-mutt-send-email-mst@kernel.org>
+References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
+ <20240130114224.86536-5-xuanzhuo@linux.alibaba.com>
+ <CACGkMEs-wUa_z_tGYEwBf7EVJAtuJdkX4HAdjqMXHEM1ys-gKQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com> <20240130114224.86536-12-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20240130114224.86536-12-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 31 Jan 2024 17:12:43 +0800
-Message-ID: <CACGkMEtWt1ROwJCeEa5FbQfxV2eqo0xRqHQZMsq-Q2TcQBur9g@mail.gmail.com>
-Subject: Re: [PATCH vhost 11/17] virtio_ring: export premapped to driver by
- struct virtqueue
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>, 
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Hans de Goede <hdegoede@redhat.com>, 
-	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
-	Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>, 
-	Mathieu Poirier <mathieu.poirier@linaro.org>, Cornelia Huck <cohuck@redhat.com>, 
-	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, 
-	John Fastabend <john.fastabend@gmail.com>, Benjamin Berg <benjamin.berg@intel.com>, 
-	Yang Li <yang.lee@linux.alibaba.com>, linux-um@lists.infradead.org, 
-	netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org, 
-	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org, 
-	kvm@vger.kernel.org, bpf@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CACGkMEs-wUa_z_tGYEwBf7EVJAtuJdkX4HAdjqMXHEM1ys-gKQ@mail.gmail.com>
 
-On Tue, Jan 30, 2024 at 7:43=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
-om> wrote:
->
-> Export the premapped to drivers, then drivers can check
-> the vq premapped mode after the find_vqs().
+On Wed, Jan 31, 2024 at 05:12:22PM +0800, Jason Wang wrote:
+> I post a patch to store flags unconditionally at:
+> 
+> https://lore.kernel.org/all/20220224122655-mutt-send-email-mst@kernel.org/
 
-This looks odd, it's the charge of the driver to set premapped, so it
-should know it?
+what happened to it btw?
 
-Thanks
+-- 
+MST
 
