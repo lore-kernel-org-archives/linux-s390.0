@@ -1,173 +1,167 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CF3F81ACB
-	for <linux-s390@vger.kernel.org>; Wed, 31 Jan 2024 14:20:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC323762DD;
+	Wed, 31 Jan 2024 14:22:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706710813; cv=none; b=Jpu6w7z/uRGuRKNk+mCxNDG1W/v3+odWaWWejD3Gi5lhD2vfsTq5VdifnRvNA4XxErWqGJxrjy/1B4H/EJigkt9oTmMHFblZPtQGkZhMubel8PXp4WsKZXXeDvfZNeWNrvvxsupwiyv76MKqOJhNlDZyerzAB7mxo45QSzZkshA=
+	t=1706710968; cv=none; b=r0jSBpZpsiwfMfpff686S/MfHRJEjU3Vosmw4uD6Yk+ZmNbqIlzi2JFosNIUZcg6N/cdZ9B85OcWMSiw5gN0PIG9dxAPX5sK2QRp7tCBwJXWmA/Nxvf05ug3o3UzJZLJ32ODCf5y+T4jAB+EnrKrXtpGt4TadpbCF73TrIikuO8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706710813; c=relaxed/simple;
-	bh=IL1GPoNzL7QSd5vUAqTFQj0vKy+cgDd6bxQdbYB88ZY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Qx4YgEHWpyuxTRqYHTj0uTNkG9cPAp0HLFoWFdR9GlFZIJCg6+msgLi674JuACZ/V0+S8ArcZ9f3BeoV9yGlxG3WnMDaQIIfwtj2r45NAYA8gF1f9oV0jTBiia/36TBfiJtDT828AFf8Zjf6RkzNNuKbbp/H4dhjwgGZRALr/lw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Z01Ot9+m; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1706710968; c=relaxed/simple;
+	bh=6chJSECzyBok9hP+9kH8w9JfX3+F3jiudYuJ0Ny9Qek=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PU+0n2D94clgb9vkGbip7gavPOv7HuqDqeP7zi6pZmhpfZ1uwe0MfDwDWm4K2/SaC+grc0yu0lWflg7BO07mtUiFNwxtz+FWH8bz2zw0YYr+H5jtCsNCxpDN8oMfP9jHt1WDLQkQDESWqOP0cViJ46QOnxJE0JStUEuFW77Ry3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IPuPXHmy; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Z01Ot9+m"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706710810;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=EJ5IuSkHp6LD0vYjmHgDCJ3/HytjuH6PXzpbQ2D4dxA=;
-	b=Z01Ot9+mHQyt1ZHaxCdazhjdI0qFMS3gXIonW8xaoGtwhCXd4A5EU1Fv9CajMTTVBfZw1I
-	MVJdp+SRFl2aaHjBZxUmcTO7fmDdWGSm+49+f5oYy64kn1MHCRZb+4r+j9Y7XOxr5uRC9x
-	zg/7+lWC2LAI5+b1K88abwJX6B4aFn8=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-68-ZbLdNmtOMkm5PRMiaTpqOg-1; Wed, 31 Jan 2024 09:20:07 -0500
-X-MC-Unique: ZbLdNmtOMkm5PRMiaTpqOg-1
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-40fb505c97aso3639595e9.3
-        for <linux-s390@vger.kernel.org>; Wed, 31 Jan 2024 06:20:06 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706710806; x=1707315606;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :references:cc:to:content-language:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=EJ5IuSkHp6LD0vYjmHgDCJ3/HytjuH6PXzpbQ2D4dxA=;
-        b=nneHk3+3kh+nwSh2+yfVivepaH6qAXhSRMoR+vRZAd+q0QH6kr7N7xt6bDzJEd4HCM
-         YfD56kDoORUCrlVYL/AFR9IE58UjIgP8LSPI0es04PaUCEZXxlkewooIOHAxJMpq02ww
-         +z9lc52RcZ5Qlq66ejQjYg8AEFl8LURme9vKrJo48t/a0Kf9F695w2DFYcMO+QssQJQ2
-         3xjZGe0+fKM70U61ZM7b2I/7XphnYqlvIbmTrAQG0t02/aIaRrcLz7gs7bi273SxtAaU
-         fPq3XQteZ3PA9oaDUucNLkCyzjkHeExFT+uCuI82nofnCSfgXRhEzFZ4nhhdymA9tiIM
-         sUJg==
-X-Gm-Message-State: AOJu0YzncUhKVIWwgC0VirLgcG9WJ6NUD8EGViVi+94TdrxOTi2mQTT5
-	0vjz+6BEtPHIjV8qCNDGuuc5UOnmXPIiy/H1MkwEuqULvrOxZ9pEHp9yzyYBHgvCWleD4YU87eY
-	YrrN5mkinavpVDl2XQh3Z9QIwNdcm0yqcfu6hx88UNtdLA/N7I8oYSi3g9Iw=
-X-Received: by 2002:a05:600c:1e16:b0:40e:f972:9918 with SMTP id ay22-20020a05600c1e1600b0040ef9729918mr1606343wmb.29.1706710805918;
-        Wed, 31 Jan 2024 06:20:05 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEVS0DLc03z9UjF+ShKdgT2iE+aZAHubGYficvaqYAxhORIFpUTuMxb55nVEcr4Ub+xdd+4nQ==
-X-Received: by 2002:a05:600c:1e16:b0:40e:f972:9918 with SMTP id ay22-20020a05600c1e1600b0040ef9729918mr1606301wmb.29.1706710805551;
-        Wed, 31 Jan 2024 06:20:05 -0800 (PST)
-Received: from [10.32.64.237] (nat-pool-muc-t.redhat.com. [149.14.88.26])
-        by smtp.gmail.com with ESMTPSA id n36-20020a05600c3ba400b0040ed1d6ce7csm1745809wms.46.2024.01.31.06.20.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 31 Jan 2024 06:20:05 -0800 (PST)
-Message-ID: <e55a111d-0f09-4981-94e1-f547bdfad059@redhat.com>
-Date: Wed, 31 Jan 2024 15:20:03 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IPuPXHmy"
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40VDe2d5019083;
+	Wed, 31 Jan 2024 14:22:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=NURNavrQCbE1M4DE6lDNv9GMg0m1c/OPkCD3hDPJjKI=;
+ b=IPuPXHmy2fWaXEk2FX2iBAM4ocaRnFE0bkd4Nal4ZznVgYNQQlcpj5Achynw9Qpg1eER
+ 6ExuUFv35kRum16fH10BExWjOCDlhNLGLpON5IIdjlSEMbZk8rdf/0CFg4iO1rXp18xE
+ 1p7jsIQRaZEseBh06G8zkWf+KD6s5X+Mp+lqc+g7tT3Ah1+7UDXZBD4+GprNt7OOmck5
+ o74fxGgzUFII6ZyuBZMbvNsAzoOTTneO33Ov193AzO8afTPBewY+5HxuKYZPBb+NCckt
+ GEvNYApg4JbX1aIGbb2HzWNmVi461ZFNK3uoDd5+ZGB+YGQ6JHJAeLeNa305rMZLuoN5 wA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vyq9jsa4r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 31 Jan 2024 14:22:35 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40VDnxkn011863;
+	Wed, 31 Jan 2024 14:22:35 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vyq9js9rq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 31 Jan 2024 14:22:34 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40VBAvxl002199;
+	Wed, 31 Jan 2024 14:22:06 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vwc5te4sx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 31 Jan 2024 14:22:06 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40VEM38J66584886
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 31 Jan 2024 14:22:03 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 53C2F20043;
+	Wed, 31 Jan 2024 14:22:03 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 05D5E20040;
+	Wed, 31 Jan 2024 14:22:03 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 31 Jan 2024 14:22:02 +0000 (GMT)
+Date: Wed, 31 Jan 2024 15:22:01 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Kees Cook <keescook@chromium.org>, Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-hardening@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>, Philipp Rudo <prudo@redhat.com>,
+        Baoquan He <bhe@redhat.com>, Tao Liu <ltao@redhat.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        linux-s390@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Bill Wendling <morbo@google.com>,
+        Justin Stitt <justinstitt@google.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 30/82] s390/kexec_file: Refactor intentional wrap-around
+ calculation
+Message-ID: <ZbpXieRZz3BQ6jBH@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20240122235208.work.748-kees@kernel.org>
+ <20240123002814.1396804-30-keescook@chromium.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 0/9] mm/memory: optimize unmap/zap with PTE-mapped THP
-Content-Language: en-US
-To: Michal Hocko <mhocko@suse.com>, Ryan Roberts <ryan.roberts@arm.com>
-Cc: Yin Fengwei <fengwei.yin@intel.com>, linux-kernel@vger.kernel.org,
- Linus Torvalds <torvalds@linux-foundation.org>, linux-mm@kvack.org,
- Andrew Morton <akpm@linux-foundation.org>,
- Matthew Wilcox <willy@infradead.org>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
- Nick Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>,
- Michael Ellerman <mpe@ellerman.id.au>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
- linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, "Huang, Ying" <ying.huang@intel.com>
-References: <20240129143221.263763-1-david@redhat.com>
- <4ef64fd1-f605-4ddf-82e6-74b5e2c43892@intel.com>
- <ee94b8ca-9723-44c0-aa17-75c9678015c6@redhat.com>
- <1fd26a83-8e6f-4b96-9d27-dd46de9488cc@arm.com> <ZbpUVXa-Aujp6gWO@tiehlicka>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <ZbpUVXa-Aujp6gWO@tiehlicka>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240123002814.1396804-30-keescook@chromium.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: XKrjlcZMqfTd1Gq83J4rhjVO3nie3sDL
+X-Proofpoint-ORIG-GUID: bEVkfbCxjQ-zHyL5jTJ7NNsbOLh1Xldw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-01-31_08,2024-01-30_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ clxscore=1011 spamscore=0 malwarescore=0 bulkscore=0 mlxscore=0
+ priorityscore=1501 phishscore=0 adultscore=0 impostorscore=0
+ suspectscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2311290000 definitions=main-2401310110
 
-On 31.01.24 15:08, Michal Hocko wrote:
-> On Wed 31-01-24 10:26:13, Ryan Roberts wrote:
->> IIRC there is an option to zero memory when it is freed back to the buddy? So
->> that could be a place where time is proportional to size rather than
->> proportional to folio count? But I think that option is intended for debug only?
->> So perhaps not a problem in practice?
+On Mon, Jan 22, 2024 at 04:27:05PM -0800, Kees Cook wrote:
+
+Hi Kees,
+
+...
+>  arch/s390/include/asm/stacktrace.h    | 6 ++++--
+>  arch/s390/kernel/machine_kexec_file.c | 5 +++--
+
+Subject does not match. These need to be two separate commits.
+
+>  2 files changed, 7 insertions(+), 4 deletions(-)
 > 
-> init_on_free is considered a security/hardening feature more than a
-> debugging one. It will surely add an overhead and I guess this is
-> something people who use it know about. The batch size limit is a latency
-> reduction feature for !PREEMPT kernels but by no means it should be
-> considered low latency guarantee feature. A lot of has changed since
-> the limit was introduced and the current latency numbers will surely be
-> different than back then. As long as soft lockups do not trigger again
-> this should be acceptable IMHO.
+> diff --git a/arch/s390/include/asm/stacktrace.h b/arch/s390/include/asm/stacktrace.h
+> index 31ec4f545e03..3ce08d32a8ad 100644
+> --- a/arch/s390/include/asm/stacktrace.h
+> +++ b/arch/s390/include/asm/stacktrace.h
+> @@ -34,11 +34,13 @@ int get_stack_info(unsigned long sp, struct task_struct *task,
+>  static inline bool on_stack(struct stack_info *info,
+>  			    unsigned long addr, size_t len)
+>  {
+> +	unsigned long sum;
+> +
+>  	if (info->type == STACK_TYPE_UNKNOWN)
+>  		return false;
+> -	if (addr + len < addr)
+> +	if (check_add_overflow(addr, len, &sum))
 
-It could now be zeroing out ~512 MiB. That shouldn't take double-digit 
-seconds unless we are running in a very problematic environment 
-(over-committed VM). But then, we might have different problems already.
+Why not add_would_overflow()?
 
-I'll do some sanity checks with an extremely large processes (as much as 
-I can fit on my machines), with a !CONFIG_PREEMPT kernel and 
-init_on_free, to see if anything pops up.
+>  		return false;
+> -	return addr >= info->begin && addr + len <= info->end;
+> +	return addr >= info->begin && sum <= info->end;
+>  }
+>  
+>  /*
+> diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
+> index 8d207b82d9fe..e5e925423061 100644
+> --- a/arch/s390/kernel/machine_kexec_file.c
+> +++ b/arch/s390/kernel/machine_kexec_file.c
+> @@ -238,6 +238,7 @@ void *kexec_file_add_components(struct kimage *image,
+>  	unsigned long max_command_line_size = LEGACY_COMMAND_LINE_SIZE;
+>  	struct s390_load_data data = {0};
+>  	unsigned long minsize;
+> +	unsigned long sum;
 
-Thanks Michal!
+Please, use min_kernel_buf_len instead of sum.
 
--- 
-Cheers,
+@Sven, could you please correct me if (minsize + max_command_line_size)
+means something else.
 
-David / dhildenb
+>  	int ret;
+>  
+>  	data.report = ipl_report_init(&ipl_block);
+> @@ -256,10 +257,10 @@ void *kexec_file_add_components(struct kimage *image,
+>  	if (data.parm->max_command_line_size)
+>  		max_command_line_size = data.parm->max_command_line_size;
+>  
+> -	if (minsize + max_command_line_size < minsize)
+> +	if (check_add_overflow(minsize, max_command_line_size, &sum))
+>  		goto out;
+>  
+> -	if (image->kernel_buf_len < minsize + max_command_line_size)
+> +	if (image->kernel_buf_len < sum)
+>  		goto out;
+>  
+>  	if (image->cmdline_buf_len >= max_command_line_size)
 
+Thanks!
