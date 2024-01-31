@@ -1,127 +1,146 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C98165FDBF;
-	Wed, 31 Jan 2024 07:44:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01CE96995B;
+	Wed, 31 Jan 2024 09:04:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706687101; cv=none; b=t4cSjC1zVvosixBbwkdjPSmXww9QO/oCfFGiZtKet9OD7C+DaPaDFdENRw9tACEKR77J3u+SUcBA2nOHmis81ypbNY7toJWyPAcfFaT9kSI1FQkvkjxOrA06M8KjPg7lFLj5hqzomkOqEWGANVLJSjEbn3p54c5I/oJVqBLMN5U=
+	t=1706691896; cv=none; b=JWHbwIhTRTXu5DJHvlmFy/m3fM3+LDthxVuWjD/U34oRB3wPdlNZvP1xkuirg5+JOOFBuon9GIJz7Vgqycx/IG7k8gIK9f5dctxsey6yYmC/sHC9pahGMlpQKvQsaB60GwLE5Ui2Hyt6rKdYO5ybyAQZyrUowobTmfKvJM07sxk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706687101; c=relaxed/simple;
-	bh=1aBSPP/3Q+n5qbkwJw1TY9bVFkDWlDGpqBNtofNtLnI=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=rAy9Fotg6k4Vka8OnlP7hrd8weeGVrfiJ4/kOzUyR8LORiVcZpCJ/dD0rJQbHwEvDxrgVWjOsBIDISbqSUPFTmwKiZDn4S/DSs30rMZb4TQO43Ir3jXQfFXOl1vNhCGEYt91FPdASSHRvjNMt6JzuGIlZqxfTXMyFnTgjvWOb/g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=a0ArF06s; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1706691896; c=relaxed/simple;
+	bh=wbNS+M2ZYIkxg4JgM6mhChYvOWfEl7cnhzRpHcBYwFA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=O2/Rflku3jGmnwlMVnq5frBcS8RToiRmL8rqoduWFmyKstwdrjRjBeRcYgty065cIeX9ZaFKzEDbhIfYsaOBbia3ZwYtab6eKA3js5Ghr2dCJbHiexX9mGEB+X9EDUSQiuQhrhKAPntkhtoD2/MVtHtNUOlGtf9vLXZ3BJJDs1o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UKm7x1Fb; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="a0ArF06s"
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40V60sa8015562;
-	Wed, 31 Jan 2024 07:44:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=+1ozq2vAdYG8ryAbcNI/2nlg99jD6BU2flhMq1vnBTc=;
- b=a0ArF06sETBloqPZ+KZmd2URJDhEzllV6uatO5dI4+ZH0qBv7Hl4YW6OHEmZrj7u9pU3
- YOsryVhU5y6dHGxJzWyRgC8ponxCF6GynIvnwEhYk0grBXhD3pkPZSqa0LyldRtnCyd9
- z/sQ5XURFbojABlW0rsaz/fwEEnwb/pRHK8fb3ejDn+1NxUIP0Ri6gq5vQNTE2y47p6R
- XnWv88TLEHKnZS9qJHt/vU01WYXGBfJQVKS6TubEQBjssBeyvph/DX+seIVQsSCDZl6n
- WpfMub19U0gSbozOG4VpkWCdoXPH+yA4LlUNqt0g2layoK+FugvoVZMNvA1v5FheBFJU hQ== 
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UKm7x1Fb"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40V8se32010809;
+	Wed, 31 Jan 2024 09:04:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=PROSCquubQpucEjkj3ivpw/+i+VPrFWL3FpB5oKanaE=;
+ b=UKm7x1Fb3R4ZxFPrDP1mT9l675k45ilIGmyvrZnAY74q+u3HFFlVuD6z0SadH6CxTGq+
+ /luX31TkIeThM5YB1y0Cw3yyuZBc9nIx4uKFa2MTrVsqZ90p0HZEeCx/flRHArgB4sRm
+ KBR/IbpADJIYhiKlhKNb+F/htCXkpNzQGX2sS2SgVPZoFxf/NSrGwxNqhBGC/xEMtRma
+ lE5qoHHMu8AFahP+n3oMl31SuHmeFgsaAe6V0qTjbYCY+Mu82MSOP7VgwTAxENZBpLxA
+ BkZQ/vS/IvhLOsomlitoHM5R0IbKaKu77ZHEGCKLc5lDBjk+9EIvRa91XXhvIHUHOLtx pg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vyfx436ea-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vyb392jnx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 31 Jan 2024 07:44:58 +0000
-Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40V703Pf031043;
-	Wed, 31 Jan 2024 07:44:58 GMT
+	Wed, 31 Jan 2024 09:04:50 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40V8sdlK010710;
+	Wed, 31 Jan 2024 09:04:50 GMT
 Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vyfx436dw-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vyb392jn4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 31 Jan 2024 07:44:58 +0000
+	Wed, 31 Jan 2024 09:04:49 +0000
 Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40V5Odgd010569;
-	Wed, 31 Jan 2024 07:44:57 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vwd5nv0es-1
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40V8wZol011067;
+	Wed, 31 Jan 2024 09:04:48 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vwd5nvc3f-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 31 Jan 2024 07:44:56 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40V7irnn45023810
+	Wed, 31 Jan 2024 09:04:48 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40V94jfq66126188
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 31 Jan 2024 07:44:54 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D09FF20040;
-	Wed, 31 Jan 2024 07:44:53 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 979452004B;
-	Wed, 31 Jan 2024 07:44:53 +0000 (GMT)
-Received: from a46lp67.lnxne.boe (unknown [9.152.108.100])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 31 Jan 2024 07:44:53 +0000 (GMT)
-From: Janosch Frank <frankja@linux.ibm.com>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, thuth@redhat.com,
-        david@redhat.com, nsg@linux.ibm.com, nrb@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v2 5/5] s390x: sclp: Dirty CC before sclp execution
-Date: Wed, 31 Jan 2024 07:44:27 +0000
-Message-Id: <20240131074427.70871-6-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20240131074427.70871-1-frankja@linux.ibm.com>
-References: <20240131074427.70871-1-frankja@linux.ibm.com>
+	Wed, 31 Jan 2024 09:04:45 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1AEB82004B;
+	Wed, 31 Jan 2024 09:04:45 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9252620040;
+	Wed, 31 Jan 2024 09:04:44 +0000 (GMT)
+Received: from [9.171.45.77] (unknown [9.171.45.77])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 31 Jan 2024 09:04:44 +0000 (GMT)
+Message-ID: <9b1b39cb-655b-4ee5-9a64-64cf45678cde@linux.ibm.com>
+Date: Wed, 31 Jan 2024 10:04:44 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [kvm-unit-tests PATCH v2 2/5] s390x: lib: Remove double include
+To: Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Andrew Jones <andrew.jones@linux.dev>, kvm@vger.kernel.org,
+        Thomas Huth <thuth@redhat.com>
+References: <20240105225419.2841310-1-nsg@linux.ibm.com>
+ <20240105225419.2841310-3-nsg@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20240105225419.2841310-3-nsg@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: oi7II8zStO00HOQQQHZL76YeZoQ2DJXk
-X-Proofpoint-ORIG-GUID: b8XdkYgdBjKqjpEiSjSDcCyq18287qMd
+X-Proofpoint-ORIG-GUID: zandC96fjt5Qo4qzprIFkc9QYWrLenuL
+X-Proofpoint-GUID: 2Q_Af7Sad7p_bF-liw6U373mYwkizJzY
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-01-31_03,2024-01-30_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
- phishscore=0 lowpriorityscore=0 clxscore=1015 malwarescore=0 mlxscore=0
- mlxlogscore=695 impostorscore=0 priorityscore=1501 spamscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401310058
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
+ lowpriorityscore=0 malwarescore=0 adultscore=0 mlxlogscore=878
+ clxscore=1011 mlxscore=0 spamscore=0 suspectscore=0 bulkscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2401310068
 
-Dirtying the CC allows us to find missing CC changes when sclp is
-emulated.
+On 1/5/24 23:54, Nina Schoetterl-Glausch wrote:
+> libcflat.h was included twice.
+> 
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- s390x/sclp.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/s390x/sclp.c b/s390x/sclp.c
-index ccbaa913..53fce0cf 100644
---- a/s390x/sclp.c
-+++ b/s390x/sclp.c
-@@ -399,6 +399,7 @@ out:
- static void test_instbits(void)
- {
- 	SCCBHeader *h = (SCCBHeader *)pagebuf;
-+	uint64_t bogus_cc = 1;
- 	int cc;
- 
- 	sclp_mark_busy();
-@@ -406,10 +407,12 @@ static void test_instbits(void)
- 	sclp_setup_int();
- 
- 	asm volatile(
-+		"	tmll	%[bogus_cc],3\n"
- 		"       .insn   rre,0xb2204200,%1,%2\n"  /* servc %1,%2 */
- 		"       ipm     %0\n"
- 		"       srl     %0,28"
--		: "=&d" (cc) : "d" (valid_code), "a" (__pa(pagebuf))
-+		: "=&d" (cc)
-+		: "d" (valid_code), "a" (__pa(pagebuf)), [bogus_cc] "d" (bogus_cc)
- 		: "cc", "memory");
- 	/* No exception, but also no command accepted, so no interrupt is
- 	 * expected. We need to clear the flag manually otherwise we will
--- 
-2.40.1
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
