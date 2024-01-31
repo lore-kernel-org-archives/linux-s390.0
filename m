@@ -1,140 +1,175 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 843BE8287D;
-	Wed, 31 Jan 2024 14:08:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 220B4762DD;
+	Wed, 31 Jan 2024 14:16:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706710106; cv=none; b=W+P6jFmph/eU8KbilBZdUTngfb9B1xPxYaoh56BkCgZOPoLxTi1yeLVOoTFxhQaaow5rRXrl76Q90Ud49YP2DD6ELzeBb84wrK5tdiGBlXQEmxVrcPvItliCExYV0WCQVnLIBZ1SeXdOUsAjxIpXBIhMXpUi90zz6gP8Ydw58co=
+	t=1706710607; cv=none; b=lVRPFRRN0RBONxM7GvGcZqpNbLnbQqLoPV7CBmuzS6ERc6ftnKu1ztLf9QTT48GZmkmK5hQ1Tn2KfI3FXsxftwn7kFD/I7qU1XBb9Xofs2xzu/zBSnoluoVMTBRCGPLdgVt+IYr810TNPd878jaCu+JNTU3uLt+9gEGx/U7qnJI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706710106; c=relaxed/simple;
-	bh=3bBGDiC+iLLfbFCr0Y/tzrO6leqGANNw5Kh/oe9Vwg4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=AbKKGx6WgNvm5GF6atyfmqjVmfaELqSuowWL1xaUFAhdEdu8y6hjYDb1dKZss4wWN2LG+LgitlZ69hGu+kNY1DBxUnDHkIqZjj128u6CQFk3EqpK+rAY/kAwjWNUQbCC7Bz5HGyK6A9hTvVQfsfoQdjg4QsMJfiIguZpUI7FouU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=iSEHprF0; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=iSEHprF0; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1706710607; c=relaxed/simple;
+	bh=Gtb1SAWDGEEOBfeIdV+KcYnSmri4QZUcptIg3t8uaE4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=KH/b8Zze0R7ZfVZBQRWakkfTP3Dd3aeKvO+ronsyzjom2lusUUyXsKdLnh9Q6uUsntPe67w5fPhxAYUAoQ7mBo3nJHQu+sfc3XHFjXypO2VhRjeo5NSasRKJm1WUGObpJZF0pkyoKCrWl72HbywNaMuxruZtC0p1Tunyja8rwMY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dgRaAODB; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="iSEHprF0";
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="iSEHprF0"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 993861FD26;
-	Wed, 31 Jan 2024 14:08:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1706710102; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=2QBlcBFQ70dBmJ1QalBIL8KQeMx+/Q9hcR6vftscUEI=;
-	b=iSEHprF0INt/D7UKM9hRWvLJnUJagimTIPH9XzuELgAB5oBVBaanBUFxkrpQT+w3xSf7SP
-	DdU0hYcxD6j2Zw59sBJlaE+3fR2GmmdLXjul6ib56FGi/8nY+CgfUucJ3Efw+KHMNaWLSF
-	3IW7BlmrnYdSbybZBBS8j2jqjj8myAg=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1706710102; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=2QBlcBFQ70dBmJ1QalBIL8KQeMx+/Q9hcR6vftscUEI=;
-	b=iSEHprF0INt/D7UKM9hRWvLJnUJagimTIPH9XzuELgAB5oBVBaanBUFxkrpQT+w3xSf7SP
-	DdU0hYcxD6j2Zw59sBJlaE+3fR2GmmdLXjul6ib56FGi/8nY+CgfUucJ3Efw+KHMNaWLSF
-	3IW7BlmrnYdSbybZBBS8j2jqjj8myAg=
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 6F67A139B1;
-	Wed, 31 Jan 2024 14:08:22 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id K5iYGlZUumVrEAAAD6G6ig
-	(envelope-from <mhocko@suse.com>); Wed, 31 Jan 2024 14:08:22 +0000
-Date: Wed, 31 Jan 2024 15:08:21 +0100
-From: Michal Hocko <mhocko@suse.com>
-To: Ryan Roberts <ryan.roberts@arm.com>
-Cc: David Hildenbrand <david@redhat.com>,
-	Yin Fengwei <fengwei.yin@intel.com>, linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@linux-foundation.org>, linux-mm@kvack.org,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Matthew Wilcox <willy@infradead.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	"Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-	Nick Piggin <npiggin@gmail.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-	linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, "Huang, Ying" <ying.huang@intel.com>
-Subject: Re: [PATCH v1 0/9] mm/memory: optimize unmap/zap with PTE-mapped THP
-Message-ID: <ZbpUVXa-Aujp6gWO@tiehlicka>
-References: <20240129143221.263763-1-david@redhat.com>
- <4ef64fd1-f605-4ddf-82e6-74b5e2c43892@intel.com>
- <ee94b8ca-9723-44c0-aa17-75c9678015c6@redhat.com>
- <1fd26a83-8e6f-4b96-9d27-dd46de9488cc@arm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dgRaAODB"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40VCOngZ025578;
+	Wed, 31 Jan 2024 14:16:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=z1/eLlLzF2xewLBMweZlcubwiaHIhEa+mEKnx7/v2yk=;
+ b=dgRaAODBBjykGlBieNrsuVJmc6daOFOGR0/532eyRtgT0qMDMgq5zeALSY3K0lVWTCDr
+ 5IHq4LXNSRpHeJ1opVhtTazdBX0wbSHgeHyX2IAag16GLUMD1Z7axu7khsxIesugAn3r
+ oJdhvHYf1oGM/Bzo+zLw1K0o/BoWskDpXg33WNoBFlEeaIieKpcceqYDZfiMTGm4lj5v
+ z9dDwnw2Y1OntURRDdni9NKwaHt+FN/cpFzKvldmKn0Lk2C7qEuozdrkcpwehHcWX8Py
+ 3HYNMfWlKIrvRRpfkA5YJGs/NLPwcBZgS6xjmKNPD63eWiUqsHFnk1DnmRv/HJGkJCCd QA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vyfx4cq2x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 31 Jan 2024 14:16:43 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 40VE0Io6026485;
+	Wed, 31 Jan 2024 14:16:43 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vyfx4cq1t-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 31 Jan 2024 14:16:43 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 40VCZvgJ007955;
+	Wed, 31 Jan 2024 14:16:41 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vwdnm5q5k-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 31 Jan 2024 14:16:41 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 40VEGckb30081714
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 31 Jan 2024 14:16:38 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7A1BA2004B;
+	Wed, 31 Jan 2024 14:16:38 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 08A5E20043;
+	Wed, 31 Jan 2024 14:16:38 +0000 (GMT)
+Received: from [9.171.45.77] (unknown [9.171.45.77])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 31 Jan 2024 14:16:37 +0000 (GMT)
+Message-ID: <b1d55c6b-eb06-42ee-bb70-53735f1de138@linux.ibm.com>
+Date: Wed, 31 Jan 2024 15:16:37 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1fd26a83-8e6f-4b96-9d27-dd46de9488cc@arm.com>
-X-Spam-Level: 
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.com header.s=susede1 header.b=iSEHprF0
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-1.04 / 50.00];
-	 ARC_NA(0.00)[];
-	 RCVD_VIA_SMTP_AUTH(0.00)[];
-	 R_DKIM_ALLOW(-0.20)[suse.com:s=susede1];
-	 FROM_HAS_DN(0.00)[];
-	 TO_DN_SOME(0.00)[];
-	 FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	 TO_MATCH_ENVRCPT_ALL(0.00)[];
-	 MIME_GOOD(-0.10)[text/plain];
-	 NEURAL_HAM_LONG(-1.00)[-1.000];
-	 NEURAL_HAM_SHORT(-0.20)[-1.000];
-	 R_RATELIMIT(0.00)[to_ip_from(RL7kzhjumjg4a5c3mj7potudi1)];
-	 RCVD_COUNT_THREE(0.00)[3];
-	 DKIM_SIGNED(0.00)[suse.com:s=susede1];
-	 DKIM_TRACE(0.00)[suse.com:+];
-	 MX_GOOD(-0.01)[];
-	 RCPT_COUNT_TWELVE(0.00)[26];
-	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:dkim];
-	 FUZZY_BLOCKED(0.00)[rspamd.com];
-	 FROM_EQ_ENVFROM(0.00)[];
-	 MIME_TRACE(0.00)[0:+];
-	 MID_RHS_NOT_FQDN(0.50)[];
-	 FREEMAIL_CC(0.00)[redhat.com,intel.com,vger.kernel.org,linux-foundation.org,kvack.org,infradead.org,arm.com,kernel.org,linux.ibm.com,gmail.com,ellerman.id.au,csgroup.eu,arndb.de,lists.ozlabs.org];
-	 RCVD_TLS_ALL(0.00)[];
-	 BAYES_HAM(-0.03)[54.97%]
-X-Spam-Score: -1.04
-X-Rspamd-Queue-Id: 993861FD26
-X-Spam-Flag: NO
+User-Agent: Mozilla Thunderbird
+Subject: Re: [kvm-unit-tests PATCH v2 1/5] lib: s390x: sigp: Dirty CC before
+ sigp execution
+Content-Language: en-US
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com,
+        david@redhat.com, nsg@linux.ibm.com, nrb@linux.ibm.com
+References: <20240131074427.70871-1-frankja@linux.ibm.com>
+ <20240131074427.70871-2-frankja@linux.ibm.com>
+ <20240131125618.42f508d7@p-imbrenda>
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20240131125618.42f508d7@p-imbrenda>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: GwJIpfOMbTmXTZKAC-QqyyNe8ejY5tvS
+X-Proofpoint-ORIG-GUID: cpMYK_LQT2dFz831XuQDyftpvb2Ymzyv
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-01-31_08,2024-01-30_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
+ phishscore=0 lowpriorityscore=0 clxscore=1015 malwarescore=0 mlxscore=0
+ mlxlogscore=934 impostorscore=0 priorityscore=1501 spamscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2401310109
 
-On Wed 31-01-24 10:26:13, Ryan Roberts wrote:
-> IIRC there is an option to zero memory when it is freed back to the buddy? So
-> that could be a place where time is proportional to size rather than
-> proportional to folio count? But I think that option is intended for debug only?
-> So perhaps not a problem in practice?
+On 1/31/24 12:56, Claudio Imbrenda wrote:
+> On Wed, 31 Jan 2024 07:44:23 +0000
+> Janosch Frank <frankja@linux.ibm.com> wrote:
+> 
+>> Dirtying the CC allows us to find missing CC changes when sigp is
+>> emulated.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>   lib/s390x/asm/sigp.h | 6 +++++-
+>>   1 file changed, 5 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/lib/s390x/asm/sigp.h b/lib/s390x/asm/sigp.h
+>> index 61d2c625..4eae95d0 100644
+>> --- a/lib/s390x/asm/sigp.h
+>> +++ b/lib/s390x/asm/sigp.h
+>> @@ -49,13 +49,17 @@ static inline int sigp(uint16_t addr, uint8_t order, unsigned long parm,
+>>   		       uint32_t *status)
+>>   {
+>>   	register unsigned long reg1 asm ("1") = parm;
+>> +	uint64_t bogus_cc = SIGP_CC_NOT_OPERATIONAL;
+>>   	int cc;
+>>   
+>>   	asm volatile(
+>> +		"	tmll	%[bogus_cc],3\n"
+>>   		"	sigp	%1,%2,0(%3)\n"
+>>   		"	ipm	%0\n"
+>>   		"	srl	%0,28\n"
+>> -		: "=d" (cc), "+d" (reg1) : "d" (addr), "a" (order) : "cc");
+>> +		: "=d" (cc), "+d" (reg1)
+>> +		: "d" (addr), "a" (order), [bogus_cc] "d" (bogus_cc)
+>> +		: "cc");
+> 
+> since you are doing changes in this inline asm, could you put names for
+> all the parameters? that way it will be more consistent and readable.
+> 
 
-init_on_free is considered a security/hardening feature more than a
-debugging one. It will surely add an overhead and I guess this is
-something people who use it know about. The batch size limit is a latency
-reduction feature for !PREEMPT kernels but by no means it should be
-considered low latency guarantee feature. A lot of has changed since
-the limit was introduced and the current latency numbers will surely be
-different than back then. As long as soft lockups do not trigger again
-this should be acceptable IMHO.
-
--- 
-Michal Hocko
-SUSE Labs
+NACK, not in this series.
