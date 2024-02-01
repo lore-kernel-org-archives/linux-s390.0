@@ -1,125 +1,145 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 053125F470;
-	Thu,  1 Feb 2024 14:56:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFF395F496;
+	Thu,  1 Feb 2024 15:14:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706799420; cv=none; b=LuGKVrrGwblai98CBd+ITeNI/A623LaIdHXDFFo4OfnyarggTzHANdUe4IuvRA1hdTBsCvJC+NiysytXK/TjfC5t7EigNCeYszNzPrKzFIQbMFmSuB1fPokRsvu//aFa4b+092K4UtMsh6YiWye0j9H10cuMsfcDyl9QOySKsZM=
+	t=1706800482; cv=none; b=X0GAZIRnZFyDTPw2os3nrrviRPLiSAuunK3oxer78wSm6PJYqb1/IhfMx41J96toBckv03H0gEbJmr/lVdJozuxd3a7sQBJ5/JTgwXp3OgV/cpRAyBM1Sjij8R7w1HTiNV5oCMwBPKqY3QqSDm3PGazLvjILhVFyqpfYgqBhefU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706799420; c=relaxed/simple;
-	bh=CaSotTQtZ5ozZfcAG4oJoZ1J7EEJkM5AAbIB9wkqbQ0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=JASrVs05Dyxr4EoksP3gRmSMuiusDKzajmL6k5EpiP+Z+s3XdllbtDTB8JkuMVbBpdNAGBBskJLPVMagWIH5ff0wr4aX3FZJWNEYb0OO/iAO6iVJqQRDi/yyx9q3+stF+ACQrzIaNxlPvlI102WTMcigFbJPSjkmdulAi2z7NY0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kYkLMXsY; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1706800482; c=relaxed/simple;
+	bh=nfg9cZaG2yGkj0edBhLDrl6slCt+cGfgI59wyyuirbQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PLas/v8x0pDzPFwPMQtmpViJXKW6B1SiT5Bn1AdsRuzG8+D+fUxFXNW+9bcZLCNAWvsSk1ElS73dPIuoqIRoChMcfkJdumN0J4xdr3nmnHBH1rs3jQxHANu79j+XEzvZOi/0V/nTVcQ+okWmNm+EcfXfzuZFbe88LeyPgHFkeuA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sOSlLiV5; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kYkLMXsY"
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 411DbtPw015939;
-	Thu, 1 Feb 2024 14:56:55 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sOSlLiV5"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 411F7ONd032674;
+	Thu, 1 Feb 2024 15:14:40 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=g8OYxdlzV2huCmFXMtD3CVpkeVuBkFHmLcR3IGc+A6w=;
- b=kYkLMXsYcB7O5QWFlhSuk2jdSdXOUa0djF9mPWotSWwuQCP/jy7WHUmsKHpgHAX0F1nX
- DnbcnyUvce8L3B186EKtJpW1oDTvv6+OnhaoTG7HM4nS2Lm+luPJcJzg2M1b/7Mq1aQi
- h8BTBh99RPdzyEJm/x6mIal+n7GQGr4yLV2rs+YBOQ+t32xzBDLoMLXxT5arM8nw9kir
- SSrvA+WmV2Z/eY8Kls4uQchqdyjyZbaf/fW28fR1ER1//9jCJRahs0UXd3doH1sHBCx/
- GTlV2i/2JsS806fkdpGj+/VTzRw4ALQAHuLbWeB9iVXNeTfLuG5dNVMMbRhwOt2WzmKB Cw== 
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=j+uQ3TxjeGhpkktygYo6NLUSuR79BECdLepfMxB5+As=;
+ b=sOSlLiV5egWo0BH/DW+WxBeNYRkV9o4261ZPJYkKSMuFSfkWBU/96PaWyxLB02dhRK2z
+ ymQDcUgV2DAF2AlSaIyQxrvqSYWhfDhthWOhi1YqdqB2do0WM3Xi8Pk72BgiF61olq+K
+ nGpVhQUZ9xN8flr7aW4xmQUUj510IUF0Eki3/mjedbBHPqUsYaPJhHScg2s7Eee4xMY4
+ RJcFKM2QTmXq7mLEf8Ibxpa/tferL7JmQFyouZ8xWQ9OH8gbQAT7Of9bsGLfPBYne5qd
+ 0TPoBQZgNHbGrD94fokWdnUmZg2DY/WaLanPQt5Bizn15eAMwc/ofS1tCwh/o4dkI4eg OA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w0cbmah15-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w0dnmr6kh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 01 Feb 2024 14:56:55 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 411EIY21006343;
-	Thu, 1 Feb 2024 14:56:55 GMT
+	Thu, 01 Feb 2024 15:14:39 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 411F7ZM6000577;
+	Thu, 1 Feb 2024 15:14:39 GMT
 Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w0cbmagwj-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w0dnmr6jy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 01 Feb 2024 14:56:54 +0000
+	Thu, 01 Feb 2024 15:14:39 +0000
 Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 411C1vw4017712;
-	Thu, 1 Feb 2024 14:56:47 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vwcj04y21-1
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 411Evk6P017712;
+	Thu, 1 Feb 2024 15:14:38 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vwcj052wt-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 01 Feb 2024 14:56:47 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 411Eui6G9110112
+	Thu, 01 Feb 2024 15:14:38 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 411FEZdw8258084
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 1 Feb 2024 14:56:44 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4CF8120049;
-	Thu,  1 Feb 2024 14:56:44 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1D38D20040;
-	Thu,  1 Feb 2024 14:56:44 +0000 (GMT)
+	Thu, 1 Feb 2024 15:14:35 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1477F20043;
+	Thu,  1 Feb 2024 15:14:35 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D6AC620040;
+	Thu,  1 Feb 2024 15:14:34 +0000 (GMT)
 Received: from osiris (unknown [9.152.212.60])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  1 Feb 2024 14:56:44 +0000 (GMT)
-Date: Thu, 1 Feb 2024 15:56:41 +0100
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu,  1 Feb 2024 15:14:34 +0000 (GMT)
+Date: Thu, 1 Feb 2024 16:14:32 +0100
 From: Heiko Carstens <hca@linux.ibm.com>
-To: Nathan Chancellor <nathan@kernel.org>
-Cc: gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, ndesaulniers@google.com, morbo@google.com,
-        justinstitt@google.com, linux-s390@vger.kernel.org,
-        llvm@lists.linux.dev, patches@lists.linux.dev
-Subject: Re: [PATCH] s390: vDSO: Drop '-fPIC' from LDFLAGS
-Message-ID: <20240201145641.6306-B-hca@linux.ibm.com>
-References: <20240130-s390-vdso-drop-fpic-from-ldflags-v1-1-094ad104fc55@kernel.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240130-s390-vdso-drop-fpic-from-ldflags-v1-1-094ad104fc55@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: JgClveuNjKfH-p9xrdS5lZnCQ04OA8y4
-X-Proofpoint-GUID: 1baswst15a3OfxG9HL0-iu4ArqovshOg
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+To: Eric Farman <farman@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [RFC PATCH] KVM: s390: remove extra copy of access registers
+ into KVM_RUN
+Message-ID: <20240201151432.6306-C-hca@linux.ibm.com>
+References: <20240131205832.2179029-1-farman@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240131205832.2179029-1-farman@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Mg4PeVfiJKKgV1rHL8qlBsrbiH2YYVBL
+X-Proofpoint-ORIG-GUID: 8BZmU-JgjVGtwKFYb4dgspNOM4naUvPV
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-02-01_02,2024-01-31_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=890
- suspectscore=0 priorityscore=1501 impostorscore=0 mlxscore=0
- lowpriorityscore=0 spamscore=0 bulkscore=0 phishscore=0 malwarescore=0
- clxscore=1011 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402010118
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=668 adultscore=0 clxscore=1011 mlxscore=0 phishscore=0
+ spamscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 malwarescore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402010119
 
-On Tue, Jan 30, 2024 at 08:14:28PM -0700, Nathan Chancellor wrote:
-> '-fPIC' as an option to the linker does not do what it seems like it
-> should. With ld.bfd, it is treated as '-f PIC', which does not make
-> sense based on the meaning of '-f':
+On Wed, Jan 31, 2024 at 09:58:32PM +0100, Eric Farman wrote:
+> The routine ar_translation() is called by get_vcpu_asce(), which is
+> called from a handful of places, such as an interception that is
+> being handled during KVM_RUN processing. In that case, the access
+> registers of the vcpu had been saved to a host_acrs struct and then
+> the guest access registers loaded from the KVM_RUN struct prior to
+> entering SIE. Saving them back to KVM_RUN at this point doesn't do
+> any harm, since it will be done again at the end of the KVM_RUN
+> loop when the host access registers are restored.
 > 
->   -f SHLIB, --auxiliary SHLIB Auxiliary filter for shared object symbol table
+> But that's not the only path into this code. The MEM_OP ioctl can
+> be used while specifying an access register, and will arrive here.
 > 
-> When building with ld.lld (currently under review in a GitHub pull
-> request), it just errors out because '-f' means nothing and neither does
-> '-fPIC':
-> 
->   ld.lld: error: unknown argument '-fPIC'
-> 
-> '-fPIC' was blindly copied from CFLAGS when the vDSO stopped being
-> linked with '$(CC)', it should not be needed. Remove it to clear up the
-> build failure with ld.lld.
-> 
-> Fixes: 2b2a25845d53 ("s390/vdso: Use $(LD) instead of $(CC) to link vDSO")
-> Link: https://github.com/llvm/llvm-project/pull/75643
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+> Linux itself doesn't use the access registers for much, but it does
+> squirrel the thread local storage variable into ACRs 0 and 1 in
+> copy_thread() [1]. This means that the MEM_OP ioctl may copy
+> non-zero access registers (the upper- and lower-halves of the TLS
+> pointer) to the KVM_RUN struct, which will end up getting propogated
+> to the guest once KVM_RUN ioctls occur. Since these are almost
+> certainly invalid as far as an ALET goes, an ALET Specification
+> Exception would be triggered if it were attempted to be used.
 
-Applied.
+What's the code path that can lead to this scenario?
 
-> Hi all,
+>  arch/s390/kvm/gaccess.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 > 
-> The LLVM folks are working on SystemZ support in ld.lld and this issue
-> came up from my initial testing. There are also some other issues that I
-> have come across in testing that I note in the GitHub pull request
-> linked above. If they seem like kernel issues, any expertise or help
-> would be greatly appreciated towards getting this working.
+> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+> index 5bfcc50c1a68..9205496195a4 100644
+> --- a/arch/s390/kvm/gaccess.c
+> +++ b/arch/s390/kvm/gaccess.c
+> @@ -380,6 +380,7 @@ void ipte_unlock(struct kvm *kvm)
+>  static int ar_translation(struct kvm_vcpu *vcpu, union asce *asce, u8 ar,
+>  			  enum gacc_mode mode)
+>  {
+> +	int acrs[NUM_ACRS];
+>  	union alet alet;
+>  	struct ale ale;
+>  	struct aste aste;
+> @@ -391,8 +392,8 @@ static int ar_translation(struct kvm_vcpu *vcpu, union asce *asce, u8 ar,
+>  	if (ar >= NUM_ACRS)
+>  		return -EINVAL;
+>  
+> -	save_access_regs(vcpu->run->s.regs.acrs);
+> -	alet.val = vcpu->run->s.regs.acrs[ar];
+> +	save_access_regs(acrs);
+> +	alet.val = acrs[ar];
 
-This is great news! Please feel free to involve us at any time.
-We will do our best to help if possible.
+If the above is like you said, then this code would use the host
+access register contents for ar translation of the guest?
+
+Or maybe I'm simply misunderstanding what you write.
