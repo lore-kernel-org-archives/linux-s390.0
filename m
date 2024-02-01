@@ -1,132 +1,165 @@
-Received: from mail-io1-f70.google.com (mail-io1-f70.google.com [209.85.166.70])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 061C9158D9B
-	for <linux-s390@vger.kernel.org>; Thu,  1 Feb 2024 10:12:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.70
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4280A15D5CC
+	for <linux-s390@vger.kernel.org>; Thu,  1 Feb 2024 12:09:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706782347; cv=none; b=p86HAR4vC/nveC5M9fwcB3TXbsPsmpQss00+AAjJMxsMIlStOmp8QwqulZjFy0ebdWTzb+zHouYj3SFGV/a0GquSf9h56vE9sGduFm95Bu47YuQiE2PGAKr1gsyfSOmiM9vD3Zwkpkbuj+Ui2GYSkF47qG3mfhfz6Dc/Cse7ewo=
+	t=1706789357; cv=none; b=N8nPwa1P9tpx99JJJbtQYjCj6MagFyM3Y89WW+FrqXIxbKbjPps1siQivzz5gnmdhL0cL8L42Ple6FS0157/Y5kc/9ZCxjh6T0tUk3ExkRDw1blMdDJnf66pH55T2hCCgaDqakHNutYUgHACI2jvSMHqTcLOGnqNcXp8Btp2C9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706782347; c=relaxed/simple;
-	bh=0hkGTq+IfUCvwYmNvyoNZ0aTtPEQahj/pe57w9qIgMk=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=cUiypNH9sR1e0HJhACbSjmmiO936zMPFUey3mlR9Q2JJJfsh9lAzHaNbHe5/kly50ojcquTJP9QTBbFmsqNDbA8QLB9h/dbGmusgocNhLSSA5jT1IcoY5bt00KhUziLe1lX//1731j7R2Rz+vPbNkVN2vXXHw1jHd8KMGFlcbRc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.70
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-io1-f70.google.com with SMTP id ca18e2360f4ac-7bf48e0f513so66517439f.0
-        for <linux-s390@vger.kernel.org>; Thu, 01 Feb 2024 02:12:25 -0800 (PST)
+	s=arc-20240116; t=1706789357; c=relaxed/simple;
+	bh=YS8ezMElsucbFsR8yn4ZIQju37+qo/N1VNkz7vn6Pqo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ZKM9sApGN2hn6qMq85cbAW68eSfMcC8x9ts9NHxy5Auj9CM/LXC1EveTtJ4nJ7QN3R+kw1N1n0gDP7ZIOOVt9AU9eXOYC30G/4OgmzHGfS4/q0GAhuR/6u08fXOck95qp2CkB8IYXJVsk6x/4/1uM/6O/toNGDL+al8pdqOcqWA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=c2ozpfSy; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c2ozpfSy"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1706789354;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=rw1hU7/rB5ghAx4XO3rhHrYvtnSU2nsmG80pY3d2fyI=;
+	b=c2ozpfSyHg2LfU+1gaChwhn4eR6G8wr/FByiXcPXVxL/Fp01XW5/3fZypNqOZPwROxHEvk
+	NX9Hh7T6EzLPwGM3qPugXVd1PP8QuZ5pmQblXaq50Px6SDMA+31zn/UVVPBGJOrQT8BrYS
+	ZIW3DV+lRd4lieeUzrkIoaO4VolTJmc=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-645-jut-kpciNQmSL3m3Krabag-1; Thu, 01 Feb 2024 07:09:12 -0500
+X-MC-Unique: jut-kpciNQmSL3m3Krabag-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-33b1799e433so211406f8f.2
+        for <linux-s390@vger.kernel.org>; Thu, 01 Feb 2024 04:09:12 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706782345; x=1707387145;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Asvm9Ng9v04fcnG9TARg/mgu5KJMM7tuU6wye4lAsNY=;
-        b=DJ/zp4nCYe9b5TogsBJ8zq6c2BrdolvQT322sCCLYwEhFWYOsE2LUUZ3xLoxk+ET67
-         wDZuN53MiCsugVbm23aievAtJeIis9n/fgoLBZiWTzrkqElEvh+u9jqEilo3xAwv9eM0
-         qMNshVAKAPs6Ri4IxRqzC+F0tWGT6t3Rn5idmS1o1TfWL2MM4Oih4X69OVo0QZRgv4eI
-         BQEyfGJsnFiM5/csi2+pfon/eopr+OOSMPVdRaqtDGqSD8Go7MlF9YFlDQpAnmZxCTV3
-         o41C+jaCRsBs6W6qF0Ld08nbuvMpQZ4w25to+yeDGZppEaVDu3rg3DP8JBo7F1VxXIj7
-         r2cg==
-X-Gm-Message-State: AOJu0Ywen1t8h6JQCAv4+nCbrIQ8kAPGCF6dMXr+/p/meb+aQVKgLzSp
-	eTlmm27D9euozgqEfnxhT+XE/DN/psWqqcpqXWKCh9WMi42rUWzFValyig58J05s0yGtClbafOb
-	hu926jdVOX1utzlrgJJ2lw0D6kzniWJg0dGFC4vlgJ9hw+hDbdLPYeUE=
-X-Google-Smtp-Source: AGHT+IHPOwfpLUsGJ/kYBOjvVxEPaanltLISeaZxKkJShYH6tg0o8LqNJReL0ZqbXA22eXjJF9PUJevPkLA+oEfj6Q05uMppTIZz
+        d=1e100.net; s=20230601; t=1706789352; x=1707394152;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rw1hU7/rB5ghAx4XO3rhHrYvtnSU2nsmG80pY3d2fyI=;
+        b=KzyRDJNANSzul69RQkOQd6QpO0KIN58by5CjOLva1HA3EWuJoN43+nxhTvVEIutwgW
+         8jJtx3dCBOsybosQnrJ6to26Pg81uwW485q9g0lxhbPJ/IwtqKxvM2PjIzFV9iaDv56t
+         8t0YonceNdVJN7UkoInexG7DdObFqrsR1DjgLh8PqO8kPanC0s7s5x+a/zoR1cLBuZ/n
+         Rif9km88wHONLjQ2IUsZjt6MifU3Kp9DR10fUcDwn4y21W11ymHcWAA6TXKXnoqIa8mM
+         VO7bBVHPtxMmli6gpT7b9b6GOtKZaC5bZjA7PxUcGHwtelNUnQN+DVDLur2JHidSOruy
+         c5CA==
+X-Gm-Message-State: AOJu0Yz+Lhm3SiPH3aKl6noiugl3nqd8/hTZr/v+rZkOqyVTpIb3TM6l
+	Ee4DNkBYfTVZ15IyCuc1vUfWW37VSo+R7DfFafuPGTVNYUecmuz8fEuHbHuBc5HtiNckbLDZcQc
+	GggOkO+ZfYwgE4BNNZ5m+4kCwo62BV/0sI8LWzvRdA5TpfI6JNRW0kGQopV0=
+X-Received: by 2002:a5d:5348:0:b0:33a:ed61:b043 with SMTP id t8-20020a5d5348000000b0033aed61b043mr3805808wrv.44.1706789351919;
+        Thu, 01 Feb 2024 04:09:11 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEIOwmN+x5idWQ7nOOxgVyHPL8L6XNFCvyWzP4fNSvBqKBlPC2IfIbGbcqjOLye7qCNKemVpA==
+X-Received: by 2002:a5d:5348:0:b0:33a:ed61:b043 with SMTP id t8-20020a5d5348000000b0033aed61b043mr3805792wrv.44.1706789351610;
+        Thu, 01 Feb 2024 04:09:11 -0800 (PST)
+X-Forwarded-Encrypted: i=0; AJvYcCXSscERne+jSLK5rFiwIQtnmY1voRz1AJwA4IyXxfDK74FNzgjC3uXNX5JDSU2sqX5MGThuhhFvvWMaqCrzyB6+8wvwzGUoSNG1NU2ql5OGik5CGvaSGZvm+t6DoHxVMo83gYcaKvWuTvb4+7dFo9UOly+dnLv17JKeO1K6D8r12PUQuWqBJpSs1XPEZ/Wi5jNOPMMltin1WshvJIhcw+DGcdCn
+Received: from [192.168.0.9] (ip-109-43-177-196.web.vodafone.de. [109.43.177.196])
+        by smtp.gmail.com with ESMTPSA id bo18-20020a056000069200b0033af3aec393sm9384498wrb.38.2024.02.01.04.09.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 01 Feb 2024 04:09:11 -0800 (PST)
+Message-ID: <db6ac7f8-5a1e-4119-a48c-6c4b4e05cb27@redhat.com>
+Date: Thu, 1 Feb 2024 13:09:10 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:1b0c:b0:363:9211:a723 with SMTP id
- i12-20020a056e021b0c00b003639211a723mr377330ilv.2.1706782345179; Thu, 01 Feb
- 2024 02:12:25 -0800 (PST)
-Date: Thu, 01 Feb 2024 02:12:25 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <00000000000064b78606104f3b91@google.com>
-Subject: [syzbot] [net?] [s390?] KCSAN: data-race in __sys_connect / smc_switch_to_fallback
-From: syzbot <syzbot+ab2213db98841b6ead07@syzkaller.appspotmail.com>
-To: agordeev@linux.ibm.com, alibuda@linux.alibaba.com, davem@davemloft.net, 
-	edumazet@google.com, guwen@linux.alibaba.com, jaka@linux.ibm.com, 
-	kuba@kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
-	netdev@vger.kernel.org, pabeni@redhat.com, syzkaller-bugs@googlegroups.com, 
-	tonylu@linux.alibaba.com, wenjia@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [kvm-unit-tests PATCH] (arm|powerpc|s390x): Makefile: add
+ `%.aux.o` target
+To: Marc Hartmayer <mhartmay@linux.ibm.com>,
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>, Nico Boehr <nrb@linux.ibm.com>,
+ Eric Auger <eric.auger@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20240125151127.94798-1-mhartmay@linux.ibm.com>
+Content-Language: en-US
+From: Thomas Huth <thuth@redhat.com>
+Autocrypt: addr=thuth@redhat.com; keydata=
+ xsFNBFH7eUwBEACzyOXKU+5Pcs6wNpKzrlJwzRl3VGZt95VCdb+FgoU9g11m7FWcOafrVRwU
+ yYkTm9+7zBUc0sW5AuPGR/dp3pSLX/yFWsA/UB4nJsHqgDvDU7BImSeiTrnpMOTXb7Arw2a2
+ 4CflIyFqjCpfDM4MuTmzTjXq4Uov1giGE9X6viNo1pxyEpd7PanlKNnf4PqEQp06X4IgUacW
+ tSGj6Gcns1bCuHV8OPWLkf4hkRnu8hdL6i60Yxz4E6TqlrpxsfYwLXgEeswPHOA6Mn4Cso9O
+ 0lewVYfFfsmokfAVMKWzOl1Sr0KGI5T9CpmRfAiSHpthhHWnECcJFwl72NTi6kUcUzG4se81
+ O6n9d/kTj7pzTmBdfwuOZ0YUSqcqs0W+l1NcASSYZQaDoD3/SLk+nqVeCBB4OnYOGhgmIHNW
+ 0CwMRO/GK+20alxzk//V9GmIM2ACElbfF8+Uug3pqiHkVnKqM7W9/S1NH2qmxB6zMiJUHlTH
+ gnVeZX0dgH27mzstcF786uPcdEqS0KJuxh2kk5IvUSL3Qn3ZgmgdxBMyCPciD/1cb7/Ahazr
+ 3ThHQXSHXkH/aDXdfLsKVuwDzHLVSkdSnZdt5HHh75/NFHxwaTlydgfHmFFwodK8y/TjyiGZ
+ zg2Kje38xnz8zKn9iesFBCcONXS7txENTzX0z80WKBhK+XSFJwARAQABzR5UaG9tYXMgSHV0
+ aCA8dGh1dGhAcmVkaGF0LmNvbT7CwXgEEwECACIFAlVgX6oCGwMGCwkIBwMCBhUIAgkKCwQW
+ AgMBAh4BAheAAAoJEC7Z13T+cC21EbIP/ii9cvT2HHGbFRl8HqGT6+7Wkb+XLMqJBMAIGiQK
+ QIP3xk1HPTsLfVG0ao4hy/oYkGNOP8+ubLnZen6Yq3zAFiMhQ44lvgigDYJo3Ve59gfe99KX
+ EbtB+X95ODARkq0McR6OAsPNJ7gpEUzfkQUUJTXRDQXfG/FX303Gvk+YU0spm2tsIKPl6AmV
+ 1CegDljzjycyfJbk418MQmMu2T82kjrkEofUO2a24ed3VGC0/Uz//XCR2ZTo+vBoBUQl41BD
+ eFFtoCSrzo3yPFS+w5fkH9NT8ChdpSlbNS32NhYQhJtr9zjWyFRf0Zk+T/1P7ECn6gTEkp5k
+ ofFIA4MFBc/fXbaDRtBmPB0N9pqTFApIUI4vuFPPO0JDrII9dLwZ6lO9EKiwuVlvr1wwzsgq
+ zJTPBU3qHaUO4d/8G+gD7AL/6T4zi8Jo/GmjBsnYaTzbm94lf0CjXjsOX3seMhaE6WAZOQQG
+ tZHAO1kAPWpaxne+wtgMKthyPLNwelLf+xzGvrIKvLX6QuLoWMnWldu22z2ICVnLQChlR9d6
+ WW8QFEpo/FK7omuS8KvvopFcOOdlbFMM8Y/8vBgVMSsK6fsYUhruny/PahprPbYGiNIhKqz7
+ UvgyZVl4pBFjTaz/SbimTk210vIlkDyy1WuS8Zsn0htv4+jQPgo9rqFE4mipJjy/iboDzsFN
+ BFH7eUwBEAC2nzfUeeI8dv0C4qrfCPze6NkryUflEut9WwHhfXCLjtvCjnoGqFelH/PE9NF4
+ 4VPSCdvD1SSmFVzu6T9qWdcwMSaC+e7G/z0/AhBfqTeosAF5XvKQlAb9ZPkdDr7YN0a1XDfa
+ +NgA+JZB4ROyBZFFAwNHT+HCnyzy0v9Sh3BgJJwfpXHH2l3LfncvV8rgFv0bvdr70U+On2XH
+ 5bApOyW1WpIG5KPJlDdzcQTyptOJ1dnEHfwnABEfzI3dNf63rlxsGouX/NFRRRNqkdClQR3K
+ gCwciaXfZ7ir7fF0u1N2UuLsWA8Ei1JrNypk+MRxhbvdQC4tyZCZ8mVDk+QOK6pyK2f4rMf/
+ WmqxNTtAVmNuZIwnJdjRMMSs4W4w6N/bRvpqtykSqx7VXcgqtv6eqoDZrNuhGbekQA0sAnCJ
+ VPArerAZGArm63o39me/bRUQeQVSxEBmg66yshF9HkcUPGVeC4B0TPwz+HFcVhheo6hoJjLq
+ knFOPLRj+0h+ZL+D0GenyqD3CyuyeTT5dGcNU9qT74bdSr20k/CklvI7S9yoQje8BeQAHtdV
+ cvO8XCLrpGuw9SgOS7OP5oI26a0548M4KldAY+kqX6XVphEw3/6U1KTf7WxW5zYLTtadjISB
+ X9xsRWSU+Yqs3C7oN5TIPSoj9tXMoxZkCIHWvnqGwZ7JhwARAQABwsFfBBgBAgAJBQJR+3lM
+ AhsMAAoJEC7Z13T+cC21hPAQAIsBL9MdGpdEpvXs9CYrBkd6tS9mbaSWj6XBDfA1AEdQkBOn
+ ZH1Qt7HJesk+qNSnLv6+jP4VwqK5AFMrKJ6IjE7jqgzGxtcZnvSjeDGPF1h2CKZQPpTw890k
+ fy18AvgFHkVk2Oylyexw3aOBsXg6ukN44vIFqPoc+YSU0+0QIdYJp/XFsgWxnFIMYwDpxSHS
+ 5fdDxUjsk3UBHZx+IhFjs2siVZi5wnHIqM7eK9abr2cK2weInTBwXwqVWjsXZ4tq5+jQrwDK
+ cvxIcwXdUTLGxc4/Z/VRH1PZSvfQxdxMGmNTGaXVNfdFZjm4fz0mz+OUi6AHC4CZpwnsliGV
+ ODqwX8Y1zic9viSTbKS01ZNp175POyWViUk9qisPZB7ypfSIVSEULrL347qY/hm9ahhqmn17
+ Ng255syASv3ehvX7iwWDfzXbA0/TVaqwa1YIkec+/8miicV0zMP9siRcYQkyTqSzaTFBBmqD
+ oiT+z+/E59qj/EKfyce3sbC9XLjXv3mHMrq1tKX4G7IJGnS989E/fg6crv6NHae9Ckm7+lSs
+ IQu4bBP2GxiRQ+NV3iV/KU3ebMRzqIC//DCOxzQNFNJAKldPe/bKZMCxEqtVoRkuJtNdp/5a
+ yXFZ6TfE1hGKrDBYAm4vrnZ4CXFSBDllL59cFFOJCkn4Xboj/aVxxJxF30bn
+In-Reply-To: <20240125151127.94798-1-mhartmay@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hello,
+On 25/01/2024 16.11, Marc Hartmayer wrote:
+> It's unusual to create multiple files in one target rule, therefore create an
+> extra target for `%.aux.o` and list it as prerequisite. As a side effect, this
+> change fixes the dependency tracking of the prerequisites of
+> `.aux.o` (`lib/auxinfo.c` was missing).
+> 
+> Signed-off-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+> ---
+>   arm/Makefile.common     | 23 ++++++++++++-----------
+>   powerpc/Makefile.common | 10 +++++-----
+>   s390x/Makefile          |  9 +++++----
+>   3 files changed, 22 insertions(+), 20 deletions(-)
 
-syzbot found the following issue on:
+Patch looks sane to me, so I went ahead and pushed it to the git repo. Thanks!
 
-HEAD commit:    4854cf9c61d0 Merge tag 'mips-fixes_6.8_1' of git://git.ker..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=149d01efe80000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=e1bd33f45956bbc2
-dashboard link: https://syzkaller.appspot.com/bug?extid=ab2213db98841b6ead07
-compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+By the way, unrelated to your modifications, but while testing it, I noticed 
+that "make distclean" leaves some files behind for the s390x build:
 
-Unfortunately, I don't have any reproducer for this issue yet.
+  ./configure --arch=s390x --cross-prefix=s390x-linux-gnu-
+  make -j$(nproc)
+  make distclean
+  git status --ignored
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/e44f160651d1/disk-4854cf9c.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/f6a2062d07e6/vmlinux-4854cf9c.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/3d179908ef3c/bzImage-4854cf9c.xz
+On branch master
+Your branch is up to date with 'origin/master'.
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+ab2213db98841b6ead07@syzkaller.appspotmail.com
+Ignored files:
+   (use "git add -f <file>..." to include in what will be committed)
+	.mvpg-snippet.d
+	.sie-dat.d
+	.spec_ex.d
+	lib/auxinfo.o
+	s390x/snippets/c/.cstart.d
+	s390x/snippets/c/.flat.d
 
-==================================================================
-BUG: KCSAN: data-race in __sys_connect / smc_switch_to_fallback
+... in case someone wants to have a look ...
 
-write to 0xffff88812a230bc8 of 8 bytes by task 1831 on cpu 1:
- smc_switch_to_fallback+0x453/0x740 net/smc/af_smc.c:924
- smc_sendmsg+0xd6/0x330 net/smc/af_smc.c:2772
- sock_sendmsg_nosec net/socket.c:730 [inline]
- __sock_sendmsg net/socket.c:745 [inline]
- ____sys_sendmsg+0x37c/0x4d0 net/socket.c:2584
- ___sys_sendmsg net/socket.c:2638 [inline]
- __sys_sendmsg+0x1e9/0x270 net/socket.c:2667
- __do_sys_sendmsg net/socket.c:2676 [inline]
- __se_sys_sendmsg net/socket.c:2674 [inline]
- __x64_sys_sendmsg+0x46/0x50 net/socket.c:2674
- do_syscall_x64 arch/x86/entry/common.c:52 [inline]
- do_syscall_64+0x59/0x120 arch/x86/entry/common.c:83
- entry_SYSCALL_64_after_hwframe+0x63/0x6b
+  Thomas
 
-read to 0xffff88812a230bc8 of 8 bytes by task 1833 on cpu 0:
- sock_from_file net/socket.c:514 [inline]
- __sys_connect_file net/socket.c:2037 [inline]
- __sys_connect+0x11d/0x1b0 net/socket.c:2065
- __do_sys_connect net/socket.c:2075 [inline]
- __se_sys_connect net/socket.c:2072 [inline]
- __x64_sys_connect+0x41/0x50 net/socket.c:2072
- do_syscall_x64 arch/x86/entry/common.c:52 [inline]
- do_syscall_64+0x59/0x120 arch/x86/entry/common.c:83
- entry_SYSCALL_64_after_hwframe+0x63/0x6b
-
-value changed: 0xffff8881293bc000 -> 0xffff8881293bf400
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 1833 Comm: syz-executor.0 Not tainted 6.8.0-rc1-syzkaller-00385-g4854cf9c61d0 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 11/17/2023
-==================================================================
-
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
