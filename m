@@ -1,210 +1,218 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2469779FD;
-	Thu,  1 Feb 2024 15:50:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.12
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706802629; cv=fail; b=QNNNp6zQjdGHAi7AP+ApwU4FkCLxXaRo/DvzEJTP8H250TneoRbCrUK3Yf6IQxmv4A1gJzukD6thmu5GJgEe0R0y9AYdDUorHSp8jlbpz9QdfVgbvFCNixJAGsBTK4GCLeBTKdRTI1YtstrjTCULxRhNQLH37E0C2zjm8uG7Ycg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706802629; c=relaxed/simple;
-	bh=XyalGKsSTHL2LNmia9RPXI4SvlU21/406hjJAMsmbHc=;
-	h=Message-ID:Date:Subject:To:CC:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=o0xxQkiSxBA6UCu67Kos+2Jew5G5sz+1vRyVsFN8cinsDeLLrQY1xoy83cvZoWk/lERRZd2I4b6LttowavdKWmcT7aLcbbaYE7NA0ZEjwNuAzvqU+k7idISyySucp9rtDmcvvBoBTJ0ZfeOt4Txr94T0nkwnfba9ZCIKEqHYjLs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=f/9Lf0Dk; arc=fail smtp.client-ip=198.175.65.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 500D05CAF;
+	Thu,  1 Feb 2024 16:56:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1706806594; cv=none; b=N1pzUkdcFvp4x9kv8i5X110iJ2riWAWDZx844XMnB0U9LVOpVmjlmJ/irpXxb/fwobaLdTI7+lt4maHidH8Nln1cCBRamK1V3z7jyR0RR6hVnh+ig4msqsGbTxT6zMxQFn22u3r9dj7ndArHeuKOlmF0OSN6ZTC/mkCebO+3Xfk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1706806594; c=relaxed/simple;
+	bh=AB9ax/8t0wejVj9CtQ5Su7le0JSY/WoSYrFGi7uK99A=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=juPbzHayqifMAtgPKzxWvVui7+9yTHwFa7YtoEz8gLa7q16xStxfW2TFv6AU8glM0FT8OCWNmtIFYjTiULjNn6HPlE672ZjL5k1ZAYfhiau7dM6YPDNnp8WzviMtl6wGtXABPr5q1XVK4kkiFVOVmc4NamPFnRb5w7KLNChlLWQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pSacDwcQ; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="f/9Lf0Dk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1706802628; x=1738338628;
-  h=message-id:date:subject:to:cc:references:from:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=XyalGKsSTHL2LNmia9RPXI4SvlU21/406hjJAMsmbHc=;
-  b=f/9Lf0Dk/4DYxF5MXfAR5q35AHvhe6qhqyesO3A39Mq/fXkFOm90vzoW
-   XYZxJBY8jdVM6oIj4S1homH7mPX1uy4yA0QjWYTFI69HzBg64n5k35+bi
-   H1t/5lefyBm0eHa9FNyzM0t2eQ5B+ztj4r9k0pIaJirvdaOTvphOigg+a
-   HeGqztFVurYhkfEWzeAwTqH/dv6wkhJ3mrdbmp6c27B42OyjrsLfEgmd3
-   7Quuqh9iU9cy6xUtVl9luRoUyKSd/3pecRbHiAGehU1dVlta+h7OsFpnK
-   zBrb12XKgLdzJ3/wzeROzCrDaZS/S8IvXYO69+siPj1fYrji7TlhSqFEK
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10969"; a="11295866"
-X-IronPort-AV: E=Sophos;i="6.05,234,1701158400"; 
-   d="scan'208";a="11295866"
-Received: from orviesa004.jf.intel.com ([10.64.159.144])
-  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Feb 2024 07:50:27 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.05,234,1701158400"; 
-   d="scan'208";a="4538494"
-Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
-  by orviesa004.jf.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 01 Feb 2024 07:50:27 -0800
-Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Thu, 1 Feb 2024 07:50:25 -0800
-Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
- fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Thu, 1 Feb 2024 07:50:24 -0800
-Received: from fmsedg601.ED.cps.intel.com (10.1.192.135) by
- fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35 via Frontend Transport; Thu, 1 Feb 2024 07:50:24 -0800
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (104.47.55.101)
- by edgegateway.intel.com (192.55.55.70) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.35; Thu, 1 Feb 2024 07:50:24 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=S3CMRqP2UdgjPTfIbqvMl1KAxLObXGH9NtB9l9DuzSCFFZZSYvtMfzCUjrvMGJraLoA4dlhlpLykBlHwpA8Yt6YZ8rngOdFp/NKhwk0FOhV/zFRfdyuLMHc7CIsTm7btGNlj3X8IiLPj9SO72R9y0J/p2utpA8aCOmzggsWjUBNrwcLOjOmuGtCPXzAOFarfgicVVAEjz2HNCQd+QD8/WEzfXQoW7JSu7slIETdFd/4vYuIOkWPIVOF5ylyjKe2F8CHLjSHRArMjWqGy16IjF0WswblmwssywmqcnFqxTkydEQgUXnG0l4Y9COmN4F0A4tBmSyDCG41a7anXtfZzzg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=8oZmtv5yI9nUsWY6VHJioeSH37Ziw3LyivfxC7fVOMY=;
- b=Dp7MSjFxAWelPmK9AqJ9cn8ai36fmMQmdCToMXQrJ16nPYL/GlMoUqW2wpND9dJlViIJIo8+Xiuuw3qd1ucznmlPsLHWK4soHXe5rdJ2+BndfwdJhpEjJdmwB5gO9cd3p60YMa/Gvagr9uT1JvmQLhG2zKC3vpCwtOVp6V0dISDIP2tcVCs5gUuv8z7r0CXgRaVr/gRvYIt0ihRrLst9Vf2s3ZjOwpLrHh3X23ZelKb3aZhnpWfpU25KTxrcWjkD3lQnRtBtqCzgOIM0oqQBB8hmkMqpKz0NsXxJ8K+pYL2quDVGDfQqacj6jiCoYO3H4rEhUJ0u4FiGq2Mr0RIGJg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from DS0PR11MB8718.namprd11.prod.outlook.com (2603:10b6:8:1b9::20)
- by PH7PR11MB6795.namprd11.prod.outlook.com (2603:10b6:510:1b9::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7228.35; Thu, 1 Feb
- 2024 15:50:22 +0000
-Received: from DS0PR11MB8718.namprd11.prod.outlook.com
- ([fe80::8760:b5ec:92af:7769]) by DS0PR11MB8718.namprd11.prod.outlook.com
- ([fe80::8760:b5ec:92af:7769%6]) with mapi id 15.20.7249.017; Thu, 1 Feb 2024
- 15:50:22 +0000
-Message-ID: <901aef4c-27fa-475f-9d56-7ee292cca763@intel.com>
-Date: Thu, 1 Feb 2024 16:49:23 +0100
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v5 01/21] lib/bitmap: add bitmap_{read,write}()
-To: Arnd Bergmann <arnd@arndb.de>
-CC: "David S . Miller" <davem@davemloft.net>, Eric Dumazet
-	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-	Marcin Szycik <marcin.szycik@linux.intel.com>, Wojciech Drewek
-	<wojciech.drewek@intel.com>, Yury Norov <yury.norov@gmail.com>, "Andy
- Shevchenko" <andy@kernel.org>, Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-	Alexander Potapenko <glider@google.com>, Jiri Pirko <jiri@resnulli.us>, "Ido
- Schimmel" <idosch@nvidia.com>, Przemek Kitszel
-	<przemyslaw.kitszel@intel.com>, Simon Horman <horms@kernel.org>,
-	<linux-btrfs@vger.kernel.org>, <dm-devel@redhat.com>,
-	<ntfs3@lists.linux.dev>, <linux-s390@vger.kernel.org>,
-	"intel-wired-lan@lists.osuosl.org" <intel-wired-lan@lists.osuosl.org>, Netdev
-	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Syed Nayyar Waris
-	<syednwaris@gmail.com>, William Breathitt Gray <william.gray@linaro.org>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-References: <20240201122216.2634007-1-aleksander.lobakin@intel.com>
- <20240201122216.2634007-2-aleksander.lobakin@intel.com>
- <3f6df876-4b25-4dc8-bbac-ce678c428d86@app.fastmail.com>
-Content-Language: en-US
-From: Alexander Lobakin <aleksander.lobakin@intel.com>
-In-Reply-To: <3f6df876-4b25-4dc8-bbac-ce678c428d86@app.fastmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pSacDwcQ"
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 411GM8Up025717;
+	Thu, 1 Feb 2024 16:56:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=TGuZpbQaYfHv91tvzcPlYr89K1RYmI9ZNSDUiqOumAM=;
+ b=pSacDwcQmPMYZaopbb26LNhil8hlAlbCMKAwX9RcGs6OdrFSW65kYLtsYtk2qKqwMn98
+ YnJw+YO/tgr8Aexk7AorTBX01ivNbhHgJZAC9sdJrbZNlNm1dWlcK4S/k5JoDN0O+L/l
+ UhMZ3rE1zhqJwmdtN3EjrVFvUAv8FgoW+/SVtv6E9qfRRkngqxFAcStsCgArtKI5hJP3
+ uRy+CsfO3oRqSdjddAcpQyZRu3GE9rERS8rzEcWrvCkG+33pIvkqCKGsP9xvvuAk7RfU
+ x+I7in2D/xYZiZ8nS1mGRP671RFNet+hjvEBneoC0+jGxaTDyS1b0eC2khufRB11p8DG wg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w0e6ej1jp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 01 Feb 2024 16:56:29 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 411GguSt028856;
+	Thu, 1 Feb 2024 16:56:29 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w0e6ej1ja-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 01 Feb 2024 16:56:29 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 411GOSVZ010884;
+	Thu, 1 Feb 2024 16:56:28 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vweckwa87-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 01 Feb 2024 16:56:28 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 411GuRpm21168574
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 1 Feb 2024 16:56:28 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BCEA35804E;
+	Thu,  1 Feb 2024 16:56:27 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E2EA058060;
+	Thu,  1 Feb 2024 16:56:26 +0000 (GMT)
+Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.18.22])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  1 Feb 2024 16:56:26 +0000 (GMT)
+Message-ID: <f82ab76e5f389a92afe2fa8834812feeec4df4b5.camel@linux.ibm.com>
+Subject: Re: [RFC PATCH] KVM: s390: remove extra copy of access registers
+ into KVM_RUN
+From: Eric Farman <farman@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank
+ <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David
+ Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Date: Thu, 01 Feb 2024 11:56:26 -0500
+In-Reply-To: <20240201151432.6306-C-hca@linux.ibm.com>
+References: <20240131205832.2179029-1-farman@linux.ibm.com>
+	 <20240201151432.6306-C-hca@linux.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: VI1PR0102CA0013.eurprd01.prod.exchangelabs.com
- (2603:10a6:802::26) To DS0PR11MB8718.namprd11.prod.outlook.com
- (2603:10b6:8:1b9::20)
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.3 (3.50.3-1.fc39) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR11MB8718:EE_|PH7PR11MB6795:EE_
-X-MS-Office365-Filtering-Correlation-Id: 044ac232-b629-4a08-0393-08dc233d7f81
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: aacphW9P3Zgmxj67bCGBbAU/NU/mP65qTxDk8OCDf5wGdoKJo441/QJ/IMsoNWPUTteWD0LhRb54f4tbuPRQdo4b31kGvi5+Ui39Mxtjg17fy0Ryk4M5ogs6VE31yU6inh1xEI61VSmGGFU9bBjMMWFlA/iiEqIXWF5DU01igpniha1caNNl0dcHeX8H9w3zanemsdJ2mOGpzIe+qH1tuUPrBxahKQ557gDIVtKGTJH8IfuJrBU6TlyDJGIZDiOqlBcAzbISdUhspz4KeXt5GTpz6V9oIT0L20WLzc7CqcX/Ch8Wmy0v4sqilKlkAg4Jhi8SqrDhtkOk8Y0cfuso3ssde1H9zHMkQjN7phG04QMfWowyqcwF7PRR7zPdwpuyyFOMxo6LcSqFOnnveM0qJ3TIUwQaBw9kWkU5R6/iHjAFX8iGw31BEM4UpIHtHEzecujwy+ueajWfT5kNxmpFq9+g5kkZaqlv6sZf8q1iO4W970Sx8j2PxCePkj8LozfoeDTj+Wy8lLceZStcjQadGUpBtooj3iTkQke+PVxz4eEi1CEZTMn4fPCfbXQdLs5l6dret5l76zMrEQ0hp7h5aa1dz//IrgRizIc0lRAlgW0u7BUNBDoBP1Tx2yereDHwmHi0xqPhpyIfoFp9cU+AV6xwq+jzZ1mbBqWOxIHweRCnSrn6wEGm7dIWhPHroaoK
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB8718.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(346002)(136003)(396003)(376002)(39860400002)(366004)(230273577357003)(230173577357003)(230922051799003)(451199024)(186009)(64100799003)(1800799012)(316002)(8936002)(54906003)(6916009)(66476007)(66556008)(8676002)(4326008)(66946007)(6486002)(478600001)(31696002)(86362001)(7416002)(2906002)(5660300002)(41300700001)(36756003)(31686004)(83380400001)(26005)(2616005)(38100700002)(82960400001)(6506007)(6512007)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?ZUF0RHhDTnZveGRxRUV6OW91TXVxNE5oSlpkb0JUU0oxWktLNmdudFhMdHo5?=
- =?utf-8?B?dlQrYUVQT0JISEw3a1E3djBsdVdQK1FyYWJZNlQzUVprZzlxWStMOUdYSjFU?=
- =?utf-8?B?WitBTFVwN2p6RTIvZXMyREpNNGdrelkyWHNNZWNJSHROOVc0ZVJlaHRxRWJn?=
- =?utf-8?B?ODVCS2dvYTdtWkRZempEZzZ5L0V1QnlEcnJTZlNRVEZXNW5zTUg4UFV1cG02?=
- =?utf-8?B?WVdCWUZta0xRVmVSa3F6ZW5UVjVZZGZNUnM3WjZyN3ptdU82c1BsYWEreEtk?=
- =?utf-8?B?THp0b0htQ2lOUVNNSU9mbWVCK2h1d1NQNGR5eWw2MVFDTkx0cWlUVmhJbDZa?=
- =?utf-8?B?RUIvcHhBVWNib2RjTmdxMmpmMEgvdnZoSm9aOHJ1MmhKZW1aRHBYNHc0RUZS?=
- =?utf-8?B?WjNnNmg3OHpxQzBhQW5nVkNNcWM0eW1KRzRJMURsL2FLTnE1cWRoUVZTalMz?=
- =?utf-8?B?cUhyWnphTWZTcWpxbDgwS21HT0lZNlkzbVZDMWo4YWpxTkhQcTVQSytBaXRa?=
- =?utf-8?B?WDd1QTNad3lkQ1NmV2xYQVF6ejBZUG0vbkdrazMwUnNGRExvaC9QVllUSkJJ?=
- =?utf-8?B?Q0JSYWdJOTA3NlI1WWk2THJXZXR0MCtwTVZXdjZuRWRjZENMc0RJWUlUaUZx?=
- =?utf-8?B?SFNOS3hyRDFRY3o3MWdlQTgxYmxQVDA2cUduLzU4RUpFNkZRbUtWaENSNjlt?=
- =?utf-8?B?Ny9zakJsR0R3R3c2WXBUVDJLbUlTQVVQcHArL1BoN3QyOFNkMW93N05kSDFZ?=
- =?utf-8?B?UDY3V253N2J0WFBaQzJreHdTKzUxbDUvcHZaRVB1NEs5eG83eVJpTUxJQy9S?=
- =?utf-8?B?dUlOZE1BNGtmN3dFbmdadFBHY3lHczdxTUZHcWdIRzRTbURqUWVYemo2MmJV?=
- =?utf-8?B?QTZHSUVMdFN0dmxneG5pdFQrOVdKUVNsVTJYN2NOeWliaDdpcmxZSXloeG50?=
- =?utf-8?B?bVlhMWl0V2xwM1NHRVM0RXdUQ1JSSnVVb05SRyt3MUdLZURFSE1GUjFoN3Vs?=
- =?utf-8?B?UG9tT1ladUtKVTZLSkRrOTVPRTRvZlpsdVRVZHBFNmNXZVdpMzlzUTNDSjY2?=
- =?utf-8?B?dkdUL3VIYUw5bWNyRmgyZ0NyWjFWM1NtdUtMWHhpNVNGTmlaSWs1cEVaTlVh?=
- =?utf-8?B?RWV2R0ZmQXhiLzVKOEZkRHFqeXVYNm9NcXJsbVJWMk5BdThRZnhwaVJVK2xi?=
- =?utf-8?B?L2RIaXJha21DakZLbDM0cUV1S21WQ2p6R0VFZUJZOE4rbHZlckJlU1BBOWpw?=
- =?utf-8?B?eGY2NW5aUGg4azdWUVNnUjl0WkZUdDlFNXpzeWFUR2hCMzhIaS9Zdkk3cFdG?=
- =?utf-8?B?WkhBMEVzbWlMY0QyYXRoQUdPckhtYlNnZjBoc0EzTGhkQThoRElxbTNNSjhi?=
- =?utf-8?B?QTY1SDc1Smk1R2VYeXFiSitQb2RrSlhCR1BLU25CMFEwRnA5RHlvU0RuOVRX?=
- =?utf-8?B?elNoN2VpY0NLQVFxelJZQ3dtOUpRZEJFWnFVU2luZkZUSSt5TmJaSEhJUXAr?=
- =?utf-8?B?MDZtdHJBcE1BVjNoOFRPWDNXeVVVV0VDM0tmN3MwOWVBUzRLUmhjOGs3YnBo?=
- =?utf-8?B?eGpUYkhKS2RkSWdLVVBMKy9iMi9PNjBqS1FwREhPVS9JcXMzRitiVnczb3ln?=
- =?utf-8?B?cDhRb0pxN2Q0N3lob2kyR2JHbVRBTnBoSFA2R0hTSEp2OEoxekMxYU1LQUdm?=
- =?utf-8?B?RHp5ViswdHdKU1lheWVBY1lKdzh4MmF4bEhPeE5WcUdPa0RNeTBvTVNzS3dq?=
- =?utf-8?B?Z3lXUWZ5WHdsMVAwRlFMTnNpdmdrcHdMUDZERG11NjV3dnFMUWt4eStvMHlk?=
- =?utf-8?B?Z2d0QzFKc3NVRFpqUXl4bmp2M015U1kvSzZqaHMwWi9wNytzNWhlUkNRSkR3?=
- =?utf-8?B?SFN5Uk1TckE3SkkzRk1UNWovRmRmQzJIbThUaXNIZElqY29rSkdtbVVEUDVy?=
- =?utf-8?B?OGExMUZVYXNLbnRYQ2d4V3Q1VzFVMWJxSjZ1bUI1NTVvaTVJRHhKTUpYWktB?=
- =?utf-8?B?ck5TNVNFWHM0bklSQlg4a040Z254SnJPSWY0am9GcjcvSnBTMUFEZjRiUnlF?=
- =?utf-8?B?KzNuTmJCQmpSWGVwL0gwRnYranBJWS9YT2ZHNTFJd2VjNEN6YmxrOGlkSjFr?=
- =?utf-8?B?aElLd3pHam93anpuaUNMdkxZUVJFZW45Q3lCa2ZRZGRqc21oVlFBOW5JeGpX?=
- =?utf-8?B?QlE9PQ==?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: 044ac232-b629-4a08-0393-08dc233d7f81
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB8718.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Feb 2024 15:50:22.0216
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: WWMsblWvYrsbABrZouh4TnXSNQjwifzIRib91+7QgJRCiwetKEOgnr+nU1u5keAZI8wMAsO1RwkWZyurDOVSkYzfMaTfwPy/W9JLTzteHM8=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR11MB6795
-X-OriginatorOrg: intel.com
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: UwuggBJf7R37CyNEl0meptnfVcURyw4s
+X-Proofpoint-ORIG-GUID: N7IRSIF4cshaldvrI24wWBHuDaiXpxuf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-01_04,2024-01-31_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ clxscore=1015 lowpriorityscore=0 adultscore=0 bulkscore=0 spamscore=0
+ mlxlogscore=490 phishscore=0 priorityscore=1501 suspectscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402010132
 
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Thu, 01 Feb 2024 14:23:33 +0100
+On Thu, 2024-02-01 at 16:14 +0100, Heiko Carstens wrote:
+> On Wed, Jan 31, 2024 at 09:58:32PM +0100, Eric Farman wrote:
+> > The routine ar_translation() is called by get_vcpu_asce(), which is
+> > called from a handful of places, such as an interception that is
+> > being handled during KVM_RUN processing. In that case, the access
+> > registers of the vcpu had been saved to a host_acrs struct and then
+> > the guest access registers loaded from the KVM_RUN struct prior to
+> > entering SIE. Saving them back to KVM_RUN at this point doesn't do
+> > any harm, since it will be done again at the end of the KVM_RUN
+> > loop when the host access registers are restored.
+> >=20
+> > But that's not the only path into this code. The MEM_OP ioctl can
+> > be used while specifying an access register, and will arrive here.
+> >=20
+> > Linux itself doesn't use the access registers for much, but it does
+> > squirrel the thread local storage variable into ACRs 0 and 1 in
+> > copy_thread() [1]. This means that the MEM_OP ioctl may copy
+> > non-zero access registers (the upper- and lower-halves of the TLS
+> > pointer) to the KVM_RUN struct, which will end up getting
+> > propogated
+> > to the guest once KVM_RUN ioctls occur. Since these are almost
+> > certainly invalid as far as an ALET goes, an ALET Specification
+> > Exception would be triggered if it were attempted to be used.
+>=20
+> What's the code path that can lead to this scenario?
 
-> On Thu, Feb 1, 2024, at 13:21, Alexander Lobakin wrote:
->> From: Syed Nayyar Waris <syednwaris@gmail.com>
->>
->> The two new functions allow reading/writing values of length up to
->> BITS_PER_LONG bits at arbitrary position in the bitmap.
->>
->> The code was taken from "bitops: Introduce the for_each_set_clump macro"
->> by Syed Nayyar Waris with a number of changes and simplifications:
->>  - instead of using roundup(), which adds an unnecessary dependency
->>    on <linux/math.h>, we calculate space as BITS_PER_LONG-offset;
->>  - indentation is reduced by not using else-clauses (suggested by
->>    checkpatch for bitmap_get_value());
->>  - bitmap_get_value()/bitmap_set_value() are renamed to bitmap_read()
->>    and bitmap_write();
->>  - some redundant computations are omitted.
-> 
-> These functions feel like they should not be inline but are
-> better off in lib/bitmap.c given their length.
+When processing a KVM_RUN ioctl, the kernel is going to swap the
+host/guest access registers in sync_regs, enter SIE, and then swap them
+back in store_regs when it has to exit to userspace. So then on the
+QEMU side it might look something like this:
 
-When their arguments are compile-time constants, they got optimized
-well. They're also used on hotpath, so making them external could hurt
-performance + taking the first sentence into account, making them
-external will hurt the performance even more, 'cause they won't be then
-as optimized by the compiler as they are now.
+kvm_arch_handle_exit
+  handle_intercept
+    handle_instruction
+      handle_b2
+        ioinst_handle_stsch
+          s390_cpu_virt_mem_rw(ar=3D0xe, is_write=3Dtrue)
+            kvm_s390_mem_op
 
-> 
-> As far as I can tell, the header ends up being included
-> indirectly almost everywhere, so just parsing these functions
-> likey adds not just dependencies but also compile time.
-> 
->      Arnd
+Where the interesting registers at that point are:
 
-Thanks,
-Olek
+acr0           0x3ff               1023
+acr1           0x33bff8c0          868219072
+...
+acr14          0x0                 0
+
+Note ACR0/1 are already buggered up from an earlier pass.
+
+The above carries us through the kernel this way:
+
+kvm_arch_vcpu_ioctl(KVM_S390_MEM_OP)
+  kvm_s390_vcpu_memsida_op
+    kvm_s390_vcpu_mem_op
+      write_guest_with_key
+        access_guest_with_key
+          get_vcpu_asce
+            ar_translate
+              save_access_regs(kvm_run)
+
+>=20
+> > =C2=A0arch/s390/kvm/gaccess.c | 5 +++--
+> > =C2=A01 file changed, 3 insertions(+), 2 deletions(-)
+> >=20
+> > diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+> > index 5bfcc50c1a68..9205496195a4 100644
+> > --- a/arch/s390/kvm/gaccess.c
+> > +++ b/arch/s390/kvm/gaccess.c
+> > @@ -380,6 +380,7 @@ void ipte_unlock(struct kvm *kvm)
+> > =C2=A0static int ar_translation(struct kvm_vcpu *vcpu, union asce *asce=
+,
+> > u8 ar,
+> > =C2=A0			=C2=A0 enum gacc_mode mode)
+> > =C2=A0{
+> > +	int acrs[NUM_ACRS];
+> > =C2=A0	union alet alet;
+> > =C2=A0	struct ale ale;
+> > =C2=A0	struct aste aste;
+> > @@ -391,8 +392,8 @@ static int ar_translation(struct kvm_vcpu
+> > *vcpu, union asce *asce, u8 ar,
+> > =C2=A0	if (ar >=3D NUM_ACRS)
+> > =C2=A0		return -EINVAL;
+> > =C2=A0
+> > -	save_access_regs(vcpu->run->s.regs.acrs);
+> > -	alet.val =3D vcpu->run->s.regs.acrs[ar];
+> > +	save_access_regs(acrs);
+> > +	alet.val =3D acrs[ar];
+>=20
+> If the above is like you said, then this code would use the host
+> access register contents for ar translation of the guest?
+>=20
+> Or maybe I'm simply misunderstanding what you write.
+
+Well regardless of this patch, I think it's using the contents of the
+host registers today, isn't it? save_access_regs() does a STAM to put
+the current registers into some bit of memory, so ar_translation() can
+do regular logic against it. The above just changes WHERE that bit of
+memory lives from something shared with another ioctl to something
+local to ar_translation().=20
+
+My original change just removed the save_access_regs() call entirely
+and read the contents of the kvm_run struct since they were last saved
+(see below). This "feels" better to me, and works for the scenario I
+bumped into too. Maybe this is more appropriate?
+
+---8<---
+
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 5bfcc50c1a68..c5ed3b0b665a 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -391,7 +391,6 @@ static int ar_translation(struct kvm_vcpu *vcpu,
+union asce *asce, u8 ar,
+        if (ar >=3D NUM_ACRS)
+                return -EINVAL;
+=20
+-       save_access_regs(vcpu->run->s.regs.acrs);
+        alet.val =3D vcpu->run->s.regs.acrs[ar];
+=20
+        if (ar =3D=3D 0 || alet.val =3D=3D 0) {
+
