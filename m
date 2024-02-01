@@ -1,124 +1,114 @@
-Received: from out3-smtp.messagingengine.com (out3-smtp.messagingengine.com [66.111.4.27])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f180.google.com (mail-vk1-f180.google.com [209.85.221.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2C4E5336A;
-	Thu,  1 Feb 2024 13:23:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.111.4.27
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB54B5D460
+	for <linux-s390@vger.kernel.org>; Thu,  1 Feb 2024 13:46:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706793837; cv=none; b=oEPMjkpsED9b7n8YKVXs8hg9s15xGf0uFtCMY7Jp+TAu8f9mzlomvy41UgqdERTeVRfWt5dGbh7V9zs3HeGk4QQVsAZyYEp3khDdhsJnEkGKAt1ejLTs9Iv1b2MBIz3iLwTAMRJuG7RKSls+7PUe36oymff9BneT3cnO+V/vWPg=
+	t=1706795202; cv=none; b=NclMCJEiYM3G07mxsg1PAjpv7Y8g+6lhE9uWB2OxxwAfEfpK6JmDrSnnelB4BWvvHDiN44dOSTsrwsJ94bk7TJS7JSkIcn6uF8Wn6mxyBwo7qtAQmlu7ItW6csX+KjxFAJcho/uxTEK5BDO/Dv9JXbiTpnldsK7FLeWOPvwJoBA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706793837; c=relaxed/simple;
-	bh=i3O7cEFRCRp3NV/JR3K5Es7KwxtLcyjexe/DSFkKE/I=;
-	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
-	 Subject:Content-Type; b=O8bltsLQZqE+dZmvrD3uHdHslHhfzYgFldUd1Ze5gXraG7iE45RJfzOQbZUpK53QqAZeTnHqO3upbElWKSiANKBaDE7ydZpcklSyEJVgAuRwwTcQ8tEKqKRATo0HnE2kIux1I8A21IUsrWNsHeh4gizE13oamdP8eeybzCfJjUQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=ouo6nnHE; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=KQ/R0jSV; arc=none smtp.client-ip=66.111.4.27
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1706795202; c=relaxed/simple;
+	bh=suoI7qvddasF6ze11GbOGjsGkZl9FBFquOHwW330phg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ZGBS2ivCa9C1rBeZHJJQv/xZ7Nw3p5CbaLBgGCnyMJZm3h8HfDdU+rCxWKqRdZ15tbqyEpMVVEZ6sSLEj6WDFAvBDTglGUknkT8bW77mH5sABvNN1UcVnUOhOpJIdQ2SINivszmUunLO1VmHjpFJMdkWwAkS6kjzeJ2yY07juSw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=LJFdmqgP; arc=none smtp.client-ip=209.85.221.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="ouo6nnHE";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="KQ/R0jSV"
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-	by mailout.nyi.internal (Postfix) with ESMTP id 956B05C01C4;
-	Thu,  1 Feb 2024 08:23:54 -0500 (EST)
-Received: from imap51 ([10.202.2.101])
-  by compute5.internal (MEProxy); Thu, 01 Feb 2024 08:23:54 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm2; t=1706793834; x=1706880234; bh=XuJgHFQS6a
-	WaNcA1flW4h2V6VHVKbCfJg9vcYDiFWZI=; b=ouo6nnHEiDCY3TlC0TfL0s7DMA
-	5ACdf31FhVUJJRdCFILqqHY0IDqmd+h1MJcqEkP7byBoyTP3jm0uS7E5KYnGx7WV
-	SB0uySCqflqbPrUy47WQ3l99edUCG7NPPqCgc2Yh2RxQodHJOx8OiY+zjiAeyYyQ
-	fkJSn1cliU+X0fzOzEi07Rr/AQglKlh08byavYNEJnxUp09G7ZwYv2vrxZlaQu6C
-	u6MPDcjzmb3Ru6/YzGYvROfj9aboqfaRVTu1on3vL5pdAWu34J+zrh1juc6LOV6+
-	nHU+4AiuNgVBZ1ajD+cMD2wRKCN5b79yumNLCucDCpdZo/hab7HCO1Q3hKRg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm3; t=1706793834; x=1706880234; bh=XuJgHFQS6aWaNcA1flW4h2V6VHVK
-	bCfJg9vcYDiFWZI=; b=KQ/R0jSVqSOV8Fkh55Ix7fr3moctr7qhpbtuufmtlfbo
-	cGQHx5nS+ZswlCHktEzY5YwoseyMx4WVIn2Iqpq0py1HBvaJ6soJMWGmvd7sYULm
-	//wGTiPbNQPHQZ9UwTfDpw5CTkKCZwJrGZHNHDvYL+6k3jg4gq3SVtQHTdQ1qKLN
-	Kqq0arvRr5JGVAlufR0FzACbHPdixNaO25zNbeoxh2SSB3iv8UZ+PAewDQO5JQXR
-	HyLhBc7HL+j2mgsJWYtu0TSj0dXlDZy1s7yZwU5mx0hv1aAznj606JDmZQQg2p6f
-	D+54BgNtJgupHsYt8t5uEozqJpE880nNq5jb0bIq4g==
-X-ME-Sender: <xms:apu7ZexO_aiE5Lu_ah_i4S_j7HMol1CnYgaph_RdQAA6qW0QdBKcyw>
-    <xme:apu7ZaS-SDqU88HGavhs3QbfoUUKDv5mFz1juKdlYdaWHsYFXJ8_bpAJuc-QD0_hV
-    I-t6a3Dl_tGtP37uWA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrfeduuddggeekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
-    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
-    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
-    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:apu7ZQXc0Bq5T42FhMs3Bh3Gjqiis0tqgSX5zGo0IUebXygplct6vQ>
-    <xmx:apu7ZUiYGYDQSz11Yg_JSZ56VTBSiUnJj9-hSU8y2djfB6Ms6-1s_g>
-    <xmx:apu7ZQBLWpj_1owuba1QZOUycZaR0jOUMZLGpMO6LkN2w9MtRQXTuw>
-    <xmx:apu7ZZzQJfjTfGJ_bOd1EBaGKg2X4UI6HGTgGpfpHiqzRxcmGyvpYQ>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-	id 0184AB60089; Thu,  1 Feb 2024 08:23:53 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.11.0-alpha0-144-ge5821d614e-fm-20240125.002-ge5821d61
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="LJFdmqgP"
+Received: by mail-vk1-f180.google.com with SMTP id 71dfb90a1353d-4bfe6642220so343533e0c.2
+        for <linux-s390@vger.kernel.org>; Thu, 01 Feb 2024 05:46:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1706795199; x=1707399999; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gYWYexFtoJ2yHocou+INVoUtLbF8tOuPvQoRlZwm2yg=;
+        b=LJFdmqgPnybJIumvPpfSejLkIEttxsn08suUHDAHBBpYlnfLY7vD/jAwsollH7N3F7
+         /3cqzMeD9q0atz+INW14/C+UpgvO/tSxQ3fo6LkcKvgvw4f2O2tNhFpqec8Fur9gMv3v
+         riRH9dgwwFJulRbu22STv/MYccrOLORyGL5QxMh/eUmOqx/CtxxU0kTQRX3Xlpy9U69n
+         YitNBjDNPl2IwwKRgG0yobZ+WUWalQ/yECvaisqyoop6BsFZXarkvBv0ii1pE/W0beLw
+         1xWK4Z/1h78PaQ7lFPIkIfmVGgl0xy/YC9sLuvBzw+MVlkobmg8Mtz/9WpmMqItaonPl
+         hcWQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706795199; x=1707399999;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=gYWYexFtoJ2yHocou+INVoUtLbF8tOuPvQoRlZwm2yg=;
+        b=mkq0I+LyuYBkdk3l+4FsgxX/t4g/jF80hnB+YTTxXclKLCu7CnkSh3GkooCn35wAqR
+         WQPwtaebrYu7gxvEem3UyD9yjwa+buC39d00T5c1JUi3K/OjBVFDemVudMyDIe9Bcqk9
+         D+gGILr1cK7rzjqbhi/h8AKkXrz9UZfpXwM3QZtjoKctzhDAzybNSZlrjU5vlosM9twq
+         ibpzHJ3HK9+QpsHkEgq4RDGDivaQqtkJXwlHEgrfZ7gtp6kaix9vrvljsNA7Bbj07rNn
+         CIUDvWS3NdWBCYn4MHOf2E54OZfyF88g6FLvmPq/fvb5hbpoyUK38hOUBfDDMeOICLKs
+         pH9A==
+X-Gm-Message-State: AOJu0YxEGFoE6o53Oq+PxkRlsKtOxBTiTf9/k3FEqB15BnU/XDaKqGG3
+	uBjeN7JP+/g2yEfMQUZHtZwM7TG5m3q074+ZbtfkC4bb2ExS16FE/wW4ET44Tay8Zf78XTbTcXi
+	goBGGJkPZFOtAmEHkLcgdDDpiwZ8HK5DP9u7F
+X-Google-Smtp-Source: AGHT+IG80kHJI3o0nh9nc37cFYAZfNgIoolcnGet/bLjzO8FQfWUZqIqvqwlp1tA8htBaza2xRqZOec13j3l2wPN17s=
+X-Received: by 2002:a05:6122:2a0d:b0:4b6:be94:acc6 with SMTP id
+ fw13-20020a0561222a0d00b004b6be94acc6mr5599008vkb.10.1706795199311; Thu, 01
+ Feb 2024 05:46:39 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <3f6df876-4b25-4dc8-bbac-ce678c428d86@app.fastmail.com>
-In-Reply-To: <20240201122216.2634007-2-aleksander.lobakin@intel.com>
 References: <20240201122216.2634007-1-aleksander.lobakin@intel.com>
- <20240201122216.2634007-2-aleksander.lobakin@intel.com>
-Date: Thu, 01 Feb 2024 14:23:33 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Alexander Lobakin" <aleksander.lobakin@intel.com>,
- "David S . Miller" <davem@davemloft.net>,
- "Eric Dumazet" <edumazet@google.com>, "Jakub Kicinski" <kuba@kernel.org>,
- "Paolo Abeni" <pabeni@redhat.com>
-Cc: "Michal Swiatkowski" <michal.swiatkowski@linux.intel.com>,
- "Marcin Szycik" <marcin.szycik@linux.intel.com>,
- "Wojciech Drewek" <wojciech.drewek@intel.com>,
- "Yury Norov" <yury.norov@gmail.com>, "Andy Shevchenko" <andy@kernel.org>,
- "Rasmus Villemoes" <linux@rasmusvillemoes.dk>,
- "Alexander Potapenko" <glider@google.com>, "Jiri Pirko" <jiri@resnulli.us>,
- "Ido Schimmel" <idosch@nvidia.com>,
- "Przemek Kitszel" <przemyslaw.kitszel@intel.com>,
- "Simon Horman" <horms@kernel.org>, linux-btrfs@vger.kernel.org,
- dm-devel@redhat.com, ntfs3@lists.linux.dev, linux-s390@vger.kernel.org,
- "intel-wired-lan@lists.osuosl.org" <intel-wired-lan@lists.osuosl.org>,
- Netdev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
- "Syed Nayyar Waris" <syednwaris@gmail.com>,
- "William Breathitt Gray" <william.gray@linaro.org>,
- "Andy Shevchenko" <andriy.shevchenko@linux.intel.com>
+ <20240201122216.2634007-2-aleksander.lobakin@intel.com> <3f6df876-4b25-4dc8-bbac-ce678c428d86@app.fastmail.com>
+In-Reply-To: <3f6df876-4b25-4dc8-bbac-ce678c428d86@app.fastmail.com>
+From: Alexander Potapenko <glider@google.com>
+Date: Thu, 1 Feb 2024 14:45:58 +0100
+Message-ID: <CAG_fn=Wb81V+axD2eLLiE9SfdbJ8yncrkhuyw8b+6OBJJ_M9Sw@mail.gmail.com>
 Subject: Re: [PATCH net-next v5 01/21] lib/bitmap: add bitmap_{read,write}()
-Content-Type: text/plain
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Alexander Lobakin <aleksander.lobakin@intel.com>, "David S . Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Michal Swiatkowski <michal.swiatkowski@linux.intel.com>, 
+	Marcin Szycik <marcin.szycik@linux.intel.com>, Wojciech Drewek <wojciech.drewek@intel.com>, 
+	Yury Norov <yury.norov@gmail.com>, Andy Shevchenko <andy@kernel.org>, 
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>, Jiri Pirko <jiri@resnulli.us>, 
+	Ido Schimmel <idosch@nvidia.com>, Przemek Kitszel <przemyslaw.kitszel@intel.com>, 
+	Simon Horman <horms@kernel.org>, linux-btrfs@vger.kernel.org, dm-devel@redhat.com, 
+	ntfs3@lists.linux.dev, linux-s390@vger.kernel.org, 
+	"intel-wired-lan@lists.osuosl.org" <intel-wired-lan@lists.osuosl.org>, Netdev <netdev@vger.kernel.org>, 
+	linux-kernel@vger.kernel.org, Syed Nayyar Waris <syednwaris@gmail.com>, 
+	William Breathitt Gray <william.gray@linaro.org>, 
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 1, 2024, at 13:21, Alexander Lobakin wrote:
-> From: Syed Nayyar Waris <syednwaris@gmail.com>
+On Thu, Feb 1, 2024 at 2:23=E2=80=AFPM Arnd Bergmann <arnd@arndb.de> wrote:
 >
-> The two new functions allow reading/writing values of length up to
-> BITS_PER_LONG bits at arbitrary position in the bitmap.
+> On Thu, Feb 1, 2024, at 13:21, Alexander Lobakin wrote:
+> > From: Syed Nayyar Waris <syednwaris@gmail.com>
+> >
+> > The two new functions allow reading/writing values of length up to
+> > BITS_PER_LONG bits at arbitrary position in the bitmap.
+> >
+> > The code was taken from "bitops: Introduce the for_each_set_clump macro=
+"
+> > by Syed Nayyar Waris with a number of changes and simplifications:
+> >  - instead of using roundup(), which adds an unnecessary dependency
+> >    on <linux/math.h>, we calculate space as BITS_PER_LONG-offset;
+> >  - indentation is reduced by not using else-clauses (suggested by
+> >    checkpatch for bitmap_get_value());
+> >  - bitmap_get_value()/bitmap_set_value() are renamed to bitmap_read()
+> >    and bitmap_write();
+> >  - some redundant computations are omitted.
 >
-> The code was taken from "bitops: Introduce the for_each_set_clump macro"
-> by Syed Nayyar Waris with a number of changes and simplifications:
->  - instead of using roundup(), which adds an unnecessary dependency
->    on <linux/math.h>, we calculate space as BITS_PER_LONG-offset;
->  - indentation is reduced by not using else-clauses (suggested by
->    checkpatch for bitmap_get_value());
->  - bitmap_get_value()/bitmap_set_value() are renamed to bitmap_read()
->    and bitmap_write();
->  - some redundant computations are omitted.
+> These functions feel like they should not be inline but are
+> better off in lib/bitmap.c given their length.
+>
+> As far as I can tell, the header ends up being included
+> indirectly almost everywhere, so just parsing these functions
+> likey adds not just dependencies but also compile time.
+>
+>      Arnd
 
-These functions feel like they should not be inline but are
-better off in lib/bitmap.c given their length.
-
-As far as I can tell, the header ends up being included
-indirectly almost everywhere, so just parsing these functions
-likey adds not just dependencies but also compile time.
-
-     Arnd
+Removing particular functions from a header to reduce compilation time
+does not really scale.
+Do we know this case has a noticeable impact on the compilation time?
+If yes, maybe we need to tackle this problem in a different way (e.g.
+reduce the number of dependencies on it)?
