@@ -1,221 +1,140 @@
-Received: from mail-il1-f199.google.com (mail-il1-f199.google.com [209.85.166.199])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7C744776F
-	for <linux-s390@vger.kernel.org>; Fri,  2 Feb 2024 13:26:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C471441766;
+	Fri,  2 Feb 2024 15:04:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706880390; cv=none; b=fGdFCXRNmxnwyVRb+QlQBu4jOExCt40q2t+MqlrVw3rG+uwcN3TbWxABwObh3qjgnfvXouMFGXD0pa8YNTgxRBbpX/ZViqKipVcQBNjygn8yg6eTD5EuToisMhEcpd1EdOMyqqsPcBsfGj82HolctSkGrK+h/R/TCbAUFsiXboI=
+	t=1706886301; cv=none; b=Bo5aTPj4Liq3XpcunTrZXGukm7P27mTjzUljUseTCRqmYnB1djSRWfeuyQOTgEd2EH237stVacWCKrmJPLeoSz4E+mEAA96wMp2TMyfWkjPjT1XkZZEGbzrf8B4GL8Y3p/wpeLVJYUZDeA9zpk24oSwtmVaVQ2URqJ8BW/+zk8Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706880390; c=relaxed/simple;
-	bh=rZUItvUy42628+VUh8ZdC9wLv5M5dfSKVc3zge5/VKE=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=bjvrwOK80KNlX/RWawxa6MS4eYqOcQowcT1ru9xhxjaLUeNn8tfSLMGPO8CL97+XIiNG7k5XSseLBZJ0E9ONSRo1JpT99/GXbhxFZgBTL/9+GIZu6Gtg6Dq9H3gv6ZZJNI8rnbwbtUnR94xMhSdbgra9tiNm0gI4HcPHAAbWyYM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-il1-f199.google.com with SMTP id e9e14a558f8ab-35fc6976630so18363095ab.0
-        for <linux-s390@vger.kernel.org>; Fri, 02 Feb 2024 05:26:28 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706880388; x=1707485188;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=aq3gE8L2F0+AWJlNCpBN/xvpjBEAx1qKhvkQOqtnNzQ=;
-        b=XS/ywgGV+dPkAdzFfc5fnLqDpW8twzuHMeQ+28tgK2r70H4eo27vBYbcFj6W3GiPak
-         zbZKALFtedHT6c3GTtU+On4Rpvm6NJyvd7syTVmKE1zo+uVy7qsSy8ZPZH0nqiwoqxmu
-         wXbIUZ1zjXSj+fo788RhitXw4ucYOR+Kzmkj+FGaPwbyAoMh2oYDDEN+lalNL8kBwZZC
-         9idYg+HScn0TCQrjdGzPdzcjn26OelBfP4gi7AUbUUMioWSbCdpWnhBNsdMNheHsIkyn
-         4Hjs2OPv2TtI5c2v5BESJnEg1sWSHnf8rXWTmqzwm3tnNPTsTLvlJY3g0JEmt3FarxrE
-         h9GQ==
-X-Gm-Message-State: AOJu0Yxb/W/AyzrxUdtXvQbEGVNEZueB8ttX48xNWHBNEl0SmDd0jq4J
-	8jrSNBufKw5B8XwpBzuCnKL0DmnB2saStBhyFAIfiTKNhgY0MRmxg2LKg44Gx0p8/ILpZW9ft58
-	/DjQOrETAlsOnq+yFNjYorRSq342rNO4io36KEA9YHYZQICrq03fzYfY=
-X-Google-Smtp-Source: AGHT+IFOZBjXi1sEWeED2C/wD/aODxFJ/2YPaIx+09DCJLd7+GfzFDtUtLm0DUEXof22VcewpQYg5y+NcJPJBIUokfs5pzCrmXit
+	s=arc-20240116; t=1706886301; c=relaxed/simple;
+	bh=y093+iJZDVSnjl1xsJnXxbrQ54gWh/saWt3uo+JQXJ8=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=pgwUNFHW4Mv7awV94IcGOdwp+psk5Y26tH0G6RgbyaWlLp4rQWeK+h8quupIDWix4ksqv6WrCkbxo4RQYKvg16Q7JDsb9uBA4EjrupE+4YFVWmCq/D8jqi+7+241YZQzOCYHpofCTFu2dUOqn1nxFIi2XGx9WwtKvICtGBLBMCs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ISNWLm4g; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ISNWLm4g"
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 412EStja031600;
+	Fri, 2 Feb 2024 15:04:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=vZS7t3bZjPMk1CqblnrXdYZtm1NYK7jUe9Zl4EktAa8=;
+ b=ISNWLm4giMf/JLUSRQJcQ4B6AOQHnv/UvZ2wUQ/TLOx4hDQ2/GPyiZFSqIVI3I5GI8Va
+ qOI/Tl8orQ5MxlhPTvEkT3kMA/KKu8+8Nv4YJGHqYx7WzqHBAd4s01ei9Z+9/ugkVnML
+ Ek79z4SMu0U9eb3gdhVp9ZzyB1nf+n48iiEGK05ukeO48pg5KkyasQuLrHjNOv+Ugn1n
+ opHyrNasO33EiGQcQb1fuvBqrnWaIitQy9F9EVtygb7pWG4YG7N9wHrABUl8JL5nQw7e
+ 6OJgSIbUdPuqWA60ELf3cXuexDJuUSafJClwHOh3yFR23AwuZOtV9pGXH50XY0C+fTJK Vw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w126h8v3r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 02 Feb 2024 15:04:58 +0000
+Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 412F08Jd009332;
+	Fri, 2 Feb 2024 15:04:58 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w126h8v3g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 02 Feb 2024 15:04:57 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 412CUd3l017797;
+	Fri, 2 Feb 2024 15:04:57 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vwcj0c4yw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 02 Feb 2024 15:04:57 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 412F4swL18678272
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 2 Feb 2024 15:04:54 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2DA8E20040;
+	Fri,  2 Feb 2024 15:04:54 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EE61F2004B;
+	Fri,  2 Feb 2024 15:04:53 +0000 (GMT)
+Received: from a46lp67.lnxne.boe (unknown [9.152.108.100])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  2 Feb 2024 15:04:53 +0000 (GMT)
+From: Janosch Frank <frankja@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, thuth@redhat.com,
+        david@redhat.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
+        akrowiak@linux.ibm.com, jjherne@linux.ibm.com
+Subject: [kvm-unit-tests PATCH v4 0/7] s390x: Add base AP support
+Date: Fri,  2 Feb 2024 14:59:06 +0000
+Message-Id: <20240202145913.34831-1-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:216a:b0:35f:eb20:3599 with SMTP id
- s10-20020a056e02216a00b0035feb203599mr134384ilv.2.1706880387890; Fri, 02 Feb
- 2024 05:26:27 -0800 (PST)
-Date: Fri, 02 Feb 2024 05:26:27 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <00000000000031c6c50610660f17@google.com>
-Subject: [syzbot] [net?] [s390?] possible deadlock in smc_release
-From: syzbot <syzbot+621fd56ba002faba6392@syzkaller.appspotmail.com>
-To: agordeev@linux.ibm.com, alibuda@linux.alibaba.com, davem@davemloft.net, 
-	edumazet@google.com, guwen@linux.alibaba.com, jaka@linux.ibm.com, 
-	kuba@kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
-	netdev@vger.kernel.org, pabeni@redhat.com, syzkaller-bugs@googlegroups.com, 
-	tonylu@linux.alibaba.com, wenjia@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: BsploCpyd5D1jYxAyp4JvDJlxP1DWZNV
+X-Proofpoint-ORIG-GUID: bUSBmVzEFsM8nm59biKHFbPTlcp6_hvC
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-02_08,2024-01-31_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ phishscore=0 suspectscore=0 bulkscore=0 adultscore=0 mlxscore=0
+ lowpriorityscore=0 impostorscore=0 clxscore=1015 mlxlogscore=851
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402020109
 
-Hello,
+As KVM supports passing Adjunct Processor (AP) crypto devices to
+guests, we should make sure that the interface works as expected.
 
-syzbot found the following issue on:
+Three instructions provide the interface to the AP devices:
+ - nqap: Enqueues a crypto request
+ - dqap: Dequeues a crypto request
+ - pqap: Provides information and processes support functions
 
-HEAD commit:    41bccc98fb79 Linux 6.8-rc2
-git tree:       upstream
-console+strace: https://syzkaller.appspot.com/x/log.txt?x=16b3a953e80000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=b168fa511db3ca08
-dashboard link: https://syzkaller.appspot.com/bug?extid=621fd56ba002faba6392
-compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=165642dfe80000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1431092fe80000
+nqap & dqap work on crypto requests for which we currently don't want
+to add tests due to their sheer complexity.
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/00fc8ba1cd49/disk-41bccc98.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/15fd4e4ee5f8/vmlinux-41bccc98.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/13be3add2183/bzImage-41bccc98.xz
+Which leaves us with pqap which is partly emulated for a guest 2 and
+hence is a prime target for testing.
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+621fd56ba002faba6392@syzkaller.appspotmail.com
-
-======================================================
-WARNING: possible circular locking dependency detected
-6.8.0-rc2-syzkaller #0 Not tainted
-------------------------------------------------------
-syz-executor225/5062 is trying to acquire lock:
-ffff8880218893f8 ((work_completion)(&new_smc->smc_listen_work)){+.+.}-{0:0}, at: __flush_work+0xfa/0xa10 kernel/workqueue.c:3406
-
-but task is already holding lock:
-ffff888021888130 (sk_lock-AF_SMC/1){+.+.}-{0:0}, at: smc_release+0x3a3/0x640 net/smc/af_smc.c:336
-
-which lock already depends on the new lock.
+v4:
+	- Rebase on the cc dirty series
+	- Bumped year to 2024
+v3:
+	- Renamed ap_check() to ap_setup() and added comment
+v2:
+	- Re-worked the ap_check() function to test for stfle 12 since
+          we rely on PQAP QCI in the library functions
+	- Re-worked APQN management
+	- Fixed faulty loop variable initializers in ap.c
+	- Fixed report messages
+	- Extended clobber lists
+	- Extended length bit checks for nqap
+	- Now using ARRAY_SIZE where applicabale
+	- NIB is now allocated as IO memory
 
 
-the existing dependency chain (in reverse order) is:
+Janosch Frank (7):
+  lib: s390x: Add ap library
+  s390x: Add guest 2 AP test
+  lib: s390x: ap: Add proper ap setup code
+  s390x: ap: Add pqap aqic tests
+  s390x: ap: Add reset tests
+  lib: s390x: ap: Add tapq test facility bit
+  s390x: ap: Add nq/dq len test
 
--> #1 (sk_lock-AF_SMC/1){+.+.}-{0:0}:
-       lock_sock_nested+0x3a/0xf0 net/core/sock.c:3524
-       smc_listen_out+0x1e7/0x4b0 net/smc/af_smc.c:1914
-       smc_listen_out_connected net/smc/af_smc.c:1934 [inline]
-       smc_listen_work+0x56e/0x5190 net/smc/af_smc.c:2448
-       process_one_work+0x886/0x15d0 kernel/workqueue.c:2633
-       process_scheduled_works kernel/workqueue.c:2706 [inline]
-       worker_thread+0x8b9/0x1290 kernel/workqueue.c:2787
-       kthread+0x2c6/0x3a0 kernel/kthread.c:388
-       ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
-       ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:242
+ lib/s390x/ap.c      | 286 ++++++++++++++++++++++
+ lib/s390x/ap.h      | 119 ++++++++++
+ s390x/Makefile      |   2 +
+ s390x/ap.c          | 564 ++++++++++++++++++++++++++++++++++++++++++++
+ s390x/unittests.cfg |   3 +
+ 5 files changed, 974 insertions(+)
+ create mode 100644 lib/s390x/ap.c
+ create mode 100644 lib/s390x/ap.h
+ create mode 100644 s390x/ap.c
 
--> #0 ((work_completion)(&new_smc->smc_listen_work)){+.+.}-{0:0}:
-       check_prev_add kernel/locking/lockdep.c:3134 [inline]
-       check_prevs_add kernel/locking/lockdep.c:3253 [inline]
-       validate_chain kernel/locking/lockdep.c:3869 [inline]
-       __lock_acquire+0x2445/0x3b30 kernel/locking/lockdep.c:5137
-       lock_acquire kernel/locking/lockdep.c:5754 [inline]
-       lock_acquire+0x1ae/0x520 kernel/locking/lockdep.c:5719
-       __flush_work+0x103/0xa10 kernel/workqueue.c:3406
-       __cancel_work_timer+0x3ef/0x590 kernel/workqueue.c:3497
-       smc_clcsock_release+0x5f/0xe0 net/smc/smc_close.c:29
-       __smc_release+0x5b9/0x890 net/smc/af_smc.c:301
-       smc_close_non_accepted+0xda/0x230 net/smc/af_smc.c:1846
-       smc_close_cleanup_listen net/smc/smc_close.c:45 [inline]
-       smc_close_active+0xc2d/0x1070 net/smc/smc_close.c:225
-       __smc_release+0x62b/0x890 net/smc/af_smc.c:277
-       smc_release+0x209/0x640 net/smc/af_smc.c:344
-       __sock_release+0xae/0x260 net/socket.c:659
-       sock_close+0x1c/0x20 net/socket.c:1421
-       __fput+0x270/0xb70 fs/file_table.c:376
-       task_work_run+0x14d/0x240 kernel/task_work.c:180
-       exit_task_work include/linux/task_work.h:38 [inline]
-       do_exit+0xa8a/0x2ad0 kernel/exit.c:871
-       do_group_exit+0xd4/0x2a0 kernel/exit.c:1020
-       __do_sys_exit_group kernel/exit.c:1031 [inline]
-       __se_sys_exit_group kernel/exit.c:1029 [inline]
-       __x64_sys_exit_group+0x3e/0x50 kernel/exit.c:1029
-       do_syscall_x64 arch/x86/entry/common.c:52 [inline]
-       do_syscall_64+0xd3/0x250 arch/x86/entry/common.c:83
-       entry_SYSCALL_64_after_hwframe+0x63/0x6b
+-- 
+2.40.1
 
-other info that might help us debug this:
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(sk_lock-AF_SMC/1);
-                               lock((work_completion)(&new_smc->smc_listen_work));
-                               lock(sk_lock-AF_SMC/1);
-  lock((work_completion)(&new_smc->smc_listen_work));
-
- *** DEADLOCK ***
-
-2 locks held by syz-executor225/5062:
- #0: ffff8880791f6210 (&sb->s_type->i_mutex_key#10){+.+.}-{3:3}, at: inode_lock include/linux/fs.h:802 [inline]
- #0: ffff8880791f6210 (&sb->s_type->i_mutex_key#10){+.+.}-{3:3}, at: __sock_release+0x86/0x260 net/socket.c:658
- #1: ffff888021888130 (sk_lock-AF_SMC/1){+.+.}-{0:0}, at: smc_release+0x3a3/0x640 net/smc/af_smc.c:336
-
-stack backtrace:
-CPU: 1 PID: 5062 Comm: syz-executor225 Not tainted 6.8.0-rc2-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 11/17/2023
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xd9/0x1b0 lib/dump_stack.c:106
- check_noncircular+0x317/0x400 kernel/locking/lockdep.c:2187
- check_prev_add kernel/locking/lockdep.c:3134 [inline]
- check_prevs_add kernel/locking/lockdep.c:3253 [inline]
- validate_chain kernel/locking/lockdep.c:3869 [inline]
- __lock_acquire+0x2445/0x3b30 kernel/locking/lockdep.c:5137
- lock_acquire kernel/locking/lockdep.c:5754 [inline]
- lock_acquire+0x1ae/0x520 kernel/locking/lockdep.c:5719
- __flush_work+0x103/0xa10 kernel/workqueue.c:3406
- __cancel_work_timer+0x3ef/0x590 kernel/workqueue.c:3497
- smc_clcsock_release+0x5f/0xe0 net/smc/smc_close.c:29
- __smc_release+0x5b9/0x890 net/smc/af_smc.c:301
- smc_close_non_accepted+0xda/0x230 net/smc/af_smc.c:1846
- smc_close_cleanup_listen net/smc/smc_close.c:45 [inline]
- smc_close_active+0xc2d/0x1070 net/smc/smc_close.c:225
- __smc_release+0x62b/0x890 net/smc/af_smc.c:277
- smc_release+0x209/0x640 net/smc/af_smc.c:344
- __sock_release+0xae/0x260 net/socket.c:659
- sock_close+0x1c/0x20 net/socket.c:1421
- __fput+0x270/0xb70 fs/file_table.c:376
- task_work_run+0x14d/0x240 kernel/task_work.c:180
- exit_task_work include/linux/task_work.h:38 [inline]
- do_exit+0xa8a/0x2ad0 kernel/exit.c:871
- do_group_exit+0xd4/0x2a0 kernel/exit.c:1020
- __do_sys_exit_group kernel/exit.c:1031 [inline]
- __se_sys_exit_group kernel/exit.c:1029 [inline]
- __x64_sys_exit_group+0x3e/0x50 kernel/exit.c:1029
- do_syscall_x64 arch/x86/entry/common.c:52 [inline]
- do_syscall_64+0xd3/0x250 arch/x86/entry/common.c:83
- entry_SYSCALL_64_after_hwframe+0x63/0x6b
-RIP: 0033:0x7f8804a8bc09
-Code: Unable to access opcode bytes at 0x7f8804a8bbdf.
-RSP: 002b:00007ffcbc267b78 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f8804a8bc09
-RDX: 000000000000003c RSI: 00000000000000e7 RDI: 0000000000000000
-RBP: 00007f8804b062d0 R08: ffffffffffffffb8 R09: 0000000000000006
-R10: 0000000000000006 R11: 0000000000000246 R12: 00007f8804b062d0
-R13: 0000000000000000 R14: 00007f8804b06d20 R15: 00007f8804a5ce60
- </TASK>
-
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
