@@ -1,245 +1,258 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78C1DF4E9
-	for <linux-s390@vger.kernel.org>; Fri,  2 Feb 2024 03:06:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0B3217546;
+	Fri,  2 Feb 2024 05:24:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706843198; cv=none; b=clrAqq7qeLly6V896XFT0GvRN8ayGrL7SznwavoY3UlC93weLDYOm45/j+NNqiJxfW7B2R859wUPg+IvtUg+dYfMY7vJPAKcZY8yTVfSYiGbkR1jCqaSfJ4AWEwMctz5MDn22+6JF78yS1WWa9JpPP2TcqP3MUyV4ir4vnOIUU8=
+	t=1706851487; cv=none; b=GS6QplMmT3sMYGQrCJSj+Q6OSCI1d+q30aE1aEP88fDIMNQXWvdfH/YhEN03fx+r8lvVaabXmPlHn1ee3SuF4dDYh2kfEe85lwvR86TtToapV2uZ1HAlFwBAY+rl00O6DCFGfWcEoIYkiQ+wLVeOglNSlWQZkk+t/cwQSXkQo+0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706843198; c=relaxed/simple;
-	bh=QYZqJFdgYNLavms/nUo1ysLWMYWkecHneGmYCeW0PAI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CEd7K3tXx2idCuqRBiqr+mcRMn35nhhdGRn2t8MIiFqjysU0PSOZDK6beTc5lli6l4xHmOsjEWyWaT1jYNYa/ASrS6U6eAvkqF0CJOLip6CagPiIXsF+088dxloShZh+kJ2/Q/jTYflSpn8+Jf2i+FW5vBd7xqjocHlGlLblrng=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WKpRfWkg; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1706851487; c=relaxed/simple;
+	bh=dEPogJuBhjmuXNNnEJ1m37rCCFO37/TJ46+MI5/wWN8=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=iKxjWcOoeUBS6gljuW7uBfuKc43CiplmdXknXeA4eFqfVktNWODoCnkytDzimmvbsEbtSCZyIXU+42pZgBnI8hIJP7Nd4U8JchggJA9HkWsg/79z35DsTmhZpocqRGXDJJfwhq2XdZyREh25kVezVKzsZypmTRJQn7wL54uVeN4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nPh+kCvN; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WKpRfWkg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706843195;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=p5MXqqYcm0nwNL3MENOJLZhnS+rtBOxM/i4dVzBZQWc=;
-	b=WKpRfWkgaes3heAfZjfNQ+gVxfvS9KOX2Sw9rPGXu8vbsDiuhxFmJWDiac3upMXf4OksBd
-	X0CJlqmfJTl/rSf4wlX8/I6ADNi0KLllnPqayNZnUQaxI3HIVg4SWNVNyjy8lIJ6VT14+K
-	6Ggw0KILmugkMaOgS3FkluoWjZr6ot4=
-Received: from mail-oo1-f71.google.com (mail-oo1-f71.google.com
- [209.85.161.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-34-4Ush2eLjPy60Rc2sr6_Riw-1; Thu, 01 Feb 2024 22:06:34 -0500
-X-MC-Unique: 4Ush2eLjPy60Rc2sr6_Riw-1
-Received: by mail-oo1-f71.google.com with SMTP id 006d021491bc7-598fdf35732so1743936eaf.1
-        for <linux-s390@vger.kernel.org>; Thu, 01 Feb 2024 19:06:34 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706843193; x=1707447993;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=p5MXqqYcm0nwNL3MENOJLZhnS+rtBOxM/i4dVzBZQWc=;
-        b=SugGQpOUGqZcN6jL12Jy+yE5LuV769DVoq742uUoa+nqqpCYGzjeFLk62YEXhwJ/+K
-         6lecrE9kt9Rd35vS8DVgkZm04ZloHRSzpFHSdagRkytZObbMPA685qYXqSv9FZu/0UEO
-         RYzm5obdfs33wVg7W3EraGyfvOH6Z+Hxc8L9bevhFyR12SXqM44O9XZ68RkOZA3yHj6D
-         7DlloVNtQqQjFGXIIZSlNFIXoFBBtwyWJsm6DctLh+oJZVxNSBKJSJUAh4uc8szytQP2
-         FIUtV4C/QYjPJ3K6J2LmIyyyY8GPqIXqxpLdOZp0wxMSBvfftAvtHVdn3pNSf/NaQD8s
-         7sBA==
-X-Gm-Message-State: AOJu0YyEtJWBR8L6ZCN5gNyFrkXpaMDxnMxLU04m+OeojSYqO27AsP4m
-	PM/0Zkb2JZSFp992plOvapZyPDpMwwnboHmR6ig9aXR7B2iPrmi9RmSO5coa6Z7emeITQdFQTUD
-	A+EmIlKN6r0fMab+gHUxRO8zf0+Q4FCTR9Mmdci7fjds6Zr9QQ03ie3etpfJc7V9OtRJBkokQp/
-	T2/TSn0ENsNU0TudxvddhxEvWb7bOTo/fk2g==
-X-Received: by 2002:a05:6358:7e8b:b0:178:cb3e:b74c with SMTP id o11-20020a0563587e8b00b00178cb3eb74cmr721181rwn.28.1706843193265;
-        Thu, 01 Feb 2024 19:06:33 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGnnf0uYApnwJ8ot71PqIV/dtLwp0t3UGDcHzLTReGmnUTng7hr5CvYF6Rt6fg0aixEyvGJkwHqZoRSyzJB6TI=
-X-Received: by 2002:a05:6358:7e8b:b0:178:cb3e:b74c with SMTP id
- o11-20020a0563587e8b00b00178cb3eb74cmr721167rwn.28.1706843192958; Thu, 01 Feb
- 2024 19:06:32 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nPh+kCvN"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 4124f8L7017387;
+	Fri, 2 Feb 2024 05:24:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=PDV06LOquyZ2c07ivE0vzxZrSRl419YEOX13JRF/udo=;
+ b=nPh+kCvNsnHIYDXWB0+2FRPhHygYiddpgBYz2W2SHiiN1BkFek2qQw4ycvxxYI/qpDU6
+ yTcyNuf7kUwLL+dKocLOKD9Ekbesc3adySbvz8eZZZo2Z5ceyoprZbKlKsbp/pRs/L+u
+ LoKmlG+vz37L6dQuBT680kuK7Hzw1dKKzpiIQ6ikpbCbLP8uFBLpJtSeBEj0PCvygnUT
+ 4NR2nL56TsuRsPlaZ56kvvRxLE4E+QskziTz+cZzPuCgZxD21oHVw4P/IY05CitLKyF1
+ eg9L8IxFl1XG9YTFEBQGzk6a4uzOmaa08XYF8RC/ZKiXNITRfrHPMBQBXQuNWjRLHcyu Mw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w0sev0xb0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 02 Feb 2024 05:24:26 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 4124w2OJ002776;
+	Fri, 2 Feb 2024 05:23:50 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w0sev0wt4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 02 Feb 2024 05:23:50 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41240aMF011292;
+	Fri, 2 Feb 2024 05:23:31 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vwecm0xbv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 02 Feb 2024 05:23:31 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4125NTcC43254138
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 2 Feb 2024 05:23:29 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 755912004B;
+	Fri,  2 Feb 2024 05:23:29 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A5C9420040;
+	Fri,  2 Feb 2024 05:23:25 +0000 (GMT)
+Received: from [9.43.64.13] (unknown [9.43.64.13])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  2 Feb 2024 05:23:25 +0000 (GMT)
+Message-ID: <9101bb07-70f1-476c-bec9-ec67e9899744@linux.ibm.com>
+Date: Fri, 2 Feb 2024 10:53:23 +0530
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 00/14] Split crash out from kexec and clean up related
+ config items
+To: Baoquan He <bhe@redhat.com>, linux-kernel@vger.kernel.org
+Cc: kexec@lists.infradead.org, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-riscv@lists.infradead.org,
+        loongarch@lists.linux.dev, akpm@linux-foundation.org,
+        ebiederm@xmission.com, piliu@redhat.com, viro@zeniv.linux.org.uk
+References: <20240119145241.769622-1-bhe@redhat.com>
+Content-Language: en-US
+From: Hari Bathini <hbathini@linux.ibm.com>
+In-Reply-To: <20240119145241.769622-1-bhe@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: RAVJ1hGQlGX9e6U_JEK40a_2LBSb9TD_
+X-Proofpoint-ORIG-GUID: tOhKLrcRaLdeupwFUmZ3kDNGA-MwGyC-
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
- <20240130114224.86536-18-xuanzhuo@linux.alibaba.com> <CACGkMEv2cyuesaTx899hwZt7uDdqwmAwXJ8fZDv00W9FbVbTpw@mail.gmail.com>
- <1706757660.3554723-2-xuanzhuo@linux.alibaba.com> <CACGkMEtwWAijrLOrdgJ9ZPx5VjSfJtwVm1k1U8fsg9+tvgRHxg@mail.gmail.com>
- <1706766995.312187-2-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1706766995.312187-2-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 2 Feb 2024 11:06:21 +0800
-Message-ID: <CACGkMEt-sveBvAGTVsqpFSAoDpdUk66oT8wtPASu7dhAb12oJw@mail.gmail.com>
-Subject: Re: [PATCH vhost 17/17] virtio_net: sq support premapped mode
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>, 
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Hans de Goede <hdegoede@redhat.com>, 
-	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
-	Vadim Pasternak <vadimp@nvidia.com>, Bjorn Andersson <andersson@kernel.org>, 
-	Mathieu Poirier <mathieu.poirier@linaro.org>, Cornelia Huck <cohuck@redhat.com>, 
-	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, 
-	John Fastabend <john.fastabend@gmail.com>, Benjamin Berg <benjamin.berg@intel.com>, 
-	Yang Li <yang.lee@linux.alibaba.com>, linux-um@lists.infradead.org, 
-	netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org, 
-	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org, 
-	kvm@vger.kernel.org, bpf@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-01_10,2024-01-31_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
+ spamscore=0 clxscore=1011 malwarescore=0 suspectscore=0 priorityscore=1501
+ mlxscore=0 mlxlogscore=999 phishscore=0 lowpriorityscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2402020037
 
-On Thu, Feb 1, 2024 at 2:01=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.co=
-m> wrote:
->
-> On Thu, 1 Feb 2024 13:36:46 +0800, Jason Wang <jasowang@redhat.com> wrote=
-:
-> > On Thu, Feb 1, 2024 at 11:28=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.aliba=
-ba.com> wrote:
-> > >
-> > > On Wed, 31 Jan 2024 17:12:47 +0800, Jason Wang <jasowang@redhat.com> =
-wrote:
-> > > > On Tue, Jan 30, 2024 at 7:43=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.a=
-libaba.com> wrote:
-> > > > >
-> > > > > If the xsk is enabling, the xsk tx will share the send queue.
-> > > > > But the xsk requires that the send queue use the premapped mode.
-> > > > > So the send queue must support premapped mode.
-> > > > >
-> > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > ---
-> > > > >  drivers/net/virtio_net.c | 167 +++++++++++++++++++++++++++++++++=
-+++++-
-> > > > >  1 file changed, 163 insertions(+), 4 deletions(-)
-> > > > >
-> > > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > > index 226ab830870e..cf0c67380b07 100644
-> > > > > --- a/drivers/net/virtio_net.c
-> > > > > +++ b/drivers/net/virtio_net.c
-> > > > > @@ -46,6 +46,7 @@ module_param(napi_tx, bool, 0644);
-> > > > >  #define VIRTIO_XDP_REDIR       BIT(1)
-> > > > >
-> > > > >  #define VIRTIO_XDP_FLAG        BIT(0)
-> > > > > +#define VIRTIO_DMA_FLAG        BIT(1)
-> > > > >
-> > > > >  /* RX packet size EWMA. The average packet size is used to deter=
-mine the packet
-> > > > >   * buffer size when refilling RX rings. As the entire RX ring ma=
-y be refilled
-> > > > > @@ -140,6 +141,21 @@ struct virtnet_rq_dma {
-> > > > >         u16 need_sync;
-> > > > >  };
-> > > > >
-> > > > > +struct virtnet_sq_dma {
-> > > > > +       union {
-> > > > > +               struct virtnet_sq_dma *next;
-> > > > > +               void *data;
-> > > > > +       };
-> > > > > +       dma_addr_t addr;
-> > > > > +       u32 len;
-> > > > > +       bool is_tail;
-> > > > > +};
-> > > > > +
-> > > > > +struct virtnet_sq_dma_head {
-> > > > > +       struct virtnet_sq_dma *free;
-> > > > > +       struct virtnet_sq_dma *head;
-> > > >
-> > > > Any reason the head must be a pointer instead of a simple index?
-> > >
-> > >
-> > > The head is used for kfree.
-> > > Maybe I need to rename it.
-> > >
-> > > About the index(next) of the virtnet_sq_dma.
-> > > If we use the index, the struct will be:
-> > >
-> > > struct virtnet_sq_dma {
-> > >        dma_addr_t addr;
-> > >        u32 len;
-> > >
-> > >        u32 next;
-> > >        void *data
-> > > };
-> > >
-> > > The size of virtnet_sq_dma is same.
-> >
-> > Ok.
-> >
-> > >
-> > >
-> > > >
-> > > > > +};
-> > > > > +
-> > > > >  /* Internal representation of a send virtqueue */
-> > > > >  struct send_queue {
-> > > > >         /* Virtqueue associated with this send _queue */
-> > > > > @@ -159,6 +175,8 @@ struct send_queue {
-> > > > >
-> > > > >         /* Record whether sq is in reset state. */
-> > > > >         bool reset;
-> > > > > +
-> > > > > +       struct virtnet_sq_dma_head dmainfo;
-> > > > >  };
-> > > > >
-> > >
-> > > ....
-> > >
-> > > > > +
-> > > > > +static int virtnet_sq_init_dma_mate(struct send_queue *sq)
-> > > > > +{
-> > > > > +       struct virtnet_sq_dma *d;
-> > > > > +       int size, i;
-> > > > > +
-> > > > > +       size =3D virtqueue_get_vring_size(sq->vq);
-> > > > > +
-> > > > > +       size +=3D MAX_SKB_FRAGS + 2;
-> > > >
-> > > > Is this enough for the case where an indirect descriptor is used?
-> > >
-> > >
-> > > This is for the case, when the ring is full, the xmit_skb is called.
-> > >
-> > > I will add comment.
-> >
-> > Just to make sure we are at the same page.
-> >
-> > I meant, we could have more pending #sg than allocated here.
-> >
-> > For example, we can have up to (vring_size - 2 - MAX_SKB_FRAGS) *
-> > MAX_SKB_FRAGS number of pending sgs?
-> >
->
-> Oh, my was wrong.
->
-> But the max value a
-> But shouldn't the maximum value be vring_size * (2 + MAX_SKB_FRAGS)?
+Hi Baoquan,
 
-This seems to be safer, yes.
+On 19/01/24 8:22 pm, Baoquan He wrote:
+> Motivation:
+> =============
+> Previously, LKP reported a building error. When investigating, it can't
+> be resolved reasonablly with the present messy kdump config items.
+> 
+>   https://lore.kernel.org/oe-kbuild-all/202312182200.Ka7MzifQ-lkp@intel.com/
+> 
+> The kdump (crash dumping) related config items could causes confusions:
+> 
+> Firstly,
+> ---
+> CRASH_CORE enables codes including
+>   - crashkernel reservation;
+>   - elfcorehdr updating;
+>   - vmcoreinfo exporting;
+>   - crash hotplug handling;
+> 
+> Now fadump of powerpc, kcore dynamic debugging and kdump all selects
+> CRASH_CORE, while fadump
+>   - fadump needs crashkernel parsing, vmcoreinfo exporting, and accessing
+>     global variable 'elfcorehdr_addr';
+>   - kcore only needs vmcoreinfo exporting;
+>   - kdump needs all of the current kernel/crash_core.c.
+> 
+> So only enabling PROC_CORE or FA_DUMP will enable CRASH_CORE, this
+> mislead people that we enable crash dumping, actual it's not.
+> 
+> Secondly,
+> ---
+> It's not reasonable to allow KEXEC_CORE select CRASH_CORE.
+> 
+> Because KEXEC_CORE enables codes which allocate control pages, copy
+> kexec/kdump segments, and prepare for switching. These codes are
+> shared by both kexec reboot and kdump. We could want kexec reboot,
+> but disable kdump. In that case, CRASH_CORE should not be selected.
+> 
+>   --------------------
+>   CONFIG_CRASH_CORE=y
+>   CONFIG_KEXEC_CORE=y
+>   CONFIG_KEXEC=y
+>   CONFIG_KEXEC_FILE=y
+>      ---------------------
+> 
+> Thirdly,
+> ---
+> It's not reasonable to allow CRASH_DUMP select KEXEC_CORE.
+> 
+> That could make KEXEC_CORE, CRASH_DUMP are enabled independently from
+> KEXEC or KEXEC_FILE. However, w/o KEXEC or KEXEC_FILE, the KEXEC_CORE
+> code built in doesn't make any sense because no kernel loading or
+> switching will happen to utilize the KEXEC_CORE code.
+>   ---------------------
+>   CONFIG_CRASH_CORE=y
+>   CONFIG_KEXEC_CORE=y
+>   CONFIG_CRASH_DUMP=y
+>   ---------------------
+> 
+> In this case, what is worse, on arch sh and arm, KEXEC relies on MMU,
+> while CRASH_DUMP can still be enabled when !MMU, then compiling error is
+> seen as the lkp test robot reported in above link.
+> 
+>   ------arch/sh/Kconfig------
+>   config ARCH_SUPPORTS_KEXEC
+>           def_bool MMU
+> 
+>   config ARCH_SUPPORTS_CRASH_DUMP
+>           def_bool BROKEN_ON_SMP
+>   ---------------------------
+> 
+> Changes:
+> ===========
+> 1, split out crash_reserve.c from crash_core.c;
+> 2, split out vmcore_infoc. from crash_core.c;
+> 3, move crash related codes in kexec_core.c into crash_core.c;
+> 4, remove dependency of FA_DUMP on CRASH_DUMP;
+> 5, clean up kdump related config items;
+> 6, wrap up crash codes in crash related ifdefs on all 9 arch-es
+>     which support crash dumping;
+> 
+> Achievement:
+> ===========
+> With above changes, I can rearrange the config item logic as below (the right
+> item depends on or is selected by the left item):
+> 
+>      PROC_KCORE -----------> VMCORE_INFO
+> 
+>                 |----------> VMCORE_INFO
+>      FA_DUMP----|
+>                 |----------> CRASH_RESERVE
 
->
-> And for the reason above, we should allocate (vring_size + 1) * (2 + MAX_=
-SKB_FRAGS);
+FA_DUMP also needs PROC_VMCORE (CRASH_DUMP by dependency, I guess).
+So, the FA_DUMP related changes here will need a relook..
 
-Then we need to benchmark to see if it has an impact on the performance.
+
+>                                                      ---->VMCORE_INFO
+>                                                     /
+>                                                     |---->CRASH_RESERVE
+>      KEXEC      --|                                /|
+>                   |--> KEXEC_CORE--> CRASH_DUMP-->/-|---->PROC_VMCORE
+>      KEXEC_FILE --|                               \ |
+>                                                     \---->CRASH_HOTPLUG
+> 
+> 
+>      KEXEC      --|
+>                   |--> KEXEC_CORE (for kexec reboot only)
+>      KEXEC_FILE --|
+> 
+> Test
+> ========
+> On all 8 architectures, including x86_64, arm64, s390x, sh, arm, mips,
+> riscv, loongarch, I did below three cases of config item setting and
+> building all passed. Let me take configs on x86_64 as exampmle here:
+> 
+> (1) Both CONFIG_KEXEC and KEXEC_FILE is unset, then all kexec/kdump
+> items are unset automatically:
+> # Kexec and crash features
+> # CONFIG_KEXEC is not set
+> # CONFIG_KEXEC_FILE is not set
+> # end of Kexec and crash features
+> 
+> (2) set CONFIG_KEXEC_FILE and 'make olddefconfig':
+> ---------------
+> # Kexec and crash features
+> CONFIG_CRASH_RESERVE=y
+> CONFIG_VMCORE_INFO=y
+> CONFIG_KEXEC_CORE=y
+> CONFIG_KEXEC_FILE=y
+> CONFIG_CRASH_DUMP=y
+> CONFIG_CRASH_HOTPLUG=y
+> CONFIG_CRASH_MAX_MEMORY_RANGES=8192
+> # end of Kexec and crash features
+> ---------------
+> 
+> (3) unset CONFIG_CRASH_DUMP in case 2 and execute 'make olddefconfig':
+> ------------------------
+> # Kexec and crash features
+> CONFIG_KEXEC_CORE=y
+> CONFIG_KEXEC_FILE=y
+> # end of Kexec and crash features
+> ------------------------
+> 
+> Note:
+> For ppc, it needs investigation to make clear how to split out crash
+> code in arch folder.
+
+On powerpc, both kdump and fadump need PROC_VMCORE & CRASH_DUMP.
+Hope that clears things. So, patch 3/14 breaks things for FA_DUMP..
+
+> Hope Hari and Pingfan can help have a look, see if
+> it's doable. Now, I make it either have both kexec and crash enabled, or
+> disable both of them altogether.
+
+
+Sure. I will take a closer look...
 
 Thanks
-
->
-> Thanks.
->
->
-> > Thanks
-> >
-> > >
-> > > Thanks.
-> > >
-> > >
-> > > >
-> > > > Thanks
-> > > >
-> > >
-> >
->
-
+Hari
