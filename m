@@ -1,72 +1,72 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAD24144636;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3B9814463E;
 	Fri,  2 Feb 2024 15:05:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706886302; cv=none; b=oil6/swI1ED+Cd4pzWnR1SzrOq8QYhuHrYOfTYPtKWxfxLKgobpBfNe9vYRpVloVLCJZHvuFBJNxXR3vHM5JmZ1ubA8iXedZ7wzmWeIaxmTlYjIQ58GVPevUcw4yj2buHgEN4K3rJxc4Th9Mhuu2++2y+BH2OuobLm+Bhj9UXlw=
+	t=1706886302; cv=none; b=u9g9rMjCX4drRHFT6AvxW6AcW21xNz8pO9IU/E22dD8Q+1dFCw3brzxcfidR4wYZRYnINkRAcJ3fUqb6+S7R9ShheO3gKYABDR3OdWdPOXE1yaDtiNdgac9Q/xuJT3dkDGIFb/IEx41xLQWrSv4jh7zFZ9SSM2D+JnCEq2sjYeE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1706886302; c=relaxed/simple;
-	bh=7ZsC+e0vsm/1YAntHM0K/eR5e8WTd5p7YdVzQHYQcFg=;
+	bh=IiP1DapoCYTLX94TDLO8I003YHeSMNoiEAnvhhKzTPI=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=s3fObgkMcfrhLlAuTZUQSWhuweb4m5SjNlvm1lapZJZxnlf7yKFQUKGwH7POeT0r+etNXIXFqCs9PPjJsgD3l6zh4/GEzHP/i0/k6wVHBDIcook9ACCc6cmLm/YCLssWPJxVaw6Gk2qOo0E4aL45ZnUe06l9reUq+cBpMXd0+hE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GANkYRDd; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=o5tDNR3XkJP+94FNo5chzVabq2JjY/zjBPZMFp13wQJSsJuYmPtWTfozRFvZzpv+ojFMxkVFnJOxbUOBbPiC8bS9E9IxY9sTO0iU/fcQsUCvcpUeGy0BDFpFxY9UDspiQczlnZOevOAjJtSn4De9ORvUNm/9X8hhs+GsyKnEX34=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RkjRuu+g; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GANkYRDd"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RkjRuu+g"
 Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 412EQ6IB025828;
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 412EQAln026156;
 	Fri, 2 Feb 2024 15:05:00 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=PJii8eqAgh7vyiuiy/+5zpmkAQQ4wcReDrFT5R7mCs8=;
- b=GANkYRDdb2Tqg0qbGlq8mwMLKNBh1sB9aDbOf8RZoYefCC08fOK6BkIFB4q/OktcqTpV
- Sb9kNf6shQ6LjS0p/srZuqk8QFDBZ8PGsgBuZVy7lrP1CeRNDWsXJ2NcLSNWDVA1wFvk
- X+5sXh0ARQ17eJwrDCSB+NSE8CxXvLHvcsHw3H5Cl/aarB1A9yzsFFf9EPUEisO5q3PS
- qAQdoRkOoyMXzuhH9V6fQtCmAvG4hvTXiJJaJM1pEJo3w58FWZGLrOQw5EMb/pgM3Zum
- 6E4JmMaWrGZ719tLiWtXUHJBf6Vcezs3/Dl59k3cFJ68IFdW2Z+LVONxafWnJviQAyOV Qw== 
+ bh=f0FWtmWoIIp/Jg0gGG+86/YfdxPjxR8tjIohKEC++YQ=;
+ b=RkjRuu+gQV6ke0YOc9SCJngtCkTU9Lh8qmOuBfm8xLcvdeMP2eh5M/jwmcWple/Cvp0w
+ nTxNdhzAZe20qP9nFXOE/0EVDv5qOTHAu/1cSwbkGXNlzUBZjvoFBZB5G+ZpOtdYDKf+
+ RrRZu2M01osZm8cDMSyLD13pPqvvaIwNZHIQh1uCk/13V99mkVzanfF+mtI/I5P/CQfI
+ dDPPdPZnIPwc9bLnRXXNIcc6lWEDTbsKc5E0LtSWhJZOhoBaMkmoInhA51iKM9FNQJbs
+ K822HZxa8HdYudYciYv+K1fKBhHvtWp5qP6CrjVFrCiIwlp/hX7SySyN1/M9xiLAzNlI sQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w11xrh80c-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w11xrh807-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Fri, 02 Feb 2024 15:04:59 +0000
 Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 412EsFn1020426;
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 412EQSkW027851;
 	Fri, 2 Feb 2024 15:04:59 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w11xrh7yt-1
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w11xrh7yw-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Fri, 02 Feb 2024 15:04:59 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 412DAB5N008086;
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 412CAAsq002319;
 	Fri, 2 Feb 2024 15:04:58 GMT
 Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vwdnmku0g-1
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3vwc5tv76s-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Fri, 02 Feb 2024 15:04:58 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 412F4tpx39256660
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 412F4tFD39256666
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Fri, 2 Feb 2024 15:04:55 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E316420049;
-	Fri,  2 Feb 2024 15:04:54 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 6178920040;
+	Fri,  2 Feb 2024 15:04:55 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B15A32004D;
-	Fri,  2 Feb 2024 15:04:54 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 2F75220049;
+	Fri,  2 Feb 2024 15:04:55 +0000 (GMT)
 Received: from a46lp67.lnxne.boe (unknown [9.152.108.100])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  2 Feb 2024 15:04:54 +0000 (GMT)
+	Fri,  2 Feb 2024 15:04:55 +0000 (GMT)
 From: Janosch Frank <frankja@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, thuth@redhat.com,
         david@redhat.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
         akrowiak@linux.ibm.com, jjherne@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v4 3/7] lib: s390x: ap: Add proper ap setup code
-Date: Fri,  2 Feb 2024 14:59:09 +0000
-Message-Id: <20240202145913.34831-4-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v4 5/7] s390x: ap: Add reset tests
+Date: Fri,  2 Feb 2024 14:59:11 +0000
+Message-Id: <20240202145913.34831-6-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20240202145913.34831-1-frankja@linux.ibm.com>
 References: <20240202145913.34831-1-frankja@linux.ibm.com>
@@ -78,8 +78,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: NjsVL2pp4DYDCq6c3vzgtcPoBGHO31on
-X-Proofpoint-GUID: P8c4-KXgEHCPAdgXztj8gzQXmg5KIO6n
+X-Proofpoint-ORIG-GUID: eHxIy8wRR5zrLFhgCFCEl71WWkTcIynU
+X-Proofpoint-GUID: AnbvCq2efQUda3dsGuPpH5PhD_Ss1Z_y
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-02-02_08,2024-01-31_01,2023-05-22_02
@@ -89,181 +89,227 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishsc
  lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311290000 definitions=main-2402020109
 
-For the next tests we need a valid queue which means we need to grab
-the qci info and search the first set bit in the ap and aq masks.
-
-Let's move from the stfle 12 check to proper setup code that also
-returns arrays for the aps and qns.
+Test if the IRQ enablement is turned off on a reset or zeroize PQAP.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- lib/s390x/ap.c | 90 +++++++++++++++++++++++++++++++++++++++++++++++---
- lib/s390x/ap.h | 17 +++++++++-
- s390x/ap.c     |  4 ++-
- 3 files changed, 105 insertions(+), 6 deletions(-)
+ lib/s390x/ap.c | 71 +++++++++++++++++++++++++++++++++++++++++++
+ lib/s390x/ap.h |  4 +++
+ s390x/ap.c     | 81 ++++++++++++++++++++++++++++++++++++++++++++++++--
+ 3 files changed, 154 insertions(+), 2 deletions(-)
 
 diff --git a/lib/s390x/ap.c b/lib/s390x/ap.c
-index 9560ff64..c85172a8 100644
+index 4e7d3d34..0f92739d 100644
 --- a/lib/s390x/ap.c
 +++ b/lib/s390x/ap.c
-@@ -13,10 +13,18 @@
- 
- #include <libcflat.h>
- #include <interrupt.h>
-+#include <alloc.h>
-+#include <bitops.h>
- #include <ap.h>
- #include <asm/time.h>
- #include <asm/facility.h>
- 
-+static uint8_t num_ap;
-+static uint8_t num_queue;
-+static uint8_t *array_ap;
-+static uint8_t *array_queue;
-+static struct ap_config_info qci;
-+
- int ap_pqap_tapq(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw,
- 		 struct pqap_r2 *r2)
- {
-@@ -82,16 +90,90 @@ int ap_pqap_qci(struct ap_config_info *info)
+@@ -125,6 +125,77 @@ int ap_pqap_qci(struct ap_config_info *info)
  	return cc;
  }
  
--/* Will later be extended to a proper setup function */
--bool ap_setup(void)
-+static int get_entry(uint8_t *ptr, int i, size_t len)
++static int pqap_reset(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw,
++		      bool zeroize)
++{
++	uint64_t bogus_cc = 2;
++	struct pqap_r0 r0 = {};
++	int cc;
++
++	/*
++	 * Reset/zeroize AP Queue
++	 *
++	 * Resets/zeroizes a queue and disables IRQs
++	 *
++	 * Inputs: GR0
++	 * Outputs: GR1 (APQSW)
++	 * Asynchronous
++	 */
++	r0.ap = ap;
++	r0.qn = qn;
++	r0.fc = zeroize ? PQAP_ZEROIZE_APQ : PQAP_RESET_APQ;
++	asm volatile(
++		"       tmll	%[bogus_cc],3\n"
++		"	lgr	0,%[r0]\n"
++		"	.insn	rre,0xb2af0000,0,0\n" /* PQAP */
++		"	stg	1, %[apqsw]\n"
++		"	ipm	%[cc]\n"
++		"	srl	%[cc],28\n"
++		: [apqsw] "=&T" (*apqsw), [cc] "=&d" (cc)
++		: [r0] "d" (r0), [bogus_cc] "d" (bogus_cc)
++		: "memory");
++
++	return cc;
++}
++
++static int pqap_reset_wait(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw,
++			   bool zeroize)
++{
++	struct pqap_r2 r2 = {};
++	int cc;
++
++	cc = pqap_reset(ap, qn, apqsw, zeroize);
++
++	/* On a cc == 3 / error we don't need to wait */
++	if (cc)
++		return cc;
++
++	/*
++	 * TAPQ returns AP_RC_RESET_IN_PROGRESS if a reset is being
++	 * processed
++	 */
++	do {
++		/* Give it some time to process before the retry */
++		mdelay(20);
++		cc = ap_pqap_tapq(ap, qn, apqsw, &r2);
++	} while (apqsw->rc == AP_RC_RESET_IN_PROGRESS);
++
++	if (apqsw->rc)
++		printf("Wait for reset failed on ap %d queue %d with tapq rc %d.",
++			ap, qn, apqsw->rc);
++	return cc;
++}
++
++int ap_pqap_reset(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw)
++{
++	return pqap_reset_wait(ap, qn, apqsw, false);
++}
++
++int ap_pqap_reset_zeroize(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw)
++{
++	return pqap_reset_wait(ap, qn, apqsw, true);
++}
++
+ static int get_entry(uint8_t *ptr, int i, size_t len)
  {
-+	/* Skip over the last entry */
-+	if (i)
-+		i++;
-+
-+	for (; i < 8 * len; i++) {
-+		/* Do we even need to check the byte? */
-+		if (!ptr[i / 8]) {
-+			i += 7;
-+			continue;
-+		}
-+
-+		/* Check the bit in big-endian order */
-+		if (ptr[i / 8] & BIT(7 - (i % 8)))
-+			return i;
-+	}
-+	return -1;
-+}
-+
-+static void setup_info(void)
-+{
-+	int i, entry = 0;
-+
-+	ap_pqap_qci(&qci);
-+
-+	for (i = 0; i < AP_ARRAY_MAX_NUM; i++) {
-+		entry = get_entry((uint8_t *)qci.apm, entry, sizeof(qci.apm));
-+		if (entry == -1)
-+			break;
-+
-+		if (!num_ap) {
-+			/*
-+			 * We have at least one AP, time to
-+			 * allocate the queue arrays
-+			 */
-+			array_ap = malloc(AP_ARRAY_MAX_NUM);
-+			array_queue = malloc(AP_ARRAY_MAX_NUM);
-+		}
-+		array_ap[num_ap] = entry;
-+		num_ap += 1;
-+	}
-+
-+	/* Without an AP we don't even need to look at the queues */
-+	if (!num_ap)
-+		return;
-+
-+	entry = 0;
-+	for (i = 0; i < AP_ARRAY_MAX_NUM; i++) {
-+		entry = get_entry((uint8_t *)qci.aqm, entry, sizeof(qci.aqm));
-+		if (entry == -1)
-+			return;
-+
-+		array_queue[num_queue] = entry;
-+		num_queue += 1;
-+	}
-+
-+}
-+
-+int ap_setup(uint8_t **ap_array, uint8_t **qn_array, uint8_t *naps, uint8_t *nqns)
-+{
-+	assert(!num_ap);
-+
- 	/*
- 	 * Base AP support has no STFLE or SCLP feature bit but the
- 	 * PQAP QCI support is indicated via stfle bit 12. As this
- 	 * library relies on QCI we bail out if it's not available.
- 	 */
- 	if (!test_facility(12))
--		return false;
-+		return AP_SETUP_NOINSTR;
- 
--	return true;
-+	/* Setup ap and queue arrays */
-+	setup_info();
-+
-+	if (!num_ap)
-+		return AP_SETUP_NOAPQN;
-+
-+	/* Only provide the data if the caller actually needs it. */
-+	if (ap_array && qn_array && naps && nqns) {
-+		*ap_array = array_ap;
-+		*qn_array = array_queue;
-+		*naps = num_ap;
-+		*nqns = num_queue;
-+	}
-+
-+	return AP_SETUP_READY;
- }
+ 	/* Skip over the last entry */
 diff --git a/lib/s390x/ap.h b/lib/s390x/ap.h
-index b806513f..8feca43a 100644
+index 15394d56..dbdb55c4 100644
 --- a/lib/s390x/ap.h
 +++ b/lib/s390x/ap.h
-@@ -81,7 +81,22 @@ struct pqap_r2 {
- } __attribute__((packed))  __attribute__((aligned(8)));
- _Static_assert(sizeof(struct pqap_r2) == sizeof(uint64_t), "pqap_r2 size");
+@@ -14,6 +14,8 @@
+ #ifndef _S390X_AP_H_
+ #define _S390X_AP_H_
  
--bool ap_setup(void);
-+/*
-+ * Maximum number of APQNs that we keep track of.
-+ *
-+ * This value is already way larger than the number of APQNs a AP test
-+ * is probably going to use.
-+ */
-+#define AP_ARRAY_MAX_NUM	16
++#define AP_RC_RESET_IN_PROGRESS	0x02
 +
-+/* Return values of ap_setup() */
-+enum {
-+	AP_SETUP_NOINSTR,	/* AP instructions not available */
-+	AP_SETUP_NOAPQN,	/* Instructions available but no APQNs */
-+	AP_SETUP_READY		/* Full setup complete, at least one APQN */
-+};
-+
-+int ap_setup(uint8_t **ap_array, uint8_t **qn_array, uint8_t *naps, uint8_t *nqns);
+ enum PQAP_FC {
+ 	PQAP_TEST_APQ,
+ 	PQAP_RESET_APQ,
+@@ -108,6 +110,8 @@ enum {
+ int ap_setup(uint8_t **ap_array, uint8_t **qn_array, uint8_t *naps, uint8_t *nqns);
  int ap_pqap_tapq(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw,
  		 struct pqap_r2 *r2);
++int ap_pqap_reset(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw);
++int ap_pqap_reset_zeroize(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw);
  int ap_pqap_qci(struct ap_config_info *info);
+ int ap_pqap_aqic(uint8_t ap, uint8_t qn, struct ap_queue_status *apqsw,
+ 		 struct ap_qirq_ctrl aqic, unsigned long addr);
 diff --git a/s390x/ap.c b/s390x/ap.c
-index b3cee37a..5c458e7e 100644
+index 6f95a716..38be03eb 100644
 --- a/s390x/ap.c
 +++ b/s390x/ap.c
-@@ -292,8 +292,10 @@ static void test_priv(void)
+@@ -13,6 +13,7 @@
+ #include <bitops.h>
+ #include <alloc_page.h>
+ #include <malloc_io.h>
++#include <uv.h>
+ #include <asm/page.h>
+ #include <asm/facility.h>
+ #include <asm/time.h>
+@@ -346,6 +347,80 @@ static void test_pqap_aqic(void)
+ 	free_io_mem(not_ind_byte, PAGE_SIZE);
+ }
  
++static void test_pqap_resets(void)
++{
++	uint8_t *not_ind_byte = alloc_io_mem(sizeof(*not_ind_byte), 0);
++	struct ap_queue_status apqsw = {};
++	struct ap_qirq_ctrl aqic = {};
++	struct pqap_r2 r2 = {};
++
++	int cc;
++
++	report_prefix_push("rapq");
++
++	/* Enable IRQs which the resets will disable */
++	aqic.ir = 1;
++	cc = ap_pqap_aqic(apn, qn, &apqsw, aqic, (uintptr_t)not_ind_byte);
++	report(cc == 0 && apqsw.rc == 0, "enable IRQs for reset tests");
++
++	do {
++		mdelay(20);
++		cc = ap_pqap_tapq(apn, qn, &apqsw, &r2);
++	} while (cc == 0 && apqsw.irq_enabled == 0);
++	report(apqsw.irq_enabled == 1, "IRQs enabled tapq data");
++
++	ap_pqap_reset(apn, qn, &apqsw);
++	cc = ap_pqap_tapq(apn, qn, &apqsw, &r2);
++	assert(!cc);
++	report(apqsw.irq_enabled == 0, "IRQs have been disabled via reset");
++
++	report_prefix_pop();
++
++	report_prefix_push("zapq");
++
++	/* Enable IRQs which the resets will disable */
++	aqic.ir = 1;
++	cc = ap_pqap_aqic(apn, qn, &apqsw, aqic, (uintptr_t)not_ind_byte);
++	report(cc == 0 && apqsw.rc == 0, "enable IRQs for reset tests");
++
++	do {
++		mdelay(20);
++		cc = ap_pqap_tapq(apn, qn, &apqsw, &r2);
++	} while (cc == 0 && apqsw.irq_enabled == 0);
++	report(apqsw.irq_enabled == 1, "IRQs enabled tapq data");
++
++	ap_pqap_reset_zeroize(apn, qn, &apqsw);
++	cc = ap_pqap_tapq(apn, qn, &apqsw, &r2);
++	assert(!cc);
++	report(apqsw.irq_enabled == 0, "IRQs have been disabled via reset");
++
++	report_prefix_pop();
++	/*
++	 * This is a wrinkle in the architecture for PV guests.
++	 *
++	 * The notification byte is pinned shared for PV guests.
++	 * RAPQ, ZAPQ and AQIC can all disable IRQs but there's no
++	 * intercept for resets triggered by a PV guests. Hence the
++	 * host keeps the notification byte page pinned UNTIL IRQs are
++	 * disabled via AQIC.
++	 *
++	 * Firmware will not generate an intercept if the IRQs have
++	 * already been disabled via a reset. Therefore we need to
++	 * enable AND disable to achieve a disable.
++	 */
++	if (uv_os_is_guest()) {
++		aqic.ir = 1;
++		cc = ap_pqap_aqic(apn, qn, &apqsw, aqic,
++				  (uintptr_t)not_ind_byte);
++		assert(cc == 0 && apqsw.rc == 0);
++		aqic.ir = 0;
++		cc = ap_pqap_aqic(apn, qn, &apqsw, aqic,
++				  (uintptr_t)not_ind_byte);
++		assert(cc == 0 && apqsw.rc == 0);
++	}
++	free_io_mem(not_ind_byte, sizeof(*not_ind_byte));
++}
++
  int main(void)
  {
-+	int setup_rc = ap_setup(NULL, NULL, NULL, NULL);
-+
- 	report_prefix_push("ap");
--	if (!ap_check()) {
-+	if (setup_rc == AP_SETUP_NOINSTR) {
- 		report_skip("AP instructions not available");
- 		goto done;
- 	}
+ 	uint8_t num_ap, num_qn;
+@@ -372,10 +447,12 @@ int main(void)
+ 	apn = apns[0];
+ 	qn = qns[0];
+ 	report_prefix_push("pqap");
+-	if (test_facility(65))
++	if (test_facility(65)) {
+ 		test_pqap_aqic();
+-	else
++		test_pqap_resets();
++	} else {
+ 		report_skip("no AQIC and reset tests without IRQ support");
++	}
+ 	report_prefix_pop();
+ 
+ done:
 -- 
 2.40.1
 
