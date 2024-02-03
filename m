@@ -1,113 +1,186 @@
-Received: from smtpout.efficios.com (smtpout.efficios.com [167.114.26.122])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD7DB12F391;
-	Fri,  2 Feb 2024 21:00:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=167.114.26.122
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DD8F62B;
+	Sat,  3 Feb 2024 00:17:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706907636; cv=none; b=pEyfA+b3H/pTTlTJnzUiSr9yBb+elymYoCdHWJ9d9KmGJ6knblmRJBSOQ0jv8oAiuEIXZEapkfhetpB26E3aR/AKGTEEgabJIvYKu5g2CBOjGuryZcvi4PV+b+8RY/24OUMl74/E0eSpxpzGGVwtU57DBdsXC+GggHLedyEBsvg=
+	t=1706919426; cv=none; b=fM46A7gqqaij2pxDY1urIfERM9+EwSKSkkl7907H/2uvGtQaLB4EBo3ICoEg0DYrEd3w/0GauMaIlYVFc6kUukxsvkf/YgxWwkIOMHPlRUt9DAV8CFwnxSzGAjjsLDA+TzSecjiBpnwSTtpI0mTwWJItyjFGi9xU+VBJgWb7tK0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706907636; c=relaxed/simple;
-	bh=oenQ3E1qB1jTPZO/gOZI9CMarWIZCEOT7s/3o23TNGM=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=YRwZCsHuRi44sHwL/I7yG3LSLuCOimubpIjgbxrLzXcMSM4+ArO0uGlIKWL3Q4aG8oAJRtVgSP+4lhg2KDp4EhqeMfYxTwL7leEmoZxjg3MlUweYKsQZQaGIQlSzFm1qyCvun9zqcndk4VYloezZ4U2KlBEXyIEuy1yoKpiEga0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=efficios.com; spf=pass smtp.mailfrom=efficios.com; dkim=pass (2048-bit key) header.d=efficios.com header.i=@efficios.com header.b=EUrM2Ixo; arc=none smtp.client-ip=167.114.26.122
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=efficios.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=efficios.com
+	s=arc-20240116; t=1706919426; c=relaxed/simple;
+	bh=nZQsPsqNPYYXxX4K2h4eMz+56hYUx5rcVPocfkID7bk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DNpJD0VQjahRg5JW1ulDntc0p5fLeJ0nDwJZCZTcKd+oxx0FY2zUmMx+Z1xktIkiUzAW/kgJUa+/nibPGiP2DTXVp5wFhDUhE+15VZrhhg/WpRE/LTW6sofebU54qaaiVU/2zgIh2WuRw8GTrQb40qZwzvln7AwRLsx6bUD2QUk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gkVh8rmg; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=efficios.com header.i=@efficios.com header.b="EUrM2Ixo"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=efficios.com;
-	s=smtpout1; t=1706907631;
-	bh=oenQ3E1qB1jTPZO/gOZI9CMarWIZCEOT7s/3o23TNGM=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=EUrM2IxoVXxxnRIToHQMZOhPk9gxQubStmbtthZYDw31vk3Gq1zHoqE9Ipozu0q5V
-	 1hYJcL+h/XhwcyH8vbLeRzSvrpkAvpK+j6vGZ5gKg3jf+e6YcbhDmWRqfsRUydwl6N
-	 u3nI3iwadMJcDptIbtAz09OhK6R4EUWG/IkwBtKQK0NmTM9ACIBQkgSXMZNP0oQH/P
-	 3i3Z0mkQs5yN7of8m/Kvi9WJ8sjL58PdgznpGnfRt+ZtXTAMiSixlS3z7EcPPk8nhL
-	 Jgk3wmuH6ir19MMCyUpNqZz/UFitX1O12pMxzZaD4j4jy7oAuJ9XuL7M5LU9pBLcEf
-	 rJ90dLYux73mA==
-Received: from thinkos.internal.efficios.com (192-222-143-198.qc.cable.ebox.net [192.222.143.198])
-	by smtpout.efficios.com (Postfix) with ESMTPSA id 4TRSpl28gvzX2M;
-	Fri,  2 Feb 2024 16:00:31 -0500 (EST)
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-To: Dan Williams <dan.j.williams@intel.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Dave Chinner <david@fromorbit.com>
-Cc: linux-kernel@vger.kernel.org,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	Vishal Verma <vishal.l.verma@intel.com>,
-	Dave Jiang <dave.jiang@intel.com>,
-	Matthew Wilcox <willy@infradead.org>,
-	Russell King <linux@armlinux.org.uk>,
-	linux-arch@vger.kernel.org,
-	linux-cxl@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-xfs@vger.kernel.org,
-	dm-devel@lists.linux.dev,
-	nvdimm@lists.linux.dev,
-	linux-s390@vger.kernel.org,
-	Alasdair Kergon <agk@redhat.com>,
-	Mike Snitzer <snitzer@kernel.org>,
-	Mikulas Patocka <mpatocka@redhat.com>
-Subject: [RFC PATCH v4 11/12] dcssblk: Cleanup alloc_dax() error handling
-Date: Fri,  2 Feb 2024 16:00:18 -0500
-Message-Id: <20240202210019.88022-12-mathieu.desnoyers@efficios.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240202210019.88022-1-mathieu.desnoyers@efficios.com>
-References: <20240202210019.88022-1-mathieu.desnoyers@efficios.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gkVh8rmg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 871F1C433C7;
+	Sat,  3 Feb 2024 00:17:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1706919426;
+	bh=nZQsPsqNPYYXxX4K2h4eMz+56hYUx5rcVPocfkID7bk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=gkVh8rmg3XviEeH3EY8bNCfbVigkIJj9WT2Y5KnRTScNgFbnoBjbSnmABJOB8o0io
+	 mle8q4VPcWx5E4fVoDLFYjRvAdiCEJRkEWoAxi3c+t8YJ0GgPGX0blFma9D8oM+vMy
+	 +/WTnug5E9DkyMJWlO5gdxHhfudehvYjgPAX1bsuSjY9GnE0lMDk1NXw412a+Gri4Q
+	 kWZYV8TCESgMZkahnRzmA4QUPoLpe8C9oWKbwT+Z6U1f1Iyy+BRIi2lsk3xqut/Ea9
+	 Py6mRhFWBOW7bvDMCYT+/HRuh3J00fp8dhNhpGr4He7WW0gEl7LuJwSiP/tLNIScJu
+	 Mc1GnRfYytVPg==
+Date: Fri, 2 Feb 2024 17:17:03 -0700
+From: Nathan Chancellor <nathan@kernel.org>
+To: Baoquan He <bhe@redhat.com>
+Cc: kexec@lists.infradead.org, akpm@linux-foundation.org,
+	linux-kernel@vger.kernel.org, x86@kernel.org,
+	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org, mhklinux@outlook.com
+Subject: Re: [PATCH linux-next 1/3] x86, crash: don't nest CONFIG_CRASH_DUMP
+ ifdef inside CONFIG_KEXEC_CODE ifdef scope
+Message-ID: <20240203001703.GA3735093@dev-arch.thelio-3990X>
+References: <20240129135033.157195-1-bhe@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240129135033.157195-1-bhe@redhat.com>
 
-Now that alloc_dax() returns ERR_PTR(-EOPNOTSUPP) rather than NULL,
-the callers do not have to handle NULL return values anymore.
+This series resolves the build issues I was seeing. Please feel free to
+carry
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Alasdair Kergon <agk@redhat.com>
-Cc: Mike Snitzer <snitzer@kernel.org>
-Cc: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: linux-arch@vger.kernel.org
-Cc: linux-cxl@vger.kernel.org
-Cc: linux-fsdevel@vger.kernel.org
-Cc: linux-mm@kvack.org
-Cc: linux-xfs@vger.kernel.org
-Cc: dm-devel@lists.linux.dev
-Cc: nvdimm@lists.linux.dev
-Cc: linux-s390@vger.kernel.org
----
- drivers/s390/block/dcssblk.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+  Tested-by: Nathan Chancellor <nathan@kernel.org> # build
 
-diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
-index a3010849bfed..f363c1d51d9a 100644
---- a/drivers/s390/block/dcssblk.c
-+++ b/drivers/s390/block/dcssblk.c
-@@ -679,8 +679,8 @@ dcssblk_add_store(struct device *dev, struct device_attribute *attr, const char
- 		goto put_dev;
- 
- 	dax_dev = alloc_dax(dev_info, &dcssblk_dax_ops);
--	if (IS_ERR_OR_NULL(dax_dev)) {
--		rc = IS_ERR(dax_dev) ? PTR_ERR(dax_dev) : -EOPNOTSUPP;
-+	if (IS_ERR(dax_dev)) {
-+		rc = PTR_ERR(dax_dev);
- 		goto put_dev;
- 	}
- 	set_dax_synchronous(dax_dev);
--- 
-2.39.2
+forward if there are any more revisions without drastic changes.
 
+On Mon, Jan 29, 2024 at 09:50:31PM +0800, Baoquan He wrote:
+> Michael pointed out that the #ifdef CONFIG_CRASH_DUMP is nested inside
+> arch/x86/xen/enlighten_hvm.c.
+> 
+> Although the nesting works well too since CONFIG_CRASH_DUMP has
+> dependency on CONFIG_KEXEC_CORE, it may cause confuse because there
+> are places where it's not nested, and people may think it need be nested
+> even though it doesn't have to.
+> 
+> Fix that by moving  CONFIG_CRASH_DUMP ifdeffery of codes out of
+> CONFIG_KEXEC_CODE ifdeffery scope.
+> 
+> And also fix a building error Nathan reported as below by replacing
+> CONFIG_KEXEC_CORE ifdef with CONFIG_VMCORE_INFO ifdef.
+> 
+> ====
+> $ curl -LSso .config https://git.alpinelinux.org/aports/plain/community/linux-edge/config-edge.x86_64
+> $ make -skj"$(nproc)" ARCH=x86_64 CROSS_COMPILE=x86_64-linux- olddefconfig all
+> ...
+> x86_64-linux-ld: arch/x86/xen/mmu_pv.o: in function `paddr_vmcoreinfo_note':
+> mmu_pv.c:(.text+0x3af3): undefined reference to `vmcoreinfo_note'
+> ====
+> 
+> Link: https://lore.kernel.org/all/SN6PR02MB4157931105FA68D72E3D3DB8D47B2@SN6PR02MB4157.namprd02.prod.outlook.com/T/#u
+> Link: https://lore.kernel.org/all/20240126045551.GA126645@dev-arch.thelio-3990X/T/#u
+> Signed-off-by: Baoquan He <bhe@redhat.com>
+> ---
+>  arch/x86/kernel/cpu/mshyperv.c | 10 ++++++----
+>  arch/x86/kernel/reboot.c       |  2 +-
+>  arch/x86/xen/enlighten_hvm.c   |  4 ++--
+>  arch/x86/xen/mmu_pv.c          |  2 +-
+>  4 files changed, 10 insertions(+), 8 deletions(-)
+> 
+> diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
+> index f8163a59026b..2e8cd5a4ae85 100644
+> --- a/arch/x86/kernel/cpu/mshyperv.c
+> +++ b/arch/x86/kernel/cpu/mshyperv.c
+> @@ -209,6 +209,7 @@ static void hv_machine_shutdown(void)
+>  	if (kexec_in_progress)
+>  		hyperv_cleanup();
+>  }
+> +#endif /* CONFIG_KEXEC_CORE */
+>  
+>  #ifdef CONFIG_CRASH_DUMP
+>  static void hv_machine_crash_shutdown(struct pt_regs *regs)
+> @@ -222,8 +223,7 @@ static void hv_machine_crash_shutdown(struct pt_regs *regs)
+>  	/* Disable the hypercall page when there is only 1 active CPU. */
+>  	hyperv_cleanup();
+>  }
+> -#endif
+> -#endif /* CONFIG_KEXEC_CORE */
+> +#endif /* CONFIG_CRASH_DUMP */
+>  #endif /* CONFIG_HYPERV */
+>  
+>  static uint32_t  __init ms_hyperv_platform(void)
+> @@ -497,9 +497,11 @@ static void __init ms_hyperv_init_platform(void)
+>  	no_timer_check = 1;
+>  #endif
+>  
+> -#if IS_ENABLED(CONFIG_HYPERV) && defined(CONFIG_KEXEC_CORE)
+> +#if IS_ENABLED(CONFIG_HYPERV)
+> +#if defined(CONFIG_KEXEC_CORE)
+>  	machine_ops.shutdown = hv_machine_shutdown;
+> -#ifdef CONFIG_CRASH_DUMP
+> +#endif
+> +#if defined(CONFIG_CRASH_DUMP)
+>  	machine_ops.crash_shutdown = hv_machine_crash_shutdown;
+>  #endif
+>  #endif
+> diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
+> index 1287b0d5962f..f3130f762784 100644
+> --- a/arch/x86/kernel/reboot.c
+> +++ b/arch/x86/kernel/reboot.c
+> @@ -826,7 +826,7 @@ void machine_halt(void)
+>  	machine_ops.halt();
+>  }
+>  
+> -#ifdef CONFIG_KEXEC_CORE
+> +#ifdef CONFIG_CRASH_DUMP
+>  void machine_crash_shutdown(struct pt_regs *regs)
+>  {
+>  	machine_ops.crash_shutdown(regs);
+> diff --git a/arch/x86/xen/enlighten_hvm.c b/arch/x86/xen/enlighten_hvm.c
+> index 09e3db7ff990..0b367c1e086d 100644
+> --- a/arch/x86/xen/enlighten_hvm.c
+> +++ b/arch/x86/xen/enlighten_hvm.c
+> @@ -148,6 +148,7 @@ static void xen_hvm_shutdown(void)
+>  	if (kexec_in_progress)
+>  		xen_reboot(SHUTDOWN_soft_reset);
+>  }
+> +#endif
+>  
+>  #ifdef CONFIG_CRASH_DUMP
+>  static void xen_hvm_crash_shutdown(struct pt_regs *regs)
+> @@ -156,7 +157,6 @@ static void xen_hvm_crash_shutdown(struct pt_regs *regs)
+>  	xen_reboot(SHUTDOWN_soft_reset);
+>  }
+>  #endif
+> -#endif
+>  
+>  static int xen_cpu_up_prepare_hvm(unsigned int cpu)
+>  {
+> @@ -238,10 +238,10 @@ static void __init xen_hvm_guest_init(void)
+>  
+>  #ifdef CONFIG_KEXEC_CORE
+>  	machine_ops.shutdown = xen_hvm_shutdown;
+> +#endif
+>  #ifdef CONFIG_CRASH_DUMP
+>  	machine_ops.crash_shutdown = xen_hvm_crash_shutdown;
+>  #endif
+> -#endif
+>  }
+>  
+>  static __init int xen_parse_nopv(char *arg)
+> diff --git a/arch/x86/xen/mmu_pv.c b/arch/x86/xen/mmu_pv.c
+> index 218773cfb009..e21974f2cf2d 100644
+> --- a/arch/x86/xen/mmu_pv.c
+> +++ b/arch/x86/xen/mmu_pv.c
+> @@ -2520,7 +2520,7 @@ int xen_remap_pfn(struct vm_area_struct *vma, unsigned long addr,
+>  }
+>  EXPORT_SYMBOL_GPL(xen_remap_pfn);
+>  
+> -#ifdef CONFIG_KEXEC_CORE
+> +#ifdef CONFIG_VMCORE_INFO
+>  phys_addr_t paddr_vmcoreinfo_note(void)
+>  {
+>  	if (xen_pv_domain())
+> -- 
+> 2.41.0
+> 
