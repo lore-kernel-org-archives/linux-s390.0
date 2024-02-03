@@ -1,186 +1,133 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DD8F62B;
-	Sat,  3 Feb 2024 00:17:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9ED1A5EE86;
+	Sat,  3 Feb 2024 14:57:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706919426; cv=none; b=fM46A7gqqaij2pxDY1urIfERM9+EwSKSkkl7907H/2uvGtQaLB4EBo3ICoEg0DYrEd3w/0GauMaIlYVFc6kUukxsvkf/YgxWwkIOMHPlRUt9DAV8CFwnxSzGAjjsLDA+TzSecjiBpnwSTtpI0mTwWJItyjFGi9xU+VBJgWb7tK0=
+	t=1706972265; cv=none; b=f6PxMaDbILX6xbT7b5Bg0m5V4yeIm0kV2dIv+RxJcL5LxN1Y7SlMxHVi1CibAjFV7jG39bJCYLmo8qlWK6wAB+8G4xvYNJhOlBjJpfxFd+amT0IC7JoWE7TXaZyMtllOZuzSpw5pBUY1pt09tqfYzWbZe0nnNLKE74ScigBJdxk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706919426; c=relaxed/simple;
-	bh=nZQsPsqNPYYXxX4K2h4eMz+56hYUx5rcVPocfkID7bk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DNpJD0VQjahRg5JW1ulDntc0p5fLeJ0nDwJZCZTcKd+oxx0FY2zUmMx+Z1xktIkiUzAW/kgJUa+/nibPGiP2DTXVp5wFhDUhE+15VZrhhg/WpRE/LTW6sofebU54qaaiVU/2zgIh2WuRw8GTrQb40qZwzvln7AwRLsx6bUD2QUk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gkVh8rmg; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1706972265; c=relaxed/simple;
+	bh=5opwMHyS6hOmD9rUQ+qyqnc/soQP+69EJIln7q3aCi4=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=hlOOlED25k1BeQkoZDb7NfAHZyCGrlAvae8EkwwyyRxt7A96KbpESU9Th7FzbOfWVSvunzatEkREKybLtYH5ThXg5BGWhKHRIEhF4DO4HfqSIFvoOSDm4qLBbQzkRhHlYXafQ6WIYDW0Sop7iraZq6z0H5/Ef0lBNfcLRlMJBbs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=marliere.net; spf=pass smtp.mailfrom=gmail.com; dkim=fail (0-bit key) header.d=marliere.net header.i=@marliere.net header.b=L3XrIXfz reason="key not found in DNS"; arc=none smtp.client-ip=209.85.215.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=marliere.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gkVh8rmg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 871F1C433C7;
-	Sat,  3 Feb 2024 00:17:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1706919426;
-	bh=nZQsPsqNPYYXxX4K2h4eMz+56hYUx5rcVPocfkID7bk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=gkVh8rmg3XviEeH3EY8bNCfbVigkIJj9WT2Y5KnRTScNgFbnoBjbSnmABJOB8o0io
-	 mle8q4VPcWx5E4fVoDLFYjRvAdiCEJRkEWoAxi3c+t8YJ0GgPGX0blFma9D8oM+vMy
-	 +/WTnug5E9DkyMJWlO5gdxHhfudehvYjgPAX1bsuSjY9GnE0lMDk1NXw412a+Gri4Q
-	 kWZYV8TCESgMZkahnRzmA4QUPoLpe8C9oWKbwT+Z6U1f1Iyy+BRIi2lsk3xqut/Ea9
-	 Py6mRhFWBOW7bvDMCYT+/HRuh3J00fp8dhNhpGr4He7WW0gEl7LuJwSiP/tLNIScJu
-	 Mc1GnRfYytVPg==
-Date: Fri, 2 Feb 2024 17:17:03 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Baoquan He <bhe@redhat.com>
-Cc: kexec@lists.infradead.org, akpm@linux-foundation.org,
-	linux-kernel@vger.kernel.org, x86@kernel.org,
-	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, mhklinux@outlook.com
-Subject: Re: [PATCH linux-next 1/3] x86, crash: don't nest CONFIG_CRASH_DUMP
- ifdef inside CONFIG_KEXEC_CODE ifdef scope
-Message-ID: <20240203001703.GA3735093@dev-arch.thelio-3990X>
-References: <20240129135033.157195-1-bhe@redhat.com>
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=marliere.net header.i=@marliere.net header.b="L3XrIXfz"
+Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-53fbf2c42bfso2500443a12.3;
+        Sat, 03 Feb 2024 06:57:43 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706972263; x=1707577063;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:dkim-signature:from:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=YLak5sdyR6WjpREo34u8ut+AGeqi3y7JCPvVOvVF2Lc=;
+        b=Ek9vUDXKwAq5+9rU0Q9IuFWHVOBMPYwb7XMPZo07hDEvNCJWfCZc0VNh2iBhMejCQD
+         zPFMI0noRqwsx7ZZu9i+WWJME1uoDCNrHkU9CVc+tJYz7pzbAE3MwpiH//HDfwCyzG5H
+         cl8dlFIHXP1q9nG3qjGaG9WgDHKeuidVPquhTTozrWdDvOmE5U1S0Wi60x/QRP6I72LR
+         3S5Qe8grK/m+U5jI/9/mWjmQR1AwgRzRcS6rqXOXh+46k6hMWKOEEPENobUjdEF6amJX
+         yciIdiYGxRaVAKo53mH/XkbeK4m7XMb/+DXHPop4Vizf/qJgQdko6JlA3uA590owjtPj
+         3iEQ==
+X-Gm-Message-State: AOJu0YwL+FnNJFeGF7Kdd7K8tLyDcjc7/ws7aFxH//JP9OmDsmLpbQPk
+	85iXhcZcDcFEO41G4U2eV/mmHysfkIgpJVrSDPuDjeIpB+BRHbHs
+X-Google-Smtp-Source: AGHT+IHvNgCU2nsiSRZCKyVZZltAuAbhkuaFUHl/XrcvHgFT/GWlpCR0UEB0ZY8slpmMsZgEU2+qWQ==
+X-Received: by 2002:a05:6a20:bf16:b0:19c:ac6b:74af with SMTP id gc22-20020a056a20bf1600b0019cac6b74afmr7895696pzb.58.1706972262730;
+        Sat, 03 Feb 2024 06:57:42 -0800 (PST)
+X-Forwarded-Encrypted: i=0; AJvYcCVZdA+1qNc9vVRKPZfCTZ73gS7zi51pGGom39qiHSs8FRnipPGIU+I5xhSS+4Szn4NOuJRuxu6mKoO3V3pkxCNoOAQX5hrPMnOAOYxBk3L0cVYnD0B0fTVpCEN0YpKXYdE643eD+fonxcUyOf7OgmlcbVjGKEYIJsrEx2oUAjp+QK/UZawn4NNd03mqCt3tU0oAj90IgsnBY9RZOF6cZq4a1yAGvXnGnPK2QwicsF8fQp7MZPLxBdkaNKecp0EtiXdOhgM/iniAGQeh+hp/xp1jRABr9ZKw+EQ7uh159CBo3H5YEZmgYj3E9P7ReeBp/Gzky96mc+RYflUzexacEyUnHEfjq3umn/yozACm6IhV0UIvwg5nZH9yrafC+YO4cJL+W2z+cZxU5iQloD+65CGcpC3Vs3t70Gqc1CyrBF562BJfWfLlgIk=
+Received: from mail.marliere.net ([24.199.118.162])
+        by smtp.gmail.com with ESMTPSA id le10-20020a056a004fca00b006e02f222c2esm860091pfb.30.2024.02.03.06.57.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 03 Feb 2024 06:57:42 -0800 (PST)
+From: "Ricardo B. Marliere" <ricardo@marliere.net>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marliere.net;
+	s=2023; t=1706972260;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=YLak5sdyR6WjpREo34u8ut+AGeqi3y7JCPvVOvVF2Lc=;
+	b=L3XrIXfzYU50vyoBiFTJxVGzJ9R1XP9313I7P3YwMAeYkLpSVs0FwLjwlPfYEu2hfRFoP9
+	bOlhO+ejzk0XNXnin1U9RJAGyOpJYwG4e01FqMO2g+oZZdzaDAZIefFbjVcyS5LZgGa0ud
+	qrKzqv6gDdvU4asayTVjznN9CPuSwkgF94xPaRwQYl3OBJbR7n2NhsIz5SMLet0w774HyK
+	19ehNOoaRObMM5GKovumMNC5Ch9qnzYEvQYdRPLNkQdbIXmuAxvwFdZdhx3Ps0gPOt9F9H
+	s6I3qZwqNNGGN8P811tsCtTmqZabx/Ti5T/0LjASw67hf5lMICrV1MTuUrwivw==
+Authentication-Results: ORIGINATING;
+	auth=pass smtp.auth=ricardo@marliere.net smtp.mailfrom=ricardo@marliere.net
+Subject: [PATCH 0/6] s390: struct bus_type cleanup
+Date: Sat, 03 Feb 2024 11:57:57 -0300
+Message-Id: <20240203-bus_cleanup-s390-v1-0-ac891afc7282@marliere.net>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240129135033.157195-1-bhe@redhat.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAHVUvmUC/x3M0QpAQBBA0V/RPNsasxJ+RZJlMKWlnVZK/t3m8
+ Tzc+4ByEFZoswcCX6Jy+IQiz2DaRr+ykTkZCKlEQmtc1GHaefTxNGobNDVhRc5ZcrRAys7Ai9z
+ /suvf9wOZYfNNYgAAAA==
+To: Vineeth Vijayan <vneethv@linux.ibm.com>, 
+ Peter Oberparleiter <oberpar@linux.ibm.com>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, 
+ Harald Freudenberger <freude@linux.ibm.com>, 
+ Tony Krowiak <akrowiak@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, 
+ Jason Herne <jjherne@linux.ibm.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ "Ricardo B. Marliere" <ricardo@marliere.net>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1352; i=ricardo@marliere.net;
+ h=from:subject:message-id; bh=5opwMHyS6hOmD9rUQ+qyqnc/soQP+69EJIln7q3aCi4=;
+ b=owEBbQKS/ZANAwAKAckLinxjhlimAcsmYgBlvlR/ek689TQpKgLRXuRnW5rbn5JS1lUyJ6CO1
+ 6NrPm9hBOuJAjMEAAEKAB0WIQQDCo6eQk7jwGVXh+HJC4p8Y4ZYpgUCZb5UfwAKCRDJC4p8Y4ZY
+ pnXrD/0XE+FYw49QWpXkzCP5YJ+rX96ET8dXHbtMfzy1dGSO0F1gbKtyedBeAVdeOU95ERkdutk
+ tmrxBpHfI+VvSD5BZfQpqHXtze6lyuR2w3b9k0HZ1Xx3lPMyByPU1RUKAK8W817NMb4V3DhWoSF
+ UXLdLQLxP2XcnpptplnDLwXKROuanutiAVRBFF2EKyy7vx6fnndqEv7hX85+h9M9QunpZpA2g4R
+ a/jtrGVnzUUW5XxWCGKSJSIatnnbWzqXy5Rqf6SwVkz4IYGMVDog/f+VovbMju4YiaDnPRz9mXo
+ oIY2M0F2jEyqKZ/XG+9034c0Ie6JW8D3PITGyS0OuEEaBtg+ssn1pgxHTVn96EPVVKtQjzkL2w/
+ Oh10uuzSALb0XMjKwFNpFeXiOu5QgohbjA7+DxSn65cJmgpDZW1EYijQ6vjrgC98hHOPgEJjcJC
+ GvEMcVRpxMrZzmXr2Vqzny2tDZ5QMZDcKiOvyLRZFm3GkvFSHNW5zWe08wQOktBFHjT4VCivflS
+ WMPGqMTJE+i2bEgoKbR3y5cha90gV7F4C5YE8AFkK/Rhd1ifq7L75tm8GGyOXrK7syrsgPF0IU3
+ uRwNCFErZJfN5rx4fCXt4ctLRQxgon7pziLtigN0moFEjxKUhgTYS5EDjFLZ+b620CWdmBadTb7
+ 3B6S41BKO07zOKQ==
+X-Developer-Key: i=ricardo@marliere.net; a=openpgp;
+ fpr=030A8E9E424EE3C0655787E1C90B8A7C638658A6
 
-This series resolves the build issues I was seeing. Please feel free to
-carry
+This series is part of an effort to cleanup the users of the driver
+core, as can be seen in many recent patches authored by Greg across the
+tree (e.g. [1]). Specifically, this series is part of the task of
+splitting one of his TODOs [2].
 
-  Tested-by: Nathan Chancellor <nathan@kernel.org> # build
+---
+[1]: https://lore.kernel.org/lkml/?q=f%3Agregkh%40linuxfoundation.org+s%3A%22make%22+and+s%3A%22const%22
+[2]: https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git/commit/?h=bus_cleanup&id=26105f537f0c60eacfeb430abd2e05d7ddcdd8aa
 
-forward if there are any more revisions without drastic changes.
+Signed-off-by: Ricardo B. Marliere <ricardo@marliere.net>
 
-On Mon, Jan 29, 2024 at 09:50:31PM +0800, Baoquan He wrote:
-> Michael pointed out that the #ifdef CONFIG_CRASH_DUMP is nested inside
-> arch/x86/xen/enlighten_hvm.c.
-> 
-> Although the nesting works well too since CONFIG_CRASH_DUMP has
-> dependency on CONFIG_KEXEC_CORE, it may cause confuse because there
-> are places where it's not nested, and people may think it need be nested
-> even though it doesn't have to.
-> 
-> Fix that by moving  CONFIG_CRASH_DUMP ifdeffery of codes out of
-> CONFIG_KEXEC_CODE ifdeffery scope.
-> 
-> And also fix a building error Nathan reported as below by replacing
-> CONFIG_KEXEC_CORE ifdef with CONFIG_VMCORE_INFO ifdef.
-> 
-> ====
-> $ curl -LSso .config https://git.alpinelinux.org/aports/plain/community/linux-edge/config-edge.x86_64
-> $ make -skj"$(nproc)" ARCH=x86_64 CROSS_COMPILE=x86_64-linux- olddefconfig all
-> ...
-> x86_64-linux-ld: arch/x86/xen/mmu_pv.o: in function `paddr_vmcoreinfo_note':
-> mmu_pv.c:(.text+0x3af3): undefined reference to `vmcoreinfo_note'
-> ====
-> 
-> Link: https://lore.kernel.org/all/SN6PR02MB4157931105FA68D72E3D3DB8D47B2@SN6PR02MB4157.namprd02.prod.outlook.com/T/#u
-> Link: https://lore.kernel.org/all/20240126045551.GA126645@dev-arch.thelio-3990X/T/#u
-> Signed-off-by: Baoquan He <bhe@redhat.com>
-> ---
->  arch/x86/kernel/cpu/mshyperv.c | 10 ++++++----
->  arch/x86/kernel/reboot.c       |  2 +-
->  arch/x86/xen/enlighten_hvm.c   |  4 ++--
->  arch/x86/xen/mmu_pv.c          |  2 +-
->  4 files changed, 10 insertions(+), 8 deletions(-)
-> 
-> diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
-> index f8163a59026b..2e8cd5a4ae85 100644
-> --- a/arch/x86/kernel/cpu/mshyperv.c
-> +++ b/arch/x86/kernel/cpu/mshyperv.c
-> @@ -209,6 +209,7 @@ static void hv_machine_shutdown(void)
->  	if (kexec_in_progress)
->  		hyperv_cleanup();
->  }
-> +#endif /* CONFIG_KEXEC_CORE */
->  
->  #ifdef CONFIG_CRASH_DUMP
->  static void hv_machine_crash_shutdown(struct pt_regs *regs)
-> @@ -222,8 +223,7 @@ static void hv_machine_crash_shutdown(struct pt_regs *regs)
->  	/* Disable the hypercall page when there is only 1 active CPU. */
->  	hyperv_cleanup();
->  }
-> -#endif
-> -#endif /* CONFIG_KEXEC_CORE */
-> +#endif /* CONFIG_CRASH_DUMP */
->  #endif /* CONFIG_HYPERV */
->  
->  static uint32_t  __init ms_hyperv_platform(void)
-> @@ -497,9 +497,11 @@ static void __init ms_hyperv_init_platform(void)
->  	no_timer_check = 1;
->  #endif
->  
-> -#if IS_ENABLED(CONFIG_HYPERV) && defined(CONFIG_KEXEC_CORE)
-> +#if IS_ENABLED(CONFIG_HYPERV)
-> +#if defined(CONFIG_KEXEC_CORE)
->  	machine_ops.shutdown = hv_machine_shutdown;
-> -#ifdef CONFIG_CRASH_DUMP
-> +#endif
-> +#if defined(CONFIG_CRASH_DUMP)
->  	machine_ops.crash_shutdown = hv_machine_crash_shutdown;
->  #endif
->  #endif
-> diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
-> index 1287b0d5962f..f3130f762784 100644
-> --- a/arch/x86/kernel/reboot.c
-> +++ b/arch/x86/kernel/reboot.c
-> @@ -826,7 +826,7 @@ void machine_halt(void)
->  	machine_ops.halt();
->  }
->  
-> -#ifdef CONFIG_KEXEC_CORE
-> +#ifdef CONFIG_CRASH_DUMP
->  void machine_crash_shutdown(struct pt_regs *regs)
->  {
->  	machine_ops.crash_shutdown(regs);
-> diff --git a/arch/x86/xen/enlighten_hvm.c b/arch/x86/xen/enlighten_hvm.c
-> index 09e3db7ff990..0b367c1e086d 100644
-> --- a/arch/x86/xen/enlighten_hvm.c
-> +++ b/arch/x86/xen/enlighten_hvm.c
-> @@ -148,6 +148,7 @@ static void xen_hvm_shutdown(void)
->  	if (kexec_in_progress)
->  		xen_reboot(SHUTDOWN_soft_reset);
->  }
-> +#endif
->  
->  #ifdef CONFIG_CRASH_DUMP
->  static void xen_hvm_crash_shutdown(struct pt_regs *regs)
-> @@ -156,7 +157,6 @@ static void xen_hvm_crash_shutdown(struct pt_regs *regs)
->  	xen_reboot(SHUTDOWN_soft_reset);
->  }
->  #endif
-> -#endif
->  
->  static int xen_cpu_up_prepare_hvm(unsigned int cpu)
->  {
-> @@ -238,10 +238,10 @@ static void __init xen_hvm_guest_init(void)
->  
->  #ifdef CONFIG_KEXEC_CORE
->  	machine_ops.shutdown = xen_hvm_shutdown;
-> +#endif
->  #ifdef CONFIG_CRASH_DUMP
->  	machine_ops.crash_shutdown = xen_hvm_crash_shutdown;
->  #endif
-> -#endif
->  }
->  
->  static __init int xen_parse_nopv(char *arg)
-> diff --git a/arch/x86/xen/mmu_pv.c b/arch/x86/xen/mmu_pv.c
-> index 218773cfb009..e21974f2cf2d 100644
-> --- a/arch/x86/xen/mmu_pv.c
-> +++ b/arch/x86/xen/mmu_pv.c
-> @@ -2520,7 +2520,7 @@ int xen_remap_pfn(struct vm_area_struct *vma, unsigned long addr,
->  }
->  EXPORT_SYMBOL_GPL(xen_remap_pfn);
->  
-> -#ifdef CONFIG_KEXEC_CORE
-> +#ifdef CONFIG_VMCORE_INFO
->  phys_addr_t paddr_vmcoreinfo_note(void)
->  {
->  	if (xen_pv_domain())
-> -- 
-> 2.41.0
-> 
+---
+Ricardo B. Marliere (6):
+      s390: ccwgroup: make ccwgroup_bus_type const
+      s390: cio: make css_bus_type const
+      s390: cio: make ccw_bus_type const
+      s390: cio: make scm_bus_type const
+      s390: AP: make ap_bus_type const
+      s390: vfio-ap: make matrix_bus const
+
+ drivers/s390/cio/ccwgroup.c       | 4 ++--
+ drivers/s390/cio/css.c            | 4 ++--
+ drivers/s390/cio/device.c         | 4 ++--
+ drivers/s390/cio/scm.c            | 2 +-
+ drivers/s390/crypto/ap_bus.c      | 4 ++--
+ drivers/s390/crypto/vfio_ap_drv.c | 2 +-
+ 6 files changed, 10 insertions(+), 10 deletions(-)
+---
+base-commit: 8eb3db95a8c8ecd6f8bb082a99ded3bbc79b023f
+change-id: 20240203-bus_cleanup-s390-82062bb32b2f
+
+Best regards,
+-- 
+Ricardo B. Marliere <ricardo@marliere.net>
+
