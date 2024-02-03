@@ -1,127 +1,98 @@
-Received: from mail-oo1-f51.google.com (mail-oo1-f51.google.com [209.85.161.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCF855FB95;
-	Sat,  3 Feb 2024 14:58:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2376655E70;
+	Sat,  3 Feb 2024 15:22:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706972284; cv=none; b=oUYUhS982hE2GRbFQM760hAeMkFnEEuI5ttFEUTh1rxc9fG5qj/3fzodT2MZ+fKVxxn+Ewh1j+GvDNXGPS0u8bmcM4oGdwFQ0N1LXVlpek7TgkAk3qIic5x91UI2tmIlWiZW3IBPMpYYCaRHtSFwbu1iAAt5jT/tinu4PUc1UbY=
+	t=1706973749; cv=none; b=E5Qgh8NzYDx979b5S4WbxirX9atL2W2ibnu4iU4AYveYoUDBs1cg1kJTLg3sB1dHXOLgOmAFkmqMlc/Cc/2os4joimuidTIaC61217iAIoXJr0v5rZt+V3FjqNLhHS1G5CfBHyBo67r62SGAFHzLHcK2r4kF16Fyua1wuHSF7AE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706972284; c=relaxed/simple;
-	bh=zVJN/4oHdWhuzz1+BiygMaV1vFRfNwCcrWxJLFyYdCk=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=cSUR+NwbqorM/Ug4zSsTTn2eWeCrYVyqC8pO2f1ptL+6+ZPIPnsXoV1S7RzvvSgx5KFiDEEjZId3cb7jmLdeOyFsRp/q7wetZ2235A43KmWi6y1sV2HiSsBsIxX39+S/CFxJJJ8rtbXt19Ol1eWYYoRbAhhJBSS3n+WII5JR2Eo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=marliere.net; spf=pass smtp.mailfrom=gmail.com; dkim=fail (0-bit key) header.d=marliere.net header.i=@marliere.net header.b=lrmSx367 reason="key not found in DNS"; arc=none smtp.client-ip=209.85.161.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=marliere.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1706973749; c=relaxed/simple;
+	bh=c+Jc4BAS+IryDupflpvWK9nQ/pkuVv+Flzsyr7rEEDw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=t19uylTRv/yNx35kajZ4VaP7jhRNOVQbzG5dBI29XyWPT0bcuW00k2cF9yw2TWxwRuP38OIB7J8QAEGXJWqG3NemqLKUNn6xYhyhNsrWXAm9ay8/1Ls56gXNzEoEgq3LrxAYKgAq39+K9FhBvBK9fjX/wLkuv/m6J9YYFlVBQvs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=QGqG24Wv; arc=none smtp.client-ip=213.97.179.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=igalia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=marliere.net header.i=@marliere.net header.b="lrmSx367"
-Received: by mail-oo1-f51.google.com with SMTP id 006d021491bc7-59a58ef4a04so1615752eaf.2;
-        Sat, 03 Feb 2024 06:58:02 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706972282; x=1707577082;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:dkim-signature:from:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=EoZhzCvvxVDQhcFrFWhYjcTT9FE0yDllqaUNaTBUtCY=;
-        b=kcbj6vOz8aUH2mx68Yoc/1iVBb8c7dMNoqolpMfbvK/WfRf0+w+YMGnazpvuZ7nsn3
-         nOW+6ygrlcOKmSF3a23SA5/EJnxJqpiomQYQM+Yz6beOEEvvKuK29TvpU7yo+pDUR0wc
-         KkhMXJPfe3Qpz5JO+PX3BeltwY5D9aA2M5mi1X9qocYTRU6r8XMrDE+96CIv5MUqwHgS
-         5zLXudKV9YQsmcl6eRGf4lYimOMbzcT5NenVH43Mo5reeTj0XJpjr2iV5qCNAJeGhwMJ
-         n1jCf8R0lYWwJE7Wxh0JLUVoEjRYtktBqpf7L6PdMN7ZQ0Dw7d9OMoiav+3+gu43XEnA
-         DbAA==
-X-Gm-Message-State: AOJu0Yxa8rL0MzzdbDOlfK/ICkaDGwGnfO/ktz2rGEhVpzAd5oin21jL
-	MCsIUNB1dJgXfCc8Fz4MAIBDKtjReFbH/VUyCgJy9vuzeGzoJ/DpqrmeWfy2QN1EFQ==
-X-Google-Smtp-Source: AGHT+IGolQcaZoOhAaigwDOhfZduwQhHbm8m39V5N9qPdHbKmrByQ/U6UyZ71UaPZUfYhKt7DqoeaA==
-X-Received: by 2002:a05:6358:4195:b0:176:4ac9:5509 with SMTP id w21-20020a056358419500b001764ac95509mr5751592rwc.13.1706972281635;
-        Sat, 03 Feb 2024 06:58:01 -0800 (PST)
-X-Forwarded-Encrypted: i=0; AJvYcCXZb0P2zPtnL+GZJ9/f0OOblCsIboCZ4Q6H/8BfLAcjNoHjckTHVSFl5FfRApQxZc19XaWVzNODxctlMTI1GaCQExdEFBsZpDlHqmKrlqYVq0ng5jtZgOAn43KDZurRgpyKFruhpzNQRHc2djtKkJTr2EqylTgbYjceZiXmBTd1CnAJM9CNKFRV077t59HLz9iVmB/pVTK8WHTIwScbf4OA4RECa7DZ75Zg1HlthOGddX3ai5Vn4+1NgplbVD+kd4F0JJarzsu157VePO1senMd3lV//Y5KES7wiCkhbjpGaHjlp7IrsGxo8hLTkNYnNsZ6yiesHPYd/kLdt5lZkPcSyHtTl6pRss0LBNtu7Ub45DHjcC0boipBGl+zBdh7j3wIzLSQzVRpoac3blLJUVsB2OZaYn0kg1opoBB/ApsFlbhukdkhi4E=
-Received: from mail.marliere.net ([24.199.118.162])
-        by smtp.gmail.com with ESMTPSA id b16-20020aa78110000000b006dd84763ce3sm3489047pfi.169.2024.02.03.06.58.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 03 Feb 2024 06:58:01 -0800 (PST)
-From: "Ricardo B. Marliere" <ricardo@marliere.net>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marliere.net;
-	s=2023; t=1706972280;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=EoZhzCvvxVDQhcFrFWhYjcTT9FE0yDllqaUNaTBUtCY=;
-	b=lrmSx367erV5VvtWn6dQBwmKTQrkZFuZJxLN1lJx9sl2Aayl88w4LVeMQjpDrQsMG9wHVJ
-	qifkLRQTrT9+FHWXXi9OKTEdcE8UanisUg/jIp9Fzm/foeet8G0g//sC75Zdte1jXVGp91
-	HFK4XIwIHrrs3Er/d1ZS1rjT0psaNAm/yLpbZfon7858SUD/l6Mutr/xk24qgFmcnk44/L
-	ffl2RdCD2wbWHcI+UdbBMZ2fZrwKMUwpdUpUcklwGzrmxfwxT8XpmoTs5rGPu8REwCZc2B
-	gEjundXNTpuCJx89vAEqYcLKGBR0es1IFAyKpDorNDqCC1NVooZqKw0Xy4JAag==
-Authentication-Results: ORIGINATING;
-	auth=pass smtp.auth=ricardo@marliere.net smtp.mailfrom=ricardo@marliere.net
-Date: Sat, 03 Feb 2024 11:58:03 -0300
-Subject: [PATCH 6/6] s390: vfio-ap: make matrix_bus const
+	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="QGqG24Wv"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+	s=20170329; h=Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Subject:
+	Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive;
+	bh=j9K/vax56e3sCnb71UIU5Gz4B8feV2qAX5/Vur9/dM8=; b=QGqG24WvpulgcmjYWeP8Fzj7U/
+	IDQyV210c3AwnZgQSuytBZ8xpVsTGWSJ7OKnfCWF6MzQD65aautSRsr4vcTcPBP1lnF1s9HZ2yg5W
+	veng2shFrLwq4KM5wmQ4c5HY1YQV3z4cEmzp5IGQv9rxhOHMjaXeKHUaAnUh84TLin29RxETU+W3Q
+	V7jDq/T41zpRwMhWr/6RiucZo5uZXV3x9Lw29Wx63CkLQifvwWH9Df5cct3cZ19CrUxRKBpAnDsAj
+	QnmnmrAMxGPnQ+pz8gO65O5q22jYQ9bGzBvISh11tdCpVn+PrKwTuoBlnmDx3goLsIWj8HWmu5bXt
+	ztzRv2CQ==;
+Received: from [187.90.178.235] (helo=localhost)
+	by fanzine2.igalia.com with esmtpsa 
+	(Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
+	id 1rWHqP-00DJoe-Vg; Sat, 03 Feb 2024 16:22:14 +0100
+From: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+To: linux-doc@vger.kernel.org,
+	corbet@lwn.net
+Cc: linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	rdunlap@infradead.org,
+	tglx@linutronix.de,
+	mingo@redhat.com,
+	bp@alien8.de,
+	dave.hansen@linux.intel.com,
+	x86@kernel.org,
+	hpa@zytor.com,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	kernel@gpiccoli.net,
+	kernel-dev@igalia.com,
+	"Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+	Changwoo Min <changwoo@igalia.com>
+Subject: [PATCH] docs: Document possible_cpus parameter
+Date: Sat,  3 Feb 2024 12:21:13 -0300
+Message-ID: <20240203152208.1461293-1-gpiccoli@igalia.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20240203-bus_cleanup-s390-v1-6-ac891afc7282@marliere.net>
-References: <20240203-bus_cleanup-s390-v1-0-ac891afc7282@marliere.net>
-In-Reply-To: <20240203-bus_cleanup-s390-v1-0-ac891afc7282@marliere.net>
-To: Vineeth Vijayan <vneethv@linux.ibm.com>, 
- Peter Oberparleiter <oberpar@linux.ibm.com>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, 
- Harald Freudenberger <freude@linux.ibm.com>, 
- Tony Krowiak <akrowiak@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, 
- Jason Herne <jjherne@linux.ibm.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, 
- "Ricardo B. Marliere" <ricardo@marliere.net>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=929; i=ricardo@marliere.net;
- h=from:subject:message-id; bh=zVJN/4oHdWhuzz1+BiygMaV1vFRfNwCcrWxJLFyYdCk=;
- b=owEBbQKS/ZANAwAKAckLinxjhlimAcsmYgBlvlSBVU4dVPwR7qDD3b3GsqypoBcNDlFatTQP/
- HNx1U1Vrd+JAjMEAAEKAB0WIQQDCo6eQk7jwGVXh+HJC4p8Y4ZYpgUCZb5UgQAKCRDJC4p8Y4ZY
- ps9yD/91LPanJxDOZZp2FyW7DsA1PB1sUZPd0BXEBDLPI3DWWEMgCyrVc6y3iZ+ANd+q2oINvQS
- Bj30Drmz/3rxlBEA/f1hWh24vd9hMG8IZJo6QLxG4jvalJ8SosGtbKSk79oQFwDW4W2Lw2ppec/
- F7MzM+b00XDJ6M9Be2mEwmiJu75oyH4zbTBlWmQshx1EMLnRkr3D8mLBg9NM1k4Lt7bxc5fiNsE
- yVWqVnp6M7Llbb5FM4/xAn+3io/qjvkDLe+h8vcRTY4c56cgVRu3556vAAUl+FN71zZAOsh5IBF
- NY44GJ6+acSA1RdQvJFkBZJT9CoPxsKcRbySZ/qqyhLKaBR2Z014dhUvoLRIbr13e4ZZ+Fbhp3R
- TK8cl++eIejXeqmHVPbxvr7Cv5iQAH7wjZoHjS8LKmWBvsaghISHIJAeAH0zswC3VYNStufgGif
- fcrGGZDkmDCyvdzFHIxYgKgSRlvebfVHq9yJabXhmIXO35Khg+/ISr1dsTEBIYByGBYEvBaaUep
- ch296TvFzX1gZ1S0Jdx/HF91bB/WQuxttKGfhUPPw16769goXAxjPuiIHe5+/Lvtlei5Et2Ji2M
- JW2RTjTGIpy+ZyD6W+d+H4Fz4r/XIZeLZunrCLbRKI03rotmmBqAzcSeyb3DIf9AqNoAHJsKFAZ
- Su/WtB2jQNwAzRA==
-X-Developer-Key: i=ricardo@marliere.net; a=openpgp;
- fpr=030A8E9E424EE3C0655787E1C90B8A7C638658A6
+Content-Transfer-Encoding: 8bit
 
-Now that the driver core can properly handle constant struct bus_type,
-move the matrix_bus variable to be a constant structure as well,
-placing it into read-only memory which can not be modified at runtime.
+The number of possible CPUs is set be kernel in early boot time through
+some discovery mechanisms, like ACPI in x86. We have a parameter both
+in x86 and S390 to override that - there are some cases of BIOSes exposing
+more possible CPUs than the available ones, so this parameter is a good
+testing mechanism, but for some reason wasn't mentioned so far in the
+kernel parameters guide - let's fix that.
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Ricardo B. Marliere <ricardo@marliere.net>
+Cc: Changwoo Min <changwoo@igalia.com>
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
 ---
- drivers/s390/crypto/vfio_ap_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/admin-guide/kernel-parameters.txt | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index a5ab03e42ff1..4aeb3e1213c7 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -60,7 +60,7 @@ static void vfio_ap_matrix_dev_release(struct device *dev)
- 	kfree(matrix_dev);
- }
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index 31b3a25680d0..e553740190ea 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -4644,6 +4644,11 @@
+ 			may be specified.
+ 			Format: <port>,<port>....
  
--static struct bus_type matrix_bus = {
-+static const struct bus_type matrix_bus = {
- 	.name = "matrix",
- };
- 
-
++	possible_cpus=  [SMP,S390,X86]
++			Format: <unsigned int>
++			Set the number of possible CPUs, overriding the
++			regular discovery mechanisms (such as ACPI/FW, etc).
++
+ 	powersave=off	[PPC] This option disables power saving features.
+ 			It specifically disables cpuidle and sets the
+ 			platform machine description specific power_save
 -- 
 2.43.0
 
