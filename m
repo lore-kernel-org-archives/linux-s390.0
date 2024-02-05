@@ -1,65 +1,65 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 461101864D
-	for <linux-s390@vger.kernel.org>; Mon,  5 Feb 2024 11:28:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D1C81CAB1
+	for <linux-s390@vger.kernel.org>; Mon,  5 Feb 2024 12:04:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707132531; cv=none; b=IyhW7pjM9PIvDL9Q11zULv5dpG9qiL8bfK0W+QpCVovlKs6m72VPO7VJlxNjF74DbInCuQmAT8vw+ZlRl/GNx2PZpt03iZGQvZ+GAVAp15EEgN+zVtwVhP6gKnM9vkHfUUHdSL5Sr12R9fuvPUzog/Onlya2J2ub9/+8nETPV1s=
+	t=1707134673; cv=none; b=fxXT93BKHk5/Q6mWJ6KcRZjNylKx7aQxkIWocSxA8BI7Ku9z2IOQuZLHgzG/6C2rZ+8eeqNUDupq/elAzoTdDOWgrK3K1kUB2Z0moEO5z/muKLwsFf7+Ui4/fP5DBEParAeLPvVMEN5eriGgcwq1Z2cVxLpiCdYsyNLGylmCuhk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707132531; c=relaxed/simple;
-	bh=2VJYWwkj282qmW4tJsn+V5pmShFHwuBYTY12vqnTrB4=;
+	s=arc-20240116; t=1707134673; c=relaxed/simple;
+	bh=/ZRVuwJy3SQg04PlHWv//6vnnJxL7IiiSWt79kk2oxk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=B/ZrMz6KGARVM/N93Opsb0r82ZwFTwL+SMDd60QHNpA2yU8dqiCHWZBKoaWTxPi1z/WcDiRWoVFVdcXFa+Nap4UI1nztPQ+4zShUEqSLLPXZlDYrsRBAFqRh3Ft5XS9vLaya0Ubh6X49LbX+0xgv6YPr+i7wDhZADsZxkq3gPJM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=frWlSQHh; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=GleXuNbRQY04RcBQ48C5W4Oz6DvKd9oqc3cGD6P+7LVrOgYuSUUPYAIFe/4m3jy1gVOnJloF16U1WZnj6U5qYd8JBu2a7UUqSz0RPSZRTjLtEUfvX0Tnv8U/8tUmLErbc/2iSDJv4jx4v5MZpmYIvm4ecmoUUDpidPbOLyNwtCI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dzX5Pk+N; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="frWlSQHh"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dzX5Pk+N"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1707132527;
+	s=mimecast20190719; t=1707134671;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=nUaMZZu+Dp9dwRrEKB8bV8ysB1e4sCJY0FwagGA5ceE=;
-	b=frWlSQHhUaIrxA4ECNnKETP3hwojUlGTqcXbrTi/xW2BejpbPE/mZE3CAQhZ2yO3b404j7
-	OatKDvfPpv5Ht1wApKPuw1/mnOxR/Egc66+ZkfGC4cCtT6HuBHIbKvj3P3B8UGesKYVGXw
-	hD5sEj4ht1MXwfWlvrVwcIlIjpVELoI=
-Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
- [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=cgWqZ/ywcH/fgEspFo/6QfPQCVxD3Q8p3yiG7wvUpz8=;
+	b=dzX5Pk+NmY4Ekn5fo3brDn/cW/RoYNxX8eBRAA/khDLsTzMBxVd+fvI2xmZXeJ/630ZwnJ
+	VChDxh3romUjSoww87bVd/CGY3oZKcl3fWifC06/ajHmbQDJXH2oUJ9XMnQmo8e6EeGSks
+	XPKsKYZS58xVTnGFOV3zyJ+MotTmgy0=
+Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
+ [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-467-iPtKJz6aMle8RbiBI6mZ4Q-1; Mon, 05 Feb 2024 06:28:45 -0500
-X-MC-Unique: iPtKJz6aMle8RbiBI6mZ4Q-1
-Received: by mail-qv1-f69.google.com with SMTP id 6a1803df08f44-6800e52d47aso110395356d6.1
-        for <linux-s390@vger.kernel.org>; Mon, 05 Feb 2024 03:28:45 -0800 (PST)
+ us-mta-549-XswmojeSMRK1zq-i_hcLGg-1; Mon, 05 Feb 2024 07:04:29 -0500
+X-MC-Unique: XswmojeSMRK1zq-i_hcLGg-1
+Received: by mail-qv1-f72.google.com with SMTP id 6a1803df08f44-68c43b9f71aso60770766d6.0
+        for <linux-s390@vger.kernel.org>; Mon, 05 Feb 2024 04:04:29 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707132525; x=1707737325;
+        d=1e100.net; s=20230601; t=1707134669; x=1707739469;
         h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
          :to:content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=nUaMZZu+Dp9dwRrEKB8bV8ysB1e4sCJY0FwagGA5ceE=;
-        b=frZbLvL5MiImY3ciOxq5jq7SADV3kxgTVPHSfRN+UV25GnSayOEtjP+4AvlvJBZpeO
-         trzXglPJREmSHrAC3QChMNq2rzJ6ERbEWBNNv08RpUAgbyxQL1rdU3YPqOsjll/wI1KO
-         /kksch+9daZgOEmWJfRFJPtDG+srCOejzgakRAYiFJfY3SUeEKNIMWco3BEbQk64j4si
-         9sl4DfwEtvvC6DABhS4j0MvimZ2kL9DwRDjs7QdDZ8eZG5fH9JSK7AkO6JRBbFLrMRNA
-         wjS6Dxx+dvMcPfqqKSIDILyoql1Kydoc4s09wlSsplxW+9AxTOdBd0Gl66iXkXanmHda
-         48OQ==
-X-Gm-Message-State: AOJu0YwyYoj/W96sTkpNFH1MnRQkGm68k38htSkV2Bcu3PAUcJg0J2nj
-	VGYoUEckCelip+ZXpWpzI9wLvDrwKMsz/8TDhxZL//udIMEcHm4WvkBmEwVGswVXPrw8t05+DLO
-	xB+l2z/x2a3MQUjGVTkYSmbOZQqMix+tMltk6lKRUbkkB7ACNYnAmVhs4FU4=
-X-Received: by 2002:a05:6214:1bca:b0:68c:5aec:a777 with SMTP id m10-20020a0562141bca00b0068c5aeca777mr10444479qvc.15.1707132525290;
-        Mon, 05 Feb 2024 03:28:45 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG8EaWM4B1y1ZetAAd55Aml2aHxbapztaFPxB73e0x4SKOBYmOWyWuKnTkcVyTF/NaB0tj2yA==
-X-Received: by 2002:a05:6214:1bca:b0:68c:5aec:a777 with SMTP id m10-20020a0562141bca00b0068c5aeca777mr10444456qvc.15.1707132525076;
-        Mon, 05 Feb 2024 03:28:45 -0800 (PST)
-X-Forwarded-Encrypted: i=0; AJvYcCXWPIeAmM4zXqyigLA0WaHjYvNc0iltB6bnBBy8QYvhZLHNBXkjYjHaucBRdJYPH0szT+kDLlvclxWkY5zxZP8lUzEhIXYmjGPkzkA3KlO3Qa2uRQXc9nXwApYOePPqxPh993CX+Ykh5jamYbUskGrr02J+wyVcxl+9yb35OMqMi48kHAZwZg/zppBC1scp8eyLC2fKAfLNawWG2xo2EawCIJYSrvkvLjxiVxsXNPOaclgOUBS2Qog+pId8rXLYpWHB/fFohXulmw0J7f8DgDSfPwPFRsOMVxURBnWOEI/X6tZAL8cEaDB2EZWPlvaEINY5yy9woLltLnE7jzYIZZGeRsspWNDvJgBPDqwzOYxDi3TAFncm1h9WOVQaLnZ8ZjiLaU40OkuC4ZMzb0k4f2AVGD5RBXnICUYtufL9szNSrdRZocVbgybUdJqs2dg617ubop/j5uGuX1VCXNWQ1YgZ2Su7HbPkAQ/hZidUC3/U
+        bh=cgWqZ/ywcH/fgEspFo/6QfPQCVxD3Q8p3yiG7wvUpz8=;
+        b=pUFaYf2h7eFZc0mCM2mjfq+K4sNWgM2S46282f+NDOBFDQO7y1AAMH+h8tSkg0qrM4
+         DMpLxXGYdj74yvhzXcZsMtOu+nKB4qXYFuHmB/od8CURNooHt/L2nDzQ4BJIWr3KlRhz
+         ss+QAe4rvz5cJFBGAQ982gzOJK6oUmxlOn7jf8N7EViKVgPBDWCiJ55H0REVOK9HBoSm
+         nKMCnCNsNZlsEtzhvtbrrjX3e2LNpoSoNT4jN/7m0A4tB3p5Io1XKIkdidc92bTvmx0h
+         Z/O4Dn1etwrNOLgd7Cyp+ZvxcPfuwlfbL/W3EBdYQgFgR9oFOLj6G9Ny7/9lrFriT+2o
+         jSFg==
+X-Gm-Message-State: AOJu0Yz2wqXYDIoPhhFAm3FQT+QrOxkmwjYqRH3kWG9pOX9Vg3RXYELO
+	H0A71SKf9ABXpNyYQfXWm7QZUJVzjuvX1Hn7TFddn/cL/IIaT8VhyBZh8GlHVQywLfPfPK3hSC9
+	8IuJzWCJ9ogb6vXdmC7Ih1Az43CWR18FQllmJUqv60Q4Gs6DOQbEwL+M+Ku0=
+X-Received: by 2002:a05:6214:5b0a:b0:68c:a02f:6079 with SMTP id ma10-20020a0562145b0a00b0068ca02f6079mr3441768qvb.29.1707134669268;
+        Mon, 05 Feb 2024 04:04:29 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFPoF8GgytGAV7N3xAL+dT9T6XQARIMDQXTEMpFPk8uuMyJ8vK0fkwLF4enOo9ZVfzxOqwKoQ==
+X-Received: by 2002:a05:6214:5b0a:b0:68c:a02f:6079 with SMTP id ma10-20020a0562145b0a00b0068ca02f6079mr3441756qvb.29.1707134669050;
+        Mon, 05 Feb 2024 04:04:29 -0800 (PST)
+X-Forwarded-Encrypted: i=0; AJvYcCXmNidbUr0VtZ+6lzieCSIr/XlWKYGObahx4H5SEyWGq0u3Bb88mwSofTvDj6AAJNq+L4A7/2+Q2jCyGj/5T4McG2F7oHatZV/4mqxMUOl+55b0IXAnwYNCFHiZQIJaoOx4UB/5Tr+GbUq28A9lZCKKanKIfLyGg226L7Vbk2c4OlYqA3ClH79NbeHj3m+5qHyTIlX9eQIOoXWH9+7zjHYDI4EHL7Wqrn4vJM0KUfnYpZwJg2vdncFMOtTVhOr8YgxdP5G1wHWg2hGa0yJZt5HMXbkpga8BEsIUfIiF+PqEO/u89tBgFAETOL+nLrBmuu/9fUTjYCociI0dyVtaHl/PCl3lbpiI4f9nUj3zlYhNpDg06e5dXpdPKmE+q4Y45sFSdvBwMsl2g5XAoxVD86cgRaMY9BzZGZRQi8tsoIEVLi1s0JvlwR2hY9oE0NDiiG5nnPRwIBTUEeHvN7FvYl5Ex4NK4u0eoUm24JVSj6pixjtYR74=
 Received: from [192.168.0.9] (ip-109-43-177-196.web.vodafone.de. [109.43.177.196])
-        by smtp.gmail.com with ESMTPSA id nz10-20020a0562143a8a00b0068c7664112bsm3658473qvb.52.2024.02.05.03.28.41
+        by smtp.gmail.com with ESMTPSA id ql4-20020a056214540400b0068c95ebd14csm2194205qvb.2.2024.02.05.04.04.24
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 05 Feb 2024 03:28:44 -0800 (PST)
-Message-ID: <003f43ab-cce9-408d-8354-b7884f513ad1@redhat.com>
-Date: Mon, 5 Feb 2024 12:28:38 +0100
+        Mon, 05 Feb 2024 04:04:28 -0800 (PST)
+Message-ID: <cc1b4733-9a6f-4bb6-b8e6-1a6a8807b317@redhat.com>
+Date: Mon, 5 Feb 2024 13:04:22 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,13 +67,12 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v2 1/9] (arm|powerpc|s390x): Makefile: Fix
- .aux.o generation
+Subject: Re: [kvm-unit-tests PATCH v2 3/9] arch-run: Clean up initrd cleanup
 Content-Language: en-US
-To: Andrew Jones <andrew.jones@linux.dev>, Nicholas Piggin <npiggin@gmail.com>
+To: Nicholas Piggin <npiggin@gmail.com>
 Cc: kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
- Shaoqin Huang <shahuang@redhat.com>, Nico Boehr <nrb@linux.ibm.com>,
- Paolo Bonzini <pbonzini@redhat.com>,
+ Shaoqin Huang <shahuang@redhat.com>, Andrew Jones <andrew.jones@linux.dev>,
+ Nico Boehr <nrb@linux.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>,
  Alexandru Elisei <alexandru.elisei@arm.com>,
  Eric Auger <eric.auger@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
  Claudio Imbrenda <imbrenda@linux.ibm.com>,
@@ -81,8 +80,7 @@ Cc: kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
  <mhartmay@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
  linux-s390@vger.kernel.org, kvmarm@lists.linux.dev
 References: <20240202065740.68643-1-npiggin@gmail.com>
- <20240202065740.68643-2-npiggin@gmail.com>
- <20240202-2f93f59553cec386791f7629@orel>
+ <20240202065740.68643-4-npiggin@gmail.com>
 From: Thomas Huth <thuth@redhat.com>
 Autocrypt: addr=thuth@redhat.com; keydata=
  xsFNBFH7eUwBEACzyOXKU+5Pcs6wNpKzrlJwzRl3VGZt95VCdb+FgoU9g11m7FWcOafrVRwU
@@ -126,41 +124,48 @@ Autocrypt: addr=thuth@redhat.com; keydata=
  oiT+z+/E59qj/EKfyce3sbC9XLjXv3mHMrq1tKX4G7IJGnS989E/fg6crv6NHae9Ckm7+lSs
  IQu4bBP2GxiRQ+NV3iV/KU3ebMRzqIC//DCOxzQNFNJAKldPe/bKZMCxEqtVoRkuJtNdp/5a
  yXFZ6TfE1hGKrDBYAm4vrnZ4CXFSBDllL59cFFOJCkn4Xboj/aVxxJxF30bn
-In-Reply-To: <20240202-2f93f59553cec386791f7629@orel>
+In-Reply-To: <20240202065740.68643-4-npiggin@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 02/02/2024 10.30, Andrew Jones wrote:
-> On Fri, Feb 02, 2024 at 04:57:32PM +1000, Nicholas Piggin wrote:
->> Using all prerequisites for the source file results in the build
->> dying on the second time around with:
->>
->> gcc: fatal error: cannot specify ‘-o’ with ‘-c’, ‘-S’ or ‘-E’ with multiple files
->>
->> This is due to auxinfo.h becoming a prerequisite after the first
->> build recorded the dependency.
-
-D'oh, of course I only tried to run "make" once when testing that patch :-/
-
->> diff --git a/arm/Makefile.common b/arm/Makefile.common
->> index 54cb4a63..c2ee568c 100644
->> --- a/arm/Makefile.common
->> +++ b/arm/Makefile.common
->> @@ -71,7 +71,7 @@ FLATLIBS = $(libcflat) $(LIBFDT_archive) $(libeabi)
->>   
->>   ifeq ($(CONFIG_EFI),y)
->>   %.aux.o: $(SRCDIR)/lib/auxinfo.c
->> -	$(CC) $(CFLAGS) -c -o $@ $^ \
->> +	$(CC) $(CFLAGS) -c -o $@ $< \
->>   		-DPROGNAME=\"$(@:.aux.o=.efi)\" -DAUXFLAGS=$(AUXFLAGS)
+On 02/02/2024 07.57, Nicholas Piggin wrote:
+> Rather than put a big script into the trap handler, have it call
+> a function.
 > 
-> There are two instances of the %.aux.o target in arm/Makefile.common. We
-> need to fix both. We can actually pull the target out of the two arms of
-> the CONFIG_EFI if-else, though, by changing the .efi/.flat to .$(exe).
+> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+> ---
+>   scripts/arch-run.bash | 12 +++++++++++-
+>   1 file changed, 11 insertions(+), 1 deletion(-)
+> 
+> diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
+> index f22ead6f..cc7da7c5 100644
+> --- a/scripts/arch-run.bash
+> +++ b/scripts/arch-run.bash
+> @@ -271,10 +271,20 @@ search_qemu_binary ()
+>   	export PATH=$save_path
+>   }
+>   
+> +initrd_cleanup ()
+> +{
+> +	if [ "$KVM_UNIT_TESTS_ENV_OLD" ]; then
+> +		export KVM_UNIT_TESTS_ENV="$KVM_UNIT_TESTS_ENV_OLD"
+> +	else
+> +		unset KVM_UNIT_TESTS_ENV
+> +		unset KVM_UNIT_TESTS_ENV_OLD
+> +	fi
+> +}
+> +
+>   initrd_create ()
+>   {
+>   	if [ "$ENVIRON_DEFAULT" = "yes" ]; then
+> -		trap_exit_push 'rm -f $KVM_UNIT_TESTS_ENV; [ "$KVM_UNIT_TESTS_ENV_OLD" ] && export KVM_UNIT_TESTS_ENV="$KVM_UNIT_TESTS_ENV_OLD" || unset KVM_UNIT_TESTS_ENV; unset KVM_UNIT_TESTS_ENV_OLD'
+> +		trap_exit_push 'rm -f $KVM_UNIT_TESTS_ENV; initrd_cleanup'
+>
 
-I went ahead and pushed this patch with the trivial fix for the else-branch 
-to the repo to unbreak the build. If you think it's worthwhile to unify the 
-target, please provide a patch to do so, thanks!
+Why don't you move the 'rm -f $KVM_UNIT_TESTS_ENV' into the initrd_cleanup() 
+function, too? ... that would IMHO make more sense for a function that is 
+called *_cleanup() ?
 
   Thomas
+
 
