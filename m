@@ -1,85 +1,140 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6259F12B9D;
-	Mon,  5 Feb 2024 10:06:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 915FC17580;
+	Mon,  5 Feb 2024 10:48:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707127567; cv=none; b=WSn+4nx+s5UYwurH19QDhP+Nlnp6HDyUePgejck7a2OogTGE6c3TIqAkv4IKNv3aGAunJRpf2YCQy0HXyKuYeSFC9X/Vo7sfNrWcK1q118BTPl2RW5J+DgLuNf8fSbCU2gMlk3X575lVpRg3Vw1h/XmXHWna/MXWrnGJ6yf8mcM=
+	t=1707130091; cv=none; b=mxFi7OJaZ7Yy6P6PEN9g/CwJiXewKyNnibc9CEtGgwqYTDjl/JIxk3Pr7qp1s+wuVkEO5DwEHubAe4NN3nxiYBzBPS0dXAoilcrdkigaenNdoO2yigedbnDagZJz+gFvHIK/f4ioxeY3LYbfFiCNL6MqYnOpzXTvv69/T24S47E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707127567; c=relaxed/simple;
-	bh=xgBwL14gsjbyBxLm9I9rKQf8AqB0FAer5tOUDFLoh7k=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=bx7Qb3h+r+RW9C6toZhK6zVph/NwqHyh697vK3ZmCArHh1SQUI0ESDIYUBGnRXpca1ifbIEMmoetlud7bkW0bYY/4SDkycZkYZrw+o8RubZ1bbP6Ek6T2oS1nhF6RD2MdwgepKxRAYvik3oB5Xl0HNGg85dw7tvmZYJ1AMYe+pY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=szDkV6Hc; arc=none smtp.client-ip=115.124.30.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1707130091; c=relaxed/simple;
+	bh=zgdRXtCQVgt2Or41jbGbqOJrId8F/mOhYFJZ0vVkfxs=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=pQxf18H9j7BCMECJDrlcO4FDwhicmeKIhnwiPDgQLXy+NzEs99WEZDb23dOq2dUi08SkH26uywWwyAQomsWo8uAxY4IbahlcNROxIS+Zo7K5kbuHVZONyLIZSqz/HYaIq+Z+JMvD1TvGZttGYVbYXFhuCbaucLZXKeMXZkK+GSM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YRY6/qA5; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="szDkV6Hc"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1707127554; h=Message-ID:Date:MIME-Version:Subject:From:To:Content-Type;
-	bh=FTxuB/9pVV6+BKydMw7NaZh54dsfrIIZGvhhGbnCB7g=;
-	b=szDkV6HcQRWGnwM06PpbPLiBqWOgL+rH8bCaTJOU1wTpkhp4MVfpx2fDv2Iy2Jy630nyFIa8PfWmQ2238o2nyu8VcBJ333oIki7apNQnXx0miPpcVzUMa7uiobYezmIQ2mzyL35FYNlyiLnASGd/LPlaxXLkXcrqWmDCgWGdOSk=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R361e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0W08RJ8u_1707127552;
-Received: from 30.221.129.101(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W08RJ8u_1707127552)
-          by smtp.aliyun-inc.com;
-          Mon, 05 Feb 2024 18:05:53 +0800
-Message-ID: <a29ead38-7a39-4bbb-80cc-619c1b0dfd62@linux.alibaba.com>
-Date: Mon, 5 Feb 2024 18:05:52 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YRY6/qA5"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 415A07w1029161;
+	Mon, 5 Feb 2024 10:48:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=mime-version : date :
+ from : to : cc : subject : reply-to : in-reply-to : references :
+ message-id : content-type : content-transfer-encoding; s=pp1;
+ bh=D7V6wffE7jnUqvHbks/jTIWjjzAJmTZcNtR1eMolikU=;
+ b=YRY6/qA52VcknRqJSxY0v7xVkuXi8/9HtsAHDb20iMmhHati7UxxZmA2SbRuMNc0obaB
+ fF2RXVi0pg7i9EUuXkh+tFXdkP5FTsHka4qChqU0QSE4l4RQfAYsB80eosJd9666OAxB
+ 1S6NFNqGZqh3vNj+jEXIjJWYC+ayaHNJYV+RX97qH5DlNxh1gzgaGzNuhGMpGLqTDyH9
+ HZOWlFwn88BqnSVxr6V3NHsdvyPlJTGsjSysbdt+U2S8SpbAJ1VmIKXzMcLyrfQLUfvl
+ NRwAfdSN+r87l2AxIKVxLDzGxuRXR2V5swBYfyHYtwUPNMH70oSB28rbbaZqnJgPlu7H iw== 
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w2tx84ty8-6
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 05 Feb 2024 10:47:59 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4159w9HV019996;
+	Mon, 5 Feb 2024 10:36:35 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w1ytsr41m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 05 Feb 2024 10:36:35 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 415AaXUd1049268
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 5 Feb 2024 10:36:34 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DA19358061;
+	Mon,  5 Feb 2024 10:36:33 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D047858067;
+	Mon,  5 Feb 2024 10:36:32 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  5 Feb 2024 10:36:32 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 00/15] net/smc: implement loopback-ism used by
- SMC-D
-From: Wen Gu <guwen@linux.alibaba.com>
-To: Alexandra Winter <wintera@linux.ibm.com>,
- Wenjia Zhang <wenjia@linux.ibm.com>, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20240111120036.109903-1-guwen@linux.alibaba.com>
- <f98849a7-41e9-421b-97b7-36d720cc43ee@linux.alibaba.com>
- <20a1a1f3-789a-4d91-9a94-dca16161afd7@linux.ibm.com>
- <1860588f-2246-4dcd-9db5-4ccd7add0f4a@linux.alibaba.com>
- <3c51c969-3884-4104-b38d-570c61525214@linux.ibm.com>
- <47c1b777-6d4e-40ac-9297-61240c126d6a@linux.alibaba.com>
-In-Reply-To: <47c1b777-6d4e-40ac-9297-61240c126d6a@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Date: Mon, 05 Feb 2024 11:36:32 +0100
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: "Ricardo B. Marliere" <ricardo@marliere.net>
+Cc: Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter
+ <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian
+ Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle
+ <svens@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic
+ <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/6] s390: AP: make ap_bus_type const
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <20240203-bus_cleanup-s390-v1-5-ac891afc7282@marliere.net>
+References: <20240203-bus_cleanup-s390-v1-0-ac891afc7282@marliere.net>
+ <20240203-bus_cleanup-s390-v1-5-ac891afc7282@marliere.net>
+Message-ID: <696c7ded128d46addc16ecafa6128822@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 0GLNHfCFchkaM5BLNQwuhdGmU8Ejkfil
+X-Proofpoint-GUID: 0GLNHfCFchkaM5BLNQwuhdGmU8Ejkfil
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-05_06,2024-01-31_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ priorityscore=1501 impostorscore=0 lowpriorityscore=0 phishscore=0
+ adultscore=0 mlxlogscore=783 bulkscore=0 spamscore=0 clxscore=1011
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402050082
 
+On 2024-02-03 15:58, Ricardo B. Marliere wrote:
+> Now that the driver core can properly handle constant struct bus_type,
+> move the ap_bus_type variable to be a constant structure as well,
+> placing it into read-only memory which can not be modified at runtime.
+> 
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Ricardo B. Marliere <ricardo@marliere.net>
+> ---
+>  drivers/s390/crypto/ap_bus.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/s390/crypto/ap_bus.c 
+> b/drivers/s390/crypto/ap_bus.c
+> index f46dd6abacd7..2ecf4d36e78b 100644
+> --- a/drivers/s390/crypto/ap_bus.c
+> +++ b/drivers/s390/crypto/ap_bus.c
+> @@ -135,7 +135,7 @@ static int ap_max_domain_id = 15;
+>  /* Maximum adapter id, if not given via qci */
+>  static int ap_max_adapter_id = 63;
+> 
+> -static struct bus_type ap_bus_type;
+> +static const struct bus_type ap_bus_type;
+> 
+>  /* Adapter interrupt definitions */
+>  static void ap_interrupt_handler(struct airq_struct *airq,
+> @@ -1603,7 +1603,7 @@ static struct attribute *ap_bus_attrs[] = {
+>  };
+>  ATTRIBUTE_GROUPS(ap_bus);
+> 
+> -static struct bus_type ap_bus_type = {
+> +static const struct bus_type ap_bus_type = {
+>  	.name = "ap",
+>  	.bus_groups = ap_bus_groups,
+>  	.match = &ap_bus_match,
 
-On 2024/1/24 14:33, Wen Gu wrote:
-> 
-> 
-> On 2024/1/23 22:03, Alexandra Winter wrote:
->> Hello Wen Gu and others,
->>
->> I just wanted to let you know that unfortunately both Wenjia and Jan have called in sick and we don't know
->> when they will be back at work.
->> So I'm sorry but there may be mroe delays in the review of this patchset.
->>
->> Kind regards
->> Alexandra Winter
-> 
-> Hi Alexandra,
-> 
-> Thank you for the update. Health comes first. Wishing Wenjia and Jan
-> both make a swift recovery.
-> 
-> Best regards,
-> Wen Gu
-
-Hi, Wenjia and Jan
-
-I would like to ask if I should wait for the review of this version
-or send a v2 (with some minor changes) ?
-
-Thanks!
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
