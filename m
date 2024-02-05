@@ -1,54 +1,54 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60AB43CF63
-	for <linux-s390@vger.kernel.org>; Mon,  5 Feb 2024 16:21:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84AD23A1C3
+	for <linux-s390@vger.kernel.org>; Mon,  5 Feb 2024 16:26:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707150110; cv=none; b=ndcqbsxE3QNDBF0E83M2eTmoy6czIZ0W8RGvjnLVNVSLGtE58hu8oAAKR1WHHKEhBTqR0dsl8YMKEm9CuM/Wc+Cn6TZ4lyFApR9itggUC/Lx0ZstyK1WJUa6Kj6sEYrzsHrD32uzKgiYFYkSJhlOS6jz41qDxZIX9dI6Il8d1yw=
+	t=1707150396; cv=none; b=NGr3ZnQxURn+r10dQ/H2UdaNuPax6umauOzZ7Aqjouwsy5T+YLGq61JaqB6wLbFjjvmpx0D+pqQnIfEXVWyphM+J+33TorqNXFoFw8WFlylKnEqSslBRQ0z6qylr7afWERR0hAqz6Lc9WTuZzaDdwGcIlrZP7Fi7YhmGR/BM8+Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707150110; c=relaxed/simple;
-	bh=IXbS5jwsg2soia7aLFCzN1PxbuLT3Im8P95YoAzLLis=;
+	s=arc-20240116; t=1707150396; c=relaxed/simple;
+	bh=5tqq0FdmMaEArrTgA0b0O0F+fb1t799dHCr0ICSacNc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Q3+9rxZvIx7IPXXK528CRScAswKENaDmNfqP8GVGB0gFhk6OnSPCdEKO+kPo//aN2UALC/mwYy7RPoWkUAsuoGE85vE4virwuzlkAe+HgVyJ1u+llYxthkrxnhzfGL0yFR2V6QKJJuRCRPyuX5xvpIcnyj7ZoQ61Y/FqX8HT5QU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=nvybJFVt; arc=none smtp.client-ip=209.85.214.180
+	 Content-Type:Content-Disposition:In-Reply-To; b=uvLgBE23+zXn+9xC0LQcnmaCUOPQvA1mwG8vA/ycbXKksLGjyNHCp9vScYtPLQl6c2lyq9mUgq3MOj+MIiQzzBT1FbNn6EkjXPmOZQPmJoA3Cmfm3AqzfZfCzQuRsS5Ht7JLKWhMnYrYfv3Hktk+1kSW6rnVywiPiWjLmq1yKjg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=Fxq7x8He; arc=none smtp.client-ip=209.85.216.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="nvybJFVt"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-1d746ce7d13so37645575ad.0
-        for <linux-s390@vger.kernel.org>; Mon, 05 Feb 2024 08:21:49 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Fxq7x8He"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-290ec261a61so2655063a91.0
+        for <linux-s390@vger.kernel.org>; Mon, 05 Feb 2024 08:26:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1707150108; x=1707754908; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1707150394; x=1707755194; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=YZwZeufc6RF0LGvmSyP+thskIiStXIaE1teIek3hvHg=;
-        b=nvybJFVteIgFCTbRfJdnY04Rd7s+py9FJph9J1Ip1Yg1G8eKhVHc2v8SztDGWYdUiC
-         l3ysn8gAqFgCGrofQ4rRFHfr2apTwq4CeK61G8RFn4fInjlYUcK8lFQPq97+udM7tepz
-         MijKsAAtu/e29FRDISRXAt3LWwEE9VgvW9HnY=
+        bh=qSN5kQKNkmN+cXEoE2qz/ndx6yByj79ug1SGB5prSww=;
+        b=Fxq7x8He4o9G9j6FL3fL0n0l5tVdVXqOsPHGlNpdx3JFDNJco32QH4DwINBnygwhNB
+         UMaxmv7xYfpQPCw5WkR3Vtk8sjdapQXT/kNFXZQ4gZweeVaqkaj/hcXScmnEaekvqZod
+         CQxYntPjVK0+ny9/VYjkXx7w/PoR5jAei+Yq8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707150108; x=1707754908;
+        d=1e100.net; s=20230601; t=1707150394; x=1707755194;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=YZwZeufc6RF0LGvmSyP+thskIiStXIaE1teIek3hvHg=;
-        b=j/Z4JisUEWzuCZFijQTZKkZAohxaLWoKeRj19HeIc+hdarBnifu++qfgO3j9BNnl67
-         U0FxwTaDMovtawOJuWTkXlq0OESu+Kzbdm3CO4dOPFUMrpbemMhwEY6HWxcjiWEAujQf
-         NdvOd8WY2wXiGDfv3is374L9y8F56kzqVizKT73xuZlgxMIx8fL+odhiX09aXmUAkcNU
-         hW2HMfaNV2+mDJux5GGI4jB5dzMpUGkop4dZjACwJ2dMNuX0f7dBuR/YEpmkx6UbR4XQ
-         z4rPIhh9wczJ0din1yW/F0CGKFyg/X8ikRYSEWcxYjIKeXYnPG7oDLGhEMuxK5qrPE19
-         wEVw==
-X-Gm-Message-State: AOJu0Yx+IBfAr/svx5F53HINJ6R71JbsuNa0zHD085W4GQK3YTZbs/Zv
-	D87uXU25TwAylXoRgNCBIWH1o2QtCYRmoBr64yhyiTsrIPY9tHermsqYvETb7Q==
-X-Google-Smtp-Source: AGHT+IFOi6SKmDq+rEHuXD2yZIUTwg+48hSe9Nl9MGs2+LH2Mbti05+94D2DxPC7gvcjww9srmpYXw==
-X-Received: by 2002:a17:902:d544:b0:1d9:ab92:1550 with SMTP id z4-20020a170902d54400b001d9ab921550mr6160873plf.63.1707150108625;
-        Mon, 05 Feb 2024 08:21:48 -0800 (PST)
-X-Forwarded-Encrypted: i=0; AJvYcCU6WBBeNWFvorF+DbpeeCWedea/8Hkd20BNUPZaVZN2ePQGBivtHSul7DKIIuJwuuF2cfCRt3rZQEuOU4nr1E091Z3sguDmfGyKCX9U9vDmUvI/9caOUHHvwesqbnybtOo758qz4hn00Rp8Wgs1iXMzkg38eh7if5QgTNZviORqXScYOWUg19rqx7Y3peu4C0l59fwnXixxz0MOLr40N4QoWjp6pJEwQayI3wHJ
+        bh=qSN5kQKNkmN+cXEoE2qz/ndx6yByj79ug1SGB5prSww=;
+        b=OLOuNOW3/36ijCYUg50SRzZRcHu1QpS35omZ19CFUPoXQz1PoduC7ALeFuWo5Z3tMu
+         CXpf4wAfbXQx1MtVk8tlavLidB/ABkQLVnGq3b7o3l+2YFK6z4UWpv+VvuyFoBkOFyec
+         CDQNz01Hn/M1ka3tbt9MjvyI60apV9NPaftNHq7TZuiG5XYjKgGBmvsVsSD+IHNHQjwa
+         LGwQfVxsSPZZBn0viLLRBhlMuWmGMODc6Gu1BqAOAVyRE5fKDmKPnX6Q4mZjIH8hr9EX
+         JaBcdez9CbA3bFOLC3qJEff7LSPTu/16l7LHnYqpFvi88t2W37fuAGwmnH8jNA3J8h3m
+         FhSQ==
+X-Gm-Message-State: AOJu0YyYBW0tAIaAW7bTABnokPrQXA33bqGysg7EELdJpCVJQUotrUJL
+	hMvyZIvLIOECatp0F0/ZEZpKxt5GDW8pYbkMvLHeCkMsRpnNXIkL16tprCzCEA==
+X-Google-Smtp-Source: AGHT+IFl7DYl3f1zB/KHuiGxwg7q8MpflDnTt1drQK2gQlwln5TzUdbsnd5JnIlv+Tsyq7QCR6Mrqg==
+X-Received: by 2002:a17:90a:fe07:b0:296:a767:f6d2 with SMTP id ck7-20020a17090afe0700b00296a767f6d2mr1949786pjb.38.1707150393874;
+        Mon, 05 Feb 2024 08:26:33 -0800 (PST)
+X-Forwarded-Encrypted: i=0; AJvYcCVWGGFup8e+td6iUOWaunAZM42As0IC01Js3Takr+RosOpHsapmKnKIKuRRpvAjMkrMDj+9Z3U0YBT3uX6FkhSKuyabKY4mob+Vf1nZOyhniVpnX68VUy7ZIpnDlphWWvABEophCxzBOJOlMTmELZmL/kulI6fHKsKY/maiUmT2kcG5GmlcHPl54VI8BXHeNfrM9pRac+E+dqBCRhGKfbsoNMMmXLDJFoUOoMJV
 Received: from www.outflux.net ([198.0.35.241])
-        by smtp.gmail.com with ESMTPSA id jz15-20020a170903430f00b001d88d791eccsm46955plb.160.2024.02.05.08.21.48
+        by smtp.gmail.com with ESMTPSA id p15-20020a17090adf8f00b00295e671dfb8sm5151592pjv.22.2024.02.05.08.26.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 Feb 2024 08:21:48 -0800 (PST)
-Date: Mon, 5 Feb 2024 08:21:47 -0800
+        Mon, 05 Feb 2024 08:26:33 -0800 (PST)
+Date: Mon, 5 Feb 2024 08:26:32 -0800
 From: Kees Cook <keescook@chromium.org>
 To: Heiko Carstens <hca@linux.ibm.com>
 Cc: Nathan Chancellor <nathan@kernel.org>,
@@ -56,10 +56,10 @@ Cc: Nathan Chancellor <nathan@kernel.org>,
 	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: Re: [PATCH 1/2] Compiler Attributes: Add __uninitialized macro
-Message-ID: <202402050818.B11CFAD2B@keescook>
+Subject: Re: [PATCH 2/2] s390/fpu: make use of __uninitialized macro
+Message-ID: <202402050822.E6E6E978@keescook>
 References: <20240205154844.3757121-1-hca@linux.ibm.com>
- <20240205154844.3757121-2-hca@linux.ibm.com>
+ <20240205154844.3757121-3-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,26 +68,120 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240205154844.3757121-2-hca@linux.ibm.com>
+In-Reply-To: <20240205154844.3757121-3-hca@linux.ibm.com>
 
-On Mon, Feb 05, 2024 at 04:48:43PM +0100, Heiko Carstens wrote:
-> With INIT_STACK_ALL_PATTERN or INIT_STACK_ALL_ZERO enabled the kernel will
-> be compiled with -ftrivial-auto-var-init=<...> which causes initialization
-> of stack variables at function entry time.
+On Mon, Feb 05, 2024 at 04:48:44PM +0100, Heiko Carstens wrote:
+> Code sections in s390 specific kernel code which use floating point or
+> vector registers all come with a 520 byte stack variable to save already in
+> use registers, if required.
 > 
-> In order to avoid the performance impact that comes with this users can use
-> the "uninitialized" attribute to prevent such initialization.
+> With INIT_STACK_ALL_PATTERN or INIT_STACK_ALL_ZERO enabled this variable
+> will always be initialized on function entry in addition to saving register
+> contents, which contradicts the intend (performance improvement) of such
+> code sections.
 > 
-> Therefore provide the __uninitialized macro which can be used for cases
-> where INIT_STACK_ALL_PATTERN or INIT_STACK_ALL_ZERO is enabled, but only
-> selected variables should not be initialized.
+> Therefore provide a DECLARE_KERNEL_FPU_ONSTACK() macro which provides
+> struct kernel_fpu variables with an __uninitialized attribute, and convert
+> all existing code to use this.
+> 
+> This way only this specific type of stack variable will not be initialized,
+> regardless of config options.
 > 
 > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>  arch/s390/crypto/chacha-glue.c    | 2 +-
+>  arch/s390/crypto/crc32-vx.c       | 2 +-
+>  arch/s390/include/asm/fpu/types.h | 3 +++
+>  arch/s390/kernel/sysinfo.c        | 2 +-
+>  lib/raid6/s390vx.uc               | 4 ++--
+>  5 files changed, 8 insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/s390/crypto/chacha-glue.c b/arch/s390/crypto/chacha-glue.c
+> index ed9959e6f714..a823132fc563 100644
+> --- a/arch/s390/crypto/chacha-glue.c
+> +++ b/arch/s390/crypto/chacha-glue.c
+> @@ -22,7 +22,7 @@ static void chacha20_crypt_s390(u32 *state, u8 *dst, const u8 *src,
+>  				unsigned int nbytes, const u32 *key,
+>  				u32 *counter)
+>  {
+> -	struct kernel_fpu vxstate;
+> +	DECLARE_KERNEL_FPU_ONSTACK(vxstate);
+>  
+>  	kernel_fpu_begin(&vxstate, KERNEL_VXR);
+>  	chacha20_vx(dst, src, nbytes, key, counter);
+> diff --git a/arch/s390/crypto/crc32-vx.c b/arch/s390/crypto/crc32-vx.c
+> index 017143e9cef7..6ae3e3ff5b0a 100644
+> --- a/arch/s390/crypto/crc32-vx.c
+> +++ b/arch/s390/crypto/crc32-vx.c
+> @@ -49,8 +49,8 @@ u32 crc32c_le_vgfm_16(u32 crc, unsigned char const *buf, size_t size);
+>  	static u32 __pure ___fname(u32 crc,				    \
+>  				unsigned char const *data, size_t datalen)  \
+>  	{								    \
+> -		struct kernel_fpu vxstate;				    \
+>  		unsigned long prealign, aligned, remaining;		    \
+> +		DECLARE_KERNEL_FPU_ONSTACK(vxstate);			    \
+>  									    \
+>  		if (datalen < VX_MIN_LEN + VX_ALIGN_MASK)		    \
+>  			return ___crc32_sw(crc, data, datalen);		    \
+> diff --git a/arch/s390/include/asm/fpu/types.h b/arch/s390/include/asm/fpu/types.h
+> index d889e9436865..b1afa13c07b7 100644
+> --- a/arch/s390/include/asm/fpu/types.h
+> +++ b/arch/s390/include/asm/fpu/types.h
+> @@ -35,4 +35,7 @@ struct kernel_fpu {
+>  	};
+>  };
+>  
+> +#define DECLARE_KERNEL_FPU_ONSTACK(name)	\
+> +	struct kernel_fpu name __uninitialized
 
-Thanks! We had something similar a while back with syscall entry:
-efa90c11f62e ("stack: Constrain and fix stack offset randomization with Clang builds")
+Are there cases when struct kernel_fpu should be initialized? e.g.
+should the attribute just be added to the struct definition instead of
+marking each use?
 
-Acked-by: Kees Cook <keescook@chromium.org>
+-Kees
+
+> +
+>  #endif /* _ASM_S390_FPU_TYPES_H */
+> diff --git a/arch/s390/kernel/sysinfo.c b/arch/s390/kernel/sysinfo.c
+> index f6f8f498c9be..b439f17516eb 100644
+> --- a/arch/s390/kernel/sysinfo.c
+> +++ b/arch/s390/kernel/sysinfo.c
+> @@ -426,9 +426,9 @@ subsys_initcall(create_proc_service_level);
+>   */
+>  void s390_adjust_jiffies(void)
+>  {
+> +	DECLARE_KERNEL_FPU_ONSTACK(fpu);
+>  	struct sysinfo_1_2_2 *info;
+>  	unsigned long capability;
+> -	struct kernel_fpu fpu;
+>  
+>  	info = (void *) get_zeroed_page(GFP_KERNEL);
+>  	if (!info)
+> diff --git a/lib/raid6/s390vx.uc b/lib/raid6/s390vx.uc
+> index cd0b9e95f499..7b0b355e1a26 100644
+> --- a/lib/raid6/s390vx.uc
+> +++ b/lib/raid6/s390vx.uc
+> @@ -81,7 +81,7 @@ static inline void COPY_VEC(int x, int y)
+>  
+>  static void raid6_s390vx$#_gen_syndrome(int disks, size_t bytes, void **ptrs)
+>  {
+> -	struct kernel_fpu vxstate;
+> +	DECLARE_KERNEL_FPU_ONSTACK(vxstate);
+>  	u8 **dptr, *p, *q;
+>  	int d, z, z0;
+>  
+> @@ -114,7 +114,7 @@ static void raid6_s390vx$#_gen_syndrome(int disks, size_t bytes, void **ptrs)
+>  static void raid6_s390vx$#_xor_syndrome(int disks, int start, int stop,
+>  					size_t bytes, void **ptrs)
+>  {
+> -	struct kernel_fpu vxstate;
+> +	DECLARE_KERNEL_FPU_ONSTACK(vxstate);
+>  	u8 **dptr, *p, *q;
+>  	int d, z, z0;
+>  
+> -- 
+> 2.40.1
+> 
 
 -- 
 Kees Cook
