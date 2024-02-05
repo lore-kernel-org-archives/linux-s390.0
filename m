@@ -1,140 +1,166 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 915FC17580;
-	Mon,  5 Feb 2024 10:48:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 461101864D
+	for <linux-s390@vger.kernel.org>; Mon,  5 Feb 2024 11:28:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707130091; cv=none; b=mxFi7OJaZ7Yy6P6PEN9g/CwJiXewKyNnibc9CEtGgwqYTDjl/JIxk3Pr7qp1s+wuVkEO5DwEHubAe4NN3nxiYBzBPS0dXAoilcrdkigaenNdoO2yigedbnDagZJz+gFvHIK/f4ioxeY3LYbfFiCNL6MqYnOpzXTvv69/T24S47E=
+	t=1707132531; cv=none; b=IyhW7pjM9PIvDL9Q11zULv5dpG9qiL8bfK0W+QpCVovlKs6m72VPO7VJlxNjF74DbInCuQmAT8vw+ZlRl/GNx2PZpt03iZGQvZ+GAVAp15EEgN+zVtwVhP6gKnM9vkHfUUHdSL5Sr12R9fuvPUzog/Onlya2J2ub9/+8nETPV1s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707130091; c=relaxed/simple;
-	bh=zgdRXtCQVgt2Or41jbGbqOJrId8F/mOhYFJZ0vVkfxs=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=pQxf18H9j7BCMECJDrlcO4FDwhicmeKIhnwiPDgQLXy+NzEs99WEZDb23dOq2dUi08SkH26uywWwyAQomsWo8uAxY4IbahlcNROxIS+Zo7K5kbuHVZONyLIZSqz/HYaIq+Z+JMvD1TvGZttGYVbYXFhuCbaucLZXKeMXZkK+GSM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YRY6/qA5; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1707132531; c=relaxed/simple;
+	bh=2VJYWwkj282qmW4tJsn+V5pmShFHwuBYTY12vqnTrB4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=B/ZrMz6KGARVM/N93Opsb0r82ZwFTwL+SMDd60QHNpA2yU8dqiCHWZBKoaWTxPi1z/WcDiRWoVFVdcXFa+Nap4UI1nztPQ+4zShUEqSLLPXZlDYrsRBAFqRh3Ft5XS9vLaya0Ubh6X49LbX+0xgv6YPr+i7wDhZADsZxkq3gPJM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=frWlSQHh; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YRY6/qA5"
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 415A07w1029161;
-	Mon, 5 Feb 2024 10:48:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=mime-version : date :
- from : to : cc : subject : reply-to : in-reply-to : references :
- message-id : content-type : content-transfer-encoding; s=pp1;
- bh=D7V6wffE7jnUqvHbks/jTIWjjzAJmTZcNtR1eMolikU=;
- b=YRY6/qA52VcknRqJSxY0v7xVkuXi8/9HtsAHDb20iMmhHati7UxxZmA2SbRuMNc0obaB
- fF2RXVi0pg7i9EUuXkh+tFXdkP5FTsHka4qChqU0QSE4l4RQfAYsB80eosJd9666OAxB
- 1S6NFNqGZqh3vNj+jEXIjJWYC+ayaHNJYV+RX97qH5DlNxh1gzgaGzNuhGMpGLqTDyH9
- HZOWlFwn88BqnSVxr6V3NHsdvyPlJTGsjSysbdt+U2S8SpbAJ1VmIKXzMcLyrfQLUfvl
- NRwAfdSN+r87l2AxIKVxLDzGxuRXR2V5swBYfyHYtwUPNMH70oSB28rbbaZqnJgPlu7H iw== 
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w2tx84ty8-6
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 05 Feb 2024 10:47:59 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4159w9HV019996;
-	Mon, 5 Feb 2024 10:36:35 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w1ytsr41m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 05 Feb 2024 10:36:35 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 415AaXUd1049268
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 5 Feb 2024 10:36:34 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DA19358061;
-	Mon,  5 Feb 2024 10:36:33 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D047858067;
-	Mon,  5 Feb 2024 10:36:32 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  5 Feb 2024 10:36:32 +0000 (GMT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="frWlSQHh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1707132527;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=nUaMZZu+Dp9dwRrEKB8bV8ysB1e4sCJY0FwagGA5ceE=;
+	b=frWlSQHhUaIrxA4ECNnKETP3hwojUlGTqcXbrTi/xW2BejpbPE/mZE3CAQhZ2yO3b404j7
+	OatKDvfPpv5Ht1wApKPuw1/mnOxR/Egc66+ZkfGC4cCtT6HuBHIbKvj3P3B8UGesKYVGXw
+	hD5sEj4ht1MXwfWlvrVwcIlIjpVELoI=
+Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
+ [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-467-iPtKJz6aMle8RbiBI6mZ4Q-1; Mon, 05 Feb 2024 06:28:45 -0500
+X-MC-Unique: iPtKJz6aMle8RbiBI6mZ4Q-1
+Received: by mail-qv1-f69.google.com with SMTP id 6a1803df08f44-6800e52d47aso110395356d6.1
+        for <linux-s390@vger.kernel.org>; Mon, 05 Feb 2024 03:28:45 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1707132525; x=1707737325;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
+         :to:content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=nUaMZZu+Dp9dwRrEKB8bV8ysB1e4sCJY0FwagGA5ceE=;
+        b=frZbLvL5MiImY3ciOxq5jq7SADV3kxgTVPHSfRN+UV25GnSayOEtjP+4AvlvJBZpeO
+         trzXglPJREmSHrAC3QChMNq2rzJ6ERbEWBNNv08RpUAgbyxQL1rdU3YPqOsjll/wI1KO
+         /kksch+9daZgOEmWJfRFJPtDG+srCOejzgakRAYiFJfY3SUeEKNIMWco3BEbQk64j4si
+         9sl4DfwEtvvC6DABhS4j0MvimZ2kL9DwRDjs7QdDZ8eZG5fH9JSK7AkO6JRBbFLrMRNA
+         wjS6Dxx+dvMcPfqqKSIDILyoql1Kydoc4s09wlSsplxW+9AxTOdBd0Gl66iXkXanmHda
+         48OQ==
+X-Gm-Message-State: AOJu0YwyYoj/W96sTkpNFH1MnRQkGm68k38htSkV2Bcu3PAUcJg0J2nj
+	VGYoUEckCelip+ZXpWpzI9wLvDrwKMsz/8TDhxZL//udIMEcHm4WvkBmEwVGswVXPrw8t05+DLO
+	xB+l2z/x2a3MQUjGVTkYSmbOZQqMix+tMltk6lKRUbkkB7ACNYnAmVhs4FU4=
+X-Received: by 2002:a05:6214:1bca:b0:68c:5aec:a777 with SMTP id m10-20020a0562141bca00b0068c5aeca777mr10444479qvc.15.1707132525290;
+        Mon, 05 Feb 2024 03:28:45 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG8EaWM4B1y1ZetAAd55Aml2aHxbapztaFPxB73e0x4SKOBYmOWyWuKnTkcVyTF/NaB0tj2yA==
+X-Received: by 2002:a05:6214:1bca:b0:68c:5aec:a777 with SMTP id m10-20020a0562141bca00b0068c5aeca777mr10444456qvc.15.1707132525076;
+        Mon, 05 Feb 2024 03:28:45 -0800 (PST)
+X-Forwarded-Encrypted: i=0; AJvYcCXWPIeAmM4zXqyigLA0WaHjYvNc0iltB6bnBBy8QYvhZLHNBXkjYjHaucBRdJYPH0szT+kDLlvclxWkY5zxZP8lUzEhIXYmjGPkzkA3KlO3Qa2uRQXc9nXwApYOePPqxPh993CX+Ykh5jamYbUskGrr02J+wyVcxl+9yb35OMqMi48kHAZwZg/zppBC1scp8eyLC2fKAfLNawWG2xo2EawCIJYSrvkvLjxiVxsXNPOaclgOUBS2Qog+pId8rXLYpWHB/fFohXulmw0J7f8DgDSfPwPFRsOMVxURBnWOEI/X6tZAL8cEaDB2EZWPlvaEINY5yy9woLltLnE7jzYIZZGeRsspWNDvJgBPDqwzOYxDi3TAFncm1h9WOVQaLnZ8ZjiLaU40OkuC4ZMzb0k4f2AVGD5RBXnICUYtufL9szNSrdRZocVbgybUdJqs2dg617ubop/j5uGuX1VCXNWQ1YgZ2Su7HbPkAQ/hZidUC3/U
+Received: from [192.168.0.9] (ip-109-43-177-196.web.vodafone.de. [109.43.177.196])
+        by smtp.gmail.com with ESMTPSA id nz10-20020a0562143a8a00b0068c7664112bsm3658473qvb.52.2024.02.05.03.28.41
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 05 Feb 2024 03:28:44 -0800 (PST)
+Message-ID: <003f43ab-cce9-408d-8354-b7884f513ad1@redhat.com>
+Date: Mon, 5 Feb 2024 12:28:38 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Mon, 05 Feb 2024 11:36:32 +0100
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: "Ricardo B. Marliere" <ricardo@marliere.net>
-Cc: Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter
- <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
- <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian
- Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic
- <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Greg
- Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/6] s390: AP: make ap_bus_type const
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <20240203-bus_cleanup-s390-v1-5-ac891afc7282@marliere.net>
-References: <20240203-bus_cleanup-s390-v1-0-ac891afc7282@marliere.net>
- <20240203-bus_cleanup-s390-v1-5-ac891afc7282@marliere.net>
-Message-ID: <696c7ded128d46addc16ecafa6128822@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 0GLNHfCFchkaM5BLNQwuhdGmU8Ejkfil
-X-Proofpoint-GUID: 0GLNHfCFchkaM5BLNQwuhdGmU8Ejkfil
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-05_06,2024-01-31_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- priorityscore=1501 impostorscore=0 lowpriorityscore=0 phishscore=0
- adultscore=0 mlxlogscore=783 bulkscore=0 spamscore=0 clxscore=1011
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402050082
+User-Agent: Mozilla Thunderbird
+Subject: Re: [kvm-unit-tests PATCH v2 1/9] (arm|powerpc|s390x): Makefile: Fix
+ .aux.o generation
+Content-Language: en-US
+To: Andrew Jones <andrew.jones@linux.dev>, Nicholas Piggin <npiggin@gmail.com>
+Cc: kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
+ Shaoqin Huang <shahuang@redhat.com>, Nico Boehr <nrb@linux.ibm.com>,
+ Paolo Bonzini <pbonzini@redhat.com>,
+ Alexandru Elisei <alexandru.elisei@arm.com>,
+ Eric Auger <eric.auger@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ David Hildenbrand <david@redhat.com>, Marc Hartmayer
+ <mhartmay@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, kvmarm@lists.linux.dev
+References: <20240202065740.68643-1-npiggin@gmail.com>
+ <20240202065740.68643-2-npiggin@gmail.com>
+ <20240202-2f93f59553cec386791f7629@orel>
+From: Thomas Huth <thuth@redhat.com>
+Autocrypt: addr=thuth@redhat.com; keydata=
+ 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
+In-Reply-To: <20240202-2f93f59553cec386791f7629@orel>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On 2024-02-03 15:58, Ricardo B. Marliere wrote:
-> Now that the driver core can properly handle constant struct bus_type,
-> move the ap_bus_type variable to be a constant structure as well,
-> placing it into read-only memory which can not be modified at runtime.
-> 
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Ricardo B. Marliere <ricardo@marliere.net>
-> ---
->  drivers/s390/crypto/ap_bus.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/s390/crypto/ap_bus.c 
-> b/drivers/s390/crypto/ap_bus.c
-> index f46dd6abacd7..2ecf4d36e78b 100644
-> --- a/drivers/s390/crypto/ap_bus.c
-> +++ b/drivers/s390/crypto/ap_bus.c
-> @@ -135,7 +135,7 @@ static int ap_max_domain_id = 15;
->  /* Maximum adapter id, if not given via qci */
->  static int ap_max_adapter_id = 63;
-> 
-> -static struct bus_type ap_bus_type;
-> +static const struct bus_type ap_bus_type;
-> 
->  /* Adapter interrupt definitions */
->  static void ap_interrupt_handler(struct airq_struct *airq,
-> @@ -1603,7 +1603,7 @@ static struct attribute *ap_bus_attrs[] = {
->  };
->  ATTRIBUTE_GROUPS(ap_bus);
-> 
-> -static struct bus_type ap_bus_type = {
-> +static const struct bus_type ap_bus_type = {
->  	.name = "ap",
->  	.bus_groups = ap_bus_groups,
->  	.match = &ap_bus_match,
+On 02/02/2024 10.30, Andrew Jones wrote:
+> On Fri, Feb 02, 2024 at 04:57:32PM +1000, Nicholas Piggin wrote:
+>> Using all prerequisites for the source file results in the build
+>> dying on the second time around with:
+>>
+>> gcc: fatal error: cannot specify ‘-o’ with ‘-c’, ‘-S’ or ‘-E’ with multiple files
+>>
+>> This is due to auxinfo.h becoming a prerequisite after the first
+>> build recorded the dependency.
 
-Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+D'oh, of course I only tried to run "make" once when testing that patch :-/
+
+>> diff --git a/arm/Makefile.common b/arm/Makefile.common
+>> index 54cb4a63..c2ee568c 100644
+>> --- a/arm/Makefile.common
+>> +++ b/arm/Makefile.common
+>> @@ -71,7 +71,7 @@ FLATLIBS = $(libcflat) $(LIBFDT_archive) $(libeabi)
+>>   
+>>   ifeq ($(CONFIG_EFI),y)
+>>   %.aux.o: $(SRCDIR)/lib/auxinfo.c
+>> -	$(CC) $(CFLAGS) -c -o $@ $^ \
+>> +	$(CC) $(CFLAGS) -c -o $@ $< \
+>>   		-DPROGNAME=\"$(@:.aux.o=.efi)\" -DAUXFLAGS=$(AUXFLAGS)
+> 
+> There are two instances of the %.aux.o target in arm/Makefile.common. We
+> need to fix both. We can actually pull the target out of the two arms of
+> the CONFIG_EFI if-else, though, by changing the .efi/.flat to .$(exe).
+
+I went ahead and pushed this patch with the trivial fix for the else-branch 
+to the repo to unbreak the build. If you think it's worthwhile to unify the 
+target, please provide a patch to do so, thanks!
+
+  Thomas
+
