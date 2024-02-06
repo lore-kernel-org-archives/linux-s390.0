@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8076A1C698;
-	Tue,  6 Feb 2024 22:06:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 776761CD19;
+	Tue,  6 Feb 2024 23:20:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707257199; cv=none; b=V+qKIxrkSv+FoG8UwWh5cTAUrtur0ye8f7Gqg/2VpJYQQ9m8Zns7KppWp32FRyiiPTchF615HRVkF1Q+Ysm6fL8UioSXr1iT8OkYw8XhOD/tQtBCwGeKfX82/hynvvsCyOA1Z3XWCo4GhMUCSt/podtv7Ko0rk1Zp521ygH2GzU=
+	t=1707261640; cv=none; b=nUmLXHcDRIc8N9E2QQqzkq+adDLe+DgoGv0tnslz+4ui5UL9hDARJvsih0bhZ9s0T6Tk1ixngjhu3rS3awRExwP1Xa6XMD5rxMbsBZQ8ussyz4YI0QcHhrgEP8YTbgsJMGV0KqVw9/CyDPcEu1qHgrgOMznz+AiLqrA4VmaRPGw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707257199; c=relaxed/simple;
-	bh=UZGZYo3rQF8ZQt1Q1DO6QY0N+zaL6JsoCk2GwJ5HiIE=;
+	s=arc-20240116; t=1707261640; c=relaxed/simple;
+	bh=1O9RvWgEImib2iF51r5QYr1VDYDSSOzJ9bKUEoxfyA8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fCfJLH7F/HPbWCSn4MvGoJmhnpRu52QyUxQK+rJ8XAuCssEwfP0E7C2PFvBJQBqKDEgs9cUT65MaeCteMJne52im+u3PveqZ5OaVJYBMEmSaGBROBjFWpOKuzTfcbflNdqOJUvVMM4tdACxWh3u8VjgPVt+QA0m9kryN1z3B2TQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iwO/K19o; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=aZazPOJskmTnYSowzJ7OxoD2RFESdCxYiVq1vwrokyQ6IcYp3eFIUNoBa+SDcaOyEO7lZqpEnefgmbju07AQm0FXEaXcUzhVA0Pao+zibLy9AWmFwFIvKRquO9PZXm3GyAyqQQVQuSornztswP6nIvdk2N03eb3kj7iCcKDarC4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H5iOZ77h; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iwO/K19o"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33DD8C433C7;
-	Tue,  6 Feb 2024 22:06:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H5iOZ77h"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68CCFC433F1;
+	Tue,  6 Feb 2024 23:20:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1707257198;
-	bh=UZGZYo3rQF8ZQt1Q1DO6QY0N+zaL6JsoCk2GwJ5HiIE=;
+	s=k20201202; t=1707261640;
+	bh=1O9RvWgEImib2iF51r5QYr1VDYDSSOzJ9bKUEoxfyA8=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=iwO/K19oOMhIFA05HctRHnCNinzvDTEPi6r/OPZCpX6ODROincXYZIvFUe9tG6VAo
-	 45smlY0+UFtPN2QC0xdZqny1b3KP2nNLylVIJLW+keZdmoUNuYlzLQjNtqipSWzVzb
-	 JSK+y2MlwrWJL+PF5lBe2vsNyrZMNhtK/ODjWE6K9R+FiuCy5IdXAKiOZ7jX6YnHmA
-	 1BuEzcln71eQ6ARbFYWn5NSojNYyUuccwYIKGz/Bv6ipnbxu7cLMSm3d78GF/zmBMF
-	 faQYnNiKH7FXNJejU5AeFK24fONgNcBgicsrI7b2w+AMyh5rrWAiZWC6rCVbSkhxbx
-	 Bn6LnGkEx/SKw==
-Date: Tue, 6 Feb 2024 23:06:35 +0100
+	b=H5iOZ77hy5azlnJnGSyQdl4mhV2QCSpLc03NRtFn/YccY2rA3WUNmT0O2OGzZ4+sb
+	 APKAEO2dBqXiyKR6pv6SRbtOOxA5OmZ/ZB3THAEwTODuO2IHIi/HsY8d6qVi7FaVvC
+	 Cl0PPplbM88qe73PhLyGAML1/E23IiVS+mqwCsSM1/Ik1at9AN2t0mJgFnINMd0epr
+	 m0hjrx1Ss6L+E/Qy3jQXrJ9QXvI35J6PdcDUJSjFqAlgp7suRJXeUzh35NHim+7F2l
+	 8e5gZuZMP5trLx514I7b961ZTrSSN3CKIFCoBc87XzSxl05XS1+XLz5HL5K3VQr2Y+
+	 KYX3PG36klLYw==
+Date: Wed, 7 Feb 2024 00:20:36 +0100
 From: Frederic Weisbecker <frederic@kernel.org>
 To: Alexander Gordeev <agordeev@linux.ibm.com>
 Cc: Ingo Molnar <mingo@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>,
 	Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>, linux-kernel@vger.kernel.org,
 	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH 1/5] sched/vtime: remove confusing
- arch_vtime_task_switch() declaration
-Message-ID: <ZcKtaw6udrihSsKw@localhost.localdomain>
+Subject: Re: [PATCH 2/5] sched/vtime: get rid of generic vtime_task_switch()
+ implementation
+Message-ID: <ZcK-xETH4ny8zMbW@localhost.localdomain>
 References: <cover.1706470223.git.agordeev@linux.ibm.com>
- <443aebea9128f7f455c76479f161bb6a2c956db5.1706470223.git.agordeev@linux.ibm.com>
+ <1f519a8c86cf13bc4acd18ed5d8d1705d1554083.1706470223.git.agordeev@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -47,13 +47,20 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <443aebea9128f7f455c76479f161bb6a2c956db5.1706470223.git.agordeev@linux.ibm.com>
+In-Reply-To: <1f519a8c86cf13bc4acd18ed5d8d1705d1554083.1706470223.git.agordeev@linux.ibm.com>
 
-Le Sun, Jan 28, 2024 at 08:58:50PM +0100, Alexander Gordeev a écrit :
-> Callback arch_vtime_task_switch() is only defined when
-> CONFIG_VIRT_CPU_ACCOUNTING_NATIVE is selected. Yet, the
-> function prototype forward declaration is present for
-> CONFIG_VIRT_CPU_ACCOUNTING_GEN variant. Remove it.
+Le Sun, Jan 28, 2024 at 08:58:51PM +0100, Alexander Gordeev a écrit :
+> The generic vtime_task_switch() implementation gets built only
+> if __ARCH_HAS_VTIME_TASK_SWITCH is not defined, but requires an
+> architecture to implement arch_vtime_task_switch() callback at
+> the same time, which is confusing.
+> 
+> Further, arch_vtime_task_switch() is implemented for 32-bit PowerPC
+> architecture only and vtime_task_switch() generic variant is rather
+> superfluous.
+> 
+> Simplify the whole vtime_task_switch() wiring by moving the existing
+> generic implementation to PowerPC.
 > 
 > Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 
