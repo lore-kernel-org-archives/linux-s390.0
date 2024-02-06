@@ -1,155 +1,179 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DBCF12C538;
-	Tue,  6 Feb 2024 08:58:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7FFB132C25;
+	Tue,  6 Feb 2024 12:18:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707209939; cv=none; b=q+HaTWIfH5gsBaMy8TOFe5UdlR8ljcV+Wn9JML91JXy+I7jKXIxOgx5gN/U+zQe7MzHjfMi9fRaPJnhM8dtj8W8SEJPs4aPETf1mWjS0T3GRbhqEQLZrXdRmiXFkbi/nTeOkPQZE/krG7OSXiVEX7OFEe7ZGDsJZER8Ak2J0Jak=
+	t=1707221918; cv=none; b=A5R6k2nCZSHduDO7U7uEu1TNcYZYbnqn+PTnetRgnBcg8djv9/WG01EAPtyflHK8tc2XBWKImXEVEdt9PhpmSYb6GWPkw9Vr2De+esmVu107KaF5juewafJhVCVKhnm3HMLDZOMLGOw8P//zY6eWzF73NScpE66mPeWjeZ1azlI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707209939; c=relaxed/simple;
-	bh=6+hp/oOkfW9CIroBlUwLQdgpKfvmzFYtEufR1uK5Vx0=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=LtP/icBszwtVHi4w002WQ9FuAAF0ZtiRjx1etI8qn+jU0qgGMHm+eAGIvphT+Lugt/i+1kVjcvh3FoO5peTS2KCyn81cGr/Jo0VFOtpVvPqCi5YLgZIy1kxTx7Ji4kScAJfBLvZvEm4Arqins7skAMuou516iTfweHCUaezU6MI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=de.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tShhh1Ag; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1707221918; c=relaxed/simple;
+	bh=Tn8WnY+a+ept61qhjcmZvxSEPFge8/SObTTCDWxJS7g=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=iAvYu3iEFvLAhKiwRzkdSpMZuK36OW9P8j6dYBmSkK37iR8u6BcWYlb3dA2GvyRDGPT5uPDwXjAeBU7ifBJP/z236BPMHa/e6yI09WDukF/t/FfhVVucsCgj5ouAKhRG0hnRP3p5jLPITN8FB4aVr3qYB2uGk61WcnXCVzpxaZM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=l1+a2SIR; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=de.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tShhh1Ag"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 4168q7np023267;
-	Tue, 6 Feb 2024 08:58:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=uItTlyiNjJHOxqJ+zObA3XYJXQMGB08e0vkKy7tN6g8=;
- b=tShhh1AgLAl+EG67XaQJTRqv2X9w9QH1y6RmFpD98YeB+Wl84dTHUugwVhAxaX3uxbc9
- 7uAAyrLbQB1j/PYAOk1YTWE4cnAa5KRuRvCLdWVSy0BrzPfGHjm3jbx1RDoStHSro6/c
- D/Cjb8Tj/N/RA0w8zEdVcM1UxpiMiETIkYL/k/3jVZvXjCeSmtHcTl0T9QossxYMD7Ft
- +RTxwv94TfJ5DRcWVnzevI4kMR1XwA8lR+Yz+EC8hImsut7AzqNuQP5b1cqvXzF330YK
- oFHgm5f9EK/hKrjDaRA2nCzvqvuRKrIf470n5TTXL34kBlyOjXqFXbGA6vZwKPWRxZTf ow== 
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="l1+a2SIR"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 416BtAUJ022474;
+	Tue, 6 Feb 2024 12:18:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=J0YDXL0DMuZx6qRUUagB7lMLHl0D1nro9nj04PRHnTw=;
+ b=l1+a2SIRg5PF4zDhqgXL9qLL/CahK7oNE6lSCOLCeyP8ZBo/1PhrWcNquUdgrjuzue9d
+ c/cXX+TCvKQq59XIkl8go5kDa3zo2ifNdk++37Br4OQJ8Y56gdxSFLaWBtuPvTbuHtrx
+ JBU5FPGXbqUYMAqJM21ug+/kPVUr2YIxksEkVx+9KkTHxrPDSwFgUXHMWzKsNbnbVFvI
+ y3xK4uELaBM1cmNW6Fz+I7jHDTCVDLku0BVhBqc+W4aUDuwGSWkvnAfxfrR30pHJkJ7F
+ PSc6w4oUotwRPDhbuyy6V8Dnfny190MEu8p7XKHgE23MFxde6CuufAb0u49halqZgsVR kg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w3hms08gj-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w3mafrqqy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Feb 2024 08:58:54 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 4168qtWE026037;
-	Tue, 6 Feb 2024 08:58:53 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w3hms08g9-1
+	Tue, 06 Feb 2024 12:18:31 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 416BtShm024011;
+	Tue, 6 Feb 2024 12:18:31 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w3mafrqq1-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Feb 2024 08:58:53 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4167jIus008494;
-	Tue, 6 Feb 2024 08:58:52 GMT
+	Tue, 06 Feb 2024 12:18:31 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 416BXUwl019991;
+	Tue, 6 Feb 2024 12:18:29 GMT
 Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w221jwk2a-1
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w1ytsy53u-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Feb 2024 08:58:52 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4168wn3w57541102
+	Tue, 06 Feb 2024 12:18:29 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 416CIRTf28115506
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 6 Feb 2024 08:58:49 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BE5C120043;
-	Tue,  6 Feb 2024 08:58:49 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AC8B420040;
-	Tue,  6 Feb 2024 08:58:49 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  6 Feb 2024 08:58:49 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
-	id 6F5E1E0454; Tue,  6 Feb 2024 09:58:49 +0100 (CET)
+	Tue, 6 Feb 2024 12:18:27 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 031232009F;
+	Tue,  6 Feb 2024 12:18:27 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 88BB5200A1;
+	Tue,  6 Feb 2024 12:18:26 +0000 (GMT)
+Received: from [9.152.224.145] (unknown [9.152.224.145])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  6 Feb 2024 12:18:26 +0000 (GMT)
+Message-ID: <83b9d600-339c-4c9f-860d-ab4539a0ae6b@linux.ibm.com>
+Date: Tue, 6 Feb 2024 13:18:26 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 00/15] net/smc: implement loopback-ism used by
+ SMC-D
+To: Wen Gu <guwen@linux.alibaba.com>, wenjia@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20240111120036.109903-1-guwen@linux.alibaba.com>
+Content-Language: en-US
 From: Alexandra Winter <wintera@linux.ibm.com>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, stable@vger.kernel.org
-Subject: [PATCH net] s390/qeth: Fix potential loss of L3-IP@ in case of network issues
-Date: Tue,  6 Feb 2024 09:58:49 +0100
-Message-Id: <20240206085849.2902775-1-wintera@linux.ibm.com>
-X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20240111120036.109903-1-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 9Oq93biWMDhGTymW9bQMJeO9SqpPP0os
+X-Proofpoint-ORIG-GUID: zrdy_-uaFOs7-O2Gw8JOKcJKPynszSJC
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 68xvcKJN30DPzE1C-BkO0tis0iQ_Rxy5
-X-Proofpoint-GUID: 94lOZk7C5sKAZ72aaqv7frQK__iaNSgb
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-06_02,2024-01-31_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 bulkscore=0
- priorityscore=1501 malwarescore=0 spamscore=0 suspectscore=0 adultscore=0
- clxscore=1011 mlxscore=0 impostorscore=0 mlxlogscore=999
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402060062
+ definitions=2024-02-06_05,2024-01-31_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ bulkscore=0 adultscore=0 impostorscore=0 clxscore=1015 malwarescore=0
+ mlxlogscore=999 suspectscore=0 phishscore=0 lowpriorityscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2402060087
 
-Symptom:
-In case of a bad cable connection (e.g. dirty optics) a fast sequence of
-network DOWN-UP-DOWN-UP could happen. UP triggers recovery of the qeth
-interface. In case of a second DOWN while recovery is still ongoing, it
-can happen that the IP@ of a Layer3 qeth interface is lost and will not
-be recovered by the second UP.
 
-Problem:
-When registration of IP addresses with Layer 3 qeth devices fails, (e.g.
-because of bad address format) the respective IP address is deleted from
-its hash-table in the driver. If registration fails because of a ENETDOWN
-condition, the address should stay in the hashtable, so a subsequent
-recovery can restore it.
 
-3caa4af834df ("qeth: keep ip-address after LAN_OFFLINE failure")
-fixes this for registration failures during normal operation, but not
-during recovery.
+On 11.01.24 13:00, Wen Gu wrote:
+> This patch set acts as the second part of the new version of [1] (The first
+> part can be referred from [2]), the updated things of this version are listed
+> at the end.
+> 
+> # Background
+> 
+> SMC-D is now used in IBM z with ISM function to optimize network interconnect
+> for intra-CPC communications. Inspired by this, we try to make SMC-D available
+> on the non-s390 architecture through a software-implemented virtual ISM device,
+> that is the loopback-ism device here, to accelerate inter-process or
+> inter-containers communication within the same OS instance.
 
-Solution:
-Keep L3-IP address in case of ENETDOWN in qeth_l3_recover_ip(). For
-consistency with qeth_l3_add_ip() we also keep it in case of EADDRINUSE,
-i.e. for some reason the card already/still has this address registered.
 
-Fixes: 4a71df50047f ("qeth: new qeth device driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
----
- drivers/s390/net/qeth_l3_main.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+Hello Wen Gu,
 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index b92a32b4b114..04c64ce0a1ca 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -255,9 +255,10 @@ static void qeth_l3_clear_ip_htable(struct qeth_card *card, int recover)
- 		if (!recover) {
- 			hash_del(&addr->hnode);
- 			kfree(addr);
--			continue;
-+		} else {
-+			/* prepare for recovery */
-+			addr->disp_flag = QETH_DISP_ADDR_ADD;
- 		}
--		addr->disp_flag = QETH_DISP_ADDR_ADD;
- 	}
- 
- 	mutex_unlock(&card->ip_lock);
-@@ -278,9 +279,11 @@ static void qeth_l3_recover_ip(struct qeth_card *card)
- 		if (addr->disp_flag == QETH_DISP_ADDR_ADD) {
- 			rc = qeth_l3_register_addr_entry(card, addr);
- 
--			if (!rc) {
-+			if (!rc || rc == -EADDRINUSE || rc == -ENETDOWN) {
-+				/* keep it in the records */
- 				addr->disp_flag = QETH_DISP_ADDR_DO_NOTHING;
- 			} else {
-+				/* bad address */
- 				hash_del(&addr->hnode);
- 				kfree(addr);
- 			}
--- 
-2.40.1
+thank you very much for this patchset. I have been looking at it a bit.
+I installed in on a testserver, but did not yet excercise the loopback-ism device.
+I want to continue investigations, but daily work interferes, so I thought I
+send you some comments now. So this is not at all a code review, but some 
+thoughts and observations about the general concept.
 
+
+In [1] there was a discussion about an abstraction layer between smc-d and the
+ism devices. 
+I am not sure what you are proposing now, is it an smc-d feature or independent of smc?
+In 3/15 you say it is part of the SMC module, but then it has its own device entry.
+Didn't you want to use it for other things as well? Or is it an SMC-D only feature?
+Is it a device (Config help: "kind of virtual device")? Or an SMC-D feature?
+
+Will we have a class of ism devices (s390 ism, ism-loopback, virtio-ism)
+That share common properties (internal API?)
+and smc-d will work with any of those?
+But they all can exist without smc ?! BTW: This is what we want for s390-ism.
+The client-registration interface [2] is currently the way to achieve this. 
+But maybe we need a more general concept?
+
+Maybe first a preparation patchset that introduces a class/ism
+Together with an improved API?
+In case you want to use ISM devices for other purposes as well..
+But then the whole picture of ism-loopback in one patchset (RFC?) 
+has its benefits as well.
+
+
+Other points that I noticed:
+
+Naming: smc loopback, ism-loopback, loopback-ism ?
+
+config: why not tristate? Why under net/smc?
+
+/sys/devices/virtual/smc  does not initially show up in my installation!!!
+root@t35lp50:/sys/devices/virtual/> ls
+3270/  bdi/  block/  graphics/  iommu/  mem/  memory_tiering/  misc/  net/  tty/  vc/  vtconsole/  workqueue/
+root@t35lp50:/sys/devices/virtual/> ls smc/loopback-ism
+active  dmb_copy  dmbs_cnt  dmb_type  subsystem@  uevent  xfer_bytes
+root@t35lp50:/sys/devices/virtual/> ls
+3270/  bdi/  block/  graphics/  iommu/  mem/  memory_tiering/  misc/  net/  smc/  tty/  vc/  vtconsole/  workqueue/
+Is that normal behaviour?
+
+You introduced a class/smc
+Maybe class/ism would be better?
+The other smc interfaces do not show up in class/smc!! Not so good
+
+Why doesn't it show in smc_rnics?
+(Maybe some deficiency of smc_rnics?)
+
+But then it shows in other smc-tools:
+root@t35lp50:/sys/> smcd device
+FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
+0000 0     loopback-ism  ffff   No        0
+0029 ISM   0000:00:00.0  07c1   No        0  NET1
+Nice!
+
+Kind regards
+Sandy
+
+
+[1] https://lore.kernel.org/lkml/e3819550-7b10-4f9c-7347-dcf1f97b8e6b@linux.alibaba.com/
+[2] 89e7d2ba61b7 ("net/ism: Add new API for client registration")
