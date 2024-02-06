@@ -1,158 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A16410F4;
-	Tue,  6 Feb 2024 01:31:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEB307F7CC;
+	Tue,  6 Feb 2024 05:20:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707183083; cv=none; b=BZw8voMonx8xGtVTY0uJCKyvHD3oSaLIDQoXp4TNuQFJ7r0dznEuXBnRS84nFxStZEF3Yc0KSgCT07eFkiefRRL4+QQKLsbK9dQKtTuNpoGqowOxGJG8O/yAWzD2uuCfLGsnmnMeY8rZEbJnBbPqwkeC+F6oxVJ7/rBGtnHwJBU=
+	t=1707196852; cv=none; b=kNhX+7WHF0IvX+zSXvzarbvzKg9w9z/6SDv88dVAP3SsijefTAjrJG3Ym+EbZm5Uavvuye015eGMOAJGtCi4+ncesWV2xiAyTa+dP6uOUOGQLl1kiAHdjiUA0LR7GN+PNiYk/1/JuewQVQs1xdW5svcrwk85hk/mdUveJUnf0SQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707183083; c=relaxed/simple;
-	bh=32iDvBACWJxOXF6/oXubS4npaM7/Q4g4fdElgQomezI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bcjQNkxVVyu53impbEzeNPrT1o1LxPOxUZfu2hpyw2gW9R171nWxUxyATC7iKIgtulNnNW0fxA71w4OHu3elrBK9FfaRmwd5VsPsP6qFh6QrEdzmt6YP5zga5CPhasb1olrRznHd+5qQyfA9XmTEskcUNLljmd5+35N5R1F4Wxg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I/Rrwaw8; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1707196852; c=relaxed/simple;
+	bh=XEJ+jhnAPDqSuFwkdmvR0HvhYL9MbSjjh8X3b4RrQ5g=;
+	h=Mime-Version:Content-Type:Date:Message-Id:To:Cc:Subject:From:
+	 References:In-Reply-To; b=E+1G+LJfJENECLEa7ZwnfNbiUQKntKbFGyRPf6G6hBrlAj/GRSpxgrHgTaMbG8gSileevYlDEVmWTWbd0J2gWGkHsrmmjr4tDF/XdSW7+wKz48K7/S/0cErdcE+RHWtrkph3JCOSLjlPYD3iFxGlXqDgtBLi3TLiUwhqdPloHjI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ahUqBpGA; arc=none smtp.client-ip=209.85.215.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I/Rrwaw8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C13A1C433F1;
-	Tue,  6 Feb 2024 01:31:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1707183083;
-	bh=32iDvBACWJxOXF6/oXubS4npaM7/Q4g4fdElgQomezI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=I/Rrwaw8t5gj73Rw7uEgJuX0GX+xIb6h6sK+16CarivRG+3ELluh+fjWPdFmx4qWv
-	 3osU/ZvJfItj+s70GSsY00w/l1cCCinN7ABMeKLCrZzQTtR4sneXBy/eik5UgNp9nk
-	 c4ZQFJUDozWPrEbyC6Os9Cds0s6g+zupS0DbMs+Dff2qQzrTfyh8ejvoslVDFHnhPY
-	 QGmRzWEgF0pEMrTH/CIBA0OvJceFIqEi5MWjk5Hora4UltU9hcYOXwvbPfdP9aU2Ij
-	 OXfINZbjSeRnpZsenZiAKjNF9NFaNipsMdqlB/tIF5M6wf05gwcuuHuJ56xCAIrGGD
-	 vAHs7s/tyccsQ==
-Date: Mon, 5 Feb 2024 18:31:21 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Kees Cook <keescook@chromium.org>,
-	Nick Desaulniers <ndesaulniers@google.com>,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: Re: [PATCH 2/2] s390/fpu: make use of __uninitialized macro
-Message-ID: <20240206013121.GB2616098@dev-arch.thelio-3990X>
-References: <20240205154844.3757121-1-hca@linux.ibm.com>
- <20240205154844.3757121-3-hca@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ahUqBpGA"
+Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-5dc13cbce45so1797739a12.2;
+        Mon, 05 Feb 2024 21:20:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1707196849; x=1707801649; darn=vger.kernel.org;
+        h=in-reply-to:references:from:subject:cc:to:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6ujXxMm41r1DTz6hXgtYYr184Pjn4FDAt68mgLajJUg=;
+        b=ahUqBpGACFPt20dzEzNCwlSkfTzxLwlxh/wlrZoq50VZCKIh1zvoWutjp0/VdT9MmT
+         SOgyVmVxc8rgsV3c2+3Am/pSvFmQDRJbai9BQUtUMWUrX0MOgtYaqUcmyHpSgC0KGYMD
+         /UrAewqAkoAk7r9QXBoUNvEJ3lKjzOzxaK46VfhHkKknDJr/l7AWzVSsA/OU/NIUEcNZ
+         LBNimMQVzz4I/9XkoZG3oSi6x3viO2r9MTVBjr9d5+TJalaVagHit0/HL20huPgzj0sr
+         jgIh9vRn1NKwTOn5WR1lBKppRLXyLLpyNKeWg/eix+F9XjMwRSUD6DMLdtoeIOlbVlyc
+         HSHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1707196849; x=1707801649;
+        h=in-reply-to:references:from:subject:cc:to:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=6ujXxMm41r1DTz6hXgtYYr184Pjn4FDAt68mgLajJUg=;
+        b=K6ExCULNRPoUgx/FrtI4MISCZa7nSFJrn9velgbMVxDN5b9SaHTBtEVcoDZpZcHuEx
+         uySvVNGZmAUBSKHaQumfYH1thlNI/f3t3dwvQPMneK5z55ucq+tUcIYmwfS2SyKb2RaT
+         kBHAUZjYh9MG7U0IkrBEuMrUwYRLd3eD3dAN68UagEHMZuMB5QYkquNtZkOkK9aNn3Yu
+         MN08bkBkZYvhrd9vWbUerSPnorcYeKHgiRL6iXKq5t1GSHWbNH6gYyYQLR7mgLPwSWNS
+         bhXFBoW1PqFiXQ9zjqxPH3JtKvKVoSepNnBFuWSMaXNdTtbpBv6pJ+Ef66HAE8th2zrE
+         Qn3Q==
+X-Gm-Message-State: AOJu0YwCglPRyyzZMuwlbsB6HWBeAKp+0hafxjvJJd9IHOQGq+od8IIo
+	os6hv6IE5HUmHNWGSDB0SPR5y7VXZVRqwZPVI3JvklkZkWufl241
+X-Google-Smtp-Source: AGHT+IGrC/r/fSLayc+2sKm4zT5ROnGWF0/akqOJQQ+ytoitx9LbhdLVzv/iUQiDN62FNk18zrb+oQ==
+X-Received: by 2002:a05:6a20:1585:b0:19a:28c3:ee0d with SMTP id h5-20020a056a20158500b0019a28c3ee0dmr633416pzj.15.1707196848684;
+        Mon, 05 Feb 2024 21:20:48 -0800 (PST)
+X-Forwarded-Encrypted: i=0; AJvYcCW18Usptg28HpXEBSe0coTZzST3WInoh7AzPcUDYZLKObsxXjGFfums519DdYypqLO/LRwtH87zuGBMa19V2aHodBMpHpIGAflAANNaysJmXcVvIOc9DTx/UVKQA/aoQ7Oe7tzqmEOuYyc14Zy37imoWAwt1LjfELNiQdFJHp0tnL/K7LbaIoxRZfTaNhHrA6yHV0o6bdyuNATTtTrhPGAoPm/nVh3TZ4MtaTZ2fDfQZO6qXuQ4n4Slo8zmtYh0F768tEb/iOmRyx9xEA40WasdNWE5hA08Wh5903uBFSBhSfcvh7muf1SRGe1EQr1jxbQD+I46Zh4b/Nzl/0j4inFDJUkZhYu5xZA4fRrSRciBWf56R43Aabd4gAQIUi7OkZgkrdVOa1Bhw8ILdcXk8ecS0GcwfJujRvqS+Be6BIBPIWdYfWWjyhqw9RbpOx8ArZx1jIqA/W6PpGe2upPJPkJPY1T+qch6S8t1qq2vMRSwBAkiKM8=
+Received: from localhost ([1.146.47.2])
+        by smtp.gmail.com with ESMTPSA id j6-20020a170902c3c600b001d965cf6a9bsm830428plj.252.2024.02.05.21.20.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 05 Feb 2024 21:20:48 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240205154844.3757121-3-hca@linux.ibm.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 06 Feb 2024 15:20:15 +1000
+Message-Id: <CYXQRHUSFZ71.LI2K63O2WRJG@wheely>
+To: "Thomas Huth" <thuth@redhat.com>
+Cc: <kvm@vger.kernel.org>, "Laurent Vivier" <lvivier@redhat.com>, "Shaoqin
+ Huang" <shahuang@redhat.com>, "Andrew Jones" <andrew.jones@linux.dev>,
+ "Nico Boehr" <nrb@linux.ibm.com>, "Paolo Bonzini" <pbonzini@redhat.com>,
+ "Alexandru Elisei" <alexandru.elisei@arm.com>, "Eric Auger"
+ <eric.auger@redhat.com>, "Janosch Frank" <frankja@linux.ibm.com>, "Claudio
+ Imbrenda" <imbrenda@linux.ibm.com>, "David Hildenbrand" <david@redhat.com>,
+ "Marc Hartmayer" <mhartmay@linux.ibm.com>, <linuxppc-dev@lists.ozlabs.org>,
+ <linux-s390@vger.kernel.org>, <kvmarm@lists.linux.dev>
+Subject: Re: [kvm-unit-tests PATCH v2 3/9] arch-run: Clean up initrd cleanup
+From: "Nicholas Piggin" <npiggin@gmail.com>
+X-Mailer: aerc 0.15.2
+References: <20240202065740.68643-1-npiggin@gmail.com>
+ <20240202065740.68643-4-npiggin@gmail.com>
+ <cc1b4733-9a6f-4bb6-b8e6-1a6a8807b317@redhat.com>
+In-Reply-To: <cc1b4733-9a6f-4bb6-b8e6-1a6a8807b317@redhat.com>
 
-On Mon, Feb 05, 2024 at 04:48:44PM +0100, Heiko Carstens wrote:
-> Code sections in s390 specific kernel code which use floating point or
-> vector registers all come with a 520 byte stack variable to save already in
-> use registers, if required.
-> 
-> With INIT_STACK_ALL_PATTERN or INIT_STACK_ALL_ZERO enabled this variable
-> will always be initialized on function entry in addition to saving register
-> contents, which contradicts the intend (performance improvement) of such
-> code sections.
-> 
-> Therefore provide a DECLARE_KERNEL_FPU_ONSTACK() macro which provides
-> struct kernel_fpu variables with an __uninitialized attribute, and convert
-> all existing code to use this.
-> 
-> This way only this specific type of stack variable will not be initialized,
-> regardless of config options.
-> 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+On Mon Feb 5, 2024 at 10:04 PM AEST, Thomas Huth wrote:
+> On 02/02/2024 07.57, Nicholas Piggin wrote:
+> > Rather than put a big script into the trap handler, have it call
+> > a function.
+> >=20
+> > Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+> > ---
+> >   scripts/arch-run.bash | 12 +++++++++++-
+> >   1 file changed, 11 insertions(+), 1 deletion(-)
+> >=20
+> > diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
+> > index f22ead6f..cc7da7c5 100644
+> > --- a/scripts/arch-run.bash
+> > +++ b/scripts/arch-run.bash
+> > @@ -271,10 +271,20 @@ search_qemu_binary ()
+> >   	export PATH=3D$save_path
+> >   }
+> >  =20
+> > +initrd_cleanup ()
+> > +{
+> > +	if [ "$KVM_UNIT_TESTS_ENV_OLD" ]; then
+> > +		export KVM_UNIT_TESTS_ENV=3D"$KVM_UNIT_TESTS_ENV_OLD"
+> > +	else
+> > +		unset KVM_UNIT_TESTS_ENV
+> > +		unset KVM_UNIT_TESTS_ENV_OLD
+> > +	fi
+> > +}
+> > +
+> >   initrd_create ()
+> >   {
+> >   	if [ "$ENVIRON_DEFAULT" =3D "yes" ]; then
+> > -		trap_exit_push 'rm -f $KVM_UNIT_TESTS_ENV; [ "$KVM_UNIT_TESTS_ENV_OL=
+D" ] && export KVM_UNIT_TESTS_ENV=3D"$KVM_UNIT_TESTS_ENV_OLD" || unset KVM_=
+UNIT_TESTS_ENV; unset KVM_UNIT_TESTS_ENV_OLD'
+> > +		trap_exit_push 'rm -f $KVM_UNIT_TESTS_ENV; initrd_cleanup'
+> >
+>
+> Why don't you move the 'rm -f $KVM_UNIT_TESTS_ENV' into the initrd_cleanu=
+p()=20
+> function, too? ... that would IMHO make more sense for a function that is=
+=20
+> called *_cleanup() ?
 
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Yeah good point, will respin.
 
-> ---
->  arch/s390/crypto/chacha-glue.c    | 2 +-
->  arch/s390/crypto/crc32-vx.c       | 2 +-
->  arch/s390/include/asm/fpu/types.h | 3 +++
->  arch/s390/kernel/sysinfo.c        | 2 +-
->  lib/raid6/s390vx.uc               | 4 ++--
->  5 files changed, 8 insertions(+), 5 deletions(-)
-> 
-> diff --git a/arch/s390/crypto/chacha-glue.c b/arch/s390/crypto/chacha-glue.c
-> index ed9959e6f714..a823132fc563 100644
-> --- a/arch/s390/crypto/chacha-glue.c
-> +++ b/arch/s390/crypto/chacha-glue.c
-> @@ -22,7 +22,7 @@ static void chacha20_crypt_s390(u32 *state, u8 *dst, const u8 *src,
->  				unsigned int nbytes, const u32 *key,
->  				u32 *counter)
->  {
-> -	struct kernel_fpu vxstate;
-> +	DECLARE_KERNEL_FPU_ONSTACK(vxstate);
->  
->  	kernel_fpu_begin(&vxstate, KERNEL_VXR);
->  	chacha20_vx(dst, src, nbytes, key, counter);
-> diff --git a/arch/s390/crypto/crc32-vx.c b/arch/s390/crypto/crc32-vx.c
-> index 017143e9cef7..6ae3e3ff5b0a 100644
-> --- a/arch/s390/crypto/crc32-vx.c
-> +++ b/arch/s390/crypto/crc32-vx.c
-> @@ -49,8 +49,8 @@ u32 crc32c_le_vgfm_16(u32 crc, unsigned char const *buf, size_t size);
->  	static u32 __pure ___fname(u32 crc,				    \
->  				unsigned char const *data, size_t datalen)  \
->  	{								    \
-> -		struct kernel_fpu vxstate;				    \
->  		unsigned long prealign, aligned, remaining;		    \
-> +		DECLARE_KERNEL_FPU_ONSTACK(vxstate);			    \
->  									    \
->  		if (datalen < VX_MIN_LEN + VX_ALIGN_MASK)		    \
->  			return ___crc32_sw(crc, data, datalen);		    \
-> diff --git a/arch/s390/include/asm/fpu/types.h b/arch/s390/include/asm/fpu/types.h
-> index d889e9436865..b1afa13c07b7 100644
-> --- a/arch/s390/include/asm/fpu/types.h
-> +++ b/arch/s390/include/asm/fpu/types.h
-> @@ -35,4 +35,7 @@ struct kernel_fpu {
->  	};
->  };
->  
-> +#define DECLARE_KERNEL_FPU_ONSTACK(name)	\
-> +	struct kernel_fpu name __uninitialized
-> +
->  #endif /* _ASM_S390_FPU_TYPES_H */
-> diff --git a/arch/s390/kernel/sysinfo.c b/arch/s390/kernel/sysinfo.c
-> index f6f8f498c9be..b439f17516eb 100644
-> --- a/arch/s390/kernel/sysinfo.c
-> +++ b/arch/s390/kernel/sysinfo.c
-> @@ -426,9 +426,9 @@ subsys_initcall(create_proc_service_level);
->   */
->  void s390_adjust_jiffies(void)
->  {
-> +	DECLARE_KERNEL_FPU_ONSTACK(fpu);
->  	struct sysinfo_1_2_2 *info;
->  	unsigned long capability;
-> -	struct kernel_fpu fpu;
->  
->  	info = (void *) get_zeroed_page(GFP_KERNEL);
->  	if (!info)
-> diff --git a/lib/raid6/s390vx.uc b/lib/raid6/s390vx.uc
-> index cd0b9e95f499..7b0b355e1a26 100644
-> --- a/lib/raid6/s390vx.uc
-> +++ b/lib/raid6/s390vx.uc
-> @@ -81,7 +81,7 @@ static inline void COPY_VEC(int x, int y)
->  
->  static void raid6_s390vx$#_gen_syndrome(int disks, size_t bytes, void **ptrs)
->  {
-> -	struct kernel_fpu vxstate;
-> +	DECLARE_KERNEL_FPU_ONSTACK(vxstate);
->  	u8 **dptr, *p, *q;
->  	int d, z, z0;
->  
-> @@ -114,7 +114,7 @@ static void raid6_s390vx$#_gen_syndrome(int disks, size_t bytes, void **ptrs)
->  static void raid6_s390vx$#_xor_syndrome(int disks, int start, int stop,
->  					size_t bytes, void **ptrs)
->  {
-> -	struct kernel_fpu vxstate;
-> +	DECLARE_KERNEL_FPU_ONSTACK(vxstate);
->  	u8 **dptr, *p, *q;
->  	int d, z, z0;
->  
-> -- 
-> 2.40.1
-> 
+Thanks,
+Nick
