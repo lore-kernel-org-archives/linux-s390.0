@@ -1,215 +1,62 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEBF58F61;
-	Tue,  6 Feb 2024 17:07:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 981A418EB8;
+	Tue,  6 Feb 2024 19:35:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707239227; cv=none; b=XgyblJHSRoU7oduGRMJtikguZLydkkbP3EIFysim9EZmM/5nAfUZqNgrqzq8O84YqoxmaWR+VxXhzJBqXsd1TnttyN/hRfaTvF8z7osNiGXu7bFcwbFUjA3WBoT7FLvlyzs0oF1wbdawjQN+T/6FHt95z/PCoMSyq/F7EAUon4o=
+	t=1707248124; cv=none; b=KrAPla3tIj9gfDwfdgoux1gUal0qee/j06gmarhoBNuswPkBWHbH9b8RtrUQCpsAkh6+HphVZ01XYOe2XNDcR5iKoNXVAh2uRfTUY0v9/qWOvMRwHKC79J1qS5tS3uTo2jHKnB28lQx+gqbjD0Ko5yTXnH0/xE93in6bgZ8h994=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707239227; c=relaxed/simple;
-	bh=e9I7yxTk4EenZMNZtmxp4IEHqEX5dcbETrSelLjJYbU=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=YMtFs3wd2TKRtdFfF/negX1WW/15+csbeKP+nep35cqCJ93+kpeL2CKy2CD9ZHVpLuchafQraAE26HdOU3pjTMrGBqLy3tldRqxJWt0ugaECWSMLV6n65+6xD//DhBvHnnwECeMdK4MKGYVuM1e23iqnUE22//g1xFcGQ09godw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Yg2vUtp+; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1707248124; c=relaxed/simple;
+	bh=VcMUhBJzCMvFkw6yy4caxGpPNtGcOssoN/sMaO6Et8o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ksj3l7jmo9HzMnAy8qu98AffQhckC5Z9i+OocNbruIpsT65niQU/rX0DDDvFEe3KbfEz3KGcGkWkEhMbbOjr6Ll1fAscOcrQwELRoOH65R+8/hDJ4oiHATJLM9kiH9VIreGRGf8psoDBMQewBwglq7yFHa1iilJmgLo6ePNesws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hCmeBxbP; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Yg2vUtp+"
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 416GrJ83011255;
-	Tue, 6 Feb 2024 17:07:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=XACviP5l9u565lkp/k5MToie0mpAeRjNuB4FYovFReY=;
- b=Yg2vUtp+yu3wTV2rJEalE1WvyzFS89fHcRDBpdcPUPi6IXjrlJaQyyDMzaCP5LSI0CtO
- ul5yXaUuwsFu/YkYJXP057mk1v1o1qgypbBMEG0NtoA8b6neINshhp+2hHSh11kCQyrG
- KGjO5HGQ3Qa4UolIEoDkA36VNVfDKY0VJMd6X3kBTBtTQzB9g3AuNG4hHsWpc00KEtEt
- 5XhqtmC+ShYjrYyd0yqLa44lDbmdaB3YI+e6Q70MXi+AhTbhXBk8VD9p8Q20+X6VXo5d
- Dbg9I523954PSGjPVC5LKDzrYuSVxnT4qbeH8jEoAfrfemjkW26Y1tf0vEXMGdzdFtcE vg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w3rp80q3n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Feb 2024 17:07:04 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 416Groc3014373;
-	Tue, 6 Feb 2024 17:07:04 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w3rp80q39-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Feb 2024 17:07:03 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 416FYaD8014837;
-	Tue, 6 Feb 2024 17:07:03 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3w20tnrchm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Feb 2024 17:07:03 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 416H72jC35324510
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 6 Feb 2024 17:07:02 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3F33A58052;
-	Tue,  6 Feb 2024 17:07:02 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A54E858067;
-	Tue,  6 Feb 2024 17:07:01 +0000 (GMT)
-Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.18.22])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  6 Feb 2024 17:07:01 +0000 (GMT)
-Message-ID: <9636b91f008edd897aec43e79f83229cafafb752.camel@linux.ibm.com>
-Subject: Re: [RFC PATCH] KVM: s390: remove extra copy of access registers
- into KVM_RUN
-From: Eric Farman <farman@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank
- <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David
- Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Date: Tue, 06 Feb 2024 12:07:01 -0500
-In-Reply-To: <20240206154708.26070-C-hca@linux.ibm.com>
-References: <20240131205832.2179029-1-farman@linux.ibm.com>
-	 <20240201151432.6306-C-hca@linux.ibm.com>
-	 <f82ab76e5f389a92afe2fa8834812feeec4df4b5.camel@linux.ibm.com>
-	 <20240206154708.26070-C-hca@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.3 (3.50.3-1.fc39) 
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hCmeBxbP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B51FC433C7;
+	Tue,  6 Feb 2024 19:35:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1707248124;
+	bh=VcMUhBJzCMvFkw6yy4caxGpPNtGcOssoN/sMaO6Et8o=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=hCmeBxbPO6Pi2OEha8/Iq9oDSMwM8/oHvWcIriMU8r0FPoK0QhiXbbd3iFlVY282+
+	 6mu74Dai7ldME1f5iwnc1XEwudPuF94OczM+E65CcQ7xoUKAodzXQJJsXtcLCKa/C8
+	 c7q7utY5SJ73VWEEAbD5cDbpl02e4/rzUzic4q5BwQl+1evudU7d88V8C+ye+rcI5H
+	 dHxjeYXUYOgC0kH3ubfT9mQ6brTALotpA0gnhgDVkrxLzeIakZ4Hop9+SFdcEVbiLO
+	 e671Xe32GTj2Srpyyp+kufjR9eYrLHUMqXvGeNM7xShm5qMrLDTeo29NuhEyK3XH1R
+	 r/656eJBgdqaw==
+Date: Tue, 6 Feb 2024 19:35:19 +0000
+From: Simon Horman <horms@kernel.org>
+To: Wen Gu <guwen@linux.alibaba.com>
+Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+	alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next] net/smc: change the term virtual ISM to
+ Emulated-ISM
+Message-ID: <20240206193519.GI1104779@kernel.org>
+References: <20240205033317.127269-1-guwen@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: FM07rr4tCi09TZPuYY3rPT4W4lp8ZX2C
-X-Proofpoint-GUID: k64WBqnVXZDDUSry7AEby3qPZpDWH6dd
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-06_10,2024-01-31_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- mlxlogscore=348 bulkscore=0 phishscore=0 adultscore=0 lowpriorityscore=0
- suspectscore=0 clxscore=1015 spamscore=0 impostorscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402060120
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240205033317.127269-1-guwen@linux.alibaba.com>
 
-On Tue, 2024-02-06 at 16:47 +0100, Heiko Carstens wrote:
-> On Thu, Feb 01, 2024 at 11:56:26AM -0500, Eric Farman wrote:
-> > On Thu, 2024-02-01 at 16:14 +0100, Heiko Carstens wrote:
-> > > On Wed, Jan 31, 2024 at 09:58:32PM +0100, Eric Farman wrote:
-> > > What's the code path that can lead to this scenario?
-> >=20
-> > When processing a KVM_RUN ioctl, the kernel is going to swap the
-> > host/guest access registers in sync_regs, enter SIE, and then swap
-> > them
-> > back in store_regs when it has to exit to userspace. So then on the
-> > QEMU side it might look something like this:
-> >=20
-> > kvm_arch_handle_exit
-> > =C2=A0 handle_intercept
-> > =C2=A0=C2=A0=C2=A0 handle_instruction
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 handle_b2
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ioinst_handle_stsch
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 s390_cpu_virt_me=
-m_rw(ar=3D0xe, is_write=3Dtrue)
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 kvm_=
-s390_mem_op
-> >=20
-> > Where the interesting registers at that point are:
-> >=20
-> > acr0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 0x3ff=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 1023
-> > acr1=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 0x33bf=
-f8c0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 868219072
-> > ...
-> > acr14=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 0x0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0 0
-> >=20
-> > Note ACR0/1 are already buggered up from an earlier pass.
-> >=20
-> > The above carries us through the kernel this way:
-> >=20
-> > kvm_arch_vcpu_ioctl(KVM_S390_MEM_OP)
-> > =C2=A0 kvm_s390_vcpu_memsida_op
-> > =C2=A0=C2=A0=C2=A0 kvm_s390_vcpu_mem_op
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 write_guest_with_key
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 access_guest_with_key
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 get_vcpu_asce
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ar_t=
-ranslate
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 save_access_regs(kvm_run)
->=20
-> ...
->=20
-> > Well regardless of this patch, I think it's using the contents of
-> > the
-> > host registers today, isn't it? save_access_regs() does a STAM to
-> > put
-> > the current registers into some bit of memory, so ar_translation()
-> > can
-> > do regular logic against it. The above just changes WHERE that bit
-> > of
-> > memory lives from something shared with another ioctl to something
-> > local to ar_translation().=20
->=20
-> This seems to be true; but there are also other code paths which can
-> reach ar_translation() where the access register contents actually do
-> belong to the guest (e.g. intercept handling).
+On Mon, Feb 05, 2024 at 11:33:17AM +0800, Wen Gu wrote:
+> According to latest release of SMCv2.1[1], the term 'virtual ISM' has
+> been changed to 'Emulated-ISM' to avoid the ambiguity of the word
+> 'virtual' in different contexts. So the names or comments in the code
+> need be modified accordingly.
+> 
+> [1] https://www.ibm.com/support/pages/node/7112343
+> 
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 
-Right, the trouble is that both scenarios end up here. Storing the
-access registers here in the intercept path "doesn't hurt" because
-it'll be done again when we clean up after the SIE exit (store_regs()),
-and the original patch keeps the behavior the same for the memop case
-without disrupting the kvm_run space. I agree this behavior doesn't
-seem right.
+Reviewed-by: Simon Horman <horms@kernel.org>
 
->=20
-> > My original change just removed the save_access_regs() call
-> > entirely
-> > and read the contents of the kvm_run struct since they were last
-> > saved
-> > (see below). This "feels" better to me, and works for the scenario
-> > I
-> > bumped into too. Maybe this is more appropriate?
-> >=20
-> > ---8<---
-> >=20
-> > diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-> > index 5bfcc50c1a68..c5ed3b0b665a 100644
-> > --- a/arch/s390/kvm/gaccess.c
-> > +++ b/arch/s390/kvm/gaccess.c
-> > @@ -391,7 +391,6 @@ static int ar_translation(struct kvm_vcpu
-> > *vcpu,
-> > union asce *asce, u8 ar,
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (ar >=3D NUM_ACRS)
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 return -EINVAL;
-> > =C2=A0
-> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 save_access_regs(vcpu->run->s.reg=
-s.acrs);
->=20
-> I guess this and your previous patch are both not correct.
-
-Yay? :)
-
->  There is
-> different handling required depending on if current access register
-> contents belong to the host or guest (both seems to be possible),
-> when
-> the function is entered.
->=20
-> But anyway, I'll leave that up to Janosch and Claudio, just had a
-> quick
-> look at your patch :)
->=20
-
-Thanks for the quick look. Will wait for Janosch and Claudio to get a
-couple cycles.
