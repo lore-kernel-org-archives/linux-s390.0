@@ -1,68 +1,68 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 421A877658;
-	Wed,  7 Feb 2024 14:13:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7152076911;
+	Wed,  7 Feb 2024 14:15:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707315195; cv=none; b=MbHQA+doKLZD6h33JOlREJ0I3doWSLJ1dE/nkVze7BBueDtvSWpk8crAf0MrcC7051Y0aSnd+jwY30Rg9evGqiIp3LyiOmEPKgNN64L7ra09/sku/3n7FYLoY81kmeV3XbDn4BwFBQgBGqU+EqgIPnLHD1D9vPxnFFIVTDfuiS4=
+	t=1707315313; cv=none; b=ssEleauHaoFPOx/CSaUtcuKU153pix9uQ2B1GLOeIsQZgcm5AL8+tQ6KArfFwLqJHgz0HtLhH+u8xyHXcYWXANzcuVVAjqtyYzxUSc4qsSfae2DNsCrTnex3GN8NapbkcM8wHePwZn/yBNCHH2cDZZ2VhWnVfPQGHDOi56IrxIU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707315195; c=relaxed/simple;
-	bh=gwH2gW0FnuxRVKwAAt2yOec201/07KaXUQlk8qLfDZU=;
+	s=arc-20240116; t=1707315313; c=relaxed/simple;
+	bh=rcFES4rU82Y628BCfdg8FB0Fv2CEpDLuZf6D3HeDmWQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EqC9Q10IwgEYWvrMRS+W9jMJqy7kpPCzkl4bkSmhr1nCzumDID3bCEKWc3M9NpHU4nRwIA0XTY5jgJMTvnjimbHay+WNJKeKVUsTuFLGCrT8Ce4sP2iLLG+WVBxLTo3b/EqnZb3HMkkek/qN0YSOX2peno5Nx+o1vhVyiyCtDpc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=a0A3NoJh; arc=none smtp.client-ip=148.163.158.5
+	 Content-Type:Content-Disposition:In-Reply-To; b=W1ymbk9CegQ8XPI8kHUQyAWWjZu6wopzlsbX/QptkfXxuAryVHi8HNyCNyVAbZ92DHq5ASaVsTDQ2eOrkQTyZgQ734GR/sFtC/6I6vhhEOCTtJTb0z9vCCNfrtjNXxhUj2jsXMlSjWY2Jx8xkrUM9dzUwc41zFQIDUE9fQTgWVs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ONDApOWB; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="a0A3NoJh"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 417DPYtk019413;
-	Wed, 7 Feb 2024 14:13:04 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ONDApOWB"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 417DRK4i024733;
+	Wed, 7 Feb 2024 14:15:04 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=gwH2gW0FnuxRVKwAAt2yOec201/07KaXUQlk8qLfDZU=;
- b=a0A3NoJh1Spx+I0IuZTi7I411DRRGjhhQOoSoeugeBKDsijx9EVulSk1OFogWAoetGPy
- R8z44MwNDpSc3ePyFrgDHnrZ2Q/tFhDllVbmuVNEGIcsHS3d/Wbsmfwiv+HQXK1uBDOB
- RbDa+PPvQdc7NyVnLCTyr7OI+i5ZNRtUvIAC8JIUbNepGHHNj4Ak+4xOvYET3qiaHtNu
- Muto3nCHriEe+lPXnvOfMSfml5jRh9ImAqut/fRtW4xP6M1uALpfk8dozAhzAhwJ2TdT
- 26igZiHU4+hbNoUMHZSgInqRWxA27nerpiauSTkIT6/es6c5RXhpzRVT5IJAFuaE2qhl Nw== 
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w4a402jae-1
+ in-reply-to; s=pp1; bh=M7VY3bsanvzSPuzOMowwnwqXYsUsv2q9/y/knc+OF04=;
+ b=ONDApOWB+CkBmtwnnrXx6SkUxdZPi/jvq2kA4RgwXzzT59PZgrgSpWUSf3T7AgIbaLnV
+ dKeUqduQCegSZZhMIOTmY5lxo34H5DkQG+Ichg2wDidWhzh2HcZzzKnm8y4q9VflI0kL
+ qfSyhhUiYGTFh4q0gQ1gcEK3cRLp46W1weVLRbTm9eEVdv1nx41qHuQUNNmeDziO82YF
+ zFv1ELWokMX1r5pshDTNYMgDGqxj7gTrZTelM9Q7Rv4SPQX2H9NtBJ1Yw05atCuyYxch
+ YIH4+aKK8PDx//ui2NUPtpS3LMUy+dkJHG6kQsCK2LS8r3cJnlqRT9t2q6KWzLuDXSon kw== 
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w4arnsgfe-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Feb 2024 14:13:04 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 417COK4X016148;
-	Wed, 7 Feb 2024 14:13:02 GMT
+	Wed, 07 Feb 2024 14:15:03 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 417D19rM020234;
+	Wed, 7 Feb 2024 14:15:03 GMT
 Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w22h25n5q-1
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w1ytt6d07-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Feb 2024 14:13:02 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 417ECxtx18744014
+	Wed, 07 Feb 2024 14:15:02 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 417EF0io11666036
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 7 Feb 2024 14:12:59 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3080020043;
-	Wed,  7 Feb 2024 14:12:59 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EFEA620040;
-	Wed,  7 Feb 2024 14:12:58 +0000 (GMT)
+	Wed, 7 Feb 2024 14:15:00 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0FD5C2004E;
+	Wed,  7 Feb 2024 14:15:00 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D041A2004B;
+	Wed,  7 Feb 2024 14:14:59 +0000 (GMT)
 Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed,  7 Feb 2024 14:12:58 +0000 (GMT)
-Date: Wed, 7 Feb 2024 15:12:57 +0100
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed,  7 Feb 2024 14:14:59 +0000 (GMT)
+Date: Wed, 7 Feb 2024 15:14:58 +0100
 From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Frederic Weisbecker <frederic@kernel.org>
-Cc: Ingo Molnar <mingo@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH 5/5] sched/vtime: do not include <asm/vtime.h> header
-Message-ID: <ZcOP6bm0ekxDUVk6@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mingo@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH 4/5] s390/irq,nmi: do not include <linux/vtime.h> header
+Message-ID: <ZcOQYn7G+lE7sR9W@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
 References: <cover.1706470223.git.agordeev@linux.ibm.com>
- <2402f44309e1c9705501bdc9b798e8fe6d73f905.1706470223.git.agordeev@linux.ibm.com>
- <ZcLBAKMJ5Vbbm2Ln@localhost.localdomain>
+ <966148629217b56139f40c38ffbb45ca229bd489.1706470223.git.agordeev@linux.ibm.com>
+ <20240129095144.6722-A-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -71,33 +71,36 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ZcLBAKMJ5Vbbm2Ln@localhost.localdomain>
+In-Reply-To: <20240129095144.6722-A-hca@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ZUgQbDIIA_epP8KRIveyfx_KgUblcvVb
-X-Proofpoint-GUID: ZUgQbDIIA_epP8KRIveyfx_KgUblcvVb
+X-Proofpoint-ORIG-GUID: wQvamkGva6TInDfEiSrAYE_sclmi_aAF
+X-Proofpoint-GUID: wQvamkGva6TInDfEiSrAYE_sclmi_aAF
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-07_04,2024-01-31_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 suspectscore=0
- clxscore=1015 malwarescore=0 mlxscore=0 phishscore=0 mlxlogscore=361
- bulkscore=0 priorityscore=1501 impostorscore=0 adultscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402070105
+ definitions=2024-02-07_05,2024-01-31_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=1 adultscore=0 mlxlogscore=188
+ spamscore=1 malwarescore=0 clxscore=1015 mlxscore=1 impostorscore=0
+ bulkscore=0 phishscore=0 suspectscore=0 lowpriorityscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402070106
 
-On Wed, Feb 07, 2024 at 12:30:08AM +0100, Frederic Weisbecker wrote:
-> Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+On Mon, Jan 29, 2024 at 10:51:44AM +0100, Heiko Carstens wrote:
+> It is confusing when the patch subject is "do not include.." and all
+> what this patch is doing is to add two includes. I see what this is
+> doing: getting rid of the implicit include of asm/vtime.h most likely
+> via linux/hardirq.h, but that's not very obvious.
+> 
+> Anyway:
+> Acked-by: Heiko Carstens <hca@linux.ibm.com>
 
-Thank you for the review, Frederic!
+Thank you, Heiko!
 
-The Heiko comment is valid and I would add this chunk in v2:
+Whether this wording sounds better?
 
---- a/arch/powerpc/include/asm/Kbuild
-+++ b/arch/powerpc/include/asm/Kbuild
-@@ -6,5 +6,4 @@ generic-y += agp.h
- generic-y += kvm_types.h
- generic-y += mcs_spinlock.h
- generic-y += qrwlock.h
--generic-y += vtime.h
- generic-y += early_ioremap.h
+s390/irq,nmi: include <asm/vtime.h> header directly                         
 
-Would you keep your Reviewed-by?
+update_timer_sys() and update_timer_mcck() are inlines used for             
+CPU time accounting from the interrupt and machine-check handlers.          
+These routines are specific to s390 architecture, but included              
+via <linux/vtime.h> header implicitly. Avoid the extra loop and             
+include <asm/vtime.h> header directly.                                      
