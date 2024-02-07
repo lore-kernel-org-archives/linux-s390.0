@@ -1,68 +1,147 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60C3F7E78A;
-	Wed,  7 Feb 2024 15:05:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 632EB7F7D2;
+	Wed,  7 Feb 2024 16:20:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707318337; cv=none; b=rHveHYdqcppLdzIijZycH0O4McitjcUVfiUOQwX3GoimA+RWlw69/Cpd2D1NEybbo+P8L3j/VkSwAdDC3WbfjTuYpp/88dLDuq2wSeTdvYuD3/OsRCnDaQOGWSVOI8Y6qkg0TVV47RxNz3wOEjSgZ0neJNfSQCbI55+2yPLzanY=
+	t=1707322847; cv=none; b=PLglMj3egxjydtRgN+nF1m7HCEkXrxwYEBdWpOydCNODSKbw4E66KgAl2evDoK5Rokkpvvy0szNu7WKPfN65oiSG4fv6S28R2q73ErX1Kf5plsMupbqEOjk/pBMVcm7u5mAAj9fmHvTZIhWHmDzPbIqK3ocCDDSekHG2jNWnC9E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707318337; c=relaxed/simple;
-	bh=xdYb7yvdmUvbOrysZ8nVH2p13juopXq78Qj4JrTKaYg=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=pUG4xCwnedCEcEhu6piHfvRfZeSudlqdJZPpG3oeSkxrELIdhZicCd4n+DfpY26xwOxGhMohH2S2R3k9KtFazmrazUhSvczWqklIGFJvsb9z1iXQs1imoQ172LjwIUuSpFZFV+zQFWxRmst5/zz0dPrQaqFUa8TUUzTHkyCfsvE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TBQ8kVxU; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1707322847; c=relaxed/simple;
+	bh=jyUpfru5yzyAI3WdmCD9985N1CruJpNBVQkVcdDxoxg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=HDMSPCzvxmXnNtQ883S7n1cXUxDIZzfXdJxjlMN5auy3zoCKf1n/C3/rsms/mY782DRn8svglU8b9S+BV3nos4lHp3bLaWUTFE6KuMXTaE/VlNUW+/MIeC7zXSFL/j0olbOuwCpwceOmKTOAYUcPcPK3IzQW+jUHixZOwzrJ1yk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IsrtsvJY; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TBQ8kVxU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AB56C433C7;
-	Wed,  7 Feb 2024 15:05:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1707318336;
-	bh=xdYb7yvdmUvbOrysZ8nVH2p13juopXq78Qj4JrTKaYg=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=TBQ8kVxUG3u2NzR7vI0RyO7FcuDhOI5tK4ZCjq+i0nGarriA6z0+OMNNLw9BQRhhF
-	 QYGEG5Q+jAxdGz8V6LHRYhGKjEuMzD58gtHIRXbWHPsBQgxQVVrn+kcnCB+uDnxZqn
-	 FJo3I3Li5AEcbnecnLjkzDPzQigIPC2hUURhCt96+LnPIVPXcTRPVdIF3lXXojkHEs
-	 hv819gKkeEvra5H4sVpaDSFTBBZilFrO46/nIBURzzMJ6ag79dw7nBKF35uhGAVAHJ
-	 uagDuNzGyhi2e4cjjG/HVhyAhkRt3J+jkWDn3fCc3zjUL3IfcpO4eI80MrOoc1uncB
-	 kfa5ZsGA6uXQg==
-Date: Wed, 7 Feb 2024 07:05:35 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-To: Alexander Lobakin <aleksander.lobakin@intel.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Eric Dumazet
- <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Michal Swiatkowski
- <michal.swiatkowski@linux.intel.com>, Marcin Szycik
- <marcin.szycik@linux.intel.com>, Wojciech Drewek
- <wojciech.drewek@intel.com>, Yury Norov <yury.norov@gmail.com>, Andy
- Shevchenko <andy@kernel.org>, "Rasmus Villemoes"
- <linux@rasmusvillemoes.dk>, Alexander Potapenko <glider@google.com>, Jiri
- Pirko <jiri@resnulli.us>, Ido Schimmel <idosch@nvidia.com>, Przemek Kitszel
- <przemyslaw.kitszel@intel.com>, "Simon Horman" <horms@kernel.org>,
- <linux-btrfs@vger.kernel.org>, <dm-devel@redhat.com>,
- <ntfs3@lists.linux.dev>, <linux-s390@vger.kernel.org>,
- <intel-wired-lan@lists.osuosl.org>, <netdev@vger.kernel.org>,
- <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH net-next v5 00/21] ice: add PFCP filter support
-Message-ID: <20240207070535.37223e13@kernel.org>
-In-Reply-To: <c90e7c78-47e9-46d0-a4e5-cb4aca737d11@intel.com>
-References: <20240201122216.2634007-1-aleksander.lobakin@intel.com>
-	<c90e7c78-47e9-46d0-a4e5-cb4aca737d11@intel.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IsrtsvJY"
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 417FTiKE018472;
+	Wed, 7 Feb 2024 16:20:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=JES2jhGp1yCMmmhC3WF0i/hZwneuKbQBl6nP710BJ1c=;
+ b=IsrtsvJYGRc3M30uQ/5C0931XYQQO7OA5WUgbwd7mzGikfthWN4jWk3K8Z2Az4x44J9v
+ IeuoCzyHxhXkwS0bjHqDCidOLPmP1g08CO/q2/Pa5qR6sIgYG0N2iPKRZhz/GODIlefY
+ 6GmkQ95ee9MFufGTX/yvejJyt7RbxvSpCdM1DkvNTaXo2FWBbFja3IvA+lHrTnNkCZR1
+ EsaJj9k5cw3IOuH68mWLwoqRTehDajF5IpGWJoO+jpBP1LK47fpJKAYgaKmsG3tM6Ra0
+ 7VS+PxdALXNCU4SUsYf2bG4RZpcBwtO96s5qTbLrk+2ymCdk8uhj3Mb8HtMFISWFd36m gg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w4cj6hfqu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 07 Feb 2024 16:20:43 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 417G1CMa028633;
+	Wed, 7 Feb 2024 16:20:43 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w4cj6hfpq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 07 Feb 2024 16:20:43 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 417G7StK020383;
+	Wed, 7 Feb 2024 16:20:42 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w1ytt71k6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 07 Feb 2024 16:20:42 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 417GKc6X27132520
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 7 Feb 2024 16:20:38 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 806DD2004D;
+	Wed,  7 Feb 2024 16:20:38 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4B58020049;
+	Wed,  7 Feb 2024 16:20:38 +0000 (GMT)
+Received: from [9.152.224.222] (unknown [9.152.224.222])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  7 Feb 2024 16:20:38 +0000 (GMT)
+Message-ID: <044e0a7f-5718-455f-a22d-fa8dc7aaa69b@linux.ibm.com>
+Date: Wed, 7 Feb 2024 17:20:37 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] KVM: s390: only deliver the set service event bits
+To: Eric Farman <farman@linux.ibm.com>, Janosch Frank
+ <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20240205214300.1018522-1-farman@linux.ibm.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20240205214300.1018522-1-farman@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: rsWvlHnEGBViObLf7E0toZef-1FXjHxI
+X-Proofpoint-ORIG-GUID: w4apOBmGCibCSIBStgzIUrHidXbecFXh
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-07_06,2024-02-07_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 mlxscore=0
+ lowpriorityscore=0 impostorscore=0 mlxlogscore=869 priorityscore=1501
+ suspectscore=0 spamscore=0 adultscore=0 malwarescore=0 bulkscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402070120
 
-On Tue, 6 Feb 2024 13:46:44 +0100 Alexander Lobakin wrote:
-> > Add support for creating PFCP filters in switchdev mode. Add pfcp module
-> > that allows to create a PFCP-type netdev. The netdev then can be passed to
-> > tc when creating a filter to indicate that PFCP filter should be created.  
+
+
+Am 05.02.24 um 22:43 schrieb Eric Farman:
+> The SCLP driver code masks off the last two bits of the parameter [1]
+> to determine if a read is required, but doesn't care about the
+> contents of those bits. Meanwhile, the KVM code that delivers
+> event interrupts masks off those two bits but sends both to the
+> guest, even if only one was specified by userspace [2].
 > 
-> I believe folks agreed that bitmap_{read,write}() should stay inline,
-> ping then?
+> This works for the driver code, but it means any nuances of those
+> bits gets lost. Use the event pending mask as an actual mask, and
+> only send the bit(s) that were specified in the pending interrupt.
+> 
+> [1] Linux: sclp_interrupt_handler() (drivers/s390/char/sclp.c:658)
+> [2] QEMU: service_interrupt() (hw/s390x/sclp.c:360..363)
+> 
+> Fixes: 0890ddea1a90 ("KVM: s390: protvirt: Add SCLP interrupt handling")
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
 
-Well, Dave dropped this from PW, again. Can you ping people to give you
-the acks and repost? What's your plan?
+makes sense
+
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+
+
+> ---
+>   arch/s390/kvm/interrupt.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index fc4007cc067a..20e080e9150b 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -1031,7 +1031,7 @@ static int __must_check __deliver_service_ev(struct kvm_vcpu *vcpu)
+>   		return 0;
+>   	}
+>   	ext = fi->srv_signal;
+> -	/* only clear the event bit */
+> +	/* only clear the event bits */
+>   	fi->srv_signal.ext_params &= ~SCCB_EVENT_PENDING;
+>   	clear_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs);
+>   	spin_unlock(&fi->lock);
+> @@ -1041,7 +1041,7 @@ static int __must_check __deliver_service_ev(struct kvm_vcpu *vcpu)
+>   	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_SERVICE,
+>   					 ext.ext_params, 0);
+>   
+> -	return write_sclp(vcpu, SCCB_EVENT_PENDING);
+> +	return write_sclp(vcpu, ext.ext_params & SCCB_EVENT_PENDING);
+>   }
+>   
+>   static int __must_check __deliver_pfault_done(struct kvm_vcpu *vcpu)
