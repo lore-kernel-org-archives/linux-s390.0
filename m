@@ -1,179 +1,309 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CC41200AC
-	for <linux-s390@vger.kernel.org>; Wed,  7 Feb 2024 07:58:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 753AC20312;
+	Wed,  7 Feb 2024 08:07:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707292718; cv=none; b=h8kaV9vW1ubmLfqfBFq4r04JNannJeS1mB7X/zKUaLnHzQd/7ZZhQtq2vi7qdVI3nwgyMS59YJyErPa+/Yb9xptDoFQBqUzg6tpbiiRRiK1Ldf2HrqY+RL7Fy1yF4iu+fbVe1OpN4FUD18X75Zr/7rE2CcjGDMoVhAU6e05CgeU=
+	t=1707293222; cv=none; b=Chpz+z0eLiluAfZBgojFzPj0Y6JdJx+9juAmlp4Ut249db5Tyuy4b8SE0U2WWlB68wkZUxYYP1zWbBpJrbyWVSGAlLlhy+lofDSeOcZe1a2bqkyad5hgL7+6NHKLTEzEz2JGRFLH/wY01kSeeNhlrBmio6hzZL9gQ5OQKuBUZKg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707292718; c=relaxed/simple;
-	bh=wegJlsKxzhMiLpMvhMviLwKsk71wGPNz9YHSAT5mjPc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kbGWvEHgGKRFwESqb53Scuhq3iPxSvAepcnsiMC5+A2I68by/d4IsxKEKceKQyXdni+BFJTBG56+xlL6vJZctHs/BFtJluCLRLMKLxdoVlW5u3sVPwAhvTKNSXb2wepuHiNXJbLRPZd0dx1p1oTYTQdI7ObeTFNtVLfXtLjIAq0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GAA4tiXD; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1707293222; c=relaxed/simple;
+	bh=ht+BT9ZADFMjKhpdVDXaZ5Jepkqt+5jAnDs1I9H7Etw=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=YLYgK6UlTKfCz8nDcNwXusdTAUFhhjAogpQsnO8o/3jih3x81vOZNaBfpcAz6Gse+ngKDNj6SA40TCfs2lYjqVsKlRY3KnFxAaiflc13c5lIuMScCE4H5okmBWUhU6YjJCLb1M/AMMXcegKYe4+MFKRzP/Mo/WEgWIveEVbEJbQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oyTIQsI0; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GAA4tiXD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1707292715;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=zXtKRnFkGoIwoyq75fyFW+2T2/NnWp1FVhv8bHmQMRk=;
-	b=GAA4tiXDelGvkIzDGu6YxQGUKiU3OFMwp4COqX06K91Uze5jPuMt+Fdf38IJdBQmcxt7n0
-	rFUpWVneuKPSX2Um5zVVVWmRcGPeU/mWH3MHeGNNRBg9xe59HuS2Mj6Xmq0LIOfLSt3InI
-	6Q+6Pb5/Faq0bEosnHxyB9ATQ4Nea4g=
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
- [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-323-pCJxgoXQO4CG4hgShKYQgQ-1; Wed, 07 Feb 2024 02:58:33 -0500
-X-MC-Unique: pCJxgoXQO4CG4hgShKYQgQ-1
-Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-78319f64126so37892685a.3
-        for <linux-s390@vger.kernel.org>; Tue, 06 Feb 2024 23:58:33 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707292713; x=1707897513;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
-         :to:content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=zXtKRnFkGoIwoyq75fyFW+2T2/NnWp1FVhv8bHmQMRk=;
-        b=uiOnUKmRaF9+v64fwEyZX7Dw3F84RM7LNTJSvuaoDdOjTKaVf/HlPCoD6I0a/XDaBF
-         JX43cmDiBdjEQuORraayGydHknSnhnBDgn6hAVMrk9tgOrhYaySxWB0aOhwjFNOlOSAm
-         y+AV9vuB05OAeSeuRX9QEUqX1ee45dX2K8Qk+pqdkm3uQV+pKU0P2J5Sq8k23npABSGt
-         56eqeX+QyJauRGtuojHZwtYQ6C4m5MN3sDfeTgOgHHQNDqecc2Q7OtsU5jfjzCMlMFbA
-         QJs6/mfYQnpAlPkRTw2nW6xz5qe6F7X290cC6XbZhqoGCpbGgSV1H7i01JFHR/+v/LyA
-         mA1w==
-X-Gm-Message-State: AOJu0Yx8WgfB1Yxr1JSVtpDaic+jz25Yc/Rfv7+1D14juzUjW52kheGN
-	7mn0/WPnndyfvllD6B3a8txliIIvXXcOczEitoTAr3f+ugpCy1/ZY5WH957KJhp98WS0chlZz+X
-	tFTrGXbRh7Iurv60KwZdjexCppxPxrDVXvsQUiiPGDSSFvJ++V+7VGGiHKv8=
-X-Received: by 2002:a05:620a:893:b0:785:9516:e18e with SMTP id b19-20020a05620a089300b007859516e18emr2959774qka.74.1707292713094;
-        Tue, 06 Feb 2024 23:58:33 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF2JN2Mgedfn05mNWMskVZ+JRFEbw01S3JaZHXZ9RYimMQtAsTihbPTpool2Yf5VxmPatMcAg==
-X-Received: by 2002:a05:620a:893:b0:785:9516:e18e with SMTP id b19-20020a05620a089300b007859516e18emr2959757qka.74.1707292712767;
-        Tue, 06 Feb 2024 23:58:32 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCWXE1pNT2QRlPIHctn/MMH5bqYta7MvIyiMhFGaqZJ4cKOg0Kon/zrftNfQIwtabiSl4f/zhsnSSZzHtOUowgK88PgEVxzBCOZr8E0ecmP87llZyXTFJoQklMx12eJ4opVtSTOgZBcOxPm4RxXCzcdbrHXKeTolH7SH68j8Veb7oOEFH+I61NMOI+5KUlbjIIVjGYvGqE3ACH2z/pRda940pxJp/N85l7AY2FWEafslvVKg6H26JuxSXTO1YYwjYSM7wV/BeVQ5TwHE0duf3IQmMaU52d2JSi31mgQXmH9JiBUuSL8qSn9Q+tJXA/rggbfzLZ9vpjxMtLeYB/76ZkVkk/2kk3g3guTFSh8m1OlmpSPWAGcuekTUdejCDndZsRwsIIOtPg0kAYQjBPokjJMqHRfXO5g6XDAvgwQUDVyYA+AZJVaJSnhkhFhM6FAx68U9Q2i+GUZwY9gDon2p0M1TXgLVhes4UewnRle2BFjkNlG/GLg=
-Received: from [192.168.0.9] (ip-109-43-177-145.web.vodafone.de. [109.43.177.145])
-        by smtp.gmail.com with ESMTPSA id x28-20020a05620a14bc00b0078536f14c08sm307564qkj.47.2024.02.06.23.58.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 06 Feb 2024 23:58:32 -0800 (PST)
-Message-ID: <c9039fc4-9809-43d9-8a99-88da1446d67f@redhat.com>
-Date: Wed, 7 Feb 2024 08:58:27 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oyTIQsI0"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 4176vEpY019279;
+	Wed, 7 Feb 2024 08:06:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=mime-version : date :
+ from : to : cc : subject : reply-to : in-reply-to : references :
+ message-id : content-type : content-transfer-encoding; s=pp1;
+ bh=e0aV/9kJJDXzTfaIsvpMN+NWFHLkEEfZKeUUyfq8Yu8=;
+ b=oyTIQsI06dXFJsP/wEvF9NaLjeag1C6GC25RUrWg3WHuLgezlVxaUJbMVe1VwlQKyK0B
+ aXtl7jRggYkd3YsXS3QDeeuASFWWFW5X9frs9Gln69jEwHGtYSU3F4wW0FBb8NY/rcxs
+ 1OPq6M1MNFWUSKKX4MonqItUY8e+e2lzz++acn61W4LWARuaIA5cN8g+XJV/E36vR6dA
+ eyhgbyrtvx2946JWddEnyt8xIAepa4DSORoBo0FjxonC3G3msBgcDx03ZHWvlGbFyZQC
+ WLPhfvs7ThJkUO3howkacFLP+VF8USojknzShr+AP6oBTLh9L/bN3ighK8IeaEIfskoc Fg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w451ssmwv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 07 Feb 2024 08:06:59 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 4177OuxH012947;
+	Wed, 7 Feb 2024 08:06:59 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w451ssmvb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 07 Feb 2024 08:06:58 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4176ZckR008738;
+	Wed, 7 Feb 2024 08:06:55 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3w206ymm0p-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 07 Feb 2024 08:06:55 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41786sNP1049270
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 7 Feb 2024 08:06:55 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A9C2958064;
+	Wed,  7 Feb 2024 08:06:54 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4A28C58063;
+	Wed,  7 Feb 2024 08:06:54 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  7 Feb 2024 08:06:54 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v2 2/9] arch-run: Clean up temporary files
- properly
-Content-Language: en-US
-To: Nicholas Piggin <npiggin@gmail.com>
-Cc: kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
- Shaoqin Huang <shahuang@redhat.com>, Andrew Jones <andrew.jones@linux.dev>,
- Nico Boehr <nrb@linux.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>,
- Alexandru Elisei <alexandru.elisei@arm.com>,
- Eric Auger <eric.auger@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- David Hildenbrand <david@redhat.com>, Marc Hartmayer
- <mhartmay@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, kvmarm@lists.linux.dev
-References: <20240202065740.68643-1-npiggin@gmail.com>
- <20240202065740.68643-3-npiggin@gmail.com>
-From: Thomas Huth <thuth@redhat.com>
-Autocrypt: addr=thuth@redhat.com; keydata=
- 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
-In-Reply-To: <20240202065740.68643-3-npiggin@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Wed, 07 Feb 2024 09:06:54 +0100
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: Anthony Krowiak <akrowiak@linux.ibm.com>
+Cc: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, thuth@redhat.com,
+        david@redhat.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
+        jjherne@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH v4 1/7] lib: s390x: Add ap library
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <e7a10411-ce12-4e44-8320-50ecea342059@linux.ibm.com>
+References: <20240202145913.34831-1-frankja@linux.ibm.com>
+ <20240202145913.34831-2-frankja@linux.ibm.com>
+ <b1bb6df4-dea3-414d-9f53-dfd76571fbb7@linux.ibm.com>
+ <a289a445-7665-4013-adfe-dd95ac3558c0@linux.ibm.com>
+ <e7a10411-ce12-4e44-8320-50ecea342059@linux.ibm.com>
+Message-ID: <f340dad2cca9fe47737a8742ecd7554e@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: YPWs_9ZHD6XJq6BVoO5mJzypLGKKJQyQ
+X-Proofpoint-ORIG-GUID: -0YoyVMYxsrGdXMos3cTS9T8fChFAzp6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-07_02,2024-01-31_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ spamscore=0 bulkscore=0 phishscore=0 suspectscore=0 mlxlogscore=999
+ malwarescore=0 lowpriorityscore=0 clxscore=1015 priorityscore=1501
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402070060
 
-On 02/02/2024 07.57, Nicholas Piggin wrote:
-> Migration files weren't being removed when tests were interrupted.
-> This improves the situation.
+On 2024-02-06 16:55, Anthony Krowiak wrote:
+> On 2/6/24 8:42 AM, Janosch Frank wrote:
+>> On 2/5/24 19:15, Anthony Krowiak wrote:
+>>> I made a few comments and suggestions. I am not very well-versed in 
+>>> the
+>>> inline assembly code, so I'll leave that up to someone who is more
+>>> knowledgeable. I copied @Harald since I believe it was him who wrote 
+>>> it.
+>>> 
+>>> On 2/2/24 9:59 AM, Janosch Frank wrote:
+>>>> Add functions and definitions needed to test the Adjunct
+>>>> Processor (AP) crypto interface.
+>>>> 
+>>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> 
+>> [...]
+>> 
+>>>> +/* Will later be extended to a proper setup function */
+>>>> +bool ap_setup(void)
+>>>> +{
+>>>> +    /*
+>>>> +     * Base AP support has no STFLE or SCLP feature bit but the
+>>>> +     * PQAP QCI support is indicated via stfle bit 12. As this
+>>>> +     * library relies on QCI we bail out if it's not available.
+>>>> +     */
+>>>> +    if (!test_facility(12))
+>>>> +        return false;
+>>> 
+>>> 
+>>> The STFLE.12 can be turned off when starting the guest, so this may 
+>>> not
+>>> be a valid test.
+>>> 
+>>> We use the ap_instructions_available function (in ap.h) which 
+>>> executes
+>>> the TAPQ command to verify whether the AP instructions are installed 
+>>> or
+>>> not. Maybe you can do something similar here:
+>> 
+>> This library relies on QCI, hence we only check for stfle.
+>> I see no sense in manually probing the whole APQN space.
 > 
-> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-> ---
->   scripts/arch-run.bash | 12 +++++++-----
->   1 file changed, 7 insertions(+), 5 deletions(-)
 > 
-> diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
-> index d0864360..f22ead6f 100644
-> --- a/scripts/arch-run.bash
-> +++ b/scripts/arch-run.bash
-> @@ -134,12 +134,14 @@ run_migration ()
->   	qmp1=$(mktemp -u -t mig-helper-qmp1.XXXXXXXXXX)
->   	qmp2=$(mktemp -u -t mig-helper-qmp2.XXXXXXXXXX)
->   	fifo=$(mktemp -u -t mig-helper-fifo.XXXXXXXXXX)
-> +
-> +	# race here between file creation and trap
-> +	trap "trap - TERM ; kill 0 ; exit 2" INT TERM
-> +	trap "rm -f ${migout1} ${migsock} ${qmp1} ${qmp2} ${fifo}" RETURN EXIT
-> +
->   	qmpout1=/dev/null
->   	qmpout2=/dev/null
->   
-> -	trap 'kill 0; exit 2' INT TERM
-> -	trap 'rm -f ${migout1} ${migsock} ${qmp1} ${qmp2} ${fifo}' RETURN EXIT
-> -
->   	eval "$@" -chardev socket,id=mon1,path=${qmp1},server=on,wait=off \
->   		-mon chardev=mon1,mode=control | tee ${migout1} &
->   	live_pid=`jobs -l %+ | grep "eval" | awk '{print$2}'`
-> @@ -211,8 +213,8 @@ run_panic ()
->   
->   	qmp=$(mktemp -u -t panic-qmp.XXXXXXXXXX)
->   
-> -	trap 'kill 0; exit 2' INT TERM
-> -	trap 'rm -f ${qmp}' RETURN EXIT
-> +	trap "trap - TERM ; kill 0 ; exit 2" INT TERM
-> +	trap "rm -f ${qmp}" RETURN EXIT
->   
->   	# start VM stopped so we don't miss any events
->   	eval "$@" -chardev socket,id=mon1,path=${qmp},server=on,wait=off \
+> Makes sense. I was thrown off by the PQAP_FC enumeration which
+> includes all of the AP function codes.
+> 
+> 
+>> 
+>> 
+>> If stfle 12 is indicated I'd expect AP instructions to not generate 
+>> exceptions or do they in a sane CPU model?
+> 
+> 
+> No, I would not expect PQAP(QCI) to generate an exception if STFLE 12
+> is indicated.
+> 
 
-So the point is that the "EXIT" trap wasn't executed without the "trap - 
-TERM" in the other trap? ... ok, then your patch certainly makes sense.
+Hm, I am not sure if you can rely just on checking stfle bit 12 and if 
+that's available assume
+you have AP instructions. I never tried this. But as far as I know the 
+KVM guys there is a chance
+that you see a stfle bit 12 but get an illegal instruction exception the 
+moment you call
+an AP instruction... Maybe check this before relying on such a thing.
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-
+>> 
+>> 
+>>>> +
+>>>> +    return true;
+>>>> +}
+>>>> diff --git a/lib/s390x/ap.h b/lib/s390x/ap.h
+>>>> new file mode 100644
+>>>> index 00000000..b806513f
+>>>> --- /dev/null
+>>>> +++ b/lib/s390x/ap.h
+>>>> @@ -0,0 +1,88 @@
+>>>> +/* SPDX-License-Identifier: GPL-2.0-only */
+>>>> +/*
+>>>> + * AP definitions
+>>>> + *
+>>>> + * Some parts taken from the Linux AP driver.
+>>>> + *
+>>>> + * Copyright IBM Corp. 2024
+>>>> + * Author: Janosch Frank <frankja@linux.ibm.com>
+>>>> + *       Tony Krowiak <akrowia@linux.ibm.com>
+>>>> + *       Martin Schwidefsky <schwidefsky@de.ibm.com>
+>>>> + *       Harald Freudenberger <freude@de.ibm.com>
+>>>> + */
+>>>> +
+>>>> +#ifndef _S390X_AP_H_
+>>>> +#define _S390X_AP_H_
+>>>> +
+>>>> +enum PQAP_FC {
+>>>> +    PQAP_TEST_APQ,
+>>>> +    PQAP_RESET_APQ,
+>>>> +    PQAP_ZEROIZE_APQ,
+>>>> +    PQAP_QUEUE_INT_CONTRL,
+>>>> +    PQAP_QUERY_AP_CONF_INFO,
+>>>> +    PQAP_QUERY_AP_COMP_TYPE,
+>>>> +    PQAP_BEST_AP,
+>>> 
+>>> 
+>>> Maybe use abbreviations like your function names above?
+>>> 
+>>>     PQAP_TAPQ,
+>>>     PQAP_RAPQ,
+>>>     PQAP_ZAPQ,
+>>>     PQAP_AQIC,
+>>>     PQAP_QCI,
+>>>     PQAP_QACT,
+>>>     PQAP_QBAP
+>>> 
+>> 
+>> Hmmmmmmm(TM)
+>> My guess is that I tried making these constants readable without 
+>> consulting architecture documents. But another option is using the 
+>> constants that you suggested and adding comments with a long version.
+> 
+> 
+> I think that works out better; you won't have to abbreviate the longer
+> version which will make it easier to understand.
+> 
+> 
+>> 
+>> Will do
+>> 
+>> [...]
+>> 
+>>>> +struct pqap_r0 {
+>>>> +    uint32_t pad0;
+>>>> +    uint8_t fc;
+>>>> +    uint8_t t : 1;        /* Test facilities (TAPQ)*/
+>>>> +    uint8_t pad1 : 7;
+>>>> +    uint8_t ap;
+>>> 
+>>> 
+>>> This is the APID part of an APQN, so how about renaming to 'apid'
+>>> 
+>>> 
+>>>> +    uint8_t qn;
+>>> 
+>>> 
+>>> This is the APQI  part of an APQN, so how about renaming to 'apqi'
+>> 
+>> Hmm Linux uses qid
+>> I'll change it to the Linux naming convention, might take me a while 
+>> though
+> 
+> 
+> Well, the AP bus uses qid, but the vfio_ap module and the architecture
+> doc uses APQN. In any case, it's a nit and I'm not terribly concerned
+> about it.
+> 
+> 
+>> 
+>>> 
+>>> 
+>>>> +} __attribute__((packed)) __attribute__((aligned(8)));
+>>>> +
+>>>> +struct pqap_r2 {
+>>>> +    uint8_t s : 1;        /* Special Command facility */
+>>>> +    uint8_t m : 1;        /* AP4KM */
+>>>> +    uint8_t c : 1;        /* AP4KC */
+>>>> +    uint8_t cop : 1;    /* AP is in coprocessor mode */
+>>>> +    uint8_t acc : 1;    /* AP is in accelerator mode */
+>>>> +    uint8_t xcp : 1;    /* AP is in XCP-mode */
+>>>> +    uint8_t n : 1;        /* AP extended addressing facility */
+>>>> +    uint8_t pad_0 : 1;
+>>>> +    uint8_t pad_1[3];
+>>> 
+>>> 
+>>> Is there a reason why the 'Classification'  field is left out?
+>>> 
+>> 
+>> It's not used in this library and therefore I chose to not name it to 
+>> make structs a bit more readable.
+> 
+> 
+> Okay, not a problem.
+> 
+> 
+>> 
+>>> 
+>>>> +    uint8_t at;
+>>>> +    uint8_t nd;
+>>>> +    uint8_t pad_6;
+>>>> +    uint8_t pad_7 : 4;
+>>>> +    uint8_t qd : 4;
+>>>> +} __attribute__((packed))  __attribute__((aligned(8)));
+>>>> +_Static_assert(sizeof(struct pqap_r2) == sizeof(uint64_t), "pqap_r2 
+>>>> size");
+>>>> +
+>>>> +bool ap_setup(void);
+>>>> +int ap_pqap_tapq(uint8_t ap, uint8_t qn, struct ap_queue_status 
+>>>> *apqsw,
+>>>> +         struct pqap_r2 *r2);
+>>>> +int ap_pqap_qci(struct ap_config_info *info);
+>>>> +#endif
+>>>> diff --git a/s390x/Makefile b/s390x/Makefile
+>>>> index 7fce9f9d..4f6c627d 100644
+>>>> --- a/s390x/Makefile
+>>>> +++ b/s390x/Makefile
+>>>> @@ -110,6 +110,7 @@ cflatobjs += lib/s390x/malloc_io.o
+>>>>    cflatobjs += lib/s390x/uv.o
+>>>>    cflatobjs += lib/s390x/sie.o
+>>>>    cflatobjs += lib/s390x/fault.o
+>>>> +cflatobjs += lib/s390x/ap.o
+>>>>       OBJDIRS += lib/s390x
+>> 
