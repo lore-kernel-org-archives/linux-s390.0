@@ -1,180 +1,114 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f178.google.com (mail-il1-f178.google.com [209.85.166.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA76A823A1;
-	Thu,  8 Feb 2024 16:42:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40FCB8175C
+	for <linux-s390@vger.kernel.org>; Thu,  8 Feb 2024 17:12:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707410582; cv=none; b=Ctpv9sSlZP5R+bMhxdVcZ89AzZZisufgptt7n6Wrd9UWSh22bz2LEzv3FR91N48NAA8HjHo2FVUTfpkMBPJeXOQbkti3r7OpUdRR31/z2jjan9IAitkktOrAVFUSk8EyBOLuQQo4PZGrt5dss+BavQvON3u2V+nKGB72fId64tk=
+	t=1707412371; cv=none; b=nEEzKMhOXlX/qLBBN/vAeZs9ufzyjTqB+dFv/tQ/xY1k8d1CBQ9lSTujlmbsafC5r/0rhsS8bJlvr9VpZSjyKI2IrI/6KDhF//AOSSiysaLV2Dwpx9KgRqWIPueWBM7KCHcOEoQNdo7M0apHqYvdtuo6+c+t6x5Mvo+Bup9QVvM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707410582; c=relaxed/simple;
-	bh=JhQ1CAKuGeIZAseISCEICwNq8ci19AcF5apenvrbm2o=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=GW/yN3l7QbWNKNRM43NEQMntxqF+u+xRet+e+SiK/grwJ3Ahu02rW59J7FA+qwGtbEywu0tLGUef92uFXeEhk26nRzO7kGlacyoensm6GHR/lYGj3z5zuRIsyMngYAZ2NnFof5M+9yz4AzioXsT8p58uHiKgD+G99niane9YThs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NvpsmBnh; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1707412371; c=relaxed/simple;
+	bh=GGnpdvKFnsrJRcVaLIVdd4QMhMW4+moxJRBEa+tk0p8=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=DFpsPGJil8BHglOGaWlDrdoutdW6Q0ra5NVBJMJWocn5X6TXyjiSg+b1YBaAp/nJOLL5egSPB5/oryXAUMXLKOMW3U7vLTSF8VdkOtd36VRV8YamQ+phP6RFJ3k4LF/QngkEIVRRplsAcPL9IqDyfTv0DhndMPKS2pw63WDUd2Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=VfuZErpL; arc=none smtp.client-ip=209.85.166.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NvpsmBnh"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 418GZ27d020568;
-	Thu, 8 Feb 2024 16:42:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=HG9gg23yhBilE2sXuIaL4SgGDriy2ZpP2zl4tLDC+hs=;
- b=NvpsmBnhpm2IYZfUe38JqirzZtPB7hEgO1Kn8ZbtfNq6Z5kv4RpZ01aiVKmKMybo0BwW
- gnhoAInp+pmTCUXOLEiESLmgY/c4udd8qkpbqmnJz+yUPSHmGxIqdiXeA1Fc+i764oBq
- vo//1ZOILn0u4GA9vBZBKeVvLVXKbtWiRKzMjgh4EC+J77UJcSMmpU9uHJ0o+FnzHWMX
- XAtA28dKD5Q3SRh/4FSFO5pUo+lC3KkxXDm3aCaGW4kvI1R3MlXHndf/WPGqff6fk9DF
- 1cQ+f3bWuviRPTQfryq1CovS/3hDqKfeIySgPuaJowp4mUGKt4TOURfNmDSj1UdDL3eJ QQ== 
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w509qcf4c-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 08 Feb 2024 16:42:55 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 418EvxnT008752;
-	Thu, 8 Feb 2024 16:42:54 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3w206ywsyx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 08 Feb 2024 16:42:53 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 418GgmW841484770
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 8 Feb 2024 16:42:48 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8D4F72004B;
-	Thu,  8 Feb 2024 16:42:48 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7C4BF20043;
-	Thu,  8 Feb 2024 16:42:48 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  8 Feb 2024 16:42:48 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 20191)
-	id 41ED4E04F6; Thu,  8 Feb 2024 17:42:48 +0100 (CET)
-From: Stefan Haberland <sth@linux.ibm.com>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Miroslav Franc <mfranc@suse.cz>
-Subject: [PATCH RESEND 02/11] s390/dasd: Use sysfs_emit() over sprintf()
-Date: Thu,  8 Feb 2024 17:42:41 +0100
-Message-Id: <20240208164248.540985-3-sth@linux.ibm.com>
-X-Mailer: git-send-email 2.40.1
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="VfuZErpL"
+Received: by mail-il1-f178.google.com with SMTP id e9e14a558f8ab-363e7d542f4so100245ab.0
+        for <linux-s390@vger.kernel.org>; Thu, 08 Feb 2024 09:12:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1707412368; x=1708017168; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=tjRxbDcqKY++6B9sBRg0ywAO6+22ec0EvOww7ZTGUEU=;
+        b=VfuZErpLSX8qfuecrXGgZexlxvSIyiYKTFvYUaGrIS4ZnYXArpTbeZmDcxdyBeCUaf
+         Mfqp5GlLUq26IWFlmHXuz5dI6HSuaec0aLS8JRwayY2u7wlfS9P7ltdM84nLEQt/Fut4
+         Fl/Devd+rNUIikkdXafDyqrrrCat1eGi8kO9Xk9wkU7fwOrYJnYVyTjAV5asaVOWwu6a
+         0pxI/mk5x6ypUsVM1B/vY2EYwUk7Jt/Xowi7BVFM0lJHV0RNfQLO1CI8cTZDzEhE76n6
+         U+IulNkkRcAtfD6vHrIwIGCso/zEDt7CRF2e8mInYxQdiTZa+1rWxHEvYLY5PvuNu3kf
+         e8ag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1707412368; x=1708017168;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=tjRxbDcqKY++6B9sBRg0ywAO6+22ec0EvOww7ZTGUEU=;
+        b=rbB7CeK4IQUcbZrskyw8CeUW7NGkcKMPFF8ytKnTTIAumw5YSGen+A0VFQnvkRUo0o
+         JtA6pcqrXxDrmK0luPPmTHRxtmVKI64qURr4FqAndrk1u+y71Xxv3DpdxIwyOJxgrEnM
+         Xf7CrBOwyl5BSJD4Ge7mNmT4pYTq394oPqcBZxT9TwdR+BPyaLQ6CqbvMhoKOLio7Avb
+         WT5W7+ZrseohCNNeMwmvodzdgQTNNr/0PMObtqsDLGWoqdfJt0jtgrB8W1RPGwkLNj/A
+         e8XN8kBGqxrKvwtj87N5qibZWZkcvxT4T2Om65dIaYeSyO1Pt8ZnjVjf04XOQorMpbQi
+         4E2A==
+X-Gm-Message-State: AOJu0Yya9o489P0lLInjPpp4GQEjKlya7gByY+Nsvcq8KLtBs/83Sj1L
+	QQMD6Ie7xsl691yZVUZpWuwHYLXarIw5pVqLeBrCgmRwqT+RYxuD8BvRFhbJsf7ojkSgJBTd4Wm
+	UHyQ=
+X-Google-Smtp-Source: AGHT+IELBZX3WwQ7vkAiN26yd2iLHBjLAq3uYSOHWbHc7iD32gst2rPRTha59n5UBHRLNiyaeWiWiA==
+X-Received: by 2002:a5e:9204:0:b0:7c4:2a52:c2a6 with SMTP id y4-20020a5e9204000000b007c42a52c2a6mr192704iop.2.1707412368205;
+        Thu, 08 Feb 2024 09:12:48 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCVd9KHTSAz4BmHnhPJwTgIrcKgGJ1xgvtnJUNN4ncO7GWmToqIjTFb1v3BO8jmWQ/DPXp9/C+FkA3vAWyi/6YQ3e+Y8J455dvNs2qB41RRf+uGF6HR/+j7DT0ztFePoy4o0t6Qee0SC/k9O4QutJyT3VlCOoei1n9BK6tNI8p/RLMWRcpZIgh7kTQgWLFWnR3/CxpQBIGAS7/C3vDqzXzj5nn9RFVSyIpnGcm8hgTaSPFHtrQ==
+Received: from [127.0.0.1] ([96.43.243.2])
+        by smtp.gmail.com with ESMTPSA id b23-20020a05663801b700b004713f3c2831sm993173jaq.61.2024.02.08.09.12.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Feb 2024 09:12:47 -0800 (PST)
+From: Jens Axboe <axboe@kernel.dk>
+To: Stefan Haberland <sth@linux.ibm.com>
+Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, 
+ linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
+ Vasily Gorbik <gor@linux.ibm.com>, Miroslav Franc <mfranc@suse.cz>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>
 In-Reply-To: <20240208164248.540985-1-sth@linux.ibm.com>
 References: <20240208164248.540985-1-sth@linux.ibm.com>
+Subject: Re: [PATCH RESEND 00/11] s390/dasd: string handling cleanups
+Message-Id: <170741236688.1366825.9301760269550901204.b4-ty@kernel.dk>
+Date: Thu, 08 Feb 2024 10:12:46 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ZKWD1RW0hn3hZ4hYv8JlFDfH6JiO9a-M
-X-Proofpoint-GUID: ZKWD1RW0hn3hZ4hYv8JlFDfH6JiO9a-M
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-08_07,2024-02-08_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- lowpriorityscore=0 clxscore=1015 suspectscore=0 spamscore=0
- impostorscore=0 mlxlogscore=986 malwarescore=0 bulkscore=0 mlxscore=0
- phishscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402080088
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.12.5-dev-2aabd
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
 
-sysfs_emit() should be used in show() functions. There are still a
-couple of functions that use sprintf().
-Replace outstanding occurrences of sprintf() in all show() functions
-with sysfs_emit().
+On Thu, 08 Feb 2024 17:42:39 +0100, Stefan Haberland wrote:
+> looks like the patchset was not applied for the last merge window.
+> So I am resending it rebased to the current for-next branch.
+> Please apply the patches for the upcomming merge window.
+> They clean up the string handling in the DASD driver.
+> 
+> In addition there is a patch that fixes double module refcount decrement.
+> 
+> [...]
 
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
----
- drivers/s390/block/dasd_devmap.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+Applied, thanks!
 
-diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_devmap.c
-index 6297dfe6bc67..8a01afb5e3ce 100644
---- a/drivers/s390/block/dasd_devmap.c
-+++ b/drivers/s390/block/dasd_devmap.c
-@@ -1114,7 +1114,7 @@ dasd_use_diag_show(struct device *dev, struct device_attribute *attr, char *buf)
- 		use_diag = (devmap->features & DASD_FEATURE_USEDIAG) != 0;
- 	else
- 		use_diag = (DASD_FEATURE_DEFAULT & DASD_FEATURE_USEDIAG) != 0;
--	return sprintf(buf, use_diag ? "1\n" : "0\n");
-+	return sysfs_emit(buf, use_diag ? "1\n" : "0\n");
- }
- 
- static ssize_t
-@@ -1163,7 +1163,7 @@ dasd_use_raw_show(struct device *dev, struct device_attribute *attr, char *buf)
- 		use_raw = (devmap->features & DASD_FEATURE_USERAW) != 0;
- 	else
- 		use_raw = (DASD_FEATURE_DEFAULT & DASD_FEATURE_USERAW) != 0;
--	return sprintf(buf, use_raw ? "1\n" : "0\n");
-+	return sysfs_emit(buf, use_raw ? "1\n" : "0\n");
- }
- 
- static ssize_t
-@@ -1259,7 +1259,7 @@ dasd_access_show(struct device *dev, struct device_attribute *attr,
- 	if (count < 0)
- 		return count;
- 
--	return sprintf(buf, "%d\n", count);
-+	return sysfs_emit(buf, "%d\n", count);
- }
- 
- static DEVICE_ATTR(host_access_count, 0444, dasd_access_show, NULL);
-@@ -1338,19 +1338,19 @@ static ssize_t dasd_alias_show(struct device *dev,
- 
- 	device = dasd_device_from_cdev(to_ccwdev(dev));
- 	if (IS_ERR(device))
--		return sprintf(buf, "0\n");
-+		return sysfs_emit(buf, "0\n");
- 
- 	if (device->discipline && device->discipline->get_uid &&
- 	    !device->discipline->get_uid(device, &uid)) {
- 		if (uid.type == UA_BASE_PAV_ALIAS ||
- 		    uid.type == UA_HYPER_PAV_ALIAS) {
- 			dasd_put_device(device);
--			return sprintf(buf, "1\n");
-+			return sysfs_emit(buf, "1\n");
- 		}
- 	}
- 	dasd_put_device(device);
- 
--	return sprintf(buf, "0\n");
-+	return sysfs_emit(buf, "0\n");
- }
- 
- static DEVICE_ATTR(alias, 0444, dasd_alias_show, NULL);
-@@ -1856,7 +1856,7 @@ static ssize_t dasd_pm_show(struct device *dev,
- 
- 	device = dasd_device_from_cdev(to_ccwdev(dev));
- 	if (IS_ERR(device))
--		return sprintf(buf, "0\n");
-+		return sysfs_emit(buf, "0\n");
- 
- 	opm = dasd_path_get_opm(device);
- 	nppm = dasd_path_get_nppm(device);
-@@ -1866,8 +1866,8 @@ static ssize_t dasd_pm_show(struct device *dev,
- 	ifccpm = dasd_path_get_ifccpm(device);
- 	dasd_put_device(device);
- 
--	return sprintf(buf, "%02x %02x %02x %02x %02x %02x\n", opm, nppm,
--		       cablepm, cuirpm, hpfpm, ifccpm);
-+	return sysfs_emit(buf, "%02x %02x %02x %02x %02x %02x\n", opm, nppm,
-+			  cablepm, cuirpm, hpfpm, ifccpm);
- }
- 
- static DEVICE_ATTR(path_masks, 0444, dasd_pm_show, NULL);
+[01/11] s390/dasd: Simplify uid string generation
+        commit: e5de34db1e95ef549236f9a2630d396a41c208a2
+[02/11] s390/dasd: Use sysfs_emit() over sprintf()
+        commit: 9c386d0f6e04fee1b4161e49f8e9f5756bcab04c
+[03/11] s390/dasd: Remove unnecessary errorstring generation
+        commit: 8d7ac904c90be7a1ed1aafa34953c40270c30bd0
+[04/11] s390/dasd: Move allocation error message to DBF
+        commit: 4849494f05994f411c9cc0504843c6adefd1f2de
+[05/11] s390/dasd: Remove unused message logging macros
+        commit: 32312cf229117b781bd02d93b0b11c8b47dfcc0a
+[06/11] s390/dasd: Use dev_err() over printk()
+        commit: 0b3644b475e2564abe26a916af8447beb7c4966b
+[07/11] s390/dasd: Remove %p format specifier from error messages
+        commit: 4ba6366dbb03c2a58d0e7cbe140942bcf715006c
+[08/11] s390/dasd: Remove PRINTK_HEADER and KMSG_COMPONENT definitions
+        commit: c6c6c69df6598aacf3921f26f89b12d5e321ea83
+[09/11] s390/dasd: Use dev_*() for device log messages
+        commit: 79ae56fc475869d636071f66d9e4ef2a3819eee6
+
+Best regards,
 -- 
-2.40.1
+Jens Axboe
+
+
 
