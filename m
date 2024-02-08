@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C3AE67C68;
-	Thu,  8 Feb 2024 06:14:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CEA567E63;
+	Thu,  8 Feb 2024 06:15:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707372848; cv=none; b=nuZsys8IvIWuQpwKkPJaMzZewxk1YegRPQgKRVCcmro6OrGvorx1n1ohxw++2cQ9NHbO4r9I0qKbeGyArUPtzNj30qlIio1vmSQhTm9db/aC/COD4USAJvEgVkFIiY1QzuLWnxnKOv1AZd/1uHe3uLUZB4vTNzU9oWkW1XGI2jo=
+	t=1707372913; cv=none; b=TJf6nrI2rly7JlMiM+7vGWDlDAor9vzY9h43YfxyCFFVRHiXfq76WLKDjXtn8xGlxxt0mk1FXXaskQrihz8m2Mn6JgtqWRBSXM3lVstWJ6OB7x4qGpTqWhfqp2LiAFwC0R/vRPlXw8+kVDvnZ6UM3HrHHiJYaeUlRHhY1pkLMZg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707372848; c=relaxed/simple;
-	bh=4QzBds67XGtNERWYDx/aWm1ENgSNhTtOrGmuQ4p3/TU=;
+	s=arc-20240116; t=1707372913; c=relaxed/simple;
+	bh=GtOxHpQlJPbwoRannd2MAAO/IcfWNYmAXcwGmqFXwjY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HkgLhM00GSHXXJR91PkcSY1YxLo9rQrD7aFECKO9ChIoY2cGpTBLJtblCSppjKA3P4z+HelfDpEQf6zGzo9OHL8NiRVhmhe+Jx4X6xabZXKhVtIGFXaAvugO1SJhkGtYPkY7JNSp+8JLvnMN+/Tbuk8CeC4c3TiGCYPIB8q39j0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rLAWOOle; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=QPUPHN8AzELuQxvhCHbHuHV2qyLjIeYQxmVSwvVaslNYm2sH3JgtLO1jMcZu5g5h6GSgOIZNNsTk+g7eJotd+thT8NigT+3ky8Ci8SvmMm4q0QL15VJghzoZNVIS/BOpPTzyxtUS1IwuNsTpGsl+DTu54g9OzlCmWUbzbmcHl8M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qAN3NWHU; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rLAWOOle"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9F03C433F1;
-	Thu,  8 Feb 2024 06:13:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qAN3NWHU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F90C433F1;
+	Thu,  8 Feb 2024 06:15:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1707372848;
-	bh=4QzBds67XGtNERWYDx/aWm1ENgSNhTtOrGmuQ4p3/TU=;
+	s=k20201202; t=1707372912;
+	bh=GtOxHpQlJPbwoRannd2MAAO/IcfWNYmAXcwGmqFXwjY=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=rLAWOOleFLG4hRBau/SC1x4YiU+yav60epvbD/PBxvZknWftP+db02erpl8/XutxW
-	 uey6GkKb/C3I2U0iRfZhMgOeBcOD0odNJyLJw9mVBIDLXfayM0jVcXiDYHffi29bE9
-	 mVDI6jdFirFyhd8X6DPXQAgJ6w7Emw3JvMDQauyxGuk+5quPjETb0qH0w+WdUqQkMI
-	 /vuHrzGJzlEVOMEX6bJ+1KW/tveopwAdW5hTT+sewWvbXo/YCZyMOIheTEWJMkvqlP
-	 1vgwzSaIYuL0CjVbngFLUeJsZbhKg1++8Uzl+V8pAzA3VKJEivhTaCRxOlOK+cTZnG
-	 bgRWPEBmybWPQ==
-Date: Thu, 8 Feb 2024 08:13:42 +0200
+	b=qAN3NWHUgAp6xKLvQ0e8yFo37cydTMg89g97KgoVIregyOwzbHZk4hqQ3sub2hCoQ
+	 hwe0CdW4bLnS5IePSVLUqqS0MuuGvJA+5FdWAqCBJPZGNUnGeQCtpVOkvjE1Gz9XSo
+	 5xjczVpDmR6gYjOyqEkppqllHNPtdfx9WSEBmpQNcCQ2hUtwmJ6ZdiUOZTqrfTdnLZ
+	 Mj0yGe+GtEY945WdAUDvOC+bojkB9gTWZGJtrrYvw6T2MmSzxu91pmMkOX3+8wCpJN
+	 2nJc45RuQ04OQl9ZjLVBanjRZpBun16YaB8T9shpv+hT3YI4fkzjzytGNhBmxHHxa+
+	 nPwOFg0DIBeAw==
+Date: Thu, 8 Feb 2024 08:14:47 +0200
 From: Mike Rapoport <rppt@kernel.org>
 To: David Hildenbrand <david@redhat.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
@@ -53,11 +53,12 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
 	"David S. Miller" <davem@davemloft.net>,
 	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
 	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org
-Subject: Re: [PATCH v3 04/15] powerpc/pgtable: define PFN_PTE_SHIFT
-Message-ID: <ZcRxFksWIcN5Cdgx@kernel.org>
+	sparclinux@vger.kernel.org,
+	Alexandre Ghiti <alexghiti@rivosinc.com>
+Subject: Re: [PATCH v3 05/15] riscv/pgtable: define PFN_PTE_SHIFT
+Message-ID: <ZcRxVwWdvIjva9Vz@kernel.org>
 References: <20240129124649.189745-1-david@redhat.com>
- <20240129124649.189745-5-david@redhat.com>
+ <20240129124649.189745-6-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -66,34 +67,34 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240129124649.189745-5-david@redhat.com>
+In-Reply-To: <20240129124649.189745-6-david@redhat.com>
 
-On Mon, Jan 29, 2024 at 01:46:38PM +0100, David Hildenbrand wrote:
+On Mon, Jan 29, 2024 at 01:46:39PM +0100, David Hildenbrand wrote:
 > We want to make use of pte_next_pfn() outside of set_ptes(). Let's
 > simply define PFN_PTE_SHIFT, required by pte_next_pfn().
 > 
-> Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Reviewed-by: Alexandre Ghiti <alexghiti@rivosinc.com>
 > Signed-off-by: David Hildenbrand <david@redhat.com>
 
 Reviewed-by: Mike Rapoport (IBM) <rppt@kernel.org>
 
 > ---
->  arch/powerpc/include/asm/pgtable.h | 2 ++
+>  arch/riscv/include/asm/pgtable.h | 2 ++
 >  1 file changed, 2 insertions(+)
 > 
-> diff --git a/arch/powerpc/include/asm/pgtable.h b/arch/powerpc/include/asm/pgtable.h
-> index 9224f23065ff..7a1ba8889aea 100644
-> --- a/arch/powerpc/include/asm/pgtable.h
-> +++ b/arch/powerpc/include/asm/pgtable.h
-> @@ -41,6 +41,8 @@ struct mm_struct;
+> diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
+> index 0c94260b5d0c..add5cd30ab34 100644
+> --- a/arch/riscv/include/asm/pgtable.h
+> +++ b/arch/riscv/include/asm/pgtable.h
+> @@ -523,6 +523,8 @@ static inline void __set_pte_at(pte_t *ptep, pte_t pteval)
+>  	set_pte(ptep, pteval);
+>  }
 >  
->  #ifndef __ASSEMBLY__
->  
-> +#define PFN_PTE_SHIFT		PTE_RPN_SHIFT
+> +#define PFN_PTE_SHIFT		_PAGE_PFN_SHIFT
 > +
->  void set_ptes(struct mm_struct *mm, unsigned long addr, pte_t *ptep,
->  		pte_t pte, unsigned int nr);
->  #define set_ptes set_ptes
+>  static inline void set_ptes(struct mm_struct *mm, unsigned long addr,
+>  		pte_t *ptep, pte_t pteval, unsigned int nr)
+>  {
 > -- 
 > 2.43.0
 > 
