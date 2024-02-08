@@ -1,148 +1,129 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7807178667;
-	Thu,  8 Feb 2024 16:13:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 327DB8174B;
+	Thu,  8 Feb 2024 16:42:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707408784; cv=none; b=WtUJZ6/fIrK7izJK1F1xcBB8+S28VW8hMNvEMLBZ/jTF5lHcq9qeolBph6i3iotOXC/fsiC/IMTwlQbTfI4r1iLdV8eIPSy3zI+p2GE+W89QHWHU0+ukSouEZQCywcI3aSSKg3PINGuct+3Su/i5t2or5xqfQDsb5Qd/TFE6RJ0=
+	t=1707410580; cv=none; b=UmoKSkTXpCBuquqhO9SZ0YFZ9+hfJT/Yl0JsCJ591U27rEzt6XLKubjFE5qP5YPgWzqzMSbWmHaeaAZZZBCCAoJuc9/7ZXQuiVtMvjb1QjLB1Ifb6Y5vtJXdvfg4/k3QFOatmnEyLAbGtsDcOflXcoDbO1t0a8iEXnmMlWW8T2g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707408784; c=relaxed/simple;
-	bh=httI3jPwLFmSHmstxtkwKfoc0Oiu9/X7f4uOJchIqxE=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=WgwgLuSTcRcWkJMOYcZQQKweIbkZJJ/INL7t9K+fs3R4eSEn4iIy9KZ4eeSsrqNuC3eQqLF8N2q0cL0l8Gq55uzQ4rFv6jW03rGR5T8Vm7Obrp7i3gA5hXyiq7qcR94uxn2xLD2BZVaM4dxae0ghBVKjQcb7/jEg55TA/W63TJA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=D1r0nZIV; arc=none smtp.client-ip=115.124.30.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1707410580; c=relaxed/simple;
+	bh=gY+FnzB2PEWYZMvkUXtPXArk1ePvc2Wh+kwwYZMFS5I=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=KZPtD1up1CPYfMan+vrKwwOhfCGc0ssZziQGg/ot1XRaAG4bqlVNhmj3MIXwRmO3ovwVIQztUFie8djRXvd/AVOD5dB4YmQkD3KOohNqwl3Eddg4AWL7qjHpz/25qityMvH1gD/psm4Rkbmm7C+pwmK1g2LYnNIqALL5BPCK3aU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cex9P3aY; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="D1r0nZIV"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1707408772; h=Message-ID:Date:MIME-Version:From:Subject:To:Content-Type;
-	bh=FfIGolZtnx4ArqMHswsjhwdEWJ6tIV6Ggvo4TitHT3c=;
-	b=D1r0nZIV6TRMZMfyMGGLW5BIeTpDbwl9Zm+ViGltfZXxWQ/bmlS0/amWjX6b8FLTr0cnU3ZvgQCZcdTPedOuXEujyKzki4P5PsI7/sI2x1uohAVK4H/hBNd/iEQEFf3NlKSuI6UNVeLpyC3/XzhzLtw37N1sDOmHg4rHVjldEYs=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045168;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0W0JlSZN_1707408769;
-Received: from 192.168.1.100(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W0JlSZN_1707408769)
-          by smtp.aliyun-inc.com;
-          Fri, 09 Feb 2024 00:12:51 +0800
-Message-ID: <357fa933-a19f-40eb-a108-9fcf71471648@linux.alibaba.com>
-Date: Fri, 9 Feb 2024 00:12:49 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cex9P3aY"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 418GccjY028693;
+	Thu, 8 Feb 2024 16:42:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-type :
+ content-transfer-encoding; s=pp1;
+ bh=V47vFoCh+TY/xfKaRSqzsP+vsHJ4FMcCdHFv8uTutq0=;
+ b=cex9P3aYzOR1VKXYw3E0YnSVal/cuspC4dAzMMxk8/QmlFfozjW40zoS/csVipaAryHL
+ Tx2ac+0usMJlCN1TErZO+hvavWhm8FX20PF7gGqo51DHp3sFa7Gwkrnv1D97RumzldZR
+ fmmUVxTJbcVQYHMtNqeaVoLHyYtUCYImqpw8eHeC8OdKwWZzzx2ERbYZZSSBAetCd/he
+ hj33yUvj+HW1WBQjA+0bxTWFZGM+SrsFFydkCO4vLrkKJjNeii7GJGUd6sAhgyGCXTsj
+ yepOk5LQV7+1NnjAtjPP6+djCZYlWvYEVJtEwc4op+QbatjdFoJ323M1OATWDw4e6Uui hg== 
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w52n8r38d-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 08 Feb 2024 16:42:54 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 418Eqd6f008758;
+	Thu, 8 Feb 2024 16:42:53 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3w206ywsyw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 08 Feb 2024 16:42:53 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 418Ggmt020054776
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 8 Feb 2024 16:42:48 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8AEF32004B;
+	Thu,  8 Feb 2024 16:42:48 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7AED520049;
+	Thu,  8 Feb 2024 16:42:48 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu,  8 Feb 2024 16:42:48 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 20191)
+	id 3E035E0361; Thu,  8 Feb 2024 17:42:48 +0100 (CET)
+From: Stefan Haberland <sth@linux.ibm.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Miroslav Franc <mfranc@suse.cz>
+Subject: [PATCH RESEND 00/11] s390/dasd: string handling cleanups
+Date: Thu,  8 Feb 2024 17:42:39 +0100
+Message-Id: <20240208164248.540985-1-sth@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Wen Gu <guwen@linux.alibaba.com>
-Subject: Re: [PATCH net-next 00/15] net/smc: implement loopback-ism used by
- SMC-D
-To: Alexandra Winter <wintera@linux.ibm.com>, wenjia@linux.ibm.com,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, jaka@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20240111120036.109903-1-guwen@linux.alibaba.com>
- <83b9d600-339c-4c9f-860d-ab4539a0ae6b@linux.ibm.com>
-In-Reply-To: <83b9d600-339c-4c9f-860d-ab4539a0ae6b@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: hMktxmx5Fteqt0vQVIKBuuwkD6OUYE6y
+X-Proofpoint-ORIG-GUID: hMktxmx5Fteqt0vQVIKBuuwkD6OUYE6y
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-08_07,2024-02-08_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=648
+ lowpriorityscore=0 spamscore=0 suspectscore=0 mlxscore=0 impostorscore=0
+ malwarescore=0 phishscore=0 priorityscore=1501 clxscore=1011 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2402080088
+
+Hi Jens,
+
+looks like the patchset was not applied for the last merge window.
+So I am resending it rebased to the current for-next branch.
+Please apply the patches for the upcomming merge window.
+They clean up the string handling in the DASD driver.
+
+In addition there is a patch that fixes double module refcount decrement.
 
 
+Jan Höppner (10):
+  s390/dasd: Simplify uid string generation
+  s390/dasd: Use sysfs_emit() over sprintf()
+  s390/dasd: Remove unnecessary errorstring generation
+  s390/dasd: Move allocation error message to DBF
+  s390/dasd: Remove unused message logging macros
+  s390/dasd: Use dev_err() over printk()
+  s390/dasd: Remove %p format specifier from error messages
+  s390/dasd: Remove PRINTK_HEADER and KMSG_COMPONENT definitions
+  s390/dasd: Use dev_*() for device log messages
+  s390/dasd: Improve ERP error messages
 
-On 2024/2/6 20:18, Alexandra Winter wrote:
-> 
-> 
-> On 11.01.24 13:00, Wen Gu wrote:
->> This patch set acts as the second part of the new version of [1] (The first
->> part can be referred from [2]), the updated things of this version are listed
->> at the end.
->>
->> # Background
->>
->> SMC-D is now used in IBM z with ISM function to optimize network interconnect
->> for intra-CPC communications. Inspired by this, we try to make SMC-D available
->> on the non-s390 architecture through a software-implemented virtual ISM device,
->> that is the loopback-ism device here, to accelerate inter-process or
->> inter-containers communication within the same OS instance.
-> 
-> 
-> Hello Wen Gu,
-> 
-> thank you very much for this patchset. I have been looking at it a bit.
-> I installed in on a testserver, but did not yet excercise the loopback-ism device.
-> I want to continue investigations, but daily work interferes, so I thought I
-> send you some comments now. So this is not at all a code review, but some
-> thoughts and observations about the general concept.
-> 
+Miroslav Franc (1):
+  s390/dasd: fix double module refcount decrement
 
-Hi Sandy and Wenjia,
+ drivers/s390/block/dasd.c          | 106 +++++++------------
+ drivers/s390/block/dasd_3990_erp.c |  80 ++++-----------
+ drivers/s390/block/dasd_alias.c    |   8 --
+ drivers/s390/block/dasd_devmap.c   |  34 +++----
+ drivers/s390/block/dasd_diag.c     |   4 -
+ drivers/s390/block/dasd_eckd.c     | 157 +++++++++++------------------
+ drivers/s390/block/dasd_eer.c      |   7 --
+ drivers/s390/block/dasd_erp.c      |   9 +-
+ drivers/s390/block/dasd_fba.c      |  55 ++++------
+ drivers/s390/block/dasd_genhd.c    |   5 -
+ drivers/s390/block/dasd_int.h      |  29 ------
+ drivers/s390/block/dasd_ioctl.c    |   6 --
+ drivers/s390/block/dasd_proc.c     |   5 -
+ 13 files changed, 154 insertions(+), 351 deletions(-)
 
-Thank you very much for your feedback!
-I am working on the detailed replies. As we are on holiday for Chinese New Year,
-the progress may be slower. But please feel free to leave any other comments and
-feedback, thank you!
+-- 
+2.40.1
 
-Best regards!
-Wen Gu
-
-> 
-> In [1] there was a discussion about an abstraction layer between smc-d and the
-> ism devices.
-> I am not sure what you are proposing now, is it an smc-d feature or independent of smc?
-> In 3/15 you say it is part of the SMC module, but then it has its own device entry.
-> Didn't you want to use it for other things as well? Or is it an SMC-D only feature?
-> Is it a device (Config help: "kind of virtual device")? Or an SMC-D feature?
-> 
-> Will we have a class of ism devices (s390 ism, ism-loopback, virtio-ism)
-> That share common properties (internal API?)
-> and smc-d will work with any of those?
-> But they all can exist without smc ?! BTW: This is what we want for s390-ism.
-> The client-registration interface [2] is currently the way to achieve this.
-> But maybe we need a more general concept?
-> 
-> Maybe first a preparation patchset that introduces a class/ism
-> Together with an improved API?
-> In case you want to use ISM devices for other purposes as well..
-> But then the whole picture of ism-loopback in one patchset (RFC?)
-> has its benefits as well.
-> 
-> 
-> Other points that I noticed:
-> 
-> Naming: smc loopback, ism-loopback, loopback-ism ?
-> 
-> config: why not tristate? Why under net/smc?
-> 
-> /sys/devices/virtual/smc  does not initially show up in my installation!!!
-> root@t35lp50:/sys/devices/virtual/> ls
-> 3270/  bdi/  block/  graphics/  iommu/  mem/  memory_tiering/  misc/  net/  tty/  vc/  vtconsole/  workqueue/
-> root@t35lp50:/sys/devices/virtual/> ls smc/loopback-ism
-> active  dmb_copy  dmbs_cnt  dmb_type  subsystem@  uevent  xfer_bytes
-> root@t35lp50:/sys/devices/virtual/> ls
-> 3270/  bdi/  block/  graphics/  iommu/  mem/  memory_tiering/  misc/  net/  smc/  tty/  vc/  vtconsole/  workqueue/
-> Is that normal behaviour?
-> 
-> You introduced a class/smc
-> Maybe class/ism would be better?
-> The other smc interfaces do not show up in class/smc!! Not so good
-> 
-> Why doesn't it show in smc_rnics?
-> (Maybe some deficiency of smc_rnics?)
-> 
-> But then it shows in other smc-tools:
-> root@t35lp50:/sys/> smcd device
-> FID  Type  PCI-ID        PCHID  InUse  #LGs  PNET-ID
-> 0000 0     loopback-ism  ffff   No        0
-> 0029 ISM   0000:00:00.0  07c1   No        0  NET1
-> Nice!
-> 
-> Kind regards
-> Sandy
-> 
-> 
-> [1] https://lore.kernel.org/lkml/e3819550-7b10-4f9c-7347-dcf1f97b8e6b@linux.alibaba.com/
-> [2] 89e7d2ba61b7 ("net/ism: Add new API for client registration")
