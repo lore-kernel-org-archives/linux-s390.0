@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA74167E7B;
-	Thu,  8 Feb 2024 06:19:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65A14692F9;
+	Thu,  8 Feb 2024 06:19:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707373160; cv=none; b=IFHmM4X+kLSW8XfOcS/ZsF3m1sMABzAbkhDef4i2yQAgHTMY96TRXeZ0sEpSyo5U3/5WRtFLYtPnDpLhTUBme+uIZ15GToOzqrMfylqVPhoDUI8bUVQXEcJomB7iRS31jslX45ljWYd/uPnMv9plq2OG1XJYfoXLCcYwAHaDrE0=
+	t=1707373192; cv=none; b=nfP/6RHbCRGNTtM0m/UHS9p2PnAsO2h6r7r0A2kkT/RH4oaA8OS7ePZpSGMr2klPsmrs19NnJx2CfNNjdYr6v6Uv/O0vomDxHKX4wZh2mixbMabXfvApuyaF05GSYQVbiQrMHICgKgosA3NKkBtajo+WJN9j708NEBGv3Yf7uC0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707373160; c=relaxed/simple;
-	bh=sykn19xSWWObW9qLEcBLaerZOcbUqhpMGC17aR+qXjA=;
+	s=arc-20240116; t=1707373192; c=relaxed/simple;
+	bh=nxciaXphWmGCQZgRp+6AraxUwzLXbBBeY7cwt8JPcBc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=e02FKEkE/TU0Q/Yow4pde60lkq6r2YdBWvGx5Dc1V4+mwdrML08RemCkcAukewPWgWR+RVQTAU2waXLMAd2ELGv4qJ64ot5J9zl4HRY8EpyB6+QKOWjaEJaG6VxqpmLYq+bHusaaOuvRH4pKAY9XQRQYSAt5U58TipPNCPbJr9M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jIr3HcQ5; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=D0FdlBZEj3OWo+WcB5WMHtNTRCYFUP57NMuEianEiy1bDq+aQ9TLbVBLHPsaCnA67ggDEndjzkqAUvDoDFp2Yoc+FIYJPISDI3vlJ2QFYUMGTOEu+gQP/nf6yIhSa2uHF7+wzHG2Sw40lgGUS4KaKNqUOiKdqiS3la36sx1q+1U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dfNiMFha; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jIr3HcQ5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E073C433C7;
-	Thu,  8 Feb 2024 06:19:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dfNiMFha"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF2B9C433C7;
+	Thu,  8 Feb 2024 06:19:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1707373160;
-	bh=sykn19xSWWObW9qLEcBLaerZOcbUqhpMGC17aR+qXjA=;
+	s=k20201202; t=1707373191;
+	bh=nxciaXphWmGCQZgRp+6AraxUwzLXbBBeY7cwt8JPcBc=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=jIr3HcQ5b0bG8W1uCJ8Xs3AwCdkv1B8MN9avDtnOskKLP0MGsSA5FdVe/qlbwHlcW
-	 ij75Se4Sr0M/mlXPbTkg0ExM3s0WbaPDmBB2z0afJU/DgLRzJylJTpMBlkaFq6genb
-	 UGrNOEd0VDk8McWIYbPInEhmtVwApod8E7+c/sGa2tGsu8eSLCSRKoYuzxYXt8WRCQ
-	 9cQouplzvU1R7Agn51n6p8mDjqipAaZ8nccLsae0oyB1d4PDPTePnX+SGrmuqMGd6I
-	 jV18g7gasEz+BfWfvdqPK2SfzN57x1dswOCBjsVrob3m65Q37nQIWq9pBNrosyAwa/
-	 8XrfQqz5PFmrw==
-Date: Thu, 8 Feb 2024 08:18:55 +0200
+	b=dfNiMFhazIYH10xRr5CgSsEUKx1/MHtqdKR5dLOtoLSCnzVdAATtU7nxrVFXM4BpC
+	 gCGwotvDn7ACXKus06eXzj+eZFYm9wAopITxFL8a8tezWcb5Lap0xHbr493kIoHncD
+	 Ji8m2xjisvxTYwQzAoYpx49/a9Zp+h1Kt+4N1ta6uMLLzeAGNNcMHTSIzdp5pDP730
+	 wyrBnBWla/DtCF/gympbDZ+QYOcvjC5PLvCSqHgYCqiQyCQdmHKGPyxvZv6QkTBUnH
+	 M9Idx2TB81kcYGZKOss9xP7XeuY91FZ5wUyl1ETidkY4l1k3mGk5EtF84qqV9GR0PD
+	 xUtpEa/HDCbrA==
+Date: Thu, 8 Feb 2024 08:19:27 +0200
 From: Mike Rapoport <rppt@kernel.org>
 To: David Hildenbrand <david@redhat.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
@@ -54,10 +54,11 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
 	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
 	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
 	sparclinux@vger.kernel.org
-Subject: Re: [PATCH v3 07/15] sparc/pgtable: define PFN_PTE_SHIFT
-Message-ID: <ZcRyT9qil3f-Jot5@kernel.org>
+Subject: Re: [PATCH v3 08/15] mm/pgtable: make pte_next_pfn() independent of
+ set_ptes()
+Message-ID: <ZcRyb2o_lq2XITH_@kernel.org>
 References: <20240129124649.189745-1-david@redhat.com>
- <20240129124649.189745-8-david@redhat.com>
+ <20240129124649.189745-9-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -66,33 +67,42 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240129124649.189745-8-david@redhat.com>
+In-Reply-To: <20240129124649.189745-9-david@redhat.com>
 
-On Mon, Jan 29, 2024 at 01:46:41PM +0100, David Hildenbrand wrote:
-> We want to make use of pte_next_pfn() outside of set_ptes(). Let's
-> simply define PFN_PTE_SHIFT, required by pte_next_pfn().
+On Mon, Jan 29, 2024 at 01:46:42PM +0100, David Hildenbrand wrote:
+> Let's provide pte_next_pfn(), independently of set_ptes(). This allows for
+> using the generic pte_next_pfn() version in some arch-specific set_ptes()
+> implementations, and prepares for reusing pte_next_pfn() in other context.
 > 
+> Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 > Signed-off-by: David Hildenbrand <david@redhat.com>
 
 Reviewed-by: Mike Rapoport (IBM) <rppt@kernel.org>
 
 > ---
->  arch/sparc/include/asm/pgtable_64.h | 2 ++
->  1 file changed, 2 insertions(+)
+>  include/linux/pgtable.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/arch/sparc/include/asm/pgtable_64.h b/arch/sparc/include/asm/pgtable_64.h
-> index a8c871b7d786..652af9d63fa2 100644
-> --- a/arch/sparc/include/asm/pgtable_64.h
-> +++ b/arch/sparc/include/asm/pgtable_64.h
-> @@ -929,6 +929,8 @@ static inline void __set_pte_at(struct mm_struct *mm, unsigned long addr,
->  	maybe_tlb_batch_add(mm, addr, ptep, orig, fullmm, PAGE_SHIFT);
->  }
+> diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+> index f6d0e3513948..351cd9dc7194 100644
+> --- a/include/linux/pgtable.h
+> +++ b/include/linux/pgtable.h
+> @@ -212,7 +212,6 @@ static inline int pmd_dirty(pmd_t pmd)
+>  #define arch_flush_lazy_mmu_mode()	do {} while (0)
+>  #endif
 >  
-> +#define PFN_PTE_SHIFT		PAGE_SHIFT
-> +
->  static inline void set_ptes(struct mm_struct *mm, unsigned long addr,
->  		pte_t *ptep, pte_t pte, unsigned int nr)
->  {
+> -#ifndef set_ptes
+>  
+>  #ifndef pte_next_pfn
+>  static inline pte_t pte_next_pfn(pte_t pte)
+> @@ -221,6 +220,7 @@ static inline pte_t pte_next_pfn(pte_t pte)
+>  }
+>  #endif
+>  
+> +#ifndef set_ptes
+>  /**
+>   * set_ptes - Map consecutive pages to a contiguous range of addresses.
+>   * @mm: Address space to map the pages into.
 > -- 
 > 2.43.0
 > 
