@@ -1,147 +1,174 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 632EB7F7D2;
-	Wed,  7 Feb 2024 16:20:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1FF312E7C;
+	Thu,  8 Feb 2024 00:15:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707322847; cv=none; b=PLglMj3egxjydtRgN+nF1m7HCEkXrxwYEBdWpOydCNODSKbw4E66KgAl2evDoK5Rokkpvvy0szNu7WKPfN65oiSG4fv6S28R2q73ErX1Kf5plsMupbqEOjk/pBMVcm7u5mAAj9fmHvTZIhWHmDzPbIqK3ocCDDSekHG2jNWnC9E=
+	t=1707351306; cv=none; b=DQP7C8Xa+XQaHZRpviPKz4GC0endFUspiLs9XyrCQAGX6y8e5/C5WXaY/mQhMiHyA/oSZf0uei6gSG9ZxEAEExye5ypMJjg/AZoRR3SYkEMzJvn0tnWuRTD7AwJS9rMcxFAlah3OAXtWk0Rnsp3BnKLdlk5yt9rmRK3npuTX9b0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707322847; c=relaxed/simple;
-	bh=jyUpfru5yzyAI3WdmCD9985N1CruJpNBVQkVcdDxoxg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HDMSPCzvxmXnNtQ883S7n1cXUxDIZzfXdJxjlMN5auy3zoCKf1n/C3/rsms/mY782DRn8svglU8b9S+BV3nos4lHp3bLaWUTFE6KuMXTaE/VlNUW+/MIeC7zXSFL/j0olbOuwCpwceOmKTOAYUcPcPK3IzQW+jUHixZOwzrJ1yk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IsrtsvJY; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1707351306; c=relaxed/simple;
+	bh=4r4lVMT5XZg/PVxx8uc9r6bi2UoaXPgMwWYNnJay8/Y=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=ZXgok7JPrOP9P6VMsRt62IDKl5eFTrL4NMKibXb72yo2zpdjWXcRpzZc9KpYzlnuRbZKqpmVK3bVTMzuuTXEKXj1XNXVwyUqp9Pxf17QsTcJQX0LKRZE8YSBzuS1sZ8t6U6zGr3LIAD4tbTUyBzfm/B9V9zN3xv3qpXB2FPKWlg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cyoJPxQV; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IsrtsvJY"
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 417FTiKE018472;
-	Wed, 7 Feb 2024 16:20:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=JES2jhGp1yCMmmhC3WF0i/hZwneuKbQBl6nP710BJ1c=;
- b=IsrtsvJYGRc3M30uQ/5C0931XYQQO7OA5WUgbwd7mzGikfthWN4jWk3K8Z2Az4x44J9v
- IeuoCzyHxhXkwS0bjHqDCidOLPmP1g08CO/q2/Pa5qR6sIgYG0N2iPKRZhz/GODIlefY
- 6GmkQ95ee9MFufGTX/yvejJyt7RbxvSpCdM1DkvNTaXo2FWBbFja3IvA+lHrTnNkCZR1
- EsaJj9k5cw3IOuH68mWLwoqRTehDajF5IpGWJoO+jpBP1LK47fpJKAYgaKmsG3tM6Ra0
- 7VS+PxdALXNCU4SUsYf2bG4RZpcBwtO96s5qTbLrk+2ymCdk8uhj3Mb8HtMFISWFd36m gg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w4cj6hfqu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Feb 2024 16:20:43 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 417G1CMa028633;
-	Wed, 7 Feb 2024 16:20:43 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w4cj6hfpq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Feb 2024 16:20:43 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 417G7StK020383;
-	Wed, 7 Feb 2024 16:20:42 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w1ytt71k6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Feb 2024 16:20:42 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 417GKc6X27132520
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 7 Feb 2024 16:20:38 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 806DD2004D;
-	Wed,  7 Feb 2024 16:20:38 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4B58020049;
-	Wed,  7 Feb 2024 16:20:38 +0000 (GMT)
-Received: from [9.152.224.222] (unknown [9.152.224.222])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  7 Feb 2024 16:20:38 +0000 (GMT)
-Message-ID: <044e0a7f-5718-455f-a22d-fa8dc7aaa69b@linux.ibm.com>
-Date: Wed, 7 Feb 2024 17:20:37 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cyoJPxQV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAAC9C433F1;
+	Thu,  8 Feb 2024 00:15:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1707351305;
+	bh=4r4lVMT5XZg/PVxx8uc9r6bi2UoaXPgMwWYNnJay8/Y=;
+	h=From:Subject:Date:To:Cc:From;
+	b=cyoJPxQVgZBDF4tloJ26tP+4yzsbDNNYCZPbf1clbDlVeamoJx2nxem5nxkElPVGI
+	 +hVfQN93B9N+Uw/WqjhWyn/85TcjxdkJbRQZ58dUgtK/R4KBeYWC0sYqCIZamXYHiU
+	 y97ach5l2wnP8l44JXHs2db4lEm4039UW7s4/d4kZp/B5kGXQ09BSFnKtmHlxcAdSM
+	 X8RQP39kN7W/Zfi6sDtTzE964MzV6YPg64cj1EJZYbX8R/FGjYGSG81UCDcTUzaniq
+	 Qu6g88l36pkFluPswNcfgorEOSWxRaEkdruAd+BexZgJ5E4/C+oLXaq3gEK8NFM/ms
+	 uogY0Zc2ThLqA==
+From: Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 00/11] s390: Support linking with ld.lld
+Date: Wed, 07 Feb 2024 17:14:52 -0700
+Message-Id: <20240207-s390-lld-and-orphan-warn-v1-0-8a665b3346ab@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] KVM: s390: only deliver the set service event bits
-To: Eric Farman <farman@linux.ibm.com>, Janosch Frank
- <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20240205214300.1018522-1-farman@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20240205214300.1018522-1-farman@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rsWvlHnEGBViObLf7E0toZef-1FXjHxI
-X-Proofpoint-ORIG-GUID: w4apOBmGCibCSIBStgzIUrHidXbecFXh
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-07_06,2024-02-07_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 mlxscore=0
- lowpriorityscore=0 impostorscore=0 mlxlogscore=869 priorityscore=1501
- suspectscore=0 spamscore=0 adultscore=0 malwarescore=0 bulkscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402070120
+X-B4-Tracking: v=1; b=H4sIAPwcxGUC/x2M0QqDMAwAf0XyvEBW3Yr7leFDtckWkCopqCD9d
+ 4uPB3d3QmZTzvBpTjDeNOuSKjwfDUz/kH6MGiuDI9eRI4+57QnnOWJIERdbq4R7sISRRDqR98u
+ PBDVfjUWPe/0dSrkAxMRk4WoAAAA=
+To: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, maskray@google.com, 
+ ndesaulniers@google.com, linux-s390@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, llvm@lists.linux.dev, patches@lists.linux.dev, 
+ Nathan Chancellor <nathan@kernel.org>
+X-Mailer: b4 0.13-dev
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5045; i=nathan@kernel.org;
+ h=from:subject:message-id; bh=4r4lVMT5XZg/PVxx8uc9r6bi2UoaXPgMwWYNnJay8/Y=;
+ b=owGbwMvMwCUmm602sfCA1DTG02pJDKlHZNkfdW+1yr2rwiPTyV6bsIbXxizsEvMOP9WyHzImE
+ jmyvaodpSwMYlwMsmKKLNWPVY8bGs45y3jj1CSYOaxMIEMYuDgFYCIrHzIynD2l3q65zI3jhG1S
+ 0WyGZpefDpc+PQiY0Xwh7cqD88Lc+owMd+WXN27/dnrGnWc1dRwNE5rLVke3li+ay+Eucj35oLw
+ HPwA=
+X-Developer-Key: i=nathan@kernel.org; a=openpgp;
+ fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
 
+Hi all,
 
+This series allows the s390 kernel to be linked with ld.lld (support for
+s390 is under review at [1]). This implicitly depends on [2], which was
+created and sent before it was realized that this series was necessary.
 
-Am 05.02.24 um 22:43 schrieb Eric Farman:
-> The SCLP driver code masks off the last two bits of the parameter [1]
-> to determine if a read is required, but doesn't care about the
-> contents of those bits. Meanwhile, the KVM code that delivers
-> event interrupts masks off those two bits but sends both to the
-> guest, even if only one was specified by userspace [2].
-> 
-> This works for the driver code, but it means any nuances of those
-> bits gets lost. Use the event pending mask as an actual mask, and
-> only send the bit(s) that were specified in the pending interrupt.
-> 
-> [1] Linux: sclp_interrupt_handler() (drivers/s390/char/sclp.c:658)
-> [2] QEMU: service_interrupt() (hw/s390x/sclp.c:360..363)
-> 
-> Fixes: 0890ddea1a90 ("KVM: s390: protvirt: Add SCLP interrupt handling")
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+The first chunk of this series enables support for
+CONFIG_LD_ORPHAN_WARN, as it was discovered during testing that the
+kernel fails to build with ld.lld due to differences in orphan section
+handling, which would have been caught with the linker's orphan section
+warnings ahead of the actual build error. There are no warnings when
+building ARCH=s390 defconfig and allmodconfig with GCC 6 through 13 or
+tip of tree Clang using ld.bfd or ld.lld
 
-makes sense
+The final patch resolves a series of errors due to ld.lld having a
+different default for checking for DT_TEXTREL ('-z text') vs ld.bfd,
+which defaults to '-z notext' (but this is configurable at build time).
 
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+There is one outstanding issue due to something that ld.lld does not
+support that the kernel relies on:
 
+  ld.lld: error: drivers/nvme/host/fc.o:(__bug_table): writable SHF_MERGE section is not supported
 
-> ---
->   arch/s390/kvm/interrupt.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index fc4007cc067a..20e080e9150b 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -1031,7 +1031,7 @@ static int __must_check __deliver_service_ev(struct kvm_vcpu *vcpu)
->   		return 0;
->   	}
->   	ext = fi->srv_signal;
-> -	/* only clear the event bit */
-> +	/* only clear the event bits */
->   	fi->srv_signal.ext_params &= ~SCCB_EVENT_PENDING;
->   	clear_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs);
->   	spin_unlock(&fi->lock);
-> @@ -1041,7 +1041,7 @@ static int __must_check __deliver_service_ev(struct kvm_vcpu *vcpu)
->   	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_SERVICE,
->   					 ext.ext_params, 0);
->   
-> -	return write_sclp(vcpu, SCCB_EVENT_PENDING);
-> +	return write_sclp(vcpu, ext.ext_params & SCCB_EVENT_PENDING);
->   }
->   
->   static int __must_check __deliver_pfault_done(struct kvm_vcpu *vcpu)
+This was changed in the kernel in commit e21f8baf8d9a ("s390/bug: add
+entry size to the __bug_table section"). Is this change truly necessary?
+I selectively applied a revert on top of current mainline and I did not
+observe any issues with either Clang or GCC.
+
+diff --git a/arch/s390/include/asm/bug.h b/arch/s390/include/asm/bug.h
+index aebe1e22c7be..c500d45fb465 100644
+--- a/arch/s390/include/asm/bug.h
++++ b/arch/s390/include/asm/bug.h
+@@ -14,7 +14,7 @@
+ 		".section .rodata.str,\"aMS\",@progbits,1\n"	\
+ 		"1:	.asciz	\""__FILE__"\"\n"		\
+ 		".previous\n"					\
+-		".section __bug_table,\"awM\",@progbits,%2\n"	\
++		".section __bug_table,\"aw\"\n"			\
+ 		"2:	.long	0b-.\n"				\
+ 		"	.long	1b-.\n"				\
+ 		"	.short	%0,%1\n"			\
+@@ -30,7 +30,7 @@
+ #define __EMIT_BUG(x) do {					\
+ 	asm_inline volatile(					\
+ 		"0:	mc	0,0\n"				\
+-		".section __bug_table,\"awM\",@progbits,%1\n"	\
++		".section __bug_table,\"aw\"\n"			\
+ 		"1:	.long	0b-.\n"				\
+ 		"	.short	%0\n"				\
+ 		"	.org	1b+%1\n"			\
+
+If it is necessary, is there any way to work around this error? For
+testing purposes, disabling CONFIG_BUG is easy enough but that is not
+usable in the real world.
+
+To test this series with ld.lld, you'll need to build ld.lld from the
+pull request, which is easy to do following LLVM's instructions [3].
+Here is a TL;DR version I tested that just builds LLD with minimal noise
+during the build.
+
+$ git clone https://github.com/llvm/llvm-project
+$ cd llvm-project
+$ git fetch https://github.com/llvm/llvm-project pull/75643/head
+$ git switch -d FETCH_HEAD
+$ cmake \
+    -B build \
+    -G Ninja \
+    -S llvm \
+    --log-level=NOTICE \
+    -Wno-dev \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DLLVM_ENABLE_PROJECTS=lld \
+    -DLLVM_ENABLE_WARNINGS=OFF \
+    -DLLVM_TARGETS_TO_BUILD=SystemZ
+$ ninja -C build lld
+$ export PATH=$PWD/build/bin:$PATH
+
+Then build the kernel with 'LD=ld.lld' in addition to whatever command
+line you use (I tested both Clang and GCC). I can boot an ld.lld linked
+kernel built with both compilers in QEMU with this series.
+
+[    1.386970] Linux version 6.8.0-rc3-00043-g05761ede85d6-dirty (nathan@dev-fedora.aadp) (s390-linux-gcc (GCC) 13.2.0, ClangBuiltLinux LLD 19.0.0) #1 SMP Wed Feb  7 16:51:12 MST 2024
+
+[    0.871923] Linux version 6.8.0-rc3-00043-g05761ede85d6-dirty (nathan@dev-fedora.aadp) (ClangBuiltLinux clang version 19.0.0git (https://github.com/llvm/llvm-project 417075e56aeba5a5b20301c7bfeba9c2a800982b), ClangBuiltLinux LLD 19.0.0) #1 SMP Wed Feb  7 17:01:22 MST 2024
+
+[1]: https://github.com/llvm/llvm-project/pull/75643
+[2]: https://lore.kernel.org/r/20240130-s390-vdso-drop-fpic-from-ldflags-v1-1-094ad104fc55@kernel.org/
+[3]: https://llvm.org/docs/CMake.html
+
+---
+Nathan Chancellor (11):
+      s390: boot: Add support for CONFIG_LD_ORPHAN_WARN
+      s390: vmlinux.lds.S: Handle '.data.rel' sections explicitly
+      s390: vmlinux.lds.S: Explicitly handle '.got' and '.plt' sections
+      s390: vmlinux.lds.S: Discard unnecessary sections
+      s390/boot: vmlinux.lds.S: Handle '.init.text'
+      s390/boot: vmlinux.lds.S: Handle '.rela' sections
+      s390/boot: vmlinux.lds.S: Handle DWARF debug sections
+      s390/boot: vmlinux.lds.S: Handle ELF required sections
+      s390/boot: vmlinux.lds.S: Handle commonly discarded sections
+      s390: Select CONFIG_ARCH_WANT_LD_ORPHAN_WARN
+      s390: Link vmlinux with '-z notext'
+
+ arch/s390/Kconfig              |  1 +
+ arch/s390/Makefile             |  2 +-
+ arch/s390/boot/Makefile        |  5 +++--
+ arch/s390/boot/vmlinux.lds.S   | 28 ++++++++++++++++++++++++++++
+ arch/s390/kernel/vmlinux.lds.S | 28 +++++++++++++++++++++++++++-
+ 5 files changed, 60 insertions(+), 4 deletions(-)
+---
+base-commit: 6613476e225e090cc9aad49be7fa504e290dd33d
+change-id: 20240207-s390-lld-and-orphan-warn-d0ff4ff657b0
+
+Best regards,
+-- 
+Nathan Chancellor <nathan@kernel.org>
+
