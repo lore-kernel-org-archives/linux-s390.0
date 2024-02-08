@@ -1,121 +1,74 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB6EA38DF2;
-	Thu,  8 Feb 2024 20:16:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 245C4381D3;
+	Thu,  8 Feb 2024 21:21:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707423368; cv=none; b=dCWpn01c1HaiwISa7AKyuCyBvIsF7/tmktQ3+s+u6CEWWU+YUkOxMbxbaKjcz09c5faiVFEsuxxuPPfWJBiGa6oZINzEjtejTbJDVZ8ZhJRpN3I68bIYspln1R4ud6FniNkBVF8mImdaJOv+tVN3gW44qyBEdGGTQETNxhE0OG0=
+	t=1707427274; cv=none; b=oZLB2JNf6HtpyEXurCDWm5wL0UMy71O3oVIdrqBPv/OUG5dOjgdH7uBeLntmZkDaapGBZcpZRHzy44yghna3Gr/CP5ws9F3ESevHQCNFRE1VTrdoIiABkmaSgn1pLiBPvxKXfY3i2KZdBuGabPmmffQoIpL3/NNQ8tqcmtbWjX4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707423368; c=relaxed/simple;
-	bh=Fy7fAeEhRXxhYJattsaY48xUX8wq/xaXtUTxoRFdE5Q=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=iSIzJVvpaCDe5oO8OguZYwKDncJAI+XNXyQG5GjQRZw9gtHhC0my7G/ABNQfprz+sanCtiZGHMtVgle0fBnyGtJ7XvgK5QVb2uFSIA1R6n2vcGIs1tDwpzxKG1VvvDlEuzyy/UZ1UmGlAtV2KzDPDwjVhf/a0JkZBsx2kg+ZG+0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OmA2fD7Z; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1707427274; c=relaxed/simple;
+	bh=TE6VqizE4efLqCBitG06M/VRnFw1efWMckznBQfEJ1k=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=PXrf5Nz4FP0ig29bAgPdvVwVkPvPgk35WtyCE1mVIMSPKewRNUFvLyIVd9qbwMK25LTj+GS8bKVyGSZwU4KV2ZNd8P1AXQKN8sWvK/Xhktqtmzs7YFzmTl/2OnhQyuSHEYE7ZHh/fVL2G4uH16HfArVCsi4idSeURs+0OAGNfj8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=iTzlcjDx; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OmA2fD7Z"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 418K2Epk018476;
-	Thu, 8 Feb 2024 20:15:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=tSsEosjDWuVTaWskzvg+GCeL8Q0KczxNBRDsV5Z9Z9Q=;
- b=OmA2fD7ZLP862a8WyWZM3Zlzqjn6BaJI4N3wDuahQLg3aFd0ApZWjACS+gVF7QJI6Apz
- qs/96aVkBoL+vA6eJIovutjSB0DyNFDfUqriUQgR/KAk3vFeUIqsnFjgWduPVu3xJKxH
- QpxeGtI4zwBSQ1T2NbWPTwtQFLGQBXzv0o0EgfbZCFTnUzbuc8/N9+VNVp9ukTfmZX1C
- ChJBZ9g7OYkwJ5TtjqjjLq7V98SZ1YuLXR0yIJs9dMHihdeYqiyTfWxayGm0W/yrQYZp
- AwYY3lFgWrlLcOk14ibNVjGu0PxDrn2lMIc2btH1eMddrSBP2kNJdeRYoRBYMmCKSk9S nA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w55mu8c6y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 08 Feb 2024 20:15:54 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 418K3Hvf021562;
-	Thu, 8 Feb 2024 20:15:53 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w55mu8c6b-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 08 Feb 2024 20:15:53 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 418Istae016137;
-	Thu, 8 Feb 2024 20:15:52 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w22h2eg9h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 08 Feb 2024 20:15:52 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 418KFnpp44106182
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 8 Feb 2024 20:15:49 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C47CD2004D;
-	Thu,  8 Feb 2024 20:15:49 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B34C32004B;
-	Thu,  8 Feb 2024 20:15:49 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  8 Feb 2024 20:15:49 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
-	id 7856EE04E8; Thu,  8 Feb 2024 21:15:49 +0100 (CET)
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mingo@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH v2 1/5] sched/vtime: remove confusing arch_vtime_task_switch() declaration
-Date: Thu,  8 Feb 2024 21:15:45 +0100
-Message-Id: <f5c88d9290bca3b280cfdd499c236a3c390af51b.1707422448.git.agordeev@linux.ibm.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <cover.1707422448.git.agordeev@linux.ibm.com>
-References: <cover.1707422448.git.agordeev@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="iTzlcjDx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEBB6C433C7;
+	Thu,  8 Feb 2024 21:21:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1707427273;
+	bh=TE6VqizE4efLqCBitG06M/VRnFw1efWMckznBQfEJ1k=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=iTzlcjDxZeqzpLgM2c0UDW8zutFRN4NZqOJxe/vrUtVOb0QDld35QCt+eWiNlHKal
+	 rin8MDPU0+SovgV8/BHHKMuKlFuhrSakoXhhtMP/YjSVL/NpHL9xNGmg0I9kHVZovM
+	 TVqUTU26ZDU8HiClwub6vU1ocBypCHs/iQdkq2dg=
+Date: Thu, 8 Feb 2024 13:21:12 -0800
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Dan Williams <dan.j.williams@intel.com>, Arnd Bergmann <arnd@arndb.de>,
+ Dave Chinner <david@fromorbit.com>, linux-kernel@vger.kernel.org, Linus
+ Torvalds <torvalds@linux-foundation.org>, Vishal Verma
+ <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>, Matthew
+ Wilcox <willy@infradead.org>, Russell King <linux@armlinux.org.uk>,
+ linux-arch@vger.kernel.org, linux-cxl@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+ linux-xfs@vger.kernel.org, dm-devel@lists.linux.dev,
+ nvdimm@lists.linux.dev, linux-s390@vger.kernel.org, Alasdair Kergon
+ <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>, Mikulas Patocka
+ <mpatocka@redhat.com>
+Subject: Re: [PATCH v4 01/12] nvdimm/pmem: Fix leak on dax_add_host()
+ failure
+Message-Id: <20240208132112.b5e82e1720e80da195ef0927@linux-foundation.org>
+In-Reply-To: <20240208184913.484340-2-mathieu.desnoyers@efficios.com>
+References: <20240208184913.484340-1-mathieu.desnoyers@efficios.com>
+	<20240208184913.484340-2-mathieu.desnoyers@efficios.com>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: aNx-Vlg6OimIWDavsXMhHhUaI-gyM5i7
-X-Proofpoint-ORIG-GUID: 3yQcFb620ijS_fnTGJmVldLx0cmZ4uqU
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-08_08,2024-02-08_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- mlxlogscore=749 malwarescore=0 phishscore=0 mlxscore=0 clxscore=1015
- lowpriorityscore=0 suspectscore=0 adultscore=0 priorityscore=1501
- spamscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402080108
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Callback arch_vtime_task_switch() is only defined when
-CONFIG_VIRT_CPU_ACCOUNTING_NATIVE is selected. Yet, the
-function prototype forward declaration is present for
-CONFIG_VIRT_CPU_ACCOUNTING_GEN variant. Remove it.
+On Thu,  8 Feb 2024 13:49:02 -0500 Mathieu Desnoyers <mathieu.desnoyers@efficios.com> wrote:
 
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
----
- include/linux/vtime.h | 1 -
- 1 file changed, 1 deletion(-)
+> Fix a leak on dax_add_host() error, where "goto out_cleanup_dax" is done
+> before setting pmem->dax_dev, which therefore issues the two following
+> calls on NULL pointers:
+> 
+> out_cleanup_dax:
+>         kill_dax(pmem->dax_dev);
+>         put_dax(pmem->dax_dev);
 
-diff --git a/include/linux/vtime.h b/include/linux/vtime.h
-index 3684487d01e1..593466ceebed 100644
---- a/include/linux/vtime.h
-+++ b/include/linux/vtime.h
-@@ -18,7 +18,6 @@ extern void vtime_account_idle(struct task_struct *tsk);
- #endif /* !CONFIG_VIRT_CPU_ACCOUNTING */
- 
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING_GEN
--extern void arch_vtime_task_switch(struct task_struct *tsk);
- extern void vtime_user_enter(struct task_struct *tsk);
- extern void vtime_user_exit(struct task_struct *tsk);
- extern void vtime_guest_enter(struct task_struct *tsk);
--- 
-2.40.1
+Seems inappropriate that this fix is within this patch series?
+
+otoh I assume dax_add_host() has never failed so it doesn't matter much.
+
+
+The series seems useful but is at v4 without much sign of review
+activity.  I think I'll take silence as assent and shall slam it all
+into -next and see who shouts at me.
 
