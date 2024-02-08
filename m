@@ -1,89 +1,78 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CCDE36B17;
-	Thu,  8 Feb 2024 00:15:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11ADE1D540;
+	Thu,  8 Feb 2024 02:40:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707351314; cv=none; b=IjOl5zlWOSNbzd6+/9hebujTerZ25wJhqmOXVTCGsG7IFNxWQy+bE9xXdWDXpdPmujRnZEtUlVyCZ785CYdP070y6QH0CHxSSaIt5eJDvrYm5iukq++rAetwvtxyzwncHELHVQTEwNdlLDcp5/jK5W+KdzHTj0F9rYBBaVBGTfc=
+	t=1707360029; cv=none; b=VjPvM8aF6UU7NvhGri9cQdV211lVRXXG57tRhtMzh64jvsA3YCpuOFkvB1zC33VCXMyvmvB702P4WS4mwVSN7o+AYQqH/QFH98h7/sZuHIZVSa40Uo+PCUTFhsn1OjcyxTp6t2tele65OEfLSI7QVjs0UetdMFbUUc5igrb086Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707351314; c=relaxed/simple;
-	bh=CCi+rDw2ejcWvZ1EnjQItxIQNAEtlo1/MQkx4v+uHWI=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=YLqXxBF5Hp0SPIY+9f0gMiEuffrtWnIGc3V/r5H4fY5T5/HHk2nTUaO89i7Z7vQm1ou9nM28jXTImO5ZFnWB/Tt2GUImbQOnxTr09IUyS5pSLaFEoNsek12oTwjUEhdD68IBn25aIBy+TwWCrh128WecOV/qocRSJMuBOiAFKpc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T7CJ6x6X; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1707360029; c=relaxed/simple;
+	bh=oqIUq0+9PWDUdp7JNIr+uhslNtaLYeLhrukFS7asBjo=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=c+z333uonqlt33z3s1gIIfnCshaZRCyIY1ScMkShuPfaTdWpfN3q6vJroVJlJSGwKmbsiceltBCzzAmaEwium6ldowNlE1FnGQxwm8p0o0KDoDtKgOjZsmSwsIgMCkmQyO9wJIVS0yiIAI3/Yh1n90nSTqJKHLvHgoThuSn1QUs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G+5c7Cr4; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T7CJ6x6X"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F8BBC43330;
-	Thu,  8 Feb 2024 00:15:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G+5c7Cr4"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 9CD78C43394;
+	Thu,  8 Feb 2024 02:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1707351314;
-	bh=CCi+rDw2ejcWvZ1EnjQItxIQNAEtlo1/MQkx4v+uHWI=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=T7CJ6x6XIWpT6ltuWuNXD3Isgp2jG34gY6hwPmQwC59BaC9OcNZWXyf4u5j9S7ZzA
-	 dJS1H+RWe8ZGSsOw7gfvO8tebgFZGrpP+0yb6iKf45+YmT0CFD3X5TSS6eigcScAPQ
-	 fkBygchQOo5eFx1AF9/bUBSe2iTSE4HCANpCJ5gQIqC7u3Qhr0vMd3dk2gNZ30foVJ
-	 o16BsHgHhozDLipNHM+KpF5HSLDYk5cSFwdouOY3MOwtG03sq0KV9+Ds0DoH/3HVux
-	 HbfyU9UB8W/c5aGrwizpGyilUu3CVy5RYQq+TiInbcFEz6OAgq8c65y0cAVcPynUBO
-	 6SrO7tb0HW28A==
-From: Nathan Chancellor <nathan@kernel.org>
-Date: Wed, 07 Feb 2024 17:15:03 -0700
-Subject: [PATCH 11/11] s390: Link vmlinux with '-z notext'
+	s=k20201202; t=1707360028;
+	bh=oqIUq0+9PWDUdp7JNIr+uhslNtaLYeLhrukFS7asBjo=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=G+5c7Cr49LkcyojTmvwep/kbT/HMRYFQ20v3HW11MicTuxv7guWrHYkH7rSaPKicd
+	 s+3C7reg3t+VPKRtDSaSIr/LBFJfwR6fwYJrCfG7IWuD5jz+tdsTsF/vfUJnKlm5jt
+	 MgPL7KoQ5meWUF9BwUqAUdASHi86bQTraaoHyXcgvy3Ogh8wSJelL47XP4OoEC6Gzi
+	 AvrlaxExU/vr4HsIohWyHVLa00ngPLR8huLMRjnLJSyBgjUtfGadJJsAbV3f7YJDjX
+	 0E7kmJv+kl0YU62RqjkFeYaOHUZraiSEFI3bQpIAjyNjyLSB2FxJZvY3HXmMPChgO3
+	 AEeUCT/kKbugg==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 7F2F7E2F2F1;
+	Thu,  8 Feb 2024 02:40:28 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20240207-s390-lld-and-orphan-warn-v1-11-8a665b3346ab@kernel.org>
-References: <20240207-s390-lld-and-orphan-warn-v1-0-8a665b3346ab@kernel.org>
-In-Reply-To: <20240207-s390-lld-and-orphan-warn-v1-0-8a665b3346ab@kernel.org>
-To: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, maskray@google.com, 
- ndesaulniers@google.com, linux-s390@vger.kernel.org, 
- linux-kernel@vger.kernel.org, llvm@lists.linux.dev, patches@lists.linux.dev, 
- Nathan Chancellor <nathan@kernel.org>
-X-Mailer: b4 0.13-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1081; i=nathan@kernel.org;
- h=from:subject:message-id; bh=CCi+rDw2ejcWvZ1EnjQItxIQNAEtlo1/MQkx4v+uHWI=;
- b=owGbwMvMwCUmm602sfCA1DTG02pJDKlHZDlcu6wyHtW0mmT9myax7ljYBO69LD6vjC9bn6pz7
- 1+5ruFJRykLgxgXg6yYIkv1Y9XjhoZzzjLeODUJZg4rE8gQBi5OAZhI7lqGX8x5F768tA/muHWQ
- 7f3Ph9aN82f9iFvVZqi6+I5f962f0SyMDHffRdYYZLmkq3zt/xzLfrH40kSl3KWyi2S0/QxDf/Q
- s5wIA
-X-Developer-Key: i=nathan@kernel.org; a=openpgp;
- fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next] net/smc: change the term virtual ISM to Emulated-ISM
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <170736002851.13402.12604224600010407697.git-patchwork-notify@kernel.org>
+Date: Thu, 08 Feb 2024 02:40:28 +0000
+References: <20240205033317.127269-1-guwen@linux.alibaba.com>
+In-Reply-To: <20240205033317.127269-1-guwen@linux.alibaba.com>
+To: Wen Gu <guwen@linux.alibaba.com>
+Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
 
-ld.bfd defaults to '-z notext' (although it is customizable with the
-'--enable-textrel-check' configure option) but ld.lld defaults to '-z
-text', which causes issues with building the kernel due to the presence
-of dynamic relocations in sections that are not writable.
+Hello:
 
-  ld.lld: error: relocation R_390_64 cannot be used against local symbol; recompile with -fPIC
+This patch was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-Add '-z notext' to avoid these errors, as this is expected, which
-matches other architectures.
+On Mon,  5 Feb 2024 11:33:17 +0800 you wrote:
+> According to latest release of SMCv2.1[1], the term 'virtual ISM' has
+> been changed to 'Emulated-ISM' to avoid the ambiguity of the word
+> 'virtual' in different contexts. So the names or comments in the code
+> need be modified accordingly.
+> 
+> [1] https://www.ibm.com/support/pages/node/7112343
+> 
+> [...]
 
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
- arch/s390/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Here is the summary with links:
+  - [net-next] net/smc: change the term virtual ISM to Emulated-ISM
+    https://git.kernel.org/netdev/net-next/c/b27696cd8fcc
 
-diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-index 73873e451686..994f9b3d575f 100644
---- a/arch/s390/Makefile
-+++ b/arch/s390/Makefile
-@@ -15,7 +15,7 @@ KBUILD_CFLAGS_MODULE += -fPIC
- KBUILD_AFLAGS	+= -m64
- KBUILD_CFLAGS	+= -m64
- KBUILD_CFLAGS	+= -fPIE
--LDFLAGS_vmlinux	:= -pie
-+LDFLAGS_vmlinux	:= -pie -z notext
- aflags_dwarf	:= -Wa,-gdwarf-2
- KBUILD_AFLAGS_DECOMPRESSOR := $(CLANG_FLAGS) -m64 -D__ASSEMBLY__
- ifndef CONFIG_AS_IS_LLVM
-
+You are awesome, thank you!
 -- 
-2.43.0
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
