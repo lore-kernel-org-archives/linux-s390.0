@@ -1,148 +1,146 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BD147EF01
-	for <linux-s390@vger.kernel.org>; Fri,  9 Feb 2024 18:09:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 063B9FC19;
+	Fri,  9 Feb 2024 20:45:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707502153; cv=none; b=iX80hh2yqxBSdwDHs3Yb2rmlqu5N5Jm5EhmGcFNxUWtphe47CEEYoXrExFi2onaWTEliiYSktntEPaV/MigYQgQCl/2DSaoBCv0lkzN6ecRMNyipk/QInizEdxoxMzV/uaNComYPoKRfSq4oVTEuXziOQJl+m+nkZU13XUJK29Y=
+	t=1707511553; cv=none; b=e7RlVTTq0OhiTTmkICaij3TAWE9N1FTiZ0Dmt0P1raKNHtMnCrDNYWMmHasRl18FmgWQT4TlawmeSbro2k55u+EznY38n1Kzv0mViIH0sZTWtbDbpWkWHowPr/b6bo8lKH61k92A97S6IKluUozGiL/65+ce6oNTvYLtnmBWYwI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707502153; c=relaxed/simple;
-	bh=iHIuE205CtTkxTOJ8QBT9VX2BzHHxLYDd/fid54PptY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GPP56pCUf9Jb0/V9mX7GD6ZA7WzuYR5cblLY9WblADH++S3FUQQRKRFUM02ZNqmpl1KGws2jUPrhq7TPOkfbYytzab/4IIkp0HRyGD0btkgWR/IYJYaWp87/Za27rIH6B7mLM+vlCjRHsIRhdoCFAQRVOxXFa1jQjX/VHjCUf58=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JQHPGWmP; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1707511553; c=relaxed/simple;
+	bh=RNpzy0rP2PpG/n+yojMX3buqynBn/GPYVyepeEu7qmI=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=fcjqmJGrzTrl2LJmJ62wqNwcX2SZmfCNF/jB8gwJkZdzg0yK1Lxbu8flqGfkE2m6AEmVr5OndNK56P4IIO895duEofRK9ohmwdM2ErYHL7B9ke+2v9Qw7Ct4CrCxNYXCrwVwU12oXN37fVfGHqTUx+bn8Gq7rXxa+8DeDqs3h8g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NQHu5dly; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JQHPGWmP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1707502151;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=qWJBAjq5kZHM63Q92oX8rd7RVwpgAQWVuCWuJw6H2GI=;
-	b=JQHPGWmPbf9a22s9pyL5w8Y9pXiNV/y0OwXCGnXWepToDikQfSsndkquqGTkgaC2NSX5bk
-	tofIbygtxFX4EsKbEKmw9HJEKv6PV0cgFIfIGJCQoZSU6UKV6r6mv5z9ZxiKcErNW+x7Ni
-	CMHRJPYUxj3hVaqH6/Z8UE2zxq1AnM4=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-664-aFpoMAGnOYqiqmmwXKRgFw-1; Fri, 09 Feb 2024 13:09:09 -0500
-X-MC-Unique: aFpoMAGnOYqiqmmwXKRgFw-1
-Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-6800a9505ddso17030446d6.3
-        for <linux-s390@vger.kernel.org>; Fri, 09 Feb 2024 10:09:09 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707502149; x=1708106949;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
-         :to:content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=qWJBAjq5kZHM63Q92oX8rd7RVwpgAQWVuCWuJw6H2GI=;
-        b=QJOSquU7C0lCy9IGBnhii+i8GKdCLIlI/JFmwC8UfgZponFrQE4dkoki7zPyCzmBeV
-         IKd5hTl0uEWM4tYr3x9SQNvVCKZjcHkYljPP282g7kN2So6pia02YI8QbCRT6km1rVeW
-         owBQQnK+EhU4Cbdsis381o2VwXhRqBdzURuEQBgd5shra8IsLUfNkxKEtMN8aw179Y3x
-         EBzMYnN2Ja5SaQ8XKVbcMsFfGkYAA7+TgDjUtnwZX1oStKfUnh0P0OCB2AdkEsRglyjR
-         5FQH9Fa6rJPTVQedm3Wa0Wi3mPJO0Q6EGRJb+hlKgHT96JBEuu852EW6Onut93KFl0fi
-         jyPg==
-X-Forwarded-Encrypted: i=1; AJvYcCWsECTvr5m3NTZPaI1F8IR6FrLCbsJmcbR+zjO5tkqDdD+nCag4qTJD5jfMui7BfeGX9vsj9+DeIsn9QgEYCeE6egAYjRX945igew==
-X-Gm-Message-State: AOJu0Ywi1kmmY6d0ojS3XiUmY85YjpFU/eKrmAGKcN4gs/0lcvakjQDn
-	niINGbKJaE5HfZKPMHbMXPlDS1h3BBZZFr4A9ncFvI5KHHzIBx6SCiVyS02umr7jmG5Flm+DZov
-	zXJzjESKu9pbLCweICbRm8+FyKjM3sT1olgOc9+dWADEp/ZvWtvw6AlOdxm8=
-X-Received: by 2002:ad4:5de8:0:b0:68c:8ee2:3fa0 with SMTP id jn8-20020ad45de8000000b0068c8ee23fa0mr2785575qvb.11.1707502149273;
-        Fri, 09 Feb 2024 10:09:09 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFtzks+e9Q2nimt+WHV4/eU5Wb7t5tJ07+77h0Wfr/SqqBOd3XyU6wdarwiFxt+G5VuHWYrMg==
-X-Received: by 2002:ad4:5de8:0:b0:68c:8ee2:3fa0 with SMTP id jn8-20020ad45de8000000b0068c8ee23fa0mr2785554qvb.11.1707502149049;
-        Fri, 09 Feb 2024 10:09:09 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCWm4MgHh2FuocfMr0j0YAziH9jnpLxw46Vk1gOt4DPPwLZGIhOFvbtvc2/NiWd4RNK75vzcuho0FcXE876/WlhV32JQvZcs92n5psQ2MHVjJhkOnMZhtDfnlBlbEyjISh4Ki63oFKfhMZRzNE0YXFQVTnDHK4EuiQWSHTfcYtgBujW0y+WOniq1nh12MLWwXkry7LTR8a1JSfzQKZeEdTuRv2PEt5AibI09JqiKUTa6+3dvCZgAxHBnXYGbAYqrCe79U2CWjKHUeiN4WQ5LOqVWkBaWFIpsbfnW7RbQ8nUlM90s63Wf5D6WtoC1NpGmcCoWN8x2XRb/0P4vjhE0HXfnm9WPXwNKe3EdHAoPIO/+GcwI5Ln0ZPSxQSG2MmGK3tURNtcSNMsPjW8cM+BKpMVMt1HzkmXzcKg8KSkOQlRAWmIKyHq6a+9QMgm7oMb7bS0hUHzvOPTBx3kUUWWY06ik0mLyanfYuqeNFC+y718Zv57yIlofZac+3lzCWRXkoRvD6tPqHVKJF8aFGOMfHzaeCs1w
-Received: from [192.168.0.9] (ip-109-43-177-145.web.vodafone.de. [109.43.177.145])
-        by smtp.gmail.com with ESMTPSA id mc9-20020a056214554900b0068cb9a819a2sm1045597qvb.28.2024.02.09.10.09.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 09 Feb 2024 10:09:08 -0800 (PST)
-Message-ID: <62518aea-1214-4d33-8a15-41f1a494ee0b@redhat.com>
-Date: Fri, 9 Feb 2024 19:09:03 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NQHu5dly"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 419JQbnr019017;
+	Fri, 9 Feb 2024 20:45:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=powVHdDg11H3JJupYIeDcBgLhFeMGat20WQXjIGHCT8=;
+ b=NQHu5dlyScGtSyWO0X87KoYNcz8n8bOjeh4SWSKXwi2u6XNb/MOBV84b+eHHPxX4oYVB
+ h4ZjbybERtlyMAMmQimQ8BDZyeQ/05l2VN9fC2ZH77kegpSN3yXqNfaayO2NUzFBbJWI
+ Guo2NQCNNID7NbZLGNR6J6s8SRBgcyjGQ/HZO1gucviHWbcNz99iS3RGDhwz3Bu4WXVR
+ 8oGaViyXGrrH0/4sOoDh2LiKEJNbY6E2rtl5GVt6Z0rlaqhe+N9GlsSu9bGOi0So7bHX
+ 3sogVnV0u/7sFvhWzGKiuQ1SeiC+rZP2jF0g1h5UHRi7PQOa5Hxy0GFoP0y7Lhtg8QyU qA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w5rjmkrdd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 09 Feb 2024 20:45:47 +0000
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 419KVrnO001745;
+	Fri, 9 Feb 2024 20:45:47 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w5rjmkrd3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 09 Feb 2024 20:45:47 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 419I7XmP016215;
+	Fri, 9 Feb 2024 20:45:46 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w22h2myct-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 09 Feb 2024 20:45:46 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 419Kjfti59441482
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 9 Feb 2024 20:45:43 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3271B2004B;
+	Fri,  9 Feb 2024 20:45:41 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 203CB20043;
+	Fri,  9 Feb 2024 20:45:41 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri,  9 Feb 2024 20:45:41 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
+	id DB1FFE0361; Fri,  9 Feb 2024 21:45:40 +0100 (CET)
+From: Eric Farman <farman@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
+Subject: [PATCH v1 0/2] KVM: s390: Fix AR parameter in MEM_OP ioctl
+Date: Fri,  9 Feb 2024 21:45:37 +0100
+Message-Id: <20240209204539.4150550-1-farman@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 1KPxcPoJ3mayhDxkSjsr3OCSRrAFkKdt
+X-Proofpoint-GUID: Lxt1ZgaqeoOIEOiqTN-c0NzVubLqpXbo
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v4 6/8] migration: Add quiet migration
- support
-Content-Language: en-US
-To: Nicholas Piggin <npiggin@gmail.com>
-Cc: kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
- Shaoqin Huang <shahuang@redhat.com>, Andrew Jones <andrew.jones@linux.dev>,
- Nico Boehr <nrb@linux.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>,
- Alexandru Elisei <alexandru.elisei@arm.com>,
- Eric Auger <eric.auger@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- David Hildenbrand <david@redhat.com>, Marc Hartmayer
- <mhartmay@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, kvmarm@lists.linux.dev,
- kvm-riscv@lists.infradead.org
-References: <20240209091134.600228-1-npiggin@gmail.com>
- <20240209091134.600228-7-npiggin@gmail.com>
-From: Thomas Huth <thuth@redhat.com>
-Autocrypt: addr=thuth@redhat.com; keydata=
- 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
-In-Reply-To: <20240209091134.600228-7-npiggin@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-09_18,2024-02-08_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
+ clxscore=1011 suspectscore=0 spamscore=0 priorityscore=1501 adultscore=0
+ impostorscore=0 mlxlogscore=545 mlxscore=0 bulkscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2402090150
 
-On 09/02/2024 10.11, Nicholas Piggin wrote:
-> Console output required to support migration becomes quite noisy
-> when doing lots of migrations. Provide a migrate_quiet() call that
-> suppresses console output and doesn't log a message.
-> 
-> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-> ---
->   lib/migrate.c         | 11 +++++++++++
->   lib/migrate.h         |  1 +
->   scripts/arch-run.bash |  4 ++--
->   3 files changed, 14 insertions(+), 2 deletions(-)
+Hi Christian, Janosch, Heiko,
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Here is a pair of patches to replace the RFC I recently sent [1].
 
+Patch 1 performs the host/guest access register swap that Christian
+suggested (instead of a full sync_reg/store_reg process).
+
+Patch 2 provides a selftest patch that exercises this scenario.
+Applying patch 2 without patch 1 fails in the following way:
+
+[eric@host linux]# ./tools/testing/selftests/kvm/s390x/memop 
+TAP version 13
+1..16
+ok 1 simple copy
+ok 2 generic error checks
+ok 3 copy with storage keys
+ok 4 cmpxchg with storage keys
+ok 5 concurrently cmpxchg with storage keys
+ok 6 copy with key storage protection override
+ok 7 copy with key fetch protection
+ok 8 copy with key fetch protection override
+==== Test Assertion Failure ====
+  s390x/memop.c:186: !r
+  pid=5720 tid=5720 errno=4 - Interrupted system call
+     1	0x00000000010042af: memop_ioctl at memop.c:186 (discriminator 3)
+     2	0x0000000001006697: test_copy_access_register at memop.c:400 (discriminator 2)
+     3	0x0000000001002aaf: main at memop.c:1181
+     4	0x000003ffaec33a5b: ?? ??:0
+     5	0x000003ffaec33b5d: ?? ??:0
+     6	0x0000000001002ba9: _start at ??:?
+  KVM_S390_MEM_OP failed, rc: 40 errno: 4 (Interrupted system call)
+
+Thoughts on this approach?
+
+Thanks,
+Eric
+
+[1] https://lore.kernel.org/r/20240131205832.2179029-1-farman@linux.ibm.com/
+
+Eric Farman (2):
+  KVM: s390: load guest access registers in MEM_OP ioctl
+  KVM: s390: selftests: memop: add a simple AR test
+
+ arch/s390/kvm/kvm-s390.c                  |  6 +++++
+ tools/testing/selftests/kvm/s390x/memop.c | 28 +++++++++++++++++++++++
+ 2 files changed, 34 insertions(+)
+
+-- 
+2.40.1
 
