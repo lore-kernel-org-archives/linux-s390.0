@@ -1,45 +1,45 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 439982E40E
-	for <linux-s390@vger.kernel.org>; Fri,  9 Feb 2024 22:15:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8090738DE2
+	for <linux-s390@vger.kernel.org>; Fri,  9 Feb 2024 22:15:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707516942; cv=none; b=Z+455w/3/Y5yluPn1zZwL2KnPUwPPzkqPo6SV1R/m1oNDx6YffoXYBbKU2mVGYcRKWNcL6ZvNPdoUTyff1qj4S2a1UN9V2H9A9OCjQi5baG6O4ruMjLqyoxQX2DbKmA8rCxMAxY0BWLHty8VQv5sz+NSE/R9PR+KGoN2JjbViTk=
+	t=1707516944; cv=none; b=lUFJoUEj0jt9HJmLVM8mggKTEJORzorqnVNQH3bEKlB/uaVXoRzdKHncDNm3ZJbN+pblT0Y6ykpfdxsgZF8GQ1c/hVoHNCGFEdhUacbvfpx+TEwJ7KVx10coCcgsMpr1UzlXgxhUigZPfg4yFqekUMIK0rhmqRj1stxGpVi09qM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707516942; c=relaxed/simple;
-	bh=gJjdcDN9SIZ57EMSsnxvz4s6wGh9ngGev4G0JhDn5Lw=;
+	s=arc-20240116; t=1707516944; c=relaxed/simple;
+	bh=X688LQ+8vv1x+HYbDq06JeZc4jgkCPC+TN2xr2DyFa8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=abcwg7/gGQHUWXAs6+M0hAfQIbVVCSocS0X9PRvLwMpHKmKiD26hYPPkiJKkXJ6tSgV8R+7Je/QrnShNfQqf6N1ZmmZnrVTCqM7dLY8k1P5erzjLYoR4U+0H0DlEkxRNDUDl8Fkb0oOhm97AWJRMC9Qg9mo4K8eUtMPd7wnbvlY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=exaMXgCk; arc=none smtp.client-ip=170.10.129.124
+	 MIME-Version; b=r6kJ4iQf76ETpe4GmhiFeT8JSx34zkSHnunZ5VOxF/KVBIvxT73fyj7Xs2C8FDeBzm5MZkF9zVuiXXJwtReIXObUI9WEUXVrs4FOe1tmKHHhVj2ddxybOQjQPmZVRCunp7NgfdZj5eb2yLJ/5lgZCIP3ozP2OcHVbSNsCF0Eyj8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IekRQjKR; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="exaMXgCk"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IekRQjKR"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1707516940;
+	s=mimecast20190719; t=1707516941;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=M/Ux9HRgPwmdR3zuVPtEfBlFP5wVpYCc/8Whwmc2o7c=;
-	b=exaMXgCkY9e2ZQFRMqcS3KsgSLbLzUdgAoh4kCNn9QDf44xcG0UFt5GZSTCoMNxdHXioxA
-	9pXpl1g0EY5hBk5gAtU+dq4fdyuOGYgPbCwa9XZuuEPql/cJ43jPzmR1Cnx5i9TfbX2sVF
-	gxiS6HPs2iRAuVdg8yj94K0TagY6WC4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-639-ojxWH6gHP7CoaMSJUSv5fA-1; Fri, 09 Feb 2024 17:15:32 -0500
-X-MC-Unique: ojxWH6gHP7CoaMSJUSv5fA-1
+	bh=SyWghWuBP6GkqnhxcyLXYq2ssX4b7HML4Pf9katCZ5k=;
+	b=IekRQjKRCpFRGLIeIWVgeuiJHsDG2kYDFf8T8Fm2cvqmDoREgUljyKoCCtBxCvsyr7nZKQ
+	ybXTJ4U/rxHH5mMe/+vT8Ni0t6/A4QSaQFErdC4utmPg+IdfafAvGe1i9XKo6k8nv9edjV
+	36MdQu5vE/Nh+yjNKlEzivFjMPvwFqc=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-689-umYgGBJnMqW48D3blg8DZg-1; Fri,
+ 09 Feb 2024 17:15:38 -0500
+X-MC-Unique: umYgGBJnMqW48D3blg8DZg-1
 Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 85BE9185A780;
-	Fri,  9 Feb 2024 22:15:31 +0000 (UTC)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id ED4963812023;
+	Fri,  9 Feb 2024 22:15:36 +0000 (UTC)
 Received: from t14s.redhat.com (unknown [10.39.194.59])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 512C21C14B04;
-	Fri,  9 Feb 2024 22:15:27 +0000 (UTC)
+	by smtp.corp.redhat.com (Postfix) with ESMTP id E569E1C14B04;
+	Fri,  9 Feb 2024 22:15:31 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org,
@@ -66,9 +66,9 @@ Cc: linux-mm@kvack.org,
 	linux-arch@vger.kernel.org,
 	linuxppc-dev@lists.ozlabs.org,
 	linux-s390@vger.kernel.org
-Subject: [PATCH v2 03/10] mm/memory: further separate anon and pagecache folio handling in zap_present_pte()
-Date: Fri,  9 Feb 2024 23:15:02 +0100
-Message-ID: <20240209221509.585251-4-david@redhat.com>
+Subject: [PATCH v2 04/10] mm/memory: factor out zapping folio pte into zap_present_folio_pte()
+Date: Fri,  9 Feb 2024 23:15:03 +0100
+Message-ID: <20240209221509.585251-5-david@redhat.com>
 In-Reply-To: <20240209221509.585251-1-david@redhat.com>
 References: <20240209221509.585251-1-david@redhat.com>
 Precedence: bulk
@@ -80,60 +80,89 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
 
-We don't need up-to-date accessed-dirty information for anon folios and can
-simply work with the ptent we already have. Also, we know the RSS counter
-we want to update.
-
-We can safely move arch_check_zapped_pte() + tlb_remove_tlb_entry() +
-zap_install_uffd_wp_if_needed() after updating the folio and RSS.
-
-While at it, only call zap_install_uffd_wp_if_needed() if there is even
-any chance that pte_install_uffd_wp_if_needed() would do *something*.
-That is, just don't bother if uffd-wp does not apply.
+Let's prepare for further changes by factoring it out into a separate
+function.
 
 Reviewed-by: Ryan Roberts <ryan.roberts@arm.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- mm/memory.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ mm/memory.c | 53 ++++++++++++++++++++++++++++++++---------------------
+ 1 file changed, 32 insertions(+), 21 deletions(-)
 
 diff --git a/mm/memory.c b/mm/memory.c
-index 4da6923709b2..7a3ebb6e5909 100644
+index 7a3ebb6e5909..a3efc4da258a 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
-@@ -1552,12 +1552,9 @@ static inline void zap_present_pte(struct mmu_gather *tlb,
- 	folio = page_folio(page);
- 	if (unlikely(!should_zap_folio(details, folio)))
- 		return;
--	ptent = ptep_get_and_clear_full(mm, addr, pte, tlb->fullmm);
--	arch_check_zapped_pte(vma, ptent);
--	tlb_remove_tlb_entry(tlb, pte, addr);
--	zap_install_uffd_wp_if_needed(vma, addr, pte, details, ptent);
+@@ -1528,30 +1528,14 @@ zap_install_uffd_wp_if_needed(struct vm_area_struct *vma,
+ 	pte_install_uffd_wp_if_needed(vma, addr, pte, pteval);
+ }
+ 
+-static inline void zap_present_pte(struct mmu_gather *tlb,
+-		struct vm_area_struct *vma, pte_t *pte, pte_t ptent,
+-		unsigned long addr, struct zap_details *details,
+-		int *rss, bool *force_flush, bool *force_break)
++static inline void zap_present_folio_pte(struct mmu_gather *tlb,
++		struct vm_area_struct *vma, struct folio *folio,
++		struct page *page, pte_t *pte, pte_t ptent, unsigned long addr,
++		struct zap_details *details, int *rss, bool *force_flush,
++		bool *force_break)
+ {
+ 	struct mm_struct *mm = tlb->mm;
+ 	bool delay_rmap = false;
+-	struct folio *folio;
+-	struct page *page;
+-
+-	page = vm_normal_page(vma, addr, ptent);
+-	if (!page) {
+-		/* We don't need up-to-date accessed/dirty bits. */
+-		ptep_get_and_clear_full(mm, addr, pte, tlb->fullmm);
+-		arch_check_zapped_pte(vma, ptent);
+-		tlb_remove_tlb_entry(tlb, pte, addr);
+-		VM_WARN_ON_ONCE(userfaultfd_wp(vma));
+-		ksm_might_unmap_zero_page(mm, ptent);
+-		return;
+-	}
+-
+-	folio = page_folio(page);
+-	if (unlikely(!should_zap_folio(details, folio)))
+-		return;
  
  	if (!folio_test_anon(folio)) {
-+		ptent = ptep_get_and_clear_full(mm, addr, pte, tlb->fullmm);
- 		if (pte_dirty(ptent)) {
- 			folio_mark_dirty(folio);
- 			if (tlb_delay_rmap(tlb)) {
-@@ -1567,8 +1564,17 @@ static inline void zap_present_pte(struct mmu_gather *tlb,
- 		}
- 		if (pte_young(ptent) && likely(vma_has_recency(vma)))
- 			folio_mark_accessed(folio);
-+		rss[mm_counter(folio)]--;
-+	} else {
+ 		ptent = ptep_get_and_clear_full(mm, addr, pte, tlb->fullmm);
+@@ -1586,6 +1570,33 @@ static inline void zap_present_pte(struct mmu_gather *tlb,
+ 	}
+ }
+ 
++static inline void zap_present_pte(struct mmu_gather *tlb,
++		struct vm_area_struct *vma, pte_t *pte, pte_t ptent,
++		unsigned long addr, struct zap_details *details,
++		int *rss, bool *force_flush, bool *force_break)
++{
++	struct mm_struct *mm = tlb->mm;
++	struct folio *folio;
++	struct page *page;
++
++	page = vm_normal_page(vma, addr, ptent);
++	if (!page) {
 +		/* We don't need up-to-date accessed/dirty bits. */
 +		ptep_get_and_clear_full(mm, addr, pte, tlb->fullmm);
-+		rss[MM_ANONPAGES]--;
- 	}
--	rss[mm_counter(folio)]--;
-+	arch_check_zapped_pte(vma, ptent);
-+	tlb_remove_tlb_entry(tlb, pte, addr);
-+	if (unlikely(userfaultfd_pte_wp(vma, ptent)))
-+		zap_install_uffd_wp_if_needed(vma, addr, pte, details, ptent);
++		arch_check_zapped_pte(vma, ptent);
++		tlb_remove_tlb_entry(tlb, pte, addr);
++		VM_WARN_ON_ONCE(userfaultfd_wp(vma));
++		ksm_might_unmap_zero_page(mm, ptent);
++		return;
++	}
 +
- 	if (!delay_rmap) {
- 		folio_remove_rmap_pte(folio, page, vma);
- 		if (unlikely(page_mapcount(page) < 0))
++	folio = page_folio(page);
++	if (unlikely(!should_zap_folio(details, folio)))
++		return;
++	zap_present_folio_pte(tlb, vma, folio, page, pte, ptent, addr, details,
++			      rss, force_flush, force_break);
++}
++
+ static unsigned long zap_pte_range(struct mmu_gather *tlb,
+ 				struct vm_area_struct *vma, pmd_t *pmd,
+ 				unsigned long addr, unsigned long end,
 -- 
 2.43.0
 
