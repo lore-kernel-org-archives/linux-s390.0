@@ -1,57 +1,57 @@
-Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
+Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34B504C90;
-	Fri,  9 Feb 2024 03:38:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D16256B65;
+	Fri,  9 Feb 2024 05:02:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707449892; cv=none; b=HvHElv1nSrDTn2fvyHi7BDRKWbfpaR8LqgRHKKTHuUzralWwtsEQf5EkDXd09SuBXdWlWJWuQY2Nn40qM5bCU+m/rSKrpyfXdMX2ow2W9+hUc9mhyiZd9kX3M4QQziN6Yri6bajD/diB8vQtCRB0Ecjb6zW833cARHHitd5RFYE=
+	t=1707454930; cv=none; b=DZ+Tq2bd+Bl+KjbTPUIsb4wzgL47iNl9vikQY6BPIhEy64UgAXcSHZbh/Nhz2df1AnnXyRoY/g1nhRZq8Q88+j2rwAk3SL3eA8GF19CahLVjFygm4j83v6Np2dDTJQWYMuAadJu9aJ68DhTn4aXg58TK52VfckaL6kNR2VVFJfk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707449892; c=relaxed/simple;
-	bh=GX/+DS78vZhRrtiYhOHAjyvo8eiqrfMYqj2AlJu7hmo=;
+	s=arc-20240116; t=1707454930; c=relaxed/simple;
+	bh=QHzDgfDMbhuy63JYBLnHTpA2kSqsUXdONURKUAyBw/Y=;
 	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:Cc:
-	 References:In-Reply-To; b=piCdPlfFLt/GLy4kIpnRlDaJvwb3ThKWkMzCx6MYCcdznnd5o+U7aUCbPwKhFV4OR3WfAij5UM0kD4RErp4KtczVl9zvQQZ8OE+ctBIzmPdY1flN/qaUTtv71ijmjktohRy7oLregejL3DymUwVTJNBiJ/RtU68aEWoSBAWmoTs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=B2TNklhy; arc=none smtp.client-ip=209.85.215.173
+	 References:In-Reply-To; b=cQpGsi8CZxTKfhdT9/LE7CWIGUDPMea7UqL7ab/luZiHdjASmFpgzhGLx9k1MKbQcR4E36NfgSRKRQ4wdl7uH7/WB3A749agG45HGvWXmPtdWsLxO8SRCPbFgeJJKWK52xx8lvr98WlOc8IOSZ/c6eRzNw3nJ4A6iQc2TkNmRpc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NlY+deG+; arc=none smtp.client-ip=209.85.215.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B2TNklhy"
-Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-5d8b70b39efso415139a12.0;
-        Thu, 08 Feb 2024 19:38:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NlY+deG+"
+Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-5d8ddbac4fbso463755a12.0;
+        Thu, 08 Feb 2024 21:02:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1707449888; x=1708054688; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1707454927; x=1708059727; darn=vger.kernel.org;
         h=in-reply-to:references:cc:to:from:subject:message-id:date
          :content-transfer-encoding:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=+exzC8FxxlmEGoFzeebvnQTCtDzJ36K77Ic0tPa6NG0=;
-        b=B2TNklhyy1j2rEuMIviEC32I/UyJ4eCodv4Xw8VROBfhW1zEpv6eRQ3RtiUN08QOw2
-         rmcKjDwajwWRPiNpSH7OmrcJctU9vFfQrKkbz2b3QHBcKhPonC9mURgSoQUs90++wDqb
-         Il2IIDW5cp4YQayOr+N3LFbj3fiHi5NKUL049wvPbBM8f1CK8FqOIlDIttlLRw3Wavoa
-         MlbmphR/LwHVyTxmyCcyBJ+8v7Y4zosa1QOI1VSZ/meLJQBVn1VYB+qhvf+iT9UHZQQV
-         k+TbQuBawwzKgjubm5GYsRMNbEZirMlVej5i9tmvt3756U39nu4tjF98e6QAHs3qgCnG
-         3thA==
+        bh=0wqz7Y/TcTN7smUZ/N4fhNV46jTItRF0U++Hxc5pAtk=;
+        b=NlY+deG+PRMkyWxfM1tmL1mvaYKwnRZfQb5GLs0HsS0nE141XBzeS/lNT7hKbQeT+/
+         mZPocaOzOJPadLdAcyoWGp+nvJRFb4GrCwGJIQSnRzlNUeIY0bT4BTQzO13S7cw03mY3
+         pGJwIamH8Vaucbnj+ldCoTYZGecItQst3q2Sduz7G1j2RlHE8maxgL2WUbo8Z8ruapbM
+         JJfpeeMFnRAhxL4AkFzmuodPcx8vrSuqEVbvgTsL6oMPqQYLI8SYvkmkNVmgGjntFLHi
+         lqa5ulXObyweqgnLHnYNg6puqajmO1RwcGSDrNs1P9QXA66QbgyIgKRNEC1c0HNwNY7a
+         ipzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707449888; x=1708054688;
+        d=1e100.net; s=20230601; t=1707454927; x=1708059727;
         h=in-reply-to:references:cc:to:from:subject:message-id:date
          :content-transfer-encoding:mime-version:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=+exzC8FxxlmEGoFzeebvnQTCtDzJ36K77Ic0tPa6NG0=;
-        b=BwbOoarMleUYj8RjcNryCJGI8yjAnf7GAOOOnMtzauaV8H56DeNIxmQnQ3m40nv4Rj
-         mq2vS8hwhUTHdIHwoBAA0AXS63OFlO7BCb2tmL1kQ7U6soN4WoymP3yXuwY/54obbKN9
-         irKxf5EwKfk2dmwR9V/W6Q+KH/eFyGYWzay6iqfpZb60erbe8WIF7lCuNqOHR4iK9vct
-         KDvCijuvzZQV1DOByNAF1MKRGu+DQDPJj8IBjr8qss+vq+F4PAQo0dWYcU/JMvGoX9bs
-         Iy6/KBxgvPh48twY0l/xARL9F2CaTiV81rWTQS9kb8tIMAeJTgB5iGI2uMaHqsAps30E
-         MBJw==
-X-Gm-Message-State: AOJu0Yxkkr9fm+TkHUtSOFSxya+I4bv/USPAk1qU0ym7y5EGU8zdCGiA
-	z5z+qaLu+24TeQnvq6q/t9Q2nah80p9r4+SbJQvDE/DC6eZwT4eS
-X-Google-Smtp-Source: AGHT+IFAXbnV5TW0cUkYpJih4U9cPn4/SX1EN+1r22I5ui38caXGIrOO980EM5KCUY0cOnmcHCqIYg==
-X-Received: by 2002:a05:6a20:9f47:b0:19e:957c:f7e6 with SMTP id ml7-20020a056a209f4700b0019e957cf7e6mr769555pzb.13.1707449888531;
-        Thu, 08 Feb 2024 19:38:08 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCWlQOyVqCqmarM7+4FjzI9xeTntxER/MhKs1jzkz2Roi6HZlVgAnQZCo1A5wff+8lwTuNHkyujvc8AaISsuE9MPD7055vkS6rCsDQ3OaVtbISCNko3BLSi8X1Xd8nRvH4AqITbVhuRzwPFPO4+sG0y3HIBX99cprFvnhPIA8M/Jg00tMN/EL45C/udbxAfm3xDZYtSCzaqR7+fOAX0HZevclJRs9e4SArP5NBxCw70YcLMSLG6d6vC3NYlIQoSoCp5QQrxjh/X3CXFA
+        bh=0wqz7Y/TcTN7smUZ/N4fhNV46jTItRF0U++Hxc5pAtk=;
+        b=SvDAsIC/JYhoqorMbsoSFF+Sf7oo4lMa0L1HDepXU4inLIg7hc0euYdgOoOqEO9VFl
+         0r6ZBevciBFs2mp+aXnoUagaydQMNiJ7Z9Nq2cCVfmZs6IqRKic+v8AQ6+58C+BLa7Qr
+         EzgNpYnIGGdDQ/lN066yWMGcMLX5V0TH3U3hujY8383fquiBTXYDiH0iOvwPFKEbUHIG
+         inevQMCKRSbU2C7uJwXlb9zOc04I3MHWCaEtBUydHN5AMiA5l819cZJDLqa60ntG8v2M
+         nBs60GQi1r6mc90BoEwYCIP6SD+115uoNGDHzU/QvrXatktwNgYQwRQp3jWHuVWEKmgc
+         tsIA==
+X-Gm-Message-State: AOJu0Yx1ANarvrBLbNa+to3cSmVgJQc5kAaWsMQ6kP1STifrQZDmtiSO
+	pO3ERCmy5jyeS3kTT2LaHjVet43Ks6wwmfIo1PzP9Fh6u1DGgJ0o
+X-Google-Smtp-Source: AGHT+IEKRg+nU8BWUu6QYFnkof43Ezzita86bZjmYmWTU2CUj7lvOVVnWbVZiYrOWORfbM//Bd/KAg==
+X-Received: by 2002:a17:90a:bf02:b0:296:fe8d:248b with SMTP id c2-20020a17090abf0200b00296fe8d248bmr460936pjs.4.1707454926617;
+        Thu, 08 Feb 2024 21:02:06 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCX1gF5gyLodB9BkGeJgen+1IIQ898R25d9CxVUmwkcouUztyRgoFsqK6P/mdgxB8x2pFV63YnmUNoLXFz2tkj7tHB7BvZmMZtYCvmDYODZMgL6nAqi89JPL5OaMfN5wM7G+P/WEybND0q6L4npV2znOQTSXmjEfIM3vzWJGupZpCgApmK4Zp8537Kqb71pvvVCTG4IRXg/Ead8zsQkmaEGQf9EjyTNySMaIRyfi1UrqBNkWWzvE9Mhh27Hmr9u1j4fsYKdHqpt4KVsAm1byPRjBNTsC8PB9+4mz3BIeaSJVBX7hsxQcI5cAI85egsiwkEykDe++XJtbcn2LYw+BzjhlXrdMumIdXRIoqGb97NvoBlhgTavF03Nb47HVUU08eovz6ZBIHWxmMFKsWAYJXTsTuAivdoz+c7ew7L3p2ykLTjmmfwbQzEcokGzQvK9bHlV2pddrFIOsFhaMzkqe//FxH4GakiPArNdISfUQb6O4BNCeNdQ=
 Received: from localhost ([1.146.65.44])
-        by smtp.gmail.com with ESMTPSA id z8-20020a1709028f8800b001d911dd145esm505119plo.219.2024.02.08.19.38.04
+        by smtp.gmail.com with ESMTPSA id e5-20020a17090301c500b001d7610fdb7csm608163plh.226.2024.02.08.21.01.59
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 08 Feb 2024 19:38:08 -0800 (PST)
+        Thu, 08 Feb 2024 21:02:06 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -60,71 +60,99 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Date: Fri, 09 Feb 2024 13:38:01 +1000
-Message-Id: <CZ08GUY1Y35T.2U33WWSJN7JVH@wheely>
-Subject: Re: [PATCH v2 5/5] sched/vtime: do not include <asm/vtime.h> header
+Date: Fri, 09 Feb 2024 15:01:56 +1000
+Message-Id: <CZ0A93T119VP.1LQ0MR1O0PYJE@wheely>
+Subject: Re: [kvm-unit-tests PATCH v2 2/9] arch-run: Clean up temporary
+ files properly
 From: "Nicholas Piggin" <npiggin@gmail.com>
-To: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Frederic Weisbecker"
- <frederic@kernel.org>, "Ingo Molnar" <mingo@kernel.org>, "Michael Ellerman"
- <mpe@ellerman.id.au>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik"
- <gor@linux.ibm.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
- <linuxppc-dev@lists.ozlabs.org>
+To: "Thomas Huth" <thuth@redhat.com>
+Cc: <kvm@vger.kernel.org>, "Laurent Vivier" <lvivier@redhat.com>, "Shaoqin
+ Huang" <shahuang@redhat.com>, "Andrew Jones" <andrew.jones@linux.dev>,
+ "Nico Boehr" <nrb@linux.ibm.com>, "Paolo Bonzini" <pbonzini@redhat.com>,
+ "Alexandru Elisei" <alexandru.elisei@arm.com>, "Eric Auger"
+ <eric.auger@redhat.com>, "Janosch Frank" <frankja@linux.ibm.com>, "Claudio
+ Imbrenda" <imbrenda@linux.ibm.com>, "David Hildenbrand" <david@redhat.com>,
+ "Marc Hartmayer" <mhartmay@linux.ibm.com>, <linuxppc-dev@lists.ozlabs.org>,
+ <linux-s390@vger.kernel.org>, <kvmarm@lists.linux.dev>
 X-Mailer: aerc 0.15.2
-References: <cover.1707422448.git.agordeev@linux.ibm.com>
- <e0827ac2f96d87f623575098f9d55e77351b63c6.1707422448.git.agordeev@linux.ibm.com>
-In-Reply-To: <e0827ac2f96d87f623575098f9d55e77351b63c6.1707422448.git.agordeev@linux.ibm.com>
+References: <20240202065740.68643-1-npiggin@gmail.com>
+ <20240202065740.68643-3-npiggin@gmail.com>
+ <c9039fc4-9809-43d9-8a99-88da1446d67f@redhat.com>
+In-Reply-To: <c9039fc4-9809-43d9-8a99-88da1446d67f@redhat.com>
 
-On Fri Feb 9, 2024 at 6:15 AM AEST, Alexander Gordeev wrote:
-> There is no architecture-specific code or data left
-> that generic <linux/vtime.h> needs to know about.
-> Thus, avoid the inclusion of <asm/vtime.h> header.
-
-Nice cleanup!
-
-Acked-by: Nicholas Piggin <npiggin@gmail.com>
-
+On Wed Feb 7, 2024 at 5:58 PM AEST, Thomas Huth wrote:
+> On 02/02/2024 07.57, Nicholas Piggin wrote:
+> > Migration files weren't being removed when tests were interrupted.
+> > This improves the situation.
+> >=20
+> > Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+> > ---
+> >   scripts/arch-run.bash | 12 +++++++-----
+> >   1 file changed, 7 insertions(+), 5 deletions(-)
+> >=20
+> > diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
+> > index d0864360..f22ead6f 100644
+> > --- a/scripts/arch-run.bash
+> > +++ b/scripts/arch-run.bash
+> > @@ -134,12 +134,14 @@ run_migration ()
+> >   	qmp1=3D$(mktemp -u -t mig-helper-qmp1.XXXXXXXXXX)
+> >   	qmp2=3D$(mktemp -u -t mig-helper-qmp2.XXXXXXXXXX)
+> >   	fifo=3D$(mktemp -u -t mig-helper-fifo.XXXXXXXXXX)
+> > +
+> > +	# race here between file creation and trap
+> > +	trap "trap - TERM ; kill 0 ; exit 2" INT TERM
+> > +	trap "rm -f ${migout1} ${migsock} ${qmp1} ${qmp2} ${fifo}" RETURN EXI=
+T
+> > +
+> >   	qmpout1=3D/dev/null
+> >   	qmpout2=3D/dev/null
+> >  =20
+> > -	trap 'kill 0; exit 2' INT TERM
+> > -	trap 'rm -f ${migout1} ${migsock} ${qmp1} ${qmp2} ${fifo}' RETURN EXI=
+T
+> > -
+> >   	eval "$@" -chardev socket,id=3Dmon1,path=3D${qmp1},server=3Don,wait=
+=3Doff \
+> >   		-mon chardev=3Dmon1,mode=3Dcontrol | tee ${migout1} &
+> >   	live_pid=3D`jobs -l %+ | grep "eval" | awk '{print$2}'`
+> > @@ -211,8 +213,8 @@ run_panic ()
+> >  =20
+> >   	qmp=3D$(mktemp -u -t panic-qmp.XXXXXXXXXX)
+> >  =20
+> > -	trap 'kill 0; exit 2' INT TERM
+> > -	trap 'rm -f ${qmp}' RETURN EXIT
+> > +	trap "trap - TERM ; kill 0 ; exit 2" INT TERM
+> > +	trap "rm -f ${qmp}" RETURN EXIT
+> >  =20
+> >   	# start VM stopped so we don't miss any events
+> >   	eval "$@" -chardev socket,id=3Dmon1,path=3D${qmp},server=3Don,wait=
+=3Doff \
 >
-> Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-> ---
->  arch/powerpc/include/asm/Kbuild | 1 -
->  include/asm-generic/vtime.h     | 1 -
->  include/linux/vtime.h           | 4 ----
->  3 files changed, 6 deletions(-)
->  delete mode 100644 include/asm-generic/vtime.h
->
-> diff --git a/arch/powerpc/include/asm/Kbuild b/arch/powerpc/include/asm/K=
-build
-> index 61a8d5555cd7..e5fdc336c9b2 100644
-> --- a/arch/powerpc/include/asm/Kbuild
-> +++ b/arch/powerpc/include/asm/Kbuild
-> @@ -6,5 +6,4 @@ generic-y +=3D agp.h
->  generic-y +=3D kvm_types.h
->  generic-y +=3D mcs_spinlock.h
->  generic-y +=3D qrwlock.h
-> -generic-y +=3D vtime.h
->  generic-y +=3D early_ioremap.h
-> diff --git a/include/asm-generic/vtime.h b/include/asm-generic/vtime.h
-> deleted file mode 100644
-> index b1a49677fe25..000000000000
-> --- a/include/asm-generic/vtime.h
-> +++ /dev/null
-> @@ -1 +0,0 @@
-> -/* no content, but patch(1) dislikes empty files */
-> diff --git a/include/linux/vtime.h b/include/linux/vtime.h
-> index 593466ceebed..29dd5b91dd7d 100644
-> --- a/include/linux/vtime.h
-> +++ b/include/linux/vtime.h
-> @@ -5,10 +5,6 @@
->  #include <linux/context_tracking_state.h>
->  #include <linux/sched.h>
-> =20
-> -#ifdef CONFIG_VIRT_CPU_ACCOUNTING_NATIVE
-> -#include <asm/vtime.h>
-> -#endif
-> -
->  /*
->   * Common vtime APIs
->   */
+> So the point is that the "EXIT" trap wasn't executed without the "trap -=
+=20
+> TERM" in the other trap? ... ok, then your patch certainly makes sense.
 
+Iff you don't remove the TERM handler then the kill will recursively
+invoke it until some crash. This did solve some cases of dangling temp
+files for me, although now I test with a simple script:
+
+  #!/bin/bash
+
+  trap 'echo "INT" ; kill 0 ; exit 2' INT
+  trap 'trap - TERM ; echo "TERM" ; kill 0 ; exit 2' TERM
+  trap 'echo "RETURN"' RETURN
+  trap 'echo "EXIT"' EXIT
+
+  sleep 10
+  echo "done"
+
+If you ^C it then it still doesn't get to the EXIT or RETURN handlers.
+It looks like 'kill -INT $$' might be the way to do it instad of kill 0.
+
+Not sure if that means my observation was incorrect, or if the real
+script is behaving differently. In any case, I will dig into it and
+try to explain more precisely in the changelog what it is fixing. And
+possibly do another patch for the 'kill -INT $$' if that is needed.
+
+Thanks,
+Nick
