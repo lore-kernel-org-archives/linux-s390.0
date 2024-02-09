@@ -1,213 +1,188 @@
-Received: from mail-io1-f49.google.com (mail-io1-f49.google.com [209.85.166.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 136B150261
-	for <linux-s390@vger.kernel.org>; Thu,  8 Feb 2024 23:14:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.49
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707434054; cv=none; b=JLIpF58Tn2z4QIeRfL8PBp//CfKWiSwfREvnC60Q3zKlfJfuovrjInf69X+t6ogXxyqRkTrTstymmV72oFskUeiWsZdv5jlGn5QC86IcnbK68dHM7E3mcKf2PABLw90F8WY0jVka9WuWu1FnMs0H5Ek1/8TII1NTfJgvVPdUqnI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707434054; c=relaxed/simple;
-	bh=me8ZF9MFV3b25A/LpyNIDRWvjZIMoVYXkuh8e+uhqu4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qQmlsNHKsKhS0EH/8uKOojgt+Hk/zTY5Sq2+MFHv12MJs6cjNpMIT3uIBnqDpTrkJnw067/tvx6OB3XaV+R34dlFSl89nrncpryiviY7QZijVzWTBNoazOt2d2BGP9n3IMMKQJy22loRlDc2FneKaAfrl3jnvyTT5lCK0eRAOuo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=4g+lO9XL; arc=none smtp.client-ip=209.85.166.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D9B781F;
+	Fri,  9 Feb 2024 01:01:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.18
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1707440517; cv=fail; b=qAaaObPvDgfEKmPJ+GgL9WZvounUO5BDJiqu7LWXzv069W2j7K5jPtz2iNG5sUejd/8e2dUvN2LKsL5+LpSInT4yvXkeFz8NwonZHskloAe1/A7H3fdKTnUpOsijsCbcNMAXm0ELyo3Uov4uf8vpZlUNw+tajQjIjAzZhZACS4A=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1707440517; c=relaxed/simple;
+	bh=KO0NB6VA/DHde+u1QidACgniSizD023az229gkFgXlE=;
+	h=Date:From:To:CC:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=oPW2TvW34IeiTYuVgvMZDIw3r+CiFcXSmLt+RryQIMM3K6Jhbqc44zbJAEtPdm+TZJYCeTiTVWs39PUXyOpUfXzzM10kHo3IMQmZ+rB1e4hCIN0hVYcOQyPvOJ2civ2BJqRs2VqKXceu5nOY7f5I+zy78x7x7Ot61c86gUtX+Us=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=cZS9bhiq; arc=fail smtp.client-ip=192.198.163.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="4g+lO9XL"
-Received: by mail-io1-f49.google.com with SMTP id ca18e2360f4ac-7bed8faf6ebso13364439f.2
-        for <linux-s390@vger.kernel.org>; Thu, 08 Feb 2024 15:14:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1707434052; x=1708038852; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Pe6jnI7sJWQLdADxcvkIM7ZK9uT6CeFtU8HHzuib1uI=;
-        b=4g+lO9XLlJoQtPaBqQ3SEo6Fh7AeaNA3RLLXDuFd3F0ZXKNgu2G0OUJCfjDQ84fqAw
-         dLCvsF/7C02IGnmvzxM/BFsfUUQURtQm3sBHq95RWUWIeQzzxsIJ08XlMi/tfbwkN5N/
-         JXtVO/e1i2Ug4n+67Q6rOIY4yz/gFWEnPQ2hO9d2h2Hs8NzwgZEx12pDNtCljlptAF3J
-         XgyJBoDVDu01aDFb0nhxLMfl2G/rVCn9PsM96xAPdzWWFlNvCsNAaSCwTgZV81UCRrrk
-         nfeRdPEq+wjXesFs+n4qYeY684okTiRul678sUd4XISCAQ1L6w3NZ2rvq2f8EtVVDL8n
-         DvIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707434052; x=1708038852;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Pe6jnI7sJWQLdADxcvkIM7ZK9uT6CeFtU8HHzuib1uI=;
-        b=mnPghFtanGHGuHjL03//yH3F1VifbqLW3fExnWhUlmkFp5hIQTVbdWSP1sVjfkfm9b
-         EOfK3syBY2lBZ25W9b2LOYTLM33xMankmWfxurR2PFwRJmXFpAa/3L57XxzVkigXi4KI
-         j5UzC5FyRTSD7dGMLfpCMIUqizOVLFGOFrMNfjBJbCgnOF4N5H9UWf8sD7tmsuIkh0ry
-         aOpZCM1Ufqt2qsi2ba6ZEFIduw2EAYZ5mA4tTl0fvfcX7rPh/RpvrRXc3DNSCUE7n21p
-         rrYDziPCEU5gSkaBnAuQsq/XyOopv8d2msUjLbe6fsWbj2oefLanEEHBzceHAaNXzm/y
-         VoDg==
-X-Forwarded-Encrypted: i=1; AJvYcCU9DPWUVYogBYojalDTr7qyGqaBvfzaLG4aBK17SfhZ+tdlK1/90ec06vi16GDIc4zL70ZtXUcVPB2b4w5IuQbxF78D9uDHCvrFNQ==
-X-Gm-Message-State: AOJu0YzRG/j55SoT4Wmcs9DrVaLt4bkszxlmcNOANfmasDzR2Ajdj4SW
-	UHQH/gFr10bjIqVWk4ElhmjlOtWOJ/9lURiXbGxnL2xgsS8vTq4ssGDUbvtpFA==
-X-Google-Smtp-Source: AGHT+IHCKa/qnllJa3a8anZ50HmqNn75qJTTGYvPU2+WwjU6U+rngyIqVcN2/lsJ591YBvYTq0dxLw==
-X-Received: by 2002:a6b:6b15:0:b0:7c4:6c8:fe2a with SMTP id g21-20020a6b6b15000000b007c406c8fe2amr64594ioc.11.1707434052059;
-        Thu, 08 Feb 2024 15:14:12 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCV/sQAnakA0PHqUvHJVwEnGRDfLGGR1Y3EMsnDtlTssTQZLJmdAZJb4weX5gsjP0GHz87cjZ+J4aTm3lhvE8vGjJ7gUV+F94Ka/SSo/b0jZGktJv8SsWuN+Yrn45Ipj+rKMx3j6PTbvF7sIXTY9e4mk+6newdRmq9RdiFbg4fYoOZuLNbxx4HXoEGYuFDdtn2v4l5+YOsvluP3SnMTPSMvLEJwmE6Mrlt7FC4AUaj0/1y4WFnSQi890D49iGXs7laiKi57+1CfTmrGa5diaVMarJ9O9titiQNcX/FXJQYyh6OVxOY1bQ3N5yXIxcec1OGFFBIH7m541j3LvNbQIEAyVT65ZyucUjxkLBvXNwqxZmVLQYDKJGzdW3u+sFiPdyA==
-Received: from google.com (20.10.132.34.bc.googleusercontent.com. [34.132.10.20])
-        by smtp.gmail.com with ESMTPSA id t30-20020a05663836de00b004714adc2d2fsm106510jau.46.2024.02.08.15.14.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Feb 2024 15:14:11 -0800 (PST)
-Date: Thu, 8 Feb 2024 23:14:07 +0000
-From: Justin Stitt <justinstitt@google.com>
-To: Nathan Chancellor <nathan@kernel.org>
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-	borntraeger@linux.ibm.com, svens@linux.ibm.com, maskray@google.com,
-	ndesaulniers@google.com, linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
-	patches@lists.linux.dev
-Subject: Re: [PATCH 00/11] s390: Support linking with ld.lld
-Message-ID: <20240208231407.vkisblrowjvivsxb@google.com>
-References: <20240207-s390-lld-and-orphan-warn-v1-0-8a665b3346ab@kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="cZS9bhiq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1707440516; x=1738976516;
+  h=date:from:to:cc:subject:message-id:references:
+   in-reply-to:mime-version;
+  bh=KO0NB6VA/DHde+u1QidACgniSizD023az229gkFgXlE=;
+  b=cZS9bhiqYFzpzmnGV0Mj7MuOEq+TX5Azs5jnzCwRyRP4W8VjRQs1GInK
+   cBWKQv0vYrDSa9mNev7ISyfdQqx//V+MYexhoET5PKA2aN2DzTah89q5r
+   NjxXR+vt4cse9IDCCHa5qTYCXRet7b+rjA0psqUFiCyLeU52f/as9os1S
+   1/vpj6s85QzjqLYRUia/1X4vgCUnvvufe/95H9OKU5k33Pg10AMDOh0HB
+   w3uFk7Cb5I91RKoNsrocfb5nCs9SBZB8jSg4Rf4D4POF6mvvNGBYx0P7I
+   jE+naARTjFd2KcOib0TA0g8Jr4JBrGRI14u2qzBmeeQOMSFcqxgKqUnfh
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10978"; a="1232455"
+X-IronPort-AV: E=Sophos;i="6.05,255,1701158400"; 
+   d="scan'208";a="1232455"
+Received: from orviesa005.jf.intel.com ([10.64.159.145])
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Feb 2024 17:01:55 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.05,255,1701158400"; 
+   d="scan'208";a="6440034"
+Received: from orsmsx602.amr.corp.intel.com ([10.22.229.15])
+  by orviesa005.jf.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 08 Feb 2024 17:01:54 -0800
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX602.amr.corp.intel.com (10.22.229.15) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Thu, 8 Feb 2024 17:01:53 -0800
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Thu, 8 Feb 2024 17:01:53 -0800
+Received: from ORSEDG602.ED.cps.intel.com (10.7.248.7) by
+ orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35 via Frontend Transport; Thu, 8 Feb 2024 17:01:53 -0800
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (104.47.57.168)
+ by edgegateway.intel.com (134.134.137.103) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.35; Thu, 8 Feb 2024 17:01:53 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=jsdlWAMjbrP3Tb0Ig9mjxjffxMJzI8L0QeyJJoMN+LPmwoNh3mbRQ8e/hQ3oJp5pN1Ez4lOtrGOPrvN0fELvHRMIyp8R/m1DPTIzz4jMSss2KFCIGRGQlanBPwmJpkC+AFdQ6sMblzNVXdJQqVwyHa1t12G+lG806/O+IkpVKT2aFXbuQXmAiIAIsyfr3Oh0Jckt8JTO4nOxxPNtz9+sJPU8/2ZyaxhTkCZtg5htJYJGQ3I+90QdiIB9vzqHcYWO1FlaEQyfnTKR+XPiLhLodu1WUGM0YDdw5V95fSeEqugsf4McdjPpXaR8kbNFCwOiOOKi/ZiXlLF0sMmQ5ay9Pg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=HIGOUd0Jtz8jRSAzNb3Ekwk4Hbncu74Q8gho6EfnMIc=;
+ b=NHt1YnnLJYdDjbEhet0EQJeQjn5/Rv2XQbo08AwTaCJzx3Er+4RDvtqt4vlHJr4BxFamdevAFltZrnM3mnAk2VSwavFlKEoBIrWJV0GVsW5lB4wY174lXxbe8iKpKd3ejXhyNKPBLHBljzPyMOZTRiQRD+gRjW3MRZ1Bi4AcnXnLDETRp+Di+ctJCEg4ekx1whkFbR72ct9+eHmL76LbEKUwBaH972mRtOAiOCCgIuMFt4kmgraEUymc2PsVW0cl/vjrF57vNNItTZuVZQZOM3cHjtPYyrixW9wjNoI7G5ylRoTIUvnwXI3ByRhstXAcC8uQgwyq+2lxlh1cZYJUNw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from PH8PR11MB8107.namprd11.prod.outlook.com (2603:10b6:510:256::6)
+ by CH0PR11MB5266.namprd11.prod.outlook.com (2603:10b6:610:e1::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7249.38; Fri, 9 Feb
+ 2024 01:01:51 +0000
+Received: from PH8PR11MB8107.namprd11.prod.outlook.com
+ ([fe80::6257:f90:c7dd:f0b2]) by PH8PR11MB8107.namprd11.prod.outlook.com
+ ([fe80::6257:f90:c7dd:f0b2%4]) with mapi id 15.20.7270.024; Fri, 9 Feb 2024
+ 01:01:51 +0000
+Date: Thu, 8 Feb 2024 17:01:48 -0800
+From: Dan Williams <dan.j.williams@intel.com>
+To: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Dan Williams
+	<dan.j.williams@intel.com>, Arnd Bergmann <arnd@arndb.de>, Dave Chinner
+	<david@fromorbit.com>
+CC: <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
+	Linus Torvalds <torvalds@linux-foundation.org>, Vishal Verma
+	<vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>, Matthew Wilcox
+	<willy@infradead.org>, Russell King <linux@armlinux.org.uk>,
+	<linux-arch@vger.kernel.org>, <linux-cxl@vger.kernel.org>,
+	<linux-fsdevel@vger.kernel.org>, <linux-mm@kvack.org>,
+	<linux-xfs@vger.kernel.org>, <dm-devel@lists.linux.dev>,
+	<nvdimm@lists.linux.dev>, <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH v4 06/12] dax: Check for data cache aliasing at runtime
+Message-ID: <65c5797cc88be_5a7f29421@dwillia2-xfh.jf.intel.com.notmuch>
+References: <20240208184913.484340-1-mathieu.desnoyers@efficios.com>
+ <20240208184913.484340-7-mathieu.desnoyers@efficios.com>
+ <65c54a13c52e_afa429444@dwillia2-xfh.jf.intel.com.notmuch>
+ <0e6792eb-7504-464a-aefd-d2a803adb440@efficios.com>
+ <65c557a2e77f7_afa429490@dwillia2-xfh.jf.intel.com.notmuch>
+ <5328e7f0-0864-4626-aa6c-fef5f3f62dc8@efficios.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <5328e7f0-0864-4626-aa6c-fef5f3f62dc8@efficios.com>
+X-ClientProxiedBy: MW4PR03CA0157.namprd03.prod.outlook.com
+ (2603:10b6:303:8d::12) To PH8PR11MB8107.namprd11.prod.outlook.com
+ (2603:10b6:510:256::6)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240207-s390-lld-and-orphan-warn-v1-0-8a665b3346ab@kernel.org>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH8PR11MB8107:EE_|CH0PR11MB5266:EE_
+X-MS-Office365-Filtering-Correlation-Id: a62a6431-639c-4cc9-0d7c-08dc290ab328
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 3pWXP+h89SGQErhKSSj4nyTgUBorxnztsN3ZLgxd6PsCfOxNT0CmO+pWrMROb6Qjbb9UjmVylkFidTX4H32/7bMd1fGXHYbn8SUUID5VQrngAmblBvccjY8nmsvgqRsHoXfIvaZnkutRC9AwEc5ywp0H0YAILdvPT1yo/AcUco6ahz+5KlooOx4l1nsAuOAbffWCu5pRC446kuQ9yaHu8tZLOoHGd0AcudE3e4KqbbJInyQDnka3QrF2z835i/BRwzyKsPBf0xSbOvgDGxFNApqQFG3cWazNJqyUZy6n5Ml8jmXwVFrvqDXvkBFPzBSmn7TQMd0czyR1kF3spfGRiUsGwN6vywpIDm6aVdt4zUk6ZJV9uqG78j8T35+L5bZzEUdfB+LtzMNh+gXjgPYGMKsi0xAmICZ81cls4xDEiaa49Of4ivQ3wFIetSeCAVtV69FRPLOqKqVfYRKjkayiOnKUNbzl0nPNKpHmkjRKc5yxLeXTMQfb1ELbQ1WZn5yq506vRgu0/Jmobw4Lp/oUqvtUSjvsDeq4VdcqgqTPIclmKbhewEmEQ5v+qLELxmRr
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH8PR11MB8107.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(136003)(39860400002)(396003)(376002)(346002)(366004)(230922051799003)(64100799003)(186009)(1800799012)(451199024)(2906002)(5660300002)(7416002)(4744005)(41300700001)(83380400001)(6666004)(86362001)(82960400001)(38100700002)(26005)(6512007)(54906003)(66946007)(9686003)(110136005)(6506007)(66556008)(478600001)(66476007)(6486002)(53546011)(8936002)(8676002)(4326008)(316002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?bmkmWqiPjsidYoPB/Jw5tH4bqSgzAvg3OSsDtcMdesNzodQ6cMPwlQ8pG+vy?=
+ =?us-ascii?Q?c+IDqLewDa0UZ70ubdqlmysiLXRXHQLCoqu5uH8Rlzm0cTivsCBFab69J6Q5?=
+ =?us-ascii?Q?E2UqxzelOavrYzXzW/v35Yszl7s2rHQxnBowLAh6GobjSJIvGahV7RJaKQLD?=
+ =?us-ascii?Q?fQqj33oWtAUB6pxCWISYwITBpixkKT6c5bk9ZbsGbfEG4r0CP7uYm96piZHA?=
+ =?us-ascii?Q?37VlyPBZMI9+6b/nSrBCAYY8rPsFzbDbsymk3NK/0p4vWX5DBHaZ1we9zOwH?=
+ =?us-ascii?Q?ubJbNhQKIInjgTiGcAqcZruzxbIxRJjGpRLw7Ut1qbxovwUv3yBLFhoBvy0f?=
+ =?us-ascii?Q?JS6yFEvam+utGN5CvwEfsQ+yl6ZWHleX0WT8WPT9fpNCNZ6mxnRnOtpj4uwy?=
+ =?us-ascii?Q?5Ln98e5OjTkxtbXQMiueAXWyDXkWNiNlXEc1DUvVbZLseuVPZi7vHo3u5FNz?=
+ =?us-ascii?Q?Leg4EHf+FENe7kvBJDPQO7dMu+l/VPrvHbC6aEevJ3aKVJvrDUdd4H07JOxA?=
+ =?us-ascii?Q?L7FbjuTKTS4bWRsrpyr7nbRa9kxjiAZLYsxEJN/QVp+5RK2A+BJ6cHtmB7Fa?=
+ =?us-ascii?Q?PyBZcwIETO9MLwIplxDwsZitEWc4P/Mfr3LYdJEndN8V+QaqmROY2h8sSruP?=
+ =?us-ascii?Q?Gd5TlhXumcjV6hzhtPQen9wm6qk9y1jFHVsthvwo1LT9yzaRCU3G+oscqijs?=
+ =?us-ascii?Q?VcImlkOenKJ0ggiVjyM6jE8GZOQdqKKNvdpJ4pYbjrJ2XrHCkgjjem4NV3Sg?=
+ =?us-ascii?Q?ibNf1DGASp/mzR9n3X8va3gEiduYfkAmKlzu8IrPQPSMIBPzACAFNtFpWU1C?=
+ =?us-ascii?Q?Ya9x2JnIezRLJJh4QFTJewZLc2Q7JBR8S252oZJPrVF9JeZ7hsEkQG/hVOvR?=
+ =?us-ascii?Q?09N3nX4QZ5Wxrmp0Jay71cmQH0rcQ2+UUTAu3L7qGagfgPGKDVHvXlos9TSq?=
+ =?us-ascii?Q?AGWinJawdZgJhzlUvs5EAfUBbHUUpxC0Xt4jh+G0uOiIsX710VYN3fqtuEi6?=
+ =?us-ascii?Q?MnECTzKrbL1y9DNNrK2T9r/dsS3Y2xpX+WAi5vpW5gEW/Y0uTayb5n3nsUZF?=
+ =?us-ascii?Q?Xzsb2gsrCjv+TS0lMbcCl5HbTepwTWCj6tL9D2vOzhPWgmmmIDLLU9zsOJXI?=
+ =?us-ascii?Q?j++m0YQJapU4lD5UBT7a0HdzYGmnYxxnIvKFq0tMyA6l7dYiH1AeQQzYN8cC?=
+ =?us-ascii?Q?/KCrt59z4+kkOT2fp+ZNWQ6RSyVmmJqwc4k2JiDDSMpoNaTlxEm6/YaoygdS?=
+ =?us-ascii?Q?ExAY3bKSThgjCkEmQJhta/H+2p/uqRBgKuo6VC0K7w/NB5EV/x5b78USq/+5?=
+ =?us-ascii?Q?BE+Pd0bOzLN7PsmSDgEPfbb/ftG4RcHhQKHqh9QOfjeHtMchIcGK3mn9GS8d?=
+ =?us-ascii?Q?VwyFrIAo+gR4WDRgWYJZihxpsBUX5DdJBovOwegwhpdR/lME/tz1hlwQ2kbu?=
+ =?us-ascii?Q?9QviALOAEWT7NilB27iXV6ngXDtwbRyL/Ky7PWPvVIXrqxTlZjRSEkXs9Z/d?=
+ =?us-ascii?Q?skEW5O+IHW377J1uM8HGNGKU16rQf1p7RyrClFXMUDEBrhCbOn8IJnoQdMZh?=
+ =?us-ascii?Q?6G4o0038sGqigCv3j83kFX7bhougiw+65nfXv6+SYIbAvP8buDlGa3rQO2sV?=
+ =?us-ascii?Q?iA=3D=3D?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: a62a6431-639c-4cc9-0d7c-08dc290ab328
+X-MS-Exchange-CrossTenant-AuthSource: PH8PR11MB8107.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Feb 2024 01:01:51.3545
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: dO85l20Go248D8jVbSeJJBhxoTzTMfTTxt9ZXYhoLHpJD4zma+XO38ke0W04OU5NArSMTPeSQ1NaCXlGxc+sXM5X4LKoLCrXojNA3cEl78o=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR11MB5266
+X-OriginatorOrg: intel.com
 
-Hi,
+Mathieu Desnoyers wrote:
+> On 2024-02-08 17:37, Dan Williams wrote:
+> > Mathieu Desnoyers wrote:
+> >> On 2024-02-08 16:39, Dan Williams wrote:
+> >> [...]
+> >>>
+> >>> So per other feedback on earlier patches, I think this hunk deserves to
+> >>> be moved to its own patch earlier in the series as a standalone fixup.
+> >>
+> >> Done.
+> >>
+> >>>
+> >>> Rest of this patch looks good to me.
+> >>
+> >> Adding your Acked-by to what is left of this patch if OK with you.
+> > 
+> > You can add:
+> > 
+> > Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+> > 
+> > ...after that re-org.
+> 
+> Just to make sure: are you OK with me adding your Reviewed-by
+> only for what is left of this patch, or also to the other driver
+> patches after integrating your requested changes ?
 
-On Wed, Feb 07, 2024 at 05:14:52PM -0700, Nathan Chancellor wrote:
-> Hi all,
->
-> This series allows the s390 kernel to be linked with ld.lld (support for
-> s390 is under review at [1]). This implicitly depends on [2], which was
-> created and sent before it was realized that this series was necessary.
->
-> The first chunk of this series enables support for
-> CONFIG_LD_ORPHAN_WARN, as it was discovered during testing that the
-> kernel fails to build with ld.lld due to differences in orphan section
-> handling, which would have been caught with the linker's orphan section
-> warnings ahead of the actual build error. There are no warnings when
-> building ARCH=s390 defconfig and allmodconfig with GCC 6 through 13 or
-> tip of tree Clang using ld.bfd or ld.lld
->
-> The final patch resolves a series of errors due to ld.lld having a
-> different default for checking for DT_TEXTREL ('-z text') vs ld.bfd,
-> which defaults to '-z notext' (but this is configurable at build time).
->
-> There is one outstanding issue due to something that ld.lld does not
-> support that the kernel relies on:
->
->   ld.lld: error: drivers/nvme/host/fc.o:(__bug_table): writable SHF_MERGE section is not supported
->
-> This was changed in the kernel in commit e21f8baf8d9a ("s390/bug: add
-> entry size to the __bug_table section"). Is this change truly necessary?
-> I selectively applied a revert on top of current mainline and I did not
-> observe any issues with either Clang or GCC.
->
-> diff --git a/arch/s390/include/asm/bug.h b/arch/s390/include/asm/bug.h
-> index aebe1e22c7be..c500d45fb465 100644
-> --- a/arch/s390/include/asm/bug.h
-> +++ b/arch/s390/include/asm/bug.h
-> @@ -14,7 +14,7 @@
->  		".section .rodata.str,\"aMS\",@progbits,1\n"	\
->  		"1:	.asciz	\""__FILE__"\"\n"		\
->  		".previous\n"					\
-> -		".section __bug_table,\"awM\",@progbits,%2\n"	\
-> +		".section __bug_table,\"aw\"\n"			\
->  		"2:	.long	0b-.\n"				\
->  		"	.long	1b-.\n"				\
->  		"	.short	%0,%1\n"			\
-> @@ -30,7 +30,7 @@
->  #define __EMIT_BUG(x) do {					\
->  	asm_inline volatile(					\
->  		"0:	mc	0,0\n"				\
-> -		".section __bug_table,\"awM\",@progbits,%1\n"	\
-> +		".section __bug_table,\"aw\"\n"			\
->  		"1:	.long	0b-.\n"				\
->  		"	.short	%0\n"				\
->  		"	.org	1b+%1\n"			\
->
-> If it is necessary, is there any way to work around this error? For
-> testing purposes, disabling CONFIG_BUG is easy enough but that is not
-> usable in the real world.
->
-> To test this series with ld.lld, you'll need to build ld.lld from the
-> pull request, which is easy to do following LLVM's instructions [3].
-> Here is a TL;DR version I tested that just builds LLD with minimal noise
-> during the build.
->
-> $ git clone https://github.com/llvm/llvm-project
-> $ cd llvm-project
-> $ git fetch https://github.com/llvm/llvm-project pull/75643/head
-> $ git switch -d FETCH_HEAD
-> $ cmake \
->     -B build \
->     -G Ninja \
->     -S llvm \
->     --log-level=NOTICE \
->     -Wno-dev \
->     -DCMAKE_BUILD_TYPE=Release \
->     -DLLVM_ENABLE_PROJECTS=lld \
->     -DLLVM_ENABLE_WARNINGS=OFF \
->     -DLLVM_TARGETS_TO_BUILD=SystemZ
-> $ ninja -C build lld
-> $ export PATH=$PWD/build/bin:$PATH
->
-> Then build the kernel with 'LD=ld.lld' in addition to whatever command
-> line you use (I tested both Clang and GCC). I can boot an ld.lld linked
-> kernel built with both compilers in QEMU with this series.
-
-Yeah, this all works for me and I am able to boot. I did need to use the
-diff present in 0/11 to remove the warnings regarding SHF_MERGE
-sections. It should probably be a patch in this series instead of a
-inlined diff?
-
->
-> [    1.386970] Linux version 6.8.0-rc3-00043-g05761ede85d6-dirty (nathan@dev-fedora.aadp) (s390-linux-gcc (GCC) 13.2.0, ClangBuiltLinux LLD 19.0.0) #1 SMP Wed Feb  7 16:51:12 MST 2024
->
-> [    0.871923] Linux version 6.8.0-rc3-00043-g05761ede85d6-dirty (nathan@dev-fedora.aadp) (ClangBuiltLinux clang version 19.0.0git (https://github.com/llvm/llvm-project 417075e56aeba5a5b20301c7bfeba9c2a800982b), ClangBuiltLinux LLD 19.0.0) #1 SMP Wed Feb  7 17:01:22 MST 2024
->
-> [1]: https://github.com/llvm/llvm-project/pull/75643
-> [2]: https://lore.kernel.org/r/20240130-s390-vdso-drop-fpic-from-ldflags-v1-1-094ad104fc55@kernel.org/
-^^^^^^^^^
-I needed this too, as I was getting a warnings about -fPIC being an
-unknown option.
-
-
-All in all, works great for me building on clang and booting with qemu.
-
-Tested-by: Justin Stitt <justinstitt@google.com>
-
-> [3]: https://llvm.org/docs/CMake.html
->
-> ---
-> Nathan Chancellor (11):
->       s390: boot: Add support for CONFIG_LD_ORPHAN_WARN
->       s390: vmlinux.lds.S: Handle '.data.rel' sections explicitly
->       s390: vmlinux.lds.S: Explicitly handle '.got' and '.plt' sections
->       s390: vmlinux.lds.S: Discard unnecessary sections
->       s390/boot: vmlinux.lds.S: Handle '.init.text'
->       s390/boot: vmlinux.lds.S: Handle '.rela' sections
->       s390/boot: vmlinux.lds.S: Handle DWARF debug sections
->       s390/boot: vmlinux.lds.S: Handle ELF required sections
->       s390/boot: vmlinux.lds.S: Handle commonly discarded sections
->       s390: Select CONFIG_ARCH_WANT_LD_ORPHAN_WARN
->       s390: Link vmlinux with '-z notext'
->
->  arch/s390/Kconfig              |  1 +
->  arch/s390/Makefile             |  2 +-
->  arch/s390/boot/Makefile        |  5 +++--
->  arch/s390/boot/vmlinux.lds.S   | 28 ++++++++++++++++++++++++++++
->  arch/s390/kernel/vmlinux.lds.S | 28 +++++++++++++++++++++++++++-
->  5 files changed, 60 insertions(+), 4 deletions(-)
-> ---
-> base-commit: 6613476e225e090cc9aad49be7fa504e290dd33d
-> change-id: 20240207-s390-lld-and-orphan-warn-d0ff4ff657b0
->
-> Best regards,
-> --
-> Nathan Chancellor <nathan@kernel.org>
->
-
-Thanks
-Justin
+Sure, if you make all those changes go ahead and propagate my
+Reviewed-by across the set.
