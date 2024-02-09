@@ -1,261 +1,227 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D551F664CD;
-	Fri,  9 Feb 2024 09:12:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11B6628DC1;
+	Fri,  9 Feb 2024 11:20:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707469966; cv=none; b=Xk+uESTz2LpHMiIbd5CK0oCko/5k6ZNTxALbNs2U0kYnZwNgrMl+m609LfMhMjO+kUZh4C6LeeYxX0GrVjk2wNxiq2vcXBYJQxMQ4wi7QZd2CB59UHTACZ8p09BrWPVBoQxBFCOYaPlke5Z6M0put0VMg5xNJ5i2cpm8q6sY+R0=
+	t=1707477659; cv=none; b=uOM745a24MjUgqBNMyaiuRcn3O5j/YvPs44c+wr20iexDTc8Iu8Qi2tIxpyBRFmH4LBuM9mrahxeZW6cA+9hU9TnMhA6CxTLxsdIKN1odMSIRRhL5/kiDvcHVyvdeMtL0cCtZaZisX7QzdstkGDmntFkF0YoNlfqx0lpSJtjMow=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707469966; c=relaxed/simple;
-	bh=YDiPhKCwA8NLGHrJJZAVTr3FIYsWlbq0GjshdSQahwo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=JQS50ZFMjqpuDjAOp7oUKtoNeh2Ua1oR4NK9YeruAeMhnfgTWnqRAfAfDwVbhB9MRPraqXQbAu4A+Mv+Z+HLDcnUc9EKjxQHy8vR1K92Z1SnUjpEuFBLu8+4xjHMpJCSk32RixuSxz6Lh2Zj1VRxUr0lFP28PPpAigM+bRl8BKU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G0p1pUH/; arc=none smtp.client-ip=209.85.210.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1707477659; c=relaxed/simple;
+	bh=EQDhFl9ifLuO0cWW60pqujcWcLUCCDzUvFz8nDzjWEA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=qoJz6xEXOSImLM/r4QPRz7GreB8Q+f0TLmEsad1EKdTRvdEGVm00d4WJZRd2M/97YiR59gYSdVwEZBk82HgESrRN7OkMwcqMolqHHFiEhRpQXbXz6uJn1v2HCDSSizx7QbAGuMetVp8x/7pOk4rdDsCpgkPJb6KDYWYtTnGZ1tM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WPOo5mjY; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G0p1pUH/"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-6e06725a08dso511818b3a.3;
-        Fri, 09 Feb 2024 01:12:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1707469964; x=1708074764; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=xUi8tWoV7y43d8/rADxcJNoz7Om9vKHwuVyyk4R4P/0=;
-        b=G0p1pUH/B71XJ6sqw5XHv9bqcEWjp95IIGBSaUx6pS5VI6+eBTvyeCIg2YF36brfJH
-         0lyGUxJDkFAxBQiNH7KsjLXCG2Q5dd84E3fG8ZtP4Y5GDmnXACZh7p6+utlcFLNiy1sL
-         C7o4Nb6xbVfizEFbMJRXySKb31CpeI7gGTfATIqGmNNSDBLbwSj5zfzFMg1u48arCYsf
-         fdZM3kw6up7UT6UqR1FVwG1pVWNeix2lELwB9bm465GOjJGGPM/RxGi9lI/CTCKz7K9K
-         SKGgBE5VltrkeMbFm86jX6quTeDvxcg8CAVK1koyGG6KYBlXudEC8qDkWd2wwDyprCnE
-         AZFg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707469964; x=1708074764;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=xUi8tWoV7y43d8/rADxcJNoz7Om9vKHwuVyyk4R4P/0=;
-        b=o9JF84yCwAcEdgyVuHrI7As1nLvTsWVYmZsJYKnMFyrump56S6WrDS/nTNbVRDBEm0
-         gHty1+P2ae4HaaHLygg8DkjI85azY6A9+oQBE1Ps3pmO0Ow0qhkQW4ypkBsQl5/Mct7M
-         2oLGM18BPigk7p3qUNdrO48fAIWz/YOEC+sROJUpzPTnaVsxlmRiMpUU1Px/oGtBwbte
-         xx0mGr+9aqhasiBgZG4Nu6FrwpbzbaOfMR/h3MJLcFJd03HyeigEXX1vtrI154htnKlY
-         QzaGVxRcqj714kLuwSy4H+dBckgF6qsg+arkCIcC8M9YSwRqkYAx3v7vVLTR5hdZDjrw
-         J9uA==
-X-Gm-Message-State: AOJu0YyX2yaO6K7UykltVYBPMPKbcLNW1HWSUZsQhynrBaiLlI3Cmt1n
-	ykBOcFfNud6OY7ZEyjwI0GOLGkuAhtHKieBPfoQPTak8eP3TGNg4
-X-Google-Smtp-Source: AGHT+IEU4SjDeB439gZ1v+vHOsu9gIns1aZMUMmovHkP67opmUKwsDY5/bROOCbrnRZ9ZxCiwcuKiA==
-X-Received: by 2002:a05:6a00:80e0:b0:6dd:db87:6356 with SMTP id ei32-20020a056a0080e000b006dddb876356mr897226pfb.7.1707469964083;
-        Fri, 09 Feb 2024 01:12:44 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCXrwZjktcf61HetSLBq6YFmOCC03GE86GQEfIt7eieexAYX156hMSSPKOXp7y3e12XVLDSW4UuAQGUhgwTKyp0ERxQ+7FDd0Rvk9hb7ibp1h+V4KNfsR7GMwMXcPYGUsH//ZAt/n7cxghZKwqfsahSlqC1uLBO1NNvZMNa/9LUNtk98M/3JSP4eg6VwJL325/HPcjWWfm8UwurysoUGcBNBOGnpdqlwPXk6p3YuDXbKNk0mI3Ea400fweEVt0bzLpG+dsqWnZ2yjR3Er3jtBi14nN6pC6rZP/dJ7l5sxSAtbkq+ya/AxRx1Ntrl5UjE9TdUB5qL27ZAMTaEiMb2Wiohr42TS9qrRI0j6M5X1TVVoxnBEwVOGBabsSIGDjYgLb3VA2aXN27xfXXDByohtjQtJ4qHk+KMPAS1B/Y23na7l0wbcRJnJJBXyqdmmhESa3FrkiW5DXrRneZjTbBAGkXfeFi5LQ1B2kvdOSqzLTaC0oZkKQPJDWhGjTZPXMliWp1tirt027OA3K5bSh2Tkk24RrjmC21CBtlObJ/PL1sw+jY+ky4qfTwb
-Received: from wheely.local0.net ([118.208.150.76])
-        by smtp.gmail.com with ESMTPSA id cb1-20020a056a02070100b005c1ce3c960bsm1101742pgb.50.2024.02.09.01.12.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Feb 2024 01:12:43 -0800 (PST)
-From: Nicholas Piggin <npiggin@gmail.com>
-To: Thomas Huth <thuth@redhat.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>,
-	kvm@vger.kernel.org,
-	Laurent Vivier <lvivier@redhat.com>,
-	"Shaoqin Huang" <shahuang@redhat.com>,
-	Andrew Jones <andrew.jones@linux.dev>,
-	Nico Boehr <nrb@linux.ibm.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Alexandru Elisei <alexandru.elisei@arm.com>,
-	Eric Auger <eric.auger@redhat.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@redhat.com>,
-	Marc Hartmayer <mhartmay@linux.ibm.com>,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	kvmarm@lists.linux.dev,
-	kvm-riscv@lists.infradead.org
-Subject: [kvm-unit-tests PATCH v4 8/8] migration: add a migration selftest
-Date: Fri,  9 Feb 2024 19:11:34 +1000
-Message-ID: <20240209091134.600228-9-npiggin@gmail.com>
-X-Mailer: git-send-email 2.42.0
-In-Reply-To: <20240209091134.600228-1-npiggin@gmail.com>
-References: <20240209091134.600228-1-npiggin@gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WPOo5mjY"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 419B7smf017740;
+	Fri, 9 Feb 2024 11:20:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=AFRBt1FCWwZFCacHJwy/3XlOLZrPPJkYg4TH+/NMzCY=;
+ b=WPOo5mjYBYH2IErMw43bckQqh1/4kYc59Mlb1elBZP72pBgJxps+ciUAG95KQzIPdcV8
+ Y3sXAcMbSEuAlbdkku+NXUmybtws7qQ8VFXngPu+HKrUFg+6pJ42vQN2IDvnmeYPYWfW
+ nxN1pg0g4nlr7yKgldgcC9NL05Jpl1HXjZhxifysJ84z2+/p3qI2saNvZ3POkTa4Kgub
+ lZJE5TjAINvFm/HtsjAP+tI1ZJ/FOg2Kjv+QsZmc7ixiZvUwXH/JnIcmjNac30ktCsP5
+ UThMof80NLOpl5D3fiGJ03iLhEFbe1G9Ybwp83dBhrG0aLFvHpXIZY9uOtgA+XGoVqr3 eg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w5gkbc4pe-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 09 Feb 2024 11:20:52 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 419BJ0Zi005843;
+	Fri, 9 Feb 2024 11:20:52 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w5gkbc4p3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 09 Feb 2024 11:20:52 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4199OWPH008770;
+	Fri, 9 Feb 2024 11:20:51 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3w20702x02-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 09 Feb 2024 11:20:51 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 419BKmWQ65864186
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 9 Feb 2024 11:20:48 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5E23A20043;
+	Fri,  9 Feb 2024 11:20:48 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E0D3020040;
+	Fri,  9 Feb 2024 11:20:47 +0000 (GMT)
+Received: from osiris (unknown [9.179.1.234])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri,  9 Feb 2024 11:20:47 +0000 (GMT)
+Date: Fri, 9 Feb 2024 12:20:46 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Nathan Chancellor <nathan@kernel.org>
+Cc: gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, maskray@google.com, ndesaulniers@google.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        llvm@lists.linux.dev, patches@lists.linux.dev
+Subject: Re: [PATCH 00/11] s390: Support linking with ld.lld
+Message-ID: <20240209112046.13241-C-hca@linux.ibm.com>
+References: <20240207-s390-lld-and-orphan-warn-v1-0-8a665b3346ab@kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240207-s390-lld-and-orphan-warn-v1-0-8a665b3346ab@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: SGrVWr2aETRlna7KZhmAL39hFcON2Vc3
+X-Proofpoint-ORIG-GUID: Fb5LnhK3ZSaXbrsL69WJpWi9iLmMuwBX
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-09_08,2024-02-08_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ adultscore=0 suspectscore=0 spamscore=0 lowpriorityscore=0 mlxlogscore=999
+ impostorscore=0 bulkscore=0 phishscore=0 malwarescore=0 clxscore=1015
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2402090082
 
-Add a selftest for migration support in  guest library and test harness
-code. It performs migrations in a tight loop to irritate races and bugs
-in the test harness code.
+Hi Nathan,
 
-Include the test in arm, s390, powerpc.
+> This series allows the s390 kernel to be linked with ld.lld (support for
+> s390 is under review at [1]). This implicitly depends on [2], which was
+> created and sent before it was realized that this series was necessary.
+...
+> There is one outstanding issue due to something that ld.lld does not
+> support that the kernel relies on:
+> 
+>   ld.lld: error: drivers/nvme/host/fc.o:(__bug_table): writable SHF_MERGE section is not supported
+> 
+> This was changed in the kernel in commit e21f8baf8d9a ("s390/bug: add
+> entry size to the __bug_table section"). Is this change truly necessary?
+> I selectively applied a revert on top of current mainline and I did not
+> observe any issues with either Clang or GCC.
 
-Acked-by: Claudio Imbrenda <imbrenda@linux.ibm.com> (s390x)
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+No it is not necessary. As the original patch stated this was a pre-req
+patch for objtool, for which we still don't have support. This (or
+something different) might be needed. But for now this can easily be
+reverted.
+
+> Then build the kernel with 'LD=ld.lld' in addition to whatever command
+> line you use (I tested both Clang and GCC). I can boot an ld.lld linked
+> kernel built with both compilers in QEMU with this series.
+> 
+> [    1.386970] Linux version 6.8.0-rc3-00043-g05761ede85d6-dirty (nathan@dev-fedora.aadp) (s390-linux-gcc (GCC) 13.2.0, ClangBuiltLinux LLD 19.0.0) #1 SMP Wed Feb  7 16:51:12 MST 2024
+> 
+> [    0.871923] Linux version 6.8.0-rc3-00043-g05761ede85d6-dirty (nathan@dev-fedora.aadp) (ClangBuiltLinux clang version 19.0.0git (https://github.com/llvm/llvm-project 417075e56aeba5a5b20301c7bfeba9c2a800982b), ClangBuiltLinux LLD 19.0.0) #1 SMP Wed Feb  7 17:01:22 MST 2024
+
+Tested, and works for me. Thanks a lot for your work. This is highly
+appreciated!
+
+I applied this series internally to get some CI runs over the weekend, and
+push it to our external repository beginning of next week. As suggested by
+you I reverted the commit you mentioned above, and also removed ENTRY from
+our vdso linker scripts, similar to what you did already for powerpc (see
+patches below).
+
+Please feel free to send patches for both of the issues, and I'll replace
+my patches with your patches.
+
+From 30a0a88d0e6c4802b748a942bb3f6f1b223f53ba Mon Sep 17 00:00:00 2001
+From: Heiko Carstens <hca@linux.ibm.com>
+Date: Fri, 9 Feb 2024 11:48:25 +0100
+Subject: [PATCH 1/2] s390/bug: remove entry size from __bug_table section
+
+Commit e21f8baf8d9a ("s390/bug: add entry size to the __bug_table section")
+changed the __EMIT_BUG() inline assembly to emit mergeable __bug_table
+entries. This is at least currently not needed, but causes problems with
+the upcoming s390 ld.lld support:
+
+  ld.lld: error: drivers/nvme/host/fc.o:(__bug_table): writable SHF_MERGE section is not supported
+
+Therefore revert the change for now.
+
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Closes: https://lore.kernel.org/all/20240207-s390-lld-and-orphan-warn-v1-0-8a665b3346ab@kernel.org/
+Suggested-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arm/Makefile.common          |  1 +
- arm/selftest-migration.c     |  1 +
- arm/unittests.cfg            |  6 ++++++
- common/selftest-migration.c  | 34 ++++++++++++++++++++++++++++++++++
- powerpc/Makefile.common      |  1 +
- powerpc/selftest-migration.c |  1 +
- powerpc/unittests.cfg        |  4 ++++
- s390x/Makefile               |  1 +
- s390x/selftest-migration.c   |  1 +
- s390x/unittests.cfg          |  4 ++++
- 10 files changed, 54 insertions(+)
- create mode 120000 arm/selftest-migration.c
- create mode 100644 common/selftest-migration.c
- create mode 120000 powerpc/selftest-migration.c
- create mode 120000 s390x/selftest-migration.c
+ arch/s390/include/asm/bug.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arm/Makefile.common b/arm/Makefile.common
-index f828dbe0..f107c478 100644
---- a/arm/Makefile.common
-+++ b/arm/Makefile.common
-@@ -5,6 +5,7 @@
- #
- 
- tests-common  = $(TEST_DIR)/selftest.$(exe)
-+tests-common += $(TEST_DIR)/selftest-migration.$(exe)
- tests-common += $(TEST_DIR)/spinlock-test.$(exe)
- tests-common += $(TEST_DIR)/pci-test.$(exe)
- tests-common += $(TEST_DIR)/pmu.$(exe)
-diff --git a/arm/selftest-migration.c b/arm/selftest-migration.c
-new file mode 120000
-index 00000000..bd1eb266
---- /dev/null
-+++ b/arm/selftest-migration.c
-@@ -0,0 +1 @@
-+../common/selftest-migration.c
-\ No newline at end of file
-diff --git a/arm/unittests.cfg b/arm/unittests.cfg
-index fe601cbb..db0e4c9b 100644
---- a/arm/unittests.cfg
-+++ b/arm/unittests.cfg
-@@ -55,6 +55,12 @@ smp = $MAX_SMP
- extra_params = -append 'smp'
- groups = selftest
- 
-+# Test migration
-+[selftest-migration]
-+file = selftest-migration.flat
-+groups = selftest migration
-+arch = arm64
-+
- # Test PCI emulation
- [pci-test]
- file = pci-test.flat
-diff --git a/common/selftest-migration.c b/common/selftest-migration.c
-new file mode 100644
-index 00000000..f70c505f
---- /dev/null
-+++ b/common/selftest-migration.c
-@@ -0,0 +1,34 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Machine independent migration tests
-+ *
-+ * This is just a very simple test that is intended to stress the migration
-+ * support in the test harness. This could be expanded to test more guest
-+ * library code, but architecture-specific tests should be used to test
-+ * migration of tricky machine state.
-+ */
-+#include <libcflat.h>
-+#include <migrate.h>
-+
-+#if defined(__arm__) || defined(__aarch64__)
-+/* arm can only call getchar 15 times */
-+#define NR_MIGRATIONS 15
-+#else
-+#define NR_MIGRATIONS 100
-+#endif
-+
-+int main(int argc, char **argv)
-+{
-+	int i = 0;
-+
-+	report_prefix_push("migration");
-+
-+	for (i = 0; i < NR_MIGRATIONS; i++)
-+		migrate_quiet();
-+
-+	report(true, "simple harness stress test");
-+
-+	report_prefix_pop();
-+
-+	return report_summary();
-+}
-diff --git a/powerpc/Makefile.common b/powerpc/Makefile.common
-index eb88398d..da4a7bbb 100644
---- a/powerpc/Makefile.common
-+++ b/powerpc/Makefile.common
-@@ -6,6 +6,7 @@
- 
- tests-common = \
- 	$(TEST_DIR)/selftest.elf \
-+	$(TEST_DIR)/selftest-migration.elf \
- 	$(TEST_DIR)/spapr_hcall.elf \
- 	$(TEST_DIR)/rtas.elf \
- 	$(TEST_DIR)/emulator.elf \
-diff --git a/powerpc/selftest-migration.c b/powerpc/selftest-migration.c
-new file mode 120000
-index 00000000..bd1eb266
---- /dev/null
-+++ b/powerpc/selftest-migration.c
-@@ -0,0 +1 @@
-+../common/selftest-migration.c
-\ No newline at end of file
-diff --git a/powerpc/unittests.cfg b/powerpc/unittests.cfg
-index e71140aa..7ce57de0 100644
---- a/powerpc/unittests.cfg
-+++ b/powerpc/unittests.cfg
-@@ -36,6 +36,10 @@ smp = 2
- extra_params = -m 256 -append 'setup smp=2 mem=256'
- groups = selftest
- 
-+[selftest-migration]
-+file = selftest-migration.elf
-+groups = selftest migration
-+
- [spapr_hcall]
- file = spapr_hcall.elf
- 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index b72f7578..344d46d6 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -1,4 +1,5 @@
- tests = $(TEST_DIR)/selftest.elf
-+tests += $(TEST_DIR)/selftest-migration.elf
- tests += $(TEST_DIR)/intercept.elf
- tests += $(TEST_DIR)/emulator.elf
- tests += $(TEST_DIR)/sieve.elf
-diff --git a/s390x/selftest-migration.c b/s390x/selftest-migration.c
-new file mode 120000
-index 00000000..bd1eb266
---- /dev/null
-+++ b/s390x/selftest-migration.c
-@@ -0,0 +1 @@
-+../common/selftest-migration.c
-\ No newline at end of file
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index f5024b6e..a7ad522c 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -24,6 +24,10 @@ groups = selftest
- # please keep the kernel cmdline in sync with $(TEST_DIR)/selftest.parmfile
- extra_params = -append 'test 123'
- 
-+[selftest-migration]
-+file = selftest-migration.elf
-+groups = selftest migration
-+
- [intercept]
- file = intercept.elf
- 
+diff --git a/arch/s390/include/asm/bug.h b/arch/s390/include/asm/bug.h
+index aebe1e22c7be..c500d45fb465 100644
+--- a/arch/s390/include/asm/bug.h
++++ b/arch/s390/include/asm/bug.h
+@@ -14,7 +14,7 @@
+ 		".section .rodata.str,\"aMS\",@progbits,1\n"	\
+ 		"1:	.asciz	\""__FILE__"\"\n"		\
+ 		".previous\n"					\
+-		".section __bug_table,\"awM\",@progbits,%2\n"	\
++		".section __bug_table,\"aw\"\n"			\
+ 		"2:	.long	0b-.\n"				\
+ 		"	.long	1b-.\n"				\
+ 		"	.short	%0,%1\n"			\
+@@ -30,7 +30,7 @@
+ #define __EMIT_BUG(x) do {					\
+ 	asm_inline volatile(					\
+ 		"0:	mc	0,0\n"				\
+-		".section __bug_table,\"awM\",@progbits,%1\n"	\
++		".section __bug_table,\"aw\"\n"			\
+ 		"1:	.long	0b-.\n"				\
+ 		"	.short	%0\n"				\
+ 		"	.org	1b+%1\n"			\
 -- 
-2.42.0
+2.40.1
+
+From bdca9b8dcf3f0884341f491d54502d4cbe660446 Mon Sep 17 00:00:00 2001
+From: Heiko Carstens <hca@linux.ibm.com>
+Date: Fri, 9 Feb 2024 11:54:01 +0100
+Subject: [PATCH 2/2] s390/vdso: remove unused ENTRY in linker scripts
+
+When linking vdso64.so.dbg with ld.lld, there is a warning about not
+finding _start for the starting address:
+
+  ld.lld: warning: cannot find entry symbol _start; not setting start address
+
+Fix this be removing the unused ENTRY in both vdso linker scripts. See
+commit e247172854a5 ("powerpc/vdso: Remove unused ENTRY in linker
+scripts"), which solved the same problem for powerpc, for further details.
+
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ arch/s390/kernel/vdso32/vdso32.lds.S | 1 -
+ arch/s390/kernel/vdso64/vdso64.lds.S | 1 -
+ 2 files changed, 2 deletions(-)
+
+diff --git a/arch/s390/kernel/vdso32/vdso32.lds.S b/arch/s390/kernel/vdso32/vdso32.lds.S
+index edf5ff1debe1..65b9513a5a0e 100644
+--- a/arch/s390/kernel/vdso32/vdso32.lds.S
++++ b/arch/s390/kernel/vdso32/vdso32.lds.S
+@@ -9,7 +9,6 @@
+ 
+ OUTPUT_FORMAT("elf32-s390", "elf32-s390", "elf32-s390")
+ OUTPUT_ARCH(s390:31-bit)
+-ENTRY(_start)
+ 
+ SECTIONS
+ {
+diff --git a/arch/s390/kernel/vdso64/vdso64.lds.S b/arch/s390/kernel/vdso64/vdso64.lds.S
+index 4461ea151e49..37e2a505e81d 100644
+--- a/arch/s390/kernel/vdso64/vdso64.lds.S
++++ b/arch/s390/kernel/vdso64/vdso64.lds.S
+@@ -9,7 +9,6 @@
+ 
+ OUTPUT_FORMAT("elf64-s390", "elf64-s390", "elf64-s390")
+ OUTPUT_ARCH(s390:64-bit)
+-ENTRY(_start)
+ 
+ SECTIONS
+ {
+-- 
+2.40.1
 
