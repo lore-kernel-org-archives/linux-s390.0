@@ -1,83 +1,72 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA20E63B8;
-	Fri,  9 Feb 2024 20:46:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD067210E7
+	for <linux-s390@vger.kernel.org>; Fri,  9 Feb 2024 22:15:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707511568; cv=none; b=I9yQJwhRlC5Q838ht2K837Re5yclOg8QSftuOcxFHssnjJanaUm1N0VyoADOMfVTxORGSK3ks9+u9JFWL9A3a64VWhRNK55JF/y93rWoqKwl5goqMinu44vsxvhSFYG7lG8+QaBv/OjuAXvQYtEvc4ph6am6s6aZN2cuVZU4SxQ=
+	t=1707516924; cv=none; b=bHWeL2mS/JKyqeqkciVT1H92yNyJRbNuoenP/gw9chB/P6L8SMkq28DmLP/QzMxygRim/Fo9xCWcE3juV3MtSnNn+M9Vf1SZbLaMMgtiNrFNQ8zyV1jTEN54Lr5N25dRk755eJLJ/+mfGOsFhuRXAkwEfcPL/v+sFg7ascnhW2E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707511568; c=relaxed/simple;
-	bh=wFHRWFNDjByZdkECXDT5AIayYLGLuLsqg4VpCTDXaxk=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=p0US78eShSyBAJtArO2oHBcDEoxm7sG+E/9jhxyYZMHTyuCStOD5Kyur8d1vjP41TvPatIMkpFE0ZzTFM1BxE9uUoUmc5YTj/KG0JUHGO9f7bgVIAqMUBmiAQ+/cJ6xzhx1Zf0VICn62PAr56QqUrCnYCugYQpOQ66yWPMgrUn0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=i4wbRFqp; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1707516924; c=relaxed/simple;
+	bh=3aVfhg/C+wAo1wz9GZnGBRw740WrndMiu2OG5sNBjh8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SwmpJRNatax6yYOMJkL9zHMF/izctHTgMeaHvvtx1bt91TrlbDL8o2pu5Hei149X8KhaoCrSvfxWUNazoatlm/4/2HZCgUCFkUxsq2UzvRaqCGpVZePzyqEe7psj5ttM2Htie4iT13vu8gdBCfvV3YctPqkejbfKUC1wVE+0KUg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SHOzVEDj; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="i4wbRFqp"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 419Jxj9V005672;
-	Fri, 9 Feb 2024 20:46:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=naSuFLOBCRRosC0sA+aZ1BhtQ2Dg+R11DdlDmvqw/e4=;
- b=i4wbRFqpb9mJJhih4QDVygWtN6+9R/gmJGUXA8mj9V72qoCV9iCe/kmi10EQQYgFUyCp
- ntgLz5O79tDGYkUK3uUQJm7dwsdhynLzubVlNlDiTwma6Ot5KJTuuMrqIqRTs80loBaQ
- 5zYvTPb9P7CF5CZDp4Lpjd1Cp9qbNX/yEA4blsHe9cUWpw9ywdyOhDRIenZU+ZKA3zMy
- 0ZHcU+piV1WqhEuh2cqEJ+r7gGx9cE8bObLoaM/IcaZdySBi21SouDL+9LkfBU1l8ZWp
- pdvrWqmlHUHBr3lW3Buc53wzic5cI+NTTnZR3OsOPckziHUcngQrWjhlAiXgQ01D0dEc PA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w5t7fhjt2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 09 Feb 2024 20:46:04 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 419Kd7XX021131;
-	Fri, 9 Feb 2024 20:46:03 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w5t7fhjnc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 09 Feb 2024 20:46:03 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 419J6oKt008770;
-	Fri, 9 Feb 2024 20:45:49 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3w20705hxy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 09 Feb 2024 20:45:49 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 419Kjhor21365490
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 9 Feb 2024 20:45:46 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DD18220043;
-	Fri,  9 Feb 2024 20:45:43 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C93A520040;
-	Fri,  9 Feb 2024 20:45:43 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri,  9 Feb 2024 20:45:43 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-	id 7963AE0361; Fri,  9 Feb 2024 21:45:43 +0100 (CET)
-From: Eric Farman <farman@linux.ibm.com>
-To: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v1 2/2] KVM: s390: selftests: memop: add a simple AR test
-Date: Fri,  9 Feb 2024 21:45:39 +0100
-Message-Id: <20240209204539.4150550-3-farman@linux.ibm.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20240209204539.4150550-1-farman@linux.ibm.com>
-References: <20240209204539.4150550-1-farman@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SHOzVEDj"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1707516920;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=IHB7ZolLgofmfMRsfkbwn2QUSh6DVNhQllqTULKzUgI=;
+	b=SHOzVEDjQ+4Y+h8yhuzoLSfLENz4pib2VDKT4VQx9+4blO+JsYWvJvYfd78LaRL6067XyE
+	xnaANZNrhUGNrXjJY0c9LoyZ/rFzHp1GIaIDfnkxqIEZi/x1AFdfWQSl9CYnilyeRX37r4
+	4t3QwsbDGibNwI7KOivSrP0l5siw8LQ=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-428-_SIakAvhN7i8GkgZgtC1Hw-1; Fri, 09 Feb 2024 17:15:17 -0500
+X-MC-Unique: _SIakAvhN7i8GkgZgtC1Hw-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 3532785A589;
+	Fri,  9 Feb 2024 22:15:16 +0000 (UTC)
+Received: from t14s.redhat.com (unknown [10.39.194.59])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id CE8F71C14B04;
+	Fri,  9 Feb 2024 22:15:10 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org,
+	David Hildenbrand <david@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Matthew Wilcox <willy@infradead.org>,
+	Ryan Roberts <ryan.roberts@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Yin Fengwei <fengwei.yin@intel.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Will Deacon <will@kernel.org>,
+	"Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+	Nick Piggin <npiggin@gmail.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	linux-arch@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org
+Subject: [PATCH v2 00/10] mm/memory: optimize unmap/zap with PTE-mapped THP
+Date: Fri,  9 Feb 2024 23:14:59 +0100
+Message-ID: <20240209221509.585251-1-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -85,78 +74,145 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: cVxdslRelh9t2e1uXQ5zRsESvKHfZdYA
-X-Proofpoint-ORIG-GUID: 6KAtnlhjlZ1tzGP8yysYJqalED_Rd8Nb
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-09_18,2024-02-08_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
- priorityscore=1501 impostorscore=0 bulkscore=0 suspectscore=0 adultscore=0
- clxscore=1015 phishscore=0 spamscore=0 mlxlogscore=972 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2402090151
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
 
-There is a selftest that checks for an (expected) error when an
-invalid AR is specified, but not one that exercises the AR path.
+This series is based on [1]. Similar to what we did with fork(), let's
+implement PTE batching during unmap/zap when processing PTE-mapped THPs.
 
-Add a simple test that mirrors the vanilla write/read test while
-providing an AR. An AR that contains zero will direct the CPU to
-use the primary address space normally used anyway. AR[1] is
-selected for this test because the host AR[1] is usually non-zero,
-and KVM needs to correctly swap those values.
+We collect consecutive PTEs that map consecutive pages of the same large
+folio, making sure that the other PTE bits are compatible, and (a) adjust
+the refcount only once per batch, (b) call rmap handling functions only
+once per batch, (c) perform batch PTE setting/updates and (d) perform TLB
+entry removal once per batch.
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Ryan was previously working on this in the context of cont-pte for
+arm64, int latest iteration [2] with a focus on arm6 with cont-pte only.
+This series implements the optimization for all architectures, independent
+of such PTE bits, teaches MMU gather/TLB code to be fully aware of such
+large-folio-pages batches as well, and amkes use of our new rmap batching
+function when removing the rmap.
+
+To achieve that, we have to enlighten MMU gather / page freeing code
+(i.e., everything that consumes encoded_page) to process unmapping
+of consecutive pages that all belong to the same large folio. I'm being
+very careful to not degrade order-0 performance, and it looks like I
+managed to achieve that.
+
+While this series should -- similar to [1] -- be beneficial for adding
+cont-pte support on arm64[2], it's one of the requirements for maintaining
+a total mapcount[3] for large folios with minimal added overhead and
+further changes[4] that build up on top of the total mapcount.
+
+Independent of all that, this series results in a speedup during munmap()
+and similar unmapping (process teardown, MADV_DONTNEED on larger ranges)
+with PTE-mapped THP, which is the default with THPs that are smaller than
+a PMD (for example, 16KiB to 1024KiB mTHPs for anonymous memory[5]).
+
+On an Intel Xeon Silver 4210R CPU, munmap'ing a 1GiB VMA backed by
+PTE-mapped folios of the same size (stddev < 1%) results in the following
+runtimes for munmap() in seconds (shorter is better):
+
+Folio Size | mm-unstable |      New | Change
+---------------------------------------------
+      4KiB |    0.058110 | 0.057715 |   - 1%
+     16KiB |    0.044198 | 0.035469 |   -20%
+     32KiB |    0.034216 | 0.023522 |   -31%
+     64KiB |    0.029207 | 0.018434 |   -37%
+    128KiB |    0.026579 | 0.014026 |   -47%
+    256KiB |    0.025130 | 0.011756 |   -53%
+    512KiB |    0.024292 | 0.010703 |   -56%
+   1024KiB |    0.023812 | 0.010294 |   -57%
+   2048KiB |    0.023785 | 0.009910 |   -58%
+
+CCing especially s390x folks, because they have a tlb freeing hooks that
+needs adjustment. Only tested on x86-64 for now, will have to do some more
+stress testing. Compile-tested on most other architectures. The PPC
+change is negleglible and makes my cross-compiler happy.
+
+[1] https://lkml.kernel.org/r/20240129124649.189745-1-david@redhat.com
+[2] https://lkml.kernel.org/r/20231218105100.172635-1-ryan.roberts@arm.com
+[3] https://lkml.kernel.org/r/20230809083256.699513-1-david@redhat.com
+[4] https://lkml.kernel.org/r/20231124132626.235350-1-david@redhat.com
+[5] https://lkml.kernel.org/r/20231207161211.2374093-1-ryan.roberts@arm.com
+
 ---
- tools/testing/selftests/kvm/s390x/memop.c | 28 +++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
 
-diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
-index bb3ca9a5d731..be20c26ee545 100644
---- a/tools/testing/selftests/kvm/s390x/memop.c
-+++ b/tools/testing/selftests/kvm/s390x/memop.c
-@@ -375,6 +375,29 @@ static void test_copy(void)
- 	kvm_vm_free(t.kvm_vm);
- }
- 
-+static void test_copy_access_register(void)
-+{
-+	struct test_default t = test_default_init(guest_copy);
-+
-+	HOST_SYNC(t.vcpu, STAGE_INITED);
-+
-+	prepare_mem12();
-+	t.run->psw_mask &= ~(3UL << (63 - 17));
-+	t.run->psw_mask |= 1UL << (63 - 17);  /* Enable AR mode */
-+
-+	CHECK_N_DO(MOP, t.vcpu, LOGICAL, WRITE, mem1, t.size,
-+		   GADDR_V(mem1), AR(1));
-+	HOST_SYNC(t.vcpu, STAGE_COPIED);
-+
-+	CHECK_N_DO(MOP, t.vcpu, LOGICAL, READ, mem2, t.size,
-+		   GADDR_V(mem2), AR(1));
-+	ASSERT_MEM_EQ(mem1, mem2, t.size);
-+
-+	t.run->psw_mask &= ~(3UL << (63 - 17));   /* Disable AR mode */
-+
-+	kvm_vm_free(t.kvm_vm);
-+}
-+
- static void set_storage_key_range(void *addr, size_t len, uint8_t key)
- {
- 	uintptr_t _addr, abs, i;
-@@ -1101,6 +1124,11 @@ int main(int argc, char *argv[])
- 			.test = test_copy_key_fetch_prot_override,
- 			.requirements_met = extension_cap > 0,
- 		},
-+		{
-+			.name = "copy with access register mode",
-+			.test = test_copy_access_register,
-+			.requirements_met = true,
-+		},
- 		{
- 			.name = "error checks with key",
- 			.test = test_errors_key,
+The performance numbers are from v1. I did a quick benchmark run of v2
+and nothing significantly changed -- because nothing in the code
+significantly changed. Sending this out ASAP, so Ryan can make progress
+with cont-pte.
+
+v1 -> v2:
+* "mm/memory: factor out zapping of present pte into zap_present_pte()"
+ -> Initialize "struct folio *folio" to NULL
+* "mm/memory: handle !page case in zap_present_pte() separately"
+ -> Extend description regarding arch_check_zapped_pte()
+* "mm/mmu_gather: add __tlb_remove_folio_pages()"
+ -> ENCODED_PAGE_BIT_NR_PAGES_NEXT
+ -> Extend patch description regarding "batching more"
+* "mm/mmu_gather: improve cond_resched() handling with large folios and
+   expensive page freeing"
+ -> Handle the (so far) theoretical case of possible soft lockups when
+    we zero/poison memory when freeing pages. Try to keep old behavior in
+    that corner case to be safe.
+* "mm/memory: optimize unmap/zap with PTE-mapped THP"
+ -> Clarify description of new ptep clearing functions regarding "present
+    PTEs"
+ -> Extend patch description regarding relaxed mapcount sanity checks
+ -> Improve zap_present_ptes() description
+* Pick up RB's
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Ryan Roberts <ryan.roberts@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Yin Fengwei <fengwei.yin@intel.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc: Nick Piggin <npiggin@gmail.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arch@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+
+David Hildenbrand (10):
+  mm/memory: factor out zapping of present pte into zap_present_pte()
+  mm/memory: handle !page case in zap_present_pte() separately
+  mm/memory: further separate anon and pagecache folio handling in
+    zap_present_pte()
+  mm/memory: factor out zapping folio pte into zap_present_folio_pte()
+  mm/mmu_gather: pass "delay_rmap" instead of encoded page to
+    __tlb_remove_page_size()
+  mm/mmu_gather: define ENCODED_PAGE_FLAG_DELAY_RMAP
+  mm/mmu_gather: add tlb_remove_tlb_entries()
+  mm/mmu_gather: add __tlb_remove_folio_pages()
+  mm/mmu_gather: improve cond_resched() handling with large folios and
+    expensive page freeing
+  mm/memory: optimize unmap/zap with PTE-mapped THP
+
+ arch/powerpc/include/asm/tlb.h |   2 +
+ arch/s390/include/asm/tlb.h    |  30 ++++--
+ include/asm-generic/tlb.h      |  40 ++++++--
+ include/linux/mm_types.h       |  37 ++++++--
+ include/linux/pgtable.h        |  70 ++++++++++++++
+ mm/memory.c                    | 169 +++++++++++++++++++++++----------
+ mm/mmu_gather.c                | 107 ++++++++++++++++++---
+ mm/swap.c                      |  12 ++-
+ mm/swap_state.c                |  15 ++-
+ 9 files changed, 393 insertions(+), 89 deletions(-)
+
+
+base-commit: d7f43604944787ce929efeaabd0f462414002a8f
 -- 
-2.40.1
+2.43.0
 
