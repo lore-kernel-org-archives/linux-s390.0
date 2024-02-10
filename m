@@ -1,55 +1,50 @@
-Received: from mail.envs.net (mail.envs.net [5.199.136.28])
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [78.32.30.218])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 728FD28DBF;
-	Sat, 10 Feb 2024 07:47:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.199.136.28
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D64A364C7;
+	Sat, 10 Feb 2024 10:30:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.32.30.218
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707551246; cv=none; b=LVdeWHtvCdf0R0rISKKk+doME0gzz+G8hjm2FscCvdPO7pxT1eh/V2s036ltBhQXqPcQU8U/9XB5lSg+DyUrnnfSUTuDE4DIRHOF5Z7EdkmSRaynVYbQjzsneo+ol5/GXsixWrONW0YCWgHZf9FGB2e/JpRtA2D6VhbpiFcoISU=
+	t=1707561012; cv=none; b=Pb8Q2Am0ajIhxHtP2n1qR7edDka+jD0SvelBANk9GhRlvClzlIdx38G2wQAdQUJLlwYS+Z4rfTh6gsWfpeP5YY5lyMzC1nL61o3iZc0KXemV4q3noqpMs7V5gnf1npLBhOkx8EZ9AjvPltUGi86/Zr34URnS03ihGlrDcQc5y58=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707551246; c=relaxed/simple;
-	bh=GZiZoI6e3JvsqnLrL5xGsh92gGaBzJaPJ2zt48adfWs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cI8AYMm4doo0deUUXDYXxBJ4CHonamdImTjInW//2zbUwqVnyCykZKr4b+Gz1ayGstxKZ2OZe008NGRwxX9WFhTm+AfQDclUbUQPJE+D0yE4H4Tq1Mo8XWpGxxS4tb/pLQqr/u3+OUkVAbLaRBfT2zu6VSZIIQtNptXfy4Oqgn0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=envs.net; spf=pass smtp.mailfrom=envs.net; dkim=pass (4096-bit key) header.d=envs.net header.i=@envs.net header.b=KDptHeRj; arc=none smtp.client-ip=5.199.136.28
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=envs.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=envs.net
+	s=arc-20240116; t=1707561012; c=relaxed/simple;
+	bh=A3ud78No7kD0Dn1wHTcneyRE+SVmCuqOLRHwIx5bJeE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UDryS4xgtan2kzS2fIDZCadmK9a1YmfXa9Aaxam26VNC6fVf1zo5TsUOpSurzr9Adv2YmXMWAxpxNfqZpPahxw+kLlJtwkVVg962D1bm61ITmnlISAEAGLss7MXc3ZDqJljn2Rci3AEPOUpMcwTgelv8BssCiSPIV8AgWwlBDjg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk; spf=none smtp.mailfrom=armlinux.org.uk; dkim=pass (2048-bit key) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.b=T/mPfRyu; arc=none smtp.client-ip=78.32.30.218
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=armlinux.org.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=envs.net header.i=@envs.net header.b="KDptHeRj"
-Received: from localhost (mail.envs.net [127.0.0.1])
-	by mail.envs.net (Postfix) with ESMTP id DE4E138A067D;
-	Sat, 10 Feb 2024 07:47:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=envs.net; s=modoboa;
-	t=1707551242; bh=3RXoGcCjW+CB+wVoqLryQrySRvbelditpYUk0T7yTSY=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=KDptHeRjyPkaRYgDgQJ76TMbGq2rsbc0AgiZQdCY1JOAdzUUBP4+RjmkgxBwk+Z4T
-	 j1LGFsSoHsi7dXIAgAUbI/PPv5xfuDLWxP4xy8zkDFsW90QSwB5pLXrOkhMRao+XlL
-	 KAGg3sF0YhX3cFUj7jBo9lVPvYfUmcRpz6Dlk3dlkBOPJkdR3HhxzbFttuK6GrofQY
-	 ObwJoxqqdzPs/TeRoNi+Jn9jBlea4UDeZraoiBsmmwSyGY6ev426Owf0SUmoV+i3RR
-	 OaHBBhn4elcui9shUMYi0MKJm8/fdLhF53D6fhPStFXiuMRn+EylTstmABQgAIluS2
-	 k+BkRN8SrN9KqQntdQIwXQxV3M4XoETzxQqWgTPpLG+5rridntyZXpp9JG4db2uRBf
-	 53smMVcv8z4u3nsFvR1BYtrtMOFXQdDNIkr8vIHR2Y4Fb9WClbM357GuFTdzDohLL3
-	 ufzACtqqpgzpeAUIpB+hpnQys9UGaf19H5UEWoZBtp06T3Gxxhaq3RMkgzB2quBqMc
-	 qLRu15nv/pXCuJxUSCsVfTbMkWHMyB4bG4gVLFKO2bEIjVS1ikgXoHx6r8+N90JWh3
-	 W6U+HRvy34HObUcQk+4BHgKYhAFIqbkHlDApBHipsmz5NzMx1YZiZUH05xtydi02qS
-	 1mp9NGb4qW3iB47WQjcJKO8A=
-X-Virus-Scanned: Debian amavisd-new at mail.envs.net
-Received: from mail.envs.net ([127.0.0.1])
-	by localhost (mail.envs.net [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id qlRMxgQ5V7Qg; Sat, 10 Feb 2024 07:47:13 +0000 (UTC)
-Received: from xtexx.eu.org (unknown [223.73.102.109])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mail.envs.net (Postfix) with ESMTPSA;
-	Sat, 10 Feb 2024 07:47:12 +0000 (UTC)
-From: Zhang Bingwu <xtex@envs.net>
-To: Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
+	dkim=pass (2048-bit key) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.b="T/mPfRyu"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=ph4jzB86nHaGBdGyQlHwPpxZccThyM3+Io4W8gZIxGI=; b=T/mPfRyuRFUl8GCt02nw5hF8m8
+	Awp1djpMFwBhecelf0XDJm5aDEs/HFqx7756B0bVepr/IJfGnj/mDwY2ntorwNMhuX7PNwkVwgiOs
+	Vo0wg1FUKUe1QsAW95tmiDTM0/WP/VecHW4kPFzjiebWPfx/akDPQAN9lTy2Xp/2xXX+IbY8KnVwk
+	MgbJRMZIRSjH+kI3aucCRbMHAnW4kOdZf765ego1yIRs35nz7bEpVbQLqzKKnVgwsNeRfkoMwTEpr
+	nQVW3vHN/FJOwHxxSdheb5jdA9FltDBf0iVdtYybDa44bHMN/9CrHW6PvlCMexy63eQf+bCpkOJr8
+	eiPfQRGA==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:38040)
+	by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <linux@armlinux.org.uk>)
+	id 1rYkbe-0006qq-0m;
+	Sat, 10 Feb 2024 10:29:10 +0000
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
+	(envelope-from <linux@shell.armlinux.org.uk>)
+	id 1rYkbU-0007Ja-Ln; Sat, 10 Feb 2024 10:29:00 +0000
+Date: Sat, 10 Feb 2024 10:29:00 +0000
+From: "Russell King (Oracle)" <linux@armlinux.org.uk>
+To: Zhang Bingwu <xtex@envs.net>
+Cc: Catalin Marinas <catalin.marinas@arm.com>,
 	Will Deacon <will@kernel.org>,
 	Geert Uytterhoeven <geert@linux-m68k.org>,
 	Dinh Nguyen <dinguyen@kernel.org>,
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
 	Helge Deller <deller@gmx.de>,
 	Paul Walmsley <paul.walmsley@sifive.com>,
 	Palmer Dabbelt <palmer@dabbelt.com>,
@@ -62,61 +57,70 @@ To: Russell King <linux@armlinux.org.uk>,
 	"David S. Miller" <davem@davemloft.net>,
 	Andreas Larsson <andreas@gaisler.com>,
 	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
 	Dave Hansen <dave.hansen@linux.intel.com>,
 	"H. Peter Anvin" <hpa@zytor.com>,
 	Zhang Bingwu <xtexchooser@duck.com>,
 	Masahiro Yamada <masahiroy@kernel.org>,
 	Nathan Chancellor <nathan@kernel.org>,
-	Nicolas Schier <nicolas@fjasle.eu>
-Cc: x86@kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	linux-parisc@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
+	Nicolas Schier <nicolas@fjasle.eu>, x86@kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org, linux-parisc@vger.kernel.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
 	sparclinux@vger.kernel.org
-Subject: [PATCH 2/2] kbuild: Create INSTALL_PATH directory if it does not exist
-Date: Sat, 10 Feb 2024 15:46:01 +0800
-Message-ID: <20240210074601.5363-3-xtex@envs.net>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240210074601.5363-1-xtex@envs.net>
+Subject: Re: [PATCH 1/2] kbuild: Abort make on install failures
+Message-ID: <ZcdP7CC+OMbp5ZMi@shell.armlinux.org.uk>
 References: <20240210074601.5363-1-xtex@envs.net>
+ <20240210074601.5363-2-xtex@envs.net>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240210074601.5363-2-xtex@envs.net>
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
 
-From: Zhang Bingwu <xtexchooser@duck.com>
+On Sat, Feb 10, 2024 at 03:46:00PM +0800, Zhang Bingwu wrote:
+> From: Zhang Bingwu <xtexchooser@duck.com>
+> 
+> Setting '-e' flag tells shells to exit with error exit code immediately
+> after any of commands fails, and causes make(1) to regard recipes as
+> failed.
+> 
+> Before this, make will still continue to succeed even after the
+> installation failed, for example, for insufficient permission or
+> directory does not exist.
+> 
+> Signed-off-by: Zhang Bingwu <xtexchooser@duck.com>
+> ---
+>  arch/arm/boot/install.sh   | 2 ++
+>  arch/arm64/boot/install.sh | 2 ++
+>  arch/m68k/install.sh       | 2 ++
+>  arch/nios2/boot/install.sh | 2 ++
+>  arch/parisc/install.sh     | 2 ++
+>  arch/riscv/boot/install.sh | 2 ++
+>  arch/s390/boot/install.sh  | 2 ++
+>  arch/sparc/boot/install.sh | 2 ++
+>  arch/x86/boot/install.sh   | 2 ++
+>  9 files changed, 18 insertions(+)
+> 
+> diff --git a/arch/arm/boot/install.sh b/arch/arm/boot/install.sh
+> index 9ec11fac7d8d..34e2c6e31fd1 100755
+> --- a/arch/arm/boot/install.sh
+> +++ b/arch/arm/boot/install.sh
+> @@ -17,6 +17,8 @@
+>  #   $3 - kernel map file
+>  #   $4 - default install path (blank if root directory)
+>  
+> +set -e
+> +
 
-If INSTALL_PATH is not a valid directory, create it, like what
-modules_install and dtbs_install will do in the same situation.
+What about #!/bin/sh -e on the first line, which is the more normal way
+to do this for an entire script?
 
-Signed-off-by: Zhang Bingwu <xtexchooser@duck.com>
----
- scripts/install.sh | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/scripts/install.sh b/scripts/install.sh
-index 9bb0fb44f04a..02b845e7ab33 100755
---- a/scripts/install.sh
-+++ b/scripts/install.sh
-@@ -20,6 +20,10 @@ do
- 	fi
- done
- 
-+if [ "${INSTALL_PATH}" != "" ] && ! [ -e "${INSTALL_PATH}" ]; then
-+	mkdir -p "${INSTALL_PATH}"
-+fi
-+
- # User/arch may have a custom install script
- for file in "${HOME}/bin/${INSTALLKERNEL}"		\
- 	    "/sbin/${INSTALLKERNEL}"			\
 -- 
-2.43.0
-
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 80Mbps down 10Mbps up. Decent connectivity at last!
