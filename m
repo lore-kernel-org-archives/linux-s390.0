@@ -1,162 +1,161 @@
-Received: from e2i605.smtp2go.com (e2i605.smtp2go.com [103.2.142.93])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A7A55FDB0
-	for <linux-s390@vger.kernel.org>; Sat, 10 Feb 2024 21:29:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.2.142.93
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E0E81E4B0;
+	Sat, 10 Feb 2024 23:36:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707600569; cv=none; b=Si2+Q9DxSl5go2YGx/8W+ZJsNxdqx6yxZxYja3D8zPCtTjNgy5mnQIO4755jiMRTkfIgeGWLvDzVOnvOTPmn5thccIbijcSIbG9UoUecNrE1Zh1jteuI126pw48zb9wQxQ+iFu7QKF1aLs7uB0TruWjodDSac4JyqrFXzax4alI=
+	t=1707608194; cv=none; b=ii8CuukkAOm7uIoRIYa44h8bCtl95KT4Nzc2LCWrtND/nyt8HD9Z1SX7QdMSaPBV4YyDOykjM8yrEBomVHD4pysGBxe1tlr9xcIDREfhY9O8MdiY7qk64yHEZOLHD2Pl10OiFE4dzKdtXvtr+hxkc75wM0babVTApmCcnme7UpU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707600569; c=relaxed/simple;
-	bh=2Du69mSeHaxU4Lx7+MOepHIT2fMVUkQRRtGqtvh8tn0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uHbdH+9UEtQrYNvwtahNI3fUlLDbvPKuPXBV+F4wg+fMUmt7N5Yxbq+HZUfQ6t85/QIgUstrlnBMKM0LBkejHYwG47bPgncHMNAETLkBuJx1iNYTE+41D4+7WxpbZUumNFnjaz78t2ZQ4X/fQUVUZxXYyGyWJRENUL+wjfobQ/E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fjasle.eu; spf=pass smtp.mailfrom=em1174286.fjasle.eu; dkim=pass (2048-bit key) header.d=smtpservice.net header.i=@smtpservice.net header.b=K5xy5MbN; dkim=pass (2048-bit key) header.d=fjasle.eu header.i=@fjasle.eu header.b=TUjuY+an; dkim=pass (1024-bit key) header.d=fjasle.eu header.i=@fjasle.eu header.b=NY+lAiZu; arc=none smtp.client-ip=103.2.142.93
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fjasle.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=em1174286.fjasle.eu
+	s=arc-20240116; t=1707608194; c=relaxed/simple;
+	bh=8C4oWiGJS6yH0qp9Eaxr3aYeI/i7oae3HE05t0tAldw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=PrS7sNumZTiMamOe3hoKKU8j6RJceHEutJxChSBMf6OXoVyhROkS696M0mNj9kDiFZzbDE1eQ7G/4cr1AcV6VQoFcrF0au7xvGksu6GbcllHhyG8S+o3JACo2+csnb2yimhZ5RJ6wV4EaNxPQa4hEiqkzcfvdVW8skm+W6ulz0M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=r6t6/Ssa; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=smtpservice.net header.i=@smtpservice.net header.b="K5xy5MbN";
-	dkim=pass (2048-bit key) header.d=fjasle.eu header.i=@fjasle.eu header.b="TUjuY+an";
-	dkim=pass (1024-bit key) header.d=fjasle.eu header.i=@fjasle.eu header.b="NY+lAiZu"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=smtpservice.net; s=mp6320.a1-4.dyn; x=1707601462; h=Feedback-ID:
-	X-Smtpcorp-Track:Message-ID:Subject:To:From:Date:Reply-To:Sender:
-	List-Unsubscribe; bh=/a1NKqeWXcomDM15U7re5KNGNhB+KStNX+Jjw32PO8k=; b=K5xy5MbN
-	U5UqlJ2di3ad9z4oC0mu+yJTVmAMCMcOGIbQvLbQxND6lf/5UoGWuzU1ui2xiZF6ecdq5Udvn//2p
-	a0r8WUmetTaEM3s2s0MS6Xp+FoI65RlyK3URQyYUCY21DTV7iHnLgA5n8vjkNgYaHOtzFeGkCtaxD
-	iJH2bhRey+6zesHOS4RtE0+ljEyzmADMjXeygZhZxO15uU0EU5ZI7BPLNEV4cKhSG+H9Rt1MU4l/h
-	WCBYnLCen04/vfVzbEqpILq/pB1H7CcMFo8uRGvaOdXQebOFbzNIKSxW3375oASa5V+QxRUGTR5lU
-	djODVcT/06V0yrKOIkmvbOSG0Q==;
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fjasle.eu;
- i=@fjasle.eu; q=dns/txt; s=s1174286; t=1707600562; h=from : subject :
- to : message-id : date;
- bh=/a1NKqeWXcomDM15U7re5KNGNhB+KStNX+Jjw32PO8k=;
- b=TUjuY+anCj1AihVBJ4m8WsvrlaHIyh6+o1Xszy0UsYCszEysgF/sYfrNz75GPQbDRIM6G
- H5GYxz2bMMp0G4aopvQKChTINFROvBhezJqNN6Fhapm0mRuhOkT8Tp349L2dTaZx9tBfNv2
- qquWpnKkTUzFEWVCAGYHHFwsqRVQYcXtM1ifMJ9/4l/D0vgdgnKtU8hzxNwllLs5gm3EVzH
- I80GdlTK1qFoqvGob5uAQSaP5J0NZ8ZXLj9zWuY8hk7zc5nIHX0NQe9xQ3yhrqgNCdlvfJz
- jOhZDG3fQZeuZE/1MJWGo2KAAMG/joTmSG4PVyd1Vsayis3aiG4XTXUngbNw==
-Received: from [10.176.58.103] (helo=SmtpCorp) by smtpcorp.com with esmtpsa
- (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
- (Exim 4.94.2-S2G) (envelope-from <nicolas@fjasle.eu>)
- id 1rYurb-qt4BXu-QO; Sat, 10 Feb 2024 21:26:21 +0000
-Received: from [10.85.249.164] (helo=leknes.fjasle.eu)
- by smtpcorp.com with esmtpsa
- (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
- (Exim 4.96.1-S2G) (envelope-from <nicolas@fjasle.eu>)
- id 1rYurb-9EMoK9-0P; Sat, 10 Feb 2024 21:26:19 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=fjasle.eu; s=mail;
- t=1707600370; bh=2Du69mSeHaxU4Lx7+MOepHIT2fMVUkQRRtGqtvh8tn0=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=NY+lAiZuOqkS5pMrJUpcG65n5ETEJV2Y+6gc5E/FA4KrEooCHnXiFhSd0KsKLU3N/
- 3V9msP+z+BGKPowTYSTTNEmBr+1NIrpx57jUGQwQqM9RCQXeavAWqRwKTkQ9w8VmVT
- HYORQqzNDMTLtRrB3rbNgRNY2yBj7YRn9ojD9DtY=
-Received: by leknes.fjasle.eu (Postfix, from userid 1000)
- id 07A053E9DC; Sat, 10 Feb 2024 22:26:09 +0100 (CET)
-Date: Sat, 10 Feb 2024 22:26:09 +0100
-From: Nicolas Schier <nicolas@fjasle.eu>
-To: Zhang Bingwu <xtex@envs.net>
-Cc: Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Geert Uytterhoeven <geert@linux-m68k.org>,
- Dinh Nguyen <dinguyen@kernel.org>,
- "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
- Helge Deller <deller@gmx.de>, Paul Walmsley <paul.walmsley@sifive.com>,
- Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- "David S. Miller" <davem@davemloft.net>,
- Andreas Larsson <andreas@gaisler.com>,
- Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Zhang Bingwu <xtexchooser@duck.com>,
- Masahiro Yamada <masahiroy@kernel.org>,
- Nathan Chancellor <nathan@kernel.org>, x86@kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org, linux-parisc@vger.kernel.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- sparclinux@vger.kernel.org
-Subject: Re: [PATCH 2/2] kbuild: Create INSTALL_PATH directory if it does not
- exist
-Message-ID: <Zcfp8fn7o74K08g0@fjasle.eu>
-References: <20240210074601.5363-1-xtex@envs.net>
- <20240210074601.5363-3-xtex@envs.net>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="r6t6/Ssa"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E07CBC433C7;
+	Sat, 10 Feb 2024 23:36:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1707608193;
+	bh=8C4oWiGJS6yH0qp9Eaxr3aYeI/i7oae3HE05t0tAldw=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=r6t6/SsaqOeeKJNUPVfZVjJbcNK3RRFmjuHojyVxfSItVDZ2TZuyB0EoFbkGs6cmN
+	 fGZld4TdjiPZzaIrvGq0du2QE1WrRIwg1uaqftL/+TqHZD3PNrucg9KdOFYRvRjKht
+	 Kk1w763J7dFF4u8iFKmo/Al3fa5jdjRgBZmxwu3QQfGQKxR2EAZ/epiWFzxP2MBMLL
+	 6EpLosITDbsxVYxLRJlLLsek+7D2LtphnIXyz/MDB66zxzPmJbFpf348/1QD6IEBDf
+	 JkxUs5J1dYgy0PVeh32WpGx+62i+nsng5YkqPRc8G/xgNnSiNVpMiC7yg4l3Cyh7DN
+	 UQ+VQmrfIJsvQ==
+Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-3392b045e0aso1322796f8f.2;
+        Sat, 10 Feb 2024 15:36:33 -0800 (PST)
+X-Gm-Message-State: AOJu0YwPRaM8OrHd0NFs5WFUmhUwxfpT54x2p083qacR14RdRT+IcXyv
+	RJY1ai0UTrSXPvp7tclfdPUcsPVxovXwDih/8Q9FhFH0IZ/TcBNXFcUEQ7xwlE9gysDiVdZDcu1
+	tqdR5z5I9YxXGPBaS57FpaJY5y3g=
+X-Google-Smtp-Source: AGHT+IHoPMgBc81DnEPnPXoeHzmCqVcP4g7071LwOfBl3+AxfjKX8A2egkFqcIRNQszoXkfIPToNa/RR1WwBksr57rI=
+X-Received: by 2002:a19:e048:0:b0:511:68d4:1e39 with SMTP id
+ g8-20020a19e048000000b0051168d41e39mr2050802lfj.0.1707608171430; Sat, 10 Feb
+ 2024 15:36:11 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="W0xuwF1M0d/5Cjtp"
-Content-Disposition: inline
-In-Reply-To: <20240210074601.5363-3-xtex@envs.net>
-X-Smtpcorp-Track: 1rYIrP9EuoK90e.xznP1gL1Esa78
-Feedback-ID: 1174286m:1174286a9YXZ7r:1174286sDwEn1GXPS
-X-Report-Abuse: Please forward a copy of this message, including all headers,
- to <abuse-report@smtp2go.com>
-
-
---W0xuwF1M0d/5Cjtp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20240210074601.5363-1-xtex@envs.net> <20240210074601.5363-2-xtex@envs.net>
+ <ZcdP7CC+OMbp5ZMi@shell.armlinux.org.uk> <ZcfoZKJHkdEh5JmV@fjasle.eu>
+In-Reply-To: <ZcfoZKJHkdEh5JmV@fjasle.eu>
+From: Masahiro Yamada <masahiroy@kernel.org>
+Date: Sun, 11 Feb 2024 08:35:35 +0900
+X-Gmail-Original-Message-ID: <CAK7LNAQPm7PXoKM+id25wX9AtVmmXvE7i8GrGB9etU__EMUwdg@mail.gmail.com>
+Message-ID: <CAK7LNAQPm7PXoKM+id25wX9AtVmmXvE7i8GrGB9etU__EMUwdg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] kbuild: Abort make on install failures
+To: Nicolas Schier <nicolas@fjasle.eu>
+Cc: "Russell King (Oracle)" <linux@armlinux.org.uk>, Zhang Bingwu <xtex@envs.net>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, Dinh Nguyen <dinguyen@kernel.org>, 
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, 
+	Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
+	Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
+	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, 
+	Zhang Bingwu <xtexchooser@duck.com>, Nathan Chancellor <nathan@kernel.org>, x86@kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	linux-m68k@lists.linux-m68k.org, linux-parisc@vger.kernel.org, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	sparclinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Feb 10, 2024 at 03:46:01PM +0800 Zhang Bingwu wrote:
-> From: Zhang Bingwu <xtexchooser@duck.com>
->=20
-> If INSTALL_PATH is not a valid directory, create it, like what
-> modules_install and dtbs_install will do in the same situation.
->=20
-> Signed-off-by: Zhang Bingwu <xtexchooser@duck.com>
-> ---
->  scripts/install.sh | 4 ++++
->  1 file changed, 4 insertions(+)
->=20
-> diff --git a/scripts/install.sh b/scripts/install.sh
-> index 9bb0fb44f04a..02b845e7ab33 100755
-> --- a/scripts/install.sh
-> +++ b/scripts/install.sh
-> @@ -20,6 +20,10 @@ do
->  	fi
->  done
-> =20
-> +if [ "${INSTALL_PATH}" !=3D "" ] && ! [ -e "${INSTALL_PATH}" ]; then
-> +	mkdir -p "${INSTALL_PATH}"
-> +fi
-> +
->  # User/arch may have a custom install script
->  for file in "${HOME}/bin/${INSTALLKERNEL}"		\
->  	    "/sbin/${INSTALLKERNEL}"			\
-> --=20
-> 2.43.0
->=20
+On Sun, Feb 11, 2024 at 6:21=E2=80=AFAM Nicolas Schier <nicolas@fjasle.eu> =
+wrote:
+>
+> On Sat, Feb 10, 2024 at 10:29:00AM +0000 Russell King (Oracle) wrote:
+> > On Sat, Feb 10, 2024 at 03:46:00PM +0800, Zhang Bingwu wrote:
+> > > From: Zhang Bingwu <xtexchooser@duck.com>
+> > >
+> > > Setting '-e' flag tells shells to exit with error exit code immediate=
+ly
+> > > after any of commands fails, and causes make(1) to regard recipes as
+> > > failed.
+> > >
+> > > Before this, make will still continue to succeed even after the
+> > > installation failed, for example, for insufficient permission or
+> > > directory does not exist.
+> > >
+> > > Signed-off-by: Zhang Bingwu <xtexchooser@duck.com>
+> > > ---
+>
+> Thanks for fixing!
+>
+> [...]
+> > > diff --git a/arch/arm/boot/install.sh b/arch/arm/boot/install.sh
+> > > index 9ec11fac7d8d..34e2c6e31fd1 100755
+> > > --- a/arch/arm/boot/install.sh
+> > > +++ b/arch/arm/boot/install.sh
+> > > @@ -17,6 +17,8 @@
+> > >  #   $3 - kernel map file
+> > >  #   $4 - default install path (blank if root directory)
+> > >
+> > > +set -e
+> > > +
+> >
+> > What about #!/bin/sh -e on the first line, which is the more normal way
+> > to do this for an entire script?
+>
+> are you sure?  I can find many more occurrences of 'set -e' than the
+> shebang version in the Linux tree, especially in the kbuild scripts, thus
+> it's bike-shedding, isn't it?
+>
+> Reviewed-by: Nicolas Schier <nicolas@fjasle.eu>
+>
+> Kind regards,
+> Nicolas
 
-Thanks.
 
-Reviewed-by: Nicolas Schier <nicolas@jasle.eu>
 
---W0xuwF1M0d/5Cjtp
-Content-Type: application/pgp-signature; name="signature.asc"
 
------BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEh0E3p4c3JKeBvsLGB1IKcBYmEmkFAmXH6fEACgkQB1IKcBYm
-EmkWwhAApeau8lv5luMtDVI0MRTjPUBISiudGax4Vj5+2kq+lpcurNBfDgb8g6vz
-d9eKFrAY4RpiyQA/tfByDJMkOdxjeozILABmF9E/mHAU1ddjG0tdN7dCcoiadZ1C
-nRQsrQ0hMPgl/ohv5Gq6uSBNs9iJ76I8VPAUSGVhSEUXPIlZoPMYgvaKWDrUEKoA
-6T6PTWoCQZ9rTRIRDzuiiXDVnEtF7Yc8qcdU/GhJTaxXuvO0NAZ2we1D7evgQriK
-pvlgl/Z3UEJuoqa7gLW0tP66I1aIoBW89cAmxOMPEbx7ILj2uz94ZmL6qxCh6Ift
-JIjvMM6y/6q6XnQf5a9amudS45/dT8F6+2wuPsWB5mUyUu4Jtj+nP6HgLTQsw3MO
-TblqqeWBw+OZFmoU/F6R2RLTkoS00OxKrNcVSQ4ztsHmbYJZC4uqx3qTdq296LDt
-gfm7Me4IHyqXCpR2TkCNL2L+Y4iABSspsgayVoJMMRdGphz55Aa7tRfpu+M3Su7P
-x21blad5Owsw9AgQwY3Eh7SUmh0ooNgFtC2w3hpwj41Whe1IcAQx8iyAaO5UG802
-fweAOlp41rdel9LwyfuPqG0nFwTf3+pYdqOCTOF68S3EFav85/UDo6Mg9Zgk11Je
-X9KRaCfNIMNh4RXVh5toNthTBAISAYeD8tHQypeyU4J9PunrzFc=
-=PO1M
------END PGP SIGNATURE-----
 
---W0xuwF1M0d/5Cjtp--
+When you put -e on the shebang line, like
+
+    #!/bin/sh -e
+
+the option -e is set when you do:
+
+    $ arch/arm/boot/install.sh
+
+
+But, -e is not set when you do:
+
+    $ sh arch/arm/boot/install.sh
+
+
+
+The reason is obvious because the latter case
+does not use the shebang line.
+
+
+
+
+In Kbuild, some places run the script directly like the former case,
+and others use CONFIG_SHELL like
+
+   $(CONFIG_SHELL) arch/arm/boot/install.sh
+
+
+The inconsistency is not nice, but that is a different issue.
+
+
+The separate 'set -e' statement works for both cases,
+so I think this is safer, though it is kind of bike-shedding.
+
+
+
+
+
+--=20
+Best Regards
+Masahiro Yamada
