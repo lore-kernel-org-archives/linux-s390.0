@@ -1,103 +1,205 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtpout.efficios.com (smtpout.efficios.com [167.114.26.122])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E29E3C680;
-	Mon, 12 Feb 2024 15:19:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41A0C154B1;
+	Mon, 12 Feb 2024 16:31:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=167.114.26.122
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707751198; cv=none; b=pBadYDq6N578ul6u6U/DmuMAEvAAZqM+E4of0fsDR3Z5pOIT38aC9MejaovsnOTrFsrIagiSVhdVyZb1nuebNYCl8ECM0OT94R0TleNu46sRp+945wVRktA/Mt5JM2lh5AcKJDAr0eHmkKF3lWGU6/+Cs3tl1kSX0NWp6Sp5ghU=
+	t=1707755466; cv=none; b=j0dn3zGkrV1f6ESTsGJDmVLslimbfF57UAEVDXDjM76b0f16PiutqjOkEpffuvoFo9klpaitTX4vGdSRUhwI5iTRy3MtXvDTMX2jvKbmXQa+OE2e0iMGTeCrR15JN+hMw9e6ZfvUmaqDulQHo7AlotiYeXRj75CTFwBFjbveB+4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707751198; c=relaxed/simple;
-	bh=ZeRAJLXnOrarwVuFVCgiWBb2EBcg6ZUwSd2FOEzYv8Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RkFZb8AwkIY9WRtd7QFm/l7u0Zb/9teIMceZG8OuMnxbuGc/gjtZ6Otzj1F8b7FU/v6PwMlqYvnzaYUYkChcASDK3iiLWFozo91/EYm57wJ4OTraAToKpSZ9dZNk80kwU6+2yZFibkGvQpcetmrbx3FxLHjzlEWgXKQ+D3VXN4o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BSh4cTTp; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1707755466; c=relaxed/simple;
+	bh=78QteBENnmm+/z8tDMucsXOLPT3JPBJzzEePzC51z6Q=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=WuH2zkw5t/gg/G3ZHkfutYEYcoOpeK3u2E84r3eQloW4FCdsPPgBcp3Rwdca/pH1J5Op4JXFe5nsw7dUIJrp2J3Cv6nB4Se5ekPpUThDxoscZ/dCQCyZHn+XQh2MHOb3QGw0Asj2ZV0ci2dhZwXEIy/j8856ed86RjXMVUI2kac=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=efficios.com; spf=pass smtp.mailfrom=efficios.com; dkim=pass (2048-bit key) header.d=efficios.com header.i=@efficios.com header.b=kPjffymB; arc=none smtp.client-ip=167.114.26.122
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=efficios.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=efficios.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BSh4cTTp"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41CF8aFg016651;
-	Mon, 12 Feb 2024 15:19:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=aT/kgplriDWlq76xWaEayWNC60N8uxsgPfrSfFD9TOE=;
- b=BSh4cTTphZKGDakyiQlXK5WzTwQNJUTFUi8D+qT0dtJdeBLcBRa+sQyaiMAqKc5Gv6Co
- ZhrSJbb/v89wd9WXi5cjv2u/EmlLc2w+ABPKpKCYCeCmfe8aoUBkwcE1+p3thwM+gf+6
- TN/ewLbBcF2SV3FbDU9tR239vDjDsY8YUoQ/rs5khBPUmo3h5GjnYc6cWig+LysNnjEX
- nvVM3I+jI/iH/xp/VLs8iDp/7pKi9GCTa4kHgsuz+CQWo/xArR1ZUZ4PgMjLWr+mKOi+
- OssEJLvbO5Kn6DpF2SxSpEtYKjA99y5IsguIGDax/KP6hXfriybroVSIri1AZqgEv1YN Ag== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w7nq6gess-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 12 Feb 2024 15:19:53 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41CF9Axs017776;
-	Mon, 12 Feb 2024 15:19:53 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w7nq6gesj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 12 Feb 2024 15:19:53 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41CCj1W7004254;
-	Mon, 12 Feb 2024 15:19:52 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3w6kv01fx5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 12 Feb 2024 15:19:52 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41CFJlpO2359922
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 12 Feb 2024 15:19:49 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 601822004B;
-	Mon, 12 Feb 2024 15:19:47 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A912920043;
-	Mon, 12 Feb 2024 15:19:46 +0000 (GMT)
-Received: from osiris (unknown [9.171.5.16])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 12 Feb 2024 15:19:46 +0000 (GMT)
-Date: Mon, 12 Feb 2024 16:19:45 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Nathan Chancellor <nathan@kernel.org>, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        maskray@google.com, ndesaulniers@google.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        llvm@lists.linux.dev, patches@lists.linux.dev
-Subject: Re: [PATCH 04/11] s390: vmlinux.lds.S: Discard unnecessary sections
-Message-ID: <20240212151945.65142-B-hca@linux.ibm.com>
-References: <20240207-s390-lld-and-orphan-warn-v1-0-8a665b3346ab@kernel.org>
- <20240207-s390-lld-and-orphan-warn-v1-4-8a665b3346ab@kernel.org>
- <20240212135511.65142-A-hca@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=efficios.com header.i=@efficios.com header.b="kPjffymB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=efficios.com;
+	s=smtpout1; t=1707755463;
+	bh=78QteBENnmm+/z8tDMucsXOLPT3JPBJzzEePzC51z6Q=;
+	h=From:To:Cc:Subject:Date:From;
+	b=kPjffymBumPkN0jHfJ2pZQug2BmE+XLTR9XjyVcfnVzogFypi6zhaAiyosDHIPxFE
+	 JtdmC04KVmlUIjGPUg/TMFlN+1JWIX4TnzakWJgfTaOlvpEFjZ/o0nYC0hafDX3JMK
+	 /e3DhKEcRfYNbxXp8CPJEZ/M5sPooLb5moklGrAnvP8IWpokPCKFyc8zjp7FxYrWE1
+	 wSH5eHsEzvmfCPBeq7/N3Mu59DFGY75AN2FFiLyuyZFBVuvwIUT2h/MrhTK79avcWs
+	 14eLRExiDdQeypMzYN0sOQRKr8Cu165spyZ/nu/Crxp1TuYIhzbuJfnN98Sb8kTcW1
+	 RWgiOarAoDw5w==
+Received: from thinkos.internal.efficios.com (192-222-143-198.qc.cable.ebox.net [192.222.143.198])
+	by smtpout.efficios.com (Postfix) with ESMTPSA id 4TYVMC0NW7zXvP;
+	Mon, 12 Feb 2024 11:31:03 -0500 (EST)
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To: Dan Williams <dan.j.williams@intel.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Dave Chinner <david@fromorbit.com>
+Cc: linux-kernel@vger.kernel.org,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	Vishal Verma <vishal.l.verma@intel.com>,
+	Dave Jiang <dave.jiang@intel.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Russell King <linux@armlinux.org.uk>,
+	linux-arch@vger.kernel.org,
+	linux-cxl@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-xfs@vger.kernel.org,
+	dm-devel@lists.linux.dev,
+	nvdimm@lists.linux.dev,
+	linux-s390@vger.kernel.org
+Subject: [PATCH v5 0/8] Introduce cpu_dcache_is_aliasing() to fix DAX regression
+Date: Mon, 12 Feb 2024 11:30:53 -0500
+Message-Id: <20240212163101.19614-1-mathieu.desnoyers@efficios.com>
+X-Mailer: git-send-email 2.39.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240212135511.65142-A-hca@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: GAVJlrA3BjnldXFXjHWd-HD91RbMQErb
-X-Proofpoint-GUID: RmgLZx_myTMtF7GpfGrgK_hJ9uwp-I14
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-12_12,2024-02-12_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- spamscore=0 suspectscore=0 mlxscore=0 clxscore=1015 phishscore=0
- lowpriorityscore=0 adultscore=0 impostorscore=0 malwarescore=0
- mlxlogscore=416 bulkscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2311290000 definitions=main-2402120115
+Content-Transfer-Encoding: 8bit
 
-On Mon, Feb 12, 2024 at 02:55:11PM +0100, Heiko Carstens wrote:
-> Explicitly keep those sections like other architectures when
-> CONFIG_RELOCATABLE is enabled, which is always true for s390.
-...
-> +	.dynstr ALIGN(8) : {
-> +		*(.dynstr)
-> +	}
+This commit introduced in v4.0 prevents building FS_DAX on 32-bit ARM,
+even on ARMv7 which does not have virtually aliased data caches:
 
-Except for this, which is already present (copy-paste-error).
+commit d92576f1167c ("dax: does not work correctly with virtual aliasing caches")
+
+It used to work fine before: I have customers using DAX over pmem on
+ARMv7, but this regression will likely prevent them from upgrading their
+kernel.
+
+The root of the issue here is the fact that DAX was never designed to
+handle virtually aliasing data caches (VIVT and VIPT with aliasing data
+cache). It touches the pages through their linear mapping, which is not
+consistent with the userspace mappings with virtually aliasing data
+caches.
+
+This patch series introduces cpu_dcache_is_aliasing() with the new
+Kconfig option ARCH_HAS_CPU_CACHE_ALIASING and implements it for all
+architectures. The implementation of cpu_dcache_is_aliasing() is either
+evaluated to a constant at compile-time or a runtime check, which is
+what is needed on ARM.
+
+With this we can basically narrow down the list of architectures which
+are unsupported by DAX to those which are really affected.
+
+Testing done so far:
+
+- Compile allyesconfig on x86-64,
+- Compile allyesconfig on x86-64, with FS_DAX=n.
+- Compile allyesconfig on x86-64, with DAX=n.
+- Boot test after modifying alloc_dax() to force returning -EOPNOTSUPP
+  even on x86-64, thus simulating the behavior expected on an
+  architecture with data cache aliasing.
+
+There are many more axes to test however. I would welcome Tested-by for:
+
+- affected architectures,
+- affected drivers,
+- affected filesytems.
+
+[ Based on commit "nvdimm/pmem: Fix leak on dax_add_host() failure". ]
+
+Thanks,
+
+Mathieu
+
+Changes since v4:
+- Move the change which makes alloc_dax() return ERR_PTR(-EOPNOTSUPP)
+  when CONFIG_DAX=n earlier in the series,
+- Fold driver cleanup patches into their respective per-driver changes.
+- Move "nvdimm/pmem: Fix leak on dax_add_host() failure" outside of this
+  series.
+
+Changes since v3:
+- Fix a leak on dax_add_host() failure in nvdimm/pmem.
+- Split the series into a bissectable sequence of changes.
+- Ensure that device-dax use-cases still works on data cache
+  aliasing architectures.
+
+Changes since v2:
+- Move DAX supported runtime check to alloc_dax(),
+- Modify DM to handle alloc_dax() error as non-fatal,
+- Remove all filesystem modifications, since the check is now done by
+  alloc_dax(),
+- rename "dcache" and "cache" to "cpu dcache" and "cpu cache" to
+  eliminate confusion with VFS terminology.
+
+Changes since v1:
+- The order of the series was completely changed based on the
+  feedback received on v1,
+- cache_is_aliasing() is renamed to dcache_is_aliasing(),
+- ARCH_HAS_CACHE_ALIASING_DYNAMIC is gone,
+- dcache_is_aliasing() vs ARCH_HAS_CACHE_ALIASING relationship is
+  simplified,
+- the dax_is_supported() check was moved to its rightful place in all
+  filesystems.
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: linux-arch@vger.kernel.org
+Cc: linux-cxl@vger.kernel.org
+Cc: linux-fsdevel@vger.kernel.org
+Cc: linux-mm@kvack.org
+Cc: linux-xfs@vger.kernel.org
+Cc: dm-devel@lists.linux.dev
+Cc: nvdimm@lists.linux.dev
+Cc: linux-s390@vger.kernel.org
+
+Mathieu Desnoyers (8):
+  dax: alloc_dax() return ERR_PTR(-EOPNOTSUPP) for CONFIG_DAX=n
+  nvdimm/pmem: Treat alloc_dax() -EOPNOTSUPP failure as non-fatal
+  dm: Treat alloc_dax() -EOPNOTSUPP failure as non-fatal
+  dcssblk: Handle alloc_dax() -EOPNOTSUPP failure
+  virtio: Treat alloc_dax() -EOPNOTSUPP failure as non-fatal
+  dax: Check for data cache aliasing at runtime
+  Introduce cpu_dcache_is_aliasing() across all architectures
+  dax: Fix incorrect list of data cache aliasing architectures
+
+ arch/arc/Kconfig                    |  1 +
+ arch/arc/include/asm/cachetype.h    |  9 +++++++++
+ arch/arm/Kconfig                    |  1 +
+ arch/arm/include/asm/cachetype.h    |  2 ++
+ arch/csky/Kconfig                   |  1 +
+ arch/csky/include/asm/cachetype.h   |  9 +++++++++
+ arch/m68k/Kconfig                   |  1 +
+ arch/m68k/include/asm/cachetype.h   |  9 +++++++++
+ arch/mips/Kconfig                   |  1 +
+ arch/mips/include/asm/cachetype.h   |  9 +++++++++
+ arch/nios2/Kconfig                  |  1 +
+ arch/nios2/include/asm/cachetype.h  | 10 ++++++++++
+ arch/parisc/Kconfig                 |  1 +
+ arch/parisc/include/asm/cachetype.h |  9 +++++++++
+ arch/sh/Kconfig                     |  1 +
+ arch/sh/include/asm/cachetype.h     |  9 +++++++++
+ arch/sparc/Kconfig                  |  1 +
+ arch/sparc/include/asm/cachetype.h  | 14 ++++++++++++++
+ arch/xtensa/Kconfig                 |  1 +
+ arch/xtensa/include/asm/cachetype.h | 10 ++++++++++
+ drivers/dax/super.c                 | 14 ++++++++++++++
+ drivers/md/dm.c                     | 17 +++++++++--------
+ drivers/nvdimm/pmem.c               | 22 ++++++++++++----------
+ drivers/s390/block/dcssblk.c        | 11 ++++++-----
+ fs/Kconfig                          |  1 -
+ fs/fuse/virtio_fs.c                 | 15 +++++++++++----
+ include/linux/cacheinfo.h           |  6 ++++++
+ include/linux/dax.h                 |  6 +-----
+ mm/Kconfig                          |  6 ++++++
+ 29 files changed, 165 insertions(+), 33 deletions(-)
+ create mode 100644 arch/arc/include/asm/cachetype.h
+ create mode 100644 arch/csky/include/asm/cachetype.h
+ create mode 100644 arch/m68k/include/asm/cachetype.h
+ create mode 100644 arch/mips/include/asm/cachetype.h
+ create mode 100644 arch/nios2/include/asm/cachetype.h
+ create mode 100644 arch/parisc/include/asm/cachetype.h
+ create mode 100644 arch/sh/include/asm/cachetype.h
+ create mode 100644 arch/sparc/include/asm/cachetype.h
+ create mode 100644 arch/xtensa/include/asm/cachetype.h
+
+-- 
+2.39.2
