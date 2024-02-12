@@ -1,269 +1,154 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36CAA17BBE
-	for <linux-s390@vger.kernel.org>; Mon, 12 Feb 2024 10:11:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4D0B18021;
+	Mon, 12 Feb 2024 10:24:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707732713; cv=none; b=GzsSIx+QQkOOQrSsiUz1Ydj4v1Q2eo1HBbRKjO+iWK11/xRPydMkLxn7ps3N/PDQ0Cc8/QGsxHJ6GUCkjn8kl6ZTpAMJvn6+554tbFlVbT7MgG16X7Jkc3E9fcnwLwaP5Lr3Q5SpEIdcxcgXMZ0yriuw2yHSDOt62P/DiFY8A50=
+	t=1707733498; cv=none; b=orIZu7m1MXhRxkXowefvFwzktv93BUvae04wmBVCf5g6oVSqjqXHfYDb1rxDIZ5U0gBGVqXnvqaKCI/zhAyfL2gXJBMvYtxKBbXrhArxs3mXkC/A0zCvDWmtVp/CqIeSO4mW8N8wEwlXj4Fsa/FCH8aBDJmrGKFfmE7d8Q8kZhU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707732713; c=relaxed/simple;
-	bh=EsDLRCNgBBkHpMvWo3dkQLR5TLheexE1oSgsf7G0GBQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=AorWMmlY/EehMrJlVhawpdcOe8e3WWlfMZZ/sLbG3xu/6Wk45+V0Cqn28hTJ8R7ZbZRoXEGb9xk5mGHhE/WdpZVptBe/SnVvUkJwrsVe/cXwXfcO9Bk4ow76Az6or1yRvpD4wdOa8n9CsGvcfqM2mQgWksct/aWAz6RNK46SlM8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cn+lP0go; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1707733498; c=relaxed/simple;
+	bh=KekI+KwhbIHhubJOTo0Ildr87NIL/dhgK0T8Lz4W8xI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SlR7Ga3brSrG4YBwM3MIPCoruQc4a1HlFJYbXGV+6+fBCmNur5pzg/1s7naV58ITC8FjHRWtZB0CIONcelk5wNLqL9IQxgFhArV0V5nkwgJuhmCtRuuqMs+U4HcQRN1wJyDLfterT+7sfBvZqY7Bm0aJRsCbyaAUBauFIyYtQag=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cc7Fe6py; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cn+lP0go"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1707732710;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=+2pRSCdMqyAZN8/VuuYCHaUNoBN7lwTPUXnd9XEGQ+w=;
-	b=cn+lP0goCPBVtsDhdpAR8yvB98CoHTvJlcValHa3p0dZl0mRvkUqZB7mbvsAOcvg9bW4r3
-	9YHTN1CCBjoUnY9IRLi7cARWyKJy9pJtDbBuuPcV8HIuHmhIuRifFA0o6Q3CdxVuNLSJoV
-	inKSjpx8JMC1kRTXf3cTa0ICgNkFMWM=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-456-MiAyOXBxNVa4jVl9IeDKcg-1; Mon, 12 Feb 2024 05:11:48 -0500
-X-MC-Unique: MiAyOXBxNVa4jVl9IeDKcg-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4106fd0827aso12924395e9.2
-        for <linux-s390@vger.kernel.org>; Mon, 12 Feb 2024 02:11:48 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707732707; x=1708337507;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :references:cc:to:content-language:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+2pRSCdMqyAZN8/VuuYCHaUNoBN7lwTPUXnd9XEGQ+w=;
-        b=n/jYzjwQ+UMHLdRo8pVIVDTtqYGY13z8UliA3JBErbv4FLnli+PWCpvDKARvmazUBp
-         lNU6QWvuSLIfGKmhY2diNgywRXeWKZlccrl5I7NiEh29YQAwf6dcJXpWKJDHGjOHDgUN
-         KfACYIPRywvlUWn0wduPEkaJz3qUroxg4bMKYwqiUUB6VhU7c8kIyMJjDocDPZQVRqzH
-         REcI/328kQffhoaFAonsM4HgNfcyFOSbXUpPXbg9+BjNCVIo7muVE9nD6WcBJTfyreCP
-         CP+D1CYkHf/LTcDYNvDImo4YBTc1pLE8DGuOhEtZ41mvt88ciWuasQYqYpjZim0eU4ks
-         3qtg==
-X-Gm-Message-State: AOJu0Yx4puLB3j+25LY3ibzCN+cqqkGl/y53/FLkIlU7ErZUWZSe8UUx
-	v4I3u8tViH6taIcxJouiT1PiFWA13URv33lChEsG8XcSp8chFqfrxi9+tZBw3OlJwcFOqVZ7ed4
-	h0XLmdgRzvtKkKs1M95DttGj0qiV3MEcZzJD+ZM19h7sukHJvzWmOSyUDsXk=
-X-Received: by 2002:a05:600c:600e:b0:410:be25:12bf with SMTP id az14-20020a05600c600e00b00410be2512bfmr2510592wmb.38.1707732707076;
-        Mon, 12 Feb 2024 02:11:47 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IH+hlQMe30T62KMwr+luZOaXUQu5EKvOVB62I9SuHj1bCg0U6QR5ufA6j/zcrcMvqTl++iPog==
-X-Received: by 2002:a05:600c:600e:b0:410:be25:12bf with SMTP id az14-20020a05600c600e00b00410be2512bfmr2510563wmb.38.1707732706666;
-        Mon, 12 Feb 2024 02:11:46 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCVwkAeAYQR7Gfoxupr5qBG9m0EFbv7DDI7aCfZtMNyIROIXA/SOrjkaJ59sr8xsqiaVCkCmlEIRjxy3J0wXfxX4p/V/LReolwctKJtaf6B3xBn7OrP0bc+txI9JVmFNAWwZNO6OMGWo3IXumCONO6uNSMmNTfbFmAY4pOA1lJgpDYGCD7L+3n273ujqqyssnrkBYDPGUmeZCNVHvSm6nOQmhOiwdAGGkbh9s4spMdJMjZUHweVEwDvqzZu+WY2iXCqg6PvKFOcrzgEd0inHm2VWhnlxmT+IxhcswK98pkwM1pdbqKpMZ8Ajk1JT4NE78LQt/mXy49lkqHahYzz6hjzT+dfzIx4V3DXSeAokKyb1gnl/iSmZRlqLUCcOgsmg3+wwBBOuVupln+MiH6egoWuOb0D3bdc75Mj8jQ3mkZXn+noa+I0RKgGk58qf9AmfYfgmoUeVxAHFDz6H2fGJSuPdxMMemhULInkfywbgcL4XDyX9Z53mEt7zOhan4AtbDYaknEn4fCZ/1MCYlw3aWeqpmwzPFZmOAeLuSio1iOcsGub9eXKx0M2nKuxJ4n1jPEP1oNBvLg89cxTfdtPQA43Yj+xKlc5QfNDyXl6bRRX286HkHyWSz/FRQYbEwdh7nAxD+scmPiWtw4qBIOUM0qZ0NG8OHtJi963eUHH1Om8YBT7l+DoZEuPwB1JBihSLrOPpnPqsDQCQDEYMqPRaoFdAtOdGG27xai7PTo0pl2W0EdZROwY=
-Received: from ?IPV6:2003:cb:c730:2200:7229:83b1:524e:283a? (p200300cbc7302200722983b1524e283a.dip0.t-ipconnect.de. [2003:cb:c730:2200:7229:83b1:524e:283a])
-        by smtp.gmail.com with ESMTPSA id bd27-20020a05600c1f1b00b00410d3b8c4c1sm2565365wmb.31.2024.02.12.02.11.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 12 Feb 2024 02:11:46 -0800 (PST)
-Message-ID: <6c66f7ca-4b14-4bbb-bf06-e81b3481b03f@redhat.com>
-Date: Mon, 12 Feb 2024 11:11:44 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cc7Fe6py"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41CAI6Q5030654;
+	Mon, 12 Feb 2024 10:24:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=mfAlYz+L0iM5MqMdUyMXXYV8OjQg9weeyOJA047XLUY=;
+ b=cc7Fe6pyZk0BSUq9fQdOX4AO5/vKfewgNY9QHZrbWH6rwKk0/Nvbo/a4U+DEKx3U+QWK
+ vCffN1YgDR75Axty+31p4F5Y6wjZ18SrpRe/tGOmoOhKi3JvGb4UOggQTaC58bFzG3vf
+ jvB4Le57SkPUdViooxyXXG8R86DPtrAV9tTqGzLwk4kjxS+sFR9txGLLfUaXNqZNhuIY
+ Y7qJQuvkmRl45xfSzjY7HiX/ULuKa9UUkvlZJZ9dPOPQvO/GUfNnUobTObAcHVOL2aIK
+ 6qoC0+aFD8DsE2rO2rug45RjTBdY3B7+g3mszAv6XXd76/hfqRhytppTEQdfWJaD+KB0 ig== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w7het03a9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 12 Feb 2024 10:24:46 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41CAIHMe031774;
+	Mon, 12 Feb 2024 10:24:45 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w7het02gs-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 12 Feb 2024 10:24:43 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41C8OgWZ010060;
+	Mon, 12 Feb 2024 10:21:37 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w6npkfkb4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 12 Feb 2024 10:21:37 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41CALWVY4915754
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 12 Feb 2024 10:21:34 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2DD9E2004F;
+	Mon, 12 Feb 2024 10:21:32 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8B1B62004B;
+	Mon, 12 Feb 2024 10:21:31 +0000 (GMT)
+Received: from osiris (unknown [9.171.5.16])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 12 Feb 2024 10:21:31 +0000 (GMT)
+Date: Mon, 12 Feb 2024 11:21:30 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Eric Farman <farman@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH v1 1/2] KVM: s390: load guest access registers in MEM_OP
+ ioctl
+Message-ID: <20240212102130.9156-A-hca@linux.ibm.com>
+References: <20240209204539.4150550-1-farman@linux.ibm.com>
+ <20240209204539.4150550-2-farman@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 09/10] mm/mmu_gather: improve cond_resched() handling
- with large folios and expensive page freeing
-Content-Language: en-US
-To: Ryan Roberts <ryan.roberts@arm.com>, linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
- Matthew Wilcox <willy@infradead.org>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Yin Fengwei <fengwei.yin@intel.com>, Michal Hocko <mhocko@suse.com>,
- Will Deacon <will@kernel.org>, "Aneesh Kumar K.V"
- <aneesh.kumar@linux.ibm.com>, Nick Piggin <npiggin@gmail.com>,
- Peter Zijlstra <peterz@infradead.org>, Michael Ellerman
- <mpe@ellerman.id.au>, Christophe Leroy <christophe.leroy@csgroup.eu>,
- "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
- linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org
-References: <20240209221509.585251-1-david@redhat.com>
- <20240209221509.585251-10-david@redhat.com>
- <f1578e92-4de0-4718-bf79-ec29e9a19fe0@arm.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <f1578e92-4de0-4718-bf79-ec29e9a19fe0@arm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240209204539.4150550-2-farman@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: RrKGKrwwk1y3haKGz8HgLtikp3uM8SIe
+X-Proofpoint-GUID: _d_wXRZHueDcCZqlAjpqAzJmBf5oqR2j
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-12_07,2024-02-12_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ adultscore=0 malwarescore=0 clxscore=1011 lowpriorityscore=0 spamscore=0
+ suspectscore=0 phishscore=0 priorityscore=1501 mlxlogscore=901
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402120078
 
-Hi Ryan,
-
->> -static void tlb_batch_pages_flush(struct mmu_gather *tlb)
->> +static void __tlb_batch_free_encoded_pages(struct mmu_gather_batch *batch)
->>   {
->> -	struct mmu_gather_batch *batch;
->> -
->> -	for (batch = &tlb->local; batch && batch->nr; batch = batch->next) {
->> -		struct encoded_page **pages = batch->encoded_pages;
->> +	struct encoded_page **pages = batch->encoded_pages;
->> +	unsigned int nr, nr_pages;
->>   
->> +	/*
->> +	 * We might end up freeing a lot of pages. Reschedule on a regular
->> +	 * basis to avoid soft lockups in configurations without full
->> +	 * preemption enabled. The magic number of 512 folios seems to work.
->> +	 */
->> +	if (!page_poisoning_enabled_static() && !want_init_on_free()) {
+On Fri, Feb 09, 2024 at 09:45:38PM +0100, Eric Farman wrote:
+> The routine ar_translation() is called by get_vcpu_asce(), which is
+> called by both the instruction intercept path (where the access
+> registers had been loaded with the guest's values), and the MEM_OP
+> ioctl (which hadn't). This means that any ALET the guest expects to
+> be used would be ignored.
 > 
-> Is the performance win really worth 2 separate implementations keyed off this?
-> It seems a bit fragile, in case any other operations get added to free which are
-> proportional to size in future. Why not just always do the conservative version?
-
-I really don't want to iterate over all entries on the "sane" common 
-case. We already do that two times:
-
-a) free_pages_and_swap_cache()
-
-b) release_pages()
-
-Only the latter really is required, and I'm planning on removing the one 
-in (a) to move it into (b) as well.
-
-So I keep it separate to keep any unnecessary overhead to the setups 
-that are already terribly slow.
-
-No need to iterate a page full of entries if it can be easily avoided. 
-Especially, no need to degrade the common order-0 case.
-
+> Furthermore, the logic in ar_translation() will store the contents
+> of the access registers back to the KVM_RUN struct. This unexpected
+> change of AR values can lead to problems after invoking the MEM_OP,
+> for example an ALET Specification Exception.
 > 
->>   		while (batch->nr) {
->> -			/*
->> -			 * limit free batch count when PAGE_SIZE > 4K
->> -			 */
->> -			unsigned int nr = min(512U, batch->nr);
->> +			nr = min(512, batch->nr);
+> Fix this by swapping the host/guest access registers around the
+> MEM_OP ioctl, in the same way that the KVM_RUN ioctl does with
+> sync_regs()/store_regs(). The full register swap isn't needed here,
+> since only the access registers are used in this interface.
 > 
-> If any entries are for more than 1 page, nr_pages will also be encoded in the
-> batch, so effectively this could be limiting to 256 actual folios (half of 512).
-
-Right, in the patch description I state "256 folio fragments". It's up 
-to 512 folios (order-0).
-
-> Is it worth checking for ENCODED_PAGE_BIT_NR_PAGES_NEXT and limiting accordingly?
-
-At least with 4k page size, we never have more than 510 (IIRC) entries 
-per batch page. So any such optimization would only matter for large 
-page sizes, which I don't think is worth it.
-
-Which exact optimization do you have in mind and would it really make a 
-difference?
-
+> Suggested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> ---
+>  arch/s390/kvm/kvm-s390.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
 > 
-> nit: You're using 512 magic number in 2 places now; perhaps make a macro?
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index ea63ac769889..c2dfeea55dcf 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -5391,6 +5391,10 @@ static long kvm_s390_vcpu_mem_op(struct kvm_vcpu *vcpu,
+>  			return -ENOMEM;
+>  	}
+>  
+> +	/* Swap host/guest access registers in the event of a MEM_OP with AR specified */
+> +	save_access_regs(vcpu->arch.host_acrs);
+> +	restore_access_regs(vcpu->run->s.regs.acrs);
+> +
+>  	acc_mode = mop->op == KVM_S390_MEMOP_LOGICAL_READ ? GACC_FETCH : GACC_STORE;
+>  	if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
+>  		r = check_gva_range(vcpu, mop->gaddr, mop->ar, mop->size,
+> @@ -5420,6 +5424,8 @@ static long kvm_s390_vcpu_mem_op(struct kvm_vcpu *vcpu,
+>  		kvm_s390_inject_prog_irq(vcpu, &vcpu->arch.pgm);
+>  
+>  out_free:
+> +	save_access_regs(vcpu->run->s.regs.acrs);
+> +	restore_access_regs(vcpu->arch.host_acrs);
 
-I played 3 times with macro names (including just using something 
-"intuitive" like MAX_ORDER_NR_PAGES) but returned to just using 512.
+I guess we will end up with more and more of such constructs until nobody
+knows when which register contents are loaded. I would higly prefer a TIF flag
+which indicates if the access registers contain the host or guest register
+contents, and actual users grab the required content from the correct location
+- or better: always take it from guest save area, and write to the guest save
+area if the to be invented TIF flag indicates that access registers contain
+guest registers...
 
-That cond_resched() handling is just absolutely disgusting, one way or 
-the other.
-
-Do you have a good idea for a macro name?
-
-> 
->>   
->>   			/*
->>   			 * Make sure we cover page + nr_pages, and don't leave
->> @@ -119,6 +120,37 @@ static void tlb_batch_pages_flush(struct mmu_gather *tlb)
->>   			cond_resched();
->>   		}
->>   	}
->> +
->> +	/*
->> +	 * With page poisoning and init_on_free, the time it takes to free
->> +	 * memory grows proportionally with the actual memory size. Therefore,
->> +	 * limit based on the actual memory size and not the number of involved
->> +	 * folios.
->> +	 */
->> +	while (batch->nr) {
->> +		for (nr = 0, nr_pages = 0;
->> +		     nr < batch->nr && nr_pages < 512; nr++) {
->> +			if (unlikely(encoded_page_flags(pages[nr]) &
->> +				     ENCODED_PAGE_BIT_NR_PAGES_NEXT))
->> +				nr_pages += encoded_nr_pages(pages[++nr]);
->> +			else
->> +				nr_pages++;
->> +		}
-> 
-> I guess worst case here is freeing (511 + 8192) * 64K pages = ~544M. That's up
-> from the old limit of 512 * 64K = 32M, and 511 pages bigger than your statement
-> in the commit log. Are you comfortable with this? I guess the only alternative
-> is to start splitting a batch which would be really messy. I agree your approach
-> is preferable if 544M is acceptable.
-
-Right, I have in the description:
-
-"if we cannot even free a single MAX_ORDER page on a system without 
-running into soft lockups, something else is already completely bogus.".
-
-That would be 8192 pages on arm64. Anybody freeing a PMD-mapped THP 
-would be in trouble already and should just reconsider life choices 
-running such a machine.
-
-We could have 511 more pages, yes. If 8192 don't trigger a soft-lockup, 
-I am confident that 511 more pages won't make a difference.
-
-But, if that ever is a problem, we can butcher this code as much as we 
-want, because performance with poisoning/zeroing is already down the drain.
-
-As you say, splitting even further is messy, so I rather avoid that 
-unless really required.
-
--- 
-Cheers,
-
-David / dhildenb
-
+Or maybe a TIF flag with different semantics: "guest save area does not
+reflect current state - which is within registers".
