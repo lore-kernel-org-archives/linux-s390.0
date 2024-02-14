@@ -1,125 +1,116 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25A90535DF;
-	Wed, 14 Feb 2024 13:43:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51BB060254;
+	Wed, 14 Feb 2024 16:32:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707918221; cv=none; b=e22ydHnswNX1zPKsmwF8A2RMIuHpMZ9dwP1d1/euK3nhXFLati39kUcd3FXG85jz4eIM8QWbHXLs9PLerpX9frP4kD1FRA9FN6ln7pwBNUCqBQJJN+0JYL+dZ527GYa5Cc/KrdfuFcdnw1d8wrQRn6dppKNBcGoZF/xYI6qL8wg=
+	t=1707928370; cv=none; b=l8UxkHCPaqa5Uau9h6SmEtWeawdKmLeSTk6Q/mZK1KpCLhLyjSJT6yK4DOu4P0Ez8pnGHwTSZECPp70vifHDkQsm87sC10gvv7ektAkOIeUTny0CHET5HcsZI68aRrYqfYeTQOAr3yszjMZQEoRNw0ibH9XMqCALeDzo2uhM7Qg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707918221; c=relaxed/simple;
-	bh=jWkxWAn2QwY1HKIGYXamG4b+Y2/BkSkavkG8tJphE8Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=CXQuHSx2Ql/k03ZLfavCtxmaQqGz2FiK04yDTo/ikGxDQ/ppHMV4IyQwlSpSC/RUkI2sTsuNo11l8NND80xkxPNUyzlWPbPEszJPI/VMuFdM5T73+e8kymOhGBDN54YkmmEuV0rxMwdFaKMnEdP0MFGSnEN7FE6vQudCnqAm2og=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cbQeKhef; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1707928370; c=relaxed/simple;
+	bh=03sJ2hDczb8lu598NQs1X/W4Y9/EjHIxR85MWTfK+Lw=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=pbLplNxghDh4kyiuYEHhaOZOLkk1tzqAmvM+CzNTOSdwKKebDEVkQs8sz3V7uIuE1Rg9bd3RE1zORc7aSasEmGgxo0mAOFPJl2AfCwCNAINvFQBY/1YarHJPLcNqDmDWpiUqnyWHpN6xL368bfYxcNsz31Z1ajkja/TXXpO6PkQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mOnBVfN/; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cbQeKhef"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41EDbMLK019282;
-	Wed, 14 Feb 2024 13:43:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=s0tK1YoNd0xkyc0b/gg/hjxmXmHJUfA0TyP0+P9d5z0=;
- b=cbQeKhef9ZAgG8zLtNhUy4gHkn3L60qJPKnHRTE1GcgRMg2BXbaslZ+3+rTAPY1KgkNq
- YvYvekytyWbXH8WETGoeCh9O5CZs3ZrxeEKil1PejNFf04vEYDs7jvx/OPNIkNEFz/gG
- 1CGN9fz/DnsfvIjpHUci1441/y7h+LX2xgNIDdrqjv+8gsjZPj9rC/loQj8z09qlotCN
- Cjugm1QPHmJsbsfrjjN1mwmnFiB7sOuT0agmrkIwtnUzDSiLS077ZGfWrMir1K9WrTVr
- cyOfjqMzJR5vdiy2PMvT7tH9uVVjOrIwuPZBczk8jzRqoehPRym6q/1+HJo9n4i60N1o Fw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w8xjb05bw-1
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mOnBVfN/"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41EGRJQv006641;
+	Wed, 14 Feb 2024 16:32:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=WKALQ+lDwn3emaVlHdtwZPAsOGX41pzOtb3nal5YbHw=;
+ b=mOnBVfN/M6FlaiowH1cEnmD2IShhFtEflD+UyjiLFT/VhzGzwfp0FUb+lljv45D8qLy9
+ guO8wARGgCFNUcTed07mgTwsoy2fpC5NbCjrFEi8GWLvDKWwBRMpyJl6qBWbZJp8xAh/
+ OHuLi+Sq0gJuqXjy2ubyZV/2D+Cgt57P+b6FTd8PEF7HrkM/xcpC3rPFBP4TcgzD6MJd
+ 155h7v7nN/vll1SuA9eHOhvxwZg2BmRHhv7kwvwbO+FohnKJLd7a/plcY1iG/P0g+5xA
+ QR0BhSVT2uNaafuAF2i2Spyds5clhFG8RaqGuIXwMUJI0P45en1f20Wndt7LRw1TEaY1 jQ== 
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w912385rk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 14 Feb 2024 13:43:36 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41EDbqMs020160;
-	Wed, 14 Feb 2024 13:43:36 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w8xjb05b5-1
+	Wed, 14 Feb 2024 16:32:47 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41EDtcN9016184;
+	Wed, 14 Feb 2024 16:32:46 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3w6mympwda-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 14 Feb 2024 13:43:36 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41ECJQhk032614;
-	Wed, 14 Feb 2024 13:43:35 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w6kftpdbe-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 14 Feb 2024 13:43:34 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41EDhUi759375994
+	Wed, 14 Feb 2024 16:32:46 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41EGWe0162914960
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 14 Feb 2024 13:43:32 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0BD4A20040;
-	Wed, 14 Feb 2024 13:43:30 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CF24220077;
-	Wed, 14 Feb 2024 13:43:29 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 14 Feb 2024 13:43:29 +0000 (GMT)
-Date: Wed, 14 Feb 2024 14:43:28 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Nathan Chancellor <nathan@kernel.org>
-Cc: gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, maskray@google.com, ndesaulniers@google.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        llvm@lists.linux.dev, patches@lists.linux.dev
-Subject: Re: [PATCH 00/11] s390: Support linking with ld.lld
-Message-ID: <20240214134328.6438-F-hca@linux.ibm.com>
-References: <20240207-s390-lld-and-orphan-warn-v1-0-8a665b3346ab@kernel.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240207-s390-lld-and-orphan-warn-v1-0-8a665b3346ab@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: oOfebv6eWff_gDkXmzDSQ8BBROJ-BwB1
-X-Proofpoint-ORIG-GUID: bJ9d1QWArnZ3dPo5kt745E2He42PEyF6
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	Wed, 14 Feb 2024 16:32:42 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 625072004B;
+	Wed, 14 Feb 2024 16:32:40 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 52B1E20043;
+	Wed, 14 Feb 2024 16:32:40 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 14 Feb 2024 16:32:40 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
+	id 145D6E1774; Wed, 14 Feb 2024 17:32:40 +0100 (CET)
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Alexandra Winter <wintera@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] net/iucv: fix the allocation size of iucv_path_table array
+Date: Wed, 14 Feb 2024 17:32:40 +0100
+Message-Id: <20240214163240.2537189-1-agordeev@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: aci-nP1IVeIgb66j2QNZ_uqq5RFYFdm8
+X-Proofpoint-ORIG-GUID: aci-nP1IVeIgb66j2QNZ_uqq5RFYFdm8
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-14_06,2024-02-14_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- mlxlogscore=757 impostorscore=0 mlxscore=0 bulkscore=0 lowpriorityscore=0
- phishscore=0 suspectscore=0 adultscore=0 malwarescore=0 spamscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402140106
+ definitions=2024-02-14_09,2024-02-14_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ priorityscore=1501 phishscore=0 suspectscore=0 bulkscore=0
+ lowpriorityscore=0 mlxscore=0 spamscore=0 adultscore=0 malwarescore=0
+ mlxlogscore=900 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2311290000 definitions=main-2402140129
 
-On Wed, Feb 07, 2024 at 05:14:52PM -0700, Nathan Chancellor wrote:
-> Hi all,
-> 
-> This series allows the s390 kernel to be linked with ld.lld (support for
-> s390 is under review at [1]). This implicitly depends on [2], which was
-> created and sent before it was realized that this series was necessary.
-...
-> Nathan Chancellor (11):
->       s390: boot: Add support for CONFIG_LD_ORPHAN_WARN
->       s390: vmlinux.lds.S: Handle '.data.rel' sections explicitly
->       s390: vmlinux.lds.S: Explicitly handle '.got' and '.plt' sections
->       s390: vmlinux.lds.S: Discard unnecessary sections
->       s390/boot: vmlinux.lds.S: Handle '.init.text'
->       s390/boot: vmlinux.lds.S: Handle '.rela' sections
->       s390/boot: vmlinux.lds.S: Handle DWARF debug sections
->       s390/boot: vmlinux.lds.S: Handle ELF required sections
->       s390/boot: vmlinux.lds.S: Handle commonly discarded sections
->       s390: Select CONFIG_ARCH_WANT_LD_ORPHAN_WARN
->       s390: Link vmlinux with '-z notext'
-> 
->  arch/s390/Kconfig              |  1 +
->  arch/s390/Makefile             |  2 +-
->  arch/s390/boot/Makefile        |  5 +++--
->  arch/s390/boot/vmlinux.lds.S   | 28 ++++++++++++++++++++++++++++
->  arch/s390/kernel/vmlinux.lds.S | 28 +++++++++++++++++++++++++++-
->  5 files changed, 60 insertions(+), 4 deletions(-)
+iucv_path_table is a dynamically allocated array of pointers to
+struct iucv_path items. Yet, its size is calculated as if it was
+an array of struct iucv_path items.
 
-Now available at:
-https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/log/?h=features
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+---
+ net/iucv/iucv.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-And should be in linux-next soon.
+diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
+index 9e62783e6acb..5b56ae6612dd 100644
+--- a/net/iucv/iucv.c
++++ b/net/iucv/iucv.c
+@@ -156,7 +156,7 @@ static char iucv_error_pathid[16] = "INVALID PATHID";
+ static LIST_HEAD(iucv_handler_list);
+ 
+ /*
+- * iucv_path_table: an array of iucv_path structures.
++ * iucv_path_table: array of pointers to iucv_path structures.
+  */
+ static struct iucv_path **iucv_path_table;
+ static unsigned long iucv_max_pathid;
+@@ -545,7 +545,7 @@ static int iucv_enable(void)
+ 
+ 	cpus_read_lock();
+ 	rc = -ENOMEM;
+-	alloc_size = iucv_max_pathid * sizeof(struct iucv_path);
++	alloc_size = iucv_max_pathid * sizeof(*iucv_path_table);
+ 	iucv_path_table = kzalloc(alloc_size, GFP_KERNEL);
+ 	if (!iucv_path_table)
+ 		goto out;
+-- 
+2.40.1
 
-Thanks a lot! :)
