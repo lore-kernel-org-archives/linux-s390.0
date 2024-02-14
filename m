@@ -1,108 +1,228 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2686127B5D;
-	Wed, 14 Feb 2024 19:57:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A411212838E
+	for <linux-s390@vger.kernel.org>; Wed, 14 Feb 2024 20:44:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707940666; cv=none; b=V9RTwYidUajzqQkEY/ElDYc4wEdcC25moPlpYpEgTO4mRcgDaegU0bewjWZJpk5GuHbNmR5/mza7FqK0ZPUmZa1B/6ssphnc8mrkX5NxzdPkOySI4hUdaXmaI+t0a/9Eo+Wk1vIYH8N21QaXyidv7tps7OHq8Az316Y2JGtdOXU=
+	t=1707943490; cv=none; b=oOStGfZPcmmlmN7GT3fbPM7jbNehZ4T8ibnaqsI13aZ+ab/q1QyGkdjG6vGQhQFMUSZHy3R+zqq6l6ju1FdeStffGPeYzCqlZfOL5V/BLSD+Jy13MMac0i9MT3K7JAVlYv5QqzrPs6sJXXPyjL2iaBpU22/sPeukgLQkwqEHtA0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707940666; c=relaxed/simple;
-	bh=2ZTZOAZ6r5nb9GcIJQVf/4h+mDGM0VJEAdW0eJhu87g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=IRhItdsif2PPk1jCbxlOGSLSA4hrJ1KFRyZSp+F37cBTpaNjIp61QVlrHkQ75lkI05WEyRtdQX84o6sIA8tNbdqfR00tGjGuNhWhJ/d600yKZlDlfC4lyrBkip0QaMcyHOmhnM8DgUGkCTj/+0wntXwjzZ0jODPCavBGafP2f94=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FxX8f/LD; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1707943490; c=relaxed/simple;
+	bh=BWiDBgwZgy2HPBX+L0L3QMYgtqOYwURfI2b0XfuCLno=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ALfMLVCe92u85KM2Fxh9VN5yBrRaYAuCHR5OVxvclIiPf51ADsSXadbL1wbZwSnby9P+mqBnJ41yVYL7k5X8J2ERvvnqWE8Z5Vh/msn/aTKYSoqZuNx+i0BfQuiM4jAbQ6gvYOFL5m1Nhx28+/LPHvc1vIoxabM8f2WcTWppQ9Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ia0MMhPB; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FxX8f/LD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEAA2C433F1;
-	Wed, 14 Feb 2024 19:57:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1707940665;
-	bh=2ZTZOAZ6r5nb9GcIJQVf/4h+mDGM0VJEAdW0eJhu87g=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=FxX8f/LD6QoHhkCzBrEJ9Wn/ZZYo462aDGZnIA1StRjxsYdJuZz7BcoK64zUhWsCe
-	 XKltXqUknpd+PgayVtVtX1h6dZgCbo5zlBkwR//O/XOSRl1Kn74hiwr87uY1DyUATf
-	 IzbdHaFdNE+m1dl9tWabnUMjgz1Eq7yT9qQIpdsx9Hrd2JFGfY8C+jyRrgxbC9Qnqe
-	 hdwuK5cqwnHkm6EJjkPGAikVekklrlRRc5tuOAJBrISugYyGSEYy/1sDDfgZOdMHzG
-	 UdttM6sOYpi4OxsRsC5mTgKowL1t6foyM40J+YZV1aLoUGfLvKu/eJMceolh59B9OY
-	 3kCTd3DK6asKw==
-Date: Wed, 14 Feb 2024 12:57:42 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-	svens@linux.ibm.com, maskray@google.com, ndesaulniers@google.com,
-	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-	llvm@lists.linux.dev, patches@lists.linux.dev
-Subject: Re: [PATCH 00/11] s390: Support linking with ld.lld
-Message-ID: <20240214195742.GB1179178@dev-arch.thelio-3990X>
-References: <20240207-s390-lld-and-orphan-warn-v1-0-8a665b3346ab@kernel.org>
- <20240214134328.6438-F-hca@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ia0MMhPB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1707943487;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=xFaV7z72bOpzL/S5oYBrXwzyy6tNcmGC5k13H1LQe0I=;
+	b=Ia0MMhPBkWglspn1kUqZzSJornwNU02WSbXrW32HNsRb/vtCbyua6hKJaua7JYEbtcIHfR
+	Ft87k3Q13XJGhrLCpUbFpLUs2h2DynraBlJxWf1GhmunEIdSghzf35Y+vpxerGSugxRBNI
+	n6a7woxC7J8dNZ0XSPJrkCM4891S9Y8=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-300-jV1r6PLAOiSgtGDxuUZb9A-1; Wed, 14 Feb 2024 15:44:42 -0500
+X-MC-Unique: jV1r6PLAOiSgtGDxuUZb9A-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 211B085A589;
+	Wed, 14 Feb 2024 20:44:41 +0000 (UTC)
+Received: from t14s.fritz.box (unknown [10.39.194.174])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 94C251C060B1;
+	Wed, 14 Feb 2024 20:44:36 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org,
+	David Hildenbrand <david@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Matthew Wilcox <willy@infradead.org>,
+	Ryan Roberts <ryan.roberts@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Yin Fengwei <fengwei.yin@intel.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Will Deacon <will@kernel.org>,
+	"Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+	Nick Piggin <npiggin@gmail.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	linux-arch@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org
+Subject: [PATCH v3 00/10] mm/memory: optimize unmap/zap with PTE-mapped THP
+Date: Wed, 14 Feb 2024 21:44:25 +0100
+Message-ID: <20240214204435.167852-1-david@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240214134328.6438-F-hca@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
 
-On Wed, Feb 14, 2024 at 02:43:28PM +0100, Heiko Carstens wrote:
-> On Wed, Feb 07, 2024 at 05:14:52PM -0700, Nathan Chancellor wrote:
-> > Hi all,
-> > 
-> > This series allows the s390 kernel to be linked with ld.lld (support for
-> > s390 is under review at [1]). This implicitly depends on [2], which was
-> > created and sent before it was realized that this series was necessary.
-> ...
-> > Nathan Chancellor (11):
-> >       s390: boot: Add support for CONFIG_LD_ORPHAN_WARN
-> >       s390: vmlinux.lds.S: Handle '.data.rel' sections explicitly
-> >       s390: vmlinux.lds.S: Explicitly handle '.got' and '.plt' sections
-> >       s390: vmlinux.lds.S: Discard unnecessary sections
-> >       s390/boot: vmlinux.lds.S: Handle '.init.text'
-> >       s390/boot: vmlinux.lds.S: Handle '.rela' sections
-> >       s390/boot: vmlinux.lds.S: Handle DWARF debug sections
-> >       s390/boot: vmlinux.lds.S: Handle ELF required sections
-> >       s390/boot: vmlinux.lds.S: Handle commonly discarded sections
-> >       s390: Select CONFIG_ARCH_WANT_LD_ORPHAN_WARN
-> >       s390: Link vmlinux with '-z notext'
-> > 
-> >  arch/s390/Kconfig              |  1 +
-> >  arch/s390/Makefile             |  2 +-
-> >  arch/s390/boot/Makefile        |  5 +++--
-> >  arch/s390/boot/vmlinux.lds.S   | 28 ++++++++++++++++++++++++++++
-> >  arch/s390/kernel/vmlinux.lds.S | 28 +++++++++++++++++++++++++++-
-> >  5 files changed, 60 insertions(+), 4 deletions(-)
-> 
-> Now available at:
-> https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/log/?h=features
-> 
-> And should be in linux-next soon.
-> 
-> Thanks a lot! :)
+This series is based on [1]. Similar to what we did with fork(), let's
+implement PTE batching during unmap/zap when processing PTE-mapped THPs.
 
-Thank you for bearing with the issues that came up in the series and
-getting it reviewed and accepted quickly!
+We collect consecutive PTEs that map consecutive pages of the same large
+folio, making sure that the other PTE bits are compatible, and (a) adjust
+the refcount only once per batch, (b) call rmap handling functions only
+once per batch, (c) perform batch PTE setting/updates and (d) perform TLB
+entry removal once per batch.
 
-The ld.lld pull request has been merged into main:
+Ryan was previously working on this in the context of cont-pte for
+arm64, int latest iteration [2] with a focus on arm6 with cont-pte only.
+This series implements the optimization for all architectures, independent
+of such PTE bits, teaches MMU gather/TLB code to be fully aware of such
+large-folio-pages batches as well, and amkes use of our new rmap batching
+function when removing the rmap.
 
-https://github.com/llvm/llvm-project/commit/fe3406e349884e4ef61480dd0607f1e237102c74
+To achieve that, we have to enlighten MMU gather / page freeing code
+(i.e., everything that consumes encoded_page) to process unmapping
+of consecutive pages that all belong to the same large folio. I'm being
+very careful to not degrade order-0 performance, and it looks like I
+managed to achieve that.
 
-and Fangrui requested a backport to 18.1.0, so it is possible that
-people will get access to this even quicker:
+While this series should -- similar to [1] -- be beneficial for adding
+cont-pte support on arm64[2], it's one of the requirements for maintaining
+a total mapcount[3] for large folios with minimal added overhead and
+further changes[4] that build up on top of the total mapcount.
 
-https://github.com/llvm/llvm-project/pull/81675
+Independent of all that, this series results in a speedup during munmap()
+and similar unmapping (process teardown, MADV_DONTNEED on larger ranges)
+with PTE-mapped THP, which is the default with THPs that are smaller than
+a PMD (for example, 16KiB to 1024KiB mTHPs for anonymous memory[5]).
 
-I did not CC you all on this one but it is needed to avoid a link error
-with ld.lld when CONFIG_DEBUG_INFO_BTF is enabled but it is not specific
-to s390 so it will go via the kbuild tree (hopefully for 6.8):
+On an Intel Xeon Silver 4210R CPU, munmap'ing a 1GiB VMA backed by
+PTE-mapped folios of the same size (stddev < 1%) results in the following
+runtimes for munmap() in seconds (shorter is better):
 
-https://lore.kernel.org/20240212-fix-elf-type-btf-vmlinux-bin-o-big-endian-v2-1-22c0a6352069@kernel.org/
+Folio Size | mm-unstable |      New | Change
+---------------------------------------------
+      4KiB |    0.058110 | 0.057715 |   - 1%
+     16KiB |    0.044198 | 0.035469 |   -20%
+     32KiB |    0.034216 | 0.023522 |   -31%
+     64KiB |    0.029207 | 0.018434 |   -37%
+    128KiB |    0.026579 | 0.014026 |   -47%
+    256KiB |    0.025130 | 0.011756 |   -53%
+    512KiB |    0.024292 | 0.010703 |   -56%
+   1024KiB |    0.023812 | 0.010294 |   -57%
+   2048KiB |    0.023785 | 0.009910 |   -58%
 
-With that change on top of features, all my builds pass successfully
-with ld.lld :) I'll be sending another change your way shortly for
-something that came up during my testing with GCC + ld.lld.
+CCing especially s390x folks, because they have a tlb freeing hooks that
+needs adjustment. Only tested on x86-64 for now, will have to do some more
+stress testing. Compile-tested on most other architectures. The PPC
+change is negleglible and makes my cross-compiler happy.
 
-Cheers,
-Nathan
+[1] https://lkml.kernel.org/r/20240129124649.189745-1-david@redhat.com
+[2] https://lkml.kernel.org/r/20231218105100.172635-1-ryan.roberts@arm.com
+[3] https://lkml.kernel.org/r/20230809083256.699513-1-david@redhat.com
+[4] https://lkml.kernel.org/r/20231124132626.235350-1-david@redhat.com
+[5] https://lkml.kernel.org/r/20231207161211.2374093-1-ryan.roberts@arm.com
+
+---
+
+Sending this out earlier than I ususally would, so we can get this into
+mm-unstable for Ryan to base his cont-pte work on this ASAP.
+
+The performance numbers are from v1. I did a quick benchmark run of v3
+and nothing significantly changed, relevant code paths remained unchanged.
+
+v2 -> v3:
+* "mm/mmu_gather: add __tlb_remove_folio_pages()"
+ -> Slightly adjusted patch description
+* "mm/mmu_gather: improve cond_resched() handling with large folios and
+   expensive page freeing"
+ -> Use new macro for magic value and avoid code duplication
+ -> Extend patch description
+* Pick up RB's
+
+v1 -> v2:
+* "mm/memory: factor out zapping of present pte into zap_present_pte()"
+ -> Initialize "struct folio *folio" to NULL
+* "mm/memory: handle !page case in zap_present_pte() separately"
+ -> Extend description regarding arch_check_zapped_pte()
+* "mm/mmu_gather: add __tlb_remove_folio_pages()"
+ -> ENCODED_PAGE_BIT_NR_PAGES_NEXT
+ -> Extend patch description regarding "batching more"
+* "mm/mmu_gather: improve cond_resched() handling with large folios and
+   expensive page freeing"
+ -> Handle the (so far) theoretical case of possible soft lockups when
+    we zero/poison memory when freeing pages. Try to keep old behavior in
+    that corner case to be safe.
+* "mm/memory: optimize unmap/zap with PTE-mapped THP"
+ -> Clarify description of new ptep clearing functions regarding "present
+    PTEs"
+ -> Extend patch description regarding relaxed mapcount sanity checks
+ -> Improve zap_present_ptes() description
+* Pick up RB's
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Ryan Roberts <ryan.roberts@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Yin Fengwei <fengwei.yin@intel.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc: Nick Piggin <npiggin@gmail.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arch@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+
+David Hildenbrand (10):
+  mm/memory: factor out zapping of present pte into zap_present_pte()
+  mm/memory: handle !page case in zap_present_pte() separately
+  mm/memory: further separate anon and pagecache folio handling in
+    zap_present_pte()
+  mm/memory: factor out zapping folio pte into zap_present_folio_pte()
+  mm/mmu_gather: pass "delay_rmap" instead of encoded page to
+    __tlb_remove_page_size()
+  mm/mmu_gather: define ENCODED_PAGE_FLAG_DELAY_RMAP
+  mm/mmu_gather: add tlb_remove_tlb_entries()
+  mm/mmu_gather: add __tlb_remove_folio_pages()
+  mm/mmu_gather: improve cond_resched() handling with large folios and
+    expensive page freeing
+  mm/memory: optimize unmap/zap with PTE-mapped THP
+
+ arch/powerpc/include/asm/tlb.h |   2 +
+ arch/s390/include/asm/tlb.h    |  30 ++++--
+ include/asm-generic/tlb.h      |  40 ++++++--
+ include/linux/mm_types.h       |  37 ++++++--
+ include/linux/pgtable.h        |  70 ++++++++++++++
+ mm/memory.c                    | 169 +++++++++++++++++++++++----------
+ mm/mmu_gather.c                | 111 ++++++++++++++++++----
+ mm/swap.c                      |  12 ++-
+ mm/swap_state.c                |  15 ++-
+ 9 files changed, 393 insertions(+), 93 deletions(-)
+
+
+base-commit: 7e56cf9a7f108e8129d75cea0dabc9488fb4defa
+-- 
+2.43.0
+
