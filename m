@@ -1,64 +1,65 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B717B1B958;
-	Wed, 14 Feb 2024 12:18:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 603AC1B958;
+	Wed, 14 Feb 2024 12:21:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707913093; cv=none; b=Cwi69qQH8hF9mz9queFb0ARscAyvdT3jKpXKiHNQ0D9HaGMMeFZmNUCX5dcubUc2bc+qPuPilNAJrYBNeoGbACItQ2dM0Be7fA/N7wuCBsl9VZou5skfRm2+AuMKFz3/QlBjdQ9IkOwd5W3lc1gDdVlyWJIS6TT+2SDFfM016Go=
+	t=1707913269; cv=none; b=sw1nAaJRXAfEjKHhYR1/ARS8YPlC878a+JIMBGEHlx0kZlaln6nO7Lza4Go5nIYUk3HwPF5vktzos9aszbHbVJ+YDc5HN8vM8nGwjuJ2CFNRfLX5p/C8iXEkg68TDd3rE9lIxSKNZGlErU69XRf4xWQrkueKM5Z+C5XW5XFKk2k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707913093; c=relaxed/simple;
-	bh=ydQckTFp1oxftSLw2+09PZBN+NmK7Vl3pl5OWF9pR1k=;
+	s=arc-20240116; t=1707913269; c=relaxed/simple;
+	bh=aIqkrOHtKqJDGMeDzYy3CfldpGmYtvA6DaHcAmqcblU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=scyTvuxxXobUd2PJbjh/N4EXA/5eQDaXUGC5GRzJehUNhSDX65kHzIXzUOAI0RCSev1fasHZFgL+Jq5iTzimDE/WQ9zt74pwodyJ0dLp19MJ3gSe8iYW8XKeS817erLhmhb/pyNNti4aB9J/BXBqPo0fAYj+X/355w1zBFoPQGY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=O2g1UjlX; arc=none smtp.client-ip=148.163.156.1
+	 Content-Type:Content-Disposition:In-Reply-To; b=Se6gPl0mqDyD5RZRofRgojpfKPPIhVGY5tFBt5fZ3zZXjxC8jpkIfOYKuUDFSKjteRPWBgeDf25fFa82uh8dTygv8iHNpXI4pWU6jC/Z4Ilux1DJIblsVRdlC0uXpvWGXGbDE1BmcUcFAdwtNXVdtJpeLgZr9ksBDi574GjrrfI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Yg4IzNAj; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="O2g1UjlX"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41EC6nFk027524;
-	Wed, 14 Feb 2024 12:18:05 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Yg4IzNAj"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41EC7pdZ007384;
+	Wed, 14 Feb 2024 12:21:04 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=FO7kM2t1hHvlMoHVxfJUhmtbNNq5lW1oJMoCJ4hc5cM=;
- b=O2g1UjlXw3xG+Sl67LOcpTE/0vEkkypeHCW5dTO0ubQoyFzJ6tR9oDTcJ2LZgHwO4mrc
- b7aLFyHklsPoy/BjDMuRztJrsBuk614h2UO/BUpmzSqHvejwPBJJMKWj+ZQZYUcmp2cG
- 0bl3xTvQz81aHmUZl8qpgxLwLjZucF+L1JT3pf1VIXCRAB3jj1n1Y72USOxmwwkzzOdO
- f5fOJXLmqA712+qPvX0/q5UTEpABhDoVhX9h4kkN0PTiho8u2E8VrO4kB9lmNld3C/m9
- e5gLCPtupydRIHKXmPhgXITezUlKuoqy6Gms9TjnufNYSsHH0nCubL4nBURlMD0WIg70 RA== 
+ content-transfer-encoding : in-reply-to; s=pp1;
+ bh=jX1r2vNiq7tijCHOf5ggnrNhX5LsSoM4ejl+DOG68kM=;
+ b=Yg4IzNAjmsXY+5pXLyUq9xzHiv6XGRm76YinQXYKw44JIKP1a1YqywrmwBsOfx3m6RMt
+ st3+ft+rtRqa5bb1a1mWshU9Y4k62Zzpb5xQcW6nF6ngHyHvVxRm0QhRILBlB9FsPG66
+ F6GhnVei1cLWIZIOr7PnwUgC2x1UKxyRG4BOSc8BGgGNbEYvYsef1GEkvD+8RoDP1jWs
+ TB+6dMowYSthJr7HeRwWh3H5FdLQtotg/G3uKngAeVqhYKSllz6PigoFFaiMCx1LU9KN
+ geEjAkREnCtBLKrnkDS4SKtId5cVCHeP3R6iCH1XeeqvL1Zeja0KG2YqaDOTC0WWHGoM eA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w8w8409b9-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w8w8h88qm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 14 Feb 2024 12:18:04 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41EC8F2b000930;
-	Wed, 14 Feb 2024 12:18:04 GMT
+	Wed, 14 Feb 2024 12:21:04 +0000
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41EC7xEI007563;
+	Wed, 14 Feb 2024 12:21:03 GMT
 Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w8w84099g-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w8w8h88qf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 14 Feb 2024 12:18:04 +0000
+	Wed, 14 Feb 2024 12:21:03 +0000
 Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41EAQm4J016517;
-	Wed, 14 Feb 2024 12:18:02 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3w6mymnp45-1
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41EAQ2VM016203;
+	Wed, 14 Feb 2024 12:21:02 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3w6mymnphe-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 14 Feb 2024 12:18:02 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41ECHudX5964342
+	Wed, 14 Feb 2024 12:21:02 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41ECKuNl63832360
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 14 Feb 2024 12:17:58 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C31CE20040;
-	Wed, 14 Feb 2024 12:17:56 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 80FAB2004B;
-	Wed, 14 Feb 2024 12:17:56 +0000 (GMT)
+	Wed, 14 Feb 2024 12:20:59 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D87B22004D;
+	Wed, 14 Feb 2024 12:20:56 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A787520040;
+	Wed, 14 Feb 2024 12:20:56 +0000 (GMT)
 Received: from osiris (unknown [9.152.212.60])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 14 Feb 2024 12:17:56 +0000 (GMT)
-Date: Wed, 14 Feb 2024 13:17:55 +0100
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 14 Feb 2024 12:20:56 +0000 (GMT)
+Date: Wed, 14 Feb 2024 13:20:55 +0100
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Fangrui Song <maskray@google.com>
 Cc: Nathan Chancellor <nathan@kernel.org>, gor@linux.ibm.com,
@@ -66,44 +67,59 @@ Cc: Nathan Chancellor <nathan@kernel.org>, gor@linux.ibm.com,
         ndesaulniers@google.com, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
         patches@lists.linux.dev
-Subject: Re: [PATCH 06/11] s390/boot: vmlinux.lds.S: Handle '.rela' sections
-Message-ID: <20240214121755.6438-C-hca@linux.ibm.com>
+Subject: Re: [PATCH 03/11] s390: vmlinux.lds.S: Explicitly handle '.got' and
+ '.plt' sections
+Message-ID: <20240214122055.6438-D-hca@linux.ibm.com>
 References: <20240207-s390-lld-and-orphan-warn-v1-0-8a665b3346ab@kernel.org>
- <20240207-s390-lld-and-orphan-warn-v1-6-8a665b3346ab@kernel.org>
- <CAFP8O3+L6Jpgktk50UBKg_SodH-DTAW2syZueUqxdZsxrOT3bg@mail.gmail.com>
+ <20240207-s390-lld-and-orphan-warn-v1-3-8a665b3346ab@kernel.org>
+ <CAFP8O3KHsjCWowDTBxOq7GQ3bdsA2tAMO5Y4YfKR374Dz_Z54g@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <CAFP8O3+L6Jpgktk50UBKg_SodH-DTAW2syZueUqxdZsxrOT3bg@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAFP8O3KHsjCWowDTBxOq7GQ3bdsA2tAMO5Y4YfKR374Dz_Z54g@mail.gmail.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: HFECV309TxvMBgETUAvxE9F6Rql2XSz-
-X-Proofpoint-GUID: e4JmGb2ncB2o78Tu8NB0WgnTfDIi6Sps
+X-Proofpoint-ORIG-GUID: 5a72m7GXjghwGqHKx0FzSGfFzrXD8YEy
+X-Proofpoint-GUID: Oq-do3-waeoNosdhtVkGdgzEAWO5NxXG
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-14_05,2024-02-14_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- phishscore=0 clxscore=1015 priorityscore=1501 mlxlogscore=307 adultscore=0
- spamscore=0 impostorscore=0 suspectscore=0 mlxscore=0 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402140096
+ definitions=2024-02-14_04,2024-02-14_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=384 spamscore=0
+ mlxscore=0 lowpriorityscore=0 malwarescore=0 clxscore=1015 phishscore=0
+ priorityscore=1501 impostorscore=0 adultscore=0 bulkscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2402140095
 
-On Mon, Feb 12, 2024 at 09:18:34PM -0800, Fangrui Song wrote:
-> >         ASSERT(SIZEOF(.plt) == 0, "Unexpected run-time procedure linkages detected!")
-> > +       .rela.dyn : {
-> > +               *(.rela.*) *(.rela_*)
+On Mon, Feb 12, 2024 at 09:31:53PM -0800, Fangrui Song wrote:
+> On Wed, Feb 7, 2024 at 4:15 PM Nathan Chancellor <nathan@kernel.org> wrote:
+> > +       ASSERT(SIZEOF(.got.plt) == 0, "Unexpected GOT/PLT entries detected!")
+> > +       .plt : {
+> > +               *(.plt)
+> > +               *(.plt.*)
+> > +               *(.iplt)
+> > +               *(.igot .igot.plt)
 > > +       }
-> > +       ASSERT(SIZEOF(.rela.dyn) == 0, "Unexpected run-time relocations (.rela) detected!")
-...
-> Commit 5354e84598f264793265cc99b4be2a2295826c86 ("x86/build: Add
-> asserts for unwanted sections")
-> specifies `*(.rela.*) *(.rela_*)` but it's not clear why `.rela_*` is
-> included. We only need .rela.* (see also ld.bfd --verbose)
+> > +       ASSERT(SIZEOF(.plt) == 0, "Unexpected run-time procedure linkages detected!")
+> > +
 > 
-> This patch LGTM with this changed.
+> It seems that arches that drop .plt typically place input section
+> description on one line. This saves vertical space.
+> It's shorter to use one input section description to match multiple
+> sections, e.g.
+> 
+>     *(.plt .iplt)
 
-I'll keep it as it is, just to be consistent with x86.
+Yes, I'll change Nathan's patch so it looks like arm64:
+
+	/*
+	 * Sections that should stay zero sized, which is safer to
+	 * explicitly check instead of blindly discarding.
+	 */
+	.plt : {
+		*(.plt) *(.plt.*) *(.iplt) *(.igot .igot.plt)
+	}
