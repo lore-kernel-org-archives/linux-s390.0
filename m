@@ -1,167 +1,100 @@
-Received: from smtp-fw-80008.amazon.com (smtp-fw-80008.amazon.com [99.78.197.219])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9609627EC;
-	Tue, 13 Feb 2024 22:31:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=99.78.197.219
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2085125A1;
+	Wed, 14 Feb 2024 06:59:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707863518; cv=none; b=Hb9LdLFv25hhwGqe3ZvPGWKQiweSOm3LG+GEX25oIX7BmeEs0Jz0Pve37wRLCsvyJg7ATFn6NQ3ER7twCTS1vnm2Qra0EdFh7b7n3YaTIHycrYDCZ5nIel8bRJn7H9NQSCIZB9RtKz0zIzcK+bAuWpCIZYqD6BVLpebSlxC8UKc=
+	t=1707893984; cv=none; b=JGSSlGFhmus0PIpEUaZRTEajGYxa/jHMx4T6yK2M2cjYkCSGd6BUPvgFFrjuGm9Yfw5WjhmgcvD7fNyJhW8ESbHcfbP8zMIHSfXFNTJ8n7ZzlQKwjmbf95KeM1H9mBnqt/GWlkSuVgK2ZFJJa2YfsKQJcx3G59SwREh+zmsr9pk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707863518; c=relaxed/simple;
-	bh=AjyFJoB2E5hmBxbkwSQYS3RBJ8kjXzZkJDGogqKHWkA=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Fo7mwjFjzUnewEdeToTBzH00koXQuRVuye4N/R1QOpZvcEy8OJ9V/3pjxrV5t7Nkq/wnBxwaxExkzDBg7vQMYaUzSc7PUuLC+O0nxyiXUmaXZABhtuia7e0GENqTCUmglhdygDnf/l7SgV4k40Y8pBBzKZm+r3SZjBokCqC+8Hc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.jp; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=LkQy69fs; arc=none smtp.client-ip=99.78.197.219
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.jp
+	s=arc-20240116; t=1707893984; c=relaxed/simple;
+	bh=CS45QcVTT2orYhyYWwHGZgci25zetj2poa2oQoA+Qkw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RGHrBSfAfFmo/Fi5VSE/J2NkvFDgBw1/wlO6DdD2K/lKay8QLwf5xcXhJ3y9NtuvmHKT7OJtM7wOD5PAiWdJifsDCTBJk9Y48HGnfb5At/rVZQrUinJyhiS8Pp1RDpCfJvARZYKrcLZeWgiuFnQ7D8888nDXBtH8FVy/xKCRLic=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=Qh9Rk2Fv; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="LkQy69fs"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1707863516; x=1739399516;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=xASju9eOcReBWPS5XiOgqPyTtw+QoZR04RComZSbo04=;
-  b=LkQy69fs1jYhP477KyLFvEcnTA3qVobwW3xFS4xzjTQPWKk3U6veeQ4W
-   fRS+s6DbuTTT1v0Pn4nZS86Qk7wUW8XNxr+uMW2BzxcUcG7Tam4NPH6ll
-   1hGCGfSsajQS24/aOvoOr8gklaqlnZCnMwdun/DOded8ywEZqQVPPppRk
-   E=;
-X-IronPort-AV: E=Sophos;i="6.06,158,1705363200"; 
-   d="scan'208";a="65833263"
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.25.36.214])
-  by smtp-border-fw-80008.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Feb 2024 22:31:54 +0000
-Received: from EX19MTAUWC002.ant.amazon.com [10.0.21.151:35044]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.24.112:2525] with esmtp (Farcaster)
- id 5276ae52-4884-4071-a6ca-c88b58983b92; Tue, 13 Feb 2024 22:31:53 +0000 (UTC)
-X-Farcaster-Flow-ID: 5276ae52-4884-4071-a6ca-c88b58983b92
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX19MTAUWC002.ant.amazon.com (10.250.64.143) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Tue, 13 Feb 2024 22:31:53 +0000
-Received: from 88665a182662.ant.amazon.com (10.106.101.20) by
- EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Tue, 13 Feb 2024 22:31:50 +0000
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
-To: "David S. Miller" <davem@davemloft.net>, Eric Dumazet
-	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, Matthieu Baerts <matttbe@kernel.org>, Mat Martineau
-	<martineau@kernel.org>, Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher
-	<jaka@linux.ibm.com>
-CC: Kuniyuki Iwashima <kuniyu@amazon.com>, Kuniyuki Iwashima
-	<kuni1840@gmail.com>, <netdev@vger.kernel.org>, <mptcp@lists.linux.dev>,
-	<linux-s390@vger.kernel.org>
-Subject: [PATCH v1 net-next] net: Deprecate SO_DEBUG and reclaim SOCK_DBG bit.
-Date: Tue, 13 Feb 2024 14:31:35 -0800
-Message-ID: <20240213223135.85957-1-kuniyu@amazon.com>
-X-Mailer: git-send-email 2.30.2
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="Qh9Rk2Fv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0546CC433C7;
+	Wed, 14 Feb 2024 06:59:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1707893983;
+	bh=CS45QcVTT2orYhyYWwHGZgci25zetj2poa2oQoA+Qkw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Qh9Rk2FvW4tWlAWdz0iYDcgsCcNhqHDodBRSm2Ahxxogpbd+1FwGwI+oPZPtk2YXt
+	 XcXI3kcrT2Gc0TKHUFNK3hQ0VqgTtmfEUjPtLuhjJbnNo+2z2YAQHtrghbVMCMzSeQ
+	 XyffkRKeIyHUohBlM/+8e3ex4T2LzDh/eVeZQjc8=
+Date: Wed, 14 Feb 2024 07:59:40 +0100
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Lukas Wunner <lukas@wunner.de>, Dan Williams <dan.j.williams@intel.com>,
+	Arnd Bergmann <arnd@arndb.de>, Dave Chinner <david@fromorbit.com>,
+	linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	Vishal Verma <vishal.l.verma@intel.com>,
+	Dave Jiang <dave.jiang@intel.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Russell King <linux@armlinux.org.uk>, linux-arch@vger.kernel.org,
+	linux-cxl@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-mm@kvack.org, linux-xfs@vger.kernel.org,
+	dm-devel@lists.linux.dev, nvdimm@lists.linux.dev,
+	linux-s390@vger.kernel.org, Alasdair Kergon <agk@redhat.com>,
+	Mike Snitzer <snitzer@kernel.org>,
+	Mikulas Patocka <mpatocka@redhat.com>
+Subject: Re: [PATCH v5 5/8] virtio: Treat alloc_dax() -EOPNOTSUPP failure as
+ non-fatal
+Message-ID: <2024021418-diving-subduing-6e34@gregkh>
+References: <20240212163101.19614-1-mathieu.desnoyers@efficios.com>
+ <20240212163101.19614-6-mathieu.desnoyers@efficios.com>
+ <20240213062559.GA27364@wunner.de>
+ <c0a08e00-e7b5-48ac-a152-3068ab0c9e15@efficios.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: EX19D042UWA001.ant.amazon.com (10.13.139.92) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c0a08e00-e7b5-48ac-a152-3068ab0c9e15@efficios.com>
 
-Recently, commit 8e5443d2b866 ("net: remove SOCK_DEBUG leftovers")
-removed the last users of SOCK_DEBUG(), and commit b1dffcf0da22 ("net:
-remove SOCK_DEBUG macro") removed the macro.
+On Tue, Feb 13, 2024 at 02:46:05PM -0500, Mathieu Desnoyers wrote:
+> On 2024-02-13 01:25, Lukas Wunner wrote:
+> > On Mon, Feb 12, 2024 at 11:30:58AM -0500, Mathieu Desnoyers wrote:
+> > > In preparation for checking whether the architecture has data cache
+> > > aliasing within alloc_dax(), modify the error handling of virtio
+> > > virtio_fs_setup_dax() to treat alloc_dax() -EOPNOTSUPP failure as
+> > > non-fatal.
+> > > 
+> > > Co-developed-by: Dan Williams <dan.j.williams@intel.com>
+> > > Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+> > > Fixes: d92576f1167c ("dax: does not work correctly with virtual aliasing caches")
+> > 
+> > That's a v4.0 commit, yet this patch uses DEFINE_FREE() which is
+> > only available in v6.6 but not any earlier stable kernels.
+> 
+> I asked this question to Greg KH before creating this patch, and his
+> answer was to implement my fix for master, and stable kernels would take
+> care of backporting all the required dependencies.
 
-Now is the time to deprecate the oldest socket option.
+That is correct.
 
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
----
- include/net/sock.h  | 1 -
- net/core/sock.c     | 6 +++---
- net/mptcp/sockopt.c | 4 +---
- net/smc/af_smc.c    | 5 ++---
- 4 files changed, 6 insertions(+), 10 deletions(-)
+> Now if I look at latest 6.1, 5.15, 5.10, 5.4, 4.19 stable kernels,
+> none seem to have include/linux/cleanup.h today. But I suspect that
+> sooner or later relevant master branch fixes will require stable
+> kernels to backport cleanup.h, so why not do it now ?
 
-diff --git a/include/net/sock.h b/include/net/sock.h
-index a9d99a9c583f..e20d55a36f9c 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -909,7 +909,6 @@ enum sock_flags {
- 	SOCK_TIMESTAMP,
- 	SOCK_ZAPPED,
- 	SOCK_USE_WRITE_QUEUE, /* whether to call sk->sk_write_space in sock_wfree */
--	SOCK_DBG, /* %SO_DEBUG setting */
- 	SOCK_RCVTSTAMP, /* %SO_TIMESTAMP setting */
- 	SOCK_RCVTSTAMPNS, /* %SO_TIMESTAMPNS setting */
- 	SOCK_LOCALROUTE, /* route locally only, %SO_DONTROUTE setting */
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 88bf810394a5..0a58dc861908 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -1194,10 +1194,9 @@ int sk_setsockopt(struct sock *sk, int level, int optname,
- 
- 	switch (optname) {
- 	case SO_DEBUG:
-+		/* deprecated, but kept for compatibility. */
- 		if (val && !sockopt_capable(CAP_NET_ADMIN))
- 			ret = -EACCES;
--		else
--			sock_valbool_flag(sk, SOCK_DBG, valbool);
- 		break;
- 	case SO_REUSEADDR:
- 		sk->sk_reuse = (valbool ? SK_CAN_REUSE : SK_NO_REUSE);
-@@ -1619,7 +1618,8 @@ int sk_getsockopt(struct sock *sk, int level, int optname,
- 
- 	switch (optname) {
- 	case SO_DEBUG:
--		v.val = sock_flag(sk, SOCK_DBG);
-+		/* deprecated. */
-+		v.val = 0;
- 		break;
- 
- 	case SO_DONTROUTE:
-diff --git a/net/mptcp/sockopt.c b/net/mptcp/sockopt.c
-index da37e4541a5d..f6d90eef3d7c 100644
---- a/net/mptcp/sockopt.c
-+++ b/net/mptcp/sockopt.c
-@@ -81,7 +81,7 @@ static void mptcp_sol_socket_sync_intval(struct mptcp_sock *msk, int optname, in
- 
- 		switch (optname) {
- 		case SO_DEBUG:
--			sock_valbool_flag(ssk, SOCK_DBG, !!val);
-+			/* deprecated. */
- 			break;
- 		case SO_KEEPALIVE:
- 			if (ssk->sk_prot->keepalive)
-@@ -1458,8 +1458,6 @@ static void sync_socket_options(struct mptcp_sock *msk, struct sock *ssk)
- 		sk_dst_reset(ssk);
- 	}
- 
--	sock_valbool_flag(ssk, SOCK_DBG, sock_flag(sk, SOCK_DBG));
--
- 	if (inet_csk(sk)->icsk_ca_ops != inet_csk(ssk)->icsk_ca_ops)
- 		tcp_set_congestion_control(ssk, msk->ca_name, false, true);
- 	__tcp_sock_set_cork(ssk, !!msk->cork);
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 66763c74ab76..062e16a2766a 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -445,7 +445,6 @@ static int smc_bind(struct socket *sock, struct sockaddr *uaddr,
- 			     (1UL << SOCK_LINGER) | \
- 			     (1UL << SOCK_BROADCAST) | \
- 			     (1UL << SOCK_TIMESTAMP) | \
--			     (1UL << SOCK_DBG) | \
- 			     (1UL << SOCK_RCVTSTAMP) | \
- 			     (1UL << SOCK_RCVTSTAMPNS) | \
- 			     (1UL << SOCK_LOCALROUTE) | \
-@@ -511,8 +510,8 @@ static void smc_copy_sock_settings_to_clc(struct smc_sock *smc)
- 
- #define SK_FLAGS_CLC_TO_SMC ((1UL << SOCK_URGINLINE) | \
- 			     (1UL << SOCK_KEEPOPEN) | \
--			     (1UL << SOCK_LINGER) | \
--			     (1UL << SOCK_DBG))
-+			     (1UL << SOCK_LINGER))
-+
- /* copy only settings and flags relevant for smc from clc to smc socket */
- static void smc_copy_sock_settings_to_smc(struct smc_sock *smc)
- {
--- 
-2.30.2
+Yes, eventually we will need to backport cleanup.h to the older kernel
+trees, I know of many patches "in flight" that are using it, so it's not
+unique to this one at all, so this is fine to have.
 
+Remember, make changes for Linus's tree, don't go through any gyrations
+to make things special for stable releases, that's something to only
+consider later on, if you want to.  stable kernels should have no affect
+on developers OTHER than a simple cc: stable tag on stuff that they know
+should be backported, unless they really want to do more than that,
+that's up to them.
+
+thanks,
+
+greg k-h
