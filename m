@@ -1,232 +1,93 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05DB8335A7
-	for <linux-s390@vger.kernel.org>; Wed, 14 Feb 2024 22:40:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AE90250F6;
+	Wed, 14 Feb 2024 22:54:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707950430; cv=none; b=RoH4QbU/jAdYVpJivyGuSa7+bp/RsAfcs5885U/lMnOHNo+sEshDxsztWUYJWYAkbi6wZGMV5RIpaF56dJfi0L2y2gRocO9oMqq6hU6nc/6OADFPJXnm2KphcnSGhxgZgQZ6FC0Fz9wxLkmLX6rhj7AeUndPVyWH/EFKS8VF7L0=
+	t=1707951244; cv=none; b=JlThhxwHTg59DSzkQkfFZ7JCOqNpLSRmdSiyEZ2VIh6TVKWqnpMZiaBOqb91qhk1INCoIiqmhclppxmyKv4As0aNN/VUVVW3mLDCmp6c7I8GKmcLx/HlbAG3agq5DvI95meeH6NuzG/aja6Dej7f5xCfWVerThVMyvmPeILtitQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707950430; c=relaxed/simple;
-	bh=upA9tJ3GC7rj0FK1TdY7IG6EAXSdXrj4LknP25+XJeo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LK2vHuObWDBQGlOeIaVYFpR5MtAfOm8dGKcjgKpg43/t8GF8QXjS/YKWpRMUT5Rp4X5Q82sWAklnuF1x7Zcy3RwMsY483npyNs+8BCCsIHGkSVUB/rEeuv0QDSfeTEf1LtdWdDh4lfkoLmenwR/8cBo51gy2/QJ0CtA6sRZeLCM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JqwgPOiN; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1707951244; c=relaxed/simple;
+	bh=7zPvpgdu9M/4TgZk75pw4da+3dcufuwAo9LaXXY4FSY=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=cjIFffVZFZOSG3L4mJj/SmsrqPwauVxqAAW0z9ksXa+5GWgmmIMzVLNj0itCnM/GnbQEuCyw5agx/nYrt5NyCEiS5C+kTzRNYsRdlVmil63lOvSiIhP7JIEOuxgDuEt9P/9a7z0MBizfOH6DDXm55rgV3qcvXz3aKEQKj9cRtUU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Wi2jXtFf; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JqwgPOiN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1707950426;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=WN/1wnCbyZpZRJItW2gMIOPbx328LkZgbs4KqytUNcM=;
-	b=JqwgPOiNEI5rmQPtNMFQqIDLs9T6pRkAjoQQ+Ge/qLWCl4F2uhX3UFOr+WeexQkRc73Cfr
-	ynegD85xePH5tREm6Ana2AzSrDv2RhylDd05xEJKERmMuDHQQMN+IP/KI0yMJLj0fGlyVe
-	KHcyjcivwZAXNd1wWWJhuMC+BkUtLz4=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-587-Y2DLCtKpNySNRZjwoaaLQw-1; Wed, 14 Feb 2024 17:40:25 -0500
-X-MC-Unique: Y2DLCtKpNySNRZjwoaaLQw-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-411db41915bso1146875e9.0
-        for <linux-s390@vger.kernel.org>; Wed, 14 Feb 2024 14:40:25 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707950424; x=1708555224;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :references:cc:to:content-language:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WN/1wnCbyZpZRJItW2gMIOPbx328LkZgbs4KqytUNcM=;
-        b=sWM2O6CUI/0yTZkz7uEJFmFdK628svcjANIyLXvRSq3O44BFuoO84RcM/PmZKuXMNw
-         R3ORv/tUhp2U3+Z7Lb0wUt5QMGBlpeePbtxMUlXdvbfKS+fzXoizMi8lHDM1NEYfl2lc
-         vEy3lOCiuIZFhvp6cwlqYLisbvFs/wu3eiFG8i1WyVl9i+uU2AMi+tmgOOqEbFc1UiMo
-         PV6sAbGgJKkcRsxz83T0E0UyyPzpDzFWoF85bmrTA5sNew8E/ijPCX1ctQCQ5AS9D/mC
-         0pGzbZGl+Cac5YJ61FDjMKt17pwH3Fs5ib46EXIfqcMfmvyIuK4qVUDciNUbKChrmig5
-         O1mg==
-X-Forwarded-Encrypted: i=1; AJvYcCVR/5MgkR7WfMTk+uVanpGfTZWUNhOjJSLgXsUSMD1jJaTAutL9FUmgWFAbYAn1dyffbeYaOgpp5+MumsT029EbdLqZycjxIKjkSQ==
-X-Gm-Message-State: AOJu0YyS7+FyODMD7Jx4NfiouT3SKyS/NKUPZyOTZ94BzQGOo5BEftrp
-	ztNRMKou1FveR5TmMtpf08/aMKk7uPGFJ4wliiufl9AKAzmxIhULz5bHWOCnO6P7nLWQ0ekxScr
-	dN2yk4Ho9sJ6XVqriwthomBCnleuhzmsdtGPhgcpqAyhsawF7N/775Dhi/Ns=
-X-Received: by 2002:a05:600c:2805:b0:411:a5f9:26f5 with SMTP id m5-20020a05600c280500b00411a5f926f5mr10960wmb.38.1707950424299;
-        Wed, 14 Feb 2024 14:40:24 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFJPxLWaIZx311unv4D5LeFL6QRVjrs/qethDlI9UQEHWlU/k8z7sxXPYEJCZWf9jK5YYpPQQ==
-X-Received: by 2002:a05:600c:2805:b0:411:a5f9:26f5 with SMTP id m5-20020a05600c280500b00411a5f926f5mr10943wmb.38.1707950423914;
-        Wed, 14 Feb 2024 14:40:23 -0800 (PST)
-Received: from ?IPV6:2003:d8:2f3c:3f00:7177:eb0c:d3d2:4b0e? (p200300d82f3c3f007177eb0cd3d24b0e.dip0.t-ipconnect.de. [2003:d8:2f3c:3f00:7177:eb0c:d3d2:4b0e])
-        by smtp.gmail.com with ESMTPSA id w12-20020a05600c474c00b00410232ffb2csm43012wmo.25.2024.02.14.14.40.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Feb 2024 14:40:23 -0800 (PST)
-Message-ID: <13f296b8-e882-47fd-b939-c2141dc28717@redhat.com>
-Date: Wed, 14 Feb 2024 23:40:22 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Wi2jXtFf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 081B4C433C7;
+	Wed, 14 Feb 2024 22:54:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1707951243;
+	bh=7zPvpgdu9M/4TgZk75pw4da+3dcufuwAo9LaXXY4FSY=;
+	h=From:Date:Subject:To:Cc:From;
+	b=Wi2jXtFfLTZr0F2by/Ac4uNb+L7cx/kycnaH9Z7cuPnCALbL6rCSNFz/8N42AKCzm
+	 BtsJ9v9OCjm9K0DnnDYGY4frmUyMyBmpO7/bsnlFPI/I0/s2FNB/Mr4lr0fn+H/6zl
+	 NDEf0nlGUNwOWz8Ev5RDzmTz0iNz/Ef+X2Nf1K5Cn87mrqJXoAYHtmh03eGurX2viD
+	 RFZBnI2Ekl1Fubfnu8Pqvn/Azo+QTp/Su/ztRJaQuZrM8dbvFRi6SG+n3j8qSWVuS8
+	 qzX1U34ua3HG3o485UJSbXRlFLrzG/ZyHFAmunXz+2h7kVj5RDD5vvR0g05v5G7RVq
+	 slqwXsxM+ocXA==
+From: Nathan Chancellor <nathan@kernel.org>
+Date: Wed, 14 Feb 2024 15:53:48 -0700
+Subject: [PATCH] s390: Don't allow CONFIG_COMPAT with LD=ld.lld
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 12/15] mm/memory: pass PTE to copy_present_pte()
-Content-Language: en-US
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
- Matthew Wilcox <willy@infradead.org>, Ryan Roberts <ryan.roberts@arm.com>,
- Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Dinh Nguyen <dinguyen@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
- "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
- Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
- <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "David S. Miller"
- <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org
-References: <20240129124649.189745-1-david@redhat.com>
- <20240129124649.189745-13-david@redhat.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <20240129124649.189745-13-david@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20240214-s390-compat-lld-dep-v1-1-abf1f4b5e514@kernel.org>
+X-B4-Tracking: v=1; b=H4sIAHtEzWUC/x3MywqAIBBA0V+JWTdgZs9fiRamUw30EI0IpH9PW
+ p7FvRECeaYAfRbB082BzyOhyDMwqz4WQrbJIIVUQhYKQ9kJNOfu9IXbZtGSw7apdG06NVFTQSq
+ dp5mf/zqM7/sBpcGjtmUAAAA=
+To: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, morbo@google.com, 
+ justinstitt@google.com, linux-s390@vger.kernel.org, llvm@lists.linux.dev, 
+ patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>
+X-Mailer: b4 0.13-dev
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1251; i=nathan@kernel.org;
+ h=from:subject:message-id; bh=7zPvpgdu9M/4TgZk75pw4da+3dcufuwAo9LaXXY4FSY=;
+ b=owGbwMvMwCUmm602sfCA1DTG02pJDKlnXbreXk45+qN2+vcD2/TunfzMt//loXf6y94aHXl0I
+ cdHMuhFVEcpC4MYF4OsmCJL9WPV44aGc84y3jg1CWYOKxPIEAYuTgGYyN9IRoazfs0bikq3na3a
+ tmN5S+oHh4rOGZwBouvFIqUbG4+cbFBiZNgke3rPZIt0F9bkwvel4QeWTtE0eqwZvCI4c90/t0X
+ LzVgA
+X-Developer-Key: i=nathan@kernel.org; a=openpgp;
+ fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
 
-On 29.01.24 13:46, David Hildenbrand wrote:
-> We already read it, let's just forward it.
-> 
-> This patch is based on work by Ryan Roberts.
-> 
-> Reviewed-by: Ryan Roberts <ryan.roberts@arm.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->   mm/memory.c | 7 +++----
->   1 file changed, 3 insertions(+), 4 deletions(-)
-> 
-> diff --git a/mm/memory.c b/mm/memory.c
-> index a3bdb25f4c8d..41b24da5be38 100644
-> --- a/mm/memory.c
-> +++ b/mm/memory.c
-> @@ -959,10 +959,9 @@ static inline void __copy_present_pte(struct vm_area_struct *dst_vma,
->    */
->   static inline int
->   copy_present_pte(struct vm_area_struct *dst_vma, struct vm_area_struct *src_vma,
-> -		 pte_t *dst_pte, pte_t *src_pte, unsigned long addr, int *rss,
-> -		 struct folio **prealloc)
-> +		 pte_t *dst_pte, pte_t *src_pte, pte_t pte, unsigned long addr,
-> +		 int *rss, struct folio **prealloc)
->   {
-> -	pte_t pte = ptep_get(src_pte);
->   	struct page *page;
->   	struct folio *folio;
->   
-> @@ -1103,7 +1102,7 @@ copy_pte_range(struct vm_area_struct *dst_vma, struct vm_area_struct *src_vma,
->   		}
->   		/* copy_present_pte() will clear `*prealloc' if consumed */
->   		ret = copy_present_pte(dst_vma, src_vma, dst_pte, src_pte,
-> -				       addr, rss, &prealloc);
-> +				       ptent, addr, rss, &prealloc);
->   		/*
->   		 * If we need a pre-allocated page for this pte, drop the
->   		 * locks, allocate, and try again.
+When building 'ARCH=s390 defconfig compat.config' with GCC and
+LD=ld.lld, there is an error when attempting to link the compat vDSO:
 
-The following fixup for that device-exclusive thingy on top (fixing a hmm
-selftest I just discovered to be broken).
+  ld.lld: error: unknown emulation: elf_s390
+  make[4]: *** [arch/s390/kernel/vdso32/Makefile:48: arch/s390/kernel/vdso32/vdso32.so.dbg] Error 1
 
+Much like clang, ld.lld only supports the 64-bit s390 emulation. Add a
+dependency on not using LLD to CONFIG_COMPAT to avoid breaking the build
+with this toolchain combination.
 
- From 8f9e44f25087dc71890b8d9bd680375691232e85 Mon Sep 17 00:00:00 2001
-From: David Hildenbrand <david@redhat.com>
-Date: Wed, 14 Feb 2024 23:09:29 +0100
-Subject: [PATCH] fixup: mm/memory: pass PTE to copy_present_pte()
-
-For device-exclusive nonswp entries (is_device_exclusive_entry()),
-copy_nonpresent_pte() can turn the PTEs into actual present PTEs while
-holding the page table lock.
-
-We hae to re-read the PTE after that operation, such that we won't be
-working on the stale non-present PTE, assuming it would be present.
-
-This fixes the hmm "exclusive_cow" selftest.
-
-  ./run_vmtests.sh -t hmm
-  # #  RUN           hmm.hmm_device_private.exclusive_cow ...
-  # #            OK  hmm.hmm_device_private.exclusive_cow
-  # ok 23 hmm.hmm_device_private.exclusive_cow
-
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 ---
-  mm/memory.c | 2 ++
-  1 file changed, 2 insertions(+)
+ arch/s390/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/memory.c b/mm/memory.c
-index 3b8e56eb08a3..29a75f38df7c 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1208,6 +1208,8 @@ copy_pte_range(struct vm_area_struct *dst_vma, struct vm_area_struct *src_vma,
-  				progress += 8;
-  				continue;
-  			}
-+			ptent = ptep_get(src_pte);
-+			VM_WARN_ON_ONCE(!pte_present(ptent));
-  
-  			/*
-  			 * Device exclusive entry restored, continue by copying
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 771235aee6bf..39e937309fc2 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -449,7 +449,7 @@ config COMPAT
+ 	select COMPAT_OLD_SIGACTION
+ 	select HAVE_UID16
+ 	depends on MULTIUSER
+-	depends on !CC_IS_CLANG
++	depends on !CC_IS_CLANG && !LD_IS_LLD
+ 	help
+ 	  Select this option if you want to enable your system kernel to
+ 	  handle system-calls from ELF binaries for 31 bit ESA.  This option
+
+---
+base-commit: 616c4ea9bce426aa6efd6dc333bdd479ce352df0
+change-id: 20240214-s390-compat-lld-dep-875a6c94be75
+
+Best regards,
 -- 
-2.43.0
-
-
--- 
-Cheers,
-
-David / dhildenb
+Nathan Chancellor <nathan@kernel.org>
 
