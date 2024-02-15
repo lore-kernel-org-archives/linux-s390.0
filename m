@@ -1,35 +1,36 @@
 Received: from mail.xenproject.org (mail.xenproject.org [104.130.215.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60C7C133988;
-	Thu, 15 Feb 2024 15:41:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 822B8131E32;
+	Thu, 15 Feb 2024 15:44:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=104.130.215.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708011676; cv=none; b=ADzyb7LylTiGlYzIpAuPP9H558EkV0R9WqPQOtm3rR9jsyS4XnrVi5CjQWMZbJS6q2YQBOJwdUjDhlRP0/bsc+bRG32mpX+pyYYSz6ZLABsJK+E5evohjOTwauFmRC13VOzhVerrq1Vmh9BTbdMZcXcwNrgm3LFW5NLEVnRzgt0=
+	t=1708011872; cv=none; b=u3tau9wW1xXZF/ic6t0Z2NqTe+seSHubrVhy+QsC6EBxxhnWmM21cQ48Tf7Gde068ISvNdv1BqK32PP5bENKcy8S/ZpYaY+igy647U+ZXa9TBvQzC4FCC8SltQt/TPRO/ai9c7ZxwjaI3rFZOYm4A61U58ZMJP3qd0k5OMJE41Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708011676; c=relaxed/simple;
-	bh=BPxOajaOUpZ8zqhwZLHWGPlmk25NyFlciVy4aXnDiuE=;
-	h=From:To:Subject:Date:Message-Id:MIME-Version; b=Y/RsTmFK1y8mA59h+UrO3NpWUkucGJJJXDk3XNL+ZvSCr4Rl5IzXuleofiiOmpQRhPJxtZ94x7Y7ikE9BLrSc0PSVPvvmKL+knjGySkCGzQH2dDAIXJwqCsDQ/+OB7aMRgBAEeF2E4utSQVrCmPkpHTeK+Dolan1ALVqxf1LZYs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen.org; spf=pass smtp.mailfrom=xen.org; dkim=pass (1024-bit key) header.d=xen.org header.i=@xen.org header.b=Hu3vy5io; arc=none smtp.client-ip=104.130.215.37
+	s=arc-20240116; t=1708011872; c=relaxed/simple;
+	bh=tf6LMRayvs8aoSZxiqZEwaZ7V5TgcIo9fVJuyWSO+FU=;
+	h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=MIbkIkbfq95LFtAdnYBXvTYW5WXkvUI8pwJCZxe9tw9Hqj+ruhCEzlj1fO1wU8tQzkYNKaSxV/lTzsaWJsrgjFPtPcE8qhoJq/JIo+dyZG8J1OOAMEFPhPa9jsLDTDgWkvGtq9WimbL5LCb3gw4Z6FKiK6Be9tjzIBpBjbbBNnM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen.org; spf=pass smtp.mailfrom=xen.org; dkim=pass (1024-bit key) header.d=xen.org header.i=@xen.org header.b=wOERm6ZT; arc=none smtp.client-ip=104.130.215.37
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xen.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=xen.org header.i=@xen.org header.b="Hu3vy5io"
+	dkim=pass (1024-bit key) header.d=xen.org header.i=@xen.org header.b="wOERm6ZT"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=xen.org;
-	s=20200302mail; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:
-	Subject:To:From; bh=TEpTKi5UZCiDihe14d8Icy5BIjVsO8aW29qRo71K668=; b=Hu3vy5ioZ
-	A2o4SB5Ah6zJp7nMx/Qnx/ooYOEoOrdDLeqBIr//u6kyvxrovmIZ/lxMajKOKn+4Pt8/buEe73GBb
-	pqrpMAjM5hYBKdZ+NZI01N1vFsy5vT0M98ud51iJV6Kw0k37LsUfGJd++yOKfOCj1FBdi1fZMtZ8P
-	efGMNk7I=;
+	s=20200302mail; h=Content-Transfer-Encoding:MIME-Version:References:
+	In-Reply-To:Message-Id:Date:Subject:To:From;
+	bh=I+0HAEEY7B8ebrh7W7mzXaPfOq28o4tU8rT0p+AqpXE=; b=wOERm6ZTM/pzHUgQEadMvJJAX3
+	PDRpCWSkDxShRD5XRBxbf1et0sPLU3iAt1IbskBDHW/J8BU/g8YpTS1anHfvaF0bKlU1WFfLcbMFz
+	JDd+Zzm2ACaDvFpGoWLTWLSyL0gFq+2eJ/LcA/mJQz/1+DJF0P7MkfJcWIWbsgx6sf18=;
 Received: from xenbits.xenproject.org ([104.239.192.120])
 	by mail.xenproject.org with esmtp (Exim 4.92)
 	(envelope-from <paul@xen.org>)
-	id 1radgB-0001B5-T7; Thu, 15 Feb 2024 15:29:39 +0000
+	id 1raduL-0001WM-SP; Thu, 15 Feb 2024 15:44:17 +0000
 Received: from 54-240-197-226.amazon.com ([54.240.197.226] helo=REM-PW02S00X.ant.amazon.com)
 	by xenbits.xenproject.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
 	(Exim 4.92)
 	(envelope-from <paul@xen.org>)
-	id 1radgB-00089r-DW; Thu, 15 Feb 2024 15:29:39 +0000
+	id 1radhd-00089r-Po; Thu, 15 Feb 2024 15:31:10 +0000
 From: Paul Durrant <paul@xen.org>
 To: Paolo Bonzini <pbonzini@redhat.com>,
 	Jonathan Corbet <corbet@lwn.net>,
@@ -56,10 +57,12 @@ To: Paolo Bonzini <pbonzini@redhat.com>,
 	linux-kernel@vger.kernel.org,
 	linux-s390@vger.kernel.org,
 	linux-kselftest@vger.kernel.org
-Subject: [PATCH v13 00/21] KVM: xen: update shared_info and vcpu_info handling
-Date: Thu, 15 Feb 2024 15:28:55 +0000
-Message-Id: <20240215152916.1158-1-paul@xen.org>
+Subject: [PATCH v13 20/21] KVM: x86/xen: allow vcpu_info content to be 'safely' copied
+Date: Thu, 15 Feb 2024 15:29:15 +0000
+Message-Id: <20240215152916.1158-21-paul@xen.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20240215152916.1158-1-paul@xen.org>
+References: <20240215152916.1158-1-paul@xen.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -70,90 +73,60 @@ Content-Transfer-Encoding: 8bit
 
 From: Paul Durrant <pdurrant@amazon.com>
 
-This series contains a new patch from Sean added since v12 [1]:
+If the guest sets an explicit vcpu_info GPA then, for any of the first 32
+vCPUs, the content of the default vcpu_info in the shared_info page must be
+copied into the new location. Because this copy may race with event
+delivery (which updates the 'evtchn_pending_sel' field in vcpu_info) there
+needs to be a way to defer that until the copy is complete.
+Happily there is already a shadow of 'evtchn_pending_sel' in kvm_vcpu_xen
+that is used in atomic context if the vcpu_info PFN cache has been
+invalidated so that the update of vcpu_info can be deferred until the
+cache can be refreshed (on vCPU thread's the way back into guest context).
 
-* KVM: s390: Refactor kvm_is_error_gpa() into kvm_is_gpa_in_memslot()
+Also use this shadow if the vcpu_info cache has been *deactivated*, so that
+the VMM can safely copy the vcpu_info content and then re-activate the
+cache with the new GPA. To do this, stop considering an inactive vcpu_info
+cache as a hard error in kvm_xen_set_evtchn_fast().
 
-This frees up the function name kvm_is_error_gpa() such that it can then be
-re-defined in:
+Signed-off-by: Paul Durrant <pdurrant@amazon.com>
+Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
+---
+Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: Sean Christopherson <seanjc@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: x86@kernel.org
 
-* KVM: pfncache: allow a cache to be activated with a fixed (userspace) HVA
+v13:
+ - Patch title change.
 
-to be used for a simple GPA validation helper function. The patch also now
-contains an either/or address check for GPA versus HVA in
-__kvm_gpc_refresh().
+v8:
+ - Update commit comment.
 
-In:
+v6:
+ - New in this version.
+---
+ arch/x86/kvm/xen.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-* KVM: pfncache: add a mark-dirty helper
-
-The function name has been changed from kvm_gpc_mark_dirty() to
-kvm_gpc_mark_dirty_in_slot().
-
-In:
-
-* KVM: x86/xen: allow shared_info to be mapped by fixed HVA
-
-missing HVA validation checks have been added and the 'hva == 0' test
-has been changed to '!hva'. The KVM_XEN_ATTR_TYPE_SHARED_INFO and
-KVM_XEN_ATTR_TYPE_SHARED_INFO_HVA cases are still largely handled as one
-though as separation leads to duplicate calls to
-kvm_xen_shared_info_init() which looks messy.
-
-Also, patches with a 'xen' prefix have now been modified to have a
-'x86/xen' prefix and patches with a 'selftests / xen' prefix have been
-modified to have simply a 'selftests' prefix.
-
-[1] https://lore.kernel.org/kvm/20240115125707.1183-1-paul@xen.org/
-
-David Woodhouse (1):
-  KVM: pfncache: rework __kvm_gpc_refresh() to fix locking issues
-
-Paul Durrant (19):
-  KVM: pfncache: Add a map helper function
-  KVM: pfncache: remove unnecessary exports
-  KVM: x86/xen: mark guest pages dirty with the pfncache lock held
-  KVM: pfncache: add a mark-dirty helper
-  KVM: pfncache: remove KVM_GUEST_USES_PFN usage
-  KVM: pfncache: stop open-coding offset_in_page()
-  KVM: pfncache: include page offset in uhva and use it consistently
-  KVM: pfncache: allow a cache to be activated with a fixed (userspace)
-    HVA
-  KVM: x86/xen: separate initialization of shared_info cache and content
-  KVM: x86/xen: re-initialize shared_info if guest (32/64-bit) mode is
-    set
-  KVM: x86/xen: allow shared_info to be mapped by fixed HVA
-  KVM: x86/xen: allow vcpu_info to be mapped by fixed HVA
-  KVM: selftests: map Xen's shared_info page using HVA rather than GFN
-  KVM: selftests: re-map Xen's vcpu_info using HVA rather than GPA
-  KVM: x86/xen: advertize the KVM_XEN_HVM_CONFIG_SHARED_INFO_HVA
-    capability
-  KVM: x86/xen: split up kvm_xen_set_evtchn_fast()
-  KVM: x86/xen: don't block on pfncache locks in
-    kvm_xen_set_evtchn_fast()
-  KVM: pfncache: check the need for invalidation under read lock first
-  KVM: x86/xen: allow vcpu_info content to be 'safely' copied
-
-Sean Christopherson (1):
-  KVM: s390: Refactor kvm_is_error_gpa() into kvm_is_gpa_in_memslot()
-
- Documentation/virt/kvm/api.rst                |  53 ++-
- arch/s390/kvm/diag.c                          |   2 +-
- arch/s390/kvm/gaccess.c                       |  14 +-
- arch/s390/kvm/kvm-s390.c                      |   4 +-
- arch/s390/kvm/priv.c                          |   4 +-
- arch/s390/kvm/sigp.c                          |   2 +-
- arch/x86/kvm/x86.c                            |   7 +-
- arch/x86/kvm/xen.c                            | 361 +++++++++++------
- include/linux/kvm_host.h                      |  49 ++-
- include/linux/kvm_types.h                     |   8 -
- include/uapi/linux/kvm.h                      |   9 +-
- .../selftests/kvm/x86_64/xen_shinfo_test.c    |  59 ++-
- virt/kvm/pfncache.c                           | 382 ++++++++++--------
- 13 files changed, 591 insertions(+), 363 deletions(-)
-
-
-base-commit: 7455665a3521aa7b56245c0a2810f748adc5fdd4
+diff --git a/arch/x86/kvm/xen.c b/arch/x86/kvm/xen.c
+index 8650141b266e..11ab62ca011d 100644
+--- a/arch/x86/kvm/xen.c
++++ b/arch/x86/kvm/xen.c
+@@ -1802,9 +1802,6 @@ int kvm_xen_set_evtchn_fast(struct kvm_xen_evtchn *xe, struct kvm *kvm)
+ 		WRITE_ONCE(xe->vcpu_idx, vcpu->vcpu_idx);
+ 	}
+ 
+-	if (!vcpu->arch.xen.vcpu_info_cache.active)
+-		return -EINVAL;
+-
+ 	if (xe->port >= max_evtchn_port(kvm))
+ 		return -EINVAL;
+ 
 -- 
 2.39.2
 
