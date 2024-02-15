@@ -1,36 +1,36 @@
 Received: from mail.xenproject.org (mail.xenproject.org [104.130.215.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB137133439;
-	Thu, 15 Feb 2024 15:30:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1F8B1350C1;
+	Thu, 15 Feb 2024 15:30:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=104.130.215.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708011035; cv=none; b=Y7JmPw/MkDvocQowXwfS8ot5MKEz6q2YWWMmzkL9lTpRnLyPZA4FPpBTMUuEnTBCudXl7t4xF7dFwUorJOUWTiI9i40hfa+X97vHrbnkYc5ChyZCgkPvZS7MC/cLilkjDX+i0EOmik6e3AFP+zh31e6k3vimsvQl/siRQpEDCBk=
+	t=1708011040; cv=none; b=LjgyUqcgIEq5oPiaXEgz/pl0zrQoO5fnoX2ibChTVr4gVLtQYL8MUOG1fuUv2hK8kcSyqxEDDl3iuOp0Vz3jyFB+UsRPXkvg5GuUYyBNKq+HWkPrvjjehgUSc7luflChnfSmOORRxf4bl/N71xJgvmejumOqb2K52/OT+sDhBws=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708011035; c=relaxed/simple;
-	bh=Gjh7KJhrYjooGejRnZYLbWryu6U81mbFlCjbGUevu7k=;
+	s=arc-20240116; t=1708011040; c=relaxed/simple;
+	bh=R8mjm6bTMdSdKqKArLsYNQPe2oXTn04HDiw3MW+30do=;
 	h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=rxOtF+1yv6KjaxpNSeWmzj7/2906U4VuRUb8d551AhVlzpm/3W2VlibSmxgp+q0Wo+LSagIQuZ/uYVAUq5ZnbZEBigZinqETU4g6m5K484B1aRUQ4s39++4GcxGxfk1efRbhsbyAWd1gghHKuUlKifi2FBmHGb2cz+57JCApXJE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen.org; spf=pass smtp.mailfrom=xen.org; dkim=pass (1024-bit key) header.d=xen.org header.i=@xen.org header.b=R6SABlyO; arc=none smtp.client-ip=104.130.215.37
+	 MIME-Version; b=VgyNRQnmDeUX2cAY8PnjMYHlDgVgryiSQXPuxQVvXwordZPOMEVKhyUMVvoSHBG/VaFt5pSNUYt8ud+xCCuPJl+9e4l47oyMxmAZX8naLmTUDcWLR/FNZ1jXHtl4P5XkCecbYKd5fYoEaJIcBe5sWlF+Ot3ruNCixFbsS9C2pbU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen.org; spf=pass smtp.mailfrom=xen.org; dkim=pass (1024-bit key) header.d=xen.org header.i=@xen.org header.b=uN7n7u9Q; arc=none smtp.client-ip=104.130.215.37
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xen.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=xen.org header.i=@xen.org header.b="R6SABlyO"
+	dkim=pass (1024-bit key) header.d=xen.org header.i=@xen.org header.b="uN7n7u9Q"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=xen.org;
 	s=20200302mail; h=Content-Transfer-Encoding:MIME-Version:References:
 	In-Reply-To:Message-Id:Date:Subject:To:From;
-	bh=dgg90eY5E+PlYWhnmyGMGapEm6KwHKu4vEv19gqCPLo=; b=R6SABlyOYDCcI7WdYVjD8zW0zg
-	Mgct0KIHxF04fvoHoDoAv7J9JHQjKIF5Qj4ykX1Tel7BWJt2gZHDVlL/O3APTkj352N6cjQhPrV7S
-	3Bjr8kCunaEB68GLNH+sWl2HTQiG8Q2banvc4O0NEhqIL86gNCiCbrx2rkNOeOhpP3M0=;
+	bh=DVmkuHvAJAn35Oz9caMUxenePj8iuuNulYJyd17+sk4=; b=uN7n7u9QS1Sm1pOOOlhRLCrfcV
+	g/qevuY49oxJ5QtFWbF4Wnu8gLqzuDqXrdUCqK6TOjJXAuT46wWIG5zTi+Pfc2UQKl4DZzftLPpvt
+	/igCmUawwEcNjKWix9bVW5A68/uYt+ZiBXnqPbeuHUpExhAotK3N35oSeEXgKGDNeuLU=;
 Received: from xenbits.xenproject.org ([104.239.192.120])
 	by mail.xenproject.org with esmtp (Exim 4.92)
 	(envelope-from <paul@xen.org>)
-	id 1radgn-0001EK-JP; Thu, 15 Feb 2024 15:30:17 +0000
+	id 1radgd-0001Dx-R7; Thu, 15 Feb 2024 15:30:07 +0000
 Received: from 54-240-197-226.amazon.com ([54.240.197.226] helo=REM-PW02S00X.ant.amazon.com)
 	by xenbits.xenproject.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
 	(Exim 4.92)
 	(envelope-from <paul@xen.org>)
-	id 1radgn-00089r-AZ; Thu, 15 Feb 2024 15:30:17 +0000
+	id 1radgd-00089r-Fl; Thu, 15 Feb 2024 15:30:07 +0000
 From: Paul Durrant <paul@xen.org>
 To: Paolo Bonzini <pbonzini@redhat.com>,
 	Jonathan Corbet <corbet@lwn.net>,
@@ -57,9 +57,9 @@ To: Paolo Bonzini <pbonzini@redhat.com>,
 	linux-kernel@vger.kernel.org,
 	linux-s390@vger.kernel.org,
 	linux-kselftest@vger.kernel.org
-Subject: [PATCH v13 04/21] KVM: pfncache: add a mark-dirty helper
-Date: Thu, 15 Feb 2024 15:28:59 +0000
-Message-Id: <20240215152916.1158-5-paul@xen.org>
+Subject: [PATCH v13 01/21] KVM: pfncache: Add a map helper function
+Date: Thu, 15 Feb 2024 15:28:56 +0000
+Message-Id: <20240215152916.1158-2-paul@xen.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240215152916.1158-1-paul@xen.org>
 References: <20240215152916.1158-1-paul@xen.org>
@@ -73,101 +73,117 @@ Content-Transfer-Encoding: 8bit
 
 From: Paul Durrant <pdurrant@amazon.com>
 
-At the moment pages are marked dirty by open-coded calls to
-mark_page_dirty_in_slot(), directly deferefencing the gpa and memslot
-from the cache. After a subsequent patch these may not always be set
-so add a helper now so that caller will protected from the need to know
-about this detail.
+There is a pfncache unmap helper but mapping is open-coded. Arguably this
+is fine because mapping is done in only one place, hva_to_pfn_retry(), but
+adding the helper does make that function more readable.
+
+No functional change intended.
 
 Signed-off-by: Paul Durrant <pdurrant@amazon.com>
 Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
 ---
-Cc: David Woodhouse <dwmw2@infradead.org>
 Cc: Sean Christopherson <seanjc@google.com>
+Cc: David Woodhouse <dwmw2@infradead.org>
 Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: x86@kernel.org
-
-v13:
- - s/kvm_gpc_mark_dirty/kvm_gpc_mark_dirty_in_slot
- - Add a check for a NULL memslot pointer
 
 v8:
- - Make the helper a static inline.
+ - Re-work commit comment.
+ - Fix CONFIG_HAS_IOMEM=n build.
 ---
- arch/x86/kvm/x86.c       |  2 +-
- arch/x86/kvm/xen.c       |  6 +++---
- include/linux/kvm_host.h | 13 +++++++++++++
- 3 files changed, 17 insertions(+), 4 deletions(-)
+ virt/kvm/pfncache.c | 47 ++++++++++++++++++++++++++++-----------------
+ 1 file changed, 29 insertions(+), 18 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index b66c45e7f6f8..16269430006f 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3151,7 +3151,7 @@ static void kvm_setup_guest_pvclock(struct kvm_vcpu *v,
- 
- 	guest_hv_clock->version = ++vcpu->hv_clock.version;
- 
--	mark_page_dirty_in_slot(v->kvm, gpc->memslot, gpc->gpa >> PAGE_SHIFT);
-+	kvm_gpc_mark_dirty_in_slot(gpc);
- 	read_unlock_irqrestore(&gpc->lock, flags);
- 
- 	trace_kvm_pvclock_update(v->vcpu_id, &vcpu->hv_clock);
-diff --git a/arch/x86/kvm/xen.c b/arch/x86/kvm/xen.c
-index f3327508ae41..2d001a9c6378 100644
---- a/arch/x86/kvm/xen.c
-+++ b/arch/x86/kvm/xen.c
-@@ -453,11 +453,11 @@ static void kvm_xen_update_runstate_guest(struct kvm_vcpu *v, bool atomic)
- 	}
- 
- 	if (user_len2) {
--		mark_page_dirty_in_slot(v->kvm, gpc2->memslot, gpc2->gpa >> PAGE_SHIFT);
-+		kvm_gpc_mark_dirty_in_slot(gpc2);
- 		read_unlock(&gpc2->lock);
- 	}
- 
--	mark_page_dirty_in_slot(v->kvm, gpc1->memslot, gpc1->gpa >> PAGE_SHIFT);
-+	kvm_gpc_mark_dirty_in_slot(gpc1);
- 	read_unlock_irqrestore(&gpc1->lock, flags);
+diff --git a/virt/kvm/pfncache.c b/virt/kvm/pfncache.c
+index 2d6aba677830..10842f1eeeae 100644
+--- a/virt/kvm/pfncache.c
++++ b/virt/kvm/pfncache.c
+@@ -96,17 +96,32 @@ bool kvm_gpc_check(struct gfn_to_pfn_cache *gpc, unsigned long len)
  }
+ EXPORT_SYMBOL_GPL(kvm_gpc_check);
  
-@@ -565,7 +565,7 @@ void kvm_xen_inject_pending_events(struct kvm_vcpu *v)
- 		WRITE_ONCE(vi->evtchn_upcall_pending, 1);
- 	}
- 
--	mark_page_dirty_in_slot(v->kvm, gpc->memslot, gpc->gpa >> PAGE_SHIFT);
-+	kvm_gpc_mark_dirty_in_slot(gpc);
- 	read_unlock_irqrestore(&gpc->lock, flags);
- 
- 	/* For the per-vCPU lapic vector, deliver it as MSI. */
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index bbfefd7e612f..5a27b4389d32 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -1398,6 +1398,19 @@ int kvm_gpc_refresh(struct gfn_to_pfn_cache *gpc, unsigned long len);
-  */
- void kvm_gpc_deactivate(struct gfn_to_pfn_cache *gpc);
- 
-+/**
-+ * kvm_gpc_mark_dirty_in_slot - mark a cached guest page as dirty.
-+ *
-+ * @gpc:	   struct gfn_to_pfn_cache object.
-+ */
-+static inline void kvm_gpc_mark_dirty_in_slot(struct gfn_to_pfn_cache *gpc)
-+{
-+	lockdep_assert_held(&gpc->lock);
-+	if (gpc->memslot)
-+		mark_page_dirty_in_slot(gpc->kvm, gpc->memslot,
-+					gpc->gpa >> PAGE_SHIFT);
+-static void gpc_unmap_khva(kvm_pfn_t pfn, void *khva)
++static void *gpc_map(kvm_pfn_t pfn)
+ {
+-	/* Unmap the old pfn/page if it was mapped before. */
+-	if (!is_error_noslot_pfn(pfn) && khva) {
+-		if (pfn_valid(pfn))
+-			kunmap(pfn_to_page(pfn));
++	if (pfn_valid(pfn))
++		return kmap(pfn_to_page(pfn));
++
+ #ifdef CONFIG_HAS_IOMEM
+-		else
+-			memunmap(khva);
++	return memremap(pfn_to_hpa(pfn), PAGE_SIZE, MEMREMAP_WB);
++#else
++	return NULL;
+ #endif
 +}
 +
- void kvm_sigset_activate(struct kvm_vcpu *vcpu);
- void kvm_sigset_deactivate(struct kvm_vcpu *vcpu);
++static void gpc_unmap(kvm_pfn_t pfn, void *khva)
++{
++	/* Unmap the old pfn/page if it was mapped before. */
++	if (is_error_noslot_pfn(pfn) || !khva)
++		return;
++
++	if (pfn_valid(pfn)) {
++		kunmap(pfn_to_page(pfn));
++		return;
+ 	}
++
++#ifdef CONFIG_HAS_IOMEM
++	memunmap(khva);
++#endif
+ }
  
+ static inline bool mmu_notifier_retry_cache(struct kvm *kvm, unsigned long mmu_seq)
+@@ -175,7 +190,7 @@ static kvm_pfn_t hva_to_pfn_retry(struct gfn_to_pfn_cache *gpc)
+ 			 * the existing mapping and didn't create a new one.
+ 			 */
+ 			if (new_khva != old_khva)
+-				gpc_unmap_khva(new_pfn, new_khva);
++				gpc_unmap(new_pfn, new_khva);
+ 
+ 			kvm_release_pfn_clean(new_pfn);
+ 
+@@ -193,15 +208,11 @@ static kvm_pfn_t hva_to_pfn_retry(struct gfn_to_pfn_cache *gpc)
+ 		 * too must be done outside of gpc->lock!
+ 		 */
+ 		if (gpc->usage & KVM_HOST_USES_PFN) {
+-			if (new_pfn == gpc->pfn) {
++			if (new_pfn == gpc->pfn)
+ 				new_khva = old_khva;
+-			} else if (pfn_valid(new_pfn)) {
+-				new_khva = kmap(pfn_to_page(new_pfn));
+-#ifdef CONFIG_HAS_IOMEM
+-			} else {
+-				new_khva = memremap(pfn_to_hpa(new_pfn), PAGE_SIZE, MEMREMAP_WB);
+-#endif
+-			}
++			else
++				new_khva = gpc_map(new_pfn);
++
+ 			if (!new_khva) {
+ 				kvm_release_pfn_clean(new_pfn);
+ 				goto out_error;
+@@ -326,7 +337,7 @@ static int __kvm_gpc_refresh(struct gfn_to_pfn_cache *gpc, gpa_t gpa,
+ 	mutex_unlock(&gpc->refresh_lock);
+ 
+ 	if (unmap_old)
+-		gpc_unmap_khva(old_pfn, old_khva);
++		gpc_unmap(old_pfn, old_khva);
+ 
+ 	return ret;
+ }
+@@ -412,7 +423,7 @@ void kvm_gpc_deactivate(struct gfn_to_pfn_cache *gpc)
+ 		list_del(&gpc->list);
+ 		spin_unlock(&kvm->gpc_lock);
+ 
+-		gpc_unmap_khva(old_pfn, old_khva);
++		gpc_unmap(old_pfn, old_khva);
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(kvm_gpc_deactivate);
 -- 
 2.39.2
 
