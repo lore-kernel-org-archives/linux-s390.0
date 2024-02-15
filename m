@@ -1,93 +1,95 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AE90250F6;
-	Wed, 14 Feb 2024 22:54:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53C1133C5;
+	Thu, 15 Feb 2024 07:03:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707951244; cv=none; b=JlThhxwHTg59DSzkQkfFZ7JCOqNpLSRmdSiyEZ2VIh6TVKWqnpMZiaBOqb91qhk1INCoIiqmhclppxmyKv4As0aNN/VUVVW3mLDCmp6c7I8GKmcLx/HlbAG3agq5DvI95meeH6NuzG/aja6Dej7f5xCfWVerThVMyvmPeILtitQ=
+	t=1707980600; cv=none; b=kazT+qEQXyzI8piNAyShTHXYFtijqOkZeNfHQjMcxNzgxB5SduPE9Vn1WM6O95krLVyWQFGPHgx2GYLv2rHkYx48a0ICBTH1y9nk83uI7yFMvitmI10bIPyG/N6YSgNfDffJC6J/FgK1rR6HyScrgBhJs3nU4i489ymBMgLHRYE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707951244; c=relaxed/simple;
-	bh=7zPvpgdu9M/4TgZk75pw4da+3dcufuwAo9LaXXY4FSY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=cjIFffVZFZOSG3L4mJj/SmsrqPwauVxqAAW0z9ksXa+5GWgmmIMzVLNj0itCnM/GnbQEuCyw5agx/nYrt5NyCEiS5C+kTzRNYsRdlVmil63lOvSiIhP7JIEOuxgDuEt9P/9a7z0MBizfOH6DDXm55rgV3qcvXz3aKEQKj9cRtUU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Wi2jXtFf; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1707980600; c=relaxed/simple;
+	bh=U4yOpDeN09NExZEPN46FgqX+fcF5jxPj58pyagQwFFE=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=RdJIgxSwdPWt619RUuf5XASsbK+A3+JenO3pYDlE9sKFAXil3LVa3d2okXkPSp6IaQx/xSHyymduQjwnDkjUCSFc2oLC4nyyQDyXux+Y+drjUFWKKENhXgp7lg3uoMNwjYrUIOf3rn4WUruEup8esxARWYqXJbaWfG64RezmjDQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=XY72oYnL; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Wi2jXtFf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 081B4C433C7;
-	Wed, 14 Feb 2024 22:54:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1707951243;
-	bh=7zPvpgdu9M/4TgZk75pw4da+3dcufuwAo9LaXXY4FSY=;
-	h=From:Date:Subject:To:Cc:From;
-	b=Wi2jXtFfLTZr0F2by/Ac4uNb+L7cx/kycnaH9Z7cuPnCALbL6rCSNFz/8N42AKCzm
-	 BtsJ9v9OCjm9K0DnnDYGY4frmUyMyBmpO7/bsnlFPI/I0/s2FNB/Mr4lr0fn+H/6zl
-	 NDEf0nlGUNwOWz8Ev5RDzmTz0iNz/Ef+X2Nf1K5Cn87mrqJXoAYHtmh03eGurX2viD
-	 RFZBnI2Ekl1Fubfnu8Pqvn/Azo+QTp/Su/ztRJaQuZrM8dbvFRi6SG+n3j8qSWVuS8
-	 qzX1U34ua3HG3o485UJSbXRlFLrzG/ZyHFAmunXz+2h7kVj5RDD5vvR0g05v5G7RVq
-	 slqwXsxM+ocXA==
-From: Nathan Chancellor <nathan@kernel.org>
-Date: Wed, 14 Feb 2024 15:53:48 -0700
-Subject: [PATCH] s390: Don't allow CONFIG_COMPAT with LD=ld.lld
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="XY72oYnL"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+	Content-ID:Content-Description:In-Reply-To:References;
+	bh=K2FgxI/Q5z39NeiH1eGPpjIbdu8553gMMeg+3F7f/g0=; b=XY72oYnL7yvCvK8xeQhtM8J9nH
+	GQ115g5bBxrJPMyB0kUAzpWVesmy/dAZHeFVEqkkVzviYdmEXVdln4vL7iZAyXAnMNSBAG2Ona+nB
+	ST3R9rDYwtkhlC/pNHvAyoa005k0tzhnlyb8v0ct42hSvgJ8PJyUJBa86eQ/vP3ipmXU8k60ydOor
+	FwM+vuChUf0fPpJ6dD1uhGK2VxiPc/U+IE7HiNpxbyWQKJavy2q2EoOo89EySCCYHotcNESZMslD4
+	PXcLVqhsnGgsShRW9HD4JMmDgWbJ0wlRD6egcjphmvGFg8Le812rGfhT345Z22C+NXJCjoj3pACXc
+	5h7l5ICg==;
+Received: from 2a02-8389-2341-5b80-39d3-4735-9a3c-88d8.cable.dynamic.v6.surfer.at ([2a02:8389:2341:5b80:39d3:4735:9a3c:88d8] helo=localhost)
+	by bombadil.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1raVlz-0000000FANl-1akg;
+	Thu, 15 Feb 2024 07:03:07 +0000
+From: Christoph Hellwig <hch@lst.de>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Justin Sanders <justin@coraid.com>,
+	Denis Efremov <efremov@linux.com>,
+	Josef Bacik <josef@toxicpanda.com>,
+	Geoff Levand <geoff@infradead.org>,
+	Ilya Dryomov <idryomov@gmail.com>,
+	"Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+	Jack Wang <jinpu.wang@ionos.com>,
+	Ming Lei <ming.lei@redhat.com>,
+	Maxim Levitsky <maximlevitsky@gmail.com>,
+	Alex Dubov <oakad@yahoo.com>,
+	Ulf Hansson <ulf.hansson@linaro.org>,
+	Miquel Raynal <miquel.raynal@bootlin.com>,
+	Vignesh Raghavendra <vigneshr@ti.com>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	linux-block@vger.kernel.org,
+	nbd@other.debian.org,
+	ceph-devel@vger.kernel.org,
+	linux-mmc@vger.kernel.org,
+	linux-mtd@lists.infradead.org,
+	linux-s390@vger.kernel.org
+Subject: pass queue_limits to blk_mq_alloc_disk for simple drivers
+Date: Thu, 15 Feb 2024 08:02:43 +0100
+Message-Id: <20240215070300.2200308-1-hch@lst.de>
+X-Mailer: git-send-email 2.39.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20240214-s390-compat-lld-dep-v1-1-abf1f4b5e514@kernel.org>
-X-B4-Tracking: v=1; b=H4sIAHtEzWUC/x3MywqAIBBA0V+JWTdgZs9fiRamUw30EI0IpH9PW
- p7FvRECeaYAfRbB082BzyOhyDMwqz4WQrbJIIVUQhYKQ9kJNOfu9IXbZtGSw7apdG06NVFTQSq
- dp5mf/zqM7/sBpcGjtmUAAAA=
-To: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, morbo@google.com, 
- justinstitt@google.com, linux-s390@vger.kernel.org, llvm@lists.linux.dev, 
- patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>
-X-Mailer: b4 0.13-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1251; i=nathan@kernel.org;
- h=from:subject:message-id; bh=7zPvpgdu9M/4TgZk75pw4da+3dcufuwAo9LaXXY4FSY=;
- b=owGbwMvMwCUmm602sfCA1DTG02pJDKlnXbreXk45+qN2+vcD2/TunfzMt//loXf6y94aHXl0I
- cdHMuhFVEcpC4MYF4OsmCJL9WPV44aGc84y3jg1CWYOKxPIEAYuTgGYyN9IRoazfs0bikq3na3a
- tmN5S+oHh4rOGZwBouvFIqUbG4+cbFBiZNgke3rPZIt0F9bkwvel4QeWTtE0eqwZvCI4c90/t0X
- LzVgA
-X-Developer-Key: i=nathan@kernel.org; a=openpgp;
- fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-When building 'ARCH=s390 defconfig compat.config' with GCC and
-LD=ld.lld, there is an error when attempting to link the compat vDSO:
+Hi Jens,
 
-  ld.lld: error: unknown emulation: elf_s390
-  make[4]: *** [arch/s390/kernel/vdso32/Makefile:48: arch/s390/kernel/vdso32/vdso32.so.dbg] Error 1
+this series converts all "simple" blk-mq drivers that don't have complex
+internal layering or other oddities to pass the queue_limits to
+blk_mq_alloc_disk.  None of these drivers updates the limits at runtime.
 
-Much like clang, ld.lld only supports the 64-bit s390 emulation. Add a
-dependency on not using LLD to CONFIG_COMPAT to avoid breaking the build
-with this toolchain combination.
 
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
- arch/s390/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 771235aee6bf..39e937309fc2 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -449,7 +449,7 @@ config COMPAT
- 	select COMPAT_OLD_SIGACTION
- 	select HAVE_UID16
- 	depends on MULTIUSER
--	depends on !CC_IS_CLANG
-+	depends on !CC_IS_CLANG && !LD_IS_LLD
- 	help
- 	  Select this option if you want to enable your system kernel to
- 	  handle system-calls from ELF binaries for 31 bit ESA.  This option
-
----
-base-commit: 616c4ea9bce426aa6efd6dc333bdd479ce352df0
-change-id: 20240214-s390-compat-lld-dep-875a6c94be75
-
-Best regards,
--- 
-Nathan Chancellor <nathan@kernel.org>
-
+Diffstat:
+ arch/um/drivers/ubd_kern.c          |    8 +-
+ drivers/block/aoe/aoeblk.c          |   15 ++---
+ drivers/block/floppy.c              |    6 +-
+ drivers/block/mtip32xx/mtip32xx.c   |   13 ++--
+ drivers/block/nbd.c                 |   13 ++--
+ drivers/block/ps3disk.c             |   17 +++---
+ drivers/block/rbd.c                 |   29 +++++-----
+ drivers/block/rnbd/rnbd-clt.c       |   64 +++++++++--------------
+ drivers/block/sunvdc.c              |   18 +++---
+ drivers/block/ublk_drv.c            |   90 +++++++++++++++------------------
+ drivers/cdrom/gdrom.c               |   14 ++---
+ drivers/memstick/core/ms_block.c    |   14 ++---
+ drivers/memstick/core/mspro_block.c |   15 ++---
+ drivers/mmc/core/queue.c            |   97 +++++++++++++++++++-----------------
+ drivers/mtd/mtd_blkdevs.c           |   12 ++--
+ drivers/mtd/ubi/block.c             |    6 +-
+ drivers/s390/block/scm_blk.c        |   17 +++---
+ 17 files changed, 222 insertions(+), 226 deletions(-)
