@@ -1,36 +1,36 @@
 Received: from mail.xenproject.org (mail.xenproject.org [104.130.215.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B3E8134745;
-	Thu, 15 Feb 2024 15:44:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CED6A134CF3;
+	Thu, 15 Feb 2024 15:44:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=104.130.215.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708011876; cv=none; b=JD2b2bojw5Jyf9A5LBHdjmY6HTbAoyPadkGHqOaAK1RCmeD9E0PyiB+VDebYVWZR9G0pS4OO1V0rYJ6U/E+ItXYL0qRaMXBJ1z/qsx1fSaAnai9IzxR6H681nZUxJiUlhRGgtU1dBPPodaCe5+VpFbZpqrHyyk0w5/EIbi4+Cgk=
+	t=1708011877; cv=none; b=G4UPgVuRKlJ0Lfo+m+vQoll61DF8CWPK/hVMMm9aiH/7dPW2KpliJbTjbnyZkJLwr4Pi9R3aNkYunV6FG3uWl7kisA6Ck1AlpqGMN73auO0kHqVOaZ1SYwZwVUz3QGKMu+LGWDpuESVnPRR9+aXhBhjWlZ5IonTl9gWOkbwj7gM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708011876; c=relaxed/simple;
-	bh=vD0tK+73URbDnBXkj88m52MT44LmjoIEES/dfYqUt+k=;
+	s=arc-20240116; t=1708011877; c=relaxed/simple;
+	bh=szYE4dBrS14T5FnVhn+t4sIXYh2/J0t9jHt/WAPjtCM=;
 	h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=libeWYlxeCClNMmGFqVwFRuITGCr7VNXdn+ygHczpv8oI0dVUIexAyaaHuYZQBgUfZ616ZmFrFLoAgEgBei5HqN947n1PNPeO4kXoUhoSMI10GIsm6cXBDo9vWiqHsdFYQ7MxFLcngcoacqDtuoYQ+HOcptvM0jZo1VIDNNTQec=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen.org; spf=pass smtp.mailfrom=xen.org; dkim=pass (1024-bit key) header.d=xen.org header.i=@xen.org header.b=PKyFH96e; arc=none smtp.client-ip=104.130.215.37
+	 MIME-Version; b=TBjMa7AvSMc8DUl/RUcxAi7dBRAmDkn6Hs2AXa3y1JRz7oO5SJu9nMab5eZDOfaHrCeZ8a2RUsbf2K5AU7u4JyXfza92pv7FkKdwSPQrJ7LlfN1iRC/Lddzzb5UZupF+hfdg+qUDDaCsm4PoEB8hM6gkwSKey1O4NOu5471+bMY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen.org; spf=pass smtp.mailfrom=xen.org; dkim=pass (1024-bit key) header.d=xen.org header.i=@xen.org header.b=LDDATzJU; arc=none smtp.client-ip=104.130.215.37
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xen.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=xen.org header.i=@xen.org header.b="PKyFH96e"
+	dkim=pass (1024-bit key) header.d=xen.org header.i=@xen.org header.b="LDDATzJU"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=xen.org;
 	s=20200302mail; h=Content-Transfer-Encoding:MIME-Version:References:
 	In-Reply-To:Message-Id:Date:Subject:To:From;
-	bh=tu7qwya2jtZUkrGPS+XN5zC966KqDMkYx6RM2c1jNNc=; b=PKyFH96eF/msDV4UydBnvnU65q
-	q7/PuS+babK9499TsL2cxQ/CmKOo9mBDnN1YPI2rwLlUPZr0dtcoCjvGwskfFSkBwcnj2MZrg7tcC
-	kmgLHL7N2e3jk8xQUndEVm7Vzj6iKT8gT9QvRyanlj5fIP1zKG9z2bEWJ8BYug6Qly/s=;
+	bh=1MkSaLF7c08GKXChco4qld/H7sOx3qJp6Y3BVchMvB4=; b=LDDATzJUtbk4aXB5cGW8Z7kXBN
+	/U8PGPAtsqIfrudSvWx+sTGNOOsS+AemAudbmeHvIKgE6EoG3uGIQ6rslkmMeC6JD50m2Ejy8NTQ/
+	BOjU0elxcCBcnnHbqc/5/KUIq3GT7jFCvAg1Y7CJquhTXVqh0V8LGNRKVoPaOSpzT+hI=;
 Received: from xenbits.xenproject.org ([104.239.192.120])
 	by mail.xenproject.org with esmtp (Exim 4.92)
 	(envelope-from <paul@xen.org>)
-	id 1raduM-0001WY-Ah; Thu, 15 Feb 2024 15:44:18 +0000
+	id 1raduL-0001WO-V7; Thu, 15 Feb 2024 15:44:17 +0000
 Received: from 54-240-197-226.amazon.com ([54.240.197.226] helo=REM-PW02S00X.ant.amazon.com)
 	by xenbits.xenproject.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
 	(Exim 4.92)
 	(envelope-from <paul@xen.org>)
-	id 1radhK-00089r-41; Thu, 15 Feb 2024 15:30:50 +0000
+	id 1radh7-00089r-0K; Thu, 15 Feb 2024 15:30:37 +0000
 From: Paul Durrant <paul@xen.org>
 To: Paolo Bonzini <pbonzini@redhat.com>,
 	Jonathan Corbet <corbet@lwn.net>,
@@ -57,9 +57,9 @@ To: Paolo Bonzini <pbonzini@redhat.com>,
 	linux-kernel@vger.kernel.org,
 	linux-s390@vger.kernel.org,
 	linux-kselftest@vger.kernel.org
-Subject: [PATCH v13 14/21] KVM: selftests: map Xen's shared_info page using HVA rather than GFN
-Date: Thu, 15 Feb 2024 15:29:09 +0000
-Message-Id: <20240215152916.1158-15-paul@xen.org>
+Subject: [PATCH v13 10/21] KVM: x86/xen: separate initialization of shared_info cache and content
+Date: Thu, 15 Feb 2024 15:29:05 +0000
+Message-Id: <20240215152916.1158-11-paul@xen.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240215152916.1158-1-paul@xen.org>
 References: <20240215152916.1158-1-paul@xen.org>
@@ -73,125 +73,128 @@ Content-Transfer-Encoding: 8bit
 
 From: Paul Durrant <pdurrant@amazon.com>
 
-Using the HVA of the shared_info page is more efficient, so if the
-capability (KVM_XEN_HVM_CONFIG_SHARED_INFO_HVA) is present use that method
-to do the mapping.
-
-NOTE: Have the juggle_shinfo_state() thread map and unmap using both
-      GFN and HVA, to make sure the older mechanism is not broken.
+A subsequent patch will allow shared_info to be initialized using either a
+GPA or a user-space (i.e. VMM) HVA. To make that patch cleaner, separate
+the initialization of the shared_info content from the activation of the
+pfncache.
 
 Signed-off-by: Paul Durrant <pdurrant@amazon.com>
 Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
 ---
 Cc: Sean Christopherson <seanjc@google.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
 Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: x86@kernel.org
 
 v13:
  - Patch title change.
 
-v3:
- - Re-work the juggle_shinfo_state() thread.
+v11:
+ - Fix accidental regression from commit 5d6d6a7d7e66a ("KVM: x86: Refine
+   calculation of guest wall clock to use a single TSC read").
 
-v2:
+v10:
  - New in this version.
 ---
- .../selftests/kvm/x86_64/xen_shinfo_test.c    | 44 +++++++++++++++----
- 1 file changed, 35 insertions(+), 9 deletions(-)
+ arch/x86/kvm/xen.c | 55 +++++++++++++++++++++++++++-------------------
+ 1 file changed, 32 insertions(+), 23 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/x86_64/xen_shinfo_test.c b/tools/testing/selftests/kvm/x86_64/xen_shinfo_test.c
-index 9ec9ab60b63e..a61500ff0822 100644
---- a/tools/testing/selftests/kvm/x86_64/xen_shinfo_test.c
-+++ b/tools/testing/selftests/kvm/x86_64/xen_shinfo_test.c
-@@ -389,6 +389,7 @@ static int cmp_timespec(struct timespec *a, struct timespec *b)
- 		return 0;
- }
+diff --git a/arch/x86/kvm/xen.c b/arch/x86/kvm/xen.c
+index e90464225467..031e98d88ba2 100644
+--- a/arch/x86/kvm/xen.c
++++ b/arch/x86/kvm/xen.c
+@@ -34,41 +34,32 @@ static bool kvm_xen_hcall_evtchn_send(struct kvm_vcpu *vcpu, u64 param, u64 *r);
  
-+static struct shared_info *shinfo;
- static struct vcpu_info *vinfo;
- static struct kvm_vcpu *vcpu;
+ DEFINE_STATIC_KEY_DEFERRED_FALSE(kvm_xen_enabled, HZ);
  
-@@ -404,20 +405,38 @@ static void *juggle_shinfo_state(void *arg)
+-static int kvm_xen_shared_info_init(struct kvm *kvm, gfn_t gfn)
++static int kvm_xen_shared_info_init(struct kvm *kvm)
  {
- 	struct kvm_vm *vm = (struct kvm_vm *)arg;
+ 	struct gfn_to_pfn_cache *gpc = &kvm->arch.xen.shinfo_cache;
+ 	struct pvclock_wall_clock *wc;
+-	gpa_t gpa = gfn_to_gpa(gfn);
+ 	u32 *wc_sec_hi;
+ 	u32 wc_version;
+ 	u64 wall_nsec;
+ 	int ret = 0;
+ 	int idx = srcu_read_lock(&kvm->srcu);
  
--	struct kvm_xen_hvm_attr cache_activate = {
-+	struct kvm_xen_hvm_attr cache_activate_gfn = {
- 		.type = KVM_XEN_ATTR_TYPE_SHARED_INFO,
- 		.u.shared_info.gfn = SHINFO_REGION_GPA / PAGE_SIZE
- 	};
+-	if (gfn == KVM_XEN_INVALID_GFN) {
+-		kvm_gpc_deactivate(gpc);
+-		goto out;
+-	}
++	read_lock_irq(&gpc->lock);
++	while (!kvm_gpc_check(gpc, PAGE_SIZE)) {
++		read_unlock_irq(&gpc->lock);
  
--	struct kvm_xen_hvm_attr cache_deactivate = {
-+	struct kvm_xen_hvm_attr cache_deactivate_gfn = {
- 		.type = KVM_XEN_ATTR_TYPE_SHARED_INFO,
- 		.u.shared_info.gfn = KVM_XEN_INVALID_GFN
- 	};
+-	do {
+-		ret = kvm_gpc_activate(gpc, gpa, PAGE_SIZE);
++		ret = kvm_gpc_refresh(gpc, PAGE_SIZE);
+ 		if (ret)
+ 			goto out;
  
-+	struct kvm_xen_hvm_attr cache_activate_hva = {
-+		.type = KVM_XEN_ATTR_TYPE_SHARED_INFO_HVA,
-+		.u.shared_info.hva = (unsigned long)shinfo
-+	};
-+
-+	struct kvm_xen_hvm_attr cache_deactivate_hva = {
-+		.type = KVM_XEN_ATTR_TYPE_SHARED_INFO,
-+		.u.shared_info.hva = 0
-+	};
-+
-+	int xen_caps = kvm_check_cap(KVM_CAP_XEN_HVM);
-+
- 	for (;;) {
--		__vm_ioctl(vm, KVM_XEN_HVM_SET_ATTR, &cache_activate);
--		__vm_ioctl(vm, KVM_XEN_HVM_SET_ATTR, &cache_deactivate);
-+		__vm_ioctl(vm, KVM_XEN_HVM_SET_ATTR, &cache_activate_gfn);
- 		pthread_testcancel();
-+		__vm_ioctl(vm, KVM_XEN_HVM_SET_ATTR, &cache_deactivate_gfn);
-+
-+		if (xen_caps & KVM_XEN_HVM_CONFIG_SHARED_INFO_HVA) {
-+			__vm_ioctl(vm, KVM_XEN_HVM_SET_ATTR, &cache_activate_hva);
-+			pthread_testcancel();
-+			__vm_ioctl(vm, KVM_XEN_HVM_SET_ATTR, &cache_deactivate_hva);
-+		}
- 	}
- 
- 	return NULL;
-@@ -442,6 +461,7 @@ int main(int argc, char *argv[])
- 	bool do_runstate_flag = !!(xen_caps & KVM_XEN_HVM_CONFIG_RUNSTATE_UPDATE_FLAG);
- 	bool do_eventfd_tests = !!(xen_caps & KVM_XEN_HVM_CONFIG_EVTCHN_2LEVEL);
- 	bool do_evtchn_tests = do_eventfd_tests && !!(xen_caps & KVM_XEN_HVM_CONFIG_EVTCHN_SEND);
-+	bool has_shinfo_hva = !!(xen_caps & KVM_XEN_HVM_CONFIG_SHARED_INFO_HVA);
- 
- 	clock_gettime(CLOCK_REALTIME, &min_ts);
- 
-@@ -452,7 +472,7 @@ int main(int argc, char *argv[])
- 				    SHINFO_REGION_GPA, SHINFO_REGION_SLOT, 3, 0);
- 	virt_map(vm, SHINFO_REGION_GVA, SHINFO_REGION_GPA, 3);
- 
--	struct shared_info *shinfo = addr_gpa2hva(vm, SHINFO_VADDR);
-+	shinfo = addr_gpa2hva(vm, SHINFO_VADDR);
- 
- 	int zero_fd = open("/dev/zero", O_RDONLY);
- 	TEST_ASSERT(zero_fd != -1, "Failed to open /dev/zero");
-@@ -488,10 +508,16 @@ int main(int argc, char *argv[])
- 			    "Failed to read back RUNSTATE_UPDATE_FLAG attr");
- 	}
- 
--	struct kvm_xen_hvm_attr ha = {
--		.type = KVM_XEN_ATTR_TYPE_SHARED_INFO,
--		.u.shared_info.gfn = SHINFO_REGION_GPA / PAGE_SIZE,
--	};
-+	struct kvm_xen_hvm_attr ha = {};
-+
-+	if (has_shinfo_hva) {
-+		ha.type = KVM_XEN_ATTR_TYPE_SHARED_INFO_HVA;
-+		ha.u.shared_info.hva = (unsigned long)shinfo;
-+	} else {
-+		ha.type = KVM_XEN_ATTR_TYPE_SHARED_INFO;
-+		ha.u.shared_info.gfn = SHINFO_ADDR / PAGE_SIZE;
+-		/*
+-		 * This code mirrors kvm_write_wall_clock() except that it writes
+-		 * directly through the pfn cache and doesn't mark the page dirty.
+-		 */
+-		wall_nsec = kvm_get_wall_clock_epoch(kvm);
+-
+-		/* It could be invalid again already, so we need to check */
+ 		read_lock_irq(&gpc->lock);
 +	}
-+
- 	vm_ioctl(vm, KVM_XEN_HVM_SET_ATTR, &ha);
  
- 	/*
+-		if (gpc->valid)
+-			break;
+-
+-		read_unlock_irq(&gpc->lock);
+-	} while (1);
++	/*
++	 * This code mirrors kvm_write_wall_clock() except that it writes
++	 * directly through the pfn cache and doesn't mark the page dirty.
++	 */
++	wall_nsec = kvm_get_wall_clock_epoch(kvm);
+ 
+ 	/* Paranoia checks on the 32-bit struct layout */
+ 	BUILD_BUG_ON(offsetof(struct compat_shared_info, wc) != 0x900);
+@@ -639,12 +630,30 @@ int kvm_xen_hvm_set_attr(struct kvm *kvm, struct kvm_xen_hvm_attr *data)
+ 		}
+ 		break;
+ 
+-	case KVM_XEN_ATTR_TYPE_SHARED_INFO:
++	case KVM_XEN_ATTR_TYPE_SHARED_INFO: {
++		int idx;
++
+ 		mutex_lock(&kvm->arch.xen.xen_lock);
+-		r = kvm_xen_shared_info_init(kvm, data->u.shared_info.gfn);
++
++		idx = srcu_read_lock(&kvm->srcu);
++
++		if (data->u.shared_info.gfn == KVM_XEN_INVALID_GFN) {
++			kvm_gpc_deactivate(&kvm->arch.xen.shinfo_cache);
++			r = 0;
++		} else {
++			r = kvm_gpc_activate(&kvm->arch.xen.shinfo_cache,
++					     gfn_to_gpa(data->u.shared_info.gfn),
++					     PAGE_SIZE);
++		}
++
++		srcu_read_unlock(&kvm->srcu, idx);
++
++		if (!r && kvm->arch.xen.shinfo_cache.active)
++			r = kvm_xen_shared_info_init(kvm);
++
+ 		mutex_unlock(&kvm->arch.xen.xen_lock);
+ 		break;
+-
++	}
+ 	case KVM_XEN_ATTR_TYPE_UPCALL_VECTOR:
+ 		if (data->u.vector && data->u.vector < 0x10)
+ 			r = -EINVAL;
 -- 
 2.39.2
 
