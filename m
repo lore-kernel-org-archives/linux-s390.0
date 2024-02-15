@@ -1,36 +1,36 @@
 Received: from mail.xenproject.org (mail.xenproject.org [104.130.215.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 881FC1350F8;
-	Thu, 15 Feb 2024 15:44:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD2F2135A5D;
+	Thu, 15 Feb 2024 15:44:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=104.130.215.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708011878; cv=none; b=ip6/dm2Sye0JDiM8Ql/IrgkHjtJadDfPJmjFQVbRjnBakXPApTFUtVoIrSeHImfjU2OUVkCrquckc7Mqqqv7eRCyAGjvOFiI8ffDs0HBmKbs6nz6qHXspON/obVLx7D4ZyuLzC1m+OKeGQcWkO98OxDnP7BL9EsAkjnobr1QKG4=
+	t=1708011880; cv=none; b=Iini8eHmHeFuUOHb0rafcbO8MOrtIZL/a+hiOwvaSDc6DohCEnCvdFLgAvheRYhlGl4reZLI+QzF5v5wpAOpt1W3yZn/JtlWbj6MrBRyM8kZ/MKuqi0abJSBNGKApBFXP/dwybXlA2Jwywrp3pMLBjM8ycpLVSgstaX4WYMvZes=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708011878; c=relaxed/simple;
-	bh=GEl0WYcie8FwL3loZwHXIRILLofrgvbERfHmVRWJWXg=;
+	s=arc-20240116; t=1708011880; c=relaxed/simple;
+	bh=jamOUiu5lQ6zoQwEZ5Si401NudxQcl8ZjbzfUSAqIxE=;
 	h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=E9BbKBg3Tql09a5wE449H2pbjpdXtR8yOaq7kGKWSn/PZXPsakQEVp9/MowQCNco5TykseLt9iiBv1MQ5sjK9cf2uOco7fY8mLCCmytBaQdKx1NQZociE6OBF64L13uNcQc1rI1hI2lN4Ox6ZyWY81ztzJMIbQyTIrGeaSjrNtI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen.org; spf=pass smtp.mailfrom=xen.org; dkim=pass (1024-bit key) header.d=xen.org header.i=@xen.org header.b=TEblCqH/; arc=none smtp.client-ip=104.130.215.37
+	 MIME-Version:Content-Type; b=XUm0QHW0xe7BnbPmJGts7KMrAbnIL0HqM2l50uslZABztE1h4Wb7LXrDhLLOTDBUIcw4KixTcGOpmM7JEkrB7Issz/AkP0Zk3OmZzqSEjTNcxakpQ2rNTq1kQx6URgx2rRmNsNcy3old6DsX44YAL864enXHmXniwJc1NQ5zeJU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen.org; spf=pass smtp.mailfrom=xen.org; dkim=pass (1024-bit key) header.d=xen.org header.i=@xen.org header.b=HVnql+R7; arc=none smtp.client-ip=104.130.215.37
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xen.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xen.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=xen.org header.i=@xen.org header.b="TEblCqH/"
+	dkim=pass (1024-bit key) header.d=xen.org header.i=@xen.org header.b="HVnql+R7"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=xen.org;
-	s=20200302mail; h=Content-Transfer-Encoding:MIME-Version:References:
-	In-Reply-To:Message-Id:Date:Subject:To:From;
-	bh=ghGe5PwDz8Z1vSkOspvGb/Fj1hJgFrWoWha0X2F78wA=; b=TEblCqH/HbkA9GJLgGlZwzaSP1
-	8bj7s92+h2LTJ43aknECcqYYCIr1jlt8TnhEa4JN480IA9mOk27WADE63NbQi4Tw3q0PXM6pn0A+C
-	lgcEMrHQ7U/y2kZKzo9k0ymT7rChoavhH4oiSIFqHeJvxbOaOg54ApsfL5foVbRdVOE4=;
+	s=20200302mail; h=Content-Transfer-Encoding:Content-Type:MIME-Version:
+	References:In-Reply-To:Message-Id:Date:Subject:To:From;
+	bh=ZxLu2L3EQRBVOIZcp8jrgh2VrxikcN7ir8gRMfEtsRs=; b=HVnql+R7gxtXpdeXHDwI1BRbRG
+	MNLK6QX/3GUBzZd+IU3Wo/qN8edQUgRk9scwuKE8+VldNomyIhSqpwuQreVW0U+bFv38nIXDkKezX
+	9XDUhZtyWD1EHJvdAwXwPIshFDRVD6bKt+O58jiqMSczetJsDzGVfpadydvQ/+xUumlU=;
 Received: from xenbits.xenproject.org ([104.239.192.120])
 	by mail.xenproject.org with esmtp (Exim 4.92)
 	(envelope-from <paul@xen.org>)
-	id 1raduM-0001WU-5T; Thu, 15 Feb 2024 15:44:18 +0000
+	id 1raduL-0001WK-QA; Thu, 15 Feb 2024 15:44:17 +0000
 Received: from 54-240-197-226.amazon.com ([54.240.197.226] helo=REM-PW02S00X.ant.amazon.com)
 	by xenbits.xenproject.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
 	(Exim 4.92)
 	(envelope-from <paul@xen.org>)
-	id 1radhT-00089r-V2; Thu, 15 Feb 2024 15:31:00 +0000
+	id 1radhh-00089r-2Z; Thu, 15 Feb 2024 15:31:13 +0000
 From: Paul Durrant <paul@xen.org>
 To: Paolo Bonzini <pbonzini@redhat.com>,
 	Jonathan Corbet <corbet@lwn.net>,
@@ -57,9 +57,9 @@ To: Paolo Bonzini <pbonzini@redhat.com>,
 	linux-kernel@vger.kernel.org,
 	linux-s390@vger.kernel.org,
 	linux-kselftest@vger.kernel.org
-Subject: [PATCH v13 17/21] KVM: x86/xen: split up kvm_xen_set_evtchn_fast()
-Date: Thu, 15 Feb 2024 15:29:12 +0000
-Message-Id: <20240215152916.1158-18-paul@xen.org>
+Subject: [PATCH v13 21/21] KVM: pfncache: rework __kvm_gpc_refresh() to fix locking issues
+Date: Thu, 15 Feb 2024 15:29:16 +0000
+Message-Id: <20240215152916.1158-22-paul@xen.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240215152916.1158-1-paul@xen.org>
 References: <20240215152916.1158-1-paul@xen.org>
@@ -69,255 +69,361 @@ List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Paul Durrant <pdurrant@amazon.com>
+From: David Woodhouse <dwmw@amazon.co.uk>
 
-The implementation of kvm_xen_set_evtchn_fast() is a rather lengthy piece
-of code that performs two operations: updating of the shared_info
-evtchn_pending mask, and updating of the vcpu_info evtchn_pending_sel
-mask. Introduce a separate function to perform each of those operations and
-re-work kvm_xen_set_evtchn_fast() to use them.
+This function can race with kvm_gpc_deactivate(), which does not take
+the ->refresh_lock. This means kvm_gpc_deactivate() can wipe the ->pfn
+and ->khva fields, and unmap the latter, while hva_to_pfn_retry() has
+temporarily dropped its write lock on gpc->lock.
 
-No functional change intended.
+Then if hva_to_pfn_retry() determines that the PFN hasn't changed and
+that the original pfn and khva can be reused, they get assigned back to
+gpc->pfn and gpc->khva even though the khva was already unmapped by
+kvm_gpc_deactivate(). This leaves the cache in an apparently valid state
+but with ->khva pointing to an address which has been unmapped. Which in
+turn leads to oopses in e.g. __kvm_xen_has_interrupt() and
+set_shinfo_evtchn_pending() when they dereference said khva.
 
-Signed-off-by: Paul Durrant <pdurrant@amazon.com>
-Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
+It may be possible to fix this just by making kvm_gpc_deactivate() take
+the ->refresh_lock, but that still leaves ->refresh_lock being basically
+redundant with the write lock on ->lock, which frankly makes my skin
+itch, with the way that pfn_to_hva_retry() operates on fields in the gpc
+without holding a write lock on ->lock.
+
+Instead, fix it by cleaning up the semantics of hva_to_pfn_retry(). It
+now no longer does locking gymnastics because it no longer operates on
+the gpc object at all. I's called with a uhva and simply returns the
+corresponding pfn (pinned), and a mapped khva for it.
+
+Its caller __kvm_gpc_refresh() now sets gpc->uhva and clears gpc->valid
+before dropping ->lock, calling hva_to_pfn_retry() and retaking ->lock
+for write.
+
+If hva_to_pfn_retry() fails, *or* if the ->uhva or ->active fields in
+the gpc changed while the lock was dropped, the new mapping is discarded
+and the gpc is not modified. On success with an unchanged gpc, the new
+mapping is installed and the current ->pfn and ->uhva are taken into the
+local old_pfn and old_khva variables to be unmapped once the locks are
+all released.
+
+This simplification means that ->refresh_lock is no longer needed for
+correctness, but it does still provide a minor optimisation because it
+will prevent two concurrent __kvm_gpc_refresh() calls from mapping a
+given PFN, only for one of them to lose the race and discard its
+mapping.
+
+The optimisation in hva_to_pfn_retry() where it attempts to use the old
+mapping if the pfn doesn't change is dropped, since it makes the pinning
+more complex. It's a pointless optimisation anyway, since the odds of
+the pfn ending up the same when the uhva has changed (i.e. the odds of
+the two userspace addresses both pointing to the same underlying
+physical page) are negligible,
+
+The 'hva_changed' local variable in __kvm_gpc_refresh() is also removed,
+since it's simpler just to clear gpc->valid if the uhva changed.
+Likewise the unmap_old variable is dropped because it's just as easy to
+check the old_pfn variable for KVM_PFN_ERR_FAULT.
+
+I remain slightly confused because although this is clearly a race in
+the gfn_to_pfn_cache code, I don't quite know how the Xen support code
+actually managed to trigger it. We've seen oopses from dereferencing a
+valid-looking ->khva in both __kvm_xen_has_interrupt() (the vcpu_info)
+and in set_shinfo_evtchn_pending() (the shared_info). But surely the
+race shouldn't happen for the vcpu_info gpc because all calls to both
+refresh and deactivate hold the vcpu mutex, and it shouldn't happen
+for the shared_info gpc because all calls to both will hold the
+kvm->arch.xen.xen_lock mutex.
+
+Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+Reviewed-by: Paul Durrant <paul@xen.org>
 ---
 Cc: Sean Christopherson <seanjc@google.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Cc: x86@kernel.org
 
-v13:
- - Patch title change.
-
-v11:
- - Fixed /64 vs /32 switcheroo and changed type of port_word_bit back to
-   int.
-
-v10:
- - Updated in this version. Dropped David'd R-b since the updates are
-   non-trivial.
-
-v8:
+v12:
  - New in this version.
 ---
- arch/x86/kvm/xen.c | 175 ++++++++++++++++++++++++++-------------------
- 1 file changed, 100 insertions(+), 75 deletions(-)
+ virt/kvm/pfncache.c | 184 +++++++++++++++++++++-----------------------
+ 1 file changed, 88 insertions(+), 96 deletions(-)
 
-diff --git a/arch/x86/kvm/xen.c b/arch/x86/kvm/xen.c
-index 4e79cc68e0a9..59073642c078 100644
---- a/arch/x86/kvm/xen.c
-+++ b/arch/x86/kvm/xen.c
-@@ -1670,6 +1670,101 @@ static void kvm_xen_check_poller(struct kvm_vcpu *vcpu, int port)
- 	}
+diff --git a/virt/kvm/pfncache.c b/virt/kvm/pfncache.c
+index a60d8f906896..d1c73b452570 100644
+--- a/virt/kvm/pfncache.c
++++ b/virt/kvm/pfncache.c
+@@ -139,108 +139,65 @@ static inline bool mmu_notifier_retry_cache(struct kvm *kvm, unsigned long mmu_s
+ 	return kvm->mmu_invalidate_seq != mmu_seq;
  }
  
-+static int set_shinfo_evtchn_pending(struct kvm_vcpu *vcpu, u32 port)
-+{
-+	struct kvm *kvm = vcpu->kvm;
-+	struct gfn_to_pfn_cache *gpc = &kvm->arch.xen.shinfo_cache;
-+	unsigned long *pending_bits, *mask_bits;
-+	unsigned long flags;
-+	int rc = -EWOULDBLOCK;
-+
-+	read_lock_irqsave(&gpc->lock, flags);
-+	if (!kvm_gpc_check(gpc, PAGE_SIZE))
-+		goto out;
-+
-+	if (IS_ENABLED(CONFIG_64BIT) && kvm->arch.xen.long_mode) {
-+		struct shared_info *shinfo = gpc->khva;
-+
-+		pending_bits = (unsigned long *)&shinfo->evtchn_pending;
-+		mask_bits = (unsigned long *)&shinfo->evtchn_mask;
-+	} else {
-+		struct compat_shared_info *shinfo = gpc->khva;
-+
-+		pending_bits = (unsigned long *)&shinfo->evtchn_pending;
-+		mask_bits = (unsigned long *)&shinfo->evtchn_mask;
-+	}
-+
-+	if (test_and_set_bit(port, pending_bits)) {
-+		rc = 0; /* It was already raised */
-+	} else if (test_bit(port, mask_bits)) {
-+		rc = -ENOTCONN; /* It is masked */
-+		kvm_xen_check_poller(vcpu, port);
-+	} else {
-+		rc = 1; /* It is newly raised */
-+	}
-+
-+ out:
-+	read_unlock_irqrestore(&gpc->lock, flags);
-+	return rc;
-+}
-+
-+static bool set_vcpu_info_evtchn_pending(struct kvm_vcpu *vcpu, u32 port)
-+{
-+	struct kvm *kvm = vcpu->kvm;
-+	struct gfn_to_pfn_cache *gpc = &vcpu->arch.xen.vcpu_info_cache;
-+	unsigned long flags;
-+	bool kick_vcpu = false;
-+
-+	read_lock_irqsave(&gpc->lock, flags);
-+
-+	/*
-+	 * Try to deliver the event directly to the vcpu_info. If successful and
-+	 * the guest is using upcall_vector delivery, send the MSI.
-+	 * If the pfncache is invalid, set the shadow. In this case, or if the
-+	 * guest is using another form of event delivery, the vCPU must be
-+	 * kicked to complete the delivery.
-+	 */
-+	if (IS_ENABLED(CONFIG_64BIT) && kvm->arch.xen.long_mode) {
-+		struct vcpu_info *vcpu_info = gpc->khva;
-+		int port_word_bit = port / 64;
-+
-+		if (!kvm_gpc_check(gpc, sizeof(*vcpu_info))) {
-+			if (!test_and_set_bit(port_word_bit, &vcpu->arch.xen.evtchn_pending_sel))
-+				kick_vcpu = true;
-+			goto out;
-+		}
-+
-+		if (!test_and_set_bit(port_word_bit, &vcpu_info->evtchn_pending_sel)) {
-+			WRITE_ONCE(vcpu_info->evtchn_upcall_pending, 1);
-+			kick_vcpu = true;
-+		}
-+	} else {
-+		struct compat_vcpu_info *vcpu_info = gpc->khva;
-+		int port_word_bit = port / 32;
-+
-+		if (!kvm_gpc_check(gpc, sizeof(*vcpu_info))) {
-+			if (!test_and_set_bit(port_word_bit, &vcpu->arch.xen.evtchn_pending_sel))
-+				kick_vcpu = true;
-+			goto out;
-+		}
-+
-+		if (!test_and_set_bit(port_word_bit,
-+				      (unsigned long *)&vcpu_info->evtchn_pending_sel)) {
-+			WRITE_ONCE(vcpu_info->evtchn_upcall_pending, 1);
-+			kick_vcpu = true;
-+		}
-+	}
-+
-+	if (kick_vcpu && vcpu->arch.xen.upcall_vector) {
-+		kvm_xen_inject_vcpu_vector(vcpu);
-+		kick_vcpu = false;
-+	}
-+
-+ out:
-+	read_unlock_irqrestore(&gpc->lock, flags);
-+	return kick_vcpu;
-+}
-+
- /*
-  * The return value from this function is propagated to kvm_set_irq() API,
-  * so it returns:
-@@ -1678,15 +1773,12 @@ static void kvm_xen_check_poller(struct kvm_vcpu *vcpu, int port)
-  *  > 0   Number of CPUs interrupt was delivered to
-  *
-  * It is also called directly from kvm_arch_set_irq_inatomic(), where the
-- * only check on its return value is a comparison with -EWOULDBLOCK'.
-+ * only check on its return value is a comparison with -EWOULDBLOCK
-+ * (which may be returned by set_shinfo_evtchn_pending()).
-  */
- int kvm_xen_set_evtchn_fast(struct kvm_xen_evtchn *xe, struct kvm *kvm)
+-static kvm_pfn_t hva_to_pfn_retry(struct gfn_to_pfn_cache *gpc)
++/*
++ * Given a user virtual address, obtain a pinned host PFN and kernel mapping
++ * for it. The caller will release the PFN after installing it into the GPC
++ * so that the MMU notifier invalidation mechanism is active.
++ */
++static kvm_pfn_t hva_to_pfn_retry(struct kvm *kvm, unsigned long uhva,
++				  kvm_pfn_t *pfn, void **khva)
  {
--	struct gfn_to_pfn_cache *gpc = &kvm->arch.xen.shinfo_cache;
- 	struct kvm_vcpu *vcpu;
--	unsigned long *pending_bits, *mask_bits;
--	unsigned long flags;
--	int port_word_bit;
- 	bool kick_vcpu = false;
- 	int vcpu_idx, idx, rc;
+ 	/* Note, the new page offset may be different than the old! */
+-	void *old_khva = (void *)PAGE_ALIGN_DOWN((uintptr_t)gpc->khva);
+ 	kvm_pfn_t new_pfn = KVM_PFN_ERR_FAULT;
+ 	void *new_khva = NULL;
+ 	unsigned long mmu_seq;
  
-@@ -1706,79 +1798,12 @@ int kvm_xen_set_evtchn_fast(struct kvm_xen_evtchn *xe, struct kvm *kvm)
- 	if (xe->port >= max_evtchn_port(kvm))
- 		return -EINVAL;
- 
--	rc = -EWOULDBLOCK;
+-	lockdep_assert_held(&gpc->refresh_lock);
 -
- 	idx = srcu_read_lock(&kvm->srcu);
- 
--	read_lock_irqsave(&gpc->lock, flags);
--	if (!kvm_gpc_check(gpc, PAGE_SIZE))
--		goto out_rcu;
+-	lockdep_assert_held_write(&gpc->lock);
 -
--	if (IS_ENABLED(CONFIG_64BIT) && kvm->arch.xen.long_mode) {
--		struct shared_info *shinfo = gpc->khva;
--		pending_bits = (unsigned long *)&shinfo->evtchn_pending;
--		mask_bits = (unsigned long *)&shinfo->evtchn_mask;
--		port_word_bit = xe->port / 64;
--	} else {
--		struct compat_shared_info *shinfo = gpc->khva;
--		pending_bits = (unsigned long *)&shinfo->evtchn_pending;
--		mask_bits = (unsigned long *)&shinfo->evtchn_mask;
--		port_word_bit = xe->port / 32;
--	}
-+	rc = set_shinfo_evtchn_pending(vcpu, xe->port);
-+	if (rc == 1) /* Delivered to the bitmap in shared_info */
-+		kick_vcpu = set_vcpu_info_evtchn_pending(vcpu, xe->port);
+-	/*
+-	 * Invalidate the cache prior to dropping gpc->lock, the gpa=>uhva
+-	 * assets have already been updated and so a concurrent check() from a
+-	 * different task may not fail the gpa/uhva/generation checks.
+-	 */
+-	gpc->valid = false;
+-
+-	do {
+-		mmu_seq = gpc->kvm->mmu_invalidate_seq;
++	for (;;) {
++		mmu_seq = kvm->mmu_invalidate_seq;
+ 		smp_rmb();
+ 
+-		write_unlock_irq(&gpc->lock);
+-
+-		/*
+-		 * If the previous iteration "failed" due to an mmu_notifier
+-		 * event, release the pfn and unmap the kernel virtual address
+-		 * from the previous attempt.  Unmapping might sleep, so this
+-		 * needs to be done after dropping the lock.  Opportunistically
+-		 * check for resched while the lock isn't held.
+-		 */
+-		if (new_pfn != KVM_PFN_ERR_FAULT) {
+-			/*
+-			 * Keep the mapping if the previous iteration reused
+-			 * the existing mapping and didn't create a new one.
+-			 */
+-			if (new_khva != old_khva)
+-				gpc_unmap(new_pfn, new_khva);
+-
+-			kvm_release_pfn_clean(new_pfn);
+-
+-			cond_resched();
+-		}
+-
+ 		/* We always request a writeable mapping */
+-		new_pfn = hva_to_pfn(gpc->uhva, false, false, NULL, true, NULL);
++		new_pfn = hva_to_pfn(uhva, false, false, NULL, true, NULL);
+ 		if (is_error_noslot_pfn(new_pfn))
+-			goto out_error;
++			return -EFAULT;
+ 
+ 		/*
+-		 * Obtain a new kernel mapping if KVM itself will access the
+-		 * pfn.  Note, kmap() and memremap() can both sleep, so this
+-		 * too must be done outside of gpc->lock!
++		 * Always obtain a new kernel mapping. Trying to reuse an
++		 * existing one is more complex than it's worth.
+ 		 */
+-		if (new_pfn == gpc->pfn)
+-			new_khva = old_khva;
+-		else
+-			new_khva = gpc_map(new_pfn);
+-
++		new_khva = gpc_map(new_pfn);
+ 		if (!new_khva) {
+ 			kvm_release_pfn_clean(new_pfn);
+-			goto out_error;
++			return -EFAULT;
+ 		}
+ 
+-		write_lock_irq(&gpc->lock);
++		if (!mmu_notifier_retry_cache(kvm, mmu_seq))
++			break;
+ 
+ 		/*
+-		 * Other tasks must wait for _this_ refresh to complete before
+-		 * attempting to refresh.
++		 * If this iteration "failed" due to an mmu_notifier event,
++		 * release the pfn and unmap the kernel virtual address, and
++		 * loop around again.
+ 		 */
+-		WARN_ON_ONCE(gpc->valid);
+-	} while (mmu_notifier_retry_cache(gpc->kvm, mmu_seq));
+-
+-	gpc->valid = true;
+-	gpc->pfn = new_pfn;
+-	gpc->khva = new_khva + offset_in_page(gpc->uhva);
++		if (new_pfn != KVM_PFN_ERR_FAULT) {
++			gpc_unmap(new_pfn, new_khva);
++			kvm_release_pfn_clean(new_pfn);
++		}
++	}
  
 -	/*
--	 * If this port wasn't already set, and if it isn't masked, then
--	 * we try to set the corresponding bit in the in-kernel shadow of
--	 * evtchn_pending_sel for the target vCPU. And if *that* wasn't
--	 * already set, then we kick the vCPU in question to write to the
--	 * *real* evtchn_pending_sel in its own guest vcpu_info struct.
+-	 * Put the reference to the _new_ pfn.  The pfn is now tracked by the
+-	 * cache and can be safely migrated, swapped, etc... as the cache will
+-	 * invalidate any mappings in response to relevant mmu_notifier events.
 -	 */
--	if (test_and_set_bit(xe->port, pending_bits)) {
--		rc = 0; /* It was already raised */
--	} else if (test_bit(xe->port, mask_bits)) {
--		rc = -ENOTCONN; /* Masked */
--		kvm_xen_check_poller(vcpu, xe->port);
--	} else {
--		rc = 1; /* Delivered to the bitmap in shared_info. */
--		/* Now switch to the vCPU's vcpu_info to set the index and pending_sel */
--		read_unlock_irqrestore(&gpc->lock, flags);
--		gpc = &vcpu->arch.xen.vcpu_info_cache;
--
--		read_lock_irqsave(&gpc->lock, flags);
--		if (!kvm_gpc_check(gpc, sizeof(struct vcpu_info))) {
--			/*
--			 * Could not access the vcpu_info. Set the bit in-kernel
--			 * and prod the vCPU to deliver it for itself.
--			 */
--			if (!test_and_set_bit(port_word_bit, &vcpu->arch.xen.evtchn_pending_sel))
--				kick_vcpu = true;
--			goto out_rcu;
--		}
--
--		if (IS_ENABLED(CONFIG_64BIT) && kvm->arch.xen.long_mode) {
--			struct vcpu_info *vcpu_info = gpc->khva;
--			if (!test_and_set_bit(port_word_bit, &vcpu_info->evtchn_pending_sel)) {
--				WRITE_ONCE(vcpu_info->evtchn_upcall_pending, 1);
--				kick_vcpu = true;
--			}
--		} else {
--			struct compat_vcpu_info *vcpu_info = gpc->khva;
--			if (!test_and_set_bit(port_word_bit,
--					      (unsigned long *)&vcpu_info->evtchn_pending_sel)) {
--				WRITE_ONCE(vcpu_info->evtchn_upcall_pending, 1);
--				kick_vcpu = true;
--			}
--		}
--
--		/* For the per-vCPU lapic vector, deliver it as MSI. */
--		if (kick_vcpu && vcpu->arch.xen.upcall_vector) {
--			kvm_xen_inject_vcpu_vector(vcpu);
--			kick_vcpu = false;
--		}
--	}
--
-- out_rcu:
--	read_unlock_irqrestore(&gpc->lock, flags);
- 	srcu_read_unlock(&kvm->srcu, idx);
+-	kvm_release_pfn_clean(new_pfn);
++	*pfn = new_pfn;
++	*khva = new_khva;
  
- 	if (kick_vcpu) {
+ 	return 0;
+-
+-out_error:
+-	write_lock_irq(&gpc->lock);
+-
+-	return -EFAULT;
+ }
+ 
+-static int __kvm_gpc_refresh(struct gfn_to_pfn_cache *gpc, gpa_t gpa, unsigned long uhva,
+-			     unsigned long len)
++static int __kvm_gpc_refresh(struct gfn_to_pfn_cache *gpc, gpa_t gpa,
++			     unsigned long uhva, unsigned long len)
+ {
+ 	unsigned long page_offset = kvm_is_error_gpa(gpa) ?
+ 		offset_in_page(uhva) : offset_in_page(gpa);
+-	bool unmap_old = false;
+ 	unsigned long old_uhva;
+-	kvm_pfn_t old_pfn;
+-	bool hva_change = false;
++	kvm_pfn_t old_pfn = KVM_PFN_ERR_FAULT;
+ 	void *old_khva;
+ 	int ret;
+ 
+@@ -257,8 +214,9 @@ static int __kvm_gpc_refresh(struct gfn_to_pfn_cache *gpc, gpa_t gpa, unsigned l
+ 
+ 	/*
+ 	 * If another task is refreshing the cache, wait for it to complete.
+-	 * There is no guarantee that concurrent refreshes will see the same
+-	 * gpa, memslots generation, etc..., so they must be fully serialized.
++	 * This is purely an optimisation, to avoid concurrent mappings from
++	 * hva_to_pfn_retry(), all but one of which will be discarded after
++	 * losing a race to install them in the GPC.
+ 	 */
+ 	mutex_lock(&gpc->refresh_lock);
+ 
+@@ -279,7 +237,7 @@ static int __kvm_gpc_refresh(struct gfn_to_pfn_cache *gpc, gpa_t gpa, unsigned l
+ 		gpc->uhva = PAGE_ALIGN_DOWN(uhva);
+ 
+ 		if (gpc->uhva != old_uhva)
+-			hva_change = true;
++			gpc->valid = false;
+ 	} else {
+ 		struct kvm_memslots *slots = kvm_memslots(gpc->kvm);
+ 
+@@ -294,7 +252,11 @@ static int __kvm_gpc_refresh(struct gfn_to_pfn_cache *gpc, gpa_t gpa, unsigned l
+ 
+ 			if (kvm_is_error_hva(gpc->uhva)) {
+ 				ret = -EFAULT;
+-				goto out;
++
++				gpc->valid = false;
++				gpc->pfn = KVM_PFN_ERR_FAULT;
++				gpc->khva = NULL;
++				goto out_unlock;
+ 			}
+ 
+ 			/*
+@@ -302,7 +264,7 @@ static int __kvm_gpc_refresh(struct gfn_to_pfn_cache *gpc, gpa_t gpa, unsigned l
+ 			 * HVA may still be the same.
+ 			 */
+ 			if (gpc->uhva != old_uhva)
+-				hva_change = true;
++				gpc->valid = false;
+ 		} else {
+ 			gpc->uhva = old_uhva;
+ 		}
+@@ -315,9 +277,7 @@ static int __kvm_gpc_refresh(struct gfn_to_pfn_cache *gpc, gpa_t gpa, unsigned l
+ 	 * If the userspace HVA changed or the PFN was already invalid,
+ 	 * drop the lock and do the HVA to PFN lookup again.
+ 	 */
+-	if (!gpc->valid || hva_change) {
+-		ret = hva_to_pfn_retry(gpc);
+-	} else {
++	if (gpc->valid) {
+ 		/*
+ 		 * If the HVA→PFN mapping was already valid, don't unmap it.
+ 		 * But do update gpc->khva because the offset within the page
+@@ -325,30 +285,62 @@ static int __kvm_gpc_refresh(struct gfn_to_pfn_cache *gpc, gpa_t gpa, unsigned l
+ 		 */
+ 		gpc->khva = old_khva + page_offset;
+ 		ret = 0;
+-		goto out_unlock;
+-	}
+ 
+- out:
+-	/*
+-	 * Invalidate the cache and purge the pfn/khva if the refresh failed.
+-	 * Some/all of the uhva, gpa, and memslot generation info may still be
+-	 * valid, leave it as is.
+-	 */
+-	if (ret) {
++		/* old_pfn must not be unmapped because it was reused. */
++		old_pfn = KVM_PFN_ERR_FAULT;
++	} else {
++		kvm_pfn_t new_pfn = KVM_PFN_ERR_FAULT;
++		unsigned long new_uhva = gpc->uhva;
++		void *new_khva = NULL;
++
++		/*
++		 * Invalidate the cache prior to dropping gpc->lock; the
++		 * gpa=>uhva assets have already been updated and so a
++		 * concurrent check() from a different task may not fail
++		 * the gpa/uhva/generation checks as it should.
++		 */
+ 		gpc->valid = false;
+-		gpc->pfn = KVM_PFN_ERR_FAULT;
+-		gpc->khva = NULL;
+-	}
+ 
+-	/* Detect a pfn change before dropping the lock! */
+-	unmap_old = (old_pfn != gpc->pfn);
++		write_unlock_irq(&gpc->lock);
++
++		ret = hva_to_pfn_retry(gpc->kvm, new_uhva, &new_pfn, &new_khva);
++
++		write_lock_irq(&gpc->lock);
++
++		WARN_ON_ONCE(gpc->valid);
++
++		if (ret || !gpc->active || gpc->uhva != new_uhva) {
++			/*
++			 * On failure or if another change occurred while the
++			 * lock was dropped, just purge the new mapping.
++			 */
++			old_pfn = new_pfn;
++			old_khva = new_khva;
++		} else {
++			old_pfn = gpc->pfn;
++			old_khva = gpc->khva;
++
++			gpc->pfn = new_pfn;
++			gpc->khva = new_khva + offset_in_page(gpc->uhva);
++			gpc->valid = true;
++		}
++
++		/*
++		 * Put the reference to the _new_ pfn. On success, the
++		 * pfn is now tracked by the cache and can safely be
++		 * migrated, swapped, etc. as the cache will invalidate
++		 * any mappings in response to relevant mmu_notifier
++		 * events.
++		 */
++		kvm_release_pfn_clean(new_pfn);
++	}
+ 
+ out_unlock:
+ 	write_unlock_irq(&gpc->lock);
+ 
+ 	mutex_unlock(&gpc->refresh_lock);
+ 
+-	if (unmap_old)
++	if (old_pfn != KVM_PFN_ERR_FAULT)
+ 		gpc_unmap(old_pfn, old_khva);
+ 
+ 	return ret;
 -- 
 2.39.2
 
