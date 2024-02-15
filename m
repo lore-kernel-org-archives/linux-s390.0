@@ -1,138 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3371C63501;
-	Thu, 15 Feb 2024 09:59:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 454257A704
+	for <linux-s390@vger.kernel.org>; Thu, 15 Feb 2024 10:52:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707991167; cv=none; b=nYBZggS9fxQdlb7+9LiNYmzuF/DOd3pPGdFQ40x21epQb2OBUc8bDUzvfmZgUAFbVSseGbm3rZaem0a1Y/wloeNyiY2tiO29vu1VlQPKQGBWF7ok/8HzCmouNHko5YWNEnB0ZGZSrt/kPn1y6N4psMKi8uvQ1ReWDRYwx0vqRtI=
+	t=1707994334; cv=none; b=VjE/9cpZHmpd1JZNssBUHEKURSB3V7ZMW27hEwa4KuvXJFpfgLsFQrPUpc4l3sU8gdZWiaf+7EnfPG8z9y7z3E/Tu2qMj2ouSIvA6A/ybcGBshyxY8mzh+phWAnZPWF04OrtujAEAQia0WAF1DHPkBJe1fBjbxPkyRqt7W2B7Is=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707991167; c=relaxed/simple;
-	bh=AZDMowTxyTvTLYyKH1fH7EoIa5hD+V6eCp0zQN6Wb6Q=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=VdLqlqOElK67UNyb02E3M5xSbyi8yT56/HBaxQlr29r8+/zbMc9JHaMZ9hmZN1lhDNeSIxIKTVW7xYGr3i9aLostMCE8LdZVTvAEIrOh5a+VGgPxhWbOgRQZM5NVNnVBftZ8blTWHuqMc6+gRcgMibTjaAs3vjeOFn8HGkhKCTM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uVeTeA5N; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1707994334; c=relaxed/simple;
+	bh=PoVYOdbKRYKWTXuOVeZk8W1yf2XZ/eDDVh04aFHaMxo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=eAPPhAR6AHCUZoMkEbsr8WO8PiL4JLLVGkBrDDu/GVVTdntjC0tW0ZsLk147rWmr3l7qCk/PlAOczG9qQo/CQPahrLOUYlrEAwKi5PVzqERm0mXGZA45roJYCgDo8DpYokjSaaAwoHyk9HmrPSMbFftLODN/7NzQOUqe119IvtQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fbVL3S9J; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uVeTeA5N"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 642F1C433F1;
-	Thu, 15 Feb 2024 09:59:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1707991166;
-	bh=AZDMowTxyTvTLYyKH1fH7EoIa5hD+V6eCp0zQN6Wb6Q=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=uVeTeA5NaMQilf5U9sYfGlbnQziksn1Ag+jPKd1wmkP3THGmkaRqmQ0xZgvuvIFs9
-	 r3fs3jGcxWOKls9vf3mTGXJ3QGrCj4UTF3dv3dniLYAnYiGM8ixOtXGDDK1f5Bfeb8
-	 QFCGqUB2OKayIhGa+wDolUYyLN7yiVBijWDzkjTDTNN6y3ZXLjnjLk8CFOtGtToir6
-	 iGaBp3SACJ7PXC4shad6RKszD7dRvq7UaW52Xz06LfYkgryvRQ3lcSAZ46Sk11Wpi6
-	 aE6XagQRPFTRqA2nu9nfUiCHmjN7iQTdR+zuFEFEQ8auAcW97OVqAxCuLXX7uOYWj9
-	 3wcBW5QGt7+sw==
-Message-ID: <28ca6b01-248c-43f6-b20f-79ff39f03974@kernel.org>
-Date: Thu, 15 Feb 2024 10:58:58 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fbVL3S9J"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41FAataJ031175;
+	Thu, 15 Feb 2024 10:52:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=NXbYufBhaB6AXcJrvydNw1ZrzpU9L9/Wz3bTojc5Wwk=;
+ b=fbVL3S9JlMTavbPbn8szRzkBqMqCFmZ36WMeCY9dqixliY1LDK6/lFeV7BH+6ORUzKrI
+ bn5SOrojDKHICMvK5sj79LbLyGg65DN3w939CguBHbb9oo+6iiXwLYmWF0DbNYLAzKY/
+ myXrs9kBnchnU82QyEdBRU8iOcTD2B9marlXWe29LrIr2GJa1zaKH7E6a3JUilUrbnmj
+ CLNG5CCLEec9YSsOHBgMcTOjtu3Grl2LSO+5W+RZJur/E4iQcf/qzwENlKDwtZBRUgRg
+ gu0z2Nvr8K1myEbH2P05WBJjBVLd5f0RxqZFwd/ZCV5bPG02RVWUlCqquF7YXiZVJ6tu 0g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w9h100cbb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 15 Feb 2024 10:52:09 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41FAeTuN012177;
+	Thu, 15 Feb 2024 10:52:09 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w9h100cat-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 15 Feb 2024 10:52:08 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41F9Ts4S010083;
+	Thu, 15 Feb 2024 10:52:08 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w6npm3t29-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 15 Feb 2024 10:52:07 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41FAq21N2359886
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 15 Feb 2024 10:52:04 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5A78720043;
+	Thu, 15 Feb 2024 10:52:02 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D717D20040;
+	Thu, 15 Feb 2024 10:52:01 +0000 (GMT)
+Received: from localhost (unknown [9.171.10.232])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 15 Feb 2024 10:52:01 +0000 (GMT)
+Date: Thu, 15 Feb 2024 11:52:00 +0100
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, jpoimboe@kernel.org, joe.lawrence@redhat.com,
+        hca@linux.ibm.com, iii@linux.ibm.com, agordeev@linux.ibm.com
+Subject: Re: [PATCH 4/4] s390/kernel: vmlinux.lds.S: handle orphan .rela
+ sections
+Message-ID: <your-ad-here.call-01707994320-ext-4463@work.hours>
+References: <20240213104707.673053-1-sumanthk@linux.ibm.com>
+ <20240213104707.673053-5-sumanthk@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 net-next] net: Deprecate SO_DEBUG and reclaim SOCK_DBG
- bit.
-Content-Language: en-GB, fr-BE
-To: Kuniyuki Iwashima <kuniyu@amazon.com>
-Cc: Kuniyuki Iwashima <kuni1840@gmail.com>, netdev@vger.kernel.org,
- mptcp@lists.linux.dev, linux-s390@vger.kernel.org,
- Gerd Bayer <gbayer@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Mat Martineau <martineau@kernel.org>,
- Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
- Wen Gu <guwen@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>,
- "D . Wythe" <alibuda@linux.alibaba.com>
-References: <20240214195407.3175-1-kuniyu@amazon.com>
-From: Matthieu Baerts <matttbe@kernel.org>
-Autocrypt: addr=matttbe@kernel.org; keydata=
- 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
- lzVbFe7fduHbABmYz9cefQpO7wDE/Q==
-Organization: NGI0 Core
-In-Reply-To: <20240214195407.3175-1-kuniyu@amazon.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20240213104707.673053-5-sumanthk@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: aagodOQ9VwZw0XJFDLUBjx6R-crucf9O
+X-Proofpoint-GUID: PcCJXhfJLlPe0M8oFjiT77wIKu6vlDfr
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-15_10,2024-02-14_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
+ impostorscore=0 lowpriorityscore=0 mlxscore=0 malwarescore=0 spamscore=0
+ bulkscore=0 suspectscore=0 priorityscore=1501 mlxlogscore=472
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402150086
 
-Hi Kuniyuki,
-
-On 14/02/2024 20:54, Kuniyuki Iwashima wrote:
-> Recently, commit 8e5443d2b866 ("net: remove SOCK_DEBUG leftovers")
-> removed the last users of SOCK_DEBUG(), and commit b1dffcf0da22 ("net:
-> remove SOCK_DEBUG macro") removed the macro.
+On Tue, Feb 13, 2024 at 11:47:07AM +0100, Sumanth Korikkar wrote:
+> When kernel is built with CONFIG_LD_ORPHAN_WARN and -fno-PIE, there are
+> several warnings:
 > 
-> Now is the time to deprecate the oldest socket option.
+> ld: warning: orphan section `.rela.iplt' from
+> `arch/s390/kernel/head64.o' being placed in section `.rela.dyn'
+> ld: warning: orphan section `.rela.head.text' from
+> `arch/s390/kernel/head64.o' being placed in section `.rela.dyn'
+> ld: warning: orphan section `.rela.init.text' from
+> `arch/s390/kernel/head64.o' being placed in section `.rela.dyn'
+> ld: warning: orphan section `.rela.rodata.cst8' from
+> `arch/s390/kernel/head64.o' being placed in section `.rela.dyn'
 > 
-> Note that setsockopt(SO_DEBUG) is moved not to acquire lock_sock().
+> Orphan sections are sections that exist in an object file but don't have
+> a corresponding output section in the final executable. ld raises a
+> warning when it identifies such sections.
 > 
-> Reviewed-by: Gerd Bayer <gbayer@linux.ibm.com>
-> Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+> Eliminate the warning by placing all .rela orphan sections in .rela.dyn
+> and raise an error when size of .rela.dyn is greater than zero. i.e.
+> Dont just neglect orphan sections.
+> 
+> This is similar to adjustment performed in x86, where kernel is built
+> with -fno-PIE.
+> commit 5354e84598f2 ("x86/build: Add asserts for unwanted sections")
+> 
+> Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
 > ---
-> v2:
->   * Move setsockopt(SO_DEBUG) code not to acquire lock_sock().
+>  arch/s390/kernel/vmlinux.lds.S | 6 ++++++
+>  1 file changed, 6 insertions(+)
 
-Thank you for the v2!
-
-Good idea to have modified that in net/core/sock.c too!
-
-Reviewed-by: Matthieu Baerts (NGI0) <matttbe@kernel.org>
-
-
-I don't think we need to do anything else, but just to be sure: do we
-need to tell the userspace this socket option has been deprecated?
-SO_DEBUG is a bit particular, so I guess it is fine not to do anything
-else, but except by looking at the kernel version, I don't think the
-userspace can know it has no more effect.
-
-I didn't find many examples of other deprecated socket options, apart
-from SO_BSDCOMPAT. For years, there was a warning, removed a few years
-ago: f4ecc748533d ("net: Stop warning about SO_BSDCOMPAT usage"). I
-guess we don't want that for SO_DEBUG, right?
-
-Cheers,
-Matt
--- 
-Sponsored by the NGI0 Core fund.
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
