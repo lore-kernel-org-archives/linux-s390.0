@@ -1,120 +1,181 @@
-Received: from mail-pg1-f202.google.com (mail-pg1-f202.google.com [209.85.215.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6FB912FF7E
-	for <linux-s390@vger.kernel.org>; Fri, 16 Feb 2024 15:52:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C96E219ED;
+	Fri, 16 Feb 2024 16:33:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708098757; cv=none; b=tZGssL3gYXLKtbop986MCDp3r9uUCLF2pwh74FLLjB0TgE7AqSNIK2parswnWOKPtlr8hMA/bJ6zeuJSplLlIOeWyKp5A0BRnuz/QNQO5EqphP48fqiL2Dnt8sLEoqITTaqmmjtLozUOEKh+karxb1FV452fVItgIbVlYNAB8+g=
+	t=1708101219; cv=none; b=V9JCxYvOTOb6vPsxq6VnX2Ya6DUKtB2ut+vqRTVS5K5WymqGakhA9lnsDg5BX8C5V5LGYGPfrcPEj6W6ZU1ZKbalLGAsYt1snF+gNyqisiYgKbqbSuUdANq4i5xpxAeQUeXy9eQmAf0nyFu/sgonFoe9W788KvquNjE/paHzXCw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708098757; c=relaxed/simple;
-	bh=Twfvqn5z2TPQUG3mCx7eOkQhXIYHDRrgU1d+jAxcuDQ=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=KeKzU1cpleEiHa25W0hxVsaNe+YnCqd2mDTcxtpMBB9dt7HhkCmuzGB5nV2FYFKMSYwSRM2L/OcYZKsS8KsTsWWFdUG2WZfVPiP/yTZl71eM+RUG4k4eN7rYKVQB0tQlHQC8Ld6DcJun99BdbgZr9O/iJ2gwyUqew2DWcjqSA9Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=hvc00JVY; arc=none smtp.client-ip=209.85.215.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1708101219; c=relaxed/simple;
+	bh=08O4BtOm/c/lk0WJ8UE2M87B74vE2KvoWp59wRYMA14=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=KxrzkKTN3FnaBdqFZyFa6140ZDN5UeKT4GCxLLbJM11wi2oW2+xn5o9MrJNLV8Xe7KllZwg4z+7EYpf+sKNJ2Yc+uGnLgkxbfXwmi7sz8UUfKLEAtXfO99UVTSiMvqbbp0E4k1NonUeVwYEW4rUf9OSLLMED35EQ2lzesX/vM3E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ow00rFF+; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="hvc00JVY"
-Received: by mail-pg1-f202.google.com with SMTP id 41be03b00d2f7-5dc889cb8edso2307032a12.0
-        for <linux-s390@vger.kernel.org>; Fri, 16 Feb 2024 07:52:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1708098754; x=1708703554; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=vdWqN4twnny7sh0kB73t0EmMejLUnVRIUmMC6P4B0Co=;
-        b=hvc00JVY9QTiNJqrNSc9ww1n6V66a9ToFhqNn+QVc2hFHv9CJ6kl7fuFuU91Wpo9V5
-         AOCQ23wjPxaSVZ9fbzmTAfUlNhiX6nzvr6qmqmlarf1sT2G9/M8ahxG0T4/HOX1pwKyt
-         Ax1X4TNQfp8gFyCudeWba74kxXywGXaUm2sZN3k7Hu7zf+wOVlrIYKPj/ewPyq3Mrzoa
-         58i6se1eDpBM+th90UaVbSHE68Fci2xO4ngxX5kOopyDQkfNbH1yXd91RfyN3apqurfX
-         daI5BHm9rXCiweNWm7SUN4yth5rOCv4esCUEdSJahGAgEn+ejMzNp19HOI/jVYYEH7Ed
-         08pQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708098754; x=1708703554;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=vdWqN4twnny7sh0kB73t0EmMejLUnVRIUmMC6P4B0Co=;
-        b=qRPJbmsTuHLsHODJizC+AcCizz5kiBKgp/uhEU86yUT2xKivSiFEIgy70kuVK6fHwM
-         Te2lIe3eJKvxtCDnay9LgiymrHImcEiDzAnUdtds4KFZVCsnnprHBOG2SR4V48u2oCKE
-         GlxGsXIi/jEHRNr6UNZyPo2iptz8G6qbqEA1406f+KckEOKoH+3uTKG0JCzrgB2I+N57
-         ENvBt1R5ifouFDr+4RbZxgaZN/ByvP5Z4Y5+pVmb30SPYIpsi7P0pZORygEkxHTZpJut
-         gq9bvmOXdeLF9gKcdMMb+SU0xpfd4zl4d2QC0vpwBN8+DePCYuShu28zsOhuou+8yKu8
-         nVkw==
-X-Forwarded-Encrypted: i=1; AJvYcCVavTuppbSnwtoRE7ciTuz5ozUm34HYwMMiO68q5YWD2MyzLl93KScIWh8z3GJBErdBdIQCePGkTBDX3hPNtQcLmlDob9S217+SGg==
-X-Gm-Message-State: AOJu0Yy3GPtkw8svv5zvFnkeUt2U20QjdhZe2L2GOA9H/5WXgEaVz7BG
-	F4bUDijRNDpTNc7QB1Nm9lWlGaphoAvV3+leoi3LcCftwrGoqVgrfY4Tq5ExGG9O0CEBvM2d3qR
-	Keg==
-X-Google-Smtp-Source: AGHT+IHdTJArPS4Wa/fITdXprcQUHngTC0JP272as27E3u1351Uiji0GihlmCXFNyvIDmjcngg5SUcACTOg=
-X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a05:6a02:a09:b0:5dc:23a4:3a with SMTP id
- cm9-20020a056a020a0900b005dc23a4003amr13383pgb.7.1708098754138; Fri, 16 Feb
- 2024 07:52:34 -0800 (PST)
-Date: Fri, 16 Feb 2024 07:52:32 -0800
-In-Reply-To: <df6ad8b9-4e53-4357-ab17-e9af62342849@xen.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ow00rFF+"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41GGVNML010695;
+	Fri, 16 Feb 2024 16:33:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=nsDqoaA0uxmTN3/1MudUVyi5KmjfJMAEwxra8oJHAtc=;
+ b=ow00rFF+vtDsgIwmgMnGYsu3MNUPlGnwtycrmSYFywgxzoDgiYC1IvHeyi70YGil6/zG
+ cOIcP4eBlNYLyL38OWuC9/T6GumbFaSE3ch9Vu5+3VKnKbypJTyAb28WGsVbxX2H5m/Y
+ btw6YobSsv4qkJ2r/hRieFSA5N1n8Ett19qFzDq2PSPVQuD4N8yTjInFjCxBPfPWJKqk
+ iRXMIXxBSWD1xYlFC1zR6V+pqVnDw+TUMeM79+VTVdD1INYh6sTygTxOs0EpdgwH3vEx
+ fSRaUkDhZAvb+SaEZk5W0tk7Hww8kCXE8FyNaSpcxSj1XPXNXJWjCwNQLG62AFUbGHK5 LQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wa9wu203q-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 16 Feb 2024 16:33:34 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41GGWoqh015692;
+	Fri, 16 Feb 2024 16:33:33 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wa9wu2036-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 16 Feb 2024 16:33:33 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41GFSoNu024908;
+	Fri, 16 Feb 2024 16:33:32 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3w6mfpvdf7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 16 Feb 2024 16:33:32 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41GGXTV541681434
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 16 Feb 2024 16:33:31 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2F04358052;
+	Fri, 16 Feb 2024 16:33:29 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9E56D58056;
+	Fri, 16 Feb 2024 16:33:27 +0000 (GMT)
+Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.34.148])
+	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 16 Feb 2024 16:33:27 +0000 (GMT)
+Message-ID: <e1364fe5a3e1ec09d343db29dbbdbafb35aef3f5.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 1/2] KVM: s390: load guest access registers in MEM_OP
+ ioctl
+From: Eric Farman <farman@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank
+ <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David
+ Hildenbrand <david@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle
+ <svens@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan
+ <shuah@kernel.org>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Date: Fri, 16 Feb 2024 11:33:27 -0500
+In-Reply-To: <20240216094012.8060-A-hca@linux.ibm.com>
+References: <20240215205344.2562020-1-farman@linux.ibm.com>
+	 <20240215205344.2562020-2-farman@linux.ibm.com>
+	 <20240216094012.8060-A-hca@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.3 (3.50.3-1.fc39) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20240215152916.1158-1-paul@xen.org> <20240215152916.1158-22-paul@xen.org>
- <23e7ec31a67a73fe94b2b04dbca26ea5ca1ea238.camel@infradead.org> <df6ad8b9-4e53-4357-ab17-e9af62342849@xen.org>
-Message-ID: <Zc-EwMoijOo7w49N@google.com>
-Subject: Re: [PATCH v13 21/21] KVM: pfncache: rework __kvm_gpc_refresh() to
- fix locking issues
-From: Sean Christopherson <seanjc@google.com>
-To: paul@xen.org
-Cc: David Woodhouse <dwmw2@infradead.org>, Paolo Bonzini <pbonzini@redhat.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, 
-	David Hildenbrand <david@redhat.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"H. Peter Anvin" <hpa@zytor.com>, Shuah Khan <shuah@kernel.org>, kvm@vger.kernel.org, 
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: -thmYTw3y7ZcH3RKZVd1mkrDgjPE6ZfH
+X-Proofpoint-GUID: RL74pB2MxeeSysUrcnJEYhRN0jNJyhsB
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-16_16,2024-02-16_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 impostorscore=0 lowpriorityscore=0 suspectscore=0
+ bulkscore=0 clxscore=1015 mlxscore=0 spamscore=0 mlxlogscore=999
+ adultscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402160132
 
-On Fri, Feb 16, 2024, Paul Durrant wrote:
-> On 16/02/2024 13:04, David Woodhouse wrote:
-> > On Thu, 2024-02-15 at 15:29 +0000, Paul Durrant wrote:
-> > > From: David Woodhouse <dwmw@amazon.co.uk>
-> > > 
-> > > This function can race with kvm_gpc_deactivate(), which does not take
-> > > the ->refresh_lock. This means kvm_gpc_deactivate() can wipe the ->pfn
-> > > and ->khva fields, and unmap the latter, while hva_to_pfn_retry() has
-> > > temporarily dropped its write lock on gpc->lock.
-> > 
-> > Let's drop this from your series for now, as it's contentious.
-> > 
-> > Sean didn't like calling it a 'fix', which I had conceded and reworked
-> > the commit message. It was on the list somewhere, and also in
-> > https://git.infradead.org/users/dwmw2/linux.git/commitdiff/f19755000a7
-> > 
-> > I *also* think we should do this simpler one:
-> > https://git.infradead.org/users/dwmw2/linux.git/commitdiff/cc69506d19a
-> > ... which almost makes the first one unnecessary, but I think we should
-> > do it *anyway* because the rwlock abuse it fixes is kind of awful.
-> > 
-> > And while we still can't actually *identify* the race condition that
-> > led to a dereference of a NULL gpc->khva while holding the read lock
-> > and gpc->valid and gpc->active both being true... I'll eat my hat if
-> > cleaning up and simplifying the locking (and making it self-contained)
-> > *doesn't* fix it.
+On Fri, 2024-02-16 at 10:40 +0100, Heiko Carstens wrote:
+> On Thu, Feb 15, 2024 at 09:53:43PM +0100, Eric Farman wrote:
+> > The routine ar_translation() can be reached by both the instruction
+> > intercept path (where the access registers had been loaded with the
+> > guest register contents), and the MEM_OP ioctls (which hadn't).
+> > This latter case means that any ALET the guest expects to be used
+> > would be ignored.
+> >=20
+> > Fix this by swapping the host/guest access registers around the
+> > MEM_OP ioctl, in the same way that the KVM_RUN ioctl does with
+> > sync_regs()/store_regs(). The full register swap isn't needed here,
+> > since only the access registers are used in this interface.
+> >=20
+> > Introduce a boolean in the kvm_vcpu_arch struct to indicate the
+> > guest ARs have been loaded into the registers. This permits a
+> > warning to be emitted if entering this path without a proper
+> > register setup.
+> >=20
+> > Suggested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> > Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> > ---
+> > =C2=A0arch/s390/include/asm/kvm_host.h |=C2=A0 1 +
+> > =C2=A0arch/s390/kvm/gaccess.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0 |=C2=A0 2 ++
+> > =C2=A0arch/s390/kvm/kvm-s390.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0 | 11 +++++++++++
+> > =C2=A03 files changed, 14 insertions(+)
+> ...
+> > diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+> > index 5bfcc50c1a68..33587bb4c9e8 100644
+> > --- a/arch/s390/kvm/gaccess.c
+> > +++ b/arch/s390/kvm/gaccess.c
+> > @@ -391,6 +391,8 @@ static int ar_translation(struct kvm_vcpu
+> > *vcpu, union asce *asce, u8 ar,
+> > =C2=A0	if (ar >=3D NUM_ACRS)
+> > =C2=A0		return -EINVAL;
+> > =C2=A0
+> > +	WARN_ON_ONCE(!vcpu->arch.acrs_loaded);
+> > +
+> > =C2=A0	save_access_regs(vcpu->run->s.regs.acrs);
+>=20
+> Why not simply:
+>=20
+> 	if (vcpu->arch.acrs_loaded)
+> 		save_access_regs(vcpu->run->s.regs.acrs);
+>=20
+> ?
+>=20
+> This will always work, and the WARN_ON_ONCE() would not be needed.
+> Besides
+> that: _if_ the WARN_ON_ONCE() would trigger, damage would have
+> happened
+> already: host registers would have been made visible to the guest.
+>=20
+> Or did I miss anything?
 
-Heh, I'm not taking that bet.
+You're right that the suggestion to skip the save_access_regs() call in
+this way would get the ALET out of the guest correctly, but the actual
+CPU AR hadn't yet been loaded with the guest contents. Thus, the data
+copy would be done with the host access register rather than the
+guest's, which is why I needed to add those two extra hunks to do an AR
+swap around the MEM_OP interface. Without that, the selftest in patch 2
+continues to fail.
 
-> > But either way, it isn't really part of your series. The only reason it
-> > was tacked on the end was because it would have merge conflicts with
-> > your series, which had been outstanding for months already.
-> > 
-> > So drop this one, and I'll work this bit out with Sean afterwards.
+If the WARN triggers, damage will be done if the ARs get copied back to
+the vcpu->run space (I don't believe any damage has occurred at the
+time of the WARN). That's what's happening today and I'd like to
+address, but there's no indication of what's happened. Perhaps I need
+to combine the two ideas? Do the WARN, but remove the
+save_access_regs() call since it gets done again once the registers are
+swapped back. Or keep it, and dig out the RFC code that stores the
+current ARs into a temporary variable instead?
 
-FWIW, I'm not opposed to overhauling the gpc locking, I agree it's a mess.  I just
-want to proceed slower than I would for a fix, it's a lot to digest.
-
-> Ok. Sean, I assume that since this is the last patch in the series it's
-> superfluous for me to post a v14 just for this?
-
-Correct, definitely no need for a new version.
+Thanks,
+Eric
