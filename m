@@ -1,66 +1,66 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8D93768F2;
-	Fri, 16 Feb 2024 14:24:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ABF412CDBC;
+	Fri, 16 Feb 2024 14:25:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708093460; cv=none; b=sJ7OuCuDlArf4Xtut+jcmd40UtDD0drq2bRn8mcz2/wSDNqNb73MQ01hhOriuHF6tqR1yLgmQZ96GzpHWpVLL5lmbAT3WjaZ3eaqT3FBWtIkspHlf4FHEOtqMxzjXuAVKEvQniRrM/eEjSo1tBdlvmcdNTBpZg+ce52bkkLPaDM=
+	t=1708093522; cv=none; b=WoQAVc2sfS0Qt5kKwTWuhZMurV1GmFeAO37mnV0YHqr3dhRy7uHx/aDUC/u2gy/v5/w3JAuhPd2KTPd/JXXDoCl7/Tl23a0sjrTxAmGFCPL9uXDGuU9kyQz1Dee+8lOe0E1q416KK+CEDYEVtkk8mAtX+mjP6k9YmPpkDFjnNvE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708093460; c=relaxed/simple;
-	bh=ttSbueMpnZzxUwwuEo1qu9ErDitQEVMUZYtC+Z8xcRI=;
+	s=arc-20240116; t=1708093522; c=relaxed/simple;
+	bh=O7MFxcQlW6/oLUDwi9hslFjNvFqB7lPa29B3FpAyVvg=;
 	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=aR5eQCsHQVaY121QGhaAYHV1/V2TUf9EgUQfErP/98mEDn/V9SdmQKFPPRI2x2hiApPZaAk3s9Fz61foxw3LLhWuZkcWcrmkbKwR6mkuRl+xSxohZqAaFZ4eF6rp2XG0cs+iknstZoUIjoZHoSTXT+UyQ8fwWBhzv6vsVjA7leI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=r2qhOFjR; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=hPaLeS4cfZG7VCzAoyGFK+d4ZSKBTraACha4Mnqo7JEb4bcaj0Jbg+ApoPqq0+AUYY/ZOE+8cBuNuSO3oCUy+pjF0IhS9MW0TmYYRgxZVxiIW/J/ConPbsuGEnOk1/jGVK71A7g/njAsDNtpVsRaixQWUWB5tU+ZNoeNKrU/xNY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tbQPa5XO; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="r2qhOFjR"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41GDbf69023625;
-	Fri, 16 Feb 2024 14:24:16 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tbQPa5XO"
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41GDS2VR009205;
+	Fri, 16 Feb 2024 14:25:15 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : from : subject : to : cc : references : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=kVLFjMdLRyAqk9/I67nXGPs5FqcWXlsOTQVhBYO1On8=;
- b=r2qhOFjRW8UTcSLercnUjAKOfnpW1VemTl4XGyr3VSFyBEs0k6u5RgQZTiYfCEpqlnYH
- BbVOBLosYSN7OCeGGn84q9ErXB9wpL81bBkzkeJzQfZMENKwfWaYxGzvBHrbrf3WQEX4
- a6FHFb2LNSzVwdhXaq8ltFDPPR0l9WqgXuqp0Zff9zUJkuyHWY9nBP6+4fQyjFVS/uCK
- 450dEyT6beQWQntNlx0VTQS1ldADlxtx9YpIhRgCul5L0Pi+EWrX7MxnKtRr0GvXolyE
- z+lv1SxWtiY0x/eRCfi/EkjFsEZDtu4k+JdlSgDNNd3EaTkZzbzdUzVSylRvTWuY8zbV cA== 
+ bh=nlnNDCB++mrZtl4jprxCchDhuznxfG86krnhXkgxIn8=;
+ b=tbQPa5XOywT+Xfwh6609A7vyZWr5OlhcNs5uFq9qs7HCGPqjmnJ/4WhUGvSuRu5zyhk8
+ 3EsGM/Hf35XDJi9P3fpXcMaP4z84L52urATEeR/cN1YXppSV2BA8XCgt2f8O1ijRXHWJ
+ 8D3o3yDAiicq3zPkvyWCer2JJ3ny1tnFqIUg2iBkv0R50bUB1XbD29no8+qxfA21rq3h
+ hYYMRhuBTzmSgXiSrcMT3JSw596UsEJaw5CsrefX9DmYI3TgmJDU6qMR30wRI8V1auP3
+ 3aWC6ePaMh5rxMqAloLy/ja6+Av4vCcGpQ50n2nnI6hYbLUyrIuBKopM8J2AVV7XaO7+ sw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wa8rfh83d-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wa8m29a5t-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 16 Feb 2024 14:24:15 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41GE7pwv010422;
-	Fri, 16 Feb 2024 14:24:15 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wa8rfh834-1
+	Fri, 16 Feb 2024 14:25:15 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41GDU7Jr015721;
+	Fri, 16 Feb 2024 14:25:15 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wa8m29a5h-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 16 Feb 2024 14:24:15 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41GD1XpS024975;
-	Fri, 16 Feb 2024 14:24:14 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3w6mfpur63-1
+	Fri, 16 Feb 2024 14:25:14 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41GDa3DC016203;
+	Fri, 16 Feb 2024 14:25:14 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3w6myn3nue-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 16 Feb 2024 14:24:14 +0000
+	Fri, 16 Feb 2024 14:25:14 +0000
 Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41GEOBqF26411536
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41GEPAKh17498760
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 16 Feb 2024 14:24:13 GMT
+	Fri, 16 Feb 2024 14:25:13 GMT
 Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 33EF358045;
-	Fri, 16 Feb 2024 14:24:11 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id DB74C58061;
+	Fri, 16 Feb 2024 14:25:08 +0000 (GMT)
 Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 297E258052;
-	Fri, 16 Feb 2024 14:24:08 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 6603B58050;
+	Fri, 16 Feb 2024 14:25:05 +0000 (GMT)
 Received: from [9.171.40.55] (unknown [9.171.40.55])
 	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 16 Feb 2024 14:24:07 +0000 (GMT)
-Message-ID: <417a1b7c-4136-4f96-a614-9fd976dc884d@linux.ibm.com>
-Date: Fri, 16 Feb 2024 15:24:07 +0100
+	Fri, 16 Feb 2024 14:25:05 +0000 (GMT)
+Message-ID: <350f1cb8-b205-47be-a296-c610b9afe5fc@linux.ibm.com>
+Date: Fri, 16 Feb 2024 15:25:04 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,48 +69,58 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 From: Wenjia Zhang <wenjia@linux.ibm.com>
-Subject: Re: [PATCH net-next 09/15] net/smc: introduce loopback-ism statistics
- attributes
+Subject: Re: [PATCH net-next 13/15] net/smc: introduce loopback-ism DMB type
+ control
 To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com, hca@linux.ibm.com,
         gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
         edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        jaka@linux.ibm.com
+        jaka@linux.ibm.com, Gerd Bayer <gbayer@linux.ibm.com>
 Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
         tonylu@linux.alibaba.com, linux-s390@vger.kernel.org,
         netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 References: <20240111120036.109903-1-guwen@linux.alibaba.com>
- <20240111120036.109903-10-guwen@linux.alibaba.com>
+ <20240111120036.109903-14-guwen@linux.alibaba.com>
 Content-Language: en-GB
-In-Reply-To: <20240111120036.109903-10-guwen@linux.alibaba.com>
+In-Reply-To: <20240111120036.109903-14-guwen@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rVHuDyuLSug9_H380LkCjAEYrlEvWBIf
-X-Proofpoint-ORIG-GUID: h1k7cY6hFCi6W2gBuQh3wf0176dc4VQG
+X-Proofpoint-ORIG-GUID: NxRbpwPOulmqbzB3VeVuqevT4XGhMX2_
+X-Proofpoint-GUID: SDew2dCRulUv8MbMxbI0RFumLOi-Saip
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-02-16_13,2024-02-16_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 impostorscore=0
- lowpriorityscore=0 mlxlogscore=805 malwarescore=0 bulkscore=0 adultscore=0
- clxscore=1015 spamscore=0 phishscore=0 priorityscore=1501 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2402160115
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ priorityscore=1501 malwarescore=0 clxscore=1015 mlxscore=0
+ lowpriorityscore=0 suspectscore=0 mlxlogscore=997 bulkscore=0 spamscore=0
+ adultscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402160115
 
 
 
 On 11.01.24 13:00, Wen Gu wrote:
-> This introduces some statistics attributes of loopback-ism. They can be
-> read from /sys/devices/virtual/smc/loopback-ism/{xfer_tytes|dmbs_cnt}.
+> This provides a way to {get|set} type of DMB offered by loopback-ism,
+> whether it is physically or virtually contiguous memory.
 > 
-> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-> ---
->   net/smc/smc_loopback.c | 74 ++++++++++++++++++++++++++++++++++++++++++
->   net/smc/smc_loopback.h | 22 +++++++++++++
->   2 files changed, 96 insertions(+)
+> echo 0 > /sys/devices/virtual/smc/loopback-ism/dmb_type # physically
+> echo 1 > /sys/devices/virtual/smc/loopback-ism/dmb_type # virtually
 > 
-
-I've read the comments from Jiri and your answer. I can understand your 
-thought. However, from the perspective of the end user, it makes more 
-sense to integetrate the stats info into 'smcd stats'. Otherwise, it 
-would make users confused to find out with which tool to check which 
-statisic infornation. Sure, some improvement of the smc-tools is also needed
+> The settings take effect after re-activating loopback-ism by:
+> 
+> echo 0 > /sys/devices/virtual/smc/loopback-ism/active
+> echo 1 > /sys/devices/virtual/smc/loopback-ism/active
+> 
+> After this, the link group and DMBs related to loopback-ism will be
+> flushed and subsequent DMBs created will be of the desired type.
+> 
+> The motivation of this control is that physically contiguous DMB has
+> best performance but is usually expensive, while the virtually
+> contiguous DMB is cheap and perform well in most scenarios, but if
+> sndbuf and DMB are merged, virtual DMB will be accessed concurrently
+> in Tx and Rx and there will be a bottleneck caused by lock contention
+> of find_vmap_area when there are many CPUs and CONFIG_HARDENED_USERCOPY
+> is set (see link below). So an option is provided.
+> 
+I'm courious about why you say that physically contiguous DMB has best 
+performance. Because we saw even a bit better perfomance with the 
+virtual one than the performance with the physical one.
