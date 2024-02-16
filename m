@@ -1,182 +1,162 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16D6712BEA5;
-	Fri, 16 Feb 2024 21:18:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 751F9145FF8;
+	Fri, 16 Feb 2024 21:36:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708118342; cv=none; b=kPuuaWN1H5winP05j4s6SfMSJTObcXcGm/VErI7PxWd7PHXTZ5pq8VoTbIO2+FQgVlFNLpyq7CNo+PBSBiTrNZWmI/1bCT3WP4LjybPGNwPTMSnUoiEggD0AYHjyUlHAOHx9fjqKplIi0To1nhEYFS5PnODoe9B9PW9nDBlTdJE=
+	t=1708119390; cv=none; b=E5VpTTXKLXPS2RhSG9/gdOX6FwR8rnceput7szflWnCtXQbqdCfHtnFKVlaRXVRtt1dWP+4Zs65WuTlBMBNjPsfX/hAnYnJEYZaM8Pkp6fD98uTKYJPuKog54Pvh7slKkfE83lS9w7W1GhAp2sbZEpWzCGRswpA7KIvYCHgFgV0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708118342; c=relaxed/simple;
-	bh=n3BVK7XlP+3YIiQ+7K8fhYDCbI9fpKf68CAdJoDXIEE=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=pUIygdCSw1RiE18TMvM6J1/km4A+FHNQK1Xl1BpUCLm/55m9gZPbi3JcN1Vdse3JIgPrW2pA/TuZJTq3YbFT7FqoEl1ZAXZKPoWs5H/pfPE1XIRFXnE6wF5jCXxELOsmlk032LribvBd4Wk4XV/tzu3BzXqJjLOQveof8P1ocng=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nb0U0lpA; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1708119390; c=relaxed/simple;
+	bh=wFHRWFNDjByZdkECXDT5AIayYLGLuLsqg4VpCTDXaxk=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=qd8+E7++WX6OQShV2/nWD4uV7TAOMu3t5gqgUqwZhDk8yCvwylqdXb2buoW7s9CiSzS+oh3HhFc1kcOCSwiHg6KzIwILh+73yezuT0EciRKaw1/dY/97e0K1x5wwpK7QhEUypDTwGTuvJvdAFA8oHoda34Lza+8QxBZG4E+4ojE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=U+kp0rGC; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nb0U0lpA"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41GKl60c006913;
-	Fri, 16 Feb 2024 21:18:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=PPbZAy+vH4wUi7CLffmzmcdaoVVlb9lMcnd+reqgNAI=;
- b=nb0U0lpA9uWs+Q749sedi1z6O3QtwH9KIZPAtY0X/+/4CSk7NTuPYXsODGYhsHnRdFsQ
- /3MLEFlwbPtk944FTuabUaPrEhRH/kCzUxBBUqHYi0uMNI0Be/SIqxYND1bqOAuCeMef
- NuB5t/MeU1Iq4EqB8HxX4j9eJTf8+qS2kMjwKiiYCLib94/jqQI8TjQPHhUR2ZUyX5Uj
- cNmsmkxCH/MdDzbhDTMqzy6E5rxwTCW2TjAIl+VR0H42bMcooLS0WzlUKMdf4w+g7hDX
- w759yB7FOLwd6k04ea9sLWVZT9Dc/EjAXFgIqUiSdr0m2Z2usWmlJ7H56cNGUSDbJWNo cw== 
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="U+kp0rGC"
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41GJw0QW026123;
+	Fri, 16 Feb 2024 21:36:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=naSuFLOBCRRosC0sA+aZ1BhtQ2Dg+R11DdlDmvqw/e4=;
+ b=U+kp0rGCuy2PTZ3j/J1afROGi761NyJwXb3kNkFQwsNITjyjgre++UwA2CX0VLMmYUa1
+ 8pDurd+zztGUfVaup8YXbK9Llt1+//iI/Hl4hQ2/AB+I0QgnqAjE+CXPUogiHPlpPpw0
+ H1KY4ESrmVJi87vTq/P2MILSmTI7YxOYOuPhN4U2b4FGUiPs0idyzIz+5HjvjajNCt68
+ URUITU59mKTRGHQSx4AAIcEyKwLL00azBlK4wGgb2CiiUbU74XdyS6cTWs/zRFy9n1D6
+ +NtXHrnu4TXeo8ZiZ7nJ9g5v/JDlN9PVtSkYW+Adm3a/9BLT/Cgq+jmySvx6YM9nbeGV 4w== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3waf1xgnxe-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3waeau1nu8-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 16 Feb 2024 21:18:57 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41GL5eGG026240;
-	Fri, 16 Feb 2024 21:18:56 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3waf1xgnx2-1
+	Fri, 16 Feb 2024 21:36:24 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41GLX5A7013625;
+	Fri, 16 Feb 2024 21:36:24 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3waeau1ntx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 16 Feb 2024 21:18:56 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41GK0FvE010050;
-	Fri, 16 Feb 2024 21:18:55 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w6npmdfb1-1
+	Fri, 16 Feb 2024 21:36:24 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41GKPN1P009935;
+	Fri, 16 Feb 2024 21:36:23 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w6p63de7q-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 16 Feb 2024 21:18:55 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41GLIqBk20054726
+	Fri, 16 Feb 2024 21:36:23 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41GLaI9h40305162
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 16 Feb 2024 21:18:54 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0166A5805D;
-	Fri, 16 Feb 2024 21:18:52 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4C21958059;
-	Fri, 16 Feb 2024 21:18:50 +0000 (GMT)
-Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.34.148])
-	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 16 Feb 2024 21:18:50 +0000 (GMT)
-Message-ID: <f219e1a8a174c51064b52bc9197a8b5869599ac2.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 1/2] KVM: s390: load guest access registers in MEM_OP
- ioctl
+	Fri, 16 Feb 2024 21:36:20 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6AD9320040;
+	Fri, 16 Feb 2024 21:36:18 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 540102004E;
+	Fri, 16 Feb 2024 21:36:18 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 16 Feb 2024 21:36:18 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
+	id 03F5BE008F; Fri, 16 Feb 2024 22:36:18 +0100 (CET)
 From: Eric Farman <farman@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank
- <frankja@linux.ibm.com>,
+To: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David
- Hildenbrand <david@redhat.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan
- <shuah@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
         kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Date: Fri, 16 Feb 2024 16:18:49 -0500
-In-Reply-To: <e1364fe5a3e1ec09d343db29dbbdbafb35aef3f5.camel@linux.ibm.com>
-References: <20240215205344.2562020-1-farman@linux.ibm.com>
-	 <20240215205344.2562020-2-farman@linux.ibm.com>
-	 <20240216094012.8060-A-hca@linux.ibm.com>
-	 <e1364fe5a3e1ec09d343db29dbbdbafb35aef3f5.camel@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.3 (3.50.3-1.fc39) 
+        linux-kselftest@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
+Subject: [PATCH v3 2/2] KVM: s390: selftests: memop: add a simple AR test
+Date: Fri, 16 Feb 2024 22:36:16 +0100
+Message-Id: <20240216213616.3819805-3-farman@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20240216213616.3819805-1-farman@linux.ibm.com>
+References: <20240216213616.3819805-1-farman@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xd7SU3DUWN9Rr97CNDit2ryvQe0RfsbX
-X-Proofpoint-ORIG-GUID: JTmK9nTslVG5RR1cIxyJX8JFHOkKmgN2
+X-Proofpoint-GUID: FdhAZ1gjkpSwDYIrmbs8ZojpmQNHJ0-Z
+X-Proofpoint-ORIG-GUID: W35zk3rRof34rMml9baE-PDwKWebts6F
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-16_20,2024-02-16_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
- spamscore=0 clxscore=1015 mlxscore=0 adultscore=0 lowpriorityscore=0
- priorityscore=1501 phishscore=0 mlxlogscore=999 suspectscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402160167
+ definitions=2024-02-16_21,2024-02-16_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ clxscore=1015 mlxscore=0 mlxlogscore=999 phishscore=0 lowpriorityscore=0
+ priorityscore=1501 impostorscore=0 adultscore=0 malwarescore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2402160169
 
-On Fri, 2024-02-16 at 11:33 -0500, Eric Farman wrote:
-> On Fri, 2024-02-16 at 10:40 +0100, Heiko Carstens wrote:
-> > On Thu, Feb 15, 2024 at 09:53:43PM +0100, Eric Farman wrote:
-> > > The routine ar_translation() can be reached by both the
-> > > instruction
-> > > intercept path (where the access registers had been loaded with
-> > > the
-> > > guest register contents), and the MEM_OP ioctls (which hadn't).
-> > > This latter case means that any ALET the guest expects to be used
-> > > would be ignored.
-> > >=20
-> > > Fix this by swapping the host/guest access registers around the
-> > > MEM_OP ioctl, in the same way that the KVM_RUN ioctl does with
-> > > sync_regs()/store_regs(). The full register swap isn't needed
-> > > here,
-> > > since only the access registers are used in this interface.
-> > >=20
-> > > Introduce a boolean in the kvm_vcpu_arch struct to indicate the
-> > > guest ARs have been loaded into the registers. This permits a
-> > > warning to be emitted if entering this path without a proper
-> > > register setup.
-> > >=20
-> > > Suggested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-> > > Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> > > ---
-> > > =C2=A0arch/s390/include/asm/kvm_host.h |=C2=A0 1 +
-> > > =C2=A0arch/s390/kvm/gaccess.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0 |=C2=A0 2 ++
-> > > =C2=A0arch/s390/kvm/kvm-s390.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 | 11 +++++++++++
-> > > =C2=A03 files changed, 14 insertions(+)
-> > ...
-> > > diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-> > > index 5bfcc50c1a68..33587bb4c9e8 100644
-> > > --- a/arch/s390/kvm/gaccess.c
-> > > +++ b/arch/s390/kvm/gaccess.c
-> > > @@ -391,6 +391,8 @@ static int ar_translation(struct kvm_vcpu
-> > > *vcpu, union asce *asce, u8 ar,
-> > > =C2=A0	if (ar >=3D NUM_ACRS)
-> > > =C2=A0		return -EINVAL;
-> > > =C2=A0
-> > > +	WARN_ON_ONCE(!vcpu->arch.acrs_loaded);
-> > > +
-> > > =C2=A0	save_access_regs(vcpu->run->s.regs.acrs);
-> >=20
-> > Why not simply:
-> >=20
-> > 	if (vcpu->arch.acrs_loaded)
-> > 		save_access_regs(vcpu->run->s.regs.acrs);
-> >=20
-> > ?
-> >=20
-> > This will always work, and the WARN_ON_ONCE() would not be needed.
-> > Besides
-> > that: _if_ the WARN_ON_ONCE() would trigger, damage would have
-> > happened
-> > already: host registers would have been made visible to the guest.
-> >=20
-> > Or did I miss anything?
->=20
-> You're right that the suggestion to skip the save_access_regs() call
-> in
-> this way would get the ALET out of the guest correctly, but the
-> actual
-> CPU AR hadn't yet been loaded with the guest contents. Thus, the data
-> copy would be done with the host access register rather than the
-> guest's, which is why I needed to add those two extra hunks to do an
-> AR
-> swap around the MEM_OP interface. Without that, the selftest in patch
-> 2
-> continues to fail.
+There is a selftest that checks for an (expected) error when an
+invalid AR is specified, but not one that exercises the AR path.
 
-Scratch that. I applied this onto some other in-progress code, so the
-statement about a failing test isn't valid. You're not missing
-anything, and the hunks around MEM_OP aren't needed. I'll send v3.
+Add a simple test that mirrors the vanilla write/read test while
+providing an AR. An AR that contains zero will direct the CPU to
+use the primary address space normally used anyway. AR[1] is
+selected for this test because the host AR[1] is usually non-zero,
+and KVM needs to correctly swap those values.
+
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+---
+ tools/testing/selftests/kvm/s390x/memop.c | 28 +++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
+index bb3ca9a5d731..be20c26ee545 100644
+--- a/tools/testing/selftests/kvm/s390x/memop.c
++++ b/tools/testing/selftests/kvm/s390x/memop.c
+@@ -375,6 +375,29 @@ static void test_copy(void)
+ 	kvm_vm_free(t.kvm_vm);
+ }
+ 
++static void test_copy_access_register(void)
++{
++	struct test_default t = test_default_init(guest_copy);
++
++	HOST_SYNC(t.vcpu, STAGE_INITED);
++
++	prepare_mem12();
++	t.run->psw_mask &= ~(3UL << (63 - 17));
++	t.run->psw_mask |= 1UL << (63 - 17);  /* Enable AR mode */
++
++	CHECK_N_DO(MOP, t.vcpu, LOGICAL, WRITE, mem1, t.size,
++		   GADDR_V(mem1), AR(1));
++	HOST_SYNC(t.vcpu, STAGE_COPIED);
++
++	CHECK_N_DO(MOP, t.vcpu, LOGICAL, READ, mem2, t.size,
++		   GADDR_V(mem2), AR(1));
++	ASSERT_MEM_EQ(mem1, mem2, t.size);
++
++	t.run->psw_mask &= ~(3UL << (63 - 17));   /* Disable AR mode */
++
++	kvm_vm_free(t.kvm_vm);
++}
++
+ static void set_storage_key_range(void *addr, size_t len, uint8_t key)
+ {
+ 	uintptr_t _addr, abs, i;
+@@ -1101,6 +1124,11 @@ int main(int argc, char *argv[])
+ 			.test = test_copy_key_fetch_prot_override,
+ 			.requirements_met = extension_cap > 0,
+ 		},
++		{
++			.name = "copy with access register mode",
++			.test = test_copy_access_register,
++			.requirements_met = true,
++		},
+ 		{
+ 			.name = "error checks with key",
+ 			.test = test_errors_key,
+-- 
+2.40.1
+
