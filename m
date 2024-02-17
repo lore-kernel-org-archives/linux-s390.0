@@ -1,125 +1,149 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2040.outbound.protection.outlook.com [40.107.220.40])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE4C3145328;
-	Fri, 16 Feb 2024 21:36:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708119390; cv=none; b=PL9BmWUfszvy5+dlXJfHpWoswySLECoVzzyn7KNXHz6NdlAgIL5ZmBVfCQPxnmrdLrZ1cLZO37Qaa3M8GQ8dw46w0rTofmSp+0m14zYA6tFkvD4xj2ibuffGqoBRDYeHe+AUFjzL+1865/CYaSd+tc5YmyjkF6k86I4BaYAxkJ0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708119390; c=relaxed/simple;
-	bh=ABazzURm9YE0CBrLRExDVt/8/GoQ0YtBOKQly5ilylg=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=WcLYQMOodYFdfLYO/jkJB5sb8SRofb3t+W2kbkeFrFoe/vF3F2gNFG0ZPvEbsfMmwpVFgEl3180dLdp2gclVYXzjDeSrYh6JJF0mNaGQFeOHsbnorTHCVSZPavK9htwibyO2Xp9Uy/yM9X/k5Ysy3JpMIrLm0REd34QSK0uVGkg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=s+mrOfV7; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 700C8149E11
+	for <linux-s390@vger.kernel.org>; Sat, 17 Feb 2024 00:48:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.220.40
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1708130903; cv=fail; b=PKtDT7LsAtz6kuLDwBkf4U41TjdrqTxLIeUe2nArbDj0uuOi9YOSsi1GSJjNjC1agQPGVv02FhNEnpPZsY5EstFJ6qUXKQp5iN+/ctxCmHPOhvp8ZG+7lZePtxB3dhDZN7snpC47Lo02iVfs+LLq5THvRPv2OgBQYm31Q7rSHfg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1708130903; c=relaxed/simple;
+	bh=Fw0uXCFyRulnS3iA7uyQBJatlhjMChqFxYb9RfFrAOk=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=cFkOkNnoaPhIqVZzzawLL+EBZTINu1gRh0TkY3g6CpNlQsI8Fg75NXcXY+R3mdSusPNaVaSHqrsmKB2iAZzeNPo1waiiNcCEZIrJW3GjNu0AYeW5JD5lUQO7Sq0pCyDouNN3rcOMApMY3RUD7ai984lhGiGJ9N+816JJknaLRFQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Qm7isw7M; arc=fail smtp.client-ip=40.107.220.40
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="s+mrOfV7"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41GLKWGK026387;
-	Fri, 16 Feb 2024 21:36:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=GMoZ8cVjbJyyRF6RsjzaoDYPrwdJ4WYC/25L17yBbNg=;
- b=s+mrOfV7lA2/dV1wMstEd0zpj83l2Ob9MS8G78Nll3E4V9jLLquLCgwgiD13Xy1e1Fvb
- O85p5WLAIMuro1UicmQhsCGon53c7rbbdfHYEj4nVTgmC+jbOssau6PCHBG2MLFShpqA
- sgfNmpvsVTYcGUUE8ml7mXECYVLTDKu9z3ndkvPoI8FNjyGWC7/e5eutLNIfrJYNkcJy
- SpYYDYfXoyO+7XFWvkw8qSJdFffVr+UnTINuxQXiUV+AmBNIknd9yWDYKt43Ck7MTSJJ
- p3LS0vNbIn11CkUfFJoj7GTWAaYeZwxjTNMim6ycD6deJfV1onlHnO259ELsQN/tobJ9 DQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3waeyn0v24-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 16 Feb 2024 21:36:26 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41GLZRgH031405;
-	Fri, 16 Feb 2024 21:36:25 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3waeyn0v1w-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 16 Feb 2024 21:36:25 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41GLMOis024888;
-	Fri, 16 Feb 2024 21:36:24 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3w6mfpwwsu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 16 Feb 2024 21:36:24 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41GLaIRY32244262
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 16 Feb 2024 21:36:20 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5A3652004F;
-	Fri, 16 Feb 2024 21:36:18 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4767F20040;
-	Fri, 16 Feb 2024 21:36:18 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 16 Feb 2024 21:36:18 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-	id F3312E0045; Fri, 16 Feb 2024 22:36:17 +0100 (CET)
-From: Eric Farman <farman@linux.ibm.com>
-To: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v3 0/2] KVM: s390: Fix AR parameter in ioctl
-Date: Fri, 16 Feb 2024 22:36:14 +0100
-Message-Id: <20240216213616.3819805-1-farman@linux.ibm.com>
-X-Mailer: git-send-email 2.40.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: IamFYXRCpSTxxKQZanDVXnAGpV2K06C7
-X-Proofpoint-ORIG-GUID: pK7Z57Xtrlc1PFVE9dz4sgYUc8-uYd_L
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Qm7isw7M"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=UciXUNzgJLWWljB6mhocwGCvr4zNdOtmjqg1SXia46LQu/0G2jHCmt/36pfolkWTZ+Pe6FEjg58qoQOu7LCeljbgrBnDIp1b9Lcb/RSYbxdaaNEcXGmWYHCP1TgVu2lD2aYODqUMwZDJ7SYrHbIpxyVXvD4qcIZUbY+ZWhpWAIP+ezgyY9nxVIY07uBRX6asnSsuS6rThX+S/EhXfBCyfM47c9mAYkflM+aRTid/OvsS+DajGmywo3NNtkGZJ3Kc0Z7pDRaXSOecutVBIP5YbujAm7cYL5SkHK93xNl0cUt2MzzCp59bC9QaCOzDoaIAgSWvNgqm06+bkdSClYLLqQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=uysvSpLqVHFdpjGfgoFq6AQn6wUuXkqWBLbbvDyu4fc=;
+ b=Ea6BUDzYv9zLY/uL5byeszIijg3ZNPPTAbdz4aQYqAZTfTzbkxk5nNATX8m9fwJFU2+OBI0fiiO61moePEP3jnx0Isgu7PXml8I1PwRqUARuE3aToQc6vZubg6Gv3zJeo81wPwlRbQNPt0qsnwBTVPFbznxQmxS1vh2ORwFZWBLy2dbnjsCnlggPwzrecrNNyQ/HNEuDFXxWc98/Bbtjp4AVtHMbhQKHSfa5zHqkLdIww7UW94uKgJfoU8EhjZ6sydGmYf/gDYggtjaOTiWBlebTmxjwlp5iIN/WZCQoqfqGSmxFLvYs/W3JS6GaRMqLfLwN+y16vKNTSrit0abHRw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=uysvSpLqVHFdpjGfgoFq6AQn6wUuXkqWBLbbvDyu4fc=;
+ b=Qm7isw7MhPwBqHBoUY6Rpas33CuFINeI1Kpg4P+MJomPaZkpbHsndq1mgfF8qo3aflAbmHY5JPw05m3/zemIriGhzaN91ocWCpxkTgVOf3eQWt6jpfh0ani92Nnv8O6wPw//8dZPn58nREZXMqHh3uiffsHhHND3nVgdY5vu+hUa6XyeMUn/WVWO6QR4XHlgAAH5Cqxgtd99LBtrBD/p6O48XvIW7Lmk64daclafTmmtHr8moxIuZMgniNM2gUgRaunZGdeVuvxvDzp5TfD/VWgBbtDnmanhSdIPq84klJSbAuEmr3izUWfdq4pBhMvp0dQXLhJt5Cj9NlzQfMseSw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by CH3PR12MB9077.namprd12.prod.outlook.com (2603:10b6:610:1a2::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7316.14; Sat, 17 Feb
+ 2024 00:48:20 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::96dd:1160:6472:9873]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::96dd:1160:6472:9873%6]) with mapi id 15.20.7316.012; Sat, 17 Feb 2024
+ 00:48:20 +0000
+From: Jason Gunthorpe <jgg@nvidia.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	linux-s390@vger.kernel.org,
+	Sven Schnelle <svens@linux.ibm.com>
+Cc: Jan Glauber <jang@linux.vnet.ibm.com>,
+	patches@lists.linux.dev,
+	Niklas Schnelle <schnelle@linux.ibm.com>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [PATCH rc] s390: Use the correct count for __iowrite64_copy()
+Date: Fri, 16 Feb 2024 20:48:14 -0400
+Message-ID: <0-v1-9223d11a7662+1d7785-s390_iowrite64_jgg@nvidia.com>
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+Content-Type: text/plain
+X-ClientProxiedBy: MN2PR22CA0029.namprd22.prod.outlook.com
+ (2603:10b6:208:238::34) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-16_21,2024-02-16_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
- malwarescore=0 mlxlogscore=710 clxscore=1015 phishscore=0 bulkscore=0
- priorityscore=1501 spamscore=0 impostorscore=0 mlxscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402160170
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|CH3PR12MB9077:EE_
+X-MS-Office365-Filtering-Correlation-Id: fe3e8275-3b51-42bb-038e-08dc2f52230a
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	gpz3yi4jMMMVycFJVA9jqmto6oZ5QoNPw1tf/KiNgRl28LWP8QAlrEUmpWLisDz22TO7YsictgUrStS5Ren4ZgmeaTWjQyZ7u7AfF8ZeZ63pU0xR9C9PrEA05VdbG4FfbkQiPvKTtJ87WvGi8OOk07zO2tXddnTcaY+/yOJOEJt+Mi+At6GSjy6PfS2TFJikVUURbjfFzXf+k1lUZwIzrcugofpmVkH00K+/giCNvqfUOCxUKWp0te2503jXpKT8qSpDTA84fp5/A44YRrFsT6kIm3TKt5qnsaTzf66WuUqxg4hmlVYdsqr68vcHrqBPXtMTmvla1uVfmv0yU5xb6VjSKKoL3lt0lzPUa5su9iXwfnPSofiEJrBkAv/DImjmsw4OSZkv9wpUZ3Dyub2g7eQaS3TtHVgbZuRk53WKMO9L7Wie3rpQEvXAjpcJSlg6y9W1DuTFUAxrA7e3xtPn51Mi56ULlD70JcLQPdsgPIrk8z1lI1S4DJrodSHw22QHGcxumt9ENz0btSVhvW9FGB6kqscEspBNRX+vE1PbG+OFYOrh9g/SIJNlTg1PBCwc
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(396003)(136003)(376002)(346002)(39860400002)(366004)(230922051799003)(451199024)(1800799012)(186009)(64100799003)(7416002)(2906002)(5660300002)(2616005)(26005)(83380400001)(36756003)(38100700002)(54906003)(110136005)(478600001)(6486002)(6512007)(316002)(6666004)(6506007)(66556008)(66476007)(66946007)(8676002)(41300700001)(86362001)(8936002)(4326008);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?jvKKozp6fMpSFalwG8YONBSv5ab+xXr4jRjk85IV+JTV8pin3rdi2h7Hja1z?=
+ =?us-ascii?Q?vlO2qr6QBkZyv1EluqS89KUDIwyVWv0E4teEWPFdbf51VqeBfog1gVIc1DvV?=
+ =?us-ascii?Q?y/AMuRvgeokIKDgIlDFgUl4UunfhrhHfMqEkqFt2xxT3uGV3HoomCa/U8DgW?=
+ =?us-ascii?Q?GielX9L7gB2ZS4xKRLQOD54kkutbJtDy6fdVRGyap9o9tA0hUZbBxRTIyB1z?=
+ =?us-ascii?Q?vuSCAZ3T7+L8aByI/2+4IquHvoSkaTtVuwdLUfCVQfo3mInkmIK1cToxKFMg?=
+ =?us-ascii?Q?wMnfODL02bybXuGYCOaZKdFPtYg5fpGwCaqH5QRNE51sW+fkYh6Uy+McwL/4?=
+ =?us-ascii?Q?Yfi6pG+EbJSrAySP8zn7sTvM38rZhzj+aFjZTUsnCxH9OOjOV1vgjAm/wgVZ?=
+ =?us-ascii?Q?h7sFwztwNIuiqXNYVrmxFE8Dbx/Gri0kV/FEX3UCBvEZfK/HK86AG2vPAKAa?=
+ =?us-ascii?Q?PC49ql/d8cPG6FhKoi7x1lZfCWZjE7I7rBKu35IqPbqp6V+vQ3Pn0wqac4mo?=
+ =?us-ascii?Q?JYHZDvNhlC1yVR0sGV7GqvnXQC0IykZVCbLkJrzqaPguB3b67HKevVHApFPv?=
+ =?us-ascii?Q?3hJfpmaZ2KU7bhYZIucq22+1aFXkQMvqohtW5hoctmkNmf9KQmv7MiabwODR?=
+ =?us-ascii?Q?jPJzJp5mppvwfILMZcTGKQrz0WhZhYfVAmxfqxrwW1G9LyRhksFlTdKw9CEI?=
+ =?us-ascii?Q?MrPV0qMR+hySyLUo8cJenoCevqAiTDJSFcv+S//B5flh//wSZG3O8K6IZmTo?=
+ =?us-ascii?Q?wiwOxbRrqhUwJHidnAUyKZ11y8qJXNhpW06IEyR6chWF+2WcFQ2WnicaNbxE?=
+ =?us-ascii?Q?7JFLL7/Gh6PtB1hguD4v1B9HowGpjCgbLPHPvGOgLxeyVQT+hh9rUb4cGyJx?=
+ =?us-ascii?Q?9wKgsF7bF6wzFkuApqIXgPywicazfFnYComW9nK2K01attm3WtjkbAZ+zqs5?=
+ =?us-ascii?Q?nLKTPIIpZDccWtm+JP1DF4F5F2ty4026TOgUSQBztykoQwPjQbuUZEkttTJv?=
+ =?us-ascii?Q?uLPNVx3j8jeK506TjGcyy9KGQ+h52YZSI9vUInMMjw/WAg+EJBkqZ8/1Airb?=
+ =?us-ascii?Q?48FbxMeF+mQVNN5Yyda44n10uctxQfXPfAQcNVdfQNFb57+SJqACekuDb7H6?=
+ =?us-ascii?Q?a80GSvr1Caol4XdVlHhjwyc5dsc7FFnHzznCnSO7wK88u79cGpHF2t+UwjuI?=
+ =?us-ascii?Q?msqFX4NiBLOu/jjN9FZI4yEn+uZh4MwlbBoPmeils8w9YV2k0T553e8ryGox?=
+ =?us-ascii?Q?DoT9lREH+SbSWoiXq1h6pBlrI1/QhH1NMQ4HkYcIwUwX8iL17YZ25lYLQp0b?=
+ =?us-ascii?Q?52+6fr9DjZlQcVrPr200nmCT7xMkmcTkdibWtUxgeweXmGJS0XicxkJSlx71?=
+ =?us-ascii?Q?eWvWSqIiBDwnSSfbbHd7tbwDxaznLa0JvvhLS49ZUn3X+0JNROckjs2Kuh49?=
+ =?us-ascii?Q?UE74+NzFcDwHl112djReQ1b1iddRAxbFvJriRFbg12GDdUv2sb1pY0Z8WOBw?=
+ =?us-ascii?Q?AdGokpj/mLnSLmj2qBTf6NNzXYBS3Fx3CcJnKDvbzVrbsqHN9cebf3EV/MaH?=
+ =?us-ascii?Q?8oa1v5nvu7UBOaZRewmHy++4YW8yXXidqjYIyq9d?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: fe3e8275-3b51-42bb-038e-08dc2f52230a
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Feb 2024 00:48:20.2626
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 7KF8bZkDJgf2oWmm5Pex+jesKJclSaV3MAyZ2xDp5VXjcyraPwZCSRjxAR9Ywv7V
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB9077
 
-Hi Christian, Janosch, Heiko,
+The signature for __iowrite64_copy() requires the number of 64 bit
+quantities, not bytes. Multiple by 8 to get to a byte length before
+invoking zpci_memcpy_toio()
 
-Here is a new version for the AR/MEM_OP issue I'm attempting to address.
-(Thank you, Heiko, for the offline chat!)
+Fixes: 87bc359b9822 ("s390/pci: speed up __iowrite64_copy by using pci store block insn")
+Acked-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+---
+ arch/s390/pci/pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Changes:
-v3:
-	[HC] Drop the AR swap in MEM_OP path
-	[HC] Remove WARN and don't do save_access_regs on !bool
-v2: https://lore.kernel.org/r/20240215205344.2562020-1-farman@linux.ibm.com/
-	[HC] Add a flag to indicate access registers have been loaded
-v1: https://lore.kernel.org/r/20240209204539.4150550-1-farman@linux.ibm.com/
-	[CB] Store access registers around memop ioctl
-	[JF] Add a kernel selftest 
-RFC: https://lore.kernel.org/r/20240131205832.2179029-1-farman@linux.ibm.com/
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index 676ac74026a82b..52a44e353796c0 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -252,7 +252,7 @@ resource_size_t pcibios_align_resource(void *data, const struct resource *res,
+ /* combine single writes by using store-block insn */
+ void __iowrite64_copy(void __iomem *to, const void *from, size_t count)
+ {
+-       zpci_memcpy_toio(to, from, count);
++	zpci_memcpy_toio(to, from, count * 8);
+ }
+ 
+ void __iomem *ioremap_prot(phys_addr_t phys_addr, size_t size,
 
-Eric Farman (2):
-  KVM: s390: fix access register usage in ioctls
-  KVM: s390: selftests: memop: add a simple AR test
-
- arch/s390/include/asm/kvm_host.h          |  1 +
- arch/s390/kvm/gaccess.c                   |  3 ++-
- arch/s390/kvm/kvm-s390.c                  |  3 +++
- tools/testing/selftests/kvm/s390x/memop.c | 28 +++++++++++++++++++++++
- 4 files changed, 34 insertions(+), 1 deletion(-)
-
+base-commit: cf4f722d8b48e66de348f2fe8d0e19c01d3e6b72
 -- 
-2.40.1
+2.43.2
 
