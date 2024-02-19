@@ -1,128 +1,184 @@
-Received: from mail-yb1-f202.google.com (mail-yb1-f202.google.com [209.85.219.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29D42481B5
-	for <linux-s390@vger.kernel.org>; Mon, 19 Feb 2024 22:06:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6C5A3C36;
+	Mon, 19 Feb 2024 23:16:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708380416; cv=none; b=ToXAShv5GeAjPhI21YewfaVX7OBvVRV8smyggd717VJvf/aphkVniKo/u9YORvb0DS2FyQTJpNyQZm0LqCqPSCJBoLudINTSEuwuJeqx5oEYdnGI03LJ5Dvqp9v3bqx7PfYW4+RUW5hXMq+bqnPjWnhOr8If6z6S+PEHBPcOj+Q=
+	t=1708384585; cv=none; b=MyFYzJSMDPDTodDDSfFoDntZ5x6FHguaiqhils2K1RPqrlaXL515lhN+qQUEaqn1C+++dd+uu6NQl3Fo5UN3r92YhXIq4B11AdbIQBp3/vUTXgsfL4a3XiADtbHLcMxY9X5PIuVa5y+i/9segO+jSuaWkBnZjl3GaQ+E8ufExNM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708380416; c=relaxed/simple;
-	bh=l0HvovpPqMVUQu9B4ZqhpUtqDN71UcjNp3KMDMRYNP8=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=A9C/QhBDyTKnoTplk6TxljXBESW7bai5vlYon3LqGdwonevhBN++DlhVqc7suD+YVITjQ/p7YFBoz4bGoY+ougIDRZSQSMIBNBp5Nhq67GElDUI7uB/ddCAunKMV5ypoDjSof3H4NrfNgGEqQVV8h30XBFKwQ/p48DRBUUZksek=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=oGP+GQB6; arc=none smtp.client-ip=209.85.219.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1708384585; c=relaxed/simple;
+	bh=ASjtWw0IQtLFOtBU7WkX2iBN6Q62NEGXUjSWU2+64XQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=vFmKAkp6BrcpzvxoSK3qJaaRTjD8araj0ghcZCmcJxDLt5FrVfcd2muvL9fnpdwPLEJ+JVqRZ9P16TsAIbjJ9Tt/VxQbsqzSDzokUoBMFvTe+H+O1ojS8IkL487p4sWe0wv/zDTjKur+JHv3PPNT65cgD9x+CPa+vQapFoC3n5U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bu5CHSnc; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="oGP+GQB6"
-Received: by mail-yb1-f202.google.com with SMTP id 3f1490d57ef6-dc6b5d1899eso7624644276.0
-        for <linux-s390@vger.kernel.org>; Mon, 19 Feb 2024 14:06:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1708380414; x=1708985214; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=mpOEZIVxoohE3GrUqHhwdrDwGh8LEXRlOdsMaQjdYhc=;
-        b=oGP+GQB6s2Je7VhzfpYJba2+bM5S9z+eV4RJaJFUN5dWI8Tivumk/t0sg/aOroXc7r
-         29vAAfGLHIWGzvb1+A/6TUuFoyXKyYmnorE/tru2PjJoTGHHQW+J3+0EENgOM1U0Fk74
-         OzzIPNe4OWGIvlDgGSxJW1dpRYaaqylFAy3Ee5wizVqs/rsoCecfT1JfUy3cz53STMix
-         EfEtLuUpTEFjV60iB8pztpvkhV8TApvaXGeNUFktmzrvu56LMgoCIaC8+fyyDC8oU2Tp
-         7KCrtwNqDVrWj24E6lQ/IQ+wWWA7APUXSPwLNZsba9cAWMgAewtpOLK8jUrINYc7YZu3
-         Krow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708380414; x=1708985214;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=mpOEZIVxoohE3GrUqHhwdrDwGh8LEXRlOdsMaQjdYhc=;
-        b=M6QMEx6hTABvW7bMUBdbypwvQuJ/RQ5NueZS8VDnnRoE95bIR9O5DOn+Z/xVQEKzjj
-         juRK0HPnUKK9TJLYVRGq3Wbujk8ODYbspbEz3Ae1SCZVVSFVooQfhmZjb0fcnIDbLf5B
-         7ACkdb7s9QSQaz7e/LXfcd7VhV7lNRLTCgrr/FLcRAVj6o1ix1pkEl7Zn+X6cHZS+kL6
-         NNiOmsFB9aHQ2i/tM1Iqzv7N9nfG/ZP9M6CK39bmYTXV2rIcRxOVdScjT+KCYRbd/8/u
-         kHzvxphWKmpijAmrz0kjWC9WApexeNRf6fwHKchC3QAtyTjhYu6RJ0zQL4Aq1urVXXyZ
-         mxEA==
-X-Forwarded-Encrypted: i=1; AJvYcCWF/R1bDRAltPK9zyUPayCuu4Yw6KcYfR99PIUe/8iqg7wmqqhEH4dLKhCtARr9LMm4zvpCTKNril8MqQnIi6QE8UvNGIZ8ZEtaXA==
-X-Gm-Message-State: AOJu0YzfM9aUkOlJzOxukusqR863NR3CBbNFGv+1bToucgUXf4TsvroN
-	KaTA4xJZvjjR0+eNHfwgFPRsdd8xri7c0ISerjSQeUiiakdu2u9mCnPSfhYpHyTjJmBXZYq5yzI
-	H4g==
-X-Google-Smtp-Source: AGHT+IGRqD5MJLHGgiuZ4aiPpWZMq+YddUVmGLFXTlIV3IDh3/IjNrlEjd6bMLCvEt6hO0XIgEvR5LwUl4c=
-X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a05:6902:120a:b0:dc7:7655:46ce with SMTP id
- s10-20020a056902120a00b00dc7765546cemr4267897ybu.2.1708380414286; Mon, 19 Feb
- 2024 14:06:54 -0800 (PST)
-Date: Mon, 19 Feb 2024 14:06:52 -0800
-In-Reply-To: <20240215152916.1158-1-paul@xen.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bu5CHSnc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAF9AC433C7;
+	Mon, 19 Feb 2024 23:16:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1708384585;
+	bh=ASjtWw0IQtLFOtBU7WkX2iBN6Q62NEGXUjSWU2+64XQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=bu5CHSncWWQv7IF+uPPM7Exw90DUd+MqyEV8LwXg/R57oRNWulUcf/4qp7PWa3eSZ
+	 HA1S7UjNlnOjAOWLixI+UBG427pEVlU0LTElXRUfWnu7o3t6X/RA3C6hCPM4a9us1i
+	 MQiX5U9R4pO6MhGGqa1VkfGWiFZOQhGMq0Ek9hD4+cPVOCs6zQu2XpTxMIA6UpGVvP
+	 PGQB5+C5yDyyH3PlHF+3GlsjKZ7xozitRa5C5nHqyOJlmVjShO4cyMVCLKL4LHnIAO
+	 ZbYPSHB7vnhdSLVP4Z7+y0KmtMOUbhsV4+pUlFAB02vYygecwPS3CP3q7SYWH4iDzO
+	 m0UgKSlDASwEQ==
+Date: Mon, 19 Feb 2024 16:16:23 -0700
+From: Nathan Chancellor <nathan@kernel.org>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+	svens@linux.ibm.com, morbo@google.com, justinstitt@google.com,
+	linux-s390@vger.kernel.org, llvm@lists.linux.dev,
+	patches@lists.linux.dev, Ulrich Weigand <ulrich.weigand@de.ibm.com>
+Subject: Re: [PATCH] s390/boot: Add 'alloc' to info.bin .vmlinux.info section
+ flags
+Message-ID: <20240219231623.GA2565406@dev-arch.thelio-3990X>
+References: <20240216-s390-fix-boot-with-llvm-objcopy-v1-1-0ac623daf42b@kernel.org>
+ <20240219113248.16287-C-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20240215152916.1158-1-paul@xen.org>
-Message-ID: <ZdPQ_AcbTYMtArFJ@google.com>
-Subject: Re: [PATCH v13 00/21] KVM: xen: update shared_info and vcpu_info handling
-From: Sean Christopherson <seanjc@google.com>
-To: Paul Durrant <paul@xen.org>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Jonathan Corbet <corbet@lwn.net>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, David Hildenbrand <david@redhat.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"H. Peter Anvin" <hpa@zytor.com>, David Woodhouse <dwmw2@infradead.org>, Shuah Khan <shuah@kernel.org>, 
-	kvm@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240219113248.16287-C-hca@linux.ibm.com>
 
-On Thu, Feb 15, 2024, Paul Durrant wrote:
-> David Woodhouse (1):
->   KVM: pfncache: rework __kvm_gpc_refresh() to fix locking issues
-> 
-> Paul Durrant (19):
->   KVM: pfncache: Add a map helper function
->   KVM: pfncache: remove unnecessary exports
->   KVM: x86/xen: mark guest pages dirty with the pfncache lock held
->   KVM: pfncache: add a mark-dirty helper
->   KVM: pfncache: remove KVM_GUEST_USES_PFN usage
->   KVM: pfncache: stop open-coding offset_in_page()
->   KVM: pfncache: include page offset in uhva and use it consistently
->   KVM: pfncache: allow a cache to be activated with a fixed (userspace)
->     HVA
->   KVM: x86/xen: separate initialization of shared_info cache and content
->   KVM: x86/xen: re-initialize shared_info if guest (32/64-bit) mode is
->     set
->   KVM: x86/xen: allow shared_info to be mapped by fixed HVA
->   KVM: x86/xen: allow vcpu_info to be mapped by fixed HVA
->   KVM: selftests: map Xen's shared_info page using HVA rather than GFN
->   KVM: selftests: re-map Xen's vcpu_info using HVA rather than GPA
->   KVM: x86/xen: advertize the KVM_XEN_HVM_CONFIG_SHARED_INFO_HVA
->     capability
->   KVM: x86/xen: split up kvm_xen_set_evtchn_fast()
->   KVM: x86/xen: don't block on pfncache locks in
->     kvm_xen_set_evtchn_fast()
->   KVM: pfncache: check the need for invalidation under read lock first
->   KVM: x86/xen: allow vcpu_info content to be 'safely' copied
-> 
-> Sean Christopherson (1):
->   KVM: s390: Refactor kvm_is_error_gpa() into kvm_is_gpa_in_memslot()
-> 
->  Documentation/virt/kvm/api.rst                |  53 ++-
->  arch/s390/kvm/diag.c                          |   2 +-
->  arch/s390/kvm/gaccess.c                       |  14 +-
->  arch/s390/kvm/kvm-s390.c                      |   4 +-
->  arch/s390/kvm/priv.c                          |   4 +-
->  arch/s390/kvm/sigp.c                          |   2 +-
->  arch/x86/kvm/x86.c                            |   7 +-
->  arch/x86/kvm/xen.c                            | 361 +++++++++++------
->  include/linux/kvm_host.h                      |  49 ++-
->  include/linux/kvm_types.h                     |   8 -
->  include/uapi/linux/kvm.h                      |   9 +-
->  .../selftests/kvm/x86_64/xen_shinfo_test.c    |  59 ++-
->  virt/kvm/pfncache.c                           | 382 ++++++++++--------
->  13 files changed, 591 insertions(+), 363 deletions(-)
+Hi Heiko,
 
-Except for the read_trylock() patch, just a few nits that I can fixup when
-applying, though I'll defeinitely want your eyeballs on the end result as they
-tweaks aren't _that_ trivial.
+On Mon, Feb 19, 2024 at 12:32:48PM +0100, Heiko Carstens wrote:
+> On Fri, Feb 16, 2024 at 12:55:53PM -0700, Nathan Chancellor wrote:
+> > When attempting to boot a kernel compiled with OBJCOPY=llvm-objcopy,
+> > there is a crash right at boot:
+> > 
+> >   Out of memory allocating 6d7800 bytes 8 aligned in range 0:20000000
+> >   Reserved memory ranges:
+> >   0000000000000000 a394c3c30d90cdaf DECOMPRESSOR
+> >   Usable online memory ranges (info source: sclp read info [3]):
+> >   0000000000000000 0000000020000000
+> >   Usable online memory total: 20000000 Reserved: a394c3c30d90cdaf Free: 0
+> >   Call Trace:
+> >   (sp:0000000000033e90 [<0000000000012fbc>] physmem_alloc_top_down+0x5c/0x104)
+> >    sp:0000000000033f00 [<0000000000011d56>] startup_kernel+0x3a6/0x77c
+> >    sp:0000000000033f60 [<00000000000100f4>] startup_normal+0xd4/0xd4
+> > 
+> > GNU objcopy does not have any issues. Looking at differences between the
+> > object files in each build reveals info.bin does not get properly
+> > populated with llvm-objcopy, which results in an empty .vmlinux.info
+> > section.
+> ...
+> > Closes: https://github.com/ClangBuiltLinux/linux/issues/1996
+> > Link: https://github.com/llvm/llvm-project/commit/3c02cb7492fc78fb678264cebf57ff88e478e14f
+> > Suggested-by: Ulrich Weigand <ulrich.weigand@de.ibm.com>
+> > Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+> 
+> Thanks a lot, applied!
+> 
+> However when building the kernel with "LLVM=1" I can see
 
-Running tests now, if all goes well I'll push to kvm-x86 within the hour. 
+Thanks for testing, we are so close!
+
+> something else which looks like an llvm-objdump bug to me:
+> 
+> $make LLVM=1 bzImage
+> ...
+>   SECTCMP .boot.data
+> llvm-objdump: warning: section '.boot.data' mentioned in a -j/--section option, but not found in any input file
+> 
+> This works without warning with GNU objcopy, and actually the output
+> is also different:
+> 
+> $ objdump -v
+> GNU objdump (GNU Binutils for Ubuntu) 2.41
+> 
+> $ objdump -t -j .boot.data arch/s390/boot/vmlinux
+> 
+> arch/s390/boot/vmlinux:     file format elf64-s390
+> 
+> SYMBOL TABLE:
+> 0000000000020000 l     O .boot.data     0000000000003000 sclp_info_sccb
+> 00000000000240e0 l     O .boot.data     0000000000000001 sclp_info_sccb_valid
+> 0000000000023010 g     O .boot.data     0000000000000008 ident_map_size
+> 0000000000023018 g     O .boot.data     00000000000010c8 physmem_info
+> 00000000000250e2 g       .boot.data     0000000000000000 __boot_data_end
+> 0000000000020000 g       .boot.data     0000000000000000 __boot_data_start
+> 00000000000240e2 g     O .boot.data     0000000000001000 early_command_line
+> 0000000000023008 g     O .boot.data     0000000000000008 early_ipl_comp_list_size
+> 0000000000023000 g     O .boot.data     0000000000000008 early_ipl_comp_list_addr
+> 
+> While with llvm-copy:
+> 
+> $ llvm-objdump --version
+> LLVM (http://llvm.org/):
+>   LLVM version 19.0.0git
+> 
+> $ llvm-objdump -t -j .boot.data arch/s390/boot/vmlinux
+> 
+> arch/s390/boot/vmlinux: file format elf64-s390
+> 
+> SYMBOL TABLE:
+> 0000000000000200 l       .head.text     0000000000000000 ipl_start
+> 0000000000010020 l       .head.text     00000000000000d4 startup_normal
+> 00000000000101b0 l       .head.text     00000000000000b2 startup_kdump
+> 0000000000010280 l       .head.text     000000000000005a startup_pgm_check_handler
+> 000000000001025c l       .head.text     0000000000000000 startup_kdump_relocated
+> 0000000000000000 l    df *ABS*  0000000000000000 als.c
+> 000000000001e040 l     O .rodata        0000000000000018 als
+> 000000000001f6f0 l     O .data  0000000000000050 print_missing_facilities.als_str
+> 0000000000011800 l     F .text  00000000000000e2 print_machine_type
+> ...
+> 0000000000020000 l     O .boot.data     0000000000003000 sclp_info_sccb
+> 00000000000240e0 l     O .boot.data     0000000000000001 sclp_info_sccb_valid
+> ... and so on (everything is dumped)
+> llvm-objdump: warning: section '.boot.data' mentioned in a -j/--section option, but not found in any input file
+> 
+> So somehow llvmdump's "-j/--section" option doesn not seem to work.
+
+Re-reading Jordan's response to my initial report about this a couple of
+years ago at https://github.com/ClangBuiltLinux/linux/issues/859, I
+think I understand the issue now. '-j' / '--section' does work but not
+for '-t'.  It works for '-h' and a couple of other flags:
+
+https://github.com/llvm/llvm-project/blob/61a96e5afadd034e7d13126f0e43731bbad7ad89/llvm/test/tools/llvm-objdump/section-filter.test
+
+and because '-t' does not work with '-j', there is a warning because the
+'-j' argument values went unhandled:
+
+https://github.com/llvm/llvm-project/blob/61a96e5afadd034e7d13126f0e43731bbad7ad89/llvm/tools/llvm-objdump/llvm-objdump.cpp#L485
+https://github.com/llvm/llvm-project/blob/61a96e5afadd034e7d13126f0e43731bbad7ad89/llvm/tools/llvm-objdump/llvm-objdump.cpp#L3672
+
+which is what Jordan's upstream report (https://llvm.org/pr50085) was
+about fixing. However, it may not be too hard to fix '-t' to work with
+'-j', I intend to take a look at it at some point this week.
+
+However, since I am more of a kernel hacker than I am an LLVM one, I
+came up with a potential solution in arch/s390/boot/Makefile, which is
+basically just filtering the symbol table manually with grep... it
+appears to produce stable results based on a small test Makefile I have
+to make sure the output looks sane before running through sha256sum. I'd
+be happy to send this as a formal patch if you'd accept it for full
+LLVM=1 compatibility with LLVM 19.0.0+ and Linux 6.9+.
+
+Cheers,
+Nathan
+
+diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
+index d40135efdec4..be3655825b4c 100644
+--- a/arch/s390/boot/Makefile
++++ b/arch/s390/boot/Makefile
+@@ -56,9 +56,9 @@ clean-files += vmlinux.map
+ 
+ quiet_cmd_section_cmp = SECTCMP $*
+ define cmd_section_cmp
+-	s1=`$(OBJDUMP) -t -j "$*" "$<" | sort | \
++	s1=`$(OBJDUMP) -t "$<" | grep "\s$*\s\+" | sort | \
+ 		sed -n "/0000000000000000/! s/.*\s$*\s\+//p" | sha256sum`; \
+-	s2=`$(OBJDUMP) -t -j "$*" "$(word 2,$^)" | sort | \
++	s2=`$(OBJDUMP) -t "$(word 2,$^)" | grep "\s$*\s\+" | sort | \
+ 		sed -n "/0000000000000000/! s/.*\s$*\s\+//p" | sha256sum`; \
+ 	if [ "$$s1" != "$$s2" ]; then \
+ 		echo "error: section $* differs between $< and $(word 2,$^)" >&2; \
