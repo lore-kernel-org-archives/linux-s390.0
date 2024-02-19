@@ -1,65 +1,65 @@
-Received: from mail-pg1-f201.google.com (mail-pg1-f201.google.com [209.85.215.201])
+Received: from mail-yb1-f202.google.com (mail-yb1-f202.google.com [209.85.219.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26D9053E2B
-	for <linux-s390@vger.kernel.org>; Mon, 19 Feb 2024 21:42:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 382E753E32
+	for <linux-s390@vger.kernel.org>; Mon, 19 Feb 2024 21:43:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708378932; cv=none; b=ZyaLKhoITZ9km202SGGKszZOcLWPS7E8CK16Nla3G7fTDCb8mR5iS9ACt/Z+PJoNf2gA6dUnP6UYgG4sMFgfZkHKx1a4G+OEMsqN7Nr9Oj2Z+7wH7Qt5khdm/+WMkX8KtaFHqIQkeyZCSU/+JMTEIUQeXMPKX48YaXqWsV/HDbw=
+	t=1708379036; cv=none; b=agj0tJK6y6C0w8AWRsYCzIluCVkylN4xHVjqmf9EkOpFRTcd6RkQGjXUFkIJ2ZNhpNNbPob38Wg6btjgUqqYyriWx+1VuM/Mbxw2y+8YxgeUugkvVORWXm4mwQWWUNtvTy5wc6PANZiXyJfCjA+jtwwtkGGGd/nf6ARU3uK/1no=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708378932; c=relaxed/simple;
-	bh=X/JQNewlP0vjO6jTDKr0e8KEBVYmNgVrFfyXrgV4mFQ=;
+	s=arc-20240116; t=1708379036; c=relaxed/simple;
+	bh=k6LH3b1KRcD8NJGil47OnFJ3hyweLeYZpxuRnYRLbos=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=O7w/dlw08FhrH1N0eV1gMcd0H0mZWvwuZVPEbpyRoL23oMXd0fAhGg13CbZoRM4ugPxybNUxbsoYy3qBuXaeQYyfnCUyy1nIxKukjsC0q2gWyYQL2/bGZtNJRE17J7pxClTtWM4Knzmw2pIxEQibQhyffwXdFyZtmsprvO1VjxQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=D8W6g3xF; arc=none smtp.client-ip=209.85.215.201
+	 To:Cc:Content-Type; b=CEx+qlKFzjl5Qwm+nQtbytx0pYxUAtfx4bt+TJ55n8eah1LIvaGlaraIOGmjjSbgr3RPTlhwYStSfT+ylM3PQClHml+fj2AZCYs3unqBHA7foDscI+6p6boe+kd0Fhlh/9KS+HSLGgOmDREGJ0ynLhTN/eh4X7V1Kuc8cJESFvg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=VfVfn11z; arc=none smtp.client-ip=209.85.219.202
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="D8W6g3xF"
-Received: by mail-pg1-f201.google.com with SMTP id 41be03b00d2f7-5cdfd47de98so4751279a12.1
-        for <linux-s390@vger.kernel.org>; Mon, 19 Feb 2024 13:42:08 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="VfVfn11z"
+Received: by mail-yb1-f202.google.com with SMTP id 3f1490d57ef6-dce775fa8adso2611880276.1
+        for <linux-s390@vger.kernel.org>; Mon, 19 Feb 2024 13:43:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1708378928; x=1708983728; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1708379034; x=1708983834; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=g8pCPeHHqio6jkpHM74ywYCDIbICUYC0WuI3ZsK0Xes=;
-        b=D8W6g3xFdxsLnpo9T3gSkE+PwxH+Rz3RgvW2UCiVvziW27U7KYoVdlK5E45sITSc7x
-         MuKfqe+bIhFbWfSgsNTJqnF2g5lp7sEwCnDxw/jyJuzo2pJWeZwe7yBZR/1eAmIA3WH7
-         Jt9ls/brQsJoJ8Pd3y5TnwiXKoxNYzYkd2AKSg1bn+qvwVt75gSxmf7AuxcL9VgEJ3Gf
-         /O+OsrYF8ko4cWiZCWk1OXhugUk6K+uUJieP9eci7xUSiLniMY3LTi35gDCzaIbZbn+d
-         JR6gIYnAvpw+QlBT/ecpHXxB84cy4qAvW6lSQh5pHYKMtHQnLkweiD0CypSA166rnb4u
-         kDIw==
+        bh=QIr2v00MmtLW5AiJLj4vFJLvOqk80nsA5VSLXwCEAuk=;
+        b=VfVfn11zCkinb8Wzey0w02G6cMocpi+WxyrRxeIAkT2FuqO7M/aDfOBzKS8qI6Pj2+
+         pG3HqDYfRvVTPKekkE/LCcfuZeC6ll2HUGdJQJs0bnknAMdUoLuGWzuCe/G4i5Hcyyrf
+         NijeDmRRx+W9vF/X2+HHVdU/at6NkW44GnrCA+Rd1Xs53Xb87509LFeUBRKVz08U19qW
+         CcywW3gU+Of9EPzcR+C6RG3BOpBk9bYQ8v/dEeAiiJY47zFgbkztr45rI3ZMNCUrr7gO
+         hWWMtFL7lSGZS5w9xYdBfvWEUG6pfPk11Djgt6kVNzMsNC4rzGHMTguBSBiszBwufeVd
+         bm6Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708378928; x=1708983728;
+        d=1e100.net; s=20230601; t=1708379034; x=1708983834;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=g8pCPeHHqio6jkpHM74ywYCDIbICUYC0WuI3ZsK0Xes=;
-        b=I3gPWM/ZUK3EyLy4v/EWI3v2ayqRPUWLWecuu7g65VN0uAmlaroltljbNQtv1P/Bt8
-         HoSV00JPzH5wq0MQJh4BHTAzrEX/hMiaPJqDB4jIm/cLMMlaD7hgj/Sl+Hc+VaBJlTwZ
-         u/qOVjEyB8ku4cORjq9u6fSeZsl9UEFxUijBvwtwms+GtqkwY+Dp1A+4gUXqKfu3Jci0
-         LOlvlCNZcLFMuidzJVJhZVJ6X5EGWiJnW2SCPUw6Mq0M4g8Hx3IsP0snjZrRSIl06VdN
-         5Gj/Ixqmt3AkD1dqrY75VIEH3GqFllZopMcVMnWhjAGk4qahX6o8iB98xbbOk/31/kK5
-         4GVQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUCH62/nn/Zrvr2VDlJrfwJ1JE1ZmUTh3Is+hOEXOO3bafAMwVk8LfOSkX0j+H0DStF4EdfOqLvmf8tIPvFKCGbovecrVrgrW2wrg==
-X-Gm-Message-State: AOJu0Yw5OoBYSqcucB7+c/PPJxZ4QGPUgkJNDNeHfV6Jmms0im+hUEdU
-	4UwOJtthID9wXXGPBDHatmWmjHXUWPRwW8G/SNG59zX9CwLO+dRPjD0wKTPiwXbamWg43nTVfyE
-	L+w==
-X-Google-Smtp-Source: AGHT+IHqdE3KIsgW0NC+8GHUODTOmDylpK2DdX8ikWVklG5BvSIeuNAnpXNIboNkdrJqpTmuvilDIVPPeCY=
+        bh=QIr2v00MmtLW5AiJLj4vFJLvOqk80nsA5VSLXwCEAuk=;
+        b=no7VTyQLZ1ofV0RFxKXnsjiApC9+LzUVyVWSpxGCZtW1Nbo42O5W7rZ2cPiSYbnd1t
+         Pv2HY3SfAoNRyef4mGjykTSzsdnBu7J5EbxXcyaPe1Guf25wdQCfkHRaMvD52TIbdk1E
+         KcKckQci7px0dohs04vC5C9x2ZqA9tD86fw0EICaQApv+sVDiiGCJfbxWxul7HVgfyye
+         sRNHId1HCSmld8HfTyCCekjuzS3DQzDbjdUB3oYOt7cDfqGSuY1ZPlkKlXmcumUWXqNb
+         gw0qj+ygGk090nZ/wq+6asV3whOZvgHqetUyegj5YLIo4ApMmL2yrbP7twqvVax4ztsP
+         PYYg==
+X-Forwarded-Encrypted: i=1; AJvYcCWoehE5Y1j6XFIYecwsy5nfHSZVLNjRVOwXPzYay7wvFU2b1iw+6e0Z3KhxJm2ziq5vpF8b3+ajqeHmvU9gq8eYqa7qmni993E/Sg==
+X-Gm-Message-State: AOJu0YzeDKdC2locFu8RSAcyYN18L2KlKPO73c8Mw0SqsaZQ1vDLTVMM
+	ptH1Z6wUi93yiOdDL2XkgyPRM0e/7JAahnSs5m/rd5YCNZb12Ip5wT+Q/bQOrDeILcfPFsPwUeJ
+	WfQ==
+X-Google-Smtp-Source: AGHT+IH7o7oqW8IXOLQwhiL+D+fr+M7XPoB0mGCnvWQZj4Q5usQnlETlssOWLw0ZF0bnkI2bqi3OkZN/zQM=
 X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
- (user=seanjc job=sendgmr) by 2002:a65:6742:0:b0:5db:e194:873f with SMTP id
- c2-20020a656742000000b005dbe194873fmr35852pgu.10.1708378927816; Mon, 19 Feb
- 2024 13:42:07 -0800 (PST)
-Date: Mon, 19 Feb 2024 13:42:06 -0800
-In-Reply-To: <20240215152916.1158-5-paul@xen.org>
+ (user=seanjc job=sendgmr) by 2002:a05:6902:705:b0:dc7:53a0:83ad with SMTP id
+ k5-20020a056902070500b00dc753a083admr3628924ybt.5.1708379034234; Mon, 19 Feb
+ 2024 13:43:54 -0800 (PST)
+Date: Mon, 19 Feb 2024 13:43:52 -0800
+In-Reply-To: <20240215152916.1158-6-paul@xen.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
-References: <20240215152916.1158-1-paul@xen.org> <20240215152916.1158-5-paul@xen.org>
-Message-ID: <ZdPLLsdNnAb5eXiZ@google.com>
-Subject: Re: [PATCH v13 04/21] KVM: pfncache: add a mark-dirty helper
+References: <20240215152916.1158-1-paul@xen.org> <20240215152916.1158-6-paul@xen.org>
+Message-ID: <ZdPLmEeMhTaSiYrA@google.com>
+Subject: Re: [PATCH v13 05/21] KVM: pfncache: remove KVM_GUEST_USES_PFN usage
 From: Sean Christopherson <seanjc@google.com>
 To: Paul Durrant <paul@xen.org>
 Cc: Paolo Bonzini <pbonzini@redhat.com>, Jonathan Corbet <corbet@lwn.net>, 
@@ -75,41 +75,12 @@ Cc: Paolo Bonzini <pbonzini@redhat.com>, Jonathan Corbet <corbet@lwn.net>,
 Content-Type: text/plain; charset="us-ascii"
 
 On Thu, Feb 15, 2024, Paul Durrant wrote:
-> +/**
-> + * kvm_gpc_mark_dirty_in_slot - mark a cached guest page as dirty.
-> + *
-> + * @gpc:	   struct gfn_to_pfn_cache object.
-
-Meh, just omit the kerneldoc comment.  
-
-> + */
-> +static inline void kvm_gpc_mark_dirty_in_slot(struct gfn_to_pfn_cache *gpc)
-> +{
-> +	lockdep_assert_held(&gpc->lock);
-> +	if (gpc->memslot)
-> +		mark_page_dirty_in_slot(gpc->kvm, gpc->memslot,
-> +					gpc->gpa >> PAGE_SHIFT);
-
-It's kinda silly, but I think it's worth landing this below gpa_to_gfn() so that
-there's no need to open code the shift.
-
-And I have a (very) slight preference for an early return.
-
-static inline void kvm_gpc_mark_dirty_in_slot(struct gfn_to_pfn_cache *gpc)
-{
-	lockdep_assert_held(&gpc->lock);
-
-	if (!gpc->memslot)
-		return;
-
-	mark_page_dirty_in_slot(gpc->kvm, gpc->memslot, gpa_to_gfn(gpc->gpa));
-}
-
-> +}
-> +
->  void kvm_sigset_activate(struct kvm_vcpu *vcpu);
->  void kvm_sigset_deactivate(struct kvm_vcpu *vcpu);
->  
-> -- 
-> 2.39.2
+> From: Paul Durrant <pdurrant@amazon.com>
 > 
+> As noted in [1] the KVM_GUEST_USES_PFN usage flag is never set by any
+> callers of kvm_gpc_init(), which also makes the 'vcpu' argument redundant.
+
+The changelog should explicitly call out that not only is KVM_GUEST_USES_PFN
+unused, it's incomplete/broken (which is also partly why it's unused).  Without
+that information, removing the support looks like a somewhat arbitrary decision,
+versus a deliberate change to make it easier to support the gpc code.
