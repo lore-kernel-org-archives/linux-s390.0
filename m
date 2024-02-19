@@ -1,96 +1,133 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD7723CF67;
-	Mon, 19 Feb 2024 15:40:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 670333B786
+	for <linux-s390@vger.kernel.org>; Mon, 19 Feb 2024 16:11:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708357210; cv=none; b=OT/TbxOwTS7tzk1joALoaPXWWAwOHhkY5mKS1zk0AwDScW0hXh607+LvGJPIR2iXie12q88d3E3vH1CGNN6zu4Ih/4zGO9CYH4NUCPXPazB6tEw3BvykTCX2Ik9cjBenCCQa6B6JSSUJ3wWKixXBwqdihdC8FGXoXo2m/JJ1lqI=
+	t=1708359095; cv=none; b=FhQutxSp+YULksXR00anuBWefoma985iqfbAPDy6H8mBrbdhmnMGMtaHHer5US9tBhUwrxcRqQ+YJjq1hVzuVSasYMgdrwbxNZfy7/IUj1eTGjqPJ+4HPFO/D8df8Se5EsYPDrlE5I0qjAywFDtwkzkRxEjaBum3LstPmUz4uqM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708357210; c=relaxed/simple;
-	bh=2xglRp24K0ngAsMpicpTrhgbwtum8XdpL/77bvNcnqA=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=G5htdoh0DewkaHQ5hboba1pOUsQFzufU7vIbqzeaXwpkc+2taASsnSheJgEDugKEJaIwvjk4nUtxEvpayFakFafNxBsnLAITMWf6eRBkAbVt4BHE880NwZhBO20VP/P0vSjU4aMlbma7BNv/ZuQeYOWb0VoqFd2Ng17qyfkUWSA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=29uN5GrD; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=MR81Dmyl; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1708359095; c=relaxed/simple;
+	bh=VaGM0MNc54dzu2/ONUvzmqw8bWTkwZ7e2F6lBSnLeXc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MjpU/tq+ons0X6+l0uP5sn+Rwo5EMlTVxG0Uq7/nW8T2SnMdHIQRmUu2OiJupMyozTs+DEFdeJ8wrQEaZUWLv+gLMe7lc4wfE+pMwToaCK9EyK64jlSI+N/9hsNHm0vb1syVzd4ANnqz9k9zG2V6/A67ibVBg78y98pZlVTwzrA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Mr7qf1wE; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="29uN5GrD";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="MR81Dmyl"
-From: Anna-Maria Behnsen <anna-maria@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1708357206;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=jU+XjkvuIDGH4O48sip7TH7TW67eQu5qXALaeJfPZY8=;
-	b=29uN5GrDPNQqpgJ6urrtY7kzwPWAi92vGvXafx330dxbY0YR3Yn14LU65fylLvyq8Tz51f
-	C5gVCyufz7JDYc01w+Wb7PRLZGN8XY8h6gplAk1fO//tmnF1s/Gi4GzEvPhT3CXgGssbsz
-	AKkbKUO6bzENLBURGD/BAkpEsEz0ietBYwjEYjHA+5DzRuw8XWof8eRYGrBo7HZU21m/Es
-	vFVzVkv0qHGVyd7aoTZr8kUjgFEMTbW2TyWgJ0XdZV5GKJASekyu/dhpvkbEOpi8FZhsWr
-	1Trip6PB6kQ3yiuFItNNByUFyRamvRavMhPvUe3MPqSjjBD/CklW1kgpxbeeOA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1708357206;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=jU+XjkvuIDGH4O48sip7TH7TW67eQu5qXALaeJfPZY8=;
-	b=MR81DmylMnhvEy0enrO6LQ6uCQ7K6zDF+DdNGdyuhMeJW9ljJHszQc91pKg7l/U5PgTHeJ
-	UXOOpoe9Twp1YHDQ==
-To: linux-kernel@vger.kernel.org
-Cc: Andy Lutomirski <luto@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Vincenzo Frascino <vincenzo.frascino@arm.com>,
-	Anna-Maria Behnsen <anna-maria@linutronix.de>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	linux-s390@vger.kernel.org
-Subject: [PATCH 07/10] s390/vdso: Use generic union vdso_data_store
-Date: Mon, 19 Feb 2024 16:39:36 +0100
-Message-Id: <20240219153939.75719-8-anna-maria@linutronix.de>
-In-Reply-To: <20240219153939.75719-1-anna-maria@linutronix.de>
-References: <20240219153939.75719-1-anna-maria@linutronix.de>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Mr7qf1wE"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41JG7K7P002432;
+	Mon, 19 Feb 2024 16:11:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=1BJp8IseztzZ8xcdseD+UYVgoPgjPHB6lnG0lU77diQ=;
+ b=Mr7qf1wEki1Brs0Wv0jqj7QWK5emADfPmyYv11bvw4XCY9JoGEqpjbkZffj8lcf7CE2U
+ RQO0qrFmxkENUe9pFwdfGbGWT82cb5KZbhVNvPkbGDumWEKotltlsnJUmygB08MnMga0
+ keelWZPGRJXtVKC9MYeV0ILbhBVKOGPTy4pRAf8Bpquc6Lwug6/yd2uzpUi3Rw6LH80Y
+ PoyfGy7EETO6P/rPDVJ8aqqMJ7BdiKvoV3LMXr5t6myRoilk1EhiaQsckvP7JIXPzQu6
+ 0rYiDqORRQx+J+ZEkfFXBn27wjcvVjB5WHrzgetVxRjH1Tn7bmHUlS9qruFFE6BGd+pA iA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wca7nr33c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 19 Feb 2024 16:11:30 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41JG97d9008458;
+	Mon, 19 Feb 2024 16:11:29 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wca7nr32j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 19 Feb 2024 16:11:29 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41JF1eUx017344;
+	Mon, 19 Feb 2024 16:11:28 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wb8mm22b5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 19 Feb 2024 16:11:28 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41JGBNtv22610434
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 19 Feb 2024 16:11:25 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0E3D72004B;
+	Mon, 19 Feb 2024 16:11:23 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9C71920040;
+	Mon, 19 Feb 2024 16:11:22 +0000 (GMT)
+Received: from osiris (unknown [9.171.27.39])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 19 Feb 2024 16:11:22 +0000 (GMT)
+Date: Mon, 19 Feb 2024 17:11:21 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, jpoimboe@kernel.org, joe.lawrence@redhat.com,
+        gor@linux.ibm.com, iii@linux.ibm.com, agordeev@linux.ibm.com
+Subject: Re: [PATCH v2 2/4] s390: Add relocs tool
+Message-ID: <20240219161121.16287-D-hca@linux.ibm.com>
+References: <20240219132734.22881-1-sumanthk@linux.ibm.com>
+ <20240219132734.22881-3-sumanthk@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240219132734.22881-3-sumanthk@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 5R2uyvRlqcudh6BKDy-T6uRAjCy7IlDc
+X-Proofpoint-GUID: tw1LytxfdsdUTtiuZ5U3UWRelmQ8KbmT
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-19_12,2024-02-19_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 clxscore=1015
+ impostorscore=0 spamscore=0 malwarescore=0 bulkscore=0 suspectscore=0
+ priorityscore=1501 phishscore=0 lowpriorityscore=0 mlxlogscore=792
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402190121
 
-There is already a generic union definition for vdso_data_store in vdso
-datapage header.
+On Mon, Feb 19, 2024 at 02:27:32PM +0100, Sumanth Korikkar wrote:
+> From: Josh Poimboeuf <jpoimboe@kernel.org>
+> 
+> This 'relocs' tool is copied from the x86 version, ported for s390, and
+> greatly simplified to remove unnecessary features.
+> 
+> It reads vmlinux and outputs assembly to create a .vmlinux.relocs_64
+> section which contains the offsets of all R_390_64 relocations which
+> apply to allocatable sections.
+> 
+> Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+> Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+> Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+> ---
 
-Use this definition to prevent code duplication.
+Sumanth, your Signed-off-by line should come last, since it should
+reflect the route of a patch. I'll fix it up :)
 
-Signed-off-by: Anna-Maria Behnsen <anna-maria@linutronix.de>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
----
- arch/s390/kernel/vdso.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+> diff --git a/arch/s390/tools/relocs.c b/arch/s390/tools/relocs.c
+> new file mode 100644
+> index 000000000000..d3ae25e3c3a4
+> --- /dev/null
+> +++ b/arch/s390/tools/relocs.c
+> @@ -0,0 +1,390 @@
+> +#define ELF_BITS 64
 
-diff --git a/arch/s390/kernel/vdso.c b/arch/s390/kernel/vdso.c
-index bbaefd84f15e..a45b3a4c91db 100644
---- a/arch/s390/kernel/vdso.c
-+++ b/arch/s390/kernel/vdso.c
-@@ -25,10 +25,7 @@ extern char vdso32_start[], vdso32_end[];
- 
- static struct vm_special_mapping vvar_mapping;
- 
--static union {
--	struct vdso_data	data[CS_BASES];
--	u8			page[PAGE_SIZE];
--} vdso_data_store __page_aligned_data;
-+static union vdso_data_store vdso_data_store __page_aligned_data;
- 
- struct vdso_data *vdso_data = vdso_data_store.data;
- 
--- 
-2.39.2
+With this...
 
+> +#if ELF_BITS == 64
+> +static uint64_t elf64_to_cpu(uint64_t val)
+> +{
+> +	return be64_to_cpu(val);
+> +}
+> +#define elf_addr_to_cpu(x)	elf64_to_cpu(x)
+> +#define elf_off_to_cpu(x)	elf64_to_cpu(x)
+> +#define elf_xword_to_cpu(x)	elf64_to_cpu(x)
+> +#else
+> +#define elf_addr_to_cpu(x)	elf32_to_cpu(x)
+> +#define elf_off_to_cpu(x)	elf32_to_cpu(x)
+> +#define elf_xword_to_cpu(x)	elf32_to_cpu(x)
+> +#endif
+
+...this is dead code. I'll remove it.
