@@ -1,206 +1,179 @@
-Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F4D86BFC6
-	for <linux-s390@vger.kernel.org>; Sun, 18 Feb 2024 15:19:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B584653
+	for <linux-s390@vger.kernel.org>; Mon, 19 Feb 2024 06:56:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708269588; cv=none; b=aP/TqqGhRTvGcB8i76QWE2Xa6Wa9TN5KzoguX5TypzwLHvRyYZFOGTqNBk1KIXts3toQMLvZZlcdE4h8YSEKxYnnSZvWFItje6bIWZrdykev8GCKRldrgVpdm7cA0Jt3AXMVSA/LK9Kh7Z3Cc0RNdEo/zdzOUO8r8f2go6DUPNk=
+	t=1708325792; cv=none; b=mQV7XjCXzIlsKO7BErwQAo5XpxnTj1KcrcyWkNwPppaY4zxpeSCIKZDg09wQ7DAG2c8T+CDnn8z05Avkwaxh5258bMarOXVnU0j5+iq4N/naDqNt5AQsVwOl5PsDSwhWW1EPLgj2m8UV/cPRwhq+2XDlnV1bnj1eKdA3ZnN/N1Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708269588; c=relaxed/simple;
-	bh=lYFHSwKGcbZg0KftqGMF5GiOnvyk1uaue8OvErSz/MI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=AwJXLted7GPU07EzaqeT98GaRJHuByy7frj9TydWRjjaeHneUsAKOyqCTz8s6buOgh27NiWuZKqT1b3rh7VqISSDzO5+4zwo0N8vrBIaqLp/ZCmmaf4DtkQTtIlk85QKzP8plBSC10+CrCGspsWFLAoRtC9BXc5eluxvAhzGy60=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=Z0XxTgjq; arc=none smtp.client-ip=209.85.210.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1708325792; c=relaxed/simple;
+	bh=8+22TydQJilP2WbzZnUx+4i+iy512mDyjD49Ih9x9xI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Z2lHcd4cjYnopEPzPuT0yvVhY0y29wsCE7jZkQlhBorvWI+wrt1i7NsUMU0But1gQH22gEZnDw+IblB+Kka2juEswO6vUlwW6MRSga5kBs6DuSrbFBxvptLkw3DhfyfJaa3uXT+QX8/8E7hPcSvPQTCmpI75zqoxKnawXozG7hI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NrcYuW4y; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Z0XxTgjq"
-Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-6e45c59fc6cso187459b3a.0
-        for <linux-s390@vger.kernel.org>; Sun, 18 Feb 2024 07:19:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1708269586; x=1708874386; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=eiWOUozWnezeYn8cXQvtDvCvh6gTYyUB/9KcoNgO2S8=;
-        b=Z0XxTgjqWyazp15zaW/ZnhQPP/vQUJ16DOZ1Hq0r+BT7AlgmbJ9FONeOG3yHNtb9PL
-         NY72Vj0zKPqaAgRpopK2+aqqkrQfRItybiUPkatXi9wwD13ZxQHcl8NYYoFU5Jp6RHdm
-         c0o9K96cAg54FH5HIBpabLJjAOkt0mQ2F2mQg=
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NrcYuW4y"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1708325789;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=YE5SUQ6P85lCv9ueDPInmuqKDSZltz/dw8thQgaLw/U=;
+	b=NrcYuW4ygG1Ht7dvPB7LQzxvrRKfF0M0ILWj1gWEavQcixq0Gp7lwwkcB9CAU/AHRo7qED
+	FA3pL9K5ijbhu3ja9vnT9vbkrSR9fygXVsd/lxWvNf7LUqLXUxTrH1BqnvHaurFfAT6oi+
+	7BDMXyh8YosinpeG1YyT8RSVFEMLWZU=
+Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
+ [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-399-ovTnVQL4PpC6EG8z8vgkFQ-1; Mon, 19 Feb 2024 01:56:27 -0500
+X-MC-Unique: ovTnVQL4PpC6EG8z8vgkFQ-1
+Received: by mail-qt1-f198.google.com with SMTP id d75a77b69052e-42c7a807fd0so23158721cf.1
+        for <linux-s390@vger.kernel.org>; Sun, 18 Feb 2024 22:56:27 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708269586; x=1708874386;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=eiWOUozWnezeYn8cXQvtDvCvh6gTYyUB/9KcoNgO2S8=;
-        b=pHlgrOe5yZNMcVug7CgmgM0lFl0xF/p9/DJKnJ/gaW0CMb0nJs0Od8R74gaE7yzX5R
-         uc0A3RwxdunGpPtctEUpG7oRCINcwHThWum/tp3PFqPoo2ZpBPn88d5I2sU+DCvM/fre
-         l3hDNSQObkf7Ms8BGCDUsKuOBEFxajQeIiBT/a8rZ1qhtjoohSpzzNCAfd+JFZFertJN
-         9E3/Ci8QRPwAlXJo3Vvfo4LiS35JuOHu0swouZ6IXralubbXHdR1v2Xi7pbK0MuhnDxR
-         BfGbsWcvvz+HRPw6HrnLPLA9rvZFdtNeNiFi1qmRrhNKssHxSXuFPekB29KHuAsW9/3n
-         Hukg==
-X-Forwarded-Encrypted: i=1; AJvYcCXXjjhFCEUvBBmYN+ly3pktntdw9W/syuE9YpGiXNf7qXByQtcpeQYEX1RkcHfQXJrh8Swl7hIreIVSSPmwgSbHQHrgEWkWkFKLxg==
-X-Gm-Message-State: AOJu0YwkbS6bUhe303ga3uet4djxC2I/MmQysIFHEd2w0t8knpn8l6sZ
-	JnET3TvtXXVPB4nDp4kbmj+KINaQSvw77HF+Duh78MAufIIQeJA9iv1voQyuvg==
-X-Google-Smtp-Source: AGHT+IHQkmCTEZjB8VrcrwmYPHm1xqN+oDo5E9U8MtwdiC0lI+BGRPycjpyIHGY52kr+uXWivxarDw==
-X-Received: by 2002:aa7:8202:0:b0:6e1:dbd:e800 with SMTP id k2-20020aa78202000000b006e10dbde800mr9961775pfi.17.1708269585774;
-        Sun, 18 Feb 2024 07:19:45 -0800 (PST)
-Received: from www.outflux.net ([198.0.35.241])
-        by smtp.gmail.com with ESMTPSA id r22-20020aa78456000000b006e24991dd5bsm2894532pfn.98.2024.02.18.07.19.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 18 Feb 2024 07:19:45 -0800 (PST)
-Date: Sun, 18 Feb 2024 07:19:44 -0800
-From: Kees Cook <keescook@chromium.org>
-To: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Martin KaFai Lau <martin.lau@linux.dev>,
-	Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
-	Yonghong Song <yonghong.song@linux.dev>,
-	John Fastabend <john.fastabend@gmail.com>,
-	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@google.com>,
-	Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Puranjay Mohan <puranjay12@gmail.com>,
-	Zi Shen Lim <zlim.lnx@gmail.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Tiezhu Yang <yangtiezhu@loongson.cn>,
-	Hengqi Chen <hengqi.chen@gmail.com>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Johan Almbladh <johan.almbladh@anyfinetworks.com>,
-	Paul Burton <paulburton@kernel.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>, Ilya Leoshkevich <iii@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Wang YanQing <udknight@gmail.com>, David Ahern <dsahern@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, bpf@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org, netdev@vger.kernel.org,
-	"linux-hardening @ vger . kernel . org" <linux-hardening@vger.kernel.org>
-Subject: Re: [PATCH bpf-next 2/2] bpf: Take return from set_memory_rox() into
- account with bpf_jit_binary_lock_ro()
-Message-ID: <202402180711.22F5C511E5@keescook>
-References: <135feeafe6fe8d412e90865622e9601403c42be5.1708253445.git.christophe.leroy@csgroup.eu>
- <ec35e06dbe8672a36415ebe2b9273277c2921977.1708253445.git.christophe.leroy@csgroup.eu>
+        d=1e100.net; s=20230601; t=1708325787; x=1708930587;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
+         :to:content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=YE5SUQ6P85lCv9ueDPInmuqKDSZltz/dw8thQgaLw/U=;
+        b=VKieVj5BJZGzuv19YxPGsLrGs5bKcqA4vZt674MmJq74D61GIl64fFUSVNz7YWqcqq
+         R47RBibomDQqv6eBTOaCU3s2nZHXk/I+QwJ2tXRtOVwhIbM/EQX0TgPO/ga9nuxNRlZs
+         gplphmXCI4CA0HRaesVFx+iE+qhO71XfN4JOX/DoZ1OPxKJtZEbpctCjpukGSpvoK5ZN
+         75QG4pSM5mMjNXz2/cCd7HEsEfi38Dg19hdwhLkPM10YrXbwqxKIE91LS7gAFyQYhNbp
+         hG1aR59HPnfeQbKJIifshLzUZUOLeMtTsI1xA77I8gDbDz9mcivFQ7eENZDp285UVBu2
+         SKJA==
+X-Forwarded-Encrypted: i=1; AJvYcCX4ldJkdIyRqysICRgXzd4Qn3CknZLUsg73KhXif/dxUCMdTzHRVKpAtK5/ONfLPUhGOSy7DV9vZ30usp/lpVeYaRly2UwCptefrA==
+X-Gm-Message-State: AOJu0YybEz1Azc2QjutIdfO6xnNeVRZcTwHV5Lwa0mSTbqmpptnyrnya
+	8ZiXvbVg541RLzRBQaUQIUj/HuBZvOXGiDwAfA87OjLYWEO7YXoMbZrPBNJ7KemmeeS7RIShtY0
+	MeBSR//TUcmNWgL8KJFFHW+lGMtFguBAmBFDgY2T6cJzdDtkcjk/Uy24wwow=
+X-Received: by 2002:ac8:5d8b:0:b0:42c:54d6:99fb with SMTP id d11-20020ac85d8b000000b0042c54d699fbmr15624793qtx.55.1708325787474;
+        Sun, 18 Feb 2024 22:56:27 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFTOW/vjFnoKRoExIXffu9pU0oDU4E/siRxT5/SvPfw5icjpuTChge/eWrQhyvNO1ncSWTERQ==
+X-Received: by 2002:ac8:5d8b:0:b0:42c:54d6:99fb with SMTP id d11-20020ac85d8b000000b0042c54d699fbmr15624786qtx.55.1708325787202;
+        Sun, 18 Feb 2024 22:56:27 -0800 (PST)
+Received: from [192.168.0.9] (ip-109-43-177-48.web.vodafone.de. [109.43.177.48])
+        by smtp.gmail.com with ESMTPSA id e7-20020ac85dc7000000b0042c50e1adf3sm2254061qtx.95.2024.02.18.22.56.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 18 Feb 2024 22:56:26 -0800 (PST)
+Message-ID: <4d73467d-2091-4342-87a1-822f4aeb8b70@redhat.com>
+Date: Mon, 19 Feb 2024 07:56:20 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ec35e06dbe8672a36415ebe2b9273277c2921977.1708253445.git.christophe.leroy@csgroup.eu>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [kvm-unit-tests PATCH v4 8/8] migration: add a migration selftest
+Content-Language: en-US
+To: Nicholas Piggin <npiggin@gmail.com>
+Cc: kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
+ Shaoqin Huang <shahuang@redhat.com>, Andrew Jones <andrew.jones@linux.dev>,
+ Nico Boehr <nrb@linux.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ Alexandru Elisei <alexandru.elisei@arm.com>,
+ Eric Auger <eric.auger@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ David Hildenbrand <david@redhat.com>, Marc Hartmayer
+ <mhartmay@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, kvmarm@lists.linux.dev,
+ kvm-riscv@lists.infradead.org
+References: <20240209091134.600228-1-npiggin@gmail.com>
+ <20240209091134.600228-9-npiggin@gmail.com>
+ <abbcbb47-1ae7-4793-a918-dede8dcaf07f@redhat.com>
+ <CZ7673PUQ853.DB10GSBEZ65Z@wheely>
+From: Thomas Huth <thuth@redhat.com>
+Autocrypt: addr=thuth@redhat.com; keydata=
+ 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
+In-Reply-To: <CZ7673PUQ853.DB10GSBEZ65Z@wheely>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Sun, Feb 18, 2024 at 11:55:02AM +0100, Christophe Leroy wrote:
-> set_memory_rox() can fail, leaving memory unprotected.
+On 17/02/2024 08.19, Nicholas Piggin wrote:
+> On Fri Feb 16, 2024 at 9:15 PM AEST, Thomas Huth wrote:
+>> On 09/02/2024 10.11, Nicholas Piggin wrote:
+>>> Add a selftest for migration support in  guest library and test harness
+>>> code. It performs migrations in a tight loop to irritate races and bugs
+>>> in the test harness code.
+>>>
+>>> Include the test in arm, s390, powerpc.
+>>>
+>>> Acked-by: Claudio Imbrenda <imbrenda@linux.ibm.com> (s390x)
+>>> Reviewed-by: Thomas Huth <thuth@redhat.com>
+>>> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+>>> ---
+>>>    arm/Makefile.common          |  1 +
+>>>    arm/selftest-migration.c     |  1 +
+>>>    arm/unittests.cfg            |  6 ++++++
+>>
+>>    Hi Nicholas,
+>>
+>> I just gave the patches a try, but the arm test seems to fail for me: Only
+>> the first getchar() seems to wait for a character, all the subsequent ones
+>> don't wait anymore and just continue immediately ... is this working for
+>> you? Or do I need another patch on top?
 > 
-> Check return and bail out when bpf_jit_binary_lock_ro() returns
-> and error.
+> Hey sorry missed this comment....
 > 
-> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-> ---
-> Previous patch introduces a dependency on this patch because it modifies bpf_prog_lock_ro(), but they are independant.
-> It is possible to apply this patch as standalone by handling trivial conflict with unmodified bpf_prog_lock_ro().
-> ---
->  arch/arm/net/bpf_jit_32.c        | 25 ++++++++++++-------------
->  arch/arm64/net/bpf_jit_comp.c    | 21 +++++++++++++++------
->  arch/loongarch/net/bpf_jit.c     | 21 +++++++++++++++------
->  arch/mips/net/bpf_jit_comp.c     |  3 ++-
->  arch/parisc/net/bpf_jit_core.c   |  8 +++++++-
->  arch/s390/net/bpf_jit_comp.c     |  6 +++++-
->  arch/sparc/net/bpf_jit_comp_64.c |  6 +++++-
->  arch/x86/net/bpf_jit_comp32.c    |  3 +--
->  include/linux/filter.h           |  4 ++--
->  9 files changed, 64 insertions(+), 33 deletions(-)
+> It does seem to work for me, I've mostly tested pseries but I did test
+> others too (that's how I saw the arm getchar limit).
 > 
-> diff --git a/arch/arm/net/bpf_jit_32.c b/arch/arm/net/bpf_jit_32.c
-> index 1d672457d02f..01516f83a95a 100644
-> --- a/arch/arm/net/bpf_jit_32.c
-> +++ b/arch/arm/net/bpf_jit_32.c
-> @@ -2222,28 +2222,21 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
->  	/* If building the body of the JITed code fails somehow,
->  	 * we fall back to the interpretation.
->  	 */
-> -	if (build_body(&ctx) < 0) {
-> -		image_ptr = NULL;
-> -		bpf_jit_binary_free(header);
-> -		prog = orig_prog;
-> -		goto out_imms;
-> -	}
-> +	if (build_body(&ctx) < 0)
-> +		goto out_free;
->  	build_epilogue(&ctx);
->  
->  	/* 3.) Extra pass to validate JITed Code */
-> -	if (validate_code(&ctx)) {
-> -		image_ptr = NULL;
-> -		bpf_jit_binary_free(header);
-> -		prog = orig_prog;
-> -		goto out_imms;
-> -	}
-> +	if (validate_code(&ctx))
-> +		goto out_free;
->  	flush_icache_range((u32)header, (u32)(ctx.target + ctx.idx));
->  
->  	if (bpf_jit_enable > 1)
->  		/* there are 2 passes here */
->  		bpf_jit_dump(prog->len, image_size, 2, ctx.target);
->  
-> -	bpf_jit_binary_lock_ro(header);
-> +	if (bpf_jit_binary_lock_ro(header))
-> +		goto out_free;
->  	prog->bpf_func = (void *)ctx.target;
->  	prog->jited = 1;
->  	prog->jited_len = image_size;
-> @@ -2260,5 +2253,11 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
->  		bpf_jit_prog_release_other(prog, prog == orig_prog ?
->  					   tmp : orig_prog);
->  	return prog;
-> +
-> +out_free:
-> +	image_ptr = NULL;
-> +	bpf_jit_binary_free(header);
-> +	prog = orig_prog;
-> +	goto out_imms;
+> How are you observing it not waiting for migration?
 
-These gotos give me the creeps, but yes, it does appear to be in the
-style of the existing error handling.
+According to you other mail, I think you figured it out already, but just 
+for the records: You can see it when running the guest manually, e.g. 
+something like:
 
-> [...]
-> diff --git a/arch/x86/net/bpf_jit_comp32.c b/arch/x86/net/bpf_jit_comp32.c
-> index b18ce19981ec..f2be1dcf3b24 100644
-> --- a/arch/x86/net/bpf_jit_comp32.c
-> +++ b/arch/x86/net/bpf_jit_comp32.c
-> @@ -2600,8 +2600,7 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
->  	if (bpf_jit_enable > 1)
->  		bpf_jit_dump(prog->len, proglen, pass + 1, image);
->  
-> -	if (image) {
-> -		bpf_jit_binary_lock_ro(header);
-> +	if (image && !bpf_jit_binary_lock_ro(header)) {
+  qemu-system-aarch64 -nodefaults -machine virt -accel tcg -cpu cortex-a57 \
+    -device virtio-serial-device -device virtconsole,chardev=ctd \
+    -chardev testdev,id=ctd -device pci-testdev -display none \
+    -serial mon:stdio -kernel arm/selftest-migration.flat -smp 1
 
-I find the "!" kind of hard to read the "inverted" logic (0 is success),
-so if this gets a revision, maybe do "== 0"?:
+Without my "lib/arm/io: Fix calling getchar() multiple times" patch, the 
+guest only waits during the first getchar(), all the others simply return 
+immediately.
 
-	if (image && bpf_jit_binary_lock_ro(header) == 0) {
+  Thomas
 
-But that's just me. So, regardless:
-
-Reviewed-by: Kees Cook <keescook@chromium.org>
-
--- 
-Kees Cook
