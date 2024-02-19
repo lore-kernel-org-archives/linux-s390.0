@@ -1,44 +1,44 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 014893A297;
-	Mon, 19 Feb 2024 15:40:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD7723CF67;
+	Mon, 19 Feb 2024 15:40:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708357207; cv=none; b=LW+mdZiMaQTbehfTFDQbsVrk2bHD8CP8uaTraejfqavNSOx4REh0UiOG5FZcpiZm5apEgkQY410CtiTtRgLEtxtbwrCkGAyG0Oz2dR7PRtL7tRWyyCEGuC9B0sufOzMi/2jLOyPXcD2Yd/r0EVxPxMJa41MEeVzmvw8c4NYavBo=
+	t=1708357210; cv=none; b=OT/TbxOwTS7tzk1joALoaPXWWAwOHhkY5mKS1zk0AwDScW0hXh607+LvGJPIR2iXie12q88d3E3vH1CGNN6zu4Ih/4zGO9CYH4NUCPXPazB6tEw3BvykTCX2Ik9cjBenCCQa6B6JSSUJ3wWKixXBwqdihdC8FGXoXo2m/JJ1lqI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708357207; c=relaxed/simple;
-	bh=4h8ofa9qIf+CH6w8b3X1CVwcM9lNaj4SGvAAsc8wGck=;
+	s=arc-20240116; t=1708357210; c=relaxed/simple;
+	bh=2xglRp24K0ngAsMpicpTrhgbwtum8XdpL/77bvNcnqA=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=kXZ37EqF/ScnB/o0l5w+IrRKRfktIvW8IFLa98zklcJHYRr0wvWTTYj1KZnCj+ziGAZnBa+5ke4K4ZUlS+biDIenEBjsSaukmwnjl8s7/PC7Loal/PY1xanxkdsg8DoWuno3U7XnkEYXqw6F9UeHNlpp2tw4kMaf9v2QEWzJGwk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Zg1JoeF2; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=TvbUIcYq; arc=none smtp.client-ip=193.142.43.55
+	 MIME-Version; b=G5htdoh0DewkaHQ5hboba1pOUsQFzufU7vIbqzeaXwpkc+2taASsnSheJgEDugKEJaIwvjk4nUtxEvpayFakFafNxBsnLAITMWf6eRBkAbVt4BHE880NwZhBO20VP/P0vSjU4aMlbma7BNv/ZuQeYOWb0VoqFd2Ng17qyfkUWSA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=29uN5GrD; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=MR81Dmyl; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Zg1JoeF2";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="TvbUIcYq"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="29uN5GrD";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="MR81Dmyl"
 From: Anna-Maria Behnsen <anna-maria@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1708357204;
+	s=2020; t=1708357206;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=RZRHjbrAHlMpISwMWg/IDeX5g8kU9D+wZnJXRxM/GjY=;
-	b=Zg1JoeF2lTsifOPN88i8wUjYoB88l/6mCCv9aHFT+TzPxy/CV3SPYQNvhM+2ufjNHCHyUt
-	iZXNwPH1UjuztQUIa//DE8fhH7vykwNXWoohGYEi88SYKMyp7mgc0at0Ic1bwIdR7MVqrz
-	6jfEIzqP0kcoK9je52kJqkyPijkxyewL+xIgo9HLNfbV56vQaViP6tvgiixJruyuuyo5d2
-	MWr/a8z+VPReiC1yHJHYhgPzx4DRu5WV860OCQvSBIRhAV1mT/Duv4yuBQIV+JtzijsjG/
-	xven8rQTU35zdqKST9Xxdo9A3n58iLWWIvDgQD0Z8MFYchjZuwEtiSocAl9Stw==
+	bh=jU+XjkvuIDGH4O48sip7TH7TW67eQu5qXALaeJfPZY8=;
+	b=29uN5GrDPNQqpgJ6urrtY7kzwPWAi92vGvXafx330dxbY0YR3Yn14LU65fylLvyq8Tz51f
+	C5gVCyufz7JDYc01w+Wb7PRLZGN8XY8h6gplAk1fO//tmnF1s/Gi4GzEvPhT3CXgGssbsz
+	AKkbKUO6bzENLBURGD/BAkpEsEz0ietBYwjEYjHA+5DzRuw8XWof8eRYGrBo7HZU21m/Es
+	vFVzVkv0qHGVyd7aoTZr8kUjgFEMTbW2TyWgJ0XdZV5GKJASekyu/dhpvkbEOpi8FZhsWr
+	1Trip6PB6kQ3yiuFItNNByUFyRamvRavMhPvUe3MPqSjjBD/CklW1kgpxbeeOA==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1708357204;
+	s=2020e; t=1708357206;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=RZRHjbrAHlMpISwMWg/IDeX5g8kU9D+wZnJXRxM/GjY=;
-	b=TvbUIcYqXbpYl4fQVCUcaDFFoRnbUNlRp9JUsTOVB9QFnaPjSxwoQ+7CN/XxxfJnDHoaoy
-	Nwsdf4h1ti0R0qCg==
+	bh=jU+XjkvuIDGH4O48sip7TH7TW67eQu5qXALaeJfPZY8=;
+	b=MR81DmylMnhvEy0enrO6LQ6uCQ7K6zDF+DdNGdyuhMeJW9ljJHszQc91pKg7l/U5PgTHeJ
+	UXOOpoe9Twp1YHDQ==
 To: linux-kernel@vger.kernel.org
 Cc: Andy Lutomirski <luto@kernel.org>,
 	Thomas Gleixner <tglx@linutronix.de>,
@@ -48,9 +48,9 @@ Cc: Andy Lutomirski <luto@kernel.org>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
 	linux-s390@vger.kernel.org
-Subject: [PATCH 02/10] s390/vdso/data: Drop unnecessary header include
-Date: Mon, 19 Feb 2024 16:39:31 +0100
-Message-Id: <20240219153939.75719-3-anna-maria@linutronix.de>
+Subject: [PATCH 07/10] s390/vdso: Use generic union vdso_data_store
+Date: Mon, 19 Feb 2024 16:39:36 +0100
+Message-Id: <20240219153939.75719-8-anna-maria@linutronix.de>
 In-Reply-To: <20240219153939.75719-1-anna-maria@linutronix.de>
 References: <20240219153939.75719-1-anna-maria@linutronix.de>
 Precedence: bulk
@@ -61,9 +61,10 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-vdso/datapage.h includes the arch specific vdso/data.h file. So there is no
-need to do it also the other way round and including the generic
-vdso/datapage.h file inside the arch specific data.h file.
+There is already a generic union definition for vdso_data_store in vdso
+datapage header.
+
+Use this definition to prevent code duplication.
 
 Signed-off-by: Anna-Maria Behnsen <anna-maria@linutronix.de>
 Cc: Heiko Carstens <hca@linux.ibm.com>
@@ -71,21 +72,25 @@ Cc: Vasily Gorbik <gor@linux.ibm.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org
 ---
- arch/s390/include/asm/vdso/data.h | 1 -
- 1 file changed, 1 deletion(-)
+ arch/s390/kernel/vdso.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/arch/s390/include/asm/vdso/data.h b/arch/s390/include/asm/vdso/data.h
-index 73ee89142666..0e2b40ef69b0 100644
---- a/arch/s390/include/asm/vdso/data.h
-+++ b/arch/s390/include/asm/vdso/data.h
-@@ -3,7 +3,6 @@
- #define __S390_ASM_VDSO_DATA_H
+diff --git a/arch/s390/kernel/vdso.c b/arch/s390/kernel/vdso.c
+index bbaefd84f15e..a45b3a4c91db 100644
+--- a/arch/s390/kernel/vdso.c
++++ b/arch/s390/kernel/vdso.c
+@@ -25,10 +25,7 @@ extern char vdso32_start[], vdso32_end[];
  
- #include <linux/types.h>
--#include <vdso/datapage.h>
+ static struct vm_special_mapping vvar_mapping;
  
- struct arch_vdso_data {
- 	__s64 tod_steering_delta;
+-static union {
+-	struct vdso_data	data[CS_BASES];
+-	u8			page[PAGE_SIZE];
+-} vdso_data_store __page_aligned_data;
++static union vdso_data_store vdso_data_store __page_aligned_data;
+ 
+ struct vdso_data *vdso_data = vdso_data_store.data;
+ 
 -- 
 2.39.2
 
