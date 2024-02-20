@@ -1,64 +1,66 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D20C612D7;
-	Tue, 20 Feb 2024 21:12:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DAE5151CCC;
+	Tue, 20 Feb 2024 21:12:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708463545; cv=none; b=EXLjik/0KB/IN45LtERTpiYC5y35UNppNXPPk4m/pGGWQ7A2dzriNZ7kFcY4LmVtoif7P6jMfkicVTA+iTkvTWBKVQdLeNKj0W+k2ksrFRXarbdrdpt88dqq5jD+Sy8vvxBca76wTEXZk5UjlXOucCd63yHIP8W+USM0AUmKcTQ=
+	t=1708463546; cv=none; b=GrvwBAJW5KbN9pPViZjDA44bs2UieLCKP/YOIvjz1+nPj6Q7TKKETfESATj0rMLf2MA6cipS/TtwbT3gzYCm2aLimB8ufqoEKhytpokNyIfI6CQK90l8eNFurkHOgdxCkPZZNn8Le0jgCnWbpXga0M0J6ntKpY5mEs2+ajr1AYU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708463545; c=relaxed/simple;
-	bh=2b/TBXFc7Ngj4lYkWZR0AtquaqmyHgrue1RjZw5DqIA=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=d7m2k6Tw8o9ManA+0f67ELhikzqvoF6wqHXsL/lUMZSt1rNVF7u1PGWGZ3msaWwYJiiS50Se1SmpAUYnzm9MpgojNoiXm/bE63a+uZ3C9oRPbrnkS0l1j1x5FXEIcGyt6ZRbMJV5yQucwhAmLYK3ZoNy5B86ECAws4GTHcTUxik=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tDfL1I8D; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1708463546; c=relaxed/simple;
+	bh=LXYj0J0AFG/thvSRyTGZUqOv+JIVwAw2S89O6yugFpw=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=XeStAaQy2XxV9VtG/tqgefZNJz/T+KXeK5SxF1eL8u/3bP5ZWQPoRzgEWyI1hmI7KDui2FsxJtaalSe1s292JqEgKWqUqsNe1Ff+tfqCiS3um3QHBoRCiJHPxeANGy1qT1R9Cs5DdxuXezAUQhaec3M4OgyAt/N/oYsojqyNeIs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aawLrD9c; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tDfL1I8D"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41KL7iSj015515;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aawLrD9c"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41KL05Uj021714;
 	Tue, 20 Feb 2024 21:12:21 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=T6ai+h3Ps3tOexGpnPubrh9NaPw+d5RswAkH6epS5z4=;
- b=tDfL1I8D3uDPd68YwOQOFxx9TaEZ6I4662pU30kWLIr+VskoX9EvzIaolD9fo7bjFNuo
- DnXSSwEPfkp6Pj8pSYIFSmJBun1ZEgZ2M333/eXaEXxqolwbKlYLxsJty2OsL3++DOE+
- kp9aGxdBK9KN33yRN14PA7zFiEu/ZRvBJADDIgy51Q1IJ597nkvTPeVADyxmzFRsW081
- pmy64j/pQr+Xkmj014rG8MpCOlFKirdi7Fv6Tl7NTthx94pSUZU5F8iqFQOfWzhCIZCT
- 2j2YGUooNnMyEI1kxCcqia7tmmoboShv54BDUjIVH9R81yLUho8s56Nkj1k/GC6ti29i xw== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=MJti5ASp33c3Q7C41cU4AJuOGo4cc1MZ0nh6NBIOpF0=;
+ b=aawLrD9cSMPz55x5uMAFjKfx3BXap64w1rpS5aikQSiLAnD9RqFghgY8pdlEP67D94uV
+ H/bhO5tkWxbunMYryZG8+O/IJs5irnQnSGHnlkYmFfQtbA/oQ0cns8cWG+vjkvJ0e1e9
+ wLGgb58/9CkIJh973t2BdUmMvAz2Pe07Q3v4AKSAyiaxR2nrV2Tdt3m1eispip5uVFQh
+ unGdtsk3SkS9FH9+zME2Yu88Ia9Kmrln/BF6arqaeqgAhi6CvD4tcC3Hj1fGC2Aw4Y2i
+ rMuhWTl56r2jl/14B//Gtmaxz7qEToeefV66XzLVgn4jysOYLlQmPnrFnfV+eKEoI8c3 Sw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wcyst5w4f-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wd0jjmj88-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 20 Feb 2024 21:12:20 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41KL8fvN020506;
+	Tue, 20 Feb 2024 21:12:21 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41KKqE18000348;
 	Tue, 20 Feb 2024 21:12:20 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wcyst5w4d-1
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wd0jjmj7p-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 20 Feb 2024 21:12:20 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41KK5CjP009547;
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41KInwIB003596;
 	Tue, 20 Feb 2024 21:12:19 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wb84pauj0-1
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wb74tk687-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 20 Feb 2024 21:12:19 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41KLCDLx18088514
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41KLCDOw12845580
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Tue, 20 Feb 2024 21:12:15 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9BE2420043;
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A1D002005A;
 	Tue, 20 Feb 2024 21:12:13 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 88BA320040;
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8BD592004E;
 	Tue, 20 Feb 2024 21:12:13 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
 	Tue, 20 Feb 2024 21:12:13 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-	id 3879BE0172; Tue, 20 Feb 2024 22:12:13 +0100 (CET)
+	id 3DA82E030D; Tue, 20 Feb 2024 22:12:13 +0100 (CET)
 From: Eric Farman <farman@linux.ibm.com>
 To: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
@@ -69,60 +71,98 @@ Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
         kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v4 0/2] KVM: s390: Fix AR parameter in ioctl
-Date: Tue, 20 Feb 2024 22:12:09 +0100
-Message-Id: <20240220211211.3102609-1-farman@linux.ibm.com>
+        linux-kselftest@vger.kernel.org, Eric Farman <farman@linux.ibm.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Subject: [PATCH v4 2/2] KVM: s390: selftests: memop: add a simple AR test
+Date: Tue, 20 Feb 2024 22:12:11 +0100
+Message-Id: <20240220211211.3102609-3-farman@linux.ibm.com>
 X-Mailer: git-send-email 2.40.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3YNrl-RDEMkXYgu0XoayVkjVacCpBjO9
-X-Proofpoint-GUID: 4USiI4tudUtV9ab_p4FoITrfIGkq6cF0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+In-Reply-To: <20240220211211.3102609-1-farman@linux.ibm.com>
+References: <20240220211211.3102609-1-farman@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: qDBH5e9QIAEbi7qL7pdi-AVQE9x6AdL5
+X-Proofpoint-ORIG-GUID: neSjePMvyE0hKALCj2NdCxMyrgUlW5ve
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-02-20_06,2024-02-20_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
- bulkscore=0 mlxlogscore=839 spamscore=0 priorityscore=1501 phishscore=0
- lowpriorityscore=0 impostorscore=0 mlxscore=0 malwarescore=0 clxscore=1015
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2402200151
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
+ adultscore=0 lowpriorityscore=0 spamscore=0 mlxscore=0 malwarescore=0
+ clxscore=1015 bulkscore=0 mlxlogscore=999 suspectscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402200151
 
-Hi Janosch,
+There is a selftest that checks for an (expected) error when an
+invalid AR is specified, but not one that exercises the AR path.
 
-Here is a new (final?) version for the AR/MEM_OP issue I'm attempting to
-address. Hopefully they can be picked up to whatever tree makes sense.
+Add a simple test that mirrors the vanilla write/read test while
+providing an AR. An AR that contains zero will direct the CPU to
+use the primary address space normally used anyway. AR[1] is
+selected for this test because the host AR[1] is usually non-zero,
+and KVM needs to correctly swap those values.
 
-Changes:
-v4:
-        [HC,CB,NSG] Add tags (thank you!)
-        [NSG] Add commentary
-v3: https://lore.kernel.org/r/20240216213616.3819805-1-farman@linux.ibm.com/
-        [HC] Drop the AR swap in MEM_OP path
-        [HC] Remove WARN and don't do save_access_regs on !bool
-v2: https://lore.kernel.org/r/20240215205344.2562020-1-farman@linux.ibm.com/
-        [HC] Add a flag to indicate access registers have been loaded
-v1: https://lore.kernel.org/r/20240209204539.4150550-1-farman@linux.ibm.com/
-        [CB] Store access registers around memop ioctl
-        [JF] Add a kernel selftest
-RFC: https://lore.kernel.org/r/20240131205832.2179029-1-farman@linux.ibm.com/
-
-Eric Farman (2):
-  KVM: s390: fix access register usage in ioctls
-  KVM: s390: selftests: memop: add a simple AR test
-
- arch/s390/include/asm/kvm_host.h          |  2 ++
- arch/s390/kvm/gaccess.c                   |  3 ++-
- arch/s390/kvm/kvm-s390.c                  |  3 +++
+Reviewed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+---
  tools/testing/selftests/kvm/s390x/memop.c | 31 +++++++++++++++++++++++
- 4 files changed, 38 insertions(+), 1 deletion(-)
+ 1 file changed, 31 insertions(+)
 
+diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
+index bb3ca9a5d731..b6da8f71ea19 100644
+--- a/tools/testing/selftests/kvm/s390x/memop.c
++++ b/tools/testing/selftests/kvm/s390x/memop.c
+@@ -375,6 +375,32 @@ static void test_copy(void)
+ 	kvm_vm_free(t.kvm_vm);
+ }
+ 
++static void test_copy_access_register(void)
++{
++	struct test_default t = test_default_init(guest_copy);
++
++	HOST_SYNC(t.vcpu, STAGE_INITED);
++
++	prepare_mem12();
++	t.run->psw_mask &= ~(3UL << (63 - 17));
++	t.run->psw_mask |= 1UL << (63 - 17);  /* Enable AR mode */
++
++	/*
++	 * Primary address space gets used if an access register
++	 * contains zero. The host makes use of AR[1] so is a good
++	 * candidate to ensure the guest AR (of zero) is used.
++	 */
++	CHECK_N_DO(MOP, t.vcpu, LOGICAL, WRITE, mem1, t.size,
++		   GADDR_V(mem1), AR(1));
++	HOST_SYNC(t.vcpu, STAGE_COPIED);
++
++	CHECK_N_DO(MOP, t.vcpu, LOGICAL, READ, mem2, t.size,
++		   GADDR_V(mem2), AR(1));
++	ASSERT_MEM_EQ(mem1, mem2, t.size);
++
++	kvm_vm_free(t.kvm_vm);
++}
++
+ static void set_storage_key_range(void *addr, size_t len, uint8_t key)
+ {
+ 	uintptr_t _addr, abs, i;
+@@ -1101,6 +1127,11 @@ int main(int argc, char *argv[])
+ 			.test = test_copy_key_fetch_prot_override,
+ 			.requirements_met = extension_cap > 0,
+ 		},
++		{
++			.name = "copy with access register mode",
++			.test = test_copy_access_register,
++			.requirements_met = true,
++		},
+ 		{
+ 			.name = "error checks with key",
+ 			.test = test_errors_key,
 -- 
 2.40.1
 
