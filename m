@@ -1,281 +1,147 @@
-Received: from mx0a-00823401.pphosted.com (mx0a-00823401.pphosted.com [148.163.148.104])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A05A14F9E7;
-	Tue, 20 Feb 2024 20:37:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.148.104
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 212AF1FDB;
+	Tue, 20 Feb 2024 20:44:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708461462; cv=none; b=FPM8EQ9W8C7X/Mp8q1B0nde4gCorspvGvpzBDAb12PohjZ8H3YRqvBgxPrx7LXhIsW7zm317y28qFfWro2lHYuT5pmLmaFPEBBH7IEKshLuegnrmfOoV5DRVm6H/6WQPEbc7XpVaS3A1b6Z+GaaEH3xyhRXBeXKCIy7Y0dClBLI=
+	t=1708461899; cv=none; b=Ewl0lGQtcnuj5D6+i/QSMYjAp/BIlUO/DJ+AR7TwBurDJulbim6LfEsz7hsPS78xP4bw/7bqWLGUqHNyvUN5QG8VVfRovKmp3vMSvX5NapQjC2z9ReZeWvZNJ1pvd5j8IdiE99aQK1TJxZQ6qV7220fqSxmG8vJ2+12/6YDlv+I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708461462; c=relaxed/simple;
-	bh=uBERHdw2LAkX/ox0xE0bEhdCEdWfMV2K3mU7Jp07W8M=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=Tet8q4tByhb+4cUmUwhHuw6olJtc+N7+mNBOJg0LnigN8Isf/zvzO7QqxfLi0EsCc3SY/tthveewi1QyUa2lI5ANkoY7cfcFhWdQcccV3GU9QykOryFY/qv5Td2lXkXk8g4f7fyXNXTCpjIAOxB+remxh8SIGpHbQSZOs4nUIO0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=motorola.com; spf=pass smtp.mailfrom=motorola.com; dkim=pass (2048-bit key) header.d=motorola.com header.i=@motorola.com header.b=G8c3FTHW; arc=none smtp.client-ip=148.163.148.104
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=motorola.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=motorola.com
+	s=arc-20240116; t=1708461899; c=relaxed/simple;
+	bh=OlPlBXfeiIiilwpBpvXgoBdAmfQVCnZRvZ/9m9sPvyg=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=qXvn0hn5wWlINlrh4wUzUoXWePOIQaeeyhkeMLSK2a+uuBvvCV31yd/jdWPIk+aTRit7cfL/wSw2d6CHn72f4G1o7lgfs1q3l14dMvZTA7be2ZfLGM+I7cVlHTp0uBj+vkdvQZPrzCRHIo7HSl5RmH9alzcnwYrDdq4zj1VOnDE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FLZ9AkMy; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=motorola.com header.i=@motorola.com header.b="G8c3FTHW"
-Received: from pps.filterd (m0355088.ppops.net [127.0.0.1])
-	by m0355088.ppops.net (8.17.1.24/8.17.1.24) with ESMTP id 41KJD1Po003877;
-	Tue, 20 Feb 2024 20:33:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=motorola.com; h=
-	from:to:cc:subject:date:message-id:in-reply-to:references; s=
-	DKIM202306; bh=bbMfJLfH6G5a4s+Z0cFe2wOzrCFA0lQFMo+SQbxfAvI=; b=G
-	8c3FTHWyfPhIWnn3QaQguVptC48Uy9lbb+BcoCWa1nlQvoc+woWLCowBjoFNI/ix
-	dF3dTPLkKuRe51BCEWpmjjyoWUwOEeG1JP3K+L03xl7q88Lz8LruYRC/RRB3CTwB
-	VoNx/lEOcTE6WiCIHXgg5dkPsrrUKhnkMwA9g0o57GM1rcm1QJ1bJzqn4LBPaSvJ
-	5aZqXa8byiN8r8QcOQjWXqu7qO8ypNwY4E1F+FiRQQ8X2r4skIxi7eqpl2aUyNPQ
-	uI7mEb5ULBOlIP5YUGkeqB8pHq9Ly3Cnsty72nkRlu5/CiR5/fmbdecAA2NZSgUu
-	DRWYGLwsYmIHKfHyKYEXQ==
-Received: from va32lpfpp03.lenovo.com ([104.232.228.23])
-	by m0355088.ppops.net (PPS) with ESMTPS id 3wd21x05ua-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 20 Feb 2024 20:33:22 +0000 (GMT)
-Received: from ilclmmrp01.lenovo.com (ilclmmrp01.mot.com [100.65.83.165])
-	(using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by va32lpfpp03.lenovo.com (Postfix) with ESMTPS id 4TfWM54k8jz4ygs4;
-	Tue, 20 Feb 2024 20:33:21 +0000 (UTC)
-Received: from ilclasset01.mot.com (ilclasset01.mot.com [100.64.7.105])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: mbland)
-	by ilclmmrp01.lenovo.com (Postfix) with ESMTPSA id 4TfWM52tFkz3n3fr;
-	Tue, 20 Feb 2024 20:33:21 +0000 (UTC)
-From: Maxwell Bland <mbland@motorola.com>
-To: linux-arm-kernel@lists.infradead.org
-Cc: gregkh@linuxfoundation.org, agordeev@linux.ibm.com,
-        akpm@linux-foundation.org, andreyknvl@gmail.com, andrii@kernel.org,
-        aneesh.kumar@kernel.org, aou@eecs.berkeley.edu, ardb@kernel.org,
-        arnd@arndb.de, ast@kernel.org, borntraeger@linux.ibm.com,
-        bpf@vger.kernel.org, brauner@kernel.org, catalin.marinas@arm.com,
-        christophe.leroy@csgroup.eu, cl@linux.com, daniel@iogearbox.net,
-        dave.hansen@linux.intel.com, david@redhat.com, dennis@kernel.org,
-        dvyukov@google.com, glider@google.com, gor@linux.ibm.com,
-        guoren@kernel.org, haoluo@google.com, hca@linux.ibm.com,
-        hch@infradead.org, john.fastabend@gmail.com, jolsa@kernel.org,
-        kasan-dev@googlegroups.com, kpsingh@kernel.org,
-        linux-arch@vger.kernel.org, linux@armlinux.org.uk,
-        linux-efi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        lstoakes@gmail.com, mark.rutland@arm.com, martin.lau@linux.dev,
-        meted@linux.ibm.com, michael.christie@oracle.com, mjguzik@gmail.com,
-        mpe@ellerman.id.au, mst@redhat.com, muchun.song@linux.dev,
-        naveen.n.rao@linux.ibm.com, npiggin@gmail.com, palmer@dabbelt.com,
-        paul.walmsley@sifive.com, quic_nprakash@quicinc.com,
-        quic_pkondeti@quicinc.com, rick.p.edgecombe@intel.com,
-        ryabinin.a.a@gmail.com, ryan.roberts@arm.com, samitolvanen@google.com,
-        sdf@google.com, song@kernel.org, surenb@google.com,
-        svens@linux.ibm.com, tj@kernel.org, urezki@gmail.com,
-        vincenzo.frascino@arm.com, will@kernel.org, wuqiang.matt@bytedance.com,
-        yonghong.song@linux.dev, zlim.lnx@gmail.com, mbland@motorola.com,
-        awheeler@motorola.com
-Subject: [PATCH 3/4] arm64: separate code and data virtual memory allocation
-Date: Tue, 20 Feb 2024 14:32:55 -0600
-Message-Id: <20240220203256.31153-4-mbland@motorola.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20240220203256.31153-1-mbland@motorola.com>
-References: <20240220203256.31153-1-mbland@motorola.com>
-X-Proofpoint-ORIG-GUID: FwETS-WEm85ynHN23cNJXJC1VUZpgnFr
-X-Proofpoint-GUID: FwETS-WEm85ynHN23cNJXJC1VUZpgnFr
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-20_06,2024-02-20_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- mlxlogscore=999 clxscore=1015 suspectscore=0 phishscore=0 mlxscore=0
- malwarescore=0 adultscore=0 bulkscore=0 impostorscore=0 spamscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2402120000 definitions=main-2402200146
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FLZ9AkMy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFDD6C433F1;
+	Tue, 20 Feb 2024 20:44:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1708461898;
+	bh=OlPlBXfeiIiilwpBpvXgoBdAmfQVCnZRvZ/9m9sPvyg=;
+	h=From:Date:Subject:To:Cc:From;
+	b=FLZ9AkMyZiZ38MqIQThs5/Y9gkE61pEhYH8tnAsMssL5enLjtwL/oat7iF2Nk7b6s
+	 xclO05FuoFJ3Lz8UbtTudq8mkj0k98K1kpqs8GwPwzvZ4s3Bzuv6uhsiUpPV3h4Z8l
+	 XfH9TnmTYrJVhzXIItCugWLHOgbRafUJYCjHcdPymhANjjJBk7T8BgZB1qRBy+f2Vt
+	 eE4GlmNqJ+hbu76NoJuEWTbC5/ztKnmbGIRVqhiX/cL8AnWLWxewmpw6J5loAfGRGv
+	 0dxriJ1YxnNB2cONDBFsb6b0ijP6fEO0TrELyTqOlbyFMmNIhr6PR3zFP6HqdCG/aG
+	 zTacgvnIrmTJQ==
+From: Nathan Chancellor <nathan@kernel.org>
+Date: Tue, 20 Feb 2024 13:44:48 -0700
+Subject: [PATCH] s390/boot: Workaround current 'llvm-objdump -t -j ...'
+ behavior
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20240220-s390-work-around-llvm-objdump-t-j-v1-1-47bb0366a831@kernel.org>
+X-B4-Tracking: v=1; b=H4sIAD8P1WUC/x3NPQ6DMAxA4asgz7UUXIbSq1QdIHZaU0iQU34kx
+ N0bdfyW9w7IYioZ7tUBJqtmTbGgvlTg3118CSoXAzlqHJHDfG0dbsk+2FlaIuM4rhOmfuBlmvG
+ LA/bhxp59E6itoXRmk6D7//F4nucPyQ+KOHMAAAA=
+To: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, morbo@google.com, 
+ justinstitt@google.com, linux-s390@vger.kernel.org, llvm@lists.linux.dev, 
+ patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>
+X-Mailer: b4 0.14-dev
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3960; i=nathan@kernel.org;
+ h=from:subject:message-id; bh=OlPlBXfeiIiilwpBpvXgoBdAmfQVCnZRvZ/9m9sPvyg=;
+ b=owGbwMvMwCUmm602sfCA1DTG02pJDKlX+T1nSYgumrn2mEpeR5L9k3OnhHtVFhie2qXwb82bh
+ xtqNurd7ihlYRDjYpAVU2Spfqx63NBwzlnGG6cmwcxhZQIZwsDFKQATWbqDkeFLT09Yw1Uu1XVV
+ /CHsOvpNvJfWHE537j7yrS391rF/Uf8Z/vuke74RiTI2r/OXMTs7e89kue/Ty1YusIqWP/FN8vm
+ 6K8wA
+X-Developer-Key: i=nathan@kernel.org; a=openpgp;
+ fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
 
-Current BPF and kprobe instruction allocation interfaces do not match
-the base kernel and intermingle code and data pages within the same
-sections. In the case of BPF, this appears to be a result of code
-duplication between the kernel's JIT compiler and arm64's JIT.  However,
-This is no longer necessary given the possibility of overriding vmalloc
-wrapper functions.
+When building with OBJDUMP=llvm-objdump, there are a series of warnings
+from the section comparisons that arch/s390/boot/Makefile performs
+between vmlinux and arch/s390/boot/vmlinux:
 
-arm64's vmalloc_node routines now include a layer of indirection which
-splits the vmalloc region into two segments surrounding the middle
-module_alloc region determined by ASLR. To support this,
-code_region_start and code_region_end are defined to match the 2GB
-boundary chosen by the kernel module ASLR initialization routine.
+  llvm-objdump: warning: section '.boot.preserved.data' mentioned in a -j/--section option, but not found in any input file
+  llvm-objdump: warning: section '.boot.data' mentioned in a -j/--section option, but not found in any input file
+  llvm-objdump: warning: section '.boot.preserved.data' mentioned in a -j/--section option, but not found in any input file
+  llvm-objdump: warning: section '.boot.data' mentioned in a -j/--section option, but not found in any input file
 
-The result is a large benefits to overall kernel security, as code pages
-now remain protected by this ASLR routine and protections can be defined
-linearly for code regions rather than through PTE-level tracking.
+The warning is a little misleading, as these sections do exist in the
+input files. It is really pointing out that llvm-objdump does not match
+GNU objdump's behavior of respecting '-j' / '--section' in combination
+with '-t' / '--syms':
 
-Signed-off-by: Maxwell Bland <mbland@motorola.com>
+  $ s390x-linux-gnu-objdump -t -j .boot.data vmlinux.full
+
+  vmlinux.full:     file format elf64-s390
+
+  SYMBOL TABLE:
+  0000000001951000 l     O .boot.data     0000000000003000 sclp_info_sccb
+  00000000019550e0 l     O .boot.data     0000000000000001 sclp_info_sccb_valid
+  00000000019550e2 g     O .boot.data     0000000000001000 early_command_line
+  ...
+
+  $ llvm-objdump -t -j .boot.data vmlinux.full
+
+  vmlinux.full:   file format elf64-s390
+
+  SYMBOL TABLE:
+  0000000000100040 l     O .text  0000000000000010 dw_psw
+  0000000000000000 l    df *ABS*  0000000000000000 main.c
+  00000000001001b0 l     F .text  00000000000000c6 trace_event_raw_event_initcall_level
+  0000000000100280 l     F .text  0000000000000100 perf_trace_initcall_level
+  ...
+
+It may be possible to change llvm-objdump's behavior to match GNU
+objdump's behavior but the difficulty of that task has not yet been
+explored. The combination of '$(OBJDUMP) -t -j' is not common in the
+kernel tree on a whole, so workaround this tool difference by grepping
+for the sections in the full symbol table output in a similar manner to
+the sed invocation. This results in no visible change for GNU objdump
+users while fixing the warnings for OBJDUMP=llvm-objdump, further
+enabling use of LLVM=1 for ARCH=s390 with versions of LLVM that have
+support for s390 in ld.lld and llvm-objcopy.
+
+Reported-by: Heiko Carstens <hca@linux.ibm.com>
+Closes: https://lore.kernel.org/20240219113248.16287-C-hca@linux.ibm.com/
+Link: https://github.com/ClangBuiltLinux/linux/issues/859
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 ---
- arch/arm64/include/asm/vmalloc.h   |  3 ++
- arch/arm64/kernel/module.c         |  7 ++++
- arch/arm64/kernel/probes/kprobes.c |  2 +-
- arch/arm64/mm/Makefile             |  3 +-
- arch/arm64/mm/vmalloc.c            | 57 ++++++++++++++++++++++++++++++
- arch/arm64/net/bpf_jit_comp.c      |  5 +--
- 6 files changed, 73 insertions(+), 4 deletions(-)
- create mode 100644 arch/arm64/mm/vmalloc.c
+s390 llvm-objcopy support may be backported to LLVM 18.1.0 in time for
+the final release.
 
-diff --git a/arch/arm64/include/asm/vmalloc.h b/arch/arm64/include/asm/vmalloc.h
-index 38fafffe699f..dbcf8ad20265 100644
---- a/arch/arm64/include/asm/vmalloc.h
-+++ b/arch/arm64/include/asm/vmalloc.h
-@@ -31,4 +31,7 @@ static inline pgprot_t arch_vmap_pgprot_tagged(pgprot_t prot)
- 	return pgprot_tagged(prot);
- }
+https://github.com/llvm/llvm-project/pull/82324
+
+s390 ld.lld has already made it into release/18.x:
+
+https://github.com/llvm/llvm-project/commit/0a44c3792a6ff799df5f100670d7e19d1bc49f03
+
+If the objcopy change makes 18.1.0 final, features + this change should
+build cleanly with LLVM 18.1.0+ using LLVM=1 :)
+---
+ arch/s390/boot/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
+index aecafabc2054..294f08a8811a 100644
+--- a/arch/s390/boot/Makefile
++++ b/arch/s390/boot/Makefile
+@@ -60,9 +60,9 @@ clean-files += vmlinux.map
  
-+extern unsigned long code_region_start __ro_after_init;
-+extern unsigned long code_region_end __ro_after_init;
-+
- #endif /* _ASM_ARM64_VMALLOC_H */
-diff --git a/arch/arm64/kernel/module.c b/arch/arm64/kernel/module.c
-index dd851297596e..c4fe753a71a9 100644
---- a/arch/arm64/kernel/module.c
-+++ b/arch/arm64/kernel/module.c
-@@ -29,6 +29,10 @@
- static u64 module_direct_base __ro_after_init = 0;
- static u64 module_plt_base __ro_after_init = 0;
- 
-+/* For pre-init vmalloc, assume the worst-case code range */
-+unsigned long code_region_start __ro_after_init = (u64) (_end - SZ_2G);
-+unsigned long code_region_end __ro_after_init = (u64) (_text + SZ_2G);
-+
- /*
-  * Choose a random page-aligned base address for a window of 'size' bytes which
-  * entirely contains the interval [start, end - 1].
-@@ -101,6 +105,9 @@ static int __init module_init_limits(void)
- 		module_plt_base = random_bounding_box(SZ_2G, min, max);
- 	}
- 
-+	code_region_start = module_plt_base;
-+	code_region_end = module_plt_base + SZ_2G;
-+
- 	pr_info("%llu pages in range for non-PLT usage",
- 		module_direct_base ? (SZ_128M - kernel_size) / PAGE_SIZE : 0);
- 	pr_info("%llu pages in range for PLT usage",
-diff --git a/arch/arm64/kernel/probes/kprobes.c b/arch/arm64/kernel/probes/kprobes.c
-index 70b91a8c6bb3..c9e109d6c8bc 100644
---- a/arch/arm64/kernel/probes/kprobes.c
-+++ b/arch/arm64/kernel/probes/kprobes.c
-@@ -131,7 +131,7 @@ int __kprobes arch_prepare_kprobe(struct kprobe *p)
- 
- void *alloc_insn_page(void)
- {
--	return __vmalloc_node_range(PAGE_SIZE, 1, VMALLOC_START, VMALLOC_END,
-+	return __vmalloc_node_range(PAGE_SIZE, 1, code_region_start, code_region_end,
- 			GFP_KERNEL, PAGE_KERNEL_ROX, VM_FLUSH_RESET_PERMS,
- 			NUMA_NO_NODE, __builtin_return_address(0));
- }
-diff --git a/arch/arm64/mm/Makefile b/arch/arm64/mm/Makefile
-index dbd1bc95967d..730b805d8388 100644
---- a/arch/arm64/mm/Makefile
-+++ b/arch/arm64/mm/Makefile
-@@ -2,7 +2,8 @@
- obj-y				:= dma-mapping.o extable.o fault.o init.o \
- 				   cache.o copypage.o flush.o \
- 				   ioremap.o mmap.o pgd.o mmu.o \
--				   context.o proc.o pageattr.o fixmap.o
-+				   context.o proc.o pageattr.o fixmap.o \
-+				   vmalloc.o
- obj-$(CONFIG_HUGETLB_PAGE)	+= hugetlbpage.o
- obj-$(CONFIG_PTDUMP_CORE)	+= ptdump.o
- obj-$(CONFIG_PTDUMP_DEBUGFS)	+= ptdump_debugfs.o
-diff --git a/arch/arm64/mm/vmalloc.c b/arch/arm64/mm/vmalloc.c
-new file mode 100644
-index 000000000000..b6d2fa841f90
---- /dev/null
-+++ b/arch/arm64/mm/vmalloc.c
-@@ -0,0 +1,57 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+
-+#include <linux/vmalloc.h>
-+#include <linux/mm.h>
-+
-+static void *__vmalloc_node_range_split(unsigned long size, unsigned long align,
-+			unsigned long start, unsigned long end,
-+			unsigned long exclusion_start, unsigned long exclusion_end, gfp_t gfp_mask,
-+			pgprot_t prot, unsigned long vm_flags, int node,
-+			const void *caller)
-+{
-+	void *res = NULL;
-+
-+	res = __vmalloc_node_range(size, align, start, exclusion_start,
-+				gfp_mask, prot, vm_flags, node, caller);
-+	if (!res)
-+		res = __vmalloc_node_range(size, align, exclusion_end, end,
-+				gfp_mask, prot, vm_flags, node, caller);
-+
-+	return res;
-+}
-+
-+void *__vmalloc_node(unsigned long size, unsigned long align,
-+			    gfp_t gfp_mask, unsigned long vm_flags, int node,
-+			    const void *caller)
-+{
-+	return __vmalloc_node_range_split(size, align, VMALLOC_START,
-+				VMALLOC_END, code_region_start, code_region_end,
-+				gfp_mask, PAGE_KERNEL, vm_flags, node, caller);
-+}
-+
-+void *vmalloc_huge(unsigned long size, gfp_t gfp_mask)
-+{
-+	return __vmalloc_node_range_split(size, 1, VMALLOC_START, VMALLOC_END,
-+				code_region_start, code_region_end,
-+				gfp_mask, PAGE_KERNEL, VM_ALLOW_HUGE_VMAP,
-+				NUMA_NO_NODE, __builtin_return_address(0));
-+}
-+
-+void *vmalloc_user(unsigned long size)
-+{
-+	return __vmalloc_node_range_split(size, SHMLBA,  VMALLOC_START, VMALLOC_END,
-+				code_region_start, code_region_end,
-+				GFP_KERNEL | __GFP_ZERO, PAGE_KERNEL,
-+				VM_USERMAP, NUMA_NO_NODE,
-+				__builtin_return_address(0));
-+}
-+
-+void *vmalloc_32_user(unsigned long size)
-+{
-+	return __vmalloc_node_range_split(size, SHMLBA,  VMALLOC_START, VMALLOC_END,
-+				code_region_start, code_region_end,
-+				GFP_VMALLOC32 | __GFP_ZERO, PAGE_KERNEL,
-+				VM_USERMAP, NUMA_NO_NODE,
-+				__builtin_return_address(0));
-+}
-+
-diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
-index 8955da5c47cf..40426f3a9bdf 100644
---- a/arch/arm64/net/bpf_jit_comp.c
-+++ b/arch/arm64/net/bpf_jit_comp.c
-@@ -13,6 +13,7 @@
- #include <linux/memory.h>
- #include <linux/printk.h>
- #include <linux/slab.h>
-+#include <linux/moduleloader.h>
- 
- #include <asm/asm-extable.h>
- #include <asm/byteorder.h>
-@@ -1690,12 +1691,12 @@ u64 bpf_jit_alloc_exec_limit(void)
- void *bpf_jit_alloc_exec(unsigned long size)
- {
- 	/* Memory is intended to be executable, reset the pointer tag. */
--	return kasan_reset_tag(vmalloc(size));
-+	return kasan_reset_tag(module_alloc(size));
- }
- 
- void bpf_jit_free_exec(void *addr)
- {
--	return vfree(addr);
-+	return module_memfree(addr);
- }
- 
- /* Indicate the JIT backend supports mixing bpf2bpf and tailcalls. */
+ quiet_cmd_section_cmp = SECTCMP $*
+ define cmd_section_cmp
+-	s1=`$(OBJDUMP) -t -j "$*" "$<" | sort | \
++	s1=`$(OBJDUMP) -t "$<" | grep "\s$*\s\+" | sort | \
+ 		sed -n "/0000000000000000/! s/.*\s$*\s\+//p" | sha256sum`; \
+-	s2=`$(OBJDUMP) -t -j "$*" "$(word 2,$^)" | sort | \
++	s2=`$(OBJDUMP) -t "$(word 2,$^)" | grep "\s$*\s\+" | sort | \
+ 		sed -n "/0000000000000000/! s/.*\s$*\s\+//p" | sha256sum`; \
+ 	if [ "$$s1" != "$$s2" ]; then \
+ 		echo "error: section $* differs between $< and $(word 2,$^)" >&2; \
+
+---
+base-commit: 778666df60f0d96f215e33e27448de47a2207fb3
+change-id: 20240220-s390-work-around-llvm-objdump-t-j-bf8dcdc4f291
+
+Best regards,
 -- 
-2.39.2
+Nathan Chancellor <nathan@kernel.org>
 
