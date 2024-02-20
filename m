@@ -1,66 +1,62 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB6F0762E0;
-	Tue, 20 Feb 2024 16:39:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C92F176911;
+	Tue, 20 Feb 2024 17:07:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708447149; cv=none; b=px/vV4cPGyn58/Cj6TaqpNQ9FcpPgK/6zAyMDOCRBtMxmqVNDmwEULyrtrlq1qDnUtfivWV1SK6jZqxY7CEOdMfQBvIFuUofoPSd7uiZ88CczbvtNV/uEBD1tU1rdF0PuNN2b/imbndpLBNgb0dnDrGwl8cOtibWdRbwGwQz9bg=
+	t=1708448843; cv=none; b=QVQPY2D654ddAIxtcnN5BHq2OaAPAqK6bSACsEcif4ID/de3P8GJqEzX7WLjuP25w6U9icL+Eh1Ulbv2sRnQWXowMYPgRJSeQui3xN0l11LlL9ZKzxOiN7wKYdDkMFXKk4ye2/dgJsKuMulRsGD8Rg3BR3Uo2jYOebNZgYdQHn8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708447149; c=relaxed/simple;
-	bh=e/MnLbL2WYfj0Tu9rlkFT0aLALqfVP0DcRYd3sXarZs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=PewZ+5Bi2m5yWitK0Xz+Yk5ypoA+Q+cnLH9Pw9u93ATOCrpwBOLhYSUrFG9W6DeGLGGGk+GS/PgbJ0TiSTmtTgNWXJYHAvnoGOu6mx5hAQMCQbPthLf0wTTEncu4hIB2jCUYbHbDG+R4dOZQ0TohcZIcfhPxK0e6KSOuY9DvoJM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YzbVskrt; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1708448843; c=relaxed/simple;
+	bh=mtYh4pPl8nUvoS1cpHihY1SAedbSQ4SPzAugmWQRuzg=;
+	h=From:Message-ID:Date:MIME-Version:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=Y9tKtrsX/ngBqg2MyKGA5LjNzCCY1VRsJE0ImIUWu1g9u+j94OdLqEUQitNKFf73JnSGMgYx9GS8mpftAmGAOlv8nGzW0C84lcGdRk6hgrXYJYJAhJMGKFLLb19SBNOYIlYyovHsU1wZQtlmHYiqQrgPxy7vQIXb7+zvlsYkJ9c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lAI/MB9o; arc=none smtp.client-ip=209.85.128.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YzbVskrt"
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41KGHfn4023031;
-	Tue, 20 Feb 2024 16:39:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=eHMzFEoMdrKnKvn9DpCqJVv75wgKI/Ci29V6vVGpV8I=;
- b=YzbVskrtZsHJgTgawM+0gxup5gymXExKAuzkTGkoDVKfiIg07yg0SYaebcYt6Z1ye0Q4
- Q2KNpfIrPsvGiD6vpqIiEpzkLFG/SKVbrzpXpghCrWj9idFDH2qqrb55804LVhKdU58v
- tg0YHesihhpdo30kT26QcJviKOe3RhFuFUTc83vceEs6U8H4Ctqg7uNr3y9JQZgKilow
- q8QehS71wdpGCHTR2cEWBwE9NAay+oPVHQOQ1q6cI2AHCeTKbXl8iYLRSC9wdoBQpEfo
- +J9VqDRipde1VzB9dr5Xk9/TM6cL/OVGmPVoLnR/81CKXVRSBGL8CkH6jUHSMvxCTm+1 Ug== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wcyfh0p82-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 20 Feb 2024 16:39:05 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41KGbC2F019445;
-	Tue, 20 Feb 2024 16:39:05 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wcyfh0p7b-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 20 Feb 2024 16:39:04 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41KFxY4w031138;
-	Tue, 20 Feb 2024 16:39:04 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wb9bkrwav-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 20 Feb 2024 16:39:04 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41KGd0l066585040
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 20 Feb 2024 16:39:02 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7ADC55806C;
-	Tue, 20 Feb 2024 16:39:00 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6E3D55805F;
-	Tue, 20 Feb 2024 16:38:59 +0000 (GMT)
-Received: from [9.61.172.126] (unknown [9.61.172.126])
-	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 20 Feb 2024 16:38:59 +0000 (GMT)
-Message-ID: <f05c83a9-bcc6-4963-98f4-72159673ba3a@linux.ibm.com>
-Date: Tue, 20 Feb 2024 11:38:58 -0500
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lAI/MB9o"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4127109686fso3954715e9.2;
+        Tue, 20 Feb 2024 09:07:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1708448840; x=1709053640; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:organization:content-language
+         :references:cc:to:subject:reply-to:user-agent:mime-version:date
+         :message-id:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=bS6mzlS2FvG30g8kCU8KyMPeOwgxgcQl7tVtSUw6YUE=;
+        b=lAI/MB9oFbzyaNZfoz840sx0CMM+mGzBvK2b4ln1Kge5yPZFBIpP1VhXIMjjkj5uNC
+         psYZuPFBvfwISobjsRTN5bRv2T8Q0EdRlT/YL7F9WT1uU+nsAKDLkoIyrHbDkzp6iW8t
+         Gx1B5I9MqU6bHy32svhJ/WpZGVlbTipSXdZWysjNKWFplkOvID1ULrNV1KuG17xFdcm1
+         00Oka3gVCTwKqysWHTLrHVcE/7Iv/hBcdu+cqjoc3aDmUjUVRnoJdGauABsIQLw50BiM
+         XRiYd+FmDrG9OHKvc4B8rOPut2GYuHpsPHj2MD1dTKD4sq5hSET/4QlCs/68MBqLEgyi
+         +tCw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1708448840; x=1709053640;
+        h=content-transfer-encoding:in-reply-to:organization:content-language
+         :references:cc:to:subject:reply-to:user-agent:mime-version:date
+         :message-id:from:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bS6mzlS2FvG30g8kCU8KyMPeOwgxgcQl7tVtSUw6YUE=;
+        b=Ls2mFvTLZTSzKWqfZHsXXNN/4lthFSDbZ55S+lxCuXzdYHJyFZcX5YphIHpwCd6m5y
+         NdDqALDIWnmhLEYhYTyXN7NCCitmAKDak7znOh3QR/DwMdaNTDDoHuaSWPebZAR6dmEi
+         Oe6rZ9SHI/gxubn992Go3jnxmcLq2eF/60bDYzQqxirc4H+Zi1RQVEjF4HArMUbS4l9h
+         AtJnEbKuIDGsT5SxaNaELPddBVWPnViE2kl/JSTDNIa9N61GYUR9xgF2LQYAZ+1Qsfz7
+         Rmwuxjcto8FnNngTYIrWM00d6Y16OlV0KHo68xEArn5DAvG7pUSua7DndSzcUMYIPZSs
+         E4dA==
+X-Forwarded-Encrypted: i=1; AJvYcCXRo17lhE6TcalT23u+VRU6rPP0Fdnh3HpZs2WRzD7zwrqzyKji8fdz9gpUIElbHNZqHs8tpczVlm2NaZp8iy944sscg6+MZ1MHLBysxFch/A732Q5/qw1BECaukZcAUrBKGEOc4+kLRtbheSY6p8PoHycPPBMUDc52vIIqhF7QNqNDq9XZyPS4kxu23b/QxrdwxuQWSmAYU+VYWzpkvMRcqkVkmjVjVX0lk3P0R6KwBHg3/Y1NBfi+qg==
+X-Gm-Message-State: AOJu0Yw0/jww1HVDaa96CwiGtPtcQ/dQkCIXvH+3a4ePzF5mRuElCuuI
+	vuMis8O8cXD2iXuCkXrY/WPq4zInCou5KGFAw6gNLYIUVzVvprJ7
+X-Google-Smtp-Source: AGHT+IGKDgeb1b4/RZMqZUijqCwIZaYIC4U3t4wwvNhBDBJASOb+1pT/1HGi9975hFGHmqQ0PDn8dQ==
+X-Received: by 2002:a05:600c:1c93:b0:412:6dd4:1001 with SMTP id k19-20020a05600c1c9300b004126dd41001mr2072917wms.16.1708448839929;
+        Tue, 20 Feb 2024 09:07:19 -0800 (PST)
+Received: from [192.168.10.18] (54-240-197-233.amazon.com. [54.240.197.233])
+        by smtp.gmail.com with ESMTPSA id o20-20020a05600c4fd400b00412590eee7csm12231744wmq.10.2024.02.20.09.07.18
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 20 Feb 2024 09:07:19 -0800 (PST)
+From: Paul Durrant <xadimgnik@gmail.com>
+X-Google-Original-From: Paul Durrant <paul@xen.org>
+Message-ID: <bd028731-bc98-4735-a7f9-9b4ef9c00668@xen.org>
+Date: Tue, 20 Feb 2024 17:07:17 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,411 +64,76 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v4 2/7] s390x: Add guest 2 AP test
+Reply-To: paul@xen.org
+Subject: Re: [PATCH v13 00/21] KVM: xen: update shared_info and vcpu_info
+ handling
+To: Sean Christopherson <seanjc@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Jonathan Corbet <corbet@lwn.net>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ David Hildenbrand <david@redhat.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+ David Woodhouse <dwmw2@infradead.org>, Shuah Khan <shuah@kernel.org>,
+ kvm@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-kselftest@vger.kernel.org
+References: <20240215152916.1158-1-paul@xen.org>
+ <170838297541.2281798.7838961694439257911.b4-ty@google.com>
+ <05973da0-f68c-4c84-8806-bdba92f2ed6e@xen.org> <ZdTQCuWor4ipxW6E@google.com>
 Content-Language: en-US
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, thuth@redhat.com,
-        david@redhat.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
-        jjherne@linux.ibm.com
-References: <20240202145913.34831-1-frankja@linux.ibm.com>
- <20240202145913.34831-3-frankja@linux.ibm.com>
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20240202145913.34831-3-frankja@linux.ibm.com>
+Organization: Xen Project
+In-Reply-To: <ZdTQCuWor4ipxW6E@google.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: dwAyVtmu-D7yO_j9NeWV18ulFldV-lN3
-X-Proofpoint-GUID: Et5MwRzd7D-Hv2Rq0w9lgflxKsylpjay
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-20_06,2024-02-20_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- adultscore=0 priorityscore=1501 mlxlogscore=999 phishscore=0
- lowpriorityscore=0 malwarescore=0 clxscore=1011 spamscore=0 suspectscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402200119
 
-I made a couple of function name change suggestions, but those are not 
-critical:
+On 20/02/2024 16:15, Sean Christopherson wrote:
+> On Tue, Feb 20, 2024, Paul Durrant wrote:
+>> On 20/02/2024 15:55, Sean Christopherson wrote:
+>>> On Thu, 15 Feb 2024 15:28:55 +0000, Paul Durrant wrote:
+>>>> From: Paul Durrant <pdurrant@amazon.com>
+>>>>
+>>>> This series contains a new patch from Sean added since v12 [1]:
+>>>>
+>>>> * KVM: s390: Refactor kvm_is_error_gpa() into kvm_is_gpa_in_memslot()
+>>>>
+>>>> This frees up the function name kvm_is_error_gpa() such that it can then be
+>>>> re-defined in:
+>>>>
+>>>> [...]
+>>>
+>>> *sigh*
+>>>
+>>> I forgot to hit "send" on this yesterday.  But lucky for me, that worked out in
+>>> my favor as I needed to rebase on top of kvm/kvm-uapi to avoid pointless conflicts
+>>> in the uapi headeres.
+>>>
+>>> So....
+>>>
+>>> Applied to kvm-x86 xen, minus 18 and 19 (trylock stuff) and 21 (locking cleanup
+>>> that we're doing elsewhere).
+>>>
+>>
+>> Looks like you meant 17 & 18?
+> 
+> Doh, yes.
+> 
+>>> Paul and David, please take (another) look at the end result to make sure you don't
+>>> object to any of my tweaks and that I didn't botch anything.
+>>>
+>>
+>> What was the issue with 17? It was reasonable clean-up and I'd like to keep
+>> it even without 18 being applied (and I totally understand your reasons for
+>> that).
+> 
+> I omitted it purely to avoid creating an unnecessary dependency for the trylock
+> patch.  That way the trylock patch (or whatever it morphs into) can be applied on
+> any branch (along with the cleanup), i.e. doesn't need to be taken through kvm-x86/xen.
 
-Acked-by: Anthony Krowiak <akrowiak@linux.ibm.com>
-
-On 2/2/24 9:59 AM, Janosch Frank wrote:
-> Add a test that checks the exceptions for the PQAP, NQAP and DQAP
-> adjunct processor (AP) crypto instructions.
->
-> Since triggering the exceptions doesn't require actual AP hardware,
-> this test can run without complicated setup.
->
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->   s390x/Makefile      |   1 +
->   s390x/ap.c          | 309 ++++++++++++++++++++++++++++++++++++++++++++
->   s390x/unittests.cfg |   3 +
->   3 files changed, 313 insertions(+)
->   create mode 100644 s390x/ap.c
->
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index 4f6c627d..6d28a5bf 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -42,6 +42,7 @@ tests += $(TEST_DIR)/exittime.elf
->   tests += $(TEST_DIR)/ex.elf
->   tests += $(TEST_DIR)/topology.elf
->   tests += $(TEST_DIR)/sie-dat.elf
-> +tests += $(TEST_DIR)/ap.elf
->   
->   pv-tests += $(TEST_DIR)/pv-diags.elf
->   pv-tests += $(TEST_DIR)/pv-icptcode.elf
-> diff --git a/s390x/ap.c b/s390x/ap.c
-> new file mode 100644
-> index 00000000..b3cee37a
-> --- /dev/null
-> +++ b/s390x/ap.c
-> @@ -0,0 +1,309 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +/*
-> + * AP instruction G2 tests
-> + *
-> + * Copyright (c) 2024 IBM Corp
-> + *
-> + * Authors:
-> + *  Janosch Frank <frankja@linux.ibm.com>
-> + */
-> +
-> +#include <libcflat.h>
-> +#include <interrupt.h>
-> +#include <bitops.h>
-> +#include <alloc_page.h>
-> +#include <asm/facility.h>
-> +#include <asm/time.h>
-> +#include <ap.h>
-> +
-> +/* For PQAP PGM checks where we need full control over the input */
-> +static void pqap(unsigned long grs[3])
-> +{
-> +	asm volatile(
-> +		"	lgr	0,%[r0]\n"
-> +		"	lgr	1,%[r1]\n"
-> +		"	lgr	2,%[r2]\n"
-> +		"	.insn	rre,0xb2af0000,0,0\n" /* PQAP */
-> +		::  [r0] "d" (grs[0]), [r1] "d" (grs[1]), [r2] "d" (grs[2])
-> +		: "cc", "memory", "0", "1", "2");
-> +}
-> +
-> +static void test_pgms_pqap(void)
-
-
-If I saw this function name without having read the patch description, I 
-wouldn't have any idea what is being tested.
-
-Maybe test_pqap_pgm_chk?
-
-
-> +{
-> +	unsigned long grs[3] = {};
-> +	struct pqap_r0 *r0 = (struct pqap_r0 *)grs;
-> +	uint8_t *data = alloc_page();
-> +	uint16_t pgm;
-> +	int fails = 0;
-> +	int i;
-> +
-> +	report_prefix_push("pqap");
-> +
-> +	/* Wrong FC code */
-> +	report_prefix_push("invalid fc");
-> +	r0->fc = 42;
-
-
-Just out of curiosity, why 42? Why not some ridiculous number that will 
-never be used for a function code, like 4294967295?
-
-
-> +	expect_pgm_int();
-> +	pqap(grs);
-> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-> +	memset(grs, 0, sizeof(grs));
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("invalid gr0 bits");
-> +	/*
-> +	 * GR0 bits 41 - 47 are defined 0 and result in a
-> +	 * specification exception if set to 1.
-> +	 */
-> +	for (i = 0; i < 48 - 41; i++) {
-> +		grs[0] = BIT(63 - 47 + i);
-> +
-> +		expect_pgm_int();
-> +		pqap(grs);
-> +		pgm = clear_pgm_int();
-> +
-> +		if (pgm != PGM_INT_CODE_SPECIFICATION) {
-> +			report_fail("fail on bit %d", 42 + i);
-> +			fails++;
-> +		}
-> +	}
-> +	report(!fails, "All bits tested");
-> +	memset(grs, 0, sizeof(grs));
-> +	fails = 0;
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("alignment");
-> +	report_prefix_push("fc=4");
-> +	r0->fc = PQAP_QUERY_AP_CONF_INFO;
-> +	grs[2] = (unsigned long)data;
-> +	for (i = 1; i < 8; i++) {
-> +		expect_pgm_int();
-> +		grs[2]++;
-> +		pqap(grs);
-> +		pgm = clear_pgm_int();
-> +		if (pgm != PGM_INT_CODE_SPECIFICATION) {
-> +			report_fail("fail on bit %d", i);
-> +			fails++;
-> +		}
-> +	}
-> +	report(!fails, "All alignments tested");
-> +	report_prefix_pop();
-> +	report_prefix_push("fc=6");
-> +	r0->fc = PQAP_BEST_AP;
-> +	grs[2] = (unsigned long)data;
-> +	for (i = 1; i < 8; i++) {
-> +		expect_pgm_int();
-> +		grs[2]++;
-> +		pqap(grs);
-> +		pgm = clear_pgm_int();
-> +		if (pgm != PGM_INT_CODE_SPECIFICATION) {
-> +			report_fail("fail on bit %d", i);
-> +			fails++;
-> +		}
-> +	}
-> +	report(!fails, "All alignments tested");
-> +	report_prefix_pop();
-> +	report_prefix_pop();
-> +
-> +	free_page(data);
-> +	report_prefix_pop();
-> +}
-> +
-> +static void test_pgms_nqap(void)
-
-
-Same as above:
-test_nqap_pgm_chk
-
-
-> +{
-> +	uint8_t gr0_zeroes_bits[] = {
-> +		32, 34, 35, 40
-> +	};
-> +	uint64_t gr0;
-> +	bool fail;
-> +	int i;
-> +
-> +	report_prefix_push("nqap");
-> +
-> +	/* Registers 0 and 1 are always used, the others are even/odd pairs */
-> +	report_prefix_push("spec");
-> +	report_prefix_push("r1");
-> +	expect_pgm_int();
-> +	asm volatile (
-> +		".insn	rre,0xb2ad0000,3,6\n"
-> +		: : : "cc", "memory", "0", "1", "2", "3", "4", "6", "7");
-> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("r2");
-> +	expect_pgm_int();
-> +	asm volatile (
-> +		".insn	rre,0xb2ad0000,2,7\n"
-> +		: : : "cc", "memory", "0", "1", "2", "3", "4", "6", "7");
-> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("both");
-> +	expect_pgm_int();
-> +	asm volatile (
-> +		".insn	rre,0xb2ad0000,3,7\n"
-> +		: : : "cc", "memory", "0", "1", "2", "3", "4", "6", "7");
-> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("len==0");
-> +	expect_pgm_int();
-> +	asm volatile (
-> +		"xgr	0,0\n"
-> +		"xgr	5,5\n"
-> +		".insn	rre,0xb2ad0000,2,4\n"
-> +		: : : "cc", "memory", "0", "1", "2", "3", "4", "5", "6", "7");
-> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("gr0_zero_bits");
-> +	fail = false;
-> +	for (i = 0; i < ARRAY_SIZE(gr0_zeroes_bits); i++) {
-> +		expect_pgm_int();
-> +		gr0 = BIT_ULL(63 - gr0_zeroes_bits[i]);
-> +		asm volatile (
-> +			"xgr	5,5\n"
-> +			"lghi	5, 128\n"
-> +			"lg	0, 0(%[val])\n"
-> +			".insn	rre,0xb2ad0000,2,4\n"
-> +			: : [val] "a" (&gr0)
-> +			: "cc", "memory", "0", "1", "2", "3", "4", "5", "6", "7");
-> +		if (clear_pgm_int() != PGM_INT_CODE_SPECIFICATION) {
-> +			report_fail("setting gr0 bit %d did not result in a spec exception",
-> +				    gr0_zeroes_bits[i]);
-> +			fail = true;
-> +		}
-> +	}
-> +	report(!fail, "set bit gr0 pgms");
-> +	report_prefix_pop();
-> +
-> +	report_prefix_pop();
-> +	report_prefix_pop();
-> +}
-> +
-> +static void test_pgms_dqap(void)
-
-
-Same as above:
-test_dqap_pgm_chk
-
-
-> +{
-> +	uint8_t gr0_zeroes_bits[] = {
-> +		33, 34, 35, 40, 41
-> +	};
-> +	uint64_t gr0;
-> +	bool fail;
-> +	int i;
-> +
-> +	report_prefix_push("dqap");
-> +
-> +	/* Registers 0 and 1 are always used, the others are even/odd pairs */
-> +	report_prefix_push("spec");
-> +	report_prefix_push("r1");
-> +	expect_pgm_int();
-> +	asm volatile (
-> +		".insn	rre,0xb2ae0000,3,6\n"
-> +		: : : "cc", "memory", "0", "1", "2", "3", "4", "6", "7");
-> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("r2");
-> +	expect_pgm_int();
-> +	asm volatile (
-> +		".insn	rre,0xb2ae0000,2,7\n"
-> +		: : : "cc", "memory", "0", "1", "2", "3", "4", "6", "7");
-> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("both");
-> +	expect_pgm_int();
-> +	asm volatile (
-> +		".insn	rre,0xb2ae0000,3,7\n"
-> +		: : : "cc", "memory", "0", "1", "2", "3", "4", "6", "7");
-> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("len==0");
-> +	expect_pgm_int();
-> +	asm volatile (
-> +		"xgr	0,0\n"
-> +		"xgr	5,5\n"
-> +		".insn	rre,0xb2ae0000,2,4\n"
-> +		: : : "cc", "memory", "0", "1", "2", "3", "4", "5", "6", "7");
-> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("gr0_zero_bits");
-> +	fail = false;
-> +	for (i = 0; i < ARRAY_SIZE(gr0_zeroes_bits); i++) {
-> +		expect_pgm_int();
-> +		gr0 = BIT_ULL(63 - gr0_zeroes_bits[i]);
-> +		asm volatile (
-> +			"xgr	5,5\n"
-> +			"lghi	5, 128\n"
-> +			"lg	0, 0(%[val])\n"
-> +			".insn	rre,0xb2ae0000,2,4\n"
-> +			: : [val] "a" (&gr0)
-> +			: "cc", "memory", "0", "1", "2", "3", "4", "5", "6", "7");
-> +		if (clear_pgm_int() != PGM_INT_CODE_SPECIFICATION) {
-> +			report_info("setting gr0 bit %d did not result in a spec exception",
-> +				    gr0_zeroes_bits[i]);
-> +			fail = true;
-> +		}
-> +	}
-> +	report(!fail, "set bit pgms");
-> +	report_prefix_pop();
-> +
-> +	report_prefix_pop();
-> +	report_prefix_pop();
-> +}
-> +
-> +static void test_priv(void)
-> +{
-> +	struct ap_config_info info = {};
-> +
-> +	report_prefix_push("privileged");
-> +
-> +	report_prefix_push("pqap");
-> +	expect_pgm_int();
-> +	enter_pstate();
-> +	ap_pqap_qci(&info);
-> +	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
-> +	report_prefix_pop();
-> +
-> +	/*
-> +	 * Enqueue and dequeue take too many registers so a simple
-> +	 * inline assembly makes more sense than using the library
-> +	 * functions.
-> +	 */
-> +	report_prefix_push("nqap");
-> +	expect_pgm_int();
-> +	enter_pstate();
-> +	asm volatile (
-> +		".insn	rre,0xb2ad0000,0,2\n"
-> +		: : : "cc", "memory", "0", "1", "2", "3");
-> +	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("dqap");
-> +	expect_pgm_int();
-> +	enter_pstate();
-> +	asm volatile (
-> +		".insn	rre,0xb2ae0000,0,2\n"
-> +		: : : "cc", "memory", "0", "1", "2", "3");
-> +	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_pop();
-> +}
-> +
-> +int main(void)
-> +{
-> +	report_prefix_push("ap");
-> +	if (!ap_check()) {
-> +		report_skip("AP instructions not available");
-> +		goto done;
-> +	}
-> +
-> +	test_priv();
-> +	test_pgms_pqap();
-> +	test_pgms_nqap();
-> +	test_pgms_dqap();
-> +
-> +done:
-> +	report_prefix_pop();
-> +	return report_summary();
-> +}
-> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-> index 018e4129..578375e4 100644
-> --- a/s390x/unittests.cfg
-> +++ b/s390x/unittests.cfg
-> @@ -386,3 +386,6 @@ file = sie-dat.elf
->   
->   [pv-attest]
->   file = pv-attest.elf
-> +
-> +[ap]
-> +file = ap.elf
+Ok, personally I don't see the dependency being an issue. I suspect it 
+will be a while before we decide what to do about the locking issue... 
+particularly since David is out this week, as he says.
