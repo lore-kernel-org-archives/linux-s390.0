@@ -1,147 +1,181 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 212AF1FDB;
-	Tue, 20 Feb 2024 20:44:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFEC9151CC8;
+	Tue, 20 Feb 2024 21:12:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708461899; cv=none; b=Ewl0lGQtcnuj5D6+i/QSMYjAp/BIlUO/DJ+AR7TwBurDJulbim6LfEsz7hsPS78xP4bw/7bqWLGUqHNyvUN5QG8VVfRovKmp3vMSvX5NapQjC2z9ReZeWvZNJ1pvd5j8IdiE99aQK1TJxZQ6qV7220fqSxmG8vJ2+12/6YDlv+I=
+	t=1708463545; cv=none; b=YpQwYH9SjhKcMX1VgvQQKxQcYs+c9+8A3Pi+lEqy0ZO1wvQsgt41742DEYs0RGdx6IpCVnPN052E+8/bixc0HG30LdxosxaEKihL+OZeFp39ahkCufZUyFNnHe119w0Bl1vKCy7t8aN80qd4yEu+aujU9FN2m2zK6L22VoF7ICA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708461899; c=relaxed/simple;
-	bh=OlPlBXfeiIiilwpBpvXgoBdAmfQVCnZRvZ/9m9sPvyg=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=qXvn0hn5wWlINlrh4wUzUoXWePOIQaeeyhkeMLSK2a+uuBvvCV31yd/jdWPIk+aTRit7cfL/wSw2d6CHn72f4G1o7lgfs1q3l14dMvZTA7be2ZfLGM+I7cVlHTp0uBj+vkdvQZPrzCRHIo7HSl5RmH9alzcnwYrDdq4zj1VOnDE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FLZ9AkMy; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1708463545; c=relaxed/simple;
+	bh=VT/U3EO+ktEfC+VjYyJdMzY1Z+i06a3szoAgL5db0lo=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=lFI7ql6D7k28ZtYzz0ihyEdbk+kcCFVNpbi/CaNvIHy5HhCBvZT8a3sodr6pMgiI7ZUR4zmziIVYzKDclyIDUFeiCSBPTeDvunGaTcS5y6g7EWNsOHOFlaiWWzyvnjjR+vkPBl5DdsT5jP4W/ZWEoJkn6r56MTm7dxe13LLa1c8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tFrPDZ6e; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FLZ9AkMy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFDD6C433F1;
-	Tue, 20 Feb 2024 20:44:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1708461898;
-	bh=OlPlBXfeiIiilwpBpvXgoBdAmfQVCnZRvZ/9m9sPvyg=;
-	h=From:Date:Subject:To:Cc:From;
-	b=FLZ9AkMyZiZ38MqIQThs5/Y9gkE61pEhYH8tnAsMssL5enLjtwL/oat7iF2Nk7b6s
-	 xclO05FuoFJ3Lz8UbtTudq8mkj0k98K1kpqs8GwPwzvZ4s3Bzuv6uhsiUpPV3h4Z8l
-	 XfH9TnmTYrJVhzXIItCugWLHOgbRafUJYCjHcdPymhANjjJBk7T8BgZB1qRBy+f2Vt
-	 eE4GlmNqJ+hbu76NoJuEWTbC5/ztKnmbGIRVqhiX/cL8AnWLWxewmpw6J5loAfGRGv
-	 0dxriJ1YxnNB2cONDBFsb6b0ijP6fEO0TrELyTqOlbyFMmNIhr6PR3zFP6HqdCG/aG
-	 zTacgvnIrmTJQ==
-From: Nathan Chancellor <nathan@kernel.org>
-Date: Tue, 20 Feb 2024 13:44:48 -0700
-Subject: [PATCH] s390/boot: Workaround current 'llvm-objdump -t -j ...'
- behavior
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tFrPDZ6e"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41KK1CvB014861;
+	Tue, 20 Feb 2024 21:12:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=19WihYNIrLNyTeLOooB44fJUY5UTGBk4JF+0ztIFYcc=;
+ b=tFrPDZ6eKBk9MP35iKYuyWdcCN8C5Kj1jAvmvC/SRCCCu8txph38bD5DlkfL9ZoDYpgx
+ D13cV+UHrHeLBNDIO3cf5xYXWlwQ2rHocvlWufUe9wIW5P9xFF/H8ZvUAMwrJ2+QOY8M
+ PIpgTs9Qc/JBR6LCdBix8bJGbeAi+EWQaUkJnYimTcQxfeqWe+6tf3p/STacfHPAeRCQ
+ z3KEEzo5aqjvo8dAIICPkUZte+fLB0Qzo+nxRkWkxfB2caB9lwLhrNBd0vi6pDxORI4m
+ VOtWCLO+rQXBUAuxMo/QToBEp3oTpElXueyjZGu6nAsOV3YLPbFc2rl1DAyZfwKQ6snd Aw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wd1esu2un-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 20 Feb 2024 21:12:20 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41KL2Hka001676;
+	Tue, 20 Feb 2024 21:12:20 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wd1esu2ub-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 20 Feb 2024 21:12:20 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41KIY6YP014427;
+	Tue, 20 Feb 2024 21:12:19 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wb9u2jb52-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 20 Feb 2024 21:12:19 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41KLCDcc16777772
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 20 Feb 2024 21:12:15 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 99B1F2004F;
+	Tue, 20 Feb 2024 21:12:13 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8700120040;
+	Tue, 20 Feb 2024 21:12:13 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 20 Feb 2024 21:12:13 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
+	id 3AFE3E02C0; Tue, 20 Feb 2024 22:12:13 +0100 (CET)
+From: Eric Farman <farman@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, Eric Farman <farman@linux.ibm.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Subject: [PATCH v4 1/2] KVM: s390: fix access register usage in ioctls
+Date: Tue, 20 Feb 2024 22:12:10 +0100
+Message-Id: <20240220211211.3102609-2-farman@linux.ibm.com>
+X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20240220211211.3102609-1-farman@linux.ibm.com>
+References: <20240220211211.3102609-1-farman@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20240220-s390-work-around-llvm-objdump-t-j-v1-1-47bb0366a831@kernel.org>
-X-B4-Tracking: v=1; b=H4sIAD8P1WUC/x3NPQ6DMAxA4asgz7UUXIbSq1QdIHZaU0iQU34kx
- N0bdfyW9w7IYioZ7tUBJqtmTbGgvlTg3118CSoXAzlqHJHDfG0dbsk+2FlaIuM4rhOmfuBlmvG
- LA/bhxp59E6itoXRmk6D7//F4nucPyQ+KOHMAAAA=
-To: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, morbo@google.com, 
- justinstitt@google.com, linux-s390@vger.kernel.org, llvm@lists.linux.dev, 
- patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>
-X-Mailer: b4 0.14-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3960; i=nathan@kernel.org;
- h=from:subject:message-id; bh=OlPlBXfeiIiilwpBpvXgoBdAmfQVCnZRvZ/9m9sPvyg=;
- b=owGbwMvMwCUmm602sfCA1DTG02pJDKlX+T1nSYgumrn2mEpeR5L9k3OnhHtVFhie2qXwb82bh
- xtqNurd7ihlYRDjYpAVU2Spfqx63NBwzlnGG6cmwcxhZQIZwsDFKQATWbqDkeFLT09Yw1Uu1XVV
- /CHsOvpNvJfWHE537j7yrS391rF/Uf8Z/vuke74RiTI2r/OXMTs7e89kue/Ty1YusIqWP/FN8vm
- 6K8wA
-X-Developer-Key: i=nathan@kernel.org; a=openpgp;
- fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: yGfGthPE3GdgawBbB827mSu4py9EpJo-
+X-Proofpoint-GUID: iNPsbPqxsVs6JKwKyJIn0naDIfRag3TN
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-20_06,2024-02-20_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
+ mlxscore=0 malwarescore=0 mlxlogscore=999 clxscore=1015 phishscore=0
+ priorityscore=1501 impostorscore=0 lowpriorityscore=0 suspectscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402200151
 
-When building with OBJDUMP=llvm-objdump, there are a series of warnings
-from the section comparisons that arch/s390/boot/Makefile performs
-between vmlinux and arch/s390/boot/vmlinux:
+The routine ar_translation() can be reached by both the instruction
+intercept path (where the access registers had been loaded with the
+guest register contents), and the MEM_OP ioctls (which hadn't).
+Since this routine saves the current registers to vcpu->run,
+this routine erroneously saves host registers into the guest space.
 
-  llvm-objdump: warning: section '.boot.preserved.data' mentioned in a -j/--section option, but not found in any input file
-  llvm-objdump: warning: section '.boot.data' mentioned in a -j/--section option, but not found in any input file
-  llvm-objdump: warning: section '.boot.preserved.data' mentioned in a -j/--section option, but not found in any input file
-  llvm-objdump: warning: section '.boot.data' mentioned in a -j/--section option, but not found in any input file
+Introduce a boolean in the kvm_vcpu_arch struct to indicate whether
+the registers contain guest contents. If they do (the instruction
+intercept path), the save can be performed and the AR translation
+is done just as it is today. If they don't (the MEM_OP path), the
+AR can be read from vcpu->run without stashing the current contents.
 
-The warning is a little misleading, as these sections do exist in the
-input files. It is really pointing out that llvm-objdump does not match
-GNU objdump's behavior of respecting '-j' / '--section' in combination
-with '-t' / '--syms':
-
-  $ s390x-linux-gnu-objdump -t -j .boot.data vmlinux.full
-
-  vmlinux.full:     file format elf64-s390
-
-  SYMBOL TABLE:
-  0000000001951000 l     O .boot.data     0000000000003000 sclp_info_sccb
-  00000000019550e0 l     O .boot.data     0000000000000001 sclp_info_sccb_valid
-  00000000019550e2 g     O .boot.data     0000000000001000 early_command_line
-  ...
-
-  $ llvm-objdump -t -j .boot.data vmlinux.full
-
-  vmlinux.full:   file format elf64-s390
-
-  SYMBOL TABLE:
-  0000000000100040 l     O .text  0000000000000010 dw_psw
-  0000000000000000 l    df *ABS*  0000000000000000 main.c
-  00000000001001b0 l     F .text  00000000000000c6 trace_event_raw_event_initcall_level
-  0000000000100280 l     F .text  0000000000000100 perf_trace_initcall_level
-  ...
-
-It may be possible to change llvm-objdump's behavior to match GNU
-objdump's behavior but the difficulty of that task has not yet been
-explored. The combination of '$(OBJDUMP) -t -j' is not common in the
-kernel tree on a whole, so workaround this tool difference by grepping
-for the sections in the full symbol table output in a similar manner to
-the sed invocation. This results in no visible change for GNU objdump
-users while fixing the warnings for OBJDUMP=llvm-objdump, further
-enabling use of LLVM=1 for ARCH=s390 with versions of LLVM that have
-support for s390 in ld.lld and llvm-objcopy.
-
-Reported-by: Heiko Carstens <hca@linux.ibm.com>
-Closes: https://lore.kernel.org/20240219113248.16287-C-hca@linux.ibm.com/
-Link: https://github.com/ClangBuiltLinux/linux/issues/859
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Reviewed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
 ---
-s390 llvm-objcopy support may be backported to LLVM 18.1.0 in time for
-the final release.
+ arch/s390/include/asm/kvm_host.h | 2 ++
+ arch/s390/kvm/gaccess.c          | 3 ++-
+ arch/s390/kvm/kvm-s390.c         | 3 +++
+ 3 files changed, 7 insertions(+), 1 deletion(-)
 
-https://github.com/llvm/llvm-project/pull/82324
-
-s390 ld.lld has already made it into release/18.x:
-
-https://github.com/llvm/llvm-project/commit/0a44c3792a6ff799df5f100670d7e19d1bc49f03
-
-If the objcopy change makes 18.1.0 final, features + this change should
-build cleanly with LLVM 18.1.0+ using LLVM=1 :)
----
- arch/s390/boot/Makefile | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
-index aecafabc2054..294f08a8811a 100644
---- a/arch/s390/boot/Makefile
-+++ b/arch/s390/boot/Makefile
-@@ -60,9 +60,9 @@ clean-files += vmlinux.map
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 52664105a473..aee2d3a6254b 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -765,6 +765,8 @@ struct kvm_vcpu_arch {
+ 	__u64 cputm_start;
+ 	bool gs_enabled;
+ 	bool skey_enabled;
++	/* Indicator if the access registers have been loaded from guest */
++	bool acrs_loaded;
+ 	struct kvm_s390_pv_vcpu pv;
+ 	union diag318_info diag318_info;
+ };
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 5bfcc50c1a68..b4c805092021 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -391,7 +391,8 @@ static int ar_translation(struct kvm_vcpu *vcpu, union asce *asce, u8 ar,
+ 	if (ar >= NUM_ACRS)
+ 		return -EINVAL;
  
- quiet_cmd_section_cmp = SECTCMP $*
- define cmd_section_cmp
--	s1=`$(OBJDUMP) -t -j "$*" "$<" | sort | \
-+	s1=`$(OBJDUMP) -t "$<" | grep "\s$*\s\+" | sort | \
- 		sed -n "/0000000000000000/! s/.*\s$*\s\+//p" | sha256sum`; \
--	s2=`$(OBJDUMP) -t -j "$*" "$(word 2,$^)" | sort | \
-+	s2=`$(OBJDUMP) -t "$(word 2,$^)" | grep "\s$*\s\+" | sort | \
- 		sed -n "/0000000000000000/! s/.*\s$*\s\+//p" | sha256sum`; \
- 	if [ "$$s1" != "$$s2" ]; then \
- 		echo "error: section $* differs between $< and $(word 2,$^)" >&2; \
-
----
-base-commit: 778666df60f0d96f215e33e27448de47a2207fb3
-change-id: 20240220-s390-work-around-llvm-objdump-t-j-bf8dcdc4f291
-
-Best regards,
+-	save_access_regs(vcpu->run->s.regs.acrs);
++	if (vcpu->arch.acrs_loaded)
++		save_access_regs(vcpu->run->s.regs.acrs);
+ 	alet.val = vcpu->run->s.regs.acrs[ar];
+ 
+ 	if (ar == 0 || alet.val == 0) {
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index ea63ac769889..61092f0e0a66 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3951,6 +3951,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
+ 				    KVM_SYNC_ARCH0 |
+ 				    KVM_SYNC_PFAULT |
+ 				    KVM_SYNC_DIAG318;
++	vcpu->arch.acrs_loaded = false;
+ 	kvm_s390_set_prefix(vcpu, 0);
+ 	if (test_kvm_facility(vcpu->kvm, 64))
+ 		vcpu->run->kvm_valid_regs |= KVM_SYNC_RICCB;
+@@ -4951,6 +4952,7 @@ static void sync_regs(struct kvm_vcpu *vcpu)
+ 	}
+ 	save_access_regs(vcpu->arch.host_acrs);
+ 	restore_access_regs(vcpu->run->s.regs.acrs);
++	vcpu->arch.acrs_loaded = true;
+ 	/* save host (userspace) fprs/vrs */
+ 	save_fpu_regs();
+ 	vcpu->arch.host_fpregs.fpc = current->thread.fpu.fpc;
+@@ -5021,6 +5023,7 @@ static void store_regs(struct kvm_vcpu *vcpu)
+ 	kvm_run->s.regs.pfc = vcpu->arch.pfault_compare;
+ 	save_access_regs(vcpu->run->s.regs.acrs);
+ 	restore_access_regs(vcpu->arch.host_acrs);
++	vcpu->arch.acrs_loaded = false;
+ 	/* Save guest register state */
+ 	save_fpu_regs();
+ 	vcpu->run->s.regs.fpc = current->thread.fpu.fpc;
 -- 
-Nathan Chancellor <nathan@kernel.org>
+2.40.1
 
