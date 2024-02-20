@@ -1,32 +1,32 @@
 Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E85C11CA1;
-	Tue, 20 Feb 2024 01:55:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0ECE02C1B9;
+	Tue, 20 Feb 2024 02:45:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708394131; cv=none; b=cJcaJOADxNIqbEcUTECI6kofWawG0cXiedeKxz8TosNzQY6TtKN19nu06fjrYR9aQwtaF5bhp7j+FmvQpbRb6q7BOii3JefgHZudtkPSQyODMlqcnqC3dRuMGO349nGSBAcKgBGc55esmjLZHhytqRYb2lv7eum+i+Rbz7NvtQ8=
+	t=1708397127; cv=none; b=agtaWy4XMX4Bzrhsz0fp6SgYlR6SSRvlFV384JqufQZ/pvnOb8DR5mu1Y3xgbvfhdXdIKXqdrj5lgMT3VbLX2jeWq61zSTppQ/kR/NI1UBlW7nYAapk27BGkhVIr1k2MVOJBP6jCSGoo+uT+8vN1455AV/stHBo8cs4eDDqyX7c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708394131; c=relaxed/simple;
-	bh=bRUVcLp0mVBd3IHB74HQVByUPb0l0kuvm2r+vEVwZYc=;
+	s=arc-20240116; t=1708397127; c=relaxed/simple;
+	bh=BgI8KUUZGcJShWv42a+S7WU6a7VTrR2A3Zt6fAujEFo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=X4vLTmZ7O4R3NDtn2aUhAFP4faKLVl6sDsdwkysS5Ii8aanqBQlXAYOB5Z0fHBg3N0k0QA4pO/RoUXvLycO7GWx7cO46U+WgSZtwK6GCdNGMBanJAu5xRSCT7i2OtQaLTGn4wFn7AZZjNMqaa3I3eBKFLlkvHAjNWK21S6LlTDs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=w/GlcZhW; arc=none smtp.client-ip=115.124.30.111
+	 In-Reply-To:Content-Type; b=EAI5T1ZGjJWAgk/sBCTBtsRTTXXcLSvCcGpdHlbE8NYJy2gJEM1AzN60YvNMuqrR+v86by7Do1CkOqaA+24eZDKf8yiQ8m6lje2Mngu2XXF1F18gD15Xlhv0FFeUxsdJvuHUgQ7TTqcZdknuFCkMTZUwI25BGqfbSsax/98D0DM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ZkIVs5tG; arc=none smtp.client-ip=115.124.30.111
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="w/GlcZhW"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ZkIVs5tG"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1708394119; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=PZKp5Almpu55EEXLxa5YMez+rRWeNGVSQ+CadfPuu7s=;
-	b=w/GlcZhWXlH6BF38RelJrJUyUtUFANfJZQ9BEiSrb1T+Tdkx/oUgUvdibil10EGsKapukdXFhpzs2B4C+120enIEJeeDykW8Pra7dHkNDtZBiQV7S3KzHh97Y545rEJtdVVT0k/Ve98ZOXHyt22LZ5tFI6c/VstjwnC0ekggh78=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R591e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W0uqlG1_1708394117;
-Received: from 30.221.128.233(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W0uqlG1_1708394117)
+	t=1708397121; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=epsRxanowU+Rvzj769kG7rng4wSLzPgisiNp8zQ07Ng=;
+	b=ZkIVs5tGRFpppVsmALZXF27NoJ9/Ezzs32Sii20jvWdKDKD5UOPqiuOM+Rk0AOSYQ9CKIGSoumvcqFNktl8d5Xs3ay9Z2KREsR9Ob/pWhBNA7PcgiN0XoKGhwtrPMWjzv2DbltBUzG5mkghuYL2LsVaxjBJxrnWMyFVuQcXGW8g=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R611e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0W0v2plx_1708397119;
+Received: from 30.221.128.233(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W0v2plx_1708397119)
           by smtp.aliyun-inc.com;
-          Tue, 20 Feb 2024 09:55:18 +0800
-Message-ID: <a06cdb50-591b-4984-b7d5-7ab758569d21@linux.alibaba.com>
-Date: Tue, 20 Feb 2024 09:55:16 +0800
+          Tue, 20 Feb 2024 10:45:21 +0800
+Message-ID: <cac6192e-85d8-4289-b5af-bc8143e76004@linux.alibaba.com>
+Date: Tue, 20 Feb 2024 10:45:19 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -34,225 +34,64 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 06/15] net/smc: implement DMB-related operations
- of loopback-ism
+Subject: Re: [PATCH net-next 09/15] net/smc: introduce loopback-ism statistics
+ attributes
 To: Wenjia Zhang <wenjia@linux.ibm.com>, wintera@linux.ibm.com,
  hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
  davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, jaka@linux.ibm.com, Gerd Bayer <gbayer@linux.ibm.com>
+ pabeni@redhat.com, jaka@linux.ibm.com
 Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
  alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
  linux-s390@vger.kernel.org, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org
 References: <20240111120036.109903-1-guwen@linux.alibaba.com>
- <20240111120036.109903-7-guwen@linux.alibaba.com>
- <b5b4b96f-e512-4c1a-b749-f9fc3e7c2fcf@linux.ibm.com>
+ <20240111120036.109903-10-guwen@linux.alibaba.com>
+ <417a1b7c-4136-4f96-a614-9fd976dc884d@linux.ibm.com>
 From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <b5b4b96f-e512-4c1a-b749-f9fc3e7c2fcf@linux.ibm.com>
+In-Reply-To: <417a1b7c-4136-4f96-a614-9fd976dc884d@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
 
 
-On 2024/2/16 22:13, Wenjia Zhang wrote:
+On 2024/2/16 22:24, Wenjia Zhang wrote:
 > 
 > 
 > On 11.01.24 13:00, Wen Gu wrote:
->> This implements DMB (un)registration and data move operations of
->> loopback-ism device.
+>> This introduces some statistics attributes of loopback-ism. They can be
+>> read from /sys/devices/virtual/smc/loopback-ism/{xfer_tytes|dmbs_cnt}.
 >>
 >> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 >> ---
->>   net/smc/smc_cdc.c      |   6 ++
->>   net/smc/smc_cdc.h      |   1 +
->>   net/smc/smc_loopback.c | 133 ++++++++++++++++++++++++++++++++++++++++-
->>   net/smc/smc_loopback.h |  13 ++++
->>   4 files changed, 150 insertions(+), 3 deletions(-)
+>>   net/smc/smc_loopback.c | 74 ++++++++++++++++++++++++++++++++++++++++++
+>>   net/smc/smc_loopback.h | 22 +++++++++++++
+>>   2 files changed, 96 insertions(+)
 >>
->> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
->> index 3c06625ceb20..c820ef197610 100644
->> --- a/net/smc/smc_cdc.c
->> +++ b/net/smc/smc_cdc.c
->> @@ -410,6 +410,12 @@ static void smc_cdc_msg_recv(struct smc_sock *smc, struct smc_cdc_msg *cdc)
->>   static void smcd_cdc_rx_tsklet(struct tasklet_struct *t)
->>   {
->>       struct smc_connection *conn = from_tasklet(conn, t, rx_tsklet);
->> +
->> +    smcd_cdc_rx_handler(conn);
->> +}
->> +
->> +void smcd_cdc_rx_handler(struct smc_connection *conn)
->> +{
->>       struct smcd_cdc_msg *data_cdc;
->>       struct smcd_cdc_msg cdc;
->>       struct smc_sock *smc;
->> diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
->> index 696cc11f2303..11559d4ebf2b 100644
->> --- a/net/smc/smc_cdc.h
->> +++ b/net/smc/smc_cdc.h
->> @@ -301,5 +301,6 @@ int smcr_cdc_msg_send_validation(struct smc_connection *conn,
->>                    struct smc_wr_buf *wr_buf);
->>   int smc_cdc_init(void) __init;
->>   void smcd_cdc_rx_init(struct smc_connection *conn);
->> +void smcd_cdc_rx_handler(struct smc_connection *conn);
->>   #endif /* SMC_CDC_H */
->> diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
->> index 353d4a2d69a1..f72e7b24fc1a 100644
->> --- a/net/smc/smc_loopback.c
->> +++ b/net/smc/smc_loopback.c
->> @@ -15,11 +15,13 @@
->>   #include <linux/types.h>
->>   #include <net/smc.h>
->> +#include "smc_cdc.h"
->>   #include "smc_ism.h"
->>   #include "smc_loopback.h"
->>   #if IS_ENABLED(CONFIG_SMC_LO)
->>   #define SMC_LO_V2_CAPABLE    0x1 /* loopback-ism acts as ISMv2 */
->> +#define SMC_DMA_ADDR_INVALID    (~(dma_addr_t)0)
->>   static const char smc_lo_dev_name[] = "loopback-ism";
->>   static struct smc_lo_dev *lo_dev;
->> @@ -50,6 +52,97 @@ static int smc_lo_query_rgid(struct smcd_dev *smcd, struct smcd_gid *rgid,
->>       return 0;
->>   }
->> +static int smc_lo_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
->> +                   void *client_priv)
->> +{
->> +    struct smc_lo_dmb_node *dmb_node, *tmp_node;
->> +    struct smc_lo_dev *ldev = smcd->priv;
->> +    int sba_idx, order, rc;
->> +    struct page *pages;
->> +
->> +    /* check space for new dmb */
->> +    for_each_clear_bit(sba_idx, ldev->sba_idx_mask, SMC_LO_MAX_DMBS) {
->> +        if (!test_and_set_bit(sba_idx, ldev->sba_idx_mask))
->> +            break;
->> +    }
->> +    if (sba_idx == SMC_LO_MAX_DMBS)
->> +        return -ENOSPC;
->> +
->> +    dmb_node = kzalloc(sizeof(*dmb_node), GFP_KERNEL);
->> +    if (!dmb_node) {
->> +        rc = -ENOMEM;
->> +        goto err_bit;
->> +    }
->> +
->> +    dmb_node->sba_idx = sba_idx;
->> +    order = get_order(dmb->dmb_len);
->> +    pages = alloc_pages(GFP_KERNEL | __GFP_NOWARN |
->> +                __GFP_NOMEMALLOC | __GFP_COMP |
->> +                __GFP_NORETRY | __GFP_ZERO,
->> +                order);
->> +    if (!pages) {
->> +        rc = -ENOMEM;
->> +        goto err_node;
->> +    }
->> +    dmb_node->cpu_addr = (void *)page_address(pages);
->> +    dmb_node->len = dmb->dmb_len;
->> +    dmb_node->dma_addr = SMC_DMA_ADDR_INVALID;
->> +
->> +again:
->> +    /* add new dmb into hash table */
->> +    get_random_bytes(&dmb_node->token, sizeof(dmb_node->token));
->> +    write_lock(&ldev->dmb_ht_lock);
->> +    hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_node->token) {
->> +        if (tmp_node->token == dmb_node->token) {
->> +            write_unlock(&ldev->dmb_ht_lock);
->> +            goto again;
->> +        }
->> +    }
->> +    hash_add(ldev->dmb_ht, &dmb_node->list, dmb_node->token);
->> +    write_unlock(&ldev->dmb_ht_lock);
->> +
-> The write_lock_irqsave()/write_unlock_irqrestore() and read_lock_irqsave()/read_unlock_irqrestore()should be used 
-> instead of write_lock()/write_unlock() and read_lock()/read_unlock() in order to keep the lock irq-safe.
 > 
+> I've read the comments from Jiri and your answer. I can understand your thought. However, from the perspective of the 
+> end user, it makes more sense to integetrate the stats info into 'smcd stats'. Otherwise, it would make users confused 
+> to find out with which tool to check which statisic infornation. Sure, some improvement of the smc-tools is also needed
 
-dmb_ht_lock won't be hold in an interrupt or sockirq context. The dmb_{register|unregister},
-dmb_{attach|detach} and data_move are all on the process context. So I think write_(un)lock
-and read_(un)lock is safe here.
+Thank you Wenjia.
 
->> +    dmb->sba_idx = dmb_node->sba_idx;
->> +    dmb->dmb_tok = dmb_node->token;
->> +    dmb->cpu_addr = dmb_node->cpu_addr;
->> +    dmb->dma_addr = dmb_node->dma_addr;
->> +    dmb->dmb_len = dmb_node->len;
->> +
->> +    return 0;
->> +
->> +err_node:
->> +    kfree(dmb_node);
->> +err_bit:
->> +    clear_bit(sba_idx, ldev->sba_idx_mask);
->> +    return rc;
->> +}
->> +
->> +static int smc_lo_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
->> +{
->> +    struct smc_lo_dmb_node *dmb_node = NULL, *tmp_node;
->> +    struct smc_lo_dev *ldev = smcd->priv;
->> +
->> +    /* remove dmb from hash table */
->> +    write_lock(&ldev->dmb_ht_lock);
->> +    hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb->dmb_tok) {
->> +        if (tmp_node->token == dmb->dmb_tok) {
->> +            dmb_node = tmp_node;
->> +            break;
->> +        }
->> +    }
->> +    if (!dmb_node) {
->> +        write_unlock(&ldev->dmb_ht_lock);
->> +        return -EINVAL;
->> +    }
->> +    hash_del(&dmb_node->list);
->> +    write_unlock(&ldev->dmb_ht_lock);
->> +
->> +    clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
->> +    kfree(dmb_node->cpu_addr);
->> +    kfree(dmb_node);
->> +
->> +    return 0;
->> +}
->> +
->>   static int smc_lo_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
->>   {
->>       return -EOPNOTSUPP;
->> @@ -76,6 +169,38 @@ static int smc_lo_signal_event(struct smcd_dev *dev, struct smcd_gid *rgid,
->>       return 0;
->>   }
->> +static int smc_lo_move_data(struct smcd_dev *smcd, u64 dmb_tok,
->> +                unsigned int idx, bool sf, unsigned int offset,
->> +                void *data, unsigned int size)
->> +{
->> +    struct smc_lo_dmb_node *rmb_node = NULL, *tmp_node;
->> +    struct smc_lo_dev *ldev = smcd->priv;
->> +
->> +    read_lock(&ldev->dmb_ht_lock);
->> +    hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_tok) {
->> +        if (tmp_node->token == dmb_tok) {
->> +            rmb_node = tmp_node;
->> +            break;
->> +        }
->> +    }
->> +    if (!rmb_node) {
->> +        read_unlock(&ldev->dmb_ht_lock);
->> +        return -EINVAL;
->> +    }
->> +    read_unlock(&ldev->dmb_ht_lock);
->> +
->> +    memcpy((char *)rmb_node->cpu_addr + offset, data, size);
->> +
-> 
-> Should this read_unlock be placed behind memcpy()?
-> 
+Let's draw an analogy with RDMA devices, which is used in SMC-R. If we want
+to check the RNIC status or statistics, we may use rdma statistic command, or
+ibv_devinfo command, or check file under /sys/class/infiniband/mlx5_0. These
+provide details or attributes related to *devices*.
 
-dmb_ht_lock is used to ensure safe access to the DMB hash table of loopback-ism.
-The DMB hash table could be accessed by all the connections on loopback-ism, so
-it should be protected.
+Since s390 ISM can be used out of SMC, I guess it also has its own way (other
+than smc-tools) to check the statistic?
 
-But a certain DMB is only used by one connection, and the move_data process is
-protected by conn->send_lock (see smcd_tx_sndbuf_nonempty()), so the memcpy(rmb_node)
-here is safe and no race with other.
+What we can see in smcr stats or smcd stats command is about statistic or
+status of SMC *protocol* layer, such as DMB status, Tx/Rx, connections, fallbacks.
+
+If we put the underlying devices's statistics into smc-tools, should we also
+put RNIC statistics or s390 ISM statistics into smcr stat or smcd stat? and
+for each futures device that can be used by SMC-R/SMC-D, should we update them
+into smcr stat and smcd stat? And the attributes of each devices may be different,
+should we add entries in smcd stat for each of them?
+
+After considering the above things, I believe that the details of the underlying
+device should not be exposed to smc(smc-tools). What do you think?
 
 Thanks!
-
-> <...>
