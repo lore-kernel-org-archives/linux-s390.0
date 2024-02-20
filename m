@@ -1,126 +1,69 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from mail.vexlyvector.com (mail.vexlyvector.com [141.95.160.218])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F7ED5A0EC;
-	Tue, 20 Feb 2024 07:07:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E65445D743
+	for <linux-s390@vger.kernel.org>; Tue, 20 Feb 2024 08:50:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=141.95.160.218
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708412845; cv=none; b=lDPQNalKcfux3Nnsehk4iCCq0dF6ZpQG+SKTVo2TAF0jS0HqzTcNw49AEJQPN1Fr/ey8FGbqAvYnq8y+Du5VZizaALTJ1xCx4cNGAzA/ButuOAr1PnocNNRQ66qm7jlyyz1bmQWMVQC0oADrdk5f3ReL1N4Nl3qB8SdkE9LnMp4=
+	t=1708419048; cv=none; b=fhLEaRuxS+bCJTNFKIdZ4vv+ZjRX00JKSUib8rGoutr8vWKHGyWG8/9v6vYaNHhieTV+v8hJHCHzj9Y3rj2NtqcP558RPmOzFfB4QmzwtEix8MPlDQimJCWHLudK1yV0/qxUoBkGEAvtSpqcRiSwg/OyWGv2wwsMgObR+U+gajs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708412845; c=relaxed/simple;
-	bh=l28AfzidSu1pRTD2a6149c5GFZhgjtGOmiAePxjJGtU=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=b3ygX31ctN8a/eE1HmKNNLvxdIWbIxoPZJoxJSwbxShPKIRcaz+JMkTr5vNdTJqx3uUlC3nvaBV3vBPLwxJeqC2AHj+nS/33I/wI9A12tekULLHzUobOUkmsfSMlLzqyBtXfyXLnGZYrwOk9GzJyCYLNvvj1ScL9GWN9424Atlw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=c7qZXbm6; arc=none smtp.client-ip=115.124.30.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1708419048; c=relaxed/simple;
+	bh=waaYxUsyRtmB2zEBuWcqRuRHSoYd8sJFCtgHO/3AHKE=;
+	h=Message-ID:Date:From:To:Subject:MIME-Version:Content-Type; b=ETaefWFC29PRdBdjW5A1Sj14iXpezNkoiks+rl7to6QJECE9BHyiNcoI44i9nKRYhJQq1bM6fPvKbM3hpdd4sLY4DbWofEmjkx5nVtadY/rEA6l/de5fnKBUrDDu0PHJypsnp24iysFYZ6M4Q6LTrwOoTFN62IRL2Y+KbYTfIYU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=vexlyvector.com; spf=pass smtp.mailfrom=vexlyvector.com; dkim=pass (2048-bit key) header.d=vexlyvector.com header.i=@vexlyvector.com header.b=ejFRLrjI; arc=none smtp.client-ip=141.95.160.218
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=vexlyvector.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=vexlyvector.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="c7qZXbm6"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1708412839; h=From:To:Subject:Date:Message-Id;
-	bh=0gYY+oZKSPlQwfXwQJFl5/DHmqexYu6zfCNueOj8rac=;
-	b=c7qZXbm6RngmxkP3CVZN8lmBK5B+s/Pt0qWCPWuQDoMW706zZS4EYCq/Kgjbhq4WfG5ggeYcq0VZYs15DNomPFNwKTRdXcoRCw4qWOkudZ1aoxnrVRmeEgnPR7HXD+ul3rayFUQIDgK57+9uaw8HnDU6bz0z2UoCUByoWn1xWEM=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R761e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0W0vuXgk_1708412519;
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0W0vuXgk_1708412519)
-          by smtp.aliyun-inc.com;
-          Tue, 20 Feb 2024 15:01:59 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-To: kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	jaka@linux.ibm.com,
-	wintera@linux.ibm.com,
-	guwen@linux.alibaba.com
-Cc: kuba@kernel.org,
-	davem@davemloft.net,
-	netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	tonylu@linux.alibaba.com,
-	pabeni@redhat.com,
-	edumazet@google.com
-Subject: [RFC net-next 15/20] net/smc: enable access of sock flags of inet smc sock
-Date: Tue, 20 Feb 2024 15:01:40 +0800
-Message-Id: <1708412505-34470-16-git-send-email-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1708412505-34470-1-git-send-email-alibuda@linux.alibaba.com>
-References: <1708412505-34470-1-git-send-email-alibuda@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=vexlyvector.com header.i=@vexlyvector.com header.b="ejFRLrjI"
+Received: by mail.vexlyvector.com (Postfix, from userid 1002)
+	id 60AE1A2D11; Tue, 20 Feb 2024 08:50:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=vexlyvector.com;
+	s=mail; t=1708419045;
+	bh=waaYxUsyRtmB2zEBuWcqRuRHSoYd8sJFCtgHO/3AHKE=;
+	h=Date:From:To:Subject:From;
+	b=ejFRLrjIzhp1GPZdW1/xnWygovhXhbo9NZwWep17VcRTSzbRfCtze2HP+BourCrbj
+	 oTl/Lpgq3e3wruIwMsSwOX+flKzFsVfCDCGavvSijwlqiF4fFD14LgD5abJTJ0y5Ui
+	 iK21fu2OzoKBdDF/JO2VoKVY2m8/F4H+QSTE3TP46GlbW59yiXZ7c76LZdovDzHm/W
+	 MVfu6ZD/0UwfRGovQPqg/TgeJZ88waT+dkqMAFNF0KGSFG3mvXqBDKZkHJfcDtoFln
+	 tm939V329yagYrz0pK2ZgPObytFc1PO7bzP86ElEIBKFVpRTjrO1ir0vZGRYV5i2k7
+	 B+vXQlcztNdMg==
+Received: by mail.vexlyvector.com for <linux-s390@vger.kernel.org>; Tue, 20 Feb 2024 08:50:42 GMT
+Message-ID: <20240220074500-0.1.c4.qd2f.0.mqb8vvcvpc@vexlyvector.com>
+Date: Tue, 20 Feb 2024 08:50:42 GMT
+From: "Ray Galt" <ray.galt@vexlyvector.com>
+To: <linux-s390@vger.kernel.org>
+Subject: Meeting with the Development Team
+X-Mailer: mail.vexlyvector.com
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: "D. Wythe" <alibuda@linux.alibaba.com>
+Hello,
 
-Since smc_sock and tcp_sock coexist in inet version of smc, the
-sock flags field are shared between tcp and smc. Like the sk_state,
-we also need a extra sock flags filed for smc in inet version, and
-using the icsk field to determine which is the very field needed to
-be accessed or changed.
+I would like to reach out to the decision-maker in the IT environment wit=
+hin your company.
 
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
----
- net/smc/smc.h | 34 +++++++++++++++++++++++++++++-----
- 1 file changed, 29 insertions(+), 5 deletions(-)
+We are a well-established digital agency in the European market. Our solu=
+tions eliminate the need to build and maintain in-house IT and programmin=
+g departments, hire interface designers, or employ user experience specia=
+lists.
 
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index e54a30c..1675193 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -252,6 +252,7 @@ struct smc_sock {				/* smc sock container */
- 	};
- 	struct socket		*clcsock;	/* internal tcp socket */
- 	unsigned char		smc_state;	/* smc state used in smc via inet_sk */
-+	unsigned long		smc_sk_flags;	/* smc sock flags used for inet sock */
- 	void			(*clcsk_state_change)(struct sock *sk);
- 						/* original stat_change fct. */
- 	void			(*clcsk_data_ready)(struct sock *sk);
-@@ -385,10 +386,6 @@ void smc_fill_gid_list(struct smc_link_group *lgr,
- int smc_nl_enable_hs_limitation(struct sk_buff *skb, struct genl_info *info);
- int smc_nl_disable_hs_limitation(struct sk_buff *skb, struct genl_info *info);
- 
--static inline void smc_sock_set_flag(struct sock *sk, enum sock_flags flag)
--{
--	set_bit(flag, &sk->sk_flags);
--}
- 
- static __always_inline bool smc_sock_is_inet_sock(const struct sock *sk)
- {
-@@ -409,6 +406,33 @@ static __always_inline void smc_sk_set_state(struct sock *sk, unsigned char stat
- 		sk->sk_state = state;
- }
- 
--#define smc_sock_flag(sk, flag)	sock_flag(sk, flag)
-+static __always_inline bool smc_sock_flag(const struct sock *sk, enum sock_flags flag)
-+{
-+	if (smc_sock_is_inet_sock(sk)) {
-+		switch (flag) {
-+		case SOCK_DEAD:
-+		case SOCK_DONE:
-+			return test_bit(flag, &smc_sk(sk)->smc_sk_flags);
-+		default:
-+			break;
-+		}
-+	}
-+	return sock_flag(sk, flag);
-+}
-+
-+static __always_inline void smc_sock_set_flag(struct sock *sk, enum sock_flags flag)
-+{
-+	if (smc_sock_is_inet_sock(sk)) {
-+		switch (flag) {
-+		case SOCK_DEAD:
-+		case SOCK_DONE:
-+			__set_bit(flag, &smc_sk(sk)->smc_sk_flags);
-+			return;
-+		default:
-+			break;
-+		}
-+	}
-+	set_bit(flag, &sk->sk_flags);
-+}
- 
- #endif	/* __SMC_H */
--- 
-1.8.3.1
+We take responsibility for IT functions while simultaneously reducing the=
+ costs of maintenance. We provide support that ensures access to high-qua=
+lity specialists and continuous maintenance of efficient hardware and sof=
+tware infrastructure.
 
+Companies that thrive are those that leverage market opportunities faster=
+ than their competitors. Guided by this principle, we support gaining a c=
+ompetitive advantage by providing comprehensive IT support.
+
+May I present what we can do for you?
+
+
+Best regards
+Ray Galt
