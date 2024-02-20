@@ -1,161 +1,145 @@
-Received: from mail-oi1-f170.google.com (mail-oi1-f170.google.com [209.85.167.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 223E765BD9;
-	Tue, 20 Feb 2024 11:18:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EFFD6995F
+	for <linux-s390@vger.kernel.org>; Tue, 20 Feb 2024 12:27:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708427938; cv=none; b=LovNWBrJgKhWqNO2R15LlVLTpMRZaAb0bD63L/bFrf7/IfjW2gruxoamfvyilHTGQDbTXWoqH8M2N9wd+ZeKXrjHH4Po/s9ZDU311B2xjtxZ8eOzmORKJ5VABgLGbxX2+I9bVFTW44IDD79dTnQmC+mJIJNsqskhmEEy4XWj5YA=
+	t=1708432053; cv=none; b=JvUyv8DEBlf8c8D5DdTs2RVZ6mURiD2m42S6qRCyNSLBWuPIlqJ4YOSU4OC9YrXJphhZ6sw54H10MZoyOGVrTT/YaCZ3XXhhYX6aXF4tGiBncn4dQkwWNGjkQrdPzLvWHCZESmWCR7MrYlPjVtaecGGSO1V2t/YQ33OZmHQPuL4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708427938; c=relaxed/simple;
-	bh=EUGtUfVHDff9tyqyS13cOvf6pLSq+DFA2mtqIG6XRrQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=D1WxPL2BygUX9VrO06Ls0fHjDCWB1aJ2gCetn48TYB0fCcb4t6tEIAZVEaZ6DN09ir7kMD6YktRX7H/Rsj0LpQDSVrmdQLWS6p+d7f9vnmnv+HqmLzim+KhOnDaWe2GjWGK1HTeLbFy0LHLbSU3vhSa6HJTEfeBU0Nl+VoVFOwg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jzBjwymk; arc=none smtp.client-ip=209.85.167.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1708432053; c=relaxed/simple;
+	bh=GC7/iKQ+kxE05AKiWJ6+fmtIVIx23hxL8uu19SUl7Cs=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=buEuFBHk2Ks41Xos210tamIo6JZ1Rbsmro4qNwEgpGtbeKvUqiah4FNgsRrYGkNHzD95MSOUb/lfJ5SGefZ9ZYYgJJh1DI3zL0O2ws5Cf0o43UI/eLBXT6lFOvCq/qU6/z0BFQfIW3m+SwFQYsN3gtQ9vAA+hpD05PhQYQWneWM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IUNg2+D4; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jzBjwymk"
-Received: by mail-oi1-f170.google.com with SMTP id 5614622812f47-3c132695f1bso4070475b6e.2;
-        Tue, 20 Feb 2024 03:18:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1708427936; x=1709032736; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QnXxqyxgAOCE9B1gsdMTfmeu8SJJIbR4o3Oy9m1fJBo=;
-        b=jzBjwymkV9MuUowIWG+XBioG4DtqBvq1rrVex/sM0oSBWEAZdotEO5ii0mKQWeTHfe
-         hAU+nF6yicbTzgg9s3zfevDEmbwVAEQY9i6LDJefHSJyJT/BiaJntQes6YV2qPfJgK6D
-         Deg4lGxvkUFHmrLlR1uzbpW4RUkfDogmsZCy+v2ADlT6Of19wz99N5wzwxCrAcQcPfme
-         chMckhc7HRI9myI6y0s3aEOe44Z+BBBRQjFaYAWbWlbWoq92DP5my8JGEp2ofS1Dcspf
-         Vtdex59rW0aO/RaTswQHmqIzlYQW/hRJntkcGL5sPzm0g3SKtF3XiYwLXxnOLddypmZY
-         Wg4A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708427936; x=1709032736;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=QnXxqyxgAOCE9B1gsdMTfmeu8SJJIbR4o3Oy9m1fJBo=;
-        b=EK8PyW5zyFQHoykAkz5UmU9ZrUfrE+5hBufo+q0lcT1LGMR86oyuh3IdgUFq8SsKI/
-         FgmjDNQp0J7LlfMAakriXqi2Fdi6Qyj0lsFj83p5+NHvaPHIlFh8fE5z2FYv0Qn57jdn
-         MPgvRoA3pzdguALjF5VBS/lx0dNdnHdYhGDs0TTy1tQTJpJnsCXLhcY1CIS+syePBBYd
-         KP0F87p+Ks4zPLE4Rdgd/DiEVgsa19OrSYni9h/dUtLxE0/YRizovm1TmXIDlEDT1VsA
-         z6JI2nIDb2kH02aNRZF27Lr4y30NFqCFn9wuEFn7VE6xnh0wWbAafTeMlKyXwx/Bk6aZ
-         zjPQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXDr5Zv5OMX+tA7XBuKJA00VdckH/HxzDESfqL4Yd75w9a9ihCcDsoK3VTE9l8JvelziWAQwmS3ZyEbCT2IEqXLQbsJRMBjbzTpWRhnHTsEy1ENzFa6BXu8YxboIaFNj2QkY8RINg/8H2LqrFOg0jHkDmYwjPPVhvlCz5WKe1XzJLtjBVA61kV1Vm1HWQX9doszA+uG+ibVfN8ylHs7pQ==
-X-Gm-Message-State: AOJu0YyPLSA3cbkpNjmN4Hsu24It7AHgPKSMCzQuk1JLfq8QwyGS2Slv
-	IWam7xyPHqQub3QacfcGcw5uXI/JSFcGHRppmAIWDTB/Ho+UkcuSorsP1CaStNV3KXIPD3JI22v
-	/OaEs1I+Pk7fjg97pwiiA/1Lj1og=
-X-Google-Smtp-Source: AGHT+IFqXfo9MqRRXkJHVGd1zP5btF8tonhuNN58hdV1sWRe6/06+YeQrZc/xVd+r5scxRDkntVJIrsGV3fU9rwHZzE=
-X-Received: by 2002:a05:6808:201a:b0:3c1:5fa3:ab8 with SMTP id
- q26-20020a056808201a00b003c15fa30ab8mr4610653oiw.39.1708427936094; Tue, 20
- Feb 2024 03:18:56 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IUNg2+D4"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41KAhdI0008420;
+	Tue, 20 Feb 2024 12:27:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=ikKWxbpetSgOQZ5hWQuyVVYp5LFEIQ4pSSv8hQZqUag=;
+ b=IUNg2+D4oVuR2wPhiOt9rG9VwcoJXec7ZzC0gFWhiO61BeCtzuI54Lwc7Dfl2Mst3q7c
+ sxG3D4PHGr0l/LqvYyTGNXfKcEtkLhNmnxNS1kde9t94JhOMLkjy0EHL1iGRXIuO3CGQ
+ N3FVtDSNQ6aTiuy+dy1r7BwdGtkN7rDQmSkOHymV8OgEdzBiMTI1T6xgT0CSHWocqoX9
+ 7mn8MA9JeYOrqWHMzgnMsY+DxH3tx2G0ySmLEANvVrp8Ngp9gX/CTcMh6eUuuH/lWybm
+ Ctc+N83Qm8035+22PPlJx6u0KSQpVrxY6OnysQ246bonZUPTj7hjmJBoYYZV6qj2Qx5v Cw== 
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wctjxt64p-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 20 Feb 2024 12:22:19 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41KAfBx8013470;
+	Tue, 20 Feb 2024 12:22:18 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wb7h089fq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 20 Feb 2024 12:22:18 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41KCMCk48848072
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 20 Feb 2024 12:22:14 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5ABEE2004B;
+	Tue, 20 Feb 2024 12:22:12 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1C8F420040;
+	Tue, 20 Feb 2024 12:22:12 +0000 (GMT)
+Received: from [9.152.212.236] (unknown [9.152.212.236])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 20 Feb 2024 12:22:12 +0000 (GMT)
+Message-ID: <e043af2e4351b601e9efe4944b6733ab71b1c8ad.camel@linux.ibm.com>
+Subject: Re: [PATCH rc] s390: Use the correct count for __iowrite64_copy()
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>, Jason Gunthorpe <jgg@nvidia.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Gerald Schaefer
+ <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        Sven Schnelle <svens@linux.ibm.com>, patches@lists.linux.dev
+Date: Tue, 20 Feb 2024 13:22:11 +0100
+In-Reply-To: <20240219100850.16287-B-hca@linux.ibm.com>
+References: <0-v1-9223d11a7662+1d7785-s390_iowrite64_jgg@nvidia.com>
+	 <20240219100850.16287-B-hca@linux.ibm.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.50.3 (3.50.3-1.fc39) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240215070300.2200308-1-hch@lst.de> <20240215070300.2200308-8-hch@lst.de>
-In-Reply-To: <20240215070300.2200308-8-hch@lst.de>
-From: Ilya Dryomov <idryomov@gmail.com>
-Date: Tue, 20 Feb 2024 12:18:44 +0100
-Message-ID: <CAOi1vP9K=YYrtuCGF5B41He8D5q2zSmiCHjHezo0Dgu1gKH4+w@mail.gmail.com>
-Subject: Re: [PATCH 07/17] rbd: pass queue_limits to blk_mq_alloc_disk
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Richard Weinberger <richard@nod.at>, 
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
-	Justin Sanders <justin@coraid.com>, Denis Efremov <efremov@linux.com>, 
-	Josef Bacik <josef@toxicpanda.com>, Geoff Levand <geoff@infradead.org>, 
-	"Md. Haris Iqbal" <haris.iqbal@ionos.com>, Jack Wang <jinpu.wang@ionos.com>, 
-	Ming Lei <ming.lei@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, 
-	Alex Dubov <oakad@yahoo.com>, Ulf Hansson <ulf.hansson@linaro.org>, 
-	Miquel Raynal <miquel.raynal@bootlin.com>, Vignesh Raghavendra <vigneshr@ti.com>, 
-	Vineeth Vijayan <vneethv@linux.ibm.com>, linux-block@vger.kernel.org, nbd@other.debian.org, 
-	ceph-devel@vger.kernel.org, linux-mmc@vger.kernel.org, 
-	linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: mXRlx-JtFuCcgNttKTrpDUE0PxIllf3W
+X-Proofpoint-ORIG-GUID: mXRlx-JtFuCcgNttKTrpDUE0PxIllf3W
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-20_06,2024-02-20_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ phishscore=0 spamscore=0 impostorscore=0 lowpriorityscore=0 clxscore=1011
+ mlxlogscore=871 malwarescore=0 priorityscore=1501 adultscore=0 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2402200090
 
-On Thu, Feb 15, 2024 at 8:03=E2=80=AFAM Christoph Hellwig <hch@lst.de> wrot=
-e:
->
-> Pass the limits rbd imposes directly to blk_mq_alloc_disk instead
-> of setting them one at a time.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  drivers/block/rbd.c | 29 +++++++++++++++--------------
->  1 file changed, 15 insertions(+), 14 deletions(-)
->
-> diff --git a/drivers/block/rbd.c b/drivers/block/rbd.c
-> index 6b4f1898a722a3..26ff5cd2bf0abc 100644
-> --- a/drivers/block/rbd.c
-> +++ b/drivers/block/rbd.c
-> @@ -4952,6 +4952,14 @@ static int rbd_init_disk(struct rbd_device *rbd_de=
-v)
->         struct request_queue *q;
->         unsigned int objset_bytes =3D
->             rbd_dev->layout.object_size * rbd_dev->layout.stripe_count;
-> +       struct queue_limits lim =3D {
-> +               .max_hw_sectors         =3D objset_bytes >> SECTOR_SHIFT,
-> +               .max_user_sectors       =3D objset_bytes >> SECTOR_SHIFT,
-> +               .io_min                 =3D rbd_dev->opts->alloc_size,
-> +               .io_opt                 =3D rbd_dev->opts->alloc_size,
-> +               .max_segments           =3D USHRT_MAX,
-> +               .max_segment_size       =3D UINT_MAX,
-> +       };
->         int err;
->
->         memset(&rbd_dev->tag_set, 0, sizeof(rbd_dev->tag_set));
-> @@ -4966,7 +4974,13 @@ static int rbd_init_disk(struct rbd_device *rbd_de=
-v)
->         if (err)
->                 return err;
->
-> -       disk =3D blk_mq_alloc_disk(&rbd_dev->tag_set, NULL, rbd_dev);
-> +       if (rbd_dev->opts->trim) {
-> +               lim.discard_granularity =3D rbd_dev->opts->alloc_size;
-> +               lim.max_hw_discard_sectors =3D objset_bytes >> SECTOR_SHI=
-FT;
-> +               lim.max_write_zeroes_sectors =3D objset_bytes >> SECTOR_S=
-HIFT;
-> +       }
-> +
-> +       disk =3D blk_mq_alloc_disk(&rbd_dev->tag_set, &lim, rbd_dev);
->         if (IS_ERR(disk)) {
->                 err =3D PTR_ERR(disk);
->                 goto out_tag_set;
-> @@ -4987,19 +5001,6 @@ static int rbd_init_disk(struct rbd_device *rbd_de=
-v)
->         blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
->         /* QUEUE_FLAG_ADD_RANDOM is off by default for blk-mq */
->
-> -       blk_queue_max_hw_sectors(q, objset_bytes >> SECTOR_SHIFT);
-> -       q->limits.max_sectors =3D queue_max_hw_sectors(q);
-> -       blk_queue_max_segments(q, USHRT_MAX);
-> -       blk_queue_max_segment_size(q, UINT_MAX);
-> -       blk_queue_io_min(q, rbd_dev->opts->alloc_size);
-> -       blk_queue_io_opt(q, rbd_dev->opts->alloc_size);
-> -
-> -       if (rbd_dev->opts->trim) {
-> -               q->limits.discard_granularity =3D rbd_dev->opts->alloc_si=
-ze;
-> -               blk_queue_max_discard_sectors(q, objset_bytes >> SECTOR_S=
-HIFT);
-> -               blk_queue_max_write_zeroes_sectors(q, objset_bytes >> SEC=
-TOR_SHIFT);
-> -       }
-> -
->         if (!ceph_test_opt(rbd_dev->rbd_client->client, NOCRC))
->                 blk_queue_flag_set(QUEUE_FLAG_STABLE_WRITES, q);
->
-> --
-> 2.39.2
->
+On Mon, 2024-02-19 at 11:08 +0100, Heiko Carstens wrote:
+> On Fri, Feb 16, 2024 at 08:48:14PM -0400, Jason Gunthorpe wrote:
+> > The signature for __iowrite64_copy() requires the number of 64 bit
+> > quantities, not bytes. Multiple by 8 to get to a byte length before
+> > invoking zpci_memcpy_toio()
+> >=20
+> > Fixes: 87bc359b9822 ("s390/pci: speed up __iowrite64_copy by using pci =
+store block insn")
+> > Acked-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> > ---
+> >  arch/s390/pci/pci.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >=20
+> > diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+> > index 676ac74026a82b..52a44e353796c0 100644
+> > --- a/arch/s390/pci/pci.c
+> > +++ b/arch/s390/pci/pci.c
+> > @@ -252,7 +252,7 @@ resource_size_t pcibios_align_resource(void *data, =
+const struct resource *res,
+> >  /* combine single writes by using store-block insn */
+> >  void __iowrite64_copy(void __iomem *to, const void *from, size_t count=
+)
+> >  {
+> > -       zpci_memcpy_toio(to, from, count);
+> > +	zpci_memcpy_toio(to, from, count * 8);
+> >  }
+>=20
+> Odd, this bug is 11 years old, and there was never any bug report.
+> Is this never called, or how is this possible?
+>=20
+> Niklas, would you happen to have an idea?
 
-Acked-by: Ilya Dryomov <idryomov@gmail.com>
+I did ask myself the same question when I first saw this change but
+still don't have a satisfactory answer.
 
-Thanks,
-
-                Ilya
+As far as I can tell there is only one call that could be relevant for
+us in drivers/net/ethernet/mellanox/mlx4/en_tx.c:mlx4_bf_copy(). That
+call looks like it would be done during transmit. Not sure under what
+exact circumstances or if a short write would directly cause observable
+issues though. Note also that contrary to what the mlx4 name suggests
+even ConnectX-4 based devices already use the mlx5 driver and that
+doesn't call this helper at the moment. Jason has plans to use it there
+in the future which is what caused him to even stumble over this
+though.
