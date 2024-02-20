@@ -1,156 +1,181 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EBA36A03B
-	for <linux-s390@vger.kernel.org>; Tue, 20 Feb 2024 13:22:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 268416A330;
+	Tue, 20 Feb 2024 13:34:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708435325; cv=none; b=cm1TVb8Uw8iUKvk0tX67gJlQaaXv1o0QbTyGn2ofDB/O709Fq/HlZ6tG0alFqafeszHCErDLlQreS2Hhf0reQU9QlUcCj1zHRfNSv0pdgy4IsgUG/waVOY1DURldu3wXytfF+IQDzuwaE0g91TqCRCgRfOpkfJUvl0amkxsLcvE=
+	t=1708436099; cv=none; b=gOAVmVfhpDrdAWqipLVXvjzYENgF2Quq3vK79TxVCgpOmxoJ9QXDvxJj4OuRvoz2/2k1wjM0eLK97RdwwMK36YNeDTpsqTJSmb0LLyIcsjoVHbQwDGgTvhY57fnSRJ7K4KyguHJRCB5Rb4T1q8TDz2M8AhaloNl6pbyJLqhiWlQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708435325; c=relaxed/simple;
-	bh=NGXD1jHINHNZY+mCOyyB934Anjl+YnZ1Y0xUYO0JiJ8=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=TKsKV6EZt8AkJqKrehho9XqkdJ4VefKhiH9WLkkeCMDNcouqFSORoCfBLcI2qeGoujcw/pzqUMw8a2q8i36pFNuJAL7Gm7oig0Zev1IG0AKadzlYpdCZ+NUtIfjA92Ce9uewITkbpCaaHwRnbo8mW2lpVyX0jYUOcZo9PLr5Ui0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=U4EaD3gb; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1708436099; c=relaxed/simple;
+	bh=s33Wk6+5bN8DuFeX/OYawEEVewmpIJsyEU/lFdKVqa4=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=I93kjaEriKDUAzwxucX1PAEZxDcJGLruhy7OpI3jtCKO/MFBX77EbdQjr3IP9cg/hGUoUPfJYo5s/qC+xCzYa+4ZIKXHP7sFao83vPWB54rOJBX5rEhK6lQiMLKrFHTa0s/ghDWjXIRuBZFEVDpyhSA3RsjLhVheAUp7sbpWNtM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nyIAckuz; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="U4EaD3gb"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-1db8f32cae5so7457295ad.1
-        for <linux-s390@vger.kernel.org>; Tue, 20 Feb 2024 05:22:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1708435323; x=1709040123; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ARy7Q4Eliz2JX6LXysl5nmstDWlOnwvyUH57xirN7sY=;
-        b=U4EaD3gbkDBssxO23P5k9vYtIYEhIf/7RWMIA0K30JHBiHYjnmCXphVpHLwEe0RYuu
-         PLzwDZ0QX3j4RQxdV0pKFXkFG0QpnJ69U4mSTvfaXW7465QPoscfQWVXcZC+cf4FLRyk
-         Cqfdd3RiGggLxQIqNw6vV5cbullvrNrcWH4s3YyJPn1pzXppZOd+ps6ShdohcPnc6SeX
-         eSeiRreP8WFwSAB8EL/0rxp3RV06rJ4XKpbCqX9IfIArcoQrgB13pyR/saOCvhTbp9WD
-         LETmRR5PYENeqmYcHarveOLZLgFe29nsuXMO3VkrLRNlF3Bsms8GX4PmHAujSQPawG8z
-         2rbA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708435323; x=1709040123;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ARy7Q4Eliz2JX6LXysl5nmstDWlOnwvyUH57xirN7sY=;
-        b=TevNNmgr7l6l321Nzfe3pwhBQXuaiwKCsDdaK0GL5TKbugLci2DoV93nlnb+VL4hsM
-         idxDXKYEBpvgt+NlYcNX4nazOrua3uEUUKAAiJxpg1Jc56C/ChrRAknQorHdfrybJKAt
-         byvLmnfwYGmKg6vz5K0fkwqPKn8kwRTi0XZ+ltTRns1F0bROVTsDMgd/rt4TZUyG9uLM
-         djvVBtYr+p5RD1K7Sroft/SHOdR+oiOlpFB3LgyNan/I0PiQKFbGAuChWSjSzWaVUR+n
-         wZQfDKdWnHkB+sXaREAgYrLzLAWOuSrJ0AqWFtCns8ZQmbrMYoDApkEvnJQLlATXik18
-         iFJQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXKN1hiuXZXAmnEPuNQvtI7bzWsYwQaPSY3AYSipfd69PoPQl4fgaVzPAmT22NCUeXeZEnbUhTbjQVOLKcrBESwfrZVh/3UZs/DXw==
-X-Gm-Message-State: AOJu0YxxGWhKrzldcyDU9r6vE6t0tU1UwMtF5qvtl7ecfDdVMmuy5/Yt
-	QIdTOPpH7anUwraBUVPET+yuyrUtP++N3Lrp5y8iBBUh7Wk/e/1nfL2cTVAHYqE=
-X-Google-Smtp-Source: AGHT+IFDzsxf+QvkIBQ6Yn25tgbgykQJpLVIKvsCINFaIpP2CqGk59RWuZcUGoZYhYkVR41rTlrzkA==
-X-Received: by 2002:a17:902:b113:b0:1dc:e32:d0b7 with SMTP id q19-20020a170902b11300b001dc0e32d0b7mr3120302plr.0.1708435323550;
-        Tue, 20 Feb 2024 05:22:03 -0800 (PST)
-Received: from [127.0.0.1] ([198.8.77.194])
-        by smtp.gmail.com with ESMTPSA id iw11-20020a170903044b00b001db5e807cd2sm6188911plb.82.2024.02.20.05.22.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Feb 2024 05:22:02 -0800 (PST)
-From: Jens Axboe <axboe@kernel.dk>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Richard Weinberger <richard@nod.at>, 
- Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
- Johannes Berg <johannes@sipsolutions.net>, 
- Justin Sanders <justin@coraid.com>, Denis Efremov <efremov@linux.com>, 
- Josef Bacik <josef@toxicpanda.com>, Geoff Levand <geoff@infradead.org>, 
- Ilya Dryomov <idryomov@gmail.com>, 
- "Md. Haris Iqbal" <haris.iqbal@ionos.com>, Jack Wang <jinpu.wang@ionos.com>, 
- Ming Lei <ming.lei@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, 
- Alex Dubov <oakad@yahoo.com>, Ulf Hansson <ulf.hansson@linaro.org>, 
- Miquel Raynal <miquel.raynal@bootlin.com>, 
- Vignesh Raghavendra <vigneshr@ti.com>, 
- Vineeth Vijayan <vneethv@linux.ibm.com>, linux-block@vger.kernel.org, 
- nbd@other.debian.org, ceph-devel@vger.kernel.org, linux-mmc@vger.kernel.org, 
- linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
-In-Reply-To: <20240215070300.2200308-1-hch@lst.de>
-References: <20240215070300.2200308-1-hch@lst.de>
-Subject: Re: pass queue_limits to blk_mq_alloc_disk for simple drivers
-Message-Id: <170843532172.4095460.11560055671499890721.b4-ty@kernel.dk>
-Date: Tue, 20 Feb 2024 06:22:01 -0700
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nyIAckuz"
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41KCicT3026931;
+	Tue, 20 Feb 2024 13:34:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=B8lLttoACaBGlu7Jo9nikgkeMCNCXiH/JeUZSRVDr0c=;
+ b=nyIAckuzTugO1tM7eBQKnFx0pK0djnCuA9YlLcrbrIlTQwWz/f6t7mD5ZkcKqpW4nrBr
+ GsoHKMzwra++rIvB55XYM+2v2rBXFCa6ioyI83OZeuazNAC8lKQVai85RrkhhWppRUkz
+ nJiy8fonMQptBxppTSfASKCvMRmh5HQM4gnFvtxvkV3tihNIW33cft0Pg3RSHGDs1b1s
+ /CDI2kHBsS6bxkhuRpBX77cYbQA3+WqXA7zyLDGgL7hzI+Tbqu2PyeHhLSR1ucolRKKc
+ guflBWrFxQ/manvXohWfzpqWdeOszzLQD2lzTAvcrDxqACW9R11/LT/ivR6zRN1FNppH ZA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wcv6fhqwn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 20 Feb 2024 13:34:47 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41KDW3tQ016286;
+	Tue, 20 Feb 2024 13:34:47 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wcv6fhqwf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 20 Feb 2024 13:34:47 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41KD7Qvm031117;
+	Tue, 20 Feb 2024 13:34:46 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wb9bkqy53-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 20 Feb 2024 13:34:46 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41KDYfef65929570
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 20 Feb 2024 13:34:43 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EB18020063;
+	Tue, 20 Feb 2024 13:34:40 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4551E2004B;
+	Tue, 20 Feb 2024 13:34:40 +0000 (GMT)
+Received: from li-978a334c-2cba-11b2-a85c-a0743a31b510.ibm.com (unknown [9.171.28.134])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 20 Feb 2024 13:34:40 +0000 (GMT)
+Message-ID: <43ab557a097f2e64b0869861866569e6ac372972.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 2/2] KVM: s390: selftests: memop: add a simple AR test
+From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+To: Eric Farman <farman@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio
+ Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle
+ <svens@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan
+ <shuah@kernel.org>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Date: Tue, 20 Feb 2024 14:34:40 +0100
+In-Reply-To: <20240215205344.2562020-3-farman@linux.ibm.com>
+References: <20240215205344.2562020-1-farman@linux.ibm.com>
+	 <20240215205344.2562020-3-farman@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.12.5-dev-2aabd
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: K6rTS800l5PHxjmqnrJLAEiBzA0b8WRD
+X-Proofpoint-ORIG-GUID: 2a0hFO4FaaD3bFdcFdwJx1ENQzo_IQr_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-20_06,2024-02-20_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
+ suspectscore=0 bulkscore=0 phishscore=0 mlxlogscore=999 clxscore=1011
+ priorityscore=1501 malwarescore=0 spamscore=0 adultscore=0 impostorscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2402200097
 
+On Thu, 2024-02-15 at 21:53 +0100, Eric Farman wrote:
+> There is a selftest that checks for an (expected) error when an
+> invalid AR is specified, but not one that exercises the AR path.
+>=20
+> Add a simple test that mirrors the vanilla write/read test while
+> providing an AR. An AR that contains zero will direct the CPU to
+> use the primary address space normally used anyway. AR[1] is
+> selected for this test because the host AR[1] is usually non-zero,
+> and KVM needs to correctly swap those values.
+>=20
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
 
-On Thu, 15 Feb 2024 08:02:43 +0100, Christoph Hellwig wrote:
-> this series converts all "simple" blk-mq drivers that don't have complex
-> internal layering or other oddities to pass the queue_limits to
-> blk_mq_alloc_disk.  None of these drivers updates the limits at runtime.
-> 
-> Diffstat:
->  arch/um/drivers/ubd_kern.c          |    8 +-
->  drivers/block/aoe/aoeblk.c          |   15 ++---
->  drivers/block/floppy.c              |    6 +-
->  drivers/block/mtip32xx/mtip32xx.c   |   13 ++--
->  drivers/block/nbd.c                 |   13 ++--
->  drivers/block/ps3disk.c             |   17 +++---
->  drivers/block/rbd.c                 |   29 +++++-----
->  drivers/block/rnbd/rnbd-clt.c       |   64 +++++++++--------------
->  drivers/block/sunvdc.c              |   18 +++---
->  drivers/block/ublk_drv.c            |   90 +++++++++++++++------------------
->  drivers/cdrom/gdrom.c               |   14 ++---
->  drivers/memstick/core/ms_block.c    |   14 ++---
->  drivers/memstick/core/mspro_block.c |   15 ++---
->  drivers/mmc/core/queue.c            |   97 +++++++++++++++++++-----------------
->  drivers/mtd/mtd_blkdevs.c           |   12 ++--
->  drivers/mtd/ubi/block.c             |    6 +-
->  drivers/s390/block/scm_blk.c        |   17 +++---
->  17 files changed, 222 insertions(+), 226 deletions(-)
-> 
-> [...]
+Reviewed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 
-Applied, thanks!
+> ---
+>  tools/testing/selftests/kvm/s390x/memop.c | 28 +++++++++++++++++++++++
+>  1 file changed, 28 insertions(+)
+>=20
+> diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/se=
+lftests/kvm/s390x/memop.c
+> index bb3ca9a5d731..be20c26ee545 100644
+> --- a/tools/testing/selftests/kvm/s390x/memop.c
+> +++ b/tools/testing/selftests/kvm/s390x/memop.c
+> @@ -375,6 +375,29 @@ static void test_copy(void)
+>  	kvm_vm_free(t.kvm_vm);
+>  }
+>=20
+> +static void test_copy_access_register(void)
+> +{
+> +	struct test_default t =3D test_default_init(guest_copy);
+> +
+> +	HOST_SYNC(t.vcpu, STAGE_INITED);
+> +
+> +	prepare_mem12();
+> +	t.run->psw_mask &=3D ~(3UL << (63 - 17));
+> +	t.run->psw_mask |=3D 1UL << (63 - 17);  /* Enable AR mode */
+> +
 
-[01/17] ubd: pass queue_limits to blk_mq_alloc_disk
-        commit: 5d6789ce33a97718564d0b8d2ea34e03d650e624
-[02/17] aoe: pass queue_limits to blk_mq_alloc_disk
-        commit: 9999200f583107f7e244e50935d480433b7d8a3b
-[03/17] floppy: pass queue_limits to blk_mq_alloc_disk
-        commit: 48bc8c7ba6fb39a4325b07f3abe8fe5a77361c7e
-[04/17] mtip: pass queue_limits to blk_mq_alloc_disk
-        commit: 68c3135fb5fbd85c7b2ca851184f30f54433a9d3
-[05/17] nbd: pass queue_limits to blk_mq_alloc_disk
-        commit: 9a0d4970288de29191fa45bf0ab4d8398bfa3a01
-[06/17] ps3disk: pass queue_limits to blk_mq_alloc_disk
-        commit: a7f18b74dbe171625afc2751942a92f71a4dd4ba
-[07/17] rbd: pass queue_limits to blk_mq_alloc_disk
-        commit: 24f30b770c0f450346f1c99120427b2e938cdfd0
-[08/17] rnbd-clt: pass queue_limits to blk_mq_alloc_disk
-        commit: e6ed9892f10d7195d621ede1cedc41421f1ca607
-[09/17] sunvdc: pass queue_limits to blk_mq_alloc_disk
-        commit: d0fa9a8b0af71b69cf3dec10feaebe19d55a72cf
-[10/17] gdrom: pass queue_limits to blk_mq_alloc_disk
-        commit: a339cf2bbfbe6e16ead79276d608912d36065884
-[11/17] ms_block: pass queue_limits to blk_mq_alloc_disk
-        commit: f93b43ae3feafedc5777099ca1a0e05352b92671
-[12/17] mspro_block: pass queue_limits to blk_mq_alloc_disk
-        commit: 9f633ecd43046659e3345bc4a4404e1d2ba67463
-[13/17] mtd_blkdevs: pass queue_limits to blk_mq_alloc_disk
-        commit: 3ec44e52bfce60f6da65165bc86eb382462d173d
-[14/17] ubiblock: pass queue_limits to blk_mq_alloc_disk
-        commit: 21b700c0812b6aa8f794c36b971772b2b08dab9a
-[15/17] scm_blk: pass queue_limits to blk_mq_alloc_disk
-        commit: 066be10aef5a7ddd8ad537db7a5145c6d79d4ea2
-[16/17] ublk: pass queue_limits to blk_mq_alloc_disk
-        commit: 494ea040bcb5f4cc78c37dc53c7915752c24f739
-[17/17] mmc: pass queue_limits to blk_mq_alloc_disk
-        commit: 616f8766179277324393f7b77e07f14cb3503825
+I feel like part of the commit message should be a comment here
 
-Best regards,
--- 
-Jens Axboe
+/*
+ * Guest AR[1] should be zero, in which case the primary address space is u=
+sed.
+ * The host makes use of AR[1], its value must not be used for the memop.
+ */
+> +	CHECK_N_DO(MOP, t.vcpu, LOGICAL, WRITE, mem1, t.size,
+> +		   GADDR_V(mem1), AR(1));
+> +	HOST_SYNC(t.vcpu, STAGE_COPIED);
+> +
+> +	CHECK_N_DO(MOP, t.vcpu, LOGICAL, READ, mem2, t.size,
+> +		   GADDR_V(mem2), AR(1));
+> +	ASSERT_MEM_EQ(mem1, mem2, t.size);
+> +
+> +	t.run->psw_mask &=3D ~(3UL << (63 - 17));   /* Disable AR mode */
 
-
+Any reason for this? It's not necessary since the vm is going to be destroy=
+ed.
+> +
+> +	kvm_vm_free(t.kvm_vm);
+> +}
+> +
+>  static void set_storage_key_range(void *addr, size_t len, uint8_t key)
+>  {
+>  	uintptr_t _addr, abs, i;
+> @@ -1101,6 +1124,11 @@ int main(int argc, char *argv[])
+>  			.test =3D test_copy_key_fetch_prot_override,
+>  			.requirements_met =3D extension_cap > 0,
+>  		},
+> +		{
+> +			.name =3D "copy with access register mode",
+> +			.test =3D test_copy_access_register,
+> +			.requirements_met =3D true,
+> +		},
+>  		{
+>  			.name =3D "error checks with key",
+>  			.test =3D test_errors_key,
 
