@@ -1,32 +1,32 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0ECE02C1B9;
-	Tue, 20 Feb 2024 02:45:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D128951C2C;
+	Tue, 20 Feb 2024 03:19:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708397127; cv=none; b=agtaWy4XMX4Bzrhsz0fp6SgYlR6SSRvlFV384JqufQZ/pvnOb8DR5mu1Y3xgbvfhdXdIKXqdrj5lgMT3VbLX2jeWq61zSTppQ/kR/NI1UBlW7nYAapk27BGkhVIr1k2MVOJBP6jCSGoo+uT+8vN1455AV/stHBo8cs4eDDqyX7c=
+	t=1708399196; cv=none; b=ink1I0h2x7AIVR1hzfQsSnvw3gNpvggeaBKfv3SGC6YjRMKLUr2NqJZAlXtP7PNGK5+mC2F02bw/cK71/U3aQwkc5FFOVoleFUhSro2MnKO9qMpt+8Kz/RkrwJKMRL+xnPy8KoOOUrFkfNyNEm1VeOTOmKGomEKou3df91zbt5E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708397127; c=relaxed/simple;
-	bh=BgI8KUUZGcJShWv42a+S7WU6a7VTrR2A3Zt6fAujEFo=;
+	s=arc-20240116; t=1708399196; c=relaxed/simple;
+	bh=trry4QTxdMtEqrS6zmYMXjvclDjxf7/p5OQ5P5jueNU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EAI5T1ZGjJWAgk/sBCTBtsRTTXXcLSvCcGpdHlbE8NYJy2gJEM1AzN60YvNMuqrR+v86by7Do1CkOqaA+24eZDKf8yiQ8m6lje2Mngu2XXF1F18gD15Xlhv0FFeUxsdJvuHUgQ7TTqcZdknuFCkMTZUwI25BGqfbSsax/98D0DM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ZkIVs5tG; arc=none smtp.client-ip=115.124.30.111
+	 In-Reply-To:Content-Type; b=ll6TGBKXZS40aJ2gP2rlZpobKcjdnaAqfRA3Z6vGISFa+5Na4R2TyvkK2lP44R9W/1ihU2AtCOOuTK2CpDJ1rwZ/VEx4B5vACgr5/Cs8L3ITxeWLuWfSDo+X5S8rgJhx0HGxT63ilfG08lyrgI93ac5BbuhVgfVgwmMHV8XCKb0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=p3/QCOep; arc=none smtp.client-ip=115.124.30.110
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ZkIVs5tG"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="p3/QCOep"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1708397121; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=epsRxanowU+Rvzj769kG7rng4wSLzPgisiNp8zQ07Ng=;
-	b=ZkIVs5tGRFpppVsmALZXF27NoJ9/Ezzs32Sii20jvWdKDKD5UOPqiuOM+Rk0AOSYQ9CKIGSoumvcqFNktl8d5Xs3ay9Z2KREsR9Ob/pWhBNA7PcgiN0XoKGhwtrPMWjzv2DbltBUzG5mkghuYL2LsVaxjBJxrnWMyFVuQcXGW8g=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R611e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0W0v2plx_1708397119;
-Received: from 30.221.128.233(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W0v2plx_1708397119)
+	t=1708399190; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=vm9DUpMOnO65MkiOu9sTrxR8ynvGT3k7f5D5XqK7Uko=;
+	b=p3/QCOepmb/S2eHI1wVAv6q0gwSsITnDgaaxWMA2teEa1LySeaNO+s8aiXwdyirJi5j/C5aX8kzn9dxj5AoPWMjQ3f7i2mwLWpqBAvf04Jsh3qm8g34MvCZmQaaKx4FJBcHNiLuoUCTSJL15IPZrZtoXmzgPQpQVVyalIaKhSNU=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W0vE3Uz_1708399188;
+Received: from 30.221.128.233(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W0vE3Uz_1708399188)
           by smtp.aliyun-inc.com;
-          Tue, 20 Feb 2024 10:45:21 +0800
-Message-ID: <cac6192e-85d8-4289-b5af-bc8143e76004@linux.alibaba.com>
-Date: Tue, 20 Feb 2024 10:45:19 +0800
+          Tue, 20 Feb 2024 11:19:49 +0800
+Message-ID: <442061eb-107a-421d-bc2e-13c8defb0f7b@linux.alibaba.com>
+Date: Tue, 20 Feb 2024 11:19:48 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -34,64 +34,114 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 09/15] net/smc: introduce loopback-ism statistics
- attributes
+Subject: Re: [PATCH net-next 13/15] net/smc: introduce loopback-ism DMB type
+ control
 To: Wenjia Zhang <wenjia@linux.ibm.com>, wintera@linux.ibm.com,
  hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
  davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, jaka@linux.ibm.com
+ pabeni@redhat.com, jaka@linux.ibm.com, Gerd Bayer <gbayer@linux.ibm.com>
 Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
  alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
  linux-s390@vger.kernel.org, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org
 References: <20240111120036.109903-1-guwen@linux.alibaba.com>
- <20240111120036.109903-10-guwen@linux.alibaba.com>
- <417a1b7c-4136-4f96-a614-9fd976dc884d@linux.ibm.com>
+ <20240111120036.109903-14-guwen@linux.alibaba.com>
+ <350f1cb8-b205-47be-a296-c610b9afe5fc@linux.ibm.com>
 From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <417a1b7c-4136-4f96-a614-9fd976dc884d@linux.ibm.com>
+In-Reply-To: <350f1cb8-b205-47be-a296-c610b9afe5fc@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
 
 
-On 2024/2/16 22:24, Wenjia Zhang wrote:
+On 2024/2/16 22:25, Wenjia Zhang wrote:
 > 
 > 
 > On 11.01.24 13:00, Wen Gu wrote:
->> This introduces some statistics attributes of loopback-ism. They can be
->> read from /sys/devices/virtual/smc/loopback-ism/{xfer_tytes|dmbs_cnt}.
+>> This provides a way to {get|set} type of DMB offered by loopback-ism,
+>> whether it is physically or virtually contiguous memory.
 >>
->> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
->> ---
->>   net/smc/smc_loopback.c | 74 ++++++++++++++++++++++++++++++++++++++++++
->>   net/smc/smc_loopback.h | 22 +++++++++++++
->>   2 files changed, 96 insertions(+)
+>> echo 0 > /sys/devices/virtual/smc/loopback-ism/dmb_type # physically
+>> echo 1 > /sys/devices/virtual/smc/loopback-ism/dmb_type # virtually
 >>
-> 
-> I've read the comments from Jiri and your answer. I can understand your thought. However, from the perspective of the 
-> end user, it makes more sense to integetrate the stats info into 'smcd stats'. Otherwise, it would make users confused 
-> to find out with which tool to check which statisic infornation. Sure, some improvement of the smc-tools is also needed
+>> The settings take effect after re-activating loopback-ism by:
+>>
+>> echo 0 > /sys/devices/virtual/smc/loopback-ism/active
+>> echo 1 > /sys/devices/virtual/smc/loopback-ism/active
+>>
+>> After this, the link group and DMBs related to loopback-ism will be
+>> flushed and subsequent DMBs created will be of the desired type.
+>>
+>> The motivation of this control is that physically contiguous DMB has
+>> best performance but is usually expensive, while the virtually
+>> contiguous DMB is cheap and perform well in most scenarios, but if
+>> sndbuf and DMB are merged, virtual DMB will be accessed concurrently
+>> in Tx and Rx and there will be a bottleneck caused by lock contention
+>> of find_vmap_area when there are many CPUs and CONFIG_HARDENED_USERCOPY
+>> is set (see link below). So an option is provided.
+>>
+> I'm courious about why you say that physically contiguous DMB has best performance. Because we saw even a bit better 
+> perfomance with the virtual one than the performance with the physical one.
 
-Thank you Wenjia.
+Hi Wenjia, you can find examples from here:
 
-Let's draw an analogy with RDMA devices, which is used in SMC-R. If we want
-to check the RNIC status or statistics, we may use rdma statistic command, or
-ibv_devinfo command, or check file under /sys/class/infiniband/mlx5_0. These
-provide details or attributes related to *devices*.
+https://lore.kernel.org/all/3189e342-c38f-6076-b730-19a6efd732a5@linux.alibaba.com/
+https://lore.kernel.org/all/238e63cd-e0e8-4fbf-852f-bc4d5bc35d5a@linux.alibaba.com/
 
-Since s390 ISM can be used out of SMC, I guess it also has its own way (other
-than smc-tools) to check the statistic?
+Excerpted from above:
+"
+In 48 CPUs qemu environment, the Requests/s increased by 5 times:
+- nginx
+- wrk -c 1000 -t 96 -d 30 http://127.0.0.1:80
 
-What we can see in smcr stats or smcd stats command is about statistic or
-status of SMC *protocol* layer, such as DMB status, Tx/Rx, connections, fallbacks.
+                  vzalloced shmem      vzalloced shmem(with this patch set)
+Requests/sec          113536.56            583729.93
 
-If we put the underlying devices's statistics into smc-tools, should we also
-put RNIC statistics or s390 ISM statistics into smcr stat or smcd stat? and
-for each futures device that can be used by SMC-R/SMC-D, should we update them
-into smcr stat and smcd stat? And the attributes of each devices may be different,
-should we add entries in smcd stat for each of them?
 
-After considering the above things, I believe that the details of the underlying
-device should not be exposed to smc(smc-tools). What do you think?
+But it also has some overhead, compared to using kzalloced shared memory
+or unsetting CONFIG_HARDENED_USERCOPY, which won't involve finding vmap area:
+
+                  kzalloced shmem      vzalloced shmem(unset CONFIG_HARDENED_USERCOPY)
+Requests/sec          831950.39            805164.78
+"
+
+Without CONFIG_HARDENED_USERCOPY, the performance of physical-DMB and
+virtual-DMB is basically same (physical-DMB is a bit better), and with
+CONFIG_HARDENED_USERCOPY, under many CPUs environment, such as 48 CPUs
+here, if we merge sndbuf and DMB, the find_vmap_area lock contention is
+heavy, and the performance is drop obviously. So I said physical-DMB has
+best performance, since it can guarantee good performance under known
+environments.
+
+
+By the way, we discussed the memory cost before (see [1]), but I found
+that when we use s390 ISM (or not merge sndbuf and DMB), the sndbuf also
+costs physically contiguous memory.
+
+static struct smc_buf_desc *smcd_new_buf_create(struct smc_link_group *lgr,
+						bool is_dmb, int bufsize)
+{
+<...>
+	if (is_dmb) {
+<...>
+	} else {
+		buf_desc->cpu_addr = kzalloc(bufsize, GFP_KERNEL |
+					     __GFP_NOWARN | __GFP_NORETRY |
+					     __GFP_NOMEMALLOC);
+		if (!buf_desc->cpu_addr) {
+			kfree(buf_desc);
+			return ERR_PTR(-EAGAIN);
+		}
+		buf_desc->len = bufsize;
+	}
+<...>
+}
+
+So I wonder is it really necessary to use virtual-DMB in loopback-ism? Maybe
+we can always use physical-DMB in loopback-ism, then there is no need for the
+dmb_type or dmb_copy knobs.
+
+[1] https://lore.kernel.org/netdev/d6facfd5-e083-ffc7-05e5-2e8f3ef17735@linux.alibaba.com/
+
 
 Thanks!
