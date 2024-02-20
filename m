@@ -1,179 +1,153 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ED696A359;
-	Tue, 20 Feb 2024 14:15:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0CFF6A35B;
+	Tue, 20 Feb 2024 14:19:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708438561; cv=none; b=j8KWvRfHB4adutLX9we9Wk2Rhbd1jSa3qldHQdh0ZpaNSv3YFGOpE2HMWBd0g4fx2hkWvKv2ZagYtKFtAUSb84gV4/nPnplyNteWNXO8tbov4kkypv5UkgWqK86xjg0Q9UlFKCSKVv9e6SXRPSbbLNbt63SYhBLVKhN+/oqzwyE=
+	t=1708438749; cv=none; b=YriPMrucwcSLrq0Cn+AB3RHQy2a7Y0HMWJ0FBzhBjYIB2UIs7r2GOzberXOmMW/VMy8wy8AMc+ROL/HQy+mOoAYeQn29Lt3jppET3K0NFGZKjIjCW82cMRjaX7uelpm8U1HzUa+f7EIkngEncnvkPQjcCjfuMkOP4OysEKfnxGM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708438561; c=relaxed/simple;
-	bh=HArwwHt1hGrCTLbZ4EXs9mayU7DHCs/ZHiAeJX8lVqM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nwvOujw/W4hi3g8tMY1CqmAAaiqOB6ekYP8R0rqnfdGkfNN1a7j8I3Ay1VPbUxSbz7i8M9Wf1HZJZR3F2oVXn0saa0vL0WHoYzoH34Ymn/HgnzRfnnfu/13SsDIX1Kr1ttPYxGJ16ixledVYXr1LLJqdNXivHPs3+DMkOROEjbU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dLzjOEoE; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1708438749; c=relaxed/simple;
+	bh=vCxLBF+LxDOqOl0qgvAauEYG2QYdT2TKN94lI0gRLw0=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=a1vUkYZGkrDgygS4xzYsrtGmCI2BxPHrp5xEE6nqRuVtanVL22luBE36EWqL2Pjd3qJRlAh4RKM1RAzXS1IUQg7kLp5/6Tcv987M4aHayYHSDQIvEZ8FL31gQDiHepKJaBIQ2UpmXszRL68Y5NQS10pCeZOsfPPLc98TQrorbPM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fIWmtA/o; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dLzjOEoE"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41KDIurZ030093;
-	Tue, 20 Feb 2024 14:15:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fIWmtA/o"
+Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41KDV1Hw025709;
+	Tue, 20 Feb 2024 14:18:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=+FXltmwqBAJ8c6HHejlohDnfZv970OoqMm5SuRo1gdQ=;
- b=dLzjOEoEggM3ZSd2bXhGztD1uOuNWd46b1u0woEhFAg7Fv+9XIgQ517+2Fm3il/rpoBr
- t6EF+pDEq1CS7SSSVutk88GdMSJ/jvaM3whIUwHIDD/CHNzyI70d9NbcJeSohU8Pq1QJ
- rEJd5n4HafCbA1aa/i26gMmcs328SBeiqSppa971J+MUeeEV33LmRcaMcUaWM5Pv/XR4
- bG3z11DmzICQtBFyZ23F9XEX0nkje7JwFYqG30xba+WJbmG2qDZxGE2NT2s1rMibWnk6
- HdLQ0nxX1nqZlfKlDSQYS9FzGh6WY7nUKXOBUTHo86xEiCf7fCOvSj3A9MbLGZC9ytNb oA== 
+ bh=lwg89Fejrts84YeaKU8repsaV4y5Gi7gxXNcjrj4/H0=;
+ b=fIWmtA/onYq24esqtZ73ktfPBTnYIpYFXlJDPahdh2CVKpi2f3XFRbRdvVoo8/s/Twg4
+ Gugfrif7lC51GwCtxaDT6NUorELWUYRjE7k3f01QR8KyA49d9i2RKOk3orwiBV9xTmGe
+ n1KjfGR6Vwu/m7F3FIG8MVapwpw3o9F2pqXNyZB6fFK+9Ucl/+slsOSzeK9EHXBxwrrp
+ yQzHgzl7VvPWC9Xmjdfao7dHj0DO5L5WBUq6WDygLhepqV9ES4qXld+TKnxrYVcTs736
+ HluvRBPiyKhzCPHYdcGLiVOE3cQ+IRmrOk1PP/IpgW6tphlXdeciCY5IEAkFpStTIop4 pA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wcvuq9g9p-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wcunmkqgd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 20 Feb 2024 14:15:55 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41KDJBAL030469;
-	Tue, 20 Feb 2024 14:15:55 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wcvuq9g9e-1
+	Tue, 20 Feb 2024 14:18:28 +0000
+Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41KE6dH7031572;
+	Tue, 20 Feb 2024 14:18:26 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wcunmkqfc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 20 Feb 2024 14:15:54 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41KD2BEB031187;
-	Tue, 20 Feb 2024 14:15:54 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wb9bkr5yb-1
+	Tue, 20 Feb 2024 14:18:26 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41KDjTcI013492;
+	Tue, 20 Feb 2024 14:18:24 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wb7h08ube-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 20 Feb 2024 14:15:54 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41KEFmJZ40305012
+	Tue, 20 Feb 2024 14:18:24 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41KEIIx511535068
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 20 Feb 2024 14:15:50 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CCF432004E;
-	Tue, 20 Feb 2024 14:15:48 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 887842006A;
-	Tue, 20 Feb 2024 14:15:48 +0000 (GMT)
-Received: from [9.152.224.41] (unknown [9.152.224.41])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 20 Feb 2024 14:15:48 +0000 (GMT)
-Message-ID: <1d9fef3d-b793-43fc-a3f9-4ff087bc899f@linux.ibm.com>
-Date: Tue, 20 Feb 2024 15:15:48 +0100
+	Tue, 20 Feb 2024 14:18:21 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DC54F2006B;
+	Tue, 20 Feb 2024 14:18:18 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 789E22006A;
+	Tue, 20 Feb 2024 14:18:18 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.152.224.212])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 20 Feb 2024 14:18:18 +0000 (GMT)
+Date: Tue, 20 Feb 2024 15:18:15 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux.dev,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov
+ <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg
+ <johannes@sipsolutions.net>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David
+ S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub
+ Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Hans de Goede
+ <hdegoede@redhat.com>,
+        Ilpo =?UTF-8?B?SsOkcnZpbmVu?=
+ <ilpo.jarvinen@linux.intel.com>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn
+ Andersson <andersson@kernel.org>,
+        Mathieu Poirier
+ <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>, Eric
+ Farman <farman@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily
+ Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle
+ <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann
+ <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John
+ Fastabend <john.fastabend@gmail.com>,
+        Benjamin Berg
+ <benjamin.berg@intel.com>,
+        Yang Li <yang.lee@linux.alibaba.com>, linux-um@lists.infradead.org,
+        netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, bpf@vger.kernel.org,
+        Halil
+ Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH vhost 07/17] virtio: find_vqs: pass struct instead of
+ multi parameters
+Message-ID: <20240220151815.5c867cce.pasic@linux.ibm.com>
+In-Reply-To: <1706756442.5524123-1-xuanzhuo@linux.alibaba.com>
+References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
+	<20240130114224.86536-8-xuanzhuo@linux.alibaba.com>
+	<CACGkMEvb4N8kthr4qWXrLOh9v422OYhrYU6hQejusw-e5EacPw@mail.gmail.com>
+	<1706756442.5524123-1-xuanzhuo@linux.alibaba.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/2] KVM: s390: fix access register usage in ioctls
-To: Eric Farman <farman@linux.ibm.com>, Janosch Frank
- <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-References: <20240216213616.3819805-1-farman@linux.ibm.com>
- <20240216213616.3819805-2-farman@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20240216213616.3819805-2-farman@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: FXHHK-5OvbhORVbEknDOPBn3A2lgbMKX
-X-Proofpoint-GUID: q4PucP4oAXJqoAo-RlP8oYU6jd640KKT
+X-Proofpoint-GUID: eUllX_-qgAsmHKd_JgBJQZtujh7cPJYr
+X-Proofpoint-ORIG-GUID: RtiekxNRFN2wBWltsYALkmwUnLKUTe6e
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-02-20_06,2024-02-20_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
- phishscore=0 clxscore=1011 impostorscore=0 bulkscore=0 lowpriorityscore=0
- mlxlogscore=999 malwarescore=0 mlxscore=0 priorityscore=1501 adultscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1011
+ lowpriorityscore=0 spamscore=0 phishscore=0 priorityscore=1501 mlxscore=0
+ malwarescore=0 mlxlogscore=809 adultscore=0 suspectscore=0 impostorscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2402200102
+ definitions=main-2402200103
 
+On Thu, 1 Feb 2024 11:00:42 +0800
+Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
 
-
-Am 16.02.24 um 22:36 schrieb Eric Farman:
-> The routine ar_translation() can be reached by both the instruction
-> intercept path (where the access registers had been loaded with the
-> guest register contents), and the MEM_OP ioctls (which hadn't).
-> Since this routine saves the current registers to vcpu->run,
-> this routine erroneously saves host registers into the guest space.
+> > > And squish the parameters from transport to a structure.  
+> > 
+> > The patch did more than what is described here, it also switch to use
+> > a structure for vring_create_virtqueue() etc.
+> > 
+> > Is it better to split?  
 > 
-> Introduce a boolean in the kvm_vcpu_arch struct to indicate whether
-> the registers contain guest contents. If they do (the instruction
-> intercept path), the save can be performed and the AR translation
-> is done just as it is today. If they don't (the MEM_OP path), the
-> AR can be read from vcpu->run without stashing the current contents.
-> 
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> Sure.
 
-Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-> ---
->   arch/s390/include/asm/kvm_host.h | 1 +
->   arch/s390/kvm/gaccess.c          | 3 ++-
->   arch/s390/kvm/kvm-s390.c         | 3 +++
->   3 files changed, 6 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index 52664105a473..c86215eb4ca7 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -765,6 +765,7 @@ struct kvm_vcpu_arch {
->   	__u64 cputm_start;
->   	bool gs_enabled;
->   	bool skey_enabled;
-> +	bool acrs_loaded;
->   	struct kvm_s390_pv_vcpu pv;
->   	union diag318_info diag318_info;
->   };
-> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-> index 5bfcc50c1a68..b4c805092021 100644
-> --- a/arch/s390/kvm/gaccess.c
-> +++ b/arch/s390/kvm/gaccess.c
-> @@ -391,7 +391,8 @@ static int ar_translation(struct kvm_vcpu *vcpu, union asce *asce, u8 ar,
->   	if (ar >= NUM_ACRS)
->   		return -EINVAL;
->   
-> -	save_access_regs(vcpu->run->s.regs.acrs);
-> +	if (vcpu->arch.acrs_loaded)
-> +		save_access_regs(vcpu->run->s.regs.acrs);
->   	alet.val = vcpu->run->s.regs.acrs[ar];
->   
->   	if (ar == 0 || alet.val == 0) {
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index ea63ac769889..61092f0e0a66 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -3951,6 +3951,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
->   				    KVM_SYNC_ARCH0 |
->   				    KVM_SYNC_PFAULT |
->   				    KVM_SYNC_DIAG318;
-> +	vcpu->arch.acrs_loaded = false;
->   	kvm_s390_set_prefix(vcpu, 0);
->   	if (test_kvm_facility(vcpu->kvm, 64))
->   		vcpu->run->kvm_valid_regs |= KVM_SYNC_RICCB;
-> @@ -4951,6 +4952,7 @@ static void sync_regs(struct kvm_vcpu *vcpu)
->   	}
->   	save_access_regs(vcpu->arch.host_acrs);
->   	restore_access_regs(vcpu->run->s.regs.acrs);
-> +	vcpu->arch.acrs_loaded = true;
->   	/* save host (userspace) fprs/vrs */
->   	save_fpu_regs();
->   	vcpu->arch.host_fpregs.fpc = current->thread.fpu.fpc;
-> @@ -5021,6 +5023,7 @@ static void store_regs(struct kvm_vcpu *vcpu)
->   	kvm_run->s.regs.pfc = vcpu->arch.pfault_compare;
->   	save_access_regs(vcpu->run->s.regs.acrs);
->   	restore_access_regs(vcpu->arch.host_acrs);
-> +	vcpu->arch.acrs_loaded = false;
->   	/* Save guest register state */
->   	save_fpu_regs();
->   	vcpu->run->s.regs.fpc = current->thread.fpu.fpc;
+I understand there will be a v2. From virtio-ccw perspective I have
+no objections.
+
+Regards,
+Halil
