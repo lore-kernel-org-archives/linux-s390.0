@@ -1,134 +1,117 @@
-Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com [209.85.128.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B4883C496;
-	Wed, 21 Feb 2024 09:37:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1457028363;
+	Wed, 21 Feb 2024 11:26:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708508276; cv=none; b=ewiQvgU9BRnxF9zOWQv1vTPJOJ54Bbg9kVFQL47L9XU97uMPzMSxoKG5w4/UO8yjWKNCtoNHZpwv/sSB8pYi9s3+17qID3+2Qr97AWQyBU8MnW9YProJBqkovlwZoJBMvVD2TRx+LKRPcw30AaowKxBWpuzESYSBhNhbXgd+Y/c=
+	t=1708514775; cv=none; b=iLXbmZUWhzoo+NfSylsNbxlnn6hVZe7NOi8m6uWxg0xnSCXHMpkBHPm+oYu6DJo1gu94vBjyqwRwmZcyMcPX9oRJcshkVy/QOpELLYAd+fdhaR+zIV+lHHAC89LD5yLyre+qfmZBDaqN0c87fAVSoSk1fHRNKQk10ZhcnXgrh8M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708508276; c=relaxed/simple;
-	bh=vxEdb4fDXLlgKcxr5wWNQsyVJDFErAasA1jI5h1O60c=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YivRwM28+87uWVgCbZbqSO8A+2AkPUYNMK9tO1bjqKDuBBOLDllvhOr5Bd+HMZhhcDvJI2rLomjcGeSq/MS0mciaM2N8FFcVchzYhpyblQrc8JFHfz4RzhOsMPk/GsgnVqXqygZscZqaO2/tkxgCm+T19/j30V/Ms0Q3SyCxLn4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.128.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-6083befe2a7so30683917b3.0;
-        Wed, 21 Feb 2024 01:37:53 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708508272; x=1709113072;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=BTOc5ufmZ/JRdQx/6tbCljAs5aqBkOn4kOQdynUVTFs=;
-        b=v+vEYJXFtAirSI6cewwC+th7L7J3FKE9+ILO9Wrlfz3r+b2HaAY/9f5Tfrhwzzu+y5
-         UcaqgHIKMdT7gTTrdkGOaZ4kH1TsYUzpKg1ZeV1KuTONdDt9ah/d11zPj0sf0ElBz3wn
-         a5dTcbnShPCMWXCTncTnjxVmvc697mipmmb9mGakM6w90ZeCg/4GOWy3FERSitO52K2Q
-         eyZMR0KuxJ6L31L4OfJZsIvkLLl2ccun/6MhuMn04r9Tz1Vyu/hNqDjrZzzOiM/3KOh1
-         crLEEGJqShtJq5g9VEX+VxUJbEIBfeVKKm8mb5wHLYEIcOqs5ZWbQLRX57le9BAss8Jg
-         g03g==
-X-Forwarded-Encrypted: i=1; AJvYcCUQNXX072Ta5TsJV9J+Rw8k4whACS+6iBQv+p39BjFL/7cvmPw2HOJbu49vIjgHi756jJ3FVJNybf680VFatpdn22eI4Ty2zeb5kPFarT2KFdgujqGVbJGG9PdwN0n49tAIDS7nYZfBePTZlkvb5eOXmoC50aTiEAV8flHYsCYxrq3G37Ivi/lY/kOcbRm26XMSMnf+1Uxvg78D7E4Vj8rKfgyHbe7wky6uMUK50PE9sMBmVjSMNpWVamB212gDhkLG
-X-Gm-Message-State: AOJu0YzWV6RUNFY1vhnMeVINxbGkqzT5BjsqlhhSoCU2r/8MXlpoDEkr
-	Jn7IpdPiGPYBqz6AZraa2m/CmMKxpcPG5/k3kyrtQG9jfDD2JcnCr8Sd3dPJfs0=
-X-Google-Smtp-Source: AGHT+IHQSNXfMytke8N95SRy8X32kCIyhuwq1sajc8Gn8EhmVB04du5PKNF46oO0ZPBeE4honrzEmw==
-X-Received: by 2002:a81:af10:0:b0:608:173e:2486 with SMTP id n16-20020a81af10000000b00608173e2486mr8742725ywh.19.1708508272369;
-        Wed, 21 Feb 2024 01:37:52 -0800 (PST)
-Received: from mail-yb1-f172.google.com (mail-yb1-f172.google.com. [209.85.219.172])
-        by smtp.gmail.com with ESMTPSA id z20-20020a81c214000000b00604a3e9c407sm2435801ywc.41.2024.02.21.01.37.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 21 Feb 2024 01:37:52 -0800 (PST)
-Received: by mail-yb1-f172.google.com with SMTP id 3f1490d57ef6-dcc80d6006aso5313342276.0;
-        Wed, 21 Feb 2024 01:37:52 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCUfbmNzA72Y0Roc0sUlpXXOmA9EsWzkr7jXiTaSEuK+RvHd1VGkbSCFQBQYKHyKFpT+cqS7Qt0Zddm2lg7+ggieNzazo5eeRAV8x+IC0Wvzqyjc0dph/yNjuPZa7al436uat5+xHkRVwiP7yBvRodi6TeAfnPg7746J3FrZQAUBvt3Sab4HCyt9osZO/lr2wb+Msoxy2NiuKSZo7YWh9aayyY7zurd6yozAgTN4GzB7mQAd8N9yIgcmaadgzF8DHVOs
-X-Received: by 2002:a25:accb:0:b0:dc7:3165:2db1 with SMTP id
- x11-20020a25accb000000b00dc731652db1mr15173023ybd.49.1708508272053; Wed, 21
- Feb 2024 01:37:52 -0800 (PST)
+	s=arc-20240116; t=1708514775; c=relaxed/simple;
+	bh=dzV35kleisbWwPCZ+Ij6zPbPxfFNr0jJrkAuC8C3SeM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZFOnQNHZfISm0BuU1ndlNCosz92Jmw8Tnm5wFKfcxbrq3mDZDDOOj0nkWjkRkGdF6VJ90WbHRm3KCAqJEyBQxgwjjz8ZTqcfJWhAsGq24d4dF4CKK4dlslhH/8nAbnokIpCsM+Z7yxRTPGapBvZiNLwz5uWCUlbKOS2SD7jx0rY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aTPplzcF; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aTPplzcF"
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41LB81xs008711;
+	Wed, 21 Feb 2024 11:26:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=N9YmyLG40yaJjx1JWdzsXngF3Fgq/tPKFgXMZBCqznQ=;
+ b=aTPplzcFEQZ4A3pyEDuP++afLpU3Tbo8NF5wmxUU9oKFqcl6/bpGIG5j6VqlN3RvhGU8
+ bbR1kRQyli0ZvcCneRy/8wcuAcI9xtOjYG0lJLeFrnqWebObgbadPvEBDwvI1YDyM5zQ
+ AedbXpAPuWSiCHxaIA2Tr12U0mO2sDKMPtajmNp/38rBKnTdi044zmg6maW1P7xxBHl8
+ M6J4l47+ZFQSTX4xqUB+b6/qU0b23y7Z8rwriYqdozTktTk3DAD44P7IMpz1vmNnL3kq
+ Ir7C241L4VljR5LZjUNB7sCf58id6gCaieyWJbkb5sS9U03ZiKkCJjhU9gHajnwrpqqh tQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wdg1cgbwp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 21 Feb 2024 11:26:09 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41LB8Tb4009815;
+	Wed, 21 Feb 2024 11:26:09 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wdg1cgbwc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 21 Feb 2024 11:26:08 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41LAVBrg014390;
+	Wed, 21 Feb 2024 11:26:08 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wb9u2p5y3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 21 Feb 2024 11:26:08 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41LBQ23m14877290
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 21 Feb 2024 11:26:04 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A18A92004B;
+	Wed, 21 Feb 2024 11:26:02 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5DCFD20040;
+	Wed, 21 Feb 2024 11:26:02 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.60])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 21 Feb 2024 11:26:02 +0000 (GMT)
+Date: Wed, 21 Feb 2024 12:26:00 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH v4 0/2] KVM: s390: Fix AR parameter in ioctl
+Message-ID: <20240221112600.7561-B-hca@linux.ibm.com>
+References: <20240220211211.3102609-1-farman@linux.ibm.com>
+ <bbe1db67-386b-4738-83d5-6e02cd3c9d58@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240215070300.2200308-1-hch@lst.de> <20240215070300.2200308-18-hch@lst.de>
- <CAMuHMdWV4nWQHUpBKM2gHWeH9j9c0Di4bhg+F4-SAPEAmZuNSA@mail.gmail.com> <20240221054424.GA12033@lst.de>
-In-Reply-To: <20240221054424.GA12033@lst.de>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 21 Feb 2024 10:37:39 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdUVHvgVkZsmbsxkScDq+XzMLTONk3Cwmg2N_Rz_-qqWxw@mail.gmail.com>
-Message-ID: <CAMuHMdUVHvgVkZsmbsxkScDq+XzMLTONk3Cwmg2N_Rz_-qqWxw@mail.gmail.com>
-Subject: Re: [PATCH 17/17] mmc: pass queue_limits to blk_mq_alloc_disk
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Richard Weinberger <richard@nod.at>, 
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
-	Justin Sanders <justin@coraid.com>, Denis Efremov <efremov@linux.com>, 
-	Josef Bacik <josef@toxicpanda.com>, Geoff Levand <geoff@infradead.org>, 
-	Ilya Dryomov <idryomov@gmail.com>, "Md. Haris Iqbal" <haris.iqbal@ionos.com>, 
-	Jack Wang <jinpu.wang@ionos.com>, Ming Lei <ming.lei@redhat.com>, 
-	Maxim Levitsky <maximlevitsky@gmail.com>, Alex Dubov <oakad@yahoo.com>, 
-	Ulf Hansson <ulf.hansson@linaro.org>, Miquel Raynal <miquel.raynal@bootlin.com>, 
-	Vignesh Raghavendra <vigneshr@ti.com>, Vineeth Vijayan <vneethv@linux.ibm.com>, linux-block@vger.kernel.org, 
-	nbd@other.debian.org, ceph-devel@vger.kernel.org, linux-mmc@vger.kernel.org, 
-	linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org, 
-	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bbe1db67-386b-4738-83d5-6e02cd3c9d58@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: uy7JRYCGIKeInksjV0lawtPxRzvStjlc
+X-Proofpoint-GUID: qX4IFO9sAQviitnW0vZ_SVskpXacIfXf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-20_06,2024-02-21_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=743 adultscore=0
+ bulkscore=0 suspectscore=0 clxscore=1015 impostorscore=0
+ lowpriorityscore=0 spamscore=0 malwarescore=0 phishscore=0
+ priorityscore=1501 mlxscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2311290000 definitions=main-2402210087
 
-Hi Christoph,
+On Wed, Feb 21, 2024 at 08:49:58AM +0100, Janosch Frank wrote:
+> On 2/20/24 22:12, Eric Farman wrote:
+> > Hi Janosch,
+> > 
+> > Here is a new (final?) version for the AR/MEM_OP issue I'm attempting to
+> > address. Hopefully they can be picked up to whatever tree makes sense.
+> > 
+> 
+> I've got good and bad news for you :)
+> 
+> You need to re-base this patch set on Heiko's feature branch once my kvm fpu
+> patch is on there since the current version runs into conflicts with Heiko's
+> fpu rework. We'll contact you once that's the case. The patch made it onto
+> devel yesterday evening and I assumed you'd wait a bit until sending a new
+> version but I was mistaken.
 
-On Wed, Feb 21, 2024 at 6:44=E2=80=AFAM Christoph Hellwig <hch@lst.de> wrot=
-e:
-> On Tue, Feb 20, 2024 at 11:01:05PM +0100, Geert Uytterhoeven wrote:
-> > On Thu, Feb 15, 2024 at 9:16=E2=80=AFAM Christoph Hellwig <hch@lst.de> =
-wrote:
-> > > Pass the queue limit set at initialization time directly to
-> > > blk_mq_alloc_disk instead of updating it right after the allocation.
-> > >
-> > > This requires refactoring the code a bit so that what was mmc_setup_q=
-ueue
-> > > before also allocates the gendisk now and actually sets all limits.
-> > >
-> > > Signed-off-by: Christoph Hellwig <hch@lst.de>
-> >
-> > Thanks for your patch, which is now commit 616f876617927732 ("mmc: pass
-> > queue_limits to blk_mq_alloc_disk") in block/for-next.
-> >
-> > I have bisected the following failure on White-Hawk (also seen on
-> > other R-Car Gen3/4 systems) to this commit:
-> >
-> >     renesas_sdhi_internal_dmac ee140000.mmc: mmc0 base at
-> > 0x00000000ee140000, max clock rate 200 MHz
-> >     mmc0: new HS400 MMC card at address 0001
-> >     ------------[ cut here ]------------
-> >     WARNING: CPU: 1 PID: 20 at block/blk-settings.c:202
-> > blk_validate_limits+0x12c/0x1e0
->
-> This is:
->
->         if (lim->virt_boundary_mask) {
->                 if (WARN_ON_ONCE(lim->max_segment_size &&
->                                  lim->max_segment_size !=3D UINT_MAX))
->                         return -EINVAL;
->
-> so we end up here with both a virt_boundary_mask and a
-> max_segment_size set, which is rather bogus.  I think the
-> problem is the order of check in the core blk_validate_limits
-> that artificially causes this.  Can you try this patch?
+I resolved the trivial merge conflict - no need to resend anything.
 
-Thanks, good thinking, as that fixed the issue for me!
-
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---=20
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
-
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
+Series applied, thanks!
