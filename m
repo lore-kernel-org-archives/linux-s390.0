@@ -1,219 +1,134 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com [209.85.128.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBF593D56D
-	for <linux-s390@vger.kernel.org>; Wed, 21 Feb 2024 09:27:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B4883C496;
+	Wed, 21 Feb 2024 09:37:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708507644; cv=none; b=EYgeAvOgDa+IOocDwXItpNxomVHP04PEbHAzQ+93KvZvyuxjywqd7ubGnE9CMI+Q4OVh2BpJOsJP64F4H2eiOZyje7K23bxp4CEOHEpguZqeERipbgSa0gLh/DHI8fsvbaPQoKqJqmZAB5/Ija/gDjjDON+JAK9WshTr19t9dg8=
+	t=1708508276; cv=none; b=ewiQvgU9BRnxF9zOWQv1vTPJOJ54Bbg9kVFQL47L9XU97uMPzMSxoKG5w4/UO8yjWKNCtoNHZpwv/sSB8pYi9s3+17qID3+2Qr97AWQyBU8MnW9YProJBqkovlwZoJBMvVD2TRx+LKRPcw30AaowKxBWpuzESYSBhNhbXgd+Y/c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708507644; c=relaxed/simple;
-	bh=5QP0MuDrmxNzRblbI3qrO9Ljkt4BlG3Q0Bb0TpHHhGQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=dqWUrQES2q5vohcEzopK54L3dkshhKt4Kc6eoJaIHu4fAw+bIN0vdrVzWmwCn6BlGkeP978PkRfY3S0//l7YBcSoqsvL4YtGzsHOtbeZ84OXnD/KaBr1DEKd/37RTNVYIrYMeHnoHUYGaexBljdk/HfN4TCexpPVEwJyZeC/KB8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YFslji75; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YFslji75"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1708507635;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=JqDQzqQUNVGgLXFQ47h2MyrP+vNxqZ2Sfg76FoOL2Z4=;
-	b=YFslji75Q/eCXAx0UssqFmxyG3kw6PNQutqWTAhzWGqemHH90Qy/ZsSjYVD5bs3xhw4+Ay
-	kk5tdK+z+Z4z466S0BvdPSZ6DmHzLl7Ncrp8ZPt2r8+f4VrBaRqgzr3AVZh6CvzqiBo7Wt
-	rksXrZuZKnrcjyTluPpYzbJrdvpksZk=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-659-Af4UO-oxOcOswtU3smfKPg-1; Wed, 21 Feb 2024 04:27:14 -0500
-X-MC-Unique: Af4UO-oxOcOswtU3smfKPg-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-40e4478a3afso31424095e9.1
-        for <linux-s390@vger.kernel.org>; Wed, 21 Feb 2024 01:27:13 -0800 (PST)
+	s=arc-20240116; t=1708508276; c=relaxed/simple;
+	bh=vxEdb4fDXLlgKcxr5wWNQsyVJDFErAasA1jI5h1O60c=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=YivRwM28+87uWVgCbZbqSO8A+2AkPUYNMK9tO1bjqKDuBBOLDllvhOr5Bd+HMZhhcDvJI2rLomjcGeSq/MS0mciaM2N8FFcVchzYhpyblQrc8JFHfz4RzhOsMPk/GsgnVqXqygZscZqaO2/tkxgCm+T19/j30V/Ms0Q3SyCxLn4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.128.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-6083befe2a7so30683917b3.0;
+        Wed, 21 Feb 2024 01:37:53 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708507633; x=1709112433;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :references:cc:to:content-language:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JqDQzqQUNVGgLXFQ47h2MyrP+vNxqZ2Sfg76FoOL2Z4=;
-        b=Ln7e4uHt+gvQNLse3dILOxOKS32vK8tJqTyV76bhKpl1bepI8pA+UpRiBK+3oXJUbS
-         j+NL68M/G+lWbQdYtfYieITPQx1qujX7XUmAqanV8vnvDHeYnFeKxjN+AdAJyyjk+frZ
-         +qcQnAct2/w39riCTXMOr9CWiV7oaY9oZ0pZV0ytcfjpCBmRxwDbyRFFKwW9NCZ3EoDV
-         UFxZtTTyLfwDLAbXQQdYyXZ1fJ2ZUgXKgW+KJWvWfA0+GGkWppNiBHHzwv9MnMKoZLBJ
-         vV9Cqy6BERVdG+KM7ZaErcsrRgp18em0dHnAr+u0PXUiPF8EC2WW0JE1nbWH2lUtea5p
-         a18w==
-X-Forwarded-Encrypted: i=1; AJvYcCXy+g/szqPeEhX3bdNkZvdo6Eywb/7FGHC7lIXSHc0hl9iUv+Nd8/o1LMMKhOL4Fq8ngmDmEYGqaguJ3Jiuj12xU/bBET5U6e/Cow==
-X-Gm-Message-State: AOJu0YxfYjkJd9FNDbLpGBIjnTKdO3ezHVekMwSqX1CDBBMm6ZKvCtbI
-	wq4KTRuTIeyJ+pRhWe49jRc1e3D7ZjrOGbxaohUeyDYjvCUrLv6JrOyO01rUc7AyYsKgONDzUyW
-	6j1auL4Sa/erL+W8i3Y/dJItciEkzSsqT31dIqlwZ4qVIv9vHyHPJ+Y1M34c=
-X-Received: by 2002:a05:600c:19c7:b0:412:5296:9737 with SMTP id u7-20020a05600c19c700b0041252969737mr13136578wmq.12.1708507631931;
-        Wed, 21 Feb 2024 01:27:11 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFJ7FuH/em5oiRt/ZTOR4oMLbXYFTRabnhBDn5rQM4tupeTaNWMPYn2RFDHXi6wWaSGqKntiQ==
-X-Received: by 2002:a05:600c:19c7:b0:412:5296:9737 with SMTP id u7-20020a05600c19c700b0041252969737mr13136504wmq.12.1708507631270;
-        Wed, 21 Feb 2024 01:27:11 -0800 (PST)
-Received: from [10.32.64.237] (nat-pool-muc-t.redhat.com. [149.14.88.26])
-        by smtp.gmail.com with ESMTPSA id jj2-20020a05600c6a0200b004126732390asm1837805wmb.37.2024.02.21.01.27.08
+        d=1e100.net; s=20230601; t=1708508272; x=1709113072;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=BTOc5ufmZ/JRdQx/6tbCljAs5aqBkOn4kOQdynUVTFs=;
+        b=v+vEYJXFtAirSI6cewwC+th7L7J3FKE9+ILO9Wrlfz3r+b2HaAY/9f5Tfrhwzzu+y5
+         UcaqgHIKMdT7gTTrdkGOaZ4kH1TsYUzpKg1ZeV1KuTONdDt9ah/d11zPj0sf0ElBz3wn
+         a5dTcbnShPCMWXCTncTnjxVmvc697mipmmb9mGakM6w90ZeCg/4GOWy3FERSitO52K2Q
+         eyZMR0KuxJ6L31L4OfJZsIvkLLl2ccun/6MhuMn04r9Tz1Vyu/hNqDjrZzzOiM/3KOh1
+         crLEEGJqShtJq5g9VEX+VxUJbEIBfeVKKm8mb5wHLYEIcOqs5ZWbQLRX57le9BAss8Jg
+         g03g==
+X-Forwarded-Encrypted: i=1; AJvYcCUQNXX072Ta5TsJV9J+Rw8k4whACS+6iBQv+p39BjFL/7cvmPw2HOJbu49vIjgHi756jJ3FVJNybf680VFatpdn22eI4Ty2zeb5kPFarT2KFdgujqGVbJGG9PdwN0n49tAIDS7nYZfBePTZlkvb5eOXmoC50aTiEAV8flHYsCYxrq3G37Ivi/lY/kOcbRm26XMSMnf+1Uxvg78D7E4Vj8rKfgyHbe7wky6uMUK50PE9sMBmVjSMNpWVamB212gDhkLG
+X-Gm-Message-State: AOJu0YzWV6RUNFY1vhnMeVINxbGkqzT5BjsqlhhSoCU2r/8MXlpoDEkr
+	Jn7IpdPiGPYBqz6AZraa2m/CmMKxpcPG5/k3kyrtQG9jfDD2JcnCr8Sd3dPJfs0=
+X-Google-Smtp-Source: AGHT+IHQSNXfMytke8N95SRy8X32kCIyhuwq1sajc8Gn8EhmVB04du5PKNF46oO0ZPBeE4honrzEmw==
+X-Received: by 2002:a81:af10:0:b0:608:173e:2486 with SMTP id n16-20020a81af10000000b00608173e2486mr8742725ywh.19.1708508272369;
+        Wed, 21 Feb 2024 01:37:52 -0800 (PST)
+Received: from mail-yb1-f172.google.com (mail-yb1-f172.google.com. [209.85.219.172])
+        by smtp.gmail.com with ESMTPSA id z20-20020a81c214000000b00604a3e9c407sm2435801ywc.41.2024.02.21.01.37.52
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 21 Feb 2024 01:27:10 -0800 (PST)
-Message-ID: <cf5409c3-254a-459b-8969-429db2ec6439@redhat.com>
-Date: Wed, 21 Feb 2024 10:27:06 +0100
+        Wed, 21 Feb 2024 01:37:52 -0800 (PST)
+Received: by mail-yb1-f172.google.com with SMTP id 3f1490d57ef6-dcc80d6006aso5313342276.0;
+        Wed, 21 Feb 2024 01:37:52 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCUfbmNzA72Y0Roc0sUlpXXOmA9EsWzkr7jXiTaSEuK+RvHd1VGkbSCFQBQYKHyKFpT+cqS7Qt0Zddm2lg7+ggieNzazo5eeRAV8x+IC0Wvzqyjc0dph/yNjuPZa7al436uat5+xHkRVwiP7yBvRodi6TeAfnPg7746J3FrZQAUBvt3Sab4HCyt9osZO/lr2wb+Msoxy2NiuKSZo7YWh9aayyY7zurd6yozAgTN4GzB7mQAd8N9yIgcmaadgzF8DHVOs
+X-Received: by 2002:a25:accb:0:b0:dc7:3165:2db1 with SMTP id
+ x11-20020a25accb000000b00dc731652db1mr15173023ybd.49.1708508272053; Wed, 21
+ Feb 2024 01:37:52 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/4] mm: pgalloc: support address-conditional pmd
- allocation
-Content-Language: en-US
-To: Christophe Leroy <christophe.leroy@csgroup.eu>,
- Maxwell Bland <mbland@motorola.com>,
- "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
-Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
- "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
- "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
- "andreyknvl@gmail.com" <andreyknvl@gmail.com>,
- "andrii@kernel.org" <andrii@kernel.org>,
- "aneesh.kumar@kernel.org" <aneesh.kumar@kernel.org>,
- "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>,
- "ardb@kernel.org" <ardb@kernel.org>, "arnd@arndb.de" <arnd@arndb.de>,
- "ast@kernel.org" <ast@kernel.org>,
- "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
- "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
- "brauner@kernel.org" <brauner@kernel.org>,
- "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
- "cl@linux.com" <cl@linux.com>, "daniel@iogearbox.net"
- <daniel@iogearbox.net>,
- "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
- "dennis@kernel.org" <dennis@kernel.org>,
- "dvyukov@google.com" <dvyukov@google.com>,
- "glider@google.com" <glider@google.com>,
- "gor@linux.ibm.com" <gor@linux.ibm.com>,
- "guoren@kernel.org" <guoren@kernel.org>,
- "haoluo@google.com" <haoluo@google.com>,
- "hca@linux.ibm.com" <hca@linux.ibm.com>,
- "hch@infradead.org" <hch@infradead.org>,
- "john.fastabend@gmail.com" <john.fastabend@gmail.com>,
- "jolsa@kernel.org" <jolsa@kernel.org>,
- "kasan-dev@googlegroups.com" <kasan-dev@googlegroups.com>,
- "kpsingh@kernel.org" <kpsingh@kernel.org>,
- "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
- "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
- "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "linux-mm@kvack.org" <linux-mm@kvack.org>,
- "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
- "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
- "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
- "lstoakes@gmail.com" <lstoakes@gmail.com>,
- "mark.rutland@arm.com" <mark.rutland@arm.com>,
- "martin.lau@linux.dev" <martin.lau@linux.dev>,
- "meted@linux.ibm.com" <meted@linux.ibm.com>,
- "michael.christie@oracle.com" <michael.christie@oracle.com>,
- "mjguzik@gmail.com" <mjguzik@gmail.com>,
- "mpe@ellerman.id.au" <mpe@ellerman.id.au>, "mst@redhat.com"
- <mst@redhat.com>, "muchun.song@linux.dev" <muchun.song@linux.dev>,
- "naveen.n.rao@linux.ibm.com" <naveen.n.rao@linux.ibm.com>,
- "npiggin@gmail.com" <npiggin@gmail.com>,
- "palmer@dabbelt.com" <palmer@dabbelt.com>,
- "paul.walmsley@sifive.com" <paul.walmsley@sifive.com>,
- "quic_nprakash@quicinc.com" <quic_nprakash@quicinc.com>,
- "quic_pkondeti@quicinc.com" <quic_pkondeti@quicinc.com>,
- "rick.p.edgecombe@intel.com" <rick.p.edgecombe@intel.com>,
- "ryabinin.a.a@gmail.com" <ryabinin.a.a@gmail.com>,
- "ryan.roberts@arm.com" <ryan.roberts@arm.com>,
- "samitolvanen@google.com" <samitolvanen@google.com>,
- "sdf@google.com" <sdf@google.com>, "song@kernel.org" <song@kernel.org>,
- "surenb@google.com" <surenb@google.com>,
- "svens@linux.ibm.com" <svens@linux.ibm.com>, "tj@kernel.org"
- <tj@kernel.org>, "urezki@gmail.com" <urezki@gmail.com>,
- "vincenzo.frascino@arm.com" <vincenzo.frascino@arm.com>,
- "will@kernel.org" <will@kernel.org>,
- "wuqiang.matt@bytedance.com" <wuqiang.matt@bytedance.com>,
- "yonghong.song@linux.dev" <yonghong.song@linux.dev>,
- "zlim.lnx@gmail.com" <zlim.lnx@gmail.com>,
- "awheeler@motorola.com" <awheeler@motorola.com>
-References: <20240220203256.31153-1-mbland@motorola.com>
- <20240220203256.31153-3-mbland@motorola.com>
- <838a05f0-568d-481d-b826-d2bb61908ace@csgroup.eu>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <838a05f0-568d-481d-b826-d2bb61908ace@csgroup.eu>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20240215070300.2200308-1-hch@lst.de> <20240215070300.2200308-18-hch@lst.de>
+ <CAMuHMdWV4nWQHUpBKM2gHWeH9j9c0Di4bhg+F4-SAPEAmZuNSA@mail.gmail.com> <20240221054424.GA12033@lst.de>
+In-Reply-To: <20240221054424.GA12033@lst.de>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 21 Feb 2024 10:37:39 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdUVHvgVkZsmbsxkScDq+XzMLTONk3Cwmg2N_Rz_-qqWxw@mail.gmail.com>
+Message-ID: <CAMuHMdUVHvgVkZsmbsxkScDq+XzMLTONk3Cwmg2N_Rz_-qqWxw@mail.gmail.com>
+Subject: Re: [PATCH 17/17] mmc: pass queue_limits to blk_mq_alloc_disk
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Richard Weinberger <richard@nod.at>, 
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	Justin Sanders <justin@coraid.com>, Denis Efremov <efremov@linux.com>, 
+	Josef Bacik <josef@toxicpanda.com>, Geoff Levand <geoff@infradead.org>, 
+	Ilya Dryomov <idryomov@gmail.com>, "Md. Haris Iqbal" <haris.iqbal@ionos.com>, 
+	Jack Wang <jinpu.wang@ionos.com>, Ming Lei <ming.lei@redhat.com>, 
+	Maxim Levitsky <maximlevitsky@gmail.com>, Alex Dubov <oakad@yahoo.com>, 
+	Ulf Hansson <ulf.hansson@linaro.org>, Miquel Raynal <miquel.raynal@bootlin.com>, 
+	Vignesh Raghavendra <vigneshr@ti.com>, Vineeth Vijayan <vneethv@linux.ibm.com>, linux-block@vger.kernel.org, 
+	nbd@other.debian.org, ceph-devel@vger.kernel.org, linux-mmc@vger.kernel.org, 
+	linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org, 
+	Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 21.02.24 08:13, Christophe Leroy wrote:
-> 
-> 
-> Le 20/02/2024 à 21:32, Maxwell Bland a écrit :
->> [Vous ne recevez pas souvent de courriers de mbland@motorola.com. Découvrez pourquoi ceci est important à https://aka.ms/LearnAboutSenderIdentification ]
->>
->> While other descriptors (e.g. pud) allow allocations conditional on
->> which virtual address is allocated, pmd descriptor allocations do not.
->> However, adding support for this is straightforward and is beneficial to
->> future kernel development targeting the PMD memory granularity.
->>
->> As many architectures already implement pmd_populate_kernel in an
->> address-generic manner, it is necessary to roll out support
->> incrementally. For this purpose a preprocessor flag,
-> 
-> Is it really worth it ? It is only 48 call sites that need to be
-> updated. It would avoid that processor flag and avoid introducing that
-> pmd_populate_kernel_at() in kernel core.
+Hi Christoph,
 
-+1, let's avoid that if possible.
+On Wed, Feb 21, 2024 at 6:44=E2=80=AFAM Christoph Hellwig <hch@lst.de> wrot=
+e:
+> On Tue, Feb 20, 2024 at 11:01:05PM +0100, Geert Uytterhoeven wrote:
+> > On Thu, Feb 15, 2024 at 9:16=E2=80=AFAM Christoph Hellwig <hch@lst.de> =
+wrote:
+> > > Pass the queue limit set at initialization time directly to
+> > > blk_mq_alloc_disk instead of updating it right after the allocation.
+> > >
+> > > This requires refactoring the code a bit so that what was mmc_setup_q=
+ueue
+> > > before also allocates the gendisk now and actually sets all limits.
+> > >
+> > > Signed-off-by: Christoph Hellwig <hch@lst.de>
+> >
+> > Thanks for your patch, which is now commit 616f876617927732 ("mmc: pass
+> > queue_limits to blk_mq_alloc_disk") in block/for-next.
+> >
+> > I have bisected the following failure on White-Hawk (also seen on
+> > other R-Car Gen3/4 systems) to this commit:
+> >
+> >     renesas_sdhi_internal_dmac ee140000.mmc: mmc0 base at
+> > 0x00000000ee140000, max clock rate 200 MHz
+> >     mmc0: new HS400 MMC card at address 0001
+> >     ------------[ cut here ]------------
+> >     WARNING: CPU: 1 PID: 20 at block/blk-settings.c:202
+> > blk_validate_limits+0x12c/0x1e0
+>
+> This is:
+>
+>         if (lim->virt_boundary_mask) {
+>                 if (WARN_ON_ONCE(lim->max_segment_size &&
+>                                  lim->max_segment_size !=3D UINT_MAX))
+>                         return -EINVAL;
+>
+> so we end up here with both a virt_boundary_mask and a
+> max_segment_size set, which is rather bogus.  I think the
+> problem is the order of check in the core blk_validate_limits
+> that artificially causes this.  Can you try this patch?
 
--- 
-Cheers,
+Thanks, good thinking, as that fixed the issue for me!
 
-David / dhildenb
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--=20
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
