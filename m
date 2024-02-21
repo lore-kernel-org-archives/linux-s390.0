@@ -1,108 +1,136 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail03.softline.ru (mail03.softline.ru [185.31.132.229])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C80423D393;
-	Wed, 21 Feb 2024 14:51:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 085877BB01;
+	Wed, 21 Feb 2024 15:15:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.31.132.229
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708527067; cv=none; b=aAszj4kCp4eYo5yRtxtfhyyJIUb0M0itx5JpMhAZnFODi5nIXZMyM0OQMFp+T7oSLSBz1n5pxV0NnGc/5/62JtR02oU742eAlrNchCXgbOw8V/+voP2In9dWKnQv/E5SwfJg7WZMlgo1lEUgd36tpkDBosWdELH4ZuFQS0zQb3A=
+	t=1708528532; cv=none; b=GnmKMLtGjNCuLqZt3dqtvYpR8d/1KJtVG1M7UVfQenljH/pNpxEhL5x7CRnG3SiKihdmSZ9niM+a1ZpX7RfaQI8Vq7Bp1UoKHfUkyAOgY8o+QGD/SxP7P976k5OiIzClrNbICv4LZHZDmb2slVWdPpSA66IUSPrdFiPKSmk3rz8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708527067; c=relaxed/simple;
-	bh=jR116JpyfvNBm06wmEVLlKKRHi5BQ5NesCFPXL2SImk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=s8NMgyJ86LFugkhLrRG3SWmC3mK1FTvsyPbrMAbGn4HSwZcypA83E5ON/WKRMvznHEjIgQ/ywGdSrfHTOjOomc/VYeiqU20bIcwsMZHd+vGOeMpAN85ZRLLAMCTXQ9R6XDb0XGChJBIKrMpniB59Z4vStVSymGjeffK95DOd/hQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WRDAvBZz; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1708528532; c=relaxed/simple;
+	bh=U6LTfCt0Y1XPyuR94BitQJbK5CnBSk/B7Nw6HVJH6Fg=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=IfFySxVgwAoYcvtib+br9reenCN7mrgFZytxKw17ZbKOfYkMu44+HmXrgbJVkIyze8KOm4nb9FyEDcqHgEiD/k8ThEoBhZkPxnUGnfoGOCsjLV4A11pgsUDnuRG6gA0cwl0RZ1e2ow4NZEuSK+D3toZRIcOhlWbjZmRcjwaKWXo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=softline.com; spf=pass smtp.mailfrom=softline.com; dkim=pass (2048-bit key) header.d=softline.com header.i=@softline.com header.b=iJ458szd; arc=none smtp.client-ip=185.31.132.229
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=softline.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=softline.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WRDAvBZz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8107DC433C7;
-	Wed, 21 Feb 2024 14:50:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1708527066;
-	bh=jR116JpyfvNBm06wmEVLlKKRHi5BQ5NesCFPXL2SImk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=WRDAvBZzYYuE5uEfs/DEtOe7zPNcnoZYbwSu75Up2HHOCiaYs3dPtA3OFeS3aPijj
-	 cdCJEC4io72wTxOSQfnNvLnLW0c2gv6tih+AGJaN/cIIMfccENvgOGgW+Y4y73EviJ
-	 /95XICjCmk7hF5YBUPHW0H5+53rvT5IPFuNh9DzIoo/B/iZuLVvbEAjqaT79MVu+SO
-	 zoH5NBPAIyQheTU4QmU6vzAQxSV9MnS1mlP894VbFgkaw3S9I8y+HXI75doohUQtiO
-	 LrWh102L8ZI7FGNYQCmOW2aK0zb6kqrnVpxfNYFRZM3L9sb8iFhtUia1zIniN3qzQ2
-	 6qH0YCc10mUxQ==
-Date: Wed, 21 Feb 2024 14:50:51 +0000
-From: Conor Dooley <conor@kernel.org>
-To: Maxwell Bland <mbland@motorola.com>
-Cc: linux-arm-kernel@lists.infradead.org, gregkh@linuxfoundation.org,
-	agordeev@linux.ibm.com, akpm@linux-foundation.org,
-	andreyknvl@gmail.com, andrii@kernel.org, aneesh.kumar@kernel.org,
-	aou@eecs.berkeley.edu, ardb@kernel.org, arnd@arndb.de,
-	ast@kernel.org, borntraeger@linux.ibm.com, bpf@vger.kernel.org,
-	brauner@kernel.org, catalin.marinas@arm.com,
-	christophe.leroy@csgroup.eu, cl@linux.com, daniel@iogearbox.net,
-	dave.hansen@linux.intel.com, david@redhat.com, dennis@kernel.org,
-	dvyukov@google.com, glider@google.com, gor@linux.ibm.com,
-	guoren@kernel.org, haoluo@google.com, hca@linux.ibm.com,
-	hch@infradead.org, john.fastabend@gmail.com, jolsa@kernel.org,
-	kasan-dev@googlegroups.com, kpsingh@kernel.org,
-	linux-arch@vger.kernel.org, linux@armlinux.org.uk,
-	linux-efi@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	lstoakes@gmail.com, mark.rutland@arm.com, martin.lau@linux.dev,
-	meted@linux.ibm.com, michael.christie@oracle.com, mjguzik@gmail.com,
-	mpe@ellerman.id.au, mst@redhat.com, muchun.song@linux.dev,
-	naveen.n.rao@linux.ibm.com, npiggin@gmail.com, palmer@dabbelt.com,
-	paul.walmsley@sifive.com, quic_nprakash@quicinc.com,
-	quic_pkondeti@quicinc.com, rick.p.edgecombe@intel.com,
-	ryabinin.a.a@gmail.com, ryan.roberts@arm.com,
-	samitolvanen@google.com, sdf@google.com, song@kernel.org,
-	surenb@google.com, svens@linux.ibm.com, tj@kernel.org,
-	urezki@gmail.com, vincenzo.frascino@arm.com, will@kernel.org,
-	wuqiang.matt@bytedance.com, yonghong.song@linux.dev,
-	zlim.lnx@gmail.com, awheeler@motorola.com
-Subject: Re: [PATCH 0/4] arm64: mm: support dynamic vmalloc/pmd configuration
-Message-ID: <20240221-ipod-uneaten-4da8b229f4a4@spud>
-References: <20240220203256.31153-1-mbland@motorola.com>
+	dkim=pass (2048-bit key) header.d=softline.com header.i=@softline.com header.b="iJ458szd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=softline.com;
+	s=relay; t=1708527753;
+	bh=U6LTfCt0Y1XPyuR94BitQJbK5CnBSk/B7Nw6HVJH6Fg=;
+	h=From:To:CC:Subject:Date:References:In-Reply-To:From;
+	b=iJ458szdbaR+GPmssPMBH5c6BF5E5yqynzPs5+eCZ8CSMon/y7GdMI6Wu+/Qwh1gm
+	 wLavdwgy5yUdMd+HZHzeAJXbGk3bBMeqGVZaQL33LBg0+fOfwQShGmWdqoAb/jM5VS
+	 8TtVloFxvYDOJMuoElqdmB2FXpn5ZzHXjvHqcgUH64nIVwLlDRCDqGftrXpCrx/Cuu
+	 8OnObgmVubqIDuwGRxs/vwCCkI4R+aLmolRf9L2Y27LVxmZMqHnNbsBHS/1SHojV1A
+	 zaLpQ1ZjY3p1nhX1DSa56ImQDnsyQOVmeP0Pq3skGYYhCAnEZt5msOFrnMO2p4vVGp
+	 CE75AzeJDnIQg==
+X-AuditID: 0a02150b-b13ff700000026cc-8e-65d61088c3be
+From: "Antipov, Dmitriy" <Dmitriy.Antipov@softline.com>
+To: "dmantipov@yandex.ru" <dmantipov@yandex.ru>, "guwen@linux.alibaba.com"
+	<guwen@linux.alibaba.com>, "wenjia@linux.ibm.com" <wenjia@linux.ibm.com>
+CC: "lvc-project@linuxtesting.org" <lvc-project@linuxtesting.org>,
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, "jaka@linux.ibm.com"
+	<jaka@linux.ibm.com>
+Subject: Re: [lvc-project] [PATCH] [RFC] net: smc: fix fasync leak in
+ smc_release()
+Thread-Topic: [lvc-project] [PATCH] [RFC] net: smc: fix fasync leak in
+ smc_release()
+Thread-Index: AQHaZNb+eL3YMOb6v02FhrfSeOr3xw==
+Date: Wed, 21 Feb 2024 15:02:32 +0000
+Message-ID: <659c7821842fca97513624b713ced72ab970cdfc.camel@softline.com>
+References: <20240221051608.43241-1-dmantipov@yandex.ru>
+	 <819353f3-f5f9-4a15-96a1-4f3a7fd6b33e@linux.alibaba.com>
+In-Reply-To: <819353f3-f5f9-4a15-96a1-4f3a7fd6b33e@linux.alibaba.com>
+Accept-Language: ru-RU, en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <3DFFCC98B65EA848ABDAAC7BA160D4F7@softline.com>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="r+os/L6iBAa0yd7x"
-Content-Disposition: inline
-In-Reply-To: <20240220203256.31153-1-mbland@motorola.com>
 
-
---r+os/L6iBAa0yd7x
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hey Maxwell,
-
-FYI:
-
->   mm/vmalloc: allow arch-specific vmalloc_node overrides
->   mm: pgalloc: support address-conditional pmd allocation
-
-With these two arch/riscv/configs/* are broken with calls to undeclared
-functions.
-
->   arm64: separate code and data virtual memory allocation
->   arm64: dynamic enforcement of pmd-level PXNTable
-
-And with these two the 32-bit and nommu builds are broken.
-
-Cheers,
-Conor.
-
---r+os/L6iBAa0yd7x
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZdYNywAKCRB4tDGHoIJi
-0gMuAP9F/qaVnaevMHMAFC79aMoA7T8MPtngzCYgeGKGkodjfwD+LfeSF0KgFWRs
-XPWMo+0cR11PZYg4ErTvrYapXzyvsgY=
-=uABL
------END PGP SIGNATURE-----
-
---r+os/L6iBAa0yd7x--
+T24gV2VkLCAyMDI0LTAyLTIxIGF0IDIxOjA5ICswODAwLCBXZW4gR3Ugd3JvdGU6DQoNCj4gMS4g
+b24gPSAxOyBpb2N0bChzb2NrLCBGSU9BU1lOQywgJm9uKSwgYSBmYXN5bmMgZW50cnkgaXMgYWRk
+ZWQgdG8NCj4gICAgIHNtYy0+c2suc2tfc29ja2V0LT53cS5mYXN5bmNfbGlzdDsNCj4gDQo+IDIu
+IFRoZW4gZmFsbGJhY2sgaGFwcGVuZCwgYW5kIHN3YXBwZWQgdGhlIHNvY2tldDoNCj4gICAgIHNt
+Yy0+Y2xjc29jay0+ZmlsZSA9IHNtYy0+c2suc2tfc29ja2V0LT5maWxlOw0KPiAgICAgc21jLT5j
+bGNzb2NrLT5maWxlLT5wcml2YXRlX2RhdGEgPSBzbWMtPmNsY3NvY2s7DQo+ICAgICBzbWMtPmNs
+Y3NvY2stPndxLmZhc3luY19saXN0ID0gc21jLT5zay5za19zb2NrZXQtPndxLmZhc3luY19saXN0
+Ow0KPiAgICAgc21jLT5zay5za19zb2NrZXQtPndxLmZhc3luY19saXN0ID0gTlVMTDsNCj4gDQo+
+IDMuIG9uID0gMDsgaW9jdGwoc29jaywgRklPQVNZTkMsICZvbiksIHRoZSBmYXN5bmMgZW50cnkg
+aXMgcmVtb3ZlZA0KPiAgICAgZnJvbSBzbWMtPmNsY3NvY2stPndxLmZhc3luY19saXN0LA0KPiAo
+SXMgdGhlcmUgYSByYWNlIGJldHdlZW4gMiBhbmQgMyA/KQ0KDQoxKSBJSVVDIHllcy4gVGhlIGZv
+bGxvd2luZyBzZXF1ZW5jZSBmcm9tIHNtY19zd2l0Y2hfdG9fZmFsbGJhY2soKToNCg0Kc21jLT5j
+bGNzb2NrLT5maWxlID0gc21jLT5zay5za19zb2NrZXQtPmZpbGU7DQpzbWMtPmNsY3NvY2stPmZp
+bGUtPnByaXZhdGVfZGF0YSA9IHNtYy0+Y2xjc29jazsNCg0KaXMgZXhlY3V0ZWQgd2l0aCBsb2Nr
+ZWQgc21jLT5zay5za19zb2NrZXQgYnV0IHVubG9ja2VkIHNtYy0+Y2xjc29jay4NClRoaXMgd2F5
+LA0KDQpzdHJ1Y3Qgc29ja2V0ICpzb2NrID0gZmlscC0+cHJpdmF0ZV9kYXRhOw0KDQppbiBzb2Nr
+X2Zhc3luYygpIGludHJvZHVjZXMgYW4gdW5kZWZpbmVkIGJlaGF2aW9yIChiZWNhdXNlIGFuDQph
+Y3R1YWwgdmFsdWUgb2YgJ3ByaXZhdGVfZGF0YScgaXMgdW5wcmVkaWN0YWJsZSkuIFNvIHRoZXJl
+IGFyZQ0KdHdvIHBvc3NpYmxlIHNjZW5hcmlvcy4gV2hlbg0KDQpvbiA9IDE7IGlvY3RsKHNvY2ss
+IEZJT0FTWU5DLCAmb24pOw0Kb24gPSAwOyBpb2N0bChzb2NrLCBGSU9BU1lOQywgJm9uKTsNCg0K
+YWN0dWFsbHkgbW9kaWZpZXMgZmFzeW5jIGxpc3Qgb2YgdGhlIHNhbWUgc29ja2V0LCB0aGlzIHdv
+cmtzIGFzDQpleHBlY3RlZC4gSWYga2VybmVsIHNvY2tldHMgYmVoaW5kICdzb2NrJyBnZXRzIHN3
+YXBwZWQgYmV0d2Vlbg0KY2FsbHMgdG8gaW9jdGwoKSwgZmFzeW5jIGxpc3Qgb2YgdGhlIGZpcnN0
+IHNvY2tldCBoYXMgYW4gZW50cnkNCndoaWNoIGNhbid0IGJlIHJlbW92ZWQgYnkgdGhlIHNlY29u
+ZCBpb2N0bCgpLiANCg0KDQo+IDQuIFRoZW4gY2xvc2UgdGhlIGZpbGUsIF9fZnB1dCgpIGNhbGxz
+IGZpbGUtPmZfb3AtPmZhc3luYygtMSwgZmlsZSwgMCksDQo+ICAgICB0aGVuIHNvY2tfZmFzeW5j
+KCkgY2FsbHMgZmFzeW5jX2hlbHBlcihmZCwgZmlscCwgb24sICZ3cS0+ZmFzeW5jX2xpc3QpDQo+
+ICAgICBhbmQgZmFzeW5jX3JlbW92ZV9lbnRyeSgpIHJlbW92ZXMgZW50cmllcyBpbiBzbWMtPmNs
+Y3NvY2stPndxLmZhc3luY19saXN0Lg0KPiAgICAgTm93IHNtYy0+Y2xjc29jay0+d3EuZmFzeW5j
+X2xpc3QgaXMgZW1wdHkuDQoNCjIpIE5vLiBJbiB0aGUgc2Vjb25kIChiYWQpIHNjZW5hcmlvIGZy
+b20gdGhlIGFib3ZlLCBhbiBhdHRlbXB0IHRvIHJlbW92ZQ0KZmFzeW5jIGVudHJ5IGZyb20gc21j
+LT5jbGNzb2NrLT53cS5mYXN5bmNfbGlzdCBhbHdheXMgZmFpbHMgYmVjYXVzZQ0KZmFzeW5jIGVu
+dHJ5IHdhcyBhY3R1YWxseSBsaW5rZWQgdG8gc21jLT5zay5za19zb2NrZXQtPndxLmZhc3luY19s
+aXN0Lg0KDQpOb3RlIHNvY2tfZmFzeW5jKCkgZG9lc24ndCBjaGVjayB0aGUgdmFsdWUgcmV0dXJu
+ZWQgZnJvbSBmYXN5bmNfaGVscGVyKCkuDQpIb3cgZHVtYi4NCg0KPiA1LiBfX2ZwdXQoKSBjYWxs
+cyBmaWxlLT5mX29wLT5yZWxlYXNlKGlub2RlLCBmaWxlKSwgdGhlbiBzb2NrX2Nsb3NlIGNhbGxz
+DQo+ICAgICBfX3NvY2tfcmVsZWFzZSwgdGhlbiBvcHMtPnJlbGVhc2UgY2FsbHMgc21jX3JlbGVh
+c2UoKSwgYW5kIF9fc21jX3JlbGVhc2UoKQ0KPiAgICAgY2FsbHMgc21jX3Jlc3RvcmVfZmFsbGJh
+Y2tfY2hhbmdlcygpIHRvIHJlc3RvcmUgc29ja2V0Og0KPiAgICAgaWYgKHNtYy0+Y2xjc29jay0+
+ZmlsZSkgeyAvKiBub24tYWNjZXB0ZWQgc29ja2V0cyBoYXZlIG5vIGZpbGUgeWV0ICovDQo+ICAg
+ICAgICAgIHNtYy0+Y2xjc29jay0+ZmlsZS0+cHJpdmF0ZV9kYXRhID0gc21jLT5zay5za19zb2Nr
+ZXQ7DQo+ICAgICAgICAgIHNtYy0+Y2xjc29jay0+ZmlsZSA9IE5VTEw7DQo+ICAgICAgICAgIHNt
+Y19mYmFja19yZXN0b3JlX2NhbGxiYWNrcyhzbWMpOw0KPiAgICAgfQ0KDQozKSBZZXMuIEFuZCBp
+dCdzIHRvbyBsYXRlIGJlY2F1c2UgX19mcHV0KCkgY2FsbHMgZmlsZS0+Zl9vcC0+ZmFzeW5jKC0x
+LCAuLi4sDQowKSBfYmVmb3JlXyBmaWxlLT5mX29wLT5yZWxlYXNlKCkuIFNvIGV2ZW4gaWYgeW91
+IGhhdmUgc29ja2V0cyBzd2FwcGVkIGJhY2ssDQpubyBvbmUgd2lsbCB0YWtlIGNhcmUgYWJvdXQg
+ZnJlZWluZyBmYXN5bmMgbGlzdC4NCg0KDQo+IDYuIFRoZW4gYmFjayB0byBfX3NvY2tfcmVsZWFz
+ZSwgY2hlY2sgaWYgc29jay0+d3EuZmFzeW5jX2xpc3QgKHRoYXQgaXMNCj4gICAgIHNtYy0+c2su
+c2tfc29ja2V0LT53cS5mYXN5bmNfbGlzdCkgaXMgZW1wdHkgYW5kIGl0IGlzIGVtcHR5Lg0KDQo0
+KSBOby4gSXQncyBub3QgZW1wdHkgYmVjYXVzZSBhbiBhdHRlbXB0IHRvIHJlbW92ZSBmYXN5bmMg
+ZW50cnkgaGFzIGZhaWxlZA0KYXQgWzJdIGp1c3QgYmVjYXVzZSBpdCB3YXMgbWFkZSBhZ2FpbnN0
+IHRoZSB3cm9uZyBzb2NrZXQuIA0KDQoNCkZvciB5b3VyIGNvbnZlbmllbmNlLCB0aGVyZSBpcyBh
+IGh1bWFuLXJlYWRhYmxlIHJlcHJvZHVjZXIgbG9vc2VseSBtb2RlbGVkDQphcm91bmQgdGhlIG9u
+ZSBnZW5lcmF0ZWQgYnkgc3l6a2FsbGVyLiBZb3UgY2FuIHRyeSBpdCBvbiBhbnkgc3lzdGVtIHJ1
+bm5pbmcNCnJlY2VudGx5IGVub3VnaCBrZXJuZWwgd2l0aCBDT05GSUdfU01DIGVuYWJsZWQgKHJv
+b3QgaXMgbm90IHJlcXVpcmVkKSwgYW5kDQpyZWNlaXZpbmcgYSBmZXcgKG9yIG1heSBiZSBhIGxv
+dCBvZikgIl9fc29ja19yZWxlYXNlOiBmYXN5bmMgbGlzdCBub3QgZW1wdHkiDQptZXNzYWdlcyBj
+bGVhcmx5IGluZGljYXRlcyBhbiBpc3N1ZS4gTk9URTogdGhpcyBzaG91bGRuJ3QgY3Jhc2ggdGhl
+IHN5c3RlbQ0KYW5kL29yIG1ha2UgaXQgdW51c2FibGUsIGJ1dCByZW1lbWJlciB0aGF0IGVhY2gg
+bWVzc2FnZSBjb21lcyB3aXRoIGEgc21hbGwNCmtlcm5lbCBtZW1vcnkgbGVhay4NCg0KRG1pdHJ5
+DQoNCiNpbmNsdWRlIDxzaWduYWwuaD4NCiNpbmNsdWRlIDx1bmlzdGQuaD4NCiNpbmNsdWRlIDxw
+dGhyZWFkLmg+DQojaW5jbHVkZSA8c3lzL2lvY3RsLmg+DQojaW5jbHVkZSA8c3lzL3NvY2tldC5o
+Pg0KDQppbnQgc29jazsNCg0Kdm9pZCAqDQpsb29wMCAodm9pZCAqYXJnKQ0Kew0KICBzdHJ1Y3Qg
+bXNnaGRyIG1zZyA9IHsgMCB9Ow0KDQogIHdoaWxlICgxKQ0KICAgIHsNCiAgICAgIHNvY2sgPSBz
+b2NrZXQgKEFGX1NNQywgU09DS19TVFJFQU0sIDApOw0KICAgICAgc2VuZG1zZyAoc29jaywgJm1z
+ZywgTVNHX0ZBU1RPUEVOKTsNCiAgICAgIGNsb3NlIChzb2NrKTsNCiAgICB9DQogIHJldHVybiBO
+VUxMOw0KfQ0KDQp2b2lkICoNCmxvb3AxICh2b2lkICphcmcpDQp7DQogIGludCBvbjsNCg0KICB3
+aGlsZSAoMSkNCiAgICB7DQogICAgICBvbiA9IDE7DQogICAgICBpb2N0bCAoc29jaywgRklPQVNZ
+TkMsICZvbik7DQogICAgICBvbiA9IDA7DQogICAgICBpb2N0bCAoc29jaywgRklPQVNZTkMsICZv
+bik7DQogICAgfQ0KDQogIHJldHVybiBOVUxMOw0KfQ0KDQppbnQNCm1haW4gKGludCBhcmdjLCBj
+aGFyICphcmd2W10pDQp7DQogIHB0aHJlYWRfdCBhLCBiOw0KICBzdHJ1Y3Qgc2lnYWN0aW9uIHNh
+ID0geyAwIH07DQoNCiAgc2Euc2FfaGFuZGxlciA9IFNJR19JR047DQogIHNpZ2FjdGlvbiAoU0lH
+SU8sICZzYSwgTlVMTCk7DQoNCiAgcHRocmVhZF9jcmVhdGUgKCZhLCBOVUxMLCBsb29wMCwgTlVM
+TCk7DQogIHB0aHJlYWRfY3JlYXRlICgmYiwgTlVMTCwgbG9vcDEsIE5VTEwpOw0KDQogIHBhdXNl
+ICgpOw0KDQogIHB0aHJlYWRfam9pbiAoYSwgTlVMTCk7DQogIHB0aHJlYWRfam9pbiAoYiwgTlVM
+TCk7DQoNCiAgcmV0dXJuIDA7DQp9DQoNCg0K
