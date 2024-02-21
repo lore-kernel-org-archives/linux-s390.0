@@ -1,108 +1,158 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3060C566A;
-	Wed, 21 Feb 2024 02:04:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A77262E3FE;
+	Wed, 21 Feb 2024 03:28:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708481094; cv=none; b=VDY3JThvtujuGnnnhjDZKoebxQt907BsZZisx6U1NKYdL4/LFT7OMTyYO3npp1KwaggbgwcnhzPQCDV0SSUqgLp8VWF1sEkiD/ZwhF0C/uZNJ1vhJs5PUFenMzLzo15V/DMlQy/ZEMbd+jsP6lEefEAajyaS5/27MN3YbvDMzbE=
+	t=1708486104; cv=none; b=RKQRVjofFSC4rWL1dWUVzBX614OQFBsrH+SUV8nV0foSmEb5Y93eIJcc4cqBtPEBeTqoE9LfmLaLtvzYJVDqbT9cpFZlsyR7tn6EU7KhJVpZWE4QzaT32NprZq/UDCM20hGTl09pU8JMp0oRT0xt765sARJoZ0UxCNvJgyMj8TU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708481094; c=relaxed/simple;
-	bh=ORbxc1aLPAjWIc3vkR5GtdqUtX005SNYWEsxv9OAOk8=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=I2WwqGHMgkKBchRCY5FkxBw66RzZcOvvW/W3M0WOgz/17siDBvNFQbc2xYMdGuxoFxCw7O37+QufNbYFw9WFiiechoEIDYLdn/l2LlO66Njero0F/k1oSszpSFkICQ5e0abrynF9DX0qAXKvvlJgKhitUlhcYBelBHDT5tT0jgs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=sbiMOEKn; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1708486104; c=relaxed/simple;
+	bh=00EYudbANOSaxNSrkwurD81lMrDxfKTUqVgu1v5tMY4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oWxC3DgP/dY/N1wHlsc6rXYfQtUKTSagcpwxuHsOFnjnMYAmqf8/LW5ZHRe4OjuRlvQkpF7ZW7G6bw8Ma16mQ1M6u6RTvNg/DYwkBifM5kMPYNQsqgJZ9usLx8ymR06SzOsBFi01gUrfv6WYiAHCaoDGhIW568oiSFisUo4AzZY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RD7dQ/ad; arc=none smtp.client-ip=209.85.214.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="sbiMOEKn"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1708481089; h=Message-ID:Subject:Date:From:To;
-	bh=ORbxc1aLPAjWIc3vkR5GtdqUtX005SNYWEsxv9OAOk8=;
-	b=sbiMOEKn8YsHac7GFd2HpFkPp/HOfaG+QEE9BieQi/hhLVUhFJ7rmqrhU424MQvVrn0mxTjDTdk4MpsxcIzPFtU3cw3u/0GLit+rcLWYL1xhJZxH6osDXJHKl/q45G0sOC1B2Yb8vcCsOxJNeZQnoQCUxEIBetRhstw6k8N7NoE=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R921e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=36;SR=0;TI=SMTPD_---0W0yFyS._1708481086;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W0yFyS._1708481086)
-          by smtp.aliyun-inc.com;
-          Wed, 21 Feb 2024 10:04:47 +0800
-Message-ID: <1708481025.1893313-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost 07/17] virtio: find_vqs: pass struct instead of multi parameters
-Date: Wed, 21 Feb 2024 10:03:45 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Jason Wang <jasowang@redhat.com>,
- virtualization@lists.linux.dev,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Hans de Goede <hdegoede@redhat.com>,
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- Benjamin Berg <benjamin.berg@intel.com>,
- Yang Li <yang.lee@linux.alibaba.com>,
- linux-um@lists.infradead.org,
- netdev@vger.kernel.org,
- platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- kvm@vger.kernel.org,
- bpf@vger.kernel.org,
- Halil Pasic <pasic@linux.ibm.com>
-References: <20240130114224.86536-1-xuanzhuo@linux.alibaba.com>
- <20240130114224.86536-8-xuanzhuo@linux.alibaba.com>
- <CACGkMEvb4N8kthr4qWXrLOh9v422OYhrYU6hQejusw-e5EacPw@mail.gmail.com>
- <1706756442.5524123-1-xuanzhuo@linux.alibaba.com>
- <20240220151815.5c867cce.pasic@linux.ibm.com>
-In-Reply-To: <20240220151815.5c867cce.pasic@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RD7dQ/ad"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-1dc13fb0133so1087405ad.3;
+        Tue, 20 Feb 2024 19:28:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1708486101; x=1709090901; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ig+g0BUZSXifjVBy73OzZ9fIB5v/6NjxVeJ9J0qwojE=;
+        b=RD7dQ/adwDzYEKhGflBIrdFLE5qB7Vf8urwI6eeW80KdO6A91EcvqyRy2psTEbnvGT
+         tM20TRMUpUFNDo9tWbyuKOk//UiirdfgzqsMFlYQTRzvC8y9mhPOFWxYuV1/WwbDUbNM
+         azY2+vqWP2Qk1TrXyDMHwb802Y8f6FfWivyOxeGipD9dzg/C1Dgi+a8mW6wDU5a3Z1Yf
+         OQbV40VRWRO9uCyT2F84b2+lfARj20HFgDslde2VPzf9q5CufuoA4mHL+UiOX9nzgnq5
+         I6gIDaORPnlvobYbmBF3biFNj8VFCGeC5BuP4nlrTanOpt+RGCuXfpHjxW1zAk6ouK4a
+         P7cg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1708486101; x=1709090901;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Ig+g0BUZSXifjVBy73OzZ9fIB5v/6NjxVeJ9J0qwojE=;
+        b=M0z7wSWxAq2pHAy4/QxPG7snL0lWFMD3yCJR16OVjP0uW/7iy04sBMbJVmlodCF+Dp
+         xxsFz9Y/yJf3UI3cRAxW31dyT22ZPG7tQkv9zxy9espQIYOI+gJCskELIvSrfVhULIlX
+         4JktEETSTz5LsTLag8xYOKfIuDhBDppc+bORt3UJGn+WqzRwBMX3TljrCh5nExc2GjSM
+         OpQ/s7pP6M8KDaqR9+QCdfqUtkLI0VK3miRWUsg0OYArKCtUVU0qNau9HMi2bRwOFINw
+         wbyVR555ri0JL08IVvVkaQWQaAL1iYIkNMBDeSoKOxG+UZgq97uQuIUHwwPWD9vySDkF
+         CnaQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXyhFW0rukBJi7iCohM/Em7sXb3Etwsc5psk+sBcDZmjbsRKIvS93cOkObQKwXkcHiDwPmXCcT3FvX7NgOA8hj0w3xtkBJxYmrx9eFWL6sy74LA0G8/xlLr1K7hvswwaA==
+X-Gm-Message-State: AOJu0YzPH80+sgPfxFYCKhIqSZ1WLaDrflh/PdcuX9XyPNW+zP5vQBWO
+	lEd7BsSCgVpktuSMjuvXwfwXUe2bUGtlfkDPzIOsNZ6g9um9D+U1
+X-Google-Smtp-Source: AGHT+IENcbmlmxPUUYa5IPoB3qyzTiAzkVoX3rrNvUBxi29LRyMCLlj6+/WkLPi+Nhs8BmfBMPXIdQ==
+X-Received: by 2002:a17:902:b902:b0:1d9:8ddf:5fa0 with SMTP id bf2-20020a170902b90200b001d98ddf5fa0mr14621025plb.62.1708486100817;
+        Tue, 20 Feb 2024 19:28:20 -0800 (PST)
+Received: from wheely.local0.net (220-235-194-103.tpgi.com.au. [220.235.194.103])
+        by smtp.gmail.com with ESMTPSA id q7-20020a170902b10700b001dc214f7353sm1246457plr.249.2024.02.20.19.28.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Feb 2024 19:28:20 -0800 (PST)
+From: Nicholas Piggin <npiggin@gmail.com>
+To: Thomas Huth <thuth@redhat.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>,
+	kvm@vger.kernel.org,
+	Laurent Vivier <lvivier@redhat.com>,
+	"Shaoqin Huang" <shahuang@redhat.com>,
+	Andrew Jones <andrew.jones@linux.dev>,
+	Nico Boehr <nrb@linux.ibm.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Alexandru Elisei <alexandru.elisei@arm.com>,
+	Eric Auger <eric.auger@redhat.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	David Hildenbrand <david@redhat.com>,
+	Marc Hartmayer <mhartmay@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	kvmarm@lists.linux.dev,
+	kvm-riscv@lists.infradead.org
+Subject: [kvm-unit-tests PATCH v5 0/8] Multi-migration support
+Date: Wed, 21 Feb 2024 13:27:49 +1000
+Message-ID: <20240221032757.454524-1-npiggin@gmail.com>
+X-Mailer: git-send-email 2.42.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Tue, 20 Feb 2024 15:18:15 +0100, Halil Pasic <pasic@linux.ibm.com> wrote:
-> On Thu, 1 Feb 2024 11:00:42 +0800
-> Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
->
-> > > > And squish the parameters from transport to a structure.
-> > >
-> > > The patch did more than what is described here, it also switch to use
-> > > a structure for vring_create_virtqueue() etc.
-> > >
-> > > Is it better to split?
-> >
-> > Sure.
->
-> I understand there will be a v2. From virtio-ccw perspective I have
-> no objections.
+Now that strange arm64 hang is found to be QEMU bug, I'll repost.
+Since arm64 requires Thomas's uart patch and it is worse affected
+by the QEMU bug, I will just not build it on arm. The QEMU bug
+still affects powerpc (and presumably s390x) but it's not causing
+so much trouble for this test case.
 
-The next version is v1.
+I have another test case that can hit it reliably and doesn't
+cause crashes but that takes some harness and common lib work so
+I'll send that another time.
 
-That is posted.
+Since v4:
+- Don't build selftest-migration on arm.
+- Reduce selftest-migration iterations from 100 to 30 to make the
+  test run faster (it's ~0.5s per migration).
 
-http://lore.kernel.org/all/20240202093951.120283-8-xuanzhuo@linux.alibaba.com
-http://lore.kernel.org/all/20240202093951.120283-9-xuanzhuo@linux.alibaba.com
+Since v3:
+- Addressed Thomas's review comments:
+- Patch 2 initrd cleanup unset the old variable in the correct place.
+- Patch 4 multi migration removed the extra wait for "Now migrate the
+  VM" message, and updated comments around it.
+- Patch 6 fix typo and whitespace in quiet migration support.
+- Patch 8 fix typo and whitespace in migration selftest.
 
-Thanks.
+Since v2:
+- Rebase on riscv port and auxvinfo fix was merged.
+- Clean up initrd cleanup moves more commands into the new cleanup
+  function from the trap handler comands (suggested by Thomas).
+- "arch-run: Clean up temporary files properly" patch is now renamed
+  to "arch-run: Fix TRAP handler..."
+- Fix TRAP handler patch has redone changelog to be more precise about
+  the problem and including recipe to recreate it.
+- Fix TRAP handler patch reworked slightly to remove the theoretical
+  race rather than just adding a comment about it.
+- Patch 3 was missing a couple of fixes that leaked into patch 4,
+  those are moved into patch 3.
 
+Thanks,
+Nick
 
->
-> Regards,
-> Halil
+Nicholas Piggin (8):
+  arch-run: Fix TRAP handler recursion to remove temporary files
+    properly
+  arch-run: Clean up initrd cleanup
+  migration: use a more robust way to wait for background job
+  migration: Support multiple migrations
+  arch-run: rename migration variables
+  migration: Add quiet migration support
+  Add common/ directory for architecture-independent tests
+  migration: add a migration selftest
+
+ arm/sieve.c                  |   2 +-
+ common/selftest-migration.c  |  29 ++++++
+ common/sieve.c               |  51 ++++++++++
+ lib/migrate.c                |  19 +++-
+ lib/migrate.h                |   2 +
+ powerpc/Makefile.common      |   1 +
+ powerpc/selftest-migration.c |   1 +
+ powerpc/unittests.cfg        |   4 +
+ riscv/sieve.c                |   2 +-
+ s390x/Makefile               |   1 +
+ s390x/selftest-migration.c   |   1 +
+ s390x/sieve.c                |   2 +-
+ s390x/unittests.cfg          |   4 +
+ scripts/arch-run.bash        | 177 +++++++++++++++++++++++++----------
+ x86/sieve.c                  |  52 +---------
+ 15 files changed, 240 insertions(+), 108 deletions(-)
+ create mode 100644 common/selftest-migration.c
+ create mode 100644 common/sieve.c
+ create mode 120000 powerpc/selftest-migration.c
+ create mode 120000 s390x/selftest-migration.c
+ mode change 100644 => 120000 x86/sieve.c
+
+-- 
+2.42.0
+
