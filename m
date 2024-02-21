@@ -1,96 +1,108 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F43278B4F
-	for <linux-s390@vger.kernel.org>; Wed, 21 Feb 2024 13:44:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C80423D393;
+	Wed, 21 Feb 2024 14:51:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708523053; cv=none; b=jbCWBZPYf/eQXFmjaBsI5kPeUZrjNEaCl66Kn0ziyb4FChGJhzYbrTtAwy0F9t7YuWEdzDKquZ8O8fJ/k3b54rh/01mScjwJ5xa4JqmLzwEnsY+3f3Z1yEnYOygpFU9ScpdpB30UJxmlD8X2uSO4ogsBzBfe6f6wZeZu9bOpLlg=
+	t=1708527067; cv=none; b=aAszj4kCp4eYo5yRtxtfhyyJIUb0M0itx5JpMhAZnFODi5nIXZMyM0OQMFp+T7oSLSBz1n5pxV0NnGc/5/62JtR02oU742eAlrNchCXgbOw8V/+voP2In9dWKnQv/E5SwfJg7WZMlgo1lEUgd36tpkDBosWdELH4ZuFQS0zQb3A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708523053; c=relaxed/simple;
-	bh=MrsZ6R8kVdxd/n4xz6d/BNCiT9VSGP+MbjDNCaoodJE=;
+	s=arc-20240116; t=1708527067; c=relaxed/simple;
+	bh=jR116JpyfvNBm06wmEVLlKKRHi5BQ5NesCFPXL2SImk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=txH5J2BH+MYhTCs89kU+GtdwwShnMcvrLEJkgAvU5DYKhVzNlQVd1Un2xXTUh1epPyIBx8stRtf13C/M52vv5A4T96KeOPu1k7YVueHakHJ2BE/QkfCEoUjahF4Tf8IpKDvsSLugL741lzyh0QkQhulHGMJYYxT5BlRilK/wzlg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G7MhRJjn; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=s8NMgyJ86LFugkhLrRG3SWmC3mK1FTvsyPbrMAbGn4HSwZcypA83E5ON/WKRMvznHEjIgQ/ywGdSrfHTOjOomc/VYeiqU20bIcwsMZHd+vGOeMpAN85ZRLLAMCTXQ9R6XDb0XGChJBIKrMpniB59Z4vStVSymGjeffK95DOd/hQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WRDAvBZz; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G7MhRJjn"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1708523050;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kjg3ALQw4zFfCtoxrqU3mC8VARBMiLwWXwoSwpKkxVk=;
-	b=G7MhRJjnx3MpI53N/cV2mYP6UEgd8QiqRly7Fra95TBWL8ZksdO6Lkc1jkHhZZ7h3OEcNS
-	4OKx5R1VeG+a9qBLCVoz83q8LFPIpnPbjRzwC2s6pydX0jkWHb59lEhVu8yQxsXlZGTJEc
-	VXIzZowFo1g2z1dXcq9bHBZCfJes12g=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-583-viBCBzv1MZWeE0zNlD0FTQ-1; Wed, 21 Feb 2024 08:44:09 -0500
-X-MC-Unique: viBCBzv1MZWeE0zNlD0FTQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1712C867943;
-	Wed, 21 Feb 2024 13:44:08 +0000 (UTC)
-Received: from localhost (unknown [10.72.116.2])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 21A5F2166B36;
-	Wed, 21 Feb 2024 13:44:06 +0000 (UTC)
-Date: Wed, 21 Feb 2024 21:44:04 +0800
-From: Baoquan He <bhe@redhat.com>
-To: Hari Bathini <hbathini@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, piliu@redhat.com, linux-sh@vger.kernel.org,
-	x86@kernel.org, kexec@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-	ebiederm@xmission.com, loongarch@lists.linux.dev,
-	linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-	akpm@linux-foundation.org, linux-arm-kernel@lists.infradead.org,
-	viro@zeniv.linux.org.uk
-Subject: Re: [PATCH v2 00/14] Split crash out from kexec and clean up related
- config items
-Message-ID: <ZdX+JMKsQWheE0B0@MiWiFi-R3L-srv>
-References: <20240119145241.769622-1-bhe@redhat.com>
- <9101bb07-70f1-476c-bec9-ec67e9899744@linux.ibm.com>
- <Zb8D1ASrgX0qVm9z@MiWiFi-R3L-srv>
- <559f2595-1477-4ef0-80e4-85ae8b426de7@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WRDAvBZz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8107DC433C7;
+	Wed, 21 Feb 2024 14:50:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1708527066;
+	bh=jR116JpyfvNBm06wmEVLlKKRHi5BQ5NesCFPXL2SImk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=WRDAvBZzYYuE5uEfs/DEtOe7zPNcnoZYbwSu75Up2HHOCiaYs3dPtA3OFeS3aPijj
+	 cdCJEC4io72wTxOSQfnNvLnLW0c2gv6tih+AGJaN/cIIMfccENvgOGgW+Y4y73EviJ
+	 /95XICjCmk7hF5YBUPHW0H5+53rvT5IPFuNh9DzIoo/B/iZuLVvbEAjqaT79MVu+SO
+	 zoH5NBPAIyQheTU4QmU6vzAQxSV9MnS1mlP894VbFgkaw3S9I8y+HXI75doohUQtiO
+	 LrWh102L8ZI7FGNYQCmOW2aK0zb6kqrnVpxfNYFRZM3L9sb8iFhtUia1zIniN3qzQ2
+	 6qH0YCc10mUxQ==
+Date: Wed, 21 Feb 2024 14:50:51 +0000
+From: Conor Dooley <conor@kernel.org>
+To: Maxwell Bland <mbland@motorola.com>
+Cc: linux-arm-kernel@lists.infradead.org, gregkh@linuxfoundation.org,
+	agordeev@linux.ibm.com, akpm@linux-foundation.org,
+	andreyknvl@gmail.com, andrii@kernel.org, aneesh.kumar@kernel.org,
+	aou@eecs.berkeley.edu, ardb@kernel.org, arnd@arndb.de,
+	ast@kernel.org, borntraeger@linux.ibm.com, bpf@vger.kernel.org,
+	brauner@kernel.org, catalin.marinas@arm.com,
+	christophe.leroy@csgroup.eu, cl@linux.com, daniel@iogearbox.net,
+	dave.hansen@linux.intel.com, david@redhat.com, dennis@kernel.org,
+	dvyukov@google.com, glider@google.com, gor@linux.ibm.com,
+	guoren@kernel.org, haoluo@google.com, hca@linux.ibm.com,
+	hch@infradead.org, john.fastabend@gmail.com, jolsa@kernel.org,
+	kasan-dev@googlegroups.com, kpsingh@kernel.org,
+	linux-arch@vger.kernel.org, linux@armlinux.org.uk,
+	linux-efi@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	lstoakes@gmail.com, mark.rutland@arm.com, martin.lau@linux.dev,
+	meted@linux.ibm.com, michael.christie@oracle.com, mjguzik@gmail.com,
+	mpe@ellerman.id.au, mst@redhat.com, muchun.song@linux.dev,
+	naveen.n.rao@linux.ibm.com, npiggin@gmail.com, palmer@dabbelt.com,
+	paul.walmsley@sifive.com, quic_nprakash@quicinc.com,
+	quic_pkondeti@quicinc.com, rick.p.edgecombe@intel.com,
+	ryabinin.a.a@gmail.com, ryan.roberts@arm.com,
+	samitolvanen@google.com, sdf@google.com, song@kernel.org,
+	surenb@google.com, svens@linux.ibm.com, tj@kernel.org,
+	urezki@gmail.com, vincenzo.frascino@arm.com, will@kernel.org,
+	wuqiang.matt@bytedance.com, yonghong.song@linux.dev,
+	zlim.lnx@gmail.com, awheeler@motorola.com
+Subject: Re: [PATCH 0/4] arm64: mm: support dynamic vmalloc/pmd configuration
+Message-ID: <20240221-ipod-uneaten-4da8b229f4a4@spud>
+References: <20240220203256.31153-1-mbland@motorola.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="r+os/L6iBAa0yd7x"
+Content-Disposition: inline
+In-Reply-To: <20240220203256.31153-1-mbland@motorola.com>
+
+
+--r+os/L6iBAa0yd7x
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <559f2595-1477-4ef0-80e4-85ae8b426de7@linux.ibm.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.6
 
-On 02/21/24 at 11:15am, Hari Bathini wrote:
-> Hi Baoquan,
-> 
-> On 04/02/24 8:56 am, Baoquan He wrote:
-> > > > Hope Hari and Pingfan can help have a look, see if
-> > > > it's doable. Now, I make it either have both kexec and crash enabled, or
-> > > > disable both of them altogether.
-> > > 
-> > > Sure. I will take a closer look...
-> > Thanks a lot. Please feel free to post patches to make that, or I can do
-> > it with your support or suggestion.
-> 
-> Tested your changes and on top of these changes, came up with the below
-> changes to get it working for powerpc:
-> 
-> 
-> https://lore.kernel.org/all/20240213113150.1148276-1-hbathini@linux.ibm.com/
-> 
-> Please take a look.
+Hey Maxwell,
 
-I added a comment to the patch 1 consulting if the "struct crash_mem" is
-appropriate to cover other cases except of kdump memory regions. I am
-wondering if its name need be adjusted, or other kind of memory you
-mentioned can use other structures or create a new one.
+FYI:
 
-If it's has to be done like that, it's fine. 
+>   mm/vmalloc: allow arch-specific vmalloc_node overrides
+>   mm: pgalloc: support address-conditional pmd allocation
 
+With these two arch/riscv/configs/* are broken with calls to undeclared
+functions.
+
+>   arm64: separate code and data virtual memory allocation
+>   arm64: dynamic enforcement of pmd-level PXNTable
+
+And with these two the 32-bit and nommu builds are broken.
+
+Cheers,
+Conor.
+
+--r+os/L6iBAa0yd7x
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZdYNywAKCRB4tDGHoIJi
+0gMuAP9F/qaVnaevMHMAFC79aMoA7T8MPtngzCYgeGKGkodjfwD+LfeSF0KgFWRs
+XPWMo+0cR11PZYg4ErTvrYapXzyvsgY=
+=uABL
+-----END PGP SIGNATURE-----
+
+--r+os/L6iBAa0yd7x--
