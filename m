@@ -1,131 +1,69 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78E7E4122C;
-	Wed, 21 Feb 2024 11:43:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCCE24F885;
+	Wed, 21 Feb 2024 12:54:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708515825; cv=none; b=VLTnQqW72n8YeUaBqcA1bXIexbsNOy9poMeVocdjbBHcyxfpcK2K7b460gNXwVUY4mEbXGmX700fZJUumffjnJ8el1wLyhf0LqzVe0u/lfmzbMEDny2nPTMLjNs9f/TFNaPnDRL9U1NgBAkzB6Svoce3kb4uwlKefxjfCn2FSXA=
+	t=1708520083; cv=none; b=Ksp5ha/TG2VS4viCrKezJHw7mggSfwixSGkxYrVxss0vy/BvR1SIuzOD4iSFM9CYWS5baCt96y/feD7pkV5TMXXgATp62ZCN2L+Wu8lQBkEANo6wWV1fEB60XcRJ1KXpm5aixLiAjDhoO9yAw4WV0Le0PxlyPMfht14LA/DDJqs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708515825; c=relaxed/simple;
-	bh=IRRpfo0N2xcpSAdFSoJMt3sPGsOjRi/HyC7JiD918Sw=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=uHMJE3dn0SDmpy3GlmOMMWnFknZyj9UlQPf4u8DK8nKU89GIoSh9AXqIA59TGX1GwtlhisGsJi7UaDU91Ix3M1I8+hOKJFhUZ4qF14c6LDEA1/bCXTzzFMBvxfda65gBbKofsXxbCvGuMg+YWX4NU93vgRyMWjnT9/4NtAyTILs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=c6fEb7CJ; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1708520083; c=relaxed/simple;
+	bh=xMuaRQmi8mF5oJ4sAY/kcWGv06Rgret1C6NYbGFH4kQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=SsWNbMnLi35S91BQOoQ9CqjzBhRHWwwdTpLcSJBD3iDDm8xQ9aKGt4ORjUNi19vk4cONa5Eajh5omNCkjRYKaunmIaXc2J6qPAgcwGulyO0dY0nEPfFJdUdHV/P23QX73vSucX5PBtZfiUcuqRxW1KXHXfCZKQzU+MkENz2FgqU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=KZvckHvZ; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="c6fEb7CJ"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41L9rmFQ016405;
-	Wed, 21 Feb 2024 11:43:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=IRRpfo0N2xcpSAdFSoJMt3sPGsOjRi/HyC7JiD918Sw=;
- b=c6fEb7CJda0YMRN+wjtGagvkXv1nu4pE3gXXj09cV2bQiDQ9Tjo5SsSerlVgZUoAZrNN
- czmhKrc7ZaX2YTcnnkUUobB4zMtwF4VZOvksEhj2ZLDu5ZE3C6aE3O/uaY3UrkZkB+H1
- ZFB/xa74tyYpNrfNI8LiuuU+h+jGYJtD8C78QfHtUi80Y463bTr5ur4/Pf6dzUFKAwcu
- jTph9JDQe0GJyk1PZkOsndFGq7f/NeZshRShftL+b/rugG4iGTjmScs0Uru329RtdXT7
- s25eI07DwLsI5CvJ+Mcij2v/wR6lvvwI4tZDRK08FUEO5HdhW1/Kfi7DcF3JBg8AQUng nw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wddp24jgc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 21 Feb 2024 11:43:41 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41LBRLKd028277;
-	Wed, 21 Feb 2024 11:43:41 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wddp24jg5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 21 Feb 2024 11:43:41 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41LAKJGo031138;
-	Wed, 21 Feb 2024 11:43:40 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wb9bkxcbr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 21 Feb 2024 11:43:40 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41LBhaJw18416160
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 21 Feb 2024 11:43:38 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9223158057;
-	Wed, 21 Feb 2024 11:43:36 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9DD885805D;
-	Wed, 21 Feb 2024 11:43:35 +0000 (GMT)
-Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.38.214])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 21 Feb 2024 11:43:35 +0000 (GMT)
-Message-ID: <8c170301bf02a3889ca3c3f79ac48ee961217f41.camel@linux.ibm.com>
-Subject: Re: [PATCH v4 0/2] KVM: s390: Fix AR parameter in ioctl
-From: Eric Farman <farman@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda
- <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Vasily
- Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Date: Wed, 21 Feb 2024 06:43:35 -0500
-In-Reply-To: <20240221112600.7561-B-hca@linux.ibm.com>
-References: <20240220211211.3102609-1-farman@linux.ibm.com>
-	 <bbe1db67-386b-4738-83d5-6e02cd3c9d58@linux.ibm.com>
-	 <20240221112600.7561-B-hca@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.4 (3.50.4-1.fc39) 
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="KZvckHvZ"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+	Content-ID:Content-Description:In-Reply-To:References;
+	bh=yvYGHSzCWCkwzgThPl2l4RB3q5bq4w0D/LjLU6sE6rg=; b=KZvckHvZIb82JdXju4HoA3vnzl
+	ddQLo7tEfWsD9aGqBiMC5Q/2E5r/GlCha0pytswGp4TbbuJFZox/v4vl1fTi1atIzzUgIt5xyWHgu
+	Y3D7PZ98onDicgZXjDISBaQ+JE5Ema21uCXlFkbvmO5gckR/vK6lLh2rWEH6HGO1620mqv5OnauKi
+	0dA/mzFx+hgaBZDV/yHK5+n5/eBkf6XYj3wlexyAMKbxWqat81UAtdSBHs059N16lqL14qL9h0P8A
+	ogrg8traOX/utjeOJCHlbDSNCxSMgwTPqFkbjbgW0crMS1MQ5VdJoaMykX6AJAZnrO0w6bSUyvfAu
+	YOgaXx3w==;
+Received: from 2a02-8389-2341-5b80-39d3-4735-9a3c-88d8.cable.dynamic.v6.surfer.at ([2a02:8389:2341:5b80:39d3:4735:9a3c:88d8] helo=localhost)
+	by bombadil.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1rcm7U-00000000vJL-35Sw;
+	Wed, 21 Feb 2024 12:54:41 +0000
+From: Christoph Hellwig <hch@lst.de>
+To: Stefan Haberland <sth@linux.ibm.com>,
+	Jan Hoeppner <hoeppner@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Jens Axboe <axboe@kernel.dk>
+Cc: linux-block@vger.kernel.org,
+	linux-s390@vger.kernel.org
+Subject: convert dasd to the atomic queue limits update API
+Date: Wed, 21 Feb 2024 13:54:35 +0100
+Message-Id: <20240221125438.3609762-1-hch@lst.de>
+X-Mailer: git-send-email 2.39.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: uUqJcSllguAw-9crn87dQxGwdDbMDYH3
-X-Proofpoint-ORIG-GUID: KyexTtdirze4GxtVktYqdD_j4t7ecKiG
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-20_06,2024-02-21_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
- priorityscore=1501 suspectscore=0 clxscore=1015 impostorscore=0
- bulkscore=0 mlxscore=0 mlxlogscore=955 lowpriorityscore=0 adultscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402210090
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-On Wed, 2024-02-21 at 12:26 +0100, Heiko Carstens wrote:
-> On Wed, Feb 21, 2024 at 08:49:58AM +0100, Janosch Frank wrote:
-> > On 2/20/24 22:12, Eric Farman wrote:
-> > > Hi Janosch,
-> > >=20
-> > > Here is a new (final?) version for the AR/MEM_OP issue I'm
-> > > attempting to
-> > > address. Hopefully they can be picked up to whatever tree makes
-> > > sense.
-> > >=20
-> >=20
-> > I've got good and bad news for you :)
-> >=20
-> > You need to re-base this patch set on Heiko's feature branch once
-> > my kvm fpu
-> > patch is on there since the current version runs into conflicts
-> > with Heiko's
-> > fpu rework. We'll contact you once that's the case. The patch made
-> > it onto
-> > devel yesterday evening and I assumed you'd wait a bit until
-> > sending a new
-> > version but I was mistaken.
->=20
-> I resolved the trivial merge conflict - no need to resend anything.
->=20
-> Series applied, thanks!
+Hi dasd maintainers,
 
-Ah, sorry about that, I didn't notice the other fpu stuff go through.
-Thank you, Heiko!
+this series against the block/for-6.9 tree converts dasd to the new atomic
+queue limits update API.  It is compile tested only as I don't have any
+s390 hardware.
+
+Diffstat:
+ dasd.c       |   74 ++++++++++++++++++++++++++++++++++++-----------------------
+ dasd_diag.c  |   22 ++---------------
+ dasd_eckd.c  |   29 ++++-------------------
+ dasd_fba.c   |   33 +++-----------------------
+ dasd_genhd.c |   13 +++++++++-
+ dasd_int.h   |    6 +---
+ 6 files changed, 73 insertions(+), 104 deletions(-)
