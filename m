@@ -1,147 +1,96 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3D6039AFC;
-	Wed, 21 Feb 2024 13:09:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F43278B4F
+	for <linux-s390@vger.kernel.org>; Wed, 21 Feb 2024 13:44:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708520950; cv=none; b=mMi8lwNXP1iooLBPQvEBWoWuaMqk5c3r3h5CfmvgZ++L8yfirqHBxvcStVBH0B2hQjVb6AnOy3NBeChwcl4cJG/OjfDcuUBJbWFazqKa/JckAYgH+SNDjm8YPcfXYcKvVAKWJvQwLUhnNl3150kX6+ITpOOOgNZbMlGtVfUuYnM=
+	t=1708523053; cv=none; b=jbCWBZPYf/eQXFmjaBsI5kPeUZrjNEaCl66Kn0ziyb4FChGJhzYbrTtAwy0F9t7YuWEdzDKquZ8O8fJ/k3b54rh/01mScjwJ5xa4JqmLzwEnsY+3f3Z1yEnYOygpFU9ScpdpB30UJxmlD8X2uSO4ogsBzBfe6f6wZeZu9bOpLlg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708520950; c=relaxed/simple;
-	bh=Q55emcuV4wS3Lfh9KxdL2gjgKjCUzwvJptwDE5L2wtY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=moXhJIONgo+2viNoLjn/dlokMJJHnBPXMRgcQ5S/c2Cd5bZXryfZ1Om76GHhZZPWkUnxVrh7fTVK5iCQpgMJo4cVVDrEtuOJOI9V5p1U0FfElyqcTxGhk/yKDv1t5NL6fj/TkcN0xQbidXsiyNatcHLq6J70XrRAKQodZ8sAI3s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=oHfUXVCf; arc=none smtp.client-ip=115.124.30.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1708523053; c=relaxed/simple;
+	bh=MrsZ6R8kVdxd/n4xz6d/BNCiT9VSGP+MbjDNCaoodJE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=txH5J2BH+MYhTCs89kU+GtdwwShnMcvrLEJkgAvU5DYKhVzNlQVd1Un2xXTUh1epPyIBx8stRtf13C/M52vv5A4T96KeOPu1k7YVueHakHJ2BE/QkfCEoUjahF4Tf8IpKDvsSLugL741lzyh0QkQhulHGMJYYxT5BlRilK/wzlg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G7MhRJjn; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="oHfUXVCf"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1708520944; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=gcNopQzKR1C1HDbgc/AmjarLSUmVd/oDd7WLc0ml9L8=;
-	b=oHfUXVCfGsrH88bu5pq3LgP0xo1bKCYOPzYk6qLnlAq5pM1gcuwcPtudYSHCgjY4boK/6iqJueLxUSbu2m4sRh4f7K37oHE5Wz80fI4wn0zrPGAmw8JxrH2b9J81Sgq437LAs3MBqeRJ29soEXsO/2FF5GJV/vr2oSLCO46jS6U=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R761e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0W0zwBDH_1708520942;
-Received: from 30.221.129.11(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W0zwBDH_1708520942)
-          by smtp.aliyun-inc.com;
-          Wed, 21 Feb 2024 21:09:03 +0800
-Message-ID: <819353f3-f5f9-4a15-96a1-4f3a7fd6b33e@linux.alibaba.com>
-Date: Wed, 21 Feb 2024 21:09:01 +0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G7MhRJjn"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1708523050;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=kjg3ALQw4zFfCtoxrqU3mC8VARBMiLwWXwoSwpKkxVk=;
+	b=G7MhRJjnx3MpI53N/cV2mYP6UEgd8QiqRly7Fra95TBWL8ZksdO6Lkc1jkHhZZ7h3OEcNS
+	4OKx5R1VeG+a9qBLCVoz83q8LFPIpnPbjRzwC2s6pydX0jkWHb59lEhVu8yQxsXlZGTJEc
+	VXIzZowFo1g2z1dXcq9bHBZCfJes12g=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-583-viBCBzv1MZWeE0zNlD0FTQ-1; Wed, 21 Feb 2024 08:44:09 -0500
+X-MC-Unique: viBCBzv1MZWeE0zNlD0FTQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1712C867943;
+	Wed, 21 Feb 2024 13:44:08 +0000 (UTC)
+Received: from localhost (unknown [10.72.116.2])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 21A5F2166B36;
+	Wed, 21 Feb 2024 13:44:06 +0000 (UTC)
+Date: Wed, 21 Feb 2024 21:44:04 +0800
+From: Baoquan He <bhe@redhat.com>
+To: Hari Bathini <hbathini@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, piliu@redhat.com, linux-sh@vger.kernel.org,
+	x86@kernel.org, kexec@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+	ebiederm@xmission.com, loongarch@lists.linux.dev,
+	linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+	akpm@linux-foundation.org, linux-arm-kernel@lists.infradead.org,
+	viro@zeniv.linux.org.uk
+Subject: Re: [PATCH v2 00/14] Split crash out from kexec and clean up related
+ config items
+Message-ID: <ZdX+JMKsQWheE0B0@MiWiFi-R3L-srv>
+References: <20240119145241.769622-1-bhe@redhat.com>
+ <9101bb07-70f1-476c-bec9-ec67e9899744@linux.ibm.com>
+ <Zb8D1ASrgX0qVm9z@MiWiFi-R3L-srv>
+ <559f2595-1477-4ef0-80e4-85ae8b426de7@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] [RFC] net: smc: fix fasync leak in smc_release()
-To: Dmitry Antipov <dmantipov@yandex.ru>, Wenjia Zhang <wenjia@linux.ibm.com>
-Cc: Jan Karcher <jaka@linux.ibm.com>, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, lvc-project@linuxtesting.org
-References: <20240221051608.43241-1-dmantipov@yandex.ru>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <20240221051608.43241-1-dmantipov@yandex.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <559f2595-1477-4ef0-80e4-85ae8b426de7@linux.ibm.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.6
 
-
-
-On 2024/2/21 13:16, Dmitry Antipov wrote:
-> I've tracked https://syzkaller.appspot.com/bug?extid=5f1acda7e06a2298fae6
-> down to the problem which may be illustrated by the following pseudocode:
+On 02/21/24 at 11:15am, Hari Bathini wrote:
+> Hi Baoquan,
 > 
-> int sock;
+> On 04/02/24 8:56 am, Baoquan He wrote:
+> > > > Hope Hari and Pingfan can help have a look, see if
+> > > > it's doable. Now, I make it either have both kexec and crash enabled, or
+> > > > disable both of them altogether.
+> > > 
+> > > Sure. I will take a closer look...
+> > Thanks a lot. Please feel free to post patches to make that, or I can do
+> > it with your support or suggestion.
 > 
-> /* thread 1 */
+> Tested your changes and on top of these changes, came up with the below
+> changes to get it working for powerpc:
 > 
-> while (1) {
->         struct msghdr msg = { ... };
->         sock = socket(AF_SMC, SOCK_STREAM, 0);
->         sendmsg(sock, &msg, MSG_FASTOPEN);
->         close(sock);
-> }
 > 
-> /* thread 2 */
+> https://lore.kernel.org/all/20240213113150.1148276-1-hbathini@linux.ibm.com/
 > 
-> while (1) {
->         int on = 1;
->         ioctl(sock, FIOASYNC, &on);
->         on = 0;
->         ioctl(sock, FIOASYNC, &on);
-> }
-> 
-> That is, something in thread 1 may cause 'smc_switch_to_fallback()' and
-> swap kernel sockets (of 'struct smc_sock') behind 'sock' between 'ioctl()'
-> calls in thread 2, so this becomes an attempt to add fasync entry to one
-> socket but remove from another one. When 'sock' is closing, '__fput()'
-> calls 'f_op->fasync()' _before_ 'f_op->release()', and it's too late to
-> revert the trick performed by 'smc_switch_to_fallback()' in 'smc_release()'
-> and below. Finally we end up with leaked 'struct fasync_struct' object
-> linked to the base socket, and this object is noticed by '__sock_release()'
-> ("fasync list not empty"). Of course using 'fasync_remove_entry()' in such
-> a way is extremely ugly, but what else we can do without touching generic
-> socket code, '__fput()', etc.? Comments are highly appreciated.
-> 
+> Please take a look.
 
-Hi, Dmitry. Just to confirm if I understand correctly:
+I added a comment to the patch 1 consulting if the "struct crash_mem" is
+appropriate to cover other cases except of kdump memory regions. I am
+wondering if its name need be adjusted, or other kind of memory you
+mentioned can use other structures or create a new one.
 
-1. on = 1; ioctl(sock, FIOASYNC, &on), a fasync entry is added to
-    smc->sk.sk_socket->wq.fasync_list;
+If it's has to be done like that, it's fine. 
 
-2. Then fallback happend, and swapped the socket:
-    smc->clcsock->file = smc->sk.sk_socket->file;
-    smc->clcsock->file->private_data = smc->clcsock;
-    smc->clcsock->wq.fasync_list = smc->sk.sk_socket->wq.fasync_list;
-    smc->sk.sk_socket->wq.fasync_list = NULL;
-
-3. on = 0; ioctl(sock, FIOASYNC, &on), the fasync entry is removed
-    from smc->clcsock->wq.fasync_list,
-(Is there a race between 2 and 3 ?)
-
-4. Then close the file, __fput() calls file->f_op->fasync(-1, file, 0),
-    then sock_fasync() calls fasync_helper(fd, filp, on, &wq->fasync_list)
-    and fasync_remove_entry() removes entries in smc->clcsock->wq.fasync_list.
-    Now smc->clcsock->wq.fasync_list is empty.
-
-5. __fput() calls file->f_op->release(inode, file), then sock_close calls
-    __sock_release, then ops->release calls smc_release(), and __smc_release()
-    calls smc_restore_fallback_changes() to restore socket:
-    if (smc->clcsock->file) { /* non-accepted sockets have no file yet */
-         smc->clcsock->file->private_data = smc->sk.sk_socket;
-         smc->clcsock->file = NULL;
-         smc_fback_restore_callbacks(smc);
-    }
-
-6. Then back to __sock_release, check if sock->wq.fasync_list (that is
-    smc->sk.sk_socket->wq.fasync_list) is empty and it is empty.
-
-So in which step we leaked the fasync_struct entry in smc->sk.sk_socket->wq.fasync_list?
-Looks like I missed something, could you please point it to me?
-
-Thanks!
-
-> Signed-off-by: Dmitry Antipov <dmantipov@yandex.ru>
-> ---
->   net/smc/af_smc.c | 8 ++++++--
->   1 file changed, 6 insertions(+), 2 deletions(-)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 0f53a5c6fd9d..68cde9db5d2f 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -337,9 +337,13 @@ static int smc_release(struct socket *sock)
->   	else
->   		lock_sock(sk);
->   
-> -	if (old_state == SMC_INIT && sk->sk_state == SMC_ACTIVE &&
-> -	    !smc->use_fallback)
-> +	if (smc->use_fallback) {
-> +		/* FIXME: ugly and should be done in some other way */
-> +		if (sock->wq.fasync_list)
-> +			fasync_remove_entry(sock->file, &sock->wq.fasync_list);
-> +	} else if (old_state == SMC_INIT && sk->sk_state == SMC_ACTIVE) {
->   		smc_close_active_abort(smc);
-> +	}
->   
->   	rc = __smc_release(smc);
->   
