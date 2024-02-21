@@ -1,77 +1,54 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C42613A1AF;
-	Wed, 21 Feb 2024 20:57:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DE7117553;
+	Wed, 21 Feb 2024 22:31:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708549074; cv=none; b=nybWr0hiArKPTSQEgvxRv9Aq9En7hrW/2T+3kJ3ukReE26g8WFJfgcYZsCpcGRn77kxx5gSoZiHTGUIFplksjNBLFZLBQjvULoEeeS9mk7Nm1A2KXdar/2P8IRcrAChfb4fBvIs0UuEYuiedVKrbUyBX0uC4vvmIaBBMAefaFX0=
+	t=1708554677; cv=none; b=LjKP4UMSz3+8H7m1ofZjTw54fV5gUbSKmOazMxRh7oZpYsJ7kIbXyofDJPt5iizls66KEySDS5QwVGxLCt2UDBk9H5oZBvtP74fpCjMuxYaNqQxDYseEB+PTRLCqSALKpiWv+zHHQ5I2/YVE4DO1JFN1FvF8beoYx3u0OVlDomU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708549074; c=relaxed/simple;
-	bh=cQNUlLy8aiGRIYPC4jZV2h79/t7uLaYDp/ZsuaE++9Y=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=RD/0mynJsdJweaXVw9sZCxyvQ+bYrGzNlfX59Pro2+M7eFu2GpCOBAx8VjIHWeAQIPjmdWjWF/0EF2qacx4SET4Ya2z4k5TNhHcEPrljDt0FKd7AdcchbAOeqobVaDYVNLA8p2zg7ofVng0jNURX81YLOMktV8Lw0Wki6gbmHsw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=Bbd9ALrc; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1708554677; c=relaxed/simple;
+	bh=4Mt9fJw7fa0dBFd5/WLBOVMdYpRBrP5VofjvRlqAkU4=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=kFUV+2re1yEeLRGwfx2e7e4PTHSWknxLBwO/vMS3u1cEOCMMJhhVwjjCleKb2lMBcg8PzkircDeCw03CIUjeUIzTGqVbWJ626HwC7QoWwX+u9t4+LEXf0sFQjBlzQs34oPUiFhnUQHZcNXIngVL8+ONCmRQrbVURm+YMy7djwng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KGXnYO76; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="Bbd9ALrc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92CEFC433F1;
-	Wed, 21 Feb 2024 20:57:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-	s=korg; t=1708549073;
-	bh=cQNUlLy8aiGRIYPC4jZV2h79/t7uLaYDp/ZsuaE++9Y=;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KGXnYO76"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 968B8C433C7;
+	Wed, 21 Feb 2024 22:31:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1708554676;
+	bh=4Mt9fJw7fa0dBFd5/WLBOVMdYpRBrP5VofjvRlqAkU4=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=Bbd9ALrcftdB4hiAFAbv+r3I0ERbgznFbhuh6MxPmx8jG8xGLzeq23eo9RRwwfYK+
-	 iZCi2iMyB0NelsBsnf7/OypvyrQWmMazP7HA7Jbw0rZNQMouPMIBGFEDM881CMWNgk
-	 2e1ZuX9I7suwwEUiqPo2BxD0oszsroHPkKn6qHbQ=
-Date: Wed, 21 Feb 2024 12:57:52 -0800
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Hari Bathini <hbathini@linux.ibm.com>
-Cc: Baoquan He <bhe@redhat.com>, linux-s390@vger.kernel.org,
- piliu@redhat.com, linux-sh@vger.kernel.org, x86@kernel.org,
- kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-mips@vger.kernel.org, ebiederm@xmission.com,
- loongarch@lists.linux.dev, linux-riscv@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org,
- viro@zeniv.linux.org.uk
-Subject: Re: [PATCH v2 00/14] Split crash out from kexec and clean up
- related config items
-Message-Id: <20240221125752.36fbfe9c307496313198b60f@linux-foundation.org>
-In-Reply-To: <559f2595-1477-4ef0-80e4-85ae8b426de7@linux.ibm.com>
-References: <20240119145241.769622-1-bhe@redhat.com>
-	<9101bb07-70f1-476c-bec9-ec67e9899744@linux.ibm.com>
-	<Zb8D1ASrgX0qVm9z@MiWiFi-R3L-srv>
-	<559f2595-1477-4ef0-80e4-85ae8b426de7@linux.ibm.com>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	b=KGXnYO76RDcpFem8nJsp/iijVHis5hc/cBpUKJERo80Qq+IekxwunJGZW7PHoyKDY
+	 Hs8+oizK4a0ELie6FgSWxf4WK53DFsi5WsBnbG7diy0G+2im+Tv57vyorPwR2HyPk7
+	 g9s9cL3h6D6nvg8POOCel77FfSvo0bBjXnjGviR2NVqbbPOlsrB4zi/A9C0If7J+Lj
+	 hhxzXuE518LNl3HZy7iFCButJlN93vmFFNHJH616jhN4X8nFm6lEz5ETrCa0oWlCyO
+	 p1vz2zGxML2hd/1qz1QJq3rmDSmgfa20JsKWU0slu0n5WtxiN6wV03Lx/XsahPtgHb
+	 laDH+U5hP7c6g==
+Date: Wed, 21 Feb 2024 14:31:15 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: Alexandra Winter <wintera@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Thorsten Winkler
+ <twinkler@linux.ibm.com>, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] net/af_iucv: fix virtual vs physical address confusion
+Message-ID: <20240221143115.6b04b62a@kernel.org>
+In-Reply-To: <47789946-0ffe-462e-9e2e-43b03ea41fe0@linux.ibm.com>
+References: <20240215080500.2616848-1-agordeev@linux.ibm.com>
+	<47789946-0ffe-462e-9e2e-43b03ea41fe0@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Wed, 21 Feb 2024 11:15:00 +0530 Hari Bathini <hbathini@linux.ibm.com> wrote:
+On Thu, 15 Feb 2024 14:36:57 +0100 Alexandra Winter wrote:
+> I would have preferred to do all the translations in __iucv_* functions in iucv.c,
+> but I understand that for __iucv_message_receive() this would mean significant changes. 
 
-> On 04/02/24 8:56 am, Baoquan He wrote:
-> >>> Hope Hari and Pingfan can help have a look, see if
-> >>> it's doable. Now, I make it either have both kexec and crash enabled, or
-> >>> disable both of them altogether.
-> >>
-> >> Sure. I will take a closer look...
-> > Thanks a lot. Please feel free to post patches to make that, or I can do
-> > it with your support or suggestion.
-> 
-> Tested your changes and on top of these changes, came up with the below
-> changes to get it working for powerpc:
-> 
->  
-> https://lore.kernel.org/all/20240213113150.1148276-1-hbathini@linux.ibm.com/
-
-So can we take it that you're OK with Baoquan's series as-is?
-
-Baoquan, do you believe the patches in mm-unstable are ready for moving
-into mm-stable in preparation for an upstream merge?
-
-
-
+FWIW we're assuming this is going via the s390 tree.
+Please let us know if you prefer networking to pick it up.
