@@ -1,100 +1,139 @@
-Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C2EF10F1;
-	Thu, 22 Feb 2024 00:57:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7636C7482;
+	Thu, 22 Feb 2024 05:17:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708563446; cv=none; b=MlgcdaYSOtXIk6P+WPJLKcbZwMy13+rA/o/8aOOlJpXUyCrEnAZKbnZAgNjFnlX2gAX6KDvUZ/ieraJsqy1LPM3Gsk81Jx9IlQCzJC9CYm+GZgZ88zzb4hyC1F4hnZSZaL6xoM7SCD2/3TLyBcLYkqk7xscKZlbD2RNfz1JmNLY=
+	t=1708579072; cv=none; b=RF1MlMuM97tIxbhEzqqEDIpWgz6fGRYUfERv82jNHOB4SvHUu1DAGRoNAqM03jWWVvJehQUurC6WKTZcOZs+qwfraAm4bMY93EuR0L9FEnhtxaBB5lJJ92BjeHpycDexcZXhh0cLl4qziLqE9VfTa9FeZ97Opa8M4rnUNVs2lKk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708563446; c=relaxed/simple;
-	bh=TpNLIT6IBsmqizqpSoGO/6QU3PYKUcfmgj/xzzcRj2E=;
-	h=Message-ID:Date:MIME-Version:CC:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=H3aUBe/Nw+U8Cb5vYCbTAA+RGDzRfNhXpkaiIc/e3nzOct2CrKSOA1W9mbjpxEiBLDNBWgbsgnF4PJg0VfcOaPG7LKs8dA+TEqcvfheBkNJ5O3GTS6z2+Yq/CzRf7oN+NHxWtbHGslBGXp/f60W6nCG6sDmhCvfO1Jy5azB4mSY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.44])
-	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4TgF6d26ZSz2Bd3b;
-	Thu, 22 Feb 2024 08:55:05 +0800 (CST)
-Received: from kwepemm600007.china.huawei.com (unknown [7.193.23.208])
-	by mail.maildlp.com (Postfix) with ESMTPS id A555D140383;
-	Thu, 22 Feb 2024 08:57:14 +0800 (CST)
-Received: from [10.67.120.192] (10.67.120.192) by
- kwepemm600007.china.huawei.com (7.193.23.208) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Thu, 22 Feb 2024 08:57:13 +0800
-Message-ID: <45ac5429-df48-489e-928f-8444aea127cd@huawei.com>
-Date: Thu, 22 Feb 2024 08:57:12 +0800
+	s=arc-20240116; t=1708579072; c=relaxed/simple;
+	bh=9gNhI/HsDtNamLxlDShpJ4poTz3S2AKFbaAKWidvA28=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=netaBGPsee9Ks3LXZrJ4n3diuY/agpIheWwByHxIYdijAXzzb7JBTH9AgsY+hZjVoWaYmef7RLHcaQ1omU3ME3mKcjIqnj3axQ4cfqU2OHeGmBkm0M6cKMJ++QV1tukJ8F38lvxm3+sNM+sNYB84UbwQNm2Q1kpuKZz74RZlSqg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=j2df0zYH; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="j2df0zYH"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41M4R18H006546;
+	Thu, 22 Feb 2024 05:17:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=K/2wCf7f7QyZDGdorAUOAQQO5+gbW6WWu/gqndqtKoo=;
+ b=j2df0zYHchuygCjJA8VvcPJMD5NOOimHOizytE+BsJqendgmCw6liiefKOdO4Xk7oI8Q
+ gLl8/2EYckkCCycaJE4Szarj0rlNtu6VXE6fglTkfAs+zC42vvveYZ5Apuzi56mjFD6n
+ ht6Ro0ysut5PTMuIhaFaVfKZ+JUHSXg9FO3O7gjfj+HLyqSANQMqT/KDC7PpAcclPX+o
+ rcrcpXnXQEEFtArWb/OOPEkml2HwlyEwP6j4+5u7Eu91Xrsu8cRJ71wOeNbqtRSl5DLa
+ HMao4YJOoPUb06NpNWUX1AmnN0OKe1mGq5EkL7G7K2+NEqVVboq5N1SbaAjZvCo+cb79 VQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wdy8g90us-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 22 Feb 2024 05:17:39 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41M5El9B013094;
+	Thu, 22 Feb 2024 05:17:38 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wdy8g90tw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 22 Feb 2024 05:17:38 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41M3Yqmv031143;
+	Thu, 22 Feb 2024 05:17:37 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wb9bm3my2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 22 Feb 2024 05:17:36 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41M5HXgC65929482
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 22 Feb 2024 05:17:35 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 442CE2004E;
+	Thu, 22 Feb 2024 05:17:33 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7CF102004B;
+	Thu, 22 Feb 2024 05:17:30 +0000 (GMT)
+Received: from [9.203.115.195] (unknown [9.203.115.195])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 22 Feb 2024 05:17:30 +0000 (GMT)
+Message-ID: <3393a42f-d9b3-4031-bdef-78bb2ce758f1@linux.ibm.com>
+Date: Thu, 22 Feb 2024 10:47:29 +0530
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 00/14] Split crash out from kexec and clean up related
+ config items
+Content-Language: en-US
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-s390@vger.kernel.org, Baoquan He <bhe@redhat.com>, piliu@redhat.com,
+        linux-sh@vger.kernel.org, x86@kernel.org, kexec@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+        ebiederm@xmission.com, loongarch@lists.linux.dev,
+        linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+        linux-arm-kernel@lists.infradead.org, viro@zeniv.linux.org.uk
+References: <20240119145241.769622-1-bhe@redhat.com>
+ <9101bb07-70f1-476c-bec9-ec67e9899744@linux.ibm.com>
+ <Zb8D1ASrgX0qVm9z@MiWiFi-R3L-srv>
+ <559f2595-1477-4ef0-80e4-85ae8b426de7@linux.ibm.com>
+ <20240221125752.36fbfe9c307496313198b60f@linux-foundation.org>
+From: Hari Bathini <hbathini@linux.ibm.com>
+In-Reply-To: <20240221125752.36fbfe9c307496313198b60f@linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Uw-TiETYrrtmy9xa6nwhBWKWx0V7gLnU
+X-Proofpoint-ORIG-GUID: pNdWEEFYaOYyVGnBPerBSEQApCC4_Zph
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-CC: <shaojijie@huawei.com>, Arnd Bergmann <arnd@arndb.de>, Catalin Marinas
-	<catalin.marinas@arm.com>, Leon Romanovsky <leonro@mellanox.com>,
-	<linux-arch@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>, Mark
- Rutland <mark.rutland@arm.com>, Michael Guralnik <michaelgur@mellanox.com>,
-	<patches@lists.linux.dev>, Niklas Schnelle <schnelle@linux.ibm.com>, Will
- Deacon <will@kernel.org>
-Subject: Re: [PATCH 5/6] net: hns3: Remove io_stop_wc() calls after
- __iowrite64_copy()
-To: Jason Gunthorpe <jgg@nvidia.com>, Alexander Gordeev
-	<agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Borislav Petkov
-	<bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, "David S. Miller"
-	<davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Gerald Schaefer
-	<gerald.schaefer@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Heiko
- Carstens <hca@linux.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Justin Stitt
-	<justinstitt@google.com>, Jakub Kicinski <kuba@kernel.org>, Leon Romanovsky
-	<leon@kernel.org>, <linux-rdma@vger.kernel.org>,
-	<linux-s390@vger.kernel.org>, <llvm@lists.linux.dev>, Ingo Molnar
-	<mingo@redhat.com>, Bill Wendling <morbo@google.com>, Nathan Chancellor
-	<nathan@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>,
-	<netdev@vger.kernel.org>, Paolo Abeni <pabeni@redhat.com>, Salil Mehta
-	<salil.mehta@huawei.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas
- Gleixner <tglx@linutronix.de>, <x86@kernel.org>, Yisen Zhuang
-	<yisen.zhuang@huawei.com>
-References: <5-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
-From: Jijie Shao <shaojijie@huawei.com>
-In-Reply-To: <5-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- kwepemm600007.china.huawei.com (7.193.23.208)
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-22_03,2024-02-21_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
+ priorityscore=1501 impostorscore=0 clxscore=1015 suspectscore=0
+ lowpriorityscore=0 spamscore=0 phishscore=0 bulkscore=0 malwarescore=0
+ mlxscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402220039
 
-Reviewed-by: Jijie Shao<shaojijie@huawei.com>
 
-on 2024/2/21 9:17, Jason Gunthorpe wrote:
-> Now that the ARM64 arch implementation does the DGH as part of
-> __iowrite64_copy() there is no reason to open code this in drivers.
->
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->   drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 4 ----
->   1 file changed, 4 deletions(-)
->
-> diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-> index f1695c889d3a07..ff556c2b5bacb4 100644
-> --- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-> +++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-> @@ -2068,8 +2068,6 @@ static void hns3_tx_push_bd(struct hns3_enet_ring *ring, int num)
->   	__iowrite64_copy(ring->tqp->mem_base, desc,
->   			 (sizeof(struct hns3_desc) * HNS3_MAX_PUSH_BD_NUM) /
->   			 HNS3_BYTES_PER_64BIT);
-> -
-> -	io_stop_wc();
->   }
->   
->   static void hns3_tx_mem_doorbell(struct hns3_enet_ring *ring)
-> @@ -2088,8 +2086,6 @@ static void hns3_tx_mem_doorbell(struct hns3_enet_ring *ring)
->   	u64_stats_update_begin(&ring->syncp);
->   	ring->stats.tx_mem_doorbell += ring->pending_buf;
->   	u64_stats_update_end(&ring->syncp);
-> -
-> -	io_stop_wc();
->   }
->   
->   static void hns3_tx_doorbell(struct hns3_enet_ring *ring, int num,
+
+On 22/02/24 2:27 am, Andrew Morton wrote:
+> On Wed, 21 Feb 2024 11:15:00 +0530 Hari Bathini <hbathini@linux.ibm.com> wrote:
+> 
+>> On 04/02/24 8:56 am, Baoquan He wrote:
+>>>>> Hope Hari and Pingfan can help have a look, see if
+>>>>> it's doable. Now, I make it either have both kexec and crash enabled, or
+>>>>> disable both of them altogether.
+>>>>
+>>>> Sure. I will take a closer look...
+>>> Thanks a lot. Please feel free to post patches to make that, or I can do
+>>> it with your support or suggestion.
+>>
+>> Tested your changes and on top of these changes, came up with the below
+>> changes to get it working for powerpc:
+>>
+>>   
+>> https://lore.kernel.org/all/20240213113150.1148276-1-hbathini@linux.ibm.com/
+> 
+> So can we take it that you're OK with Baoquan's series as-is?
+
+Hi Andrew,
+
+If you mean
+
+v3 (https://lore.kernel.org/all/20240124051254.67105-1-bhe@redhat.com/)
++
+follow-up from Baoquan 
+(https://lore.kernel.org/all/Zb8D1ASrgX0qVm9z@MiWiFi-R3L-srv/)
+
+Yes.
+
+My changes are based on top of the above patches..
+
+Thanks
+Hari
