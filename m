@@ -1,152 +1,112 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89AD53986D;
-	Thu, 22 Feb 2024 09:40:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90DF3F9D8;
+	Thu, 22 Feb 2024 13:45:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708594840; cv=none; b=I7McaNznPgrhjAvHYu50khCiAnyoyPFeJye2ba2bC4F5vcmTs1s593Xw8gNVNd3arlK+WNkYWP97Irh02ArTsWZqmstceyBUcR2KYcpexOX/stDptQbCG6XqXAIWlH5FDELgq9+onu1VBHYxymq4Q2bRHEKzpK03lEqH4R67czQ=
+	t=1708609510; cv=none; b=tO+Ir0zOG1YH7dFetFgS9pO/XwnnbJ9m+cwQDt9t46XK0/KU0GLXCSj89s+1mz5QZiIWjuVmpewj2OSKOxxZGhGoh4/JMqNBgWx7oyzu6BRahPg/hAQAaVJ2JiZm9lA408nNMqz8wz/LGC0RcYz56DNvndz1JQTQzhzIgQrQU5g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708594840; c=relaxed/simple;
-	bh=efkzTYWrTmTbPTbQPObvAPyZc8+gjhybQ3GJKlK8M8I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lHnHhJfHoCuxUXa5LAkyZtp8Xz1Z5evlT3wQFe3X5101UvD3GBcI0hTUeAkuYKmXjKeP4bw3uHwoV9PMxb0G/Wlf686sHJngzSJK+fx3XFqKoKxRfmj1lvBZ4LM36hRUAMT4h2251JxMNro4H5zmtLj3qIFKxdOV+cm+PlOJJf0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PGOsmF4a; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1708609510; c=relaxed/simple;
+	bh=5hmtygycM6xhOBU+7ZY8fYWHj/9o3DeQwnqDb7zUViE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=W+1wxJyJ3hV6sQNhmhYJEgBPs5FZLnpGhTFnGHSvC1PL0RnyavM6aVLQ+mZL9jx8gkAIrlQwmXwpx1eFzV4ml4hHz1Eyfv3XdjbMO8IsZd8uZlaMJZy0/a4fqhBoL4+Uneuo+QdkZeD1vCA74VfVueeRl4M+rdpT9i1YZ9WLcnI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lkzzH5yw; arc=none smtp.client-ip=198.175.65.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PGOsmF4a"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41M9ViSi024617;
-	Thu, 22 Feb 2024 09:40:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=VIH6Tp3PBXWWsPBKtxaJdEAnRBYygry9mfSz3GLoEOU=;
- b=PGOsmF4aI1iwsyO8l3B5YX0GhXCI1K1wzATZWpvx9wnBcOQQxeo8AfwOa+TP+QBuLe1p
- N46++0caD/r2JM6Ce1/EYyExI7vDBu+T5HEMy7xfZ72K7sIfWtMEgOFozzzJbr2QWqfd
- WsYyLDkf82mHTJ/00+1J7Q+or3ogkaHJJGJnsKRG+M/lRJOboXpQjn1y5kqazmqE7jyA
- 2BSUTG9QETsxXqstVzuxxcjDPX3ZFz85JLs9XHvBMnH9tghAiMZPEyp11Iytn7+CicRJ
- s4iO9nmi+TV59x1m2DN3CAfkEY70B96s/3eRMWru40d7F+3LXlYndD9BaHsgwSA+RAd1 2w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3we3c8guke-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 22 Feb 2024 09:40:37 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41M9cCGQ019401;
-	Thu, 22 Feb 2024 09:40:37 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3we3c8gujw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 22 Feb 2024 09:40:36 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41M72SgX031138;
-	Thu, 22 Feb 2024 09:40:36 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wb9bm4txq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 22 Feb 2024 09:40:36 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41M9eU9K44761692
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 22 Feb 2024 09:40:32 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BC2FC20040;
-	Thu, 22 Feb 2024 09:40:30 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8E5EB2004D;
-	Thu, 22 Feb 2024 09:40:30 +0000 (GMT)
-Received: from [9.152.224.253] (unknown [9.152.224.253])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 22 Feb 2024 09:40:30 +0000 (GMT)
-Message-ID: <05373a85-5f1b-4a8d-b849-8eee94707912@linux.ibm.com>
-Date: Thu, 22 Feb 2024 10:40:30 +0100
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lkzzH5yw"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1708609508; x=1740145508;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=5hmtygycM6xhOBU+7ZY8fYWHj/9o3DeQwnqDb7zUViE=;
+  b=lkzzH5ywa4bURnUsF9sebfmz9Ku2QAl5BSSNe762SqPuFOGfvDHcq2U0
+   I21Dx9uHwCbrZ0eGbC3aDmpJAy+AkH11sHL/4G61pL3y8+wR9Ux143eyA
+   qpOTtudZ0bDmGCzwLKpHoCZZYBVH3PzfcsBZPX4P3TK8kiHX2eNZ2xT83
+   +G0d0priJk/HnYrAwLrSoDfEVDaggTQ1ecJtBJJVT2zPBp7KR0VqenAWr
+   7PBmYy+AB7qJs7Vt7DUIC5XRY4ke5YCfE+OXuEfqJ7IdbXlc3YOE24ASA
+   H608uOX0KUp7/6oaOddOw0l8bpgUoHoWHnYhunz0p6s/8JUm3TWDCDbVA
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10991"; a="13962644"
+X-IronPort-AV: E=Sophos;i="6.06,177,1705392000"; 
+   d="scan'208";a="13962644"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Feb 2024 05:45:08 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10991"; a="936851891"
+X-IronPort-AV: E=Sophos;i="6.06,177,1705392000"; 
+   d="scan'208";a="936851891"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmsmga001.fm.intel.com with ESMTP; 22 Feb 2024 05:45:05 -0800
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+	id 10F7E458; Thu, 22 Feb 2024 15:45:03 +0200 (EET)
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 1/1] s390/cio: Use while (i--) pattern to clean up
+Date: Thu, 22 Feb 2024 15:45:01 +0200
+Message-ID: <20240222134501.236871-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.43.0.rc1.1.gbec44491f096
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] KVM: s390: only deliver the set service event bits
-To: Eric Farman <farman@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20240205214300.1018522-1-farman@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20240205214300.1018522-1-farman@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: kZOPOC3I423ZsAti4xHu3SPt04UMSGAy
-X-Proofpoint-ORIG-GUID: Wx6Z_MwtNT7tTEWqpeT5Qm7nakjaOcfp
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-22_06,2024-02-22_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
- impostorscore=0 adultscore=0 clxscore=1015 priorityscore=1501 mlxscore=0
- spamscore=0 malwarescore=0 lowpriorityscore=0 mlxlogscore=865 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2402220076
+Content-Transfer-Encoding: 8bit
 
-On 2/5/24 22:43, Eric Farman wrote:
-> The SCLP driver code masks off the last two bits of the parameter [1]
-> to determine if a read is required, but doesn't care about the
-> contents of those bits. Meanwhile, the KVM code that delivers
-> event interrupts masks off those two bits but sends both to the
-> guest, even if only one was specified by userspace [2].
-> 
-> This works for the driver code, but it means any nuances of those
-> bits gets lost. Use the event pending mask as an actual mask, and
-> only send the bit(s) that were specified in the pending interrupt.
+Use more natural while (i--) patter to clean up allocated resources.
 
-Thanks, picked
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/s390/cio/ccwgroup.c | 4 ++--
+ drivers/s390/cio/chsc.c     | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/s390/cio/ccwgroup.c b/drivers/s390/cio/ccwgroup.c
+index 6eb8bcd948dc..b72f672a7720 100644
+--- a/drivers/s390/cio/ccwgroup.c
++++ b/drivers/s390/cio/ccwgroup.c
+@@ -240,7 +240,7 @@ static int __ccwgroup_create_symlinks(struct ccwgroup_device *gdev)
+ 		rc = sysfs_create_link(&gdev->cdev[i]->dev.kobj,
+ 				       &gdev->dev.kobj, "group_device");
+ 		if (rc) {
+-			for (--i; i >= 0; i--)
++			while (i--)
+ 				sysfs_remove_link(&gdev->cdev[i]->dev.kobj,
+ 						  "group_device");
+ 			return rc;
+@@ -251,7 +251,7 @@ static int __ccwgroup_create_symlinks(struct ccwgroup_device *gdev)
+ 		rc = sysfs_create_link(&gdev->dev.kobj,
+ 				       &gdev->cdev[i]->dev.kobj, str);
+ 		if (rc) {
+-			for (--i; i >= 0; i--) {
++			while (i--) {
+ 				sprintf(str, "cdev%d", i);
+ 				sysfs_remove_link(&gdev->dev.kobj, str);
+ 			}
+diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
+index 3d88899dff7c..8714aa312724 100644
+--- a/drivers/s390/cio/chsc.c
++++ b/drivers/s390/cio/chsc.c
+@@ -844,7 +844,7 @@ chsc_add_cmg_attr(struct channel_subsystem *css)
+ 	}
+ 	return ret;
+ cleanup:
+-	for (--i; i >= 0; i--) {
++	while (i--) {
+ 		if (!css->chps[i])
+ 			continue;
+ 		chp_remove_cmg_attr(css->chps[i]);
+-- 
+2.43.0.rc1.1.gbec44491f096
 
