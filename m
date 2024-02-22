@@ -1,82 +1,92 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2D2B1552E8;
-	Thu, 22 Feb 2024 17:37:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 376D673F29;
+	Thu, 22 Feb 2024 21:29:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708623449; cv=none; b=V+6COZ6UzYaMS5vDVuNfMmDAl5ohYJJmgSdAZvRUtYVGem71JLQbMsA1ZXWaBuSUjDirri2YkOTpVefXg3xUSgt+gApY6oFlaHkrA4m139FVR0NK8EpASzhdqdtMjWoSkmfBYQm+1W/a6jnpbx3pCrkJPcQH56RToYW9DeUp/8M=
+	t=1708637378; cv=none; b=koT+/WChDGstGblUUNImmVwXYwBYw8NqLLPDrv7kEOSEj2cCbJiKS2Pb1fFa1AHLQgUwMi8OlWIufkh2yiICsgGY9n0Xyr/4Ua+VQz8rLKnRt3pr3RkN7hxK7zFgbIQuOoLt4dBy/cMDjpT7zVwoq6LmP/Bu+5HScD8PmubTp84=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708623449; c=relaxed/simple;
-	bh=4aCA1m6zjX5GTHoXX3gANY7eBWFjg4DG1dwuyxhRDaM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SwRAwcVXtNgsfmqjn6A59uiXu0grRuXqby6nuhpGimHinHqiwIRLfMrus/m1OLRkq+yIZvVSBk+nhh7yVcGSCARgOo2K9e8URWIPBcmA13sbnwkd7R+9q79EHq5ySqJVFrNjSk+mVfyZM6jnkeXKaTR4BeesR2cyAyRXKdJDO6c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l3etoNt1; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1708637378; c=relaxed/simple;
+	bh=t85/vLINNj4QjqTdLkHVSWfMx17aHlL+u2dxKq3yYy8=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=o6rxLrkZCH/egxIbYV77YfeP6vZPrpd7g0Ql+k4Z34NNyKop35BOtdgu1aW7vllwvPd3FWMAOUWyj5zNV3zxdx1Is+SpDePqeoZiymfyHSN/Ctmw2dIO85TtQeAgAMjGCATCz5nFbU1Dq9X/ftoPSVnEQqe68xrq/lE8OJTiNl4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=Hh5Zm4Yv; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l3etoNt1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22766C433F1;
-	Thu, 22 Feb 2024 17:37:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1708623449;
-	bh=4aCA1m6zjX5GTHoXX3gANY7eBWFjg4DG1dwuyxhRDaM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=l3etoNt14xHEolDzDvaLMxoR2iFUCkkPG6G594rf+sGuNQATR/8Xic9AGnGO98Lxn
-	 Z9JWa6VszDUunr49R0kA+/GEMh0z1tZFcgNVT0cyurDN4PxPaZvI4aZfywVx/Z6Xn2
-	 Lk99Cc+a3sXiKUwbYxTLfM/2EbaGUyIxTSVb7jMTdlw8Y7uHvNjt1Xhgazn2s+bknv
-	 ShgJUbB/xIDoE+viFr2grQeUD8TfZ3JxUYxLtUwbvakpKnW8rWYiE2IgcLyZ/ZWxmJ
-	 zk1sT+BPo20txx2/IttvEvkS8Z71U4qN6+YfuK59IPOCZhyATMrP7EywRKqQPbejt5
-	 sYxL7Ed70Cm0A==
-Date: Thu, 22 Feb 2024 09:37:27 -0800
-From: Josh Poimboeuf <jpoimboe@kernel.org>
-To: kernel test robot <lkp@intel.com>
-Cc: oe-kbuild-all@lists.linux.dev, linux-s390@vger.kernel.org,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Sumanth Korikkar <sumanthk@linux.ibm.com>
-Subject: Re: [s390:features 97/98] Unsupported relocation type: 21
-Message-ID: <20240222173727.f74r4wjolrbmnm6u@treble>
-References: <202402221404.T2TGs8El-lkp@intel.com>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="Hh5Zm4Yv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18839C433C7;
+	Thu, 22 Feb 2024 21:29:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1708637377;
+	bh=t85/vLINNj4QjqTdLkHVSWfMx17aHlL+u2dxKq3yYy8=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=Hh5Zm4YvDfOKF5br8tkmh9sJvT791U5KssSAIS8LfOqGSzl3slitWdXs3E1Em8lxo
+	 eW/hjzCE3XTpXQTswpeuaep38I7mm0zb4+bnWgNGgZIUZ8CEoNf8Y2On7Vgpn2ddNO
+	 Q3Fn70VpnIcWdCXFtJ96SSNkluqeWjcO+vqu/Qw4=
+Date: Thu, 22 Feb 2024 13:29:36 -0800
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Hari Bathini <hbathini@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Baoquan He <bhe@redhat.com>,
+ piliu@redhat.com, linux-sh@vger.kernel.org, x86@kernel.org,
+ kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+ linux-mips@vger.kernel.org, ebiederm@xmission.com,
+ loongarch@lists.linux.dev, linux-riscv@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org,
+ viro@zeniv.linux.org.uk
+Subject: Re: [PATCH v2 00/14] Split crash out from kexec and clean up
+ related config items
+Message-Id: <20240222132936.e7dc50acbf5d1b653cb2e02c@linux-foundation.org>
+In-Reply-To: <3393a42f-d9b3-4031-bdef-78bb2ce758f1@linux.ibm.com>
+References: <20240119145241.769622-1-bhe@redhat.com>
+	<9101bb07-70f1-476c-bec9-ec67e9899744@linux.ibm.com>
+	<Zb8D1ASrgX0qVm9z@MiWiFi-R3L-srv>
+	<559f2595-1477-4ef0-80e4-85ae8b426de7@linux.ibm.com>
+	<20240221125752.36fbfe9c307496313198b60f@linux-foundation.org>
+	<3393a42f-d9b3-4031-bdef-78bb2ce758f1@linux.ibm.com>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <202402221404.T2TGs8El-lkp@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Thu, Feb 22, 2024 at 02:42:01PM +0800, kernel test robot wrote:
-> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
-> head:   4a5993287467d2d0401503256dc9d2690c7f2020
-> commit: 778666df60f0d96f215e33e27448de47a2207fb3 [97/98] s390: compile relocatable kernel without -fPIE
-> config: s390-randconfig-002-20231016 (https://download.01.org/0day-ci/archive/20240222/202402221404.T2TGs8El-lkp@intel.com/config)
-> compiler: s390-linux-gcc (GCC) 13.2.0
-> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240222/202402221404.T2TGs8El-lkp@intel.com/reproduce)
+On Thu, 22 Feb 2024 10:47:29 +0530 Hari Bathini <hbathini@linux.ibm.com> wrote:
+
 > 
-> If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> the same patch/commit), kindly add following tags
-> | Reported-by: kernel test robot <lkp@intel.com>
-> | Closes: https://lore.kernel.org/oe-kbuild-all/202402221404.T2TGs8El-lkp@intel.com/
 > 
-> All errors (new ones prefixed by >>):
+> On 22/02/24 2:27 am, Andrew Morton wrote:
+> > On Wed, 21 Feb 2024 11:15:00 +0530 Hari Bathini <hbathini@linux.ibm.com> wrote:
+> > 
+> >> On 04/02/24 8:56 am, Baoquan He wrote:
+> >>>>> Hope Hari and Pingfan can help have a look, see if
+> >>>>> it's doable. Now, I make it either have both kexec and crash enabled, or
+> >>>>> disable both of them altogether.
+> >>>>
+> >>>> Sure. I will take a closer look...
+> >>> Thanks a lot. Please feel free to post patches to make that, or I can do
+> >>> it with your support or suggestion.
+> >>
+> >> Tested your changes and on top of these changes, came up with the below
+> >> changes to get it working for powerpc:
+> >>
+> >>   
+> >> https://lore.kernel.org/all/20240213113150.1148276-1-hbathini@linux.ibm.com/
+> > 
+> > So can we take it that you're OK with Baoquan's series as-is?
 > 
-> >> Unsupported relocation type: 21
+> Hi Andrew,
+> 
+> If you mean
+> 
+> v3 (https://lore.kernel.org/all/20240124051254.67105-1-bhe@redhat.com/)
+> +
+> follow-up from Baoquan 
+> (https://lore.kernel.org/all/Zb8D1ASrgX0qVm9z@MiWiFi-R3L-srv/)
+> 
+> Yes.
+> 
 
-This is R_390_GOTPCDBL, which I believe can be ignored by the relocs
-tool since it's related to the GOT.
-
-I'm not able to recreate with my s390 toolchain (12.2.0), but I suspect
-the following fixes it:
-
-diff --git a/arch/s390/tools/relocs.c b/arch/s390/tools/relocs.c
-index db8bcbf9d8f8..ad3773dc1f95 100644
---- a/arch/s390/tools/relocs.c
-+++ b/arch/s390/tools/relocs.c
-@@ -276,6 +276,7 @@ static int do_reloc(struct section *sec, Elf_Rel *rel)
- 	case R_390_PC32DBL:
- 	case R_390_PLT32DBL:
- 	case R_390_GOTENT:
-+	case R_390_GOTPCDBL:
- 		break;
- 	case R_390_64:
- 		add_reloc(&relocs64, offset);
+Can I add your Acked-by: and/or Tested-by: to the patches in this series?
