@@ -1,55 +1,62 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A16056FBE
-	for <linux-s390@vger.kernel.org>; Thu, 22 Feb 2024 06:56:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.8
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95363175A4
+	for <linux-s390@vger.kernel.org>; Thu, 22 Feb 2024 07:07:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708585007; cv=none; b=dg0Y6Nm2hUHdklVYH0axW2YDXkS0vG1hwTQQug+rbbd0dDM1HQzWmYKj0Wdx0Xzm4hUy8EoGUYWPDVg4qKllF+GbOaXDZTHnkZ9SbcXMrHjlFdXZN/Ge5BCY2lWSzBbUKEvYs2AMwF3WIkwLYHQDNKrGNK60WDsqL59QVQsI+wY=
+	t=1708585638; cv=none; b=PN9D0hS7iQCI7/oUyZfSVbFrva6iDTZwnn8AyD2xG+qTS171iim0rzjH4u4UZsLgUfk2JexuahJFOr7rf9d+l8x5AU1DngISFyMvc6tRlJG4RFpKlhcTNSLX+3a7Bvg1vc/7HBr9Qgj5u3o8FJaXqWP5TxdwvMD+p1ZJ+hSHhPk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708585007; c=relaxed/simple;
-	bh=UrnIyP5J6FZk/SauAMa776NEQujzaCpwGwWr45hwrRs=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=NtwGLhPScFUh1xfsHeKSRzcc2cTA8C5bKXMHVALvdXXz697gElxGR3w/llVUVtmQAvoEO+Oz2I9ebNMVAmspcAFzsvVGNTVqOLnpbhH0VCB9VbFNOHj/BdJXyjS7z8Z/x9GLa/RzEGbS7DD3L9pI+bbxJWR4O+eHX1JrY0qsJO0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jyN4HCHu; arc=none smtp.client-ip=192.198.163.8
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1708585638; c=relaxed/simple;
+	bh=XPKVLBy6UQC9Sn82UWX+PNOQ0fEBJPFiiwTcFZ/REG4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=tHJaoiUjOYsroj8ekKv47wKZ8WQnEKxbZvE/LuqZsf1L992ImaaTXcrOk+uERYSgwhKoF4l4jcLjH8yI6J8fpAPYqJBdN49KiXhFopVKmjk0KwU0U45wq5IDkxOpDG7+ERyjqna3wMpsosa3hJDKVojg5lgAnrAcbKNejQ1eZy0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fQWpuxce; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jyN4HCHu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1708585006; x=1740121006;
-  h=date:from:to:cc:subject:message-id:mime-version;
-  bh=UrnIyP5J6FZk/SauAMa776NEQujzaCpwGwWr45hwrRs=;
-  b=jyN4HCHupv3gLPZFchIDBCs1rZeJ6rKSy/0q35KogL8wNwNYPBfNsTjh
-   7HFhtIH4JAmTQqcR469/Q9sgA80LRu2xc6V7UlZrbuhlOEoQ2bFKvygyl
-   8/8Eh0GHenOFAWPTLeu+tL1w4CNynoXTpecvxdVYlrPgrANfdJw7HhYFc
-   NkDZo1wZx2LRjliM80M0v5FoXHuue2ZeC/JkxAuHw+HQYRXsyi58KnRh4
-   v+gcB2kq7rzz80duwOc+cXNqGPat3akWEPHoh7dTgqKQ3fXpw7Yv5g1cQ
-   vk+LD1ykxXsV75L5bwT7stDuUSneVsXDnTAzNQMOUQ5ecpZucYp9MoIqs
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10991"; a="20341761"
-X-IronPort-AV: E=Sophos;i="6.06,177,1705392000"; 
-   d="scan'208";a="20341761"
-Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Feb 2024 22:56:45 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.06,177,1705392000"; 
-   d="scan'208";a="10078885"
-Received: from lkp-server02.sh.intel.com (HELO 3c78fa4d504c) ([10.239.97.151])
-  by orviesa003.jf.intel.com with ESMTP; 21 Feb 2024 22:56:43 -0800
-Received: from kbuild by 3c78fa4d504c with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rd2y2-00063W-1w;
-	Thu, 22 Feb 2024 06:55:54 +0000
-Date: Thu, 22 Feb 2024 14:42:01 +0800
-From: kernel test robot <lkp@intel.com>
-To: Josh Poimboeuf <jpoimboe@kernel.org>
-Cc: oe-kbuild-all@lists.linux.dev, linux-s390@vger.kernel.org,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Sumanth Korikkar <sumanthk@linux.ibm.com>
-Subject: [s390:features 97/98] Unsupported relocation type: 21
-Message-ID: <202402221404.T2TGs8El-lkp@intel.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fQWpuxce"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1708585635;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=j88KzvyAQZThT6aCL8ZS+o2FWYKBFq83FjUT4vcsoNg=;
+	b=fQWpuxce//4uZGr5U1PE3xBVtJWJN9xvv81sG9m70FLGad0Y12Fgio5BCkuxDgjVoEnxq2
+	ToSfroJJdzBWiu52cHddImf1qf206Jihjy+c2Nwrn0N3RuNKyiYHQKfI1I7P3B4caw2MFw
+	In7mU9mVI2otn5GmPDsPo2NxztTWMN4=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-374-MaV-uow3NFqRm-_MOPABCw-1; Thu, 22 Feb 2024 02:07:12 -0500
+X-MC-Unique: MaV-uow3NFqRm-_MOPABCw-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 7B19A185A787;
+	Thu, 22 Feb 2024 07:07:11 +0000 (UTC)
+Received: from localhost (unknown [10.72.116.2])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id A8B5A492BC8;
+	Thu, 22 Feb 2024 07:07:08 +0000 (UTC)
+Date: Thu, 22 Feb 2024 15:07:05 +0800
+From: Baoquan He <bhe@redhat.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Hari Bathini <hbathini@linux.ibm.com>, linux-s390@vger.kernel.org,
+	piliu@redhat.com, linux-sh@vger.kernel.org, x86@kernel.org,
+	kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-mips@vger.kernel.org, ebiederm@xmission.com,
+	loongarch@lists.linux.dev, linux-riscv@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org,
+	viro@zeniv.linux.org.uk
+Subject: Re: [PATCH v2 00/14] Split crash out from kexec and clean up related
+ config items
+Message-ID: <Zdbymex3ABImSwI3@MiWiFi-R3L-srv>
+References: <20240119145241.769622-1-bhe@redhat.com>
+ <9101bb07-70f1-476c-bec9-ec67e9899744@linux.ibm.com>
+ <Zb8D1ASrgX0qVm9z@MiWiFi-R3L-srv>
+ <559f2595-1477-4ef0-80e4-85ae8b426de7@linux.ibm.com>
+ <20240221125752.36fbfe9c307496313198b60f@linux-foundation.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -58,23 +65,36 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20240221125752.36fbfe9c307496313198b60f@linux-foundation.org>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
-head:   4a5993287467d2d0401503256dc9d2690c7f2020
-commit: 778666df60f0d96f215e33e27448de47a2207fb3 [97/98] s390: compile relocatable kernel without -fPIE
-config: s390-randconfig-002-20231016 (https://download.01.org/0day-ci/archive/20240222/202402221404.T2TGs8El-lkp@intel.com/config)
-compiler: s390-linux-gcc (GCC) 13.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240222/202402221404.T2TGs8El-lkp@intel.com/reproduce)
+On 02/21/24 at 12:57pm, Andrew Morton wrote:
+> On Wed, 21 Feb 2024 11:15:00 +0530 Hari Bathini <hbathini@linux.ibm.com> wrote:
+> 
+> > On 04/02/24 8:56 am, Baoquan He wrote:
+> > >>> Hope Hari and Pingfan can help have a look, see if
+> > >>> it's doable. Now, I make it either have both kexec and crash enabled, or
+> > >>> disable both of them altogether.
+> > >>
+> > >> Sure. I will take a closer look...
+> > > Thanks a lot. Please feel free to post patches to make that, or I can do
+> > > it with your support or suggestion.
+> > 
+> > Tested your changes and on top of these changes, came up with the below
+> > changes to get it working for powerpc:
+> > 
+> >  
+> > https://lore.kernel.org/all/20240213113150.1148276-1-hbathini@linux.ibm.com/
+> 
+> So can we take it that you're OK with Baoquan's series as-is?
+> 
+> Baoquan, do you believe the patches in mm-unstable are ready for moving
+> into mm-stable in preparation for an upstream merge?
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202402221404.T2TGs8El-lkp@intel.com/
+Yeah, I think they are ready to go for merging.
 
-All errors (new ones prefixed by >>):
+For Hari's patchset, the main part was planned before. And I am not
+familiar with fadump in powerpc, the Kconfig fix from Hari is a good
+guarantee with the expertise. Surely, I will await Hari's comment on
+that.
 
->> Unsupported relocation type: 21
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
