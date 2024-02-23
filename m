@@ -1,200 +1,154 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2433125B0
-	for <linux-s390@vger.kernel.org>; Fri, 23 Feb 2024 06:17:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2615E12B68
+	for <linux-s390@vger.kernel.org>; Fri, 23 Feb 2024 07:06:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708669049; cv=none; b=I9PHNTZxFupzcpwFlXJ391Qn2chsTMRa0skN6lMFMVaQMCU8ImWYTnwUvTYXW2297B5xb73Oj1JvRFrXSbi9SwDDFvfNzt5P9apXUCL0xHncAnHckHDDvwbnRnZKilvKOz9NBEWopYxaqk5bvDOTobCviN96y5UYjUUbFMmZbjQ=
+	t=1708671990; cv=none; b=eDFw34CYGY8xracrwG4wLG9HLh+4sTOlorhqQv89GlTP0paiv88i2Uajz8dax6i/Vv5YoSyqXZFmPDil0dTvDdcbrOd/lD54tLQl1/NLCKPsliKWaKPxcN22s6R5p5HGLpcu4Oe3m3Ib8TwHh2rfXkDLE3bkESfZkjTv30UjQUM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708669049; c=relaxed/simple;
-	bh=hCc9kfG3fizGgPgmdpClFKjoPRwjceJwvl8VPjdByMw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=L8mKGIfrlu9EDbiCv3Wndc7Usq7I0jrppdGuhSzqb1N11TtMfEhmMHkz8PyFsc9djiSYBtAw0QYJUKqetj09D1n72HmJNsYGwU3UYwru19oHXcyTyXKqU0h7GJP7BX77qVteVqU0fE/II89Ij+HgY8SZWCxste3RmckfqgItt+Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G3KiNF2+; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1708671990; c=relaxed/simple;
+	bh=pmhSqQma4mPAwB5S2erYwmJatbkcNNUJOPrvTZJemDE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=eiTd/VBMoOoso24ZwX/yaG2X5Tod24U42TSUL1MdjtnmVMK6tZa5Y7hutN0/plXa4yGcKK4FHAxfmcAYhRUX5vAP+e4iMx3siTwkUDsZYKCXXqW1dNBO9WgKMROC4aEDkD1pLKaXI37PMEa9+cWbn4xxLnuoyNosMSqegfzCvpY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CwTQs/2U; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G3KiNF2+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CwTQs/2U"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1708669046;
+	s=mimecast20190719; t=1708671988;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=aBnxjcZte0s2OKjIGIRhh7IFZ830goa5+vVUZQ5r/JI=;
-	b=G3KiNF2+Hkr+NIQX+tUP1CRVOMDQuWJ/gVR0b0YPW2+bhYh/VECD6GelPBSUWelQ45V0YR
-	YGIdU+v/TFBf4p4Rhn/gF0PHFyIscskdEve/Qj5mUZ/aNXgz4d3MgKMF4qHcR0XKt4G+kR
-	kkdwFoAkbO7l979s5r17piUz5i9z7rM=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=BRHsJbNJikGXBIx8gHv6naumiMpOU3Z17cOC43xcz8U=;
+	b=CwTQs/2UFU7geIo/RYIfSrJc+LRlDJE54v1zdLZKhkwy5zSqzv7N0ubj5xTn47K5VvPqPg
+	sUxUkUA3+4LTATGDyT81LiMsyijNwyufC9VC4hTdTF5qG+d+21tG+o1fDrKyQrLbEjerzr
+	42ka1KE+3vGnlDE8ZYL1NtbO3/D+TDw=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-10-h81omE3WO8iQy3691Ko_hw-1; Fri, 23 Feb 2024 01:17:25 -0500
-X-MC-Unique: h81omE3WO8iQy3691Ko_hw-1
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-33d19eea6c3so191297f8f.2
-        for <linux-s390@vger.kernel.org>; Thu, 22 Feb 2024 22:17:24 -0800 (PST)
+ us-mta-619-umSkD7kFN72CvMlM-TgJcg-1; Fri, 23 Feb 2024 02:06:25 -0500
+X-MC-Unique: umSkD7kFN72CvMlM-TgJcg-1
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-33d5aee5f0dso171800f8f.1
+        for <linux-s390@vger.kernel.org>; Thu, 22 Feb 2024 23:06:25 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708669044; x=1709273844;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
+        d=1e100.net; s=20230601; t=1708671985; x=1709276785;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
+         :to:content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=aBnxjcZte0s2OKjIGIRhh7IFZ830goa5+vVUZQ5r/JI=;
-        b=KylU30gNX89839tq6kk6uYktpuUQ1Z2Ey8HA4bdF+J3ORTJb6s+V61BVZL+fMx9eVQ
-         7JEQ14f/U+igg5Acpek7NnC3W2fo0w4405fz+ejwPwyl/CwjdhY4VCZLcRU0BzTPZi27
-         4ZmUydkAX4pixY9eT6IR72dml4oDitHN9idyFMWQgLAo2pMe/vu0oNHGOisWalIzx4pd
-         CkWQuLib9CVx3jgZsOyyVjrI5Cbx0nkzOGlAwjPxDg03c2Vz0VbsyF89a5JDeyXKZV/s
-         En4sd4vb5YrR+BeWD1mHxemYgoOzu2v5lZd6HqgDMlXfxSR0eYD3Sbg1yk4U7KGh312v
-         Ur/Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWb3JbtwtCHIghMN0T3RW0TW3rMhiVhyDFPfyn4dHJKMz7DrGN5e4VOtSwvIzvCbj6iZDYKrX9gQNugX0bKgAlTZI/I6JOGuXkpsA==
-X-Gm-Message-State: AOJu0YxWTg+TPzzu0rj344QP9BHAQS/TSR4/HFYNReVQXf/O+sIzuU67
-	4AqEmp3VnQ7gfKNbtKJk2Z4jPmljUqySttYjAgS4fzHL3rhOwcTCs7w6cgH4tD+sZyMwrZqsBtj
-	HALg9XHLyma/GLAgYWtmKYtCIMwnNRi82OeY0qKOhdZH6VQcd2KZdbAfzNME=
-X-Received: by 2002:a5d:56c8:0:b0:33d:157d:a7ad with SMTP id m8-20020a5d56c8000000b0033d157da7admr777475wrw.40.1708669043849;
-        Thu, 22 Feb 2024 22:17:23 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGVKDZZEwUcJIP7Avgmc2vr49V1+/ON8riI60u8BDNJ0hulyyOwnRcCKT7Cy9K6Xle99vWjdw==
-X-Received: by 2002:a5d:56c8:0:b0:33d:157d:a7ad with SMTP id m8-20020a5d56c8000000b0033d157da7admr777452wrw.40.1708669043422;
-        Thu, 22 Feb 2024 22:17:23 -0800 (PST)
-Received: from redhat.com ([147.235.213.72])
-        by smtp.gmail.com with ESMTPSA id bo10-20020a056000068a00b0033cddadde6esm1494453wrb.80.2024.02.22.22.17.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Feb 2024 22:17:22 -0800 (PST)
-Date: Fri, 23 Feb 2024 01:17:17 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Jason Wang <jasowang@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Hans de Goede <hdegoede@redhat.com>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Benjamin Berg <benjamin.berg@intel.com>,
-	linux-um@lists.infradead.org, netdev@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org,
-	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH vhost v1 00/19] virtio: drivers maintain dma info for
- premapped vq
-Message-ID: <20240223011631-mutt-send-email-mst@kernel.org>
-References: <20240202093951.120283-1-xuanzhuo@linux.alibaba.com>
+        bh=BRHsJbNJikGXBIx8gHv6naumiMpOU3Z17cOC43xcz8U=;
+        b=VzOCtaT2PyAk4oPKZrm9A/O1LbJQxG9er37R019jc9hKXPtVFEdA0YDc4soL4X15xJ
+         mb1ocwAuJo3wQFg74rpM119Y9+LXfwxckuFzZqFFxD1M27t8SZD33aV/2RIIRdUMN18q
+         wGYKD1kUjARYILodAsntcya4xmvl5gmfa6u7siQW3WbQe/JDrDRGCo2+MwWiU1jKtLKD
+         sV67GYOtGKgV55NbltxBQV7DPWSZI37VpcmMi76by9Q/DEVLQ0CbL4KihunrFe+16ZBJ
+         etiF6iOft/mOqGbcJLTTwk1bCSQACCmj6ekUIGKrBlb31XO5C6oc1jY2LoqVjGNsPqon
+         Jc8w==
+X-Forwarded-Encrypted: i=1; AJvYcCUSRQMVvRUtfNdRC2lHQ5kiiSyzGlZELSdCbDnJqpslbQszqHbIoZr5o82j1TnHNYFn/bkMf1KqxtmaSW3ZAgv7B2HzFNQ9SJaqhA==
+X-Gm-Message-State: AOJu0YzCgo5/kdHs1xxXUfuYhuxrzsdOIvSrNQwzvdZUk4zO+ayNbIKk
+	PbSKb06TcZ6PtQedvLNSIMIflk7TW6uuaUX33JgUEqfJhRemIWO4NMC6CfRVAjYn2HwwPUn9YgJ
+	YH6uY5uRmrlCVqANnkj7HMmAx6Fp+kK88yM9ktnJlqVETC+p43oXmW7yi+vQ=
+X-Received: by 2002:adf:db46:0:b0:33d:1d94:cd58 with SMTP id f6-20020adfdb46000000b0033d1d94cd58mr755808wrj.31.1708671984951;
+        Thu, 22 Feb 2024 23:06:24 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHvalV/mlPmxxuta0pv2rPSMKjBHyQZ4hLhmTogmzrMTWSxsy7nviVQ+FZm/pm87v/fSkTEWw==
+X-Received: by 2002:adf:db46:0:b0:33d:1d94:cd58 with SMTP id f6-20020adfdb46000000b0033d1d94cd58mr755780wrj.31.1708671984569;
+        Thu, 22 Feb 2024 23:06:24 -0800 (PST)
+Received: from [192.168.0.9] (ip-109-43-178-100.web.vodafone.de. [109.43.178.100])
+        by smtp.gmail.com with ESMTPSA id bx9-20020a5d5b09000000b0033d568f8310sm1655586wrb.89.2024.02.22.23.06.23
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 22 Feb 2024 23:06:24 -0800 (PST)
+Message-ID: <5383a1b2-20ca-4d07-9729-e9d5115948dc@redhat.com>
+Date: Fri, 23 Feb 2024 08:06:21 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20240202093951.120283-1-xuanzhuo@linux.alibaba.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [kvm-unit-tests PATCH v5 0/8] Multi-migration support
+Content-Language: en-US
+To: Nicholas Piggin <npiggin@gmail.com>
+Cc: kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
+ Shaoqin Huang <shahuang@redhat.com>, Andrew Jones <andrew.jones@linux.dev>,
+ Nico Boehr <nrb@linux.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ Alexandru Elisei <alexandru.elisei@arm.com>,
+ Eric Auger <eric.auger@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ David Hildenbrand <david@redhat.com>, Marc Hartmayer
+ <mhartmay@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, kvmarm@lists.linux.dev,
+ kvm-riscv@lists.infradead.org
+References: <20240221032757.454524-1-npiggin@gmail.com>
+From: Thomas Huth <thuth@redhat.com>
+Autocrypt: addr=thuth@redhat.com; keydata=
+ xsFNBFH7eUwBEACzyOXKU+5Pcs6wNpKzrlJwzRl3VGZt95VCdb+FgoU9g11m7FWcOafrVRwU
+ yYkTm9+7zBUc0sW5AuPGR/dp3pSLX/yFWsA/UB4nJsHqgDvDU7BImSeiTrnpMOTXb7Arw2a2
+ 4CflIyFqjCpfDM4MuTmzTjXq4Uov1giGE9X6viNo1pxyEpd7PanlKNnf4PqEQp06X4IgUacW
+ tSGj6Gcns1bCuHV8OPWLkf4hkRnu8hdL6i60Yxz4E6TqlrpxsfYwLXgEeswPHOA6Mn4Cso9O
+ 0lewVYfFfsmokfAVMKWzOl1Sr0KGI5T9CpmRfAiSHpthhHWnECcJFwl72NTi6kUcUzG4se81
+ O6n9d/kTj7pzTmBdfwuOZ0YUSqcqs0W+l1NcASSYZQaDoD3/SLk+nqVeCBB4OnYOGhgmIHNW
+ 0CwMRO/GK+20alxzk//V9GmIM2ACElbfF8+Uug3pqiHkVnKqM7W9/S1NH2qmxB6zMiJUHlTH
+ gnVeZX0dgH27mzstcF786uPcdEqS0KJuxh2kk5IvUSL3Qn3ZgmgdxBMyCPciD/1cb7/Ahazr
+ 3ThHQXSHXkH/aDXdfLsKVuwDzHLVSkdSnZdt5HHh75/NFHxwaTlydgfHmFFwodK8y/TjyiGZ
+ zg2Kje38xnz8zKn9iesFBCcONXS7txENTzX0z80WKBhK+XSFJwARAQABzR5UaG9tYXMgSHV0
+ aCA8dGh1dGhAcmVkaGF0LmNvbT7CwXgEEwECACIFAlVgX6oCGwMGCwkIBwMCBhUIAgkKCwQW
+ AgMBAh4BAheAAAoJEC7Z13T+cC21EbIP/ii9cvT2HHGbFRl8HqGT6+7Wkb+XLMqJBMAIGiQK
+ QIP3xk1HPTsLfVG0ao4hy/oYkGNOP8+ubLnZen6Yq3zAFiMhQ44lvgigDYJo3Ve59gfe99KX
+ EbtB+X95ODARkq0McR6OAsPNJ7gpEUzfkQUUJTXRDQXfG/FX303Gvk+YU0spm2tsIKPl6AmV
+ 1CegDljzjycyfJbk418MQmMu2T82kjrkEofUO2a24ed3VGC0/Uz//XCR2ZTo+vBoBUQl41BD
+ eFFtoCSrzo3yPFS+w5fkH9NT8ChdpSlbNS32NhYQhJtr9zjWyFRf0Zk+T/1P7ECn6gTEkp5k
+ ofFIA4MFBc/fXbaDRtBmPB0N9pqTFApIUI4vuFPPO0JDrII9dLwZ6lO9EKiwuVlvr1wwzsgq
+ zJTPBU3qHaUO4d/8G+gD7AL/6T4zi8Jo/GmjBsnYaTzbm94lf0CjXjsOX3seMhaE6WAZOQQG
+ tZHAO1kAPWpaxne+wtgMKthyPLNwelLf+xzGvrIKvLX6QuLoWMnWldu22z2ICVnLQChlR9d6
+ WW8QFEpo/FK7omuS8KvvopFcOOdlbFMM8Y/8vBgVMSsK6fsYUhruny/PahprPbYGiNIhKqz7
+ UvgyZVl4pBFjTaz/SbimTk210vIlkDyy1WuS8Zsn0htv4+jQPgo9rqFE4mipJjy/iboDzsFN
+ BFH7eUwBEAC2nzfUeeI8dv0C4qrfCPze6NkryUflEut9WwHhfXCLjtvCjnoGqFelH/PE9NF4
+ 4VPSCdvD1SSmFVzu6T9qWdcwMSaC+e7G/z0/AhBfqTeosAF5XvKQlAb9ZPkdDr7YN0a1XDfa
+ +NgA+JZB4ROyBZFFAwNHT+HCnyzy0v9Sh3BgJJwfpXHH2l3LfncvV8rgFv0bvdr70U+On2XH
+ 5bApOyW1WpIG5KPJlDdzcQTyptOJ1dnEHfwnABEfzI3dNf63rlxsGouX/NFRRRNqkdClQR3K
+ gCwciaXfZ7ir7fF0u1N2UuLsWA8Ei1JrNypk+MRxhbvdQC4tyZCZ8mVDk+QOK6pyK2f4rMf/
+ WmqxNTtAVmNuZIwnJdjRMMSs4W4w6N/bRvpqtykSqx7VXcgqtv6eqoDZrNuhGbekQA0sAnCJ
+ VPArerAZGArm63o39me/bRUQeQVSxEBmg66yshF9HkcUPGVeC4B0TPwz+HFcVhheo6hoJjLq
+ knFOPLRj+0h+ZL+D0GenyqD3CyuyeTT5dGcNU9qT74bdSr20k/CklvI7S9yoQje8BeQAHtdV
+ cvO8XCLrpGuw9SgOS7OP5oI26a0548M4KldAY+kqX6XVphEw3/6U1KTf7WxW5zYLTtadjISB
+ X9xsRWSU+Yqs3C7oN5TIPSoj9tXMoxZkCIHWvnqGwZ7JhwARAQABwsFfBBgBAgAJBQJR+3lM
+ AhsMAAoJEC7Z13T+cC21hPAQAIsBL9MdGpdEpvXs9CYrBkd6tS9mbaSWj6XBDfA1AEdQkBOn
+ ZH1Qt7HJesk+qNSnLv6+jP4VwqK5AFMrKJ6IjE7jqgzGxtcZnvSjeDGPF1h2CKZQPpTw890k
+ fy18AvgFHkVk2Oylyexw3aOBsXg6ukN44vIFqPoc+YSU0+0QIdYJp/XFsgWxnFIMYwDpxSHS
+ 5fdDxUjsk3UBHZx+IhFjs2siVZi5wnHIqM7eK9abr2cK2weInTBwXwqVWjsXZ4tq5+jQrwDK
+ cvxIcwXdUTLGxc4/Z/VRH1PZSvfQxdxMGmNTGaXVNfdFZjm4fz0mz+OUi6AHC4CZpwnsliGV
+ ODqwX8Y1zic9viSTbKS01ZNp175POyWViUk9qisPZB7ypfSIVSEULrL347qY/hm9ahhqmn17
+ Ng255syASv3ehvX7iwWDfzXbA0/TVaqwa1YIkec+/8miicV0zMP9siRcYQkyTqSzaTFBBmqD
+ oiT+z+/E59qj/EKfyce3sbC9XLjXv3mHMrq1tKX4G7IJGnS989E/fg6crv6NHae9Ckm7+lSs
+ IQu4bBP2GxiRQ+NV3iV/KU3ebMRzqIC//DCOxzQNFNJAKldPe/bKZMCxEqtVoRkuJtNdp/5a
+ yXFZ6TfE1hGKrDBYAm4vrnZ4CXFSBDllL59cFFOJCkn4Xboj/aVxxJxF30bn
+In-Reply-To: <20240221032757.454524-1-npiggin@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, Feb 02, 2024 at 05:39:32PM +0800, Xuan Zhuo wrote:
-> As discussed:
-> http://lore.kernel.org/all/CACGkMEvq0No8QGC46U4mGsMtuD44fD_cfLcPaVmJ3rHYqRZxYg@mail.gmail.com
+On 21/02/2024 04.27, Nicholas Piggin wrote:
+> Now that strange arm64 hang is found to be QEMU bug, I'll repost.
+> Since arm64 requires Thomas's uart patch and it is worse affected
+> by the QEMU bug, I will just not build it on arm. The QEMU bug
+> still affects powerpc (and presumably s390x) but it's not causing
+> so much trouble for this test case.
 > 
-> If the virtio is premapped mode, the driver should manage the dma info by self.
-> So the virtio core should not store the dma info.
-> So we can release the memory used to store the dma info.
+> I have another test case that can hit it reliably and doesn't
+> cause crashes but that takes some harness and common lib work so
+> I'll send that another time.
 > 
-> But if the desc_extra has not dma info, we face a new question,
-> it is hard to get the dma info of the desc with indirect flag.
-> For split mode, that is easy from desc, but for the packed mode,
-> it is hard to get the dma info from the desc. And for hardening
-> the dma unmap is saft, we should store the dma info of indirect
-> descs.
-> 
-> So I introduce the "structure the indirect desc table" to
-> allocate space to store dma info with the desc table.
-> 
-> On the other side, we mix the descs with indirect flag
-> with other descs together to share the unmap api. That
-> is complex. I found if we we distinguish the descs with
-> VRING_DESC_F_INDIRECT before unmap, thing will be clearer.
-> 
-> Because of the dma array is allocated in the find_vqs(),
-> so I introduce a new parameter to find_vqs().
-> 
-> Please review.
-> 
-> Thanks
+> Since v4:
+> - Don't build selftest-migration on arm.
+> - Reduce selftest-migration iterations from 100 to 30 to make the
+>    test run faster (it's ~0.5s per migration).
 
-this needs a rebase - conflicts with e.g.
-commit e3fe8d28c67bf6c291e920c6d04fa22afa14e6e4
-Author: Zhu Yanjun <yanjun.zhu@linux.dev>
-Date:   Thu Jan 4 10:09:02 2024 +0800
+Thanks, I think the series is ready to go now ... we just have to wait for 
+your QEMU TCG migration fix to get merged first. Or should we maybe mark the 
+selftest-migration with "accel = kvm" for now and remove that line later 
+once QEMU has been fixed?
 
-    virtio_net: Fix "‘%d’ directive writing between 1 and 11 bytes into a region of size 10" warnings
-    
-    Fix the warnings when building virtio_net driver.
-    
+  Thomas
 
-thanks!
-
-
-> v1:
->     1. rename transport_vq_config to vq_transport_config
->     2. virtio-net set dma meta number to (ring-size + 1)(MAX_SKB_FRGAS +2)
->     3. introduce virtqueue_dma_map_sg_attrs
->     4. separate vring_create_virtqueue to an independent commit
-> 
-> Xuan Zhuo (19):
->   virtio_ring: introduce vring_need_unmap_buffer
->   virtio_ring: packed: remove double check of the unmap ops
->   virtio_ring: packed: structure the indirect desc table
->   virtio_ring: split: remove double check of the unmap ops
->   virtio_ring: split: structure the indirect desc table
->   virtio_ring: no store dma info when unmap is not needed
->   virtio: find_vqs: pass struct instead of multi parameters
->   virtio: vring_create_virtqueue: pass struct instead of multi
->     parameters
->   virtio: vring_new_virtqueue(): pass struct instead of multi parameters
->   virtio_ring: reuse the parameter struct of find_vqs()
->   virtio: find_vqs: add new parameter premapped
->   virtio_ring: export premapped to driver by struct virtqueue
->   virtio_net: set premapped mode by find_vqs()
->   virtio_ring: remove api of setting vq premapped
->   virtio_ring: introduce dma map api for page
->   virtio_ring: introduce virtqueue_dma_map_sg_attrs
->   virtio_net: unify the code for recycling the xmit ptr
->   virtio_net: rename free_old_xmit_skbs to free_old_xmit
->   virtio_net: sq support premapped mode
-> 
->  arch/um/drivers/virtio_uml.c             |  31 +-
->  drivers/net/virtio_net.c                 | 291 +++++++---
->  drivers/platform/mellanox/mlxbf-tmfifo.c |  24 +-
->  drivers/remoteproc/remoteproc_virtio.c   |  31 +-
->  drivers/s390/virtio/virtio_ccw.c         |  33 +-
->  drivers/virtio/virtio_mmio.c             |  30 +-
->  drivers/virtio/virtio_pci_common.c       |  59 +-
->  drivers/virtio/virtio_pci_common.h       |   9 +-
->  drivers/virtio/virtio_pci_legacy.c       |  16 +-
->  drivers/virtio/virtio_pci_modern.c       |  24 +-
->  drivers/virtio/virtio_ring.c             | 698 ++++++++++++-----------
->  drivers/virtio/virtio_vdpa.c             |  45 +-
->  include/linux/virtio.h                   |  13 +-
->  include/linux/virtio_config.h            |  48 +-
->  include/linux/virtio_ring.h              |  82 +--
->  tools/virtio/virtio_test.c               |   4 +-
->  tools/virtio/vringh_test.c               |  28 +-
->  17 files changed, 848 insertions(+), 618 deletions(-)
-> 
-> --
-> 2.32.0.3.g01195cf9f
 
