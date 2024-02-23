@@ -1,161 +1,200 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 273AA11197;
-	Fri, 23 Feb 2024 05:42:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2433125B0
+	for <linux-s390@vger.kernel.org>; Fri, 23 Feb 2024 06:17:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708666933; cv=none; b=Snn5z/muJunja7ovJL/8ko4qYCG9V2HKLTHxIBBCvJxLmNReh7pcEaQJDPTWmng5AjwJfK4NBgizZFPYt2KOk3QD1ijv1qXLeyb9FCCA+rzwrDkpEAoj16f8Ma7I5SsDsnKIFoZHekBF3Cepo76TeQOlnOW+ei6NRec6Moa1MS8=
+	t=1708669049; cv=none; b=I9PHNTZxFupzcpwFlXJ391Qn2chsTMRa0skN6lMFMVaQMCU8ImWYTnwUvTYXW2297B5xb73Oj1JvRFrXSbi9SwDDFvfNzt5P9apXUCL0xHncAnHckHDDvwbnRnZKilvKOz9NBEWopYxaqk5bvDOTobCviN96y5UYjUUbFMmZbjQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708666933; c=relaxed/simple;
-	bh=SI7kMRn05atkzPWWDHvqKa6ulctOtyW+iA5d9blVERw=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=AQutHQdEqRhSE3ITkkOuEGNJzKi+T6JDO/Z/f8v/yGFPdgD6mlIG+hc1zc4kUplgcY6satAgKbpi7wtkuehaJvwliCCnODEQZnaEIn3ejdZGEaIszbRpJx00UFclfGHo9iA20foBQK1zoGPTOsL0zV1/GIWLZaH1pmp3cmZb1to=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YO0gqY9t; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1708669049; c=relaxed/simple;
+	bh=hCc9kfG3fizGgPgmdpClFKjoPRwjceJwvl8VPjdByMw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=L8mKGIfrlu9EDbiCv3Wndc7Usq7I0jrppdGuhSzqb1N11TtMfEhmMHkz8PyFsc9djiSYBtAw0QYJUKqetj09D1n72HmJNsYGwU3UYwru19oHXcyTyXKqU0h7GJP7BX77qVteVqU0fE/II89Ij+HgY8SZWCxste3RmckfqgItt+Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G3KiNF2+; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YO0gqY9t"
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41N5RXw3004732;
-	Fri, 23 Feb 2024 05:41:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=9W7fRpp8Cej2/m5IqM60+RYoP+1x8jnLMKf+yYsewb0=;
- b=YO0gqY9t0bx79WYOElJAN7nfMxSwEMvUjlvxhvpKChKkvWhhMbq5C6e3f3JID70WzZUB
- rPBCjbR++48o+ovfcULGU+OdjbZ4R8nFMX5SfUQvDcU0Ieojf7C0+3Pkk+i3qZBGKol6
- xdbYSNp6gBIDl484VQG7sXpbA3VO+BD4S6UYLA6sTLlR6W8gezf4EYZD4aKIu+DMpJd5
- 35eQJeacQafTSwc5cDy7sngWhidEKvsxUgYCF14kz3QykXv+1dQdF2126FH4VuUD3E8h
- muSaq9/gRXVvHlCI57GSuG3fKPKwp+Bz7a/oHCw+PHPETndzRum38dBSdp42+48oPJUB sg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wen7vg7n8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 23 Feb 2024 05:41:52 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41N5Sx6S007880;
-	Fri, 23 Feb 2024 05:41:51 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wen7vg7mu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 23 Feb 2024 05:41:51 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41N3awRg031187;
-	Fri, 23 Feb 2024 05:41:50 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wb9bmawmw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 23 Feb 2024 05:41:50 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41N5fkDf9503378
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 23 Feb 2024 05:41:48 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B6C262004B;
-	Fri, 23 Feb 2024 05:41:46 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9D0082004D;
-	Fri, 23 Feb 2024 05:41:42 +0000 (GMT)
-Received: from [9.43.109.8] (unknown [9.43.109.8])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 23 Feb 2024 05:41:42 +0000 (GMT)
-Message-ID: <386202f8-852c-477e-b9c4-f37896559a34@linux.ibm.com>
-Date: Fri, 23 Feb 2024 11:11:41 +0530
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 00/14] Split crash out from kexec and clean up related
- config items
-Content-Language: en-US
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-s390@vger.kernel.org, Baoquan He <bhe@redhat.com>, piliu@redhat.com,
-        linux-sh@vger.kernel.org, x86@kernel.org, kexec@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-        ebiederm@xmission.com, loongarch@lists.linux.dev,
-        linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-        linux-arm-kernel@lists.infradead.org, viro@zeniv.linux.org.uk
-References: <20240119145241.769622-1-bhe@redhat.com>
- <9101bb07-70f1-476c-bec9-ec67e9899744@linux.ibm.com>
- <Zb8D1ASrgX0qVm9z@MiWiFi-R3L-srv>
- <559f2595-1477-4ef0-80e4-85ae8b426de7@linux.ibm.com>
- <20240221125752.36fbfe9c307496313198b60f@linux-foundation.org>
- <3393a42f-d9b3-4031-bdef-78bb2ce758f1@linux.ibm.com>
- <20240222132936.e7dc50acbf5d1b653cb2e02c@linux-foundation.org>
-From: Hari Bathini <hbathini@linux.ibm.com>
-In-Reply-To: <20240222132936.e7dc50acbf5d1b653cb2e02c@linux-foundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 1e6y87d1DlwScItsjN2uRAkEKSoC1BFr
-X-Proofpoint-ORIG-GUID: dp_4k7D0Bmax-JRhiGBq4xwolmlG7ETz
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G3KiNF2+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1708669046;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=aBnxjcZte0s2OKjIGIRhh7IFZ830goa5+vVUZQ5r/JI=;
+	b=G3KiNF2+Hkr+NIQX+tUP1CRVOMDQuWJ/gVR0b0YPW2+bhYh/VECD6GelPBSUWelQ45V0YR
+	YGIdU+v/TFBf4p4Rhn/gF0PHFyIscskdEve/Qj5mUZ/aNXgz4d3MgKMF4qHcR0XKt4G+kR
+	kkdwFoAkbO7l979s5r17piUz5i9z7rM=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-10-h81omE3WO8iQy3691Ko_hw-1; Fri, 23 Feb 2024 01:17:25 -0500
+X-MC-Unique: h81omE3WO8iQy3691Ko_hw-1
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-33d19eea6c3so191297f8f.2
+        for <linux-s390@vger.kernel.org>; Thu, 22 Feb 2024 22:17:24 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1708669044; x=1709273844;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=aBnxjcZte0s2OKjIGIRhh7IFZ830goa5+vVUZQ5r/JI=;
+        b=KylU30gNX89839tq6kk6uYktpuUQ1Z2Ey8HA4bdF+J3ORTJb6s+V61BVZL+fMx9eVQ
+         7JEQ14f/U+igg5Acpek7NnC3W2fo0w4405fz+ejwPwyl/CwjdhY4VCZLcRU0BzTPZi27
+         4ZmUydkAX4pixY9eT6IR72dml4oDitHN9idyFMWQgLAo2pMe/vu0oNHGOisWalIzx4pd
+         CkWQuLib9CVx3jgZsOyyVjrI5Cbx0nkzOGlAwjPxDg03c2Vz0VbsyF89a5JDeyXKZV/s
+         En4sd4vb5YrR+BeWD1mHxemYgoOzu2v5lZd6HqgDMlXfxSR0eYD3Sbg1yk4U7KGh312v
+         Ur/Q==
+X-Forwarded-Encrypted: i=1; AJvYcCWb3JbtwtCHIghMN0T3RW0TW3rMhiVhyDFPfyn4dHJKMz7DrGN5e4VOtSwvIzvCbj6iZDYKrX9gQNugX0bKgAlTZI/I6JOGuXkpsA==
+X-Gm-Message-State: AOJu0YxWTg+TPzzu0rj344QP9BHAQS/TSR4/HFYNReVQXf/O+sIzuU67
+	4AqEmp3VnQ7gfKNbtKJk2Z4jPmljUqySttYjAgS4fzHL3rhOwcTCs7w6cgH4tD+sZyMwrZqsBtj
+	HALg9XHLyma/GLAgYWtmKYtCIMwnNRi82OeY0qKOhdZH6VQcd2KZdbAfzNME=
+X-Received: by 2002:a5d:56c8:0:b0:33d:157d:a7ad with SMTP id m8-20020a5d56c8000000b0033d157da7admr777475wrw.40.1708669043849;
+        Thu, 22 Feb 2024 22:17:23 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGVKDZZEwUcJIP7Avgmc2vr49V1+/ON8riI60u8BDNJ0hulyyOwnRcCKT7Cy9K6Xle99vWjdw==
+X-Received: by 2002:a5d:56c8:0:b0:33d:157d:a7ad with SMTP id m8-20020a5d56c8000000b0033d157da7admr777452wrw.40.1708669043422;
+        Thu, 22 Feb 2024 22:17:23 -0800 (PST)
+Received: from redhat.com ([147.235.213.72])
+        by smtp.gmail.com with ESMTPSA id bo10-20020a056000068a00b0033cddadde6esm1494453wrb.80.2024.02.22.22.17.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Feb 2024 22:17:22 -0800 (PST)
+Date: Fri, 23 Feb 2024 01:17:17 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Jason Wang <jasowang@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Hans de Goede <hdegoede@redhat.com>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Vadim Pasternak <vadimp@nvidia.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Benjamin Berg <benjamin.berg@intel.com>,
+	linux-um@lists.infradead.org, netdev@vger.kernel.org,
+	platform-driver-x86@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org, bpf@vger.kernel.org
+Subject: Re: [PATCH vhost v1 00/19] virtio: drivers maintain dma info for
+ premapped vq
+Message-ID: <20240223011631-mutt-send-email-mst@kernel.org>
+References: <20240202093951.120283-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-22_15,2024-02-22_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- malwarescore=0 mlxlogscore=999 lowpriorityscore=0 adultscore=0
- priorityscore=1501 impostorscore=0 phishscore=0 suspectscore=0
- clxscore=1015 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402230038
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20240202093951.120283-1-xuanzhuo@linux.alibaba.com>
 
-
-
-On 23/02/24 2:59 am, Andrew Morton wrote:
-> On Thu, 22 Feb 2024 10:47:29 +0530 Hari Bathini <hbathini@linux.ibm.com> wrote:
+On Fri, Feb 02, 2024 at 05:39:32PM +0800, Xuan Zhuo wrote:
+> As discussed:
+> http://lore.kernel.org/all/CACGkMEvq0No8QGC46U4mGsMtuD44fD_cfLcPaVmJ3rHYqRZxYg@mail.gmail.com
 > 
->>
->>
->> On 22/02/24 2:27 am, Andrew Morton wrote:
->>> On Wed, 21 Feb 2024 11:15:00 +0530 Hari Bathini <hbathini@linux.ibm.com> wrote:
->>>
->>>> On 04/02/24 8:56 am, Baoquan He wrote:
->>>>>>> Hope Hari and Pingfan can help have a look, see if
->>>>>>> it's doable. Now, I make it either have both kexec and crash enabled, or
->>>>>>> disable both of them altogether.
->>>>>>
->>>>>> Sure. I will take a closer look...
->>>>> Thanks a lot. Please feel free to post patches to make that, or I can do
->>>>> it with your support or suggestion.
->>>>
->>>> Tested your changes and on top of these changes, came up with the below
->>>> changes to get it working for powerpc:
->>>>
->>>>    
->>>> https://lore.kernel.org/all/20240213113150.1148276-1-hbathini@linux.ibm.com/
->>>
->>> So can we take it that you're OK with Baoquan's series as-is?
->>
->> Hi Andrew,
->>
->> If you mean
->>
->> v3 (https://lore.kernel.org/all/20240124051254.67105-1-bhe@redhat.com/)
->> +
->> follow-up from Baoquan
->> (https://lore.kernel.org/all/Zb8D1ASrgX0qVm9z@MiWiFi-R3L-srv/)
->>
->> Yes.
->>
+> If the virtio is premapped mode, the driver should manage the dma info by self.
+> So the virtio core should not store the dma info.
+> So we can release the memory used to store the dma info.
 > 
-> Can I add your Acked-by: and/or Tested-by: to the patches in this series?
+> But if the desc_extra has not dma info, we face a new question,
+> it is hard to get the dma info of the desc with indirect flag.
+> For split mode, that is easy from desc, but for the packed mode,
+> it is hard to get the dma info from the desc. And for hardening
+> the dma unmap is saft, we should store the dma info of indirect
+> descs.
+> 
+> So I introduce the "structure the indirect desc table" to
+> allocate space to store dma info with the desc table.
+> 
+> On the other side, we mix the descs with indirect flag
+> with other descs together to share the unmap api. That
+> is complex. I found if we we distinguish the descs with
+> VRING_DESC_F_INDIRECT before unmap, thing will be clearer.
+> 
+> Because of the dma array is allocated in the find_vqs(),
+> so I introduce a new parameter to find_vqs().
+> 
+> Please review.
+> 
+> Thanks
 
-Sure, Andrew.
+this needs a rebase - conflicts with e.g.
+commit e3fe8d28c67bf6c291e920c6d04fa22afa14e6e4
+Author: Zhu Yanjun <yanjun.zhu@linux.dev>
+Date:   Thu Jan 4 10:09:02 2024 +0800
 
-Acked-by: Hari Bathini <hbathini@linux.ibm.com>
+    virtio_net: Fix "‘%d’ directive writing between 1 and 11 bytes into a region of size 10" warnings
+    
+    Fix the warnings when building virtio_net driver.
+    
 
-for..
+thanks!
 
-Patches 1-5 & 8 in:
 
-   https://lore.kernel.org/all/20240124051254.67105-1-bhe@redhat.com/
+> v1:
+>     1. rename transport_vq_config to vq_transport_config
+>     2. virtio-net set dma meta number to (ring-size + 1)(MAX_SKB_FRGAS +2)
+>     3. introduce virtqueue_dma_map_sg_attrs
+>     4. separate vring_create_virtqueue to an independent commit
+> 
+> Xuan Zhuo (19):
+>   virtio_ring: introduce vring_need_unmap_buffer
+>   virtio_ring: packed: remove double check of the unmap ops
+>   virtio_ring: packed: structure the indirect desc table
+>   virtio_ring: split: remove double check of the unmap ops
+>   virtio_ring: split: structure the indirect desc table
+>   virtio_ring: no store dma info when unmap is not needed
+>   virtio: find_vqs: pass struct instead of multi parameters
+>   virtio: vring_create_virtqueue: pass struct instead of multi
+>     parameters
+>   virtio: vring_new_virtqueue(): pass struct instead of multi parameters
+>   virtio_ring: reuse the parameter struct of find_vqs()
+>   virtio: find_vqs: add new parameter premapped
+>   virtio_ring: export premapped to driver by struct virtqueue
+>   virtio_net: set premapped mode by find_vqs()
+>   virtio_ring: remove api of setting vq premapped
+>   virtio_ring: introduce dma map api for page
+>   virtio_ring: introduce virtqueue_dma_map_sg_attrs
+>   virtio_net: unify the code for recycling the xmit ptr
+>   virtio_net: rename free_old_xmit_skbs to free_old_xmit
+>   virtio_net: sq support premapped mode
+> 
+>  arch/um/drivers/virtio_uml.c             |  31 +-
+>  drivers/net/virtio_net.c                 | 291 +++++++---
+>  drivers/platform/mellanox/mlxbf-tmfifo.c |  24 +-
+>  drivers/remoteproc/remoteproc_virtio.c   |  31 +-
+>  drivers/s390/virtio/virtio_ccw.c         |  33 +-
+>  drivers/virtio/virtio_mmio.c             |  30 +-
+>  drivers/virtio/virtio_pci_common.c       |  59 +-
+>  drivers/virtio/virtio_pci_common.h       |   9 +-
+>  drivers/virtio/virtio_pci_legacy.c       |  16 +-
+>  drivers/virtio/virtio_pci_modern.c       |  24 +-
+>  drivers/virtio/virtio_ring.c             | 698 ++++++++++++-----------
+>  drivers/virtio/virtio_vdpa.c             |  45 +-
+>  include/linux/virtio.h                   |  13 +-
+>  include/linux/virtio_config.h            |  48 +-
+>  include/linux/virtio_ring.h              |  82 +--
+>  tools/virtio/virtio_test.c               |   4 +-
+>  tools/virtio/vringh_test.c               |  28 +-
+>  17 files changed, 848 insertions(+), 618 deletions(-)
+> 
+> --
+> 2.32.0.3.g01195cf9f
 
-and this follow-up patch:
-
-   https://lore.kernel.org/all/Zb8D1ASrgX0qVm9z@MiWiFi-R3L-srv/
-
-Thanks
-Hari
