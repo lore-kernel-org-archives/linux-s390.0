@@ -1,91 +1,126 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92C27EAD2;
-	Fri, 23 Feb 2024 20:43:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE45314A0BE;
+	Fri, 23 Feb 2024 23:59:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708721026; cv=none; b=f/Wx12iSHfpF7xf7NqVy2JgaNi+1zMpqr74k9EAiQTvTG90cOikuv1K9QrFHVTkyIJmjYffky1mvG0CUJfF6mhSMsYbJlduk0w3zTvdAPSh2XM27CHGGBDyr5Ge+Q06YeH86zVWiAUNktCug5SZh+reGq0AkFHyxDodnovurm4A=
+	t=1708732782; cv=none; b=CrwhdUFAXgAhQW1lZIhuLXJ5lXIxc9v66HAbbw3e0CY9K/0K1rZ/SjZ+M0o7B2L0bo4QPaCpXCsgyft/rB9gsJedj9w1j7V2X8TPEzQ4lChRZz1szopZHKGuW0WrMtk/6hzgZmJ4eGemWj4vsKkzjAGZOk2jCIuWGyZKbr67r0o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708721026; c=relaxed/simple;
-	bh=PvtLspH93t1y4HSID2+UQ++sl1bnWl4rFM9++eE9Kiw=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=jjkj4An0NsVm9VFkk6dIH9AjZE1Eek+qJgxBeFZ5ctXoJvzPfS8XnInFF7aqDkSuPWQGn0frWL6Snv6tyi6Sj8RWOAXiWPXSwrq3dyoI/zvfcv4o9TmF2DdbRO7CQrnaEzovU79DIoqZCMd0gXOIMq2/kurKenWiqSZqyAS/iZo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67DE0C43390;
-	Fri, 23 Feb 2024 20:43:39 +0000 (UTC)
-Date: Fri, 23 Feb 2024 15:45:32 -0500
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Jeff Johnson <quic_jjohnson@quicinc.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux Trace Kernel
- <linux-trace-kernel@vger.kernel.org>, Masami Hiramatsu
- <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Linus Torvalds <torvalds@linux-foundation.org>,
- <linuxppc-dev@lists.ozlabs.org>, <kvm@vger.kernel.org>,
- <linux-block@vger.kernel.org>, <linux-cxl@vger.kernel.org>,
- <linux-media@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
- <amd-gfx@lists.freedesktop.org>, <intel-gfx@lists.freedesktop.org>,
- <intel-xe@lists.freedesktop.org>, <linux-arm-msm@vger.kernel.org>,
- <freedreno@lists.freedesktop.org>, <virtualization@lists.linux.dev>,
- <linux-rdma@vger.kernel.org>, <linux-pm@vger.kernel.org>,
- <iommu@lists.linux.dev>, <linux-tegra@vger.kernel.org>,
- <netdev@vger.kernel.org>, <linux-hyperv@vger.kernel.org>,
- <ath10k@lists.infradead.org>, <linux-wireless@vger.kernel.org>,
- <ath11k@lists.infradead.org>, <ath12k@lists.infradead.org>,
- <brcm80211@lists.linux.dev>, <brcm80211-dev-list.pdl@broadcom.com>,
- <linux-usb@vger.kernel.org>, <linux-bcachefs@vger.kernel.org>,
- <linux-nfs@vger.kernel.org>, <ocfs2-devel@lists.linux.dev>,
- <linux-cifs@vger.kernel.org>, <linux-xfs@vger.kernel.org>,
- <linux-edac@vger.kernel.org>, <selinux@vger.kernel.org>,
- <linux-btrfs@vger.kernel.org>, <linux-erofs@lists.ozlabs.org>,
- <linux-f2fs-devel@lists.sourceforge.net>, <linux-hwmon@vger.kernel.org>,
- <io-uring@vger.kernel.org>, <linux-sound@vger.kernel.org>,
- <bpf@vger.kernel.org>, <linux-wpan@vger.kernel.org>, <dev@openvswitch.org>,
- <linux-s390@vger.kernel.org>, <tipc-discussion@lists.sourceforge.net>,
- Julia Lawall <Julia.Lawall@inria.fr>
-Subject: Re: [FYI][PATCH] tracing/treewide: Remove second parameter of
- __assign_str()
-Message-ID: <20240223154532.76475d82@gandalf.local.home>
-In-Reply-To: <20240223134653.524a5c9e@gandalf.local.home>
-References: <20240223125634.2888c973@gandalf.local.home>
-	<0aed6cf2-17ae-45aa-b7ff-03da932ea4e0@quicinc.com>
-	<20240223134653.524a5c9e@gandalf.local.home>
-X-Mailer: Claws Mail 3.19.1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1708732782; c=relaxed/simple;
+	bh=gDLGlkCYyEhaoTRahYmodXdF6/7GxZ+QC48jKPzm/MA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=uslKlWJOuNVc1+mlGfTd5+walvhfiWME0OqccnZ2vDsdJbEcrpWkUe6kEWOOG3JU6rBQWUL6YUPjia7pwjxyEvY76wGesx1KlVveqyah8EmHP7cf8OVXkYbhhDCpLj4UenGSsuRAwbfrL5MvuebKCacI+HN0vniEqSeZO+PGLag=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DJw5nADy; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DJw5nADy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 157C9C433F1;
+	Fri, 23 Feb 2024 23:59:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1708732781;
+	bh=gDLGlkCYyEhaoTRahYmodXdF6/7GxZ+QC48jKPzm/MA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=DJw5nADyr/bGGQqITLGA6JMO3vnQJ+YbwH8oIivXs9oGQmxq5QNDSXCDWdhavIOL+
+	 QHkxvqAoBw3afRtDztjc+KnxqaalL7nv+uZV9EbC2fjaKP5a04UEEdRicSnqeqHYEl
+	 2GsFlH3kCuF4BcVs6HLWNhr2WjpspUx+0Ewru7FZ2o3GQTJzBxPlavmeucg5hKgdQx
+	 HjuHIHLXv955Lqbm98WWFuFpWeL7r/roKXgVs4C1zKE8xswQ7smtJw/rSBis+MdoFg
+	 8jo4+duXLqv+59WujIJSHVZJC+dI5IzE+bRMzf1MdjDF7eY6pnrcdZCb87gshFE8qo
+	 z2QjvfST7rmyQ==
+Date: Fri, 23 Feb 2024 15:59:39 -0800
+From: Josh Poimboeuf <jpoimboe@kernel.org>
+To: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: kernel test robot <lkp@intel.com>, s-vadapalli@ti.com,
+	r-gunasekaran@ti.com, rogerq@kernel.org,
+	oe-kbuild-all@lists.linux.dev, linux-s390@vger.kernel.org,
+	Heiko Carstens <hca@linux.ibm.com>, iii@linux.ibm.com,
+	agordeev@linux.ibm.com, davem@davemloft.net,
+	naresh.kamboju@linaro.org
+Subject: Re: [s390:features 97/98] Unsupported relocation type: 21
+Message-ID: <20240223235939.abycpq35ydgahdz2@treble>
+References: <202402221404.T2TGs8El-lkp@intel.com>
+ <ZdhtYc9THmX4Ddse@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <ZdhtYc9THmX4Ddse@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
 
-On Fri, 23 Feb 2024 13:46:53 -0500
-Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> Now one thing I could do is to not remove the parameter, but just add:
+On Fri, Feb 23, 2024 at 11:03:13AM +0100, Sumanth Korikkar wrote:
+> In the random config generated by lkp test robot
 > 
-> 	WARN_ON_ONCE((src) != __data_offsets->item##_ptr_);
+>  CONFIG_TI_CPSW=m
+>  CONFIG_TI_DAVINCI_EMAC=y
 > 
-> in the __assign_str() macro to make sure that it's still the same that is
-> assigned. But I'm not sure how useful that is, and still causes burden to
-> have it. I never really liked the passing of the string in two places to
-> begin with.
+> In drivers/net/ethernet/ti/Makefile:
+>  11 obj-$(CONFIG_TI_DAVINCI_EMAC) += ti_davinci_emac.o
+>  12 ti_davinci_emac-y := davinci_emac.o davinci_cpdma.o
+>  ...
+>  16 obj-$(CONFIG_TI_CPSW) += ti_cpsw.o
+>  17 ti_cpsw-y := cpsw.o davinci_cpdma.o cpsw_ale.o cpsw_priv.o cpsw_sl.o cpsw_ethtool.o
+> 
+> Here davinci_cpdma.o is used in both   obj-$(CONFIG_TI_DAVINCI_EMAC) and
+> obj-$(CONFIG_TI_CPSW), one built as inbuilt and one built as module
+> correspondingly (randconfig)
+> 
+> This leads to conflict in Kbuild and results in linking  davinci_cpdma.o
+> in vmlinux.
+> * However, davinci_cpdma.o is built with -DMODULE -fPIC.
+> * vmlinux is built with -fno-PIE.
+> 
+> This leads to R_390_GOTENT and R_390_GOTDBL entries in vmlinux, which is
+> not expected when building kernel with -fno-PIE.
 
-Hmm, maybe I'll just add this patch for 6.9 and then in 6.10 do the
-parameter removal.
+Nice.
 
--- Steve
+I suppose the current s390 memory model wouldn't support removing
+-fPIC for modules?
 
-diff --git a/include/trace/stages/stage6_event_callback.h b/include/trace/stages/stage6_event_callback.h
-index 0c0f50bcdc56..7372e2c2a0c4 100644
---- a/include/trace/stages/stage6_event_callback.h
-+++ b/include/trace/stages/stage6_event_callback.h
-@@ -35,6 +35,7 @@ #define __assign_str(dst, src)
- 	do {								\
- 		char *__str__ = __get_str(dst);				\
- 		int __len__ = __get_dynamic_array_len(dst) - 1;		\
-+		WARN_ON_ONCE((src) != __data_offsets.dst##_ptr_); 	\
- 		memcpy(__str__, __data_offsets.dst##_ptr_ ? :		\
- 		       EVENT_NULL_STR, __len__);			\
- 		__str__[__len__] = '\0';				\
+Otherwise each driver could get its own copy of the object file:
+
+diff --git a/drivers/net/ethernet/ti/Makefile b/drivers/net/ethernet/ti/Makefile
+index d8590304f3df..ef6591b6a4c9 100644
+--- a/drivers/net/ethernet/ti/Makefile
++++ b/drivers/net/ethernet/ti/Makefile
+@@ -9,14 +9,14 @@ obj-$(CONFIG_TI_CPSW_SWITCHDEV) += cpsw-common.o
+ 
+ obj-$(CONFIG_TLAN) += tlan.o
+ obj-$(CONFIG_TI_DAVINCI_EMAC) += ti_davinci_emac.o
+-ti_davinci_emac-y := davinci_emac.o davinci_cpdma.o
++ti_davinci_emac-y := davinci_emac.o emac_cpdma.o
+ obj-$(CONFIG_TI_DAVINCI_MDIO) += davinci_mdio.o
+ obj-$(CONFIG_TI_CPSW_PHY_SEL) += cpsw-phy-sel.o
+ obj-$(CONFIG_TI_CPTS) += cpts.o
+ obj-$(CONFIG_TI_CPSW) += ti_cpsw.o
+-ti_cpsw-y := cpsw.o davinci_cpdma.o cpsw_ale.o cpsw_priv.o cpsw_sl.o cpsw_ethtool.o
++ti_cpsw-y := cpsw.o cpsw_cpdma.o cpsw_ale.o cpsw_priv.o cpsw_sl.o cpsw_ethtool.o
+ obj-$(CONFIG_TI_CPSW_SWITCHDEV) += ti_cpsw_new.o
+-ti_cpsw_new-y := cpsw_switchdev.o cpsw_new.o davinci_cpdma.o cpsw_ale.o cpsw_sl.o cpsw_priv.o cpsw_ethtool.o
++ti_cpsw_new-y := cpsw_switchdev.o cpsw_new.o cpsw_new_cpdma.o cpsw_ale.o cpsw_sl.o cpsw_priv.o cpsw_ethtool.o
+ 
+ obj-$(CONFIG_TI_KEYSTONE_NETCP) += keystone_netcp.o
+ keystone_netcp-y := netcp_core.o cpsw_ale.o
+diff --git a/drivers/net/ethernet/ti/cpsw_cpdma.c b/drivers/net/ethernet/ti/cpsw_cpdma.c
+new file mode 100644
+index 000000000000..017156225e7f
+--- /dev/null
++++ b/drivers/net/ethernet/ti/cpsw_cpdma.c
+@@ -0,0 +1 @@
++#include "davinci_cpdma.c"
+diff --git a/drivers/net/ethernet/ti/cpsw_new_cpdma.c b/drivers/net/ethernet/ti/cpsw_new_cpdma.c
+new file mode 100644
+index 000000000000..017156225e7f
+--- /dev/null
++++ b/drivers/net/ethernet/ti/cpsw_new_cpdma.c
+@@ -0,0 +1 @@
++#include "davinci_cpdma.c"
+diff --git a/drivers/net/ethernet/ti/emac_cpdma.c b/drivers/net/ethernet/ti/emac_cpdma.c
+new file mode 100644
+index 000000000000..017156225e7f
+--- /dev/null
++++ b/drivers/net/ethernet/ti/emac_cpdma.c
+@@ -0,0 +1 @@
++#include "davinci_cpdma.c"
