@@ -1,233 +1,167 @@
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 971764CDE5;
-	Fri, 23 Feb 2024 08:28:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B9CF24B57
+	for <linux-s390@vger.kernel.org>; Fri, 23 Feb 2024 09:07:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.58.85.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708676885; cv=none; b=tI3HOHUY83OZUkfQPU/lyyS6z1cVzNhaa+aa9yqSqNBJ84TmPwMrthh+uPbY8OlqYvsus63qyhVSITsbLut9EI++fcmQnlEGrK3jxzNjuWJTtYw5G2MazCoYjhuYEOXCuGqaQVYZ0zqJyGaJIAqDRC3hc8NPQbJLcHIr2KfT2eU=
+	t=1708679277; cv=none; b=N115roxmE8WuOioyQARFewAPUonfMuq8PnMPnP0Y9DqKF33amVTmLBdVbt4a2nI1JTNIHNGdw5UY/7l17kaq62JZCgLLf0xmZnOkuEcCWehAYYxjvC31skeoBNOC2rpKsO/dkYvx++vJxR0h27NRcXpiI7h3qMYL6yMhOk5B+N4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708676885; c=relaxed/simple;
-	bh=yPM5tBpfJQI8Ju/RW0nFXCP/h+fVOud1sDDLqpPuNJI=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=InBilwd1lieRLMslZbuB79DefeQT09LrW24jQDcM+PeK/OXtOEsk2UjBZQjbuPpSEZ/7BuMzozSTmFY2V5fVunXwrIIfVBXjcxgtErZYqi0upwA+JxnAEDx+zBfv48WdydxOpFNZMZNhWeeXXuoffmuyH8NLCObmpdCChjKN+ns=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Ydsz84gL; arc=none smtp.client-ip=115.124.30.113
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Ydsz84gL"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1708676875; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=5W/fyj7ubQoZEKftTvGZ0AfKf1xx3NzxaJdw6hTkCm4=;
-	b=Ydsz84gLZVY+uT5fNxJBzhyewfZCtIgh5RvyJJYBcwtIWTFnmvo/6YEKP6nz7YA3kZjAOe+7NZSktS9JfzLdeWgUQrdGN7UADgNdMx5UvWHbSESTdWRsuUIF04XfjScCaReNwoUGxW6fMNVbCknWTdyCR+dBvWfbaW+NpM5b558=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R361e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=35;SR=0;TI=SMTPD_---0W13gVDK_1708676873;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W13gVDK_1708676873)
-          by smtp.aliyun-inc.com;
-          Fri, 23 Feb 2024 16:27:53 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: virtualization@lists.linux.dev
-Cc: Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Hans de Goede <hdegoede@redhat.com>,
-	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	linux-um@lists.infradead.org,
-	netdev@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org,
-	linux-remoteproc@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org,
-	bpf@vger.kernel.org
-Subject: [PATCH vhost v2 17/19] virtio_net: unify the code for recycling the xmit ptr
-Date: Fri, 23 Feb 2024 16:27:24 +0800
-Message-Id: <20240223082726.52915-18-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20240223082726.52915-1-xuanzhuo@linux.alibaba.com>
-References: <20240223082726.52915-1-xuanzhuo@linux.alibaba.com>
+	s=arc-20240116; t=1708679277; c=relaxed/simple;
+	bh=HicMqPuP0z9kAN9RI1DRLqxYLPpRsSSu0aExBQ/IKhY=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 MIME-Version:Content-Type; b=QNo4txG2q8iB/iWF/mcnqsnZBZW0I5geW1KDqtezWvoKEfv/k//Bo7FKp4h/zpuEwhzMhd7eOPZRoVWRgDZpgRE3MXeNQ+7Ni0F+CpjhPrKwRqbNA6jKnXyKHYfk/lZceQ/FJQQuYDfAAQxXXSUi1tg+SmuEpG+/GujiIf/PACg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ACULAB.COM; spf=pass smtp.mailfrom=aculab.com; arc=none smtp.client-ip=185.58.85.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ACULAB.COM
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aculab.com
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-284-PjVkpfHkNiSprLivrGQVxg-1; Fri, 23 Feb 2024 09:07:29 +0000
+X-MC-Unique: PjVkpfHkNiSprLivrGQVxg-1
+Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
+ (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Fri, 23 Feb
+ 2024 09:07:27 +0000
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.048; Fri, 23 Feb 2024 09:07:27 +0000
+From: David Laight <David.Laight@ACULAB.COM>
+To: 'Jason Gunthorpe' <jgg@nvidia.com>
+CC: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton
+	<akpm@linux-foundation.org>, Christian Borntraeger
+	<borntraeger@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
+	<dave.hansen@linux.intel.com>, "David S. Miller" <davem@davemloft.net>, "Eric
+ Dumazet" <edumazet@google.com>, Gerald Schaefer
+	<gerald.schaefer@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Justin Stitt
+	<justinstitt@google.com>, Jakub Kicinski <kuba@kernel.org>, Leon Romanovsky
+	<leon@kernel.org>, "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+	"llvm@lists.linux.dev" <llvm@lists.linux.dev>, Ingo Molnar
+	<mingo@redhat.com>, Bill Wendling <morbo@google.com>, Nathan Chancellor
+	<nathan@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, Salil Mehta <salil.mehta@huawei.com>, Jijie Shao
+	<shaojijie@huawei.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner
+	<tglx@linutronix.de>, "x86@kernel.org" <x86@kernel.org>, Yisen Zhuang
+	<yisen.zhuang@huawei.com>, Arnd Bergmann <arnd@arndb.de>, Catalin Marinas
+	<catalin.marinas@arm.com>, Leon Romanovsky <leonro@mellanox.com>,
+	"linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, Mark Rutland <mark.rutland@arm.com>,
+	Michael Guralnik <michaelgur@mellanox.com>, "patches@lists.linux.dev"
+	<patches@lists.linux.dev>, Niklas Schnelle <schnelle@linux.ibm.com>, "Will
+ Deacon" <will@kernel.org>
+Subject: RE: [PATCH 4/6] arm64/io: Provide a WC friendly __iowriteXX_copy()
+Thread-Topic: [PATCH 4/6] arm64/io: Provide a WC friendly __iowriteXX_copy()
+Thread-Index: AQHaZGPOOI9/P4jwQk+N+/Phnt6M8bEW6XcggAAM2oCAAKwjYA==
+Date: Fri, 23 Feb 2024 09:07:27 +0000
+Message-ID: <efc727fbb8de45c8b669b6ec174f95ce@AcuMS.aculab.com>
+References: <0-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
+ <4-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
+ <6d335e8701334a15b220b75d49b98d77@AcuMS.aculab.com>
+ <20240222223617.GC13330@nvidia.com>
+In-Reply-To: <20240222223617.GC13330@nvidia.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Git-Hash: 510995f33855
-Content-Transfer-Encoding: 8bit
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-There are two completely similar and independent implementations. This
-is inconvenient for the subsequent addition of new types. So extract a
-function from this piece of code and call this function uniformly to
-recover old xmit ptr.
+From: Jason Gunthorpe
+> Sent: 22 February 2024 22:36
+> To: David Laight <David.Laight@ACULAB.COM>
+>=20
+> On Thu, Feb 22, 2024 at 10:05:04PM +0000, David Laight wrote:
+> > From: Jason Gunthorpe
+> > > Sent: 21 February 2024 01:17
+> > >
+> > > The kernel provides driver support for using write combining IO memor=
+y
+> > > through the __iowriteXX_copy() API which is commonly used as an optio=
+nal
+> > > optimization to generate 16/32/64 byte MemWr TLPs in a PCIe environme=
+nt.
+> > >
+> > ...
+> > > Implement __iowrite32/64_copy() specifically for ARM64 and use inline
+> > > assembly to build consecutive blocks of STR instructions. Provide dir=
+ect
+> > > support for 64/32/16 large TLP generation in this manner. Optimize fo=
+r
+> > > common constant lengths so that the compiler can directly inline the =
+store
+> > > blocks.
+> > ...
+> > > +/*
+> > > + * This generates a memcpy that works on a from/to address which is =
+aligned to
+> > > + * bits. Count is in terms of the number of bits sized quantities to=
+ copy. It
+> > > + * optimizes to use the STR groupings when possible so that it is WC=
+ friendly.
+> > > + */
+> > > +#define memcpy_toio_aligned(to, from, count, bits)                  =
+      \
+> > > +=09({                                                               =
+ \
+> > > +=09=09volatile u##bits __iomem *_to =3D to;                       \
+> > > +=09=09const u##bits *_from =3D from;                              \
+> > > +=09=09size_t _count =3D count;                                    \
+> > > +=09=09const u##bits *_end_from =3D _from + ALIGN_DOWN(_count, 8); \
+> > > +                                                                    =
+      \
+> > > +=09=09for (; _from < _end_from; _from +=3D 8, _to +=3D 8)           =
+\
+> > > +=09=09=09__const_memcpy_toio_aligned##bits(_to, _from, 8); \
+> > > +=09=09if ((_count % 8) >=3D 4) {
+> >
+> > If (_count & 4) {
+>=20
+> That would be obfuscating, IMHO. The compiler doesn't need such things
+> to generate optimal code.
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 82 +++++++++++++++++++---------------------
- 1 file changed, 39 insertions(+), 43 deletions(-)
+Try it: https://godbolt.org/z/EvvGrTxv3=20
+And it isn't that obfuscated - no more so than your version.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 140b2c155650..62f65e2cacd5 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -80,6 +80,11 @@ struct virtnet_stat_desc {
- 	size_t offset;
- };
- 
-+struct virtnet_sq_free_stats {
-+	u64 packets;
-+	u64 bytes;
-+};
-+
- struct virtnet_sq_stats {
- 	struct u64_stats_sync syncp;
- 	u64_stats_t packets;
-@@ -363,6 +368,31 @@ static struct xdp_frame *ptr_to_xdp(void *ptr)
- 	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
- }
- 
-+static void __free_old_xmit(struct send_queue *sq, bool in_napi,
-+			    struct virtnet_sq_free_stats *stats)
-+{
-+	unsigned int len;
-+	void *ptr;
-+
-+	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
-+		++stats->packets;
-+
-+		if (!is_xdp_frame(ptr)) {
-+			struct sk_buff *skb = ptr;
-+
-+			pr_debug("Sent skb %p\n", skb);
-+
-+			stats->bytes += skb->len;
-+			napi_consume_skb(skb, in_napi);
-+		} else {
-+			struct xdp_frame *frame = ptr_to_xdp(ptr);
-+
-+			stats->bytes += xdp_get_frame_len(frame);
-+			xdp_return_frame(frame);
-+		}
-+	}
-+}
-+
- /* Converting between virtqueue no. and kernel tx/rx queue no.
-  * 0:rx0 1:tx0 2:rx1 3:tx1 ... 2N:rxN 2N+1:txN 2N+2:cvq
-  */
-@@ -759,37 +789,19 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
- 
- static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
- {
--	unsigned int len;
--	unsigned int packets = 0;
--	unsigned int bytes = 0;
--	void *ptr;
-+	struct virtnet_sq_free_stats stats = {0};
- 
--	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
--		if (likely(!is_xdp_frame(ptr))) {
--			struct sk_buff *skb = ptr;
+> > > +=09=09=09__const_memcpy_toio_aligned##bits(_to, _from, 1); \
+> > > +=09})
+> >
+> > But that looks bit a bit large to be inlined.
+>=20
+> You trimmed alot, this #define is in a C file and it is a template to
+> generate the 32 and 64 bit out of line functions. Things are done like
+> this because the 32/64 version are exactly the same logic except just
+> with different types and sizes.
+
+I missed that in a quick read at 11pm :-(
+
+Although I doubt that generating long TLP from byte writes is
+really necessary.
+IIRC you were merging at most 4 writes.
+So better to do a single 32bit write instead.
+(Unless you have misaligned source data - unlikely.)
+
+While write-combining to generate long TLP is probably mostly
+safe for PCIe targets, there are some that will only handle
+TLP for single 32bit data items.
+Which might be why the code is explicitly requesting 4 byte copies.
+So it may be entirely wrong to write-combine anything except
+the generic memcpy_toio().
+
+=09David
+
 -
--			pr_debug("Sent skb %p\n", skb);
--
--			bytes += skb->len;
--			napi_consume_skb(skb, in_napi);
--		} else {
--			struct xdp_frame *frame = ptr_to_xdp(ptr);
--
--			bytes += xdp_get_frame_len(frame);
--			xdp_return_frame(frame);
--		}
--		packets++;
--	}
-+	__free_old_xmit(sq, in_napi, &stats);
- 
- 	/* Avoid overhead when no packets have been processed
- 	 * happens when called speculatively from start_xmit.
- 	 */
--	if (!packets)
-+	if (!stats.packets)
- 		return;
- 
- 	u64_stats_update_begin(&sq->stats.syncp);
--	u64_stats_add(&sq->stats.bytes, bytes);
--	u64_stats_add(&sq->stats.packets, packets);
-+	u64_stats_add(&sq->stats.bytes, stats.bytes);
-+	u64_stats_add(&sq->stats.packets, stats.packets);
- 	u64_stats_update_end(&sq->stats.syncp);
- }
- 
-@@ -928,15 +940,12 @@ static int virtnet_xdp_xmit(struct net_device *dev,
- 			    int n, struct xdp_frame **frames, u32 flags)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
-+	struct virtnet_sq_free_stats stats = {0};
- 	struct receive_queue *rq = vi->rq;
- 	struct bpf_prog *xdp_prog;
- 	struct send_queue *sq;
--	unsigned int len;
--	int packets = 0;
--	int bytes = 0;
- 	int nxmit = 0;
- 	int kicks = 0;
--	void *ptr;
- 	int ret;
- 	int i;
- 
-@@ -955,20 +964,7 @@ static int virtnet_xdp_xmit(struct net_device *dev,
- 	}
- 
- 	/* Free up any pending old buffers before queueing new ones. */
--	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
--		if (likely(is_xdp_frame(ptr))) {
--			struct xdp_frame *frame = ptr_to_xdp(ptr);
--
--			bytes += xdp_get_frame_len(frame);
--			xdp_return_frame(frame);
--		} else {
--			struct sk_buff *skb = ptr;
--
--			bytes += skb->len;
--			napi_consume_skb(skb, false);
--		}
--		packets++;
--	}
-+	__free_old_xmit(sq, false, &stats);
- 
- 	for (i = 0; i < n; i++) {
- 		struct xdp_frame *xdpf = frames[i];
-@@ -988,8 +984,8 @@ static int virtnet_xdp_xmit(struct net_device *dev,
- 	}
- out:
- 	u64_stats_update_begin(&sq->stats.syncp);
--	u64_stats_add(&sq->stats.bytes, bytes);
--	u64_stats_add(&sq->stats.packets, packets);
-+	u64_stats_add(&sq->stats.bytes, stats.bytes);
-+	u64_stats_add(&sq->stats.packets, stats.packets);
- 	u64_stats_add(&sq->stats.xdp_tx, n);
- 	u64_stats_add(&sq->stats.xdp_tx_drops, n - nxmit);
- 	u64_stats_add(&sq->stats.kicks, kicks);
--- 
-2.32.0.3.g01195cf9f
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1=
+PT, UK
+Registration No: 1397386 (Wales)
 
