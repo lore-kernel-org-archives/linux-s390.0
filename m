@@ -1,167 +1,101 @@
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ua1-f45.google.com (mail-ua1-f45.google.com [209.85.222.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B9CF24B57
-	for <linux-s390@vger.kernel.org>; Fri, 23 Feb 2024 09:07:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.58.85.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EC6A5C615
+	for <linux-s390@vger.kernel.org>; Fri, 23 Feb 2024 09:42:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708679277; cv=none; b=N115roxmE8WuOioyQARFewAPUonfMuq8PnMPnP0Y9DqKF33amVTmLBdVbt4a2nI1JTNIHNGdw5UY/7l17kaq62JZCgLLf0xmZnOkuEcCWehAYYxjvC31skeoBNOC2rpKsO/dkYvx++vJxR0h27NRcXpiI7h3qMYL6yMhOk5B+N4=
+	t=1708681324; cv=none; b=CYRc5cN7Zhbi+8en7F6xdyBqbCSrGd0/SD992MoaQ+kvNcB2jUtip6gLzp6XrPtIUl/oWO5c43lunrGR5ZEgFj+6pno0Kp7OgUUukYyQWTHu2uJImr+3EPMH6dJIYq72fRtFPeTyzctCLmEL6E7m4HV75dD1eW866WNgFHj4ke8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708679277; c=relaxed/simple;
-	bh=HicMqPuP0z9kAN9RI1DRLqxYLPpRsSSu0aExBQ/IKhY=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 MIME-Version:Content-Type; b=QNo4txG2q8iB/iWF/mcnqsnZBZW0I5geW1KDqtezWvoKEfv/k//Bo7FKp4h/zpuEwhzMhd7eOPZRoVWRgDZpgRE3MXeNQ+7Ni0F+CpjhPrKwRqbNA6jKnXyKHYfk/lZceQ/FJQQuYDfAAQxXXSUi1tg+SmuEpG+/GujiIf/PACg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ACULAB.COM; spf=pass smtp.mailfrom=aculab.com; arc=none smtp.client-ip=185.58.85.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ACULAB.COM
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aculab.com
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-284-PjVkpfHkNiSprLivrGQVxg-1; Fri, 23 Feb 2024 09:07:29 +0000
-X-MC-Unique: PjVkpfHkNiSprLivrGQVxg-1
-Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
- (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Fri, 23 Feb
- 2024 09:07:27 +0000
-Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
- id 15.00.1497.048; Fri, 23 Feb 2024 09:07:27 +0000
-From: David Laight <David.Laight@ACULAB.COM>
-To: 'Jason Gunthorpe' <jgg@nvidia.com>
-CC: Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton
-	<akpm@linux-foundation.org>, Christian Borntraeger
-	<borntraeger@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
-	<dave.hansen@linux.intel.com>, "David S. Miller" <davem@davemloft.net>, "Eric
- Dumazet" <edumazet@google.com>, Gerald Schaefer
-	<gerald.schaefer@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Justin Stitt
-	<justinstitt@google.com>, Jakub Kicinski <kuba@kernel.org>, Leon Romanovsky
-	<leon@kernel.org>, "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-	"llvm@lists.linux.dev" <llvm@lists.linux.dev>, Ingo Molnar
-	<mingo@redhat.com>, Bill Wendling <morbo@google.com>, Nathan Chancellor
-	<nathan@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, Salil Mehta <salil.mehta@huawei.com>, Jijie Shao
-	<shaojijie@huawei.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner
-	<tglx@linutronix.de>, "x86@kernel.org" <x86@kernel.org>, Yisen Zhuang
-	<yisen.zhuang@huawei.com>, Arnd Bergmann <arnd@arndb.de>, Catalin Marinas
-	<catalin.marinas@arm.com>, Leon Romanovsky <leonro@mellanox.com>,
-	"linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, Mark Rutland <mark.rutland@arm.com>,
-	Michael Guralnik <michaelgur@mellanox.com>, "patches@lists.linux.dev"
-	<patches@lists.linux.dev>, Niklas Schnelle <schnelle@linux.ibm.com>, "Will
- Deacon" <will@kernel.org>
-Subject: RE: [PATCH 4/6] arm64/io: Provide a WC friendly __iowriteXX_copy()
-Thread-Topic: [PATCH 4/6] arm64/io: Provide a WC friendly __iowriteXX_copy()
-Thread-Index: AQHaZGPOOI9/P4jwQk+N+/Phnt6M8bEW6XcggAAM2oCAAKwjYA==
-Date: Fri, 23 Feb 2024 09:07:27 +0000
-Message-ID: <efc727fbb8de45c8b669b6ec174f95ce@AcuMS.aculab.com>
-References: <0-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
- <4-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
- <6d335e8701334a15b220b75d49b98d77@AcuMS.aculab.com>
- <20240222223617.GC13330@nvidia.com>
-In-Reply-To: <20240222223617.GC13330@nvidia.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
+	s=arc-20240116; t=1708681324; c=relaxed/simple;
+	bh=tiLrttMRwT8vCIurOXRIlRgXCqpHySp2xPh+CqveHMU=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=U511xzX7tMDPcRl8mh0zaLyoewVUdBIZEBlVRAdn7+wg/DSkYjvMDqo5dTwzBoM6BzPA4/KaQpeLZ0aV31Ry7vMCpjvJj9MW0oQ8oUKsn98Ak+nXAC4/vNQUJpaxSlqDm8CtAusGdfZJun09SATCVrHkGViVPfkSzCYX9Up0SvY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=q1XQKLyP; arc=none smtp.client-ip=209.85.222.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="q1XQKLyP"
+Received: by mail-ua1-f45.google.com with SMTP id a1e0cc1a2514c-7d2e1832d4dso359703241.2
+        for <linux-s390@vger.kernel.org>; Fri, 23 Feb 2024 01:42:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1708681322; x=1709286122; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=5vxAQbq8EgE/2JJwOSWCuGz+rEc2pK5AZO+RpGD7vjU=;
+        b=q1XQKLyPND1mFgll0YXMTuz6IUu2RfUbTv+hFspHk6/xgoHg8SWpaIN+hfplcg1aMz
+         AsVihFh1r3fg/lDmKx1Y7tnFmqhj7ljZQPwO6Isr9ByY8jKSG0CdetCDHtefD4eleZA8
+         X5IZ8hvo1GC6SWidW2o5kyMvPTAwi6nIQJ+WRW1YgrQaC/UaX1YYubb5gqpF6+joz87s
+         ZNPcLYAXH1MT+aFZ4q62ozYPfOsCwIVS6sjrKXjkZJKSGyB7HAC9A8IGNHNUgy9eLKCx
+         iZXoCiOeOzsVu+Dn4K2DSnZZFEIelNeTyw3rMRXNsSOJbzSN5Jry2tiaoD+ZsUljnk13
+         fx4A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1708681322; x=1709286122;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=5vxAQbq8EgE/2JJwOSWCuGz+rEc2pK5AZO+RpGD7vjU=;
+        b=pBt/82kF+LXLGL0VkFVkF1F4QG0q7fRARInIBQQ5uVHxRq3+g8K9MFlFq+Q+j80ybz
+         vZIOPVk/Fq6cxoIxUs5JzjfUUSRonJ4F6c8nfT3NWnP2ywtNoMt12jkUqoNejPUkVYIn
+         oa+reNIN96E9PZgAFLZxO+X9CdbaK/sRnsZyFMcoMh1MrFWTFqXzdC6NtOJNA9Q9Wj1S
+         Zcylo4VcoysixEBjKVcmH+2pePvz5hn/jf3xgIOeGNrbl4dy3mm7kVbD/F5Hfv7LUNzF
+         orYvjszT2XPUInKY9Db4M9XH1ZZW5iETucTMBNTneJSJ+njBt9KLk53fR2yxiuj69M2E
+         t5dw==
+X-Forwarded-Encrypted: i=1; AJvYcCU18O/Jxxx3wocT9wx6Z9HN8d0KSS85NcnsVA/G/HAyiHkmKmCZj7VIFCRUaYe1aVsINktYMaIpAVlrc+ek20tO4w28cESJzMqbyA==
+X-Gm-Message-State: AOJu0YznFDoLls7XTwkVIYl4Mo/ZUt/fFOxTftyBA+d1z4Es3KsK4fb6
+	RkzHnO6EVzqfbAGaUXQBdan1LKhrY2CN5167haNsiBhGR5izMDI77Iv4uQT+0rnPAdVfaK8ljh9
+	fKQri15Zy6ONg1dG0Mivd+JhV8RMMv27F+tVlfA==
+X-Google-Smtp-Source: AGHT+IG0N4VJnp/KUVxYjf1fciYRrnpy+8/D6UbSyiGGRLADO/cLSUIw+vE0FGeULCCxFvRJYk7YJZeVVUtr0oRwwIs=
+X-Received: by 2002:a1f:e681:0:b0:4c8:e834:6cf2 with SMTP id
+ d123-20020a1fe681000000b004c8e8346cf2mr1288542vkh.3.1708681322074; Fri, 23
+ Feb 2024 01:42:02 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+From: Naresh Kamboju <naresh.kamboju@linaro.org>
+Date: Fri, 23 Feb 2024 15:11:50 +0530
+Message-ID: <CA+G9fYvWp8TY-fMEvc3UhoVtoR_eM5VsfHj3+n+kexcfJJ+Cvw@mail.gmail.com>
+Subject: s390: s390x-linux-gnu-ld: Unexpected GOT/PLT entries detected!
+To: open list <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, 
+	lkft-triage@lists.linaro.org
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Arnd Bergmann <arnd@arndb.de>, Sven Schnelle <svens@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 
-From: Jason Gunthorpe
-> Sent: 22 February 2024 22:36
-> To: David Laight <David.Laight@ACULAB.COM>
->=20
-> On Thu, Feb 22, 2024 at 10:05:04PM +0000, David Laight wrote:
-> > From: Jason Gunthorpe
-> > > Sent: 21 February 2024 01:17
-> > >
-> > > The kernel provides driver support for using write combining IO memor=
-y
-> > > through the __iowriteXX_copy() API which is commonly used as an optio=
-nal
-> > > optimization to generate 16/32/64 byte MemWr TLPs in a PCIe environme=
-nt.
-> > >
-> > ...
-> > > Implement __iowrite32/64_copy() specifically for ARM64 and use inline
-> > > assembly to build consecutive blocks of STR instructions. Provide dir=
-ect
-> > > support for 64/32/16 large TLP generation in this manner. Optimize fo=
-r
-> > > common constant lengths so that the compiler can directly inline the =
-store
-> > > blocks.
-> > ...
-> > > +/*
-> > > + * This generates a memcpy that works on a from/to address which is =
-aligned to
-> > > + * bits. Count is in terms of the number of bits sized quantities to=
- copy. It
-> > > + * optimizes to use the STR groupings when possible so that it is WC=
- friendly.
-> > > + */
-> > > +#define memcpy_toio_aligned(to, from, count, bits)                  =
-      \
-> > > +=09({                                                               =
- \
-> > > +=09=09volatile u##bits __iomem *_to =3D to;                       \
-> > > +=09=09const u##bits *_from =3D from;                              \
-> > > +=09=09size_t _count =3D count;                                    \
-> > > +=09=09const u##bits *_end_from =3D _from + ALIGN_DOWN(_count, 8); \
-> > > +                                                                    =
-      \
-> > > +=09=09for (; _from < _end_from; _from +=3D 8, _to +=3D 8)           =
-\
-> > > +=09=09=09__const_memcpy_toio_aligned##bits(_to, _from, 8); \
-> > > +=09=09if ((_count % 8) >=3D 4) {
-> >
-> > If (_count & 4) {
->=20
-> That would be obfuscating, IMHO. The compiler doesn't need such things
-> to generate optimal code.
+[ Please ignore this email if it is already reported ]
 
-Try it: https://godbolt.org/z/EvvGrTxv3=20
-And it isn't that obfuscated - no more so than your version.
+The s390 gcc-8 builds failed on Linux next tag next-20240215..next-20240223.
+First build failures noticed on tag next-20240215 for both gcc-13 and gcc-8.
+But from the next tag next-20240216 gcc-13 passed but gcc-8 failed.
 
-> > > +=09=09=09__const_memcpy_toio_aligned##bits(_to, _from, 1); \
-> > > +=09})
-> >
-> > But that looks bit a bit large to be inlined.
->=20
-> You trimmed alot, this #define is in a C file and it is a template to
-> generate the 32 and 64 bit out of line functions. Things are done like
-> this because the 32/64 version are exactly the same logic except just
-> with different types and sizes.
+s390:
+    - defconfig-fe40093d - gcc-8 - Failed
+    - tinyconfig - gcc-8 - Failed
+    - allnoconfig - gcc-8 - Failed
 
-I missed that in a quick read at 11pm :-(
+    - defconfig-fe40093d - gcc-13 - Pass from next-20240216
+    - tinyconfig - gcc-13 - Pass from next-20240216
+    - allnoconfig - gcc-13 - Pass from next-20240216
 
-Although I doubt that generating long TLP from byte writes is
-really necessary.
-IIRC you were merging at most 4 writes.
-So better to do a single 32bit write instead.
-(Unless you have misaligned source data - unlikely.)
+Build log:
+---------
+s390x-linux-gnu-ld: Unexpected GOT/PLT entries detected!
+make[3]: *** [/builds/linux/arch/s390/boot/Makefile:87:
+arch/s390/boot/vmlinux.syms] Error 1
+make[3]: Target 'arch/s390/boot/bzImage' not remade because of errors.
 
-While write-combining to generate long TLP is probably mostly
-safe for PCIe targets, there are some that will only handle
-TLP for single 32bit data items.
-Which might be why the code is explicitly requesting 4 byte copies.
-So it may be entirely wrong to write-combine anything except
-the generic memcpy_toio().
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-=09David
+Steps to reproduce:
+ $ tuxmake --runtime podman --target-arch s390 --toolchain gcc-8
+--kconfig tinyconfig
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1=
-PT, UK
-Registration No: 1397386 (Wales)
+Links:
+ - https://qa-reports.linaro.org/lkft/linux-next-master/build/next-20240223/testrun/22812529/suite/build/test/gcc-8-defconfig-fe40093d/details/
+ - https://storage.tuxsuite.com/public/linaro/lkft/builds/2cl8pys1B3Vc4oOB2yXcaYkfnKw/
 
+--
+Linaro LKFT
+https://lkft.linaro.org
