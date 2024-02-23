@@ -1,30 +1,30 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEF6B48CDD;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04201495E5;
 	Fri, 23 Feb 2024 08:27:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708676882; cv=none; b=aYqNSXuMqz5W7n2/OuSTxY2p1QlD/zaCCZQZGmQ/5O2RqZIwttE/62/mMzzReGByCORpGk/4Wpm/+r3ADOVpJya8hmYDsq794XDRRwl8A6ZQHN9QQpcXDnbGZf8PM1i5A1EebWQrKdn6nd/vvUxGBjaOmH3ZhRTUJLZIioIy0xc=
+	t=1708676883; cv=none; b=pb/f5C6tpUMF4Gco+eCYZfqXV7flv7h2s5GRTen8WVugBUPnHmHSY2MLa2ZAtnSpTKIheng7OZvp6epUi3fepZv/gz+FTxLKHPp3f5KIJVzxRocx6iAzVFFSTxsP+0PzpMzsZHe88XVIxVNUKoIlTo0S11YdhpzZ9SVolMWJGvo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708676882; c=relaxed/simple;
-	bh=pjonLh8exRbdrHMa17jNGBBGqb3zvIrKACq7Hq9u+NM=;
+	s=arc-20240116; t=1708676883; c=relaxed/simple;
+	bh=0Gk9UztMGIIcRnEHpqYyAjKvdnBaolmfK4xirNAtcuc=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=k0/D2ZXCY34qooD/5Vp8chimdrUV4SKDiMaqaCKTPvbMAXWtJCp5O6233HRoS+ZIw5uzo31EVlGkk66EFWFc2RDD3/pJPUY1R6RKv/RrDxhhPaYz+zk4qbf41t+ezkmn24M3bbZUCDCEcxZoBHRpbVWybCGLlV6BmvfC5FTYX/A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=TRBKIejS; arc=none smtp.client-ip=115.124.30.112
+	 MIME-Version; b=Wzn7j6ea+8ccZJw2f8BbXdUnMUBGq8LHiVZP5Ptx0v3loGJQ8qghMReeawGUjj5+tc/2YxYfLHqO4a7l37MTAdCRp8sxQ5s4jSTpiNL2WxuLMEGRfePR0Kv8Tns28KpN0qeo9GK84f3gZuiJDPlbd+9L5AQnLe/GtPm3kxSyQQU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=e7B1649N; arc=none smtp.client-ip=115.124.30.110
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="TRBKIejS"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="e7B1649N"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1708676872; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=MiRsah0os+XN0E37SyZpCu/ggHFN/seKkb4xKfCwkhI=;
-	b=TRBKIejSch6PQgAAAIWInrgB9pcqqGFLPO+D+N42zZaTEQtonpsCQAZrHUe6MNyPLW0sAPzUe07/1Z+4VHwCF2pliK2RfgmN7dfQrlXXDlFTxczdbrESAjudIJtTYZX1O9VEo7QMC7qvDS5ujpZcSSQEiDswWTLwuv/QwNNDLEk=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=35;SR=0;TI=SMTPD_---0W13ndPZ_1708676868;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W13ndPZ_1708676868)
+	t=1708676878; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=0bf+ondcixqn/GNrn6hzfTiAxwONS6eM86OVYrAkzbE=;
+	b=e7B1649NeW3ZGohkuoRMzvhP15YFzMsDLlHL2aLDubuPNgLG8Hbg1gyzQvgC9LiCK72icEQVfBpV9RwdooQSeF/CgRzICj6xQHFdkwJU5EQUZWO1C16D3VBGA86/A5ueoWbtX810Sd9aZHfosx9eI+vqBK5WW86F6rVDjnUzEqM=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=35;SR=0;TI=SMTPD_---0W13ndSM_1708676874;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W13ndSM_1708676874)
           by smtp.aliyun-inc.com;
-          Fri, 23 Feb 2024 16:27:49 +0800
+          Fri, 23 Feb 2024 16:27:55 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux.dev
 Cc: Richard Weinberger <richard@nod.at>,
@@ -61,9 +61,9 @@ Cc: Richard Weinberger <richard@nod.at>,
 	linux-s390@vger.kernel.org,
 	kvm@vger.kernel.org,
 	bpf@vger.kernel.org
-Subject: [PATCH vhost v2 14/19] virtio_ring: remove api of setting vq premapped
-Date: Fri, 23 Feb 2024 16:27:21 +0800
-Message-Id: <20240223082726.52915-15-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH vhost v2 18/19] virtio_net: rename free_old_xmit_skbs to free_old_xmit
+Date: Fri, 23 Feb 2024 16:27:25 +0800
+Message-Id: <20240223082726.52915-19-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20240223082726.52915-1-xuanzhuo@linux.alibaba.com>
 References: <20240223082726.52915-1-xuanzhuo@linux.alibaba.com>
@@ -76,98 +76,65 @@ MIME-Version: 1.0
 X-Git-Hash: 510995f33855
 Content-Transfer-Encoding: 8bit
 
-The virtio-net sets the premapped mode by find_vqs().
-
-So the below API is not used by anyone, we remove it.
-
-int virtqueue_set_dma_premapped(struct virtqueue *_vq);
+Since free_old_xmit_skbs not only deals with skb, but also xdp frame and
+subsequent added xsk, so change the name of this function to
+free_old_xmit.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 56 ------------------------------------
- include/linux/virtio.h       |  2 --
- 2 files changed, 58 deletions(-)
+ drivers/net/virtio_net.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 103b06574e8b..63084487c171 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2775,62 +2775,6 @@ int virtqueue_resize(struct virtqueue *_vq, u32 num,
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 62f65e2cacd5..7715bb7032ec 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -787,7 +787,7 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
+ 	virtnet_rq_free_buf(vi, rq, buf);
  }
- EXPORT_SYMBOL_GPL(virtqueue_resize);
  
--/**
-- * virtqueue_set_dma_premapped - set the vring premapped mode
-- * @_vq: the struct virtqueue we're talking about.
-- *
-- * Enable the premapped mode of the vq.
-- *
-- * The vring in premapped mode does not do dma internally, so the driver must
-- * do dma mapping in advance. The driver must pass the dma_address through
-- * dma_address of scatterlist. When the driver got a used buffer from
-- * the vring, it has to unmap the dma address.
-- *
-- * This function must be called immediately after creating the vq, or after vq
-- * reset, and before adding any buffers to it.
-- *
-- * Caller must ensure we don't call this with other virtqueue operations
-- * at the same time (except where noted).
-- *
-- * Returns zero or a negative error.
-- * 0: success.
-- * -EINVAL: vring does not use the dma api, so we can not enable premapped mode.
-- */
--int virtqueue_set_dma_premapped(struct virtqueue *_vq)
--{
--	struct vring_virtqueue *vq = to_vvq(_vq);
--	u32 num;
--
--	START_USE(vq);
--
--	num = vq->packed_ring ? vq->packed.vring.num : vq->split.vring.num;
--
--	if (num != vq->vq.num_free) {
--		END_USE(vq);
--		return -EINVAL;
--	}
--
--	if (!vq->use_dma_api) {
--		END_USE(vq);
--		return -EINVAL;
--	}
--
--	vq->vq.premapped = true;
--
--	if (vq->packed_ring) {
--		kfree(vq->packed.desc_dma);
--		vq->packed.desc_dma = NULL;
--	} else {
--		kfree(vq->split.desc_dma);
--		vq->split.desc_dma = NULL;
--	}
--
--	END_USE(vq);
--
--	return 0;
--}
--EXPORT_SYMBOL_GPL(virtqueue_set_dma_premapped);
--
- /**
-  * virtqueue_reset - detach and recycle all unused buffers
-  * @_vq: the struct virtqueue we're talking about.
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 407277d5a16b..2167893313f6 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -82,8 +82,6 @@ bool virtqueue_enable_cb(struct virtqueue *vq);
+-static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
++static void free_old_xmit(struct send_queue *sq, bool in_napi)
+ {
+ 	struct virtnet_sq_free_stats stats = {0};
  
- unsigned virtqueue_enable_cb_prepare(struct virtqueue *vq);
+@@ -841,7 +841,7 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
+ 				virtqueue_napi_schedule(&sq->napi, sq->vq);
+ 		} else if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
+ 			/* More just got used, free them then recheck. */
+-			free_old_xmit_skbs(sq, false);
++			free_old_xmit(sq, false);
+ 			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
+ 				netif_start_subqueue(dev, qnum);
+ 				virtqueue_disable_cb(sq->vq);
+@@ -2137,7 +2137,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
  
--int virtqueue_set_dma_premapped(struct virtqueue *_vq);
--
- bool virtqueue_poll(struct virtqueue *vq, unsigned);
+ 		do {
+ 			virtqueue_disable_cb(sq->vq);
+-			free_old_xmit_skbs(sq, true);
++			free_old_xmit(sq, true);
+ 		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
  
- bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
+ 		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+@@ -2285,7 +2285,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+ 	txq = netdev_get_tx_queue(vi->dev, index);
+ 	__netif_tx_lock(txq, raw_smp_processor_id());
+ 	virtqueue_disable_cb(sq->vq);
+-	free_old_xmit_skbs(sq, true);
++	free_old_xmit(sq, true);
+ 
+ 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+ 		netif_tx_wake_queue(txq);
+@@ -2375,7 +2375,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		if (use_napi)
+ 			virtqueue_disable_cb(sq->vq);
+ 
+-		free_old_xmit_skbs(sq, false);
++		free_old_xmit(sq, false);
+ 
+ 	} while (use_napi && kick &&
+ 	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
 -- 
 2.32.0.3.g01195cf9f
 
