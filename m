@@ -1,60 +1,74 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B99FD26B;
-	Fri, 23 Feb 2024 02:29:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76B45BA30;
+	Fri, 23 Feb 2024 02:40:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708655389; cv=none; b=Q4SG7eFafqGLeBvBRP1Swk8c8rDKlPpFpQV9CNz37DmjZVAu831/LZCIkGJtFnVJtseix7DhgPTu3zQfkx4EpdmnapxeS0zuRZaXaC7vecgfnIgkzSjiYe9Bv7LJdATc7HcK+AEyDUSSvM70TH/xRtLQQSNDOU2P/HvZMQbkbq8=
+	t=1708656026; cv=none; b=HLfVWQcyt5YXtIPNQvNQvtiORzqG9dpr+3fEp9E/UBiYXpxv0kLnBxrVADbfmDCfLy2fXXZwRe+wQ9yiid7iTK+xOw4DMYYITrlKSd9M3tV8o9aMPc2OXmZFbczuEeWKNXKcTTqoo0uL5eVc5LN/cJqTBogUH583TrXbfK+4cwc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708655389; c=relaxed/simple;
-	bh=8HMeF1hMpyAh7aZAuXf/OPNCGHNNAMlUhcBpRVamXEc=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=rw+fXp2vDlA0AuT3y+tjePbQ1OujHmWnmgwMG0lctTu8+BdPOITDf+Hl38IYdaZQNKtRlleW3YfVyYduY6Q+CnolGQDZKHN8FwhaUXXqoBseZFRqZ5yZCCHwvS881lFow9VMUojcYjr1fAy/3QoaHrQbZ7tcGQyOjXln5n6UtDo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n7xMF9bZ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1708656026; c=relaxed/simple;
+	bh=yBCUh43+4cUIlNACBTAQRoEEO/fc10XQnrI/DKRmRfM=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=GHC+jpSLPFceNo1rm5RCf98nEbzeUwqpVwhXB1fnPUzNFg2avkEqJyxpB6YvHBlEAZ9Sxf9jMcCGhahevwtVnqxI8tw09C+gamLXDAg9sYPZqwYFTUg1e+PXORGrfgvve/CxBSp7qRQESgIdaAYDUlCJ5EBgjql7kW5ONg8alsg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a8/txhwq; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n7xMF9bZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 652D4C433C7;
-	Fri, 23 Feb 2024 02:29:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a8/txhwq"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 4BBA5C43390;
+	Fri, 23 Feb 2024 02:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1708655388;
-	bh=8HMeF1hMpyAh7aZAuXf/OPNCGHNNAMlUhcBpRVamXEc=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=n7xMF9bZF8ImnNy6zHCUZnb/z+k1v6lUaki+V9YIxL7m2UoI33w4EdZWJPyEC3YPp
-	 k8gxbP1+iOV/cYxaCn/ZDdJnR/LA2Bi2iUQGnpDR6Tal6DHc2e0y3+EQ4qF4AEKOCv
-	 8IzUgWv9w1J0EmUcdXJFj9O8YLPSVGSQFKAEVq11FUTKBYWNNOdk7aHKQT/pULvVPz
-	 Q4jksCan/lo6MhWtgvWp8y3ZnhR+BuAN220tEkgl3E+NpYdKIBnLhqMlg92s8ME4QX
-	 H7p+aEGRaG+1t/sh2cQPylv79c4AAgJQ0VePtCe3m/zPDOm1Baqa7+3v4DWpQoXAE9
-	 8Ais1QiYsq+FQ==
-Date: Thu, 22 Feb 2024 18:29:47 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-To: Alexandra Winter <wintera@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Thorsten Winkler
- <twinkler@linux.ibm.com>, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] net/af_iucv: fix virtual vs physical address confusion
-Message-ID: <20240222182947.0379e7a3@kernel.org>
-In-Reply-To: <b96f27a5-53fa-495b-b1a4-cff574898083@linux.ibm.com>
-References: <20240215080500.2616848-1-agordeev@linux.ibm.com>
-	<47789946-0ffe-462e-9e2e-43b03ea41fe0@linux.ibm.com>
-	<20240221143115.6b04b62a@kernel.org>
-	<b96f27a5-53fa-495b-b1a4-cff574898083@linux.ibm.com>
+	s=k20201202; t=1708656025;
+	bh=yBCUh43+4cUIlNACBTAQRoEEO/fc10XQnrI/DKRmRfM=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=a8/txhwq6pH/TtAUgqDGD56dFdC4AFVcOuZDr15uz9Yfk8WY0nx/b+HZMlgoKC92u
+	 9/4PHqzbPpuwEdgMExSZfR+xb8zplHPJTLQUmbvYwYIHDYqQv9yzGuE/Hz/Dhi7ymz
+	 nl46PqUtgEJcSaQ9xO9RiuY4Qc9594mOERm+BeMKc785bW8ujDvZQ1Vvf1TMAB3WHM
+	 NSUcwNX+g1zTrDz2O5tlNDH8sg380yff18lgnZwGdB7NDCqtY00UVZFepj2H/2G6QE
+	 4TZLMj7ZoECCTCVHw8q/OXO57U0xtbRVDEAAYYy7P/HzCNNal5bweY+VZIs8uv6KrL
+	 ZDzH9kQZgCBMA==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 33557D84BB8;
+	Fri, 23 Feb 2024 02:40:25 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH] net/af_iucv: fix virtual vs physical address confusion
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <170865602520.1785.3573891648084258038.git-patchwork-notify@kernel.org>
+Date: Fri, 23 Feb 2024 02:40:25 +0000
+References: <20240215080500.2616848-1-agordeev@linux.ibm.com>
+In-Reply-To: <20240215080500.2616848-1-agordeev@linux.ibm.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: wintera@linux.ibm.com, twinkler@linux.ibm.com, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 22 Feb 2024 15:41:23 +0100 Alexandra Winter wrote:
-> > FWIW we're assuming this is going via the s390 tree.
-> > Please let us know if you prefer networking to pick it up.
-> 
-> Hello Jakub and maintainers,
-> 
-> please take this patch via net-next, as it belongs to the net/iucv module.
-> Please excuse that it was not flagged with [PATCH net-next]
+Hello:
 
-Done! Hopefully nobody screams at us for the use of virt_to_phys() :)
+This patch was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Thu, 15 Feb 2024 09:05:00 +0100 you wrote:
+> Fix virtual vs physical address confusion. This does not fix a bug
+> since virtual and physical address spaces are currently the same.
+> 
+> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> ---
+>  net/iucv/af_iucv.c | 10 ++++------
+>  1 file changed, 4 insertions(+), 6 deletions(-)
+
+Here is the summary with links:
+  - net/af_iucv: fix virtual vs physical address confusion
+    https://git.kernel.org/netdev/net-next/c/9eda38dc9150
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
