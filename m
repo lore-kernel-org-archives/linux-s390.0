@@ -1,126 +1,344 @@
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 048CA7FBCA
-	for <linux-s390@vger.kernel.org>; Fri, 23 Feb 2024 13:52:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.58.85.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A48C27FBD9;
+	Fri, 23 Feb 2024 14:13:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708696365; cv=none; b=nFCU8Wt4NuqYRwPFrgFSgw99P/sALvNlJpVhG79tjS6RtO82POn4EeKJRkF8sdJcpOXekPsygiGKy53MSyadjuvmTnYhfeCGZMX1o4lkT1L/99JGgPcZjMwgrVrZ7KQxINoKysVLioh0cdnVwBMo81MBk4V0gAyvsKh+tMJsGsA=
+	t=1708697597; cv=none; b=Gs86bCaUX7GeS+4/IDzwGPMj9lcxgOY/jS/aZpVLInysdaM4RBMUR/HYIw9VQfbUrhfUeoe6FdC7LPL+aP2x/Zf1Kx7i2djalqrtZF7rJRBuwb60221tWt1Wcb5DJ5ZyNXvGhBL3F6Nm8J02UGhcFL3rQ8KkdI77UXadeCnSLUM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708696365; c=relaxed/simple;
-	bh=F+dE5PSi2nh33bOrlLn9Liq7cqW9uBp/B7QQSXRWOZ0=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 MIME-Version:Content-Type; b=XaNm4zFTQ0lDKHPGM06Ex2XyahTrBEWkoPCTwKHUr5MEbfrohkX/osNexjsgKUP/orObqUSrqs6ciND4+wg4xh+be47z1GU83yOMnEpRungCyYGEf8TdyBr7bnunKL4I5OFUKdWNZ6ueiqiuowYuRffCGNS8Y3FQ/kSMXSOAj0Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ACULAB.COM; spf=pass smtp.mailfrom=aculab.com; arc=none smtp.client-ip=185.58.85.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ACULAB.COM
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aculab.com
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-220-N0YvSLKYPYycpbumIvGJWw-1; Fri, 23 Feb 2024 13:52:39 +0000
-X-MC-Unique: N0YvSLKYPYycpbumIvGJWw-1
-Received: from AcuMS.Aculab.com (10.202.163.6) by AcuMS.aculab.com
- (10.202.163.6) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Fri, 23 Feb
- 2024 13:52:38 +0000
-Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
- id 15.00.1497.048; Fri, 23 Feb 2024 13:52:38 +0000
-From: David Laight <David.Laight@ACULAB.COM>
-To: 'Jason Gunthorpe' <jgg@nvidia.com>
-CC: 'Niklas Schnelle' <schnelle@linux.ibm.com>, Alexander Gordeev
-	<agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Borislav Petkov
-	<bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, "David S. Miller"
-	<davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Gerald Schaefer
-	<gerald.schaefer@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Justin Stitt
-	<justinstitt@google.com>, Jakub Kicinski <kuba@kernel.org>, Leon Romanovsky
-	<leon@kernel.org>, "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-	"llvm@lists.linux.dev" <llvm@lists.linux.dev>, Ingo Molnar
-	<mingo@redhat.com>, Bill Wendling <morbo@google.com>, Nathan Chancellor
-	<nathan@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, Salil Mehta <salil.mehta@huawei.com>, Jijie Shao
-	<shaojijie@huawei.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner
-	<tglx@linutronix.de>, "x86@kernel.org" <x86@kernel.org>, Yisen Zhuang
-	<yisen.zhuang@huawei.com>, Arnd Bergmann <arnd@arndb.de>, Catalin Marinas
-	<catalin.marinas@arm.com>, Leon Romanovsky <leonro@mellanox.com>,
-	"linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, Mark Rutland <mark.rutland@arm.com>,
-	Michael Guralnik <michaelgur@mellanox.com>, "patches@lists.linux.dev"
-	<patches@lists.linux.dev>, Will Deacon <will@kernel.org>
-Subject: RE: [PATCH 4/6] arm64/io: Provide a WC friendly __iowriteXX_copy()
-Thread-Topic: [PATCH 4/6] arm64/io: Provide a WC friendly __iowriteXX_copy()
-Thread-Index: AQHaZGPOOI9/P4jwQk+N+/Phnt6M8bEW6XcggAAM2oCAAKwjYIAALlsAgAACWrCAABVaAIAABEPg
-Date: Fri, 23 Feb 2024 13:52:37 +0000
-Message-ID: <18248cc6f411441c8a68a55f68416150@AcuMS.aculab.com>
-References: <0-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
- <4-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
- <6d335e8701334a15b220b75d49b98d77@AcuMS.aculab.com>
- <20240222223617.GC13330@nvidia.com>
- <efc727fbb8de45c8b669b6ec174f95ce@AcuMS.aculab.com>
- <e78f6e6294c31d889ace4de3a3c3cebad04f4213.camel@linux.ibm.com>
- <d4150af74d7c45b79c770cd1c5d8eed7@AcuMS.aculab.com>
- <20240223130308.GF13330@nvidia.com>
-In-Reply-To: <20240223130308.GF13330@nvidia.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
+	s=arc-20240116; t=1708697597; c=relaxed/simple;
+	bh=phVhooZ/MTs1+62yOFmazVhZyc4WnpKkUOXoFooggh8=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=WwQ2PdhAAAhKMjnSCX1NAEm7o1/q5NBBMOcewmrGFm4Eg6yf4RCLroI4uv1awu/173Wa1QIL/HURxAbuA9KxB9tcy76Za/9uVD1WYt00w1L31nSDY48Bg5MJnYpw7jPNXdkZ+kwGJpJy3hLIaaOZRV6/NigCRnLmstKO4CweyTo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sHqx16oE; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sHqx16oE"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41NE7HES015212;
+	Fri, 23 Feb 2024 14:13:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : from : subject : to : cc : references : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Cb5FpcCRI9ynnROlJT7pd1Dc9SHm+Cgby9OdbwA7C6M=;
+ b=sHqx16oE8phvmJgbUoqFfHsiv/oYXTQPI7HaJPTg0r1qomc2oFrkAh8KXPWmn0ghs4wd
+ VDY1AQNoFiplREV57fVe1TdqKLxZW6qMZpGviYe4qjBXLO61e1KlVp3gGADgIHc35i2u
+ QquQ4kRtMnN+G0N9eUMzkmydF7r2ztRreyBZNXSk0rvakAi8X/k40OU/7UuT+DhMqO2u
+ t0jRxz1aDWR6wDf6kSbdAAr3ajaSKnW4oQRX6dt13DO8qmctDJIj9mUI1oy9d/St7V5t
+ DYK25BFX3hMZpU5aMSrtW33f7eyRMUsk7w9YG1aqda/7wt1tKQdqGYynJCwWFC/A0nd8 aA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wetxuu2rx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 23 Feb 2024 14:13:07 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41NE84xM020689;
+	Fri, 23 Feb 2024 14:13:07 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wetxuu2r6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 23 Feb 2024 14:13:07 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41NBI8Yq009540;
+	Fri, 23 Feb 2024 14:13:06 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wb84pwt23-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 23 Feb 2024 14:13:06 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41NED3Tq7078438
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 23 Feb 2024 14:13:05 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1F90658059;
+	Fri, 23 Feb 2024 14:13:03 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C81295806A;
+	Fri, 23 Feb 2024 14:12:59 +0000 (GMT)
+Received: from [9.171.73.236] (unknown [9.171.73.236])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 23 Feb 2024 14:12:59 +0000 (GMT)
+Message-ID: <2fe9e5e0-aa5a-41e8-a2b3-80db0208cfa9@linux.ibm.com>
+Date: Fri, 23 Feb 2024 15:12:58 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+From: Wenjia Zhang <wenjia@linux.ibm.com>
+Subject: Re: [PATCH net-next 06/15] net/smc: implement DMB-related operations
+ of loopback-ism
+To: Wen Gu <guwen@linux.alibaba.com>, wintera@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        jaka@linux.ibm.com, Gerd Bayer <gbayer@linux.ibm.com>
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20240111120036.109903-1-guwen@linux.alibaba.com>
+ <20240111120036.109903-7-guwen@linux.alibaba.com>
+ <b5b4b96f-e512-4c1a-b749-f9fc3e7c2fcf@linux.ibm.com>
+ <a06cdb50-591b-4984-b7d5-7ab758569d21@linux.alibaba.com>
+Content-Language: en-GB
+In-Reply-To: <a06cdb50-591b-4984-b7d5-7ab758569d21@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: YuG2ZLXkCxjwpAYMYjrK2YsGgWKwje5B
+X-Proofpoint-ORIG-GUID: jFb1KQo3tSrfPidEzDU5Omo9nxWqVCsS
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-22_15,2024-02-23_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=894 spamscore=0
+ mlxscore=0 suspectscore=0 lowpriorityscore=0 impostorscore=0
+ malwarescore=0 clxscore=1015 priorityscore=1501 phishscore=0 bulkscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402230103
 
-From: Jason Gunthorpe
-> Sent: 23 February 2024 13:03
->=20
-> On Fri, Feb 23, 2024 at 12:19:24PM +0000, David Laight wrote:
->=20
-> > Since writes get 'posted' all over the place.
-> > How many writes do you need to do before write-combining makes a
-> > difference?
->=20
-> The issue is that the HW can optimize if the entire transaction is
-> presented in one TLP, if it has to reassemble the transaction it takes
-> a big slow path hit.
 
-Ah, so you aren't optimising to reduce the number of TLP for
-(effectively) a write to a memory buffer, but have a pcie slave
-that really want to see (for example) the writes for a ring buffer
-entry in a single TLP?
 
-So you really want something that (should) generate a 16 (or 32)
-byte TLP? Rather than abusing the function that is expected to
-generate multiple 8 byte TLP to generate larger TLP.
+On 20.02.24 02:55, Wen Gu wrote:
+> 
+> 
+> On 2024/2/16 22:13, Wenjia Zhang wrote:
+>>
+>>
+>> On 11.01.24 13:00, Wen Gu wrote:
+>>> This implements DMB (un)registration and data move operations of
+>>> loopback-ism device.
+>>>
+>>> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+>>> ---
+>>>   net/smc/smc_cdc.c      |   6 ++
+>>>   net/smc/smc_cdc.h      |   1 +
+>>>   net/smc/smc_loopback.c | 133 ++++++++++++++++++++++++++++++++++++++++-
+>>>   net/smc/smc_loopback.h |  13 ++++
+>>>   4 files changed, 150 insertions(+), 3 deletions(-)
+>>>
+>>> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+>>> index 3c06625ceb20..c820ef197610 100644
+>>> --- a/net/smc/smc_cdc.c
+>>> +++ b/net/smc/smc_cdc.c
+>>> @@ -410,6 +410,12 @@ static void smc_cdc_msg_recv(struct smc_sock 
+>>> *smc, struct smc_cdc_msg *cdc)
+>>>   static void smcd_cdc_rx_tsklet(struct tasklet_struct *t)
+>>>   {
+>>>       struct smc_connection *conn = from_tasklet(conn, t, rx_tsklet);
+>>> +
+>>> +    smcd_cdc_rx_handler(conn);
+>>> +}
+>>> +
+>>> +void smcd_cdc_rx_handler(struct smc_connection *conn)
+>>> +{
+>>>       struct smcd_cdc_msg *data_cdc;
+>>>       struct smcd_cdc_msg cdc;
+>>>       struct smc_sock *smc;
+>>> diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
+>>> index 696cc11f2303..11559d4ebf2b 100644
+>>> --- a/net/smc/smc_cdc.h
+>>> +++ b/net/smc/smc_cdc.h
+>>> @@ -301,5 +301,6 @@ int smcr_cdc_msg_send_validation(struct 
+>>> smc_connection *conn,
+>>>                    struct smc_wr_buf *wr_buf);
+>>>   int smc_cdc_init(void) __init;
+>>>   void smcd_cdc_rx_init(struct smc_connection *conn);
+>>> +void smcd_cdc_rx_handler(struct smc_connection *conn);
+>>>   #endif /* SMC_CDC_H */
+>>> diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
+>>> index 353d4a2d69a1..f72e7b24fc1a 100644
+>>> --- a/net/smc/smc_loopback.c
+>>> +++ b/net/smc/smc_loopback.c
+>>> @@ -15,11 +15,13 @@
+>>>   #include <linux/types.h>
+>>>   #include <net/smc.h>
+>>> +#include "smc_cdc.h"
+>>>   #include "smc_ism.h"
+>>>   #include "smc_loopback.h"
+>>>   #if IS_ENABLED(CONFIG_SMC_LO)
+>>>   #define SMC_LO_V2_CAPABLE    0x1 /* loopback-ism acts as ISMv2 */
+>>> +#define SMC_DMA_ADDR_INVALID    (~(dma_addr_t)0)
+>>>   static const char smc_lo_dev_name[] = "loopback-ism";
+>>>   static struct smc_lo_dev *lo_dev;
+>>> @@ -50,6 +52,97 @@ static int smc_lo_query_rgid(struct smcd_dev 
+>>> *smcd, struct smcd_gid *rgid,
+>>>       return 0;
+>>>   }
+>>> +static int smc_lo_register_dmb(struct smcd_dev *smcd, struct 
+>>> smcd_dmb *dmb,
+>>> +                   void *client_priv)
+>>> +{
+>>> +    struct smc_lo_dmb_node *dmb_node, *tmp_node;
+>>> +    struct smc_lo_dev *ldev = smcd->priv;
+>>> +    int sba_idx, order, rc;
+>>> +    struct page *pages;
+>>> +
+>>> +    /* check space for new dmb */
+>>> +    for_each_clear_bit(sba_idx, ldev->sba_idx_mask, SMC_LO_MAX_DMBS) {
+>>> +        if (!test_and_set_bit(sba_idx, ldev->sba_idx_mask))
+>>> +            break;
+>>> +    }
+>>> +    if (sba_idx == SMC_LO_MAX_DMBS)
+>>> +        return -ENOSPC;
+>>> +
+>>> +    dmb_node = kzalloc(sizeof(*dmb_node), GFP_KERNEL);
+>>> +    if (!dmb_node) {
+>>> +        rc = -ENOMEM;
+>>> +        goto err_bit;
+>>> +    }
+>>> +
+>>> +    dmb_node->sba_idx = sba_idx;
+>>> +    order = get_order(dmb->dmb_len);
+>>> +    pages = alloc_pages(GFP_KERNEL | __GFP_NOWARN |
+>>> +                __GFP_NOMEMALLOC | __GFP_COMP |
+>>> +                __GFP_NORETRY | __GFP_ZERO,
+>>> +                order);
+>>> +    if (!pages) {
+>>> +        rc = -ENOMEM;
+>>> +        goto err_node;
+>>> +    }
+>>> +    dmb_node->cpu_addr = (void *)page_address(pages);
+>>> +    dmb_node->len = dmb->dmb_len;
+>>> +    dmb_node->dma_addr = SMC_DMA_ADDR_INVALID;
+>>> +
+>>> +again:
+>>> +    /* add new dmb into hash table */
+>>> +    get_random_bytes(&dmb_node->token, sizeof(dmb_node->token));
+>>> +    write_lock(&ldev->dmb_ht_lock);
+>>> +    hash_for_each_possible(ldev->dmb_ht, tmp_node, list, 
+>>> dmb_node->token) {
+>>> +        if (tmp_node->token == dmb_node->token) {
+>>> +            write_unlock(&ldev->dmb_ht_lock);
+>>> +            goto again;
+>>> +        }
+>>> +    }
+>>> +    hash_add(ldev->dmb_ht, &dmb_node->list, dmb_node->token);
+>>> +    write_unlock(&ldev->dmb_ht_lock);
+>>> +
+>> The write_lock_irqsave()/write_unlock_irqrestore() and 
+>> read_lock_irqsave()/read_unlock_irqrestore()should be used instead of 
+>> write_lock()/write_unlock() and read_lock()/read_unlock() in order to 
+>> keep the lock irq-safe.
+>>
+> 
+> dmb_ht_lock won't be hold in an interrupt or sockirq context. The 
+> dmb_{register|unregister},
+> dmb_{attach|detach} and data_move are all on the process context. So I 
+> think write_(un)lock
+> and read_(un)lock is safe here.
 
-I'm guessing that on arm64 the ldp/stp instructions will generate
-a single 16 byte TLP regardless of write combining?
-They would definitely help memcpy_fromio().
+right, it is not directly hold in a interrupt context, but it has a 
+dependency on conn->send_lock as you wrote below, which requires 
+irq-safe lock. And this matches our finding from a test:
 
-Are they enough for arm64?
-Getting but TLP on x86 is probably harder.
-(Unless you use AVX512 registers and aligned accesses.)
+=====================================================
+WARNING: SOFTIRQ-safe -> SOFTIRQ-unsafe lock order detected
+6.8.0-rc4-00787-g8eb4d2392609 #2 Not tainted
+-----------------------------------------------------
+smcapp/33802 [HC0[0]:SC0[2]:HE1:SE0] is trying to acquire:
+00000000a2fc0330 (&ldev->dmb_ht_lock){++++}-{2:2}, at: 
+smc_lo_move_data+0x84/0x1d0 [>
+and this task is already holding:
+00000000e4df6f28 (&smc->conn.send_lock){+.-.}-{2:2}, at: 
+smc_tx_sndbuf_nonempty+0xaa>
+which would create a new lock dependency:
+(&smc->conn.send_lock){+.-.}-{2:2} -> (&ldev->dmb_ht_lock){++++}-{2:2}
+but this new dependency connects a SOFTIRQ-irq-safe lock:
+(&smc->conn.send_lock){+.-.}-{2:2}
 
-It is rather a shame that there isn't an efficient way to get
-access to a couple of large SIMD registers.
-(eg save on stack and have the fpu code where they are for
-a lazy fpu switch.)
-There is quite a bit of code that would benefit, but kernel_fpu_begin()
-is just too expensive.
-
-=09David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1=
-PT, UK
-Registration No: 1397386 (Wales)
-
+> 
+>>> +    dmb->sba_idx = dmb_node->sba_idx;
+>>> +    dmb->dmb_tok = dmb_node->token;
+>>> +    dmb->cpu_addr = dmb_node->cpu_addr;
+>>> +    dmb->dma_addr = dmb_node->dma_addr;
+>>> +    dmb->dmb_len = dmb_node->len;
+>>> +
+>>> +    return 0;
+>>> +
+>>> +err_node:
+>>> +    kfree(dmb_node);
+>>> +err_bit:
+>>> +    clear_bit(sba_idx, ldev->sba_idx_mask);
+>>> +    return rc;
+>>> +}
+>>> +
+>>> +static int smc_lo_unregister_dmb(struct smcd_dev *smcd, struct 
+>>> smcd_dmb *dmb)
+>>> +{
+>>> +    struct smc_lo_dmb_node *dmb_node = NULL, *tmp_node;
+>>> +    struct smc_lo_dev *ldev = smcd->priv;
+>>> +
+>>> +    /* remove dmb from hash table */
+>>> +    write_lock(&ldev->dmb_ht_lock);
+>>> +    hash_for_each_possible(ldev->dmb_ht, tmp_node, list, 
+>>> dmb->dmb_tok) {
+>>> +        if (tmp_node->token == dmb->dmb_tok) {
+>>> +            dmb_node = tmp_node;
+>>> +            break;
+>>> +        }
+>>> +    }
+>>> +    if (!dmb_node) {
+>>> +        write_unlock(&ldev->dmb_ht_lock);
+>>> +        return -EINVAL;
+>>> +    }
+>>> +    hash_del(&dmb_node->list);
+>>> +    write_unlock(&ldev->dmb_ht_lock);
+>>> +
+>>> +    clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
+>>> +    kfree(dmb_node->cpu_addr);
+>>> +    kfree(dmb_node);
+>>> +
+>>> +    return 0;
+>>> +}
+>>> +
+>>>   static int smc_lo_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
+>>>   {
+>>>       return -EOPNOTSUPP;
+>>> @@ -76,6 +169,38 @@ static int smc_lo_signal_event(struct smcd_dev 
+>>> *dev, struct smcd_gid *rgid,
+>>>       return 0;
+>>>   }
+>>> +static int smc_lo_move_data(struct smcd_dev *smcd, u64 dmb_tok,
+>>> +                unsigned int idx, bool sf, unsigned int offset,
+>>> +                void *data, unsigned int size)
+>>> +{
+>>> +    struct smc_lo_dmb_node *rmb_node = NULL, *tmp_node;
+>>> +    struct smc_lo_dev *ldev = smcd->priv;
+>>> +
+>>> +    read_lock(&ldev->dmb_ht_lock);
+>>> +    hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_tok) {
+>>> +        if (tmp_node->token == dmb_tok) {
+>>> +            rmb_node = tmp_node;
+>>> +            break;
+>>> +        }
+>>> +    }
+>>> +    if (!rmb_node) {
+>>> +        read_unlock(&ldev->dmb_ht_lock);
+>>> +        return -EINVAL;
+>>> +    }
+>>> +    read_unlock(&ldev->dmb_ht_lock);
+>>> +
+>>> +    memcpy((char *)rmb_node->cpu_addr + offset, data, size);
+>>> +
+>>
+>> Should this read_unlock be placed behind memcpy()?
+>>
+> 
+> dmb_ht_lock is used to ensure safe access to the DMB hash table of 
+> loopback-ism.
+> The DMB hash table could be accessed by all the connections on 
+> loopback-ism, so
+> it should be protected.
+> 
+> But a certain DMB is only used by one connection, and the move_data 
+> process is
+> protected by conn->send_lock (see smcd_tx_sndbuf_nonempty()), so the 
+> memcpy(rmb_node)
+> here is safe and no race with other.
+> 
+> Thanks!
+> 
+sounds reasonable.
+>> <...>
