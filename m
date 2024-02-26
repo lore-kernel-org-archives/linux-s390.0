@@ -1,146 +1,108 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7583D12C7F4;
-	Mon, 26 Feb 2024 16:15:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EB3F12CD86;
+	Mon, 26 Feb 2024 16:40:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708964111; cv=none; b=E/Yq6LQ17wd1kPe/YuQaUug64lyw7CPU4vqG9WZ6NaJ2zMkxAZWp8w0gm2m8hhdC8JWFcobWRzUi+f6dFtAPLOsI0EXcHVgm44TTc10M0uw/LRWZOdqAmbROpbLPUr3+78BvfLXDASs6DH93wM1uDHCaILbsZd4n6apS/7QlkE0=
+	t=1708965657; cv=none; b=HhzIT+4LGyUplVPvpXGnbEzJjstSGMVkBrX0sfI5JpHljmykbjDUfZK3gXvMvTlyqPvp5o+9KemjbWqfVzCr/kIEyRcgr6OSImpyhjfeEWaHH1oiEsWqYMDBHnSDHKiHG/ciGAoAoAC1SlW8zL2zlHdS+faecEcRvFvWUuPlKoo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708964111; c=relaxed/simple;
-	bh=AO14Twor4Epqfova99BdXRAOjLIWQcQyPi3BUqYZmuA=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=QEcppADMtfH7yYzbceLqJnAJ+ylNLVAYdkMie3GyPvINMkbsu0kIDWZiYRh+zPXWZ7RAkzb5ZLuwHfdOlKs/mW5aSftjjMGpnJ1ttHBPBe3QU3glZzcfLJArmB5tr37PUqwRDcIolhPoZWm7Sd9Kd+K+z9vBdautl5ipE4PLFp4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZiZAMuXY; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1708965657; c=relaxed/simple;
+	bh=NhJS1d58cagQSyhvpckhN9WZoEHeLpN0eEhpNUPwLCA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=MRyaGt72hNXwlB4cDL+Ct9GYhS838h6ipdThEiChzPD2La8DehtPCvT8uWES787jRW9J7hBZF+jgGWMdY/OX5J50zL0YNmQgZczKeq7PojTwGz2WyhEKi0kqGaJ0iGz2WWHtTh944Va6HBA1qAGt/TlrQU1VDPVrHXlcuxpHk0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nYb7tKvc; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZiZAMuXY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC888C433B2;
-	Mon, 26 Feb 2024 16:15:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1708964110;
-	bh=AO14Twor4Epqfova99BdXRAOjLIWQcQyPi3BUqYZmuA=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=ZiZAMuXYiDyR2hDknZ4xgVy8TWczoqlYaz+54BPEoKIfJs4BSV182oJ1ZYu9Y5JbD
-	 WmVlYt52eCJD6AGhn7U0y3EC75bLKVFGbI7wGmXiVDKgZPTwDaVuTJTSVkJKvUISzS
-	 2XRA3a5n6YOmUElWz/EoUJbwtBXGMm0MnBobEcfj+6UoFFgUN+ewdn1/f3BBURGCAf
-	 oK4FRWPsN9e+IXZu64v2vjYmcNQRQ8eM254ceqdZ/GIQhQ58ktIQY1PjwK8pNlnHUX
-	 azFtrkzqYG46sjmhqFVs4snXAZo3hTMRuuCQkCC5flzHnC0ice4Qu8BYIkByoxWD5F
-	 EP1u+qVkKv5IQ==
-From: Arnd Bergmann <arnd@kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>,
-	Vincenzo Frascino <vincenzo.frascino@arm.com>,
-	Kees Cook <keescook@chromium.org>,
-	Anna-Maria Behnsen <anna-maria@linutronix.de>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	Matt Turner <mattst88@gmail.com>,
-	Vineet Gupta <vgupta@kernel.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Guo Ren <guoren@kernel.org>,
-	Brian Cain <bcain@quicinc.com>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Michal Simek <monstr@monstr.eu>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Helge Deller <deller@gmx.de>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Richard Weinberger <richard@nod.at>,
-	x86@kernel.org,
-	Max Filippov <jcmvbkbc@gmail.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Jan Kiszka <jan.kiszka@siemens.com>,
-	Kieran Bingham <kbingham@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	linux-kernel@vger.kernel.org,
-	linux-alpha@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	linux-um@lists.infradead.org,
-	Linux Kernel Functional Testing <lkft@linaro.org>
-Subject: [PATCH 4/4] vdso: avoid including asm/page.h
-Date: Mon, 26 Feb 2024 17:14:14 +0100
-Message-Id: <20240226161414.2316610-5-arnd@kernel.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240226161414.2316610-1-arnd@kernel.org>
-References: <20240226161414.2316610-1-arnd@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nYb7tKvc"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41QGSJfI015093;
+	Mon, 26 Feb 2024 16:40:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=+X9bPE0gncwXQWw8LxqbvfbFI/mdodtz1i9EZTUOWKU=;
+ b=nYb7tKvcb/bNJBfuLqw+evszO/ps52sqQ7Pz5RCl+A7Q8rz7HeBHipk9SklaIze7ap2R
+ jOpKWyFgpvoOLSlcuqb60OZvVui5vcO+NuRRYOHsIWxT2Au4TwVdYHoPdA5LLzmfmgyp
+ gLs1wR4m4JWV9qH0QMjAGCsEa/0WVvtgSyNu+S92gnyy67Ws+A/S2QArGuwQ1OYBMADA
+ 1qJamiGF3hg5MSHW8VKgpA6lG/ADz78BEoGC6pCldpGnt5dmLT4SCbbKf9d9exqrq1Iw
+ 20eMOeCn688gN3d2JWcc/8xUvoshV9lW1ScHnAMb8kMAI1yS/MM3TMVfENxuQ6hV/IMC Jg== 
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wgx6g8dx6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 26 Feb 2024 16:40:51 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41QGRM3J021756;
+	Mon, 26 Feb 2024 16:40:51 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wfu5ythsm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 26 Feb 2024 16:40:51 +0000
+Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41QGelM949807866
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 26 Feb 2024 16:40:50 GMT
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DFCD558061;
+	Mon, 26 Feb 2024 16:40:47 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5A14D58070;
+	Mon, 26 Feb 2024 16:40:46 +0000 (GMT)
+Received: from [9.171.88.168] (unknown [9.171.88.168])
+	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 26 Feb 2024 16:40:46 +0000 (GMT)
+Message-ID: <9d222f24-ab6c-4eab-a999-808bf5909b9b@linux.ibm.com>
+Date: Mon, 26 Feb 2024 17:40:44 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: convert dasd to the atomic queue limits update API
+Content-Language: en-US
+To: Christoph Hellwig <hch@lst.de>, Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Jens Axboe <axboe@kernel.dk>
+Cc: linux-block@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20240221125438.3609762-1-hch@lst.de>
+From: Stefan Haberland <sth@linux.ibm.com>
+In-Reply-To: <20240221125438.3609762-1-hch@lst.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: IShq5lJW6joX1Lf-RkwCaUw4B-LhoOGZ
+X-Proofpoint-ORIG-GUID: IShq5lJW6joX1Lf-RkwCaUw4B-LhoOGZ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-26_11,2024-02-26_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ suspectscore=0 clxscore=1015 bulkscore=0 spamscore=0 mlxlogscore=970
+ priorityscore=1501 adultscore=0 phishscore=0 impostorscore=0 mlxscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402260126
 
-From: Arnd Bergmann <arnd@arndb.de>
+Am 21.02.24 um 13:54 schrieb Christoph Hellwig:
+> Hi dasd maintainers,
+>
+> this series against the block/for-6.9 tree converts dasd to the new atomic
+> queue limits update API.  It is compile tested only as I don't have any
+> s390 hardware.
+>
+> Diffstat:
+>   dasd.c       |   74 ++++++++++++++++++++++++++++++++++++-----------------------
+>   dasd_diag.c  |   22 ++---------------
+>   dasd_eckd.c  |   29 ++++-------------------
+>   dasd_fba.c   |   33 +++-----------------------
+>   dasd_genhd.c |   13 +++++++++-
+>   dasd_int.h   |    6 +---
+>   6 files changed, 73 insertions(+), 104 deletions(-)
 
-The recent change to the vdso_data_store broke building compat VDSO
-on at least arm64 because it includes headers outside of the include/vdso/
-namespace:
-
-In file included from arch/arm64/include/asm/lse.h:5,
-                 from arch/arm64/include/asm/cmpxchg.h:14,
-                 from arch/arm64/include/asm/atomic.h:16,
-                 from include/linux/atomic.h:7,
-                 from include/asm-generic/bitops/atomic.h:5,
-                 from arch/arm64/include/asm/bitops.h:25,
-                 from include/linux/bitops.h:68,
-                 from arch/arm64/include/asm/memory.h:209,
-                 from arch/arm64/include/asm/page.h:46,
-                 from include/vdso/datapage.h:22,
-                 from lib/vdso/gettimeofday.c:5,
-                 from <command-line>:
-arch/arm64/include/asm/atomic_ll_sc.h:298:9: error: unknown type name 'u128'
-  298 |         u128 full;
-
-Use an open-coded page size calculation based on the new CONFIG_PAGE_SHIFT
-Kconfig symbol instead.
-
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-Fixes: a0d2fcd62ac2 ("vdso/ARM: Make union vdso_data_store available for all architectures")
-Link: https://lore.kernel.org/lkml/CA+G9fYtrXXm_KO9fNPz3XaRxHV7UD_yQp-TEuPQrNRHU+_0W_Q@mail.gmail.com/
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- include/vdso/datapage.h | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
-diff --git a/include/vdso/datapage.h b/include/vdso/datapage.h
-index 7ba44379a095..2c39a67d7e23 100644
---- a/include/vdso/datapage.h
-+++ b/include/vdso/datapage.h
-@@ -19,8 +19,6 @@
- #include <vdso/time32.h>
- #include <vdso/time64.h>
- 
--#include <asm/page.h>
--
- #ifdef CONFIG_ARCH_HAS_VDSO_DATA
- #include <asm/vdso/data.h>
- #else
-@@ -128,7 +126,7 @@ extern struct vdso_data _timens_data[CS_BASES] __attribute__((visibility("hidden
-  */
- union vdso_data_store {
- 	struct vdso_data	data[CS_BASES];
--	u8			page[PAGE_SIZE];
-+	u8			page[1ul << CONFIG_PAGE_SHIFT];
- };
- 
- /*
--- 
-2.39.2
-
+Thanks for addressing this.
+I corrected one thing in patch 2 and let it run through some basic 
+testing over the weekend.
+Worked as expected. Please see comments for patch 2.
