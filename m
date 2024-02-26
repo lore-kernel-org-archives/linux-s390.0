@@ -1,124 +1,184 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 753A41C696;
-	Mon, 26 Feb 2024 08:18:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3241C7C6E5
+	for <linux-s390@vger.kernel.org>; Mon, 26 Feb 2024 09:08:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708935518; cv=none; b=pKWCMYZZNIQ9if4GGLOO2msKIamrqTLZhjvZ68JiIdav31v940gu5+M3r106TByJ+tuK6JMFhmJshTueRMi+gBD93TIr5IXyJbqMLwAYcNRXLiIWXgXjqPs9vEcCv8VuUOKkQcwoE8sndAqmfYEagG4g3nwXirn39IaO0KAbprg=
+	t=1708938504; cv=none; b=FJy/du86MDjpK/3rbebGk1HFjcakePDMkmN5DvfRwxET1VTKKP9hwz1o8v4XesBIkt7sqqNwzYpgvEiJcavGuYSUx2JnDZBh0B/wNrgzMOcxEgKwKk+lPqzTg/xeBrt6NDkrj6PkmrbmqggncSfyxONLyDysb2Ij14M8Awpk9H0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708935518; c=relaxed/simple;
-	bh=TkeJLWSaleQ1V9sa6H8/Bn1o4lbURzv3H5YvCtOMVIg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=pKR+IxboRU9O3tfOm+d/2nHCNUb7Q+LqNMXitqr0PHRmiryd3SMcDqwiN6bwxJY8F5QHYAApPqvhe6MB2aawowKJo1lRU+aqOB9QcZyloAQHd2k9pYknScnNmBdSk800ntDVgxBHGGyRJrBStvmIAFqzfw6V2s4iL2q3q3/0hNA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hScEjs0S; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1708938504; c=relaxed/simple;
+	bh=tBZE/eacc6Q7GBJFLAV/5+38gZ+VtYaaXoBQ10tKnVY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RkkjXc4NDSkH8tAfvStrtoBBUCY+pLWeJpZa0lPKjU3+JINKA8lHedgS2yBYz7ES3GgSIJSX0EU1Zyt25ah64AYoK/W3Fs10hugOQiCqNvUylVTDWz09jy8dMvPdglqdQIuYWHrAxChyelI1jHMmDL4MzzqS0uEuQM8Klf2Xqoo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dUwThaGG; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hScEjs0S"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41Q7WvUw028547;
-	Mon, 26 Feb 2024 08:18:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=262juMYYDaM9xYgeMFXljlcA/IggMHsKofu/AnWxIGc=;
- b=hScEjs0SKUQZfw9tU8m5J7SWN55JfMZq8yxP0QId0AV4VbyXDVqI6AwBqmESN+cU9/Cu
- a+pr13u+E55XNchfOYnOQKP1TSrZ5j88X4UcEUPIGQWm6h2oCH0mQO9/yfhUh28yHb/b
- uc5Cumg/k8YHR9poMzz+uVKV7I39cFtxnVKYro1WUkNVOW6LTkv4nR0304oWwSCrRJ1l
- rxnweVRKN9N1C3BM+XpaN4bssxsy6cx6Nv5pHj+sB3x4z2EbGmWUQ+rs9AofQwyEbaen
- fQzc5PjGaioKo/HV+sHGc1jL07sx4iVNR2JQiV/wKiz4Ic5Fuwjv/9V37xSEvl3FcZAn JA== 
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wgpbkru4a-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 26 Feb 2024 08:18:30 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41Q659DO008178;
-	Mon, 26 Feb 2024 08:18:29 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wfv9kykgm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 26 Feb 2024 08:18:29 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41Q8INfi39977504
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 26 Feb 2024 08:18:25 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 79CCD2004E;
-	Mon, 26 Feb 2024 08:18:23 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 23F962004B;
-	Mon, 26 Feb 2024 08:18:23 +0000 (GMT)
-Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.171.21.235])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 26 Feb 2024 08:18:23 +0000 (GMT)
-Date: Mon, 26 Feb 2024 09:18:21 +0100
-From: Sumanth Korikkar <sumanthk@linux.ibm.com>
-To: kernel test robot <lkp@intel.com>
-Cc: Josh Poimboeuf <jpoimboe@kernel.org>, oe-kbuild-all@lists.linux.dev,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        agordeev@linux.ibm.com
-Subject: Re: [s390:features 97/102] arch/s390/boot/startup.c:180:5: sparse:
- sparse: symbol 'vmlinux_relocs_64_start' was not declared. Should it be
- static?
-Message-ID: <ZdxJTdGRt9kzPudk@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-References: <202402260305.0Kp1dQiZ-lkp@intel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <202402260305.0Kp1dQiZ-lkp@intel.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: yvlxzqFiDWkoleV2HubV2v_OBHiiYFSM
-X-Proofpoint-ORIG-GUID: yvlxzqFiDWkoleV2HubV2v_OBHiiYFSM
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dUwThaGG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1708938501;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=Nd4KNSHTsPg8sEq3delbthyC/APIQx24iJ0AiYrHHVk=;
+	b=dUwThaGG8mYIi57UaaQsSd7f0aYIMvHG5yxgq31Pu2+tUCkESC0IZ+RYH1ImWHxzyWqCGm
+	yaFlpFQWKyoNgc5WRh0hG6PCRW8sd9NMHOc0UnED9UrtO/rAOHmB5aGFQzEipY8ZqqN8VY
+	Tt0C1uVNCy909uOIU4Gj8bQFhkiCm1E=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-41-Etw_BVCnMmaKHWiMGGdW1w-1; Mon, 26 Feb 2024 04:08:20 -0500
+X-MC-Unique: Etw_BVCnMmaKHWiMGGdW1w-1
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-33d10bd57d7so1014248f8f.3
+        for <linux-s390@vger.kernel.org>; Mon, 26 Feb 2024 01:08:20 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1708938499; x=1709543299;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
+         :to:content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Nd4KNSHTsPg8sEq3delbthyC/APIQx24iJ0AiYrHHVk=;
+        b=jy9AHz8AG1zTit6GmYtxFNHDfqA5+TuGtPnXYv7NNkP1YzmhvAj4y90CCTRKEo23dg
+         JvdwxlQgLPuE5E2UOJmalHPzhU4YjHK6Mkjj9uNVVfiqe4jdk8aJaEVaWHsoohT8FEX9
+         0+W6q60LrBtzHGw9Rl2cGYx67N9F7GWqMbX6oiod3CLY9JQCCFw+klkf+3g2Jk1xlfvM
+         yJy7JPHQKYsFyAHf53evkwkuUZXtCvP1ybub+r/1+Djm4M5ped+cwF1XJuLvbz9zTlH4
+         5clsUSKDw1umySs25nJo3IWj8NKqOmX2DyrnA0keSEaUYt82ochzvsq/ZEgsgRhWPcJN
+         J/jQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWJHA+aNRlgwzP/JArh0DK9n5TZ+DoDbitbboTYE9v+KBjqNaVHDwT2G8Y7pxRbsjTkyHvbcLY2Bn76bnp0+E1ASPE8TtY1sc5e7g==
+X-Gm-Message-State: AOJu0YzR1sj/FaF2NIMeTduFaSPggXocifbqoVk61dy0mYWkXyyFwYXC
+	GjCFC/ubO1f3zx/Zx9M8icoNWYflSSci5PKOtOK0Anp+jOcvjk4AIOJb5LkRhItgpkIQIeZja8s
+	/42Wa5p2uk78TUaVmUaqP/DwCpR3unMoLoCRlbz6i1D8RTU7p4OP9FT822N4=
+X-Received: by 2002:adf:f350:0:b0:33d:855d:7457 with SMTP id e16-20020adff350000000b0033d855d7457mr4399499wrp.21.1708938498788;
+        Mon, 26 Feb 2024 01:08:18 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGFjmnajipOzaVs1cymu3XapHbGqxmQuOJVM3lzDCaND8iWQ5Iz+3PcFM5ZHEhGzbfZOV1QvQ==
+X-Received: by 2002:adf:f350:0:b0:33d:855d:7457 with SMTP id e16-20020adff350000000b0033d855d7457mr4399486wrp.21.1708938498451;
+        Mon, 26 Feb 2024 01:08:18 -0800 (PST)
+Received: from [192.168.0.9] (ip-109-43-176-215.web.vodafone.de. [109.43.176.215])
+        by smtp.gmail.com with ESMTPSA id w4-20020a5d4044000000b0033b7ce8b496sm7491263wrp.108.2024.02.26.01.08.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 26 Feb 2024 01:08:18 -0800 (PST)
+Message-ID: <d7d4644f-0c82-42b8-b211-f53d8135786c@redhat.com>
+Date: Mon, 26 Feb 2024 10:08:16 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-26_05,2024-02-23_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- bulkscore=0 mlxlogscore=999 phishscore=0 adultscore=0 lowpriorityscore=0
- spamscore=0 malwarescore=0 clxscore=1015 priorityscore=1501 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2402260061
+User-Agent: Mozilla Thunderbird
+Subject: Re: [kvm-unit-tests PATCH v5 0/8] Multi-migration support
+Content-Language: en-US
+To: Nicholas Piggin <npiggin@gmail.com>
+Cc: kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
+ Shaoqin Huang <shahuang@redhat.com>, Andrew Jones <andrew.jones@linux.dev>,
+ Nico Boehr <nrb@linux.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ Alexandru Elisei <alexandru.elisei@arm.com>,
+ Eric Auger <eric.auger@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ David Hildenbrand <david@redhat.com>, Marc Hartmayer
+ <mhartmay@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, kvmarm@lists.linux.dev,
+ kvm-riscv@lists.infradead.org
+References: <20240221032757.454524-1-npiggin@gmail.com>
+ <5383a1b2-20ca-4d07-9729-e9d5115948dc@redhat.com>
+ <CZEUWE22JA80.3S73L9F5A04RK@wheely>
+From: Thomas Huth <thuth@redhat.com>
+Autocrypt: addr=thuth@redhat.com; keydata=
+ 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
+In-Reply-To: <CZEUWE22JA80.3S73L9F5A04RK@wheely>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, Feb 26, 2024 at 03:15:26AM +0800, kernel test robot wrote:
-> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
-> head:   a795e5d2347def129734a7f247ac70339d50d8c2
-> commit: 778666df60f0d96f215e33e27448de47a2207fb3 [97/102] s390: compile relocatable kernel without -fPIE
-> config: s390-randconfig-r122-20240225 (https://download.01.org/0day-ci/archive/20240226/202402260305.0Kp1dQiZ-lkp@intel.com/config)
-> compiler: clang version 19.0.0git (https://github.com/llvm/llvm-project edd4aee4dd9b5b98b2576a6f783e4086173d902a)
-> reproduce: (https://download.01.org/0day-ci/archive/20240226/202402260305.0Kp1dQiZ-lkp@intel.com/reproduce)
+On 26/02/2024 09.10, Nicholas Piggin wrote:
+> On Fri Feb 23, 2024 at 5:06 PM AEST, Thomas Huth wrote:
+>> On 21/02/2024 04.27, Nicholas Piggin wrote:
+>>> Now that strange arm64 hang is found to be QEMU bug, I'll repost.
+>>> Since arm64 requires Thomas's uart patch and it is worse affected
+>>> by the QEMU bug, I will just not build it on arm. The QEMU bug
+>>> still affects powerpc (and presumably s390x) but it's not causing
+>>> so much trouble for this test case.
+>>>
+>>> I have another test case that can hit it reliably and doesn't
+>>> cause crashes but that takes some harness and common lib work so
+>>> I'll send that another time.
+>>>
+>>> Since v4:
+>>> - Don't build selftest-migration on arm.
+>>> - Reduce selftest-migration iterations from 100 to 30 to make the
+>>>     test run faster (it's ~0.5s per migration).
+>>
+>> Thanks, I think the series is ready to go now ... we just have to wait for
+>> your QEMU TCG migration fix to get merged first. Or should we maybe mark the
+>> selftest-migration with "accel = kvm" for now and remove that line later
+>> once QEMU has been fixed?
 > 
-> If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> the same patch/commit), kindly add following tags
-> | Reported-by: kernel test robot <lkp@intel.com>
-> | Closes: https://lore.kernel.org/oe-kbuild-all/202402260305.0Kp1dQiZ-lkp@intel.com/
-> 
-> sparse warnings: (new ones prefixed by >>)
-> >> arch/s390/boot/startup.c:180:5: sparse: sparse: symbol 'vmlinux_relocs_64_start' was not declared. Should it be static?
-> >> arch/s390/boot/startup.c:181:5: sparse: sparse: symbol 'vmlinux_relocs_64_end' was not declared. Should it be static?
-> 
-> vim +/vmlinux_relocs_64_start +180 arch/s390/boot/startup.c
-> 
->    175	
->    176	static void kaslr_adjust_got(unsigned long offset) {}
->    177	static void rescue_relocs(void) {}
->    178	static void free_relocs(void) {}
->    179	#else
->  > 180	int *vmlinux_relocs_64_start;
->  > 181	int *vmlinux_relocs_64_end;
->    182	
-> 
-> -- 
-> 0-DAY CI Kernel Test Service
-> https://github.com/intel/lkp-tests/wiki
->
+> Could we merge it? I'm juggling a bunch of different things and prone to
+> lose track of something :\ I'll need to drum up a bit of interest to
+> review the QEMU fixes from those who know the code too, so that may take
+> some time.
 
-This is already fixed by Alexander Gordeev in our branch and should be
-available soon.
+Ok, I merged it, but with "accel = kvm" for the time being (otherwise this 
+would be quite a pitfall for people trying to run the k-u-t with TCG when 
+they don't know that they have to fetch a patch from the mailing list to get 
+it working).
 
-Thanks,
-Sumanth
+> I left it out of arm unittests.cfg entirely, and s390 and powerpc seems
+> to work by luck enough to be useful for gitlab CI so I don't think there
+> is a chnage needed really unless you're paranoid.
+
+At least the s390x test does not work reliably at all when running with TCG 
+without your QEMU patch, so I think we really need the "accel = kvm" for the 
+time being here.
+
+> I do have a later patch that adds a memory tester that does trigger it
+> right away on powerpc. I'll send that out after this series is merged...
+> but we do still have the issue that the gitlab CI image has the old QEMU
+> don't we? Until we update distro.
+
+We only run selected tests in the gitlab-CI, so unless you add it to 
+.gitlab-ci.yml, the selftest-migration test won't be run there.
+
+  Thomas
+
+
