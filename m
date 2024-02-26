@@ -1,126 +1,168 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AC558002E
-	for <linux-s390@vger.kernel.org>; Mon, 26 Feb 2024 12:55:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C20E280053;
+	Mon, 26 Feb 2024 12:59:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708952121; cv=none; b=lgUe+1rEDW7p++RuBgQqlUG+5JvbaionwO07AITm6Smd5CyoKA1iqNNXKHKUzAwqSdUBqFi4bXElOIcXCfg56cRdLHH6bVbLYmAWNHL68PESRopkBKRTHMBfxOAwH9G8uCmrESqfdLYkb+VObEbWxkdTPnYXWW+K/2lq92gv1wo=
+	t=1708952347; cv=none; b=kIEOAhoZmd+HhqeDHuwlNgd1VQY7srfHqbia8lWbrIFnKqZ5ebSBnCZi3yGNj1POCvFaLNATl08qF7nqxXdTvlbUF8RTTeWZswu6hXf5lUb5wEhKE1uyQlc+4KK1mTgM6G10RlbcmDsJzY1dT5GY6VWwQ/NnECOyVu08kCxEY84=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708952121; c=relaxed/simple;
-	bh=pxoza3HTK4aEM0yoDZZn3CQlIl4aJ5/4N0lcwlV+Vg8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uO17aOfWv6o2UO3gqcPO+ADtTEwsmrZkDhp3GOkvnzC7hs/4qDO5cY3hBDAu2t5aVx5Aq1JvOJnZ3+PNqCHBp6FbkdcACUnh7ziNTIqM2QworCJCcGC2F9Vs/uteyDKaYJksgghRHTkUrmeF5Er2uZg/ABhYNMQa5FZDZ6y9Ew0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aiF3CKFo; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1708952347; c=relaxed/simple;
+	bh=CivS165SpOZxqTRi7Y0BERi3bxixI6EZFS1RildTF20=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=hS3gQ5idw8AYMDTu3DwxuJOYYapuPLLIXQG6wa4GjA3CCWNrEaWKIrj1iV/VE5AV9xzvO7pPH6ChDMac/tIPd8yO2GlXK99w4i1XykwxulD5j6kJXFEOMW8Zy98KV47cl60yMoynX2P5FW+H80iIDzhRPMhUMtanQwwCqDhq/K8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=rk4ywl2T; arc=none smtp.client-ip=115.124.30.111
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aiF3CKFo"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41QCrg0h019519;
-	Mon, 26 Feb 2024 12:55:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=MTTKM4lAsqhrHQGT9bk4v2RhnpxvXSCKUbRyxVSpChk=;
- b=aiF3CKFoXgZVG4CbuH9tKcud+KWaa8WFw8g7AV7KXlGF0IFnlHqAIR2IgM3IawedvIC1
- xUZMZ4bvNOWafXPYMhUWMt4ZifSHtuBFPHL7wCvPJC0NZ9gJFG7DlFkTZ1ifYh8JN0cG
- FUpczilzOq5u4oQXyaUid/8a9nh9JU+0svbzmVTmGo/Neacr3J6v2Sc0zdGYxgToJqxg
- nPG04Pb3OeUmYMRHTCzmKAut8PR7OjIyFnbROhy/nMRNxNPXOLB51dxvhIeLPMXTZCx6
- RTvY8fRkXfjwofjPZDQpO3TqfVLNJgL2uEs3RFqHBCJ3V8sWYD8RVft9FGzPRX2Hp5RC 9A== 
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wgu1v811p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 26 Feb 2024 12:55:08 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41QA6jci024144;
-	Mon, 26 Feb 2024 12:55:08 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wfw0k0qns-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 26 Feb 2024 12:55:08 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41QCt2im39649648
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 26 Feb 2024 12:55:04 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5850620043;
-	Mon, 26 Feb 2024 12:55:02 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C88822004F;
-	Mon, 26 Feb 2024 12:55:01 +0000 (GMT)
-Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.171.21.235])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 26 Feb 2024 12:55:01 +0000 (GMT)
-Date: Mon, 26 Feb 2024 13:55:00 +0100
-From: Sumanth Korikkar <sumanthk@linux.ibm.com>
-To: Josh Poimboeuf <jpoimboe@kernel.org>
-Cc: kernel test robot <lkp@intel.com>, s-vadapalli@ti.com,
-        r-gunasekaran@ti.com, rogerq@kernel.org, oe-kbuild-all@lists.linux.dev,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        iii@linux.ibm.com, agordeev@linux.ibm.com, davem@davemloft.net,
-        naresh.kamboju@linaro.org
-Subject: Re: [s390:features 97/98] Unsupported relocation type: 21
-Message-ID: <ZdyKJMEkm6r_ArrZ@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-References: <202402221404.T2TGs8El-lkp@intel.com>
- <ZdhtYc9THmX4Ddse@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
- <20240223235939.abycpq35ydgahdz2@treble>
- <Zdxt97Ni3p8ptNyv@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="rk4ywl2T"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1708952342; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=cD5eT8WkRRrjceQq/anwpIvtg55UdVcwbYHTzVSwFEg=;
+	b=rk4ywl2TJMeiUIy+03NU8clSRH/3GSgj3Kh2QEyogVEQMbhgmadBoiwhXV+cbgp06BqZ3l5RaI9YLlSeutbVYBOVgh/i1YEbkZ4HupKbxVv25e3+1/mi1lX9HrLfC4QmYxhWLGeLGhYdzjl4uz/YrPS69t76hbPixnpt2ntC3J0=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0W1JpswJ_1708952340;
+Received: from 30.221.129.59(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W1JpswJ_1708952340)
+          by smtp.aliyun-inc.com;
+          Mon, 26 Feb 2024 20:59:01 +0800
+Message-ID: <253e7be2-5f31-45a6-9dce-b8080d2d2ebd@linux.alibaba.com>
+Date: Mon, 26 Feb 2024 20:58:59 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Zdxt97Ni3p8ptNyv@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: RPhIPv3wNwU_IlHXDnRJCg9vYUg2zR2v
-X-Proofpoint-GUID: RPhIPv3wNwU_IlHXDnRJCg9vYUg2zR2v
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-26_09,2024-02-26_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- adultscore=0 phishscore=0 impostorscore=0 spamscore=0 mlxlogscore=661
- malwarescore=0 suspectscore=0 mlxscore=0 bulkscore=0 lowpriorityscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402260097
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 09/15] net/smc: introduce loopback-ism statistics
+ attributes
+To: Wenjia Zhang <wenjia@linux.ibm.com>, wintera@linux.ibm.com,
+ hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, jaka@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20240111120036.109903-1-guwen@linux.alibaba.com>
+ <20240111120036.109903-10-guwen@linux.alibaba.com>
+ <417a1b7c-4136-4f96-a614-9fd976dc884d@linux.ibm.com>
+ <cac6192e-85d8-4289-b5af-bc8143e76004@linux.alibaba.com>
+ <700198c8-e4dc-4974-9ebf-f819deaa785b@linux.ibm.com>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <700198c8-e4dc-4974-9ebf-f819deaa785b@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Mon, Feb 26, 2024 at 11:54:50AM +0100, Sumanth Korikkar wrote:
-> Hi Josh,
-> 
-> On Fri, Feb 23, 2024 at 03:59:39PM -0800, Josh Poimboeuf wrote:
-> > On Fri, Feb 23, 2024 at 11:03:13AM +0100, Sumanth Korikkar wrote:
-> > > In the random config generated by lkp test robot
-> > > 
-> > >  CONFIG_TI_CPSW=m
-> > >  CONFIG_TI_DAVINCI_EMAC=y
-> > > 
-> > > In drivers/net/ethernet/ti/Makefile:
-> > >  11 obj-$(CONFIG_TI_DAVINCI_EMAC) += ti_davinci_emac.o
-> > >  12 ti_davinci_emac-y := davinci_emac.o davinci_cpdma.o
-> > >  ...
-> > >  16 obj-$(CONFIG_TI_CPSW) += ti_cpsw.o
-> > >  17 ti_cpsw-y := cpsw.o davinci_cpdma.o cpsw_ale.o cpsw_priv.o cpsw_sl.o cpsw_ethtool.o
-> > > 
-> > > Here davinci_cpdma.o is used in both   obj-$(CONFIG_TI_DAVINCI_EMAC) and
-> > > obj-$(CONFIG_TI_CPSW), one built as inbuilt and one built as module
-> > > correspondingly (randconfig)
-> > > 
-> > > This leads to conflict in Kbuild and results in linking  davinci_cpdma.o
-> > > in vmlinux.
-> > > * However, davinci_cpdma.o is built with -DMODULE -fPIC.
-> > > * vmlinux is built with -fno-PIE.
-> > > 
-> > > This leads to R_390_GOTENT and R_390_GOTDBL entries in vmlinux, which is
-> > > not expected when building kernel with -fno-PIE.
-> > 
-> > Nice.
-> > 
-> > I suppose the current s390 memory model wouldn't support removing
-> > -fPIC for modules?
-> 
-> Answer from our toolchain team - Andreas Krebbel: It should be ideally
-> feasible to build modules without -fPIC on s390.
 
-FWIW, I'm looking into this right now. Let's see how things go.
+
+On 2024/2/23 22:13, Wenjia Zhang wrote:
+> 
+> 
+> On 20.02.24 03:45, Wen Gu wrote:
+>>
+>>
+>> On 2024/2/16 22:24, Wenjia Zhang wrote:
+>>>
+>>>
+>>> On 11.01.24 13:00, Wen Gu wrote:
+>>>> This introduces some statistics attributes of loopback-ism. They can be
+>>>> read from /sys/devices/virtual/smc/loopback-ism/{xfer_tytes|dmbs_cnt}.
+>>>>
+>>>> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+>>>> ---
+>>>>   net/smc/smc_loopback.c | 74 ++++++++++++++++++++++++++++++++++++++++++
+>>>>   net/smc/smc_loopback.h | 22 +++++++++++++
+>>>>   2 files changed, 96 insertions(+)
+>>>>
+>>>
+>>> I've read the comments from Jiri and your answer. I can understand your thought. However, from the perspective of the 
+>>> end user, it makes more sense to integetrate the stats info into 'smcd stats'. Otherwise, it would make users 
+>>> confused to find out with which tool to check which statisic infornation. Sure, some improvement of the smc-tools is 
+>>> also needed
+>>
+>> Thank you Wenjia.
+>>
+>> Let's draw an analogy with RDMA devices, which is used in SMC-R. If we want
+>> to check the RNIC status or statistics, we may use rdma statistic command, or
+>> ibv_devinfo command, or check file under /sys/class/infiniband/mlx5_0. These
+>> provide details or attributes related to *devices*.
+>>
+>> Since s390 ISM can be used out of SMC, I guess it also has its own way (other
+>> than smc-tools) to check the statistic?
+>>
+>> What we can see in smcr stats or smcd stats command is about statistic or
+>> status of SMC *protocol* layer, such as DMB status, Tx/Rx, connections, fallbacks.
+>>
+>> If we put the underlying devices's statistics into smc-tools, should we also
+>> put RNIC statistics or s390 ISM statistics into smcr stat or smcd stat? and
+>> for each futures device that can be used by SMC-R/SMC-D, should we update them
+>> into smcr stat and smcd stat? And the attributes of each devices may be different,
+>> should we add entries in smcd stat for each of them?
+>>
+>> After considering the above things, I believe that the details of the underlying
+>> device should not be exposed to smc(smc-tools). What do you think?
+>>
+>> Thanks!
+>>
+> That is a very good point. It really depends on how we understand *devices* and how we want to use it. The more we are 
+> thinking, the more complicated the thing is getting. I'm trying to find accurate definitions on modeling virtual devices 
+> hoping that would make things eaiser. Unfortunately, it is not easy. Finally, I found this article: 
+> https://lwn.net/Articles/645810/ (Heads up! It is even from nine years ago, I'm not sure how reliable it is.) With the 
+> insight of this article, I'm trying to summarize my thought:
+> 
+> It looks good to put the loopback-ism under the /sys/devices/virtual, especially according to the article
+> "
+> ... it is simply a place to put things that don't belong anywhere else.
+> "
+
+Yes, it can also be reflected from the implementation of get_device_parent():
+
+static struct kobject *get_device_parent(struct device *dev,
+					 struct device *parent)
+{
+<...>
+		/*
+		 * If we have no parent, we live in "virtual".
+		 * Class-devices with a non class-device as parent, live
+		 * in a "glue" directory to prevent namespace collisions.
+		 */
+		if (parent == NULL)
+			parent_kobj = virtual_device_parent(dev);
+		else if (parent->class && !dev->class->ns_type) {
+			subsys_put(sp);
+			return &parent->kobj;
+		} else {
+			parent_kobj = &parent->kobj;
+		}
+<...>
+}
+
+> However, in practice we use this in the term of simulated ism, which includes not only loopback-ism, but also other 
+> ones. Thus, does it not make sense to classify all of them together? E.g. same bus (just a half-baked idea)
+> 
+> Then the following questions are comig up:
+> - How should we organize them?
+> - Should it show up in the smc_rnics?
+> - How should it be seen from the perspective of the container?
+> - If we see this loopback-ism as a *device*, should we not only put the device related information under the /sys? Thus, 
+> dmbs_cnt seems ok, but xfer_tytes not. Besides, we have a field in smd stat naming "Data transmitted (Bytes)", which 
+> should be suitable for this information.
+
+Actually I created 'smc' class under /sys/devices/virtual just to place
+loopback-ism, since it doesn't seem to belong to a certain class of device
+and serves only SMC. Other 'smc devices', e.g. RDMA device, s390 ISM and
+other Emulated-ISM like virtio-ism, all belong to a certain class or bus,
+so I have no intention of putting them under the same path.
+
+But now looks like that the 'smc' class and /sys/devices/virtual/smc path
+will lead people to mistakenly think that there is a class of 'SMC devices',
+but in fact these 'SMC devices' belongs to different classes or buses. They
+can be used by SMC and any other users. So I think it is better to avoid
+creating such 'smc' class.
+
+Alternatively, after referring to other examples in the kernel, I think
+another choice is to to put loopback-ism under /sys/devices/virtual/misc/,
+for devices which can't fit in a specific class. What do you think?
+
+Thanks a lot!
