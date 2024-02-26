@@ -1,371 +1,135 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52D101BC30;
-	Mon, 26 Feb 2024 09:30:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B61125D753;
+	Mon, 26 Feb 2024 09:38:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708939844; cv=none; b=is3j56z1D3XOQD0Xpa3Ch1nEV1R52jrTZf17fdtMgjDonic/rHEk2hhZ6F9LyEmu14a/6F4ecH4M0gA+XkvK8U76LVCMkSq44QzdCVbB0c6MwV7giyvfNP0k6VGfRgyhpmtKFzL8Gt/mAFGK86nQU+00gDx2AlOSfWfArIsX10I=
+	t=1708940329; cv=none; b=tgdURhSfrjN0OInuTLR6qgPsT62q+rV5kdqC+Ly3PRI3ngEtYzXFw0rqCAj8oRexuBaECBpfT6bJ+ZzjCrp3PlbbYRW+EI+esz0Gox5Ney6TfDPQxCBY5TE3PF+J1UoOCICbDeszRuu8hFiHAmD1zvi8WPrZ4/9v7Hvy9xSXd0Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708939844; c=relaxed/simple;
-	bh=OiE2GjI9ymIQ6HLdX0je5+ntcMKubBu34WK+jFxRGvU=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=WL5CLe9h+w4LhS3v5NehrlR9UkysMqf+ruhzNAzCQDDpthZMfeqHYobAIbhsWj7JGlwxL3ctr01Vg0Xm8/knAip1Rej7e9wkx5ohhlsdz4xvjP+2vzJNuGt3WnO9zEVid0LJWatAUamio3NdCB/vrkf6AEqjVlkQ8pzkVo5/E4E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=C1J5Z6CN; arc=none smtp.client-ip=115.124.30.119
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1708940329; c=relaxed/simple;
+	bh=BZa2CYxdxcryjEo1CdrUSVmtZW8t0c2cn2PR8OdYQJA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=agWptva1qp4feGdWU3eVyrOOIWmGbXd0BDbac1bwk7wSCUsP+GRHVwPq1HzKxKu/eZ54s/3sojb2XV4ak0I0tIRvTGmH9+2tEkIRVadZT0M583COvgJ3TQSWqJq/GIzVoJ3NiZ++Fr57ApG6SyhCAJhNQACx1WfKG39WNSeeHsE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AYNUoSo2; arc=none smtp.client-ip=209.85.216.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="C1J5Z6CN"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1708939838; h=Message-ID:Subject:Date:From:To;
-	bh=xEH79XloeCWwYFRjbQWwvM/K3wpplCxfHiQw2CFFMEw=;
-	b=C1J5Z6CNpobwtdL/mJzebFYe3fObzQTeUIaFu0CGMFGZ6mgwmvPl4yF3KnR/Lhb9xxW0MnCnRWjr7lz9Evhy/4DMrnrLSLfP/IEaEOq6B7mN6OWERG7wLEXcnEoQghke/PGQFN++w1tB0SL3KSYlYcom7mWfwkJp/yozhbaKl7A=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0W1FmByV_1708939835;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W1FmByV_1708939835)
-          by smtp.aliyun-inc.com;
-          Mon, 26 Feb 2024 17:30:36 +0800
-Message-ID: <1708939451.7601678-3-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v2 19/19] virtio_net: sq support premapped mode
-Date: Mon, 26 Feb 2024 17:24:11 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux.dev,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Jason Wang <jasowang@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Hans de Goede <hdegoede@redhat.com>,
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- linux-um@lists.infradead.org,
- netdev@vger.kernel.org,
- platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- kvm@vger.kernel.org,
- bpf@vger.kernel.org
-References: <20240223082726.52915-1-xuanzhuo@linux.alibaba.com>
- <20240223082726.52915-20-xuanzhuo@linux.alibaba.com>
- <20240225032330-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20240225032330-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AYNUoSo2"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-2997cb49711so1120722a91.3;
+        Mon, 26 Feb 2024 01:38:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1708940327; x=1709545127; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=E3G/NyHHNl3Usb0b+rbhE6Rkccfmxj4qh+DyqPiks1E=;
+        b=AYNUoSo2wE32qJTgaDuocjyLijJ5qPko9rNyyzBJn705F+gr+zNWlRFkJlW43I2gkc
+         jWOhoPqH3H6h8FZZe3/LSSqhRQiD9H1mToG8KdE5SZHU7BggZPJF9Oe6gr1UdkBNHvhw
+         Np2hIFcQHUGoP51yqMSyVTYq0QvHbU2oeOMWHEQY9CmqVAqBsegQJT3X5yvrNyfkPMHv
+         INFr8NMtKtEZOz5FDcXP75RfpZoWEJRBloZD8s4M5J5Z4G+FKVLP79wVYI8yan62reAX
+         qMUBnTk4gYmmC+Qx6j5mO//oTb9/GUSeB+uttgXK84nh89Cnidh2v/AkCE3zIPYS4FMR
+         tNWw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1708940327; x=1709545127;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=E3G/NyHHNl3Usb0b+rbhE6Rkccfmxj4qh+DyqPiks1E=;
+        b=XwlKzhhz1Tcq74cs6g/jhi7rBV/tQA3i7MEzPO0f0bXpe55+4FB5PiIKDXtQjuVf/Y
+         P7e31xPIATMf+zyBcWzuSQG0LzfRiVIPQ1RjjoJveTf34VCVUdWatrP4mVJi2mmiFGgA
+         zOYquXSANR+skDRkjL3jSx9jWR8xWbzM87lvFdEVMV/KWtUVpDFGCV8mxprXUMudKu+N
+         9XOYGOnhqiL1eHH7rkIfDC1nYTGHI0L86EOIs1Z9CZTLyrX20zKY1KYhbQk3xzLEmQDR
+         X0Wr2Ui3iMsGDxASWYWqHIU3vmEOnXpzJt1Ny/85V8nJ2H7n71z0x0ZDSJLl7dJAPRv/
+         +0aQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXZdf0hJNkSAdAwhcbRUdrs2W5/V2GBNiWaLhUftDRIZW5QVInovncNfxXdHeiusH/cLgjkdfZ4YdFOl8kHFEvmJt1yBErbtgAE6aLj98Fs9TY6lgPDzV4qCbnihk/zow==
+X-Gm-Message-State: AOJu0YwcANbQjahXG/+UYcYJ6H6JRhWJG8tPntMyzA+c81Ic+Ii/eMj2
+	xUdPhuqUy7RIe/yR9PkTzNPfXJ34FFCUI+jGpjbgU41HQeR9k4O0GnMkxBDG
+X-Google-Smtp-Source: AGHT+IGMwqjc4MYINbePOp82r8OWn0Ybag/WhoYmigaBPWKyvko3+xObzrZwGy7/pnjt3jaEplP3kA==
+X-Received: by 2002:a17:90b:4f47:b0:29a:cbde:7607 with SMTP id pj7-20020a17090b4f4700b0029acbde7607mr950982pjb.21.1708940326863;
+        Mon, 26 Feb 2024 01:38:46 -0800 (PST)
+Received: from wheely.local0.net (220-235-194-103.tpgi.com.au. [220.235.194.103])
+        by smtp.gmail.com with ESMTPSA id pa3-20020a17090b264300b0029929ec25fesm6036782pjb.27.2024.02.26.01.38.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Feb 2024 01:38:46 -0800 (PST)
+From: Nicholas Piggin <npiggin@gmail.com>
+To: Thomas Huth <thuth@redhat.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>,
+	kvm@vger.kernel.org,
+	Laurent Vivier <lvivier@redhat.com>,
+	"Shaoqin Huang" <shahuang@redhat.com>,
+	Andrew Jones <andrew.jones@linux.dev>,
+	Nico Boehr <nrb@linux.ibm.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Alexandru Elisei <alexandru.elisei@arm.com>,
+	Eric Auger <eric.auger@redhat.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	David Hildenbrand <david@redhat.com>,
+	Marc Hartmayer <mhartmay@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH 0/7] more migration enhancements and tests
+Date: Mon, 26 Feb 2024 19:38:25 +1000
+Message-ID: <20240226093832.1468383-1-npiggin@gmail.com>
+X-Mailer: git-send-email 2.42.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Sun, 25 Feb 2024 03:38:48 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Fri, Feb 23, 2024 at 04:27:26PM +0800, Xuan Zhuo wrote:
-> > If the xsk is enabling, the xsk tx will share the send queue.
-> > But the xsk requires that the send queue use the premapped mode.
-> > So the send queue must support premapped mode.
-> >
-> > cmd:
-> >     sh samples/pktgen/pktgen_sample01_simple.sh -i eth0 \
-> >         -s 16 -d 10.0.0.128 -m 00:16:3e:2c:c8:2e -n 0 -p 100
-> > CPU:
-> >     Intel(R) Xeon(R) Platinum 8369B CPU @ 2.70GHz
-> >
-> > Machine:
-> >     ecs.g7.2xlarge(Aliyun)
-> >
-> > before:              1600010.00
-> > after(no-premapped): 1599966.00
-> > after(premapped):    1600014.00
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  drivers/net/virtio_net.c | 136 +++++++++++++++++++++++++++++++++++++--
-> >  1 file changed, 132 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 7715bb7032ec..b83ef6afc4fb 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -146,6 +146,25 @@ struct virtnet_rq_dma {
-> >  	u16 need_sync;
-> >  };
-> >
-> > +struct virtnet_sq_dma {
-> > +	union {
-> > +		struct virtnet_sq_dma *next;
-> > +		void *data;
-> > +	};
-> > +
-> > +	u32 num;
-> > +
-> > +	dma_addr_t addr[MAX_SKB_FRAGS + 2];
-> > +	u32 len[MAX_SKB_FRAGS + 2];
-> > +};
-> > +
-> > +struct virtnet_sq_dma_head {
-> > +	/* record for kfree */
-> > +	void *p;
-> > +
-> > +	struct virtnet_sq_dma *free;
-> > +};
-> > +
-> >  /* Internal representation of a send virtqueue */
-> >  struct send_queue {
-> >  	/* Virtqueue associated with this send _queue */
-> > @@ -165,6 +184,8 @@ struct send_queue {
-> >
-> >  	/* Record whether sq is in reset state. */
-> >  	bool reset;
-> > +
-> > +	struct virtnet_sq_dma_head dmainfo;
-> >  };
-> >
-> >  /* Internal representation of a receive virtqueue */
-> > @@ -368,6 +389,95 @@ static struct xdp_frame *ptr_to_xdp(void *ptr)
-> >  	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
-> >  }
-> >
-> > +static struct virtnet_sq_dma *virtnet_sq_unmap(struct send_queue *sq, void **data)
-> > +{
-> > +	struct virtnet_sq_dma *d;
-> > +	int i;
-> > +
-> > +	d = *data;
-> > +	*data = d->data;
-> > +
-> > +	for (i = 0; i < d->num; ++i)
-> > +		virtqueue_dma_unmap_page_attrs(sq->vq, d->addr[i], d->len[i],
-> > +					       DMA_TO_DEVICE, 0);
-> > +
-> > +	d->next = sq->dmainfo.free;
-> > +	sq->dmainfo.free = d;
-> > +
-> > +	return d;
-> > +}
-> > +
-> > +static struct virtnet_sq_dma *virtnet_sq_map_sg(struct send_queue *sq,
-> > +						int nents, void *data)
-> > +{
-> > +	struct virtnet_sq_dma *d;
-> > +	struct scatterlist *sg;
-> > +	int i;
-> > +
-> > +	if (!sq->dmainfo.free)
-> > +		return NULL;
-> > +
-> > +	d = sq->dmainfo.free;
-> > +	sq->dmainfo.free = d->next;
-> > +
-> > +	for_each_sg(sq->sg, sg, nents, i) {
-> > +		if (virtqueue_dma_map_sg_attrs(sq->vq, sg, DMA_TO_DEVICE, 0))
-> > +			goto err;
-> > +
-> > +		d->addr[i] = sg->dma_address;
-> > +		d->len[i] = sg->length;
-> > +	}
-> > +
-> > +	d->data = data;
-> > +	d->num = i;
-> > +	return d;
-> > +
-> > +err:
-> > +	d->num = i;
-> > +	virtnet_sq_unmap(sq, (void **)&d);
-> > +	return NULL;
-> > +}
->
->
-> Do I see a reimplementation of linux/llist.h here?
->
->
-> > +
-> > +static int virtnet_add_outbuf(struct send_queue *sq, u32 num, void *data)
-> > +{
-> > +	int ret;
-> > +
-> > +	if (sq->vq->premapped) {
-> > +		data = virtnet_sq_map_sg(sq, num, data);
-> > +		if (!data)
-> > +			return -ENOMEM;
-> > +	}
-> > +
-> > +	ret = virtqueue_add_outbuf(sq->vq, sq->sg, num, data, GFP_ATOMIC);
-> > +	if (ret && sq->vq->premapped)
-> > +		virtnet_sq_unmap(sq, &data);
-> > +
-> > +	return ret;
-> > +}
-> > +
-> > +static int virtnet_sq_init_dma_mate(struct send_queue *sq)
->
-> Mate? The popular south african drink?
->
-> > +{
-> > +	struct virtnet_sq_dma *d;
-> > +	int num, i;
-> > +
-> > +	num = virtqueue_get_vring_size(sq->vq);
-> > +
-> > +	sq->dmainfo.free = kcalloc(num, sizeof(*sq->dmainfo.free), GFP_KERNEL);
-> > +	if (!sq->dmainfo.free)
-> > +		return -ENOMEM;
->
->
-> This could be quite a bit of memory for a large queue.  And for a bunch
-> of common cases where unmap is a nop (e.g. iommu pt) this does nothing
-> useful at all.  And also, this does nothing useful if PLATFORM_ACCESS is off
-> which is super common.
->
-> A while ago I proposed:
-> - extend DMA APIs so one can query whether unmap is a nop
+This series applies on top of the multi-migration patches and just
+has assorted things I've been collecting.
 
+- New migrate_skip() command that tidies up the wart of using
+  migrate_once() to skip migration.
+- New "continuous migration" mode where the harness just
+  migrates the test contually while it is running.
+- Put some migration tests in gitlab CI for powerpc and s390.
+- Add a test case that can reproduce the QEMU TCG dirty bitmap
+  migration bug.
 
-We may have trouble for this.
+Nicholas Piggin (7):
+  arch-run: Keep infifo open
+  migration: Add a migrate_skip command
+  (arm|s390): Use migrate_skip in test cases
+  powerpc: add asm/time.h header with delay and get_clock_us/ms
+  arch-run: Add a "continuous" migration option for tests
+  gitlab-ci: Run migration selftest on s390x and powerpc
+  common: add memory dirtying vs migration test
 
-dma_addr_t dma_map_page_attrs(struct device *dev, struct page *page,
-		size_t offset, size_t size, enum dma_data_direction dir,
-		unsigned long attrs)
-{
-	const struct dma_map_ops *ops = get_dma_ops(dev);
-	dma_addr_t addr;
+ .gitlab-ci.yml              |  18 ++++---
+ arm/gic.c                   |  21 ++++----
+ common/memory-verify.c      |  48 +++++++++++++++++
+ common/selftest-migration.c |  26 ++++++---
+ lib/migrate.c               |  37 ++++++++++++-
+ lib/migrate.h               |   5 ++
+ lib/powerpc/asm/processor.h |  21 --------
+ lib/powerpc/asm/time.h      |  30 +++++++++++
+ lib/powerpc/processor.c     |  11 ++++
+ lib/powerpc/smp.c           |   1 +
+ lib/ppc64/asm/time.h        |   1 +
+ powerpc/Makefile.common     |   1 +
+ powerpc/memory-verify.c     |   1 +
+ powerpc/spapr_vpa.c         |   1 +
+ powerpc/sprs.c              |   1 +
+ powerpc/tm.c                |   1 +
+ powerpc/unittests.cfg       |  13 +++++
+ s390x/Makefile              |   1 +
+ s390x/memory-verify.c       |   1 +
+ s390x/migration-cmm.c       |   8 +--
+ s390x/migration-skey.c      |   4 +-
+ s390x/migration.c           |   1 +
+ s390x/unittests.cfg         |  11 ++++
+ scripts/arch-run.bash       | 104 +++++++++++++++++++++++++++++-------
+ 24 files changed, 299 insertions(+), 68 deletions(-)
+ create mode 100644 common/memory-verify.c
+ create mode 100644 lib/powerpc/asm/time.h
+ create mode 100644 lib/ppc64/asm/time.h
+ create mode 120000 powerpc/memory-verify.c
+ create mode 120000 s390x/memory-verify.c
 
-	BUG_ON(!valid_dma_direction(dir));
+-- 
+2.42.0
 
-	if (WARN_ON_ONCE(!dev->dma_mask))
-		return DMA_MAPPING_ERROR;
-
-	if (dma_map_direct(dev, ops) ||
-	    arch_dma_map_page_direct(dev, page_to_phys(page) + offset + size))
-		addr = dma_direct_map_page(dev, page, offset, size, dir, attrs);
-	else
-		addr = ops->map_page(dev, page, offset, size, dir, attrs);
-	kmsan_handle_dma(page, offset, size, dir);
-	debug_dma_map_page(dev, page, offset, size, dir, addr, attrs);
-
-	return addr;
-}
-
-arch_dma_map_page_direct will check the dma address.
-So we can not judge by the API in advance.
-
-Thanks.
-
-
-
-
->   and whether sync is a nop
-> - virtio wrapper taking into account PLATFORM_ACCESS too
->
-> then we can save all this work and memory when not needed.
->
->
->
-> > +
-> > +	sq->dmainfo.p = sq->dmainfo.free;
-> > +
-> > +	for (i = 0; i < num; ++i) {
-> > +		d = &sq->dmainfo.free[i];
-> > +		d->next = d + 1;
-> > +	}
-> > +
-> > +	d->next = NULL;
-> > +
-> > +	return 0;
-> > +}
-> > +
-> >  static void __free_old_xmit(struct send_queue *sq, bool in_napi,
-> >  			    struct virtnet_sq_free_stats *stats)
-> >  {
-> > @@ -377,6 +487,9 @@ static void __free_old_xmit(struct send_queue *sq, bool in_napi,
-> >  	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
-> >  		++stats->packets;
-> >
-> > +		if (sq->vq->premapped)
-> > +			virtnet_sq_unmap(sq, &ptr);
-> > +
-> >  		if (!is_xdp_frame(ptr)) {
-> >  			struct sk_buff *skb = ptr;
-> >
-> > @@ -890,8 +1003,7 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
-> >  			    skb_frag_size(frag), skb_frag_off(frag));
-> >  	}
-> >
-> > -	err = virtqueue_add_outbuf(sq->vq, sq->sg, nr_frags + 1,
-> > -				   xdp_to_ptr(xdpf), GFP_ATOMIC);
-> > +	err = virtnet_add_outbuf(sq, nr_frags + 1, xdp_to_ptr(xdpf));
-> >  	if (unlikely(err))
-> >  		return -ENOSPC; /* Caller handle free/refcnt */
-> >
-> > @@ -2357,7 +2469,7 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
-> >  			return num_sg;
-> >  		num_sg++;
-> >  	}
-> > -	return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg, skb, GFP_ATOMIC);
-> > +	return virtnet_add_outbuf(sq, num_sg, skb);
-> >  }
-> >
-> >  static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
-> > @@ -4166,6 +4278,8 @@ static void virtnet_free_queues(struct virtnet_info *vi)
-> >  	for (i = 0; i < vi->max_queue_pairs; i++) {
-> >  		__netif_napi_del(&vi->rq[i].napi);
-> >  		__netif_napi_del(&vi->sq[i].napi);
-> > +
-> > +		kfree(vi->sq[i].dmainfo.p);
-> >  	}
-> >
-> >  	/* We called __netif_napi_del(),
-> > @@ -4214,6 +4328,15 @@ static void free_receive_page_frags(struct virtnet_info *vi)
-> >
-> >  static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf)
-> >  {
-> > +	struct virtnet_info *vi = vq->vdev->priv;
-> > +	struct send_queue *sq;
-> > +	int i = vq2rxq(vq);
-> > +
-> > +	sq = &vi->sq[i];
-> > +
-> > +	if (sq->vq->premapped)
-> > +		virtnet_sq_unmap(sq, &buf);
-> > +
-> >  	if (!is_xdp_frame(buf))
-> >  		dev_kfree_skb(buf);
-> >  	else
-> > @@ -4327,8 +4450,10 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
-> >  		if (ctx)
-> >  			ctx[rxq2vq(i)] = true;
-> >
-> > -		if (premapped)
-> > +		if (premapped) {
-> >  			premapped[rxq2vq(i)] = true;
-> > +			premapped[txq2vq(i)] = true;
-> > +		}
-> >  	}
-> >
-> >  	cfg.nvqs      = total_vqs;
-> > @@ -4352,6 +4477,9 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
-> >  		vi->rq[i].vq = vqs[rxq2vq(i)];
-> >  		vi->rq[i].min_buf_len = mergeable_min_buf_len(vi, vi->rq[i].vq);
-> >  		vi->sq[i].vq = vqs[txq2vq(i)];
-> > +
-> > +		if (vi->sq[i].vq->premapped)
-> > +			virtnet_sq_init_dma_mate(&vi->sq[i]);
-> >  	}
-> >
-> >  	/* run here: ret == 0. */
-> > --
-> > 2.32.0.3.g01195cf9f
->
