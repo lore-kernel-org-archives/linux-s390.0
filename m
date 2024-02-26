@@ -1,287 +1,307 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9AA3C8C7;
-	Mon, 26 Feb 2024 03:04:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DDDF1BDC3;
+	Mon, 26 Feb 2024 06:47:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708916699; cv=none; b=BSEt57m0dxQekucnIG7birg9L0AajabOHSQaNAozjXnTafBfbb1k4V7wNB6gyCbI7BNbLmxMyjJiesjpJb2I1lR2Vo5qGXCyPIz7WPaqJXYWwS3JHFmOKXx3CnspLN5Uk4YHpo2mvd8eqhu2zTIH3MkcgtD+klI3cuGjRBtbcOY=
+	t=1708930047; cv=none; b=u30wVM1pRrI7JmSNwLXfkgbd/h7AnevrgOm13T5LoxzEj6SFRSz5OlbpQtIf1jiigPS517SXEHQSBolDiBnb33GifpkOmObANdZQiGZ4DtRa7Eru3MNwyeaqT9hUi66dsUuWEcj7TK9BX8OOZctWLbi9LR+4JeyZuCTiMGVfv5k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708916699; c=relaxed/simple;
-	bh=7DPdQp+crI03h1yJx2LmjB97PDiC+mM7c78GGmSvO3s=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kC2MY79QMYRgkRM4UTSmcP1mGrqFiWF07AswbUZbYkj/mGKa0Z27ATI0XFGIa36gCgU+DbhhOw8HycxYFxkGhL+zUto5YJb9h2eHpuufAdknYO3t2Mj8Qu9LHShR7+PRXLv6m26gRNGGVU2pqCVa203rQv2iDlc2AmZJvXUMsxI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=kLcVw91j; arc=none smtp.client-ip=115.124.30.132
+	s=arc-20240116; t=1708930047; c=relaxed/simple;
+	bh=r+YRIokGyqR9X8s9S5ioq/Xrj7AOa13EKl+Y0GQmDFk=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=HbUinRLWub6I5w3jRjXsv3tQTy3tYYK9Nn+gJms8FvG5LLZ4YEu5l+NPj1ecohdMxAqIqlUasFPXMup1nLre9mCNUUwEk7IftQe9wO5BN1QV9g+N9yG1VX1bi4iqrwcgWqy+Ij7OIRaEOv5bcx7INPuOmmdeW5FHt6GvNNnOSHU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=NiG9q+O3; arc=none smtp.client-ip=115.124.30.99
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="kLcVw91j"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="NiG9q+O3"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1708916693; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=8fHEj3Es1WjucFLsLgdW49Mkhy0Q0HKu/7afnZ+AaHQ=;
-	b=kLcVw91j+1601OCE5O3fVMYSJUhyPt/uhiZGr6V73/plm4M5fXUqx3uRs7J/5hTIReOLsMljNdZtGlqZ5hubLv2iStOpso07wBaVrymT4OBZxtuY+vJhweXxvb3TovigJw0ULHvfffgt7rEzLiAqpH08qsLOPlaAY9EOJ9OssBc=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0W1AK4gS_1708916691;
-Received: from 30.221.129.59(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W1AK4gS_1708916691)
+	t=1708930036; h=Message-ID:Subject:Date:From:To;
+	bh=zqZsfZ/qluUEW7qkID/ee5gWeGwmJGn3HGM5FIAvvSM=;
+	b=NiG9q+O39eHStuM8y8B1udACnITePfJKKGw2Ll8ljZALTMgpu0a+NdGnMfL6ZtMDtabKgOfh0aVod/qFUUHoC0StBwLKl7sGvsMOka0ZTtaHq2NdET55fDmavQ/jnQk7EfHcaK5ad16ZIb9pM9H0e7+uv6UPb/xVlSAl7Js4Tbg=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R781e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0W1Cedgm_1708930033;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W1Cedgm_1708930033)
           by smtp.aliyun-inc.com;
-          Mon, 26 Feb 2024 11:04:52 +0800
-Message-ID: <a1890ec0-99be-41cc-9117-46269bc6abad@linux.alibaba.com>
-Date: Mon, 26 Feb 2024 11:04:51 +0800
+          Mon, 26 Feb 2024 14:47:14 +0800
+Message-ID: <1708927861.8802218-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost v2 19/19] virtio_net: sq support premapped mode
+Date: Mon, 26 Feb 2024 14:11:01 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev,
+ Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ Jason Wang <jasowang@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Hans de Goede <hdegoede@redhat.com>,
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Vadim Pasternak <vadimp@nvidia.com>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ Cornelia Huck <cohuck@redhat.com>,
+ Halil Pasic <pasic@linux.ibm.com>,
+ Eric Farman <farman@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ linux-um@lists.infradead.org,
+ netdev@vger.kernel.org,
+ platform-driver-x86@vger.kernel.org,
+ linux-remoteproc@vger.kernel.org,
+ linux-s390@vger.kernel.org,
+ kvm@vger.kernel.org,
+ bpf@vger.kernel.org
+References: <20240223082726.52915-1-xuanzhuo@linux.alibaba.com>
+ <20240223082726.52915-20-xuanzhuo@linux.alibaba.com>
+ <20240225032330-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240225032330-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 06/15] net/smc: implement DMB-related operations
- of loopback-ism
-To: Wenjia Zhang <wenjia@linux.ibm.com>, wintera@linux.ibm.com,
- hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, jaka@linux.ibm.com, Gerd Bayer <gbayer@linux.ibm.com>
-Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20240111120036.109903-1-guwen@linux.alibaba.com>
- <20240111120036.109903-7-guwen@linux.alibaba.com>
- <b5b4b96f-e512-4c1a-b749-f9fc3e7c2fcf@linux.ibm.com>
- <a06cdb50-591b-4984-b7d5-7ab758569d21@linux.alibaba.com>
- <2fe9e5e0-aa5a-41e8-a2b3-80db0208cfa9@linux.ibm.com>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <2fe9e5e0-aa5a-41e8-a2b3-80db0208cfa9@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
 
+On Sun, 25 Feb 2024 03:38:48 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Fri, Feb 23, 2024 at 04:27:26PM +0800, Xuan Zhuo wrote:
+> > If the xsk is enabling, the xsk tx will share the send queue.
+> > But the xsk requires that the send queue use the premapped mode.
+> > So the send queue must support premapped mode.
+> >
+> > cmd:
+> >     sh samples/pktgen/pktgen_sample01_simple.sh -i eth0 \
+> >         -s 16 -d 10.0.0.128 -m 00:16:3e:2c:c8:2e -n 0 -p 100
+> > CPU:
+> >     Intel(R) Xeon(R) Platinum 8369B CPU @ 2.70GHz
+> >
+> > Machine:
+> >     ecs.g7.2xlarge(Aliyun)
+> >
+> > before:              1600010.00
+> > after(no-premapped): 1599966.00
+> > after(premapped):    1600014.00
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > ---
+> >  drivers/net/virtio_net.c | 136 +++++++++++++++++++++++++++++++++++++--
+> >  1 file changed, 132 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 7715bb7032ec..b83ef6afc4fb 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -146,6 +146,25 @@ struct virtnet_rq_dma {
+> >  	u16 need_sync;
+> >  };
+> >
+> > +
 
+[...]
 
-On 2024/2/23 22:12, Wenjia Zhang wrote:
-> 
-> 
-> On 20.02.24 02:55, Wen Gu wrote:
->>
->>
->> On 2024/2/16 22:13, Wenjia Zhang wrote:
->>>
->>>
->>> On 11.01.24 13:00, Wen Gu wrote:
->>>> This implements DMB (un)registration and data move operations of
->>>> loopback-ism device.
->>>>
->>>> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
->>>> ---
->>>>   net/smc/smc_cdc.c      |   6 ++
->>>>   net/smc/smc_cdc.h      |   1 +
->>>>   net/smc/smc_loopback.c | 133 ++++++++++++++++++++++++++++++++++++++++-
->>>>   net/smc/smc_loopback.h |  13 ++++
->>>>   4 files changed, 150 insertions(+), 3 deletions(-)
->>>>
->>>> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
->>>> index 3c06625ceb20..c820ef197610 100644
->>>> --- a/net/smc/smc_cdc.c
->>>> +++ b/net/smc/smc_cdc.c
->>>> @@ -410,6 +410,12 @@ static void smc_cdc_msg_recv(struct smc_sock *smc, struct smc_cdc_msg *cdc)
->>>>   static void smcd_cdc_rx_tsklet(struct tasklet_struct *t)
->>>>   {
->>>>       struct smc_connection *conn = from_tasklet(conn, t, rx_tsklet);
->>>> +
->>>> +    smcd_cdc_rx_handler(conn);
->>>> +}
->>>> +
->>>> +void smcd_cdc_rx_handler(struct smc_connection *conn)
->>>> +{
->>>>       struct smcd_cdc_msg *data_cdc;
->>>>       struct smcd_cdc_msg cdc;
->>>>       struct smc_sock *smc;
->>>> diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
->>>> index 696cc11f2303..11559d4ebf2b 100644
->>>> --- a/net/smc/smc_cdc.h
->>>> +++ b/net/smc/smc_cdc.h
->>>> @@ -301,5 +301,6 @@ int smcr_cdc_msg_send_validation(struct smc_connection *conn,
->>>>                    struct smc_wr_buf *wr_buf);
->>>>   int smc_cdc_init(void) __init;
->>>>   void smcd_cdc_rx_init(struct smc_connection *conn);
->>>> +void smcd_cdc_rx_handler(struct smc_connection *conn);
->>>>   #endif /* SMC_CDC_H */
->>>> diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
->>>> index 353d4a2d69a1..f72e7b24fc1a 100644
->>>> --- a/net/smc/smc_loopback.c
->>>> +++ b/net/smc/smc_loopback.c
->>>> @@ -15,11 +15,13 @@
->>>>   #include <linux/types.h>
->>>>   #include <net/smc.h>
->>>> +#include "smc_cdc.h"
->>>>   #include "smc_ism.h"
->>>>   #include "smc_loopback.h"
->>>>   #if IS_ENABLED(CONFIG_SMC_LO)
->>>>   #define SMC_LO_V2_CAPABLE    0x1 /* loopback-ism acts as ISMv2 */
->>>> +#define SMC_DMA_ADDR_INVALID    (~(dma_addr_t)0)
->>>>   static const char smc_lo_dev_name[] = "loopback-ism";
->>>>   static struct smc_lo_dev *lo_dev;
->>>> @@ -50,6 +52,97 @@ static int smc_lo_query_rgid(struct smcd_dev *smcd, struct smcd_gid *rgid,
->>>>       return 0;
->>>>   }
->>>> +static int smc_lo_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
->>>> +                   void *client_priv)
->>>> +{
->>>> +    struct smc_lo_dmb_node *dmb_node, *tmp_node;
->>>> +    struct smc_lo_dev *ldev = smcd->priv;
->>>> +    int sba_idx, order, rc;
->>>> +    struct page *pages;
->>>> +
->>>> +    /* check space for new dmb */
->>>> +    for_each_clear_bit(sba_idx, ldev->sba_idx_mask, SMC_LO_MAX_DMBS) {
->>>> +        if (!test_and_set_bit(sba_idx, ldev->sba_idx_mask))
->>>> +            break;
->>>> +    }
->>>> +    if (sba_idx == SMC_LO_MAX_DMBS)
->>>> +        return -ENOSPC;
->>>> +
->>>> +    dmb_node = kzalloc(sizeof(*dmb_node), GFP_KERNEL);
->>>> +    if (!dmb_node) {
->>>> +        rc = -ENOMEM;
->>>> +        goto err_bit;
->>>> +    }
->>>> +
->>>> +    dmb_node->sba_idx = sba_idx;
->>>> +    order = get_order(dmb->dmb_len);
->>>> +    pages = alloc_pages(GFP_KERNEL | __GFP_NOWARN |
->>>> +                __GFP_NOMEMALLOC | __GFP_COMP |
->>>> +                __GFP_NORETRY | __GFP_ZERO,
->>>> +                order);
->>>> +    if (!pages) {
->>>> +        rc = -ENOMEM;
->>>> +        goto err_node;
->>>> +    }
->>>> +    dmb_node->cpu_addr = (void *)page_address(pages);
->>>> +    dmb_node->len = dmb->dmb_len;
->>>> +    dmb_node->dma_addr = SMC_DMA_ADDR_INVALID;
->>>> +
->>>> +again:
->>>> +    /* add new dmb into hash table */
->>>> +    get_random_bytes(&dmb_node->token, sizeof(dmb_node->token));
->>>> +    write_lock(&ldev->dmb_ht_lock);
->>>> +    hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_node->token) {
->>>> +        if (tmp_node->token == dmb_node->token) {
->>>> +            write_unlock(&ldev->dmb_ht_lock);
->>>> +            goto again;
->>>> +        }
->>>> +    }
->>>> +    hash_add(ldev->dmb_ht, &dmb_node->list, dmb_node->token);
->>>> +    write_unlock(&ldev->dmb_ht_lock);
->>>> +
->>> The write_lock_irqsave()/write_unlock_irqrestore() and read_lock_irqsave()/read_unlock_irqrestore()should be used 
->>> instead of write_lock()/write_unlock() and read_lock()/read_unlock() in order to keep the lock irq-safe.
->>>
->>
->> dmb_ht_lock won't be hold in an interrupt or sockirq context. The dmb_{register|unregister},
->> dmb_{attach|detach} and data_move are all on the process context. So I think write_(un)lock
->> and read_(un)lock is safe here.
-> 
-> right, it is not directly hold in a interrupt context, but it has a dependency on conn->send_lock as you wrote below, 
-> which requires irq-safe lock. And this matches our finding from a test:
-> 
-> =====================================================
-> WARNING: SOFTIRQ-safe -> SOFTIRQ-unsafe lock order detected
-> 6.8.0-rc4-00787-g8eb4d2392609 #2 Not tainted
-> -----------------------------------------------------
-> smcapp/33802 [HC0[0]:SC0[2]:HE1:SE0] is trying to acquire:
-> 00000000a2fc0330 (&ldev->dmb_ht_lock){++++}-{2:2}, at: smc_lo_move_data+0x84/0x1d0 [>
-> and this task is already holding:
-> 00000000e4df6f28 (&smc->conn.send_lock){+.-.}-{2:2}, at: smc_tx_sndbuf_nonempty+0xaa>
-> which would create a new lock dependency:
-> (&smc->conn.send_lock){+.-.}-{2:2} -> (&ldev->dmb_ht_lock){++++}-{2:2}
-> but this new dependency connects a SOFTIRQ-irq-safe lock:
-> (&smc->conn.send_lock){+.-.}-{2:2}
-> 
+> > +static struct virtnet_sq_dma *virtnet_sq_map_sg(struct send_queue *sq,
+> > +						int nents, void *data)
+> > +{
+> > +	struct virtnet_sq_dma *d;
+> > +	struct scatterlist *sg;
+> > +	int i;
+> > +
+> > +	if (!sq->dmainfo.free)
+> > +		return NULL;
+> > +
+> > +	d = sq->dmainfo.free;
+> > +	sq->dmainfo.free = d->next;
+> > +
+> > +	for_each_sg(sq->sg, sg, nents, i) {
+> > +		if (virtqueue_dma_map_sg_attrs(sq->vq, sg, DMA_TO_DEVICE, 0))
+> > +			goto err;
+> > +
+> > +		d->addr[i] = sg->dma_address;
+> > +		d->len[i] = sg->length;
+> > +	}
+> > +
+> > +	d->data = data;
+> > +	d->num = i;
+> > +	return d;
+> > +
+> > +err:
+> > +	d->num = i;
+> > +	virtnet_sq_unmap(sq, (void **)&d);
+> > +	return NULL;
+> > +}
+>
+>
+> Do I see a reimplementation of linux/llist.h here?
 
-I understand, thank you Wenjia. I will fix it in the next version.
+YES. This can be done by the APIs of linux/lllist.h.
 
->>
->>>> +    dmb->sba_idx = dmb_node->sba_idx;
->>>> +    dmb->dmb_tok = dmb_node->token;
->>>> +    dmb->cpu_addr = dmb_node->cpu_addr;
->>>> +    dmb->dma_addr = dmb_node->dma_addr;
->>>> +    dmb->dmb_len = dmb_node->len;
->>>> +
->>>> +    return 0;
->>>> +
->>>> +err_node:
->>>> +    kfree(dmb_node);
->>>> +err_bit:
->>>> +    clear_bit(sba_idx, ldev->sba_idx_mask);
->>>> +    return rc;
->>>> +}
->>>> +
->>>> +static int smc_lo_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
->>>> +{
->>>> +    struct smc_lo_dmb_node *dmb_node = NULL, *tmp_node;
->>>> +    struct smc_lo_dev *ldev = smcd->priv;
->>>> +
->>>> +    /* remove dmb from hash table */
->>>> +    write_lock(&ldev->dmb_ht_lock);
->>>> +    hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb->dmb_tok) {
->>>> +        if (tmp_node->token == dmb->dmb_tok) {
->>>> +            dmb_node = tmp_node;
->>>> +            break;
->>>> +        }
->>>> +    }
->>>> +    if (!dmb_node) {
->>>> +        write_unlock(&ldev->dmb_ht_lock);
->>>> +        return -EINVAL;
->>>> +    }
->>>> +    hash_del(&dmb_node->list);
->>>> +    write_unlock(&ldev->dmb_ht_lock);
->>>> +
->>>> +    clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
->>>> +    kfree(dmb_node->cpu_addr);
->>>> +    kfree(dmb_node);
->>>> +
->>>> +    return 0;
->>>> +}
->>>> +
->>>>   static int smc_lo_add_vlan_id(struct smcd_dev *smcd, u64 vlan_id)
->>>>   {
->>>>       return -EOPNOTSUPP;
->>>> @@ -76,6 +169,38 @@ static int smc_lo_signal_event(struct smcd_dev *dev, struct smcd_gid *rgid,
->>>>       return 0;
->>>>   }
->>>> +static int smc_lo_move_data(struct smcd_dev *smcd, u64 dmb_tok,
->>>> +                unsigned int idx, bool sf, unsigned int offset,
->>>> +                void *data, unsigned int size)
->>>> +{
->>>> +    struct smc_lo_dmb_node *rmb_node = NULL, *tmp_node;
->>>> +    struct smc_lo_dev *ldev = smcd->priv;
->>>> +
->>>> +    read_lock(&ldev->dmb_ht_lock);
->>>> +    hash_for_each_possible(ldev->dmb_ht, tmp_node, list, dmb_tok) {
->>>> +        if (tmp_node->token == dmb_tok) {
->>>> +            rmb_node = tmp_node;
->>>> +            break;
->>>> +        }
->>>> +    }
->>>> +    if (!rmb_node) {
->>>> +        read_unlock(&ldev->dmb_ht_lock);
->>>> +        return -EINVAL;
->>>> +    }
->>>> +    read_unlock(&ldev->dmb_ht_lock);
->>>> +
->>>> +    memcpy((char *)rmb_node->cpu_addr + offset, data, size);
->>>> +
->>>
->>> Should this read_unlock be placed behind memcpy()?
->>>
->>
->> dmb_ht_lock is used to ensure safe access to the DMB hash table of loopback-ism.
->> The DMB hash table could be accessed by all the connections on loopback-ism, so
->> it should be protected.
->>
->> But a certain DMB is only used by one connection, and the move_data process is
->> protected by conn->send_lock (see smcd_tx_sndbuf_nonempty()), so the memcpy(rmb_node)
->> here is safe and no race with other.
->>
->> Thanks!
->>
-> sounds reasonable.
->>> <...>
+But now, there is not __llist_del_first() (That will be used by
+virtnet_sq_map_sg()).
+And that is simple and just two places may use the APIs, so I implement it
+directly.
+
+>
+>
+> > +
+> > +static int virtnet_add_outbuf(struct send_queue *sq, u32 num, void *data)
+> > +{
+> > +	int ret;
+> > +
+> > +	if (sq->vq->premapped) {
+> > +		data = virtnet_sq_map_sg(sq, num, data);
+> > +		if (!data)
+> > +			return -ENOMEM;
+> > +	}
+> > +
+> > +	ret = virtqueue_add_outbuf(sq->vq, sq->sg, num, data, GFP_ATOMIC);
+> > +	if (ret && sq->vq->premapped)
+> > +		virtnet_sq_unmap(sq, &data);
+> > +
+> > +	return ret;
+> > +}
+> > +
+> > +static int virtnet_sq_init_dma_mate(struct send_queue *sq)
+>
+> Mate? The popular south african drink?
+
+Sorry, should be meta, I mean metadata.
+
+>
+> > +{
+> > +	struct virtnet_sq_dma *d;
+> > +	int num, i;
+> > +
+> > +	num = virtqueue_get_vring_size(sq->vq);
+> > +
+> > +	sq->dmainfo.free = kcalloc(num, sizeof(*sq->dmainfo.free), GFP_KERNEL);
+> > +	if (!sq->dmainfo.free)
+> > +		return -ENOMEM;
+>
+>
+> This could be quite a bit of memory for a large queue.  And for a bunch
+> of common cases where unmap is a nop (e.g. iommu pt) this does nothing
+> useful at all.
+
+Then can we skip the unmap api, so pass a zero to the unmap api?
+
+> And also, this does nothing useful if PLATFORM_ACCESS is off
+> which is super common.
+
+That is ok. That just work when PLATFORM_ACCESS is on.
+
+Thanks.
+
+>
+> A while ago I proposed:
+> - extend DMA APIs so one can query whether unmap is a nop
+>   and whether sync is a nop
+> - virtio wrapper taking into account PLATFORM_ACCESS too
+>
+> then we can save all this work and memory when not needed.
+>
+>
+>
+> > +
+> > +	sq->dmainfo.p = sq->dmainfo.free;
+> > +
+> > +	for (i = 0; i < num; ++i) {
+> > +		d = &sq->dmainfo.free[i];
+> > +		d->next = d + 1;
+> > +	}
+> > +
+> > +	d->next = NULL;
+> > +
+> > +	return 0;
+> > +}
+> > +
+> >  static void __free_old_xmit(struct send_queue *sq, bool in_napi,
+> >  			    struct virtnet_sq_free_stats *stats)
+> >  {
+> > @@ -377,6 +487,9 @@ static void __free_old_xmit(struct send_queue *sq, bool in_napi,
+> >  	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+> >  		++stats->packets;
+> >
+> > +		if (sq->vq->premapped)
+> > +			virtnet_sq_unmap(sq, &ptr);
+> > +
+> >  		if (!is_xdp_frame(ptr)) {
+> >  			struct sk_buff *skb = ptr;
+> >
+> > @@ -890,8 +1003,7 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
+> >  			    skb_frag_size(frag), skb_frag_off(frag));
+> >  	}
+> >
+> > -	err = virtqueue_add_outbuf(sq->vq, sq->sg, nr_frags + 1,
+> > -				   xdp_to_ptr(xdpf), GFP_ATOMIC);
+> > +	err = virtnet_add_outbuf(sq, nr_frags + 1, xdp_to_ptr(xdpf));
+> >  	if (unlikely(err))
+> >  		return -ENOSPC; /* Caller handle free/refcnt */
+> >
+> > @@ -2357,7 +2469,7 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
+> >  			return num_sg;
+> >  		num_sg++;
+> >  	}
+> > -	return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg, skb, GFP_ATOMIC);
+> > +	return virtnet_add_outbuf(sq, num_sg, skb);
+> >  }
+> >
+> >  static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+> > @@ -4166,6 +4278,8 @@ static void virtnet_free_queues(struct virtnet_info *vi)
+> >  	for (i = 0; i < vi->max_queue_pairs; i++) {
+> >  		__netif_napi_del(&vi->rq[i].napi);
+> >  		__netif_napi_del(&vi->sq[i].napi);
+> > +
+> > +		kfree(vi->sq[i].dmainfo.p);
+> >  	}
+> >
+> >  	/* We called __netif_napi_del(),
+> > @@ -4214,6 +4328,15 @@ static void free_receive_page_frags(struct virtnet_info *vi)
+> >
+> >  static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf)
+> >  {
+> > +	struct virtnet_info *vi = vq->vdev->priv;
+> > +	struct send_queue *sq;
+> > +	int i = vq2rxq(vq);
+> > +
+> > +	sq = &vi->sq[i];
+> > +
+> > +	if (sq->vq->premapped)
+> > +		virtnet_sq_unmap(sq, &buf);
+> > +
+> >  	if (!is_xdp_frame(buf))
+> >  		dev_kfree_skb(buf);
+> >  	else
+> > @@ -4327,8 +4450,10 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+> >  		if (ctx)
+> >  			ctx[rxq2vq(i)] = true;
+> >
+> > -		if (premapped)
+> > +		if (premapped) {
+> >  			premapped[rxq2vq(i)] = true;
+> > +			premapped[txq2vq(i)] = true;
+> > +		}
+> >  	}
+> >
+> >  	cfg.nvqs      = total_vqs;
+> > @@ -4352,6 +4477,9 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+> >  		vi->rq[i].vq = vqs[rxq2vq(i)];
+> >  		vi->rq[i].min_buf_len = mergeable_min_buf_len(vi, vi->rq[i].vq);
+> >  		vi->sq[i].vq = vqs[txq2vq(i)];
+> > +
+> > +		if (vi->sq[i].vq->premapped)
+> > +			virtnet_sq_init_dma_mate(&vi->sq[i]);
+> >  	}
+> >
+> >  	/* run here: ret == 0. */
+> > --
+> > 2.32.0.3.g01195cf9f
+>
