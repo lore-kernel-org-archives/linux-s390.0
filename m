@@ -1,204 +1,144 @@
-Received: from out-171.mta0.migadu.com (out-171.mta0.migadu.com [91.218.175.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f48.google.com (mail-oo1-f48.google.com [209.85.161.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 120D715B96C
-	for <linux-s390@vger.kernel.org>; Wed, 28 Feb 2024 15:04:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7BDC15DBBA;
+	Wed, 28 Feb 2024 16:11:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709132681; cv=none; b=oZxbY3Rr5FyI9Jhj/FQI0HuFsiqp7mzFqJA8okRBCl6xnu1T339K3ZCOvKg7R7qzwyF7cJSIAWmKUQvXe2l95vU31qdfWqwcPVHC4JEAkhB05xaCZk+xiAwgXVrudDWFMnxG8GMvHN0HwLSY36CCkKDRXJrITMBHpoDRaHHlFiU=
+	t=1709136663; cv=none; b=SItcfcQoqFm+7xWaCSabs7fQoLTJ6MhBqg97Tw+iWcP/R2CGs7xhuFWvkX/1UsVbtva9K8eIBEra8bsatlQX5oxmcQvk8uemwvtSVxZxCdWVFOtRKiqgkJ5sUwTXwZtBjqHcekzNIukvj64PkyZ8ZuKMSlep+dzhiKey9m7gUuI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709132681; c=relaxed/simple;
-	bh=k2w9lGUiETvqTUHJzWKQ/tyXXe3SKQPW2xWXFX+896Q=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-type; b=CI3ULsGq3OZY9gx3AT9Kgdcs7OXvfOizyK9a6hqAHW74qZ5EOuYICC/dKSWzmIVtAJ3XUIy9Yn6RRnNlcVgh54vG3pEOYfwudUAiLoEqnA0Oqv0bbChVdOl9A5ykYi0+h0qQyLU08owPPjBK9wIfwWJqf9PiBFD9fmniPeAITmM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=I9KQ1qvr; arc=none smtp.client-ip=91.218.175.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1709136663; c=relaxed/simple;
+	bh=x4cppwy5kuHxn1Xdw/R0WLbMpw8zlt+UyW3XE5G3RSw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PeGYpb9bXkn9VdRpZbL4gxt65nXRH3hS7uIATzhvdhtOBTDlVpLsoEPhzUlpwI6YiYF6794gqOgBrmwi86vFwtOZ8vNEqHhIfB79Xid9R07nZuEnRoor1tAyZY8KOBRBashH/ZlJkLrLoxmQEN1t8mbqCQLavyBVfEOzjLzdpcI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aR5LDzrK; arc=none smtp.client-ip=209.85.161.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="I9KQ1qvr"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1709132677;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tsxpfYpBZPIQGZFeeavdCAykha5uzA9p5hqzzpjOjmk=;
-	b=I9KQ1qvrKDj7pHFgK7MCGSgnsUHbWq8jNpAV1xK92YuDifgAEhywTMwXQHhvT0IDoVDxCa
-	2UbopFanDKNyLgiUk45LtDy6n/e1otex7TOQtwR7r3E3rt2WG3l3Z8S07ABtgQNed+e4yA
-	O/XkDF1EgM7GBo0lDOeOFa0TfkWqPKE=
-From: Andrew Jones <andrew.jones@linux.dev>
-To: kvm@vger.kernel.org,
-	kvm-riscv@lists.infradead.org
-Cc: pbonzini@redhat.com,
-	thuth@redhat.com,
-	kvmarm@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aR5LDzrK"
+Received: by mail-oo1-f48.google.com with SMTP id 006d021491bc7-5a0a19c9bb7so1914960eaf.3;
+        Wed, 28 Feb 2024 08:11:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1709136661; x=1709741461; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=UM7fB83xrY7g3CIrUJgpt+5lWVhOTXwWDbWvr1lXm3o=;
+        b=aR5LDzrKBVpQoLw5bR2v3dc+uWVkN5IFLzc7kb/OWdpF9k67QbUSzCkjLX7gDlG11o
+         gP6smNiQXiqCW3rvqs4aQoOjwF7pM4TuFbPbi/Tav6ML7ak9NY0bYOV218axG683V4vV
+         VAag+pv81zLuB7O3YAfkK1eWgm2TYZ84omougYKbYOOt39QmM+SpG03B0ZSeiPyAhSV9
+         zCYulM3PAnvcGLb7Ap/90w/OouC+Z8tVN2cN//3PXh6x2U2x0kKx+SeBXKu6CvUgRLtP
+         4Why03SmMW6geYuZvb4ztjhT7Bht+rNUXcIkb5czeyeHJMihcOxRe5IEaacIThVxtgb1
+         aX2w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709136661; x=1709741461;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=UM7fB83xrY7g3CIrUJgpt+5lWVhOTXwWDbWvr1lXm3o=;
+        b=G+9kmGSHVdh+qj3gTGdsWeraTgFODlHWGqfLr8FQxs5sk3m7WqMXjXbko3h6XSgC1m
+         9VqvV6CMFL8qAPEkBELJcjDCA+1G00V1umKJ3gN3u7DOkJB4c4OIknNzN9281M7LTHsr
+         K6noDvlOKOI6IfqDzQZT88yDdhHTgDVYK47RTqrCkBdVXXNZLmwL3EzOLrg70fFPO5XV
+         AcS/6v6bz03UO7/OrU4eB6IEabJo1j1LxxnHjxdEqnljbjrpJIQjlxMifjxoEDWt9+UB
+         UWE17yM5ADcbhrVkaBoz4EZazc62JtancXwa/lwn4UE2MFBXCtOa7ZvNoAEejTUdT1xu
+         6AAw==
+X-Forwarded-Encrypted: i=1; AJvYcCW2lXB9q/oa/FB+pBjxjnyyU3hvxR4Ev8dPdx5x6FOpo95I2uNMqE/GHxpmGqZCeXLFqiZuoOTkkyK2F9aSaekmoVluKvA0m6/rEZuUkhVGihBcvZQ15rF5W32rKX3qXtJFeLuuOW/i/oE57tqWIX98ol0iUoYUVi1BODnobCwAYE7eyFb9NSmR7XFg+M7XsrBHr4hs1Qr4r4hBTKCH
+X-Gm-Message-State: AOJu0YzcUMAUheJpb5q2PrywtTKcxaSE1VujbR5NqIJd31f0Gc1xxMqB
+	efk1DXtH81WvN2HQDdkashMbFtfI9Maj67AL7xDRO12XK4eXC39z
+X-Google-Smtp-Source: AGHT+IHVqmXgCjjpeT3Ayfgm29V7pLwkYccA07WjeKQIvCijKqteNCHyaFrBaReNdiJYMkPFdwfJlQ==
+X-Received: by 2002:a05:6359:4c0f:b0:178:94bc:72ef with SMTP id kj15-20020a0563594c0f00b0017894bc72efmr17459234rwc.25.1709136660774;
+        Wed, 28 Feb 2024 08:11:00 -0800 (PST)
+Received: from localhost ([2601:344:8301:57f0:2256:57ae:919c:373f])
+        by smtp.gmail.com with ESMTPSA id h8-20020a255f48000000b00dcda5ddeccasm1939107ybm.30.2024.02.28.08.10.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Feb 2024 08:11:00 -0800 (PST)
+Date: Wed, 28 Feb 2024 08:10:59 -0800
+From: Yury Norov <yury.norov@gmail.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Alexander Potapenko <glider@google.com>,
+	Alexander Lobakin <aleksander.lobakin@intel.com>,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
+	Marcin Szycik <marcin.szycik@linux.intel.com>,
+	Wojciech Drewek <wojciech.drewek@intel.com>,
+	Andy Shevchenko <andy@kernel.org>,
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+	Jiri Pirko <jiri@resnulli.us>, Ido Schimmel <idosch@nvidia.com>,
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+	Simon Horman <horms@kernel.org>, linux-btrfs@vger.kernel.org,
+	dm-devel@redhat.com, ntfs3@lists.linux.dev,
 	linux-s390@vger.kernel.org,
-	lvivier@redhat.com,
-	npiggin@gmail.com,
-	frankja@linux.ibm.com,
-	imbrenda@linux.ibm.com,
-	nrb@linux.ibm.com
-Subject: [kvm-unit-tests PATCH 04/13] treewide: lib/stack: Make base_address arch specific
-Date: Wed, 28 Feb 2024 16:04:20 +0100
-Message-ID: <20240228150416.248948-19-andrew.jones@linux.dev>
-In-Reply-To: <20240228150416.248948-15-andrew.jones@linux.dev>
-References: <20240228150416.248948-15-andrew.jones@linux.dev>
+	"intel-wired-lan@lists.osuosl.org" <intel-wired-lan@lists.osuosl.org>,
+	Netdev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
+	Syed Nayyar Waris <syednwaris@gmail.com>,
+	William Breathitt Gray <william.gray@linaro.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH net-next v5 01/21] lib/bitmap: add bitmap_{read,write}()
+Message-ID: <Zd9bE0Z3djvj3+As@yury-ThinkPad>
+References: <20240201122216.2634007-1-aleksander.lobakin@intel.com>
+ <20240201122216.2634007-2-aleksander.lobakin@intel.com>
+ <3f6df876-4b25-4dc8-bbac-ce678c428d86@app.fastmail.com>
+ <CAG_fn=Wb81V+axD2eLLiE9SfdbJ8yncrkhuyw8b+6OBJJ_M9Sw@mail.gmail.com>
+ <b4309c85-026c-4fc9-8c26-61689ac38fa1@app.fastmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+In-Reply-To: <b4309c85-026c-4fc9-8c26-61689ac38fa1@app.fastmail.com>
 
-Calculating the offset of an address is image specific, which is
-architecture specific. Until now, all architectures and architecture
-configurations which select CONFIG_RELOC were able to subtract
-_etext, but the EFI configuration of riscv cannot (it must subtract
-ImageBase). Make this function architecture specific, since the
-architecture's image layout already is.
+On Thu, Feb 01, 2024 at 03:02:50PM +0100, Arnd Bergmann wrote:
+> On Thu, Feb 1, 2024, at 14:45, Alexander Potapenko wrote:
+> > On Thu, Feb 1, 2024 at 2:23 PM Arnd Bergmann <arnd@arndb.de> wrote:
+> >> On Thu, Feb 1, 2024, at 13:21, Alexander Lobakin wrote:
+> >>
+> >> As far as I can tell, the header ends up being included
+> >> indirectly almost everywhere, so just parsing these functions
+> >> likey adds not just dependencies but also compile time.
+> >>
+> >
+> > Removing particular functions from a header to reduce compilation time
+> > does not really scale.
+> > Do we know this case has a noticeable impact on the compilation time?
+> > If yes, maybe we need to tackle this problem in a different way (e.g.
+> > reduce the number of dependencies on it)?
+> 
+> Cleaning up the header dependencies is definitely possible in
+> theory, and there are other places we could start this, but
+> it's also a multi-year effort that several people have tried
+> without much success.
+> 
+> All I'm asking here is to not make it worse by adding this
+> one without need. If the function is not normally inlined
+> anyway, there is no benefit to having it in the header.
+> 
+>       Arnd
 
-Signed-off-by: Andrew Jones <andrew.jones@linux.dev>
----
- lib/arm64/stack.c | 17 +++++++++++++++++
- lib/riscv/stack.c | 18 ++++++++++++++++++
- lib/stack.c       | 19 ++-----------------
- lib/stack.h       |  2 ++
- lib/x86/stack.c   | 17 +++++++++++++++++
- 5 files changed, 56 insertions(+), 17 deletions(-)
+Hi Arnd,
 
-diff --git a/lib/arm64/stack.c b/lib/arm64/stack.c
-index f5eb57fd8892..3369031a74f7 100644
---- a/lib/arm64/stack.c
-+++ b/lib/arm64/stack.c
-@@ -6,6 +6,23 @@
- #include <stdbool.h>
- #include <stack.h>
- 
-+#ifdef CONFIG_RELOC
-+extern char _text, _etext;
-+
-+bool base_address(const void *rebased_addr, unsigned long *addr)
-+{
-+	unsigned long ra = (unsigned long)rebased_addr;
-+	unsigned long start = (unsigned long)&_text;
-+	unsigned long end = (unsigned long)&_etext;
-+
-+	if (ra < start || ra >= end)
-+		return false;
-+
-+	*addr = ra - start;
-+	return true;
-+}
-+#endif
-+
- extern char vector_stub_start, vector_stub_end;
- 
- int arch_backtrace_frame(const void *frame, const void **return_addrs,
-diff --git a/lib/riscv/stack.c b/lib/riscv/stack.c
-index d865594b9671..a143c22a570a 100644
---- a/lib/riscv/stack.c
-+++ b/lib/riscv/stack.c
-@@ -2,6 +2,24 @@
- #include <libcflat.h>
- #include <stack.h>
- 
-+#ifdef CONFIG_RELOC
-+extern char ImageBase, _text, _etext;
-+
-+bool base_address(const void *rebased_addr, unsigned long *addr)
-+{
-+	unsigned long ra = (unsigned long)rebased_addr;
-+	unsigned long base = (unsigned long)&ImageBase;
-+	unsigned long start = (unsigned long)&_text;
-+	unsigned long end = (unsigned long)&_etext;
-+
-+	if (ra < start || ra >= end)
-+		return false;
-+
-+	*addr = ra - base;
-+	return true;
-+}
-+#endif
-+
- int arch_backtrace_frame(const void *frame, const void **return_addrs,
- 			 int max_depth, bool current_frame)
- {
-diff --git a/lib/stack.c b/lib/stack.c
-index dd6bfa8dac6e..e5099e207388 100644
---- a/lib/stack.c
-+++ b/lib/stack.c
-@@ -11,23 +11,8 @@
- 
- #define MAX_DEPTH 20
- 
--#ifdef CONFIG_RELOC
--extern char _text, _etext;
--
--static bool base_address(const void *rebased_addr, unsigned long *addr)
--{
--	unsigned long ra = (unsigned long)rebased_addr;
--	unsigned long start = (unsigned long)&_text;
--	unsigned long end = (unsigned long)&_etext;
--
--	if (ra < start || ra >= end)
--		return false;
--
--	*addr = ra - start;
--	return true;
--}
--#else
--static bool base_address(const void *rebased_addr, unsigned long *addr)
-+#ifndef CONFIG_RELOC
-+bool base_address(const void *rebased_addr, unsigned long *addr)
- {
- 	*addr = (unsigned long)rebased_addr;
- 	return true;
-diff --git a/lib/stack.h b/lib/stack.h
-index 6edc84344b51..f8def4ad4d49 100644
---- a/lib/stack.h
-+++ b/lib/stack.h
-@@ -10,6 +10,8 @@
- #include <libcflat.h>
- #include <asm/stack.h>
- 
-+bool base_address(const void *rebased_addr, unsigned long *addr);
-+
- #ifdef HAVE_ARCH_BACKTRACE_FRAME
- extern int arch_backtrace_frame(const void *frame, const void **return_addrs,
- 				int max_depth, bool current_frame);
-diff --git a/lib/x86/stack.c b/lib/x86/stack.c
-index 58ab6c4b293a..7ba73becbd69 100644
---- a/lib/x86/stack.c
-+++ b/lib/x86/stack.c
-@@ -1,6 +1,23 @@
- #include <libcflat.h>
- #include <stack.h>
- 
-+#ifdef CONFIG_RELOC
-+extern char _text, _etext;
-+
-+bool base_address(const void *rebased_addr, unsigned long *addr)
-+{
-+	unsigned long ra = (unsigned long)rebased_addr;
-+	unsigned long start = (unsigned long)&_text;
-+	unsigned long end = (unsigned long)&_etext;
-+
-+	if (ra < start || ra >= end)
-+		return false;
-+
-+	*addr = ra - start;
-+	return true;
-+}
-+#endif
-+
- int arch_backtrace_frame(const void *frame, const void **return_addrs,
- 			 int max_depth, bool current_frame)
- {
--- 
-2.43.0
+I think Alexander has shown that the functions are normally inlined.
+If for some target that doesn't hold, we'd use __always_inline.
 
+They are very lightweight by nature - one or at max two word fetches
+followed by some shifting. We spent quite some cycles making sure
+that the generated code looks efficient, at least not worse than the
+existing bitmap_{get,set}_value8(), which is a special case of the
+bitmap_{read,write}.
+
+I agree that bitmap header is overwhelmed (like many other kernel
+headers), and I'm working on unloading it.
+
+I checked allyesconfig build time before and after this patch, and
+I found no difference for me. So if you're concerned about compilation
+time, this patch doesn't make things worse in this department.
+
+With all that, Alexander, can you please double-check that the
+functions get inlined, and if so:
+
+Signed-off-by: Yury Norov <yury.norov@gmail.com>
