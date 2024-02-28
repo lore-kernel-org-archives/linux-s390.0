@@ -1,115 +1,84 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+Received: from out-185.mta0.migadu.com (out-185.mta0.migadu.com [91.218.175.185])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 945CD145B23;
-	Wed, 28 Feb 2024 11:51:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAC1B29403
+	for <linux-s390@vger.kernel.org>; Wed, 28 Feb 2024 12:03:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.185
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709121113; cv=none; b=nS4j1L//Ugx+yd160Vj+lRd7yRzOSn4W8OpdN0Xq/LvXv7xtEOZdUUu30sfpgo6EIDUSbY+yu2AZTUTf4VkOhJUCqyRbdLnlW1rUMDxsvb1jgTIhQcRBTb2PG87hD0ooLuGnPlC4S8R+IEeFAVqlsv4t8ZWC62h0VN+sulJTzY0=
+	t=1709121794; cv=none; b=UPNbr+h/v+frqICuEVUMFoE5v3o5K09tf46xRHv9Poz+NCAA4IYYpKNvZKkVVEEZgiTk4q0eZf+kJF3OcXB4b7t0NrV3Bb5MHoCyGQY3vo3xFjZvNtG4bRL2ZAr66nik6XXhUTCwJLDSDZiKFnboo58b/3ew3dz/5DZCixRSZhA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709121113; c=relaxed/simple;
-	bh=UOHYABj412OrOe9R32rHntZ5qCSK4fekgltl0v2LzuA=;
+	s=arc-20240116; t=1709121794; c=relaxed/simple;
+	bh=pUBc2R2YFf7Byy+OLL+SAPV2HRavjbo1kEXGsmSELxI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Cw0mtNxdE4/5cabJ8INPrUMwwL1oTn2AvMPmzOiZpr2bi71esQVbp0JRh2u2u3TXeA5X50JW/IV6HtKHptKGsKBxBjHqGMbTaOuYlUKbQ44inaWgPteUoRXgTgVfZeTUnbysBhdd4AHJhBmKxzgZtnrhR7ifDG2GtLFub5D+Rn8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=RDBVhHu5; arc=none smtp.client-ip=198.175.65.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=NQiMa77+3v9JLaBszZWyceaJFXaahUqKtkzsGzjJIftoSLUhgk3AVaT3TzX3cXKwqXzJgz8vYV4D4kBumEXR+TvrxqPXcteDe6caMLvHxYK7MEdNZCv0r3wEGnocAK6w30qMzoGbVWCmHMKVqTGJuNrxFdEb17sjjXBqMC/VN6Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=FGKQp71c; arc=none smtp.client-ip=91.218.175.185
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="RDBVhHu5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1709121112; x=1740657112;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=UOHYABj412OrOe9R32rHntZ5qCSK4fekgltl0v2LzuA=;
-  b=RDBVhHu5kI9HOB61cYAalpnZ0DtwYx+LtAapZMdpmtTti1t1X1gju8nt
-   c1z44b/MnstlsBpEtN+coKHYcUxG8szJs55fjXU147XR/FnOJV/SYvtx8
-   yStpCZHQMUL+2+mNzijJUbKbYQR4frglhlbWn6aAz0h0GnpSTay4K1KiS
-   IiGNHTgknp78ZyywcGudpjPoepr7mb7nd/n70LtFkTbbMhbgfZVWvX1UA
-   lGV2Ev2plHj8OAZ9T2oYa2HMzAJbZll6mnn+lcU7iL97KTVsl4aQE99Cl
-   dUNihqUkChd2VgIlYe1JlCnAkwnkgD2olR3z51GWrqQCwPsqgsW9sn4np
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10996"; a="7337755"
-X-IronPort-AV: E=Sophos;i="6.06,190,1705392000"; 
-   d="scan'208";a="7337755"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2024 03:51:51 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10996"; a="937034059"
-X-IronPort-AV: E=Sophos;i="6.06,190,1705392000"; 
-   d="scan'208";a="937034059"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga001.fm.intel.com with ESMTP; 28 Feb 2024 03:51:44 -0800
-Received: by black.fi.intel.com (Postfix, from userid 1000)
-	id B730928A; Wed, 28 Feb 2024 13:51:42 +0200 (EET)
-Date: Wed, 28 Feb 2024 13:51:42 +0200
-From: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-To: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Cc: Liam.Howlett@oracle.com, akpm@linux-foundation.org, debug@rivosinc.com, 
-	broonie@kernel.org, keescook@chromium.org, tglx@linutronix.de, mingo@redhat.com, 
-	bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org, luto@kernel.org, 
-	peterz@infradead.org, hpa@zytor.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
-	linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, 
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, loongarch@lists.linux.dev, 
-	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
-Subject: Re: [PATCH v2 5/9] mm: Initialize struct vm_unmapped_area_info
-Message-ID: <j7bfvig3gew3qruouxrh7z7ehjjafrgkbcmg6tcghhfh3rhmzi@wzlcoecgy5rs>
-References: <20240226190951.3240433-1-rick.p.edgecombe@intel.com>
- <20240226190951.3240433-6-rick.p.edgecombe@intel.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="FGKQp71c"
+Date: Wed, 28 Feb 2024 13:03:05 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1709121790;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=q89KG4hdzw91oeVn8moMG49vjA7FBhdRABUSEGGkg0o=;
+	b=FGKQp71cnpb+ff7fwhUaOxfcQi2pU2AQTOhrS+iK+ckkJXe7l6AiLbVdHDWo/naazejElA
+	Ux9yyzoomusx4EMtfjcFSIY0eYRjXld8bGDHF3Ln7lkq/9YOCa72PslC9+oDscM+s5IXXn
+	AYJry5YoWg8egA6yIUcnHPPN4xj/v1U=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Andrew Jones <andrew.jones@linux.dev>
+To: Nicholas Piggin <npiggin@gmail.com>
+Cc: Thomas Huth <thuth@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Joel Stanley <joel@jms.id.au>, linuxppc-dev@lists.ozlabs.org, 
+	kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, Nico =?utf-8?B?QsO2aHI=?= <nrb@linux.ibm.com>, 
+	David Hildenbrand <david@redhat.com>, linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH 24/32] common/sieve: Use vmalloc.h for
+ setup_mmu definition
+Message-ID: <20240228-9d47975f00d02c47c9b9368b@orel>
+References: <20240226101218.1472843-1-npiggin@gmail.com>
+ <20240226101218.1472843-25-npiggin@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20240226190951.3240433-6-rick.p.edgecombe@intel.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20240226101218.1472843-25-npiggin@gmail.com>
+X-Migadu-Flow: FLOW_OUT
 
-On Mon, Feb 26, 2024 at 11:09:47AM -0800, Rick Edgecombe wrote:
-> diff --git a/arch/alpha/kernel/osf_sys.c b/arch/alpha/kernel/osf_sys.c
-> index 5db88b627439..dd6801bb9240 100644
-> --- a/arch/alpha/kernel/osf_sys.c
-> +++ b/arch/alpha/kernel/osf_sys.c
-> @@ -1218,7 +1218,7 @@ static unsigned long
->  arch_get_unmapped_area_1(unsigned long addr, unsigned long len,
->  		         unsigned long limit)
->  {
-> -	struct vm_unmapped_area_info info;
-> +	struct vm_unmapped_area_info info = {};
->  
->  	info.flags = 0;
->  	info.length = len;
+On Mon, Feb 26, 2024 at 08:12:10PM +1000, Nicholas Piggin wrote:
+> There is no good reason to put setup_vm in libcflat.h when it's
+> defined in vmalloc.h.
+> 
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Cc: Thomas Huth <thuth@redhat.com>
+> Cc: Andrew Jones <andrew.jones@linux.dev>
+> Cc: Janosch Frank <frankja@linux.ibm.com>
+> Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Cc: Nico Böhr <nrb@linux.ibm.com>
+> Cc: David Hildenbrand <david@redhat.com>
+> Cc: kvm@vger.kernel.org
+> Cc: linux-s390@vger.kernel.org
+> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+> ---
+>  common/sieve.c         | 1 +
+>  lib/libcflat.h         | 2 --
+>  lib/s390x/io.c         | 1 +
+>  lib/s390x/uv.h         | 1 +
+>  lib/x86/vm.h           | 1 +
+>  s390x/mvpg.c           | 1 +
+>  s390x/selftest.c       | 1 +
+>  x86/pmu.c              | 1 +
+>  x86/pmu_lbr.c          | 1 +
+>  x86/vmexit.c           | 1 +
+>  x86/vmware_backdoors.c | 1 +
+>  11 files changed, 10 insertions(+), 2 deletions(-)
+>
 
-Can we make a step forward and actually move initialization inside the
-initializator? Something like below.
-
-I understand that it is substantially more work, but I think it is useful.
-
-diff --git a/arch/alpha/kernel/osf_sys.c b/arch/alpha/kernel/osf_sys.c
-index 5db88b627439..c40ddede3b13 100644
---- a/arch/alpha/kernel/osf_sys.c
-+++ b/arch/alpha/kernel/osf_sys.c
-@@ -1218,14 +1218,12 @@ static unsigned long
- arch_get_unmapped_area_1(unsigned long addr, unsigned long len,
- 		         unsigned long limit)
- {
--	struct vm_unmapped_area_info info;
-+	struct vm_unmapped_area_info info = {
-+		.length = len;
-+		.low_limit = addr,
-+		.high_limit = limit,
-+	};
-
--	info.flags = 0;
--	info.length = len;
--	info.low_limit = addr;
--	info.high_limit = limit;
--	info.align_mask = 0;
--	info.align_offset = 0;
- 	return vm_unmapped_area(&info);
- }
-
--- 
-  Kiryl Shutsemau / Kirill A. Shutemov
+Acked-by: Andrew Jones <andrew.jones@linux.dev>
