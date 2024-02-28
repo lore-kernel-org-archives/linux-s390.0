@@ -1,173 +1,196 @@
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2061.outbound.protection.outlook.com [40.107.244.61])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C991A86248;
-	Wed, 28 Feb 2024 21:06:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709154386; cv=none; b=nrepMUTPYM3lEDXJC9TszdyNpMWezTm0et0qYDxVxPK8vceaSwlGfSFzA31UAyGklN1IEREe8vPsnWA3XQ2GHmZuVsjsKBz0gEh4PJCEN3WrBzNWRjwbuvi7yowUgKChetSzyw3ZULGF9NJbBAS/HqKgQcvGzk/5a2+JOBFf92c=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709154386; c=relaxed/simple;
-	bh=KnopYAd5eQKEby5VAzV5cjLQUuk9vdF/QgTymLF2AQs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ck1y9kVWJkORfqXAM2BzmGZfnPhPA7Gdm2EL56FeM7BxOVjR9dBY59f0fzNwXHPcXInR6Q08RyhUHmAHG+A2BaUxgDsPthExQPCVPvQFp/skexpQLMG5Xcvj+XhpNvA7nWIJFse51s33kfv8J+lbU1EC/4mxILT0P0FMXO10svc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OqWX1w8k; arc=none smtp.client-ip=209.85.221.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F007D13D2E5;
+	Wed, 28 Feb 2024 23:06:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.244.61
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1709161584; cv=fail; b=A3T45g0T5SqSTN64/jBH1yKo3pOO3o7/U9pLDtI3wIylFOdG/i46cWz8YF6BqlsbLYVEuydwnjPEkT/IJz2WJGz7xSZBGxl5Y9aVqXZBug4GLH9Z5v8ABgmgIsGzt79LQ+XC+F56utoH8SqP4dsV0jHCclJnHtLAD9igOApYl60=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1709161584; c=relaxed/simple;
+	bh=b96DxaZ0vdRlBNXj7nYXn/QvI4oZ2HFXv61cr8FbQRY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=ZqM8vHCJYfQobpVBdUSfoJzdlcanbxNH4xnmDWaha2vPdd6seFIv9MB+QY8tiD5MPv6etnTv2+1J8mT4NKL4uCMQm5KRS6A/uLUBpfKDpJl9i/lQBZVVhBu3WJqumezNFPrB+qUjcHnedGafojvcvlb0N5dGjzy4sWcJvTuHENE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=K9VLilN6; arc=fail smtp.client-ip=40.107.244.61
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OqWX1w8k"
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-33d6f1f17e5so122441f8f.3;
-        Wed, 28 Feb 2024 13:06:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1709154383; x=1709759183; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=0a8qBD6vozPIAISnQHJRWdPKOWiVN4p5/6pJZQ2dXnQ=;
-        b=OqWX1w8kHwCQYXdkCxNjkAQNbg4Un52uFynZh9KWAuo0Mg0yufkEJLg8+QGrR2zl+N
-         bUVNl4B36a2m5dfVxWPTQX8LSGAxZ5U/rnCq5XKgpuBCE2cX86uZuSq0O1dzQsRrFR/v
-         a6iKolcy7LoX6oK11F8J3i7dWamFYW6/uVq6HleodcXIe/8M3Hsxh+7luhUZZJEMu2x2
-         asAY7rK9p/+Tn4zAj/6f774PkyekMZAKF2NLs5RQx8EHrakYC590S9KfYC7w/I0qOQag
-         eosKGXOlF22OQ/1L9V9DI9kVxD+qQoxqf7b1J0Mmi3Y3PW5RQhzfHuF0Q5l5Lq8sfbOv
-         vLxQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709154383; x=1709759183;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0a8qBD6vozPIAISnQHJRWdPKOWiVN4p5/6pJZQ2dXnQ=;
-        b=QTKUa/AQt16od3drKCrR+9Ndt8RnArK9ta16WxcwMUyubc3LyZ3KuyZv2HdTaGKhbR
-         dIAOQ8dME51JQrU0R67dPFp83GGaRqwxHn97QUmZ3YpX8VVkIcZLv/FK7QacGrXOPUcY
-         UL55o9RUKp4S1WNq7Uu1JBjn/7kiFpaClJvDfrbiMqZrqSa/e7o2Q0a9FktIMpAUld3i
-         CUqbntMoVP4wSJBCwM8+gDQ3hop2a95BuRQ3lmEnVFfUQkrz7JN+tQTNSfKRiRp/A9fc
-         mf1/fNrhCjT9Tkff84Jnf4DJoqMiQ1oYL/xND4x1sKDLgM1AqKy6MeiW5or8hDhRR4ui
-         hPrQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVwV96jXs9VLnTWCaSA9CbWYUaIQkbyRZDiLMdbQ62qYaJG7jFvJjU6zELi7sB2y0hM8MEAnhjTkgEtxcFjDVsELB+X9r4Y9luPG628XhW/OxAEw5U1kTb0yvUemwqn+AhmW6N03NoZ2uMKjWM38cRSsAXQjs+IXdApDKZ3TUELkq/VqwjkDWBrPUYDq589x5+30lgB7Mhkhpmog3niAmO4PSQoUqoIVIrCkVpIMdjKHC4Y+IW/CfZBfzudN5zrLuN2zZtnm5fqpGke/G028K+smnPptuPQCYMWr0b48aSvKCfUwu8U8Hcmf/hCb0uUWAOgm4pPo0pm0hztCAe+M8GuwggOnxKnbFelFUjLURaW72GxFGWhk3dJ8hChoNk5IE3yB7E4n6H+bTzP9hqMVDhjdCics6br6jLvyQfcQwkXYCkzo3j34oAv9Z4IwbQDtHk=
-X-Gm-Message-State: AOJu0Yyt5x/xkYD0dT17lBEvwQYDbxWaNgQceSVc+iQP4+8dFC5UCxSP
-	UntYBUYDHaaUH3I/k64+ev0yXmlVwtGWYg4cWuhTssJnrtfpZzDe
-X-Google-Smtp-Source: AGHT+IHczATb7A8ZRTaH383CIQ4ejybI9MzL/yjlqycOyBbx2+IYQRI3gE2POfqlKMAC8LKmr3GeXg==
-X-Received: by 2002:a5d:618d:0:b0:33d:f51f:2da5 with SMTP id j13-20020a5d618d000000b0033df51f2da5mr46406wru.7.1709154383088;
-        Wed, 28 Feb 2024 13:06:23 -0800 (PST)
-Received: from localhost (cpc1-brnt4-2-0-cust862.4-2.cable.virginm.net. [86.9.131.95])
-        by smtp.gmail.com with ESMTPSA id m1-20020adfa3c1000000b0033d67791dc0sm15568132wrb.43.2024.02.28.13.06.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Feb 2024 13:06:21 -0800 (PST)
-Date: Wed, 28 Feb 2024 21:06:21 +0000
-From: Stafford Horne <shorne@gmail.com>
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-	Vincenzo Frascino <vincenzo.frascino@arm.com>,
-	Kees Cook <keescook@chromium.org>,
-	Anna-Maria Behnsen <anna-maria@linutronix.de>,
-	Arnd Bergmann <arnd@arndb.de>, Matt Turner <mattst88@gmail.com>,
-	Vineet Gupta <vgupta@kernel.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Guo Ren <guoren@kernel.org>, Brian Cain <bcain@quicinc.com>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Michal Simek <monstr@monstr.eu>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Richard Weinberger <richard@nod.at>, x86@kernel.org,
-	Max Filippov <jcmvbkbc@gmail.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Jan Kiszka <jan.kiszka@siemens.com>,
-	Kieran Bingham <kbingham@kernel.org>,
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="K9VLilN6"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=YHWLj3gXF/XysF+cMOU6s7th0vRdthaFJLCDS7mCwrUkOt5xhf1J9FlzRKuS0OQwBe0Mq/M3r9w2W3XOIIaWP+DyL3EXNJfDdAkd98CdRDdA6o6bxHTzmeHHQuyNvg8nEkv8rjm+ix5AW6+YgLUKLlxhZTLk2YJXtHGSBuLvM23lWw2i0qsFLNbZSK5xwljWosbMGwpZXbO7qXO3iKJGZlETkMD5utxObEXB06O4G4+iefKrUgPQtKi6WwswL9pPWmyPYKmU+SfRZXwLW1Kjz0Ik3nlEn4t2qMXahowhG2Tk2T7Jp/mWIoHxRJhAVzF79zpx+ioWe/GjBcPWRcLTGQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=bqa1gAzyjIl/S4o2PRoznHYpTG2g0iENkbXUyWNHni4=;
+ b=CJBd27YqJL13w4kyNtjylLlgQ3U0gQDUFGiK8LpbTvnq5cnb6CNyj6LMh5JIEEnhqrR2/v6tKj0ausHjgX5k9pgHDs7d1PMm3M4JN+NdMFxgEWRBwv4NPLBpPpjLVRBRYj9rsj/+KApJiKsUGHrVt7I4aHKVn1Au6Vj/Q+zSykPiLTEYr49H6NOZfYaDk5t3MYC0bIYIQgeypO9TRtprRAvHqSMQhij3Kz15PBMCeF2wwOeWtZ1C2l6qltwv8jRQlUvNdgh72NBnrtuUy0Zuuxkckj6Ka7Ij/BCNH9yi78T/Q+i41laGh7PjK0fbWoiLq8lL8vi2eX/fmdzD6RLXog==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bqa1gAzyjIl/S4o2PRoznHYpTG2g0iENkbXUyWNHni4=;
+ b=K9VLilN6TcLbw6pZa2pvKDKNCsPxtMclo1/z45HSwMgjxrpvJurNe/A6YtCM7X/mcabxApZJiI2w1e05Q1tC99S0YZloz7XxqInIVSgW7nUFvQ+y2YReUjW2NZeV4etTWwgLepB827LQdHFLyl5ps56/ny5oJmGgNUmr9hPZq/s3oo8R79/FWeys+svjvkCb6/+PiMLjrdC4nysdq3M+3vyoMg3u4d7QM04Em4xQP9ciR7ebveHC25ceUuk6zCVePb98wOrrS4DrAWaIqLT/p69NcE2SLg5Ci/9MuEGcMFGY6doCFrKz/vU7MhetxU451o2fUHdINROE9DiDSpKcUQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from DM6PR12MB3849.namprd12.prod.outlook.com (2603:10b6:5:1c7::26)
+ by PH7PR12MB5901.namprd12.prod.outlook.com (2603:10b6:510:1d5::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7316.41; Wed, 28 Feb
+ 2024 23:06:17 +0000
+Received: from DM6PR12MB3849.namprd12.prod.outlook.com
+ ([fe80::2e3e:c7c0:84da:3941]) by DM6PR12MB3849.namprd12.prod.outlook.com
+ ([fe80::2e3e:c7c0:84da:3941%6]) with mapi id 15.20.7316.037; Wed, 28 Feb 2024
+ 23:06:17 +0000
+Date: Wed, 28 Feb 2024 19:06:16 -0400
+From: Jason Gunthorpe <jgg@nvidia.com>
+To: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
 	Andrew Morton <akpm@linux-foundation.org>,
-	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org
-Subject: Re: [PATCH 3/4] arch: define CONFIG_PAGE_SIZE_*KB on all
- architectures
-Message-ID: <Zd-gTf6mvVdPEovO@antec>
-References: <20240226161414.2316610-1-arnd@kernel.org>
- <20240226161414.2316610-4-arnd@kernel.org>
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Justin Stitt <justinstitt@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Leon Romanovsky <leon@kernel.org>,
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+	llvm@lists.linux.dev, Ingo Molnar <mingo@redhat.com>,
+	Bill Wendling <morbo@google.com>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Nick Desaulniers <ndesaulniers@google.com>, netdev@vger.kernel.org,
+	Paolo Abeni <pabeni@redhat.com>,
+	Salil Mehta <salil.mehta@huawei.com>,
+	Jijie Shao <shaojijie@huawei.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
+	Yisen Zhuang <yisen.zhuang@huawei.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Leon Romanovsky <leonro@mellanox.com>, linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Mark Rutland <mark.rutland@arm.com>,
+	Michael Guralnik <michaelgur@mellanox.com>, patches@lists.linux.dev,
+	Niklas Schnelle <schnelle@linux.ibm.com>,
+	Will Deacon <will@kernel.org>
+Subject: Re: [PATCH 4/6] arm64/io: Provide a WC friendly __iowriteXX_copy()
+Message-ID: <20240228230616.GS13330@nvidia.com>
+References: <0-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
+ <4-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
+ <Zd27XtDg_NDzLXg-@arm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Zd27XtDg_NDzLXg-@arm.com>
+X-ClientProxiedBy: DS7PR07CA0005.namprd07.prod.outlook.com
+ (2603:10b6:5:3af::15) To DM6PR12MB3849.namprd12.prod.outlook.com
+ (2603:10b6:5:1c7::26)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240226161414.2316610-4-arnd@kernel.org>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM6PR12MB3849:EE_|PH7PR12MB5901:EE_
+X-MS-Office365-Filtering-Correlation-Id: 3c28f0b5-d1f8-470c-71e8-08dc38b1de44
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	1R/Z2DoK9MFIGp/bQ3/mJJ/ZbV31X9IjwBAWaBiYoq7kEo/SEXRLEFGLfuLDwy6HGgNmjXGLSm52qXYFzX4qnrnnyujGLjalIvS524U7ETvnbwYV/euEPVSCETWsigA3ZnJ5BUi9gYSJwHHY4vJSWhXD+aNZ4j2sC7YtZm9l1MovqRBBisM0XKou68Nuo0sNN2DbZbDDJgaTmiEaPbmlWJNUHmM8YB+nSgex8D5BEKFiKKKd3q5HC2oVaE6FRzMfVv4GopcBWdslR3yYtL/wGsHfT5Oif8DQOOCRDK5YEKgwdj1YsTvjGl6MTk3wsCJ0l0UDY8Fswh2VLlPNqlwJzW3h/aKjpj9Hb5zW6JtWEbQjMiUzmLAOpOb7QQwhiOWj4IikBSIfHxZplu5qrENFX6gZ2KQMAbDq6lfeuh2gV5Gbg7CIvDDDYwrwJokiyrDymtIl+gEKBc+XMYrEHUzVv+MrxfNrG0zy/eNZwSFr6FYoXQdMPKoMfcvNimQdyYK8bwuh4dyH7p0WRgAoG9mxR1yVu9x0qKM/pGKCbU2GFT/ddgtc/2hKAIxpWfsCnOxQd6y6YxV75+wDqQuF+31CV2V72SCCguwm4IqvtzJ4TdhvEyIG2+uhrDeoI2PEG+ym
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3849.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?bl33Vq0DxnAgTVxNZhEcYh36gqJFY7Pug7yoOiv50bjWihtvuCvQhWBb2K3D?=
+ =?us-ascii?Q?dOa4DUejnRvnjtItie9SrSocZX+erpipnPZ6zx6Ik/mZp6VaKK4aYeHkPomm?=
+ =?us-ascii?Q?SlC/lhwvGJewnYvxiSSLtAzjeWuAdp3crCxUVI9s5BJH+5hYVb2Wcoo/zB86?=
+ =?us-ascii?Q?O0qphUwEPZ79CDYSTXvXfnChTvQIXGmgP1fhhCIF5trKzwmgmLjprlMQ2nHd?=
+ =?us-ascii?Q?elWdLB2oXwlM5xhfyr1k8bv8W0p6MaTLmI0z+4iHBt4fY51TEfLHDiR9Cxno?=
+ =?us-ascii?Q?rv7Mz4w/AfHQBaoWOJg8yyEczE3+fx3lC1/sK2HW7EJYyuSMOYgwY21G99Kx?=
+ =?us-ascii?Q?+JrSs/pnCo8zvRX4hlkqpt2Q1zMJS+aJAMsLcI0LEeJ8tnaEMhKaZf5JEDZA?=
+ =?us-ascii?Q?KL713xFYTqdiW2cqvnvev0iKhrDMMn8TjN5R7C8Qz/K1LjLj+WNZGpX4NVvp?=
+ =?us-ascii?Q?WV5+sDsam9VLZefmlQbDVKMCZG9MiR5mbtIlW3yURcellEIcStCJ+L4I8xWa?=
+ =?us-ascii?Q?mb9z0gdGY26nxHDqOafc2stJx2RUEW00oafqKD1keb4UQPUHnwvxmdzXi5d3?=
+ =?us-ascii?Q?UszQDRWd9DDN8ymT1Ri4wpMCWb9oiXxJIxEUXfmX1Xmc9VkvevYU50ciIzsm?=
+ =?us-ascii?Q?ckPRGxwFEkXCAhmCjif235tDNm00RumXOGowaDtEiSn57lgfD3YpJQAuLkop?=
+ =?us-ascii?Q?Jr50Bmh6UD29qib+xXIrO4/ZpHovoZ7UMmyeq0Z3BIJtydZxk4CppdQynuug?=
+ =?us-ascii?Q?u2pOkBlEQqPfcx8H08X8D4fPHOwADHKlLpcUffdWwiR/gRJfF29t+DgKeyrj?=
+ =?us-ascii?Q?aKwGSFdqmc3qXm3Fe0RjArA7UZTptJtc4SVYN3LCMq+riVwddxc6XJoE3Y+x?=
+ =?us-ascii?Q?q42EFUMtf6yNrzPL2Q17r9cZVOYfaRhjkOGhWQ5qhQXt90zJUbIkL2QjKCCG?=
+ =?us-ascii?Q?E0npfDQRVFLYLAy4QuEc5M3WTbVMdkFqP+Fs5tNen5T1Ilu3A4jsmjZPteAe?=
+ =?us-ascii?Q?mU8HTXrL4Sn4uThS5oCcmqFnzwBQieNkhzShdlDiAksRzAe02zIX2VQZzIJn?=
+ =?us-ascii?Q?i94edTg8PiKHICQJwWjd0e1oeVtkCsgKABHknxgxguZ8WhmCs1NxSaKpHDLD?=
+ =?us-ascii?Q?9Y/YjC2yxeuPBYYm3eXxaRHsfGXcagq6cg5f5e4B9Lelk8QeSbmmekAlORuO?=
+ =?us-ascii?Q?tB2Wy0XNyLrhV80Sbd8Kr/xi7mY6i1HVuu+2HBVyRRUMsgS1dApAtpsmJcUD?=
+ =?us-ascii?Q?KB2RXIgu9PcCuGQ3Nc7j+752tmE/PfIZOUnhbXWVItfEVkUXYDHmu2CxaANS?=
+ =?us-ascii?Q?eCCAvuzpixoK7AqBc9pbkbphEMwtQUJUVjWjqlEyd+QurdTfccV6BZ89Omtx?=
+ =?us-ascii?Q?LtOrNbF8flwKvCeMz1oG6VYrK3UihBRTx5Z0Hn49z3O/7yCbai9NNpfvxWFU?=
+ =?us-ascii?Q?7SmMrFgECI16Q8KrmP3WkXxTzA42D3jw0DaEPujBLbDz36IC9vGnFFFBM72A?=
+ =?us-ascii?Q?eig7G5K9mIsA66xcQPUp1mrAdgvlImkzdadX0O8hMed3J7v4mrrrCYvDPf6p?=
+ =?us-ascii?Q?HMgUf90absdk3k6yx2Y=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3c28f0b5-d1f8-470c-71e8-08dc38b1de44
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3849.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Feb 2024 23:06:17.0667
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: LILSMS8ZEh7qGuIN+7D0algwk/mXUR8Yb1GOHfNMJ34rb0yVu07rDpxZyT20mY5R
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB5901
 
-On Mon, Feb 26, 2024 at 05:14:13PM +0100, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
+On Tue, Feb 27, 2024 at 10:37:18AM +0000, Catalin Marinas wrote:
+> On Tue, Feb 20, 2024 at 09:17:08PM -0400, Jason Gunthorpe wrote:
+> > +/*
+> > + * This generates a memcpy that works on a from/to address which is aligned to
+> > + * bits. Count is in terms of the number of bits sized quantities to copy. It
+> > + * optimizes to use the STR groupings when possible so that it is WC friendly.
+> > + */
+> > +#define memcpy_toio_aligned(to, from, count, bits)                        \
+> > +	({                                                                \
+> > +		volatile u##bits __iomem *_to = to;                       \
+> > +		const u##bits *_from = from;                              \
+> > +		size_t _count = count;                                    \
+> > +		const u##bits *_end_from = _from + ALIGN_DOWN(_count, 8); \
+> > +                                                                          \
+> > +		for (; _from < _end_from; _from += 8, _to += 8)           \
+> > +			__const_memcpy_toio_aligned##bits(_to, _from, 8); \
+> > +		if ((_count % 8) >= 4) {                                  \
+> > +			__const_memcpy_toio_aligned##bits(_to, _from, 4); \
+> > +			_from += 4;                                       \
+> > +			_to += 4;                                         \
+> > +		}                                                         \
+> > +		if ((_count % 4) >= 2) {                                  \
+> > +			__const_memcpy_toio_aligned##bits(_to, _from, 2); \
+> > +			_from += 2;                                       \
+> > +			_to += 2;                                         \
+> > +		}                                                         \
+> > +		if (_count % 2)                                           \
+> > +			__const_memcpy_toio_aligned##bits(_to, _from, 1); \
+> > +	})
 > 
-> Most architectures only support a single hardcoded page size. In order
-> to ensure that each one of these sets the corresponding Kconfig symbols,
-> change over the PAGE_SHIFT definition to the common one and allow
-> only the hardware page size to be selected.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  arch/alpha/Kconfig                 | 1 +
->  arch/alpha/include/asm/page.h      | 2 +-
->  arch/arm/Kconfig                   | 1 +
->  arch/arm/include/asm/page.h        | 2 +-
->  arch/csky/Kconfig                  | 1 +
->  arch/csky/include/asm/page.h       | 2 +-
->  arch/m68k/Kconfig                  | 3 +++
->  arch/m68k/Kconfig.cpu              | 2 ++
->  arch/m68k/include/asm/page.h       | 6 +-----
->  arch/microblaze/Kconfig            | 1 +
->  arch/microblaze/include/asm/page.h | 2 +-
->  arch/nios2/Kconfig                 | 1 +
->  arch/nios2/include/asm/page.h      | 2 +-
->  arch/openrisc/Kconfig              | 1 +
->  arch/openrisc/include/asm/page.h   | 2 +-
->  arch/riscv/Kconfig                 | 1 +
->  arch/riscv/include/asm/page.h      | 2 +-
->  arch/s390/Kconfig                  | 1 +
->  arch/s390/include/asm/page.h       | 2 +-
->  arch/sparc/Kconfig                 | 2 ++
->  arch/sparc/include/asm/page_32.h   | 2 +-
->  arch/sparc/include/asm/page_64.h   | 3 +--
->  arch/um/Kconfig                    | 1 +
->  arch/um/include/asm/page.h         | 2 +-
->  arch/x86/Kconfig                   | 1 +
->  arch/x86/include/asm/page_types.h  | 2 +-
->  arch/xtensa/Kconfig                | 1 +
->  arch/xtensa/include/asm/page.h     | 2 +-
->  28 files changed, 32 insertions(+), 19 deletions(-)
-....
-> diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-> index fd9bb76a610b..3586cda55bde 100644
-> --- a/arch/openrisc/Kconfig
-> +++ b/arch/openrisc/Kconfig
-> @@ -25,6 +25,7 @@ config OPENRISC
->  	select GENERIC_CPU_DEVICES
->  	select HAVE_PCI
->  	select HAVE_UID16
-> +	select HAVE_PAGE_SIZE_8KB
->  	select GENERIC_ATOMIC64
->  	select GENERIC_CLOCKEVENTS_BROADCAST
->  	select GENERIC_SMP_IDLE_THREAD
-> diff --git a/arch/openrisc/include/asm/page.h b/arch/openrisc/include/asm/page.h
-> index 44fc1fd56717..7925ce09ab5a 100644
-> --- a/arch/openrisc/include/asm/page.h
-> +++ b/arch/openrisc/include/asm/page.h
-> @@ -18,7 +18,7 @@
->  
->  /* PAGE_SHIFT determines the page size */
->  
-> -#define PAGE_SHIFT      13
-> +#define PAGE_SHIFT      CONFIG_PAGE_SHIFT
->  #ifdef __ASSEMBLY__
->  #define PAGE_SIZE       (1 << PAGE_SHIFT)
->  #else
+> Do we actually need all this if count is not constant? If it's not
+> performance critical anywhere, I'd rather copy the generic
+> implementation, it's easier to read.
 
-For the openrisc bits,
+Which generic version?
 
-Acked-by: Stafford Horne <shorne@gmail.com>
+The point is to maximize WC effects with non-constant values, so I
+think we do need something like this. ie we can't just fall back to
+looping over 64 bit stores one at a time.
+
+If we don't use the large block stores we know we get very poor WC
+behavior. So at least the 8 and 4 constant value sections are
+needed. At that point you may as well just do 4 and 2 instead of
+another loop.
+
+Most places I know about using this are performance paths, the entire
+iocopy infrastructure was introduced as an x86 performance
+optimization..
+
+Jason
