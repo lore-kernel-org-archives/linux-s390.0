@@ -1,167 +1,282 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from out-171.mta1.migadu.com (out-171.mta1.migadu.com [95.215.58.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B89F14AD07;
-	Wed, 28 Feb 2024 13:37:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0F3215CD6D
+	for <linux-s390@vger.kernel.org>; Wed, 28 Feb 2024 15:04:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709127469; cv=none; b=i7Ol8W4hrHK5wkKqSzHZUv2/ej9vvzroFCWO85JXYyaeLOS28cYA/lqkbbzOy+ATTpzRbnDdx57w7qYY9oc0jZ+rtseAW2SfgM+tiZjfQKCifR3d6XmxmvQwTdZq/V3xSYHDYaV1ZsRFXfgFYA098MI9rKM3TrVjYd//FKdLxeE=
+	t=1709132676; cv=none; b=HPb1xp2OK/iQIE3jefYjgRRvA2Xe5f35Vfkb4QRoe2Juh6Mv4I4+8ZO7PwBfrUrsn9OK404888IodWpr7Jy6AYSc7xDREkMpzkk7TRvWWvRm5BYCWlWC99f3hQgz4bjsiMH/HoXZy5W+52UHg1UGDNcZCJpOqItI0uarAl+1hjE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709127469; c=relaxed/simple;
-	bh=+9i0r5EWSsRDqpfAlFeaIQ3wmx62+ebcdZ1S7w5L3dk=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=HPmNwVbsVF0fyIQ0J1sCHxxJUg/bhi4W1+jGh9O6wkHAY+TYOGVVKMAmMW/V92UgeaUMR6wJrm/+opWjGROnBzHPxpzInBy++vNHFecDuOQJWrGFMGHuZObYptzfDKbrZJpNBh9umropHLi8PctKit8lNCqoZDZg1UiGWAwNyt8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=cHuT+VvJ; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	s=arc-20240116; t=1709132676; c=relaxed/simple;
+	bh=zV4+X266V/JuNuACFyKCNUvL7RQCGu1AtgltdLf8vvs=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-type; b=U7ewQpkmZH5NB/L8jVq+U82T1ED27/77sy/8ixIF3TMtVsdE5ApzDryzDCAfFnQlBWKGfAtzMGRmwKsSK1gA9shb9Zgn3f50KxJfVp2fSK/OnPgnlqhnSuRjIL22M+o6bekAk19gZNTmtatuN+Czbq5Js4igcv+R1jOKa8PVzD8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=jIaM/U3k; arc=none smtp.client-ip=95.215.58.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="cHuT+VvJ"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
-	:Reply-To:Content-Type:Content-ID:Content-Description;
-	bh=gSXo3wlx2LwAnipTedH4KXRUtpY1E223waguUMMdvVs=; b=cHuT+VvJoEGrglOb0KTPEx4+hJ
-	T8Ap4DgojvgcnWNlUBFueEEBifItyRhiN9e0F9Xs5hosOmKAwpjDynZ+eLYsl5eHuxhwLb4jnSmHO
-	qHehtWCg0Cb1WlFrajqkAb0xNiCk1/qZzPGP5fIxcLj4YafNwrVkDtpMkGeN8oc+qe3KL/2hi0Gql
-	Vhj0n8kj2CXB4I/kmx4JMPKhfumRn2nhX96qDmn6L+S4E5am+eihfOvKMKFHuotxxrs+tguS581L8
-	9Aut5VeoFr+3FUZXb7W/QTYAV+Y3Db6AadHJp36S0fmmBg0k9k/NkvXnX4dzgV8aqbi+mNQE7ay5k
-	CQfFAQqQ==;
-Received: from [12.229.247.3] (helo=localhost)
-	by bombadil.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1rfK82-00000009V90-37b0;
-	Wed, 28 Feb 2024 13:37:46 +0000
-From: Christoph Hellwig <hch@lst.de>
-To: Stefan Haberland <sth@linux.ibm.com>,
-	Jan Hoeppner <hoeppner@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Jens Axboe <axboe@kernel.dk>
-Cc: linux-block@vger.kernel.org,
-	linux-s390@vger.kernel.org
-Subject: [PATCH 3/3] dasd: use the atomic queue limits API
-Date: Wed, 28 Feb 2024 05:37:42 -0800
-Message-Id: <20240228133742.806274-4-hch@lst.de>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240228133742.806274-1-hch@lst.de>
-References: <20240228133742.806274-1-hch@lst.de>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="jIaM/U3k"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1709132671;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=A5w0UrDb88O9RJorQIIyDZcP2bQt2PRprTlXxIDoNBU=;
+	b=jIaM/U3keRArYn8Xly5XqqUx4hLCCQqkps6f+OsZCDvsLiZVMWrQS9rF+HPyRxIrDKpsOR
+	FLPRxaEBFutFpiGvDhaq0UikTaE0RYaUqizjal383PGUUOQjES9nX0VOhMT+v8ttZXskJF
+	iQOnm/uioxrXh2IwZJgUa9idpYrAq74=
+From: Andrew Jones <andrew.jones@linux.dev>
+To: kvm@vger.kernel.org,
+	kvm-riscv@lists.infradead.org
+Cc: pbonzini@redhat.com,
+	thuth@redhat.com,
+	kvmarm@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	lvivier@redhat.com,
+	npiggin@gmail.com,
+	frankja@linux.ibm.com,
+	imbrenda@linux.ibm.com,
+	nrb@linux.ibm.com
+Subject: [kvm-unit-tests PATCH 03/13] treewide: lib/stack: Fix backtrace
+Date: Wed, 28 Feb 2024 16:04:19 +0100
+Message-ID: <20240228150416.248948-18-andrew.jones@linux.dev>
+In-Reply-To: <20240228150416.248948-15-andrew.jones@linux.dev>
+References: <20240228150416.248948-15-andrew.jones@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-type: text/plain
 Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+X-Migadu-Flow: FLOW_OUT
 
-Pass the constant limits directly to blk_mq_alloc_disk, set the nonrot
-flag there as well, and then use the commit API to change the transfer
-size and logical block size dependent values.
+We should never pass the result of __builtin_frame_address(0) to
+another function since the compiler is within its rights to pop the
+frame to which it points before making the function call, as may be
+done for tail calls. Nobody has complained about backtrace(), so
+likely all compilations have been inlining backtrace_frame(), not
+dropping the frame on the tail call, or nobody is looking at traces.
+However, for riscv, when built for EFI, it does drop the frame on the
+tail call, and it was noticed. Preemptively fix backtrace() for all
+architectures.
 
-This relies on the assumption that no I/O can be pending before the
-devices moves into the ready state and doesn't need extra freezing
-for changes to the queue limits.
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Fixes: 52266791750d ("lib: backtrace printing")
+Signed-off-by: Andrew Jones <andrew.jones@linux.dev>
 ---
- drivers/s390/block/dasd.c       | 29 ++++++++++++-----------------
- drivers/s390/block/dasd_genhd.c | 13 ++++++++++++-
- 2 files changed, 24 insertions(+), 18 deletions(-)
+ lib/arm/stack.c   | 13 +++++--------
+ lib/arm64/stack.c | 12 +++++-------
+ lib/riscv/stack.c | 12 +++++-------
+ lib/s390x/stack.c | 12 +++++-------
+ lib/stack.h       | 24 +++++++++++++++++-------
+ lib/x86/stack.c   | 12 +++++-------
+ 6 files changed, 42 insertions(+), 43 deletions(-)
 
-diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index bdeab447adfc9d..e8eb710bd25d7c 100644
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -308,7 +308,7 @@ static int dasd_state_basic_to_known(struct dasd_device *device)
- static int dasd_state_basic_to_ready(struct dasd_device *device)
+diff --git a/lib/arm/stack.c b/lib/arm/stack.c
+index 7d081be7c6d0..66d18b47ea53 100644
+--- a/lib/arm/stack.c
++++ b/lib/arm/stack.c
+@@ -8,13 +8,16 @@
+ #include <libcflat.h>
+ #include <stack.h>
+ 
+-int backtrace_frame(const void *frame, const void **return_addrs,
+-		    int max_depth)
++int arch_backtrace_frame(const void *frame, const void **return_addrs,
++			 int max_depth, bool current_frame)
  {
- 	struct dasd_block *block = device->block;
--	struct request_queue *q;
-+	struct queue_limits lim;
- 	int rc = 0;
+ 	static int walking;
+ 	int depth;
+ 	const unsigned long *fp = (unsigned long *)frame;
  
- 	/* make disk known with correct capacity */
-@@ -328,31 +328,26 @@ static int dasd_state_basic_to_ready(struct dasd_device *device)
- 		goto out;
- 	}
- 
--	q = block->gdp->queue;
--	blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
--	q->limits.max_dev_sectors = device->discipline->max_sectors(block);
--	blk_queue_max_hw_sectors(q, q->limits.max_dev_sectors);
--	blk_queue_logical_block_size(q, block->bp_block);
--	blk_queue_max_segments(q, USHRT_MAX);
++	if (current_frame)
++		fp = __builtin_frame_address(0);
++
+ 	if (walking) {
+ 		printf("RECURSIVE STACK WALK!!!\n");
+ 		return 0;
+@@ -33,9 +36,3 @@ int backtrace_frame(const void *frame, const void **return_addrs,
+ 	walking = 0;
+ 	return depth;
+ }
 -
--	/* With page sized segments each segment can be translated into one idaw/tidaw */
--	blk_queue_max_segment_size(q, PAGE_SIZE);
--	blk_queue_segment_boundary(q, PAGE_SIZE - 1);
--	blk_queue_dma_alignment(q, PAGE_SIZE - 1);
-+	lim = queue_limits_start_update(block->gdp->queue);
-+	lim.max_dev_sectors = device->discipline->max_sectors(block);
-+	lim.max_hw_sectors = lim.max_dev_sectors;
-+	lim.logical_block_size = block->bp_block;
+-int backtrace(const void **return_addrs, int max_depth)
+-{
+-	return backtrace_frame(__builtin_frame_address(0),
+-			       return_addrs, max_depth);
+-}
+diff --git a/lib/arm64/stack.c b/lib/arm64/stack.c
+index 82611f4b1815..f5eb57fd8892 100644
+--- a/lib/arm64/stack.c
++++ b/lib/arm64/stack.c
+@@ -8,7 +8,8 @@
  
- 	if (device->discipline->has_discard) {
--		unsigned int max_bytes, max_discard_sectors;
-+		unsigned int max_bytes;
+ extern char vector_stub_start, vector_stub_end;
  
--		q->limits.discard_granularity = block->bp_block;
-+		lim.discard_granularity = block->bp_block;
- 
- 		/* Calculate max_discard_sectors and make it PAGE aligned */
- 		max_bytes = USHRT_MAX * block->bp_block;
- 		max_bytes = ALIGN_DOWN(max_bytes, PAGE_SIZE);
--		max_discard_sectors = max_bytes / block->bp_block;
- 
--		blk_queue_max_discard_sectors(q, max_discard_sectors);
--		blk_queue_max_write_zeroes_sectors(q, max_discard_sectors);
-+		lim.max_hw_discard_sectors = max_bytes / block->bp_block;
-+		lim.max_write_zeroes_sectors = lim.max_hw_discard_sectors;
- 	}
-+	rc = queue_limits_commit_update(block->gdp->queue, &lim);
-+	if (rc)
-+		return rc;
- 
- 	set_capacity(block->gdp, block->blocks << block->s2b_shift);
- 	device->state = DASD_STATE_READY;
-diff --git a/drivers/s390/block/dasd_genhd.c b/drivers/s390/block/dasd_genhd.c
-index 0465b706745f64..528e2d38d9bfcc 100644
---- a/drivers/s390/block/dasd_genhd.c
-+++ b/drivers/s390/block/dasd_genhd.c
-@@ -34,6 +34,16 @@ MODULE_PARM_DESC(nr_hw_queues, "Default number of hardware queues for new DASD d
-  */
- int dasd_gendisk_alloc(struct dasd_block *block)
+-int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
++int arch_backtrace_frame(const void *frame, const void **return_addrs,
++			 int max_depth, bool current_frame)
  {
-+	struct queue_limits lim = {
-+		/*
-+		 * With page sized segments, each segment can be translated into
-+		 * one idaw/tidaw.
-+		 */
-+		.max_segment_size = PAGE_SIZE,
-+		.seg_boundary_mask = PAGE_SIZE - 1,
-+		.dma_alignment = PAGE_SIZE - 1,
-+		.max_segments = USHRT_MAX,
-+	};
- 	struct gendisk *gdp;
- 	struct dasd_device *base;
- 	int len, rc;
-@@ -53,11 +63,12 @@ int dasd_gendisk_alloc(struct dasd_block *block)
- 	if (rc)
- 		return rc;
+ 	const void *fp = frame;
+ 	static bool walking;
+@@ -17,6 +18,9 @@ int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+ 	bool is_exception = false;
+ 	unsigned long addr;
  
--	gdp = blk_mq_alloc_disk(&block->tag_set, NULL, block);
-+	gdp = blk_mq_alloc_disk(&block->tag_set, &lim, block);
- 	if (IS_ERR(gdp)) {
- 		blk_mq_free_tag_set(&block->tag_set);
- 		return PTR_ERR(gdp);
- 	}
-+	blk_queue_flag_set(QUEUE_FLAG_NONROT, gdp->queue);
++	if (current_frame)
++		fp = __builtin_frame_address(0);
++
+ 	if (walking) {
+ 		printf("RECURSIVE STACK WALK!!!\n");
+ 		return 0;
+@@ -54,9 +58,3 @@ int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+ 	walking = false;
+ 	return depth;
+ }
+-
+-int backtrace(const void **return_addrs, int max_depth)
+-{
+-	return backtrace_frame(__builtin_frame_address(0),
+-			       return_addrs, max_depth);
+-}
+diff --git a/lib/riscv/stack.c b/lib/riscv/stack.c
+index 712a5478d547..d865594b9671 100644
+--- a/lib/riscv/stack.c
++++ b/lib/riscv/stack.c
+@@ -2,12 +2,16 @@
+ #include <libcflat.h>
+ #include <stack.h>
  
- 	/* Initialize gendisk structure. */
- 	gdp->major = DASD_MAJOR;
+-int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
++int arch_backtrace_frame(const void *frame, const void **return_addrs,
++			 int max_depth, bool current_frame)
+ {
+ 	static bool walking;
+ 	const unsigned long *fp = (unsigned long *)frame;
+ 	int depth;
+ 
++	if (current_frame)
++		fp = __builtin_frame_address(0);
++
+ 	if (walking) {
+ 		printf("RECURSIVE STACK WALK!!!\n");
+ 		return 0;
+@@ -24,9 +28,3 @@ int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+ 	walking = false;
+ 	return depth;
+ }
+-
+-int backtrace(const void **return_addrs, int max_depth)
+-{
+-	return backtrace_frame(__builtin_frame_address(0),
+-			       return_addrs, max_depth);
+-}
+diff --git a/lib/s390x/stack.c b/lib/s390x/stack.c
+index 9f234a12adf6..d194f654e94d 100644
+--- a/lib/s390x/stack.c
++++ b/lib/s390x/stack.c
+@@ -14,11 +14,15 @@
+ #include <stack.h>
+ #include <asm/arch_def.h>
+ 
+-int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
++int arch_backtrace_frame(const void *frame, const void **return_addrs,
++			 int max_depth, bool current_frame)
+ {
+ 	int depth = 0;
+ 	struct stack_frame *stack = (struct stack_frame *)frame;
+ 
++	if (current_frame)
++		stack = __builtin_frame_address(0);
++
+ 	for (depth = 0; stack && depth < max_depth; depth++) {
+ 		return_addrs[depth] = (void *)stack->grs[8];
+ 		stack = stack->back_chain;
+@@ -28,9 +32,3 @@ int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+ 
+ 	return depth;
+ }
+-
+-int backtrace(const void **return_addrs, int max_depth)
+-{
+-	return backtrace_frame(__builtin_frame_address(0),
+-			       return_addrs, max_depth);
+-}
+diff --git a/lib/stack.h b/lib/stack.h
+index 10fc2f793354..6edc84344b51 100644
+--- a/lib/stack.h
++++ b/lib/stack.h
+@@ -11,17 +11,27 @@
+ #include <asm/stack.h>
+ 
+ #ifdef HAVE_ARCH_BACKTRACE_FRAME
+-extern int backtrace_frame(const void *frame, const void **return_addrs,
+-			   int max_depth);
++extern int arch_backtrace_frame(const void *frame, const void **return_addrs,
++				int max_depth, bool current_frame);
++
++static inline int backtrace_frame(const void *frame, const void **return_addrs,
++				  int max_depth)
++{
++	return arch_backtrace_frame(frame, return_addrs, max_depth, false);
++}
++
++static inline int backtrace(const void **return_addrs, int max_depth)
++{
++	return arch_backtrace_frame(NULL, return_addrs, max_depth, true);
++}
+ #else
+-static inline int
+-backtrace_frame(const void *frame __unused, const void **return_addrs __unused,
+-		int max_depth __unused)
++extern int backtrace(const void **return_addrs, int max_depth);
++
++static inline int backtrace_frame(const void *frame, const void **return_addrs,
++				  int max_depth)
+ {
+ 	return 0;
+ }
+ #endif
+ 
+-extern int backtrace(const void **return_addrs, int max_depth);
+-
+ #endif
+diff --git a/lib/x86/stack.c b/lib/x86/stack.c
+index 5ecd97ce90b9..58ab6c4b293a 100644
+--- a/lib/x86/stack.c
++++ b/lib/x86/stack.c
+@@ -1,12 +1,16 @@
+ #include <libcflat.h>
+ #include <stack.h>
+ 
+-int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
++int arch_backtrace_frame(const void *frame, const void **return_addrs,
++			 int max_depth, bool current_frame)
+ {
+ 	static int walking;
+ 	int depth = 0;
+ 	const unsigned long *bp = (unsigned long *) frame;
+ 
++	if (current_frame)
++		bp = __builtin_frame_address(0);
++
+ 	if (walking) {
+ 		printf("RECURSIVE STACK WALK!!!\n");
+ 		return 0;
+@@ -23,9 +27,3 @@ int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+ 	walking = 0;
+ 	return depth;
+ }
+-
+-int backtrace(const void **return_addrs, int max_depth)
+-{
+-	return backtrace_frame(__builtin_frame_address(0), return_addrs,
+-			       max_depth);
+-}
 -- 
-2.39.2
+2.43.0
 
