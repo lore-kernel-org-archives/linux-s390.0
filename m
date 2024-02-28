@@ -1,166 +1,325 @@
-Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC22F3FB82
-	for <linux-s390@vger.kernel.org>; Wed, 28 Feb 2024 17:21:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EFC43FBB2;
+	Wed, 28 Feb 2024 17:34:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709140896; cv=none; b=IfGB4qZknR1a6K5v7Kwho666EQEjx3U5XrQnuCEAFGmBpMz45T9M3v8YkaoBSjhkAsubPnEpuaLkqrWMikdA3CEVIwLKBgMHWqCxSosa+vZbYjPLnv3nsxEj3lc9tNbW47nmRlT3Beo4JhoZHv4sqX8Tu5diS2P5yMS52l7rEsE=
+	t=1709141662; cv=none; b=TpPYLQAC4KpkDL4UcJDptCAwlEhbAGyZ76QIhIA15nhOcrpfz3HdjQzOFpwm7Bfcpr63Z1LFnCF9/he+WWBknMS+J3YZNSotsU7XxfFJIyjfiIMIKXT+oBRof6hum6P9vhKeX6TkAE/a2GNDNcKvGobiuWEdQB6Gf6FU5Q4eIJU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709140896; c=relaxed/simple;
-	bh=XM399Q8VLvXuDw5uzrGwivCMbFeJ4FieetH05IdWTBs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Cso2JgkpGqeKx4FqpllS0jbN4kNU9rJyF8tr8TSHqMZ7LK6Df8DPKF3/Pg/oaMRa92lKcf9bRt9Zbd0JbAHGT3o7PbkSHpC2ofFTISt/KLsaTtvOtKEc+jLp/qPkJH5wF9E/u2fx5cPLv9zLe56pUw5M7A73OFNbu0mOGHbMn+4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=Dv0OfJNd; arc=none smtp.client-ip=209.85.210.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1709141662; c=relaxed/simple;
+	bh=V5YYglesEgydSUOlj5Mm5Hd0JlQ1hf84iiAmBQhyfe8=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=EF2jiTZO6smWJSTYJ8tHaaQLeioHokLEqeozN86aObQ4NWvuqX8v6/ouf3sMMwNtildAYLcygQkmAsGXnS5IfLxaJF2bu7WkbmPDghAdjvs6Mikd4vkR0i6BElJzTi9q7YGlmt6WViN20fSPZai04rSXA87nQ6Mh3khX0PwJdw0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sRvW4T9H; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Dv0OfJNd"
-Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-6e57ab846a1so288514b3a.3
-        for <linux-s390@vger.kernel.org>; Wed, 28 Feb 2024 09:21:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1709140894; x=1709745694; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=W1bHapS5+5iN8in9GHCNPDr+SpYos985v6N2aaB8ggk=;
-        b=Dv0OfJNd0vjGvtw41wUvZJPEkqakxszi4xsSYKDq8yiapJgAOCmPm4J8os/LY5Z1ga
-         29m8v4MdT/04TpsqzLc2k/pFWm1SreFcjydJcdYat3/P2N/j5WnV3oW3YBnA0shtdbnU
-         Acz84GK3WQceLojwLQUrIDSze1WWHLLhNRtPw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709140894; x=1709745694;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=W1bHapS5+5iN8in9GHCNPDr+SpYos985v6N2aaB8ggk=;
-        b=sCHNtKP1hC0xmJYe6QpyEnXrz1P/zVBG6z6/FWADG8TDIUGnXOqGhJZX3xYamtkH1t
-         lNEsRL+F+jBOLpVwdRHcd6qchOS/mRNM3h/HVp4dDKgsI4lPK+mWPI7amluZ7AYUwkc4
-         PAFQNOFIUiKyPR+uPgLaF98NRdlu32HS+vcXkhEBvm5wEBfw/pIA7sHPWgTZ8odMmI0C
-         AN8NQHy34cEDQekNGSM5qW0vX3DzqtAe+eSaiXtSIRGdgCfdJzHA/e56libtRN8KDQQ3
-         2tJRSjWmAFOWfdo1dXh+2A7FI2CUMYc2UlLv/I93/PR197U1eTocaToVtqIf1GSO4teS
-         UVaQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVBvYQjNlxdD2fND2W0NnL51vcvm7SKE8ZyoBPj7u58yQev2rp9FMetz/r5d1C79fL/k2xUJWIUexcwA4G620bTWcEL8epRzYSbng==
-X-Gm-Message-State: AOJu0YwYRRVQ0RZmP9WpmJtyvPXp+4O9jx1jwWM1mG9laCMp5skUWaAP
-	sKZEI08U6OFWTGb8UoqrCU/6oQSJxSXMzE6VgnMiOb1xGz/ux0XdNfu39LkeTw==
-X-Google-Smtp-Source: AGHT+IFxqvM5hQDYAzOob05oGJvol0U6qboX77jQeHs6sC34fTUoZvoLbeslLh+rshINZpV8envxoA==
-X-Received: by 2002:aa7:8650:0:b0:6e5:84f6:2a9e with SMTP id a16-20020aa78650000000b006e584f62a9emr91910pfo.31.1709140894116;
-        Wed, 28 Feb 2024 09:21:34 -0800 (PST)
-Received: from www.outflux.net ([198.0.35.241])
-        by smtp.gmail.com with ESMTPSA id it1-20020a056a00458100b006e583a649b4sm90257pfb.210.2024.02.28.09.21.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Feb 2024 09:21:33 -0800 (PST)
-Date: Wed, 28 Feb 2024 09:21:33 -0800
-From: Kees Cook <keescook@chromium.org>
-To: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>,
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-	"linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
-	"luto@kernel.org" <luto@kernel.org>,
-	"dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
-	"debug@rivosinc.com" <debug@rivosinc.com>,
-	"akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-	"Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>,
-	"mingo@redhat.com" <mingo@redhat.com>,
-	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"tglx@linutronix.de" <tglx@linutronix.de>,
-	"linux-mm@kvack.org" <linux-mm@kvack.org>,
-	"kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>,
-	"linux-snps-arc@lists.infradead.org" <linux-snps-arc@lists.infradead.org>,
-	"linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
-	"hpa@zytor.com" <hpa@zytor.com>,
-	"peterz@infradead.org" <peterz@infradead.org>,
-	"sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-	"bp@alien8.de" <bp@alien8.de>,
-	"linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
-	"linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"broonie@kernel.org" <broonie@kernel.org>,
-	"x86@kernel.org" <x86@kernel.org>
-Subject: Re: [PATCH v2 5/9] mm: Initialize struct vm_unmapped_area_info
-Message-ID: <202402280912.33AEE7A9CF@keescook>
-References: <20240226190951.3240433-1-rick.p.edgecombe@intel.com>
- <20240226190951.3240433-6-rick.p.edgecombe@intel.com>
- <94a2b919-e03b-4ade-b13e-7774849dc02b@csgroup.eu>
- <202402271004.7145FDB53F@keescook>
- <8265f804-4540-4858-adc3-a09c11a677eb@csgroup.eu>
- <91384b505cb78b9d9b71ad58e037c1ed8dfb10d1.camel@intel.com>
- <def71a27-2d5f-40da-867e-979648afc4cf@csgroup.eu>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sRvW4T9H"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41SHRJAv007887;
+	Wed, 28 Feb 2024 17:34:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=5UEo5g8p7zZAhpUVRF+F3cMVGvp5KewyDxvM9D11adI=;
+ b=sRvW4T9HMwfszCv7cmirR6GqMaxT14Sjx55SqMGkAszmho4aFGR6n1b1TMIK6NYMFefu
+ Ug8eUt8Z1PNoibJ9psc2KOAgGfLm3cQpm/uB7FOCPGq0WuUXneSs53OU2uIi4SMAX9df
+ 640O5FZmDmUgVuqBoPBwuIUTrEcBQZL1jhY9Ydpw8+CUETj7lpt944x1HZyoFn7bID9n
+ 7fhev/gQnTYEVtCjTTecY66xq9zanU+BWT4cVk2UKCAaTiKbdwXNYrXdKDbQsjxrtOpj
+ 2JFnf2bLIuT8eLih+32zlsv3C5rM9LoxupZJDh8UMB7efurHUJxEKGjH2Pn0BgDcPhix xA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wj9870awk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 28 Feb 2024 17:34:09 +0000
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41SHRMQq008005;
+	Wed, 28 Feb 2024 17:34:08 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wj9870avy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 28 Feb 2024 17:34:08 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41SHAhjk021291;
+	Wed, 28 Feb 2024 17:34:07 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wfusp7tqe-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 28 Feb 2024 17:34:07 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41SHY1i61704620
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 28 Feb 2024 17:34:03 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 750F820040;
+	Wed, 28 Feb 2024 17:34:01 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 917D42004E;
+	Wed, 28 Feb 2024 17:34:00 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.171.7.158])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Wed, 28 Feb 2024 17:34:00 +0000 (GMT)
+Date: Wed, 28 Feb 2024 18:33:58 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Andrew Jones <andrew.jones@linux.dev>
+Cc: kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, pbonzini@redhat.com,
+        thuth@redhat.com, kvmarm@lists.linux.dev,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        lvivier@redhat.com, npiggin@gmail.com, frankja@linux.ibm.com,
+        nrb@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH 03/13] treewide: lib/stack: Fix backtrace
+Message-ID: <20240228183358.5a72ce73@p-imbrenda>
+In-Reply-To: <20240228150416.248948-18-andrew.jones@linux.dev>
+References: <20240228150416.248948-15-andrew.jones@linux.dev>
+	<20240228150416.248948-18-andrew.jones@linux.dev>
+Organization: IBM
+X-Mailer: Claws Mail 4.2.0 (GTK 3.24.41; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <def71a27-2d5f-40da-867e-979648afc4cf@csgroup.eu>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: hLxiySRN2EcEgCzLsB6hSJivtfqmXw7j
+X-Proofpoint-GUID: VqnqFTru1FaCUB_11HvinyVG-RZd9EZ5
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-28_08,2024-02-27_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 bulkscore=0
+ mlxscore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
+ phishscore=0 mlxlogscore=999 impostorscore=0 clxscore=1011 spamscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402280138
 
-On Wed, Feb 28, 2024 at 01:22:09PM +0000, Christophe Leroy wrote:
-> [...]
-> My worry with initialisation at declaration is it often hides missing 
-> assignments. Let's take following simple exemple:
+On Wed, 28 Feb 2024 16:04:19 +0100
+Andrew Jones <andrew.jones@linux.dev> wrote:
+
+> We should never pass the result of __builtin_frame_address(0) to
+> another function since the compiler is within its rights to pop the
+> frame to which it points before making the function call, as may be
+> done for tail calls. Nobody has complained about backtrace(), so
+> likely all compilations have been inlining backtrace_frame(), not
+> dropping the frame on the tail call, or nobody is looking at traces.
+> However, for riscv, when built for EFI, it does drop the frame on the
+> tail call, and it was noticed. Preemptively fix backtrace() for all
+> architectures.
 > 
-> char *colour(int num)
-> {
-> 	char *name;
+> Fixes: 52266791750d ("lib: backtrace printing")
+> Signed-off-by: Andrew Jones <andrew.jones@linux.dev>
+
+Acked-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
+> ---
+>  lib/arm/stack.c   | 13 +++++--------
+>  lib/arm64/stack.c | 12 +++++-------
+>  lib/riscv/stack.c | 12 +++++-------
+>  lib/s390x/stack.c | 12 +++++-------
+>  lib/stack.h       | 24 +++++++++++++++++-------
+>  lib/x86/stack.c   | 12 +++++-------
+>  6 files changed, 42 insertions(+), 43 deletions(-)
 > 
-> 	if (num == 0) {
-> 		name = "black";
-> 	} else if (num == 1) {
-> 		name = "white";
-> 	} else if (num == 2) {
-> 	} else {
-> 		name = "no colour";
-> 	}
-> 
-> 	return name;
-> }
-> 
-> Here, GCC warns about a missing initialisation of variable 'name'.
+> diff --git a/lib/arm/stack.c b/lib/arm/stack.c
+> index 7d081be7c6d0..66d18b47ea53 100644
+> --- a/lib/arm/stack.c
+> +++ b/lib/arm/stack.c
+> @@ -8,13 +8,16 @@
+>  #include <libcflat.h>
+>  #include <stack.h>
+>  
+> -int backtrace_frame(const void *frame, const void **return_addrs,
+> -		    int max_depth)
+> +int arch_backtrace_frame(const void *frame, const void **return_addrs,
+> +			 int max_depth, bool current_frame)
+>  {
+>  	static int walking;
+>  	int depth;
+>  	const unsigned long *fp = (unsigned long *)frame;
+>  
+> +	if (current_frame)
+> +		fp = __builtin_frame_address(0);
+> +
+>  	if (walking) {
+>  		printf("RECURSIVE STACK WALK!!!\n");
+>  		return 0;
+> @@ -33,9 +36,3 @@ int backtrace_frame(const void *frame, const void **return_addrs,
+>  	walking = 0;
+>  	return depth;
+>  }
+> -
+> -int backtrace(const void **return_addrs, int max_depth)
+> -{
+> -	return backtrace_frame(__builtin_frame_address(0),
+> -			       return_addrs, max_depth);
+> -}
+> diff --git a/lib/arm64/stack.c b/lib/arm64/stack.c
+> index 82611f4b1815..f5eb57fd8892 100644
+> --- a/lib/arm64/stack.c
+> +++ b/lib/arm64/stack.c
+> @@ -8,7 +8,8 @@
+>  
+>  extern char vector_stub_start, vector_stub_end;
+>  
+> -int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+> +int arch_backtrace_frame(const void *frame, const void **return_addrs,
+> +			 int max_depth, bool current_frame)
+>  {
+>  	const void *fp = frame;
+>  	static bool walking;
+> @@ -17,6 +18,9 @@ int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+>  	bool is_exception = false;
+>  	unsigned long addr;
+>  
+> +	if (current_frame)
+> +		fp = __builtin_frame_address(0);
+> +
+>  	if (walking) {
+>  		printf("RECURSIVE STACK WALK!!!\n");
+>  		return 0;
+> @@ -54,9 +58,3 @@ int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+>  	walking = false;
+>  	return depth;
+>  }
+> -
+> -int backtrace(const void **return_addrs, int max_depth)
+> -{
+> -	return backtrace_frame(__builtin_frame_address(0),
+> -			       return_addrs, max_depth);
+> -}
+> diff --git a/lib/riscv/stack.c b/lib/riscv/stack.c
+> index 712a5478d547..d865594b9671 100644
+> --- a/lib/riscv/stack.c
+> +++ b/lib/riscv/stack.c
+> @@ -2,12 +2,16 @@
+>  #include <libcflat.h>
+>  #include <stack.h>
+>  
+> -int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+> +int arch_backtrace_frame(const void *frame, const void **return_addrs,
+> +			 int max_depth, bool current_frame)
+>  {
+>  	static bool walking;
+>  	const unsigned long *fp = (unsigned long *)frame;
+>  	int depth;
+>  
+> +	if (current_frame)
+> +		fp = __builtin_frame_address(0);
+> +
+>  	if (walking) {
+>  		printf("RECURSIVE STACK WALK!!!\n");
+>  		return 0;
+> @@ -24,9 +28,3 @@ int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+>  	walking = false;
+>  	return depth;
+>  }
+> -
+> -int backtrace(const void **return_addrs, int max_depth)
+> -{
+> -	return backtrace_frame(__builtin_frame_address(0),
+> -			       return_addrs, max_depth);
+> -}
+> diff --git a/lib/s390x/stack.c b/lib/s390x/stack.c
+> index 9f234a12adf6..d194f654e94d 100644
+> --- a/lib/s390x/stack.c
+> +++ b/lib/s390x/stack.c
+> @@ -14,11 +14,15 @@
+>  #include <stack.h>
+>  #include <asm/arch_def.h>
+>  
+> -int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+> +int arch_backtrace_frame(const void *frame, const void **return_addrs,
+> +			 int max_depth, bool current_frame)
+>  {
+>  	int depth = 0;
+>  	struct stack_frame *stack = (struct stack_frame *)frame;
+>  
+> +	if (current_frame)
+> +		stack = __builtin_frame_address(0);
+> +
+>  	for (depth = 0; stack && depth < max_depth; depth++) {
+>  		return_addrs[depth] = (void *)stack->grs[8];
+>  		stack = stack->back_chain;
+> @@ -28,9 +32,3 @@ int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+>  
+>  	return depth;
+>  }
+> -
+> -int backtrace(const void **return_addrs, int max_depth)
+> -{
+> -	return backtrace_frame(__builtin_frame_address(0),
+> -			       return_addrs, max_depth);
+> -}
+> diff --git a/lib/stack.h b/lib/stack.h
+> index 10fc2f793354..6edc84344b51 100644
+> --- a/lib/stack.h
+> +++ b/lib/stack.h
+> @@ -11,17 +11,27 @@
+>  #include <asm/stack.h>
+>  
+>  #ifdef HAVE_ARCH_BACKTRACE_FRAME
+> -extern int backtrace_frame(const void *frame, const void **return_addrs,
+> -			   int max_depth);
+> +extern int arch_backtrace_frame(const void *frame, const void **return_addrs,
+> +				int max_depth, bool current_frame);
+> +
+> +static inline int backtrace_frame(const void *frame, const void **return_addrs,
+> +				  int max_depth)
+> +{
+> +	return arch_backtrace_frame(frame, return_addrs, max_depth, false);
+> +}
+> +
+> +static inline int backtrace(const void **return_addrs, int max_depth)
+> +{
+> +	return arch_backtrace_frame(NULL, return_addrs, max_depth, true);
+> +}
+>  #else
+> -static inline int
+> -backtrace_frame(const void *frame __unused, const void **return_addrs __unused,
+> -		int max_depth __unused)
+> +extern int backtrace(const void **return_addrs, int max_depth);
+> +
+> +static inline int backtrace_frame(const void *frame, const void **return_addrs,
+> +				  int max_depth)
+>  {
+>  	return 0;
+>  }
+>  #endif
+>  
+> -extern int backtrace(const void **return_addrs, int max_depth);
+> -
+>  #endif
+> diff --git a/lib/x86/stack.c b/lib/x86/stack.c
+> index 5ecd97ce90b9..58ab6c4b293a 100644
+> --- a/lib/x86/stack.c
+> +++ b/lib/x86/stack.c
+> @@ -1,12 +1,16 @@
+>  #include <libcflat.h>
+>  #include <stack.h>
+>  
+> -int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+> +int arch_backtrace_frame(const void *frame, const void **return_addrs,
+> +			 int max_depth, bool current_frame)
+>  {
+>  	static int walking;
+>  	int depth = 0;
+>  	const unsigned long *bp = (unsigned long *) frame;
+>  
+> +	if (current_frame)
+> +		bp = __builtin_frame_address(0);
+> +
+>  	if (walking) {
+>  		printf("RECURSIVE STACK WALK!!!\n");
+>  		return 0;
+> @@ -23,9 +27,3 @@ int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+>  	walking = 0;
+>  	return depth;
+>  }
+> -
+> -int backtrace(const void **return_addrs, int max_depth)
+> -{
+> -	return backtrace_frame(__builtin_frame_address(0), return_addrs,
+> -			       max_depth);
+> -}
 
-Sometimes. :( We build with -Wno-maybe-uninitialized because GCC gets
-this wrong too often. Also, like with large structs like this, all
-uninit warnings get suppressed if anything takes it by reference. So, if
-before your "return name" statement above, you had something like:
-
-	do_something(&name);
-
-it won't warn with any option enabled.
-
-> But if I declare it as
-> 
-> 	char *name = "no colour";
-> 
-> Then GCC won't warn anymore that we are missing a value for when num is 2.
-> 
-> During my life I have so many times spent huge amount of time 
-> investigating issues and bugs due to missing assignments that were going 
-> undetected due to default initialisation at declaration.
-
-I totally understand. If the "uninitialized" warnings were actually
-reliable, I would agree. I look at it this way:
-
-- initializations can be missed either in static initializers or via
-  run time initializers. (So the risk of mistake here is matched --
-  though I'd argue it's easier to *find* static initializers when adding
-  new struct members.)
-- uninitialized warnings are inconsistent (this becomes an unknown risk)
-- when a run time initializer is missed, the contents are whatever was
-  on the stack (high risk)
-- what a static initializer is missed, the content is 0 (low risk)
-
-I think unambiguous state (always 0) is significantly more important for
-the safety of the system as a whole. Yes, individual cases maybe bad
-("what uid should this be? root?!") but from a general memory safety
-perspective the value doesn't become potentially influenced by order of
-operations, leftover stack memory, etc.
-
-I'd agree, lifting everything into a static initializer does seem
-cleanest of all the choices.
-
--Kees
-
--- 
-Kees Cook
