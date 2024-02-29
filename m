@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2F911504CB;
-	Thu, 29 Feb 2024 20:37:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E3DE14EA2F;
+	Thu, 29 Feb 2024 20:39:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709239072; cv=none; b=Y5LHFc5LaOn3QYMUGcbflx2UHBZ2Is07VcvY3kxS1D0R/BU8DMnXQeoG4KbktqXuZclo4uZUFP7KshWK7Ud73dMFR6uDiavI9GDxY9qk8aGQEI/6R2Lxv6phyJGhJCpZrmdAirLiBJI6bLf6S+ptNUIzAlX+UoGFWctZd/oy2tE=
+	t=1709239194; cv=none; b=i5Kt33weVYlz+eXgaA/rXMYrGbXdLi4xy9D1HL/j2YWrVFwDPOuXLOsLcDL93UGQnNDwC9rEhLTLijhzgMJpg8CL7HqL549V0k5arLRAhqis11QrgYvhGrB6IfMgR1bmPK3+rNZyPS3efJwt31HA+KccgKTtNUs+z84HTjDUTBQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709239072; c=relaxed/simple;
-	bh=I+EymkwU1C2leoNdI8aU2Kcpdiz2ujgLAG0SkJyGVXU=;
+	s=arc-20240116; t=1709239194; c=relaxed/simple;
+	bh=74kBJTUxv1Q4HgbcKWpYMeYUi0KuiFLvBp1n22KuFJM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DngLvbI2fN5QJ8RACyhRQDU0/9FLJA2O0A6agzNW+4iELFOdGhTP6BLxOgZmV6J5nSNmGiujakf64KU5QY1iLZXpT9k/BsdnozmDRwOnnIgk/MoVZJzi5roCSI9pwrmEHXFWkJsHES2dO82uUOL0s6qBDMfpcbb/hdWMt2g5M3s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dN/zEQVY; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=ucAaYf6nxf6FzjVLuztZF1snsWiB42Sdn5im9Z4FvsD7iJxh/uOgAToS4aian9fbrte8jCIYUCx/c3tRFa/H92Yq4rta+YuPTc69f5lqPMykwcUiuaE3lg8LWjVYoSjQcAa11EODQ+/GpchclV4G5d/lTGIXPPTjEyPFVIY3LhQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KLJHsXEf; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dN/zEQVY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA491C43609;
-	Thu, 29 Feb 2024 20:37:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KLJHsXEf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBC79C43601;
+	Thu, 29 Feb 2024 20:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1709239070;
-	bh=I+EymkwU1C2leoNdI8aU2Kcpdiz2ujgLAG0SkJyGVXU=;
+	s=k20201202; t=1709239194;
+	bh=74kBJTUxv1Q4HgbcKWpYMeYUi0KuiFLvBp1n22KuFJM=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=dN/zEQVYbOZPa6oGopcYWjqaSLFBiMY6VUVJnZwa8iPj7QFrKeC6GyFm3vIl+A4XV
-	 owQW+31Qj98Ap3avHxowuXHZQtug3y1lEO0kPpggT4lGQRRFyMRD7jkovU3Rikzhgz
-	 S2x57O8Qd84ngQPglUhhxfRnfr7v/Sytut8gH3lrteD6z3RNWwM6YocQjapsFcPKEd
-	 mEaIz8GsoyE0obClTZXG19nQYWdfqSV4eoTWcDjNFuFh2rsnfwQ3jyA2MeU4gYW95i
-	 buMAJ5aPedFHEXHCSmUtkGnqKBnF+1fjISIGRJwWdtZwyyKTXIUHIKvGMBA0KFRA9G
-	 bhtgHJzWpRJEw==
+	b=KLJHsXEfpHwQp+dPRbHUulzog5Uel1dSQoZugbvjlkg96beYw4DBT/1V221WsKj4I
+	 2RCvvMICH4dWFaN/9kpxKJKRiutE8HRb8nfOJODwDYqnvALqCqZHJM9xYLwR114Etv
+	 YPQMB/C2ufFObuL4iMTEjM06q7PQXlJ2WYXDZ5epVPcFELohrnuvdyUct/McPCsFS8
+	 UbfGVmLOdNGy3DS8hM8caa19pgPELhq2Lpt/vQ8iiiICh+Fxfzbh6bASoyYi9HKskq
+	 cEaESM2G4ZSJdL5L3AHTklEz8pXZajlcnHEMSvJj0IctckoAYs0iTsMlcvGF2HK7n2
+	 9Y5QvMqkXqSIw==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -39,12 +39,12 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
 	pabeni@redhat.com,
 	linux-s390@vger.kernel.org,
 	netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.7 10/24] net/iucv: fix the allocation size of iucv_path_table array
-Date: Thu, 29 Feb 2024 15:36:50 -0500
-Message-ID: <20240229203729.2860356-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.6 09/22] net/iucv: fix the allocation size of iucv_path_table array
+Date: Thu, 29 Feb 2024 15:39:02 -0500
+Message-ID: <20240229203933.2861006-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240229203729.2860356-1-sashal@kernel.org>
-References: <20240229203729.2860356-1-sashal@kernel.org>
+In-Reply-To: <20240229203933.2861006-1-sashal@kernel.org>
+References: <20240229203933.2861006-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -53,7 +53,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.7.6
+X-stable-base: Linux 6.6.18
 Content-Transfer-Encoding: 8bit
 
 From: Alexander Gordeev <agordeev@linux.ibm.com>
@@ -73,7 +73,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
-index 0ed6e34d6edd1..ce33adb65afb0 100644
+index fc3fddeb6f36d..f66b5f74cd83a 100644
 --- a/net/iucv/iucv.c
 +++ b/net/iucv/iucv.c
 @@ -156,7 +156,7 @@ static char iucv_error_pathid[16] = "INVALID PATHID";
