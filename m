@@ -1,95 +1,127 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DE3760BA7;
-	Thu, 29 Feb 2024 09:43:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 810A360BA7;
+	Thu, 29 Feb 2024 10:24:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709199837; cv=none; b=g318xY4zm9Bdo/u4FzOvup3pScm9r+AYNTFVK9QZsQi0XvBXXsR/xJx77i5zqJAfpqJ8I/5FE4T5DpMgw0pYzlUamGp5stul7bIx5u2dwtcbiNQY4qA9hIBxhXCQm4xr1zfBpa//Hg1pPIGBvyJu7EtJlj9Ye0CW/xMYFvVDo1o=
+	t=1709202292; cv=none; b=phWQ+yHtgnar1e7K2T7mAL2CNbieT8srYe4eYybTPl74ndI1dIc6SoKez2FTb62ZRHB8Jm/VATsTEXMFaxm5uEvkfQ61CwmqTIQGzaRzR6wxuCF0f4VL5AsYyKvn7jj094aGjM9A+V0lEUMZgZhQFa8PEJ6aayqWMK0m/W5sad0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709199837; c=relaxed/simple;
-	bh=X/vfymhnan3upoVf726nPIc8SXJCCwv4OsemoA6fj3w=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=EUVvY5pduYwXPRKBqvoEbJgnLrPHhe3EF0awVWAF2p/sLYEgoytc7obnxJV5YFqa5B2m/Z1DbHSVw/fYP8cFYrxl4z8swxr40hNT4h5J0gBOUgb0xuGTQPz68ARPhvD4wvS2aqP7D+i+yXEO0ecKdzdRwujepuP2daMq+QZWUKg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=FL8YFcIk; arc=none smtp.client-ip=115.124.30.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="FL8YFcIk"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1709199831; h=Message-ID:Subject:Date:From:To;
-	bh=X/vfymhnan3upoVf726nPIc8SXJCCwv4OsemoA6fj3w=;
-	b=FL8YFcIkjtTuVVfANDqDzhAWfgveKdjjP7sD/Xftxg0dCigr1s7Ilblipg9h4GDAXx4nPIhbjPbCpyQGHURQqQy4xMm2g39zTi1Jexp1vovkfacEkxSLcfWqSZFv332WvAsqGg2FKkeJSxvrsRWEB961pHzJbXe2j+NYS4WWB6g=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0W1Sa3HZ_1709199828;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W1Sa3HZ_1709199828)
-          by smtp.aliyun-inc.com;
-          Thu, 29 Feb 2024 17:43:49 +0800
-Message-ID: <1709199778.0187387-3-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v3 00/19] virtio: drivers maintain dma info for premapped vq
-Date: Thu, 29 Feb 2024 17:42:58 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Johannes Berg <johannes@sipsolutions.net>
-Cc: virtualization@lists.linux.dev,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Jason Wang <jasowang@redhat.com>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Hans de Goede <hdegoede@redhat.com>,
- =?utf-8?q?IlpoJ=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- linux-um@lists.infradead.org,
- netdev@vger.kernel.org,
- platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- kvm@vger.kernel.org,
- bpf@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>
-References: <20240229072044.77388-1-xuanzhuo@linux.alibaba.com>
- <20240229031755-mutt-send-email-mst@kernel.org>
- <1709197357.626784-1-xuanzhuo@linux.alibaba.com>
- <20240229043238-mutt-send-email-mst@kernel.org>
- <4825d7812ac06be3322ca4ae74e3650b2b0cd8de.camel@sipsolutions.net>
-In-Reply-To: <4825d7812ac06be3322ca4ae74e3650b2b0cd8de.camel@sipsolutions.net>
+	s=arc-20240116; t=1709202292; c=relaxed/simple;
+	bh=hjCiYmjmUqBlBGGPp3oOg+AOV4QZY5js4NzUUHbvtPI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UpSpCL716rDR/Rk4lQFDYnYVRvB7PJJ1nnv8f8b6ypIdixJUDCLMPzcZGEyZifXjr3CZ+OLQ5AmEzrjD5U/eKEDGaGSImH8KK6eJigODk9q6Mgj+CXyPzzaETiG8K6YCpoJEpcj8OI7QHc6YiekXAct4cCJXIz0agyHuG7dHjWc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74CE5C433C7;
+	Thu, 29 Feb 2024 10:24:45 +0000 (UTC)
+Date: Thu, 29 Feb 2024 10:24:42 +0000
+From: Catalin Marinas <catalin.marinas@arm.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Justin Stitt <justinstitt@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Leon Romanovsky <leon@kernel.org>,
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+	llvm@lists.linux.dev, Ingo Molnar <mingo@redhat.com>,
+	Bill Wendling <morbo@google.com>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Nick Desaulniers <ndesaulniers@google.com>, netdev@vger.kernel.org,
+	Paolo Abeni <pabeni@redhat.com>,
+	Salil Mehta <salil.mehta@huawei.com>,
+	Jijie Shao <shaojijie@huawei.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
+	Yisen Zhuang <yisen.zhuang@huawei.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Leon Romanovsky <leonro@mellanox.com>, linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Mark Rutland <mark.rutland@arm.com>,
+	Michael Guralnik <michaelgur@mellanox.com>, patches@lists.linux.dev,
+	Niklas Schnelle <schnelle@linux.ibm.com>,
+	Will Deacon <will@kernel.org>
+Subject: Re: [PATCH 4/6] arm64/io: Provide a WC friendly __iowriteXX_copy()
+Message-ID: <ZeBbamDoHIxzzfof@arm.com>
+References: <0-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
+ <4-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
+ <Zd27XtDg_NDzLXg-@arm.com>
+ <20240228230616.GS13330@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240228230616.GS13330@nvidia.com>
 
-On Thu, 29 Feb 2024 10:41:11 +0100, Johannes Berg <johannes@sipsolutions.net> wrote:
-> On Thu, 2024-02-29 at 04:34 -0500, Michael S. Tsirkin wrote:
-> >
-> > So the patchset is big, I guess it will take a couple of cycles to
-> > merge gradually.
->
-> Could also do patches 7, 8, and maybe 9 separately first (which seem
-> reasonable even on their own) and get rid of CC'ing so many people and
-> lists for future iterations of the rest of the patchset :-)
+On Wed, Feb 28, 2024 at 07:06:16PM -0400, Jason Gunthorpe wrote:
+> On Tue, Feb 27, 2024 at 10:37:18AM +0000, Catalin Marinas wrote:
+> > On Tue, Feb 20, 2024 at 09:17:08PM -0400, Jason Gunthorpe wrote:
+> > > +/*
+> > > + * This generates a memcpy that works on a from/to address which is aligned to
+> > > + * bits. Count is in terms of the number of bits sized quantities to copy. It
+> > > + * optimizes to use the STR groupings when possible so that it is WC friendly.
+> > > + */
+> > > +#define memcpy_toio_aligned(to, from, count, bits)                        \
+> > > +	({                                                                \
+> > > +		volatile u##bits __iomem *_to = to;                       \
+> > > +		const u##bits *_from = from;                              \
+> > > +		size_t _count = count;                                    \
+> > > +		const u##bits *_end_from = _from + ALIGN_DOWN(_count, 8); \
+> > > +                                                                          \
+> > > +		for (; _from < _end_from; _from += 8, _to += 8)           \
+> > > +			__const_memcpy_toio_aligned##bits(_to, _from, 8); \
+> > > +		if ((_count % 8) >= 4) {                                  \
+> > > +			__const_memcpy_toio_aligned##bits(_to, _from, 4); \
+> > > +			_from += 4;                                       \
+> > > +			_to += 4;                                         \
+> > > +		}                                                         \
+> > > +		if ((_count % 4) >= 2) {                                  \
+> > > +			__const_memcpy_toio_aligned##bits(_to, _from, 2); \
+> > > +			_from += 2;                                       \
+> > > +			_to += 2;                                         \
+> > > +		}                                                         \
+> > > +		if (_count % 2)                                           \
+> > > +			__const_memcpy_toio_aligned##bits(_to, _from, 1); \
+> > > +	})
+> > 
+> > Do we actually need all this if count is not constant? If it's not
+> > performance critical anywhere, I'd rather copy the generic
+> > implementation, it's easier to read.
+> 
+> Which generic version?
 
-I agree.
+The current __iowriteXX_copy() in lib/iomap_copy.c (copy them over or
+add some preprocessor reuse the generic functions).
 
-@Michael How about you?
+> The point is to maximize WC effects with non-constant values, so I
+> think we do need something like this. ie we can't just fall back to
+> looping over 64 bit stores one at a time.
 
-Thanks
+If that's a case you are also targeting and have seen it in practice,
+that's fine. But I had the impression that you are mostly after the
+constant count case which is already addressed by the other part of this
+patch. For the non-constant case, we have a DGH only at the end of
+whatever buffer was copied rather than after every 64-byte increments
+you'd get for a count of 8.
 
+> Most places I know about using this are performance paths, the entire
+> iocopy infrastructure was introduced as an x86 performance
+> optimization..
 
->
-> johannes
+At least the x86 case makes sense even from a maintenance perspective,
+it's just a much simpler "rep movsl". I just want to make sure we don't
+over-complicate this code on arm64 unnecessarily.
+
+-- 
+Catalin
