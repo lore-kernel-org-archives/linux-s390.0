@@ -1,57 +1,43 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out-186.mta1.migadu.com (out-186.mta1.migadu.com [95.215.58.186])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91EB57994D;
-	Thu, 29 Feb 2024 10:33:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8B877C6EF
+	for <linux-s390@vger.kernel.org>; Thu, 29 Feb 2024 11:48:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.186
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709202793; cv=none; b=pXZ5VQJHXUX1tzWWkZ8yprFfHiId8/vXHfo4x7H4znPsBCZ+EhEb2C3w3o6Ti0MMwFLjnelSc6V5t9nBvwZrKWxmyaHbaIXs2IpGxL/1iD7s3uAlX477DYu4b6PokbXnEqQLGWYUR3lxaomI6i60WIu1sKZ/BIxwZiO0EGQX9g4=
+	t=1709207301; cv=none; b=b/dhBRHguFRfErx0dRFi1ajFGSKGZEzqGJiocasKRDUkW7bfPH7e2ANS3uIkK9ELI5jTJVtJjyXXD805OolyzK9hb6vASxSbOJs1bCu2FxZcPol6+7j/R9VPKN/PRftcCY1x1ej8gnVU70F5vaXjv48dpQAJPnVNLDTvDTa2jpg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709202793; c=relaxed/simple;
-	bh=LzVIgurKSN0WZtrn243ryA0za0VzX5/llwTnhwb/8SY=;
+	s=arc-20240116; t=1709207301; c=relaxed/simple;
+	bh=gdx3CTDU1d7MVGKxQ2r2ptMLcvbYeBD5eLJJRVWcF2Y=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=abPNHZs5doU//lcM7ZncgHqyU/zaYBQZvAEoBM6Vj2JJUa8OVPDQuPdCXpUe9DM825sLTM/EdSL4qXU1nac9zk7KgT3+27s2EQuYqEJMJh3wCyLqfzYIn+YmrWWq1/xlbeQDgLF+qeU+w+2eD9Bzwrsymf5ysan9RkAgwViFNQA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8BB0C43390;
-	Thu, 29 Feb 2024 10:33:06 +0000 (UTC)
-Date: Thu, 29 Feb 2024 10:33:04 +0000
-From: Catalin Marinas <catalin.marinas@arm.com>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Justin Stitt <justinstitt@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Leon Romanovsky <leon@kernel.org>,
-	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-	llvm@lists.linux.dev, Ingo Molnar <mingo@redhat.com>,
-	Bill Wendling <morbo@google.com>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nick Desaulniers <ndesaulniers@google.com>, netdev@vger.kernel.org,
-	Paolo Abeni <pabeni@redhat.com>,
-	Salil Mehta <salil.mehta@huawei.com>,
-	Jijie Shao <shaojijie@huawei.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
-	Yisen Zhuang <yisen.zhuang@huawei.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Leon Romanovsky <leonro@mellanox.com>, linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Mark Rutland <mark.rutland@arm.com>,
-	Michael Guralnik <michaelgur@mellanox.com>, patches@lists.linux.dev,
-	Niklas Schnelle <schnelle@linux.ibm.com>,
-	Will Deacon <will@kernel.org>
-Subject: Re: [PATCH 4/6] arm64/io: Provide a WC friendly __iowriteXX_copy()
-Message-ID: <ZeBdYCa5Kxqas4O8@arm.com>
-References: <0-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
- <4-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
+	 Content-Type:Content-Disposition:In-Reply-To; b=oC3e8UZl9Ch7jqEKqh55ghJjmuE2VUuSGjZsJgA58XJM+8bcuJwZnqz6amUG5HCNsITdugYJL+2Grlo1CHhi0c9WJbZtYv8NvSiLTbP7W/lh3Vf09zVepkIzpsksj+fySfUfMaS9uztyMDKQ2CVp3TDPAxuFqjRL0T5AW0P9J5g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=iuZEuTxf; arc=none smtp.client-ip=95.215.58.186
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="iuZEuTxf"
+Date: Thu, 29 Feb 2024 12:48:11 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1709207294;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3fynTQbCj+0+8gxWXP+vb+6EeWzkaGPfZJFyS35W4s4=;
+	b=iuZEuTxfseoZp4UQoXwPwaJ0a3iWv9B5ZmYjolE1PWpkuPgM0k2tb4r+KsGxNXibCaqSMX
+	28xc8TdmgZEjmtE7rA6HjPrfkc5ixF9DXIXKhREpQkx1Bsj671uDxFM1mVEkY7E3EFscsy
+	mT5j0z0J3eZ3dlXLE5t1Tns+yX/3RBw=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Andrew Jones <andrew.jones@linux.dev>
+To: Nicholas Piggin <npiggin@gmail.com>
+Cc: kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, 
+	pbonzini@redhat.com, thuth@redhat.com, kvmarm@lists.linux.dev, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, lvivier@redhat.com, 
+	frankja@linux.ibm.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH 03/13] treewide: lib/stack: Fix backtrace
+Message-ID: <20240229-b470bcfe6538d0fea44ab3e3@orel>
+References: <20240228150416.248948-15-andrew.jones@linux.dev>
+ <20240228150416.248948-18-andrew.jones@linux.dev>
+ <CZH8V1T0Z3QN.1ZVFAXR4B96BZ@wheely>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -60,36 +46,74 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
+In-Reply-To: <CZH8V1T0Z3QN.1ZVFAXR4B96BZ@wheely>
+X-Migadu-Flow: FLOW_OUT
 
-On Tue, Feb 20, 2024 at 09:17:08PM -0400, Jason Gunthorpe wrote:
-> +						 const u32 *from, size_t count)
-> +{
-> +	switch (count) {
-> +	case 8:
-> +		asm volatile("str %w0, [%8, #4 * 0]\n"
-> +			     "str %w1, [%8, #4 * 1]\n"
-> +			     "str %w2, [%8, #4 * 2]\n"
-> +			     "str %w3, [%8, #4 * 3]\n"
-> +			     "str %w4, [%8, #4 * 4]\n"
-> +			     "str %w5, [%8, #4 * 5]\n"
-> +			     "str %w6, [%8, #4 * 6]\n"
-> +			     "str %w7, [%8, #4 * 7]\n"
-> +			     :
-> +			     : "rZ"(from[0]), "rZ"(from[1]), "rZ"(from[2]),
-> +			       "rZ"(from[3]), "rZ"(from[4]), "rZ"(from[5]),
-> +			       "rZ"(from[6]), "rZ"(from[7]), "r"(to));
-> +		break;
+On Thu, Feb 29, 2024 at 01:31:52PM +1000, Nicholas Piggin wrote:
+> On Thu Feb 29, 2024 at 1:04 AM AEST, Andrew Jones wrote:
+...
+> > diff --git a/lib/stack.h b/lib/stack.h
+> > index 10fc2f793354..6edc84344b51 100644
+> > --- a/lib/stack.h
+> > +++ b/lib/stack.h
+> > @@ -11,17 +11,27 @@
+> >  #include <asm/stack.h>
+> >  
+> >  #ifdef HAVE_ARCH_BACKTRACE_FRAME
+> > -extern int backtrace_frame(const void *frame, const void **return_addrs,
+> > -			   int max_depth);
+> > +extern int arch_backtrace_frame(const void *frame, const void **return_addrs,
+> > +				int max_depth, bool current_frame);
+> > +
+> > +static inline int backtrace_frame(const void *frame, const void **return_addrs,
+> > +				  int max_depth)
+> > +{
+> > +	return arch_backtrace_frame(frame, return_addrs, max_depth, false);
+> > +}
+> > +
+> > +static inline int backtrace(const void **return_addrs, int max_depth)
+> > +{
+> > +	return arch_backtrace_frame(NULL, return_addrs, max_depth, true);
+> > +}
+> >  #else
+> > -static inline int
+> > -backtrace_frame(const void *frame __unused, const void **return_addrs __unused,
+> > -		int max_depth __unused)
+> > +extern int backtrace(const void **return_addrs, int max_depth);
+> > +
+> > +static inline int backtrace_frame(const void *frame, const void **return_addrs,
+> > +				  int max_depth)
+> >  {
+> >  	return 0;
+> >  }
+> >  #endif
+> >  
+> > -extern int backtrace(const void **return_addrs, int max_depth);
+> > -
+> >  #endif
+> 
+> Is there a reason to add the inline wrappers rather than just externs
+> and drop the arch_ prefix?
 
-BTW, talking of maintenance, would a series of __raw_writel() with
-Mark's recent patch for offset addressing generate similar code? I.e.:
+Only reason is to avoid duplicating the functions in each arch, but
+since they're oneliners which won't likely change, then we could
+duplicate them instead, if preferred, but I'm not sure what the
+benefit of that over the static inlines would be.
 
-		__raw_writel(from[0], to);
-		__raw_writel(from[1], to + 1);
-		...
-		__raw_writel(from[7], to + 7);
+> 
+> Do we want to just generally have all arch specific functions have an
+> arch_ prefix? Fine by me.
 
-(you may have mentioned it in previous threads, I did not check)
+We've been slowly doing that over in 'KVM selftests', which has improved
+readability, so slowly adopting it here too in kvm-unit-tests would be
+nice.
 
--- 
-Catalin
+> 
+> Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+> 
+> I'm fine to rebase the powerpc patch on top of this if it goes in first.
+> Thanks for the heads up.
+> 
+
+Thanks,
+drew
