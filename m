@@ -1,46 +1,57 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 472013A1B8;
-	Fri,  1 Mar 2024 18:41:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFAB38C1B;
+	Fri,  1 Mar 2024 18:52:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709318461; cv=none; b=K8mz0Oi3O1J86hdtT0evJ6kq8Yda+UMJkAs/ZUg4jrnnjk2hqc1e0RX6RkQCHElLCNuy2rzAT7h/ydz0/ZzNBkSlsnNR4mqmcSNmoSLaEjwyoDfQIv+uEd0w3hlk3D25EZ+Yr8Uq+512w0kLB7Mxv6T7a2gkBLgwiHSUXA/Pqps=
+	t=1709319162; cv=none; b=cheF4U6b+hRQQ2NiIR09czDVxD3LrZYDzQyVF9O4/T+xrKNHbZsEpKHAdFMhJv4x8pQ6sQSCXyKqIMbNmo6dTQ2v7cFAxOnRr3xdhMY6Ij8UAbmY8EnEsjaaGNCj6kdY/ZXUASELI4dEHRs0yDnVkvV9BTgAQ09i5viSrqNuv/M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709318461; c=relaxed/simple;
-	bh=Ikr2dasxWHE+lNItweXLpqVfoJa5a0SH5QW2mOtObok=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=jh9XS/DYOMrEhFsbR5flfTktrim36iJJbDuQDrn7K1WlFJ7lzf5xjVt/YbNufEf1nATc4RBMlMXBMl+RmMVm1hy/NQoMpoopriqG8tyNW3LxjaxgrqzRX6Or7YQdPe7yfJzgEi30HXvX7Yz9TPJD47+4X26EqFELaF7/k956WKo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=r2Q7QuqW; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="r2Q7QuqW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4AF6C433C7;
-	Fri,  1 Mar 2024 18:40:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1709318460;
-	bh=Ikr2dasxWHE+lNItweXLpqVfoJa5a0SH5QW2mOtObok=;
-	h=Date:From:To:Cc:Subject:From;
-	b=r2Q7QuqWR02YX4BwJB96aQVS8C1pgLZiSKZF52iPU96KkxawAS/eKf60dMe8iqlpp
-	 lP9HwlYIXAV7fWehnNcLTi9cfxjGuCNxXRtBQg7Sj00O74QryCsKDTyo3Cemna8cn8
-	 7VDDvZuAV5pSUH7h3AUAW9UwrxnwS5uQ98PScqKFmqDUddsW6c4BE77RE1a01qlUO9
-	 dh801ZgPnZFzcZqmn+GTGogZvPty6zapDZ2h9FtkLPKyWreeZBVdiN73HQSxxEwprO
-	 nUz6817YY4RHzPLDdoDn5JLxVzOp7JePcQ/c95z1MhJrmpY5/2s8YclcCD4iPJ3kTu
-	 HTHaFQbnIGYhA==
-Date: Fri, 1 Mar 2024 12:40:57 -0600
-From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-To: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
+	s=arc-20240116; t=1709319162; c=relaxed/simple;
+	bh=44S/7fMa4t3C3sreMd4jk5F0uk+BmeF1MV2xSiGfrrA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=QjwjDv1rQGT/oFdo6ZeSv9Aua86UiMp76PljyAdWAEo41kSiEKd+3HrOMOoI3hwxoXnqVPHdpQ4KUcM4xkx6uzHh9mb+zOnNpGyCTfv8NgEE7fVYurG9FQ/4B1bb91VnKlVgzNeNaaK9HwTs0Ox43iWqrzGP339drIvLebFhPkA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04C1AC433F1;
+	Fri,  1 Mar 2024 18:52:34 +0000 (UTC)
+Date: Fri, 1 Mar 2024 18:52:32 +0000
+From: Catalin Marinas <catalin.marinas@arm.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
-	linux-hardening@vger.kernel.org, Kees Cook <keescook@chromium.org>
-Subject: [PATCH][next] net/smc: Avoid -Wflex-array-member-not-at-end warnings
-Message-ID: <ZeIhOT44ON5rjPiP@neat>
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Justin Stitt <justinstitt@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Leon Romanovsky <leon@kernel.org>,
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+	llvm@lists.linux.dev, Ingo Molnar <mingo@redhat.com>,
+	Bill Wendling <morbo@google.com>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Nick Desaulniers <ndesaulniers@google.com>, netdev@vger.kernel.org,
+	Paolo Abeni <pabeni@redhat.com>,
+	Salil Mehta <salil.mehta@huawei.com>,
+	Jijie Shao <shaojijie@huawei.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
+	Yisen Zhuang <yisen.zhuang@huawei.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Leon Romanovsky <leonro@mellanox.com>, linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Mark Rutland <mark.rutland@arm.com>,
+	Michael Guralnik <michaelgur@mellanox.com>, patches@lists.linux.dev,
+	Niklas Schnelle <schnelle@linux.ibm.com>,
+	Will Deacon <will@kernel.org>
+Subject: Re: [PATCH 4/6] arm64/io: Provide a WC friendly __iowriteXX_copy()
+Message-ID: <ZeIj8HtdbKS3eqG6@arm.com>
+References: <0-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
+ <4-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,131 +60,54 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <4-v1-38290193eace+5-mlx5_arm_wc_jgg@nvidia.com>
 
--Wflex-array-member-not-at-end is coming in GCC-14, and we are getting
-ready to enable it globally.
+On Tue, Feb 20, 2024 at 09:17:08PM -0400, Jason Gunthorpe wrote:
+> The kernel provides driver support for using write combining IO memory
+> through the __iowriteXX_copy() API which is commonly used as an optional
+> optimization to generate 16/32/64 byte MemWr TLPs in a PCIe environment.
+> 
+> iomap_copy.c provides a generic implementation as a simple 4/8 byte at a
+> time copy loop that has worked well with past ARM64 CPUs, giving a high
+> frequency of large TLPs being successfully formed.
+> 
+> However modern ARM64 CPUs are quite sensitive to how the write combining
+> CPU HW is operated and a compiler generated loop with intermixed
+> load/store is not sufficient to frequently generate a large TLP. The CPUs
+> would like to see the entire TLP generated by consecutive store
+> instructions from registers. Compilers like gcc tend to intermix loads and
+> stores and have poor code generation, in part, due to the ARM64 situation
+> that writeq() does not codegen anything other than "[xN]". However even
+> with that resolved compilers like clang still do not have good code
+> generation.
+> 
+> This means on modern ARM64 CPUs the rate at which __iowriteXX_copy()
+> successfully generates large TLPs is very small (less than 1 in 10,000)
+> tries), to the point that the use of WC is pointless.
+> 
+> Implement __iowrite32/64_copy() specifically for ARM64 and use inline
+> assembly to build consecutive blocks of STR instructions. Provide direct
+> support for 64/32/16 large TLP generation in this manner. Optimize for
+> common constant lengths so that the compiler can directly inline the store
+> blocks.
+> 
+> This brings the frequency of large TLP generation up to a high level that
+> is comparable with older CPU generations.
+> 
+> As the __iowriteXX_copy() family of APIs is intended for use with WC
+> incorporate the DGH hint directly into the function.
+> 
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: Mark Rutland <mark.rutland@arm.com>
+> Cc: linux-arch@vger.kernel.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 
-There are currently a couple of objects in `struct smc_clc_msg_proposal_area`
-that contain a couple of flexible structures:
+Apart from the slightly more complicated code, I don't expect it to make
+things worse on any of the existing hardware.
 
-struct smc_clc_msg_proposal_area {
-	...
-	struct smc_clc_v2_extension             pclc_v2_ext;
-	...
-	struct smc_clc_smcd_v2_extension        pclc_smcd_v2_ext;
-	...
-};
+So, with the typo fix that Will mentioned:
 
-So, in order to avoid ending up with a couple of flexible-array members
-in the middle of a struct, we use the `struct_group_tagged()` helper to
-separate the flexible array from the rest of the members in the flexible
-structure:
-
-struct smc_clc_smcd_v2_extension {
-        struct_group_tagged(smc_clc_smcd_v2_extension_hdr, hdr,
-                            u8 system_eid[SMC_MAX_EID_LEN];
-                            u8 reserved[16];
-        );
-        struct smc_clc_smcd_gid_chid gidchid[];
-};
-
-With the change described above, we now declare objects of the type of
-the tagged struct without embedding flexible arrays in the middle of
-another struct:
-
-struct smc_clc_msg_proposal_area {
-        ...
-        struct smc_clc_v2_extension_hdr		pclc_v2_ext;
-        ...
-        struct smc_clc_smcd_v2_extension_hdr	pclc_smcd_v2_ext;
-        ...
-};
-
-We also use `container_of()` when we need to retrieve a pointer to the
-flexible structures.
-
-So, with these changes, fix the following warnings:
-
-In file included from net/smc/af_smc.c:42:
-net/smc/smc_clc.h:186:49: warning: structure containing a flexible array member is not at the end of another structure [-Wflex-array-member-not-at-end]
-  186 |         struct smc_clc_v2_extension             pclc_v2_ext;
-      |                                                 ^~~~~~~~~~~
-net/smc/smc_clc.h:188:49: warning: structure containing a flexible array member is not at the end of another structure [-Wflex-array-member-not-at-end]
-  188 |         struct smc_clc_smcd_v2_extension        pclc_smcd_v2_ext;
-      |                                                 ^~~~~~~~~~~~~~~~
-
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
----
- net/smc/smc_clc.c |  5 +++--
- net/smc/smc_clc.h | 24 ++++++++++++++----------
- 2 files changed, 17 insertions(+), 12 deletions(-)
-
-diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-index e55026c7529c..3094cfa1c458 100644
---- a/net/smc/smc_clc.c
-+++ b/net/smc/smc_clc.c
-@@ -853,8 +853,9 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
- 	pclc_smcd = &pclc->pclc_smcd;
- 	pclc_prfx = &pclc->pclc_prfx;
- 	ipv6_prfx = pclc->pclc_prfx_ipv6;
--	v2_ext = &pclc->pclc_v2_ext;
--	smcd_v2_ext = &pclc->pclc_smcd_v2_ext;
-+	v2_ext = container_of(&pclc->pclc_v2_ext, struct smc_clc_v2_extension, _hdr);
-+	smcd_v2_ext = container_of(&pclc->pclc_smcd_v2_ext,
-+				   struct smc_clc_smcd_v2_extension, hdr);
- 	gidchids = pclc->pclc_gidchids;
- 	trl = &pclc->pclc_trl;
- 
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index 7cc7070b9772..5b91a1947078 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -134,12 +134,14 @@ struct smc_clc_smcd_gid_chid {
- 			 */
- 
- struct smc_clc_v2_extension {
--	struct smc_clnt_opts_area_hdr hdr;
--	u8 roce[16];		/* RoCEv2 GID */
--	u8 max_conns;
--	u8 max_links;
--	__be16 feature_mask;
--	u8 reserved[12];
-+	struct_group_tagged(smc_clc_v2_extension_hdr, _hdr,
-+		struct smc_clnt_opts_area_hdr hdr;
-+		u8 roce[16];		/* RoCEv2 GID */
-+		u8 max_conns;
-+		u8 max_links;
-+		__be16 feature_mask;
-+		u8 reserved[12];
-+	);
- 	u8 user_eids[][SMC_MAX_EID_LEN];
- };
- 
-@@ -159,8 +161,10 @@ struct smc_clc_msg_smcd {	/* SMC-D GID information */
- };
- 
- struct smc_clc_smcd_v2_extension {
--	u8 system_eid[SMC_MAX_EID_LEN];
--	u8 reserved[16];
-+	struct_group_tagged(smc_clc_smcd_v2_extension_hdr, hdr,
-+		u8 system_eid[SMC_MAX_EID_LEN];
-+		u8 reserved[16];
-+	);
- 	struct smc_clc_smcd_gid_chid gidchid[];
- };
- 
-@@ -183,9 +187,9 @@ struct smc_clc_msg_proposal_area {
- 	struct smc_clc_msg_smcd			pclc_smcd;
- 	struct smc_clc_msg_proposal_prefix	pclc_prfx;
- 	struct smc_clc_ipv6_prefix	pclc_prfx_ipv6[SMC_CLC_MAX_V6_PREFIX];
--	struct smc_clc_v2_extension		pclc_v2_ext;
-+	struct smc_clc_v2_extension_hdr		pclc_v2_ext;
- 	u8			user_eids[SMC_CLC_MAX_UEID][SMC_MAX_EID_LEN];
--	struct smc_clc_smcd_v2_extension	pclc_smcd_v2_ext;
-+	struct smc_clc_smcd_v2_extension_hdr	pclc_smcd_v2_ext;
- 	struct smc_clc_smcd_gid_chid
- 				pclc_gidchids[SMCD_CLC_MAX_V2_GID_ENTRIES];
- 	struct smc_clc_msg_trail		pclc_trl;
--- 
-2.34.1
-
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
