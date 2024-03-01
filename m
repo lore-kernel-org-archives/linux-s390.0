@@ -1,65 +1,65 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9CF26E60C
-	for <linux-s390@vger.kernel.org>; Fri,  1 Mar 2024 13:49:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 845D6138C
+	for <linux-s390@vger.kernel.org>; Fri,  1 Mar 2024 14:05:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709300966; cv=none; b=GuJpPMWkb2Ml5L25s/kILiGCjtBG6KuJ5s0jy2PRpdhtls/QYwLBoNpy/qE5AKhQ5BQ6E8RgPdwFf7yHxol6vyqm/3vdfK0x5kEXa5p0To3Yu2WQ6hh6WN8vRzmuo8zOOCKjqVdbBqmZA9a538BnoxbRP4xsYic41FnnCHMmjTg=
+	t=1709301913; cv=none; b=nD8+UmeCvv1RhRxQof9c0fJmLGF1T2gw962Kb2n7chdhsZY80TlvENjWM0R81W4zkBmPM6yNciRUupiHBryZ3pHGJ0y+dlxQBGzp1SOOi4y065JwJLI/v/73sh6pfprxLXaBpzKT5IjTFYrx+JjvAh+y2P9qwDvyUbBmi5cNLtA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709300966; c=relaxed/simple;
-	bh=OsGTedaK6/mohp8uU8DEDhCaqpYJiEuZGp/c8EbZYx4=;
+	s=arc-20240116; t=1709301913; c=relaxed/simple;
+	bh=5FFji0evPJiIEMZatJK8QJ8yeL40hHU8Y/bLCYr4UQA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=l2wBw+nMdV8c1PxPBRTk8FWWKOnRQMq13SAYYE7bFHzrUl/HeeBjOVO9hTVnRDAOsezVl+1CKc/KNEwPyIn2KnLc2Czi5GTiO/2xaEbN/9MuKB/+AMyn5dcz4gVH+woelte4gMl881xtTqBV0s/bEJsy2PTLPONRoZpPCD5xINU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OYdN6+Gj; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=DlONRlc2MOHYDjtctHesQVdl7NQ6FT/H2LuPjtOWDGIi5iZlr2s4hJ2IhWIai9qCEhUqAmW5n1PYiJxEONk2NeJwu6z3o/hmKgH3UlcO4HSmytWQGlikUTVzFIAnNLgAYhHmgSPFuyGMNO/A4DjFWmklzy7djHKUmqkyB1wSj60=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=A1phmCRK; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OYdN6+Gj"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="A1phmCRK"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709300962;
+	s=mimecast20190719; t=1709301910;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=B4Q4Q4LrAxLQsEJ1nzM2u+gYauPHsp+I5fupvnZdXis=;
-	b=OYdN6+GjG9E/iyEmqmW3Z0i5buhOnw5OEI28jrgAEWiARpfwXs7YXGtAy0KP6Xl9pGxdwp
-	hE2sC1FHnPUONE+UKZaEP5B6+aEPmWC5kA0oEKRpBc3d9/jdOte8ZBRy3eA8WFJ+RlI9fl
-	hokJc9eOwWJJOJGRHXiw2kD50O98wdM=
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
- [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=YphiZellMbZ+Y5xIqDpD84y1HO6iOWPJPSjFDhAMAbk=;
+	b=A1phmCRKgpaOFOtVLAtnWjCZfIxISszfGj25ABu38hQjNBcFy+UheyfppxRr0y+I+hSWVq
+	IRt48VJiQxy1kLKS436yjqog8ECWKxoMX2qEn8kiE8oxSAkgSDuuuGEgZk9FzTZxTPSkJC
+	cr+tzC895H2qZ8YS9IuXgpFoKCYdmBU=
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
+ [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-660-qOQP0scYNs-e_ozoYsyVGQ-1; Fri, 01 Mar 2024 08:49:20 -0500
-X-MC-Unique: qOQP0scYNs-e_ozoYsyVGQ-1
-Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-787d2fab065so212890185a.3
-        for <linux-s390@vger.kernel.org>; Fri, 01 Mar 2024 05:49:20 -0800 (PST)
+ us-mta-616-j5Ly2y43OKSRgYV7rfeHNg-1; Fri, 01 Mar 2024 09:05:09 -0500
+X-MC-Unique: j5Ly2y43OKSRgYV7rfeHNg-1
+Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-787d0971cf2so210573785a.1
+        for <linux-s390@vger.kernel.org>; Fri, 01 Mar 2024 06:05:09 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709300960; x=1709905760;
+        d=1e100.net; s=20230601; t=1709301908; x=1709906708;
         h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
          :to:content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=B4Q4Q4LrAxLQsEJ1nzM2u+gYauPHsp+I5fupvnZdXis=;
-        b=YTnsFd0pQx7UPqSsDoPxFXLePTT/rlVUXLRk0r6GBZSWBtzOrWot4f491fTJsJfeVV
-         c/9cxQ0Gmacnbi3R4qqggrOZU8vy8BRFIKryQvw1V9zKqXq68/ppj5WOIYe97uR6jQdH
-         5+/GSYLYka1LmDibWEVVt7ua5SxeManOoGHyf6/WN1RkfHNgpGWIqeOsMNunc3a7FDL5
-         GwrCCPnFyatoMaYBBZcUH47MNxZRO76IIYOAXUvtw3m7ftoOBKrlRnlFTk4H95Q6R7RW
-         +vAtavbZHqx+noihKUdvkrutLhFA+tEU5jmx0UENV/ZaUzw6TGwSwKhHt+m12+hJtDKF
-         uVbg==
-X-Forwarded-Encrypted: i=1; AJvYcCVvnaS/VABDe6xApXm36WgeaIzEzFFSgzs4h9MQpJViVFcr28qbv/TaFPVosyHdqZCqpZvlGOrXqW0gkBOdC73fcjL2omxsDJAzYw==
-X-Gm-Message-State: AOJu0YxRowLu875usk0yxqlrdAv79CmUGA2G3Hdgd6QDi5sR53hq+/oF
-	lvdDWiJNIYKGeXaKQ8tFeDcdZ9MGd94AB9CmFtyaqfHCMHvt3ZaxoXKNL6dT1//zrrnap5LWdfS
-	rGb4BnZnBvOgbks3gIaDCpkIeH1dqU1cpseg7K7Q9g5KOhWFYFAVmLza/Ha8=
-X-Received: by 2002:a05:620a:1083:b0:787:f466:bc9e with SMTP id g3-20020a05620a108300b00787f466bc9emr1722860qkk.16.1709300960031;
-        Fri, 01 Mar 2024 05:49:20 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGa6sgVtEll3K3BbX7X5s71qOw70Yvse3T0Tb91aAoaGGSIHp0XgmZcezKDxj2a3uiFiUxnBw==
-X-Received: by 2002:a05:620a:1083:b0:787:f466:bc9e with SMTP id g3-20020a05620a108300b00787f466bc9emr1722846qkk.16.1709300959791;
-        Fri, 01 Mar 2024 05:49:19 -0800 (PST)
+        bh=YphiZellMbZ+Y5xIqDpD84y1HO6iOWPJPSjFDhAMAbk=;
+        b=P/v2md+E8mOMJC0dsM6J52d7ZPifCJMOWofhGR3ajgTKBaILIXE/8xPSMsPXrgjMb3
+         9NbBWXqpHf08LxDrFRcdCmEH2ZVNLablbcqH6HcYRJAaqtmkebvnofoozFVvG/6qtps9
+         A4K+o7k67G+Av/deY/T4D512RwkHtpCkq5IGiJJU8qMPB8Vut9zLnvIDSqizGIfEfULJ
+         8345wQ0uRbeCpB1l0FCZuWTI5/BJMsrZ+6icbtqOmB7yE2Ow6pmttAgpLAAGd56j/4ju
+         MgCyF+TQ/64flamSJ9mWgxdt66zYks2khAVv3M9ICx14NWS92/MTGgZXAsRAPc+OQsdP
+         Q4fg==
+X-Forwarded-Encrypted: i=1; AJvYcCXJUib7L7Ve1hbN27l+K2Te3p6ivhfPUxFoFnLuyi77W/hsIAdoDD96N8n9ER+yRuhP1j1G8ztxqib62QyOCw7S4BQTko+fdgQJdA==
+X-Gm-Message-State: AOJu0YwgKjhEfRsJOYywx9+8Lgk0QZpUTYsmBcWuH/48L/1vKiWQC5t5
+	8mW6V5F37gr8sD8vluTfZAlPVoRSNwwTTDCjAHM33OpN5LOirDvs+72LXVNssZJUVLgFqTVMJdf
+	RRK5hUB6RUo6J3WsNr/waGAFrZaCyG+43BynaOYoqt/2BeRnmgL7/xbLdD8c=
+X-Received: by 2002:ac8:5dd0:0:b0:42e:b20e:b691 with SMTP id e16-20020ac85dd0000000b0042eb20eb691mr2042766qtx.49.1709301908587;
+        Fri, 01 Mar 2024 06:05:08 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHH7e4vYSFYBzWNAc72YehUDF7uIHRPeKh16MtOAfwQ1sHS/Vx1HjrZXV4re/6hiN7peh81eg==
+X-Received: by 2002:ac8:5dd0:0:b0:42e:b20e:b691 with SMTP id e16-20020ac85dd0000000b0042eb20eb691mr2042734qtx.49.1709301908304;
+        Fri, 01 Mar 2024 06:05:08 -0800 (PST)
 Received: from [192.168.0.9] (ip-109-43-178-133.web.vodafone.de. [109.43.178.133])
-        by smtp.gmail.com with ESMTPSA id p13-20020ae9f30d000000b007873213b29csm1645214qkg.49.2024.03.01.05.49.15
+        by smtp.gmail.com with ESMTPSA id jv12-20020a05622aa08c00b0042ea9d4f563sm1705753qtb.62.2024.03.01.06.05.04
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 01 Mar 2024 05:49:19 -0800 (PST)
-Message-ID: <3579c50c-e1dd-41db-9537-b8e36b3be18a@redhat.com>
-Date: Fri, 1 Mar 2024 14:49:13 +0100
+        Fri, 01 Mar 2024 06:05:07 -0800 (PST)
+Message-ID: <d9b53b30-0640-499d-a543-b7ab8b3d48aa@redhat.com>
+Date: Fri, 1 Mar 2024 15:05:03 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,8 +67,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH 3/7] (arm|s390): Use migrate_skip in test
- cases
+Subject: Re: [kvm-unit-tests PATCH 4/7] powerpc: add asm/time.h header with
+ delay and get_clock_us/ms
 Content-Language: en-US
 To: Nicholas Piggin <npiggin@gmail.com>
 Cc: kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
@@ -81,7 +81,7 @@ Cc: kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
  <mhartmay@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
  linux-s390@vger.kernel.org
 References: <20240226093832.1468383-1-npiggin@gmail.com>
- <20240226093832.1468383-4-npiggin@gmail.com>
+ <20240226093832.1468383-5-npiggin@gmail.com>
 From: Thomas Huth <thuth@redhat.com>
 Autocrypt: addr=thuth@redhat.com; keydata=
  xsFNBFH7eUwBEACzyOXKU+5Pcs6wNpKzrlJwzRl3VGZt95VCdb+FgoU9g11m7FWcOafrVRwU
@@ -125,24 +125,27 @@ Autocrypt: addr=thuth@redhat.com; keydata=
  oiT+z+/E59qj/EKfyce3sbC9XLjXv3mHMrq1tKX4G7IJGnS989E/fg6crv6NHae9Ckm7+lSs
  IQu4bBP2GxiRQ+NV3iV/KU3ebMRzqIC//DCOxzQNFNJAKldPe/bKZMCxEqtVoRkuJtNdp/5a
  yXFZ6TfE1hGKrDBYAm4vrnZ4CXFSBDllL59cFFOJCkn4Xboj/aVxxJxF30bn
-In-Reply-To: <20240226093832.1468383-4-npiggin@gmail.com>
+In-Reply-To: <20240226093832.1468383-5-npiggin@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 26/02/2024 10.38, Nicholas Piggin wrote:
-> Have tests use the new migrate_skip command in skip paths, rather than
-> calling migrate_once to prevent harness reporting an error.
-> 
-> s390x/migration.c adds a new command that looks like it was missing
-> previously.
+> This matches s390x clock and delay APIs, so common test code can start
+> using time facilities.
 > 
 > Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
 > ---
->   arm/gic.c              | 21 ++++++++++++---------
->   s390x/migration-cmm.c  |  8 ++++----
->   s390x/migration-skey.c |  4 +++-
->   s390x/migration.c      |  1 +
->   4 files changed, 20 insertions(+), 14 deletions(-)
+>   lib/powerpc/asm/processor.h | 21 ---------------------
+>   lib/powerpc/asm/time.h      | 30 ++++++++++++++++++++++++++++++
+>   lib/powerpc/processor.c     | 11 +++++++++++
+>   lib/powerpc/smp.c           |  1 +
+>   lib/ppc64/asm/time.h        |  1 +
+>   powerpc/spapr_vpa.c         |  1 +
+>   powerpc/sprs.c              |  1 +
+>   powerpc/tm.c                |  1 +
+>   8 files changed, 46 insertions(+), 21 deletions(-)
+>   create mode 100644 lib/powerpc/asm/time.h
+>   create mode 100644 lib/ppc64/asm/time.h
 
 Reviewed-by: Thomas Huth <thuth@redhat.com>
 
