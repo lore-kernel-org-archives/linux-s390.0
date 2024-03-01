@@ -1,65 +1,65 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 499DB6D1A7
-	for <linux-s390@vger.kernel.org>; Fri,  1 Mar 2024 13:33:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9CF26E60C
+	for <linux-s390@vger.kernel.org>; Fri,  1 Mar 2024 13:49:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709299985; cv=none; b=jZuKjsgKfyxuPXgr8zqC+/8ql3wJQ8CDpnN7lwuh7sUDEKR5TJ2v7+z7Kn8Zuw8OzWGZpKE+0nwt1bCD0I8bRsloAkWcNTeNz1I3foXMEWDhV8Sq2dGpzNWZO1wcaFfVlwP6wT0Jx6mbMMg4HuA30Q4Gwif08r54pb18nnQdxpk=
+	t=1709300966; cv=none; b=GuJpPMWkb2Ml5L25s/kILiGCjtBG6KuJ5s0jy2PRpdhtls/QYwLBoNpy/qE5AKhQ5BQ6E8RgPdwFf7yHxol6vyqm/3vdfK0x5kEXa5p0To3Yu2WQ6hh6WN8vRzmuo8zOOCKjqVdbBqmZA9a538BnoxbRP4xsYic41FnnCHMmjTg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709299985; c=relaxed/simple;
-	bh=n3AYtPZiHWRv1G7y6L5PBE1iBSN6RsRBTpOEAndNkco=;
+	s=arc-20240116; t=1709300966; c=relaxed/simple;
+	bh=OsGTedaK6/mohp8uU8DEDhCaqpYJiEuZGp/c8EbZYx4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=eMKL1L0byQNP1NKvXplP6mu949JrCWKlluwi3PiSPx0Yubf2R47EQAcxMJznVXb1VpuhZLpam2J/UalcuYs02VxlZe8DlcWzAzckAw2SsXlfv1rDXljI01gdIfNxC2YmpPlym0TvHb/OLhBgrGssFP6gugSGMh+AgzN2T7frskE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jJmWp8Dp; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=l2wBw+nMdV8c1PxPBRTk8FWWKOnRQMq13SAYYE7bFHzrUl/HeeBjOVO9hTVnRDAOsezVl+1CKc/KNEwPyIn2KnLc2Czi5GTiO/2xaEbN/9MuKB/+AMyn5dcz4gVH+woelte4gMl881xtTqBV0s/bEJsy2PTLPONRoZpPCD5xINU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OYdN6+Gj; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jJmWp8Dp"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OYdN6+Gj"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709299981;
+	s=mimecast20190719; t=1709300962;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=lRrZ49EeCBRPggg9ASeyz3DJTLJRzQqZi93PdwIxr2g=;
-	b=jJmWp8DpmpoOPLX2XRVU798WjutzUBAgJS5Po2Ydwx1tLkBgpIquGILEWySV8cGERbeYoB
-	DpWNxIcKBnsPuS9YRQDiq6OPxlumP56W1UaNasX9FjLwrnocgPimFvhLO9LBbQFC9S44WP
-	1mgxM/ta2/3ixaJXzMPhMlRSib8oW/E=
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
- [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=B4Q4Q4LrAxLQsEJ1nzM2u+gYauPHsp+I5fupvnZdXis=;
+	b=OYdN6+GjG9E/iyEmqmW3Z0i5buhOnw5OEI28jrgAEWiARpfwXs7YXGtAy0KP6Xl9pGxdwp
+	hE2sC1FHnPUONE+UKZaEP5B6+aEPmWC5kA0oEKRpBc3d9/jdOte8ZBRy3eA8WFJ+RlI9fl
+	hokJc9eOwWJJOJGRHXiw2kD50O98wdM=
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
+ [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-567-Hjmil1eRM6qDg4Mzxca-4Q-1; Fri, 01 Mar 2024 08:32:59 -0500
-X-MC-Unique: Hjmil1eRM6qDg4Mzxca-4Q-1
-Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-78319f64126so304951385a.3
-        for <linux-s390@vger.kernel.org>; Fri, 01 Mar 2024 05:32:59 -0800 (PST)
+ us-mta-660-qOQP0scYNs-e_ozoYsyVGQ-1; Fri, 01 Mar 2024 08:49:20 -0500
+X-MC-Unique: qOQP0scYNs-e_ozoYsyVGQ-1
+Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-787d2fab065so212890185a.3
+        for <linux-s390@vger.kernel.org>; Fri, 01 Mar 2024 05:49:20 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709299979; x=1709904779;
+        d=1e100.net; s=20230601; t=1709300960; x=1709905760;
         h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
          :to:content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=lRrZ49EeCBRPggg9ASeyz3DJTLJRzQqZi93PdwIxr2g=;
-        b=BUtkosddcMtw+zIRUeL1oClFyvmId0656vA59cClMTF7uK22dkUv3GIx8dnrI8QUu9
-         jdeLVvRDAQ22FOmngMbpW7cRgd7+heon6uBzaFFyBQN+KnKMf3Q0bfGMDhmi26y6odLs
-         A6Pqj33wOm+Di5c0w+r2Ddzoxc+wN2q1O4vo8733W0yhRvvphQXHnX/r82I/wTxSyyts
-         3OudTwaTPAgsr+9jDJSNIO/23t5kW4tsNrzJlCjHHATTwdqTa7dAlDFfvEbeOwJHmkWR
-         PRnLTRSBDI97DuLQMr6XAzK7+lgll5sG4uKP4aLP+KTwSZ6X9HFg5h3D279r7w+CLaXe
-         1zbw==
-X-Forwarded-Encrypted: i=1; AJvYcCXolz8czMDE/dGPwZwRkkH7lRzZ5HWVFpkR9yeH526iZ7LKGGQZ6N9hPChgj1Qe7OQaelJPJ4NUVasRQrXg2kYej+mtjuLZziZOgg==
-X-Gm-Message-State: AOJu0Yw6p3BeFrdKR3bc7/ZotXtVJP7TwBNCPi7zWDP0or+bqC5tNN9P
-	mOtpc7BSChCIE5P6eRGGENmiNA8XxAx8iNVvw3awOIPZqdocAgTp1G6yLrJPJepROrC8BiVPFzJ
-	Oq7VpswzK/xKdSOvaKXhy8nU+6ZVTUB9yPRBgjz+b3kkf7u61lD9ozmPfccc=
-X-Received: by 2002:a05:620a:158c:b0:787:ba6c:65c3 with SMTP id d12-20020a05620a158c00b00787ba6c65c3mr1583192qkk.21.1709299979490;
-        Fri, 01 Mar 2024 05:32:59 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF7DBxLg18an/NNcRDDOTDpdJ7QCDRh9RX/3rqDqE/BSDlt5DQxOty6xZ0bcfxamgoIxBXd7w==
-X-Received: by 2002:a05:620a:158c:b0:787:ba6c:65c3 with SMTP id d12-20020a05620a158c00b00787ba6c65c3mr1583168qkk.21.1709299979156;
-        Fri, 01 Mar 2024 05:32:59 -0800 (PST)
+        bh=B4Q4Q4LrAxLQsEJ1nzM2u+gYauPHsp+I5fupvnZdXis=;
+        b=YTnsFd0pQx7UPqSsDoPxFXLePTT/rlVUXLRk0r6GBZSWBtzOrWot4f491fTJsJfeVV
+         c/9cxQ0Gmacnbi3R4qqggrOZU8vy8BRFIKryQvw1V9zKqXq68/ppj5WOIYe97uR6jQdH
+         5+/GSYLYka1LmDibWEVVt7ua5SxeManOoGHyf6/WN1RkfHNgpGWIqeOsMNunc3a7FDL5
+         GwrCCPnFyatoMaYBBZcUH47MNxZRO76IIYOAXUvtw3m7ftoOBKrlRnlFTk4H95Q6R7RW
+         +vAtavbZHqx+noihKUdvkrutLhFA+tEU5jmx0UENV/ZaUzw6TGwSwKhHt+m12+hJtDKF
+         uVbg==
+X-Forwarded-Encrypted: i=1; AJvYcCVvnaS/VABDe6xApXm36WgeaIzEzFFSgzs4h9MQpJViVFcr28qbv/TaFPVosyHdqZCqpZvlGOrXqW0gkBOdC73fcjL2omxsDJAzYw==
+X-Gm-Message-State: AOJu0YxRowLu875usk0yxqlrdAv79CmUGA2G3Hdgd6QDi5sR53hq+/oF
+	lvdDWiJNIYKGeXaKQ8tFeDcdZ9MGd94AB9CmFtyaqfHCMHvt3ZaxoXKNL6dT1//zrrnap5LWdfS
+	rGb4BnZnBvOgbks3gIaDCpkIeH1dqU1cpseg7K7Q9g5KOhWFYFAVmLza/Ha8=
+X-Received: by 2002:a05:620a:1083:b0:787:f466:bc9e with SMTP id g3-20020a05620a108300b00787f466bc9emr1722860qkk.16.1709300960031;
+        Fri, 01 Mar 2024 05:49:20 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGa6sgVtEll3K3BbX7X5s71qOw70Yvse3T0Tb91aAoaGGSIHp0XgmZcezKDxj2a3uiFiUxnBw==
+X-Received: by 2002:a05:620a:1083:b0:787:f466:bc9e with SMTP id g3-20020a05620a108300b00787f466bc9emr1722846qkk.16.1709300959791;
+        Fri, 01 Mar 2024 05:49:19 -0800 (PST)
 Received: from [192.168.0.9] (ip-109-43-178-133.web.vodafone.de. [109.43.178.133])
-        by smtp.gmail.com with ESMTPSA id g27-20020a05620a109b00b00787f7d5a727sm1635652qkk.44.2024.03.01.05.32.54
+        by smtp.gmail.com with ESMTPSA id p13-20020ae9f30d000000b007873213b29csm1645214qkg.49.2024.03.01.05.49.15
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 01 Mar 2024 05:32:58 -0800 (PST)
-Message-ID: <e802a3a4-5ab7-447f-b09b-75d710ba7bd6@redhat.com>
-Date: Fri, 1 Mar 2024 14:32:53 +0100
+        Fri, 01 Mar 2024 05:49:19 -0800 (PST)
+Message-ID: <3579c50c-e1dd-41db-9537-b8e36b3be18a@redhat.com>
+Date: Fri, 1 Mar 2024 14:49:13 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,7 +67,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH 1/7] arch-run: Keep infifo open
+Subject: Re: [kvm-unit-tests PATCH 3/7] (arm|s390): Use migrate_skip in test
+ cases
 Content-Language: en-US
 To: Nicholas Piggin <npiggin@gmail.com>
 Cc: kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
@@ -80,7 +81,7 @@ Cc: kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
  <mhartmay@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
  linux-s390@vger.kernel.org
 References: <20240226093832.1468383-1-npiggin@gmail.com>
- <20240226093832.1468383-2-npiggin@gmail.com>
+ <20240226093832.1468383-4-npiggin@gmail.com>
 From: Thomas Huth <thuth@redhat.com>
 Autocrypt: addr=thuth@redhat.com; keydata=
  xsFNBFH7eUwBEACzyOXKU+5Pcs6wNpKzrlJwzRl3VGZt95VCdb+FgoU9g11m7FWcOafrVRwU
@@ -124,68 +125,24 @@ Autocrypt: addr=thuth@redhat.com; keydata=
  oiT+z+/E59qj/EKfyce3sbC9XLjXv3mHMrq1tKX4G7IJGnS989E/fg6crv6NHae9Ckm7+lSs
  IQu4bBP2GxiRQ+NV3iV/KU3ebMRzqIC//DCOxzQNFNJAKldPe/bKZMCxEqtVoRkuJtNdp/5a
  yXFZ6TfE1hGKrDBYAm4vrnZ4CXFSBDllL59cFFOJCkn4Xboj/aVxxJxF30bn
-In-Reply-To: <20240226093832.1468383-2-npiggin@gmail.com>
+In-Reply-To: <20240226093832.1468383-4-npiggin@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 26/02/2024 10.38, Nicholas Piggin wrote:
-> The infifo fifo that is used to send characters to QEMU console is
-> only able to receive one character before the cat process exits.
-> Supporting interactions between test and harness involving multiple
-> characters requires the fifo to remain open.
+> Have tests use the new migrate_skip command in skip paths, rather than
+> calling migrate_once to prevent harness reporting an error.
 > 
-> This also allows us to let the cat out of the bag, simplifying the
-> input pipeline.
-
-LOL, we rather let the cat out of the subshell now, but I like the play on 
-words :-)
-
+> s390x/migration.c adds a new command that looks like it was missing
+> previously.
+> 
 > Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
 > ---
->   scripts/arch-run.bash | 12 ++++++------
->   1 file changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
-> index 6daef3218..e5b36a07b 100644
-> --- a/scripts/arch-run.bash
-> +++ b/scripts/arch-run.bash
-> @@ -158,6 +158,11 @@ run_migration ()
->   	mkfifo ${src_outfifo}
->   	mkfifo ${dst_outfifo}
->   
-> +	# Holding both ends of the input fifo open prevents opens from
-> +	# blocking and readers getting EOF when a writer closes it.
-> +	mkfifo ${dst_infifo}
-> +	exec {dst_infifo_fd}<>${dst_infifo}
-> +
->   	eval "$migcmdline" \
->   		-chardev socket,id=mon,path=${src_qmp},server=on,wait=off \
->   		-mon chardev=mon,mode=control > ${src_outfifo} &
-> @@ -191,14 +196,10 @@ run_migration ()
->   
->   do_migration ()
->   {
-> -	# We have to use cat to open the named FIFO, because named FIFO's,
-> -	# unlike pipes, will block on open() until the other end is also
-> -	# opened, and that totally breaks QEMU...
-> -	mkfifo ${dst_infifo}
->   	eval "$migcmdline" \
->   		-chardev socket,id=mon,path=${dst_qmp},server=on,wait=off \
->   		-mon chardev=mon,mode=control -incoming unix:${dst_incoming} \
-> -		< <(cat ${dst_infifo}) > ${dst_outfifo} &
-> +		< ${dst_infifo} > ${dst_outfifo} &
->   	incoming_pid=$!
->   	cat ${dst_outfifo} | tee ${dst_out} | filter_quiet_msgs &
->   
-> @@ -245,7 +246,6 @@ do_migration ()
->   
->   	# keypress to dst so getchar completes and test continues
->   	echo > ${dst_infifo}
-> -	rm ${dst_infifo}
-
-I assume it will not get deleted by the trap handler? ... sounds fine to me, 
-so I dare to say:
+>   arm/gic.c              | 21 ++++++++++++---------
+>   s390x/migration-cmm.c  |  8 ++++----
+>   s390x/migration-skey.c |  4 +++-
+>   s390x/migration.c      |  1 +
+>   4 files changed, 20 insertions(+), 14 deletions(-)
 
 Reviewed-by: Thomas Huth <thuth@redhat.com>
-
 
