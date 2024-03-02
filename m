@@ -1,154 +1,144 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D6243D56E;
-	Fri,  1 Mar 2024 20:43:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4ACA566A
+	for <linux-s390@vger.kernel.org>; Sat,  2 Mar 2024 00:09:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709325835; cv=none; b=becFf1PZO0gPwnY5cYEsJOGynC+hb0uX78cy/+7xm+zgPxbduVWrhPdvCPhc5CWESmL294/0fkzQHcDefWMY/B2BvchUym1iTT/ADQ0f4DPwyxPZNJRMKrYLfpLbLc/eXWPcJ2aFWlqPPWkftKEen22nc5y6UWtdeem4AjtAYMw=
+	t=1709338173; cv=none; b=J9clbpuWEG/DV8HNHhIVzRdlAybSnfpuezxHbpSogf+7LIDwl8zweY1hTdinsFGxPJkO7+25ENwxpm/zGN47BkJFKM59rK2u3dETQgIyz2IASeVZqs8PiOjTsMkwNDV1RpNPZQeleCWgavjMCA0Lba83WM8uUif+uLJcWkBheHU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709325835; c=relaxed/simple;
-	bh=51Uf3kFC58rOpYfAttq8+yZjSU49IWuNMuMSRyOitBw=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=obe9CbXxpXD2VjdP3YQNXz+a9O1bH3of3gIAuZvWEtptcRYKUgeJQ0w0JPHDZVwS5T7MJ7MUxBIxHwQJanMw+kkQJpztneZWqta1KCzmLcu+is7LxC/jMsDo8ITZdkhx1sEb7EiUzaHQ3WL33yw+pf/lCBXP1SVRN47X0wwmJYw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aBXXhKeZ; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1709338173; c=relaxed/simple;
+	bh=dH+R3CHq13HZg3o2FiRpD3Sc4l20ml1BM78TmQhj43s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gof6HQHa6V3t6sJa1AYwdM1ZT++GdR3DaXzMsW4Ft3vtAp57Xkikqz5Z/nC0A3S8/GzdopkNdg1t5vOkmDpbASh/SrLhvteHg3Zr7Ebyx6S6xCOExaJebwsDC4QuDhfXLCLO2YBDtLRM/sCzu+6QwhQJ1zen5Mr2JMwuIQ5lovE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=MOuTRwXE; arc=none smtp.client-ip=209.85.210.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aBXXhKeZ"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 421KgGrZ007039;
-	Fri, 1 Mar 2024 20:43:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=ydGBT0xPZvsFLbMhQUeawZ2Y0iiJGDIWTZi7AtGhAEo=;
- b=aBXXhKeZrsos35SSt9538sxBZB2uoAyeYL8Yd5KHbJYwd+cgvM6TrAK1l4G0WuLAT6pq
- 4bt7Cq0mqcBGP8IIJaip2k1ir1HGKJ9dFjuZsaYMnbGHu4HSISUaQUTftYlRqcEC377j
- vquigP28cVEWlmBIrYFhGLq+Yho5lrsNslyOX8wdRG3My2WxaBm/mXBhNyG8MOQx3N1J
- YKbsA5thm46cAHwQU0m6XXHRxeByBUUb9Od281GEmq3W9auq301wX8DDbTckG9tTo9RT
- Brj2EYgTmrK3W91SPrAzdcFiZGxcmOOPUapqywYP4MTLfF+OI/S9KS0dz6VWdoHTzaDs wQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wkp9mg0v6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 01 Mar 2024 20:43:52 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 421KgYwQ008461;
-	Fri, 1 Mar 2024 20:43:52 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wkp9mg0ua-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 01 Mar 2024 20:43:51 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 421IkkqE008852;
-	Fri, 1 Mar 2024 20:43:50 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wftsu77u8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 01 Mar 2024 20:43:50 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 421Khjb83080870
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 1 Mar 2024 20:43:47 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 10C262004E;
-	Fri,  1 Mar 2024 20:43:45 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F0C2F2004B;
-	Fri,  1 Mar 2024 20:43:44 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri,  1 Mar 2024 20:43:44 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-	id 1EC51E01F3; Fri,  1 Mar 2024 21:43:44 +0100 (CET)
-From: Eric Farman <farman@linux.ibm.com>
-To: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH] KVM: s390: vsie: retry SIE instruction on host intercepts
-Date: Fri,  1 Mar 2024 21:43:42 +0100
-Message-Id: <20240301204342.3217540-1-farman@linux.ibm.com>
-X-Mailer: git-send-email 2.40.1
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="MOuTRwXE"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-6e4d48a5823so2436350b3a.1
+        for <linux-s390@vger.kernel.org>; Fri, 01 Mar 2024 16:09:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1709338171; x=1709942971; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=PlEMlXrKVoQ/VI5q1b4zpBL3OsqlVw7CAlvaBiVG6mY=;
+        b=MOuTRwXEhIPRWgSif23piWeAVFPc+vdnbxKruPntORcbsZe7Ootk7sViJ1qaDdgx2M
+         F3cD09TiuqgzusAKPhmQtslpHuPNr8SczIuJMXdnnZ9haIVfdI5Vs3KAVlvjNTx8pfTd
+         yhjULxFjOZValpASY13e1gED6NXKg4FVa6fj8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709338171; x=1709942971;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=PlEMlXrKVoQ/VI5q1b4zpBL3OsqlVw7CAlvaBiVG6mY=;
+        b=qm0xFafMsaWlQXKSkykfVesQHAo6ZNRc+lg0VlcvIopoW1koJqmuCd5bIflQ82z/Wr
+         uEDlo5plNGm+knmg3amqGvkxqPDMHzkfBnQo0TtA0HBHqmxnSKkuAIJahOpKhM9S8JIA
+         NS21Hr5wsRVu/sHjbRLicf+MzNIySYCqbPgMmSj+2KMgcN+NcEIcwtEx6wvEoSa83U+n
+         ahlq/Io5Pc/qCdfPoURM5HmoO6d4nzMpA6Kond/9ZR7w/skRLYpqGcmwpySkHP2mfpAr
+         HQyy9xrGcIsnDbZ/WSq7fzo7KwGYMYW6UVTlgvKZvp8/dCTJxWb+bgKB1q8FFhCq4Ic/
+         XV5A==
+X-Forwarded-Encrypted: i=1; AJvYcCWd230+pZhB/PCe0c6Rz1GrFKZL73XcGONTZx66mFy39lHuPhswBgVsWueugKVUeKE0Wiy7YBuN3LFMysrczrWAmExzkXHWXaFpoQ==
+X-Gm-Message-State: AOJu0Ywckna1Ay3nPWGHTBlkvZeJjoRz8LEZvcKYcct2IIDcrDApm7eB
+	l+50Zu1S4PJXrcRO8spHZgCG0xAszYJ09UxzNgotogYxsJR/f1QzoGbsRRrH2A==
+X-Google-Smtp-Source: AGHT+IHKe06QTxKDNmVjUj7y4VmLN7+kjewYOtUfSzwCo6UhE83ZK5FaGcdZDV0lptWbQ2W8F/RMaA==
+X-Received: by 2002:a05:6a20:6a22:b0:1a1:461a:36ac with SMTP id p34-20020a056a206a2200b001a1461a36acmr494126pzk.11.1709338171344;
+        Fri, 01 Mar 2024 16:09:31 -0800 (PST)
+Received: from www.outflux.net ([198.0.35.241])
+        by smtp.gmail.com with ESMTPSA id x11-20020aa784cb000000b006e45c5d7720sm3611474pfn.93.2024.03.01.16.09.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 01 Mar 2024 16:09:30 -0800 (PST)
+Date: Fri, 1 Mar 2024 16:09:29 -0800
+From: Kees Cook <keescook@chromium.org>
+To: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
+Subject: Re: [PATCH][next] net/smc: Avoid -Wflex-array-member-not-at-end
+ warnings
+Message-ID: <202403011607.8E903049@keescook>
+References: <ZeIhOT44ON5rjPiP@neat>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: T2rW6v16c8WURl6mAtP36kTM9_ZxtEte
-X-Proofpoint-ORIG-GUID: ESQEe1PhCChPZN1yuDW4R-wBLwYgv6uu
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-01_21,2024-03-01_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
- phishscore=0 mlxlogscore=900 priorityscore=1501 clxscore=1015 adultscore=0
- malwarescore=0 bulkscore=0 suspectscore=0 impostorscore=0 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2403010172
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZeIhOT44ON5rjPiP@neat>
 
-It's possible that SIE exits for work that the host needs to perform
-rather than something that is intended for the guest.
+On Fri, Mar 01, 2024 at 12:40:57PM -0600, Gustavo A. R. Silva wrote:
+> -Wflex-array-member-not-at-end is coming in GCC-14, and we are getting
+> ready to enable it globally.
+> 
+> There are currently a couple of objects in `struct smc_clc_msg_proposal_area`
+> that contain a couple of flexible structures:
+> 
+> struct smc_clc_msg_proposal_area {
+> 	...
+> 	struct smc_clc_v2_extension             pclc_v2_ext;
+> 	...
+> 	struct smc_clc_smcd_v2_extension        pclc_smcd_v2_ext;
+> 	...
+> };
+> 
+> So, in order to avoid ending up with a couple of flexible-array members
+> in the middle of a struct, we use the `struct_group_tagged()` helper to
+> separate the flexible array from the rest of the members in the flexible
+> structure:
+> 
+> struct smc_clc_smcd_v2_extension {
+>         struct_group_tagged(smc_clc_smcd_v2_extension_hdr, hdr,
+>                             u8 system_eid[SMC_MAX_EID_LEN];
+>                             u8 reserved[16];
+>         );
+>         struct smc_clc_smcd_gid_chid gidchid[];
+> };
+> 
+> With the change described above, we now declare objects of the type of
+> the tagged struct without embedding flexible arrays in the middle of
+> another struct:
+> 
+> struct smc_clc_msg_proposal_area {
+>         ...
+>         struct smc_clc_v2_extension_hdr		pclc_v2_ext;
+>         ...
+>         struct smc_clc_smcd_v2_extension_hdr	pclc_smcd_v2_ext;
+>         ...
+> };
+> 
+> We also use `container_of()` when we need to retrieve a pointer to the
+> flexible structures.
+> 
+> So, with these changes, fix the following warnings:
+> 
+> In file included from net/smc/af_smc.c:42:
+> net/smc/smc_clc.h:186:49: warning: structure containing a flexible array member is not at the end of another structure [-Wflex-array-member-not-at-end]
+>   186 |         struct smc_clc_v2_extension             pclc_v2_ext;
+>       |                                                 ^~~~~~~~~~~
+> net/smc/smc_clc.h:188:49: warning: structure containing a flexible array member is not at the end of another structure [-Wflex-array-member-not-at-end]
+>   188 |         struct smc_clc_smcd_v2_extension        pclc_smcd_v2_ext;
+>       |                                                 ^~~~~~~~~~~~~~~~
+> 
+> Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-A Linux guest will ignore this intercept code since there is nothing
-for it to do, but a more robust solution would rewind the PSW back to
-the SIE instruction. This will transparently resume the guest once
-the host completes its work, without the guest needing to process
-what is effectively a NOP and re-issue SIE itself.
+I think this is a nice way to deal with these flex-array cases. Using
+the struct_group() and container_of() means there is very little
+collateral impact. Since this is isolated to a single file, I wonder if
+it's easy to check that there are no binary differences too? I wouldn't
+expect any -- container_of() is all constant expressions, so the
+assignment offsets should all be the same, etc.
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
----
- arch/s390/kvm/vsie.c | 22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+Reviewed-by: Kees Cook <keescook@chromium.org>
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 8f0f944f81c2..63aae70a6790 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -1306,10 +1306,24 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 
- 		if (rc == -EAGAIN)
- 			rc = 0;
--		if (rc || scb_s->icptcode || signal_pending(current) ||
-+
-+		/*
-+		 * Exit the loop if the guest needs to process the intercept
-+		 */
-+		if (rc || scb_s->icptcode)
-+			break;
-+
-+		/*
-+		 * Exit the loop if the host needs to process an intercept,
-+		 * but rewind the PSW to re-enter SIE once that's completed
-+		 * instead of passing a "no action" intercept to the guest.
-+		 */
-+		if (signal_pending(current) ||
- 		    kvm_s390_vcpu_has_irq(vcpu, 0) ||
--		    kvm_s390_vcpu_sie_inhibited(vcpu))
-+		    kvm_s390_vcpu_sie_inhibited(vcpu)) {
-+			kvm_s390_rewind_psw(vcpu, 4);
- 			break;
-+		}
- 		cond_resched();
- 	}
- 
-@@ -1428,8 +1442,10 @@ int kvm_s390_handle_vsie(struct kvm_vcpu *vcpu)
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
- 
- 	if (signal_pending(current) || kvm_s390_vcpu_has_irq(vcpu, 0) ||
--	    kvm_s390_vcpu_sie_inhibited(vcpu))
-+	    kvm_s390_vcpu_sie_inhibited(vcpu)) {
-+		kvm_s390_rewind_psw(vcpu, 4);
- 		return 0;
-+	}
- 
- 	vsie_page = get_vsie_page(vcpu->kvm, scb_addr);
- 	if (IS_ERR(vsie_page))
+-Kees
+
 -- 
-2.40.1
-
+Kees Cook
