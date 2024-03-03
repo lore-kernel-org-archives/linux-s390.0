@@ -1,163 +1,214 @@
-Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
+Received: from mail-oa1-f50.google.com (mail-oa1-f50.google.com [209.85.160.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3562CA47
-	for <linux-s390@vger.kernel.org>; Sat,  2 Mar 2024 01:51:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23F8069E08;
+	Sun,  3 Mar 2024 16:11:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709344271; cv=none; b=CmQRyYxSiqnDs9W21uanLeJjpC7Vd+NXAdVunZwLdsC1dDnwz3UT9O9kqFaCteFmwSvYf0GgI/8/toSzSHHInB36cltX8ziHVJrJzVTySpBdkZMx4+SSUMqGEJa1B6yTethVbX/yoX24P5o0YoncL0jW3d5DL+SwbUApjN1sNqU=
+	t=1709482279; cv=none; b=QHSemGjagMfJ7lejCPmI4p7IMo1yAYHx7FmJP0T3HTN96gFzbNRQVNmq9zL/JdpFtCYhFwzUwpugHw064BmJBsCA+Wx3VL0gJMX0bCbhzCS5W9oggOeJksY+qLOcmWtlvnaUj/06/ApnTrGqprR9V+iMgAPOJ3mJIeX1VfTgz0E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709344271; c=relaxed/simple;
-	bh=/8oSmkPc0IaP5CM6+fKqf9jvC9DwK8RXxd3zPN60QIw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tTvt9NzdZYaqDy1HBpP0ZMUmeU3wyhb2kexzrpizgf1Q6gagNN2cnEpwCR/EbADhQjTP+NHOU+KAFZhZeXN3r7Fvn8JNMB8K4m4OWiMaurnVQGHdQGbKlS5jkDVRit0r0+ummEoCP3dszezeYtxjjKpq8dm5jODJ4r6Ddad/YxI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=TIc1hC1B; arc=none smtp.client-ip=209.85.210.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="TIc1hC1B"
-Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-6da202aa138so2055646b3a.2
-        for <linux-s390@vger.kernel.org>; Fri, 01 Mar 2024 17:51:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1709344269; x=1709949069; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=1JOHRODJmattJBY3YtQ+51tfBSOEI55kux6+SckPNNk=;
-        b=TIc1hC1BaG2C6O48gHCVwqAMREqybRwL/38QZkQjs8birZpqFdZpqCIImbYMYW7Eiv
-         jRPIv6GZBhjfsVtfypwxiChRkpef7DVwQMyj5nOOLNLueAgFL8DiRBb4+OjSwCy83w58
-         nhEfdX/lBy3gXtmcU7KGWUmYplpKX5RVOBkGM=
+	s=arc-20240116; t=1709482279; c=relaxed/simple;
+	bh=QvEtrdlYIYZjdD7RzpqyWpmTMSYBhgTq9HB8V56Vbvg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=c3dF0YsxntrzVpc/X6ICNxTYPkYIWhhSy19p/nXSQ6IdvIYmo6d+0QYn1XDx8SCxU3PbpH18Zlp6tS8Xa2WihEHLOcat+2RffoObgzhHA+BgYVTMhx1v15Euq6JALa86RWK54yctsrmwF0tjk7oHUs49IAI4GLZvDvZbFjOUBdM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.160.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-oa1-f50.google.com with SMTP id 586e51a60fabf-22034c323a3so1871372fac.0;
+        Sun, 03 Mar 2024 08:11:16 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709344269; x=1709949069;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=1JOHRODJmattJBY3YtQ+51tfBSOEI55kux6+SckPNNk=;
-        b=a2d4QXvtcGdBwIcqShKtHxwrdcIPP4htBRaW9Wzk3TbO/aJfOpDZ2ApUv0OJ8gNO8M
-         YnIsWYyveLJBWCV880/XcTRc52DfGky++Kvq8VxH/ynDji2tvGTGa8qDEKpcLcD7uuh0
-         7MhmlSwvylvJBBwI0lKZJ7dHH2ezf39MPbbjA1Qo8quJuW/f4DFDPwbYAJ+JD/gA4Xo9
-         x0YAnMSk1LMCt1eYKA9rnFGIanjFPNPQHXNjyKj8RIjtvP113K6GY7GiEZI4fPK09/SY
-         ljqzoAKUTlpxmaKgzG/uNtu5R+L3Du4x5+zLiOX2F8OcY2683PIPwwsWGvlgnFX9bMqH
-         mo3w==
-X-Forwarded-Encrypted: i=1; AJvYcCWLK6nD1flIyOIm37B/qnNJIA2bGER8W1IcEzD3pkmAW1BTIin2d63r4mxI7NAxHvVd71mCJwkHL8kGcbeOPpS1BGy3LCe+4m8ttw==
-X-Gm-Message-State: AOJu0YwiDs8Ti02hdfyNQfBCIyF8vERQPVs3kZD1z4mtg4lbwN6UGF92
-	Al0ePpJA/eN4Z26PfmYd/+vLPe6tYUAQ+5tE3oQusLdbUEmGD4ynhKEcxNCoVA==
-X-Google-Smtp-Source: AGHT+IHRDk8dRy87orC5sOO0fLYLW475IUp9U1sSARPtPvgR8uAOkuMFjfqikjpTM+PGmCnZ+zOW8Q==
-X-Received: by 2002:a05:6a20:e11f:b0:1a0:ef1e:a5a7 with SMTP id kr31-20020a056a20e11f00b001a0ef1ea5a7mr3447528pzb.4.1709344269211;
-        Fri, 01 Mar 2024 17:51:09 -0800 (PST)
-Received: from www.outflux.net ([198.0.35.241])
-        by smtp.gmail.com with ESMTPSA id rm12-20020a17090b3ecc00b002993f72ed02sm3845854pjb.34.2024.03.01.17.51.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Mar 2024 17:51:08 -0800 (PST)
-Date: Fri, 1 Mar 2024 17:51:08 -0800
-From: Kees Cook <keescook@chromium.org>
-To: "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>
-Cc: "christophe.leroy@csgroup.eu" <christophe.leroy@csgroup.eu>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"x86@kernel.org" <x86@kernel.org>,
-	"luto@kernel.org" <luto@kernel.org>,
-	"dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
-	"debug@rivosinc.com" <debug@rivosinc.com>,
-	"akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-	"linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
-	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-	"mingo@redhat.com" <mingo@redhat.com>,
-	"kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>,
-	"tglx@linutronix.de" <tglx@linutronix.de>,
-	"linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
-	"linux-mm@kvack.org" <linux-mm@kvack.org>,
-	"linux-snps-arc@lists.infradead.org" <linux-snps-arc@lists.infradead.org>,
-	"Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>,
-	"hpa@zytor.com" <hpa@zytor.com>,
-	"peterz@infradead.org" <peterz@infradead.org>,
-	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-	"bp@alien8.de" <bp@alien8.de>,
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-	"linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-	"sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-	"broonie@kernel.org" <broonie@kernel.org>
-Subject: Re: [PATCH v2 5/9] mm: Initialize struct vm_unmapped_area_info
-Message-ID: <202403011747.9ECFAD060B@keescook>
-References: <20240226190951.3240433-1-rick.p.edgecombe@intel.com>
- <20240226190951.3240433-6-rick.p.edgecombe@intel.com>
- <94a2b919-e03b-4ade-b13e-7774849dc02b@csgroup.eu>
- <202402271004.7145FDB53F@keescook>
- <8265f804-4540-4858-adc3-a09c11a677eb@csgroup.eu>
- <91384b505cb78b9d9b71ad58e037c1ed8dfb10d1.camel@intel.com>
- <def71a27-2d5f-40da-867e-979648afc4cf@csgroup.eu>
- <202402280912.33AEE7A9CF@keescook>
- <ac04c9aa134807bbc00e6086e7a14a58a682f221.camel@intel.com>
+        d=1e100.net; s=20230601; t=1709482276; x=1710087076;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=xpYeZIYDjOTNBHhnHMM1ZX731nmJnhY6r1aOvNDc+9s=;
+        b=eTVN2hD/7C+z5dwzEFRZWphPh+NKVyBbSNQxj1n5xKNuR+/O2Eiqu20u0cHaLH5Vc/
+         KEJmFO60IsepYCRB+r33MGPe8KoV+Ccm6a3jS0RbDJZo4zqo6eS326nYwZAwDoxKxI9T
+         FaEUemlLIPTZSAWBtD6q2QqLY5WkOj7U3jzECajqwSGNeMJIzdiWSLw9/Lm1YSJGf4RA
+         OpaSbN5gm6BsmFt2UWkYIo2jGQaKQ7HZenuzm15eVizDXKrk71sTa9Y5kDW5HYM/lZqo
+         Tg+mnb6CTwATgjxDdPtsVX+V2DH6DQci9o9i8k0gjJAf62nyqRctaHKgkzIOWUTaICGl
+         E/hQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUV1Iq68UHq94Gt1VJ+DRJkPZEXnW5uFQyiVu/ZeLydkgJTQ59Oe6yYzJCyDsVIxR2HxiPTWhCXb8my52d2lZ2fys8sLCiKofy+CLI7/P6p3v7wrCm9LB99VndfSDL5S8VJhxQltt6M3phkPSKUxeunLNHd/ANnzN2YwPT7Rg6SLMNL
+X-Gm-Message-State: AOJu0YzQonC8hDZzHMNqsSgYP9bvtbSLUjm2yYZvJVOSu1kz+zlZ8P9b
+	swncnAYzEOWcjpwpU7cbqeLbGLcrQbNoGoqZ0KprA7VVbBT3yeBIMK6ETBAGGsM=
+X-Google-Smtp-Source: AGHT+IGdc2fsFA7Ak0HYPEgmHCep7mGiBEu0yfDED0QMQag2vENbD//HJf5G0h3vs6i6wPXmR0oAvg==
+X-Received: by 2002:a05:6871:7412:b0:21f:d862:2ad7 with SMTP id nw18-20020a056871741200b0021fd8622ad7mr8071533oac.5.1709482275613;
+        Sun, 03 Mar 2024 08:11:15 -0800 (PST)
+Received: from mail-ot1-f48.google.com (mail-ot1-f48.google.com. [209.85.210.48])
+        by smtp.gmail.com with ESMTPSA id lt10-20020a05687142ca00b0021a70aa7cedsm2055405oab.34.2024.03.03.08.11.15
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 03 Mar 2024 08:11:15 -0800 (PST)
+Received: by mail-ot1-f48.google.com with SMTP id 46e09a7af769-6e432514155so2064257a34.1;
+        Sun, 03 Mar 2024 08:11:15 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCXGeaM/qul2ckNDHs7SdNedOAkjAZ521FT3HZE2FckQ3PyQTuL1ia4DYa14JxDu2goX9rug5ccNCbxRaGwoYtR0a+GQmHVcF+LkyJQqXh1/4vS5YWdxMW+DSoPT0nV9ufohT6cMNpnCl42brv9mX7KUKk++xxozUW7/mTDOM8qZsIJu
+X-Received: by 2002:a05:6808:1690:b0:3c1:8498:239b with SMTP id
+ bb16-20020a056808169000b003c18498239bmr8548891oib.59.1709482275070; Sun, 03
+ Mar 2024 08:11:15 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <ac04c9aa134807bbc00e6086e7a14a58a682f221.camel@intel.com>
+References: <c395b02613572131568bc1fd1bc456d20d1a5426.1709325647.git.geert+renesas@glider.be>
+ <87fe0004-0e53-4b7a-b19d-c6b37c8db8dc@redhat.com>
+In-Reply-To: <87fe0004-0e53-4b7a-b19d-c6b37c8db8dc@redhat.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Sun, 3 Mar 2024 17:11:02 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdX+mpc5++8h4oM98FTPAdV-c8TzscTQA095Wzssae6amg@mail.gmail.com>
+Message-ID: <CAMuHMdX+mpc5++8h4oM98FTPAdV-c8TzscTQA095Wzssae6amg@mail.gmail.com>
+Subject: Re: [PATCH/RFC] locking/spinlocks: Make __raw_* lock ops static
+To: Waiman Long <longman@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, 
+	Will Deacon <will@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
+	linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-s390 <linux-s390@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, Mar 02, 2024 at 12:47:08AM +0000, Edgecombe, Rick P wrote:
-> On Wed, 2024-02-28 at 09:21 -0800, Kees Cook wrote:
-> > I totally understand. If the "uninitialized" warnings were actually
-> > reliable, I would agree. I look at it this way:
-> > 
-> > - initializations can be missed either in static initializers or via
-> >   run time initializers. (So the risk of mistake here is matched --
-> >   though I'd argue it's easier to *find* static initializers when
-> > adding
-> >   new struct members.)
-> > - uninitialized warnings are inconsistent (this becomes an unknown
-> > risk)
-> > - when a run time initializer is missed, the contents are whatever
-> > was
-> >   on the stack (high risk)
-> > - what a static initializer is missed, the content is 0 (low risk)
-> > 
-> > I think unambiguous state (always 0) is significantly more important
-> > for
-> > the safety of the system as a whole. Yes, individual cases maybe bad
-> > ("what uid should this be? root?!") but from a general memory safety
-> > perspective the value doesn't become potentially influenced by order
-> > of
-> > operations, leftover stack memory, etc.
-> > 
-> > I'd agree, lifting everything into a static initializer does seem
-> > cleanest of all the choices.
-> 
-> Hi Kees,
-> 
-> Well, I just gave this a try. It is giving me flashbacks of when I last
-> had to do a tree wide change that I couldn't fully test and the
-> breakage was caught by Linus.
+Hi Waiman,
 
-Yeah, testing isn't fun for these kinds of things. This is traditionally
-why the "obviously correct" changes tend to have an easier time landing
-(i.e. adding "= {}" to all of them).
+CC s390
 
-> Could you let me know if you think this is additionally worthwhile
-> cleanup outside of the guard gap improvements of this series? Because I
-> was thinking a more cowardly approach could be a new vm_unmapped_area()
-> variant that takes the new start gap member as a separate argument
-> outside of struct vm_unmapped_area_info. It would be kind of strange to
-> keep them separate, but it would be less likely to bump something.
+On Sun, Mar 3, 2024 at 5:25=E2=80=AFAM Waiman Long <longman@redhat.com> wro=
+te:
+> On 3/1/24 15:43, Geert Uytterhoeven wrote:
+> > sh/sdk7786_defconfig (CONFIG_GENERIC_LOCKBREAK=3Dy and
+> > CONFIG_DEBUG_LOCK_ALLOC=3Dn):
+> >
+> > kernel/locking/spinlock.c:68:17: warning: no previous prototype for '__=
+raw_spin_lock' [-Wmissing-prototypes]
+> > kernel/locking/spinlock.c:80:26: warning: no previous prototype for '__=
+raw_spin_lock_irqsave' [-Wmissing-prototypes]
+> > kernel/locking/spinlock.c:98:17: warning: no previous prototype for '__=
+raw_spin_lock_irq' [-Wmissing-prototypes]
+> > kernel/locking/spinlock.c:103:17: warning: no previous prototype for '_=
+_raw_spin_lock_bh' [-Wmissing-prototypes]
+> > kernel/locking/spinlock.c:68:17: warning: no previous prototype for '__=
+raw_read_lock' [-Wmissing-prototypes]
+> > kernel/locking/spinlock.c:80:26: warning: no previous prototype for '__=
+raw_read_lock_irqsave' [-Wmissing-prototypes]
+> > kernel/locking/spinlock.c:98:17: warning: no previous prototype for '__=
+raw_read_lock_irq' [-Wmissing-prototypes]
+> > kernel/locking/spinlock.c:103:17: warning: no previous prototype for '_=
+_raw_read_lock_bh' [-Wmissing-prototypes]
+> > kernel/locking/spinlock.c:68:17: warning: no previous prototype for '__=
+raw_write_lock' [-Wmissing-prototypes]
+> > kernel/locking/spinlock.c:80:26: warning: no previous prototype for '__=
+raw_write_lock_irqsave' [-Wmissing-prototypes]
+> > kernel/locking/spinlock.c:98:17: warning: no previous prototype for '__=
+raw_write_lock_irq' [-Wmissing-prototypes]
+> > kernel/locking/spinlock.c:103:17: warning: no previous prototype for '_=
+_raw_write_lock_bh' [-Wmissing-prototypes]
+> >
+> > Fix this by making the __raw_* lock ops static.
+> >
+> > Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> > ---
+> > Compile-tested only.
+> >
+> > Is SH really the only SMP platform where CONFIG_GENERIC_LOCKBREAK=3Dy?
+> > ---
+> >   kernel/locking/spinlock.c | 8 ++++----
+> >   1 file changed, 4 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/kernel/locking/spinlock.c b/kernel/locking/spinlock.c
+> > index 8475a0794f8c5ad2..7009b568e6255d64 100644
+> > --- a/kernel/locking/spinlock.c
+> > +++ b/kernel/locking/spinlock.c
+> > @@ -65,7 +65,7 @@ EXPORT_PER_CPU_SYMBOL(__mmiowb_state);
+> >    * towards that other CPU that it should break the lock ASAP.
+> >    */
+> >   #define BUILD_LOCK_OPS(op, locktype)                                 =
+       \
+> > -void __lockfunc __raw_##op##_lock(locktype##_t *lock)                 =
+       \
+> > +static void __lockfunc __raw_##op##_lock(locktype##_t *lock)         \
+> >   {                                                                   \
+> >       for (;;) {                                                      \
+> >               preempt_disable();                                      \
+> > @@ -77,7 +77,7 @@ void __lockfunc __raw_##op##_lock(locktype##_t *lock)=
+                       \
+> >       }                                                               \
+> >   }                                                                   \
+> >                                                                       \
+> > -unsigned long __lockfunc __raw_##op##_lock_irqsave(locktype##_t *lock)=
+       \
+> > +static unsigned long __lockfunc __raw_##op##_lock_irqsave(locktype##_t=
+ *lock) \
+> >   {                                                                   \
+> >       unsigned long flags;                                            \
+> >                                                                       \
+> > @@ -95,12 +95,12 @@ unsigned long __lockfunc __raw_##op##_lock_irqsave(=
+locktype##_t *lock)    \
+> >       return flags;                                                   \
+> >   }                                                                   \
+> >                                                                       \
+> > -void __lockfunc __raw_##op##_lock_irq(locktype##_t *lock)            \
+> > +static void __lockfunc __raw_##op##_lock_irq(locktype##_t *lock)     \
+> >   {                                                                   \
+> >       _raw_##op##_lock_irqsave(lock);                                 \
+> >   }                                                                   \
+> >                                                                       \
+> > -void __lockfunc __raw_##op##_lock_bh(locktype##_t *lock)             \
+> > +static void __lockfunc __raw_##op##_lock_bh(locktype##_t *lock)       =
+       \
+> >   {                                                                   \
+> >       unsigned long flags;                                            \
+> >                                                                       \
+>
+> This may not work if CONFIG_GENERIC_LOCKBREAK is defined. We had been
 
-I think you want a new member -- AIUI, that's what that struct is for.
+sdk7786_defconfig sets CONFIG_GENERIC_LOCKBREAK=3Dy?
 
-Looking at this resulting set of patches, I do kinda think just adding
-the "= {}" in a single patch is more sensible. Having to split things
-that are know at the top of the function from the stuff known at the
-existing initialization time is rather awkward.
+FTR, I checked all defconfigs, and it's set in three of them:
+  - s390/debug_defconfig
+  - sh/sdk7786_defconfig
+  - sh/shx3_defconfig
 
-Personally, I think a single patch that sets "= {}" for all of them and
-drop the all the "= 0" or "= NULL" assignments would be the cleanest way
-to go.
+However, the first one has CONFIG_DEBUG_LOCK_ALLOC=3Dy, so the issue
+does not trigger there (but see below).
 
--Kees
+> talking about taking out CONFIG_GENERIC_LOCKBREAK before. See the thread
+> in [1]. However, we didn't proceed further at that time as we weren't
+> totally sure if there were still some configurations that required
+> CONFIG_GENERIC_LOCKBREAK.
+>
+> [1] https://lore.kernel.org/lkml/20211022120058.1031690-1-arnd@kernel.org=
+/
+>
+> Anyway, without taking out CONFIG_GENERIC_LOCKBREAK, the proper way to
+> fix this issue is probably to declare the proper function prototypes in
+> include/linux/rwlock_api_smp.h and include/linux/spinlock_api_smp.h when
+> CONFIG_GENERIC_LOCKBREAK is defined.
 
--- 
-Kees Cook
+What is the point of adding function prototypes to header files if the
+functions don't seem to be called outside kernel/locking/spinlock.c?
+Or is that part of the breakage?
+
+I do not have an sdk7786 or shx3, so I do not know if the kernel
+actually boots/works.
+
+The warnings are also seen with s390/debug_defconfig after changing
+CONFIG_DEBUG_LOCK_ALLOC=3Dn
+CONFIG_DEBUG_WW_MUTEX_SLOWPATH=3Dn
+CONFIG_LOCK_STAT=3Dn
+CONFIG_PROVE_LOCKING=3Dn
+Probably that is the easiest config to test on actual hardware?
+
+Thanks!
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
