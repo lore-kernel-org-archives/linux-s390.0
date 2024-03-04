@@ -1,75 +1,170 @@
-Received: from smtpbgau1.qq.com (smtpbgau1.qq.com [54.206.16.166])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 531D517CE;
-	Mon,  4 Mar 2024 02:25:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.206.16.166
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A0E917CE
+	for <linux-s390@vger.kernel.org>; Mon,  4 Mar 2024 02:54:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709519143; cv=none; b=S18p1k9EFXL5Q/kCK65C3+jhM2xMeaWamAM+0Q1FQIOl7FaKVsSlclUWtNNBAEwPKP6MFIBzHLbS7hAVmaHbLl8+cxZElAc9VxWIFZ+h/MMhNKMZcNCt51G8PvjF8AxKiDPz+bAU4z52fxOTXdxsPauF91xCStn8mKc2+2W2aUo=
+	t=1709520854; cv=none; b=QziloV1pjCm+9H5OAoTDnohxO3e+p/NSYfR4aH6bPb+ks/iDpNMn51OIQUnZlCp+Zcwr4mCfRVwvxK5fUYsJB4e3Ey0C9LlZ6tWR/92P9fuQjGsYyllq0eznqNraQCOGdTv2D89VkoxnJfMJY273p21c+55ELfy9zTKMjqQX8DE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709519143; c=relaxed/simple;
-	bh=BsmGAfh2XqRzr5EfNwegTjuxW7ujt5apB8OJ8rltSyo=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=HFqfjzTOr1won/2czc2hctlStkfvdWTczvQav54anghUBBZU1osWjUFa1Oq/crOKeTyprKdfp7dmW5Y+1j0VLRx+GN+8Nu5P3OuqQJfDr1ly3vP4jud3dfvWMCV3LVd67YXhyRnjZiKYw0Y+yBiUy9Bemltm1rxMV5MzoqQe5AA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shingroup.cn; spf=pass smtp.mailfrom=shingroup.cn; arc=none smtp.client-ip=54.206.16.166
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shingroup.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shingroup.cn
-X-QQ-mid: bizesmtp68t1709519095t5e6k6ao
-X-QQ-Originating-IP: XoKMA9p+o3jz8qsYVX+Yzx/2I8JC/G5QjVp9P9mWv90=
-Received: from HX01040022.powercore.com.cn ( [223.112.234.130])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Mon, 04 Mar 2024 10:24:53 +0800 (CST)
-X-QQ-SSF: 01400000000000B0B000000A0000000
-X-QQ-FEAT: rZJGTgY0+YOaF7HxPHfzhYZlLNhnxkQc61joKwp2xIXrrxD4EkthjJm4+Sr7X
-	m+Eqn5anMU2dxBalh2rqMW9L9XywopVqCy/HevMq340Kir4qDIrKdHxgSEAtsvFinmwZtrm
-	1HF5zqKP6Y6jKYTdxf+YfxCol4pykcaO21XZwSbsZwL+K1nyXfD8vcGQZiGv4+5tttg5NqZ
-	TD84bTQcP/cJQq6G5ThFevWg0xp7mTilYjr1r4qaFE50PoK+5883yQU56gsTAlYx7im36vT
-	Zu/lYPG6WiIZNwK86cavuLYsENk0hJkbY5DC3B4w7b0adl1O/dhTtwvSSZWKD8hwY41mTKh
-	HIX/FafWR7mtcrsobfnjSJg7UbACisjcV0E8rhTZfASBAn/cLnanMykI55+0w==
-X-QQ-GoodBg: 2
-X-BIZMAIL-ID: 4045340637394204571
-From: "JiaLong.Yang" <jialong.yang@shingroup.cn>
-To: Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>
-Cc: "JiaLong.Yang" <jialong.yang@shingroup.cn>,
-	linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] arch/s390/perf: Register cpumf_pmu with type = PERF_TYPE_RAW
-Date: Mon,  4 Mar 2024 10:27:01 +0800
-Message-Id: <20240304022701.7362-1-jialong.yang@shingroup.cn>
+	s=arc-20240116; t=1709520854; c=relaxed/simple;
+	bh=xdSiMK7kjjGZRlGul3QgzLnwYbT1W966o/MZNoy7N9E=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=NIPXvtPG7TJPnuKwS/drO5+UIogRSvh61+dww2+AHpd6Xf7rgmq52M6Jn4a64FwitgL3rEqGIy3aTabxsDOvyqBiBxzn6YIqgDAaeYWaQAqGXz3zdHoJ8wkjfRqGnFmmS6EnlgTcRtfbaiuJhz4WGHx94StL5nMmnA9QmsO29nE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WWxD15Tr; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WWxD15Tr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1709520851;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=bUCvEG7ZPFwX6+W3DZtnUtBmleJUDEj8UA3febVhuUw=;
+	b=WWxD15Tr3qvCRZ7/Wf2dzy5RoSjw5lwHUffdlONDc0iN9133Y5zO2LypihHc9LSbTc9GqE
+	QbUjziXkAvMy7NTd5AOK6Rs2KKWhGq1VT7YI5pEt1+vUXc5kV+Sf8KS3q9hUpkqUmL2s3T
+	s3b9NYKtBKfdPQ4rT1fMWVAcclZxZpE=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-157-eDWbzhTBMrCNWuWvzMiDrw-1; Sun,
+ 03 Mar 2024 21:54:07 -0500
+X-MC-Unique: eDWbzhTBMrCNWuWvzMiDrw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 432FB1C060C8;
+	Mon,  4 Mar 2024 02:54:07 +0000 (UTC)
+Received: from [10.22.16.80] (unknown [10.22.16.80])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id B789B1121313;
+	Mon,  4 Mar 2024 02:54:06 +0000 (UTC)
+Message-ID: <fad87131-8952-4c67-9208-e7c4683c0234@redhat.com>
+Date: Sun, 3 Mar 2024 21:54:06 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH/RFC] locking/spinlocks: Make __raw_* lock ops static
+Content-Language: en-US
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+ Will Deacon <will@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
+ Arnd Bergmann <arnd@arndb.de>, linux-sh@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>
+References: <c395b02613572131568bc1fd1bc456d20d1a5426.1709325647.git.geert+renesas@glider.be>
+ <87fe0004-0e53-4b7a-b19d-c6b37c8db8dc@redhat.com>
+ <CAMuHMdX+mpc5++8h4oM98FTPAdV-c8TzscTQA095Wzssae6amg@mail.gmail.com>
+From: Waiman Long <longman@redhat.com>
+In-Reply-To: <CAMuHMdX+mpc5++8h4oM98FTPAdV-c8TzscTQA095Wzssae6amg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:shingroup.cn:qybglogicsvrgz:qybglogicsvrgz6a-1
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
 
-The struct pmu cpumf_pmu has handled generic events. So it need some
-flags to tell core this thing.
 
-Signed-off-by: JiaLong.Yang <jialong.yang@shingroup.cn>
----
- arch/s390/kernel/perf_cpum_cf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 3/3/24 11:11, Geert Uytterhoeven wrote:
+> Hi Waiman,
+>
+> CC s390
+>
+> On Sun, Mar 3, 2024 at 5:25 AM Waiman Long <longman@redhat.com> wrote:
+>> On 3/1/24 15:43, Geert Uytterhoeven wrote:
+>>> sh/sdk7786_defconfig (CONFIG_GENERIC_LOCKBREAK=y and
+>>> CONFIG_DEBUG_LOCK_ALLOC=n):
+>>>
+>>> kernel/locking/spinlock.c:68:17: warning: no previous prototype for '__raw_spin_lock' [-Wmissing-prototypes]
+>>> kernel/locking/spinlock.c:80:26: warning: no previous prototype for '__raw_spin_lock_irqsave' [-Wmissing-prototypes]
+>>> kernel/locking/spinlock.c:98:17: warning: no previous prototype for '__raw_spin_lock_irq' [-Wmissing-prototypes]
+>>> kernel/locking/spinlock.c:103:17: warning: no previous prototype for '__raw_spin_lock_bh' [-Wmissing-prototypes]
+>>> kernel/locking/spinlock.c:68:17: warning: no previous prototype for '__raw_read_lock' [-Wmissing-prototypes]
+>>> kernel/locking/spinlock.c:80:26: warning: no previous prototype for '__raw_read_lock_irqsave' [-Wmissing-prototypes]
+>>> kernel/locking/spinlock.c:98:17: warning: no previous prototype for '__raw_read_lock_irq' [-Wmissing-prototypes]
+>>> kernel/locking/spinlock.c:103:17: warning: no previous prototype for '__raw_read_lock_bh' [-Wmissing-prototypes]
+>>> kernel/locking/spinlock.c:68:17: warning: no previous prototype for '__raw_write_lock' [-Wmissing-prototypes]
+>>> kernel/locking/spinlock.c:80:26: warning: no previous prototype for '__raw_write_lock_irqsave' [-Wmissing-prototypes]
+>>> kernel/locking/spinlock.c:98:17: warning: no previous prototype for '__raw_write_lock_irq' [-Wmissing-prototypes]
+>>> kernel/locking/spinlock.c:103:17: warning: no previous prototype for '__raw_write_lock_bh' [-Wmissing-prototypes]
+>>>
+>>> Fix this by making the __raw_* lock ops static.
+>>>
+>>> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+>>> ---
+>>> Compile-tested only.
+>>>
+>>> Is SH really the only SMP platform where CONFIG_GENERIC_LOCKBREAK=y?
+>>> ---
+>>>    kernel/locking/spinlock.c | 8 ++++----
+>>>    1 file changed, 4 insertions(+), 4 deletions(-)
+>>>
+>>> diff --git a/kernel/locking/spinlock.c b/kernel/locking/spinlock.c
+>>> index 8475a0794f8c5ad2..7009b568e6255d64 100644
+>>> --- a/kernel/locking/spinlock.c
+>>> +++ b/kernel/locking/spinlock.c
+>>> @@ -65,7 +65,7 @@ EXPORT_PER_CPU_SYMBOL(__mmiowb_state);
+>>>     * towards that other CPU that it should break the lock ASAP.
+>>>     */
+>>>    #define BUILD_LOCK_OPS(op, locktype)                                        \
+>>> -void __lockfunc __raw_##op##_lock(locktype##_t *lock)                        \
+>>> +static void __lockfunc __raw_##op##_lock(locktype##_t *lock)         \
+>>>    {                                                                   \
+>>>        for (;;) {                                                      \
+>>>                preempt_disable();                                      \
+>>> @@ -77,7 +77,7 @@ void __lockfunc __raw_##op##_lock(locktype##_t *lock)                       \
+>>>        }                                                               \
+>>>    }                                                                   \
+>>>                                                                        \
+>>> -unsigned long __lockfunc __raw_##op##_lock_irqsave(locktype##_t *lock)       \
+>>> +static unsigned long __lockfunc __raw_##op##_lock_irqsave(locktype##_t *lock) \
+>>>    {                                                                   \
+>>>        unsigned long flags;                                            \
+>>>                                                                        \
+>>> @@ -95,12 +95,12 @@ unsigned long __lockfunc __raw_##op##_lock_irqsave(locktype##_t *lock)    \
+>>>        return flags;                                                   \
+>>>    }                                                                   \
+>>>                                                                        \
+>>> -void __lockfunc __raw_##op##_lock_irq(locktype##_t *lock)            \
+>>> +static void __lockfunc __raw_##op##_lock_irq(locktype##_t *lock)     \
+>>>    {                                                                   \
+>>>        _raw_##op##_lock_irqsave(lock);                                 \
+>>>    }                                                                   \
+>>>                                                                        \
+>>> -void __lockfunc __raw_##op##_lock_bh(locktype##_t *lock)             \
+>>> +static void __lockfunc __raw_##op##_lock_bh(locktype##_t *lock)              \
+>>>    {                                                                   \
+>>>        unsigned long flags;                                            \
+>>>                                                                        \
+>> This may not work if CONFIG_GENERIC_LOCKBREAK is defined. We had been
+> sdk7786_defconfig sets CONFIG_GENERIC_LOCKBREAK=y?
+>
+> FTR, I checked all defconfigs, and it's set in three of them:
+>    - s390/debug_defconfig
+>    - sh/sdk7786_defconfig
+>    - sh/shx3_defconfig
+>
+> However, the first one has CONFIG_DEBUG_LOCK_ALLOC=y, so the issue
+> does not trigger there (but see below).
 
-diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
-index 41ed6e0f0a2a..6ba36cf50091 100644
---- a/arch/s390/kernel/perf_cpum_cf.c
-+++ b/arch/s390/kernel/perf_cpum_cf.c
-@@ -1213,7 +1213,7 @@ static int __init cpumf_pmu_init(void)
- 	debug_register_view(cf_dbg, &debug_sprintf_view);
- 
- 	cpumf_pmu.attr_groups = cpumf_cf_event_group();
--	rc = perf_pmu_register(&cpumf_pmu, "cpum_cf", -1);
-+	rc = perf_pmu_register(&cpumf_pmu, "cpum_cf", PERF_TYPE_RAW);
- 	if (rc) {
- 		pr_err("Registering the cpum_cf PMU failed with rc=%i\n", rc);
- 		goto out2;
--- 
-2.25.1
+I was worrying about any of the INLINE_*_LOCK* config being turned on. 
+It turns out that setting GENERIC_LOCKBREAK will not allow those locking 
+functions to be inlined. So my concern is not warranted.
+
+With that, I think your patch should be safe.
+
+Acked-by: Waiman Long <longman@redhat.com>
+
+It will be nice if you can document that either in the change log or in 
+a comment.
+
+Still the lock-break lock variants are simple TaS locks with preemption 
+turned on in between successive attempts to acquire the lock. It will be 
+slow and is only suitable for system with small number of cores. The 
+long term goal should be to get rid of these variants and 
+CONFIG_GENERIC_LOCKBREAK if possible.
+
+Cheers,
+Longman
 
