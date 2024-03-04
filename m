@@ -1,66 +1,32 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85BD01CF87;
-	Mon,  4 Mar 2024 08:45:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D911B1947D;
+	Mon,  4 Mar 2024 09:00:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709541904; cv=none; b=Dz87TtjZPrQCwCZPHFItqw7Rh0o1GoKcFET7+F6o/UXYXpHwWYZhGR/JbqYy3FJKop7q74Ft44qdnh2KDgbeYAag0RlGbzEEp0MGb+Voas15Sj0R58bqA3y3jRu8YS4YEoRdSJqPUuE3T8/ozEQRBVNyefvi9GLdexK+3EP28yw=
+	t=1709542851; cv=none; b=isjfbUTU8c48NpCiFgoj3tKbqDkZ2JSMPl4n5ivZUCS37YgdwahYr/fPFev6mJeID/IRiLPSmEIdrwC1hEYJdAMpiGUDRacP0dYLlIkqWGc6CnvY7CbxlD9exdoZKD5Vlkbn2hiEVh2oZcRmA6J42/xYDr/VZYldmoxfb4tUafE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709541904; c=relaxed/simple;
-	bh=JhB4Fh9f7VvgJNGyZfbeDV7AOMGQoX5j923ICfzc/9M=;
+	s=arc-20240116; t=1709542851; c=relaxed/simple;
+	bh=kC/i6dh8xeQ/wHc0EIZeXuT9EMYEzuM7Q48zQ/NMRt8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=dHwoAG4aU3sdffIfaHcEUiCbfhra2IzkV/pl9bdTBQ706sj4bJhyj+rHm/Y/mEVRrZYI1JyikXYE+yX1HKvmbVx+/XN6wpMitqPXUFFindxnCcI8T9xmYzD6MjrykP9J0DJLCYqHmUqqudhkAww3CT6/1w86lRl8a0gpMyzYIfQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ttxTsu8s; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=ZL4nnIIdnPx/Vt+uoksaNxC3Ya1NwOHzIw75bZT5rUPR4icsasTEaMbfJi9wl8s/dQevfC6AW4PrxJ3XvIrxJeJpLYqnamDa9coCF02XwCr+p5F1YcMWUheuUEBaaL5jAHhOGdx5ynG5Wxo3woYiz37hHeiBwsvNgfSR/dGJ8qc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=OUuCtk7v; arc=none smtp.client-ip=115.124.30.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ttxTsu8s"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42485sdS016778;
-	Mon, 4 Mar 2024 08:45:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=7O3j5hB0PmnlMQWPyOx/F6kZdTYfEGLQUK+PqYy6Occ=;
- b=ttxTsu8sOoSi8pLAQ/HWBCHvC8ODtPBwvYVGXrGbxxecx/SFCKseyGNLuwizNuwJR3l0
- xA8KUxaneZ1yoSwJW20AWpKDzvITxe2pEGyraunHqxFL69VsWcHgPMWZMIemjgUeFZGF
- qvY0BX2hdCBQD/6pzamJhj69+q/ASMXFm4JXYC72AX5EE51dnhjyjJX+wEqbsSgrI0PE
- JFDBLNd2Rbkm6x+/r6ItFsg8V/zxwR1UFSavPYUb5j7bvPgvHStaBT1zIevFauXD+nVw
- WUduYgVa+GjpDY6RgZOq3dVpQ1wwa6tOr/u5nenD5qz1Bi2xUwHztaK9XpDJdteU76+o Vg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wnafy0u2p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 04 Mar 2024 08:45:00 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 4248Bl5c004654;
-	Mon, 4 Mar 2024 08:45:00 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wnafy0u2f-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 04 Mar 2024 08:45:00 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 42477bA2026212;
-	Mon, 4 Mar 2024 08:44:59 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wmfenfdm7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 04 Mar 2024 08:44:59 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4248irsk43712880
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 4 Mar 2024 08:44:55 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AE18C20040;
-	Mon,  4 Mar 2024 08:44:53 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C6D3F20043;
-	Mon,  4 Mar 2024 08:44:52 +0000 (GMT)
-Received: from [9.179.29.223] (unknown [9.179.29.223])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  4 Mar 2024 08:44:52 +0000 (GMT)
-Message-ID: <1deb0e32-7351-45d2-a342-96a659402be8@linux.ibm.com>
-Date: Mon, 4 Mar 2024 09:44:52 +0100
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="OUuCtk7v"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1709542838; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=9ahmIqK5qlatgPE40+G4aT0KoQpIaQEigate3V7w1Vc=;
+	b=OUuCtk7vX/VZh0Df8GOtfvT4l2HYinkxHUd8copLJ063CIz5dyNmusQxjNaqNTmxrvoJkILnSFxs9QrIDskIGIEInmM809uxX+4FlK1Ug1rkiLKdaO/wZciByOSOI7+Ipfd//udgMwe5qCc2nmUgrWP2LcvZFPuTfwKNVltfGJI=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0W1mkySt_1709542837;
+Received: from 30.221.132.253(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0W1mkySt_1709542837)
+          by smtp.aliyun-inc.com;
+          Mon, 04 Mar 2024 17:00:38 +0800
+Message-ID: <71aa847b-2edc-44a2-beb7-3610bf744937@linux.alibaba.com>
+Date: Mon, 4 Mar 2024 17:00:36 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,49 +34,237 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] KVM: s390: vsie: retry SIE instruction on host intercepts
-To: David Hildenbrand <david@redhat.com>, Eric Farman <farman@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-References: <20240301204342.3217540-1-farman@linux.ibm.com>
- <338544a6-4838-4eeb-b1b2-2faa6c11c1be@redhat.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <338544a6-4838-4eeb-b1b2-2faa6c11c1be@redhat.com>
+Subject: Re: [PATCH][next] net/smc: Avoid -Wflex-array-member-not-at-end
+ warnings
+To: "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+ Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
+ "D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org,
+ Kees Cook <keescook@chromium.org>
+References: <ZeIhOT44ON5rjPiP@neat>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <ZeIhOT44ON5rjPiP@neat>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Q-faGH8MRRb-NEBinXG1H99z4wZ6YX_o
-X-Proofpoint-GUID: 82YXLDNHXmBEZ8e5v0pvQFFJzrJ8n8hy
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-04_04,2024-03-01_03,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- priorityscore=1501 adultscore=0 phishscore=0 lowpriorityscore=0
- spamscore=0 impostorscore=0 mlxlogscore=629 bulkscore=0 clxscore=1015
- mlxscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2403040066
 
 
 
-Am 04.03.24 um 09:35 schrieb David Hildenbrand:
-> On 01.03.24 21:43, Eric Farman wrote:
->> It's possible that SIE exits for work that the host needs to perform
->> rather than something that is intended for the guest.
->>
->> A Linux guest will ignore this intercept code since there is nothing
->> for it to do, but a more robust solution would rewind the PSW back to
->> the SIE instruction. This will transparently resume the guest once
->> the host completes its work, without the guest needing to process
->> what is effectively a NOP and re-issue SIE itself.
+On 2024/3/2 02:40, Gustavo A. R. Silva wrote:
+> -Wflex-array-member-not-at-end is coming in GCC-14, and we are getting
+> ready to enable it globally.
 > 
-> I recall that 0-intercepts are valid by the architecture. Further, I recall that there were some rather tricky corner cases where avoiding 0-intercepts would not be that easy.
+> There are currently a couple of objects in `struct smc_clc_msg_proposal_area`
+> that contain a couple of flexible structures:
 > 
-> Now, it's been a while ago, and maybe I misremember. SoI'm trusting people with access to documentation can review this.
+> struct smc_clc_msg_proposal_area {
+> 	...
+> 	struct smc_clc_v2_extension             pclc_v2_ext;
+> 	...
+> 	struct smc_clc_smcd_v2_extension        pclc_smcd_v2_ext;
+> 	...
+> };
+> 
+> So, in order to avoid ending up with a couple of flexible-array members
+> in the middle of a struct, we use the `struct_group_tagged()` helper to
+> separate the flexible array from the rest of the members in the flexible
+> structure:
+> 
+> struct smc_clc_smcd_v2_extension {
+>          struct_group_tagged(smc_clc_smcd_v2_extension_hdr, hdr,
+>                              u8 system_eid[SMC_MAX_EID_LEN];
+>                              u8 reserved[16];
+>          );
+>          struct smc_clc_smcd_gid_chid gidchid[];
+> };
+> 
+> With the change described above, we now declare objects of the type of
+> the tagged struct without embedding flexible arrays in the middle of
+> another struct:
+> 
+> struct smc_clc_msg_proposal_area {
+>          ...
+>          struct smc_clc_v2_extension_hdr		pclc_v2_ext;
+>          ...
+>          struct smc_clc_smcd_v2_extension_hdr	pclc_smcd_v2_ext;
+>          ...
+> };
+> 
+> We also use `container_of()` when we need to retrieve a pointer to the
+> flexible structures.
+> 
+> So, with these changes, fix the following warnings:
+> 
+> In file included from net/smc/af_smc.c:42:
+> net/smc/smc_clc.h:186:49: warning: structure containing a flexible array member is not at the end of another structure [-Wflex-array-member-not-at-end]
+>    186 |         struct smc_clc_v2_extension             pclc_v2_ext;
+>        |                                                 ^~~~~~~~~~~
+> net/smc/smc_clc.h:188:49: warning: structure containing a flexible array member is not at the end of another structure [-Wflex-array-member-not-at-end]
+>    188 |         struct smc_clc_smcd_v2_extension        pclc_smcd_v2_ext;
+>        |                                                 ^~~~~~~~~~~~~~~~
+> 
+> Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+> ---
+>   net/smc/smc_clc.c |  5 +++--
+>   net/smc/smc_clc.h | 24 ++++++++++++++----------
+>   2 files changed, 17 insertions(+), 12 deletions(-)
+> 
+> diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+> index e55026c7529c..3094cfa1c458 100644
+> --- a/net/smc/smc_clc.c
+> +++ b/net/smc/smc_clc.c
+> @@ -853,8 +853,9 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
+>   	pclc_smcd = &pclc->pclc_smcd;
+>   	pclc_prfx = &pclc->pclc_prfx;
+>   	ipv6_prfx = pclc->pclc_prfx_ipv6;
+> -	v2_ext = &pclc->pclc_v2_ext;
+> -	smcd_v2_ext = &pclc->pclc_smcd_v2_ext;
+> +	v2_ext = container_of(&pclc->pclc_v2_ext, struct smc_clc_v2_extension, _hdr);
+> +	smcd_v2_ext = container_of(&pclc->pclc_smcd_v2_ext,
+> +				   struct smc_clc_smcd_v2_extension, hdr);
+>   	gidchids = pclc->pclc_gidchids;
+>   	trl = &pclc->pclc_trl;
+>   
+> diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+> index 7cc7070b9772..5b91a1947078 100644
+> --- a/net/smc/smc_clc.h
+> +++ b/net/smc/smc_clc.h
+> @@ -134,12 +134,14 @@ struct smc_clc_smcd_gid_chid {
+>   			 */
+>   
+>   struct smc_clc_v2_extension {
+> -	struct smc_clnt_opts_area_hdr hdr;
+> -	u8 roce[16];		/* RoCEv2 GID */
+> -	u8 max_conns;
+> -	u8 max_links;
+> -	__be16 feature_mask;
+> -	u8 reserved[12];
+> +	struct_group_tagged(smc_clc_v2_extension_hdr, _hdr,
+> +		struct smc_clnt_opts_area_hdr hdr;
+> +		u8 roce[16];		/* RoCEv2 GID */
+> +		u8 max_conns;
+> +		u8 max_links;
+> +		__be16 feature_mask;
+> +		u8 reserved[12];
+> +	);
+>   	u8 user_eids[][SMC_MAX_EID_LEN];
+>   };
+>   
+> @@ -159,8 +161,10 @@ struct smc_clc_msg_smcd {	/* SMC-D GID information */
+>   };
+>   
+>   struct smc_clc_smcd_v2_extension {
+> -	u8 system_eid[SMC_MAX_EID_LEN];
+> -	u8 reserved[16];
+> +	struct_group_tagged(smc_clc_smcd_v2_extension_hdr, hdr,
+> +		u8 system_eid[SMC_MAX_EID_LEN];
+> +		u8 reserved[16];
+> +	);
+>   	struct smc_clc_smcd_gid_chid gidchid[];
+>   };
+>   
+> @@ -183,9 +187,9 @@ struct smc_clc_msg_proposal_area {
+>   	struct smc_clc_msg_smcd			pclc_smcd;
+>   	struct smc_clc_msg_proposal_prefix	pclc_prfx;
+>   	struct smc_clc_ipv6_prefix	pclc_prfx_ipv6[SMC_CLC_MAX_V6_PREFIX];
+> -	struct smc_clc_v2_extension		pclc_v2_ext;
+> +	struct smc_clc_v2_extension_hdr		pclc_v2_ext;
+>   	u8			user_eids[SMC_CLC_MAX_UEID][SMC_MAX_EID_LEN];
+> -	struct smc_clc_smcd_v2_extension	pclc_smcd_v2_ext;
+> +	struct smc_clc_smcd_v2_extension_hdr	pclc_smcd_v2_ext;
+>   	struct smc_clc_smcd_gid_chid
+>   				pclc_gidchids[SMCD_CLC_MAX_V2_GID_ENTRIES];
+>   	struct smc_clc_msg_trail		pclc_trl;
 
-Yes, 0-intercepts are allowed, and this also happens when LPAR has an exit.
-So this patch is not necessary, the question is if this would be an valuable optimization?
+Thank you! Gustavo. This patch can fix this warning well, just the name
+'*_hdr' might not be very accurate, but I don't have a good idea ATM.
+
+Besides, I am wondering if this can be fixed by moving
+user_eids of smc_clc_msg_proposal_area into smc_clc_v2_extension,
+and
+pclc_gidchids of smc_clc_msg_proposal_area into smc_clc_smcd_v2_extension.
+
+so that we can avoid to use the flexible-array in smc_clc_v2_extension
+and smc_clc_smcd_v2_extension.
+
+
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index e55026c7529c..971b4677b84d 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -855,7 +855,7 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
+         ipv6_prfx = pclc->pclc_prfx_ipv6;
+         v2_ext = &pclc->pclc_v2_ext;
+         smcd_v2_ext = &pclc->pclc_smcd_v2_ext;
+-       gidchids = pclc->pclc_gidchids;
++       gidchids = pclc->pclc_smcd_v2_ext.gidchid;
+         trl = &pclc->pclc_trl;
+
+         pclc_base->hdr.version = SMC_V2;
+diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+index 7cc7070b9772..36c8432af73e 100644
+--- a/net/smc/smc_clc.h
++++ b/net/smc/smc_clc.h
+@@ -133,6 +133,14 @@ struct smc_clc_smcd_gid_chid {
+                          * (https://www.ibm.com/support/pages/node/6326337)
+                          */
+
++#define SMC_CLC_MAX_V6_PREFIX          8
++#define SMC_CLC_MAX_UEID               8
++#define SMCD_CLC_MAX_V2_GID_ENTRIES    8 /* max # of CHID-GID entries in CLC
++                                          * proposal SMC-Dv2 extension.
++                                          * each ISM device takes one entry and
++                                          * each Emulated-ISM takes two entries
++                                          */
++
+  struct smc_clc_v2_extension {
+         struct smc_clnt_opts_area_hdr hdr;
+         u8 roce[16];            /* RoCEv2 GID */
+@@ -140,7 +148,7 @@ struct smc_clc_v2_extension {
+         u8 max_links;
+         __be16 feature_mask;
+         u8 reserved[12];
+-       u8 user_eids[][SMC_MAX_EID_LEN];
++       u8 user_eids[SMC_CLC_MAX_UEID][SMC_MAX_EID_LEN];
+  };
+
+  struct smc_clc_msg_proposal_prefix {   /* prefix part of clc proposal message*/
+@@ -161,7 +169,7 @@ struct smc_clc_msg_smcd {   /* SMC-D GID information */
+  struct smc_clc_smcd_v2_extension {
+         u8 system_eid[SMC_MAX_EID_LEN];
+         u8 reserved[16];
+-       struct smc_clc_smcd_gid_chid gidchid[];
++       struct smc_clc_smcd_gid_chid gidchid[SMCD_CLC_MAX_V2_GID_ENTRIES];
+  };
+
+  struct smc_clc_msg_proposal {  /* clc proposal message sent by Linux */
+@@ -170,24 +178,13 @@ struct smc_clc_msg_proposal {     /* clc proposal message sent by Linux */
+         __be16 iparea_offset;   /* offset to IP address information area */
+  } __aligned(4);
+
+-#define SMC_CLC_MAX_V6_PREFIX          8
+-#define SMC_CLC_MAX_UEID               8
+-#define SMCD_CLC_MAX_V2_GID_ENTRIES    8 /* max # of CHID-GID entries in CLC
+-                                          * proposal SMC-Dv2 extension.
+-                                          * each ISM device takes one entry and
+-                                          * each Emulated-ISM takes two entries
+-                                          */
+-
+  struct smc_clc_msg_proposal_area {
+         struct smc_clc_msg_proposal             pclc_base;
+         struct smc_clc_msg_smcd                 pclc_smcd;
+         struct smc_clc_msg_proposal_prefix      pclc_prfx;
+         struct smc_clc_ipv6_prefix      pclc_prfx_ipv6[SMC_CLC_MAX_V6_PREFIX];
+         struct smc_clc_v2_extension             pclc_v2_ext;
+-       u8                      user_eids[SMC_CLC_MAX_UEID][SMC_MAX_EID_LEN];
+         struct smc_clc_smcd_v2_extension        pclc_smcd_v2_ext;
+-       struct smc_clc_smcd_gid_chid
+-                               pclc_gidchids[SMCD_CLC_MAX_V2_GID_ENTRIES];
+         struct smc_clc_msg_trail                pclc_trl;
+  };
+
+
+Thanks!
+Wen Gu
