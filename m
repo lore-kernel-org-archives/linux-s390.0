@@ -1,150 +1,115 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from forward501b.mail.yandex.net (forward501b.mail.yandex.net [178.154.239.145])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B74EA4D134;
-	Mon,  4 Mar 2024 15:37:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B88E4D5A6;
+	Mon,  4 Mar 2024 16:41:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.145
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709566658; cv=none; b=HivgBU54Ghsk5Xt+uhxUvpgOwQWFJu8upTfaOZzhukNsJ8kSFa1ypsN65YO7rBLC1cWv0mPyWE5jWrwFuMsMyuFi3XxCKL9kWvgTsH2SzBzQPwFDbRYgt9aA9V7q3JCf4uf/NCQJDGAqKpUhS95fwEbd9Itlu44x3RKvGmJ1heI=
+	t=1709570522; cv=none; b=lavultvP52ML3GjAgHbvL8PS4WX133c/T1jxXhR2gAlEXAxxpC2xJQXXViTTVjidMVlTweSz3kzL1ni3e3VtpJRnRw7Kah7knr15MKggTklsyAwrHKoZVRY57krjYBI8+UGobvfwYvEw6FR9grnU1N+RmxdsX2c+QLlMWsjhP+Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709566658; c=relaxed/simple;
-	bh=+/cgWwnAJEgj909x707VvZAvip29LDmYCa78NoRpy5I=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=nn2aLc7Vp/nMMcXrtnyzwhE4xu43H0612fscAc2i5sks4RpjqyupmhMwsfRTS5qkP4H1q0nZZDLb0cEIphHoQb1wRsEEx2/KqqHG53NrBXDn8mi0ExFJHNAyYzG0+LZJ/vj35Na8GLsH1jR0TakAmbAD3KXw/b9fKgfFar6eW/Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=StL+gEOY; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1709570522; c=relaxed/simple;
+	bh=hk7+v+aeqrRZnGbW7ZHLgyqEFN+ZiTFPpDnpQFgPyK4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=e6zw4sSfnEx/Z6/OKKpGxNF35ogDgTQItTwHU5jb1ggujjDlLpPwP8lQ/8/cDGrdiznOpulJj8T50t6EHoh2yjrZ8rRQb/W8ZuqasXm9c5YGKRh7QNScY4waBluk5rmmxDwESrt0fEhTf4cncNU3CckF0H/niwV9o8SivNfYrPQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru; spf=pass smtp.mailfrom=yandex.ru; dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b=LvE/ACSw; arc=none smtp.client-ip=178.154.239.145
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="StL+gEOY"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 424F29CX024538;
-	Mon, 4 Mar 2024 15:37:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=+/cgWwnAJEgj909x707VvZAvip29LDmYCa78NoRpy5I=;
- b=StL+gEOYZlipBlYvwznrTkeX94MCN/j3D4yCFVc2b4+RN4L6jzYOUcW4YvEvkCTaaAsM
- HCXRh5j3TkQAtwAauoohcMLo5C2ExwdgpQNv9bMXo8L85N56lk0jZndRlSADkqnsoW6X
- 3/lQ8EPSM2XAQ4KEga16NClw+RR1HUjIUM3tonFgtIjkO8iGkH6bWrFtaKG9wEafvmFb
- aRHE1FEGB7OUXJEsUZkXYP4dgSWjGF2FxizG2w7BYze0nKeNnxbyfxFTeQnIiS3wgZtI
- 5kEnFhAcwHmej8leh9+NiOXyLrl66z+z3n5hvq5JF5kjDz1frGSmZTJ2duNyO5026xgi qQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wngk7h66n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 04 Mar 2024 15:37:35 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 424F3PAA031824;
-	Mon, 4 Mar 2024 15:37:35 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wngk7h66g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 04 Mar 2024 15:37:35 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 424EMJNp031533;
-	Mon, 4 Mar 2024 15:37:34 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wmgnjs44n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 04 Mar 2024 15:37:34 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 424FbUvi19858136
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 4 Mar 2024 15:37:32 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 778BB58059;
-	Mon,  4 Mar 2024 15:37:30 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B1F7658055;
-	Mon,  4 Mar 2024 15:37:29 +0000 (GMT)
-Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.11.53])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  4 Mar 2024 15:37:29 +0000 (GMT)
-Message-ID: <8fbd41c0fb16a5e10401f6c2888d44084e9af86a.camel@linux.ibm.com>
-Subject: Re: [PATCH] KVM: s390: vsie: retry SIE instruction on host
- intercepts
-From: Eric Farman <farman@linux.ibm.com>
-To: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        David Hildenbrand
- <david@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda
- <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens
-	 <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
-	 <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Date: Mon, 04 Mar 2024 10:37:29 -0500
-In-Reply-To: <1deb0e32-7351-45d2-a342-96a659402be8@linux.ibm.com>
-References: <20240301204342.3217540-1-farman@linux.ibm.com>
-	 <338544a6-4838-4eeb-b1b2-2faa6c11c1be@redhat.com>
-	 <1deb0e32-7351-45d2-a342-96a659402be8@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.4 (3.50.4-1.fc39) 
+	dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b="LvE/ACSw"
+Received: from mail-nwsmtp-smtp-production-main-57.myt.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-57.myt.yp-c.yandex.net [IPv6:2a02:6b8:c12:1302:0:640:9f1e:0])
+	by forward501b.mail.yandex.net (Yandex) with ESMTPS id 3337F61278;
+	Mon,  4 Mar 2024 19:35:06 +0300 (MSK)
+Received: by mail-nwsmtp-smtp-production-main-57.myt.yp-c.yandex.net (smtp/Yandex) with ESMTPSA id 4Zh89nSOcqM0-1r4u4fMs;
+	Mon, 04 Mar 2024 19:35:05 +0300
+X-Yandex-Fwd: 1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
+	t=1709570105; bh=hk7+v+aeqrRZnGbW7ZHLgyqEFN+ZiTFPpDnpQFgPyK4=;
+	h=In-Reply-To:To:From:Cc:Date:References:Subject:Message-ID;
+	b=LvE/ACSwVncuDXhH92NpKubKPNW5iocUFN/YVnE0Jttm35dlzvOIZAaBd5dp7aqa0
+	 ksy64deg/v6Tnu7OIfhPiANd+D/Ms3zUWEK0XO77mcngoqpFYzgEG5oaPqK/avaCQo
+	 1qehlqrmvCHOGA31qinvuDpN+1XqQwc32JIAT8m8=
+Authentication-Results: mail-nwsmtp-smtp-production-main-57.myt.yp-c.yandex.net; dkim=pass header.i=@yandex.ru
+Message-ID: <380043fa-3208-4856-92b1-be9c87caeeb6@yandex.ru>
+Date: Mon, 4 Mar 2024 19:35:04 +0300
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: F08tLXnEv56zjo8LsdI43Mi6RDEAzmCB
-X-Proofpoint-ORIG-GUID: HmpyPlg6tjBoUxKZfEyVG7yJy1kTHYFp
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-04_11,2024-03-04_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1015
- impostorscore=0 mlxlogscore=328 phishscore=0 spamscore=0 malwarescore=0
- priorityscore=1501 mlxscore=0 lowpriorityscore=0 suspectscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2403040119
+User-Agent: Mozilla Thunderbird
+Subject: Re: [lvc-project] [PATCH] [RFC] net: smc: fix fasync leak in
+ smc_release()
+To: Wen Gu <guwen@linux.alibaba.com>,
+ "wenjia@linux.ibm.com" <wenjia@linux.ibm.com>
+Cc: "lvc-project@linuxtesting.org" <lvc-project@linuxtesting.org>,
+ "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "jaka@linux.ibm.com" <jaka@linux.ibm.com>
+References: <20240221051608.43241-1-dmantipov@yandex.ru>
+ <819353f3-f5f9-4a15-96a1-4f3a7fd6b33e@linux.alibaba.com>
+ <659c7821842fca97513624b713ced72ab970cdfc.camel@softline.com>
+ <19d7d71b-c911-45cc-9671-235d98720be6@linux.alibaba.com>
+Content-Language: en-US
+From: Dmitry Antipov <dmantipov@yandex.ru>
+Autocrypt: addr=dmantipov@yandex.ru; keydata=
+ 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
+ tx98MCutXbJWn55RtnVKbpIiMfBrcB8=
+In-Reply-To: <19d7d71b-c911-45cc-9671-235d98720be6@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-On Mon, 2024-03-04 at 09:44 +0100, Christian Borntraeger wrote:
->=20
->=20
-> Am 04.03.24 um 09:35 schrieb David Hildenbrand:
-> > On 01.03.24 21:43, Eric Farman wrote:
-> > > It's possible that SIE exits for work that the host needs to
-> > > perform
-> > > rather than something that is intended for the guest.
-> > >=20
-> > > A Linux guest will ignore this intercept code since there is
-> > > nothing
-> > > for it to do, but a more robust solution would rewind the PSW
-> > > back to
-> > > the SIE instruction. This will transparently resume the guest
-> > > once
-> > > the host completes its work, without the guest needing to process
-> > > what is effectively a NOP and re-issue SIE itself.
-> >=20
-> > I recall that 0-intercepts are valid by the architecture. Further,
-> > I recall that there were some rather tricky corner cases where
-> > avoiding 0-intercepts would not be that easy.
-
-Any chance you recall any details of those corner cases? I can try to
-chase some of them down.
-
-> >=20
-> > Now, it's been a while ago, and maybe I misremember. SoI'm trusting
-> > people with access to documentation can review this.
->=20
-> Yes, 0-intercepts are allowed, and this also happens when LPAR has an
-> exit.
-
-From an offline conversation I'd had some months back:
-
-"""
-The arch does allow ICODE=3D0 to be stored, but it's supposed to happen
-only upon a host interruption -- in which case the old PSW is supposed
-to point back at the SIE, to resume guest execution if the host should
-LPSW oldPSW.
-"""
-
-> So this patch is not necessary, the question is if this would be an
-> valuable optimization?
-
-It's a reasonable question. I don't think I have a reasonable way of
-measuring the exit, though. :/
+T24gMi8yMy8yNCAwNjozNiwgV2VuIEd1IHdyb3RlOg0KDQo+IE9uZSBzb2x1dGlvbiB0byB0
+aGlzIGlzc3VlIEkgY2FuIHRoaW5rIG9mIGlzIHRvIGNoZWNrIHdoZXRoZXINCj4gZmlscC0+
+cHJpdmF0ZV9kYXRhIGhhcyBiZWVuIGNoYW5nZWQgd2hlbiB0aGUgc29ja19mYXN5bmMgaG9s
+ZHMgdGhlIHNvY2sgbG9jaywNCj4gYnV0IGl0IGluZXZpdGFibHkgY2hhbmdlcyB0aGUgZ2Vu
+ZXJhbCBjb2RlLi4NCj4gDQo+IGRpZmYgLS1naXQgYS9uZXQvc29ja2V0LmMgYi9uZXQvc29j
+a2V0LmMNCj4gaW5kZXggZWQzZGYyZjc0OWJmLi5hMjg0MzUxOTU4NTQgMTAwNjQ0DQo+IC0t
+LSBhL25ldC9zb2NrZXQuYw0KPiArKysgYi9uZXQvc29ja2V0LmMNCj4gQEAgLTE0NDMsNiAr
+MTQ0MywxMSBAQCBzdGF0aWMgaW50IHNvY2tfZmFzeW5jKGludCBmZCwgc3RydWN0IGZpbGUg
+KmZpbHAsIGludCBvbikNCj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCByZXR1
+cm4gLUVJTlZBTDsNCj4gDQo+ICDCoMKgwqDCoMKgwqDCoCBsb2NrX3NvY2soc2spOw0KPiAr
+wqDCoMKgwqDCoMKgIC8qIGZpbHAtPnByaXZhdGVfZGF0YSBoYXMgY2hhbmdlZCAqLw0KPiAr
+wqDCoMKgwqDCoMKgIGlmIChvbiAmJiB1bmxpa2VseShzb2NrICE9IGZpbHAtPnByaXZhdGVf
+ZGF0YSkpIHsNCj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcmVsZWFzZV9zb2Nr
+KHNrKTsNCj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0dXJuIC1FQUdBSU47
+DQo+ICvCoMKgwqDCoMKgwqAgfQ0KPiAgwqDCoMKgwqDCoMKgwqAgZmFzeW5jX2hlbHBlcihm
+ZCwgZmlscCwgb24sICZ3cS0+ZmFzeW5jX2xpc3QpOw0KPiANCj4gIMKgwqDCoMKgwqDCoMKg
+IGlmICghd3EtPmZhc3luY19saXN0KQ0KPiANCj4gTGV0J3Mgc2VlIGlmIGFueW9uZSBlbHNl
+IGhhcyBhIGJldHRlciBpZGVhLg0KDQpJSVVDIHRoaXMgaXMgbm90IGEgc29sdXRpb24ganVz
+dCBiZWNhdXNlIGl0IGRlY3JlYXNlcyB0aGUgcHJvYmFiaWxpdHkgb2YgdGhlIHJhY2UNCmJ1
+dCBkb2Vzbid0IGVsaW1pbmF0ZSBpdCBjb21wbGV0ZWx5IC0gYW4gdW5kZXJseWluZyBzb2Nr
+ZXQgc3dpdGNoIChlLmcuIGNoYW5naW5nDQonZmlscC0+cHJpdmF0ZV9kYXRhJykgbWF5IGhh
+cHBlbiB3aGVuICdmYXN5bmNfaGVscGVyKCknIGlzIGluIHByb2dyZXNzLg0KDQpEbWl0cnkN
+Cg0KDQo=
