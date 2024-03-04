@@ -1,257 +1,481 @@
-Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70A2239FE1
-	for <linux-s390@vger.kernel.org>; Mon,  4 Mar 2024 11:08:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13B023A8FE;
+	Mon,  4 Mar 2024 11:47:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709550505; cv=none; b=NAi4VqQ5ENMT8zdZ/n+eRNjaaDVWPxWfGexFUdJWXVNl6DSNBHq1ZcrB1qXCWJjg5UeoyIVLzdxXfU03DvzoQLc8+taXIhNGzkWBXMgUq9GMDUDIMJVONtTHGBdPeV7/IhVQYgIGcUjUb/9/L+fklBrhV5iVmG3eeIhzcjMd0Qc=
+	t=1709552850; cv=none; b=NOvkB4SPX3gDFy36+QLq+yEZmjj2aeshvXlK9js5BSoj/odrMUh19cXgRpod6seM5F4C08fCuu9w3+lb6N+mO4TJze4mdDQSJpKv7Giiw3KShaPMJfnWT54RH6+cgQaydlG9HrvbqG/d5ttq+adc8laCJE4IhAnwIK5Tao7AHyg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709550505; c=relaxed/simple;
-	bh=FQ6sLDKliZQxGaM/0fZ2Dlbeq3FZV7uzrQlqY13q4kU=;
+	s=arc-20240116; t=1709552850; c=relaxed/simple;
+	bh=xmaSq7XnpXpX7s43ABpUJP3vKw/idn3Ja+7djGCPGuw=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=YXnuPgxz6SmPvMP+BTqeaVrfAuNkELJatVPhVkNbMYApk5DWhAmGEylaxooDiOE3tpH0cAhqkbmAHdfT+XBUdN6Qn2TRgF2vVLNHjKLgFw/uFjLynl7OBtCt0F3JCP3arjbYlR4L+l8sprwt0Gf3745Zk6hxhc8hzpSPCF2Gc3A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=cio8SLAN; arc=none smtp.client-ip=209.85.215.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	 MIME-Version; b=fMsEgkD5zgZVWhqtLsy6GfX7W3R4YFOd/X3Ny2KtcFOpMull9gP+/z70SIS5ieC3mshbO1S+UzflyTo6ut12bEjEGTqosvpEn3ZaQ9ZYUGOaRC2jgB3GL6EQI1Vr7mt6QOCIBbgGlDiFDq0BNNAlwsbbmLTJC76KW+a+Aubeofg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Upl/YpiC; arc=none smtp.client-ip=115.124.30.113
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="cio8SLAN"
-Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-5cdbc42f5efso831342a12.0
-        for <linux-s390@vger.kernel.org>; Mon, 04 Mar 2024 03:08:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1709550502; x=1710155302; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2RLTgvH0qYoneoQ+N+6ayDYFDcXGD4luCEt+X8Py56w=;
-        b=cio8SLANw7fertsc3r5ZmCdJ7hbRoaDpL1ZZveIYND2iSSCG0H3jQIvFnkg8NU4TrL
-         0jXiQF6nBkxU2381b8Szo8g8bZ2bHaiCYSXd0CrckzzeTdCC2+gxT+v1qEjlOzkP3mVV
-         A+wdUOQT5UOx9rKNR+91muojmOi8zvj8aZ1zwLIhj80gHxqLE0F2pi3BhGT/UFyjO0Ch
-         UYa8Bgj9W4YoQqshqox11kqr/yROvPVyk3JsylBheyYrJxy87YIUR5vV9bHfuPVU80GU
-         pqmgvV14SD1/V7+nZVi578SwX33t1ItZZmC7KDWAPKMFRh5RNj6m9yaphnZiCeFxxLxY
-         xbqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709550502; x=1710155302;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=2RLTgvH0qYoneoQ+N+6ayDYFDcXGD4luCEt+X8Py56w=;
-        b=G09v1nIj0vJHXm4XhowN20qTTE3qmEDHjKkRcWEq76XSjgQC6P+PcUp8NXG7z0X4Vr
-         LM/taRBgUViHyncqp4coipAsAlo1ddYtRIkXSrCQNmKmj8omE8+nhH2+KE/+p6PBYI1d
-         +fITjBsSZRO0IlIMIY4TqfN709zEPzYV1ghx6sWx8b31XK6VrAXWSdkd+rVGJuYDsgH4
-         iCGHaG4vyRHzgpLehU82CHp3ixPmfipUF0oFbPAFz2De++r6B5z+fQ5RWH6P5e/1SwtU
-         SnYcgdf6yCxhAacPFJsX/hk60yGQFPjYUlAMxXNTAd9I3Efq4CitGYPbvSz0Mn18UCOA
-         J8Ag==
-X-Forwarded-Encrypted: i=1; AJvYcCVGp+afHawL++4qLwGta8Tk/gY4tI9QodGk8S9xME0SfA3j6h4U3chgVAZ4Ay3o6y/f7pf5H84jKWmc1j/e1nkoKiE6I9lx6tlCew==
-X-Gm-Message-State: AOJu0YxrpY1awgfh9FN98WH9fk8hkGKjpn+bZmGcbSpCDWBKerbo01lx
-	XRwQShkOQT24GYTnD3lulUCtOz2Fg1FGyVs4s01cDrxqQXP7JeDjXATADRoLYYg=
-X-Google-Smtp-Source: AGHT+IFBOOIUNI94cOhOoYb8AwpERd5isoTBK9odWtV+MEuzyzhHwVrtYw8sFJceXMlJR9tIyeo1cQ==
-X-Received: by 2002:a05:6a20:1b30:b0:1a1:480e:7711 with SMTP id ch48-20020a056a201b3000b001a1480e7711mr5045368pzb.0.1709550501853;
-        Mon, 04 Mar 2024 03:08:21 -0800 (PST)
-Received: from C02DW0BEMD6R.bytedance.net ([203.208.167.154])
-        by smtp.gmail.com with ESMTPSA id y5-20020a17090aca8500b0029b59bf77b4sm587410pjt.42.2024.03.04.03.08.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Mar 2024 03:08:21 -0800 (PST)
-From: Qi Zheng <zhengqi.arch@bytedance.com>
-To: akpm@linux-foundation.org,
-	vishal.moola@gmail.com,
-	hughd@google.com,
-	david@redhat.com,
-	rppt@kernel.org,
-	willy@infradead.org,
-	muchun.song@linux.dev
-Cc: linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	Qi Zheng <zhengqi.arch@bytedance.com>,
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Upl/YpiC"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1709552845; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=2fkzuZvEO07hgdf7+gJCjYHGZNnjEdjav28ogXnMMV0=;
+	b=Upl/YpiCvGp9NXDkqV8lfHheRWjWm+TKtb1Oy23yWnzIz+tMYSnE5NVWNO8EE2SjhStdyeYjirDXxP3aGjUkXSfEHzUXb8/MamsD/1aSY86kBICuoVyKto/WbI2xP9fasnDEu2ux+TUxztQVRkOA7zvP1RjtOQi9+ZDzl3s5ZlA=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=25;SR=0;TI=SMTPD_---0W1ouiBj_1709552842;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W1ouiBj_1709552842)
+          by smtp.aliyun-inc.com;
+          Mon, 04 Mar 2024 19:47:23 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: virtualization@lists.linux.dev
+Cc: Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Hans de Goede <hdegoede@redhat.com>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Vadim Pasternak <vadimp@nvidia.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	kvm@vger.kernel.org,
-	linux-s390@vger.kernel.org
-Subject: [PATCH 3/3] s390: supplement for ptdesc conversion
-Date: Mon,  4 Mar 2024 19:07:20 +0800
-Message-Id: <04beaf3255056ffe131a5ea595736066c1e84756.1709541697.git.zhengqi.arch@bytedance.com>
-X-Mailer: git-send-email 2.24.3 (Apple Git-128)
-In-Reply-To: <cover.1709541697.git.zhengqi.arch@bytedance.com>
-References: <cover.1709541697.git.zhengqi.arch@bytedance.com>
+	Sven Schnelle <svens@linux.ibm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	linux-um@lists.infradead.org,
+	platform-driver-x86@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org
+Subject: [PATCH vhost 2/4] virtio: vring_create_virtqueue: pass struct instead of multi parameters
+Date: Mon,  4 Mar 2024 19:47:17 +0800
+Message-Id: <20240304114719.3710-3-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20240304114719.3710-1-xuanzhuo@linux.alibaba.com>
+References: <20240304114719.3710-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-Git-Hash: f8834711b783
 Content-Transfer-Encoding: 8bit
 
-After commit 6326c26c1514 ("s390: convert various pgalloc functions to use
-ptdescs"), there are still some positions that use page->{lru, index}
-instead of ptdesc->{pt_list, pt_index}. In order to make the use of
-ptdesc->{pt_list, pt_index} clearer, it would be better to convert them
-as well.
+Now, we pass multi parameters to vring_create_virtqueue. These parameters
+may from transport or from driver.
 
-Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Janosch Frank <frankja@linux.ibm.com>
-Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org
+vring_create_virtqueue is called by many places.
+Every time, we try to add a new parameter, that is difficult.
+
+If parameters from the driver, that should directly be passed to vring.
+Then the vring can access the config from driver directly.
+
+If parameters from the transport, we squish the parameters to a
+structure. That will be helpful to add new parameter.
+
+Because the virtio_uml.c changes the name, so change the "names" inside
+the virtio_vq_config from "const char *const *names" to
+"const char **names".
+
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- arch/s390/include/asm/pgalloc.h |  4 ++--
- arch/s390/mm/gmap.c             | 38 +++++++++++++++++----------------
- arch/s390/mm/pgalloc.c          |  8 +++----
- 3 files changed, 26 insertions(+), 24 deletions(-)
+ arch/um/drivers/virtio_uml.c       | 14 +++++---
+ drivers/s390/virtio/virtio_ccw.c   | 14 ++++----
+ drivers/virtio/virtio_mmio.c       | 14 ++++----
+ drivers/virtio/virtio_pci_legacy.c | 15 ++++----
+ drivers/virtio/virtio_pci_modern.c | 15 ++++----
+ drivers/virtio/virtio_ring.c       | 57 ++++++++++++------------------
+ drivers/virtio/virtio_vdpa.c       | 21 +++++------
+ include/linux/virtio_config.h      |  6 ++--
+ include/linux/virtio_ring.h        | 40 ++++++++-------------
+ 9 files changed, 93 insertions(+), 103 deletions(-)
 
-diff --git a/arch/s390/include/asm/pgalloc.h b/arch/s390/include/asm/pgalloc.h
-index 502d655fe6ae..7b84ef6dc4b6 100644
---- a/arch/s390/include/asm/pgalloc.h
-+++ b/arch/s390/include/asm/pgalloc.h
-@@ -23,9 +23,9 @@ unsigned long *crst_table_alloc(struct mm_struct *);
- void crst_table_free(struct mm_struct *, unsigned long *);
- 
- unsigned long *page_table_alloc(struct mm_struct *);
--struct page *page_table_alloc_pgste(struct mm_struct *mm);
-+struct ptdesc *page_table_alloc_pgste(struct mm_struct *mm);
- void page_table_free(struct mm_struct *, unsigned long *);
--void page_table_free_pgste(struct page *page);
-+void page_table_free_pgste(struct ptdesc *ptdesc);
- extern int page_table_allocate_pgste;
- 
- static inline void crst_table_init(unsigned long *crst, unsigned long entry)
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 8da39deb56ca..4d2674f89322 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -206,9 +206,11 @@ static void gmap_free(struct gmap *gmap)
- 
- 	/* Free additional data for a shadow gmap */
- 	if (gmap_is_shadow(gmap)) {
-+		struct ptdesc *ptdesc;
-+
- 		/* Free all page tables. */
--		list_for_each_entry_safe(page, next, &gmap->pt_list, lru)
--			page_table_free_pgste(page);
-+		list_for_each_entry_safe(ptdesc, next, &gmap->pt_list, pt_list)
-+			page_table_free_pgste(ptdesc);
- 		gmap_rmap_radix_tree_free(&gmap->host_to_rmap);
- 		/* Release reference to the parent */
- 		gmap_put(gmap->parent);
-@@ -1348,7 +1350,7 @@ static void gmap_unshadow_pgt(struct gmap *sg, unsigned long raddr)
+diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
+index c13dfeeb90c4..1c2d59d3d02b 100644
+--- a/arch/um/drivers/virtio_uml.c
++++ b/arch/um/drivers/virtio_uml.c
+@@ -942,6 +942,7 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
  {
- 	unsigned long *ste;
- 	phys_addr_t sto, pgt;
--	struct page *page;
-+	struct ptdesc *ptdesc;
+ 	struct virtio_uml_device *vu_dev = to_virtio_uml_device(vdev);
+ 	struct platform_device *pdev = vu_dev->pdev;
++	struct vq_transport_config tp_cfg = {};
+ 	struct virtio_uml_vq_info *info;
+ 	struct virtqueue *vq;
+ 	int num = MAX_SUPPORTED_QUEUE_SIZE;
+@@ -955,10 +956,15 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
+ 	snprintf(info->name, sizeof(info->name), "%s.%d-%s", pdev->name,
+ 		 pdev->id, cfg->names[cfg->cfg_idx]);
  
- 	BUG_ON(!gmap_is_shadow(sg));
- 	ste = gmap_table_walk(sg, raddr, 1); /* get segment pointer */
-@@ -1361,9 +1363,9 @@ static void gmap_unshadow_pgt(struct gmap *sg, unsigned long raddr)
- 	*ste = _SEGMENT_ENTRY_EMPTY;
- 	__gmap_unshadow_pgt(sg, raddr, __va(pgt));
- 	/* Free page table */
--	page = phys_to_page(pgt);
--	list_del(&page->lru);
--	page_table_free_pgste(page);
-+	ptdesc = page_ptdesc(phys_to_page(pgt));
-+	list_del(&ptdesc->pt_list);
-+	page_table_free_pgste(ptdesc);
+-	vq = vring_create_virtqueue(index, num, PAGE_SIZE, vdev, true, true,
+-				    cfg->ctx ? cfg->ctx[cfg->cfg_idx] : false,
+-				    vu_notify,
+-				    cfg->callbacks[cfg->cfg_idx], info->name);
++	tp_cfg.num = num;
++	tp_cfg.vring_align = PAGE_SIZE;
++	tp_cfg.weak_barriers = true;
++	tp_cfg.may_reduce_num = true;
++	tp_cfg.notify = vu_notify;
++
++	cfg->names[cfg->cfg_idx] = info->name;
++
++	vq = vring_create_virtqueue(vdev, index, &tp_cfg, cfg);
+ 	if (!vq) {
+ 		rc = -ENOMEM;
+ 		goto error_create;
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 11eea5086cff..f8d5bbd13359 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -503,6 +503,7 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+ 					     struct virtio_vq_config *cfg)
+ {
+ 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
++	struct vq_transport_config tp_cfg = {};
+ 	bool (*notify)(struct virtqueue *vq);
+ 	int err;
+ 	struct virtqueue *vq = NULL;
+@@ -536,13 +537,14 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+ 		goto out_err;
+ 	}
+ 	may_reduce = vcdev->revision > 0;
+-	vq = vring_create_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN,
+-				    vdev, true, may_reduce,
+-				    cfg->ctx ? cfg->ctx[cfg->cfg_idx] : false,
+-				    notify,
+-				    cfg->callbacks[cfg->cfg_idx],
+-				    cfg->names[cfg->cfg_idx]);
+ 
++	tp_cfg.num = info->num;
++	tp_cfg.vring_align = KVM_VIRTIO_CCW_RING_ALIGN;
++	tp_cfg.weak_barriers = true;
++	tp_cfg.may_reduce_num = may_reduce;
++	tp_cfg.notify = notify;
++
++	vq = vring_create_virtqueue(vdev, i, &tp_cfg, cfg);
+ 	if (!vq) {
+ 		/* For now, we fail if we can't get the requested size. */
+ 		dev_warn(&vcdev->cdev->dev, "no vq\n");
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index feb823d279d2..cb172fa4d7cc 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -373,6 +373,7 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+ 				     struct virtio_vq_config *cfg)
+ {
+ 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
++	struct vq_transport_config tp_cfg = {};
+ 	bool (*notify)(struct virtqueue *vq);
+ 	struct virtio_mmio_vq_info *info;
+ 	struct virtqueue *vq;
+@@ -411,13 +412,14 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+ 		goto error_new_virtqueue;
+ 	}
+ 
++	tp_cfg.num = num;
++	tp_cfg.vring_align = VIRTIO_MMIO_VRING_ALIGN;
++	tp_cfg.weak_barriers = true;
++	tp_cfg.may_reduce_num = true;
++	tp_cfg.notify = notify;
++
+ 	/* Create the vring */
+-	vq = vring_create_virtqueue(index, num, VIRTIO_MMIO_VRING_ALIGN, vdev,
+-				 true, true,
+-				 cfg->ctx ? cfg->ctx[cfg->cfg_idx] : false,
+-				 notify,
+-				 cfg->callbacks[cfg->cfg_idx],
+-				 cfg->names[cfg->cfg_idx]);
++	vq = vring_create_virtqueue(vdev, index, &tp_cfg, cfg);
+ 	if (!vq) {
+ 		err = -ENOMEM;
+ 		goto error_new_virtqueue;
+diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+index e8d22fce32f5..6fe675b2a5e5 100644
+--- a/drivers/virtio/virtio_pci_legacy.c
++++ b/drivers/virtio/virtio_pci_legacy.c
+@@ -113,6 +113,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 				  struct virtio_vq_config *cfg,
+ 				  u16 msix_vec)
+ {
++	struct vq_transport_config tp_cfg = {};
+ 	struct virtqueue *vq;
+ 	u16 num;
+ 	int err;
+@@ -125,14 +126,14 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 
+ 	info->msix_vector = msix_vec;
+ 
++	tp_cfg.num = num;
++	tp_cfg.vring_align = VIRTIO_PCI_VRING_ALIGN;
++	tp_cfg.weak_barriers = true;
++	tp_cfg.may_reduce_num = false;
++	tp_cfg.notify = vp_notify;
++
+ 	/* create the vring */
+-	vq = vring_create_virtqueue(index, num,
+-				    VIRTIO_PCI_VRING_ALIGN, &vp_dev->vdev,
+-				    true, false,
+-				    cfg->ctx ? cfg->ctx[cfg->cfg_idx] : false,
+-				    vp_notify,
+-				    cfg->callbacks[cfg->cfg_idx],
+-				    cfg->names[cfg->cfg_idx]);
++	vq = vring_create_virtqueue(&vp_dev->vdev, index, &tp_cfg, cfg);
+ 	if (!vq)
+ 		return ERR_PTR(-ENOMEM);
+ 
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index b2cdf5d3824d..dd75534346d1 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -535,6 +535,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ {
+ 
+ 	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
++	struct vq_transport_config tp_cfg = {};
+ 	bool (*notify)(struct virtqueue *vq);
+ 	struct virtqueue *vq;
+ 	bool is_avq;
+@@ -558,14 +559,14 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 
+ 	info->msix_vector = msix_vec;
+ 
++	tp_cfg.num = num;
++	tp_cfg.vring_align = SMP_CACHE_BYTES;
++	tp_cfg.weak_barriers = true;
++	tp_cfg.may_reduce_num = true;
++	tp_cfg.notify = notify;
++
+ 	/* create the vring */
+-	vq = vring_create_virtqueue(index, num,
+-				    SMP_CACHE_BYTES, &vp_dev->vdev,
+-				    true, true,
+-				    cfg->ctx ? cfg->ctx[cfg->cfg_idx] : false,
+-				    notify,
+-				    cfg->callbacks[cfg->cfg_idx],
+-				    cfg->names[cfg->cfg_idx]);
++	vq = vring_create_virtqueue(&vp_dev->vdev, index, &tp_cfg, cfg);
+ 	if (!vq)
+ 		return ERR_PTR(-ENOMEM);
+ 
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 6f7e5010a673..08858e2d761e 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -2662,43 +2662,32 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
+ 	return &vq->vq;
  }
+ 
+-struct virtqueue *vring_create_virtqueue(
+-	unsigned int index,
+-	unsigned int num,
+-	unsigned int vring_align,
+-	struct virtio_device *vdev,
+-	bool weak_barriers,
+-	bool may_reduce_num,
+-	bool context,
+-	bool (*notify)(struct virtqueue *),
+-	void (*callback)(struct virtqueue *),
+-	const char *name)
++struct virtqueue *vring_create_virtqueue(struct virtio_device *vdev,
++					 unsigned int index,
++					 struct vq_transport_config *tp_cfg,
++					 struct virtio_vq_config *cfg)
+ {
++	struct device *dma_dev;
++	unsigned int num;
++	unsigned int vring_align;
++	bool weak_barriers;
++	bool may_reduce_num;
++	bool context;
++	bool (*notify)(struct virtqueue *_);
++	void (*callback)(struct virtqueue *_);
++	const char *name;
+ 
+-	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
+-		return vring_create_virtqueue_packed(index, num, vring_align,
+-				vdev, weak_barriers, may_reduce_num,
+-				context, notify, callback, name, vdev->dev.parent);
++	dma_dev = tp_cfg->dma_dev ? : vdev->dev.parent;
+ 
+-	return vring_create_virtqueue_split(index, num, vring_align,
+-			vdev, weak_barriers, may_reduce_num,
+-			context, notify, callback, name, vdev->dev.parent);
+-}
+-EXPORT_SYMBOL_GPL(vring_create_virtqueue);
++	num            = tp_cfg->num;
++	vring_align    = tp_cfg->vring_align;
++	weak_barriers  = tp_cfg->weak_barriers;
++	may_reduce_num = tp_cfg->may_reduce_num;
++	notify         = tp_cfg->notify;
+ 
+-struct virtqueue *vring_create_virtqueue_dma(
+-	unsigned int index,
+-	unsigned int num,
+-	unsigned int vring_align,
+-	struct virtio_device *vdev,
+-	bool weak_barriers,
+-	bool may_reduce_num,
+-	bool context,
+-	bool (*notify)(struct virtqueue *),
+-	void (*callback)(struct virtqueue *),
+-	const char *name,
+-	struct device *dma_dev)
+-{
++	name     = cfg->names[cfg->cfg_idx];
++	callback = cfg->callbacks[cfg->cfg_idx];
++	context  = cfg->ctx ? cfg->ctx[cfg->cfg_idx] : false;
+ 
+ 	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
+ 		return vring_create_virtqueue_packed(index, num, vring_align,
+@@ -2709,7 +2698,7 @@ struct virtqueue *vring_create_virtqueue_dma(
+ 			vdev, weak_barriers, may_reduce_num,
+ 			context, notify, callback, name, dma_dev);
+ }
+-EXPORT_SYMBOL_GPL(vring_create_virtqueue_dma);
++EXPORT_SYMBOL_GPL(vring_create_virtqueue);
  
  /**
-@@ -1377,7 +1379,7 @@ static void gmap_unshadow_pgt(struct gmap *sg, unsigned long raddr)
- static void __gmap_unshadow_sgt(struct gmap *sg, unsigned long raddr,
- 				unsigned long *sgt)
+  * virtqueue_resize - resize the vring of vq
+diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+index 7f3e173f669c..1ab219fce653 100644
+--- a/drivers/virtio/virtio_vdpa.c
++++ b/drivers/virtio/virtio_vdpa.c
+@@ -146,8 +146,8 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
  {
--	struct page *page;
-+	struct ptdesc *ptdesc;
- 	phys_addr_t pgt;
- 	int i;
+ 	struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vdev);
+ 	struct vdpa_device *vdpa = vd_get_vdpa(vdev);
+-	struct device *dma_dev;
+ 	const struct vdpa_config_ops *ops = vdpa->config;
++	struct vq_transport_config tp_cfg = {};
+ 	struct virtio_vdpa_vq_info *info;
+ 	bool (*notify)(struct virtqueue *vq) = virtio_vdpa_notify;
+ 	struct vdpa_callback cb;
+@@ -201,16 +201,17 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+ 	align = ops->get_vq_align(vdpa);
  
-@@ -1389,9 +1391,9 @@ static void __gmap_unshadow_sgt(struct gmap *sg, unsigned long raddr,
- 		sgt[i] = _SEGMENT_ENTRY_EMPTY;
- 		__gmap_unshadow_pgt(sg, raddr, __va(pgt));
- 		/* Free page table */
--		page = phys_to_page(pgt);
--		list_del(&page->lru);
--		page_table_free_pgste(page);
-+		ptdesc = page_ptdesc(phys_to_page(pgt));
-+		list_del(&ptdesc->pt_list);
-+		page_table_free_pgste(ptdesc);
- 	}
- }
+ 	if (ops->get_vq_dma_dev)
+-		dma_dev = ops->get_vq_dma_dev(vdpa, index);
++		tp_cfg.dma_dev = ops->get_vq_dma_dev(vdpa, index);
+ 	else
+-		dma_dev = vdpa_get_dma_dev(vdpa);
+-	vq = vring_create_virtqueue_dma(index, max_num, align, vdev,
+-					true, may_reduce_num,
+-					cfg->ctx ? cfg->ctx[cfg->cfg_idx] : false,
+-					notify,
+-					cfg->callbacks[cfg->cfg_idx],
+-					cfg->names[cfg->cfg_idx],
+-					dma_dev);
++		tp_cfg.dma_dev = vdpa_get_dma_dev(vdpa);
++
++	tp_cfg.num = max_num;
++	tp_cfg.vring_align = align;
++	tp_cfg.weak_barriers = true;
++	tp_cfg.may_reduce_num = may_reduce_num;
++	tp_cfg.notify = notify;
++
++	vq = vring_create_virtqueue(vdev, index, &tp_cfg, cfg);
+ 	if (!vq) {
+ 		err = -ENOMEM;
+ 		goto error_new_virtqueue;
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index 1df8634d1258..d47188303d34 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -105,7 +105,7 @@ struct virtio_vq_config {
  
-@@ -2058,19 +2060,19 @@ int gmap_shadow_pgt(struct gmap *sg, unsigned long saddr, unsigned long pgt,
- {
- 	unsigned long raddr, origin;
- 	unsigned long *table;
--	struct page *page;
-+	struct ptdesc *ptdesc;
- 	phys_addr_t s_pgt;
- 	int rc;
+ 	struct virtqueue **vqs;
+ 	vq_callback_t **callbacks;
+-	const char *const *names;
++	const char **names;
+ 	const bool *ctx;
+ 	struct irq_affinity *desc;
+ };
+@@ -252,7 +252,7 @@ int virtio_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 	cfg.nvqs = nvqs;
+ 	cfg.vqs = vqs;
+ 	cfg.callbacks = callbacks;
+-	cfg.names = names;
++	cfg.names = (const char **)names;
+ 	cfg.desc = desc;
  
- 	BUG_ON(!gmap_is_shadow(sg) || (pgt & _SEGMENT_ENTRY_LARGE));
- 	/* Allocate a shadow page table */
--	page = page_table_alloc_pgste(sg->mm);
--	if (!page)
-+	ptdesc = page_table_alloc_pgste(sg->mm);
-+	if (!ptdesc)
- 		return -ENOMEM;
--	page->index = pgt & _SEGMENT_ENTRY_ORIGIN;
-+	ptdesc->pt_index = pgt & _SEGMENT_ENTRY_ORIGIN;
- 	if (fake)
--		page->index |= GMAP_SHADOW_FAKE_TABLE;
--	s_pgt = page_to_phys(page);
-+		ptdesc->pt_index |= GMAP_SHADOW_FAKE_TABLE;
-+	s_pgt = page_to_phys(ptdesc_page(ptdesc));
- 	/* Install shadow page table */
- 	spin_lock(&sg->guest_table_lock);
- 	table = gmap_table_walk(sg, saddr, 1); /* get segment pointer */
-@@ -2088,7 +2090,7 @@ int gmap_shadow_pgt(struct gmap *sg, unsigned long saddr, unsigned long pgt,
- 	/* mark as invalid as long as the parent table is not protected */
- 	*table = (unsigned long) s_pgt | _SEGMENT_ENTRY |
- 		 (pgt & _SEGMENT_ENTRY_PROTECT) | _SEGMENT_ENTRY_INVALID;
--	list_add(&page->lru, &sg->pt_list);
-+	list_add(&ptdesc->pt_list, &sg->pt_list);
- 	if (fake) {
- 		/* nothing to protect for fake tables */
- 		*table &= ~_SEGMENT_ENTRY_INVALID;
-@@ -2114,7 +2116,7 @@ int gmap_shadow_pgt(struct gmap *sg, unsigned long saddr, unsigned long pgt,
- 	return rc;
- out_free:
- 	spin_unlock(&sg->guest_table_lock);
--	page_table_free_pgste(page);
-+	page_table_free_pgste(ptdesc);
- 	return rc;
+ 	return vdev->config->find_vqs(vdev, &cfg);
+@@ -269,7 +269,7 @@ int virtio_find_vqs_ctx(struct virtio_device *vdev, unsigned nvqs,
+ 	cfg.nvqs = nvqs;
+ 	cfg.vqs = vqs;
+ 	cfg.callbacks = callbacks;
+-	cfg.names = names;
++	cfg.names = (const char **)names;
+ 	cfg.ctx = ctx;
+ 	cfg.desc = desc;
  
- }
-diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
-index 008e487c94a6..abb629d7e131 100644
---- a/arch/s390/mm/pgalloc.c
-+++ b/arch/s390/mm/pgalloc.c
-@@ -135,7 +135,7 @@ int crst_table_upgrade(struct mm_struct *mm, unsigned long end)
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index 9b33df741b63..cd8042c79814 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -5,6 +5,7 @@
+ #include <asm/barrier.h>
+ #include <linux/irqreturn.h>
+ #include <uapi/linux/virtio_ring.h>
++#include <linux/virtio_config.h>
  
- #ifdef CONFIG_PGSTE
+ /*
+  * Barriers in virtio are tricky.  Non-SMP virtio guests can't assume
+@@ -60,38 +61,25 @@ struct virtio_device;
+ struct virtqueue;
+ struct device;
  
--struct page *page_table_alloc_pgste(struct mm_struct *mm)
-+struct ptdesc *page_table_alloc_pgste(struct mm_struct *mm)
- {
- 	struct ptdesc *ptdesc;
- 	u64 *table;
-@@ -147,12 +147,12 @@ struct page *page_table_alloc_pgste(struct mm_struct *mm)
- 		memset64(table, _PAGE_INVALID, PTRS_PER_PTE);
- 		memset64(table + PTRS_PER_PTE, 0, PTRS_PER_PTE);
- 	}
--	return ptdesc_page(ptdesc);
-+	return ptdesc;
- }
++struct vq_transport_config {
++	unsigned int num;
++	unsigned int vring_align;
++	bool weak_barriers;
++	bool may_reduce_num;
++	bool (*notify)(struct virtqueue *vq);
++	struct device *dma_dev;
++};
++
+ /*
+  * Creates a virtqueue and allocates the descriptor ring.  If
+  * may_reduce_num is set, then this may allocate a smaller ring than
+  * expected.  The caller should query virtqueue_get_vring_size to learn
+  * the actual size of the ring.
+  */
+-struct virtqueue *vring_create_virtqueue(unsigned int index,
+-					 unsigned int num,
+-					 unsigned int vring_align,
+-					 struct virtio_device *vdev,
+-					 bool weak_barriers,
+-					 bool may_reduce_num,
+-					 bool ctx,
+-					 bool (*notify)(struct virtqueue *vq),
+-					 void (*callback)(struct virtqueue *vq),
+-					 const char *name);
+-
+-/*
+- * Creates a virtqueue and allocates the descriptor ring with per
+- * virtqueue DMA device.
+- */
+-struct virtqueue *vring_create_virtqueue_dma(unsigned int index,
+-					     unsigned int num,
+-					     unsigned int vring_align,
+-					     struct virtio_device *vdev,
+-					     bool weak_barriers,
+-					     bool may_reduce_num,
+-					     bool ctx,
+-					     bool (*notify)(struct virtqueue *vq),
+-					     void (*callback)(struct virtqueue *vq),
+-					     const char *name,
+-					     struct device *dma_dev);
++struct virtqueue *vring_create_virtqueue(struct virtio_device *vdev,
++					 unsigned int index,
++					 struct vq_transport_config *tp_cfg,
++					 struct virtio_vq_config *cfg);
  
--void page_table_free_pgste(struct page *page)
-+void page_table_free_pgste(struct ptdesc *ptdesc)
- {
--	pagetable_free(page_ptdesc(page));
-+	pagetable_free(ptdesc);
- }
- 
- #endif /* CONFIG_PGSTE */
+ /*
+  * Creates a virtqueue with a standard layout but a caller-allocated
 -- 
-2.30.2
+2.32.0.3.g01195cf9f
 
