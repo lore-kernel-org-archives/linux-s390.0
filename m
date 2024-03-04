@@ -1,65 +1,65 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBC5BD29B
-	for <linux-s390@vger.kernel.org>; Mon,  4 Mar 2024 06:17:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02998D2E0
+	for <linux-s390@vger.kernel.org>; Mon,  4 Mar 2024 06:22:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709533066; cv=none; b=n8ycRvxvabDfN+xWji9J4BT1McSjMzdmcpfNX1W/3RI4FreTNxiG0+x7YZ+P/OH12Uroo2Z8K097duwhY4+0m3LbZ23nekMjtTaeRxvakYD0bnCme3vy0YMF+J2DnSQ+J5mv2Mik8/ogw+CJp5XKF3k259d4qH4yDbRzipHtBIU=
+	t=1709533350; cv=none; b=hGUEkR3cMKwU0ZDDaTP5+Cy9pVieMI0sJBvqK6kHVOj4xtJXf2alhFDxGn7p6eU9bktZovTzjZRfdhgO29kj9JkQc/N7PqMVQfzlrZyPf74W+I7Es8G99eJuKWnWBw4IbWJFuokLxB3A+MHRSqKncazRMg0AwR+qtoFAJlNPxuA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709533066; c=relaxed/simple;
-	bh=75momKa1i5L2SkoyYzGkwcRHeZuUZzEmhswGGwGWYKk=;
+	s=arc-20240116; t=1709533350; c=relaxed/simple;
+	bh=oaAYSn+CKMr5zZbFL1nS28YJwe1FjjDu01N2MiMMLIA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HLFLxmLOhqW5Ddch86KB7JBStluApTPqRXOnIUi5pb8LkgnGc4Cg/xvAcarGAeeveDnewwJRC6fYxRVVJD/3V4ToiyTKYQB23+saJ9BHN4Az7VOesdvXE3rSS+FNKTnqWC3A/fHK8XjFtHCqSAxYbNHZlvfGHUpdZwd93bfopck=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QFMhU84x; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=DMVO86KkuRCpReQ8+RE9KpCc1uztUIOMFMWMFepRMKRW7wXu0OoahxJs5qr4dZEYeM3zJKeObKi3HfFSlVXjL4z8WDo1KdBSk5EzjwXNcHckbBAiayQJs5UxaAEM6sceskTtXyXtIkU1117f4FlyqjqOG9vXcndZHbAvvT3uLPw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=T3slO4RT; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QFMhU84x"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="T3slO4RT"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709533063;
+	s=mimecast20190719; t=1709533347;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=O+fO6j0tC3hoYWlaRzxgXQx+mHiiCB/NggfeHPRfEfg=;
-	b=QFMhU84xwkFGfsrbPa5qIRqWVTPQleRaPK3bI/xa2rNTd7KgiUyjBIuKJM1Tm4swavEjOI
-	cGRnd8zjMdymsBR3U+xP1k96aMx8mgI4B61yHRKpR7YFFvqepAm7v8/g9iaMb8DOYyU3ic
-	s97zeixjbh8KbioWz1cBqKzvB2pZnj0=
-Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
- [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=0vc4Zmb8L094rZ1gY9Cchmv8ksKAo7EZKhul8nM1Mw4=;
+	b=T3slO4RT1hVFDK9MeCGrAfcHW9V2c8GKIQca+6HkLelGzEW80nxsNycygMNbQWWxe/Aq3I
+	r3m+lB4ajpfUQwgtnTMBs488/07+fPycj4ET9hS8iWuqZQHZnGp0+1hP3M2eUucdYmEli8
+	mgx+RI9CTAB+Lc/utqWW/aBktr6Redk=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-223-YP63aV5MPnOsawe6FTis7g-1; Mon, 04 Mar 2024 01:17:42 -0500
-X-MC-Unique: YP63aV5MPnOsawe6FTis7g-1
-Received: by mail-qt1-f198.google.com with SMTP id d75a77b69052e-42eee530595so12802531cf.1
-        for <linux-s390@vger.kernel.org>; Sun, 03 Mar 2024 22:17:42 -0800 (PST)
+ us-mta-658-LeurN9uaPi2USFkax7yphQ-1; Mon, 04 Mar 2024 01:22:25 -0500
+X-MC-Unique: LeurN9uaPi2USFkax7yphQ-1
+Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-78812ef08ccso294523785a.0
+        for <linux-s390@vger.kernel.org>; Sun, 03 Mar 2024 22:22:25 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709533061; x=1710137861;
+        d=1e100.net; s=20230601; t=1709533345; x=1710138145;
         h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
          :to:content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=O+fO6j0tC3hoYWlaRzxgXQx+mHiiCB/NggfeHPRfEfg=;
-        b=mhcoE0c5T0rBFDclfryzoQvhLsUMN1BzjKR585EbLEUJFVQH01UP0MFrNCSK/O7e4N
-         BDJG8BQ/+PBDQsO17p5Gkj1TYxjeQ+dANnJTW5M0iK/ADRow627wllhduOGmtVfYOHDi
-         U17Ki74F1GJh3ebKkcvoYGU1YP000yNpG0Xb8ff2QRy1OwW4dZyaVy0A8dQzYEhKGEuk
-         zNYJ4Y3Qww3RiKHmWUw+OLV2Qm8IUgtMhwcDumqhbzSOKvQE4Bjm1ml2L3ihcWj9B94h
-         dyZXdQ0WEkb6N1Y7Gl6xzQEtwvwT8YU90En6D43vVT8qzhRCwMb5NyrXsg3ML8P9O9Ks
-         yyLA==
-X-Forwarded-Encrypted: i=1; AJvYcCX46AlM0nc6cJj0zVjQzHNlxd7lsD5ocDcS786YvOxN9Rsqtm4YmqS4iiVdPbx9pgGv0YfXzlNyUlT5fI2vuchNewFwoHtDZczV+Q==
-X-Gm-Message-State: AOJu0YxAlLbtzPCz6XD+vIDFO8eIkjqwDltiQ/53qj5LnFvIc/AEUzYx
-	tNHHliigjcpYVrq+2wJHNsauYwNpRuRex1XrA7UdDV3MPtJPTrhiqhHSndqSaNTETx99YQ6EMgI
-	7KRSX8KqH9FiirDuP3HqJ1l7SmYq4zXX596vS3fh2qbkSKQIho6+9ZUTlpVM=
-X-Received: by 2002:ac8:5ac2:0:b0:42e:d2f2:71f2 with SMTP id d2-20020ac85ac2000000b0042ed2f271f2mr11566449qtd.23.1709533061683;
-        Sun, 03 Mar 2024 22:17:41 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFTwt3A1nfxsBAOT9o42hUQSyWoxM3TY/5qVm2pNryLGHmXlVu2wbWYv1lpVD9oV398f6MfcA==
-X-Received: by 2002:ac8:5ac2:0:b0:42e:d2f2:71f2 with SMTP id d2-20020ac85ac2000000b0042ed2f271f2mr11566436qtd.23.1709533061382;
-        Sun, 03 Mar 2024 22:17:41 -0800 (PST)
+        bh=0vc4Zmb8L094rZ1gY9Cchmv8ksKAo7EZKhul8nM1Mw4=;
+        b=jFKCj5A0kSmfh4DEffINcvvCSIkJwW+0fHkvRCH61W75egYirDtqMJ1B07gp+vjnXt
+         aPL8oE44UoT+0Gd3+23z7dqR6LviqxSatVfcLdipJn867dlHt3dzSm+k08SNp5I7hRmc
+         30IUXIAR5KPDwEgbnPVDW/Gh19jrVTdGpQwBCksxsf5hgrpVx6LjIp0Od88Mj3qAXCh1
+         AbW7oDKdWR7dPB3yxAc1qstQCU2ftHbxCACl/Sr2HX1+xlrQWVGpWp2zHCBviuUCgQf0
+         KmzjaDXPHH2dUW/DFogf4GMDkvixLLaXsSBwtRGN+MCaal+RUITTlaDQC/h1eIp3Qi2C
+         s+Xg==
+X-Forwarded-Encrypted: i=1; AJvYcCVmA2qv+bsmZflxW3yhMX24DwwNM99OPLF8af0j11uKcAt10CjkySnUUSLQ2mOvJ5RCoaiAq7pAgPry59uvj6CVnbWQHuymwEPnLQ==
+X-Gm-Message-State: AOJu0Yz+PWdGjyligjFUUJiw1CrvP6GIHGWGAKN0ZTACqVUa5vtmbfEo
+	ImsPQnIyhoe7kFlTXejJIKiBKHu5hbSdk47VmuNje490pc6Y4BBfkQ+lD6/knV1F4qNm0UygWEq
+	RcMUREPtORwxkRQrU0DD5Rigqcyzy6s6aFDxdzOpEZTJ71hPCjIQlNYW7PDI=
+X-Received: by 2002:a05:620a:469e:b0:788:22e4:8c56 with SMTP id bq30-20020a05620a469e00b0078822e48c56mr4797927qkb.18.1709533345442;
+        Sun, 03 Mar 2024 22:22:25 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEK9JEmr9SYlUiIXaA+KwOw+p1F2N/m4FvMas+Hp7eeKx8Gu//kaDRmYmveE91UGdsqJTa7nA==
+X-Received: by 2002:a05:620a:469e:b0:788:22e4:8c56 with SMTP id bq30-20020a05620a469e00b0078822e48c56mr4797865qkb.18.1709533343297;
+        Sun, 03 Mar 2024 22:22:23 -0800 (PST)
 Received: from [192.168.0.9] (ip-109-43-178-133.web.vodafone.de. [109.43.178.133])
-        by smtp.gmail.com with ESMTPSA id lr9-20020a0562145bc900b006904ca1971esm4405485qvb.42.2024.03.03.22.17.37
+        by smtp.gmail.com with ESMTPSA id op36-20020a05620a536400b00787930320b6sm4060260qkn.70.2024.03.03.22.22.19
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 03 Mar 2024 22:17:41 -0800 (PST)
-Message-ID: <6329dd4c-2093-40c3-8eb8-701d8e8b2ecd@redhat.com>
-Date: Mon, 4 Mar 2024 07:17:35 +0100
+        Sun, 03 Mar 2024 22:22:23 -0800 (PST)
+Message-ID: <e967e7a6-eb20-4b2b-ab7a-fc5052a3eb52@redhat.com>
+Date: Mon, 4 Mar 2024 07:22:18 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,8 +67,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH 5/7] arch-run: Add a "continuous" migration
- option for tests
+Subject: Re: [kvm-unit-tests PATCH 7/7] common: add memory dirtying vs
+ migration test
 Content-Language: en-US
 To: Nicholas Piggin <npiggin@gmail.com>
 Cc: kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
@@ -81,7 +81,7 @@ Cc: kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
  <mhartmay@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
  linux-s390@vger.kernel.org
 References: <20240226093832.1468383-1-npiggin@gmail.com>
- <20240226093832.1468383-6-npiggin@gmail.com>
+ <20240226093832.1468383-8-npiggin@gmail.com>
 From: Thomas Huth <thuth@redhat.com>
 Autocrypt: addr=thuth@redhat.com; keydata=
  xsFNBFH7eUwBEACzyOXKU+5Pcs6wNpKzrlJwzRl3VGZt95VCdb+FgoU9g11m7FWcOafrVRwU
@@ -125,163 +125,92 @@ Autocrypt: addr=thuth@redhat.com; keydata=
  oiT+z+/E59qj/EKfyce3sbC9XLjXv3mHMrq1tKX4G7IJGnS989E/fg6crv6NHae9Ckm7+lSs
  IQu4bBP2GxiRQ+NV3iV/KU3ebMRzqIC//DCOxzQNFNJAKldPe/bKZMCxEqtVoRkuJtNdp/5a
  yXFZ6TfE1hGKrDBYAm4vrnZ4CXFSBDllL59cFFOJCkn4Xboj/aVxxJxF30bn
-In-Reply-To: <20240226093832.1468383-6-npiggin@gmail.com>
+In-Reply-To: <20240226093832.1468383-8-npiggin@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 26/02/2024 10.38, Nicholas Piggin wrote:
-> The cooperative migration protocol is very good to control precise
-> pre and post conditions for a migration event. However in some cases
-> its intrusiveness to the test program, can mask problems and make
-> analysis more difficult.
-> 
-> For example to stress test migration vs concurrent complicated
-> memory access, including TLB refill, ram dirtying, etc., then the
-> tight spin at getchar() and resumption of the workload after
-> migration is unhelpful.
-> 
-> This adds a continuous migration mode that directs the harness to
-> perform migrations continually. This is added to the migration
-> selftests, which also sees cooperative migration iterations reduced
-> to avoid increasing test time too much.
-> 
+> This test stores to a bunch of pages and verifies previous stores,
+> while being continually migrated. This can fail due to a QEMU TCG
+> physical memory dirty bitmap bug.
+
+Good idea, but could we then please drop "continuous" test from 
+selftest-migration.c again? ... having two common tests to exercise the 
+continuous migration that take quite a bunch of seconds to finish sounds 
+like a waste of time in the long run to me.
+
 > Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
 > ---
->   common/selftest-migration.c | 16 +++++++++--
->   lib/migrate.c               | 18 ++++++++++++
->   lib/migrate.h               |  3 ++
->   scripts/arch-run.bash       | 55 ++++++++++++++++++++++++++++++++-----
->   4 files changed, 82 insertions(+), 10 deletions(-)
+>   common/memory-verify.c  | 48 +++++++++++++++++++++++++++++++++++++++++
+>   powerpc/Makefile.common |  1 +
+>   powerpc/memory-verify.c |  1 +
+>   powerpc/unittests.cfg   |  7 ++++++
+>   s390x/Makefile          |  1 +
+>   s390x/memory-verify.c   |  1 +
+>   s390x/unittests.cfg     |  6 ++++++
+>   7 files changed, 65 insertions(+)
+>   create mode 100644 common/memory-verify.c
+>   create mode 120000 powerpc/memory-verify.c
+>   create mode 120000 s390x/memory-verify.c
 > 
-> diff --git a/common/selftest-migration.c b/common/selftest-migration.c
-> index 0afd8581c..9a9b61835 100644
-> --- a/common/selftest-migration.c
-> +++ b/common/selftest-migration.c
-> @@ -9,12 +9,13 @@
->    */
->   #include <libcflat.h>
->   #include <migrate.h>
+> diff --git a/common/memory-verify.c b/common/memory-verify.c
+> new file mode 100644
+> index 000000000..7c4ec087b
+> --- /dev/null
+> +++ b/common/memory-verify.c
+> @@ -0,0 +1,48 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/*
+> + * Simple memory verification test, used to exercise dirty memory migration.
+> + *
+> + */
+> +#include <libcflat.h>
+> +#include <migrate.h>
+> +#include <alloc.h>
+> +#include <asm/page.h>
 > +#include <asm/time.h>
->   
-> -#define NR_MIGRATIONS 30
-> +#define NR_MIGRATIONS 15
->   
->   int main(int argc, char **argv)
->   {
-> -	report_prefix_push("migration");
-> +	report_prefix_push("migration harness");
->   
->   	if (argc > 1 && !strcmp(argv[1], "skip")) {
->   		migrate_skip();
-> @@ -24,7 +25,16 @@ int main(int argc, char **argv)
->   
->   		for (i = 0; i < NR_MIGRATIONS; i++)
->   			migrate_quiet();
-> -		report(true, "simple harness stress");
-> +		report(true, "cooperative migration");
 > +
-> +		migrate_begin_continuous();
-> +		mdelay(2000);
-> +		migrate_end_continuous();
-> +		mdelay(1000);
-> +		migrate_begin_continuous();
-> +		mdelay(2000);
-> +		migrate_end_continuous();
-> +		report(true, "continuous migration");
->   	}
->   
->   	report_prefix_pop();
-> diff --git a/lib/migrate.c b/lib/migrate.c
-> index 1d22196b7..770f76d5c 100644
-> --- a/lib/migrate.c
-> +++ b/lib/migrate.c
-> @@ -60,3 +60,21 @@ void migrate_skip(void)
->   	puts("Skipped VM migration (quiet)\n");
->   	(void)getchar();
->   }
+> +#define NR_PAGES 32
 > +
-> +void migrate_begin_continuous(void)
+> +int main(int argc, char **argv)
 > +{
-> +	puts("Begin continuous migration\n");
-> +	(void)getchar();
-> +}
+> +	void *mem = malloc(NR_PAGES*PAGE_SIZE);
+> +	bool success = true;
+> +	uint64_t ms;
+> +	long i;
 > +
-> +void migrate_end_continuous(void)
-> +{
-> +	/*
-> +	 * Migration can split this output between source and dest QEMU
-> +	 * output files, print twice and match once to always cope with
-> +	 * a split.
-> +	 */
-> +	puts("End continuous migration\n");
-> +	puts("End continuous migration (quiet)\n");
-> +	(void)getchar();
-> +}
-> diff --git a/lib/migrate.h b/lib/migrate.h
-> index db6e0c501..35b6703a2 100644
-> --- a/lib/migrate.h
-> +++ b/lib/migrate.h
-> @@ -11,3 +11,6 @@ void migrate_quiet(void);
->   void migrate_once(void);
->   
->   void migrate_skip(void);
+> +	report_prefix_push("memory");
 > +
-> +void migrate_begin_continuous(void);
-> +void migrate_end_continuous(void);
-> diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
-> index d0f6f098f..5c7e72036 100644
-> --- a/scripts/arch-run.bash
-> +++ b/scripts/arch-run.bash
-> @@ -125,15 +125,17 @@ qmp_events ()
->   filter_quiet_msgs ()
->   {
->   	grep -v "Now migrate the VM (quiet)" |
-> +	grep -v "Begin continuous migration (quiet)" |
-> +	grep -v "End continuous migration (quiet)" |
->   	grep -v "Skipped VM migration (quiet)"
->   }
->   
->   seen_migrate_msg ()
->   {
->   	if [ $skip_migration -eq 1 ]; then
-> -		grep -q -e "Now migrate the VM" < $1
-> +	        grep -q -e "Now migrate the VM" -e "Begin continuous migration" < $1
->   	else
-> -		grep -q -e "Now migrate the VM" -e "Skipped VM migration" < $1
-> +	        grep -q -e "Now migrate the VM" -e "Begin continuous migration" -e "Skipped VM migration" < $1
->   	fi
->   }
->   
-> @@ -161,6 +163,7 @@ run_migration ()
->   	src_qmpout=/dev/null
->   	dst_qmpout=/dev/null
->   	skip_migration=0
-> +	continuous_migration=0
->   
->   	mkfifo ${src_outfifo}
->   	mkfifo ${dst_outfifo}
-> @@ -186,9 +189,12 @@ run_migration ()
->   	do_migration || return $?
->   
->   	while ps -p ${live_pid} > /dev/null ; do
-> -		# Wait for test exit or further migration messages.
-> -		if ! seen_migrate_msg ${src_out} ;  then
-> +		if [[ ${continuous_migration} -eq 1 ]] ; then
+> +	memset(mem, 0, NR_PAGES*PAGE_SIZE);
+> +
+> +	migrate_begin_continuous();
+> +	ms = get_clock_ms();
+> +	i = 0;
+> +	do {
+> +		int j;
+> +
+> +		for (j = 0; j < NR_PAGES*PAGE_SIZE; j += PAGE_SIZE) {
+> +			if (*(volatile long *)(mem + j) != i) {
+> +				success = false;
+> +				goto out;
+> +			}
+> +			*(volatile long *)(mem + j) = i + 1;
+> +		}
+> +		i++;
+> +	} while (get_clock_ms() - ms < 5000);
 
-Here you're using "[[" for testing ...
+Maybe add a parameter so that the user can use different values for the 
+runtime than always doing 5 seconds?
 
-> +			do_migration || return $?
-> +		elif ! seen_migrate_msg ${src_out} ;  then
->   			sleep 0.1
-> +		elif grep -q "Begin continuous migration" < ${src_out} ; then
-> +			do_migration || return $?
->   		elif grep -q "Now migrate the VM" < ${src_out} ; then
->   			do_migration || return $?
->   		elif [ $skip_migration -eq 0 ] && grep -q "Skipped VM migration" < ${src_out} ; then
+  Thomas
 
-... while the other code seems to use "[" for testing values. Can we try to 
-stick to one style, please (unless it's really required to use "[[" somewhere)?
-
-  Thanks,
-   Thomas
+> +out:
+> +	migrate_end_continuous();
+> +
+> +	report(success, "memory verification stress test");
+> +
+> +	report_prefix_pop();
+> +
+> +	return report_summary();
+> +}
 
