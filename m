@@ -1,84 +1,119 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id DA12485640;
-	Tue,  5 Mar 2024 12:40:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 733DD85C73;
+	Tue,  5 Mar 2024 14:15:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709642429; cv=none; b=DswLCgxUWMhFlBETX84Vg1SxMfS9wB9yV7RBc4jot5WyoTbAH4j6S7pCh5Sjw77LwjHV1ud2+5tJdnqHIOt+C0hDv/6Sno6yGo4Oi6gKbPapLOWDdRyl+6+UFVIRHVaA99JJ18cY75TOYVxnY7nWb+Ct30vJbEE6kPlFmexkxZs=
+	t=1709648142; cv=none; b=UfD+bK2uYAxVWiXlIRHvovGoT4qd8O+wbVPDoIOIgQUu4658u7wjJgt5lOBNzlyk1g6w7CMlOctqgouxsRXap0zVxn8ymZuz1G1Xmpn30GsF6dHmv7RtlqDdxZDtTLC02Z/Kzd1DV1wyWf3FCIH+mmgu8iVu+rGaULs1etU44Ww=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709642429; c=relaxed/simple;
-	bh=0nCnavvNQviHwSY+c1UlWiFdurAhvuqMgaFxZ6NBAZI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=P6+1S9moEtS19wJDSoQCpipZxwrsKzCmwwlnpC1DOsxR+CQMheZKHe+A600oegJZnkDLkRD5mZyLHbbbb47gL4JMAnxfqH2yto1vgWc0mkQQJKgbgvEijDgPYFlfyN56WVHCwqY60OcXbSUMu/ZPB73ES/FuoXMUljN1ubUlm3A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5DE291FB;
-	Tue,  5 Mar 2024 04:41:02 -0800 (PST)
-Received: from FVFF77S0Q05N (unknown [10.57.69.116])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 15EF33F73F;
-	Tue,  5 Mar 2024 04:40:23 -0800 (PST)
-Date: Tue, 5 Mar 2024 12:40:20 +0000
-From: Mark Rutland <mark.rutland@arm.com>
-To: Yang Jialong =?utf-8?B?5p2o5L2z6b6Z?= <jialong.yang@shingroup.cn>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] arch/s390/perf: Register cpumf_pmu with type =
- PERF_TYPE_RAW
-Message-ID: <ZecStMBA4YgQaBEZ@FVFF77S0Q05N>
-References: <20240304022701.7362-1-jialong.yang@shingroup.cn>
- <ZeWVi6pua5QVqz_y@FVFF77S0Q05N>
- <ACE696AA8DB8D91B+458ebdd8-6951-4f72-a188-b21dc9863b90@shingroup.cn>
+	s=arc-20240116; t=1709648142; c=relaxed/simple;
+	bh=NOrYqrOBKmtYhNesKNo9esl759+uodRTcRkHuZf+zRk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=l68uKuLBLJtbLE5GHCwBAOpvKMcLJKAFQ1u/2AzQiyOsLMh/Mt0iZHMnXYLISfRCysnhrs5RlMRikG+Ub4FcIjkYPpOUOvvk1+ZjrSjSBgT22j3FMQ/3OKnhk1c7dV/YdqqEF3cdcMrB7k/VrGJOKDwlFkVE/kqRG4WFUSw+Qk8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HvY8kQ3/; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HvY8kQ3/"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 425EF0A4027026;
+	Tue, 5 Mar 2024 14:15:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=uCGzW2iZ273VwjEQ9vkC8xRDDD3pC4czBjmDdDYh0iM=;
+ b=HvY8kQ3/63r0fuGIi901Od2JNbj3d/BbcTQGIbZVj2q/oMxY1FwQK+Xm8npK5dTWxwHc
+ iiVvhkt0by+LzgvWAC4i64v3EV20TkSeWBdJURu+S7oYuQ6LDc9WGSizYji8bjlwO4E1
+ 0R6aL+IjzOb7IGYDzPGIB8VTZ9KWAUnpRV18GWOroBgk5h0bzp4Sjb27TGKYLi6XKvr3
+ VTjXf+oWLM81/ASJLgBrt64FpqZnTYhbyAx0k2jzn67uEJY2uXXUy4ilGg9n4TBUJoVZ
+ OCr+chWcvy74A2CQAa0Nn5obhI5+uaKoHEWWF0vItrYJQaSI57RPT8avJqACAJ95VMLg lQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wp3fwb333-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 05 Mar 2024 14:15:40 +0000
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 425EFd7Y028062;
+	Tue, 5 Mar 2024 14:15:39 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wp3fwb2wr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 05 Mar 2024 14:15:37 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 425DZXtI027187;
+	Tue, 5 Mar 2024 14:12:20 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wmfenr008-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 05 Mar 2024 14:12:20 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 425ECEkl38928736
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 5 Mar 2024 14:12:16 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8E3BB2006B;
+	Tue,  5 Mar 2024 14:12:14 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 58AD32004E;
+	Tue,  5 Mar 2024 14:12:14 +0000 (GMT)
+Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  5 Mar 2024 14:12:14 +0000 (GMT)
+From: Nico Boehr <nrb@linux.ibm.com>
+To: frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
+        npiggin@gmail.com
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v1] arch-run: Wait for incoming socket being removed
+Date: Tue,  5 Mar 2024 15:11:51 +0100
+Message-ID: <20240305141214.707046-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.44.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <ACE696AA8DB8D91B+458ebdd8-6951-4f72-a188-b21dc9863b90@shingroup.cn>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 9uaFL7PHBJW9HG2uLp4zkUY0lR0axDGr
+X-Proofpoint-ORIG-GUID: z9j5wqFjEdIOLBq4c8vkkLy0gPXnGZgr
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-03-05_11,2024-03-05_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 mlxscore=0
+ lowpriorityscore=0 mlxlogscore=999 adultscore=0 clxscore=1011 bulkscore=0
+ phishscore=0 priorityscore=1501 suspectscore=0 impostorscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
+ definitions=main-2403050115
 
-On Tue, Mar 05, 2024 at 09:43:16AM +0800, Yang Jialong 杨佳龙 wrote:
-> 在 2024/3/4 17:34, Mark Rutland 写道:
-> > On Mon, Mar 04, 2024 at 10:27:01AM +0800, JiaLong.Yang wrote:
-> > > The struct pmu cpumf_pmu has handled generic events. So it need some
-> > > flags to tell core this thing.
-> > 
-> > It's not necessary to register as PERF_TYPE_RAW in order to handle raw events,
-> > and PERF_TYPE_RAW is not a flag.
-> > 
-> > Have you encountered a functional problem, or was this found by inspection?
-> 
-> As you expected, I'm trying to confirm which one pmu has the capability to
-> handle generic events in registering pmus instead of test generic events in
-> each pmus when opening.
+Sometimes, QEMU needs a bit longer to remove the incoming migration
+socket. This happens in some environments on s390x for the
+migration-skey-sequential test.
 
-If we want to do that, then we need a new flag on struct pmu to restrict which
-events we try to open on a PMU.
+Instead of directly erroring out, wait for the removal of the socket.
 
-If you want to do that, you need to Cc the perf maintainers and discuss that
-rather than point-hacking individual drivers.
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+---
+ scripts/arch-run.bash | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-> We can confirm that before using. We have pay more in handling them when
-> opening.
-> So most driver developers use PERF_TYPE_RAW. x86 and arm use
-> PERF_PMU_CAP_EXTENDED_HW_TYPE. Others use struct pmu::task_ctx_nr =
-> perf_hw_context.
-> I think PERF_TYPE_RAW will be a easily accepted way. So ...
+diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
+index 2214d940cf7d..413f3eda8cb8 100644
+--- a/scripts/arch-run.bash
++++ b/scripts/arch-run.bash
+@@ -237,12 +237,8 @@ do_migration ()
+ 	echo > ${dst_infifo}
+ 	rm ${dst_infifo}
+ 
+-	# Ensure the incoming socket is removed, ready for next destination
+-	if [ -S ${dst_incoming} ] ; then
+-		echo "ERROR: Incoming migration socket not removed after migration." >& 2
+-		qmp ${dst_qmp} '"quit"'> ${dst_qmpout} 2>/dev/null
+-		return 2
+-	fi
++	# Wait for the incoming socket being removed, ready for next destination
++	while [ -S ${dst_incoming} ] ; do sleep 0.1 ; done
+ 
+ 	wait ${live_pid}
+ 	ret=$?
+-- 
+2.44.0
 
-No, this is a hack, and it doesn't solve the problem you describe above.
-
-If we want to remove the need for most PMUs to look at perf_event_attr::type,
-then we should have a new PERF_PMU_CAP_ flag on the PMU to say "this PMU
-supports generic events" (or separate flags for the generic RAW/HW/CACHE
-types), and update all relevant PMUs accordingly.
-
-Please do not try to overload pmu::type with additional semantics; it's messy
-enough as-is.
-
-Mark. 
