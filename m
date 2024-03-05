@@ -1,149 +1,284 @@
-Received: from forward502c.mail.yandex.net (forward502c.mail.yandex.net [178.154.239.210])
+Received: from out-176.mta1.migadu.com (out-176.mta1.migadu.com [95.215.58.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EA16944F;
-	Tue,  5 Mar 2024 16:44:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.210
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F36F175B1
+	for <linux-s390@vger.kernel.org>; Tue,  5 Mar 2024 17:09:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709657084; cv=none; b=Qjo6Bu3ZI1/qfJEXGzKnC7yMlIjiVMLc0Igo+MP2PWilZCJplqhCc6EYYW8WEMqfhGqgu8Nhbchlf650m+I+M/v2+H4ivN6jIAqJdU7bc9FCKBgOVNW69d2/5iY4GUO7jCXU+5S0hGEAtiB2NMSn9p9/MHaf8yWkk6ic7CZKU2I=
+	t=1709658552; cv=none; b=FaogZOUXgQ/c1MMu3j/bOCFC1k4hZJEmxOZCnR2QFbIO3y5TJvFF+WYlXHT5ExOGQm/GQP0WhWbCiUhcVCHtyw5IisNpvhZ1Mpgb/OFgCVHuy/OsMV4aXj33KnYIdfIAk6Kd53oDDgm2IGChdniXKdmGwhYVsUJXfUCJo6o/Sb4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709657084; c=relaxed/simple;
-	bh=10vkdmpV3gaRigbF8IpnK1jkrLKdE2fPvsByln69u0o=;
-	h=Message-ID:Date:MIME-Version:To:Cc:References:From:Subject:
-	 In-Reply-To:Content-Type; b=BBAcGqbdZVycyUeJq9bk243kYw8TRDl62gLcE7tEYFNB3D4L29UsC5pbER9TTNVWrBtt/YAxyCOD6NWfFCGFdF1MODaWFVAkjvs7+RUyY4PfvvOPYnSwYGnRlPaU6rwlwR6iMEGLH+C0nMuu9xTpFVNWdnO3+x7zR1GW6FZr9KM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru; spf=pass smtp.mailfrom=yandex.ru; dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b=crIKknz5; arc=none smtp.client-ip=178.154.239.210
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex.ru
+	s=arc-20240116; t=1709658552; c=relaxed/simple;
+	bh=VkVxzzEu3nVElayvwDmLcanYxqP9mTejahFEjNfr+w8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-type; b=HZ0TaR0F42wtloxIa1kT2uPOYkkkzJVHuSHEVvEain/AzzAPArHmGM3xfoM9HbL1f42d7AEbwSHe2ZUs1C0qHoae6bRemD4ij9uhT7GqihMO54XO7F+Y8MCQGLtJTfKMYGEo+6DRdsnr6vEW6XOo+AIBLihuUzyE0Al7Hd4H3Uo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=smHoWrGm; arc=none smtp.client-ip=95.215.58.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b="crIKknz5"
-Received: from mail-nwsmtp-smtp-production-main-45.sas.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-45.sas.yp-c.yandex.net [IPv6:2a02:6b8:c27:19c8:0:640:13a7:0])
-	by forward502c.mail.yandex.net (Yandex) with ESMTPS id 24D5F612B5;
-	Tue,  5 Mar 2024 19:39:14 +0300 (MSK)
-Received: by mail-nwsmtp-smtp-production-main-45.sas.yp-c.yandex.net (smtp/Yandex) with ESMTPSA id BdimoxIrAeA0-HIvgkJlw;
-	Tue, 05 Mar 2024 19:39:13 +0300
-X-Yandex-Fwd: 1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
-	t=1709656753; bh=u/kIOUlFzGFVGxoC5cILoKlRfd1Ro/lYe2uW5h6MOSc=;
-	h=In-Reply-To:Subject:To:From:Cc:Date:References:Message-ID;
-	b=crIKknz5apeCS/qvNi1ieQe6nWEyrLAAi845NZEBM6rUS0e5KUHNnCnZUqULmLyfC
-	 7duN0UcowUH0yEnF/lvtdLVNvpUqc0fZL7x3AF81YUzJyudmagTvtwl2At3XjqHrR/
-	 q9GECzR87I6lUJ+JMBljhj746ZVd1VXrjRnmYHYs=
-Authentication-Results: mail-nwsmtp-smtp-production-main-45.sas.yp-c.yandex.net; dkim=pass header.i=@yandex.ru
-Message-ID: <625c9519-7ae6-43a3-a5d0-81164ad7fd0e@yandex.ru>
-Date: Tue, 5 Mar 2024 19:39:11 +0300
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="smHoWrGm"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1709658548;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=MraLn1H3cyPePsk9ywys4sQEOsdtJQzZmf/lns7/wI4=;
+	b=smHoWrGmsdeJ9o2I/sXSbb/8LrOQCi30nPSaXKPznf9whoa31DK/NUjgOwd/oOHU0Yv0Qw
+	G4qnoj6qjFK2voml2hTSfzPkdMut9sSjfab/ZI0apVoInf2309MR4Sl/+hjrB3sN9wYPsq
+	Ylm59PH0HRxlJqZhPy/f0XOjjZOwYk8=
+From: Andrew Jones <andrew.jones@linux.dev>
+To: kvm@vger.kernel.org,
+	kvm-riscv@lists.infradead.org
+Cc: pbonzini@redhat.com,
+	thuth@redhat.com,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	kvmarm@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	lvivier@redhat.com,
+	frankja@linux.ibm.com,
+	nrb@linux.ibm.com
+Subject: [kvm-unit-tests PATCH v2 03/13] treewide: lib/stack: Fix backtrace
+Date: Tue,  5 Mar 2024 18:09:02 +0100
+Message-ID: <20240305170858.395836-18-andrew.jones@linux.dev>
+In-Reply-To: <20240305170858.395836-15-andrew.jones@linux.dev>
+References: <20240305170858.395836-15-andrew.jones@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-To: Wen Gu <guwen@linux.alibaba.com>
-Cc: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
- "D. Wythe" <alibuda@linux.alibaba.com>, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, lvc-project@linuxtesting.org
-References: <dacadaef-4fec-4d5e-8b91-1a292ab43b37@yandex.ru>
- <cff8e035-b70a-4910-9af6-e62000c0b87e@linux.alibaba.com>
-From: Dmitry Antipov <dmantipov@yandex.ru>
-Autocrypt: addr=dmantipov@yandex.ru; keydata=
- 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
- tx98MCutXbJWn55RtnVKbpIiMfBrcB8=
-Subject: Re: Reaching official SMC maintainers
-In-Reply-To: <cff8e035-b70a-4910-9af6-e62000c0b87e@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On 3/4/24 13:51, Wen Gu wrote:
+We should never pass the result of __builtin_frame_address(0) to
+another function since the compiler is within its rights to pop the
+frame to which it points before making the function call, as may be
+done for tail calls. Nobody has complained about backtrace(), so
+likely all compilations have been inlining backtrace_frame(), not
+dropping the frame on the tail call, or nobody is looking at traces.
+However, for riscv, when built for EFI, it does drop the frame on the
+tail call, and it was noticed. Preemptively fix backtrace() for all
+architectures.
 
-> IMHO, if we want to address the problem of fasync_struct entries being
-> incorrectly inserted to old socket, we may have to change the general code.
+Fixes: 52266791750d ("lib: backtrace printing")
+Acked-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Andrew Jones <andrew.jones@linux.dev>
+---
+ lib/arm/stack.c   | 13 +++++--------
+ lib/arm64/stack.c | 12 +++++-------
+ lib/riscv/stack.c | 12 +++++-------
+ lib/s390x/stack.c | 12 +++++-------
+ lib/stack.h       | 24 +++++++++++++++++-------
+ lib/x86/stack.c   | 12 +++++-------
+ 6 files changed, 42 insertions(+), 43 deletions(-)
 
-BTW what about using shared wait queue? Just to illustrate an idea:
-
-diff --git a/include/linux/net.h b/include/linux/net.h
-index c9b4a63791a4..02df64747db7 100644
---- a/include/linux/net.h
-+++ b/include/linux/net.h
-@@ -126,6 +126,7 @@ struct socket {
-  	const struct proto_ops	*ops; /* Might change with IPV6_ADDRFORM or MPTCP. */
-
-  	struct socket_wq	wq;
-+	struct socket_wq	*shared_wq;
-  };
-
-  /*
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 0f53a5c6fd9d..f04d61e316b2 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -3360,6 +3360,9 @@ static int __smc_create(struct net *net, struct socket *sock, int protocol,
-  		smc->clcsock = clcsock;
-  	}
-
-+	sock->shared_wq = &smc->shared_wq;
-+	smc->clcsock->shared_wq = &smc->shared_wq;
+diff --git a/lib/arm/stack.c b/lib/arm/stack.c
+index 7d081be7c6d0..66d18b47ea53 100644
+--- a/lib/arm/stack.c
++++ b/lib/arm/stack.c
+@@ -8,13 +8,16 @@
+ #include <libcflat.h>
+ #include <stack.h>
+ 
+-int backtrace_frame(const void *frame, const void **return_addrs,
+-		    int max_depth)
++int arch_backtrace_frame(const void *frame, const void **return_addrs,
++			 int max_depth, bool current_frame)
+ {
+ 	static int walking;
+ 	int depth;
+ 	const unsigned long *fp = (unsigned long *)frame;
+ 
++	if (current_frame)
++		fp = __builtin_frame_address(0);
 +
-  out:
-  	return rc;
-  }
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index df64efd2dee8..26e66c289d4f 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -287,6 +287,7 @@ struct smc_sock {				/* smc sock container */
-  						/* protects clcsock of a listen
-  						 * socket
-  						 * */
-+	struct socket_wq	shared_wq;
-  };
-
-  #define smc_sk(ptr) container_of_const(ptr, struct smc_sock, sk)
-diff --git a/net/socket.c b/net/socket.c
-index ed3df2f749bf..9b9e6932906f 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -1437,7 +1437,8 @@ static int sock_fasync(int fd, struct file *filp, int on)
-  {
-  	struct socket *sock = filp->private_data;
-  	struct sock *sk = sock->sk;
--	struct socket_wq *wq = &sock->wq;
-+	struct socket_wq *wq = (unlikely(sock->shared_wq) ?
-+				sock->shared_wq : &sock->wq);
-
-  	if (sk == NULL)
-  		return -EINVAL;
-
-Dmitry
+ 	if (walking) {
+ 		printf("RECURSIVE STACK WALK!!!\n");
+ 		return 0;
+@@ -33,9 +36,3 @@ int backtrace_frame(const void *frame, const void **return_addrs,
+ 	walking = 0;
+ 	return depth;
+ }
+-
+-int backtrace(const void **return_addrs, int max_depth)
+-{
+-	return backtrace_frame(__builtin_frame_address(0),
+-			       return_addrs, max_depth);
+-}
+diff --git a/lib/arm64/stack.c b/lib/arm64/stack.c
+index 82611f4b1815..f5eb57fd8892 100644
+--- a/lib/arm64/stack.c
++++ b/lib/arm64/stack.c
+@@ -8,7 +8,8 @@
+ 
+ extern char vector_stub_start, vector_stub_end;
+ 
+-int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
++int arch_backtrace_frame(const void *frame, const void **return_addrs,
++			 int max_depth, bool current_frame)
+ {
+ 	const void *fp = frame;
+ 	static bool walking;
+@@ -17,6 +18,9 @@ int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+ 	bool is_exception = false;
+ 	unsigned long addr;
+ 
++	if (current_frame)
++		fp = __builtin_frame_address(0);
++
+ 	if (walking) {
+ 		printf("RECURSIVE STACK WALK!!!\n");
+ 		return 0;
+@@ -54,9 +58,3 @@ int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+ 	walking = false;
+ 	return depth;
+ }
+-
+-int backtrace(const void **return_addrs, int max_depth)
+-{
+-	return backtrace_frame(__builtin_frame_address(0),
+-			       return_addrs, max_depth);
+-}
+diff --git a/lib/riscv/stack.c b/lib/riscv/stack.c
+index 712a5478d547..d865594b9671 100644
+--- a/lib/riscv/stack.c
++++ b/lib/riscv/stack.c
+@@ -2,12 +2,16 @@
+ #include <libcflat.h>
+ #include <stack.h>
+ 
+-int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
++int arch_backtrace_frame(const void *frame, const void **return_addrs,
++			 int max_depth, bool current_frame)
+ {
+ 	static bool walking;
+ 	const unsigned long *fp = (unsigned long *)frame;
+ 	int depth;
+ 
++	if (current_frame)
++		fp = __builtin_frame_address(0);
++
+ 	if (walking) {
+ 		printf("RECURSIVE STACK WALK!!!\n");
+ 		return 0;
+@@ -24,9 +28,3 @@ int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+ 	walking = false;
+ 	return depth;
+ }
+-
+-int backtrace(const void **return_addrs, int max_depth)
+-{
+-	return backtrace_frame(__builtin_frame_address(0),
+-			       return_addrs, max_depth);
+-}
+diff --git a/lib/s390x/stack.c b/lib/s390x/stack.c
+index 9f234a12adf6..d194f654e94d 100644
+--- a/lib/s390x/stack.c
++++ b/lib/s390x/stack.c
+@@ -14,11 +14,15 @@
+ #include <stack.h>
+ #include <asm/arch_def.h>
+ 
+-int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
++int arch_backtrace_frame(const void *frame, const void **return_addrs,
++			 int max_depth, bool current_frame)
+ {
+ 	int depth = 0;
+ 	struct stack_frame *stack = (struct stack_frame *)frame;
+ 
++	if (current_frame)
++		stack = __builtin_frame_address(0);
++
+ 	for (depth = 0; stack && depth < max_depth; depth++) {
+ 		return_addrs[depth] = (void *)stack->grs[8];
+ 		stack = stack->back_chain;
+@@ -28,9 +32,3 @@ int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+ 
+ 	return depth;
+ }
+-
+-int backtrace(const void **return_addrs, int max_depth)
+-{
+-	return backtrace_frame(__builtin_frame_address(0),
+-			       return_addrs, max_depth);
+-}
+diff --git a/lib/stack.h b/lib/stack.h
+index 10fc2f793354..6edc84344b51 100644
+--- a/lib/stack.h
++++ b/lib/stack.h
+@@ -11,17 +11,27 @@
+ #include <asm/stack.h>
+ 
+ #ifdef HAVE_ARCH_BACKTRACE_FRAME
+-extern int backtrace_frame(const void *frame, const void **return_addrs,
+-			   int max_depth);
++extern int arch_backtrace_frame(const void *frame, const void **return_addrs,
++				int max_depth, bool current_frame);
++
++static inline int backtrace_frame(const void *frame, const void **return_addrs,
++				  int max_depth)
++{
++	return arch_backtrace_frame(frame, return_addrs, max_depth, false);
++}
++
++static inline int backtrace(const void **return_addrs, int max_depth)
++{
++	return arch_backtrace_frame(NULL, return_addrs, max_depth, true);
++}
+ #else
+-static inline int
+-backtrace_frame(const void *frame __unused, const void **return_addrs __unused,
+-		int max_depth __unused)
++extern int backtrace(const void **return_addrs, int max_depth);
++
++static inline int backtrace_frame(const void *frame, const void **return_addrs,
++				  int max_depth)
+ {
+ 	return 0;
+ }
+ #endif
+ 
+-extern int backtrace(const void **return_addrs, int max_depth);
+-
+ #endif
+diff --git a/lib/x86/stack.c b/lib/x86/stack.c
+index 5ecd97ce90b9..58ab6c4b293a 100644
+--- a/lib/x86/stack.c
++++ b/lib/x86/stack.c
+@@ -1,12 +1,16 @@
+ #include <libcflat.h>
+ #include <stack.h>
+ 
+-int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
++int arch_backtrace_frame(const void *frame, const void **return_addrs,
++			 int max_depth, bool current_frame)
+ {
+ 	static int walking;
+ 	int depth = 0;
+ 	const unsigned long *bp = (unsigned long *) frame;
+ 
++	if (current_frame)
++		bp = __builtin_frame_address(0);
++
+ 	if (walking) {
+ 		printf("RECURSIVE STACK WALK!!!\n");
+ 		return 0;
+@@ -23,9 +27,3 @@ int backtrace_frame(const void *frame, const void **return_addrs, int max_depth)
+ 	walking = 0;
+ 	return depth;
+ }
+-
+-int backtrace(const void **return_addrs, int max_depth)
+-{
+-	return backtrace_frame(__builtin_frame_address(0), return_addrs,
+-			       max_depth);
+-}
+-- 
+2.44.0
 
