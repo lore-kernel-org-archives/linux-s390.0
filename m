@@ -1,87 +1,242 @@
-Received: from sipsolutions.net (s3.sipsolutions.net [168.119.38.16])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 577DF59B7F;
-	Tue,  5 Mar 2024 10:59:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.38.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD1D355E58;
+	Tue,  5 Mar 2024 11:23:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709636376; cv=none; b=aZz03g1KirEZW+iCT4kNzJbaAwc+A++gSJtpE46aUl58h0pIQFPRRfByPNJNvKGhhNzHD57ChrWTKMpwpP1DOgko5zPn1HzVskTEG3ZTzedOzeyvlWrAhMFFVLpAsYY+lGsfP1O2SVSInrO48+DmRE/RMgt6Oo+RFMe0GnZdvgo=
+	t=1709637832; cv=none; b=YXEakB5dDQ2w5C288lLNeVfGlQytFvbg56avMDslxSg+4sl3eNhBOUHmA4k9kd0PsO8h5sfHVy5TrunZjWtmR2qez2x9UTBvkCN8MIlsyL96qRaEYA/GK5RfGjXPeem1HELVFOxoztTpqmJBcIsxtRU0sqkDlkrbgOPgukypmDw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709636376; c=relaxed/simple;
-	bh=rkU/EUWBtwWWABqUxTFkTNu+QCtdjbQlVV4iGQMgjT8=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=m2JUoL61m6nwAzeLs7V1xWdu+Z76w4eci5hdBe9OpDw49sp4Y31fOleCVVNzBDaSNEUBvF8xPWPehptTjyGWupux3YPQ1OneutJdPKb4mERinxuRtOiLnbyrRfoXxkpm3S/yyCVfPa7fXKtRamGRjuuRPQ36RSiQoUSXy9gxZew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sipsolutions.net; spf=pass smtp.mailfrom=sipsolutions.net; dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b=X7C4VvEe; arc=none smtp.client-ip=168.119.38.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sipsolutions.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sipsolutions.net
+	s=arc-20240116; t=1709637832; c=relaxed/simple;
+	bh=JyjwkuHnYBoLTGojfsVzV+696GFqnuVrIlOLCLHz8hA=;
+	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=kStZ+gDxUr1Z1fnZ5g5BpHraDf2zZPUTz1Gawf+PKR7vjtBkWM86X/XyQITZBWcVR19u8y0ygbC04uMGeyT/3Ov1z4jiUvn4nqM2mwJOGgafCP4a8O+epaGEFGitk/maE09RqcPTLMYyj7z7lD8FFrsKUwGcJxpoHiCOSILkGHs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jA3A49vE; arc=none smtp.client-ip=198.175.65.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b="X7C4VvEe"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=sipsolutions.net; s=mail; h=MIME-Version:Content-Transfer-Encoding:
-	Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
-	Resent-Cc:Resent-Message-ID; bh=FUU17H/883Su4y5t0ORguJT8aM0bkdnEyWS9d9zukeE=;
-	t=1709636375; x=1710845975; b=X7C4VvEe0XoukI77UaTDV4bGeCXBV771Gu9ERiz88HDBiMA
-	wiNhlP1PONCTqxxUB9re9XIa88z3+CUro2HByrE1SwpDCdmvJ9HpF6TuZok1Fd4UpvUKgtgeg1AO/
-	0vlwVi61MyGG2XAo8o11z/RxWuMl+aNIbXcBVj0pouC7eK8arBWgyrhCIT8tdKCfgrVLIKd+PbO9V
-	G/oFZNV3Uy8fq6YJZcgmiGaNWrnsz/DSuBFPGa+1OSISxTVNDNv7guStZ8OyeTzVhDLBGavPzligP
-	ihDx+kYtd9pcb9l2YFWRSJVg8dShtvbYbV2G+j6R2scs2U/kaX2K0cICt89n95ZA==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.97)
-	(envelope-from <johannes@sipsolutions.net>)
-	id 1rhSVn-00000002j5H-3fnE;
-	Tue, 05 Mar 2024 11:59:08 +0100
-Message-ID: <65f6e65e90ca5f134ef1a238a38ab02a6c1c3360.camel@sipsolutions.net>
-Subject: Re: [PATCH 3/4] arch: define CONFIG_PAGE_SIZE_*KB on all
- architectures
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Arnd Bergmann <arnd@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, 
- Vincenzo Frascino <vincenzo.frascino@arm.com>, Kees Cook
- <keescook@chromium.org>, Anna-Maria Behnsen <anna-maria@linutronix.de>
-Cc: Arnd Bergmann <arnd@arndb.de>, Matt Turner <mattst88@gmail.com>, Vineet
- Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Catalin
- Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>, Brian Cain
- <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>, Geert
- Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Helge Deller
- <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Christophe Leroy
- <christophe.leroy@csgroup.eu>, Palmer Dabbelt <palmer@dabbelt.com>, John
- Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,  Andreas Larsson
- <andreas@gaisler.com>, Richard Weinberger <richard@nod.at>, x86@kernel.org,
- Max Filippov <jcmvbkbc@gmail.com>, Andy Lutomirski <luto@kernel.org>, Jan
- Kiszka <jan.kiszka@siemens.com>, Kieran Bingham <kbingham@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, 
- linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, 
- linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, 
- linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, 
- linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
- linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, 
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- sparclinux@vger.kernel.org,  linux-um@lists.infradead.org
-Date: Tue, 05 Mar 2024 11:59:05 +0100
-In-Reply-To: <20240226161414.2316610-4-arnd@kernel.org>
-References: <20240226161414.2316610-1-arnd@kernel.org>
-	 <20240226161414.2316610-4-arnd@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.4 (3.50.4-1.fc39) 
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jA3A49vE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1709637831; x=1741173831;
+  h=from:date:to:cc:subject:in-reply-to:message-id:
+   references:mime-version;
+  bh=JyjwkuHnYBoLTGojfsVzV+696GFqnuVrIlOLCLHz8hA=;
+  b=jA3A49vEeSSVhap6QLJlexe4DqpPllhv2dPhuGeU8odTytX9FVTCP3Ea
+   zH6D15vw6mXXcbeLb6uDn++FNYp1lHbfSObQ7YIEe6d6pYP94cqWJ8RMN
+   WTpE4vJmhzA2qXJYIJpZ83XvPJWXXUwPaNAK46Mw6Do3SVnOAN6C8Rk38
+   HOjk1IRJNoTUIsoPTuxj3nGrFGaVD/hPoyv5xErjZ59nBPYOa9Lvuf1u1
+   3bGo7i6/zLYLVZgCbUfORT1q9fTXTZdu2++4Kga1o7RURtdaoo5k84kGG
+   4WAi8Ud+WUPtHbRc5skO9LQi/tsqBJZUAXTQWPxk2fdNoHjPA5BTqVNF9
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,11003"; a="4040098"
+X-IronPort-AV: E=Sophos;i="6.06,205,1705392000"; 
+   d="scan'208";a="4040098"
+Received: from orviesa005.jf.intel.com ([10.64.159.145])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Mar 2024 03:23:38 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.06,205,1705392000"; 
+   d="scan'208";a="14031011"
+Received: from ijarvine-desk1.ger.corp.intel.com (HELO localhost) ([10.246.51.37])
+  by orviesa005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Mar 2024 03:23:30 -0800
+From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Date: Tue, 5 Mar 2024 13:23:25 +0200 (EET)
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+cc: virtualization@lists.linux.dev, Richard Weinberger <richard@nod.at>, 
+    Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+    Johannes Berg <johannes@sipsolutions.net>, 
+    Hans de Goede <hdegoede@redhat.com>, Vadim Pasternak <vadimp@nvidia.com>, 
+    Bjorn Andersson <andersson@kernel.org>, 
+    Mathieu Poirier <mathieu.poirier@linaro.org>, 
+    Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, 
+    Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+    Vasily Gorbik <gor@linux.ibm.com>, 
+    Alexander Gordeev <agordeev@linux.ibm.com>, 
+    Christian Borntraeger <borntraeger@linux.ibm.com>, 
+    Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+    Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org, 
+    platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org, 
+    linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Subject: Re: [PATCH vhost 1/4] virtio: find_vqs: pass struct instead of multi
+ parameters
+In-Reply-To: <20240304114719.3710-2-xuanzhuo@linux.alibaba.com>
+Message-ID: <f0ff7ef2-ba67-4091-efad-dc8eb8042dc3@linux.intel.com>
+References: <20240304114719.3710-1-xuanzhuo@linux.alibaba.com> <20240304114719.3710-2-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-malware-bazaar: not-scanned
+Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 2024-02-26 at 17:14 +0100, Arnd Bergmann wrote:
->=20
->  arch/um/Kconfig                    | 1 +
->  arch/um/include/asm/page.h         | 2 +-
+On Mon, 4 Mar 2024, Xuan Zhuo wrote:
+
+> Now, we pass multi parameters to find_vqs. These parameters
+> may work for transport or work for vring.
+> 
+> And find_vqs has multi implements in many places:
+> 
+>  arch/um/drivers/virtio_uml.c
+>  drivers/platform/mellanox/mlxbf-tmfifo.c
+>  drivers/remoteproc/remoteproc_virtio.c
+>  drivers/s390/virtio/virtio_ccw.c
+>  drivers/virtio/virtio_mmio.c
+>  drivers/virtio/virtio_pci_legacy.c
+>  drivers/virtio/virtio_pci_modern.c
+>  drivers/virtio/virtio_vdpa.c
+> 
+> Every time, we try to add a new parameter, that is difficult.
+> We must change every find_vqs implement.
+> 
+> One the other side, if we want to pass a parameter to vring,
+> we must change the call path from transport to vring.
+> Too many functions need to be changed.
+> 
+> So it is time to refactor the find_vqs. We pass a structure
+> cfg to find_vqs(), that will be passed to vring by transport.
+> 
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>  arch/um/drivers/virtio_uml.c             | 23 ++++-----
+>  drivers/platform/mellanox/mlxbf-tmfifo.c | 13 ++----
+>  drivers/remoteproc/remoteproc_virtio.c   | 28 ++++++-----
+>  drivers/s390/virtio/virtio_ccw.c         | 29 ++++++------
+>  drivers/virtio/virtio_mmio.c             | 26 +++++------
+>  drivers/virtio/virtio_pci_common.c       | 59 +++++++++++-------------
+>  drivers/virtio/virtio_pci_common.h       |  9 +---
+>  drivers/virtio/virtio_pci_legacy.c       | 11 +++--
+>  drivers/virtio/virtio_pci_modern.c       | 33 +++++++------
+>  drivers/virtio/virtio_vdpa.c             | 36 +++++++--------
+>  include/linux/virtio_config.h            | 51 ++++++++++++++++----
+>  11 files changed, 172 insertions(+), 146 deletions(-)
+> 
+> diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
+> index 8adca2000e51..c13dfeeb90c4 100644
+> --- a/arch/um/drivers/virtio_uml.c
+> +++ b/arch/um/drivers/virtio_uml.c
+> @@ -937,8 +937,8 @@ static int vu_setup_vq_call_fd(struct virtio_uml_device *vu_dev,
+>  }
+>  
+>  static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
+> -				     unsigned index, vq_callback_t *callback,
+> -				     const char *name, bool ctx)
+> +				     unsigned index,
+> +				     struct virtio_vq_config *cfg)
+>  {
+>  	struct virtio_uml_device *vu_dev = to_virtio_uml_device(vdev);
+>  	struct platform_device *pdev = vu_dev->pdev;
+> @@ -953,10 +953,12 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
+>  		goto error_kzalloc;
+>  	}
+>  	snprintf(info->name, sizeof(info->name), "%s.%d-%s", pdev->name,
+> -		 pdev->id, name);
+> +		 pdev->id, cfg->names[cfg->cfg_idx]);
+>  
+>  	vq = vring_create_virtqueue(index, num, PAGE_SIZE, vdev, true, true,
+> -				    ctx, vu_notify, callback, info->name);
+> +				    cfg->ctx ? cfg->ctx[cfg->cfg_idx] : false,
+
+Based on the commit message, I don't understand why this transformation 
+was made. It's perhaps some artifact of moving things around but please 
+state it in the commit message because this isn't 1:1 transformation 
+which would be just ctx -> cfg->ctx
+
+> +				    vu_notify,
+> +				    cfg->callbacks[cfg->cfg_idx], info->name);
+>  	if (!vq) {
+>  		rc = -ENOMEM;
+>  		goto error_create;
 
 
-LGTM, thanks.
+> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> index b655fccaf773..a9ae03904dcf 100644
+> --- a/drivers/virtio/virtio_pci_common.c
+> +++ b/drivers/virtio/virtio_pci_common.c
+> @@ -172,9 +172,7 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+>  }
+>  
+>  static struct virtqueue *vp_setup_vq(struct virtio_device *vdev, unsigned int index,
+> -				     void (*callback)(struct virtqueue *vq),
+> -				     const char *name,
+> -				     bool ctx,
+> +				     struct virtio_vq_config *cfg,
+>  				     u16 msix_vec)
+>  {
+>  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+> @@ -186,13 +184,13 @@ static struct virtqueue *vp_setup_vq(struct virtio_device *vdev, unsigned int in
+>  	if (!info)
+>  		return ERR_PTR(-ENOMEM);
+>  
+> -	vq = vp_dev->setup_vq(vp_dev, info, index, callback, name, ctx,
+> +	vq = vp_dev->setup_vq(vp_dev, info, index, cfg,
+>  			      msix_vec);
 
-Acked-by: Johannes Berg <johannes@sipsolutions.net>
+Should now easily fit to one line.
 
-johannes
+
+> @@ -126,10 +124,7 @@ bool vp_notify(struct virtqueue *vq);
+>  /* the config->del_vqs() implementation */
+>  void vp_del_vqs(struct virtio_device *vdev);
+>  /* the config->find_vqs() implementation */
+> -int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+> -		struct virtqueue *vqs[], vq_callback_t *callbacks[],
+> -		const char * const names[], const bool *ctx,
+> -		struct irq_affinity *desc);
+> +int vp_find_vqs(struct virtio_device *vdev, struct virtio_vq_config *cfg);
+
+Without knowing better, do you expect cfg is mutated inside vp_find_vqs()? 
+If not, mark it as const.
+
+> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> index da9b271b54db..1df8634d1258 100644
+> --- a/include/linux/virtio_config.h
+> +++ b/include/linux/virtio_config.h
+> @@ -96,6 +96,20 @@ typedef void vq_callback_t(struct virtqueue *);
+>   * @create_avq: create admin virtqueue resource.
+>   * @destroy_avq: destroy admin virtqueue resource.
+>   */
+> +
+> +struct virtio_vq_config {
+> +	unsigned int nvqs;
+> +
+> +	/* the vq index may not eq to the cfg index of the other array items */
+
+Can you try to make this comment clearer, as is I don't understand what it 
+means. E.g. what is "the other array"? not eq = not equal ?
+
+> +	unsigned int cfg_idx;
+> +
+> +	struct virtqueue **vqs;
+> +	vq_callback_t **callbacks;
+> +	const char *const *names;
+> +	const bool *ctx;
+> +	struct irq_affinity *desc;
+> +};
+
+The placement of the struct is wrong. Now the documentation of struct 
+virtio_config_ops is above your struct!?!
+
+Please also document the members of the newly added struct with kerneldoc.
+
+> +
+>  struct virtio_config_ops {
+>  	void (*get)(struct virtio_device *vdev, unsigned offset,
+>  		    void *buf, unsigned len);
+> @@ -105,10 +119,7 @@ struct virtio_config_ops {
+>  	u8 (*get_status)(struct virtio_device *vdev);
+>  	void (*set_status)(struct virtio_device *vdev, u8 status);
+>  	void (*reset)(struct virtio_device *vdev);
+> -	int (*find_vqs)(struct virtio_device *, unsigned nvqs,
+> -			struct virtqueue *vqs[], vq_callback_t *callbacks[],
+> -			const char * const names[], const bool *ctx,
+> -			struct irq_affinity *desc);
+> +	int (*find_vqs)(struct virtio_device *vdev, struct virtio_vq_config *cfg);
+>  	void (*del_vqs)(struct virtio_device *);
+>  	void (*synchronize_cbs)(struct virtio_device *);
+>  	u64 (*get_features)(struct virtio_device *vdev);
+
+
+-- 
+ i.
+
