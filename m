@@ -1,65 +1,65 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABFDB24B52
-	for <linux-s390@vger.kernel.org>; Tue,  5 Mar 2024 06:50:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C58E043AC5
+	for <linux-s390@vger.kernel.org>; Tue,  5 Mar 2024 06:52:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709621419; cv=none; b=V8uczZryG5aTiRT/K1DLAcOn91V86iQbA8ynpa99/SVGI7wErVmeG1UPNP0JglWJaq/pak6VorfIc30ezcsX5dGRQLdl/+ORjrEM7xDXheg2Meo+RUWyfF9XFxShTnk6s3T1/ZO5mtitck9dZLMR4lClhClnED5CFboi/SeCBqI=
+	t=1709621558; cv=none; b=cK3NY6C7HbNfQk3pWnXT3T7uvZAOB15P0ocP5N3Ja4obXAnSfAh8gqSnzhRZ3d0N25+Fh01upeAUMnUHy/5a/LuG0s6mHDNKreqaMSXOjVP758zsCouVcK0IeeEbP2kb52PzVLjPaU8rTBpDT90fpDEg/Ya0FU6eP6SarPKH/sE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709621419; c=relaxed/simple;
-	bh=KkE0wsvot5llwT5NF+CDW9SdIAUMCDBbkGEnUNjRThw=;
+	s=arc-20240116; t=1709621558; c=relaxed/simple;
+	bh=ymocqJc1f5kWMMreqMv5DLV3/0cLM8ClbEnLpTzgif8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hGBqkPYHFQAF3hLagifMbwgEeAtBSYVIrSQMO+KT4QJah6wilwhSMh46yR1unuCP9ixi/jTZgDSxj+wpy8nOuvr/rXqvmtoZCoSpuVFhhimXn594V1x7DrZBGjDURyhlhNCGLWft2me5ac7xH8kA9JmPJeGybYaRyMVddaIU7ew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E1/OksgF; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=qlazOJHUaF8ja+MYxrYrq7EYBgX2U2kfEJajwP3ZN3SpGKuyZJmz4t5BaaOhuDcUcShTRI24oN20Hpiv800U3mt5/blKY/EmqosLfdQs59wD9FszYNtm6pBNhi/SYbXlB+SMovL7TpbU8fFihvHFrtGSfchic4hhUUz143fYWwc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Vk/VRNmr; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E1/OksgF"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Vk/VRNmr"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709621415;
+	s=mimecast20190719; t=1709621555;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=yUHOxqOqxGyA7MtR9Nnzp2vnulyuYHtJSbKL4qmMk4s=;
-	b=E1/OksgFtcEDg44FqPQGD8sMnox6T0+BxPNbhvYH3S4c8wWox4n+hTeXEPZVpPlf5pVv9S
-	tId8MKb+4J0IQq2MQgiBMc/7LfCkZwgN49gBz4urBU6ll7W3RNuHCAEuvMGZ/Xgpl9fftU
-	uV0Yr5w2GpS95qG8DqEYr20qmnvRDDQ=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=055i0Cw+qSF55YTg7cbDTnODJKfJ+o7mIN7GUyBDy/4=;
+	b=Vk/VRNmr4zwPjTfmGAhHAwBdgQq73xx1snzUJhsYzuV5JV7+h8L42wehQHZkLzX2lhPwa9
+	DIn2wpN/Qi4QB4G81T5Y90Bn6O7HXt7GLup0wko/++8k43foXX4LsocEV39QxA6DQuWGrm
+	z+PiXZAS2T9b+zVnJPkasV+fMPhaWto=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-266-jMWNbVFKMiGjzefrFHVI2Q-1; Tue, 05 Mar 2024 01:50:13 -0500
-X-MC-Unique: jMWNbVFKMiGjzefrFHVI2Q-1
-Received: by mail-ed1-f69.google.com with SMTP id 4fb4d7f45d1cf-56484d05dcaso2661153a12.0
-        for <linux-s390@vger.kernel.org>; Mon, 04 Mar 2024 22:50:13 -0800 (PST)
+ us-mta-616-Y9UyTMZ4No-ytcVqe22bGg-1; Tue, 05 Mar 2024 01:52:33 -0500
+X-MC-Unique: Y9UyTMZ4No-ytcVqe22bGg-1
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-a456c9d0717so89441166b.3
+        for <linux-s390@vger.kernel.org>; Mon, 04 Mar 2024 22:52:33 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709621412; x=1710226212;
+        d=1e100.net; s=20230601; t=1709621552; x=1710226352;
         h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
          :to:content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=yUHOxqOqxGyA7MtR9Nnzp2vnulyuYHtJSbKL4qmMk4s=;
-        b=uxRYqGyJfaZP4uKR8yDN5aFgtQIgBq3/KocSnl5cWXrJM7gNn4adnEAjIr+rkM/os5
-         1gN4B5bISs6Y7Mh5k+iTEfy/lO2mG12ckNL7Pid4ZhkdZ5CbeIjijiSK20/WOt0eE9oL
-         WFqhfruEys+caq6qoXdDRCPERgJI8lYF8eS01TvcdRI2KXU+tEoj5t+Ub6vu0aoT8KUB
-         JdFi+OG4yph8WeqzmBJDld7xbDu8BxufgxliieH2HLA5/1JbghhaTqm5HWB5jiiC9qdB
-         dpuzxM8vqlxUfTRZvFbC9nZ8c4Jn9yvy398GC04wlTIbyu199fTYJHA01cYfBmtDXw2u
-         gd1w==
-X-Forwarded-Encrypted: i=1; AJvYcCWvwr0zYH1JKkjI7klHd2IBmVy+G9zG2EwMJsctJyMmhHUgspaWfrnpp9DsxVDAXJKmaxSGBmfh0W41JtcEtYtmBKShO02LS0/FmQ==
-X-Gm-Message-State: AOJu0Yz6I7/p3OKXyepSp2zTWqCsUOb4pNRSfSONwgSi91HVsw1ZGK6S
-	FNgTsf6YgzOe12O0wYbgZV4f2x3erg5Ro9/Slkc7qeyQKakAX1jkzwvDNPZl23guvssUl65zoCt
-	d39JlIaVrAHuSDStUQ1RhF1U3K1wMZzj1tyLAN+q8VNXCx20fJH/7d5UbSJw=
-X-Received: by 2002:a05:6402:901:b0:565:e646:5c12 with SMTP id g1-20020a056402090100b00565e6465c12mr8850273edz.0.1709621412709;
-        Mon, 04 Mar 2024 22:50:12 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGtP2gEIqeZN5nDOzlMNSXgqysn23HAV2b1atmbvM+KQvO6/brgGjbq/PcchmAc2KGMGnL+hQ==
-X-Received: by 2002:a05:6402:901:b0:565:e646:5c12 with SMTP id g1-20020a056402090100b00565e6465c12mr8850252edz.0.1709621412367;
-        Mon, 04 Mar 2024 22:50:12 -0800 (PST)
+        bh=055i0Cw+qSF55YTg7cbDTnODJKfJ+o7mIN7GUyBDy/4=;
+        b=DjvnnrkBvX1VDrBZc+I8yxVeJQ/i0M0BGMfTq2m+6cguAoVeRpqMmn8QKv9F0zQ82A
+         ObNy9kTU2S9yC8lq3rkSXFTD9zpCFggAy8P/mzcS4fJGrHgdIgRQj0q/VbX1X8gBHBSX
+         Q6qs93oH2wjCr0e94gb7DdahMFJkOSYFkob5BMCb5gvddjqaNWJr0jX4dFNSltU6Tlx8
+         9xWYJVFf2ZreVoFbEKMotjKnNxtIcBe8WzBFAc+8NVgECH5b2U50q9n88cusij0FwPxP
+         1PTN04aSTX428oMCbabnl7hskK9qlWRjDhL7eL8pb8Q9xO2oJiZTYkZ0Ep2hUhy/9n5p
+         68uA==
+X-Forwarded-Encrypted: i=1; AJvYcCWxA+560AFaNjxJL500cPXpSAO+SgXBzeRW8IBWK/rlxN9ttwzdZK1Z3LivJKnOp/bd83k2T8jFDWMl7q5GmxRXYz0poTquLUzw1A==
+X-Gm-Message-State: AOJu0YzVQ3kEU2OJLaQok9xeJClElJG4QCJce1W0JaVkBv4abxrddhah
+	asHTwmI9nnFKx0G4NoOjhHzG9xBF8y6mHrPa1fZbRA99Lm8UM1OFnzmwS1EFkpC3iJ/w9Sz0GUZ
+	S3NbECREhA0zzGI2xjp5noKXOC47TEXqLqe2Z+ahBREnPwQ+2zWZs93WylHE=
+X-Received: by 2002:a17:906:475a:b0:a40:4711:da20 with SMTP id j26-20020a170906475a00b00a404711da20mr7932089ejs.34.1709621552522;
+        Mon, 04 Mar 2024 22:52:32 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFajVdOaJs4uKX0LYrWLK+X2XMHvDfhEUWWpjcLyw7CAYFHHlfoPf9mDziaodNnuUxasFUVcg==
+X-Received: by 2002:a17:906:475a:b0:a40:4711:da20 with SMTP id j26-20020a170906475a00b00a404711da20mr7932065ejs.34.1709621552193;
+        Mon, 04 Mar 2024 22:52:32 -0800 (PST)
 Received: from [192.168.0.9] (ip-109-43-178-243.web.vodafone.de. [109.43.178.243])
-        by smtp.gmail.com with ESMTPSA id q22-20020a50aa96000000b00564e489ce9asm5712740edc.12.2024.03.04.22.50.10
+        by smtp.gmail.com with ESMTPSA id uz3-20020a170907118300b00a44bb63f29csm4007506ejb.47.2024.03.04.22.52.30
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 04 Mar 2024 22:50:12 -0800 (PST)
-Message-ID: <d78eda02-7cd7-4e66-94d8-8493f8282d72@redhat.com>
-Date: Tue, 5 Mar 2024 07:50:10 +0100
+        Mon, 04 Mar 2024 22:52:31 -0800 (PST)
+Message-ID: <839ca22a-b6e6-4e53-9819-cf803fb18101@redhat.com>
+Date: Tue, 5 Mar 2024 07:52:30 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,8 +67,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH 6/7] gitlab-ci: Run migration selftest on
- s390x and powerpc
+Subject: Re: [kvm-unit-tests PATCH 7/7] common: add memory dirtying vs
+ migration test
 Content-Language: en-US
 To: Nicholas Piggin <npiggin@gmail.com>
 Cc: kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
@@ -81,9 +81,9 @@ Cc: kvm@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
  <mhartmay@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
  linux-s390@vger.kernel.org
 References: <20240226093832.1468383-1-npiggin@gmail.com>
- <20240226093832.1468383-7-npiggin@gmail.com>
- <7783977b-69ea-4831-a8f2-55de26d7bfd4@redhat.com>
- <CZLGURIYNKHG.1JRG53746LHWI@wheely>
+ <20240226093832.1468383-8-npiggin@gmail.com>
+ <e967e7a6-eb20-4b2b-ab7a-fc5052a3eb52@redhat.com>
+ <CZLH3XUGU8Z8.2R73ILJ3ISWN8@wheely>
 From: Thomas Huth <thuth@redhat.com>
 Autocrypt: addr=thuth@redhat.com; keydata=
  xsFNBFH7eUwBEACzyOXKU+5Pcs6wNpKzrlJwzRl3VGZt95VCdb+FgoU9g11m7FWcOafrVRwU
@@ -127,89 +127,28 @@ Autocrypt: addr=thuth@redhat.com; keydata=
  oiT+z+/E59qj/EKfyce3sbC9XLjXv3mHMrq1tKX4G7IJGnS989E/fg6crv6NHae9Ckm7+lSs
  IQu4bBP2GxiRQ+NV3iV/KU3ebMRzqIC//DCOxzQNFNJAKldPe/bKZMCxEqtVoRkuJtNdp/5a
  yXFZ6TfE1hGKrDBYAm4vrnZ4CXFSBDllL59cFFOJCkn4Xboj/aVxxJxF30bn
-In-Reply-To: <CZLGURIYNKHG.1JRG53746LHWI@wheely>
+In-Reply-To: <CZLH3XUGU8Z8.2R73ILJ3ISWN8@wheely>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 05/03/2024 03.38, Nicholas Piggin wrote:
-> On Sat Mar 2, 2024 at 12:16 AM AEST, Thomas Huth wrote:
+On 05/03/2024 03.50, Nicholas Piggin wrote:
+> On Mon Mar 4, 2024 at 4:22 PM AEST, Thomas Huth wrote:
 >> On 26/02/2024 10.38, Nicholas Piggin wrote:
->>> The migration harness is complicated and easy to break so CI will
->>> be helpful.
->>>
->>> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
->>> ---
->>>    .gitlab-ci.yml | 18 +++++++++++-------
->>>    1 file changed, 11 insertions(+), 7 deletions(-)
->>>
->>> diff --git a/.gitlab-ci.yml b/.gitlab-ci.yml
->>> index 71d986e98..61f196d5d 100644
->>> --- a/.gitlab-ci.yml
->>> +++ b/.gitlab-ci.yml
->>> @@ -64,26 +64,28 @@ build-arm:
->>>    build-ppc64be:
->>>     extends: .outoftree_template
->>>     script:
->>> - - dnf install -y qemu-system-ppc gcc-powerpc64-linux-gnu
->>> + - dnf install -y qemu-system-ppc gcc-powerpc64-linux-gnu nmap-ncat
->>>     - mkdir build
->>>     - cd build
->>>     - ../configure --arch=ppc64 --endian=big --cross-prefix=powerpc64-linux-gnu-
->>>     - make -j2
->>>     - ACCEL=tcg ./run_tests.sh
->>> -     selftest-setup spapr_hcall rtas-get-time-of-day rtas-get-time-of-day-base
->>> -     rtas-set-time-of-day emulator
->>> +     selftest-setup selftest-migration selftest-migration-skip spapr_hcall
->>> +     rtas-get-time-of-day rtas-get-time-of-day-base rtas-set-time-of-day
->>> +     emulator
->>>         | tee results.txt
->>>     - if grep -q FAIL results.txt ; then exit 1 ; fi
->>>    
->>>    build-ppc64le:
->>>     extends: .intree_template
->>>     script:
->>> - - dnf install -y qemu-system-ppc gcc-powerpc64-linux-gnu
->>> + - dnf install -y qemu-system-ppc gcc-powerpc64-linux-gnu nmap-ncat
->>>     - ./configure --arch=ppc64 --endian=little --cross-prefix=powerpc64-linux-gnu-
->>>     - make -j2
->>>     - ACCEL=tcg ./run_tests.sh
->>> -     selftest-setup spapr_hcall rtas-get-time-of-day rtas-get-time-of-day-base
->>> -     rtas-set-time-of-day emulator
->>> +     selftest-setup selftest-migration selftest-migration-skip spapr_hcall
->>> +     rtas-get-time-of-day rtas-get-time-of-day-base rtas-set-time-of-day
->>> +     emulator
->>>         | tee results.txt
->>>     - if grep -q FAIL results.txt ; then exit 1 ; fi
->>>    
->>> @@ -107,7 +109,7 @@ build-riscv64:
->>>    build-s390x:
->>>     extends: .outoftree_template
->>>     script:
->>> - - dnf install -y qemu-system-s390x gcc-s390x-linux-gnu
->>> + - dnf install -y qemu-system-s390x gcc-s390x-linux-gnu nmap-ncat
->>>     - mkdir build
->>>     - cd build
->>>     - ../configure --arch=s390x --cross-prefix=s390x-linux-gnu-
->>> @@ -133,6 +135,8 @@ build-s390x:
->>>          sclp-1g
->>>          sclp-3g
->>>          selftest-setup
->>> +      selftest-migration
->>> +      selftest-migration-skip
->>>          sieve
->>>          smp
->>>          stsi
+>>> This test stores to a bunch of pages and verifies previous stores,
+>>> while being continually migrated. This can fail due to a QEMU TCG
+>>> physical memory dirty bitmap bug.
 >>
->> While I can update the qemu binary for the s390x-kvm job, the build-* jobs
->> run in a container with a normal QEMU from the corresponding distros, so I
->> think this has to wait 'til we get distros that contain your QEMU TCG
->> migration fix.
+>> Good idea, but could we then please drop "continuous" test from
+>> selftest-migration.c again? ... having two common tests to exercise the
+>> continuous migration that take quite a bunch of seconds to finish sounds
+>> like a waste of time in the long run to me.
 > 
-> Okay. powerpc *could* run into the TCG bug too, in practice it has not.
-> We could try enable it there to get migration into CI, and revert it if
-> it starts showing random failures?
+> Yeah if you like. I could shorten them up a bit. I did want to have
+> the selftests for just purely testing the harness with as little
+> "test" code as possible.
 
-Fine for me.
+Ok, but then please shorten the selftest to ~ 2 seconds if possible, please.
 
   Thomas
+
 
