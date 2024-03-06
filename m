@@ -1,107 +1,148 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6A801B941;
-	Wed,  6 Mar 2024 22:06:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 278023FB16;
+	Wed,  6 Mar 2024 23:41:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=150.107.74.76
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709762773; cv=none; b=MXqQxUGssCPgGx4V6XYjfwfBlKwI+SPAHvglSaqbKjXDKMrWPUR+Y7oHFzI+GO8uEz0MKy8DvZkRe1SK29RF9L8oSfU5ygJRPGr1F1CSjAvwrCDxZZ97Fvyq0eLQPF8iUDJ40HybMM04zumdRBITuPWibpXUmyq4rCQ8YGicWRs=
+	t=1709768482; cv=none; b=awTI0mhN82gEeAvB3C3J787toCMnN17gVRfNAI/6d8ty1gvTdw99tqqdM+FJiLvWJfBuq44XKPvr6Ka6E3EG8RZrWTSGzTckap+kZdZxOVf+tIZofMcvKtLUcULVSi78cJpTtV2V4o9nVi6G4p5lolD+HsOkqiL07gSSUrAzdSg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709762773; c=relaxed/simple;
-	bh=Q6nI/N7wvS+IJoI8zvSoef/iw9QQBEP/19WRjTvAfQA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JzPAiBThDInxIEAO8ZrUgiqfl32w7eQOy+FfZ8hoFXOr/m2jyieEN2d5d5JBPhnCDOvqHM8bEicW1HLpb4rK8YMjkAsj6zbyyj5/f3L+sNLoEZyhhXIR7wabOgutsunftn2VNkwiohZJPg4dVkuVbaVdVpB7iFClcizRJhmkzLU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aewsjAK6; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1709768482; c=relaxed/simple;
+	bh=dZ6jOLMDzgPZpijPacAiasUg5Crtb+AP4LxE80M2xBA=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=iHuEzZsu/Urn8zldaiQ5j7gzq7GJ0CTbGgp67QIz72WiI+U5gLTWlVlL5x/hkMHlzYSsaA/mHWW497z+fQSp0kyu9Jzw63h7t9EVYEfjScasjKTy5baSAkmsV9DIXOLagUXW9H6/eGvrDEXdd3NUu6o6Al788cDBoF29z2idXTw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au; spf=pass smtp.mailfrom=ellerman.id.au; dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b=dfxSn7ES; arc=none smtp.client-ip=150.107.74.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ellerman.id.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ellerman.id.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aewsjAK6"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 426LvMYv000406;
-	Wed, 6 Mar 2024 22:06:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=NrYxsIOwkjk9D5Paw8HS8ZbIfu/sTVLwflepMjYx1PU=;
- b=aewsjAK6KhC43FSuWfhlosY068aT54XcXZIH8VgEu4uOCzOEcnUG9E7vxYXih5ZvnEz4
- 4SS7BnbgPhjNnny5vPgrwd8w8L3ZmmNn6jFj+5kmmUTp4cDfL+Uqn3q5asowbkWteKQy
- rumb9NYYfhuX7PSjFIXwxImz35SnETNOnn5lMb9QJv44yujZGXsrSkEwg3CiMv7yaqIX
- mYb+GqzFWIbbAW9O3hO7IX3f6U94qCp91e+XdKN8jx9lVXDr/SB5KdYTfzCKtL9+hg9h
- gV7yl3C+CwIQ+q2SpPehih09Tqvm34F4l2gQ34TZWtJ9pIcMEYQ8ZD2PJ+m9JabINHWt SA== 
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wq0utr47n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Mar 2024 22:06:07 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 426K3e1J031560;
-	Wed, 6 Mar 2024 22:02:41 GMT
-Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wmgnk97kr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Mar 2024 22:02:41 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 426M2cjx28508568
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 6 Mar 2024 22:02:40 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 637C35806B;
-	Wed,  6 Mar 2024 22:02:38 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B78435805D;
-	Wed,  6 Mar 2024 22:02:37 +0000 (GMT)
-Received: from [9.61.98.245] (unknown [9.61.98.245])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  6 Mar 2024 22:02:37 +0000 (GMT)
-Message-ID: <6d8656b0-91ab-49e7-9321-30367052f083@linux.ibm.com>
-Date: Wed, 6 Mar 2024 17:02:37 -0500
+	dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.b="dfxSn7ES"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+	s=201909; t=1709768472;
+	bh=OHx3bVLlXnvaD4Lk/LqRAXihRU8d5iuk+jHowRU57+A=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=dfxSn7ESt9feXa7Ah5VgnrgsTR94t0TrfqG0PcTuTf3mOM2nYClb7KzncEO44oWvJ
+	 z177IwNoKxwaRwuRElWO9dM9vGP1BGgcQEfox5PbPq0mqdcUVphkGszRXScQ0d7mcO
+	 jW4ikoUKpq/rq3DBl50CSj6CPBHJDbwDqtBF6NxW+foiGgFyBpZYE+I728npTZNMg3
+	 1t/2+QbQypMyzr9+0O+l4J8vO9YugJeJGU6R2JxmPiIz07vqQ4qeSoMI/Ta1CVt4Pi
+	 EW9aQ8ONAeTLEZ2I6yd+B+il/wLckJElOl67KFtvN0q8NsP2LkndTztEXc4YygJJsv
+	 te7iy+1YEdhjg==
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mail.ozlabs.org (Postfix) with ESMTPSA id 4Tqppm50HGz4wcN;
+	Thu,  7 Mar 2024 10:41:04 +1100 (AEDT)
+From: Michael Ellerman <mpe@ellerman.id.au>
+To: Arnd Bergmann <arnd@kernel.org>, Anna-Maria Behnsen
+ <anna-maria@linutronix.de>, Thomas Gleixner <tglx@linutronix.de>, Vincenzo
+ Frascino <vincenzo.frascino@arm.com>, Kees Cook <keescook@chromium.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Matt Turner <mattst88@gmail.com>, Vineet
+ Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Catalin
+ Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>, Brian Cain
+ <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>, Geert
+ Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Helge Deller
+ <deller@gmx.de>, Christophe Leroy <christophe.leroy@csgroup.eu>, Palmer
+ Dabbelt <palmer@dabbelt.com>, John Paul Adrian Glaubitz
+ <glaubitz@physik.fu-berlin.de>, Andreas Larsson <andreas@gaisler.com>,
+ Richard Weinberger <richard@nod.at>, x86@kernel.org, Max Filippov
+ <jcmvbkbc@gmail.com>, Andy Lutomirski <luto@kernel.org>, Jan Kiszka
+ <jan.kiszka@siemens.com>, Kieran Bingham <kbingham@kernel.org>, Andrew
+ Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-um@lists.infradead.org
+Subject: Re: [PATCH v2 1/3] arch: consolidate existing CONFIG_PAGE_SIZE_*KB
+ definitions
+In-Reply-To: <20240306141453.3900574-2-arnd@kernel.org>
+References: <20240306141453.3900574-1-arnd@kernel.org>
+ <20240306141453.3900574-2-arnd@kernel.org>
+Date: Thu, 07 Mar 2024 10:41:02 +1100
+Message-ID: <87sf13nd2p.fsf@mail.lhotse>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/5] s390/vfio-ap: queue_configuration sysfs attribute
- for mdevctl automation
-Content-Language: en-US
-To: "Jason J. Herne" <jjherne@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, akrowiak@linux.ibm.com,
-        borntraeger@de.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com
-References: <20240306140843.10782-1-jjherne@linux.ibm.com>
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20240306140843.10782-1-jjherne@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: zbCD7jB1_OXe1Qi7FOjOOWHz-3DEIC-o
-X-Proofpoint-ORIG-GUID: zbCD7jB1_OXe1Qi7FOjOOWHz-3DEIC-o
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-06_12,2024-03-05_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- priorityscore=1501 mlxscore=0 mlxlogscore=999 bulkscore=0
- lowpriorityscore=0 adultscore=0 malwarescore=0 spamscore=0 clxscore=1015
- phishscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2311290000 definitions=main-2403060178
+Content-Type: text/plain
 
-On 3/6/24 9:08 AM, Jason J. Herne wrote:
-> Mdevctl requires a way to atomically query and atomically update a vfio-ap
-> mdev's current state. This patch set creates the queue_configuration sysfs
-> attribute.  This new attribute allows reading and writing an mdev's entire
-> state in one go. If a newly written state is invalid for any reason the entire
-> state is rejected and the target mdev remains unchanged.
-> 
-> Changelog
-> ==========
-> v2
->   - Rebased patched on top of latest master
->   - Reworked code to fit changes introduced by f848cba767e59
->       s390/vfio-ap: reset queues filtered from the guest's AP config
->   - Moved docs changes to separate patch
+Hi Arnd,
 
-Tested exploitation of the new sysfs interface using proposed s390-tools code + mdevctl.  Besides the other minor changes mentioned separately, feel free to include
+Arnd Bergmann <arnd@kernel.org> writes:
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> These four architectures define the same Kconfig symbols for configuring
+> the page size. Move the logic into a common place where it can be shared
+> with all other architectures.
+>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+> Changes from v1:
+>  - improve Kconfig help texts
+>  - fix Hexagon Kconfig
+>
+>  arch/Kconfig                      | 92 ++++++++++++++++++++++++++++++-
+>  arch/hexagon/Kconfig              | 24 ++------
+>  arch/hexagon/include/asm/page.h   |  6 +-
+>  arch/loongarch/Kconfig            | 21 ++-----
+>  arch/loongarch/include/asm/page.h | 10 +---
+>  arch/mips/Kconfig                 | 58 ++-----------------
+>  arch/mips/include/asm/page.h      | 16 +-----
+>  arch/sh/include/asm/page.h        | 13 +----
+>  arch/sh/mm/Kconfig                | 42 ++++----------
+>  9 files changed, 121 insertions(+), 161 deletions(-)
 
-Tested-by: Matthew Rosato <mjrosato@linux.ibm.com>
+There's a few "help" lines missing, which breaks the build:
 
-for the code patches.
+  arch/Kconfig:1134: syntax error
+  arch/Kconfig:1133: invalid statement
+  arch/Kconfig:1134: invalid statement
+  arch/Kconfig:1135:warning: ignoring unsupported character '.'
+  arch/Kconfig:1135:warning: ignoring unsupported character '.'
+  arch/Kconfig:1135: invalid statement
+  arch/Kconfig:1136: invalid statement
+  arch/Kconfig:1137:warning: ignoring unsupported character '.'
+  arch/Kconfig:1137: invalid statement
+  arch/Kconfig:1143: syntax error
+  arch/Kconfig:1142: invalid statement
+  arch/Kconfig:1143: invalid statement
+  arch/Kconfig:1144:warning: ignoring unsupported character '.'
+  arch/Kconfig:1144: invalid statement
+  arch/Kconfig:1145: invalid statement
+  arch/Kconfig:1146: invalid statement
+  arch/Kconfig:1147: invalid statement
+  arch/Kconfig:1148:warning: ignoring unsupported character '.'
+  arch/Kconfig:1148: invalid statement
+  make[4]: *** [../scripts/kconfig/Makefile:85: syncconfig] Error 1
 
+Fixup diff is:
+
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 56d45a75f625..f2295fa3b48c 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -1130,6 +1130,7 @@ config PAGE_SIZE_16KB
+ config PAGE_SIZE_32KB
+        bool "32KiB pages"
+        depends on HAVE_PAGE_SIZE_32KB
++       help
+          Using 32KiB page size will result in slightly higher performance
+          kernel at the price of higher memory consumption compared to
+          16KiB pages.  This option is available only on cnMIPS cores.
+@@ -1139,6 +1140,7 @@ config PAGE_SIZE_32KB
+ config PAGE_SIZE_64KB
+        bool "64KiB pages"
+        depends on HAVE_PAGE_SIZE_64KB
++       help
+          Using 64KiB page size will result in slightly higher performance
+          kernel at the price of much higher memory consumption compared to
+          4KiB or 16KiB pages.
+
+
+cheers
