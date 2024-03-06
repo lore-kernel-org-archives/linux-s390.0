@@ -1,67 +1,80 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B3E9134721;
-	Wed,  6 Mar 2024 14:08:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9624A5DF27;
+	Wed,  6 Mar 2024 14:15:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709734134; cv=none; b=W8UMjJvxZnDzzcN3CRQW27dcZku5LT1sdKseL4zsyniKJetVqrpFega6smnzKJ5X1NFVwMd/z61Qcx9VK615xiI65ms7jQtEnOqAeH9GXCd/pOuiLQy5YSq+Bb1TlW17DmWnAajri4AE3wyRYzSC4mi1jor1E4mQaJLJJzhlK1U=
+	t=1709734517; cv=none; b=OKiPF+fcKBxeqpBjdCMc+ZrAk0uxqkazXJjUXZSH+9+GDw9oSbOFPJm4S/8GD7ne9i2N8tprqoTHdHu10dMuLMtFCfYXgsyGMchfixzWsPHJCtjI/fy/7LKzUbjh+nuHVIHT5wRbh8nhII4T5LwWW1ItUPx9PKxpBPV9tpYtGTI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709734134; c=relaxed/simple;
-	bh=0zm2X/KDZl63etiI4NfF7/kknQN0paR11/NfnXifv4E=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=T6XGIiOZ/xNHG6UEEdoPowO+dkBpShYbyDWcqjhOrsS2LL3GOCVcwyYEh+G4PgPCnWDApLMhw4MpDKLqR71FCSimlfOaKRdZTQ5FTj/LqPgSDGtQ9tkAsxmaEegLBoPJQ3ilo5cIACuRHQhtmxFYQ2wyRaUIdACbj4r2NCRkgCU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eXHXngj0; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1709734517; c=relaxed/simple;
+	bh=6p2hAt3DJTtWEmWkGiNmsPvIqV/lUSZTutyoSUX5wpE=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=q9zCiavFJ94/ebGWvPPBfJS5GZL3U5exLP5N19rpPXfSa1nku5TJohqKSpqGliznqwPWH62eFtrBeoedB8nZ3J2OAGPtdAZOMAQr5ckSMb0+sIt5VobTQteAEoJ+h8vWZaS/P5qvFoxO0xRKxnD1a+htfEx1Sdlt8pNa+MsorIs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LqIp2kZT; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eXHXngj0"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 426DXZTl020959;
-	Wed, 6 Mar 2024 14:08:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=/Pce4az328om0ozWYrHKebq5la97J2ZUIXLIxmMGpFk=;
- b=eXHXngj0FqVFeuBGEyb6Yk4OrK7PhbNiDgkm256XjSNQgzeK0+kJD6E1pvufQVe2VNeI
- QSI98MYOVdYVw8Y6gCswvJ7hVuZdUR9dXTphToWizsQGhcK9FkpjAxm1SE81Bxgjeb9v
- tOMckW2HLtEutkZXp41TmmX6FB5qGvdfiRdnEkza9GHkoBImGYysCrrnizhRE56Z7zKg
- YuhEKgX1AcuWRjMpejEvx9b0pcHSzxm48ujyAQ/+Iu6lIXDpTwsk5sU5SapyPqmhbrwd
- qsxIenS8c07jEypQexu2hdi6hLEbnPqZqVCBK/05278au8HZHAmEjb6gtgEAJhKmapd2 Vw== 
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wpsfj1ewb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Mar 2024 14:08:51 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 426DHTOZ025366;
-	Wed, 6 Mar 2024 14:08:50 GMT
-Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wmetyq85a-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Mar 2024 14:08:50 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 426E8le311928132
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 6 Mar 2024 14:08:49 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9ADEC58068;
-	Wed,  6 Mar 2024 14:08:47 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1C48558056;
-	Wed,  6 Mar 2024 14:08:47 +0000 (GMT)
-Received: from jason-laptop.home.arpa (unknown [9.61.164.86])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  6 Mar 2024 14:08:47 +0000 (GMT)
-From: "Jason J. Herne" <jjherne@linux.ibm.com>
-To: linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, akrowiak@linux.ibm.com,
-        borntraeger@de.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com
-Subject: [PATCH v2 5/5] s390: doc: Update doc
-Date: Wed,  6 Mar 2024 09:08:43 -0500
-Message-ID: <20240306140843.10782-6-jjherne@linux.ibm.com>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20240306140843.10782-1-jjherne@linux.ibm.com>
-References: <20240306140843.10782-1-jjherne@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LqIp2kZT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F782C433F1;
+	Wed,  6 Mar 2024 14:15:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1709734517;
+	bh=6p2hAt3DJTtWEmWkGiNmsPvIqV/lUSZTutyoSUX5wpE=;
+	h=From:To:Cc:Subject:Date:From;
+	b=LqIp2kZTKEk6BDtlGN9YtFBVHmwGfTij/0yFkUBE5XGhta0eqXHuPZZJ3/MIusuUG
+	 1/ai7edE6AbiuxHWjDBSN5GwSx4jO1RwWivNR0PUtakQUcitU1uJh1+vHWYGSiPn+I
+	 /dBaVrtPErxMiFpuWjYe3LW95xWi64gxsDrEvpuJ8OizSORBDPypoeSsLWyXEUGdmf
+	 fJeiWqTrhJi5qxh7Jya6058wrIYZrMi99CnlK2WXNiIm+MJuSG+gSvaihlsEMOBWt5
+	 2fKuqVl7eyYLUWkzPRqLl2zDWANVIuecGX2Qr2I58K0QII0FK3WksaSXHLTuDSmpIM
+	 TYoPCbqqY5j5A==
+From: Arnd Bergmann <arnd@kernel.org>
+To: Anna-Maria Behnsen <anna-maria@linutronix.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vincenzo Frascino <vincenzo.frascino@arm.com>,
+	Kees Cook <keescook@chromium.org>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Matt Turner <mattst88@gmail.com>,
+	Vineet Gupta <vgupta@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Guo Ren <guoren@kernel.org>,
+	Brian Cain <bcain@quicinc.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Michal Simek <monstr@monstr.eu>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Helge Deller <deller@gmx.de>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Richard Weinberger <richard@nod.at>,
+	x86@kernel.org,
+	Max Filippov <jcmvbkbc@gmail.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Jan Kiszka <jan.kiszka@siemens.com>,
+	Kieran Bingham <kbingham@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	linux-kernel@vger.kernel.org,
+	linux-alpha@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	linux-um@lists.infradead.org
+Subject: [v2 PATCH 0/3] arch: mm, vdso: consolidate PAGE_SIZE definition
+Date: Wed,  6 Mar 2024 15:14:50 +0100
+Message-Id: <20240306141453.3900574-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.39.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,63 +82,138 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: aoEAmvhaWnwxiHVGGaSciocZdcgIzaCm
-X-Proofpoint-GUID: aoEAmvhaWnwxiHVGGaSciocZdcgIzaCm
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-06_08,2024-03-05_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
- clxscore=1015 suspectscore=0 phishscore=0 mlxlogscore=993
- lowpriorityscore=0 bulkscore=0 spamscore=0 impostorscore=0
- priorityscore=1501 malwarescore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2311290000 definitions=main-2403060113
 
-fix me
+From: Arnd Bergmann <arnd@arndb.de>
 
-Signed-off-by: Jason J. Herne <jjherne@linux.ibm.com>
----
- Documentation/arch/s390/vfio-ap.rst | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+Naresh noticed that the newly added usage of the PAGE_SIZE macro in
+include/vdso/datapage.h introduced a build regression. I had an older
+patch that I revived to have this defined through Kconfig rather than
+through including asm/page.h, which is not allowed in vdso code.
 
-diff --git a/Documentation/arch/s390/vfio-ap.rst b/Documentation/arch/s390/vfio-ap.rst
-index 929ee1c1c940..af5ef60355a2 100644
---- a/Documentation/arch/s390/vfio-ap.rst
-+++ b/Documentation/arch/s390/vfio-ap.rst
-@@ -380,6 +380,33 @@ matrix device.
-     control_domains:
-       A read-only file for displaying the control domain numbers assigned to the
-       vfio_ap mediated device.
-+    ap_config:
-+        A read/write file that, when written to, allows the entire vfio_ap mediated
-+        device's ap configuration to be replaced in one shot. Three masks are given,
-+        one for adapters, one for domains, and one for control domains. If the
-+        given state cannot be set, then no changes are made to the vfio-ap
-+        mediated device.
-+
-+        The format of the data written to ap_config is as follows:
-+        {amask},{dmask},{cmask}\n
-+
-+        \n is a newline character.
-+
-+        amask, dmask, and cmask are masks identifying which adapters, domains,
-+        and control domains should be assigned to the mediated device.
-+
-+        The format of a mask is as follows:
-+        0xNN..NN
-+
-+        Where NN..NN is 64 hexadecimal characters representing a 256-bit value.
-+        The leftmost (highest order) bit represents adapter/domain 0.
-+
-+        For an example set of masks that represent your mdev's current
-+        configuration, simply cat ap_config.
-+
-+        This attribute is intended to be used by automation. End users would be
-+        better served using the respective assign/unassign attributes for
-+        adapters, domains, and control domains.
- 
- * functions:
- 
+The vdso patch series now has a temporary workaround, but I still want to
+get this into v6.9 so we can place the hack with CONFIG_PAGE_SIZE
+in the vdso.
+
+I've applied this to the asm-generic tree already, please let me know if
+there are still remaining issues. It's really close to the merge window
+already, so I'd probably give this a few more days before I send a pull
+request, or defer it to v6.10 if anything goes wrong.
+
+Sorry for the delay, I was still waiting to resolve the m68k question,
+but there were no further replies in the end, so I kept my original
+version.
+
+Changes from v1:
+
+ - improve Kconfig help texts
+ - remove an extraneous line in hexagon
+
+      Arnd
+
+Link: https://lore.kernel.org/lkml/CA+G9fYtrXXm_KO9fNPz3XaRxHV7UD_yQp-TEuPQrNRHU+_0W_Q@mail.gmail.com/
+Link: https://lore.kernel.org/all/65dc6c14.170a0220.f4a3f.91dd@mx.google.com/
+Link: https://lore.kernel.org/lkml/20240226161414.2316610-1-arnd@kernel.org/
+
+Arnd Bergmann (3):
+  arch: consolidate existing CONFIG_PAGE_SIZE_*KB definitions
+  arch: simplify architecture specific page size configuration
+  arch: define CONFIG_PAGE_SIZE_*KB on all architectures
+
+ arch/Kconfig                       | 92 +++++++++++++++++++++++++++++-
+ arch/alpha/Kconfig                 |  1 +
+ arch/alpha/include/asm/page.h      |  2 +-
+ arch/arc/Kconfig                   |  3 +
+ arch/arc/include/uapi/asm/page.h   |  6 +-
+ arch/arm/Kconfig                   |  1 +
+ arch/arm/include/asm/page.h        |  2 +-
+ arch/arm64/Kconfig                 | 29 +++++-----
+ arch/arm64/include/asm/page-def.h  |  2 +-
+ arch/csky/Kconfig                  |  1 +
+ arch/csky/include/asm/page.h       |  2 +-
+ arch/hexagon/Kconfig               | 24 ++------
+ arch/hexagon/include/asm/page.h    |  6 +-
+ arch/loongarch/Kconfig             | 21 ++-----
+ arch/loongarch/include/asm/page.h  | 10 +---
+ arch/m68k/Kconfig                  |  3 +
+ arch/m68k/Kconfig.cpu              |  2 +
+ arch/m68k/include/asm/page.h       |  6 +-
+ arch/microblaze/Kconfig            |  1 +
+ arch/microblaze/include/asm/page.h |  2 +-
+ arch/mips/Kconfig                  | 58 ++-----------------
+ arch/mips/include/asm/page.h       | 16 +-----
+ arch/nios2/Kconfig                 |  1 +
+ arch/nios2/include/asm/page.h      |  2 +-
+ arch/openrisc/Kconfig              |  1 +
+ arch/openrisc/include/asm/page.h   |  2 +-
+ arch/parisc/Kconfig                |  3 +
+ arch/parisc/include/asm/page.h     | 10 +---
+ arch/powerpc/Kconfig               | 31 ++--------
+ arch/powerpc/include/asm/page.h    |  2 +-
+ arch/riscv/Kconfig                 |  1 +
+ arch/riscv/include/asm/page.h      |  2 +-
+ arch/s390/Kconfig                  |  1 +
+ arch/s390/include/asm/page.h       |  2 +-
+ arch/sh/include/asm/page.h         | 13 +----
+ arch/sh/mm/Kconfig                 | 42 ++++----------
+ arch/sparc/Kconfig                 |  2 +
+ arch/sparc/include/asm/page_32.h   |  2 +-
+ arch/sparc/include/asm/page_64.h   |  3 +-
+ arch/um/Kconfig                    |  1 +
+ arch/um/include/asm/page.h         |  2 +-
+ arch/x86/Kconfig                   |  1 +
+ arch/x86/include/asm/page_types.h  |  2 +-
+ arch/xtensa/Kconfig                |  1 +
+ arch/xtensa/include/asm/page.h     |  2 +-
+ scripts/gdb/linux/constants.py.in  |  2 +-
+ scripts/gdb/linux/mm.py            |  2 +-
+ 47 files changed, 185 insertions(+), 238 deletions(-)
+
 -- 
-2.41.0
+2.39.2
 
+To: Thomas Gleixner <tglx@linutronix.de>
+To: Vincenzo Frascino <vincenzo.frascino@arm.com>
+To: Kees Cook <keescook@chromium.org>
+To: Anna-Maria Behnsen <anna-maria@linutronix.de>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: Vineet Gupta <vgupta@kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Guo Ren <guoren@kernel.org>
+Cc: Brian Cain <bcain@quicinc.com>
+Cc: Huacai Chen <chenhuacai@kernel.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: Andreas Larsson <andreas@gaisler.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: x86@kernel.org
+Cc: Max Filippov <jcmvbkbc@gmail.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: Jan Kiszka <jan.kiszka@siemens.com>
+Cc: Kieran Bingham <kbingham@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-snps-arc@lists.infradead.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-csky@vger.kernel.org
+Cc: linux-hexagon@vger.kernel.org
+Cc: loongarch@lists.linux.dev
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-openrisc@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
+Cc: linux-um@lists.infradead.org
