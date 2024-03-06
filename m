@@ -1,130 +1,217 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from forward102b.mail.yandex.net (forward102b.mail.yandex.net [178.154.239.149])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FDC85DF1D;
-	Wed,  6 Mar 2024 13:03:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F7D1131738;
+	Wed,  6 Mar 2024 13:46:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.149
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709730193; cv=none; b=QEPUga2kD8oRCwe2sfd/UaxfyZqA4SihyM8xgKzZgrGMd379rRfNVRt6WTgYfZ++bsbvynf4xUNhRSgZ7xCUD1l8xUguIBkmNtkANX7cVDYXF5mg600SONznnjssgStEvUm/UeNnOY3qT3VPgxQTCbEa7tRm4s6l8j8MmfYhnYs=
+	t=1709732790; cv=none; b=BVqyGR7UWV9VpDe+uGJ/I+mgf1FvnvnpR5SgVKE00alsgDlselMpPwDgYlylWHzboKFqHDhsFPF+/9qAZRA9DjUDzlgav6MLFRd9Ax9HJYTw3fMRoZH4ToDwcico+s/8vHHthhSrpKTOT+hUijGTbgBnzm+ZCSeAyWF2e/JS0U0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709730193; c=relaxed/simple;
-	bh=X4f+nHbY+KWHcJyZFpAvpfWk8iBxvZA2ImjzK8Fkw90=;
-	h=Content-Type:MIME-Version:In-Reply-To:References:Cc:From:To:
-	 Subject:Message-ID:Date; b=t4W5DbDvODijm6lMLJyzmyZ6RbBTu6T+pZMd2Oc15tdenmbqXB7Wd7n5LERfr+4r2qp/n0NTj6LeCev0JC2fnObda4/XM+vDEuR3GNqEQ6E5J0htmS/hlnBk5hyykdAtwBncMCS/9J5K8PFsdeWdgtIOiDGX35v7M7lzWmp3vlc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bA87rrJF; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1709732790; c=relaxed/simple;
+	bh=FqZikm1h341JKeQ19rJhJkZB1KxW9XraWNQ9MAjVbAI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hHjesZ1kUka7sQXLTbCNv1TDDfKpvcP011rGHRcJb/sbUE4ifQiceeeVEpIAt5e0rZTPgPnhcwee9/dZ7astVBUUJI3XYZfT43BfKX0WeXHYL5vFI4qpPQOl2qlDVPoWwQwZ6AwPAWhoJpfw1xMJRiuoCkCw7ur8NUeuYRxxVhE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru; spf=pass smtp.mailfrom=yandex.ru; dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b=DB3G38YQ; arc=none smtp.client-ip=178.154.239.149
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bA87rrJF"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 426CvCEW002163;
-	Wed, 6 Mar 2024 13:03:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=content-type :
- mime-version : content-transfer-encoding : in-reply-to : references : cc :
- from : to : subject : message-id : date; s=pp1;
- bh=epYAY0aCBZHSQwisZuPiBagok/eJKd0aaiHX/0wsqIA=;
- b=bA87rrJFh3j2YL/KESYC/t2Y/OW2lMWuR6jKbMOhAvsE8s0jmEfbInsOBQqKc9UxRQf4
- I9CZ2ZXkTUtzNTGC27Y8QDjHrnLybRPs3FjJruI0hGdBxpejDGJmdW3El+o8Y8/EEwEM
- V7RsM2lc4ScYW74Pfw2vRx4+trML84lFW0a600OpS1CWoz9YoPWCNme7bkkb9NuGqWDF
- 9Sw1XhkYDqLTd4kMwkgyydVdFrLmeomaGBBfI5pLyNmmlOHuaKuD1nd1P/KJdIllZYJx
- ynHbLvocwQxOmZpYJfwZWOJLQzXiwAErv0gjIoWBcXjZ0gLSB2PGwQaNS2Dh4JovJz99 JA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wprxk88jy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Mar 2024 13:03:10 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 426CwfxN009451;
-	Wed, 6 Mar 2024 13:03:10 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wprxk88j9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Mar 2024 13:03:09 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 426C85RA024160;
-	Wed, 6 Mar 2024 13:03:08 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wpjwsa12j-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Mar 2024 13:03:08 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 426D33Va28639524
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 6 Mar 2024 13:03:05 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F0D9B20043;
-	Wed,  6 Mar 2024 13:03:02 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C410620067;
-	Wed,  6 Mar 2024 13:03:02 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.18.155])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  6 Mar 2024 13:03:02 +0000 (GMT)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b="DB3G38YQ"
+Received: from mail-nwsmtp-smtp-production-main-59.iva.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-59.iva.yp-c.yandex.net [IPv6:2a02:6b8:c0c:319b:0:640:ce08:0])
+	by forward102b.mail.yandex.net (Yandex) with ESMTPS id ACAFD609DA;
+	Wed,  6 Mar 2024 16:46:17 +0300 (MSK)
+Received: by mail-nwsmtp-smtp-production-main-59.iva.yp-c.yandex.net (smtp/Yandex) with ESMTPSA id Fkgod19BZGk0-v5wexYnx;
+	Wed, 06 Mar 2024 16:46:16 +0300
+X-Yandex-Fwd: 1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
+	t=1709732776; bh=53XUHuuo2f90rqfuQwmCICt5APD+L6PmabtkDDU7t9k=;
+	h=Message-ID:Date:Cc:Subject:To:From;
+	b=DB3G38YQaqPBgVum9MmkisD5rf9leNKQeexayQiCBTsPv36Uxej4fNs8I0/Vx3DZg
+	 rrwCU14j9AHlrs3ZJJLVAvFyxLl2FCGxvJEDgFMAet1Q8f17Fnwg6qU8aq7KFVvuaJ
+	 LSGA4O1JhoemWjkwyNMlaiHr7l8a7pQAoEnOJ1SE=
+Authentication-Results: mail-nwsmtp-smtp-production-main-59.iva.yp-c.yandex.net; dkim=pass header.i=@yandex.ru
+From: Dmitry Antipov <dmantipov@yandex.ru>
+To: Jan Karcher <jaka@linux.ibm.com>
+Cc: Wen Gu <guwen@linux.alibaba.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	lvc-project@linuxtesting.org,
+	Dmitry Antipov <dmantipov@yandex.ru>
+Subject: [PATCH] [RFC] net: smc: fix fasync leak in smc_release()
+Date: Wed,  6 Mar 2024 16:44:24 +0300
+Message-ID: <20240306134424.64314-1-dmantipov@yandex.ru>
+X-Mailer: git-send-email 2.44.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <87il20lf9b.fsf@linux.ibm.com>
-References: <20240305141214.707046-1-nrb@linux.ibm.com> <87il20lf9b.fsf@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-From: Nico Boehr <nrb@linux.ibm.com>
-To: Marc Hartmayer <mhartmay@linux.ibm.com>, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, npiggin@gmail.com, thuth@redhat.com
-Subject: Re: [kvm-unit-tests PATCH v1] arch-run: Wait for incoming socket being removed
-Message-ID: <170973018238.31923.4497119683216363940@t14-nrb>
-User-Agent: alot/0.8.1
-Date: Wed, 06 Mar 2024 14:03:02 +0100
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: q5Wa2q4LnFO-CHU1njj2TE4BkgTfsoAd
-X-Proofpoint-ORIG-GUID: laf9N9HeYmfP8K62KCrChPKWtty1DVBG
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-06_08,2024-03-05_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
- suspectscore=0 malwarescore=0 mlxlogscore=875 bulkscore=0 phishscore=0
- impostorscore=0 adultscore=0 lowpriorityscore=0 priorityscore=1501
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2403060104
+Content-Transfer-Encoding: 8bit
 
-Quoting Marc Hartmayer (2024-03-05 19:12:16)
-[...]
-> > diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
-> > index 2214d940cf7d..413f3eda8cb8 100644
-> > --- a/scripts/arch-run.bash
-> > +++ b/scripts/arch-run.bash
-> > @@ -237,12 +237,8 @@ do_migration ()
-> >       echo > ${dst_infifo}
-> >       rm ${dst_infifo}
-> > =20
-> > -     # Ensure the incoming socket is removed, ready for next destinati=
-on
-> > -     if [ -S ${dst_incoming} ] ; then
-> > -             echo "ERROR: Incoming migration socket not removed after =
-migration." >& 2
-> > -             qmp ${dst_qmp} '"quit"'> ${dst_qmpout} 2>/dev/null
-> > -             return 2
-> > -     fi
-> > +     # Wait for the incoming socket being removed, ready for next dest=
-ination
-> > +     while [ -S ${dst_incoming} ] ; do sleep 0.1 ; done
->=20
-> But now, you have removed the erroring out path completely. Maybe wait
-> max. 3s and then bail out?
+https://syzkaller.appspot.com/bug?extid=5f1acda7e06a2298fae6 may be
+tracked down to the problem illustrated by the following example:
 
-Well, I was considering that, but:
-- I'm not a huge fan of fine-grained timeouts. Fine-tuning a gazillion
-  timeouts is not a fun task, I think you know what I'm talking about :)
-- a number of other places that can potentially get stuck also don't have
-  proper timeouts (like waiting for the QMP socket or the migration
-  socket), so for a proper solution we'd need to touch a lot of other
-  places...
+int sock;
 
-What I think we really want is a migration timeout. That isn't quite simple
-since we can't easily pull $(timeout_cmd) before $(panic_cmd) and
-$(migration_cmd) in run-scripts...
+void *loop0(void *arg) {
+        struct msghdr msg = {0};
 
-My suggestion: let's fix this issue and work on the timeout as a seperate
-fix.
+        while (1) {
+                sock = socket(AF_SMC, SOCK_STREAM, 0);
+                sendmsg(sock, &msg, MSG_FASTOPEN);
+                close(sock);
+        }
+        return NULL;
+}
+
+void *loop1(void *arg) {
+        int on;
+
+        while (1) {
+                on = 1;
+                ioctl(sock, FIOASYNC, &on);
+                on = 0;
+                ioctl(sock, FIOASYNC, &on);
+        }
+
+        return NULL;
+}
+
+int main(int argc, char *argv[]) {
+        pthread_t a, b;
+        struct sigaction sa = {0};
+
+        sa.sa_handler = SIG_IGN;
+        sigaction(SIGIO, &sa, NULL);
+
+        pthread_create(&a, NULL, loop0, NULL);
+        pthread_create(&b, NULL, loop1, NULL);
+
+        pthread_join(a, NULL);
+        pthread_join(b, NULL);
+
+        return 0;
+}
+
+Running the program above, kernel memory leak (of 'struct fasync_struct'
+object) may be triggered by the following scenario:
+
+Thread 0 (user space):      Thread 1 (kernel space):
+
+int on;
+...
+on = 1;
+ioctl(sock, FIOASYNC, &on);
+                            ...
+                            smc_switch_to_fallback()
+                            ...
+                            smc->clcsock->file = smc->sk.sk_socket->file;
+                            smc->clcsock->file->private_data = smc->clcsock;
+                            ...
+on = 0;
+ioctl(sock, FIOASYNC, &on);
+
+That is, thread 1 may cause 'smc_switch_to_fallback()' and swap kernel
+sockets (of 'struct smc_sock') behind 'sock' between 'ioctl()' calls
+in thread 0, so thread 0 makes an attempt to add fasync entry to one
+socket (base) but remove from another one (CLC). When 'sock' is closing,
+'__fput()' calls 'f_op->fasync()' _before_ 'f_op->release()', and it's
+too late to revert the trick performed by 'smc_switch_to_fallback()' in
+'smc_release()' and below. Finally there is a leaked 'struct fasync_struct'
+object linked to the base socket, and this object is noticed by
+'__sock_release()' with "fasync list not empty" message.
+
+This patch makes an attempt to address this issue by introducing the wait
+queue shared between base and CLC sockets, and using this wait queue in
+'sock_async()'. This guarantees that all FIOASYNC changes always touches
+the same list of 'struct fasync_struct' objects and thus may be issued
+anytime regardless of an underlying base to CLC socket switch performed
+by 'smc_switch_to_fallback()'.
+
+Signed-off-by: Dmitry Antipov <dmantipov@yandex.ru>
+---
+ include/net/sock.h |  4 ++++
+ net/smc/af_smc.c   | 10 ++++++----
+ net/smc/smc.h      |  3 +++
+ net/socket.c       |  4 +++-
+ 4 files changed, 16 insertions(+), 5 deletions(-)
+
+diff --git a/include/net/sock.h b/include/net/sock.h
+index 54ca8dcbfb43..01b17654c289 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -422,6 +422,10 @@ struct sock {
+ 		struct socket_wq	*sk_wq_raw;
+ 		/* public: */
+ 	};
++
++	/* special AF_SMC quirk */
++	struct socket_wq	*sk_wq_shared;
++
+ #ifdef CONFIG_XFRM
+ 	struct xfrm_policy __rcu *sk_policy[2];
+ #endif
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 0f53a5c6fd9d..a00b6ae02b48 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -922,10 +922,8 @@ static int smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
+ 	if (smc->sk.sk_socket && smc->sk.sk_socket->file) {
+ 		smc->clcsock->file = smc->sk.sk_socket->file;
+ 		smc->clcsock->file->private_data = smc->clcsock;
+-		smc->clcsock->wq.fasync_list =
+-			smc->sk.sk_socket->wq.fasync_list;
+-		smc->sk.sk_socket->wq.fasync_list = NULL;
+-
++		/* shared wq should be used instead */
++		WARN_ON(smc->sk.sk_socket->wq.fasync_list);
+ 		/* There might be some wait entries remaining
+ 		 * in smc sk->sk_wq and they should be woken up
+ 		 * as clcsock's wait queue is woken up.
+@@ -3360,6 +3358,10 @@ static int __smc_create(struct net *net, struct socket *sock, int protocol,
+ 		smc->clcsock = clcsock;
+ 	}
+ 
++	/* use shared wq for sock_async() */
++	sock->sk->sk_wq_shared = &smc->smc_wq;
++	smc->clcsock->sk->sk_wq_shared = &smc->smc_wq;
++
+ out:
+ 	return rc;
+ }
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index df64efd2dee8..7403b7b467da 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -287,6 +287,9 @@ struct smc_sock {				/* smc sock container */
+ 						/* protects clcsock of a listen
+ 						 * socket
+ 						 * */
++	struct socket_wq	smc_wq;		/* used by both sockets
++						 * in sock_fasync()
++						 */
+ };
+ 
+ #define smc_sk(ptr) container_of_const(ptr, struct smc_sock, sk)
+diff --git a/net/socket.c b/net/socket.c
+index ed3df2f749bf..b16d45b8c875 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -1437,11 +1437,13 @@ static int sock_fasync(int fd, struct file *filp, int on)
+ {
+ 	struct socket *sock = filp->private_data;
+ 	struct sock *sk = sock->sk;
+-	struct socket_wq *wq = &sock->wq;
++	struct socket_wq *wq;
+ 
+ 	if (sk == NULL)
+ 		return -EINVAL;
+ 
++	wq = unlikely(sk->sk_wq_shared) ? sk->sk_wq_shared : &sock->wq;
++
+ 	lock_sock(sk);
+ 	fasync_helper(fd, filp, on, &wq->fasync_list);
+ 
+-- 
+2.44.0
+
