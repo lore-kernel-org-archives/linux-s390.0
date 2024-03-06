@@ -1,97 +1,216 @@
-Received: from quicklyemailsend77.com (quicklyemailsend77.com [57.128.172.43])
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD87E1C2AC
-	for <linux-s390@vger.kernel.org>; Wed,  6 Mar 2024 06:24:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.128.172.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3FAE5FBA7;
+	Wed,  6 Mar 2024 10:01:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709706245; cv=none; b=c1VwS71yD+yag2NUmTgTmH2FxZMk6F1tUWCw77W21AWFTxO8kwD8ddURumk0qykXgMhuRYZcZVyrxNaVyK+GaVIKiBOpctEKv/Fa7qfTPF9tFT4g+GifZOlPgmVGAqiU3ytj8ubonBEGc2Zlbsa5UTcwEqhCBx7q8v0iBAuFim0=
+	t=1709719308; cv=none; b=tkrnySmn7ctBo5G9F2jawcjcLQ6GfKDva+tLgJRKF0GD906Q0qeTPf8l097Nv3BoHfv34wwp1ldNPh6Bb/YiXNbN//3zYhIVQKesNfaLjC6XCr55HzY53eGdfv11Mlt58dxq0HHg3NUcuj26Btd8rJeaxF4VJKgBoAmTNR/9l4c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709706245; c=relaxed/simple;
-	bh=UkCnC3hxyWUR811IY5T5PlAQFaHotSY7xhHSl4hh88I=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=DziMwhXzdp9DMojHfr1Q3wYnDD3Y3gnGoxlR6wherb3JCXjtk48OkNBvD2knHuAlAEKIC26Cm0ULrCLqUtGoqP8VOkipSpKOpeZF4fL7nFrSP6dPlBBanQzSy6o5obaYZ2QaLJ/fsYHnxdR6bN75sgBSve/4OZFzoYL0vlLxhlg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicklyemailsend77.com; spf=pass smtp.mailfrom=quicklyemailsend77.com; dkim=pass (2048-bit key) header.d=quicklyemailsend77.com header.i=@quicklyemailsend77.com header.b=ubCT9/gL; arc=none smtp.client-ip=57.128.172.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicklyemailsend77.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicklyemailsend77.com
+	s=arc-20240116; t=1709719308; c=relaxed/simple;
+	bh=WM+U1NS8oiujHfoRe1BzG6H1czoJrvAU5JjQtRFQx58=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=hmBOJ5RgJnREjlOx921ET9N//pqAz0VXOleO1TmIaKVJnxNm7ogEF0x0uMD2WCn5t5+IkCqmLv7ldu+2MkeyGBfEqCiTIUEEsuUQGdI/BY2aC/AcUztVVhAfLIY3DmgiJF12+dLCkIcmktlCsPihxN2eROfekQlUORz4tjQoI8Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=jIMZhbvD; arc=none smtp.client-ip=115.124.30.113
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicklyemailsend77.com header.i=@quicklyemailsend77.com header.b="ubCT9/gL"
-Received: from quicklyemailsend77.com (unknown [185.255.114.95])
-	by quicklyemailsend77.com (Postfix) with ESMTPA id 143363977A8
-	for <linux-s390@vger.kernel.org>; Wed,  6 Mar 2024 03:51:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 quicklyemailsend77.com 143363977A8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=quicklyemailsend77.com; s=default; t=1709697108;
-	bh=eefLZdwY5mr6nwq86b3d+rtsxGUHJntuGmXl+R35AcQ=;
-	h=Reply-To:From:To:Subject:Date:From;
-	b=ubCT9/gL+IVjhKtTn3XeDXjFjmd53znzvFGl/bqPUrARDWIKGv6SLnIY4ZzzUuhL/
-	 NixEIUWaqGMOoSvNwUYlIMMHEfPoisgPXzDSP8n4Xo2fK37c8VKpvN/avzP8qgFCPm
-	 nt8VK3hWlznnV8L470rg8ObFpI3hvrJrqetn5xeHjhecZwf3VwVk3DhyQ4shqtDMFb
-	 iF4f3bvAhFtd6labbQOgA/zGIK2WF146BuQpqbvnKsqNCCtnnoKPbx0eyhS6Dn/hVm
-	 PMY9yYrPF+BKZ9pvVDEao5B6X7wq0ViofIn7RISkSLhpzeWWlkjJy8sJ4kO8KpvMvk
-	 j5cBNaST6VC+Q==
-Reply-To: joakimlarson@skendiaelevator.com
-From: info@quicklyemailsend77.com
-To: linux-s390@vger.kernel.org
-Subject: =?UTF-8?B?7YyQ66ekIOusuOydmCAyMDI0?=
-Date: 05 Mar 2024 19:51:46 -0800
-Message-ID: <20240305195146.AE69CDCB5B257A8D@quicklyemailsend77.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="jIMZhbvD"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1709719297; h=Message-ID:Subject:Date:From:To;
+	bh=GOjkAAzqq/27g06Pg1GabXYMzdzKRKWd++BBgioFjQk=;
+	b=jIMZhbvDksxxc6GT9WGQMlgZNgzdTiKp8J/bG96aGwS9xmWjI3inWGA2vCTJ0rQV+6HGL+1rLxZs3OPAEx+QUL1f0BxPA/vaJGjqqicd1JXD3mvXvpMGPpJ2dgv4C2RD437ABODtFeaQYCfOIPgABTvfUbMy9kBXP7aD2KNmJFI=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R711e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0W1x7Wv2_1709719294;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W1x7Wv2_1709719294)
+          by smtp.aliyun-inc.com;
+          Wed, 06 Mar 2024 18:01:35 +0800
+Message-ID: <1709718889.4420547-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost v3 00/19] virtio: drivers maintain dma info for premapped vq
+Date: Wed, 6 Mar 2024 17:54:49 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev,
+ Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ Jason Wang <jasowang@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Hans de Goede <hdegoede@redhat.com>,
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Vadim Pasternak <vadimp@nvidia.com>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ Cornelia Huck <cohuck@redhat.com>,
+ Halil Pasic <pasic@linux.ibm.com>,
+ Eric Farman <farman@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ linux-um@lists.infradead.org,
+ netdev@vger.kernel.org,
+ platform-driver-x86@vger.kernel.org,
+ linux-remoteproc@vger.kernel.org,
+ linux-s390@vger.kernel.org,
+ kvm@vger.kernel.org,
+ bpf@vger.kernel.org
+References: <20240229072044.77388-1-xuanzhuo@linux.alibaba.com>
+ <20240229031755-mutt-send-email-mst@kernel.org>
+ <1709197357.626784-1-xuanzhuo@linux.alibaba.com>
+ <20240229043238-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20240229043238-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+
+On Thu, 29 Feb 2024 04:34:20 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Thu, Feb 29, 2024 at 05:02:37PM +0800, Xuan Zhuo wrote:
+> > On Thu, 29 Feb 2024 03:21:14 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > On Thu, Feb 29, 2024 at 03:20:25PM +0800, Xuan Zhuo wrote:
+> > > > As discussed:
+> > > > http://lore.kernel.org/all/CACGkMEvq0No8QGC46U4mGsMtuD44fD_cfLcPaVmJ3rHYqRZxYg@mail.gmail.com
+> > > >
+> > > > If the virtio is premapped mode, the driver should manage the dma info by self.
+> > > > So the virtio core should not store the dma info.
+> > > > So we can release the memory used to store the dma info.
+> > > >
+> > > > But if the desc_extra has not dma info, we face a new question,
+> > > > it is hard to get the dma info of the desc with indirect flag.
+> > > > For split mode, that is easy from desc, but for the packed mode,
+> > > > it is hard to get the dma info from the desc. And for hardening
+> > > > the dma unmap is saft, we should store the dma info of indirect
+> > > > descs.
+> > > >
+> > > > So I introduce the "structure the indirect desc table" to
+> > > > allocate space to store dma info with the desc table.
+> > > >
+> > > > On the other side, we mix the descs with indirect flag
+> > > > with other descs together to share the unmap api. That
+> > > > is complex. I found if we we distinguish the descs with
+> > > > VRING_DESC_F_INDIRECT before unmap, thing will be clearer.
+> > > >
+> > > > Because of the dma array is allocated in the find_vqs(),
+> > > > so I introduce a new parameter to find_vqs().
+> > > >
+> > > > Note:
+> > > >     this is on the top of
+> > > >         [PATCH vhost v1] virtio: packed: fix unmap leak for indirect desc table
+> > > >         http://lore.kernel.org/all/20240223071833.26095-1-xuanzhuo@linux.alibaba.com
+> > > >
+> > > > Please review.
+> > > >
+> > > > Thanks
+> > > >
+> > > > v3:
+> > > >     1. fix the conflict with the vp_modern_create_avq().
+> > >
+> > > Okay but are you going to address huge memory waste all this is causing for
+> > > - people who never do zero copy
+> > > - systems where dma unmap is a nop
+> > >
+> > > ?
+> > >
+> > > You should address all comments when you post a new version, not just
+> > > what was expedient, or alternatively tag patch as RFC and explain
+> > > in commit log that you plan to do it later.
+> >
+> >
+> > Do you miss this one?
+> > http://lore.kernel.org/all/1708997579.5613105-1-xuanzhuo@linux.alibaba.com
+>
+>
+> I did. The answer is that no, you don't get to regress memory usage
+> for lots of people then fix it up.
+> So the patchset is big, I guess it will take a couple of cycles to
+> merge gradually.
+
+Hi @Michael
+
+So, how about this patch set?
+
+I do not think they (dma maintainers) will agree the API dma_can_skip_unmap().
+
+If you think sq wastes too much memory using pre-mapped dma mode, how about
+we only enable it when xsk is bond?
+
+Could you give me some advice?
+
+Thanks.
 
 
-=EC=95=88=EB=85=95=ED=95=98=EC=84=B8=EC=9A=94
-=20
-=EC=8A=A4=EC=9B=A8=EB=8D=B4 =EC=8A=A4=EC=B9=B8=EB=94=94=EC=95=84 =EC=97=98=
-=EB=A0=88=EB=B0=94=ED=86=A0(Skandia Elevato)=EC=97=90=EC=84=9C =EC=98=A8 =
-=EC=9A=94=EC=95=84=ED=82=B4 =EB=9D=BC=EB=A5=B4=EC=86=90(JOAKIM LARSSON) .
-=20
-=EC=9A=B0=EB=A6=AC=EB=8A=94 =EA=B8=B4=EA=B8=89=ED=95=98=EA=B2=8C =EA=B7=80=
-=ED=95=98=EC=9D=98 =EC=A0=9C=ED=92=88=EC=9D=84 =ED=95=84=EC=9A=94=EB=A1=9C =
-=ED=95=98=EB=A9=B0 =EA=B0=80=EB=8A=A5=ED=95=9C =ED=95=9C =EB=B9=A8=EB=A6=AC=
- =EC=8B=9C=ED=97=98 =EC=A3=BC=EB=AC=B8=EC=9D=84 =ED=95=98=EA=B3=A0 =EC=8B=
-=B6=EC=8A=B5=EB=8B=88=EB=8B=A4. 
-=20
-=EC=98=A8=EB=9D=BC=EC=9D=B8=EC=9C=BC=EB=A1=9C =EC=A0=9C=ED=92=88=EC=97=90 =
-=EB=8C=80=ED=95=9C =EC=A0=95=EB=B3=B4=EB=A5=BC =EC=88=98=EC=A7=91=ED=95=98=
-=EA=B3=A0 =EC=9E=88=EC=8A=B5=EB=8B=88=EB=8B=A4. 
-=20
-=EA=B7=B8=EB=A6=AC=EA=B3=A0 =EB=82=B4 =EB=AA=A8=EC=9E=84=EC=97=90=EC=84=9C =
-=EB=82=98=EB=8A=94 =EC=9A=B0=EB=A6=AC=EA=B0=80 =EB=8B=B9=EC=8B=A0=EC=9D=98 =
-=EC=A0=9C=ED=92=88=EC=9D=84 =EC=A3=BC=EB=AC=B8=ED=95=A0 =EA=B2=83=EC=9D=B4=
-=EB=9D=BC=EA=B3=A0 =EC=83=9D=EA=B0=81=ED=95=A9=EB=8B=88=EB=8B=A4.
-=20
-1. =EC=B5=9C=EC=8B=A0 Catalouge=EB=A5=BC =EB=B3=B4=EB=82=BC =EC=88=98 =EC=
-=9E=88=EC=8A=B5=EB=8B=88=EA=B9=8C?
-=20
-2. =EC=9A=B0=EB=A6=AC=EA=B0=80 =EC=A3=BC=EB=AC=B8=ED=95=A0 =EC=88=98 =EC=9E=
-=88=EB=8A=94 =EC=B5=9C=EC=86=8C=ED=95=9C=EC=9D=80 =EB=AC=B4=EC=97=87=EC=9D=
-=B4=EA=B3=A0 =EB=98=90=ED=95=9C =EA=B8=B0=EA=B0=84=EC=9D=84 =EB=B3=B4=EB=82=
-=B4=EC=8B=AD=EC=8B=9C=EC=98=A4=20
-=EB=B0=8F =EC=A1=B0=EA=B1=B4.
-3. =EC=9A=B0=EB=A6=AC=EA=B0=80 =EC=A3=BC=EB=AC=B8=ED=95=98=EB=8A=94 =EA=B2=
-=BD=EC=9A=B0 =EC=A7=80=EB=B6=88=EC=9D=84 =EC=96=B4=EB=96=BB=EA=B2=8C =ED=95=
-=B4=EA=B2=B0=ED=95=98=EA=B8=B0=EB=A5=BC =EC=9B=90=ED=95=98=EC=8B=AD=EB=8B=
-=88=EA=B9=8C?
-=20
-=EA=B7=80=ED=95=98=EC=9D=98 =ED=9A=8C=EC=8B=A0 =EB=8C=80=EA=B8=B0 =EC=A4=91=
-
-
-Mr Joakim larssonv(=EB=B6=80=EC=82=AC=EC=9E=A5/=EC=98=81=EC=97=85 =EA=B4=80=
-=EB=A6=AC=EC=9E=90)
-
-=EB=B0=A9=EB=AC=B8=EC=9E=90 =EC=A3=BC=EC=86=8C: Kedumsv=C3=A4gen 14, SE-534=
- 94 Vara, Sweden
-
-=EB=B0=B0=EC=86=A1 =EC=A3=BC=EC=86=8C: Industriv=C3=A4gen, SE-534 94 Vara, =
-Sweden
-
-joakimlarson@skendiaelevator.com
-https://skandiaelevator.com
-
+>
+> > I asked you. But I didnot recv your answer.
+> >
+> > Thanks.
+> >
+> >
+> > >
+> > > > v2:
+> > > >     1. change the dma item of virtio-net, every item have MAX_SKB_FRAGS + 2
+> > > >         addr + len pairs.
+> > > >     2. introduce virtnet_sq_free_stats for __free_old_xmit
+> > > >
+> > > > v1:
+> > > >     1. rename transport_vq_config to vq_transport_config
+> > > >     2. virtio-net set dma meta number to (ring-size + 1)(MAX_SKB_FRGAS +2)
+> > > >     3. introduce virtqueue_dma_map_sg_attrs
+> > > >     4. separate vring_create_virtqueue to an independent commit
+> > > >
+> > > >
+> > > >
+> > > > Xuan Zhuo (19):
+> > > >   virtio_ring: introduce vring_need_unmap_buffer
+> > > >   virtio_ring: packed: remove double check of the unmap ops
+> > > >   virtio_ring: packed: structure the indirect desc table
+> > > >   virtio_ring: split: remove double check of the unmap ops
+> > > >   virtio_ring: split: structure the indirect desc table
+> > > >   virtio_ring: no store dma info when unmap is not needed
+> > > >   virtio: find_vqs: pass struct instead of multi parameters
+> > > >   virtio: vring_create_virtqueue: pass struct instead of multi
+> > > >     parameters
+> > > >   virtio: vring_new_virtqueue(): pass struct instead of multi parameters
+> > > >   virtio_ring: simplify the parameters of the funcs related to
+> > > >     vring_create/new_virtqueue()
+> > > >   virtio: find_vqs: add new parameter premapped
+> > > >   virtio_ring: export premapped to driver by struct virtqueue
+> > > >   virtio_net: set premapped mode by find_vqs()
+> > > >   virtio_ring: remove api of setting vq premapped
+> > > >   virtio_ring: introduce dma map api for page
+> > > >   virtio_ring: introduce virtqueue_dma_map_sg_attrs
+> > > >   virtio_net: unify the code for recycling the xmit ptr
+> > > >   virtio_net: rename free_old_xmit_skbs to free_old_xmit
+> > > >   virtio_net: sq support premapped mode
+> > > >
+> > > >  arch/um/drivers/virtio_uml.c             |  31 +-
+> > > >  drivers/net/virtio_net.c                 | 283 ++++++---
+> > > >  drivers/platform/mellanox/mlxbf-tmfifo.c |  24 +-
+> > > >  drivers/remoteproc/remoteproc_virtio.c   |  31 +-
+> > > >  drivers/s390/virtio/virtio_ccw.c         |  33 +-
+> > > >  drivers/virtio/virtio_mmio.c             |  30 +-
+> > > >  drivers/virtio/virtio_pci_common.c       |  59 +-
+> > > >  drivers/virtio/virtio_pci_common.h       |   9 +-
+> > > >  drivers/virtio/virtio_pci_legacy.c       |  16 +-
+> > > >  drivers/virtio/virtio_pci_modern.c       |  38 +-
+> > > >  drivers/virtio/virtio_ring.c             | 698 ++++++++++++-----------
+> > > >  drivers/virtio/virtio_vdpa.c             |  45 +-
+> > > >  include/linux/virtio.h                   |  13 +-
+> > > >  include/linux/virtio_config.h            |  48 +-
+> > > >  include/linux/virtio_ring.h              |  82 +--
+> > > >  tools/virtio/virtio_test.c               |   4 +-
+> > > >  tools/virtio/vringh_test.c               |  28 +-
+> > > >  17 files changed, 847 insertions(+), 625 deletions(-)
+> > > >
+> > > > --
+> > > > 2.32.0.3.g01195cf9f
+> > >
+>
