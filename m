@@ -1,132 +1,173 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from www62.your-server.de (www62.your-server.de [213.133.104.62])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 466201E49E
-	for <linux-s390@vger.kernel.org>; Thu,  7 Mar 2024 16:14:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39861130AF1;
+	Thu,  7 Mar 2024 17:31:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.133.104.62
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709828061; cv=none; b=p/rRz1CMQI6d3acSaa4elRzENYoH3v7nS/Bj1xquS+qzntFFzW33CrlIgnOFYVT6JF6kLifraZPXWzGl45v+8egUQY237QsYYDzH+4U5LbazqLvpp9dW2PBSnr7YomGIxWN9Un6e8I/iHWf3ECL+BGhKB7qKKDM7OWuB7JF3FnE=
+	t=1709832706; cv=none; b=RRnSRX1waA97wAXiTMwUvE7ST/2XdbaQq2u7kSnEBfmhjbp/X20ZUm6oQTvTi7ml22mI5DTKHEFM0W4tWhwHeYXI6aFQLMsz5l4NyzSor1O0+8VxO9URrpjJmlAKM4e99tI30deVh84bOkzTcM35nz8OYYBrZDDdV6ZLKLQhaRY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709828061; c=relaxed/simple;
-	bh=/zZU7TiE32bhPXQryUjgEDJmNxvnT2irI4tJC3exl9g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=Pmw9KG/g8PUpl2Z7UTPhLOMRwxlis94/acxJmmvC0F2cDmnL1dOKI9z1Cq8JvsY8PWRoQjhtviXzxG77e7FnSs4+FJ38wo+VSiIhWRch0sC+jvRLpC6Em6EOrcLDgRAaZrhm7kx/MLq7FK1jq5Fqj7e0JZKPKtrXjrm9aB2cXMw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=H5DUx9Nz; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1709832706; c=relaxed/simple;
+	bh=Pw1wjnfdkstP4sMjq/SqSIfAkxHM4ROpPhW1adlHMZI=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=MDWyNvEjUmqvPxv7Uaq5B2Vz3L76Z4uIx5LL6iFzhA/P/jST/DGfDUVj2d6oVCo463fCad9k7jifgRkBum7kL7BaJaVM1MTlACkNz1cQofWGYkzaXe9vF/XOYeaJVUTKxgwyzyrH/xV1fECr/YkISD2KrQE3DQ2Jsz7ubFuZcw4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=iogearbox.net; spf=pass smtp.mailfrom=iogearbox.net; dkim=pass (2048-bit key) header.d=iogearbox.net header.i=@iogearbox.net header.b=JXWx3fcS; arc=none smtp.client-ip=213.133.104.62
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=iogearbox.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iogearbox.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="H5DUx9Nz"
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 427FvZPW024748;
-	Thu, 7 Mar 2024 16:14:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=IaMVAJfgY/9saSSlVJiM5pXaETRhhQqn1FGhpRKBL98=;
- b=H5DUx9NzqlEZ+9eAlmMLapS9O4VLHLZSm5P7Dfi76wiHuuaI618pL+dArAS5HAf4OCpe
- yBeAOtE++F9Sk/oR2yODyfFaaBLRajFMvmEZNCMxj4QvEmGSznGJBXnB0v+e+s0q9uMs
- c7n6s9z1zBmxdv4KAimVIMfcVjpdkGks4GqVXrvh9RlmYrQdMyLEZBwTwbbWcUey+WHB
- hgVZ778tvDclMT8hWu009MIy7EexXn5eMgLbpUS3CucRsHlx/SsOvodre3/ho8prMRME
- HnDXF0Y2buUdm/IE1aGNdqDHJhEzUyvGhll0lO3JoCWv2RIbtjgVdDa35p3sgYamH3Di 3A== 
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wqgp28e0u-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 Mar 2024 16:14:05 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 427G1Mcw006073;
-	Thu, 7 Mar 2024 16:14:04 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wmeetewga-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 Mar 2024 16:14:04 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 427GDwxE41681154
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 7 Mar 2024 16:14:00 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B9ED42004B;
-	Thu,  7 Mar 2024 16:13:58 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 738AE20043;
-	Thu,  7 Mar 2024 16:13:58 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  7 Mar 2024 16:13:58 +0000 (GMT)
-Date: Thu, 7 Mar 2024 17:13:56 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Josh Poimboeuf <jpoimboe@kernel.org>, gor@linux.ibm.com,
-        kernel test robot <lkp@intel.com>, s-vadapalli@ti.com,
-        r-gunasekaran@ti.com, rogerq@kernel.org, oe-kbuild-all@lists.linux.dev,
-        linux-s390@vger.kernel.org, iii@linux.ibm.com, agordeev@linux.ibm.com,
-        davem@davemloft.net, naresh.kamboju@linaro.org
-Subject: Re: [s390:features 97/98] Unsupported relocation type: 21
-Message-ID: <20240307161356.33873-D-hca@linux.ibm.com>
-References: <202402221404.T2TGs8El-lkp@intel.com>
- <ZdhtYc9THmX4Ddse@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
- <20240223235939.abycpq35ydgahdz2@treble>
- <Zdxt97Ni3p8ptNyv@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
- <ZdyKJMEkm6r_ArrZ@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
- <ZenfbNt966EMJcsY@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZenfbNt966EMJcsY@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: oCTpL17n9a2GXR0vvZgD9Np8kVbagBuq
-X-Proofpoint-ORIG-GUID: oCTpL17n9a2GXR0vvZgD9Np8kVbagBuq
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (2048-bit key) header.d=iogearbox.net header.i=@iogearbox.net header.b="JXWx3fcS"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=iogearbox.net; s=default2302; h=Content-Transfer-Encoding:Content-Type:
+	In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID;
+	bh=6GKHuULFobI/veCzO71hJuFZMvHW2DBWIwJthjIFZt0=; b=JXWx3fcSvqEd2usjf0tQN1DMCi
+	vSO6xR4WJptmR2KKeHQgwZrwN8Kcxo2SsAwQYU3GqG1uUhHegfI3SUUIcj3xuPPVcnq4qvvd9Z59E
+	QEXIJexwsh/xmTHCzcD+vFT4djVEoZUoeVEOEWDbhnGjDhNOexCanK8oqtsXqubWrWGy58R7eCA5a
+	KMkwOmTd6RBHYUW7MOdrUMkaxa0IBDN9EMKZ1xegBgTvPlxJM2R9eO51SJIrfnnNNvBIZE0Kisxb1
+	7MM1fiEoUnsAibMICY+p3wL4QPlBDDx84amzwvLXj1OsBgSDB7e/8IGpBSO57JhZs1rwQ14crw6Zx
+	jCusX5Yw==;
+Received: from sslproxy03.your-server.de ([88.198.220.132])
+	by www62.your-server.de with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	(envelope-from <daniel@iogearbox.net>)
+	id 1riHZL-000J8N-R9; Thu, 07 Mar 2024 18:30:11 +0100
+Received: from [77.58.94.13] (helo=localhost.localdomain)
+	by sslproxy03.your-server.de with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <daniel@iogearbox.net>)
+	id 1riHZI-0034Od-1I;
+	Thu, 07 Mar 2024 18:30:08 +0100
+Subject: Re: [PATCH bpf-next RESEND v2 1/2] bpf: Take return from
+ set_memory_ro() into account with bpf_prog_lock_ro()
+To: Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andrii@kernel.org>,
+ Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman
+ <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
+ Yonghong Song <yonghong.song@linux.dev>,
+ John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>,
+ Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>,
+ Jiri Olsa <jolsa@kernel.org>, Russell King <linux@armlinux.org.uk>,
+ Puranjay Mohan <puranjay12@gmail.com>, Tiezhu Yang <yangtiezhu@loongson.cn>,
+ Hengqi Chen <hengqi.chen@gmail.com>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>,
+ Johan Almbladh <johan.almbladh@anyfinetworks.com>,
+ Paul Burton <paulburton@kernel.org>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ Helge Deller <deller@gmx.de>, Ilya Leoshkevich <iii@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, "David S. Miller"
+ <davem@davemloft.net>, David Ahern <dsahern@kernel.org>,
+ Wang YanQing <udknight@gmail.com>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>
+Cc: bpf@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+ netdev@vger.kernel.org,
+ "linux-hardening @ vger . kernel . org" <linux-hardening@vger.kernel.org>,
+ Kees Cook <keescook@chromium.org>
+References: <8f3b3823cce2177e5912ff5f2f11381a16db07db.1709279661.git.christophe.leroy@csgroup.eu>
+From: Daniel Borkmann <daniel@iogearbox.net>
+Message-ID: <093da237-50c1-5898-1637-7a9a84e1076c@iogearbox.net>
+Date: Thu, 7 Mar 2024 18:30:06 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-07_08,2024-03-06_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- lowpriorityscore=0 mlxscore=0 spamscore=0 mlxlogscore=733 suspectscore=0
- malwarescore=0 phishscore=0 bulkscore=0 classifier=spam adjust=0
- reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2403070110
+In-Reply-To: <8f3b3823cce2177e5912ff5f2f11381a16db07db.1709279661.git.christophe.leroy@csgroup.eu>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Authenticated-Sender: daniel@iogearbox.net
+X-Virus-Scanned: Clear (ClamAV 0.103.10/27207/Thu Mar  7 10:27:12 2024)
 
-On Thu, Mar 07, 2024 at 04:38:20PM +0100, Sumanth Korikkar wrote:
-> From d6641b8492ade37709a7099cea0ef71f29d062d0 Mon Sep 17 00:00:00 2001
-> From: Sumanth Korikkar <sumanthk@linux.ibm.com>
-> Date: Thu, 7 Mar 2024 09:46:11 +0100
-> Subject: [PATCH] s390/tools: handle rela R_390_GOTPCDBL/R_390_GOTOFF64
+On 3/1/24 8:57 AM, Christophe Leroy wrote:
+> set_memory_ro() can fail, leaving memory unprotected.
 > 
-> lkp test robot reported unhandled relocation type: R_390_GOTPCDBL, when
-> kernel is built with -fno-PIE. relocs tool reads vmlinux and handles
-> absolute relocations.  PC relative relocs doesn't need adjustment.
+> Check its return and take it into account as an error.
 > 
-> Also, the R_390_GOTPCDBL/R_390_GOTOFF64 relocations are present
-> currently only when KASAN is enabled.
-> 
-> The following program can create a R_390_GOTPCDBL/R_390_GOTOFF64 reloc
-> (with fPIE/fPIC).
-> 
-> void funcb(int *b) {
->   *b = *b + 100;
-> }
-> 
-> void gen_gotoff(void)
-> {
->   int b = 10;
->   funcb (&b);
-> }
-> 
-> gcc -c sample.c -fPIC -fsanitize=kernel-address --param asan-stack=1
-> 
-> The above example (built with -fPIC) was linked to one of the
-> built-in.a (built with -fno-PIE) and checked for correctness with kaslr
-> enabled. Both the relocs turns out relative and can be skipped.
-> 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Closes: https://lore.kernel.org/oe-kbuild-all/202402221404.T2TGs8El-lkp@intel.com/
-> Fixes: 55dc65b46023 ("s390: add relocs tool")
-> Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+> Link: https://github.com/KSPP/linux/issues/7
+> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Cc: linux-hardening@vger.kernel.org <linux-hardening@vger.kernel.org>
+> Reviewed-by: Kees Cook <keescook@chromium.org>
 > ---
->  arch/s390/tools/relocs.c | 2 ++
->  1 file changed, 2 insertions(+)
+> Sorry for the resend, I forgot to flag patch 2 as bpf-next
+> 
+> Note: next patch is autonomous, it is sent as a follow-up of this one to minimize risk of conflict on filter.h because the two changes are too close to each other.
+> 
+> v2: No modification (Just added link in patch message), patchwork discarded this series due to failed test of s390 but it seems unrelated, see https://lore.kernel.org/bpf/wvd5gzde5ejc2rzsbrtwqyof56uw5ea3rxntfrxtkdabzcuwt6@w7iczzhmay2i/T/#m2e61446f42d5dc3d78f2e0e8b7a783f15cfb109d
+> ---
+>   include/linux/filter.h | 5 +++--
+>   kernel/bpf/core.c      | 4 +++-
+>   kernel/bpf/verifier.c  | 4 +++-
+>   3 files changed, 9 insertions(+), 4 deletions(-)
+> 
+> diff --git a/include/linux/filter.h b/include/linux/filter.h
+> index 36cc29a2934c..7dd59bccaeec 100644
+> --- a/include/linux/filter.h
+> +++ b/include/linux/filter.h
+> @@ -884,14 +884,15 @@ bpf_ctx_narrow_access_offset(u32 off, u32 size, u32 size_default)
+>   
+>   #define bpf_classic_proglen(fprog) (fprog->len * sizeof(fprog->filter[0]))
+>   
+> -static inline void bpf_prog_lock_ro(struct bpf_prog *fp)
+> +static inline int __must_check bpf_prog_lock_ro(struct bpf_prog *fp)
+>   {
+>   #ifndef CONFIG_BPF_JIT_ALWAYS_ON
+>   	if (!fp->jited) {
+>   		set_vm_flush_reset_perms(fp);
+> -		set_memory_ro((unsigned long)fp, fp->pages);
+> +		return set_memory_ro((unsigned long)fp, fp->pages);
+>   	}
+>   #endif
+> +	return 0;
+>   }
+>   
+>   static inline void bpf_jit_binary_lock_ro(struct bpf_binary_header *hdr)
+> diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
+> index 71c459a51d9e..c49619ef55d0 100644
+> --- a/kernel/bpf/core.c
+> +++ b/kernel/bpf/core.c
+> @@ -2392,7 +2392,9 @@ struct bpf_prog *bpf_prog_select_runtime(struct bpf_prog *fp, int *err)
+>   	}
+>   
+>   finalize:
+> -	bpf_prog_lock_ro(fp);
+> +	*err = bpf_prog_lock_ro(fp);
+> +	if (*err)
+> +		return fp;
+>   
+>   	/* The tail call compatibility check can only be done at
+>   	 * this late stage as we need to determine, if we deal
+> diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+> index 1c34b91b9583..6ec134f76a11 100644
+> --- a/kernel/bpf/verifier.c
+> +++ b/kernel/bpf/verifier.c
+> @@ -19096,7 +19096,9 @@ static int jit_subprogs(struct bpf_verifier_env *env)
+>   	 * bpf_prog_load will add the kallsyms for the main program.
+>   	 */
+>   	for (i = 1; i < env->subprog_cnt; i++) {
+> -		bpf_prog_lock_ro(func[i]);
+> +		err = bpf_prog_lock_ro(func[i]);
+> +		if (err)
+> +			goto out_free;
 
-Applied, thanks!
+How does the error path take out the subprogs from kallsyms in your case? Suppose some of
+the loop iterations succeed before we hit an error. I believe the subprogs still exist in
+kallsyms here.
+
+>   		bpf_prog_kallsyms_add(func[i]);
+>   	}
+>   
+> 
+
