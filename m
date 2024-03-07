@@ -1,97 +1,106 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from smtp-out3.simply.com (smtp-out3.simply.com [94.231.106.210])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B611B128821;
-	Thu,  7 Mar 2024 13:58:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 246131E865;
+	Thu,  7 Mar 2024 14:43:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=94.231.106.210
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709819891; cv=none; b=ds2fMP4p7z72lfZglrNhaGC0nEmDVL61jEeCwfbQEzXC3ipOB6hW3+5rDzaAOCit5CyVSTf9+4wUm+xxO5Tnr0L2KL4HNFvHr6pfu0lHkZxX2oV9v7FNeFkR23aT2V5wZMzK+E1JYeQn3GoLvg2fJbqBumqNhI8OSoK7Ws7GSSQ=
+	t=1709822609; cv=none; b=Wy/8U4y9IPcS9DNVwI7eoJcl8/vBgwIYL6hBXXM/kfrsozON6GTtw/vnOL8CSBVYKi4GPPEJP4/fcbJvaT4SVRifJUWkqdGf5PjGBlwIfrTPokmXYWHcLJHLCWAmgUrErc7RJwbraCTv0mNT4MhrCJNCoeClBltUIwRUqM5Xe/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709819891; c=relaxed/simple;
-	bh=eMTx+DDTs5BMDq8+Z375eLVfCAt94mgr69f3RfsGG5g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oQHECgomra34Owt3YrX6oKKynp5RIzJGjzBWvKR/rqvdVZVGDsp4EydM70d/fACU3I456mW4gzAzQAJ91+O7kUigmXFKF8hGaeCZ3iJzU3UOnYvcdM8LYGH8IY0eT+wy8sW3BfBJHZbhFbHLXaf6cqnaQLungTG0+TULNCp0p74=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=l7ElYfZj; arc=none smtp.client-ip=198.175.65.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1709822609; c=relaxed/simple;
+	bh=YmLmZj77zkxuMJT0tJQG78tQTce7Gx17YscP/2PSIVQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=VuI2IU3Don5LTfdTMj0zDXP7EpteXWs5V/uymevruUIC+1m6tdK9uI/igcIQbRoxCKAGB+MoEUFhBDauEqjOdRNEbX2q7KL3FRZHs2NaNGE5dcVxXUxEVx8xA2jGqWvhFYjdoxr8p4RtFXZGCFIjjPBiD/yHixy6XBJDwzLcnFQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=gaisler.com; spf=pass smtp.mailfrom=gaisler.com; dkim=pass (1024-bit key) header.d=gaisler.com header.i=@gaisler.com header.b=cI0rJs/n; arc=none smtp.client-ip=94.231.106.210
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=gaisler.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gaisler.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="l7ElYfZj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1709819890; x=1741355890;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=eMTx+DDTs5BMDq8+Z375eLVfCAt94mgr69f3RfsGG5g=;
-  b=l7ElYfZjmdBjJryItd5wuriNFPEp5xZ2C+38IKSLwW0jyTtc3QQxPG5X
-   6ZZESYkRFTSCeEqnAmAROuZKkNRhcpsYgFxdHIgtbwBn5K1Ie0GO7WIZq
-   hrNSX/YhZo/vzj8shXbfnM+/sDV7I84RVkjB5PG/rbKVzsgVvA/iCvRXc
-   C9oDn/6FhWUZgvbB7TC9H+2ujl1TDuGU46iw/A5d4Rx620T+PR9Vkw97B
-   9xooikDWRfFI51HxIQsXHhIq0HMChTmjS0XJj2+7wCfMWpOWLt6quFROH
-   JY5d8KX+spHJJ4ivXj9e0ijT3szepY6xcEllc6TYAjkzwkfGzpyCiv4J7
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,11005"; a="15058410"
-X-IronPort-AV: E=Sophos;i="6.07,211,1708416000"; 
-   d="scan'208";a="15058410"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Mar 2024 05:58:09 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,11005"; a="914214808"
-X-IronPort-AV: E=Sophos;i="6.07,211,1708416000"; 
-   d="scan'208";a="914214808"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by fmsmga002.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Mar 2024 05:58:06 -0800
-Received: from andy by smile.fi.intel.com with local (Exim 4.97)
-	(envelope-from <andriy.shevchenko@linux.intel.com>)
-	id 1riEG4-0000000AZy9-1xIO;
-	Thu, 07 Mar 2024 15:58:04 +0200
-Date: Thu, 7 Mar 2024 15:58:04 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>
-Subject: Re: [PATCH v1 1/1] s390/cio: Use while (i--) pattern to clean up
-Message-ID: <ZenH7IojjFOtIMwX@smile.fi.intel.com>
-References: <20240222134501.236871-1-andriy.shevchenko@linux.intel.com>
- <ZeXeBr5z8TrLbuCI@smile.fi.intel.com>
- <20240307135442.33873-B-hca@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=gaisler.com header.i=@gaisler.com header.b="cI0rJs/n"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.simply.com (Simply.com) with ESMTP id 4TrBqw0YTHz6871;
+	Thu,  7 Mar 2024 15:43:24 +0100 (CET)
+Received: from [192.168.0.25] (h-98-128-223-123.NA.cust.bahnhof.se [98.128.223.123])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(Client did not present a certificate)
+	by smtp.simply.com (Simply.com) with ESMTPSA id 4TrBpz5w11z686W;
+	Thu,  7 Mar 2024 15:42:34 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gaisler.com;
+	s=unoeuro; t=1709822603;
+	bh=9Vrev7IgmUrXRDq+27lTQvP4S7JHkTqf6RpOH6wBrY8=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=cI0rJs/n2a5JovKEHh1TYmBzRxJ87Bt5Bk9Xi2ViHf6tqC5yT0pNhekjnIplLA6zG
+	 +pFOMlnBFON+gaT+yppwquMwOHjqvX6GtdSnkG7oU1AsXu0gfEswgGVp6gSOiWhYfY
+	 6DpsBN4xKX8XZflxM1403bFN0rq2D47eZSFJCk/Y=
+Message-ID: <86cf6c72-e15a-4aa1-8c4b-499ec90a9a82@gaisler.com>
+Date: Thu, 7 Mar 2024 15:42:32 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240307135442.33873-B-hca@linux.ibm.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 3/3] arch: define CONFIG_PAGE_SIZE_*KB on all
+ architectures
+Content-Language: en-US
+To: Arnd Bergmann <arnd@kernel.org>,
+ Anna-Maria Behnsen <anna-maria@linutronix.de>,
+ Thomas Gleixner <tglx@linutronix.de>,
+ Vincenzo Frascino <vincenzo.frascino@arm.com>,
+ Kees Cook <keescook@chromium.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Matt Turner <mattst88@gmail.com>,
+ Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>,
+ Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>,
+ Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Helge Deller
+ <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Palmer Dabbelt <palmer@dabbelt.com>,
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ Richard Weinberger <richard@nod.at>, x86@kernel.org,
+ Max Filippov <jcmvbkbc@gmail.com>, Andy Lutomirski <luto@kernel.org>,
+ Jan Kiszka <jan.kiszka@siemens.com>, Kieran Bingham <kbingham@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org,
+ linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+ Heiko Carstens <hca@linux.ibm.com>, Stafford Horne <shorne@gmail.com>,
+ Johannes Berg <johannes@sipsolutions.net>
+References: <20240306141453.3900574-1-arnd@kernel.org>
+ <20240306141453.3900574-4-arnd@kernel.org>
+From: Andreas Larsson <andreas@gaisler.com>
+In-Reply-To: <20240306141453.3900574-4-arnd@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Thu, Mar 07, 2024 at 02:54:42PM +0100, Heiko Carstens wrote:
-> On Mon, Mar 04, 2024 at 04:43:18PM +0200, Andy Shevchenko wrote:
-> > On Thu, Feb 22, 2024 at 03:45:01PM +0200, Andy Shevchenko wrote:
-> > > Use more natural while (i--) patter to clean up allocated resources.
-> > 
-> > Any comments?
+On 2024-03-06 15:14, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
 > 
-> It is up to Vineeth and Peter to decide what to do with this.
+> Most architectures only support a single hardcoded page size. In order
+> to ensure that each one of these sets the corresponding Kconfig symbols,
+> change over the PAGE_SHIFT definition to the common one and allow
+> only the hardware page size to be selected.
 > 
-> But in general I'm not a fan of such patches. It depends on what people
-> prefer, and you can send literally thousands of similar patches where the
-> code looks "more natural" afterwards.
+> Acked-by: Guo Ren <guoren@kernel.org>
+> Acked-by: Heiko Carstens <hca@linux.ibm.com>
+> Acked-by: Stafford Horne <shorne@gmail.com>
+> Acked-by: Johannes Berg <johannes@sipsolutions.net>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+> No changes from v1
 
-I understand your point, however, the lesser characters to parse, the better
-readability is (usually). At least the proposed pattern is mainly used in
-the kernel (you may grep for different patterns). It also has an educational
-effect in case somebody takes this code as an example (for whatever reason).
-With this we will show that *in practice* kernel prefers this style over
-others.
+>  arch/sparc/Kconfig                 | 2 ++
+>  arch/sparc/include/asm/page_32.h   | 2 +-
+>  arch/sparc/include/asm/page_64.h   | 3 +--
 
--- 
-With Best Regards,
-Andy Shevchenko
+Acked-by: Andreas Larsson <andreas@gaisler.com>
 
+Thanks,
+Andreas
 
