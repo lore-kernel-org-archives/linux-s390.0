@@ -1,282 +1,280 @@
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8C5E633EC;
-	Thu,  7 Mar 2024 08:15:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0589151C54;
+	Thu,  7 Mar 2024 08:17:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709799346; cv=none; b=nxeuEbBOUtebeZTDOormmftUKT+wYsAwZ0HW12cfE7MSG1N15bU8rNMwnWE4EysUh4hvck9/1ph/KLtBg7DrWDG8Sp3YE8GAXvZJ7LiNUIguqHq7pDVRLbndUNuvlBuxMVNieRQiJnWEa4E8hVvEOa5Yw1IkVQC/tVGy1/lx7oU=
+	t=1709799447; cv=none; b=LhG6RQSnd1bGNzLdPWxiOAgwrMSIjwlyobZ8T0am9kFWGzBfRVJPmYNXTIu5LfK+X4+knfI5M/RRq2hnUAHQcpi3PavR7Hmn+ttllvUV4uK9PZOQr7iGqdDkpnsGL1s6sncKQXJKseU4WBOrPRm2oQYuucrtsptF7xeG/AnU3Lg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709799346; c=relaxed/simple;
-	bh=qn4XlrCB0/U0FkhSoivYtFw9BAhWHViJJmb7sOeaNCI=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
-	 Content-Type; b=nLI54+ClbWpIk2ubPiVJHkunGQNFBLuRVcHprfXcXFra7hBfM2x8hio1mSLVlqaaMTHZU4TJZcYxRgiWN90u4p/WoVUT5n4e71Mo9meQ1BuH1MTshQiuTzcv3okom0A59P2A5Msb2BKwvsL/vGbLnw3hk8vfQNOqex7bz+Q5JDU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=O5eaitda; arc=none smtp.client-ip=115.124.30.98
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1709799447; c=relaxed/simple;
+	bh=IAkVEpPKtdwRPqu6jdi+mPS8neOPSLuhvBKF3lEKN14=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=iDLZYWNlpfNFRQL38f8wDWljncM+t3vM73UZwG1Oo/Eb5eAxDYJcrBSPIbN7hHPRkznySERTft2a9tnH86CCAUSAG1DUeMG3xkKT+BS0p4RexLpNJDNGNiDf6vqvrt1KD/AKMF7RFkNGJMhrwlkSMooxLUoyz1ORaFDqy7r9pSk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hsfNvDQv; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="O5eaitda"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1709799335; h=Message-ID:Subject:Date:From:To:Content-Type;
-	bh=18OSYGa/SGkgZJEOI3rLdiQkYGsKgGpvPail2nzxpk8=;
-	b=O5eaitdakZcCcTp3OC8XXthP+6TQBcnEoa8br0cX3GmDyNy9Zxr72fXvfhC6fd68lsPTxwmlxGEBBC4jm5eUWquJysSgCIlyuBHLJ80wK4bdLAxOcaiqlmYjx0JMbhWCwcHBuHRAPGB2LVEGpT0I9UpkmPbs7yZX6HJabxAURE0=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0W2-19Np_1709799332;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0W2-19Np_1709799332)
-          by smtp.aliyun-inc.com;
-          Thu, 07 Mar 2024 16:15:33 +0800
-Message-ID: <1709798771.2564156-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v3 00/19] virtio: drivers maintain dma info for premapped vq
-Date: Thu, 7 Mar 2024 16:06:11 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux.dev,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Hans de Goede <hdegoede@redhat.com>,
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Vadim Pasternak <vadimp@nvidia.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>,
- Halil Pasic <pasic@linux.ibm.com>,
- Eric Farman <farman@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- linux-um@lists.infradead.org,
- netdev@vger.kernel.org,
- platform-driver-x86@vger.kernel.org,
- linux-remoteproc@vger.kernel.org,
- linux-s390@vger.kernel.org,
- kvm@vger.kernel.org,
- bpf@vger.kernel.org
-References: <20240229072044.77388-1-xuanzhuo@linux.alibaba.com>
- <20240229031755-mutt-send-email-mst@kernel.org>
- <1709197357.626784-1-xuanzhuo@linux.alibaba.com>
- <20240229043238-mutt-send-email-mst@kernel.org>
- <1709718889.4420547-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEu5=DKJfXsvOoXDDH7KJ-DWt83jj=vf8GoRnq-9zUeOOg@mail.gmail.com>
-In-Reply-To: <CACGkMEu5=DKJfXsvOoXDDH7KJ-DWt83jj=vf8GoRnq-9zUeOOg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hsfNvDQv"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 42787chX004384;
+	Thu, 7 Mar 2024 08:17:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=4sRre/AolYg7xh69CSuYvJ9K8owOux6mhJ3hCgsTQ4A=;
+ b=hsfNvDQv+7z0yXGRRc2O7ZR9yRrYDtaDgq3XzX2bQLTPYAVK/VW0uduGpYBVvuGqBaFY
+ I/R8R0g9CaFPnzudk3WCEDKpDLoFiE8I3UT3ea+3LbZPHwkBVmsnSnALZKq9R0fUO8OJ
+ +p8sHWn7EJTytON3VrbkfYKIWtmA5dv2k4DH2omAXbXZWiTtudMDiJ6Usq7d2J0WSWEj
+ It/Bx5dT7eO6ZHBPEfl8imPNt6FkhH/inpwLod1vAIoAjDgUy3lnWoVFJ+pUNcQDjJqy
+ Yr1hhWkpAXOfC4t9RTSkRzLgzOkjLzi2YEtV3vO58ypbhjEMDqMWQn9UhQVaqSdcbJJQ Cg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wq9sxg3pc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 07 Mar 2024 08:17:17 +0000
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 4278HHnY028540;
+	Thu, 7 Mar 2024 08:17:17 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wq9sxg3nx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 07 Mar 2024 08:17:16 +0000
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 4275W0np031533;
+	Thu, 7 Mar 2024 08:17:16 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wmgnkbxd4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 07 Mar 2024 08:17:16 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4278HCMj7012654
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 7 Mar 2024 08:17:14 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5967B2004E;
+	Thu,  7 Mar 2024 08:17:12 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1C04B2004B;
+	Thu,  7 Mar 2024 08:17:12 +0000 (GMT)
+Received: from [9.152.224.118] (unknown [9.152.224.118])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  7 Mar 2024 08:17:12 +0000 (GMT)
+Message-ID: <1cb9a110-c877-4420-9b23-1e7980f1300a@linux.ibm.com>
+Date: Thu, 7 Mar 2024 09:17:11 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-
-On Thu, 7 Mar 2024 13:28:27 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Wed, Mar 6, 2024 at 6:01=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.=
-com> wrote:
-> >
-> > On Thu, 29 Feb 2024 04:34:20 -0500, "Michael S. Tsirkin" <mst@redhat.co=
-m> wrote:
-> > > On Thu, Feb 29, 2024 at 05:02:37PM +0800, Xuan Zhuo wrote:
-> > > > On Thu, 29 Feb 2024 03:21:14 -0500, "Michael S. Tsirkin" <mst@redha=
-t.com> wrote:
-> > > > > On Thu, Feb 29, 2024 at 03:20:25PM +0800, Xuan Zhuo wrote:
-> > > > > > As discussed:
-> > > > > > http://lore.kernel.org/all/CACGkMEvq0No8QGC46U4mGsMtuD44fD_cfLc=
-PaVmJ3rHYqRZxYg@mail.gmail.com
-> > > > > >
-> > > > > > If the virtio is premapped mode, the driver should manage the d=
-ma info by self.
-> > > > > > So the virtio core should not store the dma info.
-> > > > > > So we can release the memory used to store the dma info.
-> > > > > >
-> > > > > > But if the desc_extra has not dma info, we face a new question,
-> > > > > > it is hard to get the dma info of the desc with indirect flag.
-> > > > > > For split mode, that is easy from desc, but for the packed mode,
-> > > > > > it is hard to get the dma info from the desc. And for hardening
-> > > > > > the dma unmap is saft, we should store the dma info of indirect
-> > > > > > descs.
-> > > > > >
-> > > > > > So I introduce the "structure the indirect desc table" to
-> > > > > > allocate space to store dma info with the desc table.
-> > > > > >
-> > > > > > On the other side, we mix the descs with indirect flag
-> > > > > > with other descs together to share the unmap api. That
-> > > > > > is complex. I found if we we distinguish the descs with
-> > > > > > VRING_DESC_F_INDIRECT before unmap, thing will be clearer.
-> > > > > >
-> > > > > > Because of the dma array is allocated in the find_vqs(),
-> > > > > > so I introduce a new parameter to find_vqs().
-> > > > > >
-> > > > > > Note:
-> > > > > >     this is on the top of
-> > > > > >         [PATCH vhost v1] virtio: packed: fix unmap leak for ind=
-irect desc table
-> > > > > >         http://lore.kernel.org/all/20240223071833.26095-1-xuanz=
-huo@linux.alibaba.com
-> > > > > >
-> > > > > > Please review.
-> > > > > >
-> > > > > > Thanks
-> > > > > >
-> > > > > > v3:
-> > > > > >     1. fix the conflict with the vp_modern_create_avq().
-> > > > >
-> > > > > Okay but are you going to address huge memory waste all this is c=
-ausing for
-> > > > > - people who never do zero copy
-> > > > > - systems where dma unmap is a nop
-> > > > >
-> > > > > ?
-> > > > >
-> > > > > You should address all comments when you post a new version, not =
-just
-> > > > > what was expedient, or alternatively tag patch as RFC and explain
-> > > > > in commit log that you plan to do it later.
-> > > >
-> > > >
-> > > > Do you miss this one?
-> > > > http://lore.kernel.org/all/1708997579.5613105-1-xuanzhuo@linux.alib=
-aba.com
-> > >
-> > >
-> > > I did. The answer is that no, you don't get to regress memory usage
-> > > for lots of people then fix it up.
-> > > So the patchset is big, I guess it will take a couple of cycles to
-> > > merge gradually.
-> >
-> > Hi @Michael
-> >
-> > So, how about this patch set?
-> >
-> > I do not think they (dma maintainers) will agree the API dma_can_skip_u=
-nmap().
-> >
-> > If you think sq wastes too much memory using pre-mapped dma mode, how a=
-bout
-> > we only enable it when xsk is bond?
-> >
-> > Could you give me some advice?
->
-> I think we have some discussion, one possible solution is:
->
-> when pre mapping is enabled, virtio core won't store dma metadatas.
->
-> Then it makes virtio-net align with other NIC.
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH][next] net/smc: Avoid -Wflex-array-member-not-at-end
+ warnings
+To: Wen Gu <guwen@linux.alibaba.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>
+References: <ZeIhOT44ON5rjPiP@neat>
+ <71aa847b-2edc-44a2-beb7-3610bf744937@linux.alibaba.com>
+From: Jan Karcher <jaka@linux.ibm.com>
+Organization: IBM - Network Linux on Z
+In-Reply-To: <71aa847b-2edc-44a2-beb7-3610bf744937@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: zXzRrXPAQlFz6ZXay5X7HzWLhifBU8Om
+X-Proofpoint-ORIG-GUID: gGpx2JWh5jFTNAN-UxG43oiT5onTSOFH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-03-07_04,2024-03-06_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ lowpriorityscore=0 mlxscore=0 malwarescore=0 clxscore=1011 adultscore=0
+ spamscore=0 bulkscore=0 suspectscore=0 mlxlogscore=999 priorityscore=1501
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2403070059
 
 
-YES.
 
-This patch set works as this.
+On 04/03/2024 10:00, Wen Gu wrote:
+> 
+> 
+> On 2024/3/2 02:40, Gustavo A. R. Silva wrote:
+>> -Wflex-array-member-not-at-end is coming in GCC-14, and we are getting
+>> ready to enable it globally.
+>>
+>> There are currently a couple of objects in `struct 
+>> smc_clc_msg_proposal_area`
+>> that contain a couple of flexible structures:
+>>
 
-But the virtio-net must allocate too much memory to store dma and len.
+Thank you Gustavo for the proposal.
+I had to do some reading to better understand what's happening and how 
+your patch solves this.
 
-num =3D queue size * 19
+>> struct smc_clc_msg_proposal_area {
+>>     ...
+>>     struct smc_clc_v2_extension             pclc_v2_ext;
+>>     ...
+>>     struct smc_clc_smcd_v2_extension        pclc_smcd_v2_ext;
+>>     ...
+>> };
+>>
+>> So, in order to avoid ending up with a couple of flexible-array members
+>> in the middle of a struct, we use the `struct_group_tagged()` helper to
+>> separate the flexible array from the rest of the members in the flexible
+>> structure:
+>>
+>> struct smc_clc_smcd_v2_extension {
+>>          struct_group_tagged(smc_clc_smcd_v2_extension_hdr, hdr,
+>>                              u8 system_eid[SMC_MAX_EID_LEN];
+>>                              u8 reserved[16];
+>>          );
+>>          struct smc_clc_smcd_gid_chid gidchid[];
+>> };
+>>
+>> With the change described above, we now declare objects of the type of
+>> the tagged struct without embedding flexible arrays in the middle of
+>> another struct:
+>>
+>> struct smc_clc_msg_proposal_area {
+>>          ...
+>>          struct smc_clc_v2_extension_hdr        pclc_v2_ext;
+>>          ...
+>>          struct smc_clc_smcd_v2_extension_hdr    pclc_smcd_v2_ext;
+>>          ...
+>> };
+>>
+>> We also use `container_of()` when we need to retrieve a pointer to the
+>> flexible structures.
+>>
+>> So, with these changes, fix the following warnings:
+>>
+>> In file included from net/smc/af_smc.c:42:
+>> net/smc/smc_clc.h:186:49: warning: structure containing a flexible 
+>> array member is not at the end of another structure 
+>> [-Wflex-array-member-not-at-end]
+>>    186 |         struct smc_clc_v2_extension             pclc_v2_ext;
+>>        |                                                 ^~~~~~~~~~~
+>> net/smc/smc_clc.h:188:49: warning: structure containing a flexible 
+>> array member is not at the end of another structure 
+>> [-Wflex-array-member-not-at-end]
+>>    188 |         struct smc_clc_smcd_v2_extension        
+>> pclc_smcd_v2_ext;
+>>        |                                                 ^~~~~~~~~~~~~~~~
+>>
+>> Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+>> ---
+>>   net/smc/smc_clc.c |  5 +++--
+>>   net/smc/smc_clc.h | 24 ++++++++++++++----------
+>>   2 files changed, 17 insertions(+), 12 deletions(-)
+>>
+>> diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+>> index e55026c7529c..3094cfa1c458 100644
+>> --- a/net/smc/smc_clc.c
+>> +++ b/net/smc/smc_clc.c
+>> @@ -853,8 +853,9 @@ int smc_clc_send_proposal(struct smc_sock *smc, 
+>> struct smc_init_info *ini)
+>>       pclc_smcd = &pclc->pclc_smcd;
+>>       pclc_prfx = &pclc->pclc_prfx;
+>>       ipv6_prfx = pclc->pclc_prfx_ipv6;
+>> -    v2_ext = &pclc->pclc_v2_ext;
+>> -    smcd_v2_ext = &pclc->pclc_smcd_v2_ext;
+>> +    v2_ext = container_of(&pclc->pclc_v2_ext, struct 
+>> smc_clc_v2_extension, _hdr);
+>> +    smcd_v2_ext = container_of(&pclc->pclc_smcd_v2_ext,
+>> +                   struct smc_clc_smcd_v2_extension, hdr);
+>>       gidchids = pclc->pclc_gidchids;
+>>       trl = &pclc->pclc_trl;
+>> diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+>> index 7cc7070b9772..5b91a1947078 100644
+>> --- a/net/smc/smc_clc.h
+>> +++ b/net/smc/smc_clc.h
+>> @@ -134,12 +134,14 @@ struct smc_clc_smcd_gid_chid {
+>>                */
+>>   struct smc_clc_v2_extension {
+>> -    struct smc_clnt_opts_area_hdr hdr;
+>> -    u8 roce[16];        /* RoCEv2 GID */
+>> -    u8 max_conns;
+>> -    u8 max_links;
+>> -    __be16 feature_mask;
+>> -    u8 reserved[12];
+>> +    struct_group_tagged(smc_clc_v2_extension_hdr, _hdr,
+>> +        struct smc_clnt_opts_area_hdr hdr;
+>> +        u8 roce[16];        /* RoCEv2 GID */
+>> +        u8 max_conns;
+>> +        u8 max_links;
+>> +        __be16 feature_mask;
+>> +        u8 reserved[12];
+>> +    );
+>>       u8 user_eids[][SMC_MAX_EID_LEN];
+>>   };
+>> @@ -159,8 +161,10 @@ struct smc_clc_msg_smcd {    /* SMC-D GID 
+>> information */
+>>   };
+>>   struct smc_clc_smcd_v2_extension {
+>> -    u8 system_eid[SMC_MAX_EID_LEN];
+>> -    u8 reserved[16];
+>> +    struct_group_tagged(smc_clc_smcd_v2_extension_hdr, hdr,
+>> +        u8 system_eid[SMC_MAX_EID_LEN];
+>> +        u8 reserved[16];
+>> +    );
+>>       struct smc_clc_smcd_gid_chid gidchid[];
+>>   };
+>> @@ -183,9 +187,9 @@ struct smc_clc_msg_proposal_area {
+>>       struct smc_clc_msg_smcd            pclc_smcd;
+>>       struct smc_clc_msg_proposal_prefix    pclc_prfx;
+>>       struct smc_clc_ipv6_prefix    
+>> pclc_prfx_ipv6[SMC_CLC_MAX_V6_PREFIX];
+>> -    struct smc_clc_v2_extension        pclc_v2_ext;
+>> +    struct smc_clc_v2_extension_hdr        pclc_v2_ext;
+>>       u8            user_eids[SMC_CLC_MAX_UEID][SMC_MAX_EID_LEN];
+>> -    struct smc_clc_smcd_v2_extension    pclc_smcd_v2_ext;
+>> +    struct smc_clc_smcd_v2_extension_hdr    pclc_smcd_v2_ext;
+>>       struct smc_clc_smcd_gid_chid
+>>                   pclc_gidchids[SMCD_CLC_MAX_V2_GID_ENTRIES];
+>>       struct smc_clc_msg_trail        pclc_trl;
+> 
+> Thank you! Gustavo. This patch can fix this warning well, just the name
+> '*_hdr' might not be very accurate, but I don't have a good idea ATM.
 
-Michael thinks that waste too much memory.
-	http://lore.kernel.org/all/20240225032330-mutt-send-email-mst@kernel.org
+I agree. Should we chose this option we should come up for a better name.
 
-So we try this:
-	http://lore.kernel.org/all/20240301071918.64631-1-xuanzhuo@linux.alibaba.c=
-om
+> 
+> Besides, I am wondering if this can be fixed by moving
+> user_eids of smc_clc_msg_proposal_area into smc_clc_v2_extension,
+> and
+> pclc_gidchids of smc_clc_msg_proposal_area into smc_clc_smcd_v2_extension.
+> 
+> so that we can avoid to use the flexible-array in smc_clc_v2_extension
+> and smc_clc_smcd_v2_extension.
 
-But I think that is difficult to be accepted by the  DMA maintainers.
+I like the idea and put some thought into it. The only thing that is not 
+perfectly clean IMO is the following:
+By the current definition it is easily visible that we are dealing with 
+a variable sized array. If we move them into the structs one could think 
+they are always at their MAX size which they are not.
+E.g.: An incoming proposal can have 0 UEIDs indicated by the eid_cnt.
+That said nothing a comment can't fix.
 
-So I have two advices:
+ From what i have seen the offset and length calculations regarding the 
+"real" size of those structs is fine with your proposal.
 
-1. virtio-net sq works without indirect.
-	- that more like other NIC
-	- the num of the memory to store the dma info is queue_size
+Can you verify that your changes also resolve the warnings?
 
-2. The default mode of virtio-net sq is no-premapped
-	- we just switch the mode when binding xsk
+[...]
 
-Thanks.
+>   };
+> 
+> 
+> Thanks!
+> Wen Gu
 
-
->
-> Thanks
->
-> >
-> > Thanks.
-> >
-> >
-> > >
-> > > > I asked you. But I didnot recv your answer.
-> > > >
-> > > > Thanks.
-> > > >
-> > > >
-> > > > >
-> > > > > > v2:
-> > > > > >     1. change the dma item of virtio-net, every item have MAX_S=
-KB_FRAGS + 2
-> > > > > >         addr + len pairs.
-> > > > > >     2. introduce virtnet_sq_free_stats for __free_old_xmit
-> > > > > >
-> > > > > > v1:
-> > > > > >     1. rename transport_vq_config to vq_transport_config
-> > > > > >     2. virtio-net set dma meta number to (ring-size + 1)(MAX_SK=
-B_FRGAS +2)
-> > > > > >     3. introduce virtqueue_dma_map_sg_attrs
-> > > > > >     4. separate vring_create_virtqueue to an independent commit
-> > > > > >
-> > > > > >
-> > > > > >
-> > > > > > Xuan Zhuo (19):
-> > > > > >   virtio_ring: introduce vring_need_unmap_buffer
-> > > > > >   virtio_ring: packed: remove double check of the unmap ops
-> > > > > >   virtio_ring: packed: structure the indirect desc table
-> > > > > >   virtio_ring: split: remove double check of the unmap ops
-> > > > > >   virtio_ring: split: structure the indirect desc table
-> > > > > >   virtio_ring: no store dma info when unmap is not needed
-> > > > > >   virtio: find_vqs: pass struct instead of multi parameters
-> > > > > >   virtio: vring_create_virtqueue: pass struct instead of multi
-> > > > > >     parameters
-> > > > > >   virtio: vring_new_virtqueue(): pass struct instead of multi p=
-arameters
-> > > > > >   virtio_ring: simplify the parameters of the funcs related to
-> > > > > >     vring_create/new_virtqueue()
-> > > > > >   virtio: find_vqs: add new parameter premapped
-> > > > > >   virtio_ring: export premapped to driver by struct virtqueue
-> > > > > >   virtio_net: set premapped mode by find_vqs()
-> > > > > >   virtio_ring: remove api of setting vq premapped
-> > > > > >   virtio_ring: introduce dma map api for page
-> > > > > >   virtio_ring: introduce virtqueue_dma_map_sg_attrs
-> > > > > >   virtio_net: unify the code for recycling the xmit ptr
-> > > > > >   virtio_net: rename free_old_xmit_skbs to free_old_xmit
-> > > > > >   virtio_net: sq support premapped mode
-> > > > > >
-> > > > > >  arch/um/drivers/virtio_uml.c             |  31 +-
-> > > > > >  drivers/net/virtio_net.c                 | 283 ++++++---
-> > > > > >  drivers/platform/mellanox/mlxbf-tmfifo.c |  24 +-
-> > > > > >  drivers/remoteproc/remoteproc_virtio.c   |  31 +-
-> > > > > >  drivers/s390/virtio/virtio_ccw.c         |  33 +-
-> > > > > >  drivers/virtio/virtio_mmio.c             |  30 +-
-> > > > > >  drivers/virtio/virtio_pci_common.c       |  59 +-
-> > > > > >  drivers/virtio/virtio_pci_common.h       |   9 +-
-> > > > > >  drivers/virtio/virtio_pci_legacy.c       |  16 +-
-> > > > > >  drivers/virtio/virtio_pci_modern.c       |  38 +-
-> > > > > >  drivers/virtio/virtio_ring.c             | 698 ++++++++++++---=
---------
-> > > > > >  drivers/virtio/virtio_vdpa.c             |  45 +-
-> > > > > >  include/linux/virtio.h                   |  13 +-
-> > > > > >  include/linux/virtio_config.h            |  48 +-
-> > > > > >  include/linux/virtio_ring.h              |  82 +--
-> > > > > >  tools/virtio/virtio_test.c               |   4 +-
-> > > > > >  tools/virtio/vringh_test.c               |  28 +-
-> > > > > >  17 files changed, 847 insertions(+), 625 deletions(-)
-> > > > > >
-> > > > > > --
-> > > > > > 2.32.0.3.g01195cf9f
-> > > > >
-> > >
-> >
->
+Thanks you
+- Jan
